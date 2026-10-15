@@ -2,11 +2,11 @@
 
 Mặc định app lưu dữ liệu trong trình duyệt của từng máy. Làm theo hướng dẫn này để dữ liệu nằm trên máy chủ Supabase (miễn phí), dùng chung trên nhiều máy:
 
-- **Bố mẹ, thầy cô** đăng nhập bằng email: app gửi một đường link, bấm vào là vào, không cần mật khẩu.
-- **Học sinh** không cần email: nhập **mã gia đình**, chọn tên, nhập **mã PIN** như trước.
-- Phụ huynh chỉ xem được hồ sơ và kết quả của con mình. Quản trị quản lý cả gia đình (hoặc cả lớp).
+- **Bố mẹ, thầy cô** đăng nhập bằng email: app gửi một đường link (kèm mã số), bấm vào là vào, không cần mật khẩu.
+- **Học sinh** không cần email: nhập **mã gia đình**, chọn tên, nhập **mã PIN 6 số**.
+- Phụ huynh chỉ xem được hồ sơ và kết quả của con mình. Quản trị quản lý cả gia đình.
 
-Mất khoảng 30–45 phút. Cần: một máy tính, một tài khoản GitHub (đã có), một địa chỉ Gmail để app gửi email đăng nhập.
+Mất khoảng 30–45 phút. Cần: một máy tính, tài khoản GitHub (đã có), và **một hộp thư Gmail riêng chỉ để app gửi email đăng nhập** (tạo mới, đừng dùng email cá nhân hay công việc).
 
 > Tên các mục trong trang Supabase đôi khi được đổi. Nếu không thấy đúng chữ như dưới đây, tìm mục có ý nghĩa gần nhất (hoặc gõ vào ô tìm kiếm của trang).
 
@@ -14,7 +14,9 @@ Mất khoảng 30–45 phút. Cần: một máy tính, một tài khoản GitHub
 
 ## Bước 0. Tải file sao lưu dữ liệu cũ (nên làm)
 
-Trước khi đổi gì, mở app bản hiện tại (https://dunglnh.github.io/OnUp/), đăng nhập quản trị → **Quản trị → Dữ liệu → Tải file sao lưu**. Giữ file này phòng khi cần.
+Trước khi đổi gì, mở app bản hiện tại (https://dunglnh.github.io/OnUp/), đăng nhập quản trị → **Quản trị → Dữ liệu → Tải file sao lưu**.
+
+> ⚠️ File sao lưu của bản lưu trên máy chứa mã PIN của các con ở dạng **dò ngược được** rất nhanh. Giữ file ở máy của bạn, **không gửi qua Zalo, email**, và **xóa file** sau khi đã chuyển dữ liệu lên đám mây (bước 7).
 
 ## Bước 1. Tạo project Supabase
 
@@ -26,13 +28,16 @@ Trước khi đổi gì, mở app bản hiện tại (https://dunglnh.github.io/
    - Gói: **Free**.
 3. Bấm **Create new project**, đợi 1–2 phút.
 
-## Bước 2. Tạo bảng dữ liệu (chạy schema.sql)
+## Bước 2. Tạo bảng dữ liệu (chạy schema.sql) và cho phép email của bạn tạo gia đình
 
 1. Mở file [`supabase/schema.sql`](../supabase/schema.sql) trên GitHub → bấm nút **Copy raw file** (biểu tượng hai tờ giấy).
 2. Trong Supabase: thanh bên trái → **SQL Editor** → **New query** → dán toàn bộ → **Run**.
-3. Thấy dòng `Success. No rows returned` là xong.
-
-Chỉ chạy một lần trên project mới. Chạy lần hai sẽ báo lỗi `already exists`, không sao, dữ liệu không mất.
+3. Thấy dòng `Success. No rows returned` là xong. Chỉ chạy một lần trên project mới (chạy lần hai sẽ báo `already exists`, không sao).
+4. Vẫn trong SQL Editor, **New query**, dán dòng dưới (thay bằng email của bạn, viết thường) → **Run**:
+   ```sql
+   insert into allowed_creators (email) values ('email-cua-ban@gmail.com');
+   ```
+   Chỉ email trong danh sách này mới **tạo được gia đình mới**. Người khác (phụ huynh, thầy cô) vào gia đình bằng **mã mời** bạn gửi, không cần thêm vào đây. Nhờ vậy người lạ không dùng được project của bạn.
 
 ## Bước 3. Bật cách đăng nhập
 
@@ -40,45 +45,45 @@ Thanh bên trái → **Authentication**:
 
 1. **Sign In / Providers** (hoặc **Providers**):
    - **Email**: bật (thường đã bật sẵn).
-   - **Allow anonymous sign-ins**: **bật**. Học sinh cần mục này để đăng nhập bằng mã gia đình + PIN (học sinh không có email).
-   - Nếu có mục **Allow new users to sign up**: để **bật** (phụ huynh mới cần tạo tài khoản bằng email).
-2. **Emails → SMTP Settings**: bật **Enable custom SMTP**. Máy chủ email có sẵn của Supabase chỉ gửi được cho thành viên của project, nên phải dùng email riêng. Dễ nhất là Gmail:
-   1. Tài khoản Google phải bật xác minh 2 bước. Vào https://myaccount.google.com/apppasswords → tạo **mật khẩu ứng dụng** tên `OnUp` → chép 16 kí tự.
-   2. Điền: Sender email = địa chỉ Gmail; Sender name = `Ôn Thi 4·6`; Host = `smtp.gmail.com`; Port = `465`; Username = địa chỉ Gmail; Password = 16 kí tự vừa chép. **Save**.
-   3. (Cách khác: dịch vụ như Brevo, Resend có gói miễn phí; điền thông số SMTP họ cung cấp.)
-3. **Emails → Templates → Magic Link** (tùy chọn, nên làm): thêm dòng dưới đây vào nội dung thư, để người dùng có thể gõ mã số khi mở email trên máy khác:
+   - **Allow anonymous sign-ins**: **bật**. Học sinh cần mục này để đăng nhập bằng mã gia đình + PIN.
+   - **Allow new users to sign up**: để **bật** (phụ huynh mới cần tạo tài khoản bằng email).
+2. **Emails → SMTP Settings**: bật **Enable custom SMTP** (máy chủ email có sẵn của Supabase chỉ gửi cho thành viên của project). Dùng **hộp thư Gmail riêng cho app** (tạo mới, ví dụ `onthi.nhabin@gmail.com`):
+   1. Bật xác minh 2 bước cho hộp thư đó → https://myaccount.google.com/apppasswords → tạo **mật khẩu ứng dụng** tên `OnUp` → chép 16 kí tự.
+   2. Điền: Sender email = hộp thư riêng đó; Sender name = `Ôn Thi 4·6`; Host = `smtp.gmail.com`; Port = `465`; Username = hộp thư đó; Password = 16 kí tự vừa chép. **Save**.
+   3. Địa chỉ gửi này ai bấm “Gửi link” cũng thấy, nên **không** dùng email cá nhân hay công việc. (Cách khác: dịch vụ gửi thư như Brevo, Resend có gói miễn phí, dùng địa chỉ no-reply.)
+   4. Để giới hạn gửi email (**Authentication → Rate Limits**) ở mức mặc định. Không tăng lên nếu chưa có cách chặn người gửi linh tinh.
+3. **Emails → Templates**: thêm dòng dưới đây vào **cả hai** mẫu **Magic Link** và **Confirm signup** (lần đăng nhập đầu tiên của một email dùng mẫu Confirm signup). Nhờ mã số này, người mở email trên máy khác, hoặc khi ứng dụng email tự mở link trước, vẫn đăng nhập được:
    ```html
    <p>Hoặc nhập mã này trong app: <b>{{ .Token }}</b></p>
    ```
 4. **URL Configuration**:
    - **Site URL**: `https://dunglnh.github.io/OnUp/`
-   - **Redirect URLs** → **Add URL**, thêm từng dòng:
-     - `https://dunglnh.github.io/OnUp/`
-     - `https://dunglnh.github.io/OnUp/**`
-     - `http://localhost:8000/**` (chỉ để thử trên máy tính, không bắt buộc)
+   - **Redirect URLs** → **Add URL**: `https://dunglnh.github.io/OnUp/` và `https://dunglnh.github.io/OnUp/**`.
+   - Chỉ khi đang thử trên máy tính mới thêm `http://localhost:8000/**`; thử xong thì **xóa** dòng này.
 
 ## Bước 4. Triển khai Edge Function `student-login`
 
 Hàm này kiểm tra mã gia đình + PIN của học sinh và băm PIN trên máy chủ, nên PIN không bao giờ nằm trong trình duyệt.
 
+1. Thanh bên trái → **Edge Functions → Secrets** (hoặc **Manage secrets**) → thêm **trước**:
+   - Name: `PIN_PEPPER`
+   - Value: một chuỗi ngẫu nhiên **ít nhất 32 kí tự**, ví dụ gõ bừa 40 chữ và số. **Bắt buộc**: thiếu hoặc ngắn quá thì học sinh không đăng nhập được. **Không chia sẻ, không đổi** sau khi đã có học sinh (đổi thì mọi PIN phải đặt lại).
+
+   Khóa bí mật để hàm đọc dữ liệu (`SUPABASE_SECRET_KEYS` hoặc `SUPABASE_SERVICE_ROLE_KEY`) Supabase tự cấp cho hàm, không cần thêm.
+
 **Cách A — ngay trên trang Supabase (không cần cài gì):**
 
-1. Thanh bên trái → **Edge Functions** → **Deploy a new function** → **Via Editor**.
-2. Đặt tên đúng là `student-login`.
-3. Xóa code mẫu. Mở [`supabase/functions/student-login/index.ts`](../supabase/functions/student-login/index.ts) trên GitHub → **Copy raw file** → dán vào → **Deploy function**.
-4. Mở hàm vừa tạo → tab **Details** (hoặc **Settings**) → **tắt** mục **Verify JWT** / **Enforce JWT verification** → **Save**. (Hàm tự kiểm tra người gọi; học sinh tra mã gia đình trước khi có phiên đăng nhập.)
-5. **Edge Functions → Secrets** (hoặc **Manage secrets**) → thêm:
-   - Name: `PIN_PEPPER`
-   - Value: một chuỗi ngẫu nhiên dài, ví dụ gõ bừa 40 chữ và số. **Không chia sẻ, không đổi** sau khi đã có học sinh (đổi thì mọi PIN phải đặt lại).
-
-   `SUPABASE_URL` và `SUPABASE_SERVICE_ROLE_KEY` Supabase tự cấp cho hàm, không cần thêm.
+2. **Edge Functions** → **Deploy a new function** → **Via Editor**.
+3. Đặt tên đúng là `student-login`.
+4. Xóa code mẫu. Mở [`supabase/functions/student-login/index.ts`](../supabase/functions/student-login/index.ts) trên GitHub → **Copy raw file** → dán vào → **Deploy function**.
+5. Mở hàm vừa tạo → tab **Details** (hoặc **Settings**) → **tắt** mục **Verify JWT** / **Enforce JWT verification** → **Save**. (Hàm tự kiểm tra người gọi.)
 
 **Cách B — bằng dòng lệnh (nếu quen dùng):**
 
 ```bash
 npx supabase login
 npx supabase link --project-ref <mã project, xem trong Project Settings>
-npx supabase secrets set PIN_PEPPER="<chuỗi ngẫu nhiên dài>"
+npx supabase secrets set PIN_PEPPER="<chuỗi ngẫu nhiên ít nhất 32 kí tự>"
 npx supabase functions deploy student-login --no-verify-jwt
 ```
 
@@ -86,26 +91,27 @@ npx supabase functions deploy student-login --no-verify-jwt
 
 1. Supabase → **Project Settings → API Keys** (hoặc **API**). Chép:
    - **Project URL**, dạng `https://abcdxyz.supabase.co` (ở **Project Settings → Data API** nếu không thấy ở đây).
-   - Khóa **anon public** (tab *Legacy API keys*) hoặc **publishable key** (bắt đầu bằng `sb_publishable_`).
+   - Khóa **publishable** (bắt đầu bằng `sb_publishable_`) hoặc **anon public** (tab *Legacy API keys*).
 2. Trên GitHub, mở [`js/config.js`](../js/config.js) → biểu tượng bút chì (**Edit**) → điền:
    ```js
    window.ONTAP_CONFIG = {
      supabaseUrl: "https://abcdxyz.supabase.co",
-     supabaseAnonKey: "eyJhbGciOi... hoặc sb_publishable_..."
+     supabaseAnonKey: "sb_publishable_... hoặc eyJhbGciOi..."
    };
    ```
 3. **Commit changes**. Sau 1–2 phút GitHub Pages cập nhật.
 
 > ⚠️ **Tuyệt đối không** dán khóa `service_role` hay `secret` (`sb_secret_...`) vào file này: khóa đó bỏ qua mọi lớp bảo vệ. App sẽ từ chối chạy nếu thấy khóa bí mật. Lỡ dán thì xóa ngay và bấm đổi khóa (Roll) trong Supabase.
 >
-> Khóa anon/publishable là khóa công khai, để trên GitHub được: dữ liệu được bảo vệ bằng chính sách RLS trong `schema.sql`.
+> Khóa publishable/anon là khóa công khai, để trên GitHub được: dữ liệu được bảo vệ bằng chính sách RLS trong `schema.sql`.
 
 Muốn quay lại bản lưu trên máy: xóa hai giá trị trong `js/config.js` (để lại `""`). Dữ liệu cũ trên từng máy vẫn còn.
 
 ## Bước 6. Đăng nhập lần đầu, tạo gia đình
 
 1. Mở https://dunglnh.github.io/OnUp/ (tải lại trang nếu đang mở).
-2. Ở ô **Bố mẹ, thầy cô**, nhập email của mình → **Gửi link đăng nhập** → mở email → bấm link (hoặc gõ mã số trong email).
+2. Ở ô **Bố mẹ, thầy cô**, nhập email đã thêm ở bước 2.4 → **Gửi link đăng nhập** → mở email → bấm link, hoặc gõ mã số trong email.
+   - Ô **Ghi nhớ đăng nhập trên máy này**: chỉ tick trên máy **riêng** của bạn. Không tick thì đóng tab là thoát (như bản cũ). Trên máy dùng chung với con, nhớ bấm **Đăng xuất** khi xong.
 3. Màn hình **Chào bạn!** → **Tạo gia đình mới** → nhập tên → **Tạo và bắt đầu**. Bạn là quản trị. Lịch thi cả năm được chép sẵn.
 
 ![Đăng nhập](hinh-supabase/c1-dang-nhap.jpg)
@@ -120,12 +126,12 @@ Dữ liệu cũ nằm trong trình duyệt của máy đã dùng bản cũ. Trê
 2. **Quản trị → Dữ liệu → Chuyển dữ liệu máy này lên đám mây**.
 3. App báo số tài khoản và kết quả đã chuyển, kèm **mã mời** cho từng phụ huynh, quản trị khác.
 
-Nếu dữ liệu ở máy khác hoặc chỉ còn file sao lưu: bấm **Chuyển từ file sao lưu** và chọn file đã tải ở bước 0.
+Nếu dữ liệu ở máy khác hoặc chỉ còn file sao lưu: bấm **Chuyển từ file sao lưu** và chọn file đã tải ở bước 0. (File sao lưu tải từ bản đám mây thì không chuyển được, vì dữ liệu đó đã ở trên máy chủ.)
 
-- Học sinh **giữ nguyên mã PIN cũ** (lần đăng nhập đầu, máy chủ tự đổi sang cách băm mới).
+- Học sinh **đăng nhập được bằng mã PIN cũ**, nhưng app đánh dấu “nên đặt PIN mới 6 số”. **Hãy đặt mã PIN mới cho từng con** (Quản trị → Tài khoản → tên con → Mã PIN mới), vì PIN cũ đã từng nằm trong file sao lưu.
 - Quản trị cũ trùng tên với bạn được gộp vào tài khoản của bạn.
-- Bấm chuyển nhiều lần cũng không bị trùng dữ liệu.
-- Dữ liệu cũ trong trình duyệt không bị xóa.
+- Bấm chuyển nhiều lần cũng không bị trùng dữ liệu. Tiến độ trong các bài ôn trên máy này được giữ.
+- Xong thì **xóa file sao lưu cũ** (bước 0).
 
 ![Chuyển dữ liệu](hinh-supabase/c6-da-chuyen.jpg)
 
@@ -144,9 +150,18 @@ Mất máy hoặc đổi email: mở tài khoản đó → **Gỡ email, tạo m
 
 1. Lấy **mã gia đình** (6 kí tự) ở **Quản trị → Dữ liệu**, hoặc ở trang chủ phụ huynh.
 2. Trên máy của con: mở app → ô **Học sinh** → nhập mã gia đình → **Tiếp** → chọn tên → nhập PIN.
-3. Máy nhớ mã gia đình; lần sau con chỉ chọn tên và nhập PIN. Đóng trình duyệt thì phải nhập lại PIN (như bản cũ).
+3. Máy nhớ mã gia đình; lần sau con chỉ chọn tên và nhập PIN. Đóng tab thì phải nhập lại PIN (như bản cũ).
 
-Nhập sai PIN 5 lần thì phải đợi 30 giây; nếu tiếp tục sai, thời gian đợi tăng dần. Bố mẹ đặt lại PIN cho con (sửa tài khoản của con) thì mở khóa ngay. Lỡ để lộ mã gia đình: **Quản trị → Dữ liệu → Đổi mã**.
+**Mã PIN** ở bản đám mây gồm **6 chữ số**, không nhận số dễ đoán (111111, 123456, năm sinh…). PIN chỉ để phân biệt người dùng, không phải mật khẩu.
+
+**Ai biết mã gia đình** thì thấy **tên và hình đại diện** của các con trong gia đình (để chọn tên khi đăng nhập), và có thể thử đoán PIN. Máy chủ giới hạn việc thử:
+- Sai 5 lần thì phải đợi 30 giây, càng sai càng phải đợi lâu.
+- Sai quá nhiều (15 lần, hoặc 20 lần trong một ngày) trên máy lạ thì PIN **bị khóa hẳn**: bố mẹ hoặc quản trị đặt mã PIN mới để mở. Trong lúc đó, máy con đã từng đăng nhập đúng vẫn vào được bình thường.
+
+Vì vậy:
+- **Mỗi gia đình một mã**, chỉ đưa mã cho người trong nhà. Không nên dùng chung một “gia đình” cho cả lớp.
+- Lỡ để lộ mã: **Quản trị → Dữ liệu → Đổi mã**. Đổi mã gia đình, hoặc đặt PIN mới cho con, sẽ **đăng xuất mọi máy** của học sinh đó / cả gia đình.
+- Trang sửa tài khoản của con có nút **Đăng xuất mọi máy của con** (ví dụ khi mất điện thoại).
 
 ![Mã gia đình và PIN](hinh-supabase/c7-ma-gia-dinh-pin.jpg)
 
@@ -154,44 +169,57 @@ Nhập sai PIN 5 lần thì phải đợi 30 giây; nếu tiếp tục sai, th�
 
 Làm lần lượt, tick khi xong:
 
-- [ ] Gửi link đăng nhập: email đến trong 1 phút, bấm vào thì vào app.
-- [ ] Tạo gia đình, thêm 1 học sinh (có PIN) và 1 phụ huynh.
+- [ ] Gửi link đăng nhập: email đến trong 1 phút, có mã số; bấm link hoặc gõ mã đều vào được app.
+- [ ] Email chưa có trong `allowed_creators` thì không tạo được gia đình mới.
+- [ ] Tạo gia đình, thêm 1 học sinh (PIN 6 số) và 1 phụ huynh.
 - [ ] Trên điện thoại khác: học sinh đăng nhập bằng mã gia đình + PIN, làm một đề ngắn.
 - [ ] Thử nhập sai PIN 5 lần: app báo đợi 30 giây.
+- [ ] Tắt mạng điện thoại, làm xong một đề, bật mạng lại: kết quả vẫn lên máy chủ.
 - [ ] Phụ huynh nhận mã mời, đăng nhập bằng email khác, thấy kết quả vừa làm của con.
-- [ ] Phụ huynh **không** thấy học sinh không phải con mình.
-- [ ] Bấm **Chuyển dữ liệu máy này lên đám mây** trên máy cũ; học sinh cũ đăng nhập được bằng PIN cũ.
-- [ ] Supabase → **Table Editor**: các bảng có dữ liệu; bảng `student_pins` chỉ chứa chuỗi bắt đầu bằng `pbkdf2$` hoặc `legacy$`, không có PIN gốc.
+- [ ] Phụ huynh **không** thấy hồ sơ, kết quả của học sinh không phải con mình.
+- [ ] Bấm **Chuyển dữ liệu máy này lên đám mây** trên máy cũ; học sinh cũ đăng nhập được bằng PIN cũ; đặt PIN mới cho con.
+- [ ] Supabase → **Table Editor**: các bảng có dữ liệu; bảng `student_pins` chỉ có chuỗi bắt đầu bằng `pbkdf2v2`, `wrap$` (không có PIN gốc, không có `legacy$`).
 - [ ] Supabase → **Edge Functions → student-login → Logs**: không có lỗi đỏ.
 
 ## Bảo mật và quyền riêng tư
 
-- App chỉ lưu: tên hiển thị, hình đại diện, khối, lớp của học sinh; email của bố mẹ/thầy cô (do Supabase giữ để đăng nhập). Học sinh không có email. Không hỏi ngày sinh, số điện thoại, ảnh.
-- Quyền xem, sửa được kiểm tra trên máy chủ (RLS): phụ huynh chỉ đọc hồ sơ, kết quả của con mình; quản trị đọc/ghi trong gia đình của mình; học sinh chỉ đọc và ghi kết quả của chính mình. Gia đình này không thấy gia đình khác.
-- PIN được băm trên máy chủ (PBKDF2 + `PIN_PEPPER`), không gửi về trình duyệt. Mã PIN chỉ để phân biệt người dùng trong nhà, lớp — không phải mật khẩu mạnh. Muốn chặt hơn, hãy để con dùng thiết bị của con.
+- App lưu: tên hiển thị, hình đại diện, khối, lớp của học sinh; kết quả làm bài. Email của bố mẹ/thầy cô do Supabase Auth giữ để đăng nhập. Học sinh không có email. Không hỏi ngày sinh, số điện thoại, ảnh.
+- Quyền xem, sửa được kiểm tra trên máy chủ (RLS): phụ huynh đọc hồ sơ và kết quả của con mình, sửa hoặc xóa được hồ sơ con mình; quản trị đọc/ghi trong gia đình của mình; học sinh chỉ đọc và ghi kết quả của chính mình, chỉ đổi được hình đại diện. Gia đình này không thấy dữ liệu gia đình khác.
+- Ngoại lệ có chủ ý: ai biết mã gia đình thì thấy tên và hình đại diện của các con trong gia đình đó (xem bước 9).
+- Mã PIN được kiểm tra và băm trên máy chủ (PBKDF2 + `PIN_PEPPER`); trình duyệt không bao giờ thấy PIN đã lưu hay bản băm. PIN chỉ để phân biệt người dùng, không phải mật khẩu.
+- Bộ đếm thử sai lưu địa chỉ IP ở dạng băm (không giữ IP gốc) và tự xóa sau 30 ngày. Supabase Auth tự ghi lại IP, thông tin trình duyệt khi đăng nhập (kể cả máy học sinh) theo chính sách của Supabase.
+- **Xóa toàn bộ dữ liệu trên đám mây** (Quản trị → Dữ liệu) xóa gia đình, hồ sơ, kết quả, lịch; **không** xóa email đăng nhập của người lớn và người dùng ẩn danh của máy học sinh trong Supabase Auth. Muốn xóa hẳn: **Authentication → Users** → xóa từng người, hoặc chạy câu dọn dẹp bên dưới.
 - Khóa `service_role`/`secret` chỉ nằm trong Supabase (Edge Function tự có), không bao giờ đưa vào code của trang.
 
 ## Gỡ lỗi thường gặp
 
 | Hiện tượng | Cách xử lí |
 |---|---|
-| Không nhận được email, hoặc báo `Email address not authorized` | Làm lại bước 3.2 (SMTP riêng). Xem thư mục Spam. Supabase → Authentication → Rate Limits: tăng số email mỗi giờ nếu cần. |
-| “Link đăng nhập đã hết hạn hoặc đã được dùng” | Link chỉ dùng một lần, hết hạn sau 1 giờ. Gửi link mới. Một số ứng dụng email tự mở link trước để quét virus: dùng mã số trong email (bước 3.3). |
+| Không nhận được email, hoặc báo `Email address not authorized` | Làm lại bước 3.2 (SMTP riêng). Xem thư mục Spam. |
+| Nhiều email đăng nhập lạ gửi đi, phụ huynh thật không nhận được link | Có người bấm gửi link liên tục. Tạm thời đổi mật khẩu ứng dụng của hộp thư gửi, đợi một giờ; báo người sửa code để bật chặn tự động (CAPTCHA). |
+| “Email này chưa được phép tạo gia đình mới” | Thêm email đó vào `allowed_creators` (bước 2.4), hoặc nhờ quản trị gửi mã mời. |
+| “Link đăng nhập đã hết hạn hoặc đã được dùng” / “không dùng được ở trình duyệt này” | Link chỉ dùng một lần, hết hạn sau 1 giờ, và nên mở trên đúng trình duyệt đã bấm gửi. Gõ **mã số trong email** (bước 3.3) hoặc gửi link mới. |
 | Bấm link xong lại quay về trang đăng nhập | Kiểm tra bước 3.4 (Site URL, Redirect URLs có đúng `https://dunglnh.github.io/OnUp/`). |
 | “Máy chủ chưa bật đăng nhập cho học sinh (Anonymous sign-ins)” | Bật **Allow anonymous sign-ins** (bước 3.1). |
-| Học sinh nhập mã gia đình báo “Máy chủ đang lỗi” hoặc “Không gọi được máy chủ đăng nhập” | Kiểm tra tên hàm đúng `student-login`, đã tắt Verify JWT (bước 4.4). Xem Logs của hàm. |
+| “Mã PIN đã bị khóa vì nhập sai nhiều lần” | Bố mẹ/quản trị mở tài khoản của con → nhập **Mã PIN mới** → Lưu. |
+| Học sinh báo “Máy chủ đang lỗi” | Kiểm tra secret `PIN_PEPPER` có và đủ 32 kí tự (bước 4.1), tên hàm đúng `student-login`, đã tắt Verify JWT. Xem Logs của hàm. |
 | “Không tải được thư viện đám mây” | Máy đang mất mạng, hoặc mạng chặn `cdn.jsdelivr.net`. Bản đám mây cần mạng; bản lưu trên máy thì không. |
-| “js/config.js đang chứa khóa bí mật” | Bạn dán nhầm khóa service_role/secret. Xóa, dán khóa anon/publishable, rồi đổi (Roll) khóa bí mật trong Supabase. |
+| “js/config.js đang chứa khóa bí mật” | Bạn dán nhầm khóa service_role/secret. Xóa, dán khóa publishable/anon, rồi đổi (Roll) khóa bí mật trong Supabase. |
 | Trang Supabase báo project **Paused** | Gói Free tạm dừng project sau khoảng 1 tuần không ai dùng. Vào Supabase bấm **Restore**; dữ liệu vẫn còn. |
 
-## Dọn dẹp định kì (tùy chọn, vài tháng một lần)
+## Dọn dẹp định kì (tùy chọn, vài tháng một lần, ngoài giờ học)
 
-Mỗi máy học sinh tạo một người dùng ẩn danh. Muốn xóa người dùng ẩn danh không dùng quá 90 ngày và bộ đếm thử sai cũ, chạy trong **SQL Editor**:
+Mỗi tab học sinh tạo một người dùng ẩn danh. Câu dưới đây xóa người dùng ẩn danh **không hoạt động** quá 90 ngày (máy đang dùng không bị ảnh hưởng). Chạy trong **SQL Editor**:
 
 ```sql
-delete from auth.users where is_anonymous and coalesce(last_sign_in_at, created_at) < now() - interval '90 days';
-delete from login_attempts where updated_at < now() - interval '30 days';
+delete from auth.users u
+where u.is_anonymous
+  and not exists (select 1 from auth.sessions s
+                  where s.user_id = u.id
+                    and coalesce(s.refreshed_at, s.updated_at, s.created_at) > now() - interval '90 days');
 ```
+
+Bộ đếm thử sai cũ tự xóa sau 30 ngày.
 
 ---
 

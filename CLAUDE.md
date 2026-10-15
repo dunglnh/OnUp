@@ -64,10 +64,13 @@ Mã PIN ở chế độ cục bộ chỉ để phân biệt người trong nhà/
 ### Bản đám mây (SupabaseStore)
 Bật khi `js/config.js` có `supabaseUrl` + `supabaseAnonKey`; khi đó `window.Store` là SupabaseStore (`Store.cloud === true`), LocalStore còn ở `window.LocalStore` để đọc dữ liệu cũ khi chuyển lên. Hướng dẫn cài: `docs/HUONG-DAN-SUPABASE.md`.
 - Giao diện giống hệt LocalStore: hàm đọc đồng bộ (đọc từ bộ nhớ đệm tải lúc đăng nhập), `createUser`/`updateUser`/`checkPin` async. Hàm ghi cập nhật bộ nhớ đệm ngay rồi đẩy lên máy chủ theo hàng đợi; lỗi thì gọi `Store.onError` (app hiện toast) và tải lại dữ liệu thật. **Thêm hàm mới vào Store thì thêm ở cả hai kho**; `tests/supabase/store-test.mjs` so danh sách hàm.
-- Hàm chỉ có ở bản đám mây: `init, refresh, flush, authState ("signed-out"|"no-profile"|"ready"), sendLink, verifyCode, familyStudents, studentLogin, createFamily, claimInvite, newInvite, newJoinCode, familyCode, localData, migrate`.
+- Hàm chỉ có ở bản đám mây: `init, refresh, flush, authState ("signed-out"|"no-profile"|"ready"), sendLink, verifyCode, rememberLogin, familyStudents, studentLogin, createFamily, claimInvite, newInvite, newJoinCode, signOutChild, familyCode, localData, migrate`.
+- Phiên đăng nhập giữ trong sessionStorage (người lớn chọn “Ghi nhớ” mới dùng localStorage); mỗi tab học sinh một phiên ẩn danh. Kết quả làm bài đi qua hộp gửi trong localStorage (`ontap_cloud_outbox`), chỉ xóa khi máy chủ đã nhận.
+- PIN mới ở bản đám mây: 6 số, không dễ đoán (`pinProblem`, giống nhau ở Edge Function và store-supabase.js). Bản cục bộ giữ 4–6 số.
 - Đăng nhập: quản trị/phụ huynh bằng email (magic link hoặc mã số), gắn vào hồ sơ bằng mã mời; học sinh đăng nhập ẩn danh rồi Edge Function `student-login` kiểm tra mã gia đình + PIN và ghi `student_sessions`. PIN chỉ được băm trong Edge Function, bảng `student_pins` trình duyệt không đọc được.
 - Quyền do RLS trong `supabase/schema.sql` quyết định (anon key là công khai). Đổi bảng hoặc chính sách thì chạy `sh tests/supabase/run.sh` và thêm kiểm tra vào `tests/supabase/rls-test.sql`. Không bao giờ đưa service_role key vào code phía trình duyệt.
-- Ngân hàng có sẵn (data/banks.js) không lưu lên máy chủ; `seed_banks_seen` của family làm việc như `seedBanksSeen`. Tối đa 5000 kết quả mỗi family (trigger).
+- Ngân hàng có sẵn (data/banks.js) không lưu lên máy chủ; `seed_banks_seen` của family làm việc như `seedBanksSeen`. Tối đa 2000 kết quả mỗi học sinh và 60 kết quả mỗi 10 phút (trigger).
+- Chỉ email trong bảng `allowed_creators` mới tạo được gia đình mới; mỗi gia đình có hạn mức số hồ sơ, kì thi, ngân hàng đề.
 
 ## Quy ước code
 - JavaScript thuần, ES2019+, không module/import (để mở được cả bằng file://). Mỗi file bọc trong IIFE, xuất ra `window.<Tên>`.
