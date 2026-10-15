@@ -1,0 +1,786 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ôn Giữa Kì Lớp 4</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one narrow column; each subject carries its own accent (math blue, language rose, science green); sunflower is the main action */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --line:#dde2e8; --ink:#172029; --muted:#5c6773;
+  --sun:#f5b700; --sun-soft:#fdf1c7; --sun-ink:#3a2a00;
+  --ok:#15803d; --ok-soft:#e2f4e8; --bad:#c2410c; --bad-soft:#fde9df;
+  --math:#1d4ed8; --math-soft:#e4ebfd; --lang:#b4235a; --lang-soft:#fbe6ee; --sci:#0f7a4a; --sci-soft:#dff3e8;
+  --on-acc:#ffffff; --acc:var(--math); --acc-soft:var(--math-soft);
+  --display:"Baloo 2","Be Vietnam Pro",system-ui,sans-serif;
+  --body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11151a; --surface:#1a2028; --line:#2c3540; --ink:#e8edf2; --muted:#9aa6b2;
+  --sun:#ffc933; --sun-soft:#3a3010; --sun-ink:#2b1f00;
+  --ok:#4ade80; --ok-soft:#123323; --bad:#fb923c; --bad-soft:#3a1d10;
+  --math:#93b4ff; --math-soft:#1d2744; --lang:#f49ab9; --lang-soft:#3a1f2a; --sci:#6fdc9a; --sci-soft:#173a28;
+  --on-acc:#11151a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151a; --surface:#1a2028; --line:#2c3540; --ink:#e8edf2; --muted:#9aa6b2;
+  --sun:#ffc933; --sun-soft:#3a3010; --sun-ink:#2b1f00;
+  --ok:#4ade80; --ok-soft:#123323; --bad:#fb923c; --bad-soft:#3a1d10;
+  --math:#93b4ff; --math-soft:#1d2744; --lang:#f49ab9; --lang-soft:#3a1f2a; --sci:#6fdc9a; --sci-soft:#173a28;
+  --on-acc:#11151a; color-scheme:dark}
+body[data-tone="math"]{--acc:var(--math);--acc-soft:var(--math-soft)}
+body[data-tone="lang"]{--acc:var(--lang);--acc-soft:var(--lang-soft)}
+body[data-tone="sci"]{--acc:var(--sci);--acc-soft:var(--sci-soft)}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+.app{max-width:660px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:1.75rem} h2{font-size:1.35rem} h3{font-size:1.1rem}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px 10px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
+.brand{font-family:var(--display);font-weight:800;font-size:1.2rem;color:var(--acc);display:flex;align-items:center;gap:8px;background:none;border:0;padding:0}
+.brand b{background:var(--sun);color:var(--sun-ink);border-radius:8px;padding:0 8px;font-size:1rem}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:.85rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip.warn{border-color:var(--bad);color:var(--bad);font-weight:700}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.label{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.muted{color:var(--muted)} .small{font-size:.875rem}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:700;background:var(--acc-soft);color:var(--acc)}
+.btn.main{background:var(--sun);color:var(--sun-ink)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.danger{background:var(--bad-soft);color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:default}
+.subtabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
+.stab{border:0;background:transparent;border-radius:10px;padding:10px 6px;font-weight:700;color:var(--muted);line-height:1.2}
+.stab[aria-pressed="true"]{background:var(--acc);color:var(--on-acc)}
+.hero{background:var(--acc);color:var(--on-acc);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.hero p{margin:0;opacity:.92;max-width:62ch}
+.hero .label{color:inherit;opacity:.8}
+.hero .btn.ghost{border-color:currentColor;color:inherit}
+.sec{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.sec>p{margin:0}
+.grp{display:flex;flex-direction:column;gap:6px}
+.grp-h{font-size:.8rem;font-weight:700;color:var(--acc);letter-spacing:.02em;margin-top:6px}
+.lessons{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.lrow{display:grid;grid-template-columns:4.6em minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;border:0;border-top:1px solid var(--line);background:transparent;padding:12px 14px}
+.lrow:first-child{border-top:0}
+.lrow .lnum{font-family:var(--display);font-weight:800;color:var(--acc);white-space:nowrap}
+.lrow .lname{min-width:0;overflow-wrap:anywhere}
+.lrow .lmeta{font-size:.8rem;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.lrow .lmeta.good{color:var(--ok);font-weight:700}
+.lrow .lmeta.fair{color:var(--ink);font-weight:700}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--acc-soft);border-radius:12px;padding:4px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:8px 6px;font-weight:700;color:var(--acc);line-height:1.2;font-size:.9rem}
+.seg button small{display:block;font-weight:500;font-size:.72rem;opacity:.85}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(23,32,41,.15)}
+.tests{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.tb{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 0;display:flex;flex-direction:column;align-items:center;line-height:1.15;font-variant-numeric:tabular-nums;min-width:0}
+.tb b{font-size:.95rem}
+.tb small{font-size:.68rem;color:var(--muted)}
+.tb.good{background:var(--ok-soft);border-color:var(--ok)} .tb.good small{color:var(--ok);font-weight:700}
+.tb.fair{background:var(--sun-soft);border-color:var(--sun)} .tb.fair small{color:var(--ink);font-weight:700}
+.tb.next{border:2px solid var(--acc)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px}
+.notes ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+.notes li::marker{color:var(--acc)}
+.back{align-self:flex-start;border:0;background:none;color:var(--acc);font-weight:700;padding:4px 0}
+.hist{display:flex;flex-direction:column}
+.hist div{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:.9rem;font-variant-numeric:tabular-nums}
+.hist div:first-child{border-top:0}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--sun);transition:width .3s}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px 18px;display:flex;flex-direction:column;gap:14px}
+.qhead{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.qtext{font-size:1.15rem;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.qtext sup,.opt sup,.notes sup,.expl sup{font-size:.7em}
+.passage{background:var(--acc-soft);border-radius:14px;padding:12px 14px}
+.passage summary{font-weight:700;color:var(--acc);cursor:pointer}
+.ptext{margin-top:8px;max-height:46vh;overflow:auto;font-size:.98rem;line-height:1.65}
+.ptext p{margin:0 0 .7em}
+.ptext p.poem{white-space:pre-line;font-style:italic}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opts.wide{grid-template-columns:1fr}
+@media (max-width:420px){.opts{grid-template-columns:1fr}}
+.opt{text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;font-size:1.02rem;display:flex;gap:10px;align-items:baseline;min-width:0;overflow-wrap:anywhere}
+.opt .k{font-family:var(--display);font-weight:800;color:var(--muted)}
+.opt.sel{border-color:var(--acc);background:var(--acc-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.blank{font:inherit;font-weight:700;border:0;border-bottom:3px solid var(--acc);background:var(--acc-soft);color:var(--ink);border-radius:6px 6px 0 0;padding:2px 8px;width:8em;max-width:100%;text-align:center}
+.blank.wide{width:100%;text-align:left}
+.hint{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:12px;padding:12px 14px;font-weight:600}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+.fb span{color:var(--ink);font-weight:500}
+.expl{margin-top:8px;padding:10px 12px;border-left:4px solid var(--acc);background:var(--bg);border-radius:0 10px 10px 0;font-size:.92rem;font-weight:500;color:var(--ink)}
+.actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.score{font-family:var(--display);font-size:3.4rem;font-weight:800;color:var(--acc);line-height:1;font-variant-numeric:tabular-nums}
+.ubreak{display:grid;grid-template-columns:auto 1fr auto;gap:6px 12px;align-items:center;font-size:.9rem;font-variant-numeric:tabular-nums}
+.review{display:flex;flex-direction:column;gap:12px}
+.rv{border-left:4px solid var(--bad);padding:6px 0 6px 12px;display:flex;flex-direction:column;gap:3px;overflow-wrap:anywhere}
+.rv .ans{font-size:.9rem}
+.rv .ans b{color:var(--ok)}
+.rv .ans s{color:var(--bad)}
+.rv .expl{margin-top:4px}
+.confirm{border:2px solid var(--bad);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.wlist{display:flex;flex-direction:column;gap:8px}
+.wrow{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.wrow b{color:var(--acc)}
+details.outline summary{font-weight:700;color:var(--acc);cursor:pointer}
+details.outline ol{margin:8px 0 0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+.check{display:flex;gap:10px;align-items:flex-start}
+.check input{width:20px;height:20px;margin-top:2px;accent-color:var(--acc);flex:none}
+textarea{width:100%;min-height:240px;font:16px/1.6 var(--body);border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg);color:var(--ink)}
+.foot{margin:6px 0 0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+</style>
+
+<div class="app">
+  <header class="top">
+    <button class="brand" id="homeBtn" aria-label="Về trang chủ">Ôn giữa kì · Lớp <b>4</b></button>
+    <div class="row" id="topRight"></div>
+  </header>
+  <main id="view"></main>
+</div>
+
+<script src="../../js/bridge.js"></script>
+<script>
+/* ================= LỚP 4 · Kết nối tri thức với cuộc sống · đến tuần 9 ================= */
+const HANG=["đơn vị","chục","trăm","nghìn","chục nghìn","trăm nghìn","triệu","chục triệu","trăm triệu"];
+function digitsOf(n){return String(n).split("").map(Number)}
+function uniqPos(r,U,n,minP){ // a position (from the right) whose digit is non-zero and appears once
+  const d=digitsOf(n).reverse(), cand=[];
+  d.forEach((x,p)=>{if(p>=minP&&x>0&&d.filter(y=>y===x).length===1)cand.push(p)});
+  return cand.length?U.pick(r,cand):-1;
+}
+function randNum(r,U,len,zeroRate){let s=String(U.ri(r,1,9));for(let i=1;i<len;i++)s+=r()<zeroRate?"0":String(U.ri(r,0,9));return +s}
+
+const APP={
+  key:"gk1-l4-v1", grade:4,
+  examText:"Ôn thi giữa học kì I · Kết nối tri thức",
+  footer:"Câu hỏi và các đoạn văn đọc hiểu do trang tự soạn theo chương trình sách Kết nối tri thức với cuộc sống, phạm vi đến tuần 9. Đây là trang ôn tập cá nhân. Kết quả được lưu trên máy này.",
+  gen:{
+    compose5(r,U){const d=[U.ri(r,1,9),U.ri(r,0,9),U.ri(r,0,9),U.ri(r,0,9),U.ri(r,0,9)], nm=["chục nghìn","nghìn","trăm","chục","đơn vị"];
+      const parts=d.map((x,i)=>x?`${x} ${nm[i]}`:null).filter(Boolean), n=+d.join("");
+      return {q:`Số gồm ${U.joinVN(parts)} viết là: ___`,ans:String(n),x:`Viết lần lượt các chữ số từ hàng chục nghìn đến hàng đơn vị, hàng nào không có thì viết chữ số 0: ${U.fmt(n)}.`}},
+    place(r,U){let n,p=-1;while(p<0){n=randNum(r,U,U.pick(r,[5,6]),.15);p=uniqPos(r,U,n,0)}
+      const len=String(n).length, d=digitsOf(n).reverse()[p], others=U.shuffle(r,HANG.slice(0,len).filter((_,i)=>i!==p)).slice(0,3);
+      return {q:`Trong số ${U.fmt(n)}, chữ số ${d} thuộc hàng nào?`,o:["hàng "+HANG[p],...others.map(h=>"hàng "+h)],x:`Đếm từ phải sang trái: hàng đơn vị, hàng chục, hàng trăm, hàng nghìn, hàng chục nghìn${len>5?", hàng trăm nghìn":""}. Chữ số ${d} ở hàng ${HANG[p]}.`}},
+    addsub(r,U){if(r()<.5){const a=U.ri(r,10000,60000),b=U.ri(r,1000,39999),c=a+b;return {q:`Tính: ${U.fmt(a)} + ${U.fmt(b)} = ___`,ans:String(c),x:`Đặt tính thẳng cột các chữ số cùng hàng rồi cộng từ phải sang trái: ${U.fmt(a)} + ${U.fmt(b)} = ${U.fmt(c)}.`}}
+      const a=U.ri(r,20000,99999),b=U.ri(r,1000,a-1000),c=a-b;return {q:`Tính: ${U.fmt(a)} − ${U.fmt(b)} = ___`,ans:String(c),x:`Đặt tính thẳng cột rồi trừ từ phải sang trái (nhớ khi cần): ${U.fmt(a)} − ${U.fmt(b)} = ${U.fmt(c)}. Thử lại: ${U.fmt(c)} + ${U.fmt(b)} = ${U.fmt(a)}.`}},
+    muldiv(r,U){const b=U.ri(r,2,9);if(r()<.5){const a=U.ri(r,1000,Math.floor(99999/b)),c=a*b;return {q:`Tính: ${U.fmt(a)} × ${b} = ___`,ans:String(c),x:`Nhân lần lượt từ phải sang trái: ${U.fmt(a)} × ${b} = ${U.fmt(c)}.`}}
+      const q=U.ri(r,1000,Math.floor(99999/b)),a=q*b;return {q:`Tính: ${U.fmt(a)} : ${b} = ___`,ans:String(q),x:`Chia lần lượt từ trái sang phải: ${U.fmt(a)} : ${b} = ${U.fmt(q)}. Thử lại: ${U.fmt(q)} × ${b} = ${U.fmt(a)}.`}},
+    evenodd(r,U){const want=U.pick(r,["chẵn","lẻ"]), mk=par=>{let n;do{n=U.ri(r,100,99999)}while(n%2!==par);return n};
+      const wp=want==="chẵn"?0:1, c=mk(wp), o=new Set([c]);while(o.size<4)o.add(mk(1-wp));
+      return {q:`Số nào dưới đây là số ${want}?`,o:[...o].map(U.fmt),x:`Số ${want} có chữ số tận cùng là ${want==="chẵn"?"0, 2, 4, 6, 8":"1, 3, 5, 7, 9"}. Số ${U.fmt(c)} có tận cùng là ${c%10}.`}},
+    expr(r,U){const a=U.ri(r,2,9), t=U.ri(r,0,2);let e,v,s;
+      if(t===0){const b=U.ri(r,100,500),c=U.ri(r,2,9);e=`${b} + a × ${c}`;s=`${b} + ${a} × ${c} = ${b} + ${a*c}`;v=b+a*c}
+      else if(t===1){const b=U.ri(r,a+10,a+90),c=U.ri(r,2,9);e=`(${b} − a) × ${c}`;s=`(${b} − ${a}) × ${c} = ${b-a} × ${c}`;v=(b-a)*c}
+      else{const b=U.ri(r,10,99),c=U.ri(r,10,b);e=`${b} × a − ${c}`;s=`${b} × ${a} − ${c} = ${b*a} − ${c}`;v=b*a-c}
+      return {q:`Với a = ${a}, giá trị của biểu thức ${e} là: ___`,ans:String(v),x:`Thay a = ${a}: ${s} = ${U.fmt(v)}. Nhớ làm phép nhân, chia trước; trong ngoặc làm trước.`}},
+    perim(r,U){if(r()<.5){const a=U.ri(r,5,40);return {q:`Hình vuông có cạnh a = ${a} cm. Chu vi P = a × 4 = ___ cm`,ans:String(a*4),x:`P = ${a} × 4 = ${a*4} (cm).`}}
+      const a=U.ri(r,10,50),b=U.ri(r,3,a-1);return {q:`Hình chữ nhật có chiều dài a = ${a} cm, chiều rộng b = ${b} cm. Chu vi P = (a + b) × 2 = ___ cm`,ans:String((a+b)*2),x:`P = (${a} + ${b}) × 2 = ${a+b} × 2 = ${(a+b)*2} (cm).`}},
+    step3(r,U){const t=U.ri(r,0,2);
+      if(t===0){const y=U.ri(r,10,40)*5,k=U.ri(r,2,3),x=y*(1+k)+U.ri(r,10,100)*5,rem=x-y-k*y;
+        return {q:`Một cửa hàng có ${U.fmt(x)} kg gạo. Buổi sáng bán được ${y} kg, buổi chiều bán được gấp ${k} lần buổi sáng. Hỏi cửa hàng còn lại bao nhiêu ki-lô-gam gạo? ___ kg`,ans:String(rem),x:`Buổi chiều bán: ${y} × ${k} = ${k*y} (kg). Cả hai buổi bán: ${y} + ${k*y} = ${y+k*y} (kg). Còn lại: ${U.fmt(x)} − ${y+k*y} = ${U.fmt(rem)} (kg).`}}
+      if(t===1){const a=U.ri(r,28,35),d=U.ri(r,2,5),k=U.ri(r,3,6),b=a+d,tot=(a+b)*k;
+        return {q:`Lớp 4A có ${a} bạn, lớp 4B có nhiều hơn lớp 4A ${d} bạn. Mỗi bạn được phát ${k} quyển vở. Hỏi cả hai lớp được phát bao nhiêu quyển vở? ___ quyển`,ans:String(tot),x:`Lớp 4B có: ${a} + ${d} = ${b} (bạn). Cả hai lớp: ${a} + ${b} = ${a+b} (bạn). Số vở: ${a+b} × ${k} = ${tot} (quyển).`}}
+      const n=U.ri(r,2,5),p=U.ri(r,15,45)*1000,w=U.ri(r,5,15)*1000,tot=n*p+w,m=(Math.floor(tot/50000)+1)*50000;
+      return {q:`Mẹ mua ${n} hộp bánh, mỗi hộp giá ${U.fmt(p)} đồng, và một chai nước giá ${U.fmt(w)} đồng. Mẹ đưa cô bán hàng ${U.fmt(m)} đồng. Cô bán hàng trả lại mẹ ___ đồng`,ans:String(m-tot),x:`Tiền bánh: ${U.fmt(p)} × ${n} = ${U.fmt(n*p)} (đồng). Tổng tiền: ${U.fmt(n*p)} + ${U.fmt(w)} = ${U.fmt(tot)} (đồng). Tiền trả lại: ${U.fmt(m)} − ${U.fmt(tot)} = ${U.fmt(m-tot)} (đồng).`}},
+    angle(r,U){const d=U.pick(r,[20,30,45,60,75,89,90,90,100,110,120,135,150,170,180,180]);
+      const k=d<90?0:d===90?1:d<180?2:3, names=["góc nhọn","góc vuông","góc tù","góc bẹt"];
+      return {q:`Góc có số đo ${d}° là:`,o:[names[k],...names.filter((_,i)=>i!==k)],x:`Góc nhọn < 90°; góc vuông = 90°; 90° < góc tù < 180°; góc bẹt = 180°.`}},
+    read(r,U){const n=randNum(r,U,U.pick(r,[6,6,7]),.35);return {q:`Số "${U.docSo(n)}" viết là: ___`,ans:String(n),x:`${U.cap(U.docSo(n))}: ${U.fmt(n)}. Đọc và viết theo từng lớp, mỗi lớp ba chữ số.`}},
+    readmc(r,U){const n=randNum(r,U,U.pick(r,[6,7]),.3), s=String(n), set=new Set([U.docSo(n)]);let guard=0;
+      while(set.size<4&&guard++<50){const a=s.split(""), i=U.ri(r,1,a.length-1);a[i]=String((+a[i]+U.ri(r,1,9))%10);const m=+a.join("");if(m!==n)set.add(U.docSo(m))}
+      return {q:`Số ${U.fmt(n)} đọc là:`,o:[...set].map(U.cap)}},
+    value(r,U){let n,p=-1;while(p<0){n=randNum(r,U,U.pick(r,[6,7]),.2);p=uniqPos(r,U,n,2)}
+      const d=digitsOf(n).reverse()[p], v=d*10**p;
+      return {q:`Giá trị của chữ số ${d} trong số ${U.fmt(n)} là: ___`,ans:String(v),x:`Chữ số ${d} ở hàng ${HANG[p]}, nên có giá trị ${U.fmt(v)}.`}},
+    cls(r,U){let n,p=-1;while(p<0){n=randNum(r,U,7,.15);p=uniqPos(r,U,n,0)}
+      const d=digitsOf(n).reverse()[p], names=["lớp đơn vị","lớp nghìn","lớp triệu"], c=Math.floor(p/3);
+      return {q:`Trong số ${U.fmt(n)}, chữ số ${d} thuộc lớp nào?`,o:[names[c],...names.filter((_,i)=>i!==c)],x:`Chia số thành từng lớp ba chữ số từ phải sang trái: lớp đơn vị, lớp nghìn, lớp triệu. Chữ số ${d} ở hàng ${HANG[p]}, thuộc ${names[c]}.`}},
+    compose7(r,U){const n=randNum(r,U,7,.4), d=digitsOf(n), nm=["triệu","trăm nghìn","chục nghìn","nghìn","trăm","chục","đơn vị"];
+      const parts=d.map((x,i)=>x?`${x} ${nm[i]}`:null).filter(Boolean);
+      return {q:`Số gồm ${U.joinVN(parts)} viết là: ___`,ans:String(n),x:`Viết lần lượt từ hàng triệu đến hàng đơn vị, hàng nào không có thì viết 0: ${U.fmt(n)}.`}},
+    round(r,U){const big=r()<.6, unit=big?100000:10000, n=U.ri(r,big?1000000:100000,big?9999999:999999), res=Math.round(n/unit)*unit, dd=Math.floor(n/(unit/10))%10;
+      const tgt=big?"trăm nghìn":"chục nghìn", below=big?"chục nghìn":"nghìn";
+      return {q:`Làm tròn số ${U.fmt(n)} đến hàng ${tgt}, ta được: ___`,ans:String(res),x:`Xét chữ số hàng ${below} là ${dd}. Vì ${dd} ${dd<5?"< 5 nên làm tròn xuống":"≥ 5 nên làm tròn lên"}: ${U.fmt(res)}.`}},
+    compare(r,U){const a=randNum(r,U,U.pick(r,[6,7]),.1);let b=a;
+      if(r()>.12){const s=String(a).split(""), i=U.ri(r,1,s.length-1);let nd;do{nd=U.ri(r,0,9)}while(nd===+s[i]);s[i]=String(nd);b=+s.join("")}
+      const sign=a>b?">":a<b?"<":"=";
+      return {q:`Dấu thích hợp điền vào chỗ chấm: ${U.fmt(a)} … ${U.fmt(b)}`,o:[sign,...[">","<","="].filter(x=>x!==sign)],x:a===b?"Hai số giống hệt nhau nên bằng nhau.":`Hai số có cùng số chữ số. So sánh từng cặp chữ số từ trái sang phải, cặp đầu tiên khác nhau quyết định số nào lớn hơn.`}},
+    max(r,U){const ds=U.shuffle(r,[0,1,2,3,4,5,6,7,8,9]).slice(0,6), set=new Set();
+      while(set.size<4){const p=U.shuffle(r,ds);if(p[0]!==0)set.add(+p.join(""))}
+      const arr=[...set], m=Math.max(...arr), isMax=r()<.5, t=isMax?m:Math.min(...arr);
+      return {q:`Số ${isMax?"lớn nhất":"bé nhất"} trong các số sau là:`,o:[U.fmt(t),...arr.filter(x=>x!==t).map(U.fmt)],x:`So sánh các chữ số từ trái sang phải, bắt đầu từ hàng trăm nghìn.`}},
+    seq(r,U){const st=U.pick(r,[2,5,10,100,1000,10000]), a=U.ri(r,1,800)*st, t=[a,a+st,a+2*st,a+3*st];
+      return {q:`Điền số tiếp theo vào dãy: ${t.map(U.fmt).join("; ")}; ___`,ans:String(a+4*st),x:`Hai số liền nhau hơn kém nhau ${U.fmt(st)} đơn vị, nên số tiếp theo là ${U.fmt(a+3*st)} + ${U.fmt(st)} = ${U.fmt(a+4*st)}.`}},
+    mass(r,U){const v=U.ri(r,0,4);
+      if(v===0){const t=U.ri(r,1,9),k=U.ri(r,1,999);return {q:`${t} tấn ${k} kg = ___ kg`,ans:String(t*1000+k),x:`1 tấn = 1 000 kg, nên ${t} tấn = ${t*1000} kg; ${t*1000} + ${k} = ${t*1000+k} (kg).`}}
+      if(v===1){const x=U.ri(r,2,9);return {q:`${x} tạ = ___ kg`,ans:String(x*100),x:`1 tạ = 100 kg, nên ${x} tạ = ${x} × 100 = ${x*100} kg.`}}
+      if(v===2){const y=U.ri(r,2,9),z=U.ri(r,1,9);return {q:`${y} yến ${z} kg = ___ kg`,ans:String(y*10+z),x:`1 yến = 10 kg, nên ${y} yến = ${y*10} kg; ${y*10} + ${z} = ${y*10+z} (kg).`}}
+      if(v===3){const n=U.ri(r,2,9);return {q:`${n*100} kg = ___ tạ`,ans:String(n),x:`100 kg = 1 tạ, nên ${n*100} kg = ${n*100} : 100 = ${n} tạ.`}}
+      const t=U.ri(r,2,9);return {q:`${t} tấn = ___ tạ`,ans:String(t*10),x:`1 tấn = 10 tạ, nên ${t} tấn = ${t*10} tạ.`}},
+    area(r,U){const v=U.ri(r,0,4);
+      if(v===0){const a=U.ri(r,2,9);return {q:`${a} m² = ___ dm²`,ans:String(a*100),x:`1 m² = 100 dm², nên ${a} m² = ${a*100} dm².`}}
+      if(v===1){const b=U.ri(r,2,9);return {q:`${b} dm² = ___ cm²`,ans:String(b*100),x:`1 dm² = 100 cm², nên ${b} dm² = ${b*100} cm².`}}
+      if(v===2){const c=U.ri(r,2,9);return {q:`${c} cm² = ___ mm²`,ans:String(c*100),x:`1 cm² = 100 mm², nên ${c} cm² = ${c*100} mm².`}}
+      if(v===3){const d=U.ri(r,1,9),e=U.ri(r,1,99);return {q:`${d} m² ${e} dm² = ___ dm²`,ans:String(d*100+e),x:`${d} m² = ${d*100} dm²; ${d*100} + ${e} = ${d*100+e} (dm²).`}}
+      const f=U.ri(r,2,9);return {q:`${f*100} cm² = ___ dm²`,ans:String(f),x:`100 cm² = 1 dm², nên ${f*100} cm² = ${f} dm².`}},
+    time(r,U){const v=U.ri(r,0,2);
+      if(v===0){const m=U.ri(r,1,9),s=U.ri(r,1,59);return {q:`${m} phút ${s} giây = ___ giây`,ans:String(m*60+s),x:`1 phút = 60 giây, nên ${m} phút = ${m*60} giây; ${m*60} + ${s} = ${m*60+s} (giây).`}}
+      if(v===1){const c=U.ri(r,2,9);return {q:`${c} thế kỉ = ___ năm`,ans:String(c*100),x:`1 thế kỉ = 100 năm, nên ${c} thế kỉ = ${c*100} năm.`}}
+      const n=U.ri(r,2,9);return {q:`${n*60} giây = ___ phút`,ans:String(n),x:`60 giây = 1 phút, nên ${n*60} giây = ${n*60} : 60 = ${n} phút.`}},
+    century(r,U){const y=U.ri(r,1001,2099), c=Math.ceil(y/100);
+      return {q:`Năm ${y} thuộc thế kỉ:`,o:[U.roman(c),U.roman(c-1),U.roman(c+1),U.roman(c+2)],x:`Từ năm ${(c-1)*100+1} đến năm ${c*100} là thế kỉ ${U.roman(c)} (thế kỉ thứ ${c}).`}}
+  },
+  subjects:[]
+};
+
+/* ------------------------------ TOÁN 4 ------------------------------ */
+const G1="Chủ đề 1. Ôn tập và bổ sung", G2="Chủ đề 2. Góc và đơn vị đo góc", G3="Chủ đề 3. Số có nhiều chữ số", G4="Chủ đề 4. Một số đơn vị đo đại lượng";
+APP.subjects.push({
+  id:"toan", name:"Toán", tone:"math",
+  scopeText:"Phạm vi: Bài 1 đến Bài 19 (đến tuần 9), sách Toán 4 Kết nối tri thức với cuộc sống.",
+  test:{n:20,mins:40,count:12,scopes:[{id:"all",name:"Bài 1–19",lessons:"*"}]},
+  lessons:[
+    {id:"b1",group:G1,short:"Bài 1",name:"Ôn tập các số đến 100 000",notes:["Số có năm chữ số gồm các hàng: chục nghìn, nghìn, trăm, chục, đơn vị.","So sánh hai số: số nào có nhiều chữ số hơn thì lớn hơn; nếu cùng số chữ số thì so sánh từng cặp chữ số từ trái sang phải.","Số liền sau hơn số liền trước 1 đơn vị."]},
+    {id:"b2",group:G1,short:"Bài 2",name:"Ôn tập các phép tính trong phạm vi 100 000",notes:["Đặt tính thẳng cột, cộng, trừ, nhân từ phải sang trái; chia từ trái sang phải.","Tìm số hạng chưa biết: lấy tổng trừ đi số hạng đã biết.","Tìm thừa số chưa biết: lấy tích chia cho thừa số đã biết."]},
+    {id:"b3",group:G1,short:"Bài 3",name:"Số chẵn, số lẻ",notes:["Số chẵn là số có chữ số tận cùng là 0, 2, 4, 6, 8.","Số lẻ là số có chữ số tận cùng là 1, 3, 5, 7, 9.","Hai số chẵn liên tiếp (hoặc hai số lẻ liên tiếp) hơn kém nhau 2 đơn vị."]},
+    {id:"b4",group:G1,short:"Bài 4",name:"Biểu thức chứa chữ",notes:["Biểu thức chứa chữ có chữ thay cho số, ví dụ: a + 5, b × 3, a + b.","Mỗi lần thay chữ bằng số, ta tính được một giá trị của biểu thức.","Chu vi hình vuông: P = a × 4. Chu vi hình chữ nhật: P = (a + b) × 2."]},
+    {id:"b5",group:G1,short:"Bài 5",name:"Giải bài toán có ba bước tính",notes:["Đọc kĩ đề: cái đã cho, cái phải tìm.","Chia bài toán thành từng bước nhỏ, mỗi bước tính một số trung gian.","Viết câu trả lời và đáp số có đơn vị."]},
+    {id:"b7",group:G2,short:"Bài 7",name:"Đo góc, đơn vị đo góc",notes:["Dùng thước đo góc để đo góc.","Đơn vị đo góc là độ, kí hiệu °. Góc vuông có số đo 90°.","Khi đo: đặt tâm thước trùng với đỉnh góc, một cạnh của góc đi qua vạch 0."]},
+    {id:"b8",group:G2,short:"Bài 8",name:"Góc nhọn, góc tù, góc bẹt",notes:["Góc nhọn bé hơn góc vuông (nhỏ hơn 90°).","Góc tù lớn hơn góc vuông nhưng bé hơn góc bẹt (lớn hơn 90°, nhỏ hơn 180°).","Góc bẹt bằng hai góc vuông (180°)."]},
+    {id:"b10",group:G3,short:"Bài 10",name:"Số có sáu chữ số. Số 1 000 000",notes:["10 chục nghìn = 1 trăm nghìn; 10 trăm nghìn = 1 triệu.","Số 1 000 000 đọc là một triệu, có 6 chữ số 0.","Đọc số theo từng nhóm ba chữ số từ trái sang phải; hàng chục là 0 mà hàng đơn vị khác 0 thì đọc \"linh\" (ví dụ: 305 đọc là ba trăm linh năm)."]},
+    {id:"b11",group:G3,short:"Bài 11",name:"Hàng và lớp",notes:["Lớp đơn vị gồm hàng đơn vị, hàng chục, hàng trăm.","Lớp nghìn gồm hàng nghìn, hàng chục nghìn, hàng trăm nghìn.","Giá trị của một chữ số phụ thuộc vào hàng của nó: chữ số 5 trong 52 000 có giá trị 50 000."]},
+    {id:"b12",group:G3,short:"Bài 12",name:"Các số trong phạm vi lớp triệu",notes:["Lớp triệu gồm hàng triệu, hàng chục triệu, hàng trăm triệu.","10 triệu = 1 chục triệu; 10 chục triệu = 1 trăm triệu.","Số 100 000 000 đọc là một trăm triệu."]},
+    {id:"b13",group:G3,short:"Bài 13",name:"Làm tròn số đến hàng trăm nghìn",notes:["Làm tròn đến hàng trăm nghìn: xét chữ số hàng chục nghìn.","Chữ số đó bé hơn 5 thì làm tròn xuống, lớn hơn hoặc bằng 5 thì làm tròn lên.","Ví dụ: 4 360 000 làm tròn đến hàng trăm nghìn được 4 400 000."]},
+    {id:"b14",group:G3,short:"Bài 14",name:"So sánh các số có nhiều chữ số",notes:["Số nào có nhiều chữ số hơn thì lớn hơn.","Hai số có cùng số chữ số: so sánh từng cặp chữ số ở cùng hàng, từ trái sang phải.","Muốn xếp các số theo thứ tự, ta so sánh từng cặp số."]},
+    {id:"b15",group:G3,short:"Bài 15",name:"Làm quen với dãy số tự nhiên",notes:["Các số 0, 1, 2, 3, … là các số tự nhiên. Số 0 là số tự nhiên bé nhất.","Không có số tự nhiên lớn nhất.","Hai số tự nhiên liên tiếp hơn kém nhau 1 đơn vị."]},
+    {id:"b17",group:G4,short:"Bài 17",name:"Yến, tạ, tấn",notes:["1 yến = 10 kg; 1 tạ = 10 yến = 100 kg; 1 tấn = 10 tạ = 1 000 kg.","Đổi từ đơn vị lớn sang đơn vị bé: nhân. Đổi từ đơn vị bé sang đơn vị lớn: chia."]},
+    {id:"b18",group:G4,short:"Bài 18",name:"Đề-xi-mét vuông, mét vuông, mi-li-mét vuông",notes:["1 dm² = 100 cm²; 1 m² = 100 dm² = 10 000 cm².","1 cm² = 100 mm².","Hai đơn vị đo diện tích liền nhau hơn kém nhau 100 lần."]},
+    {id:"b19",group:G4,short:"Bài 19",name:"Giây, thế kỉ",notes:["1 phút = 60 giây.","1 thế kỉ = 100 năm. Từ năm 1 đến năm 100 là thế kỉ I; từ năm 2001 đến năm 2100 là thế kỉ XXI.","Thế kỉ thường được viết bằng số La Mã."]}
+  ],
+  items:[
+    {l:"b1",q:"Số lớn nhất có năm chữ số là:",o:["99 999","90 000","99 990","100 000"],x:"Số có năm chữ số lớn nhất có tất cả các chữ số đều là 9."},
+    {l:"b1",q:"Số liền sau của 49 999 là: ___",ans:"50000",x:"49 999 + 1 = 50 000."},
+    {l:"b1",q:"Số bé nhất có năm chữ số khác nhau là:",o:["10 234","10 000","12 345","10 023"],x:"Chữ số đầu bé nhất khác 0 là 1, các chữ số tiếp theo bé nhất và khác nhau: 0, 2, 3, 4."},
+    {l:"b1",g:"compose5"},{l:"b1",g:"place"},
+    {l:"b2",q:"Tìm x, biết: x + 2 450 = 10 000. Vậy x = ___",ans:"7550",x:"x = 10 000 − 2 450 = 7 550."},
+    {l:"b2",q:"Tìm x, biết: x × 4 = 3 600. Vậy x = ___",ans:"900",x:"x = 3 600 : 4 = 900."},
+    {l:"b2",q:"Tính nhẩm: 40 000 + 30 000 − 20 000 = ___",ans:"50000",x:"40 nghìn + 30 nghìn − 20 nghìn = 50 nghìn."},
+    {l:"b2",g:"addsub"},{l:"b2",g:"muldiv"},
+    {l:"b3",q:"Số chẵn lớn nhất có bốn chữ số là:",o:["9 998","9 999","9 990","8 888"],x:"9 999 là số lẻ, số chẵn liền trước nó là 9 998."},
+    {l:"b3",q:"Số lẻ bé nhất có năm chữ số là:",o:["10 001","10 000","10 003","11 111"],x:"10 000 là số chẵn, số lẻ liền sau là 10 001."},
+    {l:"b3",q:"Từ 1 đến 20 có bao nhiêu số lẻ? ___",ans:"10",x:"Các số lẻ: 1, 3, 5, …, 19 – có 10 số."},
+    {l:"b3",tf:true,q:"Tổng của hai số lẻ là một số chẵn.",x:"Ví dụ: 3 + 5 = 8; 7 + 9 = 16."},
+    {l:"b3",g:"evenodd"},
+    {l:"b4",q:"Với a = 8 và b = 5, giá trị của biểu thức a × b + a là: ___",ans:"48",x:"8 × 5 + 8 = 40 + 8 = 48."},
+    {l:"b4",q:"Chu vi hình chữ nhật có chiều dài 15 cm, chiều rộng 9 cm là: ___ cm",ans:"48",x:"P = (15 + 9) × 2 = 48 (cm)."},
+    {l:"b4",g:"expr"},{l:"b4",g:"perim"},
+    {l:"b5",q:"Một đội có 3 xe, mỗi xe chở 2 450 kg hàng và 1 xe chở 1 800 kg hàng. Cả đội chở được ___ kg hàng",ans:"9150",x:"3 xe chở: 2 450 × 3 = 7 350 (kg). Cả đội: 7 350 + 1 800 = 9 150 (kg)."},
+    {l:"b5",g:"step3"},{l:"b5",g:"step3"},
+    {l:"b7",q:"Dụng cụ dùng để đo góc là:",o:["thước đo góc","ê-ke","com-pa","thước thẳng"]},
+    {l:"b7",q:"Góc vuông có số đo là:",o:["90°","60°","180°","45°"]},
+    {l:"b7",q:"Đơn vị đo góc là:",o:["độ (°)","xăng-ti-mét","mét vuông","giây"]},
+    {l:"b7",q:"Khi đo góc, ta đặt tâm của thước đo góc trùng với:",o:["đỉnh của góc","một điểm bất kì trên cạnh","điểm giữa của một cạnh","một điểm ngoài góc"]},
+    {l:"b8",q:"Góc bẹt bằng mấy góc vuông?",o:["2","1","3","4"],x:"Góc bẹt 180° = 90° + 90°."},
+    {l:"b8",q:"Lúc 3 giờ đúng, kim giờ và kim phút tạo thành:",o:["góc vuông","góc nhọn","góc tù","góc bẹt"]},
+    {l:"b8",q:"Lúc 6 giờ đúng, kim giờ và kim phút tạo thành:",o:["góc bẹt","góc vuông","góc nhọn","góc tù"]},
+    {l:"b8",tf:false,q:"Góc tù bé hơn góc vuông.",x:"Góc tù lớn hơn góc vuông."},
+    {l:"b8",g:"angle"},
+    {l:"b10",q:"10 trăm nghìn bằng:",o:["1 000 000","100 000","10 000 000","1 000"]},
+    {l:"b10",q:"Số 1 000 000 có bao nhiêu chữ số 0? ___",ans:"6"},
+    {l:"b10",g:"read"},{l:"b10",g:"readmc"},
+    {l:"b11",q:"Lớp nghìn gồm những hàng nào?",o:["hàng nghìn, hàng chục nghìn, hàng trăm nghìn","hàng đơn vị, hàng chục, hàng trăm","hàng trăm, hàng nghìn, hàng chục nghìn","hàng triệu, hàng chục triệu, hàng trăm triệu"]},
+    {l:"b11",g:"value"},{l:"b11",g:"cls"},
+    {l:"b12",q:"Số mười triệu viết là:",o:["10 000 000","1 000 000","100 000 000","10 000"]},
+    {l:"b12",q:"Số 205 000 000 đọc là:",o:["Hai trăm linh năm triệu","Hai trăm năm mươi triệu","Hai mươi lăm triệu","Hai trăm linh năm nghìn"]},
+    {l:"b12",g:"compose7"},{l:"b12",g:"read"},
+    {l:"b13",q:"Số 2 549 000 làm tròn đến hàng trăm nghìn là:",o:["2 500 000","2 600 000","2 550 000","3 000 000"],x:"Chữ số hàng chục nghìn là 4 < 5 nên làm tròn xuống: 2 500 000."},
+    {l:"b13",g:"round"},{l:"b13",g:"round"},
+    {l:"b14",q:"Số bé nhất trong các số 345 678; 345 687; 345 768; 354 678 là:",o:["345 678","345 687","345 768","354 678"]},
+    {l:"b14",g:"compare"},{l:"b14",g:"max"},
+    {l:"b15",q:"Số tự nhiên bé nhất là:",o:["0","1","10","không có"]},
+    {l:"b15",tf:false,q:"Có số tự nhiên lớn nhất.",x:"Thêm 1 vào bất kì số tự nhiên nào cũng được số lớn hơn, nên không có số tự nhiên lớn nhất."},
+    {l:"b15",q:"Số tự nhiên liền trước của 100 000 là: ___",ans:"99999"},
+    {l:"b15",g:"seq"},
+    {l:"b17",q:"1 tấn bằng bao nhiêu tạ?",o:["10 tạ","100 tạ","1 000 tạ","1 tạ"]},
+    {l:"b17",q:"Một con voi trưởng thành có thể nặng khoảng:",o:["5 tấn","5 kg","5 yến","5 g"]},
+    {l:"b17",g:"mass"},{l:"b17",g:"mass"},
+    {l:"b18",q:"Diện tích một phòng học khoảng:",o:["50 m²","50 dm²","50 cm²","50 mm²"]},
+    {l:"b18",q:"1 m² = ___ cm²",ans:"10000",x:"1 m² = 100 dm² = 10 000 cm²."},
+    {l:"b18",g:"area"},{l:"b18",g:"area"},
+    {l:"b19",q:"Năm 2026 thuộc thế kỉ:",o:["XXI","XX","XXII","XIX"],x:"Từ năm 2001 đến năm 2100 là thế kỉ XXI."},
+    {l:"b19",q:"1 thế kỉ = ___ năm",ans:"100"},
+    {l:"b19",g:"time"},{l:"b19",g:"century"}
+  ]
+});
+
+/* ------------------------------ TIẾNG VIỆT 4 ------------------------------ */
+const TV1="Luyện từ và câu", TV2="Đọc hiểu";
+APP.subjects.push({
+  id:"tv", name:"Tiếng Việt", tone:"lang",
+  scopeText:"Phạm vi: tuần 1 đến tuần 8 (Chủ điểm \"Mỗi người một vẻ\" và \"Trải nghiệm và khám phá\"), sách Tiếng Việt 4 Kết nối tri thức với cuộc sống.",
+  test:{n:20,mins:35,count:12,reading:1,scopes:[{id:"all",name:"Tuần 1–8",lessons:"*"}]},
+  lessons:[
+    {id:"n1",group:TV1,short:"Danh từ",name:"Danh từ",notes:["Danh từ là từ chỉ sự vật: người, con vật, đồ vật, cây cối, hiện tượng tự nhiên, thời gian…","Ví dụ: học sinh, con mèo, cái bàn, cơn mưa, buổi sáng, mùa xuân."]},
+    {id:"n2",group:TV1,short:"DT chung, riêng",name:"Danh từ chung, danh từ riêng",notes:["Danh từ chung là tên gọi chung của một loại sự vật: sông, núi, thành phố, học sinh.","Danh từ riêng là tên riêng của một sự vật: sông Hồng, núi Ba Vì, Hà Nội, Nguyễn Văn An.","Danh từ riêng phải viết hoa. Tên người, tên địa lí Việt Nam: viết hoa chữ cái đầu của mỗi tiếng."]},
+    {id:"n3",group:TV1,short:"Tên cơ quan",name:"Quy tắc viết tên cơ quan, tổ chức",notes:["Viết hoa chữ cái đầu của mỗi bộ phận tạo thành tên cơ quan, tổ chức.","Ví dụ: Trường Tiểu học Kim Đồng; Bộ Giáo dục và Đào tạo; Đội Thiếu niên Tiền phong Hồ Chí Minh."]},
+    {id:"n4",group:TV1,short:"Động từ",name:"Động từ",notes:["Động từ là từ chỉ hoạt động (chạy, viết, đọc…) hoặc trạng thái (ngủ, yêu, ghét, mong ước, lo lắng…) của sự vật.","Một số động từ chỉ tình cảm, cảm xúc: mong ước, kính yêu, tiếc, mừng rỡ.","Các từ đã, đang, sẽ đứng trước động từ để cho biết thời gian của hoạt động."]},
+    {id:"n5",group:TV1,short:"Từ điển",name:"Cách dùng và công dụng của từ điển",notes:["Từ điển giúp tra nghĩa của từ, cách viết đúng chính tả và cách dùng từ.","Các từ trong từ điển được xếp theo thứ tự bảng chữ cái.","Khi tra từ: tìm chữ cái đầu tiên, rồi lần lượt các chữ cái tiếp theo."]},
+    {id:"d1",group:TV2,short:"Đọc hiểu",name:"Đọc hiểu văn bản (bài đọc mới)",notes:["Đọc kĩ toàn bài một lượt, rồi đọc câu hỏi.","Tìm câu trả lời ngay trong bài: gạch chân chi tiết liên quan.","Với câu hỏi về ý nghĩa, nghĩ xem câu chuyện muốn khuyên em điều gì."]}
+  ],
+  items:[
+    // Danh từ
+    {l:"n1",q:"Từ nào dưới đây là danh từ?",o:["quyển sách","chạy nhảy","xinh đẹp","vui vẻ"]},
+    {l:"n1",q:"Từ nào là danh từ chỉ hiện tượng tự nhiên?",o:["sấm sét","bác sĩ","bút chì","con mèo"]},
+    {l:"n1",q:"Từ nào là danh từ chỉ thời gian?",o:["buổi sáng","đi học","cái thước","cây bàng"]},
+    {l:"n1",q:"Từ nào là danh từ chỉ người?",o:["thầy giáo","con trâu","cái ghế","mưa phùn"]},
+    {l:"n1",q:"Dòng nào gồm toàn danh từ?",o:["bàn, ghế, cửa sổ, bảng đen","bàn, chạy, đẹp, bảng","học, viết, đọc, vẽ","xanh, đỏ, tím, vàng"]},
+    {l:"n1",q:"Từ nào KHÔNG phải là danh từ?",o:["chăm chỉ","cô giáo","dòng sông","mùa hè"],x:"\"Chăm chỉ\" chỉ đặc điểm của người, không chỉ sự vật."},
+    {l:"n1",q:"Danh từ \"cầu vồng\" chỉ:",o:["hiện tượng tự nhiên","đồ vật","con vật","thời gian"]},
+    {l:"n1",q:"Chọn danh từ thích hợp điền vào chỗ trống: \"Mỗi sáng, chú ___ gáy vang đánh thức cả xóm.\"",o:["gà trống","mèo con","chim sẻ","cún con"]},
+    {l:"n1",q:"Từ \"mùa xuân\" là danh từ chỉ:",o:["thời gian","người","đồ vật","hiện tượng tự nhiên"]},
+    {l:"n1",q:"Từ nào là danh từ chỉ đồ vật?",o:["cái cặp","cô giáo","chim én","gió mùa"]},
+    {l:"n1",tf:true,q:"\"Nắng\", \"gió\", \"mưa\" đều là danh từ chỉ hiện tượng tự nhiên."},
+    {l:"n1",q:"Nhóm từ nào gồm toàn danh từ chỉ con vật?",o:["trâu, bò, lợn, gà","ruộng, vườn, ao, hồ","cày, cấy, gặt, hái","xanh, tươi, mát, đẹp"]},
+    {l:"n1",q:"Trong câu \"Bé Lan tặng mẹ một bông hoa.\", các danh từ chỉ người là:",o:["Lan, mẹ","tặng","bông hoa","một"]},
+    {l:"n1",q:"Trong câu \"Chiều nay, cả lớp em đi tham quan vườn bách thảo.\", danh từ chỉ thời gian là:",o:["chiều nay","lớp em","tham quan","vườn bách thảo"]},
+    // Danh từ chung, riêng
+    {l:"n2",q:"Từ nào là danh từ riêng?",o:["Hà Nội","thành phố","dòng sông","ngọn núi"]},
+    {l:"n2",q:"Từ nào là danh từ chung?",o:["con sông","sông Hồng","Hồ Gươm","Đà Lạt"]},
+    {l:"n2",q:"Tên người nào viết đúng chính tả?",o:["Nguyễn Thị Minh Khai","nguyễn thị minh khai","Nguyễn thị Minh khai","Nguyễn Thị minh Khai"],x:"Tên người Việt Nam: viết hoa chữ cái đầu của mỗi tiếng."},
+    {l:"n2",q:"Cách viết nào đúng?",o:["sông Cửu Long","sông cửu long","Sông cửu Long","sông Cửu long"],x:"\"sông\" là danh từ chung; \"Cửu Long\" là tên riêng nên viết hoa cả hai tiếng."},
+    {l:"n2",q:"Trong câu \"Bạn Minh sống ở thành phố Huế.\", các danh từ riêng là:",o:["Minh, Huế","bạn, thành phố","sống, ở","bạn Minh, sống"]},
+    {l:"n2",tf:false,q:"Danh từ chung luôn phải viết hoa.",x:"Chỉ danh từ riêng mới phải viết hoa."},
+    {l:"n2",tf:true,q:"\"Trường Sơn\" là danh từ riêng chỉ tên một dãy núi."},
+    {l:"n2",q:"Từ nào là tên riêng nhưng đang viết sai (chưa viết hoa)?",o:["ba vì","dòng sông","ngọn núi","con đường"],x:"Ba Vì là tên một ngọn núi nên phải viết hoa: Ba Vì."},
+    {l:"n2",q:"Viết lại cho đúng tên riêng: \"lê văn tám\" → ___",ans:"Lê Văn Tám",cs:true},
+    {l:"n2",q:"Viết lại cho đúng tên địa lí: \"đà nẵng\" → ___",ans:"Đà Nẵng",cs:true},
+    {l:"n2",q:"Nhóm nào gồm toàn danh từ riêng?",o:["Lan, Hải Phòng, Cần Thơ","Lan, bạn, Cần Thơ","sông, núi, biển","Hải Phòng, cảng, tàu"]},
+    {l:"n2",q:"Trong câu \"Mùa hè, em được về quê ngoại ở Nam Định thăm bà.\", danh từ riêng là:",o:["Nam Định","mùa hè","quê ngoại","bà"]},
+    {l:"n2",q:"Từ nào là danh từ chung?",o:["học sinh","Phong","Cà Mau","Tây Nguyên"]},
+    {l:"n2",q:"Viết lại cho đúng tên riêng: \"phú quốc\" → ___",ans:"Phú Quốc",cs:true},
+    // Tên cơ quan, tổ chức
+    {l:"n3",q:"Tên tổ chức nào viết đúng?",o:["Đội Thiếu niên Tiền phong Hồ Chí Minh","đội thiếu niên tiền phong hồ chí minh","Đội thiếu niên tiền phong Hồ Chí Minh","Đội Thiếu Niên Tiền Phong Hồ Chí Minh"]},
+    {l:"n3",q:"Tên cơ quan nào viết đúng?",o:["Bộ Giáo dục và Đào tạo","bộ giáo dục và đào tạo","Bộ giáo dục và đào tạo","Bộ Giáo Dục Và Đào Tạo"]},
+    {l:"n3",q:"Tên trường nào viết đúng?",o:["Trường Tiểu học Kim Đồng","trường tiểu học Kim Đồng","Trường tiểu học kim đồng","Trường Tiểu Học Kim Đồng"]},
+    {l:"n3",q:"Tên nào viết đúng quy tắc?",o:["Thư viện Quốc gia Việt Nam","thư viện quốc gia Việt Nam","Thư Viện Quốc Gia Việt Nam","Thư viện quốc gia việt nam"]},
+    {l:"n3",q:"Tên nào viết đúng quy tắc?",o:["Hội Chữ thập đỏ Việt Nam","Hội chữ thập đỏ việt nam","hội Chữ Thập Đỏ Việt Nam","Hội Chữ Thập Đỏ việt Nam"]},
+    {l:"n3",q:"Viết lại cho đúng: \"bộ y tế\" → ___",ans:"Bộ Y tế",cs:true},
+    {l:"n3",q:"Viết lại cho đúng: \"trường trung học cơ sở nguyễn du\" → ___",ans:"Trường Trung học cơ sở Nguyễn Du",cs:true},
+    {l:"n3",tf:true,q:"Khi viết tên cơ quan, tổ chức, ta viết hoa chữ cái đầu của mỗi bộ phận tạo thành tên đó."},
+    {l:"n3",tf:false,q:"Khi viết tên cơ quan, tổ chức, ta phải viết hoa tất cả các tiếng.",x:"Chỉ viết hoa chữ cái đầu của mỗi bộ phận, ví dụ: Bộ Giáo dục và Đào tạo."},
+    {l:"n3",q:"Tên nào viết SAI quy tắc?",o:["Nhà Xuất Bản Giáo Dục Việt Nam","Nhà xuất bản Giáo dục Việt Nam","Bộ Y tế","Ngân hàng Nhà nước Việt Nam"],x:"Viết đúng là: Nhà xuất bản Giáo dục Việt Nam."},
+    // Động từ
+    {l:"n4",q:"Từ nào là động từ?",o:["nhảy dây","sân trường","xanh biếc","quyển vở"]},
+    {l:"n4",q:"Từ nào là động từ chỉ hoạt động?",o:["viết","yêu","mong","nhớ"]},
+    {l:"n4",q:"Từ nào là động từ chỉ tình cảm, cảm xúc?",o:["kính yêu","quét nhà","tưới cây","đá bóng"]},
+    {l:"n4",q:"Dòng nào gồm toàn động từ?",o:["đọc, viết, vẽ, hát","đọc, sách, vẽ, tranh","hát, hay, múa, đẹp","bàn, ghế, ngồi, đứng"]},
+    {l:"n4",q:"Trong câu \"Các bạn đang chơi đá cầu trong sân trường.\", động từ là:",o:["chơi","sân","bạn","trường"]},
+    {l:"n4",q:"Từ thích hợp điền vào chỗ trống: \"Ngày mai, lớp em ___ đi tham quan.\"",o:["sẽ","đã","đang","vừa"],x:"\"Ngày mai\" là thời gian sắp tới, nên dùng \"sẽ\"."},
+    {l:"n4",q:"Từ thích hợp điền vào chỗ trống: \"Em ___ làm xong bài tập từ tối qua.\"",o:["đã","sẽ","đang","sắp"]},
+    {l:"n4",q:"Từ thích hợp điền vào chỗ trống: \"Lúc này, mẹ ___ nấu cơm dưới bếp.\"",o:["đang","đã","sẽ","sắp"]},
+    {l:"n4",q:"Từ nào KHÔNG phải là động từ?",o:["chăm chỉ","học tập","lao động","giúp đỡ"]},
+    {l:"n4",q:"Động từ nào chỉ cảm xúc?",o:["mừng rỡ","chạy","đi","cầm"]},
+    {l:"n4",q:"Trong câu \"Chú chim sâu nhảy nhót trên cành và hót líu lo.\", các động từ là:",o:["nhảy nhót, hót","chim sâu, cành","líu lo, cành","trên, và"]},
+    {l:"n4",tf:true,q:"\"Mong ước\", \"tiếc\", \"kính yêu\" là những động từ chỉ tình cảm, cảm xúc."},
+    {l:"n4",tf:false,q:"\"Bông hoa\" là một động từ.",x:"\"Bông hoa\" là danh từ (chỉ sự vật)."},
+    {l:"n4",q:"Chọn động từ phù hợp: \"Các bạn nhỏ ___ cây trong vườn trường.\"",o:["trồng","đẹp","xanh","cây"]},
+    {l:"n4",q:"Nhóm động từ nào chỉ hoạt động ở trường?",o:["học bài, phát biểu, chào cờ","nấu cơm, quét nhà, rửa bát","cày ruộng, gặt lúa, chăn trâu","bơi, lặn, câu cá"]},
+    {l:"n4",q:"Trong câu \"Mẹ lo lắng khi em bị ốm.\", từ \"lo lắng\" là động từ chỉ:",o:["trạng thái, cảm xúc","hoạt động","sự vật","thời gian"]},
+    // Từ điển
+    {l:"n5",q:"Từ điển tiếng Việt dùng để làm gì?",o:["Tra nghĩa và cách viết của từ","Giải bài toán","Vẽ bản đồ","Ghi thời khóa biểu"]},
+    {l:"n5",q:"Các từ trong từ điển được sắp xếp theo:",o:["thứ tự bảng chữ cái","số tiếng của từ","độ dài của nghĩa","chủ đề của từ"]},
+    {l:"n5",q:"Trong từ điển, từ nào đứng trước nhất?",o:["bàn","cây","học","sông"]},
+    {l:"n5",q:"Trong từ điển, từ nào đứng sau cùng?",o:["xanh","mèo","gà","ếch"],x:"Thứ tự chữ cái: …, ê, g, …, m, …, x. Vậy \"xanh\" đứng sau cùng."},
+    {l:"n5",q:"Muốn tra từ \"rực rỡ\", em mở phần từ điển bắt đầu bằng chữ cái:",o:["r","d","g","t"]},
+    {l:"n5",q:"Trong các từ: an, ăn, âm, bé – từ nào đứng trước nhất trong từ điển?",o:["an","ăn","âm","bé"],x:"Thứ tự chữ cái: a, ă, â, b… nên \"an\" đứng trước."},
+    {l:"n5",q:"Chữ cái \"đ\" đứng ngay sau chữ cái nào trong bảng chữ cái tiếng Việt?",o:["d","c","e","b"]},
+    {l:"n5",tf:true,q:"Từ điển giúp em kiểm tra một từ viết đúng hay sai chính tả."},
+    {l:"n5",q:"Xếp các từ \"hoa, cỏ, lá, cây\" theo thứ tự trong từ điển. Từ đứng đầu là:",o:["cây","cỏ","hoa","lá"],x:"\"cây\" và \"cỏ\" cùng bắt đầu bằng c; chữ cái thứ hai: â đứng trước o, nên \"cây\" đứng trước."},
+    {l:"n5",q:"Khi gặp một từ khó hiểu trong bài đọc, em nên:",o:["tra từ điển để hiểu nghĩa","bỏ qua không đọc","đoán bừa nghĩa","gạch bỏ từ đó"]},
+    // Đọc hiểu (bài đọc tự soạn)
+    {l:"d1",t:"Chiếc lá bàng đỏ",rd:`Sáng nay, Minh đến lớp sớm. Sân trường còn vắng, chỉ có bác lao công đang quét lá. Minh thấy một chiếc lá bàng đỏ rực nằm dưới gốc cây. Cậu nhặt lên, ngắm mãi rồi cất vào trang vở.
+
+Vào giờ Mĩ thuật, cô giáo bảo cả lớp vẽ một món quà tặng người mình yêu quý. Minh lấy chiếc lá ra, đặt lên giấy rồi tô màu theo đường viền của lá. Bức tranh của cậu là một chiếc lá đỏ thật to, bên cạnh có dòng chữ: "Tặng bác lao công – người giữ cho sân trường luôn sạch đẹp."
+
+Cô giáo khen Minh biết quan sát và biết ơn những người lặng lẽ làm việc tốt.`,qs:[
+      {q:"Minh nhặt được gì dưới gốc cây?",o:["một chiếc lá bàng đỏ","một bông hoa","một quyển vở","một cái bút"]},
+      {q:"Minh tặng bức tranh cho ai?",o:["bác lao công","cô giáo","bạn cùng lớp","mẹ của Minh"]},
+      {q:"Vì sao cô giáo khen Minh?",o:["Vì Minh biết quan sát và biết ơn người làm việc tốt","Vì Minh đến lớp sớm nhất","Vì Minh vẽ bằng nhiều màu","Vì Minh quét sân giúp bác"]},
+      {q:"Trong câu \"Cậu nhặt lên, ngắm mãi rồi cất vào trang vở.\", các động từ là:",o:["nhặt, ngắm, cất","cậu, trang vở","lên, mãi, rồi","ngắm, trang, vở"]}]},
+    {l:"d1",t:"Bạn Hà thích hỏi",rd:`Hà là cô bé rất thích đặt câu hỏi. Đi dạo cùng bố, Hà hỏi: "Vì sao lá cây có màu xanh?", "Vì sao con kiến không bị lạc đường?". Bố không trả lời ngay mà dẫn Hà đến thư viện. Hai bố con cùng tìm sách và đọc. Hà biết rằng lá cây có chất diệp lục nên có màu xanh, còn kiến để lại mùi trên đường đi để đồng đội lần theo.
+
+Từ hôm đó, mỗi khi có điều thắc mắc, Hà lại ghi vào một cuốn sổ nhỏ. Cuối tuần, bé mang sổ đến thư viện để tự tìm câu trả lời. Cuốn sổ của Hà ngày càng dày thêm những điều thú vị.`,qs:[
+      {q:"Hà là cô bé như thế nào?",o:["thích đặt câu hỏi","rất nhút nhát","không thích đọc sách","hay quên"]},
+      {q:"Bố đã giúp Hà bằng cách nào?",o:["Dẫn Hà đến thư viện để cùng tìm sách đọc","Trả lời ngay mọi câu hỏi","Mua cho Hà một con kiến","Bảo Hà đừng hỏi nữa"]},
+      {q:"Theo bài, vì sao lá cây có màu xanh?",o:["Vì lá có chất diệp lục","Vì lá được tô màu","Vì trời mưa nhiều","Vì kiến bò trên lá"]},
+      {q:"Từ nào trong bài là danh từ riêng?",o:["Hà","thư viện","cuốn sổ","con kiến"]}]},
+    {l:"d1",t:"Buổi sáng ở chợ quê",rd:`Trời vừa hửng sáng, chợ quê đã đông vui. Các bà, các mẹ gánh rau, gánh cá từ khắp các ngả đường đổ về. Những mớ rau muống xanh mướt, những rổ cà chua đỏ au được bày ngay ngắn. Tiếng mời chào, tiếng cười nói rộn ràng cả một góc đình.
+
+Em theo bà đi chợ. Bà chọn mua mấy quả bí, một ít tôm tươi và không quên mua cho em một chiếc bánh đa giòn rụm. Trên đường về, nắng sớm trải vàng trên cánh đồng, gió thổi mát rượi. Em thấy yêu biết bao buổi sáng ở quê.`,qs:[
+      {q:"Chợ quê đông vui vào lúc nào?",o:["lúc trời vừa hửng sáng","buổi trưa","buổi chiều","buổi tối"]},
+      {q:"Bà mua cho em món gì?",o:["một chiếc bánh đa","mấy quả bí","một ít tôm tươi","một mớ rau muống"]},
+      {q:"Câu nào cho thấy tình cảm của bạn nhỏ với quê hương?",o:["Em thấy yêu biết bao buổi sáng ở quê.","Em theo bà đi chợ.","Trời vừa hửng sáng.","Bà chọn mua mấy quả bí."]},
+      {q:"Từ \"buổi sáng\" là danh từ chỉ:",o:["thời gian","người","hiện tượng tự nhiên","đồ vật"]}]},
+    {l:"d1",t:"Cây đàn của ông",rd:`Ông nội của Nam có một cây đàn nhị cũ. Mỗi tối, ông ngồi bên hiên kéo đàn. Tiếng đàn lúc trầm ấm, lúc réo rắt khiến cả nhà lặng im lắng nghe. Nam rất muốn biết chơi đàn như ông.
+
+Ông bảo: "Muốn chơi được đàn, cháu phải kiên nhẫn tập luyện mỗi ngày." Nam tập theo ông. Mấy hôm đầu, tiếng đàn của Nam rè rè như tiếng ve. Nam buồn, định bỏ cuộc. Ông xoa đầu cháu: "Ai mới tập cũng thế. Cố lên cháu ạ!" Nam lại kiên trì luyện tập. Một tháng sau, Nam đã kéo được một bài hát quen thuộc. Ông nội cười mãn nguyện.`,qs:[
+      {q:"Ông nội của Nam có cây đàn gì?",o:["đàn nhị","đàn ghi-ta","đàn bầu","đàn piano"]},
+      {q:"Mấy hôm đầu tập đàn, Nam cảm thấy thế nào?",o:["buồn, định bỏ cuộc","rất vui","tự hào","không quan tâm"]},
+      {q:"Câu chuyện muốn nói với em điều gì?",o:["Muốn làm được việc khó, cần kiên trì luyện tập","Chơi đàn rất dễ","Chỉ người lớn mới chơi được đàn","Không nên học đàn"]},
+      {q:"Trong câu \"Nam rất muốn biết chơi đàn như ông.\", từ chỉ mong muốn là:",o:["muốn","chơi","đàn","ông"]}]},
+    {l:"d1",t:"Chuyến tham quan bảo tàng",rd:`Thứ bảy vừa rồi, lớp 4B được đi tham quan Bảo tàng Dân tộc học. Cô hướng dẫn viên dẫn chúng em đi xem những ngôi nhà truyền thống của các dân tộc. Em thích nhất ngôi nhà rông cao vút với mái hình lưỡi rìu. Cô kể rằng nhà rông là nơi dân làng tụ họp, bàn việc chung và tổ chức lễ hội.
+
+Ra về, ai cũng ríu rít kể cho nhau nghe điều mình mới biết. Em ghi chép cẩn thận để về nhà viết bài giới thiệu cho cả lớp.`,qs:[
+      {q:"Lớp 4B đi tham quan ở đâu?",o:["Bảo tàng Dân tộc học","Vườn bách thú","Thư viện","Công viên nước"]},
+      {q:"Bạn nhỏ thích nhất điều gì?",o:["ngôi nhà rông","những bức tranh","con thuyền","chiếc trống đồng"]},
+      {q:"Theo bài, nhà rông dùng để làm gì?",o:["Nơi dân làng tụ họp, bàn việc chung, tổ chức lễ hội","Nơi để cất lúa","Nơi nuôi gia súc","Nơi các bạn nhỏ học bài"]},
+      {q:"\"Bảo tàng Dân tộc học\" được viết hoa như thế nào là đúng quy tắc?",o:["Viết hoa chữ cái đầu của \"Bảo tàng\" và \"Dân tộc học\"","Viết hoa tất cả các tiếng","Không cần viết hoa","Chỉ viết hoa chữ \"học\""]}]},
+    {l:"d1",t:"Hạt đậu nảy mầm",rd:`Cô giáo giao cho mỗi bạn một thí nghiệm nhỏ: gieo hạt đậu và theo dõi trong một tuần. Lan lót bông ẩm vào chiếc cốc nhựa, đặt lên đó năm hạt đậu xanh rồi để cốc ở bậu cửa sổ. Ngày nào Lan cũng tưới một chút nước và ghi lại những gì quan sát được.
+
+Đến ngày thứ hai, vỏ hạt nứt ra. Ngày thứ ba, những chiếc rễ trắng nhỏ xíu nhú xuống. Đến cuối tuần, mỗi hạt đã có hai chiếc lá non xanh mởn. Lan vui sướng mang cốc đậu đến lớp và kể cho các bạn nghe hành trình kì diệu của những hạt đậu bé xíu.`,qs:[
+      {q:"Lan gieo hạt đậu vào đâu?",o:["cốc nhựa có lót bông ẩm","chậu đất trong vườn","đĩa đựng nước","túi ni lông"]},
+      {q:"Đến ngày thứ ba, Lan thấy điều gì?",o:["rễ trắng nhỏ nhú xuống","hai chiếc lá non","hạt đậu bị khô","cây ra hoa"]},
+      {q:"Điều gì giúp Lan biết rõ sự thay đổi của hạt đậu?",o:["Lan ghi lại những gì quan sát được mỗi ngày","Lan hỏi mẹ","Lan đọc sách","Lan đoán"]},
+      {q:"Từ nào là danh từ chỉ đồ vật?",o:["cốc nhựa","tưới","vui sướng","nứt"]}]}
+  ],
+  writing:[
+    {title:"Viết đoạn văn nêu ý kiến",prompt:"Viết đoạn văn nêu ý kiến của em về một nhân vật em yêu thích trong một câu chuyện đã đọc hoặc đã nghe.",
+     outline:["Câu mở đoạn: giới thiệu nhân vật (trong câu chuyện nào) và nêu ý kiến: em yêu thích nhân vật đó.","Các câu tiếp theo: nêu 2–3 lí do em yêu thích, mỗi lí do kèm một chi tiết trong câu chuyện để chứng minh.","Câu kết đoạn: khẳng định lại tình cảm của em và điều em học được từ nhân vật."],
+     checklist:["Câu mở đoạn nêu rõ ý kiến của em","Có ít nhất 2 lí do","Mỗi lí do có chi tiết trong câu chuyện","Có câu kết đoạn","Viết hoa đầu câu và tên riêng, dùng dấu câu đúng"]},
+    {title:"Viết báo cáo thảo luận nhóm",prompt:"Nhóm em vừa thảo luận về việc giữ gìn vệ sinh lớp học. Hãy viết báo cáo kết quả buổi thảo luận.",
+     outline:["Phần đầu: tên báo cáo (ví dụ: BÁO CÁO KẾT QUẢ THẢO LUẬN NHÓM); nhóm, lớp; thời gian, địa điểm thảo luận.","Phần nội dung: thành phần tham gia; vấn đề thảo luận; các ý kiến đã thống nhất (ví dụ: không xả rác, chia lịch trực nhật, nhắc nhở nhau).","Phần cuối: người viết báo cáo (nhóm trưởng hoặc thư kí) ghi tên."],
+     checklist:["Có tên báo cáo","Ghi rõ nhóm, lớp, thời gian","Nêu rõ vấn đề thảo luận","Liệt kê các ý kiến đã thống nhất","Có tên người viết báo cáo"]},
+    {title:"Viết bài văn thuật lại một sự việc",prompt:"Viết bài văn thuật lại một hoạt động em đã tham gia ở trường (ví dụ: buổi chào cờ, ngày hội đọc sách, buổi lao động trồng cây).",
+     outline:["Mở bài: giới thiệu sự việc – sự việc gì, diễn ra khi nào, ở đâu, có những ai.","Thân bài: thuật lại theo trình tự – lúc bắt đầu, diễn biến chính, lúc kết thúc; kể những chi tiết, hoạt động nổi bật.","Kết bài: nêu cảm nghĩ của em về sự việc."],
+     checklist:["Có đủ ba phần: mở bài, thân bài, kết bài","Nêu rõ thời gian, địa điểm","Các việc được kể theo đúng trình tự","Có chi tiết nổi bật, sinh động","Có cảm nghĩ của em ở kết bài"]},
+    {title:"Viết bài văn kể lại một câu chuyện",prompt:"Viết bài văn kể lại một câu chuyện em đã đọc hoặc đã nghe về lòng tốt hoặc tinh thần vượt khó.",
+     outline:["Mở bài: giới thiệu câu chuyện và nhân vật chính.","Thân bài: kể lần lượt các sự việc theo trình tự; có lời nói, hành động của nhân vật.","Kết bài: kết thúc câu chuyện; nêu cảm nghĩ hoặc bài học em rút ra."],
+     checklist:["Giới thiệu được câu chuyện và nhân vật","Kể đúng trình tự các sự việc","Có lời nói hoặc hành động của nhân vật","Có kết thúc và bài học","Viết đúng chính tả, dùng từ chính xác"]}
+  ]
+});
+
+/* ================= CORE (no DOM) ================= */
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng(seed){let a=hash(String(seed));return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function shuffleWith(arr,r){arr=arr.slice();for(let i=arr.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+function apportion(sizes,n){
+  const total=Object.values(sizes).reduce((a,b)=>a+b,0), out={}, rem=[];let used=0;
+  for(const [k,c] of Object.entries(sizes)){const x=n*c/total;out[k]=Math.floor(x);used+=out[k];rem.push([x-out[k],k])}
+  rem.sort((a,b)=>b[0]-a[0]);for(let i=0;used<n&&rem.length;i++,used++)out[rem[i%rem.length][1]]++;
+  return out;
+}
+const NB=" ";
+function fmt(n){const neg=n<0, a=Math.abs(n), s=String(a);return (neg?"−":"")+(a>=10000?s.replace(/\B(?=(\d{3})+(?!\d))/g,NB):s)}
+const DIG=["không","một","hai","ba","bốn","năm","sáu","bảy","tám","chín"];
+function read3(n,full){
+  const h=Math.floor(n/100), t=Math.floor(n/10)%10, u=n%10, w=[];
+  if(full||h>0)w.push(DIG[h],"trăm");
+  if(t===0){if(u>0){if(full||h>0)w.push("linh");w.push(DIG[u])}}
+  else if(t===1){w.push("mười");if(u===5)w.push("lăm");else if(u>0)w.push(DIG[u])}
+  else{w.push(DIG[t],"mươi");if(u===1)w.push("mốt");else if(u===5)w.push("lăm");else if(u>0)w.push(DIG[u])}
+  return w.join(" ");
+}
+function docSo(n){
+  if(n===0)return "không";
+  const units=["","nghìn","triệu","tỉ"], g=[];let x=n;
+  while(x>0){g.push(x%1000);x=Math.floor(x/1000)}
+  const out=[];
+  for(let i=g.length-1;i>=0;i--){if(g[i]===0)continue;out.push(read3(g[i],i!==g.length-1));if(units[i])out.push(units[i])}
+  return out.join(" ");
+}
+function roman(n){const m=[[1000,"M"],[900,"CM"],[500,"D"],[400,"CD"],[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]];let s="";for(const [v,c] of m)while(n>=v){s+=c;n-=v}return s}
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const ri=(r,a,b)=>a+Math.floor(r()*(b-a+1));
+const pick=(r,arr)=>arr[Math.floor(r()*arr.length)];
+const P=n=>n<0?`(−${-n})`:String(n);
+const sup=n=>`<sup>${n}</sup>`;
+function joinVN(parts){return parts.length<2?parts.join(""):parts.slice(0,-1).join(", ")+" và "+parts[parts.length-1]}
+const U={ri,pick,fmt,docSo,roman,cap,P,sup,joinVN,shuffle:(r,a)=>shuffleWith(a,r)};
+
+/* ---- subjects ---- */
+const SUBJ={};
+APP.subjects.forEach(s=>{
+  SUBJ[s.id]=s;s.L={};
+  s.lessons.forEach(l=>{s.L[l.id]=l;l.count=0;l.hasGen=false});
+  s.items.forEach((it,i)=>{it.id=s.id+":"+i;it.sid=s.id;const L=s.L[it.l];if(!L)throw new Error("Unknown lesson "+it.l+" in "+s.id);
+    L.count+=it.rd?it.qs.length:(it.g?2:1);if(it.g)L.hasGen=true});
+});
+function one(src,r){
+  if(src.o){const n=src.o.length;return {kind:"mc",q:src.q,o:src.o,a:src.a||0,order:src.keep?[...Array(n).keys()]:shuffleWith([...Array(n).keys()],r),x:src.x}}
+  if(src.tf!==undefined)return {kind:"mc",q:src.q,o:["Đúng","Sai"],a:src.tf?0:1,order:[0,1],x:src.x,tf:true};
+  return {kind:"fill",q:src.q,ans:String(src.ans).split("|"),cs:!!src.cs,x:src.x};
+}
+function inst(it,r){
+  if(it.rd)return it.qs.map((sq,k)=>Object.assign(one(sq,r),{id:it.id,sub:k,sid:it.sid,l:it.l,passage:it.rd,ptitle:it.t}));
+  const src=it.g?APP.gen[it.g](r,U):it;
+  return [Object.assign(one(src,r),{id:it.id,sid:it.sid,l:it.l})];
+}
+const permCache={};
+function perm(key,len){return permCache[key]||(permCache[key]=shuffleWith([...Array(len).keys()],rng(key)))}
+function scopeOf(s,id){const sc=s.test.scopes;return sc.find(x=>x.id===id)||sc[0]}
+const inScope=(sc,l)=>sc.lessons==="*"||sc.lessons.includes(l);
+function buildTest(sid,scopeId,k){
+  const s=SUBJ[sid], T=s.test, sc=scopeOf(s,scopeId), base=[APP.key,sid,sc.id].join("|");
+  const items=s.items.filter(it=>inScope(sc,it.l));
+  const rds=items.filter(it=>it.rd), norm=items.filter(it=>!it.rd), out=[];
+  if(T.reading&&rds.length){const cyc=Math.floor(k/rds.length), it=rds[perm(base+"|rd|"+cyc,rds.length)[k%rds.length]];out.push(...inst(it,rng(base+"|"+k+"|"+it.id)))}
+  const need=T.n-out.length, g={};
+  norm.forEach(it=>(g[it.l]=g[it.l]||[]).push(it));
+  const sizes={};for(const l in g)sizes[l]=g[l].length;
+  const quota=apportion(sizes,need), picked=[], seen=new Set();
+  for(const l in quota){
+    const G=g[l], q=Math.min(quota[l],G.length);let pos=k*quota[l], got=0, guard=0;
+    while(got<q&&guard++<G.length*3){const cyc=Math.floor(pos/G.length), it=G[perm(base+"|"+l+"|"+cyc,G.length)[pos%G.length]];if(!seen.has(it.id)){seen.add(it.id);picked.push(it);got++}pos++}
+  }
+  if(picked.length<need){const rest=shuffleWith(norm.filter(it=>!seen.has(it.id)),rng(base+"|top|"+k));while(picked.length<need&&rest.length)picked.push(rest.shift())}
+  shuffleWith(picked,rng(base+"|order|"+k)).forEach(it=>out.push(...inst(it,rng(base+"|"+k+"|"+it.id))));
+  return out;
+}
+function lessonQs(sid,l){
+  const s=SUBJ[sid], r=Math.random;let its=s.items.filter(it=>it.l===l);
+  const rd=its.filter(it=>it.rd);if(rd.length>2)its=its.filter(it=>!it.rd).concat(shuffleWith(rd,r).slice(0,2));
+  const out=[];shuffleWith(its,r).forEach(it=>{out.push(...inst(it,r));if(it.g)out.push(...inst(it,r))});
+  return out;
+}
+const normT=s=>String(s).normalize("NFC").replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/\s+/g," ").replace(/[.!?;:,]+$/,"").trim();
+const isNum=s=>/^[-−–]?\s*\d[\d\s., ]*$/.test(String(s).trim());
+const numKey=s=>String(s).trim().replace(/[−–]/g,"-").replace(/[\s., ]/g,"");
+function fillOK(q,g){
+  if(g==null||String(g).trim()==="")return false;
+  return q.ans.some(a=>(isNum(a)&&isNum(g))?numKey(a)===numKey(g):q.cs?normT(a)===normT(g):normT(a).toLowerCase()===normT(g).toLowerCase());
+}
+function isRight(q,g){if(g==null)return false;return q.kind==="mc"?g===q.a:fillOK(q,g)}
+function stripTags(h){return String(h).replace(/<sup>(.*?)<\/sup>/g,"^$1").replace(/<[^>]+>/g,"")}
+function correctText(q){return q.kind==="mc"?q.o[q.a]:q.ans[0]}
+function showAns(q){const a=String(q.ans[0]).trim();return /^[-−]?\d+$/.test(a)?fmt(parseInt(a.replace("−","-"),10)):a}
+function givenText(q,g){return g==null||g===""?"(bỏ trống)":q.kind==="mc"?q.o[g]:String(g)}
+const wkey=q=>q.id+(q.sub!=null?"#"+q.sub:"");
+function byKey(sid,key){
+  const [id,sub]=key.split("#"), it=SUBJ[sid]&&SUBJ[sid].items.find(x=>x.id===id);if(!it)return [];
+  const qs=inst(it,Math.random);return sub!=null?qs.filter(q=>String(q.sub)===sub):qs;
+}
+const diem10=(r,t)=>t?String(Math.round(r/t*40)/4).replace(".",","):"0";
+
+/* ================= UI ================= */
+if(typeof document!=="undefined"){(function(){
+const PFX=(window.ONTAP_NS||"")+APP.key+"_";
+const store={get(k,d){try{const v=localStorage.getItem(PFX+k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(PFX+k,JSON.stringify(v))}catch(e){}}};
+const $=s=>document.querySelector(s), view=$("#view"), topRight=$("#topRight");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmtTime=s=>{s=Math.max(0,Math.round(s));return String(s/60|0).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
+const fmtDate=d=>d.toLocaleDateString("vi-VN",{day:"2-digit",month:"2-digit"});
+let cur=store.get("sub",APP.subjects[0].id);if(!SUBJ[cur])cur=APP.subjects[0].id;
+let res=store.get("res",{}), lres=store.get("lres",{}), hist=store.get("hist",[]);
+const wrongOf=sid=>new Set(store.get("wrong_"+sid,[]));
+const saveWrong=(sid,set)=>store.set("wrong_"+sid,[...set]);
+const scopeSel=sid=>store.get("scope_"+sid,SUBJ[sid].test.scopes[0].id);
+const rkey=(sid,sc,k)=>sid+"|"+sc+"|"+k;
+function setTone(sid){document.body.dataset.tone=SUBJ[sid].tone}
+function nextTest(sid){const sc=scopeSel(sid);for(let k=0;k<SUBJ[sid].test.count;k++)if(!res[rkey(sid,sc,k)])return k;return null}
+function nextLesson(s){return s.lessons.find(l=>!lres[s.id+"|"+l.id])||null}
+
+let S=null, tick=null;
+function start(opts){
+  if(!opts.qs.length){renderHome();return}
+  S=Object.assign({i:0,ans:[],start:Date.now(),limit:0,checked:false,cur:null},opts);
+  clearInterval(tick);
+  if(S.limit)tick=setInterval(()=>{const left=S.limit-(Date.now()-S.start)/1000;updTimer(left);if(left<=0)finish()},500);
+  renderQ();
+}
+function startTest(sid,k){const s=SUBJ[sid], sc=scopeSel(sid);start({mode:"exam",sid,qs:buildTest(sid,sc,k),limit:s.test.mins*60,label:`${s.name} · Đề ${k+1}`,test:{sid,sc,k}})}
+function startLesson(sid,l){const L=SUBJ[sid].L[l];start({mode:"practice",sid,qs:lessonQs(sid,l),label:`${SUBJ[sid].name} · ${L.short}`,lesson:l})}
+function startWrong(sid){const keys=[...wrongOf(sid)];const qs=shuffleWith(keys,Math.random).flatMap(k=>byKey(sid,k));start({mode:"practice",sid,qs,label:`${SUBJ[sid].name} · Ôn câu sai`})}
+function updTimer(left){const el=$("#timer");if(!el)return;el.textContent=fmtTime(left);el.classList.toggle("warn",left<180)}
+
+function passageHTML(t){return t.split(/\n\s*\n/).map(p=>p.includes("\n")?`<p class="poem">${esc(p.trim())}</p>`:`<p>${esc(p.trim())}</p>`).join("")}
+function renderQ(){
+  const q=S.qs[S.i], n=S.qs.length, exam=S.mode==="exam", s=SUBJ[S.sid], L=s.L[q.l];
+  S.cur=null;S.checked=false;
+  topRight.innerHTML=(S.limit?`<span class="chip" id="timer" aria-label="Thời gian còn lại"></span>`:"")+`<span class="chip">${S.i+1} / ${n}</span>`;
+  if(S.limit)updTimer(S.limit-(Date.now()-S.start)/1000);
+  let body="";
+  if(q.kind==="mc"){
+    const wide=q.o.some(o=>stripTags(o).length>24);
+    body=`<div class="label">${q.tf?"Đúng hay sai?":"Chọn đáp án đúng"}</div><div class="qtext">${q.q}</div>
+      <div class="opts${wide?" wide":""}">${q.order.map((oi,k)=>`<button class="opt" data-o="${oi}"><span class="k">${q.tf?"":"ABCD"[k]}</span><span>${q.o[oi]}</span></button>`).join("")}</div>`;
+  }else{
+    const numeric=q.ans.every(a=>isNum(a)&&!/^[-−]/.test(a.trim())), neg=q.ans.some(a=>/^[-−]/.test(a.trim()));
+    const inp=`<input class="blank${q.q.includes("___")?"":" wide"}" id="fillIn" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="${numeric?"numeric":"text"}" aria-label="Câu trả lời">`;
+    body=`<div class="label">Điền vào chỗ trống</div>`+(q.q.includes("___")?`<div class="qtext">${q.q.replace("___",inp)}</div>`:`<div class="qtext">${q.q}</div>${inp}`)
+      +(neg?`<div class="hint">Số âm: gõ dấu trừ phía trước, ví dụ -12.</div>`:q.cs?`<div class="hint">Chú ý viết hoa đúng quy tắc.</div>`:"");
+  }
+  view.innerHTML=`<div class="stack">
+    <div class="bar" aria-hidden="true"><i style="width:${S.i/n*100}%"></i></div>
+    <section class="qcard">
+      <div class="qhead"><span class="label">${esc(S.label)}</span><span class="label">${esc(L?L.short:"")}</span></div>
+      ${q.passage?`<details class="passage" open><summary>Đọc văn bản: ${esc(q.ptitle||"")}</summary><div class="ptext">${passageHTML(q.passage)}</div></details>`:""}
+      ${body}
+      <div id="fb" aria-live="polite"></div>
+    </section>
+    <div class="actions"><button class="btn ghost" id="skipBtn">Bỏ qua</button><button class="btn main" id="goBtn">${exam?"Trả lời":"Kiểm tra"}</button></div>
+    <div id="endArea"></div>
+  </div>`;
+  drawEnd();
+  if(q.kind==="mc")view.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{if(S.checked)return;view.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");S.cur=+b.dataset.o});
+  else{const inp=$("#fillIn");inp.oninput=()=>S.cur=inp.value;inp.onkeydown=e=>{if(e.key==="Enter")$("#goBtn").click()};setTimeout(()=>inp.focus({preventScroll:true}),60)}
+  $("#skipBtn").onclick=()=>{record(q,null);next()};
+  $("#goBtn").onclick=()=>{
+    if(S.checked){next();return}
+    if(S.cur==null||S.cur===""){$("#fb").innerHTML=`<div class="fb bad">Con hãy trả lời trước, hoặc bấm Bỏ qua.</div>`;return}
+    const ok=record(q,S.cur);
+    if(S.mode==="exam"){next();return}
+    S.checked=true;
+    if(q.kind==="mc")view.querySelectorAll(".opt").forEach(b=>{const o=+b.dataset.o;if(o===q.a)b.classList.add("right");else if(b.classList.contains("sel"))b.classList.add("wrong")});
+    $("#fb").innerHTML=(ok?`<div class="fb ok">Chính xác!</div>`:`<div class="fb bad">Chưa đúng. <span>Đáp án: <b>${q.kind==="mc"?q.o[q.a]:esc(showAns(q))}</b></span></div>`)+(q.x?`<div class="expl">${q.x}</div>`:"");
+    $("#goBtn").textContent=S.i+1<n?"Câu tiếp":"Xem kết quả";$("#skipBtn").disabled=true;
+  };
+}
+function drawEnd(){
+  const exam=S.mode==="exam";
+  $("#endArea").innerHTML=`<button class="btn ghost small" id="endBtn">${exam?"Nộp bài sớm":"Dừng luyện tập"}</button>`;
+  $("#endBtn").onclick=()=>{
+    $("#endArea").innerHTML=`<div class="confirm"><div>${exam?"Nộp bài ngay? Các câu chưa làm sẽ tính là sai.":"Dừng luyện tập và xem kết quả?"}</div><div class="row"><button class="btn danger" id="yesEnd">${exam?"Nộp bài":"Dừng"}</button><button class="btn ghost" id="noEnd">Làm tiếp</button></div></div>`;
+    $("#yesEnd").onclick=finish;$("#noEnd").onclick=drawEnd;
+  };
+}
+function record(q,g){
+  const ok=isRight(q,g), w=wrongOf(S.sid);
+  S.ans[S.i]={q,g,ok};
+  if(ok){if(S.mode!=="exam")w.delete(wkey(q))}else w.add(wkey(q));
+  saveWrong(S.sid,w);return ok;
+}
+function next(){S.i++;if(S.i>=S.qs.length)finish();else renderQ()}
+function finish(){
+  if(!S)return;clearInterval(tick);
+  const secs=Math.min((Date.now()-S.start)/1000,S.limit||Infinity), s=SUBJ[S.sid];
+  if(S.mode==="exam"){const w=wrongOf(S.sid);for(let i=0;i<S.qs.length;i++)if(!S.ans[i]){S.ans[i]={q:S.qs[i],g:null,ok:false};w.add(wkey(S.qs[i]))}saveWrong(S.sid,w)}
+  const done=S.ans.filter(Boolean), right=done.filter(a=>a.ok).length, total=done.length;
+  if(S.test){const key=rkey(S.test.sid,S.test.sc,S.test.k), prev=res[key];res[key]={b:Math.max(right,prev?prev.b:0),l:right,t:total};store.set("res",res)}
+  if(S.lesson&&total){lres[S.sid+"|"+S.lesson]={r:right,t:total};store.set("lres",lres)}
+  hist.unshift({d:new Date().toISOString(),sid:S.sid,l:S.label,r:right,t:total,s:Math.round(secs)});hist=hist.slice(0,30);store.set("hist",hist);
+  window.ontapReport&&ontapReport({label:S.label,mode:S.mode,subject:S.sid,r:right,t:total,s:Math.round(secs)});
+  const pct=total?right/total:0;
+  const msg=pct>=.9?"Xuất sắc! Con đã nắm rất chắc phần này.":pct>=.75?"Tốt lắm! Xem lại các câu sai để chắc chắn hơn.":pct>=.5?"Khá ổn. Con đọc lại phần ghi nhớ của các bài còn yếu rồi luyện lại nhé.":"Cố lên! Con ôn lại từng bài trong mục Ôn theo bài rồi làm lại.";
+  const by={};done.forEach(a=>{by[a.q.l]=by[a.q.l]||[0,0];by[a.q.l][1]++;if(a.ok)by[a.q.l][0]++});
+  const order=s.lessons.map(l=>l.id).filter(id=>by[id]);
+  const wrong=done.filter(a=>!a.ok), test=S.test, lesson=S.lesson, sid=S.sid;
+  topRight.innerHTML="";
+  view.innerHTML=`<div class="stack">
+    <section class="panel">
+      <div class="label">${esc(S.label)}</div>
+      <div class="row" style="gap:18px;align-items:flex-end"><div class="score">${diem10(right,total)}<span style="font-size:1.4rem;color:var(--muted)">/10</span></div>
+      <div class="stack" style="gap:2px"><b>${right}/${total} câu đúng</b><span class="muted small">Thời gian: ${fmtTime(secs)}</span></div></div>
+      <div>${msg}</div>
+    </section>
+    ${order.length>1?`<section class="panel"><div class="label">Theo bài</div><div class="ubreak">${order.map(id=>{const [r,t]=by[id];return `<span>${esc(s.L[id].short)}</span><div class="bar"><i style="width:${r/t*100}%"></i></div><span>${r}/${t}</span>`}).join("")}</div></section>`:""}
+    ${wrong.length?`<section class="panel"><div class="label">Câu cần xem lại (${wrong.length})</div><div class="review">${wrong.map(a=>`<div class="rv">${a.q.ptitle?`<div class="small muted">Văn bản: ${esc(a.q.ptitle)}</div>`:""}<div>${a.q.q.replace("___","…")}</div><div class="ans">Con trả lời: <s>${a.q.kind==="mc"&&a.g!=null?a.q.o[a.g]:esc(givenText(a.q,a.g))}</s> · Đáp án: <b>${a.q.kind==="mc"?a.q.o[a.q.a]:esc(showAns(a.q))}</b></div>${a.q.x?`<div class="expl">${a.q.x}</div>`:""}</div>`).join("")}</div></section>`:""}
+    <div class="row" id="resBtns"></div>
+  </div>`;
+  const btns=$("#resBtns"), add=(cls,txt,fn)=>{const b=document.createElement("button");b.className="btn "+cls;b.textContent=txt;b.onclick=fn;btns.append(b)};
+  if(test){const nk=nextTest(sid);if(nk!=null)add("main",`Làm Đề ${nk+1}`,()=>startTest(sid,nk))}
+  if(lesson)add("main","Luyện lại bài này",()=>startLesson(sid,lesson));
+  const w=wrongOf(sid);if(w.size)add("","Ôn câu sai ("+w.size+")",()=>startWrong(sid));
+  add("ghost","Trang chủ",()=>renderHome());
+  S=null;window.scrollTo(0,0);
+}
+
+function renderHome(){
+  clearInterval(tick);S=null;topRight.innerHTML="";
+  const s=SUBJ[cur];setTone(cur);store.set("sub",cur);
+  const T=s.test, sc=scopeSel(cur), nk=nextTest(cur), nl=nextLesson(s), w=wrongOf(cur);
+  const groups=[];s.lessons.forEach(l=>{let g=groups.find(x=>x.name===l.group);if(!g)groups.push(g={name:l.group,ls:[]});g.ls.push(l)});
+  const h=hist.filter(x=>x.sid===cur).slice(0,10);
+  view.innerHTML=`<div class="stack">
+    <div class="subtabs" role="group" aria-label="Chọn môn">${APP.subjects.map(x=>`<button class="stab" data-sid="${x.id}" aria-pressed="${x.id===cur}">${esc(x.name)}</button>`).join("")}</div>
+    <section class="hero">
+      <span class="label">${esc(APP.examText)}</span>
+      <h1>${esc(s.name)} ${APP.grade}</h1>
+      <p>${s.scopeText}</p>
+      <div class="row">${nl?`<button class="btn main" id="heroLesson">Ôn tập: ${esc(nl.short)}</button>`:""}${nk!=null?`<button class="btn ghost" id="heroTest">Làm Đề ${nk+1}</button>`:""}</div>
+    </section>
+    <section class="sec"><h2>Ôn theo bài</h2><p class="muted small">Đọc phần ghi nhớ, rồi luyện tập. Làm xong mỗi câu sẽ biết đúng sai và có giải thích.</p>
+      ${groups.map(g=>`<div class="grp"><div class="grp-h">${esc(g.name)}</div><div class="lessons">${g.ls.map(l=>{const r=lres[cur+"|"+l.id];
+        return `<button class="lrow" data-l="${l.id}"><span class="lnum">${esc(l.short)}</span><span class="lname">${esc(l.name)}</span><span class="lmeta${r?(r.r/r.t>=.8?" good":" fair"):""}">${r?`${r.r}/${r.t}`:`${l.count} câu`}</span></button>`}).join("")}</div></div>`).join("")}
+    </section>
+    <section class="sec"><h2>Đề thi thử giữa kì</h2>
+      <p class="muted small">${T.count} đề, mỗi đề ${T.n} câu, làm trong ${T.mins} phút. Mỗi đề cố định, làm lại vẫn ra đúng các câu đó${s.items.some(it=>it.g)?" (riêng câu tính toán có thể đổi số liệu theo từng đề)":""}. Đáp án hiện sau khi nộp bài.</p>
+      ${T.scopes.length>1?`<div class="seg" role="group" aria-label="Phạm vi đề">${T.scopes.map(x=>`<button data-sc="${x.id}" aria-pressed="${x.id===sc}">${esc(x.name)}<small>${esc(x.note||"")}</small></button>`).join("")}</div>`:""}
+      <div class="legend"><span><i style="background:var(--ok)"></i>Từ 8 điểm</span><span><i style="background:var(--sun)"></i>Dưới 8 điểm</span><span><i style="background:var(--line)"></i>Chưa làm</span></div>
+      <div class="tests">${[...Array(T.count).keys()].map(k=>{const r=res[rkey(cur,sc,k)];const cls=r?(r.b/r.t>=.8?"good":"fair"):"";
+        return `<button class="tb ${cls}${k===nk?" next":""}" data-k="${k}" aria-label="Đề ${k+1}${r?", điểm cao nhất "+diem10(r.b,r.t):""}"><b>Đề ${k+1}</b><small>${r?diem10(r.b,r.t)+"đ":"–"}</small></button>`}).join("")}</div>
+    </section>
+    ${s.writing&&s.writing.length?`<section class="sec"><h2>Luyện viết</h2><p class="muted small">Phần viết không chấm tự động. Con đọc đề, xem gợi ý dàn ý, viết bài rồi tự kiểm tra theo danh sách.</p>
+      <div class="wlist">${s.writing.map((x,i)=>`<button class="wrow" data-w="${i}"><b>${esc(x.title)}</b><span class="small muted">${esc(x.prompt)}</span></button>`).join("")}</div></section>`:""}
+    <section class="sec"><h2>Ôn câu sai</h2>
+      <div class="panel"><div>${w.size?`Có <b>${w.size}</b> câu con từng làm sai ở môn ${esc(s.name)}. Làm đúng khi ôn thì câu đó được bỏ khỏi danh sách.`:"Chưa có câu sai nào ở môn này."}</div>
+      ${w.size?`<div class="row"><button class="btn" id="wrongBtn">Ôn ${w.size} câu sai</button></div>`:""}</div>
+    </section>
+    <section class="sec"><h2>Lịch sử làm bài</h2>
+      <div class="panel">${h.length?`<div class="hist">${h.map(x=>`<div><span>${fmtDate(new Date(x.d))} · ${esc(x.l)}</span><b>${diem10(x.r,x.t)}đ · ${x.r}/${x.t}</b></div>`).join("")}</div>`:`<span class="muted">Kết quả các lần làm bài sẽ hiện ở đây (lưu trên máy này).</span>`}</div>
+    </section>
+    <p class="muted small foot">${APP.footer}</p>
+  </div>`;
+  view.querySelectorAll(".stab").forEach(b=>b.onclick=()=>{cur=b.dataset.sid;renderHome()});
+  if($("#heroLesson"))$("#heroLesson").onclick=()=>renderLesson(cur,nl.id);
+  if($("#heroTest"))$("#heroTest").onclick=()=>startTest(cur,nk);
+  view.querySelectorAll(".lrow").forEach(b=>b.onclick=()=>renderLesson(cur,b.dataset.l));
+  view.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{store.set("scope_"+cur,b.dataset.sc);renderHome()});
+  view.querySelectorAll(".tb").forEach(b=>b.onclick=()=>startTest(cur,+b.dataset.k));
+  view.querySelectorAll(".wrow").forEach(b=>b.onclick=()=>renderWriting(cur,+b.dataset.w));
+  if($("#wrongBtn"))$("#wrongBtn").onclick=()=>startWrong(cur);
+}
+function renderLesson(sid,l){
+  clearInterval(tick);S=null;topRight.innerHTML="";
+  const s=SUBJ[sid], L=s.L[l], r=lres[sid+"|"+l];
+  view.innerHTML=`<div class="stack">
+    <button class="back" id="backBtn">‹ ${esc(s.name)}</button>
+    <div class="label">${esc(L.group)}</div>
+    <h2>${esc(L.short)}. ${esc(L.name)}</h2>
+    <section class="panel notes"><h3>Ghi nhớ</h3><ul>${L.notes.map(n=>`<li>${n}</li>`).join("")}</ul></section>
+    <div class="row"><button class="btn main" id="goBtn">Luyện tập ${L.count} câu</button>${r?`<span class="muted small">Lần trước: ${r.r}/${r.t} câu đúng</span>`:""}</div>
+    ${L.hasGen?`<p class="muted small" style="margin:0">Các câu tính toán đổi số liệu mỗi lần làm, nên con có thể luyện lại nhiều lần.</p>`:""}
+  </div>`;
+  $("#backBtn").onclick=()=>renderHome();
+  $("#goBtn").onclick=()=>startLesson(sid,l);
+  window.scrollTo(0,0);
+}
+function renderWriting(sid,i){
+  clearInterval(tick);S=null;topRight.innerHTML="";
+  const s=SUBJ[sid], W=s.writing[i], ck=store.get("wchk_"+sid+i,[]), draft=store.get("wdraft_"+sid+i,"");
+  view.innerHTML=`<div class="stack">
+    <button class="back" id="backBtn">‹ ${esc(s.name)}</button>
+    <div class="label">Luyện viết</div>
+    <h2>${esc(W.title)}</h2>
+    <section class="panel"><div class="label">Đề bài</div><div>${esc(W.prompt)}</div></section>
+    <section class="panel"><details class="outline"><summary>Gợi ý dàn ý</summary><ol>${W.outline.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></details></section>
+    <section class="panel"><div class="label">Bài viết của con</div>
+      <textarea id="draft" aria-label="Bài viết" placeholder="Con viết bài vào đây. Bài được lưu tự động trên máy này.">${esc(draft)}</textarea>
+      <div class="muted small" id="wc"></div></section>
+    <section class="panel"><div class="label">Tự kiểm tra</div>${W.checklist.map((c,j)=>`<label class="check"><input type="checkbox" id="ck${j}" data-j="${j}" ${ck.includes(j)?"checked":""}><span>${esc(c)}</span></label>`).join("")}</section>
+  </div>`;
+  const ta=$("#draft"), wc=$("#wc");
+  const count=()=>{const n=ta.value.trim()?ta.value.trim().split(/\s+/).length:0;wc.textContent=n+" chữ"};
+  count();let t;ta.oninput=()=>{count();clearTimeout(t);t=setTimeout(()=>store.set("wdraft_"+sid+i,ta.value),400)};
+  view.querySelectorAll(".check input").forEach(c=>c.onchange=()=>{const v=[...view.querySelectorAll(".check input")].filter(x=>x.checked).map(x=>+x.dataset.j);store.set("wchk_"+sid+i,v)});
+  $("#backBtn").onclick=()=>renderHome();
+  window.scrollTo(0,0);
+}
+$("#homeBtn").onclick=()=>{if(S){const b=$("#endBtn");if(b)b.click();return}renderHome()};
+renderHome();
+})()}
+
+</script>
+
+</body></html>

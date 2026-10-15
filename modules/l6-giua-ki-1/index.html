@@ -1,0 +1,1029 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ôn Giữa Kì Lớp 6</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one narrow column; each subject carries its own accent (math blue, language rose, science green); sunflower is the main action */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --line:#dde2e8; --ink:#172029; --muted:#5c6773;
+  --sun:#f5b700; --sun-soft:#fdf1c7; --sun-ink:#3a2a00;
+  --ok:#15803d; --ok-soft:#e2f4e8; --bad:#c2410c; --bad-soft:#fde9df;
+  --math:#1d4ed8; --math-soft:#e4ebfd; --lang:#b4235a; --lang-soft:#fbe6ee; --sci:#0f7a4a; --sci-soft:#dff3e8;
+  --on-acc:#ffffff; --acc:var(--math); --acc-soft:var(--math-soft);
+  --display:"Baloo 2","Be Vietnam Pro",system-ui,sans-serif;
+  --body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11151a; --surface:#1a2028; --line:#2c3540; --ink:#e8edf2; --muted:#9aa6b2;
+  --sun:#ffc933; --sun-soft:#3a3010; --sun-ink:#2b1f00;
+  --ok:#4ade80; --ok-soft:#123323; --bad:#fb923c; --bad-soft:#3a1d10;
+  --math:#93b4ff; --math-soft:#1d2744; --lang:#f49ab9; --lang-soft:#3a1f2a; --sci:#6fdc9a; --sci-soft:#173a28;
+  --on-acc:#11151a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11151a; --surface:#1a2028; --line:#2c3540; --ink:#e8edf2; --muted:#9aa6b2;
+  --sun:#ffc933; --sun-soft:#3a3010; --sun-ink:#2b1f00;
+  --ok:#4ade80; --ok-soft:#123323; --bad:#fb923c; --bad-soft:#3a1d10;
+  --math:#93b4ff; --math-soft:#1d2744; --lang:#f49ab9; --lang-soft:#3a1f2a; --sci:#6fdc9a; --sci-soft:#173a28;
+  --on-acc:#11151a; color-scheme:dark}
+body[data-tone="math"]{--acc:var(--math);--acc-soft:var(--math-soft)}
+body[data-tone="lang"]{--acc:var(--lang);--acc-soft:var(--lang-soft)}
+body[data-tone="sci"]{--acc:var(--sci);--acc-soft:var(--sci-soft)}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+.app{max-width:660px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:1.75rem} h2{font-size:1.35rem} h3{font-size:1.1rem}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px 10px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
+.brand{font-family:var(--display);font-weight:800;font-size:1.2rem;color:var(--acc);display:flex;align-items:center;gap:8px;background:none;border:0;padding:0}
+.brand b{background:var(--sun);color:var(--sun-ink);border-radius:8px;padding:0 8px;font-size:1rem}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:.85rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip.warn{border-color:var(--bad);color:var(--bad);font-weight:700}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.label{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.muted{color:var(--muted)} .small{font-size:.875rem}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:700;background:var(--acc-soft);color:var(--acc)}
+.btn.main{background:var(--sun);color:var(--sun-ink)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.danger{background:var(--bad-soft);color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:default}
+.subtabs{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
+.stab{border:0;background:transparent;border-radius:10px;padding:10px 6px;font-weight:700;color:var(--muted);line-height:1.2}
+.stab[aria-pressed="true"]{background:var(--acc);color:var(--on-acc)}
+.hero{background:var(--acc);color:var(--on-acc);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.hero p{margin:0;opacity:.92;max-width:62ch}
+.hero .label{color:inherit;opacity:.8}
+.hero .btn.ghost{border-color:currentColor;color:inherit}
+.sec{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.sec>p{margin:0}
+.grp{display:flex;flex-direction:column;gap:6px}
+.grp-h{font-size:.8rem;font-weight:700;color:var(--acc);letter-spacing:.02em;margin-top:6px}
+.lessons{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.lrow{display:grid;grid-template-columns:4.6em minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;border:0;border-top:1px solid var(--line);background:transparent;padding:12px 14px}
+.lrow:first-child{border-top:0}
+.lrow .lnum{font-family:var(--display);font-weight:800;color:var(--acc);white-space:nowrap}
+.lrow .lname{min-width:0;overflow-wrap:anywhere}
+.lrow .lmeta{font-size:.8rem;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.lrow .lmeta.good{color:var(--ok);font-weight:700}
+.lrow .lmeta.fair{color:var(--ink);font-weight:700}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--acc-soft);border-radius:12px;padding:4px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:8px 6px;font-weight:700;color:var(--acc);line-height:1.2;font-size:.9rem}
+.seg button small{display:block;font-weight:500;font-size:.72rem;opacity:.85}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(23,32,41,.15)}
+.tests{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.tb{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 0;display:flex;flex-direction:column;align-items:center;line-height:1.15;font-variant-numeric:tabular-nums;min-width:0}
+.tb b{font-size:.95rem}
+.tb small{font-size:.68rem;color:var(--muted)}
+.tb.good{background:var(--ok-soft);border-color:var(--ok)} .tb.good small{color:var(--ok);font-weight:700}
+.tb.fair{background:var(--sun-soft);border-color:var(--sun)} .tb.fair small{color:var(--ink);font-weight:700}
+.tb.next{border:2px solid var(--acc)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px}
+.notes ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+.notes li::marker{color:var(--acc)}
+.back{align-self:flex-start;border:0;background:none;color:var(--acc);font-weight:700;padding:4px 0}
+.hist{display:flex;flex-direction:column}
+.hist div{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:.9rem;font-variant-numeric:tabular-nums}
+.hist div:first-child{border-top:0}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--sun);transition:width .3s}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px 18px;display:flex;flex-direction:column;gap:14px}
+.qhead{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.qtext{font-size:1.15rem;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.qtext sup,.opt sup,.notes sup,.expl sup{font-size:.7em}
+.passage{background:var(--acc-soft);border-radius:14px;padding:12px 14px}
+.passage summary{font-weight:700;color:var(--acc);cursor:pointer}
+.ptext{margin-top:8px;max-height:46vh;overflow:auto;font-size:.98rem;line-height:1.65}
+.ptext p{margin:0 0 .7em}
+.ptext p.poem{white-space:pre-line;font-style:italic}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opts.wide{grid-template-columns:1fr}
+@media (max-width:420px){.opts{grid-template-columns:1fr}}
+.opt{text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;font-size:1.02rem;display:flex;gap:10px;align-items:baseline;min-width:0;overflow-wrap:anywhere}
+.opt .k{font-family:var(--display);font-weight:800;color:var(--muted)}
+.opt.sel{border-color:var(--acc);background:var(--acc-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.blank{font:inherit;font-weight:700;border:0;border-bottom:3px solid var(--acc);background:var(--acc-soft);color:var(--ink);border-radius:6px 6px 0 0;padding:2px 8px;width:8em;max-width:100%;text-align:center}
+.blank.wide{width:100%;text-align:left}
+.hint{font-size:.85rem;color:var(--muted)}
+.fb{border-radius:12px;padding:12px 14px;font-weight:600}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+.fb span{color:var(--ink);font-weight:500}
+.expl{margin-top:8px;padding:10px 12px;border-left:4px solid var(--acc);background:var(--bg);border-radius:0 10px 10px 0;font-size:.92rem;font-weight:500;color:var(--ink)}
+.actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.score{font-family:var(--display);font-size:3.4rem;font-weight:800;color:var(--acc);line-height:1;font-variant-numeric:tabular-nums}
+.ubreak{display:grid;grid-template-columns:auto 1fr auto;gap:6px 12px;align-items:center;font-size:.9rem;font-variant-numeric:tabular-nums}
+.review{display:flex;flex-direction:column;gap:12px}
+.rv{border-left:4px solid var(--bad);padding:6px 0 6px 12px;display:flex;flex-direction:column;gap:3px;overflow-wrap:anywhere}
+.rv .ans{font-size:.9rem}
+.rv .ans b{color:var(--ok)}
+.rv .ans s{color:var(--bad)}
+.rv .expl{margin-top:4px}
+.confirm{border:2px solid var(--bad);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.wlist{display:flex;flex-direction:column;gap:8px}
+.wrow{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.wrow b{color:var(--acc)}
+details.outline summary{font-weight:700;color:var(--acc);cursor:pointer}
+details.outline ol{margin:8px 0 0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+.check{display:flex;gap:10px;align-items:flex-start}
+.check input{width:20px;height:20px;margin-top:2px;accent-color:var(--acc);flex:none}
+textarea{width:100%;min-height:240px;font:16px/1.6 var(--body);border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg);color:var(--ink)}
+.foot{margin:6px 0 0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+</style>
+
+<div class="app">
+  <header class="top">
+    <button class="brand" id="homeBtn" aria-label="Về trang chủ">Ôn giữa kì · Lớp <b>6</b></button>
+    <div class="row" id="topRight"></div>
+  </header>
+  <main id="view"></main>
+</div>
+
+<script src="../../js/bridge.js"></script>
+<script>
+/* ================= LỚP 6 · Kết nối tri thức với cuộc sống · đến tuần 9 ================= */
+const HANG6=["đơn vị","chục","trăm","nghìn","chục nghìn","trăm nghìn","triệu"];
+function dg(n){return String(n).split("").map(Number)}
+function uPos(r,U,n,minP){const d=dg(n).reverse(),c=[];d.forEach((x,p)=>{if(p>=minP&&x>0&&d.filter(y=>y===x).length===1)c.push(p)});return c.length?U.pick(r,c):-1}
+function rnum(r,U,len,z){let s=String(U.ri(r,1,9));for(let i=1;i<len;i++)s+=r()<z?"0":String(U.ri(r,0,9));return +s}
+const gcd=(a,b)=>b?gcd(b,a%b):a, lcm=(a,b)=>a/gcd(a,b)*b;
+const setStr=a=>"{"+a.join("; ")+"}";
+function fac(e){return [2,3,5,7].filter(p=>e[p]>0).map(p=>e[p]>1?`${p}<sup>${e[p]}</sup>`:`${p}`).join(" · ")}
+const val=e=>[2,3,5,7].reduce((m,p)=>m*p**(e[p]||0),1);
+
+const APP={
+  key:"gk1-l6-v1", grade:6,
+  examText:"Ôn thi giữa học kì I · Kết nối tri thức",
+  footer:"Câu hỏi và các văn bản đọc hiểu mới do trang tự soạn theo chương trình sách Kết nối tri thức với cuộc sống, phạm vi đến tuần 9. Đây là trang ôn tập cá nhân. Kết quả được lưu trên máy này.",
+  gen:{
+    /* ---------- Toán 6 ---------- */
+    setcount(r,U){const a=U.ri(r,2,15),b=a+U.ri(r,4,15),v=U.ri(r,0,3);
+      if(v===3)return {q:`Tập hợp A = {x ∈ ℕ* | x ≤ ${b}} có bao nhiêu phần tử? ___`,ans:String(b),x:`ℕ* là tập số tự nhiên khác 0: A = {1; 2; …; ${b}} có ${b} phần tử.`};
+      const c=[`${a} ≤ x ≤ ${b}`,`${a} < x < ${b}`,`${a} ≤ x < ${b}`][v], n=[b-a+1,b-a-1,b-a][v], lo=v===1?a+1:a, hi=v===0?b:b-1;
+      return {q:`Tập hợp A = {x ∈ ℕ | ${c}} có bao nhiêu phần tử? ___`,ans:String(n),x:`A = {${lo}; ${lo+1}; …; ${hi}}, số phần tử là ${hi} − ${lo} + 1 = ${n}.`}},
+    setlist(r,U){const n=U.ri(r,3,6), rg=(s,e)=>{const a=[];for(let i=s;i<=e;i++)a.push(i);return a};
+      if(r()<.5)return {q:`Tập hợp A = {x ∈ ℕ | x < ${n}} được viết bằng cách liệt kê là:`,o:[setStr(rg(0,n-1)),setStr(rg(1,n-1)),setStr(rg(0,n)),setStr(rg(1,n))],x:`Các số tự nhiên nhỏ hơn ${n} là 0, 1, …, ${n-1} (có cả số 0).`};
+      return {q:`Tập hợp B = {x ∈ ℕ* | x ≤ ${n}} được viết bằng cách liệt kê là:`,o:[setStr(rg(1,n)),setStr(rg(0,n)),setStr(rg(1,n-1)),setStr(rg(0,n-1))],x:`ℕ* không chứa số 0; x ≤ ${n} nên lấy cả ${n}.`}},
+    roman(r,U){const n=U.ri(r,1,30);
+      if(r()<.5){const c=U.shuffle(r,[n-1,n+1,n+4,n-4,n+5,n-5,n+10,n-10].filter(x=>x>=1&&x<=30&&x!==n)).slice(0,3);
+        return {q:`Số ${n} viết bằng số La Mã là:`,o:[U.roman(n),...c.map(U.roman)],x:`I = 1, V = 5, X = 10. ${n} = ${U.roman(n)}.`}}
+      return {q:`Số La Mã ${U.roman(n)} có giá trị là: ___`,ans:String(n),x:`I = 1, V = 5, X = 10; chữ số nhỏ đứng trước chữ số lớn thì trừ (IV = 4, IX = 9). ${U.roman(n)} = ${n}.`}},
+    digitvalue(r,U){let n,p=-1;while(p<0){n=rnum(r,U,U.ri(r,4,7),.2);p=uPos(r,U,n,1)}const d=dg(n).reverse()[p],v=d*10**p;
+      return {q:`Trong số ${U.fmt(n)}, chữ số ${d} có giá trị là: ___`,ans:String(v),x:`Chữ số ${d} ở hàng ${HANG6[p]} nên có giá trị ${U.fmt(v)}.`}},
+    between(r,U){const a=U.ri(r,5,60),b=a+U.ri(r,3,20);
+      if(r()<.5)return {q:`Có bao nhiêu số tự nhiên x thỏa mãn ${a} < x < ${b}? ___`,ans:String(b-a-1),x:`x nhận các giá trị từ ${a+1} đến ${b-1}: có ${b-1} − ${a+1} + 1 = ${b-a-1} số.`};
+      return {q:`Có bao nhiêu số tự nhiên x thỏa mãn ${a} ≤ x ≤ ${b}? ___`,ans:String(b-a+1),x:`x nhận các giá trị từ ${a} đến ${b}: có ${b} − ${a} + 1 = ${b-a+1} số.`}},
+    succ(r,U){const n=U.ri(r,100,99999);return r()<.5?{q:`Số liền sau của ${U.fmt(n)} là: ___`,ans:String(n+1)}:{q:`Số liền trước của ${U.fmt(n)} là: ___`,ans:String(n-1)}},
+    findxadd(r,U){const v=U.ri(r,0,2);
+      if(v===0){const a=U.ri(r,100,999),x=U.ri(r,100,999);return {q:`Tìm x, biết: x + ${a} = ${a+x}. x = ___`,ans:String(x),x:`x = ${a+x} − ${a} = ${x}.`}}
+      if(v===1){const a=U.ri(r,100,999),b=U.ri(r,100,999);return {q:`Tìm x, biết: x − ${a} = ${b}. x = ___`,ans:String(a+b),x:`Số bị trừ = hiệu + số trừ: x = ${b} + ${a} = ${a+b}.`}}
+      const a=U.ri(r,500,999),x=U.ri(r,100,a-50);return {q:`Tìm x, biết: ${a} − x = ${a-x}. x = ___`,ans:String(x),x:`Số trừ = số bị trừ − hiệu: x = ${a} − ${a-x} = ${x}.`}},
+    findxmul(r,U){const v=U.ri(r,0,2),a=U.ri(r,3,25),x=U.ri(r,4,60);
+      if(v===0)return {q:`Tìm x, biết: ${a} · x = ${a*x}. x = ___`,ans:String(x),x:`x = ${a*x} : ${a} = ${x}.`};
+      if(v===1)return {q:`Tìm x, biết: x : ${a} = ${x}. x = ___`,ans:String(a*x),x:`Số bị chia = thương · số chia: x = ${x} · ${a} = ${a*x}.`};
+      return {q:`Tìm x, biết: ${a*x} : x = ${a}. x = ___`,ans:String(x),x:`Số chia = số bị chia : thương: x = ${a*x} : ${a} = ${x}.`}},
+    divrem(r,U){const b=U.ri(r,3,12),q=U.ri(r,10,99),rr=U.ri(r,1,b-1),n=b*q+rr,ask=r()<.5;
+      return {q:`Chia ${n} cho ${b} được ${ask?"số dư":"thương"} là: ___`,ans:String(ask?rr:q),x:`${n} = ${b} · ${q} + ${rr} (0 < ${rr} < ${b}), nên thương là ${q}, số dư là ${rr}.`}},
+    pow(r,U){const v=U.ri(r,0,2);
+      if(v===0){const b=U.ri(r,2,5),e=U.ri(r,2,{2:10,3:6,4:5,5:4}[b]);return {q:`Giá trị của ${b}${U.sup(e)} là: ___`,ans:String(b**e),x:`${b}${U.sup(e)} là tích của ${e} thừa số ${b}: ${Array(e).fill(b).join(" · ")} = ${U.fmt(b**e)}.`}}
+      if(v===1){const n=U.ri(r,2,6);return {q:`10${U.sup(n)} = ___`,ans:String(10**n),x:`10${U.sup(n)} là số 1 theo sau bởi ${n} chữ số 0: ${U.fmt(10**n)}.`}}
+      const k=U.ri(r,11,20);return {q:`${k}${U.sup(2)} = ___`,ans:String(k*k),x:`${k}${U.sup(2)} = ${k} · ${k} = ${k*k}.`}},
+    powmul(r,U){const a=U.ri(r,2,9),m=U.ri(r,2,9),n=U.ri(r,2,9);return {q:`${a}${U.sup(m)} · ${a}${U.sup(n)} = ${a}<sup>?</sup>. Số mũ cần điền là: ___`,ans:String(m+n),x:`Nhân hai lũy thừa cùng cơ số: giữ nguyên cơ số, cộng các số mũ: ${m} + ${n} = ${m+n}.`}},
+    powdiv(r,U){const a=U.ri(r,2,9),n=U.ri(r,2,6),m=n+U.ri(r,1,6);return {q:`${a}${U.sup(m)} : ${a}${U.sup(n)} = ${a}<sup>?</sup>. Số mũ cần điền là: ___`,ans:String(m-n),x:`Chia hai lũy thừa cùng cơ số: giữ nguyên cơ số, trừ các số mũ: ${m} − ${n} = ${m-n}.`}},
+    order(r,U){const t=U.ri(r,0,4);let e,v,s;
+      if(t===0){const a=U.ri(r,10,99),b=U.ri(r,2,12),c=U.ri(r,2,12),p=b*c,d=U.ri(r,1,a+p-1);e=`${a} + ${b} · ${c} − ${d}`;v=a+p-d;s=`${a} + ${p} − ${d} = ${v}`}
+      else if(t===1){const a=U.ri(r,2,9),b=U.ri(r,2,20),c=U.ri(r,2,20),d=U.ri(r,1,a*(b+c)-1);e=`${a} · (${b} + ${c}) − ${d}`;v=a*(b+c)-d;s=`${a} · ${b+c} − ${d} = ${a*(b+c)} − ${d} = ${v}`}
+      else if(t===2){const a=U.ri(r,2,9),b=U.ri(r,2,12),c=U.ri(r,2,12);e=`${a}${U.sup(2)} + ${b} · ${c}`;v=a*a+b*c;s=`${a*a} + ${b*c} = ${v}`}
+      else if(t===3){const b=U.ri(r,10,40),c=U.ri(r,1,b-1),a=U.ri(r,b-c+1,b-c+50),d=U.ri(r,2,9);e=`[${a} − (${b} − ${c})] · ${d}`;v=(a-(b-c))*d;s=`[${a} − ${b-c}] · ${d} = ${a-(b-c)} · ${d} = ${v}`}
+      else{const b=U.ri(r,2,9),q=U.ri(r,2,20),a=b*q,c=U.ri(r,2,9),d=U.ri(r,2,9);e=`${a} : ${b} + ${c} · ${d}`;v=q+c*d;s=`${q} + ${c*d} = ${v}`}
+      return {q:`Tính: ${e} = ___`,ans:String(v),x:`Lũy thừa → nhân, chia → cộng, trừ; có ngoặc thì làm ( ) trước, rồi [ ]. ${e} = ${s}.`}},
+    sumdiv(r,U){const m=U.pick(r,[3,4,5,6,7,9]),t1=m*U.ri(r,3,30),t2=m*U.ri(r,3,30),yes=r()<.5,t3=yes?m*U.ri(r,3,30):m*U.ri(r,3,30)+U.ri(r,1,m-1);
+      return {q:`Tổng ${t1} + ${t2} + ${t3} có chia hết cho ${m} không?`,o:["Có","Không"],a:yes?0:1,keep:true,x:yes?`Cả ba số hạng đều chia hết cho ${m} nên tổng chia hết cho ${m}.`:`${t1} và ${t2} chia hết cho ${m}, còn ${t3} không chia hết cho ${m}, nên tổng không chia hết cho ${m}.`}},
+    div25(r,U){const c=U.ri(r,10,999)*10, o=new Set([c]), ends=[[5],[2,4,6,8],[1,3,7,9]];
+      ends.forEach(e=>{let x;do{x=U.ri(r,10,999)*10+U.pick(r,e)}while(o.has(x));o.add(x)});
+      return {q:"Số nào chia hết cho cả 2 và 5?",o:[...o].map(U.fmt),x:`Số chia hết cho cả 2 và 5 có chữ số tận cùng là 0, ví dụ ${U.fmt(c)}.`}},
+    div9(r,U){const ds=n=>dg(n).reduce((a,b)=>a+b,0), mk=f=>{let n;do{n=U.ri(r,100,9999)}while(!f(n));return n};
+      if(r()<.5){const c=mk(n=>n%9===0), o=new Set([c]);while(o.size<4)o.add(mk(n=>n%3===0&&n%9!==0));
+        return {q:"Số nào chia hết cho 9?",o:[...o].map(String),x:`Tổng các chữ số của ${c} là ${ds(c)}, chia hết cho 9. Các số còn lại có tổng chữ số chia hết cho 3 nhưng không chia hết cho 9.`}}
+      const c=mk(n=>n%3===0&&n%9!==0), o=new Set([c]);o.add(mk(n=>n%9===0));while(o.size<4)o.add(mk(n=>n%3!==0));
+      return {q:"Số nào chia hết cho 3 nhưng không chia hết cho 9?",o:[...o].map(String),x:`Tổng các chữ số của ${c} là ${ds(c)}: chia hết cho 3 nhưng không chia hết cho 9.`}},
+    missdig(r,U){let d,p,s,need;do{d=dg(rnum(r,U,4,.1));p=U.ri(r,1,3);s=d.reduce((a,b,i)=>i===p?a:a+b,0);need=(9-s%9)%9}while(need===0);
+      const pat=d.map((x,i)=>i===p?"*":x).join("");
+      return {q:`Tìm chữ số * để số ${pat} chia hết cho 9. * = ___`,ans:String(need),x:`Tổng các chữ số đã biết là ${s}; thêm ${need} được ${s+need}, chia hết cho 9.`}},
+    prime(r,U){const P=[11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97],C=[21,25,27,33,35,39,45,49,51,55,57,63,65,69,77,81,85,87,91,93,95];
+      const sf=n=>{for(let i=2;i<n;i++)if(n%i===0)return i};
+      if(r()<.5){const p=U.pick(r,P),cs=U.shuffle(r,C).slice(0,3);return {q:"Số nào là số nguyên tố?",o:[String(p),...cs.map(String)],x:`${p} chỉ có hai ước là 1 và ${p}. Các số còn lại là hợp số, ví dụ ${cs[0]} = ${sf(cs[0])} · ${cs[0]/sf(cs[0])}.`}}
+      const c=U.pick(r,C),ps=U.shuffle(r,P).slice(0,3);return {q:"Số nào là hợp số?",o:[String(c),...ps.map(String)],x:`${c} = ${sf(c)} · ${c/sf(c)} nên có nhiều hơn hai ước. Các số còn lại là số nguyên tố.`}},
+    factor(r,U){let e,n;do{e={2:U.ri(r,1,4),3:U.ri(r,0,2),5:U.ri(r,0,1),7:U.ri(r,0,1)};n=val(e)}while(n<12||n>600||[3,5,7].every(p=>!e[p]));
+      const c=fac(e), set=new Set([c]);
+      U.shuffle(r,[2,3,5,7].flatMap(p=>[[p,1],[p,-1]])).forEach(([p,d])=>{if(set.size>=4)return;const f={...e};f[p]=(f[p]||0)+d;if(f[p]<0)return;const s=fac(f);if(s&&val(f)!==n)set.add(s)});
+      return {q:`Phân tích số ${n} ra thừa số nguyên tố, ta được:`,o:[...set],x:`${n} = ${c}. Kiểm tra lại bằng cách nhân các thừa số.`}},
+    gcd(r,U){const g=U.pick(r,[2,3,4,5,6,7,8,9,10,12,15]);let x,y;do{x=U.ri(r,2,9);y=U.ri(r,2,9)}while(x===y||gcd(x,y)!==1);
+      return {q:`ƯCLN(${g*x}, ${g*y}) = ___`,ans:String(g),x:`${g*x} = ${g} · ${x}; ${g*y} = ${g} · ${y}. Vì ${x} và ${y} chỉ có ước chung là 1 nên ƯCLN = ${g}.`}},
+    lcm(r,U){let a,b,l;do{a=U.ri(r,4,24);b=U.ri(r,4,24);l=lcm(a,b)}while(a===b||l>300);const M=Math.max(a,b),m=Math.min(a,b);
+      return {q:`BCNN(${a}, ${b}) = ___`,ans:String(l),x:`Các bội của ${M}: ${M}, ${2*M}, ${3*M}, … Bội nhỏ nhất khác 0 cũng chia hết cho ${m} là ${l}.`}},
+    intcmp(r,U){const s=new Set();while(s.size<4){const v=U.ri(r,-20,20);if(v!==0)s.add(v)}const a=[...s],small=r()<.5,t=small?Math.min(...a):Math.max(...a);
+      return {q:`Số ${small?"nhỏ nhất":"lớn nhất"} trong các số ${a.map(U.fmt).join("; ")} là:`,o:[U.fmt(t),...a.filter(x=>x!==t).map(U.fmt)],x:"Trên trục số nằm ngang, số bên trái nhỏ hơn. Mọi số nguyên âm đều nhỏ hơn 0 và nhỏ hơn mọi số nguyên dương."}},
+    opp(r,U){const n=U.ri(r,1,99)*(r()<.5?-1:1);return {q:`Số đối của ${U.fmt(n)} là: ___`,ans:String(-n),x:`Số đối của a là −a, nên số đối của ${U.fmt(n)} là ${U.fmt(-n)}.`}},
+    intadd(r,U){let a,b;do{a=U.ri(r,-60,60);b=U.ri(r,-60,60)}while(!a||!b);const plus=r()<.5,v=plus?a+b:a-b;
+      return {q:`${U.P(a)} ${plus?"+":"−"} ${U.P(b)} = ___`,ans:String(v),x:plus?`Cộng hai số cùng dấu: cộng phần số tự nhiên, giữ dấu chung. Khác dấu: lấy số lớn trừ số nhỏ, lấy dấu của số có phần số tự nhiên lớn hơn. Kết quả: ${U.fmt(v)}.`:`a − b = a + (−b): ${U.P(a)} − ${U.P(b)} = ${U.P(a)} + ${U.P(-b)} = ${U.fmt(v)}.`}},
+    bracket(r,U){const v=U.ri(r,0,2),A=U.ri(r,150,999),B=U.ri(r,10,99),C=U.ri(r,10,99);
+      if(v===0)return {q:`Tính nhanh: (${A} + ${B}) − (${A} − ${C}) = ___`,ans:String(B+C),x:`Bỏ ngoặc: ${A} + ${B} − ${A} + ${C} = ${B} + ${C} = ${B+C}.`};
+      if(v===1)return {q:`Tính nhanh: ${A} − (${A} + ${B}) = ___`,ans:String(-B),x:`Bỏ ngoặc có dấu − đằng trước, đổi dấu các số hạng: ${A} − ${A} − ${B} = ${U.fmt(-B)}.`};
+      return {q:`Tính nhanh: (${A} − ${B}) − (${C} − ${B}) = ___`,ans:String(A-C),x:`Bỏ ngoặc: ${A} − ${B} − ${C} + ${B} = ${A} − ${C} = ${U.fmt(A-C)}.`}},
+    intmul(r,U){let a,b;do{a=U.ri(r,-15,15);b=U.ri(r,-15,15)}while(!a||!b);
+      return {q:`${U.P(a)} · ${U.P(b)} = ___`,ans:String(a*b),x:`${(a<0)===(b<0)?"Hai số cùng dấu, tích là số dương":"Hai số khác dấu, tích là số âm"}: ${U.fmt(a*b)}.`}},
+    intdiv(r,U){const b=U.ri(r,2,9)*(r()<.5?-1:1),q=U.ri(r,2,12)*(r()<.5?-1:1),a=b*q;
+      return {q:`${U.P(a)} : ${U.P(b)} = ___`,ans:String(q),x:`${(a<0)===(b<0)?"Cùng dấu, thương dương":"Khác dấu, thương âm"}: ${U.fmt(q)}. Thử lại: ${U.P(q)} · ${U.P(b)} = ${U.fmt(a)}.`}},
+    /* ---------- KHTN 6 ---------- */
+    klen(r,U){const v=U.ri(r,0,4);
+      if(v===0){const a=U.ri(r,2,9);return {q:`${a} km = ___ m`,ans:String(a*1000),x:`1 km = 1 000 m.`}}
+      if(v===1){const b=U.ri(r,2,9);return {q:`${b} m = ___ cm`,ans:String(b*100),x:`1 m = 100 cm.`}}
+      if(v===2){const c=U.ri(r,2,30);return {q:`${c} cm = ___ mm`,ans:String(c*10),x:`1 cm = 10 mm.`}}
+      if(v===3){const d=U.ri(r,2,90)*10;return {q:`${d} mm = ___ cm`,ans:String(d/10),x:`10 mm = 1 cm.`}}
+      const e=U.ri(r,1,9),f=U.ri(r,1,99);return {q:`${e} m ${f} cm = ___ cm`,ans:String(e*100+f),x:`${e} m = ${e*100} cm; ${e*100} + ${f} = ${e*100+f} (cm).`}},
+    kmass(r,U){const v=U.ri(r,0,4);
+      if(v===0){const t=U.ri(r,2,9);return {q:`${t} tấn = ___ kg`,ans:String(t*1000),x:`1 tấn = 1 000 kg.`}}
+      if(v===1){const k=U.ri(r,2,9);return {q:`${k} kg = ___ g`,ans:String(k*1000),x:`1 kg = 1 000 g.`}}
+      if(v===2){const g=U.ri(r,2,9);return {q:`${g} g = ___ mg`,ans:String(g*1000),x:`1 g = 1 000 mg.`}}
+      if(v===3){const x=U.ri(r,2,9);return {q:`${x*1000} g = ___ kg`,ans:String(x),x:`1 000 g = 1 kg.`}}
+      const a=U.ri(r,1,5),b=U.ri(r,1,999);return {q:`${a} kg ${b} g = ___ g`,ans:String(a*1000+b),x:`${a} kg = ${a*1000} g; ${a*1000} + ${b} = ${a*1000+b} (g).`}},
+    ktime(r,U){const v=U.ri(r,0,3);
+      if(v===0){const h=U.ri(r,2,5);return {q:`${h} giờ = ___ phút`,ans:String(h*60),x:`1 giờ = 60 phút.`}}
+      if(v===1){const m=U.ri(r,2,9);return {q:`${m} phút = ___ giây`,ans:String(m*60),x:`1 phút = 60 giây.`}}
+      if(v===2){const h=U.ri(r,1,2);return {q:`${h} giờ = ___ giây`,ans:String(h*3600),x:`1 giờ = 60 phút = 3 600 giây.`}}
+      const h=U.ri(r,1,3),m=U.ri(r,5,55);return {q:`${h} giờ ${m} phút = ___ phút`,ans:String(h*60+m),x:`${h} giờ = ${h*60} phút; ${h*60} + ${m} = ${h*60+m} (phút).`}},
+    kcell(r,U){const n=U.ri(r,2,6);return {q:`Một tế bào sau ${n} lần phân chia liên tiếp tạo ra bao nhiêu tế bào? ___`,ans:String(2**n),x:`Mỗi lần phân chia, số tế bào tăng gấp đôi: 2${U.sup(n)} = ${2**n} tế bào.`}},
+    kforce(r,U){const s=U.pick(r,[5,10,20]),L=U.ri(r,2,6);
+      return r()<.5?{q:`Với tỉ xích 1 cm ứng với ${s} N, mũi tên dài ${L} cm biểu diễn lực có độ lớn: ___ N`,ans:String(L*s),x:`${L} · ${s} = ${L*s} (N).`}
+        :{q:`Với tỉ xích 1 cm ứng với ${s} N, lực ${L*s} N được biểu diễn bằng mũi tên dài: ___ cm`,ans:String(L),x:`${L*s} : ${s} = ${L} (cm).`}}
+  },
+  subjects:[]
+};
+
+/* ------------------------------ NGỮ VĂN 6 ------------------------------ */
+const V1="Đọc hiểu văn bản trong sách", V2="Thực hành tiếng Việt", V3="Đọc hiểu văn bản mới";
+APP.subjects.push({
+  id:"van", name:"Ngữ văn", tone:"lang",
+  scopeText:"Phạm vi: Bài 1 “Tôi và các bạn”, Bài 2 “Gõ cửa trái tim”, Bài 3 “Yêu thương và chia sẻ”, sách Ngữ văn 6 Kết nối tri thức với cuộc sống.",
+  test:{n:20,mins:35,count:12,reading:1,scopes:[{id:"all",name:"Bài 1–3",lessons:"*"}]},
+  lessons:[
+    {id:"v1",group:V1,short:"Bài 1",name:"Tôi và các bạn",notes:[
+      "Truyện đồng thoại: truyện viết cho thiếu nhi, nhân vật thường là loài vật hoặc đồ vật được nhân hóa, vừa mang đặc tính của loài vật vừa mang đặc điểm của con người.",
+      "Ngôi thứ nhất: người kể xưng “tôi”, trực tiếp kể những gì mình thấy, nghĩ và trải qua.",
+      "“Bài học đường đời đầu tiên” (Tô Hoài, trích “Dế Mèn phiêu lưu kí”): Dế Mèn kiêu căng, bày trò trêu chị Cốc khiến Dế Choắt chết oan; Dế Mèn ân hận và rút ra bài học đầu tiên.",
+      "“Nếu cậu muốn có một người bạn” (Ê-xu-pe-ri, trích “Hoàng tử bé”): muốn có tình bạn thật sự cần kiên nhẫn, dành thời gian và có trách nhiệm với nhau.",
+      "“Bắt nạt” (Nguyễn Thế Hoàng Linh): bài thơ hóm hỉnh, nhẹ nhàng khuyên đừng bắt nạt người khác."]},
+    {id:"v2",group:V1,short:"Bài 2",name:"Gõ cửa trái tim",notes:[
+      "Thơ có yếu tố tự sự (kể lại sự việc) và miêu tả (gợi hình ảnh) giúp bài thơ sinh động, giàu cảm xúc.",
+      "“Chuyện cổ tích về loài người” (Xuân Quỳnh): thể thơ năm chữ; giải thích nguồn gốc loài người một cách hồn nhiên – mọi thứ trên đời sinh ra vì trẻ em.",
+      "“Mây và sóng” (Ta-go, Ấn Độ): em bé từ chối lời rủ của mây và sóng để ở bên mẹ – ca ngợi tình mẫu tử.",
+      "“Bức tranh của em gái tôi” (Tạ Duy Anh): người anh (ngôi thứ nhất) ghen tị với tài vẽ của em gái Kiều Phương, rồi xấu hổ, ân hận khi thấy bức tranh em vẽ mình."]},
+    {id:"v3",group:V1,short:"Bài 3",name:"Yêu thương và chia sẻ",notes:[
+      "Ngôi thứ ba: người kể giấu mình, gọi nhân vật bằng tên, có thể biết hết mọi việc của các nhân vật.",
+      "“Cô bé bán diêm” (An-đéc-xen, Đan Mạch): em bé nghèo bán diêm trong đêm giao thừa giá rét; những lần quẹt diêm là những mộng tưởng đẹp – truyện thể hiện niềm thương cảm sâu sắc.",
+      "“Gió lạnh đầu mùa” (Thạch Lam): chị em Sơn và Lan đem chiếc áo bông cũ cho bé Hiên nghèo – câu chuyện về lòng nhân hậu, biết sẻ chia.",
+      "“Con chào mào” (Mai Văn Phấn): bài thơ viết về loài chim nhỏ, gợi tình yêu thiên nhiên."]},
+    {id:"t1",group:V2,short:"Từ đơn, từ phức",name:"Từ đơn, từ phức (từ ghép, từ láy)",notes:[
+      "Từ đơn: từ chỉ có một tiếng (nhà, cây, đi, đẹp).",
+      "Từ phức: từ có hai tiếng trở lên, gồm từ ghép và từ láy.",
+      "Từ ghép: các tiếng có quan hệ về nghĩa (nhà cửa, xe đạp). Từ láy: các tiếng có quan hệ láy âm (lom khom, xinh xắn, ầm ầm)."]},
+    {id:"t2",group:V2,short:"Nghĩa của từ",name:"Nghĩa của từ",notes:[
+      "Nghĩa của từ là nội dung (sự vật, tính chất, hoạt động, quan hệ…) mà từ biểu thị.",
+      "Cách giải thích nghĩa: nêu khái niệm mà từ biểu thị; hoặc dùng từ đồng nghĩa, trái nghĩa.",
+      "Có thể dựa vào các từ ngữ xung quanh (ngữ cảnh) để đoán nghĩa của từ."]},
+    {id:"t3",group:V2,short:"Biện pháp tu từ",name:"So sánh, nhân hóa, ẩn dụ, điệp ngữ",notes:[
+      "So sánh: đối chiếu sự vật này với sự vật khác có nét giống nhau (như, là, tựa, giống như…).",
+      "Nhân hóa: gọi hoặc tả con vật, đồ vật, cây cối bằng từ ngữ vốn dùng cho con người.",
+      "Ẩn dụ: gọi tên sự vật này bằng tên sự vật khác có nét tương đồng, ẩn đi sự vật được nói đến. Ví dụ ca dao: “Thuyền về có nhớ bến chăng” (thuyền – người đi xa, bến – người ở lại).",
+      "Điệp ngữ: lặp lại một từ ngữ để nhấn mạnh ý, tạo nhịp điệu."]},
+    {id:"t4",group:V2,short:"Cụm từ",name:"Cụm danh từ, cụm động từ, cụm tính từ",notes:[
+      "Cụm danh từ: danh từ làm trung tâm cùng các từ ngữ phụ thuộc, ví dụ: tất cả những học sinh lớp 6A.",
+      "Cụm động từ: động từ làm trung tâm, ví dụ: đang chạy trên sân.",
+      "Cụm tính từ: tính từ làm trung tâm, ví dụ: rất đẹp, xanh như ngọc."]},
+    {id:"d",group:V3,short:"Đọc hiểu",name:"Đọc hiểu văn bản mới (truyện, thơ)",notes:[
+      "Xác định thể loại (truyện đồng thoại, truyện ngắn, thơ) và ngôi kể (thứ nhất hay thứ ba).",
+      "Tìm nhân vật, sự việc chính; chú ý chi tiết thể hiện suy nghĩ, cảm xúc của nhân vật.",
+      "Với thơ: đếm số tiếng mỗi dòng để biết thể thơ; tìm biện pháp tu từ và nêu tác dụng.",
+      "Câu hỏi về bài học, thông điệp: trả lời bằng một câu ngắn gọn, đúng với nội dung văn bản."]}
+  ],
+  items:[
+    // Bài 1
+    {l:"v1",q:"Văn bản “Bài học đường đời đầu tiên” được trích từ tác phẩm nào?",o:["Dế Mèn phiêu lưu kí","Hoàng tử bé","Đất rừng phương Nam","Những người bạn"]},
+    {l:"v1",q:"Tác giả của “Dế Mèn phiêu lưu kí” là:",o:["Tô Hoài","Nguyễn Nhật Ánh","Tạ Duy Anh","Thạch Lam"]},
+    {l:"v1",q:"“Bài học đường đời đầu tiên” được kể theo ngôi thứ mấy?",o:["Ngôi thứ nhất, người kể là Dế Mèn","Ngôi thứ ba","Ngôi thứ nhất, người kể là Dế Choắt","Ngôi thứ hai"]},
+    {l:"v1",q:"Vì sao Dế Choắt bị chết?",o:["Vì chị Cốc tưởng Dế Choắt trêu mình nên mổ","Vì Dế Choắt bị ốm nặng","Vì Dế Mèn đánh Dế Choắt","Vì Dế Choắt bị lạc đường"],x:"Dế Mèn trêu chị Cốc rồi chui vào hang, chị Cốc tưởng Dế Choắt trêu mình nên mổ Dế Choắt."},
+    {l:"v1",q:"Bài học Dế Mèn rút ra sau cái chết của Dế Choắt là:",o:["Thói kiêu căng, hung hăng, thiếu suy nghĩ sẽ gây hại cho người khác và cho chính mình","Phải luôn giữ gìn sức khỏe","Không nên chơi với Dế Choắt","Phải đào hang thật sâu"]},
+    {l:"v1",q:"Đặc điểm của truyện đồng thoại là:",o:["Nhân vật thường là loài vật, đồ vật được nhân hóa","Kể về các vị anh hùng có thật trong lịch sử","Luôn được viết bằng thơ","Chỉ dành cho người lớn đọc"]},
+    {l:"v1",q:"Trong văn bản “Nếu cậu muốn có một người bạn”, hoàng tử bé gặp và trò chuyện với:",o:["con cáo","con rắn","người phi công","nhà vua"]},
+    {l:"v1",q:"Tác giả của “Hoàng tử bé” là:",o:["Ăng-toan Đơ Xanh-tơ Ê-xu-pe-ri","An-đéc-xen","Ta-go","Lu-i Xe-pun-ve-đa"]},
+    {l:"v1",q:"Thông điệp chính của “Nếu cậu muốn có một người bạn” là:",o:["Muốn có tình bạn thật sự cần kiên nhẫn, dành thời gian và có trách nhiệm với nhau","Bạn bè càng nhiều càng tốt","Không nên tin ai","Chỉ con người mới làm bạn được với nhau"]},
+    {l:"v1",q:"Bài thơ “Bắt nạt” là của tác giả nào?",o:["Nguyễn Thế Hoàng Linh","Xuân Quỳnh","Mai Văn Phấn","Tô Hoài"]},
+    {l:"v1",q:"Bài thơ “Bắt nạt” muốn nhắn nhủ điều gì?",o:["Đừng bắt nạt người khác, hãy sống thân thiện, yêu thương","Phải học thật giỏi","Nên chơi một mình","Cần tập thể dục mỗi ngày"]},
+    {l:"v1",q:"Các nhân vật trong “Bài học đường đời đầu tiên” là:",o:["Dế Mèn, Dế Choắt, chị Cốc","Dế Mèn, con cáo, hoàng tử bé","Kiều Phương, người anh","Sơn, Lan, Hiên"]},
+    {l:"v1",tf:true,q:"Dế Mèn hối hận vì trò nghịch dại của mình đã gây ra cái chết của Dế Choắt."},
+    // Bài 2
+    {l:"v2",q:"Bài thơ “Chuyện cổ tích về loài người” là của tác giả nào?",o:["Xuân Quỳnh","Tố Hữu","Nguyễn Thế Hoàng Linh","Mai Văn Phấn"]},
+    {l:"v2",q:"“Chuyện cổ tích về loài người” được viết theo thể thơ nào?",o:["Thơ năm chữ","Thơ lục bát","Thơ bốn chữ","Thơ tự do"]},
+    {l:"v2",q:"Theo bài thơ “Chuyện cổ tích về loài người”, trên Trái Đất ai được sinh ra trước nhất?",o:["trẻ em","mặt trời","người mẹ","cây cối"]},
+    {l:"v2",q:"Nội dung chính của bài thơ “Chuyện cổ tích về loài người” là:",o:["Mọi thứ trên đời được tạo ra vì trẻ em, thể hiện tình yêu thương dành cho trẻ","Kể về cuộc phiêu lưu của một chú dế","Ca ngợi cảnh đẹp quê hương","Khuyên trẻ em chăm làm việc nhà"]},
+    {l:"v2",q:"“Mây và sóng” là tác phẩm của nhà thơ nào?",o:["Ta-go (Ấn Độ)","An-đéc-xen (Đan Mạch)","Ê-xu-pe-ri (Pháp)","Xuân Quỳnh (Việt Nam)"]},
+    {l:"v2",q:"Trong bài thơ “Mây và sóng”, em bé đã làm gì khi được mây và sóng rủ đi chơi?",o:["Từ chối để ở nhà với mẹ","Đi chơi cùng mây","Đi chơi cùng sóng","Rủ mẹ cùng đi"]},
+    {l:"v2",q:"Bài thơ “Mây và sóng” ca ngợi điều gì?",o:["Tình yêu thương giữa mẹ và con","Vẻ đẹp của biển","Tình bạn","Lòng dũng cảm"]},
+    {l:"v2",q:"Truyện “Bức tranh của em gái tôi” được kể theo ngôi nào?",o:["Ngôi thứ nhất, người anh xưng “tôi”","Ngôi thứ nhất, Kiều Phương xưng “tôi”","Ngôi thứ ba","Ngôi thứ hai"]},
+    {l:"v2",q:"Tác giả của “Bức tranh của em gái tôi” là:",o:["Tạ Duy Anh","Tô Hoài","Thạch Lam","Nguyễn Nhật Ánh"]},
+    {l:"v2",q:"Tên của cô em gái trong truyện “Bức tranh của em gái tôi” là:",o:["Kiều Phương","Hiên","Lan","Thủy"]},
+    {l:"v2",q:"Khi đứng trước bức tranh em gái vẽ mình, người anh có tâm trạng:",o:["ngạc nhiên, hãnh diện rồi xấu hổ","tức giận","vui vì được nhận giải","buồn chán"]},
+    {l:"v2",q:"Yếu tố tự sự trong thơ là:",o:["kể lại sự việc, câu chuyện","gợi tả cảnh vật bằng hình ảnh","số tiếng trong mỗi dòng thơ","cách gieo vần cuối dòng"]},
+    {l:"v2",q:"Yếu tố miêu tả trong thơ thể hiện qua:",o:["những hình ảnh, chi tiết gợi tả cảnh vật, con người","lời kể về một sự việc","lời đối thoại giữa nhân vật","số khổ thơ"]},
+    // Bài 3
+    {l:"v3",q:"“Cô bé bán diêm” là truyện của nhà văn nào?",o:["An-đéc-xen","Ta-go","Tô Hoài","Thạch Lam"]},
+    {l:"v3",q:"Câu chuyện “Cô bé bán diêm” diễn ra vào thời điểm nào?",o:["đêm giao thừa","buổi sáng mùa hè","đêm Trung thu","ngày khai trường"]},
+    {l:"v3",q:"Mỗi lần quẹt diêm, cô bé thấy những gì?",o:["lò sưởi, bàn ăn có ngỗng quay, cây thông Nô-en, người bà","biển cả và mặt trời","ngôi nhà mới của mình","những người bạn cùng lớp"]},
+    {l:"v3",q:"Những mộng tưởng của cô bé khi quẹt diêm thể hiện điều gì?",o:["Khao khát được ấm no, được yêu thương","Mong muốn được đi du lịch","Ước mơ trở thành người bán diêm giỏi","Mong trời mau sáng để đi học"]},
+    {l:"v3",q:"“Gió lạnh đầu mùa” là tác phẩm của:",o:["Thạch Lam","Nam Cao","Tô Hoài","Tạ Duy Anh"]},
+    {l:"v3",q:"Trong “Gió lạnh đầu mùa”, Sơn và Lan đã cho bé Hiên vật gì?",o:["chiếc áo bông cũ","một chiếc khăn len","một bao gạo","đôi giày mới"]},
+    {l:"v3",q:"Câu chuyện “Gió lạnh đầu mùa” ca ngợi điều gì?",o:["Lòng nhân hậu, biết chia sẻ với người nghèo khó","Lòng dũng cảm khi chiến đấu","Tình yêu thiên nhiên","Sự chăm chỉ học tập"]},
+    {l:"v3",q:"Truyện “Cô bé bán diêm” được kể theo ngôi thứ mấy?",o:["Ngôi thứ ba","Ngôi thứ nhất","Ngôi thứ hai","Không có người kể"]},
+    {l:"v3",q:"Tác giả của bài thơ “Con chào mào” là:",o:["Mai Văn Phấn","Xuân Quỳnh","Nguyễn Thế Hoàng Linh","Trần Đăng Khoa"]},
+    {l:"v3",q:"Đặc điểm của người kể chuyện ngôi thứ ba là:",o:["Người kể giấu mình, gọi nhân vật bằng tên","Người kể xưng “tôi” và là nhân vật chính","Người kể xưng “chúng ta”","Người kể luôn là tác giả xuất hiện trong truyện"]},
+    {l:"v3",tf:true,q:"An-đéc-xen là nhà văn Đan Mạch, nổi tiếng với nhiều truyện cổ tích viết cho thiếu nhi."},
+    // Từ đơn, từ phức
+    {l:"t1",q:"Từ nào là từ đơn?",o:["sách","sách vở","học sinh","bút chì"]},
+    {l:"t1",q:"Từ nào là từ láy?",o:["lấp lánh","nhà cửa","bàn ghế","hoa hồng"]},
+    {l:"t1",q:"Từ nào là từ ghép?",o:["xe đạp","rì rào","lom khom","xinh xắn"]},
+    {l:"t1",q:"Dòng nào gồm toàn từ láy?",o:["long lanh, thăm thẳm, rì rầm","long lanh, xe máy, rì rầm","quần áo, sách vở, bàn ghế","nhà, cây, núi"]},
+    {l:"t1",q:"Từ “mưa” thuộc loại từ nào?",o:["từ đơn","từ ghép","từ láy","cụm từ"]},
+    {l:"t1",q:"Từ “lao xao” là:",o:["từ láy","từ ghép","từ đơn","danh từ riêng"]},
+    {l:"t1",q:"Từ “quần áo” là:",o:["từ ghép","từ láy","từ đơn","cụm động từ"]},
+    {l:"t1",q:"Từ láy trong câu “Tiếng suối chảy róc rách bên sườn núi.” là:",o:["róc rách","tiếng suối","sườn núi","chảy"]},
+    {l:"t1",q:"Trong câu “Mặt hồ phẳng lặng, lấp lánh ánh trăng.”, từ láy là:",o:["lấp lánh","phẳng lặng","mặt hồ","ánh trăng"]},
+    {l:"t1",q:"Từ phức gồm những loại nào?",o:["từ ghép và từ láy","từ đơn và từ ghép","từ đơn và từ láy","danh từ và động từ"]},
+    {l:"t1",tf:false,q:"“Học sinh” là từ láy.",x:"“Học sinh” là từ ghép: hai tiếng “học” và “sinh” quan hệ với nhau về nghĩa."},
+    {l:"t1",q:"Các từ “xanh xanh, đo đỏ, vàng vàng” thuộc loại:",o:["từ láy","từ ghép","từ đơn","từ Hán Việt"]},
+    {l:"t1",q:"Từ nào là từ ghép?",o:["hoa quả","líu lo","chiêm chiếp","lóng lánh"]},
+    {l:"t1",q:"Câu “Em đi học.” có mấy từ đơn?",o:["3","2","1","4"],x:"Em / đi / học – ba từ, mỗi từ một tiếng."},
+    // Nghĩa của từ
+    {l:"t2",q:"“Kiêu căng” có nghĩa là:",o:["tự cho mình hơn người, coi thường người khác","khiêm tốn, nhã nhặn","nhút nhát, rụt rè","chăm chỉ, cần cù"]},
+    {l:"t2",q:"Từ “hối hận” được giải thích đúng là:",o:["lấy làm tiếc và thấy có lỗi về việc mình đã làm","vui mừng vì đã làm xong việc","lo lắng về việc sắp xảy ra","tức giận với người khác"]},
+    {l:"t2",q:"Giải thích “dũng cảm” là “gan dạ” là cách giải thích bằng:",o:["từ đồng nghĩa","từ trái nghĩa","nêu khái niệm","miêu tả sự vật"]},
+    {l:"t2",q:"Giải thích “cao thượng” là “không nhỏ nhen, ti tiện” là cách giải thích bằng:",o:["từ trái nghĩa","từ đồng nghĩa","kể chuyện","so sánh"]},
+    {l:"t2",q:"Từ nào đồng nghĩa với “chăm chỉ”?",o:["siêng năng","lười biếng","nhanh nhẹn","thông minh"]},
+    {l:"t2",q:"Từ nào trái nghĩa với “hiền lành”?",o:["độc ác","tốt bụng","nhân hậu","dịu dàng"]},
+    {l:"t2",q:"“Ân hận” có nghĩa gần nhất với từ nào?",o:["hối hận","sung sướng","tự hào","giận dữ"]},
+    {l:"t2",q:"Trong câu “Bầu trời xanh thăm thẳm.”, từ “thăm thẳm” có nghĩa là:",o:["sâu và xa đến mức như không có giới hạn","rất thấp","rất gần","tối om"]},
+    {l:"t2",q:"“Nhân hậu” có nghĩa là:",o:["có lòng thương người, đối xử có tình nghĩa","giàu có","thông minh","khỏe mạnh"]},
+    {l:"t2",q:"Từ “tinh nghịch” phù hợp nhất để miêu tả:",o:["một em bé hay bày trò vui","một cụ già trầm tư","một dòng sông lặng lẽ","một buổi chiều buồn"]},
+    // Biện pháp tu từ
+    {l:"t3",q:"Câu nào có sử dụng biện pháp so sánh?",o:["Mặt hồ sáng long lanh như một tấm gương.","Mặt hồ rất rộng.","Em đi dạo quanh hồ.","Hồ có nhiều cá."]},
+    {l:"t3",q:"Câu nào có sử dụng biện pháp nhân hóa?",o:["Chị gió nhẹ nhàng ru cho cây ngủ.","Gió thổi mạnh.","Trời có gió mùa đông bắc.","Gió làm lá rơi."]},
+    {l:"t3",q:"Trong câu ca dao “Thuyền về có nhớ bến chăng”, hình ảnh “thuyền” là:",o:["ẩn dụ chỉ người đi xa","so sánh","nhân hóa","điệp ngữ"]},
+    {l:"t3",q:"Từ ngữ nào thường dùng trong phép so sánh?",o:["như","và","nhưng","vì"]},
+    {l:"t3",q:"Câu “Đất nước em như một bài ca.” sử dụng biện pháp tu từ:",o:["so sánh","nhân hóa","ẩn dụ","điệp ngữ"]},
+    {l:"t3",q:"Câu nào có sử dụng điệp ngữ?",o:["Em yêu cánh đồng, em yêu dòng sông, em yêu mái trường.","Mặt trời đỏ như quả cầu lửa.","Hàng cây đứng nghiêm chào đón chúng em.","Bông hoa rất đẹp."]},
+    {l:"t3",q:"Câu “Những ông sao bé nhỏ nháy mắt nhìn em.” sử dụng biện pháp:",o:["nhân hóa","so sánh","ẩn dụ","điệp ngữ"]},
+    {l:"t3",q:"Tác dụng của biện pháp so sánh là:",o:["làm cho sự vật, sự việc được miêu tả sinh động, gợi hình, gợi cảm hơn","làm câu văn dài hơn","giúp người đọc nhớ tên tác giả","để kết thúc đoạn văn"]},
+    {l:"t3",q:"Biện pháp ẩn dụ khác so sánh ở chỗ:",o:["ẩn dụ chỉ nêu sự vật dùng để so sánh, ẩn đi sự vật được nói đến","ẩn dụ luôn dùng từ “như”","ẩn dụ chỉ dùng trong văn xuôi","ẩn dụ là lặp lại từ ngữ"]},
+    {l:"t3",q:"Câu nào sử dụng điệp ngữ?",o:["Học, học nữa, học mãi.","Em học bài rất chăm.","Bạn Lan học giỏi như anh.","Sách là người bạn tốt."]},
+    {l:"t3",tf:true,q:"Nhân hóa là gọi hoặc tả con vật, đồ vật, cây cối bằng những từ ngữ vốn dùng để gọi hoặc tả con người."},
+    {l:"t3",q:"Câu “Cây bàng già đứng lặng lẽ giữa sân trường, xòe tán lá che mát cho chúng em.” dùng biện pháp tu từ:",o:["nhân hóa","so sánh","điệp ngữ","ẩn dụ"]},
+    {l:"t3",q:"Từ ngữ so sánh trong câu “Đôi mắt bé tròn xoe tựa hai hòn bi ve.” là:",o:["tựa","tròn xoe","đôi mắt","hai"]},
+    // Cụm từ
+    {l:"t4",q:"Cụm từ nào là cụm danh từ?",o:["những chú chim nhỏ","đang hót líu lo","rất xinh xắn","bay lượn trên trời"]},
+    {l:"t4",q:"Cụm từ nào là cụm động từ?",o:["đang học bài ở nhà","một quyển sách mới","rất chăm chỉ","những bông hoa"]},
+    {l:"t4",q:"Cụm từ nào là cụm tính từ?",o:["rất ngoan ngoãn","đã làm xong bài tập","ba chú mèo con","một ngôi nhà"]},
+    {l:"t4",q:"Trong cụm danh từ “tất cả những học sinh chăm ngoan”, danh từ trung tâm là:",o:["học sinh","tất cả","chăm ngoan","những"]},
+    {l:"t4",q:"Trong cụm động từ “vẫn chăm chỉ tập luyện mỗi ngày”, động từ trung tâm là:",o:["tập luyện","vẫn","chăm chỉ","mỗi ngày"]},
+    {l:"t4",q:"Các từ “đã, đang, sẽ, vẫn, cũng” thường đứng trước để bổ sung ý nghĩa cho:",o:["động từ","danh từ","số từ","quan hệ từ"]},
+    {l:"t4",q:"Các từ “những, các, mọi, mỗi” thường đứng trước:",o:["danh từ","động từ","tính từ","quan hệ từ"]},
+    {l:"t4",q:"Cụm từ in đậm trong câu “<b>Những cánh diều rực rỡ</b> bay cao trên bầu trời.” là:",o:["cụm danh từ","cụm động từ","cụm tính từ","một từ ghép"]},
+    {l:"t4",q:"Cụm từ “rất thông minh và nhanh nhẹn” là:",o:["cụm tính từ","cụm danh từ","cụm động từ","từ láy"]},
+    {l:"t4",q:"Cụm từ “đang tưới cây ngoài vườn” có từ trung tâm là:",o:["tưới","đang","cây","vườn"]},
+    // Đọc hiểu văn bản mới (tự soạn)
+    {l:"d",t:"Chú Sẻ Nâu",rd:`Tôi là Sẻ Nâu, sống trong một tổ nhỏ trên mái ngói nhà ông Tư. Hồi mới biết bay, tôi tự cho mình là con chim nhanh nhất vùng. Tôi hay bay sà xuống trêu lũ gà con, giật miếng mồi của bác Bồ Câu rồi vụt bay mất, cười khanh khách.
+
+Một chiều, trời nổi giông. Tôi mải đùa nên bay ra xa, cánh ướt sũng, không về tổ được. Đang run rẩy dưới tán lá chuối, tôi nghe tiếng gọi. Hóa ra bác Bồ Câu – người tôi vẫn hay trêu chọc – đã bay đi tìm tôi. Bác xòe cánh che cho tôi đến khi tạnh mưa.
+
+Đêm ấy, nằm trong tổ ấm, tôi thấy mặt mình nóng ran. Tôi tự hứa từ nay sẽ sống tử tế hơn với mọi người.`,qs:[
+      {q:"Văn bản trên thuộc thể loại nào?",o:["Truyện đồng thoại","Thơ lục bát","Văn bản thông tin","Truyện cổ tích về người thật"]},
+      {q:"Văn bản được kể theo ngôi thứ mấy?",o:["Ngôi thứ nhất, người kể là Sẻ Nâu","Ngôi thứ ba","Ngôi thứ nhất, người kể là bác Bồ Câu","Ngôi thứ hai"]},
+      {q:"Ai đã giúp Sẻ Nâu trong cơn giông?",o:["bác Bồ Câu","ông Tư","lũ gà con","cây chuối"]},
+      {q:"Chi tiết “tôi thấy mặt mình nóng ran” cho thấy Sẻ Nâu đang cảm thấy:",o:["xấu hổ, ân hận","vui sướng","sợ hãi vì trời lạnh","tức giận"]},
+      {q:"Từ “khanh khách” trong văn bản là:",o:["từ láy","từ ghép","từ đơn","cụm danh từ"]}]},
+    {l:"d",t:"Tiếng mưa (thơ)",rd:`Mẹ ơi, con nghe thấy
+Tiếng mưa gõ hiên nhà
+Như ai đang đánh nhịp
+Cho cây lá hát ca.
+
+Con nằm trong chăn ấm
+Nghe mẹ kể chuyện xưa
+Lời mẹ như dòng suối
+Chảy suốt những đêm mưa.
+
+Mai con lớn khôn rồi
+Đi xa ngàn dặm nữa
+Vẫn nhớ tiếng mưa rơi
+Nhớ lời ru bên cửa.`,qs:[
+      {q:"Bài thơ được viết theo thể thơ nào?",o:["Thơ năm chữ","Thơ lục bát","Thơ bốn chữ","Thơ bảy chữ"],x:"Mỗi dòng thơ có 5 tiếng."},
+      {q:"Câu thơ “Lời mẹ như dòng suối” sử dụng biện pháp tu từ:",o:["so sánh","nhân hóa","điệp ngữ","ẩn dụ"]},
+      {q:"Hai dòng “Như ai đang đánh nhịp / Cho cây lá hát ca” sử dụng biện pháp tu từ nào?",o:["so sánh và nhân hóa","chỉ có điệp ngữ","chỉ có ẩn dụ","không có biện pháp tu từ"],x:"Tiếng mưa được so sánh “như ai đang đánh nhịp”; cây lá “hát ca” là nhân hóa."},
+      {q:"Tình cảm chủ đạo trong bài thơ là:",o:["tình yêu và nỗi nhớ dành cho mẹ","nỗi sợ trời mưa","niềm vui được đi xa","tình bạn"]},
+      {q:"Trong dòng “Vẫn nhớ tiếng mưa rơi”, cụm từ “vẫn nhớ tiếng mưa rơi” là:",o:["cụm động từ","cụm danh từ","cụm tính từ","từ láy"]}]},
+    {l:"d",t:"Đôi giày của Tú",rd:`Tú được bố mua cho đôi giày thể thao mới. Cậu nâng niu nó, chẳng dám đi ra sân vì sợ bẩn. Trong lớp, Tú để ý thấy Khoa – cậu bạn ngồi cạnh – luôn đi đôi dép nhựa đã mòn, ngay cả trong giờ thể dục.
+
+Hôm hội thao, Khoa được chọn chạy tiếp sức nhưng cứ lúng túng nhìn xuống chân. Tú hiểu ra. Cậu lặng lẽ tháo đôi giày của mình: "Cậu đi thử đi, chân hai đứa mình bằng nhau mà." Khoa ngập ngừng rồi nhận lấy.
+
+Đội lớp 6A về nhất. Khoa chạy đến trả giày, mắt sáng long lanh. Tú cười, thấy đôi giày lấm bụi mà lòng mình lại sạch bong, nhẹ nhõm.`,qs:[
+      {q:"Văn bản được kể theo ngôi thứ mấy?",o:["Ngôi thứ ba","Ngôi thứ nhất","Ngôi thứ hai","Kết hợp ngôi thứ nhất và thứ hai"]},
+      {q:"Vì sao Khoa lúng túng nhìn xuống chân?",o:["Vì Khoa không có giày thể thao để chạy","Vì Khoa bị đau chân","Vì Khoa không thích chạy","Vì giày của Khoa quá to"]},
+      {q:"Việc Tú cho bạn mượn giày cho thấy Tú là người:",o:["biết quan tâm, sẻ chia","nóng tính","ích kỉ","nhút nhát"]},
+      {q:"Câu “đôi giày lấm bụi mà lòng mình lại sạch bong, nhẹ nhõm” có cách diễn đạt nào?",o:["đối lập giữa đôi giày bẩn và tâm hồn trong sáng, thanh thản","so sánh đôi giày với cái chổi","nhân hóa đôi giày","điệp ngữ"]},
+      {q:"Cụm từ “đôi giày thể thao mới” là:",o:["cụm danh từ","cụm động từ","cụm tính từ","từ ghép"]}]},
+    {l:"d",t:"Hạt Mưa Nhỏ",rd:`Trên đám mây xám, Hạt Mưa Nhỏ sợ hãi níu lấy mẹ: "Con không muốn rơi xuống đâu. Dưới kia lạ lắm!" Mẹ Mây dịu dàng: "Mỗi hạt mưa đều có một việc phải làm. Con hãy đi đi, rồi con sẽ hiểu."
+
+Hạt Mưa Nhỏ nhắm mắt buông tay. Nó rơi xuống một cánh đồng khô nẻ. Ngay lập tức, mầm lúa non ngẩng lên, reo khẽ: "Cảm ơn bạn! Mình khát quá!" Hạt Mưa Nhỏ thấm vào đất, mát lành. Nó thấy mình thật có ích.
+
+Vài hôm sau, ông Mặt Trời ló ra, sưởi ấm cánh đồng. Hạt Mưa Nhỏ hóa thành hơi nước, bay lên, trở về với mẹ Mây. Nó kể cho mẹ nghe về mầm lúa và hứa sẽ lại xuống giúp đồng ruộng vào mùa sau.`,qs:[
+      {q:"Nhân vật trong văn bản chủ yếu là:",o:["sự vật được nhân hóa (hạt mưa, đám mây, mầm lúa)","những con người có thật","các vị thần","những con vật trong rừng"]},
+      {q:"Lúc đầu, Hạt Mưa Nhỏ có tâm trạng thế nào?",o:["sợ hãi, không muốn rơi xuống","vui vẻ, háo hức","tức giận","buồn ngủ"]},
+      {q:"Điều gì khiến Hạt Mưa Nhỏ thấy mình có ích?",o:["Nó giúp mầm lúa đang khát có nước","Nó được trở về với mẹ","Nó được ông Mặt Trời sưởi ấm","Nó bay được rất cao"]},
+      {q:"Bài học rút ra từ câu chuyện là:",o:["Ai cũng có thể làm điều có ích, hãy mạnh dạn làm việc của mình","Không nên rời xa mẹ","Trời mưa thì nên ở nhà","Mặt Trời quan trọng hơn mưa"]},
+      {q:"Câu “mầm lúa non ngẩng lên, reo khẽ” sử dụng biện pháp:",o:["nhân hóa","so sánh","ẩn dụ","điệp ngữ"]}]},
+    {l:"d",t:"Người bạn mới",rd:`Năm học lớp 6, lớp tôi có thêm một bạn mới tên là Mai. Mai ít nói, giọng hơi khác chúng tôi vì bạn chuyển từ miền Trung ra. Mấy bạn trong lớp hay nhại giọng Mai để trêu. Tôi cũng từng cười theo.
+
+Một lần, tôi bị điểm kém môn Toán, ngồi buồn ở góc sân. Mai đến ngồi cạnh, chìa ra cuốn vở ghi chép cẩn thận: "Bài này khó, mình giảng lại cho cậu nhé." Suốt buổi chiều hôm ấy, Mai kiên nhẫn chỉ cho tôi từng bước.
+
+Tôi nhìn Mai, chợt thấy ngượng ngùng. Hóa ra người bạn mà tôi từng cười cợt lại tốt bụng đến thế. Từ hôm đó, tôi và Mai trở thành đôi bạn thân.`,qs:[
+      {q:"Người kể chuyện trong văn bản là ai?",o:["Một bạn cùng lớp với Mai, xưng “tôi”","Mai","Cô giáo chủ nhiệm","Một người không xuất hiện trong truyện"]},
+      {q:"Vì sao các bạn trong lớp hay trêu Mai?",o:["Vì giọng nói của Mai khác các bạn","Vì Mai học kém","Vì Mai hay khóc","Vì Mai đến muộn"]},
+      {q:"Mai đã làm gì khi thấy bạn ngồi buồn?",o:["Giảng lại bài Toán cho bạn","Trêu chọc bạn","Mách cô giáo","Bỏ đi chỗ khác"]},
+      {q:"Cảm giác “ngượng ngùng” của nhân vật “tôi” cho thấy:",o:["“Tôi” nhận ra mình đã cư xử chưa đúng với Mai","“Tôi” sợ bị điểm kém","“Tôi” không thích Mai","“Tôi” muốn về nhà"]},
+      {q:"Thông điệp của câu chuyện là:",o:["Đừng vội đánh giá, trêu chọc người khác vì những khác biệt bên ngoài","Phải học giỏi Toán","Nên chơi với bạn cùng quê","Không nên chuyển trường"]}]},
+    {l:"d",t:"Sân trường buổi sớm (thơ)",rd:`Sân trường buổi sớm
+Nắng vàng tươi tươi
+Hàng cây xanh mát
+Vẫy tay đón người.
+
+Trống trường giục giã
+Tùng tùng tùng tùng
+Chúng em xếp hàng
+Bước chân rộn ràng.`,qs:[
+      {q:"Bài thơ được viết theo thể thơ nào?",o:["Thơ bốn chữ","Thơ năm chữ","Thơ lục bát","Thơ tự do"],x:"Mỗi dòng thơ có 4 tiếng."},
+      {q:"Hai dòng “Hàng cây xanh mát / Vẫy tay đón người” sử dụng biện pháp:",o:["nhân hóa","so sánh","điệp ngữ","ẩn dụ"]},
+      {q:"Từ “tùng tùng” mô phỏng âm thanh của:",o:["tiếng trống trường","tiếng chim hót","tiếng mưa","tiếng bước chân"]},
+      {q:"Từ “rộn ràng” là:",o:["từ láy","từ ghép","từ đơn","cụm danh từ"]},
+      {q:"Không khí của bài thơ là:",o:["tươi vui, rộn rã","buồn bã","căng thẳng","yên ắng, lặng lẽ"]}]}
+  ],
+  writing:[
+    {title:"Kể lại một trải nghiệm của em",prompt:"Viết bài văn kể lại một trải nghiệm đáng nhớ của em (ví dụ: lần đầu tự đi học, một lần mắc lỗi với bạn, một chuyến đi xa cùng gia đình).",
+     outline:["Mở bài: dùng ngôi thứ nhất, giới thiệu trải nghiệm và ấn tượng chung của em.","Thân bài: kể theo trình tự thời gian – trải nghiệm xảy ra khi nào, ở đâu, với ai; các sự việc chính; chi tiết đáng nhớ nhất; cảm xúc của em trong lúc trải qua.","Kết bài: ý nghĩa của trải nghiệm; điều em học được hoặc cảm xúc hiện tại."],
+     checklist:["Dùng ngôi thứ nhất (xưng “tôi” hoặc “em”)","Có đủ mở bài, thân bài, kết bài","Sự việc được kể theo trình tự hợp lí","Có chi tiết đáng nhớ và cảm xúc của em","Nêu được ý nghĩa của trải nghiệm","Viết đúng chính tả, dùng từ chính xác"]},
+    {title:"Đoạn văn cảm xúc về một bài thơ",prompt:"Viết đoạn văn (khoảng 150–200 chữ) ghi lại cảm xúc của em về một bài thơ có yếu tố tự sự và miêu tả mà em yêu thích (ví dụ: “Chuyện cổ tích về loài người”, “Mây và sóng”).",
+     outline:["Câu mở đoạn: nêu tên bài thơ, tác giả và cảm xúc chung của em.","Các câu tiếp theo: nêu cảm xúc về nội dung và nghệ thuật; chọn một vài từ ngữ, hình ảnh nổi bật; chỉ ra yếu tố tự sự (câu chuyện được kể) và miêu tả (hình ảnh gợi tả).","Câu kết đoạn: khẳng định ý nghĩa của bài thơ với em."],
+     checklist:["Đúng hình thức đoạn văn: viết hoa chữ đầu, không xuống dòng giữa đoạn","Nêu tên bài thơ và tác giả","Dùng ngôi thứ nhất để bày tỏ cảm xúc","Có dẫn chứng là từ ngữ, hình ảnh trong bài thơ","Có câu kết đoạn","Độ dài khoảng 150–200 chữ"]},
+    {title:"Trình bày ý kiến về một vấn đề trong gia đình",prompt:"Chuẩn bị bài nói trình bày ý kiến của em về một vấn đề trong gia đình (ví dụ: học sinh lớp 6 có nên tự giặt quần áo của mình không?).",
+     outline:["Mở đầu: chào người nghe, nêu vấn đề và ý kiến của em.","Nội dung: đưa ra 2–3 lí lẽ, mỗi lí lẽ kèm một bằng chứng từ cuộc sống của em hoặc gia đình.","Kết thúc: khẳng định lại ý kiến, cảm ơn người nghe."],
+     checklist:["Nêu rõ vấn đề và ý kiến của em","Có ít nhất 2 lí lẽ","Mỗi lí lẽ có bằng chứng cụ thể","Có phần kết thúc khẳng định ý kiến","Lời lẽ lễ phép, phù hợp khi nói với người thân"]}
+  ]
+});
+
+/* ------------------------------ TOÁN 6 ------------------------------ */
+const C1="Chương I. Tập hợp các số tự nhiên", C2="Chương II. Tính chia hết trong tập hợp các số tự nhiên", C3="Chương III. Số nguyên";
+APP.subjects.push({
+  id:"toan", name:"Toán", tone:"math",
+  scopeText:"Phạm vi: Chương I, II và III (Bài 1 đến Bài 17), sách Toán 6 Kết nối tri thức với cuộc sống. Nếu lớp con chưa học số nguyên, chọn phạm vi “Chương I–II” ở phần đề thi thử.",
+  test:{n:20,mins:40,count:12,scopes:[{id:"c13",name:"Chương I–III",note:"Bài 1–17",lessons:"*"},{id:"c12",name:"Chương I–II",note:"Bài 1–12",lessons:["b1","b2","b3","b4","b5","b6","b7","b8","b9","b10","b11","b12"]}]},
+  lessons:[
+    {id:"b1",group:C1,short:"Bài 1",name:"Tập hợp",notes:["Tập hợp thường được kí hiệu bằng chữ in hoa: A, B, C…","a ∈ A: a thuộc A; b ∉ A: b không thuộc A.","Hai cách cho tập hợp: liệt kê các phần tử, hoặc chỉ ra tính chất đặc trưng. Ví dụ: A = {0; 1; 2; 3} = {x ∈ ℕ | x < 4}.","ℕ là tập hợp các số tự nhiên; ℕ* là tập hợp các số tự nhiên khác 0."]},
+    {id:"b2",group:C1,short:"Bài 2",name:"Cách ghi số tự nhiên",notes:["Hệ thập phân dùng 10 chữ số 0, 1, …, 9; giá trị của mỗi chữ số phụ thuộc vào vị trí của nó.","Ví dụ: 2 024 = 2 · 1 000 + 0 · 100 + 2 · 10 + 4.","Số La Mã: I = 1, V = 5, X = 10. Chữ số nhỏ đứng trước chữ số lớn thì trừ: IV = 4, IX = 9. Ví dụ: XIV = 14, XXIX = 29."]},
+    {id:"b3",group:C1,short:"Bài 3",name:"Thứ tự trong tập hợp các số tự nhiên",notes:["Trong hai số tự nhiên khác nhau, có một số nhỏ hơn số kia.","Mỗi số tự nhiên có đúng một số liền sau; mỗi số tự nhiên khác 0 có đúng một số liền trước.","a ≤ b nghĩa là a < b hoặc a = b."]},
+    {id:"b4",group:C1,short:"Bài 4",name:"Phép cộng và phép trừ số tự nhiên",notes:["Giao hoán: a + b = b + a. Kết hợp: (a + b) + c = a + (b + c).","Số hạng chưa biết = tổng − số hạng đã biết.","Số bị trừ = hiệu + số trừ; số trừ = số bị trừ − hiệu."]},
+    {id:"b5",group:C1,short:"Bài 5",name:"Phép nhân và phép chia số tự nhiên",notes:["a · b = b · a; (a · b) · c = a · (b · c); a · (b + c) = a · b + a · c.","Phép chia có dư: a = b · q + r với 0 < r < b. Nếu r = 0 thì a chia hết cho b.","Không có phép chia cho 0."]},
+    {id:"b6",group:C1,short:"Bài 6",name:"Lũy thừa với số mũ tự nhiên",notes:["aⁿ = a · a · … · a (n thừa số a); a là cơ số, n là số mũ.","aᵐ · aⁿ = aᵐ⁺ⁿ; aᵐ : aⁿ = aᵐ⁻ⁿ (a ≠ 0, m ≥ n).","Quy ước: a¹ = a; a⁰ = 1 (a ≠ 0)."]},
+    {id:"b7",group:C1,short:"Bài 7",name:"Thứ tự thực hiện các phép tính",notes:["Không có dấu ngoặc: lũy thừa → nhân, chia → cộng, trừ.","Có dấu ngoặc: ( ) → [ ] → { }.","Các phép tính cùng loại thì thực hiện từ trái sang phải."]},
+    {id:"b8",group:C2,short:"Bài 8",name:"Quan hệ chia hết và tính chất",notes:["a chia hết cho b (b ≠ 0) nếu có số tự nhiên q sao cho a = b · q; kí hiệu a ⋮ b. Khi đó a là bội của b, b là ước của a.","Nếu tất cả các số hạng của tổng đều chia hết cho m thì tổng chia hết cho m.","Nếu chỉ có một số hạng không chia hết cho m, còn lại đều chia hết cho m, thì tổng không chia hết cho m."]},
+    {id:"b9",group:C2,short:"Bài 9",name:"Dấu hiệu chia hết",notes:["Chia hết cho 2: chữ số tận cùng là 0, 2, 4, 6, 8. Chia hết cho 5: tận cùng là 0 hoặc 5.","Chia hết cho 9: tổng các chữ số chia hết cho 9. Chia hết cho 3: tổng các chữ số chia hết cho 3.","Số chia hết cho 9 thì chia hết cho 3; điều ngược lại không phải lúc nào cũng đúng."]},
+    {id:"b10",group:C2,short:"Bài 10",name:"Số nguyên tố",notes:["Số nguyên tố là số tự nhiên lớn hơn 1, chỉ có hai ước là 1 và chính nó.","Hợp số là số tự nhiên lớn hơn 1, có nhiều hơn hai ước. Số 0 và số 1 không là số nguyên tố, cũng không là hợp số.","Mọi hợp số đều phân tích được ra thừa số nguyên tố, ví dụ: 60 = 2<sup>2</sup> · 3 · 5."]},
+    {id:"b11",group:C2,short:"Bài 11",name:"Ước chung. Ước chung lớn nhất",notes:["Ước chung của hai số là số vừa là ước của số này, vừa là ước của số kia.","Tìm ƯCLN: phân tích ra thừa số nguyên tố, chọn các thừa số chung, lấy số mũ nhỏ nhất, rồi nhân lại.","Nếu ƯCLN(a, b) = 1 thì a và b là hai số nguyên tố cùng nhau."]},
+    {id:"b12",group:C2,short:"Bài 12",name:"Bội chung. Bội chung nhỏ nhất",notes:["Bội chung của hai số là số vừa là bội của số này, vừa là bội của số kia.","Tìm BCNN: phân tích ra thừa số nguyên tố, chọn các thừa số chung và riêng, lấy số mũ lớn nhất, rồi nhân lại.","Nếu a ⋮ b thì BCNN(a, b) = a."]},
+    {id:"b13",group:C3,short:"Bài 13",name:"Tập hợp các số nguyên",notes:["ℤ = {…; −2; −1; 0; 1; 2; …} là tập hợp các số nguyên.","Số đối của a là −a: số đối của 5 là −5, số đối của −3 là 3.","Trên trục số nằm ngang, điểm bên trái biểu diễn số nhỏ hơn. Mọi số nguyên âm đều nhỏ hơn 0."]},
+    {id:"b14",group:C3,short:"Bài 14",name:"Phép cộng và phép trừ số nguyên",notes:["Cộng hai số nguyên âm: cộng phần số tự nhiên rồi đặt dấu “−” trước kết quả.","Cộng hai số nguyên khác dấu: lấy số lớn trừ số nhỏ (phần số tự nhiên), rồi đặt dấu của số có phần số tự nhiên lớn hơn.","a − b = a + (−b)."]},
+    {id:"b15",group:C3,short:"Bài 15",name:"Quy tắc dấu ngoặc",notes:["Bỏ ngoặc có dấu “+” đằng trước: giữ nguyên dấu các số hạng trong ngoặc.","Bỏ ngoặc có dấu “−” đằng trước: đổi dấu tất cả các số hạng trong ngoặc."]},
+    {id:"b16",group:C3,short:"Bài 16",name:"Phép nhân số nguyên",notes:["Tích hai số nguyên cùng dấu là số dương; tích hai số nguyên khác dấu là số âm.","a · 0 = 0.","Phép nhân số nguyên có tính chất giao hoán, kết hợp, phân phối đối với phép cộng."]},
+    {id:"b17",group:C3,short:"Bài 17",name:"Phép chia hết. Ước và bội của một số nguyên",notes:["a chia hết cho b (b ≠ 0) nếu có số nguyên q sao cho a = b · q.","Nếu a là bội của b thì −a cũng là bội của b.","Ví dụ: các ước của 6 là −6; −3; −2; −1; 1; 2; 3; 6."]}
+  ],
+  items:[
+    {l:"b1",q:"Cho A = {2; 4; 6; 8}. Khẳng định nào đúng?",o:["4 ∈ A","5 ∈ A","8 ∉ A","2 ∉ A"]},
+    {l:"b1",q:"Tập hợp các chữ cái trong cụm từ “NHA TRANG” là:",o:["{N; H; A; T; R; G}","{N; H; A; T; R; A; N; G}","{NHA; TRANG}","{N; A; T; G}"],x:"Mỗi phần tử chỉ viết một lần."},
+    {l:"b1",q:"Cách viết nào đúng?",o:["{x ∈ ℕ | x < 4} = {0; 1; 2; 3}","{x ∈ ℕ | x < 4} = {1; 2; 3}","{x ∈ ℕ | x < 4} = {0; 1; 2; 3; 4}","{x ∈ ℕ | x < 4} = {1; 2; 3; 4}"]},
+    {l:"b1",g:"setcount"},{l:"b1",g:"setlist"},
+    {l:"b2",q:"Số La Mã XIV có giá trị là:",o:["14","16","19","11"]},
+    {l:"b2",q:"Số 4 307 viết dưới dạng tổng giá trị các chữ số là:",o:["4 · 1 000 + 3 · 100 + 0 · 10 + 7","4 · 1 000 + 3 · 10 + 7","4 · 100 + 3 · 10 + 7","4 + 3 + 0 + 7"]},
+    {l:"b2",g:"roman"},{l:"b2",g:"digitvalue"},
+    {l:"b3",q:"Số tự nhiên nào không có số liền trước?",o:["0","1","9","100"]},
+    {l:"b3",tf:true,q:"Hai số tự nhiên liên tiếp hơn kém nhau 1 đơn vị."},
+    {l:"b3",g:"between"},{l:"b3",g:"succ"},
+    {l:"b4",q:"Tính nhanh: 37 + 125 + 63 = ___",ans:"225",x:"(37 + 63) + 125 = 100 + 125 = 225."},
+    {l:"b4",q:"Tính nhanh: 298 + 47 + 2 = ___",ans:"347",x:"(298 + 2) + 47 = 300 + 47 = 347."},
+    {l:"b4",g:"findxadd"},
+    {l:"b5",q:"Tính nhanh: 25 · 37 · 4 = ___",ans:"3700",x:"(25 · 4) · 37 = 100 · 37 = 3 700."},
+    {l:"b5",q:"Tính nhanh: 47 · 99 + 47 = ___",ans:"4700",x:"47 · 99 + 47 · 1 = 47 · (99 + 1) = 47 · 100 = 4 700."},
+    {l:"b5",g:"findxmul"},{l:"b5",g:"divrem"},
+    {l:"b6",q:"Trong lũy thừa 5<sup>3</sup>, cơ số là:",o:["5","3","15","125"]},
+    {l:"b6",q:"Giá trị của 2<sup>5</sup> là:",o:["32","10","25","64"],x:"2 · 2 · 2 · 2 · 2 = 32."},
+    {l:"b6",g:"pow"},{l:"b6",g:"powmul"},{l:"b6",g:"powdiv"},
+    {l:"b7",q:"Giá trị của 20 − 2 · 3<sup>2</sup> là:",o:["2","162","14","18"],x:"Lũy thừa trước: 3<sup>2</sup> = 9; rồi nhân: 2 · 9 = 18; rồi trừ: 20 − 18 = 2."},
+    {l:"b7",g:"order"},{l:"b7",g:"order"},
+    {l:"b8",q:"Tập hợp các ước của 12 là:",o:["{1; 2; 3; 4; 6; 12}","{2; 3; 4; 6}","{1; 2; 3; 4; 6}","{12; 24; 36}"]},
+    {l:"b8",q:"Các bội của 6 nhỏ hơn 30 là:",o:["0; 6; 12; 18; 24","6; 12; 18; 24; 30","1; 2; 3; 6","0; 6; 12; 18; 24; 30"],x:"Bội của 6 có dạng 6k (k ∈ ℕ); nhỏ hơn 30 nên không lấy 30."},
+    {l:"b8",g:"sumdiv"},
+    {l:"b9",tf:false,q:"Số chia hết cho 3 thì chắc chắn chia hết cho 9.",x:"Ví dụ 12 chia hết cho 3 nhưng không chia hết cho 9."},
+    {l:"b9",g:"div25"},{l:"b9",g:"div9"},{l:"b9",g:"missdig"},
+    {l:"b10",q:"Số nguyên tố chẵn duy nhất là:",o:["2","0","4","1"]},
+    {l:"b10",q:"Có bao nhiêu số nguyên tố nhỏ hơn 20?",o:["8","7","9","10"],x:"Các số nguyên tố nhỏ hơn 20: 2, 3, 5, 7, 11, 13, 17, 19."},
+    {l:"b10",g:"prime"},{l:"b10",g:"factor"},
+    {l:"b11",q:"Cô giáo có 24 quyển vở và 36 chiếc bút, muốn chia đều vào các phần quà sao cho số vở và số bút ở mỗi phần như nhau. Số phần quà nhiều nhất là: ___",ans:"12",x:"Số phần quà nhiều nhất là ƯCLN(24, 36) = 12."},
+    {l:"b11",g:"gcd"},{l:"b11",g:"gcd"},
+    {l:"b12",q:"An cứ 4 ngày trực nhật một lần, Bình cứ 6 ngày trực nhật một lần. Hôm nay hai bạn cùng trực. Sau ít nhất bao nhiêu ngày nữa hai bạn lại cùng trực? ___",ans:"12",x:"Số ngày ít nhất là BCNN(4, 6) = 12."},
+    {l:"b12",g:"lcm"},{l:"b12",g:"lcm"},
+    {l:"b13",q:"Nhiệt độ 5 độ dưới 0 °C được viết là:",o:["−5 °C","5 °C","+5 °C","50 °C"]},
+    {l:"b13",q:"Số đối của −8 là:",o:["8","−8","0","18"]},
+    {l:"b13",g:"intcmp"},{l:"b13",g:"opp"},
+    {l:"b14",g:"intadd"},{l:"b14",g:"intadd"},{l:"b14",g:"intadd"},
+    {l:"b15",q:"Bỏ dấu ngoặc: −(a − b + c) bằng:",o:["−a + b − c","−a − b + c","a − b + c","−a + b + c"]},
+    {l:"b15",g:"bracket"},{l:"b15",g:"bracket"},
+    {l:"b16",q:"Tích (−2) · (−3) · (−5) bằng:",o:["−30","30","−10","10"],x:"Có ba thừa số âm (số lẻ) nên tích là số âm: −30."},
+    {l:"b16",g:"intmul"},{l:"b16",g:"intmul"},
+    {l:"b17",q:"Các ước nguyên của 4 là:",o:["−4; −2; −1; 1; 2; 4","1; 2; 4","−4; −2; 2; 4","0; 1; 2; 4"]},
+    {l:"b17",q:"(−36) : 9 bằng:",o:["−4","4","−27","27"]},
+    {l:"b17",g:"intdiv"},{l:"b17",g:"intdiv"}
+  ]
+});
+
+/* ------------------------------ KHTN 6 ------------------------------ */
+const K1="Mở đầu về Khoa học tự nhiên", K2="Chất quanh ta", K3="Vật liệu, nhiên liệu, nguyên liệu, lương thực – thực phẩm", K4="Chất tinh khiết, hỗn hợp", K5="Tế bào (học song song)", K6="Lực (học song song)";
+const CUON=["k1","k2","k3","k4","k5","k6","k7","k8","k9","k10","k11","k12","k13","k14","k15"], SONG=["k1","k2","k3","k4","k5","k6","k7","k8","k9","k17","k18","k19","k35","k36"];
+APP.subjects.push({
+  id:"khtn", name:"KHTN", tone:"sci",
+  scopeText:"Sách Khoa học tự nhiên 6 Kết nối tri thức với cuộc sống. Trường dạy cuốn chiếu: Bài 1–15. Trường dạy song song: Bài 1–9, 17–19, 35–36. Chọn đúng cách trường con dạy ở phần đề thi thử.",
+  test:{n:20,mins:35,count:12,scopes:[{id:"cuon",name:"Cuốn chiếu",note:"Bài 1–15",lessons:CUON},{id:"song",name:"Song song",note:"Bài 1–9, 17–19, 35–36",lessons:SONG}]},
+  lessons:[
+    {id:"k1",group:K1,short:"Bài 1",name:"Giới thiệu về Khoa học tự nhiên",notes:["KHTN nghiên cứu các sự vật, hiện tượng, quy luật tự nhiên và ảnh hưởng của chúng đến con người, môi trường.","Vai trò: nâng cao hiểu biết, phát triển sản xuất, chăm sóc sức khỏe, bảo vệ môi trường."]},
+    {id:"k2",group:K1,short:"Bài 2",name:"Các lĩnh vực chủ yếu của Khoa học tự nhiên",notes:["Vật lí: vật chất, năng lượng, chuyển động. Hóa học: chất và sự biến đổi của chất. Sinh học: sinh vật và sự sống. Khoa học Trái Đất, Thiên văn học: Trái Đất và bầu trời.","Vật sống có trao đổi chất, lớn lên, sinh sản; vật không sống thì không."]},
+    {id:"k3",group:K1,short:"Bài 3",name:"An toàn trong phòng thực hành. Kính lúp, kính hiển vi",notes:["Chỉ làm thí nghiệm khi có hướng dẫn của giáo viên; không ăn uống, đùa nghịch, không nếm hay ngửi trực tiếp hóa chất.","Chú ý các kí hiệu cảnh báo: chất độc, chất dễ cháy, chất ăn mòn, điện cao thế…","Kính lúp quan sát vật nhỏ; kính hiển vi quang học quan sát vật rất nhỏ như tế bào."]},
+    {id:"k4",group:K1,short:"Bài 4",name:"Đo chiều dài",notes:["Đơn vị đo chiều dài trong hệ đơn vị đo lường hợp pháp của nước ta là mét (m). 1 km = 1 000 m; 1 m = 100 cm; 1 cm = 10 mm.","Giới hạn đo (GHĐ): độ dài lớn nhất ghi trên thước. Độ chia nhỏ nhất (ĐCNN): độ dài giữa hai vạch chia liên tiếp.","Khi đo: ước lượng, chọn thước phù hợp, đặt thước dọc theo vật, một đầu vật ngang vạch 0, mắt nhìn vuông góc với thước."]},
+    {id:"k5",group:K1,short:"Bài 5",name:"Đo khối lượng",notes:["Khối lượng là số đo lượng chất của vật. Đơn vị là ki-lô-gam (kg).","1 tấn = 1 000 kg; 1 kg = 1 000 g; 1 g = 1 000 mg.","Dụng cụ: cân (cân đồng hồ, cân điện tử, cân Rô-béc-van…). Trước khi cân, chỉnh kim (hoặc số hiển thị) về 0."]},
+    {id:"k6",group:K1,short:"Bài 6",name:"Đo thời gian",notes:["Đơn vị đo thời gian là giây (s). 1 giờ = 60 phút = 3 600 giây.","Dụng cụ: đồng hồ treo tường, đồng hồ đeo tay, đồng hồ bấm giây (đo khoảng thời gian ngắn, cần chính xác)."]},
+    {id:"k7",group:K1,short:"Bài 7",name:"Thang nhiệt độ Celsius. Đo nhiệt độ",notes:["Nhiệt độ cho biết mức độ nóng, lạnh của vật. Đơn vị thường dùng ở nước ta là độ C (°C).","Thang Celsius: nước đá đang tan là 0 °C; nước đang sôi (ở áp suất tiêu chuẩn) là 100 °C.","Dụng cụ: nhiệt kế (y tế, rượu, điện tử…). Không dùng tay để xác định chính xác nhiệt độ."]},
+    {id:"k8",group:K2,short:"Bài 8",name:"Sự đa dạng và các thể cơ bản của chất. Tính chất của chất",notes:["Chất có trong vật thể tự nhiên, vật thể nhân tạo, vật sống và vật không sống.","Thể rắn: hình dạng và thể tích xác định, khó nén. Thể lỏng: thể tích xác định, hình dạng theo vật chứa, khó nén. Thể khí: không có hình dạng và thể tích xác định, dễ nén.","Chuyển thể: nóng chảy (rắn → lỏng), đông đặc (lỏng → rắn), bay hơi (lỏng → hơi), ngưng tụ (hơi → lỏng).","Tính chất vật lí: thể, màu, mùi, nhiệt độ sôi… Tính chất hóa học: khả năng biến đổi thành chất khác (cháy, gỉ…)."]},
+    {id:"k9",group:K2,short:"Bài 9",name:"Oxygen",notes:["Ở điều kiện thường, oxygen là chất khí không màu, không mùi, không vị, ít tan trong nước.","Oxygen duy trì sự hô hấp và sự cháy.","Oxygen hóa lỏng ở −183 °C, khi đó có màu xanh nhạt."]},
+    {id:"k10",group:K2,short:"Bài 10",name:"Không khí và bảo vệ môi trường không khí",notes:["Theo thể tích, không khí có khoảng 78% nitrogen, 21% oxygen, 1% các khí khác (carbon dioxide, hơi nước, khí hiếm…).","Nguyên nhân ô nhiễm: khí thải xe cộ, nhà máy, đốt rác, cháy rừng…","Bảo vệ: trồng cây xanh, đi phương tiện công cộng, xe đạp, dùng năng lượng sạch, không đốt rác bừa bãi."]},
+    {id:"k11",group:K3,short:"Bài 11",name:"Một số vật liệu thông dụng",notes:["Vật liệu thông dụng: kim loại, nhựa, cao su, thủy tinh, gốm, gỗ…","Kim loại dẫn điện, dẫn nhiệt tốt; sắt dễ bị gỉ. Nhựa nhẹ, cách điện, khó phân hủy. Thủy tinh trong suốt, dễ vỡ. Cao su đàn hồi, cách điện.","Sử dụng vật liệu an toàn, tiết kiệm; tái chế để bảo vệ môi trường."]},
+    {id:"k12",group:K3,short:"Bài 12",name:"Nhiên liệu và an ninh năng lượng",notes:["Nhiên liệu là những chất cháy được, khi cháy tỏa nhiệt và phát sáng: than, xăng, dầu, khí gas, củi…","Nhiên liệu hóa thạch (than đá, dầu mỏ, khí thiên nhiên) có hạn, cần dùng tiết kiệm, hiệu quả.","Khuyến khích dùng năng lượng tái tạo: mặt trời, gió, nước."]},
+    {id:"k13",group:K3,short:"Bài 13",name:"Một số nguyên liệu",notes:["Nguyên liệu là vật liệu tự nhiên chưa qua chế biến, cần xử lí để tạo ra sản phẩm.","Quặng sắt → gang, thép; đá vôi → vôi sống, xi măng; cát → thủy tinh; mủ cao su → cao su.","Khai thác nguyên liệu cần hợp lí, tiết kiệm, bảo vệ môi trường."]},
+    {id:"k14",group:K3,short:"Bài 14",name:"Một số lương thực – thực phẩm",notes:["Lương thực: thức ăn chứa nhiều tinh bột (gạo, ngô, khoai, sắn, lúa mì).","Thực phẩm cung cấp: chất bột, chất đạm, chất béo, vitamin và chất khoáng.","Ăn đa dạng, cân đối; bảo quản thực phẩm đúng cách, chọn thực phẩm an toàn."]},
+    {id:"k15",group:K4,short:"Bài 15",name:"Chất tinh khiết – Hỗn hợp",notes:["Chất tinh khiết chỉ gồm một chất (ví dụ: nước cất).","Hỗn hợp gồm hai hay nhiều chất trộn lẫn (nước muối, không khí, nước biển).","Dung dịch: hỗn hợp đồng nhất (nước muối). Huyền phù: chất rắn lơ lửng trong chất lỏng (nước phù sa). Nhũ tương: chất lỏng lơ lửng trong chất lỏng khác (dầu ăn lắc với nước)."]},
+    {id:"k17",group:K5,short:"Bài 17",name:"Tế bào",notes:["Tế bào là đơn vị cơ bản cấu tạo nên cơ thể sống.","Ba thành phần chính: màng tế bào, tế bào chất, nhân (hoặc vùng nhân).","Tế bào nhân sơ (vi khuẩn) chưa có nhân hoàn chỉnh; tế bào nhân thực có nhân hoàn chỉnh. Tế bào thực vật có lục lạp và thành tế bào.","Tế bào lớn lên và sinh sản: 1 tế bào phân chia thành 2 tế bào."]},
+    {id:"k18",group:K5,short:"Bài 18",name:"Thực hành quan sát tế bào sinh vật",notes:["Tế bào kích thước lớn (tép bưởi, tép cam) có thể quan sát bằng mắt thường hoặc kính lúp; tế bào biểu bì vảy hành cần kính hiển vi.","Làm tiêu bản: lấy mẫu thật mỏng → đặt lên giọt nước trên lam kính → đậy lamen → quan sát từ vật kính có độ phóng đại nhỏ đến lớn."]},
+    {id:"k19",group:K5,short:"Bài 19",name:"Cơ thể đơn bào và cơ thể đa bào",notes:["Cơ thể đơn bào gồm một tế bào (vi khuẩn, trùng roi, trùng giày, tảo lục đơn bào…).","Cơ thể đa bào gồm nhiều tế bào (cây xanh, con người, động vật…).","Các cấp độ tổ chức của cơ thể đa bào: tế bào → mô → cơ quan → hệ cơ quan → cơ thể."]},
+    {id:"k35",group:K6,short:"Bài 35",name:"Lực và biểu diễn lực",notes:["Lực là sự đẩy hoặc kéo của vật này lên vật khác. Đơn vị lực là niutơn (N); dụng cụ đo là lực kế.","Biểu diễn lực bằng mũi tên: gốc là điểm đặt; phương, chiều là phương, chiều của lực; độ dài biểu thị độ lớn theo tỉ xích."]},
+    {id:"k36",group:K6,short:"Bài 36",name:"Tác dụng của lực",notes:["Lực có thể làm thay đổi tốc độ, hướng chuyển động của vật (bắt đầu chuyển động, nhanh lên, chậm lại, dừng lại, đổi hướng).","Lực có thể làm vật bị biến dạng.","Một lực có thể vừa làm biến đổi chuyển động vừa làm biến dạng vật."]}
+  ],
+  items:[
+    {l:"k1",q:"Hoạt động nào là hoạt động nghiên cứu khoa học?",o:["Tìm hiểu ảnh hưởng của ánh sáng đến sự phát triển của cây đậu","Đi chợ mua rau","Xem phim hoạt hình","Đá bóng sau giờ học"]},
+    {l:"k1",q:"Đâu KHÔNG phải là vai trò của khoa học tự nhiên?",o:["Quyết định giá vé xem phim","Mở rộng sản xuất, phát triển kinh tế","Bảo vệ sức khỏe con người","Bảo vệ môi trường"]},
+    {l:"k1",q:"Thành tựu nào của khoa học tự nhiên được ứng dụng trong y tế?",o:["Máy chụp X-quang","Bức tranh sơn dầu","Bài hát dân ca","Truyện cổ tích"]},
+    {l:"k1",q:"Hiện tượng nào là hiện tượng tự nhiên?",o:["Cầu vồng xuất hiện sau mưa","Học sinh làm bài kiểm tra","Xây dựng một ngôi nhà","Viết thư cho bạn"]},
+    {l:"k1",tf:true,q:"Khoa học tự nhiên giúp con người hiểu biết về thế giới tự nhiên."},
+    {l:"k2",q:"Lĩnh vực nghiên cứu về chất và sự biến đổi của chất là:",o:["Hóa học","Vật lí","Sinh học","Thiên văn học"]},
+    {l:"k2",q:"Nghiên cứu về các ngôi sao, hành tinh thuộc lĩnh vực:",o:["Thiên văn học","Hóa học","Sinh học","Địa chất học"]},
+    {l:"k2",q:"Vật nào sau đây là vật sống?",o:["con mèo","hòn đá","cái bàn","chiếc xe đạp"]},
+    {l:"k2",q:"Đặc điểm nào chỉ có ở vật sống?",o:["Có khả năng sinh sản","Có khối lượng","Có hình dạng","Chiếm chỗ trong không gian"]},
+    {l:"k2",q:"Hiện tượng “cây xanh quang hợp” thuộc lĩnh vực nghiên cứu của:",o:["Sinh học","Vật lí","Thiên văn học","Địa chất học"]},
+    {l:"k2",q:"Hiện tượng “đinh sắt bị gỉ” thuộc lĩnh vực nghiên cứu của:",o:["Hóa học","Sinh học","Thiên văn học","Vật lí"],x:"Sắt biến đổi thành chất mới (gỉ sắt) – đó là sự biến đổi hóa học."},
+    {l:"k3",q:"Việc làm nào đúng trong phòng thực hành?",o:["Làm thí nghiệm theo hướng dẫn của giáo viên","Nếm thử hóa chất","Ăn uống trong phòng thực hành","Tự ý trộn các hóa chất"]},
+    {l:"k3",q:"Để quan sát tế bào biểu bì vảy hành, cần dùng:",o:["kính hiển vi quang học","kính lúp cầm tay","kính râm","ống nhòm"]},
+    {l:"k3",q:"Để quan sát gân lá cây, nên dùng:",o:["kính lúp","kính hiển vi điện tử","kính thiên văn","kính cận"]},
+    {l:"k3",q:"Khi bị hóa chất bắn vào mắt, việc cần làm ngay là:",o:["rửa mắt dưới vòi nước sạch và báo ngay cho giáo viên","dụi mắt thật mạnh","nhắm mắt chờ hết","lau bằng khăn khô rồi làm tiếp"]},
+    {l:"k3",q:"Biển báo hình tam giác màu vàng, viền đen thường dùng để:",o:["cảnh báo nguy hiểm","chỉ lối thoát hiểm","cho phép hút thuốc","chỉ nơi rửa tay"]},
+    {l:"k3",tf:false,q:"Được phép ngửi trực tiếp hóa chất để nhận biết chúng."},
+    {l:"k3",q:"Bộ phận nào của kính hiển vi dùng để đặt tiêu bản?",o:["bàn kính","thị kính","vật kính","ốc to"]},
+    {l:"k4",q:"Đơn vị đo chiều dài trong hệ đơn vị đo lường hợp pháp của Việt Nam là:",o:["mét (m)","ki-lô-gam (kg)","giây (s)","lít (l)"]},
+    {l:"k4",q:"Giới hạn đo (GHĐ) của thước là:",o:["độ dài lớn nhất ghi trên thước","độ dài giữa hai vạch chia liên tiếp","độ dài của cả cây thước","số vạch trên thước"]},
+    {l:"k4",q:"Để đo chiều dài sân trường, nên dùng:",o:["thước cuộn","thước kẻ 20 cm","thước kẹp","com-pa"]},
+    {l:"k4",q:"Khi đọc kết quả đo độ dài, mắt phải nhìn:",o:["theo hướng vuông góc với thước tại đầu vật","chéo từ bên trái","chéo từ bên phải","từ thật xa"]},
+    {l:"k4",q:"Thước có số lớn nhất là 30 cm, khoảng cách giữa hai vạch chia liên tiếp là 1 mm. GHĐ và ĐCNN của thước là:",o:["30 cm và 1 mm","1 mm và 30 cm","30 cm và 1 cm","3 dm và 1 cm"]},
+    {l:"k4",g:"klen"},{l:"k4",g:"klen"},
+    {l:"k5",q:"Đơn vị đo khối lượng trong hệ đơn vị đo lường hợp pháp của nước ta là:",o:["ki-lô-gam (kg)","mét (m)","giây (s)","độ C (°C)"]},
+    {l:"k5",q:"Trên vỏ gói bánh có ghi “Khối lượng tịnh: 200 g”. Con số đó cho biết:",o:["lượng bánh chứa trong gói","khối lượng cả vỏ và bánh","thể tích gói bánh","giá tiền của gói bánh"]},
+    {l:"k5",q:"Để cân vàng, bạc, nên dùng loại cân nào?",o:["cân tiểu li","cân đòn","cân đồng hồ loại lớn","cân xe tải"]},
+    {l:"k5",q:"Trước khi cân, cần điều chỉnh để kim cân (hoặc số hiển thị) chỉ:",o:["số 0","số lớn nhất","số ở giữa","số bất kì"]},
+    {l:"k5",g:"kmass"},{l:"k5",g:"kmass"},
+    {l:"k6",q:"Đơn vị đo thời gian trong hệ đơn vị đo lường hợp pháp của nước ta là:",o:["giây (s)","phút","giờ","ngày"]},
+    {l:"k6",q:"Để đo thời gian chạy 100 m của một học sinh, nên dùng:",o:["đồng hồ bấm giây","đồng hồ treo tường","lịch","đồng hồ cát loại lớn"]},
+    {l:"k6",g:"ktime"},{l:"k6",g:"ktime"},
+    {l:"k7",q:"Theo thang Celsius, nhiệt độ của nước đá đang tan là:",o:["0 °C","100 °C","37 °C","−10 °C"]},
+    {l:"k7",q:"Nhiệt độ của nước đang sôi (ở áp suất tiêu chuẩn) là:",o:["100 °C","0 °C","50 °C","37 °C"]},
+    {l:"k7",q:"Nhiệt độ cơ thể người bình thường khoảng:",o:["37 °C","42 °C","30 °C","100 °C"]},
+    {l:"k7",q:"Dụng cụ dùng để đo nhiệt độ là:",o:["nhiệt kế","lực kế","tốc kế","thước dây"]},
+    {l:"k7",q:"Nhiệt kế y tế dùng để đo:",o:["nhiệt độ cơ thể người","nhiệt độ nước sôi","nhiệt độ lò nung","nhiệt độ ngọn lửa"]},
+    {l:"k7",tf:false,q:"Có thể dùng tay để xác định chính xác nhiệt độ của một vật.",x:"Cảm giác của tay không chính xác; cần dùng nhiệt kế."},
+    {l:"k8",q:"Vật thể nào là vật thể tự nhiên?",o:["cây mía","cái bàn","quyển sách","xe đạp"]},
+    {l:"k8",q:"Vật thể nào là vật thể nhân tạo?",o:["ngôi nhà","con sông","đám mây","cây xoài"]},
+    {l:"k8",q:"Chất ở thể nào có hình dạng và thể tích xác định?",o:["thể rắn","thể lỏng","thể khí","cả thể lỏng và thể khí"]},
+    {l:"k8",q:"Chất ở thể nào dễ bị nén nhất?",o:["thể khí","thể rắn","thể lỏng","cả ba thể như nhau"]},
+    {l:"k8",q:"Nước đá tan thành nước là sự:",o:["nóng chảy","đông đặc","ngưng tụ","bay hơi"]},
+    {l:"k8",q:"Hơi nước đọng thành giọt trên nắp nồi là sự:",o:["ngưng tụ","bay hơi","nóng chảy","đông đặc"]},
+    {l:"k8",q:"Tính chất nào là tính chất hóa học?",o:["Gỗ cháy tạo thành than","Nước sôi ở 100 °C","Đường có vị ngọt","Sắt có màu trắng xám"]},
+    {l:"k8",q:"Phơi nước biển dưới nắng thu được muối là nhờ sự:",o:["bay hơi","ngưng tụ","đông đặc","nóng chảy"]},
+    {l:"k8",tf:true,q:"Chất lỏng có hình dạng của phần vật chứa nó."},
+    {l:"k9",q:"Ở điều kiện thường, oxygen tồn tại ở thể:",o:["khí","lỏng","rắn","cả ba thể"]},
+    {l:"k9",q:"Tính chất nào KHÔNG phải của oxygen (ở điều kiện thường)?",o:["có mùi hắc","không màu","ít tan trong nước","không vị"]},
+    {l:"k9",q:"Vai trò của oxygen là:",o:["duy trì sự hô hấp và sự cháy","dập tắt đám cháy","làm nước sôi nhanh hơn","tạo màu xanh cho lá cây"]},
+    {l:"k9",q:"Bình oxygen thường được dùng khi nào?",o:["Cấp cứu bệnh nhân khó thở","Bơm bóng bay","Tưới cây","Làm lạnh thực phẩm"]},
+    {l:"k9",q:"Dập đám cháy nhỏ bằng cách trùm chăn ướt lên nhằm:",o:["ngăn không cho oxygen tiếp xúc với vật đang cháy","cung cấp thêm oxygen","làm tăng nhiệt độ","tạo thêm nhiên liệu"]},
+    {l:"k9",q:"Oxygen hóa lỏng ở nhiệt độ:",o:["−183 °C","0 °C","100 °C","−18 °C"]},
+    {l:"k10",q:"Khí chiếm tỉ lệ thể tích lớn nhất trong không khí là:",o:["nitrogen","oxygen","carbon dioxide","hơi nước"]},
+    {l:"k10",q:"Oxygen chiếm khoảng bao nhiêu phần trăm thể tích không khí?",o:["21%","78%","1%","50%"]},
+    {l:"k10",q:"Hoạt động nào gây ô nhiễm không khí?",o:["Đốt rác thải ngoài trời","Trồng cây xanh","Đi xe đạp","Dùng năng lượng mặt trời"]},
+    {l:"k10",q:"Biện pháp nào góp phần bảo vệ môi trường không khí?",o:["Trồng nhiều cây xanh","Đốt rơm rạ sau thu hoạch","Xả khí thải chưa xử lí","Chặt phá rừng"]},
+    {l:"k10",q:"Hiện tượng nào chứng tỏ trong không khí có hơi nước?",o:["Có giọt nước đọng bên ngoài cốc nước đá","Ngọn nến cháy","Lá cây có màu xanh","Gió thổi"]},
+    {l:"k10",tf:true,q:"Khí thải từ xe máy, ô tô là một nguyên nhân gây ô nhiễm không khí."},
+    {l:"k11",q:"Vật liệu nào dẫn điện tốt?",o:["đồng","nhựa","cao su","gỗ khô"]},
+    {l:"k11",q:"Vỏ dây điện thường làm bằng nhựa hoặc cao su vì:",o:["chúng cách điện tốt","chúng dẫn điện tốt","chúng rất cứng","chúng trong suốt"]},
+    {l:"k11",q:"Vật liệu nào trong suốt nhưng dễ vỡ?",o:["thủy tinh","sắt","cao su","gỗ"]},
+    {l:"k11",q:"Để hạn chế đồ dùng bằng sắt bị gỉ, ta nên:",o:["sơn phủ hoặc bôi dầu mỡ lên bề mặt","để ở nơi ẩm ướt","ngâm vào nước muối","để ngoài trời mưa"]},
+    {l:"k11",q:"Đồ nhựa gây hại cho môi trường chủ yếu vì:",o:["rất khó phân hủy","quá nặng","dẫn điện","dễ bị gỉ"]},
+    {l:"k11",q:"Lốp xe đạp thường được làm từ:",o:["cao su","thủy tinh","gốm","giấy"]},
+    {l:"k12",q:"Chất nào sau đây là nhiên liệu?",o:["xăng","nước","cát","muối ăn"]},
+    {l:"k12",q:"Nhiên liệu nào ở thể khí?",o:["khí gas","than đá","xăng","củi"]},
+    {l:"k12",q:"Nguồn năng lượng nào là năng lượng tái tạo?",o:["năng lượng mặt trời","than đá","dầu mỏ","khí thiên nhiên"]},
+    {l:"k12",q:"Để sử dụng nhiên liệu an toàn, hiệu quả, ta nên:",o:["cung cấp đủ không khí cho sự cháy","đun nấu ở nơi kín gió","để bình gas sát bếp lửa","dùng xăng để nhóm bếp"]},
+    {l:"k12",q:"Viên than tổ ong được làm có nhiều lỗ nhằm:",o:["tăng diện tích tiếp xúc với không khí để than cháy tốt hơn","làm than nhẹ hơn","để dễ cầm","để than cháy chậm hơn"]},
+    {l:"k12",tf:true,q:"Dầu mỏ, than đá là nguồn nhiên liệu có hạn, cần sử dụng tiết kiệm."},
+    {l:"k13",q:"Nguyên liệu để sản xuất gang, thép là:",o:["quặng sắt","đá vôi","cát","mủ cao su"]},
+    {l:"k13",q:"Đá vôi được dùng làm nguyên liệu để sản xuất:",o:["vôi sống, xi măng","giấy","nhựa","thủy tinh hữu cơ"]},
+    {l:"k13",q:"Nguyên liệu chính để sản xuất thủy tinh là:",o:["cát","quặng sắt","than đá","gỗ"]},
+    {l:"k13",q:"Nguyên liệu nào được lấy từ thực vật?",o:["mủ cao su","quặng bauxite","đá vôi","dầu mỏ"]},
+    {l:"k13",q:"Việc làm nào thể hiện khai thác nguyên liệu bền vững?",o:["Khai thác có kế hoạch, kết hợp phục hồi môi trường","Khai thác càng nhiều càng tốt","Khai thác trái phép","Xả chất thải ra sông"]},
+    {l:"k14",q:"Lương thực nào phổ biến nhất ở Việt Nam?",o:["gạo","lúa mì","khoai tây","ngô"]},
+    {l:"k14",q:"Nhóm thực phẩm giàu chất đạm (protein) là:",o:["thịt, cá, trứng","gạo, ngô","dầu ăn, mỡ","rau cải"]},
+    {l:"k14",q:"Rau xanh và hoa quả cung cấp chủ yếu:",o:["vitamin và chất khoáng","chất béo","chất đạm","tinh bột"]},
+    {l:"k14",q:"Cách bảo quản thực phẩm nào là đúng?",o:["Để thịt, cá trong ngăn mát hoặc ngăn đá tủ lạnh","Để thịt sống ngoài nắng","Để thức ăn chín cạnh thức ăn sống, không đậy","Dùng thực phẩm đã quá hạn"]},
+    {l:"k14",q:"Ăn uống như thế nào là hợp lí?",o:["Ăn đa dạng thực phẩm, cân đối các nhóm chất","Chỉ ăn thịt","Chỉ ăn rau","Ăn thật nhiều đồ ngọt"]},
+    {l:"k15",q:"Chất nào là chất tinh khiết?",o:["nước cất","nước biển","không khí","nước chanh"]},
+    {l:"k15",q:"Không khí là:",o:["một hỗn hợp","một chất tinh khiết","một kim loại","một dung dịch lỏng"]},
+    {l:"k15",q:"Hỗn hợp nào là dung dịch?",o:["nước muối","nước lẫn cát","dầu ăn lắc với nước","nước phù sa"]},
+    {l:"k15",q:"Nước phù sa (có hạt đất lơ lửng, để lâu lắng xuống) là:",o:["huyền phù","dung dịch","nhũ tương","chất tinh khiết"]},
+    {l:"k15",q:"Dầu ăn lắc mạnh với nước tạo thành:",o:["nhũ tương","dung dịch","huyền phù","chất tinh khiết"]},
+    {l:"k15",tf:true,q:"Nước khoáng đóng chai là một hỗn hợp.",x:"Nước khoáng có hòa tan một số chất khoáng, nên là hỗn hợp."},
+    {l:"k17",q:"Đơn vị cơ bản cấu tạo nên cơ thể sống là:",o:["tế bào","mô","cơ quan","hệ cơ quan"]},
+    {l:"k17",q:"Ba thành phần chính của tế bào là:",o:["màng tế bào, tế bào chất, nhân hoặc vùng nhân","thành tế bào, lục lạp, nhân","màng tế bào, lục lạp, không bào","nhân, ti thể, ribosome"]},
+    {l:"k17",q:"Bào quan có ở tế bào thực vật, giúp cây quang hợp là:",o:["lục lạp","nhân","màng tế bào","tế bào chất"]},
+    {l:"k17",q:"Thành phần điều khiển mọi hoạt động sống của tế bào là:",o:["nhân tế bào","màng tế bào","tế bào chất","thành tế bào"]},
+    {l:"k17",q:"Tế bào vi khuẩn thuộc loại:",o:["tế bào nhân sơ","tế bào nhân thực","tế bào thực vật","tế bào động vật"]},
+    {l:"k17",g:"kcell"},
+    {l:"k18",q:"Có thể quan sát tế bào tép bưởi bằng:",o:["mắt thường hoặc kính lúp","chỉ kính hiển vi điện tử","kính thiên văn","không thể quan sát được"]},
+    {l:"k18",q:"Khi làm tiêu bản biểu bì vảy hành, sau khi đặt mẫu lên giọt nước trên lam kính, bước tiếp theo là:",o:["đậy lamen lên mẫu","rửa mẫu bằng xà phòng","phơi khô mẫu","tô màu bằng bút bi"]},
+    {l:"k18",q:"Khi quan sát bằng kính hiển vi, nên bắt đầu với vật kính:",o:["có độ phóng đại nhỏ","có độ phóng đại lớn nhất","bất kì","không cần vật kính"]},
+    {l:"k19",q:"Sinh vật nào là cơ thể đơn bào?",o:["trùng giày","con ếch","cây lúa","con người"]},
+    {l:"k19",q:"Sinh vật nào là cơ thể đa bào?",o:["cây cam","vi khuẩn lactic","trùng roi","trùng biến hình"]},
+    {l:"k19",q:"Thứ tự đúng các cấp độ tổ chức của cơ thể đa bào là:",o:["tế bào → mô → cơ quan → hệ cơ quan → cơ thể","mô → tế bào → cơ quan → cơ thể → hệ cơ quan","cơ thể → cơ quan → tế bào → mô → hệ cơ quan","tế bào → cơ quan → mô → cơ thể → hệ cơ quan"]},
+    {l:"k19",q:"Tim, gan, phổi ở người là ví dụ về cấp độ:",o:["cơ quan","tế bào","mô","hệ cơ quan"]},
+    {l:"k19",q:"Hệ tiêu hóa ở người là ví dụ về cấp độ:",o:["hệ cơ quan","cơ quan","mô","tế bào"]},
+    {l:"k35",q:"Đơn vị đo lực là:",o:["niutơn (N)","ki-lô-gam (kg)","mét (m)","giây (s)"]},
+    {l:"k35",q:"Dụng cụ dùng để đo lực là:",o:["lực kế","nhiệt kế","cân đồng hồ","thước cuộn"]},
+    {l:"k35",q:"Khi biểu diễn lực bằng mũi tên, gốc mũi tên cho biết:",o:["điểm đặt của lực","độ lớn của lực","chiều của lực","đơn vị của lực"]},
+    {l:"k35",q:"Hoạt động nào là lực kéo?",o:["Kéo gàu nước từ giếng lên","Đẩy chiếc tủ","Đá quả bóng","Ấn chuông cửa"]},
+    {l:"k35",g:"kforce"},{l:"k35",g:"kforce"},
+    {l:"k36",q:"Khi đá vào quả bóng đang nằm yên, lực của chân đã:",o:["làm quả bóng bắt đầu chuyển động","làm quả bóng dừng lại","không gây tác dụng gì","chỉ làm quả bóng nóng lên"]},
+    {l:"k36",q:"Bóp mạnh quả bóng cao su làm nó bẹp đi. Lực đã làm quả bóng:",o:["biến dạng","đổi màu","tăng khối lượng","chuyển động nhanh hơn"]},
+    {l:"k36",q:"Thủ môn bắt được quả bóng đang bay tới. Lực của tay thủ môn đã:",o:["làm quả bóng dừng lại","làm quả bóng nhanh hơn","làm quả bóng biến mất","không có tác dụng"]},
+    {l:"k36",q:"Hiện tượng nào cho thấy lực vừa làm biến dạng vừa làm biến đổi chuyển động của vật?",o:["Quả bóng tennis đập vào mặt vợt bị méo đi và bật ngược lại","Quyển sách nằm yên trên bàn","Chiếc lá nằm trên mặt đất","Đặt cốc nước lên bàn"]}
+  ]
+});
+
+/* ================= CORE (no DOM) ================= */
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng(seed){let a=hash(String(seed));return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function shuffleWith(arr,r){arr=arr.slice();for(let i=arr.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+function apportion(sizes,n){
+  const total=Object.values(sizes).reduce((a,b)=>a+b,0), out={}, rem=[];let used=0;
+  for(const [k,c] of Object.entries(sizes)){const x=n*c/total;out[k]=Math.floor(x);used+=out[k];rem.push([x-out[k],k])}
+  rem.sort((a,b)=>b[0]-a[0]);for(let i=0;used<n&&rem.length;i++,used++)out[rem[i%rem.length][1]]++;
+  return out;
+}
+const NB=" ";
+function fmt(n){const neg=n<0, a=Math.abs(n), s=String(a);return (neg?"−":"")+(a>=10000?s.replace(/\B(?=(\d{3})+(?!\d))/g,NB):s)}
+const DIG=["không","một","hai","ba","bốn","năm","sáu","bảy","tám","chín"];
+function read3(n,full){
+  const h=Math.floor(n/100), t=Math.floor(n/10)%10, u=n%10, w=[];
+  if(full||h>0)w.push(DIG[h],"trăm");
+  if(t===0){if(u>0){if(full||h>0)w.push("linh");w.push(DIG[u])}}
+  else if(t===1){w.push("mười");if(u===5)w.push("lăm");else if(u>0)w.push(DIG[u])}
+  else{w.push(DIG[t],"mươi");if(u===1)w.push("mốt");else if(u===5)w.push("lăm");else if(u>0)w.push(DIG[u])}
+  return w.join(" ");
+}
+function docSo(n){
+  if(n===0)return "không";
+  const units=["","nghìn","triệu","tỉ"], g=[];let x=n;
+  while(x>0){g.push(x%1000);x=Math.floor(x/1000)}
+  const out=[];
+  for(let i=g.length-1;i>=0;i--){if(g[i]===0)continue;out.push(read3(g[i],i!==g.length-1));if(units[i])out.push(units[i])}
+  return out.join(" ");
+}
+function roman(n){const m=[[1000,"M"],[900,"CM"],[500,"D"],[400,"CD"],[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]];let s="";for(const [v,c] of m)while(n>=v){s+=c;n-=v}return s}
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const ri=(r,a,b)=>a+Math.floor(r()*(b-a+1));
+const pick=(r,arr)=>arr[Math.floor(r()*arr.length)];
+const P=n=>n<0?`(−${-n})`:String(n);
+const sup=n=>`<sup>${n}</sup>`;
+function joinVN(parts){return parts.length<2?parts.join(""):parts.slice(0,-1).join(", ")+" và "+parts[parts.length-1]}
+const U={ri,pick,fmt,docSo,roman,cap,P,sup,joinVN,shuffle:(r,a)=>shuffleWith(a,r)};
+
+/* ---- subjects ---- */
+const SUBJ={};
+APP.subjects.forEach(s=>{
+  SUBJ[s.id]=s;s.L={};
+  s.lessons.forEach(l=>{s.L[l.id]=l;l.count=0;l.hasGen=false});
+  s.items.forEach((it,i)=>{it.id=s.id+":"+i;it.sid=s.id;const L=s.L[it.l];if(!L)throw new Error("Unknown lesson "+it.l+" in "+s.id);
+    L.count+=it.rd?it.qs.length:(it.g?2:1);if(it.g)L.hasGen=true});
+});
+function one(src,r){
+  if(src.o){const n=src.o.length;return {kind:"mc",q:src.q,o:src.o,a:src.a||0,order:src.keep?[...Array(n).keys()]:shuffleWith([...Array(n).keys()],r),x:src.x}}
+  if(src.tf!==undefined)return {kind:"mc",q:src.q,o:["Đúng","Sai"],a:src.tf?0:1,order:[0,1],x:src.x,tf:true};
+  return {kind:"fill",q:src.q,ans:String(src.ans).split("|"),cs:!!src.cs,x:src.x};
+}
+function inst(it,r){
+  if(it.rd)return it.qs.map((sq,k)=>Object.assign(one(sq,r),{id:it.id,sub:k,sid:it.sid,l:it.l,passage:it.rd,ptitle:it.t}));
+  const src=it.g?APP.gen[it.g](r,U):it;
+  return [Object.assign(one(src,r),{id:it.id,sid:it.sid,l:it.l})];
+}
+const permCache={};
+function perm(key,len){return permCache[key]||(permCache[key]=shuffleWith([...Array(len).keys()],rng(key)))}
+function scopeOf(s,id){const sc=s.test.scopes;return sc.find(x=>x.id===id)||sc[0]}
+const inScope=(sc,l)=>sc.lessons==="*"||sc.lessons.includes(l);
+function buildTest(sid,scopeId,k){
+  const s=SUBJ[sid], T=s.test, sc=scopeOf(s,scopeId), base=[APP.key,sid,sc.id].join("|");
+  const items=s.items.filter(it=>inScope(sc,it.l));
+  const rds=items.filter(it=>it.rd), norm=items.filter(it=>!it.rd), out=[];
+  if(T.reading&&rds.length){const cyc=Math.floor(k/rds.length), it=rds[perm(base+"|rd|"+cyc,rds.length)[k%rds.length]];out.push(...inst(it,rng(base+"|"+k+"|"+it.id)))}
+  const need=T.n-out.length, g={};
+  norm.forEach(it=>(g[it.l]=g[it.l]||[]).push(it));
+  const sizes={};for(const l in g)sizes[l]=g[l].length;
+  const quota=apportion(sizes,need), picked=[], seen=new Set();
+  for(const l in quota){
+    const G=g[l], q=Math.min(quota[l],G.length);let pos=k*quota[l], got=0, guard=0;
+    while(got<q&&guard++<G.length*3){const cyc=Math.floor(pos/G.length), it=G[perm(base+"|"+l+"|"+cyc,G.length)[pos%G.length]];if(!seen.has(it.id)){seen.add(it.id);picked.push(it);got++}pos++}
+  }
+  if(picked.length<need){const rest=shuffleWith(norm.filter(it=>!seen.has(it.id)),rng(base+"|top|"+k));while(picked.length<need&&rest.length)picked.push(rest.shift())}
+  shuffleWith(picked,rng(base+"|order|"+k)).forEach(it=>out.push(...inst(it,rng(base+"|"+k+"|"+it.id))));
+  return out;
+}
+function lessonQs(sid,l){
+  const s=SUBJ[sid], r=Math.random;let its=s.items.filter(it=>it.l===l);
+  const rd=its.filter(it=>it.rd);if(rd.length>2)its=its.filter(it=>!it.rd).concat(shuffleWith(rd,r).slice(0,2));
+  const out=[];shuffleWith(its,r).forEach(it=>{out.push(...inst(it,r));if(it.g)out.push(...inst(it,r))});
+  return out;
+}
+const normT=s=>String(s).normalize("NFC").replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/\s+/g," ").replace(/[.!?;:,]+$/,"").trim();
+const isNum=s=>/^[-−–]?\s*\d[\d\s., ]*$/.test(String(s).trim());
+const numKey=s=>String(s).trim().replace(/[−–]/g,"-").replace(/[\s., ]/g,"");
+function fillOK(q,g){
+  if(g==null||String(g).trim()==="")return false;
+  return q.ans.some(a=>(isNum(a)&&isNum(g))?numKey(a)===numKey(g):q.cs?normT(a)===normT(g):normT(a).toLowerCase()===normT(g).toLowerCase());
+}
+function isRight(q,g){if(g==null)return false;return q.kind==="mc"?g===q.a:fillOK(q,g)}
+function stripTags(h){return String(h).replace(/<sup>(.*?)<\/sup>/g,"^$1").replace(/<[^>]+>/g,"")}
+function correctText(q){return q.kind==="mc"?q.o[q.a]:q.ans[0]}
+function showAns(q){const a=String(q.ans[0]).trim();return /^[-−]?\d+$/.test(a)?fmt(parseInt(a.replace("−","-"),10)):a}
+function givenText(q,g){return g==null||g===""?"(bỏ trống)":q.kind==="mc"?q.o[g]:String(g)}
+const wkey=q=>q.id+(q.sub!=null?"#"+q.sub:"");
+function byKey(sid,key){
+  const [id,sub]=key.split("#"), it=SUBJ[sid]&&SUBJ[sid].items.find(x=>x.id===id);if(!it)return [];
+  const qs=inst(it,Math.random);return sub!=null?qs.filter(q=>String(q.sub)===sub):qs;
+}
+const diem10=(r,t)=>t?String(Math.round(r/t*40)/4).replace(".",","):"0";
+
+/* ================= UI ================= */
+if(typeof document!=="undefined"){(function(){
+const PFX=(window.ONTAP_NS||"")+APP.key+"_";
+const store={get(k,d){try{const v=localStorage.getItem(PFX+k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(PFX+k,JSON.stringify(v))}catch(e){}}};
+const $=s=>document.querySelector(s), view=$("#view"), topRight=$("#topRight");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmtTime=s=>{s=Math.max(0,Math.round(s));return String(s/60|0).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
+const fmtDate=d=>d.toLocaleDateString("vi-VN",{day:"2-digit",month:"2-digit"});
+let cur=store.get("sub",APP.subjects[0].id);if(!SUBJ[cur])cur=APP.subjects[0].id;
+let res=store.get("res",{}), lres=store.get("lres",{}), hist=store.get("hist",[]);
+const wrongOf=sid=>new Set(store.get("wrong_"+sid,[]));
+const saveWrong=(sid,set)=>store.set("wrong_"+sid,[...set]);
+const scopeSel=sid=>store.get("scope_"+sid,SUBJ[sid].test.scopes[0].id);
+const rkey=(sid,sc,k)=>sid+"|"+sc+"|"+k;
+function setTone(sid){document.body.dataset.tone=SUBJ[sid].tone}
+function nextTest(sid){const sc=scopeSel(sid);for(let k=0;k<SUBJ[sid].test.count;k++)if(!res[rkey(sid,sc,k)])return k;return null}
+function nextLesson(s){return s.lessons.find(l=>!lres[s.id+"|"+l.id])||null}
+
+let S=null, tick=null;
+function start(opts){
+  if(!opts.qs.length){renderHome();return}
+  S=Object.assign({i:0,ans:[],start:Date.now(),limit:0,checked:false,cur:null},opts);
+  clearInterval(tick);
+  if(S.limit)tick=setInterval(()=>{const left=S.limit-(Date.now()-S.start)/1000;updTimer(left);if(left<=0)finish()},500);
+  renderQ();
+}
+function startTest(sid,k){const s=SUBJ[sid], sc=scopeSel(sid);start({mode:"exam",sid,qs:buildTest(sid,sc,k),limit:s.test.mins*60,label:`${s.name} · Đề ${k+1}`,test:{sid,sc,k}})}
+function startLesson(sid,l){const L=SUBJ[sid].L[l];start({mode:"practice",sid,qs:lessonQs(sid,l),label:`${SUBJ[sid].name} · ${L.short}`,lesson:l})}
+function startWrong(sid){const keys=[...wrongOf(sid)];const qs=shuffleWith(keys,Math.random).flatMap(k=>byKey(sid,k));start({mode:"practice",sid,qs,label:`${SUBJ[sid].name} · Ôn câu sai`})}
+function updTimer(left){const el=$("#timer");if(!el)return;el.textContent=fmtTime(left);el.classList.toggle("warn",left<180)}
+
+function passageHTML(t){return t.split(/\n\s*\n/).map(p=>p.includes("\n")?`<p class="poem">${esc(p.trim())}</p>`:`<p>${esc(p.trim())}</p>`).join("")}
+function renderQ(){
+  const q=S.qs[S.i], n=S.qs.length, exam=S.mode==="exam", s=SUBJ[S.sid], L=s.L[q.l];
+  S.cur=null;S.checked=false;
+  topRight.innerHTML=(S.limit?`<span class="chip" id="timer" aria-label="Thời gian còn lại"></span>`:"")+`<span class="chip">${S.i+1} / ${n}</span>`;
+  if(S.limit)updTimer(S.limit-(Date.now()-S.start)/1000);
+  let body="";
+  if(q.kind==="mc"){
+    const wide=q.o.some(o=>stripTags(o).length>24);
+    body=`<div class="label">${q.tf?"Đúng hay sai?":"Chọn đáp án đúng"}</div><div class="qtext">${q.q}</div>
+      <div class="opts${wide?" wide":""}">${q.order.map((oi,k)=>`<button class="opt" data-o="${oi}"><span class="k">${q.tf?"":"ABCD"[k]}</span><span>${q.o[oi]}</span></button>`).join("")}</div>`;
+  }else{
+    const numeric=q.ans.every(a=>isNum(a)&&!/^[-−]/.test(a.trim())), neg=q.ans.some(a=>/^[-−]/.test(a.trim()));
+    const inp=`<input class="blank${q.q.includes("___")?"":" wide"}" id="fillIn" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="${numeric?"numeric":"text"}" aria-label="Câu trả lời">`;
+    body=`<div class="label">Điền vào chỗ trống</div>`+(q.q.includes("___")?`<div class="qtext">${q.q.replace("___",inp)}</div>`:`<div class="qtext">${q.q}</div>${inp}`)
+      +(neg?`<div class="hint">Số âm: gõ dấu trừ phía trước, ví dụ -12.</div>`:q.cs?`<div class="hint">Chú ý viết hoa đúng quy tắc.</div>`:"");
+  }
+  view.innerHTML=`<div class="stack">
+    <div class="bar" aria-hidden="true"><i style="width:${S.i/n*100}%"></i></div>
+    <section class="qcard">
+      <div class="qhead"><span class="label">${esc(S.label)}</span><span class="label">${esc(L?L.short:"")}</span></div>
+      ${q.passage?`<details class="passage" open><summary>Đọc văn bản: ${esc(q.ptitle||"")}</summary><div class="ptext">${passageHTML(q.passage)}</div></details>`:""}
+      ${body}
+      <div id="fb" aria-live="polite"></div>
+    </section>
+    <div class="actions"><button class="btn ghost" id="skipBtn">Bỏ qua</button><button class="btn main" id="goBtn">${exam?"Trả lời":"Kiểm tra"}</button></div>
+    <div id="endArea"></div>
+  </div>`;
+  drawEnd();
+  if(q.kind==="mc")view.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{if(S.checked)return;view.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");S.cur=+b.dataset.o});
+  else{const inp=$("#fillIn");inp.oninput=()=>S.cur=inp.value;inp.onkeydown=e=>{if(e.key==="Enter")$("#goBtn").click()};setTimeout(()=>inp.focus({preventScroll:true}),60)}
+  $("#skipBtn").onclick=()=>{record(q,null);next()};
+  $("#goBtn").onclick=()=>{
+    if(S.checked){next();return}
+    if(S.cur==null||S.cur===""){$("#fb").innerHTML=`<div class="fb bad">Con hãy trả lời trước, hoặc bấm Bỏ qua.</div>`;return}
+    const ok=record(q,S.cur);
+    if(S.mode==="exam"){next();return}
+    S.checked=true;
+    if(q.kind==="mc")view.querySelectorAll(".opt").forEach(b=>{const o=+b.dataset.o;if(o===q.a)b.classList.add("right");else if(b.classList.contains("sel"))b.classList.add("wrong")});
+    $("#fb").innerHTML=(ok?`<div class="fb ok">Chính xác!</div>`:`<div class="fb bad">Chưa đúng. <span>Đáp án: <b>${q.kind==="mc"?q.o[q.a]:esc(showAns(q))}</b></span></div>`)+(q.x?`<div class="expl">${q.x}</div>`:"");
+    $("#goBtn").textContent=S.i+1<n?"Câu tiếp":"Xem kết quả";$("#skipBtn").disabled=true;
+  };
+}
+function drawEnd(){
+  const exam=S.mode==="exam";
+  $("#endArea").innerHTML=`<button class="btn ghost small" id="endBtn">${exam?"Nộp bài sớm":"Dừng luyện tập"}</button>`;
+  $("#endBtn").onclick=()=>{
+    $("#endArea").innerHTML=`<div class="confirm"><div>${exam?"Nộp bài ngay? Các câu chưa làm sẽ tính là sai.":"Dừng luyện tập và xem kết quả?"}</div><div class="row"><button class="btn danger" id="yesEnd">${exam?"Nộp bài":"Dừng"}</button><button class="btn ghost" id="noEnd">Làm tiếp</button></div></div>`;
+    $("#yesEnd").onclick=finish;$("#noEnd").onclick=drawEnd;
+  };
+}
+function record(q,g){
+  const ok=isRight(q,g), w=wrongOf(S.sid);
+  S.ans[S.i]={q,g,ok};
+  if(ok){if(S.mode!=="exam")w.delete(wkey(q))}else w.add(wkey(q));
+  saveWrong(S.sid,w);return ok;
+}
+function next(){S.i++;if(S.i>=S.qs.length)finish();else renderQ()}
+function finish(){
+  if(!S)return;clearInterval(tick);
+  const secs=Math.min((Date.now()-S.start)/1000,S.limit||Infinity), s=SUBJ[S.sid];
+  if(S.mode==="exam"){const w=wrongOf(S.sid);for(let i=0;i<S.qs.length;i++)if(!S.ans[i]){S.ans[i]={q:S.qs[i],g:null,ok:false};w.add(wkey(S.qs[i]))}saveWrong(S.sid,w)}
+  const done=S.ans.filter(Boolean), right=done.filter(a=>a.ok).length, total=done.length;
+  if(S.test){const key=rkey(S.test.sid,S.test.sc,S.test.k), prev=res[key];res[key]={b:Math.max(right,prev?prev.b:0),l:right,t:total};store.set("res",res)}
+  if(S.lesson&&total){lres[S.sid+"|"+S.lesson]={r:right,t:total};store.set("lres",lres)}
+  hist.unshift({d:new Date().toISOString(),sid:S.sid,l:S.label,r:right,t:total,s:Math.round(secs)});hist=hist.slice(0,30);store.set("hist",hist);
+  window.ontapReport&&ontapReport({label:S.label,mode:S.mode,subject:S.sid,r:right,t:total,s:Math.round(secs)});
+  const pct=total?right/total:0;
+  const msg=pct>=.9?"Xuất sắc! Con đã nắm rất chắc phần này.":pct>=.75?"Tốt lắm! Xem lại các câu sai để chắc chắn hơn.":pct>=.5?"Khá ổn. Con đọc lại phần ghi nhớ của các bài còn yếu rồi luyện lại nhé.":"Cố lên! Con ôn lại từng bài trong mục Ôn theo bài rồi làm lại.";
+  const by={};done.forEach(a=>{by[a.q.l]=by[a.q.l]||[0,0];by[a.q.l][1]++;if(a.ok)by[a.q.l][0]++});
+  const order=s.lessons.map(l=>l.id).filter(id=>by[id]);
+  const wrong=done.filter(a=>!a.ok), test=S.test, lesson=S.lesson, sid=S.sid;
+  topRight.innerHTML="";
+  view.innerHTML=`<div class="stack">
+    <section class="panel">
+      <div class="label">${esc(S.label)}</div>
+      <div class="row" style="gap:18px;align-items:flex-end"><div class="score">${diem10(right,total)}<span style="font-size:1.4rem;color:var(--muted)">/10</span></div>
+      <div class="stack" style="gap:2px"><b>${right}/${total} câu đúng</b><span class="muted small">Thời gian: ${fmtTime(secs)}</span></div></div>
+      <div>${msg}</div>
+    </section>
+    ${order.length>1?`<section class="panel"><div class="label">Theo bài</div><div class="ubreak">${order.map(id=>{const [r,t]=by[id];return `<span>${esc(s.L[id].short)}</span><div class="bar"><i style="width:${r/t*100}%"></i></div><span>${r}/${t}</span>`}).join("")}</div></section>`:""}
+    ${wrong.length?`<section class="panel"><div class="label">Câu cần xem lại (${wrong.length})</div><div class="review">${wrong.map(a=>`<div class="rv">${a.q.ptitle?`<div class="small muted">Văn bản: ${esc(a.q.ptitle)}</div>`:""}<div>${a.q.q.replace("___","…")}</div><div class="ans">Con trả lời: <s>${a.q.kind==="mc"&&a.g!=null?a.q.o[a.g]:esc(givenText(a.q,a.g))}</s> · Đáp án: <b>${a.q.kind==="mc"?a.q.o[a.q.a]:esc(showAns(a.q))}</b></div>${a.q.x?`<div class="expl">${a.q.x}</div>`:""}</div>`).join("")}</div></section>`:""}
+    <div class="row" id="resBtns"></div>
+  </div>`;
+  const btns=$("#resBtns"), add=(cls,txt,fn)=>{const b=document.createElement("button");b.className="btn "+cls;b.textContent=txt;b.onclick=fn;btns.append(b)};
+  if(test){const nk=nextTest(sid);if(nk!=null)add("main",`Làm Đề ${nk+1}`,()=>startTest(sid,nk))}
+  if(lesson)add("main","Luyện lại bài này",()=>startLesson(sid,lesson));
+  const w=wrongOf(sid);if(w.size)add("","Ôn câu sai ("+w.size+")",()=>startWrong(sid));
+  add("ghost","Trang chủ",()=>renderHome());
+  S=null;window.scrollTo(0,0);
+}
+
+function renderHome(){
+  clearInterval(tick);S=null;topRight.innerHTML="";
+  const s=SUBJ[cur];setTone(cur);store.set("sub",cur);
+  const T=s.test, sc=scopeSel(cur), nk=nextTest(cur), nl=nextLesson(s), w=wrongOf(cur);
+  const groups=[];s.lessons.forEach(l=>{let g=groups.find(x=>x.name===l.group);if(!g)groups.push(g={name:l.group,ls:[]});g.ls.push(l)});
+  const h=hist.filter(x=>x.sid===cur).slice(0,10);
+  view.innerHTML=`<div class="stack">
+    <div class="subtabs" role="group" aria-label="Chọn môn">${APP.subjects.map(x=>`<button class="stab" data-sid="${x.id}" aria-pressed="${x.id===cur}">${esc(x.name)}</button>`).join("")}</div>
+    <section class="hero">
+      <span class="label">${esc(APP.examText)}</span>
+      <h1>${esc(s.name)} ${APP.grade}</h1>
+      <p>${s.scopeText}</p>
+      <div class="row">${nl?`<button class="btn main" id="heroLesson">Ôn tập: ${esc(nl.short)}</button>`:""}${nk!=null?`<button class="btn ghost" id="heroTest">Làm Đề ${nk+1}</button>`:""}</div>
+    </section>
+    <section class="sec"><h2>Ôn theo bài</h2><p class="muted small">Đọc phần ghi nhớ, rồi luyện tập. Làm xong mỗi câu sẽ biết đúng sai và có giải thích.</p>
+      ${groups.map(g=>`<div class="grp"><div class="grp-h">${esc(g.name)}</div><div class="lessons">${g.ls.map(l=>{const r=lres[cur+"|"+l.id];
+        return `<button class="lrow" data-l="${l.id}"><span class="lnum">${esc(l.short)}</span><span class="lname">${esc(l.name)}</span><span class="lmeta${r?(r.r/r.t>=.8?" good":" fair"):""}">${r?`${r.r}/${r.t}`:`${l.count} câu`}</span></button>`}).join("")}</div></div>`).join("")}
+    </section>
+    <section class="sec"><h2>Đề thi thử giữa kì</h2>
+      <p class="muted small">${T.count} đề, mỗi đề ${T.n} câu, làm trong ${T.mins} phút. Mỗi đề cố định, làm lại vẫn ra đúng các câu đó${s.items.some(it=>it.g)?" (riêng câu tính toán có thể đổi số liệu theo từng đề)":""}. Đáp án hiện sau khi nộp bài.</p>
+      ${T.scopes.length>1?`<div class="seg" role="group" aria-label="Phạm vi đề">${T.scopes.map(x=>`<button data-sc="${x.id}" aria-pressed="${x.id===sc}">${esc(x.name)}<small>${esc(x.note||"")}</small></button>`).join("")}</div>`:""}
+      <div class="legend"><span><i style="background:var(--ok)"></i>Từ 8 điểm</span><span><i style="background:var(--sun)"></i>Dưới 8 điểm</span><span><i style="background:var(--line)"></i>Chưa làm</span></div>
+      <div class="tests">${[...Array(T.count).keys()].map(k=>{const r=res[rkey(cur,sc,k)];const cls=r?(r.b/r.t>=.8?"good":"fair"):"";
+        return `<button class="tb ${cls}${k===nk?" next":""}" data-k="${k}" aria-label="Đề ${k+1}${r?", điểm cao nhất "+diem10(r.b,r.t):""}"><b>Đề ${k+1}</b><small>${r?diem10(r.b,r.t)+"đ":"–"}</small></button>`}).join("")}</div>
+    </section>
+    ${s.writing&&s.writing.length?`<section class="sec"><h2>Luyện viết</h2><p class="muted small">Phần viết không chấm tự động. Con đọc đề, xem gợi ý dàn ý, viết bài rồi tự kiểm tra theo danh sách.</p>
+      <div class="wlist">${s.writing.map((x,i)=>`<button class="wrow" data-w="${i}"><b>${esc(x.title)}</b><span class="small muted">${esc(x.prompt)}</span></button>`).join("")}</div></section>`:""}
+    <section class="sec"><h2>Ôn câu sai</h2>
+      <div class="panel"><div>${w.size?`Có <b>${w.size}</b> câu con từng làm sai ở môn ${esc(s.name)}. Làm đúng khi ôn thì câu đó được bỏ khỏi danh sách.`:"Chưa có câu sai nào ở môn này."}</div>
+      ${w.size?`<div class="row"><button class="btn" id="wrongBtn">Ôn ${w.size} câu sai</button></div>`:""}</div>
+    </section>
+    <section class="sec"><h2>Lịch sử làm bài</h2>
+      <div class="panel">${h.length?`<div class="hist">${h.map(x=>`<div><span>${fmtDate(new Date(x.d))} · ${esc(x.l)}</span><b>${diem10(x.r,x.t)}đ · ${x.r}/${x.t}</b></div>`).join("")}</div>`:`<span class="muted">Kết quả các lần làm bài sẽ hiện ở đây (lưu trên máy này).</span>`}</div>
+    </section>
+    <p class="muted small foot">${APP.footer}</p>
+  </div>`;
+  view.querySelectorAll(".stab").forEach(b=>b.onclick=()=>{cur=b.dataset.sid;renderHome()});
+  if($("#heroLesson"))$("#heroLesson").onclick=()=>renderLesson(cur,nl.id);
+  if($("#heroTest"))$("#heroTest").onclick=()=>startTest(cur,nk);
+  view.querySelectorAll(".lrow").forEach(b=>b.onclick=()=>renderLesson(cur,b.dataset.l));
+  view.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{store.set("scope_"+cur,b.dataset.sc);renderHome()});
+  view.querySelectorAll(".tb").forEach(b=>b.onclick=()=>startTest(cur,+b.dataset.k));
+  view.querySelectorAll(".wrow").forEach(b=>b.onclick=()=>renderWriting(cur,+b.dataset.w));
+  if($("#wrongBtn"))$("#wrongBtn").onclick=()=>startWrong(cur);
+}
+function renderLesson(sid,l){
+  clearInterval(tick);S=null;topRight.innerHTML="";
+  const s=SUBJ[sid], L=s.L[l], r=lres[sid+"|"+l];
+  view.innerHTML=`<div class="stack">
+    <button class="back" id="backBtn">‹ ${esc(s.name)}</button>
+    <div class="label">${esc(L.group)}</div>
+    <h2>${esc(L.short)}. ${esc(L.name)}</h2>
+    <section class="panel notes"><h3>Ghi nhớ</h3><ul>${L.notes.map(n=>`<li>${n}</li>`).join("")}</ul></section>
+    <div class="row"><button class="btn main" id="goBtn">Luyện tập ${L.count} câu</button>${r?`<span class="muted small">Lần trước: ${r.r}/${r.t} câu đúng</span>`:""}</div>
+    ${L.hasGen?`<p class="muted small" style="margin:0">Các câu tính toán đổi số liệu mỗi lần làm, nên con có thể luyện lại nhiều lần.</p>`:""}
+  </div>`;
+  $("#backBtn").onclick=()=>renderHome();
+  $("#goBtn").onclick=()=>startLesson(sid,l);
+  window.scrollTo(0,0);
+}
+function renderWriting(sid,i){
+  clearInterval(tick);S=null;topRight.innerHTML="";
+  const s=SUBJ[sid], W=s.writing[i], ck=store.get("wchk_"+sid+i,[]), draft=store.get("wdraft_"+sid+i,"");
+  view.innerHTML=`<div class="stack">
+    <button class="back" id="backBtn">‹ ${esc(s.name)}</button>
+    <div class="label">Luyện viết</div>
+    <h2>${esc(W.title)}</h2>
+    <section class="panel"><div class="label">Đề bài</div><div>${esc(W.prompt)}</div></section>
+    <section class="panel"><details class="outline"><summary>Gợi ý dàn ý</summary><ol>${W.outline.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></details></section>
+    <section class="panel"><div class="label">Bài viết của con</div>
+      <textarea id="draft" aria-label="Bài viết" placeholder="Con viết bài vào đây. Bài được lưu tự động trên máy này.">${esc(draft)}</textarea>
+      <div class="muted small" id="wc"></div></section>
+    <section class="panel"><div class="label">Tự kiểm tra</div>${W.checklist.map((c,j)=>`<label class="check"><input type="checkbox" id="ck${j}" data-j="${j}" ${ck.includes(j)?"checked":""}><span>${esc(c)}</span></label>`).join("")}</section>
+  </div>`;
+  const ta=$("#draft"), wc=$("#wc");
+  const count=()=>{const n=ta.value.trim()?ta.value.trim().split(/\s+/).length:0;wc.textContent=n+" chữ"};
+  count();let t;ta.oninput=()=>{count();clearTimeout(t);t=setTimeout(()=>store.set("wdraft_"+sid+i,ta.value),400)};
+  view.querySelectorAll(".check input").forEach(c=>c.onchange=()=>{const v=[...view.querySelectorAll(".check input")].filter(x=>x.checked).map(x=>+x.dataset.j);store.set("wchk_"+sid+i,v)});
+  $("#backBtn").onclick=()=>renderHome();
+  window.scrollTo(0,0);
+}
+$("#homeBtn").onclick=()=>{if(S){const b=$("#endBtn");if(b)b.click();return}renderHome()};
+renderHome();
+})()}
+
+</script>
+
+</body></html>

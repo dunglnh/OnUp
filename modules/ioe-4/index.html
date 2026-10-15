@@ -1,0 +1,1150 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Global Success 4 Practice</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one narrow column app, one question per screen like a real exam room; teal marks Grade 4, sunflower is the main action */
+:root{
+  --bg:#f2f7f6; --surface:#ffffff; --line:#d5e4e2; --ink:#12302f; --muted:#56706e;
+  --sea:#0f5f63; --sea-soft:#dcefee; --sun:#f5b700; --sun-soft:#fdf1c7; --sun-ink:#3a2a00;
+  --ok:#15803d; --ok-soft:#e2f4e8; --bad:#c2410c; --bad-soft:#fde9df; --on-sea:#ffffff;
+  --display:"Baloo 2","Be Vietnam Pro",system-ui,sans-serif;
+  --body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b1817; --surface:#132826; --line:#25403d; --ink:#e3f2f0; --muted:#97b3b0;
+  --sea:#7fd4d0; --sea-soft:#173a38; --sun:#ffc933; --sun-soft:#3a3010; --sun-ink:#2b1f00;
+  --ok:#4ade80; --ok-soft:#123323; --bad:#fb923c; --bad-soft:#3a1d10; --on-sea:#0b1817; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b1817; --surface:#132826; --line:#25403d; --ink:#e3f2f0; --muted:#97b3b0;
+  --sea:#7fd4d0; --sea-soft:#173a38; --sun:#ffc933; --sun-soft:#3a3010; --sun-ink:#2b1f00;
+  --ok:#4ade80; --ok-soft:#123323; --bad:#fb923c; --bad-soft:#3a1d10; --on-sea:#0b1817; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+.app{max-width:640px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h2{font-size:1.35rem}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,input:focus-visible,label.btn:focus-within{outline:3px solid var(--sun);outline-offset:2px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px 10px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
+.brand{font-family:var(--display);font-weight:800;font-size:1.25rem;color:var(--sea);display:flex;align-items:center;gap:8px;background:none;border:0;padding:0}
+.brand b{background:var(--sun);color:var(--sun-ink);border-radius:8px;padding:0 8px;font-size:1rem}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:.85rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip.warn{border-color:var(--bad);color:var(--bad);font-weight:700}
+.stack{display:flex;flex-direction:column;gap:14px}
+.hero{background:var(--sea);color:var(--on-sea);border-radius:20px;padding:22px 20px;display:flex;flex-direction:column;gap:10px}
+.hero h3{font-size:1.5rem}
+.page-h{font-size:1.75rem}
+.unit .last{font-size:.8rem;font-weight:700;color:var(--ok)}
+.unit .last.fair{color:var(--ink)}
+.hero p{margin:0;opacity:.9;max-width:60ch}
+.label{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.hero .label{color:inherit;opacity:.8}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:700;background:var(--sea-soft);color:var(--sea)}
+.btn.main{background:var(--sun);color:var(--sun-ink)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.hero .btn.ghost{border-color:currentColor;color:inherit;opacity:.9}
+.btn.danger{background:var(--bad-soft);color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:default}
+.sec{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--sea-soft);border-radius:12px;padding:4px}
+.seg button{border:0;background:transparent;border-radius:9px;padding:9px 8px;font-weight:700;color:var(--sea);line-height:1.2}
+.seg button small{display:block;font-weight:500;font-size:.75rem;opacity:.85}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(18,48,47,.15)}
+.weeks{display:flex;flex-direction:column;gap:12px}
+.week{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:8px}
+.week.now{border:2px solid var(--sun)}
+.wk-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.wk-h b{font-family:var(--display);font-size:1.05rem}
+.wk-h span{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.tag{background:var(--sun);color:var(--sun-ink);border-radius:6px;padding:0 6px;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.tests{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.tb{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:6px 0;display:flex;flex-direction:column;align-items:center;line-height:1.15;font-variant-numeric:tabular-nums;min-width:0}
+.tb b{font-size:.95rem}
+.tb small{font-size:.68rem;color:var(--muted)}
+.tb.good{background:var(--ok-soft);border-color:var(--ok)}
+.tb.good small{color:var(--ok);font-weight:700}
+.tb.fair{background:var(--sun-soft);border-color:var(--sun)}
+.tb.fair small{color:var(--ink);font-weight:700}
+.tb.next{border:2px solid var(--sea)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.units{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.unit{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.unit .n{font-family:var(--display);font-weight:800;color:var(--sea);font-size:1.05rem}
+.unit .t{font-size:.9rem}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px}
+.muted{color:var(--muted)}
+.small{font-size:.875rem}
+.hist{display:flex;flex-direction:column}
+.hist div{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:.9rem;font-variant-numeric:tabular-nums}
+.hist div:first-child{border-top:0}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--sun);transition:width .3s}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px 18px;display:flex;flex-direction:column;gap:16px}
+.qhead{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.qtext{font-size:1.2rem;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.qtext .pic{font-size:2.6rem;line-height:1;display:block;margin-bottom:6px}
+.qtext u,.opt u{text-decoration-thickness:2px;text-underline-offset:3px;color:var(--sea);font-weight:700}
+.qtext sub{font-size:.7rem;font-weight:800;color:var(--sea);margin-left:1px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opts.wide{grid-template-columns:1fr}
+@media (max-width:420px){.opts{grid-template-columns:1fr}}
+.opt{text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;font-size:1.05rem;display:flex;gap:10px;align-items:baseline;min-width:0;overflow-wrap:anywhere}
+.opt .k{font-family:var(--display);font-weight:800;color:var(--muted)}
+.opt.sel{border-color:var(--sea);background:var(--sea-soft)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.blank{font:inherit;font-weight:700;border:0;border-bottom:3px solid var(--sea);background:var(--sea-soft);color:var(--ink);border-radius:6px 6px 0 0;padding:2px 6px;width:9em;max-width:100%;text-align:center}
+.letter{width:1.4em;padding:2px 0;text-transform:lowercase;margin:0 1px}
+.word{font-size:1.6rem;font-family:var(--display);letter-spacing:.06em}
+.slot{min-height:56px;border:2px dashed var(--line);border-radius:12px;padding:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.tile{border:1px solid var(--line);background:var(--sea-soft);color:var(--ink);border-radius:10px;padding:8px 12px;font-weight:600}
+.tile.ch{min-width:2.4em;font-family:var(--display);font-size:1.25rem;padding:4px 10px}
+.tile.used{visibility:hidden}
+.fb{border-radius:12px;padding:12px 14px;font-weight:600}
+.fb.ok{background:var(--ok-soft);color:var(--ok)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+.fb span{color:var(--ink);font-weight:500}
+.actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.score{font-family:var(--display);font-size:3.4rem;font-weight:800;color:var(--sea);line-height:1;font-variant-numeric:tabular-nums}
+.ubreak{display:grid;grid-template-columns:auto 1fr auto;gap:6px 12px;align-items:center;font-size:.9rem;font-variant-numeric:tabular-nums}
+.review{display:flex;flex-direction:column;gap:10px}
+.rv{border-left:4px solid var(--bad);padding:6px 0 6px 12px;display:flex;flex-direction:column;gap:2px;overflow-wrap:anywhere}
+.rv .ans{font-size:.9rem}
+.rv .ans b{color:var(--ok)}
+.rv .ans s{color:var(--bad)}
+textarea{width:100%;min-height:260px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--bg);color:var(--ink)}
+pre.fmt{margin:0;white-space:pre-wrap;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--bg);border-radius:10px;padding:10px 12px;overflow-x:auto}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background:var(--bg);padding:1px 5px;border-radius:5px}
+.confirm{border:2px solid var(--bad);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.listen{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--sea-soft);border-radius:14px;padding:10px 12px}
+.play{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;background:var(--sea);color:var(--on-sea);padding:10px 18px;font-weight:700}
+.play svg{width:14px;height:14px}
+.play:disabled,.listen .btn:disabled{opacity:.5;cursor:default}
+.listen .btn{padding:8px 14px}
+.plays{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.opt.picopt{justify-content:center;align-items:center;font-size:2.4rem;line-height:1.1;padding:12px}
+.opt.picopt .k{font-size:1rem}
+.notice{background:var(--sun-soft);color:var(--ink);border-radius:12px;padding:10px 14px;font-size:.9rem}
+.heard{margin-top:8px;font-size:.9rem;color:var(--muted);font-weight:500}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <button class="brand" id="homeBtn" aria-label="Go to home">Global Success <b>4</b></button>
+    <div class="row" id="topRight"></div>
+  </header>
+  <main id="view"></main>
+</div>
+
+<script src="../../js/bridge.js"></script>
+<script>
+/* ================= QUESTION BANKS =================
+   Written for the Global Success English 4 curriculum.
+   m = multiple choice (correct answer first; "{pic}text" puts a picture above), o = odd one out,
+   p = pronunciation, e = find the mistake [part] x4 + wrong index + correction,
+   f = fill in the blank (answers split by |), l = missing letters (word, clue),
+   w = put the letters in order (word, clue), r = reorder words (chunks split by /).            */
+const UNITS={1:"My Friends",2:"Time and Daily Routines",3:"My Week",4:"My Birthday Party",5:"Things We Can Do",6:"Our School Facilities",7:"Our Timetables",8:"My Favourite Subjects",9:"Our Sports Day",10:"Our Summer Holidays"};
+
+const SCHOOL=[
+// Unit 1
+["m",1,"Where are you from? – I'm ___ Viet Nam.","from","in","at","on"],
+["m",1,"___ are you from? – I'm from Japan.","Where","What","Who","How"],
+["m",1,"What nationality are you? – I'm ___.","Vietnamese","Viet Nam","from Viet Nam","Vietnam's"],
+["m",1,"Akio is from Japan. He is ___.","Japanese","Japan","American","Thai"],
+["m",1,"Tom is from America. He is ___.","American","America","Australian","Malaysian"],
+["m",1,"Lucy is from Australia. ___ is Australian.","She","He","They","It"],
+["m",1,"Linda and Ben are my friends. ___ are from America.","They","He","She","It"],
+["m",1,"Hello. ___ name is Mai.","My","I","Me","I'm"],
+["m",1,"Nice to ___ you.","meet","meeting","met","meets"],
+["m",1,"Which country is Bangkok in?","Thailand","Japan","Malaysia","Australia"],
+["m",1,"Kuala Lumpur is in ___.","Malaysia","Thailand","Japan","Australia"],
+["m",1,"I'm from Malaysia. I'm ___.","Malaysian","Malaysia","Thai","Japanese"],
+["m",1,"– Where's Ben from? – ___","He's from Canada.","He's ten years old.","He's my friend.","He's fine."],
+["m",1,"– Hi, I'm Nam. – ___","Hi, Nam. I'm Lucy.","I'm fine, thank you.","Goodbye.","Yes, I am."],
+["o",1,"Vietnamese","Japan","Australia","Malaysia"],
+["o",1,"Canada","Thai","Japanese","American"],
+["p",1,"c<u>a</u>t","n<u>a</u>me","m<u>a</u>ke","g<u>a</u>me"],
+["p",1,"s<u>i</u>x","f<u>i</u>ve","n<u>i</u>ne","l<u>i</u>ke"],
+["f",1,"I'm from Thailand. I'm ___.","Thai"],
+["f",1,"Nice to meet ___, too.","you"],
+["f",1,"___ are you from? – I'm from Singapore.","Where"],
+["l",1,"Japan","a country in Asia. People there speak Japanese."],
+["l",1,"Australia","a big country. Sydney is in this country."],
+["l",1,"friend","a person you like and play with"],
+["w",1,"country","Viet Nam is a ___."],
+["w",1,"Japanese","People from Japan are ___."],
+["w",1,"where","a question word for places"],
+["r",1,"Where / are / you / from?"],
+["r",1,"My friend / is / from / Japan."],
+["r",1,"What / nationality / are / you?"],
+// Unit 2
+["m",2,"What time is it? – It's seven ___.","o'clock","clock","time","hour"],
+["m",2,"What time ___ you get up? – At six o'clock.","do","does","are","is"],
+["m",2,"I ___ up at 6:15 every morning.","get","gets","getting","is get"],
+["m",2,"My brother ___ to bed at nine o'clock.","goes","go","going","is go"],
+["m",2,"I have breakfast ___ 6:30.","at","in","on","to"],
+["m",2,"It's 7:30. It's seven ___.","thirty","three","thirteen","third"],
+["m",2,"It's 6:45. It's six ___.","forty-five","fifteen","four-five","fifty-four"],
+["m",2,"We go to school in the ___.","morning","night","evening","bed"],
+["m",2,"I have dinner at seven o'clock in the ___.","evening","morning","afternoon","school"],
+["m",2,"What does your mother do in the morning? – She ___ breakfast for us.","cooks","cook","cooking","to cook"],
+["m",2,"What time is it? (9:15)","It's nine fifteen.","It's nine fifty.","It's fifteen nine.","It's ten fifteen."],
+["m",2,"– What time do you go to bed? – ___","At nine thirty.","In my bedroom.","Yes, I do.","With my sister."],
+["m",2,"– What time is it? – ___","It's ten o'clock.","At ten o'clock.","It's Monday.","Yes, it is."],
+["m",2,"My dad usually ___ TV after dinner.","watches","watch","watching","watchs"],
+["o",2,"bedroom","breakfast","lunch","dinner"],
+["o",2,"o'clock","morning","afternoon","evening"],
+["p",2,"J<u>u</u>ne","l<u>u</u>nch","s<u>u</u>n","b<u>u</u>s"],
+["p",2,"d<u>i</u>nner","t<u>i</u>me","n<u>i</u>ne","b<u>i</u>ke"],
+["f",2,"I get ___ at six o'clock.","up"],
+["f",2,"I go to ___ at nine thirty in the evening.","bed"],
+["f",2,"It's 10:30. It's ten ___.","thirty"],
+["l",2,"breakfast","the first meal of the day"],
+["l",2,"evening","the time of day after the afternoon"],
+["l",2,"morning","the early part of the day"],
+["w",2,"lunch","the meal in the middle of the day"],
+["w",2,"dinner","the meal in the evening"],
+["w",2,"time","What ___ is it?"],
+["r",2,"What / time / is / it?"],
+["r",2,"I / have / lunch / at / eleven thirty."],
+["r",2,"What time / do / you / get up?"],
+// Unit 3
+["m",3,"What day is it today? – It's ___.","Monday","June","morning","seven"],
+["m",3,"There are ___ days in a week.","seven","five","six","twelve"],
+["m",3,"The day after Monday is ___.","Tuesday","Sunday","Wednesday","Friday"],
+["m",3,"The day before Saturday is ___.","Friday","Sunday","Thursday","Monday"],
+["m",3,"What do you do ___ Mondays? – I go to school.","on","in","at","for"],
+["m",3,"What does she do on Sundays? – She ___ her grandparents.","visits","visit","visiting","is visit"],
+["m",3,"We don't go to school on ___ and Sundays.","Saturdays","Fridays","Mondays","Tuesdays"],
+["m",3,"I ___ my room on Saturdays.","clean","cleans","cleaning","to clean"],
+["m",3,"What do you do on Wednesday afternoons? – I ___ the piano.","play","do","go","make"],
+["m",3,"Do you go swimming on Fridays? – Yes, I ___.","do","am","go","does"],
+["m",3,"My friends ___ to the park on Sundays.","go","goes","going","is go"],
+["m",3,"– What day is it today? – ___","It's Thursday.","It's sunny.","It's three o'clock.","It's my book."],
+["m",3,"– What do you do on Saturdays? – ___","I help my parents.","Yes, I do.","It's Saturday.","At home, please."],
+["m",3,"Which day comes after Thursday?","Friday","Wednesday","Tuesday","Sunday"],
+["o",3,"March","Monday","Friday","Sunday"],
+["o",3,"weekend","swim","cook","ride"],
+["p",3,"sh<u>o</u>p","M<u>o</u>nday","m<u>o</u>ther","br<u>o</u>ther"],
+["p",3,"<u>th</u>is","<u>Th</u>ursday","<u>th</u>ree","<u>th</u>ank"],
+["f",3,"Today is Tuesday. Tomorrow is ___.","Wednesday"],
+["f",3,"Yesterday was Sunday. Today is ___.","Monday"],
+["f",3,"I go to school from Monday to ___.","Friday"],
+["l",3,"Wednesday","the day after Tuesday"],
+["l",3,"Thursday","the day before Friday"],
+["l",3,"weekend","Saturday and Sunday"],
+["w",3,"Friday","the day before Saturday"],
+["w",3,"Sunday","the day after Saturday"],
+["w",3,"week","seven days"],
+["r",3,"What / do / you / do / on Mondays?"],
+["r",3,"I / go / swimming / on Saturdays."],
+["r",3,"What day / is / it / today?"],
+// Unit 4
+["m",4,"When's your birthday? – It's ___ May.","in","on","at","of"],
+["m",4,"___ your birthday? – It's in October.","When's","What's","Where's","Who's"],
+["m",4,"The first month of the year is ___.","January","December","June","March"],
+["m",4,"The month after March is ___.","April","May","February","June"],
+["m",4,"There are ___ months in a year.","twelve","ten","seven","eleven"],
+["m",4,"What would you like to drink? – I'd like some ___.","juice","chips","grapes","cake"],
+["m",4,"What would you like to eat? – I'd like some ___.","grapes","water","milk","juice"],
+["m",4,"Let's have a party ___ my birthday.","for","to","with","of"],
+["m",4,"{🎂}This is a birthday ___.","cake","chips","jam","juice"],
+["m",4,"{🍇}What are these? – They're ___.","grapes","apples","bananas","sweets"],
+["m",4,"Do you want some milk? – No, ___.","thanks","please","sorry","welcome"],
+["m",4,"– Happy birthday, Mai! – ___","Thank you.","Happy birthday!","You're welcome.","Yes, please."],
+["m",4,"– Would you like some jam? – ___","Yes, please.","Yes, I like.","It's jam.","No, I'm not."],
+["m",4,"Christmas Day is in ___.","December","January","July","March"],
+["o",4,"juice","January","June","July"],
+["o",4,"April","chips","grapes","jam"],
+["p",4,"j<u>a</u>m","c<u>a</u>ke","M<u>a</u>y","g<u>a</u>me"],
+["p",4,"j<u>u</u>mp","J<u>u</u>ne","J<u>u</u>ly","j<u>u</u>ice"],
+["f",4,"My birthday is ___ June.","in"],
+["f",4,"I'm thirsty. I'd like some ___.","water|juice|milk|lemonade"],
+["f",4,"The month after November is ___.","December"],
+["l",4,"February","the second month of the year"],
+["l",4,"sandwich","bread with food inside it"],
+["l",4,"birthday","the day you were born"],
+["w",4,"party","people eat, play and have fun together"],
+["w",4,"chips","potatoes cut and fried"],
+["w",4,"August","the month after July"],
+["r",4,"When / is / your / birthday?"],
+["r",4,"My birthday / is / in / September."],
+["r",4,"Would / you / like / some / juice?"],
+// Unit 5
+["m",5,"Can you swim? – Yes, I ___.","can","can't","do","am"],
+["m",5,"Can she ride a bike? – No, she ___.","can't","can","doesn't","isn't"],
+["m",5,"What can you do? – I can ___ the piano.","play","do","ride","swim"],
+["m",5,"My brother can ___ a horse.","ride","play","sing","cook"],
+["m",5,"I can ___ very well. I love music.","sing","cook","skate","draw"],
+["m",5,"{🚲}He can ride a ___.","bike","piano","guitar","ball"],
+["m",5,"{🏊}She can ___.","swim","cook","dance","skate"],
+["m",5,"{🎸}I can play the ___.","guitar","piano","football","bike"],
+["m",5,"Can your father cook? – Yes, ___ can.","he","she","they","it"],
+["m",5,"My sister can't ___, but she can dance.","sing","sings","singing","to sing"],
+["m",5,"We can't ___ in this river. It's dangerous.","swim","swims","swimming","to swim"],
+["m",5,"– Can you play chess? – ___","No, I can't.","No, I don't.","Yes, I do.","Yes, it can."],
+["m",5,"– What can your friend do? – ___","She can roller skate.","She's my friend.","Yes, she can.","She's nine."],
+["m",5,"Nam can ___ a kite.","fly","ride","play","swim"],
+["o",5,"piano","swim","dance","skate"],
+["o",5,"bike","guitar","piano","drum"],
+["p",5,"r<u>i</u>de","s<u>i</u>ng","sw<u>i</u>m","f<u>i</u>sh"],
+["p",5,"sch<u>oo</u>l","c<u>oo</u>k","b<u>oo</u>k","l<u>oo</u>k"],
+["f",5,"I can't swim, ___ I can ride a bike.","but"],
+["f",5,"Can you ___ a bike? – Yes, I can.","ride"],
+["f",5,"I can play ___ guitar.","the"],
+["l",5,"piano","a big music instrument with black and white keys"],
+["l",5,"dance","move your body to music"],
+["l",5,"skate","move on ice or with roller shoes"],
+["w",5,"swim","move in water"],
+["w",5,"cook","make food"],
+["w",5,"draw","make a picture with a pencil"],
+["r",5,"What / can / you / do?"],
+["r",5,"I / can / play / the guitar."],
+["r",5,"She / can't / ride / a horse."],
+// Unit 6
+["m",6,"Where's your school? – It's ___ the village.","in","on","at","of"],
+["m",6,"Is there a library at your school? – Yes, there ___.","is","are","isn't","does"],
+["m",6,"Is there a swimming pool at your school? – No, there ___.","isn't","is","aren't","doesn't"],
+["m",6,"There ___ two computer rooms at my school.","are","is","am","be"],
+["m",6,"We use computers in the ___.","computer room","music room","garden","playground"],
+["m",6,"We play games in the ___ at break time.","playground","library","computer room","art room"],
+["m",6,"We read books in the ___.","library","gym","garden","canteen"],
+["m",6,"My school is ___ the mountains.","in","on","at","under"],
+["m",6,"{🏫}This is my ___.","school","house","garden","bedroom"],
+["m",6,"There is a big ___ at my school. We grow flowers there.","garden","gym","classroom","library"],
+["m",6,"The art room is ___ the second floor.","on","in","at","of"],
+["m",6,"– Is there a gym at your school? – ___","Yes, there is.","Yes, it is.","Yes, I do.","Yes, there are."],
+["m",6,"– Where's your school? – ___","It's in the town.","It's big.","Yes, it is.","It's my school."],
+["m",6,"How many classrooms are there? – There ___ twenty classrooms.","are","is","be","have"],
+["o",6,"village","library","gym","playground"],
+["o",6,"garden","town","city","village"],
+["p",6,"b<u>oo</u>k","r<u>oo</u>m","sch<u>oo</u>l","p<u>oo</u>l"],
+["p",6,"sn<u>ow</u>","t<u>ow</u>n","d<u>ow</u>n","n<u>ow</u>"],
+["f",6,"We play basketball in the ___.","gym|playground"],
+["f",6,"Is ___ a garden at your school? – Yes, there is.","there"],
+["f",6,"My school ___ a big library.","has"],
+["l",6,"library","a room with lots of books to read"],
+["l",6,"classroom","the room where you have lessons"],
+["l",6,"village","a small place in the countryside where people live"],
+["w",6,"gym","a big room where you do sports"],
+["w",6,"town","a place bigger than a village"],
+["w",6,"floor","The art room is on the second ___."],
+["r",6,"Is / there / a library / at your school?"],
+["r",6,"My school / is / in / the village."],
+["r",6,"There / are / three / computer rooms."]
+];
+
+const WARD=[
+// Unit 7
+["m",7,"What subjects ___ you have today? – I have Maths and English.","do","does","are","is"],
+["m",7,"When do you have Science? – I have ___ on Tuesdays.","it","them","they","its"],
+["m",7,"We have Vietnamese ___ Monday, Wednesday and Friday.","on","in","at","of"],
+["m",7,"How many lessons do you have today? – I have ___.","four","Maths","Monday","English"],
+["m",7,"She ___ Music on Thursdays.","has","have","having","is have"],
+["m",7,"In ___ lessons, we learn about numbers.","Maths","Music","Art","PE"],
+["m",7,"In ___ lessons, we draw and paint pictures.","Art","Science","Maths","English"],
+["m",7,"In ___ lessons, we learn about the past and about other places.","History and Geography","Music","Maths","PE"],
+["m",7,"We sing songs in ___ lessons.","Music","Maths","Science","Vietnamese"],
+["m",7,"My ___ shows all my lessons for the week.","timetable","textbook","notebook","pencil case"],
+["m",7,"Does he have English today? – No, he ___.","doesn't","don't","isn't","hasn't"],
+["m",7,"– When do you have English? – ___","I have it on Mondays and Fridays.","I like English.","Yes, I do.","It's Mr Long."],
+["m",7,"– What subjects do you have today? – ___","I have Maths, Science and Art.","It's Tuesday.","At school.","I have it on Monday."],
+["m",7,"Today is Monday. Tomorrow I ___ PE.","have","has","having","am"],
+["o",7,"Sunday","Maths","Science","Art"],
+["o",7,"teacher","English","Music","Vietnamese"],
+["p",7,"t<u>a</u>ble","M<u>a</u>ths","h<u>a</u>ve","c<u>a</u>t"],
+["p",7,"<u>s</u>ure","<u>S</u>cience","<u>s</u>ubject","<u>s</u>ix"],
+["e",7,"She [have] Art [on] Tuesdays [and] [Thursdays].",0,"has"],
+["e",7,"[When] [does] you [have] Music? – On [Fridays].",1,"do"],
+["f",7,"We have Art ___ Wednesdays.","on"],
+["f",7,"I like ___ because I like singing.","Music"],
+["f",7,"How ___ lessons do you have on Monday?","many"],
+["l",7,"timetable","a list that shows your lessons for each day"],
+["l",7,"Science","the subject about plants, animals and the world"],
+["w",7,"Maths","the subject with numbers"],
+["w",7,"lesson","a time at school when you learn something"],
+["r",7,"What / subjects / do / you / have / today?"],
+["r",7,"I / have / English / on Mondays."],
+["r",7,"When / do / you / have / Music?"],
+// Unit 8
+["m",8,"What's your favourite ___? – It's English.","subject","colour","food","animal"],
+["m",8,"___ do you like Science? – Because I want to be a scientist.","Why","What","When","Where"],
+["m",8,"I like Art ___ I want to be an artist.","because","but","and","or"],
+["m",8,"I like Music because I want to be a ___.","singer","doctor","farmer","pilot"],
+["m",8,"She wants to be ___. She loves drawing.","an artist","a singer","a doctor","a cook"],
+["m",8,"In ___ lessons, we learn to use computers.","IT","PE","Art","Music"],
+["m",8,"In ___ lessons, we run, jump and play games.","PE","IT","Maths","English"],
+["m",8,"My favourite subject ___ Maths.","is","are","am","be"],
+["m",8,"What subject ___ he like? – He likes PE.","does","do","is","are"],
+["m",8,"He likes PE because he wants to be an ___.","athlete","artist","engineer","astronaut"],
+["m",8,"A ___ works with computers and writes programs.","programmer","singer","athlete","farmer"],
+["m",8,"– Why do you like English? – ___","Because I want to talk to people from other countries.","I like it very much.","Yes, I do.","On Mondays."],
+["m",8,"– What's your favourite subject? – ___","I like Science.","It's Thursday.","Because it's fun.","I have it today."],
+["m",8,"My brother ___ like Maths. He thinks it's hard.","doesn't","don't","isn't","not"],
+["o",8,"Science","singer","artist","scientist"],
+["o",8,"pencil","IT","PE","Art"],
+["p",8,"wr<u>i</u>te","s<u>i</u>nger","b<u>i</u>g","f<u>i</u>sh"],
+["p",8,"c<u>a</u>t","<u>a</u>rtist","f<u>a</u>rmer","c<u>a</u>r"],
+["e",8,"I [like] Music [because] I [want] to be a [singing].",3,"singer"],
+["e",8,"[Why] [do] she like Art? – Because she [wants] to be [an] artist.",1,"does"],
+["f",8,"I want to be a ___ because I love singing.","singer"],
+["f",8,"___ do you like IT? – Because I want to be a programmer.","Why"],
+["f",8,"My favourite ___ is Vietnamese.","subject"],
+["l",8,"favourite","the one you like best"],
+["l",8,"scientist","a person who does experiments and studies the world"],
+["w",8,"artist","a person who draws and paints pictures"],
+["w",8,"teacher","a person who gives lessons at school"],
+["r",8,"Why / do / you / like / English?"],
+["r",8,"Because / I / want / to be / a teacher."],
+["r",8,"My favourite subject / is / Science."],
+// Unit 9
+["m",9,"When's your sports day? – It's ___ November.","in","on","at","of"],
+["m",9,"Is your sports day in June? – No, it ___.","isn't","is","doesn't","aren't"],
+["m",9,"Look! The boys ___ football.","are playing","is playing","play","plays"],
+["m",9,"What ___ you doing? – I'm running.","are","do","is","does"],
+["m",9,"She ___ skipping in the playground now.","is","are","am","does"],
+["m",9,"We are ___ basketball now.","playing","play","plays","to play"],
+["m",9,"What is he doing? – He ___.","is running","runs","run","running"],
+["m",9,"The month after September is ___.","October","August","November","December"],
+["m",9,"{⚽}They are playing ___.","football","badminton","tennis","table tennis"],
+["m",9,"{🏸}We are playing ___.","badminton","football","basketball","volleyball"],
+["m",9,"Our sports day is ___ Saturday.","on","in","at","of"],
+["m",9,"– What are you doing? – ___","I'm playing table tennis.","I play table tennis.","Yes, I am.","I can play table tennis."],
+["m",9,"– Is your sports day in May? – ___","Yes, it is.","Yes, I am.","Yes, it does.","Yes, there is."],
+["m",9,"My friends ___ tug of war in the schoolyard now.","are playing","is playing","playing","plays"],
+["o",9,"playground","running","jumping","swimming"],
+["o",9,"Monday","April","August","October"],
+["p",9,"p<u>u</u>t","r<u>u</u>n","j<u>u</u>mp","f<u>u</u>n"],
+["p",9,"s<u>ay</u>s","pl<u>ay</u>","d<u>ay</u>","M<u>ay</u>"],
+["e",9,"Look! My brother [is] [run] [in] the [playground].",1,"running"],
+["e",9,"[When's] your sports day? – It's [on] [December] [this year].",1,"in"],
+["f",9,"Our sports day is ___ October.","in"],
+["f",9,"Look! They are ___ in the pool. (swim)","swimming"],
+["f",9,"What ___ she doing? – She's skipping.","is"],
+["l",9,"November","the month before December"],
+["l",9,"volleyball","a game where you hit a ball over a high net with your hands"],
+["w",9,"jump","go up into the air with both feet"],
+["w",9,"race","the person who runs the fastest wins it"],
+["r",9,"When / is / your / sports day?"],
+["r",9,"We / are / playing / basketball."],
+["r",9,"Is / your sports day / in / October?"],
+// Unit 10
+["m",10,"Where ___ you last summer? – I was at the beach.","were","was","are","did"],
+["m",10,"Were you in Ha Noi last weekend? – Yes, I ___.","was","were","am","did"],
+["m",10,"Was he at the campsite? – No, he ___.","wasn't","weren't","isn't","didn't"],
+["m",10,"I ___ in Da Nang last summer.","was","were","am","is"],
+["m",10,"We ___ at the zoo yesterday.","were","was","are","is"],
+["m",10,"Last summer, I ___ my grandparents in the countryside.","visited","visit","visits","visiting"],
+["m",10,"Yesterday, we ___ in the sea.","swam","swim","swims","swimming"],
+["m",10,"Sydney is in ___.","Australia","Japan","Thailand","Malaysia"],
+["m",10,"Where ___ you go last summer? – I went to Ha Long Bay.","did","were","do","was"],
+["m",10,"{🏖️}They were at the ___.","beach","zoo","school","library"],
+["m",10,"{⛺}We stayed at a ___.","campsite","hotel","school","zoo"],
+["m",10,"– Where were you last weekend? – ___","I was at the cinema.","I'm at the cinema.","Yes, I was.","I go to the cinema."],
+["m",10,"– Did you have a good holiday? – ___","Yes, I did. It was great!","Yes, I do.","Yes, I was.","No, I don't."],
+["m",10,"We ___ a lot of photos on our holiday.","took","take","taked","takes"],
+["o",10,"summer","beach","campsite","countryside"],
+["o",10,"swim","swam","visited","played"],
+["p",10,"visit<u>ed</u>","play<u>ed</u>","stay<u>ed</u>","clean<u>ed</u>"],
+["p",10,"gr<u>ea</u>t","b<u>ea</u>ch","s<u>ea</u>","t<u>ea</u>"],
+["e",10,"Last summer, I [am] [at] the beach [with] my [family].",0,"was"],
+["e",10,"[Were] you [at] the zoo yesterday? – Yes, I [were]. It was [great].",2,"was"],
+["f",10,"Where were you ___ summer?","last"],
+["f",10,"I ___ at the beach yesterday. (be)","was"],
+["f",10,"We ___ sandcastles on the beach last summer. (build)","built"],
+["l",10,"holiday","a time when you don't go to school or work"],
+["l",10,"countryside","land outside towns and cities, with fields and farms"],
+["w",10,"beach","a place by the sea with sand"],
+["w",10,"summer","the hottest season of the year"],
+["r",10,"Where / were / you / last summer?"],
+["r",10,"I / was / at / the beach / with my family."],
+["r",10,"We / visited / Hoi An / last summer."],
+// Harder review: Unit 1
+["m",1,"Hakim is from Malaysia. ___ nationality is Malaysian.","His","He","He's","Him"],
+["m",1,"Where ___ Mary and Tom from? – They're from America.","are","is","do","does"],
+["m",1,"– What nationality is she? – ___","She's Thai.","She's from Thai.","She's Thailand.","She's nine."],
+["m",1,"Tokyo is a big city in ___.","Japan","Thailand","Australia","America"],
+["e",1,"[My] friend Akio [is] from Japan. He [is] [Japan].",3,"Japanese"],
+["f",1,"Lucy is from Australia. She is ___.","Australian"],
+["f",1,"I'm from ___. I'm Vietnamese.","Viet Nam|Vietnam"],
+["l",1,"nationality","Vietnamese and Japanese are examples of this"],
+["w",1,"Thailand","a country. Bangkok is in this country."],
+["r",1,"My new friend / is / from / Malaysia / and / he / is / Malaysian."],
+// Unit 2
+["m",2,"My mother ___ up at five thirty every day.","gets","get","getting","is get"],
+["m",2,"What time does he go to school? – He ___ to school at 6:45.","goes","go","going","is go"],
+["m",2,"It's 8:45. It's ___.","eight forty-five","eight fifty-four","nine forty-five","eight fifteen"],
+["m",2,"– What time do you have dinner? – ___","At seven o'clock.","It's seven o'clock.","Rice and fish.","With my family."],
+["e",2,"My sister [usually] [get] up [at] six o'clock [in] the morning.",1,"gets"],
+["f",2,"What time ___ your father go to work?","does"],
+["f",2,"It's 11:15. It's eleven ___.","fifteen"],
+["l",2,"afternoon","the time of day after lunch"],
+["w",2,"usually","most of the time"],
+["r",2,"What time / does / your brother / go to bed?"],
+// Unit 3
+["m",3,"What does your brother do ___ Saturday mornings?","on","in","at","of"],
+["m",3,"We have English on Tuesdays ___ Thursdays.","and","but","or","so"],
+["m",3,"Linda ___ to the library on Wednesdays.","goes","go","going","is go"],
+["m",3,"– Do you go to school on Saturdays? – ___","No, I don't.","No, I'm not.","Yes, it is.","No, it isn't."],
+["e",3,"[What] [do] you do [in] [Sundays]?",2,"on"],
+["f",3,"My father ___ on Sundays. He stays at home. (not work)","doesn't work|does not work"],
+["f",3,"The day after Friday is ___.","Saturday"],
+["l",3,"Saturday","the day before Sunday"],
+["w",3,"Tuesday","the day after Monday"],
+["r",3,"I / help / my mother / with the housework / on Sundays."],
+// Unit 4
+["m",4,"Which month comes before June?","May","July","April","March"],
+["m",4,"What ___ you like to eat? – Some chips, please.","would","do","are","is"],
+["m",4,"There are some ___ on the table. Let's eat them.","sandwiches","sandwich","milk","juice"],
+["m",4,"– Would you like some water? – ___","No, thanks. I'd like some juice.","Yes, I like.","No, I wouldn't like.","It's water."],
+["e",4,"My [birthday] [is] [on] [March].",2,"in"],
+["f",4,"I'd like ___ glass of milk, please.","a"],
+["f",4,"Children's Day is ___ June.","in"],
+["l",4,"chocolate","a sweet brown food made from cocoa"],
+["w",4,"juice","a drink made from fruit"],
+["r",4,"What / would / you / like / to drink?"],
+// Unit 5
+["m",5,"My father can ___ a car.","drive","ride","fly","play"],
+["m",5,"___ your sister play the violin? – Yes, she can.","Can","Does","Is","Do"],
+["m",5,"Tom can play football, ___ he can't play basketball.","but","and","or","so"],
+["m",5,"– Can you cook? – ___","Yes, I can. I can cook rice.","Yes, I do.","No, I don't.","Yes, I cook."],
+["e",5,"My brother [can] [plays] [the] piano [very] well.",1,"play"],
+["f",5,"Can you ___ a kite? – Yes, I can.","fly"],
+["f",5,"Fish can ___, but they can't walk.","swim"],
+["l",5,"guitar","a music instrument with six strings"],
+["w",5,"horse","a big animal you can ride"],
+["r",5,"My sister / can / dance / but / she / can't / sing."],
+// Unit 6
+["m",6,"Our classroom is ___ the third floor.","on","in","at","of"],
+["m",6,"Is there ___ music room at your school?","a","an","any","some"],
+["m",6,"Are there any computers in the library? – Yes, there ___.","are","is","be","were"],
+["m",6,"– Which floor is the library on? – ___","It's on the first floor.","It's a big library.","Yes, there is.","It's in the city."],
+["e",6,"There [are] [a] [big] garden [at] my school.",0,"is"],
+["f",6,"My school ___ a big playground and a small garden.","has"],
+["f",6,"There aren't ___ swimming pools at my school.","any"],
+["l",6,"playground","a place outside where children play at school"],
+["w",6,"garden","a place with flowers and trees"],
+["r",6,"There / is / a computer room / on / the second floor."]
+];
+
+/* ================= LISTENING =================
+   h  = listen and choose: [spoken text, question, correct, wrong x3]
+   hp = listen and choose the picture: [spoken text, correct picture, wrong x3]
+   hf = listen and fill the missing word: [spoken text, sentence with ___, answers split by |] */
+const SCHOOL_L=[
+["h",1,"I'm from Japan.","Where is the speaker from?","Japan","Thailand","Malaysia","Australia"],
+["h",1,"Lucy is Australian.","What nationality is Lucy?","Australian","American","Malaysian","Japanese"],
+["hf",1,"Nice to meet you.","Nice to ___ you.","meet"],
+["h",1,"My name is Nam. I'm nine years old.","How old is Nam?","9","5","19","10"],
+["h",1,"Ben is from America.","Where is Ben from?","America","Australia","Malaysia","Japan"],
+["h",2,"It's six fifteen.","What time is it?","6:15","6:50","5:15","6:05"],
+["h",2,"I get up at six thirty.","What time does the speaker get up?","6:30","6:13","7:30","6:03"],
+["h",2,"My brother goes to bed at nine forty-five.","When does he go to bed?","9:45","9:15","8:45","5:49"],
+["hf",2,"I have breakfast at seven o'clock.","I have ___ at seven o'clock.","breakfast"],
+["hp",2,"I go to bed at nine o'clock.","🛏️","🏫","🍳","⚽"],
+["h",3,"Today is Wednesday.","What day is it today?","Wednesday","Monday","Tuesday","Thursday"],
+["h",3,"I go swimming on Saturdays.","When does the speaker go swimming?","on Saturdays","on Sundays","on Tuesdays","on Thursdays"],
+["hf",3,"We don't go to school on Sundays.","We don't go to school on ___.","Sundays|Sunday"],
+["hp",3,"On Fridays, I play the piano.","🎹","🎸","⚽","🚲"],
+["h",3,"My mother visits my grandparents on Thursday.","When does the mother visit the grandparents?","Thursday","Tuesday","Saturday","Friday"],
+["h",4,"My birthday is in October.","When is the birthday?","October","August","November","December"],
+["h",4,"When's your birthday? It's in March.","Which month do you hear?","March","May","April","August"],
+["hp",4,"I'd like some grapes, please.","🍇","🍌","🍰","🍟"],
+["hp",4,"Would you like some juice?","🧃","🍇","🍟","🍰"],
+["hf",4,"Let's have a party for Mai's birthday.","Let's have a ___ for Mai's birthday.","party"],
+["hp",5,"I can ride a bike.","🚲","🏊","🎹","🍳"],
+["hp",5,"My sister can swim very well.","🏊","🚲","🎸","💃"],
+["h",5,"Can you play the guitar? No, I can't.","What can't the speaker do?","play the guitar","play the piano","swim","ride a bike"],
+["hf",5,"I can't sing, but I can dance.","I can't sing, but I can ___.","dance"],
+["h",5,"Tom can cook, but he can't skate.","What can Tom do?","cook","skate","swim","draw"],
+["h",6,"There are twelve classrooms in my school.","How many classrooms are there?","12","20","2","11"],
+["h",6,"The library is on the second floor.","Which floor is the library on?","the second floor","the first floor","the third floor","the fourth floor"],
+["hp",6,"We use computers in the computer room.","💻","📚","⚽","🎨"],
+["hf",6,"My school is in the village.","My school is in the ___.","village"],
+["h",6,"Is there a gym at your school? Yes, there is.","What does the school have?","a gym","a swimming pool","a garden","a library"]
+];
+const WARD_L=[
+["h",7,"We have Maths on Monday, Wednesday and Friday.","On which day don't they have Maths?","Tuesday","Monday","Wednesday","Friday"],
+["h",7,"Today we have four lessons.","How many lessons do they have today?","4","14","40","5"],
+["hf",7,"I have Science on Tuesdays.","I have ___ on Tuesdays.","Science"],
+["h",7,"When do you have Art? I have it on Thursdays.","When do they have Art?","on Thursdays","on Tuesdays","on Saturdays","on Fridays"],
+["hp",7,"In Music lessons, we sing songs.","🎵","🔢","🎨","⚽"],
+["hf",7,"My timetable is on my desk.","My ___ is on my desk.","timetable"],
+["h",8,"My favourite subject is IT.","What is the favourite subject?","IT","PE","Art","Maths"],
+["h",8,"I like English because I want to be a teacher.","What does the speaker want to be?","a teacher","a singer","a doctor","an artist"],
+["hp",8,"She wants to be an artist.","🎨","🎤","🩺","⚽"],
+["hf",8,"He likes PE because he wants to be an athlete.","He likes PE because he wants to be an ___.","athlete"],
+["h",8,"Why do you like Science? Because I like doing experiments.","What does the speaker like doing?","doing experiments","drawing pictures","singing songs","running"],
+["hp",8,"I want to be a singer.","🎤","🎨","💻","⚽"],
+["h",9,"Our sports day is in November.","When is sports day?","November","December","September","October"],
+["h",9,"Look! They are playing basketball.","What are they playing?","basketball","football","badminton","volleyball"],
+["hp",9,"We are playing football now.","⚽","🏀","🏸","🏊"],
+["hp",9,"My brother is swimming in the pool.","🏊","🏃","🚲","⚽"],
+["hf",9,"Is your sports day in June? No, it isn't.","Is your sports day in ___? No, it isn't.","June"],
+["h",9,"The race starts at eight fifteen.","What time does the race start?","8:15","8:50","9:15","8:05"],
+["h",10,"I was at the beach last summer.","Where was the speaker last summer?","at the beach","at the campsite","in the countryside","at the zoo"],
+["hp",10,"We stayed at a campsite in the mountains.","⛺","🏖️","🏫","🏙️"],
+["h",10,"Last weekend, we visited our grandparents in Hue.","Where do the grandparents live?","Hue","Ha Noi","Da Nang","Hoi An"],
+["hf",10,"Yesterday, I swam in the sea.","Yesterday, I ___ in the sea.","swam"],
+["h",10,"I was at the zoo yesterday. I saw a lot of monkeys.","What did the speaker see?","monkeys","elephants","tigers","birds"],
+["hf",10,"We went to Ha Long Bay by boat.","We went to Ha Long Bay by ___.","boat"],
+["h",1,"Mai is from Viet Nam. She is Vietnamese.","What nationality is Mai?","Vietnamese","Japanese","Thai","Malaysian"],
+["h",2,"It's ten forty-five.","What time is it?","10:45","10:15","4:45","10:54"],
+["hf",3,"I clean my room on Saturdays.","I clean my room on ___.","Saturdays|Saturday"],
+["h",4,"My birthday is in December.","When is the birthday?","December","November","September","October"],
+["hp",5,"My dad can cook very well.","🍳","🚲","🏊","🎸"],
+["h",6,"The art room is on the third floor.","Which floor is the art room on?","the third floor","the first floor","the second floor","the fourth floor"]
+];
+
+/* ================= Normalise ================= */
+const PROMPT={o:"Choose the odd one out.",p:"Choose the word whose underlined part is pronounced differently."};
+function toQ(row,lv,i){
+  const [t,u]=row, id=lv+i, q={id,lv,t,u};
+  if(t==="m"){const m=row[2].match(/^\{(.+?)\}(.*)$/);if(m){q.pic=m[1];q.q=m[2]}else q.q=row[2];q.o=row.slice(3);q.a=0}
+  else if(t==="o"||t==="p"){q.q=PROMPT[t];q.o=row.slice(2);q.a=0}
+  else if(t==="e"){q.s=row[2];q.a=row[3];q.fix=row[4];q.parts=[...row[2].matchAll(/\[([^\]]+)\]/g)].map(m=>m[1])}
+  else if(t==="f"){q.q=row[2];q.ans=row[3].split("|")}
+  else if(t==="l"||t==="w"){q.w=row[2];q.h=row[3]}
+  else if(t==="r"){q.s=row[2]}
+  else if(t==="h"){q.say=row[2];q.q=row[3]||"Listen and choose the right answer.";q.o=row.slice(4);q.a=0}
+  else if(t==="hp"){q.say=row[2];q.q="Listen and choose the right picture.";q.o=row.slice(3);q.a=0;q.pics=true}
+  else if(t==="hf"){q.say=row[2];q.q=row[3];q.ans=row[4].split("|")}
+  return q;
+}
+const BANKS={S:SCHOOL.concat(SCHOOL_L).map((r,i)=>toQ(r,"S",i)),W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i))};
+const TWO_LETTER_LEVEL="W";
+
+/* ================= Test plan =================
+   Every test is fixed: the same test number always gives the same questions.
+   Questions rotate type by type through a fresh shuffle each cycle, so a question
+   only comes back after the rest of its type has been used.                         */
+const DAY=864e5;
+const TRACKS={
+  S:{key:"S",name:"School Level",units:"Units 1–6",start:new Date(2026,9,12),weeks:7,exam:new Date(2026,10,26),examText:"26–28 Nov 2026",pools:[["S",30]],mins:20},
+  W:{key:"W",name:"Ward Level",units:"Units 1–10",start:new Date(2026,10,30),weeks:6,exam:new Date(2027,0,7),examText:"7–9 Jan 2027",pools:[["W",24],["S",6]],mins:20}
+};
+const TRACK_ORDER=["S","W"];
+const PER_WEEK=7, TEST_LEN=30;
+
+function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng(seed){let a=hash(String(seed));return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function shuffleWith(arr,r){arr=arr.slice();for(let i=arr.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr}
+function apportion(sizes,n){
+  const total=Object.values(sizes).reduce((a,b)=>a+b,0), out={}, rem=[];let used=0;
+  for(const [k,c] of Object.entries(sizes)){const x=n*c/total;out[k]=Math.floor(x);used+=out[k];rem.push([x-out[k],k])}
+  rem.sort((a,b)=>b[0]-a[0]);for(let i=0;used<n;i++,used++)out[rem[i%rem.length][1]]++;
+  return out;
+}
+const groupCache={};
+function groups(bank,noListen){
+  const ck=bank+(noListen?"-r":"");
+  if(groupCache[ck])return groupCache[ck];
+  const g={};BANKS[bank].forEach(q=>{const t=q.say?"L":q.t;if(noListen&&t==="L")return;(g[t]=g[t]||[]).push(q)});
+  return groupCache[ck]=g;
+}
+const permCache={};
+function perm(track,bank,t,cycle,len){
+  const k=[track,bank,t,cycle].join(":");
+  return permCache[k]||(permCache[k]=shuffleWith([...Array(len).keys()],rng(k)));
+}
+function buildTest(trackKey,k,noListen){
+  const T=TRACKS[trackKey], picked=[], seen=new Set();
+  for(const [bank,n] of T.pools){
+    const g=groups(bank,noListen), sizes={};for(const t in g)sizes[t]=g[t].length;
+    const quota=apportion(sizes,n);
+    for(const t in quota){
+      const G=g[t], q=Math.min(quota[t],G.length);let pos=k*quota[t], got=0, guard=0;
+      while(got<q&&guard++<G.length*3){
+        const cyc=Math.floor(pos/G.length), item=G[perm(trackKey,bank,t,cyc,G.length)[pos%G.length]];
+        if(!seen.has(item.id)){seen.add(item.id);picked.push(item);got++}
+        pos++;
+      }
+    }
+  }
+  const order=shuffleWith(picked,rng(trackKey+"-order-"+k));
+  return order.map(q=>inst(q,trackKey+"-"+k+"-"+q.id));
+}
+
+/* Make a playable copy: shuffled options, shuffled tiles, chosen missing letters */
+const chunks=s=>s.split("/").map(x=>x.trim()).filter(Boolean);
+function inst(q,seed){
+  const r=seed==null?Math.random:rng(seed), x={...q};
+  if(x.o){x.order=shuffleWith(x.o.map((_,i)=>i),r)}
+  if(x.t==="r"||x.t==="w"){
+    const parts=x.t==="r"?chunks(x.s):[...x.w];
+    const c=parts.map((c,i)=>({c,i}));let s=c;
+    for(let n=0;n<8;n++){s=shuffleWith(c,r);if(s.map(t=>t.c).join("|")!==parts.join("|"))break}
+    x.tiles=s;
+  }
+  if(x.t==="l"){
+    const idx=[...x.w].map((ch,i)=>/[a-z]/i.test(ch)?i:-1).filter(i=>i>=0);
+    const n=x.lv===TWO_LETTER_LEVEL&&x.w.length>=7?2:1;
+    x.miss=shuffleWith(idx,r).slice(0,n).sort((a,b)=>a-b);
+  }
+  return x;
+}
+
+/* ================= Storage ================= */
+const PFX=(window.ONTAP_NS||"")+"ioe4v1_";
+const store={get(k,d){try{const v=localStorage.getItem(PFX+k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(PFX+k,JSON.stringify(v))}catch(e){}}};
+let custom=store.get("custom",[]);
+let wrongIds=new Set(store.get("wrong",[]));
+let history=store.get("hist",[]);
+let results=store.get("res",{});
+let unitRes=store.get("unitRes",{});
+const saveWrong=()=>store.set("wrong",[...wrongIds]);
+/* ================= Listening (device voice) ================= */
+const NO_SOUND="Sound is off or not available on this device, so the listening questions have been replaced with reading questions.";
+const PLAY_SVG='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>';
+const TTS={api:("speechSynthesis" in window)&&typeof SpeechSynthesisUtterance!=="undefined",voice:null,done:false,ok:false,off:store.get("listenOff",false)};
+TTS.ready=new Promise(res=>{
+  const fin=ok=>{if(TTS.done)return;TTS.done=true;TTS.ok=ok;res(ok);drawSound()};
+  if(!TTS.api){setTimeout(()=>fin(false),0);return}
+  const pick=()=>{let vs=[];try{vs=speechSynthesis.getVoices()||[]}catch(e){}
+    const en=vs.filter(v=>/^en([-_]|$)/i.test(v.lang));
+    if(!en.length)return false;
+    for(const re of [/^en[-_]GB/i,/^en[-_]US/i,/^en/i]){const v=en.find(v=>re.test(v.lang)&&v.localService)||en.find(v=>re.test(v.lang));if(v){TTS.voice=v;break}}
+    return true};
+  if(pick()){setTimeout(()=>fin(true),0);return}
+  try{speechSynthesis.addEventListener("voiceschanged",()=>{if(pick())fin(true)})}catch(e){}
+  setTimeout(()=>fin(pick()),2000);
+});
+const canListen=()=>TTS.ok&&!TTS.off;
+function speak(text,rate,cb){
+  let ended=false;const end=err=>{if(ended)return;ended=true;cb(err)};
+  try{
+    if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    if(TTS.voice){u.voice=TTS.voice;u.lang=TTS.voice.lang}else u.lang="en-US";
+    u.rate=rate;
+    u.onend=()=>end(null);
+    u.onerror=e=>{const c=(e&&e.error)||"error";end(/interrupted|canceled/.test(c)?null:c)};
+    speechSynthesis.speak(u);
+    setTimeout(()=>end(null),Math.max(4000,text.length*140/rate+2000));
+  }catch(e){end("error")}
+}
+function stopSpeech(){try{if(TTS.api&&(speechSynthesis.speaking||speechSynthesis.pending))speechSynthesis.cancel()}catch(e){}}
+function wireListen(q){
+  S.playsLeft=3;S.speaking=false;
+  const play=$("#playBtn"), slow=$("#slowBtn"), info=$("#plays");
+  const upd=()=>{if(!S||S.qs[S.i]!==q)return;
+    const out=!S.checked&&S.playsLeft<=0;
+    play.disabled=slow.disabled=S.speaking||out;
+    play.querySelector("span").textContent=S.speaking?"Playing…":"Play";
+    info.textContent=S.checked?"Listen again as many times as you like.":out?"No plays left.":`${S.playsLeft} of 3 plays left`};
+  const go=rate=>{if(S.speaking)return;if(!S.checked){if(S.playsLeft<=0)return;S.playsLeft--}
+    S.speaking=true;upd();
+    speak(q.say,rate,err=>{if(!S||S.qs[S.i]!==q)return;S.speaking=false;upd();if(err)soundFailed()})};
+  play.onclick=()=>go(.9);slow.onclick=()=>go(.6);
+  S.updPlay=upd;upd();
+}
+function soundFailed(){
+  TTS.off=true;store.set("listenOff",true);
+  if(!S)return;
+  if(S.mode==="exam"){
+    const used=new Set(S.qs.map(x=>x.id));
+    const pool=TRACKS[S.test.tk].pools.flatMap(([b])=>BANKS[b]).filter(x=>!x.say&&!used.has(x.id));
+    for(let i=S.i;i<S.qs.length;i++)if(S.qs[i].say&&pool.length){const nq=pool.splice(Math.floor(Math.random()*pool.length),1)[0];S.qs[i]=inst(nq)}
+  }else{
+    S.qs=S.qs.filter((x,i)=>i<S.i||!x.say);
+    if(S.i>=S.qs.length){finish();return}
+  }
+  S.notice="Sound didn't play on this device, so the listening questions have been replaced with reading questions.";
+  renderQ();
+}
+function drawSound(){
+  const p=document.getElementById("soundPanel");if(!p)return;
+  let html;
+  if(!TTS.done)html=`<div class="muted">Checking the English voice on this device…</div>`;
+  else if(!TTS.ok)html=`<div>This device can't read English aloud, so tests use reading questions in place of listening questions. Try another browser or device for listening practice.</div>`;
+  else if(TTS.off)html=`<div>Listening is turned off on this device. Tests use reading questions instead.</div><div class="row"><button class="btn" id="sndOn">Turn listening on</button></div>`;
+  else html=`<div>Each test has about 4 listening questions. You can play each one 3 times, at normal or slow speed. Turn the volume up, then check the sound.</div><div class="row"><button class="btn" id="sndTest">Test sound</button></div><div id="sndAsk"></div>`;
+  p.innerHTML=html;
+  const on=document.getElementById("sndOn");if(on)on.onclick=()=>{TTS.off=false;store.set("listenOff",false);drawSound()};
+  const t=document.getElementById("sndTest");
+  if(t)t.onclick=()=>{
+    t.disabled=true;
+    speak("Hello! Can you hear me? Let's practise English.",.9,err=>{
+      t.disabled=false;
+      if(err){TTS.off=true;store.set("listenOff",true);drawSound();return}
+      const a=document.getElementById("sndAsk");if(!a)return;
+      a.innerHTML=`<div class="confirm" style="border-color:var(--line)"><div>Did you hear the voice?</div><div class="row"><button class="btn main" id="sndYes">Yes</button><button class="btn ghost" id="sndNo">No</button></div></div>`;
+      document.getElementById("sndYes").onclick=()=>{a.innerHTML=`<div class="fb ok">Sound works. Listening questions are ready.</div>`};
+      document.getElementById("sndNo").onclick=()=>{TTS.off=true;store.set("listenOff",true);drawSound()};
+    });
+  };
+}
+
+
+/* ================= Helpers ================= */
+const $=s=>document.querySelector(s);
+const view=$("#view"), topRight=$("#topRight");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const safe=s=>esc(s).replace(/&lt;(\/?)u&gt;/g,"<$1u>");
+const norm=s=>String(s).toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," ").replace(/[.!?]+$/,"").trim();
+const fmtTime=s=>{s=Math.max(0,Math.round(s));return String(s/60|0).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
+const fmtDate=d=>d.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+const allQ=()=>BANKS.S.concat(BANKS.W,custom);
+const byId=id=>allQ().find(q=>q.id===id);
+const LETTERS="ABCD";
+function strip(h){const d=document.createElement("div");d.innerHTML=h;return d.textContent}
+function today(){const d=new Date();d.setHours(0,0,0,0);return d}
+function correctText(q){
+  if(q.o)return strip(q.o[q.a]);
+  if(q.ans)return q.ans.join(" / ");
+  if(q.t==="l"||q.t==="w")return q.w;
+  if(q.t==="e")return `${LETTERS[q.a]} (${q.parts[q.a]}) → ${q.fix}`;
+  return chunks(q.s).join(" ");
+}
+function stemText(q){
+  if(q.say)return "Listening: “"+esc(q.say)+"”"+(q.t==="h"?" · "+esc(q.q):"");
+  if(q.t==="r")return "Reorder: "+esc(chunks(q.s).join(" / "));
+  if(q.t==="w")return "Letters in order: "+esc(q.h);
+  if(q.t==="l")return "Missing letters: "+esc([...q.w].map((c,i)=>q.miss&&q.miss.includes(i)?"_":c).join(""))+" ("+esc(q.h)+")";
+  if(q.t==="e")return "Find the mistake: "+esc(q.s.replace(/\[|\]/g,""));
+  if(q.t==="o"||q.t==="p")return esc(q.q)+" "+q.o.map(safe).join(", ");
+  return (q.pic?q.pic+" ":"")+safe(q.q);
+}
+
+/* ================= Test plan state ================= */
+function weekIndex(T){return Math.floor((today()-T.start)/DAY/7)}
+function resKey(tk,k){return tk+(k+1)}
+function nextTest(tk){
+  const T=TRACKS[tk], total=T.weeks*PER_WEEK;
+  let w=Math.min(Math.max(weekIndex(T),0),T.weeks-1);
+  for(let k=w*PER_WEEK;k<(w+1)*PER_WEEK;k++)if(!results[resKey(tk,k)])return k;
+  for(let k=0;k<total;k++)if(!results[resKey(tk,k)])return k;
+  return null;
+}
+function defaultTrack(){return today()<TRACKS[TRACK_ORDER[1]].start?TRACK_ORDER[0]:TRACK_ORDER[1]}
+
+/* ================= Session ================= */
+let S=null, tick=null;
+function startSession(opts){
+  const qs=opts.qs;
+  if(!qs.length){renderHome("There are no questions in this section yet.");return}
+  S={notice:opts.notice||null,mode:opts.mode,label:opts.label,test:opts.test||null,unit:opts.unit||null,qs,i:0,ans:[],start:Date.now(),limit:opts.limit||0,checked:false,cur:null};
+  clearInterval(tick);
+  if(S.limit){tick=setInterval(()=>{const left=S.limit-(Date.now()-S.start)/1000;updTimer(left);if(left<=0)finish()},500)}
+  renderQ();
+}
+async function startTest(tk,k){
+  await TTS.ready;const nl=!canListen();
+  const T=TRACKS[tk];
+  startSession({mode:"exam",qs:buildTest(tk,k,nl),limit:T.mins*60,label:`${T.name} · Test ${k+1}`,test:{tk,k},notice:nl?NO_SOUND:null});
+}
+async function startPractice(qs,label,unit){
+  await TTS.ready;const nl=!canListen(), had=qs.some(q=>q.say);
+  if(nl)qs=qs.filter(q=>!q.say);
+  startSession({mode:"practice",qs:shuffleWith(qs,Math.random).map(q=>inst(q)),label,unit,notice:nl&&had?NO_SOUND:null});
+}
+function updTimer(left){const el=$("#timer");if(!el)return;el.textContent=fmtTime(left);el.classList.toggle("warn",left<120)}
+
+function renderQ(){
+  stopSpeech();
+  const q=S.qs[S.i];S.cur=(q.t==="r"||q.t==="w")?[]:q.t==="l"?q.miss.map(()=>""):null;S.checked=false;
+  const n=S.qs.length, exam=S.mode==="exam";
+  topRight.innerHTML=(S.limit?`<span class="chip" id="timer" aria-label="Time left"></span>`:"")+`<span class="chip">${S.i+1} / ${n}</span>`;
+  if(S.limit)updTimer(S.limit-(Date.now()-S.start)/1000);
+  let body="";
+  const listenBar=q.say?`<div class="listen"><button class="play" id="playBtn" aria-label="Play the recording">${PLAY_SVG}<span>Play</span></button><button class="btn ghost" id="slowBtn">Slow</button><span class="plays" id="plays"></span></div>`:"";
+  if(q.say){
+    if(q.o){
+      const longOpts=!q.pics&&q.o.some(o=>strip(o).length>22);
+      body=`<div class="label">${q.pics?"Listen and choose the right picture":"Listen and choose the right answer"}</div>${listenBar}${q.pics?"":`<div class="qtext">${safe(q.q)}</div>`}<div class="opts${longOpts?" wide":""}">${q.order.map((oi,k)=>`<button class="opt${q.pics?" picopt":""}" data-o="${oi}"><span class="k">${LETTERS[k]}</span><span>${safe(q.o[oi])}</span></button>`).join("")}</div>`;
+    }else{
+      const parts=safe(q.q).split("___");
+      body=`<div class="label">Listen and fill in the missing word</div>${listenBar}<div class="qtext">${parts[0]}<input class="blank" id="fillIn" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Your answer">${parts.slice(1).join("___")}</div>`;
+    }
+  }else if(q.o){
+    const label=q.t==="m"?`<div class="label">Choose the best answer</div>`:"";
+    const longOpts=q.o.some(o=>strip(o).length>22);
+    body=`${label}<div class="qtext">${q.pic?`<span class="pic" role="img" aria-label="picture">${esc(q.pic)}</span>`:""}${safe(q.q)}</div><div class="opts${longOpts?" wide":""}">${q.order.map((oi,k)=>`<button class="opt" data-o="${oi}"><span class="k">${LETTERS[k]}</span><span>${safe(q.o[oi])}</span></button>`).join("")}</div>`;
+  }else if(q.t==="e"){
+    let k=0;const sent=esc(q.s).replace(/\[([^\]]+)\]/g,(_,p)=>`<u>${p}</u><sub>${LETTERS[k++]}</sub>`);
+    body=`<div class="label">Find the mistake</div><div class="qtext">${sent}</div><div class="opts">${q.parts.map((p,i)=>`<button class="opt" data-o="${i}"><span class="k">${LETTERS[i]}</span><span>${esc(p)}</span></button>`).join("")}</div>`;
+  }else if(q.t==="f"){
+    const parts=safe(q.q).split("___");
+    body=`<div class="label">Fill in the blank</div><div class="qtext">${parts[0]}<input class="blank" id="fillIn" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Your answer">${parts.slice(1).join("___")}</div>`;
+  }else if(q.t==="l"){
+    let m=0;const w=[...q.w].map((c,i)=>q.miss.includes(i)?`<input class="blank letter" data-m="${m++}" maxlength="1" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Missing letter">`:esc(c)).join("");
+    body=`<div class="label">Fill in the missing letter${q.miss.length>1?"s":""}</div><div class="qtext word">${w}</div><div class="muted small">Clue: ${esc(q.h)}</div>`;
+  }else{
+    const isW=q.t==="w";
+    body=`<div class="label">${isW?"Put the letters in order to make a word":"Put the words in the correct order"}</div>${isW?`<div class="qtext">Clue: ${esc(q.h)}</div>`:""}<div class="slot" id="slot" aria-label="Your answer"></div><div class="pool" id="pool">${q.tiles.map((t,k)=>`<button class="tile${isW?" ch":""}" data-k="${k}">${esc(t.c)}</button>`).join("")}</div>`;
+  }
+  view.innerHTML=`<div class="stack">
+    <div class="bar" aria-hidden="true"><i style="width:${S.i/n*100}%"></i></div>
+    ${S.notice?`<div class="notice" role="status">${esc(S.notice)}</div>`:""}
+    <section class="qcard">
+      <div class="qhead"><span class="label">${esc(S.label)}</span><span class="label">${q.u?("Unit "+q.u):"My Questions"}</span></div>
+      ${body}
+      <div id="fb" aria-live="polite"></div>
+    </section>
+    <div class="actions"><button class="btn ghost" id="skipBtn">Skip</button><button class="btn main" id="goBtn">${exam?"Submit answer":"Check"}</button></div>
+    <div id="endArea"></div>
+  </div>`;
+  drawEnd();wireQ(q);S.notice=null;
+}
+function drawEnd(){
+  const exam=S.mode==="exam";
+  $("#endArea").innerHTML=`<button class="btn ghost small" id="endBtn">${exam?"Finish test now":"End practice"}</button>`;
+  $("#endBtn").onclick=()=>{
+    $("#endArea").innerHTML=`<div class="confirm"><div>${exam?"Finish the test now? Unanswered questions will count as wrong.":"End practice and see your results?"}</div><div class="row"><button class="btn danger" id="yesEnd">${exam?"Finish test":"End practice"}</button><button class="btn ghost" id="noEnd">Keep going</button></div></div>`;
+    $("#yesEnd").onclick=finish;$("#noEnd").onclick=drawEnd;
+  };
+}
+function wireQ(q){
+  if(q.say)wireListen(q);
+  if(q.o||q.t==="e")view.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{if(S.checked)return;view.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");S.cur=+b.dataset.o});
+  if(q.t==="f"||q.t==="hf"){const inp=$("#fillIn");inp.oninput=()=>S.cur=inp.value;inp.onkeydown=e=>{if(e.key==="Enter")$("#goBtn").click()};setTimeout(()=>inp.focus({preventScroll:true}),50)}
+  if(q.t==="l"){
+    const ins=[...view.querySelectorAll("input.letter")];
+    ins.forEach((inp,j)=>{inp.oninput=()=>{S.cur[j]=inp.value;if(inp.value&&ins[j+1])ins[j+1].focus()};inp.onkeydown=e=>{if(e.key==="Enter")$("#goBtn").click();if(e.key==="Backspace"&&!inp.value&&ins[j-1])ins[j-1].focus()}});
+    setTimeout(()=>ins[0].focus({preventScroll:true}),50);
+  }
+  if(q.t==="r"||q.t==="w"){
+    const isW=q.t==="w", hint=isW?"Tap the letters below to build the word.":"Tap the words below to build the sentence.";
+    const draw=()=>{const slot=$("#slot");slot.innerHTML=S.cur.length?S.cur.map((k,pos)=>`<button class="tile${isW?" ch":""}" data-p="${pos}">${esc(q.tiles[k].c)}</button>`).join(""):`<span class="muted small">${hint}</span>`;
+      view.querySelectorAll("#pool .tile").forEach(t=>t.classList.toggle("used",S.cur.includes(+t.dataset.k)));
+      slot.querySelectorAll(".tile").forEach(t=>t.onclick=()=>{if(S.checked)return;S.cur.splice(+t.dataset.p,1);draw()})};
+    view.querySelectorAll("#pool .tile").forEach(t=>t.onclick=()=>{if(S.checked)return;const k=+t.dataset.k;if(!S.cur.includes(k)){S.cur.push(k);draw()}});
+    draw();
+  }
+  $("#skipBtn").onclick=()=>{record(q,null);next()};
+  $("#goBtn").onclick=()=>{
+    if(S.checked){next();return}
+    const empty=S.cur==null||S.cur===""||(Array.isArray(S.cur)&&(!S.cur.length||S.cur.some(x=>x==="")));
+    if(empty){$("#fb").innerHTML=`<div class="fb bad">Answer the question first, or tap Skip.</div>`;return}
+    const ok=record(q,S.cur);
+    if(S.mode==="exam"){next();return}
+    S.checked=true;showFeedback(q,ok);if(q.say){$("#fb").insertAdjacentHTML("beforeend",`<div class="heard">You heard: “${esc(q.say)}”</div>`);S.updPlay&&S.updPlay()}$("#goBtn").textContent=S.i+1<S.qs.length?"Next question":"See results";$("#skipBtn").disabled=true;
+  };
+}
+function isRight(q,given){
+  if(given==null)return false;
+  if(q.o||q.t==="e")return given===q.a;
+  if(q.ans)return q.ans.some(a=>norm(a)===norm(given));
+  if(q.t==="l")return q.miss.every((p,j)=>norm(given[j])===q.w[p].toLowerCase());
+  if(q.t==="w")return given.map(k=>q.tiles[k].c).join("")===q.w;
+  return given.map(k=>q.tiles[k].c).join(" ")===chunks(q.s).join(" ");
+}
+function givenText(q,given){
+  if(given==null)return "(no answer)";
+  if(q.o)return strip(q.o[given]);
+  if(q.t==="e")return `${LETTERS[given]} (${q.parts[given]})`;
+  if(q.t==="r")return given.map(k=>q.tiles[k].c).join(" ");
+  if(q.t==="w")return given.map(k=>q.tiles[k].c).join("");
+  if(q.t==="l"){let j=0;return [...q.w].map((c,i)=>q.miss.includes(i)?(given[j++]||"_"):c).join("")}
+  return String(given);
+}
+function record(q,given){
+  const ok=isRight(q,given);
+  S.ans[S.i]={q,given,ok};
+  if(ok){if(S.mode!=="exam")wrongIds.delete(q.id)}else wrongIds.add(q.id);
+  saveWrong();return ok;
+}
+function showFeedback(q,ok){
+  if(q.o||q.t==="e")view.querySelectorAll(".opt").forEach(b=>{const o=+b.dataset.o;if(o===q.a)b.classList.add("right");else if(b.classList.contains("sel"))b.classList.add("wrong")});
+  $("#fb").innerHTML=ok?`<div class="fb ok">Correct!</div>`:`<div class="fb bad">Not quite. <span>Answer: <b>${esc(correctText(q))}</b></span></div>`;
+}
+function next(){S.i++;if(S.i>=S.qs.length)finish();else renderQ()}
+
+function finish(){
+  if(!S)return;
+  stopSpeech();
+  clearInterval(tick);
+  const secs=Math.min((Date.now()-S.start)/1000,S.limit||Infinity);
+  if(S.mode==="exam")for(let i=0;i<S.qs.length;i++)if(!S.ans[i]){S.ans[i]={q:S.qs[i],given:null,ok:false};wrongIds.add(S.qs[i].id)}
+  saveWrong();
+  const done=S.ans.filter(Boolean), right=done.filter(a=>a.ok).length, total=done.length;
+  if(S.test){const key=resKey(S.test.tk,S.test.k), prev=results[key];results[key]={b:Math.max(right,prev?prev.b:0),l:right,t:total};store.set("res",results)}
+  if(S.unit&&total){unitRes[S.unit]={r:right,t:total};store.set("unitRes",unitRes)}
+  history.unshift({d:new Date().toISOString(),l:S.label,r:right,t:total,s:Math.round(secs)});
+  history=history.slice(0,20);store.set("hist",history);
+  window.ontapReport&&ontapReport({label:S.label,mode:S.mode,subject:"ta",r:right,t:total,s:Math.round(secs)});
+  const pct=total?Math.round(right/total*100):0;
+  const msg=pct>=90?"Excellent! You are ready for the exam.":pct>=75?"Great work! Review your mistakes to do even better.":pct>=50?"Good effort. Practise the units below, then try another test.":"Keep going! Practise one unit at a time, then try again.";
+  const units={};done.forEach(a=>{const k=a.q.u?a.q.u:0;units[k]=units[k]||[0,0];units[k][1]++;if(a.ok)units[k][0]++});
+  const wrong=done.filter(a=>!a.ok), test=S.test;
+  topRight.innerHTML="";
+  view.innerHTML=`<div class="stack">
+    <section class="panel">
+      <div class="label">${esc(S.label)}${test?" · Week "+(Math.floor(test.k/PER_WEEK)+1):""}</div>
+      <div class="row" style="gap:18px;align-items:flex-end"><div class="score">${right}<span style="font-size:1.6rem;color:var(--muted)">/${total}</span></div>
+      <div class="stack" style="gap:2px"><b>${pct}% correct</b><span class="muted small">Time: ${fmtTime(secs)}</span></div></div>
+      <div>${msg}</div>
+    </section>
+    ${total?`<section class="panel"><div class="label">By unit</div><div class="ubreak">${Object.keys(units).sort((a,b)=>a-b).map(k=>{const [r,t]=units[k];return `<span>${+k?"Unit "+k:"My Questions"}</span><div class="bar"><i style="width:${r/t*100}%"></i></div><span>${r}/${t}</span>`}).join("")}</div></section>`:""}
+    ${wrong.length?`<section class="panel"><div class="label">Questions to review (${wrong.length})</div><div class="review">${wrong.map(a=>`<div class="rv"><div>${stemText(a.q)}</div><div class="ans">Your answer: <s>${esc(givenText(a.q,a.given))}</s> · Correct: <b>${esc(correctText(a.q))}</b></div></div>`).join("")}</div></section>`:""}
+    <div class="row" id="resBtns"></div>
+  </div>`;
+  const btns=$("#resBtns");
+  if(test){const nk=nextTest(test.tk);if(nk!=null){const b=document.createElement("button");b.className="btn main";b.textContent=`Start Test ${nk+1}`;b.onclick=()=>startTest(test.tk,nk);btns.append(b)}}
+  if(wrongIds.size){const b=document.createElement("button");b.className="btn";b.textContent=`Review mistakes (${wrongIds.size})`;b.onclick=startWrong;btns.append(b)}
+  const h=document.createElement("button");h.className="btn ghost";h.textContent="Home";h.onclick=()=>renderHome();btns.append(h);
+  S=null;window.scrollTo(0,0);
+}
+function startWrong(){startPractice([...wrongIds].map(byId).filter(Boolean),"Mistake Review")}
+
+/* ================= Home ================= */
+let tab=store.get("tab",defaultTrack());
+function renderHome(note){
+  clearInterval(tick);S=null;topRight.innerHTML="";
+  const tk=defaultTrack(), T=TRACKS[tk], nk=nextTest(tk);
+  const days=Math.ceil((T.exam-today())/DAY);
+  const wk=nk!=null?Math.floor(nk/PER_WEEK)+1:null;
+  view.innerHTML=`<div class="stack">
+    ${note?`<div class="fb bad">${esc(note)}</div>`:""}
+    <section class="sec" style="margin-top:0"><h1 class="page-h">Practise by Unit</h1><p class="muted small" style="margin:0">Choose a unit to revise. No timer, and you see the answer after each question.</p>
+      <div class="units">${Object.entries(UNITS).map(([u,t])=>{const n=allQ().filter(q=>q.u==u).length, ur=unitRes[u];
+        return `<button class="unit" data-u="${u}"><span class="n">Unit ${u}</span><span class="t">${t}</span><span class="small muted">${n} questions${u>6?" · Ward Level":""}</span>${ur?`<span class="last${ur.r/ur.t>=.8?"":" fair"}">Last score: ${ur.r}/${ur.t}</span>`:""}</button>`}).join("")}</div>
+    </section>
+
+    <section class="sec"><h2>Listening</h2><div class="panel" id="soundPanel"></div></section>
+
+    <section class="sec">
+      <h2>IOE Mock Tests</h2>
+      <div class="hero">
+        <span class="label">Up next · ${T.name} · ${T.units}</span>
+        <h3>${nk!=null?`Week ${wk} · Test ${nk+1}`:"All tests done!"}</h3>
+        <p>${TEST_LEN} questions, including about 4 listening questions · ${T.mins} minutes. Answers appear after you finish, just like the real exam.</p>
+        <p class="small">${T.name} exam: ${T.examText}${days>0?` · ${days} days to go`:""}</p>
+        <div class="row">${nk!=null?`<button class="btn main" id="heroBtn">Start Test ${nk+1}</button>`:""}</div>
+      </div>
+      <p class="muted small" style="margin:0">7 tests a week. Each test mixes every question type from the units. A question comes back only after the rest of the bank has been used, so the tests stay fresh and the hard words get repeated.</p>
+      <div class="seg" role="group" aria-label="Choose level">
+        ${TRACK_ORDER.map(k=>`<button data-tab="${k}" aria-pressed="${tab===k}">${TRACKS[k].name}<small>${TRACKS[k].units} · ${TRACKS[k].weeks*PER_WEEK} tests</small></button>`).join("")}
+      </div>
+      <div class="legend"><span><i style="background:var(--ok)"></i>80% or more</span><span><i style="background:var(--sun)"></i>Below 80%</span><span><i style="background:var(--line)"></i>Not done yet</span></div>
+      <div class="weeks" id="weeks"></div>
+    </section>
+
+    <section class="sec"><h2>Review Mistakes</h2>
+      <div class="panel"><div>${wrongIds.size?`You have <b>${wrongIds.size}</b> questions to review. Answer one correctly here and it leaves the list.`:"No mistakes saved yet. Do a test to get started."}</div>
+      ${wrongIds.size?`<div class="row"><button class="btn" id="wrongBtn">Review ${wrongIds.size} questions</button></div>`:""}</div>
+    </section>
+
+    <section class="sec"><h2>My Questions</h2>
+      <div class="panel">
+        <div>${custom.length?`You have added <b>${custom.length}</b> questions.`:"Paste questions from a worksheet or practice book to practise them here."}</div>
+        <div class="row"><button class="btn" id="impBtn">Add questions</button>${custom.length?`<button class="btn main" id="custBtn">Practise my questions</button><button class="btn danger" id="clrBtn">Delete all</button>`:""}</div>
+        <div id="clrArea"></div>
+      </div>
+    </section>
+
+    <section class="sec"><h2>History</h2>
+      <div class="panel">${history.length?`<div class="hist">${history.map(h=>`<div><span>${fmtDate(new Date(h.d))} · ${esc(h.l)}</span><b>${h.r}/${h.t} · ${fmtTime(h.s)}</b></div>`).join("")}</div>`:`<span class="muted">Your results will appear here. They are saved on this device.</span>`}</div>
+    </section>
+    <p class="muted small" style="margin:0">Practice questions written for the Global Success English 4 course. This is a personal practice page, not an official Global Success or IOE website.</p>
+  </div>`;
+  if($("#heroBtn"))$("#heroBtn").onclick=()=>startTest(tk,nk);
+  view.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;store.set("tab",tab);view.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawWeeks()});
+  drawWeeks();drawSound();
+  view.querySelectorAll(".unit").forEach(b=>b.onclick=()=>startPractice(allQ().filter(q=>q.u==b.dataset.u),"Unit "+b.dataset.u+" Practice",b.dataset.u));
+  if($("#wrongBtn"))$("#wrongBtn").onclick=startWrong;
+  $("#impBtn").onclick=renderImport;
+  if($("#custBtn"))$("#custBtn").onclick=()=>startPractice(custom,"My Questions");
+  if($("#clrBtn"))$("#clrBtn").onclick=()=>{$("#clrArea").innerHTML=`<div class="confirm"><div>Delete all ${custom.length} questions you added?</div><div class="row"><button class="btn danger" id="clrYes">Delete</button><button class="btn ghost" id="clrNo">Cancel</button></div></div>`;
+    $("#clrYes").onclick=()=>{custom.forEach(q=>wrongIds.delete(q.id));saveWrong();custom=[];store.set("custom",custom);renderHome()};
+    $("#clrNo").onclick=()=>$("#clrArea").innerHTML=""};
+  window.scrollTo(0,0);
+}
+function drawWeeks(){
+  const T=TRACKS[tab], cur=weekIndex(T), nk=nextTest(tab);
+  $("#weeks").innerHTML=[...Array(T.weeks).keys()].map(w=>{
+    const s=new Date(T.start.getTime()+w*7*DAY), e=new Date(s.getTime()+6*DAY);
+    const isLast=w===T.weeks-1;
+    return `<div class="week${w===cur?" now":""}">
+      <div class="wk-h"><b>Week ${w+1}</b><span>${fmtDate(s)} – ${fmtDate(e)}${isLast?" · exam week":""}</span>${w===cur?`<span class="tag">This week</span>`:""}</div>
+      <div class="tests">${[...Array(PER_WEEK).keys()].map(d=>{const k=w*PER_WEEK+d, r=results[resKey(tab,k)];
+        const cls=r?(r.b/r.t>=.8?"good":"fair"):"";
+        return `<button class="tb ${cls}${k===nk?" next":""}" data-k="${k}" aria-label="Test ${k+1}${r?", best score "+r.b+" out of "+r.t:""}"><b>${k+1}</b><small>${r?r.b+"/"+r.t:"–"}</small></button>`}).join("")}</div>
+    </div>`}).join("");
+  $("#weeks").querySelectorAll(".tb").forEach(b=>b.onclick=()=>startTest(tab,+b.dataset.k));
+}
+
+/* ================= Import ================= */
+const SAMPLE=`# Unit 1
+Where ___ you from?
+* are
+- is
+- am
+- do
+
+I'm [from] Viet Nam.
+
+>> She / is / from / Japan.
+
+# Unit 2
+Choose the odd one out.
+* bedroom
+- breakfast
+- lunch
+- dinner`;
+function parse(text){
+  const out=[], errs=[];let unit=null;
+  text.replace(/\r/g,"").split(/\n\s*\n/).forEach((blk,bi)=>{
+    let lines=blk.split("\n").map(l=>l.trim()).filter(Boolean);
+    while(lines.length&&lines[0].startsWith("#")){const m=lines[0].match(/(\d+)/);unit=m?+m[1]:null;lines.shift()}
+    if(!lines.length)return;
+    const u=unit&&unit>=1&&unit<=20?unit:null;
+    if(lines[0].startsWith(">>")){const s=lines[0].slice(2).trim();if(chunks(s).length<2){errs.push(`Block ${bi+1}: a reorder question needs at least 2 parts separated by /`);return}out.push({u,t:"r",s});return}
+    const opts=lines.filter(l=>/^[*-]\s*/.test(l));
+    if(opts.length){
+      const q=lines.filter(l=>!/^[*-]\s*/.test(l)).join(" ");
+      const o=opts.map(l=>l.replace(/^[*-]\s*/,"")), a=opts.findIndex(l=>l.startsWith("*"));
+      if(a<0){errs.push(`Block ${bi+1}: mark the correct answer with *`);return}
+      if(o.length<2){errs.push(`Block ${bi+1}: add at least 2 answer choices`);return}
+      out.push({u,t:"m",q:q||"Choose the best answer.",o,a});return}
+    const line=lines.join(" "), m=line.match(/\[([^\]]+)\]/);
+    if(m){out.push({u,t:"f",q:line.replace(m[0],"___"),ans:m[1].split("|").map(s=>s.trim()).filter(Boolean)});return}
+    errs.push(`Block ${bi+1}: question type not recognised ("${lines[0].slice(0,40)}…")`);
+  });
+  return {out,errs};
+}
+function renderImport(){
+  topRight.innerHTML="";
+  view.innerHTML=`<div class="stack">
+    <h2>Add Questions</h2>
+    <div class="panel small">
+      <div>Leave one empty line between questions. A line like <code># Unit 3</code> labels the questions under it.</div>
+      <pre class="fmt">Multiple choice   * correct answer, - wrong answer
+Fill in the blank  I'm good [at] Maths.   (more answers: [at|in])
+Reorder            >> She / is / my best friend.</pre>
+    </div>
+    <textarea id="src" placeholder="Paste your questions here…" spellcheck="false" aria-label="Questions"></textarea>
+    <div class="row"><button class="btn ghost" id="sampleBtn">Show an example</button><label class="btn ghost" for="fileIn">Open a .txt file</label><input type="file" id="fileIn" accept=".txt,text/plain" hidden></div>
+    <div class="row"><button class="btn main" id="parseBtn">Check questions</button><button class="btn ghost" id="cancelBtn">Back</button></div>
+    <div id="result"></div>
+  </div>`;
+  $("#sampleBtn").onclick=()=>$("#src").value=SAMPLE;
+  $("#fileIn").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>$("#src").value=r.result;r.readAsText(f,"utf-8")};
+  $("#cancelBtn").onclick=()=>renderHome();
+  $("#parseBtn").onclick=()=>{
+    const {out,errs}=parse($("#src").value);
+    const c=t=>out.filter(q=>q.t===t).length;
+    $("#result").innerHTML=`<div class="panel">
+      <div>Found <b>${out.length}</b> questions: ${c("m")} multiple choice, ${c("f")} fill in the blank, ${c("r")} reorder.</div>
+      ${errs.length?`<div class="fb bad small">${errs.map(esc).join("<br>")}</div>`:""}
+      ${out.length?`<div class="row"><button class="btn main" id="saveBtn">Save ${out.length} questions</button></div>`:""}
+    </div>`;
+    if($("#saveBtn"))$("#saveBtn").onclick=()=>{const base=Date.now().toString(36);out.forEach((q,i)=>q.id="M"+base+i);custom=custom.concat(out);store.set("custom",custom);renderHome()};
+  };
+}
+
+$("#homeBtn").onclick=()=>{if(S){$("#endBtn")&&$("#endBtn").click();return}renderHome()};
+renderHome();
+</script>
+
+</body></html>
