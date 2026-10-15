@@ -110,6 +110,9 @@ async function run(browser, scheme) {
   await shot(kid, "c7-ma-gia-dinh-pin");
   for (const k of "4321") await kid.click(`.pad button[data-k="${k}"]`); // PIN cũ chuyển từ máy cũ
   await kid.click(`.pad button[data-k="ok"]`);
+  await kid.waitForSelector("text=Bạn đang dùng mã PIN cũ"); // PIN cũ chuyển từ máy: được mời đổi PIN 6 số
+  await shot(kid, "c9-doi-pin-cu");
+  await kid.goto(BASE + "/#/home");
   await kid.waitForSelector("text=Chào Bông");
   await kid.goto(BASE + "/#/quiz/mau-toan6-ck1"); await wait(kid);
   await kid.click("#qPractice");

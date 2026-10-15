@@ -277,7 +277,9 @@ begin
   new.family_id := (select family_id from profiles where id = new.profile_id);
   if current_setting('app.importing', true) is distinct from 'on' then
     new.at := now(); new.import_key := null;
-    if (select count(*) from results where profile_id = new.profile_id and at > now() - interval '10 minutes') >= 60 then
+    -- khóa theo học sinh để nhiều lệnh ghi cùng lúc không vượt giới hạn
+    perform pg_advisory_xact_lock(hashtextextended(new.profile_id::text, 0));
+    if (select count(*) from results where profile_id = new.profile_id and at > now() - interval '10 minutes' and at <= now()) >= 60 then
       raise exception 'Gửi quá nhiều kết quả trong thời gian ngắn. Đợi vài phút rồi thử lại.';
     end if;
   end if;
@@ -423,10 +425,17 @@ $$;
 
 -- Tra mã gia đình, đếm lần nhập sai theo các khóa p_keys (người gọi, IP) trong cùng một giao dịch có khóa dòng,
 -- nên nhiều yêu cầu cùng lúc cũng chỉ được thử đúng số lần cho phép.
-create function family_by_code(p_code text, p_keys text[], p_max int, p_seconds int, p_window int) returns jsonb
+-- p_maxes[i] là số lần sai cho phép của khóa p_keys[i]. Máy quen của một học sinh trong gia đình (p_device có trong
+-- known_devices) nhập đúng mã thì không bị các khóa này chặn (cả trường học dùng chung một IP vẫn vào được).
+create function family_by_code(p_code text, p_device text, p_keys text[], p_maxes int[], p_seconds int, p_window int) returns jsonb
 language plpgsql security definer set search_path = public, pg_temp as $$
-declare k text; a login_attempts; w int := 0; f families;
+declare k text; a login_attempts; w int := 0; f families; i int;
 begin
+  select * into f from families where join_code = p_code;
+  if f.id is not null and p_device is not null and exists (
+       select 1 from known_devices kd join profiles p on p.id = kd.profile_id where p.family_id = f.id and kd.device = p_device) then
+    return jsonb_build_object('id', f.id, 'name', f.name);
+  end if;
   foreach k in array coalesce(p_keys, '{}') loop
     insert into login_attempts (key) values (k) on conflict (key) do nothing;
     select * into a from login_attempts where key = k for update;
@@ -435,10 +444,9 @@ begin
     end if;
   end loop;
   if w > 0 then return jsonb_build_object('wait', w); end if;
-  select * into f from families where join_code = p_code;
   if f.id is not null then return jsonb_build_object('id', f.id, 'name', f.name); end if;
-  foreach k in array coalesce(p_keys, '{}') loop
-    perform attempt_begin(k, p_max, p_seconds, 2, p_window);
+  for i in 1 .. coalesce(array_length(p_keys, 1), 0) loop
+    perform attempt_begin(p_keys[i], coalesce(p_maxes[i], 10), p_seconds, 2, p_window);
   end loop;
   return jsonb_build_object('miss', true);
 end $$;
@@ -507,7 +515,7 @@ create function child_pin_status() returns table (profile_id uuid, locked boolea
 language sql stable security definer set search_path = public, pg_temp as $$
   select p.id,
     exists (select 1 from login_attempts a where (a.key = 'pin:' || p.id or a.key like 'pin:' || p.id || ':%') and a.hard),
-    coalesce((select sp.pin_hash !~ '^pbkdf2' from student_pins sp where sp.profile_id = p.id), false)
+    coalesce((select not starts_with(sp.pin_hash, 'pbkdf2v2$') from student_pins sp where sp.profile_id = p.id), false)
   from profiles p
   where p.role = 'student' and (is_admin_of(p.family_id) or is_parent_of(p.id))
 $$;
@@ -520,6 +528,7 @@ begin
   if not (is_admin_of(family_of(p_profile)) or is_parent_of(p_profile)) then raise exception 'Không có quyền.'; end if;
   delete from student_sessions where profile_id = p_profile;
   get diagnostics n = row_count;
+  delete from known_devices where profile_id = p_profile;
   return n;
 end $$;
 
@@ -547,6 +556,7 @@ begin
   end loop;
   update families set join_code = code where id = fid;
   delete from student_sessions s using profiles p where p.id = s.profile_id and p.family_id = fid;
+  delete from known_devices d using profiles p where p.id = d.profile_id and p.family_id = fid;
   return code;
 end $$;
 
@@ -582,11 +592,16 @@ language plpgsql security definer set search_path = public, pg_temp as $$
 declare
   fid uuid := current_family_id(); me uuid := current_profile_id(); my_name text;
   u jsonb; pid uuid; ids jsonb := '{}'::jsonb; n_users int := 0; n_res int := 0; invites jsonb := '[]'::jsonb;
-  ev jsonb; bk jsonb; rs jsonb; par text; seen text[];
+  ev jsonb; bk jsonb; rs jsonb; par text; seen text[]; v_at timestamptz; touched uuid[] := '{}';
 begin
   if not is_admin_of(fid) then raise exception 'Chỉ quản trị mới chuyển được dữ liệu.'; end if;
   if jsonb_typeof(p_data->'users') <> 'array' then raise exception 'Dữ liệu không đúng định dạng.'; end if;
-  if p_data->>'from' = 'cloud' then raise exception 'File này là bản sao lưu từ đám mây, dữ liệu đã có trên máy chủ.'; end if;
+  -- Bản sao lưu đám mây (hoặc file có mã dạng mã máy chủ) không được chuyển: dữ liệu đó đã ở trên máy chủ, và mã máy chủ
+  -- không được dùng để gắn vào hồ sơ có sẵn.
+  if p_data->>'from' = 'cloud' or exists (select 1 from jsonb_array_elements(p_data->'users') x
+       where x->>'id' ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$') then
+    raise exception 'File này là bản sao lưu từ đám mây, dữ liệu đã có trên máy chủ.';
+  end if;
   perform set_config('app.importing', 'on', true);
   select name into my_name from profiles where id = me;
 
@@ -596,7 +611,7 @@ begin
     pid := null;
     if u->>'role' = 'admin' and btrim(u->>'name') = my_name then pid := me; end if;
     if pid is null then
-      select id into pid from profiles where family_id = fid and (import_key = u->>'id' or id::text = u->>'id');
+      select id into pid from profiles where family_id = fid and import_key = u->>'id';
     end if;
     if pid is null then
       insert into profiles (family_id, role, name, avatar, grade, class_name, import_key)
@@ -654,15 +669,20 @@ begin
       continue when not (ids ? (rs->>'userId')) or coalesce((rs->>'t')::int, 0) <= 0 or rs->>'source' not in ('module','bank');
       continue when not exists (select 1 from profiles where id = (ids->>(rs->>'userId'))::uuid and role = 'student');
       continue when exists (select 1 from results where id::text = rs->>'id');
+      -- thời điểm cũ: không nhận thời điểm trong tương lai hay sai định dạng
+      v_at := now();
+      if coalesce(rs->>'at', '') ~ '^\d{4}-\d{2}-\d{2}T' then
+        begin v_at := least((rs->>'at')::timestamptz, now()); exception when others then v_at := now(); end;
+      end if;
       insert into results (profile_id, source, ref_id, subject, label, mode, r, t, s, wrong_topics, import_key, at)
         values ((ids->>(rs->>'userId'))::uuid, rs->>'source', left(coalesce(rs->>'refId', ''), 80), left(coalesce(rs->>'subject', ''), 60),
                 left(coalesce(rs->>'label', ''), 120), left(coalesce(rs->>'mode', ''), 20),
                 least(greatest(coalesce((rs->>'r')::int, 0), 0), least((rs->>'t')::int, 1000)), least((rs->>'t')::int, 1000),
                 greatest(coalesce((rs->>'s')::int, 0), 0),
                 case when jsonb_typeof(rs->'wrongTopics') = 'array' then (select array_agg(x) from (select left(x, 100) x from jsonb_array_elements_text(rs->'wrongTopics') x limit 50) w) end,
-                coalesce(rs->>'id', md5(rs::text)), coalesce((rs->>'at')::timestamptz, now()))
+                coalesce(rs->>'id', md5(rs::text)), v_at)
         on conflict (family_id, import_key) do nothing;
-      if found then n_res := n_res + 1; end if;
+      if found then n_res := n_res + 1; touched := touched || (ids->>(rs->>'userId'))::uuid; end if;
     end loop;
   end if;
 
@@ -675,7 +695,7 @@ begin
     update families set name = left(btrim(p_data#>>'{settings,schoolName}'), 80) where id = fid and name = '';
   end if;
 
-  perform trim_results_of(array(select id from profiles where family_id = fid and role = 'student'));
+  perform trim_results_of(touched);
   select coalesce(jsonb_agg(jsonb_build_object('id', id, 'name', name, 'role', role, 'code', invite_code) order by role, name), '[]')
     into invites from profiles where family_id = fid and invite_code is not null;
   return jsonb_build_object('users', n_users, 'results', n_res, 'invites', invites, 'ids', ids);

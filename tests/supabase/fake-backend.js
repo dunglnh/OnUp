@@ -100,9 +100,9 @@ function createBackend() {
       row.id = row.id || nodeCrypto.randomUUID();
       row.family_id = famOf(row.profile_id);
       if (!importing) { row.at = now().toISOString(); row.import_key = null; }
-      if (!(row.t > 0 && row.t <= 1000 && row.r >= 0 && row.r <= row.t)) throw new Fail('new row for relation "results" violates check constraint "results_check"');
-      if (!importing && be.rateLimit && T.results.filter((x) => x.profile_id === row.profile_id && new Date(x.at) > new Date(+now() - 600000)).length >= 60) {
-        throw new Fail("Gửi quá nhiều kết quả trong thời gian ngắn. Đợi vài phút rồi thử lại.");
+      if (!(row.t > 0 && row.t <= 1000 && row.r >= 0 && row.r <= row.t)) throw new Fail('new row for relation "results" violates check constraint "results_check"', "23514");
+      if (!importing && be.rateLimit && T.results.filter((x) => x.profile_id === row.profile_id && new Date(x.at) > new Date(+now() - 600000) && new Date(x.at) <= now()).length >= 60) {
+        throw new Fail("Gửi quá nhiều kết quả trong thời gian ngắn. Đợi vài phút rồi thử lại.", "P0001");
       }
       if (!["module", "bank"].includes(row.source)) throw new Fail("results_source_check");
     }
@@ -157,7 +157,7 @@ function createBackend() {
     if (!T[table]) throw new Fail("relation does not exist");
     if (!service && GRANT[table] === null) throw new Fail("permission denied for table " + table);
     const visible = (r) => service || canSee(table, r, uid);
-    if (q.op !== "select" && be.failWrites > 0) { be.failWrites--; throw new Fail("TypeError: Failed to fetch", ""); }
+    if (q.op !== "select" && be.failWrites > 0) { be.failWrites--; throw new Fail(be.failMsg || "TypeError: Failed to fetch", be.failCode || ""); }
     if (q.op === "select") {
       if (!service && GRANT[table].select && (q.cols === "*" || q.cols.split(",").some((c) => !GRANT[table].select.includes(c.trim())))) throw new Fail("permission denied for table " + table);
       let rows = T[table].filter((r) => visible(r) && match(r, q.filters));
@@ -205,7 +205,7 @@ function createBackend() {
         throw new Fail("Bạn chỉ đổi được hình đại diện. Nhờ bố mẹ sửa tên hoặc lớp nhé.");
       }
       rows.forEach((r) => Object.assign(r, clone(q.patch)));
-      return null;
+      return q.returning ? rows.map((r) => pick(r, q.returning)) : null;
     }
     if (q.op === "delete") {
       const staged = clone(T);
@@ -284,6 +284,7 @@ function createBackend() {
         const f = T.families.find((x) => x.id === m.family_id); f.join_code = code(6);
         const kids = new Set(T.profiles.filter((p) => p.family_id === f.id).map((p) => p.id));
         T.student_sessions = T.student_sessions.filter((x) => !kids.has(x.profile_id));
+        T.known_devices = T.known_devices.filter((x) => !kids.has(x.profile_id));
         return f.join_code;
       }
       case "get_join_code": return m && m.role !== "student" ? T.families.find((x) => x.id === m.family_id).join_code : null;
@@ -298,6 +299,7 @@ function createBackend() {
         if (!p || !(isAdminOf(m, p.family_id) || isParentOf(m, p.id))) throw new Fail("Không có quyền.");
         const n = T.student_sessions.filter((x) => x.profile_id === p.id).length;
         T.student_sessions = T.student_sessions.filter((x) => x.profile_id !== p.id);
+        T.known_devices = T.known_devices.filter((x) => x.profile_id !== p.id);
         return n;
       }
       case "add_child": {
@@ -316,11 +318,12 @@ function createBackend() {
       case "attempt_reset_profile": serviceOnly(); T.login_attempts = T.login_attempts.filter((x) => x.key !== "pin:" + a.p_profile && !x.key.startsWith("pin:" + a.p_profile + ":")); return null;
       case "family_by_code": {
         serviceOnly();
+        const f = T.families.find((x) => x.join_code === a.p_code);
+        if (f && a.p_device && T.known_devices.some((d) => d.device === a.p_device && famOf(d.profile_id) === f.id)) return { id: f.id, name: f.name };
         const w = Math.max(0, ...(a.p_keys || []).map((k) => waitOf(row(k))));
         if (w) return { wait: w };
-        const f = T.families.find((x) => x.join_code === a.p_code);
         if (f) return { id: f.id, name: f.name };
-        (a.p_keys || []).forEach((k) => attemptBegin(k, a.p_max, a.p_seconds, 2, a.p_window));
+        (a.p_keys || []).forEach((k, i) => attemptBegin(k, (a.p_maxes || [])[i] || 10, a.p_seconds, 2, a.p_window));
         return { miss: true };
       }
       default: throw new Fail("function " + name + " does not exist");
@@ -329,13 +332,14 @@ function createBackend() {
   function importLocal(d, m) {
     if (!m || m.role !== "admin") throw new Fail("Chỉ quản trị mới chuyển được dữ liệu.");
     if (!d || !Array.isArray(d.users)) throw new Fail("Dữ liệu không đúng định dạng.");
-    if (d.from === "cloud") throw new Fail("File này là bản sao lưu từ đám mây, dữ liệu đã có trên máy chủ.");
+    if (d.from === "cloud" || d.users.some((u) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(u.id))))
+      throw new Fail("File này là bản sao lưu từ đám mây, dữ liệu đã có trên máy chủ.");
     const fid = m.family_id, ids = {};
-    let nUsers = 0, nRes = 0;
+    let nUsers = 0, nRes = 0; const touched = [];
     d.users.forEach((u) => {
       if (!["admin", "parent", "student"].includes(u.role) || !String(u.name || "").trim()) return;
       if (u.role === "student" && ![4, 6].includes(+u.grade)) return;
-      let p = u.role === "admin" && String(u.name).trim() === m.name ? m : T.profiles.find((x) => x.family_id === fid && (x.import_key === u.id || x.id === u.id));
+      let p = u.role === "admin" && String(u.name).trim() === m.name ? m : T.profiles.find((x) => x.family_id === fid && x.import_key === u.id);
       if (!p) {
         p = { family_id: fid, role: u.role, name: u.name, avatar: u.avatar || "🙂", grade: u.role === "student" ? +u.grade : null, class_name: u.role === "student" ? u.className || "" : "", import_key: u.id };
         beforeInsert("profiles", p); T.profiles.push(p); nUsers++;
@@ -370,10 +374,11 @@ function createBackend() {
       if (T.results.some((x) => (x.family_id === fid && x.import_key === key) || x.id === r.id)) return;
       const t = Math.min(+r.t, 1000);
       const row = { id: nodeCrypto.randomUUID(), profile_id: pid, source: r.source, ref_id: r.refId || "", subject: r.subject || "", label: r.label || "", mode: r.mode || "",
-        r: Math.min(Math.max(+r.r || 0, 0), t), t, s: Math.max(+r.s || 0, 0), wrong_topics: r.wrongTopics || null, import_key: key, at: r.at || now().toISOString() };
-      beforeInsert("results", row, true, true); T.results.push(row); nRes++;
+        r: Math.min(Math.max(+r.r || 0, 0), t), t, s: Math.max(+r.s || 0, 0), wrong_topics: r.wrongTopics || null, import_key: key,
+        at: /^\d{4}-\d{2}-\d{2}T/.test(r.at || "") && !isNaN(new Date(r.at)) ? new Date(Math.min(+new Date(r.at), +now())).toISOString() : now().toISOString() };
+      beforeInsert("results", row, true, true); T.results.push(row); nRes++; touched.push(pid);
     });
-    trimResults(T.profiles.filter((p) => p.family_id === fid).map((p) => p.id));
+    trimResults(touched);
     const f = T.families.find((x) => x.id === fid);
     if (Array.isArray(d.seedBanksSeen)) f.seed_banks_seen = Array.from(new Set(f.seed_banks_seen.concat(d.seedBanksSeen)));
     if (!f.name && d.settings && d.settings.schoolName) f.name = d.settings.schoolName;

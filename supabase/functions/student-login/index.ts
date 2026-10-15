@@ -147,9 +147,15 @@ export function createHandler(deps: Deps) {
   /* Địa chỉ IP do proxy Cloudflare của Supabase đặt (người gửi không tự đặt được). Không có thì bỏ qua bộ đếm IP.
      Lưu dạng băm (không giữ IP gốc); IPv6 gộp theo /64. */
   async function ipKey(req: Request): Promise<string | null> {
-    let ip = (req.headers.get("cf-connecting-ip") || "").trim();
+    let ip = (req.headers.get("cf-connecting-ip") || "").trim().toLowerCase();
     if (!ip) return null;
-    if (ip.includes(":")) ip = ip.split(":").slice(0, 4).join(":");
+    if (ip.includes(":")) {
+      // IPv6: viết đủ 8 nhóm rồi lấy 4 nhóm đầu (/64)
+      const [head, tail = ""] = ip.split("::");
+      const h = head ? head.split(":") : [], t = ip.includes("::") && tail ? tail.split(":") : [];
+      const full = ip.includes("::") ? h.concat(Array(Math.max(8 - h.length - t.length, 0)).fill("0"), t) : h;
+      ip = full.slice(0, 4).map((g) => (parseInt(g, 16) || 0).toString(16)).join(":");
+    }
     const d = new Uint8Array(await crypto.subtle.digest("SHA-256", enc.encode(ip + "|" + pepper)));
     return "ip:" + hex(d).slice(0, 32);
   }
@@ -159,20 +165,27 @@ export function createHandler(deps: Deps) {
     if (!/^[A-Za-z0-9_-]{16,64}$/.test(d)) return null;
     return hex(new Uint8Array(await crypto.subtle.digest("SHA-256", enc.encode(d + "|" + pepper)))).slice(0, 32);
   }
-  async function familyByCode(code: string, keys: string[]) {
-    if (code.length < 6) return { miss: true };
-    return await rpc("family_by_code", { p_code: code, p_keys: keys, p_max: 10, p_seconds: 30, p_window: 600 });
+  /* Tra mã gia đình. Đếm lần nhập sai theo người gọi (10 lần) và theo IP (50 lần) trong 10 phút; máy quen của
+     học sinh trong gia đình nhập đúng mã thì không bị chặn. */
+  async function familyByCode(code: string, uid: string, ip: string | null, dev: string | null) {
+    const keys = ["codeu:" + uid].concat(ip ? [ip] : []), maxes = [10].concat(ip ? [50] : []);
+    if (code.length < 6) {
+      for (let i = 0; i < keys.length; i++) await begin(keys[i], [maxes[i], 30, 2, 600, null, null]);
+      return { miss: true };
+    }
+    return await rpc("family_by_code", { p_code: code, p_device: dev, p_keys: keys, p_maxes: maxes, p_seconds: 30, p_window: 600 });
   }
 
-  /* Thử PIN của một học sinh. Đếm trước khi kiểm tra (nhiều yêu cầu cùng lúc cũng không vượt giới hạn) theo
-     người gọi, gia đình và hồ sơ (máy quen của con có bộ đếm riêng). */
-  async function tryPin(id: string, fid: string, uid: string, pin: string, dev: string | null): Promise<{ ok: boolean; wait?: number; reset?: boolean; weak?: boolean }> {
+  /* Thử PIN của một học sinh. Đếm trước khi kiểm tra (nhiều yêu cầu cùng lúc cũng không vượt giới hạn).
+     - Máy quen của con: chỉ bộ đếm của chính máy đó (và của người gọi), nên người lạ thử sai không chặn được con.
+     - Máy lạ đăng nhập: thêm bộ đếm của gia đình và bộ đếm chung của hồ sơ.
+     - Học sinh đã đăng nhập tự kiểm tra/đổi PIN (self): không tính vào bộ đếm của gia đình. */
+  async function tryPin(id: string, fid: string, uid: string, pin: string, dev: string | null, self = false): Promise<{ ok: boolean; wait?: number; reset?: boolean; weak?: boolean }> {
     const known = dev ? await one(db.from("known_devices").select("profile_id").eq("profile_id", id).eq("device", dev)) : null;
-    const buckets: [string, (number | null)[], boolean][] = [
-      ["pinu:" + uid, CALLER_LIMIT, false],
-      ["fam:" + fid, FAMILY_LIMIT, false],
-      [known ? `pin:${id}:${dev}` : `pin:${id}`, PIN_LIMIT, true],
-    ];
+    const buckets: [string, (number | null)[], boolean][] = known
+      ? [["pinu:" + uid, CALLER_LIMIT, false], [`pin:${id}:${dev}`, PIN_LIMIT, true]]
+      : self ? [["pinu:" + uid, CALLER_LIMIT, false], [`pin:${id}`, PIN_LIMIT, true]]
+      : [["pinu:" + uid, CALLER_LIMIT, false], ["fam:" + fid, FAMILY_LIMIT, false], [`pin:${id}`, PIN_LIMIT, true]];
     const counted: string[] = [];
     for (const [key, limit] of buckets) {
       const w = await begin(key, limit);
@@ -185,9 +198,16 @@ export function createHandler(deps: Deps) {
     const stored = await pinOf(id);
     if (!PIN_RE.test(pin) || !stored || !(await verifyPin(pin, stored, pepper))) return { ok: false };
     for (const [key, , reset] of buckets) await done(key, reset);
-    if (dev && !known) await run(db.from("known_devices").upsert({ profile_id: id, device: dev }));
+    if (dev && !known && !self) await rememberDevice(id, dev);
     if (!stored.startsWith("pbkdf2v2")) await savePin(id, pin); // đổi dạng băm cũ sang dạng mới
     return { ok: true, weak: !!pinProblem(pin) };
+  }
+  /* Ghi nhận máy quen; mỗi học sinh giữ tối đa 10 máy gần nhất. */
+  async function rememberDevice(id: string, dev: string) {
+    await run(db.from("known_devices").upsert({ profile_id: id, device: dev, created_at: new Date().toISOString() }));
+    const all = await run(db.from("known_devices").select("device, created_at").eq("profile_id", id).order("created_at", { ascending: false }));
+    const old = (all || []).slice(10).map((x: any) => x.device);
+    if (old.length) await run(db.from("known_devices").delete().eq("profile_id", id).in("device", old));
   }
   const tried = (r: { ok: boolean; wait?: number; reset?: boolean }) =>
     r.reset ? { error: "locked", reset: true } : r.wait ? { error: "locked", wait: r.wait } : null;
@@ -216,8 +236,7 @@ export function createHandler(deps: Deps) {
       if (!user) return reply({ error: "auth" }, 401);
 
       if (body.action === "students") {
-        const ip = await ipKey(req);
-        const f = await familyByCode(normCode(body.code), ["codeu:" + user.id].concat(ip ? [ip] : []));
+        const f = await familyByCode(normCode(body.code), user.id, await ipKey(req), dev);
         if (f.wait) return reply({ error: "locked", wait: f.wait });
         if (!f.id) return reply({ error: "code" });
         const data = await run(db.from("profiles").select("id, name, avatar").eq("family_id", f.id).eq("role", "student").order("name"));
@@ -226,9 +245,10 @@ export function createHandler(deps: Deps) {
 
       if (body.action === "login") {
         if (!user.is_anonymous) return reply({ error: "auth" }, 401);
-        const f = await familyByCode(normCode(body.code), ["codeu:" + user.id]);
+        // Mã sai, học sinh không thuộc gia đình, PIN sai: cùng một câu trả lời "wrong".
+        const f = await familyByCode(normCode(body.code), user.id, await ipKey(req), dev);
         if (f.wait) return reply({ error: "locked", wait: f.wait });
-        if (!f.id) return reply({ error: "code" });
+        if (!f.id) return reply({ error: "wrong" });
         const s = await student(String(body.studentId || ""));
         if (!s || s.family_id !== f.id) return reply({ error: "wrong" });
         const r = await tryPin(s.id, s.family_id, user.id, pin, dev);
@@ -243,7 +263,7 @@ export function createHandler(deps: Deps) {
 
       if (body.action === "check_pin") {
         if (me.role !== "student") return reply({ error: "forbidden" }, 403);
-        const r = await tryPin(me.id, me.family_id, user.id, pin, dev);
+        const r = await tryPin(me.id, me.family_id, user.id, pin, dev, true);
         return reply(tried(r) || { ok: r.ok });
       }
 
@@ -255,7 +275,7 @@ export function createHandler(deps: Deps) {
         if (me.role === "student" && me.id === s.id) {
           const p = pinProblem(pin);
           if (p) return reply({ error: p });
-          const r = await tryPin(s.id, s.family_id, user.id, String(body.oldPin ?? ""), dev);
+          const r = await tryPin(s.id, s.family_id, user.id, String(body.oldPin ?? ""), dev, true);
           if (tried(r)) return reply(tried(r));
           if (!r.ok) return reply({ error: "wrong" });
           allowed = self = true;
@@ -269,6 +289,9 @@ export function createHandler(deps: Deps) {
         let del = db.from("student_sessions").delete().eq("profile_id", s.id);
         if (self) del = del.neq("auth_user_id", user.id);
         await run(del);
+        let forget = db.from("known_devices").delete().eq("profile_id", s.id);
+        if (self && dev) forget = forget.neq("device", dev);
+        await run(forget);
         return reply({ ok: true });
       }
 
@@ -281,7 +304,11 @@ export function createHandler(deps: Deps) {
         let wrapped = 0;
         for (const x of todo.slice(0, WRAP_BATCH)) {
           const w = await wrapLegacy(x.pin_hash, pepper, iter);
-          if (w) { await run(db.from("student_pins").update({ pin_hash: w, updated_at: new Date().toISOString() }).eq("profile_id", x.profile_id)); wrapped++; }
+          if (!w) continue;
+          // chỉ ghi nếu PIN chưa bị đổi trong lúc đang bọc (hai lần gọi cùng lúc không ghi đè nhau)
+          const upd = await run(db.from("student_pins").update({ pin_hash: w, updated_at: new Date().toISOString() })
+            .eq("profile_id", x.profile_id).eq("pin_hash", x.pin_hash).select("profile_id"));
+          wrapped += (upd || []).length;
         }
         return reply({ wrapped, left: Math.max(todo.length - WRAP_BATCH, 0) });
       }

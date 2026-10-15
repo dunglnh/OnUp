@@ -131,9 +131,13 @@ insert into login_attempts (key, hard) values ('pin:' || t.id('S2'), true), ('pi
 select attempt_reset_profile(t.id('S2'));
 select t.ok(not exists (select 1 from login_attempts where key like 'pin:' || t.id('S2') || '%'), 'người lớn đặt lại PIN thì mở mọi khóa của con');
 -- tra mã gia đình: đếm lần nhập sai theo người gọi / IP
-select family_by_code('ZZZZZZ', array['codeu:t'], 3, 30, 600), family_by_code('ZZZZZY', array['codeu:t'], 3, 30, 600), family_by_code('ZZZZZX', array['codeu:t'], 3, 30, 600);
-select t.ok((family_by_code((select join_code from families limit 1), array['codeu:t'], 3, 30, 600)->>'wait')::int > 0, 'nhập sai mã gia đình 3 lần thì khóa, mã đúng cũng phải đợi');
-select t.ok((family_by_code((select join_code from families limit 1), array['codeu:t2'], 3, 30, 600)->>'id') is not null, 'người gọi khác tra mã đúng bình thường');
+select family_by_code('ZZZZZZ', null, array['codeu:t', 'ip:t'], array[3, 50], 30, 600), family_by_code('ZZZZZY', null, array['codeu:t', 'ip:t'], array[3, 50], 30, 600),
+       family_by_code('ZZZZZX', null, array['codeu:t', 'ip:t'], array[3, 50], 30, 600);
+select t.ok((family_by_code((select join_code from families limit 1), null, array['codeu:t'], array[3], 30, 600)->>'wait')::int > 0, 'nhập sai mã gia đình 3 lần thì khóa, mã đúng cũng phải đợi');
+select t.ok((family_by_code((select join_code from families limit 1), null, array['codeu:t2', 'ip:t'], array[3, 50], 30, 600)->>'id') is not null, 'cùng IP nhưng người gọi khác: IP chưa tới ngưỡng 50 lần nên vẫn tra được');
+insert into known_devices (profile_id, device) values (t.id('S1'), 'maycuabin0000000000000000');
+select t.ok((family_by_code((select join_code from families f join profiles p on p.family_id = f.id where p.id = t.id('S1')), 'maycuabin0000000000000000', array['codeu:t'], array[3], 30, 600)->>'id') is not null,
+  'máy quen của học sinh trong gia đình nhập đúng mã thì không bị khóa chặn');
 
 -- ---------- học sinh S1 ----------
 select t.login('ANON1');
@@ -156,7 +160,7 @@ select t.blocked($$select * from student_pins$$, 'học sinh đọc bảng PIN')
 select t.blocked($$select * from login_attempts$$, 'học sinh đọc bộ đếm thử sai');
 select t.blocked($$select attempt_done('pin:' || t.id('S2'), true)$$, 'học sinh tự xóa bộ đếm khóa PIN');
 select t.blocked($$select attempt_reset_profile(t.id('S1'))$$, 'học sinh tự mở khóa PIN');
-select t.blocked($$select family_by_code('ABCDEF', '{}', 1000, 0, 0)$$, 'học sinh tra mã gia đình không bị đếm');
+select t.blocked($$select family_by_code('ABCDEF', null, '{}', '{}', 0, 0)$$, 'học sinh tra mã gia đình không bị đếm');
 select t.blocked($$select join_code from families$$, 'học sinh đọc mã gia đình');
 select t.ok(get_join_code() is null, 'get_join_code không trả mã cho học sinh');
 select t.blocked($$update profiles set name = 'Tên mới' where id = t.id('S1')$$, 'học sinh tự đổi tên');
@@ -292,6 +296,14 @@ select t.blocked($$select sign_out_child(t.id('S2'))$$, 'phụ huynh đăng xu�
 select t.ok(get_join_code() ~ '^[A-Z0-9]{6}$', 'phụ huynh đọc mã gia đình qua get_join_code');
 select t.ok(t.n('select * from child_pin_status()') = 2, 'phụ huynh xem tình trạng PIN của các con mình');
 select t.ok(sign_out_child(t.id('S1')) = 1, 'phụ huynh đăng xuất con khỏi mọi máy');
+reset role;
+select t.ok(not exists (select 1 from known_devices where profile_id = t.id('S1')), 'đăng xuất con khỏi mọi máy: quên luôn các máy quen');
+-- PIN cũ đã đăng nhập (đổi sang pbkdf2v2w) vẫn được báo là PIN cũ; PIN mới 6 số (pbkdf2v2) thì không
+insert into student_pins (profile_id, pin_hash) values (t.id('S2'), 'pbkdf2v2w$1$x$y') on conflict (profile_id) do update set pin_hash = excluded.pin_hash;
+update student_pins set pin_hash = 'pbkdf2v2$1$x$y' where profile_id = t.id('S1');
+select t.login('A1');
+select t.ok((select legacy from child_pin_status() where profile_id = t.id('S2')) and not (select legacy from child_pin_status() where profile_id = t.id('S1')),
+  'PIN cũ vẫn được đánh dấu sau khi học sinh đăng nhập lần đầu');
 select t.login('ANON1');
 select t.ok(current_profile_id() is null and t.n('select * from results') = 0, 'máy của con bị đăng xuất mất quyền ngay');
 reset role;
@@ -314,9 +326,21 @@ select t.login('A1');
 select t.blocked($$insert into question_banks (id, family_id, title, grade, questions) select 'q' || i, current_family_id(), 'x', 4, '[]' from generate_series(1, 101) i$$, 'quá 100 ngân hàng đề');
 select t.blocked($$insert into exam_events (id, family_id, title, kind, grades, subjects) values ('big', current_family_id(), 'x', 'moc', '{4}', array(select 'm' || i from generate_series(1, 40) i))$$, 'mảng môn thi quá dài');
 select t.blocked($$select import_local('{"from":"cloud","users":[]}')$$, 'chuyển lại bản sao lưu từ đám mây');
-select t.ok((import_local(jsonb_build_object('users', jsonb_build_array(jsonb_build_object('id', t.id('S1')::text, 'role', 'student', 'name', 'Bin', 'grade', 4))))->>'users')::int = 0,
-  'chuyển dữ liệu có mã trên máy chủ: không tạo hồ sơ trùng');
+-- file "dữ liệu máy cũ" nêu mã máy chủ của phụ huynh và của con nhà khác: bị từ chối, không tạo quan hệ phụ huynh–con
+select t.blocked(format($q$select import_local(%L::jsonb)$q$, jsonb_build_object('users', jsonb_build_array(
+  jsonb_build_object('id', (select id::text from profiles where name = 'Mẹ Bin'), 'role', 'parent', 'name', 'Mẹ Bin'),
+  jsonb_build_object('id', t.id('S2')::text, 'role', 'student', 'name', 'Na', 'grade', 6, 'parentIds', jsonb_build_array((select id::text from profiles where name = 'Mẹ Bin')))),
+  'results', jsonb_build_array(jsonb_build_object('id', 'r-x', 'userId', t.id('S2')::text, 'source', 'bank', 'refId', 'x', 'r', 0, 't', 1, 'at', '2099-01-01T00:00:00Z'))))::text,
+  'chuyển file có mã máy chủ của hồ sơ có sẵn');
 reset role;
+select t.ok(not exists (select 1 from parent_child pc join profiles p on p.id = pc.parent_id where p.name = 'Mẹ Bin' and pc.child_id = t.id('S2')), 'phụ huynh không có thêm quyền với con nhà khác');
+select t.login('A1');
+-- thời điểm trong tương lai hoặc sai dạng: dùng thời điểm hiện tại
+select import_local($j${"users":[{"id":"k-moi","role":"student","name":"Mít","grade":4}],
+  "results":[{"id":"r-tl","userId":"k-moi","source":"bank","refId":"x","r":1,"t":2,"at":"2099-01-01T00:00:00Z"},
+             {"id":"r-sai","userId":"k-moi","source":"bank","refId":"x","r":1,"t":2,"at":"hôm qua"}]}$j$);
+reset role;
+select t.ok((select count(*) from results where import_key in ('r-tl', 'r-sai') and at <= now()) = 2, 'chuyển dữ liệu: không nhận thời điểm tương lai, thời điểm sai dạng không làm hỏng cả lần chuyển');
 
 -- gỡ email khỏi hồ sơ phụ huynh
 select t.login('A1');

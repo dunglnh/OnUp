@@ -192,9 +192,19 @@ ok(be.T.results.length === 1 && K.Store.resultsFor(bin.id).some((x) => x.id === 
 await K.Store.refresh();
 await K.Store.flush();
 ok(be.T.results.length === 2 && be.T.results.some((x) => x.id === res2.id) && !K.localStorage.getItem("ontap_cloud_outbox"), "có mạng lại: kết quả được gửi, không trùng");
+// máy chủ quá tải (503) hoặc quá thời gian: giữ lại, gửi sau
+for (const [code, msg] of [["PGRST000", "Could not connect with the database"], ["57014", "canceling statement due to statement timeout"]]) {
+  be.failWrites = 1; be.failCode = code; be.failMsg = msg;
+  const rr = K.Store.addResult({ userId: bin.id, source: "bank", refId: "mau-toan4-ck1", r: 1, t: 2 });
+  await K.Store.flush();
+  be.failCode = be.failMsg = null;
+  await K.Store.refresh(); await K.Store.flush();
+  ok(be.T.results.some((x) => x.id === rr.id) && !K.localStorage.getItem("ontap_cloud_outbox"), "lỗi tạm thời " + code + ": kết quả được giữ rồi gửi lại");
+}
+const nRes = be.T.results.length, nErr = K.errors.length;
 K.Store.addResult({ userId: na.id, source: "bank", refId: "x", r: 1, t: 1 }); // giả mạo: ghi cho bạn khác
 await K.Store.flush();
-ok(be.T.results.length === 2 && K.errors.length >= 2 && !K.localStorage.getItem("ontap_cloud_outbox"), "ghi kết quả cho người khác bị chặn, báo lỗi, không kẹt trong hộp gửi");
+ok(be.T.results.length === nRes && K.errors.length > nErr && !K.localStorage.getItem("ontap_cloud_outbox"), "ghi kết quả cho người khác bị chặn, báo lỗi, không kẹt trong hộp gửi");
 ok((await K.Store.checkPin(bin.id, "482915")) === true && (await K.Store.checkPin(bin.id, "000000")) === false, "học sinh kiểm tra PIN của mình");
 await throwsMsg(() => K.Store.updateUser(bin.id, { pin: "614073", oldPin: "000000" }), /PIN hiện tại chưa đúng/, "đổi PIN cần PIN cũ đúng");
 await throwsMsg(() => K.Store.updateUser(bin.id, { name: "Tên mới" }), /chỉ đổi được hình đại diện/, "học sinh không tự đổi tên");
@@ -202,7 +212,19 @@ await K.Store.updateUser(bin.id, { pin: "614073", oldPin: "482915", avatar: "�
 ok(be.T.profiles.find((p) => p.id === bin.id).avatar === "🦊" && K.Store.authState() === "ready", "học sinh đổi hình đại diện và PIN, máy đang dùng vẫn đăng nhập");
 
 await P.Store.refresh();
-ok(P.Store.resultsFor(bin.id).length === 2, "phụ huynh thấy kết quả mới của con sau khi tải lại");
+ok(P.Store.resultsFor(bin.id).length === be.T.results.filter((x) => x.profile_id === bin.id).length && P.Store.resultsFor(bin.id).length >= 2, "phụ huynh thấy kết quả mới của con sau khi tải lại");
+
+// phiên học sinh bị thu hồi hoặc hết hạn lúc đang làm bài: giữ kết quả, đăng nhập lại thì gửi
+for (const how of ["thu hồi", "hết hạn"]) {
+  if (how === "thu hồi") await A.Store.signOutChild(bin.id);
+  else be.T.student_sessions.filter((x) => x.profile_id === bin.id).forEach((x) => (x.created_at = new Date(Date.now() + be.clock - 31 * 864e5).toISOString()));
+  const rr = K.Store.addResult({ userId: bin.id, source: "bank", refId: "mau-toan4-ck1", r: 2, t: 2 });
+  await K.Store.flush();
+  ok(K.Store.authState() === "signed-out" && JSON.parse(K.localStorage.getItem("ontap_cloud_outbox") || "{}")[bin.id].length === 1, "phiên bị " + how + ": kết quả giữ trong hộp gửi, mời đăng nhập lại");
+  ok((await K.Store.studentLogin(code, bin.id, "614073")).ok, "đăng nhập lại sau khi phiên bị " + how);
+  await K.Store.flush();
+  ok(be.T.results.some((x) => x.id === rr.id) && !K.localStorage.getItem("ontap_cloud_outbox"), "đăng nhập lại: kết quả được gửi (phiên bị " + how + ")");
+}
 
 // đăng xuất, tab khác, mở lại trình duyệt
 const kAnon = be.T.student_sessions.find((s) => s.profile_id === bin.id).auth_user_id;
@@ -320,13 +342,14 @@ ok(A.Store.settings().schoolName !== "Không lưu được", "sau lỗi, bộ nh
   await KB.Store.init();
   await KB.Store.studentLogin(nc, na.id, "730418");
   be.rateLimit = false;
+  var binBefore = be.T.results.filter((x) => x.profile_id === bin.id).length;
   for (let i = 0; i < 2003; i++) {
     KB.Store.addResult({ userId: na.id, source: "bank", refId: "x", label: "Lần " + i, r: 1, t: 2 });
     if (i % 300 === 299) await KB.Store.flush(); // hộp gửi giữ tối đa 500 kết quả chưa gửi
   }
   ok(KB.Store.resultsFor(na.id).length === 2000, "bộ nhớ đệm giữ tối đa 2000 kết quả mỗi học sinh");
   await KB.Store.flush();
-  ok(be.T.results.filter((x) => x.profile_id === na.id).length === 2000 && be.T.results.filter((x) => x.profile_id === bin.id).length === 3,
+  ok(be.T.results.filter((x) => x.profile_id === na.id).length === 2000 && be.T.results.filter((x) => x.profile_id === bin.id).length === binBefore,
     "máy chủ giữ tối đa 2000 kết quả mỗi học sinh, kết quả của anh chị em còn nguyên");
   be.rateLimit = true;
   for (let i = 0; i < 61; i++) KB.Store.addResult({ userId: na.id, source: "bank", refId: "y", r: 1, t: 2 });
@@ -416,6 +439,24 @@ ok(A.Store.settings().schoolName !== "Không lưu được", "sau lỗi, bộ nh
   await A.Store.updateUser(na.id, { pin: "730592" });
   ok((await call({ action: "login", code: c, studentId: na.id, pin: "730592" }, await anon())).body.ok && A.Store.user(na.id).pinLocked === false, "người lớn đặt lại PIN thì mở khóa");
 
+  // (R3) kẻ lạ làm khóa cả gia đình: máy quen của con vẫn đăng nhập được
+  be.clock += 25 * 3600e3;
+  const KC = browser(); await KC.Store.init();
+  ok((await KC.Store.studentLogin(fam().join_code, cun.id, "590373")).ok, "máy của Cún đăng nhập đúng (thành máy quen)");
+  KC.Store.setSession(null); await KC.Store.flush();
+  let famLocked = false;
+  for (let i = 0; i < 40; i++) {
+    const x = await call({ action: "login", code: fam().join_code, studentId: i % 2 ? bin.id : cun.id, pin: String(500000 + i) }, await anon());
+    if (x.body.error === "locked" && !x.body.reset) famLocked = true;
+  }
+  ok(famLocked, "kẻ lạ dò 30+ lần trong gia đình: bộ đếm gia đình khóa máy lạ");
+  ok((await KC.Store.studentLogin(fam().join_code, cun.id, "590373")).ok, "máy quen của con vẫn đăng nhập được khi cả gia đình đang bị khóa với máy lạ");
+  {
+    const k1 = await anon(), r1 = await call({ action: "login", code: "ZZZZZZ", studentId: cun.id, pin: "590373" }, k1);
+    const r2 = await call({ action: "login", code: fam().join_code, studentId: ti.id, pin: "385920" }, k1);
+    ok(r1.body.error === "wrong" && r2.body.error === "wrong", "đăng nhập: mã sai và học sinh nhà khác trả cùng một câu, không đoán được mã đúng");
+  }
+
   // (d) trần trong ngày: con đăng nhập đúng xen giữa cũng không cho kẻ dò quá 20 lần sai một ngày
   be.clock += 2 * 864e5;
   wrong = 0; hard = null;
@@ -432,8 +473,16 @@ ok(A.Store.settings().schoolName !== "Không lưu được", "sau lỗi, bộ nh
   let last;
   for (let i = 0; i < 11; i++) last = await call({ action: "students", code: "ABCDE" + i }, a3);
   ok(last.body.error === "locked", "dò mã gia đình 10 lần sai: người gọi bị khóa");
-  for (let i = 0; i < 11; i++) last = await call({ action: "students", code: "QWERT" + i }, await anon(), { "cf-connecting-ip": "192.0.2.50" });
-  ok(last.body.error === "locked", "đổi phiên liên tục từ một IP: bị khóa theo IP");
+  for (let i = 0; i < 51; i++) last = await call({ action: "students", code: "QWERT" + (i % 10) + String.fromCharCode(65 + (i % 26)) }, await anon(), { "cf-connecting-ip": "192.0.2.50" });
+  ok(last.body.error === "locked", "đổi phiên liên tục từ một IP: sau 50 lần sai bị khóa theo IP");
+  {
+    // máy quen của học sinh dùng chung IP với kẻ dò (ví dụ Wi-Fi trường) vẫn tra được mã đúng
+    const r2 = await handler(new Request("http://fake/x", { method: "POST", body: JSON.stringify({ action: "students", code: fam().join_code, device: KC.localStorage.getItem("ontap_device") }),
+      headers: { authorization: "Bearer " + (await anon()), "cf-connecting-ip": "192.0.2.50" } }));
+    const j2 = await r2.json();
+    ok((j2.students || []).length > 0, "máy quen dùng chung IP đang bị khóa vẫn tra được mã đúng");
+  }
+  ok(/^ip:[0-9a-f]{32}$/.test(be.T.login_attempts.find((a) => a.key.startsWith("ip:")).key), "IPv6/IPv4 được băm trước khi lưu");
   ok((await call({ action: "students", code: c }, await anon(), { "cf-connecting-ip": "192.0.2.51" })).body.students.length > 0, "IP khác vẫn tra được mã đúng");
   ok(!be.T.login_attempts.some((a) => a.key.includes("192.0.2")), "không lưu IP gốc (chỉ lưu dạng băm)");
 

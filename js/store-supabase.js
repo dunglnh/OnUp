@@ -34,6 +34,7 @@
   const REMEMBER_KEY = "ontap_cloud_remember"; // localStorage: "1" = giữ đăng nhập email trên máy này
   const OUTBOX_KEY = "ontap_cloud_outbox";  // localStorage: kết quả chưa gửi được, theo mã hồ sơ
   const AUTH_KEY = "ontap_sb_auth";
+  const MUST_CHANGE_KEY = "ontap_cloud_must_change"; // sessionStorage: học sinh đang dùng PIN cũ, nên đổi
   const DEVICE_KEY = "ontap_device";        // localStorage: mã ngẫu nhiên của máy này (máy quen của con)
   const MAX_PER_STUDENT = 2000;             // như trigger results_trim trong schema.sql
   const MAX_FETCH = 20000;
@@ -349,6 +350,7 @@
     if (d.error === "auth") { await ensureAnon(true); d = await invoke(body); }
     if (d.error) return { ok: false, message: fnError(d), locked: d.error === "locked" };
     ssSet(KID_FLAG, studentId);
+    if (d.mustChange) ssSet(MUST_CHANGE_KEY, "1"); else ssDel(MUST_CHANGE_KEY);
     lsSet(LAST_KEY, JSON.stringify({ code: String(code).toUpperCase(), id: studentId }));
     await afterAuth((await sb.auth.getSession()).data.session);
     return { ok: state === "ready", mustChange: !!d.mustChange };
@@ -453,6 +455,7 @@
     if (newPin) {
       await setPin(id, patch.pin, id === meId ? patch.oldPin || "" : undefined);
       u.pinLocked = false; u.pinOld = false;
+      if (id === meId) ssDel(MUST_CHANGE_KEY);
     }
     return u;
   }
@@ -587,13 +590,21 @@
           label: r.label, mode: String(r.mode || "").slice(0, 20), r: r.r, t: Math.min(r.t, 1000), s: r.s,
           wrong_topics: r.wrongTopics ? r.wrongTopics.slice(0, 50).map((x) => String(x).slice(0, 100)) : null };
         const res = await sb.from("results").upsert(row, { onConflict: "id", ignoreDuplicates: true });
-        const msg = res && res.error ? String(res.error.message || "") : "";
-        if (res && res.error && (/fetch|network|Load failed|NetworkError|Gửi quá nhiều/i.test(msg) || !res.error.code)) {
+        const err = res && res.error, msg = err ? String(err.message || "") : "", code = err ? String(err.code || "") : "";
+        // Chỉ bỏ kết quả khi máy chủ không bao giờ nhận được (hồ sơ đã xóa, dữ liệu sai dạng). Mọi lỗi khác: giữ lại.
+        if (err && !["23503", "23514", "22P02", "22001"].includes(code)) {
+          if (code === "42501" || /^PGRST3/.test(code)) {
+            // Phiên học sinh bị thu hồi hoặc hết hạn: giữ kết quả, mời đăng nhập lại (đăng nhập xong sẽ tự gửi).
+            state = "signed-out"; db = null; meId = null; ssDel(KID_FLAG);
+            report("Phiên đăng nhập đã hết. Bạn đăng nhập lại để gửi kết quả nhé.");
+            if (typeof Store.onChange === "function") setTimeout(Store.onChange, 0);
+            return;
+          }
           if (!warned) report(/Gửi quá nhiều/.test(msg) ? msg : "Chưa gửi được kết quả lên máy chủ. App sẽ tự gửi lại khi có mạng.");
           warned = true;
           return; // giữ trong hộp, thử lại sau
         }
-        if (res && res.error) report(errMsg(res.error, "Máy chủ không nhận một kết quả làm bài."));
+        if (err) report(errMsg(err, "Máy chủ không nhận một kết quả làm bài."));
         const box = outbox();
         box[pid] = (box[pid] || []).filter((x) => x.id !== r.id);
         saveOutbox(box);
@@ -694,6 +705,7 @@
     authEmail: () => (authUser && authUser.email) || "",
     sendLink, verifyCode, familyStudents, studentLogin, lastFamilyCode: () => lastLogin().code || "",
     rememberLogin: () => lsGet(REMEMBER_KEY) === "1", pinRule: "cloud",
+    studentTab: () => !!(authUser && authUser.is_anonymous), mustChangePin: () => ssGet(MUST_CHANGE_KEY) === "1",
     createFamily, claimInvite, newInvite, newJoinCode, signOutChild, familyCode: () => (db ? db.settings.joinCode : ""),
     localData, migrate, migratedAt: () => lsGet(MIGRATED_KEY),
     onError: null, onChange: null

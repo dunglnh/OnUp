@@ -239,12 +239,14 @@
       busy = true;
       try {
         const r = await Store.studentLogin(code, sel, pin);
+        if (r.ok && r.mustChange) { toast("Bạn hãy đặt mã PIN mới 6 số nhé."); go("#/account"); return; }
         if (r.ok) { go("#/home"); return; }
         box.clear(); pinError(r.message || "Chưa đăng nhập được. Thử lại nhé.");
       } catch (e) { box.clear(); pinError(e.message); } finally { busy = false; }
     }
     $("#codeForm").onsubmit = (e) => { e.preventDefault(); const c = $("#fCode").value.trim().toUpperCase(); if (c) loadKids(c); };
-    if (code) loadKids(code);
+    // Chỉ tự hiện danh sách khi tab này đã có phiên học sinh; tab mới thì chờ bấm "Tiếp" (đỡ tạo phiên thừa).
+    if (code && Store.studentTab()) loadKids(code);
     $("#mailForm").onsubmit = async (e) => {
       e.preventDefault();
       const email = $("#mEmail").value.trim(), btn = $("#mSend");
@@ -525,7 +527,7 @@
           <div class="row"><span class="code" id="dCode">${esc(st.joinCode || "")}</span><button class="btn ghost sm" id="dNewCode">Đổi mã</button></div><div id="dCodeArea"></div></section>
         <section class="panel" id="migBox"><h3>Chuyển dữ liệu máy này lên đám mây</h3>
           ${loc ? `<p class="small">Trình duyệt này còn dữ liệu của bản lưu trên máy: ${n("student")} học sinh, ${n("parent")} phụ huynh, ${(loc.results || []).length} kết quả.${mig ? ` Đã chuyển lần gần nhất: ${esc(ago(mig))}.` : ""}</p>`
-            : `<p class="small">Trình duyệt này không có dữ liệu cũ. Nếu dữ liệu nằm ở máy khác: mở app trên máy đó (bản cũ), vào Quản trị → Dữ liệu → Tải file sao lưu, rồi chọn file đó ở đây.</p>`}
+            : `<p class="small">Trình duyệt này không có dữ liệu cũ. Nếu dữ liệu nằm ở máy khác: mở app trên máy đó, đăng nhập quản trị bằng email rồi bấm nút này ở đó; hoặc chọn file sao lưu đã tải từ bản lưu trên máy.</p>`}
           <p class="small muted">Học sinh giữ mã PIN cũ. Phụ huynh và quản trị khác nhận mã mời để gắn email của họ. Chuyển lại nhiều lần không bị trùng.</p>
           <div class="row"><button class="btn main sm" id="dMigrate" ${loc ? "" : "disabled"}>Chuyển dữ liệu máy này lên đám mây</button><label class="btn ghost sm" for="dMigFile">Chuyển từ file sao lưu</label><input type="file" id="dMigFile" accept=".json,application/json" hidden></div>
           <div id="migRes" aria-live="polite"></div></section>
@@ -569,7 +571,7 @@
 
   function wireCloudData() {
     $("#dNewCode").onclick = () => {
-      $("#dCodeArea").innerHTML = `<div class="confirm"><div>Đổi mã gia đình? Mã cũ sẽ không dùng được nữa. Học sinh đang đăng nhập không bị ảnh hưởng.</div><div class="row"><button class="btn danger sm" id="ncYes">Đổi mã</button><button class="btn ghost sm" id="ncNo">Thôi</button></div></div>`;
+      $("#dCodeArea").innerHTML = `<div class="confirm"><div>Đổi mã gia đình? Mã cũ sẽ không dùng được nữa và mọi máy của học sinh phải đăng nhập lại bằng mã mới.</div><div class="row"><button class="btn danger sm" id="ncYes">Đổi mã</button><button class="btn ghost sm" id="ncNo">Thôi</button></div></div>`;
       $("#ncYes").onclick = async () => { try { $("#dCode").textContent = await Store.newJoinCode(); toast("Đã đổi mã gia đình"); } catch (e) { toast(e.message); } $("#dCodeArea").innerHTML = ""; };
       $("#ncNo").onclick = () => ($("#dCodeArea").innerHTML = "");
     };
@@ -786,6 +788,7 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
     const hasPin = !Store.cloud || u.role === "student"; // bản đám mây: quản trị, phụ huynh dùng email, không có PIN
     view.innerHTML = `<div class="stack">${back("#/home", "Trang chính")}
       <div class="row">${avatar(u, true)}<div><h2>${esc(u.name)}</h2><span class="muted">${esc(gradeTxt(u))}</span></div></div>
+      ${Store.cloud && Store.mustChangePin() ? `<div class="notice">Bạn đang dùng mã PIN cũ. Hãy đặt mã PIN mới gồm 6 chữ số (không dùng số dễ đoán như 111111, 123456).</div>` : ""}
       <form class="panel" id="aForm" autocomplete="off"><h3>${hasPin ? "Đổi hình đại diện hoặc mã PIN" : "Đổi hình đại diện"}</h3>
         ${emojiPicker(emo)}
         ${hasPin ? `<div class="form"><label class="field"><span>Mã PIN hiện tại</span><input id="aOld" type="password" inputmode="numeric" maxlength="6"></label>
