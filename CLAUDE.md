@@ -16,9 +16,11 @@ Người dùng là trẻ 9–12 tuổi và phụ huynh, nên:
 Trang tĩnh, **không có bước build**, chạy được trên GitHub Pages. Không thêm framework hay bundler nếu chưa được yêu cầu.
 
 ```
-index.html              khung app, nạp các file theo thứ tự: data → store → quiz → app
+index.html              khung app, nạp các file theo thứ tự: data → config → store → store-supabase → quiz → app
 css/app.css             toàn bộ giao diện app chính (token màu ở :root, có chế độ tối)
+js/config.js            cấu hình Supabase. ĐỂ TRỐNG (mặc định) = dùng LocalStore, không tải gì từ mạng
 js/store.js             kho dữ liệu (LocalStore, localStorage khóa "ontap_db_v1"). Mọi màn hình chỉ gọi Store.*
+js/store-supabase.js    SupabaseStore: cùng các hàm với LocalStore, chỉ bật khi js/config.js có URL + anon key
 js/app.js               định tuyến hash + tất cả màn hình (đăng nhập, trang chủ theo vai trò, lịch, quản trị)
 js/quiz.js              bộ làm bài chung cho ngân hàng câu hỏi + bộ đọc cú pháp nhập câu hỏi
 js/bridge.js            nạp bên trong mỗi bài ôn: tách dữ liệu theo học sinh, gửi điểm về app
@@ -26,7 +28,10 @@ data/calendar-2026-2027.js  lịch thi mặc định (window.ONTAP_SEED_EVENTS)
 data/modules.js         danh mục bài ôn dạng trang riêng (window.ONTAP_MODULES)
 data/banks.js           ngân hàng câu hỏi mẫu (window.ONTAP_SEED_BANKS)
 modules/<mã>/index.html bài ôn độc lập, mỗi bài là một file HTML tự chứa (từ 4 artifact gốc)
-supabase/schema.sql     lược đồ cơ sở dữ liệu cho giai đoạn 2 (chưa dùng)
+supabase/schema.sql     bảng, chính sách RLS, hàm RPC cho bản đám mây
+supabase/functions/student-login/index.ts  Edge Function: học sinh đăng nhập bằng mã gia đình + PIN, đặt PIN (băm PBKDF2)
+tests/supabase/         kiểm thử bản đám mây: máy chủ giả, RLS trên PostgreSQL, giao diện
+docs/HUONG-DAN-SUPABASE.md  hướng dẫn phụ huynh cài Supabase từng bước
 ```
 
 ### Hai loại nội dung ôn
@@ -56,6 +61,14 @@ Khi thêm trường mới: thêm giá trị mặc định khi đọc dữ liệu
 
 Mã PIN ở chế độ cục bộ chỉ để phân biệt người trong nhà/lớp, **không phải bảo mật thật**. Đừng mô tả nó là an toàn trên giao diện.
 
+### Bản đám mây (SupabaseStore)
+Bật khi `js/config.js` có `supabaseUrl` + `supabaseAnonKey`; khi đó `window.Store` là SupabaseStore (`Store.cloud === true`), LocalStore còn ở `window.LocalStore` để đọc dữ liệu cũ khi chuyển lên. Hướng dẫn cài: `docs/HUONG-DAN-SUPABASE.md`.
+- Giao diện giống hệt LocalStore: hàm đọc đồng bộ (đọc từ bộ nhớ đệm tải lúc đăng nhập), `createUser`/`updateUser`/`checkPin` async. Hàm ghi cập nhật bộ nhớ đệm ngay rồi đẩy lên máy chủ theo hàng đợi; lỗi thì gọi `Store.onError` (app hiện toast) và tải lại dữ liệu thật. **Thêm hàm mới vào Store thì thêm ở cả hai kho**; `tests/supabase/store-test.mjs` so danh sách hàm.
+- Hàm chỉ có ở bản đám mây: `init, refresh, flush, authState ("signed-out"|"no-profile"|"ready"), sendLink, verifyCode, familyStudents, studentLogin, createFamily, claimInvite, newInvite, newJoinCode, familyCode, localData, migrate`.
+- Đăng nhập: quản trị/phụ huynh bằng email (magic link hoặc mã số), gắn vào hồ sơ bằng mã mời; học sinh đăng nhập ẩn danh rồi Edge Function `student-login` kiểm tra mã gia đình + PIN và ghi `student_sessions`. PIN chỉ được băm trong Edge Function, bảng `student_pins` trình duyệt không đọc được.
+- Quyền do RLS trong `supabase/schema.sql` quyết định (anon key là công khai). Đổi bảng hoặc chính sách thì chạy `sh tests/supabase/run.sh` và thêm kiểm tra vào `tests/supabase/rls-test.sql`. Không bao giờ đưa service_role key vào code phía trình duyệt.
+- Ngân hàng có sẵn (data/banks.js) không lưu lên máy chủ; `seed_banks_seen` của family làm việc như `seedBanksSeen`. Tối đa 5000 kết quả mỗi family (trigger).
+
 ## Quy ước code
 - JavaScript thuần, ES2019+, không module/import (để mở được cả bằng file://). Mỗi file bọc trong IIFE, xuất ra `window.<Tên>`.
 - Mọi chuỗi từ người dùng hoặc dữ liệu đi vào HTML phải qua `esc()`.
@@ -77,6 +90,8 @@ Không mở bằng file:// khi thử bài ôn trong khung: một số trình duy
 
 Kiểm thử tự động (bắt buộc trước mỗi Pull Request): `python3 -m http.server 8000 &` rồi `node tests/e2e.js` (cần `npm i -D playwright`). Script phải in `E2E OK`; ảnh chụp ở `tests/screenshots/` để xem giao diện.
 
+Khi sửa `js/store-supabase.js`, `js/app.js` (phần đám mây), `supabase/`: chạy thêm `node tests/supabase/store-test.mjs` (in `SUPABASE STORE OK`), `node tests/supabase/cloud-e2e.js` (in `CLOUD E2E OK`, ảnh 360px sáng/tối ở `tests/screenshots/cloud/`), và nếu máy có PostgreSQL thì `sh tests/supabase/run.sh` (in `RLS OK`).
+
 Ngoài ra chạy tay các luồng: thiết lập lần đầu → tạo phụ huynh, học sinh → đăng nhập học sinh bằng PIN → mở một bài ôn và làm xong một đề → làm một ngân hàng câu hỏi → đăng nhập phụ huynh xem hồ sơ con → quản trị sửa một kì thi. Kiểm tra ở bề rộng 390px và chế độ tối.
 
 ## Triển khai
@@ -85,5 +100,5 @@ GitHub Pages: Settings → Pages → Deploy from a branch → `main` / root. Fil
 ## Việc tiếp theo (theo thứ tự ưu tiên)
 Xem mục 7 của `docs/TINH-NANG.md` và danh sách phiên làm việc trong `docs/KE-HOACH-CREDIT.md`. Tóm tắt:
 1. Bổ sung ngân hàng câu hỏi cho cuối kì I (lớp 4, lớp 6) — kì thi gần nhất sau giữa kì I.
-2. Đồng bộ đám mây bằng Supabase (`supabase/schema.sql`): viết `SupabaseStore` cùng giao diện với `Store`, đăng nhập phụ huynh bằng email, học sinh bằng mã lớp + PIN.
-3. Bài ôn giữa kì II và cuối năm cho cả hai khối.
+2. Bài ôn giữa kì II và cuối năm cho cả hai khối.
+3. Đồng bộ đám mây đã có (Phiên 5). Việc còn lại: phụ huynh tự tạo project theo `docs/HUONG-DAN-SUPABASE.md` và thử trên máy chủ thật.

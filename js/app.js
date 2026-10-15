@@ -134,48 +134,168 @@
   }
 
   /* ================= ĐĂNG NHẬP ================= */
-  const lock = { fails: 0, until: 0 };
-  function renderLogin() {
-    drawWho(null);
-    const groups = [["student", "Học sinh"], ["parent", "Phụ huynh"], ["admin", "Quản trị"]];
-    let sel = Store.user(Store.lastUserId()) ? Store.lastUserId() : null, pin = "";
-    view.innerHTML = `<div class="stack">
-      <div><h1>Xin chào!</h1><p class="muted">${esc(Store.settings().schoolName || "Chọn tên của con hoặc của bố mẹ để vào học.")}</p></div>
-      ${groups.map(([role, name]) => { const us = Store.users(role); return us.length ? `<section class="sec"><div class="label">${name}</div><div class="tiles">${us.map((u) => `<button class="tile" data-u="${u.id}" aria-pressed="${u.id === sel}">${avatar(u, true)}<span class="nm">${esc(u.name)}</span><span class="small muted">${esc(gradeTxt(u))}</span></button>`).join("")}</div></section>` : ""; }).join("")}
-      <section class="panel" id="pinBox" hidden>
+  const pinBoxHTML = () => `<section class="panel" id="pinBox" hidden>
         <div class="row" style="justify-content:center" id="pinWho"></div>
         <div class="pin" id="pinDots" aria-hidden="true"></div>
         <label class="field" style="max-width:300px;margin:0 auto;width:100%"><span>Mã PIN</span><input id="pinIn" type="password" inputmode="numeric" maxlength="6" autocomplete="off"></label>
         <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join("")}<button type="button" data-k="del" aria-label="Xóa">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" aria-label="Vào" style="background:var(--sun);color:var(--sun-ink)">Vào</button></div>
         <div id="pinErr" aria-live="assertive"></div>
-      </section></div>`;
+      </section>`;
+  /* Bàn phím PIN dùng chung cho đăng nhập trên máy và trên đám mây. submit(pin) được gọi khi bấm Vào hoặc đủ 6 số. */
+  function wirePinBox(submit) {
     const inp = $("#pinIn");
-    const dots = () => { $("#pinDots").innerHTML = Array.from({ length: Math.max(4, pin.length) }, (_, i) => `<span class="${i < pin.length ? "on" : ""}"></span>`).join(""); };
-    function pick(id) {
-      sel = id; pin = ""; inp.value = ""; dots(); $("#pinErr").innerHTML = "";
-      $$(".tile").forEach((t) => t.setAttribute("aria-pressed", t.dataset.u === id));
-      const u = Store.user(id); $("#pinWho").innerHTML = `${avatar(u)}<b>${esc(u.name)}</b>`;
-      $("#pinBox").hidden = false; setTimeout(() => inp.focus({ preventScroll: true }), 30);
-      $("#pinBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
-    async function submit() {
-      if (!sel || !pin) return;
-      if (Date.now() < lock.until) { $("#pinErr").innerHTML = `<div class="fb bad">Sai nhiều lần. Đợi ${Math.ceil((lock.until - Date.now()) / 1000)} giây rồi thử lại.</div>`; return; }
-      if (await Store.checkPin(sel, pin)) { lock.fails = 0; Store.setSession(sel); go("#/home"); return; }
-      lock.fails++; if (lock.fails >= 5) { lock.until = Date.now() + 30000; lock.fails = 0; }
-      pin = ""; inp.value = ""; dots(); $("#pinErr").innerHTML = `<div class="fb bad">Mã PIN chưa đúng. Thử lại nhé.</div>`;
-    }
-    $$(".tile").forEach((t) => (t.onclick = () => pick(t.dataset.u)));
+    let pin = "";
+    const set = (v) => { pin = v; inp.value = v; $("#pinDots").innerHTML = Array.from({ length: Math.max(4, pin.length) }, (_, i) => `<span class="${i < pin.length ? "on" : ""}"></span>`).join(""); };
     $$(".pad button").forEach((b) => (b.onclick = () => {
       const k = b.dataset.k;
-      if (k === "del") pin = pin.slice(0, -1); else if (k === "ok") { submit(); return; } else if (pin.length < 6) pin += k;
-      inp.value = pin; dots(); if (pin.length === 6) submit();
+      if (k === "ok") { submit(pin); return; }
+      set(k === "del" ? pin.slice(0, -1) : pin.length < 6 ? pin + k : pin);
+      if (pin.length === 6) submit(pin);
     }));
-    inp.oninput = () => { pin = inp.value.replace(/\D/g, "").slice(0, 6); inp.value = pin; dots(); };
-    inp.onkeydown = (e) => { if (e.key === "Enter") submit(); };
+    inp.oninput = () => set(inp.value.replace(/\D/g, "").slice(0, 6));
+    inp.onkeydown = (e) => { if (e.key === "Enter") submit(pin); };
+    return {
+      clear: () => set(""),
+      show(u) {
+        set(""); $("#pinErr").innerHTML = "";
+        $("#pinWho").innerHTML = `${avatar(u)}<b>${esc(u.name)}</b>`;
+        $("#pinBox").hidden = false; setTimeout(() => inp.focus({ preventScroll: true }), 30);
+        $("#pinBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    };
+  }
+  const pinError = (msg) => { $("#pinErr").innerHTML = `<div class="fb bad">${esc(msg)}</div>`; };
+
+  const lock = { fails: 0, until: 0 };
+  function renderLogin() {
+    drawWho(null);
+    const groups = [["student", "Học sinh"], ["parent", "Phụ huynh"], ["admin", "Quản trị"]];
+    let sel = Store.user(Store.lastUserId()) ? Store.lastUserId() : null;
+    view.innerHTML = `<div class="stack">
+      <div><h1>Xin chào!</h1><p class="muted">${esc(Store.settings().schoolName || "Chọn tên của con hoặc của bố mẹ để vào học.")}</p></div>
+      ${groups.map(([role, name]) => { const us = Store.users(role); return us.length ? `<section class="sec"><div class="label">${name}</div><div class="tiles">${us.map((u) => `<button class="tile" data-u="${u.id}" aria-pressed="${u.id === sel}">${avatar(u, true)}<span class="nm">${esc(u.name)}</span><span class="small muted">${esc(gradeTxt(u))}</span></button>`).join("")}</div></section>` : ""; }).join("")}
+      ${pinBoxHTML()}</div>`;
+    const box = wirePinBox(submit);
+    function pick(id) {
+      sel = id;
+      $$(".tile").forEach((t) => t.setAttribute("aria-pressed", t.dataset.u === id));
+      box.show(Store.user(id));
+    }
+    async function submit(pin) {
+      if (!sel || !pin) return;
+      if (Date.now() < lock.until) { pinError(`Sai nhiều lần. Đợi ${Math.ceil((lock.until - Date.now()) / 1000)} giây rồi thử lại.`); return; }
+      if (await Store.checkPin(sel, pin)) { lock.fails = 0; Store.setSession(sel); go("#/home"); return; }
+      lock.fails++; if (lock.fails >= 5) { lock.until = Date.now() + 30000; lock.fails = 0; }
+      box.clear(); pinError("Mã PIN chưa đúng. Thử lại nhé.");
+    }
+    $$(".tile").forEach((t) => (t.onclick = () => pick(t.dataset.u)));
     if (sel) pick(sel);
     if (!Store.users().length) view.insertAdjacentHTML("afterbegin", `<div class="fb bad">Chưa có tài khoản nào.</div>`);
   }
+
+  /* ================= ĐĂNG NHẬP ĐÁM MÂY (khi js/config.js có Supabase) ================= */
+  const fmtCode = (c) => (c && c.length === 12 ? c.match(/.{4}/g).join("-") : c || "");
+  function renderCloudLogin() {
+    drawWho(null);
+    const err = Store.authError();
+    let code = Store.lastFamilyCode(), sel = null, busy = false;
+    view.innerHTML = `<div class="stack">
+      <div><h1>Xin chào!</h1><p class="muted">Học sinh nhập mã gia đình rồi chọn tên. Bố mẹ, thầy cô đăng nhập bằng email.</p></div>
+      ${err ? `<div class="fb bad">${esc(err)}</div>` : ""}
+      <section class="panel" id="kidBox"><h2>Học sinh</h2>
+        <form class="row" id="codeForm" autocomplete="off" style="align-items:flex-end">
+          <label class="field" style="flex:1;min-width:150px"><span>Mã gia đình</span><input id="fCode" class="code-in" value="${esc(code)}" maxlength="12" autocapitalize="characters" spellcheck="false" placeholder="Ví dụ: K7M2QD"></label>
+          <button class="btn main" type="submit">Tiếp</button></form>
+        <div id="codeErr" aria-live="assertive"></div>
+        <div id="kidList"></div>
+      </section>
+      ${pinBoxHTML()}
+      <section class="panel" id="mailBox"><h2>Bố mẹ, thầy cô</h2>
+        <p class="small">App gửi một đường link vào email của bạn. Bấm vào link là vào app, không cần mật khẩu.</p>
+        <form class="row" id="mailForm" style="align-items:flex-end"><label class="field" style="flex:1;min-width:200px"><span>Email</span><input id="mEmail" type="email" autocomplete="email" inputmode="email" required></label><button class="btn" type="submit" id="mSend">Gửi link đăng nhập</button></form>
+        <div id="mailMsg" aria-live="polite"></div>
+      </section></div>`;
+    const box = wirePinBox(submit);
+    async function loadKids(c) {
+      $("#codeErr").innerHTML = ""; $("#pinBox").hidden = true;
+      $("#kidList").innerHTML = `<p class="muted small">Đang tìm…</p>`;
+      try {
+        const r = await Store.familyStudents(c);
+        code = c;
+        $("#kidList").innerHTML = r.students.length ? `<div class="sec"><div class="label">${esc(r.family || "Chọn tên của con")}</div><div class="tiles">${r.students.map((k) => `<button class="tile" data-u="${esc(k.id)}" aria-pressed="false">${avatar(k, true)}<span class="nm">${esc(k.name)}</span><span class="small muted">Lớp ${esc(k.grade)}${k.className ? " · " + esc(k.className) : ""}</span></button>`).join("")}</div></div>`
+          : `<p class="muted">Gia đình này chưa có tài khoản học sinh.</p>`;
+        $$("#kidList .tile").forEach((t) => (t.onclick = () => {
+          sel = t.dataset.u;
+          $$("#kidList .tile").forEach((x) => x.setAttribute("aria-pressed", x === t));
+          box.show(r.students.find((k) => k.id === sel));
+        }));
+        const last = r.students.find((k) => k.id === Store.lastUserId());
+        if (last) $(`#kidList .tile[data-u="${CSS.escape(last.id)}"]`).click();
+      } catch (e) { $("#kidList").innerHTML = ""; $("#codeErr").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
+    }
+    async function submit(pin) {
+      if (!sel || !pin || busy) return;
+      busy = true;
+      try {
+        const r = await Store.studentLogin(code, sel, pin);
+        if (r.ok) { go("#/home"); return; }
+        box.clear(); pinError(r.message || "Chưa đăng nhập được. Thử lại nhé.");
+      } catch (e) { box.clear(); pinError(e.message); } finally { busy = false; }
+    }
+    $("#codeForm").onsubmit = (e) => { e.preventDefault(); const c = $("#fCode").value.trim().toUpperCase(); if (c) loadKids(c); };
+    if (code) loadKids(code);
+    $("#mailForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const email = $("#mEmail").value.trim(), btn = $("#mSend");
+      btn.disabled = true;
+      try {
+        await Store.sendLink(email);
+        $("#mailMsg").innerHTML = `<div class="fb ok">Đã gửi đến ${esc(email)}. Mở email và bấm vào link đăng nhập. Không thấy thư thì xem mục Spam (Thư rác).</div>
+          <form class="row" id="otpForm" autocomplete="off" style="align-items:flex-end"><label class="field" style="flex:1;min-width:150px"><span>Hoặc nhập mã số trong email</span><input id="mCode" inputmode="numeric" maxlength="10" autocomplete="one-time-code"></label><button class="btn sm" type="submit">Vào</button></form>
+          <div id="otpErr" aria-live="assertive"></div>`;
+        $("#otpForm").onsubmit = async (ev) => {
+          ev.preventDefault();
+          try { await Store.verifyCode(email, $("#mCode").value); go("#/home"); }
+          catch (er) { $("#otpErr").innerHTML = `<div class="fb bad">${esc(er.message)}</div>`; }
+        };
+      } catch (er) { $("#mailMsg").innerHTML = `<div class="fb bad">${esc(er.message)}</div>`; } finally { btn.disabled = false; }
+    };
+  }
+
+  /* Đã đăng nhập email nhưng chưa thuộc gia đình nào: nhập mã mời hoặc tạo gia đình mới. */
+  function renderCloudJoin() {
+    drawWho(null);
+    let emo = "🧭";
+    view.innerHTML = `<div class="stack">
+      <section class="hero"><span class="label">Đã đăng nhập</span><h1>Chào bạn!</h1><p>Email ${esc(Store.authEmail())} chưa thuộc gia đình nào trong app.</p></section>
+      <form class="panel" id="invForm" autocomplete="off"><h2>Tôi có mã mời</h2>
+        <p class="small">Người quản trị (bố mẹ hoặc thầy cô) tạo tài khoản cho bạn trong app và gửi bạn một mã mời 12 kí tự.</p>
+        <div class="row" style="align-items:flex-end"><label class="field" style="flex:1;min-width:180px"><span>Mã mời</span><input id="jInvite" class="code-in" maxlength="20" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX"></label><button class="btn main" type="submit">Vào gia đình</button></div>
+        <div id="jErr" aria-live="assertive"></div></form>
+      <form class="panel" id="setupForm" autocomplete="off"><h2>Tạo gia đình mới</h2>
+        <p class="small">Bạn sẽ là người quản trị: thêm tài khoản học sinh, phụ huynh và chỉnh lịch thi.</p>
+        <div class="form">
+          <label class="field"><span>Tên trường hoặc gia đình (không bắt buộc)</span><input id="sSchool" placeholder="Ví dụ: Lớp 4A Trường Tiểu học Kim Đồng"></label>
+          <label class="field"><span>Tên của bạn</span><input id="sName" placeholder="Ví dụ: Cô Lan, Bố Minh" required maxlength="40"></label>
+          <div class="field full"><span>Hình đại diện</span>${emojiPicker(emo)}</div>
+        </div>
+        <div id="sErr"></div>
+        <div class="row"><button class="btn main" type="submit">Tạo và bắt đầu</button></div></form>
+      <div class="row"><button class="btn ghost" id="jOut">Đăng xuất</button></div></div>`;
+    wireEmoji(view, (e) => (emo = e));
+    $("#invForm").onsubmit = async (ev) => {
+      ev.preventDefault();
+      try { await Store.claimInvite($("#jInvite").value); toast("Đã vào gia đình"); go("#/home"); }
+      catch (e) { $("#jErr").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
+    };
+    $("#setupForm").onsubmit = async (ev) => {
+      ev.preventDefault();
+      try { await Store.createFamily({ schoolName: $("#sSchool").value, name: $("#sName").value, avatar: emo }); toast("Đã tạo gia đình"); go("#/admin/users"); }
+      catch (e) { $("#sErr").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
+    };
+    $("#jOut").onclick = () => { Store.setSession(null); route(); };
+  }
+  const famCodeBox = () => (Store.cloud ? `<section class="panel small"><div class="row between"><span>Mã gia đình để con đăng nhập trên máy khác</span><b class="code sm">${esc(Store.familyCode())}</b></div></section>` : "");
 
   /* ================= TRANG CHỦ ================= */
   function renderHome(u) {
@@ -269,6 +389,7 @@
       <section class="sec"><div class="row between"><h2>Con của tôi</h2><button class="btn sm" id="addKid">+ Thêm con</button></div>
         ${kids.length ? `<div class="list">${kids.map(childCard).join("")}</div>` : `<div class="panel muted">Chưa có tài khoản con. Bấm “Thêm con” để tạo, hoặc nhờ quản trị viên gắn tài khoản của con vào.</div>`}</section>
       ${[4, 6].filter((g) => kids.some((k) => k.grade === g)).map((g) => `<section class="sec"><div class="row between"><h2>Lịch thi lớp ${g}</h2><a class="linkbtn" href="#/calendar">Cả năm →</a></div><div class="timeline">${Store.events(g).filter((e) => status(e) !== "past").slice(0, 4).map((e) => eventRow(e, { grade: g })).join("")}</div></section>`).join("")}
+      ${famCodeBox()}
       <section class="panel small"><b>Gợi ý cho phụ huynh</b><span>Mỗi ngày con làm 1 đề ngắn (20–30 phút) tốt hơn làm dồn cuối tuần. Xem mục “Chủ đề hay sai” trong hồ sơ của con để biết cần ôn lại phần nào.</span></section>
     </div>`;
     $$("[data-child]").forEach((b) => (b.onclick = () => go("#/child/" + b.dataset.child)));
@@ -378,10 +499,11 @@
       const studs = Store.users("student");
       body = `<div class="stats"><div class="stat"><b>${studs.length}</b><span>học sinh</span></div><div class="stat"><b>${Store.users("parent").length}</b><span>phụ huynh</span></div><div class="stat"><b>${within(Store.data().results, 7).length}</b><span>bài làm 7 ngày qua</span></div></div>
         ${!Store.persistent() ? `<div class="fb bad">Trình duyệt đang chặn lưu dữ liệu. Dữ liệu sẽ mất khi tải lại trang.</div>` : ""}
+        ${famCodeBox()}
         <section class="sec"><h2>Học sinh</h2>${studs.length ? `<div class="list">${studs.map(childCard).join("")}</div>` : `<div class="panel">Chưa có học sinh. <div class="row"><a class="btn main" href="#/admin/user/new?role=student">Thêm học sinh</a></div></div>`}</section>
         ${[4, 6].map((g) => { const n = nextEvent(g); return n ? `<section class="sec"><h2>Kì thi tiếp theo · Lớp ${g}</h2><div class="timeline">${eventRow(n, { grade: g })}</div></section>` : ""; }).join("")}`;
     } else if (tab === "users") {
-      const sect = (role, name) => { const us = Store.users(role); return `<section class="sec"><div class="row between"><h2>${name} (${us.length})</h2><a class="btn sm" href="#/admin/user/new?role=${role}">+ Thêm</a></div>${us.length ? `<div class="list">${us.map((x) => `<a class="item" href="#/admin/user/${esc(x.id)}" style="color:inherit;text-decoration:none">${avatar(x)}<span class="grow"><b>${esc(x.name)}</b><span class="small muted">${esc(gradeTxt(x))}${role === "student" ? " · Phụ huynh: " + esc((x.parentIds || []).map((p) => (Store.user(p) || {}).name).filter(Boolean).join(", ") || "chưa gắn") : role === "parent" ? " · Con: " + esc(Store.childrenOf(x.id).map((c) => c.name).join(", ") || "chưa gắn") : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>` : `<div class="panel muted">Chưa có.</div>`}</section>`; };
+      const sect = (role, name) => { const us = Store.users(role); return `<section class="sec"><div class="row between"><h2>${name} (${us.length})</h2><a class="btn sm" href="#/admin/user/new?role=${role}">+ Thêm</a></div>${us.length ? `<div class="list">${us.map((x) => `<a class="item" href="#/admin/user/${esc(x.id)}" style="color:inherit;text-decoration:none">${avatar(x)}<span class="grow"><b>${esc(x.name)}</b><span class="small muted">${esc(gradeTxt(x))}${role === "student" ? " · Phụ huynh: " + esc((x.parentIds || []).map((p) => (Store.user(p) || {}).name).filter(Boolean).join(", ") || "chưa gắn") : role === "parent" ? " · Con: " + esc(Store.childrenOf(x.id).map((c) => c.name).join(", ") || "chưa gắn") : ""}${Store.cloud && role !== "student" ? (x.linked ? " · đã gắn email" : " · chưa gắn email") : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>` : `<div class="panel muted">Chưa có.</div>`}</section>`; };
       body = sect("student", "Học sinh") + sect("parent", "Phụ huynh") + sect("admin", "Quản trị");
     } else if (tab === "events") {
       body = `<div class="row between"><p class="muted small" style="flex:1">Sửa ngày khi trường thông báo, gắn bài ôn vào từng kì thi.</p><a class="btn main sm" href="#/admin/event/new">+ Thêm kì thi</a></div>
@@ -390,6 +512,25 @@
     } else if (tab === "banks") {
       body = `<div class="row between"><p class="muted small" style="flex:1">Dán câu hỏi từ Word, Zalo, sách bài tập. App tự nhận dạng trắc nghiệm, điền khuyết, đúng/sai.</p><a class="btn main sm" href="#/admin/bank/new">+ Nhập ngân hàng</a></div>
         <div class="list">${Store.banks().map((b) => `<a class="item" href="#/${b.seed ? "quiz" : "admin/bank"}/${esc(b.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${esc(b.title)}</b><span class="small muted">Lớp ${b.grade} · ${esc(b.subject)} · ${b.questions.length} câu${b.seed ? " · có sẵn (chỉ xem)" : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>`;
+    } else if (tab === "data" && Store.cloud) {
+      const st = Store.settings(), loc = Store.localData(), mig = Store.migratedAt();
+      const n = (role) => (loc ? loc.users.filter((x) => x.role === role).length : 0);
+      body = `<section class="panel"><h3>Thông tin chung</h3><div class="form">
+          <label class="field"><span>Tên trường hoặc gia đình</span><input id="dSchool" value="${esc(st.schoolName || "")}"></label>
+          <label class="field"><span>Năm học</span><input id="dYear" value="${esc(st.schoolYear || "")}"></label></div>
+          <div class="row"><button class="btn sm" id="dSave">Lưu</button></div></section>
+        <section class="panel"><h3>Mã gia đình</h3><p class="small">Học sinh nhập mã này ở màn hình đăng nhập, chọn tên rồi nhập mã PIN.</p>
+          <div class="row"><span class="code" id="dCode">${esc(st.joinCode || "")}</span><button class="btn ghost sm" id="dNewCode">Đổi mã</button></div><div id="dCodeArea"></div></section>
+        <section class="panel" id="migBox"><h3>Chuyển dữ liệu máy này lên đám mây</h3>
+          ${loc ? `<p class="small">Trình duyệt này còn dữ liệu của bản lưu trên máy: ${n("student")} học sinh, ${n("parent")} phụ huynh, ${(loc.results || []).length} kết quả.${mig ? ` Đã chuyển lần gần nhất: ${esc(ago(mig))}.` : ""}</p>`
+            : `<p class="small">Trình duyệt này không có dữ liệu cũ. Nếu dữ liệu nằm ở máy khác: mở app trên máy đó (bản cũ), vào Quản trị → Dữ liệu → Tải file sao lưu, rồi chọn file đó ở đây.</p>`}
+          <p class="small muted">Học sinh giữ mã PIN cũ. Phụ huynh và quản trị khác nhận mã mời để gắn email của họ. Chuyển lại nhiều lần không bị trùng.</p>
+          <div class="row"><button class="btn main sm" id="dMigrate" ${loc ? "" : "disabled"}>Chuyển dữ liệu máy này lên đám mây</button><label class="btn ghost sm" for="dMigFile">Chuyển từ file sao lưu</label><input type="file" id="dMigFile" accept=".json,application/json" hidden></div>
+          <div id="migRes" aria-live="polite"></div></section>
+        <section class="panel"><h3>Sao lưu</h3><p class="small">Tải bản sao dữ liệu trên đám mây về máy (không chứa mã PIN).</p>
+          <div class="row"><button class="btn sm" id="dExport">Tải file sao lưu</button></div></section>
+        <section class="panel"><h3>Xóa toàn bộ dữ liệu trên đám mây</h3><p class="small">Xóa gia đình này cùng mọi tài khoản, kết quả và lịch đã sửa trên máy chủ. Không hoàn tác được.</p>
+          <div class="row"><button class="btn danger sm" id="dWipe">Xóa toàn bộ…</button></div><div id="wipeArea"></div></section>`;
     } else if (tab === "data") {
       const st = Store.settings();
       body = `<section class="panel"><h3>Thông tin chung</h3><div class="form">
@@ -414,13 +555,42 @@
     if (tab === "data") {
       $("#dSave").onclick = () => { Store.setSettings({ schoolName: $("#dSchool").value.trim(), schoolYear: $("#dYear").value.trim() }); toast("Đã lưu"); };
       $("#dExport").onclick = () => { const d = new Date(); download(`on-thi-sao-luu-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}.json`, Store.exportJSON()); };
-      $("#dImport").onchange = (e) => importFile(e.target.files[0], () => go("#/"));
+      if ($("#dImport")) $("#dImport").onchange = (e) => importFile(e.target.files[0], () => go("#/"));
+      if (Store.cloud) wireCloudData();
       $("#dWipe").onclick = () => {
         $("#wipeArea").innerHTML = `<div class="confirm"><label class="field"><span>Gõ XOA để xác nhận</span><input id="wipeTxt" autocomplete="off"></label><div class="row"><button class="btn danger sm" id="wipeYes">Xóa hết</button><button class="btn ghost sm" id="wipeNo">Thôi</button></div></div>`;
         $("#wipeYes").onclick = () => { if ($("#wipeTxt").value.trim().toUpperCase() !== "XOA") { toast("Gõ đúng chữ XOA"); return; } Store.wipe(); go("#/"); };
         $("#wipeNo").onclick = () => ($("#wipeArea").innerHTML = "");
       };
     }
+  }
+
+  function wireCloudData() {
+    $("#dNewCode").onclick = () => {
+      $("#dCodeArea").innerHTML = `<div class="confirm"><div>Đổi mã gia đình? Mã cũ sẽ không dùng được nữa. Học sinh đang đăng nhập không bị ảnh hưởng.</div><div class="row"><button class="btn danger sm" id="ncYes">Đổi mã</button><button class="btn ghost sm" id="ncNo">Thôi</button></div></div>`;
+      $("#ncYes").onclick = async () => { try { $("#dCode").textContent = await Store.newJoinCode(); toast("Đã đổi mã gia đình"); } catch (e) { toast(e.message); } $("#dCodeArea").innerHTML = ""; };
+      $("#ncNo").onclick = () => ($("#dCodeArea").innerHTML = "");
+    };
+    const doMig = async (data) => {
+      const btn = $("#dMigrate"); btn.disabled = true;
+      $("#migRes").innerHTML = `<p class="muted small">Đang chuyển…</p>`;
+      try {
+        const res = await Store.migrate(data);
+        const inv = res.invites || [];
+        $("#migRes").innerHTML = `<div class="fb ok">Đã chuyển lên đám mây: ${+res.users || 0} tài khoản mới, ${+res.results || 0} kết quả.</div>
+          ${inv.length ? `<div class="stack tight"><b>Mã mời cho phụ huynh, quản trị</b><span class="small">Gửi mỗi người mã của mình. Họ mở app, đăng nhập bằng email rồi nhập mã mời.</span>
+            <div class="list">${inv.map((i) => `<div class="item"><span class="grow"><b>${esc(i.name)}</b><span class="small muted">${esc(Store.ROLES[i.role] || "")}</span></span><span class="code sm">${esc(fmtCode(i.code))}</span></div>`).join("")}</div></div>` : ""}`;
+        toast("Đã chuyển dữ liệu lên đám mây");
+      } catch (e) { $("#migRes").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
+      btn.disabled = !Store.localData();
+    };
+    $("#dMigrate").onclick = () => doMig(Store.localData());
+    $("#dMigFile").onchange = (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      const r = new FileReader();
+      r.onload = () => { let d; try { d = JSON.parse(r.result); } catch (er) { toast("File không đúng định dạng JSON."); return; } doMig(d); };
+      r.readAsText(f, "utf-8"); e.target.value = "";
+    };
   }
 
   /* -------- sửa tài khoản -------- */
@@ -440,7 +610,7 @@
       <h2>${editing ? "Sửa tài khoản" : "Thêm " + Store.ROLES[role].toLowerCase()}</h2>
       <form class="panel" id="uForm" autocomplete="off"><div class="form">
         <label class="field"><span>Tên hiển thị</span><input id="uName" value="${esc(editing ? editing.name : "")}" required maxlength="40" placeholder="${role === "student" ? "Ví dụ: Bin, Minh Anh" : "Ví dụ: Mẹ Bin"}"></label>
-        <label class="field"><span>${editing ? "Mã PIN mới (để trống nếu giữ nguyên)" : "Mã PIN (4–6 chữ số)"}</span><input id="uPin" type="password" inputmode="numeric" maxlength="6" ${editing ? "" : "required"}></label>
+        ${!Store.cloud || role === "student" ? `<label class="field"><span>${editing ? "Mã PIN mới (để trống nếu giữ nguyên)" : "Mã PIN (4–6 chữ số)"}</span><input id="uPin" type="password" inputmode="numeric" maxlength="6" ${editing ? "" : "required"}></label>` : ""}
         ${role === "student" ? `<label class="field"><span>Khối</span><select id="uGrade"><option value="4" ${editing && editing.grade === 4 ? "selected" : ""}>Lớp 4</option><option value="6" ${editing && editing.grade === 6 ? "selected" : ""}>Lớp 6</option></select></label>
           <label class="field"><span>Lớp (không bắt buộc)</span><input id="uClass" value="${esc(editing ? editing.className || "" : "")}" placeholder="Ví dụ: 4A"></label>` : ""}
         <div class="field full"><span>Hình đại diện</span>${emojiPicker(emo)}</div>
@@ -448,11 +618,18 @@
         ${isAdmin && role === "parent" ? `<div class="field full"><span>Con</span>${studs.length ? `<div class="checks">${studs.map((s) => `<label><input type="checkbox" name="kid" value="${esc(s.id)}" ${editing && (s.parentIds || []).includes(editing.id) ? "checked" : ""}>${esc(s.name)} (lớp ${s.grade})</label>`).join("")}</div>` : `<span class="small muted">Chưa có tài khoản học sinh.</span>`}</div>` : ""}
       </div><div id="uErr"></div>
       <div class="row"><button class="btn main" type="submit">${editing ? "Lưu" : "Tạo tài khoản"}</button>${editing && (isAdmin || role === "student") && editing.id !== viewer.id ? `<button class="btn danger" type="button" id="uDel">Xóa tài khoản</button>` : ""}</div>
-      <div id="uDelArea"></div></form></div>`;
+      <div id="uDelArea"></div></form>
+      ${Store.cloud && role !== "student" ? inviteBox(editing, viewer) : ""}</div>`;
     wireGo(); wireEmoji(view, (e) => (emo = e));
+    if ($("#uInv")) $("#uInv").onclick = () => {
+      const make = async () => { try { await Store.newInvite(editing.id); toast("Đã tạo mã mời mới"); renderUserForm(viewer, id, query); } catch (e) { toast(e.message); } };
+      if (!editing.linked) { make(); return; }
+      $("#uInvArea").innerHTML = `<div class="confirm"><div>Gỡ email đang gắn với ${esc(editing.name)}? Người đó sẽ không vào được nữa cho tới khi nhập mã mời mới.</div><div class="row"><button class="btn danger sm" type="button" id="invYes">Gỡ và tạo mã mới</button><button class="btn ghost sm" type="button" id="invNo">Thôi</button></div></div>`;
+      $("#invYes").onclick = make; $("#invNo").onclick = () => ($("#uInvArea").innerHTML = "");
+    };
     $("#uForm").onsubmit = async (ev) => {
       ev.preventDefault();
-      const data = { name: $("#uName").value, pin: $("#uPin").value.trim(), avatar: emo };
+      const data = { name: $("#uName").value, pin: $("#uPin") ? $("#uPin").value.trim() : "", avatar: emo };
       if (role === "student") { data.grade = +$("#uGrade").value; data.className = $("#uClass").value; }
       if (isAdmin && role === "student") data.parentIds = $$("input[name=par]:checked").map((x) => x.value);
       try {
@@ -470,6 +647,7 @@
             if (!kids.has(s.id) && has) await Store.updateUser(s.id, { parentIds: s.parentIds.filter((p) => p !== saved.id) });
           }
         }
+        if (Store.cloud && !editing && role !== "student") { toast("Đã tạo. Gửi mã mời cho " + saved.name); go("#/admin/user/" + saved.id); return; }
         toast(editing ? "Đã lưu" : "Đã tạo tài khoản " + saved.name);
         go(isAdmin ? "#/admin/users" : "#/home");
       } catch (e) { $("#uErr").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
@@ -479,6 +657,16 @@
       $("#dYes").onclick = () => { try { Store.removeUser(editing.id); toast("Đã xóa"); go(isAdmin ? "#/admin/users" : "#/home"); } catch (e) { toast(e.message); } };
       $("#dNo").onclick = () => ($("#uDelArea").innerHTML = "");
     };
+  }
+
+  /* Bản đám mây: quản trị, phụ huynh đăng nhập bằng email của họ, gắn vào hồ sơ bằng mã mời. */
+  function inviteBox(editing, viewer) {
+    if (!editing) return `<p class="small muted">Sau khi tạo, app hiện một mã mời. Người này mở app, đăng nhập bằng email của họ rồi nhập mã mời.</p>`;
+    if (editing.id === viewer.id) return "";
+    return `<section class="panel" id="invBox"><h3>Đăng nhập bằng email</h3>
+      ${editing.linked ? `<p class="small">Tài khoản này đã gắn với email của ${esc(editing.name)}.</p>`
+        : `<p class="small">Gửi mã mời này cho ${esc(editing.name)}. Họ mở app, chọn “Bố mẹ, thầy cô”, đăng nhập bằng email của mình rồi nhập mã.</p><div><span class="code">${esc(fmtCode(editing.inviteCode))}</span></div>`}
+      <div class="row"><button class="btn ghost sm" type="button" id="uInv">${editing.linked ? "Gỡ email, tạo mã mời mới" : "Tạo mã mời khác"}</button></div><div id="uInvArea"></div></section>`;
   }
 
   /* -------- sửa kì thi -------- */
@@ -586,21 +774,23 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
   /* -------- tài khoản của tôi -------- */
   function renderAccount(u) {
     let emo = u.avatar;
+    const hasPin = !Store.cloud || u.role === "student"; // bản đám mây: quản trị, phụ huynh dùng email, không có PIN
     view.innerHTML = `<div class="stack">${back("#/home", "Trang chính")}
       <div class="row">${avatar(u, true)}<div><h2>${esc(u.name)}</h2><span class="muted">${esc(gradeTxt(u))}</span></div></div>
-      <form class="panel" id="aForm" autocomplete="off"><h3>Đổi hình đại diện hoặc mã PIN</h3>
+      <form class="panel" id="aForm" autocomplete="off"><h3>${hasPin ? "Đổi hình đại diện hoặc mã PIN" : "Đổi hình đại diện"}</h3>
         ${emojiPicker(emo)}
-        <div class="form"><label class="field"><span>Mã PIN hiện tại</span><input id="aOld" type="password" inputmode="numeric" maxlength="6"></label>
-        <label class="field"><span>Mã PIN mới</span><input id="aNew" type="password" inputmode="numeric" maxlength="6"></label></div>
+        ${hasPin ? `<div class="form"><label class="field"><span>Mã PIN hiện tại</span><input id="aOld" type="password" inputmode="numeric" maxlength="6"></label>
+        <label class="field"><span>Mã PIN mới</span><input id="aNew" type="password" inputmode="numeric" maxlength="6"></label></div>` : ""}
         <div id="aErr"></div><div class="row"><button class="btn sm" type="submit">Lưu</button></div></form>
+      ${Store.cloud && !hasPin ? `<p class="small muted">Đăng nhập bằng email ${esc(Store.authEmail())}.</p>` : ""}
       <div class="row"><button class="btn main" id="logout">Đăng xuất</button></div></div>`;
     wireGo(); wireEmoji(view, (e) => (emo = e));
     $("#aForm").onsubmit = async (ev) => {
       ev.preventDefault();
-      const nw = $("#aNew").value.trim();
+      const nw = hasPin ? $("#aNew").value.trim() : "", old = hasPin ? $("#aOld").value.trim() : "";
       try {
-        if (nw) { if (!(await Store.checkPin(u.id, $("#aOld").value.trim()))) throw new Error("Mã PIN hiện tại chưa đúng."); }
-        await Store.updateUser(u.id, { avatar: emo, pin: nw || null });
+        if (nw) { if (!(await Store.checkPin(u.id, old))) throw new Error("Mã PIN hiện tại chưa đúng."); }
+        await Store.updateUser(u.id, { avatar: emo, pin: nw || null, oldPin: old });
         toast("Đã lưu"); renderAccount(Store.user(u.id)); drawWho(Store.user(u.id));
       } catch (e) { $("#aErr").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
     };
@@ -611,7 +801,11 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
   function route() {
     if (quizRun) { quizRun.stop(); quizRun = null; }
     const old = $("#evDetail"); if (old) old.remove();
-    if (!Store.isReady() && !Store.load()) { renderSetup(); return; }
+    if (Store.cloud) {
+      const st = Store.authState();
+      if (st === "signed-out") { renderCloudLogin(); return; }
+      if (st === "no-profile") { renderCloudJoin(); return; }
+    } else if (!Store.isReady() && !Store.load()) { renderSetup(); return; }
     const u = Store.sessionUser();
     if (!u) { renderLogin(); return; }
     drawWho(u);
@@ -640,7 +834,27 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
       default: return renderHome(u);
     }
   }
-  window.addEventListener("hashchange", route);
-  Store.load();
-  route();
+  let booted = false;
+  window.addEventListener("hashchange", () => { if (booted) route(); });
+  if (Store.cloud) {
+    // Đang nhập liệu thì không vẽ lại màn hình khi dữ liệu trên máy chủ thay đổi.
+    const calm = () => !/^\/(play|quiz|account)|^\/admin\/(user|event|bank|data)/.test((location.hash || "#/").slice(1));
+    Store.onError = toast;
+    Store.onChange = () => { if (booted && calm()) route(); };
+    view.innerHTML = `<div class="panel muted" role="status">Đang tải dữ liệu…</div>`;
+    Store.init().then(() => { booted = true; route(); }, (e) => {
+      view.innerHTML = `<div class="stack"><div class="fb bad">${esc((e && e.message) || "Không kết nối được máy chủ.")}</div><div class="row"><button class="btn main" id="retry">Tải lại trang</button></div></div>`;
+      $("#retry").onclick = () => location.reload();
+    });
+    let lastRefresh = Date.now();
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState !== "visible" || !booted || Date.now() - lastRefresh < 60000) return;
+      lastRefresh = Date.now();
+      Store.refresh().then((ok) => { if (ok && calm()) route(); }, () => {});
+    });
+  } else {
+    booted = true;
+    Store.load();
+    route();
+  }
 })();
