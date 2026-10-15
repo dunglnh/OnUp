@@ -157,7 +157,7 @@
   }
   const bankById = (id) => banks().find((b) => b.id === id) || null;
   function upsertBank(b) {
-    if ((window.ONTAP_SEED_BANKS || []).some((s) => s.id === b.id)) throw new Error("Không sửa được bộ mẫu. Hãy tạo bộ mới.");
+    if ((window.ONTAP_SEED_BANKS || []).some((s) => s.id === b.id)) throw new Error("Không sửa được bộ có sẵn trong app. Hãy tạo bộ mới.");
     if (!b.title || !b.questions || !b.questions.length) throw new Error("Ngân hàng cần tên và ít nhất một câu hỏi.");
     const clean = { id: b.id || "bk-" + uid(), title: String(b.title).trim(), grade: +b.grade, subject: b.subject || "", minutes: +b.minutes || 0, note: b.note || "", questions: b.questions, src: String(b.src || "").slice(0, 200000) };
     const i = db.banks.findIndex((x) => x.id === clean.id);
