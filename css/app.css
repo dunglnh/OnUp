@@ -76,7 +76,7 @@ a{color:var(--acc)}
 .btn.danger{background:var(--bad-soft);color:var(--bad)}
 .btn.sm{padding:7px 12px;font-size:.875rem;border-radius:10px}
 .btn:disabled{opacity:.45;cursor:default}
-.linkbtn{border:0;background:none;color:var(--acc);font-weight:700;padding:4px 0}
+.linkbtn{border:0;background:none;color:var(--acc);font-weight:700;padding:4px 0;text-align:left;align-self:flex-start}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 11px;font-size:.8rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .chip.warn{border-color:var(--bad);color:var(--bad);font-weight:700}
 .chip.tent{border-style:dashed}
