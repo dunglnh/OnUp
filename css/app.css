@@ -98,7 +98,7 @@ a{color:var(--acc)}
 /* biểu mẫu */
 .field{display:flex;flex-direction:column;gap:4px;min-width:0}
 .field>span{font-size:.85rem;font-weight:600;color:var(--muted)}
-input[type=text],input[type=password],input[type=date],input[type=number],input:not([type]),select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);min-width:0}
+input[type=text],input[type=email],input[type=password],input[type=date],input[type=number],input:not([type]),select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);min-width:0}
 textarea{min-height:200px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--bg)}
 .checks{display:flex;flex-wrap:wrap;gap:8px 16px}
 .checks label{display:flex;gap:6px;align-items:center}
@@ -172,6 +172,10 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .rv b{color:var(--ok)} .rv s{color:var(--bad)}
 .confirm{border:2px solid var(--bad);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;margin-top:8px}
 .notice{background:var(--sun-soft);border-radius:12px;padding:10px 14px;font-size:.9rem}
+.code{display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;font-size:1.35rem;letter-spacing:.12em;background:var(--sun-soft);color:var(--ink);border-radius:10px;padding:6px 12px;overflow-wrap:anywhere}
+.code.sm{font-size:1rem;padding:2px 8px;letter-spacing:.08em}
+.code-in{text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+.code-in::placeholder{text-transform:none;letter-spacing:normal;font-weight:400}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;z-index:50;max-width:calc(100% - 32px)}
 
 /* khung bài ôn */
