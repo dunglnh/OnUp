@@ -26,7 +26,7 @@ js/quiz.js              bộ làm bài chung cho ngân hàng câu hỏi + bộ �
 js/bridge.js            nạp bên trong mỗi bài ôn: tách dữ liệu theo học sinh, gửi điểm về app
 data/calendar-2026-2027.js  lịch thi mặc định (window.ONTAP_SEED_EVENTS)
 data/modules.js         danh mục bài ôn dạng trang riêng (window.ONTAP_MODULES)
-data/banks.js           ngân hàng câu hỏi mẫu (window.ONTAP_SEED_BANKS)
+data/banks.js           ngân hàng câu hỏi có sẵn (window.ONTAP_SEED_BANKS). Bỏ một bộ thì thêm mã vào RETIRED_SEED_BANKS ở cả hai kho
 modules/<mã>/index.html bài ôn độc lập, mỗi bài là một file HTML tự chứa (từ 4 artifact gốc)
 supabase/schema.sql     bảng, chính sách RLS, hàm RPC cho bản đám mây
 supabase/functions/student-login/index.ts  Edge Function: học sinh đăng nhập bằng mã gia đình + PIN, đặt PIN (băm PBKDF2)
@@ -39,7 +39,7 @@ docs/HUONG-DAN-SUPABASE.md  hướng dẫn phụ huynh cài Supabase từng bư�
 2. **Ngân hàng câu hỏi** (`data/banks.js` + do quản trị viên nhập): chạy bằng `js/quiz.js` ngay trong app. Đây là cách thêm đề cho các kì thi mới (cuối kì, giữa kì II…) mà không phải viết trang mới.
 
 ### Hợp đồng giữa bài ôn và app (không được phá)
-Mỗi file `modules/*/index.html` có đúng ba chỗ sửa so với artifact gốc:
+Mỗi file `modules/*/index.html` có ba chỗ nối với app so với artifact gốc (ngoài ra chỉ sửa lời: xưng “bạn” với học sinh):
 - `<script src="../../js/bridge.js"></script>` ngay trước thẻ `<script>` chính.
 - `const PFX=(window.ONTAP_NS||"")+...` — khóa localStorage có tiền tố theo học sinh.
 - Sau dòng lưu lịch sử trong `finish()`: `window.ontapReport&&ontapReport({label,mode,subject,r,t,s})`.

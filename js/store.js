@@ -39,7 +39,7 @@
       db = raw ? JSON.parse(raw) : null;
     } catch (e) { db = null; memoryOnly = true; }
     if (!db || typeof db !== "object" || !Array.isArray(db.users)) db = null;
-    if (db) { dropRetiredEvents(); linkNewSeedBanks(); }
+    if (db) { dropRetiredEvents(); dropRetiredBanks(); linkNewSeedBanks(); }
     return db;
   }
   /* Kì thi từng có trong lịch mặc định nhưng đã bỏ khỏi bản 1.0: xóa khỏi máy đã có dữ liệu (một lần). */
@@ -49,6 +49,18 @@
     const n = db.events.length;
     db.events = db.events.filter((e) => !RETIRED_EVENTS.includes(e.id));
     if (db.events.length !== n) save();
+  }
+  /* Bộ có sẵn đã bỏ khỏi data/banks.js (hai bộ mẫu 12 câu, thay bằng các đề cuối kì I): gỡ khỏi các kì thi trên máy.
+     Kết quả cũ vẫn giữ nguyên trong lịch sử. Giữ danh sách này giống RETIRED_SEED_BANKS ở store-supabase.js. */
+  const RETIRED_SEED_BANKS = ["mau-toan4-ck1", "mau-toan6-ck1"];
+  function dropRetiredBanks() {
+    if (!Array.isArray(db.events)) return;
+    let changed = false;
+    db.events.forEach((e) => {
+      const keep = (e.banks || []).filter((id) => !RETIRED_SEED_BANKS.includes(id));
+      if (keep.length !== (e.banks || []).length) { e.banks = keep; changed = true; }
+    });
+    if (changed) save();
   }
   /* Lịch thi chỉ được chép vào máy một lần khi thiết lập. Khi data/banks.js có bộ mới và lịch mặc định
      gắn bộ đó vào một kì thi, gắn thêm vào kì thi đó trên máy đã có dữ liệu. Bộ đã xét thì không gắn lại,

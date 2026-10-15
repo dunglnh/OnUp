@@ -65,9 +65,9 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   await page.waitForTimeout(200);
 
   step("quiz bank practice");
-  await page.goto(BASE + "/#/quiz/mau-toan4-ck1"); await page.waitForTimeout(200);
+  await page.goto(BASE + "/#/quiz/toan4-ck1-de1"); await page.waitForTimeout(200);
   await page.click("#qPractice");
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 40 && !(await page.$(".score")); i++) {
     if (await page.$("#qzFill")) await page.fill("#qzFill", "400"); else await page.click(".opt >> nth=0");
     await page.click("#qzGo"); // check
     if (i === 3) await shot("07-quiz-feedback");

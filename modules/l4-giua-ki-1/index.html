@@ -638,7 +638,7 @@ function renderQ(){
   $("#skipBtn").onclick=()=>{record(q,null);next()};
   $("#goBtn").onclick=()=>{
     if(S.checked){next();return}
-    if(S.cur==null||S.cur===""){$("#fb").innerHTML=`<div class="fb bad">Con hãy trả lời trước, hoặc bấm Bỏ qua.</div>`;return}
+    if(S.cur==null||S.cur===""){$("#fb").innerHTML=`<div class="fb bad">Bạn hãy trả lời trước, hoặc bấm Bỏ qua.</div>`;return}
     const ok=record(q,S.cur);
     if(S.mode==="exam"){next();return}
     S.checked=true;
@@ -672,7 +672,7 @@ function finish(){
   hist.unshift({d:new Date().toISOString(),sid:S.sid,l:S.label,r:right,t:total,s:Math.round(secs)});hist=hist.slice(0,30);store.set("hist",hist);
   window.ontapReport&&ontapReport({label:S.label,mode:S.mode,subject:S.sid,r:right,t:total,s:Math.round(secs)});
   const pct=total?right/total:0;
-  const msg=pct>=.9?"Xuất sắc! Con đã nắm rất chắc phần này.":pct>=.75?"Tốt lắm! Xem lại các câu sai để chắc chắn hơn.":pct>=.5?"Khá ổn. Con đọc lại phần ghi nhớ của các bài còn yếu rồi luyện lại nhé.":"Cố lên! Con ôn lại từng bài trong mục Ôn theo bài rồi làm lại.";
+  const msg=pct>=.9?"Xuất sắc! Bạn đã nắm rất chắc phần này.":pct>=.75?"Tốt lắm! Xem lại các câu sai để chắc chắn hơn.":pct>=.5?"Khá ổn. Bạn đọc lại phần ghi nhớ của các bài còn yếu rồi luyện lại nhé.":"Cố lên! Bạn ôn lại từng bài trong mục Ôn theo bài rồi làm lại.";
   const by={};done.forEach(a=>{by[a.q.l]=by[a.q.l]||[0,0];by[a.q.l][1]++;if(a.ok)by[a.q.l][0]++});
   const order=s.lessons.map(l=>l.id).filter(id=>by[id]);
   const wrong=done.filter(a=>!a.ok), test=S.test, lesson=S.lesson, sid=S.sid;
@@ -685,7 +685,7 @@ function finish(){
       <div>${msg}</div>
     </section>
     ${order.length>1?`<section class="panel"><div class="label">Theo bài</div><div class="ubreak">${order.map(id=>{const [r,t]=by[id];return `<span>${esc(s.L[id].short)}</span><div class="bar"><i style="width:${r/t*100}%"></i></div><span>${r}/${t}</span>`}).join("")}</div></section>`:""}
-    ${wrong.length?`<section class="panel"><div class="label">Câu cần xem lại (${wrong.length})</div><div class="review">${wrong.map(a=>`<div class="rv">${a.q.ptitle?`<div class="small muted">Văn bản: ${esc(a.q.ptitle)}</div>`:""}<div>${a.q.q.replace("___","…")}</div><div class="ans">Con trả lời: <s>${a.q.kind==="mc"&&a.g!=null?a.q.o[a.g]:esc(givenText(a.q,a.g))}</s> · Đáp án: <b>${a.q.kind==="mc"?a.q.o[a.q.a]:esc(showAns(a.q))}</b></div>${a.q.x?`<div class="expl">${a.q.x}</div>`:""}</div>`).join("")}</div></section>`:""}
+    ${wrong.length?`<section class="panel"><div class="label">Câu cần xem lại (${wrong.length})</div><div class="review">${wrong.map(a=>`<div class="rv">${a.q.ptitle?`<div class="small muted">Văn bản: ${esc(a.q.ptitle)}</div>`:""}<div>${a.q.q.replace("___","…")}</div><div class="ans">Bạn trả lời: <s>${a.q.kind==="mc"&&a.g!=null?a.q.o[a.g]:esc(givenText(a.q,a.g))}</s> · Đáp án: <b>${a.q.kind==="mc"?a.q.o[a.q.a]:esc(showAns(a.q))}</b></div>${a.q.x?`<div class="expl">${a.q.x}</div>`:""}</div>`).join("")}</div></section>`:""}
     <div class="row" id="resBtns"></div>
   </div>`;
   const btns=$("#resBtns"), add=(cls,txt,fn)=>{const b=document.createElement("button");b.className="btn "+cls;b.textContent=txt;b.onclick=fn;btns.append(b)};
@@ -721,10 +721,10 @@ function renderHome(){
       <div class="tests">${[...Array(T.count).keys()].map(k=>{const r=res[rkey(cur,sc,k)];const cls=r?(r.b/r.t>=.8?"good":"fair"):"";
         return `<button class="tb ${cls}${k===nk?" next":""}" data-k="${k}" aria-label="Đề ${k+1}${r?", điểm cao nhất "+diem10(r.b,r.t):""}"><b>Đề ${k+1}</b><small>${r?diem10(r.b,r.t)+"đ":"–"}</small></button>`}).join("")}</div>
     </section>
-    ${s.writing&&s.writing.length?`<section class="sec"><h2>Luyện viết</h2><p class="muted small">Phần viết không chấm tự động. Con đọc đề, xem gợi ý dàn ý, viết bài rồi tự kiểm tra theo danh sách.</p>
+    ${s.writing&&s.writing.length?`<section class="sec"><h2>Luyện viết</h2><p class="muted small">Phần viết không chấm tự động. Bạn đọc đề, xem gợi ý dàn ý, viết bài rồi tự kiểm tra theo danh sách.</p>
       <div class="wlist">${s.writing.map((x,i)=>`<button class="wrow" data-w="${i}"><b>${esc(x.title)}</b><span class="small muted">${esc(x.prompt)}</span></button>`).join("")}</div></section>`:""}
     <section class="sec"><h2>Ôn câu sai</h2>
-      <div class="panel"><div>${w.size?`Có <b>${w.size}</b> câu con từng làm sai ở môn ${esc(s.name)}. Làm đúng khi ôn thì câu đó được bỏ khỏi danh sách.`:"Chưa có câu sai nào ở môn này."}</div>
+      <div class="panel"><div>${w.size?`Có <b>${w.size}</b> câu bạn từng làm sai ở môn ${esc(s.name)}. Làm đúng khi ôn thì câu đó được bỏ khỏi danh sách.`:"Chưa có câu sai nào ở môn này."}</div>
       ${w.size?`<div class="row"><button class="btn" id="wrongBtn">Ôn ${w.size} câu sai</button></div>`:""}</div>
     </section>
     <section class="sec"><h2>Lịch sử làm bài</h2>
@@ -750,7 +750,7 @@ function renderLesson(sid,l){
     <h2>${esc(L.short)}. ${esc(L.name)}</h2>
     <section class="panel notes"><h3>Ghi nhớ</h3><ul>${L.notes.map(n=>`<li>${n}</li>`).join("")}</ul></section>
     <div class="row"><button class="btn main" id="goBtn">Luyện tập ${L.count} câu</button>${r?`<span class="muted small">Lần trước: ${r.r}/${r.t} câu đúng</span>`:""}</div>
-    ${L.hasGen?`<p class="muted small" style="margin:0">Các câu tính toán đổi số liệu mỗi lần làm, nên con có thể luyện lại nhiều lần.</p>`:""}
+    ${L.hasGen?`<p class="muted small" style="margin:0">Các câu tính toán đổi số liệu mỗi lần làm, nên bạn có thể luyện lại nhiều lần.</p>`:""}
   </div>`;
   $("#backBtn").onclick=()=>renderHome();
   $("#goBtn").onclick=()=>startLesson(sid,l);
@@ -765,8 +765,8 @@ function renderWriting(sid,i){
     <h2>${esc(W.title)}</h2>
     <section class="panel"><div class="label">Đề bài</div><div>${esc(W.prompt)}</div></section>
     <section class="panel"><details class="outline"><summary>Gợi ý dàn ý</summary><ol>${W.outline.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></details></section>
-    <section class="panel"><div class="label">Bài viết của con</div>
-      <textarea id="draft" aria-label="Bài viết" placeholder="Con viết bài vào đây. Bài được lưu tự động trên máy này.">${esc(draft)}</textarea>
+    <section class="panel"><div class="label">Bài viết của bạn</div>
+      <textarea id="draft" aria-label="Bài viết" placeholder="Bạn viết bài vào đây. Bài được lưu tự động trên máy này.">${esc(draft)}</textarea>
       <div class="muted small" id="wc"></div></section>
     <section class="panel"><div class="label">Tự kiểm tra</div>${W.checklist.map((c,j)=>`<label class="check"><input type="checkbox" id="ck${j}" data-j="${j}" ${ck.includes(j)?"checked":""}><span>${esc(c)}</span></label>`).join("")}</section>
   </div>`;
