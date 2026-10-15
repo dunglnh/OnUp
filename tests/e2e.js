@@ -97,8 +97,64 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   console.log("results:", db.results.map((r) => [r.source, r.refId, r.subject, r.r, r.t, r.userId === db.users.find(u=>u.name==="Bin").id]));
   console.log("banks:", db.banks.map((b) => [b.title, b.questions.length, b.src.length > 0]));
   console.log("keys:", await page.evaluate(() => Object.keys(localStorage)));
+
+  step("seed links");
+  const seedFails = [];
+  const check = (ok, msg) => { if (!ok) seedFails.push(msg); };
+  const readDb = () => page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")));
+  const evOf = (d, id) => d.events.find((x) => x.id === id);
+  const hasLinks = (d, keys) => Array.isArray(d.seedLinks) && keys.every((k) => d.seedLinks.includes(k));
+  const reload = async () => { await page.reload(); await page.waitForTimeout(300); };
+  const seedKeys = await page.evaluate(() => window.ONTAP_SEED_EVENTS.flatMap((e) =>
+    (e.banks || []).map((x) => e.id + ":bank:" + x).concat((e.modules || []).map((x) => e.id + ":module:" + x))));
+  const seed4 = await page.evaluate(() => window.ONTAP_SEED_EVENTS.find((e) => e.id === "ck1-l4"));
+  const bk = seed4.banks[0], mod = seed4.modules[0], bkKey = "ck1-l4:bank:" + bk, modKey = "ck1-l4:module:" + mod;
+  const bkTitle = await page.evaluate((id) => Store.bank(id).title, bk);
+  let d = await readDb();
+  check(hasLinks(d, seedKeys), "setup chưa ghi đủ seedLinks");
+  // Máy có dữ liệu cũ, chưa nhận liên kết mới của ck1-l4; quản trị viên đã sửa tên và ngày.
+  await page.evaluate(([bk, mod, bkKey, modKey]) => {
+    const d = JSON.parse(localStorage.getItem("ontap_db_v1"));
+    const e = d.events.find((x) => x.id === "ck1-l4");
+    e.banks = e.banks.filter((x) => x !== bk); e.modules = e.modules.filter((x) => x !== mod);
+    e.title = "Cuối kì I (trường sửa)"; e.start = "2027-01-04";
+    d.seedLinks = (d.seedLinks || []).filter((k) => k !== bkKey && k !== modKey);
+    localStorage.setItem("ontap_db_v1", JSON.stringify(d));
+  }, [bk, mod, bkKey, modKey]);
+  await reload();
+  d = await readDb(); let ev = evOf(d, "ck1-l4");
+  check(ev.banks.includes(bk) && ev.modules.includes(mod), "tải lại chưa thêm liên kết mới vào ck1-l4");
+  check(ev.title === "Cuối kì I (trường sửa)" && ev.start === "2027-01-04", "tải lại đã ghi đè tên/ngày quản trị viên sửa");
+  check(hasLinks(d, [bkKey, modKey]), "chưa ghi liên kết vừa thêm vào seedLinks");
+  await page.goto(BASE + "/#/calendar"); await page.waitForTimeout(300);
+  await page.click("[data-ev='ck1-l4']"); await page.waitForTimeout(300);
+  check((await page.textContent("#evDetail")).includes(bkTitle), "trang kì thi chưa hiện ngân hàng mới");
+  await shot("15-seed-link");
+  // Quản trị viên bỏ ngân hàng: tải lại không được thêm lại.
+  await page.evaluate((bk) => { const e = Store.event("ck1-l4"); Store.upsertEvent(Object.assign({}, e, { banks: e.banks.filter((x) => x !== bk) })); }, bk);
+  await reload();
+  d = await readDb(); ev = evOf(d, "ck1-l4");
+  check(!ev.banks.includes(bk), "tải lại đã thêm lại ngân hàng quản trị viên bỏ");
+  check(ev.modules.includes(mod), "mất bài ôn khi bỏ ngân hàng");
+  // Dữ liệu cũ chưa có seedLinks: thêm liên kết còn thiếu và ghi đủ seedLinks.
+  const seed6 = await page.evaluate(() => window.ONTAP_SEED_EVENTS.find((e) => e.id === "ck1-l6"));
+  await page.evaluate(() => {
+    const d = JSON.parse(localStorage.getItem("ontap_db_v1"));
+    delete d.seedLinks; d.events.find((x) => x.id === "ck1-l6").banks = [];
+    localStorage.setItem("ontap_db_v1", JSON.stringify(d));
+  });
+  await reload();
+  d = await readDb();
+  check(seed6.banks.every((x) => evOf(d, "ck1-l6").banks.includes(x)), "dữ liệu cũ chưa được thêm ngân hàng của ck1-l6");
+  check(hasLinks(d, seedKeys), "dữ liệu cũ chưa được ghi đủ seedLinks");
+  // Khôi phục lịch mặc định ghi lại đủ seedLinks.
+  await page.evaluate(() => { const d = Store.data(); d.seedLinks = []; Store.resetEvents(); });
+  d = await readDb();
+  check(hasLinks(d, seedKeys), "resetEvents chưa ghi đủ seedLinks");
+  console.log("seed links:", seedFails.length ? seedFails : "ok");
+
   const real = errs.filter((e) => !/fonts\.g|ERR_TUNNEL|ERR_NAME|net::/.test(e));
   console.log("ERRORS:", real);
-  if (real.length || db.results.length !== 3 || db.banks.length !== 1) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || seedFails.length || db.results.length !== 3 || db.banks.length !== 1) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();

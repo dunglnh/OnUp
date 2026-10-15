@@ -48,6 +48,7 @@ App chỉ nhận tin nhắn khi `event.source` là đúng iframe đang mở và 
 `Store` (js/store.js) là ranh giới duy nhất với dữ liệu. Cấu trúc:
 - `users`: `{id, role, name, avatar, salt, pinHash, grade?, className?, parentIds?}` — quan hệ phụ huynh–con lưu ở `parentIds` của học sinh.
 - `events`: kì thi, xem chú thích đầu `data/calendar-2026-2027.js`. **Không đổi `id`** của kì thi đã có.
+- `seedLinks`: các liên kết mẫu (`"<mã kì thi>:bank|module:<mã>"`) máy này đã nhận. Khi `data/calendar-2026-2027.js` gắn thêm ngân hàng/bài ôn vào kì thi đã có, `Store.load()` tự thêm vào kì thi đã lưu; liên kết quản trị viên đã bỏ thì không thêm lại. Bỏ liên kết khỏi file mẫu **không** gỡ nó trên máy đã có dữ liệu.
 - `banks`: ngân hàng do quản trị viên nhập (giữ cả văn bản gốc ở `src` để sửa lại).
 - `results`: `{userId, source:"module"|"bank", refId, subject, label, mode, r, t, s, at, wrongTopics?}`.
 

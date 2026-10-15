@@ -16,12 +16,44 @@
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 
+  /* Liên kết mẫu: mỗi mã ngân hàng/bài ôn mà lịch gốc gắn vào một kì thi, ví dụ "ck1-l4:bank:mau-toan4-ck1".
+     db.seedLinks ghi các liên kết máy này đã nhận. Khi lịch gốc có thêm liên kết cho kì thi đã lưu,
+     load() thêm vào; liên kết đã nhận mà quản trị viên bỏ đi thì không thêm lại. */
+  const LINK_FIELDS = [["bank", "banks"], ["module", "modules"]];
+  const linkKey = (evId, kind, id) => evId + ":" + kind + ":" + id;
+  function allSeedLinks() {
+    const out = [];
+    (window.ONTAP_SEED_EVENTS || []).forEach((se) => LINK_FIELDS.forEach(([kind, f]) =>
+      (se[f] || []).forEach((id) => { const k = linkKey(se.id, kind, id); if (!out.includes(k)) out.push(k); })));
+    return out;
+  }
+  /* Chỉ thêm mã vào cuối danh sách banks/modules, không đổi trường nào khác. Trả về true nếu có thay đổi. */
+  function applySeedLinks() {
+    if (!Array.isArray(db.seedLinks)) db.seedLinks = [];
+    if (!Array.isArray(db.events)) return false;
+    const done = new Set(db.seedLinks);
+    let changed = false;
+    (window.ONTAP_SEED_EVENTS || []).forEach((se) => {
+      const ev = db.events.find((x) => x.id === se.id);
+      if (!ev) return;
+      LINK_FIELDS.forEach(([kind, f]) => (se[f] || []).forEach((id) => {
+        const k = linkKey(se.id, kind, id);
+        if (done.has(k)) return;
+        if (!Array.isArray(ev[f])) ev[f] = [];
+        if (!ev[f].includes(id)) ev[f].push(id);
+        db.seedLinks.push(k); done.add(k); changed = true;
+      }));
+    });
+    return changed;
+  }
+
   function emptyDB() {
     return {
       v: SCHEMA_VERSION,
       settings: { schoolName: "", schoolYear: "2026–2027", createdAt: new Date().toISOString() },
       users: [],      // {id, role, name, avatar, salt, pinHash, grade?, className?, parentIds?: [], createdAt}
       events: clone(window.ONTAP_SEED_EVENTS || []),
+      seedLinks: allSeedLinks(),
       banks: [],      // ngân hàng do quản trị viên nhập (ngân hàng mẫu nằm ở data/banks.js)
       results: []     // {id, userId, source:"module"|"bank", refId, subject, label, mode, r, t, s, at}
     };
@@ -36,6 +68,7 @@
       db = raw ? JSON.parse(raw) : null;
     } catch (e) { db = null; memoryOnly = true; }
     if (!db || typeof db !== "object" || !Array.isArray(db.users)) db = null;
+    if (db && applySeedLinks()) save();
     return db;
   }
   function save() {
@@ -147,7 +180,7 @@
     save(); return clean;
   }
   function removeEvent(id) { db.events = db.events.filter((e) => e.id !== id); save(); }
-  function resetEvents() { db.events = clone(window.ONTAP_SEED_EVENTS || []); save(); }
+  function resetEvents() { db.events = clone(window.ONTAP_SEED_EVENTS || []); db.seedLinks = allSeedLinks(); save(); }
 
   /* -------- Ngân hàng câu hỏi -------- */
   function banks(grade) {
@@ -196,7 +229,7 @@
     data.banks = Array.isArray(data.banks) ? data.banks : [];
     data.settings = data.settings || {};
     data.v = SCHEMA_VERSION;
-    db = data; save();
+    db = data; applySeedLinks(); save();
   }
   function wipe() {
     try {

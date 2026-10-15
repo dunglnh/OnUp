@@ -1,6 +1,8 @@
 /* Lịch thi mặc định năm học 2026–2027 cho khối 4 và khối 6.
    Đây là dữ liệu gốc. Khi quản trị viên sửa lịch trong app, bản sửa được lưu trong kho dữ liệu
    (store.js) và nút "Khôi phục lịch mặc định" sẽ chép lại từ file này.
+   Gắn thêm mã vào modules/banks của một kì thi đã có thì máy đã có dữ liệu cũng nhận được khi mở app
+   (Store.load() thêm liên kết chưa nhận, xem seedLinks trong store.js); các trường khác không được cập nhật.
 
    Nguồn mốc chung:
    - Khung kế hoạch thời gian năm học từ 2026–2027 (Bộ GD&ĐT): khai giảng 5/9, học kì I 18 tuần,
