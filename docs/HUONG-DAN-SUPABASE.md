@@ -51,7 +51,7 @@ Thanh bên trái → **Authentication**:
    1. Bật xác minh 2 bước cho hộp thư đó → https://myaccount.google.com/apppasswords → tạo **mật khẩu ứng dụng** tên `OnUp` → chép 16 kí tự.
    2. Điền: Sender email = hộp thư riêng đó; Sender name = `Ôn Thi 4·6`; Host = `smtp.gmail.com`; Port = `465`; Username = hộp thư đó; Password = 16 kí tự vừa chép. **Save**.
    3. Địa chỉ gửi này ai bấm “Gửi link” cũng thấy, nên **không** dùng email cá nhân hay công việc. (Cách khác: dịch vụ gửi thư như Brevo, Resend có gói miễn phí, dùng địa chỉ no-reply.)
-   4. Để giới hạn gửi email (**Authentication → Rate Limits**) ở mức mặc định. Không tăng lên nếu chưa có cách chặn người gửi linh tinh.
+   4. Để giới hạn gửi email (**Authentication → Rate Limits**) ở mức mặc định. Chỉ tăng lên sau khi đã bật chống máy tự động (bước 5b).
 3. **Emails → Templates**: thêm dòng dưới đây vào **cả hai** mẫu **Magic Link** và **Confirm signup** (lần đăng nhập đầu tiên của một email dùng mẫu Confirm signup). Nhờ mã số này, người mở email trên máy khác, hoặc khi ứng dụng email tự mở link trước, vẫn đăng nhập được:
    ```html
    <p>Hoặc nhập mã này trong app: <b>{{ .Token }}</b></p>
@@ -106,6 +106,23 @@ npx supabase functions deploy student-login --no-verify-jwt
 > Khóa publishable/anon là khóa công khai, để trên GitHub được: dữ liệu được bảo vệ bằng chính sách RLS trong `schema.sql`.
 
 Muốn quay lại bản lưu trên máy: xóa hai giá trị trong `js/config.js` (để lại `""`). Dữ liệu cũ trên từng máy (từ trước khi bật đám mây) vẫn còn. Nhưng mọi thứ làm trong thời gian dùng đám mây (kết quả, tài khoản, lịch đã sửa) **chỉ nằm trên Supabase**, không khôi phục được vào bản lưu trên máy.
+
+## Bước 5b. Bật chống máy tự động (CAPTCHA) — nên làm
+
+Trang đăng nhập là trang công khai: không có bước này, một chương trình tự động có thể bấm “Gửi link” liên tục làm hết lượt gửi email, hoặc tạo hàng loạt phiên học sinh. App dùng **Cloudflare Turnstile** (miễn phí): thường không hiện gì, chỉ thỉnh thoảng hiện một ô “Xác minh bạn là người” để bấm. Không có câu đố, không cần tài khoản cho trẻ.
+
+**Làm đúng thứ tự** (bật trên Supabase trước khi app có khóa thì không ai đăng nhập được):
+
+1. Vào https://dash.cloudflare.com → đăng kí miễn phí (nếu chưa có) → **Turnstile** → **Add widget**:
+   - Widget name: `OnUp`
+   - Hostnames: `dunglnh.github.io` (đang thử trên máy tính thì thêm `localhost`, thử xong xóa đi)
+   - Widget mode: **Managed**
+   - **Create**. Chép **Site Key** và **Secret Key**.
+2. Trên GitHub, sửa [`js/config.js`](../js/config.js): dán **Site Key** vào `turnstileSiteKey: "..."` → **Commit changes**. Đợi 1–2 phút, mở app, tải lại trang. (Site Key là khóa công khai, để trên GitHub được. **Secret Key không bao giờ** dán vào file này.)
+3. Supabase → **Authentication → Attack Protection** (hoặc **Bot and Abuse Protection**) → bật **Enable CAPTCHA protection** → Provider: **Turnstile by Cloudflare** → dán **Secret Key** → **Save**.
+4. Thử lại: gửi link đăng nhập bằng email, và trên máy khác cho học sinh nhập mã gia đình. Cả hai đều vào được là xong.
+
+Muốn tắt: tắt trên Supabase **trước**, rồi mới xóa Site Key trong `js/config.js`.
 
 ## Bước 6. Đăng nhập lần đầu, tạo gia đình
 
@@ -171,6 +188,7 @@ Vì vậy:
 Làm lần lượt, tick khi xong:
 
 - [ ] Gửi link đăng nhập: email đến trong 1 phút, có mã số; bấm link hoặc gõ mã đều vào được app.
+- [ ] Đã bật CAPTCHA (bước 5b): gửi link và học sinh nhập mã gia đình vẫn vào được.
 - [ ] Email chưa có trong `allowed_creators` thì không tạo được gia đình mới.
 - [ ] Tạo gia đình, thêm 1 học sinh (PIN 6 số) và 1 phụ huynh.
 - [ ] Trên điện thoại khác: học sinh đăng nhập bằng mã gia đình + PIN, làm một đề ngắn.
@@ -188,6 +206,7 @@ Làm lần lượt, tick khi xong:
 - Quyền xem, sửa được kiểm tra trên máy chủ (RLS): phụ huynh đọc hồ sơ và kết quả của con mình, sửa hoặc xóa được hồ sơ con mình; quản trị đọc/ghi trong gia đình của mình; học sinh chỉ đọc và ghi kết quả của chính mình, chỉ đổi được hình đại diện. Gia đình này không thấy dữ liệu gia đình khác.
 - Ngoại lệ có chủ ý: ai biết mã gia đình thì thấy tên và hình đại diện của các con trong gia đình đó (xem bước 9).
 - Mã PIN được kiểm tra và băm trên máy chủ (PBKDF2 + `PIN_PEPPER`); trình duyệt không bao giờ thấy PIN đã lưu hay bản băm. PIN chỉ để phân biệt người dùng, không phải mật khẩu.
+- Nếu bật CAPTCHA (bước 5b), Cloudflare Turnstile xem một vài thông tin của trình duyệt để phân biệt người với máy tự động; nó không hỏi thông tin cá nhân và không dùng để quảng cáo. App không gửi tên hay dữ liệu học tập cho Cloudflare.
 - Bộ đếm thử sai lưu địa chỉ IP ở dạng băm (không giữ IP gốc) và tự xóa sau 30 ngày. Supabase Auth tự ghi lại IP, thông tin trình duyệt khi đăng nhập (kể cả máy học sinh) theo chính sách của Supabase.
 - **Xóa toàn bộ dữ liệu trên đám mây** (Quản trị → Dữ liệu) xóa gia đình, hồ sơ, kết quả, lịch; **không** xóa email đăng nhập của người lớn và người dùng ẩn danh của máy học sinh trong Supabase Auth. Muốn xóa hẳn: **Authentication → Users** → xóa từng người, hoặc chạy câu dọn dẹp bên dưới.
 - Khóa `service_role`/`secret` chỉ nằm trong Supabase (Edge Function tự có), không bao giờ đưa vào code của trang.
@@ -197,7 +216,9 @@ Làm lần lượt, tick khi xong:
 | Hiện tượng | Cách xử lí |
 |---|---|
 | Không nhận được email, hoặc báo `Email address not authorized` | Làm lại bước 3.2 (SMTP riêng). Xem thư mục Spam. |
-| Nhiều email đăng nhập lạ gửi đi, phụ huynh thật không nhận được link | Có người bấm gửi link liên tục. Tạm thời đổi mật khẩu ứng dụng của hộp thư gửi, đợi một giờ; báo người sửa code để bật chặn tự động (CAPTCHA). |
+| Nhiều email đăng nhập lạ gửi đi, phụ huynh thật không nhận được link | Có người bấm gửi link liên tục. Bật chống máy tự động (bước 5b) nếu chưa bật; tạm thời đổi mật khẩu ứng dụng của hộp thư gửi, đợi một giờ. |
+| “Máy chủ đang bật chống máy tự động (CAPTCHA) nhưng app chưa có khóa CAPTCHA” | Đã bật CAPTCHA trên Supabase mà `js/config.js` chưa có `turnstileSiteKey`. Điền Site Key (bước 5b.2), hoặc tạm tắt CAPTCHA trên Supabase. |
+| “Chưa xác minh được” / “Không tải được bước xác minh” | Tải lại trang. Kiểm tra widget Turnstile có hostname `dunglnh.github.io`, Site Key trong `js/config.js` và Secret Key trong Supabase là của cùng một widget. Mạng chặn `challenges.cloudflare.com` thì không xác minh được. |
 | “Email này chưa được phép tạo gia đình mới” | Thêm email đó vào `allowed_creators` (bước 2.4), hoặc nhờ quản trị gửi mã mời. |
 | “Link đăng nhập đã hết hạn hoặc đã được dùng” / “không dùng được ở trình duyệt này” | Link chỉ dùng một lần, hết hạn sau 1 giờ, và nên mở trên đúng trình duyệt đã bấm gửi. Gõ **mã số trong email** (bước 3.3) hoặc gửi link mới. |
 | Bấm link xong lại quay về trang đăng nhập | Kiểm tra bước 3.4 (Site URL, Redirect URLs có đúng `https://dunglnh.github.io/OnUp/`). |

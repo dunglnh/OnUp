@@ -392,7 +392,17 @@ function createBackend() {
     tokens.set(t, user.id);
     return { access_token: t, refresh_token: "r-" + t, token_type: "bearer", user: clone(user) };
   }
+  // Như Supabase khi bật CAPTCHA: /otp, /verify, đăng nhập ẩn danh cần mã xác minh hợp lệ (mỗi mã dùng một lần).
+  const usedCaptcha = new Set();
+  function captchaFail(a) {
+    if (!be.captchaRequired) return null;
+    if (!a.captchaToken) return { error: { message: "captcha protection: request disallowed (no captcha_token)" } };
+    if (!/^ok-/.test(a.captchaToken) || usedCaptcha.has(a.captchaToken)) return { error: { message: "captcha protection: request disallowed (captcha verification process failed)" } };
+    usedCaptcha.add(a.captchaToken); be.captchaUsed = (be.captchaUsed || 0) + 1;
+    return null;
+  }
   function auth(op, a, token) {
+    if (["otp", "verify", "anon"].includes(op)) { const c = captchaFail(a); if (c) return c; }
     if (op === "otp") {
       let u = [...users.values()].find((x) => x.email === a.email);
       if (!u) { u = { id: nodeCrypto.randomUUID(), email: a.email, is_anonymous: false }; users.set(u.id, u); }

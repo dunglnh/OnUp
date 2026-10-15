@@ -70,6 +70,7 @@ Bật khi `js/config.js` có `supabaseUrl` + `supabaseAnonKey`; khi đó `window
 - Đăng nhập: quản trị/phụ huynh bằng email (magic link hoặc mã số), gắn vào hồ sơ bằng mã mời; học sinh đăng nhập ẩn danh rồi Edge Function `student-login` kiểm tra mã gia đình + PIN và ghi `student_sessions`. PIN chỉ được băm trong Edge Function, bảng `student_pins` trình duyệt không đọc được.
 - Quyền do RLS trong `supabase/schema.sql` quyết định (anon key là công khai). Đổi bảng hoặc chính sách thì chạy `sh tests/supabase/run.sh` và thêm kiểm tra vào `tests/supabase/rls-test.sql`. Không bao giờ đưa service_role key vào code phía trình duyệt.
 - Ngân hàng có sẵn (data/banks.js) không lưu lên máy chủ; `seed_banks_seen` của family làm việc như `seedBanksSeen`. Tối đa 2000 kết quả mỗi học sinh và 60 kết quả mỗi 10 phút (trigger).
+- CAPTCHA (Cloudflare Turnstile) tùy chọn: `turnstileSiteKey` trong `js/config.js`; `captcha()` trong store-supabase.js lấy mã cho `signInWithOtp`, `verifyOtp`, `signInAnonymously`. Không có khóa thì không tải script của Cloudflare.
 - Chỉ email trong bảng `allowed_creators` mới tạo được gia đình mới; mỗi gia đình có hạn mức số hồ sơ, kì thi, ngân hàng đề.
 
 ## Quy ước code

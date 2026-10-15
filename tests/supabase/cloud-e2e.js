@@ -14,7 +14,9 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
 const OUT = path.join(__dirname, "..", "screenshots", "cloud");
 fs.mkdirSync(OUT, { recursive: true });
 const FAKE_CLIENT = fs.readFileSync(path.join(__dirname, "fake-client.js"), "utf8");
-const CONFIG = `window.ONTAP_CONFIG = { supabaseUrl: "https://fake.supabase.co", supabaseAnonKey: "anon-key" };`;
+const config = (siteKey) => `window.ONTAP_CONFIG = { supabaseUrl: "https://fake.supabase.co", supabaseAnonKey: "anon-key", turnstileSiteKey: ${JSON.stringify(siteKey || "")} };`;
+/* Thay cho script Cloudflare Turnstile (không có mạng): trả mã hợp lệ sau một chút, ghi lại ô đã dùng. */
+const TURNSTILE_STUB = `window.turnstile = { n: 0, boxes: [], render(host, o) { this.boxes.push(host.id || "?"); const t = "ok-" + Date.now() + "-" + (++this.n); setTimeout(() => o.callback(t), 20); return this.n; }, remove() {} };`;
 
 /* Dữ liệu cũ của bản cục bộ (định dạng js/store.js) để thử nút chuyển dữ liệu. */
 function localData() {
@@ -37,12 +39,16 @@ async function run(browser, scheme) {
   const { createHandler } = await (await import(pathToFileURL(path.join(__dirname, "load-edge.mjs")).href)).loadEdgeFunction();
   be.functions["student-login"] = createHandler({ db: createFakeSupabase((m) => be.handle(m), { service: true }), getUser: be.getUser, pepper: "e2e-pepper-0123456789-abcdefghijklmn", iter: 1000 });
   be.T.allowed_creators.push({ email: "bo.minh@example.com" });
+  const withCaptcha = scheme === "dark"; // lượt tối chạy với CAPTCHA bật ở cả app và máy chủ
+  be.captchaRequired = withCaptcha;
   const errs = [];
   async function device() {
     const ctx = await browser.newContext({ viewport: { width: 360, height: 760 }, deviceScaleFactor: 1, colorScheme: scheme });
     await ctx.exposeFunction("__fakeSupabase", (msg) => be.handle(msg));
     await ctx.addInitScript(FAKE_CLIENT);
-    await ctx.route("**/js/config.js", (r) => r.fulfill({ contentType: "text/javascript", body: CONFIG }));
+    if (withCaptcha) await ctx.addInitScript(TURNSTILE_STUB);
+    await ctx.route("**/js/config.js", (r) => r.fulfill({ contentType: "text/javascript", body: config(withCaptcha ? "0x4AAAAAAAtest" : "") }));
+    await ctx.route(/challenges\.cloudflare\.com/, (r) => r.abort());
     await ctx.route(/cdn\.jsdelivr\.net|fonts\.g/, (r) => r.abort()); // không cần mạng
     const page = await ctx.newPage();
     page.on("pageerror", (e) => errs.push("pageerror: " + e.message));
@@ -141,7 +147,10 @@ async function run(browser, scheme) {
 
   const bong = be.T.profiles.find((p) => p.name === "Bông");
   const results = be.T.results.filter((r) => r.profile_id === bong.id);
+  const captchaOK = !withCaptcha || (be.captchaUsed >= 4 && (await admin.evaluate(() => window.turnstile.boxes.join())).includes("mailCaptcha")
+    && (await kid.evaluate(() => window.turnstile.boxes.join())).includes("kidCaptcha"));
   const checks = {
+    "CAPTCHA (khi bật): mọi lần đăng nhập đều kèm mã xác minh, ô xác minh đặt đúng chỗ": captchaOK,
     "mã mời 12 kí tự": /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(invite),
     "chuyển dữ liệu: 2 tài khoản, 1 kết quả": /2 tài khoản mới, 1 kết quả/.test(migText) && !!grandma && !!grandma.invite_code,
     "học sinh vào bằng PIN cũ, PIN đổi sang PBKDF2 (đánh dấu nên đặt lại)": be.T.student_pins.find((p) => p.profile_id === bong.id).pin_hash.startsWith("pbkdf2v2w$"),
