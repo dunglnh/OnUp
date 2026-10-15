@@ -97,8 +97,42 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   console.log("results:", db.results.map((r) => [r.source, r.refId, r.subject, r.r, r.t, r.userId === db.users.find(u=>u.name==="Bin").id]));
   console.log("banks:", db.banks.map((b) => [b.title, b.questions.length, b.src.length > 0]));
   console.log("keys:", await page.evaluate(() => Object.keys(localStorage)));
+
+  step("seed data");
+  const dataErrs = await page.evaluate(() => {
+    const B = window.ONTAP_SEED_BANKS, ids = B.map((b) => b.id), bad = [];
+    if (new Set(ids).size !== ids.length) bad.push("trùng mã ngân hàng");
+    B.forEach((b) => b.questions.forEach((q, i) => {
+      const at = b.id + "#" + (i + 1);
+      if (!q.q || !q.topic) bad.push(at + " thiếu câu hỏi/chủ đề");
+      if (q.type === "fill") { if (q.q.split("___").length !== 2) bad.push(at + " cần đúng một ___"); if (!q.ans || !q.ans.length || !Quiz.isRight(q, q.ans[0])) bad.push(at + " đáp án"); }
+      else if (q.type === "mc") { if (!q.o || q.o.length < 2 || new Set(q.o).size !== q.o.length) bad.push(at + " lựa chọn"); }
+      else if (q.type === "tf") { if (typeof q.a !== "boolean") bad.push(at + " đúng/sai"); }
+      else bad.push(at + " dạng câu");
+    }));
+    window.ONTAP_SEED_EVENTS.forEach((e) => {
+      (e.banks || []).forEach((id) => { if (!ids.includes(id)) bad.push(e.id + " gắn ngân hàng không có: " + id); });
+      (e.modules || []).forEach((id) => { if (!window.ONTAP_MODULES.some((m) => m.id === id)) bad.push(e.id + " gắn bài ôn không có: " + id); });
+    });
+    return bad;
+  });
+  console.log("data errors:", dataErrs);
+
+  step("new seed banks reach old data");
+  const ck1 = () => page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).events.find((e) => e.id === "ck1-l4").banks);
+  const editDb = (fn) => page.evaluate((src) => { const d = JSON.parse(localStorage.getItem("ontap_db_v1")); new Function("d", src)(d); localStorage.setItem("ontap_db_v1", JSON.stringify(d)); }, fn);
+  await editDb(`d.events.find((e) => e.id === "ck1-l4").banks = ["mau-toan4-ck1"]; delete d.seedBanksSeen;`); // như máy cài trước khi có đề mới
+  await page.reload(); await page.waitForTimeout(300);
+  const seedCk1 = await page.evaluate(() => window.ONTAP_SEED_EVENTS.find((e) => e.id === "ck1-l4").banks);
+  const linked = await ck1();
+  await editDb(`const e = d.events.find((x) => x.id === "ck1-l4"); e.banks = e.banks.filter((id) => id !== "toan4-ck1-de3");`); // quản trị bỏ gắn một đề
+  await page.reload(); await page.waitForTimeout(300);
+  const kept = await ck1();
+  const migOK = JSON.stringify(linked) === JSON.stringify(seedCk1) && !kept.includes("toan4-ck1-de3") && kept.length === seedCk1.length - 1;
+  console.log("ck1-l4 after reload:", linked, "after admin unlink:", kept);
+
   const real = errs.filter((e) => !/fonts\.g|ERR_TUNNEL|ERR_NAME|net::/.test(e));
   console.log("ERRORS:", real);
-  if (real.length || db.results.length !== 3 || db.banks.length !== 1) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || db.results.length !== 3 || db.banks.length !== 1 || dataErrs.length || !migOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();

@@ -16,9 +16,16 @@
     if (q.type === "tf") { x.o = ["Đúng", "Sai"]; x.order = [0, 1]; x.a = q.a ? 0 : 1; }
     return x;
   }
+  // Đơn vị in ngay sau chỗ trống ("___ kg", "___ cây.", "___°"); con hay gõ kèm nó vào ô.
+  const unitAfter = (q) => { const w = ((String(q.q).split("___")[1] || "").trim().split(/\s+/)[0] || "").normalize("NFC").replace(/[.,;:!?]+$/, ""); return /^[\p{L}°²³]+$/u.test(w) ? w.toLowerCase() : ""; };
   function isRight(q, g) {
     if (g == null || g === "") return false;
-    if (q.type === "fill") return q.ans.some((a) => (isNum(a) && isNum(g)) ? numKey(a) === numKey(g) : normT(a) === normT(g));
+    if (q.type === "fill") {
+      const t = String(g).normalize("NFC").trim(), u = unitAfter(q), cands = [t];
+      const bare = t.replace(/[.!?;:]+$/, "").trim();
+      if (u && bare.toLowerCase().endsWith(u)) { const rest = bare.slice(0, -u.length).trim(); if (isNum(rest)) cands.push(rest); }
+      return cands.some((c) => q.ans.some((a) => (isNum(a) && isNum(c)) ? numKey(a) === numKey(c) : normT(a) === normT(c)));
+    }
     return g === q.a;
   }
   const correctText = (q) => (q.type === "fill" ? q.ans[0] : q.o[q.a]);

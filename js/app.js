@@ -207,7 +207,7 @@
   function practiceCards(mods, bks, canPlay) {
     if (!mods.length && !bks.length) return `<div class="panel muted">Chưa có bài ôn cho mục này. Quản trị viên có thể nhập ngân hàng câu hỏi trong mục Quản trị.</div>`;
     return `<div class="grid2">${mods.map((m) => `<div class="panel"><b>${esc(m.title)}</b><span class="small muted">${esc(m.desc)}</span><div class="row"><a class="btn ${canPlay ? "main" : ""} sm" href="#/play/${esc(m.id)}">${canPlay ? "Vào ôn" : "Xem thử"}</a></div></div>`).join("")}
-      ${bks.map((b) => `<div class="panel"><b>${esc(b.title)}</b><span class="small muted">${b.questions.length} câu${b.minutes ? " · " + b.minutes + " phút khi làm như thi" : ""}${b.seed ? " · bộ mẫu" : ""}</span><div class="row"><a class="btn ${canPlay ? "main" : ""} sm" href="#/quiz/${esc(b.id)}">${canPlay ? "Làm bài" : "Xem thử"}</a></div></div>`).join("")}</div>`;
+      ${bks.map((b) => `<div class="panel"><b>${esc(b.title)}</b><span class="small muted">${b.questions.length} câu${b.minutes ? " · " + b.minutes + " phút khi làm như thi" : ""}</span><div class="row"><a class="btn ${canPlay ? "main" : ""} sm" href="#/quiz/${esc(b.id)}">${canPlay ? "Làm bài" : "Xem thử"}</a></div></div>`).join("")}</div>`;
   }
 
   function renderStudent(s, viewer, asObserver) {
@@ -389,7 +389,7 @@
         <div class="row"><button class="btn ghost sm" id="resetEv">Khôi phục lịch mặc định</button></div><div id="resetArea"></div>`;
     } else if (tab === "banks") {
       body = `<div class="row between"><p class="muted small" style="flex:1">Dán câu hỏi từ Word, Zalo, sách bài tập. App tự nhận dạng trắc nghiệm, điền khuyết, đúng/sai.</p><a class="btn main sm" href="#/admin/bank/new">+ Nhập ngân hàng</a></div>
-        <div class="list">${Store.banks().map((b) => `<a class="item" href="#/${b.seed ? "quiz" : "admin/bank"}/${esc(b.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${esc(b.title)}</b><span class="small muted">Lớp ${b.grade} · ${esc(b.subject)} · ${b.questions.length} câu${b.seed ? " · bộ mẫu (chỉ xem)" : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>`;
+        <div class="list">${Store.banks().map((b) => `<a class="item" href="#/${b.seed ? "quiz" : "admin/bank"}/${esc(b.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${esc(b.title)}</b><span class="small muted">Lớp ${b.grade} · ${esc(b.subject)} · ${b.questions.length} câu${b.seed ? " · có sẵn (chỉ xem)" : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>`;
     } else if (tab === "data") {
       const st = Store.settings();
       body = `<section class="panel"><h3>Thông tin chung</h3><div class="form">

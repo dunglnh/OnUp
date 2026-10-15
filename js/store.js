@@ -16,14 +16,17 @@
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 
+  const seedBankIds = () => (window.ONTAP_SEED_BANKS || []).map((b) => b.id);
+
   function emptyDB() {
     return {
       v: SCHEMA_VERSION,
       settings: { schoolName: "", schoolYear: "2026–2027", createdAt: new Date().toISOString() },
       users: [],      // {id, role, name, avatar, salt, pinHash, grade?, className?, parentIds?: [], createdAt}
       events: clone(window.ONTAP_SEED_EVENTS || []),
-      banks: [],      // ngân hàng do quản trị viên nhập (ngân hàng mẫu nằm ở data/banks.js)
-      results: []     // {id, userId, source:"module"|"bank", refId, subject, label, mode, r, t, s, at}
+      banks: [],      // ngân hàng do quản trị viên nhập (ngân hàng có sẵn nằm ở data/banks.js)
+      results: [],    // {id, userId, source:"module"|"bank", refId, subject, label, mode, r, t, s, at}
+      seedBanksSeen: seedBankIds() // mã các ngân hàng có sẵn đã xét (xem linkNewSeedBanks)
     };
   }
 
@@ -36,7 +39,24 @@
       db = raw ? JSON.parse(raw) : null;
     } catch (e) { db = null; memoryOnly = true; }
     if (!db || typeof db !== "object" || !Array.isArray(db.users)) db = null;
+    if (db) linkNewSeedBanks();
     return db;
+  }
+  /* Lịch thi chỉ được chép vào máy một lần khi thiết lập. Khi data/banks.js có bộ mới và lịch mặc định
+     gắn bộ đó vào một kì thi, gắn thêm vào kì thi đó trên máy đã có dữ liệu. Bộ đã xét thì không gắn lại,
+     để giữ lựa chọn của quản trị viên khi họ bỏ gắn. */
+  const SEED_BANKS_V1 = ["mau-toan4-ck1", "mau-toan6-ck1"]; // các bộ có sẵn trước khi có seedBanksSeen
+  function linkNewSeedBanks() {
+    if (!Array.isArray(db.events)) return;
+    const seen = new Set(Array.isArray(db.seedBanksSeen) ? db.seedBanksSeen : SEED_BANKS_V1);
+    const fresh = seedBankIds().filter((id) => !seen.has(id));
+    if (!fresh.length) return;
+    (window.ONTAP_SEED_EVENTS || []).forEach((se) => {
+      const ev = db.events.find((e) => e.id === se.id), add = (se.banks || []).filter((id) => fresh.includes(id));
+      if (ev && add.length) ev.banks = add.concat((ev.banks || []).filter((id) => !add.includes(id)));
+    });
+    db.seedBanksSeen = Array.from(seen).concat(fresh);
+    save();
   }
   function save() {
     if (!db) return;
@@ -147,7 +167,7 @@
     save(); return clean;
   }
   function removeEvent(id) { db.events = db.events.filter((e) => e.id !== id); save(); }
-  function resetEvents() { db.events = clone(window.ONTAP_SEED_EVENTS || []); save(); }
+  function resetEvents() { db.events = clone(window.ONTAP_SEED_EVENTS || []); db.seedBanksSeen = seedBankIds(); save(); }
 
   /* -------- Ngân hàng câu hỏi -------- */
   function banks(grade) {
@@ -157,7 +177,7 @@
   }
   const bankById = (id) => banks().find((b) => b.id === id) || null;
   function upsertBank(b) {
-    if ((window.ONTAP_SEED_BANKS || []).some((s) => s.id === b.id)) throw new Error("Không sửa được bộ mẫu. Hãy tạo bộ mới.");
+    if ((window.ONTAP_SEED_BANKS || []).some((s) => s.id === b.id)) throw new Error("Không sửa được bộ có sẵn trong app. Hãy tạo bộ mới.");
     if (!b.title || !b.questions || !b.questions.length) throw new Error("Ngân hàng cần tên và ít nhất một câu hỏi.");
     const clean = { id: b.id || "bk-" + uid(), title: String(b.title).trim(), grade: +b.grade, subject: b.subject || "", minutes: +b.minutes || 0, note: b.note || "", questions: b.questions, src: String(b.src || "").slice(0, 200000) };
     const i = db.banks.findIndex((x) => x.id === clean.id);
@@ -196,7 +216,7 @@
     data.banks = Array.isArray(data.banks) ? data.banks : [];
     data.settings = data.settings || {};
     data.v = SCHEMA_VERSION;
-    db = data; save();
+    db = data; linkNewSeedBanks(); save();
   }
   function wipe() {
     try {
