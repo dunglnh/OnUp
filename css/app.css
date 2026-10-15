@@ -39,6 +39,14 @@ a{color:var(--acc)}
 /* thanh trên */
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0 10px;position:sticky;top:0;background:var(--bg);z-index:10}
 .brand{font-family:var(--display);font-weight:800;font-size:1.2rem;color:var(--acc);display:flex;align-items:center;gap:8px;background:none;border:0;padding:0;text-decoration:none}
+.brand-sub{font-weight:700;color:var(--ink)}
+.who .btn{white-space:nowrap}
+@media (max-width:560px){
+  .brand{flex-direction:column;align-items:flex-start;gap:0;line-height:1.1;font-size:1.3rem}
+  .brand-sub{font-size:.8rem;font-family:var(--body);font-weight:600;color:var(--muted)}
+  .who .nm{display:none}
+  .brand .dash{display:none}
+}
 .brand b{background:var(--sun);color:var(--sun-ink);border-radius:8px;padding:0 8px;font-size:.95rem}
 .who{display:flex;align-items:center;gap:8px;min-width:0}
 .who .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:9em}

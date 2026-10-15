@@ -85,13 +85,6 @@ window.ONTAP_SEED_EVENTS = [
     subjects: ["Toán", "Tiếng Việt", "Tiếng Anh", "Lịch sử và Địa lí", "Khoa học", "Tin học và Công nghệ"],
     scope: "Toàn bộ chương trình lớp 4.", modules: [], banks: [] },
   { id: "het-nam", title: "Kết thúc năm học (trước ngày này)", kind: "moc", grades: [4, 6],
-    start: "2027-05-31", end: "2027-05-31", tentative: false, subjects: [], scope: "", modules: [], banks: [] },
-
-  /* ---------------- Chưa có lịch ---------------- */
-  { id: "violympic-l4", title: "Violympic Toán", kind: "thi-khac", grades: [4, 6],
-    start: null, end: null, tentative: true, subjects: ["Toán"],
-    scope: "Cập nhật khi trường thông báo.", modules: [], banks: [] },
-  { id: "trang-nguyen-l4", title: "Trạng Nguyên Tiếng Việt", kind: "thi-khac", grades: [4],
-    start: null, end: null, tentative: true, subjects: ["Tiếng Việt"],
-    scope: "Cập nhật khi trường thông báo.", modules: [], banks: [] }
+    start: "2027-05-31", end: "2027-05-31", tentative: false, subjects: [], scope: "", modules: [], banks: [] }
+  /* Violympic Toán, Trạng Nguyên Tiếng Việt: tạm bỏ ở bản 1.0 (xem docs/TINH-NANG.md mục 6). */
 ];

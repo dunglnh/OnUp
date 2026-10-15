@@ -1,4 +1,4 @@
-# Mô tả tính năng — Ôn Thi Lớp 4 và 6
+# Mô tả tính năng — OnUp - Ôn Luyện Mỗi Ngày
 
 Phiên bản 1.0 · Năm học 2026–2027
 
@@ -50,7 +50,6 @@ Lịch năm học 2026–2027 có sẵn cho cả hai khối, chia theo tháng:
 | 26/4–14/5/2027 | Kiểm tra cuối năm | 6 | Dự kiến |
 | 3–14/5/2027 | Kiểm tra cuối năm | 4 | Dự kiến |
 | trước 31/5/2027 | Kết thúc năm học | 4, 6 | Theo khung của Bộ |
-| chưa có | Violympic Toán, Trạng Nguyên Tiếng Việt | 4 (và 6 với Violympic) | Chờ thông báo |
 
 Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mốc), khối, ngày bắt đầu–kết thúc, cờ "dự kiến", môn, phạm vi kiến thức, ghi chú, **bài ôn và ngân hàng câu hỏi được gắn vào**.
 
@@ -105,6 +104,7 @@ Bản 1.0 lưu mọi thứ trong trình duyệt của máy đang dùng. Phù h�
 Mã PIN chỉ để phân biệt người dùng, không phải bảo mật thật.
 
 ## 6. Ngoài phạm vi bản 1.0
+- Violympic Toán, Trạng Nguyên Tiếng Việt (tạm bỏ khỏi lịch; quản trị viên vẫn tự thêm được nếu cần).
 - Đồng bộ giữa nhiều máy, đăng nhập bằng email.
 - Giáo viên giao bài cho cả lớp, bảng xếp hạng.
 - Đề cho giữa kì II, cuối năm (đã có chỗ trong lịch, chưa có câu hỏi).

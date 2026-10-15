@@ -39,8 +39,16 @@
       db = raw ? JSON.parse(raw) : null;
     } catch (e) { db = null; memoryOnly = true; }
     if (!db || typeof db !== "object" || !Array.isArray(db.users)) db = null;
-    if (db) linkNewSeedBanks();
+    if (db) { dropRetiredEvents(); linkNewSeedBanks(); }
     return db;
+  }
+  /* Kì thi từng có trong lịch mặc định nhưng đã bỏ khỏi bản 1.0: xóa khỏi máy đã có dữ liệu (một lần). */
+  const RETIRED_EVENTS = ["violympic-l4", "trang-nguyen-l4"];
+  function dropRetiredEvents() {
+    if (!Array.isArray(db.events)) return;
+    const n = db.events.length;
+    db.events = db.events.filter((e) => !RETIRED_EVENTS.includes(e.id));
+    if (db.events.length !== n) save();
   }
   /* Lịch thi chỉ được chép vào máy một lần khi thiết lập. Khi data/banks.js có bộ mới và lịch mặc định
      gắn bộ đó vào một kì thi, gắn thêm vào kì thi đó trên máy đã có dữ liệu. Bộ đã xét thì không gắn lại,

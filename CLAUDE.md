@@ -1,4 +1,4 @@
-# CLAUDE.md — OnUp (Ôn Thi Lớp 4 và 6)
+# CLAUDE.md — OnUp - Ôn Luyện Mỗi Ngày (lớp 4 và 6)
 
 Hướng dẫn cho Claude (và người) khi làm việc trong repo này. Đọc hết file này trước khi sửa code.
 
