@@ -50,14 +50,18 @@ insert into auth.users (id, email, is_anonymous) values
   (t.id('B1'), 'b1@example.com', false), (t.id('X'), 'x@example.com', false),
   (t.id('ANON1'), null, true), (t.id('ANON2'), null, true), (t.id('ANONB'), null, true);
 
--- ---------- tạo hai gia đình ----------
+-- ---------- tạo hai gia đình (chỉ email trong allowed_creators) ----------
+insert into allowed_creators (email) values ('a1@example.com'), ('b1@example.com');
+select t.login('X');
+select t.blocked($$select create_family('Nhà X', '', 'X', '', '[]', '{}')$$, 'email ngoài danh sách được phép tạo gia đình');
+select t.blocked($$select * from allowed_creators$$, 'đọc danh sách email được phép');
 select t.login('A1');
 select t.ok(create_family('Nhà A', '2026–2027', 'Bố A', '🧭',
   '[{"id":"ck1-l4","title":"Cuối kì I","kind":"dinh-ki","grades":[4],"start":"2026-12-28","end":"2027-01-08","tentative":true,"subjects":["Toán"],"modules":[],"banks":["mau-toan4-ck1"]}]',
   array['mau-toan4-ck1']) is not null, 'A1 tạo gia đình A');
 select t.blocked($$select create_family('Nhà A2', '', 'Bố A', '🧭', '[]', '{}')$$, 'A1 tạo gia đình thứ hai');
 select t.ok((select grades from exam_events where id = 'ck1-l4') = '{4}' and (select start_date from exam_events where id = 'ck1-l4') = '2026-12-28', 'lịch mặc định được chép vào gia đình A');
-select t.ok((select join_code from families) ~ '^[A-Z0-9]{6}$', 'mã gia đình 6 kí tự');
+select t.ok(get_join_code() ~ '^[A-Z0-9]{6}$', 'mã gia đình 6 kí tự (đọc qua get_join_code)');
 -- quản trị thêm phụ huynh và học sinh
 select t.blocked($$insert into profiles (family_id, role, name) values (current_family_id(), 'student', 'Thiếu khối')$$, 'học sinh phải có khối');
 insert into profiles (id, family_id, role, name, grade) values
@@ -90,21 +94,46 @@ select t.login('X');
 select t.ok(claim_invite('AAAAAAAAAAAA') is null, 'mã mời sai lần 1');
 select claim_invite('AAAAAAAAAAAB'), claim_invite('AAAAAAAAAAAC'), claim_invite('AAAAAAAAAAAD'), claim_invite('AAAAAAAAAAAE');
 select t.blocked($$select claim_invite('AAAAAAAAAAAF')$$, 'sai 5 lần thì bị khóa khi dò mã mời');
-select t.ok(t.n('select * from families') = 0 and t.n('select * from profiles') = 0 and t.n('select * from results') = 0
+select t.ok(t.n('select id from families') = 0 and t.n('select * from profiles') = 0 and t.n('select * from results') = 0
   and t.n('select * from exam_events') = 0, 'người chưa thuộc gia đình không thấy gì');
 
 -- ---------- học sinh đăng nhập (Edge Function, service role ghi student_sessions) ----------
 select t.as_service();
 insert into student_sessions (auth_user_id, profile_id) values (t.id('ANON1'), t.id('S1')), (t.id('ANONB'), t.id('SB'));
 insert into student_pins (profile_id, pin_hash) values (t.id('S1'), 'pbkdf2$x');
-select t.ok(attempt_begin('pin:test') = 0, 'service role gọi được attempt_begin');
-select attempt_begin('pin:test'), attempt_begin('pin:test'), attempt_begin('pin:test'), attempt_begin('pin:test');
-select t.ok(attempt_begin('pin:test') between 29 and 30, 'sau 5 lần thử, PIN bị khóa 30 giây');
+select t.ok(attempt_begin('pin:test', 5, 30) = 0, 'service role gọi được attempt_begin');
+select attempt_begin('pin:test', 5, 30), attempt_begin('pin:test', 5, 30), attempt_begin('pin:test', 5, 30), attempt_begin('pin:test', 5, 30);
+select t.ok(attempt_begin('pin:test', 5, 30) between 29 and 30, 'sau 5 lần thử, PIN bị khóa 30 giây');
 update login_attempts set locked_until = now() - interval '1 second' where key = 'pin:test';
-select attempt_begin('pin:test'), attempt_begin('pin:test'), attempt_begin('pin:test'), attempt_begin('pin:test'), attempt_begin('pin:test');
-select t.ok(attempt_begin('pin:test') between 59 and 60, 'lần khóa thứ hai dài gấp đôi (60 giây)');
-select attempt_success('pin:test');
-select t.ok(attempt_begin('pin:test') = 0, 'đăng nhập đúng thì xóa bộ đếm');
+select attempt_begin('pin:test', 5, 30), attempt_begin('pin:test', 5, 30), attempt_begin('pin:test', 5, 30), attempt_begin('pin:test', 5, 30), attempt_begin('pin:test', 5, 30);
+select t.ok(attempt_begin('pin:test', 5, 30) between 59 and 60, 'lần khóa thứ hai dài gấp đôi (60 giây)');
+select attempt_done('pin:test', true);
+select t.ok((select since_ok = 0 and locked_until is null and rounds = 2 from login_attempts where key = 'pin:test'), 'đăng nhập đúng: xóa lượt hiện tại nhưng nhớ số lần đã khóa');
+-- trần cứng trong ngày: lần sai thứ 21 bị từ chối kể cả sau khi đợi, lần đúng không xóa được
+delete from login_attempts where key = 'pin:cap';
+do $$ begin
+  for i in 1 .. 20 loop
+    update login_attempts set locked_until = null where key = 'pin:cap';
+    perform attempt_begin('pin:cap', 5, 30, 7, 86400, 15, 20);
+    if i % 10 = 0 then perform attempt_done('pin:cap', true); end if; -- con đăng nhập đúng xen giữa
+    update login_attempts set day_fails = day_fails + 1 where key = 'pin:cap' and i % 10 = 0; -- lần đúng không tính là sai: bù lại để đủ 20 lần sai
+  end loop;
+end $$;
+update login_attempts set locked_until = null where key = 'pin:cap';
+select t.ok(attempt_begin('pin:cap', 5, 30, 7, 86400, 15, 20) = -1, 'lần sai thứ 21 trong ngày bị từ chối kể cả sau khi đợi');
+select attempt_done('pin:cap', true);
+update login_attempts set locked_until = null, day_start = now() - interval '2 days' where key = 'pin:cap';
+select t.ok(attempt_begin('pin:cap', 5, 30, 7, 86400, 15, 20) = -1, 'khóa hẳn: đăng nhập đúng hay sang ngày mới cũng không mở');
+select t.ok(attempt_begin('pin:cap2', 5, 30, 7, 86400, 3, 20) = 0 and attempt_begin('pin:cap2', 5, 30, 7, 86400, 3, 20) = 0
+  and attempt_begin('pin:cap2', 5, 30, 7, 86400, 3, 20) = 0 and attempt_begin('pin:cap2', 5, 30, 7, 86400, 3, 20) = -1, 'trần số lần sai kể từ lần đúng gần nhất');
+select attempt_reset_profile('00000000-0000-0000-0000-000000000000');
+insert into login_attempts (key, hard) values ('pin:' || t.id('S2'), true), ('pin:' || t.id('S2') || ':' || t.id('ANON2'), true);
+select attempt_reset_profile(t.id('S2'));
+select t.ok(not exists (select 1 from login_attempts where key like 'pin:' || t.id('S2') || '%'), 'người lớn đặt lại PIN thì mở mọi khóa của con');
+-- tra mã gia đình: đếm lần nhập sai theo người gọi / IP
+select family_by_code('ZZZZZZ', array['codeu:t'], 3, 30, 600), family_by_code('ZZZZZY', array['codeu:t'], 3, 30, 600), family_by_code('ZZZZZX', array['codeu:t'], 3, 30, 600);
+select t.ok((family_by_code((select join_code from families limit 1), array['codeu:t'], 3, 30, 600)->>'wait')::int > 0, 'nhập sai mã gia đình 3 lần thì khóa, mã đúng cũng phải đợi');
+select t.ok((family_by_code((select join_code from families limit 1), array['codeu:t2'], 3, 30, 600)->>'id') is not null, 'người gọi khác tra mã đúng bình thường');
 
 -- ---------- học sinh S1 ----------
 select t.login('ANON1');
@@ -125,10 +154,19 @@ select t.blocked($$update profiles set family_id = (select family_id from profil
 select t.ok(t.rows($$update profiles set avatar = '🦊' where id = t.id('S1')$$) = 1, 'học sinh đổi hình đại diện của mình');
 select t.blocked($$select * from student_pins$$, 'học sinh đọc bảng PIN');
 select t.blocked($$select * from login_attempts$$, 'học sinh đọc bộ đếm thử sai');
-select t.blocked($$select attempt_success('pin:' || t.id('S2'))$$, 'học sinh tự xóa bộ đếm khóa PIN');
+select t.blocked($$select attempt_done('pin:' || t.id('S2'), true)$$, 'học sinh tự xóa bộ đếm khóa PIN');
+select t.blocked($$select attempt_reset_profile(t.id('S1'))$$, 'học sinh tự mở khóa PIN');
+select t.blocked($$select family_by_code('ABCDEF', '{}', 1000, 0, 0)$$, 'học sinh tra mã gia đình không bị đếm');
+select t.blocked($$select join_code from families$$, 'học sinh đọc mã gia đình');
+select t.ok(get_join_code() is null, 'get_join_code không trả mã cho học sinh');
+select t.blocked($$update profiles set name = 'Tên mới' where id = t.id('S1')$$, 'học sinh tự đổi tên');
+select t.blocked($$update profiles set grade = 6 where id = t.id('S1')$$, 'học sinh tự đổi khối');
+select t.blocked($$select sign_out_child(t.id('S2'))$$, 'học sinh đăng xuất bạn');
+select t.ok(t.n('select * from child_pin_status()') = 0, 'học sinh không xem tình trạng PIN');
 select t.blocked($$select add_child(null, 'Giả', '', 4::smallint, '')$$, 'học sinh tạo hồ sơ');
-select t.blocked($$select trim_results(family_of(t.id('SB')))$$, 'gọi hàm nội bộ trim_results');
+select t.blocked($$select trim_results_of(array[t.id('S2')])$$, 'gọi hàm nội bộ trim_results_of');
 select t.blocked($$select attempt_begin('pin:' || t.id('S2'), 1000000, 0)$$, 'tự gọi attempt_begin');
+select t.blocked($$insert into results (profile_id, source, ref_id, r, t, wrong_topics) values (t.id('S1'), 'bank', 'x', 1, 2, array[repeat('x', 6000)])$$, 'chủ đề sai quá dài');
 select t.blocked($$select random_code(6)$$, 'gọi hàm nội bộ random_code');
 select t.blocked($$select create_family('X', '', 'X', '', '[]', '{}')$$, 'người dùng ẩn danh tạo gia đình');
 select t.blocked($$select import_local('{"users":[]}')$$, 'học sinh chuyển dữ liệu');
@@ -136,14 +174,14 @@ select t.ok(t.rows($$insert into exam_events (id, family_id, title, kind, grades
 
 -- ---------- người dùng ẩn danh chưa gắn ----------
 select t.login('ANON2');
-select t.ok(current_profile_id() is null and t.n('select * from families') = 0 and t.n('select * from profiles') = 0
+select t.ok(current_profile_id() is null and t.n('select id from families') = 0 and t.n('select * from profiles') = 0
   and t.n('select * from results') = 0 and t.n('select * from exam_events') = 0 and t.n('select * from question_banks') = 0
   and t.n('select * from parent_child') = 0 and t.n('select * from student_sessions') = 0, 'người dùng ẩn danh chưa gắn không thấy gì');
 select t.blocked($$select claim_invite('AAAAAAAAAAAA')$$, 'người dùng ẩn danh nhận mã mời');
 
 -- ---------- vai anon (chưa đăng nhập) ----------
 reset role; select set_config('request.jwt.claims', '', false); set role anon;
-select t.blocked($$select * from families$$, 'anon đọc families');
+select t.blocked($$select id from families$$, 'anon đọc families');
 select t.blocked($$select * from profiles$$, 'anon đọc profiles');
 select t.blocked($$select * from results$$, 'anon đọc results');
 select t.blocked($$select current_profile_id()$$, 'anon gọi hàm');
@@ -153,7 +191,7 @@ select t.login('P1');
 select t.ok(t.n('select * from profiles') = 2, 'P1 thấy mình và con (S1), không thấy S2, P2, quản trị');
 select t.ok(t.n($$select * from profiles where id = t.id('S2')$$) = 0, 'P1 không thấy học sinh không phải con mình');
 select t.ok(t.n('select * from results') = 1, 'P1 thấy kết quả của con');
-select t.ok(t.n($$select * from profiles where id = t.id('SB')$$) = 0 and t.n('select * from families') = 1, 'P1 không thấy gia đình B');
+select t.ok(t.n($$select * from profiles where id = t.id('SB')$$) = 0 and t.n('select id from families') = 1, 'P1 không thấy gia đình B');
 select t.ok(t.rows($$update profiles set name = 'Bin Bin' where id = t.id('S1')$$) = 1, 'P1 sửa hồ sơ của con');
 select t.ok(t.rows($$update profiles set name = 'Na hack' where id = t.id('S2')$$) = 0, 'P1 không sửa được hồ sơ con nhà khác');
 select t.ok(t.rows($$delete from profiles where id = t.id('S2')$$) = 0, 'P1 không xóa được học sinh khác');
@@ -228,9 +266,57 @@ select t.ok((import_local($j${"users":[{"id":"s-old","role":"student","name":"B�
 reset role;
 select t.ok((select pin_hash from student_pins sp join profiles p on p.id = sp.profile_id where p.name = 'Bông') = 'legacy$xyz$s256:deadbeef', 'PIN cũ được giữ dạng băm cũ');
 
--- tối đa 5000 kết quả mỗi gia đình
-insert into results (profile_id, source, ref_id, r, t) select t.id('S1'), 'bank', 'x', 1, 2 from generate_series(1, 5010);
-select t.ok((select count(*) from results r join profiles p on p.id = r.profile_id where p.family_id = family_of(t.id('S1'))) = 5000, 'giữ tối đa 5000 kết quả mỗi gia đình');
+-- học sinh chèn hàng loạt: bị giới hạn tốc độ, và cắt bớt chỉ đụng tới kết quả của chính mình
+insert into student_sessions (auth_user_id, profile_id) values (t.id('ANON1'), t.id('S1')) on conflict (auth_user_id) do update set profile_id = excluded.profile_id, created_at = now();
+insert into results (profile_id, source, ref_id, r, t) values (t.id('S2'), 'bank', 'na-1', 3, 4), (t.id('S2'), 'bank', 'na-2', 3, 4);
+create temp table before_na as select id from results where profile_id = t.id('S2'); grant select on before_na to public;
+select t.login('ANON1');
+select t.blocked($$insert into results (profile_id, source, ref_id, r, t) select t.id('S1'), 'bank', 'rac', 1, 2 from generate_series(1, 1000)$$, 'học sinh chèn 1000 kết quả một lần');
+reset role;
+select set_config('app.importing', 'on', false);
+insert into results (profile_id, source, ref_id, r, t, at) select t.id('S1'), 'bank', 'cu', 1, 2, now() - interval '1 day' - i * interval '1 second' from generate_series(1, 2005) i;
+select set_config('app.importing', '', false);
+select t.login('ANON1');
+select t.ok(t.rows($$insert into results (profile_id, source, ref_id, r, t) values (t.id('S1'), 'bank', 'moi', 1, 2)$$) = 1, 'học sinh có hơn 2000 kết quả vẫn ghi được');
+reset role;
+select t.ok((select count(*) from results where profile_id = t.id('S1')) = 2000, 'mỗi học sinh giữ tối đa 2000 kết quả (bỏ bản ghi cũ nhất)');
+select t.ok((select count(*) from results where profile_id = t.id('S2')) = (select count(*) from before_na) and (select count(*) from before_na) >= 2,
+  'kết quả của anh chị em vẫn còn nguyên sau khi học sinh khác chèn hàng loạt');
+select t.login('ANON1');
+select t.blocked($$insert into results (profile_id, source, ref_id, r, t) select t.id('S1'), 'bank', 'nhanh', 1, 2 from generate_series(1, 60)$$, 'quá 60 kết quả trong 10 phút');
+reset role;
+
+-- phiên học sinh: đăng xuất từ xa, đổi mã gia đình, hết hạn
+select t.login('P1');
+select t.blocked($$select sign_out_child(t.id('S2'))$$, 'phụ huynh đăng xuất con nhà khác');
+select t.ok(get_join_code() ~ '^[A-Z0-9]{6}$', 'phụ huynh đọc mã gia đình qua get_join_code');
+select t.ok(t.n('select * from child_pin_status()') = 2, 'phụ huynh xem tình trạng PIN của các con mình');
+select t.ok(sign_out_child(t.id('S1')) = 1, 'phụ huynh đăng xuất con khỏi mọi máy');
+select t.login('ANON1');
+select t.ok(current_profile_id() is null and t.n('select * from results') = 0, 'máy của con bị đăng xuất mất quyền ngay');
+reset role;
+insert into student_sessions (auth_user_id, profile_id) values (t.id('ANON1'), t.id('S1')) on conflict (auth_user_id) do update set created_at = now();
+select t.login('A1');
+select new_join_code();
+select t.login('ANON1');
+select t.ok(current_profile_id() is null, 'đổi mã gia đình thì mọi máy học sinh bị đăng xuất');
+reset role;
+insert into student_sessions (auth_user_id, profile_id, created_at) values (t.id('ANON1'), t.id('S1'), now() - interval '31 days') on conflict (auth_user_id) do update set created_at = excluded.created_at;
+select t.login('ANON1');
+select t.ok(current_profile_id() is null, 'phiên học sinh hết hạn sau 30 ngày');
+reset role;
+select t.login('B1');
+select t.ok(family_of(t.id('S1')) is null, 'family_of không cho biết gia đình của hồ sơ nhà khác');
+reset role;
+
+-- giới hạn số mục mỗi gia đình
+select t.login('A1');
+select t.blocked($$insert into question_banks (id, family_id, title, grade, questions) select 'q' || i, current_family_id(), 'x', 4, '[]' from generate_series(1, 101) i$$, 'quá 100 ngân hàng đề');
+select t.blocked($$insert into exam_events (id, family_id, title, kind, grades, subjects) values ('big', current_family_id(), 'x', 'moc', '{4}', array(select 'm' || i from generate_series(1, 40) i))$$, 'mảng môn thi quá dài');
+select t.blocked($$select import_local('{"from":"cloud","users":[]}')$$, 'chuyển lại bản sao lưu từ đám mây');
+select t.ok((import_local(jsonb_build_object('users', jsonb_build_array(jsonb_build_object('id', t.id('S1')::text, 'role', 'student', 'name', 'Bin', 'grade', 4))))->>'users')::int = 0,
+  'chuyển dữ liệu có mã trên máy chủ: không tạo hồ sơ trùng');
+reset role;
 
 -- gỡ email khỏi hồ sơ phụ huynh
 select t.login('A1');
@@ -247,5 +333,5 @@ select t.ok(not exists (select 1 from profiles where name in ('Cô B', 'Tí')) a
 
 -- người dùng email mới tạo gia đình riêng
 select t.login('X');
-select t.ok(t.n('select * from families') = 0, 'X chưa thấy gì');
+select t.ok(t.n('select id from families') = 0, 'X chưa thấy gì');
 reset role;
