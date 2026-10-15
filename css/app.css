@@ -39,6 +39,14 @@ a{color:var(--acc)}
 /* thanh trên */
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0 10px;position:sticky;top:0;background:var(--bg);z-index:10}
 .brand{font-family:var(--display);font-weight:800;font-size:1.2rem;color:var(--acc);display:flex;align-items:center;gap:8px;background:none;border:0;padding:0;text-decoration:none}
+.brand-sub{font-weight:700;color:var(--ink)}
+.who .btn{white-space:nowrap}
+@media (max-width:560px){
+  .brand{flex-direction:column;align-items:flex-start;gap:0;line-height:1.1;font-size:1.3rem}
+  .brand-sub{font-size:.8rem;font-family:var(--body);font-weight:600;color:var(--muted)}
+  .who .nm{display:none}
+  .brand .dash{display:none}
+}
 .brand b{background:var(--sun);color:var(--sun-ink);border-radius:8px;padding:0 8px;font-size:.95rem}
 .who{display:flex;align-items:center;gap:8px;min-width:0}
 .who .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:9em}
@@ -95,7 +103,9 @@ textarea{min-height:200px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;ba
 .checks{display:flex;flex-wrap:wrap;gap:8px 16px}
 .checks label{display:flex;gap:6px;align-items:center}
 .checks input{width:18px;height:18px;accent-color:var(--acc)}
-.form{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px;align-items:end}
+@media (max-width:560px){.form{grid-template-columns:minmax(0,1fr)}}
+.field .opt-note{font-weight:400;color:var(--muted)}
 .form .full{grid-column:1/-1}
 .emojis{display:flex;flex-wrap:wrap;gap:6px}
 .emojis button{border:2px solid var(--line);background:var(--surface);border-radius:10px;font-size:1.4rem;width:44px;height:44px;padding:0}

@@ -1,4 +1,4 @@
-# Mô tả tính năng — Ôn Thi Lớp 4 và 6
+# Mô tả tính năng — OnUp - Ôn Luyện Mỗi Ngày
 
 Phiên bản 1.0 · Năm học 2026–2027
 
@@ -50,7 +50,6 @@ Lịch năm học 2026–2027 có sẵn cho cả hai khối, chia theo tháng:
 | 26/4–14/5/2027 | Kiểm tra cuối năm | 6 | Dự kiến |
 | 3–14/5/2027 | Kiểm tra cuối năm | 4 | Dự kiến |
 | trước 31/5/2027 | Kết thúc năm học | 4, 6 | Theo khung của Bộ |
-| chưa có | Violympic Toán, Trạng Nguyên Tiếng Việt | 4 (và 6 với Violympic) | Chờ thông báo |
 
 Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mốc), khối, ngày bắt đầu–kết thúc, cờ "dự kiến", môn, phạm vi kiến thức, ghi chú, **bài ôn và ngân hàng câu hỏi được gắn vào**.
 
@@ -107,6 +106,7 @@ Mã PIN chỉ để phân biệt người dùng, không phải bảo mật thậ
 **Đồng bộ đám mây (tùy chọn, từ Phiên 5).** Khi điền `js/config.js` theo [HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md), dữ liệu nằm trên Supabase và dùng chung trên nhiều máy: bố mẹ, thầy cô đăng nhập bằng email (link hoặc mã số trong email, gắn vào gia đình bằng mã mời); học sinh nhập mã gia đình, chọn tên, nhập PIN. Phụ huynh chỉ xem được con mình. Quản trị → Dữ liệu có nút “Chuyển dữ liệu máy này lên đám mây” (học sinh giữ PIN cũ). Để trống `js/config.js` thì app chạy như bản 1.0, không cần mạng.
 
 ## 6. Ngoài phạm vi bản 1.0
+- Violympic Toán, Trạng Nguyên Tiếng Việt (tạm bỏ khỏi lịch; quản trị viên vẫn tự thêm được nếu cần).
 - Đồng bộ giữa nhiều máy, đăng nhập bằng email.
 - Giáo viên giao bài cho cả lớp, bảng xếp hạng.
 - Đề cho giữa kì II, cuối năm (đã có chỗ trong lịch, chưa có câu hỏi).

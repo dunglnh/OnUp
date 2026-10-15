@@ -237,7 +237,7 @@ language plpgsql security definer set search_path = public, pg_temp as $$
 begin
   if old.role = 'student' and old.id = current_profile_id()
      and (new.name is distinct from old.name or new.grade is distinct from old.grade or new.class_name is distinct from old.class_name) then
-    raise exception 'Con chỉ đổi được hình đại diện. Nhờ bố mẹ sửa tên hoặc lớp nhé.';
+    raise exception 'Bạn chỉ đổi được hình đại diện. Nhờ bố mẹ sửa tên hoặc lớp nhé.';
   end if;
   return new;
 end $$;

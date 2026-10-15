@@ -202,7 +202,7 @@ function createBackend() {
       const rows = T[table].filter((r) => visible(r) && match(r, q.filters) && (service || canWrite(table, r, uid, "update")));
       const m = me(uid);
       if (table === "profiles" && m && rows.some((r) => r.role === "student" && r.id === m.id && ["name", "grade", "class_name"].some((c) => c in q.patch && q.patch[c] !== r[c]))) {
-        throw new Fail("Con chỉ đổi được hình đại diện. Nhờ bố mẹ sửa tên hoặc lớp nhé.");
+        throw new Fail("Bạn chỉ đổi được hình đại diện. Nhờ bố mẹ sửa tên hoặc lớp nhé.");
       }
       rows.forEach((r) => Object.assign(r, clone(q.patch)));
       return null;

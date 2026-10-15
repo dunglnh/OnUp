@@ -1,4 +1,4 @@
-# CLAUDE.md — OnUp (Ôn Thi Lớp 4 và 6)
+# CLAUDE.md — OnUp - Ôn Luyện Mỗi Ngày (lớp 4 và 6)
 
 Hướng dẫn cho Claude (và người) khi làm việc trong repo này. Đọc hết file này trước khi sửa code.
 
@@ -7,7 +7,7 @@ Hướng dẫn cho Claude (và người) khi làm việc trong repo này. Đọc
 Web app ôn thi **cả năm học** cho học sinh **lớp 4 và lớp 6** (sách Kết nối tri thức, Tiếng Anh Global Success) và **phụ huynh** theo dõi con. Có ba vai trò: học sinh, phụ huynh, quản trị (thầy cô hoặc bố mẹ quản lý). Bản mô tả tính năng đầy đủ: `docs/TINH-NANG.md`.
 
 Người dùng là trẻ 9–12 tuổi và phụ huynh, nên:
-- Giao diện tiếng Việt, câu ngắn, xưng "con" với học sinh. Không thuật ngữ kỹ thuật trên màn hình.
+- Giao diện tiếng Việt, câu ngắn. Gọi người đang dùng app là "bạn" (cả học sinh, phụ huynh, quản trị); chỉ dùng "con" khi nói với phụ huynh về con của họ ("hồ sơ của con"). Không thuật ngữ kỹ thuật trên màn hình.
 - Ưu tiên điện thoại (rộng 360–420px), nút to, không cuộn ngang.
 - Thu thập dữ liệu tối thiểu: tên hiển thị, khối, lớp. **Không** hỏi ngày sinh, số điện thoại, email, ảnh của trẻ.
 

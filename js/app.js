@@ -100,10 +100,10 @@
     let emo = "🧭";
     view.innerHTML = `<div class="stack">
       <section class="hero"><span class="label">Chào mừng</span><h1>Thiết lập app ôn thi</h1>
-        <p>Tạo tài khoản quản trị trước. Sau đó con thêm tài khoản học sinh, phụ huynh và chỉnh lịch thi của trường.</p></section>
+        <p>Tạo tài khoản quản trị trước. Sau đó bạn thêm tài khoản học sinh, phụ huynh và chỉnh lịch thi của trường.</p></section>
       <form class="panel" id="setupForm" autocomplete="off">
         <div class="form">
-          <label class="field"><span>Tên trường hoặc gia đình (không bắt buộc)</span><input id="sSchool" placeholder="Ví dụ: Lớp 4A Trường Tiểu học Kim Đồng"></label>
+          <label class="field"><span>Tên trường hoặc gia đình <span class="opt-note">· không bắt buộc</span></span><input id="sSchool" placeholder="Ví dụ: Lớp 4A Trường Tiểu học Kim Đồng"></label>
           <label class="field"><span>Tên người quản trị</span><input id="sName" placeholder="Ví dụ: Cô Lan, Bố Minh" required></label>
           <label class="field"><span>Mã PIN (4–6 chữ số)</span><input id="sPin" type="password" inputmode="numeric" maxlength="6" required></label>
           <label class="field"><span>Nhập lại mã PIN</span><input id="sPin2" type="password" inputmode="numeric" maxlength="6" required></label>
@@ -172,7 +172,7 @@
     const groups = [["student", "Học sinh"], ["parent", "Phụ huynh"], ["admin", "Quản trị"]];
     let sel = Store.user(Store.lastUserId()) ? Store.lastUserId() : null;
     view.innerHTML = `<div class="stack">
-      <div><h1>Xin chào!</h1><p class="muted">${esc(Store.settings().schoolName || "Chọn tên của con hoặc của bố mẹ để vào học.")}</p></div>
+      <div><h1>Xin chào!</h1><p class="muted">${esc(Store.settings().schoolName || "Chọn tên của bạn để bắt đầu.")}</p></div>
       ${groups.map(([role, name]) => { const us = Store.users(role); return us.length ? `<section class="sec"><div class="label">${name}</div><div class="tiles">${us.map((u) => `<button class="tile" data-u="${u.id}" aria-pressed="${u.id === sel}">${avatar(u, true)}<span class="nm">${esc(u.name)}</span><span class="small muted">${esc(gradeTxt(u))}</span></button>`).join("")}</div></section>` : ""; }).join("")}
       ${pinBoxHTML()}</div>`;
     const box = wirePinBox(submit);
@@ -223,7 +223,7 @@
       try {
         const r = await Store.familyStudents(c);
         code = c;
-        $("#kidList").innerHTML = r.students.length ? `<div class="sec"><div class="label">${esc(r.family || "Chọn tên của con")}</div><div class="tiles">${r.students.map((k) => `<button class="tile" data-u="${esc(k.id)}" aria-pressed="false">${avatar(k, true)}<span class="nm">${esc(k.name)}</span></button>`).join("")}</div></div>`
+        $("#kidList").innerHTML = r.students.length ? `<div class="sec"><div class="label">${esc(r.family || "Chọn tên của bạn")}</div><div class="tiles">${r.students.map((k) => `<button class="tile" data-u="${esc(k.id)}" aria-pressed="false">${avatar(k, true)}<span class="nm">${esc(k.name)}</span></button>`).join("")}</div></div>`
           : `<p class="muted">Gia đình này chưa có tài khoản học sinh.</p>`;
         $$("#kidList .tile").forEach((t) => (t.onclick = () => {
           sel = t.dataset.u;
@@ -276,7 +276,7 @@
       <form class="panel" id="setupForm" autocomplete="off"><h2>Tạo gia đình mới</h2>
         <p class="small">Bạn sẽ là người quản trị: thêm tài khoản học sinh, phụ huynh và chỉnh lịch thi.</p>
         <div class="form">
-          <label class="field"><span>Tên trường hoặc gia đình (không bắt buộc)</span><input id="sSchool" placeholder="Ví dụ: Lớp 4A Trường Tiểu học Kim Đồng"></label>
+          <label class="field"><span>Tên trường hoặc gia đình <span class="opt-note">· không bắt buộc</span></span><input id="sSchool" placeholder="Ví dụ: Lớp 4A Trường Tiểu học Kim Đồng"></label>
           <label class="field"><span>Tên của bạn</span><input id="sName" placeholder="Ví dụ: Cô Lan, Bố Minh" required maxlength="40"></label>
           <div class="field full"><span>Hình đại diện</span>${emojiPicker(emo)}</div>
         </div>
@@ -453,7 +453,7 @@
     if (!m) { view.innerHTML = `<div class="panel">Không tìm thấy bài ôn. ${back("#/home", "Trang chính")}</div>`; wireGo(); return; }
     const src = m.path + "?u=" + encodeURIComponent(u.id) + "&m=" + encodeURIComponent(m.id);
     view.innerHTML = `<div class="player">
-      <div class="row between">${back("#/home", "Trang chính")}<span class="small muted">${u.role === "student" ? "Điểm mỗi lần làm xong được lưu vào hồ sơ của con." : "Chế độ xem thử: điểm không được lưu."}</span></div>
+      <div class="row between">${back("#/home", "Trang chính")}<span class="small muted">${u.role === "student" ? "Điểm mỗi lần làm xong được lưu vào hồ sơ của bạn." : "Chế độ xem thử: điểm không được lưu."}</span></div>
       <iframe id="playerFrame" title="${esc(m.title)}" src="${esc(src)}"></iframe></div>`;
     wireGo();
   }
@@ -550,7 +550,7 @@
     $$("[data-child]").forEach((b) => (b.onclick = () => go("#/child/" + b.dataset.child)));
     wireEvents(view, null, null);
     if (tab === "events") $("#resetEv").onclick = () => {
-      $("#resetArea").innerHTML = `<div class="confirm"><div>Chép lại lịch thi gốc? Các kì thi con đã thêm hoặc sửa sẽ bị thay thế.</div><div class="row"><button class="btn danger sm" id="rsYes">Khôi phục</button><button class="btn ghost sm" id="rsNo">Thôi</button></div></div>`;
+      $("#resetArea").innerHTML = `<div class="confirm"><div>Chép lại lịch thi gốc? Các kì thi bạn đã thêm hoặc sửa sẽ bị thay thế.</div><div class="row"><button class="btn danger sm" id="rsYes">Khôi phục</button><button class="btn ghost sm" id="rsNo">Thôi</button></div></div>`;
       $("#rsYes").onclick = () => { Store.resetEvents(); toast("Đã khôi phục lịch mặc định"); renderAdmin(u, "events"); };
       $("#rsNo").onclick = () => ($("#resetArea").innerHTML = "");
     };
