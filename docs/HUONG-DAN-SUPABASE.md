@@ -105,7 +105,7 @@ npx supabase functions deploy student-login --no-verify-jwt
 >
 > Khóa publishable/anon là khóa công khai, để trên GitHub được: dữ liệu được bảo vệ bằng chính sách RLS trong `schema.sql`.
 
-Muốn quay lại bản lưu trên máy: xóa hai giá trị trong `js/config.js` (để lại `""`). Dữ liệu cũ trên từng máy vẫn còn.
+Muốn quay lại bản lưu trên máy: xóa hai giá trị trong `js/config.js` (để lại `""`). Dữ liệu cũ trên từng máy (từ trước khi bật đám mây) vẫn còn. Nhưng mọi thứ làm trong thời gian dùng đám mây (kết quả, tài khoản, lịch đã sửa) **chỉ nằm trên Supabase**, không khôi phục được vào bản lưu trên máy.
 
 ## Bước 6. Đăng nhập lần đầu, tạo gia đình
 
@@ -128,7 +128,7 @@ Dữ liệu cũ nằm trong trình duyệt của máy đã dùng bản cũ. Trê
 
 Nếu dữ liệu ở máy khác hoặc chỉ còn file sao lưu: bấm **Chuyển từ file sao lưu** và chọn file đã tải ở bước 0. (File sao lưu tải từ bản đám mây thì không chuyển được, vì dữ liệu đó đã ở trên máy chủ.)
 
-- Học sinh **đăng nhập được bằng mã PIN cũ**, nhưng app đánh dấu “nên đặt PIN mới 6 số”. **Hãy đặt mã PIN mới cho từng con** (Quản trị → Tài khoản → tên con → Mã PIN mới), vì PIN cũ đã từng nằm trong file sao lưu.
+- Học sinh **đăng nhập được bằng mã PIN cũ**; ngay sau đó app đưa học sinh tới trang đổi mã PIN mới 6 số. Danh sách tài khoản của bố mẹ/quản trị ghi “nên đặt PIN mới 6 số” cho tới khi PIN được đổi. **Hãy đặt mã PIN mới cho từng con** (Quản trị → Tài khoản → tên con → Mã PIN mới), vì PIN cũ đã từng nằm trong file sao lưu.
 - Quản trị cũ trùng tên với bạn được gộp vào tài khoản của bạn.
 - Bấm chuyển nhiều lần cũng không bị trùng dữ liệu. Tiến độ trong các bài ôn trên máy này được giữ.
 - Xong thì **xóa file sao lưu cũ** (bước 0).
@@ -156,7 +156,8 @@ Mất máy hoặc đổi email: mở tài khoản đó → **Gỡ email, tạo m
 
 **Ai biết mã gia đình** thì thấy **tên và hình đại diện** của các con trong gia đình (để chọn tên khi đăng nhập), và có thể thử đoán PIN. Máy chủ giới hạn việc thử:
 - Sai 5 lần thì phải đợi 30 giây, càng sai càng phải đợi lâu.
-- Sai quá nhiều (15 lần, hoặc 20 lần trong một ngày) trên máy lạ thì PIN **bị khóa hẳn**: bố mẹ hoặc quản trị đặt mã PIN mới để mở. Trong lúc đó, máy con đã từng đăng nhập đúng vẫn vào được bình thường.
+- Trên máy lạ, sai 15 lần liên tiếp kể từ lần đăng nhập đúng gần nhất, hoặc 20 lần trong một ngày, thì PIN **bị khóa hẳn**: bố mẹ hoặc quản trị đặt mã PIN mới để mở. Trong lúc đó, máy con đã từng đăng nhập đúng (tối đa 10 máy gần nhất) vẫn vào được bình thường.
+- Đặt PIN mới, đổi mã gia đình hay bấm “Đăng xuất mọi máy của con” thì các máy đó không còn là máy quen nữa: con nhập mã gia đình và PIN lại một lần.
 
 Vì vậy:
 - **Mỗi gia đình một mã**, chỉ đưa mã cho người trong nhà. Không nên dùng chung một “gia đình” cho cả lớp.
@@ -173,7 +174,7 @@ Làm lần lượt, tick khi xong:
 - [ ] Email chưa có trong `allowed_creators` thì không tạo được gia đình mới.
 - [ ] Tạo gia đình, thêm 1 học sinh (PIN 6 số) và 1 phụ huynh.
 - [ ] Trên điện thoại khác: học sinh đăng nhập bằng mã gia đình + PIN, làm một đề ngắn.
-- [ ] Thử nhập sai PIN 5 lần: app báo đợi 30 giây.
+- [ ] Thử nhập sai PIN 5 lần rồi nhập thêm lần thứ 6: app báo đợi 30 giây.
 - [ ] Tắt mạng điện thoại, làm xong một đề, bật mạng lại: kết quả vẫn lên máy chủ.
 - [ ] Phụ huynh nhận mã mời, đăng nhập bằng email khác, thấy kết quả vừa làm của con.
 - [ ] Phụ huynh **không** thấy hồ sơ, kết quả của học sinh không phải con mình.
