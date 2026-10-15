@@ -66,7 +66,7 @@
       el.querySelector("#qzSkip").onclick = () => { S.ans[S.i] = { q, g: null, ok: false }; next(); };
       el.querySelector("#qzGo").onclick = () => {
         if (S.checked) { next(); return; }
-        if (S.cur == null || S.cur === "") { el.querySelector("#qzFb").innerHTML = `<div class="fb bad">Con trả lời trước, hoặc bấm Bỏ qua nhé.</div>`; return; }
+        if (S.cur == null || S.cur === "") { el.querySelector("#qzFb").innerHTML = `<div class="fb bad">Bạn trả lời trước, hoặc bấm Bỏ qua nhé.</div>`; return; }
         const ok = isRight(q, S.cur); S.ans[S.i] = { q, g: S.cur, ok };
         if (exam) { next(); return; }
         S.checked = true;
@@ -99,7 +99,7 @@
           <div class="stack tight"><b>${right}/${total} câu đúng</b><span class="muted small">Thời gian: ${fmtTime(secs)}</span></div></div>
         </section>
         ${Object.keys(byTopic).length > 1 ? `<section class="panel"><div class="label">Theo chủ đề</div><div class="ubreak">${Object.entries(byTopic).map(([k, [r, t]]) => `<span>${esc(k)}</span><div class="bar"><i style="width:${(r / t) * 100}%"></i></div><span>${r}/${t}</span>`).join("")}</div></section>` : ""}
-        ${wrong.length ? `<section class="panel"><div class="label">Câu cần xem lại (${wrong.length})</div><div class="review">${wrong.map((a) => `<div class="rv"><div>${esc(a.q.q).replace("___", "…")}</div><div class="small">Con trả lời: <s>${esc(givenText(a.q, a.g))}</s> · Đáp án: <b>${esc(correctText(a.q))}</b></div>${a.q.x ? `<div class="expl">${esc(a.q.x)}</div>` : ""}</div>`).join("")}</div></section>` : ""}
+        ${wrong.length ? `<section class="panel"><div class="label">Câu cần xem lại (${wrong.length})</div><div class="review">${wrong.map((a) => `<div class="rv"><div>${esc(a.q.q).replace("___", "…")}</div><div class="small">Bạn trả lời: <s>${esc(givenText(a.q, a.g))}</s> · Đáp án: <b>${esc(correctText(a.q))}</b></div>${a.q.x ? `<div class="expl">${esc(a.q.x)}</div>` : ""}</div>`).join("")}</div></section>` : ""}
         <div class="row"><button class="btn main" id="qzAgain">Làm lại</button><button class="btn ghost" id="qzHome">Về trang chính</button></div>
       </div>`;
       el.querySelector("#qzAgain").onclick = () => run(el, bank, opts);
