@@ -35,7 +35,8 @@ function localData() {
 async function run(browser, scheme) {
   const be = createBackend();
   const { createHandler } = await (await import(pathToFileURL(path.join(__dirname, "load-edge.mjs")).href)).loadEdgeFunction();
-  be.functions["student-login"] = createHandler({ db: createFakeSupabase((m) => be.handle(m), { service: true }), getUser: be.getUser, pepper: "e2e" });
+  be.functions["student-login"] = createHandler({ db: createFakeSupabase((m) => be.handle(m), { service: true }), getUser: be.getUser, pepper: "e2e-pepper-0123456789-abcdefghijklmn", iter: 1000 });
+  be.T.allowed_creators.push({ email: "bo.minh@example.com" });
   const errs = [];
   async function device() {
     const ctx = await browser.newContext({ viewport: { width: 360, height: 760 }, deviceScaleFactor: 1, colorScheme: scheme });
@@ -75,7 +76,7 @@ async function run(browser, scheme) {
   await admin.waitForSelector("text=Quản trị");
   // thêm học sinh và phụ huynh
   await admin.goto(BASE + "/#/admin/user/new?role=student");
-  await admin.fill("#uName", "Bin"); await admin.fill("#uPin", "1111");
+  await admin.fill("#uName", "Bin"); await admin.fill("#uPin", "482915");
   await admin.selectOption("#uGrade", "4"); await admin.fill("#uClass", "4A");
   await admin.click("button[type=submit]");
   await admin.waitForSelector("text=Học sinh (1)");
@@ -140,7 +141,7 @@ async function run(browser, scheme) {
   const checks = {
     "mã mời 12 kí tự": /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(invite),
     "chuyển dữ liệu: 2 tài khoản, 1 kết quả": /2 tài khoản mới, 1 kết quả/.test(migText) && !!grandma && !!grandma.invite_code,
-    "học sinh vào bằng PIN cũ, PIN đổi sang PBKDF2": be.T.student_pins.find((p) => p.profile_id === bong.id).pin_hash.startsWith("pbkdf2$"),
+    "học sinh vào bằng PIN cũ, PIN đổi sang PBKDF2 (đánh dấu nên đặt lại)": be.T.student_pins.find((p) => p.profile_id === bong.id).pin_hash.startsWith("pbkdf2v2w$"),
     "kết quả làm bài được lưu lên máy chủ": results.length === 2 && results.some((r) => r.source === "bank" && r.ref_id === "mau-toan6-ck1"),
     "đăng xuất: máy nhớ mã gia đình, hiện lại danh sách": remembered === 2,
     "phụ huynh nhận mã mời (chưa gắn con)": kidsOfMom === 0,

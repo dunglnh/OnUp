@@ -122,17 +122,17 @@ create table student_pins (
   updated_at timestamptz not null default now()
 );
 
--- Thiết bị (người dùng ẩn danh) đã từng đăng nhập đúng: thử sai trên máy của con được đếm riêng,
--- nên người lạ thử sai không khóa được máy của con.
+-- Máy đã từng đăng nhập đúng cho học sinh (mã máy ngẫu nhiên lưu trên trình duyệt, ở đây chỉ giữ bản băm):
+-- thử sai trên máy của con được đếm riêng, nên người lạ thử sai không khóa được máy của con.
 create table known_devices (
   profile_id uuid references profiles(id) on delete cascade,
-  auth_user_id uuid references auth.users(id) on delete cascade,
+  device text not null check (char_length(device) between 16 and 64),
   created_at timestamptz not null default now(),
-  primary key (profile_id, auth_user_id)
+  primary key (profile_id, device)
 );
 
 -- Đếm số lần thử (PIN, mã gia đình, mã mời). Khóa là chuỗi: 'pin:<hồ sơ>', 'pin:<hồ sơ>:<thiết bị>',
--- 'pinu:<người gọi>', 'fam:<gia đình>', 'codeu:<người gọi>', 'ip:<băm IP>', 'invite:<người gọi>'.
+-- 'pinu:<người gọi>', 'fam:<gia đình>', 'codeu:<người gọi>', 'ip:<băm IP>', 'invite:<người gọi>'. (<thiết bị> là bản băm mã máy.)
 create table login_attempts (
   key text primary key,
   fails int not null default 0,          -- lần thử trong lượt hiện tại (đủ p_max thì khóa tạm)

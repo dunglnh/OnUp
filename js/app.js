@@ -212,7 +212,8 @@
       ${pinBoxHTML()}
       <section class="panel" id="mailBox"><h2>Bố mẹ, thầy cô</h2>
         <p class="small">App gửi một đường link vào email của bạn. Bấm vào link là vào app, không cần mật khẩu.</p>
-        <form class="row" id="mailForm" style="align-items:flex-end"><label class="field" style="flex:1;min-width:200px"><span>Email</span><input id="mEmail" type="email" autocomplete="email" inputmode="email" required></label><button class="btn" type="submit" id="mSend">Gửi link đăng nhập</button></form>
+        <form class="stack" id="mailForm" style="gap:10px"><div class="row" style="align-items:flex-end"><label class="field" style="flex:1;min-width:200px"><span>Email</span><input id="mEmail" type="email" autocomplete="email" inputmode="email" required></label><button class="btn" type="submit" id="mSend">Gửi link đăng nhập</button></div>
+          <div class="checks"><label><input type="checkbox" id="mRemember" ${Store.rememberLogin() ? "checked" : ""}>Ghi nhớ đăng nhập trên máy này (chỉ chọn nếu là máy riêng của bạn)</label></div></form>
         <div id="mailMsg" aria-live="polite"></div>
       </section></div>`;
     const box = wirePinBox(submit);
@@ -222,7 +223,7 @@
       try {
         const r = await Store.familyStudents(c);
         code = c;
-        $("#kidList").innerHTML = r.students.length ? `<div class="sec"><div class="label">${esc(r.family || "Chọn tên của con")}</div><div class="tiles">${r.students.map((k) => `<button class="tile" data-u="${esc(k.id)}" aria-pressed="false">${avatar(k, true)}<span class="nm">${esc(k.name)}</span><span class="small muted">Lớp ${esc(k.grade)}${k.className ? " · " + esc(k.className) : ""}</span></button>`).join("")}</div></div>`
+        $("#kidList").innerHTML = r.students.length ? `<div class="sec"><div class="label">${esc(r.family || "Chọn tên của con")}</div><div class="tiles">${r.students.map((k) => `<button class="tile" data-u="${esc(k.id)}" aria-pressed="false">${avatar(k, true)}<span class="nm">${esc(k.name)}</span></button>`).join("")}</div></div>`
           : `<p class="muted">Gia đình này chưa có tài khoản học sinh.</p>`;
         $$("#kidList .tile").forEach((t) => (t.onclick = () => {
           sel = t.dataset.u;
@@ -249,7 +250,7 @@
       const email = $("#mEmail").value.trim(), btn = $("#mSend");
       btn.disabled = true;
       try {
-        await Store.sendLink(email);
+        await Store.sendLink(email, $("#mRemember").checked);
         $("#mailMsg").innerHTML = `<div class="fb ok">Đã gửi đến ${esc(email)}. Mở email và bấm vào link đăng nhập. Không thấy thư thì xem mục Spam (Thư rác).</div>
           <form class="row" id="otpForm" autocomplete="off" style="align-items:flex-end"><label class="field" style="flex:1;min-width:150px"><span>Hoặc nhập mã số trong email</span><input id="mCode" inputmode="numeric" maxlength="10" autocomplete="one-time-code"></label><button class="btn sm" type="submit">Vào</button></form>
           <div id="otpErr" aria-live="assertive"></div>`;
@@ -376,10 +377,11 @@
     return `<div class="list">${list.map((r) => `<div class="item"><div class="grow"><b>${esc(r.label || "Bài ôn")}</b><span class="small muted">${esc(ago(r.at))}${r.subject ? " · " + esc(r.subject) : ""}${r.mode === "exam" ? " · làm như thi" : ""}</span></div><b class="${pct(r.r, r.t) >= 80 ? "" : ""}" style="font-variant-numeric:tabular-nums">${r.r}/${r.t}</b></div>`).join("")}</div>`;
   }
 
+  const pinTag = (u) => (u.pinLocked ? " · PIN bị khóa, cần đặt lại" : u.pinOld ? " · nên đặt PIN mới 6 số" : "");
   function childCard(c) {
     const res = Store.resultsFor(c.id), nx = nextEvent(c.grade), [r, t] = sumRT(within(res, 30));
     return `<button class="item" data-child="${esc(c.id)}">${avatar(c)}<span class="grow"><b>${esc(c.name)}</b>
-      <span class="small muted">${esc(gradeTxt(c))} · ${res.length ? "Lần cuối: " + esc(ago(res[0].at)) : "Chưa làm bài nào"}${t ? " · TB 30 ngày " + d10(r, t) + "/10" : ""}</span>
+      <span class="small muted">${esc(gradeTxt(c))}${esc(pinTag(c))} · ${res.length ? "Lần cuối: " + esc(ago(res[0].at)) : "Chưa làm bài nào"}${t ? " · TB 30 ngày " + d10(r, t) + "/10" : ""}</span>
       ${nx ? `<span class="small">Sắp tới: ${esc(nx.title)} · ${esc(range(nx))}</span>` : ""}</span><span aria-hidden="true">›</span></button>`;
   }
   function renderParent(p) {
@@ -503,7 +505,7 @@
         <section class="sec"><h2>Học sinh</h2>${studs.length ? `<div class="list">${studs.map(childCard).join("")}</div>` : `<div class="panel">Chưa có học sinh. <div class="row"><a class="btn main" href="#/admin/user/new?role=student">Thêm học sinh</a></div></div>`}</section>
         ${[4, 6].map((g) => { const n = nextEvent(g); return n ? `<section class="sec"><h2>Kì thi tiếp theo · Lớp ${g}</h2><div class="timeline">${eventRow(n, { grade: g })}</div></section>` : ""; }).join("")}`;
     } else if (tab === "users") {
-      const sect = (role, name) => { const us = Store.users(role); return `<section class="sec"><div class="row between"><h2>${name} (${us.length})</h2><a class="btn sm" href="#/admin/user/new?role=${role}">+ Thêm</a></div>${us.length ? `<div class="list">${us.map((x) => `<a class="item" href="#/admin/user/${esc(x.id)}" style="color:inherit;text-decoration:none">${avatar(x)}<span class="grow"><b>${esc(x.name)}</b><span class="small muted">${esc(gradeTxt(x))}${role === "student" ? " · Phụ huynh: " + esc((x.parentIds || []).map((p) => (Store.user(p) || {}).name).filter(Boolean).join(", ") || "chưa gắn") : role === "parent" ? " · Con: " + esc(Store.childrenOf(x.id).map((c) => c.name).join(", ") || "chưa gắn") : ""}${Store.cloud && role !== "student" ? (x.linked ? " · đã gắn email" : " · chưa gắn email") : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>` : `<div class="panel muted">Chưa có.</div>`}</section>`; };
+      const sect = (role, name) => { const us = Store.users(role); return `<section class="sec"><div class="row between"><h2>${name} (${us.length})</h2><a class="btn sm" href="#/admin/user/new?role=${role}">+ Thêm</a></div>${us.length ? `<div class="list">${us.map((x) => `<a class="item" href="#/admin/user/${esc(x.id)}" style="color:inherit;text-decoration:none">${avatar(x)}<span class="grow"><b>${esc(x.name)}</b><span class="small muted">${esc(gradeTxt(x))}${pinTag(x)}${role === "student" ? " · Phụ huynh: " + esc((x.parentIds || []).map((p) => (Store.user(p) || {}).name).filter(Boolean).join(", ") || "chưa gắn") : role === "parent" ? " · Con: " + esc(Store.childrenOf(x.id).map((c) => c.name).join(", ") || "chưa gắn") : ""}${Store.cloud && role !== "student" ? (x.linked ? " · đã gắn email" : " · chưa gắn email") : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>` : `<div class="panel muted">Chưa có.</div>`}</section>`; };
       body = sect("student", "Học sinh") + sect("parent", "Phụ huynh") + sect("admin", "Quản trị");
     } else if (tab === "events") {
       body = `<div class="row between"><p class="muted small" style="flex:1">Sửa ngày khi trường thông báo, gắn bài ôn vào từng kì thi.</p><a class="btn main sm" href="#/admin/event/new">+ Thêm kì thi</a></div>
@@ -529,7 +531,7 @@
           <div id="migRes" aria-live="polite"></div></section>
         <section class="panel"><h3>Sao lưu</h3><p class="small">Tải bản sao dữ liệu trên đám mây về máy (không chứa mã PIN).</p>
           <div class="row"><button class="btn sm" id="dExport">Tải file sao lưu</button></div></section>
-        <section class="panel"><h3>Xóa toàn bộ dữ liệu trên đám mây</h3><p class="small">Xóa gia đình này cùng mọi tài khoản, kết quả và lịch đã sửa trên máy chủ. Không hoàn tác được.</p>
+        <section class="panel"><h3>Xóa toàn bộ dữ liệu trên đám mây</h3><p class="small">Xóa gia đình này cùng mọi hồ sơ, kết quả và lịch đã sửa trên máy chủ. Không hoàn tác được. Email đăng nhập của bố mẹ, thầy cô vẫn còn trong Supabase (xóa ở Authentication → Users nếu muốn).</p>
           <div class="row"><button class="btn danger sm" id="dWipe">Xóa toàn bộ…</button></div><div id="wipeArea"></div></section>`;
     } else if (tab === "data") {
       const st = Store.settings();
@@ -610,7 +612,7 @@
       <h2>${editing ? "Sửa tài khoản" : "Thêm " + Store.ROLES[role].toLowerCase()}</h2>
       <form class="panel" id="uForm" autocomplete="off"><div class="form">
         <label class="field"><span>Tên hiển thị</span><input id="uName" value="${esc(editing ? editing.name : "")}" required maxlength="40" placeholder="${role === "student" ? "Ví dụ: Bin, Minh Anh" : "Ví dụ: Mẹ Bin"}"></label>
-        ${!Store.cloud || role === "student" ? `<label class="field"><span>${editing ? "Mã PIN mới (để trống nếu giữ nguyên)" : "Mã PIN (4–6 chữ số)"}</span><input id="uPin" type="password" inputmode="numeric" maxlength="6" ${editing ? "" : "required"}></label>` : ""}
+        ${!Store.cloud || role === "student" ? `<label class="field"><span>${editing ? "Mã PIN mới (để trống nếu giữ nguyên)" : Store.cloud ? "Mã PIN (6 chữ số)" : "Mã PIN (4–6 chữ số)"}</span><input id="uPin" type="password" inputmode="numeric" maxlength="6" ${editing ? "" : "required"}></label>` : ""}
         ${role === "student" ? `<label class="field"><span>Khối</span><select id="uGrade"><option value="4" ${editing && editing.grade === 4 ? "selected" : ""}>Lớp 4</option><option value="6" ${editing && editing.grade === 6 ? "selected" : ""}>Lớp 6</option></select></label>
           <label class="field"><span>Lớp (không bắt buộc)</span><input id="uClass" value="${esc(editing ? editing.className || "" : "")}" placeholder="Ví dụ: 4A"></label>` : ""}
         <div class="field full"><span>Hình đại diện</span>${emojiPicker(emo)}</div>
@@ -619,8 +621,15 @@
       </div><div id="uErr"></div>
       <div class="row"><button class="btn main" type="submit">${editing ? "Lưu" : "Tạo tài khoản"}</button>${editing && (isAdmin || role === "student") && editing.id !== viewer.id ? `<button class="btn danger" type="button" id="uDel">Xóa tài khoản</button>` : ""}</div>
       <div id="uDelArea"></div></form>
-      ${Store.cloud && role !== "student" ? inviteBox(editing, viewer) : ""}</div>`;
+      ${Store.cloud && role !== "student" ? inviteBox(editing, viewer) : ""}
+      ${Store.cloud && editing && role === "student" ? `<section class="panel" id="kidBox"><h3>Đăng nhập của con</h3>
+        ${editing.pinLocked ? `<div class="fb bad">Mã PIN của con đang bị khóa vì nhập sai nhiều lần. Đặt mã PIN mới ở trên để mở khóa.</div>` : editing.pinOld ? `<div class="notice">Con đang dùng mã PIN cũ chuyển từ máy. Nên đặt mã PIN mới 6 số.</div>` : ""}
+        <p class="small">Đổi mã PIN cũng đăng xuất con khỏi mọi máy.</p>
+        <div class="row"><button class="btn ghost sm" type="button" id="uKidOut">Đăng xuất mọi máy của con</button></div></section>` : ""}</div>`;
     wireGo(); wireEmoji(view, (e) => (emo = e));
+    if ($("#uKidOut")) $("#uKidOut").onclick = async () => {
+      try { const n = await Store.signOutChild(editing.id); toast(n ? "Đã đăng xuất con khỏi " + n + " máy" : "Con chưa đăng nhập trên máy nào"); } catch (e) { toast(e.message); }
+    };
     if ($("#uInv")) $("#uInv").onclick = () => {
       const make = async () => { try { await Store.newInvite(editing.id); toast("Đã tạo mã mời mới"); renderUserForm(viewer, id, query); } catch (e) { toast(e.message); } };
       if (!editing.linked) { make(); return; }
@@ -780,7 +789,7 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
       <form class="panel" id="aForm" autocomplete="off"><h3>${hasPin ? "Đổi hình đại diện hoặc mã PIN" : "Đổi hình đại diện"}</h3>
         ${emojiPicker(emo)}
         ${hasPin ? `<div class="form"><label class="field"><span>Mã PIN hiện tại</span><input id="aOld" type="password" inputmode="numeric" maxlength="6"></label>
-        <label class="field"><span>Mã PIN mới</span><input id="aNew" type="password" inputmode="numeric" maxlength="6"></label></div>` : ""}
+        <label class="field"><span>${Store.cloud ? "Mã PIN mới (6 chữ số)" : "Mã PIN mới"}</span><input id="aNew" type="password" inputmode="numeric" maxlength="6"></label></div>` : ""}
         <div id="aErr"></div><div class="row"><button class="btn sm" type="submit">Lưu</button></div></form>
       ${Store.cloud && !hasPin ? `<p class="small muted">Đăng nhập bằng email ${esc(Store.authEmail())}.</p>` : ""}
       <div class="row"><button class="btn main" id="logout">Đăng xuất</button></div></div>`;

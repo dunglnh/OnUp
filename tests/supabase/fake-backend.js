@@ -7,27 +7,28 @@ const nodeCrypto = require("crypto");
 
 const PK = {
   families: ["id"], profiles: ["id"], parent_child: ["parent_id", "child_id"], exam_events: ["family_id", "id"],
-  question_banks: ["family_id", "id"], results: ["id"], student_sessions: ["auth_user_id"], student_pins: ["profile_id"], login_attempts: ["key"]
+  question_banks: ["family_id", "id"], results: ["id"], student_sessions: ["auth_user_id"], student_pins: ["profile_id"], login_attempts: ["key"],
+  known_devices: ["profile_id", "device"], allowed_creators: ["email"]
 };
 // Cột người đăng nhập (authenticated) được ghi, như các lệnh grant trong schema.sql.
 const GRANT = {
-  families: { insert: null, update: ["name", "school_year", "seed_banks_seen"] },
+  families: { insert: null, update: ["name", "school_year", "seed_banks_seen"], select: ["id", "name", "school_year", "seed_banks_seen", "created_at"] },
   profiles: { insert: ["id", "family_id", "role", "name", "avatar", "grade", "class_name"], update: ["name", "avatar", "grade", "class_name"] },
   parent_child: { insert: ["parent_id", "child_id"], update: null },
   exam_events: { insert: "*", update: "*" }, question_banks: { insert: "*", update: "*" },
   results: { insert: ["id", "profile_id", "source", "ref_id", "subject", "label", "mode", "r", "t", "s", "wrong_topics"], update: null },
-  student_sessions: { insert: null, update: null }, student_pins: null, login_attempts: null
+  student_sessions: { insert: null, update: null }, student_pins: null, login_attempts: null, known_devices: null, allowed_creators: null
 };
 const ALPHA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const code = (n) => Array.from(nodeCrypto.randomBytes(n), (b) => ALPHA[b % 32]).join("");
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
-const fail = (message, code) => ({ data: null, error: { message, code: code || "42501" } });
-class Fail extends Error {}
+const fail = (message, code) => ({ data: null, error: { message, code: code == null ? "42501" : code } });
+class Fail extends Error { constructor(m, code) { super(m); this.code = code; } }
 
 function createBackend() {
   const T = {}; Object.keys(PK).forEach((k) => (T[k] = []));
   const users = new Map(), tokens = new Map(), outbox = [];
-  const be = { T, users, outbox, clock: 0, failWrites: 0, functions: {}, log: [], anonEnabled: true };
+  const be = { T, users, outbox, clock: 0, failWrites: 0, functions: {}, log: [], anonEnabled: true, rateLimit: true };
   const now = () => new Date(Date.now() + be.clock);
 
   /* ---------- RLS ---------- */
@@ -36,7 +37,7 @@ function createBackend() {
     if (!uid) return null;
     const p = T.profiles.find((x) => x.auth_user_id === uid);
     if (p) return p;
-    const s = T.student_sessions.find((x) => x.auth_user_id === uid);
+    const s = T.student_sessions.find((x) => x.auth_user_id === uid && new Date(x.created_at || 0) > new Date(+now() - 30 * 864e5));
     return s ? T.profiles.find((x) => x.id === s.profile_id) || null : null;
   }
   const famOf = (pid) => (T.profiles.find((p) => p.id === pid) || {}).family_id || null;
@@ -100,6 +101,9 @@ function createBackend() {
       row.family_id = famOf(row.profile_id);
       if (!importing) { row.at = now().toISOString(); row.import_key = null; }
       if (!(row.t > 0 && row.t <= 1000 && row.r >= 0 && row.r <= row.t)) throw new Fail('new row for relation "results" violates check constraint "results_check"');
+      if (!importing && be.rateLimit && T.results.filter((x) => x.profile_id === row.profile_id && new Date(x.at) > new Date(+now() - 600000)).length >= 60) {
+        throw new Fail("Gửi quá nhiều kết quả trong thời gian ngắn. Đợi vài phút rồi thử lại.");
+      }
       if (!["module", "bank"].includes(row.source)) throw new Fail("results_source_check");
     }
     if (table === "exam_events") {
@@ -125,14 +129,18 @@ function createBackend() {
       T.student_pins = T.student_pins.filter((s) => s.profile_id !== row.id);
     }
   }
-  function trimResults(fid) {
-    const mine = T.results.filter((r) => r.family_id === fid).sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : a.id < b.id ? -1 : 1));
-    const drop = new Set(mine.slice(5000));
+  // tối đa 2000 kết quả mỗi học sinh
+  function trimResults(pids) {
+    const drop = new Set();
+    new Set(pids).forEach((pid) => {
+      const mine = T.results.filter((r) => r.profile_id === pid).sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : a.id < b.id ? 1 : -1));
+      mine.slice(2000).forEach((r) => drop.add(r));
+    });
     if (drop.size) T.results = T.results.filter((r) => !drop.has(r));
   }
 
   /* ---------- truy vấn ---------- */
-  const match = (row, filters) => filters.every(([k, c, v]) => (k === "eq" ? row[c] === v : k === "in" ? v.includes(row[c]) : true));
+  const match = (row, filters) => filters.every(([k, c, v]) => (k === "eq" ? row[c] === v : k === "neq" ? row[c] !== v : k === "in" ? v.includes(row[c]) : true));
   const pick = (row, cols) => {
     if (!cols || cols === "*") return clone(row);
     const o = {}; cols.split(",").map((c) => c.trim()).forEach((c) => (o[c] = row[c] === undefined ? null : clone(row[c]))); return o;
@@ -149,8 +157,9 @@ function createBackend() {
     if (!T[table]) throw new Fail("relation does not exist");
     if (!service && GRANT[table] === null) throw new Fail("permission denied for table " + table);
     const visible = (r) => service || canSee(table, r, uid);
-    if (q.op !== "select" && be.failWrites > 0) { be.failWrites--; throw new Fail("TypeError: Failed to fetch"); }
+    if (q.op !== "select" && be.failWrites > 0) { be.failWrites--; throw new Fail("TypeError: Failed to fetch", ""); }
     if (q.op === "select") {
+      if (!service && GRANT[table].select && (q.cols === "*" || q.cols.split(",").some((c) => !GRANT[table].select.includes(c.trim())))) throw new Fail("permission denied for table " + table);
       let rows = T[table].filter((r) => visible(r) && match(r, q.filters));
       q.orders.slice().reverse().forEach(([c, asc]) => rows.sort((a, b) => (a[c] === b[c] ? 0 : (a[c] < b[c] ? -1 : 1) * (asc ? 1 : -1))));
       const [a, b] = q.range || [0, 999];
@@ -176,19 +185,26 @@ function createBackend() {
             if (!service && !canWrite(table, old, uid, "update")) throw new Fail("new row violates row-level security policy for table \"" + table + "\"");
             return;
           }
+          if (old && q.ignoreDuplicates) return;
           if (old) throw new Fail("duplicate key value violates unique constraint", "23505");
           checkCols(table, "insert", row, service);
           beforeInsert(table, row, service, false);
           if (!service && !canInsert(table, row, uid)) throw new Fail("new row violates row-level security policy for table \"" + table + "\"");
+          if (table === "profiles" && T.profiles.filter((x) => x.family_id === row.family_id).length >= 300) throw new Fail("Gia đình đã có 300 mục, không thêm được nữa.");
           T[table].push(row);
-          if (table === "results") trimResults(row.family_id);
+          if (table === "results") trimResults([row.profile_id]);
         });
       } catch (e) { Object.keys(staged).forEach((k) => (T[k] = staged[k])); throw e; }
       return q.returning ? q.values.map((v) => pick(T[table].find((x) => pkOf(table, x, keys) === pkOf(table, v, keys)), q.returning)) : null;
     }
     if (q.op === "update") {
       checkCols(table, "update", q.patch, service);
-      T[table].filter((r) => visible(r) && match(r, q.filters) && (service || canWrite(table, r, uid, "update"))).forEach((r) => Object.assign(r, clone(q.patch)));
+      const rows = T[table].filter((r) => visible(r) && match(r, q.filters) && (service || canWrite(table, r, uid, "update")));
+      const m = me(uid);
+      if (table === "profiles" && m && rows.some((r) => r.role === "student" && r.id === m.id && ["name", "grade", "class_name"].some((c) => c in q.patch && q.patch[c] !== r[c]))) {
+        throw new Fail("Con chỉ đổi được hình đại diện. Nhờ bố mẹ sửa tên hoặc lớp nhé.");
+      }
+      rows.forEach((r) => Object.assign(r, clone(q.patch)));
       return null;
     }
     if (q.op === "delete") {
@@ -201,17 +217,31 @@ function createBackend() {
     throw new Fail("bad op");
   }
 
-  /* ---------- đếm lần thử ---------- */
-  function attemptBegin(key, max, secs) {
+  /* ---------- đếm lần thử (như attempt_begin / attempt_done trong schema.sql) ---------- */
+  const row = (key) => {
     let a = T.login_attempts.find((x) => x.key === key);
-    if (!a) { a = { key, fails: 0, rounds: 0, locked_until: null, updated_at: now().toISOString() }; T.login_attempts.push(a); }
-    if (a.locked_until && new Date(a.locked_until) > now()) return Math.ceil((new Date(a.locked_until) - now()) / 1000);
-    a.fails++;
-    if (a.fails >= (max || 5)) { a.locked_until = new Date(+now() + (secs || 30) * 1000 * Math.pow(2, Math.min(a.rounds, 7))).toISOString(); a.rounds++; a.fails = 0; }
+    if (!a) { a = { key, fails: 0, rounds: 0, locked_until: null, since_ok: 0, day_fails: 0, day_start: null, hard: false, updated_at: now().toISOString() }; T.login_attempts.push(a); }
+    return a;
+  };
+  const waitOf = (a) => (a.locked_until && new Date(a.locked_until) > now() ? Math.ceil((new Date(a.locked_until) - now()) / 1000) : 0);
+  function attemptBegin(key, max, secs, maxRounds = 7, window = 86400, cap = null, dayCap = null) {
+    const a = row(key);
+    if (a.hard) return -1;
+    if (waitOf(a)) return waitOf(a);
+    if (new Date(a.updated_at) < new Date(+now() - window * 1000)) { a.fails = 0; a.rounds = 0; }
+    if (!a.day_start || new Date(a.day_start) < new Date(+now() - 864e5)) { a.day_start = now().toISOString(); a.day_fails = 0; }
+    if ((cap != null && a.since_ok >= cap) || (dayCap != null && a.day_fails >= dayCap)) { a.hard = true; a.updated_at = now().toISOString(); return -1; }
+    a.fails++; a.since_ok++; a.day_fails++;
+    if (a.fails >= max) { a.locked_until = new Date(+now() + secs * 1000 * Math.pow(2, Math.min(a.rounds, maxRounds))).toISOString(); a.rounds++; a.fails = 0; }
     a.updated_at = now().toISOString();
     return 0;
   }
-  const attemptWait = (key) => { const a = T.login_attempts.find((x) => x.key === key); return a && a.locked_until && new Date(a.locked_until) > now() ? Math.ceil((new Date(a.locked_until) - now()) / 1000) : 0; };
+  function attemptDone(key, reset) {
+    const a = T.login_attempts.find((x) => x.key === key);
+    if (!a || a.hard) return;
+    if (reset) { a.fails = 0; a.since_ok = 0; a.locked_until = null; } else { a.fails = Math.max(a.fails - 1, 0); a.since_ok = Math.max(a.since_ok - 1, 0); }
+    a.day_fails = Math.max(a.day_fails - 1, 0); a.updated_at = now().toISOString();
+  }
 
   /* ---------- RPC (như các hàm trong schema.sql) ---------- */
   function rpc(name, a, uid, service) {
@@ -223,6 +253,7 @@ function createBackend() {
       case "current_profile_id": return m ? m.id : null;
       case "create_family": {
         emailUser();
+        if (!T.allowed_creators.some((c) => c.email === String(user.email).toLowerCase())) throw new Fail("Email này chưa được phép tạo gia đình mới. Nếu bạn là phụ huynh, hãy nhờ người quản trị gửi mã mời.");
         const fid = nodeCrypto.randomUUID();
         T.families.push({ id: fid, name: String(a.p_name || "").trim().slice(0, 80), school_year: String(a.p_school_year || "").trim() || "2026–2027", join_code: code(6), seed_banks_seen: a.p_seed_banks || [], created_at: now().toISOString() });
         const p = { family_id: fid, auth_user_id: uid, role: "admin", name: a.p_admin_name, avatar: a.p_avatar || "🧭" };
@@ -233,12 +264,12 @@ function createBackend() {
       }
       case "claim_invite": {
         emailUser();
-        const k = "invite:" + uid, w = attemptBegin(k);
+        const k = "invite:" + uid, w = attemptBegin(k, 5, 30);
         if (w > 0) throw new Fail("Sai nhiều lần. Đợi " + w + " giây rồi thử lại.");
         const c = String(a.p_code || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
         const p = T.profiles.find((x) => x.invite_code === c && !x.auth_user_id && x.role !== "student");
         if (!p) return null;
-        p.auth_user_id = uid; p.invite_code = null; T.login_attempts = T.login_attempts.filter((x) => x.key !== k);
+        p.auth_user_id = uid; p.invite_code = null; attemptDone(k, true);
         return p.id;
       }
       case "new_invite": {
@@ -250,7 +281,24 @@ function createBackend() {
       }
       case "new_join_code": {
         if (!m || m.role !== "admin") throw new Fail("Không có quyền.");
-        const f = T.families.find((x) => x.id === m.family_id); f.join_code = code(6); return f.join_code;
+        const f = T.families.find((x) => x.id === m.family_id); f.join_code = code(6);
+        const kids = new Set(T.profiles.filter((p) => p.family_id === f.id).map((p) => p.id));
+        T.student_sessions = T.student_sessions.filter((x) => !kids.has(x.profile_id));
+        return f.join_code;
+      }
+      case "get_join_code": return m && m.role !== "student" ? T.families.find((x) => x.id === m.family_id).join_code : null;
+      case "child_pin_status":
+        return T.profiles.filter((p) => p.role === "student" && (isAdminOf(m, p.family_id) || isParentOf(m, p.id))).map((p) => ({
+          profile_id: p.id,
+          locked: T.login_attempts.some((a) => (a.key === "pin:" + p.id || a.key.startsWith("pin:" + p.id + ":")) && a.hard),
+          legacy: T.student_pins.some((x) => x.profile_id === p.id && !/^pbkdf2v2\$/.test(x.pin_hash))
+        }));
+      case "sign_out_child": {
+        const p = T.profiles.find((x) => x.id === a.p_profile);
+        if (!p || !(isAdminOf(m, p.family_id) || isParentOf(m, p.id))) throw new Fail("Không có quyền.");
+        const n = T.student_sessions.filter((x) => x.profile_id === p.id).length;
+        T.student_sessions = T.student_sessions.filter((x) => x.profile_id !== p.id);
+        return n;
       }
       case "add_child": {
         if (!m || m.role !== "parent") throw new Fail("Không có quyền.");
@@ -263,21 +311,31 @@ function createBackend() {
         removeRow("families", T.families.find((f) => f.id === m.family_id)); return null;
       }
       case "import_local": return importLocal(a.p_data, m);
-      case "attempt_begin": serviceOnly(); return attemptBegin(a.p_key, a.p_max, a.p_seconds);
-      case "attempt_wait": serviceOnly(); return attemptWait(a.p_key);
-      case "attempt_success": serviceOnly(); T.login_attempts = T.login_attempts.filter((x) => x.key !== a.p_key); return null;
+      case "attempt_begin": serviceOnly(); return attemptBegin(a.p_key, a.p_max, a.p_seconds, a.p_max_rounds ?? 7, a.p_window ?? 86400, a.p_cap ?? null, a.p_day_cap ?? null);
+      case "attempt_done": serviceOnly(); attemptDone(a.p_key, a.p_reset); return null;
+      case "attempt_reset_profile": serviceOnly(); T.login_attempts = T.login_attempts.filter((x) => x.key !== "pin:" + a.p_profile && !x.key.startsWith("pin:" + a.p_profile + ":")); return null;
+      case "family_by_code": {
+        serviceOnly();
+        const w = Math.max(0, ...(a.p_keys || []).map((k) => waitOf(row(k))));
+        if (w) return { wait: w };
+        const f = T.families.find((x) => x.join_code === a.p_code);
+        if (f) return { id: f.id, name: f.name };
+        (a.p_keys || []).forEach((k) => attemptBegin(k, a.p_max, a.p_seconds, 2, a.p_window));
+        return { miss: true };
+      }
       default: throw new Fail("function " + name + " does not exist");
     }
   }
   function importLocal(d, m) {
     if (!m || m.role !== "admin") throw new Fail("Chỉ quản trị mới chuyển được dữ liệu.");
     if (!d || !Array.isArray(d.users)) throw new Fail("Dữ liệu không đúng định dạng.");
+    if (d.from === "cloud") throw new Fail("File này là bản sao lưu từ đám mây, dữ liệu đã có trên máy chủ.");
     const fid = m.family_id, ids = {};
     let nUsers = 0, nRes = 0;
     d.users.forEach((u) => {
       if (!["admin", "parent", "student"].includes(u.role) || !String(u.name || "").trim()) return;
       if (u.role === "student" && ![4, 6].includes(+u.grade)) return;
-      let p = u.role === "admin" && String(u.name).trim() === m.name ? m : T.profiles.find((x) => x.family_id === fid && x.import_key === u.id);
+      let p = u.role === "admin" && String(u.name).trim() === m.name ? m : T.profiles.find((x) => x.family_id === fid && (x.import_key === u.id || x.id === u.id));
       if (!p) {
         p = { family_id: fid, role: u.role, name: u.name, avatar: u.avatar || "🙂", grade: u.role === "student" ? +u.grade : null, class_name: u.role === "student" ? u.className || "" : "", import_key: u.id };
         beforeInsert("profiles", p); T.profiles.push(p); nUsers++;
@@ -309,18 +367,18 @@ function createBackend() {
       const pid = ids[r.userId], p = T.profiles.find((x) => x.id === pid);
       if (!p || p.role !== "student" || !(+r.t > 0) || !["module", "bank"].includes(r.source)) return;
       const key = r.id || JSON.stringify(r);
-      if (T.results.some((x) => x.family_id === fid && x.import_key === key)) return;
+      if (T.results.some((x) => (x.family_id === fid && x.import_key === key) || x.id === r.id)) return;
       const t = Math.min(+r.t, 1000);
       const row = { id: nodeCrypto.randomUUID(), profile_id: pid, source: r.source, ref_id: r.refId || "", subject: r.subject || "", label: r.label || "", mode: r.mode || "",
         r: Math.min(Math.max(+r.r || 0, 0), t), t, s: Math.max(+r.s || 0, 0), wrong_topics: r.wrongTopics || null, import_key: key, at: r.at || now().toISOString() };
       beforeInsert("results", row, true, true); T.results.push(row); nRes++;
     });
-    trimResults(fid);
+    trimResults(T.profiles.filter((p) => p.family_id === fid).map((p) => p.id));
     const f = T.families.find((x) => x.id === fid);
     if (Array.isArray(d.seedBanksSeen)) f.seed_banks_seen = Array.from(new Set(f.seed_banks_seen.concat(d.seedBanksSeen)));
     if (!f.name && d.settings && d.settings.schoolName) f.name = d.settings.schoolName;
     const invites = T.profiles.filter((p) => p.family_id === fid && p.invite_code).map((p) => ({ id: p.id, name: p.name, role: p.role, code: p.invite_code }));
-    return { users: nUsers, results: nRes, invites };
+    return { users: nUsers, results: nRes, invites, ids };
   }
 
   /* ---------- đăng nhập ---------- */
@@ -373,7 +431,7 @@ function createBackend() {
       }
       return fail("bad message");
     } catch (e) {
-      if (e instanceof Fail) return fail(e.message);
+      if (e instanceof Fail) return fail(e.message, e.code);
       throw e;
     }
   };

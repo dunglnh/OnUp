@@ -212,6 +212,8 @@
     try { data = JSON.parse(text); } catch (e) { throw new Error("File không đúng định dạng JSON."); }
     if (!data || !Array.isArray(data.users) || !Array.isArray(data.events) || !Array.isArray(data.results)) throw new Error("File sao lưu thiếu dữ liệu người dùng, lịch thi hoặc kết quả.");
     if (!data.users.some((u) => u.role === "admin")) throw new Error("File sao lưu không có tài khoản quản trị.");
+    // Bản sao lưu từ đám mây không có mã PIN: khôi phục vào máy sẽ không ai đăng nhập được.
+    if (data.from === "cloud" || data.users.some((u) => !u.pinHash || !u.salt)) throw new Error("File này là bản sao lưu từ đám mây (không có mã PIN), không khôi phục vào máy được. Dùng file sao lưu tải từ bản lưu trên máy.");
     delete data.app; delete data.exportedAt;
     data.banks = Array.isArray(data.banks) ? data.banks : [];
     data.settings = data.settings || {};

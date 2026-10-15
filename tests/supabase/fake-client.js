@@ -6,7 +6,7 @@
   "use strict";
   function createFakeSupabase(transport, opts) {
     opts = opts || {};
-    const storage = opts.storage || (typeof localStorage !== "undefined" ? localStorage : null);
+    const storage = (opts.auth && opts.auth.storage) || opts.storage || (typeof localStorage !== "undefined" ? localStorage : null);
     const key = (opts.auth && opts.auth.storageKey) || "sb-fake-auth";
     let mem = null;
     const listeners = [];
@@ -26,10 +26,11 @@
       constructor(table) { this.d = { table, op: "select", cols: "*", filters: [], orders: [] }; }
       select(cols) { if (this.d.op === "select") this.d.cols = cols || "*"; else this.d.returning = cols || "*"; return this; }
       insert(v) { this.d.op = "insert"; this.d.values = [].concat(v); return this; }
-      upsert(v, o) { this.d.op = "upsert"; this.d.values = [].concat(v); this.d.onConflict = o && o.onConflict; return this; }
+      upsert(v, o) { this.d.op = "upsert"; this.d.values = [].concat(v); this.d.onConflict = o && o.onConflict; this.d.ignoreDuplicates = !!(o && o.ignoreDuplicates); return this; }
       update(p) { this.d.op = "update"; this.d.patch = p; return this; }
       delete() { this.d.op = "delete"; return this; }
       eq(c, v) { this.d.filters.push(["eq", c, v]); return this; }
+      neq(c, v) { this.d.filters.push(["neq", c, v]); return this; }
       in(c, v) { this.d.filters.push(["in", c, v]); return this; }
       order(c, o) { this.d.orders.push([c, !(o && o.ascending === false)]); return this; }
       range(a, b) { this.d.range = [a, b]; return this; }
@@ -58,7 +59,7 @@
         writeSession(r.session); emit("SIGNED_IN", r.session);
         return { data: { session: r.session, user: r.session.user }, error: null };
       },
-      async signOut() { await send({ kind: "auth", op: "signOut", args: {} }); writeSession(null); emit("SIGNED_OUT", null); return { error: null }; }
+      async signOut(o) { await send({ kind: "auth", op: "signOut", args: { scope: (o && o.scope) || "global" } }); writeSession(null); emit("SIGNED_OUT", null); return { error: null }; }
     };
     return {
       auth,

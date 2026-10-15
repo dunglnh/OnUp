@@ -133,10 +133,20 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   const migOK = JSON.stringify(linked) === JSON.stringify(seedCk1) && !kept.includes("toan4-ck1-de3") && kept.length === seedCk1.length - 1;
   console.log("ck1-l4 after reload:", linked, "after admin unlink:", kept);
 
+  step("restore cloud backup refused");
+  const cloudBackup = await page.evaluate(() => {
+    const before = JSON.stringify(Store.data());
+    const file = JSON.stringify({ app: "on-thi-4-6", from: "cloud", users: Store.users().map((u) => ({ id: u.id, role: u.role, name: u.name })), events: Store.events(), results: [] });
+    let msg = "";
+    try { Store.importJSON(file); } catch (e) { msg = e.message; }
+    return { msg, same: JSON.stringify(Store.data()) === before };
+  });
+  console.log("cloud backup:", cloudBackup);
+  const cloudOK = /đám mây/.test(cloudBackup.msg) && cloudBackup.same;
   const cloudMode = await page.evaluate(() => !!(window.Store.cloud || window.LocalStore));
   console.log("local mode:", !cloudMode, "cloud requests:", cloudReqs);
   const real = errs.filter((e) => !/fonts\.g|ERR_TUNNEL|ERR_NAME|net::/.test(e));
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || cloudReqs.length || db.results.length !== 3 || db.banks.length !== 1 || dataErrs.length || !migOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || cloudMode || cloudReqs.length || !cloudOK || db.results.length !== 3 || db.banks.length !== 1 || dataErrs.length || !migOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();
