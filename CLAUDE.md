@@ -21,7 +21,7 @@ css/app.css             toàn bộ giao diện app chính (token màu ở :root,
 js/config.js            cấu hình Supabase. ĐỂ TRỐNG (mặc định) = dùng LocalStore, không tải gì từ mạng
 js/store.js             kho dữ liệu (LocalStore, localStorage khóa "ontap_db_v1"). Mọi màn hình chỉ gọi Store.*
 js/store-supabase.js    SupabaseStore: cùng các hàm với LocalStore, chỉ bật khi js/config.js có URL + anon key
-js/app.js               định tuyến hash + tất cả màn hình (đăng nhập, trang chủ theo vai trò, lịch, quản trị)
+js/app.js               định tuyến hash + tất cả màn hình (đăng nhập, trang chủ theo vai trò, báo cáo tuần, lịch, quản trị)
 js/quiz.js              bộ làm bài chung cho ngân hàng câu hỏi + bộ đọc cú pháp nhập câu hỏi
 js/bridge.js            nạp bên trong mỗi bài ôn: tách dữ liệu theo học sinh, gửi điểm về app
 data/calendar-2026-2027.js  lịch thi mặc định (window.ONTAP_SEED_EVENTS)
@@ -96,7 +96,7 @@ Kiểm thử tự động (bắt buộc trước mỗi Pull Request): `python3 -
 
 Khi sửa `js/store-supabase.js`, `js/app.js` (phần đám mây), `supabase/`: chạy thêm `node tests/supabase/store-test.mjs` (in `SUPABASE STORE OK`), `node tests/supabase/cloud-e2e.js` (in `CLOUD E2E OK`, ảnh 360px sáng/tối ở `tests/screenshots/cloud/`), và nếu máy có PostgreSQL thì `sh tests/supabase/run.sh` (in `RLS OK`).
 
-Ngoài ra chạy tay các luồng: thiết lập lần đầu → tạo phụ huynh, học sinh → đăng nhập học sinh bằng PIN → mở một bài ôn và làm xong một đề → làm một ngân hàng câu hỏi → đăng nhập phụ huynh xem hồ sơ con → quản trị sửa một kì thi. Kiểm tra ở bề rộng 390px và chế độ tối.
+Ngoài ra chạy tay các luồng: thiết lập lần đầu → tạo phụ huynh, học sinh → đăng nhập học sinh bằng PIN → mở một bài ôn và làm xong một đề → làm một ngân hàng câu hỏi → đăng nhập phụ huynh xem hồ sơ con và báo cáo tuần → quản trị sửa một kì thi. Kiểm tra ở bề rộng 390px và chế độ tối.
 
 ## Triển khai
 GitHub Pages: Settings → Pages → Deploy from a branch → `main` / root. File `.nojekyll` đã có.
@@ -105,6 +105,6 @@ GitHub Pages: Settings → Pages → Deploy from a branch → `main` / root. Fil
 **Trạng thái 16/10/2026: tạm dừng phát triển để chạy thử với học sinh.** Khi làm tiếp, ưu tiên sửa các GitHub Issue góp ý từ việc chạy thử trước mọi tính năng mới. Lộ trình đầy đủ và lời giao việc từng phiên: `docs/KE-HOACH-PHAT-TRIEN-ONUP.md`. Tóm tắt:
 1. Sửa lỗi từ góp ý chạy thử (GitHub Issues).
 2. Đề cuối kì I: đã đủ các môn cho cả lớp 4 và lớp 6 (Phiên 10, 11).
-3. Báo cáo tuần cho phụ huynh; IOE cấp tỉnh lớp 4.
+3. IOE cấp tỉnh lớp 4 (báo cáo tuần cho phụ huynh đã có từ Phiên 12).
 4. Đề giữa kì II và cuối năm cho cả hai khối.
 5. Đồng bộ đám mây đã có (Phiên 5, 5b) nhưng chưa bật: phụ huynh tự cài theo `docs/HUONG-DAN-SUPABASE.md`.

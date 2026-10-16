@@ -22,7 +22,7 @@
 
 Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp trường và cấp xã; IOE 6 cấp xã và cấp thành phố) và 18 đề cuối kì I (lớp 6 đủ 8 môn từ Phiên 10: thêm Tiếng Anh, GDCD, Tin học, Công nghệ; lớp 4 thêm Tin học và Công nghệ từ Phiên 11).
 
-**Chưa làm từ kế hoạch cũ:** Phiên 6 (nhập đề từ Excel), Phiên 7 (báo cáo tuần cho phụ huynh).
+**Chưa làm từ kế hoạch cũ:** Phiên 6 (nhập đề từ Excel). Phiên 7 (báo cáo tuần cho phụ huynh) đã làm ở Phiên 12.
 
 ## 2. Trong thời gian chạy thử (việc của bố mẹ, không tốn lượt dùng)
 
@@ -40,7 +40,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | 1 | 1/11 | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** | Giữa kì I (2–13/11) |
 | 2 | 10/12 | **Phiên 10 · Đề cuối kì I lớp 6 còn thiếu**: Tiếng Anh, GDCD, Tin học, Công nghệ | Cuối kì I lớp 6 (21/12–8/1) |
 | 3 | 10/12 | ~~**Phiên 11 · Đề cuối kì I lớp 4 còn thiếu**: Tin học và Công nghệ~~ (đã xong) | Cuối kì I lớp 4 (28/12–8/1) |
-| 4 | 15/12 | **Phiên 12 · Báo cáo tuần cho phụ huynh** (Phiên 7 cũ) | Cả năm |
+| 4 | 15/12 | ~~**Phiên 12 · Báo cáo tuần cho phụ huynh** (Phiên 7 cũ)~~ (đã xong) | Cả năm |
 | 5 | 15/2 | **Phiên 13 · IOE cấp tỉnh lớp 4** | IOE tỉnh (4–6/3) |
 | 6 | 1/3 | **Phiên 14 · Đề giữa kì II lớp 4** (Toán, Tiếng Việt) | Giữa kì II (15–26/3) |
 | 7 | 1/3 | **Phiên 15 · Đề giữa kì II lớp 6** (Toán, Ngữ văn, KHTN, Tiếng Anh) | Giữa kì II (15–26/3) |
