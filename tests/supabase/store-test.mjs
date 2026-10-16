@@ -128,7 +128,7 @@ A.Store.upsertEvent(Object.assign({}, A.Store.event(ev.id), { banks: [bk.id] }))
 const ev2 = A.Store.upsertEvent({ title: "Xóa đi", kind: "moc", grades: [6], start: "2026-12-01" });
 A.Store.removeEvent(ev2.id);
 A.Store.setSettings({ schoolName: "Nhà Bin & Na", schoolYear: "2026–2027" });
-await throwsMsg(async () => A.Store.upsertBank({ id: "mau-toan4-ck1", title: "x", questions: [{}] }), /bộ có sẵn/, "không sửa được bộ có sẵn");
+await throwsMsg(async () => A.Store.upsertBank({ id: "toan4-ck1-de1", title: "x", questions: [{}] }), /bộ có sẵn/, "không sửa được bộ có sẵn");
 await A.Store.flush();
 {
   const A2 = browser({ local: A.localStorage }); // tab mới cùng máy, quản trị đã chọn ghi nhớ
@@ -178,7 +178,7 @@ be.clock += 31000;
 r = await K.Store.studentLogin(code, bin.id, "482915");
 ok(r.ok && K.Store.authState() === "ready" && K.Store.sessionUser().id === bin.id, "đợi xong, PIN đúng thì vào được");
 ok(K.Store.users().length === 1 && K.Store.events().length > 0 && K.Store.lastUserId() === bin.id && K.Store.lastFamilyCode() === code, "học sinh chỉ thấy hồ sơ của mình và lịch thi");
-const res1 = K.Store.addResult({ userId: bin.id, source: "bank", refId: "mau-toan4-ck1", subject: "Toán", label: "Toán 4", mode: "practice", r: 8, t: 10, s: 300, wrongTopics: ["Phân số"] });
+const res1 = K.Store.addResult({ userId: bin.id, source: "bank", refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4", mode: "practice", r: 8, t: 10, s: 300, wrongTopics: ["Phân số"] });
 ok(K.Store.resultsFor(bin.id)[0].id === res1.id, "kết quả hiện ngay trong bộ nhớ đệm");
 await K.Store.flush();
 ok(be.T.results.length === 1 && be.T.results[0].family_id === fam().id && be.T.results[0].wrong_topics[0] === "Phân số" && !K.localStorage.getItem("ontap_cloud_outbox"),
@@ -195,7 +195,7 @@ ok(be.T.results.length === 2 && be.T.results.some((x) => x.id === res2.id) && !K
 // máy chủ quá tải (503) hoặc quá thời gian: giữ lại, gửi sau
 for (const [code, msg] of [["PGRST000", "Could not connect with the database"], ["57014", "canceling statement due to statement timeout"]]) {
   be.failWrites = 1; be.failCode = code; be.failMsg = msg;
-  const rr = K.Store.addResult({ userId: bin.id, source: "bank", refId: "mau-toan4-ck1", r: 1, t: 2 });
+  const rr = K.Store.addResult({ userId: bin.id, source: "bank", refId: "toan4-ck1-de1", r: 1, t: 2 });
   await K.Store.flush();
   be.failCode = be.failMsg = null;
   await K.Store.refresh(); await K.Store.flush();
@@ -218,7 +218,7 @@ ok(P.Store.resultsFor(bin.id).length === be.T.results.filter((x) => x.profile_id
 for (const how of ["thu hồi", "hết hạn"]) {
   if (how === "thu hồi") await A.Store.signOutChild(bin.id);
   else be.T.student_sessions.filter((x) => x.profile_id === bin.id).forEach((x) => (x.created_at = new Date(Date.now() + be.clock - 31 * 864e5).toISOString()));
-  const rr = K.Store.addResult({ userId: bin.id, source: "bank", refId: "mau-toan4-ck1", r: 2, t: 2 });
+  const rr = K.Store.addResult({ userId: bin.id, source: "bank", refId: "toan4-ck1-de1", r: 2, t: 2 });
   await K.Store.flush();
   ok(K.Store.authState() === "signed-out" && JSON.parse(K.localStorage.getItem("ontap_cloud_outbox") || "{}")[bin.id].length === 1, "phiên bị " + how + ": kết quả giữ trong hộp gửi, mời đăng nhập lại");
   ok((await K.Store.studentLogin(code, bin.id, "614073")).ok, "đăng nhập lại sau khi phiên bị " + how);
@@ -241,7 +241,7 @@ ok(r.ok && be.T.student_sessions.some((s) => s.auth_user_id === kAnon), "đăng 
   ok((await K2.Store.studentLogin(code, na.id, "730418")).ok, "tab thứ hai đăng nhập cho em");
   await K.Store.refresh();
   ok(K.Store.sessionUser().id === bin.id && K2.Store.sessionUser().id === na.id, "mỗi tab giữ đúng học sinh của mình");
-  const rb = K.Store.addResult({ userId: bin.id, source: "bank", refId: "mau-toan4-ck1", r: 1, t: 2 });
+  const rb = K.Store.addResult({ userId: bin.id, source: "bank", refId: "toan4-ck1-de1", r: 1, t: 2 });
   await K.Store.flush();
   ok(be.T.results.find((x) => x.id === rb.id).profile_id === bin.id, "điểm của tab cũ vẫn vào đúng hồ sơ");
 }

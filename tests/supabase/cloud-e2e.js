@@ -114,7 +114,7 @@ async function run(browser, scheme) {
   await shot(kid, "c9-doi-pin-cu");
   await kid.goto(BASE + "/#/home");
   await kid.waitForSelector("text=Chào Bông");
-  await kid.goto(BASE + "/#/quiz/mau-toan6-ck1"); await wait(kid);
+  await kid.goto(BASE + "/#/quiz/toan6-ck1-de1"); await wait(kid);
   await kid.click("#qPractice");
   for (let i = 0; i < 40 && !(await kid.$(".score")); i++) {
     if (await kid.$("#qzFill")) await kid.fill("#qzFill", "1"); else await kid.click(".opt >> nth=0");
@@ -145,7 +145,7 @@ async function run(browser, scheme) {
     "mã mời 12 kí tự": /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(invite),
     "chuyển dữ liệu: 2 tài khoản, 1 kết quả": /2 tài khoản mới, 1 kết quả/.test(migText) && !!grandma && !!grandma.invite_code,
     "học sinh vào bằng PIN cũ, PIN đổi sang PBKDF2 (đánh dấu nên đặt lại)": be.T.student_pins.find((p) => p.profile_id === bong.id).pin_hash.startsWith("pbkdf2v2w$"),
-    "kết quả làm bài được lưu lên máy chủ": results.length === 2 && results.some((r) => r.source === "bank" && r.ref_id === "mau-toan6-ck1"),
+    "kết quả làm bài được lưu lên máy chủ": results.length === 2 && results.some((r) => r.source === "bank" && r.ref_id === "toan6-ck1-de1"),
     "đăng xuất: máy nhớ mã gia đình, hiện lại danh sách": remembered === 2,
     "phụ huynh nhận mã mời (chưa gắn con)": kidsOfMom === 0,
     "không lỗi trên trang": errs.length === 0

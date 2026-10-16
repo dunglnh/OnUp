@@ -8,24 +8,6 @@
    { type: "tf",   q: "Mệnh đề", a: true, x: "..." }
    topic: tên chủ đề để thống kê câu sai theo chủ đề. */
 window.ONTAP_SEED_BANKS = [
-  {
-    id: "mau-toan4-ck1", title: "Toán 4 · Ôn cuối học kì I (bộ mẫu)", grade: 4, subject: "Toán", minutes: 25,
-    note: "Bộ câu mẫu để thử bộ làm bài chung. Thầy cô, phụ huynh nhập thêm câu trong mục Quản trị.",
-    questions: [
-      { topic: "Phép cộng, phép trừ", type: "mc", q: "364 857 + 271 316 = ?", o: ["636 173", "635 173", "636 163", "536 173"], x: "Đặt tính rồi cộng từ phải sang trái, nhớ ở hàng đơn vị, hàng trăm và hàng chục nghìn: 364 857 + 271 316 = 636 173." },
-      { topic: "Phép cộng, phép trừ", type: "fill", q: "724 563 − 351 238 = ___", ans: ["373 325"], x: "Đặt tính rồi trừ từ phải sang trái, nhớ ở hàng đơn vị và hàng chục nghìn: 724 563 − 351 238 = 373 325. Thử lại: 373 325 + 351 238 = 724 563." },
-      { topic: "Tính chất phép cộng", type: "fill", q: "Theo tính chất giao hoán: 3 765 + 2 489 = 2 489 + ___", ans: ["3 765"], x: "Khi đổi chỗ các số hạng trong một tổng thì tổng không thay đổi: a + b = b + a. Vậy 3 765 + 2 489 = 2 489 + 3 765." },
-      { topic: "Tính chất phép cộng", type: "fill", q: "Tính bằng cách thuận tiện: 237 + 98 + 63 + 2 = ___", ans: ["400"], x: "(237 + 63) + (98 + 2) = 300 + 100 = 400." },
-      { topic: "Tổng và hiệu", type: "fill", q: "Tổng của hai số là 60, hiệu của chúng là 14. Số lớn là ___", ans: ["37"], x: "Số lớn = (tổng + hiệu) : 2 = (60 + 14) : 2 = 37." },
-      { topic: "Tổng và hiệu", type: "fill", q: "Hai số chẵn liên tiếp có tổng là 90. Số lớn là ___", ans: ["46"], x: "Hai số chẵn liên tiếp hơn kém nhau 2 đơn vị, nên hiệu là 2. Số lớn = (90 + 2) : 2 = 46. Số bé là 44. Thử lại: 44 + 46 = 90." },
-      { topic: "Làm tròn số", type: "mc", q: "Số nào dưới đây khi làm tròn đến hàng trăm nghìn thì được 6 000 000?", o: ["5 960 000", "5 940 000", "6 150 000", "5 499 000"], x: "Xét chữ số hàng chục nghìn. 5 960 000 có chữ số 6, không bé hơn 5 nên làm tròn lên được 6 000 000. 5 940 000 làm tròn được 5 900 000; 6 150 000 được 6 200 000; 5 499 000 được 5 500 000." },
-      { topic: "Đường thẳng vuông góc, song song", type: "mc", q: "Hai đường thẳng vuông góc với nhau tạo thành mấy góc vuông?", o: ["4", "2", "1", "3"], x: "Hai đường thẳng vuông góc cắt nhau tạo thành 4 góc vuông chung đỉnh." },
-      { topic: "Đường thẳng vuông góc, song song", type: "tf", q: "Hai đường thẳng song song thì không bao giờ cắt nhau.", a: true, x: "Kéo dài mãi về hai phía, hai đường thẳng song song vẫn không cắt nhau." },
-      { topic: "Hình bình hành, hình thoi", type: "mc", q: "Hình bình hành có đặc điểm:", o: ["Hai cặp cạnh đối diện song song và bằng nhau", "Bốn góc vuông", "Chỉ có một cặp cạnh song song", "Hai cặp cạnh đối diện song song nhưng không bằng nhau"], x: "Hình bình hành có hai cặp cạnh đối diện song song và bằng nhau." },
-      { topic: "Hình bình hành, hình thoi", type: "tf", q: "Hình thoi nào cũng có bốn góc vuông.", a: false, x: "Hình thoi có bốn cạnh bằng nhau và hai cặp cạnh đối diện song song, nhưng nhiều hình thoi không có góc vuông nào, ví dụ hình thoi có hai góc nhọn và hai góc tù." },
-      { topic: "Đơn vị đo", type: "mc", q: "Khối lượng nào lớn nhất?", o: ["4 tấn 5 tạ", "440 yến", "4 tấn 50 kg", "4 tấn 5 kg"], x: "Đổi ra ki-lô-gam: 4 tấn 5 tạ = 4 500 kg; 440 yến = 4 400 kg; 4 tấn 50 kg = 4 050 kg; 4 tấn 5 kg = 4 005 kg. Lớn nhất là 4 tấn 5 tạ." }
-    ]
-  },
   /* ---------- Khoa học, Lịch sử và Địa lí, KHTN · Kiểm tra cuối học kì I (Kết nối tri thức) ----------
      Lớp 4: Khoa học (Chủ đề Chất, Năng lượng, Thực vật và động vật), Lịch sử và Địa lí
      (Địa phương em, Trung du và miền núi Bắc Bộ, Đồng bằng Bắc Bộ). Lớp 6: KHTN, Lịch sử và Địa lí.
@@ -315,25 +297,6 @@ window.ONTAP_SEED_BANKS = [
       { topic: "Sử dụng từ điển", type: "mc", q: "Trong từ điển, từ nào đứng trước nhất trong bốn từ: nho, ổi, mít, khế?", o: ["khế", "mít", "nho", "ổi"], x: "Từ điển xếp theo thứ tự bảng chữ cái của chữ đầu: k (khế) đứng trước m (mít), n (nho), rồi đến ô (ổi)." },
       { topic: "Chính tả", type: "fill", q: "Điền l hoặc n vào chỗ trống: Dòng sông ___ặng lẽ trôi.", ans: ["l", "lặng"], x: "Viết đúng là “lặng lẽ”: cả hai tiếng đều bắt đầu bằng l." },
       { topic: "Chính tả", type: "mc", q: "Từ nào viết sai chính tả?", o: ["vội vả", "vội vã", "mãi mãi", "bổ ích"], x: "Viết đúng là “vội vã”: tiếng “vã” mang dấu ngã. “Vội vả” là cách viết sai. Mãi mãi và bổ ích đều viết đúng." }
-    ]
-  },
-  {
-    id: "mau-toan6-ck1", title: "Toán 6 · Ôn cuối học kì I (bộ mẫu)", grade: 6, subject: "Toán", minutes: 25,
-    note: "Bộ câu mẫu để thử bộ làm bài chung. Thầy cô, phụ huynh nhập thêm câu trong mục Quản trị.",
-    questions: [
-      { topic: "Số nguyên", type: "fill", q: "(−15) + 8 = ___", ans: ["-7"], x: "Hai số khác dấu: 15 − 8 = 7, lấy dấu của −15. Kết quả −7." },
-      { topic: "Số nguyên", type: "fill", q: "12 − (−9) = ___", ans: ["21"], x: "a − (−b) = a + b: 12 + 9 = 21." },
-      { topic: "Nhân, chia số nguyên", type: "fill", q: "(−6) · (−7) = ___", ans: ["42"], x: "Hai số cùng dấu, tích dương: 6 · 7 = 42." },
-      { topic: "Số nguyên", type: "mc", q: "Tập hợp các số nguyên x thỏa mãn −3 < x < 2 là:", o: ["{−2; −1; 0; 1}", "{−3; −2; −1; 0; 1; 2}", "{−2; −1; 1}", "{−1; 0; 1}"], x: "x lớn hơn −3 (không lấy −3) và nhỏ hơn 2 (không lấy 2). Đừng quên số 0 cũng là số nguyên. Vậy x ∈ {−2; −1; 0; 1}." },
-      { topic: "ƯCLN và BCNN", type: "fill", q: "ƯCLN(30, 45) = ___", ans: ["15"], x: "30 = 2 · 3 · 5; 45 = 3² · 5. Lấy các thừa số chung với số mũ nhỏ nhất: ƯCLN = 3 · 5 = 15." },
-      { topic: "ƯCLN và BCNN", type: "fill", q: "BCNN(6, 8) = ___", ans: ["24"], x: "6 = 2 · 3; 8 = 2³. BCNN = 2³ · 3 = 24." },
-      { topic: "Hình phẳng", type: "mc", q: "Hình lục giác đều có bao nhiêu đường chéo chính?", o: ["3", "6", "2", "9"], x: "Đường chéo chính nối hai đỉnh đối diện và đi qua tâm của lục giác đều: AD, BE, CF. Lục giác có tất cả 9 đường chéo, nhưng chỉ 3 đường là đường chéo chính, và ba đường này bằng nhau." },
-      { topic: "Hình phẳng", type: "mc", q: "Mỗi góc của tam giác đều bằng:", o: ["60°", "90°", "45°", "120°"], x: "Tam giác đều có ba góc bằng nhau và bằng 60°." },
-      { topic: "Hình phẳng", type: "tf", q: "Hình thang cân có hai đường chéo bằng nhau.", a: true, x: "Đo hai đường chéo AC và BD của hình thang cân ABCD, ta thấy AC = BD. Hình thang cân có: hai cạnh bên bằng nhau, hai đường chéo bằng nhau, hai góc kề một đáy bằng nhau." },
-      { topic: "Chu vi, diện tích", type: "fill", q: "Chu vi hình vuông có cạnh 7 cm là ___ cm", ans: ["28"], x: "P = 4 · 7 = 28 (cm)." },
-      { topic: "Chu vi, diện tích", type: "fill", q: "Diện tích hình thoi có hai đường chéo dài 6 cm và 8 cm là ___ cm²", ans: ["24"], x: "S = (6 · 8) : 2 = 24 (cm²)." },
-      { topic: "Chu vi, diện tích", type: "fill", q: "Hình bình hành có diện tích 48 cm², cạnh đáy 8 cm. Chiều cao tương ứng là ___ cm", ans: ["6"], x: "Diện tích = cạnh đáy · chiều cao, nên chiều cao = 48 : 8 = 6 (cm)." },
-      { topic: "Nhân, chia số nguyên", type: "tf", q: "(−48) : (−6) = −8", a: false, x: "Chia hai số nguyên cùng dấu thì thương dương: 48 : 6 = 8, nên (−48) : (−6) = 8." }
     ]
   },
   /* ---------- Toán 6 · Kiểm tra cuối học kì I (Kết nối tri thức, Chương I–V, Bài 1–22) ----------

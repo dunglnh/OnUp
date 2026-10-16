@@ -216,12 +216,27 @@
     Object.keys(outbox()).forEach((uid) => (outbox()[uid] || []).forEach((r) => {
       if (!seen.has(r.id) && db.users.some((u) => u.id === r.userId)) db.results.push(Object.assign({}, r));
     }));
+    dropRetiredBanks();
     linkNewSeedBanks();
     return true;
   }
   /* Như LocalStore: bộ có sẵn mới trong data/banks.js được gắn vào kì thi theo lịch mặc định; bộ quản trị viên
      đã bỏ gắn (đã có trong seedBanksSeen) thì không gắn lại. Chỉ quản trị ghi lên máy chủ; các vai khác chỉ
      thấy trong bộ nhớ đệm cho tới khi quản trị mở app. */
+  /* Như LocalStore: bộ có sẵn đã bỏ khỏi data/banks.js thì gỡ khỏi kì thi. Quản trị ghi lại lên máy chủ. */
+  const RETIRED_SEED_BANKS = ["mau-toan4-ck1", "mau-toan6-ck1"];
+  function dropRetiredBanks() {
+    const changed = [];
+    db.events.forEach((e) => {
+      const keep = (e.banks || []).filter((id) => !RETIRED_SEED_BANKS.includes(id));
+      if (keep.length !== (e.banks || []).length) { e.banks = keep; changed.push(e); }
+    });
+    const me = sessionUser();
+    if (changed.length && me && me.role === "admin") {
+      const rows = changed.map(fromEvent);
+      push(() => sb.from("exam_events").upsert(rows, { onConflict: "family_id,id" }));
+    }
+  }
   function linkNewSeedBanks() {
     const seen = new Set(db.seedBanksSeen);
     const fresh = seedBankIds().filter((id) => !seen.has(id));
