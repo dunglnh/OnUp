@@ -1,7 +1,7 @@
 # Kế hoạch phát triển OnUp
 
 > **Trạng thái (16/10/2026): đang chạy thử với học sinh.** Trang vẫn chạy bình thường ở https://dunglnh.github.io/OnUp/.
-> **Ưu tiên số 1 mới:** tài khoản tên đăng nhập + mật khẩu, trang admin, gói Miễn phí / Gói Gia đình bán qua Zalo. Thiết kế đầy đủ và lời giao việc: [THIET-KE-TAI-KHOAN-VA-GOI.md](THIET-KE-TAI-KHOAN-VA-GOI.md) (Phiên A, B, C).
+> **Ưu tiên số 1 mới:** khung quản lý tài khoản (tên đăng nhập + mật khẩu, hồ sơ con, trang admin, khối lớp 1–12 dùng chung). Chưa làm bản trả phí — chỉ tính khi app có đủ đề lớp 4–12. Thiết kế và lời giao việc: [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md) (Phiên A, B, C).
 
 ## 1. Tình hình hiện tại
 
@@ -36,23 +36,23 @@ Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp tr
 
 ## 3. Lộ trình khi làm tiếp
 
-Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 9 của [THIET-KE-TAI-KHOAN-VA-GOI.md](THIET-KE-TAI-KHOAN-VA-GOI.md); các phiên khác ở mục 4 dưới đây.
+Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 8 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); các phiên khác ở mục 4 dưới đây.
 
 | Ưu tiên | Nên xong trước | Phiên | Phục vụ |
 |---|---|---|---|
 | 1 | 1/11 | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** | Giữa kì I (2–13/11) |
-| 2 | 15/11 | **Phiên A · Máy chủ: tài khoản, gói, đề trả phí** | Bán tài khoản |
-| 3 | 30/11 | **Phiên B · App: đăng nhập, chọn hồ sơ, khóa theo gói, Nâng cấp** | Bán tài khoản |
-| 4 | 10/12 | **Phiên C · Trang admin** (+ nháp Điều khoản, Quyền riêng tư) | Bán tài khoản, kịp mùa ôn cuối kì I |
+| 2 | 15/11 | **Phiên A · Máy chủ: tài khoản, hồ sơ con, Edge Function admin** | Khung tài khoản |
+| 3 | 30/11 | **Phiên B · App: đăng nhập, chọn hồ sơ, khu phụ huynh, khối lớp chung** | Khung tài khoản |
+| 4 | 10/12 | **Phiên C · Trang admin** | Khung tài khoản, kịp mùa ôn cuối kì I |
+| 5 | 1/3 | **Phiên 14 · Đề giữa kì II lớp 4** (Toán, Tiếng Việt) | Giữa kì II (15–26/3) |
+| 6 | 1/3 | **Phiên 15 · Đề giữa kì II lớp 6** (Toán, Ngữ văn, KHTN, Tiếng Anh) | Giữa kì II (15–26/3) |
+| 7 | 10/4 | **Phiên 16–17 · Đề cuối năm** lớp 4 và lớp 6 | Cuối năm (26/4–14/5) |
 | — | — | ~~Phiên 10 · Đề cuối kì I lớp 6 còn thiếu~~ (đã xong, PR #13) | |
 | — | — | ~~Phiên 11 · Đề cuối kì I lớp 4 còn thiếu~~ (đã xong, PR #14) | |
 | — | — | ~~Phiên 12 · Báo cáo tuần cho phụ huynh~~ (đã xong, PR #15) | |
 | — | — | ~~Phiên 13 · IOE cấp tỉnh lớp 4~~ (đã xong, PR #16) | |
-| 6 | 1/3 | **Phiên 14 · Đề giữa kì II lớp 4** (Toán, Tiếng Việt) | Giữa kì II (15–26/3) |
-| 7 | 1/3 | **Phiên 15 · Đề giữa kì II lớp 6** (Toán, Ngữ văn, KHTN, Tiếng Anh) | Giữa kì II (15–26/3) |
-| 8 | 10/4 | **Phiên 16–17 · Đề cuối năm** lớp 4 và lớp 6 | Cuối năm (26/4–14/5) |
 
-**Để sau, chỉ làm khi có nhu cầu thật:** nhập đề từ Excel (Phiên 6 cũ); tự đăng ký miễn phí, email để tự lấy lại mật khẩu, thanh toán tự động (xem mục 8 bản thiết kế); gói lớp học cho giáo viên. Việc “bắt buộc đổi PIN cũ” không còn cần vì cách đăng nhập mới bỏ PIN học sinh trên máy chủ.
+**Để sau, chỉ làm khi có nhu cầu thật:** nhập đề từ Excel (Phiên 6 cũ); tự đăng ký, email để tự lấy lại mật khẩu, tài khoản giáo viên/lớp học (mục 7 bản thiết kế); đề các khối khác (lớp 5, 7–12); **bản trả phí** khi đã có đủ đề lớp 4–12 (hướng đi ở mục 9 bản thiết kế). Việc “bắt buộc đổi PIN cũ” không còn cần vì cách đăng nhập mới bỏ PIN học sinh trên máy chủ.
 
 **Mẹo tiết kiệm lượt dùng gói Pro:**
 - Một phiên một việc, giao việc rõ ràng. Phiên càng dài càng tốn, vì mỗi lượt Claude đọc lại toàn bộ cuộc trò chuyện.
