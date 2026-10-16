@@ -20,7 +20,7 @@
 | #10 | Phiên 8: rà soát đề (56 chỗ sửa), bộ chấm điền khuyết, giao diện 360px |
 | #7, #9 | Canh trái nút quay lại; xưng "bạn" trong bài ôn; bỏ 2 bộ mẫu 12 câu |
 
-Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp trường và cấp xã; IOE 6 cấp xã và cấp thành phố) và 14 đề cuối kì I.
+Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp trường và cấp xã; IOE 6 cấp xã và cấp thành phố) và 18 đề cuối kì I (lớp 6 đủ 8 môn từ Phiên 10: thêm Tiếng Anh, GDCD, Tin học, Công nghệ; lớp 4 thêm Tin học và Công nghệ từ Phiên 11).
 
 **Chưa làm từ kế hoạch cũ:** Phiên 6 (nhập đề từ Excel), Phiên 7 (báo cáo tuần cho phụ huynh).
 
