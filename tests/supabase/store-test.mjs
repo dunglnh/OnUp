@@ -43,14 +43,15 @@ function browser(opts = {}) {
     console, setTimeout, clearTimeout, URLSearchParams, TextEncoder, crypto: webcrypto, atob, btoa, localStorage, sessionStorage,
     location: { origin: "https://dunglnh.github.io", pathname: "/OnUp/", search: "", hash: opts.hash || "", href: "https://dunglnh.github.io/OnUp/" },
     history: { replaceState() { win.location.hash = ""; } },
-    document: { head: { append: (s) => loaded.push(s.src) }, createElement: () => ({}) }
+    document: { head: { append: (s) => loaded.push(s.src) }, createElement: () => ({}), querySelector: () => null, body: { append() {} } }
   };
+  if (opts.turnstile) win.turnstile = opts.turnstile;
   win.window = win;
   const ctx = vm.createContext(win);
   const load = (f) => vm.runInContext(fs.readFileSync(ROOT + f, "utf8"), ctx, { filename: f });
   ["data/calendar-2026-2027.js", "data/modules.js", "data/banks.js"].forEach(load);
   if (opts.realConfig) load("js/config.js");
-  else vm.runInContext(`window.ONTAP_CONFIG = { supabaseUrl: "https://fake.supabase.co", supabaseAnonKey: ${JSON.stringify(opts.key || "anon-key")} };`, ctx);
+  else vm.runInContext(`window.ONTAP_CONFIG = { supabaseUrl: "https://fake.supabase.co", supabaseAnonKey: ${JSON.stringify(opts.key || "anon-key")}, turnstileSiteKey: ${JSON.stringify(opts.siteKey || "")} };`, ctx);
   load("js/store.js");
   if (!opts.realConfig) win.supabase = { createClient: (u, k, o) => createFakeSupabase((m) => be.handle(m), { storage: localStorage, auth: o && o.auth }) };
   load("js/store-supabase.js");
@@ -508,6 +509,31 @@ be.anonEnabled = true;
   await E.Store.init();
   const m = E.Store.authError();
   ok(/hết hạn/.test(m) && !/Bấm|<b>/.test(m) && E.win.location.hash === "" && E.Store.authError() === "", "link email lỗi: báo câu cố định, không in lại chữ trong địa chỉ");
+}
+
+/* ---------- 14b. chống máy tự động (CAPTCHA) ---------- */
+{
+  let n = 0;
+  const goodStub = { render: (host, o) => { setTimeout(() => o.callback("ok-" + (++n)), 1); return n; }, remove() {} };
+  be.captchaRequired = true;
+  const N = browser(); await N.Store.init();
+  await throwsMsg(() => N.Store.sendLink("me.bin@example.com"), /chưa có khóa CAPTCHA/, "máy chủ bật CAPTCHA mà app chưa có khóa: báo rõ cho người cài đặt");
+  await throwsMsg(() => N.Store.familyStudents(fam().join_code), /chưa có khóa CAPTCHA/, "học sinh cũng được báo rõ");
+  const C = browser({ siteKey: "0x4AAAAAAAtest", turnstile: goodStub }); await C.Store.init();
+  const before = be.captchaUsed || 0;
+  await emailLogin(C, "me.bin@example.com");
+  ok(["no-profile", "ready"].includes(C.Store.authState()) && (be.captchaUsed - before) === 2, "có khóa CAPTCHA: gửi link và nhập mã email đều kèm mã xác minh mới");
+  const CK = browser({ siteKey: "0x4AAAAAAAtest", turnstile: goodStub }); await CK.Store.init();
+  ok((await CK.Store.familyStudents(fam().join_code)).students.length > 0 && be.captchaUsed - before === 3, "học sinh: phiên ẩn danh được tạo kèm mã xác minh");
+  const bad = browser({ siteKey: "0x4AAAAAAAtest", turnstile: { render: (h, o) => { setTimeout(() => o.callback("gia-mao"), 1); return 1; }, remove() {} } }); await bad.Store.init();
+  await throwsMsg(() => bad.Store.sendLink("me.bin@example.com"), /Chưa xác minh được/, "mã xác minh sai: báo xác minh lại");
+  const err = browser({ siteKey: "0x4AAAAAAAtest", turnstile: { render: (h, o) => { setTimeout(() => o["error-callback"](), 1); return 1; }, remove() {} } }); await err.Store.init();
+  await throwsMsg(() => err.Store.familyStudents(fam().join_code), /Chưa xác minh được/, "ô xác minh báo lỗi: báo cho học sinh, không treo");
+  be.captchaRequired = false;
+  const off = browser({ siteKey: "0x4AAAAAAAtest", turnstile: goodStub }); await off.Store.init();
+  await emailLogin(off, "me.bin@example.com");
+  ok(["no-profile", "ready"].includes(off.Store.authState()), "có khóa nhưng máy chủ chưa bật CAPTCHA: vẫn đăng nhập được (nên điền khóa vào app trước rồi mới bật trên máy chủ)");
+  const noScript = browser(); ok(!noScript.loaded.some((x) => /challenges\.cloudflare/.test(x)), "không có khóa: không tải script của Cloudflare");
 }
 
 /* ---------- 15. xóa toàn bộ dữ liệu trên đám mây ---------- */

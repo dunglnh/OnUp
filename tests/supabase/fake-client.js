@@ -46,15 +46,15 @@
         return r.error ? { data: { user: null }, error: r.error } : { data: { user: r.user }, error: null };
       },
       onAuthStateChange(cb) { listeners.push(cb); return { data: { subscription: { unsubscribe() { listeners.splice(listeners.indexOf(cb), 1); } } } }; },
-      async signInWithOtp(a) { const r = await send({ kind: "auth", op: "otp", args: { email: a.email } }); return { data: {}, error: r.error || null }; },
+      async signInWithOtp(a) { const r = await send({ kind: "auth", op: "otp", args: { email: a.email, captchaToken: a.options && a.options.captchaToken } }); return { data: {}, error: r.error || null }; },
       async verifyOtp(a) {
-        const r = await send({ kind: "auth", op: "verify", args: { email: a.email, token: a.token } });
+        const r = await send({ kind: "auth", op: "verify", args: { email: a.email, token: a.token, captchaToken: a.options && a.options.captchaToken } });
         if (r.error) return { data: { session: null, user: null }, error: r.error };
         writeSession(r.session); emit("SIGNED_IN", r.session);
         return { data: { session: r.session, user: r.session.user }, error: null };
       },
-      async signInAnonymously() {
-        const r = await send({ kind: "auth", op: "anon", args: {} });
+      async signInAnonymously(a) {
+        const r = await send({ kind: "auth", op: "anon", args: { captchaToken: a && a.options && a.options.captchaToken } });
         if (r.error) return { data: { session: null, user: null }, error: r.error };
         writeSession(r.session); emit("SIGNED_IN", r.session);
         return { data: { session: r.session, user: r.session.user }, error: null };

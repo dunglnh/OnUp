@@ -206,6 +206,7 @@
         <form class="row" id="codeForm" autocomplete="off" style="align-items:flex-end">
           <label class="field" style="flex:1;min-width:150px"><span>Mã gia đình</span><input id="fCode" class="code-in" value="${esc(code)}" maxlength="12" autocapitalize="characters" spellcheck="false" placeholder="Ví dụ: K7M2QD"></label>
           <button class="btn main" type="submit">Tiếp</button></form>
+        <div class="captcha" id="kidCaptcha"></div>
         <div id="codeErr" aria-live="assertive"></div>
         <div id="kidList"></div>
       </section>
@@ -214,6 +215,7 @@
         <p class="small">App gửi một đường link vào email của bạn. Bấm vào link là vào app, không cần mật khẩu.</p>
         <form class="stack" id="mailForm" style="gap:10px"><div class="row" style="align-items:flex-end"><label class="field" style="flex:1;min-width:200px"><span>Email</span><input id="mEmail" type="email" autocomplete="email" inputmode="email" required></label><button class="btn" type="submit" id="mSend">Gửi link đăng nhập</button></div>
           <div class="checks"><label><input type="checkbox" id="mRemember" ${Store.rememberLogin() ? "checked" : ""}>Ghi nhớ đăng nhập trên máy này (chỉ chọn nếu là máy riêng của bạn)</label></div></form>
+        <div class="captcha" id="mailCaptcha"></div>
         <div id="mailMsg" aria-live="polite"></div>
       </section></div>`;
     const box = wirePinBox(submit);

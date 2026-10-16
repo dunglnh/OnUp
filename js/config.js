@@ -9,5 +9,8 @@
    TUYỆT ĐỐI KHÔNG dán khóa service_role / secret (sb_secret_...) vào file này. */
 window.ONTAP_CONFIG = {
   supabaseUrl: "",
-  supabaseAnonKey: ""
+  supabaseAnonKey: "",
+  // Không bắt buộc: "site key" của Cloudflare Turnstile để chặn máy tự động (xem bước 3b của hướng dẫn).
+  // Đây cũng là khóa công khai. Điền khóa này TRƯỚC, rồi mới bật CAPTCHA trong Supabase.
+  turnstileSiteKey: ""
 };

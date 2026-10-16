@@ -90,6 +90,8 @@
     const m = String((e && (e.message || e.error_description || e.msg)) || e || "");
     if (/fetch|network|Load failed|NetworkError/i.test(m)) return "Mất kết nối mạng. Kiểm tra mạng rồi thử lại.";
     if (/rate limit|security purposes|only request this/i.test(m)) return "Gửi quá nhiều lần. Đợi một phút rồi thử lại.";
+    if (/captcha/i.test(m)) return CFG.turnstileSiteKey ? "Chưa xác minh được. Tải lại trang rồi thử lại."
+      : "Máy chủ đang bật chống máy tự động (CAPTCHA) nhưng app chưa có khóa CAPTCHA. Báo người cài đặt xem hướng dẫn.";
     if (/anonymous sign-ins are disabled/i.test(m)) return "Máy chủ chưa bật đăng nhập cho học sinh (Anonymous sign-ins). Báo bố mẹ xem hướng dẫn cài đặt.";
     if (/expired|invalid.*(otp|token)|otp.*invalid/i.test(m)) return "Mã trong email đã hết hạn hoặc chưa đúng. Gửi lại mã mới nhé.";
     if (VI.test(m) && m.length < 200) return m;
@@ -326,6 +328,43 @@
     return true;
   }
 
+  /* ---------------- chống máy tự động (Cloudflare Turnstile) ----------------
+     Chỉ dùng khi js/config.js có turnstileSiteKey; khi đó Supabase (Authentication → Attack Protection) phải bật
+     CAPTCHA với khóa bí mật tương ứng. Thường không hiện gì; chỉ khi cần thì hiện một ô xác minh trong box. */
+  const TURNSTILE_SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+  let turnstileLoading = null;
+  function loadTurnstile() {
+    if (window.turnstile) return Promise.resolve();
+    if (!turnstileLoading) turnstileLoading = new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = TURNSTILE_SRC; s.async = true; // Cloudflare yêu cầu nạp thẳng từ địa chỉ gốc, không ghim phiên bản
+      s.onload = () => (window.turnstile ? resolve() : reject(new Error("no turnstile")));
+      s.onerror = () => { turnstileLoading = null; reject(new Error("Không tải được bước xác minh. Kiểm tra mạng rồi thử lại.")); };
+      document.head.append(s);
+    });
+    return turnstileLoading;
+  }
+  /* Lấy một mã xác minh (dùng một lần). box: chỗ hiện ô xác minh nếu Cloudflare cần người bấm. */
+  async function captcha(box) {
+    if (!CFG.turnstileSiteKey) return undefined;
+    await loadTurnstile();
+    let host = typeof box === "string" ? document.querySelector(box) : box;
+    if (!host) { host = document.createElement("div"); host.className = "captcha"; (document.querySelector("#view") || document.body).append(host); }
+    return new Promise((resolve, reject) => {
+      let id = null, done = false;
+      const finish = (fn, v) => { if (done) return; done = true; clearTimeout(timer); try { if (id != null) window.turnstile.remove(id); } catch (e) {} fn(v); };
+      const timer = setTimeout(() => finish(reject, new Error("Chưa xác minh xong. Thử lại nhé.")), 120000);
+      try {
+        id = window.turnstile.render(host, {
+          sitekey: CFG.turnstileSiteKey, appearance: "interaction-only", size: "flexible", language: "vi",
+          callback: (t) => finish(resolve, t),
+          "error-callback": () => finish(reject, new Error("Chưa xác minh được. Tải lại trang rồi thử lại.")),
+          "timeout-callback": () => finish(reject, new Error("Chưa xác minh xong. Thử lại nhé."))
+        });
+      } catch (e) { finish(reject, new Error("Chưa xác minh được. Tải lại trang rồi thử lại.")); }
+    });
+  }
+
   /* ---------------- đăng nhập ---------------- */
   async function sendLink(email, remember) {
     email = String(email || "").trim();
@@ -333,11 +372,13 @@
     if (remember) lsSet(REMEMBER_KEY, "1"); else lsDel(REMEMBER_KEY);
     const { data } = await sb.auth.getSession();
     if (data && data.session) await sb.auth.signOut({ scope: "local" });
-    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname, shouldCreateUser: true } });
+    const captchaToken = await captcha("#mailCaptcha");
+    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname, shouldCreateUser: true, captchaToken } });
     if (error) throw new Error(errMsg(error, "Chưa gửi được email. Thử lại sau ít phút."));
   }
   async function verifyCode(email, code) {
-    const { data, error } = await sb.auth.verifyOtp({ email: String(email).trim(), token: String(code).replace(/\D/g, ""), type: "email" });
+    const captchaToken = await captcha("#mailCaptcha");
+    const { data, error } = await sb.auth.verifyOtp({ email: String(email).trim(), token: String(code).replace(/\D/g, ""), type: "email", options: { captchaToken } });
     if (error) throw new Error(errMsg(error, "Mã chưa đúng hoặc đã hết hạn."));
     await afterAuth(data.session);
   }
@@ -346,7 +387,7 @@
     let { data } = await sb.auth.getSession();
     if (data && data.session && (fresh || !data.session.user.is_anonymous)) { await sb.auth.signOut({ scope: "local" }); data = null; }
     if (!data || !data.session) {
-      const r = await sb.auth.signInAnonymously();
+      const r = await sb.auth.signInAnonymously({ options: { captchaToken: await captcha("#kidCaptcha") } });
       if (r.error) throw new Error(errMsg(r.error, "Chưa đăng nhập được. Thử lại sau ít phút."));
     }
   }
