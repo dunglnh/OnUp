@@ -9,7 +9,7 @@ window.ONTAP_MODULES = [
     desc: "Ngữ văn, Toán, KHTN, sách Kết nối tri thức. Có đọc hiểu văn bản mới.",
     subjects: { van: "Ngữ văn", toan: "Toán", khtn: "KHTN" } },
   { id: "ioe-4", title: "IOE · Global Success 4", grade: 4, path: "modules/ioe-4/index.html",
-    desc: "Luyện đề IOE cấp trường và cấp xã/phường, có câu nghe. 7 đề mỗi tuần.",
+    desc: "Luyện đề IOE cấp trường, cấp xã/phường và cấp tỉnh, có câu nghe. 7 đề mỗi tuần.",
     subjects: { ta: "Tiếng Anh" } },
   { id: "ioe-6", title: "IOE · Global Success 6", grade: 6, path: "modules/ioe-6/index.html",
     desc: "Luyện đề IOE cấp xã/phường và cấp thành phố, có câu nghe. 7 đề mỗi tuần.",

@@ -65,7 +65,7 @@ window.ONTAP_SEED_EVENTS = [
     scope: "", note: "Lịch nghỉ Tết theo quyết định của từng tỉnh, thành phố.", modules: [], banks: [] },
   { id: "ioe-tinh", title: "IOE cấp tỉnh/thành phố", kind: "ioe", grades: [4, 6],
     start: "2027-03-04", end: "2027-03-06", tentative: false,
-    subjects: ["Tiếng Anh"], scope: "Lớp 6: Unit 1–9.", modules: ["ioe-6"], banks: [] },
+    subjects: ["Tiếng Anh"], scope: "Lớp 4: Unit 1–10. Lớp 6: Unit 1–9.", modules: ["ioe-4", "ioe-6"], banks: [] },
   { id: "gk2-l4", title: "Kiểm tra giữa học kì II", kind: "dinh-ki", grades: [4],
     start: "2027-03-15", end: "2027-03-26", tentative: true,
     subjects: ["Toán", "Tiếng Việt"], scope: "Nửa đầu học kì II.", modules: [], banks: [] },

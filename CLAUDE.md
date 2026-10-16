@@ -105,6 +105,6 @@ GitHub Pages: Settings → Pages → Deploy from a branch → `main` / root. Fil
 **Trạng thái 16/10/2026: tạm dừng phát triển để chạy thử với học sinh.** Khi làm tiếp, ưu tiên sửa các GitHub Issue góp ý từ việc chạy thử trước mọi tính năng mới. Lộ trình đầy đủ và lời giao việc từng phiên: `docs/KE-HOACH-PHAT-TRIEN-ONUP.md`. Tóm tắt:
 1. Sửa lỗi từ góp ý chạy thử (GitHub Issues).
 2. Đề cuối kì I: đã đủ các môn cho cả lớp 4 và lớp 6 (Phiên 10, 11).
-3. IOE cấp tỉnh lớp 4 (báo cáo tuần cho phụ huynh đã có từ Phiên 12).
+3. Báo cáo tuần cho phụ huynh (Phiên 12) và IOE cấp tỉnh lớp 4 (Phiên 13): đã có.
 4. Đề giữa kì II và cuối năm cho cả hai khối.
 5. Đồng bộ đám mây đã có (Phiên 5, 5b) nhưng chưa bật: phụ huynh tự cài theo `docs/HUONG-DAN-SUPABASE.md`.

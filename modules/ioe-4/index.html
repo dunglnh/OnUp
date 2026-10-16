@@ -51,7 +51,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,label.btn:focus-
 .btn.danger{background:var(--bad-soft);color:var(--bad)}
 .btn:disabled{opacity:.45;cursor:default}
 .sec{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--sea-soft);border-radius:12px;padding:4px}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;background:var(--sea-soft);border-radius:12px;padding:4px}
 .seg button{border:0;background:transparent;border-radius:9px;padding:9px 8px;font-weight:700;color:var(--sea);line-height:1.2}
 .seg button small{display:block;font-weight:500;font-size:.75rem;opacity:.85}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(18,48,47,.15)}
@@ -92,6 +92,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,label.btn:focus-
 .qtext .pic{font-size:2.6rem;line-height:1;display:block;margin-bottom:6px}
 .qtext u,.opt u{text-decoration-thickness:2px;text-underline-offset:3px;color:var(--sea);font-weight:700}
 .qtext sub{font-size:.7rem;font-weight:800;color:var(--sea);margin-left:1px}
+.read{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 14px;line-height:1.6;overflow-wrap:anywhere}
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .opts.wide{grid-template-columns:1fr}
 @media (max-width:420px){.opts{grid-template-columns:1fr}}
@@ -152,7 +153,8 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background
    m = multiple choice (correct answer first; "{pic}text" puts a picture above), o = odd one out,
    p = pronunciation, e = find the mistake [part] x4 + wrong index + correction,
    f = fill in the blank (answers split by |), l = missing letters (word, clue),
-   w = put the letters in order (word, clue), r = reorder words (chunks split by /).            */
+   w = put the letters in order (word, clue), r = reorder words (chunks split by /),
+   rd = read and choose (short text, question, correct answer, wrong x3).                        */
 const UNITS={1:"My Friends",2:"Time and Daily Routines",3:"My Week",4:"My Birthday Party",5:"Things We Can Do",6:"Our School Facilities",7:"Our Timetables",8:"My Favourite Subjects",9:"Our Sports Day",10:"Our Summer Holidays"};
 
 const SCHOOL=[
@@ -178,7 +180,7 @@ const SCHOOL=[
 ["f",1,"I'm from Thailand. I'm ___.","Thai"],
 ["f",1,"Nice to meet ___, too.","you"],
 ["f",1,"___ are you from? – I'm from Singapore.","Where"],
-["l",1,"Japan","a country in Asia. People there speak Japanese."],
+["l",1,"Japan","a country in Asia. Its capital is Tokyo."],
 ["l",1,"Australia","a big country. Sydney is in this country."],
 ["l",1,"friend","a person you like and play with"],
 ["w",1,"country","Viet Nam is a ___."],
@@ -523,7 +525,7 @@ const WARD=[
 ["f",5,"Fish can ___, but they can't walk.","swim"],
 ["l",5,"guitar","a music instrument with six strings"],
 ["w",5,"horse","a big animal you can ride"],
-["r",5,"My sister / can / dance / but / she / can't / sing."],
+["r",5,"My sister / can dance / but / she / can't / sing."],
 // Unit 6
 ["m",6,"Our classroom is ___ the third floor.","on","in","at","of"],
 ["m",6,"Is there ___ music room at your school?","a","an","any","some"],
@@ -606,12 +608,240 @@ const WARD_L=[
 ["h",6,"The art room is on the third floor.","Which floor is the art room on?","the third floor","the first floor","the second floor","the fourth floor"]
 ];
 
+/* ================= PROVINCE LEVEL =================
+   Harder questions for Units 1–10: two-step grammar, short reading texts, longer listening. */
+const PROVINCE=[
+// Unit 1
+["m",1,"Kenji and Hiro are from Tokyo. ___ nationality is Japanese.","Their","They","Them","They're"],
+["m",1,"– ___ is that boy? – He's Tom, my new friend from America.","Who","Where","What","How"],
+["m",1,"Mr Brown comes from London. He is ___.","British","Britain","American","Australian"],
+["m",1,"– Are you Thai, Hana? – ___ I'm Japanese.","No, I'm not.","Yes, I am.","No, I don't.","No, she isn't."],
+["m",1,"Mai and I are classmates. ___ are both from Viet Nam.","We","They","She","Us"],
+["m",1,"Ben ___ from Australia. He's from America.","isn't","aren't","don't","doesn't"],
+["m",1,"This is my friend Mai. ___ from Hue, and she likes English.","She's","Her","He's","She"],
+["rd",1,"Hello! My name is Akio. I'm from Japan. I have two new friends, Tom and Linda. Tom is from America and Linda is from Australia.","Where is Linda from?","Australia","America","Japan","Malaysia"],
+["rd",1,"Hi, I'm Mai. I'm ten years old and I'm Vietnamese. My new friend is Nora. She is from Kuala Lumpur.","What nationality is Nora?","Malaysian","Vietnamese","Thai","Japanese"],
+["o",1,"Singapore","Singaporean","Malaysian","British"],
+["p",1,"Th<u>ai</u>","n<u>a</u>me","M<u>ay</u>","pl<u>ay</u>"],
+["e",1,"[Where] [are] Linda [from]? – She's from [Australia].",1,"is"],
+["e",1,"My [friends] Hiro [and] Akio [is] [Japanese].",2,"are"],
+["f",1,"Peter is from Britain. He is ___.","British"],
+["f",1,"Lisa and I ___ from Australia. We're Australian.","are"],
+["l",1,"Singapore","a small country in Asia, to the south of Malaysia"],
+["w",1,"Malaysian","People from Kuala Lumpur are ___."],
+["r",1,"Linda / is / my new friend / from / Australia."],
+// Unit 2
+["m",2,"It's 7:45. My class starts at 8:00. It starts in ___ minutes.","fifteen","forty-five","fifty","five"],
+["m",2,"My parents ___ dinner at seven, and then my father ___ TV.","have / watches","has / watches","have / watch","has / watch"],
+["m",2,"What time ___ Linda and her brother go to bed?","do","does","is","are"],
+["m",2,"– What does your mother do after dinner? – ___","She washes the dishes.","She wash the dishes.","At eight o'clock.","Yes, she does."],
+["m",2,"I get up at 6:00. Then I have breakfast thirty minutes later, at ___.","6:30","6:13","7:00","6:03"],
+["m",2,"Which sentence is correct?","He usually gets up at six.","He gets usually up at six.","He usually get up at six.","He usually getting up at six."],
+["m",2,"My sister ___ her homework in the evening.","does","do","makes","make"],
+["rd",2,"My name is Nam. I get up at six o'clock. I go to school at six forty-five. I have lunch at school at eleven. In the evening, I do my homework and go to bed at nine thirty.","What time does Nam go to bed?","9:30","6:45","11:00","6:00"],
+["rd",2,"Lan's mother gets up at five thirty every day. She cooks breakfast for the family. Then she goes to work at seven. She comes home at five in the afternoon.","What does Lan's mother do after she gets up?","She cooks breakfast.","She goes to work.","She comes home.","She goes to bed."],
+["o",2,"get up","morning","afternoon","evening"],
+["p",2,"w<u>a</u>tch","h<u>a</u>ve","d<u>a</u>d","m<u>a</u>p"],
+["e",2,"[What] time [does] your parents [have] dinner? – [At] seven.",1,"do"],
+["e",2,"My brother [get] up [at] six and [goes] to school [by] bike.",0,"gets"],
+["f",2,"My mother ___ the dishes after dinner. (wash)","washes"],
+["f",2,"It's 9:50. It's nine ___.","fifty"],
+["l",2,"homework","school work you do at home"],
+["w",2,"routine","the things you do every day at the same time"],
+["r",2,"What time / does / your mother / cook / dinner?"],
+// Unit 3
+["m",3,"Today is Friday. The day after tomorrow is ___.","Sunday","Saturday","Thursday","Monday"],
+["m",3,"Yesterday was Tuesday. So tomorrow is ___.","Thursday","Wednesday","Friday","Monday"],
+["m",3,"I ___ the flowers in the garden on Sunday mornings.","water","play","listen","study"],
+["m",3,"– What does Mai do on Saturdays? – She ___ to music and ___ her room.","listens / cleans","listen / clean","listens / clean","listening / cleaning"],
+["m",3,"We go to school ___ Monday ___ Friday.","from / to","on / to","from / at","in / on"],
+["m",3,"– ___ do you play football? – On Wednesday afternoons.","When","What","Where","What time"],
+["m",3,"My grandparents ___ in the countryside. I visit them every weekend.","live","lives","living","to live"],
+["rd",3,"Hi, I'm Linda. I go to school from Monday to Friday. On Saturdays, I go swimming with my brother. On Sundays, I visit my grandparents and help them in the garden.","When does Linda go swimming?","on Saturdays","on Sundays","on Mondays","on Fridays"],
+["rd",3,"Phong studies at school from Monday to Friday. He plays the piano on Tuesday afternoons. On Wednesday and Friday afternoons, he plays football with his friends. At the weekend, he does housework.","What does Phong do on Friday afternoons?","He plays football.","He plays the piano.","He does housework.","He visits his friends."],
+["o",3,"housework","Wednesday","Friday","Sunday"],
+["p",3,"watch<u>es</u>","play<u>s</u>","listen<u>s</u>","clean<u>s</u>"],
+["e",3,"[On] Sundays, my mother [go] [to] the market [with] me.",1,"goes"],
+["e",3,"I [often] [play] badminton [at] Saturday [afternoons].",2,"on"],
+["f",3,"Today is Sunday. The day before yesterday was ___.","Friday"],
+["f",3,"My sister ___ the piano on Thursday evenings. (play)","plays"],
+["l",3,"housework","cleaning, cooking and washing at home"],
+["w",3,"Thursday","the day between Wednesday and Friday"],
+["r",3,"What / does / your brother / do / on Sunday mornings?"],
+// Unit 4
+["m",4,"My birthday is two months after March. It's in ___.","May","April","June","January"],
+["m",4,"– Would you like ___ grapes? – Yes, please.","some","a","an","one"],
+["m",4,"I'm hungry. I'd like some ___.","sandwiches","water","lemonade","milk"],
+["m",4,"I'm thirsty. Can I have ___ glass of water, please?","a","an","some","many"],
+["m",4,"– When's your birthday? – ___","It's in August.","I'd like some cake.","It's my birthday.","It's at home."],
+["m",4,"– What would you like to drink? – ___","Some orange juice, please.","Some chips, please.","Yes, I would.","It's in July."],
+["m",4,"There are ___ months in a year, and my birthday is in the last one: ___.","twelve / December","twelve / January","ten / December","eleven / November"],
+["rd",4,"Today is Mai's birthday. She is ten years old. Her friends come to her party. They eat cake, chips and grapes. Mai's favourite drink is lemonade.","What is Mai's favourite drink?","lemonade","orange juice","milk","water"],
+["rd",4,"My name is Ben. My birthday is in July. My sister's birthday is in October, and my mum's birthday is in January. We always have a party with sandwiches and juice.","When is Ben's sister's birthday?","in October","in July","in January","in June"],
+["o",4,"thirsty","lemonade","milk","water"],
+["p",4,"ch<u>i</u>ps","l<u>i</u>ke","n<u>i</u>ce","r<u>i</u>ce"],
+["e",4,"There [are] [two] [grape] [on] the plate.",2,"grapes"],
+["e",4,"I'd [like] [an] [glass] of [orange juice].",1,"a"],
+["f",4,"The month before March is ___.","February"],
+["f",4,"– ___ would you like to eat? – Some sandwiches, please.","What"],
+["l",4,"lemonade","a sweet drink made from lemons"],
+["w",4,"October","the month after September"],
+["r",4,"Would / you / like / some / sandwiches / for / your birthday party?"],
+// Unit 5
+["m",5,"Linda can ___ the guitar, but she can't ___ a horse.","play / ride","ride / play","plays / ride","play / rides"],
+["m",5,"– Can your brother swim? – ___","Yes, he can. He swims very well.","Yes, he does.","No, he isn't.","Yes, he can swims."],
+["m",5,"A fish can ___, but it can't ___.","swim / walk","walk / swim","fly / swim","run / swim"],
+["m",5,"Which sentence is correct?","My father can cook very well.","My father can cooks very well.","My father cans cook very well.","My father can to cook very well."],
+["m",5,"What ___ your friends do? – They can roller skate.","can","do","are","does"],
+["m",5,"My sister loves music. She can sing and ___ the piano.","play","plays","playing","ride"],
+["m",5,"– Can you ride a horse? – No, I can't, ___ I can ride a bike.","but","and","or","because"],
+["rd",5,"Hi, I'm Tom. I can do many things. I can swim and ride a bike. I can't play the piano, but I can play the guitar. My sister Anna can dance and sing very well.","What can't Tom do?","play the piano","play the guitar","swim","ride a bike"],
+["rd",5,"My best friend is Hoa. She can play badminton and volleyball. She can swim, too. But she can't cook.","What can Hoa do?","She can play volleyball.","She can cook.","She can play the piano.","She can't swim."],
+["o",5,"draw","guitar","piano","violin"],
+["p",5,"dan<u>c</u>e","<u>c</u>an","<u>c</u>ook","<u>c</u>ountry"],
+["e",5,"[Can] your sister [rides] a bike? – Yes, she [can]. She rides [very] well.",1,"ride"],
+["e",5,"My cat [can] [climbs] trees, [but] it [can't] swim.",1,"climb"],
+["f",5,"I can't swim. Can you teach ___ to swim?","me"],
+["f",5,"– Can your parents dance? – No, they ___.","can't|cannot|can not"],
+["l",5,"violin","a small music instrument with four strings"],
+["w",5,"paint","make a picture with colours and a brush"],
+["r",5,"Can / your sister / play / the piano / very well?"],
+// Unit 6
+["m",6,"There ___ two computer rooms and a big library at my school.","are","is","be","has"],
+["m",6,"My school is ___ the city, ___ Tran Phu Street.","in / on","on / in","at / in","in / at"],
+["m",6,"– Is there a swimming pool at your school? – ___","No, there isn't. But there's a big gym.","No, it isn't.","No, there aren't.","Yes, it is."],
+["m",6,"We have Music lessons in the ___. There is a piano there.","music room","computer room","library","gym"],
+["m",6,"– ___ classrooms are there in your school? – Twenty.","How many","How much","How old","What"],
+["m",6,"Our school ___ a big garden with a lot of flowers.","has","have","is","are"],
+["m",6,"The library is on the ___ floor. You can go up the stairs.","second","two","twice","seconds"],
+["rd",6,"My school is in the town. It is big and new. There are twenty classrooms, a library and a computer room. There isn't a swimming pool, but there is a big gym.","What doesn't the school have?","a swimming pool","a library","a computer room","a gym"],
+["rd",6,"Nam's school is in a village near the mountains. It is small. There are only six classrooms. The playground is big, and there is a garden behind the school.","Where is the garden?","behind the school","in front of the school","in the classroom","near the town"],
+["o",6,"teacher","library","garden","playground"],
+["p",6,"g<u>y</u>m","m<u>y</u>","b<u>y</u>","wh<u>y</u>"],
+["e",6,"There [aren't] [some] computers in the library, [but] there [are] a lot of books.",1,"any"],
+["e",6,"[Is] there [a] art room [at] your [school]?",1,"an"],
+["f",6,"My school is not in the city. It's in a small ___ in the mountains.","village|town"],
+["f",6,"How ___ libraries are there at your school? – There is one.","many"],
+["l",6,"computer","a machine we use in IT lessons"],
+["w",6,"stairs","You walk up these to go to the second floor."],
+["r",6,"Is / there / a big gym / at / your new school?"],
+// Unit 7
+["m",7,"– What subjects ___ Nam have on Fridays? – He has Maths, Science and PE.","does","do","is","has"],
+["m",7,"I have English ___ times a week: on Monday, Wednesday and Friday.","three","two","four","five"],
+["m",7,"We don't have lessons on Saturdays ___ Sundays.","or","but","so","because"],
+["m",7,"Look at the timetable: Monday – Maths, English; Tuesday – Science, Art. When do they have Art?","on Tuesday","on Monday","on Wednesday","every day"],
+["m",7,"___ is your English teacher? – It's Ms Hoa.","Who","What","When","Where"],
+["m",7,"It's Saturday, so my brother ___ any lessons today.","doesn't have","don't have","isn't have","not have"],
+["m",7,"In ___ lessons, we learn about animals, plants and the weather.","Science","Music","IT","Vietnamese"],
+["rd",7,"Hi, I'm Minh. I go to school from Monday to Friday. I have Maths and Vietnamese every school day. I have English on Tuesdays and Thursdays. I have PE on Wednesdays.","How many days a week does Minh have Maths?","five","two","one","seven"],
+["rd",7,"Today is Thursday. Lucy has four lessons: Maths, English, Music and Art. Her favourite lesson today is Music because she loves singing.","Why does Lucy like Music?","She loves singing.","She loves drawing.","She has it every day.","It's on Thursday."],
+["o",7,"timetable","IT","PE","Science"],
+["p",7,"subject<u>s</u>","lesson<u>s</u>","Friday<u>s</u>","day<u>s</u>"],
+["e",7,"We [has] English [on] Mondays [and] [Wednesdays].",0,"have"],
+["e",7,"[How] [many] [lesson] do you have [today]?",2,"lessons"],
+["f",7,"We learn to use computers in ___ lessons.","IT|computer"],
+["f",7,"– ___ do you have PE? – On Mondays and Thursdays.","When"],
+["l",7,"Vietnamese","the subject where we read and write in our own language"],
+["w",7,"English","the language people speak in America and Britain"],
+["r",7,"How many / lessons / do / you / have / on Fridays?"],
+// Unit 8
+["m",8,"– Why ___ Mai like Art? – Because she wants to be an artist.","does","do","is","are"],
+["m",8,"He wants to be ___ engineer, so he likes Maths.","an","a","the","some"],
+["m",8,"My favourite subject is PE ___ I like sports.","because","but","or","so"],
+["m",8,"A person who writes stories and books is a ___.","writer","singer","teacher","farmer"],
+["m",8,"– Do you like English? – ___","Yes, I do. It's my favourite subject.","Yes, I am.","Yes, I like.","No, I'm not."],
+["m",8,"I like Science because I want to ___ a scientist.","be","is","am","being"],
+["m",8,"What's ___ favourite subject? – She likes Music.","her","she","his","their"],
+["rd",8,"My name is Hung. I like Maths and IT. IT is my favourite subject because I want to be a programmer. My sister likes Art because she wants to be an artist.","Why does Hung like IT?","He wants to be a programmer.","He wants to be an artist.","He likes Maths.","His sister likes it."],
+["rd",8,"Anna doesn't like Maths because it's hard for her. She likes English, Music and Art. She wants to be a singer.","Which subject doesn't Anna like?","Maths","English","Music","Art"],
+["o",8,"draw","artist","writer","singer"],
+["p",8,"<u>wh</u>o","<u>wh</u>at","<u>wh</u>y","<u>wh</u>en"],
+["e",8,"She [likes] Art [because] she [wants] to be [a] artist.",3,"an"],
+["e",8,"[Why] do you [likes] Science? – [Because] I want to be [a scientist].",1,"like"],
+["f",8,"My brother wants to be a footballer, so his favourite subject is ___.","PE"],
+["f",8,"___ is your favourite subject? – It's Maths.","What"],
+["l",8,"engineer","a person who designs and builds machines, roads or bridges"],
+["w",8,"subject","Maths, Art or Music at school"],
+["r",8,"Why / does / your sister / like / Music?"],
+// Unit 9
+["m",9,"Every morning, my brother ___, but now he ___ football.","runs / is playing","is running / plays","runs / plays","run / is playing"],
+["m",9,"Our sports day is ___ Saturday, the 15th of October.","on","in","at","of"],
+["m",9,"Listen! Someone ___ in the classroom.","is singing","sings","sing","singing"],
+["m",9,"– Are they playing basketball? – No, they ___. They're playing volleyball.","aren't","isn't","don't","can't"],
+["m",9,"Mai is very good at ___. She can jump over the rope 100 times.","skipping","swimming","running","table tennis"],
+["m",9,"Sports day is ___ week. We are very excited!","next","last","in","on"],
+["m",9,"Which sentence is correct?","They are playing badminton now.","They playing badminton now.","They are play badminton now.","They is playing badminton now."],
+["rd",9,"Today is our sports day. It's in the schoolyard. Some boys are playing football. Some girls are skipping. My friends and I are playing tug of war. Our teachers are watching us.","What are the girls doing?","They are skipping.","They are playing football.","They are playing tug of war.","They are watching."],
+["rd",9,"Our school's sports day is in November. There are many games: running, swimming and basketball. My class is good at basketball, so we want to win the basketball game.","When is the sports day?","in November","in October","in December","in September"],
+["o",9,"team","basketball","volleyball","badminton"],
+["p",9,"br<u>ea</u>d","t<u>ea</u>m","s<u>ea</u>","m<u>ea</u>t"],
+["e",9,"Look! The children [is] [playing] [volleyball] [in] the gym.",0,"are"],
+["e",9,"[What] is she [do]? – She's [skipping] [in] the schoolyard.",1,"doing"],
+["f",9,"Look! My friends ___ basketball. (play)","are playing|'re playing"],
+["f",9,"– Is she swimming? – No, she ___. She's running.","isn't|is not"],
+["l",9,"basketball","a game. You throw the ball into a high basket."],
+["w",9,"skipping","jumping over a rope again and again"],
+["r",9,"Our sports day / is / in / November / this year."],
+// Unit 10
+["m",10,"Last summer, my family ___ to Nha Trang. We ___ in the sea every day.","went / swam","go / swim","went / swim","goes / swam"],
+["m",10,"– Where ___ you last weekend? – I ___ at my grandparents' house.","were / was","was / were","are / am","did / was"],
+["m",10,"– What did you do at the beach? – We ___ sandcastles.","built","build","builds","building"],
+["m",10,"Yesterday ___ Sunday, so we didn't go to school.","was","is","were","be"],
+["m",10,"– Did you take any photos? – ___","Yes, I did. I took a lot.","Yes, I took.","Yes, I do.","Yes, I was."],
+["m",10,"Last summer, I ___ a lot of books and ___ a lot of photos.","read / took","read / take","reads / took","readed / taked"],
+["m",10,"– How was your holiday? – ___","It was great!","It is great!","I was at the beach.","Yes, it was."],
+["rd",10,"Last summer, Nam was in Da Nang with his family. They stayed at a hotel near the beach. Every morning, they swam in the sea. In the afternoon, Nam built sandcastles with his sister.","Where did Nam's family stay?","at a hotel near the beach","at a campsite","at their grandparents' house","in the countryside"],
+["rd",10,"Hello, I'm Linda. Last summer I was in the countryside with my grandparents. I helped them on the farm and fed the chickens. I didn't go to the beach, but I had a great time.","Where was Linda last summer?","in the countryside","at the beach","in the city","at the zoo"],
+["o",10,"sandcastle","swam","built","took"],
+["p",10,"play<u>ed</u>","watch<u>ed</u>","help<u>ed</u>","cook<u>ed</u>"],
+["e",10,"We [go] [to] Ha Long Bay [last] summer and [took] many photos.",0,"went"],
+["e",10,"[Was] you [at] the campsite [last] weekend? – Yes, I [was].",0,"Were"],
+["f",10,"Last summer, we ___ a lot of photos. (take)","took"],
+["f",10,"– ___ did you go last summer? – We went to Sa Pa.","Where"],
+["l",10,"sandcastle","a small house that children make with sand on the beach"],
+["w",10,"hotel","a building where you pay to stay on holiday"],
+["r",10,"What / did / you / do / at the beach / last summer?"]
+];
+const PROVINCE_L=[
+["h",1,"Hello, I'm Somchai. I'm from Bangkok. My friend Lucy is from Sydney.","Where is Lucy from?","Sydney","Bangkok","Tokyo","London"],
+["hf",1,"My best friend is Malaysian. Her name is Aisha.","My best friend is ___.","Malaysian"],
+["h",1,"Hi, I'm Tom. I'm not from Britain. I'm from America.","Where is Tom from?","America","Britain","Australia","Canada"],
+["h",2,"I get up at six fifteen. I go to school at six forty-five.","What time does the speaker go to school?","6:45","6:15","7:45","6:54"],
+["hf",2,"My father usually reads the newspaper after breakfast.","My father usually reads the newspaper after ___.","breakfast"],
+["hp",2,"My father watches TV after dinner.","📺","📝","🍳","🛏️"],
+["h",3,"I play badminton on Mondays and Thursdays. On Fridays, I play the piano.","When does the speaker play the piano?","on Fridays","on Mondays","on Thursdays","on Tuesdays"],
+["hf",3,"My brother waters the flowers every Saturday.","My brother waters the ___ every Saturday.","flowers"],
+["h",3,"Today is Tuesday. My birthday party is in three days.","What day is the party?","Friday","Thursday","Wednesday","Saturday"],
+["h",4,"My birthday is in May, and my brother's birthday is in November.","When is the brother's birthday?","in November","in May","in September","in December"],
+["hp",4,"I'm hungry. I'd like a sandwich, please.","🥪","🧃","🍇","🎂"],
+["hf",4,"Would you like some lemonade?","Would you like some ___?","lemonade"],
+["h",5,"I can play the piano, but I can't play the guitar. My brother can play the guitar.","Who can play the guitar?","the speaker's brother","the speaker","both of them","nobody"],
+["hp",5,"My grandfather can't ride a bike, but he can swim.","🏊","🚲","🎸","🎨"],
+["hf",5,"Can you roller skate? Yes, I can.","Can you roller ___? Yes, I can.","skate"],
+["h",6,"Our school is in the city. It has three floors. The library is on the third floor.","How many floors does the school have?","3","2","13","30"],
+["hp",6,"There is a big garden at my school. We grow flowers and trees there.","🌻","💻","🏊","📚"],
+["hf",6,"The computer room is next to the library.","The computer room is next to the ___.","library"],
+["h",7,"We have Maths every day, but we have Art only on Tuesdays.","When do they have Art?","on Tuesdays","every day","on Thursdays","on Mondays"],
+["h",7,"Today I have three lessons: English, Science and IT.","Which subject doesn't the speaker have today?","Music","English","Science","IT"],
+["hf",7,"Our English teacher is Mr Long.","Our ___ teacher is Mr Long.","English"],
+["h",8,"I don't like Science, but I love Maths. I want to be a Maths teacher.","What does the speaker want to be?","a Maths teacher","a scientist","a singer","a doctor"],
+["hp",8,"My favourite subject is IT because I like computers.","💻","🎨","🎵","⚽"],
+["hf",8,"She likes Vietnamese because she wants to be a writer.","She likes Vietnamese because she wants to be a ___.","writer"],
+["h",9,"On sports day, my brother is running and my sister is swimming. I'm playing table tennis.","What is the sister doing?","swimming","running","playing table tennis","skipping"],
+["hp",9,"Look! They're playing basketball in the gym.","🏀","⚽","🏸","🏊"],
+["hf",9,"Our class is playing tug of war.","Our class is playing tug of ___.","war"],
+["h",10,"Last summer, I was in Sa Pa with my parents. It was cool and beautiful.","Where was the speaker last summer?","in Sa Pa","in Hue","at the beach","in Ha Noi"],
+["hp",10,"Last weekend, we went fishing on the river.","🎣","🏊","🚲","📷"],
+["hf",10,"We took a lot of photos in Hoi An.","We took a lot of ___ in Hoi An.","photos|pictures"]
+];
+
 /* ================= Normalise ================= */
 const PROMPT={o:"Choose the odd one out.",p:"Choose the word whose underlined part is pronounced differently."};
 function toQ(row,lv,i){
   const [t,u]=row, id=lv+i, q={id,lv,t,u};
   if(t==="m"){const m=row[2].match(/^\{(.+?)\}(.*)$/);if(m){q.pic=m[1];q.q=m[2]}else q.q=row[2];q.o=row.slice(3);q.a=0}
   else if(t==="o"||t==="p"){q.q=PROMPT[t];q.o=row.slice(2);q.a=0}
+  else if(t==="rd"){q.read=row[2];q.q=row[3];q.o=row.slice(4);q.a=0}
   else if(t==="e"){q.s=row[2];q.a=row[3];q.fix=row[4];q.parts=[...row[2].matchAll(/\[([^\]]+)\]/g)].map(m=>m[1])}
   else if(t==="f"){q.q=row[2];q.ans=row[3].split("|")}
   else if(t==="l"||t==="w"){q.w=row[2];q.h=row[3]}
@@ -621,8 +851,8 @@ function toQ(row,lv,i){
   else if(t==="hf"){q.say=row[2];q.q=row[3];q.ans=row[4].split("|")}
   return q;
 }
-const BANKS={S:SCHOOL.concat(SCHOOL_L).map((r,i)=>toQ(r,"S",i)),W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i))};
-const TWO_LETTER_LEVEL="W";
+const BANKS={S:SCHOOL.concat(SCHOOL_L).map((r,i)=>toQ(r,"S",i)),W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i)),P:PROVINCE.concat(PROVINCE_L).map((r,i)=>toQ(r,"P",i))};
+const TWO_LETTER_LEVELS=["W","P"];
 
 /* ================= Test plan =================
    Every test is fixed: the same test number always gives the same questions.
@@ -631,9 +861,10 @@ const TWO_LETTER_LEVEL="W";
 const DAY=864e5;
 const TRACKS={
   S:{key:"S",name:"School Level",units:"Units 1–6",start:new Date(2026,9,12),weeks:7,exam:new Date(2026,10,26),examText:"26–28 Nov 2026",pools:[["S",30]],mins:20},
-  W:{key:"W",name:"Ward Level",units:"Units 1–10",start:new Date(2026,10,30),weeks:6,exam:new Date(2027,0,7),examText:"7–9 Jan 2027",pools:[["W",24],["S",6]],mins:20}
+  W:{key:"W",name:"Ward Level",units:"Units 1–10",start:new Date(2026,10,30),weeks:6,exam:new Date(2027,0,7),examText:"7–9 Jan 2027",pools:[["W",24],["S",6]],mins:20},
+  P:{key:"P",name:"Province Level",units:"Units 1–10",start:new Date(2027,0,11),weeks:8,exam:new Date(2027,2,4),examText:"4–6 Mar 2027",pools:[["P",24],["W",6]],mins:20}
 };
-const TRACK_ORDER=["S","W"];
+const TRACK_ORDER=["S","W","P"];
 const PER_WEEK=7, TEST_LEN=30;
 
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
@@ -688,7 +919,7 @@ function inst(q,seed){
   }
   if(x.t==="l"){
     const idx=[...x.w].map((ch,i)=>/[a-z]/i.test(ch)?i:-1).filter(i=>i>=0);
-    const n=x.lv===TWO_LETTER_LEVEL&&x.w.length>=7?2:1;
+    const n=TWO_LETTER_LEVELS.includes(x.lv)&&x.w.length>=7?2:1;
     x.miss=shuffleWith(idx,r).slice(0,n).sort((a,b)=>a-b);
   }
   return x;
@@ -769,7 +1000,7 @@ function drawSound(){
   if(!TTS.done)html=`<div class="muted">Checking the English voice on this device…</div>`;
   else if(!TTS.ok)html=`<div>This device can't read English aloud, so tests use reading questions in place of listening questions. Try another browser or device for listening practice.</div>`;
   else if(TTS.off)html=`<div>Listening is turned off on this device. Tests use reading questions instead.</div><div class="row"><button class="btn" id="sndOn">Turn listening on</button></div>`;
-  else html=`<div>Each test has about 4 listening questions. You can play each one 3 times, at normal or slow speed. Turn the volume up, then check the sound.</div><div class="row"><button class="btn" id="sndTest">Test sound</button></div><div id="sndAsk"></div>`;
+  else html=`<div>Each test has 4 or 5 listening questions. You can play each one 3 times, at normal or slow speed. Turn the volume up, then check the sound.</div><div class="row"><button class="btn" id="sndTest">Test sound</button></div><div id="sndAsk"></div>`;
   p.innerHTML=html;
   const on=document.getElementById("sndOn");if(on)on.onclick=()=>{TTS.off=false;store.set("listenOff",false);drawSound()};
   const t=document.getElementById("sndTest");
@@ -795,7 +1026,7 @@ const safe=s=>esc(s).replace(/&lt;(\/?)u&gt;/g,"<$1u>");
 const norm=s=>String(s).toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," ").replace(/[.!?]+$/,"").trim();
 const fmtTime=s=>{s=Math.max(0,Math.round(s));return String(s/60|0).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
 const fmtDate=d=>d.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
-const allQ=()=>BANKS.S.concat(BANKS.W,custom);
+const allQ=()=>BANKS.S.concat(BANKS.W,BANKS.P,custom);
 const byId=id=>allQ().find(q=>q.id===id);
 const LETTERS="ABCD";
 function strip(h){const d=document.createElement("div");d.innerHTML=h;return d.textContent}
@@ -809,6 +1040,7 @@ function correctText(q){
 }
 function stemText(q){
   if(q.say)return "Listening: “"+esc(q.say)+"”"+(q.t==="h"?" · "+esc(q.q):"");
+  if(q.t==="rd")return "Reading: “"+esc(q.read)+"” · "+safe(q.q);
   if(q.t==="r")return "Reorder: "+esc(chunks(q.s).join(" / "));
   if(q.t==="w")return "Letters in order: "+esc(q.h);
   if(q.t==="l")return "Missing letters: "+esc([...q.w].map((c,i)=>q.miss&&q.miss.includes(i)?"_":c).join(""))+" ("+esc(q.h)+")";
@@ -827,7 +1059,8 @@ function nextTest(tk){
   for(let k=0;k<total;k++)if(!results[resKey(tk,k)])return k;
   return null;
 }
-function defaultTrack(){return today()<TRACKS[TRACK_ORDER[1]].start?TRACK_ORDER[0]:TRACK_ORDER[1]}
+const listenCount=tk=>buildTest(tk,0).filter(q=>q.say).length;
+function defaultTrack(){let tk=TRACK_ORDER[0];for(const k of TRACK_ORDER)if(today()>=TRACKS[k].start)tk=k;return tk}
 
 /* ================= Session ================= */
 let S=null, tick=null;
@@ -868,7 +1101,7 @@ function renderQ(){
       body=`<div class="label">Listen and fill in the missing word</div>${listenBar}<div class="qtext">${parts[0]}<input class="blank" id="fillIn" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Your answer">${parts.slice(1).join("___")}</div>`;
     }
   }else if(q.o){
-    const label=q.t==="m"?`<div class="label">Choose the best answer</div>`:"";
+    const label=q.t==="m"?`<div class="label">Choose the best answer</div>`:q.t==="rd"?`<div class="label">Read and choose the best answer</div><div class="read">${esc(q.read)}</div>`:"";
     const longOpts=q.o.some(o=>strip(o).length>22);
     body=`${label}<div class="qtext">${q.pic?`<span class="pic" role="img" aria-label="picture">${esc(q.pic)}</span>`:""}${safe(q.q)}</div><div class="opts${longOpts?" wide":""}">${q.order.map((oi,k)=>`<button class="opt" data-o="${oi}"><span class="k">${LETTERS[k]}</span><span>${safe(q.o[oi])}</span></button>`).join("")}</div>`;
   }else if(q.t==="e"){
@@ -1019,7 +1252,7 @@ function renderHome(note){
       <div class="hero">
         <span class="label">Up next · ${T.name} · ${T.units}</span>
         <h3>${nk!=null?`Week ${wk} · Test ${nk+1}`:"All tests done!"}</h3>
-        <p>${TEST_LEN} questions, including about 4 listening questions · ${T.mins} minutes. Answers appear after you finish, just like the real exam.</p>
+        <p>${TEST_LEN} questions, including ${listenCount(tk)} listening questions · ${T.mins} minutes. Answers appear after you finish, just like the real exam.</p>
         <p class="small">${T.name} exam: ${T.examText}${days>0?` · ${days} days to go`:""}</p>
         <div class="row">${nk!=null?`<button class="btn main" id="heroBtn">Start Test ${nk+1}</button>`:""}</div>
       </div>
