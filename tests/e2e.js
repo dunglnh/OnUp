@@ -149,11 +149,26 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
     && /Bin/.test(rep.title) && rep.wide <= 390 && printHidden && otherKid === "#/home";
   console.log("report print:", printHidden, "other kid:", otherKid);
 
-  step("bank import as admin");
+  step("pin lock per user survives reload (L2)");
   await page.goto(BASE + "/#/account"); await page.click("#logout"); await page.waitForTimeout(200);
+  await page.click(".tile:has-text('Na')");
+  for (let i = 0; i < 5; i++) { await page.fill("#pinIn", "0000"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(120); }
+  const lockMsg = await page.textContent("#pinErr");
+  await page.reload(); await page.waitForTimeout(300);
+  await page.click(".tile:has-text('Na')"); await page.waitForTimeout(100);
+  const lockAfter = await page.textContent("#pinErr");
+  await page.fill("#pinIn", "3333"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(300); // PIN đúng cũng phải đợi
+  const lockedOut = await page.evaluate(() => !Store.sessionUser() && !!document.querySelector("#pinBox"));
+  await shot("12d-pin-locked");
+
+  step("bank import as admin");
   await page.click(".tile:has-text('Bố Minh')"); await page.fill("#pinIn", "9999"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(300);
-  console.log("wrong pin msg:", await page.textContent("#pinErr"));
+  const wrongMsg = await page.textContent("#pinErr");
+  console.log("wrong pin msg:", wrongMsg);
   await page.fill("#pinIn", "1234"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(400);
+  const otherIn = await page.evaluate(() => (Store.sessionUser() || {}).name);
+  const pinLockOK = /Đợi 30 giây/.test(lockMsg) && /Đợi (29|30) giây/.test(lockAfter) && lockedOut && /chưa đúng/.test(wrongMsg) && otherIn === "Bố Minh";
+  console.log("pin lock:", { lockMsg, lockAfter, lockedOut, otherIn });
   await page.goto(BASE + "/#/admin/bank/new"); await page.waitForTimeout(200);
   await page.fill("#bTitle", "Tiếng Việt 4 · thử"); await page.fill("#bSubj", "Tiếng Việt");
   await page.click("#bSample"); console.log("check:", await page.textContent("#bRes"));
@@ -211,6 +226,6 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   console.log("local mode:", !cloudMode, "cloud requests:", cloudReqs);
   const real = errs.filter((e) => !/fonts\.g|ERR_TUNNEL|ERR_NAME|net::/.test(e));
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || cloudReqs.length || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || cloudMode || cloudReqs.length || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();

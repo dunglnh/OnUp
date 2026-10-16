@@ -218,7 +218,29 @@
   }
   const pinError = (msg) => { $("#pinErr").innerHTML = `<div class="fb bad">${esc(msg)}</div>`; };
 
-  const lock = { fails: 0, until: 0 };
+  /* Khóa tạm sau nhiều lần sai PIN, tính riêng từng người, lưu trong localStorage nên tải lại trang không xóa được.
+     Mỗi 5 lần sai liên tiếp phải đợi: 30 giây, 1 phút, 5 phút, rồi 15 phút. Đăng nhập đúng thì xóa bộ đếm.
+     Chỉ làm việc đoán mò PIN mất thời gian; không phải bảo mật thật (ai mở công cụ trình duyệt cũng xóa được). */
+  const PinLock = (() => {
+    const KEY = "ontap_pinlock_v1", EVERY = 5, WAITS = [30, 60, 300, 900];
+    let mem = {};
+    const read = () => { try { const o = JSON.parse(localStorage.getItem(KEY) || "{}"); return o && typeof o === "object" ? o : {}; } catch (e) { return mem; } };
+    const write = (o) => { mem = o; try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) { /* chỉ giữ trong bộ nhớ */ } };
+    const wait = (id) => { const x = read()[id]; return x && x.until > Date.now() ? Math.ceil((x.until - Date.now()) / 1000) : 0; };
+    return {
+      wait, // số giây còn phải đợi, 0 = nhập được
+      left(id) { const x = read()[id]; return EVERY - ((x && x.fails) || 0) % EVERY; }, // còn mấy lần sai nữa thì bị khóa
+      fail(id) {
+        const o = read(), x = (o[id] = o[id] || { fails: 0, until: 0 });
+        x.fails++;
+        if (x.fails % EVERY === 0) x.until = Date.now() + WAITS[Math.min(x.fails / EVERY, WAITS.length) - 1] * 1000;
+        write(o); return wait(id);
+      },
+      clear(id) { const o = read(); if (o[id]) { delete o[id]; write(o); } }
+    };
+  })();
+  const waitTxt = (s) => (s < 60 ? s + " giây" : Math.floor(s / 60) + " phút" + (s % 60 ? " " + (s % 60) + " giây" : ""));
+
   function renderLogin() {
     drawWho(null);
     const groups = [["student", "Học sinh"], ["parent", "Phụ huynh"], ["admin", "Quản trị"]];
@@ -228,17 +250,33 @@
       ${groups.map(([role, name]) => { const us = Store.users(role); return us.length ? `<section class="sec"><div class="label">${name}</div><div class="tiles">${us.map((u) => `<button class="tile" data-u="${u.id}" aria-pressed="${u.id === sel}">${avatar(u, true)}<span class="nm">${esc(u.name)}</span><span class="small muted">${esc(gradeTxt(u))}</span></button>`).join("")}</div></section>` : ""; }).join("")}
       ${pinBoxHTML()}</div>`;
     const box = wirePinBox(submit);
+    let tick = null;
+    // Đếm ngược trong #pinWait (aria-live="off" để trình đọc màn hình không đọc lại mỗi giây).
+    function showWait(id, lead) {
+      clearInterval(tick);
+      $("#pinErr").innerHTML = `<div class="fb bad">${esc(lead || "Sai nhiều lần.")} Đợi <b id="pinWait" aria-live="off">${waitTxt(PinLock.wait(id))}</b> rồi thử lại.</div>`;
+      tick = setInterval(() => {
+        const w = $("#pinWait"), s = PinLock.wait(id);
+        if (!w || sel !== id) { clearInterval(tick); return; }
+        if (!s) { clearInterval(tick); $("#pinErr").innerHTML = `<div class="fb ok">Bạn nhập lại được rồi.</div>`; return; }
+        w.textContent = waitTxt(s);
+      }, 1000);
+    }
     function pick(id) {
-      sel = id;
+      sel = id; clearInterval(tick);
       $$(".tile").forEach((t) => t.setAttribute("aria-pressed", t.dataset.u === id));
       box.show(Store.user(id));
+      if (PinLock.wait(id)) showWait(id);
     }
     async function submit(pin) {
       if (!sel || !pin) return;
-      if (Date.now() < lock.until) { pinError(`Sai nhiều lần. Đợi ${Math.ceil((lock.until - Date.now()) / 1000)} giây rồi thử lại.`); return; }
-      if (await Store.checkPin(sel, pin)) { lock.fails = 0; Store.setSession(sel); go("#/home"); return; }
-      lock.fails++; if (lock.fails >= 5) { lock.until = Date.now() + 30000; lock.fails = 0; }
-      box.clear(); pinError("Mã PIN chưa đúng. Thử lại nhé.");
+      const id = sel;
+      if (PinLock.wait(id)) { box.clear(); showWait(id); return; }
+      if (await Store.checkPin(id, pin)) { PinLock.clear(id); clearInterval(tick); Store.setSession(id); go("#/home"); return; }
+      box.clear();
+      if (PinLock.fail(id)) { showWait(id, "Mã PIN chưa đúng."); return; }
+      const left = PinLock.left(id);
+      pinError(left <= 2 ? `Mã PIN chưa đúng. Sai thêm ${left} lần nữa thì phải đợi một lúc.` : "Mã PIN chưa đúng. Thử lại nhé.");
     }
     $$(".tile").forEach((t) => (t.onclick = () => pick(t.dataset.u)));
     if (sel) pick(sel);
@@ -788,8 +826,10 @@
       if (isAdmin && role === "student") data.parentIds = $$("input[name=par]:checked").map((x) => x.value);
       try {
         let saved;
-        if (editing) saved = await Store.updateUser(editing.id, data);
-        else {
+        if (editing) {
+          saved = await Store.updateUser(editing.id, data);
+          if (data.pin && !Store.cloud) PinLock.clear(editing.id); // đặt PIN mới thì không phải đợi nữa
+        } else {
           if (!isAdmin) data.parentIds = [viewer.id];
           saved = await Store.createUser(Object.assign({ role }, data));
         }
