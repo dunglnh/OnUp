@@ -46,7 +46,7 @@
     t.textContent = msg; t.hidden = false; clearTimeout(toastTimer);
     toastTimer = setTimeout(() => (t.hidden = true), 2600);
   }
-  const go = (h) => { if (location.hash === h) route(); else location.hash = h; };
+  const go = (h) => { if (guardOn()) { askLeave(h, false); return; } if (location.hash === h) route(); else location.hash = h; };
   const back = (h, txt) => `<button class="linkbtn" data-go="${h}">← ${esc(txt || "Quay lại")}</button>`;
   function wireGo(root) { $$("[data-go]", root || view).forEach((b) => (b.onclick = () => go(b.dataset.go))); }
   const avatar = (u, lg) => `<span class="av${lg ? " lg" : ""}" aria-hidden="true">${esc(u.avatar || "🙂")}</span>`;
@@ -63,6 +63,44 @@
     a.download = name; document.body.append(a); a.click();
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
+
+  /* ---------------- chốt rời trang ----------------
+     Đang làm bài (đề ngân hàng chưa nộp, bài ôn trong khung đã chạm vào) thì rời màn hình phải qua hộp hỏi lại:
+     - link và nút trong app (go(), thẻ <a href="#…">, kể cả "Lịch thi" và nút tài khoản trên thanh đầu): hỏi trước khi đổi hash;
+     - nút Back/Forward, gõ địa chỉ: hashchange không hủy được, nên thêm lại địa chỉ cũ vào lịch sử (không vẽ lại màn hình)
+       rồi hỏi; đồng ý thì lùi về đúng địa chỉ đích;
+     - tải lại, đóng tab: hộp hỏi của trình duyệt (beforeunload).
+     guard = {busy(): còn bài làm dở?, ask, note, yes, no: chữ trên hộp, leave(): việc làm trước khi rời (nộp bài),
+              saved(): bài ôn trong khung vừa gửi điểm về}. route() bỏ chốt; màn hình nào cần thì đặt lại. */
+  let guard = null, shownHash = location.hash, leaving = null;
+  const guardOn = () => !!(guard && guard.busy());
+  function askLeave(to, back) {
+    leaving = { to, back };
+    if ($("#leaveBox")) return;
+    const g = guard, box = document.createElement("div");
+    box.id = "leaveBox"; box.className = "leave";
+    box.innerHTML = `<div class="confirm" role="alertdialog" aria-modal="true" aria-labelledby="leaveQ"${g.note ? ` aria-describedby="leaveNote"` : ""}>
+      <b id="leaveQ">${esc(g.ask)}</b>${g.note ? `<span id="leaveNote">${esc(g.note)}</span>` : ""}
+      <div class="row"><button class="btn danger" id="leaveYes">${esc(g.yes)}</button><button class="btn main" id="leaveNo">${esc(g.no)}</button></div></div>`;
+    document.body.append(box);
+    const stay = $("#leaveNo");
+    stay.onclick = closeLeave;
+    box.onkeydown = (e) => { if (e.key === "Escape") closeLeave(); };
+    $("#leaveYes").onclick = () => {
+      const { to, back } = leaving; closeLeave();
+      if (g.leave) g.leave();
+      guard = null;
+      if (back) history.back(); else go(to);
+    };
+    stay.focus();
+  }
+  function closeLeave() { const b = $("#leaveBox"); if (b) b.remove(); leaving = null; }
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a || !guardOn() || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault(); askLeave(a.getAttribute("href"), false);
+  }, true);
+  window.addEventListener("beforeunload", (e) => { if (guardOn()) { e.preventDefault(); e.returnValue = "leave"; } });
 
   /* ---------------- số liệu học tập ---------------- */
   function within(results, days) { const lim = Date.now() - days * DAY; return results.filter((r) => new Date(r.at).getTime() >= lim); }
@@ -547,12 +585,23 @@
       <div class="row between">${back("#/home", "Trang chính")}<span class="small muted">${u.role === "student" ? "Điểm mỗi lần làm xong được lưu vào hồ sơ của bạn." : "Chế độ xem thử: điểm không được lưu."}</span></div>
       <iframe id="playerFrame" title="${esc(m.title)}" src="${esc(src)}"></iframe></div>`;
     wireGo();
+    if (u.role !== "student") return;
+    // Khung cùng origin: học sinh chạm hoặc gõ phím trong bài thì bật chốt, gửi điểm về (ontap:result) thì tắt.
+    const fr = $("#playerFrame");
+    let touched = false;
+    const touch = () => (touched = true);
+    guard = { busy: () => touched, saved: () => (touched = false), ask: "Rời bài ôn?", note: "Bài đang làm dở sẽ không được lưu.", yes: "Rời bài", no: "Ở lại" };
+    fr.addEventListener("load", () => {
+      touched = false;
+      try { const d = fr.contentDocument; d.addEventListener("pointerdown", touch, true); d.addEventListener("keydown", touch, true); } catch (e) { /* mở bằng file://: không theo dõi được */ }
+    });
   }
   window.addEventListener("message", (e) => {
     const fr = $("#playerFrame");
     if (!fr || e.source !== fr.contentWindow) return;
     if (location.origin !== "null" && e.origin !== location.origin) return;
     const d = e.data; if (!d || d.type !== "ontap:result") return;
+    if (guard && guard.saved) guard.saved();
     const u = Store.sessionUser(); if (!u || u.role !== "student") return;
     const m = modById(d.module); if (!m) return;
     if (!(+d.t > 0)) return;
@@ -572,10 +621,15 @@
       ${u.role !== "student" ? `<div class="notice">Chế độ xem thử: điểm không được lưu.</div>` : ""}</div>`;
     wireGo();
     const start = (mode) => {
-      quizRun = Quiz.run(view, b, {
+      const run = (quizRun = Quiz.run(view, b, {
         mode, onExit: () => go("#/home"),
         onFinish: (res) => { if (u.role === "student") { Store.addResult(Object.assign({ userId: u.id, source: "bank", refId: b.id, subject: b.subject, label: b.title }, res)); toast("Đã lưu kết quả"); } }
-      });
+      }));
+      // Xem thử (phụ huynh, quản trị) không lưu điểm nên không cần hỏi.
+      // Gọi qua run: "Làm lại" thay busy/submit của lượt mới vào cùng đối tượng.
+      if (u.role === "student") guard = Object.assign({ busy: () => run.busy(), leave: () => run.submit() }, run.exam
+        ? { ask: "Nộp bài và rời trang?", note: "Câu chưa làm tính là sai.", yes: "Nộp bài", no: "Làm tiếp" }
+        : { ask: "Dừng ôn và rời trang?", note: "Kết quả các câu đã làm được lưu lại.", yes: "Dừng ôn", no: "Ôn tiếp" });
     };
     $("#qPractice").onclick = () => start("practice");
     if ($("#qExam")) $("#qExam").onclick = () => start("exam");
@@ -901,6 +955,7 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
   /* ================= ĐỊNH TUYẾN ================= */
   function route() {
     if (quizRun) { quizRun.stop(); quizRun = null; }
+    guard = null; closeLeave(); shownHash = location.hash;
     const old = $("#evDetail"); if (old) old.remove();
     document.title = TITLE;
     if (Store.cloud) {
@@ -938,7 +993,18 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
     }
   }
   let booted = false;
-  window.addEventListener("hashchange", () => { if (booted) route(); });
+  window.addEventListener("hashchange", () => {
+    if (!booted) return;
+    if (guardOn()) {
+      const to = location.hash;
+      if (to === shownHash) return;
+      let pushed = true;
+      try { history.pushState(null, "", shownHash); } catch (e) { pushed = false; }
+      askLeave(to, pushed);
+      return;
+    }
+    route();
+  });
   if (Store.cloud) {
     // Đang nhập liệu thì không vẽ lại màn hình khi dữ liệu trên máy chủ thay đổi.
     const calm = () => !/^\/(play|quiz|account)|^\/admin\/(user|event|bank|data)/.test((location.hash || "#/").slice(1));

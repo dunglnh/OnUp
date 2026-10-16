@@ -58,6 +58,19 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   await frame.evaluate(() => ontapReport({ label: "School Level · Test 1", mode: "exam", subject: "ta", r: 24, t: 30, s: 900 }));
   await page.waitForTimeout(300);
   await shot("06-play");
+  step("leave guard: module in frame (L1)");
+  const nRes = () => page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).results.length);
+  await frame.click("body", { position: { x: 5, y: 5 } }); // học sinh chạm vào bài
+  await page.click(".player [data-go]"); await page.waitForTimeout(150);
+  const modAsk = await page.$("#leaveBox") ? await page.textContent("#leaveBox") : "";
+  await page.click("#leaveNo"); await page.waitForTimeout(100);
+  const modStay = await page.evaluate(() => location.hash);
+  await frame.evaluate(() => ontapReport({ label: "School Level · Test 2", mode: "exam", subject: "ta", r: 20, t: 30, s: 800 }));
+  await page.waitForTimeout(200);
+  await page.click(".player [data-go]"); await page.waitForTimeout(200); // điểm đã gửi về: đi luôn, không hỏi
+  const modLeft = { hash: await page.evaluate(() => location.hash), box: !!(await page.$("#leaveBox")) };
+  console.log("module guard:", modAsk.replace(/\s+/g, " "), modStay, modLeft);
+  const modGuardOK = /Rời bài ôn/.test(modAsk) && modStay === "#/play/ioe-4" && modLeft.hash === "#/home" && !modLeft.box;
   step("open module l4");
   await page.goto(BASE + "/#/play/l4-giua-ki-1"); await page.waitForTimeout(1200);
   const f2 = page.frames().find(f => /modules\/l4-giua-ki-1/.test(f.url()));
@@ -74,6 +87,33 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
     await page.click("#qzGo"); // next
   }
   await page.waitForTimeout(200); await shot("08-quiz-result");
+
+  step("leave guard: bank exam (L1)");
+  await page.goto(BASE + "/#/home"); await page.waitForTimeout(200);
+  await page.click("a[href='#/quiz/toan4-ck1-de1']"); await page.waitForTimeout(200);
+  const nBefore = await nRes();
+  await page.click("#qExam");
+  if (await page.$("#qzFill")) await page.fill("#qzFill", "400"); else await page.click(".opt >> nth=0");
+  await page.click("#qzGo");
+  const exQ = await page.textContent(".qcard");
+  await page.evaluate(() => history.back()); await page.waitForSelector("#leaveBox");
+  const exAsk = await page.textContent("#leaveBox");
+  await shot("08b-leave-ask");
+  await page.click("#leaveNo"); await page.waitForTimeout(150);
+  const exStay = { hash: await page.evaluate(() => location.hash), same: (await page.textContent(".qcard")) === exQ, n: await nRes(), box: !!(await page.$("#leaveBox")) };
+  let unloadAsk = "";
+  page.once("dialog", (d) => { unloadAsk = d.type(); d.dismiss(); }); // tải lại trang: trình duyệt hỏi, chọn ở lại
+  await page.evaluate(() => setTimeout(() => location.reload())); await page.waitForTimeout(400);
+  const exReload = { ask: unloadAsk, same: (await page.textContent(".qcard")) === exQ };
+  await page.click(".who a[href='#/calendar']"); await page.waitForTimeout(150); // link trên thanh đầu cũng phải hỏi
+  const exTop = { box: !!(await page.$("#leaveBox")), hash: await page.evaluate(() => location.hash) };
+  await page.click("#leaveNo"); await page.waitForTimeout(100);
+  await page.evaluate(() => history.back()); await page.waitForSelector("#leaveBox");
+  await page.click("#leaveYes"); await page.waitForTimeout(400);
+  const exLeft = { hash: await page.evaluate(() => location.hash), n: await nRes(), last: await page.evaluate(() => { const r = JSON.parse(localStorage.getItem("ontap_db_v1")).results; return r[r.length - 1]; }) };
+  console.log("exam guard:", exAsk.replace(/\s+/g, " "), exStay, exReload, exTop, exLeft.hash, exLeft.n - nBefore, exLeft.last.mode, exLeft.last.r + "/" + exLeft.last.t);
+  const examGuardOK = /Nộp bài và rời trang/.test(exAsk) && exStay.hash === "#/quiz/toan4-ck1-de1" && exStay.same && exStay.n === nBefore && !exStay.box && exReload.ask === "beforeunload" && exReload.same
+    && exTop.box && exTop.hash === "#/quiz/toan4-ck1-de1" && exLeft.hash === "#/home" && exLeft.n === nBefore + 1 && exLeft.last.mode === "exam" && exLeft.last.refId === "toan4-ck1-de1";
   await page.goto(BASE + "/#/home"); await page.waitForTimeout(300); await shot("09-student-home-after");
   await page.goto(BASE + "/#/calendar"); await page.waitForTimeout(300);
   await page.click("[data-ev='ck1-l4']"); await page.waitForTimeout(300); await shot("10-calendar");
@@ -105,7 +145,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   await page.goto(BASE + "/#/report/" + (await page.evaluate(() => Store.users("student").find((u) => u.name === "Na").id)));
   await page.waitForTimeout(200);
   const otherKid = await page.evaluate(() => location.hash); // Na không phải con của Mẹ Bin: về trang chính
-  const reportOK = rep.count === "3" && rep.subjects.join() === "Toán,Tiếng Anh" && rep.topics > 0 && rep.tips >= 2 && rep.days === 1
+  const reportOK = rep.count === "5" && rep.subjects.join() === "Toán,Tiếng Anh" && rep.topics > 0 && rep.tips >= 2 && rep.days === 1
     && /Bin/.test(rep.title) && rep.wide <= 390 && printHidden && otherKid === "#/home";
   console.log("report print:", printHidden, "other kid:", otherKid);
 
@@ -171,6 +211,6 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   console.log("local mode:", !cloudMode, "cloud requests:", cloudReqs);
   const real = errs.filter((e) => !/fonts\.g|ERR_TUNNEL|ERR_NAME|net::/.test(e));
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || cloudReqs.length || !cloudOK || db.results.length !== 3 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || cloudMode || cloudReqs.length || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();
