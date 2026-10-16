@@ -74,8 +74,9 @@
               saved(): bài ôn trong khung vừa gửi điểm về}. route() bỏ chốt; màn hình nào cần thì đặt lại. */
   let guard = null, shownHash = location.hash, leaving = null;
   const guardOn = () => !!(guard && guard.busy());
-  function askLeave(to, back) {
-    leaving = { to, back };
+  /* viaHistory: trình duyệt đã đổi hash và app vừa thêm lại địa chỉ cũ, nên đồng ý thì chỉ cần lùi một bước. */
+  function askLeave(to, viaHistory) {
+    leaving = { to, viaHistory };
     if ($("#leaveBox")) return;
     const g = guard, box = document.createElement("div");
     box.id = "leaveBox"; box.className = "leave";
@@ -87,10 +88,10 @@
     stay.onclick = closeLeave;
     box.onkeydown = (e) => { if (e.key === "Escape") closeLeave(); };
     $("#leaveYes").onclick = () => {
-      const { to, back } = leaving; closeLeave();
+      const { to, viaHistory } = leaving; closeLeave();
       if (g.leave) g.leave();
       guard = null;
-      if (back) history.back(); else go(to);
+      if (viaHistory) history.back(); else go(to);
     };
     stay.focus();
   }
@@ -640,14 +641,22 @@
     wireGo();
     if (u.role !== "student") return;
     // Khung cùng origin: học sinh chạm hoặc gõ phím trong bài thì bật chốt, gửi điểm về (ontap:result) thì tắt.
+    // Gắn vào trang bài ôn ngay khi nó bắt đầu tải, không đợi "load" (font tải chậm làm "load" đến muộn); khung tải lại thì gắn lại.
     const fr = $("#playerFrame");
-    let touched = false;
+    let doc = null, touched = false, tries = 0;
     const touch = () => (touched = true);
+    const hook = () => {
+      let d = null;
+      try { d = fr.contentDocument; } catch (e) { /* mở bằng file://: không theo dõi được */ }
+      if (d && d !== doc && d.URL !== "about:blank") {
+        doc = d; touched = false;
+        d.addEventListener("pointerdown", touch, true); d.addEventListener("keydown", touch, true);
+      }
+      return !!d && d === doc;
+    };
     guard = { busy: () => touched, saved: () => (touched = false), ask: "Rời bài ôn?", note: "Bài đang làm dở sẽ không được lưu.", yes: "Rời bài", no: "Ở lại" };
-    fr.addEventListener("load", () => {
-      touched = false;
-      try { const d = fr.contentDocument; d.addEventListener("pointerdown", touch, true); d.addEventListener("keydown", touch, true); } catch (e) { /* mở bằng file://: không theo dõi được */ }
-    });
+    fr.addEventListener("load", hook);
+    const early = setInterval(() => { if (!fr.isConnected || hook() || ++tries > 100) clearInterval(early); }, 100);
   }
   window.addEventListener("message", (e) => {
     const fr = $("#playerFrame");

@@ -60,7 +60,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   await shot("06-play");
   step("leave guard: module in frame (L1)");
   const nRes = () => page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).results.length);
-  await frame.click("body", { position: { x: 5, y: 5 } }); // học sinh chạm vào bài
+  await page.click("#playerFrame"); // học sinh chạm vào giữa bài (góc trên có thể bị thanh đầu che)
   await page.click(".player [data-go]"); await page.waitForTimeout(150);
   const modAsk = await page.$("#leaveBox") ? await page.textContent("#leaveBox") : "";
   await page.click("#leaveNo"); await page.waitForTimeout(100);
