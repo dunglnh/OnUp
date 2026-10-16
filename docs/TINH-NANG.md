@@ -104,13 +104,13 @@ Bản 1.0 lưu mọi thứ trong trình duyệt của máy đang dùng. Phù h�
 
 Mã PIN chỉ để phân biệt người dùng, không phải bảo mật thật.
 
-**Đồng bộ đám mây (tùy chọn, từ Phiên 5).** Khi điền `js/config.js` theo [HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md), dữ liệu nằm trên Supabase và dùng chung trên nhiều máy: bố mẹ, thầy cô đăng nhập bằng email (link hoặc mã số trong email, gắn vào gia đình bằng mã mời); học sinh nhập mã gia đình, chọn tên, nhập PIN. Phụ huynh chỉ xem được con mình. Quản trị → Dữ liệu có nút “Chuyển dữ liệu máy này lên đám mây” (học sinh giữ PIN cũ). Để trống `js/config.js` thì app chạy như bản 1.0, không cần mạng.
+**Đồng bộ đám mây (tùy chọn, từ Phiên 5; đang làm lại theo [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md): máy chủ mới đã xong ở Phiên A, đoạn dưới đây tả giao diện cũ, sẽ thay ở Phiên B).** Khi điền `js/config.js` theo [HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md), dữ liệu nằm trên Supabase và dùng chung trên nhiều máy: bố mẹ, thầy cô đăng nhập bằng email (link hoặc mã số trong email, gắn vào gia đình bằng mã mời); học sinh nhập mã gia đình, chọn tên, nhập PIN. Phụ huynh chỉ xem được con mình. Quản trị → Dữ liệu có nút “Chuyển dữ liệu máy này lên đám mây” (học sinh giữ PIN cũ). Để trống `js/config.js` thì app chạy như bản 1.0, không cần mạng.
 
 ## 6. Ngoài phạm vi bản 1.0
 - Violympic Toán, Trạng Nguyên Tiếng Việt (tạm bỏ khỏi lịch; quản trị viên vẫn tự thêm được nếu cần).
 - Đồng bộ giữa nhiều máy, đăng nhập bằng email.
 - Giáo viên giao bài cho cả lớp, bảng xếp hạng.
-- Đề cho giữa kì II, cuối năm (đã có chỗ trong lịch, chưa có câu hỏi).
+- Đề giữa kì II lớp 6 và đề cuối năm (đã có chỗ trong lịch, chưa có câu hỏi). Lớp 4 đã có 4 đề giữa kì II (Phiên 14).
 - Thông báo nhắc ôn qua điện thoại.
 
 ## 7. Lộ trình tiếp theo
@@ -118,7 +118,7 @@ Mã PIN chỉ để phân biệt người dùng, không phải bảo mật thậ
 | Ưu tiên | Việc | Ghi chú |
 |---|---|---|
 | 1 | Ngân hàng câu hỏi cuối kì I lớp 4 (Toán, TV, Tiếng Anh, Khoa học, LS&ĐL) và lớp 6 (Toán, Văn, KHTN) | Kì thi tiếp theo sau giữa kì I; có thể nhập qua mục Quản trị hoặc thêm vào `data/banks.js` |
-| 2 | ~~Đồng bộ đám mây với Supabase~~ — đã làm (Phiên 5) | `js/store-supabase.js`, `supabase/schema.sql` (RLS), Edge Function `student-login`; cài đặt: [HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md) |
+| 2 | ~~Đồng bộ đám mây với Supabase~~ — đã làm (Phiên 5); đang chuyển sang tài khoản tên đăng nhập + mật khẩu (Phiên A, B, C) | `js/store-supabase.js`, `supabase/schema.sql` (RLS), Edge Function `admin`; cài đặt: [HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md) |
 | 3 | Nhập câu hỏi từ Excel (.xlsx) | Cột: chủ đề, câu hỏi, đáp án đúng, sai 1–3, lời giải |
 | 4 | Bài ôn giữa kì II và cuối năm | Theo cùng mẫu với bài ôn giữa kì I |
 | 5 | ~~Báo cáo tuần cho phụ huynh~~ — đã làm (Phiên 12) | Trang in được trong hồ sơ của con, lưu PDF bằng nút In. Chưa gửi email |

@@ -1,5 +1,5 @@
--- Kiểm thử RLS và các hàm của supabase/schema.sql, đóng vai người tấn công.
--- Chạy bằng tests/supabase/run.sh (nạp auth-stub.sql và schema.sql trước).
+-- Kiểm thử RLS, trigger và các hàm của supabase/schema.sql, đóng vai phụ huynh, nhà khác, tài khoản bị khóa, chủ app
+-- và người chưa đăng nhập. Chạy bằng tests/supabase/run.sh (nạp auth-stub.sql, schema.sql và đề từ banks-to-sql.js trước).
 
 -- ---------- công cụ kiểm thử ----------
 create schema t;
@@ -29,6 +29,15 @@ begin
   if e is null then raise exception 'FAIL (không bị chặn): %', msg; end if;
   raise notice 'ok  chặn: % [%]', msg, e;
 end $$;
+-- Câu lệnh phải bị chặn với lời báo có chứa chuỗi cho trước.
+create function t.blocked_with(q text, needle text, msg text) returns void language plpgsql as $$
+declare e text;
+begin
+  begin execute q; exception when others then e := sqlerrm; end;
+  if e is null then raise exception 'FAIL (không bị chặn): %', msg; end if;
+  if position(needle in e) = 0 then raise exception 'FAIL (sai lời báo "%"): %', e, msg; end if;
+  raise notice 'ok  chặn: % [%]', msg, e;
+end $$;
 -- Số dòng một câu lệnh UPDATE/DELETE/INSERT ảnh hưởng (lỗi thì -1).
 create function t.rows(q text) returns int language plpgsql as $$
 declare n int;
@@ -40,322 +49,345 @@ create function t.n(q text) returns int language plpgsql as $$
 declare n int; begin execute 'select count(*) from (' || q || ') x' into n; return n; end $$;
 grant execute on all functions in schema t to public;
 
--- ---------- dữ liệu: tài khoản auth ----------
-insert into t.ids values
-  ('A1', gen_random_uuid()), ('P1', gen_random_uuid()), ('P2', gen_random_uuid()), ('B1', gen_random_uuid()),
-  ('X', gen_random_uuid()), ('ANON1', gen_random_uuid()), ('ANON2', gen_random_uuid()), ('ANONB', gen_random_uuid()),
-  ('S1', gen_random_uuid()), ('S2', gen_random_uuid());
-insert into auth.users (id, email, is_anonymous) values
-  (t.id('A1'), 'a1@example.com', false), (t.id('P1'), 'p1@example.com', false), (t.id('P2'), 'p2@example.com', false),
-  (t.id('B1'), 'b1@example.com', false), (t.id('X'), 'x@example.com', false),
-  (t.id('ANON1'), null, true), (t.id('ANON2'), null, true), (t.id('ANONB'), null, true);
+-- ---------- dữ liệu: người dùng Supabase Auth và tài khoản (Edge Function admin tạo bằng khóa bí mật) ----------
+insert into t.ids values ('OWNER', gen_random_uuid()), ('PA', gen_random_uuid()), ('PB', gen_random_uuid()),
+  ('PL', gen_random_uuid()), ('X', gen_random_uuid());
+insert into auth.users (id, email) values
+  (t.id('OWNER'), 'chu.app@users.onup.invalid'), (t.id('PA'), 'nha.a@users.onup.invalid'),
+  (t.id('PB'), 'nha.b@users.onup.invalid'), (t.id('PL'), 'nha.khoa@users.onup.invalid'), (t.id('X'), 'nguoi.la@users.onup.invalid');
+insert into app_owners (user_id) values (t.id('OWNER'));
 
--- ---------- tạo hai gia đình (chỉ email trong allowed_creators) ----------
-insert into allowed_creators (email) values ('a1@example.com'), ('b1@example.com');
-select t.login('X');
-select t.blocked($$select create_family('Nhà X', '', 'X', '', '[]', '{}')$$, 'email ngoài danh sách được phép tạo gia đình');
-select t.blocked($$select * from allowed_creators$$, 'đọc danh sách email được phép');
-select t.login('A1');
-select t.ok(create_family('Nhà A', '2026–2027', 'Bố A', '🧭',
-  '[{"id":"ck1-l4","title":"Cuối kì I","kind":"dinh-ki","grades":[4],"start":"2026-12-28","end":"2027-01-08","tentative":true,"subjects":["Toán"],"modules":[],"banks":["mau-toan4-ck1"]}]',
-  array['mau-toan4-ck1']) is not null, 'A1 tạo gia đình A');
-select t.blocked($$select create_family('Nhà A2', '', 'Bố A', '🧭', '[]', '{}')$$, 'A1 tạo gia đình thứ hai');
-select t.ok((select grades from exam_events where id = 'ck1-l4') = '{4}' and (select start_date from exam_events where id = 'ck1-l4') = '2026-12-28', 'lịch mặc định được chép vào gia đình A');
-select t.ok(get_join_code() ~ '^[A-Z0-9]{6}$', 'mã gia đình 6 kí tự (đọc qua get_join_code)');
--- quản trị thêm phụ huynh và học sinh
-select t.blocked($$insert into profiles (family_id, role, name) values (current_family_id(), 'student', 'Thiếu khối')$$, 'học sinh phải có khối');
-insert into profiles (id, family_id, role, name, grade) values
-  (t.id('S1'), current_family_id(), 'student', 'Bin', 4),
-  (t.id('S2'), current_family_id(), 'student', 'Na', 6);
-insert into profiles (family_id, role, name) values (current_family_id(), 'parent', 'Mẹ Bin'), (current_family_id(), 'parent', 'Bố Na');
-select t.ok((select count(*) from profiles where role = 'parent' and invite_code ~ '^[A-Z0-9]{12}$') = 2, 'phụ huynh mới có mã mời 12 kí tự');
-insert into parent_child select p.id, t.id('S1') from profiles p where p.name = 'Mẹ Bin';
-insert into parent_child select p.id, t.id('S2') from profiles p where p.name = 'Bố Na';
-select t.blocked($$insert into results (profile_id, source, ref_id, r, t) values (t.id('S1'), 'bank', 'x', 1, 2)$$, 'quản trị không ghi kết quả thay học sinh');
-reset role;
-create temp table inv as select name, invite_code from profiles where role = 'parent';
-grant select on inv to public;
-
-select t.login('B1');
-select t.ok(create_family('Nhà B', '', 'Cô B', '', '[]', '{}') is not null, 'B1 tạo gia đình B');
-insert into profiles (family_id, role, name, grade) values (current_family_id(), 'student', 'Tí', 4);
-reset role;
-insert into t.ids select 'SB', id from profiles where name = 'Tí';
-
--- ---------- phụ huynh nhận mã mời ----------
-select t.login('P1');
-select t.ok(claim_invite((select '  ' || lower(substr(invite_code,1,4)) || '-' || substr(invite_code,5) from inv where name = 'Mẹ Bin')) is not null, 'P1 nhận mã mời (có gạch nối, chữ thường)');
-select t.login('P2');
-select t.ok(claim_invite((select invite_code from inv where name = 'Mẹ Bin')) is null, 'P2 không dùng lại được mã đã dùng');
-select t.ok(claim_invite((select invite_code from inv where name = 'Bố Na')) is not null, 'P2 nhận mã mời của mình');
-
--- ---------- người ngoài (email, chưa thuộc gia đình nào) dò mã mời ----------
-select t.login('X');
-select t.ok(claim_invite('AAAAAAAAAAAA') is null, 'mã mời sai lần 1');
-select claim_invite('AAAAAAAAAAAB'), claim_invite('AAAAAAAAAAAC'), claim_invite('AAAAAAAAAAAD'), claim_invite('AAAAAAAAAAAE');
-select t.blocked($$select claim_invite('AAAAAAAAAAAF')$$, 'sai 5 lần thì bị khóa khi dò mã mời');
-select t.ok(t.n('select id from families') = 0 and t.n('select * from profiles') = 0 and t.n('select * from results') = 0
-  and t.n('select * from exam_events') = 0, 'người chưa thuộc gia đình không thấy gì');
-
--- ---------- học sinh đăng nhập (Edge Function, service role ghi student_sessions) ----------
 select t.as_service();
-insert into student_sessions (auth_user_id, profile_id) values (t.id('ANON1'), t.id('S1')), (t.id('ANONB'), t.id('SB'));
-insert into student_pins (profile_id, pin_hash) values (t.id('S1'), 'pbkdf2$x');
-select t.ok(attempt_begin('pin:test', 5, 30) = 0, 'service role gọi được attempt_begin');
-select attempt_begin('pin:test', 5, 30), attempt_begin('pin:test', 5, 30), attempt_begin('pin:test', 5, 30), attempt_begin('pin:test', 5, 30);
-select t.ok(attempt_begin('pin:test', 5, 30) between 29 and 30, 'sau 5 lần thử, PIN bị khóa 30 giây');
-update login_attempts set locked_until = now() - interval '1 second' where key = 'pin:test';
-select attempt_begin('pin:test', 5, 30), attempt_begin('pin:test', 5, 30), attempt_begin('pin:test', 5, 30), attempt_begin('pin:test', 5, 30), attempt_begin('pin:test', 5, 30);
-select t.ok(attempt_begin('pin:test', 5, 30) between 59 and 60, 'lần khóa thứ hai dài gấp đôi (60 giây)');
-select attempt_done('pin:test', true);
-select t.ok((select since_ok = 0 and locked_until is null and rounds = 2 from login_attempts where key = 'pin:test'), 'đăng nhập đúng: xóa lượt hiện tại nhưng nhớ số lần đã khóa');
--- trần cứng trong ngày: lần sai thứ 21 bị từ chối kể cả sau khi đợi, lần đúng không xóa được
-delete from login_attempts where key = 'pin:cap';
-do $$ begin
-  for i in 1 .. 20 loop
-    update login_attempts set locked_until = null where key = 'pin:cap';
-    perform attempt_begin('pin:cap', 5, 30, 7, 86400, 15, 20);
-    if i % 10 = 0 then perform attempt_done('pin:cap', true); end if; -- con đăng nhập đúng xen giữa
-    update login_attempts set day_fails = day_fails + 1 where key = 'pin:cap' and i % 10 = 0; -- lần đúng không tính là sai: bù lại để đủ 20 lần sai
-  end loop;
-end $$;
-update login_attempts set locked_until = null where key = 'pin:cap';
-select t.ok(attempt_begin('pin:cap', 5, 30, 7, 86400, 15, 20) = -1, 'lần sai thứ 21 trong ngày bị từ chối kể cả sau khi đợi');
-select attempt_done('pin:cap', true);
-update login_attempts set locked_until = null, day_start = now() - interval '2 days' where key = 'pin:cap';
-select t.ok(attempt_begin('pin:cap', 5, 30, 7, 86400, 15, 20) = -1, 'khóa hẳn: đăng nhập đúng hay sang ngày mới cũng không mở');
-select t.ok(attempt_begin('pin:cap2', 5, 30, 7, 86400, 3, 20) = 0 and attempt_begin('pin:cap2', 5, 30, 7, 86400, 3, 20) = 0
-  and attempt_begin('pin:cap2', 5, 30, 7, 86400, 3, 20) = 0 and attempt_begin('pin:cap2', 5, 30, 7, 86400, 3, 20) = -1, 'trần số lần sai kể từ lần đúng gần nhất');
-select attempt_reset_profile('00000000-0000-0000-0000-000000000000');
-insert into login_attempts (key, hard) values ('pin:' || t.id('S2'), true), ('pin:' || t.id('S2') || ':' || t.id('ANON2'), true);
-select attempt_reset_profile(t.id('S2'));
-select t.ok(not exists (select 1 from login_attempts where key like 'pin:' || t.id('S2') || '%'), 'người lớn đặt lại PIN thì mở mọi khóa của con');
--- tra mã gia đình: đếm lần nhập sai theo người gọi / IP
-select family_by_code('ZZZZZZ', null, array['codeu:t', 'ip:t'], array[3, 50], 30, 600), family_by_code('ZZZZZY', null, array['codeu:t', 'ip:t'], array[3, 50], 30, 600),
-       family_by_code('ZZZZZX', null, array['codeu:t', 'ip:t'], array[3, 50], 30, 600);
-select t.ok((family_by_code((select join_code from families limit 1), null, array['codeu:t'], array[3], 30, 600)->>'wait')::int > 0, 'nhập sai mã gia đình 3 lần thì khóa, mã đúng cũng phải đợi');
-select t.ok((family_by_code((select join_code from families limit 1), null, array['codeu:t2', 'ip:t'], array[3, 50], 30, 600)->>'id') is not null, 'cùng IP nhưng người gọi khác: IP chưa tới ngưỡng 50 lần nên vẫn tra được');
-insert into known_devices (profile_id, device) values (t.id('S1'), 'maycuabin0000000000000000');
-select t.ok((family_by_code((select join_code from families f join profiles p on p.family_id = f.id where p.id = t.id('S1')), 'maycuabin0000000000000000', array['codeu:t'], array[3], 30, 600)->>'id') is not null,
-  'máy quen của học sinh trong gia đình nhập đúng mã thì không bị khóa chặn');
-
--- ---------- học sinh S1 ----------
-select t.login('ANON1');
-select t.ok(current_profile_id() = t.id('S1'), 'người dùng ẩn danh đã gắn là S1');
-select t.ok(t.n('select * from profiles') = 1, 'học sinh chỉ thấy hồ sơ của mình');
-select t.ok(t.n('select * from exam_events') = 1, 'học sinh thấy lịch thi của gia đình');
-select t.ok(t.rows($$insert into results (profile_id, source, ref_id, label, r, t, s) values (t.id('S1'), 'bank', 'mau-toan4-ck1', 'Toán', 8, 10, 300)$$) = 1, 'học sinh ghi kết quả của mình');
-select t.blocked($$insert into results (profile_id, source, ref_id, r, t) values (t.id('S2'), 'bank', 'x', 10, 10)$$, 'học sinh ghi kết quả cho bạn cùng gia đình');
-select t.blocked($$insert into results (profile_id, source, ref_id, r, t) values (t.id('SB'), 'bank', 'x', 10, 10)$$, 'học sinh ghi kết quả cho học sinh nhà khác');
-select t.blocked($$insert into results (profile_id, source, ref_id, r, t) values (t.id('S1'), 'bank', 'x', 11, 10)$$, 'điểm đúng lớn hơn tổng số câu');
-select t.blocked($$insert into results (profile_id, source, ref_id, r, t, at) values (t.id('S1'), 'bank', 'x', 1, 10, '2020-01-01')$$, 'học sinh tự đặt thời điểm làm bài');
-select t.blocked($$insert into results (profile_id, family_id, source, ref_id, r, t) values (t.id('S1'), (select id from families), 'bank', 'x', 1, 10)$$, 'học sinh tự đặt family_id');
-select t.ok(t.rows($$update results set r = 10$$) <= 0, 'học sinh không sửa được kết quả');
-select t.ok(t.rows($$delete from results$$) <= 0, 'học sinh không xóa được kết quả');
-select t.blocked($$insert into student_sessions (auth_user_id, profile_id) values (t.id('ANON1'), t.id('S2'))$$, 'học sinh tự gắn mình thành học sinh khác');
-select t.blocked($$update profiles set role = 'admin' where id = t.id('S1')$$, 'học sinh tự nâng quyền');
-select t.blocked($$update profiles set family_id = (select family_id from profiles limit 1) where id = t.id('S1')$$, 'học sinh đổi gia đình');
-select t.ok(t.rows($$update profiles set avatar = '🦊' where id = t.id('S1')$$) = 1, 'học sinh đổi hình đại diện của mình');
-select t.blocked($$select * from student_pins$$, 'học sinh đọc bảng PIN');
-select t.blocked($$select * from login_attempts$$, 'học sinh đọc bộ đếm thử sai');
-select t.blocked($$select attempt_done('pin:' || t.id('S2'), true)$$, 'học sinh tự xóa bộ đếm khóa PIN');
-select t.blocked($$select attempt_reset_profile(t.id('S1'))$$, 'học sinh tự mở khóa PIN');
-select t.blocked($$select family_by_code('ABCDEF', null, '{}', '{}', 0, 0)$$, 'học sinh tra mã gia đình không bị đếm');
-select t.blocked($$select join_code from families$$, 'học sinh đọc mã gia đình');
-select t.ok(get_join_code() is null, 'get_join_code không trả mã cho học sinh');
-select t.blocked($$update profiles set name = 'Tên mới' where id = t.id('S1')$$, 'học sinh tự đổi tên');
-select t.blocked($$update profiles set grade = 6 where id = t.id('S1')$$, 'học sinh tự đổi khối');
-select t.blocked($$select sign_out_child(t.id('S2'))$$, 'học sinh đăng xuất bạn');
-select t.ok(t.n('select * from child_pin_status()') = 0, 'học sinh không xem tình trạng PIN');
-select t.blocked($$select add_child(null, 'Giả', '', 4::smallint, '')$$, 'học sinh tạo hồ sơ');
-select t.blocked($$select trim_results_of(array[t.id('S2')])$$, 'gọi hàm nội bộ trim_results_of');
-select t.blocked($$select attempt_begin('pin:' || t.id('S2'), 1000000, 0)$$, 'tự gọi attempt_begin');
-select t.blocked($$insert into results (profile_id, source, ref_id, r, t, wrong_topics) values (t.id('S1'), 'bank', 'x', 1, 2, array[repeat('x', 6000)])$$, 'chủ đề sai quá dài');
-select t.blocked($$select random_code(6)$$, 'gọi hàm nội bộ random_code');
-select t.blocked($$select create_family('X', '', 'X', '', '[]', '{}')$$, 'người dùng ẩn danh tạo gia đình');
-select t.blocked($$select import_local('{"users":[]}')$$, 'học sinh chuyển dữ liệu');
-select t.ok(t.rows($$insert into exam_events (id, family_id, title, kind, grades) values ('x', current_family_id(), 'x', 'moc', '{4}')$$) = -1, 'học sinh không thêm kì thi');
-
--- ---------- người dùng ẩn danh chưa gắn ----------
-select t.login('ANON2');
-select t.ok(current_profile_id() is null and t.n('select id from families') = 0 and t.n('select * from profiles') = 0
-  and t.n('select * from results') = 0 and t.n('select * from exam_events') = 0 and t.n('select * from question_banks') = 0
-  and t.n('select * from parent_child') = 0 and t.n('select * from student_sessions') = 0, 'người dùng ẩn danh chưa gắn không thấy gì');
-select t.blocked($$select claim_invite('AAAAAAAAAAAA')$$, 'người dùng ẩn danh nhận mã mời');
+select t.ok(t.rows($$insert into families (auth_user_id, username, display_name) values
+  (t.id('PA'), 'nha.a', 'Nhà A'), (t.id('PB'), 'nha.b', 'Nhà B'), (t.id('PL'), 'nha.khoa', 'Nhà sẽ bị khóa')$$) = 3, 'khóa bí mật (Edge Function) tạo tài khoản');
+select t.blocked($$insert into families (auth_user_id, username) values (t.id('X'), 'Nha.X')$$, 'tên đăng nhập có chữ hoa');
+select t.blocked($$insert into families (auth_user_id, username) values (t.id('X'), 'abc')$$, 'tên đăng nhập 3 kí tự');
+select t.blocked($$insert into families (auth_user_id, username) values (t.id('X'), 'a..b')$$, 'tên đăng nhập có hai dấu chấm liền nhau');
+select t.blocked($$insert into families (auth_user_id, username) values (t.id('X'), '.abcd')$$, 'tên đăng nhập bắt đầu bằng dấu chấm');
+select t.blocked($$insert into families (auth_user_id, username) values (t.id('X'), 'nha.a')$$, 'tên đăng nhập trùng');
+select t.blocked($$insert into families (auth_user_id, username) values (t.id('PA'), 'nha.a2')$$, 'một người dùng hai tài khoản');
+select t.ok((select plan = 'free' and plan_until is null and must_change_password and status = 'active' from families where username = 'nha.a'),
+  'tài khoản mới: gói free, bắt đổi mật khẩu tạm, đang hoạt động');
+select t.ok((select max_children from plans where id = 'free') = 5 and (select all_banks from plans where id = 'free'), 'gói free hôm nay: 5 hồ sơ con, mọi đề');
+reset role;
+insert into t.ids select 'FA', id from families where username = 'nha.a';
+insert into t.ids select 'FB', id from families where username = 'nha.b';
+insert into t.ids select 'FL', id from families where username = 'nha.khoa';
 
 -- ---------- vai anon (chưa đăng nhập) ----------
-reset role; select set_config('request.jwt.claims', '', false); set role anon;
+select t.login(null); set role anon;
 select t.blocked($$select id from families$$, 'anon đọc families');
 select t.blocked($$select * from profiles$$, 'anon đọc profiles');
 select t.blocked($$select * from results$$, 'anon đọc results');
-select t.blocked($$select current_profile_id()$$, 'anon gọi hàm');
-
--- ---------- phụ huynh P1 (con: S1) ----------
-select t.login('P1');
-select t.ok(t.n('select * from profiles') = 2, 'P1 thấy mình và con (S1), không thấy S2, P2, quản trị');
-select t.ok(t.n($$select * from profiles where id = t.id('S2')$$) = 0, 'P1 không thấy học sinh không phải con mình');
-select t.ok(t.n('select * from results') = 1, 'P1 thấy kết quả của con');
-select t.ok(t.n($$select * from profiles where id = t.id('SB')$$) = 0 and t.n('select id from families') = 1, 'P1 không thấy gia đình B');
-select t.ok(t.rows($$update profiles set name = 'Bin Bin' where id = t.id('S1')$$) = 1, 'P1 sửa hồ sơ của con');
-select t.ok(t.rows($$update profiles set name = 'Na hack' where id = t.id('S2')$$) = 0, 'P1 không sửa được hồ sơ con nhà khác');
-select t.ok(t.rows($$delete from profiles where id = t.id('S2')$$) = 0, 'P1 không xóa được học sinh khác');
-select t.blocked($$insert into parent_child values (current_profile_id(), t.id('S2'))$$, 'P1 tự gắn mình làm phụ huynh của S2');
-select t.blocked($$insert into parent_child values (current_profile_id(), t.id('SB'))$$, 'P1 tự gắn mình làm phụ huynh của học sinh nhà B');
-select t.blocked($$insert into profiles (family_id, role, name) values (current_family_id(), 'admin', 'Tôi là quản trị')$$, 'P1 tự tạo tài khoản quản trị');
-select t.ok(t.rows($$update families set name = 'Đổi tên'$$) = 0, 'P1 không đổi tên gia đình');
-select t.blocked($$update families set join_code = 'ABCDEF'$$, 'P1 đổi mã gia đình');
-select t.ok(t.rows($$update exam_events set title = 'x'$$) = 0, 'P1 không sửa lịch thi');
-select t.blocked($$insert into results (profile_id, source, ref_id, r, t) values (t.id('S1'), 'bank', 'x', 10, 10)$$, 'phụ huynh ghi kết quả thay con');
-select t.blocked($$select new_invite(t.id('S1'))$$, 'P1 tạo mã mời');
-select t.blocked($$select new_join_code()$$, 'P1 đổi mã gia đình bằng hàm');
-select t.blocked($$select delete_family()$$, 'P1 xóa gia đình');
-select t.blocked($$select import_local('{"users":[]}')$$, 'P1 chuyển dữ liệu');
-select t.ok(add_child(null, 'Cún', '🐶', 4::smallint, '4B') is not null and t.n('select * from profiles') = 3, 'P1 tự thêm con, thấy hồ sơ mới');
-
--- ---------- phụ huynh P2 (con: S2) ----------
-select t.login('P2');
-select t.ok(t.n('select * from results') = 0 and t.n($$select * from profiles where id = t.id('S1')$$) = 0, 'P2 không thấy S1 và kết quả của S1');
-
--- ---------- quản trị gia đình B tấn công gia đình A ----------
-select t.login('B1');
-select t.ok(t.n($$select * from profiles where family_id <> current_family_id()$$) = 0 and t.n('select * from results') = 0
-  and t.n($$select * from exam_events where family_id <> current_family_id()$$) = 0, 'B1 không đọc được dữ liệu nhà A');
-select t.ok(t.rows($$update profiles set name = 'hack' where id = t.id('S1')$$) = 0, 'B1 không sửa hồ sơ nhà A');
-select t.ok(t.rows($$delete from results$$) = 0, 'B1 không xóa kết quả nhà A');
-select t.blocked($$insert into profiles (family_id, role, name, grade) values ((select family_id from profiles where id = t.id('S1')), 'student', 'x', 4)$$, 'B1 thêm hồ sơ vào nhà A (biết family_id)');
-select t.blocked($$insert into exam_events (id, family_id, title, kind, grades) select 'x', family_of(t.id('S1')), 'x', 'moc', '{4}'$$, 'B1 thêm kì thi vào nhà A');
-select t.blocked($$insert into parent_child select id, t.id('S1') from profiles where role = 'admin'$$, 'B1 gắn mình làm phụ huynh của S1');
+select t.blocked($$select * from paid_banks$$, 'anon đọc paid_banks');
+select t.blocked($$select * from plans$$, 'anon đọc plans');
+select t.blocked($$select my_family_id()$$, 'anon gọi hàm');
+select t.blocked($$select touch()$$, 'anon gọi touch');
 reset role;
-create temp table pa as select id from profiles where name = 'Mẹ Bin'; grant select on pa to public;
-select t.login('B1');
-select t.blocked($$select new_invite((select id from pa))$$, 'B1 tạo mã mời cho phụ huynh nhà A (chiếm tài khoản)');
 
--- ---------- học sinh nhà B ----------
-select t.login('ANONB');
-select t.ok(t.n('select * from results') = 0 and t.n('select * from profiles') = 1, 'học sinh nhà B không thấy nhà A');
+-- ---------- phụ huynh A ----------
+select t.login('PA');
+select t.ok(my_family_id() = t.id('FA') and not is_owner(), 'PA: gia đình A, không phải owner');
+select t.ok(t.n('select id from families') = 1, 'PA chỉ thấy dòng families của mình');
+select t.ok(t.n('select * from plans') = 2, 'PA đọc được bảng gói');
+select t.ok(t.n('select * from app_owners') = 0 and t.n('select * from admin_notes') = 0 and t.n('select * from plan_log') = 0
+  and t.n('select * from admin_log') = 0, 'PA không thấy app_owners, ghi chú, nhật ký');
+select t.ok(t.rows($$update families set display_name = 'Nhà Bin', school_year = '2026–2027', seed_banks_seen = '{toan4-ck1-de1}'$$) = 1,
+  'PA sửa tên hiển thị, năm học, seed_banks_seen');
+select t.blocked($$update families set plan = 'family', plan_until = '2099-01-01'$$, 'PA tự nâng gói');
+select t.blocked($$update families set status = 'active'$$, 'PA tự đổi trạng thái');
+select t.blocked($$update families set must_change_password = false$$, 'PA tự bỏ cờ đổi mật khẩu bằng UPDATE');
+select t.blocked($$update families set username = 'nha.moi'$$, 'PA tự đổi tên đăng nhập');
+select t.blocked($$update families set auth_user_id = auth.uid()$$, 'PA đổi người giữ tài khoản');
+select t.blocked($$insert into families (auth_user_id, username) values (auth.uid(), 'nha.a3')$$, 'PA tự tạo tài khoản');
+select t.ok(t.rows($$delete from families$$) <= 0 and t.n('select id from families') = 1, 'PA không xóa được tài khoản');
+select t.blocked($$insert into app_owners values (auth.uid())$$, 'PA tự thêm mình làm owner');
+select t.blocked($$insert into admin_log (action) values ('x')$$, 'PA ghi nhật ký admin');
+select t.blocked($$insert into plan_log (username, new_plan) values ('nha.a', 'family')$$, 'PA ghi nhật ký gói');
+select t.blocked($$insert into admin_notes (family_id, note) values (my_family_id(), 'x')$$, 'PA ghi ghi chú admin');
+select t.ok(t.rows($$update plans set max_children = 50$$) = 0, 'PA không sửa được bảng gói');
+select t.blocked($$insert into plans (id, name, max_children) values ('vip', 'VIP', 50)$$, 'PA thêm gói');
+select password_changed();
+select touch();
+reset role;
+select t.ok((select not must_change_password and last_seen_at > now() - interval '1 minute' from families where id = t.id('FA')),
+  'password_changed bỏ cờ đổi mật khẩu; touch ghi lần dùng gần nhất');
 
--- ---------- quản trị A ----------
-select t.login('A1');
-select t.ok(t.n('select * from profiles') = 6, 'A1 thấy mọi hồ sơ nhà A');
-select t.ok(t.n('select * from results') = 1, 'A1 thấy kết quả nhà A');
-select t.blocked($$delete from profiles where role = 'admin'$$, 'xóa quản trị cuối cùng');
-select t.ok((select new_join_code()) ~ '^[A-Z0-9]{6}$', 'A1 đổi mã gia đình');
-select t.ok(t.rows($$update families set name = 'Nhà A mới', school_year = '2027–2028'$$) = 1, 'A1 sửa thông tin gia đình');
-select t.ok(t.rows($$insert into question_banks (id, family_id, title, grade, questions) values ('bk-1', current_family_id(), 'Đề 1', 4, '[{"type":"tf","q":"x","a":true}]')$$) = 1, 'A1 thêm ngân hàng đề');
-select t.ok(t.rows($$insert into exam_events (id, family_id, title, kind, grades) values ('ck1-l4', current_family_id(), 'Cuối kì I (sửa)', 'dinh-ki', '{4}')
-  on conflict (family_id, id) do update set title = excluded.title$$) = 1, 'A1 sửa kì thi bằng upsert');
+-- hồ sơ con
+select t.login('PA');
+select t.ok(t.rows($$insert into profiles (name, grade, class_name) values ('  Bin ', 4, '4A')$$) = 1, 'PA thêm hồ sơ con, không cần ghi family_id');
+select t.ok((select family_id = t.id('FA') and name = 'Bin' and not locked and pin_hash is null from profiles where name = 'Bin'), 'hồ sơ con: gia đình tự điền, tên bỏ khoảng trắng');
+select t.ok(t.rows($$insert into profiles (family_id, name, grade, pin_hash) values (my_family_id(), 'Na', 6, 's$fnv:1a2b')$$) = 1, 'PA thêm hồ sơ con có PIN');
+select t.ok(t.rows($$insert into profiles (name, grade) values ('Út', 1)$$) = 1 and t.rows($$insert into profiles (name, grade) values ('Cả', 12)$$) = 1, 'khối 1 và khối 12 được');
+select t.blocked($$insert into profiles (name, grade) values ('X', 0)$$, 'khối 0');
+select t.blocked($$insert into profiles (name, grade) values ('X', 13)$$, 'khối 13');
+select t.blocked($$insert into profiles (name) values ('Không khối')$$, 'hồ sơ con phải có khối');
+select t.blocked($$insert into profiles (name, grade) values ('   ', 4)$$, 'tên trống');
+select t.blocked($$insert into profiles (family_id, name, grade) values (t.id('FB'), 'Cài vào nhà B', 4)$$, 'PA thêm hồ sơ vào nhà B (biết family_id)');
+select t.blocked($$insert into profiles (name, grade, locked) values ('X', 4, false)$$, 'PA tự đặt cờ locked');
+select t.blocked($$insert into profiles (name, grade, created_at) values ('X', 4, '2000-01-01')$$, 'PA tự đặt thời điểm tạo (để chọn hồ sơ khỏi bị khóa)');
+select t.blocked($$insert into profiles (name, grade, import_key) values ('X', 4, 'k')$$, 'PA tự đặt import_key');
+select t.ok(t.rows($$insert into profiles (name, grade) values ('Thứ năm', 5)$$) = 1, 'hồ sơ thứ 5 được');
+select t.blocked_with($$insert into profiles (name, grade) values ('Thứ sáu', 5)$$, 'đủ 5 hồ sơ con', 'gói free: hồ sơ thứ 6 bị chặn');
+select t.blocked($$insert into profiles (name, grade) select 'Hàng loạt ' || i, 4 from generate_series(1, 3) i$$, 'thêm nhiều hồ sơ một lệnh cũng không vượt hạn mức');
+select t.ok(t.rows($$update profiles set name = 'Bin Bin', avatar = '🦊', pin_hash = 'x$y', class_name = '4B', grade = 5 where name = 'Bin'$$) = 1, 'PA sửa hồ sơ con');
+select t.blocked($$update profiles set locked = true$$, 'PA đổi cờ locked');
+select t.blocked($$update profiles set family_id = t.id('FB')$$, 'PA chuyển hồ sơ sang nhà khác');
+select t.blocked($$update profiles set created_at = '2000-01-01'$$, 'PA đổi thời điểm tạo');
+select t.ok(t.rows($$delete from profiles where name = 'Cả'$$) = 1 and t.n('select * from profiles') = 4, 'PA xóa hồ sơ con');
+reset role;
+insert into t.ids select 'BIN', id from profiles where name = 'Bin Bin';
+insert into t.ids select 'NA', id from profiles where name = 'Na';
+insert into t.ids select 'UT', id from profiles where name = 'Út';
+insert into t.ids select 'NAM', id from profiles where name = 'Thứ năm';
 
--- chuyển dữ liệu cục bộ
+-- kết quả
+select t.login('PA');
+select t.ok(t.rows($$insert into results (profile_id, source, ref_id, subject, label, mode, r, t, s, wrong_topics)
+  values (t.id('BIN'), 'bank', 'toan4-ck1-de1', 'Toán', 'Toán · Đề 1', 'exam', 8, 10, 300, '{Phân số}')$$) = 1, 'ghi kết quả cho hồ sơ con');
+select t.ok((select family_id = t.id('FA') and at > now() - interval '1 minute' from results where profile_id = t.id('BIN')), 'kết quả: family_id và thời điểm do máy chủ đặt');
+select t.blocked($$insert into results (profile_id, source, ref_id, r, t, at) values (t.id('BIN'), 'bank', 'x', 1, 2, '2020-01-01')$$, 'tự đặt thời điểm làm bài');
+select t.blocked($$insert into results (profile_id, family_id, source, ref_id, r, t) values (t.id('BIN'), t.id('FA'), 'bank', 'x', 1, 2)$$, 'tự đặt family_id');
+select t.blocked($$insert into results (profile_id, source, ref_id, r, t, import_key) values (t.id('BIN'), 'bank', 'x', 1, 2, 'k')$$, 'tự đặt import_key');
+select t.blocked($$insert into results (profile_id, source, ref_id, r, t) values (t.id('BIN'), 'bank', 'x', 11, 10)$$, 'điểm đúng lớn hơn tổng số câu');
+select t.blocked($$insert into results (profile_id, source, ref_id, r, t) values (t.id('BIN'), 'khac', 'x', 1, 2)$$, 'nguồn kết quả lạ');
+select t.blocked($$insert into results (profile_id, source, ref_id, r, t, wrong_topics) values (t.id('BIN'), 'bank', 'x', 1, 2, array[repeat('x', 6000)])$$, 'chủ đề sai quá dài');
+select t.blocked($$update results set r = 10$$, 'sửa kết quả');
+select t.ok(t.n('select * from results') = 1, 'PA thấy kết quả của các con');
+-- lịch thi, ngân hàng tự nhập
+select t.ok(t.rows($$insert into exam_events (id, family_id, title, kind, grades, start_date, banks) values ('ck1-l4', my_family_id(), 'Cuối kì I', 'dinh-ki', '{4}', '2026-12-28', '{toan4-ck1-de1}')$$) = 1, 'PA thêm kì thi');
+select t.ok(t.rows($$insert into exam_events (id, family_id, title, kind, grades) values ('ck1-l4', my_family_id(), 'Cuối kì I (sửa)', 'dinh-ki', '{4,6}')
+  on conflict (family_id, id) do update set title = excluded.title, grades = excluded.grades$$) = 1, 'PA sửa kì thi bằng upsert');
+select t.blocked($$insert into exam_events (id, family_id, title, kind, grades) values ('x', my_family_id(), 'x', 'moc', '{13}')$$, 'kì thi khối 13');
+select t.blocked($$insert into exam_events (id, family_id, title, kind, grades, subjects) values ('big', my_family_id(), 'x', 'moc', '{4}', array(select 'm' || i from generate_series(1, 40) i))$$, 'mảng môn thi quá dài');
+select t.ok(t.rows($$insert into question_banks (id, family_id, title, grade, questions) values ('bk-1', my_family_id(), 'Đề tự nhập', 4, '[{"type":"tf","q":"1+1=2","a":true}]')$$) = 1, 'PA thêm ngân hàng đề tự nhập');
+select t.blocked($$insert into question_banks (id, family_id, title, grade, questions) select 'q' || i, my_family_id(), 'x', 4, '[]' from generate_series(1, 100) i$$, 'quá 100 ngân hàng đề');
+reset role;
+
+-- ---------- phụ huynh B tấn công nhà A ----------
+select t.login('PB');
+select t.ok(my_family_id() = t.id('FB'), 'PB: gia đình B');
+select t.ok(t.n('select id from families') = 1 and t.n('select * from profiles') = 0 and t.n('select * from results') = 0
+  and t.n('select * from exam_events') = 0 and t.n('select * from question_banks') = 0, 'PB không thấy gì của nhà A');
+select t.ok(t.rows($$update profiles set name = 'hack' where id = t.id('BIN')$$) = 0, 'PB không sửa hồ sơ nhà A');
+select t.ok(t.rows($$delete from profiles where id = t.id('BIN')$$) = 0, 'PB không xóa hồ sơ nhà A');
+select t.ok(t.rows($$delete from results$$) = 0 and t.rows($$delete from exam_events$$) = 0, 'PB không xóa kết quả, lịch thi nhà A');
+select t.ok(t.rows($$update families set display_name = 'hack' where id = t.id('FA')$$) = 0, 'PB không sửa tài khoản A');
+select t.blocked($$insert into results (profile_id, source, ref_id, r, t) values (t.id('BIN'), 'bank', 'x', 10, 10)$$, 'PB ghi kết quả cho con nhà A');
+select t.blocked($$insert into exam_events (id, family_id, title, kind, grades) values ('x', t.id('FA'), 'x', 'moc', '{4}')$$, 'PB thêm kì thi vào nhà A');
+select t.blocked($$insert into question_banks (id, family_id, title, grade, questions) values ('x', t.id('FA'), 'x', 4, '[]')$$, 'PB thêm ngân hàng đề vào nhà A');
+select t.ok(t.rows($$insert into profiles (name, grade) values ('Tí', 4)$$) = 1, 'PB thêm hồ sơ con của mình');
+reset role;
+insert into t.ids select 'TI', id from profiles where name = 'Tí';
+
+-- ---------- người đã đăng nhập nhưng không có tài khoản gia đình ----------
+select t.login('X');
+select t.ok(my_family_id() is null and t.n('select id from families') = 0 and t.n('select * from profiles') = 0 and t.n('select * from results') = 0
+  and t.n('select * from paid_banks') = 0, 'người dùng không có tài khoản gia đình không thấy gì');
+select t.blocked($$insert into profiles (name, grade) values ('X', 4)$$, 'không có tài khoản: thêm hồ sơ');
+select t.blocked($$select import_local('{"users":[]}')$$, 'không có tài khoản: chuyển dữ liệu');
+select touch(); select password_changed();
+reset role;
+
+-- ---------- hàm nội bộ ----------
+select t.login('PA');
+select t.blocked($$select sync_profile_locks(my_family_id())$$, 'gọi hàm nội bộ sync_profile_locks');
+select t.blocked($$select effective_plan(my_family_id())$$, 'gọi hàm nội bộ effective_plan');
+select t.blocked($$select trim_results_of(array[t.id('TI')])$$, 'gọi hàm nội bộ trim_results_of');
+select t.blocked($$select today_vn()$$, 'gọi hàm nội bộ today_vn');
+reset role;
+
+-- ---------- đề trong paid_banks (nạp từ supabase/banks-to-sql.js) ----------
+select t.ok((select count(*) from paid_banks) = 18 and (select count(*) from paid_banks where free_trial) = 13
+  and (select count(*) from paid_banks where published) = 18, 'banks-to-sql.js: 18 đề, 13 đề thử, đã đăng');
+select t.ok((select string_agg(id, ',' order by id) from paid_banks where not free_trial) = 'toan4-ck1-de2,toan4-ck1-de3,toan6-ck1-de2,tv4-ck1-de2,van6-ck1-de2',
+  'đề số 1 mỗi môn mỗi kì là đề thử, các đề còn lại thì không');
+select t.ok((select exam = 'ck1-l4' and grade = 4 and subject = 'Toán' and jsonb_array_length(questions) > 0 from paid_banks where id = 'toan4-ck1-de2'),
+  'đề gắn đúng kì thi, khối, môn, có câu hỏi');
+insert into paid_banks (id, title, grade, questions, free_trial, published) values ('nhap-chua-dang', 'Đề nháp', 4, '[]', true, false);
+select t.login('PA');
+select t.ok(t.n('select * from paid_banks') = 18, 'gói free hôm nay (all_banks): đọc mọi đề đã đăng, không thấy đề chưa đăng');
+select t.blocked($$insert into paid_banks (id, title, grade, questions) values ('gia', 'Giả', 4, '[]')$$, 'PA thêm đề vào paid_banks');
+select t.ok(t.rows($$update paid_banks set free_trial = true$$) = 0 and t.rows($$delete from paid_banks$$) = 0, 'PA không sửa, không xóa được đề');
+reset role;
+
+-- ---------- gói trả phí, hết hạn, hồ sơ bị khóa (giả lập lúc bắt đầu bán) ----------
+update plans set max_children = 2, all_banks = false where id = 'free';
+update plans set max_children = 3, all_banks = true, price = 300000 where id = 'family';
+select t.login('PA');
+select t.ok(t.n('select * from paid_banks') = 13 and t.n('select * from paid_banks where not free_trial') = 0, 'gói free khi đã bán: chỉ đọc đề thử');
+select touch();
+reset role;
+select t.ok((select string_agg(name, ',' order by created_at) from profiles where family_id = t.id('FA') and locked) = 'Út,Thứ năm',
+  'gói free 2 hồ sơ: các hồ sơ tạo sau bị khóa (touch tính lại)');
+-- owner kích hoạt gói (qua Edge Function: khóa bí mật)
+select t.as_service();
+update families set plan = 'family', plan_until = today_vn() + 30 where id = t.id('FA');
+reset role;
+select t.ok(plan_active(t.id('FA')) and effective_plan(t.id('FA')) = 'family', 'gói family còn hạn: plan_active');
+select t.ok((select string_agg(name, ',' order by created_at) from profiles where family_id = t.id('FA') and locked) = 'Thứ năm',
+  'kích hoạt gói 3 hồ sơ: mở khóa ngay hồ sơ thứ 3');
+select t.login('PA');
+select t.ok(plan_active(my_family_id()), 'PA hỏi plan_active của mình');
+select t.login('PB');
+select t.ok(not plan_active(t.id('FA')), 'PB hỏi plan_active của nhà A: không trả lời (false)');
+select t.login('OWNER');
+select t.ok(plan_active(t.id('FA')), 'owner hỏi được plan_active của mọi gia đình');
+select t.login('PA');
+select t.ok(t.n('select * from paid_banks') = 18, 'gói family còn hạn: đọc mọi đề');
+select t.ok(t.rows($$insert into results (profile_id, source, ref_id, r, t) values (t.id('UT'), 'bank', 'x', 1, 2)$$) = 1, 'hồ sơ trong hạn mức ghi được kết quả');
+select t.blocked_with($$insert into results (profile_id, source, ref_id, r, t) values (t.id('NAM'), 'bank', 'x', 1, 2)$$, 'đang bị khóa', 'hồ sơ bị khóa không ghi được kết quả');
+select t.ok(t.n($$select * from results where profile_id = t.id('BIN')$$) = 1 and t.n($$select * from profiles where id = t.id('NAM')$$) = 1,
+  'hồ sơ bị khóa vẫn hiện, kết quả cũ vẫn xem được');
+select t.blocked_with($$insert into profiles (name, grade) values ('Thứ sáu', 4)$$, 'đủ 3 hồ sơ con', 'đủ hạn mức (kể cả hồ sơ bị khóa): không thêm được');
+reset role;
+-- hết hạn theo thời gian (không có lệnh UPDATE nào chạy trigger): lần ghi kết quả tiếp theo tự khóa
+alter table families disable trigger families_after_plan;
+update families set plan_until = today_vn() - 1 where id = t.id('FA');
+alter table families enable trigger families_after_plan;
+select t.ok(not plan_active(t.id('FA')) and effective_plan(t.id('FA')) = 'free', 'quá plan_until: hết hiệu lực, về gói free');
+select t.login('PA');
+select t.blocked_with($$insert into results (profile_id, source, ref_id, r, t) values (t.id('UT'), 'bank', 'x', 1, 2)$$, 'đang bị khóa', 'gói vừa hết hạn: hồ sơ thứ 3 bị khóa ngay khi ghi kết quả');
+select t.ok(t.rows($$insert into results (profile_id, source, ref_id, r, t) values (t.id('NA'), 'bank', 'x', 1, 2)$$) = 1, 'hai hồ sơ đầu vẫn ghi được');
+select t.ok(t.n('select * from paid_banks') = 13, 'hết hạn: lại chỉ đọc đề thử');
+select t.ok(t.n('select * from profiles') = 4 and t.n($$select * from results where profile_id = t.id('BIN')$$) = 1, 'hết hạn không mất dữ liệu');
+reset role;
+-- xóa một hồ sơ thì hồ sơ bị khóa kế tiếp được mở
+select t.login('PA');
+select t.ok(t.rows($$delete from profiles where id = t.id('NA')$$) = 1, 'PA xóa một hồ sơ');
+reset role;
+select t.ok((select not locked from profiles where id = t.id('UT')) and (select locked from profiles where id = t.id('NAM')), 'xóa hồ sơ: hồ sơ kế tiếp được mở khóa');
+select t.ok(not exists (select 1 from results where profile_id = t.id('NA')), 'xóa hồ sơ xóa luôn kết quả của hồ sơ đó');
+-- trả lại cấu hình hôm nay
+update plans set max_children = 5, all_banks = true, price = null where id = 'free';
+update plans set max_children = 5, all_banks = true, price = null where id = 'family';
+select t.as_service();
+update families set plan = 'free', plan_until = null where id = t.id('FA');
+reset role;
+select t.ok(not exists (select 1 from profiles where locked), 'về gói free 5 hồ sơ: không còn hồ sơ nào bị khóa');
+
+-- ---------- tài khoản bị khóa ----------
+select t.login('PL');
+insert into profiles (name, grade) values ('Con nhà khóa', 4);
+reset role;
+insert into t.ids select 'KL', id from profiles where name = 'Con nhà khóa';
+select t.as_service();
+update families set status = 'locked' where id = t.id('FL');
+reset role;
+select t.login('PL');
+select t.ok(my_family_id() is null, 'tài khoản bị khóa: không có gia đình hoạt động');
+select t.ok((select status from families) = 'locked' and t.n('select id from families') = 1, 'tài khoản bị khóa vẫn đọc được trạng thái của mình');
+select t.ok(t.n('select * from profiles') = 0 and t.n('select * from results') = 0 and t.n('select * from exam_events') = 0
+  and t.n('select * from question_banks') = 0 and t.n('select * from paid_banks') = 0, 'tài khoản bị khóa không đọc được dữ liệu');
+select t.blocked($$insert into results (profile_id, source, ref_id, r, t) values (t.id('KL'), 'bank', 'x', 1, 2)$$, 'tài khoản bị khóa ghi kết quả');
+select t.blocked($$insert into profiles (name, grade) values ('X', 4)$$, 'tài khoản bị khóa thêm hồ sơ');
+select t.ok(t.rows($$update families set display_name = 'x'$$) = 0 and t.rows($$delete from profiles$$) = 0, 'tài khoản bị khóa không sửa, không xóa được');
+select t.blocked($$select import_local('{"users":[]}')$$, 'tài khoản bị khóa chuyển dữ liệu');
+select touch(); select password_changed();
+reset role;
+select t.ok((select must_change_password and last_seen_at is null from families where id = t.id('FL')), 'tài khoản bị khóa: touch, password_changed không làm gì');
+select t.as_service();
+update families set status = 'active' where id = t.id('FL');
+reset role;
+select t.login('PL');
+select t.ok(t.n('select * from profiles') = 1, 'mở khóa: đọc lại được dữ liệu');
+reset role;
+
+-- ---------- chủ app (owner) ----------
+select t.login('OWNER');
+select t.ok(is_owner() and my_family_id() is null, 'owner: is_owner, không có gia đình');
+select t.ok(t.n('select * from app_owners') = 1, 'owner đọc dòng app_owners của mình');
+select t.ok(t.n('select id from families') = 3, 'owner đọc được mọi tài khoản');
+select t.ok(t.n('select * from profiles') = 0 and t.n('select * from results') = 0, 'owner không đọc hồ sơ con, bài làm của các gia đình');
+select t.ok(t.rows($$insert into admin_notes (family_id, note) values (t.id('FA'), 'Zalo: Mẹ Bin')$$) = 1
+  and t.rows($$update admin_notes set note = 'Zalo: Mẹ Bin, 09xx' where family_id = t.id('FA')$$) = 1, 'owner ghi chú về tài khoản');
+select t.ok(t.n('select * from paid_banks') = 19, 'owner thấy cả đề chưa đăng');
+select t.ok(t.rows($$update paid_banks set published = true where id = 'nhap-chua-dang'$$) = 1
+  and t.rows($$insert into paid_banks (id, title, grade, questions) values ('gk2-toan4-de1', 'Toán 4 · Giữa kì II · Đề 1', 4, '[]')$$) = 1
+  and t.rows($$delete from paid_banks where id = 'gk2-toan4-de1'$$) = 1, 'owner đăng, thêm, xóa đề');
+select t.ok(t.rows($$update plans set price = 250000 where id = 'family'$$) = 1, 'owner sửa bảng gói');
+select t.ok(t.rows($$delete from plans where id = 'free'$$) = 0, 'không xóa được gói free');
+select t.blocked($$update families set status = 'locked'$$, 'owner đổi trạng thái trực tiếp (chỉ qua Edge Function, có nhật ký)');
+select t.blocked($$insert into admin_log (action) values ('x')$$, 'owner tự ghi nhật ký (chỉ Edge Function ghi)');
+reset role;
+select t.as_service();
+insert into admin_log (actor, action, family_id, username) values (t.id('OWNER'), 'create_account', t.id('FA'), 'nha.a');
+insert into plan_log (family_id, username, new_plan, new_until, amount, by_user) values (t.id('FA'), 'nha.a', 'family', '2027-08-31', 300000, t.id('OWNER'));
+reset role;
+select t.login('OWNER');
+select t.ok(t.n('select * from admin_log') = 1 and t.n('select * from plan_log') = 1, 'owner đọc nhật ký admin và nhật ký gói');
+reset role;
+
+-- ---------- chuyển dữ liệu máy cũ (import_local) ----------
+select t.login('PB');
 select t.ok((import_local($j${
   "users":[
-    {"id":"a-old","role":"admin","name":"Bố A","avatar":"🧭","salt":"s","pinHash":"s256:abc"},
+    {"id":"a-old","role":"admin","name":"Bố B","avatar":"🧭","salt":"s","pinHash":"s256:abc"},
     {"id":"p-old","role":"parent","name":"Bà ngoại","avatar":"🌻"},
-    {"id":"s-old","role":"student","name":"Bông","avatar":"🐣","grade":6,"className":"6A","parentIds":["p-old","a-old"],"salt":"xyz","pinHash":"s256:deadbeef"},
-    {"id":"bad","role":"student","name":"Không khối"}
+    {"id":"s-old","role":"student","name":"Bông","avatar":"🐼","grade":6,"className":"6A","parentIds":["p-old"],"salt":"xyz","pinHash":"s256:deadbeef"},
+    {"id":"s-old2","role":"student","name":"Mít","grade":4},
+    {"id":"bad","role":"student","name":"Không khối"},
+    {"id":"bad2","role":"student","name":"Khối lạ","grade":"bốn"},
+    {"id":"bad3","name":"Không vai trò","grade":4}
   ],
   "events":[{"id":"ev-local","title":"Thi thử","kind":"thi-khac","grades":[6],"start":"2026-11-20","end":null,"tentative":false,"subjects":[],"scope":"","note":"","modules":[],"banks":["bk-local"]}],
   "banks":[{"id":"bk-local","title":"Đề tự nhập","grade":6,"subject":"Toán","minutes":15,"note":"","questions":[{"type":"tf","q":"1+1=2","a":true}],"src":"Đúng: 1+1=2"}],
   "results":[{"id":"r-old","userId":"s-old","source":"bank","refId":"bk-local","subject":"Toán","label":"Đề tự nhập","mode":"practice","r":1,"t":1,"s":20,"at":"2026-09-01T08:00:00.000Z","wrongTopics":["Phân số"]},
-             {"id":"r-bad","userId":"p-old","source":"bank","refId":"x","r":1,"t":1}],
+             {"id":"r-bad","userId":"p-old","source":"bank","refId":"x","r":1,"t":1},
+             {"id":"r-nosrc","userId":"s-old","refId":"x","r":1,"t":1},
+             {"id":"r-tl","userId":"s-old2","source":"bank","refId":"x","r":1,"t":2,"at":"2099-01-01T00:00:00Z"},
+             {"id":"r-sai","userId":"s-old2","source":"bank","refId":"x","r":"?","t":2,"at":"hôm qua"}],
   "seedBanksSeen":["mau-toan4-ck1","toan4-ck1-de1"],
   "settings":{"schoolName":"Không ghi đè"}
-}$j$)->>'users')::int = 2, 'chuyển dữ liệu: 2 hồ sơ mới (quản trị trùng tên được gộp, hồ sơ lỗi bị bỏ)');
+}$j$)->>'profiles')::int = 2, 'chuyển dữ liệu: 2 hồ sơ con (bỏ quản trị, phụ huynh, hồ sơ lỗi)');
 select t.ok((select at from results where import_key = 'r-old') = '2026-09-01T08:00:00Z', 'giữ thời điểm làm bài cũ');
-select t.ok(t.n($$select * from results where import_key = 'r-bad'$$) = 0, 'không nhập kết quả gắn với phụ huynh');
-select t.ok(t.n($$select * from parent_child pc join profiles p on p.id = pc.child_id where p.name = 'Bông'$$) = 1, 'quan hệ phụ huynh–con được giữ (bỏ quan hệ với quản trị)');
-select t.ok((select seed_banks_seen @> '{toan4-ck1-de1}' from families), 'seedBanksSeen được gộp');
-select t.ok((select name from families) = 'Nhà A mới', 'không ghi đè tên gia đình đã có');
+select t.ok((select count(*) from results where import_key in ('r-tl', 'r-sai') and at <= now()) = 2,
+  'không nhận thời điểm tương lai; thời điểm, điểm sai dạng không làm hỏng cả lần chuyển');
+select t.ok(t.n($$select * from results where import_key in ('r-bad', 'r-nosrc')$$) = 0, 'bỏ kết quả của phụ huynh, kết quả thiếu nguồn');
+select t.ok((select pin_hash from profiles where name = 'Bông') = 'xyz$s256:deadbeef' and (select pin_hash from profiles where name = 'Mít') is null,
+  'PIN cũ giữ dạng <muối>$<mã băm> của js/store.js');
+select t.ok(t.n($$select * from exam_events where id = 'ev-local'$$) = 1 and t.n($$select * from question_banks where id = 'bk-local'$$) = 1, 'chuyển lịch thi và ngân hàng đề');
+select t.ok((select seed_banks_seen @> '{toan4-ck1-de1}' and display_name = 'Nhà B' from families), 'seedBanksSeen được gộp, không ghi đè tên hiển thị');
 select t.ok((import_local($j${"users":[{"id":"s-old","role":"student","name":"Bông","grade":6}],"results":[{"id":"r-old","userId":"s-old","source":"bank","refId":"bk-local","r":1,"t":1,"at":"2026-09-01T08:00:00.000Z"}]}$j$)->>'results')::int = 0
   and t.n($$select * from profiles where name = 'Bông'$$) = 1, 'chuyển lại lần hai không bị trùng');
-reset role;
-select t.ok((select pin_hash from student_pins sp join profiles p on p.id = sp.profile_id where p.name = 'Bông') = 'legacy$xyz$s256:deadbeef', 'PIN cũ được giữ dạng băm cũ');
-
--- học sinh chèn hàng loạt: bị giới hạn tốc độ, và cắt bớt chỉ đụng tới kết quả của chính mình
-insert into student_sessions (auth_user_id, profile_id) values (t.id('ANON1'), t.id('S1')) on conflict (auth_user_id) do update set profile_id = excluded.profile_id, created_at = now();
-insert into results (profile_id, source, ref_id, r, t) values (t.id('S2'), 'bank', 'na-1', 3, 4), (t.id('S2'), 'bank', 'na-2', 3, 4);
-create temp table before_na as select id from results where profile_id = t.id('S2'); grant select on before_na to public;
-select t.login('ANON1');
-select t.blocked($$insert into results (profile_id, source, ref_id, r, t) select t.id('S1'), 'bank', 'rac', 1, 2 from generate_series(1, 1000)$$, 'học sinh chèn 1000 kết quả một lần');
-reset role;
-select set_config('app.importing', 'on', false);
-insert into results (profile_id, source, ref_id, r, t, at) select t.id('S1'), 'bank', 'cu', 1, 2, now() - interval '1 day' - i * interval '1 second' from generate_series(1, 2005) i;
-select set_config('app.importing', '', false);
-select t.login('ANON1');
-select t.ok(t.rows($$insert into results (profile_id, source, ref_id, r, t) values (t.id('S1'), 'bank', 'moi', 1, 2)$$) = 1, 'học sinh có hơn 2000 kết quả vẫn ghi được');
-reset role;
-select t.ok((select count(*) from results where profile_id = t.id('S1')) = 2000, 'mỗi học sinh giữ tối đa 2000 kết quả (bỏ bản ghi cũ nhất)');
-select t.ok((select count(*) from results where profile_id = t.id('S2')) = (select count(*) from before_na) and (select count(*) from before_na) >= 2,
-  'kết quả của anh chị em vẫn còn nguyên sau khi học sinh khác chèn hàng loạt');
-select t.login('ANON1');
-select t.blocked($$insert into results (profile_id, source, ref_id, r, t) select t.id('S1'), 'bank', 'nhanh', 1, 2 from generate_series(1, 60)$$, 'quá 60 kết quả trong 10 phút');
-reset role;
-
--- phiên học sinh: đăng xuất từ xa, đổi mã gia đình, hết hạn
-select t.login('P1');
-select t.blocked($$select sign_out_child(t.id('S2'))$$, 'phụ huynh đăng xuất con nhà khác');
-select t.ok(get_join_code() ~ '^[A-Z0-9]{6}$', 'phụ huynh đọc mã gia đình qua get_join_code');
-select t.ok(t.n('select * from child_pin_status()') = 2, 'phụ huynh xem tình trạng PIN của các con mình');
-select t.ok(sign_out_child(t.id('S1')) = 1, 'phụ huynh đăng xuất con khỏi mọi máy');
-reset role;
-select t.ok(not exists (select 1 from known_devices where profile_id = t.id('S1')), 'đăng xuất con khỏi mọi máy: quên luôn các máy quen');
--- PIN cũ đã đăng nhập (đổi sang pbkdf2v2w) vẫn được báo là PIN cũ; PIN mới 6 số (pbkdf2v2) thì không
-insert into student_pins (profile_id, pin_hash) values (t.id('S2'), 'pbkdf2v2w$1$x$y') on conflict (profile_id) do update set pin_hash = excluded.pin_hash;
-update student_pins set pin_hash = 'pbkdf2v2$1$x$y' where profile_id = t.id('S1');
-select t.login('A1');
-select t.ok((select legacy from child_pin_status() where profile_id = t.id('S2')) and not (select legacy from child_pin_status() where profile_id = t.id('S1')),
-  'PIN cũ vẫn được đánh dấu sau khi học sinh đăng nhập lần đầu');
-select t.login('ANON1');
-select t.ok(current_profile_id() is null and t.n('select * from results') = 0, 'máy của con bị đăng xuất mất quyền ngay');
-reset role;
-insert into student_sessions (auth_user_id, profile_id) values (t.id('ANON1'), t.id('S1')) on conflict (auth_user_id) do update set created_at = now();
-select t.login('A1');
-select new_join_code();
-select t.login('ANON1');
-select t.ok(current_profile_id() is null, 'đổi mã gia đình thì mọi máy học sinh bị đăng xuất');
-reset role;
-insert into student_sessions (auth_user_id, profile_id, created_at) values (t.id('ANON1'), t.id('S1'), now() - interval '31 days') on conflict (auth_user_id) do update set created_at = excluded.created_at;
-select t.login('ANON1');
-select t.ok(current_profile_id() is null, 'phiên học sinh hết hạn sau 30 ngày');
-reset role;
-select t.login('B1');
-select t.ok(family_of(t.id('S1')) is null, 'family_of không cho biết gia đình của hồ sơ nhà khác');
-reset role;
-
--- giới hạn số mục mỗi gia đình
-select t.login('A1');
-select t.blocked($$insert into question_banks (id, family_id, title, grade, questions) select 'q' || i, current_family_id(), 'x', 4, '[]' from generate_series(1, 101) i$$, 'quá 100 ngân hàng đề');
-select t.blocked($$insert into exam_events (id, family_id, title, kind, grades, subjects) values ('big', current_family_id(), 'x', 'moc', '{4}', array(select 'm' || i from generate_series(1, 40) i))$$, 'mảng môn thi quá dài');
 select t.blocked($$select import_local('{"from":"cloud","users":[]}')$$, 'chuyển lại bản sao lưu từ đám mây');
--- file "dữ liệu máy cũ" nêu mã máy chủ của phụ huynh và của con nhà khác: bị từ chối, không tạo quan hệ phụ huynh–con
 select t.blocked(format($q$select import_local(%L::jsonb)$q$, jsonb_build_object('users', jsonb_build_array(
-  jsonb_build_object('id', (select id::text from profiles where name = 'Mẹ Bin'), 'role', 'parent', 'name', 'Mẹ Bin'),
-  jsonb_build_object('id', t.id('S2')::text, 'role', 'student', 'name', 'Na', 'grade', 6, 'parentIds', jsonb_build_array((select id::text from profiles where name = 'Mẹ Bin')))),
-  'results', jsonb_build_array(jsonb_build_object('id', 'r-x', 'userId', t.id('S2')::text, 'source', 'bank', 'refId', 'x', 'r', 0, 't', 1, 'at', '2099-01-01T00:00:00Z'))))::text,
-  'chuyển file có mã máy chủ của hồ sơ có sẵn');
+  jsonb_build_object('id', t.id('BIN')::text, 'role', 'student', 'name', 'Bin', 'grade', 4))))::text, 'chuyển file có mã máy chủ của hồ sơ có sẵn');
+select t.blocked_with($$select import_local('{"users":[{"id":"k1","role":"student","name":"K1","grade":4},{"id":"k2","role":"student","name":"K2","grade":4},{"id":"k3","role":"student","name":"K3","grade":4}]}')$$,
+  'đủ 5 hồ sơ con', 'chuyển dữ liệu cũng theo hạn mức hồ sơ của gói');
+select t.ok(t.n('select * from profiles') = 3, 'lần chuyển vượt hạn mức không để lại hồ sơ nào');
 reset role;
-select t.ok(not exists (select 1 from parent_child pc join profiles p on p.id = pc.parent_id where p.name = 'Mẹ Bin' and pc.child_id = t.id('S2')), 'phụ huynh không có thêm quyền với con nhà khác');
-select t.login('A1');
--- thời điểm trong tương lai hoặc sai dạng: dùng thời điểm hiện tại
-select import_local($j${"users":[{"id":"k-moi","role":"student","name":"Mít","grade":4}],
-  "results":[{"id":"r-tl","userId":"k-moi","source":"bank","refId":"x","r":1,"t":2,"at":"2099-01-01T00:00:00Z"},
-             {"id":"r-sai","userId":"k-moi","source":"bank","refId":"x","r":1,"t":2,"at":"hôm qua"}]}$j$);
+select t.ok(not exists (select 1 from profiles p where p.family_id = t.id('FA') and p.import_key is not null), 'chuyển dữ liệu của B không đụng tới nhà A');
+
+-- ---------- giới hạn kết quả ----------
+select t.login('PB');
+select t.blocked($$insert into results (profile_id, source, ref_id, r, t) select t.id('TI'), 'bank', 'rac', 1, 2 from generate_series(1, 1000)$$, 'chèn 1000 kết quả một lần');
 reset role;
-select t.ok((select count(*) from results where import_key in ('r-tl', 'r-sai') and at <= now()) = 2, 'chuyển dữ liệu: không nhận thời điểm tương lai, thời điểm sai dạng không làm hỏng cả lần chuyển');
-
--- gỡ email khỏi hồ sơ phụ huynh
-select t.login('A1');
-select t.ok((select new_invite(id) from profiles where name = 'Mẹ Bin') ~ '^[A-Z0-9]{12}$', 'A1 tạo mã mời mới cho P1');
-select t.blocked($$select new_invite(current_profile_id())$$, 'quản trị tự tạo mã mời cho mình');
-select t.login('P1');
-select t.ok(current_profile_id() is null and t.n('select * from results') = 0, 'P1 mất quyền sau khi bị gỡ');
-
--- xóa gia đình B (có quản trị cuối cùng, vẫn xóa được)
-select t.login('B1');
-select delete_family();
+insert into results (profile_id, source, ref_id, r, t) values (t.id('BIN'), 'bank', 'cua-bin', 1, 2);
+create temp table before_bin as select id from results where profile_id = t.id('BIN'); grant select on before_bin to public;
+select set_config('app.importing', 'on', false);
+insert into results (profile_id, source, ref_id, r, t, at) select t.id('TI'), 'bank', 'cu', 1, 2, now() - interval '1 day' - i * interval '1 second' from generate_series(1, 2005) i;
+select set_config('app.importing', '', false);
+select t.login('PB');
+select t.ok(t.rows($$insert into results (profile_id, source, ref_id, r, t) values (t.id('TI'), 'bank', 'moi', 1, 2)$$) = 1, 'hồ sơ có hơn 2000 kết quả vẫn ghi được');
 reset role;
-select t.ok(not exists (select 1 from profiles where name in ('Cô B', 'Tí')) and not exists (select 1 from student_sessions where auth_user_id = t.id('ANONB')), 'xóa gia đình B xóa hết hồ sơ và phiên học sinh');
+select t.ok((select count(*) from results where profile_id = t.id('TI')) = 2000, 'mỗi hồ sơ giữ tối đa 2000 kết quả (bỏ bản ghi cũ nhất)');
+select t.ok((select count(*) from results where profile_id = t.id('BIN')) = (select count(*) from before_bin), 'kết quả của nhà khác vẫn còn nguyên');
+select t.login('PB');
+select t.blocked_with($$insert into results (profile_id, source, ref_id, r, t) select t.id('TI'), 'bank', 'nhanh', 1, 2 from generate_series(1, 60)$$,
+  'quá nhiều kết quả', 'quá 60 kết quả trong 10 phút');
+select t.ok(t.rows($$delete from results where profile_id = t.id('TI') and ref_id = 'moi'$$) = 1, 'phụ huynh xóa kết quả của con mình');
+reset role;
 
--- người dùng email mới tạo gia đình riêng
-select t.login('X');
-select t.ok(t.n('select id from families') = 0, 'X chưa thấy gì');
+-- ---------- xóa tài khoản (Edge Function xóa người dùng Auth: xóa dây chuyền) ----------
+select t.ok((select count(*) from plan_log where username = 'nha.a') = 1, 'trước khi xóa: có nhật ký gói');
+delete from auth.users where id = t.id('PA');
+select t.ok(not exists (select 1 from families where id = t.id('FA')) and not exists (select 1 from profiles where family_id = t.id('FA'))
+  and not exists (select 1 from results where family_id = t.id('FA')) and not exists (select 1 from exam_events where family_id = t.id('FA'))
+  and not exists (select 1 from admin_notes where family_id = t.id('FA')), 'xóa người dùng Auth: xóa tài khoản, hồ sơ con, kết quả, lịch thi, ghi chú');
+select t.ok((select family_id is null and username = 'nha.a' from plan_log) and (select count(*) from admin_log where username = 'nha.a') = 1,
+  'nhật ký gói và nhật ký admin vẫn giữ sau khi xóa tài khoản');
+select t.ok((select count(*) from families) = 2 and (select count(*) from profiles where family_id = t.id('FB')) = 3, 'tài khoản khác không bị ảnh hưởng');
+select t.login('PA');
+select t.ok(my_family_id() is null and t.n('select id from families') = 0, 'phiên cũ của tài khoản đã xóa không còn thấy gì');
 reset role;
