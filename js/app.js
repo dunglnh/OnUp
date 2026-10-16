@@ -614,10 +614,25 @@
     wireEvents(view, calGrade || null, student); wireGo();
   }
 
+  /* ================= KHÔNG TÌM THẤY, SAI KHỐI ================= */
+  function renderMissing(title, msg) {
+    view.innerHTML = `<div class="stack"><section class="panel" id="missing"><h1>${esc(title)}</h1><p>${esc(msg)}</p>
+      <div class="row"><button class="btn main" data-go="#/home">Về trang chính</button></div></section></div>`;
+    wireGo();
+  }
+  const notFound = () => renderMissing("Không tìm thấy trang", "Trang này không có trong app. Có thể bạn gõ nhầm, hoặc trang đã được bỏ đi.");
+  /* Học sinh chỉ làm bài của khối mình (điểm lưu vào hồ sơ). Phụ huynh, quản trị vẫn xem thử mọi khối. */
+  function wrongGrade(u, g) {
+    if (u.role !== "student" || +g === +u.grade) return false;
+    renderMissing(`Bài này dành cho lớp ${g}`, `Bạn đang học lớp ${u.grade}. Về trang chính để chọn bài của lớp ${u.grade} nhé.`);
+    return true;
+  }
+
   /* ================= MỞ BÀI ÔN ================= */
   function renderPlay(u, id) {
     const m = modById(id);
-    if (!m) { view.innerHTML = `<div class="panel">Không tìm thấy bài ôn. ${back("#/home", "Trang chính")}</div>`; wireGo(); return; }
+    if (!m) { renderMissing("Không tìm thấy bài ôn", "Bài ôn này không có trong app, hoặc đã được bỏ đi."); return; }
+    if (wrongGrade(u, m.grade)) return;
     const src = m.path + "?u=" + encodeURIComponent(u.id) + "&m=" + encodeURIComponent(m.id);
     view.innerHTML = `<div class="player">
       <div class="row between">${back("#/home", "Trang chính")}<span class="small muted">${u.role === "student" ? "Điểm mỗi lần làm xong được lưu vào hồ sơ của bạn." : "Chế độ xem thử: điểm không được lưu."}</span></div>
@@ -641,7 +656,7 @@
     const d = e.data; if (!d || d.type !== "ontap:result") return;
     if (guard && guard.saved) guard.saved();
     const u = Store.sessionUser(); if (!u || u.role !== "student") return;
-    const m = modById(d.module); if (!m) return;
+    const m = modById(d.module); if (!m || m.grade !== u.grade) return;
     if (!(+d.t > 0)) return;
     Store.addResult({ userId: u.id, source: "module", refId: m.id, subject: (m.subjects && m.subjects[d.subject]) || "", label: d.label, mode: d.mode, r: d.r, t: d.t, s: d.s });
     toast(`Đã lưu kết quả: ${+d.r}/${+d.t} câu đúng`);
@@ -651,7 +666,8 @@
   let quizRun = null;
   function renderQuiz(u, id) {
     const b = Store.bank(id);
-    if (!b) { view.innerHTML = `<div class="panel">Không tìm thấy ngân hàng câu hỏi. ${back("#/home", "Trang chính")}</div>`; wireGo(); return; }
+    if (!b) { renderMissing("Không tìm thấy đề", "Đề này không có trong app, hoặc đã được bỏ đi."); return; }
+    if (wrongGrade(u, b.grade)) return;
     view.innerHTML = `<div class="stack">${back("#/home", "Trang chính")}
       <section class="hero"><span class="label">Lớp ${b.grade} · ${esc(b.subject)}</span><h1>${esc(b.title)}</h1>
         <p>${b.questions.length} câu.${b.note ? " " + esc(b.note) : ""}</p>
@@ -1028,8 +1044,11 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
         if (u.role !== "admin") { go("#/home"); return; }
         if (a === "event") return renderEventForm(u, b || "new");
         if (a === "bank") return renderBankForm(u, b || "new");
+        if (a && !ADMIN_TABS.some(([k]) => k === a)) return notFound();
         return renderAdmin(u, a);
-      default: return renderHome(u);
+      case undefined:
+      case "home": return renderHome(u);
+      default: return notFound();
     }
   }
   let booted = false;

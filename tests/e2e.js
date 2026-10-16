@@ -174,6 +174,26 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   await page.click("#bSample"); console.log("check:", await page.textContent("#bRes"));
   await page.click("button[type=submit]"); await page.waitForTimeout(300); await shot("13-banks");
   await page.goto(BASE + "/#/admin/overview"); await page.waitForTimeout(300); await shot("14-admin-overview");
+
+  step("not found + wrong grade (L3)");
+  const view = async (h) => { await page.goto(BASE + "/" + h); await page.waitForTimeout(200); return { text: (await page.textContent("#view")).replace(/\s+/g, " ").trim(), missing: !!(await page.$("#missing")), quiz: !!(await page.$("#qPractice")), frame: !!(await page.$("#playerFrame")) }; };
+  const nf = await view("#/khongcotrang"); await shot("15-not-found");
+  const nfAdmin = await view("#/admin/khongco");
+  const adminPeek = [await view("#/quiz/toan4-ck1-de1"), await view("#/quiz/khtn6-ck1-de1"), await view("#/play/ioe-6")]; // quản trị xem thử mọi khối
+  const naId = await page.evaluate(() => Store.users("student").find((u) => u.name === "Na").id);
+  await page.goto(BASE + "/#/admin/user/" + naId); await page.waitForTimeout(200);
+  await page.fill("#uPin", "4444"); await page.click("button[type=submit]"); await page.waitForTimeout(300); // đặt PIN mới cũng mở khóa
+  await page.goto(BASE + "/#/account"); await page.click("#logout"); await page.waitForTimeout(200);
+  await page.click(".tile:has-text('Na')"); await page.fill("#pinIn", "4444"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(400);
+  const naIn = await page.evaluate(() => (Store.sessionUser() || {}).name);
+  const g4quiz = await view("#/quiz/toan4-ck1-de1"); await shot("16-wrong-grade");
+  const g4play = await view("#/play/l4-giua-ki-1");
+  const g6quiz = await view("#/quiz/khtn6-ck1-de1"), g6play = await view("#/play/ioe-6");
+  const noBank = await view("#/quiz/khongco");
+  console.log("L3:", { nf: nf.text.slice(0, 60), nfAdmin: nfAdmin.missing, adminPeek: adminPeek.map((x) => x.quiz || x.frame), naIn, g4quiz: g4quiz.text.slice(0, 60), g4play: g4play.missing && !g4play.frame, g6: g6quiz.quiz && g6play.frame, noBank: noBank.text.slice(0, 40) });
+  const routeOK = nf.missing && /Không tìm thấy trang/.test(nf.text) && nfAdmin.missing && adminPeek.every((x) => !x.missing && (x.quiz || x.frame))
+    && naIn === "Na" && g4quiz.missing && !g4quiz.quiz && /dành cho lớp 4/.test(g4quiz.text) && g4play.missing && !g4play.frame && /dành cho lớp 4/.test(g4play.text)
+    && g6quiz.quiz && g6play.frame && noBank.missing;
   const db = await page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")));
   console.log("results:", db.results.map((r) => [r.source, r.refId, r.subject, r.r, r.t, r.userId === db.users.find(u=>u.name==="Bin").id]));
   console.log("banks:", db.banks.map((b) => [b.title, b.questions.length, b.src.length > 0]));
@@ -226,6 +246,6 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   console.log("local mode:", !cloudMode, "cloud requests:", cloudReqs);
   const real = errs.filter((e) => !/fonts\.g|ERR_TUNNEL|ERR_NAME|net::/.test(e));
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || cloudReqs.length || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || cloudMode || cloudReqs.length || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();
