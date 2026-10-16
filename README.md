@@ -5,6 +5,7 @@ Có lịch thi năm học 2026–2027, đề luyện giữa kì và IOE, ngân h
 
 - Mô tả tính năng: [docs/TINH-NANG.md](docs/TINH-NANG.md)
 - Kế hoạch và lộ trình phát triển (đang tạm dừng để chạy thử): [docs/KE-HOACH-PHAT-TRIEN-ONUP.md](docs/KE-HOACH-PHAT-TRIEN-ONUP.md)
+- Lỗi cơ bản tìm được khi dùng thử và lời giao việc sửa (Phiên 9a, 9b, 9c): [docs/SUA-LOI-CHAY-THU.md](docs/SUA-LOI-CHAY-THU.md)
 - Thiết kế khung tài khoản và trang admin (sắp làm): [docs/THIET-KE-TAI-KHOAN.md](docs/THIET-KE-TAI-KHOAN.md)
 - Hướng dẫn cho Claude khi sửa code: [CLAUDE.md](CLAUDE.md)
 - Bật đồng bộ đám mây (Supabase), từng bước: [docs/HUONG-DAN-SUPABASE.md](docs/HUONG-DAN-SUPABASE.md)

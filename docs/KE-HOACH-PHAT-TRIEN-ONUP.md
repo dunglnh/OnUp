@@ -36,11 +36,14 @@ Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp tr
 
 ## 3. Lộ trình khi làm tiếp
 
-Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 8 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); các phiên khác ở mục 4 dưới đây.
+Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 8 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); Phiên 9a, 9b, 9c (lỗi tìm được khi dùng thử ngày 16/10) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); các phiên khác ở mục 4 dưới đây.
 
 | Ưu tiên | Nên xong trước | Phiên | Phục vụ |
 |---|---|---|---|
-| 1 | 1/11 | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** | Giữa kì I (2–13/11) |
+| 1 | 25/10 | **Phiên 9a · Không mất bài, khóa PIN, đường dẫn sai** ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) | Giữa kì I (2–13/11) |
+| 1 | 1/11 | **Phiên 9b · Giao diện điện thoại 360px** ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) | Giữa kì I (2–13/11) |
+| 1 | 1/11 | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** (GitHub Issues) | Giữa kì I (2–13/11) |
+| 2 | 15/11 | **Phiên 9c · Chạy khi mất mạng, nhắc sao lưu** ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) | Dùng hằng ngày, không mất dữ liệu |
 | 2 | 15/11 | **Phiên A · Máy chủ: tài khoản, hồ sơ con, Edge Function admin** | Khung tài khoản |
 | 3 | 30/11 | **Phiên B · App: đăng nhập, chọn hồ sơ, khu phụ huynh, khối lớp chung** | Khung tài khoản |
 | 4 | 10/12 | **Phiên C · Trang admin** | Khung tài khoản, kịp mùa ôn cuối kì I |
