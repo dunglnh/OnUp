@@ -110,7 +110,7 @@ Mã PIN chỉ để phân biệt người dùng, không phải bảo mật thậ
 - Violympic Toán, Trạng Nguyên Tiếng Việt (tạm bỏ khỏi lịch; quản trị viên vẫn tự thêm được nếu cần).
 - Đồng bộ giữa nhiều máy, đăng nhập bằng email.
 - Giáo viên giao bài cho cả lớp, bảng xếp hạng.
-- Đề cho giữa kì II, cuối năm (đã có chỗ trong lịch, chưa có câu hỏi).
+- Đề giữa kì II lớp 6 và đề cuối năm (đã có chỗ trong lịch, chưa có câu hỏi). Lớp 4 đã có 4 đề giữa kì II (Phiên 14).
 - Thông báo nhắc ôn qua điện thoại.
 
 ## 7. Lộ trình tiếp theo

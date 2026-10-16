@@ -20,7 +20,7 @@
 | #10 | Phiên 8: rà soát đề (56 chỗ sửa), bộ chấm điền khuyết, giao diện 360px |
 | #7, #9 | Canh trái nút quay lại; xưng "bạn" trong bài ôn; bỏ 2 bộ mẫu 12 câu |
 
-Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp trường, cấp xã và cấp tỉnh (Phiên 13); IOE 6 cấp xã và cấp thành phố) và 18 đề cuối kì I (lớp 6 đủ 8 môn từ Phiên 10: thêm Tiếng Anh, GDCD, Tin học, Công nghệ; lớp 4 thêm Tin học và Công nghệ từ Phiên 11).
+Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp trường, cấp xã và cấp tỉnh (Phiên 13); IOE 6 cấp xã và cấp thành phố), 18 đề cuối kì I (lớp 6 đủ 8 môn từ Phiên 10: thêm Tiếng Anh, GDCD, Tin học, Công nghệ; lớp 4 thêm Tin học và Công nghệ từ Phiên 11) và 4 đề giữa kì II lớp 4 (Toán, Tiếng Việt, Phiên 14).
 
 **Chưa làm từ kế hoạch cũ:** Phiên 6 (nhập đề từ Excel). Phiên 7 (báo cáo tuần cho phụ huynh) đã làm ở Phiên 12.
 
@@ -42,7 +42,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | 3 | 10/12 | ~~**Phiên 11 · Đề cuối kì I lớp 4 còn thiếu**: Tin học và Công nghệ~~ (đã xong) | Cuối kì I lớp 4 (28/12–8/1) |
 | 4 | 15/12 | ~~**Phiên 12 · Báo cáo tuần cho phụ huynh** (Phiên 7 cũ)~~ (đã xong) | Cả năm |
 | 5 | 15/2 | **Phiên 13 · IOE cấp tỉnh lớp 4** | IOE tỉnh (4–6/3) |
-| 6 | 1/3 | **Phiên 14 · Đề giữa kì II lớp 4** (Toán, Tiếng Việt) | Giữa kì II (15–26/3) |
+| 6 | 1/3 | ~~**Phiên 14 · Đề giữa kì II lớp 4** (Toán, Tiếng Việt)~~ (đã xong) | Giữa kì II (15–26/3) |
 | 7 | 1/3 | **Phiên 15 · Đề giữa kì II lớp 6** (Toán, Ngữ văn, KHTN, Tiếng Anh) | Giữa kì II (15–26/3) |
 | 8 | 10/4 | **Phiên 16–17 · Đề cuối năm** lớp 4 và lớp 6 | Cuối năm (26/4–14/5) |
 
