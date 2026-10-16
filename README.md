@@ -4,7 +4,7 @@ Daily Drill for your kids — web app ôn thi cả năm học cho học sinh l�
 Có lịch thi năm học 2026–2027, đề luyện giữa kì và IOE, ngân hàng câu hỏi nhập được, theo dõi tiến độ.
 
 - Mô tả tính năng: [docs/TINH-NANG.md](docs/TINH-NANG.md)
-- Kế hoạch và lộ trình phát triển (đang tạm dừng để chạy thử): [docs/KE-HOACH-CREDIT.md](docs/KE-HOACH-CREDIT.md)
+- Kế hoạch và lộ trình phát triển (đang tạm dừng để chạy thử): [docs/KE-HOACH-PHAT-TRIEN-ONUP.md](docs/KE-HOACH-PHAT-TRIEN-ONUP.md)
 - Hướng dẫn cho Claude khi sửa code: [CLAUDE.md](CLAUDE.md)
 - Bật đồng bộ đám mây (Supabase), từng bước: [docs/HUONG-DAN-SUPABASE.md](docs/HUONG-DAN-SUPABASE.md)
 
