@@ -16,14 +16,23 @@
     if (q.type === "tf") { x.o = ["Đúng", "Sai"]; x.order = [0, 1]; x.a = q.a ? 0 : 1; }
     return x;
   }
-  // Đơn vị in ngay sau chỗ trống ("___ kg", "___ cây.", "___°"); con hay gõ kèm nó vào ô.
+  // Đơn vị in ngay sau chỗ trống ("___ kg", "___ cây.", "___°"); học sinh hay gõ kèm nó vào ô.
+  const fold = (s) => s.normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/gi, "d").toLowerCase().replace(/2/g, "²").replace(/3/g, "³");
   const unitAfter = (q) => { const w = ((String(q.q).split("___")[1] || "").trim().split(/\s+/)[0] || "").normalize("NFC").replace(/[.,;:!?]+$/, ""); return /^[\p{L}°²³]+$/u.test(w) ? w.toLowerCase() : ""; };
   function isRight(q, g) {
     if (g == null || g === "") return false;
     if (q.type === "fill") {
       const t = String(g).normalize("NFC").trim(), u = unitAfter(q), cands = [t];
       const bare = t.replace(/[.!?;:]+$/, "").trim();
-      if (u && bare.toLowerCase().endsWith(u)) { const rest = bare.slice(0, -u.length).trim(); if (isNum(rest)) cands.push(rest); }
+      // Đơn vị gõ không dấu hoặc gõ "cm2" thay cho "cm²" vẫn tính là đơn vị đó.
+      const tail = !u ? "" : bare.toLowerCase().endsWith(u) ? bare.slice(-u.length) : !/\p{L}/u.test(u) ? "" : [...Array(Math.min(bare.length, u.length + 3)).keys()].map((k) => bare.slice(-(k + 1))).find((w) => /^[\p{L}°]/u.test(w) && fold(w) === fold(u))  || "";
+      if (tail) {
+        const rest = bare.slice(0, -tail.length);
+        // "5030kg", "5 030 kg". Chỗ trống là một số lượng (có đáp án bằng số) thì nhận cả số viết bằng chữ: "tám tiếng".
+        if (isNum(rest) || (/\s$/.test(rest) && rest.trim() && /___\s/.test(q.q) && q.ans.some(isNum))) cands.push(rest.trim());
+      }
+      // Số âm hay được viết trong ngoặc: "(-7)".
+      cands.slice().forEach((c) => { const m = /^\(\s*(.+?)\s*\)$/.exec(c.replace(/[.!?;:]+$/, "").trim()); if (m && isNum(m[1])) cands.push(m[1]); });
       return cands.some((c) => q.ans.some((a) => (isNum(a) && isNum(c)) ? numKey(a) === numKey(c) : normT(a) === normT(c)));
     }
     return g === q.a;
@@ -40,12 +49,13 @@
     function render() {
       const q = qs[S.i]; S.cur = null; S.checked = false;
       let body;
+      const qcls = "qtext" + (String(q.q).length > 160 ? " long" : ""); // đoạn văn đọc hiểu dài: chữ thường, dễ đọc hơn
       if (q.type === "fill") {
         const parts = esc(q.q).split("___");
-        body = `<div class="label">Điền vào chỗ trống</div><div class="qtext">${parts[0]}<input class="blank" id="qzFill" autocomplete="off" spellcheck="false" aria-label="Câu trả lời">${parts.slice(1).join("___")}</div>`;
+        body = `<div class="label">Điền vào chỗ trống</div><div class="${qcls}">${parts[0]}<input class="blank" id="qzFill" autocomplete="off" spellcheck="false" aria-label="Câu trả lời">${parts.slice(1).join("___")}</div>`;
       } else {
         const wide = q.o.some((o) => String(o).length > 22);
-        body = `<div class="label">${q.type === "tf" ? "Đúng hay sai?" : "Chọn đáp án đúng"}</div><div class="qtext">${esc(q.q)}</div>
+        body = `<div class="label">${q.type === "tf" ? "Đúng hay sai?" : "Chọn đáp án đúng"}</div><div class="${qcls}">${esc(q.q)}</div>
           <div class="opts${wide ? " wide" : ""}">${q.order.map((oi, k) => `<button class="opt" data-o="${oi}"><span class="k">${LET[k]}</span><span>${esc(q.o[oi])}</span></button>`).join("")}</div>`;
       }
       el.innerHTML = `<div class="stack">

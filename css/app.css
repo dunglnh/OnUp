@@ -2,7 +2,7 @@
 :root{
   --bg:#f3f5f7; --surface:#ffffff; --line:#dde2e8; --ink:#172029; --muted:#5c6773;
   --sun:#f5b700; --sun-soft:#fdf1c7; --sun-ink:#3a2a00;
-  --ok:#15803d; --ok-soft:#e2f4e8; --bad:#c2410c; --bad-soft:#fde9df;
+  --ok:#167a3a; --ok-soft:#e2f4e8; --bad:#b23a0b; --bad-soft:#fde9df;
   --acc:#1f3c8f; --acc-soft:#e3eafb; --on-acc:#ffffff;
   --ioe:#0f5f63; --ioe-soft:#dcefee; --moc:#6b5b95; --moc-soft:#ece8f6;
   --display:"Baloo 2","Be Vietnam Pro",system-ui,sans-serif;
@@ -151,6 +151,7 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 /* làm bài */
 .qcard{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px 18px;display:flex;flex-direction:column;gap:14px}
 .qtext{font-size:1.15rem;font-weight:600;overflow-wrap:anywhere}
+.qtext.long{font-size:1.02rem;font-weight:500;line-height:1.65}
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .opts.wide{grid-template-columns:1fr}
 @media (max-width:420px){.opts{grid-template-columns:1fr}}
@@ -159,7 +160,7 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .opt.sel{border-color:var(--acc);background:var(--acc-soft)}
 .opt.right{border-color:var(--ok);background:var(--ok-soft)}
 .opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
-.blank{font:inherit;font-weight:700;border:0;border-bottom:3px solid var(--acc);background:var(--acc-soft);border-radius:6px 6px 0 0;padding:2px 8px;width:8em;max-width:100%;text-align:center}
+.qtext .blank{font:inherit;font-weight:700;border:0;border-bottom:3px solid var(--acc);background:var(--acc-soft);border-radius:6px 6px 0 0;padding:2px 8px;width:8em;max-width:100%;text-align:center}
 .fb{border-radius:12px;padding:12px 14px;font-weight:600}
 .fb.ok{background:var(--ok-soft);color:var(--ok)}
 .fb.bad{background:var(--bad-soft);color:var(--bad)}
