@@ -102,7 +102,7 @@ Ngoài ra chạy tay các luồng: thiết lập lần đầu → tạo phụ hu
 GitHub Pages: Settings → Pages → Deploy from a branch → `main` / root. File `.nojekyll` đã có.
 
 ## Việc tiếp theo (theo thứ tự ưu tiên)
-**Trạng thái 16/10/2026: tạm dừng phát triển để chạy thử với học sinh.** Khi làm tiếp, ưu tiên sửa các GitHub Issue góp ý từ việc chạy thử trước mọi tính năng mới. Lộ trình đầy đủ và lời giao việc từng phiên: `docs/KE-HOACH-CREDIT.md`. Tóm tắt:
+**Trạng thái 16/10/2026: tạm dừng phát triển để chạy thử với học sinh.** Khi làm tiếp, ưu tiên sửa các GitHub Issue góp ý từ việc chạy thử trước mọi tính năng mới. Lộ trình đầy đủ và lời giao việc từng phiên: `docs/KE-HOACH-PHAT-TRIEN-ONUP.md`. Tóm tắt:
 1. Sửa lỗi từ góp ý chạy thử (GitHub Issues).
 2. Đề cuối kì I còn thiếu: Tin học và Công nghệ lớp 4 (lớp 6 đã đủ các môn từ Phiên 10).
 3. Báo cáo tuần cho phụ huynh; IOE cấp tỉnh lớp 4.
