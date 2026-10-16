@@ -127,7 +127,7 @@ Mã PIN chỉ để phân biệt người dùng, không phải bảo mật thậ
 - [x] Thiết lập lần đầu, tạo quản trị, phụ huynh, học sinh; đăng nhập bằng PIN.
 - [x] Lịch thi cả năm 2026–2027 cho khối 4 và 6, sửa được.
 - [x] 4 bài ôn gốc chạy trong app, tiến độ tách theo học sinh, điểm lưu vào hồ sơ.
-- [x] Ngân hàng câu hỏi: 17 đề cuối kì I có sẵn (thay 2 bộ mẫu ban đầu), nhập thêm bằng văn bản.
+- [x] Ngân hàng câu hỏi: 18 đề cuối kì I có sẵn (thay 2 bộ mẫu ban đầu), nhập thêm bằng văn bản.
 - [x] Phụ huynh xem tiến độ của con.
 - [x] Sao lưu/khôi phục bằng file.
 - [x] Chạy tốt trên điện thoại, có chế độ tối.
