@@ -70,6 +70,7 @@ Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mố
 ### 4.2 Phụ huynh — Trang chính
 - Danh sách con: lần làm bài gần nhất, điểm trung bình 30 ngày, kì thi sắp tới.
 - Bấm vào con để xem hồ sơ đầy đủ (giống trang của học sinh, kèm 30 kết quả gần nhất).
+- **Báo cáo tuần** (nút trong hồ sơ của con, phụ huynh và quản trị đều mở được): tóm tắt 7 ngày gần nhất (hôm nay và 6 ngày trước) gồm số bài, số ngày có ôn, điểm trung bình, số phút làm bài (so với tuần trước), số bài từng ngày, điểm theo môn, chủ đề hay sai, 3 kì thi sắp tới và tối đa 5 gợi ý ôn tuần sau. Gợi ý dựa trên số ngày ôn, bài ôn của kì thi tiếp theo chưa làm hoặc điểm thấp, môn dưới 70%, chủ đề hay sai, môn của kì thi chưa ôn trong tuần, chế độ “Làm như thi” khi còn ≤ 14 ngày. Nút “In báo cáo” in ra giấy A4 hoặc lưu PDF (nền trắng kể cả khi máy đang ở chế độ tối). Chỉ đọc dữ liệu, chạy như nhau ở bản lưu trên máy và bản đám mây. Ảnh: [màn hình 360px](hinh-bao-cao-tuan/bao-cao-tuan-360.jpg), [bản in](hinh-bao-cao-tuan/ban-in-a4.jpg).
 - Lịch thi sắp tới của các khối mà con đang học.
 
 ### 4.3 Làm bài
@@ -120,14 +121,14 @@ Mã PIN chỉ để phân biệt người dùng, không phải bảo mật thậ
 | 2 | ~~Đồng bộ đám mây với Supabase~~ — đã làm (Phiên 5) | `js/store-supabase.js`, `supabase/schema.sql` (RLS), Edge Function `student-login`; cài đặt: [HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md) |
 | 3 | Nhập câu hỏi từ Excel (.xlsx) | Cột: chủ đề, câu hỏi, đáp án đúng, sai 1–3, lời giải |
 | 4 | Bài ôn giữa kì II và cuối năm | Theo cùng mẫu với bài ôn giữa kì I |
-| 5 | Báo cáo tuần cho phụ huynh | Tóm tắt số bài, điểm, chủ đề yếu; xuất PDF hoặc gửi email |
+| 5 | ~~Báo cáo tuần cho phụ huynh~~ — đã làm (Phiên 12) | Trang in được trong hồ sơ của con, lưu PDF bằng nút In. Chưa gửi email |
 | 6 | Giáo viên giao bài cho lớp | Cần bản đám mây |
 
 ## 8. Tiêu chí hoàn thành bản 1.0
 - [x] Thiết lập lần đầu, tạo quản trị, phụ huynh, học sinh; đăng nhập bằng PIN.
 - [x] Lịch thi cả năm 2026–2027 cho khối 4 và 6, sửa được.
 - [x] 4 bài ôn gốc chạy trong app, tiến độ tách theo học sinh, điểm lưu vào hồ sơ.
-- [x] Ngân hàng câu hỏi: 17 đề cuối kì I có sẵn (thay 2 bộ mẫu ban đầu), nhập thêm bằng văn bản.
+- [x] Ngân hàng câu hỏi: 18 đề cuối kì I có sẵn (thay 2 bộ mẫu ban đầu), nhập thêm bằng văn bản.
 - [x] Phụ huynh xem tiến độ của con.
 - [x] Sao lưu/khôi phục bằng file.
 - [x] Chạy tốt trên điện thoại, có chế độ tối.
