@@ -1,47 +1,82 @@
-# Kế hoạch dùng $100 credit cloud session (hết hạn 14:59 ngày 5/11/2026)
+# Kế hoạch phát triển OnUp
 
-Mỗi mục dưới đây là **một phiên cloud riêng**. Mở claude.ai/code (hoặc tab Code trên app điện thoại), chọn repo `dunglnh/OnUp`, dán nguyên lời giao việc vào, rồi xem Pull Request khi phiên chạy xong. Các phiên đánh dấu “song song được” có thể chạy cùng lúc vì chúng sửa những file khác nhau.
+> **Trạng thái (16/10/2026): TẠM DỪNG PHÁT TRIỂN để chạy thử với học sinh.**
+> Trang vẫn chạy bình thường ở https://dunglnh.github.io/OnUp/. Chưa mở phiên Claude Code mới cho OnUp cho tới khi có góp ý từ việc dùng thật.
 
-Mẹo để credit không bị phí:
-- Một phiên làm một việc. Đừng gộp nhiều việc vào một phiên.
-- Lời giao việc đã nhắc Claude đọc `CLAUDE.md` và chạy `tests/e2e.js`, nên con không phải giải thích lại.
-- Gộp (merge) từng Pull Request trước khi mở phiên sửa cùng file đó.
-- Xem số dư ở Settings → Usage. Theo ước lượng, mỗi phiên tốn khoảng $3–10, tùy độ dài.
+## 1. Tình hình hiện tại
 
----
+**Credit cloud session $100** (hạn 5/11/2026): theo trang Usage ngày 16/10, mục credit không còn hiện và Claude Code đã chiếm 47% mức dùng tuần của gói Pro, nên credit coi như **đã dùng hết**. Từ nay mỗi phiên cloud **trừ vào giới hạn tuần của gói Pro**, dùng chung với phần chat.
 
-## Tuần 1 (15–21/10): nội dung cho kì thi gần nhất
+**Đã xong** (tất cả đã gộp vào `main`):
 
-**Phiên 1 · Đề cuối kì I Toán 4** (song song được)
-> Đọc CLAUDE.md. Tạo 3 ngân hàng câu hỏi mới trong data/banks.js cho “Kiểm tra cuối học kì I” Toán lớp 4, sách Kết nối tri thức (toàn bộ chương trình học kì I), mỗi bộ 25 câu, trộn trắc nghiệm, điền khuyết, đúng/sai, có chủ đề và lời giải. Tự tính lại mọi đáp án bằng code trước khi ghi. Gắn ba bộ vào kì thi ck1-l4 trong data/calendar-2026-2027.js. Chạy tests/e2e.js, rồi mở Pull Request.
+| PR | Việc |
+|---|---|
+| #1 | Phiên 1: 3 đề Toán 4 cuối kì I |
+| #3 | Phiên 2: 2 đề Tiếng Việt 4 cuối kì I |
+| #5 | Phiên 3: 2 đề Toán 6, 2 đề Ngữ văn 6 cuối kì I |
+| #4 | Phiên 4: Khoa học 4, Lịch sử và Địa lí 4, KHTN 6, Lịch sử và Địa lí 6 cuối kì I |
+| #6 | Phiên 5: đồng bộ đám mây (Supabase), có hướng dẫn cài từng bước — **chưa bật** (`js/config.js` để trống) |
+| #8 | Phiên 5b: chống máy tự động (CAPTCHA) cho bản đám mây — chỉ chạy khi có khóa |
+| #10 | Phiên 8: rà soát đề (56 chỗ sửa), bộ chấm điền khuyết, giao diện 360px |
+| #7, #9 | Canh trái nút quay lại; xưng "bạn" trong bài ôn; bỏ 2 bộ mẫu 12 câu |
 
-**Phiên 2 · Đề cuối kì I Tiếng Việt 4** (song song được)
-> Đọc CLAUDE.md. Tạo 2 ngân hàng câu hỏi Tiếng Việt lớp 4 cho cuối học kì I (luyện từ và câu, chính tả, đọc hiểu với đoạn văn tự soạn) trong data/banks.js, mỗi bộ 25 câu, có chủ đề và lời giải. Không chép văn bản trong sách. Gắn vào kì thi ck1-l4. Chạy tests/e2e.js, rồi mở Pull Request.
+Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp trường và cấp xã; IOE 6 cấp xã và cấp thành phố) và 13 đề cuối kì I.
 
-**Phiên 3 · Đề cuối kì I Toán 6 và Ngữ văn 6** (song song được)
-> Đọc CLAUDE.md. Tạo 2 bộ Toán 6 và 2 bộ Ngữ văn 6 cho cuối học kì I, sách Kết nối tri thức, mỗi bộ 25 câu, đưa vào data/banks.js và gắn vào kì thi ck1-l6. Tự kiểm tra đáp án Toán bằng code. Chạy tests/e2e.js, rồi mở Pull Request.
+**Chưa làm từ kế hoạch cũ:** Phiên 6 (nhập đề từ Excel), Phiên 7 (báo cáo tuần cho phụ huynh).
 
-**Phiên 4 · KHTN 6, Khoa học 4, Lịch sử và Địa lí** (song song được)
-> Đọc CLAUDE.md. Tạo mỗi môn một bộ 25 câu cho cuối học kì I: KHTN 6, Lịch sử và Địa lí 6, Khoa học 4, Lịch sử và Địa lí 4 (sách Kết nối tri thức). Đưa vào data/banks.js, gắn vào ck1-l4 hoặc ck1-l6. Chạy tests/e2e.js, rồi mở Pull Request.
+## 2. Trong thời gian chạy thử (việc của bố mẹ, không tốn lượt dùng)
 
-## Tuần 2 (22–28/10): đồng bộ đám mây
+1. Cho con dùng hằng ngày trên máy quen; mỗi tuần tải file sao lưu (Quản trị → Dữ liệu).
+2. Khi trường báo lịch chính thức, sửa ngày trong Quản trị → Lịch thi.
+3. **Ghi góp ý vào GitHub Issues** (repo → Issues → New issue), mỗi vấn đề một issue, kèm ảnh chụp màn hình nếu có. Ví dụ: “Câu 7 đề Toán 4 số 2 sai đáp án”, “Nút Kiểm tra khó bấm trên điện thoại”.
+4. Tùy chọn: bật đồng bộ đám mây theo `docs/HUONG-DAN-SUPABASE.md` nếu bố mẹ và con dùng máy khác nhau. Lưu ý `main` đang được bảo vệ: khi sửa `js/config.js` trên GitHub, chọn “Create a new branch… and start a pull request”, rồi tự Merge.
 
-Cần làm trước: tạo một project Supabase miễn phí, lấy URL và anon key.
+## 3. Lộ trình khi làm tiếp
 
-**Phiên 5 · SupabaseStore**
-> Đọc CLAUDE.md và docs/TINH-NANG.md mục 7. Viết js/store-supabase.js có cùng giao diện với window.Store, dùng supabase-js từ CDN, theo supabase/schema.sql. Hoàn thiện chính sách RLS trong schema.sql. Phụ huynh và quản trị đăng nhập bằng email (magic link); học sinh đăng nhập bằng mã gia đình + PIN qua một Edge Function. Thêm file js/config.js: để trống thì app dùng LocalStore như cũ. Thêm nút “Chuyển dữ liệu máy này lên đám mây”. Giữ tests/e2e.js chạy được ở chế độ cục bộ. Mở Pull Request kèm hướng dẫn cài đặt từng bước bằng tiếng Việt.
+Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc ở mục 4, xem Pull Request rồi Merge. Thứ tự theo lịch thi.
 
-## Tuần 3 (29/10–4/11): tiện ích và rà soát
+| Ưu tiên | Nên xong trước | Phiên | Kì thi phục vụ |
+|---|---|---|---|
+| 1 | 1/11 | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** | Giữa kì I (2–13/11) |
+| 2 | 10/12 | **Phiên 10 · Đề cuối kì I lớp 6 còn thiếu**: Tiếng Anh, GDCD, Tin học, Công nghệ | Cuối kì I lớp 6 (21/12–8/1) |
+| 3 | 10/12 | **Phiên 11 · Đề cuối kì I lớp 4 còn thiếu**: Tin học và Công nghệ | Cuối kì I lớp 4 (28/12–8/1) |
+| 4 | 15/12 | **Phiên 12 · Báo cáo tuần cho phụ huynh** (Phiên 7 cũ) | Cả năm |
+| 5 | 15/2 | **Phiên 13 · IOE cấp tỉnh lớp 4** | IOE tỉnh (4–6/3) |
+| 6 | 1/3 | **Phiên 14 · Đề giữa kì II lớp 4** (Toán, Tiếng Việt) | Giữa kì II (15–26/3) |
+| 7 | 1/3 | **Phiên 15 · Đề giữa kì II lớp 6** (Toán, Ngữ văn, KHTN, Tiếng Anh) | Giữa kì II (15–26/3) |
+| 8 | 10/4 | **Phiên 16–17 · Đề cuối năm** lớp 4 và lớp 6 | Cuối năm (26/4–14/5) |
 
-**Phiên 6 · Nhập câu hỏi từ Excel** (song song được)
-> Đọc CLAUDE.md. Trong mục Quản trị → Ngân hàng đề, cho phép tải lên file .xlsx (dùng SheetJS từ cdnjs) với các cột: chủ đề, câu hỏi, đáp án đúng, sai 1, sai 2, sai 3, lời giải. Cột đáp án sai để trống nghĩa là câu điền khuyết. Thêm file mẫu docs/mau-nhap-cau-hoi.xlsx. Chạy tests/e2e.js, rồi mở Pull Request.
+**Để sau, chỉ làm khi có nhu cầu thật:** nhập đề từ Excel (Phiên 6 cũ); bắt buộc học sinh đổi PIN cũ sau khi chuyển lên đám mây (chỉ cần khi chuyển nhiều học sinh cùng lúc); giáo viên giao bài cho cả lớp (cần bản đám mây).
 
-**Phiên 7 · Báo cáo tuần cho phụ huynh** (song song được)
-> Đọc CLAUDE.md. Thêm vào hồ sơ của con nút “Báo cáo tuần”: trang in được (CSS @media print) tóm tắt số bài, điểm theo môn, chủ đề yếu, kì thi sắp tới và gợi ý ôn tuần sau. Chạy tests/e2e.js, rồi mở Pull Request.
+**Mẹo tiết kiệm lượt dùng gói Pro:**
+- Một phiên một việc, giao việc rõ ràng. Phiên càng dài càng tốn, vì mỗi lượt Claude đọc lại toàn bộ cuộc trò chuyện.
+- Chỉ yêu cầu **một vòng** tự rà soát; nhiều vòng rà soát và phiên “điều phối” nhiều trợ lý là phần tốn nhất trước đây.
+- Mỗi việc lớn mở một cuộc trò chuyện mới thay vì nói tiếp trong cuộc cũ.
+- Xem mức “This week” ở Settings → Usage trước khi mở phiên; giới hạn tuần làm mới mỗi thứ Sáu khoảng 13:00.
+- Merge từng Pull Request trước khi mở phiên sửa cùng file.
 
-**Phiên 8 · Rà soát nội dung và giao diện**
-> Đọc CLAUDE.md. Rà soát mọi câu hỏi trong data/banks.js: đáp án đúng, đúng chương trình, không trùng lặp, lời giải rõ. Sửa câu sai. Sau đó kiểm tra giao diện ở bề rộng 360px và chế độ tối trên mọi màn hình, sửa lỗi hiển thị. Mở Pull Request liệt kê từng chỗ đã sửa.
+## 4. Lời giao việc (dán nguyên vào phiên mới)
 
-## Nếu còn credit trước 5/11
-- Ôn giữa kì II lớp 4 và lớp 6, theo mẫu ngân hàng câu hỏi.
-- Đề IOE cấp tỉnh lớp 4 (Unit 1–10, nâng cao).
+**Phiên 9 · Sửa lỗi từ góp ý chạy thử**
+> Đọc CLAUDE.md. Đọc các GitHub Issue đang mở của repo này (góp ý từ việc chạy thử với học sinh). Sửa từng issue trong một nhánh, mỗi issue một commit có ghi “Fixes #số”. Không thêm tính năng mới ngoài các issue. Chạy tests/e2e.js (và các bài kiểm thử Supabase nếu sửa phần đám mây), chỉ tự rà soát một vòng, rồi mở một Pull Request liệt kê issue đã sửa và issue chưa sửa được kèm lí do.
+
+**Phiên 10 · Đề cuối kì I lớp 6 còn thiếu**
+> Đọc CLAUDE.md. Tạo 4 ngân hàng câu hỏi trong data/banks.js cho “Kiểm tra cuối học kì I” lớp 6, mỗi bộ 25 câu, có chủ đề và lời giải: Tiếng Anh 6 Global Success (Unit 1–6; không dùng câu nghe), Giáo dục công dân 6, Tin học 6, Công nghệ 6 (sách Kết nối tri thức, phạm vi học kì I). Câu tự soạn, không chép sách. Gắn cả 4 bộ vào kì thi ck1-l6 trong data/calendar-2026-2027.js. Chạy tests/e2e.js, tự rà soát một vòng, rồi mở Pull Request.
+
+**Phiên 11 · Đề cuối kì I lớp 4 còn thiếu**
+> Đọc CLAUDE.md. Tạo 1 ngân hàng 25 câu “Tin học và Công nghệ 4 · Cuối kì I” trong data/banks.js (sách Kết nối tri thức, phạm vi học kì I, chia chủ đề Tin học và Công nghệ), có lời giải, câu tự soạn. Gắn vào kì thi ck1-l4. Chạy tests/e2e.js, tự rà soát một vòng, rồi mở Pull Request.
+
+**Phiên 12 · Báo cáo tuần cho phụ huynh**
+> Đọc CLAUDE.md. Thêm vào hồ sơ của con nút “Báo cáo tuần”: trang in được (CSS @media print) tóm tắt 7 ngày qua: số bài, điểm theo môn, chủ đề hay sai, kì thi sắp tới và gợi ý ôn tuần sau. Chạy được ở cả bản lưu trên máy và bản đám mây (chỉ đọc qua Store). Chạy tests/e2e.js và tests/supabase/cloud-e2e.js, rồi mở Pull Request kèm ảnh chụp 360px sáng/tối.
+
+**Phiên 13 · IOE cấp tỉnh lớp 4**
+> Đọc CLAUDE.md, giữ nguyên ba chỗ nối của bài ôn với app. Trong modules/ioe-4/index.html thêm lộ trình “Province Level” (Unit 1–10, câu khó hơn cấp xã, có câu nghe), bắt đầu sau IOE cấp xã, thi 4–6/3/2027, cùng cách chia 7 đề mỗi tuần như các lộ trình đang có. Thêm câu mới cho phần nâng cao, câu tự soạn. Gắn bài ioe-4 vào kì thi ioe-tinh trong data/calendar-2026-2027.js. Chạy tests/e2e.js, rồi mở Pull Request.
+
+**Phiên 14 · Đề giữa kì II lớp 4**
+> Đọc CLAUDE.md. Tạo 2 đề Toán 4 và 2 đề Tiếng Việt 4 “Kiểm tra giữa học kì II” trong data/banks.js (sách Kết nối tri thức, phạm vi nửa đầu học kì II), mỗi đề 25 câu, có chủ đề và lời giải. Tự tính lại mọi đáp án Toán bằng code. Gắn vào kì thi gk2-l4. Chạy tests/e2e.js, tự rà soát một vòng, rồi mở Pull Request.
+
+**Phiên 15 · Đề giữa kì II lớp 6**
+> Đọc CLAUDE.md. Tạo mỗi môn 1 đề 25 câu “Kiểm tra giữa học kì II” lớp 6 trong data/banks.js: Toán, Ngữ văn, KHTN (Kết nối tri thức), Tiếng Anh (Global Success, Unit 7–9). Có chủ đề và lời giải; tự tính lại đáp án Toán bằng code. Gắn vào kì thi gk2-l6. Chạy tests/e2e.js, tự rà soát một vòng, rồi mở Pull Request.
+
+**Phiên 16–17 · Đề cuối năm**
+> Đọc CLAUDE.md. Tạo đề “Kiểm tra cuối năm học” lớp [4 | 6] trong data/banks.js cho các môn của kì thi [ck2-l4 | ck2-l6] trong data/calendar-2026-2027.js, mỗi môn 1 đề 25 câu, phạm vi cả năm, có chủ đề và lời giải. Gắn vào kì thi đó. Chạy tests/e2e.js, tự rà soát một vòng, rồi mở Pull Request.
