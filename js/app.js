@@ -1,7 +1,7 @@
 /* App chính: đăng nhập, trang chủ theo vai trò, lịch thi cả năm, mở bài ôn, quản trị.
    Định tuyến bằng hash: #/home, #/calendar, #/play/<mã bài>, #/quiz/<mã ngân hàng>,
-   #/child/<mã học sinh>, #/admin/<tab>, #/admin/event/<mã|new>, #/admin/user/<mã|new>,
-   #/admin/bank/<mã|new>, #/account. */
+   #/child/<mã học sinh>, #/report/<mã học sinh>, #/admin/<tab>, #/admin/event/<mã|new>,
+   #/admin/user/<mã|new>, #/admin/bank/<mã|new>, #/account. */
 (function () {
   "use strict";
   const $ = (s, r) => (r || document).querySelector(s);
@@ -14,6 +14,7 @@
   const KIND = { "dinh-ki": "Kiểm tra định kì", ioe: "IOE", "thi-khac": "Thi khác", moc: "Mốc năm học" };
   const DAY = 864e5;
   const WD = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+  const TITLE = document.title;
 
   /* ---------------- ngày tháng ---------------- */
   const today0 = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
@@ -34,6 +35,8 @@
   };
   const pct = (r, t) => (t ? Math.round((r / t) * 100) : 0);
   const d10 = (r, t) => (t ? String(Math.round((r / t) * 40) / 4).replace(".", ",") : "–");
+  const isoDay = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
 
   /* ---------------- tiện ích giao diện ---------------- */
   let toastTimer;
@@ -85,6 +88,17 @@
   }
   function nextEvent(grade) {
     return Store.events(grade).find((e) => e.kind !== "moc" && (status(e) === "now" || status(e) === "future")) || null;
+  }
+  function bySubject(list) {
+    const m = {};
+    list.forEach((x) => { const k = x.subject || "Khác", o = (m[k] = m[k] || { name: k, n: 0, r: 0, t: 0 }); o.n++; o.r += x.r; o.t += x.t; });
+    return Object.values(m).sort((a, b) => b.n - a.n || a.name.localeCompare(b.name, "vi"));
+  }
+  /* [chủ đề, số câu sai], nhiều nhất trước. Chỉ ngân hàng câu hỏi ghi chủ đề; bài ôn dạng trang chỉ gửi điểm tổng. */
+  function wrongTopics(list) {
+    const m = {};
+    list.forEach((x) => (x.wrongTopics || []).forEach((t) => (m[t] = (m[t] || 0) + 1)));
+    return Object.entries(m).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "vi"));
   }
 
   /* ---------------- thanh người dùng ---------------- */
@@ -353,21 +367,17 @@
         <div class="row">${mods.map((m) => `<a class="btn main" href="#/play/${esc(m.id)}">${esc(m.title)}</a>`).join("")}${bks.map((b) => `<a class="btn ${mods.length ? "ghost" : "main"}" href="#/quiz/${esc(b.id)}">${esc(b.title)}</a>`).join("")}</div>
       </section>`;
     }
-    const bySub = {};
-    within(results, 30).forEach((r) => { const k = r.subject || "Khác"; bySub[k] = bySub[k] || [0, 0]; bySub[k][0] += r.r; bySub[k][1] += r.t; });
-    const weak = {};
-    within(results, 30).forEach((r) => (r.wrongTopics || []).forEach((t) => (weak[t] = (weak[t] || 0) + 1)));
-    const weakList = Object.entries(weak).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const subs = bySubject(within(results, 30)), weakList = wrongTopics(within(results, 30)).slice(0, 5);
     view.innerHTML = `<div class="stack">
       ${asObserver ? `<div class="row between">${back(viewer.role === "admin" ? "#/admin/overview" : "#/home", "Về danh sách")}${viewer.role !== "student" ? `<a class="btn ghost sm" href="#/admin/user/${esc(s.id)}">Sửa hồ sơ</a>` : ""}</div>
-        <div class="row">${avatar(s, true)}<div><h2>${esc(s.name)}</h2><span class="muted">${esc(gradeTxt(s))}</span></div></div>` : `<div><h2>Chào ${esc(s.name)}! ${esc(s.avatar)}</h2><span class="muted">${esc(gradeTxt(s))}</span></div>`}
+        <div class="row between"><div class="row">${avatar(s, true)}<div><h2>${esc(s.name)}</h2><span class="muted">${esc(gradeTxt(s))}</span></div></div><a class="btn main sm" id="toReport" href="#/report/${esc(s.id)}">Báo cáo tuần</a></div>` : `<div><h2>Chào ${esc(s.name)}! ${esc(s.avatar)}</h2><span class="muted">${esc(gradeTxt(s))}</span></div>`}
       ${hero}
       <div class="stats">
         <div class="stat"><b>${w7.length}</b><span>bài trong 7 ngày</span></div>
         <div class="stat"><b>${t30 ? d10(r30, t30) : "–"}</b><span>điểm TB 30 ngày (/10)</span></div>
         <div class="stat"><b>${streak(results)}</b><span>ngày ôn liên tiếp</span></div>
       </div>
-      ${Object.keys(bySub).length ? `<section class="panel"><div class="label">Theo môn · 30 ngày</div><div class="ubreak">${Object.entries(bySub).map(([k, [r, t]]) => `<span>${esc(k)}</span><div class="bar ${pct(r, t) >= 80 ? "good" : ""}"><i style="width:${pct(r, t)}%"></i></div><span>${pct(r, t)}%</span>`).join("")}</div></section>` : ""}
+      ${subs.length ? `<section class="panel"><div class="label">Theo môn · 30 ngày</div><div class="ubreak">${subs.map(({ name, r, t }) => `<span>${esc(name)}</span><div class="bar ${pct(r, t) >= 80 ? "good" : ""}"><i style="width:${pct(r, t)}%"></i></div><span>${pct(r, t)}%</span>`).join("")}</div></section>` : ""}
       ${weakList.length ? `<section class="panel"><div class="label">Chủ đề hay sai</div><div class="tags">${weakList.map(([t, n]) => `<span class="tag warn">${esc(t)} · ${n} câu</span>`).join("")}</div></section>` : ""}
       <section class="sec"><div class="row between"><h2>Lịch thi sắp tới</h2><a class="linkbtn" href="#/calendar">Cả năm →</a></div>
         <div class="timeline">${evs.map((e) => eventRow(e, { grade: s.grade, student: s, results })).join("") || `<div class="panel muted">Không còn kì thi nào trong năm học.</div>`}</div></section>
@@ -379,6 +389,83 @@
   function resultsList(list) {
     if (!list.length) return `<div class="panel muted">Chưa có kết quả. Làm một bài ôn để bắt đầu.</div>`;
     return `<div class="list">${list.map((r) => `<div class="item"><div class="grow"><b>${esc(r.label || "Bài ôn")}</b><span class="small muted">${esc(ago(r.at))}${r.subject ? " · " + esc(r.subject) : ""}${r.mode === "exam" ? " · làm như thi" : ""}</span></div><b class="${pct(r.r, r.t) >= 80 ? "" : ""}" style="font-variant-numeric:tabular-nums">${r.r}/${r.t}</b></div>`).join("")}</div>`;
+  }
+
+  /* ================= BÁO CÁO TUẦN =================
+     Phụ huynh, quản trị mở từ hồ sơ của con. Tóm tắt 7 ngày gần nhất (hôm nay và 6 ngày trước), in được
+     (@media print trong css/app.css). Chỉ đọc qua Store nên chạy như nhau ở bản trên máy và bản đám mây. */
+  const MAX_SECS = 5400; // một lần làm quá 90 phút thường là quên đóng bài: chỉ tính 90 phút
+  function weekStats(list) {
+    const [r, t] = sumRT(list);
+    return { n: list.length, r, t, days: new Set(list.map((x) => isoDay(new Date(x.at)))).size, mins: Math.round(list.reduce((a, x) => a + Math.min(+x.s || 0, MAX_SECS), 0) / 60) };
+  }
+  /* Gợi ý dạng câu thường (chưa esc), tối đa 5 câu, việc cần làm trước đứng trước. */
+  function weekTips(s, week, all) {
+    const tips = [], st = weekStats(week), nm = s.name;
+    if (!st.n) tips.push(`${nm} chưa làm bài nào trong 7 ngày qua. Tuần sau bắt đầu lại nhẹ nhàng: mỗi ngày một đề ngắn 20–30 phút.`);
+    else if (st.days < 5) tips.push(`${nm} ôn ${st.days}/7 ngày. Tuần sau cố gắng ôn ít nhất 5 ngày, mỗi ngày 20–30 phút, thay vì làm dồn một buổi.`);
+    else tips.push(`${nm} ôn đều ${st.days}/7 ngày. Giữ nhịp này cho tuần sau.`);
+    const nx = nextEvent(s.grade);
+    const later = [];
+    if (nx) {
+      const { mods, bks } = practiceFor(nx, s.grade), items = mods.concat(bks);
+      const todo = items.filter((x) => !all.some((r) => r.refId === x.id)).map((x) => x.title);
+      let t = `${nx.title}: ${status(nx) === "now" ? "đang diễn ra" : "còn " + daysTo(nx) + " ngày"}.`;
+      if (todo.length) t += ` Bài ôn chưa làm: ${todo.slice(0, 3).join("; ")}${todo.length > 3 ? " và " + (todo.length - 3) + " bài khác" : ""}.`;
+      else if (items.length) {
+        const low = items.map((x) => { const [r, n] = sumRT(all.filter((y) => y.refId === x.id)); return { title: x.title, p: pct(r, n) }; }).sort((a, b) => a.p - b.p)[0];
+        t += low.p < 90 ? ` Ôn tiếp “${low.title}”: đang đúng ${low.p}%.` : ` Các bài ôn của kì này đang đúng từ ${low.p}% trở lên.`;
+      }
+      tips.push(t);
+      const subs = [...new Set(mods.flatMap((m) => Object.values(m.subjects || {})).concat(bks.map((b) => b.subject)).filter(Boolean))];
+      const miss = subs.filter((x) => !week.some((r) => r.subject === x));
+      if (st.n && miss.length) later.push(`Tuần này chưa ôn ${miss.join(", ")} cho kì thi sắp tới.`);
+      if (st.n && items.length && status(nx) === "future" && daysTo(nx) <= 14 && !week.some((r) => r.mode === "exam")) later.push("Sắp thi: làm ít nhất một đề ở chế độ “Làm như thi” (có tính giờ) để quen với thời gian làm bài.");
+    }
+    const weak = bySubject(week).filter((x) => x.t >= 5 && pct(x.r, x.t) < 70);
+    if (weak.length) tips.push(`${weak.map((x) => x.name + " mới đúng " + pct(x.r, x.t) + "%").join(", ")}: xem lại lời giải các câu sai rồi làm lại đề đó.`);
+    const tp = wrongTopics(week).slice(0, 3).map(([t]) => t);
+    if (tp.length) tips.push(`Ôn lại chủ đề hay sai: ${tp.join(", ")}.`);
+    return tips.concat(later).slice(0, 5);
+  }
+  function renderReport(s) {
+    const all = Store.resultsFor(s.id), t0 = today0(), from = addDays(t0, -6);
+    const span = (a, b) => all.filter((r) => { const d = new Date(r.at); return d >= a && d < b; });
+    const week = span(from, addDays(t0, 1)), st = weekStats(week), pv = weekStats(span(addDays(from, -7), from));
+    const perDay = {}; week.forEach((r) => { const k = isoDay(new Date(r.at)); perDay[k] = (perDay[k] || 0) + 1; });
+    const subs = bySubject(week), topics = wrongTopics(week).slice(0, 6), school = Store.settings().schoolName;
+    const evs = Store.events(s.grade).filter((e) => e.kind !== "moc" && e.start && status(e) !== "past").slice(0, 3);
+    const a = isoDay(from), b = isoDay(t0);
+    document.title = `Báo cáo tuần · ${s.name} · ${dm(a)}–${dmy(b)}`; // tên file gợi ý khi lưu PDF
+    view.innerHTML = `<div class="stack report">
+      <div class="row between noprint">${back("#/child/" + esc(s.id), "Hồ sơ của con")}<button class="btn main sm" id="rpPrint">In báo cáo</button></div>
+      <header class="stack tight">
+        <span class="label">OnUp · Báo cáo tuần</span>
+        <div class="row">${avatar(s, true)}<div><h1>${esc(s.name)}</h1><span class="muted">${esc(gradeTxt(s))}${school ? " · " + esc(school) : ""}</span></div></div>
+        <p><b>${WD[from.getDay()]}, ${dm(a)} – ${WD[t0.getDay()]}, ${dmy(b)}</b> <span class="small muted">· 7 ngày gần nhất</span></p>
+      </header>
+      <div class="stats four">
+        <div class="stat"><b id="rpCount">${st.n}</b><span>bài đã làm</span><small>Tuần trước: ${pv.n}</small></div>
+        <div class="stat"><b>${st.days}/7</b><span>ngày có ôn</span><small>Tuần trước: ${pv.days}/7</small></div>
+        <div class="stat"><b>${d10(st.r, st.t)}</b><span>điểm TB (/10)</span><small>Tuần trước: ${d10(pv.r, pv.t)}</small></div>
+        <div class="stat"><b>${st.mins}</b><span>phút làm bài</span><small>Tuần trước: ${pv.mins}</small></div>
+      </div>
+      <section class="panel"><div class="label">Số bài từng ngày</div><div class="rp-days">${Array.from({ length: 7 }, (_, i) => {
+        const d = addDays(from, i), n = perDay[isoDay(d)] || 0;
+        return `<div class="rp-day${n ? " on" : ""}"><span>${WD[d.getDay()]}</span><b>${n || "–"}</b><small>${d.getDate()}/${d.getMonth() + 1}</small></div>`;
+      }).join("")}</div></section>
+      ${st.n ? `<section class="panel" id="rpSubjects"><div class="label">Điểm theo môn</div>${subs.map((x) => `<div class="rp-sub"><div class="row between"><b>${esc(x.name)}</b><b>${d10(x.r, x.t)}<span class="small muted">/10</span></b></div>
+          <div class="bar ${pct(x.r, x.t) >= 80 ? "good" : ""}"><i style="width:${pct(x.r, x.t)}%"></i></div><span class="small muted">${x.n} bài · ${x.r}/${x.t} câu đúng</span></div>`).join("")}</section>
+        <section class="panel" id="rpTopics"><div class="label">Chủ đề hay sai</div>${topics.length ? `<div class="list">${topics.map(([t, n]) => `<div class="item"><span class="grow">${esc(t)}</span><b class="small">${n} câu sai</b></div>`).join("")}</div>`
+          : `<p class="small muted">Không có câu sai nào được ghi theo chủ đề. Bài ôn IOE và ôn giữa kì I chỉ gửi về điểm tổng.</p>`}</section>`
+        : `<div class="panel muted">Chưa có bài làm nào trong 7 ngày qua.</div>`}
+      <section class="sec"><h2>Kì thi sắp tới</h2>${evs.length ? `<div class="timeline">${evs.map((e) => eventRow(e, { grade: s.grade, student: s, results: all })).join("")}</div>` : `<div class="panel muted">Không còn kì thi nào có lịch trong năm học.</div>`}</section>
+      <section class="panel" id="rpTips"><h2>Gợi ý ôn tuần sau</h2><ol class="tips">${weekTips(s, week, all).map((t) => `<li>${esc(t)}</li>`).join("")}</ol></section>
+      ${st.n ? `<section class="sec"><h2>Bài đã làm trong tuần</h2>${resultsList(week)}</section>` : ""}
+      <p class="small muted">Lập ngày ${dmy(b)}. Điểm quy về thang 10 theo số câu đúng.</p>
+    </div>`;
+    wireGo(); wireEvents(view, s.grade, s);
+    $("#rpPrint").onclick = () => window.print();
   }
 
   const pinTag = (u) => (u.pinLocked ? " · PIN bị khóa, cần đặt lại" : u.pinOld ? " · nên đặt PIN mới 6 số" : "");
@@ -815,6 +902,7 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
   function route() {
     if (quizRun) { quizRun.stop(); quizRun = null; }
     const old = $("#evDetail"); if (old) old.remove();
+    document.title = TITLE;
     if (Store.cloud) {
       const st = Store.authState();
       if (st === "signed-out") { renderCloudLogin(); return; }
@@ -833,11 +921,12 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
       case "play": return renderPlay(u, a);
       case "quiz": return renderQuiz(u, a);
       case "account": return renderAccount(u);
-      case "child": {
+      case "child":
+      case "report": {
         const c = Store.user(a);
         const allowed = c && c.role === "student" && (u.role === "admin" || (u.role === "parent" && (c.parentIds || []).includes(u.id)));
         if (!allowed) { go("#/home"); return; }
-        return renderStudent(c, u, true);
+        return name === "report" ? renderReport(c) : renderStudent(c, u, true);
       }
       case "admin":
         if (a === "user") return renderUserForm(u, b || "new", query);

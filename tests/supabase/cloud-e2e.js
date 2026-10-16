@@ -149,6 +149,18 @@ async function run(browser, scheme) {
   const results = be.T.results.filter((r) => r.profile_id === bong.id);
   const captchaOK = !withCaptcha || (be.captchaUsed >= 4 && (await admin.evaluate(() => window.turnstile.boxes.join())).includes("mailCaptcha")
     && (await kid.evaluate(() => window.turnstile.boxes.join())).includes("kidCaptcha"));
+
+  /* ---- quản trị mở báo cáo tuần của Bông (tải lại trang: đọc kết quả mới từ máy chủ; sau khi đã đọc ô CAPTCHA ở trên) ---- */
+  await admin.goto(BASE + "/#/child/" + bong.id); await admin.reload();
+  await admin.waitForSelector("#toReport");
+  await shot(admin, "c10-ho-so-con");
+  await admin.click("#toReport"); await admin.waitForSelector(".report");
+  await shot(admin, "c11-bao-cao-tuan");
+  const rep = await admin.evaluate(() => ({
+    count: +document.querySelector("#rpCount").textContent,
+    subjects: [...document.querySelectorAll("#rpSubjects .rp-sub b:first-child")].map((b) => b.textContent),
+    tips: document.querySelectorAll("#rpTips li").length
+  }));
   const checks = {
     "CAPTCHA (khi bật): mọi lần đăng nhập đều kèm mã xác minh, ô xác minh đặt đúng chỗ": captchaOK,
     "mã mời 12 kí tự": /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(invite),
@@ -157,6 +169,7 @@ async function run(browser, scheme) {
     "kết quả làm bài được lưu lên máy chủ": results.length === 2 && results.some((r) => r.source === "bank" && r.ref_id === "toan6-ck1-de1"),
     "đăng xuất: máy nhớ mã gia đình, hiện lại danh sách": remembered === 2,
     "phụ huynh nhận mã mời (chưa gắn con)": kidsOfMom === 0,
+    "báo cáo tuần đọc kết quả từ máy chủ": rep.count >= 1 && rep.subjects.includes("Toán") && rep.tips >= 2,
     "không lỗi trên trang": errs.length === 0
   };
   return { checks, errs };

@@ -85,6 +85,30 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   await shot("11-parent-home");
   await page.click("[data-child]"); await page.waitForTimeout(300); await shot("12-child");
 
+  step("weekly report");
+  await page.click("#toReport"); await page.waitForSelector(".report");
+  const rep = await page.evaluate(() => ({
+    count: document.querySelector("#rpCount").textContent,
+    subjects: [...document.querySelectorAll("#rpSubjects .rp-sub b:first-child")].map((b) => b.textContent),
+    topics: document.querySelectorAll("#rpTopics .item").length,
+    tips: document.querySelectorAll("#rpTips li").length,
+    days: document.querySelectorAll(".rp-day.on").length,
+    title: document.title, wide: document.documentElement.scrollWidth
+  }));
+  console.log("report:", rep);
+  await shot("12b-report");
+  await page.emulateMedia({ media: "print", colorScheme: "dark" });
+  const printHidden = await page.evaluate(() => [".top", ".noprint", ".foot"].every((s) => getComputedStyle(document.querySelector(s)).display === "none")
+    && getComputedStyle(document.body).backgroundColor === "rgb(255, 255, 255)");
+  await page.pdf({ path: OUT + "12c-bao-cao-tuan.pdf", format: "A4", printBackground: false });
+  await page.emulateMedia({ media: "screen", colorScheme: "light" });
+  await page.goto(BASE + "/#/report/" + (await page.evaluate(() => Store.users("student").find((u) => u.name === "Na").id)));
+  await page.waitForTimeout(200);
+  const otherKid = await page.evaluate(() => location.hash); // Na không phải con của Mẹ Bin: về trang chính
+  const reportOK = rep.count === "3" && rep.subjects.join() === "Toán,Tiếng Anh" && rep.topics > 0 && rep.tips >= 2 && rep.days === 1
+    && /Bin/.test(rep.title) && rep.wide <= 390 && printHidden && otherKid === "#/home";
+  console.log("report print:", printHidden, "other kid:", otherKid);
+
   step("bank import as admin");
   await page.goto(BASE + "/#/account"); await page.click("#logout"); await page.waitForTimeout(200);
   await page.click(".tile:has-text('Bố Minh')"); await page.fill("#pinIn", "9999"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(300);
@@ -147,6 +171,6 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   console.log("local mode:", !cloudMode, "cloud requests:", cloudReqs);
   const real = errs.filter((e) => !/fonts\.g|ERR_TUNNEL|ERR_NAME|net::/.test(e));
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || cloudReqs.length || !cloudOK || db.results.length !== 3 || db.banks.length !== 1 || dataErrs.length || !migOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || cloudMode || cloudReqs.length || !cloudOK || db.results.length !== 3 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();
