@@ -1,7 +1,8 @@
-/* Client giả có cùng cách gọi như supabase-js (phần app dùng): auth, from(...).select/insert/upsert/update/delete,
-   eq/in/order/range/maybeSingle, rpc, functions.invoke. Mọi lời gọi được đóng gói thành tin nhắn JSON và gửi qua
-   transport(msg) tới máy chủ giả (tests/supabase/fake-backend.js). Dùng được trong Node và trong trình duyệt
-   (Playwright chuyển tin nhắn về Node bằng page.exposeFunction). */
+/* Client giả có cùng cách gọi như supabase-js (phần app và Edge Function dùng): auth (đăng nhập bằng mật khẩu, đổi
+   mật khẩu, auth.admin.*), from(...).select/insert/upsert/update/delete, eq/neq/in/order/range/maybeSingle/single, rpc,
+   functions.invoke. Mọi lời gọi được đóng gói thành tin nhắn JSON và gửi qua transport(msg) tới máy chủ giả
+   (tests/supabase/fake-backend.js). Dùng được trong Node và trong trình duyệt (Playwright chuyển tin nhắn về Node bằng
+   page.exposeFunction). */
 (function (root) {
   "use strict";
   function createFakeSupabase(transport, opts) {
@@ -21,6 +22,10 @@
     const token = () => { const s = readSession(); return s ? s.access_token : null; };
     const emit = (ev, s) => listeners.slice().forEach((cb) => { try { cb(ev, s); } catch (e) {} });
     const send = (msg) => Promise.resolve(transport(Object.assign({ token: token(), service: !!opts.service }, msg)));
+    const authCall = async (op, args) => {
+      const r = await send({ kind: "auth", op, args: args || {} });
+      return r.error ? { data: { user: null }, error: r.error } : { data: { user: r.user || null }, error: null };
+    };
 
     class Query {
       constructor(table) { this.d = { table, op: "select", cols: "*", filters: [], orders: [] }; }
@@ -41,25 +46,25 @@
 
     const auth = {
       async getSession() { return { data: { session: readSession() }, error: null }; },
-      async getUser(t) {
-        const r = await send({ kind: "auth", op: "getUser", args: { token: t || token() } });
-        return r.error ? { data: { user: null }, error: r.error } : { data: { user: r.user }, error: null };
-      },
+      getUser(t) { return authCall("getUser", { token: t || token() }); },
       onAuthStateChange(cb) { listeners.push(cb); return { data: { subscription: { unsubscribe() { listeners.splice(listeners.indexOf(cb), 1); } } } }; },
-      async signInWithOtp(a) { const r = await send({ kind: "auth", op: "otp", args: { email: a.email, captchaToken: a.options && a.options.captchaToken } }); return { data: {}, error: r.error || null }; },
-      async verifyOtp(a) {
-        const r = await send({ kind: "auth", op: "verify", args: { email: a.email, token: a.token, captchaToken: a.options && a.options.captchaToken } });
+      async signInWithPassword(a) {
+        const r = await send({ kind: "auth", op: "password", args: { email: a.email, password: a.password, captchaToken: a.options && a.options.captchaToken } });
         if (r.error) return { data: { session: null, user: null }, error: r.error };
         writeSession(r.session); emit("SIGNED_IN", r.session);
         return { data: { session: r.session, user: r.session.user }, error: null };
       },
-      async signInAnonymously(a) {
-        const r = await send({ kind: "auth", op: "anon", args: { captchaToken: a && a.options && a.options.captchaToken } });
-        if (r.error) return { data: { session: null, user: null }, error: r.error };
-        writeSession(r.session); emit("SIGNED_IN", r.session);
-        return { data: { session: r.session, user: r.session.user }, error: null };
+      async updateUser(a) {
+        const r = await authCall("updateUser", { password: a && a.password });
+        if (!r.error) emit("USER_UPDATED", readSession());
+        return r;
       },
-      async signOut(o) { await send({ kind: "auth", op: "signOut", args: { scope: (o && o.scope) || "global" } }); writeSession(null); emit("SIGNED_OUT", null); return { error: null }; }
+      async signOut(o) { await send({ kind: "auth", op: "signOut", args: { scope: (o && o.scope) || "global" } }); writeSession(null); emit("SIGNED_OUT", null); return { error: null }; },
+      admin: {
+        createUser: (attrs) => authCall("admin.createUser", attrs),
+        updateUserById: (id, attributes) => authCall("admin.updateUserById", { id, attributes }),
+        deleteUser: (id) => authCall("admin.deleteUser", { id })
+      }
     };
     return {
       auth,

@@ -100,6 +100,14 @@ Quy tắc ở máy chủ:
 
 Edge Function `admin` (thay cho `student-login`), chỉ owner gọi được: `create_account`, `reset_password`, `set_status`, `delete_account`, `list_accounts`. Dùng khóa `service_role` để tạo người dùng (`auth.admin.createUser`, đã xác nhận sẵn, không gửi email). Mọi thao tác ghi vào `admin_log`.
 
+**Đã làm ở Phiên A** (`supabase/schema.sql`, `supabase/functions/admin/index.ts`), theo lời giao việc của bản thiết kế 1 nên có thêm phần chừa sẵn cho gói (mục 9) nhưng chưa bật:
+- `plans` có 2 dòng `free` và `family`, cột `max_children`, `all_banks` (đọc mọi đề hay chỉ đề thử), `price`. Hôm nay cả hai đều 5 hồ sơ, mọi đề, nên mọi tài khoản dùng được mọi nội dung.
+- Hàm `plan_active(family)` (gói khác `free` và `plan_until` ≥ hôm nay, giờ Việt Nam); hết hạn thì về hạn mức `free`. `profiles.locked`: hồ sơ vượt hạn mức (giữ các hồ sơ tạo sớm nhất), không ghi được kết quả mới, vẫn xem được kết quả cũ.
+- `plan_log` (nhật ký đổi gói, số tiền) và thao tác `set_plan` của Edge Function `admin`.
+- `paid_banks` (đề của chủ app, cờ `free_trial`, `published`) và `supabase/banks-to-sql.js` chuyển 18 đề trong `data/banks.js` thành SQL (đề số 1 mỗi môn mỗi kì là đề thử). App vẫn đọc đề từ `data/banks.js`.
+- Tài khoản `locked` chỉ còn đọc được dòng `families` của mình (để app báo “đã bị khóa”), và bị cấm đăng nhập ở Supabase Auth.
+- Giữ `question_banks` (ngân hàng phụ huynh tự nhập) và RPC `import_local` (chuyển dữ liệu từ bản lưu trên máy); thêm RPC `touch` (lần dùng gần nhất) và `password_changed` (bỏ cờ bắt đổi mật khẩu).
+
 **Danh sách khối lớp** để một chỗ: `data/grades.js` (ví dụ `[{grade:4, name:"Lớp 4", active:true}, …, {grade:12, …, active:false}]`). Form hồ sơ con, lịch thi, trang quản trị đều đọc từ đây thay vì viết cứng `[4, 6]` như hiện nay (`js/store.js`, `js/store-supabase.js`, `js/app.js`). Khối chưa có nội dung thì `active:false`, không hiện cho phụ huynh chọn.
 
 **Chỗ chừa cho gói (chưa dùng):** app có một hàm duy nhất `Store.can(feature)` (ví dụ `"addChild"`, `"bank:<mã>"`), hôm nay luôn trả lời “được” trừ hạn mức số hồ sơ. Sau này bật gói chỉ cần sửa hàm này và bảng `plans`, không phải sửa từng màn hình.

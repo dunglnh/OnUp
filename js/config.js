@@ -10,7 +10,7 @@
 window.ONTAP_CONFIG = {
   supabaseUrl: "",
   supabaseAnonKey: "",
-  // Không bắt buộc: "site key" của Cloudflare Turnstile để chặn máy tự động (xem bước 3b của hướng dẫn).
+  // Không bắt buộc: "site key" của Cloudflare Turnstile để chặn máy tự động (xem bước 7 của hướng dẫn).
   // Đây cũng là khóa công khai. Điền khóa này TRƯỚC, rồi mới bật CAPTCHA trong Supabase.
   turnstileSiteKey: ""
 };
