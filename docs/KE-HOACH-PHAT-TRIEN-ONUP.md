@@ -32,7 +32,7 @@ Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp tr
 1. Cho con dùng hằng ngày trên máy quen; mỗi tuần tải file sao lưu (Quản trị → Dữ liệu).
 2. Khi trường báo lịch chính thức, sửa ngày trong Quản trị → Lịch thi.
 3. **Ghi góp ý vào GitHub Issues** (repo → Issues → New issue), mỗi vấn đề một issue, kèm ảnh chụp màn hình nếu có. Ví dụ: “Câu 7 đề Toán 4 số 2 sai đáp án”, “Nút Kiểm tra khó bấm trên điện thoại”.
-4. Tùy chọn: bật đồng bộ đám mây theo `docs/HUONG-DAN-SUPABASE.md` nếu bố mẹ và con dùng máy khác nhau. Lưu ý `main` đang được bảo vệ: khi sửa `js/config.js` trên GitHub, chọn “Create a new branch… and start a pull request”, rồi tự Merge.
+4. Bản đám mây đang làm lại (Phiên A, B, C). Sau Phiên A có thể làm trước bước 1–5 của `docs/HUONG-DAN-SUPABASE.md` (tạo project, bảng, tài khoản chủ app, Edge Function); **chỉ điền `js/config.js` sau khi Phiên B đã gộp**. Lưu ý `main` đang được bảo vệ: khi sửa `js/config.js` trên GitHub, chọn “Create a new branch… and start a pull request”, rồi tự Merge.
 
 ## 3. Lộ trình khi làm tiếp
 
