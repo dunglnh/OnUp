@@ -23,7 +23,7 @@
 | #15 | Phiên 12: báo cáo tuần cho phụ huynh |
 | #16 | Phiên 13: IOE cấp tỉnh lớp 4 |
 
-Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp trường, cấp xã và cấp tỉnh (Phiên 13); IOE 6 cấp xã và cấp thành phố), 18 đề cuối kì I (lớp 6 đủ 8 môn từ Phiên 10: thêm Tiếng Anh, GDCD, Tin học, Công nghệ; lớp 4 thêm Tin học và Công nghệ từ Phiên 11) 4 đề giữa kì II lớp 4 (Toán, Tiếng Việt, Phiên 14) và 3 đề giữa kì I lớp 6 (Tiếng Anh, Lịch sử và Địa lí, GDCD, Phiên N0a).
+Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp trường, cấp xã và cấp tỉnh (Phiên 13); IOE 6 cấp xã và cấp thành phố), 19 đề cuối kì I (lớp 6 đủ 8 môn từ Phiên 10: thêm Tiếng Anh, GDCD, Tin học, Công nghệ; lớp 4 thêm Tin học và Công nghệ từ Phiên 11, Tiếng Anh từ Phiên N0b), 4 đề giữa kì II lớp 4 (Toán, Tiếng Việt, Phiên 14) và 5 đề giữa kì I lớp 6 (Tiếng Anh, Lịch sử và Địa lí, GDCD, Phiên N0a; Tin học, Công nghệ, Phiên N0b).
 
 **Chưa làm từ kế hoạch cũ:** Phiên 6 (nhập đề từ Excel). Phiên 7 (báo cáo tuần cho phụ huynh) đã làm ở Phiên 12.
 
@@ -41,7 +41,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | Ưu tiên | Nên xong trước | Phiên | Phục vụ |
 |---|---|---|---|
 | 1 | 1/11 | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** (GitHub Issues) | Giữa kì I (2–13/11) |
-| 1 | 1/11 | **Phiên N0a, N0b · Đề giữa kì I lớp 6 còn thiếu, Tiếng Anh 4 cuối kì I** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); N0a đã xong) | Giữa kì I (2–13/11) |
+| 1 | 1/11 | **Phiên N0a, N0b · Đề giữa kì I lớp 6 còn thiếu, Tiếng Anh 4 cuối kì I** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); N0a, N0b đã xong) | Giữa kì I (2–13/11) |
 | 1 | 1/11 | **Phiên U1 · Nút xem mật khẩu và mã PIN** (lời giao việc ở mục 4) | Phụ huynh, học sinh gõ đúng mật khẩu, PIN |
 | 2 | 30/11 | **Phiên K1–K3 · Tách dữ liệu đề, dạng câu mới, rút đề theo ma trận** | Đa dạng đề, đủ chỗ cho lớp 5–12 |
 | 3 | 15/12 | **Phiên N1–N6 · Đủ đề cuối kì I lớp 4 và 6** | Cuối kì I (21/12–8/1) |
