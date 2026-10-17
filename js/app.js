@@ -635,9 +635,11 @@
     if (!m) { renderMissing("Không tìm thấy bài ôn", "Bài ôn này không có trong app, hoặc đã được bỏ đi."); return; }
     if (wrongGrade(u, m.grade)) return;
     const src = m.path + "?u=" + encodeURIComponent(u.id) + "&m=" + encodeURIComponent(m.id);
+    const note = u.role === "student" ? ["Điểm được lưu", "Điểm mỗi lần làm xong được lưu vào hồ sơ của bạn."] : ["Xem thử, không lưu điểm", "Chế độ xem thử: điểm không được lưu."];
     view.innerHTML = `<div class="player">
-      <div class="row between">${back("#/home", "Trang chính")}<span class="small muted">${u.role === "student" ? "Điểm mỗi lần làm xong được lưu vào hồ sơ của bạn." : "Chế độ xem thử: điểm không được lưu."}</span></div>
+      <div class="row between">${back("#/home", "Trang chính")}<span class="small muted note" title="${note[1]}">${note[0]}</span></div>
       <iframe id="playerFrame" title="${esc(m.title)}" src="${esc(src)}"></iframe></div>`;
+    document.body.classList.add("playing");
     wireGo();
     if (u.role !== "student") return;
     // Khung cùng origin: học sinh chạm hoặc gõ phím trong bài thì bật chốt, gửi điểm về (ontap:result) thì tắt.
@@ -1021,6 +1023,7 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
   function route() {
     if (quizRun) { quizRun.stop(); quizRun = null; }
     guard = null; closeLeave(); shownHash = location.hash;
+    document.body.classList.remove("playing");
     const old = $("#evDetail"); if (old) old.remove();
     document.title = TITLE;
     if (Store.cloud) {
