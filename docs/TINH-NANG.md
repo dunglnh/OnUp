@@ -97,11 +97,13 @@ Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mố
   Sai: một mệnh đề sai.
   ```
   App báo số câu nhận được và dòng nào sai cú pháp trước khi lưu.
-- **Dữ liệu**: tên trường, năm học, tải file sao lưu (JSON), khôi phục từ file, xóa toàn bộ (gõ XOA để xác nhận).
+- **Dữ liệu**: tên trường, năm học, tải file sao lưu (JSON) kèm lần sao lưu gần nhất, khôi phục từ file, hướng dẫn thêm app vào Màn hình chính, xóa toàn bộ (gõ XOA để xác nhận).
 
 ## 5. Lưu trữ
 
-Bản 1.0 lưu mọi thứ trong trình duyệt của máy đang dùng. Phù hợp khi cả nhà hoặc cả lớp dùng chung một máy tính/máy tính bảng. Muốn dùng trên máy khác thì sao lưu ra file rồi khôi phục ở máy đó (dữ liệu hai máy không tự đồng bộ).
+Bản 1.0 lưu mọi thứ trong trình duyệt của máy đang dùng. Phù hợp khi cả nhà hoặc cả lớp dùng chung một máy tính/máy tính bảng. Muốn dùng trên máy khác thì sao lưu ra file rồi khôi phục ở máy đó (dữ liệu hai máy không tự đồng bộ). Quá 7 ngày chưa sao lưu (hoặc chưa sao lưu lần nào mà đã có bài làm), trang chủ của quản trị và phụ huynh hiện thẻ nhắc có nút tải file sao lưu.
+
+App mở lại được khi mất mạng: lần mở đầu (cần mạng) trình duyệt lưu sẵn các file của app, kể cả font. Thêm app vào Màn hình chính (iPhone, iPad: Chia sẻ → Thêm vào MH chính; Android: menu ⋮ → Thêm vào màn hình chính) để có biểu tượng riêng, và để Safari không xóa dữ liệu khi lâu không mở.
 
 Mã PIN chỉ để phân biệt người dùng, không phải bảo mật thật.
 
