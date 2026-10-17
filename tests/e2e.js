@@ -290,7 +290,14 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await shareCtx.addInitScript(() => {
     window.__share = { mode: "abort", calls: [] };
     Object.defineProperty(navigator, "canShare", { configurable: true, value: (d) => !!(d && d.files && d.files.length) });
-    Object.defineProperty(navigator, "share", { configurable: true, value: (d) => { __share.calls.push(d.files[0].name); return __share.mode === "abort" ? Promise.reject(new DOMException("Share canceled", "AbortError")) : Promise.resolve(); } });
+    const cancel = () => new DOMException("Share canceled", "AbortError"), busy = () => new DOMException("A share is already in progress", "InvalidStateError");
+    Object.defineProperty(navigator, "share", { configurable: true, value: (d) => {
+      __share.calls.push(d.files[0].name);
+      if (__share.open) return Promise.reject(busy()); // như Safari: bảng chia sẻ đang mở
+      if (__share.mode === "abort") return Promise.reject(cancel());
+      if (__share.mode === "slow-abort") { __share.open = true; return new Promise((_, no) => setTimeout(() => { __share.open = false; no(cancel()); }, 400)); }
+      return Promise.resolve();
+    } });
   });
   const sp = await shareCtx.newPage(); sp.on("pageerror", (e) => errs.push("pageerror L17: " + e.message));
   let spDownloads = 0; sp.on("download", () => spDownloads++);
@@ -303,6 +310,9 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await sp.goto(BASE + "/#/admin/data"); await sp.waitForTimeout(200);
   await sp.click("#dExport"); await sp.waitForTimeout(300);
   sh.abortData = { at: await spAt(), last: await sp.textContent("#dLast") };
+  await sp.evaluate(() => (__share.mode = "slow-abort"));
+  await sp.dblclick("#dExport"); await sp.waitForTimeout(700); // bấm hai lần liền, rồi hủy bảng chia sẻ
+  sh.double = { at: await spAt(), calls: await sp.evaluate(() => __share.calls.length) };
   await sp.evaluate(() => (__share.mode = "ok"));
   await sp.click("#dExport"); await sp.waitForTimeout(300);
   sh.okData = { at: await spAt(), last: await sp.textContent("#dLast") };
@@ -319,7 +329,8 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const homeScreenOK = !tipInBrowser && hs.tip && /Đã dùng OnUp trong Safari/.test(hs.tip.text) && hs.tip.btn && hs.tip.above && /Bố Minh/.test(hs.restored) && /Bin/.test(hs.restored) && hs.results === 5
     && /không dùng chung dữ liệu/.test(sh.home) && /Khôi phục từ file sao lưu/.test(sh.home) && /Android.*không cần chuyển/.test(sh.home)
     && sh.before == null && sh.abort.at == null && sh.abort.card && sh.abortData.at == null && /chưa sao lưu lần nào/.test(sh.abortData.last)
-    && fresh(sh.okData.at) && /Hôm nay/.test(sh.okData.last) && sh.calls.length === 3 && sh.calls.every((n) => /^on-thi-sao-luu-\d{4}-\d\d-\d\d\.json$/.test(n))
+    && sh.double.at == null && sh.double.calls === 3
+    && fresh(sh.okData.at) && /Hôm nay/.test(sh.okData.last) && sh.calls.length === 4 && sh.calls.every((n) => /^on-thi-sao-luu-\d{4}-\d\d-\d\d\.json$/.test(n))
     && fresh(sh.ok.at) && !sh.ok.card && /Đã lưu file sao lưu/.test(sh.ok.toast) && sh.ok.calls === 1 && sh.downloads === 0;
 
   step("not found + wrong grade (L3)");

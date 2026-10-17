@@ -189,6 +189,8 @@ async function run(browser, scheme) {
   // chuyển dữ liệu bản lưu trên máy
   await p2.evaluate((d) => localStorage.setItem("ontap_db_v1", JSON.stringify(d)), localData());
   await p2.goto(BASE + "/#/admin/data"); await wait(p2);
+  c.migHint = /Trên iPhone, iPad: hãy chuyển trong Safari, nơi đang có dữ liệu, trước khi dùng app ở Màn hình chính/.test(await text(p2, "#migBox"));
+  c.noHomeScreen = !(await p2.$("#homeScreen")); // hướng dẫn Màn hình chính (L17) chỉ ở bản lưu trên máy
   await p2.click("#dMigrate"); await p2.waitForSelector("#migRes .fb");
   c.migrate = await text(p2, "#migRes");
   await shot(p2, "c14-du-lieu");
@@ -252,6 +254,7 @@ async function run(browser, scheme) {
     "báo cáo tuần đọc kết quả từ máy chủ": c.report.n === 1 && c.report.subj === "Toán",
     "đổi mật khẩu: sai mật khẩu hiện tại thì báo": /hiện tại chưa đúng/.test(c.wrongOld) && c.pwChanged,
     "chuyển dữ liệu máy này: 1 hồ sơ con, 1 kết quả; PIN cũ dùng được": /1 hồ sơ con mới, 1 kết quả/.test(c.migrate) && c.bong,
+    "chuyển dữ liệu: nhắc iPhone, iPad chuyển trong Safari; không có hướng dẫn Màn hình chính của bản trên máy": c.migHint && c.noHomeScreen,
     "đăng xuất: xóa phiên, tải lại vẫn ở trang đăng nhập": c.signedOut,
     "không ghi nhớ: tab mới phải đăng nhập lại": c.notRemembered,
     "tài khoản bị khóa: màn hình báo khóa có dòng liên hệ; đăng nhập bị từ chối": /đang bị khóa/.test(c.locked) && /Nhắn Zalo/.test(c.locked) && /đang bị khóa/.test(c.lockedLogin),

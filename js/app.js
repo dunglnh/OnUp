@@ -76,22 +76,29 @@
      Bản lưu trên máy ghi lúc sao lưu xong (settings.lastBackupAt). Quá 7 ngày chưa sao lưu, hoặc chưa sao lưu lần nào
      mà đã có kết quả làm bài, thì trang chủ của quản trị và phụ huynh hiện thẻ nhắc. Bản đám mây không nhắc.
      backupNow() → Promise: "share" | "download" khi đã sao lưu, false khi người dùng bấm hủy.
-     - Máy cảm ứng chia sẻ được file (iPhone, iPad): mở bảng chia sẻ (lưu vào Tệp, gửi Zalo…), vì app mở từ Màn hình chính
-       trên iOS có thể không lưu được file tải bằng <a download>. Chỉ ghi lastBackupAt khi chia sẻ xong; hủy thì không ghi, không báo.
-       Máy tính bỏ qua bảng chia sẻ (trên Mac bảng này không có chỗ lưu file); Chrome trên Android không chia sẻ được file .json.
-     - Máy khác: tải file như thường và ghi lastBackupAt ngay.
-     Trình duyệt chỉ cho chia sẻ trong lúc người dùng đang bấm, nên gọi backupNow() ngay trong sự kiện bấm nút. */
+     - Bản lưu trên máy, máy cảm ứng chia sẻ được file (iPhone, iPad): mở bảng chia sẻ (lưu vào Tệp, gửi Zalo…), vì app mở từ
+       Màn hình chính trên iOS có thể không lưu được file tải bằng <a download>. Chỉ ghi lastBackupAt khi chia sẻ xong; hủy thì
+       không ghi, không báo. Máy tính bỏ qua bảng chia sẻ (trên Mac bảng này không có chỗ lưu file); Chrome trên Android không
+       chia sẻ được file .json.
+     - Còn lại (cả bản đám mây): tải file như thường và ghi lastBackupAt ngay.
+     Trình duyệt chỉ cho chia sẻ trong lúc người dùng đang bấm, nên gọi backupNow() ngay trong sự kiện bấm nút.
+     Bảng chia sẻ đang mở thì bỏ qua lần bấm sau (bấm hai lần liền), để lần đó không bị coi là đã sao lưu. */
+  let sharing = false;
   function backupNow() {
+    if (sharing) return Promise.resolve(false);
     const d = new Date(), name = `on-thi-sao-luu-${isoDay(d)}.json`, text = Store.exportJSON();
     const done = (how) => { if (!Store.cloud) Store.setSettings({ lastBackupAt: d.toISOString() }); return how; };
     const save = () => { download(name, text); return done("download"); };
     let file = null;
-    try {
+    if (!Store.cloud) try {
       const f = new File([text], name, { type: "application/json" });
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [f] }) && matchMedia("(any-pointer: coarse)").matches) file = f;
     } catch (e) { /* trình duyệt cũ: tải file như thường */ }
     if (!file) return Promise.resolve(save());
-    return navigator.share({ files: [file], title: "File sao lưu OnUp" }).then(() => done("share"), (e) => (e && e.name === "AbortError" ? false : save()));
+    sharing = true;
+    return navigator.share({ files: [file], title: "File sao lưu OnUp" })
+      .then(() => done("share"), (e) => (e && e.name === "AbortError" ? false : save()))
+      .finally(() => (sharing = false));
   }
   function backupDue() {
     if (Store.cloud) return null;
@@ -885,6 +892,7 @@
         <section class="panel" id="migBox"><h3>Chuyển dữ liệu máy này lên đám mây</h3>
           ${loc ? `<p class="small">Trình duyệt này còn dữ liệu của bản lưu trên máy: ${kids} học sinh, ${(loc.results || []).length} kết quả.${mig ? ` Đã chuyển lần gần nhất: ${esc(ago(mig))}.` : ""}</p>`
             : `<p class="small">Trình duyệt này không có dữ liệu cũ. Nếu dữ liệu nằm ở máy khác: đăng nhập tài khoản này trên máy đó rồi bấm nút chuyển ở đó; hoặc chọn file sao lưu đã tải từ bản lưu trên máy.</p>`}
+          <p class="small">Trên iPhone, iPad: hãy chuyển trong Safari, nơi đang có dữ liệu, trước khi dùng app ở Màn hình chính.</p>
           <p class="small muted">Mỗi học sinh thành một hồ sơ con, giữ mã PIN cũ, kết quả và tiến độ bài ôn; lịch thi và ngân hàng đề tự nhập cũng được chuyển. Tài khoản quản trị, phụ huynh của bản trên máy không cần chuyển. Chuyển lại nhiều lần không bị trùng.</p>
           <div class="row"><button class="btn main sm" id="dMigrate" ${loc ? "" : "disabled"}>Chuyển dữ liệu máy này lên đám mây</button><label class="btn ghost sm" for="dMigFile">Chuyển từ file sao lưu</label><input type="file" id="dMigFile" accept=".json,application/json" hidden></div>
           <div id="migRes" aria-live="polite"></div></section>
@@ -903,12 +911,12 @@
         <section class="panel" id="homeScreen"><h3>Thêm vào Màn hình chính</h3>
           ${standalone() ? `<div class="fb ok">Máy này đang mở app từ Màn hình chính.</div>` : ""}
           <p class="small">App có biểu tượng riêng như một ứng dụng, mở được cả khi mất mạng. Trên iPhone, iPad, Safari có thể xóa dữ liệu của trang không được mở trong 7 ngày; app đã thêm vào Màn hình chính thì không bị xóa.</p>
-          <p class="small"><b>Trên iPhone, iPad, app ở Màn hình chính không dùng chung dữ liệu với Safari.</b> Đã dùng app trong Safari thì chuyển dữ liệu sang như sau:</p>
-          <ol class="tips small"><li>Trong Safari, bấm “Tải file sao lưu” ở trên và cất file vào ứng dụng Tệp hoặc Zalo.</li>
-            <li>Thêm vào Màn hình chính: bấm nút Chia sẻ (ô vuông có mũi tên lên) → “Thêm vào MH chính”.</li>
+          <p class="small"><b>Trên iPhone, iPad, app ở Màn hình chính không dùng chung dữ liệu với Safari.</b> Đã dùng trong Safari thì chuyển sang như sau:</p>
+          <ol class="tips small"><li>Trong Safari, bấm “Tải file sao lưu” ở trên, cất file vào Tệp hoặc Zalo.</li>
+            <li>Bấm nút Chia sẻ (ô vuông có mũi tên lên) → “Thêm vào MH chính”.</li>
             <li>Mở app từ biểu tượng mới, chọn “Khôi phục từ file sao lưu”.</li>
-            <li>Từ đó về sau, chỉ dùng app ở Màn hình chính.</li></ol>
-          <p class="small"><b>Android (Chrome):</b> bấm menu ⋮ → “Thêm vào màn hình chính” (có máy ghi “Cài đặt ứng dụng”). App ở Màn hình chính dùng chung dữ liệu với Chrome nên không cần chuyển.</p></section>
+            <li>Từ đó chỉ dùng app ở Màn hình chính.</li></ol>
+          <p class="small"><b>Android (Chrome):</b> menu ⋮ → “Thêm vào màn hình chính” (có máy ghi “Cài đặt ứng dụng”). Dùng chung dữ liệu với Chrome, không cần chuyển.</p></section>
         <section class="panel"><h3>Xóa toàn bộ dữ liệu</h3><p class="small">Xóa mọi tài khoản, kết quả và lịch đã sửa trên máy này. Không hoàn tác được.</p>
           <div class="row"><button class="btn danger sm" id="dWipe">Xóa toàn bộ…</button></div><div id="wipeArea"></div></section>`;
     }
