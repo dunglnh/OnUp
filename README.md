@@ -6,7 +6,7 @@ Có lịch thi năm học 2026–2027, đề luyện giữa kì và IOE, ngân h
 - Mô tả tính năng: [docs/TINH-NANG.md](docs/TINH-NANG.md)
 - Kế hoạch và lộ trình phát triển (đang tạm dừng để chạy thử): [docs/KE-HOACH-PHAT-TRIEN-ONUP.md](docs/KE-HOACH-PHAT-TRIEN-ONUP.md)
 - Lỗi cơ bản tìm được khi dùng thử và lời giao việc sửa (Phiên 9a–9d): [docs/SUA-LOI-CHAY-THU.md](docs/SUA-LOI-CHAY-THU.md)
-- Thiết kế khung tài khoản và trang admin (sắp làm): [docs/THIET-KE-TAI-KHOAN.md](docs/THIET-KE-TAI-KHOAN.md)
+- Thiết kế khung tài khoản và trang admin: [docs/THIET-KE-TAI-KHOAN.md](docs/THIET-KE-TAI-KHOAN.md)
 - Hướng dẫn cho Claude khi sửa code: [CLAUDE.md](CLAUDE.md)
 - Bật đồng bộ đám mây (Supabase), từng bước: [docs/HUONG-DAN-SUPABASE.md](docs/HUONG-DAN-SUPABASE.md)
 
@@ -23,7 +23,7 @@ Lần đầu mở app: tạo tài khoản quản trị → thêm phụ huynh, h�
 ## Đồng bộ đám mây (tùy chọn)
 Mặc định (`js/config.js` để trống) app lưu dữ liệu trong trình duyệt của từng máy, mở lại được cả khi không có mạng (sau lần mở đầu). Nhớ vào Quản trị → Dữ liệu để tải file sao lưu định kì (quá 7 ngày app sẽ nhắc), và thêm app vào Màn hình chính trên iPhone, iPad để Safari không xóa dữ liệu.
 
-Bản đám mây (Supabase) đang được làm lại theo [docs/THIET-KE-TAI-KHOAN.md](docs/THIET-KE-TAI-KHOAN.md): chủ app tạo tài khoản cho từng gia đình, phụ huynh đăng nhập bằng tên đăng nhập + mật khẩu, con là hồ sơ trong tài khoản của bố mẹ. Máy chủ và màn hình đăng nhập, “Ai đang học?”, khu phụ huynh đã xong, cài theo [docs/HUONG-DAN-SUPABASE.md](docs/HUONG-DAN-SUPABASE.md); trang admin của chủ app đang làm (trong lúc chờ thì tạo tài khoản gia đình bằng tay theo hướng dẫn).
+Bản đám mây (Supabase) theo [docs/THIET-KE-TAI-KHOAN.md](docs/THIET-KE-TAI-KHOAN.md): chủ app tạo tài khoản cho từng gia đình ở trang admin (`admin.html`), phụ huynh đăng nhập bằng tên đăng nhập + mật khẩu, con là hồ sơ trong tài khoản của bố mẹ. Cài theo [docs/HUONG-DAN-SUPABASE.md](docs/HUONG-DAN-SUPABASE.md).
 
 ## Kiểm thử
 ```bash
@@ -31,6 +31,6 @@ python3 -m http.server 8000 &
 npm i -D playwright && node tests/e2e.js     # bản lưu trên máy, phải in E2E OK
 node tests/supabase/admin-test.mjs           # Edge Function admin trên máy chủ giả, không cần mạng
 node tests/supabase/store-test.mjs           # SupabaseStore: đăng nhập, hồ sơ con, kết quả… trên máy chủ giả
-node tests/supabase/cloud-e2e.js             # giao diện bản đám mây trong Chromium, máy chủ giả
+node tests/supabase/cloud-e2e.js             # giao diện bản đám mây và trang admin trong Chromium, máy chủ giả
 sh tests/supabase/run.sh                     # schema.sql + RLS trên PostgreSQL thật (cần cài PostgreSQL)
 ```

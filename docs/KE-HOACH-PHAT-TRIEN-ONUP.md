@@ -1,7 +1,7 @@
 # Kế hoạch phát triển OnUp
 
 > **Trạng thái (16/10/2026): đang chạy thử với học sinh.** Trang vẫn chạy bình thường ở https://dunglnh.github.io/OnUp/.
-> **Ưu tiên số 1 mới:** khung quản lý tài khoản (tên đăng nhập + mật khẩu, hồ sơ con, trang admin, khối lớp 1–12 dùng chung). Chưa làm bản trả phí — chỉ tính khi app có đủ đề lớp 4–12. Thiết kế và lời giao việc: [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md) (Phiên A, B, C).
+> **Khung quản lý tài khoản đã xong** (tên đăng nhập + mật khẩu, hồ sơ con, trang admin, khối lớp 1–12 dùng chung; Phiên A, B, C). Chưa làm bản trả phí — chỉ tính khi app có đủ đề lớp 4–12. Thiết kế: [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 
 ## 1. Tình hình hiện tại
 
@@ -32,7 +32,7 @@ Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp tr
 1. Cho con dùng hằng ngày trên máy quen; mỗi tuần tải file sao lưu (Quản trị → Dữ liệu).
 2. Khi trường báo lịch chính thức, sửa ngày trong Quản trị → Lịch thi.
 3. **Ghi góp ý vào GitHub Issues** (repo → Issues → New issue), mỗi vấn đề một issue, kèm ảnh chụp màn hình nếu có. Ví dụ: “Câu 7 đề Toán 4 số 2 sai đáp án”, “Nút Kiểm tra khó bấm trên điện thoại”.
-4. Bản đám mây đang làm lại (Phiên A, B, C). Phiên A (máy chủ) và Phiên B (màn hình đăng nhập, “Ai đang học?”, khu phụ huynh) đã xong: cài theo `docs/HUONG-DAN-SUPABASE.md`, trong lúc chưa có trang admin (Phiên C) thì tạo tài khoản gia đình bằng tay theo bước 6 của hướng dẫn. Lưu ý `main` đang được bảo vệ: khi sửa `js/config.js` trên GitHub, chọn “Create a new branch… and start a pull request”, rồi tự Merge.
+4. Bản đám mây (Phiên A, B, C) đã xong: máy chủ, màn hình đăng nhập, “Ai đang học?”, khu phụ huynh, và trang admin `admin.html` để tạo tài khoản gia đình (bước 6 của `docs/HUONG-DAN-SUPABASE.md`). Lưu ý `main` đang được bảo vệ: khi sửa `js/config.js` trên GitHub, chọn “Create a new branch… and start a pull request”, rồi tự Merge.
 
 ## 3. Lộ trình khi làm tiếp
 
@@ -41,9 +41,8 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | Ưu tiên | Nên xong trước | Phiên | Phục vụ |
 |---|---|---|---|
 | 1 | 1/11 | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** (GitHub Issues) | Giữa kì I (2–13/11) |
-| 2 | 10/12 | **Phiên C · Trang admin** | Khung tài khoản, kịp mùa ôn cuối kì I |
-| 3 | 1/3 | **Phiên 15 · Đề giữa kì II lớp 6** (Toán, Ngữ văn, KHTN, Tiếng Anh) | Giữa kì II (15–26/3) |
-| 4 | 10/4 | **Phiên 16–17 · Đề cuối năm** lớp 4 và lớp 6 | Cuối năm (26/4–14/5) |
+| 2 | 1/3 | **Phiên 15 · Đề giữa kì II lớp 6** (Toán, Ngữ văn, KHTN, Tiếng Anh) | Giữa kì II (15–26/3) |
+| 3 | 10/4 | **Phiên 16–17 · Đề cuối năm** lớp 4 và lớp 6 | Cuối năm (26/4–14/5) |
 | — | — | ~~Phiên 10 · Đề cuối kì I lớp 6 còn thiếu~~ (đã xong, PR #13) | |
 | — | — | ~~Phiên 11 · Đề cuối kì I lớp 4 còn thiếu~~ (đã xong, PR #14) | |
 | — | — | ~~Phiên 12 · Báo cáo tuần cho phụ huynh~~ (đã xong, PR #15) | |
@@ -55,6 +54,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | — | — | ~~Phiên 9c · Chạy khi mất mạng, nhắc sao lưu~~ (đã xong, PR #23) | |
 | — | — | ~~Phiên B · App: đăng nhập, chọn hồ sơ, khu phụ huynh, khối lớp chung~~ (đã xong, PR #25) | |
 | — | — | ~~Phiên 9d · Lỗi phát sinh sau rà soát 17/10~~ (đã xong, PR #29; bố mẹ thử L17 trên iPhone) | |
+| — | — | ~~Phiên C · Trang admin~~ (đã xong) | |
 
 **Để sau, chỉ làm khi có nhu cầu thật:** nhập đề từ Excel (Phiên 6 cũ); tự đăng ký, email để tự lấy lại mật khẩu, tài khoản giáo viên/lớp học (mục 7 bản thiết kế); đề các khối khác (lớp 5, 7–12); **bản trả phí** khi đã có đủ đề lớp 4–12 (hướng đi ở mục 9 bản thiết kế). Việc “bắt buộc đổi PIN cũ” không còn cần vì cách đăng nhập mới bỏ PIN học sinh trên máy chủ.
 
