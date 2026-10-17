@@ -64,6 +64,34 @@
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
 
+  /* ---------------- sao lưu ----------------
+     Bản lưu trên máy ghi lúc tải file sao lưu (settings.lastBackupAt). Quá 7 ngày chưa sao lưu, hoặc chưa sao lưu lần nào
+     mà đã có kết quả làm bài, thì trang chủ của quản trị và phụ huynh hiện thẻ nhắc. Bản đám mây không nhắc. */
+  function backupNow() {
+    const d = new Date();
+    if (!Store.cloud) Store.setSettings({ lastBackupAt: d.toISOString() });
+    download(`on-thi-sao-luu-${isoDay(d)}.json`, Store.exportJSON());
+  }
+  function backupDue() {
+    if (Store.cloud) return null;
+    const last = Date.parse(Store.settings().lastBackupAt || "");
+    if (!last) return Store.data().results.length ? "Chưa sao lưu lần nào" : null;
+    return Date.now() - last > 7 * DAY ? `Đã ${Math.floor((Date.now() - last) / DAY)} ngày chưa sao lưu` : null;
+  }
+  function backupCard() {
+    const due = backupDue();
+    return due ? `<section class="panel remind" id="backupRemind"><b>${esc(due)}</b>
+      <span class="small">Dữ liệu chỉ nằm trên trình duyệt của máy này, có thể mất khi xóa lịch sử duyệt web hoặc lâu không mở app (iPhone, iPad). Tải file sao lưu rồi cất vào Zalo, Google Drive hoặc email.</span>
+      <div class="row"><button class="btn main sm" id="backupNow">Tải file sao lưu</button></div></section>` : "";
+  }
+  const lastBackupTxt = () => { const s = Store.settings().lastBackupAt; return s ? "Lần sao lưu gần nhất: " + ago(s) + "." : "Máy này chưa sao lưu lần nào."; };
+  /* Đang mở app từ Màn hình chính (không phải từ trình duyệt). */
+  const standalone = () => { try { return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch (e) { return false; } };
+  function wireBackupCard() {
+    const b = $("#backupNow");
+    if (b) b.onclick = () => { backupNow(); $("#backupRemind").remove(); toast("Đã tải file sao lưu"); };
+  }
+
   /* ---------------- chốt rời trang ----------------
      Đang làm bài (đề ngân hàng chưa nộp, bài ôn trong khung đã chạm vào) thì rời màn hình phải qua hộp hỏi lại:
      - link và nút trong app (go(), thẻ <a href="#…">, kể cả "Lịch thi" và nút tài khoản trên thanh đầu): hỏi trước khi đổi hash;
@@ -612,6 +640,7 @@
     const kids = Store.childrenOf(p.id);
     view.innerHTML = `<div class="stack">
       <div><h2>Chào ${esc(p.name)}</h2><span class="muted">Theo dõi việc ôn thi của con.</span></div>
+      ${backupCard()}
       <section class="sec"><div class="row between"><h2>Con của tôi</h2><button class="btn sm" id="addKid">+ Thêm con</button></div>
         ${kids.length ? `<div class="list">${kids.map(childCard).join("")}</div>` : `<div class="panel muted">Chưa có tài khoản con. Bấm “Thêm con” để tạo, hoặc nhờ quản trị viên gắn tài khoản của con vào.</div>`}</section>
       ${[4, 6].filter((g) => kids.some((k) => k.grade === g)).map((g) => `<section class="sec"><div class="row between"><h2>Lịch thi lớp ${g}</h2><a class="linkbtn" href="#/calendar">Cả năm →</a></div><div class="timeline">${Store.events(g).filter((e) => status(e) !== "past").slice(0, 4).map((e) => eventRow(e, { grade: g })).join("")}</div></section>`).join("")}
@@ -620,6 +649,7 @@
     </div>`;
     $$("[data-child]").forEach((b) => (b.onclick = () => go("#/child/" + b.dataset.child)));
     $("#addKid").onclick = () => go("#/admin/user/new?role=student");
+    wireBackupCard();
     wireEvents(view, null, null);
   }
 
@@ -767,6 +797,7 @@
       const studs = Store.users("student");
       body = `<div class="stats"><div class="stat"><b>${studs.length}</b><span>học sinh</span></div><div class="stat"><b>${Store.users("parent").length}</b><span>phụ huynh</span></div><div class="stat"><b>${within(Store.data().results, 7).length}</b><span>bài làm 7 ngày qua</span></div></div>
         ${!Store.persistent() ? `<div class="fb bad">Trình duyệt đang chặn lưu dữ liệu. Dữ liệu sẽ mất khi tải lại trang.</div>` : ""}
+        ${backupCard()}
         ${famCodeBox()}
         <section class="sec"><h2>Học sinh</h2>${studs.length ? `<div class="list">${studs.map(childCard).join("")}</div>` : `<div class="panel">Chưa có học sinh. <div class="row"><a class="btn main" href="#/admin/user/new?role=student">Thêm học sinh</a></div></div>`}</section>
         ${[4, 6].map((g) => { const n = nextEvent(g); return n ? `<section class="sec"><h2>Kì thi tiếp theo · Lớp ${g}</h2><div class="timeline">${eventRow(n, { grade: g })}</div></section>` : ""; }).join("")}`;
@@ -807,12 +838,19 @@
           <div class="row"><button class="btn sm" id="dSave">Lưu</button></div></section>
         <section class="panel"><h3>Sao lưu và chuyển máy</h3>
           <p class="small">Dữ liệu đang nằm trên trình duyệt của máy này. Tải file sao lưu mỗi tuần; muốn dùng trên máy khác thì mở app ở máy đó và chọn “Khôi phục từ file”.</p>
+          <p class="small" id="dLast">${lastBackupTxt()}</p>
           <div class="row"><button class="btn main sm" id="dExport">Tải file sao lưu</button><label class="btn ghost sm" for="dImport">Khôi phục từ file</label><input type="file" id="dImport" accept=".json,application/json" hidden></div></section>
+        <section class="panel" id="homeScreen"><h3>Thêm vào Màn hình chính</h3>
+          ${standalone() ? `<div class="fb ok">Máy này đang mở app từ Màn hình chính.</div>` : ""}
+          <p class="small">App có biểu tượng riêng như một ứng dụng, mở được cả khi mất mạng. Trên iPhone, iPad, Safari có thể xóa dữ liệu của trang không được mở trong 7 ngày; app đã thêm vào Màn hình chính thì không bị xóa.</p>
+          <ul class="tips small"><li><b>iPhone, iPad (Safari):</b> bấm nút Chia sẻ (ô vuông có mũi tên lên) → “Thêm vào MH chính”.</li>
+            <li><b>Android (Chrome):</b> bấm menu ⋮ → “Thêm vào màn hình chính” (có máy ghi “Cài đặt ứng dụng”).</li></ul></section>
         <section class="panel"><h3>Xóa toàn bộ dữ liệu</h3><p class="small">Xóa mọi tài khoản, kết quả và lịch đã sửa trên máy này. Không hoàn tác được.</p>
           <div class="row"><button class="btn danger sm" id="dWipe">Xóa toàn bộ…</button></div><div id="wipeArea"></div></section>`;
     }
     view.innerHTML = `<div class="stack"><div><h2>Quản trị</h2><span class="muted">${esc(Store.settings().schoolName || "")}</span></div>${adminTabs(tab)}${body}</div>`;
     wireGo();
+    wireBackupCard();
     $$("[data-child]").forEach((b) => (b.onclick = () => go("#/child/" + b.dataset.child)));
     wireEvents(view, null, null);
     if (tab === "events") $("#resetEv").onclick = () => {
@@ -822,7 +860,7 @@
     };
     if (tab === "data") {
       $("#dSave").onclick = () => { Store.setSettings({ schoolName: $("#dSchool").value.trim(), schoolYear: $("#dYear").value.trim() }); toast("Đã lưu"); };
-      $("#dExport").onclick = () => { const d = new Date(); download(`on-thi-sao-luu-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}.json`, Store.exportJSON()); };
+      $("#dExport").onclick = () => { backupNow(); if ($("#dLast")) $("#dLast").textContent = lastBackupTxt(); };
       if ($("#dImport")) $("#dImport").onchange = (e) => importFile(e.target.files[0], () => go("#/"));
       if (Store.cloud) wireCloudData();
       $("#dWipe").onclick = () => {
