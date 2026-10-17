@@ -101,6 +101,21 @@ async function run(browser, scheme) {
   const pad = async (page, digits) => { for (const k of digits) await page.click(`.pad button[data-k="${k}"]`); await wait(page, 300); };
   const until = async (page, fn) => { for (let i = 0; i < 40 && !fn(); i++) await wait(page, 100); return fn(); };
   const c = {};
+  /* Nút xem mật khẩu, mã PIN (U1), như revealTry trong tests/e2e.js: ô (đã có chữ) có nút ngay sau nó; bấm thì type="text",
+     aria-pressed="true", bấm lại thì ẩn; giá trị, focus, vị trí con trỏ, autocomplete giữ nguyên. Chỗ sai ghi vào rv. */
+  const rv = [];
+  const eye = (page, sel) => page.click(sel + " + .reveal-btn");
+  const types = (page, ...sels) => Promise.all(sels.map((x) => page.$eval(x, (i) => i.type))).then((t) => t.join());
+  async function revealTry(page, sel, what) {
+    const st = () => page.$eval(sel, (i) => { const b = i.nextElementSibling; return { type: i.type, btn: !!b && b.matches("button.reveal-btn[type=button]") && !!b.querySelector("svg"), pressed: b && b.getAttribute("aria-pressed"), label: b && b.getAttribute("aria-label"), value: i.value, focus: document.activeElement === i, caret: i.selectionStart, mode: i.getAttribute("inputmode"), ac: i.getAttribute("autocomplete") }; });
+    await page.focus(sel); await page.$eval(sel, (i) => i.setSelectionRange(1, 1));
+    const a = await st(); await eye(page, sel);
+    const b = await st(); await eye(page, sel);
+    const d = await st();
+    const good = (x, type, pressed, verb) => x.btn && x.type === type && x.pressed === pressed && x.label === verb + " " + what && x.value === a.value && x.focus && x.caret === 1 && x.mode === a.mode && x.ac === a.ac;
+    if (!a.value || !good(a, "password", "false", "Hiện") || !good(b, "text", "true", "Ẩn") || !good(d, "password", "false", "Hiện")) rv.push(sel + ": " + JSON.stringify([a, b, d]));
+  }
+  const rvIs = (ok, msg) => { if (!ok) rv.push(msg); };
 
   /* ---- máy của gia đình: đăng nhập (ghi nhớ), đổi mật khẩu tạm ---- */
   const home = await device();
@@ -110,13 +125,19 @@ async function run(browser, scheme) {
   await shot(p, "c1-dang-nhap");
   c.contact = await p.$eval("#contact a", (a) => a.getAttribute("href") + " · " + a.textContent).catch(() => "");
   await p.fill("#lUser", "nha.bin"); await p.fill("#lPass", "sai-mat-khau");
+  await revealTry(p, "#lPass", "mật khẩu");
+  await eye(p, "#lPass"); await shot(p, "c1-dang-nhap-hien-mat-khau");
   await p.click("#lGo"); await p.waitForSelector("#loginErr .fb");
   c.wrong = await text(p, "#loginErr");
+  rvIs((await types(p, "#lPass")) === "password", "đăng nhập: gửi sai vẫn hiện"); // gửi form: ẩn lại
   await p.fill("#lUser", "Nha.Bin"); await p.fill("#lPass", TEMP); await p.check("#lRemember");
   await p.click("#lGo"); await p.waitForSelector("#npForm");
   await shot(p, "c2-doi-mat-khau-tam");
-  await p.fill("#pwNew", PW); await p.fill("#pwNew2", PW + "x"); await p.click("#npForm [type=submit]");
+  await p.fill("#pwNew", PW); await p.fill("#pwNew2", PW + "x");
+  for (const x of ["#pwNew", "#pwNew2"]) await revealTry(p, x, "mật khẩu");
+  await eye(p, "#pwNew"); await eye(p, "#pwNew2"); await p.click("#npForm [type=submit]");
   c.mismatch = await text(p, "#pwErr");
+  rvIs((await types(p, "#pwNew", "#pwNew2")) === "password,password", "đặt mật khẩu mới: gửi sai vẫn hiện");
   await p.fill("#pwNew2", PW); await p.click("#npForm [type=submit]");
   await p.waitForSelector("text=Khu phụ huynh");
   c.changed = !be.T.families.find((f) => f.username === "nha.bin").must_change_password;
@@ -128,6 +149,7 @@ async function run(browser, scheme) {
   c.grades = await p.$$eval("#uGrade option", (o) => o.map((x) => x.value).join());
   await shot(p, "c4-them-ho-so-con");
   await p.fill("#uName", "Bin"); await p.selectOption("#uGrade", "4"); await p.fill("#uClass", "4A"); await p.fill("#uPin", "1357");
+  await revealTry(p, "#uPin", "mã PIN");
   await p.click("#uForm [type=submit]"); await p.waitForSelector("text=Hồ sơ con (1/5)");
   await p.goto(BASE + "/#/admin/user/new?role=student"); await p.waitForSelector("#uForm");
   await p.fill("#uName", "Na"); await p.selectOption("#uGrade", "6");
@@ -199,8 +221,10 @@ async function run(browser, scheme) {
   c.preselect = await p2.$eval(`.tile[aria-pressed="true"] .nm`, (x) => x.textContent).catch(() => ""); // máy nhớ hồ sơ chọn gần nhất (Na, không PIN: không tự vào)
   await tile(p2, "Phụ huynh"); await p2.waitForSelector("#pwBox:not([hidden])");
   await shot(p2, "c10-mat-khau-phu-huynh");
-  await p2.fill("#pwIn", "sai-mat-khau"); await p2.click("#pwGo"); await p2.waitForSelector("#pwErr .fb");
+  await p2.fill("#pwIn", "sai-mat-khau"); await revealTry(p2, "#pwIn", "mật khẩu");
+  await eye(p2, "#pwIn"); await p2.click("#pwGo"); await p2.waitForSelector("#pwErr .fb");
   c.wrongPw = await text(p2, "#pwErr");
+  rvIs((await types(p2, "#pwIn")) === "password", "mật khẩu phụ huynh: gửi sai vẫn hiện");
   await p2.fill("#pwIn", PW); await p2.click("#pwGo"); await p2.waitForSelector("text=Khu phụ huynh");
   await p2.click(`[data-child="${binId}"]`); await p2.waitForSelector("#toReport");
   await shot(p2, "c11-ho-so-cua-con");
@@ -210,9 +234,12 @@ async function run(browser, scheme) {
   // đổi mật khẩu
   await p2.goto(BASE + "/#/account"); await p2.waitForSelector("#pwForm");
   await shot(p2, "c13-tai-khoan-phu-huynh");
-  await p2.fill("#pwOld", "sai-mat-khau"); await p2.fill("#pwNew", PW2); await p2.fill("#pwNew2", PW2); await p2.click("#pwForm [type=submit]");
+  await p2.fill("#pwOld", "sai-mat-khau"); await p2.fill("#pwNew", PW2); await p2.fill("#pwNew2", PW2);
+  await revealTry(p2, "#pwOld", "mật khẩu"); await eye(p2, "#pwOld");
+  await p2.click("#pwForm [type=submit]");
   await p2.waitForSelector("#pwErr .fb");
   c.wrongOld = await text(p2, "#pwErr");
+  rvIs((await types(p2, "#pwOld", "#pwNew", "#pwNew2")) === "password,password,password", "đổi mật khẩu: gửi sai vẫn hiện");
   await p2.fill("#pwOld", PW); await p2.click("#pwForm [type=submit]"); await p2.waitForSelector("text=Đã đổi mật khẩu");
   c.pwChanged = true;
   // chuyển dữ liệu bản lưu trên máy
@@ -288,8 +315,13 @@ async function run(browser, scheme) {
   ad.noPerm = await text(a, "#noPerm");
   await shot(a, "c17-admin-khong-co-quyen");
   await a.click("#npOut"); await a.waitForSelector("#adLogin");
-  await a.fill("#adUser", "chu.app"); await a.fill("#adPass", "sai-mat-khau"); await a.click("#adGo"); await a.waitForSelector("#adErr .fb");
+  await a.fill("#adUser", "chu.app"); await a.fill("#adPass", "sai-mat-khau");
+  await revealTry(a, "#adPass", "mật khẩu"); await eye(a, "#adPass");
+  await a.click("#adGo"); await a.waitForSelector("#adErr .fb");
   ad.wrong = await text(a, "#adErr");
+  rvIs((await types(a, "#adPass")) === "password", "admin: gửi sai vẫn hiện");
+  await a.fill("#adPass", "abc"); await eye(a, "#adPass"); await a.fill("#adPass", ""); // xóa hết ô: ẩn lại
+  rvIs((await types(a, "#adPass")) === "password", "admin: xóa hết ô vẫn hiện");
   await a.fill("#adPass", OWNER_PW); await a.click("#adGo"); await a.waitForSelector("#accList .list");
   ad.captcha = withCaptcha ? await a.evaluate(() => window.turnstile.boxes.join()) : "";
   ad.session = await a.evaluate(() => !!sessionStorage.getItem("onup_admin_auth") && !localStorage.getItem("onup_admin_auth") && !localStorage.getItem("ontap_sb_auth") && !sessionStorage.getItem("ontap_sb_auth"));
@@ -362,7 +394,7 @@ async function run(browser, scheme) {
   const libOf = (f) => { const s = fs.readFileSync(path.join(__dirname, "..", "..", f), "utf8"); return [(/src:\s*"(https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/[^"]+)"/.exec(s) || [])[1], (/integrity:\s*"([^"]+)"/.exec(s) || [])[1]].join(" "); };
   ad.lib = /supabase-js@[\d.]+\/.* sha384-/.test(libOf("admin.html")) && libOf("admin.html") === libOf("js/store-supabase.js");
 
-  console.log(scheme, c, captchaBoxes, ad);
+  console.log(scheme, c, captchaBoxes, ad, "reveal (U1):", rv);
   const checks = {
     "đăng nhập: dòng “Quên mật khẩu?” lấy chữ và đường liên hệ từ js/config.js": c.contact === CONTACT + " · Nhắn Zalo cho cô Lan",
     "sai mật khẩu: báo rõ": /Tên đăng nhập hoặc mật khẩu chưa đúng/.test(c.wrong),
@@ -403,6 +435,7 @@ async function run(browser, scheme) {
       && ad.log === "Mở khóa · nha.bin | Xóa tài khoản · nha.tom | Khóa tài khoản · nha.tom | Đặt lại mật khẩu · nha.tom | Tạo tài khoản · nha.tom | Tạo tài khoản · nha.na | Khóa tài khoản · nha.bin | Tạo tài khoản · nha.bin",
     "admin: đăng xuất; CAPTCHA (khi bật) khi đăng nhập": ad.out && (!withCaptcha || ad.captcha === "adCaptcha,adCaptcha,adCaptcha"),
     "admin: không đi qua service worker; cùng bản supabase-js với trang học": ad.swSkip && ad.lib,
+    "U1: nút xem mật khẩu, mã PIN (lPass, pwNew, pwNew2, pwIn, uPin, pwOld, adPass): hiện, ẩn, giữ giá trị và focus; gửi form, xóa hết ô thì ẩn lại": rv.length === 0,
     "360px: không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px": problems.length === 0,
     "không lỗi trên trang": errs.length === 0
   };

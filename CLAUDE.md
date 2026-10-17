@@ -68,7 +68,7 @@ App còn **đọc** (không ghi) DOM của khung để biết học sinh đang l
 ### Chốt rời trang, khóa PIN (js/app.js)
 - Màn hình có bài đang làm dở đặt biến `guard` (xem chú thích "chốt rời trang"): mọi cách rời màn hình (link, `go()`, nút Back, tải lại) đều hỏi lại trước. Hiện có ở đề ngân hàng và bài ôn trong khung, chỉ với học sinh. Đề ngân hàng chưa trả lời câu nào thì hỏi “Thoát đề?” và không lưu điểm; bài ôn trong khung chỉ hỏi khi trong khung có `#endBtn`/`#yesEnd`. Màn hình mới có việc làm dở thì đặt `guard` trong hàm vẽ màn hình; `route()` tự bỏ. Chuyển màn hình luôn đi qua `go()` hoặc link `#/…`, không gọi `route()` trực tiếp khi đang làm bài.
 - `PinLock`: sai PIN 5 lần thì phải đợi (30 giây, 1 phút, 5 phút, rồi 15 phút), lưu theo mã người dùng ở localStorage khóa `ontap_pinlock_v1`. Chỉ làm đoán mò tốn thời gian, không phải bảo mật thật.
-- Bàn phím PIN (`wirePinBox`) tự kiểm tra khi gõ đủ `pinLen` số. Tài khoản cũ chưa có `pinLen` thì đủ 4 số thử lặng lẽ (sai không báo, không tính; tối đa 5 lượt mỗi người, `PinLock.probe`), rồi chờ đủ 6 số hoặc bấm Vào.
+- Bàn phím PIN (`wirePinBox`) tự kiểm tra khi gõ đủ `pinLen` số; bấm nút xem (`wireReveal`) thì hàng chấm `#pinDots` hiện chữ số đã gõ. Tài khoản cũ chưa có `pinLen` thì đủ 4 số thử lặng lẽ (sai không báo, không tính; tối đa 5 lượt mỗi người, `PinLock.probe`), rồi chờ đủ 6 số hoặc bấm Vào.
 - Chú thích lịch thi cuối trang (`.foot`) chỉ hiện ở trang chủ và Lịch thi (`route()`). Bài ôn trong khung đặt class `playing` trên `body`: trang cao đúng một màn hình, chỉ cuộn trong khung.
 
 ### Kho dữ liệu
@@ -124,6 +124,7 @@ Trang admin (`admin.html`, chủ app mở `…/OnUp/admin.html`):
 ## Quy ước code
 - JavaScript thuần, ES2019+, không module/import (để mở được cả bằng file://). Mỗi file bọc trong IIFE, xuất ra `window.<Tên>`.
 - Mọi chuỗi từ người dùng hoặc dữ liệu đi vào HTML phải qua `esc()`.
+- Ô mật khẩu, mã PIN mới (`type="password"`; ô PIN có `inputmode="numeric"`) phải có nút xem: gọi `wireReveal(view)` (js/app.js) sau khi vẽ màn hình, admin.html dùng bản `wireReveal` riêng trong file (cùng lớp `.reveal`, `.reveal-btn` của css/app.css). Tên đọc của ô lấy từ `<span>` đầu tiên trong `<label>` chứa ô (nút nằm trong label nên ô dùng `aria-labelledby`). Xóa ô bằng code (`value = ""`) hoặc gửi không qua `<form>` thì gọi `conceal(ô)` để ẩn lại. Không lưu trạng thái hiện/ẩn. `tests/e2e.js`, `tests/supabase/cloud-e2e.js` thử từng ô bằng `revealTry`.
 - Mọi đọc/ghi localStorage/sessionStorage bọc try/catch.
 - Màu chỉ dùng token trong `:root` của `css/app.css`. Font: Baloo 2 (tiêu đề), Be Vietnam Pro (chữ), tự lưu trong `fonts/`. Bản lưu trên máy không tải gì từ host khác (không Google Fonts, không CDN); `tests/e2e.js` kiểm tra.
 - Ngày lưu dạng `"YYYY-MM-DD"`, hiển thị kiểu Việt Nam `2/11/2026`.

@@ -91,15 +91,18 @@ a{color:var(--acc)}
 .tile{background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;min-width:0}
 .tile .nm{font-weight:700;overflow-wrap:anywhere}
 .tile[aria-pressed="true"]{border-color:var(--acc);background:var(--acc-soft)}
-.pin{display:flex;gap:10px;justify-content:center}
+.pin{display:flex;gap:10px;justify-content:center;align-items:center;min-height:34px}
 .pin span{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted)}
 .pin span.on{background:var(--ink);border-color:var(--ink)}
+/* nút xem đang hiện (wirePinBox): chấm thành ô có chữ số đã gõ */
+.pin.shown span{width:26px;height:34px;border-radius:8px;display:grid;place-items:center;font:800 1.25rem/1 var(--display);font-variant-numeric:tabular-nums}
+.pin.shown span.on{background:var(--surface);color:var(--ink)}
 .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:0 auto;width:100%}
 .pad button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px 0;font-size:1.35rem;font-weight:700;font-family:var(--display);min-height:44px}
 
 /* biểu mẫu */
 .field{display:flex;flex-direction:column;gap:4px;min-width:0}
-.field>span{font-size:.85rem;font-weight:600;color:var(--muted)}
+.field>span:not(.reveal){font-size:.85rem;font-weight:600;color:var(--muted)}
 input[type=text],input[type=email],input[type=password],input[type=date],input[type=number],input:not([type]),select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);min-width:0}
 textarea{min-height:200px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--bg)}
 .checks{display:flex;flex-wrap:wrap;gap:8px 16px}
@@ -112,6 +115,15 @@ textarea{min-height:200px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;ba
 .emojis{display:flex;flex-wrap:wrap;gap:6px}
 .emojis button{border:2px solid var(--line);background:var(--surface);border-radius:10px;font-size:1.4rem;width:44px;height:44px;padding:0}
 .emojis button[aria-pressed="true"]{border-color:var(--acc);background:var(--acc-soft)}
+/* nút xem mật khẩu, mã PIN (wireReveal trong js/app.js, bản riêng trong admin.html): nằm trong ô, sát cạnh phải,
+   vùng bấm 48×44px, giữa ô theo chiều dọc; ô chừa chỗ bên phải để chữ không chui dưới nút. */
+.reveal{position:relative;display:flex;min-width:0}
+.reveal>input{padding-right:52px}
+.reveal-btn{position:absolute;top:0;right:0;bottom:0;width:48px;height:44px;margin:auto 0;padding:0;border:0;border-radius:0 10px 10px 0;background:transparent;color:var(--muted);display:grid;place-items:center}
+.reveal-btn:hover{color:var(--ink)}
+.reveal-btn[aria-pressed="true"]{color:var(--acc)}
+.reveal-btn svg{pointer-events:none}
+.reveal-btn:not([aria-pressed="true"]) .off{display:none} /* mắt; đang hiện chữ thì mắt gạch chéo */
 
 /* danh sách */
 .list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}

@@ -72,6 +72,51 @@
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
 
+  /* ---------------- nút xem mật khẩu, mã PIN ----------------
+     wireReveal(root): mọi ô type="password" trong root có nút hình con mắt sát cạnh phải; bấm thì hiện chữ đã gõ
+     (type="text"), bấm lại thì ẩn. Gọi sau khi vẽ màn hình có ô mật khẩu; ô đã có nút thì bỏ qua.
+     - Ô có inputmode="numeric" là ô mã PIN. Chỉ đổi type: giá trị, inputmode, autocomplete giữ nguyên; ô đang gõ giữ focus
+       và vị trí con trỏ (bàn phím điện thoại không đóng), ô không focus thì vẫn không focus (không bật bàn phím).
+     - Tự ẩn lại khi gửi form, khi xóa hết ô (gõ xóa); xóa ô bằng code hoặc gửi không qua form thì gọi conceal(ô).
+       Chuyển màn hình là vẽ ô mới (đang ẩn). Mỗi lần đổi, ô báo sự kiện "reveal" (bàn phím PIN vẽ lại hàng chấm).
+     - Nút nằm trong <label> của ô nên ô lấy tên từ chữ nhãn (aria-labelledby), không đọc kèm tên nút.
+     - Không lưu trạng thái hiện/ẩn ở đâu cả. admin.html có bản riêng cùng cách làm, cùng lớp CSS .reveal. */
+  const EYE = `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="off" d="M4 4l16 16"/></svg>`;
+  const revealers = new WeakMap(); // ô → hàm đặt hiện (true) / ẩn (false)
+  let revealN = 0;
+  function wireReveal(root) {
+    $$('input[type="password"]', root || view).forEach((inp) => {
+      if (revealers.has(inp)) return;
+      const what = inp.getAttribute("inputmode") === "numeric" ? "mã PIN" : "mật khẩu";
+      const cap = inp.closest("label") && inp.closest("label").querySelector(":scope > span");
+      if (cap) { cap.id = cap.id || "revealCap" + ++revealN; inp.setAttribute("aria-labelledby", cap.id); }
+      const box = document.createElement("span"), btn = document.createElement("button");
+      box.className = "reveal"; btn.type = "button"; btn.className = "reveal-btn";
+      if (inp.id) btn.setAttribute("aria-controls", inp.id);
+      inp.before(box); box.append(inp, btn);
+      btn.innerHTML = EYE; // vẽ một lần: thay nút giữa lúc bấm thì <label> tưởng bấm vào nhãn và đặt focus vào ô
+      const draw = (show) => { btn.setAttribute("aria-pressed", show); btn.setAttribute("aria-label", (show ? "Ẩn " : "Hiện ") + what); };
+      const set = (show, keep) => {
+        if ((inp.type === "text") === show) return;
+        const s = inp.selectionStart, e = inp.selectionEnd;
+        inp.type = show ? "text" : "password"; draw(show);
+        // Đổi type thì trình duyệt dựng lại ô ở lần tính bố cục sau và đặt lại con trỏ: tính bố cục ngay (offsetWidth) rồi mới đặt.
+        if (keep) { void inp.offsetWidth; inp.focus({ preventScroll: true }); try { inp.setSelectionRange(s, e); } catch (er) { /* ô không chọn được chữ */ } }
+        inp.dispatchEvent(new Event("reveal"));
+      };
+      draw(false);
+      // Bấm nút không lấy focus của ô (mousedown); nếu trình duyệt vẫn bỏ focus thì click trả lại.
+      let had = false;
+      btn.addEventListener("pointerdown", () => (had = document.activeElement === inp));
+      btn.addEventListener("mousedown", (e) => e.preventDefault());
+      btn.addEventListener("click", () => { const keep = had || document.activeElement === inp; had = false; set(inp.type === "password", keep); });
+      inp.addEventListener("input", () => { if (!inp.value) set(false); });
+      if (inp.form) inp.form.addEventListener("submit", () => set(false), true); // trước onsubmit của màn hình
+      revealers.set(inp, set);
+    });
+  }
+  const conceal = (inp) => { const set = inp && revealers.get(inp); if (set) set(false); };
+
   /* ---------------- sao lưu ----------------
      Bản lưu trên máy ghi lúc sao lưu xong (settings.lastBackupAt). Quá 7 ngày chưa sao lưu, hoặc chưa sao lưu lần nào
      mà đã có kết quả làm bài, thì trang chủ của quản trị và phụ huynh hiện thẻ nhắc. Bản đám mây không nhắc.
@@ -230,7 +275,7 @@
         <div class="row"><button class="btn main" type="submit">Tạo và bắt đầu</button><label class="btn ghost" for="sImport">Khôi phục từ file sao lưu</label><input type="file" id="sImport" accept=".json,application/json" hidden></div>
         <p class="muted small">Dữ liệu được lưu trên trình duyệt của máy này. Nhớ sao lưu ra file trong mục Quản trị → Dữ liệu.</p>
       </form></div>`;
-    wireEmoji(view, (e) => (emo = e));
+    wireEmoji(view, (e) => (emo = e)); wireReveal(view);
     $("#setupForm").onsubmit = async (ev) => {
       ev.preventDefault();
       const err = $("#sErr"), pin = $("#sPin").value.trim();
@@ -260,20 +305,28 @@
       </section>`;
   /* Bàn phím PIN dùng chung cho đăng nhập trên máy và trên đám mây. submit(pin) được gọi khi bấm Vào, Enter,
      hoặc gõ đủ độ dài PIN của người đã chọn (u.pinLen; chưa biết thì 6).
-     probe(pin), không bắt buộc: chưa biết độ dài thì gọi khi gõ đủ 4 số, để thử lặng lẽ PIN 4 số. */
+     probe(pin), không bắt buộc: chưa biết độ dài thì gọi khi gõ đủ 4 số, để thử lặng lẽ PIN 4 số.
+     Nút xem (wireReveal) đang hiện thì hàng chấm hiện chữ số đã gõ; gửi PIN hoặc xóa hết thì ẩn lại. */
   function wirePinBox(submit, probe) {
-    const inp = $("#pinIn");
+    const inp = $("#pinIn"), dots = $("#pinDots");
     let pin = "", len = 0;
-    const set = (v) => { pin = v; inp.value = v; $("#pinDots").innerHTML = Array.from({ length: Math.max(len || 4, pin.length) }, (_, i) => `<span class="${i < pin.length ? "on" : ""}"></span>`).join(""); };
-    const typed = (v) => { set(v); if (pin.length === (len || 6)) submit(pin); else if (!len && pin.length === 4 && probe) probe(pin); };
+    const draw = () => {
+      const show = inp.type === "text";
+      dots.classList.toggle("shown", show);
+      dots.innerHTML = Array.from({ length: Math.max(len || 4, pin.length) }, (_, i) => `<span class="${i < pin.length ? "on" : ""}">${show && i < pin.length ? esc(pin[i]) : ""}</span>`).join("");
+    };
+    const set = (v) => { pin = v; inp.value = v; if (!v) conceal(inp); draw(); };
+    const send = (v) => { conceal(inp); submit(v); };
+    const typed = (v) => { set(v); if (pin.length === (len || 6)) send(pin); else if (!len && pin.length === 4 && probe) probe(pin); };
     $$(".pad button").forEach((b) => (b.onclick = () => {
       const k = b.dataset.k;
-      if (k === "ok") submit(pin);
+      if (k === "ok") send(pin);
       else if (k === "del") set(pin.slice(0, -1));
       else if (pin.length < (len || 6)) typed(pin + k);
     }));
     inp.oninput = () => { const v = inp.value.replace(/\D/g, "").slice(0, len || 6); if (v.length > pin.length) typed(v); else set(v); };
-    inp.onkeydown = (e) => { if (e.key === "Enter") submit(pin); };
+    inp.onkeydown = (e) => { if (e.key === "Enter") send(pin); };
+    inp.addEventListener("reveal", draw);
     return {
       clear: () => set(""),
       show(u) {
@@ -342,6 +395,7 @@
         <div class="row" style="justify-content:center"><button class="btn main" type="submit" id="pwGo">Vào khu phụ huynh</button></div>
       </form>` : ""}</div>`;
     const box = wirePinBox(submit, probe);
+    wireReveal(view);
     let tick = null, busy = false;
     const errBox = () => $(cloud && sel === (parent && parent.id) ? "#pwErr" : "#pinErr");
     const err = (msg) => { errBox().innerHTML = `<div class="fb bad">${esc(msg)}</div>`; };
@@ -366,7 +420,7 @@
         $("#pwBox").hidden = true; $("#pinBox").hidden = true;
         if (u.role === "admin") {
           if (tapped && Store.parentUnlocked()) { enter(id); return; }
-          $("#pwErr").innerHTML = ""; $("#pwIn").value = ""; $("#pwBox").hidden = false;
+          $("#pwErr").innerHTML = ""; $("#pwIn").value = ""; conceal($("#pwIn")); $("#pwBox").hidden = false;
           setTimeout(() => $("#pwIn").focus({ preventScroll: true }), 30);
           $("#pwBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
           if (PinLock.wait(id)) showWait(id);
@@ -447,6 +501,7 @@
         <div class="row"><button class="btn main" type="submit" id="lGo">Đăng nhập</button></div>
         ${contactLine("Quên mật khẩu?")}
       </form></div>`;
+    wireReveal(view);
     $("#loginForm").onsubmit = async (ev) => {
       ev.preventDefault();
       const btn = $("#lGo"); if (btn.disabled) return;
@@ -480,6 +535,7 @@
       <section class="hero"><span class="label">Mật khẩu tạm</span><h1>Đặt mật khẩu mới</h1><p>Mật khẩu bạn vừa dùng là mật khẩu tạm. Đặt mật khẩu của riêng bạn để dùng tiếp.</p></section>
       <form class="panel" id="npForm" autocomplete="on"><div class="form">${pwFields(false)}</div>
         <div class="row"><button class="btn main" type="submit">Lưu mật khẩu</button><button class="btn ghost" type="button" id="npOut">Đăng xuất</button></div></form></div>`;
+    wireReveal(view);
     wirePwForm($("#npForm"), false, () => { toast("Đã đặt mật khẩu mới"); go("#/"); });
     $("#npOut").onclick = async () => { await Store.signOut(); go("#/"); };
   }
@@ -1003,7 +1059,7 @@
       </div>${cloud ? `<p class="small muted">Mã PIN chỉ để anh em không vào nhầm hồ sơ của nhau, không phải mật khẩu.</p>` : ""}<div id="uErr"></div>
       <div class="row"><button class="btn main" type="submit" ${full ? "disabled" : ""}>${editing ? "Lưu" : cloud ? "Tạo hồ sơ" : "Tạo tài khoản"}</button>${editing && (isAdmin || role === "student") && editing.id !== viewer.id ? `<button class="btn danger" type="button" id="uDel">${cloud ? "Xóa hồ sơ" : "Xóa tài khoản"}</button>` : ""}</div>
       <div id="uDelArea"></div></form></div>`;
-    wireGo(); wireEmoji(view, (e) => (emo = e));
+    wireGo(); wireEmoji(view, (e) => (emo = e)); wireReveal(view);
     $("#uForm").onsubmit = async (ev) => {
       ev.preventDefault();
       const data = { name: $("#uName").value, pin: $("#uPin").value.trim(), avatar: emo, noPin: !!($("#uNoPin") && $("#uNoPin").checked) };
@@ -1151,7 +1207,7 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
         <label class="field"><span>Mã PIN mới</span><input id="aNew" type="password" inputmode="numeric" maxlength="6"></label></div>
         <div id="aErr"></div><div class="row"><button class="btn sm" type="submit">Lưu</button></div></form>
       <div class="row"><button class="btn main" id="logout">Đăng xuất</button></div></div>`;
-    wireGo(); wireEmoji(view, (e) => (emo = e));
+    wireGo(); wireEmoji(view, (e) => (emo = e)); wireReveal(view);
     $("#aForm").onsubmit = async (ev) => {
       ev.preventDefault();
       const nw = $("#aNew").value.trim(), old = $("#aOld").value.trim();
@@ -1176,7 +1232,7 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
           <div id="aErr"></div><div class="row"><button class="btn sm" type="submit">Lưu</button></div></form>`}
       <div class="row"><button class="btn main" id="switchWho">Đổi người học</button>${adult ? `<button class="btn ghost" id="signOut">Đăng xuất khỏi máy này</button>` : ""}</div>
       ${adult ? `<p class="small muted">Con dùng máy này hằng ngày thì chỉ cần “Đổi người học”. Đăng xuất thì lần sau phải nhập lại tên đăng nhập và mật khẩu.</p>` : ""}</div>`;
-    wireGo();
+    wireGo(); wireReveal(view);
     $("#switchWho").onclick = switchWho;
     if (adult) {
       wirePwForm($("#pwForm"), true, () => { toast("Đã đổi mật khẩu"); renderCloudAccount(u); });

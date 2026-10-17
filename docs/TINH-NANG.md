@@ -26,6 +26,7 @@ Phần mở rộng so với 4 trang gốc: **tài khoản người dùng**, **l�
 | Quản trị | Thầy cô, hoặc bố/mẹ quản lý app | Mọi quyền trên, cộng: tạo/sửa/xóa mọi tài khoản, gắn phụ huynh với con, sửa lịch thi, nhập ngân hàng câu hỏi, sao lưu/khôi phục, xóa dữ liệu |
 
 - Đăng nhập: chọn tên trên màn hình, nhập mã PIN 4–6 số (gõ đủ số là tự vào, không cần bấm “Vào”). Sai 5 lần phải đợi 30 giây.
+- Ô mật khẩu và mã PIN nào cũng có nút hình con mắt: bấm để xem mình đã gõ gì, bấm lại để ẩn (bàn phím PIN hiện chữ số thay cho chấm). Gửi đi, xóa hết ô hoặc sang màn hình khác thì tự ẩn lại. Ảnh: [hinh-xem-mat-khau/](hinh-xem-mat-khau/).
 - Một học sinh có thể có nhiều phụ huynh; một phụ huynh có thể có nhiều con (khác khối cũng được).
 - Phải luôn còn ít nhất một tài khoản quản trị.
 - Dữ liệu về trẻ chỉ gồm tên hiển thị, khối, lớp, hình đại diện (biểu tượng cảm xúc). Không thu thập thông tin khác.
