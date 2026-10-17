@@ -7,6 +7,7 @@
   --ioe:#0f5f63; --ioe-soft:#dcefee; --moc:#6b5b95; --moc-soft:#ece8f6;
   --display:"Baloo 2","Be Vietnam Pro",system-ui,sans-serif;
   --body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  /* Chữ nhỏ nhất .8125rem (13px), vùng bấm cao ít nhất 44px (tests/e2e.js kiểm tra ở 360px). */
   --r:14px;
   color-scheme:light;
 }
@@ -43,7 +44,7 @@ a{color:var(--acc)}
 .who .btn{white-space:nowrap}
 @media (max-width:560px){
   .brand{flex-direction:column;align-items:flex-start;gap:0;line-height:1.1;font-size:1.3rem}
-  .brand-sub{font-size:.8rem;font-family:var(--body);font-weight:600;color:var(--muted)}
+  .brand-sub{font-size:.8125rem;font-family:var(--body);font-weight:600;color:var(--muted)}
   .who .nm{display:none}
   .brand .dash{display:none}
 }
@@ -59,8 +60,7 @@ a{color:var(--acc)}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .row.between{justify-content:space-between}
 .sec{display:flex;flex-direction:column;gap:10px;margin-top:10px}
-.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-.label{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.label{font-size:.8125rem;letter-spacing:.05em;text-transform:uppercase;font-weight:700;color:var(--muted)}
 .muted{color:var(--muted)} .small{font-size:.875rem}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .hero{background:var(--acc);color:var(--on-acc);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:10px}
@@ -74,14 +74,16 @@ a{color:var(--acc)}
 .btn.main{background:var(--sun);color:var(--sun-ink)}
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
 .btn.danger{background:var(--bad-soft);color:var(--bad)}
-.btn.sm{padding:7px 12px;font-size:.875rem;border-radius:10px}
+/* Vùng bấm tối thiểu 44×44px (tay trẻ): nút nhỏ, link dạng nút giữ cỡ chữ, chỉ cao thêm. */
+.btn.sm{padding:7px 12px;font-size:.875rem;border-radius:10px;min-height:44px}
 .btn:disabled{opacity:.45;cursor:default}
-.linkbtn{border:0;background:none;color:var(--acc);font-weight:700;padding:4px 0;text-align:left;align-self:flex-start}
-.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 11px;font-size:.8rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.linkbtn{border:0;background:none;color:var(--acc);font-weight:700;padding:4px 0;text-align:left;align-self:flex-start;min-height:44px;min-width:44px;display:inline-flex;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 11px;font-size:.8125rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .chip.warn{border-color:var(--bad);color:var(--bad);font-weight:700}
 .chip.tent{border-style:dashed}
-.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px;overflow-x:auto}
-.tabs button{border:0;background:transparent;border-radius:10px;padding:9px 12px;font-weight:700;color:var(--muted);white-space:nowrap;flex:1}
+/* Màn hẹp: tab xuống dòng (không cuộn ngang) để thấy đủ mọi tab. */
+.tabs{display:flex;flex-wrap:wrap;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
+.tabs button{border:0;background:transparent;border-radius:10px;padding:9px 12px;font-weight:700;color:var(--muted);white-space:nowrap;flex:1 1 auto;min-height:44px}
 .tabs button[aria-pressed="true"]{background:var(--acc);color:var(--on-acc)}
 
 /* đăng nhập */
@@ -93,7 +95,7 @@ a{color:var(--acc)}
 .pin span{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted)}
 .pin span.on{background:var(--ink);border-color:var(--ink)}
 .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:0 auto;width:100%}
-.pad button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px 0;font-size:1.35rem;font-weight:700;font-family:var(--display)}
+.pad button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px 0;font-size:1.35rem;font-weight:700;font-family:var(--display);min-height:44px}
 
 /* biểu mẫu */
 .field{display:flex;flex-direction:column;gap:4px;min-width:0}
@@ -120,6 +122,18 @@ textarea{min-height:200px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;ba
 button.item{width:100%;text-align:left;background:transparent;border-left:0;border-right:0;border-bottom:0}
 .list>button.item:first-child{border-top:0}
 
+/* bài ôn gom theo kì thi (trang chủ học sinh) và theo môn */
+.grp{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;scroll-margin-top:96px}
+.grp>summary{display:flex;align-items:center;gap:12px;padding:12px 14px;min-height:44px;cursor:pointer;list-style:none}
+.grp>summary::-webkit-details-marker{display:none}
+.grp>summary::after{content:"";flex:none;width:9px;height:9px;margin:-4px 4px 0 0;border:solid var(--muted);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.grp[open]>summary::after{margin-top:4px;transform:rotate(-135deg)}
+.grp>summary .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.grp>.list{border:0;border-top:1px solid var(--line);border-radius:0}
+.subj{flex-wrap:wrap}
+.subj .grow{flex-basis:7em}
+.des{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+
 /* lịch thi */
 .timeline{display:flex;flex-direction:column;gap:6px}
 .month{font-family:var(--display);font-weight:800;color:var(--muted);margin-top:10px;font-size:1rem}
@@ -128,11 +142,11 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .ev.past{opacity:.6}
 .ev.now{border-color:var(--sun);border-left-color:var(--sun);box-shadow:0 0 0 1px var(--sun)}
 .ev .d{font-family:var(--display);font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
-.ev .d small{display:block;font-family:var(--body);font-weight:500;font-size:.72rem;color:var(--muted)}
+.ev .d small{display:block;font-family:var(--body);font-weight:500;font-size:.8125rem;color:var(--muted)}
 .ev .t{display:flex;flex-direction:column;gap:3px;min-width:0}
 .ev .t b{overflow-wrap:anywhere}
 .tags{display:flex;flex-wrap:wrap;gap:4px}
-.tag{font-size:.72rem;border-radius:6px;padding:1px 7px;background:var(--acc-soft);color:var(--acc);font-weight:600}
+.tag{font-size:.8125rem;border-radius:6px;padding:1px 7px;background:var(--acc-soft);color:var(--acc);font-weight:600}
 .tag.ioe{background:var(--ioe-soft);color:var(--ioe)}
 .tag.moc{background:var(--moc-soft);color:var(--moc)}
 .tag.warn{background:var(--sun-soft);color:var(--ink)}
@@ -141,7 +155,7 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;min-width:0}
 .stat b{font-family:var(--display);font-size:1.5rem;line-height:1.1;font-variant-numeric:tabular-nums}
-.stat span{font-size:.78rem;color:var(--muted)}
+.stat span{font-size:.8125rem;line-height:1.35;color:var(--muted)}
 .bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
 .bar i{display:block;height:100%;background:var(--sun)}
 .bar.good i{background:var(--ok)}
@@ -149,11 +163,12 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .ubreak>span:first-child,.ubreak>span:nth-child(3n+1){overflow-wrap:anywhere}
 
 /* báo cáo tuần */
-.stat small{font-size:.72rem;color:var(--muted)}
+.stat small{font-size:.8125rem;line-height:1.35;color:var(--muted)}
 .stats.four{grid-template-columns:repeat(4,minmax(0,1fr))}
-.rp-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
-.rp-day{border:1px solid var(--line);border-radius:10px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;min-width:0;font-variant-numeric:tabular-nums}
-.rp-day span,.rp-day small{font-size:.72rem;color:var(--muted)}
+.rp-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.rp-day{border:1px solid var(--line);border-radius:10px;padding:6px 0;display:flex;flex-direction:column;align-items:center;min-width:0;font-variant-numeric:tabular-nums}
+.rp-day span,.rp-day small{font-size:.8125rem;color:var(--muted)}
+.rp-day small{letter-spacing:-.02em} /* "28/12" vừa ô ở 360px */
 .rp-day b{font-family:var(--display);font-size:1.2rem;line-height:1.2;color:var(--muted)}
 .rp-day.on{background:var(--ok-soft);border-color:var(--ok)}
 .rp-day.on b{color:var(--ok)}
@@ -198,11 +213,18 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .captcha{max-width:100%;overflow:hidden}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;z-index:50;max-width:calc(100% - 32px)}
 
-/* khung bài ôn */
-.player{display:flex;flex-direction:column;gap:8px}
-.player iframe{width:100%;height:calc(100dvh - 130px);min-height:480px;border:1px solid var(--line);border-radius:16px;background:var(--bg)}
-.foot{margin-top:28px;font-size:.8rem;color:var(--muted)}
-@media (max-width:520px){.stats{grid-template-columns:1fr 1fr}.count{font-size:2.2rem}}
+/* khung bài ôn: body.playing (renderPlay) cho .app cao đúng một màn hình, khung chiếm phần còn lại,
+   nên chỉ cuộn bên trong khung (trang ngoài không cuộn). */
+body.playing{padding-bottom:0}
+.playing .app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.playing main{flex:1;min-height:0;display:flex;flex-direction:column}
+.player{display:flex;flex-direction:column;gap:6px;flex:1;min-height:0;padding-bottom:max(8px,env(safe-area-inset-bottom,0px))}
+.player>.row{flex-wrap:nowrap}
+.player .note{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.player iframe{flex:1;min-height:0;width:100%;border:1px solid var(--line);border-radius:16px;background:var(--bg)}
+.foot{margin-top:28px;font-size:.8125rem;color:var(--muted)}
+/* Hàng 3 ô giữ 3 cột ở mọi bề rộng (chỉ .stats.four về 2 cột): màn hẹp thì số nhỏ lại, nhãn xuống dòng. */
+@media (max-width:520px){.stat{padding:8px 10px}.stat b{font-size:1.3rem}.count{font-size:2.2rem}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 /* In (dùng cho Báo cáo tuần): chỉ phần nội dung, nền trắng chữ tối kể cả khi máy đang ở chế độ tối.
    :root:root:root để thắng các khối token tối ở trên. */

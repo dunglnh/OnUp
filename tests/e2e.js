@@ -13,6 +13,10 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   const cloudReqs = []; // js/config.js để trống: không được gọi Supabase hay tải supabase-js
   page.on("request", (r) => { if (/jsdelivr|supabase\.(co|in)|supabase-js/i.test(r.url())) cloudReqs.push(r.url()); });
   const shot = (n) => page.screenshot({ path: OUT + n + ".png", fullPage: true });
+  const editDb = (fn) => page.evaluate((src) => { const d = JSON.parse(localStorage.getItem("ontap_db_v1")); new Function("d", src)(d); localStorage.setItem("ontap_db_v1", JSON.stringify(d)); }, fn);
+  const who = () => page.evaluate(() => (Store.sessionUser() || {}).name || "");
+  // độ dài PIN đã lưu và số lần sai PIN của từng người, theo tên
+  const pinLog = () => page.evaluate(() => { const o = JSON.parse(localStorage.getItem("ontap_pinlock_v1") || "{}"), d = JSON.parse(localStorage.getItem("ontap_db_v1")); return Object.fromEntries(d.users.map((u) => [u.name, { len: u.pinLen, fails: (o[u.id] || {}).fails || 0 }])); });
   const step = (s) => console.log("STEP", s);
 
   await page.goto(BASE + "/");
@@ -45,8 +49,8 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   await shot("04-login");
   await page.click(".tile:has-text('Bin')");
   for (const k of "1111") await page.click(`.pad button[data-k="${k}"]`);
-  await page.click(`.pad button[data-k="ok"]`).catch(() => {});
   await page.waitForTimeout(400);
+  const autoIn = await who(); // PIN 4 số: gõ đủ 4 số là vào, không cần bấm "Vào" (L10)
   await shot("05-student-home");
   console.log("hero:", (await page.textContent(".hero")).replace(/\s+/g, " ").slice(0, 200));
 
@@ -90,6 +94,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
 
   step("leave guard: bank exam (L1)");
   await page.goto(BASE + "/#/home"); await page.waitForTimeout(200);
+  await page.evaluate(() => (document.querySelector("a[href='#/quiz/toan4-ck1-de1']").closest("details").open = true)); // đề nằm trong nhóm kì thi đang thu gọn
   await page.click("a[href='#/quiz/toan4-ck1-de1']"); await page.waitForTimeout(200);
   const nBefore = await nRes();
   await page.click("#qExam");
@@ -121,7 +126,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   step("parent");
   await page.goto(BASE + "/#/account"); await page.click("#logout"); await page.waitForTimeout(200);
   await page.click(".tile:has-text('Mẹ Bin')");
-  await page.fill("#pinIn", "2222"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(400);
+  await page.fill("#pinIn", "2222"); await page.waitForTimeout(400);
   await shot("11-parent-home");
   await page.click("[data-child]"); await page.waitForTimeout(300); await shot("12-child");
 
@@ -152,8 +157,8 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   step("pin lock per user survives reload (L2)");
   await page.goto(BASE + "/#/account"); await page.click("#logout"); await page.waitForTimeout(200);
   await page.click(".tile:has-text('Na')");
-  for (let i = 0; i < 5; i++) { await page.fill("#pinIn", "0000"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(120); }
-  const lockMsg = await page.textContent("#pinErr");
+  for (let i = 0; i < 5; i++) { await page.fill("#pinIn", "0000"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(120); } // tự kiểm tra khi đủ 4 số, Enter ngay sau đó không tính thêm lần sai
+  const lockMsg = await page.textContent("#pinErr"), naFails = (await pinLog()).Na.fails;
   await page.reload(); await page.waitForTimeout(300);
   await page.click(".tile:has-text('Na')"); await page.waitForTimeout(100);
   const lockAfter = await page.textContent("#pinErr");
@@ -165,10 +170,10 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   await page.click(".tile:has-text('Bố Minh')"); await page.fill("#pinIn", "9999"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(300);
   const wrongMsg = await page.textContent("#pinErr");
   console.log("wrong pin msg:", wrongMsg);
-  await page.fill("#pinIn", "1234"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(400);
-  const otherIn = await page.evaluate(() => (Store.sessionUser() || {}).name);
-  const pinLockOK = /Đợi 30 giây/.test(lockMsg) && /Đợi (29|30) giây/.test(lockAfter) && lockedOut && /chưa đúng/.test(wrongMsg) && otherIn === "Bố Minh";
-  console.log("pin lock:", { lockMsg, lockAfter, lockedOut, otherIn });
+  await page.fill("#pinIn", "1234"); await page.waitForTimeout(400);
+  const otherIn = await who();
+  const pinLockOK = /Đợi 30 giây/.test(lockMsg) && naFails === 5 && /Đợi (29|30) giây/.test(lockAfter) && lockedOut && /chưa đúng/.test(wrongMsg) && otherIn === "Bố Minh";
+  console.log("pin lock:", { lockMsg, naFails, lockAfter, lockedOut, otherIn });
   await page.goto(BASE + "/#/admin/bank/new"); await page.waitForTimeout(200);
   await page.fill("#bTitle", "Tiếng Việt 4 · thử"); await page.fill("#bSubj", "Tiếng Việt");
   await page.click("#bSample"); console.log("check:", await page.textContent("#bRes"));
@@ -184,7 +189,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   await page.goto(BASE + "/#/admin/user/" + naId); await page.waitForTimeout(200);
   await page.fill("#uPin", "4444"); await page.click("button[type=submit]"); await page.waitForTimeout(300); // đặt PIN mới cũng mở khóa
   await page.goto(BASE + "/#/account"); await page.click("#logout"); await page.waitForTimeout(200);
-  await page.click(".tile:has-text('Na')"); await page.fill("#pinIn", "4444"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(400);
+  await page.click(".tile:has-text('Na')"); await page.fill("#pinIn", "4444"); await page.waitForTimeout(400);
   const naIn = await page.evaluate(() => (Store.sessionUser() || {}).name);
   const g4quiz = await view("#/quiz/toan4-ck1-de1"); await shot("16-wrong-grade");
   const g4play = await view("#/play/l4-giua-ki-1");
@@ -194,6 +199,27 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   const routeOK = nf.missing && /Không tìm thấy trang/.test(nf.text) && nfAdmin.missing && adminPeek.every((x) => !x.missing && (x.quiz || x.frame))
     && naIn === "Na" && g4quiz.missing && !g4quiz.quiz && /dành cho lớp 4/.test(g4quiz.text) && g4play.missing && !g4play.frame && /dành cho lớp 4/.test(g4play.text)
     && g6quiz.quiz && g6play.frame && noBank.missing;
+
+  step("PIN auto submit by length (L10)");
+  const logout = async () => { await page.goto(BASE + "/#/account"); await page.click("#logout"); await page.waitForTimeout(200); };
+  const tile = async (n) => page.click(`.tile[data-u="${await page.evaluate((x) => Store.users().find((u) => u.name === x).id, n)}"]`);
+  const tap = async (digits) => { for (const k of digits) await page.click(`.pad button[data-k="${k}"]`); await page.waitForTimeout(250); };
+  await page.evaluate(() => Store.updateUser(Store.users().find((u) => u.name === "Bin").id, { pin: "123456" }));
+  const lenNew = (await pinLog()).Bin.len; // đổi PIN thì lưu độ dài mới
+  await editDb(`d.users.forEach((u) => { if (u.name === "Bin" || u.name === "Mẹ Bin") delete u.pinLen; });`); // như dữ liệu trước khi có pinLen
+  await logout(); await page.reload(); await page.waitForTimeout(300);
+  const lenOld = await page.evaluate(() => Store.users().filter((u) => /Bin/.test(u.name)).map((u) => u.pinLen)); // giá trị mặc định: 0 = chưa biết
+  await tile("Mẹ Bin"); await tap("2222"); // tài khoản cũ, PIN 4 số: đủ 4 số thì thử lặng lẽ và vào được
+  const oldFour = { who: await who(), len: (await pinLog())["Mẹ Bin"].len };
+  await logout(); await tile("Bin"); await tap("9999"); // tài khoản cũ, PIN 6 số: thử lặng lẽ sai thì không báo, không tính
+  const partial = { who: await who(), err: (await page.textContent("#pinErr")).trim(), fails: (await pinLog()).Bin.fails };
+  await tap("99"); // đủ 6 số: kiểm tra thật, sai tính 1 lần
+  const wrong6 = { err: await page.textContent("#pinErr"), fails: (await pinLog()).Bin.fails };
+  await tap("123456");
+  const sixIn = { who: await who(), len: (await pinLog()).Bin.len };
+  console.log("L10:", { autoIn, lenNew, lenOld, oldFour, partial, wrong6, sixIn });
+  const pinAutoOK = autoIn === "Bin" && lenNew === 6 && lenOld.join() === "0,0" && oldFour.who === "Mẹ Bin" && oldFour.len === 4
+    && partial.who === "" && partial.err === "" && partial.fails === 0 && /chưa đúng/.test(wrong6.err) && wrong6.fails === 1 && sixIn.who === "Bin" && sixIn.len === 6;
   const db = await page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")));
   console.log("results:", db.results.map((r) => [r.source, r.refId, r.subject, r.r, r.t, r.userId === db.users.find(u=>u.name==="Bin").id]));
   console.log("banks:", db.banks.map((b) => [b.title, b.questions.length, b.src.length > 0]));
@@ -221,7 +247,6 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
 
   step("new seed banks reach old data");
   const ck1 = () => page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).events.find((e) => e.id === "ck1-l4").banks);
-  const editDb = (fn) => page.evaluate((src) => { const d = JSON.parse(localStorage.getItem("ontap_db_v1")); new Function("d", src)(d); localStorage.setItem("ontap_db_v1", JSON.stringify(d)); }, fn);
   await editDb(`d.events.find((e) => e.id === "ck1-l4").banks = ["mau-toan4-ck1"]; delete d.seedBanksSeen;`); // như máy cài trước khi có đề mới
   await page.reload(); await page.waitForTimeout(300);
   const seedCk1 = await page.evaluate(() => window.ONTAP_SEED_EVENTS.find((e) => e.id === "ck1-l4").banks);
@@ -242,10 +267,97 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   });
   console.log("cloud backup:", cloudBackup);
   const cloudOK = /đám mây/.test(cloudBackup.msg) && cloudBackup.same;
+
+  step("360px light + dark (L4–L11)");
+  /* Ở 360px: không tràn ngang; mọi button, a.btn, .linkbtn đang hiện cao ≥ 44px; không chữ nào nhỏ hơn 13px.
+     Phần tử bị ẩn (display:none, nằm trong <details> đang đóng) không tính. Trả về danh sách lỗi. */
+  const audit = () => {
+    const bad = [], shown = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden"; };
+    if (document.documentElement.scrollWidth > innerWidth) bad.push("tràn ngang: rộng " + document.documentElement.scrollWidth + "px");
+    document.querySelectorAll("button, a.btn, .linkbtn").forEach((el) => { const h = el.getBoundingClientRect().height; if (shown(el) && h < 44) bad.push(`nút "${el.textContent.trim().slice(0, 24)}" cao ${Math.round(h)}px`); });
+    const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let n; (n = tw.nextNode());) {
+      const el = n.parentElement, fs = parseFloat(getComputedStyle(el).fontSize);
+      if (n.textContent.trim() && shown(el) && fs < 13) bad.push(`chữ "${n.textContent.trim().slice(0, 24)}" ${fs}px`);
+    }
+    return [...new Set(bad)];
+  };
+  const OUT360 = OUT + "360/"; require("fs").mkdirSync(OUT360, { recursive: true });
+  const state = await ctx.storageState(); // dữ liệu của các bước trên (localStorage), chưa đăng nhập
+  const ids = await page.evaluate(() => Object.fromEntries(Store.users().map((u) => [u.name, u.id])));
+  const PINS = { "Bố Minh": "1234", "Mẹ Bin": "2222", Bin: "123456" };
+  const m360 = [], c360 = {};
+  for (const scheme of ["light", "dark"]) {
+    const opts = { viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme };
+    const c = await browser.newContext(Object.assign({ storageState: state }, opts)), fresh = await browser.newContext(opts);
+    for (const x of [c, fresh]) x.on("page", (pg) => pg.on("pageerror", (e) => errs.push("pageerror 360: " + e.message)));
+    let p = await fresh.newPage();
+    const open = async (h, wait) => { await p.goto(BASE + "/" + h); await p.waitForTimeout(wait || 250); };
+    const check = async (label) => (await p.evaluate(audit)).forEach((x) => m360.push(`${scheme} · ${label}: ${x}`));
+    const snap = async (n, full) => { if (full) await p.evaluate(() => scrollTo(0, 0)); await p.screenshot({ path: `${OUT360}${n}-${scheme}.png`, fullPage: !!full }); }; // thanh đầu dính: chụp cả trang từ đầu trang
+    const footShown = () => p.evaluate(() => getComputedStyle(document.querySelector(".foot")).display !== "none");
+    const statsRow = () => p.evaluate(() => { const t = [...document.querySelector(".stats:not(.four)").children].map((x) => Math.round(x.getBoundingClientRect().top)); return t.length === 3 && new Set(t).size === 1; });
+    const signIn = async (name) => {
+      await open("#/account"); if (await p.$("#logout")) { await p.click("#logout"); await p.waitForTimeout(200); }
+      await p.click(`.tile[data-u="${ids[name]}"]`); await p.fill("#pinIn", PINS[name]); await p.waitForTimeout(400);
+    };
+    const r = (c360[scheme] = {});
+    await open("#/"); await check("thiết lập lần đầu");
+    p = await c.newPage();
+    await open("#/"); await p.click(`.tile[data-u="${ids.Bin}"]`); await p.waitForTimeout(300);
+    await check("đăng nhập"); await snap("dang-nhap", true);
+    r.loginFoot = !(await footShown());
+    for (const k of PINS.Bin) await p.click(`.pad button[data-k="${k}"]`);
+    await p.waitForTimeout(400);
+    // học sinh lớp 4: trang chủ
+    r.home = await p.evaluate(() => {
+      const st = document.querySelector(".stats"), g = Store.sessionUser().grade, box = document.querySelector("#allPractice");
+      const want = window.ONTAP_MODULES.filter((m) => m.grade === g).map((m) => "#/play/" + m.id).concat(Store.banks(g).map((b) => "#/quiz/" + b.id));
+      const grps = [...box.querySelectorAll("details.grp")].map((d) => d.open);
+      return st.nextElementSibling.id === "recent" && document.querySelectorAll("#recent .item").length === 3 && grps.length > 1 && grps[0] && !grps.slice(1).some(Boolean)
+        && want.every((h) => box.querySelector(`a[href="${h}"]`)) && [...box.querySelectorAll(".subj")].some((x) => x.querySelectorAll(".des a").length > 1);
+    });
+    r.homeStats = await statsRow(); r.homeFoot = await footShown();
+    await check("trang chủ học sinh"); await snap("trang-chu-hoc-sinh", true);
+    await p.evaluate(() => document.querySelectorAll("details.grp").forEach((d) => (d.open = true)));
+    await check("trang chủ học sinh, mở mọi nhóm");
+    await open("#/calendar"); await p.click("[data-ev='ck1-l4']"); await p.waitForTimeout(300);
+    await check("lịch thi + chi tiết kì thi"); r.calFoot = await footShown();
+    await open("#/play/ioe-4", 1500);
+    await check("bài ôn trong khung"); await snap("bai-on-trong-khung");
+    r.play = await p.evaluate(() => { // chỉ cuộn trong khung: trang ngoài vừa màn hình, khung nằm trọn trong màn hình và dài hơn khung
+      const f = document.querySelector("#playerFrame"), fr = f.getBoundingClientRect();
+      return document.documentElement.scrollHeight <= innerHeight && fr.top > 0 && fr.bottom <= innerHeight && f.contentDocument.documentElement.scrollHeight > f.clientHeight;
+    });
+    r.playFoot = !(await footShown());
+    for (const h of ["#/account", "#/khongco"]) { await open(h); await check(h); }
+    // quản trị
+    await signIn("Bố Minh");
+    for (const t of ["overview", "users", "events", "banks", "data"]) {
+      await open("#/admin/" + t); await check("quản trị " + t);
+      if (t === "overview") {
+        await snap("quan-tri"); r.adminStats = await statsRow(); r.adminFoot = await footShown();
+        r.tabs = await p.evaluate(() => { const t = document.querySelector(".tabs"); return t.children.length === 5 && t.scrollWidth <= t.clientWidth && [...t.children].every((b) => { const x = b.getBoundingClientRect(); return x.left >= 0 && x.right <= innerWidth; }); });
+      }
+      if (t === "users") r.usersFoot = !(await footShown());
+    }
+    for (const h of ["#/admin/user/new?role=student", "#/admin/event/ck1-l4", "#/admin/bank/new"]) { await open(h); await check(h); }
+    await open("#/quiz/toan4-ck1-de1"); await check("đề, màn đầu"); r.quizFoot = !(await footShown());
+    await p.click("#qPractice"); await check("đề, câu hỏi");
+    if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0");
+    await p.click("#qzGo"); await check("đề, sau khi trả lời");
+    // phụ huynh
+    await signIn("Mẹ Bin"); await check("trang chủ phụ huynh");
+    await open("#/child/" + ids.Bin); await check("hồ sơ của con");
+    await open("#/report/" + ids.Bin); await check("báo cáo tuần");
+    await c.close(); await fresh.close();
+  }
+  const ok360 = !m360.length && Object.values(c360).every((r) => Object.values(r).every(Boolean));
+  console.log("360:", c360, "problems:", m360);
   const cloudMode = await page.evaluate(() => !!(window.Store.cloud || window.LocalStore));
   console.log("local mode:", !cloudMode, "cloud requests:", cloudReqs);
   const real = errs.filter((e) => !/fonts\.g|ERR_TUNNEL|ERR_NAME|net::/.test(e));
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || cloudReqs.length || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || cloudMode || cloudReqs.length || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();

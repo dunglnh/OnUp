@@ -7,7 +7,7 @@
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => [...(r || document).querySelectorAll(s)];
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const view = $("#view"), who = $("#who");
+  const view = $("#view"), who = $("#who"), foot = $(".foot");
   const MODULES = window.ONTAP_MODULES || [];
   const modById = (id) => MODULES.find((m) => m.id === id) || null;
   const AVATARS = ["🐣", "🦊", "🐼", "🐯", "🐨", "🐸", "🦄", "🐙", "🐬", "🚀", "⚽", "🎨", "🌻", "🧭", "📚", "🌟"];
@@ -194,22 +194,26 @@
         <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join("")}<button type="button" data-k="del" aria-label="Xóa">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" aria-label="Vào" style="background:var(--sun);color:var(--sun-ink)">Vào</button></div>
         <div id="pinErr" aria-live="assertive"></div>
       </section>`;
-  /* Bàn phím PIN dùng chung cho đăng nhập trên máy và trên đám mây. submit(pin) được gọi khi bấm Vào hoặc đủ 6 số. */
-  function wirePinBox(submit) {
+  /* Bàn phím PIN dùng chung cho đăng nhập trên máy và trên đám mây. submit(pin) được gọi khi bấm Vào, Enter,
+     hoặc gõ đủ độ dài PIN của người đã chọn (u.pinLen; chưa biết thì 6).
+     probe(pin), không bắt buộc: chưa biết độ dài thì gọi khi gõ đủ 4 số, để thử lặng lẽ PIN 4 số. */
+  function wirePinBox(submit, probe) {
     const inp = $("#pinIn");
-    let pin = "";
-    const set = (v) => { pin = v; inp.value = v; $("#pinDots").innerHTML = Array.from({ length: Math.max(4, pin.length) }, (_, i) => `<span class="${i < pin.length ? "on" : ""}"></span>`).join(""); };
+    let pin = "", len = 0;
+    const set = (v) => { pin = v; inp.value = v; $("#pinDots").innerHTML = Array.from({ length: Math.max(len || 4, pin.length) }, (_, i) => `<span class="${i < pin.length ? "on" : ""}"></span>`).join(""); };
+    const typed = (v) => { set(v); if (pin.length === (len || 6)) submit(pin); else if (!len && pin.length === 4 && probe) probe(pin); };
     $$(".pad button").forEach((b) => (b.onclick = () => {
       const k = b.dataset.k;
-      if (k === "ok") { submit(pin); return; }
-      set(k === "del" ? pin.slice(0, -1) : pin.length < 6 ? pin + k : pin);
-      if (pin.length === 6) submit(pin);
+      if (k === "ok") submit(pin);
+      else if (k === "del") set(pin.slice(0, -1));
+      else if (pin.length < (len || 6)) typed(pin + k);
     }));
-    inp.oninput = () => set(inp.value.replace(/\D/g, "").slice(0, 6));
+    inp.oninput = () => { const v = inp.value.replace(/\D/g, "").slice(0, len || 6); if (v.length > pin.length) typed(v); else set(v); };
     inp.onkeydown = (e) => { if (e.key === "Enter") submit(pin); };
     return {
       clear: () => set(""),
       show(u) {
+        len = u.pinLen >= 4 && u.pinLen <= 6 ? u.pinLen : 0;
         set(""); $("#pinErr").innerHTML = "";
         $("#pinWho").innerHTML = `${avatar(u)}<b>${esc(u.name)}</b>`;
         $("#pinBox").hidden = false; setTimeout(() => inp.focus({ preventScroll: true }), 30);
@@ -231,6 +235,13 @@
     return {
       wait, // số giây còn phải đợi, 0 = nhập được
       left(id) { const x = read()[id]; return EVERY - ((x && x.fails) || 0) % EVERY; }, // còn mấy lần sai nữa thì bị khóa
+      /* Lượt thử lặng lẽ khi chưa biết độ dài PIN (xem wirePinBox): không tính là lần sai, nhưng mỗi người chỉ có EVERY lượt
+         cho tới khi đăng nhập đúng, để không thành cách đoán PIN 4 số không giới hạn. */
+      probe(id) {
+        const o = read(), x = (o[id] = o[id] || { fails: 0, until: 0 });
+        if (wait(id) || (x.probes || 0) >= EVERY) return false;
+        x.probes = (x.probes || 0) + 1; write(o); return true;
+      },
       fail(id) {
         const o = read(), x = (o[id] = o[id] || { fails: 0, until: 0 });
         x.fails++;
@@ -250,8 +261,8 @@
       <div><h1>Xin chào!</h1><p class="muted">${esc(Store.settings().schoolName || "Chọn tên của bạn để bắt đầu.")}</p></div>
       ${groups.map(([role, name]) => { const us = Store.users(role); return us.length ? `<section class="sec"><div class="label">${name}</div><div class="tiles">${us.map((u) => `<button class="tile" data-u="${u.id}" aria-pressed="${u.id === sel}">${avatar(u, true)}<span class="nm">${esc(u.name)}</span><span class="small muted">${esc(gradeTxt(u))}</span></button>`).join("")}</div></section>` : ""; }).join("")}
       ${pinBoxHTML()}</div>`;
-    const box = wirePinBox(submit);
-    let tick = null;
+    const box = wirePinBox(submit, probe);
+    let tick = null, busy = false;
     // Đếm ngược trong #pinWait (aria-live="off" để trình đọc màn hình không đọc lại mỗi giây).
     function showWait(id, lead) {
       clearInterval(tick);
@@ -269,15 +280,30 @@
       box.show(Store.user(id));
       if (PinLock.wait(id)) showWait(id);
     }
+    const enter = (id) => { PinLock.clear(id); clearInterval(tick); Store.setSession(id); go("#/home"); };
+    // busy: gõ đủ số rồi bấm Enter ngay (hoặc thử lặng lẽ chưa xong) thì không kiểm tra hai lần.
     async function submit(pin) {
-      if (!sel || !pin) return;
+      if (!sel || !pin || busy) return;
       const id = sel;
       if (PinLock.wait(id)) { box.clear(); showWait(id); return; }
-      if (await Store.checkPin(id, pin)) { PinLock.clear(id); clearInterval(tick); Store.setSession(id); go("#/home"); return; }
+      busy = true;
+      const ok = await Store.checkPin(id, pin);
+      busy = false;
+      if (sel !== id) return;
+      if (ok) { enter(id); return; }
       box.clear();
       if (PinLock.fail(id)) { showWait(id, "Mã PIN chưa đúng."); return; }
       const left = PinLock.left(id);
       pinError(left <= 2 ? `Mã PIN chưa đúng. Sai thêm ${left} lần nữa thì phải đợi một lúc.` : "Mã PIN chưa đúng. Thử lại nhé.");
+    }
+    // Tài khoản cũ chưa biết độ dài PIN: gõ đủ 4 số thì thử lặng lẽ. Sai thì không báo, không tính là lần sai, chờ gõ tiếp.
+    async function probe(pin) {
+      const id = sel;
+      if (!id || busy || !PinLock.probe(id)) return;
+      busy = true;
+      const ok = await Store.checkPin(id, pin);
+      busy = false;
+      if (ok && sel === id) enter(id);
     }
     $$(".tile").forEach((t) => (t.onclick = () => pick(t.dataset.u)));
     if (sel) pick(sel);
@@ -420,17 +446,39 @@
     $$("[data-ev]", root).forEach((b) => (b.onclick = () => openEvent(b.dataset.ev, grade, student)));
   }
 
-  function practiceCards(mods, bks, canPlay) {
+  /* Mỗi bài ôn dạng trang một dòng; đề ngân hàng gom theo môn thành một dòng có các nút "Đề 1 · Đề 2 · …"
+     (xếp theo tên đề; aria-label có cả chữ trên nút và tên đề đầy đủ). */
+  function practiceList(mods, bks, canPlay) {
     if (!mods.length && !bks.length) return `<div class="panel muted">Chưa có bài ôn cho mục này. Quản trị viên có thể nhập ngân hàng câu hỏi trong mục Quản trị.</div>`;
-    return `<div class="grid2">${mods.map((m) => `<div class="panel"><b>${esc(m.title)}</b><span class="small muted">${esc(m.desc)}</span><div class="row"><a class="btn ${canPlay ? "main" : ""} sm" href="#/play/${esc(m.id)}">${canPlay ? "Vào ôn" : "Xem thử"}</a></div></div>`).join("")}
-      ${bks.map((b) => `<div class="panel"><b>${esc(b.title)}</b><span class="small muted">${b.questions.length} câu${b.minutes ? " · " + b.minutes + " phút khi làm như thi" : ""}</span><div class="row"><a class="btn ${canPlay ? "main" : ""} sm" href="#/quiz/${esc(b.id)}">${canPlay ? "Làm bài" : "Xem thử"}</a></div></div>`).join("")}</div>`;
+    const subs = new Map(), act = canPlay ? "main" : "";
+    bks.forEach((b) => { const k = b.subject || "Khác"; subs.set(k, (subs.get(k) || []).concat(b)); });
+    return `<div class="list">${mods.map((m) => `<div class="item"><span class="grow"><b>${esc(m.title)}</b><span class="small muted">${esc(m.desc)}</span></span><a class="btn ${act} sm" href="#/play/${esc(m.id)}">${canPlay ? "Vào ôn" : "Xem thử"}</a></div>`).join("")}
+      ${[...subs].map(([sub, list]) => {
+        list.sort((a, b) => a.title.localeCompare(b.title, "vi", { numeric: true }));
+        const nq = list[0].questions.length, same = list.every((b) => b.questions.length === nq);
+        return `<div class="item subj"><span class="grow"><b>${esc(sub)}</b><span class="small muted">${list.length} đề${same ? ` · ${nq} câu${list.length > 1 ? " mỗi đề" : ""}` : ""}</span></span>
+          <span class="des">${list.map((b, i) => { const lb = "Đề " + (i + 1); return `<a class="btn ${act} sm" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(b.title.includes(lb) ? b.title : lb + " · " + b.title)}">${lb}</a>`; }).join("")}</span></div>`;
+      }).join("")}</div>`;
+  }
+  /* "Tất cả bài ôn" của một khối, gom theo kì thi chưa qua: kì gần nhất mở sẵn, các kì sau thu gọn.
+     Bài không thuộc kì nào trong số đó (kì đã qua, ngân hàng chưa gắn) nằm ở nhóm cuối "Bài ôn khác", nên không sót bài nào. */
+  function practiceGroups(grade, canPlay) {
+    const seen = new Set(), key = (x) => (x.path ? "m:" : "b:") + x.id;
+    const groups = Store.events(grade).filter((e) => e.kind !== "moc" && status(e) !== "past").map((e) => Object.assign({ e }, practiceFor(e, grade)))
+      .filter((g) => g.mods.length + g.bks.length);
+    groups.forEach((g) => g.mods.concat(g.bks).forEach((x) => seen.add(key(x))));
+    const rest = { mods: MODULES.filter((m) => m.grade === +grade && !seen.has(key(m))), bks: Store.banks(grade).filter((b) => !seen.has(key(b))) };
+    if (rest.mods.length + rest.bks.length) groups.push(rest);
+    if (!groups.length) return practiceList([], [], canPlay);
+    return groups.map((g, i) => `<details class="grp"${g.e ? ` data-grp="${esc(g.e.id)}"` : ""}${i ? "" : " open"}>
+      <summary><span class="grow"><b>${g.e ? esc(g.e.title) : "Bài ôn khác"}</b><span class="small muted">${g.e ? esc(range(g.e)) + " · " : ""}${g.mods.length + g.bks.length} bài ôn</span></span></summary>
+      ${practiceList(g.mods, g.bks, canPlay)}</details>`).join("");
   }
 
   function renderStudent(s, viewer, asObserver) {
     const results = Store.resultsFor(s.id), next = nextEvent(s.grade);
     const w7 = within(results, 7), [r30, t30] = sumRT(within(results, 30));
     const evs = Store.events(s.grade).filter((e) => status(e) !== "past").slice(0, 5);
-    const allMods = MODULES.filter((m) => m.grade === s.grade), allBanks = Store.banks(s.grade);
     let hero = `<section class="hero"><span class="label">Kì thi tiếp theo</span><h1>Chưa có kì thi sắp tới</h1><p>Xem lịch thi cả năm để biết thêm.</p></section>`;
     if (next) {
       const { mods, bks } = practiceFor(next, s.grade), st = status(next), rd = readiness(next, s, results);
@@ -441,10 +489,12 @@
         <p>${esc(range(next))}${next.subjects.length ? " · " + esc(next.subjects.join(", ")) : ""}</p>
         ${next.scope ? `<p class="small">${esc(next.scope)}</p>` : ""}
         ${rd.p != null ? `<p class="small">Điểm ôn 4 tuần qua cho kì này: <b>${rd.p}%</b> (${rd.n} lần làm)</p>` : ""}
-        <div class="row">${mods.map((m) => `<a class="btn main" href="#/play/${esc(m.id)}">${esc(m.title)}</a>`).join("")}${bks.map((b) => `<a class="btn ${mods.length ? "ghost" : "main"}" href="#/quiz/${esc(b.id)}">${esc(b.title)}</a>`).join("")}</div>
+        <div class="row">${mods.map((m) => `<a class="btn main" href="#/play/${esc(m.id)}">${esc(m.title)}</a>`).join("")}${bks.length ? `<button class="btn ${mods.length ? "ghost" : "main"}" id="toBanks">Đề ôn · ${bks.length} đề</button>` : ""}</div>
       </section>`;
     }
     const subs = bySubject(within(results, 30)), weakList = wrongTopics(within(results, 30)).slice(0, 5);
+    // Học sinh: 3 kết quả mới nhất ngay dưới hàng thống kê. Phụ huynh, quản trị xem hồ sơ: 30 kết quả ở cuối trang.
+    const recent = `<section class="sec" id="recent"><h2>Kết quả gần đây</h2>${resultsList(results.slice(0, asObserver ? 30 : 3))}</section>`;
     view.innerHTML = `<div class="stack">
       ${asObserver ? `<div class="row between">${back(viewer.role === "admin" ? "#/admin/overview" : "#/home", "Về danh sách")}${viewer.role !== "student" ? `<a class="btn ghost sm" href="#/admin/user/${esc(s.id)}">Sửa hồ sơ</a>` : ""}</div>
         <div class="row between"><div class="row">${avatar(s, true)}<div><h2>${esc(s.name)}</h2><span class="muted">${esc(gradeTxt(s))}</span></div></div><a class="btn main sm" id="toReport" href="#/report/${esc(s.id)}">Báo cáo tuần</a></div>` : `<div><h2>Chào ${esc(s.name)}! ${esc(s.avatar)}</h2><span class="muted">${esc(gradeTxt(s))}</span></div>`}
@@ -454,14 +504,20 @@
         <div class="stat"><b>${t30 ? d10(r30, t30) : "–"}</b><span>điểm TB 30 ngày (/10)</span></div>
         <div class="stat"><b>${streak(results)}</b><span>ngày ôn liên tiếp</span></div>
       </div>
+      ${asObserver ? "" : recent}
       ${subs.length ? `<section class="panel"><div class="label">Theo môn · 30 ngày</div><div class="ubreak">${subs.map(({ name, r, t }) => `<span>${esc(name)}</span><div class="bar ${pct(r, t) >= 80 ? "good" : ""}"><i style="width:${pct(r, t)}%"></i></div><span>${pct(r, t)}%</span>`).join("")}</div></section>` : ""}
       ${weakList.length ? `<section class="panel"><div class="label">Chủ đề hay sai</div><div class="tags">${weakList.map(([t, n]) => `<span class="tag warn">${esc(t)} · ${n} câu</span>`).join("")}</div></section>` : ""}
       <section class="sec"><div class="row between"><h2>Lịch thi sắp tới</h2><a class="linkbtn" href="#/calendar">Cả năm →</a></div>
         <div class="timeline">${evs.map((e) => eventRow(e, { grade: s.grade, student: s, results })).join("") || `<div class="panel muted">Không còn kì thi nào trong năm học.</div>`}</div></section>
-      <section class="sec"><h2>Tất cả bài ôn lớp ${s.grade}</h2>${practiceCards(allMods, allBanks, !asObserver)}</section>
-      <section class="sec"><h2>Kết quả gần đây</h2>${resultsList(results.slice(0, asObserver ? 30 : 10))}</section>
+      <section class="sec" id="allPractice"><h2>Tất cả bài ôn lớp ${s.grade}</h2>${practiceGroups(s.grade, !asObserver)}</section>
+      ${asObserver ? recent : ""}
     </div>`;
     wireEvents(view, s.grade, s); wireGo();
+    // Nút "Đề ôn" trên thẻ kì thi: mở nhóm của kì đó trong "Tất cả bài ôn" (đề gom theo môn ở đó).
+    if ($("#toBanks")) $("#toBanks").onclick = () => {
+      const g = $(`#allPractice [data-grp="${CSS.escape(next.id)}"]`); if (!g) return;
+      g.open = true; g.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
   }
   function resultsList(list) {
     if (!list.length) return `<div class="panel muted">Chưa có kết quả. Làm một bài ôn để bắt đầu.</div>`;
@@ -582,7 +638,7 @@
       ${e.subjects && e.subjects.length ? `<p>Môn: ${esc(e.subjects.join(", "))}</p>` : ""}
       ${e.scope ? `<p class="small">Phạm vi: ${esc(e.scope)}</p>` : ""}
       ${e.note ? `<p class="small muted">${esc(e.note)}</p>` : ""}
-      ${e.kind !== "moc" ? `<div class="label">Bài ôn cho kì này</div>${practiceCards(mods, bks, canPlay)}` : ""}
+      ${e.kind !== "moc" ? `<div class="label">Bài ôn cho kì này</div>${practiceList(mods, bks, canPlay)}` : ""}
       ${u.role === "admin" ? `<div class="row"><a class="btn sm" href="#/admin/event/${esc(e.id)}">Sửa kì thi</a></div>` : ""}`;
     const old = $("#evDetail"); if (old) old.remove();
     const anchor = $(`[data-ev="${CSS.escape(id)}"]`);
@@ -635,9 +691,11 @@
     if (!m) { renderMissing("Không tìm thấy bài ôn", "Bài ôn này không có trong app, hoặc đã được bỏ đi."); return; }
     if (wrongGrade(u, m.grade)) return;
     const src = m.path + "?u=" + encodeURIComponent(u.id) + "&m=" + encodeURIComponent(m.id);
+    const note = u.role === "student" ? ["Điểm được lưu", "Điểm mỗi lần làm xong được lưu vào hồ sơ của bạn."] : ["Xem thử, không lưu điểm", "Chế độ xem thử: điểm không được lưu."];
     view.innerHTML = `<div class="player">
-      <div class="row between">${back("#/home", "Trang chính")}<span class="small muted">${u.role === "student" ? "Điểm mỗi lần làm xong được lưu vào hồ sơ của bạn." : "Chế độ xem thử: điểm không được lưu."}</span></div>
+      <div class="row between">${back("#/home", "Trang chính")}<span class="small muted note" title="${note[1]}">${note[0]}</span></div>
       <iframe id="playerFrame" title="${esc(m.title)}" src="${esc(src)}"></iframe></div>`;
+    document.body.classList.add("playing");
     wireGo();
     if (u.role !== "student") return;
     // Khung cùng origin: học sinh chạm hoặc gõ phím trong bài thì bật chốt, gửi điểm về (ontap:result) thì tắt.
@@ -1021,6 +1079,8 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
   function route() {
     if (quizRun) { quizRun.stop(); quizRun = null; }
     guard = null; closeLeave(); shownHash = location.hash;
+    document.body.classList.remove("playing");
+    foot.hidden = true;
     const old = $("#evDetail"); if (old) old.remove();
     document.title = TITLE;
     if (Store.cloud) {
@@ -1036,6 +1096,8 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
     const parts = path.split("/").filter(Boolean);
     const [name, a, b] = parts;
     window.scrollTo(0, 0);
+    // Chú thích lịch thi cuối trang chỉ ở trang chủ (của quản trị là tab Tổng quan) và trang Lịch thi.
+    foot.hidden = !(name === undefined || name === "home" || name === "calendar" || (name === "admin" && (!a || a === "overview")));
     switch (name) {
       case "calendar": return renderCalendar(u);
       case "play": return renderPlay(u, a);

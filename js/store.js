@@ -22,7 +22,7 @@
     return {
       v: SCHEMA_VERSION,
       settings: { schoolName: "", schoolYear: "2026–2027", createdAt: new Date().toISOString() },
-      users: [],      // {id, role, name, avatar, salt, pinHash, grade?, className?, parentIds?: [], createdAt}
+      users: [],      // {id, role, name, avatar, salt, pinHash, pinLen, grade?, className?, parentIds?: [], createdAt}
       events: clone(window.ONTAP_SEED_EVENTS || []),
       banks: [],      // ngân hàng do quản trị viên nhập (ngân hàng có sẵn nằm ở data/banks.js)
       results: [],    // {id, userId, source:"module"|"bank", refId, subject, label, mode, r, t, s, at}
@@ -39,8 +39,13 @@
       db = raw ? JSON.parse(raw) : null;
     } catch (e) { db = null; memoryOnly = true; }
     if (!db || typeof db !== "object" || !Array.isArray(db.users)) db = null;
-    if (db) { dropRetiredEvents(); dropRetiredBanks(); linkNewSeedBanks(); }
+    if (db) { fillDefaults(); dropRetiredEvents(); dropRetiredBanks(); linkNewSeedBanks(); }
     return db;
+  }
+  /* Giá trị mặc định cho trường thêm sau khi đã có dữ liệu trên máy.
+     pinLen: độ dài PIN (4–6) để bàn phím tự vào khi gõ đủ số. Tài khoản cũ chưa có thì 0 = chưa biết; checkPin đúng sẽ ghi lại. */
+  function fillDefaults() {
+    db.users.forEach((u) => { if (!(u.pinLen >= 4 && u.pinLen <= 6)) u.pinLen = 0; });
   }
   /* Kì thi từng có trong lịch mặc định nhưng đã bỏ khỏi bản 1.0: xóa khỏi máy đã có dữ liệu (một lần). */
   const RETIRED_EVENTS = ["violympic-l4", "trang-nguyen-l4"];
@@ -111,7 +116,7 @@
     const u = {
       id: uid(), role: data.role, name: String(data.name).trim().slice(0, 40),
       avatar: data.avatar || (data.role === "student" ? "🐣" : data.role === "parent" ? "🌻" : "🧭"),
-      salt, pinHash: await hashPin(String(data.pin), salt), createdAt: new Date().toISOString()
+      salt, pinHash: await hashPin(String(data.pin), salt), pinLen: String(data.pin).length, createdAt: new Date().toISOString()
     };
     if (u.role === "student") {
       u.grade = +data.grade;
@@ -128,7 +133,7 @@
     if (patch.avatar) u.avatar = patch.avatar;
     if (patch.pin != null && patch.pin !== "") {
       if (!validPin(patch.pin)) throw new Error("Mã PIN gồm 4 đến 6 chữ số.");
-      u.salt = uid(); u.pinHash = await hashPin(String(patch.pin), u.salt);
+      u.salt = uid(); u.pinHash = await hashPin(String(patch.pin), u.salt); u.pinLen = String(patch.pin).length;
     }
     if (u.role === "student") {
       if (patch.grade != null) { if (![4, 6].includes(+patch.grade)) throw new Error("Chọn khối lớp 4 hoặc 6."); u.grade = +patch.grade; }
@@ -149,7 +154,9 @@
   async function checkPin(id, pin) {
     const u = db.users.find((x) => x.id === id);
     if (!u) return false;
-    return (await hashPin(String(pin), u.salt)) === u.pinHash;
+    const ok = (await hashPin(String(pin), u.salt)) === u.pinHash;
+    if (ok && !u.pinLen) { u.pinLen = String(pin).length; save(); }
+    return ok;
   }
   const childrenOf = (parentId) => db.users.filter((u) => u.role === "student" && (u.parentIds || []).includes(parentId));
 
@@ -238,7 +245,7 @@
     data.banks = Array.isArray(data.banks) ? data.banks : [];
     data.settings = data.settings || {};
     data.v = SCHEMA_VERSION;
-    db = data; linkNewSeedBanks(); save();
+    db = data; fillDefaults(); linkNewSeedBanks(); save();
   }
   function wipe() {
     try {

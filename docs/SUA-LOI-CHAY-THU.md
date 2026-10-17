@@ -1,6 +1,6 @@
 # Sửa lỗi cơ bản sau khi dùng thử (16/10/2026)
 
-Trạng thái: **Phiên 9a đã làm** (L1, L2, L3); Phiên 9b, 9c chưa làm. Ba phiên Claude Code để sửa: mục 3.
+Trạng thái: **Phiên 9a, 9b đã làm** (L1–L11; ảnh 360px sau Phiên 9b: [hinh-360/](hinh-360/)); Phiên 9c chưa làm. Ba phiên Claude Code để sửa: mục 3.
 
 **Cách đã thử:** chạy mã nhánh `main` (commit `5866b72`, giống bản đang đăng trên GitHub Pages) bằng Chromium tự động, màn hình điện thoại 360×740, rồi thêm chế độ tối và màn hình 1280px. Đi hết các luồng:
 - thiết lập lần đầu và các tab quản trị;

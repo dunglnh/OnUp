@@ -25,7 +25,7 @@ Phần mở rộng so với 4 trang gốc: **tài khoản người dùng**, **l�
 | Phụ huynh | Bố, mẹ, người giám hộ | Xem hồ sơ và kết quả của các con được gắn với mình; thêm con; đổi tên, lớp, PIN của con; xem thử bài ôn (không lưu điểm) |
 | Quản trị | Thầy cô, hoặc bố/mẹ quản lý app | Mọi quyền trên, cộng: tạo/sửa/xóa mọi tài khoản, gắn phụ huynh với con, sửa lịch thi, nhập ngân hàng câu hỏi, sao lưu/khôi phục, xóa dữ liệu |
 
-- Đăng nhập: chọn tên trên màn hình, nhập mã PIN 4–6 số. Sai 5 lần phải đợi 30 giây.
+- Đăng nhập: chọn tên trên màn hình, nhập mã PIN 4–6 số (gõ đủ số là tự vào, không cần bấm “Vào”). Sai 5 lần phải đợi 30 giây.
 - Một học sinh có thể có nhiều phụ huynh; một phụ huynh có thể có nhiều con (khác khối cũng được).
 - Phải luôn còn ít nhất một tài khoản quản trị.
 - Dữ liệu về trẻ chỉ gồm tên hiển thị, khối, lớp, hình đại diện (biểu tượng cảm xúc). Không thu thập thông tin khác.
@@ -60,12 +60,13 @@ Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mố
 ## 4. Màn hình
 
 ### 4.1 Học sinh — Trang chính
-- **Kì thi tiếp theo**: tên, số ngày còn lại, môn, phạm vi, nút vào bài ôn của kì đó, và "điểm ôn 4 tuần qua cho kì này".
+- **Kì thi tiếp theo**: tên, số ngày còn lại, môn, phạm vi, nút vào bài ôn của kì đó (đề ngân hàng gộp thành một nút "Đề ôn · N đề" mở nhóm của kì này ở mục Tất cả bài ôn), và "điểm ôn 4 tuần qua cho kì này".
 - **Ba con số**: số bài trong 7 ngày, điểm trung bình 30 ngày (thang 10), số ngày ôn liên tiếp.
+- **Kết quả gần đây**: 3 lần làm bài mới nhất.
 - **Theo môn**: thanh tỉ lệ đúng từng môn trong 30 ngày.
 - **Chủ đề hay sai**: các chủ đề có nhiều câu sai nhất (từ ngân hàng câu hỏi).
 - **Lịch thi sắp tới** (5 mục), có nhãn "Sẵn sàng x%" khi con đã ôn cho kì đó.
-- **Tất cả bài ôn** của khối, **kết quả gần đây**.
+- **Tất cả bài ôn** của khối, gom theo kì thi chưa qua: kì gần nhất mở sẵn, các kì sau thu gọn; bài không thuộc kì nào trong số đó ở nhóm "Bài ôn khác". Trong mỗi kì, đề ngân hàng gom theo môn thành một dòng có nút "Đề 1 · Đề 2 · …".
 
 ### 4.2 Phụ huynh — Trang chính
 - Danh sách con: lần làm bài gần nhất, điểm trung bình 30 ngày, kì thi sắp tới.
