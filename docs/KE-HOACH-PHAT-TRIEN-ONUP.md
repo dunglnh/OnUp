@@ -42,6 +42,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 |---|---|---|---|
 | 1 | 1/11 | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** (GitHub Issues) | Giữa kì I (2–13/11) |
 | 1 | 1/11 | **Phiên N0a, N0b · Đề giữa kì I lớp 6 còn thiếu, Tiếng Anh 4 cuối kì I** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); N0a đã xong) | Giữa kì I (2–13/11) |
+| 1 | 1/11 | **Phiên U1 · Nút xem mật khẩu và mã PIN** (lời giao việc ở mục 4) | Phụ huynh, học sinh gõ đúng mật khẩu, PIN |
 | 2 | 30/11 | **Phiên K1–K3 · Tách dữ liệu đề, dạng câu mới, rút đề theo ma trận** | Đa dạng đề, đủ chỗ cho lớp 5–12 |
 | 3 | 15/12 | **Phiên N1–N6 · Đủ đề cuối kì I lớp 4 và 6** | Cuối kì I (21/12–8/1) |
 | 4 | 1/3 | **Phiên N7–N12 · Giữa kì II lớp 4 và 6** (thay Phiên 15 cũ) | Giữa kì II (15–26/3) |
@@ -70,6 +71,35 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 - Merge từng Pull Request trước khi mở phiên sửa cùng file.
 
 ## 4. Lời giao việc (dán nguyên vào phiên mới)
+
+**Phiên U1 · Nút xem mật khẩu và mã PIN**
+> Đọc CLAUDE.md. Thêm nút hình con mắt vào mọi ô mật khẩu và mã PIN (`input type="password"`), bấm để xem mình đã gõ gì, bấm lại để ẩn.
+> - **Phạm vi** (12 ô):
+>   - bản lưu trên máy: sPin, sPin2 (thiết lập lần đầu), pinIn (bàn phím PIN khi đăng nhập), uPin (form học sinh/phụ huynh), aOld, aNew (trang Tài khoản);
+>   - bản đám mây: lPass (đăng nhập), pwOld, pwNew, pwNew2 (đặt và đổi mật khẩu), pwIn (Phụ huynh nhập lại mật khẩu), uPin (PIN hồ sơ con);
+>   - admin.html: adPass.
+>
+>   Ô mật khẩu tạm ở trang admin đã hiện chữ sẵn, không cần thêm.
+> - **Cách làm:**
+>   - Viết một hàm dùng chung trong js/app.js (ví dụ wireReveal(root)), gọi sau khi vẽ mỗi màn hình có ô mật khẩu. Hàm tự tìm mọi ô type="password" trong màn hình, nên sau này thêm ô mới chỉ cần gọi hàm.
+>   - admin.html tự chứa nên có bản riêng, cùng cách làm và cùng lớp CSS trong css/app.css.
+> - **Nút:**
+>   - `<button type="button">` nằm trong ô, sát cạnh phải; biểu tượng SVG vẽ trong code (mắt / mắt gạch chéo), không tải từ ngoài; màu theo token, rõ ở chế độ tối.
+>   - Vùng bấm ≥ 44×44px. Ô thêm khoảng trống bên phải để chữ không chui dưới nút, và vẫn đủ rộng ở 360px.
+>   - aria-label "Hiện mật khẩu"/"Ẩn mật khẩu" (ô PIN: "Hiện mã PIN"/"Ẩn mã PIN"), cùng aria-pressed.
+> - **Khi bấm:**
+>   - Đổi type giữa password và text, giữ nguyên giá trị, vị trí con trỏ, inputmode="numeric" của ô PIN, autocomplete.
+>   - Giữ ô đang gõ trong trạng thái focus để bàn phím điện thoại không đóng lại.
+>   - Riêng bàn phím PIN: khi hiện thì hàng chấm #pinDots cũng hiện chữ số đã gõ thay cho chấm.
+> - **Tự ẩn lại** khi gửi form (đúng hay sai), khi xóa hết ô, và khi chuyển màn hình. Không lưu trạng thái hiện/ẩn ở đâu cả, không ghi giá trị ra console hay localStorage.
+> - **Kiểm thử:**
+>   - tests/e2e.js (thiết lập, đăng nhập PIN, form học sinh, trang Tài khoản): mỗi ô có nút; bấm thì type="text", aria-pressed="true", giá trị không đổi; bấm lại thì về password; gửi form xong về password; kiểm tra 360px vẫn qua.
+>   - tests/supabase/cloud-e2e.js: lPass, pwNew, pwNew2, pwIn, adPass như trên.
+>   - Ảnh 360px sáng/tối của màn đăng nhập (cả hai bản) và bàn phím PIN khi đang hiện số.
+> - Ghi vào CLAUDE.md (mục Quy ước code): ô mật khẩu mới phải có nút xem.
+>
+> Chạy tests/e2e.js và tests/supabase/cloud-e2e.js đến khi in OK, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
+
 
 **Phiên 9 · Sửa lỗi từ góp ý chạy thử**
 > Đọc CLAUDE.md. Đọc các GitHub Issue đang mở của repo này (góp ý từ việc chạy thử với học sinh). Sửa từng issue trong một nhánh, mỗi issue một commit có ghi “Fixes #số”. Không thêm tính năng mới ngoài các issue. Chạy tests/e2e.js (và các bài kiểm thử Supabase nếu sửa phần đám mây), chỉ tự rà soát một vòng, rồi mở một Pull Request liệt kê issue đã sửa và issue chưa sửa được kèm lí do.
