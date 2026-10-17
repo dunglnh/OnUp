@@ -1,6 +1,6 @@
 # Thiết kế: khung quản lý tài khoản và trang admin
 
-Phiên bản 2 · 16/10/2026 · Trạng thái: **Phiên A (máy chủ) và Phiên B (app) đã làm, còn Phiên C (trang admin)**. Các phiên Claude Code để làm: mục 8.
+Phiên bản 2 · 16/10/2026 · Trạng thái: **Phiên A (máy chủ), Phiên B (app) và Phiên C (trang admin) đã làm**. Các phiên Claude Code để làm: mục 8.
 
 **Phạm vi bây giờ:** dựng khung tài khoản để sau này phát triển tiếp. Chủ app (bạn) tạo và quản lý tài khoản ở một **trang admin riêng**; phụ huynh đăng nhập bằng **tên đăng nhập + mật khẩu**; con là hồ sơ trong tài khoản của bố mẹ. **Chưa làm bản trả phí**: mọi tài khoản dùng được mọi nội dung. Bản trả phí chỉ tính khi app đã có đủ đề từ lớp 4 đến lớp 12 (mục 9 ghi sẵn hướng đi). Khung bây giờ chừa sẵn chỗ để lúc đó không phải làm lại.
 
@@ -78,6 +78,13 @@ Quên mật khẩu: dưới ô đăng nhập có dòng “Quên mật khẩu? Li
 - **Xem nhanh** một tài khoản: số hồ sơ con, khối, lần dùng gần nhất (không xem nội dung bài làm).
 - **Nhật ký** thao tác admin (ai, làm gì, lúc nào).
 - Số liệu nhanh: tổng tài khoản, số hồ sơ con theo khối, số tài khoản dùng trong 7 ngày.
+
+**Đã làm ở Phiên C** (`admin.html`; ảnh 360px sáng/tối: `admin-*.jpg` trong [hinh-dam-may/](hinh-dam-may/)):
+- Một trang riêng, dùng `css/app.css`, JavaScript thuần trong file. Đăng nhập bằng tài khoản chủ app; phiên chỉ giữ trong thẻ, riêng với phiên của trang học. Tài khoản không có trong `app_owners` thấy “Không có quyền”. `js/config.js` để trống thì trang chỉ báo, không tải gì từ mạng.
+- Ba mục: **Tài khoản** (số liệu nhanh; tìm theo tên đăng nhập, tên hiển thị, ghi chú, không phân biệt dấu; lọc đang khóa, chưa đổi mật khẩu tạm, không dùng 7 ngày), **Tạo tài khoản** (mật khẩu tạm gợi ý sẵn, bỏ các chữ dễ đọc nhầm), **Nhật ký** (ai, làm gì, lúc nào; xem thêm theo trang).
+- Trang của một tài khoản: xem nhanh (trạng thái, số hồ sơ con và khối, lần dùng gần nhất, mật khẩu tạm hay đã đổi, gói, ngày tạo), ghi chú, đặt lại mật khẩu, khóa / mở khóa (có hỏi lại), xóa (phải gõ đúng tên đăng nhập), nhật ký của tài khoản đó.
+- Tạo tài khoản hoặc đặt lại mật khẩu xong: tên đăng nhập và mật khẩu tạm hiện một lần, kèm nút **Chép lời nhắn** (tên đăng nhập, mật khẩu tạm, địa chỉ trang học) để dán vào Zalo.
+- Thao tác với tài khoản qua Edge Function `admin` (có nhật ký); ghi chú ghi thẳng vào `admin_notes`, nhật ký đọc từ `admin_log` (RLS chỉ cho chủ app). Không sửa máy chủ: không phải triển khai lại hàm `admin`. Chưa có nút đổi gói (mục 9).
 
 ---
 

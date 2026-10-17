@@ -6,7 +6,9 @@
    báo cáo tuần, đổi mật khẩu, chuyển dữ liệu máy này, đăng xuất → máy không ghi nhớ → tài khoản bị khóa.
    Mỗi màn hình kiểm tra ở 360px như tests/e2e.js (không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px); ảnh sáng và tối lưu ở
    tests/screenshots/cloud/ (thêm bản ghép sáng/tối cạnh nhau <tên>.jpg để xem nhanh). Lượt tối chạy với CAPTCHA bật. Cuối cùng kiểm tra service worker (sw.js) không làm hỏng bản
-   đám mây và không đệm request ra ngoài app. */
+   đám mây và không đệm request ra ngoài app, rồi trang admin của chủ app (admin.html): tài khoản gia đình thấy “Không có
+   quyền”; chủ app xem số liệu nhanh, tìm, lọc, tạo tài khoản, xem nhanh, ghi chú, đặt lại mật khẩu, khóa, mở khóa, xóa,
+   nhật ký. */
 // Cho route và sự kiện request của Playwright áp dụng cả cho service worker (xem tests/e2e.js).
 process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS = "1";
 const { chromium } = require("playwright");
@@ -59,10 +61,11 @@ async function run(browser, scheme) {
   const be = createBackend();
   const { createHandler, LOGIN_DOMAIN } = await (await import(pathToFileURL(path.join(__dirname, "load-edge.mjs")).href)).loadEdgeFunction();
   be.functions.admin = createHandler({ db: createFakeSupabase((m) => be.handle(m), { service: true }), getUser: be.getUser });
-  const ownerUser = be.addUser("chu.app@" + LOGIN_DOMAIN, "chu-app-mat-khau-rat-dai-2026");
+  const OWNER_PW = "chu-app-mat-khau-rat-dai-2026";
+  const ownerUser = be.addUser("chu.app@" + LOGIN_DOMAIN, OWNER_PW);
   be.T.app_owners.push({ user_id: ownerUser.id, created_at: new Date().toISOString() });
   const mem = new Map(), owner = createFakeSupabase((m) => be.handle(m), { storage: { getItem: (k) => mem.get(k) || null, setItem: (k, v) => mem.set(k, v), removeItem: (k) => mem.delete(k) } });
-  await owner.auth.signInWithPassword({ email: "chu.app@" + LOGIN_DOMAIN, password: "chu-app-mat-khau-rat-dai-2026" });
+  await owner.auth.signInWithPassword({ email: "chu.app@" + LOGIN_DOMAIN, password: OWNER_PW });
   const admin = async (body) => { const r = await owner.functions.invoke("admin", { body }); return r.error ? r.error.context.json() : r.data; };
   const TEMP = "tam-7k2m9q", PW = "me-bin-2026", PW2 = "me-bin-moi-2026";
   const acc = (await admin({ action: "create_account", username: "nha.bin", password: TEMP, display_name: "Nhà Bin" })).account;
@@ -269,7 +272,97 @@ async function run(browser, scheme) {
   const cached = await q.evaluate(async () => { const out = []; for (const k of await caches.keys()) for (const r of await (await caches.open(k)).keys()) out.push(r.url); return out; });
   await other.close();
 
-  console.log(scheme, c, captchaBoxes);
+  /* ---- trang admin của chủ app (admin.html) ---- */
+  const ad = {};
+  const userOf = (name) => [...be.users.values()].find((x) => x.email === name + "@" + LOGIN_DOMAIN);
+  const famOf = (name) => be.T.families.find((f) => f.username === name);
+  await admin({ action: "create_account", username: "nha.na", password: "tam-na-2026" }); // tài khoản gia đình, không phải chủ app
+  const adm = await device();
+  await adm.grantPermissions(["clipboard-read", "clipboard-write"], { origin: BASE });
+  const a = await adm.newPage();
+  await a.goto(BASE + "/"); // trang học cài service worker; trang admin không đi qua nó
+  await a.evaluate(() => navigator.serviceWorker.ready); await a.waitForFunction(() => !!navigator.serviceWorker.controller);
+  await a.goto(BASE + "/admin.html"); await a.waitForSelector("#adLogin");
+  await shot(a, "c16-admin-dang-nhap");
+  await a.fill("#adUser", "nha.na"); await a.fill("#adPass", "tam-na-2026"); await a.click("#adGo"); await a.waitForSelector("#noPerm");
+  ad.noPerm = await text(a, "#noPerm");
+  await shot(a, "c17-admin-khong-co-quyen");
+  await a.click("#npOut"); await a.waitForSelector("#adLogin");
+  await a.fill("#adUser", "chu.app"); await a.fill("#adPass", "sai-mat-khau"); await a.click("#adGo"); await a.waitForSelector("#adErr .fb");
+  ad.wrong = await text(a, "#adErr");
+  await a.fill("#adPass", OWNER_PW); await a.click("#adGo"); await a.waitForSelector("#accList .list");
+  ad.captcha = withCaptcha ? await a.evaluate(() => window.turnstile.boxes.join()) : "";
+  ad.session = await a.evaluate(() => !!sessionStorage.getItem("onup_admin_auth") && !localStorage.getItem("onup_admin_auth") && !localStorage.getItem("ontap_sb_auth") && !sessionStorage.getItem("ontap_sb_auth"));
+  await a.reload(); await a.waitForSelector("#accList .list"); // tải lại trong cùng thẻ: vẫn đăng nhập
+  const rows = () => a.$$eval("#accList .item b", (b) => b.map((x) => x.textContent).join());
+  ad.stats = await a.$$eval("#stats .stat", (s) => s.map((x) => x.querySelector("b").textContent + " " + x.querySelector("span").textContent).join(" | "));
+  ad.byGrade = await text(a, "#byGrade");
+  ad.rows = await rows();
+  await shot(a, "c18-admin-danh-sach");
+  await a.fill("#q", "BIN"); ad.search = await rows();
+  await a.fill("#q", "khong-co-ai"); ad.none = await text(a, "#accList");
+  await a.fill("#q", ""); await a.selectOption("#st", "locked"); ad.lockedOnly = await rows();
+  await a.selectOption("#st", "all");
+  // tạo tài khoản
+  await a.click('.tabs [data-go="#/new"]'); await a.waitForSelector("#cForm");
+  const sug = await a.inputValue("#cPass"); await a.click("#cPassSug"); const sug2 = await a.inputValue("#cPass");
+  ad.suggest = /^[a-hj-km-np-z2-9]{10}$/.test(sug) && /^[a-hj-km-np-z2-9]{10}$/.test(sug2) && sug !== sug2;
+  await a.fill("#cUser", "Nha.Tom"); await a.fill("#cName", "Nhà Tôm"); await a.fill("#cNote", "Bố Tôm, Zalo 0901 234 567");
+  await shot(a, "c19-admin-tao-tai-khoan");
+  await a.fill("#cUser", "Ab"); await a.click("#cGo"); ad.badUser = await text(a, "#cErr");
+  await a.fill("#cUser", "nha.bin"); await a.click("#cGo"); await a.waitForSelector("#cErr .fb"); ad.taken = await text(a, "#cErr");
+  await a.fill("#cUser", "Nha.Tom"); await a.click("#cGo"); await a.waitForSelector("#creds");
+  ad.created = { user: await text(a, "#credUser"), pass: await text(a, "#credPass"), msg: await text(a, "#credMsg") };
+  await a.click("#copyMsg"); await wait(a, 300);
+  ad.clip = await a.evaluate(() => navigator.clipboard.readText()).catch((e) => "lỗi: " + e.message);
+  await shot(a, "c20-admin-da-tao");
+  const tom = famOf("nha.tom");
+  ad.tomOK = !!tom && tom.must_change_password && tom.display_name === "Nhà Tôm" && userOf("nha.tom").password === ad.created.pass
+    && (be.T.admin_notes.find((n) => n.family_id === tom.id) || {}).note === "Bố Tôm, Zalo 0901 234 567";
+  // xem nhanh, đặt lại mật khẩu, khóa, xóa tài khoản vừa tạo
+  await a.click("text=Xem tài khoản"); await a.waitForSelector("#quick");
+  ad.tomQuick = await text(a, "#quick");
+  await a.click("#rpOpen"); await a.fill("#rpPass", "ngan"); await a.click("#rpGo"); ad.shortPw = await text(a, "#rpErr");
+  await a.click("#rpPassSug"); const newPw = await a.inputValue("#rpPass");
+  await a.click("#rpGo"); await a.waitForSelector("#creds");
+  ad.reset = (await text(a, "#credPass")) === newPw && userOf("nha.tom").password === newPw && famOf("nha.tom").must_change_password;
+  await a.click("#stOpen"); await a.click("#stGo"); await a.waitForSelector('#stOpen:text-is("Mở khóa")');
+  ad.lock = famOf("nha.tom").status === "locked" && !!userOf("nha.tom").banned_until;
+  await a.click("#delOpen"); await a.fill("#delIn", "nha.to"); ad.delOff = await a.$eval("#delGo", (b) => b.disabled);
+  await a.fill("#delIn", "nha.tom"); ad.delOn = !(await a.$eval("#delGo", (b) => b.disabled));
+  await a.click("#delGo"); await a.waitForSelector("#accList .list");
+  ad.deleted = !famOf("nha.tom") && !userOf("nha.tom") && (await rows()) === "nha.na,nha.bin";
+  // tài khoản có hồ sơ con: xem nhanh, ghi chú, mở khóa, nhật ký của tài khoản
+  await a.click('#accList a.item:has(b:text-is("nha.bin"))'); await a.waitForSelector("#quick");
+  ad.binQuick = await text(a, "#quick");
+  await a.fill("#nText", "Mẹ Bin, Zalo 0987 654 321"); await a.click("#nGo");
+  ad.note = await until(a, () => (be.T.admin_notes.find((n) => n.family_id === acc.id) || {}).note === "Mẹ Bin, Zalo 0987 654 321");
+  await a.click("#stOpen"); await a.click("#stGo"); await a.waitForSelector('#stOpen:text-is("Khóa tài khoản")');
+  ad.unlock = famOf("nha.bin").status === "active" && !userOf("nha.bin").banned_until;
+  await a.waitForSelector("#accLog .item");
+  ad.accLog = await a.$$eval("#accLog .item b", (b) => b.map((x) => x.textContent).join());
+  await shot(a, "c21-admin-xem-nhanh");
+  await a.click('.linkbtn[data-go="#/"]'); await a.waitForSelector("#accList .list");
+  await a.fill("#q", "0987"); ad.noteSearch = await rows();
+  await a.fill("#q", "nha bin"); ad.foldSearch = await rows(); // tên hiển thị “Nhà Bin”: tìm không dấu
+  await a.fill("#q", "");
+  // trang học trong cùng thẻ không dùng phiên của trang admin; quay lại trang admin vẫn đăng nhập
+  await a.goto(BASE + "/"); await a.waitForSelector("#loginForm");
+  await a.goto(BASE + "/admin.html#/log"); await a.waitForSelector("#logList .item");
+  ad.appSeparate = true;
+  ad.log = await a.$$eval("#logList .item b", (b) => b.map((x) => x.textContent).join(" | "));
+  ad.actor = await a.$$eval("#logList .item .muted", (s) => s.length > 0 && s.every((x) => /· Bạn$/.test(x.textContent.trim())));
+  await shot(a, "c22-admin-nhat-ky");
+  const swUrls = await a.evaluate(async () => { const out = []; for (const k of await caches.keys()) for (const r of await (await caches.open(k)).keys()) out.push(r.url); return out; });
+  ad.swAdmin = swUrls.filter((u) => /admin\.html/.test(u));
+  ad.swSkip = swUrls.length > 0 && !ad.swAdmin.length;
+  await a.click("#outBtn"); await a.waitForSelector("#adLogin");
+  ad.out = await a.evaluate(() => !sessionStorage.getItem("onup_admin_auth"));
+  await adm.close();
+  const libOf = (f) => { const s = fs.readFileSync(path.join(__dirname, "..", "..", f), "utf8"); return [(/src:\s*"(https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/[^"]+)"/.exec(s) || [])[1], (/integrity:\s*"([^"]+)"/.exec(s) || [])[1]].join(" "); };
+  ad.lib = /supabase-js@[\d.]+\/.* sha384-/.test(libOf("admin.html")) && libOf("admin.html") === libOf("js/store-supabase.js");
+
+  console.log(scheme, c, captchaBoxes, ad);
   const checks = {
     "đăng nhập: dòng “Quên mật khẩu?” lấy chữ và đường liên hệ từ js/config.js": c.contact === CONTACT + " · Nhắn Zalo cho cô Lan",
     "sai mật khẩu: báo rõ": /Tên đăng nhập hoặc mật khẩu chưa đúng/.test(c.wrong),
@@ -297,6 +390,19 @@ async function run(browser, scheme) {
     "có service worker, tải lại vẫn là bản đám mây": swAgain,
     "L19: service worker không chạy app.js cũ cùng store-supabase.js mới": c.swMixed === "new app.js, new store-supabase.js, true",
     "service worker không đệm, không gửi request ra ngoài app": cached.length > 0 && cached.every((u) => u.startsWith(BASE + "/")) && swOut.length === 0,
+    "admin: tài khoản gia đình thấy “Không có quyền”; sai mật khẩu thì báo": /Không có quyền/.test(ad.noPerm) && /chưa đúng/.test(ad.wrong),
+    "admin: phiên chỉ trong thẻ, riêng với trang học; tải lại vẫn đăng nhập": ad.session && ad.appSeparate,
+    "admin: số liệu nhanh (tài khoản, dùng trong 7 ngày, hồ sơ con theo khối)": ad.stats === "2 tài khoản | 1 dùng trong 7 ngày | 3 hồ sơ con" && /Lớp 4: 1/.test(ad.byGrade) && /Lớp 6: 2/.test(ad.byGrade),
+    "admin: danh sách; tìm theo tên đăng nhập, tên (không dấu), ghi chú; lọc tài khoản đang khóa": ad.rows === "nha.na,nha.bin" && ad.search === "nha.bin" && /Không thấy/.test(ad.none)
+      && ad.lockedOnly === "nha.bin" && ad.noteSearch === "nha.bin" && ad.foldSearch === "nha.bin",
+    "admin: tạo tài khoản (gợi ý mật khẩu tạm, báo tên sai, tên đã có), chép lời nhắn": ad.suggest && /4–20 kí tự/.test(ad.badUser) && /đã có/.test(ad.taken) && ad.created.user === "nha.tom" && ad.tomOK
+      && ad.created.msg.includes(ad.created.pass) && ad.created.msg.includes(BASE + "/") && ad.clip === ad.created.msg,
+    "admin: xem nhanh (hồ sơ con, khối, lần dùng gần nhất), lưu ghi chú": /3 \(Lớp 4, Lớp 6\)/.test(ad.binQuick) && /Hôm nay/.test(ad.binQuick) && /Đang khóa/.test(ad.binQuick) && /Chưa dùng lần nào/.test(ad.tomQuick) && ad.note,
+    "admin: đặt lại mật khẩu, khóa, mở khóa, xóa (gõ đúng tên đăng nhập mới xóa được)": /8–72/.test(ad.shortPw) && ad.reset && ad.lock && ad.unlock && ad.delOff && ad.delOn && ad.deleted,
+    "admin: nhật ký thao tác (mới nhất trước, ai làm) và nhật ký của từng tài khoản": ad.actor && ad.accLog === "Mở khóa,Khóa tài khoản,Tạo tài khoản"
+      && ad.log === "Mở khóa · nha.bin | Xóa tài khoản · nha.tom | Khóa tài khoản · nha.tom | Đặt lại mật khẩu · nha.tom | Tạo tài khoản · nha.tom | Tạo tài khoản · nha.na | Khóa tài khoản · nha.bin | Tạo tài khoản · nha.bin",
+    "admin: đăng xuất; CAPTCHA (khi bật) khi đăng nhập": ad.out && (!withCaptcha || ad.captcha === "adCaptcha,adCaptcha,adCaptcha"),
+    "admin: không đi qua service worker; cùng bản supabase-js với trang học": ad.swSkip && ad.lib,
     "360px: không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px": problems.length === 0,
     "không lỗi trên trang": errs.length === 0
   };

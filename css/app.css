@@ -214,6 +214,15 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .captcha{max-width:100%;overflow:hidden}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;z-index:50;max-width:calc(100% - 32px)}
 
+/* trang admin của chủ app (admin.html) */
+.kv{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:8px 14px;margin:0;align-items:baseline}
+.kv dt{color:var(--muted);font-size:.875rem}
+.kv dd{margin:0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.note-in{min-height:96px;font:inherit;background:var(--surface)}
+.pw-row{flex-wrap:nowrap}
+.pw-in{flex:1;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em}
+.wrap{overflow-wrap:anywhere}
+
 /* khung bài ôn: body.playing (renderPlay) cho .app cao đúng một màn hình, khung chiếm phần còn lại,
    nên chỉ cuộn bên trong khung (trang ngoài không cuộn). */
 body.playing{padding-bottom:0}

@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>OnUp - Trang admin</title>
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#f3f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#11151a" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <a class="brand" href="#/" aria-label="OnUp - Trang admin, về danh sách tài khoản">OnUp<span class="brand-sub"><span class="dash"> - </span>Trang admin</span></a>
+    <div class="who" id="who"></div>
+  </header>
+  <main id="view" aria-live="polite"><div class="panel muted" role="status">Đang tải…</div></main>
+</div>
+<noscript>Trang này cần bật JavaScript.</noscript>
+<script src="data/grades.js"></script>
+<script src="js/config.js"></script>
+<script>
+/* Trang admin của chủ app: tạo và quản lý tài khoản gia đình (docs/THIET-KE-TAI-KHOAN.md mục 4.3).
+   - Chỉ dùng với bản đám mây (js/config.js có supabaseUrl + supabaseAnonKey). Để trống thì chỉ báo, không tải gì từ mạng.
+   - Đăng nhập bằng tài khoản chủ app (người dùng Supabase Auth có trong app_owners). Phiên chỉ giữ trong tab (sessionStorage,
+     khóa onup_admin_auth, riêng với phiên của trang học ontap_sb_auth): đóng tab là thoát.
+   - Thao tác với tài khoản đi qua Edge Function admin (supabase/functions/admin/index.ts): list_accounts (danh sách, số liệu
+     nhanh), create_account, reset_password, set_status, delete_account. Người gọi không phải owner thì hàm trả "forbidden":
+     trang báo "Không có quyền".
+   - Ghi chú (admin_notes) đọc/ghi thẳng, nhật ký (admin_log) chỉ đọc: RLS chỉ cho owner (supabase/schema.sql).
+   - Không đọc hồ sơ con hay bài làm: chỉ số hồ sơ con, khối, lần dùng gần nhất do list_accounts trả về.
+   Định tuyến bằng hash: #/ (danh sách), #/new (tạo tài khoản), #/acc/<mã> (xem nhanh một tài khoản), #/log (nhật ký).
+   Kiểm thử: tests/supabase/cloud-e2e.js (bản đám mây), tests/e2e.js (bản lưu trên máy: chỉ báo, không gọi ra ngoài). */
+(function () {
+  "use strict";
+  const CFG = window.ONTAP_CONFIG || {};
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => [...(r || document).querySelectorAll(s)];
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const view = $("#view"), who = $("#who");
+  // Như LIB trong js/store-supabase.js (tests/supabase/cloud-e2e.js kiểm tra hai chỗ giống nhau).
+  const LIB = {
+    src: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js",
+    integrity: "sha384-iLddHTLokph6Omwoyid4XKxHaWa6w41BnoEj0q5oOrzmYPpHIKt1wyjReA7s//pP"
+  };
+  const LOGIN_DOMAIN = "users.onup.invalid";                // như LOGIN_DOMAIN trong Edge Function admin
+  const AUTH_KEY = "onup_admin_auth";
+  const PW_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789";     // như tempPassword trong Edge Function admin: bỏ i, l, o, 0, 1
+  const APP_URL = new URL("./", location.href).href;        // trang học, ghi trong lời nhắn gửi phụ huynh
+  const LOG_COLS = "id, actor, action, family_id, username, detail, at";
+  const LOG_PAGE = 50;
+  const GRADES = window.ONTAP_GRADES || [];
+  const gradeName = (g) => (GRADES.find((x) => x.grade === +g) || { name: "Lớp " + g }).name;
+
+  let sb = null;       // client supabase-js
+  let me = null;       // người đang đăng nhập (chủ app)
+  let data = null;     // {accounts, stats} từ list_accounts; null khi chưa đăng nhập hoặc không có quyền
+  let plans = null;    // mã gói → tên gói
+  const filter = { q: "", st: "all" };
+
+  /* ---------------- tiện ích ---------------- */
+  const mem = {};
+  const authStore = { // sessionStorage; trình duyệt chặn thì giữ trong bộ nhớ của trang
+    getItem(k) { try { return sessionStorage.getItem(k); } catch (e) { return mem[k] == null ? null : mem[k]; } },
+    setItem(k, v) { try { sessionStorage.setItem(k, v); } catch (e) { mem[k] = v; } },
+    removeItem(k) { delete mem[k]; try { sessionStorage.removeItem(k); } catch (e) { /* đã xóa trong bộ nhớ */ } }
+  };
+  let toastTimer;
+  function toast(msg) {
+    let t = $("#toast");
+    if (!t) { t = document.createElement("div"); t.id = "toast"; t.className = "toast"; t.setAttribute("role", "status"); document.body.append(t); }
+    t.textContent = msg; t.hidden = false; clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => (t.hidden = true), 2600);
+  }
+  const go = (h) => { if (location.hash === h) route(); else location.hash = h; };
+  function wireGo() { $$("[data-go]", view).forEach((b) => (b.onclick = () => go(b.dataset.go))); }
+  const fb = (sel, msg) => { const el = $(sel); if (el) el.innerHTML = msg ? `<div class="fb bad">${esc(msg)}</div>` : ""; };
+  const two = (n) => String(n).padStart(2, "0");
+  const dmy = (d) => d.getDate() + "/" + (d.getMonth() + 1) + "/" + d.getFullYear();
+  const day = (s) => { const [y, m, d] = String(s || "").slice(0, 10).split("-"); return y ? +d + "/" + +m + "/" + y : ""; }; // "2026-11-02" → "2/11/2026"
+  function when(iso) {
+    const d = new Date(iso), t = new Date(); t.setHours(0, 0, 0, 0);
+    const diff = Math.floor((t - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 864e5), hm = two(d.getHours()) + ":" + two(d.getMinutes());
+    return diff <= 0 ? "Hôm nay " + hm : diff === 1 ? "Hôm qua " + hm : dmy(d) + " " + hm;
+  }
+  const num = (x) => Number(x) || 0;
+  /* Tìm không phân biệt hoa thường, có dấu hay không ("nha bin" thấy "Nhà Bin"). */
+  const fold = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[đĐ]/g, "d").toLowerCase();
+
+  /* Tên đăng nhập, mật khẩu: như usernameProblem, passwordProblem, tempPassword trong Edge Function admin. */
+  const usernameProblem = (u) => !/^[a-z0-9][a-z0-9._]{2,18}[a-z0-9]$/.test(u) || u.includes("..");
+  const passwordProblem = (p) => p.length < 8 || p.length > 72;
+  function tempPassword(len) {
+    len = len || 10;
+    const out = [];
+    while (out.length < len) {
+      for (const b of crypto.getRandomValues(new Uint8Array(len * 2))) {
+        if (b < 248 && out.length < len) out.push(PW_ALPHABET[b % PW_ALPHABET.length]); // 248 = 8 × 31: không lệch
+      }
+    }
+    return out.join("");
+  }
+  const shareText = (u, p) => `Tài khoản OnUp của gia đình: tên đăng nhập ${u}, mật khẩu tạm ${p}. Mở ${APP_URL} để đăng nhập, rồi đặt mật khẩu mới.`;
+  async function copy(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* thử cách cũ */ }
+    try {
+      const t = document.createElement("textarea");
+      t.value = text; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0";
+      document.body.append(t); t.select();
+      const ok = document.execCommand("copy"); t.remove(); return ok;
+    } catch (e) { return false; }
+  }
+
+  /* ---------------- lỗi ---------------- */
+  const MSG = {
+    auth: "Phiên đăng nhập đã hết. Đăng nhập lại nhé.",
+    jwt: "Máy chủ từ chối lời gọi hàm admin. Kiểm tra đã tắt Verify JWT cho hàm admin (bước 5 của hướng dẫn cài).",
+    nofn: "Máy chủ chưa có hàm admin. Làm bước 5 của hướng dẫn cài (docs/HUONG-DAN-SUPABASE.md).",
+    forbidden: "Tài khoản này không có quyền dùng trang admin.",
+    username: "Tên đăng nhập gồm 4–20 kí tự: chữ thường không dấu, số, dấu chấm, gạch dưới; đầu và cuối là chữ hoặc số.",
+    taken: "Tên đăng nhập này đã có. Chọn tên khác.",
+    password: "Mật khẩu tạm cần 8–72 kí tự.",
+    not_found: "Không tìm thấy tài khoản này (có thể đã bị xóa). Tải lại danh sách nhé.",
+    self: "Đây là tài khoản của chủ app, không khóa hay xóa được ở đây.",
+    confirm: "Gõ đúng tên đăng nhập để xác nhận.",
+    bad_request: "Yêu cầu chưa đúng. Tải lại trang rồi thử lại.",
+    network: "Mất kết nối mạng. Kiểm tra mạng rồi thử lại.",
+    server: "Máy chủ đang lỗi. Thử lại sau ít phút; vẫn lỗi thì xem Edge Functions → admin → Logs trong Supabase."
+  };
+  const fail = (code) => Object.assign(new Error(MSG[code] || MSG.server), { code });
+  /* Gọi Edge Function admin. Lỗi: ném Error có code (mã lỗi của hàm, hoặc network/jwt/nofn/server). */
+  async function call(body) {
+    let r;
+    try { r = await sb.functions.invoke("admin", { body }); } catch (e) { throw fail("network"); }
+    if (!r.error) return r.data || {};
+    const ctx = r.error.context;
+    if (ctx && typeof ctx.json === "function") {
+      let j = null;
+      try { j = await ctx.json(); } catch (e) { /* không phải JSON */ }
+      // Hàm admin luôn trả {error}; không có thì là cổng của Supabase (chưa có hàm, còn bật Verify JWT…).
+      throw fail((j && typeof j.error === "string" && j.error) || (ctx.status === 404 ? "nofn" : ctx.status === 401 ? "jwt" : "server"));
+    }
+    throw fail(/relay/i.test(String(r.error.name || r.error.message)) ? "server" : "network");
+  }
+  /* Đọc/ghi thẳng một bảng (admin_notes, admin_log, plans). */
+  async function q(builder) {
+    let r;
+    try { r = await builder; } catch (e) { throw fail("network"); }
+    if (r && r.error) {
+      const m = String(r.error.message || ""), c = String(r.error.code || "");
+      throw fail(/^PGRST30\d$/.test(c) || /JWT/i.test(m) ? "auth" : c === "42501" ? "forbidden" : /fetch|network|Load failed/i.test(m) ? "network" : "server");
+    }
+    return r ? r.data : null;
+  }
+  /* Phiên hết hạn, hoặc không phải owner: chuyển màn hình luôn. Trả true nếu đã xử lí. */
+  function handled(e) {
+    if (e && e.code === "auth") { signOut(MSG.auth); return true; }
+    if (e && e.code === "forbidden") { renderForbidden(); return true; }
+    return false;
+  }
+
+  /* ---------------- thư viện, CAPTCHA (như js/store-supabase.js) ---------------- */
+  function loadLib() {
+    if (window.supabase && window.supabase.createClient) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = LIB.src; s.integrity = LIB.integrity; s.crossOrigin = "anonymous";
+      s.onload = () => (window.supabase ? resolve() : reject(new Error("no supabase")));
+      s.onerror = () => reject(new Error("Không tải được thư viện đám mây. Kiểm tra mạng rồi tải lại trang."));
+      document.head.append(s);
+    });
+  }
+  function secretKey(k) {
+    if (/^sb_secret_/.test(k)) return true;
+    try { return JSON.parse(atob(k.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).role === "service_role"; } catch (e) { return false; }
+  }
+  const TURNSTILE_SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+  let turnstileLoading = null;
+  function loadTurnstile() {
+    if (window.turnstile) return Promise.resolve();
+    if (!turnstileLoading) turnstileLoading = new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = TURNSTILE_SRC; s.async = true; // Cloudflare yêu cầu nạp thẳng từ địa chỉ gốc, không ghim phiên bản
+      s.onload = () => (window.turnstile ? resolve() : reject(new Error("no turnstile")));
+      s.onerror = () => { turnstileLoading = null; reject(new Error("Không tải được bước xác minh. Kiểm tra mạng rồi thử lại.")); };
+      document.head.append(s);
+    });
+    return turnstileLoading;
+  }
+  /* Mã xác minh dùng một lần cho lần đăng nhập; không có turnstileSiteKey thì không cần. */
+  async function captcha(sel) {
+    if (!CFG.turnstileSiteKey) return undefined;
+    await loadTurnstile();
+    const host = $(sel);
+    return new Promise((resolve, reject) => {
+      let id = null, done = false;
+      const finish = (fn, v) => { if (done) return; done = true; clearTimeout(timer); try { if (id != null) window.turnstile.remove(id); } catch (e) {} fn(v); };
+      const timer = setTimeout(() => finish(reject, new Error("Chưa xác minh xong. Thử lại nhé.")), 120000);
+      try {
+        id = window.turnstile.render(host, {
+          sitekey: CFG.turnstileSiteKey, appearance: "interaction-only", size: "flexible", language: "vi",
+          callback: (t) => finish(resolve, t),
+          "error-callback": () => finish(reject, new Error("Chưa xác minh được. Tải lại trang rồi thử lại.")),
+          "timeout-callback": () => finish(reject, new Error("Chưa xác minh xong. Thử lại nhé."))
+        });
+      } catch (e) { finish(reject, new Error("Chưa xác minh được. Tải lại trang rồi thử lại.")); }
+    });
+  }
+  function authMsg(e) {
+    const m = String((e && (e.message || e.error_description)) || e || "");
+    if (/fetch|network|Load failed|NetworkError/i.test(m)) return MSG.network;
+    if (/rate limit|security purposes|too many/i.test(m)) return "Thử quá nhiều lần. Đợi vài phút rồi thử lại.";
+    if (/captcha/i.test(m)) return CFG.turnstileSiteKey ? "Chưa xác minh được. Tải lại trang rồi thử lại."
+      : "Máy chủ đang bật chống máy tự động (CAPTCHA) nhưng trang chưa có khóa CAPTCHA. Xem bước 8 của hướng dẫn cài.";
+    if (/invalid login credentials/i.test(m)) return "Tên đăng nhập hoặc mật khẩu chưa đúng.";
+    if (/banned/i.test(m)) return "Tài khoản này đang bị khóa.";
+    return "Chưa đăng nhập được. Thử lại sau ít phút.";
+  }
+
+  /* ---------------- đăng nhập ---------------- */
+  function drawWho() {
+    who.innerHTML = me ? `<button class="btn ghost sm" id="outBtn">Đăng xuất</button>` : "";
+    if (me) $("#outBtn").onclick = () => signOut();
+  }
+  function renderNoCloud() {
+    view.innerHTML = `<div class="stack"><section class="panel" id="noCloud"><h1>Trang admin</h1>
+      <p>Trang này chỉ dùng với bản đám mây. App đang lưu dữ liệu trên từng máy: thêm, sửa người dùng ở mục Quản trị của trang học.</p>
+      <p class="small muted">Muốn bật bản đám mây: làm theo docs/HUONG-DAN-SUPABASE.md.</p>
+      <div class="row"><a class="btn main" href="./">Mở trang học</a></div></section></div>`;
+  }
+  function renderFatal(msg, retry) {
+    drawWho();
+    view.innerHTML = `<div class="stack"><div class="fb bad" id="fatal">${esc(msg)}</div>
+      <div class="row">${retry ? `<button class="btn main" id="retry">Thử lại</button>` : ""}${me ? `<button class="btn ghost" id="fatalOut">Đăng xuất</button>` : ""}</div></div>`;
+    if (retry) $("#retry").onclick = retry;
+    if (me) $("#fatalOut").onclick = () => signOut();
+  }
+  function renderLogin(msg) {
+    me = null; data = null; drawWho();
+    view.innerHTML = `<div class="stack">
+      <div><h1>Trang admin</h1><p class="muted">Dành cho chủ app: tạo và quản lý tài khoản các gia đình. Đăng nhập bằng tài khoản chủ app.</p></div>
+      ${msg ? `<div class="fb bad">${esc(msg)}</div>` : ""}
+      <form class="panel" id="adLogin" autocomplete="on">
+        <label class="field"><span>Tên đăng nhập</span><input id="adUser" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="100" required></label>
+        <label class="field"><span>Mật khẩu</span><input id="adPass" name="password" type="password" autocomplete="current-password" maxlength="72" required></label>
+        <div class="captcha" id="adCaptcha"></div>
+        <div id="adErr" aria-live="assertive"></div>
+        <div class="row"><button class="btn main" type="submit" id="adGo">Đăng nhập</button></div>
+        <p class="small muted">Phiên đăng nhập chỉ giữ trong thẻ này: đóng thẻ là thoát. Phụ huynh và học sinh dùng <a href="./">trang học</a>.</p>
+      </form></div>`;
+    $("#adLogin").onsubmit = async (ev) => {
+      ev.preventDefault();
+      const btn = $("#adGo"); if (btn.disabled) return;
+      // Tên đăng nhập như ở trang học; ai tạo tài khoản chủ app bằng email thật thì gõ cả email.
+      const u = $("#adUser").value.trim().toLowerCase(), email = u.includes("@") ? u : u + "@" + LOGIN_DOMAIN;
+      if (!u.includes("@") && usernameProblem(u)) { fb("#adErr", MSG.username); return; }
+      btn.disabled = true; fb("#adErr", "");
+      try {
+        const captchaToken = await captcha("#adCaptcha");
+        const { data: d, error } = await sb.auth.signInWithPassword({ email, password: $("#adPass").value, options: { captchaToken } });
+        if (error) throw new Error(authMsg(error));
+        me = d.session.user;
+      } catch (e) { $("#adPass").value = ""; fb("#adErr", e.message); btn.disabled = false; return; }
+      start();
+    };
+  }
+  async function signOut(msg) {
+    data = null; me = null;
+    try { await sb.auth.signOut({ scope: "local" }); } catch (e) { /* không có mạng: phiên trên máy vẫn bị xóa */ }
+    authStore.removeItem(AUTH_KEY);
+    renderLogin(msg);
+  }
+  function renderForbidden() {
+    data = null; who.innerHTML = ""; // nút Đăng xuất nằm trong khung báo
+    view.innerHTML = `<div class="stack"><section class="panel" id="noPerm"><h1>Không có quyền</h1>
+      <p>Tài khoản đang đăng nhập không phải tài khoản chủ app, nên không dùng được trang admin.</p>
+      <p class="small muted">Phụ huynh vào khu phụ huynh ở <a href="./">trang học</a>. Chủ app: kiểm tra tài khoản đã có trong app_owners (bước 4 của hướng dẫn cài).</p>
+      <div class="row"><button class="btn main" id="npOut">Đăng xuất</button></div></section></div>`;
+    $("#npOut").onclick = () => signOut();
+  }
+
+  /* ---------------- dữ liệu ---------------- */
+  async function loadAccounts() {
+    const r = await call({ action: "list_accounts" });
+    data = { accounts: r.accounts || [], stats: r.stats || {} };
+    if (!plans) {
+      try { plans = Object.fromEntries((await q(sb.from("plans").select("id, name"))).map((p) => [p.id, p.name])); }
+      catch (e) { plans = null; /* chỉ để hiện tên gói; lần sau đọc lại */ }
+    }
+  }
+  /* Sau khi ghi: tải lại danh sách và số liệu (lỗi thì giữ bản đã sửa trên máy, lần sau tải lại). */
+  async function reloadQuiet() { try { await loadAccounts(); } catch (e) { /* xem chú thích */ } }
+  async function start() {
+    drawWho();
+    view.innerHTML = `<div class="panel muted" role="status">Đang tải danh sách tài khoản…</div>`;
+    try { await loadAccounts(); }
+    catch (e) { if (!handled(e)) renderFatal(e.message, start); return; }
+    route();
+  }
+  const accById = (id) => (data ? data.accounts.find((a) => a.id === id) || null : null);
+  const planName = (id) => (plans && plans[id]) || (id === "free" ? "Miễn phí" : id);
+  function planTxt(a) {
+    if (a.plan_active) return planName(a.plan) + " đến " + day(a.plan_until);
+    return planName("free") + (a.plan && a.plan !== "free" ? " (" + planName(a.plan) + " hết hạn" + (a.plan_until ? " " + day(a.plan_until) : "") + ")" : "");
+  }
+  const kidsTxt = (a) => (a.children ? a.children + " hồ sơ con (" + (a.grades || []).map(gradeName).join(", ") + ")" : "Chưa có hồ sơ con");
+  const seenTxt = (a) => (a.last_seen_at ? "Dùng gần nhất: " + when(a.last_seen_at) : "Chưa dùng lần nào");
+  const recent = (a) => !!a.last_seen_at && Date.now() - new Date(a.last_seen_at).getTime() < 7 * 864e5;
+
+  /* ---------------- định tuyến ---------------- */
+  const TABS = [["#/", "Tài khoản"], ["#/new", "Tạo tài khoản"], ["#/log", "Nhật ký"]];
+  const tabs = (cur) => `<div class="tabs" role="group" aria-label="Mục của trang admin">${TABS.map(([h, t]) => `<button data-go="${h}" aria-pressed="${h === cur}">${t}</button>`).join("")}</div>`;
+  function route() {
+    if (!data) return;
+    const [name, id] = (location.hash || "#/").slice(1).split("/").filter(Boolean);
+    window.scrollTo(0, 0);
+    if (name === "new") return renderCreate();
+    if (name === "log") return renderLog();
+    if (name === "acc" && id) return renderAccount(decodeURIComponent(id));
+    return renderList();
+  }
+  window.addEventListener("hashchange", route);
+
+  /* ---------------- danh sách, số liệu nhanh ---------------- */
+  function renderList() {
+    const s = data.stats, all = data.accounts;
+    const byGrade = Object.entries(s.children_by_grade || {}).sort((a, b) => a[0] - b[0]);
+    const temp = all.filter((a) => a.must_change_password).length;
+    const ST = [["all", "Tất cả"], ["locked", "Đang khóa"], ["temp", "Chưa đổi mật khẩu tạm"], ["idle", "Không dùng 7 ngày qua"]];
+    view.innerHTML = `<div class="stack">${tabs("#/")}
+      <section class="sec" aria-label="Số liệu nhanh">
+        <div class="stats" id="stats">
+          <div class="stat"><b>${num(s.accounts)}</b><span>tài khoản</span></div>
+          <div class="stat"><b>${num(s.active_7d)}</b><span>dùng trong 7 ngày</span></div>
+          <div class="stat"><b>${num(s.children)}</b><span>hồ sơ con</span></div>
+        </div>
+        <div class="row" id="byGrade" style="gap:6px">${byGrade.length ? `<span class="small muted">Hồ sơ con theo khối:</span>${byGrade.map(([g, n]) => `<span class="chip">${esc(gradeName(g))}: ${num(n)}</span>`).join("")}` : `<span class="small muted">Chưa có hồ sơ con nào.</span>`}</div>
+        ${num(s.locked) || temp ? `<div class="row" style="gap:6px">${num(s.locked) ? `<span class="chip warn">${num(s.locked)} đang khóa</span>` : ""}${temp ? `<span class="chip">${temp} chưa đổi mật khẩu tạm</span>` : ""}</div>` : ""}
+      </section>
+      <section class="sec">
+        <div class="row between"><h2>Tài khoản</h2><button class="btn sm" data-go="#/new">+ Tạo tài khoản</button></div>
+        <div class="form">
+          <label class="field"><span>Tìm</span><input id="q" type="text" enterkeyhint="search" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Tên đăng nhập, tên, ghi chú" value="${esc(filter.q)}"></label>
+          <label class="field"><span>Lọc</span><select id="st">${ST.map(([k, t]) => `<option value="${k}" ${filter.st === k ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+        </div>
+        <p class="small muted" id="count" aria-live="polite"></p>
+        <div id="accList"></div>
+        <div class="row"><button class="btn ghost sm" id="reload">Tải lại danh sách</button></div>
+      </section></div>`;
+    wireGo();
+    drawList();
+    $("#q").oninput = () => { filter.q = $("#q").value; drawList(); };
+    $("#st").onchange = () => { filter.st = $("#st").value; drawList(); };
+    $("#reload").onclick = async () => {
+      const b = $("#reload"); b.disabled = true;
+      try { await loadAccounts(); renderList(); toast("Đã tải lại"); }
+      catch (e) { if (!handled(e)) { toast(e.message); b.disabled = false; } }
+    };
+  }
+  function matches(a) {
+    const t = fold(filter.q).trim();
+    if (t && ![a.username, a.display_name, a.note].some((x) => fold(x).includes(t))) return false;
+    if (filter.st === "locked") return a.status === "locked";
+    if (filter.st === "temp") return !!a.must_change_password;
+    if (filter.st === "idle") return !recent(a);
+    return true;
+  }
+  function accRow(a) {
+    const tags = (a.status === "locked" ? `<span class="chip warn">Đang khóa</span>` : "") + (a.must_change_password ? `<span class="chip">Mật khẩu tạm</span>` : "");
+    return `<a class="item" href="#/acc/${esc(a.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${esc(a.username)}</b>
+      ${a.display_name ? `<span class="small">${esc(a.display_name)}</span>` : ""}<span class="small muted">${esc(kidsTxt(a))} · ${esc(seenTxt(a))}</span>
+      ${tags ? `<span class="row" style="gap:4px">${tags}</span>` : ""}</span><span aria-hidden="true">›</span></a>`;
+  }
+  function drawList() {
+    const all = data.accounts, list = all.filter(matches);
+    $("#count").textContent = all.length ? (list.length === all.length ? all.length + " tài khoản" : "Thấy " + list.length + "/" + all.length + " tài khoản") : "";
+    $("#accList").innerHTML = !all.length ? `<div class="panel muted">Chưa có tài khoản nào. Bấm “Tạo tài khoản” để tạo tài khoản đầu tiên cho một gia đình.</div>`
+      : list.length ? `<div class="list">${list.map(accRow).join("")}</div>` : `<div class="panel muted">Không thấy tài khoản nào khớp.</div>`;
+  }
+
+  /* ---------------- tên đăng nhập + mật khẩu tạm vừa tạo (chỉ hiện một lần) ---------------- */
+  function credsPanel(title, username, password) {
+    return `<section class="panel remind" id="creds"><h2>${esc(title)}</h2>
+      <dl class="kv"><dt>Tên đăng nhập</dt><dd><span class="code sm" id="credUser">${esc(username)}</span></dd>
+        <dt>Mật khẩu tạm</dt><dd><span class="code sm" id="credPass">${esc(password)}</span></dd></dl>
+      <p class="small">Lời nhắn gửi phụ huynh (qua Zalo hoặc tin nhắn):</p>
+      <p class="small wrap" id="credMsg">${esc(shareText(username, password))}</p>
+      <div class="row"><button class="btn main sm" id="copyMsg">Chép lời nhắn</button></div>
+      <p class="small muted">Mật khẩu tạm chỉ hiện lần này. Phụ huynh đăng nhập lần đầu sẽ phải đặt mật khẩu mới. Quên thì đặt lại mật khẩu ở trang của tài khoản.</p></section>`;
+  }
+  function wireCreds(username, password) {
+    $("#copyMsg").onclick = async () => toast((await copy(shareText(username, password))) ? "Đã chép lời nhắn" : "Chưa chép được. Bấm giữ vào lời nhắn để chép.");
+  }
+  /* Ô mật khẩu tạm có nút "Gợi ý khác". */
+  const pwField = (id, label) => `<div class="field full"><span id="${id}L">${label}</span>
+    <div class="row pw-row"><input id="${id}" class="pw-in" aria-labelledby="${id}L" value="${tempPassword()}" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="72">
+    <button type="button" class="btn ghost sm" id="${id}Sug">Gợi ý khác</button></div></div>`;
+  const wirePwField = (id) => { $("#" + id + "Sug").onclick = () => { $("#" + id).value = tempPassword(); }; };
+
+  /* ---------------- tạo tài khoản ---------------- */
+  function renderCreate() {
+    view.innerHTML = `<div class="stack">${tabs("#/new")}
+      <div><h1>Tạo tài khoản</h1><p class="muted">Mỗi gia đình một tài khoản, do phụ huynh giữ. Các con là hồ sơ trong tài khoản, phụ huynh tự thêm sau khi đăng nhập.</p></div>
+      <form class="panel" id="cForm" autocomplete="off">
+        <div class="form">
+          <label class="field"><span>Tên đăng nhập</span><input id="cUser" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" placeholder="ví dụ: nha.bin" required></label>
+          <label class="field"><span>Tên hiển thị <span class="opt-note">(không bắt buộc)</span></span><input id="cName" maxlength="80" placeholder="ví dụ: Nhà Bin"></label>
+          ${pwField("cPass", "Mật khẩu tạm (gợi ý sẵn, sửa được)")}
+          <label class="field full"><span>Ghi chú <span class="opt-note">(chỉ bạn đọc được)</span></span><textarea id="cNote" class="note-in" maxlength="2000" placeholder="ví dụ: Mẹ Lan, Zalo 0912 345 678"></textarea></label>
+        </div>
+        <p class="small muted">Tên đăng nhập 4–20 kí tự: chữ thường không dấu, số, dấu chấm, gạch dưới. Không đổi được sau khi tạo. Ghi chú chỉ ghi cách liên lạc với phụ huynh, không ghi thông tin riêng của các con.</p>
+        <div id="cErr" aria-live="assertive"></div>
+        <div class="row"><button class="btn main" type="submit" id="cGo">Tạo tài khoản</button></div>
+      </form></div>`;
+    wireGo(); wirePwField("cPass");
+    $("#cForm").onsubmit = async (ev) => {
+      ev.preventDefault();
+      const btn = $("#cGo"); if (btn.disabled) return;
+      const username = $("#cUser").value.trim().toLowerCase(), password = $("#cPass").value.trim();
+      if (usernameProblem(username)) { fb("#cErr", MSG.username); return; }
+      if (passwordProblem(password)) { fb("#cErr", MSG.password); return; }
+      btn.disabled = true; fb("#cErr", "");
+      let r;
+      try { r = await call({ action: "create_account", username, password, display_name: $("#cName").value.trim(), note: $("#cNote").value.trim() }); }
+      catch (e) { if (!handled(e)) { fb("#cErr", e.message); btn.disabled = false; } return; }
+      data.accounts.unshift(r.account);
+      await reloadQuiet();
+      renderCreated(r.account, r.password || password);
+    };
+  }
+  function renderCreated(a, password) {
+    view.innerHTML = `<div class="stack">${tabs("#/new")}${credsPanel("Đã tạo tài khoản " + a.username, a.username, password)}
+      <div class="row"><button class="btn" data-go="#/acc/${esc(a.id)}">Xem tài khoản</button><button class="btn ghost" id="again">Tạo tài khoản khác</button></div></div>`;
+    wireGo(); wireCreds(a.username, password);
+    $("#again").onclick = renderCreate;
+  }
+
+  /* ---------------- xem nhanh một tài khoản ---------------- */
+  function renderAccount(id, flash) {
+    const a = accById(id);
+    if (!a) {
+      view.innerHTML = `<div class="stack"><button class="linkbtn" data-go="#/">← Danh sách tài khoản</button>
+        <section class="panel"><h2>Không tìm thấy tài khoản</h2><p class="muted">Có thể tài khoản đã bị xóa. Về danh sách rồi bấm “Tải lại danh sách”.</p></section></div>`;
+      wireGo(); return;
+    }
+    const locked = a.status === "locked", u = esc(a.username);
+    view.innerHTML = `<div class="stack"><button class="linkbtn" data-go="#/">← Danh sách tài khoản</button>
+      <div><h1 class="wrap">${u}</h1><span class="muted">${esc(a.display_name || "Chưa có tên hiển thị")}</span></div>
+      ${flash || ""}
+      <section class="panel" id="quick"><h2>Xem nhanh</h2>
+        <dl class="kv">
+          <dt>Trạng thái</dt><dd>${locked ? `<span class="chip warn">Đang khóa</span>` : "Đang hoạt động"}</dd>
+          <dt>Hồ sơ con</dt><dd>${esc(a.children ? a.children + " (" + (a.grades || []).map(gradeName).join(", ") + ")" : "Chưa có")}</dd>
+          <dt>Dùng gần nhất</dt><dd>${esc(a.last_seen_at ? when(a.last_seen_at) : "Chưa dùng lần nào")}</dd>
+          <dt>Mật khẩu</dt><dd>${a.must_change_password ? "Mật khẩu tạm, phụ huynh chưa đổi" : "Phụ huynh đã đặt mật khẩu riêng"}</dd>
+          <dt>Gói</dt><dd>${esc(planTxt(a))}</dd>
+          <dt>Ngày tạo</dt><dd>${esc(a.created_at ? dmy(new Date(a.created_at)) : "")}</dd>
+        </dl>
+        <p class="small muted">Trang admin không xem bài làm hay tên của các con.</p>
+      </section>
+      <form class="panel" id="noteForm" autocomplete="off"><h2>Ghi chú</h2>
+        <label class="field"><span>Chỉ bạn đọc được. Ví dụ: tên phụ huynh, số Zalo.</span><textarea id="nText" class="note-in" maxlength="2000">${esc(a.note || "")}</textarea></label>
+        <div id="nErr" aria-live="assertive"></div>
+        <div class="row"><button class="btn sm" type="submit" id="nGo">Lưu ghi chú</button></div></form>
+      <section class="panel" id="pwPanel"><h2>Đặt lại mật khẩu</h2>
+        <p class="small muted">Phụ huynh quên mật khẩu: đặt mật khẩu tạm mới rồi gửi cho phụ huynh. Mọi máy đang đăng nhập tài khoản này sẽ bị đăng xuất; lần đăng nhập tới phải đặt mật khẩu mới.</p>
+        <div class="row"><button class="btn sm" id="rpOpen">Đặt lại mật khẩu</button></div>
+        <div class="confirm" id="rpBox" hidden><div class="form">${pwField("rpPass", "Mật khẩu tạm mới")}</div>
+          <div id="rpErr" aria-live="assertive"></div>
+          <div class="row"><button class="btn main sm" id="rpGo">Đặt lại</button><button class="btn ghost sm" id="rpNo">Thôi</button></div></div>
+      </section>
+      <section class="panel" id="stPanel"><h2>${locked ? "Mở khóa" : "Khóa tài khoản"}</h2>
+        <p class="small muted">${locked ? "Tài khoản đang bị khóa: phụ huynh không đăng nhập được. Dữ liệu vẫn giữ nguyên; mở khóa là dùng lại được."
+          : "Khóa tạm thời: phụ huynh không đăng nhập được, máy đang mở app cũng không đọc, ghi dữ liệu được nữa. Dữ liệu vẫn giữ nguyên, mở khóa lúc nào cũng được."}</p>
+        <div class="row"><button class="btn sm${locked ? "" : " danger"}" id="stOpen">${locked ? "Mở khóa" : "Khóa tài khoản"}</button></div>
+        <div class="confirm" id="stBox" hidden><b>${locked ? "Mở khóa" : "Khóa"} tài khoản ${u}?</b><div id="stErr" aria-live="assertive"></div>
+          <div class="row"><button class="btn sm ${locked ? "main" : "danger"}" id="stGo">${locked ? "Mở khóa" : "Khóa"}</button><button class="btn ghost sm" id="stNo">Thôi</button></div></div>
+      </section>
+      <section class="panel" id="delPanel"><h2>Xóa tài khoản</h2>
+        <p class="small muted">Xóa luôn hồ sơ con, kết quả làm bài, lịch thi, ngân hàng đề của gia đình này. Không lấy lại được. Nhật ký vẫn giữ tên đăng nhập.</p>
+        <div class="row"><button class="btn sm danger" id="delOpen">Xóa tài khoản…</button></div>
+        <div class="confirm" id="delBox" hidden>
+          <label class="field"><span>Gõ <b>${u}</b> để xác nhận xóa</span><input id="delIn" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20"></label>
+          <div id="delErr" aria-live="assertive"></div>
+          <div class="row"><button class="btn sm danger" id="delGo" disabled>Xóa vĩnh viễn</button><button class="btn ghost sm" id="delNo">Thôi</button></div></div>
+      </section>
+      <section class="sec"><h2>Nhật ký của tài khoản</h2><div id="accLog"><p class="small muted">Đang tải…</p></div></section></div>`;
+    wireGo();
+    const toggle = (box, open) => { $(box).hidden = !open; };
+    // ghi chú: ghi thẳng vào admin_notes (RLS: chỉ owner)
+    $("#noteForm").onsubmit = async (ev) => {
+      ev.preventDefault();
+      const btn = $("#nGo"); if (btn.disabled) return;
+      const note = $("#nText").value.trim();
+      btn.disabled = true; fb("#nErr", "");
+      try { await q(sb.from("admin_notes").upsert({ family_id: a.id, note, updated_at: new Date().toISOString() })); }
+      catch (e) { if (!handled(e)) { fb("#nErr", e.message); btn.disabled = false; } return; }
+      a.note = note; btn.disabled = false; toast("Đã lưu ghi chú");
+    };
+    // đặt lại mật khẩu
+    wirePwField("rpPass");
+    $("#rpOpen").onclick = () => { toggle("#rpBox", true); $("#rpPass").focus(); };
+    $("#rpNo").onclick = () => { toggle("#rpBox", false); fb("#rpErr", ""); };
+    $("#rpGo").onclick = async () => {
+      const btn = $("#rpGo"); if (btn.disabled) return;
+      const password = $("#rpPass").value.trim();
+      if (passwordProblem(password)) { fb("#rpErr", MSG.password); return; }
+      btn.disabled = true; fb("#rpErr", "");
+      let r;
+      try { r = await call({ action: "reset_password", id: a.id, password }); }
+      catch (e) { if (!handled(e)) { fb("#rpErr", e.message); btn.disabled = false; } return; }
+      Object.assign(a, r.account);
+      renderAccount(a.id, credsPanel("Đã đặt lại mật khẩu", a.username, r.password || password));
+      wireCreds(a.username, r.password || password);
+    };
+    // khóa / mở khóa
+    $("#stOpen").onclick = () => toggle("#stBox", true);
+    $("#stNo").onclick = () => { toggle("#stBox", false); fb("#stErr", ""); };
+    $("#stGo").onclick = async () => {
+      const btn = $("#stGo"); if (btn.disabled) return;
+      btn.disabled = true; fb("#stErr", "");
+      let r;
+      try { r = await call({ action: "set_status", id: a.id, status: locked ? "active" : "locked" }); }
+      catch (e) { if (!handled(e)) { fb("#stErr", e.message); btn.disabled = false; } return; }
+      Object.assign(a, r.account);
+      await reloadQuiet();
+      toast(locked ? "Đã mở khóa " + a.username : "Đã khóa " + a.username);
+      renderAccount(a.id);
+    };
+    // xóa: gõ đúng tên đăng nhập mới bấm được
+    $("#delOpen").onclick = () => { toggle("#delBox", true); $("#delIn").focus(); };
+    $("#delNo").onclick = () => { toggle("#delBox", false); $("#delIn").value = ""; $("#delGo").disabled = true; fb("#delErr", ""); };
+    $("#delIn").oninput = () => { $("#delGo").disabled = $("#delIn").value.trim().toLowerCase() !== a.username; };
+    $("#delGo").onclick = async () => {
+      const btn = $("#delGo"); if (btn.disabled) return;
+      btn.disabled = true; fb("#delErr", "");
+      try { await call({ action: "delete_account", id: a.id, confirm: $("#delIn").value.trim().toLowerCase() }); }
+      catch (e) { if (!handled(e)) { fb("#delErr", e.message); btn.disabled = false; } return; }
+      data.accounts = data.accounts.filter((x) => x.id !== a.id);
+      await reloadQuiet();
+      toast("Đã xóa tài khoản " + a.username);
+      go("#/");
+    };
+    loadLog({ family: a.id, box: "#accLog", from: 0, n: 20, user: false });
+  }
+
+  /* ---------------- nhật ký ---------------- */
+  const ACTIONS = { create_account: "Tạo tài khoản", reset_password: "Đặt lại mật khẩu", delete_account: "Xóa tài khoản", set_plan: "Đổi gói" };
+  function logLabel(l) {
+    if (l.action === "set_status") return (l.detail || {}).status === "locked" ? "Khóa tài khoản" : "Mở khóa";
+    return ACTIONS[l.action] || l.action;
+  }
+  function logDetail(l) {
+    const d = l.detail || {};
+    if (l.action !== "set_plan") return "";
+    return planName(d.plan) + (d.until ? " đến " + day(d.until) : "") + (d.amount != null ? " · " + Number(d.amount).toLocaleString("vi-VN") + " đ" : "");
+  }
+  const actorTxt = (id) => (me && id === me.id ? "Bạn" : id ? "Chủ app khác (" + String(id).slice(0, 8) + ")" : "Không rõ");
+  function logRow(l, withUser) {
+    const detail = logDetail(l), link = withUser && l.family_id && accById(l.family_id);
+    const inner = `<span class="grow"><b>${esc(logLabel(l))}${withUser && l.username ? " · " + esc(l.username) : ""}</b>
+      ${detail ? `<span class="small">${esc(detail)}</span>` : ""}<span class="small muted">${esc(when(l.at))} · ${esc(actorTxt(l.actor))}</span></span>`;
+    return link ? `<a class="item" href="#/acc/${esc(l.family_id)}" style="color:inherit;text-decoration:none">${inner}<span aria-hidden="true">›</span></a>` : `<div class="item">${inner}</div>`;
+  }
+  /* Đọc nhật ký mới nhất trước: o.family (một tài khoản) hoặc mọi tài khoản; o.from, o.n: phân trang; o.more: nút "Xem thêm". */
+  async function loadLog(o) {
+    const box = $(o.box);
+    let rows;
+    try {
+      let b = sb.from("admin_log").select(LOG_COLS);
+      if (o.family) b = b.eq("family_id", o.family);
+      rows = (await q(b.order("at", { ascending: false }).order("id", { ascending: false }).range(o.from, o.from + o.n - 1))) || [];
+    } catch (e) {
+      if (handled(e)) return;
+      if (box.isConnected) box.innerHTML = `<div class="fb bad">${esc(e.message)}</div>`;
+      return;
+    }
+    if (!box.isConnected) return; // đã sang màn hình khác
+    const html = rows.map((l) => logRow(l, o.user)).join("");
+    if (!o.from) box.innerHTML = rows.length ? `<div class="list">${html}</div>` : `<p class="small muted">Chưa có thao tác nào.</p>`;
+    else if (html) $(".list", box).insertAdjacentHTML("beforeend", html);
+    if (o.more) {
+      const more = $(o.more);
+      more.hidden = rows.length < o.n;
+      more.onclick = () => { more.hidden = true; loadLog(Object.assign({}, o, { from: o.from + o.n })); };
+    }
+  }
+  function renderLog() {
+    view.innerHTML = `<div class="stack">${tabs("#/log")}
+      <div><h1>Nhật ký thao tác</h1><p class="muted">Mỗi lần tạo, đặt lại mật khẩu, khóa, mở khóa, xóa tài khoản: ai làm, lúc nào. Mới nhất ở trên.</p></div>
+      <div id="logList"><p class="small muted">Đang tải…</p></div>
+      <div class="row"><button class="btn ghost sm" id="logMore" hidden>Xem thêm</button></div></div>`;
+    wireGo();
+    loadLog({ box: "#logList", from: 0, n: LOG_PAGE, user: true, more: "#logMore" });
+  }
+
+  /* ---------------- khởi động ---------------- */
+  async function boot() {
+    if (!CFG.supabaseUrl || !CFG.supabaseAnonKey) { renderNoCloud(); return; }
+    if (secretKey(CFG.supabaseAnonKey)) { renderFatal("js/config.js đang chứa khóa bí mật (service_role/secret). Xóa khóa đó ngay, dùng khóa anon public, rồi đổi khóa bí mật trong Supabase."); return; }
+    try { await loadLib(); } catch (e) { renderFatal(e.message, () => location.reload()); return; }
+    sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: AUTH_KEY, storage: authStore }
+    });
+    // Máy chủ bỏ phiên (hết hạn hẳn, đổi mật khẩu ở máy khác): về màn hình đăng nhập.
+    sb.auth.onAuthStateChange((ev) => { if (ev === "SIGNED_OUT" && me) renderLogin(MSG.auth); });
+    let session = null;
+    try { session = (await sb.auth.getSession()).data.session; } catch (e) { session = null; }
+    if (!session) { renderLogin(); return; }
+    me = session.user;
+    start();
+  }
+  boot();
+})();
+</script>
+</body>
+</html>

@@ -311,6 +311,10 @@ select t.ok(t.n('select id from families') = 3, 'owner đọc được mọi tà
 select t.ok(t.n('select * from profiles') = 0 and t.n('select * from results') = 0, 'owner không đọc hồ sơ con, bài làm của các gia đình');
 select t.ok(t.rows($$insert into admin_notes (family_id, note) values (t.id('FA'), 'Zalo: Mẹ Bin')$$) = 1
   and t.rows($$update admin_notes set note = 'Zalo: Mẹ Bin, 09xx' where family_id = t.id('FA')$$) = 1, 'owner ghi chú về tài khoản');
+-- trang admin (admin.html) lưu ghi chú bằng upsert của supabase-js: insert … on conflict do update
+select t.ok(t.rows($$insert into admin_notes (family_id, note, updated_at) values (t.id('FA'), 'Zalo: Mẹ Bin, 0987', now())
+  on conflict (family_id) do update set note = excluded.note, updated_at = excluded.updated_at$$) = 1, 'owner lưu ghi chú kiểu upsert (trang admin)');
+select t.ok((select note from admin_notes where family_id = t.id('FA')) = 'Zalo: Mẹ Bin, 0987', 'upsert ghi đè ghi chú cũ');
 select t.ok(t.n('select * from paid_banks') = :banks + 1, 'owner thấy cả đề chưa đăng (đề nháp)');
 select t.ok(t.rows($$update paid_banks set published = true where id = 'nhap-chua-dang'$$) = 1
   and t.rows($$insert into paid_banks (id, title, grade, questions) values ('gk2-toan4-de1', 'Toán 4 · Giữa kì II · Đề 1', 4, '[]')$$) = 1

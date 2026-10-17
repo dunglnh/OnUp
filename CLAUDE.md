@@ -17,6 +17,7 @@ Trang tĩnh, **không có bước build**, chạy được trên GitHub Pages. K
 
 ```
 index.html              khung app, nạp các file theo thứ tự: data → config → store → store-supabase → quiz → app
+admin.html              trang admin của chủ app (chỉ bản đám mây): tài khoản gia đình, ghi chú, nhật ký; script nằm trong file
 css/app.css             toàn bộ giao diện app chính (token màu ở :root, có chế độ tối)
 fonts/                  font tự lưu (Baloo 2, Be Vietnam Pro, woff2 từ @fontsource), fonts.css dùng chung cho app và bài ôn; giấy phép OFL.txt
 sw.js                   service worker: đệm sẵn file của app để mở lại được khi mất mạng (xem "Chạy khi mất mạng")
@@ -60,7 +61,7 @@ App còn **đọc** (không ghi) DOM của khung để biết học sinh đang l
 - `js/app.js` đăng kí `sw.js` sau khi trang tải xong (bọc try/catch; bỏ qua khi mở bằng file://; trình duyệt chỉ cho chạy trên https hoặc localhost).
 - Khi cài, `sw.js` tải sẵn mọi file trong `FILES` vào đệm tên `VERSION`; khi kích hoạt thì xóa đệm cũ có tiền tố `onup-` (GitHub Pages: các repo của một tài khoản chung origin, không đụng đệm của trang khác).
 - Mỗi lần mở trang (trang chính, bài ôn trong khung) dùng **một bộ file thống nhất**, không trộn bản cũ với bản mới. Trang HTML: **mạng trước** (bản mới lên Pages là có ngay), mất mạng hoặc chậm quá 4 giây thì dùng bản trong đệm; `sw.js` ghi lại trang lấy từ đâu theo `resultingClientId`. JS, CSS, `data/`, manifest của trang đó (`clientId`): trang từ đệm thì lấy từ đệm, trang từ mạng thì lấy từ mạng (chỉ dùng đệm khi mạng lỗi hẳn). Bản từ mạng chỉ vào đệm khi được dùng. Font, biểu tượng (`fonts/`, `icons/`): **đệm trước**. Khóa trong đệm bỏ phần `?…` (bài ôn mở bằng `?u=…&m=…`).
-- Chỉ xử lí GET cùng origin trong phạm vi app. **Không** đệm request tới Supabase, Cloudflare, CDN; đừng thêm host ngoài vào `sw.js`.
+- Chỉ xử lí GET cùng origin trong phạm vi app. **Không** đệm request tới Supabase, Cloudflare, CDN; đừng thêm host ngoài vào `sw.js`. Trang `admin.html` không qua service worker (luôn cần mạng; `request.url` trong service worker giữ cả phần `#…`).
 - **Tăng `VERSION`** khi thêm, bớt, đổi tên file trong `FILES`, hoặc đổi nội dung font, biểu tượng (đệm trước nên không tự cập nhật). Sửa nội dung HTML/JS/CSS/data thì không cần. `tests/e2e.js` so `FILES` với các file có trong `css/ js/ data/ modules/ fonts/ icons/`.
 - Màu trong `manifest.webmanifest` (`background_color` = `--bg`, `theme_color` = `--sun`) và `<meta name="theme-color">` trong `index.html` (`--bg` sáng, tối) chép từ token; đổi token thì sửa cả ở đó.
 
@@ -90,7 +91,7 @@ Mã PIN ở chế độ cục bộ chỉ để phân biệt người trong nhà/
 ### Bản đám mây (SupabaseStore)
 Bật khi `js/config.js` có `supabaseUrl` + `supabaseAnonKey`; khi đó `window.Store` là SupabaseStore (`Store.cloud === true`), LocalStore còn ở `window.LocalStore` để đọc dữ liệu cũ khi chuyển lên. Hướng dẫn cài: `docs/HUONG-DAN-SUPABASE.md`. Thiết kế: `docs/THIET-KE-TAI-KHOAN.md`.
 
-Từ 17/10/2026 `js/config.js` trên `main` đã điền URL và khóa công khai của project Supabase thật (PR #27): trang trên GitHub Pages chạy bản đám mây. Trang admin của chủ app (`admin.html`) làm ở Phiên C; trước đó chủ app tạo tài khoản gia đình bằng tay (bước 6 của hướng dẫn) hoặc gọi Edge Function `admin`.
+Từ 17/10/2026 `js/config.js` trên `main` đã điền URL và khóa công khai của project Supabase thật (PR #27): trang trên GitHub Pages chạy bản đám mây. Chủ app tạo và quản lý tài khoản gia đình ở `admin.html` (Phiên C, xem “Trang admin” bên dưới).
 
 Máy chủ (`supabase/schema.sql`, Edge Function `admin`):
 - Một tài khoản = một gia đình (`families`), do phụ huynh giữ; đăng nhập bằng tên đăng nhập + mật khẩu. Supabase Auth lưu tên đăng nhập dạng email nội bộ `<tên>@users.onup.invalid` (không gửi thư). Con là hồ sơ (`profiles`, khối 1–12) trong tài khoản, dùng phiên của bố mẹ; `pin_hash` chỉ là khóa trên giao diện, app tự băm.
@@ -111,6 +112,14 @@ Phía trình duyệt (`js/store-supabase.js`, phần đám mây của `js/app.js
 - Tài khoản mới (Edge Function chỉ tạo dòng `families`) chưa có kì thi nào: lần mở đầu app chép lịch mặc định lên máy chủ. Ngân hàng có sẵn (data/banks.js) không lưu lên máy chủ; `seed_banks_seen` của family làm việc như `seedBanksSeen`.
 - Kết quả làm bài đi qua hộp gửi trong localStorage (`ontap_cloud_outbox`, theo mã hồ sơ), chỉ xóa khi máy chủ đã nhận; gửi kết quả của mọi hồ sơ con của tài khoản đang đăng nhập (máy dùng chung cho anh em), để lại kết quả của tài khoản khác.
 - CAPTCHA (Cloudflare Turnstile) tùy chọn: `turnstileSiteKey` trong `js/config.js`; `captcha()` trong store-supabase.js lấy mã cho `signIn` và `checkPassword`. Không có khóa thì không tải script của Cloudflare.
+
+Trang admin (`admin.html`, chủ app mở `…/OnUp/admin.html`):
+- Một file tự chứa (script trong file, theo quy ước code bên dưới), dùng `css/app.css` (lớp `.kv`, `.note-in`, `.pw-row`, `.pw-in`, `.wrap` ở cuối file), `data/grades.js`, `js/config.js`. `js/config.js` để trống thì chỉ báo “chỉ dùng với bản đám mây”, không tải gì từ mạng (`tests/e2e.js` kiểm tra). Không nằm trong `FILES` của `sw.js`.
+- Đăng nhập bằng tài khoản chủ app: gõ tên đăng nhập (thành `<tên>@users.onup.invalid`) hoặc cả email. Phiên chỉ giữ trong sessionStorage, khóa `onup_admin_auth`, riêng với `ontap_sb_auth` của trang học. CAPTCHA như trang học (ô `#adCaptcha`).
+- Thao tác với tài khoản gọi Edge Function `admin`: `list_accounts` (danh sách, số liệu nhanh: tài khoản, dùng trong 7 ngày, hồ sơ con theo khối), `create_account`, `reset_password`, `set_status`, `delete_account` (gõ đúng tên đăng nhập mới bấm được). Hàm trả `forbidden` thì hiện “Không có quyền”; `auth` thì về màn hình đăng nhập. Tìm và lọc làm trên máy (không phân biệt dấu).
+- Ghi chú: upsert thẳng vào `admin_notes` (RLS chỉ owner; không vào nhật ký). Nhật ký: đọc `admin_log` (mới nhất trước, 50 dòng mỗi lần; từng tài khoản 20 dòng). Không đọc hồ sơ con, kết quả.
+- Mật khẩu tạm gợi ý trên máy, cùng bảng chữ với `tempPassword` của Edge Function; sau khi tạo hoặc đặt lại chỉ hiện một lần, kèm lời nhắn chép được để gửi phụ huynh.
+- `LIB` (supabase-js, mã SRI) chép từ `js/store-supabase.js`: đổi phiên bản thì sửa cả hai (`cloud-e2e.js` so). Chưa có giao diện đổi gói (`set_plan`): làm khi bán gói (thiết kế mục 9).
 
 ## Quy ước code
 - JavaScript thuần, ES2019+, không module/import (để mở được cả bằng file://). Mỗi file bọc trong IIFE, xuất ra `window.<Tên>`.
@@ -135,17 +144,17 @@ Kiểm thử tự động (bắt buộc trước mỗi Pull Request): `python3 -
 
 Thử tay sau khi sửa code: service worker dùng mạng trước nên tải lại trang là thấy bản mới. Sửa `sw.js` thì trình duyệt cài bản mới ở lần tải sau (DevTools → Application → Service workers để xem, gỡ).
 
-Khi sửa `js/store-supabase.js`, `js/app.js` (phần đám mây), `supabase/`: chạy thêm `node tests/supabase/admin-test.mjs` (Edge Function admin và máy chủ giả, in `ADMIN OK`), `node tests/supabase/store-test.mjs` (in `SUPABASE STORE OK`), `node tests/supabase/cloud-e2e.js` (in `CLOUD E2E OK`, ảnh 360px sáng/tối ở `tests/screenshots/cloud/`), và nếu máy có PostgreSQL thì `sh tests/supabase/run.sh` (in `RLS OK`). store-test.mjs và cloud-e2e.js chạy với Edge Function admin thật (chủ app tạo tài khoản) trên máy chủ giả; cloud-e2e.js kiểm tra 360px như tests/e2e.js, ảnh ghép sáng/tối `<tên>.jpg` cùng thư mục, các màn hình chính chép vào `docs/hinh-dam-may/`.
+Khi sửa `js/store-supabase.js`, `js/app.js` (phần đám mây), `admin.html`, `supabase/`: chạy thêm `node tests/supabase/admin-test.mjs` (Edge Function admin và máy chủ giả, in `ADMIN OK`), `node tests/supabase/store-test.mjs` (in `SUPABASE STORE OK`), `node tests/supabase/cloud-e2e.js` (in `CLOUD E2E OK`, ảnh 360px sáng/tối ở `tests/screenshots/cloud/`), và nếu máy có PostgreSQL thì `sh tests/supabase/run.sh` (in `RLS OK`). store-test.mjs và cloud-e2e.js chạy với Edge Function admin thật (chủ app tạo tài khoản) trên máy chủ giả; cloud-e2e.js kiểm tra 360px như tests/e2e.js, ảnh ghép sáng/tối `<tên>.jpg` cùng thư mục, các màn hình chính chép vào `docs/hinh-dam-may/`; phần cuối kiểm tra trang admin (`c16`–`c22`, ảnh `admin-*.jpg` trong `docs/hinh-dam-may/`).
 
-Ngoài ra chạy tay các luồng: thiết lập lần đầu → tạo phụ huynh, học sinh → đăng nhập học sinh bằng PIN → mở một bài ôn và làm xong một đề → làm một ngân hàng câu hỏi → đăng nhập phụ huynh xem hồ sơ con và báo cáo tuần → quản trị sửa một kì thi. Kiểm tra ở bề rộng 390px và chế độ tối. Bản đám mây: đăng nhập bằng mật khẩu tạm → đặt mật khẩu mới → thêm hồ sơ con → “Ai đang học?” → con làm một đề → Phụ huynh nhập lại mật khẩu, xem báo cáo tuần.
+Ngoài ra chạy tay các luồng: thiết lập lần đầu → tạo phụ huynh, học sinh → đăng nhập học sinh bằng PIN → mở một bài ôn và làm xong một đề → làm một ngân hàng câu hỏi → đăng nhập phụ huynh xem hồ sơ con và báo cáo tuần → quản trị sửa một kì thi. Kiểm tra ở bề rộng 390px và chế độ tối. Bản đám mây: trang admin tạo tài khoản → đăng nhập trang học bằng mật khẩu tạm → đặt mật khẩu mới → thêm hồ sơ con → “Ai đang học?” → con làm một đề → Phụ huynh nhập lại mật khẩu, xem báo cáo tuần → trang admin xem nhanh tài khoản, khóa, mở khóa.
 
 ## Triển khai
 GitHub Pages: Settings → Pages → Deploy from a branch → `main` / root. File `.nojekyll` đã có.
 
 ## Việc tiếp theo (theo thứ tự ưu tiên)
-**Trạng thái 16/10/2026: đang chạy thử với học sinh.** Ưu tiên: sửa các GitHub Issue góp ý từ việc chạy thử, rồi dựng **khung tài khoản: tên đăng nhập + mật khẩu, hồ sơ con, trang admin, khối lớp 1–12 dùng chung** theo `docs/THIET-KE-TAI-KHOAN.md` (Phiên A → B → C). **Chưa làm bản trả phí** (chỉ tính khi có đủ đề lớp 4–12); khung chừa sẵn `plan` và `Store.can()`. Thiết kế đó **thay thế** cách đăng nhập email, mã mời, mã gia đình + PIN của bản đám mây cũ. **Phiên A (máy chủ) và Phiên B (app: đăng nhập, “Ai đang học?”, khu phụ huynh, `data/grades.js`, `Store.can`) đã làm**; tiếp theo là Phiên C (trang admin). Lộ trình đầy đủ và lời giao việc từng phiên: `docs/KE-HOACH-PHAT-TRIEN-ONUP.md`. Tóm tắt:
+**Trạng thái 16/10/2026: đang chạy thử với học sinh.** Ưu tiên: sửa các GitHub Issue góp ý từ việc chạy thử, rồi dựng **khung tài khoản: tên đăng nhập + mật khẩu, hồ sơ con, trang admin, khối lớp 1–12 dùng chung** theo `docs/THIET-KE-TAI-KHOAN.md` (Phiên A → B → C). **Chưa làm bản trả phí** (chỉ tính khi có đủ đề lớp 4–12); khung chừa sẵn `plan` và `Store.can()`. Thiết kế đó **thay thế** cách đăng nhập email, mã mời, mã gia đình + PIN của bản đám mây cũ. **Phiên A (máy chủ), Phiên B (app: đăng nhập, “Ai đang học?”, khu phụ huynh, `data/grades.js`, `Store.can`) và Phiên C (trang admin `admin.html`) đã làm.** Lộ trình đầy đủ và lời giao việc từng phiên: `docs/KE-HOACH-PHAT-TRIEN-ONUP.md`. Tóm tắt:
 1. Sửa lỗi cơ bản tìm được khi dùng thử (`docs/SUA-LOI-CHAY-THU.md`: Phiên 9a, 9b, 9c, 9d đã làm; còn chờ bố mẹ thử L17 trên iPhone thật) và lỗi từ góp ý chạy thử (GitHub Issues).
 2. Đề cuối kì I: đã đủ các môn cho cả lớp 4 và lớp 6 (Phiên 10, 11).
 3. Báo cáo tuần cho phụ huynh (Phiên 12) và IOE cấp tỉnh lớp 4 (Phiên 13): đã có.
 4. Đề giữa kì II lớp 4: đã có (Phiên 14). Còn đề giữa kì II lớp 6 và đề cuối năm cho cả hai khối.
-5. Bản đám mây theo thiết kế tài khoản mới: máy chủ (Phiên A) và app (Phiên B) đã có, chưa bật; còn trang admin (Phiên C). Chủ app cài theo `docs/HUONG-DAN-SUPABASE.md`.
+5. Bản đám mây theo thiết kế tài khoản mới: máy chủ (Phiên A), app (Phiên B) và trang admin (Phiên C) đã có. Chủ app cài theo `docs/HUONG-DAN-SUPABASE.md`, tạo tài khoản gia đình ở `admin.html`.

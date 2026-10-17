@@ -8,8 +8,6 @@ Mặc định app lưu dữ liệu trong trình duyệt của từng máy. Bản
 
 Thiết kế đầy đủ: [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 
-> **Trang admin chưa làm (Phiên C).** Máy chủ (bước 1–5) và màn hình đăng nhập trong app (Phiên B) đã xong. Trong lúc chờ trang admin, tạo tài khoản gia đình bằng tay theo bước 6.
-
 Mất khoảng 15 phút. Cần một máy tính và tài khoản GitHub.
 
 > Tên các mục trong trang Supabase đôi khi được đổi. Không thấy đúng chữ thì tìm mục có ý nghĩa gần nhất.
@@ -78,18 +76,25 @@ npx supabase functions deploy admin --no-verify-jwt
 
 Có hàm `student-login` cũ thì xóa đi (**Edge Functions → student-login → Delete**).
 
-## Bước 6. Tạo tài khoản gia đình (trong lúc chưa có trang admin)
+## Bước 6. Tạo tài khoản gia đình ở trang admin
 
-Khi có trang admin (Phiên C) thì tạo ở đó, có gợi ý mật khẩu tạm. Trước đó làm bằng tay:
+Làm sau bước 7 (trang admin đọc `js/config.js`). Ảnh: [`docs/hinh-dam-may/`](hinh-dam-may/) (các ảnh `admin-*.jpg`).
 
-1. **Authentication → Users → Add user → Create new user**: Email `<tên-đăng-nhập>@users.onup.invalid` (ví dụ `nha.bin@users.onup.invalid`; tên đăng nhập như bước 4.1), Password: mật khẩu tạm ít nhất 8 kí tự, tick **Auto Confirm User** → **Create user**.
-2. **SQL Editor → New query**, sửa tên đăng nhập và tên hiển thị → **Run**:
-   ```sql
-   insert into families (auth_user_id, username, display_name)
-   select id, 'nha.bin', 'Nhà Bin' from auth.users where email = 'nha.bin@users.onup.invalid';
-   ```
-   Phải thấy `1 row`. Tài khoản mới bắt đổi mật khẩu tạm ở lần đăng nhập đầu.
-3. Gửi tên đăng nhập (`nha.bin`) và mật khẩu tạm cho phụ huynh.
+1. Mở **https://dunglnh.github.io/OnUp/admin.html** (trang học thêm `admin.html` vào cuối địa chỉ). Nên lưu dấu trang trên máy của bạn; trang học không có nút dẫn tới đây.
+2. Đăng nhập bằng tài khoản chủ app (bước 4): gõ tên đăng nhập, ví dụ `chu.app`. Đóng thẻ là thoát. Tài khoản gia đình đăng nhập vào đây chỉ thấy “Không có quyền”.
+3. **Tạo tài khoản**: tên đăng nhập (ví dụ `nha.bin`), tên hiển thị (ví dụ `Nhà Bin`), ghi chú nếu cần (cách liên lạc với phụ huynh; chỉ bạn đọc được). Mật khẩu tạm đã gợi ý sẵn (bấm **Gợi ý khác** để đổi). Bấm **Tạo tài khoản**.
+4. Bấm **Chép lời nhắn** rồi dán vào Zalo gửi phụ huynh: lời nhắn có tên đăng nhập, mật khẩu tạm và địa chỉ trang học. Mật khẩu tạm chỉ hiện lần này; phụ huynh đăng nhập lần đầu sẽ phải đặt mật khẩu mới.
+
+Ở trang admin còn có:
+- **Tài khoản**: số liệu nhanh (số tài khoản, số tài khoản dùng trong 7 ngày, số hồ sơ con theo khối), tìm theo tên đăng nhập, tên hoặc ghi chú, lọc tài khoản đang khóa hoặc chưa đổi mật khẩu tạm.
+- Bấm vào một tài khoản: **xem nhanh** (số hồ sơ con, khối, lần dùng gần nhất; không xem bài làm), sửa **ghi chú**, **đặt lại mật khẩu** khi phụ huynh quên (mọi máy đang đăng nhập bị đăng xuất), **khóa / mở khóa**, **xóa** (phải gõ đúng tên đăng nhập; xóa luôn hồ sơ con và kết quả).
+- **Nhật ký**: ai đã tạo, đặt lại mật khẩu, khóa, mở khóa, xóa tài khoản nào, lúc nào.
+
+Trang admin báo lỗi khi gọi hàm `admin`: xem bảng gỡ lỗi cuối trang. Cần tạo tài khoản khi hàm `admin` chưa chạy được thì làm bằng tay: **Authentication → Users → Add user** với email `nha.bin@users.onup.invalid`, mật khẩu tạm, tick **Auto Confirm User**; rồi **SQL Editor**:
+```sql
+insert into families (auth_user_id, username, display_name)
+select id, 'nha.bin', 'Nhà Bin' from auth.users where email = 'nha.bin@users.onup.invalid';
+```
 
 ## Bước 7. Điền `js/config.js`
 
@@ -127,7 +132,7 @@ Hôm nay mọi tài khoản là gói `free`: dùng mọi nội dung, tối đa 5
 - [ ] **Table Editor**: có các bảng `families`, `profiles`, `plans` (2 dòng: `free`, `family`), `app_owners` (1 dòng).
 - [ ] **Authentication → Users**: chỉ có tài khoản chủ app (và các tài khoản bạn đã tạo).
 - [ ] **Edge Functions → admin**: đã deploy, Verify JWT tắt, **Logs** không có lỗi đỏ.
-- [ ] Tạo một tài khoản thử (bước 6; sau Phiên C thì ở trang admin) → đăng nhập bằng mật khẩu tạm → app bắt đặt mật khẩu mới → thêm hồ sơ con → **Đổi người học** → chọn hồ sơ con, làm một đề → Phụ huynh nhập lại mật khẩu, mở hồ sơ của con thấy kết quả.
+- [ ] Tạo một tài khoản thử ở trang admin (bước 6) → đăng nhập trang học bằng mật khẩu tạm → app bắt đặt mật khẩu mới → thêm hồ sơ con → **Đổi người học** → chọn hồ sơ con, làm một đề → Phụ huynh nhập lại mật khẩu, mở hồ sơ của con thấy kết quả.
 
 ## Bảo mật và quyền riêng tư
 
@@ -143,6 +148,9 @@ Hôm nay mọi tài khoản là gói `free`: dùng mọi nội dung, tối đa 5
 |---|---|
 | Lệnh ở bước 4.2 báo `0 rows` | Email gõ ở bước 4.1 khác lệnh SQL (phải viết thường, đúng đuôi `@users.onup.invalid`). |
 | Trang admin báo không có quyền | Tài khoản đang dùng chưa có trong `app_owners` (bước 4.2). |
+| Trang admin báo “Máy chủ chưa có hàm admin” | Chưa triển khai Edge Function, hoặc đặt tên khác `admin` (bước 5). |
+| Trang admin báo “Máy chủ từ chối lời gọi hàm admin” | Còn bật **Verify JWT** cho hàm `admin` (bước 5.4). |
+| Trang admin báo “chỉ dùng với bản đám mây” | `js/config.js` chưa điền URL và khóa (bước 7). |
 | Gọi hàm `admin` báo lỗi 401 | Chưa tắt **Verify JWT** (bước 5.4), hoặc phiên đăng nhập đã hết hạn: đăng nhập lại. |
 | Gọi hàm `admin` báo lỗi máy chủ | Xem **Edge Functions → admin → Logs**. Kiểm tra đã chạy `schema.sql` (bước 2). |
 | `relation "families" already exists` khi chạy `schema.sql` | Project đã có bảng (đã chạy rồi, hoặc còn bảng của bản cũ). Dùng project mới (bước 1). |
