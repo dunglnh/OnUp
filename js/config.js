@@ -8,8 +8,8 @@
      Khóa này công khai, để ở đây được; quyền truy cập do chính sách RLS trong supabase/schema.sql bảo vệ.
    TUYỆT ĐỐI KHÔNG dán khóa service_role / secret (sb_secret_...) vào file này. */
 window.ONTAP_CONFIG = {
-  supabaseUrl: "",
-  supabaseAnonKey: "",
+  supabaseUrl: "https://yubobtzhrygyjspnyaeq.supabase.co",
+  supabaseAnonKey: "sb_publishable_5dUU9YRwnZWFVqSYW3MJzg_FIaZ2yc-",
   // Không bắt buộc: "site key" của Cloudflare Turnstile để chặn máy tự động (xem bước 8 của hướng dẫn).
   // Đây cũng là khóa công khai. Điền khóa này TRƯỚC, rồi mới bật CAPTCHA trong Supabase.
   turnstileSiteKey: "",

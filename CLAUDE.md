@@ -88,7 +88,7 @@ Mã PIN ở chế độ cục bộ chỉ để phân biệt người trong nhà/
 ### Bản đám mây (SupabaseStore)
 Bật khi `js/config.js` có `supabaseUrl` + `supabaseAnonKey`; khi đó `window.Store` là SupabaseStore (`Store.cloud === true`), LocalStore còn ở `window.LocalStore` để đọc dữ liệu cũ khi chuyển lên. Hướng dẫn cài: `docs/HUONG-DAN-SUPABASE.md`. Thiết kế: `docs/THIET-KE-TAI-KHOAN.md`.
 
-Chưa ai bật bản đám mây (`js/config.js` để trống). Trang admin của chủ app (`admin.html`) làm ở Phiên C; trước đó chủ app tạo tài khoản bằng Edge Function `admin`.
+Từ 17/10/2026 `js/config.js` trên `main` đã điền URL và khóa công khai của project Supabase thật (PR #27): trang trên GitHub Pages chạy bản đám mây. Trang admin của chủ app (`admin.html`) làm ở Phiên C; trước đó chủ app tạo tài khoản gia đình bằng tay (bước 6 của hướng dẫn) hoặc gọi Edge Function `admin`.
 
 Máy chủ (`supabase/schema.sql`, Edge Function `admin`):
 - Một tài khoản = một gia đình (`families`), do phụ huynh giữ; đăng nhập bằng tên đăng nhập + mật khẩu. Supabase Auth lưu tên đăng nhập dạng email nội bộ `<tên>@users.onup.invalid` (không gửi thư). Con là hồ sơ (`profiles`, khối 1–12) trong tài khoản, dùng phiên của bố mẹ; `pin_hash` chỉ là khóa trên giao diện, app tự băm.
@@ -129,7 +129,7 @@ python3 -m http.server 8000      # rồi mở http://localhost:8000
 ```
 Không mở bằng file:// khi thử bài ôn trong khung: một số trình duyệt chặn localStorage giữa các trang file://.
 
-Kiểm thử tự động (bắt buộc trước mỗi Pull Request): `python3 -m http.server 8000 &` rồi `node tests/e2e.js` (cần `npm i -D playwright`). Script phải in `E2E OK`; ảnh chụp ở `tests/screenshots/` để xem giao diện, ảnh 360px sáng/tối của đăng nhập, trang chủ học sinh, bài ôn trong khung, quản trị, tab Dữ liệu ở `tests/screenshots/360/`. Script có bước mất mạng: tải trang một lần, tắt mạng, tải lại vẫn đăng nhập và làm bài được. Hai script Playwright đặt `PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1` để route và chế độ offline áp dụng cả cho service worker.
+Kiểm thử tự động (bắt buộc trước mỗi Pull Request): `python3 -m http.server 8000 &` rồi `node tests/e2e.js` (cần `npm i -D playwright`). Script luôn chạy bản lưu trên máy (trả về `js/config.js` đã xóa `supabaseUrl`, `supabaseAnonKey` dù file thật đã điền) và phải in `E2E OK`; ảnh chụp ở `tests/screenshots/` để xem giao diện, ảnh 360px sáng/tối của đăng nhập, trang chủ học sinh, bài ôn trong khung, quản trị, tab Dữ liệu ở `tests/screenshots/360/`. Script có bước mất mạng: tải trang một lần, tắt mạng, tải lại vẫn đăng nhập và làm bài được. Hai script Playwright đặt `PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1` để route và chế độ offline áp dụng cả cho service worker.
 
 Thử tay sau khi sửa code: service worker dùng mạng trước nên tải lại trang là thấy bản mới. Sửa `sw.js` thì trình duyệt cài bản mới ở lần tải sau (DevTools → Application → Service workers để xem, gỡ).
 

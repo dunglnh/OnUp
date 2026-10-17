@@ -48,8 +48,11 @@ function browser(opts = {}) {
   const ctx = vm.createContext(win);
   const load = (f) => vm.runInContext(fs.readFileSync(ROOT + f, "utf8"), ctx, { filename: f });
   ["data/grades.js", "data/calendar-2026-2027.js", "data/modules.js", "data/banks.js"].forEach(load);
-  if (opts.realConfig) load("js/config.js");
-  else vm.runInContext(`window.ONTAP_CONFIG = { supabaseUrl: "https://fake.supabase.co", supabaseAnonKey: ${JSON.stringify(opts.key || "anon-key")}, turnstileSiteKey: ${JSON.stringify(opts.siteKey || "")} };`, ctx);
+  if (opts.realConfig) {
+    load("js/config.js");
+    // Kiểm thử "config.js để trống" dù js/config.js thật đã điền Supabase: giữ mọi mục khác của file, chỉ xóa hai giá trị này.
+    if (opts.blank) vm.runInContext(`window.ONTAP_CONFIG.supabaseUrl = ""; window.ONTAP_CONFIG.supabaseAnonKey = "";`, ctx);
+  } else vm.runInContext(`window.ONTAP_CONFIG = { supabaseUrl: "https://fake.supabase.co", supabaseAnonKey: ${JSON.stringify(opts.key || "anon-key")}, turnstileSiteKey: ${JSON.stringify(opts.siteKey || "")} };`, ctx);
   load("js/store.js");
   if (!opts.realConfig) win.supabase = { createClient: (u, k, o) => createFakeSupabase((m) => be.handle(m), { storage: localStorage, auth: o && o.auth }) };
   load("js/store-supabase.js");
@@ -61,9 +64,14 @@ const fam = (u) => be.T.families.find((f) => f.username === u);
 const profilesOf = (u) => be.T.profiles.filter((p) => p.family_id === fam(u).id);
 const AUTH = "ontap_sb_auth";
 
-/* ---------- 1. config.js để trống: vẫn là LocalStore, không tải gì từ mạng ---------- */
+/* ---------- 1. config.js để trống: vẫn là LocalStore, không tải gì từ mạng; config.js thật không chứa khóa bí mật ---------- */
 {
-  const b = browser({ realConfig: true });
+  const real = browser({ realConfig: true }).win.ONTAP_CONFIG, key = String(real.supabaseAnonKey || "");
+  let role = "";
+  try { role = JSON.parse(Buffer.from(key.split(".")[1] || "", "base64").toString()).role || ""; } catch (e) { /* không phải JWT */ }
+  ok((!real.supabaseUrl && !key) || (/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(real.supabaseUrl) && !!key && !/^sb_secret_/.test(key) && role !== "service_role"),
+    "js/config.js thật: để trống, hoặc URL Supabase + khóa công khai (không phải khóa bí mật)");
+  const b = browser({ realConfig: true, blank: true });
   ok(!b.Store.cloud && b.Store === b.win.Store && typeof b.Store.setup === "function" && !b.win.LocalStore, "config.js trống: app dùng LocalStore như cũ");
   ok(b.loaded.length === 0, "config.js trống: không tải script nào từ mạng");
   ok(b.Store.can("addChild") === true && b.Store.can("bank:toan4-ck1-de1") === true, "LocalStore.can: bản lưu trên máy không có gói, luôn được");

@@ -8,6 +8,10 @@ const fs = require("fs");
 const OUT = __dirname + "/screenshots/"; fs.mkdirSync(OUT, { recursive: true });
 const ROOT = __dirname + "/../";
 const BASE = process.env.BASE_URL || "http://localhost:8000";
+/* Đây là kiểm thử bản lưu trên máy. js/config.js thật có thể đã điền Supabase (trang đang chạy bản đám mây), nên trả về
+   bản để trống hai giá trị đó cho mọi request tới js/config.js. Bản đám mây kiểm thử riêng ở tests/supabase/. */
+const LOCAL_CONFIG = fs.readFileSync(ROOT + "js/config.js", "utf8").replace(/(supabaseUrl|supabaseAnonKey):\s*"[^"]*"/g, '$1: ""');
+const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ contentType: "text/javascript", body: LOCAL_CONFIG }));
 (async () => {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
@@ -20,6 +24,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   const outReqs = [], HOST = new URL(BASE).host;
   const watchOut = (c) => c.on("request", (r) => { const u = new URL(r.url()); if (/^https?:$/.test(u.protocol) && u.host !== HOST) outReqs.push(r.url()); });
   watchOut(ctx);
+  await localConfig(ctx);
   const shot = (n) => page.screenshot({ path: OUT + n + ".png", fullPage: true });
   const editDb = (fn) => page.evaluate((src) => { const d = JSON.parse(localStorage.getItem("ontap_db_v1")); new Function("d", src)(d); localStorage.setItem("ontap_db_v1", JSON.stringify(d)); }, fn);
   const who = () => page.evaluate(() => (Store.sessionUser() || {}).name || "");
@@ -343,7 +348,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   for (const scheme of ["light", "dark"]) {
     const opts = { viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme };
     const c = await browser.newContext(Object.assign({ storageState: state }, opts)), fresh = await browser.newContext(opts);
-    for (const x of [c, fresh]) { watchOut(x); x.on("page", (pg) => pg.on("pageerror", (e) => errs.push("pageerror 360: " + e.message))); }
+    for (const x of [c, fresh]) { await localConfig(x); watchOut(x); x.on("page", (pg) => pg.on("pageerror", (e) => errs.push("pageerror 360: " + e.message))); }
     let p = await fresh.newPage();
     const open = async (h, wait) => { await p.goto(BASE + "/" + h); await p.waitForTimeout(wait || 250); };
     const check = async (label) => (await p.evaluate(audit)).forEach((x) => m360.push(`${scheme} · ${label}: ${x}`));
@@ -418,6 +423,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   const swList = { missing: want.filter((f) => !sw.FILES.includes(f)), extra: sw.FILES.filter((f) => !want.includes(f)) };
   // Tải trang một lần (service worker cài và đệm), rồi mất mạng: tải lại vẫn vào được, đăng nhập, mở bài ôn và đề ngân hàng.
   const off = await browser.newContext({ storageState: state, viewport: { width: 390, height: 844 } });
+  await localConfig(off);
   watchOut(off);
   const swSeen = [], leaked = []; let offline = false;
   off.on("request", (r) => { if (r.serviceWorker()) swSeen.push(r.url()); });
