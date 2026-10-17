@@ -1,11 +1,10 @@
-// So bộ chấm điền khuyết bản cũ và bản mới (js/quiz.js) trên mọi câu điền khuyết của data/banks.js
+// So bộ chấm điền khuyết bản cũ và bản mới (js/quiz.js) trên mọi câu điền khuyết của đề có sẵn (data/banks/)
 // và một nhóm câu chữ kiểu quản trị viên nhập, với nhiều cách gõ.
 // Chạy: node tests/so-bo-cham.js [bản cũ, mặc định 274d769] → hai dòng cuối phải là 0.
 const fs=require('fs'),vm=require('vm'),cp=require('child_process'),R=__dirname+'/../';
 function load(src){const w={};vm.runInNewContext(src,{window:w});return w.Quiz.isRight}
 const oldR=load(cp.execSync('git show '+(process.argv[2]||'274d769')+':js/quiz.js',{cwd:R}).toString()),newR=load(fs.readFileSync(R+'js/quiz.js','utf8'));
-const W={};vm.runInNewContext(fs.readFileSync(R+'data/banks.js','utf8'),{window:W});
-let qs=[];W.ONTAP_SEED_BANKS.forEach(b=>b.questions.forEach((q,i)=>q.type==='fill'&&qs.push({id:b.id+'#'+i,q})));
+let qs=[];require('./nap-de.js').napDe().forEach(b=>b.questions.forEach((q,i)=>q.type==='fill'&&qs.push({id:b.id+'#'+i,q})));
 // câu chữ kiểu quản trị viên nhập (Quiz.parse) — không được chấm đúng nhầm
 const admin=[
  {q:'Bạn ngủ đủ ___ tiếng mỗi ngày.',ans:['tám','8']},{q:'Thủ đô nước ta là ___ .',ans:['Hà Nội']},

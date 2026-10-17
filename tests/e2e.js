@@ -25,6 +25,10 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const watchOut = (c) => c.on("request", (r) => { const u = new URL(r.url()); if (/^https?:$/.test(u.protocol) && u.host !== HOST) outReqs.push(r.url()); });
   watchOut(ctx);
   await localConfig(ctx);
+  /* Đề có sẵn: lúc mở app chỉ tải danh mục data/banks/index.js; file câu hỏi của một khối, một môn chỉ tải khi mở đề
+     của file đó (Store.loadBank). Ghi tên các file trong data/banks/ đã được tải (kể cả do service worker tải). */
+  const bankFiles = new Set(), bankList = () => [...bankFiles].sort().join();
+  ctx.on("request", (r) => { const m = /\/data\/banks\/([^/?#]+)/.exec(r.url()); if (m) bankFiles.add(m[1]); });
   const shot = (n) => page.screenshot({ path: OUT + n + ".png", fullPage: true });
   const editDb = (fn) => page.evaluate((src) => { const d = JSON.parse(localStorage.getItem("ontap_db_v1")); new Function("d", src)(d); localStorage.setItem("ontap_db_v1", JSON.stringify(d)); }, fn);
   const who = () => page.evaluate(() => (Store.sessionUser() || {}).name || "");
@@ -169,7 +173,9 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await page.waitForTimeout(200);
 
   step("quiz bank practice");
-  await page.goto(BASE + "/#/quiz/toan4-ck1-de1"); await page.waitForTimeout(200);
+  const lazy = { home: bankList() }; // đã qua thiết lập, đăng nhập, trang chủ, bài ôn trong khung
+  await page.goto(BASE + "/#/quiz/toan4-ck1-de1"); await page.waitForSelector("#qPractice");
+  lazy.quiz = bankList();
   await page.click("#qPractice");
   for (let i = 0; i < 40 && !(await page.$(".score")); i++) {
     if (await page.$("#qzFill")) await page.fill("#qzFill", "400"); else await page.click(".opt >> nth=0");
@@ -383,7 +389,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     && fresh(sh.ok.at) && !sh.ok.card && /Đã lưu file sao lưu/.test(sh.ok.toast) && sh.ok.calls === 1 && sh.downloads === 0;
 
   step("not found + wrong grade (L3)");
-  const view = async (h) => { await page.goto(BASE + "/" + h); await page.waitForTimeout(200); return { text: (await page.textContent("#view")).replace(/\s+/g, " ").trim(), missing: !!(await page.$("#missing")), quiz: !!(await page.$("#qPractice")), frame: !!(await page.$("#playerFrame")) }; };
+  const view = async (h) => { await page.goto(BASE + "/" + h); await page.waitForTimeout(200); await page.waitForSelector("#missing, #qPractice, #playerFrame", { timeout: 5000 }).catch(() => {}); return { text: (await page.textContent("#view")).replace(/\s+/g, " ").trim(), missing: !!(await page.$("#missing")), quiz: !!(await page.$("#qPractice")), frame: !!(await page.$("#playerFrame")) }; };
   const nf = await view("#/khongcotrang"); await shot("15-not-found");
   const nfAdmin = await view("#/admin/khongco");
   const adminPeek = [await view("#/quiz/toan4-ck1-de1"), await view("#/quiz/khtn6-ck1-de1"), await view("#/play/ioe-6")]; // quản trị xem thử mọi khối
@@ -427,25 +433,22 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("banks:", db.banks.map((b) => [b.title, b.questions.length, b.src.length > 0]));
   console.log("keys:", await page.evaluate(() => Object.keys(localStorage)));
 
-  step("seed data");
-  const dataErrs = await page.evaluate(() => {
-    const B = window.ONTAP_SEED_BANKS, ids = B.map((b) => b.id), bad = [];
-    if (new Set(ids).size !== ids.length) bad.push("trùng mã ngân hàng");
-    B.forEach((b) => b.questions.forEach((q, i) => {
-      const at = b.id + "#" + (i + 1);
-      if (!q.q || !q.topic) bad.push(at + " thiếu câu hỏi/chủ đề");
-      if (q.type === "fill") { if (q.q.split("___").length !== 2) bad.push(at + " cần đúng một ___"); if (!q.ans || !q.ans.length || !Quiz.isRight(q, q.ans[0])) bad.push(at + " đáp án"); }
-      else if (q.type === "mc") { if (!q.o || q.o.length < 2 || new Set(q.o).size !== q.o.length) bad.push(at + " lựa chọn"); }
-      else if (q.type === "tf") { if (typeof q.a !== "boolean") bad.push(at + " đúng/sai"); }
-      else bad.push(at + " dạng câu");
-    }));
-    window.ONTAP_SEED_EVENTS.forEach((e) => {
-      (e.banks || []).forEach((id) => { if (!ids.includes(id)) bad.push(e.id + " gắn ngân hàng không có: " + id); });
-      (e.modules || []).forEach((id) => { if (!window.ONTAP_MODULES.some((m) => m.id === id)) bad.push(e.id + " gắn bài ôn không có: " + id); });
-    });
-    return bad;
-  });
-  console.log("data errors:", dataErrs);
+  step("seed banks load on demand");
+  /* Nội dung đề (mã, khối, chủ đề, lời giải, đáp án, gắn kì thi…) do tests/kiem-tra-de.js kiểm tra. Ở đây: trước khi mở đề
+     chỉ có danh mục; mở đề Toán 4 thì tải 4-toan.js; đến giờ mới mở thêm đề KHTN 6 (quản trị xem thử, L3) nên chỉ thêm 6-khtn.js.
+     Số câu trên nút đề ở trang chủ lấy từ danh mục (n), nên trang chủ không cần tải câu hỏi. Trang vừa tải lại (L10, Bin đang
+     đăng nhập): chưa có câu hỏi nào; mở một đề Toán 4 thì có đủ câu của cả năm đề Toán 4 (cùng file). */
+  lazy.now = bankList();
+  const seedState = () => page.evaluate(() => ({ loaded: Object.keys(window.ONTAP_SEED_QUESTIONS || {}).sort().join(), toan4: Store.banks(4).filter((b) => b.subject === "Toán" && b.seed).map((b) => (b.questions || []).length + "/" + b.n).join() }));
+  await page.goto(BASE + "/#/home"); await page.waitForTimeout(200);
+  lazy.home2 = await seedState();
+  await page.goto(BASE + "/#/quiz/toan4-ck1-de2"); await page.waitForSelector("#qPractice");
+  lazy.quiz2 = await seedState();
+  console.log("bank files:", lazy);
+  const dataErrs = [];
+  if (lazy.home !== "index.js" || lazy.quiz !== "4-toan.js,index.js" || lazy.now !== "4-toan.js,6-khtn.js,index.js") dataErrs.push("file đề tải về: " + JSON.stringify(lazy));
+  if (lazy.home2.loaded !== "" || lazy.home2.toan4 !== "0/25,0/25,0/25,0/25,0/25" || lazy.quiz2.loaded !== "toan4-ck1-de1,toan4-ck1-de2,toan4-ck1-de3,toan4-gk2-de1,toan4-gk2-de2"
+    || lazy.quiz2.toan4 !== "25/25,25/25,25/25,25/25,25/25") dataErrs.push("đề đã tải: " + JSON.stringify([lazy.home2, lazy.quiz2]));
 
   step("new seed banks reach old data");
   const ck1 = () => page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).events.find((e) => e.id === "ck1-l4").banks);
@@ -551,7 +554,11 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       if (t === "data") await snap("du-lieu", true);
     }
     for (const h of ["#/admin/user/new?role=student", "#/admin/event/ck1-l4", "#/admin/bank/new"]) { await open(h); await check(h); }
-    await open("#/quiz/toan4-ck1-de1"); await check("đề, màn đầu"); r.quizFoot = !(await footShown());
+    // đề chưa tải được (mất mạng mà chưa mở đề nào của môn này): báo và có nút Thử lại
+    await c.route("**/data/banks/4-tv.js", (rt) => rt.abort("internetdisconnected"));
+    await open("#/quiz/tv4-ck1-de1"); await p.waitForSelector("#qRetry"); await check("đề chưa tải được"); await snap("de-chua-tai-duoc");
+    await c.unroute("**/data/banks/4-tv.js"); await p.click("#qRetry"); r.retry = !!(await p.waitForSelector("#qPractice").catch(() => null));
+    await open("#/quiz/toan4-ck1-de1"); await p.waitForSelector("#qPractice"); await check("đề, màn đầu"); r.quizFoot = !(await footShown());
     await p.click("#qPractice"); await check("đề, câu hỏi");
     if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0");
     await p.click("#qzGo"); await check("đề, sau khi trả lời");
@@ -596,10 +603,11 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     && l18.aria.includes("Toán 4 · Giữa kì II · Đề 1") && l18.aria.includes("Toán 4 · Cuối kì I · Đề 3") && l18.wide <= 360 && l18.fits;
 
   step("offline (L13)");
-  /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được). */
+  /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
+     Đề có sẵn: chỉ danh mục data/banks/index.js nằm trong FILES; file câu hỏi vào đệm khi mở đề. */
   const sw = new Function("self", fs.readFileSync(ROOT + "sw.js", "utf8") + "\nreturn { VERSION, FILES };")({ addEventListener() {} });
   const ls = (dir, re) => fs.readdirSync(ROOT + dir).filter((n) => re.test(n)).map((n) => dir + n);
-  const want = ["./", "manifest.webmanifest"].concat(ls("css/", /\.css$/), ls("js/", /\.js$/), ls("data/", /\.js$/), ls("fonts/", /\.(css|woff2)$/), ls("icons/", /./),
+  const want = ["./", "manifest.webmanifest"].concat(ls("css/", /\.css$/), ls("js/", /\.js$/), ls("data/", /\.js$/), ["data/banks/index.js"], ls("fonts/", /\.(css|woff2)$/), ls("icons/", /./),
     fs.readdirSync(ROOT + "modules").map((m) => `modules/${m}/index.html`));
   const swList = { missing: want.filter((f) => !sw.FILES.includes(f)), extra: sw.FILES.filter((f) => !want.includes(f)) };
   // Tải trang một lần (service worker cài và đệm), rồi mất mạng: tải lại vẫn vào được, đăng nhập, mở bài ôn và đề ngân hàng.
@@ -611,10 +619,30 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   off.on("response", (r) => { if (offline && /^http/.test(r.url()) && !r.fromServiceWorker()) leaked.push(r.url()); }); // mất mạng: mọi file phải do service worker trả
   const op = await off.newPage();
   op.on("pageerror", (e) => errs.push("pageerror offline: " + e.message));
-  op.on("console", (m) => { if (m.type() === "error") errs.push("console offline: " + m.text()); });
+  let expectFail = null;
+  op.on("console", (m) => { if (m.type() === "error" && !(expectFail && expectFail.test(m.location().url || ""))) errs.push("console offline: " + m.text() + " " + (m.location().url || "")); });
   await op.goto(BASE + "/");
   await op.evaluate(() => navigator.serviceWorker.ready); await op.waitForFunction(() => !!navigator.serviceWorker.controller);
   const cache = await op.evaluate(async () => { const k = await caches.keys(), c = await caches.open(k[0]); return { names: k, urls: (await c.keys()).map((r) => r.url) }; });
+  /* File câu hỏi chỉ vào đệm khi đã mở: Bin mở một đề Toán 4 khi còn mạng (4-toan.js vào đệm), rồi về màn hình đăng nhập. */
+  await op.click(`.tile[data-u="${ids.Bin}"]`); await op.fill("#pinIn", PINS.Bin); await op.waitForTimeout(400);
+  await op.goto(BASE + "/#/quiz/toan4-ck1-de1"); await op.waitForSelector("#qPractice");
+  await op.evaluate(() => Store.setSession(null));
+  /* Đổi VERSION: activate của sw.js chép file câu hỏi đã mở từ đệm cũ sang đệm mới rồi xóa đệm cũ (keepBanks). Playwright
+     không thay được sw.js lúc trình duyệt kiểm tra bản mới, nên chạy hàm activate của sw.js ngay trong trang (CacheStorage
+     giống hệt trong service worker), với một đệm cũ dựng tay: 4-tv.js (Bin đã mở Tiếng Việt ở bản trước), danh mục và
+     js/cu.js của bản cũ (không được chép). */
+  const swSrc = fs.readFileSync(ROOT + "sw.js", "utf8"), tvSrc = "/* ban-cu */\n" + fs.readFileSync(ROOT + "data/banks/4-tv.js", "utf8");
+  const bump = await op.evaluate(async ({ swSrc, tvSrc }) => {
+    const old = await caches.open("onup-v0-cu"), js = (t) => new Response(t, { headers: { "content-type": "text/javascript" } }), at = (f) => location.origin + "/" + f;
+    await old.put(at("data/banks/4-tv.js"), js(tvSrc)); await old.put(at("data/banks/index.js"), js("/* ban-cu */")); await old.put(at("js/cu.js"), js("/* ban-cu */"));
+    const on = {};
+    new Function("self", swSrc)({ addEventListener: (t, f) => (on[t] = f), clients: { claim: () => Promise.resolve() } });
+    let done; on.activate({ waitUntil: (p) => (done = p) }); await done;
+    const now = await caches.open((await caches.keys())[0]), text = async (f) => { const r = await now.match(at(f)); return r ? (await r.text()).slice(0, 12) : null; };
+    return { keys: (await caches.keys()).join(), n: (await now.keys()).length, tv: await text("data/banks/4-tv.js"), toan: !!(await text("data/banks/4-toan.js")),
+      index: await text("data/banks/index.js"), cu: await text("js/cu.js") };
+  }, { swSrc, tvSrc });
   /* Mất mạng: setOffline chưa chặn hết request của service worker, nên chặn thêm mọi request bằng route (có cờ ở đầu file,
      route áp dụng cả cho service worker) và bỏ đệm HTTP của trình duyệt. Chỉ còn đệm của service worker. */
   await off.setOffline(true); offline = true;
@@ -632,12 +660,20 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await op.click("#qPractice"); await op.waitForTimeout(200);
   ol.quiz = !!(await op.$(".qcard")) && !!(await op.$(".opt, #qzFill"));
   await op.screenshot({ path: OUT + "17-offline-quiz.png", fullPage: true });
+  await op.goto(BASE + "/#/quiz/tv4-ck1-de1"); await op.waitForSelector("#qPractice", { timeout: 5000 }).catch(() => {});
+  ol.keptTv = !!(await op.$("#qPractice")); // đề Tiếng Việt mở ở bản trước, chép sang đệm mới
+  expectFail = /\/data\/banks\/4-ta\.js$/; // đề chưa mở lần nào: trình duyệt báo lỗi tải file này, đúng như mong đợi
+  await op.goto(BASE + "/#/quiz/ta4-ck1-de1"); await op.waitForSelector("#qRetry", { timeout: 5000 }).catch(() => {});
+  ol.notOpened = /Chưa tải được đề/.test(await op.textContent("#view")) && !!(await op.$("#qRetry")) && !(await op.$("#qPractice"));
+  await op.screenshot({ path: OUT + "17b-offline-de-chua-mo.png", fullPage: true });
+  expectFail = null;
   await op.goto(BASE + "/index.html"); await op.waitForTimeout(300); // trang chưa đệm riêng: trả về trang chính
   ol.other = await op.evaluate(() => !!document.querySelector("#view .tile, #view .hero"));
   offline = false; await off.close();
-  console.log("offline:", ol, "sw list:", swList, "sw version:", sw.VERSION, "cache:", cache.names, cache.urls.length, "sw requests:", swSeen.length, "leaked:", leaked);
+  console.log("offline:", ol, "sw list:", swList, "sw version:", sw.VERSION, "cache:", cache.names, cache.urls.length, "new version:", bump, "sw requests:", swSeen.length, "leaked:", leaked);
   const offlineOK = !swList.missing.length && !swList.extra.length && cache.names.join() === sw.VERSION && cache.urls.length === sw.FILES.length && cache.urls.every((u) => u.startsWith(BASE + "/"))
-    && swSeen.length > 0 && !leaked.length && ol.login && ol.fonts === "Baloo 2,Be Vietnam Pro" && ol.who === "Bin" && /Global Success 4/.test(ol.play) && ol.quiz && ol.other;
+    && bump.keys === sw.VERSION && bump.n === sw.FILES.length + 2 && bump.tv === "/* ban-cu */" && bump.toan && bump.index !== "/* ban-cu */" && bump.cu === null
+    && swSeen.length > 0 && !leaked.length && ol.login && ol.fonts === "Baloo 2,Be Vietnam Pro" && ol.who === "Bin" && /Global Success 4/.test(ol.play) && ol.quiz && ol.keptTv && ol.notOpened && ol.other;
 
   step("service worker: one set of files per page load (L19)");
   /* Service worker đã cài. Mọi file của app chậm 6 giây: trang vẫn hiện trước 6 giây (cả bộ lấy từ đệm), không lỗi JS,

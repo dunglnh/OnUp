@@ -31,18 +31,31 @@ js/bridge.js            nạp bên trong mỗi bài ôn: tách dữ liệu theo 
 data/grades.js          danh sách khối lớp 1–12 (window.ONTAP_GRADES), chỉ lớp 4 và 6 `active`. Không viết cứng [4, 6] ở đâu khác
 data/calendar-2026-2027.js  lịch thi mặc định (window.ONTAP_SEED_EVENTS)
 data/modules.js         danh mục bài ôn dạng trang riêng (window.ONTAP_MODULES)
-data/banks.js           ngân hàng câu hỏi có sẵn (window.ONTAP_SEED_BANKS). Bỏ một bộ thì thêm mã vào RETIRED_SEED_BANKS ở cả hai kho
+data/banks/index.js     danh mục đề có sẵn (window.ONTAP_SEED_BANKS: mã, tên, khối, môn, số phút, số câu, file), nạp lúc mở app. Bỏ một bộ thì thêm mã vào RETIRED_SEED_BANKS ở cả hai kho
+data/banks/<khối>-<mã môn>.js  câu hỏi các đề của một khối, một môn (window.ONTAP_SEED_QUESTIONS), chỉ tải khi mở đề
 modules/<mã>/index.html bài ôn độc lập, mỗi bài là một file HTML tự chứa (từ 4 artifact gốc)
 supabase/schema.sql     bảng, chính sách RLS, trigger, hàm RPC cho bản đám mây (tài khoản = gia đình, hồ sơ con, gói)
 supabase/functions/admin/index.ts  Edge Function của chủ app: tạo, đặt lại mật khẩu, đổi gói, khóa, xóa, liệt kê tài khoản
-supabase/banks-to-sql.js  chuyển đề trong data/banks.js thành SQL chèn vào bảng paid_banks (chưa dùng, để dành khi bán gói)
+supabase/banks-to-sql.js  chuyển đề trong data/banks/ thành SQL chèn vào bảng paid_banks (chưa dùng, để dành khi bán gói)
+tests/kiem-tra-de.js    bộ kiểm tra đề có sẵn (node, không cần trình duyệt); tests/nap-de.js nạp đề trong node cho các script khác
 tests/supabase/         kiểm thử bản đám mây: RLS trên PostgreSQL, Edge Function trên máy chủ giả, giao diện
 docs/HUONG-DAN-SUPABASE.md  hướng dẫn chủ app cài Supabase từng bước
 ```
 
 ### Hai loại nội dung ôn
 1. **Bài ôn dạng trang** (`modules/`): ioe-4, ioe-6, l4-giua-ki-1, l6-giua-ki-1. Mỗi bài có bộ câu hỏi, sinh câu Toán ngẫu nhiên, đề có giờ, ôn câu sai riêng. App mở trong `<iframe>` với `?u=<mã học sinh>&m=<mã bài>`.
-2. **Ngân hàng câu hỏi** (`data/banks.js` + do quản trị viên nhập): chạy bằng `js/quiz.js` ngay trong app. Đây là cách thêm đề cho các kì thi mới (cuối kì, giữa kì II…) mà không phải viết trang mới.
+2. **Ngân hàng câu hỏi** (đề có sẵn trong `data/banks/` + do quản trị viên nhập): chạy bằng `js/quiz.js` ngay trong app. Đây là cách thêm đề cho các kì thi mới (cuối kì, giữa kì II…) mà không phải viết trang mới.
+
+### Đề có sẵn (data/banks/)
+- `data/banks/index.js` là danh mục, nạp lúc mở app: trang chủ, lịch thi, nhóm bài ôn, tab Ngân hàng đề chỉ cần tên, khối, môn và số câu `n` (`qCount` trong js/app.js). Câu hỏi nằm ở `data/banks/<khối>-<mã môn>.js` (ví dụ `4-toan.js`; mã môn ghi ở đầu index.js), mỗi file ghi `"<mã đề>": { note, questions }` vào `window.ONTAP_SEED_QUESTIONS`.
+- App chỉ tải file câu hỏi khi mở đề: `renderQuiz` (qua `loadQuiz`) gọi `Store.loadBank(id)` (Promise, cả hai kho; bản đám mây dùng hàm của LocalStore). Tải xong thì `Store.bank(id)` có `note`, `questions`; mỗi file tải một lần. Màn hình mới cần câu hỏi của đề có sẵn thì gọi `Store.loadBank` trước, không đọc `questions` từ `Store.banks()`.
+- Mã đề, `seedBanksSeen`, `RETIRED_SEED_BANKS`, kết quả cũ (`refId`) giữ nguyên như khi còn một file `data/banks.js`.
+
+**Thêm đề có sẵn:**
+1. Thêm một dòng vào `data/banks/index.js`: `{ id, title, grade, subject, minutes, n, file }`. Mã mới, không trùng, không dùng lại mã trong `RETIRED_SEED_BANKS`; mã đã có thì không đổi. Tên dạng `<môn> <khối> · <kì> · Đề N` (chữ trên nút đề lấy từ tên, `bankLabels` trong js/app.js). `n` bằng số câu trong file.
+2. Thêm `"<mã đề>": { note, questions }` vào `data/banks/<khối>-<mã môn>.js`. Môn chưa có file thì tạo file mới như các file đang có (cùng một mã môn cho mọi khối). File câu hỏi không vào `FILES` của `sw.js`, không phải tăng `VERSION`.
+3. Gắn mã đề vào `banks` của kì thi trong `data/calendar-2026-2027.js` (máy đã có dữ liệu tự gắn qua `seedBanksSeen`).
+4. Chạy `node tests/kiem-tra-de.js` (phải in `DE OK`), với Toán thì thêm script tính lại đáp án (như `tests/toan4-gk2.js`), rồi `tests/e2e.js`.
 
 ### Hợp đồng giữa bài ôn và app (không được phá)
 Mỗi file `modules/*/index.html` có ba chỗ nối với app so với artifact gốc (ngoài ra chỉ sửa lời: xưng “bạn” với học sinh, và thay Google Fonts bằng `<link rel="stylesheet" href="../../fonts/fonts.css">`):
@@ -62,7 +75,8 @@ App còn **đọc** (không ghi) DOM của khung để biết học sinh đang l
 - Khi cài, `sw.js` tải sẵn mọi file trong `FILES` vào đệm tên `VERSION`; khi kích hoạt thì xóa đệm cũ có tiền tố `onup-` (GitHub Pages: các repo của một tài khoản chung origin, không đụng đệm của trang khác).
 - Mỗi lần mở trang (trang chính, bài ôn trong khung) dùng **một bộ file thống nhất**, không trộn bản cũ với bản mới. Trang HTML: **mạng trước** (bản mới lên Pages là có ngay), mất mạng hoặc chậm quá 4 giây thì dùng bản trong đệm; `sw.js` ghi lại trang lấy từ đâu theo `resultingClientId`. JS, CSS, `data/`, manifest của trang đó (`clientId`): trang từ đệm thì lấy từ đệm, trang từ mạng thì lấy từ mạng (chỉ dùng đệm khi mạng lỗi hẳn). Bản từ mạng chỉ vào đệm khi được dùng. Font, biểu tượng (`fonts/`, `icons/`): **đệm trước**. Khóa trong đệm bỏ phần `?…` (bài ôn mở bằng `?u=…&m=…`).
 - Chỉ xử lí GET cùng origin trong phạm vi app. **Không** đệm request tới Supabase, Cloudflare, CDN; đừng thêm host ngoài vào `sw.js`. Trang `admin.html` không qua service worker (luôn cần mạng; `request.url` trong service worker giữ cả phần `#…`).
-- **Tăng `VERSION`** khi thêm, bớt, đổi tên file trong `FILES`, hoặc đổi nội dung font, biểu tượng (đệm trước nên không tự cập nhật). Sửa nội dung HTML/JS/CSS/data thì không cần. `tests/e2e.js` so `FILES` với các file có trong `css/ js/ data/ modules/ fonts/ icons/`.
+- File câu hỏi của đề có sẵn (`data/banks/<khối>-<mã môn>.js`) không nằm trong `FILES` (chỉ có danh mục `data/banks/index.js`): app tải khi mở đề, bản tải về được dùng thì vào đệm như các file khác, nên đề đã mở thì mở lại được khi mất mạng. Mất mạng mà chưa mở đề nào của file đó thì app báo “Chưa tải được đề này” và có nút Thử lại (`loadQuiz` trong js/app.js). Khi kích hoạt bản mới, `sw.js` chép các file câu hỏi đã có từ đệm cũ sang đệm mới (`keepBanks`) rồi mới xóa đệm cũ.
+- **Tăng `VERSION`** khi thêm, bớt, đổi tên file trong `FILES`, hoặc đổi nội dung font, biểu tượng (đệm trước nên không tự cập nhật). Sửa nội dung HTML/JS/CSS/data, thêm file câu hỏi trong `data/banks/` thì không cần. `tests/e2e.js` so `FILES` với các file có trong `css/ js/ data/ modules/ fonts/ icons/` (trong `data/banks/` chỉ có `index.js`).
 - Màu trong `manifest.webmanifest` (`background_color` = `--bg`, `theme_color` = `--sun`) và `<meta name="theme-color">` trong `index.html` (`--bg` sáng, tối) chép từ token; đổi token thì sửa cả ở đó.
 
 ### Chốt rời trang, khóa PIN (js/app.js)
@@ -78,7 +92,7 @@ App còn **đọc** (không ghi) DOM của khung để biết học sinh đang l
 - `banks`: ngân hàng do quản trị viên nhập (giữ cả văn bản gốc ở `src` để sửa lại).
 - `results`: `{userId, source:"module"|"bank", refId, subject, label, mode, r, t, s, at, wrongTopics?}`.
 - `settings`: `{schoolName, schoolYear, createdAt, lastBackupAt}`. `lastBackupAt`: lần sao lưu gần nhất (ISO), dữ liệu cũ là `null`. Bản lưu trên máy, máy cảm ứng chia sẻ được file (iPhone, iPad): “Tải file sao lưu” mở bảng chia sẻ (`navigator.share`) và chỉ ghi khi chia sẻ xong; còn lại (cả bản đám mây) tải file và ghi ngay (`backupNow` trong js/app.js). Trên iOS, app mở từ Màn hình chính không dùng chung dữ liệu với Safari: Quản trị → Dữ liệu có các bước chuyển bằng file sao lưu, màn hình thiết lập mở từ Màn hình chính có thẻ nhắc khôi phục; bản đám mây chỉ nhắc chuyển dữ liệu trong Safari ở ô “Chuyển dữ liệu máy này lên đám mây”. Trang chủ quản trị và phụ huynh hiện thẻ nhắc sao lưu khi quá 7 ngày, hoặc chưa sao lưu lần nào mà đã có kết quả (`backupDue` trong js/app.js; bản đám mây không nhắc).
-- `seedBanksSeen`: mã các ngân hàng có sẵn (data/banks.js) máy này đã xét. Khi thêm bộ mới vào data/banks.js và gắn vào `banks` của một kì thi trong lịch mặc định, `load()` tự gắn bộ đó vào kì thi trên máy đã có dữ liệu; bộ quản trị viên đã bỏ gắn thì không gắn lại.
+- `seedBanksSeen`: mã các ngân hàng có sẵn (danh mục data/banks/index.js) máy này đã xét. Khi thêm bộ mới vào danh mục và gắn vào `banks` của một kì thi trong lịch mặc định, `load()` tự gắn bộ đó vào kì thi trên máy đã có dữ liệu; bộ quản trị viên đã bỏ gắn thì không gắn lại.
 
 Khối lớp: `data/grades.js` là chỗ duy nhất. Hồ sơ học sinh mới chỉ chọn được khối `active` (sửa hồ sơ thì giữ được khối đang có); form kì thi, ngân hàng đề, tab khối ở Lịch thi, “Kì thi tiếp theo” ở trang quản trị đọc danh sách này (`gradeList()` trong js/app.js). Thêm lớp mới: thêm nội dung rồi đổi `active` thành `true`.
 
@@ -98,7 +112,7 @@ Máy chủ (`supabase/schema.sql`, Edge Function `admin`):
 - Chủ app: người dùng trong `app_owners`. Mọi thao tác quản lý tài khoản đi qua Edge Function `admin` (khóa bí mật, tự kiểm tra owner, ghi `admin_log`; đổi gói ghi thêm `plan_log`). Chủ app đọc `families`, `admin_notes`, nhật ký; không đọc hồ sơ con, kết quả.
 - Phụ huynh: đọc/ghi hồ sơ con, kết quả, lịch thi, ngân hàng tự nhập của gia đình mình; chỉ sửa `display_name, school_year, seed_banks_seen` của `families`. RPC: `touch()` (lần dùng gần nhất, tính lại hồ sơ bị khóa), `password_changed()` (bỏ cờ `must_change_password` sau khi `auth.updateUser`), `import_local(data)` (chuyển dữ liệu LocalStore: chỉ học sinh thành hồ sơ con), `plan_active(family_id)`.
 - Tài khoản `status = 'locked'`: chỉ đọc được dòng `families` của mình; Edge Function còn cấm đăng nhập (ban) trong Supabase Auth.
-- Gói: bảng `plans` (`max_children`, `all_banks`). Hôm nay `free` = 5 hồ sơ, mọi đề. Gói trả phí còn hạn khi `plan <> 'free'` và `plan_until >= hôm nay` (giờ Việt Nam); hết hạn thì về hạn mức `free`, hồ sơ vượt hạn mức có `locked = true` (không ghi kết quả mới). Trigger chặn thêm hồ sơ quá hạn mức. `paid_banks` đọc được khi đề đã đăng và (đề thử hoặc gói cho đọc mọi đề); hiện app vẫn đọc đề từ `data/banks.js`.
+- Gói: bảng `plans` (`max_children`, `all_banks`). Hôm nay `free` = 5 hồ sơ, mọi đề. Gói trả phí còn hạn khi `plan <> 'free'` và `plan_until >= hôm nay` (giờ Việt Nam); hết hạn thì về hạn mức `free`, hồ sơ vượt hạn mức có `locked = true` (không ghi kết quả mới). Trigger chặn thêm hồ sơ quá hạn mức. `paid_banks` đọc được khi đề đã đăng và (đề thử hoặc gói cho đọc mọi đề); hiện app vẫn đọc đề từ `data/banks/`.
 - Quyền do RLS và quyền theo cột (grant) quyết định (khóa anon là công khai). Đổi bảng hoặc chính sách thì chạy `sh tests/supabase/run.sh`, thêm kiểm tra vào `tests/supabase/rls-test.sql`, và sửa máy chủ giả `tests/supabase/fake-backend.js` cho khớp. Không bao giờ đưa khóa service_role/secret vào code phía trình duyệt.
 - Tối đa 2000 kết quả mỗi hồ sơ và 60 kết quả mỗi 10 phút; 500 kì thi, 100 ngân hàng tự nhập mỗi tài khoản (trigger).
 
@@ -109,7 +123,7 @@ Phía trình duyệt (`js/store-supabase.js`, phần đám mây của `js/app.js
 - Luồng (js/app.js `route()`): chưa đăng nhập → `renderCloudLogin` (tên đăng nhập + mật khẩu + “Ghi nhớ trên máy này” + dòng “Quên mật khẩu?” từ `contactText`, `contactUrl` của js/config.js); mật khẩu tạm → `renderNewPassword` (bắt đổi); bị khóa hoặc không có gia đình (ví dụ tài khoản chủ app) → `renderCloudBlocked`; đã đăng nhập mà tab chưa chọn ai → `renderLogin` thành màn hình “Ai đang học?”. Hồ sơ con có PIN thì nhập PIN, không có thì bấm là vào; Phụ huynh phải nhập lại mật khẩu (`checkPassword`, sai cũng tính vào `PinLock`), vừa nhập mật khẩu trong 5 phút thì không hỏi lại (`parentUnlocked`; `setSession` của Phụ huynh cũng kiểm tra). Tài khoản chưa có hồ sơ con và vừa đăng nhập thì vào thẳng khu phụ huynh. “Đổi người học” (`setSession(null)`) về “Ai đang học?” mà không đăng xuất; chỉ Phụ huynh đăng xuất được (trang Tài khoản, kèm đổi mật khẩu).
 - Hồ sơ đang dùng giữ trong sessionStorage (`ontap_cloud_who`), hồ sơ con chọn gần nhất ở localStorage (`ontap_cloud_last`). Phiên Supabase giữ trong sessionStorage, chọn “Ghi nhớ” thì localStorage (`ontap_sb_auth`). Phiên bị máy chủ từ chối (hết hạn, chủ app đặt lại mật khẩu) thì tự đăng xuất trên máy.
 - PIN hồ sơ con: 4 số, không bắt buộc, băm trên máy như `hashPin` của js/store.js, lưu `pin_hash = "<muối>$<mã băm>"`; muối bắt đầu bằng `<độ dài>.` để bàn phím tự vào khi gõ đủ. PIN chuyển từ máy cũ (`import_local`, 4–6 số, chưa biết độ dài) nhập đúng một lần thì được băm lại kèm độ dài.
-- Tài khoản mới (Edge Function chỉ tạo dòng `families`) chưa có kì thi nào: lần mở đầu app chép lịch mặc định lên máy chủ. Ngân hàng có sẵn (data/banks.js) không lưu lên máy chủ; `seed_banks_seen` của family làm việc như `seedBanksSeen`.
+- Tài khoản mới (Edge Function chỉ tạo dòng `families`) chưa có kì thi nào: lần mở đầu app chép lịch mặc định lên máy chủ. Đề có sẵn (data/banks/) không lưu lên máy chủ; `seed_banks_seen` của family làm việc như `seedBanksSeen`.
 - Kết quả làm bài đi qua hộp gửi trong localStorage (`ontap_cloud_outbox`, theo mã hồ sơ), chỉ xóa khi máy chủ đã nhận; gửi kết quả của mọi hồ sơ con của tài khoản đang đăng nhập (máy dùng chung cho anh em), để lại kết quả của tài khoản khác.
 - CAPTCHA (Cloudflare Turnstile) tùy chọn: `turnstileSiteKey` trong `js/config.js`; `captcha()` trong store-supabase.js lấy mã cho `signIn` và `checkPassword`. Không có khóa thì không tải script của Cloudflare.
 
@@ -141,7 +155,9 @@ python3 -m http.server 8000      # rồi mở http://localhost:8000
 ```
 Không mở bằng file:// khi thử bài ôn trong khung: một số trình duyệt chặn localStorage giữa các trang file://.
 
-Kiểm thử tự động (bắt buộc trước mỗi Pull Request): `python3 -m http.server 8000 &` rồi `node tests/e2e.js` (cần `npm i -D playwright`). Script luôn chạy bản lưu trên máy (trả về `js/config.js` đã xóa `supabaseUrl`, `supabaseAnonKey` dù file thật đã điền) và phải in `E2E OK`; ảnh chụp ở `tests/screenshots/` để xem giao diện, ảnh 360px sáng/tối của đăng nhập, trang chủ học sinh, bài ôn trong khung, quản trị, tab Dữ liệu ở `tests/screenshots/360/`. Script có bước mất mạng: tải trang một lần, tắt mạng, tải lại vẫn đăng nhập và làm bài được. Bước service worker (L19): mọi file chậm 6 giây thì trang vẫn hiện trước 6 giây; `js/app.js` chậm và `js/store.js` mới thì không chạy lẫn bản cũ với bản mới. Hai script Playwright đặt `PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1` để route và chế độ offline áp dụng cả cho service worker.
+Kiểm thử tự động (bắt buộc trước mỗi Pull Request): `python3 -m http.server 8000 &` rồi `node tests/e2e.js` (cần `npm i -D playwright`). Script luôn chạy bản lưu trên máy (trả về `js/config.js` đã xóa `supabaseUrl`, `supabaseAnonKey` dù file thật đã điền) và phải in `E2E OK`; ảnh chụp ở `tests/screenshots/` để xem giao diện, ảnh 360px sáng/tối của đăng nhập, trang chủ học sinh, bài ôn trong khung, quản trị, tab Dữ liệu ở `tests/screenshots/360/`. Script có bước mất mạng: tải trang một lần, mở một đề, tắt mạng, tải lại vẫn đăng nhập và làm được bài ôn trong khung, đề đã mở (kể cả đề chép từ đệm của bản trước), đề chưa mở thì báo chưa tải được. Bước service worker (L19): mọi file chậm 6 giây thì trang vẫn hiện trước 6 giây; `js/app.js` chậm và `js/store.js` mới thì không chạy lẫn bản cũ với bản mới. Hai script Playwright đặt `PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1` để route và chế độ offline áp dụng cả cho service worker.
+
+Pull Request có thêm hoặc sửa đề có sẵn: chạy thêm `node tests/kiem-tra-de.js` (không cần trình duyệt, in `DE OK`). Script kiểm tra mã đề không trùng, khối có trong `data/grades.js`, mỗi câu có chủ đề và lời giải, trắc nghiệm có ít nhất 2 lựa chọn không trùng nhau, điền khuyết có đáp án và đúng một chỗ trống `___`, không có câu trùng nhau (so sau khi bỏ dấu câu, khoảng trắng), đề gắn vào kì thi có thật và đúng khối, số câu, số phút hợp lí, danh mục khớp với file câu hỏi. Thêm dạng câu mới thì thêm kiểm tra vào script này.
 
 Thử tay sau khi sửa code: service worker dùng mạng trước nên tải lại trang là thấy bản mới. Sửa `sw.js` thì trình duyệt cài bản mới ở lần tải sau (DevTools → Application → Service workers để xem, gỡ).
 
@@ -157,5 +173,5 @@ GitHub Pages: Settings → Pages → Deploy from a branch → `main` / root. Fil
 1. Sửa lỗi cơ bản tìm được khi dùng thử (`docs/SUA-LOI-CHAY-THU.md`: Phiên 9a, 9b, 9c, 9d đã làm; còn chờ bố mẹ thử L17 trên iPhone thật) và lỗi từ góp ý chạy thử (GitHub Issues).
 2. Đề cuối kì I: đã đủ các môn cho cả lớp 4 và lớp 6 (Phiên 10, 11).
 3. Báo cáo tuần cho phụ huynh (Phiên 12) và IOE cấp tỉnh lớp 4 (Phiên 13): đã có.
-4. Đề: giữa kì II lớp 4 đã có (Phiên 14); giữa kì I lớp 6 thêm Tiếng Anh, LS&ĐL, GDCD (Phiên N0a), Tin học, Công nghệ (Phiên N0b); cuối kì I lớp 4 thêm Tiếng Anh (Phiên N0b). Kế hoạch đủ đề lớp 4 và 6, rồi lớp 5, 7–12 (tách dữ liệu đề, dạng câu mới, rút đề theo ma trận, các phiên làm đề theo hạn kì thi): `docs/KE-HOACH-NOI-DUNG.md`.
+4. Đề: giữa kì II lớp 4 đã có (Phiên 14); giữa kì I lớp 6 thêm Tiếng Anh, LS&ĐL, GDCD (Phiên N0a), Tin học, Công nghệ (Phiên N0b); cuối kì I lớp 4 thêm Tiếng Anh (Phiên N0b). Đề đã tách theo khối, môn và có bộ kiểm tra đề (Phiên K1). Kế hoạch đủ đề lớp 4 và 6, rồi lớp 5, 7–12 (tách dữ liệu đề, dạng câu mới, rút đề theo ma trận, các phiên làm đề theo hạn kì thi): `docs/KE-HOACH-NOI-DUNG.md`.
 5. Bản đám mây theo thiết kế tài khoản mới: máy chủ (Phiên A), app (Phiên B) và trang admin (Phiên C) đã có. Chủ app cài theo `docs/HUONG-DAN-SUPABASE.md`, tạo tài khoản gia đình ở `admin.html`.

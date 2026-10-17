@@ -121,7 +121,7 @@ Mã PIN chỉ để phân biệt người dùng, không phải bảo mật thậ
 
 | Ưu tiên | Việc | Ghi chú |
 |---|---|---|
-| 1 | Ngân hàng câu hỏi cuối kì I lớp 4 (Toán, TV, Tiếng Anh, Khoa học, LS&ĐL) và lớp 6 (Toán, Văn, KHTN) | Kì thi tiếp theo sau giữa kì I; có thể nhập qua mục Quản trị hoặc thêm vào `data/banks.js` |
+| 1 | Ngân hàng câu hỏi cuối kì I lớp 4 (Toán, TV, Tiếng Anh, Khoa học, LS&ĐL) và lớp 6 (Toán, Văn, KHTN) | Kì thi tiếp theo sau giữa kì I; có thể nhập qua mục Quản trị hoặc thêm vào `data/banks/` (cách thêm: CLAUDE.md, mục “Thêm đề có sẵn”) |
 | 2 | ~~Đồng bộ đám mây với Supabase~~ — đã làm (Phiên 5); đã chuyển sang tài khoản tên đăng nhập + mật khẩu (Phiên A, B) và trang admin (Phiên C) | `js/store-supabase.js`, `supabase/schema.sql` (RLS), Edge Function `admin`, `admin.html`; cài đặt: [HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md) |
 | 3 | Nhập câu hỏi từ Excel (.xlsx) | Cột: chủ đề, câu hỏi, đáp án đúng, sai 1–3, lời giải |
 | 4 | Bài ôn giữa kì II và cuối năm | Theo cùng mẫu với bài ôn giữa kì I |

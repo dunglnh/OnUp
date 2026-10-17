@@ -1,6 +1,6 @@
 # Kế hoạch nội dung: đủ đề lớp 4 và 6, rồi lớp 5, 7–12
 
-Phiên bản 1 · 17/10/2026 · Trạng thái: **đang làm** (N0a, N0b đã xong). Lời giao việc từng phiên: mục 6 và 7.
+Phiên bản 1 · 17/10/2026 · Trạng thái: **đang làm** (N0a, N0b, K1 đã xong). Lời giao việc từng phiên: mục 6 và 7.
 
 Tài liệu này trả lời ba câu hỏi:
 - Còn thiếu bao nhiêu đề.
@@ -21,7 +21,7 @@ Phần dự trù chi phí và giá bán nằm ở tài liệu riêng của chủ
 **Nội dung có sẵn:**
 - 4 bài ôn dạng trang: giữa kì I lớp 4 (Toán, Tiếng Việt), giữa kì I lớp 6 (Ngữ văn, Toán, KHTN), IOE 4, IOE 6.
 - 22 ngân hàng đề, 550 câu, câu nào cũng có lời giải. Dạng câu: 325 trắc nghiệm, 99 đúng/sai, 126 điền khuyết. Mỗi đề 25 câu, chia 6–14 chủ đề.
-- `data/banks.js` nặng 230 KB, khoảng 420 byte mỗi câu. App nạp cả file này ngay khi mở.
+- `data/banks.js` nặng 230 KB, khoảng 420 byte mỗi câu. App nạp cả file này ngay khi mở. Phiên K1 đã tách thành danh mục `data/banks/index.js` (khoảng 5 KB, nạp lúc mở app) và các file câu hỏi `data/banks/<khối>-<mã môn>.js` (tải khi mở đề), kèm bộ kiểm tra đề `tests/kiem-tra-de.js`.
 
 | Kì thi (lịch 2026–2027) | Lớp 4 | Lớp 6 |
 |---|---|---|

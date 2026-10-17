@@ -9,12 +9,15 @@
        Không rõ trang lấy từ đâu (service worker vừa khởi động lại, trình duyệt cũ không có resultingClientId): như trang HTML.
      Bản tải từ mạng được dùng thì cập nhật đệm. Bản đến sau khi đã dùng đệm thì bỏ, để đệm không thành nửa cũ nửa mới.
    - Font, biểu tượng (fonts/, icons/): đệm trước, vì không đổi giữa các bản.
+   - Câu hỏi của đề có sẵn (data/banks/<khối>-<môn>.js) không nằm trong FILES (chỉ có danh mục data/banks/index.js): app chỉ
+     tải file của môn khi mở đề. Bản tải về được dùng thì vào đệm như các file khác, nên đề đã mở thì mở lại được khi mất
+     mạng. Đổi VERSION thì các file câu hỏi đã có được chép sang đệm mới (keepBanks).
    - Chỉ xử lí request GET cùng origin, trong phạm vi app. Request tới Supabase, Cloudflare (CAPTCHA), CDN (supabase-js)
      đi thẳng ra mạng, không bao giờ vào đệm. Trang admin của chủ app (admin.html) cũng đi thẳng ra mạng: trang đó luôn
      cần mạng, không đệm, và mạng chậm hay mất mạng thì không bị thay bằng trang học.
    Thêm, bớt, đổi tên file trong FILES, hoặc đổi font, biểu tượng: tăng VERSION. Bản mới cài lại đệm và xóa đệm cũ.
    tests/e2e.js so FILES với các file có trong repo. */
-const VERSION = "onup-v3";
+const VERSION = "onup-v4";
 const PREFIX = "onup-"; // GitHub Pages: các repo của một tài khoản chung origin, chỉ xóa đệm của app này
 const SLOW_MS = 4000;
 const FONTS = [["baloo-2", [600, 700, 800]], ["be-vietnam-pro", [400, 500, 600, 700]]]
@@ -22,7 +25,7 @@ const FONTS = [["baloo-2", [600, 700, 800]], ["be-vietnam-pro", [400, 500, 600, 
 const FILES = [
   "./", "manifest.webmanifest", "css/app.css",
   "js/config.js", "js/store.js", "js/store-supabase.js", "js/quiz.js", "js/app.js", "js/bridge.js",
-  "data/grades.js", "data/calendar-2026-2027.js", "data/modules.js", "data/banks.js",
+  "data/grades.js", "data/calendar-2026-2027.js", "data/modules.js", "data/banks/index.js",
   "modules/ioe-4/index.html", "modules/ioe-6/index.html", "modules/l4-giua-ki-1/index.html", "modules/l6-giua-ki-1/index.html",
   "fonts/fonts.css", ...FONTS,
   "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png"
@@ -36,9 +39,21 @@ self.addEventListener("install", (e) => {
 
 self.addEventListener("activate", (e) => {
   e.waitUntil(caches.keys()
-    .then((keys) => Promise.all(keys.filter((k) => k.startsWith(PREFIX) && k !== VERSION).map((k) => caches.delete(k))))
+    .then((keys) => {
+      const old = keys.filter((k) => k.startsWith(PREFIX) && k !== VERSION);
+      return keepBanks(old).then(() => Promise.all(old.map((k) => caches.delete(k))));
+    })
     .then(() => self.clients.claim()));
 });
+/* Chép file câu hỏi đã mở (data/banks/, trừ danh mục index.js) từ đệm cũ sang đệm mới. Lần sau mở đề khi có mạng thì
+   bản mới thay vào như mọi file khác. Lỗi thì bỏ qua: học sinh chỉ phải mở lại đề khi có mạng. */
+const BANK_FILE = /\/data\/banks\/(?!index\.js$)[^/]+\.js$/;
+function keepBanks(old) {
+  return caches.open(VERSION).then((cache) => Promise.all(old.map((k) => caches.open(k)
+    .then((c) => c.keys().then((reqs) => Promise.all(reqs.filter((r) => BANK_FILE.test(r.url))
+      .map((r) => cache.match(r).then((hit) => hit || c.match(r).then((res) => res && cache.put(r, res))))))))))
+    .catch(() => {});
+}
 
 /* Mã trang → "net" | "cache": trang đó lấy từ mạng hay từ đệm. Chỉ giữ các trang mở gần đây. */
 const pages = new Map();

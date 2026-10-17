@@ -1,6 +1,6 @@
 -- Kiểm thử RLS, trigger và các hàm của supabase/schema.sql, đóng vai phụ huynh, nhà khác, tài khoản bị khóa, chủ app
 -- và người chưa đăng nhập. Chạy bằng tests/supabase/run.sh (nạp auth-stub.sql, schema.sql và đề từ banks-to-sql.js trước,
--- truyền biến psql `banks` = số đề trong data/banks.js).
+-- truyền biến psql `banks` = số đề trong danh mục data/banks/index.js).
 
 -- ---------- công cụ kiểm thử ----------
 create schema t;
@@ -199,13 +199,13 @@ select t.blocked($$select today_vn()$$, 'gọi hàm nội bộ today_vn');
 reset role;
 
 -- ---------- đề trong paid_banks (nạp từ supabase/banks-to-sql.js) ----------
--- Không ghi cứng số đề: :banks do run.sh đếm trong data/banks.js, :trials là số đề thử đếm ở đây. Thêm đề không phải sửa file này.
+-- Không ghi cứng số đề: :banks do run.sh đếm trong data/banks/index.js, :trials là số đề thử đếm ở đây. Thêm đề không phải sửa file này.
 select t.ok((select count(*) from paid_banks) = :banks and (select count(*) from paid_banks where published) = :banks,
-  'banks-to-sql.js: đủ ' || :banks || ' đề của data/banks.js, đã đăng');
+  'banks-to-sql.js: đủ ' || :banks || ' đề có sẵn (data/banks/), đã đăng');
 select count(*) filter (where free_trial) as trials, count(*) filter (where not free_trial) as paid from paid_banks \gset
 select t.ok(:trials > 0 and :paid > 0, 'có ' || :trials || ' đề thử và ' || :paid || ' đề không phải đề thử');
 -- Quy tắc của banks-to-sql.js viết lại bằng SQL: mã có đuôi "-de<số>" là đề thử khi số là 1;
--- mã không có số là đề thử khi đứng đầu nhóm (kì thi, khối, môn) trong data/banks.js.
+-- mã không có số là đề thử khi đứng đầu nhóm (kì thi, khối, môn) trong danh mục data/banks/index.js.
 select t.ok(not exists (select 1 from (
     select free_trial, coalesce(substring(id from '-de([0-9]+)$')::int = 1, sort = min(sort) over (partition by exam, grade, subject)) as trial
     from paid_banks) x where free_trial <> trial),

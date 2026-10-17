@@ -1,4 +1,4 @@
-// Tính lại đáp án các câu Toán mới/sửa ở Phiên 8 (data/banks.js). Chạy: node tests/toan-phien8.js → in MATH OK.
+// Tính lại đáp án các câu Toán mới/sửa ở Phiên 8 (đề có sẵn, nay ở data/banks/). Chạy: node tests/toan-phien8.js → in MATH OK.
 const a=require('assert');const r=(n,p)=>Math.round(n/p)*p;const g=(x,y)=>y?g(y,x%y):x;
 // cộng, trừ có nhớ: không quá 3 lượt, không liên tiếp
 const nho=(x,y,tru)=>{const A=String(x).split('').reverse().map(Number),B=String(y).split('').reverse().map(Number);let c=0;const r=[];A.forEach((d,i)=>{const v=tru?d-(B[i]||0)-c:d+(B[i]||0)+c;c=tru?+(v<0):+(v>=10);if(c)r.push(i)});return r};

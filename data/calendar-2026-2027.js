@@ -19,7 +19,7 @@
    subjects   các môn thi
    scope      phạm vi kiến thức (ngắn gọn)
    modules    mã bài ôn trong data/modules.js
-   banks      mã ngân hàng câu hỏi (data/banks.js hoặc do quản trị viên nhập)
+   banks      mã ngân hàng câu hỏi (danh mục data/banks/index.js hoặc do quản trị viên nhập)
 */
 window.ONTAP_SEED_EVENTS = [
   { id: "khai-giang", title: "Khai giảng năm học 2026–2027", kind: "moc", grades: [4, 6],

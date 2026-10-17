@@ -111,7 +111,7 @@ Edge Function `admin` (thay cho `student-login`), chỉ owner gọi được: `c
 - `plans` có 2 dòng `free` và `family`, cột `max_children`, `all_banks` (đọc mọi đề hay chỉ đề thử), `price`. Hôm nay cả hai đều 5 hồ sơ, mọi đề, nên mọi tài khoản dùng được mọi nội dung.
 - Hàm `plan_active(family)` (gói khác `free` và `plan_until` ≥ hôm nay, giờ Việt Nam); hết hạn thì về hạn mức `free`. `profiles.locked`: hồ sơ vượt hạn mức (giữ các hồ sơ tạo sớm nhất), không ghi được kết quả mới, vẫn xem được kết quả cũ.
 - `plan_log` (nhật ký đổi gói, số tiền) và thao tác `set_plan` của Edge Function `admin`.
-- `paid_banks` (đề của chủ app, cờ `free_trial`, `published`) và `supabase/banks-to-sql.js` chuyển mọi đề trong `data/banks.js` thành SQL (đề số 1 mỗi môn mỗi kì là đề thử). App vẫn đọc đề từ `data/banks.js`.
+- `paid_banks` (đề của chủ app, cờ `free_trial`, `published`) và `supabase/banks-to-sql.js` chuyển mọi đề trong `data/banks/` thành SQL (đề số 1 mỗi môn mỗi kì là đề thử). App vẫn đọc đề từ `data/banks/`.
 - Tài khoản `locked` chỉ còn đọc được dòng `families` của mình (để app báo “đã bị khóa”), và bị cấm đăng nhập ở Supabase Auth.
 - Giữ `question_banks` (ngân hàng phụ huynh tự nhập) và RPC `import_local` (chuyển dữ liệu từ bản lưu trên máy); thêm RPC `touch` (lần dùng gần nhất) và `password_changed` (bỏ cờ bắt đổi mật khẩu).
 
@@ -164,7 +164,7 @@ Ghi lại để lúc đó không phải nghĩ lại từ đầu. Khung ở mục
 
 - **Gói:** ví dụ Miễn phí (1 hồ sơ con, bài ôn, đề thử số 1 mỗi môn) và Gói Gia đình (nhiều hồ sơ, mọi đề, hạn đến 31/8 cuối năm học). Cấu hình trong bảng `plans`; app chỉ đổi `Store.can()`.
 - **Bán qua Zalo, kích hoạt tay:** màn hình Nâng cấp (quyền lợi, giá, QR chuyển khoản, nội dung `ONUP tên-đăng-nhập`, nút Nhắn Zalo soạn sẵn) → bạn kiểm tra tiền → trang admin thêm nút “Kích hoạt gói” (gói, hạn, số tiền, ghi chú) và bảng `plan_log` để đối soát.
-- **Bảo vệ đề trả phí:** repo đang public nên đề trong `data/banks.js` ai cũng tải được. Khi bán, đề trả phí chuyển vào bảng `paid_banks` trên Supabase, đọc qua RLS khi gói còn hạn hoặc đề là đề thử.
+- **Bảo vệ đề trả phí:** repo đang public nên đề trong `data/banks/` ai cũng tải được. Khi bán, đề trả phí chuyển vào bảng `paid_banks` trên Supabase, đọc qua RLS khi gói còn hạn hoặc đề là đề thử.
 - **Hết hạn:** về gói miễn phí, không mất dữ liệu; hồ sơ vượt hạn mức bị khóa đến khi gia hạn; nhắc trước 14 ngày.
 - **Thêm khi thu tiền:** trang Điều khoản và Quyền riêng tư theo quy định bảo vệ dữ liệu cá nhân hiện hành; hỏi kế toán về thuế, hóa đơn.
 - **Khi đơn nhiều:** tự đăng ký có CAPTCHA, email tự lấy lại mật khẩu, thanh toán tự động.
