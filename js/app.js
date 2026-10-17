@@ -1156,4 +1156,11 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
     Store.load();
     route();
   }
+  /* Service worker (sw.js): đệm sẵn các file để mở lại được app khi mất mạng. Chỉ chạy trên https hoặc localhost;
+     mở bằng file:// thì bỏ qua. Đăng kí sau khi trang tải xong để không tranh mạng với lần mở đầu. */
+  try {
+    if (location.protocol !== "file:" && "serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+    }
+  } catch (e) { /* trình duyệt chặn service worker: app vẫn chạy khi có mạng */ }
 })();
