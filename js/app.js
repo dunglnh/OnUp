@@ -447,7 +447,7 @@
   }
 
   /* Mỗi bài ôn dạng trang một dòng; đề ngân hàng gom theo môn thành một dòng có các nút "Đề 1 · Đề 2 · …"
-     (xếp theo tên đề, tên đầy đủ ở aria-label). */
+     (xếp theo tên đề; aria-label có cả chữ trên nút và tên đề đầy đủ). */
   function practiceList(mods, bks, canPlay) {
     if (!mods.length && !bks.length) return `<div class="panel muted">Chưa có bài ôn cho mục này. Quản trị viên có thể nhập ngân hàng câu hỏi trong mục Quản trị.</div>`;
     const subs = new Map(), act = canPlay ? "main" : "";
@@ -457,7 +457,7 @@
         list.sort((a, b) => a.title.localeCompare(b.title, "vi", { numeric: true }));
         const nq = list[0].questions.length, same = list.every((b) => b.questions.length === nq);
         return `<div class="item subj"><span class="grow"><b>${esc(sub)}</b><span class="small muted">${list.length} đề${same ? ` · ${nq} câu${list.length > 1 ? " mỗi đề" : ""}` : ""}</span></span>
-          <span class="des">${list.map((b, i) => `<a class="btn ${act} sm" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(b.title)}">Đề ${i + 1}</a>`).join("")}</span></div>`;
+          <span class="des">${list.map((b, i) => { const lb = "Đề " + (i + 1); return `<a class="btn ${act} sm" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(b.title.includes(lb) ? b.title : lb + " · " + b.title)}">${lb}</a>`; }).join("")}</span></div>`;
       }).join("")}</div>`;
   }
   /* "Tất cả bài ôn" của một khối, gom theo kì thi chưa qua: kì gần nhất mở sẵn, các kì sau thu gọn.
@@ -479,7 +479,7 @@
     const results = Store.resultsFor(s.id), next = nextEvent(s.grade);
     const w7 = within(results, 7), [r30, t30] = sumRT(within(results, 30));
     const evs = Store.events(s.grade).filter((e) => status(e) !== "past").slice(0, 5);
-    let hero =`<section class="hero"><span class="label">Kì thi tiếp theo</span><h1>Chưa có kì thi sắp tới</h1><p>Xem lịch thi cả năm để biết thêm.</p></section>`;
+    let hero = `<section class="hero"><span class="label">Kì thi tiếp theo</span><h1>Chưa có kì thi sắp tới</h1><p>Xem lịch thi cả năm để biết thêm.</p></section>`;
     if (next) {
       const { mods, bks } = practiceFor(next, s.grade), st = status(next), rd = readiness(next, s, results);
       hero = `<section class="hero">

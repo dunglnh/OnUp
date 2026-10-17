@@ -7,7 +7,8 @@
   --ioe:#0f5f63; --ioe-soft:#dcefee; --moc:#6b5b95; --moc-soft:#ece8f6;
   --display:"Baloo 2","Be Vietnam Pro",system-ui,sans-serif;
   --body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --r:14px; /* chữ nhỏ nhất .8125rem (13px) */
+  /* Chữ nhỏ nhất .8125rem (13px), vùng bấm cao ít nhất 44px (tests/e2e.js kiểm tra ở 360px). */
+  --r:14px;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
