@@ -8,7 +8,7 @@ Web app ôn thi **cả năm học** cho học sinh **lớp 4 và lớp 6** (sác
 
 Người dùng là trẻ 9–12 tuổi và phụ huynh, nên:
 - Giao diện tiếng Việt, câu ngắn. Gọi người đang dùng app là "bạn" (cả học sinh, phụ huynh, quản trị); chỉ dùng "con" khi nói với phụ huynh về con của họ ("hồ sơ của con"). Không thuật ngữ kỹ thuật trên màn hình.
-- Ưu tiên điện thoại (rộng 360–420px), nút to, không cuộn ngang.
+- Ưu tiên điện thoại (rộng 360–420px), không cuộn ngang, vùng bấm cao ≥ 44px, chữ ≥ 13px (`tests/e2e.js` kiểm tra ở 360px).
 - Thu thập dữ liệu tối thiểu: tên hiển thị, khối, lớp. **Không** hỏi ngày sinh, số điện thoại, email, ảnh của trẻ.
 
 ## Kiến trúc
@@ -53,10 +53,12 @@ App chỉ nhận tin nhắn khi `event.source` là đúng iframe đang mở và 
 ### Chốt rời trang, khóa PIN (js/app.js)
 - Màn hình có bài đang làm dở đặt biến `guard` (xem chú thích "chốt rời trang"): mọi cách rời màn hình (link, `go()`, nút Back, tải lại) đều hỏi lại trước. Hiện có ở đề ngân hàng và bài ôn trong khung, chỉ với học sinh. Màn hình mới có việc làm dở thì đặt `guard` trong hàm vẽ màn hình; `route()` tự bỏ. Chuyển màn hình luôn đi qua `go()` hoặc link `#/…`, không gọi `route()` trực tiếp khi đang làm bài.
 - `PinLock`: sai PIN 5 lần thì phải đợi (30 giây, 1 phút, 5 phút, rồi 15 phút), lưu theo mã người dùng ở localStorage khóa `ontap_pinlock_v1`. Chỉ làm đoán mò tốn thời gian, không phải bảo mật thật.
+- Bàn phím PIN (`wirePinBox`) tự kiểm tra khi gõ đủ `pinLen` số. Tài khoản cũ chưa có `pinLen` thì đủ 4 số thử lặng lẽ (sai không báo, không tính; tối đa 5 lượt mỗi người, `PinLock.probe`), rồi chờ đủ 6 số hoặc bấm Vào.
+- Chú thích lịch thi cuối trang (`.foot`) chỉ hiện ở trang chủ và Lịch thi (`route()`). Bài ôn trong khung đặt class `playing` trên `body`: trang cao đúng một màn hình, chỉ cuộn trong khung.
 
 ### Kho dữ liệu
 `Store` (js/store.js) là ranh giới duy nhất với dữ liệu. Cấu trúc:
-- `users`: `{id, role, name, avatar, salt, pinHash, grade?, className?, parentIds?}` — quan hệ phụ huynh–con lưu ở `parentIds` của học sinh.
+- `users`: `{id, role, name, avatar, salt, pinHash, pinLen, grade?, className?, parentIds?}` — quan hệ phụ huynh–con lưu ở `parentIds` của học sinh. `pinLen`: độ dài PIN (4–6); dữ liệu cũ đọc vào là 0 (chưa biết), đăng nhập đúng thì ghi lại.
 - `events`: kì thi, xem chú thích đầu `data/calendar-2026-2027.js`. **Không đổi `id`** của kì thi đã có.
 - `banks`: ngân hàng do quản trị viên nhập (giữ cả văn bản gốc ở `src` để sửa lại).
 - `results`: `{userId, source:"module"|"bank", refId, subject, label, mode, r, t, s, at, wrongTopics?}`.
@@ -107,7 +109,7 @@ python3 -m http.server 8000      # rồi mở http://localhost:8000
 ```
 Không mở bằng file:// khi thử bài ôn trong khung: một số trình duyệt chặn localStorage giữa các trang file://.
 
-Kiểm thử tự động (bắt buộc trước mỗi Pull Request): `python3 -m http.server 8000 &` rồi `node tests/e2e.js` (cần `npm i -D playwright`). Script phải in `E2E OK`; ảnh chụp ở `tests/screenshots/` để xem giao diện.
+Kiểm thử tự động (bắt buộc trước mỗi Pull Request): `python3 -m http.server 8000 &` rồi `node tests/e2e.js` (cần `npm i -D playwright`). Script phải in `E2E OK`; ảnh chụp ở `tests/screenshots/` để xem giao diện, ảnh 360px sáng/tối của đăng nhập, trang chủ học sinh, bài ôn trong khung, quản trị ở `tests/screenshots/360/`.
 
 Khi sửa `js/store-supabase.js`, `js/app.js` (phần đám mây), `supabase/`: chạy thêm `node tests/supabase/admin-test.mjs` (Edge Function admin và máy chủ giả, in `ADMIN OK`), `node tests/supabase/store-test.mjs` (in `SUPABASE STORE OK`), `node tests/supabase/cloud-e2e.js` (in `CLOUD E2E OK`, ảnh 360px sáng/tối ở `tests/screenshots/cloud/`), và nếu máy có PostgreSQL thì `sh tests/supabase/run.sh` (in `RLS OK`). Hai file store-test.mjs và cloud-e2e.js tạm chỉ còn phần không phụ thuộc cách đăng nhập; Phiên B viết lại các luồng (bản đầy đủ của thiết kế cũ xem lịch sử git trước Phiên A).
 
@@ -118,7 +120,7 @@ GitHub Pages: Settings → Pages → Deploy from a branch → `main` / root. Fil
 
 ## Việc tiếp theo (theo thứ tự ưu tiên)
 **Trạng thái 16/10/2026: đang chạy thử với học sinh.** Ưu tiên: sửa các GitHub Issue góp ý từ việc chạy thử, rồi dựng **khung tài khoản: tên đăng nhập + mật khẩu, hồ sơ con, trang admin, khối lớp 1–12 dùng chung** theo `docs/THIET-KE-TAI-KHOAN.md` (Phiên A → B → C). **Chưa làm bản trả phí** (chỉ tính khi có đủ đề lớp 4–12); khung chừa sẵn `plan` và `Store.can()`. Thiết kế đó **thay thế** cách đăng nhập email, mã mời, mã gia đình + PIN của bản đám mây cũ. **Phiên A (máy chủ) đã làm**; Phiên B viết lại phía trình duyệt và phần “Phía trình duyệt” ở trên. Lộ trình đầy đủ và lời giao việc từng phiên: `docs/KE-HOACH-PHAT-TRIEN-ONUP.md`. Tóm tắt:
-1. Sửa lỗi cơ bản tìm được khi dùng thử (`docs/SUA-LOI-CHAY-THU.md`, Phiên 9a đã làm → 9b → 9c) và lỗi từ góp ý chạy thử (GitHub Issues).
+1. Sửa lỗi cơ bản tìm được khi dùng thử (`docs/SUA-LOI-CHAY-THU.md`, Phiên 9a, 9b đã làm → 9c) và lỗi từ góp ý chạy thử (GitHub Issues).
 2. Đề cuối kì I: đã đủ các môn cho cả lớp 4 và lớp 6 (Phiên 10, 11).
 3. Báo cáo tuần cho phụ huynh (Phiên 12) và IOE cấp tỉnh lớp 4 (Phiên 13): đã có.
 4. Đề giữa kì II lớp 4: đã có (Phiên 14). Còn đề giữa kì II lớp 6 và đề cuối năm cho cả hai khối.
