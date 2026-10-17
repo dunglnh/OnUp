@@ -1,6 +1,6 @@
 # Sửa lỗi cơ bản sau khi dùng thử (16/10/2026)
 
-Trạng thái: **Phiên 9a, 9b, 9c đã làm** (L1–L14, PR #21, #22, #23; ảnh 360px sau Phiên 9b: [hinh-360/](hinh-360/)). **Phiên 9d chưa làm** (L15–L19, lỗi phát sinh tìm được khi rà soát lại ngày 17/10). Các phiên Claude Code để sửa: mục 3.
+Trạng thái: **Phiên 9a, 9b, 9c đã làm** (L1–L14, PR #21, #22, #23; ảnh 360px sau Phiên 9b: [hinh-360/](hinh-360/)). **Phiên 9d đã làm** (L15–L19, lỗi phát sinh tìm được khi rà soát lại ngày 17/10, PR #29); còn chờ bố mẹ thử L17 trên iPhone thật (mục 2, Phiên 9d). Các phiên Claude Code để sửa: mục 3.
 
 **Cách đã thử:** chạy mã nhánh `main` (commit `5866b72`, giống bản đang đăng trên GitHub Pages) bằng Chromium tự động, màn hình điện thoại 360×740, rồi thêm chế độ tối và màn hình 1280px. Đi hết các luồng:
 - thiết lập lần đầu và các tab quản trị;
@@ -111,6 +111,7 @@ Mã lỗi (L1, L2…) dùng trong lời giao việc và trong commit.
 - Phiên 9c khuyên "Thêm vào Màn hình chính" (Quản trị → Dữ liệu), nhưng không nói điều này. Gia đình đã dùng OnUp trong Safari, bấm biểu tượng mới sẽ thấy màn hình thiết lập trống. Dễ có người tạo lại từ đầu, và dữ liệu nằm lại trong Safari, nơi iOS có thể xóa sau 7 ngày không mở.
 - `backupNow()` ghi `lastBackupAt` ngay lúc bấm nút, trước khi biết file có thật sự tải về hay không. Khi mở app từ Màn hình chính trên iOS, tải file bằng `<a download>` có thể không lưu được file ra máy. Khi đó thẻ nhắc vẫn biến mất dù chưa có bản sao lưu nào.
 - Chưa thử được trên iPhone thật (máy thử không có iOS). Phần này dựa trên cách iOS hoạt động, cần bố mẹ thử lại (mục 2, Phiên 9d).
+- Đã sửa ở PR #29 chỉ cho bản lưu trên máy. Bản đám mây (trang thật từ 17/10) giữ dữ liệu trên máy chủ, chỉ thêm dòng nhắc chuyển dữ liệu trong Safari ở ô "Chuyển dữ liệu máy này lên đám mây".
 
 **L18. Đánh số đề sai trong nhóm "Bài ôn khác" và khi kì thi chỉ gắn một phần đề.**
 - `practiceList` ghi nút "Đề 1, Đề 2…" theo thứ tự trong hàng, không theo số đề thật.

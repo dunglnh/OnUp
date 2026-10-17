@@ -73,12 +73,32 @@
   }
 
   /* ---------------- sao lưu ----------------
-     Bản lưu trên máy ghi lúc tải file sao lưu (settings.lastBackupAt). Quá 7 ngày chưa sao lưu, hoặc chưa sao lưu lần nào
-     mà đã có kết quả làm bài, thì trang chủ của quản trị và phụ huynh hiện thẻ nhắc. Bản đám mây không nhắc. */
+     Bản lưu trên máy ghi lúc sao lưu xong (settings.lastBackupAt). Quá 7 ngày chưa sao lưu, hoặc chưa sao lưu lần nào
+     mà đã có kết quả làm bài, thì trang chủ của quản trị và phụ huynh hiện thẻ nhắc. Bản đám mây không nhắc.
+     backupNow() → Promise: "share" | "download" khi đã sao lưu, false khi người dùng bấm hủy.
+     - Bản lưu trên máy, máy cảm ứng chia sẻ được file (iPhone, iPad): mở bảng chia sẻ (lưu vào Tệp, gửi Zalo…), vì app mở từ
+       Màn hình chính trên iOS có thể không lưu được file tải bằng <a download>. Chỉ ghi lastBackupAt khi chia sẻ xong; hủy thì
+       không ghi, không báo. Máy tính bỏ qua bảng chia sẻ (trên Mac bảng này không có chỗ lưu file); Chrome trên Android không
+       chia sẻ được file .json.
+     - Còn lại (cả bản đám mây): tải file như thường và ghi lastBackupAt ngay.
+     Trình duyệt chỉ cho chia sẻ trong lúc người dùng đang bấm, nên gọi backupNow() ngay trong sự kiện bấm nút.
+     Bảng chia sẻ đang mở thì bỏ qua lần bấm sau (bấm hai lần liền), để lần đó không bị coi là đã sao lưu. */
+  let sharing = false;
   function backupNow() {
-    const d = new Date();
-    if (!Store.cloud) Store.setSettings({ lastBackupAt: d.toISOString() });
-    download(`on-thi-sao-luu-${isoDay(d)}.json`, Store.exportJSON());
+    if (sharing) return Promise.resolve(false);
+    const d = new Date(), name = `on-thi-sao-luu-${isoDay(d)}.json`, text = Store.exportJSON();
+    const done = (how) => { if (!Store.cloud) Store.setSettings({ lastBackupAt: d.toISOString() }); return how; };
+    const save = () => { download(name, text); return done("download"); };
+    let file = null;
+    if (!Store.cloud) try {
+      const f = new File([text], name, { type: "application/json" });
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [f] }) && matchMedia("(any-pointer: coarse)").matches) file = f;
+    } catch (e) { /* trình duyệt cũ: tải file như thường */ }
+    if (!file) return Promise.resolve(save());
+    sharing = true;
+    return navigator.share({ files: [file], title: "File sao lưu OnUp" })
+      .then(() => done("share"), (e) => (e && e.name === "AbortError" ? false : save()))
+      .finally(() => (sharing = false));
   }
   function backupDue() {
     if (Store.cloud) return null;
@@ -97,28 +117,33 @@
   const standalone = () => { try { return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch (e) { return false; } };
   function wireBackupCard() {
     const b = $("#backupNow");
-    if (b) b.onclick = () => { backupNow(); $("#backupRemind").remove(); toast("Đã tải file sao lưu"); };
+    if (b) b.onclick = () => backupNow().then((how) => {
+      if (!how) return;
+      const c = $("#backupRemind"); if (c) c.remove();
+      toast(how === "share" ? "Đã lưu file sao lưu" : "Đã tải file sao lưu");
+    });
   }
 
   /* ---------------- chốt rời trang ----------------
-     Đang làm bài (đề ngân hàng chưa nộp, bài ôn trong khung đã chạm vào) thì rời màn hình phải qua hộp hỏi lại:
+     Đang làm bài (đề ngân hàng chưa nộp, bài ôn trong khung đang làm một lượt) thì rời màn hình phải qua hộp hỏi lại:
      - link và nút trong app (go(), thẻ <a href="#…">, kể cả "Lịch thi" và nút tài khoản trên thanh đầu): hỏi trước khi đổi hash;
      - nút Back/Forward, gõ địa chỉ: hashchange không hủy được, nên thêm lại địa chỉ cũ vào lịch sử (không vẽ lại màn hình)
        rồi hỏi; đồng ý thì lùi về đúng địa chỉ đích;
      - tải lại, đóng tab: hộp hỏi của trình duyệt (beforeunload).
-     guard = {busy(): còn bài làm dở?, ask, note, yes, no: chữ trên hộp, leave(): việc làm trước khi rời (nộp bài),
-              saved(): bài ôn trong khung vừa gửi điểm về}. route() bỏ chốt; màn hình nào cần thì đặt lại. */
+     guard = {busy(): còn bài làm dở?, ask, note, yes, no: chữ trên hộp, leave(): việc làm trước khi rời (nộp bài)}.
+              Chữ đổi theo bài đang làm thì thêm text() trả về {ask, note, yes, no}, đọc lúc mở hộp.
+              route() bỏ chốt; màn hình nào cần thì đặt lại. */
   let guard = null, shownHash = location.hash, leaving = null;
   const guardOn = () => !!(guard && guard.busy());
   /* viaHistory: trình duyệt đã đổi hash và app vừa thêm lại địa chỉ cũ, nên đồng ý thì chỉ cần lùi một bước. */
   function askLeave(to, viaHistory) {
     leaving = { to, viaHistory };
     if ($("#leaveBox")) return;
-    const g = guard, box = document.createElement("div");
+    const g = guard, t = g.text ? g.text() : g, box = document.createElement("div");
     box.id = "leaveBox"; box.className = "leave";
-    box.innerHTML = `<div class="confirm" role="alertdialog" aria-modal="true" aria-labelledby="leaveQ"${g.note ? ` aria-describedby="leaveNote"` : ""}>
-      <b id="leaveQ">${esc(g.ask)}</b>${g.note ? `<span id="leaveNote">${esc(g.note)}</span>` : ""}
-      <div class="row"><button class="btn danger" id="leaveYes">${esc(g.yes)}</button><button class="btn main" id="leaveNo">${esc(g.no)}</button></div></div>`;
+    box.innerHTML = `<div class="confirm" role="alertdialog" aria-modal="true" aria-labelledby="leaveQ"${t.note ? ` aria-describedby="leaveNote"` : ""}>
+      <b id="leaveQ">${esc(t.ask)}</b>${t.note ? `<span id="leaveNote">${esc(t.note)}</span>` : ""}
+      <div class="row"><button class="btn danger" id="leaveYes">${esc(t.yes)}</button><button class="btn main" id="leaveNo">${esc(t.no)}</button></div></div>`;
     document.body.append(box);
     const stay = $("#leaveNo");
     stay.onclick = closeLeave;
@@ -190,6 +215,9 @@
     view.innerHTML = `<div class="stack">
       <section class="hero"><span class="label">Chào mừng</span><h1>Thiết lập app ôn thi</h1>
         <p>Tạo tài khoản quản trị trước. Sau đó bạn thêm tài khoản học sinh, phụ huynh và chỉnh lịch thi của trường.</p></section>
+      ${standalone() ? `<section class="panel remind" id="restoreTip"><b>Đã dùng OnUp trong Safari?</b>
+        <span class="small">Dữ liệu ở đó không tự sang đây. Mở OnUp trong Safari → Quản trị → Dữ liệu → Tải file sao lưu, rồi quay lại đây chọn Khôi phục từ file sao lưu.</span>
+        <div class="row"><label class="btn main" for="sImport">Khôi phục từ file sao lưu</label></div></section>` : ""}
       <form class="panel" id="setupForm" autocomplete="off">
         <div class="form">
           <label class="field"><span>Tên trường hoặc gia đình <span class="opt-note">· không bắt buộc</span></span><input id="sSchool" placeholder="Ví dụ: Lớp 4A Trường Tiểu học Kim Đồng"></label>
@@ -493,8 +521,26 @@
     $$("[data-ev]", root).forEach((b) => (b.onclick = () => openEvent(b.dataset.ev, grade, student)));
   }
 
+  /* Chữ trên nút đề trong một hàng (cùng môn), lấy từ tên đề dạng "<môn> <khối> · <kì> · Đề N" (data/banks.js):
+     - mọi đề cùng một kì: "Đề N", N lấy từ tên (tên không có số thì "Đề");
+     - nhiều kì khác nhau (nhóm "Bài ôn khác"): tên bỏ phần môn và khối, ví dụ "Cuối kì I · Đề 1";
+     - tên tự đặt không bắt đầu bằng môn và khối (ngân hàng quản trị viên nhập): nguyên tên đề.
+     Hai nút trùng chữ thì ghi dài như nhóm nhiều kì, vẫn trùng thì ghi nguyên tên đề. */
+  function bankLabels(list) {
+    const norm = (x) => String(x).normalize("NFC").replace(/\s+/g, " ").trim().toLowerCase();
+    const info = list.map((b) => {
+      const title = String(b.title).normalize("NFC"), parts = title.split(/\s*·\s*/), head = norm(parts[0]);
+      const rest = parts.length > 1 && [b.subject + " " + b.grade, b.subject + " lớp " + b.grade].some((h) => norm(h) === head) ? parts.slice(1) : null;
+      const term = rest && rest.slice(0, /^Đề\s*\d*$/i.test(rest[rest.length - 1]) ? -1 : rest.length).join(" · ");
+      return { rest, term, n: (/Đề\s*(\d+)/i.exec(title) || [])[1], title: b.title };
+    });
+    const uniq = (a) => new Set(a).size === a.length;
+    const short = info.map((x) => (x.n ? "Đề " + x.n : "Đề")), long = info.map((x) => (x.rest ? x.rest.join(" · ") : x.title));
+    if (info.every((x) => x.rest && x.term === info[0].term) && uniq(short)) return short;
+    return uniq(long) ? long : info.map((x) => x.title);
+  }
   /* Mỗi bài ôn dạng trang một dòng; đề ngân hàng gom theo môn thành một dòng có các nút "Đề 1 · Đề 2 · …"
-     (xếp theo tên đề; aria-label có cả chữ trên nút và tên đề đầy đủ). */
+     (xếp theo tên đề, chữ trên nút theo bankLabels; aria-label là tên đề đầy đủ). */
   function practiceList(mods, bks, canPlay) {
     if (!mods.length && !bks.length) return `<div class="panel muted">Chưa có bài ôn cho mục này. Quản trị viên có thể nhập ngân hàng câu hỏi trong mục Quản trị.</div>`;
     const subs = new Map(), act = canPlay ? "main" : "";
@@ -504,7 +550,7 @@
         list.sort((a, b) => a.title.localeCompare(b.title, "vi", { numeric: true }));
         const nq = list[0].questions.length, same = list.every((b) => b.questions.length === nq);
         return `<div class="item subj"><span class="grow"><b>${esc(sub)}</b><span class="small muted">${list.length} đề${same ? ` · ${nq} câu${list.length > 1 ? " mỗi đề" : ""}` : ""}</span></span>
-          <span class="des">${list.map((b, i) => { const lb = "Đề " + (i + 1); return `<a class="btn ${act} sm" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(b.title.includes(lb) ? b.title : lb + " · " + b.title)}">${lb}</a>`; }).join("")}</span></div>`;
+          <span class="des">${bankLabels(list).map((lb, i) => { const b = list[i]; return `<a class="btn ${act} sm" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(b.title.includes(lb) ? b.title : lb + " · " + b.title)}">${esc(lb)}</a>`; }).join("")}</span></div>`;
       }).join("")}</div>`;
   }
   /* "Tất cả bài ôn" của một khối, gom theo kì thi chưa qua: kì gần nhất mở sẵn, các kì sau thu gọn.
@@ -749,30 +795,18 @@
     document.body.classList.add("playing");
     wireGo();
     if (u.role !== "student") return;
-    // Khung cùng origin: học sinh chạm hoặc gõ phím trong bài thì bật chốt, gửi điểm về (ontap:result) thì tắt.
-    // Gắn vào trang bài ôn ngay khi nó bắt đầu tải, không đợi "load" (font tải chậm làm "load" đến muộn); khung tải lại thì gắn lại.
+    // Bài ôn đang làm một lượt thì có nút #endBtn ("Nộp bài sớm", "Dừng luyện"…), hoặc hộp hỏi lại #yesEnd của nút đó;
+    // trang đầu và trang kết quả không có (hợp đồng với bài ôn, xem CLAUDE.md). Khung cùng origin nên app đọc được, không ghi gì.
+    // Mở bằng file:// hoặc không đọc được khung thì không hỏi.
     const fr = $("#playerFrame");
-    let doc = null, touched = false, tries = 0;
-    const touch = () => (touched = true);
-    const hook = () => {
-      let d = null;
-      try { d = fr.contentDocument; } catch (e) { /* mở bằng file://: không theo dõi được */ }
-      if (d && d !== doc && d.URL !== "about:blank") {
-        doc = d; touched = false;
-        d.addEventListener("pointerdown", touch, true); d.addEventListener("keydown", touch, true);
-      }
-      return !!d && d === doc;
-    };
-    guard = { busy: () => touched, saved: () => (touched = false), ask: "Rời bài ôn?", note: "Bài đang làm dở sẽ không được lưu.", yes: "Rời bài", no: "Ở lại" };
-    fr.addEventListener("load", hook);
-    const early = setInterval(() => { if (!fr.isConnected || hook() || ++tries > 100) clearInterval(early); }, 100);
+    const busy = () => { try { const d = fr.contentDocument; return !!(d && d.querySelector("#endBtn, #yesEnd")); } catch (e) { return false; } };
+    guard = { busy, ask: "Rời bài ôn?", note: "Bài đang làm dở sẽ không được lưu.", yes: "Rời bài", no: "Ở lại" };
   }
   window.addEventListener("message", (e) => {
     const fr = $("#playerFrame");
     if (!fr || e.source !== fr.contentWindow) return;
     if (location.origin !== "null" && e.origin !== location.origin) return;
     const d = e.data; if (!d || d.type !== "ontap:result") return;
-    if (guard && guard.saved) guard.saved();
     const u = Store.sessionUser(); if (!u || u.role !== "student") return;
     const m = modById(d.module); if (!m || m.grade !== u.grade) return;
     if (!(+d.t > 0)) return;
@@ -798,10 +832,15 @@
         onFinish: (res) => { if (u.role === "student") { Store.addResult(Object.assign({ userId: u.id, source: "bank", refId: b.id, subject: b.subject, label: b.title }, res)); toast("Đã lưu kết quả"); } }
       }));
       // Xem thử (phụ huynh, quản trị) không lưu điểm nên không cần hỏi.
-      // Gọi qua run: "Làm lại" thay busy/submit của lượt mới vào cùng đối tượng.
-      if (u.role === "student") guard = Object.assign({ busy: () => run.busy(), leave: () => run.submit() }, run.exam
-        ? { ask: "Nộp bài và rời trang?", note: "Câu chưa làm tính là sai.", yes: "Nộp bài", no: "Làm tiếp" }
-        : { ask: "Dừng ôn và rời trang?", note: "Kết quả các câu đã làm được lưu lại.", yes: "Dừng ôn", no: "Ôn tiếp" });
+      // Gọi qua run: "Làm lại" thay busy/answered/submit của lượt mới vào cùng đối tượng.
+      // Chưa trả lời câu nào thì rời là thoát đề, không nộp (nộp cũng không lưu điểm).
+      if (u.role === "student") guard = {
+        busy: () => run.busy(),
+        leave: () => (run.answered() ? run.submit() : run.stop()),
+        text: () => (!run.answered() ? { ask: "Thoát đề?", note: "Bạn chưa làm câu nào nên không lưu điểm.", yes: "Thoát", no: "Làm tiếp" }
+          : run.exam ? { ask: "Nộp bài và rời trang?", note: "Câu chưa làm tính là sai.", yes: "Nộp bài", no: "Làm tiếp" }
+          : { ask: "Dừng ôn và rời trang?", note: "Kết quả các câu đã làm được lưu lại.", yes: "Dừng ôn", no: "Ôn tiếp" })
+      };
     };
     $("#qPractice").onclick = () => start("practice");
     if ($("#qExam")) $("#qExam").onclick = () => start("exam");
@@ -853,6 +892,7 @@
         <section class="panel" id="migBox"><h3>Chuyển dữ liệu máy này lên đám mây</h3>
           ${loc ? `<p class="small">Trình duyệt này còn dữ liệu của bản lưu trên máy: ${kids} học sinh, ${(loc.results || []).length} kết quả.${mig ? ` Đã chuyển lần gần nhất: ${esc(ago(mig))}.` : ""}</p>`
             : `<p class="small">Trình duyệt này không có dữ liệu cũ. Nếu dữ liệu nằm ở máy khác: đăng nhập tài khoản này trên máy đó rồi bấm nút chuyển ở đó; hoặc chọn file sao lưu đã tải từ bản lưu trên máy.</p>`}
+          <p class="small">Trên iPhone, iPad: hãy chuyển trong Safari, nơi đang có dữ liệu, trước khi dùng app ở Màn hình chính.</p>
           <p class="small muted">Mỗi học sinh thành một hồ sơ con, giữ mã PIN cũ, kết quả và tiến độ bài ôn; lịch thi và ngân hàng đề tự nhập cũng được chuyển. Tài khoản quản trị, phụ huynh của bản trên máy không cần chuyển. Chuyển lại nhiều lần không bị trùng.</p>
           <div class="row"><button class="btn main sm" id="dMigrate" ${loc ? "" : "disabled"}>Chuyển dữ liệu máy này lên đám mây</button><label class="btn ghost sm" for="dMigFile">Chuyển từ file sao lưu</label><input type="file" id="dMigFile" accept=".json,application/json" hidden></div>
           <div id="migRes" aria-live="polite"></div></section>
@@ -871,8 +911,12 @@
         <section class="panel" id="homeScreen"><h3>Thêm vào Màn hình chính</h3>
           ${standalone() ? `<div class="fb ok">Máy này đang mở app từ Màn hình chính.</div>` : ""}
           <p class="small">App có biểu tượng riêng như một ứng dụng, mở được cả khi mất mạng. Trên iPhone, iPad, Safari có thể xóa dữ liệu của trang không được mở trong 7 ngày; app đã thêm vào Màn hình chính thì không bị xóa.</p>
-          <ul class="tips small"><li><b>iPhone, iPad (Safari):</b> bấm nút Chia sẻ (ô vuông có mũi tên lên) → “Thêm vào MH chính”.</li>
-            <li><b>Android (Chrome):</b> bấm menu ⋮ → “Thêm vào màn hình chính” (có máy ghi “Cài đặt ứng dụng”).</li></ul></section>
+          <p class="small"><b>Trên iPhone, iPad, app ở Màn hình chính không dùng chung dữ liệu với Safari.</b> Đã dùng trong Safari thì chuyển sang như sau:</p>
+          <ol class="tips small"><li>Trong Safari, bấm “Tải file sao lưu” ở trên, cất file vào Tệp hoặc Zalo.</li>
+            <li>Bấm nút Chia sẻ (ô vuông có mũi tên lên) → “Thêm vào MH chính”.</li>
+            <li>Mở app từ biểu tượng mới, chọn “Khôi phục từ file sao lưu”.</li>
+            <li>Từ đó chỉ dùng app ở Màn hình chính.</li></ol>
+          <p class="small"><b>Android (Chrome):</b> menu ⋮ → “Thêm vào màn hình chính” (có máy ghi “Cài đặt ứng dụng”). Dùng chung dữ liệu với Chrome, không cần chuyển.</p></section>
         <section class="panel"><h3>Xóa toàn bộ dữ liệu</h3><p class="small">Xóa mọi tài khoản, kết quả và lịch đã sửa trên máy này. Không hoàn tác được.</p>
           <div class="row"><button class="btn danger sm" id="dWipe">Xóa toàn bộ…</button></div><div id="wipeArea"></div></section>`;
     }
@@ -889,7 +933,7 @@
     };
     if (tab === "data") {
       $("#dSave").onclick = () => { Store.setSettings({ schoolName: $("#dSchool").value.trim(), schoolYear: $("#dYear").value.trim() }); toast("Đã lưu"); };
-      $("#dExport").onclick = () => { backupNow(); if ($("#dLast")) $("#dLast").textContent = lastBackupTxt(); };
+      $("#dExport").onclick = () => backupNow().then((how) => { if (how && $("#dLast")) $("#dLast").textContent = lastBackupTxt(); });
       if ($("#dImport")) $("#dImport").onchange = (e) => importFile(e.target.files[0], () => go("#/"));
       if (cloud) wireCloudData();
       if ($("#dWipe")) $("#dWipe").onclick = () => {

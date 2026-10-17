@@ -34,6 +34,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
 
   await page.goto(BASE + "/");
   step("setup"); await shot("01-setup");
+  const tipInBrowser = !!(await page.$("#restoreTip")); // mở trong trình duyệt: không có thẻ hướng dẫn của app ở Màn hình chính (L17)
   await page.fill("#sSchool", "Nhà Bin");
   await page.fill("#sName", "Bố Minh");
   await page.fill("#sPin", "1234"); await page.fill("#sPin2", "1234");
@@ -91,19 +92,27 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await frame.evaluate(() => ontapReport({ label: "School Level · Test 1", mode: "exam", subject: "ta", r: 24, t: 30, s: 900 }));
   await page.waitForTimeout(300);
   await shot("06-play");
-  step("leave guard: module in frame (L1)");
+  step("leave guard: module in frame (L1, L16)");
   const nRes = () => page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).results.length);
-  await page.click("#playerFrame"); // học sinh chạm vào giữa bài (góc trên có thể bị thanh đầu che)
+  const modBack = async () => { await page.click(".player [data-go]"); await page.waitForTimeout(200); return { hash: await page.evaluate(() => location.hash), box: !!(await page.$("#leaveBox")) }; };
+  await frame.click("h1.page-h"); // chạm vào trang đầu của bài, không phải nút bắt đầu
+  const modIdle = await modBack(); // chưa làm lượt nào: đi luôn, không hỏi
+  await page.goto(BASE + "/#/play/ioe-4"); await page.waitForTimeout(1200);
+  const fr4 = page.frames().find((f) => /modules\/ioe-4/.test(f.url()));
+  await fr4.click(".unit >> nth=0"); await fr4.waitForSelector("#endBtn"); // bắt đầu ôn Unit 1: bài ôn hiện #endBtn
   await page.click(".player [data-go]"); await page.waitForTimeout(150);
   const modAsk = await page.$("#leaveBox") ? await page.textContent("#leaveBox") : "";
   await page.click("#leaveNo"); await page.waitForTimeout(100);
   const modStay = await page.evaluate(() => location.hash);
-  await frame.evaluate(() => ontapReport({ label: "School Level · Test 2", mode: "exam", subject: "ta", r: 20, t: 30, s: 800 }));
-  await page.waitForTimeout(200);
-  await page.click(".player [data-go]"); await page.waitForTimeout(200); // điểm đã gửi về: đi luôn, không hỏi
-  const modLeft = { hash: await page.evaluate(() => location.hash), box: !!(await page.$("#leaveBox")) };
-  console.log("module guard:", modAsk.replace(/\s+/g, " "), modStay, modLeft);
-  const modGuardOK = /Rời bài ôn/.test(modAsk) && modStay === "#/play/ioe-4" && modLeft.hash === "#/home" && !modLeft.box;
+  await fr4.click("#endBtn"); // bài ôn đang hỏi "End practice?" (#yesEnd): vẫn là đang làm dở
+  const modConfirm = await modBack();
+  if (modConfirm.box) { await page.click("#leaveNo"); await page.waitForTimeout(100); }
+  await fr4.evaluate(() => ontapReport({ label: "School Level · Test 2", mode: "exam", subject: "ta", r: 20, t: 30, s: 800 }));
+  await fr4.click("#yesEnd"); await page.waitForTimeout(200); // xong lượt: bài ôn bỏ #endBtn
+  const modLeft = await modBack(); // xong lượt: đi luôn, không hỏi
+  console.log("module guard:", modIdle, modAsk.replace(/\s+/g, " "), modStay, modConfirm, modLeft);
+  const modGuardOK = modIdle.hash === "#/home" && !modIdle.box && /Rời bài ôn/.test(modAsk) && modStay === "#/play/ioe-4"
+    && modConfirm.box && modConfirm.hash === "#/play/ioe-4" && modLeft.hash === "#/home" && !modLeft.box;
   step("open module l4");
   await page.goto(BASE + "/#/play/l4-giua-ki-1"); await page.waitForTimeout(1200);
   const f2 = page.frames().find(f => /modules\/l4-giua-ki-1/.test(f.url()));
@@ -121,11 +130,33 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   }
   await page.waitForTimeout(200); await shot("08-quiz-result");
 
-  step("leave guard: bank exam (L1)");
+  step("open bank from home");
   await page.goto(BASE + "/#/home"); await page.waitForTimeout(200);
   await page.evaluate(() => (document.querySelector("a[href='#/quiz/toan4-ck1-de1']").closest("details").open = true)); // đề nằm trong nhóm kì thi đang thu gọn
   await page.click("a[href='#/quiz/toan4-ck1-de1']"); await page.waitForTimeout(200);
   const nBefore = await nRes();
+  step("exam left before any answer is not saved (L15)");
+  await page.click("#qExam");
+  await page.evaluate(() => history.back()); await page.waitForSelector("#leaveBox");
+  const ex0 = { ask: (await page.textContent("#leaveBox")).replace(/\s+/g, " ") };
+  await page.click("#leaveYes"); await page.waitForTimeout(300);
+  ex0.back = { hash: await page.evaluate(() => location.hash), n: await nRes() };
+  await page.goto(BASE + "/#/quiz/toan4-ck1-de1"); await page.waitForTimeout(200);
+  await page.click("#qExam"); await page.click("#qzSkip"); // bỏ qua không tính là đã trả lời
+  await page.click("#qzExit"); ex0.exit = (await page.textContent("#qzFb")).replace(/\s+/g, " ");
+  await page.click("#qzYes"); await page.waitForTimeout(300);
+  ex0.exitLeft = { hash: await page.evaluate(() => location.hash), n: await nRes() };
+  ex0.timeUp = await page.evaluate(() => new Promise((ok) => { // hết giờ mà chưa trả lời câu nào: không lưu
+    const el = document.createElement("div"); let saved = 0;
+    Quiz.run(el, { title: "Thử", minutes: 0.01, questions: [{ type: "tf", q: "1 + 1 = 2", a: true }] }, { mode: "exam", onFinish: () => saved++ });
+    setTimeout(() => ok({ saved, text: el.textContent.replace(/\s+/g, " ").trim() }), 1500);
+  }));
+  console.log("L15:", ex0);
+  const noAnswerOK = /Thoát đề\?/.test(ex0.ask) && /chưa làm câu nào/.test(ex0.ask) && ex0.back.hash === "#/home" && ex0.back.n === nBefore
+    && /Thoát đề\?/.test(ex0.exit) && ex0.exitLeft.hash === "#/home" && ex0.exitLeft.n === nBefore
+    && ex0.timeUp.saved === 0 && /chưa làm câu nào nên không lưu điểm/.test(ex0.timeUp.text);
+  step("leave guard: bank exam, one answer (L1)");
+  await page.goto(BASE + "/#/quiz/toan4-ck1-de1"); await page.waitForTimeout(200);
   await page.click("#qExam");
   if (await page.$("#qzFill")) await page.fill("#qzFill", "400"); else await page.click(".opt >> nth=0");
   await page.click("#qzGo");
@@ -218,7 +249,8 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const bk = { first: await remind() }; // chưa sao lưu lần nào, đã có kết quả
   let dl = page.waitForEvent("download");
   await page.click("#backupNow");
-  bk.file = (await dl).suggestedFilename();
+  const dl1 = await dl; bk.file = dl1.suggestedFilename();
+  const backupPath = await dl1.path(); // dùng lại ở bước L17: khôi phục trên app ở Màn hình chính
   bk.gone = !(await page.$("#backupRemind")); bk.at = await lastBackup();
   bk.after = await remind();
   await editDb(daysAgo(8)); bk.d8 = await remind();
@@ -237,6 +269,69 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const backupOK = /Chưa sao lưu lần nào/.test(bk.first) && /^on-thi-sao-luu-\d{4}-\d\d-\d\d\.json$/.test(bk.file) && bk.gone && fresh(bk.at) && bk.after === ""
     && /Đã 8 ngày chưa sao lưu/.test(bk.d8) && bk.d6 === "" && /Lần sao lưu gần nhất: \d+\/\d+ \d\d:\d\d/.test(bk.dataTab.last) && /Thêm vào MH chính/.test(bk.dataTab.home) && /⋮/.test(bk.dataTab.home)
     && fresh(bk.dataAt) && /Hôm nay/.test(bk.dataLast) && bk.oldDefault === null && /Chưa sao lưu lần nào/.test(bk.old) && remindParent && !remindStudent;
+
+  step("iPhone home screen: restore tip, backup via share sheet (L17)");
+  // App mở từ Màn hình chính trên iPhone (navigator.standalone), máy chưa có dữ liệu: màn hình thiết lập có thẻ hướng dẫn khôi phục.
+  const tipCtx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await localConfig(tipCtx); watchOut(tipCtx);
+  await tipCtx.addInitScript(() => Object.defineProperty(navigator, "standalone", { get: () => true }));
+  const tp = await tipCtx.newPage(); tp.on("pageerror", (e) => errs.push("pageerror L17: " + e.message));
+  await tp.goto(BASE + "/"); await tp.waitForSelector("#setupForm");
+  const hs = { tip: await tp.evaluate(() => { const t = document.querySelector("#restoreTip"), f = document.querySelector("#setupForm");
+    return t && { text: t.textContent.replace(/\s+/g, " ").trim(), btn: !!t.querySelector("label.btn.main[for=sImport]"), above: !!(t.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING) }; }) };
+  await tp.screenshot({ path: OUT + "14c-setup-home-screen.png", fullPage: true });
+  await tp.setInputFiles("#sImport", backupPath); await tp.waitForSelector(".tile"); // chọn file sao lưu đã tải trong Safari
+  hs.restored = await tp.$$eval(".tile", (t) => t.map((x) => x.textContent.trim()).join("|"));
+  hs.results = await tp.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).results.length);
+  await tipCtx.close();
+  // Máy cảm ứng có bảng chia sẻ (giả lập navigator.share): hủy thì không ghi lastBackupAt, chia sẻ xong thì ghi.
+  const shareCtx = await browser.newContext({ storageState: await ctx.storageState(), viewport: { width: 390, height: 844 }, hasTouch: true });
+  await localConfig(shareCtx); watchOut(shareCtx);
+  await shareCtx.addInitScript(() => {
+    window.__share = { mode: "abort", calls: [] };
+    Object.defineProperty(navigator, "canShare", { configurable: true, value: (d) => !!(d && d.files && d.files.length) });
+    const cancel = () => new DOMException("Share canceled", "AbortError"), busy = () => new DOMException("A share is already in progress", "InvalidStateError");
+    Object.defineProperty(navigator, "share", { configurable: true, value: (d) => {
+      __share.calls.push(d.files[0].name);
+      if (__share.open) return Promise.reject(busy()); // như Safari: bảng chia sẻ đang mở
+      if (__share.mode === "abort") return Promise.reject(cancel());
+      if (__share.mode === "slow-abort") { __share.open = true; return new Promise((_, no) => setTimeout(() => { __share.open = false; no(cancel()); }, 400)); }
+      return Promise.resolve();
+    } });
+  });
+  const sp = await shareCtx.newPage(); sp.on("pageerror", (e) => errs.push("pageerror L17: " + e.message));
+  let spDownloads = 0; sp.on("download", () => spDownloads++);
+  const spAt = () => sp.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).settings.lastBackupAt);
+  await sp.goto(BASE + "/"); await sp.click(".tile:has-text('Bố Minh')"); await sp.fill("#pinIn", "1234"); await sp.waitForTimeout(400);
+  const sh = { before: await spAt() };
+  await sp.goto(BASE + "/#/admin/overview"); await sp.waitForSelector("#backupNow");
+  await sp.click("#backupNow"); await sp.waitForTimeout(300); // bấm hủy trên bảng chia sẻ
+  sh.abort = { at: await spAt(), card: !!(await sp.$("#backupRemind")) };
+  await sp.goto(BASE + "/#/admin/data"); await sp.waitForTimeout(200);
+  await sp.click("#dExport"); await sp.waitForTimeout(300);
+  sh.abortData = { at: await spAt(), last: await sp.textContent("#dLast") };
+  await sp.evaluate(() => (__share.mode = "slow-abort"));
+  await sp.dblclick("#dExport"); await sp.waitForTimeout(700); // bấm hai lần liền, rồi hủy bảng chia sẻ
+  sh.double = { at: await spAt(), calls: await sp.evaluate(() => __share.calls.length) };
+  await sp.evaluate(() => (__share.mode = "ok"));
+  await sp.click("#dExport"); await sp.waitForTimeout(300);
+  sh.okData = { at: await spAt(), last: await sp.textContent("#dLast") };
+  sh.calls = await sp.evaluate(() => __share.calls);
+  sh.home = (await sp.textContent("#homeScreen")).replace(/\s+/g, " ");
+  await sp.evaluate(() => { const d = JSON.parse(localStorage.getItem("ontap_db_v1")); delete d.settings.lastBackupAt; localStorage.setItem("ontap_db_v1", JSON.stringify(d)); });
+  await sp.goto(BASE + "/#/admin/overview"); await sp.reload(); await sp.waitForSelector("#backupNow");
+  await sp.evaluate(() => (__share.mode = "ok"));
+  await sp.click("#backupNow"); await sp.waitForTimeout(300); // thẻ nhắc trên trang chủ, chia sẻ xong
+  sh.ok = { at: await spAt(), card: !!(await sp.$("#backupRemind")), toast: await sp.textContent("#toast"), calls: await sp.evaluate(() => __share.calls.length) };
+  sh.downloads = spDownloads;
+  await shareCtx.close();
+  console.log("L17:", hs, sh, "tip in browser:", tipInBrowser);
+  const homeScreenOK = !tipInBrowser && hs.tip && /Đã dùng OnUp trong Safari/.test(hs.tip.text) && hs.tip.btn && hs.tip.above && /Bố Minh/.test(hs.restored) && /Bin/.test(hs.restored) && hs.results === 5
+    && /không dùng chung dữ liệu/.test(sh.home) && /Khôi phục từ file sao lưu/.test(sh.home) && /Android.*không cần chuyển/.test(sh.home)
+    && sh.before == null && sh.abort.at == null && sh.abort.card && sh.abortData.at == null && /chưa sao lưu lần nào/.test(sh.abortData.last)
+    && sh.double.at == null && sh.double.calls === 3
+    && fresh(sh.okData.at) && /Hôm nay/.test(sh.okData.last) && sh.calls.length === 4 && sh.calls.every((n) => /^on-thi-sao-luu-\d{4}-\d\d-\d\d\.json$/.test(n))
+    && fresh(sh.ok.at) && !sh.ok.card && /Đã lưu file sao lưu/.test(sh.ok.toast) && sh.ok.calls === 1 && sh.downloads === 0;
 
   step("not found + wrong grade (L3)");
   const view = async (h) => { await page.goto(BASE + "/" + h); await page.waitForTimeout(200); return { text: (await page.textContent("#view")).replace(/\s+/g, " ").trim(), missing: !!(await page.$("#missing")), quiz: !!(await page.$("#qPractice")), frame: !!(await page.$("#playerFrame")) }; };
@@ -414,6 +509,37 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const ok360 = !m360.length && Object.values(c360).every((r) => Object.values(r).every(Boolean));
   console.log("360:", c360, "problems:", m360);
 
+  step("practice buttons named by exam (L18)");
+  // 1/4/2027: cuối kì I, giữa kì II đã qua nên đề lớp 4 dồn vào "Bài ôn khác"; kì cuối năm chỉ gắn Đề 2, Đề 3 Toán cuối kì I;
+  // thêm một đề tên tự đặt dài (nút xuống dòng, không tràn ngang ở 360px).
+  const lc = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 } });
+  await localConfig(lc); watchOut(lc);
+  const lp = await lc.newPage(); lp.on("pageerror", (e) => errs.push("pageerror L18: " + e.message));
+  await lp.clock.install({ time: new Date("2027-04-01T08:00:00") });
+  await lp.goto(BASE + "/");
+  await lp.evaluate(() => {
+    const d = JSON.parse(localStorage.getItem("ontap_db_v1"));
+    d.events.find((e) => e.id === "ck2-l4").banks = ["toan4-ck1-de2", "toan4-ck1-de3"];
+    d.banks.push(Object.assign(JSON.parse(JSON.stringify(d.banks[0])), { id: "b-dai", title: "Đề ôn tập tổng hợp cuối năm của cô Lan cho cả lớp 4A", subject: "Toán", grade: 4 }));
+    localStorage.setItem("ontap_db_v1", JSON.stringify(d));
+  });
+  await lp.reload(); await lp.click(`.tile[data-u="${ids.Bin}"]`); await lp.fill("#pinIn", PINS.Bin); await lp.waitForTimeout(400);
+  await lp.evaluate(() => document.querySelectorAll("details.grp").forEach((d) => (d.open = true)));
+  const l18 = await lp.evaluate(() => {
+    const row = (g, sub) => { const r = g && [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === sub); return r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent) : []; };
+    const grps = [...document.querySelectorAll("#allPractice details.grp")], other = grps.find((g) => !g.dataset.grp), ck2 = grps.find((g) => g.dataset.grp === "ck2-l4");
+    const btns = [...document.querySelectorAll("#allPractice .des a")];
+    return { today: new Date().toLocaleDateString("vi"), toan: row(other, "Toán"), tv: row(other, "Tiếng Việt"), ck2: row(ck2, "Toán"),
+      aria: btns.map((a) => a.getAttribute("aria-label")), wide: document.documentElement.scrollWidth,
+      fits: btns.every((a) => { const r = a.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth; }) };
+  });
+  await lp.screenshot({ path: OUT + "18-de-theo-ki.png", fullPage: true });
+  await lc.close();
+  console.log("L18:", l18);
+  const labelsOK = l18.today === "1/4/2027" && ["Cuối kì I · Đề 1", "Giữa kì II · Đề 1", "Giữa kì II · Đề 2", "Đề ôn tập tổng hợp cuối năm của cô Lan cho cả lớp 4A"].every((x) => l18.toan.includes(x))
+    && !l18.toan.some((x) => /^Đề \d+$/.test(x)) && l18.tv.includes("Cuối kì I · Đề 2") && l18.tv.includes("Giữa kì II · Đề 1") && l18.ck2.join() === "Đề 2,Đề 3"
+    && l18.aria.includes("Toán 4 · Giữa kì II · Đề 1") && l18.aria.includes("Toán 4 · Cuối kì I · Đề 3") && l18.wide <= 360 && l18.fits;
+
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được). */
   const sw = new Function("self", fs.readFileSync(ROOT + "sw.js", "utf8") + "\nreturn { VERSION, FILES };")({ addEventListener() {} });
@@ -457,10 +583,41 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("offline:", ol, "sw list:", swList, "sw version:", sw.VERSION, "cache:", cache.names, cache.urls.length, "sw requests:", swSeen.length, "leaked:", leaked);
   const offlineOK = !swList.missing.length && !swList.extra.length && cache.names.join() === sw.VERSION && cache.urls.length === sw.FILES.length && cache.urls.every((u) => u.startsWith(BASE + "/"))
     && swSeen.length > 0 && !leaked.length && ol.login && ol.fonts === "Baloo 2,Be Vietnam Pro" && ol.who === "Bin" && /Global Success 4/.test(ol.play) && ol.quiz && ol.other;
+
+  step("service worker: one set of files per page load (L19)");
+  /* Service worker đã cài. Mọi file của app chậm 6 giây: trang vẫn hiện trước 6 giây (cả bộ lấy từ đệm), không lỗi JS,
+     và trang HTML đến muộn không ghi vào đệm. Rồi chỉ js/app.js chậm 6 giây, js/store.js có bản mới: không được chạy
+     app.js cũ cùng store.js mới. Route của context áp dụng cho request do service worker gửi (cờ ở đầu file). */
+  const sc = await browser.newContext({ storageState: state, viewport: { width: 390, height: 844 } });
+  await localConfig(sc); watchOut(sc);
+  const sp19 = await sc.newPage();
+  sp19.on("pageerror", (e) => errs.push("pageerror L19: " + e.message));
+  sp19.on("console", (m) => { if (m.type() === "error") errs.push("console L19: " + m.text()); });
+  const sleep = (ms) => new Promise((ok) => setTimeout(ok, ms));
+  await sp19.goto(BASE + "/"); await sp19.evaluate(() => navigator.serviceWorker.ready); await sp19.waitForFunction(() => !!navigator.serviceWorker.controller);
+  const html = fs.readFileSync(ROOT + "index.html", "utf8");
+  const slowAll = (r) => sleep(6000).then(() => (r.request().url() === BASE + "/" ? r.fulfill({ contentType: "text/html", body: html + "<!-- ban-moi -->" }) : r.fallback())).catch(() => {});
+  await sc.route("**/*", slowAll);
+  let t19 = Date.now();
+  await sp19.reload({ waitUntil: "commit" }); await sp19.waitForSelector(".tile", { timeout: 20000 });
+  const s19 = { slowAll: Date.now() - t19 };
+  await sleep(Math.max(0, 7500 - s19.slowAll)); // trang HTML từ mạng đã đến (sau 6 giây)
+  s19.cachedHtml = await sp19.evaluate((v) => caches.open(v).then((c) => c.match(location.origin + "/")).then((r) => r.text()).then((t) => t.includes("ban-moi")), sw.VERSION);
+  await sc.unroute("**/*", slowAll);
+  const appSrc = fs.readFileSync(ROOT + "js/app.js", "utf8"), storeSrc = fs.readFileSync(ROOT + "js/store.js", "utf8");
+  await sc.route("**/js/app.js", (r) => sleep(6000).then(() => r.fulfill({ contentType: "text/javascript", body: appSrc + "\nwindow.__swApp = 'new';" })).catch(() => {}));
+  await sc.route("**/js/store.js", (r) => r.fulfill({ contentType: "text/javascript", body: "window.__swStore = 'new';\n" + storeSrc }));
+  t19 = Date.now();
+  await sp19.reload({ waitUntil: "commit" }); await sp19.waitForSelector(".tile", { timeout: 20000 });
+  s19.mixedMs = Date.now() - t19;
+  s19.mixed = await sp19.evaluate(() => (window.__swApp || "old") + " app.js, " + (window.__swStore || "old") + " store.js");
+  await sc.close();
+  console.log("L19:", s19);
+  const swOK = s19.slowAll < 6000 && !s19.cachedHtml && s19.mixed === "new app.js, new store.js";
   const cloudMode = await page.evaluate(() => !!(window.Store.cloud || window.LocalStore));
   console.log("local mode:", !cloudMode, "requests outside " + HOST + ":", outReqs);
   const real = errs;
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();
