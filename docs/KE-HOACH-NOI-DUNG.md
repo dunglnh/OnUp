@@ -1,6 +1,6 @@
 # Kế hoạch nội dung: đủ đề lớp 4 và 6, rồi lớp 5, 7–12
 
-Phiên bản 1 · 17/10/2026 · Trạng thái: **chưa làm**. Lời giao việc từng phiên: mục 6 và 7.
+Phiên bản 1 · 17/10/2026 · Trạng thái: **đang làm** (N0a đã xong). Lời giao việc từng phiên: mục 6 và 7.
 
 Tài liệu này trả lời ba câu hỏi:
 - Còn thiếu bao nhiêu đề.
@@ -25,7 +25,7 @@ Phần dự trù chi phí và giá bán nằm ở tài liệu riêng của chủ
 
 | Kì thi (lịch 2026–2027) | Lớp 4 | Lớp 6 |
 |---|---|---|
-| Giữa kì I (2–13/11) | bài ôn Toán, TV | bài ôn Văn, Toán, KHTN; **thiếu** Anh, LS&ĐL, GDCD, Tin, Công nghệ |
+| Giữa kì I (2–13/11) | bài ôn Toán, TV | bài ôn Văn, Toán, KHTN; Anh 1, LS&ĐL 1, GDCD 1 (N0a); **thiếu** Tin, Công nghệ |
 | Cuối kì I (lớp 6: 21/12–8/1; lớp 4: 28/12–8/1) | Toán 3, TV 2, KH 1, LS&ĐL 1, Tin&CN 1; **thiếu** Tiếng Anh | Toán 2, Văn 2, Anh 1, KHTN 1, LS&ĐL 1, GDCD 1, Tin 1, CN 1 |
 | Giữa kì II (15–26/3) | Toán 2, TV 2 | **chưa có** |
 | Cuối năm (lớp 6: 26/4–14/5; lớp 4: 3–14/5) | **chưa có** | **chưa có** |
