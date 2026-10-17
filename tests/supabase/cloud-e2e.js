@@ -4,7 +4,10 @@
    Ảnh chụp (360px, sáng và tối) lưu ở tests/screenshots/cloud/.
    Máy chủ đã chuyển sang tài khoản tên đăng nhập + mật khẩu (supabase/schema.sql); giao diện đăng nhập mới làm ở Phiên B
    (docs/THIET-KE-TAI-KHOAN.md mục 8), khi đó viết lại các luồng ở đây. Hiện chỉ kiểm tra app khởi động được ở chế độ
-   đám mây khi chưa đăng nhập: không lỗi, không cuộn ngang, CAPTCHA (khi có khóa) không làm hỏng trang. */
+   đám mây khi chưa đăng nhập: không lỗi, không cuộn ngang, CAPTCHA (khi có khóa) không làm hỏng trang,
+   và service worker (sw.js) không làm hỏng bản đám mây. */
+// Cho route và sự kiện request của Playwright áp dụng cả cho service worker (xem tests/e2e.js).
+process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS = "1";
 const { chromium } = require("playwright");
 const fs = require("fs");
 const path = require("path");
@@ -29,6 +32,9 @@ async function run(browser, scheme) {
   await ctx.route("**/js/config.js", (r) => r.fulfill({ contentType: "text/javascript", body: config(withCaptcha ? "0x4AAAAAAAtest" : "") }));
   await ctx.route(/challenges\.cloudflare\.com/, (r) => r.abort());
   await ctx.route(/cdn\.jsdelivr\.net|fonts\.g/, (r) => r.abort()); // không cần mạng
+  await ctx.route(/fake\.supabase\.co/, (r) => r.fulfill({ contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: "[]" }));
+  const swOut = []; // request service worker tự gửi ra ngoài app: phải không có
+  ctx.on("request", (r) => { if (r.serviceWorker() && !r.url().startsWith(BASE + "/")) swOut.push(r.url()); });
   const page = await ctx.newPage();
   page.on("pageerror", (e) => errs.push("pageerror: " + e.message));
   page.on("console", (m) => { if (m.type() === "error" && !/net::|Failed to load resource/.test(m.text())) errs.push("console: " + m.text()); });
@@ -39,14 +45,26 @@ async function run(browser, scheme) {
   await page.evaluate(() => { const t = document.getElementById("toast"); if (t) t.hidden = true; });
   await page.screenshot({ path: path.join(OUT, `c1-dang-nhap-${scheme}.png`), fullPage: true });
   const cloud = await page.evaluate(() => !!(window.Store && window.Store.cloud) && window.Store.authState() === "signed-out");
+  // Service worker đã cài và điều khiển trang: gọi Supabase, Cloudflare, CDN rồi tải lại trang.
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.waitForFunction(() => !!navigator.serviceWorker.controller);
+  await page.evaluate(() => Promise.all(["https://fake.supabase.co/rest/v1/families?select=*", "https://challenges.cloudflare.com/turnstile/v0/api.js",
+    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"].map((u) => fetch(u).then((r) => r.text(), () => ""))));
+  await page.reload();
+  await page.waitForSelector("form");
+  await page.waitForTimeout(300);
+  const again = await page.evaluate(() => !!(window.Store && window.Store.cloud) && window.Store.authState() === "signed-out" && document.documentElement.scrollWidth <= 360);
+  const cached = await page.evaluate(async () => { const out = []; for (const k of await caches.keys()) for (const r of await (await caches.open(k)).keys()) out.push(r.url); return out; });
   await ctx.close();
   return {
     checks: {
       "bản đám mây khởi động, chưa đăng nhập": cloud,
       "không cuộn ngang ở 360px": wide <= 360,
+      "có service worker, tải lại vẫn là bản đám mây": again,
+      "service worker không đệm, không gửi request ra ngoài app": cached.length > 0 && cached.every((u) => u.startsWith(BASE + "/")) && swOut.length === 0,
       "không lỗi trên trang": errs.length === 0
     },
-    errs
+    errs: errs.concat(swOut)
   };
 }
 
