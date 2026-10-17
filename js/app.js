@@ -73,12 +73,25 @@
   }
 
   /* ---------------- sao lưu ----------------
-     Bản lưu trên máy ghi lúc tải file sao lưu (settings.lastBackupAt). Quá 7 ngày chưa sao lưu, hoặc chưa sao lưu lần nào
-     mà đã có kết quả làm bài, thì trang chủ của quản trị và phụ huynh hiện thẻ nhắc. Bản đám mây không nhắc. */
+     Bản lưu trên máy ghi lúc sao lưu xong (settings.lastBackupAt). Quá 7 ngày chưa sao lưu, hoặc chưa sao lưu lần nào
+     mà đã có kết quả làm bài, thì trang chủ của quản trị và phụ huynh hiện thẻ nhắc. Bản đám mây không nhắc.
+     backupNow() → Promise: "share" | "download" khi đã sao lưu, false khi người dùng bấm hủy.
+     - Máy cảm ứng chia sẻ được file (iPhone, iPad): mở bảng chia sẻ (lưu vào Tệp, gửi Zalo…), vì app mở từ Màn hình chính
+       trên iOS có thể không lưu được file tải bằng <a download>. Chỉ ghi lastBackupAt khi chia sẻ xong; hủy thì không ghi, không báo.
+       Máy tính bỏ qua bảng chia sẻ (trên Mac bảng này không có chỗ lưu file); Chrome trên Android không chia sẻ được file .json.
+     - Máy khác: tải file như thường và ghi lastBackupAt ngay.
+     Trình duyệt chỉ cho chia sẻ trong lúc người dùng đang bấm, nên gọi backupNow() ngay trong sự kiện bấm nút. */
   function backupNow() {
-    const d = new Date();
-    if (!Store.cloud) Store.setSettings({ lastBackupAt: d.toISOString() });
-    download(`on-thi-sao-luu-${isoDay(d)}.json`, Store.exportJSON());
+    const d = new Date(), name = `on-thi-sao-luu-${isoDay(d)}.json`, text = Store.exportJSON();
+    const done = (how) => { if (!Store.cloud) Store.setSettings({ lastBackupAt: d.toISOString() }); return how; };
+    const save = () => { download(name, text); return done("download"); };
+    let file = null;
+    try {
+      const f = new File([text], name, { type: "application/json" });
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [f] }) && matchMedia("(any-pointer: coarse)").matches) file = f;
+    } catch (e) { /* trình duyệt cũ: tải file như thường */ }
+    if (!file) return Promise.resolve(save());
+    return navigator.share({ files: [file], title: "File sao lưu OnUp" }).then(() => done("share"), (e) => (e && e.name === "AbortError" ? false : save()));
   }
   function backupDue() {
     if (Store.cloud) return null;
@@ -97,7 +110,11 @@
   const standalone = () => { try { return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch (e) { return false; } };
   function wireBackupCard() {
     const b = $("#backupNow");
-    if (b) b.onclick = () => { backupNow(); $("#backupRemind").remove(); toast("Đã tải file sao lưu"); };
+    if (b) b.onclick = () => backupNow().then((how) => {
+      if (!how) return;
+      const c = $("#backupRemind"); if (c) c.remove();
+      toast(how === "share" ? "Đã lưu file sao lưu" : "Đã tải file sao lưu");
+    });
   }
 
   /* ---------------- chốt rời trang ----------------
@@ -191,6 +208,9 @@
     view.innerHTML = `<div class="stack">
       <section class="hero"><span class="label">Chào mừng</span><h1>Thiết lập app ôn thi</h1>
         <p>Tạo tài khoản quản trị trước. Sau đó bạn thêm tài khoản học sinh, phụ huynh và chỉnh lịch thi của trường.</p></section>
+      ${standalone() ? `<section class="panel remind" id="restoreTip"><b>Đã dùng OnUp trong Safari?</b>
+        <span class="small">Dữ liệu ở đó không tự sang đây. Mở OnUp trong Safari → Quản trị → Dữ liệu → Tải file sao lưu, rồi quay lại đây chọn Khôi phục từ file sao lưu.</span>
+        <div class="row"><label class="btn main" for="sImport">Khôi phục từ file sao lưu</label></div></section>` : ""}
       <form class="panel" id="setupForm" autocomplete="off">
         <div class="form">
           <label class="field"><span>Tên trường hoặc gia đình <span class="opt-note">· không bắt buộc</span></span><input id="sSchool" placeholder="Ví dụ: Lớp 4A Trường Tiểu học Kim Đồng"></label>
@@ -865,8 +885,12 @@
         <section class="panel" id="homeScreen"><h3>Thêm vào Màn hình chính</h3>
           ${standalone() ? `<div class="fb ok">Máy này đang mở app từ Màn hình chính.</div>` : ""}
           <p class="small">App có biểu tượng riêng như một ứng dụng, mở được cả khi mất mạng. Trên iPhone, iPad, Safari có thể xóa dữ liệu của trang không được mở trong 7 ngày; app đã thêm vào Màn hình chính thì không bị xóa.</p>
-          <ul class="tips small"><li><b>iPhone, iPad (Safari):</b> bấm nút Chia sẻ (ô vuông có mũi tên lên) → “Thêm vào MH chính”.</li>
-            <li><b>Android (Chrome):</b> bấm menu ⋮ → “Thêm vào màn hình chính” (có máy ghi “Cài đặt ứng dụng”).</li></ul></section>
+          <p class="small"><b>Trên iPhone, iPad, app ở Màn hình chính không dùng chung dữ liệu với Safari.</b> Đã dùng app trong Safari thì chuyển dữ liệu sang như sau:</p>
+          <ol class="tips small"><li>Trong Safari, bấm “Tải file sao lưu” ở trên và cất file vào ứng dụng Tệp hoặc Zalo.</li>
+            <li>Thêm vào Màn hình chính: bấm nút Chia sẻ (ô vuông có mũi tên lên) → “Thêm vào MH chính”.</li>
+            <li>Mở app từ biểu tượng mới, chọn “Khôi phục từ file sao lưu”.</li>
+            <li>Từ đó về sau, chỉ dùng app ở Màn hình chính.</li></ol>
+          <p class="small"><b>Android (Chrome):</b> bấm menu ⋮ → “Thêm vào màn hình chính” (có máy ghi “Cài đặt ứng dụng”). App ở Màn hình chính dùng chung dữ liệu với Chrome nên không cần chuyển.</p></section>
         <section class="panel"><h3>Xóa toàn bộ dữ liệu</h3><p class="small">Xóa mọi tài khoản, kết quả và lịch đã sửa trên máy này. Không hoàn tác được.</p>
           <div class="row"><button class="btn danger sm" id="dWipe">Xóa toàn bộ…</button></div><div id="wipeArea"></div></section>`;
     }
@@ -883,7 +907,7 @@
     };
     if (tab === "data") {
       $("#dSave").onclick = () => { Store.setSettings({ schoolName: $("#dSchool").value.trim(), schoolYear: $("#dYear").value.trim() }); toast("Đã lưu"); };
-      $("#dExport").onclick = () => { backupNow(); if ($("#dLast")) $("#dLast").textContent = lastBackupTxt(); };
+      $("#dExport").onclick = () => backupNow().then((how) => { if (how && $("#dLast")) $("#dLast").textContent = lastBackupTxt(); });
       if ($("#dImport")) $("#dImport").onchange = (e) => importFile(e.target.files[0], () => go("#/"));
       if (cloud) wireCloudData();
       if ($("#dWipe")) $("#dWipe").onclick = () => {

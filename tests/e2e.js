@@ -34,6 +34,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
 
   await page.goto(BASE + "/");
   step("setup"); await shot("01-setup");
+  const tipInBrowser = !!(await page.$("#restoreTip")); // mở trong trình duyệt: không có thẻ hướng dẫn của app ở Màn hình chính (L17)
   await page.fill("#sSchool", "Nhà Bin");
   await page.fill("#sName", "Bố Minh");
   await page.fill("#sPin", "1234"); await page.fill("#sPin2", "1234");
@@ -248,7 +249,8 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const bk = { first: await remind() }; // chưa sao lưu lần nào, đã có kết quả
   let dl = page.waitForEvent("download");
   await page.click("#backupNow");
-  bk.file = (await dl).suggestedFilename();
+  const dl1 = await dl; bk.file = dl1.suggestedFilename();
+  const backupPath = await dl1.path(); // dùng lại ở bước L17: khôi phục trên app ở Màn hình chính
   bk.gone = !(await page.$("#backupRemind")); bk.at = await lastBackup();
   bk.after = await remind();
   await editDb(daysAgo(8)); bk.d8 = await remind();
@@ -267,6 +269,58 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const backupOK = /Chưa sao lưu lần nào/.test(bk.first) && /^on-thi-sao-luu-\d{4}-\d\d-\d\d\.json$/.test(bk.file) && bk.gone && fresh(bk.at) && bk.after === ""
     && /Đã 8 ngày chưa sao lưu/.test(bk.d8) && bk.d6 === "" && /Lần sao lưu gần nhất: \d+\/\d+ \d\d:\d\d/.test(bk.dataTab.last) && /Thêm vào MH chính/.test(bk.dataTab.home) && /⋮/.test(bk.dataTab.home)
     && fresh(bk.dataAt) && /Hôm nay/.test(bk.dataLast) && bk.oldDefault === null && /Chưa sao lưu lần nào/.test(bk.old) && remindParent && !remindStudent;
+
+  step("iPhone home screen: restore tip, backup via share sheet (L17)");
+  // App mở từ Màn hình chính trên iPhone (navigator.standalone), máy chưa có dữ liệu: màn hình thiết lập có thẻ hướng dẫn khôi phục.
+  const tipCtx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await localConfig(tipCtx); watchOut(tipCtx);
+  await tipCtx.addInitScript(() => Object.defineProperty(navigator, "standalone", { get: () => true }));
+  const tp = await tipCtx.newPage(); tp.on("pageerror", (e) => errs.push("pageerror L17: " + e.message));
+  await tp.goto(BASE + "/"); await tp.waitForSelector("#setupForm");
+  const hs = { tip: await tp.evaluate(() => { const t = document.querySelector("#restoreTip"), f = document.querySelector("#setupForm");
+    return t && { text: t.textContent.replace(/\s+/g, " ").trim(), btn: !!t.querySelector("label.btn.main[for=sImport]"), above: !!(t.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING) }; }) };
+  await tp.screenshot({ path: OUT + "14c-setup-home-screen.png", fullPage: true });
+  await tp.setInputFiles("#sImport", backupPath); await tp.waitForSelector(".tile"); // chọn file sao lưu đã tải trong Safari
+  hs.restored = await tp.$$eval(".tile", (t) => t.map((x) => x.textContent.trim()).join("|"));
+  hs.results = await tp.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).results.length);
+  await tipCtx.close();
+  // Máy cảm ứng có bảng chia sẻ (giả lập navigator.share): hủy thì không ghi lastBackupAt, chia sẻ xong thì ghi.
+  const shareCtx = await browser.newContext({ storageState: await ctx.storageState(), viewport: { width: 390, height: 844 }, hasTouch: true });
+  await localConfig(shareCtx); watchOut(shareCtx);
+  await shareCtx.addInitScript(() => {
+    window.__share = { mode: "abort", calls: [] };
+    Object.defineProperty(navigator, "canShare", { configurable: true, value: (d) => !!(d && d.files && d.files.length) });
+    Object.defineProperty(navigator, "share", { configurable: true, value: (d) => { __share.calls.push(d.files[0].name); return __share.mode === "abort" ? Promise.reject(new DOMException("Share canceled", "AbortError")) : Promise.resolve(); } });
+  });
+  const sp = await shareCtx.newPage(); sp.on("pageerror", (e) => errs.push("pageerror L17: " + e.message));
+  let spDownloads = 0; sp.on("download", () => spDownloads++);
+  const spAt = () => sp.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).settings.lastBackupAt);
+  await sp.goto(BASE + "/"); await sp.click(".tile:has-text('Bố Minh')"); await sp.fill("#pinIn", "1234"); await sp.waitForTimeout(400);
+  const sh = { before: await spAt() };
+  await sp.goto(BASE + "/#/admin/overview"); await sp.waitForSelector("#backupNow");
+  await sp.click("#backupNow"); await sp.waitForTimeout(300); // bấm hủy trên bảng chia sẻ
+  sh.abort = { at: await spAt(), card: !!(await sp.$("#backupRemind")) };
+  await sp.goto(BASE + "/#/admin/data"); await sp.waitForTimeout(200);
+  await sp.click("#dExport"); await sp.waitForTimeout(300);
+  sh.abortData = { at: await spAt(), last: await sp.textContent("#dLast") };
+  await sp.evaluate(() => (__share.mode = "ok"));
+  await sp.click("#dExport"); await sp.waitForTimeout(300);
+  sh.okData = { at: await spAt(), last: await sp.textContent("#dLast") };
+  sh.calls = await sp.evaluate(() => __share.calls);
+  sh.home = (await sp.textContent("#homeScreen")).replace(/\s+/g, " ");
+  await sp.evaluate(() => { const d = JSON.parse(localStorage.getItem("ontap_db_v1")); delete d.settings.lastBackupAt; localStorage.setItem("ontap_db_v1", JSON.stringify(d)); });
+  await sp.goto(BASE + "/#/admin/overview"); await sp.reload(); await sp.waitForSelector("#backupNow");
+  await sp.evaluate(() => (__share.mode = "ok"));
+  await sp.click("#backupNow"); await sp.waitForTimeout(300); // thẻ nhắc trên trang chủ, chia sẻ xong
+  sh.ok = { at: await spAt(), card: !!(await sp.$("#backupRemind")), toast: await sp.textContent("#toast"), calls: await sp.evaluate(() => __share.calls.length) };
+  sh.downloads = spDownloads;
+  await shareCtx.close();
+  console.log("L17:", hs, sh, "tip in browser:", tipInBrowser);
+  const homeScreenOK = !tipInBrowser && hs.tip && /Đã dùng OnUp trong Safari/.test(hs.tip.text) && hs.tip.btn && hs.tip.above && /Bố Minh/.test(hs.restored) && /Bin/.test(hs.restored) && hs.results === 5
+    && /không dùng chung dữ liệu/.test(sh.home) && /Khôi phục từ file sao lưu/.test(sh.home) && /Android.*không cần chuyển/.test(sh.home)
+    && sh.before == null && sh.abort.at == null && sh.abort.card && sh.abortData.at == null && /chưa sao lưu lần nào/.test(sh.abortData.last)
+    && fresh(sh.okData.at) && /Hôm nay/.test(sh.okData.last) && sh.calls.length === 3 && sh.calls.every((n) => /^on-thi-sao-luu-\d{4}-\d\d-\d\d\.json$/.test(n))
+    && fresh(sh.ok.at) && !sh.ok.card && /Đã lưu file sao lưu/.test(sh.ok.toast) && sh.ok.calls === 1 && sh.downloads === 0;
 
   step("not found + wrong grade (L3)");
   const view = async (h) => { await page.goto(BASE + "/" + h); await page.waitForTimeout(200); return { text: (await page.textContent("#view")).replace(/\s+/g, " ").trim(), missing: !!(await page.$("#missing")), quiz: !!(await page.$("#qPractice")), frame: !!(await page.$("#playerFrame")) }; };
@@ -491,6 +545,6 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("local mode:", !cloudMode, "requests outside " + HOST + ":", outReqs);
   const real = errs;
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();
