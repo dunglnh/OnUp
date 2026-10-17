@@ -1,5 +1,7 @@
 /* Bộ làm bài chung cho các ngân hàng câu hỏi (data/banks.js và ngân hàng do quản trị viên nhập).
-   Quiz.run(el, bank, {mode:"exam"|"practice", onExit, onFinish})
+   Quiz.run(el, bank, {mode:"exam"|"practice", onExit, onFinish}) → {stop(), busy(), submit(), exam}
+     busy(): đang làm dở (làm như thi chưa nộp, hoặc ôn luyện đã trả lời ít nhất một câu); submit(): nộp bài như bấm Nộp.
+     "Làm lại" dùng tiếp đối tượng này, nên app luôn dừng hoặc nộp đúng lượt đang làm.
    Quiz.parse(text) → {questions, errors}: đọc câu hỏi dán từ Word/Zalo theo cú pháp đơn giản. */
 (function () {
   const LET = "ABCD";
@@ -40,7 +42,8 @@
   const correctText = (q) => (q.type === "fill" ? q.ans[0] : q.o[q.a]);
   const givenText = (q, g) => (g == null || g === "" ? "(bỏ trống)" : q.type === "fill" ? String(g) : q.o[g]);
 
-  function run(el, bank, opts) {
+  const run = (el, bank, opts) => start(el, bank, opts, { exam: opts.mode === "exam" });
+  function start(el, bank, opts, h) {
     const exam = opts.mode === "exam";
     const qs = shuffle(bank.questions).map(prep);
     const S = { i: 0, ans: [], cur: null, checked: false, start: Date.now(), limit: exam && bank.minutes ? bank.minutes * 60 : 0, timer: null, done: false };
@@ -112,13 +115,16 @@
         ${wrong.length ? `<section class="panel"><div class="label">Câu cần xem lại (${wrong.length})</div><div class="review">${wrong.map((a) => `<div class="rv"><div>${esc(a.q.q).replace("___", "…")}</div><div class="small">Bạn trả lời: <s>${esc(givenText(a.q, a.g))}</s> · Đáp án: <b>${esc(correctText(a.q))}</b></div>${a.q.x ? `<div class="expl">${esc(a.q.x)}</div>` : ""}</div>`).join("")}</div></section>` : ""}
         <div class="row"><button class="btn main" id="qzAgain">Làm lại</button><button class="btn ghost" id="qzHome">Về trang chính</button></div>
       </div>`;
-      el.querySelector("#qzAgain").onclick = () => run(el, bank, opts);
+      el.querySelector("#qzAgain").onclick = () => start(el, bank, opts, h);
       el.querySelector("#qzHome").onclick = () => opts.onExit && opts.onExit();
       window.scrollTo(0, 0);
     }
-    if (!qs.length) { el.innerHTML = `<div class="panel">Ngân hàng này chưa có câu hỏi.</div>`; return { stop() {} }; }
+    h.stop = () => { clearInterval(S.timer); S.done = true; };
+    h.busy = () => !S.done && (exam || S.ans.some(Boolean));
+    h.submit = finish;
+    if (!qs.length) { h.stop(); el.innerHTML = `<div class="panel">Ngân hàng này chưa có câu hỏi.</div>`; return h; }
     render();
-    return { stop() { clearInterval(S.timer); S.done = true; } };
+    return h;
   }
 
   /* Cú pháp nhập câu hỏi (mỗi câu cách nhau một dòng trống):
