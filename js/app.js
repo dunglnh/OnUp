@@ -529,10 +529,10 @@
   function bankLabels(list) {
     const norm = (x) => String(x).normalize("NFC").replace(/\s+/g, " ").trim().toLowerCase();
     const info = list.map((b) => {
-      const parts = String(b.title).split(/\s*·\s*/), head = norm(parts[0]);
+      const title = String(b.title).normalize("NFC"), parts = title.split(/\s*·\s*/), head = norm(parts[0]);
       const rest = parts.length > 1 && [b.subject + " " + b.grade, b.subject + " lớp " + b.grade].some((h) => norm(h) === head) ? parts.slice(1) : null;
       const term = rest && rest.slice(0, /^Đề\s*\d*$/i.test(rest[rest.length - 1]) ? -1 : rest.length).join(" · ");
-      return { rest, term, n: (/Đề\s*(\d+)/.exec(b.title) || [])[1], title: b.title };
+      return { rest, term, n: (/Đề\s*(\d+)/i.exec(title) || [])[1], title: b.title };
     });
     const uniq = (a) => new Set(a).size === a.length;
     const short = info.map((x) => (x.n ? "Đề " + x.n : "Đề")), long = info.map((x) => (x.rest ? x.rest.join(" · ") : x.title));
