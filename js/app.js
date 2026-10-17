@@ -1,7 +1,9 @@
 /* App chính: đăng nhập, trang chủ theo vai trò, lịch thi cả năm, mở bài ôn, quản trị.
    Định tuyến bằng hash: #/home, #/calendar, #/play/<mã bài>, #/quiz/<mã ngân hàng>,
    #/child/<mã học sinh>, #/report/<mã học sinh>, #/admin/<tab>, #/admin/event/<mã|new>,
-   #/admin/user/<mã|new>, #/admin/bank/<mã|new>, #/account. */
+   #/admin/user/<mã|new>, #/admin/bank/<mã|new>, #/account.
+   Bản đám mây (Store.cloud, xem js/store-supabase.js): đăng nhập tên đăng nhập + mật khẩu → "Ai đang học?" (hồ sơ con
+   hoặc Phụ huynh). Phụ huynh là người dùng vai trò "admin" của app nên dùng chung các màn hình quản trị, gọi là "Khu phụ huynh". */
 (function () {
   "use strict";
   const $ = (s, r) => (r || document).querySelector(s);
@@ -15,6 +17,12 @@
   const DAY = 864e5;
   const WD = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
   const TITLE = document.title;
+  /* Khối lớp (data/grades.js): chỉ hiện khối đang có nội dung, cộng thêm các khối trong keep (dữ liệu đang có) để sửa không mất khối. */
+  const GRADES = window.ONTAP_GRADES || [];
+  const gradeList = (keep) => GRADES.filter((g) => g.active || (keep || []).includes(g.grade)).map((g) => g.grade);
+  const gradeName = (g) => (GRADES.find((x) => x.grade === +g) || { name: "Lớp " + g }).name;
+  const gradeOptions = (sel) => gradeList([+sel]).map((g) => `<option value="${g}" ${+sel === g ? "selected" : ""}>${esc(gradeName(g))}</option>`).join("");
+  const gradesOf = (users) => [...new Set(users.map((u) => +u.grade))].sort((a, b) => a - b);
 
   /* ---------------- ngày tháng ---------------- */
   const today0 = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
@@ -281,31 +289,64 @@
   })();
   const waitTxt = (s) => (s < 60 ? s + " giây" : Math.floor(s / 60) + " phút" + (s % 60 ? " " + (s % 60) + " giây" : ""));
 
+  /* Chọn người dùng rồi nhập PIN. Bản lưu trên máy: mọi tài khoản của máy, theo vai trò.
+     Bản đám mây ("Ai đang học?", đã đăng nhập tài khoản gia đình): các hồ sơ con và ô Phụ huynh. Hồ sơ con không có PIN
+     thì bấm là vào; Phụ huynh phải nhập lại mật khẩu (vừa nhập trong 5 phút thì không hỏi lại). */
   function renderLogin() {
     drawWho(null);
-    const groups = [["student", "Học sinh"], ["parent", "Phụ huynh"], ["admin", "Quản trị"]];
+    const cloud = !!Store.cloud, parent = cloud ? Store.users("admin")[0] : null;
+    // Bản đám mây, tài khoản chưa có hồ sơ con và bố mẹ vừa đăng nhập: vào thẳng khu phụ huynh để thêm hồ sơ.
+    if (cloud && !Store.users("student").length && Store.parentUnlocked()) { Store.setSession(parent.id); go("#/home"); return; }
+    const groups = cloud ? [["student", "Con"], ["admin", "Bố mẹ"]] : [["student", "Học sinh"], ["parent", "Phụ huynh"], ["admin", "Quản trị"]];
+    const sub = (u) => (cloud && u.role === "admin" ? "Nhập mật khẩu" : gradeTxt(u));
     let sel = Store.user(Store.lastUserId()) ? Store.lastUserId() : null;
     view.innerHTML = `<div class="stack">
-      <div><h1>Xin chào!</h1><p class="muted">${esc(Store.settings().schoolName || "Chọn tên của bạn để bắt đầu.")}</p></div>
-      ${groups.map(([role, name]) => { const us = Store.users(role); return us.length ? `<section class="sec"><div class="label">${name}</div><div class="tiles">${us.map((u) => `<button class="tile" data-u="${u.id}" aria-pressed="${u.id === sel}">${avatar(u, true)}<span class="nm">${esc(u.name)}</span><span class="small muted">${esc(gradeTxt(u))}</span></button>`).join("")}</div></section>` : ""; }).join("")}
-      ${pinBoxHTML()}</div>`;
+      <div><h1>${cloud ? "Ai đang học?" : "Xin chào!"}</h1><p class="muted">${esc(Store.settings().schoolName || (cloud ? "Chọn hồ sơ của bạn." : "Chọn tên của bạn để bắt đầu."))}</p></div>
+      ${cloud && !Store.users("student").length ? `<div class="notice">Chưa có hồ sơ con. Bố mẹ chọn “Phụ huynh” để thêm hồ sơ cho con.</div>` : ""}
+      ${groups.map(([role, name]) => { const us = Store.users(role); return us.length ? `<section class="sec"><div class="label">${name}</div><div class="tiles">${us.map((u) => `<button class="tile" data-u="${esc(u.id)}" aria-pressed="${u.id === sel}">${avatar(u, true)}<span class="nm">${esc(u.name)}</span><span class="small muted">${esc(sub(u))}</span></button>`).join("")}</div></section>` : ""; }).join("")}
+      ${pinBoxHTML()}
+      ${cloud ? `<form class="panel" id="pwBox" hidden autocomplete="on">
+        <div class="row" style="justify-content:center">${avatar(parent)}<b>Phụ huynh</b></div>
+        <input type="text" name="username" autocomplete="username" value="${esc(Store.username())}" hidden>
+        <label class="field" style="max-width:300px;margin:0 auto;width:100%"><span>Mật khẩu của bố mẹ</span><input id="pwIn" type="password" autocomplete="current-password" maxlength="72"></label>
+        <div class="captcha" id="pwCaptcha"></div>
+        <div id="pwErr" aria-live="assertive"></div>
+        <div class="row" style="justify-content:center"><button class="btn main" type="submit" id="pwGo">Vào khu phụ huynh</button></div>
+      </form>` : ""}</div>`;
     const box = wirePinBox(submit, probe);
     let tick = null, busy = false;
+    const errBox = () => $(cloud && sel === (parent && parent.id) ? "#pwErr" : "#pinErr");
+    const err = (msg) => { errBox().innerHTML = `<div class="fb bad">${esc(msg)}</div>`; };
     // Đếm ngược trong #pinWait (aria-live="off" để trình đọc màn hình không đọc lại mỗi giây).
     function showWait(id, lead) {
       clearInterval(tick);
-      $("#pinErr").innerHTML = `<div class="fb bad">${esc(lead || "Sai nhiều lần.")} Đợi <b id="pinWait" aria-live="off">${waitTxt(PinLock.wait(id))}</b> rồi thử lại.</div>`;
+      const out = errBox();
+      out.innerHTML = `<div class="fb bad">${esc(lead || "Sai nhiều lần.")} Đợi <b id="pinWait" aria-live="off">${waitTxt(PinLock.wait(id))}</b> rồi thử lại.</div>`;
       tick = setInterval(() => {
         const w = $("#pinWait"), s = PinLock.wait(id);
         if (!w || sel !== id) { clearInterval(tick); return; }
-        if (!s) { clearInterval(tick); $("#pinErr").innerHTML = `<div class="fb ok">Bạn nhập lại được rồi.</div>`; return; }
+        if (!s) { clearInterval(tick); out.innerHTML = `<div class="fb ok">Bạn nhập lại được rồi.</div>`; return; }
         w.textContent = waitTxt(s);
       }, 1000);
     }
-    function pick(id) {
+    /* tapped: người dùng bấm vào ô (không phải ô chọn sẵn lúc mở trang). Ô chọn sẵn không tự vào hồ sơ không có PIN. */
+    function pick(id, tapped) {
       sel = id; clearInterval(tick);
       $$(".tile").forEach((t) => t.setAttribute("aria-pressed", t.dataset.u === id));
-      box.show(Store.user(id));
+      const u = Store.user(id);
+      if (cloud) {
+        $("#pwBox").hidden = true; $("#pinBox").hidden = true;
+        if (u.role === "admin") {
+          if (tapped && Store.parentUnlocked()) { enter(id); return; }
+          $("#pwErr").innerHTML = ""; $("#pwIn").value = ""; $("#pwBox").hidden = false;
+          setTimeout(() => $("#pwIn").focus({ preventScroll: true }), 30);
+          $("#pwBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
+          if (PinLock.wait(id)) showWait(id);
+          return;
+        }
+        if (!u.hasPin) { if (tapped) enter(id); return; }
+      }
+      box.show(u);
       if (PinLock.wait(id)) showWait(id);
     }
     const enter = (id) => { PinLock.clear(id); clearInterval(tick); Store.setSession(id); go("#/home"); };
@@ -333,119 +374,97 @@
       busy = false;
       if (ok && sel === id) enter(id);
     }
-    $$(".tile").forEach((t) => (t.onclick = () => pick(t.dataset.u)));
-    if (sel) pick(sel);
-    if (!Store.users().length) view.insertAdjacentHTML("afterbegin", `<div class="fb bad">Chưa có tài khoản nào.</div>`);
+    // Mật khẩu của bố mẹ (bản đám mây): sai cũng tính vào khóa tạm như PIN, để con không đoán mãi được.
+    if (cloud) $("#pwBox").onsubmit = async (ev) => {
+      ev.preventDefault();
+      const id = sel, pw = $("#pwIn").value;
+      if (!pw || busy) return;
+      if (PinLock.wait(id)) { showWait(id); return; }
+      busy = true; $("#pwGo").disabled = true;
+      try {
+        const ok = await Store.checkPassword(pw);
+        if (sel !== id) return;
+        if (ok) { enter(id); return; }
+        $("#pwIn").value = "";
+        if (PinLock.fail(id)) { showWait(id, "Mật khẩu chưa đúng."); return; }
+        const left = PinLock.left(id);
+        err(left <= 2 ? `Mật khẩu chưa đúng. Sai thêm ${left} lần nữa thì phải đợi một lúc.` : "Mật khẩu chưa đúng. Thử lại nhé.");
+      } catch (e) { err(e.message); } finally { busy = false; if ($("#pwGo")) $("#pwGo").disabled = false; }
+    };
+    $$(".tile").forEach((t) => (t.onclick = () => pick(t.dataset.u, true)));
+    if (sel) pick(sel, false);
+    if (!cloud && !Store.users().length) view.insertAdjacentHTML("afterbegin", `<div class="fb bad">Chưa có tài khoản nào.</div>`);
   }
 
   /* ================= ĐĂNG NHẬP ĐÁM MÂY (khi js/config.js có Supabase) ================= */
-  const fmtCode = (c) => (c && c.length === 12 ? c.match(/.{4}/g).join("-") : c || "");
+  /* Dòng liên hệ khi quên mật khẩu hoặc tài khoản bị khóa: chữ và đường liên hệ lấy từ js/config.js (contactText, contactUrl).
+     Chỉ nhận đường https:, tel:, sms:, mailto:. */
+  function contactLine(lead) {
+    const c = window.ONTAP_CONFIG || {}, txt = String(c.contactText || "").trim() || "Liên hệ người cấp tài khoản.", url = String(c.contactUrl || "").trim();
+    const ok = /^(https:|tel:|sms:|mailto:)/i.test(url);
+    return `<div class="row contact" id="contact" style="gap:4px 8px"><span class="small muted">${esc(lead)}</span>${ok
+      ? `<a class="linkbtn small" href="${esc(url)}"${/^https:/i.test(url) ? ` target="_blank" rel="noopener"` : ""}>${esc(txt)}</a>` : `<span class="small muted">${esc(txt)}</span>`}</div>`;
+  }
   function renderCloudLogin() {
     drawWho(null);
-    const err = Store.authError();
-    let code = Store.lastFamilyCode(), sel = null, busy = false;
     view.innerHTML = `<div class="stack">
-      <div><h1>Xin chào!</h1><p class="muted">Học sinh nhập mã gia đình rồi chọn tên. Bố mẹ, thầy cô đăng nhập bằng email.</p></div>
-      ${err ? `<div class="fb bad">${esc(err)}</div>` : ""}
-      <section class="panel" id="kidBox"><h2>Học sinh</h2>
-        <form class="row" id="codeForm" autocomplete="off" style="align-items:flex-end">
-          <label class="field" style="flex:1;min-width:150px"><span>Mã gia đình</span><input id="fCode" class="code-in" value="${esc(code)}" maxlength="12" autocapitalize="characters" spellcheck="false" placeholder="Ví dụ: K7M2QD"></label>
-          <button class="btn main" type="submit">Tiếp</button></form>
-        <div class="captcha" id="kidCaptcha"></div>
-        <div id="codeErr" aria-live="assertive"></div>
-        <div id="kidList"></div>
-      </section>
-      ${pinBoxHTML()}
-      <section class="panel" id="mailBox"><h2>Bố mẹ, thầy cô</h2>
-        <p class="small">App gửi một đường link vào email của bạn. Bấm vào link là vào app, không cần mật khẩu.</p>
-        <form class="stack" id="mailForm" style="gap:10px"><div class="row" style="align-items:flex-end"><label class="field" style="flex:1;min-width:200px"><span>Email</span><input id="mEmail" type="email" autocomplete="email" inputmode="email" required></label><button class="btn" type="submit" id="mSend">Gửi link đăng nhập</button></div>
-          <div class="checks"><label><input type="checkbox" id="mRemember" ${Store.rememberLogin() ? "checked" : ""}>Ghi nhớ đăng nhập trên máy này (chỉ chọn nếu là máy riêng của bạn)</label></div></form>
-        <div class="captcha" id="mailCaptcha"></div>
-        <div id="mailMsg" aria-live="polite"></div>
-      </section></div>`;
-    const box = wirePinBox(submit);
-    async function loadKids(c) {
-      $("#codeErr").innerHTML = ""; $("#pinBox").hidden = true;
-      $("#kidList").innerHTML = `<p class="muted small">Đang tìm…</p>`;
-      try {
-        const r = await Store.familyStudents(c);
-        code = c;
-        $("#kidList").innerHTML = r.students.length ? `<div class="sec"><div class="label">${esc(r.family || "Chọn tên của bạn")}</div><div class="tiles">${r.students.map((k) => `<button class="tile" data-u="${esc(k.id)}" aria-pressed="false">${avatar(k, true)}<span class="nm">${esc(k.name)}</span></button>`).join("")}</div></div>`
-          : `<p class="muted">Gia đình này chưa có tài khoản học sinh.</p>`;
-        $$("#kidList .tile").forEach((t) => (t.onclick = () => {
-          sel = t.dataset.u;
-          $$("#kidList .tile").forEach((x) => x.setAttribute("aria-pressed", x === t));
-          box.show(r.students.find((k) => k.id === sel));
-        }));
-        const last = r.students.find((k) => k.id === Store.lastUserId());
-        if (last) $(`#kidList .tile[data-u="${CSS.escape(last.id)}"]`).click();
-      } catch (e) { $("#kidList").innerHTML = ""; $("#codeErr").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
-    }
-    async function submit(pin) {
-      if (!sel || !pin || busy) return;
-      busy = true;
-      try {
-        const r = await Store.studentLogin(code, sel, pin);
-        if (r.ok && r.mustChange) { toast("Bạn hãy đặt mã PIN mới 6 số nhé."); go("#/account"); return; }
-        if (r.ok) { go("#/home"); return; }
-        box.clear(); pinError(r.message || "Chưa đăng nhập được. Thử lại nhé.");
-      } catch (e) { box.clear(); pinError(e.message); } finally { busy = false; }
-    }
-    $("#codeForm").onsubmit = (e) => { e.preventDefault(); const c = $("#fCode").value.trim().toUpperCase(); if (c) loadKids(c); };
-    // Chỉ tự hiện danh sách khi tab này đã có phiên học sinh; tab mới thì chờ bấm "Tiếp" (đỡ tạo phiên thừa).
-    if (code && Store.studentTab()) loadKids(code);
-    $("#mailForm").onsubmit = async (e) => {
-      e.preventDefault();
-      const email = $("#mEmail").value.trim(), btn = $("#mSend");
-      btn.disabled = true;
-      try {
-        await Store.sendLink(email, $("#mRemember").checked);
-        $("#mailMsg").innerHTML = `<div class="fb ok">Đã gửi đến ${esc(email)}. Mở email và bấm vào link đăng nhập. Không thấy thư thì xem mục Spam (Thư rác).</div>
-          <form class="row" id="otpForm" autocomplete="off" style="align-items:flex-end"><label class="field" style="flex:1;min-width:150px"><span>Hoặc nhập mã số trong email</span><input id="mCode" inputmode="numeric" maxlength="10" autocomplete="one-time-code"></label><button class="btn sm" type="submit">Vào</button></form>
-          <div id="otpErr" aria-live="assertive"></div>`;
-        $("#otpForm").onsubmit = async (ev) => {
-          ev.preventDefault();
-          try { await Store.verifyCode(email, $("#mCode").value); go("#/home"); }
-          catch (er) { $("#otpErr").innerHTML = `<div class="fb bad">${esc(er.message)}</div>`; }
-        };
-      } catch (er) { $("#mailMsg").innerHTML = `<div class="fb bad">${esc(er.message)}</div>`; } finally { btn.disabled = false; }
+      <div><h1>Xin chào!</h1><p class="muted">Bố mẹ đăng nhập bằng tài khoản được cấp. Sau đó con chọn hồ sơ của mình để học.</p></div>
+      <form class="panel" id="loginForm" autocomplete="on">
+        <label class="field"><span>Tên đăng nhập</span><input id="lUser" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" required></label>
+        <label class="field"><span>Mật khẩu</span><input id="lPass" name="password" type="password" autocomplete="current-password" maxlength="72" required></label>
+        <div class="checks"><label><input type="checkbox" id="lRemember" ${Store.rememberLogin() ? "checked" : ""}>Ghi nhớ trên máy này</label></div>
+        <p class="small muted">Chọn ghi nhớ trên máy của gia đình để con mở app là học được. Không chọn thì đóng trang là phải đăng nhập lại.</p>
+        <div class="captcha" id="loginCaptcha"></div>
+        <div id="loginErr" aria-live="assertive"></div>
+        <div class="row"><button class="btn main" type="submit" id="lGo">Đăng nhập</button></div>
+        ${contactLine("Quên mật khẩu?")}
+      </form></div>`;
+    $("#loginForm").onsubmit = async (ev) => {
+      ev.preventDefault();
+      const btn = $("#lGo"); if (btn.disabled) return;
+      btn.disabled = true; $("#loginErr").innerHTML = "";
+      try { await Store.signIn($("#lUser").value, $("#lPass").value, $("#lRemember").checked); go("#/"); }
+      catch (e) { $("#lPass").value = ""; $("#loginErr").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; btn.disabled = false; }
     };
   }
-
-  /* Đã đăng nhập email nhưng chưa thuộc gia đình nào: nhập mã mời hoặc tạo gia đình mới. */
-  function renderCloudJoin() {
+  /* Ô đổi mật khẩu (dùng chung cho bắt đổi mật khẩu tạm và trang Tài khoản). cur: hỏi mật khẩu hiện tại. */
+  const pwFields = (cur) => `<input type="text" name="username" autocomplete="username" value="${esc(Store.username())}" hidden>
+    ${cur ? `<label class="field"><span>Mật khẩu hiện tại</span><input id="pwOld" type="password" autocomplete="current-password" maxlength="72" required></label>` : ""}
+    <label class="field"><span>Mật khẩu mới (ít nhất 8 kí tự)</span><input id="pwNew" type="password" autocomplete="new-password" maxlength="72" required></label>
+    <label class="field"><span>Nhập lại mật khẩu mới</span><input id="pwNew2" type="password" autocomplete="new-password" maxlength="72" required></label>
+    <div class="captcha" id="pwCaptcha"></div><div id="pwErr" aria-live="assertive"></div>`;
+  function wirePwForm(form, cur, done) {
+    form.onsubmit = async (ev) => {
+      ev.preventDefault();
+      const btn = $("[type=submit]", form), nw = $("#pwNew").value;
+      const err = (m) => ($("#pwErr").innerHTML = m ? `<div class="fb bad">${esc(m)}</div>` : "");
+      if (btn.disabled) return;
+      if (nw !== $("#pwNew2").value) { err("Hai mật khẩu mới chưa khớp."); return; }
+      btn.disabled = true; err("");
+      try { await Store.changePassword(nw, cur ? $("#pwOld").value : undefined); done(); }
+      catch (e) { err(e.message); btn.disabled = false; }
+    };
+  }
+  /* Lần đầu đăng nhập (hoặc sau khi chủ app đặt lại mật khẩu): bắt đặt mật khẩu mới. */
+  function renderNewPassword() {
     drawWho(null);
-    let emo = "🧭";
     view.innerHTML = `<div class="stack">
-      <section class="hero"><span class="label">Đã đăng nhập</span><h1>Chào bạn!</h1><p>Email ${esc(Store.authEmail())} chưa thuộc gia đình nào trong app.</p></section>
-      <form class="panel" id="invForm" autocomplete="off"><h2>Tôi có mã mời</h2>
-        <p class="small">Người quản trị (bố mẹ hoặc thầy cô) tạo tài khoản cho bạn trong app và gửi bạn một mã mời 12 kí tự.</p>
-        <div class="row" style="align-items:flex-end"><label class="field" style="flex:1;min-width:180px"><span>Mã mời</span><input id="jInvite" class="code-in" maxlength="20" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX"></label><button class="btn main" type="submit">Vào gia đình</button></div>
-        <div id="jErr" aria-live="assertive"></div></form>
-      <form class="panel" id="setupForm" autocomplete="off"><h2>Tạo gia đình mới</h2>
-        <p class="small">Bạn sẽ là người quản trị: thêm tài khoản học sinh, phụ huynh và chỉnh lịch thi.</p>
-        <div class="form">
-          <label class="field"><span>Tên trường hoặc gia đình <span class="opt-note">· không bắt buộc</span></span><input id="sSchool" placeholder="Ví dụ: Lớp 4A Trường Tiểu học Kim Đồng"></label>
-          <label class="field"><span>Tên của bạn</span><input id="sName" placeholder="Ví dụ: Cô Lan, Bố Minh" required maxlength="40"></label>
-          <div class="field full"><span>Hình đại diện</span>${emojiPicker(emo)}</div>
-        </div>
-        <div id="sErr"></div>
-        <div class="row"><button class="btn main" type="submit">Tạo và bắt đầu</button></div></form>
-      <div class="row"><button class="btn ghost" id="jOut">Đăng xuất</button></div></div>`;
-    wireEmoji(view, (e) => (emo = e));
-    $("#invForm").onsubmit = async (ev) => {
-      ev.preventDefault();
-      try { await Store.claimInvite($("#jInvite").value); toast("Đã vào gia đình"); go("#/home"); }
-      catch (e) { $("#jErr").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
-    };
-    $("#setupForm").onsubmit = async (ev) => {
-      ev.preventDefault();
-      try { await Store.createFamily({ schoolName: $("#sSchool").value, name: $("#sName").value, avatar: emo }); toast("Đã tạo gia đình"); go("#/admin/users"); }
-      catch (e) { $("#sErr").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
-    };
-    $("#jOut").onclick = () => { Store.setSession(null); route(); };
+      <section class="hero"><span class="label">Mật khẩu tạm</span><h1>Đặt mật khẩu mới</h1><p>Mật khẩu bạn vừa dùng là mật khẩu tạm. Đặt mật khẩu của riêng bạn để dùng tiếp.</p></section>
+      <form class="panel" id="npForm" autocomplete="on"><div class="form">${pwFields(false)}</div>
+        <div class="row"><button class="btn main" type="submit">Lưu mật khẩu</button><button class="btn ghost" type="button" id="npOut">Đăng xuất</button></div></form></div>`;
+    wirePwForm($("#npForm"), false, () => { toast("Đã đặt mật khẩu mới"); go("#/"); });
+    $("#npOut").onclick = async () => { await Store.signOut(); go("#/"); };
   }
-  const famCodeBox = () => (Store.cloud ? `<section class="panel small"><div class="row between"><span>Mã gia đình để con đăng nhập trên máy khác</span><b class="code sm">${esc(Store.familyCode())}</b></div></section>` : "");
+  /* Tài khoản bị khóa, hoặc tài khoản không có dữ liệu gia đình (ví dụ tài khoản của chủ app). */
+  function renderCloudBlocked(st) {
+    drawWho(null);
+    const locked = st === "locked";
+    view.innerHTML = `<div class="stack"><section class="panel" id="blocked"><h1>${locked ? "Tài khoản đang bị khóa" : "Tài khoản này không dùng để học"}</h1>
+      <p>${locked ? "Tài khoản này tạm thời không dùng được. Dữ liệu của gia đình vẫn được giữ nguyên." : "Tài khoản này chưa có dữ liệu gia đình (có thể là tài khoản quản lý của chủ app). Đăng nhập bằng tài khoản gia đình để học."}</p>
+      ${contactLine(locked ? "Cần mở khóa?" : "Cần tài khoản gia đình?")}
+      <div class="row"><button class="btn main" id="bOut">Đăng xuất</button></div></section></div>`;
+    $("#bOut").onclick = async () => { await Store.signOut(); go("#/"); };
+  }
 
   /* ================= TRANG CHỦ ================= */
   function renderHome(u) {
@@ -526,6 +545,7 @@
     view.innerHTML = `<div class="stack">
       ${asObserver ? `<div class="row between">${back(viewer.role === "admin" ? "#/admin/overview" : "#/home", "Về danh sách")}${viewer.role !== "student" ? `<a class="btn ghost sm" href="#/admin/user/${esc(s.id)}">Sửa hồ sơ</a>` : ""}</div>
         <div class="row between"><div class="row">${avatar(s, true)}<div><h2>${esc(s.name)}</h2><span class="muted">${esc(gradeTxt(s))}</span></div></div><a class="btn main sm" id="toReport" href="#/report/${esc(s.id)}">Báo cáo tuần</a></div>` : `<div><h2>Chào ${esc(s.name)}! ${esc(s.avatar)}</h2><span class="muted">${esc(gradeTxt(s))}</span></div>`}
+      ${s.locked ? `<div class="notice">Hồ sơ này đang khóa vì tài khoản có nhiều hồ sơ con hơn gói hiện tại cho phép. Vẫn xem được kết quả cũ, bài làm mới chưa được lưu.</div>` : ""}
       ${hero}
       <div class="stats">
         <div class="stat"><b>${w7.length}</b><span>bài trong 7 ngày</span></div>
@@ -629,11 +649,12 @@
     $("#rpPrint").onclick = () => window.print();
   }
 
-  const pinTag = (u) => (u.pinLocked ? " · PIN bị khóa, cần đặt lại" : u.pinOld ? " · nên đặt PIN mới 6 số" : "");
+  /* Bản đám mây: hồ sơ vượt số hồ sơ của gói (máy chủ đặt profiles.locked) không ghi được kết quả mới. */
+  const lockTag = (u) => (u.locked ? " · đang khóa theo gói" : "");
   function childCard(c) {
     const res = Store.resultsFor(c.id), nx = nextEvent(c.grade), [r, t] = sumRT(within(res, 30));
     return `<button class="item" data-child="${esc(c.id)}">${avatar(c)}<span class="grow"><b>${esc(c.name)}</b>
-      <span class="small muted">${esc(gradeTxt(c))}${esc(pinTag(c))} · ${res.length ? "Lần cuối: " + esc(ago(res[0].at)) : "Chưa làm bài nào"}${t ? " · TB 30 ngày " + d10(r, t) + "/10" : ""}</span>
+      <span class="small muted">${esc(gradeTxt(c))}${esc(lockTag(c))} · ${res.length ? "Lần cuối: " + esc(ago(res[0].at)) : "Chưa làm bài nào"}${t ? " · TB 30 ngày " + d10(r, t) + "/10" : ""}</span>
       ${nx ? `<span class="small">Sắp tới: ${esc(nx.title)} · ${esc(range(nx))}</span>` : ""}</span><span aria-hidden="true">›</span></button>`;
   }
   function renderParent(p) {
@@ -643,8 +664,7 @@
       ${backupCard()}
       <section class="sec"><div class="row between"><h2>Con của tôi</h2><button class="btn sm" id="addKid">+ Thêm con</button></div>
         ${kids.length ? `<div class="list">${kids.map(childCard).join("")}</div>` : `<div class="panel muted">Chưa có tài khoản con. Bấm “Thêm con” để tạo, hoặc nhờ quản trị viên gắn tài khoản của con vào.</div>`}</section>
-      ${[4, 6].filter((g) => kids.some((k) => k.grade === g)).map((g) => `<section class="sec"><div class="row between"><h2>Lịch thi lớp ${g}</h2><a class="linkbtn" href="#/calendar">Cả năm →</a></div><div class="timeline">${Store.events(g).filter((e) => status(e) !== "past").slice(0, 4).map((e) => eventRow(e, { grade: g })).join("")}</div></section>`).join("")}
-      ${famCodeBox()}
+      ${gradesOf(kids).map((g) => `<section class="sec"><div class="row between"><h2>Lịch thi lớp ${g}</h2><a class="linkbtn" href="#/calendar">Cả năm →</a></div><div class="timeline">${Store.events(g).filter((e) => status(e) !== "past").slice(0, 4).map((e) => eventRow(e, { grade: g })).join("")}</div></section>`).join("")}
       <section class="panel small"><b>Gợi ý cho phụ huynh</b><span>Mỗi ngày con làm 1 đề ngắn (20–30 phút) tốt hơn làm dồn cuối tuần. Xem mục “Chủ đề hay sai” trong hồ sơ của con để biết cần ôn lại phần nào.</span></section>
     </div>`;
     $$("[data-child]").forEach((b) => (b.onclick = () => go("#/child/" + b.dataset.child)));
@@ -681,7 +701,8 @@
   let calGrade = null;
   function renderCalendar(u) {
     const fixed = u.role === "student" ? u.grade : null;
-    const kidGrades = u.role === "parent" ? [...new Set(Store.childrenOf(u.id).map((k) => k.grade))] : [];
+    const kidGrades = u.role === "parent" || (Store.cloud && u.role === "admin") ? gradesOf(Store.childrenOf(u.id)) : [];
+    const gl = gradeList(kidGrades);
     if (fixed) calGrade = fixed;
     else if (calGrade == null) calGrade = kidGrades.length === 1 ? kidGrades[0] : 0;
     const evs = Store.events(calGrade || null), dated = evs.filter((e) => e.start), undated = evs.filter((e) => !e.start);
@@ -692,7 +713,7 @@
       <div class="row between">${back("#/home", "Trang chính")}${u.role === "admin" ? `<a class="btn sm" href="#/admin/event/new">+ Thêm kì thi</a>` : ""}</div>
       <div><h1>Lịch thi năm học ${esc(Store.settings().schoolYear || "2026–2027")}</h1>
       <p class="muted small">Kiểm tra định kì, IOE và các mốc năm học. Mục “Dự kiến” sẽ được cập nhật khi trường thông báo.</p></div>
-      ${fixed ? "" : `<div class="tabs" role="group" aria-label="Chọn khối">${[[0, "Cả hai khối"], [4, "Lớp 4"], [6, "Lớp 6"]].map(([g, t]) => `<button data-g="${g}" aria-pressed="${calGrade === g}">${t}</button>`).join("")}</div>`}
+      ${fixed ? "" : `<div class="tabs" role="group" aria-label="Chọn khối">${[[0, gl.length === 2 ? "Cả hai khối" : "Mọi khối"]].concat(gl.map((g) => [g, gradeName(g)])).map(([g, t]) => `<button data-g="${g}" aria-pressed="${calGrade === g}">${t}</button>`).join("")}</div>`}
       <div class="timeline">
         ${Object.keys(months).sort().map((k) => `<div class="month">Tháng ${(k % 100) + 1}/${Math.floor(k / 100)}</div>${months[k].map((e) => eventRow(e, { grade: calGrade || null, student, results })).join("")}`).join("")}
         ${undated.length ? `<div class="month">Chưa có lịch</div>${undated.map((e) => eventRow(e, { grade: calGrade || null })).join("")}` : ""}
@@ -787,22 +808,33 @@
   }
 
   /* ================= QUẢN TRỊ ================= */
+  /* Bản đám mây gọi phần quản trị là "Khu phụ huynh", tab Tài khoản là "Hồ sơ con". */
   const ADMIN_TABS = [["overview", "Tổng quan"], ["users", "Tài khoản"], ["events", "Lịch thi"], ["banks", "Ngân hàng đề"], ["data", "Dữ liệu"]];
-  function adminTabs(cur) { return `<div class="tabs" role="group" aria-label="Mục quản trị">${ADMIN_TABS.map(([k, t]) => `<button data-go="#/admin/${k}" aria-pressed="${k === cur}">${t}</button>`).join("")}</div>`; }
+  function adminTabs(cur) { return `<div class="tabs" role="group" aria-label="${Store.cloud ? "Mục trong khu phụ huynh" : "Mục quản trị"}">${ADMIN_TABS.map(([k, t]) => `<button data-go="#/admin/${k}" aria-pressed="${k === cur}">${k === "users" && Store.cloud ? "Hồ sơ con" : t}</button>`).join("")}</div>`; }
+  const fullMsg = () => `Tài khoản đã có đủ ${(Store.plan() || {}).maxChildren || 0} hồ sơ con theo gói hiện tại.`;
   function renderAdmin(u, tab) {
     if (u.role !== "admin") { go("#/home"); return; }
     tab = ADMIN_TABS.some(([k]) => k === tab) ? tab : "overview";
+    const cloud = !!Store.cloud;
     let body = "";
     if (tab === "overview") {
-      const studs = Store.users("student");
-      body = `<div class="stats"><div class="stat"><b>${studs.length}</b><span>học sinh</span></div><div class="stat"><b>${Store.users("parent").length}</b><span>phụ huynh</span></div><div class="stat"><b>${within(Store.data().results, 7).length}</b><span>bài làm 7 ngày qua</span></div></div>
+      const studs = Store.users("student"), w7 = within(Store.data().results, 7);
+      const addBtn = Store.can("addChild") ? `<a class="btn sm" href="#/admin/user/new?role=student">+ Thêm hồ sơ con</a>` : "";
+      body = (cloud ? `<div class="stats"><div class="stat"><b>${studs.length}</b><span>hồ sơ con</span></div><div class="stat"><b>${w7.length}</b><span>bài làm 7 ngày qua</span></div><div class="stat"><b>${new Set(w7.map((r) => r.userId)).size}</b><span>con có ôn 7 ngày qua</span></div></div>
+        <section class="sec"><div class="row between"><h2>Con của tôi</h2>${addBtn}</div>${studs.length ? `<div class="list">${studs.map(childCard).join("")}</div>` : `<div class="panel muted">Chưa có hồ sơ con. Bấm “Thêm hồ sơ con”: tên, khối, lớp và mã PIN nếu muốn. Mỗi con chọn hồ sơ của mình ở màn hình “Ai đang học?”.</div>`}</section>`
+        : `<div class="stats"><div class="stat"><b>${studs.length}</b><span>học sinh</span></div><div class="stat"><b>${Store.users("parent").length}</b><span>phụ huynh</span></div><div class="stat"><b>${w7.length}</b><span>bài làm 7 ngày qua</span></div></div>
         ${!Store.persistent() ? `<div class="fb bad">Trình duyệt đang chặn lưu dữ liệu. Dữ liệu sẽ mất khi tải lại trang.</div>` : ""}
         ${backupCard()}
-        ${famCodeBox()}
-        <section class="sec"><h2>Học sinh</h2>${studs.length ? `<div class="list">${studs.map(childCard).join("")}</div>` : `<div class="panel">Chưa có học sinh. <div class="row"><a class="btn main" href="#/admin/user/new?role=student">Thêm học sinh</a></div></div>`}</section>
-        ${[4, 6].map((g) => { const n = nextEvent(g); return n ? `<section class="sec"><h2>Kì thi tiếp theo · Lớp ${g}</h2><div class="timeline">${eventRow(n, { grade: g })}</div></section>` : ""; }).join("")}`;
+        <section class="sec"><h2>Học sinh</h2>${studs.length ? `<div class="list">${studs.map(childCard).join("")}</div>` : `<div class="panel">Chưa có học sinh. <div class="row"><a class="btn main" href="#/admin/user/new?role=student">Thêm học sinh</a></div></div>`}</section>`)
+        + (cloud && studs.length ? gradesOf(studs) : gradeList()).map((g) => { const n = nextEvent(g); return n ? `<section class="sec"><h2>Kì thi tiếp theo · ${esc(gradeName(g))}</h2><div class="timeline">${eventRow(n, { grade: g })}</div></section>` : ""; }).join("");
+    } else if (tab === "users" && cloud) {
+      const us = Store.users("student"), full = !Store.can("addChild");
+      body = `<section class="sec"><div class="row between"><h2>Hồ sơ con (${us.length}/${(Store.plan() || {}).maxChildren || 0})</h2>${full ? "" : `<a class="btn sm" href="#/admin/user/new?role=student">+ Thêm</a>`}</div>
+        ${us.length ? `<div class="list">${us.map((x) => `<a class="item" href="#/admin/user/${esc(x.id)}" style="color:inherit;text-decoration:none">${avatar(x)}<span class="grow"><b>${esc(x.name)}</b><span class="small muted">${esc(gradeTxt(x))} · ${x.hasPin ? "có mã PIN" : "không có mã PIN"}${esc(lockTag(x))}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>` : `<div class="panel muted">Chưa có hồ sơ con.</div>`}
+        ${full ? `<p class="small muted">${esc(fullMsg())} Xóa bớt hồ sơ không dùng nữa để thêm hồ sơ mới.</p>` : ""}
+        <p class="small muted">Mã PIN 4 số giúp anh em không vào nhầm hồ sơ của nhau. Đây không phải mật khẩu: muốn giữ dữ liệu an toàn thì giữ kín mật khẩu của bố mẹ.</p></section>`;
     } else if (tab === "users") {
-      const sect = (role, name) => { const us = Store.users(role); return `<section class="sec"><div class="row between"><h2>${name} (${us.length})</h2><a class="btn sm" href="#/admin/user/new?role=${role}">+ Thêm</a></div>${us.length ? `<div class="list">${us.map((x) => `<a class="item" href="#/admin/user/${esc(x.id)}" style="color:inherit;text-decoration:none">${avatar(x)}<span class="grow"><b>${esc(x.name)}</b><span class="small muted">${esc(gradeTxt(x))}${pinTag(x)}${role === "student" ? " · Phụ huynh: " + esc((x.parentIds || []).map((p) => (Store.user(p) || {}).name).filter(Boolean).join(", ") || "chưa gắn") : role === "parent" ? " · Con: " + esc(Store.childrenOf(x.id).map((c) => c.name).join(", ") || "chưa gắn") : ""}${Store.cloud && role !== "student" ? (x.linked ? " · đã gắn email" : " · chưa gắn email") : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>` : `<div class="panel muted">Chưa có.</div>`}</section>`; };
+      const sect = (role, name) => { const us = Store.users(role); return `<section class="sec"><div class="row between"><h2>${name} (${us.length})</h2><a class="btn sm" href="#/admin/user/new?role=${role}">+ Thêm</a></div>${us.length ? `<div class="list">${us.map((x) => `<a class="item" href="#/admin/user/${esc(x.id)}" style="color:inherit;text-decoration:none">${avatar(x)}<span class="grow"><b>${esc(x.name)}</b><span class="small muted">${esc(gradeTxt(x))}${role === "student" ? " · Phụ huynh: " + esc((x.parentIds || []).map((p) => (Store.user(p) || {}).name).filter(Boolean).join(", ") || "chưa gắn") : role === "parent" ? " · Con: " + esc(Store.childrenOf(x.id).map((c) => c.name).join(", ") || "chưa gắn") : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>` : `<div class="panel muted">Chưa có.</div>`}</section>`; };
       body = sect("student", "Học sinh") + sect("parent", "Phụ huynh") + sect("admin", "Quản trị");
     } else if (tab === "events") {
       body = `<div class="row between"><p class="muted small" style="flex:1">Sửa ngày khi trường thông báo, gắn bài ôn vào từng kì thi.</p><a class="btn main sm" href="#/admin/event/new">+ Thêm kì thi</a></div>
@@ -811,25 +843,21 @@
     } else if (tab === "banks") {
       body = `<div class="row between"><p class="muted small" style="flex:1">Dán câu hỏi từ Word, Zalo, sách bài tập. App tự nhận dạng trắc nghiệm, điền khuyết, đúng/sai.</p><a class="btn main sm" href="#/admin/bank/new">+ Nhập ngân hàng</a></div>
         <div class="list">${Store.banks().map((b) => `<a class="item" href="#/${b.seed ? "quiz" : "admin/bank"}/${esc(b.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${esc(b.title)}</b><span class="small muted">Lớp ${b.grade} · ${esc(b.subject)} · ${b.questions.length} câu${b.seed ? " · có sẵn (chỉ xem)" : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>`;
-    } else if (tab === "data" && Store.cloud) {
+    } else if (tab === "data" && cloud) {
       const st = Store.settings(), loc = Store.localData(), mig = Store.migratedAt();
-      const n = (role) => (loc ? loc.users.filter((x) => x.role === role).length : 0);
+      const kids = loc ? loc.users.filter((x) => x.role === "student").length : 0;
       body = `<section class="panel"><h3>Thông tin chung</h3><div class="form">
-          <label class="field"><span>Tên trường hoặc gia đình</span><input id="dSchool" value="${esc(st.schoolName || "")}"></label>
-          <label class="field"><span>Năm học</span><input id="dYear" value="${esc(st.schoolYear || "")}"></label></div>
+          <label class="field"><span>Tên gia đình</span><input id="dSchool" value="${esc(st.schoolName || "")}" maxlength="80" placeholder="Ví dụ: Nhà Bin"></label>
+          <label class="field"><span>Năm học</span><input id="dYear" value="${esc(st.schoolYear || "")}" maxlength="20"></label></div>
           <div class="row"><button class="btn sm" id="dSave">Lưu</button></div></section>
-        <section class="panel"><h3>Mã gia đình</h3><p class="small">Học sinh nhập mã này ở màn hình đăng nhập, chọn tên rồi nhập mã PIN.</p>
-          <div class="row"><span class="code" id="dCode">${esc(st.joinCode || "")}</span><button class="btn ghost sm" id="dNewCode">Đổi mã</button></div><div id="dCodeArea"></div></section>
         <section class="panel" id="migBox"><h3>Chuyển dữ liệu máy này lên đám mây</h3>
-          ${loc ? `<p class="small">Trình duyệt này còn dữ liệu của bản lưu trên máy: ${n("student")} học sinh, ${n("parent")} phụ huynh, ${(loc.results || []).length} kết quả.${mig ? ` Đã chuyển lần gần nhất: ${esc(ago(mig))}.` : ""}</p>`
-            : `<p class="small">Trình duyệt này không có dữ liệu cũ. Nếu dữ liệu nằm ở máy khác: mở app trên máy đó, đăng nhập quản trị bằng email rồi bấm nút này ở đó; hoặc chọn file sao lưu đã tải từ bản lưu trên máy.</p>`}
-          <p class="small muted">Học sinh giữ mã PIN cũ. Phụ huynh và quản trị khác nhận mã mời để gắn email của họ. Chuyển lại nhiều lần không bị trùng.</p>
+          ${loc ? `<p class="small">Trình duyệt này còn dữ liệu của bản lưu trên máy: ${kids} học sinh, ${(loc.results || []).length} kết quả.${mig ? ` Đã chuyển lần gần nhất: ${esc(ago(mig))}.` : ""}</p>`
+            : `<p class="small">Trình duyệt này không có dữ liệu cũ. Nếu dữ liệu nằm ở máy khác: đăng nhập tài khoản này trên máy đó rồi bấm nút chuyển ở đó; hoặc chọn file sao lưu đã tải từ bản lưu trên máy.</p>`}
+          <p class="small muted">Mỗi học sinh thành một hồ sơ con, giữ mã PIN cũ, kết quả và tiến độ bài ôn; lịch thi và ngân hàng đề tự nhập cũng được chuyển. Tài khoản quản trị, phụ huynh của bản trên máy không cần chuyển. Chuyển lại nhiều lần không bị trùng.</p>
           <div class="row"><button class="btn main sm" id="dMigrate" ${loc ? "" : "disabled"}>Chuyển dữ liệu máy này lên đám mây</button><label class="btn ghost sm" for="dMigFile">Chuyển từ file sao lưu</label><input type="file" id="dMigFile" accept=".json,application/json" hidden></div>
           <div id="migRes" aria-live="polite"></div></section>
         <section class="panel"><h3>Sao lưu</h3><p class="small">Tải bản sao dữ liệu trên đám mây về máy (không chứa mã PIN).</p>
-          <div class="row"><button class="btn sm" id="dExport">Tải file sao lưu</button></div></section>
-        <section class="panel"><h3>Xóa toàn bộ dữ liệu trên đám mây</h3><p class="small">Xóa gia đình này cùng mọi hồ sơ, kết quả và lịch đã sửa trên máy chủ. Không hoàn tác được. Email đăng nhập của bố mẹ, thầy cô vẫn còn trong Supabase (xóa ở Authentication → Users nếu muốn).</p>
-          <div class="row"><button class="btn danger sm" id="dWipe">Xóa toàn bộ…</button></div><div id="wipeArea"></div></section>`;
+          <div class="row"><button class="btn sm" id="dExport">Tải file sao lưu</button></div></section>`;
     } else if (tab === "data") {
       const st = Store.settings();
       body = `<section class="panel"><h3>Thông tin chung</h3><div class="form">
@@ -848,11 +876,12 @@
         <section class="panel"><h3>Xóa toàn bộ dữ liệu</h3><p class="small">Xóa mọi tài khoản, kết quả và lịch đã sửa trên máy này. Không hoàn tác được.</p>
           <div class="row"><button class="btn danger sm" id="dWipe">Xóa toàn bộ…</button></div><div id="wipeArea"></div></section>`;
     }
-    view.innerHTML = `<div class="stack"><div><h2>Quản trị</h2><span class="muted">${esc(Store.settings().schoolName || "")}</span></div>${adminTabs(tab)}${body}</div>`;
+    view.innerHTML = `<div class="stack"><div class="row between"><div><h2>${cloud ? "Khu phụ huynh" : "Quản trị"}</h2><span class="muted">${esc(Store.settings().schoolName || "")}</span></div>${cloud ? `<button class="btn ghost sm" id="switchWho">Đổi người học</button>` : ""}</div>${adminTabs(tab)}${body}</div>`;
     wireGo();
     wireBackupCard();
     $$("[data-child]").forEach((b) => (b.onclick = () => go("#/child/" + b.dataset.child)));
     wireEvents(view, null, null);
+    if ($("#switchWho")) $("#switchWho").onclick = switchWho;
     if (tab === "events") $("#resetEv").onclick = () => {
       $("#resetArea").innerHTML = `<div class="confirm"><div>Chép lại lịch thi gốc? Các kì thi bạn đã thêm hoặc sửa sẽ bị thay thế.</div><div class="row"><button class="btn danger sm" id="rsYes">Khôi phục</button><button class="btn ghost sm" id="rsNo">Thôi</button></div></div>`;
       $("#rsYes").onclick = () => { Store.resetEvents(); toast("Đã khôi phục lịch mặc định"); renderAdmin(u, "events"); };
@@ -862,8 +891,8 @@
       $("#dSave").onclick = () => { Store.setSettings({ schoolName: $("#dSchool").value.trim(), schoolYear: $("#dYear").value.trim() }); toast("Đã lưu"); };
       $("#dExport").onclick = () => { backupNow(); if ($("#dLast")) $("#dLast").textContent = lastBackupTxt(); };
       if ($("#dImport")) $("#dImport").onchange = (e) => importFile(e.target.files[0], () => go("#/"));
-      if (Store.cloud) wireCloudData();
-      $("#dWipe").onclick = () => {
+      if (cloud) wireCloudData();
+      if ($("#dWipe")) $("#dWipe").onclick = () => {
         $("#wipeArea").innerHTML = `<div class="confirm"><label class="field"><span>Gõ XOA để xác nhận</span><input id="wipeTxt" autocomplete="off"></label><div class="row"><button class="btn danger sm" id="wipeYes">Xóa hết</button><button class="btn ghost sm" id="wipeNo">Thôi</button></div></div>`;
         $("#wipeYes").onclick = () => { if ($("#wipeTxt").value.trim().toUpperCase() !== "XOA") { toast("Gõ đúng chữ XOA"); return; } Store.wipe(); go("#/"); };
         $("#wipeNo").onclick = () => ($("#wipeArea").innerHTML = "");
@@ -871,21 +900,18 @@
     }
   }
 
+  /* Bản đám mây: về màn hình "Ai đang học?" (không đăng xuất tài khoản gia đình). */
+  function switchWho() {
+    if (!Store.users("student").length) { toast("Chưa có hồ sơ con. Thêm hồ sơ con trước nhé."); return; }
+    Store.setSession(null); go("#/");
+  }
   function wireCloudData() {
-    $("#dNewCode").onclick = () => {
-      $("#dCodeArea").innerHTML = `<div class="confirm"><div>Đổi mã gia đình? Mã cũ sẽ không dùng được nữa và mọi máy của học sinh phải đăng nhập lại bằng mã mới.</div><div class="row"><button class="btn danger sm" id="ncYes">Đổi mã</button><button class="btn ghost sm" id="ncNo">Thôi</button></div></div>`;
-      $("#ncYes").onclick = async () => { try { $("#dCode").textContent = await Store.newJoinCode(); toast("Đã đổi mã gia đình"); } catch (e) { toast(e.message); } $("#dCodeArea").innerHTML = ""; };
-      $("#ncNo").onclick = () => ($("#dCodeArea").innerHTML = "");
-    };
     const doMig = async (data) => {
       const btn = $("#dMigrate"); btn.disabled = true;
       $("#migRes").innerHTML = `<p class="muted small">Đang chuyển…</p>`;
       try {
         const res = await Store.migrate(data);
-        const inv = res.invites || [];
-        $("#migRes").innerHTML = `<div class="fb ok">Đã chuyển lên đám mây: ${+res.users || 0} tài khoản mới, ${+res.results || 0} kết quả.</div>
-          ${inv.length ? `<div class="stack tight"><b>Mã mời cho phụ huynh, quản trị</b><span class="small">Gửi mỗi người mã của mình. Họ mở app, đăng nhập bằng email rồi nhập mã mời.</span>
-            <div class="list">${inv.map((i) => `<div class="item"><span class="grow"><b>${esc(i.name)}</b><span class="small muted">${esc(Store.ROLES[i.role] || "")}</span></span><span class="code sm">${esc(fmtCode(i.code))}</span></div>`).join("")}</div></div>` : ""}`;
+        $("#migRes").innerHTML = `<div class="fb ok">Đã chuyển lên đám mây: ${+res.profiles || 0} hồ sơ con mới, ${+res.results || 0} kết quả.</div>`;
         toast("Đã chuyển dữ liệu lên đám mây");
       } catch (e) { $("#migRes").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
       btn.disabled = !Store.localData();
@@ -901,55 +927,49 @@
 
   /* -------- sửa tài khoản -------- */
   function renderUserForm(viewer, id, query) {
-    const isAdmin = viewer.role === "admin";
+    const isAdmin = viewer.role === "admin", cloud = !!Store.cloud;
     const editing = id !== "new" ? Store.user(id) : null;
     if (id !== "new" && !editing) { go("#/home"); return; }
     if (!isAdmin) {
       const ok = viewer.role === "parent" && (id === "new" ? query.role === "student" : editing.role === "student" && (editing.parentIds || []).includes(viewer.id));
       if (!ok) { go("#/home"); return; }
     }
-    const role = editing ? editing.role : (Store.ROLES[query.role] ? query.role : "student");
+    // Bản đám mây chỉ có hồ sơ con; tài khoản của bố mẹ do chủ app quản lý (đổi mật khẩu ở trang Tài khoản).
+    if (cloud && editing && editing.role !== "student") { go("#/account"); return; }
+    const role = cloud ? "student" : editing ? editing.role : (Store.ROLES[query.role] ? query.role : "student");
     let emo = editing ? editing.avatar : role === "student" ? "🐣" : role === "parent" ? "🌻" : "🧭";
     const parents = Store.users("parent"), studs = Store.users("student");
     const backTo = isAdmin ? "#/admin/users" : editing ? "#/child/" + editing.id : "#/home";
+    const full = cloud && !editing && !Store.can("addChild");
+    const title = cloud ? (editing ? "Sửa hồ sơ con" : "Thêm hồ sơ con") : editing ? "Sửa tài khoản" : "Thêm " + Store.ROLES[role].toLowerCase();
+    const pinLabel = cloud ? (editing && editing.hasPin ? "Mã PIN mới, 4 số (để trống nếu giữ nguyên)" : "Mã PIN 4 số (không bắt buộc)")
+      : editing ? "Mã PIN mới (để trống nếu giữ nguyên)" : "Mã PIN (4–6 chữ số)";
     view.innerHTML = `<div class="stack">${back(backTo)}
-      <h2>${editing ? "Sửa tài khoản" : "Thêm " + Store.ROLES[role].toLowerCase()}</h2>
+      <h2>${title}</h2>
+      ${full ? `<div class="fb bad">${esc(fullMsg())}</div>` : ""}
       <form class="panel" id="uForm" autocomplete="off"><div class="form">
         <label class="field"><span>Tên hiển thị</span><input id="uName" value="${esc(editing ? editing.name : "")}" required maxlength="40" placeholder="${role === "student" ? "Ví dụ: Bin, Minh Anh" : "Ví dụ: Mẹ Bin"}"></label>
-        ${!Store.cloud || role === "student" ? `<label class="field"><span>${editing ? "Mã PIN mới (để trống nếu giữ nguyên)" : Store.cloud ? "Mã PIN (6 chữ số)" : "Mã PIN (4–6 chữ số)"}</span><input id="uPin" type="password" inputmode="numeric" maxlength="6" ${editing ? "" : "required"}></label>` : ""}
-        ${role === "student" ? `<label class="field"><span>Khối</span><select id="uGrade"><option value="4" ${editing && editing.grade === 4 ? "selected" : ""}>Lớp 4</option><option value="6" ${editing && editing.grade === 6 ? "selected" : ""}>Lớp 6</option></select></label>
+        <label class="field"><span>${pinLabel}</span><input id="uPin" type="password" inputmode="numeric" maxlength="${cloud ? 4 : 6}" ${editing || cloud ? "" : "required"}></label>
+        ${role === "student" ? `<label class="field"><span>Khối</span><select id="uGrade">${gradeOptions(editing ? editing.grade : null)}</select></label>
           <label class="field"><span>Lớp (không bắt buộc)</span><input id="uClass" value="${esc(editing ? editing.className || "" : "")}" placeholder="Ví dụ: 4A"></label>` : ""}
+        ${cloud && editing && editing.hasPin ? `<div class="field full"><div class="checks"><label><input type="checkbox" id="uNoPin">Bỏ mã PIN (con bấm vào hồ sơ là vào)</label></div></div>` : ""}
         <div class="field full"><span>Hình đại diện</span>${emojiPicker(emo)}</div>
-        ${isAdmin && role === "student" ? `<div class="field full"><span>Phụ huynh</span>${parents.length ? `<div class="checks">${parents.map((p) => `<label><input type="checkbox" name="par" value="${esc(p.id)}" ${editing && (editing.parentIds || []).includes(p.id) ? "checked" : ""}>${esc(p.name)}</label>`).join("")}</div>` : `<span class="small muted">Chưa có tài khoản phụ huynh.</span>`}</div>` : ""}
+        ${isAdmin && !cloud && role === "student" ? `<div class="field full"><span>Phụ huynh</span>${parents.length ? `<div class="checks">${parents.map((p) => `<label><input type="checkbox" name="par" value="${esc(p.id)}" ${editing && (editing.parentIds || []).includes(p.id) ? "checked" : ""}>${esc(p.name)}</label>`).join("")}</div>` : `<span class="small muted">Chưa có tài khoản phụ huynh.</span>`}</div>` : ""}
         ${isAdmin && role === "parent" ? `<div class="field full"><span>Con</span>${studs.length ? `<div class="checks">${studs.map((s) => `<label><input type="checkbox" name="kid" value="${esc(s.id)}" ${editing && (s.parentIds || []).includes(editing.id) ? "checked" : ""}>${esc(s.name)} (lớp ${s.grade})</label>`).join("")}</div>` : `<span class="small muted">Chưa có tài khoản học sinh.</span>`}</div>` : ""}
-      </div><div id="uErr"></div>
-      <div class="row"><button class="btn main" type="submit">${editing ? "Lưu" : "Tạo tài khoản"}</button>${editing && (isAdmin || role === "student") && editing.id !== viewer.id ? `<button class="btn danger" type="button" id="uDel">Xóa tài khoản</button>` : ""}</div>
-      <div id="uDelArea"></div></form>
-      ${Store.cloud && role !== "student" ? inviteBox(editing, viewer) : ""}
-      ${Store.cloud && editing && role === "student" ? `<section class="panel" id="kidBox"><h3>Đăng nhập của con</h3>
-        ${editing.pinLocked ? `<div class="fb bad">Mã PIN của con đang bị khóa vì nhập sai nhiều lần. Đặt mã PIN mới ở trên để mở khóa.</div>` : editing.pinOld ? `<div class="notice">Con đang dùng mã PIN cũ chuyển từ máy. Nên đặt mã PIN mới 6 số.</div>` : ""}
-        <p class="small">Đổi mã PIN cũng đăng xuất con khỏi mọi máy.</p>
-        <div class="row"><button class="btn ghost sm" type="button" id="uKidOut">Đăng xuất mọi máy của con</button></div></section>` : ""}</div>`;
+      </div>${cloud ? `<p class="small muted">Mã PIN chỉ để anh em không vào nhầm hồ sơ của nhau, không phải mật khẩu.</p>` : ""}<div id="uErr"></div>
+      <div class="row"><button class="btn main" type="submit" ${full ? "disabled" : ""}>${editing ? "Lưu" : cloud ? "Tạo hồ sơ" : "Tạo tài khoản"}</button>${editing && (isAdmin || role === "student") && editing.id !== viewer.id ? `<button class="btn danger" type="button" id="uDel">${cloud ? "Xóa hồ sơ" : "Xóa tài khoản"}</button>` : ""}</div>
+      <div id="uDelArea"></div></form></div>`;
     wireGo(); wireEmoji(view, (e) => (emo = e));
-    if ($("#uKidOut")) $("#uKidOut").onclick = async () => {
-      try { const n = await Store.signOutChild(editing.id); toast(n ? "Đã đăng xuất con khỏi " + n + " máy" : "Con chưa đăng nhập trên máy nào"); } catch (e) { toast(e.message); }
-    };
-    if ($("#uInv")) $("#uInv").onclick = () => {
-      const make = async () => { try { await Store.newInvite(editing.id); toast("Đã tạo mã mời mới"); renderUserForm(viewer, id, query); } catch (e) { toast(e.message); } };
-      if (!editing.linked) { make(); return; }
-      $("#uInvArea").innerHTML = `<div class="confirm"><div>Gỡ email đang gắn với ${esc(editing.name)}? Người đó sẽ không vào được nữa cho tới khi nhập mã mời mới.</div><div class="row"><button class="btn danger sm" type="button" id="invYes">Gỡ và tạo mã mới</button><button class="btn ghost sm" type="button" id="invNo">Thôi</button></div></div>`;
-      $("#invYes").onclick = make; $("#invNo").onclick = () => ($("#uInvArea").innerHTML = "");
-    };
     $("#uForm").onsubmit = async (ev) => {
       ev.preventDefault();
-      const data = { name: $("#uName").value, pin: $("#uPin") ? $("#uPin").value.trim() : "", avatar: emo };
+      const data = { name: $("#uName").value, pin: $("#uPin").value.trim(), avatar: emo, noPin: !!($("#uNoPin") && $("#uNoPin").checked) };
       if (role === "student") { data.grade = +$("#uGrade").value; data.className = $("#uClass").value; }
-      if (isAdmin && role === "student") data.parentIds = $$("input[name=par]:checked").map((x) => x.value);
+      if (isAdmin && !cloud && role === "student") data.parentIds = $$("input[name=par]:checked").map((x) => x.value);
       try {
         let saved;
         if (editing) {
           saved = await Store.updateUser(editing.id, data);
-          if (data.pin && !Store.cloud) PinLock.clear(editing.id); // đặt PIN mới thì không phải đợi nữa
+          if (data.pin || data.noPin) PinLock.clear(editing.id); // đặt PIN mới thì không phải đợi nữa
         } else {
           if (!isAdmin) data.parentIds = [viewer.id];
           saved = await Store.createUser(Object.assign({ role }, data));
@@ -962,39 +982,28 @@
             if (!kids.has(s.id) && has) await Store.updateUser(s.id, { parentIds: s.parentIds.filter((p) => p !== saved.id) });
           }
         }
-        if (Store.cloud && !editing && role !== "student") { toast("Đã tạo. Gửi mã mời cho " + saved.name); go("#/admin/user/" + saved.id); return; }
-        toast(editing ? "Đã lưu" : "Đã tạo tài khoản " + saved.name);
+        toast(editing ? "Đã lưu" : (cloud ? "Đã tạo hồ sơ " : "Đã tạo tài khoản ") + saved.name);
         go(isAdmin ? "#/admin/users" : "#/home");
       } catch (e) { $("#uErr").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
     };
     if ($("#uDel")) $("#uDel").onclick = () => {
-      $("#uDelArea").innerHTML = `<div class="confirm"><div>Xóa tài khoản ${esc(editing.name)}? Mọi kết quả của tài khoản này cũng bị xóa.</div><div class="row"><button class="btn danger sm" type="button" id="dYes">Xóa</button><button class="btn ghost sm" type="button" id="dNo">Thôi</button></div></div>`;
+      $("#uDelArea").innerHTML = `<div class="confirm"><div>Xóa ${cloud ? "hồ sơ" : "tài khoản"} ${esc(editing.name)}? Mọi kết quả của ${cloud ? "hồ sơ" : "tài khoản"} này cũng bị xóa.</div><div class="row"><button class="btn danger sm" type="button" id="dYes">Xóa</button><button class="btn ghost sm" type="button" id="dNo">Thôi</button></div></div>`;
       $("#dYes").onclick = () => { try { Store.removeUser(editing.id); toast("Đã xóa"); go(isAdmin ? "#/admin/users" : "#/home"); } catch (e) { toast(e.message); } };
       $("#dNo").onclick = () => ($("#uDelArea").innerHTML = "");
     };
   }
 
-  /* Bản đám mây: quản trị, phụ huynh đăng nhập bằng email của họ, gắn vào hồ sơ bằng mã mời. */
-  function inviteBox(editing, viewer) {
-    if (!editing) return `<p class="small muted">Sau khi tạo, app hiện một mã mời. Người này mở app, đăng nhập bằng email của họ rồi nhập mã mời.</p>`;
-    if (editing.id === viewer.id) return "";
-    return `<section class="panel" id="invBox"><h3>Đăng nhập bằng email</h3>
-      ${editing.linked ? `<p class="small">Tài khoản này đã gắn với email của ${esc(editing.name)}.</p>`
-        : `<p class="small">Gửi mã mời này cho ${esc(editing.name)}. Họ mở app, chọn “Bố mẹ, thầy cô”, đăng nhập bằng email của mình rồi nhập mã.</p><div><span class="code">${esc(fmtCode(editing.inviteCode))}</span></div>`}
-      <div class="row"><button class="btn ghost sm" type="button" id="uInv">${editing.linked ? "Gỡ email, tạo mã mời mới" : "Tạo mã mời khác"}</button></div><div id="uInvArea"></div></section>`;
-  }
-
   /* -------- sửa kì thi -------- */
   function renderEventForm(u, id) {
     if (u.role !== "admin") { go("#/home"); return; }
-    const e = id === "new" ? { id: "", title: "", kind: "dinh-ki", grades: [4], start: "", end: "", tentative: true, subjects: [], scope: "", note: "", modules: [], banks: [] } : Store.event(id);
+    const e = id === "new" ? { id: "", title: "", kind: "dinh-ki", grades: gradeList().slice(0, 1), start: "", end: "", tentative: true, subjects: [], scope: "", note: "", modules: [], banks: [] } : Store.event(id);
     if (!e) { go("#/admin/events"); return; }
     view.innerHTML = `<div class="stack">${back("#/admin/events", "Lịch thi")}
       <h2>${id === "new" ? "Thêm kì thi" : "Sửa kì thi"}</h2>
       <form class="panel" id="eForm" autocomplete="off"><div class="form">
         <label class="field full"><span>Tên kì thi</span><input id="eTitle" value="${esc(e.title)}" required placeholder="Ví dụ: Kiểm tra cuối học kì I"></label>
         <label class="field"><span>Loại</span><select id="eKind">${Object.entries(KIND).map(([k, t]) => `<option value="${k}" ${e.kind === k ? "selected" : ""}>${t}</option>`).join("")}</select></label>
-        <div class="field"><span>Khối</span><div class="checks">${[4, 6].map((g) => `<label><input type="checkbox" name="eg" value="${g}" ${e.grades.includes(g) ? "checked" : ""}>Lớp ${g}</label>`).join("")}</div></div>
+        <div class="field"><span>Khối</span><div class="checks">${gradeList(e.grades).map((g) => `<label><input type="checkbox" name="eg" value="${g}" ${e.grades.includes(g) ? "checked" : ""}>${esc(gradeName(g))}</label>`).join("")}</div></div>
         <label class="field"><span>Từ ngày (để trống nếu chưa có lịch)</span><input type="date" id="eStart" value="${esc(e.start || "")}"></label>
         <label class="field"><span>Đến ngày</span><input type="date" id="eEnd" value="${esc(e.end || "")}"></label>
         <div class="field full"><div class="checks"><label><input type="checkbox" id="eTent" ${e.tentative ? "checked" : ""}>Ngày dự kiến (chưa có thông báo chính thức)</label></div></div>
@@ -1041,13 +1050,13 @@
 Sai: Hình thoi có bốn góc vuông.`;
   function renderBankForm(u, id) {
     if (u.role !== "admin") { go("#/home"); return; }
-    const b = id === "new" ? { id: "", title: "", grade: 4, subject: "", minutes: 20, note: "", src: "" } : Store.bank(id);
+    const b = id === "new" ? { id: "", title: "", grade: gradeList()[0], subject: "", minutes: 20, note: "", src: "" } : Store.bank(id);
     if (!b || b.seed) { go("#/admin/banks"); return; }
     view.innerHTML = `<div class="stack">${back("#/admin/banks", "Ngân hàng đề")}
       <h2>${id === "new" ? "Nhập ngân hàng câu hỏi" : "Sửa ngân hàng câu hỏi"}</h2>
       <form class="panel" id="bForm" autocomplete="off"><div class="form">
         <label class="field full"><span>Tên</span><input id="bTitle" value="${esc(b.title)}" required placeholder="Ví dụ: Toán 4 · Đề ôn cuối kì I số 1"></label>
-        <label class="field"><span>Khối</span><select id="bGrade"><option value="4" ${+b.grade === 4 ? "selected" : ""}>Lớp 4</option><option value="6" ${+b.grade === 6 ? "selected" : ""}>Lớp 6</option></select></label>
+        <label class="field"><span>Khối</span><select id="bGrade">${gradeOptions(b.grade)}</select></label>
         <label class="field"><span>Môn</span><input id="bSubj" value="${esc(b.subject)}" placeholder="Toán, Tiếng Việt, Tiếng Anh…"></label>
         <label class="field"><span>Thời gian khi làm như thi (phút, 0 = không tính giờ)</span><input id="bMin" type="number" min="0" max="180" value="${+b.minutes || 0}"></label>
         <label class="field full"><span>Ghi chú</span><input id="bNote" value="${esc(b.note || "")}"></label>
@@ -1088,29 +1097,54 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
 
   /* -------- tài khoản của tôi -------- */
   function renderAccount(u) {
+    if (Store.cloud) return renderCloudAccount(u);
     let emo = u.avatar;
-    const hasPin = !Store.cloud || u.role === "student"; // bản đám mây: quản trị, phụ huynh dùng email, không có PIN
     view.innerHTML = `<div class="stack">${back("#/home", "Trang chính")}
       <div class="row">${avatar(u, true)}<div><h2>${esc(u.name)}</h2><span class="muted">${esc(gradeTxt(u))}</span></div></div>
-      ${Store.cloud && Store.mustChangePin() ? `<div class="notice">Bạn đang dùng mã PIN cũ. Hãy đặt mã PIN mới gồm 6 chữ số (không dùng số dễ đoán như 111111, 123456).</div>` : ""}
-      <form class="panel" id="aForm" autocomplete="off"><h3>${hasPin ? "Đổi hình đại diện hoặc mã PIN" : "Đổi hình đại diện"}</h3>
+      <form class="panel" id="aForm" autocomplete="off"><h3>Đổi hình đại diện hoặc mã PIN</h3>
         ${emojiPicker(emo)}
-        ${hasPin ? `<div class="form"><label class="field"><span>Mã PIN hiện tại</span><input id="aOld" type="password" inputmode="numeric" maxlength="6"></label>
-        <label class="field"><span>${Store.cloud ? "Mã PIN mới (6 chữ số)" : "Mã PIN mới"}</span><input id="aNew" type="password" inputmode="numeric" maxlength="6"></label></div>` : ""}
+        <div class="form"><label class="field"><span>Mã PIN hiện tại</span><input id="aOld" type="password" inputmode="numeric" maxlength="6"></label>
+        <label class="field"><span>Mã PIN mới</span><input id="aNew" type="password" inputmode="numeric" maxlength="6"></label></div>
         <div id="aErr"></div><div class="row"><button class="btn sm" type="submit">Lưu</button></div></form>
-      ${Store.cloud && !hasPin ? `<p class="small muted">Đăng nhập bằng email ${esc(Store.authEmail())}.</p>` : ""}
       <div class="row"><button class="btn main" id="logout">Đăng xuất</button></div></div>`;
     wireGo(); wireEmoji(view, (e) => (emo = e));
     $("#aForm").onsubmit = async (ev) => {
       ev.preventDefault();
-      const nw = hasPin ? $("#aNew").value.trim() : "", old = hasPin ? $("#aOld").value.trim() : "";
+      const nw = $("#aNew").value.trim(), old = $("#aOld").value.trim();
       try {
         if (nw) { if (!(await Store.checkPin(u.id, old))) throw new Error("Mã PIN hiện tại chưa đúng."); }
-        await Store.updateUser(u.id, { avatar: emo, pin: nw || null, oldPin: old });
+        await Store.updateUser(u.id, { avatar: emo, pin: nw || null });
         toast("Đã lưu"); renderAccount(Store.user(u.id)); drawWho(Store.user(u.id));
       } catch (e) { $("#aErr").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
     };
     $("#logout").onclick = () => { Store.setSession(null); go("#/"); };
+  }
+  /* Bản đám mây. Phụ huynh: tên đăng nhập, đổi mật khẩu, đổi người học, đăng xuất khỏi máy này.
+     Hồ sơ con: đổi hình đại diện, đổi người học (PIN do bố mẹ đặt trong khu phụ huynh; con không đăng xuất được tài khoản). */
+  function renderCloudAccount(u) {
+    const adult = u.role !== "student";
+    let emo = u.avatar;
+    view.innerHTML = `<div class="stack">${back("#/home", adult ? "Khu phụ huynh" : "Trang chính")}
+      <div class="row">${avatar(u, true)}<div><h2>${esc(u.name)}</h2><span class="muted">${adult ? "Tên đăng nhập: " + esc(Store.username()) : esc(gradeTxt(u))}</span></div></div>
+      ${adult ? `<form class="panel" id="pwForm" autocomplete="on"><h3>Đổi mật khẩu</h3><div class="form">${pwFields(true)}</div>
+          <div class="row"><button class="btn sm" type="submit">Đổi mật khẩu</button></div></form>`
+        : `<form class="panel" id="aForm" autocomplete="off"><h3>Đổi hình đại diện</h3>${emojiPicker(emo)}
+          <div id="aErr"></div><div class="row"><button class="btn sm" type="submit">Lưu</button></div></form>`}
+      <div class="row"><button class="btn main" id="switchWho">Đổi người học</button>${adult ? `<button class="btn ghost" id="signOut">Đăng xuất khỏi máy này</button>` : ""}</div>
+      ${adult ? `<p class="small muted">Con dùng máy này hằng ngày thì chỉ cần “Đổi người học”. Đăng xuất thì lần sau phải nhập lại tên đăng nhập và mật khẩu.</p>` : ""}</div>`;
+    wireGo();
+    $("#switchWho").onclick = switchWho;
+    if (adult) {
+      wirePwForm($("#pwForm"), true, () => { toast("Đã đổi mật khẩu"); renderCloudAccount(u); });
+      $("#signOut").onclick = async () => { await Store.signOut(); go("#/"); };
+      return;
+    }
+    wireEmoji(view, (e) => (emo = e));
+    $("#aForm").onsubmit = async (ev) => {
+      ev.preventDefault();
+      try { await Store.updateUser(u.id, { avatar: emo }); toast("Đã lưu"); renderCloudAccount(Store.user(u.id)); drawWho(Store.user(u.id)); }
+      catch (e) { $("#aErr").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
+    };
   }
 
   /* ================= ĐỊNH TUYẾN ================= */
@@ -1124,7 +1158,8 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
     if (Store.cloud) {
       const st = Store.authState();
       if (st === "signed-out") { renderCloudLogin(); return; }
-      if (st === "no-profile") { renderCloudJoin(); return; }
+      if (st === "change-password") { renderNewPassword(); return; }
+      if (st !== "ready") { renderCloudBlocked(st); return; }
     } else if (!Store.isReady() && !Store.load()) { renderSetup(); return; }
     const u = Store.sessionUser();
     if (!u) { renderLogin(); return; }

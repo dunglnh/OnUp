@@ -8,6 +8,10 @@ const fs = require("fs");
 const OUT = __dirname + "/screenshots/"; fs.mkdirSync(OUT, { recursive: true });
 const ROOT = __dirname + "/../";
 const BASE = process.env.BASE_URL || "http://localhost:8000";
+/* Đây là kiểm thử bản lưu trên máy. js/config.js thật có thể đã điền Supabase (trang đang chạy bản đám mây), nên trả về
+   bản để trống hai giá trị đó cho mọi request tới js/config.js. Bản đám mây kiểm thử riêng ở tests/supabase/. */
+const LOCAL_CONFIG = fs.readFileSync(ROOT + "js/config.js", "utf8").replace(/(supabaseUrl|supabaseAnonKey):\s*"[^"]*"/g, '$1: ""');
+const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ contentType: "text/javascript", body: LOCAL_CONFIG }));
 (async () => {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
@@ -20,6 +24,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   const outReqs = [], HOST = new URL(BASE).host;
   const watchOut = (c) => c.on("request", (r) => { const u = new URL(r.url()); if (/^https?:$/.test(u.protocol) && u.host !== HOST) outReqs.push(r.url()); });
   watchOut(ctx);
+  await localConfig(ctx);
   const shot = (n) => page.screenshot({ path: OUT + n + ".png", fullPage: true });
   const editDb = (fn) => page.evaluate((src) => { const d = JSON.parse(localStorage.getItem("ontap_db_v1")); new Function("d", src)(d); localStorage.setItem("ontap_db_v1", JSON.stringify(d)); }, fn);
   const who = () => page.evaluate(() => (Store.sessionUser() || {}).name || "");
@@ -50,6 +55,22 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   await page.selectOption("#uGrade", "6");
   await page.click("button[type=submit]"); await page.waitForTimeout(300);
   await shot("02-admin-users");
+  step("grades from data/grades.js");
+  // Khối lớp lấy từ data/grades.js: hôm nay chỉ lớp 4 và 6 active, hiện ở form học sinh, kì thi, ngân hàng đề, lịch thi.
+  const opts = (sel) => page.$$eval(sel, (o) => o.map((x) => x.value + (x.tagName === "OPTION" ? ":" + x.textContent : x.checked ? "*" : "")).join());
+  const gradeUI = {};
+  await page.goto(BASE + "/#/admin/user/new?role=student"); await page.waitForTimeout(150); gradeUI.student = await opts("#uGrade option");
+  await page.goto(BASE + "/#/admin/event/new"); await page.waitForTimeout(150); gradeUI.event = await opts("input[name=eg]");
+  await page.goto(BASE + "/#/admin/bank/new"); await page.waitForTimeout(150); gradeUI.bank = await opts("#bGrade option");
+  await page.goto(BASE + "/#/calendar"); await page.waitForTimeout(150); gradeUI.cal = await page.$$eval(".tabs button", (b) => b.map((x) => x.textContent).join());
+  gradeUI.store = await page.evaluate(async () => {
+    let msg = "";
+    try { await Store.createUser({ role: "student", name: "Lớp năm", pin: "1234", grade: 5 }); } catch (e) { msg = e.message; }
+    return { msg, can: Store.can("addChild") && Store.can("bank:toan4-ck1-de1"), n: Store.users("student").length, all: window.ONTAP_GRADES.length };
+  });
+  console.log("grades:", gradeUI);
+  const gradesOK = gradeUI.student === "4:Lớp 4,6:Lớp 6" && gradeUI.event === "4*,6" && gradeUI.bank === "4:Lớp 4,6:Lớp 6" && gradeUI.cal === "Cả hai khối,Lớp 4,Lớp 6"
+    && gradeUI.store.msg === "Chọn khối lớp 4 hoặc 6." && gradeUI.store.can && gradeUI.store.n === 2 && gradeUI.store.all === 12;
   await page.goto(BASE + "/#/admin/events"); await page.waitForTimeout(200); await shot("03-admin-events");
 
   step("logout + login student");
@@ -327,7 +348,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   for (const scheme of ["light", "dark"]) {
     const opts = { viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme };
     const c = await browser.newContext(Object.assign({ storageState: state }, opts)), fresh = await browser.newContext(opts);
-    for (const x of [c, fresh]) { watchOut(x); x.on("page", (pg) => pg.on("pageerror", (e) => errs.push("pageerror 360: " + e.message))); }
+    for (const x of [c, fresh]) { await localConfig(x); watchOut(x); x.on("page", (pg) => pg.on("pageerror", (e) => errs.push("pageerror 360: " + e.message))); }
     let p = await fresh.newPage();
     const open = async (h, wait) => { await p.goto(BASE + "/" + h); await p.waitForTimeout(wait || 250); };
     const check = async (label) => (await p.evaluate(audit)).forEach((x) => m360.push(`${scheme} · ${label}: ${x}`));
@@ -402,6 +423,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   const swList = { missing: want.filter((f) => !sw.FILES.includes(f)), extra: sw.FILES.filter((f) => !want.includes(f)) };
   // Tải trang một lần (service worker cài và đệm), rồi mất mạng: tải lại vẫn vào được, đăng nhập, mở bài ôn và đề ngân hàng.
   const off = await browser.newContext({ storageState: state, viewport: { width: 390, height: 844 } });
+  await localConfig(off);
   watchOut(off);
   const swSeen = [], leaked = []; let offline = false;
   off.on("request", (r) => { if (r.serviceWorker()) swSeen.push(r.url()); });
@@ -439,6 +461,6 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   console.log("local mode:", !cloudMode, "requests outside " + HOST + ":", outReqs);
   const real = errs;
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();

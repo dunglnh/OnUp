@@ -23,14 +23,14 @@ Lần đầu mở app: tạo tài khoản quản trị → thêm phụ huynh, h�
 ## Đồng bộ đám mây (tùy chọn)
 Mặc định (`js/config.js` để trống) app lưu dữ liệu trong trình duyệt của từng máy, mở lại được cả khi không có mạng (sau lần mở đầu). Nhớ vào Quản trị → Dữ liệu để tải file sao lưu định kì (quá 7 ngày app sẽ nhắc), và thêm app vào Màn hình chính trên iPhone, iPad để Safari không xóa dữ liệu.
 
-Bản đám mây (Supabase) đang được làm lại theo [docs/THIET-KE-TAI-KHOAN.md](docs/THIET-KE-TAI-KHOAN.md): chủ app tạo tài khoản cho từng gia đình, phụ huynh đăng nhập bằng tên đăng nhập + mật khẩu, con là hồ sơ trong tài khoản của bố mẹ. Phần máy chủ đã xong, cài theo [docs/HUONG-DAN-SUPABASE.md](docs/HUONG-DAN-SUPABASE.md); màn hình đăng nhập mới và trang admin đang làm, nên **chưa điền** `js/config.js`.
+Bản đám mây (Supabase) đang được làm lại theo [docs/THIET-KE-TAI-KHOAN.md](docs/THIET-KE-TAI-KHOAN.md): chủ app tạo tài khoản cho từng gia đình, phụ huynh đăng nhập bằng tên đăng nhập + mật khẩu, con là hồ sơ trong tài khoản của bố mẹ. Máy chủ và màn hình đăng nhập, “Ai đang học?”, khu phụ huynh đã xong, cài theo [docs/HUONG-DAN-SUPABASE.md](docs/HUONG-DAN-SUPABASE.md); trang admin của chủ app đang làm (trong lúc chờ thì tạo tài khoản gia đình bằng tay theo hướng dẫn).
 
 ## Kiểm thử
 ```bash
 python3 -m http.server 8000 &
 npm i -D playwright && node tests/e2e.js     # bản lưu trên máy, phải in E2E OK
 node tests/supabase/admin-test.mjs           # Edge Function admin trên máy chủ giả, không cần mạng
-node tests/supabase/store-test.mjs           # SupabaseStore (phần không phụ thuộc cách đăng nhập)
+node tests/supabase/store-test.mjs           # SupabaseStore: đăng nhập, hồ sơ con, kết quả… trên máy chủ giả
 node tests/supabase/cloud-e2e.js             # giao diện bản đám mây trong Chromium, máy chủ giả
 sh tests/supabase/run.sh                     # schema.sql + RLS trên PostgreSQL thật (cần cài PostgreSQL)
 ```

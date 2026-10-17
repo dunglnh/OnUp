@@ -21,12 +21,13 @@ css/app.css             toàn bộ giao diện app chính (token màu ở :root,
 fonts/                  font tự lưu (Baloo 2, Be Vietnam Pro, woff2 từ @fontsource), fonts.css dùng chung cho app và bài ôn; giấy phép OFL.txt
 sw.js                   service worker: đệm sẵn file của app để mở lại được khi mất mạng (xem "Chạy khi mất mạng")
 manifest.webmanifest    tên, màu, biểu tượng khi thêm vào Màn hình chính; icons/ (icon.svg là bản gốc, PNG vẽ lại từ đó)
-js/config.js            cấu hình Supabase. ĐỂ TRỐNG (mặc định) = dùng LocalStore, không tải gì từ mạng
+js/config.js            cấu hình Supabase (và dòng liên hệ “Quên mật khẩu?”). ĐỂ TRỐNG (mặc định) = dùng LocalStore, không tải gì từ mạng
 js/store.js             kho dữ liệu (LocalStore, localStorage khóa "ontap_db_v1"). Mọi màn hình chỉ gọi Store.*
 js/store-supabase.js    SupabaseStore: cùng các hàm với LocalStore, chỉ bật khi js/config.js có URL + anon key
 js/app.js               định tuyến hash + tất cả màn hình (đăng nhập, trang chủ theo vai trò, báo cáo tuần, lịch, quản trị)
 js/quiz.js              bộ làm bài chung cho ngân hàng câu hỏi + bộ đọc cú pháp nhập câu hỏi
 js/bridge.js            nạp bên trong mỗi bài ôn: tách dữ liệu theo học sinh, gửi điểm về app
+data/grades.js          danh sách khối lớp 1–12 (window.ONTAP_GRADES), chỉ lớp 4 và 6 `active`. Không viết cứng [4, 6] ở đâu khác
 data/calendar-2026-2027.js  lịch thi mặc định (window.ONTAP_SEED_EVENTS)
 data/modules.js         danh mục bài ôn dạng trang riêng (window.ONTAP_MODULES)
 data/banks.js           ngân hàng câu hỏi có sẵn (window.ONTAP_SEED_BANKS). Bỏ một bộ thì thêm mã vào RETIRED_SEED_BANKS ở cả hai kho
@@ -76,6 +77,10 @@ App chỉ nhận tin nhắn khi `event.source` là đúng iframe đang mở và 
 - `settings`: `{schoolName, schoolYear, createdAt, lastBackupAt}`. `lastBackupAt`: lần tải file sao lưu gần nhất (ISO), dữ liệu cũ là `null`. Trang chủ quản trị và phụ huynh hiện thẻ nhắc sao lưu khi quá 7 ngày, hoặc chưa sao lưu lần nào mà đã có kết quả (`backupDue` trong js/app.js; bản đám mây không nhắc).
 - `seedBanksSeen`: mã các ngân hàng có sẵn (data/banks.js) máy này đã xét. Khi thêm bộ mới vào data/banks.js và gắn vào `banks` của một kì thi trong lịch mặc định, `load()` tự gắn bộ đó vào kì thi trên máy đã có dữ liệu; bộ quản trị viên đã bỏ gắn thì không gắn lại.
 
+Khối lớp: `data/grades.js` là chỗ duy nhất. Hồ sơ học sinh mới chỉ chọn được khối `active` (sửa hồ sơ thì giữ được khối đang có); form kì thi, ngân hàng đề, tab khối ở Lịch thi, “Kì thi tiếp theo” ở trang quản trị đọc danh sách này (`gradeList()` trong js/app.js). Thêm lớp mới: thêm nội dung rồi đổi `active` thành `true`.
+
+`Store.can(feature)` (cả hai kho): chỗ duy nhất hỏi quyền theo gói (`"addChild"`, `"bank:<mã>"`…). Bản lưu trên máy luôn trả `true`; bản đám mây hôm nay chỉ giới hạn `"addChild"` theo `max_children` của gói. Sau này bật gói trả phí chỉ sửa hàm này và bảng `plans`.
+
 Khi thêm trường mới: thêm giá trị mặc định khi đọc dữ liệu cũ, vì người dùng đã có dữ liệu trên máy. Nếu đổi cấu trúc không tương thích, tăng `SCHEMA_VERSION` và viết hàm chuyển đổi trong `load()`.
 
 Mã PIN ở chế độ cục bộ chỉ để phân biệt người trong nhà/lớp, **không phải bảo mật thật**. Đừng mô tả nó là an toàn trên giao diện.
@@ -83,7 +88,7 @@ Mã PIN ở chế độ cục bộ chỉ để phân biệt người trong nhà/
 ### Bản đám mây (SupabaseStore)
 Bật khi `js/config.js` có `supabaseUrl` + `supabaseAnonKey`; khi đó `window.Store` là SupabaseStore (`Store.cloud === true`), LocalStore còn ở `window.LocalStore` để đọc dữ liệu cũ khi chuyển lên. Hướng dẫn cài: `docs/HUONG-DAN-SUPABASE.md`. Thiết kế: `docs/THIET-KE-TAI-KHOAN.md`.
 
-**Đang chuyển giữa hai thiết kế.** Máy chủ đã theo thiết kế mới (Phiên A); `js/store-supabase.js` và phần đám mây của `js/app.js` vẫn theo thiết kế cũ (email, mã mời, mã gia đình + PIN, mô tả ở nhóm “Phía trình duyệt” bên dưới) và **không chạy được với máy chủ mới** cho tới Phiên B. Chưa ai bật bản đám mây (`js/config.js` để trống).
+Từ 17/10/2026 `js/config.js` trên `main` đã điền URL và khóa công khai của project Supabase thật (PR #27): trang trên GitHub Pages chạy bản đám mây. Trang admin của chủ app (`admin.html`) làm ở Phiên C; trước đó chủ app tạo tài khoản gia đình bằng tay (bước 6 của hướng dẫn) hoặc gọi Edge Function `admin`.
 
 Máy chủ (`supabase/schema.sql`, Edge Function `admin`):
 - Một tài khoản = một gia đình (`families`), do phụ huynh giữ; đăng nhập bằng tên đăng nhập + mật khẩu. Supabase Auth lưu tên đăng nhập dạng email nội bộ `<tên>@users.onup.invalid` (không gửi thư). Con là hồ sơ (`profiles`, khối 1–12) trong tài khoản, dùng phiên của bố mẹ; `pin_hash` chỉ là khóa trên giao diện, app tự băm.
@@ -94,13 +99,16 @@ Máy chủ (`supabase/schema.sql`, Edge Function `admin`):
 - Quyền do RLS và quyền theo cột (grant) quyết định (khóa anon là công khai). Đổi bảng hoặc chính sách thì chạy `sh tests/supabase/run.sh`, thêm kiểm tra vào `tests/supabase/rls-test.sql`, và sửa máy chủ giả `tests/supabase/fake-backend.js` cho khớp. Không bao giờ đưa khóa service_role/secret vào code phía trình duyệt.
 - Tối đa 2000 kết quả mỗi hồ sơ và 60 kết quả mỗi 10 phút; 500 kì thi, 100 ngân hàng tự nhập mỗi tài khoản (trigger).
 
-Phía trình duyệt (`js/store-supabase.js`, thiết kế cũ, viết lại ở Phiên B):
+Phía trình duyệt (`js/store-supabase.js`, phần đám mây của `js/app.js`):
 - Giao diện giống hệt LocalStore: hàm đọc đồng bộ (đọc từ bộ nhớ đệm tải lúc đăng nhập), `createUser`/`updateUser`/`checkPin` async. Hàm ghi cập nhật bộ nhớ đệm ngay rồi đẩy lên máy chủ theo hàng đợi; lỗi thì gọi `Store.onError` (app hiện toast) và tải lại dữ liệu thật. **Thêm hàm mới vào Store thì thêm ở cả hai kho**; `tests/supabase/store-test.mjs` so danh sách hàm.
-- Hàm chỉ có ở bản đám mây: `init, refresh, flush, authState ("signed-out"|"no-profile"|"ready"), sendLink, verifyCode, rememberLogin, familyStudents, studentLogin, createFamily, claimInvite, newInvite, newJoinCode, signOutChild, familyCode, localData, migrate`.
-- Phiên đăng nhập giữ trong sessionStorage (người lớn chọn “Ghi nhớ” mới dùng localStorage); mỗi tab học sinh một phiên ẩn danh. Kết quả làm bài đi qua hộp gửi trong localStorage (`ontap_cloud_outbox`), chỉ xóa khi máy chủ đã nhận.
-- Đăng nhập kiểu cũ: quản trị/phụ huynh bằng email, gắn vào hồ sơ bằng mã mời; học sinh đăng nhập ẩn danh rồi nhập mã gia đình + PIN 6 số qua Edge Function `student-login`. Máy chủ mới đã bỏ hết các phần này (kể cả `student-login`); Phiên B thay bằng tên đăng nhập + mật khẩu, màn hình “Ai đang học?”, PIN 4 số tùy chọn.
-- Ngân hàng có sẵn (data/banks.js) không lưu lên máy chủ; `seed_banks_seen` của family làm việc như `seedBanksSeen`.
-- CAPTCHA (Cloudflare Turnstile) tùy chọn: `turnstileSiteKey` trong `js/config.js`; `captcha()` trong store-supabase.js lấy mã cho các lệnh đăng nhập. Không có khóa thì không tải script của Cloudflare.
+- Hàm chỉ có ở bản đám mây: `init, refresh, flush, authState ("signed-out"|"change-password"|"locked"|"no-family"|"ready"), signIn(tên, mật khẩu, ghi nhớ), signOut, checkPassword, changePassword(mới, hiện tại?), parentUnlocked, rememberLogin, username, plan ({id, name, maxChildren, until}), localData, migrate, migratedAt`.
+- Người dùng trong bộ nhớ đệm: một người dùng ảo `Phụ huynh` (mã `phu-huynh`, vai trò `admin` của app, nên dùng chung các màn hình quản trị, trên giao diện gọi là “Khu phụ huynh”; `Store.ROLES.admin` = “Phụ huynh”) và mỗi hồ sơ con là một học sinh (`parentIds: ["phu-huynh"]`, thêm `hasPin`, `locked`). Bản đám mây chỉ thêm, sửa, xóa hồ sơ con; tài khoản của bố mẹ do chủ app quản lý.
+- Luồng (js/app.js `route()`): chưa đăng nhập → `renderCloudLogin` (tên đăng nhập + mật khẩu + “Ghi nhớ trên máy này” + dòng “Quên mật khẩu?” từ `contactText`, `contactUrl` của js/config.js); mật khẩu tạm → `renderNewPassword` (bắt đổi); bị khóa hoặc không có gia đình (ví dụ tài khoản chủ app) → `renderCloudBlocked`; đã đăng nhập mà tab chưa chọn ai → `renderLogin` thành màn hình “Ai đang học?”. Hồ sơ con có PIN thì nhập PIN, không có thì bấm là vào; Phụ huynh phải nhập lại mật khẩu (`checkPassword`, sai cũng tính vào `PinLock`), vừa nhập mật khẩu trong 5 phút thì không hỏi lại (`parentUnlocked`; `setSession` của Phụ huynh cũng kiểm tra). Tài khoản chưa có hồ sơ con và vừa đăng nhập thì vào thẳng khu phụ huynh. “Đổi người học” (`setSession(null)`) về “Ai đang học?” mà không đăng xuất; chỉ Phụ huynh đăng xuất được (trang Tài khoản, kèm đổi mật khẩu).
+- Hồ sơ đang dùng giữ trong sessionStorage (`ontap_cloud_who`), hồ sơ con chọn gần nhất ở localStorage (`ontap_cloud_last`). Phiên Supabase giữ trong sessionStorage, chọn “Ghi nhớ” thì localStorage (`ontap_sb_auth`). Phiên bị máy chủ từ chối (hết hạn, chủ app đặt lại mật khẩu) thì tự đăng xuất trên máy.
+- PIN hồ sơ con: 4 số, không bắt buộc, băm trên máy như `hashPin` của js/store.js, lưu `pin_hash = "<muối>$<mã băm>"`; muối bắt đầu bằng `<độ dài>.` để bàn phím tự vào khi gõ đủ. PIN chuyển từ máy cũ (`import_local`, 4–6 số, chưa biết độ dài) nhập đúng một lần thì được băm lại kèm độ dài.
+- Tài khoản mới (Edge Function chỉ tạo dòng `families`) chưa có kì thi nào: lần mở đầu app chép lịch mặc định lên máy chủ. Ngân hàng có sẵn (data/banks.js) không lưu lên máy chủ; `seed_banks_seen` của family làm việc như `seedBanksSeen`.
+- Kết quả làm bài đi qua hộp gửi trong localStorage (`ontap_cloud_outbox`, theo mã hồ sơ), chỉ xóa khi máy chủ đã nhận; gửi kết quả của mọi hồ sơ con của tài khoản đang đăng nhập (máy dùng chung cho anh em), để lại kết quả của tài khoản khác.
+- CAPTCHA (Cloudflare Turnstile) tùy chọn: `turnstileSiteKey` trong `js/config.js`; `captcha()` trong store-supabase.js lấy mã cho `signIn` và `checkPassword`. Không có khóa thì không tải script của Cloudflare.
 
 ## Quy ước code
 - JavaScript thuần, ES2019+, không module/import (để mở được cả bằng file://). Mỗi file bọc trong IIFE, xuất ra `window.<Tên>`.
@@ -121,21 +129,21 @@ python3 -m http.server 8000      # rồi mở http://localhost:8000
 ```
 Không mở bằng file:// khi thử bài ôn trong khung: một số trình duyệt chặn localStorage giữa các trang file://.
 
-Kiểm thử tự động (bắt buộc trước mỗi Pull Request): `python3 -m http.server 8000 &` rồi `node tests/e2e.js` (cần `npm i -D playwright`). Script phải in `E2E OK`; ảnh chụp ở `tests/screenshots/` để xem giao diện, ảnh 360px sáng/tối của đăng nhập, trang chủ học sinh, bài ôn trong khung, quản trị, tab Dữ liệu ở `tests/screenshots/360/`. Script có bước mất mạng: tải trang một lần, tắt mạng, tải lại vẫn đăng nhập và làm bài được. Hai script Playwright đặt `PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1` để route và chế độ offline áp dụng cả cho service worker.
+Kiểm thử tự động (bắt buộc trước mỗi Pull Request): `python3 -m http.server 8000 &` rồi `node tests/e2e.js` (cần `npm i -D playwright`). Script luôn chạy bản lưu trên máy (trả về `js/config.js` đã xóa `supabaseUrl`, `supabaseAnonKey` dù file thật đã điền) và phải in `E2E OK`; ảnh chụp ở `tests/screenshots/` để xem giao diện, ảnh 360px sáng/tối của đăng nhập, trang chủ học sinh, bài ôn trong khung, quản trị, tab Dữ liệu ở `tests/screenshots/360/`. Script có bước mất mạng: tải trang một lần, tắt mạng, tải lại vẫn đăng nhập và làm bài được. Hai script Playwright đặt `PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS=1` để route và chế độ offline áp dụng cả cho service worker.
 
 Thử tay sau khi sửa code: service worker dùng mạng trước nên tải lại trang là thấy bản mới. Sửa `sw.js` thì trình duyệt cài bản mới ở lần tải sau (DevTools → Application → Service workers để xem, gỡ).
 
-Khi sửa `js/store-supabase.js`, `js/app.js` (phần đám mây), `supabase/`: chạy thêm `node tests/supabase/admin-test.mjs` (Edge Function admin và máy chủ giả, in `ADMIN OK`), `node tests/supabase/store-test.mjs` (in `SUPABASE STORE OK`), `node tests/supabase/cloud-e2e.js` (in `CLOUD E2E OK`, ảnh 360px sáng/tối ở `tests/screenshots/cloud/`), và nếu máy có PostgreSQL thì `sh tests/supabase/run.sh` (in `RLS OK`). Hai file store-test.mjs và cloud-e2e.js tạm chỉ còn phần không phụ thuộc cách đăng nhập; Phiên B viết lại các luồng (bản đầy đủ của thiết kế cũ xem lịch sử git trước Phiên A).
+Khi sửa `js/store-supabase.js`, `js/app.js` (phần đám mây), `supabase/`: chạy thêm `node tests/supabase/admin-test.mjs` (Edge Function admin và máy chủ giả, in `ADMIN OK`), `node tests/supabase/store-test.mjs` (in `SUPABASE STORE OK`), `node tests/supabase/cloud-e2e.js` (in `CLOUD E2E OK`, ảnh 360px sáng/tối ở `tests/screenshots/cloud/`), và nếu máy có PostgreSQL thì `sh tests/supabase/run.sh` (in `RLS OK`). store-test.mjs và cloud-e2e.js chạy với Edge Function admin thật (chủ app tạo tài khoản) trên máy chủ giả; cloud-e2e.js kiểm tra 360px như tests/e2e.js, ảnh ghép sáng/tối `<tên>.jpg` cùng thư mục, các màn hình chính chép vào `docs/hinh-dam-may/`.
 
-Ngoài ra chạy tay các luồng: thiết lập lần đầu → tạo phụ huynh, học sinh → đăng nhập học sinh bằng PIN → mở một bài ôn và làm xong một đề → làm một ngân hàng câu hỏi → đăng nhập phụ huynh xem hồ sơ con và báo cáo tuần → quản trị sửa một kì thi. Kiểm tra ở bề rộng 390px và chế độ tối.
+Ngoài ra chạy tay các luồng: thiết lập lần đầu → tạo phụ huynh, học sinh → đăng nhập học sinh bằng PIN → mở một bài ôn và làm xong một đề → làm một ngân hàng câu hỏi → đăng nhập phụ huynh xem hồ sơ con và báo cáo tuần → quản trị sửa một kì thi. Kiểm tra ở bề rộng 390px và chế độ tối. Bản đám mây: đăng nhập bằng mật khẩu tạm → đặt mật khẩu mới → thêm hồ sơ con → “Ai đang học?” → con làm một đề → Phụ huynh nhập lại mật khẩu, xem báo cáo tuần.
 
 ## Triển khai
 GitHub Pages: Settings → Pages → Deploy from a branch → `main` / root. File `.nojekyll` đã có.
 
 ## Việc tiếp theo (theo thứ tự ưu tiên)
-**Trạng thái 16/10/2026: đang chạy thử với học sinh.** Ưu tiên: sửa các GitHub Issue góp ý từ việc chạy thử, rồi dựng **khung tài khoản: tên đăng nhập + mật khẩu, hồ sơ con, trang admin, khối lớp 1–12 dùng chung** theo `docs/THIET-KE-TAI-KHOAN.md` (Phiên A → B → C). **Chưa làm bản trả phí** (chỉ tính khi có đủ đề lớp 4–12); khung chừa sẵn `plan` và `Store.can()`. Thiết kế đó **thay thế** cách đăng nhập email, mã mời, mã gia đình + PIN của bản đám mây cũ. **Phiên A (máy chủ) đã làm**; Phiên B viết lại phía trình duyệt và phần “Phía trình duyệt” ở trên. Lộ trình đầy đủ và lời giao việc từng phiên: `docs/KE-HOACH-PHAT-TRIEN-ONUP.md`. Tóm tắt:
+**Trạng thái 16/10/2026: đang chạy thử với học sinh.** Ưu tiên: sửa các GitHub Issue góp ý từ việc chạy thử, rồi dựng **khung tài khoản: tên đăng nhập + mật khẩu, hồ sơ con, trang admin, khối lớp 1–12 dùng chung** theo `docs/THIET-KE-TAI-KHOAN.md` (Phiên A → B → C). **Chưa làm bản trả phí** (chỉ tính khi có đủ đề lớp 4–12); khung chừa sẵn `plan` và `Store.can()`. Thiết kế đó **thay thế** cách đăng nhập email, mã mời, mã gia đình + PIN của bản đám mây cũ. **Phiên A (máy chủ) và Phiên B (app: đăng nhập, “Ai đang học?”, khu phụ huynh, `data/grades.js`, `Store.can`) đã làm**; tiếp theo là Phiên C (trang admin). Lộ trình đầy đủ và lời giao việc từng phiên: `docs/KE-HOACH-PHAT-TRIEN-ONUP.md`. Tóm tắt:
 1. Sửa lỗi cơ bản tìm được khi dùng thử (`docs/SUA-LOI-CHAY-THU.md`: Phiên 9a, 9b, 9c đã làm; Phiên 9d, lỗi phát sinh khi rà soát lại 17/10, chưa làm) và lỗi từ góp ý chạy thử (GitHub Issues).
 2. Đề cuối kì I: đã đủ các môn cho cả lớp 4 và lớp 6 (Phiên 10, 11).
 3. Báo cáo tuần cho phụ huynh (Phiên 12) và IOE cấp tỉnh lớp 4 (Phiên 13): đã có.
 4. Đề giữa kì II lớp 4: đã có (Phiên 14). Còn đề giữa kì II lớp 6 và đề cuối năm cho cả hai khối.
-5. Đồng bộ đám mây đã có (Phiên 5, 5b) nhưng chưa bật: phụ huynh tự cài theo `docs/HUONG-DAN-SUPABASE.md`.
+5. Bản đám mây theo thiết kế tài khoản mới: máy chủ (Phiên A) và app (Phiên B) đã có, chưa bật; còn trang admin (Phiên C). Chủ app cài theo `docs/HUONG-DAN-SUPABASE.md`.

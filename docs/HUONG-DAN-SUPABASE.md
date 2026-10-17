@@ -8,7 +8,7 @@ Mặc định app lưu dữ liệu trong trình duyệt của từng máy. Bản
 
 Thiết kế đầy đủ: [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 
-> **Đang làm dở.** Phần máy chủ (bước 1–5) đã xong, làm được ngay. Màn hình đăng nhập mới trong app (Phiên B) và trang admin (Phiên C) chưa làm: **chưa điền `js/config.js`** (bước 6) cho tới khi Phiên B đã gộp, vì giao diện hiện tại vẫn là kiểu đăng nhập email cũ.
+> **Trang admin chưa làm (Phiên C).** Máy chủ (bước 1–5) và màn hình đăng nhập trong app (Phiên B) đã xong. Trong lúc chờ trang admin, tạo tài khoản gia đình bằng tay theo bước 6.
 
 Mất khoảng 15 phút. Cần một máy tính và tài khoản GitHub.
 
@@ -78,16 +78,34 @@ npx supabase functions deploy admin --no-verify-jwt
 
 Có hàm `student-login` cũ thì xóa đi (**Edge Functions → student-login → Delete**).
 
-## Bước 6. Điền `js/config.js` (sau khi Phiên B đã gộp)
+## Bước 6. Tạo tài khoản gia đình (trong lúc chưa có trang admin)
+
+Khi có trang admin (Phiên C) thì tạo ở đó, có gợi ý mật khẩu tạm. Trước đó làm bằng tay:
+
+1. **Authentication → Users → Add user → Create new user**: Email `<tên-đăng-nhập>@users.onup.invalid` (ví dụ `nha.bin@users.onup.invalid`; tên đăng nhập như bước 4.1), Password: mật khẩu tạm ít nhất 8 kí tự, tick **Auto Confirm User** → **Create user**.
+2. **SQL Editor → New query**, sửa tên đăng nhập và tên hiển thị → **Run**:
+   ```sql
+   insert into families (auth_user_id, username, display_name)
+   select id, 'nha.bin', 'Nhà Bin' from auth.users where email = 'nha.bin@users.onup.invalid';
+   ```
+   Phải thấy `1 row`. Tài khoản mới bắt đổi mật khẩu tạm ở lần đăng nhập đầu.
+3. Gửi tên đăng nhập (`nha.bin`) và mật khẩu tạm cho phụ huynh.
+
+## Bước 7. Điền `js/config.js`
 
 1. Supabase → **Project Settings → API Keys**. Chép **Project URL** (`https://abcdxyz.supabase.co`) và khóa **publishable** (`sb_publishable_...`) hoặc **anon public**.
-2. GitHub → [`js/config.js`](../js/config.js) → **Edit** → điền `supabaseUrl`, `supabaseAnonKey`. `main` đang được bảo vệ: chọn **Create a new branch… and start a pull request**, rồi tự **Merge**.
+2. GitHub → [`js/config.js`](../js/config.js) → **Edit** → điền `supabaseUrl`, `supabaseAnonKey`. Nên sửa luôn dòng “Quên mật khẩu?” dưới ô đăng nhập: `contactText` (ví dụ `"Nhắn Zalo cho cô Lan"`) và `contactUrl` (ví dụ `"https://zalo.me/0912345678"`, hoặc `"tel:0912345678"`; để trống thì chỉ hiện chữ). `main` đang được bảo vệ: chọn **Create a new branch… and start a pull request**, rồi tự **Merge**.
 
 > ⚠️ **Không bao giờ** dán khóa `service_role` / `secret` (`sb_secret_...`) vào file này: khóa đó bỏ qua mọi lớp bảo vệ. Lỡ dán thì xóa ngay và đổi khóa (**Roll**) trong Supabase. Khóa publishable/anon là công khai, để trên GitHub được: dữ liệu được bảo vệ bằng chính sách RLS trong `schema.sql`.
 
-Muốn quay lại bản lưu trên máy: xóa hai giá trị (để `""`). Những gì làm trong lúc dùng đám mây chỉ nằm trên Supabase.
+Muốn quay lại bản lưu trên máy: xóa hai giá trị đầu (để `""`). Những gì làm trong lúc dùng đám mây chỉ nằm trên Supabase.
 
-## Bước 7 (nên làm). Chống máy tự động đoán mật khẩu (CAPTCHA)
+**Phụ huynh dùng app thế nào** (ảnh: [`docs/hinh-dam-may/`](hinh-dam-may/)):
+- Đăng nhập bằng tên đăng nhập + mật khẩu tạm, đặt mật khẩu mới. Trên máy con dùng hằng ngày thì tick **Ghi nhớ trên máy này**.
+- **Khu phụ huynh**: thêm hồ sơ cho từng con (tên, khối, lớp, mã PIN 4 số nếu muốn; tối đa 5 hồ sơ), xem tiến độ, báo cáo tuần, sửa lịch thi, nhập ngân hàng đề, chuyển dữ liệu từ bản lưu trên máy (tab Dữ liệu), đổi mật khẩu, đăng xuất.
+- **Đổi người học** → màn hình **Ai đang học?**: con chọn hồ sơ của mình (nhập PIN nếu có) là học. Vào lại khu phụ huynh phải nhập mật khẩu của bố mẹ.
+
+## Bước 8 (nên làm). Chống máy tự động đoán mật khẩu (CAPTCHA)
 
 Supabase đã tự giới hạn số lần đăng nhập sai. Muốn chặn thêm máy tự động: dùng **Cloudflare Turnstile** (miễn phí). **Làm đúng thứ tự**, bật trên Supabase trước khi app có khóa thì không ai đăng nhập được.
 
@@ -109,7 +127,7 @@ Hôm nay mọi tài khoản là gói `free`: dùng mọi nội dung, tối đa 5
 - [ ] **Table Editor**: có các bảng `families`, `profiles`, `plans` (2 dòng: `free`, `family`), `app_owners` (1 dòng).
 - [ ] **Authentication → Users**: chỉ có tài khoản chủ app (và các tài khoản bạn đã tạo).
 - [ ] **Edge Functions → admin**: đã deploy, Verify JWT tắt, **Logs** không có lỗi đỏ.
-- [ ] Sau Phiên B, C: tạo một tài khoản thử ở trang admin → đăng nhập bằng mật khẩu tạm → app bắt đặt mật khẩu mới → thêm hồ sơ con → làm một đề → trang admin thấy tài khoản có 1 hồ sơ con.
+- [ ] Tạo một tài khoản thử (bước 6; sau Phiên C thì ở trang admin) → đăng nhập bằng mật khẩu tạm → app bắt đặt mật khẩu mới → thêm hồ sơ con → **Đổi người học** → chọn hồ sơ con, làm một đề → Phụ huynh nhập lại mật khẩu, mở hồ sơ của con thấy kết quả.
 
 ## Bảo mật và quyền riêng tư
 
