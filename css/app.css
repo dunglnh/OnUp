@@ -80,8 +80,9 @@ a{color:var(--acc)}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 11px;font-size:.8rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .chip.warn{border-color:var(--bad);color:var(--bad);font-weight:700}
 .chip.tent{border-style:dashed}
-.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px;overflow-x:auto}
-.tabs button{border:0;background:transparent;border-radius:10px;padding:9px 12px;font-weight:700;color:var(--muted);white-space:nowrap;flex:1}
+/* Màn hẹp: tab xuống dòng (không cuộn ngang) để thấy đủ mọi tab. */
+.tabs{display:flex;flex-wrap:wrap;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
+.tabs button{border:0;background:transparent;border-radius:10px;padding:9px 12px;font-weight:700;color:var(--muted);white-space:nowrap;flex:1 1 auto}
 .tabs button[aria-pressed="true"]{background:var(--acc);color:var(--on-acc)}
 
 /* đăng nhập */
