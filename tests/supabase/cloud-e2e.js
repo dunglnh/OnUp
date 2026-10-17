@@ -153,6 +153,32 @@ async function run(browser, scheme) {
   await p.waitForSelector(".score");
   const binId = prof.find((x) => x.name === "Bin").id;
   c.result = await until(p, () => be.T.results.some((r) => r.profile_id === binId && r.ref_id === "toan4-ck1-de1"));
+  /* Hồ sơ con là học sinh nên L15, L16, L18 (tests/e2e.js) cũng áp dụng ở bản đám mây. */
+  const kidRes = () => p.evaluate((id) => Store.resultsFor(id).length, binId);
+  const nKid = await kidRes();
+  // L15: vào "Làm như thi" rồi bấm Back khi chưa trả lời câu nào: hỏi "Thoát đề?", thoát thì không lưu điểm
+  await p.goto(BASE + "/#/home"); await wait(p); await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await wait(p);
+  await p.click("#qExam"); await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox");
+  c.l15 = { ask: await text(p, "#leaveBox") };
+  await p.click("#leaveYes"); await wait(p, 400);
+  Object.assign(c.l15, { hash: await p.evaluate(() => location.hash), same: (await kidRes()) === nKid });
+  // L16: bài ôn trong khung chỉ hỏi khi đang làm một lượt (#endBtn)
+  const frameOf = () => p.frames().find((f) => /modules\/ioe-4/.test(f.url()));
+  const leaveFrame = async () => { await p.click(".player [data-go]"); await wait(p, 200); return !!(await p.$("#leaveBox")); };
+  await p.goto(BASE + "/#/play/ioe-4"); await p.waitForTimeout(1200);
+  await frameOf().click("h1.page-h");
+  c.l16 = { idleAsk: await leaveFrame() };
+  await p.goto(BASE + "/#/play/ioe-4"); await p.waitForTimeout(1200);
+  await frameOf().click(".unit >> nth=0"); await frameOf().waitForSelector("#endBtn");
+  c.l16.runAsk = await leaveFrame();
+  if (c.l16.runAsk) { c.l16.text = await text(p, "#leaveBox"); await p.click("#leaveYes"); await wait(p); }
+  c.l16.same = (await kidRes()) === nKid;
+  // L18: nút đề ghi số đề lấy từ tên đề
+  await p.goto(BASE + "/#/home"); await wait(p);
+  c.l18 = await p.evaluate(() => Object.fromEntries([...document.querySelectorAll("#allPractice details.grp")].map((g) => {
+    const r = [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === "Toán");
+    return [g.querySelector("summary b").textContent, r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent).join() : ""];
+  }).filter(([, v]) => v)));
   await p.goto(BASE + "/#/account"); await wait(p);
   c.kidAccount = (await p.$("#switchWho")) && !(await p.$("#signOut")) && !(await p.$("#pwForm"));
   await shot(p, "c9-tai-khoan-con");
@@ -234,6 +260,12 @@ async function run(browser, scheme) {
     "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"].map((u) => fetch(u).then((r) => r.text(), () => ""))));
   await q.reload(); await q.waitForSelector("#loginForm");
   const swAgain = await q.evaluate(() => !!(window.Store && window.Store.cloud) && window.Store.authState() === "signed-out");
+  // L19: js/app.js chậm 6 giây, js/store-supabase.js có bản mới: không được chạy app.js cũ cùng store-supabase.js mới
+  const src = (f) => fs.readFileSync(path.join(__dirname, "..", "..", "js", f), "utf8");
+  await other.route("**/js/app.js", (r) => new Promise((ok) => setTimeout(ok, 6000)).then(() => r.fulfill({ contentType: "text/javascript", body: src("app.js") + "\nwindow.__swApp = 'new';" })).catch(() => {}));
+  await other.route("**/js/store-supabase.js", (r) => r.fulfill({ contentType: "text/javascript", body: "window.__swStore = 'new';\n" + src("store-supabase.js") }));
+  await q.reload(); await q.waitForSelector("#loginForm", { timeout: 20000 });
+  c.swMixed = await q.evaluate(() => (window.__swApp || "old") + " app.js, " + (window.__swStore || "old") + " store-supabase.js, " + !!(window.Store && window.Store.cloud));
   const cached = await q.evaluate(async () => { const out = []; for (const k of await caches.keys()) for (const r of await (await caches.open(k)).keys()) out.push(r.url); return out; });
   await other.close();
 
@@ -248,6 +280,9 @@ async function run(browser, scheme) {
     "“Ai đang học?”: các con và Phụ huynh": c.tiles === "Bin,Na,Phụ huynh",
     "con nhập PIN: sai thì báo, đúng 4 số là vào": /chưa đúng/.test(c.wrongPin),
     "kết quả làm bài lên máy chủ": c.result,
+    "L15: con vào “Làm như thi”, rời khi chưa trả lời: hỏi “Thoát đề?”, không lưu điểm": /Thoát đề\?/.test(c.l15.ask) && c.l15.hash === "#/home" && c.l15.same,
+    "L16: bài ôn trong khung chỉ hỏi khi đang làm một lượt (#endBtn)": !c.l16.idleAsk && c.l16.runAsk && /Rời bài ôn/.test(c.l16.text) && c.l16.same,
+    "L18: nút đề ghi số đề theo tên đề": c.l18["Kiểm tra cuối học kì I"] === "Đề 1,Đề 2,Đề 3" && c.l18["Kiểm tra giữa học kì II"] === "Đề 1,Đề 2",
     "trang tài khoản của con: đổi người học, không đăng xuất, không đổi mật khẩu": !!c.kidAccount,
     "hồ sơ không PIN bấm là vào; con không vào được khu phụ huynh bằng địa chỉ": c.na && c.kidBlocked,
     "tab mới: nhớ hồ sơ chọn gần nhất, khu phụ huynh phải nhập lại mật khẩu": c.preselect === "Na" && /Mật khẩu chưa đúng/.test(c.wrongPw),
@@ -260,6 +295,7 @@ async function run(browser, scheme) {
     "tài khoản bị khóa: màn hình báo khóa có dòng liên hệ; đăng nhập bị từ chối": /đang bị khóa/.test(c.locked) && /Nhắn Zalo/.test(c.locked) && /đang bị khóa/.test(c.lockedLogin),
     "CAPTCHA (khi bật): đăng nhập và nhập lại mật khẩu đều kèm mã xác minh": !withCaptcha || (/loginCaptcha/.test(captchaBoxes) && /pwCaptcha/.test(captchaBoxes) && be.captchaUsed >= 5),
     "có service worker, tải lại vẫn là bản đám mây": swAgain,
+    "L19: service worker không chạy app.js cũ cùng store-supabase.js mới": c.swMixed === "new app.js, new store-supabase.js, true",
     "service worker không đệm, không gửi request ra ngoài app": cached.length > 0 && cached.every((u) => u.startsWith(BASE + "/")) && swOut.length === 0,
     "360px: không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px": problems.length === 0,
     "không lỗi trên trang": errs.length === 0
