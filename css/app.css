@@ -74,15 +74,16 @@ a{color:var(--acc)}
 .btn.main{background:var(--sun);color:var(--sun-ink)}
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
 .btn.danger{background:var(--bad-soft);color:var(--bad)}
-.btn.sm{padding:7px 12px;font-size:.875rem;border-radius:10px}
+/* Vùng bấm tối thiểu 44×44px (tay trẻ): nút nhỏ, link dạng nút giữ cỡ chữ, chỉ cao thêm. */
+.btn.sm{padding:7px 12px;font-size:.875rem;border-radius:10px;min-height:44px}
 .btn:disabled{opacity:.45;cursor:default}
-.linkbtn{border:0;background:none;color:var(--acc);font-weight:700;padding:4px 0;text-align:left;align-self:flex-start}
+.linkbtn{border:0;background:none;color:var(--acc);font-weight:700;padding:4px 0;text-align:left;align-self:flex-start;min-height:44px;min-width:44px;display:inline-flex;align-items:center}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 11px;font-size:.8rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .chip.warn{border-color:var(--bad);color:var(--bad);font-weight:700}
 .chip.tent{border-style:dashed}
 /* Màn hẹp: tab xuống dòng (không cuộn ngang) để thấy đủ mọi tab. */
 .tabs{display:flex;flex-wrap:wrap;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
-.tabs button{border:0;background:transparent;border-radius:10px;padding:9px 12px;font-weight:700;color:var(--muted);white-space:nowrap;flex:1 1 auto}
+.tabs button{border:0;background:transparent;border-radius:10px;padding:9px 12px;font-weight:700;color:var(--muted);white-space:nowrap;flex:1 1 auto;min-height:44px}
 .tabs button[aria-pressed="true"]{background:var(--acc);color:var(--on-acc)}
 
 /* đăng nhập */
@@ -94,7 +95,7 @@ a{color:var(--acc)}
 .pin span{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted)}
 .pin span.on{background:var(--ink);border-color:var(--ink)}
 .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:0 auto;width:100%}
-.pad button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px 0;font-size:1.35rem;font-weight:700;font-family:var(--display)}
+.pad button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px 0;font-size:1.35rem;font-weight:700;font-family:var(--display);min-height:44px}
 
 /* biểu mẫu */
 .field{display:flex;flex-direction:column;gap:4px;min-width:0}
