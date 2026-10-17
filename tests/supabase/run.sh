@@ -19,7 +19,9 @@ node "$ROOT/supabase/banks-to-sql.js" > "$TMP/paid-banks.sql"
 $PSQL < "$TMP/paid-banks.sql"
 $PSQL < "$TMP/paid-banks.sql"   # chạy lại lần hai không lỗi, không trùng
 echo "banks-to-sql.js: OK"
-if $PSQL < "$HERE/rls-test.sql" > "$TMP/out" 2>&1; then OK=1; else OK=0; fi
+# Số đề trong data/banks.js, đếm thẳng từ file (không qua banks-to-sql.js): rls-test.sql so với số này.
+BANKS=$(node -e 'const c={window:{}};require("vm").runInNewContext(require("fs").readFileSync(process.argv[1],"utf8"),c);console.log(c.window.ONTAP_SEED_BANKS.length)' "$ROOT/data/banks.js")
+if $PSQL -v banks="$BANKS" < "$HERE/rls-test.sql" > "$TMP/out" 2>&1; then OK=1; else OK=0; fi
 sed "s/^psql:[^ ]* NOTICE:  //" "$TMP/out"
 [ $OK = 1 ] || { echo "RLS FAILED"; exit 1; }
 echo "RLS OK: $(grep -c "ok  " "$TMP/out") kiểm tra"
