@@ -31,18 +31,46 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   // độ dài PIN đã lưu và số lần sai PIN của từng người, theo tên
   const pinLog = () => page.evaluate(() => { const o = JSON.parse(localStorage.getItem("ontap_pinlock_v1") || "{}"), d = JSON.parse(localStorage.getItem("ontap_db_v1")); return Object.fromEntries(d.users.map((u) => [u.name, { len: u.pinLen, fails: (o[u.id] || {}).fails || 0 }])); });
   const step = (s) => console.log("STEP", s);
+  /* Nút xem mật khẩu, mã PIN (U1). revealTry: ô (đã có chữ) có nút ngay sau nó; bấm thì hiện chữ (type="text",
+     aria-pressed="true", aria-label "Ẩn …"), bấm lại thì ẩn; giá trị, focus, vị trí con trỏ, inputmode, autocomplete giữ nguyên.
+     Chỗ sai ghi vào rv. eye(sel): bấm nút của ô; types(...sel): type của các ô. */
+  const rv = [];
+  const eye = (pg, sel) => pg.click(sel + " + .reveal-btn");
+  const types = (pg, ...sels) => Promise.all(sels.map((x) => pg.$eval(x, (i) => i.type))).then((t) => t.join());
+  async function revealTry(pg, sel, what) {
+    const st = () => pg.$eval(sel, (i) => { const b = i.nextElementSibling; return { type: i.type, btn: !!b && b.matches("button.reveal-btn[type=button]") && !!b.querySelector("svg"), pressed: b && b.getAttribute("aria-pressed"), label: b && b.getAttribute("aria-label"), value: i.value, focus: document.activeElement === i, caret: i.selectionStart, mode: i.getAttribute("inputmode"), ac: i.getAttribute("autocomplete") }; });
+    await pg.focus(sel); await pg.$eval(sel, (i) => i.setSelectionRange(1, 1));
+    const a = await st(); await eye(pg, sel);
+    const b = await st(); await eye(pg, sel);
+    const c = await st();
+    const good = (x, type, pressed, verb) => x.btn && x.type === type && x.pressed === pressed && x.label === verb + " " + what && x.value === a.value && x.focus && x.caret === 1 && x.mode === a.mode && x.ac === a.ac;
+    if (!a.value || !good(a, "password", "false", "Hiện") || !good(b, "text", "true", "Ẩn") || !good(c, "password", "false", "Hiện")) rv.push(sel + ": " + JSON.stringify([a, b, c]));
+  }
+  const rvIs = (ok, msg) => { if (!ok) rv.push(msg); };
 
   await page.goto(BASE + "/");
   step("setup"); await shot("01-setup");
   const tipInBrowser = !!(await page.$("#restoreTip")); // mở trong trình duyệt: không có thẻ hướng dẫn của app ở Màn hình chính (L17)
   await page.fill("#sSchool", "Nhà Bin");
   await page.fill("#sName", "Bố Minh");
-  await page.fill("#sPin", "1234"); await page.fill("#sPin2", "1234");
-  await page.click("button[type=submit]");
+  await page.fill("#sPin", "1234"); await page.fill("#sPin2", "1239");
+  for (const x of ["#sPin", "#sPin2"]) await revealTry(page, x, "mã PIN");
+  await eye(page, "#sPin"); await eye(page, "#sPin2"); await page.click("button[type=submit]"); // gửi sai (chưa khớp): ẩn lại
+  rvIs(/chưa khớp/.test(await page.textContent("#sErr")) && (await types(page, "#sPin", "#sPin2")) === "password,password", "thiết lập: gửi sai vẫn hiện");
+  await eye(page, "#sPin2"); await page.fill("#sPin2", ""); // xóa hết ô: ẩn lại
+  rvIs((await types(page, "#sPin2")) === "password", "thiết lập: xóa hết ô vẫn hiện");
+  await page.fill("#sPin2", "1234"); await eye(page, "#sPin");
+  await page.evaluate(() => document.addEventListener("submit", () => (window.__sent = [...document.querySelectorAll(".reveal>input")].map((i) => i.type).join()), { once: true }));
+  await page.click("button[type=submit]"); // gửi đúng: ẩn lại trước khi chuyển màn hình
   await page.waitForSelector("text=Quản trị");
+  rvIs((await page.evaluate(() => window.__sent)) === "password,password", "thiết lập: gửi đúng vẫn hiện");
   step("add parent");
   await page.goto(BASE + "/#/admin/user/new?role=parent");
-  await page.fill("#uName", "Mẹ Bin"); await page.fill("#uPin", "2222");
+  await page.fill("#uName", "Mẹ Bin"); await page.fill("#uPin", "22");
+  await revealTry(page, "#uPin", "mã PIN");
+  await eye(page, "#uPin"); await page.click("button[type=submit]"); await page.waitForSelector("#uErr .fb"); // PIN 2 số: báo sai, ẩn lại
+  rvIs(/4 đến 6 chữ số/.test(await page.textContent("#uErr")) && (await types(page, "#uPin")) === "password", "form tài khoản: gửi sai vẫn hiện");
+  await page.fill("#uPin", "2222");
   await page.click("button[type=submit]"); await page.waitForTimeout(300);
   step("add student 4");
   await page.goto(BASE + "/#/admin/user/new?role=student");
@@ -74,10 +102,31 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     && gradeUI.store.msg === "Chọn khối lớp 4 hoặc 6." && gradeUI.store.can && gradeUI.store.n === 2 && gradeUI.store.all === 12;
   await page.goto(BASE + "/#/admin/events"); await page.waitForTimeout(200); await shot("03-admin-events");
 
+  step("account page: show PIN (U1)");
+  await page.goto(BASE + "/#/account"); await page.waitForSelector("#aForm");
+  await page.fill("#aOld", "0000"); await page.fill("#aNew", "4321");
+  for (const x of ["#aOld", "#aNew"]) await revealTry(page, x, "mã PIN");
+  await eye(page, "#aOld"); await eye(page, "#aNew"); await page.click("#aForm [type=submit]"); await page.waitForSelector("#aErr .fb"); // PIN hiện tại sai: ẩn lại
+  rvIs(/hiện tại chưa đúng/.test(await page.textContent("#aErr")) && (await types(page, "#aOld", "#aNew")) === "password,password", "tài khoản: gửi sai vẫn hiện");
+  await eye(page, "#aNew"); await page.goto(BASE + "/#/home"); await page.goto(BASE + "/#/account"); await page.waitForSelector("#aForm"); // chuyển màn hình: ẩn
+  rvIs((await types(page, "#aNew")) === "password" && !(await page.inputValue("#aNew")), "tài khoản: chuyển màn hình vẫn hiện");
   step("logout + login student");
-  await page.goto(BASE + "/#/account"); await page.click("#logout"); await page.waitForTimeout(200);
+  await page.click("#logout"); await page.waitForTimeout(200);
   await shot("04-login");
   await page.click(".tile:has-text('Bin')");
+  // bàn phím PIN: nút xem, hàng chấm hiện chữ số; gửi PIN (sai) hoặc xóa hết thì ẩn lại
+  const dotsTxt = () => page.$eval("#pinDots", (d) => (d.classList.contains("shown") ? "shown:" : "") + d.textContent);
+  await page.click('.pad button[data-k="1"]'); await revealTry(page, "#pinIn", "mã PIN");
+  await page.click('.pad button[data-k="2"]'); await eye(page, "#pinIn"); // ô không focus (vừa bấm bàn phím số): nút xem không đặt focus vào ô
+  const pinShown = await dotsTxt() + (await page.evaluate(() => (document.activeElement.id === "pinIn" ? " focus" : "")));
+  await page.click('.pad button[data-k="del"]'); await page.click('.pad button[data-k="del"]');
+  const pinCleared = (await types(page, "#pinIn")) + " " + (await dotsTxt());
+  await eye(page, "#pinIn");
+  for (const k of "1234") await page.click(`.pad button[data-k="${k}"]`); // sai PIN của Bin
+  await page.waitForSelector("#pinErr .fb");
+  const pinWrong = (await types(page, "#pinIn")) + " " + (await dotsTxt());
+  console.log("pin reveal:", pinShown, "|", pinCleared, "|", pinWrong);
+  rvIs(pinShown === "shown:12" && pinCleared === "password " && pinWrong === "password ", "bàn phím PIN: " + [pinShown, pinCleared, pinWrong].join(" | "));
   for (const k of "1111") await page.click(`.pad button[data-k="${k}"]`);
   await page.waitForTimeout(400);
   const autoIn = await who(); // PIN 4 số: gõ đủ 4 số là vào, không cần bấm "Vào" (L10)
@@ -460,7 +509,13 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     await open("#/"); await p.click(`.tile[data-u="${ids.Bin}"]`); await p.waitForTimeout(300);
     await check("đăng nhập"); await snap("dang-nhap", true);
     r.loginFoot = !(await footShown());
-    for (const k of PINS.Bin) await p.click(`.pad button[data-k="${k}"]`);
+    // bàn phím PIN đang hiện số (U1): gõ 3 số, bấm nút xem
+    for (const k of PINS.Bin.slice(0, 3)) await p.click(`.pad button[data-k="${k}"]`);
+    await p.click("#pinIn + .reveal-btn");
+    r.pinShown = await p.evaluate(() => { const d = document.querySelector("#pinDots"), b = document.querySelector("#pinIn + .reveal-btn").getBoundingClientRect();
+      return d.classList.contains("shown") && d.textContent === "123" && document.querySelector("#pinIn").type === "text" && b.width >= 44 && b.height >= 44; });
+    await check("bàn phím PIN đang hiện số"); await snap("ban-phim-pin-hien-so", true);
+    for (const k of PINS.Bin.slice(3)) await p.click(`.pad button[data-k="${k}"]`);
     await p.waitForTimeout(400);
     // học sinh lớp 4: trang chủ
     r.home = await p.evaluate(() => {
@@ -625,6 +680,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("local mode:", !cloudMode, "requests outside " + HOST + ":", outReqs);
   const real = errs;
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  console.log("reveal (U1):", rv);
+  if (rv.length || real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();

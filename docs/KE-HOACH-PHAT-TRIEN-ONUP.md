@@ -42,7 +42,6 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 |---|---|---|---|
 | 1 | 1/11 | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** (GitHub Issues) | Giữa kì I (2–13/11) |
 | 1 | 1/11 | **Phiên N0a, N0b · Đề giữa kì I lớp 6 còn thiếu, Tiếng Anh 4 cuối kì I** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); N0a, N0b đã xong) | Giữa kì I (2–13/11) |
-| 1 | 1/11 | **Phiên U1 · Nút xem mật khẩu và mã PIN** (lời giao việc ở mục 4) | Phụ huynh, học sinh gõ đúng mật khẩu, PIN |
 | 2 | 30/11 | **Phiên K1–K3 · Tách dữ liệu đề, dạng câu mới, rút đề theo ma trận** | Đa dạng đề, đủ chỗ cho lớp 5–12 |
 | 3 | 15/12 | **Phiên N1–N6 · Đủ đề cuối kì I lớp 4 và 6** | Cuối kì I (21/12–8/1) |
 | 4 | 1/3 | **Phiên N7–N12 · Giữa kì II lớp 4 và 6** (thay Phiên 15 cũ) | Giữa kì II (15–26/3) |
@@ -60,6 +59,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | — | — | ~~Phiên B · App: đăng nhập, chọn hồ sơ, khu phụ huynh, khối lớp chung~~ (đã xong, PR #25) | |
 | — | — | ~~Phiên 9d · Lỗi phát sinh sau rà soát 17/10~~ (đã xong, PR #29; bố mẹ thử L17 trên iPhone) | |
 | — | — | ~~Phiên C · Trang admin~~ (đã xong, PR #30) | |
+| — | — | ~~Phiên U1 · Nút xem mật khẩu và mã PIN~~ (đã xong, PR #35; bố mẹ thử trên iPhone, Android) | |
 
 **Để sau, chỉ làm khi có nhu cầu thật:** nhập đề từ Excel (Phiên 6 cũ); tự đăng ký, email để tự lấy lại mật khẩu, tài khoản giáo viên/lớp học (mục 7 bản thiết kế); **bản trả phí** (hướng đi ở mục 9 bản thiết kế; việc kĩ thuật cần làm trước ở mục 5 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)). Đề lớp 5, 7–12 đã có thứ tự và số phiên dự kiến trong [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Việc “bắt buộc đổi PIN cũ” không còn cần vì cách đăng nhập mới bỏ PIN học sinh trên máy chủ.
 
@@ -72,7 +72,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 
 ## 4. Lời giao việc (dán nguyên vào phiên mới)
 
-**Phiên U1 · Nút xem mật khẩu và mã PIN**
+**Phiên U1 · Nút xem mật khẩu và mã PIN** (đã xong, PR #35)
 > Đọc CLAUDE.md. Thêm nút hình con mắt vào mọi ô mật khẩu và mã PIN (`input type="password"`), bấm để xem mình đã gõ gì, bấm lại để ẩn.
 > - **Phạm vi** (12 ô):
 >   - bản lưu trên máy: sPin, sPin2 (thiết lập lần đầu), pinIn (bàn phím PIN khi đăng nhập), uPin (form học sinh/phụ huynh), aOld, aNew (trang Tài khoản);

@@ -78,6 +78,37 @@
   const go = (h) => { if (location.hash === h) route(); else location.hash = h; };
   function wireGo() { $$("[data-go]", view).forEach((b) => (b.onclick = () => go(b.dataset.go))); }
   const fb = (sel, msg) => { const el = $(sel); if (el) el.innerHTML = msg ? `<div class="fb bad">${esc(msg)}</div>` : ""; };
+  /* Nút xem mật khẩu: như wireReveal trong js/app.js (cùng lớp CSS .reveal trong css/app.css; chú thích đầy đủ ở đó). Mọi ô
+     type="password" trong root có nút hình con mắt sát cạnh phải; bấm thì type="text", bấm lại thì ẩn; giữ giá trị, focus, vị trí con trỏ.
+     Tự ẩn lại khi gửi form và khi xóa hết ô; chuyển màn hình là vẽ ô mới. Không lưu trạng thái ở đâu cả. */
+  const EYE = `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="off" d="M4 4l16 16"/></svg>`;
+  let revealN = 0;
+  function wireReveal(root) {
+    $$('input[type="password"]', root || view).forEach((inp) => {
+      if (inp.parentElement.classList.contains("reveal")) return;
+      const cap = inp.closest("label") && inp.closest("label").querySelector(":scope > span");
+      if (cap) { cap.id = cap.id || "revealCap" + ++revealN; inp.setAttribute("aria-labelledby", cap.id); } // không đọc kèm tên nút
+      const box = document.createElement("span"), btn = document.createElement("button");
+      box.className = "reveal"; btn.type = "button"; btn.className = "reveal-btn";
+      if (inp.id) btn.setAttribute("aria-controls", inp.id);
+      inp.before(box); box.append(inp, btn);
+      btn.innerHTML = EYE; // vẽ một lần: thay nút giữa lúc bấm thì <label> tưởng bấm vào nhãn và đặt focus vào ô
+      const draw = (show) => { btn.setAttribute("aria-pressed", show); btn.setAttribute("aria-label", show ? "Ẩn mật khẩu" : "Hiện mật khẩu"); };
+      const set = (show, keep) => {
+        if ((inp.type === "text") === show) return;
+        const s = inp.selectionStart, e = inp.selectionEnd;
+        inp.type = show ? "text" : "password"; draw(show);
+        if (keep) { void inp.offsetWidth; inp.focus({ preventScroll: true }); try { inp.setSelectionRange(s, e); } catch (er) { /* ô không chọn được chữ */ } }
+      };
+      draw(false);
+      let had = false;
+      btn.addEventListener("pointerdown", () => (had = document.activeElement === inp));
+      btn.addEventListener("mousedown", (e) => e.preventDefault());
+      btn.addEventListener("click", () => { const keep = had || document.activeElement === inp; had = false; set(inp.type === "password", keep); });
+      inp.addEventListener("input", () => { if (!inp.value) set(false); });
+      if (inp.form) inp.form.addEventListener("submit", () => set(false), true);
+    });
+  }
   const two = (n) => String(n).padStart(2, "0");
   const dmy = (d) => d.getDate() + "/" + (d.getMonth() + 1) + "/" + d.getFullYear();
   const day = (s) => { const [y, m, d] = String(s || "").slice(0, 10).split("-"); return y ? +d + "/" + +m + "/" + y : ""; }; // "2026-11-02" → "2/11/2026"
@@ -251,6 +282,7 @@
         <div class="row"><button class="btn main" type="submit" id="adGo">Đăng nhập</button></div>
         <p class="small muted">Phiên đăng nhập chỉ giữ trong thẻ này: đóng thẻ là thoát. Phụ huynh và học sinh dùng <a href="./">trang học</a>.</p>
       </form></div>`;
+    wireReveal(view);
     $("#adLogin").onsubmit = async (ev) => {
       ev.preventDefault();
       const btn = $("#adGo"); if (btn.disabled) return;
