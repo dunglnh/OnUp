@@ -40,7 +40,6 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 
 | Ưu tiên | Nên xong trước | Phiên | Phục vụ |
 |---|---|---|---|
-| 1 | 1/11 | **Phiên 9d · Lỗi phát sinh sau rà soát 17/10** ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) | Giữa kì I (2–13/11) |
 | 1 | 1/11 | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** (GitHub Issues) | Giữa kì I (2–13/11) |
 | 2 | 10/12 | **Phiên C · Trang admin** | Khung tài khoản, kịp mùa ôn cuối kì I |
 | 3 | 1/3 | **Phiên 15 · Đề giữa kì II lớp 6** (Toán, Ngữ văn, KHTN, Tiếng Anh) | Giữa kì II (15–26/3) |
@@ -55,6 +54,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | — | — | ~~Phiên 9b · Giao diện điện thoại 360px~~ (đã xong, PR #22) | |
 | — | — | ~~Phiên 9c · Chạy khi mất mạng, nhắc sao lưu~~ (đã xong, PR #23) | |
 | — | — | ~~Phiên B · App: đăng nhập, chọn hồ sơ, khu phụ huynh, khối lớp chung~~ (đã xong, PR #25) | |
+| — | — | ~~Phiên 9d · Lỗi phát sinh sau rà soát 17/10~~ (đã xong, PR #29; bố mẹ thử L17 trên iPhone) | |
 
 **Để sau, chỉ làm khi có nhu cầu thật:** nhập đề từ Excel (Phiên 6 cũ); tự đăng ký, email để tự lấy lại mật khẩu, tài khoản giáo viên/lớp học (mục 7 bản thiết kế); đề các khối khác (lớp 5, 7–12); **bản trả phí** khi đã có đủ đề lớp 4–12 (hướng đi ở mục 9 bản thiết kế). Việc “bắt buộc đổi PIN cũ” không còn cần vì cách đăng nhập mới bỏ PIN học sinh trên máy chủ.
 
