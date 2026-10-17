@@ -21,7 +21,7 @@
   function emptyDB() {
     return {
       v: SCHEMA_VERSION,
-      settings: { schoolName: "", schoolYear: "2026–2027", createdAt: new Date().toISOString() },
+      settings: { schoolName: "", schoolYear: "2026–2027", createdAt: new Date().toISOString(), lastBackupAt: null }, // lastBackupAt: lần tải file sao lưu gần nhất (ISO)
       users: [],      // {id, role, name, avatar, salt, pinHash, pinLen, grade?, className?, parentIds?: [], createdAt}
       events: clone(window.ONTAP_SEED_EVENTS || []),
       banks: [],      // ngân hàng do quản trị viên nhập (ngân hàng có sẵn nằm ở data/banks.js)
@@ -43,9 +43,12 @@
     return db;
   }
   /* Giá trị mặc định cho trường thêm sau khi đã có dữ liệu trên máy.
-     pinLen: độ dài PIN (4–6) để bàn phím tự vào khi gõ đủ số. Tài khoản cũ chưa có thì 0 = chưa biết; checkPin đúng sẽ ghi lại. */
+     pinLen: độ dài PIN (4–6) để bàn phím tự vào khi gõ đủ số. Tài khoản cũ chưa có thì 0 = chưa biết; checkPin đúng sẽ ghi lại.
+     settings.lastBackupAt: lần tải file sao lưu gần nhất, để nhắc sao lưu. Dữ liệu cũ chưa có thì null = chưa sao lưu lần nào. */
   function fillDefaults() {
     db.users.forEach((u) => { if (!(u.pinLen >= 4 && u.pinLen <= 6)) u.pinLen = 0; });
+    if (!db.settings || typeof db.settings !== "object") db.settings = {};
+    if (typeof db.settings.lastBackupAt !== "string") db.settings.lastBackupAt = null;
   }
   /* Kì thi từng có trong lịch mặc định nhưng đã bỏ khỏi bản 1.0: xóa khỏi máy đã có dữ liệu (một lần). */
   const RETIRED_EVENTS = ["violympic-l4", "trang-nguyen-l4"];

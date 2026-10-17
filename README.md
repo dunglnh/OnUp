@@ -21,7 +21,7 @@ Có lịch thi năm học 2026–2027, đề luyện giữa kì và IOE, ngân h
 Lần đầu mở app: tạo tài khoản quản trị → thêm phụ huynh, học sinh → học sinh chọn tên, nhập PIN là vào ôn.
 
 ## Đồng bộ đám mây (tùy chọn)
-Mặc định (`js/config.js` để trống) app lưu dữ liệu trong trình duyệt của từng máy, chạy được cả khi không có mạng. Nhớ vào Quản trị → Dữ liệu để tải file sao lưu định kì.
+Mặc định (`js/config.js` để trống) app lưu dữ liệu trong trình duyệt của từng máy, mở lại được cả khi không có mạng (sau lần mở đầu). Nhớ vào Quản trị → Dữ liệu để tải file sao lưu định kì (quá 7 ngày app sẽ nhắc), và thêm app vào Màn hình chính trên iPhone, iPad để Safari không xóa dữ liệu.
 
 Bản đám mây (Supabase) đang được làm lại theo [docs/THIET-KE-TAI-KHOAN.md](docs/THIET-KE-TAI-KHOAN.md): chủ app tạo tài khoản cho từng gia đình, phụ huynh đăng nhập bằng tên đăng nhập + mật khẩu, con là hồ sơ trong tài khoản của bố mẹ. Phần máy chủ đã xong, cài theo [docs/HUONG-DAN-SUPABASE.md](docs/HUONG-DAN-SUPABASE.md); màn hình đăng nhập mới và trang admin đang làm, nên **chưa điền** `js/config.js`.
 

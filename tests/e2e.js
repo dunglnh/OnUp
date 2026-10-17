@@ -1,7 +1,12 @@
 /* Kiểm thử toàn luồng bằng Playwright. Chạy: python3 -m http.server 8000 & node tests/e2e.js
    (cần cài playwright: npm i -D playwright). Ảnh chụp lưu ở tests/screenshots/. */
+/* Cho Playwright thấy request của service worker (sw.js): chế độ offline và danh sách request ra ngoài áp dụng cả cho nó.
+   Bước offline kiểm tra lại là cờ này còn tác dụng. */
+process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS = "1";
 const { chromium } = require("playwright");
-const OUT = __dirname + "/screenshots/"; require("fs").mkdirSync(OUT, { recursive: true });
+const fs = require("fs");
+const OUT = __dirname + "/screenshots/"; fs.mkdirSync(OUT, { recursive: true });
+const ROOT = __dirname + "/../";
 const BASE = process.env.BASE_URL || "http://localhost:8000";
 (async () => {
   const browser = await chromium.launch();
@@ -10,8 +15,11 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   const errs = [];
   page.on("pageerror", (e) => errs.push("pageerror: " + e.message));
   page.on("console", (m) => { if (m.type() === "error") errs.push("console: " + m.text()); });
-  const cloudReqs = []; // js/config.js để trống: không được gọi Supabase hay tải supabase-js
-  page.on("request", (r) => { if (/jsdelivr|supabase\.(co|in)|supabase-js/i.test(r.url())) cloudReqs.push(r.url()); });
+  /* Bản lưu trên máy (js/config.js để trống) không gọi ra ngoài máy chủ của app: không Supabase, CDN, Google Fonts.
+     Ghi mọi request (kể cả của khung bài ôn và service worker) tới host khác host của BASE. */
+  const outReqs = [], HOST = new URL(BASE).host;
+  const watchOut = (c) => c.on("request", (r) => { const u = new URL(r.url()); if (/^https?:$/.test(u.protocol) && u.host !== HOST) outReqs.push(r.url()); });
+  watchOut(ctx);
   const shot = (n) => page.screenshot({ path: OUT + n + ".png", fullPage: true });
   const editDb = (fn) => page.evaluate((src) => { const d = JSON.parse(localStorage.getItem("ontap_db_v1")); new Function("d", src)(d); localStorage.setItem("ontap_db_v1", JSON.stringify(d)); }, fn);
   const who = () => page.evaluate(() => (Store.sessionUser() || {}).name || "");
@@ -120,6 +128,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   const examGuardOK = /Nộp bài và rời trang/.test(exAsk) && exStay.hash === "#/quiz/toan4-ck1-de1" && exStay.same && exStay.n === nBefore && !exStay.box && exReload.ask === "beforeunload" && exReload.same
     && exTop.box && exTop.hash === "#/quiz/toan4-ck1-de1" && exLeft.hash === "#/home" && exLeft.n === nBefore + 1 && exLeft.last.mode === "exam" && exLeft.last.refId === "toan4-ck1-de1";
   await page.goto(BASE + "/#/home"); await page.waitForTimeout(300); await shot("09-student-home-after");
+  const remindStudent = !!(await page.$("#backupRemind")); // học sinh không thấy thẻ nhắc sao lưu
   await page.goto(BASE + "/#/calendar"); await page.waitForTimeout(300);
   await page.click("[data-ev='ck1-l4']"); await page.waitForTimeout(300); await shot("10-calendar");
 
@@ -127,6 +136,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   await page.goto(BASE + "/#/account"); await page.click("#logout"); await page.waitForTimeout(200);
   await page.click(".tile:has-text('Mẹ Bin')");
   await page.fill("#pinIn", "2222"); await page.waitForTimeout(400);
+  const remindParent = await page.$eval("#view", (v) => { const c = v.querySelector("#backupRemind"); return !!c && /Chưa sao lưu lần nào/.test(c.textContent) && !!c.querySelector("#backupNow"); }); // L14
   await shot("11-parent-home");
   await page.click("[data-child]"); await page.waitForTimeout(300); await shot("12-child");
 
@@ -179,6 +189,33 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   await page.click("#bSample"); console.log("check:", await page.textContent("#bRes"));
   await page.click("button[type=submit]"); await page.waitForTimeout(300); await shot("13-banks");
   await page.goto(BASE + "/#/admin/overview"); await page.waitForTimeout(300); await shot("14-admin-overview");
+
+  step("backup reminder (L14)");
+  const lastBackup = () => page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).settings.lastBackupAt);
+  const remind = async () => { await page.goto(BASE + "/#/admin/overview"); await page.reload(); await page.waitForTimeout(250); const c = await page.$("#backupRemind"); return c ? (await c.textContent()).replace(/\s+/g, " ").trim() : ""; };
+  const daysAgo = (n) => `d.settings.lastBackupAt = new Date(Date.now() - ${n} * 864e5).toISOString();`;
+  const bk = { first: await remind() }; // chưa sao lưu lần nào, đã có kết quả
+  let dl = page.waitForEvent("download");
+  await page.click("#backupNow");
+  bk.file = (await dl).suggestedFilename();
+  bk.gone = !(await page.$("#backupRemind")); bk.at = await lastBackup();
+  bk.after = await remind();
+  await editDb(daysAgo(8)); bk.d8 = await remind();
+  await editDb(daysAgo(6)); bk.d6 = await remind();
+  await page.goto(BASE + "/#/admin/data"); await page.waitForTimeout(200);
+  bk.dataTab = { last: await page.textContent("#dLast"), home: (await page.textContent("#homeScreen")).replace(/\s+/g, " ") };
+  dl = page.waitForEvent("download");
+  await page.click("#dExport"); await dl;
+  bk.dataAt = await lastBackup(); bk.dataLast = await page.textContent("#dLast");
+  await editDb(`delete d.settings.lastBackupAt;`); // như dữ liệu trước khi có lastBackupAt
+  bk.oldDefault = await page.evaluate(() => { Store.load(); return Store.settings().lastBackupAt; });
+  bk.old = await remind();
+  await shot("14b-backup-remind");
+  console.log("L14:", bk, "parent:", remindParent, "student:", remindStudent);
+  const fresh = (iso) => !!iso && Math.abs(Date.now() - Date.parse(iso)) < 60000;
+  const backupOK = /Chưa sao lưu lần nào/.test(bk.first) && /^on-thi-sao-luu-\d{4}-\d\d-\d\d\.json$/.test(bk.file) && bk.gone && fresh(bk.at) && bk.after === ""
+    && /Đã 8 ngày chưa sao lưu/.test(bk.d8) && bk.d6 === "" && /Lần sao lưu gần nhất: \d+\/\d+ \d\d:\d\d/.test(bk.dataTab.last) && /Thêm vào MH chính/.test(bk.dataTab.home) && /⋮/.test(bk.dataTab.home)
+    && fresh(bk.dataAt) && /Hôm nay/.test(bk.dataLast) && bk.oldDefault === null && /Chưa sao lưu lần nào/.test(bk.old) && remindParent && !remindStudent;
 
   step("not found + wrong grade (L3)");
   const view = async (h) => { await page.goto(BASE + "/" + h); await page.waitForTimeout(200); return { text: (await page.textContent("#view")).replace(/\s+/g, " ").trim(), missing: !!(await page.$("#missing")), quiz: !!(await page.$("#qPractice")), frame: !!(await page.$("#playerFrame")) }; };
@@ -290,7 +327,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   for (const scheme of ["light", "dark"]) {
     const opts = { viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme };
     const c = await browser.newContext(Object.assign({ storageState: state }, opts)), fresh = await browser.newContext(opts);
-    for (const x of [c, fresh]) x.on("page", (pg) => pg.on("pageerror", (e) => errs.push("pageerror 360: " + e.message)));
+    for (const x of [c, fresh]) { watchOut(x); x.on("page", (pg) => pg.on("pageerror", (e) => errs.push("pageerror 360: " + e.message))); }
     let p = await fresh.newPage();
     const open = async (h, wait) => { await p.goto(BASE + "/" + h); await p.waitForTimeout(wait || 250); };
     const check = async (label) => (await p.evaluate(audit)).forEach((x) => m360.push(`${scheme} · ${label}: ${x}`));
@@ -340,6 +377,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
         r.tabs = await p.evaluate(() => { const t = document.querySelector(".tabs"); return t.children.length === 5 && t.scrollWidth <= t.clientWidth && [...t.children].every((b) => { const x = b.getBoundingClientRect(); return x.left >= 0 && x.right <= innerWidth; }); });
       }
       if (t === "users") r.usersFoot = !(await footShown());
+      if (t === "data") await snap("du-lieu", true);
     }
     for (const h of ["#/admin/user/new?role=student", "#/admin/event/ck1-l4", "#/admin/bank/new"]) { await open(h); await check(h); }
     await open("#/quiz/toan4-ck1-de1"); await check("đề, màn đầu"); r.quizFoot = !(await footShown());
@@ -354,10 +392,53 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   }
   const ok360 = !m360.length && Object.values(c360).every((r) => Object.values(r).every(Boolean));
   console.log("360:", c360, "problems:", m360);
+
+  step("offline (L13)");
+  /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được). */
+  const sw = new Function("self", fs.readFileSync(ROOT + "sw.js", "utf8") + "\nreturn { VERSION, FILES };")({ addEventListener() {} });
+  const ls = (dir, re) => fs.readdirSync(ROOT + dir).filter((n) => re.test(n)).map((n) => dir + n);
+  const want = ["./", "manifest.webmanifest"].concat(ls("css/", /\.css$/), ls("js/", /\.js$/), ls("data/", /\.js$/), ls("fonts/", /\.(css|woff2)$/), ls("icons/", /./),
+    fs.readdirSync(ROOT + "modules").map((m) => `modules/${m}/index.html`));
+  const swList = { missing: want.filter((f) => !sw.FILES.includes(f)), extra: sw.FILES.filter((f) => !want.includes(f)) };
+  // Tải trang một lần (service worker cài và đệm), rồi mất mạng: tải lại vẫn vào được, đăng nhập, mở bài ôn và đề ngân hàng.
+  const off = await browser.newContext({ storageState: state, viewport: { width: 390, height: 844 } });
+  watchOut(off);
+  const swSeen = [], leaked = []; let offline = false;
+  off.on("request", (r) => { if (r.serviceWorker()) swSeen.push(r.url()); });
+  off.on("response", (r) => { if (offline && /^http/.test(r.url()) && !r.fromServiceWorker()) leaked.push(r.url()); }); // mất mạng: mọi file phải do service worker trả
+  const op = await off.newPage();
+  op.on("pageerror", (e) => errs.push("pageerror offline: " + e.message));
+  op.on("console", (m) => { if (m.type() === "error") errs.push("console offline: " + m.text()); });
+  await op.goto(BASE + "/");
+  await op.evaluate(() => navigator.serviceWorker.ready); await op.waitForFunction(() => !!navigator.serviceWorker.controller);
+  const cache = await op.evaluate(async () => { const k = await caches.keys(), c = await caches.open(k[0]); return { names: k, urls: (await c.keys()).map((r) => r.url) }; });
+  /* Mất mạng: setOffline chưa chặn hết request của service worker, nên chặn thêm mọi request bằng route (có cờ ở đầu file,
+     route áp dụng cả cho service worker) và bỏ đệm HTTP của trình duyệt. Chỉ còn đệm của service worker. */
+  await off.setOffline(true); offline = true;
+  await off.route("**/*", (r) => r.abort("internetdisconnected"));
+  await (await off.newCDPSession(op)).send("Network.clearBrowserCache");
+  await op.reload(); await op.waitForSelector(`.tile[data-u="${ids.Bin}"]`, { timeout: 5000 }).catch(() => {});
+  const offFonts = await op.evaluate(async () => { await document.fonts.ready; return [...new Set([...document.fonts].filter((f) => f.status === "loaded").map((f) => f.family))].sort().join(); });
+  const ol = { login: !!(await op.$(`.tile[data-u="${ids.Bin}"]`)), fonts: offFonts };
+  await op.click(`.tile[data-u="${ids.Bin}"]`); await op.fill("#pinIn", PINS.Bin); await op.waitForTimeout(400);
+  ol.who = await op.evaluate(() => (Store.sessionUser() || {}).name);
+  await op.goto(BASE + "/#/play/ioe-4"); await op.waitForTimeout(1200);
+  const offFrame = op.frames().find((x) => /modules\/ioe-4/.test(x.url()));
+  ol.play = !!offFrame && (await offFrame.evaluate(() => document.title + " · " + window.ONTAP_NS));
+  await op.goto(BASE + "/#/quiz/toan4-ck1-de1"); await op.waitForTimeout(300);
+  await op.click("#qPractice"); await op.waitForTimeout(200);
+  ol.quiz = !!(await op.$(".qcard")) && !!(await op.$(".opt, #qzFill"));
+  await op.screenshot({ path: OUT + "17-offline-quiz.png", fullPage: true });
+  await op.goto(BASE + "/index.html"); await op.waitForTimeout(300); // trang chưa đệm riêng: trả về trang chính
+  ol.other = await op.evaluate(() => !!document.querySelector("#view .tile, #view .hero"));
+  offline = false; await off.close();
+  console.log("offline:", ol, "sw list:", swList, "sw version:", sw.VERSION, "cache:", cache.names, cache.urls.length, "sw requests:", swSeen.length, "leaked:", leaked);
+  const offlineOK = !swList.missing.length && !swList.extra.length && cache.names.join() === sw.VERSION && cache.urls.length === sw.FILES.length && cache.urls.every((u) => u.startsWith(BASE + "/"))
+    && swSeen.length > 0 && !leaked.length && ol.login && ol.fonts === "Baloo 2,Be Vietnam Pro" && ol.who === "Bin" && /Global Success 4/.test(ol.play) && ol.quiz && ol.other;
   const cloudMode = await page.evaluate(() => !!(window.Store.cloud || window.LocalStore));
-  console.log("local mode:", !cloudMode, "cloud requests:", cloudReqs);
-  const real = errs.filter((e) => !/fonts\.g|ERR_TUNNEL|ERR_NAME|net::/.test(e));
+  console.log("local mode:", !cloudMode, "requests outside " + HOST + ":", outReqs);
+  const real = errs;
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || cloudReqs.length || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();
