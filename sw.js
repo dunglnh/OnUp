@@ -10,7 +10,8 @@
      Bản tải từ mạng được dùng thì cập nhật đệm. Bản đến sau khi đã dùng đệm thì bỏ, để đệm không thành nửa cũ nửa mới.
    - Font, biểu tượng (fonts/, icons/): đệm trước, vì không đổi giữa các bản.
    - Chỉ xử lí request GET cùng origin, trong phạm vi app. Request tới Supabase, Cloudflare (CAPTCHA), CDN (supabase-js)
-     đi thẳng ra mạng, không bao giờ vào đệm.
+     đi thẳng ra mạng, không bao giờ vào đệm. Trang admin của chủ app (admin.html) cũng đi thẳng ra mạng: trang đó luôn
+     cần mạng, không đệm, và mạng chậm hay mất mạng thì không bị thay bằng trang học.
    Thêm, bớt, đổi tên file trong FILES, hoặc đổi font, biểu tượng: tăng VERSION. Bản mới cài lại đệm và xóa đệm cũ.
    tests/e2e.js so FILES với các file có trong repo. */
 const VERSION = "onup-v3";
@@ -51,6 +52,7 @@ self.addEventListener("fetch", (e) => {
   const req = e.request, scope = self.registration.scope;
   if (req.method !== "GET" || !req.url.startsWith(scope)) return;
   const path = req.url.slice(scope.length);
+  if (/^admin\.html([?#]|$)/.test(path)) return; // request.url giữ cả phần #…
   e.respondWith(caches.open(VERSION).then((cache) => {
     if (/^(fonts|icons)\//.test(path)) return cacheFirst(req, cache);
     if (req.mode === "navigate") return networkFirst(req, cache, (from) => remember(e.resultingClientId, from));

@@ -614,10 +614,17 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await sc.close();
   console.log("L19:", s19);
   const swOK = s19.slowAll < 6000 && !s19.cachedHtml && s19.mixed === "new app.js, new store.js";
+  step("admin page in local mode");
+  // Trang admin của chủ app (admin.html) chỉ dùng với bản đám mây: ở bản lưu trên máy chỉ báo, không tải gì từ mạng (outReqs).
+  const ap = await ctx.newPage();
+  ap.on("pageerror", (e) => errs.push("pageerror admin: " + e.message));
+  await ap.goto(BASE + "/admin.html"); await ap.waitForSelector("#noCloud");
+  const adminLocal = /chỉ dùng với bản đám mây/.test(await ap.textContent("#noCloud")) && !(await ap.evaluate(() => !!window.supabase || !!document.querySelector("#adLogin")));
+  await ap.close();
   const cloudMode = await page.evaluate(() => !!(window.Store.cloud || window.LocalStore));
   console.log("local mode:", !cloudMode, "requests outside " + HOST + ":", outReqs);
   const real = errs;
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();
