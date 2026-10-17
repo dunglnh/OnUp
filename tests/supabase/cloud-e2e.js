@@ -1,71 +1,267 @@
-/* Chạy giao diện bản đám mây trong Chromium với máy chủ Supabase giả (tests/supabase/fake-backend.js).
-   Trình duyệt gọi máy chủ giả qua page.exposeFunction, không cần mạng.
-   Chạy: python3 -m http.server 8000 &  rồi  node tests/supabase/cloud-e2e.js
-   Ảnh chụp (360px, sáng và tối) lưu ở tests/screenshots/cloud/.
-   Máy chủ đã chuyển sang tài khoản tên đăng nhập + mật khẩu (supabase/schema.sql); giao diện đăng nhập mới làm ở Phiên B
-   (docs/THIET-KE-TAI-KHOAN.md mục 8), khi đó viết lại các luồng ở đây. Hiện chỉ kiểm tra app khởi động được ở chế độ
-   đám mây khi chưa đăng nhập: không lỗi, không cuộn ngang, CAPTCHA (khi có khóa) không làm hỏng trang,
-   và service worker (sw.js) không làm hỏng bản đám mây. */
+/* Chạy giao diện bản đám mây trong Chromium với máy chủ Supabase giả (tests/supabase/fake-backend.js) và Edge Function
+   admin thật (chủ app tạo tài khoản). Trình duyệt gọi máy chủ giả qua page.exposeFunction, không cần mạng.
+   Chạy: python3 -m http.server 8000 &  rồi  node tests/supabase/cloud-e2e.js   (in "CLOUD E2E OK")
+   Luồng: đăng nhập tên đăng nhập + mật khẩu (ghi nhớ) → bắt đổi mật khẩu tạm → khu phụ huynh → thêm hồ sơ con (PIN 4 số
+   tùy chọn) → “Ai đang học?” → con nhập PIN, làm đề, kết quả lên máy chủ → tab mới: nhập lại mật khẩu vào khu phụ huynh →
+   báo cáo tuần, đổi mật khẩu, chuyển dữ liệu máy này, đăng xuất → máy không ghi nhớ → tài khoản bị khóa.
+   Mỗi màn hình kiểm tra ở 360px như tests/e2e.js (không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px); ảnh sáng và tối lưu ở
+   tests/screenshots/cloud/ (thêm bản ghép sáng/tối cạnh nhau <tên>.jpg để xem nhanh). Lượt tối chạy với CAPTCHA bật. Cuối cùng kiểm tra service worker (sw.js) không làm hỏng bản
+   đám mây và không đệm request ra ngoài app. */
 // Cho route và sự kiện request của Playwright áp dụng cả cho service worker (xem tests/e2e.js).
 process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS = "1";
 const { chromium } = require("playwright");
 const fs = require("fs");
 const path = require("path");
+const nodeCrypto = require("crypto");
+const { pathToFileURL } = require("url");
 const { createBackend } = require("./fake-backend.js");
+const { createFakeSupabase } = require("./fake-client.js");
 
 const BASE = process.env.BASE_URL || "http://localhost:8000";
 const OUT = path.join(__dirname, "..", "screenshots", "cloud");
 fs.mkdirSync(OUT, { recursive: true });
 const FAKE_CLIENT = fs.readFileSync(path.join(__dirname, "fake-client.js"), "utf8");
-const config = (siteKey) => `window.ONTAP_CONFIG = { supabaseUrl: "https://fake.supabase.co", supabaseAnonKey: "anon-key", turnstileSiteKey: ${JSON.stringify(siteKey || "")} };`;
-/* Thay cho script Cloudflare Turnstile (không có mạng): trả mã hợp lệ sau một chút. */
+const CONTACT = "https://zalo.me/0912345678";
+const config = (siteKey) => `window.ONTAP_CONFIG = { supabaseUrl: "https://fake.supabase.co", supabaseAnonKey: "anon-key", turnstileSiteKey: ${JSON.stringify(siteKey || "")},
+  contactText: "Nhắn Zalo cho cô Lan", contactUrl: ${JSON.stringify(CONTACT)} };`;
+/* Thay cho script Cloudflare Turnstile (không có mạng): trả mã hợp lệ sau một chút, ghi lại ô đã dùng. */
 const TURNSTILE_STUB = `window.turnstile = { n: 0, boxes: [], render(host, o) { this.boxes.push(host.id || "?"); const t = "ok-" + Date.now() + "-" + (++this.n); setTimeout(() => o.callback(t), 20); return this.n; }, remove() {} };`;
+
+/* Như audit trong tests/e2e.js: ở 360px không tràn ngang; mọi button, a.btn, .linkbtn đang hiện cao ≥ 44px; chữ ≥ 13px. */
+const audit = () => {
+  const bad = [], shown = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden"; };
+  if (document.documentElement.scrollWidth > innerWidth) bad.push("tràn ngang: rộng " + document.documentElement.scrollWidth + "px");
+  document.querySelectorAll("button, a.btn, .linkbtn").forEach((el) => { const h = el.getBoundingClientRect().height; if (shown(el) && h < 44) bad.push(`nút "${el.textContent.trim().slice(0, 24)}" cao ${Math.round(h)}px`); });
+  const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let n; (n = tw.nextNode());) {
+    const el = n.parentElement, fs = parseFloat(getComputedStyle(el).fontSize);
+    if (n.textContent.trim() && shown(el) && fs < 13) bad.push(`chữ "${n.textContent.trim().slice(0, 24)}" ${fs}px`);
+  }
+  return [...new Set(bad)];
+};
+
+/* Dữ liệu cũ của bản lưu trên máy (định dạng js/store.js) để thử nút chuyển dữ liệu. */
+function localData() {
+  const h = (salt, pin) => "s256:" + nodeCrypto.createHash("sha256").update(salt + ":" + pin).digest("hex");
+  return {
+    v: 1, settings: { schoolName: "Nhà Bin", schoolYear: "2026–2027" },
+    users: [
+      { id: "a1", role: "admin", name: "Bố Minh", avatar: "🧭", salt: "s1", pinHash: h("s1", "1234") },
+      { id: "k1", role: "student", name: "Bông", avatar: "🐼", grade: 6, className: "6A", salt: "s3", pinHash: h("s3", "4321") }
+    ],
+    events: [], banks: [],
+    results: [{ id: "r1", userId: "k1", source: "module", refId: "l6-giua-ki-1", subject: "Toán", label: "Toán · Đề 1", mode: "exam", r: 17, t: 20, s: 1200, at: "2026-10-10T09:00:00.000Z" }],
+    seedBanksSeen: []
+  };
+}
 
 async function run(browser, scheme) {
   const be = createBackend();
-  const withCaptcha = scheme === "dark"; // lượt tối chạy với CAPTCHA bật
-  const errs = [];
-  const ctx = await browser.newContext({ viewport: { width: 360, height: 760 }, deviceScaleFactor: 1, colorScheme: scheme });
-  await ctx.exposeFunction("__fakeSupabase", (msg) => be.handle(msg));
-  await ctx.addInitScript(FAKE_CLIENT);
-  if (withCaptcha) await ctx.addInitScript(TURNSTILE_STUB);
-  await ctx.route("**/js/config.js", (r) => r.fulfill({ contentType: "text/javascript", body: config(withCaptcha ? "0x4AAAAAAAtest" : "") }));
-  await ctx.route(/challenges\.cloudflare\.com/, (r) => r.abort());
-  await ctx.route(/cdn\.jsdelivr\.net|fonts\.g/, (r) => r.abort()); // không cần mạng
-  await ctx.route(/fake\.supabase\.co/, (r) => r.fulfill({ contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: "[]" }));
-  const swOut = []; // request service worker tự gửi ra ngoài app: phải không có
-  ctx.on("request", (r) => { if (r.serviceWorker() && !r.url().startsWith(BASE + "/")) swOut.push(r.url()); });
-  const page = await ctx.newPage();
-  page.on("pageerror", (e) => errs.push("pageerror: " + e.message));
-  page.on("console", (m) => { if (m.type() === "error" && !/net::|Failed to load resource/.test(m.text())) errs.push("console: " + m.text()); });
-  await page.goto(BASE + "/");
-  await page.waitForSelector("form");
-  await page.waitForTimeout(300);
-  const wide = await page.evaluate(() => document.documentElement.scrollWidth);
-  await page.evaluate(() => { const t = document.getElementById("toast"); if (t) t.hidden = true; });
-  await page.screenshot({ path: path.join(OUT, `c1-dang-nhap-${scheme}.png`), fullPage: true });
-  const cloud = await page.evaluate(() => !!(window.Store && window.Store.cloud) && window.Store.authState() === "signed-out");
-  // Service worker đã cài và điều khiển trang: gọi Supabase, Cloudflare, CDN rồi tải lại trang.
-  await page.evaluate(() => navigator.serviceWorker.ready);
-  await page.waitForFunction(() => !!navigator.serviceWorker.controller);
-  await page.evaluate(() => Promise.all(["https://fake.supabase.co/rest/v1/families?select=*", "https://challenges.cloudflare.com/turnstile/v0/api.js",
+  const { createHandler, LOGIN_DOMAIN } = await (await import(pathToFileURL(path.join(__dirname, "load-edge.mjs")).href)).loadEdgeFunction();
+  be.functions.admin = createHandler({ db: createFakeSupabase((m) => be.handle(m), { service: true }), getUser: be.getUser });
+  const ownerUser = be.addUser("chu.app@" + LOGIN_DOMAIN, "chu-app-mat-khau-rat-dai-2026");
+  be.T.app_owners.push({ user_id: ownerUser.id, created_at: new Date().toISOString() });
+  const mem = new Map(), owner = createFakeSupabase((m) => be.handle(m), { storage: { getItem: (k) => mem.get(k) || null, setItem: (k, v) => mem.set(k, v), removeItem: (k) => mem.delete(k) } });
+  await owner.auth.signInWithPassword({ email: "chu.app@" + LOGIN_DOMAIN, password: "chu-app-mat-khau-rat-dai-2026" });
+  const admin = async (body) => { const r = await owner.functions.invoke("admin", { body }); return r.error ? r.error.context.json() : r.data; };
+  const TEMP = "tam-7k2m9q", PW = "me-bin-2026", PW2 = "me-bin-moi-2026";
+  const acc = (await admin({ action: "create_account", username: "nha.bin", password: TEMP, display_name: "Nhà Bin" })).account;
+
+  const withCaptcha = scheme === "dark"; // lượt tối chạy với CAPTCHA bật ở cả app và máy chủ
+  be.captchaRequired = withCaptcha;
+  const errs = [], problems = [], swOut = [];
+  async function device() {
+    const ctx = await browser.newContext({ viewport: { width: 360, height: 760 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await ctx.exposeFunction("__fakeSupabase", (msg) => be.handle(msg));
+    await ctx.addInitScript(FAKE_CLIENT);
+    if (withCaptcha) await ctx.addInitScript(TURNSTILE_STUB);
+    await ctx.route("**/js/config.js", (r) => r.fulfill({ contentType: "text/javascript", body: config(withCaptcha ? "0x4AAAAAAAtest" : "") }));
+    await ctx.route(/challenges\.cloudflare\.com/, (r) => r.abort());
+    await ctx.route(/cdn\.jsdelivr\.net|fonts\.g/, (r) => r.abort()); // không cần mạng
+    await ctx.route(/fake\.supabase\.co/, (r) => r.fulfill({ contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: "[]" }));
+    ctx.on("request", (r) => { if (r.serviceWorker() && !r.url().startsWith(BASE + "/")) swOut.push(r.url()); }); // service worker gửi ra ngoài app: phải không có
+    ctx.on("page", (pg) => {
+      pg.on("pageerror", (e) => errs.push("pageerror: " + e.message));
+      pg.on("console", (m) => { if (m.type() === "error" && !/net::|Failed to load resource/.test(m.text())) errs.push("console: " + m.text()); });
+    });
+    return ctx;
+  }
+  const wait = (page, ms) => page.waitForTimeout(ms || 250);
+  /* Kiểm tra 360px rồi chụp ảnh (cả trang, từ đầu trang; ẩn toast). */
+  async function shot(page, name) {
+    await page.evaluate(() => { window.scrollTo(0, 0); const t = document.getElementById("toast"); if (t) t.hidden = true; });
+    (await page.evaluate(audit)).forEach((x) => problems.push(`${name}: ${x}`));
+    await page.screenshot({ path: path.join(OUT, `${name}-${scheme}.png`), fullPage: true });
+  }
+  const text = (page, sel) => page.textContent(sel).then((t) => t.replace(/\s+/g, " ").trim(), () => "");
+  const tile = (page, name) => page.click(`.tile:has(.nm:text-is("${name}"))`);
+  const pad = async (page, digits) => { for (const k of digits) await page.click(`.pad button[data-k="${k}"]`); await wait(page, 300); };
+  const until = async (page, fn) => { for (let i = 0; i < 40 && !fn(); i++) await wait(page, 100); return fn(); };
+  const c = {};
+
+  /* ---- máy của gia đình: đăng nhập (ghi nhớ), đổi mật khẩu tạm ---- */
+  const home = await device();
+  const p = await home.newPage();
+  await p.goto(BASE + "/");
+  await p.waitForSelector("#loginForm");
+  await shot(p, "c1-dang-nhap");
+  c.contact = await p.$eval("#contact a", (a) => a.getAttribute("href") + " · " + a.textContent).catch(() => "");
+  await p.fill("#lUser", "nha.bin"); await p.fill("#lPass", "sai-mat-khau");
+  await p.click("#lGo"); await p.waitForSelector("#loginErr .fb");
+  c.wrong = await text(p, "#loginErr");
+  await p.fill("#lUser", "Nha.Bin"); await p.fill("#lPass", TEMP); await p.check("#lRemember");
+  await p.click("#lGo"); await p.waitForSelector("#npForm");
+  await shot(p, "c2-doi-mat-khau-tam");
+  await p.fill("#pwNew", PW); await p.fill("#pwNew2", PW + "x"); await p.click("#npForm [type=submit]");
+  c.mismatch = await text(p, "#pwErr");
+  await p.fill("#pwNew2", PW); await p.click("#npForm [type=submit]");
+  await p.waitForSelector("text=Khu phụ huynh");
+  c.changed = !be.T.families.find((f) => f.username === "nha.bin").must_change_password;
+  c.remembered = await p.evaluate(() => !!localStorage.getItem("ontap_sb_auth") && !sessionStorage.getItem("ontap_sb_auth"));
+  await shot(p, "c3-khu-phu-huynh-moi");
+
+  /* ---- thêm hồ sơ con ---- */
+  await p.click("a[href='#/admin/user/new?role=student']"); await p.waitForSelector("#uForm");
+  c.grades = await p.$$eval("#uGrade option", (o) => o.map((x) => x.value).join());
+  await shot(p, "c4-them-ho-so-con");
+  await p.fill("#uName", "Bin"); await p.selectOption("#uGrade", "4"); await p.fill("#uClass", "4A"); await p.fill("#uPin", "1357");
+  await p.click("#uForm [type=submit]"); await p.waitForSelector("text=Hồ sơ con (1/5)");
+  await p.goto(BASE + "/#/admin/user/new?role=student"); await p.waitForSelector("#uForm");
+  await p.fill("#uName", "Na"); await p.selectOption("#uGrade", "6");
+  await p.click("#uForm [type=submit]"); await p.waitForSelector("text=Hồ sơ con (2/5)");
+  await shot(p, "c5-ho-so-con");
+  const prof = be.T.profiles.filter((x) => x.family_id === acc.id);
+  c.profiles = prof.length === 2 && /^4\./.test(prof.find((x) => x.name === "Bin").pin_hash) && prof.find((x) => x.name === "Na").pin_hash === null;
+  await p.goto(BASE + "/#/admin/overview"); await wait(p);
+  await shot(p, "c6-tong-quan");
+
+  /* ---- “Ai đang học?”, con nhập PIN, làm đề ---- */
+  await p.click("#switchWho"); await p.waitForSelector("text=Ai đang học?");
+  c.tiles = await p.$$eval(".tile .nm", (t) => t.map((x) => x.textContent).join());
+  await shot(p, "c7-ai-dang-hoc");
+  await tile(p, "Bin"); await pad(p, "9999");
+  c.wrongPin = await text(p, "#pinErr");
+  await pad(p, "1357"); // PIN 4 số: gõ đủ là vào
+  await p.waitForSelector("text=Chào Bin");
+  await shot(p, "c8-trang-con");
+  await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await wait(p);
+  await p.click("#qPractice");
+  for (let i = 0; i < 40 && !(await p.$(".score")); i++) {
+    if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0");
+    await p.click("#qzGo"); await p.click("#qzGo");
+  }
+  await p.waitForSelector(".score");
+  const binId = prof.find((x) => x.name === "Bin").id;
+  c.result = await until(p, () => be.T.results.some((r) => r.profile_id === binId && r.ref_id === "toan4-ck1-de1"));
+  await p.goto(BASE + "/#/account"); await wait(p);
+  c.kidAccount = (await p.$("#switchWho")) && !(await p.$("#signOut")) && !(await p.$("#pwForm"));
+  await shot(p, "c9-tai-khoan-con");
+  await p.click("#switchWho"); await p.waitForSelector("text=Ai đang học?");
+  await tile(p, "Na"); await p.waitForSelector("text=Chào Na"); // hồ sơ không có PIN: bấm là vào
+  c.na = true;
+  await p.goto(BASE + "/#/admin/overview"); await wait(p);
+  c.kidBlocked = !(await p.$("text=Khu phụ huynh"));
+  await p.goto(BASE + "/#/admin/user/" + binId); await wait(p);
+  c.kidBlocked = c.kidBlocked && !(await p.$("#uForm"));
+
+  /* ---- tab mới trên máy đã ghi nhớ: vào khu phụ huynh phải nhập lại mật khẩu ---- */
+  const p2 = await home.newPage();
+  await p2.goto(BASE + "/"); await p2.waitForSelector("text=Ai đang học?");
+  c.preselect = await p2.$eval(`.tile[aria-pressed="true"] .nm`, (x) => x.textContent).catch(() => ""); // máy nhớ hồ sơ chọn gần nhất (Na, không PIN: không tự vào)
+  await tile(p2, "Phụ huynh"); await p2.waitForSelector("#pwBox:not([hidden])");
+  await shot(p2, "c10-mat-khau-phu-huynh");
+  await p2.fill("#pwIn", "sai-mat-khau"); await p2.click("#pwGo"); await p2.waitForSelector("#pwErr .fb");
+  c.wrongPw = await text(p2, "#pwErr");
+  await p2.fill("#pwIn", PW); await p2.click("#pwGo"); await p2.waitForSelector("text=Khu phụ huynh");
+  await p2.click(`[data-child="${binId}"]`); await p2.waitForSelector("#toReport");
+  await shot(p2, "c11-ho-so-cua-con");
+  await p2.click("#toReport"); await p2.waitForSelector(".report");
+  c.report = await p2.evaluate(() => ({ n: +document.querySelector("#rpCount").textContent, subj: [...document.querySelectorAll("#rpSubjects .rp-sub b:first-child")].map((b) => b.textContent).join() }));
+  await shot(p2, "c12-bao-cao-tuan");
+  // đổi mật khẩu
+  await p2.goto(BASE + "/#/account"); await p2.waitForSelector("#pwForm");
+  await shot(p2, "c13-tai-khoan-phu-huynh");
+  await p2.fill("#pwOld", "sai-mat-khau"); await p2.fill("#pwNew", PW2); await p2.fill("#pwNew2", PW2); await p2.click("#pwForm [type=submit]");
+  await p2.waitForSelector("#pwErr .fb");
+  c.wrongOld = await text(p2, "#pwErr");
+  await p2.fill("#pwOld", PW); await p2.click("#pwForm [type=submit]"); await p2.waitForSelector("text=Đã đổi mật khẩu");
+  c.pwChanged = true;
+  // chuyển dữ liệu bản lưu trên máy
+  await p2.evaluate((d) => localStorage.setItem("ontap_db_v1", JSON.stringify(d)), localData());
+  await p2.goto(BASE + "/#/admin/data"); await wait(p2);
+  await p2.click("#dMigrate"); await p2.waitForSelector("#migRes .fb");
+  c.migrate = await text(p2, "#migRes");
+  await shot(p2, "c14-du-lieu");
+  // Bông (PIN cũ 4 số, chưa biết độ dài): gõ đủ 4 số thì thử lặng lẽ và vào được
+  await p2.click("#switchWho"); await p2.waitForSelector("text=Ai đang học?");
+  await tile(p2, "Bông"); await pad(p2, "4321");
+  c.bong = await p2.waitForSelector("text=Chào Bông", { timeout: 3000 }).then(() => true, () => false);
+  // đăng xuất
+  await p2.goto(BASE + "/#/account"); await wait(p2);
+  await p2.click("#switchWho"); await tile(p2, "Phụ huynh");
+  if (await p2.$("#pwBox:not([hidden])")) { await p2.fill("#pwIn", PW2); await p2.click("#pwGo"); } // vừa nhập mật khẩu trong 5 phút: không hỏi lại
+  await p2.waitForSelector("text=Khu phụ huynh");
+  const captchaBoxes = withCaptcha ? await p2.evaluate(() => window.turnstile.boxes.join()) + "," + await p.evaluate(() => window.turnstile.boxes.join()) : "";
+  await p2.goto(BASE + "/#/account"); await p2.click("#signOut"); await p2.waitForSelector("#loginForm");
+  await p2.reload(); await p2.waitForSelector("#loginForm");
+  c.signedOut = await p2.evaluate(() => !localStorage.getItem("ontap_sb_auth") && !sessionStorage.getItem("ontap_sb_auth"));
+  await home.close();
+
+  /* ---- máy khác, không ghi nhớ: tab mới phải đăng nhập lại ---- */
+  const other = await device();
+  const q = await other.newPage();
+  await q.goto(BASE + "/"); await q.waitForSelector("#loginForm");
+  await q.fill("#lUser", "nha.bin"); await q.fill("#lPass", PW2); await q.click("#lGo");
+  await q.waitForSelector("text=Ai đang học?");
+  const q2 = await other.newPage();
+  await q2.goto(BASE + "/"); await q2.waitForSelector("form");
+  c.notRemembered = !!(await q2.$("#loginForm"));
+  /* ---- tài khoản bị khóa ---- */
+  await admin({ action: "set_status", id: acc.id, status: "locked" });
+  await q.reload(); await q.waitForSelector("#blocked");
+  c.locked = await text(q, "#blocked");
+  await shot(q, "c15-tai-khoan-bi-khoa");
+  await q.click("#bOut"); await q.waitForSelector("#loginForm");
+  await q.fill("#lUser", "nha.bin"); await q.fill("#lPass", PW2); await q.click("#lGo"); await q.waitForSelector("#loginErr .fb");
+  c.lockedLogin = await text(q, "#loginErr");
+
+  /* ---- service worker: đã cài và điều khiển trang; gọi Supabase, Cloudflare, CDN rồi tải lại trang ---- */
+  await q.evaluate(() => navigator.serviceWorker.ready);
+  await q.waitForFunction(() => !!navigator.serviceWorker.controller);
+  await q.evaluate(() => Promise.all(["https://fake.supabase.co/rest/v1/families?select=*", "https://challenges.cloudflare.com/turnstile/v0/api.js",
     "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"].map((u) => fetch(u).then((r) => r.text(), () => ""))));
-  await page.reload();
-  await page.waitForSelector("form");
-  await page.waitForTimeout(300);
-  const again = await page.evaluate(() => !!(window.Store && window.Store.cloud) && window.Store.authState() === "signed-out" && document.documentElement.scrollWidth <= 360);
-  const cached = await page.evaluate(async () => { const out = []; for (const k of await caches.keys()) for (const r of await (await caches.open(k)).keys()) out.push(r.url); return out; });
-  await ctx.close();
-  return {
-    checks: {
-      "bản đám mây khởi động, chưa đăng nhập": cloud,
-      "không cuộn ngang ở 360px": wide <= 360,
-      "có service worker, tải lại vẫn là bản đám mây": again,
-      "service worker không đệm, không gửi request ra ngoài app": cached.length > 0 && cached.every((u) => u.startsWith(BASE + "/")) && swOut.length === 0,
-      "không lỗi trên trang": errs.length === 0
-    },
-    errs: errs.concat(swOut)
+  await q.reload(); await q.waitForSelector("#loginForm");
+  const swAgain = await q.evaluate(() => !!(window.Store && window.Store.cloud) && window.Store.authState() === "signed-out");
+  const cached = await q.evaluate(async () => { const out = []; for (const k of await caches.keys()) for (const r of await (await caches.open(k)).keys()) out.push(r.url); return out; });
+  await other.close();
+
+  console.log(scheme, c, captchaBoxes);
+  const checks = {
+    "đăng nhập: dòng “Quên mật khẩu?” lấy chữ và đường liên hệ từ js/config.js": c.contact === CONTACT + " · Nhắn Zalo cho cô Lan",
+    "sai mật khẩu: báo rõ": /Tên đăng nhập hoặc mật khẩu chưa đúng/.test(c.wrong),
+    "mật khẩu tạm: bắt đặt mật khẩu mới (hai ô phải khớp), máy chủ bỏ cờ": /chưa khớp/.test(c.mismatch) && c.changed,
+    "ghi nhớ trên máy này: phiên giữ trong localStorage": c.remembered,
+    "chưa có hồ sơ con: vào thẳng khu phụ huynh; form chỉ có khối 4 và 6 (data/grades.js)": c.grades === "4,6",
+    "thêm hai hồ sơ con, PIN 4 số băm trên máy, hồ sơ không PIN": c.profiles,
+    "“Ai đang học?”: các con và Phụ huynh": c.tiles === "Bin,Na,Phụ huynh",
+    "con nhập PIN: sai thì báo, đúng 4 số là vào": /chưa đúng/.test(c.wrongPin),
+    "kết quả làm bài lên máy chủ": c.result,
+    "trang tài khoản của con: đổi người học, không đăng xuất, không đổi mật khẩu": !!c.kidAccount,
+    "hồ sơ không PIN bấm là vào; con không vào được khu phụ huynh bằng địa chỉ": c.na && c.kidBlocked,
+    "tab mới: nhớ hồ sơ chọn gần nhất, khu phụ huynh phải nhập lại mật khẩu": c.preselect === "Na" && /Mật khẩu chưa đúng/.test(c.wrongPw),
+    "báo cáo tuần đọc kết quả từ máy chủ": c.report.n === 1 && c.report.subj === "Toán",
+    "đổi mật khẩu: sai mật khẩu hiện tại thì báo": /hiện tại chưa đúng/.test(c.wrongOld) && c.pwChanged,
+    "chuyển dữ liệu máy này: 1 hồ sơ con, 1 kết quả; PIN cũ dùng được": /1 hồ sơ con mới, 1 kết quả/.test(c.migrate) && c.bong,
+    "đăng xuất: xóa phiên, tải lại vẫn ở trang đăng nhập": c.signedOut,
+    "không ghi nhớ: tab mới phải đăng nhập lại": c.notRemembered,
+    "tài khoản bị khóa: màn hình báo khóa có dòng liên hệ; đăng nhập bị từ chối": /đang bị khóa/.test(c.locked) && /Nhắn Zalo/.test(c.locked) && /đang bị khóa/.test(c.lockedLogin),
+    "CAPTCHA (khi bật): đăng nhập và nhập lại mật khẩu đều kèm mã xác minh": !withCaptcha || (/loginCaptcha/.test(captchaBoxes) && /pwCaptcha/.test(captchaBoxes) && be.captchaUsed >= 5),
+    "có service worker, tải lại vẫn là bản đám mây": swAgain,
+    "service worker không đệm, không gửi request ra ngoài app": cached.length > 0 && cached.every((u) => u.startsWith(BASE + "/")) && swOut.length === 0,
+    "360px: không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px": problems.length === 0,
+    "không lỗi trên trang": errs.length === 0
   };
+  return { checks, errs: errs.concat(problems, swOut) };
 }
 
 (async () => {
@@ -75,6 +271,14 @@ async function run(browser, scheme) {
     const { checks, errs } = await run(browser, scheme);
     for (const [k, v] of Object.entries(checks)) { console.log((v ? "ok  " : "FAIL ") + scheme + ": " + k); if (!v) bad++; }
     if (errs.length) console.log(errs);
+  }
+  // ghép ảnh sáng/tối cạnh nhau để xem nhanh
+  const page = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+  const names = [...new Set(fs.readdirSync(OUT).filter((f) => /-light\.png$/.test(f)).map((f) => f.replace("-light.png", "")))].sort();
+  for (const n of names) {
+    const img = (s) => "data:image/png;base64," + fs.readFileSync(path.join(OUT, `${n}-${s}.png`)).toString("base64");
+    await page.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+    await page.screenshot({ path: path.join(OUT, `${n}.jpg`), fullPage: true, type: "jpeg", quality: 70 });
   }
   await browser.close();
   if (bad) { console.error("CLOUD E2E FAILED"); process.exitCode = 1; } else console.log("CLOUD E2E OK");
