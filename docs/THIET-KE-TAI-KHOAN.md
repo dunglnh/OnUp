@@ -160,7 +160,7 @@ Làm **theo thứ tự**, mỗi phiên một cuộc trò chuyện mới, Merge x
 
 ## 9. Hướng phát triển bản trả phí (chưa làm — khi có đủ đề lớp 4–12)
 
-Ghi lại để lúc đó không phải nghĩ lại từ đầu. Khung ở mục 5 đã chừa chỗ cho tất cả.
+Ghi lại để lúc đó không phải nghĩ lại từ đầu. Khung ở mục 5 đã chừa chỗ cho tất cả. Các phiên kĩ thuật cần làm trước khi bán (chuyển hosting, đề trả phí lên máy chủ, màn hình Nâng cấp, bớt tải dữ liệu): mục 5 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md).
 
 - **Gói:** ví dụ Miễn phí (1 hồ sơ con, bài ôn, đề thử số 1 mỗi môn) và Gói Gia đình (nhiều hồ sơ, mọi đề, hạn đến 31/8 cuối năm học). Cấu hình trong bảng `plans`; app chỉ đổi `Store.can()`.
 - **Bán qua Zalo, kích hoạt tay:** màn hình Nâng cấp (quyền lợi, giá, QR chuyển khoản, nội dung `ONUP tên-đăng-nhập`, nút Nhắn Zalo soạn sẵn) → bạn kiểm tra tiền → trang admin thêm nút “Kích hoạt gói” (gói, hạn, số tiền, ghi chú) và bảng `plan_log` để đối soát.

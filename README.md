@@ -5,6 +5,7 @@ Có lịch thi năm học 2026–2027, đề luyện giữa kì và IOE, ngân h
 
 - Mô tả tính năng: [docs/TINH-NANG.md](docs/TINH-NANG.md)
 - Kế hoạch và lộ trình phát triển (đang tạm dừng để chạy thử): [docs/KE-HOACH-PHAT-TRIEN-ONUP.md](docs/KE-HOACH-PHAT-TRIEN-ONUP.md)
+- Kế hoạch nội dung (đủ đề lớp 4 và 6, rồi lớp 5, 7–12; lời giao việc N0–N25, K1–K3, B1–B4): [docs/KE-HOACH-NOI-DUNG.md](docs/KE-HOACH-NOI-DUNG.md)
 - Lỗi cơ bản tìm được khi dùng thử và lời giao việc sửa (Phiên 9a–9d): [docs/SUA-LOI-CHAY-THU.md](docs/SUA-LOI-CHAY-THU.md)
 - Thiết kế khung tài khoản và trang admin: [docs/THIET-KE-TAI-KHOAN.md](docs/THIET-KE-TAI-KHOAN.md)
 - Hướng dẫn cho Claude khi sửa code: [CLAUDE.md](CLAUDE.md)
