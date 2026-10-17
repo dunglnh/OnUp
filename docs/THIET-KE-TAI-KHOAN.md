@@ -1,6 +1,6 @@
 # Thiết kế: khung quản lý tài khoản và trang admin
 
-Phiên bản 2 · 16/10/2026 · Trạng thái: **đã chốt hướng, chưa làm**. Các phiên Claude Code để làm: mục 8.
+Phiên bản 2 · 16/10/2026 · Trạng thái: **Phiên A (máy chủ) và Phiên B (app) đã làm, còn Phiên C (trang admin)**. Các phiên Claude Code để làm: mục 8.
 
 **Phạm vi bây giờ:** dựng khung tài khoản để sau này phát triển tiếp. Chủ app (bạn) tạo và quản lý tài khoản ở một **trang admin riêng**; phụ huynh đăng nhập bằng **tên đăng nhập + mật khẩu**; con là hồ sơ trong tài khoản của bố mẹ. **Chưa làm bản trả phí**: mọi tài khoản dùng được mọi nội dung. Bản trả phí chỉ tính khi app đã có đủ đề từ lớp 4 đến lớp 12 (mục 9 ghi sẵn hướng đi). Khung bây giờ chừa sẵn chỗ để lúc đó không phải làm lại.
 
@@ -113,6 +113,13 @@ Edge Function `admin` (thay cho `student-login`), chỉ owner gọi được: `c
 **Chỗ chừa cho gói (chưa dùng):** app có một hàm duy nhất `Store.can(feature)` (ví dụ `"addChild"`, `"bank:<mã>"`), hôm nay luôn trả lời “được” trừ hạn mức số hồ sơ. Sau này bật gói chỉ cần sửa hàm này và bảng `plans`, không phải sửa từng màn hình.
 
 Bản lưu trên máy (LocalStore) giữ lại cho kiểm thử và dùng không cần mạng; nó cũng đọc `data/grades.js`.
+
+**Đã làm ở Phiên B** (`data/grades.js`, `js/store-supabase.js`, `js/app.js`; ảnh 360px sáng/tối: [hinh-dam-may/](hinh-dam-may/)):
+- `data/grades.js` (lớp 1–12, chỉ lớp 4 và 6 `active`) thay mọi chỗ viết cứng `[4, 6]`. `Store.can(feature)` ở cả hai kho: bản lưu trên máy luôn được; bản đám mây chỉ giới hạn `"addChild"` theo `max_children` của gói đang hiệu lực.
+- Đăng nhập tên đăng nhập + mật khẩu, ô “Ghi nhớ trên máy này”, CAPTCHA khi có khóa, dòng “Quên mật khẩu?” lấy `contactText`, `contactUrl` từ `js/config.js`. Mật khẩu tạm thì bắt đặt mật khẩu mới. Tài khoản bị khóa, tài khoản không có gia đình (chủ app) thấy màn hình báo, có dòng liên hệ.
+- “Ai đang học?”: các hồ sơ con và ô Phụ huynh. Hồ sơ có PIN 4 số thì nhập PIN (băm và kiểm tra trên máy, khóa tạm sau 5 lần sai), không có thì bấm là vào. Ô Phụ huynh phải nhập lại mật khẩu (vừa nhập trong 5 phút thì không hỏi lại).
+- Khu phụ huynh (dùng chung các màn hình quản trị của bản lưu trên máy): tổng quan các con, hồ sơ con (thêm/sửa/xóa, đặt hoặc bỏ PIN, hạn mức theo gói), lịch thi, ngân hàng đề, dữ liệu (tên gia đình, chuyển dữ liệu máy này lên, tải file sao lưu); trang Tài khoản: đổi mật khẩu, “Đổi người học”, đăng xuất khỏi máy này. Tài khoản mới tự chép lịch thi mặc định ở lần mở đầu.
+- Bỏ giao diện đăng nhập email, mã mời, mã gia đình.
 
 ---
 
