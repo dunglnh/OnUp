@@ -7,7 +7,7 @@
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => [...(r || document).querySelectorAll(s)];
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const view = $("#view"), who = $("#who");
+  const view = $("#view"), who = $("#who"), foot = $(".foot");
   const MODULES = window.ONTAP_MODULES || [];
   const modById = (id) => MODULES.find((m) => m.id === id) || null;
   const AVATARS = ["🐣", "🦊", "🐼", "🐯", "🐨", "🐸", "🦄", "🐙", "🐬", "🚀", "⚽", "🎨", "🌻", "🧭", "📚", "🌟"];
@@ -1080,6 +1080,7 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
     if (quizRun) { quizRun.stop(); quizRun = null; }
     guard = null; closeLeave(); shownHash = location.hash;
     document.body.classList.remove("playing");
+    foot.hidden = true;
     const old = $("#evDetail"); if (old) old.remove();
     document.title = TITLE;
     if (Store.cloud) {
@@ -1095,6 +1096,8 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
     const parts = path.split("/").filter(Boolean);
     const [name, a, b] = parts;
     window.scrollTo(0, 0);
+    // Chú thích lịch thi cuối trang chỉ ở trang chủ (của quản trị là tab Tổng quan) và trang Lịch thi.
+    foot.hidden = !(name === undefined || name === "home" || name === "calendar" || (name === "admin" && (!a || a === "overview")));
     switch (name) {
       case "calendar": return renderCalendar(u);
       case "play": return renderPlay(u, a);
