@@ -121,11 +121,33 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   }
   await page.waitForTimeout(200); await shot("08-quiz-result");
 
-  step("leave guard: bank exam (L1)");
+  step("open bank from home");
   await page.goto(BASE + "/#/home"); await page.waitForTimeout(200);
   await page.evaluate(() => (document.querySelector("a[href='#/quiz/toan4-ck1-de1']").closest("details").open = true)); // đề nằm trong nhóm kì thi đang thu gọn
   await page.click("a[href='#/quiz/toan4-ck1-de1']"); await page.waitForTimeout(200);
   const nBefore = await nRes();
+  step("exam left before any answer is not saved (L15)");
+  await page.click("#qExam");
+  await page.evaluate(() => history.back()); await page.waitForSelector("#leaveBox");
+  const ex0 = { ask: (await page.textContent("#leaveBox")).replace(/\s+/g, " ") };
+  await page.click("#leaveYes"); await page.waitForTimeout(300);
+  ex0.back = { hash: await page.evaluate(() => location.hash), n: await nRes() };
+  await page.goto(BASE + "/#/quiz/toan4-ck1-de1"); await page.waitForTimeout(200);
+  await page.click("#qExam"); await page.click("#qzSkip"); // bỏ qua không tính là đã trả lời
+  await page.click("#qzExit"); ex0.exit = (await page.textContent("#qzFb")).replace(/\s+/g, " ");
+  await page.click("#qzYes"); await page.waitForTimeout(300);
+  ex0.exitLeft = { hash: await page.evaluate(() => location.hash), n: await nRes() };
+  ex0.timeUp = await page.evaluate(() => new Promise((ok) => { // hết giờ mà chưa trả lời câu nào: không lưu
+    const el = document.createElement("div"); let saved = 0;
+    Quiz.run(el, { title: "Thử", minutes: 0.01, questions: [{ type: "tf", q: "1 + 1 = 2", a: true }] }, { mode: "exam", onFinish: () => saved++ });
+    setTimeout(() => ok({ saved, text: el.textContent.replace(/\s+/g, " ").trim() }), 1500);
+  }));
+  console.log("L15:", ex0);
+  const noAnswerOK = /Thoát đề\?/.test(ex0.ask) && /chưa làm câu nào/.test(ex0.ask) && ex0.back.hash === "#/home" && ex0.back.n === nBefore
+    && /Thoát đề\?/.test(ex0.exit) && ex0.exitLeft.hash === "#/home" && ex0.exitLeft.n === nBefore
+    && ex0.timeUp.saved === 0 && /chưa làm câu nào nên không lưu điểm/.test(ex0.timeUp.text);
+  step("leave guard: bank exam, one answer (L1)");
+  await page.goto(BASE + "/#/quiz/toan4-ck1-de1"); await page.waitForTimeout(200);
   await page.click("#qExam");
   if (await page.$("#qzFill")) await page.fill("#qzFill", "400"); else await page.click(".opt >> nth=0");
   await page.click("#qzGo");
@@ -461,6 +483,6 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("local mode:", !cloudMode, "requests outside " + HOST + ":", outReqs);
   const real = errs;
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();

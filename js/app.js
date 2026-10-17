@@ -107,18 +107,19 @@
        rồi hỏi; đồng ý thì lùi về đúng địa chỉ đích;
      - tải lại, đóng tab: hộp hỏi của trình duyệt (beforeunload).
      guard = {busy(): còn bài làm dở?, ask, note, yes, no: chữ trên hộp, leave(): việc làm trước khi rời (nộp bài),
-              saved(): bài ôn trong khung vừa gửi điểm về}. route() bỏ chốt; màn hình nào cần thì đặt lại. */
+              saved(): bài ôn trong khung vừa gửi điểm về}. Chữ đổi theo bài đang làm thì thêm text() trả về {ask, note, yes, no},
+              đọc lúc mở hộp. route() bỏ chốt; màn hình nào cần thì đặt lại. */
   let guard = null, shownHash = location.hash, leaving = null;
   const guardOn = () => !!(guard && guard.busy());
   /* viaHistory: trình duyệt đã đổi hash và app vừa thêm lại địa chỉ cũ, nên đồng ý thì chỉ cần lùi một bước. */
   function askLeave(to, viaHistory) {
     leaving = { to, viaHistory };
     if ($("#leaveBox")) return;
-    const g = guard, box = document.createElement("div");
+    const g = guard, t = g.text ? g.text() : g, box = document.createElement("div");
     box.id = "leaveBox"; box.className = "leave";
-    box.innerHTML = `<div class="confirm" role="alertdialog" aria-modal="true" aria-labelledby="leaveQ"${g.note ? ` aria-describedby="leaveNote"` : ""}>
-      <b id="leaveQ">${esc(g.ask)}</b>${g.note ? `<span id="leaveNote">${esc(g.note)}</span>` : ""}
-      <div class="row"><button class="btn danger" id="leaveYes">${esc(g.yes)}</button><button class="btn main" id="leaveNo">${esc(g.no)}</button></div></div>`;
+    box.innerHTML = `<div class="confirm" role="alertdialog" aria-modal="true" aria-labelledby="leaveQ"${t.note ? ` aria-describedby="leaveNote"` : ""}>
+      <b id="leaveQ">${esc(t.ask)}</b>${t.note ? `<span id="leaveNote">${esc(t.note)}</span>` : ""}
+      <div class="row"><button class="btn danger" id="leaveYes">${esc(t.yes)}</button><button class="btn main" id="leaveNo">${esc(t.no)}</button></div></div>`;
     document.body.append(box);
     const stay = $("#leaveNo");
     stay.onclick = closeLeave;
@@ -798,10 +799,15 @@
         onFinish: (res) => { if (u.role === "student") { Store.addResult(Object.assign({ userId: u.id, source: "bank", refId: b.id, subject: b.subject, label: b.title }, res)); toast("Đã lưu kết quả"); } }
       }));
       // Xem thử (phụ huynh, quản trị) không lưu điểm nên không cần hỏi.
-      // Gọi qua run: "Làm lại" thay busy/submit của lượt mới vào cùng đối tượng.
-      if (u.role === "student") guard = Object.assign({ busy: () => run.busy(), leave: () => run.submit() }, run.exam
-        ? { ask: "Nộp bài và rời trang?", note: "Câu chưa làm tính là sai.", yes: "Nộp bài", no: "Làm tiếp" }
-        : { ask: "Dừng ôn và rời trang?", note: "Kết quả các câu đã làm được lưu lại.", yes: "Dừng ôn", no: "Ôn tiếp" });
+      // Gọi qua run: "Làm lại" thay busy/answered/submit của lượt mới vào cùng đối tượng.
+      // Chưa trả lời câu nào thì rời là thoát đề, không nộp (nộp cũng không lưu điểm).
+      if (u.role === "student") guard = {
+        busy: () => run.busy(),
+        leave: () => (run.answered() ? run.submit() : run.stop()),
+        text: () => (!run.answered() ? { ask: "Thoát đề?", note: "Bạn chưa làm câu nào nên không lưu điểm.", yes: "Thoát", no: "Làm tiếp" }
+          : run.exam ? { ask: "Nộp bài và rời trang?", note: "Câu chưa làm tính là sai.", yes: "Nộp bài", no: "Làm tiếp" }
+          : { ask: "Dừng ôn và rời trang?", note: "Kết quả các câu đã làm được lưu lại.", yes: "Dừng ôn", no: "Ôn tiếp" })
+      };
     };
     $("#qPractice").onclick = () => start("practice");
     if ($("#qExam")) $("#qExam").onclick = () => start("exam");

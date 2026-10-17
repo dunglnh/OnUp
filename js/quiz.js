@@ -1,6 +1,8 @@
 /* Bộ làm bài chung cho các ngân hàng câu hỏi (data/banks.js và ngân hàng do quản trị viên nhập).
-   Quiz.run(el, bank, {mode:"exam"|"practice", onExit, onFinish}) → {stop(), busy(), submit(), exam}
-     busy(): đang làm dở (làm như thi chưa nộp, hoặc ôn luyện đã trả lời ít nhất một câu); submit(): nộp bài như bấm Nộp.
+   Quiz.run(el, bank, {mode:"exam"|"practice", onExit, onFinish}) → {stop(), busy(), answered(), submit(), exam}
+     busy(): đang làm dở (làm như thi chưa nộp, hoặc ôn luyện đã trả lời hoặc bỏ qua ít nhất một câu);
+     answered(): số câu đã trả lời (câu bấm "Bỏ qua" không tính); submit(): nộp bài như bấm Nộp.
+     Chưa trả lời câu nào (kể cả khi hết giờ) thì nộp bài không gọi onFinish: không lưu điểm.
      "Làm lại" dùng tiếp đối tượng này, nên app luôn dừng hoặc nộp đúng lượt đang làm.
    Quiz.parse(text) → {questions, errors}: đọc câu hỏi dán từ Word/Zalo theo cú pháp đơn giản. */
 (function () {
@@ -47,6 +49,7 @@
     const exam = opts.mode === "exam";
     const qs = shuffle(bank.questions).map(prep);
     const S = { i: 0, ans: [], cur: null, checked: false, start: Date.now(), limit: exam && bank.minutes ? bank.minutes * 60 : 0, timer: null, done: false };
+    const answered = () => S.ans.filter((a) => a && a.g != null && a.g !== "").length;
     if (S.limit) S.timer = setInterval(() => { const left = S.limit - (Date.now() - S.start) / 1000; const t = el.querySelector("#qzTimer"); if (t) { t.textContent = fmtTime(left); t.classList.toggle("warn", left < 120); } if (left <= 0) finish(); }, 500);
 
     function render() {
@@ -91,13 +94,24 @@
       window.scrollTo(0, 0);
     }
     function confirmExit() {
-      const fb = el.querySelector("#qzFb");
-      fb.innerHTML = `<div class="confirm"><div>${exam ? "Nộp bài ngay? Câu chưa làm tính là sai." : "Dừng ôn và xem kết quả?"}</div><div class="row"><button class="btn danger" id="qzYes">${exam ? "Nộp bài" : "Dừng"}</button><button class="btn ghost" id="qzNo">Làm tiếp</button></div></div>`;
-      fb.querySelector("#qzYes").onclick = finish; fb.querySelector("#qzNo").onclick = () => (fb.innerHTML = "");
+      const fb = el.querySelector("#qzFb"), none = !answered();
+      const [ask, yes] = none ? ["Thoát đề? Bạn chưa làm câu nào nên không lưu điểm.", "Thoát"] : exam ? ["Nộp bài ngay? Câu chưa làm tính là sai.", "Nộp bài"] : ["Dừng ôn và xem kết quả?", "Dừng"];
+      fb.innerHTML = `<div class="confirm"><div>${ask}</div><div class="row"><button class="btn danger" id="qzYes">${yes}</button><button class="btn ghost" id="qzNo">Làm tiếp</button></div></div>`;
+      fb.querySelector("#qzYes").onclick = none ? () => { h.stop(); if (opts.onExit) opts.onExit(); } : finish;
+      fb.querySelector("#qzNo").onclick = () => (fb.innerHTML = "");
     }
     function next() { S.i++; if (S.i >= qs.length) finish(); else render(); }
     function finish() {
       if (S.done) return; S.done = true; clearInterval(S.timer);
+      if (!answered()) {
+        el.innerHTML = `<div class="stack">
+          <section class="panel"><div class="label">${esc(bank.title)} · ${exam ? "Làm như thi" : "Ôn luyện"}</div><p>Bạn chưa làm câu nào nên không lưu điểm.</p></section>
+          <div class="row"><button class="btn main" id="qzAgain">Làm lại</button><button class="btn ghost" id="qzHome">Về trang chính</button></div></div>`;
+        el.querySelector("#qzAgain").onclick = () => start(el, bank, opts, h);
+        el.querySelector("#qzHome").onclick = () => opts.onExit && opts.onExit();
+        window.scrollTo(0, 0);
+        return;
+      }
       if (exam) for (let i = 0; i < qs.length; i++) if (!S.ans[i]) S.ans[i] = { q: qs[i], g: null, ok: false };
       const done = S.ans.filter(Boolean), right = done.filter((a) => a.ok).length, total = done.length;
       const secs = Math.min((Date.now() - S.start) / 1000, S.limit || Infinity);
@@ -121,6 +135,7 @@
     }
     h.stop = () => { clearInterval(S.timer); S.done = true; };
     h.busy = () => !S.done && (exam || S.ans.some(Boolean));
+    h.answered = answered;
     h.submit = finish;
     if (!qs.length) { h.stop(); el.innerHTML = `<div class="panel">Ngân hàng này chưa có câu hỏi.</div>`; return h; }
     render();
