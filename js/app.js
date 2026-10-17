@@ -101,14 +101,14 @@
   }
 
   /* ---------------- chốt rời trang ----------------
-     Đang làm bài (đề ngân hàng chưa nộp, bài ôn trong khung đã chạm vào) thì rời màn hình phải qua hộp hỏi lại:
+     Đang làm bài (đề ngân hàng chưa nộp, bài ôn trong khung đang làm một lượt) thì rời màn hình phải qua hộp hỏi lại:
      - link và nút trong app (go(), thẻ <a href="#…">, kể cả "Lịch thi" và nút tài khoản trên thanh đầu): hỏi trước khi đổi hash;
      - nút Back/Forward, gõ địa chỉ: hashchange không hủy được, nên thêm lại địa chỉ cũ vào lịch sử (không vẽ lại màn hình)
        rồi hỏi; đồng ý thì lùi về đúng địa chỉ đích;
      - tải lại, đóng tab: hộp hỏi của trình duyệt (beforeunload).
-     guard = {busy(): còn bài làm dở?, ask, note, yes, no: chữ trên hộp, leave(): việc làm trước khi rời (nộp bài),
-              saved(): bài ôn trong khung vừa gửi điểm về}. Chữ đổi theo bài đang làm thì thêm text() trả về {ask, note, yes, no},
-              đọc lúc mở hộp. route() bỏ chốt; màn hình nào cần thì đặt lại. */
+     guard = {busy(): còn bài làm dở?, ask, note, yes, no: chữ trên hộp, leave(): việc làm trước khi rời (nộp bài)}.
+              Chữ đổi theo bài đang làm thì thêm text() trả về {ask, note, yes, no}, đọc lúc mở hộp.
+              route() bỏ chốt; màn hình nào cần thì đặt lại. */
   let guard = null, shownHash = location.hash, leaving = null;
   const guardOn = () => !!(guard && guard.busy());
   /* viaHistory: trình duyệt đã đổi hash và app vừa thêm lại địa chỉ cũ, nên đồng ý thì chỉ cần lùi một bước. */
@@ -750,30 +750,18 @@
     document.body.classList.add("playing");
     wireGo();
     if (u.role !== "student") return;
-    // Khung cùng origin: học sinh chạm hoặc gõ phím trong bài thì bật chốt, gửi điểm về (ontap:result) thì tắt.
-    // Gắn vào trang bài ôn ngay khi nó bắt đầu tải, không đợi "load" (font tải chậm làm "load" đến muộn); khung tải lại thì gắn lại.
+    // Bài ôn đang làm một lượt thì có nút #endBtn ("Nộp bài sớm", "Dừng luyện"…), hoặc hộp hỏi lại #yesEnd của nút đó;
+    // trang đầu và trang kết quả không có (hợp đồng với bài ôn, xem CLAUDE.md). Khung cùng origin nên app đọc được, không ghi gì.
+    // Mở bằng file:// hoặc không đọc được khung thì không hỏi.
     const fr = $("#playerFrame");
-    let doc = null, touched = false, tries = 0;
-    const touch = () => (touched = true);
-    const hook = () => {
-      let d = null;
-      try { d = fr.contentDocument; } catch (e) { /* mở bằng file://: không theo dõi được */ }
-      if (d && d !== doc && d.URL !== "about:blank") {
-        doc = d; touched = false;
-        d.addEventListener("pointerdown", touch, true); d.addEventListener("keydown", touch, true);
-      }
-      return !!d && d === doc;
-    };
-    guard = { busy: () => touched, saved: () => (touched = false), ask: "Rời bài ôn?", note: "Bài đang làm dở sẽ không được lưu.", yes: "Rời bài", no: "Ở lại" };
-    fr.addEventListener("load", hook);
-    const early = setInterval(() => { if (!fr.isConnected || hook() || ++tries > 100) clearInterval(early); }, 100);
+    const busy = () => { try { const d = fr.contentDocument; return !!(d && d.querySelector("#endBtn, #yesEnd")); } catch (e) { return false; } };
+    guard = { busy, ask: "Rời bài ôn?", note: "Bài đang làm dở sẽ không được lưu.", yes: "Rời bài", no: "Ở lại" };
   }
   window.addEventListener("message", (e) => {
     const fr = $("#playerFrame");
     if (!fr || e.source !== fr.contentWindow) return;
     if (location.origin !== "null" && e.origin !== location.origin) return;
     const d = e.data; if (!d || d.type !== "ontap:result") return;
-    if (guard && guard.saved) guard.saved();
     const u = Store.sessionUser(); if (!u || u.role !== "student") return;
     const m = modById(d.module); if (!m || m.grade !== u.grade) return;
     if (!(+d.t > 0)) return;

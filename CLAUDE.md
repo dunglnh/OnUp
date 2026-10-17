@@ -52,6 +52,8 @@ Mỗi file `modules/*/index.html` có ba chỗ nối với app so với artifact
 
 App chỉ nhận tin nhắn khi `event.source` là đúng iframe đang mở và cùng origin, và chỉ lưu điểm khi người đang đăng nhập là học sinh.
 
+App còn **đọc** (không ghi) DOM của khung để biết học sinh đang làm dở (chốt rời trang, `renderPlay` trong js/app.js): đang làm một lượt thì trang bài ôn có nút `#endBtn` (“Nộp bài sớm”, “Dừng luyện”, “Finish test now”…) hoặc hộp hỏi lại `#yesEnd` của nút đó; trang đầu và trang kết quả không có. Bài ôn mới phải theo đúng như vậy. Không có thì app không hỏi lại khi rời bài, nhưng bài vẫn chạy.
+
 **Thêm bài ôn dạng trang mới:** tạo `modules/<mã>/index.html`, làm ba chỗ sửa trên, dùng font qua `../../fonts/fonts.css`, khai báo trong `data/modules.js`, gắn mã vào `modules` của các kì thi trong `data/calendar-2026-2027.js`, rồi thêm file vào `FILES` trong `sw.js` và tăng `VERSION`.
 
 ### Chạy khi mất mạng (sw.js, manifest.webmanifest)
@@ -63,7 +65,7 @@ App chỉ nhận tin nhắn khi `event.source` là đúng iframe đang mở và 
 - Màu trong `manifest.webmanifest` (`background_color` = `--bg`, `theme_color` = `--sun`) và `<meta name="theme-color">` trong `index.html` (`--bg` sáng, tối) chép từ token; đổi token thì sửa cả ở đó.
 
 ### Chốt rời trang, khóa PIN (js/app.js)
-- Màn hình có bài đang làm dở đặt biến `guard` (xem chú thích "chốt rời trang"): mọi cách rời màn hình (link, `go()`, nút Back, tải lại) đều hỏi lại trước. Hiện có ở đề ngân hàng và bài ôn trong khung, chỉ với học sinh. Màn hình mới có việc làm dở thì đặt `guard` trong hàm vẽ màn hình; `route()` tự bỏ. Chuyển màn hình luôn đi qua `go()` hoặc link `#/…`, không gọi `route()` trực tiếp khi đang làm bài.
+- Màn hình có bài đang làm dở đặt biến `guard` (xem chú thích "chốt rời trang"): mọi cách rời màn hình (link, `go()`, nút Back, tải lại) đều hỏi lại trước. Hiện có ở đề ngân hàng và bài ôn trong khung, chỉ với học sinh. Đề ngân hàng chưa trả lời câu nào thì hỏi “Thoát đề?” và không lưu điểm; bài ôn trong khung chỉ hỏi khi trong khung có `#endBtn`/`#yesEnd`. Màn hình mới có việc làm dở thì đặt `guard` trong hàm vẽ màn hình; `route()` tự bỏ. Chuyển màn hình luôn đi qua `go()` hoặc link `#/…`, không gọi `route()` trực tiếp khi đang làm bài.
 - `PinLock`: sai PIN 5 lần thì phải đợi (30 giây, 1 phút, 5 phút, rồi 15 phút), lưu theo mã người dùng ở localStorage khóa `ontap_pinlock_v1`. Chỉ làm đoán mò tốn thời gian, không phải bảo mật thật.
 - Bàn phím PIN (`wirePinBox`) tự kiểm tra khi gõ đủ `pinLen` số. Tài khoản cũ chưa có `pinLen` thì đủ 4 số thử lặng lẽ (sai không báo, không tính; tối đa 5 lượt mỗi người, `PinLock.probe`), rồi chờ đủ 6 số hoặc bấm Vào.
 - Chú thích lịch thi cuối trang (`.foot`) chỉ hiện ở trang chủ và Lịch thi (`route()`). Bài ôn trong khung đặt class `playing` trên `body`: trang cao đúng một màn hình, chỉ cuộn trong khung.

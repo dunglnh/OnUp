@@ -91,19 +91,27 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await frame.evaluate(() => ontapReport({ label: "School Level · Test 1", mode: "exam", subject: "ta", r: 24, t: 30, s: 900 }));
   await page.waitForTimeout(300);
   await shot("06-play");
-  step("leave guard: module in frame (L1)");
+  step("leave guard: module in frame (L1, L16)");
   const nRes = () => page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).results.length);
-  await page.click("#playerFrame"); // học sinh chạm vào giữa bài (góc trên có thể bị thanh đầu che)
+  const modBack = async () => { await page.click(".player [data-go]"); await page.waitForTimeout(200); return { hash: await page.evaluate(() => location.hash), box: !!(await page.$("#leaveBox")) }; };
+  await frame.click("h1.page-h"); // chạm vào trang đầu của bài, không phải nút bắt đầu
+  const modIdle = await modBack(); // chưa làm lượt nào: đi luôn, không hỏi
+  await page.goto(BASE + "/#/play/ioe-4"); await page.waitForTimeout(1200);
+  const fr4 = page.frames().find((f) => /modules\/ioe-4/.test(f.url()));
+  await fr4.click(".unit >> nth=0"); await fr4.waitForSelector("#endBtn"); // bắt đầu ôn Unit 1: bài ôn hiện #endBtn
   await page.click(".player [data-go]"); await page.waitForTimeout(150);
   const modAsk = await page.$("#leaveBox") ? await page.textContent("#leaveBox") : "";
   await page.click("#leaveNo"); await page.waitForTimeout(100);
   const modStay = await page.evaluate(() => location.hash);
-  await frame.evaluate(() => ontapReport({ label: "School Level · Test 2", mode: "exam", subject: "ta", r: 20, t: 30, s: 800 }));
-  await page.waitForTimeout(200);
-  await page.click(".player [data-go]"); await page.waitForTimeout(200); // điểm đã gửi về: đi luôn, không hỏi
-  const modLeft = { hash: await page.evaluate(() => location.hash), box: !!(await page.$("#leaveBox")) };
-  console.log("module guard:", modAsk.replace(/\s+/g, " "), modStay, modLeft);
-  const modGuardOK = /Rời bài ôn/.test(modAsk) && modStay === "#/play/ioe-4" && modLeft.hash === "#/home" && !modLeft.box;
+  await fr4.click("#endBtn"); // bài ôn đang hỏi "End practice?" (#yesEnd): vẫn là đang làm dở
+  const modConfirm = await modBack();
+  if (modConfirm.box) { await page.click("#leaveNo"); await page.waitForTimeout(100); }
+  await fr4.evaluate(() => ontapReport({ label: "School Level · Test 2", mode: "exam", subject: "ta", r: 20, t: 30, s: 800 }));
+  await fr4.click("#yesEnd"); await page.waitForTimeout(200); // xong lượt: bài ôn bỏ #endBtn
+  const modLeft = await modBack(); // xong lượt: đi luôn, không hỏi
+  console.log("module guard:", modIdle, modAsk.replace(/\s+/g, " "), modStay, modConfirm, modLeft);
+  const modGuardOK = modIdle.hash === "#/home" && !modIdle.box && /Rời bài ôn/.test(modAsk) && modStay === "#/play/ioe-4"
+    && modConfirm.box && modConfirm.hash === "#/play/ioe-4" && modLeft.hash === "#/home" && !modLeft.box;
   step("open module l4");
   await page.goto(BASE + "/#/play/l4-giua-ki-1"); await page.waitForTimeout(1200);
   const f2 = page.frames().find(f => /modules\/l4-giua-ki-1/.test(f.url()));
