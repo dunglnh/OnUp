@@ -36,24 +36,25 @@ Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp tr
 
 ## 3. Lộ trình khi làm tiếp
 
-Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 8 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); Phiên 9a, 9b, 9c (lỗi tìm được khi dùng thử ngày 16/10) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); các phiên khác ở mục 4 dưới đây.
+Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 8 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); Phiên 9a, 9b, 9c (lỗi tìm được khi dùng thử ngày 16/10, đã làm) và Phiên 9d (lỗi phát sinh khi rà soát lại ngày 17/10) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); các phiên khác ở mục 4 dưới đây.
 
 | Ưu tiên | Nên xong trước | Phiên | Phục vụ |
 |---|---|---|---|
-| 1 | 25/10 | **Phiên 9a · Không mất bài, khóa PIN, đường dẫn sai** ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) | Giữa kì I (2–13/11) |
-| 1 | 1/11 | **Phiên 9b · Giao diện điện thoại 360px** ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) | Giữa kì I (2–13/11) |
+| 1 | 1/11 | **Phiên 9d · Lỗi phát sinh sau rà soát 17/10** ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) | Giữa kì I (2–13/11) |
 | 1 | 1/11 | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** (GitHub Issues) | Giữa kì I (2–13/11) |
-| 2 | 15/11 | **Phiên 9c · Chạy khi mất mạng, nhắc sao lưu** ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) | Dùng hằng ngày, không mất dữ liệu |
-| 3 | 30/11 | **Phiên B · App: đăng nhập, chọn hồ sơ, khu phụ huynh, khối lớp chung** | Khung tài khoản |
-| 4 | 10/12 | **Phiên C · Trang admin** | Khung tài khoản, kịp mùa ôn cuối kì I |
-| 5 | 1/3 | **Phiên 15 · Đề giữa kì II lớp 6** (Toán, Ngữ văn, KHTN, Tiếng Anh) | Giữa kì II (15–26/3) |
-| 6 | 10/4 | **Phiên 16–17 · Đề cuối năm** lớp 4 và lớp 6 | Cuối năm (26/4–14/5) |
+| 2 | 30/11 | **Phiên B · App: đăng nhập, chọn hồ sơ, khu phụ huynh, khối lớp chung** | Khung tài khoản |
+| 3 | 10/12 | **Phiên C · Trang admin** | Khung tài khoản, kịp mùa ôn cuối kì I |
+| 4 | 1/3 | **Phiên 15 · Đề giữa kì II lớp 6** (Toán, Ngữ văn, KHTN, Tiếng Anh) | Giữa kì II (15–26/3) |
+| 5 | 10/4 | **Phiên 16–17 · Đề cuối năm** lớp 4 và lớp 6 | Cuối năm (26/4–14/5) |
 | — | — | ~~Phiên 10 · Đề cuối kì I lớp 6 còn thiếu~~ (đã xong, PR #13) | |
 | — | — | ~~Phiên 11 · Đề cuối kì I lớp 4 còn thiếu~~ (đã xong, PR #14) | |
 | — | — | ~~Phiên 12 · Báo cáo tuần cho phụ huynh~~ (đã xong, PR #15) | |
 | — | — | ~~Phiên 13 · IOE cấp tỉnh lớp 4~~ (đã xong, PR #16) | |
 | — | — | ~~Phiên 14 · Đề giữa kì II lớp 4~~ (đã xong, PR #17) | |
 | — | — | ~~Phiên A · Máy chủ: tài khoản, hồ sơ con, Edge Function admin~~ (đã xong, PR #19) | |
+| — | — | ~~Phiên 9a · Không mất bài, khóa PIN, đường dẫn sai~~ (đã xong, PR #21) | |
+| — | — | ~~Phiên 9b · Giao diện điện thoại 360px~~ (đã xong, PR #22) | |
+| — | — | ~~Phiên 9c · Chạy khi mất mạng, nhắc sao lưu~~ (đã xong, PR #23) | |
 
 **Để sau, chỉ làm khi có nhu cầu thật:** nhập đề từ Excel (Phiên 6 cũ); tự đăng ký, email để tự lấy lại mật khẩu, tài khoản giáo viên/lớp học (mục 7 bản thiết kế); đề các khối khác (lớp 5, 7–12); **bản trả phí** khi đã có đủ đề lớp 4–12 (hướng đi ở mục 9 bản thiết kế). Việc “bắt buộc đổi PIN cũ” không còn cần vì cách đăng nhập mới bỏ PIN học sinh trên máy chủ.
 
