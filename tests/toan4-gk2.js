@@ -1,9 +1,9 @@
-// Tính lại đáp án hai đề Toán 4 giữa kì II (toan4-gk2-de1, toan4-gk2-de2 trong data/banks.js).
+// Tính lại đáp án hai đề Toán 4 giữa kì II (toan4-gk2-de1, toan4-gk2-de2 trong data/banks/4-toan.js).
 // Mỗi câu: kiểm tra đề có đúng số liệu (has) rồi so đáp án đầu tiên với kết quả tính bằng code.
 // Chạy: node tests/toan4-gk2.js → in MATH OK.
-const fs = require("fs"), vm = require("vm"), assert = require("assert");
-const W = {}; vm.runInNewContext(fs.readFileSync(__dirname + "/../data/banks.js", "utf8"), { window: W });
-const bank = (id) => W.ONTAP_SEED_BANKS.find((b) => b.id === id);
+const assert = require("assert");
+const BANKS = require("./nap-de.js").napDe();
+const bank = (id) => BANKS.find((b) => b.id === id);
 
 const fmt = (n) => { assert.ok(Number.isInteger(n), "không phải số nguyên: " + n); return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); };
 const div = (a, b) => { assert.equal(a % b, 0, a + " : " + b + " có dư"); return a / b; };

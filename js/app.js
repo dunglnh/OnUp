@@ -12,6 +12,7 @@
   const view = $("#view"), who = $("#who"), foot = $(".foot");
   const MODULES = window.ONTAP_MODULES || [];
   const modById = (id) => MODULES.find((m) => m.id === id) || null;
+  const qCount = (b) => (b.questions ? b.questions.length : b.n || 0); // đề có sẵn chưa tải câu hỏi: số câu ghi ở danh mục
   const AVATARS = ["🐣", "🦊", "🐼", "🐯", "🐨", "🐸", "🦄", "🐙", "🐬", "🚀", "⚽", "🎨", "🌻", "🧭", "📚", "🌟"];
   const KIND = { "dinh-ki": "Kiểm tra định kì", ioe: "IOE", "thi-khac": "Thi khác", moc: "Mốc năm học" };
   const DAY = 864e5;
@@ -577,7 +578,7 @@
     $$("[data-ev]", root).forEach((b) => (b.onclick = () => openEvent(b.dataset.ev, grade, student)));
   }
 
-  /* Chữ trên nút đề trong một hàng (cùng môn), lấy từ tên đề dạng "<môn> <khối> · <kì> · Đề N" (data/banks.js):
+  /* Chữ trên nút đề trong một hàng (cùng môn), lấy từ tên đề dạng "<môn> <khối> · <kì> · Đề N" (data/banks/index.js):
      - mọi đề cùng một kì: "Đề N", N lấy từ tên (tên không có số thì "Đề");
      - nhiều kì khác nhau (nhóm "Bài ôn khác"): tên bỏ phần môn và khối, ví dụ "Cuối kì I · Đề 1";
      - tên tự đặt không bắt đầu bằng môn và khối (ngân hàng quản trị viên nhập): nguyên tên đề.
@@ -604,7 +605,7 @@
     return `<div class="list">${mods.map((m) => `<div class="item"><span class="grow"><b>${esc(m.title)}</b><span class="small muted">${esc(m.desc)}</span></span><a class="btn ${act} sm" href="#/play/${esc(m.id)}">${canPlay ? "Vào ôn" : "Xem thử"}</a></div>`).join("")}
       ${[...subs].map(([sub, list]) => {
         list.sort((a, b) => a.title.localeCompare(b.title, "vi", { numeric: true }));
-        const nq = list[0].questions.length, same = list.every((b) => b.questions.length === nq);
+        const nq = qCount(list[0]), same = list.every((b) => qCount(b) === nq);
         return `<div class="item subj"><span class="grow"><b>${esc(sub)}</b><span class="small muted">${list.length} đề${same ? ` · ${nq} câu${list.length > 1 ? " mỗi đề" : ""}` : ""}</span></span>
           <span class="des">${bankLabels(list).map((lb, i) => { const b = list[i]; return `<a class="btn ${act} sm" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(b.title.includes(lb) ? b.title : lb + " · " + b.title)}">${esc(lb)}</a>`; }).join("")}</span></div>`;
       }).join("")}</div>`;
@@ -876,6 +877,7 @@
     const b = Store.bank(id);
     if (!b) { renderMissing("Không tìm thấy đề", "Đề này không có trong app, hoặc đã được bỏ đi."); return; }
     if (wrongGrade(u, b.grade)) return;
+    if (!b.questions) { loadQuiz(u, b); return; }
     view.innerHTML = `<div class="stack">${back("#/home", "Trang chính")}
       <section class="hero"><span class="label">Lớp ${b.grade} · ${esc(b.subject)}</span><h1>${esc(b.title)}</h1>
         <p>${b.questions.length} câu.${b.note ? " " + esc(b.note) : ""}</p>
@@ -900,6 +902,22 @@
     };
     $("#qPractice").onclick = () => start("practice");
     if ($("#qExam")) $("#qExam").onclick = () => start("exam");
+  }
+  /* Câu hỏi của đề có sẵn chỉ tải khi mở đề (Store.loadBank). Tải xong mà đã sang màn hình khác thì thôi. Mất mạng mà
+     chưa mở đề nào của môn này lần nào (chưa có trong đệm của sw.js) thì báo và cho thử lại. */
+  function loadQuiz(u, b) {
+    view.innerHTML = `<div class="stack">${back("#/home", "Trang chính")}
+      <section class="panel" id="qLoad"><p class="muted">Đang tải đề…</p></section></div>`;
+    wireGo();
+    const box = $("#qLoad");
+    const failed = () => {
+      if (!box.isConnected) return;
+      box.innerHTML = `<h1>${esc(b.title)}</h1><p>Chưa tải được đề này. Bạn kiểm tra mạng rồi bấm Thử lại nhé.</p>
+        <p class="small muted">Đề đã mở một lần khi có mạng thì lần sau mở được cả khi mất mạng.</p>
+        <div class="row"><button class="btn main" id="qRetry">Thử lại</button></div>`;
+      $("#qRetry").onclick = () => renderQuiz(u, b.id);
+    };
+    Store.loadBank(b.id).then((x) => { if (box.isConnected) { if (x && x.questions) renderQuiz(u, b.id); else failed(); } }, failed);
   }
 
   /* ================= QUẢN TRỊ ================= */
@@ -937,7 +955,7 @@
         <div class="row"><button class="btn ghost sm" id="resetEv">Khôi phục lịch mặc định</button></div><div id="resetArea"></div>`;
     } else if (tab === "banks") {
       body = `<div class="row between"><p class="muted small" style="flex:1">Dán câu hỏi từ Word, Zalo, sách bài tập. App tự nhận dạng trắc nghiệm, điền khuyết, đúng/sai.</p><a class="btn main sm" href="#/admin/bank/new">+ Nhập ngân hàng</a></div>
-        <div class="list">${Store.banks().map((b) => `<a class="item" href="#/${b.seed ? "quiz" : "admin/bank"}/${esc(b.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${esc(b.title)}</b><span class="small muted">Lớp ${b.grade} · ${esc(b.subject)} · ${b.questions.length} câu${b.seed ? " · có sẵn (chỉ xem)" : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>`;
+        <div class="list">${Store.banks().map((b) => `<a class="item" href="#/${b.seed ? "quiz" : "admin/bank"}/${esc(b.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${esc(b.title)}</b><span class="small muted">Lớp ${b.grade} · ${esc(b.subject)} · ${qCount(b)} câu${b.seed ? " · có sẵn (chỉ xem)" : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>`;
     } else if (tab === "data" && cloud) {
       const st = Store.settings(), loc = Store.localData(), mig = Store.migratedAt();
       const kids = loc ? loc.users.filter((x) => x.role === "student").length : 0;

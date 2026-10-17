@@ -24,7 +24,7 @@
       settings: { schoolName: "", schoolYear: "2026–2027", createdAt: new Date().toISOString(), lastBackupAt: null }, // lastBackupAt: lần tải file sao lưu gần nhất (ISO)
       users: [],      // {id, role, name, avatar, salt, pinHash, pinLen, grade?, className?, parentIds?: [], createdAt}
       events: clone(window.ONTAP_SEED_EVENTS || []),
-      banks: [],      // ngân hàng do quản trị viên nhập (ngân hàng có sẵn nằm ở data/banks.js)
+      banks: [],      // ngân hàng do quản trị viên nhập (đề có sẵn nằm ở data/banks/)
       results: [],    // {id, userId, source:"module"|"bank", refId, subject, label, mode, r, t, s, at}
       seedBanksSeen: seedBankIds() // mã các ngân hàng có sẵn đã xét (xem linkNewSeedBanks)
     };
@@ -58,7 +58,7 @@
     db.events = db.events.filter((e) => !RETIRED_EVENTS.includes(e.id));
     if (db.events.length !== n) save();
   }
-  /* Bộ có sẵn đã bỏ khỏi data/banks.js (hai bộ mẫu 12 câu, thay bằng các đề cuối kì I): gỡ khỏi các kì thi trên máy.
+  /* Bộ có sẵn đã bỏ khỏi danh mục data/banks/index.js (hai bộ mẫu 12 câu, thay bằng các đề cuối kì I): gỡ khỏi các kì thi trên máy.
      Kết quả cũ vẫn giữ nguyên trong lịch sử. Giữ danh sách này giống RETIRED_SEED_BANKS ở store-supabase.js. */
   const RETIRED_SEED_BANKS = ["mau-toan4-ck1", "mau-toan6-ck1"];
   function dropRetiredBanks() {
@@ -70,7 +70,7 @@
     });
     if (changed) save();
   }
-  /* Lịch thi chỉ được chép vào máy một lần khi thiết lập. Khi data/banks.js có bộ mới và lịch mặc định
+  /* Lịch thi chỉ được chép vào máy một lần khi thiết lập. Khi data/banks/index.js có bộ mới và lịch mặc định
      gắn bộ đó vào một kì thi, gắn thêm vào kì thi đó trên máy đã có dữ liệu. Bộ đã xét thì không gắn lại,
      để giữ lựa chọn của quản trị viên khi họ bỏ gắn. */
   const SEED_BANKS_V1 = ["mau-toan4-ck1", "mau-toan6-ck1"]; // các bộ có sẵn trước khi có seedBanksSeen
@@ -209,10 +209,39 @@
   /* -------- Ngân hàng câu hỏi -------- */
   function banks(grade) {
     const seed = (window.ONTAP_SEED_BANKS || []).map((b) => Object.assign({ seed: true }, b));
-    const all = seed.concat(db.banks.map((b) => Object.assign({ seed: false }, b)));
+    const all = seed.concat((db ? db.banks : []).map((b) => Object.assign({ seed: false }, b)));
     return grade == null ? all : all.filter((b) => +b.grade === +grade);
   }
   const bankById = (id) => banks().find((b) => b.id === id) || null;
+  /* Đề có sẵn: lúc mở app chỉ có danh mục data/banks/index.js (không có câu hỏi). Câu hỏi nằm ở data/banks/<file>, mỗi file
+     một khối một môn, tải khi mở đề: file ghi vào ONTAP_SEED_QUESTIONS, tải xong thì note, questions được gắn vào mục
+     của danh mục, nên banks(), bank() từ đó trả về đề đủ câu hỏi. Mỗi file tải một lần; lỗi (mất mạng mà chưa mở đề nào
+     của file này) hoặc file thiếu đề thì lần sau tải lại.
+     loadBank(id) → Promise: đề có câu hỏi, null nếu không có đề này; ngân hàng tự nhập có sẵn câu hỏi.
+     Bản đám mây gọi hàm này (kho trên máy chưa nạp thì chỉ thấy đề có sẵn) rồi tự tìm lại đề trong kho của nó. */
+  const seedFiles = {};
+  function loadSeedFile(file) {
+    if (!seedFiles[file]) seedFiles[file] = new Promise((ok, fail) => {
+      const s = document.createElement("script");
+      s.src = "data/banks/" + file;
+      s.onload = () => {
+        const qs = window.ONTAP_SEED_QUESTIONS || {};
+        (window.ONTAP_SEED_BANKS || []).forEach((b) => { if (b.file === file && qs[b.id]) Object.assign(b, qs[b.id]); });
+        ok();
+      };
+      s.onerror = () => { delete seedFiles[file]; s.remove(); fail(new Error("Chưa tải được đề.")); };
+      document.head.append(s);
+    });
+    return seedFiles[file];
+  }
+  function loadBank(id) {
+    const s = (window.ONTAP_SEED_BANKS || []).find((b) => b.id === id);
+    if (!s || s.questions) return Promise.resolve(bankById(id));
+    return loadSeedFile(s.file).then(() => {
+      if (!s.questions) delete seedFiles[s.file];
+      return bankById(id);
+    });
+  }
   function upsertBank(b) {
     if ((window.ONTAP_SEED_BANKS || []).some((s) => s.id === b.id)) throw new Error("Không sửa được bộ có sẵn trong app. Hãy tạo bộ mới.");
     if (!b.title || !b.questions || !b.questions.length) throw new Error("Ngân hàng cần tên và ít nhất một câu hỏi.");
@@ -272,7 +301,7 @@
     user: (id) => (db ? db.users.find((u) => u.id === id) || null : null),
     setSession, sessionUser, lastUserId,
     events, event: (id) => db.events.find((e) => e.id === id) || null, upsertEvent, removeEvent, resetEvents,
-    banks, bank: bankById, upsertBank, removeBank,
+    banks, bank: bankById, loadBank, upsertBank, removeBank,
     addResult, resultsFor,
     exportJSON, importJSON, wipe,
     settings: () => db.settings, setSettings: (p) => { Object.assign(db.settings, p); save(); },

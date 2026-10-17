@@ -1,4 +1,4 @@
-/* Bộ làm bài chung cho các ngân hàng câu hỏi (data/banks.js và ngân hàng do quản trị viên nhập).
+/* Bộ làm bài chung cho các ngân hàng câu hỏi (đề có sẵn trong data/banks/ và ngân hàng do quản trị viên nhập).
    Quiz.run(el, bank, {mode:"exam"|"practice", onExit, onFinish}) → {stop(), busy(), answered(), submit(), exam}
      busy(): đang làm dở (làm như thi chưa nộp, hoặc ôn luyện đã trả lời hoặc bỏ qua ít nhất một câu);
      answered(): số câu đã trả lời (câu bấm "Bỏ qua" không tính); submit(): nộp bài như bấm Nộp.

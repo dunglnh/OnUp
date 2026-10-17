@@ -126,7 +126,7 @@ create table results (
 create index on results (profile_id, at desc);
 create index on results (family_id, at desc);
 
--- Đề của chủ app (chuyển từ data/banks.js bằng supabase/banks-to-sql.js). Câu hỏi cùng dạng với data/banks.js.
+-- Đề của chủ app (chuyển từ data/banks/ bằng supabase/banks-to-sql.js). Câu hỏi cùng dạng với đề có sẵn trong data/banks/.
 create table paid_banks (
   id text primary key check (id ~ '^[a-z0-9][a-z0-9-]{0,79}$'),
   title text not null check (char_length(title) between 1 and 200),

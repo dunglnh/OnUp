@@ -36,18 +36,18 @@ function memStorage() {
 /* Một "tab trình duyệt": nạp các file của app trong vm, như index.html. local: localStorage dùng chung (cùng máy). */
 function browser(opts = {}) {
   const localStorage = opts.local || memStorage(), sessionStorage = memStorage();
-  const loaded = [];
+  const loaded = [], scripts = [];
   const win = {
     console, setTimeout, clearTimeout, URLSearchParams, TextEncoder, crypto: webcrypto, atob, btoa, localStorage, sessionStorage,
     location: { origin: "https://dunglnh.github.io", pathname: "/OnUp/", search: "", hash: "", href: "https://dunglnh.github.io/OnUp/" },
     history: { replaceState() {} },
-    document: { head: { append: (s) => loaded.push(s.src) }, createElement: () => ({}), querySelector: () => null, body: { append() {} } }
+    document: { head: { append: (s) => { loaded.push(s.src); scripts.push(s); } }, createElement: () => ({ remove() {} }), querySelector: () => null, body: { append() {} } }
   };
   if (opts.turnstile) win.turnstile = opts.turnstile;
   win.window = win;
   const ctx = vm.createContext(win);
   const load = (f) => vm.runInContext(fs.readFileSync(ROOT + f, "utf8"), ctx, { filename: f });
-  ["data/grades.js", "data/calendar-2026-2027.js", "data/modules.js", "data/banks.js"].forEach(load);
+  ["data/grades.js", "data/calendar-2026-2027.js", "data/modules.js", "data/banks/index.js"].forEach(load);
   if (opts.realConfig) {
     load("js/config.js");
     // Kiểm thử "config.js để trống" dù js/config.js thật đã điền Supabase: giữ mọi mục khác của file, chỉ xóa hai giá trị này.
@@ -58,7 +58,7 @@ function browser(opts = {}) {
   load("js/store-supabase.js");
   const errors = [];
   if (win.Store.cloud) win.Store.onError = (m) => errors.push(m);
-  return { win, get Store() { return win.Store; }, Local: win.LocalStore, errors, localStorage, sessionStorage, loaded };
+  return { win, get Store() { return win.Store; }, Local: win.LocalStore, errors, localStorage, sessionStorage, loaded, scripts, load };
 }
 const fam = (u) => be.T.families.find((f) => f.username === u);
 const profilesOf = (u) => be.T.profiles.filter((p) => p.family_id === fam(u).id);
@@ -216,7 +216,7 @@ ok(B.Store.authState() === "ready" && !!dev.getItem(AUTH) && !B.sessionStorage.g
   ok(S.sessionUser() === null && S.authState() === "ready", "đổi người học: về “Ai đang học?”, không đăng xuất");
 }
 
-/* ---------- 7. lịch thi, ngân hàng tự nhập, thông tin chung ---------- */
+/* ---------- 7. lịch thi, ngân hàng tự nhập, đề có sẵn, thông tin chung ---------- */
 {
   const S = A.Store, fid = fam("nha.bin").id;
   const ev = S.upsertEvent({ title: "Thi thử", grades: [4], start: "2026-12-01", end: "2026-12-02" });
@@ -225,6 +225,21 @@ ok(B.Store.authState() === "ready" && !!dev.getItem(AUTH) && !B.sessionStorage.g
   await S.flush();
   ok(be.T.exam_events.some((e) => e.family_id === fid && e.id === ev.id && e.start_date === "2026-12-01") && be.T.question_banks.some((b) => b.family_id === fid && b.id === bk.id)
     && fam("nha.bin").display_name === "Nhà Bin Na", "thêm kì thi, ngân hàng đề, đổi tên gia đình: lên máy chủ");
+  // Đề có sẵn: lúc mở app chỉ có danh mục data/banks/index.js; câu hỏi tải khi mở đề (loadBank dùng chung với LocalStore).
+  const seed = S.bank("toan4-ck1-de1"), nTags = A.scripts.length;
+  const p1 = S.loadBank("toan4-ck1-de1"), p2 = S.loadBank("toan4-ck1-de2"), tag = A.scripts[nTags];
+  ok(seed.seed && !seed.questions && seed.n === 25 && A.scripts.length === nTags + 1 && tag.src === "data/banks/4-toan.js",
+    "đề có sẵn: chưa có câu hỏi; mở đề thì tải file câu hỏi của khối, môn đó (hai đề cùng file: tải một lần)");
+  A.load("data/banks/4-toan.js"); tag.onload();
+  const [b1, b2] = await Promise.all([p1, p2]);
+  ok(b1.seed && b1.questions.length === 25 && b2.questions.length === 25 && S.bank("toan4-ck1-de1").questions.length === 25
+    && (await S.loadBank("toan4-ck1-de3")).questions.length === 25 && A.scripts.length === nTags + 1, "tải xong: đề đủ câu hỏi, không tải lại file");
+  ok((await S.loadBank(bk.id)).questions.length === 1 && (await S.loadBank("khong-co")) === null && A.scripts.length === nTags + 1,
+    "loadBank: ngân hàng tự nhập có sẵn câu hỏi, đề không có thì null");
+  const p3 = S.loadBank("khtn6-ck1-de1"); A.scripts[nTags + 1].onerror();
+  await throwsMsg(() => p3, /Chưa tải được đề/, "mất mạng: tải đề báo lỗi");
+  S.loadBank("khtn6-ck1-de1");
+  ok(A.scripts.length === nTags + 3 && A.scripts[nTags + 2].src === "data/banks/6-khtn.js", "lần sau tải lại file");
   S.removeEvent(ev.id); S.removeBank(bk.id);
   await S.flush();
   ok(!be.T.exam_events.some((e) => e.id === ev.id) && !be.T.question_banks.some((b) => b.id === bk.id), "xóa kì thi, ngân hàng đề");

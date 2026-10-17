@@ -20,7 +20,7 @@
    - Các hàm ghi cập nhật bộ nhớ đệm ngay, rồi đẩy lên máy chủ theo hàng đợi (giữ đúng thứ tự).
      Đẩy lên thất bại thì báo qua Store.onError (app hiện toast) và tải lại dữ liệu thật từ máy chủ.
      createUser, updateUser, checkPin là async như LocalStore; hai hàm đầu chờ máy chủ trả lời và báo lỗi trực tiếp.
-   - Ngân hàng có sẵn (data/banks.js) không lưu lên máy chủ; seed_banks_seen của families làm việc như seedBanksSeen.
+   - Đề có sẵn (data/banks/) không lưu lên máy chủ; seed_banks_seen của families làm việc như seedBanksSeen.
    Phiên đăng nhập mặc định chỉ giữ trong tab (sessionStorage), như bản cục bộ; chọn "Ghi nhớ trên máy này" thì giữ lâu dài.
    Kết quả làm bài được giữ trong hộp gửi (localStorage) tới khi máy chủ nhận, nên mất mạng cũng không mất điểm. */
 (function () {
@@ -239,7 +239,7 @@
     else { dropRetiredBanks(); linkNewSeedBanks(); }
     return true;
   }
-  /* Như LocalStore: bộ có sẵn đã bỏ khỏi data/banks.js thì gỡ khỏi kì thi, ghi lại lên máy chủ. */
+  /* Như LocalStore: bộ có sẵn đã bỏ khỏi danh mục data/banks/index.js thì gỡ khỏi kì thi, ghi lại lên máy chủ. */
   const RETIRED_SEED_BANKS = ["mau-toan4-ck1", "mau-toan6-ck1"];
   function dropRetiredBanks() {
     const changedEv = [];
@@ -252,7 +252,7 @@
       push(() => sb.from("exam_events").upsert(rows, { onConflict: "family_id,id" }));
     }
   }
-  /* Như LocalStore: bộ có sẵn mới trong data/banks.js được gắn vào kì thi theo lịch mặc định; bộ phụ huynh đã bỏ gắn
+  /* Như LocalStore: bộ có sẵn mới trong danh mục data/banks/index.js được gắn vào kì thi theo lịch mặc định; bộ phụ huynh đã bỏ gắn
      (đã có trong seedBanksSeen) thì không gắn lại. */
   function linkNewSeedBanks() {
     const seen = new Set(db.seedBanksSeen);
@@ -566,6 +566,8 @@
     return grade == null ? list : list.filter((b) => +b.grade === +grade);
   }
   const bankById = (id) => banks().find((b) => b.id === id) || null;
+  // Câu hỏi của đề có sẵn tải khi mở đề, cùng cách với LocalStore (loadBank trong js/store.js).
+  const loadBank = (id) => Local.loadBank(id).then(() => bankById(id));
   function upsertBank(b) {
     if ((window.ONTAP_SEED_BANKS || []).some((s) => s.id === b.id)) throw new Error("Không sửa được bộ có sẵn trong app. Hãy tạo bộ mới.");
     if (!b.title || !b.questions || !b.questions.length) throw new Error("Ngân hàng cần tên và ít nhất một câu hỏi.");
@@ -729,7 +731,7 @@
     user: (id) => (db ? db.users.find((u) => u.id === id) || null : null),
     setSession, sessionUser, lastUserId: () => lsGet(LAST_KEY),
     events, event: (id) => (db ? db.events.find((e) => e.id === id) || null : null), upsertEvent, removeEvent, resetEvents,
-    banks, bank: bankById, upsertBank, removeBank,
+    banks, bank: bankById, loadBank, upsertBank, removeBank,
     addResult, resultsFor,
     exportJSON, importJSON, wipe,
     settings: () => (db ? db.settings : {}), setSettings,
