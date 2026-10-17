@@ -1,20 +1,27 @@
 /* SupabaseStore: kho dữ liệu trên đám mây (Supabase), CÙNG các hàm với LocalStore trong js/store.js.
    Chỉ bật khi js/config.js có supabaseUrl và supabaseAnonKey; để trống thì file này không làm gì,
-   app dùng LocalStore như cũ và không tải thư viện nào từ mạng.
+   app dùng LocalStore như cũ và không tải thư viện nào từ mạng. Thiết kế: docs/THIET-KE-TAI-KHOAN.md.
+
+   Tài khoản: một tài khoản = một gia đình, do phụ huynh giữ, đăng nhập bằng tên đăng nhập + mật khẩu (Supabase Auth lưu
+   dạng email nội bộ <tên>@users.onup.invalid, không gửi thư). Con là hồ sơ (bảng profiles) trong tài khoản, dùng chung
+   phiên đăng nhập của bố mẹ. Trong app:
+   - Người lớn là một người dùng ảo PARENT, vai trò "admin" (quản lý: hồ sơ con, lịch thi, ngân hàng đề, dữ liệu),
+     hiện tên "Phụ huynh". Mỗi hồ sơ con là một học sinh (role "student", parentIds = [PARENT]).
+   - Sau khi đăng nhập, tab chọn "Ai đang học?" (setSession: mã hồ sơ con hoặc PARENT, giữ trong sessionStorage).
+     Vào PARENT phải nhập lại mật khẩu (checkPassword); vừa nhập mật khẩu trong 5 phút thì không hỏi lại (parentUnlocked).
+   - PIN của hồ sơ con (4 số, không bắt buộc) chỉ khóa trên giao diện: app tự băm, kiểm tra ngay trên máy.
+   - Mật khẩu tạm (families.must_change_password): authState "change-password", app bắt đặt mật khẩu mới.
+   - Hạn mức hồ sơ con theo gói (bảng plans): Store.can("addChild"). Máy chủ cũng chặn bằng trigger.
 
    Cách chạy:
    - Store.init() tải supabase-js (bản UMD, ghi rõ phiên bản + mã kiểm tra SRI), đọc phiên đăng nhập,
-     rồi tải vào bộ nhớ đệm mọi dữ liệu người đăng nhập được xem (RLS trong supabase/schema.sql quyết định).
+     rồi tải vào bộ nhớ đệm mọi dữ liệu của gia đình (RLS trong supabase/schema.sql quyết định).
    - Các hàm đọc (users, events, resultsFor…) đọc đồng bộ từ bộ nhớ đệm, như LocalStore.
    - Các hàm ghi cập nhật bộ nhớ đệm ngay, rồi đẩy lên máy chủ theo hàng đợi (giữ đúng thứ tự).
      Đẩy lên thất bại thì báo qua Store.onError (app hiện toast) và tải lại dữ liệu thật từ máy chủ.
-     createUser, updateUser, checkPin là async như LocalStore, nên chờ máy chủ trả lời và báo lỗi trực tiếp.
-   - Ngân hàng có sẵn (data/banks.js) không lưu lên máy chủ. Lịch thi mặc định được chép vào family khi tạo.
-
-   Đăng nhập: quản trị/phụ huynh bằng email (magic link hoặc mã số trong email); học sinh bằng
-   mã gia đình + PIN qua Edge Function "student-login" (PIN băm phía máy chủ). Xem docs/HUONG-DAN-SUPABASE.md.
-   Phiên đăng nhập mặc định chỉ giữ trong tab (sessionStorage), như bản cục bộ; người lớn chọn "Ghi nhớ trên máy này"
-   thì mới giữ lâu dài. Mỗi tab học sinh có phiên ẩn danh riêng.
+     createUser, updateUser, checkPin là async như LocalStore; hai hàm đầu chờ máy chủ trả lời và báo lỗi trực tiếp.
+   - Ngân hàng có sẵn (data/banks.js) không lưu lên máy chủ; seed_banks_seen của families làm việc như seedBanksSeen.
+   Phiên đăng nhập mặc định chỉ giữ trong tab (sessionStorage), như bản cục bộ; chọn "Ghi nhớ trên máy này" thì giữ lâu dài.
    Kết quả làm bài được giữ trong hộp gửi (localStorage) tới khi máy chủ nhận, nên mất mạng cũng không mất điểm. */
 (function () {
   "use strict";
@@ -26,19 +33,19 @@
     src: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js",
     integrity: "sha384-iLddHTLokph6Omwoyid4XKxHaWa6w41BnoEj0q5oOrzmYPpHIKt1wyjReA7s//pP"
   };
-  const FN = CFG.studentFunction || "student-login";
-  const LOCAL_KEY = "ontap_db_v1";          // dữ liệu của LocalStore trên máy này (để chuyển lên)
-  const KID_FLAG = "ontap_cloud_kid";       // sessionStorage: mã hồ sơ học sinh đã nhập PIN trong tab này
-  const LAST_KEY = "ontap_cloud_last";      // localStorage: mã gia đình và học sinh gần nhất trên máy này
+  const LOGIN_DOMAIN = "users.onup.invalid";  // như LOGIN_DOMAIN trong supabase/functions/admin/index.ts
+  const PARENT = "phu-huynh";                 // mã người dùng ảo của phụ huynh (không trùng mã hồ sơ, là UUID)
+  const LOCAL_KEY = "ontap_db_v1";            // dữ liệu của LocalStore trên máy này (để chuyển lên)
+  const WHO_KEY = "ontap_cloud_who";          // sessionStorage: hồ sơ đang dùng trong tab này
+  const LAST_KEY = "ontap_cloud_last";        // localStorage: hồ sơ con chọn gần nhất trên máy này
   const MIGRATED_KEY = "ontap_cloud_migrated";
-  const REMEMBER_KEY = "ontap_cloud_remember"; // localStorage: "1" = giữ đăng nhập email trên máy này
-  const OUTBOX_KEY = "ontap_cloud_outbox";  // localStorage: kết quả chưa gửi được, theo mã hồ sơ
+  const REMEMBER_KEY = "ontap_cloud_remember"; // localStorage: "1" = giữ đăng nhập trên máy này
+  const OUTBOX_KEY = "ontap_cloud_outbox";    // localStorage: kết quả chưa gửi được, theo mã hồ sơ
   const AUTH_KEY = "ontap_sb_auth";
-  const MUST_CHANGE_KEY = "ontap_cloud_must_change"; // sessionStorage: học sinh đang dùng PIN cũ, nên đổi
-  const DEVICE_KEY = "ontap_device";        // localStorage: mã ngẫu nhiên của máy này (máy quen của con)
-  const MAX_PER_STUDENT = 2000;             // như trigger results_trim trong schema.sql
+  const UNLOCK_MS = 5 * 60e3;                 // vừa nhập mật khẩu trong 5 phút: vào khu phụ huynh không hỏi lại
+  const MAX_PER_STUDENT = 2000;               // như trim_results_of trong schema.sql
   const MAX_FETCH = 20000;
-  const ROLES = Local.ROLES;
+  const ROLES = { admin: "Phụ huynh", parent: "Phụ huynh", student: "Học sinh" };
 
   const clone = (x) => JSON.parse(JSON.stringify(x));
   const uuid = () => (crypto.randomUUID ? crypto.randomUUID()
@@ -50,38 +57,65 @@
   const ssGet = (k) => { try { return sessionStorage.getItem(k); } catch (e) { return null; } };
   const ssSet = (k, v) => { try { sessionStorage.setItem(k, v); } catch (e) {} };
   const ssDel = (k) => { try { sessionStorage.removeItem(k); } catch (e) {} };
+  const todayVN = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
 
-  /* PIN mới ở bản đám mây: 6 chữ số, không dễ đoán (giống pinProblem trong Edge Function). PIN cũ 4–5 số vẫn đăng nhập được. */
-  function pinProblem(pin) {
-    pin = String(pin || "");
-    if (!/^\d{6}$/.test(pin)) return "pin";
-    const d = [...pin].map(Number), steps = d.slice(1).map((x, i) => x - d[i]);
-    if (steps.every((x) => x === steps[0]) && Math.abs(steps[0]) <= 1) return "weak";
-    if (pin === pin.slice(0, 2).repeat(3) || pin === pin.slice(0, 3).repeat(2)) return "weak";
-    const y1 = +pin.slice(0, 4), y2 = +pin.slice(2);
-    if ((y1 >= 2010 && y1 <= 2019) || (y2 >= 2010 && y2 <= 2019)) return "weak";
-    return null;
+  /* Khối lớp: data/grades.js, như js/store.js. */
+  const activeGrades = () => (window.ONTAP_GRADES || []).filter((g) => g.active).map((g) => g.grade);
+  function gradeMsg() {
+    const a = activeGrades();
+    return "Chọn khối lớp " + (a.length > 1 ? a.slice(0, -1).join(", ") + " hoặc " + a[a.length - 1] : a.join("")) + ".";
   }
-  const validPin = (pin) => !pinProblem(pin);
-  const PIN_MSG = { pin: "Mã PIN gồm 6 chữ số.", weak: "Mã PIN dễ đoán quá (như 111111, 123456 hay năm sinh). Chọn số khác nhé." };
+  /* Tên đăng nhập, mật khẩu: như usernameProblem, passwordProblem trong supabase/functions/admin/index.ts. */
+  const usernameProblem = (u) => !/^[a-z0-9][a-z0-9._]{2,18}[a-z0-9]$/.test(u) || u.includes("..");
+  const loginEmail = (u) => u + "@" + LOGIN_DOMAIN;
 
-  /* Nơi supabase-js giữ phiên: mặc định sessionStorage (đóng tab là thoát, như bản cục bộ). Người lớn chọn ghi nhớ
-     thì localStorage. Phiên ẩn danh của học sinh luôn ở sessionStorage. Mã PKCE ở localStorage để mở link trong tab mới. */
+  /* ---------------- PIN của hồ sơ con ----------------
+     Chỉ là khóa trên giao diện (anh em khỏi dùng nhầm hồ sơ), không phải bảo mật: máy chủ không đọc, app tự băm.
+     pin_hash = "<muối>$<mã băm>", mã băm như hashPin trong js/store.js, nên PIN chuyển từ máy cũ (import_local ghi đúng
+     dạng này) vẫn dùng được. Muối bắt đầu bằng "<độ dài>." (ví dụ "4.k2j…") để bàn phím biết khi nào gõ đủ; PIN chuyển
+     từ máy cũ chưa có độ dài, nhập đúng một lần thì app băm lại kèm độ dài. PIN mới ở bản đám mây gồm 4 số. */
+  async function hashPin(pin, salt) {
+    const text = salt + ":" + pin;
+    try {
+      if (window.crypto && crypto.subtle) {
+        const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+        return "s256:" + [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+      }
+    } catch (e) { /* rơi xuống cách dự phòng */ }
+    let h = 2166136261;
+    for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return "fnv:" + (h >>> 0).toString(16);
+  }
+  const validPin = (pin) => /^\d{4}$/.test(String(pin == null ? "" : pin));
+  const PIN_MSG = "Mã PIN gồm đúng 4 chữ số.";
+  async function makePinHash(pin) {
+    pin = String(pin);
+    const salt = pin.length + "." + uuid().replace(/-/g, "").slice(0, 16);
+    return salt + "$" + (await hashPin(pin, salt));
+  }
+  function parsePin(h) {
+    if (!h) return null;
+    h = String(h);
+    const i = h.lastIndexOf("$");
+    if (i < 0) return { salt: "", hash: h, len: 0 }; // sai dạng: coi như có PIN (không khớp), bố mẹ đặt lại được
+    const salt = h.slice(0, i), m = /^([4-6])\./.exec(salt);
+    return { salt, hash: h.slice(i + 1), len: m ? +m[1] : 0 };
+  }
+
+  /* Nơi supabase-js giữ phiên: mặc định sessionStorage (đóng tab là thoát, như bản cục bộ); chọn ghi nhớ thì localStorage. */
   const authStorage = {
-    getItem(k) { return ssGet(k) || ((/code-verifier/.test(k) || lsGet(REMEMBER_KEY) === "1") ? lsGet(k) : null); },
-    setItem(k, v) {
-      let anon = false;
-      try { anon = !!JSON.parse(v).user.is_anonymous; } catch (e) {}
-      if (/code-verifier/.test(k) || (!anon && lsGet(REMEMBER_KEY) === "1")) { lsSet(k, v); ssDel(k); } else { ssSet(k, v); lsDel(k); }
-    },
+    getItem(k) { return ssGet(k) || (lsGet(REMEMBER_KEY) === "1" ? lsGet(k) : null); },
+    setItem(k, v) { if (lsGet(REMEMBER_KEY) === "1") { lsSet(k, v); ssDel(k); } else { ssSet(k, v); lsDel(k); } },
     removeItem(k) { ssDel(k); lsDel(k); }
   };
 
   let sb = null;              // client supabase-js
   let db = null;              // bộ nhớ đệm, cùng dạng với db của LocalStore
-  let famId = null, meId = null, authUser = null;
-  let state = "signed-out";   // "signed-out" | "no-profile" (email chưa thuộc gia đình nào) | "ready"
-  let authErr = "";
+  let fam = null, famId = null, authUser = null, plan = null;
+  let state = "signed-out";   // "signed-out" | "change-password" | "locked" | "no-family" | "ready"
+  let who = null;             // hồ sơ đang dùng khi sessionStorage bị chặn
+  let unlockedAt = 0;         // lần gần nhất nhập đúng mật khẩu trong trang này
+  const pins = new Map();     // mã hồ sơ → {salt, hash, len}
   let queue = Promise.resolve();
 
   /* ---------------- thông báo lỗi ---------------- */
@@ -89,15 +123,19 @@
   function errMsg(e, fallback) {
     const m = String((e && (e.message || e.error_description || e.msg)) || e || "");
     if (/fetch|network|Load failed|NetworkError/i.test(m)) return "Mất kết nối mạng. Kiểm tra mạng rồi thử lại.";
-    if (/rate limit|security purposes|only request this/i.test(m)) return "Gửi quá nhiều lần. Đợi một phút rồi thử lại.";
+    if (/rate limit|security purposes|only request this|too many/i.test(m)) return "Thử quá nhiều lần. Đợi vài phút rồi thử lại.";
     if (/captcha/i.test(m)) return CFG.turnstileSiteKey ? "Chưa xác minh được. Tải lại trang rồi thử lại."
       : "Máy chủ đang bật chống máy tự động (CAPTCHA) nhưng app chưa có khóa CAPTCHA. Báo người cài đặt xem hướng dẫn.";
-    if (/anonymous sign-ins are disabled/i.test(m)) return "Máy chủ chưa bật đăng nhập cho học sinh (Anonymous sign-ins). Báo bố mẹ xem hướng dẫn cài đặt.";
-    if (/expired|invalid.*(otp|token)|otp.*invalid/i.test(m)) return "Mã trong email đã hết hạn hoặc chưa đúng. Gửi lại mã mới nhé.";
+    if (/invalid login credentials/i.test(m)) return "Tên đăng nhập hoặc mật khẩu chưa đúng.";
+    if (/banned/i.test(m)) return "Tài khoản đang bị khóa. Liên hệ người cấp tài khoản.";
+    if (/should be different/i.test(m)) return "Mật khẩu mới phải khác mật khẩu đang dùng.";
+    if (/password should|weak.?password|at least \d+ char/i.test(m)) return "Mật khẩu cần ít nhất 8 kí tự.";
+    if (/session missing|JWT|not authenticated/i.test(m)) return "Phiên đăng nhập đã hết. Đăng nhập lại nhé.";
     if (VI.test(m) && m.length < 200) return m;
     return fallback || "Máy chủ chưa nhận được thay đổi. Tải lại trang rồi thử lại.";
   }
   const report = (msg) => { if (typeof Store.onError === "function") Store.onError(msg); };
+  const changed = () => { if (typeof Store.onChange === "function") setTimeout(Store.onChange, 0); };
   let refreshTimer = null;
   function refreshSoon() {
     clearTimeout(refreshTimer);
@@ -123,12 +161,12 @@
     return queue;
   }
   const flush = () => queue;
-  const FAMILY_COLS = "id, name, school_year, seed_banks_seen, created_at"; // join_code đọc qua get_join_code()
+  const FAMILY_COLS = "id, username, display_name, school_year, seed_banks_seen, plan, plan_until, must_change_password, status, created_at";
 
   async function all(table, order) {
     const N = 1000, out = [];
     for (let from = 0; ; from += N) {
-      let q = sb.from(table).select(table === "families" ? FAMILY_COLS : "*");
+      let q = sb.from(table).select("*");
       if (order) q = order(q);
       const rows = await run(q.range(from, from + N - 1));
       out.push(...(rows || []));
@@ -136,44 +174,12 @@
     }
   }
 
-  const FN_ERR = {
-    code: "Mã gia đình chưa đúng. Hỏi bố mẹ mã gia đình nhé.", wrong: "Mã PIN chưa đúng. Thử lại nhé.",
-    auth: "Phiên đăng nhập đã hết. Tải lại trang rồi thử lại.", forbidden: "Không có quyền làm việc này.",
-    pin: PIN_MSG.pin, weak: PIN_MSG.weak, server: "Máy chủ đang lỗi. Thử lại sau ít phút.", bad_request: "Yêu cầu không hợp lệ."
-  };
-  const fnError = (d) => (d.error === "locked" ? (d.reset ? "Mã PIN đã bị khóa vì nhập sai nhiều lần. Nhờ bố mẹ đặt lại mã PIN nhé."
-    : `Sai nhiều lần. Đợi ${d.wait} giây rồi thử lại.`) : FN_ERR[d.error] || "Có lỗi, thử lại nhé.");
-  function deviceId() {
-    let d = lsGet(DEVICE_KEY);
-    if (!/^[A-Za-z0-9_-]{16,64}$/.test(d || "")) { d = uuid().replace(/-/g, ""); lsSet(DEVICE_KEY, d); }
-    return d;
-  }
-  async function invoke(body) {
-    body = Object.assign({ device: deviceId() }, body);
-    const { data, error } = await sb.functions.invoke(FN, { body });
-    if (error) {
-      let d = null;
-      try { if (error.context && typeof error.context.json === "function") d = await error.context.json(); } catch (e) {}
-      if (d && d.error) return d;
-      throw new Error(errMsg(error, "Không gọi được máy chủ đăng nhập. Kiểm tra mạng rồi thử lại."));
-    }
-    return data || {};
-  }
-  async function setPin(studentId, pin, oldPin) {
-    const d = await invoke({ action: "set_pin", studentId, pin: String(pin), oldPin: oldPin == null ? undefined : String(oldPin) });
-    if (d.error) throw new Error(d.error === "wrong" ? "Mã PIN hiện tại chưa đúng." : fnError(d));
-  }
-
   /* ---------------- chuyển dạng dữ liệu ---------------- */
-  function toUser(p, links, pins) {
-    const u = { id: p.id, role: p.role, name: p.name, avatar: p.avatar, createdAt: p.created_at, linked: !!p.auth_user_id, inviteCode: p.invite_code || null };
-    if (p.role === "student") {
-      u.grade = +p.grade; u.className = p.class_name || "";
-      u.parentIds = links.filter((l) => l.child_id === p.id).map((l) => l.parent_id);
-      const st = (pins || []).find((x) => x.profile_id === p.id);
-      if (st) { u.pinLocked = !!st.locked; u.pinOld = !!st.legacy; }
-    }
-    return u;
+  function toUser(p) {
+    const pin = parsePin(p.pin_hash);
+    if (pin) pins.set(p.id, pin); else pins.delete(p.id);
+    return { id: p.id, role: "student", name: p.name, avatar: p.avatar, grade: +p.grade, className: p.class_name || "", parentIds: [PARENT],
+      createdAt: p.created_at, pinLen: pin ? pin.len : 0, hasPin: !!pin, locked: !!p.locked };
   }
   const toEvent = (e) => ({
     id: e.id, title: e.title, kind: e.kind, grades: (e.grades || []).map(Number), start: e.start_date || null, end: e.end_date || null,
@@ -191,95 +197,110 @@
   });
 
   /* ---------------- tải dữ liệu ---------------- */
+  /* Đọc dòng families của tài khoản đang đăng nhập rồi đặt state. Chỉ khi tài khoản đang hoạt động và đã đổi mật khẩu tạm
+     mới tải hồ sơ con, kết quả, lịch thi. Lỗi mạng thì ném lỗi, giữ nguyên bộ nhớ đệm cũ. */
   async function loadAll() {
-    const pid = await rpc("current_profile_id");
-    if (!pid) { db = null; meId = null; famId = null; return false; }
-    const [fam, profs, links, evs, bks, res] = await Promise.all([
-      run(sb.from("families").select(FAMILY_COLS).maybeSingle()),
-      all("profiles"), all("parent_child"), all("exam_events"), all("question_banks"),
-      all("results", (q) => q.order("at", { ascending: false }).order("id"))
+    // Lọc theo người đăng nhập: chủ app đọc được mọi dòng families.
+    const f = await run(sb.from("families").select(FAMILY_COLS).eq("auth_user_id", authUser.id).maybeSingle());
+    fam = f || null;
+    famId = f && f.status === "active" ? f.id : null;
+    if (!f || f.status !== "active" || f.must_change_password) {
+      db = null; plan = null;
+      state = !f ? "no-family" : f.status !== "active" ? "locked" : "change-password";
+      return false;
+    }
+    try { await rpc("touch"); } catch (e) { /* chỉ để ghi lần dùng gần nhất và tính lại hồ sơ bị khóa */ }
+    const [profs, evs, bks, res, plans] = await Promise.all([
+      all("profiles", (q) => q.order("created_at").order("id")), all("exam_events"), all("question_banks"),
+      all("results", (q) => q.order("at", { ascending: false }).order("id")),
+      run(sb.from("plans").select("id, name, max_children"))
     ]);
-    if (!fam) { db = null; return false; }
-    const role = (profs.find((p) => p.id === pid) || {}).role;
-    const adult = role === "admin" || role === "parent";
-    const [joinCode, pins] = adult ? await Promise.all([rpc("get_join_code"), rpc("child_pin_status")]) : [lastLogin().code || "", []];
-    famId = fam.id; meId = pid;
+    const paid = f.plan !== "free" && !!f.plan_until && f.plan_until >= todayVN(); // như plan_active() trong schema.sql
+    const p = (plans || []).find((x) => x.id === (paid ? f.plan : "free")) || (plans || []).find((x) => x.id === "free") || {};
+    plan = { id: p.id || "free", name: p.name || "", maxChildren: +p.max_children || 0, until: paid ? f.plan_until : null };
+    pins.clear();
+    const parent = { id: PARENT, role: "admin", name: "Phụ huynh", avatar: "🌻", createdAt: f.created_at };
     db = {
       v: 1,
-      settings: { schoolName: fam.name || "", schoolYear: fam.school_year || "", joinCode: joinCode || "", createdAt: fam.created_at },
-      users: profs.map((p) => toUser(p, links, pins)),
+      settings: { schoolName: f.display_name || "", schoolYear: f.school_year || "", username: f.username, createdAt: f.created_at },
+      users: [parent].concat(profs.map(toUser)),
       events: evs.map(toEvent),
       banks: bks.map(toBank),
       results: res.reverse().map(toResult),
-      seedBanksSeen: fam.seed_banks_seen || []
+      seedBanksSeen: f.seed_banks_seen || []
     };
+    state = "ready";
     // kết quả còn trong hộp gửi của máy này: hiện luôn, gửi lại sau
-    const seen = new Set(db.results.map((r) => r.id));
-    Object.keys(outbox()).forEach((uid) => (outbox()[uid] || []).forEach((r) => {
+    const seen = new Set(db.results.map((r) => r.id)), box = outbox();
+    Object.keys(box).forEach((pid) => (box[pid] || []).forEach((r) => {
       if (!seen.has(r.id) && db.users.some((u) => u.id === r.userId)) db.results.push(Object.assign({}, r));
     }));
-    dropRetiredBanks();
-    linkNewSeedBanks();
+    if (!db.events.length && !db.seedBanksSeen.length) seedEvents();
+    else { dropRetiredBanks(); linkNewSeedBanks(); }
     return true;
   }
-  /* Như LocalStore: bộ có sẵn mới trong data/banks.js được gắn vào kì thi theo lịch mặc định; bộ quản trị viên
-     đã bỏ gắn (đã có trong seedBanksSeen) thì không gắn lại. Chỉ quản trị ghi lên máy chủ; các vai khác chỉ
-     thấy trong bộ nhớ đệm cho tới khi quản trị mở app. */
-  /* Như LocalStore: bộ có sẵn đã bỏ khỏi data/banks.js thì gỡ khỏi kì thi. Quản trị ghi lại lên máy chủ. */
+  /* Như LocalStore: bộ có sẵn đã bỏ khỏi data/banks.js thì gỡ khỏi kì thi, ghi lại lên máy chủ. */
   const RETIRED_SEED_BANKS = ["mau-toan4-ck1", "mau-toan6-ck1"];
   function dropRetiredBanks() {
-    const changed = [];
+    const changedEv = [];
     db.events.forEach((e) => {
       const keep = (e.banks || []).filter((id) => !RETIRED_SEED_BANKS.includes(id));
-      if (keep.length !== (e.banks || []).length) { e.banks = keep; changed.push(e); }
+      if (keep.length !== (e.banks || []).length) { e.banks = keep; changedEv.push(e); }
     });
-    const me = sessionUser();
-    if (changed.length && me && me.role === "admin") {
-      const rows = changed.map(fromEvent);
+    if (changedEv.length) {
+      const rows = changedEv.map(fromEvent);
       push(() => sb.from("exam_events").upsert(rows, { onConflict: "family_id,id" }));
     }
   }
+  /* Như LocalStore: bộ có sẵn mới trong data/banks.js được gắn vào kì thi theo lịch mặc định; bộ phụ huynh đã bỏ gắn
+     (đã có trong seedBanksSeen) thì không gắn lại. */
   function linkNewSeedBanks() {
     const seen = new Set(db.seedBanksSeen);
     const fresh = seedBankIds().filter((id) => !seen.has(id));
     if (!fresh.length) return;
-    const changed = [];
+    const changedEv = [];
     (window.ONTAP_SEED_EVENTS || []).forEach((se) => {
       const ev = db.events.find((e) => e.id === se.id), add = (se.banks || []).filter((id) => fresh.includes(id));
-      if (ev && add.length) { ev.banks = add.concat((ev.banks || []).filter((id) => !add.includes(id))); changed.push(ev); }
+      if (ev && add.length) { ev.banks = add.concat((ev.banks || []).filter((id) => !add.includes(id))); changedEv.push(ev); }
     });
     db.seedBanksSeen = Array.from(seen).concat(fresh);
-    const me = sessionUser();
-    if (me && me.role === "admin") {
-      const seenNow = db.seedBanksSeen.slice(), rows = changed.map(fromEvent);
-      push(async () => {
-        if (rows.length) await run(sb.from("exam_events").upsert(rows, { onConflict: "family_id,id" }));
-        return sb.from("families").update({ seed_banks_seen: seenNow }).eq("id", famId);
-      });
-    }
+    const seenNow = db.seedBanksSeen.slice(), rows = changedEv.map(fromEvent);
+    push(async () => {
+      if (rows.length) await run(sb.from("exam_events").upsert(rows, { onConflict: "family_id,id" }));
+      return sb.from("families").update({ seed_banks_seen: seenNow }).eq("id", famId);
+    });
+  }
+  /* Tài khoản mới (Edge Function admin chỉ tạo dòng families) chưa có lịch thi nào và chưa xét bộ có sẵn nào:
+     chép lịch mặc định, như bản cục bộ chép lúc thiết lập lần đầu. */
+  function seedEvents() {
+    db.events = clone(window.ONTAP_SEED_EVENTS || []); db.seedBanksSeen = seedBankIds();
+    const rows = db.events.map(fromEvent), seen = db.seedBanksSeen.slice();
+    push(async () => {
+      if (rows.length) await run(sb.from("exam_events").upsert(rows, { onConflict: "family_id,id" }));
+      return sb.from("families").update({ seed_banks_seen: seen }).eq("id", famId);
+    });
   }
 
-  async function afterAuth(session) {
-    authUser = session ? session.user : null; db = null; meId = null;
-    if (!authUser) { state = "signed-out"; return; }
-    const kid = ssGet(KID_FLAG);
-    if (authUser.is_anonymous && !kid) { state = "signed-out"; return; }
-    const ok = await loadAll();
-    // Tab này đã đăng nhập cho một học sinh; nếu máy chủ nói là người khác thì không nhận (bắt đăng nhập lại).
-    if (ok && authUser.is_anonymous && meId !== kid) { db = null; meId = null; state = "signed-out"; return; }
-    state = ok ? "ready" : authUser.is_anonymous ? "signed-out" : "no-profile";
+  /* Phiên không còn dùng được (hết hạn, chủ app đặt lại mật khẩu, khóa tài khoản): máy chủ từ chối thay vì báo lỗi mạng. */
+  const authFail = (e) => /^(42501|PGRST30\d)$/.test(String((e && e.code) || "")) || /JWT|session/i.test(String((e && e.message) || ""));
+  /* Tải lại dữ liệu; phiên không dùng được thì đăng xuất trên máy này (app hiện màn hình đăng nhập). Lỗi mạng: ném lỗi. */
+  async function reload() {
+    try { await loadAll(); }
+    catch (e) {
+      if (!authFail(e)) throw e;
+      forget();
+      try { await sb.auth.signOut({ scope: "local" }); } catch (x) { /* phiên trên máy vẫn bị xóa */ }
+      authStorage.removeItem(AUTH_KEY);
+      return;
+    }
     if (state === "ready") sendOutbox();
   }
-
-  /* Link đăng nhập lỗi: chỉ hiện câu báo cố định theo mã lỗi, không bao giờ in lại chữ lấy từ địa chỉ trang. */
-  function readHashError() {
-    const h = (location.hash || "") + "&" + (location.search || "").replace(/^\?/, "");
-    if (!/error_description=|error_code=|[?&#]error=/.test(h)) return;
-    const p = new URLSearchParams(h.replace(/^#\/?/, ""));
-    authErr = p.get("error_code") === "otp_expired" ? "Link đăng nhập đã hết hạn hoặc đã được dùng. Gửi link mới, hoặc nhập mã số trong email."
-      : "Link đăng nhập không dùng được. Gửi link mới, hoặc nhập mã số trong email.";
-    try { history.replaceState(null, "", location.pathname); } catch (e) {}
+  async function afterAuth(session) {
+    authUser = session ? session.user : null; db = null; fam = null; famId = null; plan = null;
+    if (!authUser) { state = "signed-out"; return; }
+    await reload();
   }
+
   function loadLib() {
     if (window.supabase && window.supabase.createClient) return Promise.resolve();
     return new Promise((resolve, reject) => {
@@ -299,13 +320,11 @@
 
   async function init() {
     if (secretKey(CFG.supabaseAnonKey)) throw new Error("js/config.js đang chứa khóa bí mật (service_role/secret). Xóa khóa đó ngay, dùng khóa anon public, rồi đổi khóa bí mật trong Supabase.");
-    readHashError();
     await loadLib();
     sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce", storageKey: AUTH_KEY, storage: authStorage }
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: AUTH_KEY, storage: authStorage }
     });
-    const { data, error } = await sb.auth.getSession();
-    if (error) authErr = "Link đăng nhập không dùng được ở trình duyệt này. Nhập mã số trong email, hoặc gửi link mới.";
+    const { data } = await sb.auth.getSession();
     try { await afterAuth(data && data.session); }
     catch (e) {
       console.warn("SupabaseStore:", e);
@@ -313,18 +332,13 @@
     }
     if (typeof window.addEventListener === "function") window.addEventListener("online", () => { if (state === "ready") sendOutbox(); });
     sb.auth.onAuthStateChange((ev) => {
-      if (ev === "SIGNED_OUT" && state !== "signed-out") {
-        state = "signed-out"; db = null; meId = null;
-        if (typeof Store.onChange === "function") setTimeout(Store.onChange, 0);
-      }
+      if (ev === "SIGNED_OUT" && state !== "signed-out") { forget(); changed(); }
     });
   }
   async function refresh() {
     if (state !== "ready") return false;
     await flush();
-    const ok = await loadAll();
-    if (!ok) state = authUser && authUser.is_anonymous ? "signed-out" : "no-profile";
-    else sendOutbox();
+    await reload();
     return true;
   }
 
@@ -365,188 +379,150 @@
     });
   }
 
-  /* ---------------- đăng nhập ---------------- */
-  async function sendLink(email, remember) {
-    email = String(email || "").trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Email chưa đúng.");
+  /* ---------------- đăng nhập, mật khẩu ---------------- */
+  async function signIn(username, password, remember) {
+    username = String(username || "").trim().toLowerCase();
+    if (usernameProblem(username)) throw new Error("Tên đăng nhập gồm 4–20 kí tự: chữ thường không dấu, số, dấu chấm, gạch dưới.");
+    if (!password) throw new Error("Nhập mật khẩu.");
     if (remember) lsSet(REMEMBER_KEY, "1"); else lsDel(REMEMBER_KEY);
-    const { data } = await sb.auth.getSession();
-    if (data && data.session) await sb.auth.signOut({ scope: "local" });
-    const captchaToken = await captcha("#mailCaptcha");
-    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname, shouldCreateUser: true, captchaToken } });
-    if (error) throw new Error(errMsg(error, "Chưa gửi được email. Thử lại sau ít phút."));
+    const captchaToken = await captcha("#loginCaptcha");
+    const { data, error } = await sb.auth.signInWithPassword({ email: loginEmail(username), password: String(password), options: { captchaToken } });
+    if (error) throw new Error(errMsg(error, "Chưa đăng nhập được. Thử lại sau ít phút."));
+    ssDel(WHO_KEY); who = null;
+    unlockedAt = Date.now();
+    try { await afterAuth(data.session); }
+    catch (e) { throw new Error(errMsg(e, "Không tải được dữ liệu từ máy chủ. Thử lại nhé.")); }
   }
-  async function verifyCode(email, code) {
-    const captchaToken = await captcha("#mailCaptcha");
-    const { data, error } = await sb.auth.verifyOtp({ email: String(email).trim(), token: String(code).replace(/\D/g, ""), type: "email", options: { captchaToken } });
-    if (error) throw new Error(errMsg(error, "Mã chưa đúng hoặc đã hết hạn."));
-    await afterAuth(data.session);
-  }
-  /* Học sinh: phiên ẩn danh riêng cho tab này (tạo mới nếu chưa có). */
-  async function ensureAnon(fresh) {
-    let { data } = await sb.auth.getSession();
-    if (data && data.session && (fresh || !data.session.user.is_anonymous)) { await sb.auth.signOut({ scope: "local" }); data = null; }
-    if (!data || !data.session) {
-      const r = await sb.auth.signInAnonymously({ options: { captchaToken: await captcha("#kidCaptcha") } });
-      if (r.error) throw new Error(errMsg(r.error, "Chưa đăng nhập được. Thử lại sau ít phút."));
+  /* Nhập lại mật khẩu (vào khu phụ huynh, đổi mật khẩu): đăng nhập lại cùng tài khoản. Sai mật khẩu trả false. */
+  async function checkPassword(password) {
+    if (!fam || !password) return false;
+    const captchaToken = await captcha("#pwCaptcha");
+    const { data, error } = await sb.auth.signInWithPassword({ email: loginEmail(fam.username), password: String(password), options: { captchaToken } });
+    if (error) {
+      if (/invalid login credentials/i.test(String(error.message || ""))) return false;
+      throw new Error(errMsg(error, "Chưa kiểm tra được mật khẩu. Thử lại nhé."));
     }
+    authUser = data.session.user;
+    unlockedAt = Date.now();
+    return true;
   }
-  async function familyStudents(code) {
-    await ensureAnon();
-    let d = await invoke({ action: "students", code: String(code || "") });
-    if (d.error === "auth") { await ensureAnon(true); d = await invoke({ action: "students", code: String(code || "") }); }
-    if (d.error) throw new Error(fnError(d));
-    return { family: d.family || "", students: d.students || [] };
+  /* Đặt mật khẩu mới. current: mật khẩu đang dùng (bỏ trống khi đang bắt đổi mật khẩu tạm ngay sau khi đăng nhập). */
+  async function changePassword(password, current) {
+    password = String(password || "");
+    if (password.length < 8 || !password.trim()) throw new Error("Mật khẩu mới cần ít nhất 8 kí tự.");
+    if (password.length > 72) throw new Error("Mật khẩu mới dài quá (tối đa 72 kí tự).");
+    if (state !== "change-password" && state !== "ready") throw new Error("Phiên đăng nhập đã hết. Đăng nhập lại nhé.");
+    if (current !== undefined && !(await checkPassword(current))) throw new Error("Mật khẩu hiện tại chưa đúng.");
+    const { error } = await sb.auth.updateUser({ password });
+    if (error) throw new Error(errMsg(error, "Chưa đổi được mật khẩu. Thử lại nhé."));
+    try { await rpc("password_changed"); } catch (e) { throw new Error(errMsg(e, "Đã đổi mật khẩu nhưng máy chủ chưa ghi nhận. Thử lại nhé.")); }
+    unlockedAt = Date.now();
+    if (state === "change-password") await afterAuth((await sb.auth.getSession()).data.session);
   }
-  async function studentLogin(code, studentId, pin) {
-    await ensureAnon();
-    const body = { action: "login", code: String(code || ""), studentId, pin: String(pin || "") };
-    let d = await invoke(body);
-    // Phiên ẩn danh cũ đã bị xóa trên máy chủ (dọn dẹp định kì): tạo phiên mới rồi thử lại một lần.
-    if (d.error === "auth") { await ensureAnon(true); d = await invoke(body); }
-    if (d.error) return { ok: false, message: fnError(d), locked: d.error === "locked" };
-    ssSet(KID_FLAG, studentId);
-    if (d.mustChange) ssSet(MUST_CHANGE_KEY, "1"); else ssDel(MUST_CHANGE_KEY);
-    lsSet(LAST_KEY, JSON.stringify({ code: String(code).toUpperCase(), id: studentId }));
-    await afterAuth((await sb.auth.getSession()).data.session);
-    return { ok: state === "ready", mustChange: !!d.mustChange };
+  function forget() {
+    state = "signed-out"; db = null; fam = null; famId = null; plan = null; authUser = null; unlockedAt = 0;
+    pins.clear(); ssDel(WHO_KEY); who = null;
   }
-  const lastLogin = () => { try { return JSON.parse(lsGet(LAST_KEY) || "null") || {}; } catch (e) { return {}; } };
-
-  async function createFamily(d) {
-    if (!d.name || !String(d.name).trim()) throw new Error("Cần nhập tên.");
-    const events = clone(window.ONTAP_SEED_EVENTS || []);
-    try {
-      await rpc("create_family", { p_name: String(d.schoolName || "").trim(), p_school_year: "2026–2027", p_admin_name: String(d.name).trim().slice(0, 40),
-        p_avatar: d.avatar || "🧭", p_events: events, p_seed_banks: seedBankIds() });
-    } catch (e) { throw new Error(errMsg(e, "Chưa tạo được gia đình. Thử lại nhé.")); }
-    await afterAuth((await sb.auth.getSession()).data.session);
-  }
-  async function claimInvite(code) {
-    let pid;
-    try { pid = await rpc("claim_invite", { p_code: String(code || "") }); } catch (e) { throw new Error(errMsg(e, "Chưa dùng được mã mời. Thử lại nhé.")); }
-    if (!pid) throw new Error("Mã mời không đúng hoặc đã được dùng.");
-    await afterAuth((await sb.auth.getSession()).data.session);
-  }
-
-  /* ---------------- phiên ---------------- */
-  function setSession(id) {
-    if (id) return; // phiên do Supabase quản lý
-    const user = authUser;
-    state = "signed-out"; db = null; meId = null;
-    ssDel(KID_FLAG);
-    if (!user) return;
-    // Học sinh: chỉ gỡ gắn, giữ phiên ẩn danh của tab để lần sau dùng lại. Người lớn: thoát trên máy này thôi.
-    queue = queue.then(() => (user.is_anonymous ? sb.from("student_sessions").delete().eq("auth_user_id", user.id) : sb.auth.signOut({ scope: "local" }))).catch(() => {});
-  }
-  const sessionUser = () => (state === "ready" && db ? db.users.find((u) => u.id === meId) || null : null);
-
-  /* ---------------- người dùng ---------------- */
-  async function createUser(data) {
-    if (!data.name || !String(data.name).trim()) throw new Error("Cần nhập tên.");
-    if (!ROLES[data.role]) throw new Error("Vai trò không hợp lệ.");
-    const student = data.role === "student";
-    if (student && pinProblem(data.pin)) throw new Error(PIN_MSG[pinProblem(data.pin)]);
-    if (student && ![4, 6].includes(+data.grade)) throw new Error("Chọn khối lớp 4 hoặc 6.");
-    const viewer = sessionUser();
-    if (!viewer) throw new Error("Phiên đăng nhập đã hết. Tải lại trang.");
+  /* Đăng xuất trên máy này (gửi xong các thay đổi đang chờ). Kết quả chưa gửi được vẫn nằm trong hộp gửi. */
+  async function signOut() {
+    forget();
     await flush();
-    const id = uuid(), name = String(data.name).trim().slice(0, 40);
-    const avatar = data.avatar || (student ? "🐣" : data.role === "parent" ? "🌻" : "🧭");
-    const className = String(data.className || "").trim().slice(0, 20);
-    let parentIds = [];
-    try {
-      if (student && viewer.role === "parent") {
-        await rpc("add_child", { p_id: id, p_name: name, p_avatar: avatar, p_grade: +data.grade, p_class: className });
-        parentIds = [viewer.id];
-      } else {
-        const row = { id, family_id: famId, role: data.role, name, avatar };
-        if (student) { row.grade = +data.grade; row.class_name = className; }
-        await run(sb.from("profiles").insert(row));
-        if (student && Array.isArray(data.parentIds) && data.parentIds.length) {
-          parentIds = data.parentIds.slice();
-          await run(sb.from("parent_child").insert(parentIds.map((p) => ({ parent_id: p, child_id: id }))));
-        }
-      }
-    } catch (e) { throw new Error(errMsg(e, "Chưa tạo được tài khoản. Thử lại nhé.")); }
-    if (student) {
-      try { await setPin(id, data.pin); } catch (e) { await sb.from("profiles").delete().eq("id", id); throw e; }
-    }
-    const row = await run(sb.from("profiles").select("*").eq("id", id).maybeSingle());
-    const u = toUser(row || { id, role: data.role, name, avatar, grade: data.grade, class_name: className }, parentIds.map((p) => ({ parent_id: p, child_id: id })));
+    try { await sb.auth.signOut({ scope: "local" }); } catch (e) { /* không có mạng: phiên trên máy vẫn bị xóa */ }
+    authStorage.removeItem(AUTH_KEY);
+  }
+  const parentUnlocked = () => state === "ready" && Date.now() - unlockedAt < UNLOCK_MS;
+
+  /* ---------------- hồ sơ đang dùng trong tab ("Ai đang học?") ---------------- */
+  function setSession(id) {
+    if (!id) { ssDel(WHO_KEY); who = null; return; }
+    if (!db || !db.users.some((u) => u.id === id)) return;
+    if (id === PARENT && !parentUnlocked()) return; // khu phụ huynh: phải nhập lại mật khẩu trước (checkPassword)
+    ssSet(WHO_KEY, id); who = id;
+    if (id !== PARENT) lsSet(LAST_KEY, id);
+  }
+  function sessionUser() {
+    if (state !== "ready" || !db) return null;
+    const id = ssGet(WHO_KEY) || who;
+    return id ? db.users.find((u) => u.id === id) || null : null;
+  }
+
+  /* ---------------- hồ sơ con ---------------- */
+  function can(feature) {
+    // Hôm nay gói nào cũng dùng được mọi nội dung ("bank:<mã>"…); chỉ giới hạn số hồ sơ con (bảng plans).
+    if (feature === "addChild") return !!(db && plan) && db.users.filter((u) => u.role === "student").length < plan.maxChildren;
+    return true;
+  }
+  async function createUser(data) {
+    if (data.role !== "student") throw new Error("Bản đám mây chỉ thêm hồ sơ con. Tài khoản của bố mẹ do người cấp tài khoản tạo.");
+    const name = String(data.name || "").trim();
+    if (!name) throw new Error("Cần nhập tên.");
+    if (!activeGrades().includes(+data.grade)) throw new Error(gradeMsg());
+    const pin = String(data.pin == null ? "" : data.pin).trim();
+    if (pin && !validPin(pin)) throw new Error(PIN_MSG);
+    if (!(state === "ready" && db)) throw new Error("Phiên đăng nhập đã hết. Tải lại trang.");
+    if (!can("addChild")) throw new Error(`Tài khoản đã có đủ ${plan ? plan.maxChildren : 0} hồ sơ con theo gói hiện tại.`);
+    await flush();
+    const row = { id: uuid(), family_id: famId, name: name.slice(0, 40), avatar: data.avatar || "🐣", grade: +data.grade,
+      class_name: String(data.className || "").trim().slice(0, 20), pin_hash: pin ? await makePinHash(pin) : null };
+    try { await run(sb.from("profiles").insert(row)); } catch (e) { throw new Error(errMsg(e, "Chưa tạo được hồ sơ. Thử lại nhé.")); }
+    const u = toUser(Object.assign({ created_at: new Date().toISOString(), locked: false }, row));
     db.users.push(u);
     return u;
   }
+  /* patch: name, avatar, grade, className, pin (4 số mới; để trống là giữ), noPin (true: bỏ PIN). */
   async function updateUser(id, patch) {
     const u = db && db.users.find((x) => x.id === id);
     if (!u) throw new Error("Không tìm thấy người dùng.");
+    if (u.role !== "student") throw new Error("Thông tin tài khoản của bố mẹ do người cấp tài khoản quản lý.");
     const cols = {};
     if (patch.name != null) { if (!String(patch.name).trim()) throw new Error("Cần nhập tên."); cols.name = String(patch.name).trim().slice(0, 40); }
     if (patch.avatar) cols.avatar = patch.avatar;
-    const newPin = patch.pin != null && patch.pin !== "" && u.role === "student";
-    if (newPin && pinProblem(patch.pin)) throw new Error(PIN_MSG[pinProblem(patch.pin)]);
-    if (u.role === "student") {
-      if (patch.grade != null) { if (![4, 6].includes(+patch.grade)) throw new Error("Chọn khối lớp 4 hoặc 6."); cols.grade = +patch.grade; }
-      if (patch.className != null) cols.class_name = String(patch.className).trim().slice(0, 20);
-    }
-    // RLS chặn xóa/sửa thì máy chủ chỉ báo "0 dòng", không báo lỗi, nên kiểm tra quyền ở đây để báo rõ.
-    const viewer = sessionUser();
-    const linksChanged = u.role === "student" && Array.isArray(patch.parentIds) && patch.parentIds.slice().sort().join() !== (u.parentIds || []).slice().sort().join();
-    if (linksChanged && !(viewer && viewer.role === "admin")) throw new Error("Chỉ quản trị mới đổi được phụ huynh của học sinh.");
+    if (patch.grade != null) { if (+patch.grade !== u.grade && !activeGrades().includes(+patch.grade)) throw new Error(gradeMsg()); cols.grade = +patch.grade; }
+    if (patch.className != null) cols.class_name = String(patch.className).trim().slice(0, 20);
+    if (patch.pin != null && patch.pin !== "") {
+      if (!validPin(String(patch.pin).trim())) throw new Error(PIN_MSG);
+      cols.pin_hash = await makePinHash(String(patch.pin).trim());
+    } else if (patch.noPin) cols.pin_hash = null;
+    if (!Object.keys(cols).length) return u;
     await flush();
-    try {
-      if (Object.keys(cols).length) await run(sb.from("profiles").update(cols).eq("id", id));
-      if (u.role === "student" && Array.isArray(patch.parentIds)) {
-        const want = patch.parentIds, had = u.parentIds || [];
-        const add = want.filter((p) => !had.includes(p)), del = had.filter((p) => !want.includes(p));
-        if (add.length) await run(sb.from("parent_child").insert(add.map((p) => ({ parent_id: p, child_id: id }))));
-        if (del.length) await run(sb.from("parent_child").delete().eq("child_id", id).in("parent_id", del));
-        u.parentIds = want.slice();
-      }
-    } catch (e) { refreshSoon(); throw new Error(errMsg(e, "Chưa lưu được. Thử lại nhé.")); }
+    try { await run(sb.from("profiles").update(cols).eq("id", id)); }
+    catch (e) { refreshSoon(); throw new Error(errMsg(e, "Chưa lưu được. Thử lại nhé.")); }
     if (cols.name != null) u.name = cols.name;
     if (cols.avatar) u.avatar = cols.avatar;
     if (cols.grade != null) u.grade = cols.grade;
     if (cols.class_name != null) u.className = cols.class_name;
-    if (newPin) {
-      await setPin(id, patch.pin, id === meId ? patch.oldPin || "" : undefined);
-      u.pinLocked = false; u.pinOld = false;
-      if (id === meId) ssDel(MUST_CHANGE_KEY);
-    }
+    if ("pin_hash" in cols) Object.assign(u, (({ pinLen, hasPin }) => ({ pinLen, hasPin }))(toUser({ id, pin_hash: cols.pin_hash })));
     return u;
   }
   function removeUser(id) {
-    const u = db.users.find((x) => x.id === id);
+    const u = db && db.users.find((x) => x.id === id);
     if (!u) return;
-    if (u.role === "admin" && db.users.filter((x) => x.role === "admin").length <= 1) throw new Error("Phải còn ít nhất một tài khoản quản trị.");
+    if (u.role !== "student") throw new Error("Tài khoản của bố mẹ chỉ người cấp tài khoản xóa được.");
     db.users = db.users.filter((x) => x.id !== id);
-    db.users.forEach((s) => { if (s.parentIds) s.parentIds = s.parentIds.filter((p) => p !== id); });
     db.results = db.results.filter((r) => r.userId !== id);
+    pins.delete(id);
+    const box = outbox(); delete box[id]; saveOutbox(box);
+    if (ssGet(WHO_KEY) === id || who === id) setSession(null);
     push(() => sb.from("profiles").delete().eq("id", id));
   }
-  /* Chỉ học sinh tự kiểm tra PIN của mình (đổi PIN ở trang Tài khoản). Quản trị, phụ huynh dùng email, không có PIN. */
+  /* PIN của hồ sơ con, kiểm tra trên máy (xem ghi chú ở đầu phần PIN). Hồ sơ không có PIN: luôn đúng.
+     Phụ huynh không có PIN (dùng mật khẩu: checkPassword). */
   async function checkPin(id, pin) {
-    if (!(state === "ready" && id === meId && sessionUser().role === "student")) return false;
-    const d = await invoke({ action: "check_pin", pin: String(pin || "") });
-    if (d.error) throw new Error(fnError(d));
-    return !!d.ok;
+    const u = db && db.users.find((x) => x.id === id);
+    if (!u || u.role !== "student") return false;
+    const p = pins.get(id);
+    if (!p) return true;
+    pin = String(pin == null ? "" : pin);
+    const ok = (await hashPin(pin, p.salt)) === p.hash;
+    if (ok && !p.len && /^\d{4,6}$/.test(pin)) {
+      // PIN chuyển từ máy cũ: băm lại kèm độ dài để lần sau bàn phím tự vào khi gõ đủ số.
+      const h = await makePinHash(pin);
+      Object.assign(p, parsePin(h)); u.pinLen = p.len;
+      push(() => sb.from("profiles").update({ pin_hash: h }).eq("id", id));
+    }
+    return ok;
   }
   const childrenOf = (parentId) => (db ? db.users.filter((u) => u.role === "student" && (u.parentIds || []).includes(parentId)) : []);
-  async function newInvite(id) {
-    const code = await rpc("new_invite", { p_profile: id }).catch((e) => { throw new Error(errMsg(e, "Chưa tạo được mã mời.")); });
-    const u = db.users.find((x) => x.id === id);
-    if (u) { u.inviteCode = code; u.linked = false; }
-    return code;
-  }
-  /* Đăng xuất con khỏi mọi máy (quản trị hoặc phụ huynh của con). */
-  async function signOutChild(id) {
-    try { return await rpc("sign_out_child", { p_profile: id }); } catch (e) { throw new Error(errMsg(e, "Chưa đăng xuất được. Thử lại nhé.")); }
-  }
-  async function newJoinCode() {
-    const code = await rpc("new_join_code").catch((e) => { throw new Error(errMsg(e, "Chưa đổi được mã gia đình.")); });
-    db.settings.joinCode = code;
-    return code;
-  }
 
   /* ---------------- lịch thi (giống LocalStore, thêm bước đẩy lên máy chủ) ---------------- */
   const sortEvents = (a, b) => (a.start || "9999") < (b.start || "9999") ? -1 : (a.start || "9999") > (b.start || "9999") ? 1 : a.title.localeCompare(b.title, "vi");
@@ -602,9 +578,9 @@
   }
   function removeBank(id) {
     db.banks = db.banks.filter((b) => b.id !== id);
-    const changed = db.events.filter((e) => (e.banks || []).includes(id));
-    changed.forEach((e) => { e.banks = e.banks.filter((x) => x !== id); });
-    const rows = changed.map(fromEvent);
+    const changedEv = db.events.filter((e) => (e.banks || []).includes(id));
+    changedEv.forEach((e) => { e.banks = e.banks.filter((x) => x !== id); });
+    const rows = changedEv.map(fromEvent);
     push(async () => {
       if (rows.length) await run(sb.from("exam_events").upsert(rows, { onConflict: "family_id,id" }));
       return sb.from("question_banks").delete().eq("family_id", famId).eq("id", id);
@@ -620,51 +596,65 @@
       wrongTopics: Array.isArray(r.wrongTopics) ? r.wrongTopics.slice(0, 50) : undefined
     };
     if (clean.r > clean.t) clean.r = clean.t;
+    if (!db) {
+      // Phiên hết giữa lúc con đang làm bài: giữ trong hộp gửi, bố mẹ đăng nhập lại thì tự gửi (nếu đúng hồ sơ của tài khoản).
+      if (clean.t > 0) { queueResult(clean); report("Phiên đăng nhập đã hết. Bố mẹ đăng nhập lại để gửi kết quả nhé."); }
+      return clean;
+    }
     db.results.push(clean);
     const mine = db.results.filter((x) => x.userId === clean.userId);
     if (mine.length > MAX_PER_STUDENT) { const drop = new Set(mine.slice(0, mine.length - MAX_PER_STUDENT)); db.results = db.results.filter((x) => !drop.has(x)); }
     if (!(clean.t > 0)) return clean;
-    // Chỉ học sinh đang đăng nhập mới ghi được kết quả của chính mình (máy chủ cũng chặn như vậy).
-    if (clean.userId !== meId) { report("Chỉ lưu được kết quả của học sinh đang đăng nhập."); db.results = db.results.filter((x) => x !== clean); return clean; }
+    // Chỉ hồ sơ con đang dùng trong tab mới ghi kết quả của chính mình.
+    const me = sessionUser();
+    if (!me || me.role !== "student" || clean.userId !== me.id) { report("Chỉ lưu được kết quả của hồ sơ đang học."); db.results = db.results.filter((x) => x !== clean); return clean; }
+    queueResult(clean);
+    sendOutbox();
+    return clean;
+  }
+  function queueResult(clean) {
     const box = outbox();
     box[clean.userId] = (box[clean.userId] || []).concat(clean).slice(-500);
     saveOutbox(box);
-    sendOutbox();
-    return clean;
   }
   /* Hộp gửi kết quả: chỉ xóa một kết quả khỏi hộp khi máy chủ đã nhận (gửi lại không bị trùng nhờ mã kết quả). */
   function outbox() { try { return JSON.parse(lsGet(OUTBOX_KEY) || "{}") || {}; } catch (e) { return {}; } }
   function saveOutbox(box) { Object.keys(box).forEach((k) => { if (!box[k].length) delete box[k]; }); if (Object.keys(box).length) lsSet(OUTBOX_KEY, JSON.stringify(box)); else lsDel(OUTBOX_KEY); }
   let warned = false;
   // Mỗi lần gọi nối thêm một lượt gửi vào hàng đợi; lượt nào cũng đọc hộp gửi lúc chạy nên không gửi trùng.
+  // Gửi kết quả của mọi hồ sơ con thuộc tài khoản này (máy dùng chung cho anh em); hồ sơ của tài khoản khác thì để lại.
   function sendOutbox() {
     queue = queue.then(async () => {
-      const pid = meId;
-      if (state !== "ready" || !pid) return;
-      for (const r of (outbox()[pid] || []).slice()) {
-        const row = { id: r.id, profile_id: r.userId, source: r.source, ref_id: String(r.refId || "").slice(0, 80), subject: String(r.subject || "").slice(0, 60),
-          label: r.label, mode: String(r.mode || "").slice(0, 20), r: r.r, t: Math.min(r.t, 1000), s: r.s,
-          wrong_topics: r.wrongTopics ? r.wrongTopics.slice(0, 50).map((x) => String(x).slice(0, 100)) : null };
-        const res = await sb.from("results").upsert(row, { onConflict: "id", ignoreDuplicates: true });
-        const err = res && res.error, msg = err ? String(err.message || "") : "", code = err ? String(err.code || "") : "";
-        // Chỉ bỏ kết quả khi máy chủ không bao giờ nhận được (hồ sơ đã xóa, dữ liệu sai dạng). Mọi lỗi khác: giữ lại.
-        if (err && !["23503", "23514", "22P02", "22001"].includes(code)) {
-          if (code === "42501" || /^PGRST3/.test(code)) {
-            // Phiên học sinh bị thu hồi hoặc hết hạn: giữ kết quả, mời đăng nhập lại (đăng nhập xong sẽ tự gửi).
-            state = "signed-out"; db = null; meId = null; ssDel(KID_FLAG);
-            report("Phiên đăng nhập đã hết. Bạn đăng nhập lại để gửi kết quả nhé.");
-            if (typeof Store.onChange === "function") setTimeout(Store.onChange, 0);
-            return;
+      if (state !== "ready" || !db) return;
+      for (const pid of Object.keys(outbox())) {
+        if (!db.users.some((u) => u.id === pid && u.role === "student")) continue;
+        for (const r of (outbox()[pid] || []).slice()) {
+          if (state !== "ready") return;
+          const row = { id: r.id, profile_id: pid, source: r.source, ref_id: String(r.refId || "").slice(0, 80), subject: String(r.subject || "").slice(0, 60),
+            label: r.label, mode: String(r.mode || "").slice(0, 20), r: r.r, t: Math.min(r.t, 1000), s: r.s,
+            wrong_topics: r.wrongTopics ? r.wrongTopics.slice(0, 50).map((x) => String(x).slice(0, 100)) : null };
+          const res = await sb.from("results").upsert(row, { onConflict: "id", ignoreDuplicates: true });
+          const err = res && res.error, msg = err ? String(err.message || "") : "", code = err ? String(err.code || "") : "";
+          // Chỉ bỏ kết quả khi máy chủ không bao giờ nhận (hồ sơ đã xóa, dữ liệu sai dạng, hồ sơ bị khóa theo gói). Lỗi khác: giữ lại.
+          const never = ["23503", "23514", "22P02", "22001"].includes(code) || (code === "P0001" && /bị khóa/.test(msg));
+          if (err && !never) {
+            if (code === "42501" || /^PGRST3/.test(code) || /JWT/i.test(msg)) {
+              // Phiên hết hạn hoặc tài khoản vừa bị khóa: giữ kết quả, mời đăng nhập lại (đăng nhập xong sẽ tự gửi).
+              forget();
+              report("Phiên đăng nhập đã hết. Bố mẹ đăng nhập lại để gửi kết quả nhé.");
+              changed();
+              return;
+            }
+            if (!warned) report(/Gửi quá nhiều/.test(msg) ? msg : "Chưa gửi được kết quả lên máy chủ. App sẽ tự gửi lại khi có mạng.");
+            warned = true;
+            return; // giữ trong hộp, thử lại sau
           }
-          if (!warned) report(/Gửi quá nhiều/.test(msg) ? msg : "Chưa gửi được kết quả lên máy chủ. App sẽ tự gửi lại khi có mạng.");
-          warned = true;
-          return; // giữ trong hộp, thử lại sau
+          if (err) report(errMsg(err, "Máy chủ không nhận một kết quả làm bài."));
+          const box = outbox();
+          box[pid] = (box[pid] || []).filter((x) => x.id !== r.id);
+          saveOutbox(box);
+          warned = false;
         }
-        if (err) report(errMsg(err, "Máy chủ không nhận một kết quả làm bài."));
-        const box = outbox();
-        box[pid] = (box[pid] || []).filter((x) => x.id !== r.id);
-        saveOutbox(box);
-        warned = false;
       }
     }).catch((e) => { console.warn("SupabaseStore:", e); });
     return queue;
@@ -673,7 +663,7 @@
 
   /* ---------------- sao lưu, chuyển dữ liệu ---------------- */
   function exportJSON() {
-    const users = db.users.map((u) => { const x = clone(u); delete x.inviteCode; delete x.linked; return x; });
+    const users = db.users.map((u) => { const x = clone(u); delete x.hasPin; delete x.locked; return x; });
     return JSON.stringify({ app: "on-thi-4-6", exportedAt: new Date().toISOString(), from: "cloud", v: 1,
       settings: { schoolName: db.settings.schoolName, schoolYear: db.settings.schoolYear }, users, events: db.events, banks: db.banks,
       results: db.results, seedBanksSeen: db.seedBanksSeen }, null, 2);
@@ -681,16 +671,14 @@
   function localData() {
     try { const d = JSON.parse(lsGet(LOCAL_KEY) || "null"); return d && Array.isArray(d.users) ? d : null; } catch (e) { return null; }
   }
-  /* Chuyển dữ liệu dạng LocalStore (trên máy này hoặc từ file sao lưu) lên family đang đăng nhập. Chạy lại không bị trùng. */
+  /* Chuyển dữ liệu dạng LocalStore (trên máy này hoặc từ file sao lưu) lên tài khoản đang đăng nhập (RPC import_local):
+     học sinh thành hồ sơ con (giữ PIN cũ), kèm kết quả, lịch thi, ngân hàng tự nhập. Chạy lại không bị trùng.
+     Trả về {profiles, results, ids}. */
   async function migrate(data) {
     if (!data || !Array.isArray(data.users) || !Array.isArray(data.events) || !Array.isArray(data.results)) throw new Error("Dữ liệu thiếu người dùng, lịch thi hoặc kết quả.");
     if (data.from === "cloud") throw new Error("File này là bản sao lưu từ đám mây, dữ liệu đã có trên máy chủ.");
     const payload = {
-      users: data.users.map((u) => {
-        const x = { id: u.id, role: u.role, name: u.name, avatar: u.avatar, grade: u.grade, className: u.className, parentIds: u.parentIds };
-        if (u.role === "student") { x.salt = u.salt; x.pinHash = u.pinHash; } // chỉ học sinh mới cần PIN cũ
-        return x;
-      }),
+      users: data.users.filter((u) => u.role === "student").map((u) => ({ id: u.id, role: u.role, name: u.name, avatar: u.avatar, grade: u.grade, className: u.className, salt: u.salt, pinHash: u.pinHash })),
       events: data.events, banks: Array.isArray(data.banks) ? data.banks : [], results: data.results.slice(-5000),
       seedBanksSeen: Array.isArray(data.seedBanksSeen) ? data.seedBanksSeen : undefined, settings: data.settings || {}
     };
@@ -699,15 +687,10 @@
     try { res = await rpc("import_local", { p_data: payload }); } catch (e) { throw new Error(errMsg(e, "Chưa chuyển được dữ liệu. Thử lại nhé.")); }
     lsSet(MIGRATED_KEY, new Date().toISOString());
     copyModuleProgress((res && res.ids) || {});
-    // Bọc PIN cũ bằng cách băm mới trên máy chủ (mỗi lần gọi bọc vài PIN).
-    for (let i = 0; i < 100; i++) {
-      const d = await invoke({ action: "wrap_legacy" }).catch(() => ({ error: "server" }));
-      if (d.error || !d.wrapped || !d.left) break;
-    }
-    await loadAll();
+    await reload();
     return res || {};
   }
-  /* Tiến độ trong bài ôn lưu theo mã học sinh ("u_<mã>__…"); học sinh chuyển lên có mã mới nên chép sang. */
+  /* Tiến độ trong bài ôn lưu theo mã học sinh ("u_<mã>__…"); hồ sơ chuyển lên có mã mới nên chép sang. */
   function copyModuleProgress(ids) {
     try {
       const keys = []; for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
@@ -726,43 +709,38 @@
     try { data = JSON.parse(text); } catch (e) { return Promise.reject(new Error("File không đúng định dạng JSON.")); }
     return migrate(data);
   }
-  function wipe() {
-    if (!(sessionUser() && sessionUser().role === "admin")) return Promise.resolve();
-    state = "signed-out"; db = null; meId = null;
-    const p = queue.then(() => rpc("delete_family")).then(() => sb.auth.signOut({ scope: "local" }));
-    queue = p.catch(() => {});
-    return p.catch((e) => { report(errMsg(e, "Chưa xóa được dữ liệu trên đám mây.")); });
-  }
+  /* Bản đám mây không xóa được cả tài khoản từ app (chỉ chủ app xóa ở trang admin): "xóa" là đăng xuất khỏi máy này. */
+  const wipe = () => signOut();
   function setSettings(p) {
     Object.assign(db.settings, p);
     const cols = {};
-    if (p.schoolName != null) cols.name = String(p.schoolName).slice(0, 80);
+    if (p.schoolName != null) cols.display_name = String(p.schoolName).slice(0, 80);
     if (p.schoolYear != null) cols.school_year = String(p.schoolYear).slice(0, 20);
-    push(() => sb.from("families").update(cols).eq("id", famId));
+    if (Object.keys(cols).length) push(() => sb.from("families").update(cols).eq("id", famId));
   }
 
   window.LocalStore = Local;
   window.Store = {
     ROLES, cloud: true,
-    load: () => db, save: () => {}, setup: () => { throw new Error("Bản đám mây tạo gia đình bằng Store.createFamily."); },
+    load: () => db, save: () => {}, setup: () => { throw new Error("Bản đám mây: tài khoản do chủ app tạo ở trang admin."); },
     isReady: () => state === "ready", persistent: () => true, data: () => db,
     createUser, updateUser, removeUser, checkPin, validPin, childrenOf,
     users: (role) => (db ? db.users.filter((u) => !role || u.role === role) : []),
     user: (id) => (db ? db.users.find((u) => u.id === id) || null : null),
-    setSession, sessionUser, lastUserId: () => lastLogin().id || null,
+    setSession, sessionUser, lastUserId: () => lsGet(LAST_KEY),
     events, event: (id) => (db ? db.events.find((e) => e.id === id) || null : null), upsertEvent, removeEvent, resetEvents,
     banks, bank: bankById, upsertBank, removeBank,
     addResult, resultsFor,
     exportJSON, importJSON, wipe,
     settings: () => (db ? db.settings : {}), setSettings,
+    can,
     _mem: null,
     // chỉ có ở bản đám mây
-    init, refresh, flush, authState: () => state, authError: () => { const m = authErr; authErr = ""; return m; },
-    authEmail: () => (authUser && authUser.email) || "",
-    sendLink, verifyCode, familyStudents, studentLogin, lastFamilyCode: () => lastLogin().code || "",
-    rememberLogin: () => lsGet(REMEMBER_KEY) === "1", pinRule: "cloud",
-    studentTab: () => !!(authUser && authUser.is_anonymous), mustChangePin: () => ssGet(MUST_CHANGE_KEY) === "1",
-    createFamily, claimInvite, newInvite, newJoinCode, signOutChild, familyCode: () => (db ? db.settings.joinCode : ""),
+    init, refresh, flush, authState: () => state,
+    signIn, signOut, checkPassword, changePassword, parentUnlocked,
+    rememberLogin: () => lsGet(REMEMBER_KEY) === "1",
+    username: () => (fam ? fam.username : ""),
+    plan: () => (plan ? Object.assign({}, plan) : null),
     localData, migrate, migratedAt: () => lsGet(MIGRATED_KEY),
     onError: null, onChange: null
   };
