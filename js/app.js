@@ -514,8 +514,26 @@
     $$("[data-ev]", root).forEach((b) => (b.onclick = () => openEvent(b.dataset.ev, grade, student)));
   }
 
+  /* Chữ trên nút đề trong một hàng (cùng môn), lấy từ tên đề dạng "<môn> <khối> · <kì> · Đề N" (data/banks.js):
+     - mọi đề cùng một kì: "Đề N", N lấy từ tên (tên không có số thì "Đề");
+     - nhiều kì khác nhau (nhóm "Bài ôn khác"): tên bỏ phần môn và khối, ví dụ "Cuối kì I · Đề 1";
+     - tên tự đặt không bắt đầu bằng môn và khối (ngân hàng quản trị viên nhập): nguyên tên đề.
+     Hai nút trùng chữ thì ghi dài như nhóm nhiều kì, vẫn trùng thì ghi nguyên tên đề. */
+  function bankLabels(list) {
+    const norm = (x) => String(x).normalize("NFC").replace(/\s+/g, " ").trim().toLowerCase();
+    const info = list.map((b) => {
+      const parts = String(b.title).split(/\s*·\s*/), head = norm(parts[0]);
+      const rest = parts.length > 1 && [b.subject + " " + b.grade, b.subject + " lớp " + b.grade].some((h) => norm(h) === head) ? parts.slice(1) : null;
+      const term = rest && rest.slice(0, /^Đề\s*\d*$/i.test(rest[rest.length - 1]) ? -1 : rest.length).join(" · ");
+      return { rest, term, n: (/Đề\s*(\d+)/.exec(b.title) || [])[1], title: b.title };
+    });
+    const uniq = (a) => new Set(a).size === a.length;
+    const short = info.map((x) => (x.n ? "Đề " + x.n : "Đề")), long = info.map((x) => (x.rest ? x.rest.join(" · ") : x.title));
+    if (info.every((x) => x.rest && x.term === info[0].term) && uniq(short)) return short;
+    return uniq(long) ? long : info.map((x) => x.title);
+  }
   /* Mỗi bài ôn dạng trang một dòng; đề ngân hàng gom theo môn thành một dòng có các nút "Đề 1 · Đề 2 · …"
-     (xếp theo tên đề; aria-label có cả chữ trên nút và tên đề đầy đủ). */
+     (xếp theo tên đề, chữ trên nút theo bankLabels; aria-label là tên đề đầy đủ). */
   function practiceList(mods, bks, canPlay) {
     if (!mods.length && !bks.length) return `<div class="panel muted">Chưa có bài ôn cho mục này. Quản trị viên có thể nhập ngân hàng câu hỏi trong mục Quản trị.</div>`;
     const subs = new Map(), act = canPlay ? "main" : "";
@@ -525,7 +543,7 @@
         list.sort((a, b) => a.title.localeCompare(b.title, "vi", { numeric: true }));
         const nq = list[0].questions.length, same = list.every((b) => b.questions.length === nq);
         return `<div class="item subj"><span class="grow"><b>${esc(sub)}</b><span class="small muted">${list.length} đề${same ? ` · ${nq} câu${list.length > 1 ? " mỗi đề" : ""}` : ""}</span></span>
-          <span class="des">${list.map((b, i) => { const lb = "Đề " + (i + 1); return `<a class="btn ${act} sm" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(b.title.includes(lb) ? b.title : lb + " · " + b.title)}">${lb}</a>`; }).join("")}</span></div>`;
+          <span class="des">${bankLabels(list).map((lb, i) => { const b = list[i]; return `<a class="btn ${act} sm" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(b.title.includes(lb) ? b.title : lb + " · " + b.title)}">${esc(lb)}</a>`; }).join("")}</span></div>`;
       }).join("")}</div>`;
   }
   /* "Tất cả bài ôn" của một khối, gom theo kì thi chưa qua: kì gần nhất mở sẵn, các kì sau thu gọn.

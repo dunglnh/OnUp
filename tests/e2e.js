@@ -498,6 +498,37 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const ok360 = !m360.length && Object.values(c360).every((r) => Object.values(r).every(Boolean));
   console.log("360:", c360, "problems:", m360);
 
+  step("practice buttons named by exam (L18)");
+  // 1/4/2027: cuối kì I, giữa kì II đã qua nên đề lớp 4 dồn vào "Bài ôn khác"; kì cuối năm chỉ gắn Đề 2, Đề 3 Toán cuối kì I;
+  // thêm một đề tên tự đặt dài (nút xuống dòng, không tràn ngang ở 360px).
+  const lc = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 } });
+  await localConfig(lc); watchOut(lc);
+  const lp = await lc.newPage(); lp.on("pageerror", (e) => errs.push("pageerror L18: " + e.message));
+  await lp.clock.install({ time: new Date("2027-04-01T08:00:00") });
+  await lp.goto(BASE + "/");
+  await lp.evaluate(() => {
+    const d = JSON.parse(localStorage.getItem("ontap_db_v1"));
+    d.events.find((e) => e.id === "ck2-l4").banks = ["toan4-ck1-de2", "toan4-ck1-de3"];
+    d.banks.push(Object.assign(JSON.parse(JSON.stringify(d.banks[0])), { id: "b-dai", title: "Đề ôn tập tổng hợp cuối năm của cô Lan cho cả lớp 4A", subject: "Toán", grade: 4 }));
+    localStorage.setItem("ontap_db_v1", JSON.stringify(d));
+  });
+  await lp.reload(); await lp.click(`.tile[data-u="${ids.Bin}"]`); await lp.fill("#pinIn", PINS.Bin); await lp.waitForTimeout(400);
+  await lp.evaluate(() => document.querySelectorAll("details.grp").forEach((d) => (d.open = true)));
+  const l18 = await lp.evaluate(() => {
+    const row = (g, sub) => { const r = g && [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === sub); return r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent) : []; };
+    const grps = [...document.querySelectorAll("#allPractice details.grp")], other = grps.find((g) => !g.dataset.grp), ck2 = grps.find((g) => g.dataset.grp === "ck2-l4");
+    const btns = [...document.querySelectorAll("#allPractice .des a")];
+    return { today: new Date().toLocaleDateString("vi"), toan: row(other, "Toán"), tv: row(other, "Tiếng Việt"), ck2: row(ck2, "Toán"),
+      aria: btns.map((a) => a.getAttribute("aria-label")), wide: document.documentElement.scrollWidth,
+      fits: btns.every((a) => { const r = a.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth; }) };
+  });
+  await lp.screenshot({ path: OUT + "18-de-theo-ki.png", fullPage: true });
+  await lc.close();
+  console.log("L18:", l18);
+  const labelsOK = l18.today === "1/4/2027" && ["Cuối kì I · Đề 1", "Giữa kì II · Đề 1", "Giữa kì II · Đề 2", "Đề ôn tập tổng hợp cuối năm của cô Lan cho cả lớp 4A"].every((x) => l18.toan.includes(x))
+    && !l18.toan.some((x) => /^Đề \d+$/.test(x)) && l18.tv.includes("Cuối kì I · Đề 2") && l18.tv.includes("Giữa kì II · Đề 1") && l18.ck2.join() === "Đề 2,Đề 3"
+    && l18.aria.includes("Toán 4 · Giữa kì II · Đề 1") && l18.aria.includes("Toán 4 · Cuối kì I · Đề 3") && l18.wide <= 360 && l18.fits;
+
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được). */
   const sw = new Function("self", fs.readFileSync(ROOT + "sw.js", "utf8") + "\nreturn { VERSION, FILES };")({ addEventListener() {} });
@@ -545,6 +576,6 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("local mode:", !cloudMode, "requests outside " + HOST + ":", outReqs);
   const real = errs;
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();
