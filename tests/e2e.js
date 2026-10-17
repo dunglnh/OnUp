@@ -90,6 +90,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
 
   step("leave guard: bank exam (L1)");
   await page.goto(BASE + "/#/home"); await page.waitForTimeout(200);
+  await page.evaluate(() => (document.querySelector("a[href='#/quiz/toan4-ck1-de1']").closest("details").open = true)); // đề nằm trong nhóm kì thi đang thu gọn
   await page.click("a[href='#/quiz/toan4-ck1-de1']"); await page.waitForTimeout(200);
   const nBefore = await nRes();
   await page.click("#qExam");

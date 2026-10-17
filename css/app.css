@@ -59,7 +59,6 @@ a{color:var(--acc)}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .row.between{justify-content:space-between}
 .sec{display:flex;flex-direction:column;gap:10px;margin-top:10px}
-.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
 .label{font-size:.8125rem;letter-spacing:.05em;text-transform:uppercase;font-weight:700;color:var(--muted)}
 .muted{color:var(--muted)} .small{font-size:.875rem}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
@@ -121,6 +120,18 @@ textarea{min-height:200px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;ba
 .item .grow b{overflow-wrap:anywhere}
 button.item{width:100%;text-align:left;background:transparent;border-left:0;border-right:0;border-bottom:0}
 .list>button.item:first-child{border-top:0}
+
+/* bài ôn gom theo kì thi (trang chủ học sinh) và theo môn */
+.grp{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;scroll-margin-top:96px}
+.grp>summary{display:flex;align-items:center;gap:12px;padding:12px 14px;min-height:44px;cursor:pointer;list-style:none}
+.grp>summary::-webkit-details-marker{display:none}
+.grp>summary::after{content:"";flex:none;width:9px;height:9px;margin:-4px 4px 0 0;border:solid var(--muted);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.grp[open]>summary::after{margin-top:4px;transform:rotate(-135deg)}
+.grp>summary .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.grp>.list{border:0;border-top:1px solid var(--line);border-radius:0}
+.subj{flex-wrap:wrap}
+.subj .grow{flex-basis:7em}
+.des{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
 
 /* lịch thi */
 .timeline{display:flex;flex-direction:column;gap:6px}

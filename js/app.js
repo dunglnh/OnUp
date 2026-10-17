@@ -420,18 +420,40 @@
     $$("[data-ev]", root).forEach((b) => (b.onclick = () => openEvent(b.dataset.ev, grade, student)));
   }
 
-  function practiceCards(mods, bks, canPlay) {
+  /* Mỗi bài ôn dạng trang một dòng; đề ngân hàng gom theo môn thành một dòng có các nút "Đề 1 · Đề 2 · …"
+     (xếp theo tên đề, tên đầy đủ ở aria-label). */
+  function practiceList(mods, bks, canPlay) {
     if (!mods.length && !bks.length) return `<div class="panel muted">Chưa có bài ôn cho mục này. Quản trị viên có thể nhập ngân hàng câu hỏi trong mục Quản trị.</div>`;
-    return `<div class="grid2">${mods.map((m) => `<div class="panel"><b>${esc(m.title)}</b><span class="small muted">${esc(m.desc)}</span><div class="row"><a class="btn ${canPlay ? "main" : ""} sm" href="#/play/${esc(m.id)}">${canPlay ? "Vào ôn" : "Xem thử"}</a></div></div>`).join("")}
-      ${bks.map((b) => `<div class="panel"><b>${esc(b.title)}</b><span class="small muted">${b.questions.length} câu${b.minutes ? " · " + b.minutes + " phút khi làm như thi" : ""}</span><div class="row"><a class="btn ${canPlay ? "main" : ""} sm" href="#/quiz/${esc(b.id)}">${canPlay ? "Làm bài" : "Xem thử"}</a></div></div>`).join("")}</div>`;
+    const subs = new Map(), act = canPlay ? "main" : "";
+    bks.forEach((b) => { const k = b.subject || "Khác"; subs.set(k, (subs.get(k) || []).concat(b)); });
+    return `<div class="list">${mods.map((m) => `<div class="item"><span class="grow"><b>${esc(m.title)}</b><span class="small muted">${esc(m.desc)}</span></span><a class="btn ${act} sm" href="#/play/${esc(m.id)}">${canPlay ? "Vào ôn" : "Xem thử"}</a></div>`).join("")}
+      ${[...subs].map(([sub, list]) => {
+        list.sort((a, b) => a.title.localeCompare(b.title, "vi", { numeric: true }));
+        const nq = list[0].questions.length, same = list.every((b) => b.questions.length === nq);
+        return `<div class="item subj"><span class="grow"><b>${esc(sub)}</b><span class="small muted">${list.length} đề${same ? ` · ${nq} câu${list.length > 1 ? " mỗi đề" : ""}` : ""}</span></span>
+          <span class="des">${list.map((b, i) => `<a class="btn ${act} sm" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(b.title)}">Đề ${i + 1}</a>`).join("")}</span></div>`;
+      }).join("")}</div>`;
+  }
+  /* "Tất cả bài ôn" của một khối, gom theo kì thi chưa qua: kì gần nhất mở sẵn, các kì sau thu gọn.
+     Bài không thuộc kì nào trong số đó (kì đã qua, ngân hàng chưa gắn) nằm ở nhóm cuối "Bài ôn khác", nên không sót bài nào. */
+  function practiceGroups(grade, canPlay) {
+    const seen = new Set(), key = (x) => (x.path ? "m:" : "b:") + x.id;
+    const groups = Store.events(grade).filter((e) => e.kind !== "moc" && status(e) !== "past").map((e) => Object.assign({ e }, practiceFor(e, grade)))
+      .filter((g) => g.mods.length + g.bks.length);
+    groups.forEach((g) => g.mods.concat(g.bks).forEach((x) => seen.add(key(x))));
+    const rest = { mods: MODULES.filter((m) => m.grade === +grade && !seen.has(key(m))), bks: Store.banks(grade).filter((b) => !seen.has(key(b))) };
+    if (rest.mods.length + rest.bks.length) groups.push(rest);
+    if (!groups.length) return practiceList([], [], canPlay);
+    return groups.map((g, i) => `<details class="grp"${g.e ? ` data-grp="${esc(g.e.id)}"` : ""}${i ? "" : " open"}>
+      <summary><span class="grow"><b>${g.e ? esc(g.e.title) : "Bài ôn khác"}</b><span class="small muted">${g.e ? esc(range(g.e)) + " · " : ""}${g.mods.length + g.bks.length} bài ôn</span></span></summary>
+      ${practiceList(g.mods, g.bks, canPlay)}</details>`).join("");
   }
 
   function renderStudent(s, viewer, asObserver) {
     const results = Store.resultsFor(s.id), next = nextEvent(s.grade);
     const w7 = within(results, 7), [r30, t30] = sumRT(within(results, 30));
     const evs = Store.events(s.grade).filter((e) => status(e) !== "past").slice(0, 5);
-    const allMods = MODULES.filter((m) => m.grade === s.grade), allBanks = Store.banks(s.grade);
-    let hero = `<section class="hero"><span class="label">Kì thi tiếp theo</span><h1>Chưa có kì thi sắp tới</h1><p>Xem lịch thi cả năm để biết thêm.</p></section>`;
+    let hero =`<section class="hero"><span class="label">Kì thi tiếp theo</span><h1>Chưa có kì thi sắp tới</h1><p>Xem lịch thi cả năm để biết thêm.</p></section>`;
     if (next) {
       const { mods, bks } = practiceFor(next, s.grade), st = status(next), rd = readiness(next, s, results);
       hero = `<section class="hero">
@@ -441,10 +463,12 @@
         <p>${esc(range(next))}${next.subjects.length ? " · " + esc(next.subjects.join(", ")) : ""}</p>
         ${next.scope ? `<p class="small">${esc(next.scope)}</p>` : ""}
         ${rd.p != null ? `<p class="small">Điểm ôn 4 tuần qua cho kì này: <b>${rd.p}%</b> (${rd.n} lần làm)</p>` : ""}
-        <div class="row">${mods.map((m) => `<a class="btn main" href="#/play/${esc(m.id)}">${esc(m.title)}</a>`).join("")}${bks.map((b) => `<a class="btn ${mods.length ? "ghost" : "main"}" href="#/quiz/${esc(b.id)}">${esc(b.title)}</a>`).join("")}</div>
+        <div class="row">${mods.map((m) => `<a class="btn main" href="#/play/${esc(m.id)}">${esc(m.title)}</a>`).join("")}${bks.length ? `<button class="btn ${mods.length ? "ghost" : "main"}" id="toBanks">Đề ôn · ${bks.length} đề</button>` : ""}</div>
       </section>`;
     }
     const subs = bySubject(within(results, 30)), weakList = wrongTopics(within(results, 30)).slice(0, 5);
+    // Học sinh: 3 kết quả mới nhất ngay dưới hàng thống kê. Phụ huynh, quản trị xem hồ sơ: 30 kết quả ở cuối trang.
+    const recent = `<section class="sec" id="recent"><h2>Kết quả gần đây</h2>${resultsList(results.slice(0, asObserver ? 30 : 3))}</section>`;
     view.innerHTML = `<div class="stack">
       ${asObserver ? `<div class="row between">${back(viewer.role === "admin" ? "#/admin/overview" : "#/home", "Về danh sách")}${viewer.role !== "student" ? `<a class="btn ghost sm" href="#/admin/user/${esc(s.id)}">Sửa hồ sơ</a>` : ""}</div>
         <div class="row between"><div class="row">${avatar(s, true)}<div><h2>${esc(s.name)}</h2><span class="muted">${esc(gradeTxt(s))}</span></div></div><a class="btn main sm" id="toReport" href="#/report/${esc(s.id)}">Báo cáo tuần</a></div>` : `<div><h2>Chào ${esc(s.name)}! ${esc(s.avatar)}</h2><span class="muted">${esc(gradeTxt(s))}</span></div>`}
@@ -454,14 +478,20 @@
         <div class="stat"><b>${t30 ? d10(r30, t30) : "–"}</b><span>điểm TB 30 ngày (/10)</span></div>
         <div class="stat"><b>${streak(results)}</b><span>ngày ôn liên tiếp</span></div>
       </div>
+      ${asObserver ? "" : recent}
       ${subs.length ? `<section class="panel"><div class="label">Theo môn · 30 ngày</div><div class="ubreak">${subs.map(({ name, r, t }) => `<span>${esc(name)}</span><div class="bar ${pct(r, t) >= 80 ? "good" : ""}"><i style="width:${pct(r, t)}%"></i></div><span>${pct(r, t)}%</span>`).join("")}</div></section>` : ""}
       ${weakList.length ? `<section class="panel"><div class="label">Chủ đề hay sai</div><div class="tags">${weakList.map(([t, n]) => `<span class="tag warn">${esc(t)} · ${n} câu</span>`).join("")}</div></section>` : ""}
       <section class="sec"><div class="row between"><h2>Lịch thi sắp tới</h2><a class="linkbtn" href="#/calendar">Cả năm →</a></div>
         <div class="timeline">${evs.map((e) => eventRow(e, { grade: s.grade, student: s, results })).join("") || `<div class="panel muted">Không còn kì thi nào trong năm học.</div>`}</div></section>
-      <section class="sec"><h2>Tất cả bài ôn lớp ${s.grade}</h2>${practiceCards(allMods, allBanks, !asObserver)}</section>
-      <section class="sec"><h2>Kết quả gần đây</h2>${resultsList(results.slice(0, asObserver ? 30 : 10))}</section>
+      <section class="sec" id="allPractice"><h2>Tất cả bài ôn lớp ${s.grade}</h2>${practiceGroups(s.grade, !asObserver)}</section>
+      ${asObserver ? recent : ""}
     </div>`;
     wireEvents(view, s.grade, s); wireGo();
+    // Nút "Đề ôn" trên thẻ kì thi: mở nhóm của kì đó trong "Tất cả bài ôn" (đề gom theo môn ở đó).
+    if ($("#toBanks")) $("#toBanks").onclick = () => {
+      const g = $(`#allPractice [data-grp="${CSS.escape(next.id)}"]`); if (!g) return;
+      g.open = true; g.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
   }
   function resultsList(list) {
     if (!list.length) return `<div class="panel muted">Chưa có kết quả. Làm một bài ôn để bắt đầu.</div>`;
@@ -582,7 +612,7 @@
       ${e.subjects && e.subjects.length ? `<p>Môn: ${esc(e.subjects.join(", "))}</p>` : ""}
       ${e.scope ? `<p class="small">Phạm vi: ${esc(e.scope)}</p>` : ""}
       ${e.note ? `<p class="small muted">${esc(e.note)}</p>` : ""}
-      ${e.kind !== "moc" ? `<div class="label">Bài ôn cho kì này</div>${practiceCards(mods, bks, canPlay)}` : ""}
+      ${e.kind !== "moc" ? `<div class="label">Bài ôn cho kì này</div>${practiceList(mods, bks, canPlay)}` : ""}
       ${u.role === "admin" ? `<div class="row"><a class="btn sm" href="#/admin/event/${esc(e.id)}">Sửa kì thi</a></div>` : ""}`;
     const old = $("#evDetail"); if (old) old.remove();
     const anchor = $(`[data-ev="${CSS.escape(id)}"]`);
