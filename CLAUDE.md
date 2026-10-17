@@ -142,7 +142,7 @@ GitHub Pages: Settings → Pages → Deploy from a branch → `main` / root. Fil
 
 ## Việc tiếp theo (theo thứ tự ưu tiên)
 **Trạng thái 16/10/2026: đang chạy thử với học sinh.** Ưu tiên: sửa các GitHub Issue góp ý từ việc chạy thử, rồi dựng **khung tài khoản: tên đăng nhập + mật khẩu, hồ sơ con, trang admin, khối lớp 1–12 dùng chung** theo `docs/THIET-KE-TAI-KHOAN.md` (Phiên A → B → C). **Chưa làm bản trả phí** (chỉ tính khi có đủ đề lớp 4–12); khung chừa sẵn `plan` và `Store.can()`. Thiết kế đó **thay thế** cách đăng nhập email, mã mời, mã gia đình + PIN của bản đám mây cũ. **Phiên A (máy chủ) và Phiên B (app: đăng nhập, “Ai đang học?”, khu phụ huynh, `data/grades.js`, `Store.can`) đã làm**; tiếp theo là Phiên C (trang admin). Lộ trình đầy đủ và lời giao việc từng phiên: `docs/KE-HOACH-PHAT-TRIEN-ONUP.md`. Tóm tắt:
-1. Sửa lỗi cơ bản tìm được khi dùng thử (`docs/SUA-LOI-CHAY-THU.md`, Phiên 9a, 9b, 9c đã làm) và lỗi từ góp ý chạy thử (GitHub Issues).
+1. Sửa lỗi cơ bản tìm được khi dùng thử (`docs/SUA-LOI-CHAY-THU.md`: Phiên 9a, 9b, 9c đã làm; Phiên 9d, lỗi phát sinh khi rà soát lại 17/10, chưa làm) và lỗi từ góp ý chạy thử (GitHub Issues).
 2. Đề cuối kì I: đã đủ các môn cho cả lớp 4 và lớp 6 (Phiên 10, 11).
 3. Báo cáo tuần cho phụ huynh (Phiên 12) và IOE cấp tỉnh lớp 4 (Phiên 13): đã có.
 4. Đề giữa kì II lớp 4: đã có (Phiên 14). Còn đề giữa kì II lớp 6 và đề cuối năm cho cả hai khối.

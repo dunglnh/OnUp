@@ -1,5 +1,6 @@
 -- Kiểm thử RLS, trigger và các hàm của supabase/schema.sql, đóng vai phụ huynh, nhà khác, tài khoản bị khóa, chủ app
--- và người chưa đăng nhập. Chạy bằng tests/supabase/run.sh (nạp auth-stub.sql, schema.sql và đề từ banks-to-sql.js trước).
+-- và người chưa đăng nhập. Chạy bằng tests/supabase/run.sh (nạp auth-stub.sql, schema.sql và đề từ banks-to-sql.js trước,
+-- truyền biến psql `banks` = số đề trong data/banks.js).
 
 -- ---------- công cụ kiểm thử ----------
 create schema t;
@@ -198,15 +199,24 @@ select t.blocked($$select today_vn()$$, 'gọi hàm nội bộ today_vn');
 reset role;
 
 -- ---------- đề trong paid_banks (nạp từ supabase/banks-to-sql.js) ----------
-select t.ok((select count(*) from paid_banks) = 18 and (select count(*) from paid_banks where free_trial) = 13
-  and (select count(*) from paid_banks where published) = 18, 'banks-to-sql.js: 18 đề, 13 đề thử, đã đăng');
-select t.ok((select string_agg(id, ',' order by id) from paid_banks where not free_trial) = 'toan4-ck1-de2,toan4-ck1-de3,toan6-ck1-de2,tv4-ck1-de2,van6-ck1-de2',
+-- Không ghi cứng số đề: :banks do run.sh đếm trong data/banks.js, :trials là số đề thử đếm ở đây. Thêm đề không phải sửa file này.
+select t.ok((select count(*) from paid_banks) = :banks and (select count(*) from paid_banks where published) = :banks,
+  'banks-to-sql.js: đủ ' || :banks || ' đề của data/banks.js, đã đăng');
+select count(*) filter (where free_trial) as trials, count(*) filter (where not free_trial) as paid from paid_banks \gset
+select t.ok(:trials > 0 and :paid > 0, 'có ' || :trials || ' đề thử và ' || :paid || ' đề không phải đề thử');
+-- Quy tắc của banks-to-sql.js viết lại bằng SQL: mã có đuôi "-de<số>" là đề thử khi số là 1;
+-- mã không có số là đề thử khi đứng đầu nhóm (kì thi, khối, môn) trong data/banks.js.
+select t.ok(not exists (select 1 from (
+    select free_trial, coalesce(substring(id from '-de([0-9]+)$')::int = 1, sort = min(sort) over (partition by exam, grade, subject)) as trial
+    from paid_banks) x where free_trial <> trial),
   'đề số 1 mỗi môn mỗi kì là đề thử, các đề còn lại thì không');
+select t.ok((select free_trial from paid_banks where id = 'toan4-ck1-de1') and (select not free_trial from paid_banks where id = 'toan4-ck1-de2'),
+  'toan4-ck1-de1 là đề thử, toan4-ck1-de2 thì không');
 select t.ok((select exam = 'ck1-l4' and grade = 4 and subject = 'Toán' and jsonb_array_length(questions) > 0 from paid_banks where id = 'toan4-ck1-de2'),
   'đề gắn đúng kì thi, khối, môn, có câu hỏi');
 insert into paid_banks (id, title, grade, questions, free_trial, published) values ('nhap-chua-dang', 'Đề nháp', 4, '[]', true, false);
 select t.login('PA');
-select t.ok(t.n('select * from paid_banks') = 18, 'gói free hôm nay (all_banks): đọc mọi đề đã đăng, không thấy đề chưa đăng');
+select t.ok(t.n('select * from paid_banks') = :banks, 'gói free hôm nay (all_banks): đọc mọi đề đã đăng, không thấy đề chưa đăng');
 select t.blocked($$insert into paid_banks (id, title, grade, questions) values ('gia', 'Giả', 4, '[]')$$, 'PA thêm đề vào paid_banks');
 select t.ok(t.rows($$update paid_banks set free_trial = true$$) = 0 and t.rows($$delete from paid_banks$$) = 0, 'PA không sửa, không xóa được đề');
 reset role;
@@ -215,7 +225,7 @@ reset role;
 update plans set max_children = 2, all_banks = false where id = 'free';
 update plans set max_children = 3, all_banks = true, price = 300000 where id = 'family';
 select t.login('PA');
-select t.ok(t.n('select * from paid_banks') = 13 and t.n('select * from paid_banks where not free_trial') = 0, 'gói free khi đã bán: chỉ đọc đề thử');
+select t.ok(t.n('select * from paid_banks') = :trials and t.n('select * from paid_banks where not free_trial') = 0, 'gói free khi đã bán: chỉ đọc đề thử');
 select touch();
 reset role;
 select t.ok((select string_agg(name, ',' order by created_at) from profiles where family_id = t.id('FA') and locked) = 'Út,Thứ năm',
@@ -234,7 +244,7 @@ select t.ok(not plan_active(t.id('FA')), 'PB hỏi plan_active của nhà A: kh�
 select t.login('OWNER');
 select t.ok(plan_active(t.id('FA')), 'owner hỏi được plan_active của mọi gia đình');
 select t.login('PA');
-select t.ok(t.n('select * from paid_banks') = 18, 'gói family còn hạn: đọc mọi đề');
+select t.ok(t.n('select * from paid_banks') = :banks, 'gói family còn hạn: đọc mọi đề');
 select t.ok(t.rows($$insert into results (profile_id, source, ref_id, r, t) values (t.id('UT'), 'bank', 'x', 1, 2)$$) = 1, 'hồ sơ trong hạn mức ghi được kết quả');
 select t.blocked_with($$insert into results (profile_id, source, ref_id, r, t) values (t.id('NAM'), 'bank', 'x', 1, 2)$$, 'đang bị khóa', 'hồ sơ bị khóa không ghi được kết quả');
 select t.ok(t.n($$select * from results where profile_id = t.id('BIN')$$) = 1 and t.n($$select * from profiles where id = t.id('NAM')$$) = 1,
@@ -249,7 +259,7 @@ select t.ok(not plan_active(t.id('FA')) and effective_plan(t.id('FA')) = 'free',
 select t.login('PA');
 select t.blocked_with($$insert into results (profile_id, source, ref_id, r, t) values (t.id('UT'), 'bank', 'x', 1, 2)$$, 'đang bị khóa', 'gói vừa hết hạn: hồ sơ thứ 3 bị khóa ngay khi ghi kết quả');
 select t.ok(t.rows($$insert into results (profile_id, source, ref_id, r, t) values (t.id('NA'), 'bank', 'x', 1, 2)$$) = 1, 'hai hồ sơ đầu vẫn ghi được');
-select t.ok(t.n('select * from paid_banks') = 13, 'hết hạn: lại chỉ đọc đề thử');
+select t.ok(t.n('select * from paid_banks') = :trials, 'hết hạn: lại chỉ đọc đề thử');
 select t.ok(t.n('select * from profiles') = 4 and t.n($$select * from results where profile_id = t.id('BIN')$$) = 1, 'hết hạn không mất dữ liệu');
 reset role;
 -- xóa một hồ sơ thì hồ sơ bị khóa kế tiếp được mở
@@ -301,7 +311,7 @@ select t.ok(t.n('select id from families') = 3, 'owner đọc được mọi tà
 select t.ok(t.n('select * from profiles') = 0 and t.n('select * from results') = 0, 'owner không đọc hồ sơ con, bài làm của các gia đình');
 select t.ok(t.rows($$insert into admin_notes (family_id, note) values (t.id('FA'), 'Zalo: Mẹ Bin')$$) = 1
   and t.rows($$update admin_notes set note = 'Zalo: Mẹ Bin, 09xx' where family_id = t.id('FA')$$) = 1, 'owner ghi chú về tài khoản');
-select t.ok(t.n('select * from paid_banks') = 19, 'owner thấy cả đề chưa đăng');
+select t.ok(t.n('select * from paid_banks') = :banks + 1, 'owner thấy cả đề chưa đăng (đề nháp)');
 select t.ok(t.rows($$update paid_banks set published = true where id = 'nhap-chua-dang'$$) = 1
   and t.rows($$insert into paid_banks (id, title, grade, questions) values ('gk2-toan4-de1', 'Toán 4 · Giữa kì II · Đề 1', 4, '[]')$$) = 1
   and t.rows($$delete from paid_banks where id = 'gk2-toan4-de1'$$) = 1, 'owner đăng, thêm, xóa đề');
