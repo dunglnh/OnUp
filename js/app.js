@@ -194,22 +194,26 @@
         <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join("")}<button type="button" data-k="del" aria-label="Xóa">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" aria-label="Vào" style="background:var(--sun);color:var(--sun-ink)">Vào</button></div>
         <div id="pinErr" aria-live="assertive"></div>
       </section>`;
-  /* Bàn phím PIN dùng chung cho đăng nhập trên máy và trên đám mây. submit(pin) được gọi khi bấm Vào hoặc đủ 6 số. */
-  function wirePinBox(submit) {
+  /* Bàn phím PIN dùng chung cho đăng nhập trên máy và trên đám mây. submit(pin) được gọi khi bấm Vào, Enter,
+     hoặc gõ đủ độ dài PIN của người đã chọn (u.pinLen; chưa biết thì 6).
+     probe(pin), không bắt buộc: chưa biết độ dài thì gọi khi gõ đủ 4 số, để thử lặng lẽ PIN 4 số. */
+  function wirePinBox(submit, probe) {
     const inp = $("#pinIn");
-    let pin = "";
-    const set = (v) => { pin = v; inp.value = v; $("#pinDots").innerHTML = Array.from({ length: Math.max(4, pin.length) }, (_, i) => `<span class="${i < pin.length ? "on" : ""}"></span>`).join(""); };
+    let pin = "", len = 0;
+    const set = (v) => { pin = v; inp.value = v; $("#pinDots").innerHTML = Array.from({ length: Math.max(len || 4, pin.length) }, (_, i) => `<span class="${i < pin.length ? "on" : ""}"></span>`).join(""); };
+    const typed = (v) => { set(v); if (pin.length === (len || 6)) submit(pin); else if (!len && pin.length === 4 && probe) probe(pin); };
     $$(".pad button").forEach((b) => (b.onclick = () => {
       const k = b.dataset.k;
-      if (k === "ok") { submit(pin); return; }
-      set(k === "del" ? pin.slice(0, -1) : pin.length < 6 ? pin + k : pin);
-      if (pin.length === 6) submit(pin);
+      if (k === "ok") submit(pin);
+      else if (k === "del") set(pin.slice(0, -1));
+      else if (pin.length < (len || 6)) typed(pin + k);
     }));
-    inp.oninput = () => set(inp.value.replace(/\D/g, "").slice(0, 6));
+    inp.oninput = () => { const v = inp.value.replace(/\D/g, "").slice(0, len || 6); if (v.length > pin.length) typed(v); else set(v); };
     inp.onkeydown = (e) => { if (e.key === "Enter") submit(pin); };
     return {
       clear: () => set(""),
       show(u) {
+        len = u.pinLen >= 4 && u.pinLen <= 6 ? u.pinLen : 0;
         set(""); $("#pinErr").innerHTML = "";
         $("#pinWho").innerHTML = `${avatar(u)}<b>${esc(u.name)}</b>`;
         $("#pinBox").hidden = false; setTimeout(() => inp.focus({ preventScroll: true }), 30);
@@ -231,6 +235,13 @@
     return {
       wait, // số giây còn phải đợi, 0 = nhập được
       left(id) { const x = read()[id]; return EVERY - ((x && x.fails) || 0) % EVERY; }, // còn mấy lần sai nữa thì bị khóa
+      /* Lượt thử lặng lẽ khi chưa biết độ dài PIN (xem wirePinBox): không tính là lần sai, nhưng mỗi người chỉ có EVERY lượt
+         cho tới khi đăng nhập đúng, để không thành cách đoán PIN 4 số không giới hạn. */
+      probe(id) {
+        const o = read(), x = (o[id] = o[id] || { fails: 0, until: 0 });
+        if (wait(id) || (x.probes || 0) >= EVERY) return false;
+        x.probes = (x.probes || 0) + 1; write(o); return true;
+      },
       fail(id) {
         const o = read(), x = (o[id] = o[id] || { fails: 0, until: 0 });
         x.fails++;
@@ -250,8 +261,8 @@
       <div><h1>Xin chào!</h1><p class="muted">${esc(Store.settings().schoolName || "Chọn tên của bạn để bắt đầu.")}</p></div>
       ${groups.map(([role, name]) => { const us = Store.users(role); return us.length ? `<section class="sec"><div class="label">${name}</div><div class="tiles">${us.map((u) => `<button class="tile" data-u="${u.id}" aria-pressed="${u.id === sel}">${avatar(u, true)}<span class="nm">${esc(u.name)}</span><span class="small muted">${esc(gradeTxt(u))}</span></button>`).join("")}</div></section>` : ""; }).join("")}
       ${pinBoxHTML()}</div>`;
-    const box = wirePinBox(submit);
-    let tick = null;
+    const box = wirePinBox(submit, probe);
+    let tick = null, busy = false;
     // Đếm ngược trong #pinWait (aria-live="off" để trình đọc màn hình không đọc lại mỗi giây).
     function showWait(id, lead) {
       clearInterval(tick);
@@ -269,15 +280,30 @@
       box.show(Store.user(id));
       if (PinLock.wait(id)) showWait(id);
     }
+    const enter = (id) => { PinLock.clear(id); clearInterval(tick); Store.setSession(id); go("#/home"); };
+    // busy: gõ đủ số rồi bấm Enter ngay (hoặc thử lặng lẽ chưa xong) thì không kiểm tra hai lần.
     async function submit(pin) {
-      if (!sel || !pin) return;
+      if (!sel || !pin || busy) return;
       const id = sel;
       if (PinLock.wait(id)) { box.clear(); showWait(id); return; }
-      if (await Store.checkPin(id, pin)) { PinLock.clear(id); clearInterval(tick); Store.setSession(id); go("#/home"); return; }
+      busy = true;
+      const ok = await Store.checkPin(id, pin);
+      busy = false;
+      if (sel !== id) return;
+      if (ok) { enter(id); return; }
       box.clear();
       if (PinLock.fail(id)) { showWait(id, "Mã PIN chưa đúng."); return; }
       const left = PinLock.left(id);
       pinError(left <= 2 ? `Mã PIN chưa đúng. Sai thêm ${left} lần nữa thì phải đợi một lúc.` : "Mã PIN chưa đúng. Thử lại nhé.");
+    }
+    // Tài khoản cũ chưa biết độ dài PIN: gõ đủ 4 số thì thử lặng lẽ. Sai thì không báo, không tính là lần sai, chờ gõ tiếp.
+    async function probe(pin) {
+      const id = sel;
+      if (!id || busy || !PinLock.probe(id)) return;
+      busy = true;
+      const ok = await Store.checkPin(id, pin);
+      busy = false;
+      if (ok && sel === id) enter(id);
     }
     $$(".tile").forEach((t) => (t.onclick = () => pick(t.dataset.u)));
     if (sel) pick(sel);

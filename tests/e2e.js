@@ -13,6 +13,10 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   const cloudReqs = []; // js/config.js để trống: không được gọi Supabase hay tải supabase-js
   page.on("request", (r) => { if (/jsdelivr|supabase\.(co|in)|supabase-js/i.test(r.url())) cloudReqs.push(r.url()); });
   const shot = (n) => page.screenshot({ path: OUT + n + ".png", fullPage: true });
+  const editDb = (fn) => page.evaluate((src) => { const d = JSON.parse(localStorage.getItem("ontap_db_v1")); new Function("d", src)(d); localStorage.setItem("ontap_db_v1", JSON.stringify(d)); }, fn);
+  const who = () => page.evaluate(() => (Store.sessionUser() || {}).name || "");
+  // độ dài PIN đã lưu và số lần sai PIN của từng người, theo tên
+  const pinLog = () => page.evaluate(() => { const o = JSON.parse(localStorage.getItem("ontap_pinlock_v1") || "{}"), d = JSON.parse(localStorage.getItem("ontap_db_v1")); return Object.fromEntries(d.users.map((u) => [u.name, { len: u.pinLen, fails: (o[u.id] || {}).fails || 0 }])); });
   const step = (s) => console.log("STEP", s);
 
   await page.goto(BASE + "/");
@@ -45,8 +49,8 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   await shot("04-login");
   await page.click(".tile:has-text('Bin')");
   for (const k of "1111") await page.click(`.pad button[data-k="${k}"]`);
-  await page.click(`.pad button[data-k="ok"]`).catch(() => {});
   await page.waitForTimeout(400);
+  const autoIn = await who(); // PIN 4 số: gõ đủ 4 số là vào, không cần bấm "Vào" (L10)
   await shot("05-student-home");
   console.log("hero:", (await page.textContent(".hero")).replace(/\s+/g, " ").slice(0, 200));
 
@@ -122,7 +126,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   step("parent");
   await page.goto(BASE + "/#/account"); await page.click("#logout"); await page.waitForTimeout(200);
   await page.click(".tile:has-text('Mẹ Bin')");
-  await page.fill("#pinIn", "2222"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(400);
+  await page.fill("#pinIn", "2222"); await page.waitForTimeout(400);
   await shot("11-parent-home");
   await page.click("[data-child]"); await page.waitForTimeout(300); await shot("12-child");
 
@@ -153,8 +157,8 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   step("pin lock per user survives reload (L2)");
   await page.goto(BASE + "/#/account"); await page.click("#logout"); await page.waitForTimeout(200);
   await page.click(".tile:has-text('Na')");
-  for (let i = 0; i < 5; i++) { await page.fill("#pinIn", "0000"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(120); }
-  const lockMsg = await page.textContent("#pinErr");
+  for (let i = 0; i < 5; i++) { await page.fill("#pinIn", "0000"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(120); } // tự kiểm tra khi đủ 4 số, Enter ngay sau đó không tính thêm lần sai
+  const lockMsg = await page.textContent("#pinErr"), naFails = (await pinLog()).Na.fails;
   await page.reload(); await page.waitForTimeout(300);
   await page.click(".tile:has-text('Na')"); await page.waitForTimeout(100);
   const lockAfter = await page.textContent("#pinErr");
@@ -166,10 +170,10 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   await page.click(".tile:has-text('Bố Minh')"); await page.fill("#pinIn", "9999"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(300);
   const wrongMsg = await page.textContent("#pinErr");
   console.log("wrong pin msg:", wrongMsg);
-  await page.fill("#pinIn", "1234"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(400);
-  const otherIn = await page.evaluate(() => (Store.sessionUser() || {}).name);
-  const pinLockOK = /Đợi 30 giây/.test(lockMsg) && /Đợi (29|30) giây/.test(lockAfter) && lockedOut && /chưa đúng/.test(wrongMsg) && otherIn === "Bố Minh";
-  console.log("pin lock:", { lockMsg, lockAfter, lockedOut, otherIn });
+  await page.fill("#pinIn", "1234"); await page.waitForTimeout(400);
+  const otherIn = await who();
+  const pinLockOK = /Đợi 30 giây/.test(lockMsg) && naFails === 5 && /Đợi (29|30) giây/.test(lockAfter) && lockedOut && /chưa đúng/.test(wrongMsg) && otherIn === "Bố Minh";
+  console.log("pin lock:", { lockMsg, naFails, lockAfter, lockedOut, otherIn });
   await page.goto(BASE + "/#/admin/bank/new"); await page.waitForTimeout(200);
   await page.fill("#bTitle", "Tiếng Việt 4 · thử"); await page.fill("#bSubj", "Tiếng Việt");
   await page.click("#bSample"); console.log("check:", await page.textContent("#bRes"));
@@ -185,7 +189,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   await page.goto(BASE + "/#/admin/user/" + naId); await page.waitForTimeout(200);
   await page.fill("#uPin", "4444"); await page.click("button[type=submit]"); await page.waitForTimeout(300); // đặt PIN mới cũng mở khóa
   await page.goto(BASE + "/#/account"); await page.click("#logout"); await page.waitForTimeout(200);
-  await page.click(".tile:has-text('Na')"); await page.fill("#pinIn", "4444"); await page.press("#pinIn", "Enter"); await page.waitForTimeout(400);
+  await page.click(".tile:has-text('Na')"); await page.fill("#pinIn", "4444"); await page.waitForTimeout(400);
   const naIn = await page.evaluate(() => (Store.sessionUser() || {}).name);
   const g4quiz = await view("#/quiz/toan4-ck1-de1"); await shot("16-wrong-grade");
   const g4play = await view("#/play/l4-giua-ki-1");
@@ -195,6 +199,27 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   const routeOK = nf.missing && /Không tìm thấy trang/.test(nf.text) && nfAdmin.missing && adminPeek.every((x) => !x.missing && (x.quiz || x.frame))
     && naIn === "Na" && g4quiz.missing && !g4quiz.quiz && /dành cho lớp 4/.test(g4quiz.text) && g4play.missing && !g4play.frame && /dành cho lớp 4/.test(g4play.text)
     && g6quiz.quiz && g6play.frame && noBank.missing;
+
+  step("PIN auto submit by length (L10)");
+  const logout = async () => { await page.goto(BASE + "/#/account"); await page.click("#logout"); await page.waitForTimeout(200); };
+  const tile = async (n) => page.click(`.tile[data-u="${await page.evaluate((x) => Store.users().find((u) => u.name === x).id, n)}"]`);
+  const tap = async (digits) => { for (const k of digits) await page.click(`.pad button[data-k="${k}"]`); await page.waitForTimeout(250); };
+  await page.evaluate(() => Store.updateUser(Store.users().find((u) => u.name === "Bin").id, { pin: "123456" }));
+  const lenNew = (await pinLog()).Bin.len; // đổi PIN thì lưu độ dài mới
+  await editDb(`d.users.forEach((u) => { if (u.name === "Bin" || u.name === "Mẹ Bin") delete u.pinLen; });`); // như dữ liệu trước khi có pinLen
+  await logout(); await page.reload(); await page.waitForTimeout(300);
+  const lenOld = await page.evaluate(() => Store.users().filter((u) => /Bin/.test(u.name)).map((u) => u.pinLen)); // giá trị mặc định: 0 = chưa biết
+  await tile("Mẹ Bin"); await tap("2222"); // tài khoản cũ, PIN 4 số: đủ 4 số thì thử lặng lẽ và vào được
+  const oldFour = { who: await who(), len: (await pinLog())["Mẹ Bin"].len };
+  await logout(); await tile("Bin"); await tap("9999"); // tài khoản cũ, PIN 6 số: thử lặng lẽ sai thì không báo, không tính
+  const partial = { who: await who(), err: (await page.textContent("#pinErr")).trim(), fails: (await pinLog()).Bin.fails };
+  await tap("99"); // đủ 6 số: kiểm tra thật, sai tính 1 lần
+  const wrong6 = { err: await page.textContent("#pinErr"), fails: (await pinLog()).Bin.fails };
+  await tap("123456");
+  const sixIn = { who: await who(), len: (await pinLog()).Bin.len };
+  console.log("L10:", { autoIn, lenNew, lenOld, oldFour, partial, wrong6, sixIn });
+  const pinAutoOK = autoIn === "Bin" && lenNew === 6 && lenOld.join() === "0,0" && oldFour.who === "Mẹ Bin" && oldFour.len === 4
+    && partial.who === "" && partial.err === "" && partial.fails === 0 && /chưa đúng/.test(wrong6.err) && wrong6.fails === 1 && sixIn.who === "Bin" && sixIn.len === 6;
   const db = await page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")));
   console.log("results:", db.results.map((r) => [r.source, r.refId, r.subject, r.r, r.t, r.userId === db.users.find(u=>u.name==="Bin").id]));
   console.log("banks:", db.banks.map((b) => [b.title, b.questions.length, b.src.length > 0]));
@@ -222,7 +247,6 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
 
   step("new seed banks reach old data");
   const ck1 = () => page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).events.find((e) => e.id === "ck1-l4").banks);
-  const editDb = (fn) => page.evaluate((src) => { const d = JSON.parse(localStorage.getItem("ontap_db_v1")); new Function("d", src)(d); localStorage.setItem("ontap_db_v1", JSON.stringify(d)); }, fn);
   await editDb(`d.events.find((e) => e.id === "ck1-l4").banks = ["mau-toan4-ck1"]; delete d.seedBanksSeen;`); // như máy cài trước khi có đề mới
   await page.reload(); await page.waitForTimeout(300);
   const seedCk1 = await page.evaluate(() => window.ONTAP_SEED_EVENTS.find((e) => e.id === "ck1-l4").banks);
@@ -247,6 +271,6 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
   console.log("local mode:", !cloudMode, "cloud requests:", cloudReqs);
   const real = errs.filter((e) => !/fonts\.g|ERR_TUNNEL|ERR_NAME|net::/.test(e));
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || cloudReqs.length || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || cloudMode || cloudReqs.length || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();
