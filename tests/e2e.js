@@ -572,10 +572,41 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("offline:", ol, "sw list:", swList, "sw version:", sw.VERSION, "cache:", cache.names, cache.urls.length, "sw requests:", swSeen.length, "leaked:", leaked);
   const offlineOK = !swList.missing.length && !swList.extra.length && cache.names.join() === sw.VERSION && cache.urls.length === sw.FILES.length && cache.urls.every((u) => u.startsWith(BASE + "/"))
     && swSeen.length > 0 && !leaked.length && ol.login && ol.fonts === "Baloo 2,Be Vietnam Pro" && ol.who === "Bin" && /Global Success 4/.test(ol.play) && ol.quiz && ol.other;
+
+  step("service worker: one set of files per page load (L19)");
+  /* Service worker đã cài. Mọi file của app chậm 6 giây: trang vẫn hiện trước 6 giây (cả bộ lấy từ đệm), không lỗi JS,
+     và trang HTML đến muộn không ghi vào đệm. Rồi chỉ js/app.js chậm 6 giây, js/store.js có bản mới: không được chạy
+     app.js cũ cùng store.js mới. Route của context áp dụng cho request do service worker gửi (cờ ở đầu file). */
+  const sc = await browser.newContext({ storageState: state, viewport: { width: 390, height: 844 } });
+  await localConfig(sc); watchOut(sc);
+  const sp19 = await sc.newPage();
+  sp19.on("pageerror", (e) => errs.push("pageerror L19: " + e.message));
+  sp19.on("console", (m) => { if (m.type() === "error") errs.push("console L19: " + m.text()); });
+  const sleep = (ms) => new Promise((ok) => setTimeout(ok, ms));
+  await sp19.goto(BASE + "/"); await sp19.evaluate(() => navigator.serviceWorker.ready); await sp19.waitForFunction(() => !!navigator.serviceWorker.controller);
+  const html = fs.readFileSync(ROOT + "index.html", "utf8");
+  const slowAll = (r) => sleep(6000).then(() => (r.request().url() === BASE + "/" ? r.fulfill({ contentType: "text/html", body: html + "<!-- ban-moi -->" }) : r.fallback())).catch(() => {});
+  await sc.route("**/*", slowAll);
+  let t19 = Date.now();
+  await sp19.reload({ waitUntil: "commit" }); await sp19.waitForSelector(".tile", { timeout: 20000 });
+  const s19 = { slowAll: Date.now() - t19 };
+  await sleep(Math.max(0, 7500 - s19.slowAll)); // trang HTML từ mạng đã đến (sau 6 giây)
+  s19.cachedHtml = await sp19.evaluate((v) => caches.open(v).then((c) => c.match(location.origin + "/")).then((r) => r.text()).then((t) => t.includes("ban-moi")), sw.VERSION);
+  await sc.unroute("**/*", slowAll);
+  const appSrc = fs.readFileSync(ROOT + "js/app.js", "utf8"), storeSrc = fs.readFileSync(ROOT + "js/store.js", "utf8");
+  await sc.route("**/js/app.js", (r) => sleep(6000).then(() => r.fulfill({ contentType: "text/javascript", body: appSrc + "\nwindow.__swApp = 'new';" })).catch(() => {}));
+  await sc.route("**/js/store.js", (r) => r.fulfill({ contentType: "text/javascript", body: "window.__swStore = 'new';\n" + storeSrc }));
+  t19 = Date.now();
+  await sp19.reload({ waitUntil: "commit" }); await sp19.waitForSelector(".tile", { timeout: 20000 });
+  s19.mixedMs = Date.now() - t19;
+  s19.mixed = await sp19.evaluate(() => (window.__swApp || "old") + " app.js, " + (window.__swStore || "old") + " store.js");
+  await sc.close();
+  console.log("L19:", s19);
+  const swOK = s19.slowAll < 6000 && !s19.cachedHtml && s19.mixed === "new app.js, new store.js";
   const cloudMode = await page.evaluate(() => !!(window.Store.cloud || window.LocalStore));
   console.log("local mode:", !cloudMode, "requests outside " + HOST + ":", outReqs);
   const real = errs;
   console.log("ERRORS:", real);
-  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();

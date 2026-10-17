@@ -1,13 +1,19 @@
 /* Service worker: mở lại được app khi mất mạng (đăng kí trong js/app.js).
    - Khi cài: tải sẵn mọi file trong FILES vào đệm, nên lần mở sau không cần mạng.
-   - HTML, JS, CSS, data/, manifest: mạng trước, để bản mới đưa lên GitHub Pages là học sinh có ngay.
-     Mất mạng, hoặc mạng chậm quá SLOW_MS mà đệm đã có bản cũ, thì dùng bản trong đệm. Tải được từ mạng thì cập nhật đệm.
+   - Mỗi lần mở trang (cả trang chính lẫn bài ôn trong khung) dùng một bộ file thống nhất, không trộn bản cũ với bản mới
+     (ví dụ js/app.js cũ chạy cùng js/store.js mới ngay sau một lần cập nhật, trên mạng chậm):
+     · Trang (HTML): mạng trước, để bản mới đưa lên GitHub Pages là học sinh có ngay. Mất mạng, hoặc mạng chậm quá SLOW_MS
+       mà đệm đã có bản cũ, thì dùng bản trong đệm. Ghi lại trang lấy từ đâu, theo mã trang (resultingClientId).
+     · JS, CSS, data/, manifest của trang đó (clientId): trang lấy từ đệm thì lấy từ đệm (cả trang là bản cũ);
+       trang lấy từ mạng thì lấy từ mạng, đợi bao lâu cũng được, chỉ dùng đệm khi mạng lỗi hẳn.
+       Không rõ trang lấy từ đâu (service worker vừa khởi động lại, trình duyệt cũ không có resultingClientId): như trang HTML.
+     Bản tải từ mạng được dùng thì cập nhật đệm. Bản đến sau khi đã dùng đệm thì bỏ, để đệm không thành nửa cũ nửa mới.
    - Font, biểu tượng (fonts/, icons/): đệm trước, vì không đổi giữa các bản.
    - Chỉ xử lí request GET cùng origin, trong phạm vi app. Request tới Supabase, Cloudflare (CAPTCHA), CDN (supabase-js)
      đi thẳng ra mạng, không bao giờ vào đệm.
    Thêm, bớt, đổi tên file trong FILES, hoặc đổi font, biểu tượng: tăng VERSION. Bản mới cài lại đệm và xóa đệm cũ.
    tests/e2e.js so FILES với các file có trong repo. */
-const VERSION = "onup-v2";
+const VERSION = "onup-v3";
 const PREFIX = "onup-"; // GitHub Pages: các repo của một tài khoản chung origin, chỉ xóa đệm của app này
 const SLOW_MS = 4000;
 const FONTS = [["baloo-2", [600, 700, 800]], ["be-vietnam-pro", [400, 500, 600, 700]]]
@@ -33,11 +39,24 @@ self.addEventListener("activate", (e) => {
     .then(() => self.clients.claim()));
 });
 
+/* Mã trang → "net" | "cache": trang đó lấy từ mạng hay từ đệm. Chỉ giữ các trang mở gần đây. */
+const pages = new Map();
+function remember(id, from) {
+  if (!id) return;
+  pages.delete(id); pages.set(id, from);
+  if (pages.size > 100) pages.delete(pages.keys().next().value);
+}
+
 self.addEventListener("fetch", (e) => {
   const req = e.request, scope = self.registration.scope;
   if (req.method !== "GET" || !req.url.startsWith(scope)) return;
   const path = req.url.slice(scope.length);
-  e.respondWith(caches.open(VERSION).then((cache) => (/^(fonts|icons)\//.test(path) ? cacheFirst : networkFirst)(req, cache)));
+  e.respondWith(caches.open(VERSION).then((cache) => {
+    if (/^(fonts|icons)\//.test(path)) return cacheFirst(req, cache);
+    if (req.mode === "navigate") return networkFirst(req, cache, (from) => remember(e.resultingClientId, from));
+    const from = pages.get(e.clientId);
+    return from === "cache" ? cacheFirst(req, cache) : from === "net" ? networkOnly(req, cache) : networkFirst(req, cache);
+  }));
 });
 
 /* Khóa trong đệm bỏ phần ?…: bài ôn mở bằng modules/<mã>/index.html?u=<học sinh>&m=<mã> dùng chung một bản. */
@@ -49,11 +68,22 @@ function cacheFirst(req, cache) {
   const key = keyOf(req);
   return cache.match(key).then((hit) => hit || fetchAndKeep(req, cache, key));
 }
-function networkFirst(req, cache) {
+/* Trang lấy từ mạng: chỉ dùng đệm khi mạng lỗi hẳn. */
+function networkOnly(req, cache) {
+  const key = keyOf(req);
+  return fetchAndKeep(req, cache, key).catch(() => cache.match(key).then((hit) => hit || Promise.reject(new Error("offline"))));
+}
+/* Mạng trước; mất mạng, hoặc quá SLOW_MS mà đệm có bản cũ, thì dùng đệm. used("net" | "cache") báo bản nào được dùng.
+   Bản từ mạng chỉ vào đệm khi được dùng. */
+function networkFirst(req, cache, used) {
   const key = keyOf(req);
   // Mở trang lạ trong phạm vi app khi mất mạng: trả về trang chính.
   const saved = () => cache.match(key).then((hit) => hit || (req.mode === "navigate" ? cache.match(self.registration.scope) : undefined));
-  const net = fetchAndKeep(req, cache, key);
-  const slow = new Promise((ok) => setTimeout(ok, SLOW_MS)).then(saved).then((hit) => hit || net);
-  return Promise.race([net, slow]).catch(() => saved().then((hit) => hit || Promise.reject(new Error("offline"))));
+  return new Promise((resolve, reject) => {
+    let done = false, timer = 0;
+    const use = (res, from) => { if (done || !res) return false; done = true; clearTimeout(timer); if (used) used(from); resolve(res); return true; };
+    fetch(req).then((res) => { if (!done && res.ok) cache.put(key, res.clone()).catch(() => {}); use(res, "net"); },
+      () => saved().then((hit) => { if (!use(hit, "cache") && !done) { done = true; reject(new Error("offline")); } }));
+    timer = setTimeout(() => saved().then((hit) => use(hit, "cache")), SLOW_MS);
+  });
 }
