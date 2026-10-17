@@ -109,12 +109,19 @@
 
   /* -------- Người dùng -------- */
   const ROLES = { admin: "Quản trị", parent: "Phụ huynh", student: "Học sinh" };
+  /* Khối lớp lấy từ data/grades.js. Học sinh mới chỉ chọn được khối đang có nội dung (active);
+     sửa hồ sơ thì vẫn giữ được khối hiện tại. */
+  const activeGrades = () => (window.ONTAP_GRADES || []).filter((g) => g.active).map((g) => g.grade);
+  function gradeMsg() {
+    const a = activeGrades();
+    return "Chọn khối lớp " + (a.length > 1 ? a.slice(0, -1).join(", ") + " hoặc " + a[a.length - 1] : a.join("")) + ".";
+  }
 
   async function createUser(data) {
     if (!data.name || !String(data.name).trim()) throw new Error("Cần nhập tên.");
     if (!ROLES[data.role]) throw new Error("Vai trò không hợp lệ.");
     if (!validPin(data.pin)) throw new Error("Mã PIN gồm 4 đến 6 chữ số.");
-    if (data.role === "student" && ![4, 6].includes(+data.grade)) throw new Error("Chọn khối lớp 4 hoặc 6.");
+    if (data.role === "student" && !activeGrades().includes(+data.grade)) throw new Error(gradeMsg());
     const salt = uid();
     const u = {
       id: uid(), role: data.role, name: String(data.name).trim().slice(0, 40),
@@ -139,7 +146,7 @@
       u.salt = uid(); u.pinHash = await hashPin(String(patch.pin), u.salt); u.pinLen = String(patch.pin).length;
     }
     if (u.role === "student") {
-      if (patch.grade != null) { if (![4, 6].includes(+patch.grade)) throw new Error("Chọn khối lớp 4 hoặc 6."); u.grade = +patch.grade; }
+      if (patch.grade != null) { if (+patch.grade !== u.grade && !activeGrades().includes(+patch.grade)) throw new Error(gradeMsg()); u.grade = +patch.grade; }
       if (patch.className != null) u.className = String(patch.className).trim().slice(0, 20);
       if (Array.isArray(patch.parentIds)) u.parentIds = patch.parentIds.slice();
     }
@@ -269,6 +276,8 @@
     addResult, resultsFor,
     exportJSON, importJSON, wipe,
     settings: () => db.settings, setSettings: (p) => { Object.assign(db.settings, p); save(); },
+    // Quyền theo gói (docs/THIET-KE-TAI-KHOAN.md mục 5, 9). Bản lưu trên máy không có gói: luôn được.
+    can: () => true,
     _mem: null
   };
 })();

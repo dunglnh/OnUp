@@ -7,7 +7,7 @@
      đi thẳng ra mạng, không bao giờ vào đệm.
    Thêm, bớt, đổi tên file trong FILES, hoặc đổi font, biểu tượng: tăng VERSION. Bản mới cài lại đệm và xóa đệm cũ.
    tests/e2e.js so FILES với các file có trong repo. */
-const VERSION = "onup-v1";
+const VERSION = "onup-v2";
 const PREFIX = "onup-"; // GitHub Pages: các repo của một tài khoản chung origin, chỉ xóa đệm của app này
 const SLOW_MS = 4000;
 const FONTS = [["baloo-2", [600, 700, 800]], ["be-vietnam-pro", [400, 500, 600, 700]]]
@@ -15,7 +15,7 @@ const FONTS = [["baloo-2", [600, 700, 800]], ["be-vietnam-pro", [400, 500, 600, 
 const FILES = [
   "./", "manifest.webmanifest", "css/app.css",
   "js/config.js", "js/store.js", "js/store-supabase.js", "js/quiz.js", "js/app.js", "js/bridge.js",
-  "data/calendar-2026-2027.js", "data/modules.js", "data/banks.js",
+  "data/grades.js", "data/calendar-2026-2027.js", "data/modules.js", "data/banks.js",
   "modules/ioe-4/index.html", "modules/ioe-6/index.html", "modules/l4-giua-ki-1/index.html", "modules/l6-giua-ki-1/index.html",
   "fonts/fonts.css", ...FONTS,
   "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png", "icons/apple-touch-icon.png"
