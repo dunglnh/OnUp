@@ -54,7 +54,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | — | — | ~~Phiên 9c · Chạy khi mất mạng, nhắc sao lưu~~ (đã xong, PR #23) | |
 | — | — | ~~Phiên B · App: đăng nhập, chọn hồ sơ, khu phụ huynh, khối lớp chung~~ (đã xong, PR #25) | |
 | — | — | ~~Phiên 9d · Lỗi phát sinh sau rà soát 17/10~~ (đã xong, PR #29; bố mẹ thử L17 trên iPhone) | |
-| — | — | ~~Phiên C · Trang admin~~ (đã xong) | |
+| — | — | ~~Phiên C · Trang admin~~ (đã xong, PR #30) | |
 
 **Để sau, chỉ làm khi có nhu cầu thật:** nhập đề từ Excel (Phiên 6 cũ); tự đăng ký, email để tự lấy lại mật khẩu, tài khoản giáo viên/lớp học (mục 7 bản thiết kế); đề các khối khác (lớp 5, 7–12); **bản trả phí** khi đã có đủ đề lớp 4–12 (hướng đi ở mục 9 bản thiết kế). Việc “bắt buộc đổi PIN cũ” không còn cần vì cách đăng nhập mới bỏ PIN học sinh trên máy chủ.
 
