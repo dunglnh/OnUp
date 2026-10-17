@@ -156,5 +156,5 @@ GitHub Pages: Settings → Pages → Deploy from a branch → `main` / root. Fil
 1. Sửa lỗi cơ bản tìm được khi dùng thử (`docs/SUA-LOI-CHAY-THU.md`: Phiên 9a, 9b, 9c, 9d đã làm; còn chờ bố mẹ thử L17 trên iPhone thật) và lỗi từ góp ý chạy thử (GitHub Issues).
 2. Đề cuối kì I: đã đủ các môn cho cả lớp 4 và lớp 6 (Phiên 10, 11).
 3. Báo cáo tuần cho phụ huynh (Phiên 12) và IOE cấp tỉnh lớp 4 (Phiên 13): đã có.
-4. Đề: giữa kì II lớp 4 đã có (Phiên 14); giữa kì I lớp 6 thêm Tiếng Anh, LS&ĐL, GDCD (Phiên N0a). Kế hoạch đủ đề lớp 4 và 6, rồi lớp 5, 7–12 (tách dữ liệu đề, dạng câu mới, rút đề theo ma trận, các phiên làm đề theo hạn kì thi): `docs/KE-HOACH-NOI-DUNG.md`.
+4. Đề: giữa kì II lớp 4 đã có (Phiên 14); giữa kì I lớp 6 thêm Tiếng Anh, LS&ĐL, GDCD (Phiên N0a), Tin học, Công nghệ (Phiên N0b); cuối kì I lớp 4 thêm Tiếng Anh (Phiên N0b). Kế hoạch đủ đề lớp 4 và 6, rồi lớp 5, 7–12 (tách dữ liệu đề, dạng câu mới, rút đề theo ma trận, các phiên làm đề theo hạn kì thi): `docs/KE-HOACH-NOI-DUNG.md`.
 5. Bản đám mây theo thiết kế tài khoản mới: máy chủ (Phiên A), app (Phiên B) và trang admin (Phiên C) đã có. Chủ app cài theo `docs/HUONG-DAN-SUPABASE.md`, tạo tài khoản gia đình ở `admin.html`.
