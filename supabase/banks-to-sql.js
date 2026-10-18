@@ -16,7 +16,7 @@ const ROOT = path.join(__dirname, "..");
 const ctx = vm.createContext({ window: {} });
 vm.runInContext(fs.readFileSync(path.join(ROOT, "data/calendar-2026-2027.js"), "utf8"), ctx, { filename: "data/calendar-2026-2027.js" });
 const events = ctx.window.ONTAP_SEED_EVENTS || [];
-const banks = napDe();
+const banks = napDe().filter((b) => !b.pool); // đề ngẫu nhiên (pool) không lưu lên máy chủ: app tự gộp từ các đề cố định
 
 const lit = (v) => (v == null ? "null" : typeof v === "number" ? String(v) : typeof v === "boolean" ? String(v) : "'" + String(v).replace(/'/g, "''") + "'");
 const numberOf = (id) => { const m = /-de(\d+)$/.exec(id); return m ? +m[1] : null; };

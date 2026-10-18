@@ -224,15 +224,30 @@
     if (!seedFiles[file]) seedFiles[file] = new Promise((ok, fail) => {
       const s = document.createElement("script");
       s.src = "data/banks/" + file;
-      s.onload = () => {
-        const qs = window.ONTAP_SEED_QUESTIONS || {};
-        (window.ONTAP_SEED_BANKS || []).forEach((b) => { if (b.file === file && qs[b.id]) Object.assign(b, qs[b.id]); });
-        ok();
-      };
+      s.onload = () => { fillSeedFile(file); ok(); };
       s.onerror = () => { delete seedFiles[file]; s.remove(); fail(new Error("Chưa tải được đề.")); };
       document.head.append(s);
     });
     return seedFiles[file];
+  }
+  /* File câu hỏi đã chạy (window.ONTAP_SEED_QUESTIONS có các đề của file): gắn note, passages, questions vào mục danh mục.
+     Đề ngẫu nhiên (pool, Phiên K3): kho câu = câu riêng của pool trong file (nếu có) cộng câu của các đề cố định ghi ở
+     pool.from (cùng file), mỗi câu chép ra kèm src là mã đề gốc (để ưu tiên câu của đề học sinh chưa làm); passages gộp.
+     Tạo xong thì pool có questions (cả kho) như đề thường; số câu rút mỗi lần là n. Thiếu đề gốc nào thì chưa tạo.
+     Dùng chung với tests/nap-de.js (node): gọi với danh mục và kho câu truyền vào. */
+  function fillSeedFile(file, list, qs) {
+    list = list || window.ONTAP_SEED_BANKS || []; qs = qs || window.ONTAP_SEED_QUESTIONS || {};
+    list.forEach((b) => { if (b.file === file && !b.pool && qs[b.id]) Object.assign(b, qs[b.id]); });
+    list.forEach((b) => {
+      if (b.file !== file || !b.pool) return;
+      const own = qs[b.id] || {}, srcs = (b.pool.from || []).map((id) => list.find((x) => x.id === id));
+      if (srcs.some((x) => !x || !x.questions)) return;
+      const tag = (x, id) => (x.questions || []).map((q) => Object.assign({ src: id }, q));
+      const passages = Object.assign({}, own.passages || {}, ...srcs.map((x) => x.passages || {}));
+      b.note = own.note || b.note || "";
+      b.questions = tag(own, b.id).concat(...srcs.map((x) => tag(x, x.id)));
+      if (Object.keys(passages).length) b.passages = passages;
+    });
   }
   function loadBank(id) {
     const s = (window.ONTAP_SEED_BANKS || []).find((b) => b.id === id);
@@ -312,6 +327,7 @@
     settings: () => db.settings, setSettings: (p) => { Object.assign(db.settings, p); save(); },
     // Quyền theo gói (docs/THIET-KE-TAI-KHOAN.md mục 5, 9). Bản lưu trên máy không có gói: luôn được.
     can: () => true,
-    _mem: null
+    _mem: null,
+    _fillSeedFile: fillSeedFile // chỉ cho tests/nap-de.js
   };
 })();

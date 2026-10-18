@@ -449,8 +449,9 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("bank files:", lazy);
   const dataErrs = [];
   if (lazy.home !== "index.js" || lazy.quiz !== "4-toan.js,index.js" || lazy.now !== "4-toan.js,6-khtn.js,index.js") dataErrs.push("file đề tải về: " + JSON.stringify(lazy));
-  if (lazy.home2.loaded !== "" || lazy.home2.toan4 !== "0/25,0/25,0/25,0/25,0/25" || lazy.quiz2.loaded !== "toan4-ck1-de1,toan4-ck1-de2,toan4-ck1-de3,toan4-gk2-de1,toan4-gk2-de2"
-    || lazy.quiz2.toan4 !== "25/25,25/25,25/25,25/25,25/25") dataErrs.push("đề đã tải: " + JSON.stringify([lazy.home2, lazy.quiz2]));
+  // đề ngẫu nhiên (K3): cùng file, tải xong thì có cả kho câu (3 đề cuối kì I: 75 câu, 2 đề giữa kì II: 50 câu), số câu rút mỗi lần là n
+  if (lazy.home2.loaded !== "" || lazy.home2.toan4 !== "0/25,0/25,0/25,0/25,0/25,0/25,0/25" || lazy.quiz2.loaded !== "toan4-ck1-de1,toan4-ck1-de2,toan4-ck1-de3,toan4-gk2-de1,toan4-gk2-de2"
+    || lazy.quiz2.toan4 !== "25/25,25/25,25/25,25/25,25/25,75/25,50/25") dataErrs.push("đề đã tải: " + JSON.stringify([lazy.home2, lazy.quiz2]));
 
   step("new seed banks reach old data");
   const ck1 = () => page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).events.find((e) => e.id === "ck1-l4").banks);
@@ -767,8 +768,122 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await lc.close();
   console.log("L18:", l18);
   const labelsOK = l18.today === "1/4/2027" && ["Cuối kì I · Đề 1", "Giữa kì II · Đề 1", "Giữa kì II · Đề 2", "Đề ôn tập tổng hợp cuối năm của cô Lan cho cả lớp 4A"].every((x) => l18.toan.includes(x))
+    && l18.toan.slice(0, 2).join() === "Cuối kì I · Đề ngẫu nhiên,Giữa kì II · Đề ngẫu nhiên" // đề ngẫu nhiên (K3) đứng trước, ghi kì khi nhiều kì
     && !l18.toan.some((x) => /^Đề \d+$/.test(x)) && l18.tv.includes("Cuối kì I · Đề 2") && l18.tv.includes("Giữa kì II · Đề 1") && l18.ck2.join() === "Đề 2,Đề 3"
     && l18.aria.includes("Toán 4 · Giữa kì II · Đề 1") && l18.aria.includes("Toán 4 · Cuối kì I · Đề 3") && l18.wide <= 360 && l18.fits;
+
+  step("random exam by matrix (K3)");
+  /* Đề ngẫu nhiên (mục có pool trong data/banks/index.js): hàng Toán của kì cuối kì I lớp 6 có nút "Đề ngẫu nhiên" trước
+     Đề 1, Đề 2. Na (chưa có kết quả) làm xong Đề 1 (đúng hết), rồi mở đề ngẫu nhiên: màn đầu nói rõ 25 câu rút từ kho 50 câu
+     (2 đề); kho gộp từ hai đề, mỗi câu ghi src, đề cố định không bị sửa; bộ rút đúng ma trận; vì đã làm Đề 1 nên bộ rút lấy
+     câu của Đề 2 trước (chỉ 2 câu của Đề 1, ở hai chủ đề Đề 2 không đủ). Làm ôn luyện: câu đầu sai, còn lại đúng → kết quả
+     ghi refId là mã pool, môn Toán, 24/25, chủ đề sai; lịch sử câu (ontap_pool_v1) ghi 25 câu, câu sai đánh dấu. "Làm đề
+     khác": bộ mới có câu vừa sai (hay sai) và hai câu Đề 2 chưa làm, không giống bộ cũ. Trang chủ: "Chủ đề hay sai", kết quả
+     gần đây; báo cáo tuần tính đề ngẫu nhiên như đề thường; tab Ngân hàng đề ghi "rút ngẫu nhiên". Kho thiếu câu (pool giả
+     thêm vào danh mục lúc chạy): màn đầu ghi chú lấy bù. Mỗi màn hình kiểm tra 360px. */
+  const kc = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
+  await localConfig(kc); watchOut(kc);
+  const kp = await kc.newPage(); kp.on("pageerror", (e) => errs.push("pageerror K3: " + e.message)); kp.on("console", (m) => { if (m.type() === "error") errs.push("console K3: " + m.text()); });
+  const k3 = { problems: [] }, POOL = "toan6-ck1-ngau-nhien", DE1 = "toan6-ck1-de1";
+  const kcheck = async (label) => (await kp.evaluate(audit)).forEach((x) => k3.problems.push(`K3 · ${label}: ${x}`));
+  const ksnap = async (n) => { await kp.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await kp.screenshot({ path: `${OUT}19-${n}.png`, fullPage: true }); };
+  // câu đang hiện trên màn hình → câu trong kho (so chữ câu hỏi, bỏ chỗ trống và khoảng trắng); trả lời đúng hoặc sai rồi bấm Kiểm tra
+  const flatQ = (x) => String(x).replace(/___/g, "").replace(/\s+/g, "");
+  const current = async (qs) => { const t = await kp.$eval(".qcard .qtext", (e) => e.textContent); return qs.find((q) => flatQ(q.q) === flatQ(t)) || null; };
+  const answer = async (q, right) => {
+    if (q.type === "fill") await kp.fill("#qzFill", right ? q.ans[0] : "không đúng");
+    else { const want = q.type === "tf" ? (q.a === right ? "Đúng" : "Sai") : right ? q.o[0] : q.o[1]; await kp.$$eval(".opts .opt", (bs, w) => bs.find((b) => b.lastElementChild.textContent === w).click(), want); }
+    await kp.click("#qzGo");
+  };
+  // làm hết một lượt ôn luyện: wrongAt = số thứ tự câu trả lời sai (−1: đúng hết); snap: chụp màn hình sau câu đầu; trả về các câu đã gặp
+  const playAll = async (qs, wrongAt, snap) => {
+    const seen = [];
+    for (let i = 0; i < 40 && !(await kp.$(".score")); i++) {
+      const q = await current(qs);
+      if (!q) { k3.problems.push("K3: không nhận ra câu " + (await kp.textContent(".qcard .qtext")).slice(0, 50)); break; }
+      seen.push(q); await answer(q, i !== wrongAt);
+      if (i === 0 && snap) { await kcheck("đề ngẫu nhiên, sau khi trả lời"); await ksnap(snap); }
+      await kp.click("#qzGo");
+    }
+    await kp.waitForSelector(".score"); return seen;
+  };
+  await kp.goto(BASE + "/"); await kp.click(`.tile[data-u="${ids.Na}"]`); await kp.fill("#pinIn", "4444"); await kp.waitForTimeout(400);
+  k3.row = await kp.evaluate((id) => {
+    const g = document.querySelector('#allPractice details.grp[data-grp="ck1-l6"]'), row = [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === "Toán"), a = [...row.querySelectorAll(".des a")];
+    return { labels: a.map((x) => x.textContent).join(), first: a[0].getAttribute("href") === "#/quiz/" + id && a[0].classList.contains("rnd"), aria: a[0].getAttribute("aria-label"), info: row.querySelector(".small").textContent, hero: document.querySelector("#toBanks").textContent };
+  }, POOL);
+  await kcheck("trang chủ có nút Đề ngẫu nhiên");
+  // Đề 1: làm đúng hết
+  await kp.goto(BASE + "/#/quiz/" + DE1); await kp.waitForSelector("#qPractice");
+  const QS = await kp.evaluate((id) => Store.bank(id).questions, DE1);
+  await kp.click("#qPractice"); await playAll(QS, -1);
+  k3.de1 = await kp.evaluate((id) => { const r = Store.resultsFor(Store.sessionUser().id); return r.length === 1 && r[0].refId === id && r[0].r === 25 && r[0].t === 25; }, DE1);
+  // đề ngẫu nhiên: màn đầu, kho câu, ma trận
+  await kp.goto(BASE + "/#/quiz/" + POOL); await kp.waitForSelector("#qPractice");
+  k3.intro = (await kp.textContent(".hero")).replace(/\s+/g, " ");
+  k3.noNotes = !(await kp.$("#qNotes"));
+  await kcheck("đề ngẫu nhiên, màn đầu"); await ksnap("de-ngau-nhien");
+  k3.kho = await kp.evaluate(({ POOL, DE1 }) => {
+    const b = Store.bank(POOL), d = Quiz.draw(b), cnt = {}; d.questions.forEach((q) => (cnt[q.topic] = (cnt[q.topic] || 0) + 1));
+    const keys = d.questions.map(Quiz.key);
+    return { n: d.questions.length, kho: b.questions.length, srcs: [...new Set(b.questions.map((q) => q.src))].join(), matrix: JSON.stringify(cnt) === JSON.stringify(b.pool.matrix),
+      uniq: new Set(keys).size === keys.length, notes: d.notes.length, fixedN: Store.bank(DE1).questions.length, fixedClean: !("src" in Store.bank(DE1).questions[0]), label: document.querySelector(".hero .label").textContent };
+  }, { POOL, DE1 });
+  const PQ = await kp.evaluate((id) => Store.bank(id).questions, POOL);
+  // lượt 1: câu đầu sai, còn lại đúng
+  await kp.click("#qPractice");
+  const run1 = await playAll(PQ, 0, "de-ngau-nhien-cau-sai");
+  const wrongQ = run1[0];
+  k3.run1 = { n: run1.length, de1: run1.filter((q) => q.src === DE1).length, score: (await kp.textContent(".score")).trim(), again: (await kp.textContent("#qzAgain")).trim() };
+  await kcheck("kết quả đề ngẫu nhiên");
+  k3.saved = await kp.evaluate(({ POOL, key }) => {
+    const u = Store.sessionUser(), r = Store.resultsFor(u.id)[0], h = JSON.parse(localStorage.getItem("ontap_pool_v1"))[u.id + "|" + POOL] || {};
+    return { refId: r.refId, subject: r.subject, label: r.label, r: r.r, t: r.t, wrong: (r.wrongTopics || []).length, histN: Object.keys(h).length, histWrong: JSON.stringify(h[key]), histRight: Object.values(h).filter((x) => x[0] === 1 && x[1] === 0).length };
+  }, { POOL, key: await kp.evaluate((q) => Quiz.key(q), wrongQ) });
+  // lượt 2 ("Làm đề khác"): bộ mới
+  await kp.click("#qzAgain"); await kp.waitForSelector(".qcard");
+  const seen2 = [];
+  for (let i = 0; i < 25; i++) { const q = await current(PQ); if (!q) break; seen2.push(q); if (i < 24) { await kp.click("#qzSkip"); } }
+  const leftover = PQ.filter((q) => q.src !== DE1 && !run1.includes(q)); // câu Đề 2 chưa làm ở lượt 1
+  k3.run2 = { n: seen2.length, hasWrong: seen2.includes(wrongQ), leftovers: leftover.length + "/" + leftover.filter((q) => seen2.includes(q)).length, differs: seen2.some((q) => !run1.includes(q)) };
+  await kp.click("#qzExit"); k3.exitAsk = (await kp.textContent("#qzFb")).replace(/\s+/g, " "); // bỏ qua hết: chưa trả lời câu nào
+  await kp.click("#qzYes"); await kp.waitForTimeout(300);
+  k3.home = await kp.evaluate(() => ({ hash: location.hash, weak: [...document.querySelectorAll(".panel > .tags .tag.warn")].map((t) => t.textContent).join("|"), recent: document.querySelector("#recent").textContent.replace(/\s+/g, " "),
+    n: Store.resultsFor(Store.sessionUser().id).length }));
+  // kho thiếu câu: pool giả (3 câu "Hình phẳng" mức Vận dụng, kho chỉ có 2 câu chưa ghi mức) → màn đầu ghi chú lấy bù
+  k3.short = await kp.evaluate((POOL) => {
+    const b = Store.bank(POOL);
+    window.ONTAP_SEED_BANKS.push({ id: "thu-pool", title: "Toán 6 · Thử · Đề ngẫu nhiên", grade: 6, subject: "Toán", minutes: 10, n: 3, file: "6-toan.js", pool: { matrix: { "Hình phẳng": [0, 0, 3] } }, note: "", questions: b.questions });
+    return true;
+  }, POOL);
+  await kp.goto(BASE + "/#/quiz/thu-pool"); await kp.waitForSelector("#qPractice");
+  k3.notes = (await kp.textContent("#qNotes").catch(() => "")).replace(/\s+/g, " ");
+  await kcheck("đề ngẫu nhiên, kho thiếu câu"); await ksnap("de-ngau-nhien-thieu-cau");
+  await kp.click("#qPractice"); k3.shortN = await kp.$eval(".chip:last-child", (c) => c.textContent);
+  await kp.evaluate(() => window.ONTAP_SEED_BANKS.pop());
+  // phụ huynh (quản trị): báo cáo tuần của Na, tab Ngân hàng đề
+  await kp.goto(BASE + "/#/account"); await kp.click("#switchWho, #logout"); await kp.waitForTimeout(200);
+  await kp.click(`.tile[data-u="${ids["Bố Minh"]}"]`); await kp.fill("#pinIn", PINS["Bố Minh"]); await kp.waitForTimeout(400);
+  await kp.goto(BASE + "/#/report/" + ids.Na); await kp.waitForSelector(".report");
+  k3.report = await kp.evaluate(() => ({ n: document.querySelector("#rpCount").textContent, subj: [...document.querySelectorAll("#rpSubjects .rp-sub")].map((x) => [...x.querySelectorAll(".row > b")].map((b) => b.textContent).join(" ") + " " + x.lastElementChild.textContent).join("|"),
+    topics: document.querySelectorAll("#rpTopics .item").length, week: [...document.querySelectorAll(".sec")].find((x) => /Bài đã làm trong tuần/.test(x.textContent)).textContent.replace(/\s+/g, " ") }));
+  await kcheck("báo cáo tuần có đề ngẫu nhiên");
+  await kp.goto(BASE + "/#/admin/banks"); await kp.waitForTimeout(200);
+  k3.adminRow = await kp.$eval(`a[href="#/quiz/${POOL}"] .small`, (x) => x.textContent);
+  await kcheck("ngân hàng đề có đề ngẫu nhiên");
+  await kc.close();
+  console.log("K3:", k3);
+  const k3OK = !k3.problems.length && k3.row.labels === "Đề ngẫu nhiên,Đề 1,Đề 2" && k3.row.first && k3.row.aria === "Toán 6 · Cuối kì I · Đề ngẫu nhiên" && k3.row.info === "2 đề · 25 câu mỗi đề · đề ngẫu nhiên 25 câu" && k3.row.hero === "Đề ôn · 5 đề"
+    && k3.de1 && /Mỗi lần làm là một đề khác: 25 câu rút từ kho 50 câu \(2 đề\) theo ma trận đề, ưu tiên câu bạn chưa làm hoặc hay sai\./.test(k3.intro) && k3.noNotes
+    && k3.kho.n === 25 && k3.kho.kho === 50 && k3.kho.srcs === "toan6-ck1-de1,toan6-ck1-de2" && k3.kho.matrix && k3.kho.uniq && k3.kho.notes === 0 && k3.kho.fixedN === 25 && k3.kho.fixedClean && k3.kho.label === "Lớp 6 · Toán · Đề ngẫu nhiên"
+    && k3.run1.n === 25 && k3.run1.de1 === 2 && k3.run1.score === "9,5/10" && k3.run1.again === "Làm đề khác"
+    && k3.saved.refId === POOL && k3.saved.subject === "Toán" && k3.saved.label === "Toán 6 · Cuối kì I · Đề ngẫu nhiên" && k3.saved.r === 24 && k3.saved.t === 25 && k3.saved.wrong === 1
+    && k3.saved.histN === 25 && k3.saved.histWrong === "[1,1]" && k3.saved.histRight === 24
+    && k3.run2.n === 25 && k3.run2.hasWrong && k3.run2.leftovers === "2/2" && k3.run2.differs && /Thoát đề\?/.test(k3.exitAsk)
+    && k3.home.hash === "#/home" && k3.home.weak === wrongQ.topic + " · 1 câu" && /Toán 6 · Cuối kì I · Đề ngẫu nhiên/.test(k3.home.recent) && /24\/25/.test(k3.home.recent) && k3.home.n === 2
+    && k3.short && k3.notes === "Kho còn thiếu câu, lần này: Hình phẳng: thiếu 2 câu mức Vận dụng, lấy bù câu chưa ghi mức; Hình phẳng: thiếu 1 câu, lấy từ chủ đề khác." && k3.shortN === "1 / 3"
+    && k3.report.n === "2" && k3.report.subj === "Toán 9,75/10 2 bài · 49/50 câu đúng" && k3.report.topics === 1 && /Đề ngẫu nhiên/.test(k3.report.week)
+    && k3.adminRow === "Lớp 6 · Toán · 25 câu rút ngẫu nhiên · có sẵn (chỉ xem)";
 
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
@@ -885,6 +1000,6 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const real = errs;
   console.log("ERRORS:", real);
   console.log("reveal (U1):", rv);
-  if (rv.length || real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal || !k2OK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (rv.length || real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal || !k2OK || !k3OK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();

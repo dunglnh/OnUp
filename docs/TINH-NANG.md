@@ -69,7 +69,7 @@ Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mố
 - **Theo môn**: thanh tỉ lệ đúng từng môn trong 30 ngày.
 - **Chủ đề hay sai**: các chủ đề có nhiều câu sai nhất (từ ngân hàng câu hỏi).
 - **Lịch thi sắp tới** (5 mục), có nhãn "Sẵn sàng x%" khi con đã ôn cho kì đó.
-- **Tất cả bài ôn** của khối, gom theo kì thi chưa qua: kì gần nhất mở sẵn, các kì sau thu gọn; bài không thuộc kì nào trong số đó ở nhóm "Bài ôn khác". Trong mỗi kì, đề ngân hàng gom theo môn thành một dòng có nút "Đề 1 · Đề 2 · …".
+- **Tất cả bài ôn** của khối, gom theo kì thi chưa qua: kì gần nhất mở sẵn, các kì sau thu gọn; bài không thuộc kì nào trong số đó ở nhóm "Bài ôn khác". Trong mỗi kì, đề ngân hàng gom theo môn thành một dòng có nút "Đề ngẫu nhiên · Đề 1 · Đề 2 · …" (nút đầu khi môn đó có đề ngẫu nhiên, Phiên K3).
 
 ### 4.2 Phụ huynh — Trang chính
 - Danh sách con: lần làm bài gần nhất, điểm trung bình 30 ngày, kì thi sắp tới.
@@ -79,6 +79,7 @@ Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mố
 
 ### 4.3 Làm bài
 - **Bài ôn dạng trang**: mở trong khung, giữ nguyên mọi chức năng của trang gốc. Tiến độ trong bài được tách riêng cho từng học sinh dù dùng chung máy. Mỗi lần làm xong, điểm tổng được gửi về hồ sơ.
+- **Đề ngẫu nhiên** (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì (và câu riêng nếu có); mỗi lần bấm là một đề khác, rút theo ma trận (số câu từng chủ đề, từng mức độ), ưu tiên câu con chưa làm hoặc hay sai; thiếu câu ở một ô thì lấy bù và ghi chú ngay ở màn đầu; trang kết quả có nút "Làm đề khác". Kết quả tính như đề thường (báo cáo tuần, chủ đề hay sai). Các đề cố định vẫn làm riêng được.
 - **Ngân hàng câu hỏi**: hai chế độ — *Ôn luyện* (xem đáp án và lời giải sau từng câu) và *Làm như thi* (tính giờ, chỉ xem đáp án khi nộp). Kết quả hiện điểm thang 10, thống kê theo chủ đề và theo mức độ (Biết, Hiểu, Vận dụng, khi câu có ghi mức độ), danh sách câu sai kèm lời giải.
 - **Dạng câu** (Phiên K2; mọi dạng làm bằng chạm trên điện thoại, không phải kéo thả): trắc nghiệm, điền khuyết, đúng/sai; **đúng/sai 4 ý** chấm từng ý như đề thi tốt nghiệp (đúng 1/2/3/4 ý được 0,1/0,25/0,5/1 câu); **trả lời bằng số** (dấu phẩy thập phân, có sai số cho phép, nút ± để gõ số âm); **nối cột** (chạm ô bên trái rồi ô bên phải, chấm theo số cặp nối đúng); **sắp xếp thứ tự** (chạm lần lượt, chạm lại để bỏ ra); **tự luận** có đáp án gợi ý và thang tự chấm (Chưa có, Một phần, Đủ cho từng ý). Câu có thể kèm **đoạn đọc dùng chung** (hiện phía trên câu hỏi, thu gọn được, các câu cùng đoạn đứng liền nhau) và **hình vẽ** (SVG đã lọc an toàn, màu đổi theo chế độ tối). Điểm tự chấm phần tự luận lưu riêng, không cộng vào điểm trung bình; báo cáo tuần có mục “Tự luận tự chấm”. Đề mẫu: “Đề thử nghiệm · Các dạng câu mới” (lớp 6, nhóm Bài ôn khác). Ảnh: [hinh-dang-cau/](hinh-dang-cau/).
 

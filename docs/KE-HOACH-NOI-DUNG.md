@@ -110,6 +110,10 @@ Thứ tự: làm các phiên kĩ thuật K1 → K2 → K3 trước, rồi mới 
 - Tự luận không chấm tự động: điểm tự chấm lưu thành kết quả riêng, không vào điểm trung bình.
 - Bản đám mây: chủ app chạy `supabase/cap-nhat-k2.sql` một lần (`docs/HUONG-DAN-SUPABASE.md`).
 
+**Đã làm ở Phiên K3 (18/10/2026):** đề ngẫu nhiên theo ma trận. Mục danh mục có thêm `pool: { from, matrix }` (cách viết ở đầu `data/banks/index.js`, mục “Đề ngẫu nhiên” trong CLAUDE.md): kho câu gộp từ các đề cố định trong `from` (vẫn làm riêng được) cộng câu riêng của pool trong file; `matrix` ghi số câu từng chủ đề, hoặc `[Biết, Hiểu, Vận dụng]` theo `lv`. Mỗi lần bấm “Đề ngẫu nhiên” app rút câu theo ma trận, ưu tiên câu chưa làm hoặc hay sai (lịch sử câu trên máy + kết quả đã lưu); thiếu câu thì lấy bù và ghi chú. Kết quả ghi `refId` là mã pool nên báo cáo tuần, “chủ đề hay sai” chạy như cũ. Đã gộp 6 nhóm đề cố định cùng môn, cùng kì thành 6 đề ngẫu nhiên (Toán 4, Tiếng Việt 4 cuối kì I và giữa kì II; Toán 6, Ngữ văn 6 cuối kì I), ma trận theo chủ đề vì câu cũ chưa ghi mức. Chưa làm trọng số câu (ghi chú ở K2). Ghi chú cho các phiên làm đề:
+- Ngân hàng ~100 câu của một môn, một kì = một pool: câu riêng ghi trong file (`"<mã pool>": { note, questions }`), 1–2 đề cố định 25 câu là các mục riêng ghi trong `from`. Câu nào cũng có `topic`, `lv`; ma trận viết theo `[Biết, Hiểu, Vận dụng]` và kho phải đủ câu từng chủ đề (`tests/kiem-tra-de.js` báo lỗi), đủ từng mức (thiếu thì chỉ nhắc, app lấy bù và ghi chú cho học sinh).
+- Môn, kì đã có pool mà thêm đề cố định mới thì thêm mã vào `from` và chỉnh ma trận.
+
 ---
 
 ## 4. Thứ tự làm
@@ -204,7 +208,7 @@ Mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau.
 
 ## 7. Lời giao việc: các phiên làm đề
 
-Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong một kì** (khoảng 100 câu, có ma trận), kèm 1–2 đề cố định chọn từ ngân hàng đó. Một phiên làm 1 môn lớn (Toán, Ngữ văn, Tiếng Việt, Tiếng Anh) hoặc 2 môn nhỏ.
+Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong một kì** (khoảng 100 câu, có ma trận), kèm 1–2 đề cố định chọn từ ngân hàng đó: viết thành một mục `pool` trong `data/banks/index.js` (câu riêng trong file, đề cố định trong `from`; xem “Đã làm ở Phiên K3” ở mục 3). Một phiên làm 1 môn lớn (Toán, Ngữ văn, Tiếng Việt, Tiếng Anh) hoặc 2 môn nhỏ.
 
 **Mẫu lời giao việc** (thay phần trong ngoặc vuông):
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3). Tạo ngân hàng câu "[Môn] [khối] · [Giữa kì I | Cuối kì I | Giữa kì II | Cuối năm]" khoảng [100] câu, sách Kết nối tri thức (Tiếng Anh: Global Success), phạm vi [tuần/bài], có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền. Dùng đủ các dạng câu hợp với môn (mục 3). Ma trận và định dạng theo hướng dẫn kiểm tra định kì hiện hành của cấp học (THPT: Công văn 7991/BGDĐT-GDTrH; tra lại văn bản mới nhất trước khi làm); không có hướng dẫn riêng thì dùng Biết 40% – Hiểu 30% – Vận dụng 30%, [số câu] câu, [số phút] phút. Chọn [2] đề cố định từ ngân hàng. Với Toán, Lí, Hóa: tính lại mọi đáp án bằng code. Gắn vào kì thi [mã kì thi]. Chạy tests/kiem-tra-de.js và tests/e2e.js, chỉ tự rà soát một vòng, rồi mở Pull Request.
