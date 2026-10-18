@@ -15,6 +15,8 @@ Phần dự trù chi phí và giá bán nằm ở tài liệu riêng của chủ
 
 Số đề, số câu, dạng câu dưới đây lấy từ `node tests/kiem-tra-de.js`; dung lượng từ `du -b data/banks/`. Cần số mới thì chạy lại, không chép số ở đây.
 
+**Kiểm thử toàn app sau Phiên K3 (18/10):** `kiem-tra-de.js`, `e2e.js`, `admin-test.mjs`, `store-test.mjs` và `cloud-e2e.js` (3 lần liền) đều OK; `run.sh` báo lỗi vì vẫn đếm cả đề ngẫu nhiên (L20). Làm hết 35 mục của danh mục bằng đáp án trong dữ liệu: đề nào cũng 10/10. Đề Tiếng Anh còn lẫn tiếng Việt ở cả 75 câu (L21; quy tắc mới ở mục 3). Chi tiết và cách sửa: [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), nhóm E (Phiên TA1, 9e, TA2).
+
 **Kiểm thử toàn app sau Phiên C (17/10):**
 - Kiểm thử tự động: `tests/e2e.js` E2E OK; `admin-test.mjs` ADMIN OK; `store-test.mjs` OK; `cloud-e2e.js` 76 kiểm tra OK; RLS trên PostgreSQL 164 kiểm tra OK.
 - Trang thật: trang học và `admin.html` mở được, không lỗi. Supabase đã tắt tự đăng ký, Edge Function `admin` chạy đúng.
@@ -114,6 +116,31 @@ Thứ tự: làm các phiên kĩ thuật K1 → K2 → K3 trước, rồi mới 
 - Ngân hàng ~100 câu của một môn, một kì = một pool: câu riêng ghi trong file (`"<mã pool>": { note, questions }`), 1–2 đề cố định 25 câu là các mục riêng ghi trong `from`. Câu nào cũng có `topic`, `lv`; ma trận viết theo `[Biết, Hiểu, Vận dụng]` và kho phải đủ câu từng chủ đề (`tests/kiem-tra-de.js` báo lỗi), đủ từng mức (thiếu thì chỉ nhắc, app lấy bù và ghi chú cho học sinh).
 - Môn, kì đã có pool mà thêm đề cố định mới thì thêm mã vào `from` và chỉnh ma trận.
 
+**Đề Tiếng Anh: 100% tiếng Anh** (chủ app yêu cầu 18/10/2026, áp dụng cho mọi khối, mọi kì, cả đề thi thử vào 10 và tốt nghiệp)
+- Mọi chữ của đề và câu Tiếng Anh viết bằng tiếng Anh: `note`, `topic`, lời dặn và đề bài `q`, lựa chọn `o`, đáp án `ans`, cột nối `l`, `r`, lời giải `x`, đoạn đọc (`passages`), thang tự chấm. Câu Tiếng Anh nằm trong đề nhiều môn (như đề thử nghiệm) cũng vậy.
+- Không dịch nghĩa sang tiếng Việt, không chú thích tiếng Việt trong ngoặc. Nghĩa của từ giải thích bằng tiếng Anh đơn giản, bằng ví dụ, hoặc bằng hình (SVG).
+- Tên riêng Việt Nam viết không dấu như sách Global Success: Viet Nam, Ha Noi, Ha Long Bay, Mai, Nam.
+- Chủ đề: "Unit N · <tên Unit trong sách>"; phần chung của đề: "Pronunciation", "Vocabulary", "Grammar", "Reading", "Writing".
+- Đoạn đọc viết một lần ở `passages`, tên đoạn "Read the text. Then answer the questions."; không chép đoạn văn vào từng câu.
+- Lời dặn theo mẫu của đề kiểm tra ở trường, thống nhất với bài ôn IOE:
+
+| Dạng | Lời dặn |
+|---|---|
+| Trắc nghiệm | Choose the best answer. |
+| Phát âm | Which word has the sound /ʌ/? · Which word has the ending -s pronounced /ɪz/? |
+| Từ khác loại | Choose the odd one out. |
+| Điền từ | Fill in the blank with one word. · Write the correct form of the verb in brackets. |
+| Sắp xếp (`order`) | Put the words in the correct order. |
+| Nối cột (`match`) | Match the words with their meanings. · Match the questions with the answers. |
+| Đọc hiểu | câu đúng/sai: đề bài là câu cần xét; `tf4`: Read the text again. Is each sentence true or false? |
+
+- Lời giải `x`: tiếng Anh đơn giản, 1–2 câu ngắn, nêu quy tắc rồi câu đúng. Lớp 4–5 chỉ dùng từ đã học, từ Global Success 3 đến sách của lớp đó. Ví dụ:
+  - "Japan is a country. Japanese is a nationality: He's Japanese."
+  - "My brother = he, so have → has: My brother has Music on Fridays."
+  - "Look! means it is happening now, so we use are + V-ing: are playing."
+  - "A compass is a tool for drawing circles."
+- Phiên TA1 viết lại 3 đề Tiếng Anh đang có theo các quy tắc này và thêm vào `tests/kiem-tra-de.js` kiểm tra đề Tiếng Anh không còn chữ tiếng Việt. Giao diện làm đề Tiếng Anh (từ màn mở đề đến màn kết quả) cũng phải bằng tiếng Anh: Phiên TA2. Lời giao việc hai phiên: [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 3.
+
 ---
 
 ## 4. Thứ tự làm
@@ -211,7 +238,7 @@ Mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau.
 Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong một kì** (khoảng 100 câu, có ma trận), kèm 1–2 đề cố định chọn từ ngân hàng đó: viết thành một mục `pool` trong `data/banks/index.js` (câu riêng trong file, đề cố định trong `from`; xem “Đã làm ở Phiên K3” ở mục 3). Một phiên làm 1 môn lớn (Toán, Ngữ văn, Tiếng Việt, Tiếng Anh) hoặc 2 môn nhỏ.
 
 **Mẫu lời giao việc** (thay phần trong ngoặc vuông):
-> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3). Tạo ngân hàng câu "[Môn] [khối] · [Giữa kì I | Cuối kì I | Giữa kì II | Cuối năm]" khoảng [100] câu, sách Kết nối tri thức (Tiếng Anh: Global Success), phạm vi [tuần/bài], có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền. Dùng đủ các dạng câu hợp với môn (mục 3). Ma trận và định dạng theo hướng dẫn kiểm tra định kì hiện hành của cấp học (THPT: Công văn 7991/BGDĐT-GDTrH; tra lại văn bản mới nhất trước khi làm); không có hướng dẫn riêng thì dùng Biết 40% – Hiểu 30% – Vận dụng 30%, [số câu] câu, [số phút] phút. Chọn [2] đề cố định từ ngân hàng. Với Toán, Lí, Hóa: tính lại mọi đáp án bằng code. Gắn vào kì thi [mã kì thi]. Chạy tests/kiem-tra-de.js và tests/e2e.js, chỉ tự rà soát một vòng, rồi mở Pull Request.
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3). Tạo ngân hàng câu "[Môn] [khối] · [Giữa kì I | Cuối kì I | Giữa kì II | Cuối năm]" khoảng [100] câu, sách Kết nối tri thức (Tiếng Anh: Global Success, đề 100% tiếng Anh kể cả lời dặn, lời giải, đoạn đọc theo mục 3), phạm vi [tuần/bài], có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền. Dùng đủ các dạng câu hợp với môn (mục 3). Ma trận và định dạng theo hướng dẫn kiểm tra định kì hiện hành của cấp học (THPT: Công văn 7991/BGDĐT-GDTrH; tra lại văn bản mới nhất trước khi làm); không có hướng dẫn riêng thì dùng Biết 40% – Hiểu 30% – Vận dụng 30%, [số câu] câu, [số phút] phút. Chọn [2] đề cố định từ ngân hàng. Với Toán, Lí, Hóa: tính lại mọi đáp án bằng code. Gắn vào kì thi [mã kì thi]. Chạy tests/kiem-tra-de.js và tests/e2e.js, chỉ tự rà soát một vòng, rồi mở Pull Request.
 
 **Danh sách phiên lớp 4 và 6** (theo hạn của kì thi):
 
@@ -221,7 +248,7 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 | N2 | 15/12 | Tiếng Việt 4 cuối kì I: ngân hàng (từ 2 đề có sẵn) |
 | N3 | 15/12 | Khoa học 4, Lịch sử và Địa lí 4 cuối kì I |
 | N4 | 15/12 | Toán 6 cuối kì I; Ngữ văn 6 cuối kì I |
-| N5 | 15/12 | Tiếng Anh 6, KHTN 6 cuối kì I |
+| N5 | 15/12 | Tiếng Anh 6 (sau TA1, dùng đề đã viết lại làm đề cố định), KHTN 6 cuối kì I |
 | N6 | 15/12 | LS&ĐL 6, GDCD 6, Tin học 6, Công nghệ 6 cuối kì I |
 | N7 | 1/3 | Toán 4, Tiếng Việt 4 giữa kì II (từ 4 đề có sẵn) |
 | N8–N12 | 1/3 | Lớp 6 giữa kì II: Toán · Ngữ văn · Tiếng Anh · KHTN · LS&ĐL + GDCD · Tin + Công nghệ |
@@ -245,6 +272,7 @@ Lớp 9 và 12 cần thêm phiên đề thi thử đúng định dạng kì thi:
 | Rủi ro | Cách giảm |
 |---|---|
 | Đề sai đáp án, sai chương trình | Bộ kiểm tra đề (K1); tính lại đáp án Toán, Lí, Hóa bằng code; bố mẹ, giáo viên rà; nút “Báo câu này sai” trong app (Phiên R1, trong [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)) |
+| Đề không theo yêu cầu của chủ app (đề Tiếng Anh lẫn tiếng Việt, gặp khi chạy thử 18/10/2026) | Quy tắc ở mục 3 và CLAUDE.md; `tests/kiem-tra-de.js` kiểm tra đề Tiếng Anh không có chữ tiếng Việt (Phiên TA1) |
 | Hết lượt dùng Claude giữa mùa thi | Làm trước hạn kì thi ít nhất 3 tuần; một phiên một môn |
 | Dữ liệu phình to, app chậm | K1 tách file; B4 chỉ tải 90 ngày; đề trả phí tải khi mở |
 | Bị chép đề khi repo công khai | Đến khi bán chấp nhận repo công khai (đã chốt 18/10/2026); B1, B2 ngay trước khi bán |
