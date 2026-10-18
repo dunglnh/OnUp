@@ -561,6 +561,8 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     await open("#/quiz/tv4-ck1-de1"); await p.waitForSelector("#qRetry"); await check("đề chưa tải được"); await snap("de-chua-tai-duoc");
     await c.unroute("**/data/banks/4-tv.js"); await p.click("#qRetry"); r.retry = !!(await p.waitForSelector("#qPractice").catch(() => null));
     await open("#/quiz/toan4-ck1-de1"); await p.waitForSelector("#qPractice"); await check("đề, màn đầu"); r.quizFoot = !(await footShown());
+    // tiêu đề (X15): line-height tính ra của h1 ≥ 1,3 lần cỡ chữ, để dấu thanh của tiêu đề hai dòng không chạm nhau
+    r.h1Line = await p.evaluate(() => { const cs = getComputedStyle(document.querySelector(".hero h1")); return parseFloat(cs.lineHeight) >= 1.3 * parseFloat(cs.fontSize); });
     await p.click("#qPractice"); await check("đề, câu hỏi");
     if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0");
     await p.click("#qzGo"); await check("đề, sau khi trả lời");
