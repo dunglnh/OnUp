@@ -1,7 +1,8 @@
 # Kế hoạch phát triển OnUp
 
 > **Trạng thái (18/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy **bản đám mây** từ 17/10 (PR #27), đang chạy thử trong gia đình. Đã xong: khung tài khoản (Phiên A, B, C), sửa lỗi chạy thử (9a–9d), U1, K1, K2, đề N0a, N0b. Kho đề: `node tests/kiem-tra-de.js` in số đề, số câu, dạng câu.
-> **Tiếp theo:** mục 2 (việc của chủ app tuần này) và mục 3 (thứ tự các phiên). Thời điểm bán và hạn mức gói chờ chủ app chốt (mục 2, việc 4); thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
+> **Đã chốt 18/10/2026:** bán khi đủ đề lớp 4–12 (theo nhịp 1–2 phiên mỗi tuần: khoảng cuối năm học 2028–2029); đến lúc đó gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề); lên Supabase Pro khi bắt đầu thu tiền; trang công khai chỉ dành cho gia đình được mời; câu sai báo bằng nút trong app (Phiên R1). Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
+> **Tiếp theo:** mục 2 (việc của chủ app) và mục 3 (thứ tự các phiên).
 
 ## 1. Tình hình hiện tại
 
@@ -32,21 +33,19 @@ Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp tr
 **Tuần 18–25/10/2026:**
 1. **Supabase:**
    - Chạy `supabase/cap-nhat-k2.sql` một lần, nếu chưa chạy (SQL Editor → dán → Run; xem `docs/HUONG-DAN-SUPABASE.md`).
-   - Dữ liệu gia đình thật đang nằm ở gói Free: gói này không có sao lưu và dự án tự tạm dừng khi cả tuần không ai dùng. Chọn một trong hai: lên gói Pro, hoặc mỗi tuần vào Table Editor xuất CSV các bảng `families`, `profiles`, `results`, `exam_events`, `question_banks`.
+   - Giữ gói Free đến khi bắt đầu thu tiền. Gói này không có sao lưu và dự án tự tạm dừng khi cả tuần không ai dùng, nên:
+     - mỗi tuần vào Table Editor xuất CSV các bảng `families`, `profiles`, `results`, `exam_events`, `question_banks`, cất vào Google Drive;
+     - dịp nghỉ dài (Tết, hè) vẫn mở app ít nhất mỗi tuần một lần; bị tạm dừng thì vào Supabase bấm Restore.
 2. **Liên hệ:** điền `contactText`, `contactUrl` (ví dụ link Zalo) trong `js/config.js`, để người mở trang biết hỏi ai. `main` đang được bảo vệ: sửa trên GitHub thì chọn "Create a new branch… and start a pull request", rồi tự Merge.
 3. **Ghi chỗ khó dùng** khi các con dùng thật, đến khoảng 25/10. Mỗi chỗ một dòng: ai dùng · màn hình · định làm gì · vướng ở đâu · khó chịu hay không làm được. Phiên UX1–UX3 dùng ghi chép này.
-4. **Chốt 5 quyết định**, rồi điền vào lời giao việc Phiên D0 (mục 4):
-   - khi nào bán thử;
-   - hạn mức gói Miễn phí và gói Gia đình, và chính sách cho gia đình dùng thử từ trước;
-   - khi nào lên Supabase Pro;
-   - kênh báo câu sai (đề xuất: nút trong app, Phiên R1);
-   - trang công khai dành cho ai (chỉ gia đình được mời, hay tách thêm một địa chỉ cho bản lưu trên máy).
+4. **Năm quyết định đã chốt ngày 18/10** (đầu tài liệu) và đã điền sẵn vào lời giao việc Phiên D0 (mục 4). Dán Phiên D0 là được.
+5. **Theo dõi chạy thử:** vì còn khoảng hai năm rưỡi nữa mới thu tiền, nên đo sớm xem gia đình có thật sự dùng: số gia đình được mời, số lượt làm bài mỗi tuần, gia đình còn dùng sau 4 tuần. Cuối học kì I, hỏi vài gia đình "app có đáng trả tiền không, khoảng bao nhiêu". Ghi vào mục "Nhật ký chạy thử" (Phiên D0 tạo).
 
 **Thường xuyên:**
-5. Rà đề mới: cho con làm thử, ghi câu sai vào GitHub Issues (cho đến khi có nút báo câu sai của Phiên R1).
-6. Trường báo lịch chính thức thì sửa ngày trong Khu phụ huynh → Lịch thi.
-7. Trước khi chia sẻ trang rộng rãi: bật CAPTCHA (bước 8 của `docs/HUONG-DAN-SUPABASE.md`).
-8. Trước khi bán: thông báo website với Bộ Công Thương (online.gov.vn), hỏi kế toán về thuế.
+6. Rà đề mới: cho con làm thử, ghi câu sai vào GitHub Issues (cho đến khi có nút báo câu sai của Phiên R1).
+7. Trường báo lịch chính thức thì sửa ngày trong Khu phụ huynh → Lịch thi.
+8. Trước khi chia sẻ trang rộng rãi: bật CAPTCHA (bước 8 của `docs/HUONG-DAN-SUPABASE.md`).
+9. Trước khi bán (khoảng năm 2029): lên Supabase Pro, thông báo website với Bộ Công Thương (online.gov.vn), hỏi kế toán về thuế.
 
 ## 3. Lộ trình khi làm tiếp
 
@@ -54,7 +53,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
-| 1 | 25/10 | **D0 · Đồng bộ tài liệu** | chủ app chốt 5 quyết định (mục 2) | chỉ sửa tài liệu; từ đó trạng thái chỉ ghi ở file này |
+| 1 | 25/10 | **D0 · Đồng bộ tài liệu** | quyết định đã chốt 18/10 (đầu tài liệu) | chỉ sửa tài liệu; từ đó trạng thái chỉ ghi ở file này |
 | 2 | 1/11 | **K3 · Rút đề ngẫu nhiên theo ma trận** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 6) | K1, K2 (đã xong) | các phiên làm đề N1 trở đi dùng dạng ngân hàng của K3 |
 | 3 | 1/11 | **S1 · Màn hình đăng nhập cho người mới** | `contactUrl` đã điền | nhỏ; dùng khi trang công khai chỉ dành cho gia đình được mời |
 | 4 | 8/11 | **R1 · Nút "Báo câu này sai"** | K3 (cùng sửa js/quiz.js) | chủ app chạy `supabase/cap-nhat-r1.sql` sau khi Merge |
@@ -62,17 +61,20 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | 6 | 22/11 | **UX2 · Khu phụ huynh gọn lại** | UX1 | |
 | 7 | 29/11 | **UX3 · Bắt đầu và chuyển máy cho con** | UX2 | |
 | 8 | 15/12 | **N1–N6 · Đủ đề cuối kì I lớp 4 và 6** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3 | chỉ sửa file đề, chen được giữa các phiên UX |
-| 9 | 10/1/2027 | **G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư** | D0 (hạn mức gói đã chốt) | |
-| 10 | 20/1 | **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** | G1 | chủ app làm phần cài đặt theo hướng dẫn phiên này viết |
-| 11 | 31/1 | **B2 · Đề trả phí lên máy chủ** | B1 | trước B1 thì đề vẫn nằm trong repo công khai |
-| — | từ 15/2 | **Bán thử lớp 4 và 6** (nếu chủ app chốt như vậy) | G1, B1, B2, Supabase Pro | đo: số gia đình dùng thử, tỉ lệ trả tiền, còn dùng sau 4 tuần, kênh đến |
-| 12 | 1/3 | **N7–N12 · Giữa kì II lớp 4 và 6** | K3 | |
-| 13 | 10/3 | **N-IOE · IOE cấp quốc gia** | | thi 1–2/4/2027 (dự kiến), hiện chưa có bài ôn |
-| 14 | 10/4 | **N13–N22 · Cuối năm lớp 4 và 6** | K3 | |
-| 15 | 5/2027 | Chọn khối mở tiếp theo theo kết quả bán thử; lịch 2027–2028; gộp bài ôn dạng trang vào ngân hàng; B4 (bớt tải dữ liệu) | | [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 4, 5 |
+| 9 | 1/3/2027 | **N7–N12 · Giữa kì II lớp 4 và 6** | K3 | |
+| 10 | 10/3 | **N-IOE · IOE cấp quốc gia** | | thi 1–2/4/2027 (dự kiến), hiện chưa có bài ôn |
+| 11 | 10/4 | **N13–N22 · Cuối năm lớp 4 và 6** | K3 | |
+| 12 | hè 2027 | Lịch 2027–2028 (thêm kì thi các khối mới); giữa kì I lớp 4, 6 năm sau (N23–N25); giữa kì I và cuối kì I lớp 5, 7; gộp bài ôn dạng trang vào ngân hàng | | [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 4, 7 |
+| 13 | 2027–2028 | Lớp 5, 7 phần còn lại; lớp 9 (có đề thi thử vào 10); lớp 8 | | khoảng 70 phiên |
+| 14 | 2028–2029 | Lớp 12 (đề thi thử tốt nghiệp trước), 10, 11 | | khoảng 90 phiên |
+| 15 | trước khi bán | **G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** → **B2 · Đề trả phí lên máy chủ** → B4 (bớt tải dữ liệu); lên Supabase Pro | đủ đề lớp 4–12 | lời giao việc ở mục 4; B4 ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 5 |
 | — | khi có | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** (GitHub Issues) | | chen vào bất cứ lúc nào |
 
-Khoảng 33 phiên từ nay đến 10/4/2027, trung bình 1–2 phiên mỗi tuần. Tháng 11 dày nhất (K3, S1, R1, UX1–UX3 và bắt đầu N1–N6). Không chạy cùng lúc hai phiên cùng sửa `js/app.js` hoặc `js/quiz.js`; các phiên N chỉ sửa file đề nên chạy xen được.
+Khoảng 30 phiên từ nay đến 10/4/2027, trung bình 1–2 phiên mỗi tuần. Tháng 11 dày nhất (K3, S1, R1, UX1–UX3 và bắt đầu N1–N6). Sau đó việc chính là làm đề cho đủ lớp 4–12 (khoảng 200 phiên); chất lượng đề quyết định có bán được hay không, nên nút báo câu sai (R1) và việc rà đề đi trước.
+
+Lưu ý: đến khi làm B1, repo vẫn công khai nên ai cũng tải được trọn bộ đề bằng một lệnh. Nếu muốn giữ đề sớm hơn, có thể làm B1 trước (Cloudflare Pages miễn phí, chạy được từ repo riêng tư) mà chưa bật gói; giữ đề thật sự (người chưa trả tiền không tải được) thì cần B2.
+
+Không chạy cùng lúc hai phiên cùng sửa `js/app.js` hoặc `js/quiz.js`; các phiên N chỉ sửa file đề nên chạy xen được.
 
 **Đã xong:**
 
@@ -108,18 +110,18 @@ Khoảng 33 phiên từ nay đến 10/4/2027, trung bình 1–2 phiên mỗi tu�
 
 Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Các phiên dưới đây xếp theo thứ tự ở mục 3.
 
-**Phiên D0 · Đồng bộ tài liệu** (điền quyết định vào chỗ […] trước khi dán)
+**Phiên D0 · Đồng bộ tài liệu** (quyết định đã điền theo lựa chọn của chủ app ngày 18/10/2026)
 > Đọc CLAUDE.md, README.md và mọi file trong docs/. Chỉ sửa tài liệu, không sửa code.
 >
-> Quyết định của chủ app:
-> - Khi nào bán thử: […].
-> - Hạn mức gói: Miễn phí […] hồ sơ, [đề nào]; Gia đình […] hồ sơ, mọi đề. Gia đình dùng thử trước ngày bán: […].
-> - Supabase Pro: […].
+> Quyết định của chủ app (18/10/2026):
+> - Khi nào bán: khi đủ đề lớp 4–12 (theo nhịp 1–2 phiên mỗi tuần: khoảng cuối năm học 2028–2029). Các phiên chuẩn bị bán (G1, B1, B2, B4) làm ngay trước lúc đó.
+> - Hạn mức gói: đến khi bán, gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng plans không đổi). Hạn mức gói Miễn phí và gói Gia đình lúc bán sẽ chốt sau.
+> - Supabase: giữ gói Free đến khi bắt đầu thu tiền; trước đó chủ app xuất CSV hằng tuần và mở app ít nhất mỗi tuần một lần.
 > - Báo câu sai: nút trong app (Phiên R1); GitHub Issues chỉ còn cho chủ app.
-> - Trang công khai: [chỉ gia đình được mời, có cách xin tài khoản | tách thêm một địa chỉ cho bản lưu trên máy].
+> - Trang công khai: chỉ dành cho gia đình được mời; màn đăng nhập có dòng "Chưa có tài khoản?" kèm cách liên hệ (Phiên S1).
 >
 > Việc cần làm:
-> 1. Ghi các quyết định vào đúng chỗ: CLAUDE.md mục "Việc tiếp theo", THIET-KE-TAI-KHOAN (đoạn "Phạm vi bây giờ" và mục 9), KE-HOACH-NOI-DUNG mục 4, 5, 8, HUONG-DAN-SUPABASE mục "Gói và đề trả phí", README, TINH-NANG mục 5. Ví dụ lệnh SQL trong HUONG-DAN-SUPABASE dùng số giữ chỗ, không ghi giá thật.
+> 1. Ghi các quyết định vào đúng chỗ: CLAUDE.md mục "Việc tiếp theo", THIET-KE-TAI-KHOAN (đoạn "Phạm vi bây giờ" và mục 9), KE-HOACH-NOI-DUNG mục 4, 5, 8 (giai đoạn 5 không còn là chuẩn bị bán vào hè 2027: B1–B4 dời đến trước khi bán, khi đủ đề lớp 4–12; mục 5 bỏ câu "khi đã có đủ đề lớp 4 và 6"), HUONG-DAN-SUPABASE mục "Gói và đề trả phí" (thêm việc xuất CSV hằng tuần khi còn gói Free), README, TINH-NANG mục 5. Ví dụ lệnh SQL trong HUONG-DAN-SUPABASE dùng số giữ chỗ, không ghi giá thật.
 > 2. Sửa các chỗ trạng thái cũ:
 >    - CLAUDE.md: dòng trạng thái; "Đề cuối kì I: đã đủ các môn" (nhiều môn mới có 1 đề, còn N1–N6); `js/config.js` trong danh sách file đã điền trên main.
 >    - README: bỏ "đang tạm dừng"; viết lại phần "Dùng ngay" và "Đồng bộ đám mây" theo quyết định trang công khai.
@@ -190,16 +192,16 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 >
 > Ghi chép của bố mẹ: […]
 
-**Phiên G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư**
-> Đọc CLAUDE.md, mục 9 của docs/THIET-KE-TAI-KHOAN.md và mục 5 của docs/KE-HOACH-NOI-DUNG.md. Sau khi D0 đã gộp (hạn mức gói đã chốt).
+**Phiên G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư** (làm trước khi bán, khi đủ đề lớp 4–12)
+> Đọc CLAUDE.md, mục 9 của docs/THIET-KE-TAI-KHOAN.md và mục 5 của docs/KE-HOACH-NOI-DUNG.md. Hạn mức gói Miễn phí và gói Gia đình lúc bán: […] (chủ app điền trước khi dán).
 > - **Trang admin**, phần xem nhanh tài khoản: khối "Gói" (gói hiện tại, hạn, lịch sử từ plan_log) và nút "Kích hoạt gói" (chọn gói, hạn mặc định 31/8 của năm học, số tiền, ghi chú) gọi thao tác set_plan có sẵn.
 > - **App, Khu phụ huynh:** màn hình "Nâng cấp" gồm quyền lợi theo bảng plans; giá đọc từ plans, không viết cứng trong code; ảnh QR chuyển khoản do chủ app đặt vào repo, cùng số tài khoản, tên người nhận, nội dung "ONUP <tên đăng nhập>" lấy từ js/config.js; nút nhắn Zalo soạn sẵn tin. Hiện hạn gói và nhắc trước 14 ngày. Không gọi dịch vụ bên ngoài để tạo QR.
-> - **Hạn mức:** Store.can và bảng plans theo hạn mức đã chốt. Gia đình dùng thử từ trước được giữ quyền lợi theo chính sách đã chốt (cập nhật supabase/schema.sql, viết supabase/cap-nhat-g1.sql nếu đổi dữ liệu plans).
+> - **Hạn mức:** Store.can và bảng plans theo hạn mức ở trên. Gia đình đã dùng từ trước: […] (chủ app điền, ví dụ giữ quyền lợi cũ đến hết năm học). Cập nhật supabase/schema.sql, viết supabase/cap-nhat-g1.sql nếu đổi dữ liệu plans.
 > - **Trang tĩnh** dieu-khoan.html và quyen-rieng-tu.html: nội dung khung theo Luật Bảo vệ dữ liệu cá nhân 2025 (app chỉ thu tên hiển thị, khối, lớp; phụ huynh tạo hồ sơ con), để chủ app sửa. Có link ở màn đăng nhập và Khu phụ huynh.
 >
 > Chạy đủ các bộ kiểm thử (e2e, admin-test, store-test, cloud-e2e, run.sh), chỉ tự rà soát một vòng, rồi mở Pull Request ghi việc chủ app cần làm sau khi Merge.
 
-**Phiên B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư**
+**Phiên B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** (làm trước khi bán)
 > Đọc CLAUDE.md và mục 5 của docs/KE-HOACH-NOI-DUNG.md. Viết docs/HUONG-DAN-CLOUDFLARE.md từng bước cho chủ app:
 > 1. Tạo Cloudflare Pages từ repo (không có bước build, thư mục gốc).
 > 2. Gắn tên miền riêng.
@@ -208,9 +210,9 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 >
 > Kiểm tra trong code: mọi đường dẫn đều tương đối; phạm vi của sw.js, start_url của manifest, admin.html chạy đúng ở tên miền mới; Supabase không cần đổi gì (nếu cần thì ghi rõ). Sửa mục "Triển khai" của CLAUDE.md. Chạy tests/e2e.js và tests/supabase/cloud-e2e.js, chỉ tự rà soát một vòng, rồi mở Pull Request.
 
-**Phiên B2 · Đề trả phí lên máy chủ**
+**Phiên B2 · Đề trả phí lên máy chủ** (làm trước khi bán, sau B1)
 > Đọc CLAUDE.md, mục 9 của docs/THIET-KE-TAI-KHOAN.md và mục 5 của docs/KE-HOACH-NOI-DUNG.md. Sau khi B1 đã gộp và repo đã riêng tư.
-> - Đề thử (cờ free_trial: đề số 1 mỗi môn mỗi kì, hoặc theo hạn mức đã chốt) và bài ôn dạng trang vẫn là file tĩnh trong data/ và modules/. Câu hỏi của các đề còn lại chỉ nằm trong bảng paid_banks (supabase/banks-to-sql.js sinh SQL, chủ app chạy).
+> - Đề thử (cờ free_trial: đề số 1 mỗi môn mỗi kì, hoặc theo hạn mức chốt lúc bán) và bài ôn dạng trang vẫn là file tĩnh trong data/ và modules/. Câu hỏi của các đề còn lại chỉ nằm trong bảng paid_banks (supabase/banks-to-sql.js sinh SQL, chủ app chạy).
 > - Danh mục đề (tên, số câu) vẫn công khai để vẽ danh sách và nút Nâng cấp. Câu hỏi đề trả phí tải từ paid_banks khi mở (RLS theo gói, Store.can("bank:<mã>")), lưu lại trên máy cho lần sau, mất mạng vẫn làm được đề đã tải.
 > - Bản lưu trên máy chỉ có đề thử.
 > - Gỡ câu hỏi đề trả phí khỏi data/; tests/kiem-tra-de.js kiểm cả SQL sinh ra.
