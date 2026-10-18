@@ -162,6 +162,7 @@ Trang admin (`admin.html`, chủ app mở `…/OnUp/admin.html`):
 - Câu hỏi phải đúng chương trình và đúng đáp án. Với Toán, tự tính lại mọi đáp án (chạy bằng code nếu cần) trước khi thêm.
 - Không chép nguyên văn đề của sách, nhà xuất bản hay đề thi có bản quyền; tự soạn câu tương tự.
 - Dùng dạng câu hợp với môn (`docs/KE-HOACH-NOI-DUNG.md` mục 3), ghi mức độ `lv` cho câu mới. Trả lời bằng số: `ans` là số (tính lại bằng code), `tol` khi đáp án là số đo, ước lượng. Tự luận: thang chấm từng ý (điểm chia hết cho 0,25), `x` là đáp án gợi ý.
+- **Môn Tiếng Anh (mọi khối): 100% tiếng Anh** (chủ app yêu cầu 18/10/2026). Mọi chữ của đề và câu Tiếng Anh viết bằng tiếng Anh: `note`, `topic`, lời dặn và đề bài, lựa chọn, đáp án, lời giải `x`, đoạn đọc, thang tự chấm. Không dịch nghĩa hay chú thích tiếng Việt; tên riêng Việt Nam viết không dấu như sách Global Success (Viet Nam, Ha Noi). Câu tiếng Anh trong đề nhiều môn cũng vậy. Giao diện làm đề Tiếng Anh, từ màn mở đề đến hết màn kết quả, cũng bằng tiếng Anh. Lời dặn mẫu, cách viết lời giải: `docs/KE-HOACH-NOI-DUNG.md` mục 3. Sửa các đề và giao diện đang có: Phiên TA1, TA2 (`docs/SUA-LOI-CHAY-THU.md`, L21).
 - Ngày thi lấy từ nguồn chính thức. Ngày chưa công bố thì để `tentative: true`.
 
 ## Chạy và kiểm tra

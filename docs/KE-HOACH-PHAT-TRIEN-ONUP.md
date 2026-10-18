@@ -3,6 +3,7 @@
 > **Trạng thái (18/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy **bản đám mây** từ 17/10 (PR #27), đang chạy thử trong gia đình, chỉ dành cho gia đình được mời. Đã xong: khung tài khoản (Phiên A, B, C), sửa lỗi chạy thử (9a–9d), U1, K1, K2, K3 (đề ngẫu nhiên theo ma trận), đề N0a, N0b, đồng bộ tài liệu D0, UI1, S1 (màn đăng nhập cho người mới), R1 (nút “Báo câu này sai”; chủ app chạy `supabase/cap-nhat-r1.sql` sau khi Merge). Còn chờ bố mẹ thử L17 (sao lưu trên iPhone thật, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2, Phiên 9d). Kho đề: `node tests/kiem-tra-de.js` in số đề, số câu, dạng câu (18/10: 29 đề, 715 câu, 6 đề ngẫu nhiên).
 > **Đã chốt 18/10/2026:** bán khi đủ đề lớp 4–12 (theo nhịp 1–2 phiên mỗi tuần: khoảng cuối năm học 2028–2029); đến lúc đó gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng `plans` không đổi), hạn mức hai gói lúc bán chốt sau; các phiên chuẩn bị bán G1, B1, B2, B4 làm ngay trước lúc đó; Supabase giữ gói Free đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần); trang công khai chỉ dành cho gia đình được mời (màn đăng nhập có dòng “Chưa có tài khoản?”, Phiên S1); câu sai báo bằng nút trong app (Phiên R1), GitHub Issues chỉ còn cho chủ app; không ghi giá bán, chi phí hay so sánh đối thủ vào repo. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 > **Quy ước (từ Phiên D0):** chỉ file này ghi trạng thái và lộ trình. CLAUDE.md, README và các tài liệu khác trong docs/ chỉ trỏ sang đây. Làm xong một phiên thì gạch dòng của nó ở mục 3 và ghi số PR; đổi quyết định thì sửa đoạn trên trước.
+> **Rà soát toàn app sau K3 (18/10/2026):** app chạy tốt, 35 mục đề làm đúng hết đều được 10/10; lỗi mới L20 (PR #47 của R1 đã sửa), L22–L26 và yêu cầu L21 xếp vào Phiên TA1, 9e, TA2, làm trước UX1 ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), nhóm E). **Chủ app chốt thêm (18/10/2026):** môn Tiếng Anh của mọi khối 100% tiếng Anh, cả lời dặn, lời giải và giao diện làm đề (quy tắc ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 3).
 > **Tiếp theo:** mục 2 (việc của chủ app) và mục 3 (thứ tự các phiên). Mục 5: nhật ký chạy thử, chủ app tự điền.
 
 ## 1. Tình hình hiện tại
@@ -46,6 +47,7 @@
 | #42 | Góp ý chạy thử: lời nhắn gửi phụ huynh ở trang admin xuống dòng sẵn, dán vào Zalo không phải sửa |
 | #43 | Phiên S1: màn đăng nhập cho người mới (thẻ “Chưa có tài khoản?” từ `signupText`, `signupUrl`; nhắc dữ liệu cũ chưa chuyển) |
 | #46 | Phiên K3: đề ngẫu nhiên theo ma trận (`pool` trong `data/banks/index.js`, `Quiz.draw`); 6 đề ngẫu nhiên gộp từ các đề cố định cùng môn, cùng kì |
+| #48 | Rà soát toàn app sau K3: lỗi L20–L26, yêu cầu đề Tiếng Anh 100% tiếng Anh; lời giao việc Phiên TA1, 9e, TA2 ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), nhóm E) |
 
 Nội dung hiện có (18/10/2026, `node tests/kiem-tra-de.js`: 29 đề, 715 câu): 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp trường, cấp xã và cấp tỉnh (Phiên 13); IOE 6 cấp xã và cấp thành phố), 19 đề cuối kì I (lớp 6 đủ 8 môn từ Phiên 10: thêm Tiếng Anh, GDCD, Tin học, Công nghệ; lớp 4 thêm Tin học và Công nghệ từ Phiên 11, Tiếng Anh từ Phiên N0b; nhiều môn mới có 1 đề, N1–N6 làm cho đủ), 4 đề giữa kì II lớp 4 (Toán, Tiếng Việt, Phiên 14), 5 đề giữa kì I lớp 6 (Tiếng Anh, Lịch sử và Địa lí, GDCD, Phiên N0a; Tin học, Công nghệ, Phiên N0b) và 1 đề thử nghiệm các dạng câu mới (Phiên K2).
 
@@ -72,7 +74,17 @@ Nội dung hiện có (18/10/2026, `node tests/kiem-tra-de.js`: 29 đề, 715 c�
 
 ## 3. Lộ trình khi làm tiếp
 
-Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 8 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); Phiên 9a, 9b, 9c (lỗi tìm được khi dùng thử ngày 16/10, đã làm) và Phiên 9d (lỗi phát sinh khi rà soát lại ngày 17/10) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); **các phiên làm đề và kĩ thuật cho đề (N0–N25, K1–K3, chuẩn bị bán B1–B4) ở mục 6, 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)**; các phiên khác ở mục 4 dưới đây. Phiên UI1, UX4–UX8 đến từ bản rà giao diện ngày 18/10: vấn đề (X1–X16), ảnh và điều kiện xong ở [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md). Thiết kế nằm trong file Figma [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2): Master 1.x là 77 màn vẽ lại đúng app ở commit `0a1e8db`; Master 2.x là các đề xuất, kể cả minh họa cho S1, R1, UX1–UX3.
+Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 8 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); Phiên 9a, 9b, 9c (lỗi tìm được khi dùng thử ngày 16/10, đã làm), Phiên 9d (lỗi phát sinh khi rà soát lại ngày 17/10) và **Phiên TA1, 9e, TA2** (rà soát sau K3 ngày 18/10: lỗi L20, L22–L26, đề Tiếng Anh 100% tiếng Anh) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); **các phiên làm đề và kĩ thuật cho đề (N0–N25, K1–K3, chuẩn bị bán B1–B4) ở mục 6, 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)**; các phiên khác ở mục 4 dưới đây. Phiên UI1, UX4–UX8 đến từ bản rà giao diện ngày 18/10: vấn đề (X1–X16), ảnh và điều kiện xong ở [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md). Thiết kế nằm trong file Figma [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2): Master 1.x là 77 màn vẽ lại đúng app ở commit `0a1e8db`; Master 2.x là các đề xuất, kể cả minh họa cho S1, R1, UX1–UX3.
+
+**Làm ngay, chen sau R1 và trước UX1** (rà soát sau K3 ngày 18/10; lời giao việc ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)):
+
+| Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
+|---|---|---|---|---|
+| 5a | 1/11 | **TA1 · Đề Tiếng Anh 100% tiếng Anh (nội dung)** | | gấp: đề Tiếng Anh giữa kì I lớp 6 thi từ 2/11; chỉ sửa file đề Tiếng Anh, `tests/kiem-tra-de.js`, `tests/e2e.js` |
+| 5b | 1/11 | **9e · Lỗi phát sinh sau K3** | TA1 (cùng sửa `tests/kiem-tra-de.js`, `tests/e2e.js`) | nhỏ; L20 đã sửa trong PR #47 (R1) |
+| 5c | 8/11 | **TA2 · Màn làm đề Tiếng Anh bằng tiếng Anh** | TA1, 9e; R1 | sửa `js/quiz.js`, `js/app.js`, dịch cả chữ R1 thêm; làm trước UX1, UX5 để chữ mới của các phiên đó có luôn bản tiếng Anh |
+
+Thứ tự các phiên:
 
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
@@ -86,7 +98,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | 8 | 29/11 | **UX3 · Bắt đầu và chuyển máy cho con** | UX2 | |
 | 9 | 6/12 | **UX4 · Chọn hồ sơ và nhập PIN** | UX3 (cùng sửa renderLogin, trang Tài khoản) | |
 | 10 | 13/12 | **UX5 · Làm bài tập trung** | R1, UX1 (cùng sửa js/quiz.js) | xong trước kì thi cuối kì I (từ 21/12) |
-| 11 | 15/12 | **N1–N6 · Đủ đề cuối kì I lớp 4 và 6** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3 | chỉ sửa file đề, chen được giữa các phiên UX |
+| 11 | 15/12 | **N1–N6 · Đủ đề cuối kì I lớp 4 và 6** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3; N5 (Tiếng Anh 6) sau TA1 | chỉ sửa file đề, chen được giữa các phiên UX |
 | 12 | 17/1/2027 | **UX6 · Biết bài đã gửi chưa** | UX1, UX5 (cùng sửa màn kết quả) | bản đám mây; làm sau kì thi cuối kì I |
 | 13 | 24/1 | **UX7 · Quản lí đề** | UX2 (tab "Đề tự soạn") | |
 | 14 | 31/1 | **UX8 · Gửi báo cáo tuần** | UX2 | |
@@ -99,7 +111,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | 21 | trước khi bán | **G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** → **B2 · Đề trả phí lên máy chủ** → B4 (bớt tải dữ liệu); lên Supabase Pro | đủ đề lớp 4–12 | lời giao việc ở mục 4; B4 ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 5 |
 | — | khi có | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** (GitHub Issues do chủ app ghi từ góp ý của gia đình) | | chen vào bất cứ lúc nào |
 
-Khoảng 36 phiên từ nay đến 10/4/2027 (thêm UI1, UX4–UX8 từ bản rà giao diện 18/10), trung bình 1–2 phiên mỗi tuần. Tháng 11 dày nhất: K3, S1, R1, UX1–UX3 và bắt đầu N1–N6. Tháng 12 có UX4, UX5, xong trước kì thi cuối kì I. UX6–UX8 làm sau kì thi, xen với N7–N12. Sau đó việc chính là làm đề cho đủ lớp 4–12 (khoảng 200 phiên); chất lượng đề quyết định có bán được hay không, nên nút báo câu sai (R1) và việc rà đề đi trước.
+Khoảng 35 phiên từ 18/10/2026 đến 10/4/2027 (gồm UX4–UX8 từ bản rà giao diện 18/10 và TA1, 9e, TA2 từ lần rà soát sau K3), trung bình 1–2 phiên mỗi tuần. Cuối tháng 10 và tháng 11 dày nhất: R1, TA1, 9e, TA2, UX1–UX3 và bắt đầu N1–N6. Tháng 12 có UX4, UX5, xong trước kì thi cuối kì I. UX6–UX8 làm sau kì thi, xen với N7–N12. Sau đó việc chính là làm đề cho đủ lớp 4–12 (khoảng 200 phiên); chất lượng đề quyết định có bán được hay không, nên nút báo câu sai (R1) và việc rà đề đi trước.
 
 Lưu ý: đến khi làm B1 (ngay trước khi bán), repo vẫn công khai nên ai cũng tải được trọn bộ đề bằng một lệnh; chủ app đã chấp nhận như vậy (18/10/2026). Nếu sau này muốn giữ đề sớm hơn thì đổi quyết định ở đầu file rồi làm B1 trước (Cloudflare Pages miễn phí, chạy được từ repo riêng tư) mà chưa bật gói; giữ đề thật sự (người chưa trả tiền không tải được) thì cần B2.
 
@@ -208,6 +220,7 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 > - **Nhãn dễ hiểu:** "Sẵn sàng x%" thành "Đã làm đúng x% bài ôn của kì này"; "điểm TB 30 ngày (/10)" thành "Điểm trung bình tháng".
 > - **Phần thưởng nhẹ:** huy hiệu khi đạt chuỗi 3, 7, 14 ngày ôn và khi làm hết đề của một kì. Không có bảng xếp hạng công khai.
 > - **Thiết kế tham khảo:** docs/hinh-ux-2x/ux1-trang-chinh.jpg (B1, B2), ux1-ux6-ket-qua.jpg (D1), ux5-lam-bai.jpg (C1, một dòng nhãn) và mục 2 của docs/CAI-TIEN-UX-2X.md. Ghi chép của bố mẹ đi trước nếu khác ảnh.
+> - **Đề Tiếng Anh:** chữ mới trên màn làm bài và màn kết quả (lời khen, "Ôn lại câu sai"…) có cả bản tiếng Anh trong bảng chữ của js/quiz.js (Phiên TA2).
 >
 > Giữ vùng bấm ≥ 44px, chữ ≥ 13px, chế độ tối. Thêm kiểm tra vào tests/e2e.js và tests/supabase/cloud-e2e.js, chụp ảnh 360px sáng/tối trang chủ học sinh và màn kết quả, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
 >
@@ -270,7 +283,7 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 >   - thẻ "Lần trước": kết quả gần nhất của đề này, lọc bằng graded();
 >   - hai thẻ chọn cách làm, mỗi thẻ một dòng giải thích.
 >
-> Không đổi cách chấm và cách lưu điểm. Mỗi vấn đề một commit ghi mã. Thêm các bước ở mục "Xong khi" vào tests/e2e.js. Chạy tests/e2e.js và tests/supabase/cloud-e2e.js đến khi in OK, chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
+> Chữ mới ("Nộp bài", "Còn 12:30", "Câu 9/25", thẻ "Lần trước"…) có cả bản tiếng Anh trong bảng chữ của js/quiz.js (đề Tiếng Anh, Phiên TA2). Không đổi cách chấm và cách lưu điểm. Mỗi vấn đề một commit ghi mã. Thêm các bước ở mục "Xong khi" vào tests/e2e.js. Chạy tests/e2e.js và tests/supabase/cloud-e2e.js đến khi in OK, chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
 
 **Phiên UX6 · Biết bài đã gửi chưa** (bản đám mây; sau UX5)
 > Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md (mục 3, Phiên UX6: X10; ảnh docs/hinh-ux-2x/ux1-ux6-ket-qua.jpg).
@@ -279,6 +292,7 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 >   - SupabaseStore đếm các kết quả trong hộp gửi ontap_cloud_outbox của các hồ sơ thuộc tài khoản và gửi lại bằng sendOutbox.
 >   - Chỉ gọi changed() khi số bài chưa gửi thay đổi, vì Store.onChange vẽ lại cả trang.
 > - Màn kết quả đề và toast của bài ôn trong khung ghi rõ một trong hai câu: "Đã lưu và gửi cho bố mẹ." hoặc "Đã lưu trên máy này. Sẽ gửi cho bố mẹ khi có mạng." js/quiz.js thêm một chỗ trống để app điền câu này.
+> - Đề Tiếng Anh và bài ôn IOE: hai câu đó có bản tiếng Anh ("Saved and sent to your parents.", "Saved on this device. It will be sent to your parents when you're online.") trong bảng chữ của js/quiz.js (Phiên TA2).
 > - Còn bài chưa gửi thì trang chính của con, và Khu phụ huynh trên cùng máy, có dòng "N bài chưa gửi … · Gửi lại": nền sun-soft, chữ ink, cao ≥ 44px.
 > - Bản lưu trên máy không đổi.
 >
@@ -408,7 +422,7 @@ Chủ app tự điền, mỗi tuần một dòng, không tốn lượt Claude. N
 
 | Tuần (từ ngày) | Gia đình được mời | Gia đình có dùng trong tuần | Lượt làm bài trong tuần | Còn dùng sau 4 tuần | Góp ý thật (ai · nói gì) | Đã xử lí (phiên / issue) |
 |---|---|---|---|---|---|---|
-| 18/10/2026 | | | | | | |
+| 18/10/2026 | | | | | Chủ app dùng thử · đề Tiếng Anh lẫn tiếng Việt; môn Tiếng Anh mọi khối phải 100% tiếng Anh | L21 · Phiên TA1, TA2 ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) |
 | | | | | | | |
 | | | | | | | |
 
