@@ -189,11 +189,14 @@
     family_id: famId, id: e.id, title: e.title, kind: e.kind, grades: e.grades, start_date: e.start || null, end_date: e.end || null,
     tentative: !!e.tentative, subjects: e.subjects || [], scope: e.scope || "", note: e.note || "", modules: e.modules || [], banks: e.banks || []
   });
-  const toBank = (b) => ({ id: b.id, title: b.title, grade: +b.grade, subject: b.subject || "", minutes: +b.minutes || 0, note: b.note || "", questions: b.questions || [], src: b.src || "" });
-  const fromBank = (b) => ({ family_id: famId, id: b.id, title: b.title, grade: b.grade, subject: b.subject, minutes: b.minutes, note: b.note, questions: b.questions, src: b.src });
+  /* passages (đoạn đọc dùng chung, cột thêm ở Phiên K2): chỉ gửi khi có, để máy chủ chưa chạy supabase/cap-nhat-k2.sql
+     vẫn lưu được ngân hàng không có đoạn đọc. */
+  const hasPassages = (b) => !!b.passages && typeof b.passages === "object" && !Array.isArray(b.passages) && Object.keys(b.passages).length > 0;
+  const toBank = (b) => Object.assign({ id: b.id, title: b.title, grade: +b.grade, subject: b.subject || "", minutes: +b.minutes || 0, note: b.note || "", questions: b.questions || [], src: b.src || "" }, hasPassages(b) ? { passages: b.passages } : {});
+  const fromBank = (b) => Object.assign({ family_id: famId, id: b.id, title: b.title, grade: b.grade, subject: b.subject, minutes: b.minutes, note: b.note, questions: b.questions, src: b.src }, hasPassages(b) ? { passages: b.passages } : {});
   const toResult = (r) => ({
     id: r.id, userId: r.profile_id, source: r.source, refId: r.ref_id, subject: r.subject || "", label: r.label || "", mode: r.mode || "",
-    r: r.r, t: r.t, s: r.s, at: new Date(r.at).toISOString(), wrongTopics: r.wrong_topics || undefined
+    r: +r.r, t: r.t, s: r.s, at: new Date(r.at).toISOString(), wrongTopics: r.wrong_topics || undefined
   });
 
   /* ---------------- tải dữ liệu ---------------- */
@@ -572,6 +575,7 @@
     if ((window.ONTAP_SEED_BANKS || []).some((s) => s.id === b.id)) throw new Error("Không sửa được bộ có sẵn trong app. Hãy tạo bộ mới.");
     if (!b.title || !b.questions || !b.questions.length) throw new Error("Ngân hàng cần tên và ít nhất một câu hỏi.");
     const clean = { id: b.id || "bk-" + uuid().slice(0, 13), title: String(b.title).trim(), grade: +b.grade, subject: b.subject || "", minutes: +b.minutes || 0, note: b.note || "", questions: b.questions, src: String(b.src || "").slice(0, 200000) };
+    if (hasPassages(b)) clean.passages = b.passages;
     const i = db.banks.findIndex((x) => x.id === clean.id);
     if (i >= 0) db.banks[i] = clean; else db.banks.push(clean);
     const row = fromBank(clean);
@@ -593,7 +597,7 @@
   function addResult(r) {
     const clean = {
       id: uuid(), userId: r.userId, source: r.source, refId: r.refId, subject: r.subject || "",
-      label: String(r.label || "").slice(0, 120), mode: r.mode || "", r: Math.max(0, +r.r || 0),
+      label: String(r.label || "").slice(0, 120), mode: r.mode || "", r: Math.round(Math.max(0, +r.r || 0) * 100) / 100, // lẻ đến 0,01, như LocalStore
       t: Math.max(0, +r.t || 0), s: Math.max(0, +r.s || 0), at: new Date().toISOString(),
       wrongTopics: Array.isArray(r.wrongTopics) ? r.wrongTopics.slice(0, 50) : undefined
     };
@@ -635,7 +639,9 @@
           const row = { id: r.id, profile_id: pid, source: r.source, ref_id: String(r.refId || "").slice(0, 80), subject: String(r.subject || "").slice(0, 60),
             label: r.label, mode: String(r.mode || "").slice(0, 20), r: r.r, t: Math.min(r.t, 1000), s: r.s,
             wrong_topics: r.wrongTopics ? r.wrongTopics.slice(0, 50).map((x) => String(x).slice(0, 100)) : null };
-          const res = await sb.from("results").upsert(row, { onConflict: "id", ignoreDuplicates: true });
+          let res = await sb.from("results").upsert(row, { onConflict: "id", ignoreDuplicates: true });
+          // Máy chủ chưa chạy supabase/cap-nhat-k2.sql (cột r còn là số nguyên): gửi lại số câu đúng làm tròn.
+          if (res && res.error && String(res.error.code) === "22P02" && row.r % 1) { row.r = Math.round(row.r); res = await sb.from("results").upsert(row, { onConflict: "id", ignoreDuplicates: true }); }
           const err = res && res.error, msg = err ? String(err.message || "") : "", code = err ? String(err.code || "") : "";
           // Chỉ bỏ kết quả khi máy chủ không bao giờ nhận (hồ sơ đã xóa, dữ liệu sai dạng, hồ sơ bị khóa theo gói). Lỗi khác: giữ lại.
           const never = ["23503", "23514", "22P02", "22001"].includes(code) || (code === "P0001" && /bị khóa/.test(msg));

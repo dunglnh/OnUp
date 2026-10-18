@@ -154,6 +154,9 @@ select t.blocked($$insert into results (profile_id, source, ref_id, r, t) values
 select t.blocked($$insert into results (profile_id, source, ref_id, r, t) values (t.id('BIN'), 'khac', 'x', 1, 2)$$, 'nguồn kết quả lạ');
 select t.blocked($$insert into results (profile_id, source, ref_id, r, t, wrong_topics) values (t.id('BIN'), 'bank', 'x', 1, 2, array[repeat('x', 6000)])$$, 'chủ đề sai quá dài');
 select t.blocked($$update results set r = 10$$, 'sửa kết quả');
+select t.ok(t.rows($$insert into results (profile_id, source, ref_id, mode, r, t) values (t.id('BIN'), 'bank', 'x', 'practice', 23.35, 25)$$) = 1, 'ghi số câu đúng lẻ');
+select t.ok((select r from results where profile_id = t.id('BIN') and ref_id = 'x') = 23.35, 'số câu đúng lẻ đến 0,01 (câu đúng/sai 4 ý, nối cột chấm từng ý)');
+select t.ok(t.rows($$delete from results where profile_id = t.id('BIN') and ref_id = 'x'$$) = 1, 'xóa kết quả thử');
 select t.ok(t.n('select * from results') = 1, 'PA thấy kết quả của các con');
 -- lịch thi, ngân hàng tự nhập
 select t.ok(t.rows($$insert into exam_events (id, family_id, title, kind, grades, start_date, banks) values ('ck1-l4', my_family_id(), 'Cuối kì I', 'dinh-ki', '{4}', '2026-12-28', '{toan4-ck1-de1}')$$) = 1, 'PA thêm kì thi');
@@ -163,6 +166,9 @@ select t.blocked($$insert into exam_events (id, family_id, title, kind, grades) 
 select t.blocked($$insert into exam_events (id, family_id, title, kind, grades, subjects) values ('big', my_family_id(), 'x', 'moc', '{4}', array(select 'm' || i from generate_series(1, 40) i))$$, 'mảng môn thi quá dài');
 select t.ok(t.rows($$insert into question_banks (id, family_id, title, grade, questions) values ('bk-1', my_family_id(), 'Đề tự nhập', 4, '[{"type":"tf","q":"1+1=2","a":true}]')$$) = 1, 'PA thêm ngân hàng đề tự nhập');
 select t.blocked($$insert into question_banks (id, family_id, title, grade, questions) select 'q' || i, my_family_id(), 'x', 4, '[]' from generate_series(1, 100) i$$, 'quá 100 ngân hàng đề');
+select t.ok((select passages = '{}' from question_banks where id = 'bk-1'), 'ngân hàng tự nhập: mặc định không có đoạn đọc');
+select t.ok(t.rows($$update question_banks set passages = '{"d1":{"title":"Đoạn 1","text":"Chữ"}}' where id = 'bk-1'$$) = 1, 'ngân hàng có đoạn đọc dùng chung');
+select t.blocked($$update question_banks set passages = '[]' where id = 'bk-1'$$, 'đoạn đọc phải là đối tượng');
 reset role;
 
 -- ---------- phụ huynh B tấn công nhà A ----------
@@ -345,12 +351,13 @@ select t.ok((import_local($j${
     {"id":"bad3","name":"Không vai trò","grade":4}
   ],
   "events":[{"id":"ev-local","title":"Thi thử","kind":"thi-khac","grades":[6],"start":"2026-11-20","end":null,"tentative":false,"subjects":[],"scope":"","note":"","modules":[],"banks":["bk-local"]}],
-  "banks":[{"id":"bk-local","title":"Đề tự nhập","grade":6,"subject":"Toán","minutes":15,"note":"","questions":[{"type":"tf","q":"1+1=2","a":true}],"src":"Đúng: 1+1=2"}],
+  "banks":[{"id":"bk-local","title":"Đề tự nhập","grade":6,"subject":"Toán","minutes":15,"note":"","questions":[{"type":"tf","q":"1+1=2","a":true,"p":"d1"}],"passages":{"d1":{"text":"Đoạn đọc"}},"src":"Đúng: 1+1=2"}],
   "results":[{"id":"r-old","userId":"s-old","source":"bank","refId":"bk-local","subject":"Toán","label":"Đề tự nhập","mode":"practice","r":1,"t":1,"s":20,"at":"2026-09-01T08:00:00.000Z","wrongTopics":["Phân số"]},
              {"id":"r-bad","userId":"p-old","source":"bank","refId":"x","r":1,"t":1},
              {"id":"r-nosrc","userId":"s-old","refId":"x","r":1,"t":1},
              {"id":"r-tl","userId":"s-old2","source":"bank","refId":"x","r":1,"t":2,"at":"2099-01-01T00:00:00Z"},
-             {"id":"r-sai","userId":"s-old2","source":"bank","refId":"x","r":"?","t":2,"at":"hôm qua"}],
+             {"id":"r-sai","userId":"s-old2","source":"bank","refId":"x","r":"?","t":2,"at":"hôm qua"},
+             {"id":"r-le","userId":"s-old2","source":"bank","refId":"x","mode":"practice","r":1.35,"t":2}],
   "seedBanksSeen":["mau-toan4-ck1","toan4-ck1-de1"],
   "settings":{"schoolName":"Không ghi đè"}
 }$j$)->>'profiles')::int = 2, 'chuyển dữ liệu: 2 hồ sơ con (bỏ quản trị, phụ huynh, hồ sơ lỗi)');
@@ -361,6 +368,8 @@ select t.ok(t.n($$select * from results where import_key in ('r-bad', 'r-nosrc')
 select t.ok((select pin_hash from profiles where name = 'Bông') = 'xyz$s256:deadbeef' and (select pin_hash from profiles where name = 'Mít') is null,
   'PIN cũ giữ dạng <muối>$<mã băm> của js/store.js');
 select t.ok(t.n($$select * from exam_events where id = 'ev-local'$$) = 1 and t.n($$select * from question_banks where id = 'bk-local'$$) = 1, 'chuyển lịch thi và ngân hàng đề');
+select t.ok((select passages->'d1'->>'text' from question_banks where id = 'bk-local') = 'Đoạn đọc' and (select r from results where import_key = 'r-le') = 1.35,
+  'chuyển cả đoạn đọc của ngân hàng và số câu đúng lẻ');
 select t.ok((select seed_banks_seen @> '{toan4-ck1-de1}' and display_name = 'Nhà B' from families), 'seedBanksSeen được gộp, không ghi đè tên hiển thị');
 select t.ok((import_local($j${"users":[{"id":"s-old","role":"student","name":"Bông","grade":6}],"results":[{"id":"r-old","userId":"s-old","source":"bank","refId":"bk-local","r":1,"t":1,"at":"2026-09-01T08:00:00.000Z"}]}$j$)->>'results')::int = 0
   and t.n($$select * from profiles where name = 'Bông'$$) = 1, 'chuyển lại lần hai không bị trùng');

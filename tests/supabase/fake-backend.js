@@ -2,7 +2,8 @@
    Mô phỏng supabase/schema.sql: các bảng, khóa chính, xóa dây chuyền, quyền theo cột (grant), chính sách RLS, trigger
    (hạn mức hồ sơ con theo gói, khóa hồ sơ vượt hạn mức, kết quả), các hàm RPC; Supabase Auth: đăng nhập bằng mật khẩu,
    đổi mật khẩu, API admin (tạo, sửa, cấm, xóa người dùng); gọi Edge Function (hàm thật được truyền vào).
-   RLS thật được kiểm tra riêng trên PostgreSQL bằng tests/supabase/run.sh; tests/supabase/admin-test.mjs so hai bên. */
+   RLS thật được kiểm tra riêng trên PostgreSQL bằng tests/supabase/run.sh; tests/supabase/admin-test.mjs so hai bên.
+   be.intR = true: như máy chủ chưa chạy supabase/cap-nhat-k2.sql (results.r còn là số nguyên, chưa có cột passages). */
 "use strict";
 const nodeCrypto = require("crypto");
 
@@ -124,6 +125,8 @@ function createBackend() {
       row.id = row.id || nodeCrypto.randomUUID();
       const p = T.profiles.find((x) => x.id === row.profile_id);
       row.family_id = p ? p.family_id : null;
+      if (be.intR && !Number.isInteger(+row.r)) throw new Fail(`invalid input syntax for type integer: "${row.r}"`, "22P02");
+      row.r = Math.round(+row.r * 100) / 100; // numeric(7,2)
       if (!(row.t > 0 && row.t <= 1000 && row.r >= 0 && row.r <= row.t)) throw new Fail('new row for relation "results" violates check constraint "results_check"', "23514");
       if (!["module", "bank"].includes(row.source)) throw new Fail('new row for relation "results" violates check constraint "results_source_check"', "23514");
       if (!importing) {
@@ -145,6 +148,9 @@ function createBackend() {
     }
     if (table === "question_banks") {
       if (!(row.grade >= 1 && row.grade <= 12)) throw new Fail("question_banks_grade_check", "23514");
+      if (be.intR && "passages" in row) throw new Fail("Could not find the 'passages' column of 'question_banks' in the schema cache", "PGRST204");
+      if (row.passages == null) row.passages = {};
+      if (typeof row.passages !== "object" || Array.isArray(row.passages)) throw new Fail("question_banks_passages_check", "23514");
       if (T.question_banks.filter((x) => x.family_id === row.family_id).length >= 100) throw new Fail("Tài khoản đã có 100 mục, không thêm được nữa.", "P0001");
     }
     if (table === "paid_banks") row.updated_at = iso();
@@ -307,7 +313,8 @@ function createBackend() {
     });
     (d.banks || []).forEach((b) => {
       if (!b.id || !Array.isArray(b.questions) || !(+b.grade >= 1 && +b.grade <= 12)) return;
-      const row = { id: b.id, family_id: fid, title: b.title || "Ngân hàng", grade: +b.grade, subject: b.subject || "", minutes: +b.minutes || 0, note: b.note || "", src: b.src || "", questions: b.questions };
+      const row = { id: b.id, family_id: fid, title: b.title || "Ngân hàng", grade: +b.grade, subject: b.subject || "", minutes: +b.minutes || 0, note: b.note || "", src: b.src || "", questions: b.questions,
+        passages: b.passages && typeof b.passages === "object" && !Array.isArray(b.passages) ? b.passages : {} };
       const old = T.question_banks.find((x) => x.family_id === fid && x.id === b.id);
       if (old) Object.assign(old, row); else T.question_banks.push(row);
     });
@@ -318,7 +325,7 @@ function createBackend() {
       if (T.results.some((x) => x.family_id === fid && x.import_key === key)) return;
       const t = Math.min(+r.t, 1000);
       const row = { id: nodeCrypto.randomUUID(), profile_id: pid, source: r.source, ref_id: r.refId || "", subject: r.subject || "", label: r.label || "", mode: r.mode || "",
-        r: Math.min(/^\d{1,9}$/.test(String(r.r ?? "")) ? +r.r : 0, t), t, s: /^\d{1,9}$/.test(String(r.s ?? "")) ? +r.s : 0, wrong_topics: r.wrongTopics || null, import_key: key,
+        r: Math.min(/^\d{1,9}(\.\d+)?$/.test(String(r.r ?? "")) ? Math.round(+r.r * 100) / 100 : 0, t), t, s: /^\d{1,9}$/.test(String(r.s ?? "")) ? +r.s : 0, wrong_topics: r.wrongTopics || null, import_key: key,
         at: /^\d{4}-\d{2}-\d{2}T/.test(r.at || "") && !isNaN(new Date(r.at)) ? new Date(Math.min(+new Date(r.at), +now())).toISOString() : iso() };
       beforeInsert("results", row, null, true); row.import_key = key;
       T.results.push(row); nRes++; touched.push(pid);

@@ -127,6 +127,16 @@ Hôm nay mọi tài khoản là gói `free`: dùng mọi nội dung, tối đa 5
 - Đổi hạn mức trong **SQL Editor**, ví dụ: `update plans set max_children = 1, all_banks = false where id = 'free';` và `update plans set max_children = 3, price = 300000 where id = 'family';`
 - Chép đề vào máy chủ: trên máy có Node, chạy `node supabase/banks-to-sql.js > paid-banks.sql`, mở file, dán vào SQL Editor → **Run** (chạy lại được, không trùng). Đề số 1 mỗi môn mỗi kì là **đề thử**: tài khoản nào cũng đọc được; đề khác chỉ tài khoản có gói còn hạn mới đọc được.
 
+## Cập nhật máy chủ khi app có phiên bản mới
+
+Project đã cài từ trước thì **không** chạy lại `supabase/schema.sql` (file đó tạo bảng mới từ đầu). Phiên bản nào cần đổi bảng sẽ có một file `supabase/cap-nhat-<phiên>.sql`: mở **SQL Editor**, dán toàn bộ file → **Run**. Chạy lại lần hai cũng không sao. Nên chạy trước hoặc ngay sau khi gộp Pull Request của phiên đó.
+
+| File | Phiên | Đổi gì | Chưa chạy thì |
+|---|---|---|---|
+| `supabase/cap-nhat-k2.sql` | K2 (dạng câu mới) | `results.r` nhận số lẻ đến 0,01 (câu đúng/sai 4 ý, nối cột chấm từng ý); thêm cột `passages` (đoạn đọc dùng chung) cho `question_banks`, `paid_banks`; `import_local` chuyển cả hai | Kết quả có số câu đúng lẻ được làm tròn trước khi lưu; ngân hàng tự nhập có “Đoạn đọc:” chưa lưu được |
+
+Kiểm tra sau khi chạy: **Table Editor → results**, cột `r` có kiểu `numeric`; **question_banks** có cột `passages`.
+
 ## Tự kiểm tra sau khi cài
 
 - [ ] **Table Editor**: có các bảng `families`, `profiles`, `plans` (2 dòng: `free`, `family`), `app_owners` (1 dòng).

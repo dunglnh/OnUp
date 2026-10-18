@@ -293,7 +293,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("pin lock:", { lockMsg, naFails, lockAfter, lockedOut, otherIn });
   await page.goto(BASE + "/#/admin/bank/new"); await page.waitForTimeout(200);
   await page.fill("#bTitle", "Tiếng Việt 4 · thử"); await page.fill("#bSubj", "Tiếng Việt");
-  await page.click("#bSample"); console.log("check:", await page.textContent("#bRes"));
+  await page.click("#bSample"); const bankCheck = await page.textContent("#bRes"); console.log("check:", bankCheck);
   await page.click("button[type=submit]"); await page.waitForTimeout(300); await shot("13-banks");
   await page.goto(BASE + "/#/admin/overview"); await page.waitForTimeout(300); await shot("14-admin-overview");
 
@@ -430,7 +430,9 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     && partial.who === "" && partial.err === "" && partial.fails === 0 && /chưa đúng/.test(wrong6.err) && wrong6.fails === 1 && sixIn.who === "Bin" && sixIn.len === 6;
   const db = await page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")));
   console.log("results:", db.results.map((r) => [r.source, r.refId, r.subject, r.r, r.t, r.userId === db.users.find(u=>u.name==="Bin").id]));
-  console.log("banks:", db.banks.map((b) => [b.title, b.questions.length, b.src.length > 0]));
+  console.log("banks:", db.banks.map((b) => [b.title, b.questions.length, b.src.length > 0, Object.keys(b.passages || {}).join()]));
+  const bankImportOK = /Nhận được 11 câu: 3 trắc nghiệm, 1 điền khuyết, 2 đúng\/sai, 1 đúng\/sai 4 ý, 1 trả lời bằng số, 1 nối cột, 1 sắp xếp, 1 tự luận; 1 đoạn đọc\.$/.test(bankCheck.trim())
+    && db.banks.length === 1 && db.banks[0].passages.d1.title === "Chú mèo con" && db.banks[0].questions.filter((q) => q.p === "d1").length === 2;
   console.log("keys:", await page.evaluate(() => Object.keys(localStorage)));
 
   step("seed banks load on demand");
@@ -570,6 +572,170 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   }
   const ok360 = !m360.length && Object.values(c360).every((r) => Object.values(r).every(Boolean));
   console.log("360:", c360, "problems:", m360);
+
+  step("new question types (K2): 360px light + dark");
+  /* Đề thử nghiệm thunghiem6-dang-cau-moi (lớp 6, không gắn kì thi): Na làm ôn luyện bằng chạm, mỗi câu trả lời theo
+     KE_HOACH (có câu đúng hết, đúng một phần, sai), rồi so điểm: phần chấm tự động 8,75/13 câu; tự luận tự chấm 6/7 điểm,
+     lưu riêng (mode "self", phần tư điểm: 24/28). Rồi làm như thi: tự chấm sau khi nộp. Phụ huynh xem báo cáo tuần:
+     tự luận ghi riêng, không vào điểm trung bình. Mỗi màn hình kiểm tra 360px (audit), chụp ảnh sáng/tối ở
+     tests/screenshots/dang-cau/ (bản ghép <tên>.jpg). Bộ lọc hình chạy với trình phân tích HTML thật của trình duyệt. */
+  const OUTK2 = OUT + "dang-cau/"; fs.mkdirSync(OUTK2, { recursive: true });
+  const BANK = "thunghiem6-dang-cau-moi";
+  // [đầu câu hỏi, cách trả lời]. mc: chọn đúng/sai; tf4: số ý chọn đúng (các ý đầu); match: thứ tự ô phải cho từng ô trái;
+  // order: thứ tự chạm; essay: mức chọn cho từng ý của thang (giá trị điểm).
+  const KE_HOACH = [
+    ["Theo đoạn văn, vào mùa nào", { mc: true }], ["Câu “Mùa hè", { mc: true }], ["Sắp xếp các hình ảnh", { order: [0, 1, 2, 3] }],
+    ["How many days", { mc: true }], ["Read the text again", { tf4: 2 }], ["Nối mỗi từ chỉ đồ dùng", { match: [0, 1, 2, 3] }],
+    ["Nối mỗi dụng cụ đo", { match: [1, 0, 2, 3] }], ["Quan sát hình. Chiếc bút chì", { num: "7,6 cm" }], ["Sắp xếp các số nguyên", { order: [1, 0, 2, 3] }],
+    ["Cho hình chữ nhật ABCD", { tf4: 4 }], ["Một mảnh vườn", { num: "250" }], ["Hình vẽ dưới đây", { mc: false }], ["Số đối của", { fill: "7" }],
+    ["Trình bày lời giải", { essay: [0.5, 0.5, 0.5, 0.5] }], ["Viết một đoạn văn", { essay: [1, 1, 1, 1], text: "Trước nhà em có cây khế. Lá khế nhỏ như cúc áo." }]
+  ];
+  const k2 = { problems: [] };
+  for (const scheme of ["light", "dark"]) {
+    const r = (k2[scheme] = {});
+    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror K2: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console K2: " + m.text()); });
+    const check = async (label) => (await p.evaluate(audit)).forEach((x) => k2.problems.push(`${scheme} · ${label}: ${x}`));
+    const snap = async (n) => { await p.evaluate(() => scrollTo(0, 0)); await p.screenshot({ path: `${OUTK2}${n}-${scheme}.png`, fullPage: true }); };
+    // chỉ chụp một phần (trang dài): cắt từ ảnh cả trang để thanh đầu dính không đè lên; ẩn thông báo nổi
+    const snapEl = async (sel, n) => {
+      await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; });
+      await p.screenshot({ path: `${OUTK2}${n}-${scheme}.png`, fullPage: true, clip: await p.locator(sel).boundingBox() });
+    };
+    await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids.Na}"]`); await p.fill("#pinIn", "4444"); await p.waitForTimeout(400);
+    r.home = await p.evaluate((id) => !!document.querySelector(`#allPractice details.grp:not([data-grp]) a[href="#/quiz/${id}"]`), BANK); // không gắn kì thi: nhóm "Bài ôn khác"
+    await p.goto(BASE + "/#/quiz/" + BANK); await p.waitForSelector("#qPractice");
+    r.hero = /15 câu \(2 câu tự luận tự chấm\)/.test(await p.textContent(".hero"));
+    const Q = await p.evaluate((id) => Store.bank(id).questions, BANK);
+    await p.click("#qPractice");
+    const seq = [], shots = new Set(), pk = [];
+    for (let i = 0; i < 20 && !(await p.$(".score")); i++) {
+      const head = (await p.textContent(".qcard .qtext")).trim();
+      const plan = KE_HOACH.find(([h]) => head.startsWith(h)), q = plan && Q.find((x) => x.q.startsWith(plan[0]));
+      if (!plan || !q) { k2.problems.push(scheme + ": không nhận ra câu " + head.slice(0, 40)); break; }
+      const how = plan[1], kind = q.type; seq.push(q.p || "");
+      if (q.p && seq.filter((x) => x === q.p).length === 2 && q.p === "bang") { // câu thứ hai của đoạn: thu gọn đoạn đọc
+        await p.click(".psg > summary"); await p.waitForTimeout(100); // sự kiện toggle chạy sau cú chạm
+        r.collapse = await p.evaluate(() => !document.querySelector(".psg").open && document.querySelector(".psg-t").textContent === "Mở ra");
+        await check("đoạn đọc thu gọn"); await snap("doan-doc-thu-gon");
+      }
+      if (q.p && seq.filter((x) => x === q.p).length === 3) { r.stayClosed = await p.evaluate(() => !document.querySelector(".psg").open); await p.click(".psg > summary"); }
+      if (kind === "mc") await p.click(`.opt:has-text("${how.mc ? q.o[0] : q.o[1]}")`);
+      if (kind === "fill") await p.fill("#qzFill", how.fill);
+      if (kind === "num") {
+        await p.fill("#qzNum", how.num);
+        if (how.num === "250") { await p.click("#qzSign"); const neg = await p.inputValue("#qzNum"); await p.click("#qzSign"); r.sign = neg === "-250" && (await p.inputValue("#qzNum")) === "250"; }
+      }
+      if (kind === "tf4") for (let k = 0; k < 4; k++) await p.click(`.tf4 .opt[data-i="${k}"][data-v="${(k < how.tf4 ? q.a[k] : !q.a[k]) ? 1 : 0}"]`);
+      if (kind === "match") {
+        for (let k = 0; k < how.match.length; k++) {
+          await p.click(`.mt-li[data-i="${k}"]`); await p.click(`.mt-ri[data-r="${how.match[k]}"]`);
+          if (k === 1 && how.match[0] === 1) { // chạm lại ô đang nối: bỏ nối; ô đã nối với ô khác: chuyển sang ô đang chọn
+            await p.click(`.mt-li[data-i="1"]`); await p.click(`.mt-ri[data-r="0"]`);
+            const off = await p.textContent('.mt-li[data-i="1"] .mt-to');
+            await p.click(`.mt-ri[data-r="0"]`); await p.click('.mt-li[data-i="2"]'); await p.click('.mt-ri[data-r="1"]');
+            const moved = await p.evaluate(() => [...document.querySelectorAll(".mt-li .mt-to")].map((x) => x.textContent));
+            r.matchTap = off === "Chưa nối" && moved[0] === "Chưa nối" && /^→ [A-E]\. /.test(moved[2]);
+            await snap("noi-cot"); await check("nối cột đang nối");
+            await p.click('.mt-li[data-i="2"]'); await p.click('.mt-ri[data-r="1"]'); // bỏ nối thử, nối lại theo kế hoạch
+            await p.click('.mt-li[data-i="0"]'); await p.click('.mt-ri[data-r="1"]');
+          }
+        }
+      }
+      if (kind === "order") {
+        await p.click(`.ord-p[data-k="${how.order[1]}"]`);
+        const placed = await p.evaluate((k) => document.querySelector(`.ord-p[data-k="${k}"]`).hidden && document.querySelectorAll(".ord-s").length === 1, how.order[1]);
+        if (q.p) { await snap("sap-xep"); await check("sắp xếp đang xếp"); }
+        await p.click(`.ord-s[data-k="${how.order[1]}"]`); // chạm ô đã xếp: trở lại bên dưới
+        r.orderTap = placed && (await p.evaluate(() => !document.querySelectorAll(".ord-s").length)) && r.orderTap !== false;
+        for (const k of how.order) await p.click(`.ord-p[data-k="${k}"]`);
+      }
+      if (kind === "essay" && how.text) await p.fill("#qzEssay", how.text);
+      if (kind === "mc" && q.p === "bang" && !shots.has("doan-doc")) { shots.add("doan-doc"); await check("đoạn đọc"); await snap("doan-doc"); }
+      await p.click("#qzGo");
+      if (kind === "essay") { for (let j = 0; j < how.essay.length; j++) await p.click(`.rubric .opt[data-j="${j}"][data-v="${how.essay[j]}"]`); pk.push(await p.textContent(".rb-sum")); }
+      const name = { tf4: q.svg ? "dung-sai-4-y" : "", num: q.svg ? "tra-loi-so" : "", match: "noi-cot-cham", order: q.p ? "sap-xep-cham" : "", essay: how.text ? "tu-luan" : "", mc: q.svg ? "hinh" : "" }[kind];
+      await check("câu " + kind + " sau khi kiểm tra");
+      if (name && !shots.has(name)) { shots.add(name); await snap(name); }
+      if (name === "dung-sai-4-y") r.svgColor = await p.evaluate(() => { // màu hình theo token của chế độ đang dùng
+        const t = document.createElement("i"); t.style.color = "var(--acc)"; document.body.append(t); const acc = getComputedStyle(t).color; t.remove();
+        return getComputedStyle(document.querySelector(".qfig rect")).stroke === acc && document.querySelector(".qfig svg").getAttribute("role") === "img";
+      });
+      await p.click("#qzGo");
+    }
+    await p.waitForSelector(".score");
+    // các câu cùng đoạn đọc đứng liền nhau, theo thứ tự trong đề
+    const runs = seq.filter((x, i) => x && x !== seq[i - 1]);
+    r.grouped = runs.length === 2 && new Set(runs).size === 2 && r.collapse && r.stayClosed;
+    const res1 = await p.evaluate(() => Store.resultsFor(Store.sessionUser().id).map((x) => ({ mode: x.mode, r: x.r, t: x.t, subject: x.subject })));
+    r.practice = res1.length === 2 && res1.some((x) => x.mode === "practice" && x.r === 8.75 && x.t === 13 && x.subject === "Thử nghiệm") && res1.some((x) => x.mode === "self" && x.r === 24 && x.t === 28);
+    r.rubric = pk.length === 2 && pk.every((t) => /Tự chấm: (2\/2|4\/5) điểm/.test(t));
+    r.resultScreen = await p.evaluate(() => {
+      const t = document.querySelector("#view").textContent.replace(/\s+/g, " ");
+      return /8,75\/13 câu đúng/.test(t) && document.querySelector(".score").textContent.startsWith("6,75") && /Theo mức độ/.test(t)
+        && [...document.querySelectorAll("#qzLv .ubreak > span:first-child, #qzLv .ubreak > span:nth-child(3n+1)")].map((x) => x.textContent).join() === "Biết,Hiểu,Vận dụng"
+        && /Đã lưu điểm tự chấm: 6\/7 điểm/.test(t) && /được 0,25\/1 điểm/.test(t) && /được 0,5\/1 điểm/.test(t);
+    });
+    await check("kết quả ôn luyện"); await snap("ket-qua");
+    // làm như thi: bỏ qua mọi câu trừ một câu đúng/sai 4 ý (đúng hết) và hai câu tự luận; tự chấm sau khi nộp
+    await p.goto(BASE + "/#/home"); await p.goto(BASE + "/#/quiz/" + BANK); await p.waitForSelector("#qExam"); await p.click("#qExam");
+    for (let i = 0; i < 20 && !(await p.$("#qzSelf, .score")); i++) {
+      const head = (await p.textContent(".qcard .qtext")).trim(), q = Q.find((x) => head.startsWith(x.q.slice(0, 12)));
+      if (q.type === "essay") await p.click("#qzGo");
+      else if (q.type === "tf4" && q.svg) { for (let k = 0; k < 4; k++) await p.click(`.tf4 .opt[data-i="${k}"][data-v="${q.a[k] ? 1 : 0}"]`); await p.click("#qzGo"); }
+      else await p.click("#qzSkip");
+    }
+    await p.waitForSelector("#qzSelfSave");
+    await p.click("#qzSelfSave"); r.needPick = /Chọn mức cho từng ý/.test(await p.textContent("#qzSelfMsg"));
+    const rows = await p.$$eval("#qzSelf .rubric", (x) => x.map((b) => b.querySelectorAll(".rb-row").length));
+    for (let k = 0; k < rows.length; k++) for (let j = 0; j < rows[k]; j++) await p.click(`#qzSelf .rubric >> nth=${k} >> .opt[data-j="${j}"] >> nth=-1`);
+    await check("tự chấm sau khi nộp"); await snapEl("#qzSelf", "tu-cham-sau-khi-nop"); // trang dài (các câu bỏ qua): chụp phần tự chấm
+    await p.click("#qzSelfSave");
+    r.examSelf = /Đã lưu điểm tự chấm: 7\/7 điểm/.test(await p.textContent("#qzSelfArea")) && (await p.$$eval("#qzSelf .rubric .opt", (b) => b.every((x) => x.disabled)));
+    const res2 = await p.evaluate(() => Store.resultsFor(Store.sessionUser().id).map((x) => [x.mode, x.r, x.t].join(":")));
+    r.exam = res2.length === 4 && res2.includes("exam:1:13") && res2.includes("self:28:28");
+    await p.goto(BASE + "/#/home"); await p.waitForTimeout(250);
+    r.recent = await p.evaluate(() => /tự luận tự chấm/.test(document.querySelector("#recent").textContent) && /7\/7 điểm/.test(document.querySelector("#recent").textContent));
+    r.avg = (await p.textContent(".stats .stat:nth-child(2) b")).trim() === "3,75"; // (8,75 + 1) / 26 câu, tự luận không tính
+    // phụ huynh (quản trị) xem báo cáo tuần của Na: tự luận ghi riêng
+    await p.goto(BASE + "/#/account"); await p.click("#logout"); await p.waitForTimeout(200);
+    await p.click(`.tile[data-u="${ids["Bố Minh"]}"]`); await p.fill("#pinIn", PINS["Bố Minh"]); await p.waitForTimeout(400);
+    await p.goto(BASE + "/#/report/" + ids.Na); await p.waitForSelector(".report");
+    r.report = await p.evaluate(() => {
+      const t = (s) => (document.querySelector(s) || {}).textContent || "";
+      return t("#rpCount") === "2" && /9,75\/26 câu đúng/.test(t("#rpSubjects")) && document.querySelectorAll("#rpSelf .item").length === 2
+        && /6\/7 điểm/.test(t("#rpSelf")) && /7\/7 điểm/.test(t("#rpSelf")) && !/tự chấm/.test([...document.querySelectorAll(".sec")].find((x) => /Bài đã làm trong tuần/.test(x.textContent)).textContent);
+    });
+    await check("báo cáo tuần có tự luận"); await snapEl("#rpSelf", "bao-cao-tu-luan");
+    // bộ lọc hình, chạy với trình phân tích HTML thật: không còn mã chạy, link ngoài; màu theo token
+    if (scheme === "light") {
+      r.svgSafe = await p.evaluate(async () => {
+        const el = document.createElement("div"); document.body.append(el);
+        Quiz.run(el, { title: "Thử", questions: [{ type: "mc", q: "Hình?", o: ["a", "b"], svg: '<svg viewBox="0 0 10 10" onload="window.__x=1"><script>window.__x=2</script><circle cx="5" cy="5" r="4" onmouseover="window.__x=3" fill="acc"/><image href="x" onerror="window.__x=4"/><foreignObject><img src="x" onerror="window.__x=5"/></foreignObject><a href="javascript:window.__x=6"><text x="1" y="5">A</text></a></svg>' }] }, { mode: "practice" });
+        await new Promise((ok) => setTimeout(ok, 300));
+        const nodes = [...el.querySelectorAll(".qfig *")], circle = el.querySelector(".qfig circle");
+        const out = { x: window.__x, circle: !!circle, fill: circle && getComputedStyle(circle).fill, acc: getComputedStyle(document.documentElement).getPropertyValue("--acc").trim(),
+          bad: nodes.filter((n) => [...n.attributes].some((a) => /^on|href/i.test(a.name)) || !/^(svg|circle|title)$/.test(n.tagName)).map((n) => n.tagName) };
+        el.remove(); return out;
+      });
+      r.svgSafe = !r.svgSafe.x && r.svgSafe.circle && !r.svgSafe.bad.length && r.svgSafe.fill === "rgb(31, 60, 143)" && r.svgSafe.acc === "#1f3c8f" ? true : JSON.stringify(r.svgSafe);
+    }
+    await c.close();
+  }
+  // ghép ảnh sáng/tối cạnh nhau để xem nhanh (tests/screenshots/dang-cau/<tên>.jpg)
+  {
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    const names = [...new Set(fs.readdirSync(OUTK2).filter((f) => /-light\.png$/.test(f)).map((f) => f.replace("-light.png", "")))].sort();
+    for (const n of names) {
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTK2}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTK2}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  const k2OK = !k2.problems.length && ["light", "dark"].every((sc) => Object.values(k2[sc]).every((v) => v === true)) && bankImportOK;
+  console.log("K2:", k2.light, k2.dark, "problems:", k2.problems, "bank import:", bankImportOK);
 
   step("practice buttons named by exam (L18)");
   // 1/4/2027: cuối kì I, giữa kì II đã qua nên đề lớp 4 dồn vào "Bài ôn khác"; kì cuối năm chỉ gắn Đề 2, Đề 3 Toán cuối kì I;
@@ -717,6 +883,6 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const real = errs;
   console.log("ERRORS:", real);
   console.log("reveal (U1):", rv);
-  if (rv.length || real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (rv.length || real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal || !k2OK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();

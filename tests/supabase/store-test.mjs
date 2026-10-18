@@ -212,6 +212,20 @@ ok(B.Store.authState() === "ready" && !!dev.getItem(AUTH) && !B.sessionStorage.g
   ok(be.T.results.length === before + 1 && !dev.getItem("ontap_cloud_outbox") && S.resultsFor(bin.id).length === 2, "có mạng lại: gửi kết quả trong hộp gửi, không trùng");
   await A.Store.refresh();
   ok(A.Store.resultsFor(bin.id).length === 2 && A.Store.resultsFor(bin.id)[0].label === "IOE · Test 1", "máy khác tải lại thấy kết quả");
+  // Dạng câu mới (Phiên K2): số câu đúng lẻ đến 0,01; điểm tự chấm tự luận là kết quả riêng (mode "self", phần tư điểm).
+  const tn = { userId: bin.id, source: "bank", refId: "thunghiem6-dang-cau-moi", subject: "Thử nghiệm", label: "Đề thử nghiệm" };
+  S.addResult(Object.assign({ mode: "practice", r: 2.354, t: 4, s: 60 }, tn));
+  S.addResult(Object.assign({ mode: "self", r: 14, t: 28, s: 0 }, tn));
+  await S.flush();
+  const k2 = () => be.T.results.filter((r) => r.profile_id === bin.id && r.ref_id === tn.refId);
+  ok(k2().length === 2 && k2().some((r) => r.r === 2.35 && r.t === 4 && r.mode === "practice") && k2().some((r) => r.mode === "self" && r.r === 14 && r.t === 28)
+    && S.resultsFor(bin.id).some((r) => r.r === 2.35), "số câu đúng lẻ (làm tròn 0,01) và điểm tự chấm tự luận lên máy chủ");
+  be.intR = true; // máy chủ chưa chạy supabase/cap-nhat-k2.sql: cột r còn là số nguyên
+  S.addResult(Object.assign({ mode: "exam", r: 1.5, t: 2, s: 30 }, tn));
+  await S.flush();
+  be.intR = false;
+  ok(k2().length === 3 && k2().some((r) => r.mode === "exam" && r.r === 2 && r.t === 2) && !dev.getItem("ontap_cloud_outbox") && !B.errors.some((m) => /không nhận/.test(m)),
+    "máy chủ chưa cập nhật: gửi lại số câu đúng làm tròn, không mất kết quả");
   S.setSession(null);
   ok(S.sessionUser() === null && S.authState() === "ready", "đổi người học: về “Ai đang học?”, không đăng xuất");
 }
@@ -221,8 +235,17 @@ ok(B.Store.authState() === "ready" && !!dev.getItem(AUTH) && !B.sessionStorage.g
   const S = A.Store, fid = fam("nha.bin").id;
   const ev = S.upsertEvent({ title: "Thi thử", grades: [4], start: "2026-12-01", end: "2026-12-02" });
   S.setSettings({ schoolName: "Nhà Bin Na", schoolYear: "2026–2027" });
-  const bk = S.upsertBank({ title: "Đề tự nhập", grade: 4, subject: "Toán", questions: [{ type: "tf", q: "1 + 1 = 2", a: true, topic: "Cộng" }], src: "Đúng: 1 + 1 = 2" });
+  const bk = S.upsertBank({ title: "Đề tự nhập", grade: 4, subject: "Toán", questions: [{ type: "tf", q: "1 + 1 = 2", a: true, topic: "Cộng", p: "d1" }], passages: { d1: { title: "Đoạn", text: "Một cộng một." } }, src: "Đúng: 1 + 1 = 2" });
   await S.flush();
+  ok(be.T.question_banks.find((b) => b.id === bk.id).passages.d1.text === "Một cộng một.", "ngân hàng tự nhập có đoạn đọc: lên máy chủ");
+  await B.Store.refresh();
+  ok(B.Store.bank(bk.id).passages.d1.title === "Đoạn" && B.Store.bank(bk.id).questions[0].p === "d1", "máy khác tải lại thấy đoạn đọc");
+  be.intR = true; // máy chủ chưa có cột passages: ngân hàng không có đoạn đọc vẫn lưu được
+  const bk0 = S.upsertBank({ title: "Đề không đoạn đọc", grade: 4, subject: "Toán", questions: [{ type: "tf", q: "2 + 2 = 4", a: true, topic: "Cộng" }], src: "Đúng: 2 + 2 = 4" });
+  await S.flush();
+  be.intR = false;
+  ok(be.T.question_banks.some((b) => b.id === bk0.id) && !("passages" in S.bank(bk0.id)), "máy chủ chưa cập nhật: ngân hàng không có đoạn đọc vẫn lưu được");
+  S.removeBank(bk0.id);
   ok(be.T.exam_events.some((e) => e.family_id === fid && e.id === ev.id && e.start_date === "2026-12-01") && be.T.question_banks.some((b) => b.family_id === fid && b.id === bk.id)
     && fam("nha.bin").display_name === "Nhà Bin Na", "thêm kì thi, ngân hàng đề, đổi tên gia đình: lên máy chủ");
   // Đề có sẵn: lúc mở app chỉ có danh mục data/banks/index.js; câu hỏi tải khi mở đề (loadBank dùng chung với LocalStore).

@@ -25,7 +25,7 @@
       users: [],      // {id, role, name, avatar, salt, pinHash, pinLen, grade?, className?, parentIds?: [], createdAt}
       events: clone(window.ONTAP_SEED_EVENTS || []),
       banks: [],      // ngân hàng do quản trị viên nhập (đề có sẵn nằm ở data/banks/)
-      results: [],    // {id, userId, source:"module"|"bank", refId, subject, label, mode, r, t, s, at}
+      results: [],    // {id, userId, source:"module"|"bank", refId, subject, label, mode, r, t, s, at} (xem addResult)
       seedBanksSeen: seedBankIds() // mã các ngân hàng có sẵn đã xét (xem linkNewSeedBanks)
     };
   }
@@ -242,10 +242,12 @@
       return bankById(id);
     });
   }
+  const hasPassages = (b) => !!b.passages && typeof b.passages === "object" && !Array.isArray(b.passages) && Object.keys(b.passages).length > 0;
   function upsertBank(b) {
     if ((window.ONTAP_SEED_BANKS || []).some((s) => s.id === b.id)) throw new Error("Không sửa được bộ có sẵn trong app. Hãy tạo bộ mới.");
     if (!b.title || !b.questions || !b.questions.length) throw new Error("Ngân hàng cần tên và ít nhất một câu hỏi.");
     const clean = { id: b.id || "bk-" + uid(), title: String(b.title).trim(), grade: +b.grade, subject: b.subject || "", minutes: +b.minutes || 0, note: b.note || "", questions: b.questions, src: String(b.src || "").slice(0, 200000) };
+    if (hasPassages(b)) clean.passages = b.passages; // đoạn đọc dùng chung (Quiz.parse), câu tham chiếu bằng mã đoạn
     const i = db.banks.findIndex((x) => x.id === clean.id);
     if (i >= 0) db.banks[i] = clean; else db.banks.push(clean);
     save(); return clean;
@@ -256,11 +258,14 @@
     save();
   }
 
-  /* -------- Kết quả -------- */
+  /* -------- Kết quả --------
+     r: số câu đúng trong t câu, lẻ đến 0,01 (câu đúng/sai 4 ý, nối cột chấm từng ý). mode: "exam", "practice" (đề ngân hàng),
+     chế độ của bài ôn dạng trang, hoặc "self": điểm tự chấm phần tự luận, r và t tính bằng phần tư điểm, không tính vào điểm
+     trung bình (js/app.js, graded). */
   function addResult(r) {
     const clean = {
       id: uid(), userId: r.userId, source: r.source, refId: r.refId, subject: r.subject || "",
-      label: String(r.label || "").slice(0, 120), mode: r.mode || "", r: Math.max(0, +r.r || 0),
+      label: String(r.label || "").slice(0, 120), mode: r.mode || "", r: Math.round(Math.max(0, +r.r || 0) * 100) / 100,
       t: Math.max(0, +r.t || 0), s: Math.max(0, +r.s || 0), at: new Date().toISOString(),
       wrongTopics: Array.isArray(r.wrongTopics) ? r.wrongTopics.slice(0, 50) : undefined
     };

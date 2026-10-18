@@ -77,7 +77,8 @@ Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mố
 
 ### 4.3 Làm bài
 - **Bài ôn dạng trang**: mở trong khung, giữ nguyên mọi chức năng của trang gốc. Tiến độ trong bài được tách riêng cho từng học sinh dù dùng chung máy. Mỗi lần làm xong, điểm tổng được gửi về hồ sơ.
-- **Ngân hàng câu hỏi**: hai chế độ — *Ôn luyện* (xem đáp án và lời giải sau từng câu) và *Làm như thi* (tính giờ, chỉ xem đáp án khi nộp). Kết quả hiện điểm thang 10, thống kê theo chủ đề, danh sách câu sai kèm lời giải.
+- **Ngân hàng câu hỏi**: hai chế độ — *Ôn luyện* (xem đáp án và lời giải sau từng câu) và *Làm như thi* (tính giờ, chỉ xem đáp án khi nộp). Kết quả hiện điểm thang 10, thống kê theo chủ đề và theo mức độ (Biết, Hiểu, Vận dụng, khi câu có ghi mức độ), danh sách câu sai kèm lời giải.
+- **Dạng câu** (Phiên K2; mọi dạng làm bằng chạm trên điện thoại, không phải kéo thả): trắc nghiệm, điền khuyết, đúng/sai; **đúng/sai 4 ý** chấm từng ý như đề thi tốt nghiệp (đúng 1/2/3/4 ý được 0,1/0,25/0,5/1 câu); **trả lời bằng số** (dấu phẩy thập phân, có sai số cho phép, nút ± để gõ số âm); **nối cột** (chạm ô bên trái rồi ô bên phải, chấm theo số cặp nối đúng); **sắp xếp thứ tự** (chạm lần lượt, chạm lại để bỏ ra); **tự luận** có đáp án gợi ý và thang tự chấm (Chưa có, Một phần, Đủ cho từng ý). Câu có thể kèm **đoạn đọc dùng chung** (hiện phía trên câu hỏi, thu gọn được, các câu cùng đoạn đứng liền nhau) và **hình vẽ** (SVG đã lọc an toàn, màu đổi theo chế độ tối). Điểm tự chấm phần tự luận lưu riêng, không cộng vào điểm trung bình; báo cáo tuần có mục “Tự luận tự chấm”. Đề mẫu: “Đề thử nghiệm · Các dạng câu mới” (lớp 6, nhóm Bài ôn khác). Ảnh: [hinh-dang-cau/](hinh-dang-cau/).
 
 ### 4.4 Quản trị
 - **Tổng quan**: số học sinh, phụ huynh, số bài làm 7 ngày; danh sách học sinh; kì thi tiếp theo mỗi khối.
@@ -95,9 +96,43 @@ Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mố
   Câu điền khuyết có [đáp án|cách viết khác].
 
   Đúng: một mệnh đề đúng.
+
   Sai: một mệnh đề sai.
+
+  Câu đúng/sai 4 ý?
+  a) Đúng: ý a
+  b) Sai: ý b
+  c) Đúng: ý c
+  d) Sai: ý d
+  Mức: Hiểu
+
+  Câu trả lời bằng số?
+  Đáp số: 2,5 ± 0,1 kg
+
+  Nối cột:
+  trái 1 -> phải 1
+  trái 2 -> phải 2
+  -> ô thừa
+
+  Sắp xếp theo thứ tự:
+  1) thứ nhất
+  2) thứ hai
+  3) thứ ba
+
+  Tự luận: đề bài
+  + ý cần có (1)
+  + ý khác (0,5)
+  > đáp án gợi ý
+
+  Đoạn đọc: Tiêu đề
+  Đoạn văn dùng chung cho các câu bên dưới (nhiều dòng được).
+  Hết đoạn
+
+  Câu hỏi về đoạn đọc?
+  * đáp án đúng
+  - đáp án sai
   ```
-  App báo số câu nhận được và dòng nào sai cú pháp trước khi lưu.
+  Hình vẽ: dán mã `<svg viewBox="…">…</svg>` vào câu (màu ghi bằng tên: ink, acc, ok, bad…). App báo số câu từng dạng nhận được và dòng nào sai cú pháp trước khi lưu.
 - **Dữ liệu**: tên trường, năm học, tải file sao lưu (JSON) kèm lần sao lưu gần nhất, khôi phục từ file, hướng dẫn thêm app vào Màn hình chính, xóa toàn bộ (gõ XOA để xác nhận).
 
 ## 5. Lưu trữ
