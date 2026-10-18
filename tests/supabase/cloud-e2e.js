@@ -3,7 +3,7 @@
    Chạy: python3 -m http.server 8000 &  rồi  node tests/supabase/cloud-e2e.js   (in "CLOUD E2E OK")
    Luồng: đăng nhập tên đăng nhập + mật khẩu (ghi nhớ; thẻ “Chưa có tài khoản?”, thẻ nhắc dữ liệu cũ của bản lưu trên máy)
    → bắt đổi mật khẩu tạm → khu phụ huynh → thêm hồ sơ con (PIN 4 số tùy chọn) → “Ai đang học?” → con nhập PIN, làm đề,
-   kết quả lên máy chủ → tab mới: nhập lại mật khẩu vào khu phụ huynh → báo cáo tuần, đổi mật khẩu, chuyển dữ liệu máy này,
+   kết quả lên máy chủ (con thứ hai làm một đề Tiếng Anh: màn làm đề bằng tiếng Anh, TA2) → tab mới: nhập lại mật khẩu vào khu phụ huynh → báo cáo tuần, đổi mật khẩu, chuyển dữ liệu máy này,
    đăng xuất → máy không ghi nhớ → tài khoản bị khóa.
    Mỗi màn hình kiểm tra ở 360px như tests/e2e.js (không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px); ảnh sáng và tối lưu ở
    tests/screenshots/cloud/ (thêm bản ghép sáng/tối cạnh nhau <tên>.jpg để xem nhanh). Lượt tối chạy với CAPTCHA bật. Cuối cùng kiểm tra service worker (sw.js) không làm hỏng bản
@@ -43,6 +43,9 @@ const audit = () => {
   }
   return [...new Set(bad)];
 };
+
+// Chữ cái tiếng Việt (như tests/kiem-tra-de.js): màn làm đề Tiếng Anh không được có (TA2).
+const CHU_VIET = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/iu;
 
 /* Dữ liệu cũ của bản lưu trên máy (định dạng js/store.js) để thử nút chuyển dữ liệu. */
 function localData() {
@@ -261,6 +264,22 @@ async function run(browser, scheme) {
   await p.click("#switchWho"); await p.waitForSelector("text=Ai đang học?");
   await tile(p, "Na"); await p.waitForSelector("text=Chào Na"); // hồ sơ không có PIN: bấm là vào
   c.na = true;
+  // TA2: Na làm một đề Tiếng Anh: màn mở đề, câu hỏi và lời giải, hộp hỏi khi rời (nút Back, "← Exit"), màn kết quả, thông báo lưu điểm
+  // bằng tiếng Anh (bảng chữ của js/quiz.js), không có chữ cái tiếng Việt; kết quả lên máy chủ vẫn ghi môn và tên đề trong danh mục.
+  const naId = prof.find((x) => x.name === "Na").id;
+  await p.goto(BASE + "/#/quiz/ta6-gk1-de1"); await p.waitForSelector("#qPractice");
+  c.ta2 = { open: await text(p, "#view"), h1: await text(p, ".hero h1"), lang: await p.$eval("#view > .stack", (e) => e.getAttribute("lang")) };
+  await shot(p, "c8e-de-tieng-anh");
+  await p.click("#qPractice");
+  for (let i = 0; i < 2; i++) { if (await p.$("#qzFill")) await p.fill("#qzFill", "x"); else await p.click(".opt >> nth=1"); await p.click("#qzGo"); if (!i) { c.ta2.fb = await text(p, "#qzFb"); c.ta2.next = await text(p, "#qzGo"); } await p.click("#qzGo"); }
+  await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox");
+  c.ta2.leave = await text(p, "#leaveBox"); await p.click("#leaveNo"); await wait(p, 100);
+  await p.click("#qzExit"); c.ta2.exit = await text(p, "#qzFb .confirm");
+  await shot(p, "c8f-de-tieng-anh-dung-on");
+  await p.click("#qzYes"); await p.waitForSelector(".score");
+  c.ta2.result = await text(p, "#view"); c.ta2.toast = await text(p, "#toast");
+  await shot(p, "c8g-de-tieng-anh-ket-qua");
+  c.ta2.server = await until(p, () => be.T.results.some((r) => r.profile_id === naId && r.ref_id === "ta6-gk1-de1" && r.subject === "Tiếng Anh" && r.label === "Tiếng Anh 6 · Giữa kì I · Đề 1" && r.t === 2));
   await p.goto(BASE + "/#/admin/overview"); await wait(p);
   c.kidBlocked = !(await p.$("text=Khu phụ huynh"));
   await p.goto(BASE + "/#/admin/user/" + binId); await wait(p);
@@ -499,7 +518,7 @@ async function run(browser, scheme) {
     "con nhập PIN: sai thì báo, đúng 4 số là vào": /chưa đúng/.test(c.wrongPin),
     "kết quả làm bài lên máy chủ": c.result,
     "L15: con vào “Làm như thi”, rời khi chưa trả lời: hỏi “Thoát đề?”, không lưu điểm": /Thoát đề\?/.test(c.l15.ask) && c.l15.hash === "#/home" && c.l15.same,
-    "L16: bài ôn trong khung chỉ hỏi khi đang làm một lượt (#endBtn)": !c.l16.idleAsk && c.l16.runAsk && /Rời bài ôn/.test(c.l16.text) && c.l16.same,
+    "L16: bài ôn trong khung chỉ hỏi khi đang làm một lượt (#endBtn); IOE là bài Tiếng Anh nên hộp hỏi bằng tiếng Anh (TA2)": !c.l16.idleAsk && c.l16.runAsk && /Leave this practice\?/.test(c.l16.text) && c.l16.same,
     "L18: nút đề ghi số đề theo tên đề; K3: đề ngẫu nhiên đứng trước": c.l18["Kiểm tra cuối học kì I"] === "Đề ngẫu nhiên,Đề 1,Đề 2,Đề 3" && c.l18["Kiểm tra giữa học kì II"] === "Đề ngẫu nhiên,Đề 1,Đề 2",
     "K3: đề ngẫu nhiên rút 25 câu từ kho 75 câu (3 đề), kết quả lên máy chủ với ref_id là mã pool, lịch sử câu trên máy": /25 câu rút từ kho 75 câu \(3 đề\)/.test(c.k3.intro) && c.k3.kho === "75/25/25"
       && c.k3.again === "Làm đề khác" && c.k3.server && c.k3.hist === 25,
@@ -508,6 +527,11 @@ async function run(browser, scheme) {
       && c.r1.after === "true Đã báo câu này" && c.r1.result,
     "R1: báo cáo lên máy chủ (hồ sơ con, gia đình, mã đề, mã câu, nội dung câu ≤ 500, ghi chú cắt 200, trạng thái mới); tab Dữ liệu liệt kê kèm trạng thái": c.r1.server && c.r1.row
       && c.r1.data.n === 2 && c.r1.data.head === "Câu bị báo sai (2)" && c.r1.data.chips === "Mới,Mới" && !c.r1.data.copy && c.r1.data.who,
+    "TA2: đề Tiếng Anh: màn mở đề, câu hỏi, hộp hỏi khi rời, màn kết quả, thông báo lưu điểm bằng tiếng Anh, không có chữ tiếng Việt; kết quả lên máy chủ vẫn ghi môn Tiếng Anh": c.ta2.h1 === "English 6 · Mid-term 1 · Test 1" && c.ta2.lang === "en"
+      && [c.ta2.open, c.ta2.fb, c.ta2.leave, c.ta2.exit, c.ta2.result, c.ta2.toast].every((t) => t && !CHU_VIET.test(t)) && /Practice \(see the answer after each question\)/.test(c.ta2.open) && /Test mode · 45 minutes/.test(c.ta2.open)
+      && /Report a problem$/.test(c.ta2.fb) && c.ta2.next === "Next question" && c.ta2.leave === "End practice and leave?Your answers so far will be saved. End practiceKeep practising"
+      && c.ta2.exit === "End practice and see your results?End practiceKeep going" && /^English 6 · Mid-term 1 · Test 1 · Practice /.test(c.ta2.result) && /\/2 correctTime: /.test(c.ta2.result)
+      && /Try againGo to home$/.test(c.ta2.result) && c.ta2.toast === "Result saved" && c.ta2.server,
     "trang tài khoản của con: đổi người học, không đăng xuất, không đổi mật khẩu": !!c.kidAccount,
     "hồ sơ không PIN bấm là vào; con không vào được khu phụ huynh bằng địa chỉ": c.na && c.kidBlocked,
     "tab mới: nhớ hồ sơ chọn gần nhất, khu phụ huynh phải nhập lại mật khẩu": c.preselect === "Na" && /Mật khẩu chưa đúng/.test(c.wrongPw),

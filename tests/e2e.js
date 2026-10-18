@@ -164,13 +164,24 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await fr4.click("#yesEnd"); await page.waitForTimeout(200); // xong lượt: bài ôn bỏ #endBtn
   const modLeft = await modBack(); // xong lượt: đi luôn, không hỏi
   console.log("module guard:", modIdle, modAsk.replace(/\s+/g, " "), modStay, modConfirm, modLeft);
-  const modGuardOK = modIdle.hash === "#/home" && !modIdle.box && /Rời bài ôn/.test(modAsk) && modStay === "#/play/ioe-4"
+  // ioe-4 là bài ôn Tiếng Anh nên hộp hỏi bằng tiếng Anh (TA2); bản tiếng Việt "Rời bài ôn?" thử với bài ôn lớp 4 ở bước sau
+  const modGuardOK = modIdle.hash === "#/home" && !modIdle.box && /Leave this practice\?/.test(modAsk) && modStay === "#/play/ioe-4"
     && modConfirm.box && modConfirm.hash === "#/play/ioe-4" && modLeft.hash === "#/home" && !modLeft.box;
   step("open module l4");
   await page.goto(BASE + "/#/play/l4-giua-ki-1"); await page.waitForTimeout(1200);
   const f2 = page.frames().find(f => /modules\/l4-giua-ki-1/.test(f.url()));
   await f2.evaluate(() => ontapReport({ label: "Toán · Đề 1", mode: "exam", subject: "toan", r: 18, t: 20, s: 1500 }));
   await page.waitForTimeout(200);
+  // bài ôn tiếng Việt: dòng ghi chú, thông báo lưu điểm, nút quay lại và hộp hỏi khi rời bài đang làm vẫn tiếng Việt (TA2 chỉ đổi bài Tiếng Anh)
+  const l4 = { toast: await page.textContent("#toast"), note: await page.textContent(".player .note"), back: await page.textContent(".player .linkbtn"), lang: await page.$eval("#view > .player", (e) => e.getAttribute("lang")) };
+  await f2.click(".tb >> nth=0"); await f2.waitForSelector("#endBtn"); // bắt đầu một đề của bài ôn: bài ôn hiện #endBtn
+  await page.click(".player [data-go]"); await page.waitForSelector("#leaveBox");
+  l4.ask = (await page.textContent("#leaveBox")).replace(/\s+/g, " ").trim();
+  await page.click("#leaveYes"); await page.waitForTimeout(300);
+  l4.left = await page.evaluate(() => location.hash);
+  console.log("module l4 (vi):", l4);
+  const modViOK = l4.toast === "Đã lưu kết quả: 18/20 câu đúng" && l4.note === "Điểm được lưu" && l4.back === "← Trang chính" && l4.lang === null
+    && l4.ask === "Rời bài ôn?Bài đang làm dở sẽ không được lưu. Rời bàiỞ lại" && l4.left === "#/home";
 
   step("quiz bank practice");
   const lazy = { home: bankList() }; // đã qua thiết lập, đăng nhập, trang chủ, bài ôn trong khung
@@ -1041,8 +1052,8 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   /* Ba đề Tiếng Anh có sẵn (ta6-gk1-de1, ta6-ck1-de1: Na lớp 6; ta4-ck1-de1: Bin lớp 4) viết 100% tiếng Anh, đoạn đọc dùng chung
      (passages). Làm ôn luyện bằng đáp án trong dữ liệu (như K3): câu nào cũng "Đúng rồi!", mỗi đề 10/10, kết quả lưu 25/25 môn
      Tiếng Anh; câu có đoạn đọc: hộp đoạn đọc mở sẵn, đúng tên và chữ của đoạn, các câu cùng đoạn đứng liền nhau, câu không có đoạn
-     thì không có hộp; chữ câu hỏi và lời giải trên màn hình không có chữ cái tiếng Việt (giao diện làm đề vẫn tiếng Việt: Phiên
-     TA2). Mỗi màn hình kiểm tra 360px; ảnh sáng/tối một câu đọc hiểu và một câu điền sau khi Kiểm tra ở
+     thì không có hộp; chữ câu hỏi và lời giải trên màn hình không có chữ cái tiếng Việt (giao diện làm đề bằng tiếng Anh từ Phiên
+     TA2: nút đúng/sai là True/False, thử kĩ ở bước TA2). Mỗi màn hình kiểm tra 360px; ảnh sáng/tối một câu đọc hiểu và một câu điền sau khi Kiểm tra ở
      tests/screenshots/tieng-anh/ (bản ghép <tên>.jpg); chế độ tối chỉ làm đề giữa kì I lớp 6. */
   const OUTTA = OUT + "tieng-anh/"; fs.mkdirSync(OUTTA, { recursive: true });
   const TA_BANKS = [["ta6-gk1-de1", "Na", "4444"], ["ta6-ck1-de1", "Na", "4444"], ["ta4-ck1-de1", "Bin", PINS.Bin]];
@@ -1074,7 +1085,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
         const want = q.p ? bank.passages[q.p] : null;
         if (want ? !psg || psg.title !== want.title || psg.text !== want.text || !psg.open : psg) r.psgBad.push(i + 1);
         if (q.type === "fill") await p.fill("#qzFill", q.ans[0]);
-        else { const w = q.type === "tf" ? (q.a ? "Đúng" : "Sai") : q.o[0]; await p.$$eval(".opts .opt", (bs, w) => bs.find((b) => b.lastElementChild.textContent === w).click(), w); }
+        else { const w = q.type === "tf" ? (q.a ? "True" : "False") : q.o[0]; await p.$$eval(".opts .opt", (bs, w) => bs.find((b) => b.lastElementChild.textContent === w).click(), w); }
         await p.click("#qzGo");
         const fb = await p.evaluate(() => ({ ok: !!document.querySelector("#qzFb .fb.ok"), text: [document.querySelector(".qcard .qtext"), document.querySelector("#qzFb .expl")].map((e) => (e ? e.textContent : "")).join(" ") }));
         if (fb.ok) r.right++;
@@ -1107,6 +1118,158 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("TA1:", ta1.runs.map((r) => `${r.id} ${r.scheme}: ${r.right}/${r.n} đúng, ${r.score}, lưu ${r.saved}, đoạn đọc ${r.psgBad.length ? "sai ở câu " + r.psgBad : "đúng"}${r.contiguous ? "" : ", câu cùng đoạn không liền nhau"}${r.vi.length ? ", chữ Việt ở câu " + r.vi : ""}`), "problems:", ta1.problems);
   const ta1OK = !ta1.problems.length && ta1.runs.length === 4 && ta1.runs.every((r) => r.n === 25 && r.right === 25 && r.score === "10/10" && r.saved && !r.psgBad.length && !r.vi.length && r.contiguous)
     && ["doc-hieu-light", "doc-hieu-dark", "dien-tu-light", "dien-tu-dark"].every((x) => ta1.shots.includes(x));
+
+  step("English test UI in English (TA2)");
+  /* Đề Tiếng Anh (Quiz.lang(bank) → "en"): mọi chữ học sinh thấy từ màn mở đề đến hết màn kết quả, hộp hỏi khi rời đề (nút Back và
+     "← Exit"; chưa trả lời, đã trả lời, làm như thi), link và hộp "Report a problem", thông báo lưu điểm lấy từ bảng chữ TXT của
+     js/quiz.js: tên đề dựng lại ("English 4 · End-of-term 1 · Test 1"), mức độ Know/Understand/Apply, nút True/False, số thập phân
+     dùng dấu chấm (9.25/10), khung có lang="en". Bin lớp 4 làm ta4-ck1-de1, Na lớp 6 làm ta6-gk1-de1: ôn luyện (câu trắc nghiệm đầu
+     và câu điền đầu cố ý sai, báo câu sai ở câu điền) rồi làm như thi (2 câu rồi nộp sớm); mọi chữ trong #view, #leaveBox, #toast
+     không có chữ cái tiếng Việt (CHU_VIET, như tests/kiem-tra-de.js). Bài ôn IOE 4 trong khung: nút quay lại, dòng ghi chú, hộp hỏi
+     khi rời bài đang làm, thông báo lưu điểm bằng tiếng Anh. Phụ huynh xem thử đề Tiếng Anh: dòng "Chế độ xem thử" vẫn tiếng Việt,
+     còn lại tiếng Anh. Đề Toán 4 vẫn tiếng Việt (các bước trên, và xem lại màn mở đề ở đây). Kết quả lưu vẫn ghi tên đề và môn trong
+     danh mục (tiếng Việt). Mỗi màn hình kiểm tra 360px; ảnh sáng/tối ở tests/screenshots/tieng-anh/ta2-*.png (bản ghép ta2-<tên>.jpg). */
+  const ta2 = { problems: [], vi: [], shots: [], runs: [] };
+  const TA2_BANKS = [["ta4-ck1-de1", "Bin", PINS.Bin, "English 4 · End-of-term 1 · Test 1", "Grade 4 · English", 35], ["ta6-gk1-de1", "Na", "4444", "English 6 · Mid-term 1 · Test 1", "Grade 6 · English", 45]];
+  for (const scheme of ["light", "dark"]) {
+    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror TA2: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console TA2: " + m.text()); });
+    const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, sel);
+    // chữ tiếng Việt đang hiện (màn hình, hộp rời trang, thông báo): ghi bước và vài từ đầu
+    const noVi = async (label) => { const t = [await txt("#view"), await txt("#leaveBox"), await txt("#toast")].join(" "), m = t.split(/\s+/).filter((w) => CHU_VIET.test(w)); if (m.length) ta2.vi.push(`${scheme} · ${label}: ${m.slice(0, 5).join(" ")}`); return t; };
+    const check = async (label) => { (await p.evaluate(audit)).forEach((x) => ta2.problems.push(`TA2 · ${scheme} · ${label}: ${x}`)); return noVi(label); };
+    const snap = async (n, keepToast) => { await p.evaluate((k) => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t && !k) t.hidden = true; }, !!keepToast); await p.screenshot({ path: `${OUTTA}ta2-${n}-${scheme}.png`, fullPage: true }); ta2.shots.push(`ta2-${n}-${scheme}`); };
+    const snapped = (n) => ta2.shots.includes(`ta2-${n}-${scheme}`);
+    const signIn = async (who, pin) => { await p.goto(BASE + "/#/account"); await p.waitForTimeout(200); if (await p.$("#switchWho, #logout")) { await p.click("#switchWho, #logout"); await p.waitForTimeout(200); } await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids[who]}"]`); await p.fill("#pinIn", pin); await p.waitForTimeout(400); };
+    const answer = async (q, right) => { // trả lời theo dữ liệu; right = false thì cố ý sai (chỉ trắc nghiệm, điền)
+      if (q.type === "fill") await p.fill("#qzFill", right ? q.ans[0] : "zzz");
+      else { const w = q.type === "tf" ? (q.a ? "True" : "False") : right ? q.o[0] : q.o[1]; await p.$$eval(".opts .opt", (bs, w) => bs.find((b) => b.lastElementChild.textContent === w).click(), w); }
+    };
+    for (const [id, who, pin, title, label, minutes] of TA2_BANKS) {
+      const r = { id, scheme };
+      await signIn(who, pin);
+      await p.goto(BASE + "/#/quiz/" + id); await p.waitForSelector("#qPractice");
+      const bank = await p.evaluate((id) => Store.bank(id).questions, id);
+      const open = await check("màn mở đề");
+      r.open = (await txt(".hero h1")) === title && (await txt(".hero .label")) === label && (await txt("#qPractice")) === "Practice (see the answer after each question)" && (await txt("#qExam")) === `Test mode · ${minutes} minutes`
+        && (await txt("#view .linkbtn")) === "← Home" && (await p.$eval("#view > .stack", (e) => e.getAttribute("lang"))) === "en" && /25 questions\./.test(open);
+      if (!snapped("mo-de")) await snap("mo-de");
+      // làm như thi, rời khi chưa trả lời: nút Back hỏi "Exit the test?"; "← Exit" hỏi ngay trong trang
+      await p.click("#qExam"); await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox");
+      await check("hộp rời trang, chưa trả lời"); r.leave0 = (await txt("#leaveBox")) === "Exit the test?You haven't answered any questions, so no score is saved. ExitKeep going";
+      if (!snapped("roi-trang-chua-lam")) await snap("roi-trang-chua-lam");
+      await p.click("#leaveNo"); await p.click("#qzExit");
+      await check("hộp Thoát, chưa trả lời"); r.exit0 = (await txt("#qzFb")) === "Exit the test? You haven't answered any questions, so no score is saved.ExitKeep going";
+      if (!snapped("thoat-de")) await snap("thoat-de");
+      await p.click("#qzYes"); await p.waitForTimeout(300);
+      r.exit0Home = (await p.evaluate(() => location.hash)) === "#/home";
+      // ôn luyện: câu trắc nghiệm đầu và câu điền đầu cố ý sai, còn lại đúng; báo câu sai ở câu điền sai; sau câu 3 thử rời trang
+      await p.goto(BASE + "/#/quiz/" + id); await p.waitForSelector("#qPractice"); await p.click("#qPractice");
+      const seen = {}; let wrongN = 0, n = 0;
+      for (let i = 0; i < 30 && !(await p.$(".score")); i++) {
+        const t = await p.$eval(".qcard .qtext", (e) => e.textContent), opts = await p.$$eval(".opts .opt", (bs) => bs.map((b) => b.lastElementChild.textContent));
+        const cands = bank.filter((x) => flatQ(x.q) === flatQ(t)), q = cands.length > 1 ? cands.find((x) => (x.o || []).every((o) => opts.includes(o))) : cands[0];
+        if (!q) { ta2.problems.push(`TA2 ${id}: không nhận ra câu ` + t.slice(0, 50)); break; }
+        n++;
+        const kind = q.p ? "doc-hieu" : q.type, first = !seen[kind]; seen[kind] = true;
+        if (first) { await check(`câu ${kind}`); if (!snapped(kind)) await snap(kind); }
+        const wrong = (q.type === "mc" && !seen.wrongMc) || (q.type === "fill" && !seen.wrongFill);
+        if (wrong) { seen[q.type === "mc" ? "wrongMc" : "wrongFill"] = true; wrongN++; }
+        await answer(q, !wrong);
+        await p.click("#qzGo");
+        const fb = await txt("#qzFb");
+        if (first) { await check(`câu ${kind} sau Kiểm tra`); if (!snapped(kind + "-kiem-tra")) await snap(kind + "-kiem-tra"); }
+        if (wrong) r[q.type + "Wrong"] = /^Not quite\. Answer: /.test(fb) && /Report a problem$/.test(fb) && (await txt("#qzGo")) === "Next question";
+        else if (!r.rightFb) r.rightFb = /^Correct!/.test(fb);
+        if (wrong && q.type === "fill" && !seen.report) { // báo câu sai: hộp lí do tiếng Anh, phải chọn lí do, gửi xong
+          seen.report = true;
+          await p.click(".rp-link"); await p.waitForSelector(".report-box");
+          r.rpBox = (await txt(".report-box")) === "What's wrong with this question? Wrong answerConfusing questionSpelling mistakeOther Note (optional, up to 200 characters) SendCancel"
+            && (await p.$eval(".report-note", (e) => e.placeholder)) === "Write more if you like" && (await p.$eval(".rsn", (e) => e.getAttribute("aria-label"))) === "Reason";
+          await p.click(".report-box [type=submit]"); r.rpNeed = (await txt(".rp-err")) === "Please choose a reason.";
+          await check("hộp báo câu sai"); if (!snapped("bao-cau-sai")) await snap("bao-cau-sai");
+          await p.click('.rsn .opt[data-r="typo"]'); await p.click(".report-box [type=submit]"); await p.waitForSelector(".rp-done");
+          r.rpDone = (await txt(".rp-done")) === "Thank you! We will check this question." && (await txt(".rp-link")) === "Reported";
+          await check("đã báo câu sai"); if (!snapped("bao-cau-sai-xong")) await snap("bao-cau-sai-xong");
+        }
+        if (n === 3) { // đã trả lời: nút Back hỏi "End practice and leave?"; "← Exit" hỏi "End practice and see your results?"
+          await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox");
+          await check("hộp rời trang, đã trả lời"); r.leave1 = (await txt("#leaveBox")) === "End practice and leave?Your answers so far will be saved. End practiceKeep practising";
+          if (!snapped("roi-trang-da-lam")) await snap("roi-trang-da-lam");
+          await p.click("#leaveNo"); await p.waitForTimeout(100);
+          await p.click("#qzExit"); r.exit1 = (await txt("#qzFb .confirm")) === "End practice and see your results?End practiceKeep going";
+          await check("hộp Dừng ôn, đã trả lời"); if (!snapped("dung-on")) await snap("dung-on");
+          await p.click("#qzNo");
+          r.stay = !(await p.$("#leaveBox")) && (await p.evaluate(() => location.hash)) === "#/quiz/" + id;
+        }
+        await p.click("#qzGo");
+      }
+      await p.waitForSelector(".score");
+      const res = await check("màn kết quả"), d10 = String(Math.round(((25 - wrongN) / 25) * 40) / 4);
+      r.n = n; r.wrongN = wrongN;
+      r.result = (await txt(".score")) === `${d10}/10` && new RegExp(`^${title.replace(/[.*+?()]/g, "\\$&")} · Practice ${d10}/10 ${25 - wrongN}/25 correctTime: \\d\\d:\\d\\d By topic`).test(res) && /By level Know/.test(res)
+        && new RegExp(`Review mistakes \\(${wrongN}\\)`).test(res) && /Your answer: /.test(res) && / · Answer: /.test(res) && /Reported/.test(res) && /Report a problem/.test(res)
+        && (await txt("#qzAgain")) === "Try again" && (await txt("#qzHome")) === "Go to home" && (await txt("#toast")) === "Result saved";
+      r.saved = await p.evaluate((id) => { const x = Store.resultsFor(Store.sessionUser().id)[0]; return !!x && x.refId === id && x.subject === "Tiếng Anh" && x.label === Store.bank(id).title && x.t === 25 && x.mode === "practice"; }, id);
+      if (!snapped("ket-qua")) await snap("ket-qua", true);
+      // làm như thi: 2 câu rồi nộp sớm bằng "← Exit"; nút Back hỏi "Finish the test and leave?"
+      await p.goto(BASE + "/#/home"); await p.goto(BASE + "/#/quiz/" + id); await p.waitForSelector("#qExam"); await p.click("#qExam");
+      for (let k = 0; k < 2; k++) { if (await p.$("#qzFill")) await p.fill("#qzFill", "x"); else await p.click(".opt >> nth=0"); r.examBtn = (await txt("#qzGo")) === "Answer" && (await txt("#qzSkip")) === "Skip"; await p.click("#qzGo"); }
+      await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox");
+      await check("hộp rời trang, làm như thi"); r.leaveExam = (await txt("#leaveBox")) === "Finish the test and leave?Unanswered questions count as wrong. Finish testKeep going";
+      await p.click("#leaveNo"); await p.click("#qzExit");
+      r.exitExam = (await txt("#qzFb .confirm")) === "Finish test now? Unanswered questions count as wrong.Finish testKeep going";
+      if (!snapped("nop-bai")) await snap("nop-bai");
+      await p.click("#qzYes"); await p.waitForSelector(".score");
+      const ex = await check("kết quả làm như thi");
+      r.examResult = (await txt("#view .panel .label")) === `${title} · Test mode` && /\/25 correct/.test(ex) && /\(no answer\)/.test(ex) && (await txt("#toast")) === "Result saved" && !/,\d/.test(await txt(".score"));
+      ta2.runs.push(r);
+    }
+    // bài ôn IOE 4 trong khung (Bin): nút quay lại, dòng ghi chú, hộp hỏi khi rời bài đang làm, thông báo lưu điểm
+    await signIn("Bin", PINS.Bin);
+    await p.goto(BASE + "/#/play/ioe-4"); await p.waitForTimeout(1500);
+    const io = { note: await txt(".player .note"), back: await txt(".player .linkbtn"), lang: await p.$eval("#view > .player", (e) => e.getAttribute("lang")), title: await p.$eval(".player .note", (e) => e.title) };
+    const fr = p.frames().find((f) => /modules\/ioe-4/.test(f.url()));
+    await fr.click(".unit >> nth=0"); await fr.waitForSelector("#endBtn");
+    await p.click(".player [data-go]"); await p.waitForSelector("#leaveBox");
+    io.leave = await txt("#leaveBox"); (await p.evaluate(audit)).forEach((x) => ta2.problems.push(`TA2 · ${scheme} · bài ôn IOE: ${x}`));
+    if (!snapped("ioe-roi-bai")) await snap("ioe-roi-bai");
+    await p.click("#leaveNo");
+    await fr.evaluate(() => ontapReport({ label: "School Level · Test 1", mode: "exam", subject: "ta", r: 24, t: 30, s: 900 })); await p.waitForTimeout(200);
+    io.toast = await txt("#toast");
+    ta2["ioe-" + scheme] = io;
+    // phụ huynh xem thử đề Tiếng Anh: dòng "Chế độ xem thử" vẫn tiếng Việt, còn lại tiếng Anh
+    await signIn("Mẹ Bin", PINS["Mẹ Bin"]);
+    await p.goto(BASE + "/#/quiz/ta4-ck1-de1"); await p.waitForSelector("#qPractice");
+    ta2["parent-" + scheme] = { notice: await txt(".notice"), lang: await p.$eval(".notice", (e) => e.getAttribute("lang")), h1: await txt(".hero h1"), btn: await txt("#qPractice") };
+    (await p.evaluate(audit)).forEach((x) => ta2.problems.push(`TA2 · ${scheme} · xem thử: ${x}`));
+    if (!snapped("xem-thu")) await snap("xem-thu");
+    // đề Toán 4 vẫn tiếng Việt, không có lang="en"
+    await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await p.waitForSelector("#qPractice");
+    ta2["toan-" + scheme] = { h1: await txt(".hero h1"), btn: await txt("#qPractice"), lang: await p.$eval("#view > .stack", (e) => e.getAttribute("lang")) };
+    await c.close();
+  }
+  // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/tieng-anh/ta2-<tên>.jpg)
+  {
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of [...new Set(ta2.shots.map((x) => x.replace(/-(light|dark)$/, "")))]) {
+      if (!ta2.shots.includes(n + "-light") || !ta2.shots.includes(n + "-dark")) continue;
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTTA}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTTA}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("TA2:", ta2.runs, { ioe: [ta2["ioe-light"], ta2["ioe-dark"]], parent: [ta2["parent-light"], ta2["parent-dark"]], toan: [ta2["toan-light"], ta2["toan-dark"]] }, "chữ Việt:", ta2.vi, "problems:", ta2.problems);
+  const TA2_SHOTS = ["mo-de", "roi-trang-chua-lam", "thoat-de", "mc", "mc-kiem-tra", "fill", "fill-kiem-tra", "tf", "tf-kiem-tra", "doc-hieu", "doc-hieu-kiem-tra", "bao-cau-sai", "bao-cau-sai-xong", "roi-trang-da-lam", "dung-on", "ket-qua", "nop-bai", "ioe-roi-bai", "xem-thu"];
+  const ta2OK = !ta2.problems.length && !ta2.vi.length && ta2.runs.length === 4
+    && ta2.runs.every((r) => r.open && r.leave0 && r.exit0 && r.exit0Home && r.n === 25 && r.wrongN === 2 && r.mcWrong && r.fillWrong && r.rightFb && r.rpBox && r.rpNeed && r.rpDone && r.leave1 && r.exit1 && r.stay && r.result && r.saved && r.examBtn && r.leaveExam && r.exitExam && r.examResult)
+    && ["light", "dark"].every((sc) => { const io = ta2["ioe-" + sc], pa = ta2["parent-" + sc], to = ta2["toan-" + sc];
+      return io.note === "Score saved" && io.back === "← Home" && io.lang === "en" && io.title === "Your score is saved to your profile each time you finish." && io.leave === "Leave this practice?Your unfinished work won't be saved. LeaveStay" && io.toast === "Result saved: 24/30 correct"
+        && pa.notice === "Chế độ xem thử: điểm không được lưu." && pa.lang === "vi" && pa.h1 === "English 4 · End-of-term 1 · Test 1" && pa.btn === "Practice (see the answer after each question)"
+        && to.h1 === "Toán 4 · Cuối kì I · Đề 1" && to.btn === "Ôn luyện (xem đáp án từng câu)" && to.lang === null; })
+    && TA2_SHOTS.every((n) => ta2.shots.includes(`ta2-${n}-light`) && ta2.shots.includes(`ta2-${n}-dark`));
 
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
@@ -1170,7 +1333,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   ol.keptTv = !!(await op.$("#qPractice")); // đề Tiếng Việt mở ở bản trước, chép sang đệm mới
   expectFail = /\/data\/banks\/4-ta\.js$/; // đề chưa mở lần nào: trình duyệt báo lỗi tải file này, đúng như mong đợi
   await op.goto(BASE + "/#/quiz/ta4-ck1-de1"); await op.waitForSelector("#qRetry", { timeout: 5000 }).catch(() => {});
-  ol.notOpened = /Chưa tải được đề/.test(await op.textContent("#view")) && !!(await op.$("#qRetry")) && !(await op.$("#qPractice"));
+  ol.notOpened = /Can't load this test/.test(await op.textContent("#view")) && !!(await op.$("#qRetry")) && !(await op.$("#qPractice")); // đề Tiếng Anh: báo bằng tiếng Anh (TA2); bản tiếng Việt thử ở bước 360px (tv4-ck1-de1)
   await op.screenshot({ path: OUT + "17b-offline-de-chua-mo.png", fullPage: true });
   expectFail = null;
   await op.goto(BASE + "/index.html"); await op.waitForTimeout(300); // trang chưa đệm riêng: trả về trang chính
@@ -1223,6 +1386,6 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const real = errs;
   console.log("ERRORS:", real);
   console.log("reveal (U1):", rv);
-  if (rv.length || real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal || !k2OK || !k3OK || !r1OK || !ta1OK || !fix9eOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (rv.length || real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal || !k2OK || !k3OK || !r1OK || !ta1OK || !ta2OK || !modViOK || !fix9eOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();
