@@ -371,9 +371,14 @@ async function run(browser, scheme) {
   await a.fill("#cUser", "Ab"); await a.click("#cGo"); ad.badUser = await text(a, "#cErr");
   await a.fill("#cUser", "nha.bin"); await a.click("#cGo"); await a.waitForSelector("#cErr .fb"); ad.taken = await text(a, "#cErr");
   await a.fill("#cUser", "Nha.Tom"); await a.click("#cGo"); await a.waitForSelector("#creds");
-  ad.created = { user: await text(a, "#credUser"), pass: await text(a, "#credPass"), msg: await text(a, "#credMsg") };
+  ad.created = { user: await text(a, "#credUser"), pass: await text(a, "#credPass"), msg: await text(a, "#credMsg"),
+    shown: await a.evaluate(() => document.querySelector("#credMsg").innerText) }; // lời nhắn đúng như hiện trên màn hình, có xuống dòng
   await a.click("#copyMsg"); await wait(a, 300);
   ad.clip = await a.evaluate(() => navigator.clipboard.readText()).catch((e) => "lỗi: " + e.message);
+  // Lời nhắn dán vào Zalo không phải sửa: mỗi thông tin một dòng, chép ra đúng như trên màn hình.
+  const clipLines = ad.clip.split("\n");
+  ad.clipOK = ad.clip === ad.created.shown && clipLines[0] === "Tài khoản OnUp của gia đình" && clipLines.includes("👤 Tên đăng nhập: nha.tom")
+    && clipLines.includes("🔑 Mật khẩu tạm: " + ad.created.pass) && clipLines.includes("1. Mở " + BASE + "/") && clipLines.every((l) => l === l.trim());
   await shot(a, "c20-admin-da-tao");
   const tom = famOf("nha.tom");
   ad.tomOK = !!tom && tom.must_change_password && tom.display_name === "Nhà Tôm" && userOf("nha.tom").password === ad.created.pass
@@ -384,7 +389,9 @@ async function run(browser, scheme) {
   await a.click("#rpOpen"); await a.fill("#rpPass", "ngan"); await a.click("#rpGo"); ad.shortPw = await text(a, "#rpErr");
   await a.click("#rpPassSug"); const newPw = await a.inputValue("#rpPass");
   await a.click("#rpGo"); await a.waitForSelector("#creds");
-  ad.reset = (await text(a, "#credPass")) === newPw && userOf("nha.tom").password === newPw && famOf("nha.tom").must_change_password;
+  const resetMsg = await a.evaluate(() => document.querySelector("#credMsg").innerText);
+  ad.reset = (await text(a, "#credPass")) === newPw && userOf("nha.tom").password === newPw && famOf("nha.tom").must_change_password
+    && resetMsg.split("\n")[0] === "Mật khẩu OnUp của gia đình đã được đặt lại" && resetMsg.split("\n").includes("🔑 Mật khẩu tạm: " + newPw);
   await a.click("#stOpen"); await a.click("#stGo"); await a.waitForSelector('#stOpen:text-is("Mở khóa")');
   ad.lock = famOf("nha.tom").status === "locked" && !!userOf("nha.tom").banned_until;
   await a.click("#delOpen"); await a.fill("#delIn", "nha.to"); ad.delOff = await a.$eval("#delGo", (b) => b.disabled);
@@ -459,8 +466,8 @@ async function run(browser, scheme) {
     "admin: số liệu nhanh (tài khoản, dùng trong 7 ngày, hồ sơ con theo khối)": ad.stats === "2 tài khoản | 1 dùng trong 7 ngày | 3 hồ sơ con" && /Lớp 4: 1/.test(ad.byGrade) && /Lớp 6: 2/.test(ad.byGrade),
     "admin: danh sách; tìm theo tên đăng nhập, tên (không dấu), ghi chú; lọc tài khoản đang khóa": ad.rows === "nha.na,nha.bin" && ad.search === "nha.bin" && /Không thấy/.test(ad.none)
       && ad.lockedOnly === "nha.bin" && ad.noteSearch === "nha.bin" && ad.foldSearch === "nha.bin",
-    "admin: tạo tài khoản (gợi ý mật khẩu tạm, báo tên sai, tên đã có), chép lời nhắn": ad.suggest && /4–20 kí tự/.test(ad.badUser) && /đã có/.test(ad.taken) && ad.created.user === "nha.tom" && ad.tomOK
-      && ad.created.msg.includes(ad.created.pass) && ad.created.msg.includes(BASE + "/") && ad.clip === ad.created.msg,
+    "admin: tạo tài khoản (gợi ý mật khẩu tạm, báo tên sai, tên đã có), chép lời nhắn (mỗi thông tin một dòng)": ad.suggest && /4–20 kí tự/.test(ad.badUser) && /đã có/.test(ad.taken) && ad.created.user === "nha.tom" && ad.tomOK
+      && ad.created.msg.includes(ad.created.pass) && ad.created.msg.includes(BASE + "/") && ad.clipOK,
     "admin: xem nhanh (hồ sơ con, khối, lần dùng gần nhất), lưu ghi chú": /3 \(Lớp 4, Lớp 6\)/.test(ad.binQuick) && /Hôm nay/.test(ad.binQuick) && /Đang khóa/.test(ad.binQuick) && /Chưa dùng lần nào/.test(ad.tomQuick) && ad.note,
     "admin: đặt lại mật khẩu, khóa, mở khóa, xóa (gõ đúng tên đăng nhập mới xóa được)": /8–72/.test(ad.shortPw) && ad.reset && ad.lock && ad.unlock && ad.delOff && ad.delOn && ad.deleted,
     "admin: nhật ký thao tác (mới nhất trước, ai làm) và nhật ký của từng tài khoản": ad.actor && ad.accLog === "Mở khóa,Khóa tài khoản,Tạo tài khoản"

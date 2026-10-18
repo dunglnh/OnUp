@@ -283,6 +283,7 @@ textarea.essay-in{font:inherit;min-height:140px;background:var(--surface)}
 .pw-row{flex-wrap:nowrap}
 .pw-in{flex:1;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em}
 .wrap{overflow-wrap:anywhere}
+.share-msg{white-space:pre-line;overflow-wrap:anywhere;background:var(--surface);border-radius:10px;padding:10px 12px} /* lời nhắn gửi phụ huynh: xuống dòng đúng như khi dán vào Zalo */
 
 /* khung bài ôn: body.playing (renderPlay) cho .app cao đúng một màn hình, khung chiếm phần còn lại,
    nên chỉ cuộn bên trong khung (trang ngoài không cuộn). */

@@ -43,6 +43,7 @@
 | #39 | Đề xuất UX/UI 2.x, lời giao việc UI1, UX4–UX8 ([CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)) |
 | #40 | Phiên UI1: tiêu đề line-height 1.35, ô mã trong thẻ nhắc nổi khung |
 | #41 | Phiên D0: đồng bộ tài liệu theo quyết định 18/10/2026 |
+| #42 | Góp ý chạy thử: lời nhắn gửi phụ huynh ở trang admin xuống dòng sẵn, dán vào Zalo không phải sửa |
 | #43 | Phiên S1: màn đăng nhập cho người mới (thẻ “Chưa có tài khoản?” từ `signupText`, `signupUrl`; nhắc dữ liệu cũ chưa chuyển) |
 
 Nội dung hiện có (18/10/2026, `node tests/kiem-tra-de.js`: 29 đề, 715 câu): 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp trường, cấp xã và cấp tỉnh (Phiên 13); IOE 6 cấp xã và cấp thành phố), 19 đề cuối kì I (lớp 6 đủ 8 môn từ Phiên 10: thêm Tiếng Anh, GDCD, Tin học, Công nghệ; lớp 4 thêm Tin học và Công nghệ từ Phiên 11, Tiếng Anh từ Phiên N0b; nhiều môn mới có 1 đề, N1–N6 làm cho đủ), 4 đề giữa kì II lớp 4 (Toán, Tiếng Việt, Phiên 14), 5 đề giữa kì I lớp 6 (Tiếng Anh, Lịch sử và Địa lí, GDCD, Phiên N0a; Tin học, Công nghệ, Phiên N0b) và 1 đề thử nghiệm các dạng câu mới (Phiên K2).
@@ -164,7 +165,7 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 >
 > Tự rà soát một vòng: tìm "để trống", "chưa bật", "tạm dừng", "4–12", "đã đủ các môn", "16/10/2026" trong README.md, CLAUDE.md, docs/ và sửa câu không còn đúng. Chạy tests/e2e.js (phải in E2E OK), rồi mở Pull Request.
 
-**Phiên UI1 · Chỉnh nhỏ chữ và màu** (sửa css/app.css và một kiểm tra trong tests/e2e.js; chạy cùng lúc với D0 được)
+**Phiên UI1 · Chỉnh nhỏ chữ và màu** (đã xong, PR #40; sửa css/app.css và một kiểm tra trong tests/e2e.js; chạy cùng lúc với D0 được)
 > Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md (mục 3, Phiên UI1: X15, X16; ảnh docs/hinh-ux-2x/ui1-tieu-de.jpg, ui1-o-ma.jpg). Trong css/app.css:
 > - X15: h1, h2, h3 dùng line-height 1.35 cho cả màn hình, giữ text-wrap: balance. Dòng line-height trong @media print thành thừa thì bỏ, giữ break-after.
 > - X16: thêm `.remind .code{background:var(--surface)}`, để tên đăng nhập và mật khẩu tạm trong thẻ nhắc của trang admin nổi khung.
