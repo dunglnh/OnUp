@@ -28,7 +28,7 @@ html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
   padding:0 max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
 .app{max-width:720px;margin:0 auto}
-h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1,h2,h3{font-family:var(--display);line-height:1.35;margin:0;text-wrap:balance} /* 1.35: dấu thanh của Baloo 2 cao, tiêu đề hai dòng không chạm nhau (cả bản in) */
 h1{font-size:1.75rem} h2{font-size:1.35rem} h3{font-size:1.1rem}
 p{margin:0}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -266,6 +266,7 @@ textarea.essay-in{font:inherit;min-height:140px;background:var(--surface)}
 .leave .confirm{background:var(--surface);width:100%;max-width:420px;margin:0;padding:18px}
 .notice{background:var(--sun-soft);border-radius:12px;padding:10px 14px;font-size:.9rem}
 .remind{background:var(--sun-soft);border-color:var(--sun)} /* thẻ nhắc sao lưu (trang chủ quản trị, phụ huynh) */
+.remind .code{background:var(--surface)} /* ô mã trong thẻ nhắc (tên đăng nhập, mật khẩu tạm ở trang admin) nổi khung thay vì cùng nền sun-soft */
 .code{display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;font-size:1.35rem;letter-spacing:.12em;background:var(--sun-soft);color:var(--ink);border-radius:10px;padding:6px 12px;overflow-wrap:anywhere}
 .code.sm{font-size:1rem;padding:2px 8px;letter-spacing:.08em}
 .code-in{text-transform:uppercase;letter-spacing:.1em;font-weight:700}
@@ -310,7 +311,6 @@ body.playing{padding-bottom:0}
   .app{max-width:none}
   .top,.foot,.noprint,.toast{display:none!important}
   .panel,.stat,.ev,.item,.rp-sub,.rp-days{break-inside:avoid}
-  h1,h2,h3{line-height:1.35} /* dấu thanh của Baloo 2 cao, không bị cắt sang trang trước */
   h1,h2,.label{break-after:avoid}
   .bar,.bar i,.rp-day,.tag,.av,.ev{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .ev.past{opacity:1}
