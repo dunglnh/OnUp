@@ -610,10 +610,11 @@
   /* Chữ trên nút đề trong một hàng (cùng môn), lấy từ tên đề dạng "<môn> <khối> · <kì> · Đề N" (data/banks/index.js;
      đề ngẫu nhiên: "… · Đề ngẫu nhiên"):
      - mọi đề cùng một kì: "Đề N", N lấy từ tên (tên không có số thì "Đề"), đề ngẫu nhiên là "Đề ngẫu nhiên";
-     - nhiều kì khác nhau (nhóm "Bài ôn khác"): tên bỏ phần môn và khối, ví dụ "Cuối kì I · Đề 1";
+     - nhiều kì khác nhau, hoặc full (nhóm "Bài ôn khác": đề của kì đã qua, đề chưa gắn kì; L24): tên bỏ phần môn và khối,
+       ví dụ "Cuối kì I · Đề 1", "Giữa kì I · Đề ngẫu nhiên", để trẻ biết đề của kì nào;
      - tên tự đặt không bắt đầu bằng môn và khối (ngân hàng quản trị viên nhập): nguyên tên đề.
      Hai nút trùng chữ thì ghi dài như nhóm nhiều kì, vẫn trùng thì ghi nguyên tên đề. */
-  function bankLabels(list) {
+  function bankLabels(list, full) {
     const norm = (x) => String(x).normalize("NFC").replace(/\s+/g, " ").trim().toLowerCase();
     const info = list.map((b) => {
       const title = String(b.title).normalize("NFC"), parts = title.split(/\s*·\s*/), head = norm(parts[0]);
@@ -623,12 +624,13 @@
     });
     const uniq = (a) => new Set(a).size === a.length;
     const short = info.map((x) => (x.rnd ? "Đề ngẫu nhiên" : x.n ? "Đề " + x.n : "Đề")), long = info.map((x) => (x.rest ? x.rest.join(" · ") : x.title));
-    if (info.every((x) => x.rest && x.term === info[0].term) && uniq(short)) return short;
+    if (!full && info.every((x) => x.rest && x.term === info[0].term) && uniq(short)) return short;
     return uniq(long) ? long : info.map((x) => x.title);
   }
   /* Mỗi bài ôn dạng trang một dòng; đề ngân hàng gom theo môn thành một dòng có các nút "Đề ngẫu nhiên · Đề 1 · Đề 2 · …"
-     (đề ngẫu nhiên đứng trước, đề cố định xếp theo tên; chữ trên nút theo bankLabels; aria-label là tên đề đầy đủ). */
-  function practiceList(mods, bks, canPlay) {
+     (đề ngẫu nhiên đứng trước, đề cố định xếp theo tên; chữ trên nút theo bankLabels, full = luôn ghi kèm tên kì;
+     aria-label là tên đề đầy đủ). */
+  function practiceList(mods, bks, canPlay, full) {
     if (!mods.length && !bks.length) return `<div class="panel muted">Chưa có bài ôn cho mục này. Quản trị viên có thể nhập ngân hàng câu hỏi trong mục Quản trị.</div>`;
     const subs = new Map(), act = canPlay ? "main" : "";
     bks.forEach((b) => { const k = b.subject || "Khác"; subs.set(k, (subs.get(k) || []).concat(b)); });
@@ -641,11 +643,12 @@
         const info = [fixed.length ? `${fixed.length} đề${same ? ` · ${nq} câu${fixed.length > 1 ? " mỗi đề" : ""}` : ""}` : "",
           pools.length ? `${pools.length > 1 ? pools.length + " " : ""}đề ngẫu nhiên${sameP ? ` ${np} câu` : ""}` : ""].filter(Boolean).join(" · ");
         return `<div class="item subj"><span class="grow"><b>${esc(sub)}</b><span class="small muted">${info}</span></span>
-          <span class="des">${bankLabels(list).map((lb, i) => { const b = list[i]; return `<a class="btn ${act} sm${b.pool ? " rnd" : ""}" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(b.title.includes(lb) ? b.title : lb + " · " + b.title)}">${esc(lb)}</a>`; }).join("")}</span></div>`;
+          <span class="des">${bankLabels(list, full).map((lb, i) => { const b = list[i]; return `<a class="btn ${act} sm${b.pool ? " rnd" : ""}" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(b.title.includes(lb) ? b.title : lb + " · " + b.title)}">${esc(lb)}</a>`; }).join("")}</span></div>`;
       }).join("")}</div>`;
   }
   /* "Tất cả bài ôn" của một khối, gom theo kì thi chưa qua: kì gần nhất mở sẵn, các kì sau thu gọn.
-     Bài không thuộc kì nào trong số đó (kì đã qua, ngân hàng chưa gắn) nằm ở nhóm cuối "Bài ôn khác", nên không sót bài nào. */
+     Bài không thuộc kì nào trong số đó (kì đã qua, ngân hàng chưa gắn) nằm ở nhóm cuối "Bài ôn khác", nên không sót bài nào;
+     nút đề ở nhóm này luôn ghi kèm tên kì ("Giữa kì I · Đề 1", L24). */
   function practiceGroups(grade, canPlay) {
     const seen = new Set(), key = (x) => (x.path ? "m:" : "b:") + x.id;
     const groups = Store.events(grade).filter((e) => e.kind !== "moc" && status(e) !== "past").map((e) => Object.assign({ e }, practiceFor(e, grade)))
@@ -656,7 +659,7 @@
     if (!groups.length) return practiceList([], [], canPlay);
     return groups.map((g, i) => `<details class="grp"${g.e ? ` data-grp="${esc(g.e.id)}"` : ""}${i ? "" : " open"}>
       <summary><span class="grow"><b>${g.e ? esc(g.e.title) : "Bài ôn khác"}</b><span class="small muted">${g.e ? esc(range(g.e)) + " · " : ""}${g.mods.length + g.bks.length} bài ôn</span></span></summary>
-      ${practiceList(g.mods, g.bks, canPlay)}</details>`).join("");
+      ${practiceList(g.mods, g.bks, canPlay, !g.e)}</details>`).join("");
   }
 
   function renderStudent(s, viewer, asObserver) {

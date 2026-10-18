@@ -775,7 +775,9 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   step("after K3 review (9e): L22, L24, L25, L26");
   /* Ngày giả lập 21/12/2026: kì cuối kì I lớp 6 bắt đầu, giữa kì I lớp 6 đã qua; cuối kì I lớp 4 còn một tuần. Kì ck1-l4 gắn
      lại đủ đề như lịch mặc định (bước "new seed banks" đã bỏ gắn một đề).
-     L22: học sinh lớp 4, hàng "Tin học và Công nghệ" của kì cuối kì I có nút "Đề 1" (tên đề trong danh mục có số đề). */
+     L22: học sinh lớp 4, hàng "Tin học và Công nghệ" của kì cuối kì I có nút "Đề 1" (tên đề trong danh mục có số đề).
+     L24: học sinh lớp 6, hàng Tiếng Anh của nhóm "Bài ôn khác" (đề giữa kì I đã qua) ghi "Giữa kì I · Đề 1"; nhóm cuối kì I
+     vẫn ghi "Đề 1"; aria-label vẫn là tên đề đầy đủ; đề thử nghiệm (tên tự đặt) ghi nguyên tên. */
   const nc = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 } });
   await localConfig(nc); watchOut(nc);
   const np = await nc.newPage(); np.on("pageerror", (e) => errs.push("pageerror 9e: " + e.message));
@@ -801,9 +803,15 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await asStudent("Bin", PINS.Bin);
   f9e.l4 = { today: await np.evaluate(() => new Date().toLocaleDateString("vi")), tincn: await rowOf("ck1-l4", "Tin học và Công nghệ") };
   await np.screenshot({ path: OUT + "21-9e-lop4.png", fullPage: true });
+  await asStudent("Na", "4444");
+  f9e.l6 = { taOther: await rowOf("", "Tiếng Anh"), taCk1: await rowOf("ck1-l6", "Tiếng Anh"), thu: await rowOf("", "Thử nghiệm"),
+    aria: await np.$$eval('#allPractice details.grp:not([data-grp]) .des a', (a) => a.map((x) => x.getAttribute("aria-label"))) };
+  await np.screenshot({ path: OUT + "21-9e-lop6.png", fullPage: true });
   await nc.close();
   console.log("9e:", JSON.stringify(f9e));
-  const fix9eOK = f9e.l4.today === "21/12/2026" && f9e.l4.tincn.join() === "Đề 1";
+  const fix9eOK = f9e.l4.today === "21/12/2026" && f9e.l4.tincn.join() === "Đề 1"
+    && f9e.l6.taOther.join() === "Giữa kì I · Đề 1" && f9e.l6.taCk1.join() === "Đề 1" && f9e.l6.thu.join() === "Đề thử nghiệm · Các dạng câu mới"
+    && f9e.l6.aria.includes("Tiếng Anh 6 · Giữa kì I · Đề 1") && !f9e.l6.aria.some((x) => /·.*·.*·/.test(x));
 
   step("random exam by matrix (K3)");
   /* Đề ngẫu nhiên (mục có pool trong data/banks/index.js): hàng Toán của kì cuối kì I lớp 6 có nút "Đề ngẫu nhiên" trước
