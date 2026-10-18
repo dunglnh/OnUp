@@ -19,6 +19,6 @@ window.ONTAP_CONFIG = {
   contactUrl: "",
   // Không bắt buộc: thẻ “Chưa có tài khoản?” dưới ô đăng nhập (trang chỉ dành cho gia đình được mời, không tự đăng ký):
   // chữ và đường liên hệ để xin tài khoản, ví dụ "Nhắn Zalo cho cô Lan để được mời". Để trống thì dùng contactText, contactUrl ở trên.
-  signupText: "Nhắn Zalo để được mời dùng thử miễn phí",
-  signupUrl: "https://zalo.me/093815123"
+  signupText: "Nhắn Telegram để được mời dùng thử miễn phí",
+  signupUrl: "https://t.me/dunglnh"
 };
