@@ -22,7 +22,7 @@ css/app.css             toàn bộ giao diện app chính (token màu ở :root,
 fonts/                  font tự lưu (Baloo 2, Be Vietnam Pro, woff2 từ @fontsource), fonts.css dùng chung cho app và bài ôn; giấy phép OFL.txt
 sw.js                   service worker: đệm sẵn file của app để mở lại được khi mất mạng (xem "Chạy khi mất mạng")
 manifest.webmanifest    tên, màu, biểu tượng khi thêm vào Màn hình chính; icons/ (icon.svg là bản gốc, PNG vẽ lại từ đó)
-js/config.js            cấu hình Supabase (và dòng liên hệ “Quên mật khẩu?”). ĐỂ TRỐNG (mặc định) = dùng LocalStore, không tải gì từ mạng
+js/config.js            cấu hình Supabase (URL, khóa công khai, dòng liên hệ “Quên mật khẩu?”). Trên `main` ĐÃ ĐIỀN (PR #27, 17/10/2026): trang trên GitHub Pages chạy bản đám mây. Để trống hai giá trị đầu = dùng LocalStore, không tải gì từ mạng (tests/e2e.js tự chạy với bản đã xóa)
 js/store.js             kho dữ liệu (LocalStore, localStorage khóa "ontap_db_v1"). Mọi màn hình chỉ gọi Store.*
 js/store-supabase.js    SupabaseStore: cùng các hàm với LocalStore, chỉ bật khi js/config.js có URL + anon key
 js/app.js               định tuyến hash + tất cả màn hình (đăng nhập, trang chủ theo vai trò, báo cáo tuần, lịch, quản trị)
@@ -173,10 +173,13 @@ Ngoài ra chạy tay các luồng: thiết lập lần đầu → tạo phụ hu
 ## Triển khai
 GitHub Pages: Settings → Pages → Deploy from a branch → `main` / root. File `.nojekyll` đã có.
 
-## Việc tiếp theo (theo thứ tự ưu tiên)
-**Trạng thái 16/10/2026: đang chạy thử với học sinh.** Ưu tiên: sửa các GitHub Issue góp ý từ việc chạy thử, rồi dựng **khung tài khoản: tên đăng nhập + mật khẩu, hồ sơ con, trang admin, khối lớp 1–12 dùng chung** theo `docs/THIET-KE-TAI-KHOAN.md` (Phiên A → B → C). **Chưa làm bản trả phí** (chỉ tính khi có đủ đề lớp 4–12); khung chừa sẵn `plan` và `Store.can()`. Thiết kế đó **thay thế** cách đăng nhập email, mã mời, mã gia đình + PIN của bản đám mây cũ. **Phiên A (máy chủ), Phiên B (app: đăng nhập, “Ai đang học?”, khu phụ huynh, `data/grades.js`, `Store.can`) và Phiên C (trang admin `admin.html`) đã làm.** Lộ trình đầy đủ và lời giao việc từng phiên: `docs/KE-HOACH-PHAT-TRIEN-ONUP.md`. Tóm tắt:
-1. Sửa lỗi cơ bản tìm được khi dùng thử (`docs/SUA-LOI-CHAY-THU.md`: Phiên 9a, 9b, 9c, 9d đã làm; còn chờ bố mẹ thử L17 trên iPhone thật) và lỗi từ góp ý chạy thử (GitHub Issues).
-2. Đề cuối kì I: đã đủ các môn cho cả lớp 4 và lớp 6 (Phiên 10, 11).
-3. Báo cáo tuần cho phụ huynh (Phiên 12) và IOE cấp tỉnh lớp 4 (Phiên 13): đã có.
-4. Đề: giữa kì II lớp 4 đã có (Phiên 14); giữa kì I lớp 6 thêm Tiếng Anh, LS&ĐL, GDCD (Phiên N0a), Tin học, Công nghệ (Phiên N0b); cuối kì I lớp 4 thêm Tiếng Anh (Phiên N0b). Đề đã tách theo khối, môn và có bộ kiểm tra đề (Phiên K1). Dạng câu mới (mức độ, đoạn đọc chung, hình SVG, nối cột, sắp xếp, đúng/sai 4 ý, trả lời bằng số, tự luận tự chấm) đã có (Phiên K2); tiếp theo là rút đề theo ma trận (Phiên K3). Kế hoạch đủ đề lớp 4 và 6, rồi lớp 5, 7–12 (tách dữ liệu đề, dạng câu mới, rút đề theo ma trận, các phiên làm đề theo hạn kì thi): `docs/KE-HOACH-NOI-DUNG.md`.
-5. Bản đám mây theo thiết kế tài khoản mới: máy chủ (Phiên A), app (Phiên B) và trang admin (Phiên C) đã có. Chủ app cài theo `docs/HUONG-DAN-SUPABASE.md`, tạo tài khoản gia đình ở `admin.html`.
+## Việc tiếp theo
+
+**Trạng thái, thứ tự các phiên và lời giao việc chỉ ghi ở một chỗ: `docs/KE-HOACH-PHAT-TRIEN-ONUP.md`** (đầu file: trạng thái; mục 2: việc của chủ app; mục 3: thứ tự và các phiên đã xong; mục 4: lời giao việc; mục 5: nhật ký chạy thử). Tài liệu khác (file này, README.md, `docs/TINH-NANG.md`, `docs/THIET-KE-TAI-KHOAN.md`, `docs/KE-HOACH-NOI-DUNG.md`, `docs/SUA-LOI-CHAY-THU.md`, `docs/CAI-TIEN-UX-2X.md`) chỉ trỏ sang đó, không ghi lại “đã làm / chưa làm”. Làm xong một phiên thì cập nhật file đó (và phần mô tả code trong file này nếu có thay đổi), không thêm dòng trạng thái vào file khác. Lời giao việc của các phiên làm đề nằm ở `docs/KE-HOACH-NOI-DUNG.md` mục 6, 7; của Phiên A, B, C (đã làm) ở `docs/THIET-KE-TAI-KHOAN.md` mục 8; của Phiên 9a–9d (đã làm) ở `docs/SUA-LOI-CHAY-THU.md` mục 3.
+
+**Quyết định của chủ app (18/10/2026), áp dụng cho mọi phiên:**
+- **Chưa làm bản trả phí.** Bán khi đủ đề lớp 4–12 (theo nhịp 1–2 phiên mỗi tuần: khoảng cuối năm học 2028–2029). Đến lúc đó gói Miễn phí giữ như hiện nay: 5 hồ sơ con, mọi đề; bảng `plans` không đổi; `Store.can()` chỉ giới hạn `"addChild"`. Hạn mức gói Miễn phí và gói Gia đình lúc bán sẽ chốt sau (chủ app điền vào lời giao việc Phiên G1). Các phiên chuẩn bị bán (G1, B1, B2, B4) làm ngay trước lúc đó, không làm sớm hơn. Hướng đi: `docs/THIET-KE-TAI-KHOAN.md` mục 9, `docs/KE-HOACH-NOI-DUNG.md` mục 5.
+- **Không ghi giá bán, chi phí hay so sánh đối thủ vào repo** (repo công khai). Ví dụ SQL về gói dùng số giữ chỗ.
+- **Supabase giữ gói Free** đến khi bắt đầu thu tiền. Trước đó chủ app xuất CSV các bảng hằng tuần và mở app ít nhất mỗi tuần một lần (`docs/HUONG-DAN-SUPABASE.md`, mục “Gói và đề trả phí”). Code không cần làm gì cho việc này.
+- **Báo câu sai bằng nút trong app** (Phiên R1). GitHub Issues chỉ còn cho chủ app; không hướng dẫn phụ huynh, học sinh dùng GitHub trên giao diện hay trong tài liệu dành cho họ.
+- **Trang công khai https://dunglnh.github.io/OnUp/ chỉ dành cho gia đình được mời:** không tự đăng ký; chủ app tạo tài khoản ở `admin.html`. Màn đăng nhập có dòng “Chưa có tài khoản?” kèm cách liên hệ (Phiên S1, đọc từ `js/config.js`). Không làm đăng nhập email, mã mời, mã gia đình (`docs/THIET-KE-TAI-KHOAN.md` mục 1, 2).

@@ -1,6 +1,6 @@
 # Mô tả tính năng — OnUp - Ôn Luyện Mỗi Ngày
 
-Phiên bản 1.0 · Năm học 2026–2027
+Phiên bản 1.1 · 18/10/2026 · Năm học 2026–2027. File này mô tả những gì app đang có; trạng thái và lộ trình các phiên chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md).
 
 ## 1. Mục tiêu
 
@@ -15,7 +15,7 @@ App được ghép từ 4 trang ôn tập đã làm trước đó:
 | IOE · Global Success 4 | 4 | Đề IOE cấp trường (Unit 1–6), cấp xã/phường (Unit 1–10) và cấp tỉnh (Unit 1–10, câu khó hơn, có bài đọc ngắn), có câu nghe, 7 đề mỗi tuần theo lộ trình |
 | IOE · Global Success 6 | 6 | Đề IOE cấp xã/phường (Unit 1–6) và cấp thành phố (Unit 1–9), có câu nghe |
 
-Phần mở rộng so với 4 trang gốc: **tài khoản người dùng**, **lịch thi cả năm**, **ngân hàng câu hỏi nhập được** và **theo dõi tiến độ cho phụ huynh**.
+Phần mở rộng so với 4 trang gốc: **tài khoản người dùng**, **lịch thi cả năm**, **ngân hàng câu hỏi nhập được**, **theo dõi tiến độ và báo cáo tuần cho phụ huynh**, **bản đám mây** dùng chung trên nhiều máy (mục 5).
 
 ## 2. Người dùng và quyền
 
@@ -25,7 +25,9 @@ Phần mở rộng so với 4 trang gốc: **tài khoản người dùng**, **l�
 | Phụ huynh | Bố, mẹ, người giám hộ | Xem hồ sơ và kết quả của các con được gắn với mình; thêm con; đổi tên, lớp, PIN của con; xem thử bài ôn (không lưu điểm) |
 | Quản trị | Thầy cô, hoặc bố/mẹ quản lý app | Mọi quyền trên, cộng: tạo/sửa/xóa mọi tài khoản, gắn phụ huynh với con, sửa lịch thi, nhập ngân hàng câu hỏi, sao lưu/khôi phục, xóa dữ liệu |
 
-- Đăng nhập: chọn tên trên màn hình, nhập mã PIN 4–6 số (gõ đủ số là tự vào, không cần bấm “Vào”). Sai 5 lần phải đợi 30 giây.
+Bảng trên là **bản lưu trên máy** (một máy dùng chung cho cả nhà hoặc cả lớp). **Bản đám mây** (trang thật, mục 5) chỉ có hai vai trò trong app: **Phụ huynh** (tài khoản gia đình; dùng chung các màn hình quản trị dưới tên “Khu phụ huynh”: hồ sơ con, lịch thi, ngân hàng đề, dữ liệu, tài khoản) và **hồ sơ con** (học sinh). Tài khoản gia đình do **chủ app** tạo ở trang admin riêng (`admin.html`); chủ app không xem bài làm của các con.
+
+- Đăng nhập: chọn tên trên màn hình, nhập mã PIN 4–6 số (gõ đủ số là tự vào, không cần bấm “Vào”). Sai 5 lần phải đợi, thời gian chờ tăng dần (30 giây, 1 phút, 5 phút, rồi 15 phút), tính riêng từng người và không mất khi tải lại trang. Bản đám mây: hồ sơ con có mã PIN 4 số nếu bố mẹ đặt (không bắt buộc), Phụ huynh nhập lại mật khẩu; nhập sai cũng tính vào cùng bộ đếm chờ.
 - Ô mật khẩu và mã PIN nào cũng có nút hình con mắt: bấm để xem mình đã gõ gì, bấm lại để ẩn (bàn phím PIN hiện chữ số thay cho chấm). Gửi đi, xóa hết ô hoặc sang màn hình khác thì tự ẩn lại. Ảnh: [hinh-xem-mat-khau/](hinh-xem-mat-khau/).
 - Một học sinh có thể có nhiều phụ huynh; một phụ huynh có thể có nhiều con (khác khối cũng được).
 - Phải luôn còn ít nhất một tài khoản quản trị.
@@ -80,7 +82,7 @@ Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mố
 - **Ngân hàng câu hỏi**: hai chế độ — *Ôn luyện* (xem đáp án và lời giải sau từng câu) và *Làm như thi* (tính giờ, chỉ xem đáp án khi nộp). Kết quả hiện điểm thang 10, thống kê theo chủ đề và theo mức độ (Biết, Hiểu, Vận dụng, khi câu có ghi mức độ), danh sách câu sai kèm lời giải.
 - **Dạng câu** (Phiên K2; mọi dạng làm bằng chạm trên điện thoại, không phải kéo thả): trắc nghiệm, điền khuyết, đúng/sai; **đúng/sai 4 ý** chấm từng ý như đề thi tốt nghiệp (đúng 1/2/3/4 ý được 0,1/0,25/0,5/1 câu); **trả lời bằng số** (dấu phẩy thập phân, có sai số cho phép, nút ± để gõ số âm); **nối cột** (chạm ô bên trái rồi ô bên phải, chấm theo số cặp nối đúng); **sắp xếp thứ tự** (chạm lần lượt, chạm lại để bỏ ra); **tự luận** có đáp án gợi ý và thang tự chấm (Chưa có, Một phần, Đủ cho từng ý). Câu có thể kèm **đoạn đọc dùng chung** (hiện phía trên câu hỏi, thu gọn được, các câu cùng đoạn đứng liền nhau) và **hình vẽ** (SVG đã lọc an toàn, màu đổi theo chế độ tối). Điểm tự chấm phần tự luận lưu riêng, không cộng vào điểm trung bình; báo cáo tuần có mục “Tự luận tự chấm”. Đề mẫu: “Đề thử nghiệm · Các dạng câu mới” (lớp 6, nhóm Bài ôn khác). Ảnh: [hinh-dang-cau/](hinh-dang-cau/).
 
-### 4.4 Quản trị
+### 4.4 Quản trị (bản đám mây: Khu phụ huynh)
 - **Tổng quan**: số học sinh, phụ huynh, số bài làm 7 ngày; danh sách học sinh; kì thi tiếp theo mỗi khối.
 - **Tài khoản**: thêm/sửa/xóa, đặt lại PIN, gắn phụ huynh–con.
 - **Lịch thi**: sửa từng kì, gắn bài ôn và ngân hàng câu hỏi.
@@ -137,31 +139,29 @@ Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mố
 
 ## 5. Lưu trữ
 
-Bản 1.0 lưu mọi thứ trong trình duyệt của máy đang dùng. Phù hợp khi cả nhà hoặc cả lớp dùng chung một máy tính/máy tính bảng. Muốn dùng trên máy khác thì sao lưu ra file rồi khôi phục ở máy đó (dữ liệu hai máy không tự đồng bộ). Quá 7 ngày chưa sao lưu (hoặc chưa sao lưu lần nào mà đã có bài làm), trang chủ của quản trị và phụ huynh hiện thẻ nhắc có nút tải file sao lưu.
+App có hai cách lưu, cùng một giao diện.
+
+**Bản lưu trên máy** (`js/config.js` để trống `supabaseUrl`, `supabaseAnonKey`): mọi thứ nằm trong trình duyệt của máy đang dùng. Phù hợp khi cả nhà hoặc cả lớp dùng chung một máy tính/máy tính bảng. Muốn dùng trên máy khác thì sao lưu ra file rồi khôi phục ở máy đó (dữ liệu hai máy không tự đồng bộ). Quá 7 ngày chưa sao lưu (hoặc chưa sao lưu lần nào mà đã có bài làm), trang chủ của quản trị và phụ huynh hiện thẻ nhắc có nút tải file sao lưu.
 
 App mở lại được khi mất mạng: lần mở đầu (cần mạng) trình duyệt lưu sẵn các file của app, kể cả font. Thêm app vào Màn hình chính (iPhone, iPad: Chia sẻ → Thêm vào MH chính; Android: menu ⋮ → Thêm vào màn hình chính) để có biểu tượng riêng, và để Safari không xóa dữ liệu khi lâu không mở.
 
 Mã PIN chỉ để phân biệt người dùng, không phải bảo mật thật.
 
-**Đồng bộ đám mây (tùy chọn; tài khoản theo [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md), máy chủ Phiên A, app Phiên B, trang admin Phiên C).** Khi điền `js/config.js` theo [HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md), dữ liệu nằm trên Supabase và dùng chung trên nhiều máy. Một tài khoản là một gia đình, do chủ app cấp ở trang admin (`admin.html`: tạo tài khoản với mật khẩu tạm gợi ý sẵn, đặt lại mật khẩu, khóa, mở khóa, xóa, ghi chú, nhật ký, số liệu nhanh; không xem bài làm của các con): phụ huynh đăng nhập bằng tên đăng nhập + mật khẩu (lần đầu đặt mật khẩu mới; “Ghi nhớ trên máy này” cho máy con dùng hằng ngày; dòng “Quên mật khẩu?” chỉ cách liên hệ người cấp). Con là hồ sơ trong tài khoản: màn hình “Ai đang học?” hiện các hồ sơ con và ô Phụ huynh; hồ sơ có mã PIN 4 số (không bắt buộc) thì nhập PIN. Vào khu phụ huynh phải nhập lại mật khẩu; ở đó thêm/sửa/xóa hồ sơ con (tối đa 5), xem tiến độ và báo cáo tuần, sửa lịch thi, nhập ngân hàng đề, chuyển dữ liệu từ bản lưu trên máy lên (học sinh giữ PIN cũ), đổi mật khẩu, đăng xuất. Ảnh: [hinh-dam-may/](hinh-dam-may/). Để trống `js/config.js` thì app chạy như bản 1.0, không cần mạng.
+**Bản đám mây** (trang https://dunglnh.github.io/OnUp/ chạy bản này từ 17/10/2026; tài khoản theo [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md)): dữ liệu nằm trên Supabase và dùng chung trên nhiều máy. Một tài khoản là một gia đình, do chủ app cấp ở trang admin (`admin.html`: tạo tài khoản với mật khẩu tạm gợi ý sẵn, đặt lại mật khẩu, khóa, mở khóa, xóa, ghi chú, nhật ký, số liệu nhanh; không xem bài làm của các con): phụ huynh đăng nhập bằng tên đăng nhập + mật khẩu (lần đầu đặt mật khẩu mới; “Ghi nhớ trên máy này” cho máy con dùng hằng ngày; dòng “Quên mật khẩu?” chỉ cách liên hệ người cấp). Con là hồ sơ trong tài khoản: màn hình “Ai đang học?” hiện các hồ sơ con và ô Phụ huynh; hồ sơ có mã PIN 4 số (không bắt buộc) thì nhập PIN. Vào khu phụ huynh phải nhập lại mật khẩu; ở đó thêm/sửa/xóa hồ sơ con (tối đa 5), xem tiến độ và báo cáo tuần, sửa lịch thi, nhập ngân hàng đề, chuyển dữ liệu từ bản lưu trên máy lên (học sinh giữ PIN cũ), đổi mật khẩu, đăng xuất. Kết quả làm xong khi mất mạng được giữ trên máy và gửi lên khi có mạng. Ảnh: [hinh-dam-may/](hinh-dam-may/).
 
-## 6. Ngoài phạm vi bản 1.0
+Trang thật **chỉ dành cho gia đình được mời** (quyết định 18/10/2026): không tự đăng ký, không đăng nhập bằng email; chưa có tài khoản thì liên hệ theo dòng ở màn đăng nhập. App đang **miễn phí**: mỗi tài khoản tối đa 5 hồ sơ con, dùng được mọi đề. Bản trả phí chỉ tính đến khi đã đủ đề lớp 4–12 (hướng đi: [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md) mục 9). Muốn cài một bản đám mây riêng: [HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md).
+
+## 6. Không làm, hoặc chưa có
+- **Không làm:** tự đăng ký, đăng nhập bằng email, mã mời, mã gia đình (trang chỉ dành cho gia đình được mời; lí do ở [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md) mục 1, 2). Bản trả phí: xem mục 5.
 - Violympic Toán, Trạng Nguyên Tiếng Việt (tạm bỏ khỏi lịch; quản trị viên vẫn tự thêm được nếu cần).
-- Đồng bộ giữa nhiều máy, đăng nhập bằng email.
 - Giáo viên giao bài cho cả lớp, bảng xếp hạng.
-- Đề giữa kì II lớp 6 và đề cuối năm (đã có chỗ trong lịch, chưa có câu hỏi). Lớp 4 đã có 4 đề giữa kì II (Phiên 14).
+- Đề giữa kì II lớp 6 và đề cuối năm lớp 4, lớp 6 (đã có chỗ trong lịch, chưa có câu hỏi; lớp 4 đã có 4 đề giữa kì II). Số đề đang có: `node tests/kiem-tra-de.js`.
 - Thông báo nhắc ôn qua điện thoại.
+- Nút “Báo câu này sai” trong app, dòng “Chưa có tài khoản?” ở màn đăng nhập, các cải tiến giao diện 2.x: đã có trong lộ trình, chưa có trong app.
 
 ## 7. Lộ trình tiếp theo
 
-| Ưu tiên | Việc | Ghi chú |
-|---|---|---|
-| 1 | Ngân hàng câu hỏi cuối kì I lớp 4 (Toán, TV, Tiếng Anh, Khoa học, LS&ĐL) và lớp 6 (Toán, Văn, KHTN) | Kì thi tiếp theo sau giữa kì I; có thể nhập qua mục Quản trị hoặc thêm vào `data/banks/` (cách thêm: CLAUDE.md, mục “Thêm đề có sẵn”) |
-| 2 | ~~Đồng bộ đám mây với Supabase~~ — đã làm (Phiên 5); đã chuyển sang tài khoản tên đăng nhập + mật khẩu (Phiên A, B) và trang admin (Phiên C) | `js/store-supabase.js`, `supabase/schema.sql` (RLS), Edge Function `admin`, `admin.html`; cài đặt: [HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md) |
-| 3 | Nhập câu hỏi từ Excel (.xlsx) | Cột: chủ đề, câu hỏi, đáp án đúng, sai 1–3, lời giải |
-| 4 | Bài ôn giữa kì II và cuối năm | Theo cùng mẫu với bài ôn giữa kì I |
-| 5 | ~~Báo cáo tuần cho phụ huynh~~ — đã làm (Phiên 12) | Trang in được trong hồ sơ của con, lưu PDF bằng nút In. Chưa gửi email |
-| 6 | Giáo viên giao bài cho lớp | Cần bản đám mây |
+Trạng thái, thứ tự các phiên và lời giao việc chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md).
 
 ## 8. Tiêu chí hoàn thành bản 1.0
 - [x] Thiết lập lần đầu, tạo quản trị, phụ huynh, học sinh; đăng nhập bằng PIN.

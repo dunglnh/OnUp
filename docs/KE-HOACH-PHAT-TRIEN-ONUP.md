@@ -1,8 +1,9 @@
 # Kế hoạch phát triển OnUp
 
-> **Trạng thái (18/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy **bản đám mây** từ 17/10 (PR #27), đang chạy thử trong gia đình. Đã xong: khung tài khoản (Phiên A, B, C), sửa lỗi chạy thử (9a–9d), U1, K1, K2, đề N0a, N0b. Kho đề: `node tests/kiem-tra-de.js` in số đề, số câu, dạng câu.
-> **Đã chốt 18/10/2026:** bán khi đủ đề lớp 4–12 (theo nhịp 1–2 phiên mỗi tuần: khoảng cuối năm học 2028–2029); đến lúc đó gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề); lên Supabase Pro khi bắt đầu thu tiền; trang công khai chỉ dành cho gia đình được mời; câu sai báo bằng nút trong app (Phiên R1). Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
-> **Tiếp theo:** mục 2 (việc của chủ app) và mục 3 (thứ tự các phiên).
+> **Trạng thái (18/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy **bản đám mây** từ 17/10 (PR #27), đang chạy thử trong gia đình, chỉ dành cho gia đình được mời. Đã xong: khung tài khoản (Phiên A, B, C), sửa lỗi chạy thử (9a–9d), U1, K1, K2, đề N0a, N0b, đồng bộ tài liệu D0. Còn chờ bố mẹ thử L17 (sao lưu trên iPhone thật, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2, Phiên 9d). Kho đề: `node tests/kiem-tra-de.js` in số đề, số câu, dạng câu (18/10: 29 đề, 715 câu).
+> **Đã chốt 18/10/2026:** bán khi đủ đề lớp 4–12 (theo nhịp 1–2 phiên mỗi tuần: khoảng cuối năm học 2028–2029); đến lúc đó gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng `plans` không đổi), hạn mức hai gói lúc bán chốt sau; các phiên chuẩn bị bán G1, B1, B2, B4 làm ngay trước lúc đó; Supabase giữ gói Free đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần); trang công khai chỉ dành cho gia đình được mời (màn đăng nhập có dòng “Chưa có tài khoản?”, Phiên S1); câu sai báo bằng nút trong app (Phiên R1), GitHub Issues chỉ còn cho chủ app; không ghi giá bán, chi phí hay so sánh đối thủ vào repo. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
+> **Quy ước (từ Phiên D0):** chỉ file này ghi trạng thái và lộ trình. CLAUDE.md, README và các tài liệu khác trong docs/ chỉ trỏ sang đây. Làm xong một phiên thì gạch dòng của nó ở mục 3 và ghi số PR; đổi quyết định thì sửa đoạn trên trước.
+> **Tiếp theo:** mục 2 (việc của chủ app) và mục 3 (thứ tự các phiên). Mục 5: nhật ký chạy thử, chủ app tự điền.
 
 ## 1. Tình hình hiện tại
 
@@ -16,15 +17,32 @@
 | #3 | Phiên 2: 2 đề Tiếng Việt 4 cuối kì I |
 | #5 | Phiên 3: 2 đề Toán 6, 2 đề Ngữ văn 6 cuối kì I |
 | #4 | Phiên 4: Khoa học 4, Lịch sử và Địa lí 4, KHTN 6, Lịch sử và Địa lí 6 cuối kì I |
-| #6 | Phiên 5: đồng bộ đám mây (Supabase), có hướng dẫn cài từng bước — **chưa bật** (`js/config.js` để trống) |
+| #6 | Phiên 5: đồng bộ đám mây (Supabase) bản đầu, đăng nhập email và mã gia đình — cách đó đã được **thay bằng Phiên A, B, C** (tên đăng nhập + mật khẩu, hồ sơ con, trang admin) |
 | #8 | Phiên 5b: chống máy tự động (CAPTCHA) cho bản đám mây — chỉ chạy khi có khóa |
 | #10 | Phiên 8: rà soát đề (56 chỗ sửa), bộ chấm điền khuyết, giao diện 360px |
 | #7, #9 | Canh trái nút quay lại; xưng "bạn" trong bài ôn; bỏ 2 bộ mẫu 12 câu |
 | #13, #14 | Phiên 10, 11: đề cuối kì I còn thiếu (Tiếng Anh, GDCD, Tin học, Công nghệ 6; Tin học và Công nghệ 4) |
 | #15 | Phiên 12: báo cáo tuần cho phụ huynh |
 | #16 | Phiên 13: IOE cấp tỉnh lớp 4 |
+| #17 | Phiên 14: đề giữa kì II lớp 4 (Toán, Tiếng Việt) |
+| #18 | Thiết kế khung tài khoản và trang admin ([THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md)), chưa làm bản trả phí |
+| #19 | Phiên A: máy chủ tài khoản tên đăng nhập + mật khẩu, hồ sơ con, gói, Edge Function `admin` |
+| #20, #24 | Lỗi tìm được khi dùng thử ngày 16/10 và sau rà soát 17/10 ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) |
+| #21, #22, #23 | Phiên 9a, 9b, 9c: chốt rời trang, khóa PIN, đường dẫn sai; giao diện 360px; chạy khi mất mạng, nhắc sao lưu |
+| #25 | Phiên B: app đăng nhập, “Ai đang học?”, khu phụ huynh, `data/grades.js`, `Store.can` |
+| #26 | tests/supabase: không ghi cứng số đề trong `paid_banks` |
+| #27 | Điền URL và khóa công khai Supabase vào `js/config.js`: **trang GitHub Pages chạy bản đám mây từ 17/10/2026** |
+| #29 | Phiên 9d: lỗi phát sinh sau rà soát 17/10 |
+| #30 | Phiên C: trang admin `admin.html` |
+| #31 | Kế hoạch nội dung ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)) |
+| #32, #34 | Phiên N0a, N0b: đề giữa kì I lớp 6 còn thiếu; Tiếng Anh 4 cuối kì I |
+| #33, #35 | Phiên U1: nút xem mật khẩu và mã PIN (lời giao việc #33, code #35) |
+| #36 | Phiên K1: tách dữ liệu đề theo khối và môn, bộ kiểm tra đề |
+| #37 | Phiên K2: dạng câu hỏi mới |
+| #38 | Quyết định của chủ app (bán khi đủ lớp 4–12), lộ trình các phiên tiếp theo |
+| #39 | Đề xuất UX/UI 2.x, lời giao việc UI1, UX4–UX8 ([CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)) |
 
-Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp trường, cấp xã và cấp tỉnh (Phiên 13); IOE 6 cấp xã và cấp thành phố), 19 đề cuối kì I (lớp 6 đủ 8 môn từ Phiên 10: thêm Tiếng Anh, GDCD, Tin học, Công nghệ; lớp 4 thêm Tin học và Công nghệ từ Phiên 11, Tiếng Anh từ Phiên N0b), 4 đề giữa kì II lớp 4 (Toán, Tiếng Việt, Phiên 14) và 5 đề giữa kì I lớp 6 (Tiếng Anh, Lịch sử và Địa lí, GDCD, Phiên N0a; Tin học, Công nghệ, Phiên N0b).
+Nội dung hiện có (18/10/2026, `node tests/kiem-tra-de.js`: 29 đề, 715 câu): 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp trường, cấp xã và cấp tỉnh (Phiên 13); IOE 6 cấp xã và cấp thành phố), 19 đề cuối kì I (lớp 6 đủ 8 môn từ Phiên 10: thêm Tiếng Anh, GDCD, Tin học, Công nghệ; lớp 4 thêm Tin học và Công nghệ từ Phiên 11, Tiếng Anh từ Phiên N0b; nhiều môn mới có 1 đề, N1–N6 làm cho đủ), 4 đề giữa kì II lớp 4 (Toán, Tiếng Việt, Phiên 14), 5 đề giữa kì I lớp 6 (Tiếng Anh, Lịch sử và Địa lí, GDCD, Phiên N0a; Tin học, Công nghệ, Phiên N0b) và 1 đề thử nghiệm các dạng câu mới (Phiên K2).
 
 **Chưa làm từ kế hoạch cũ:** Phiên 6 (nhập đề từ Excel). Phiên 7 (báo cáo tuần cho phụ huynh) đã làm ở Phiên 12.
 
@@ -38,8 +56,8 @@ Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp tr
      - dịp nghỉ dài (Tết, hè) vẫn mở app ít nhất mỗi tuần một lần; bị tạm dừng thì vào Supabase bấm Restore.
 2. **Liên hệ:** điền `contactText`, `contactUrl` (ví dụ link Zalo) trong `js/config.js`, để người mở trang biết hỏi ai. `main` đang được bảo vệ: sửa trên GitHub thì chọn "Create a new branch… and start a pull request", rồi tự Merge.
 3. **Ghi chỗ khó dùng** khi các con dùng thật, đến khoảng 25/10. Mỗi chỗ một dòng: ai dùng · màn hình · định làm gì · vướng ở đâu · khó chịu hay không làm được. Phiên UX1–UX8 dùng ghi chép này. Bản rà giao diện ngày 18/10 ([CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md), ảnh 1.x và 2.x đặt cạnh nhau) đã có đề xuất cho từng màn: khi ghi, xem con có vướng đúng những chỗ đó không, và thêm những chỗ khác.
-4. **Năm quyết định đã chốt ngày 18/10** (đầu tài liệu) và đã điền sẵn vào lời giao việc Phiên D0 (mục 4). Dán Phiên D0 là được.
-5. **Theo dõi chạy thử:** vì còn khoảng hai năm rưỡi nữa mới thu tiền, nên đo sớm xem gia đình có thật sự dùng: số gia đình được mời, số lượt làm bài mỗi tuần, gia đình còn dùng sau 4 tuần. Cuối học kì I, hỏi vài gia đình "app có đáng trả tiền không, khoảng bao nhiêu". Ghi vào mục "Nhật ký chạy thử" (Phiên D0 tạo).
+4. **Năm quyết định đã chốt ngày 18/10** (đầu tài liệu) đã được ghi vào CLAUDE.md, README và các tài liệu trong docs/ (Phiên D0). Đổi quyết định nào thì sửa đoạn đầu file này trước, rồi mở một phiên đồng bộ tài liệu như D0.
+5. **Theo dõi chạy thử:** vì còn khoảng hai năm rưỡi nữa mới thu tiền, nên đo sớm xem gia đình có thật sự dùng: số gia đình được mời, số lượt làm bài mỗi tuần, gia đình còn dùng sau 4 tuần. Cuối học kì I, hỏi vài gia đình "app có đáng trả tiền không, khoảng bao nhiêu" (câu trả lời cất ở tài liệu riêng, không ghi số tiền vào repo). Ghi vào mục 5 "Nhật ký chạy thử" ở cuối file này.
 
 **Thường xuyên:**
 6. Rà đề mới: cho con làm thử, ghi câu sai vào GitHub Issues (cho đến khi có nút báo câu sai của Phiên R1).
@@ -53,7 +71,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
-| 1 | 25/10 | **D0 · Đồng bộ tài liệu** | quyết định đã chốt 18/10 (đầu tài liệu) | chỉ sửa tài liệu; từ đó trạng thái chỉ ghi ở file này |
+| 1 | 25/10 | ~~D0 · Đồng bộ tài liệu~~ (đã xong, PR #40) | quyết định đã chốt 18/10 (đầu tài liệu) | chỉ sửa tài liệu; từ đó trạng thái chỉ ghi ở file này |
 | 2 | 25/10 | **UI1 · Chỉnh nhỏ chữ và màu** | | sửa css/app.css, thêm một kiểm tra vào tests/e2e.js; chạy cùng lúc với D0 được |
 | 3 | 1/11 | **K3 · Rút đề ngẫu nhiên theo ma trận** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 6) | K1, K2 (đã xong) | các phiên làm đề N1 trở đi dùng dạng ngân hàng của K3 |
 | 4 | 1/11 | **S1 · Màn hình đăng nhập cho người mới** | `contactUrl` đã điền | nhỏ; dùng khi trang công khai chỉ dành cho gia đình được mời |
@@ -74,11 +92,11 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | 19 | 2027–2028 | Lớp 5, 7 phần còn lại; lớp 9 (có đề thi thử vào 10); lớp 8 | | khoảng 70 phiên |
 | 20 | 2028–2029 | Lớp 12 (đề thi thử tốt nghiệp trước), 10, 11 | | khoảng 90 phiên |
 | 21 | trước khi bán | **G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** → **B2 · Đề trả phí lên máy chủ** → B4 (bớt tải dữ liệu); lên Supabase Pro | đủ đề lớp 4–12 | lời giao việc ở mục 4; B4 ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 5 |
-| — | khi có | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** (GitHub Issues) | | chen vào bất cứ lúc nào |
+| — | khi có | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** (GitHub Issues do chủ app ghi từ góp ý của gia đình) | | chen vào bất cứ lúc nào |
 
 Khoảng 36 phiên từ nay đến 10/4/2027 (thêm UI1, UX4–UX8 từ bản rà giao diện 18/10), trung bình 1–2 phiên mỗi tuần. Tháng 11 dày nhất: K3, S1, R1, UX1–UX3 và bắt đầu N1–N6. Tháng 12 có UX4, UX5, xong trước kì thi cuối kì I. UX6–UX8 làm sau kì thi, xen với N7–N12. Sau đó việc chính là làm đề cho đủ lớp 4–12 (khoảng 200 phiên); chất lượng đề quyết định có bán được hay không, nên nút báo câu sai (R1) và việc rà đề đi trước.
 
-Lưu ý: đến khi làm B1, repo vẫn công khai nên ai cũng tải được trọn bộ đề bằng một lệnh. Nếu muốn giữ đề sớm hơn, có thể làm B1 trước (Cloudflare Pages miễn phí, chạy được từ repo riêng tư) mà chưa bật gói; giữ đề thật sự (người chưa trả tiền không tải được) thì cần B2.
+Lưu ý: đến khi làm B1 (ngay trước khi bán), repo vẫn công khai nên ai cũng tải được trọn bộ đề bằng một lệnh; chủ app đã chấp nhận như vậy (18/10/2026). Nếu sau này muốn giữ đề sớm hơn thì đổi quyết định ở đầu file rồi làm B1 trước (Cloudflare Pages miễn phí, chạy được từ repo riêng tư) mà chưa bật gói; giữ đề thật sự (người chưa trả tiền không tải được) thì cần B2.
 
 Không chạy cùng lúc hai phiên cùng sửa `js/app.js` hoặc `js/quiz.js`; các phiên N chỉ sửa file đề nên chạy xen được.
 
@@ -103,7 +121,7 @@ Không chạy cùng lúc hai phiên cùng sửa `js/app.js` hoặc `js/quiz.js`;
 | — | — | ~~Phiên K1 · Tách dữ liệu đề, bộ kiểm tra đề~~ (đã xong, PR #36) | |
 | — | — | ~~Phiên K2 · Dạng câu hỏi mới~~ (đã xong, PR #37; chủ app chạy `supabase/cap-nhat-k2.sql`) | |
 
-**Để sau, chỉ làm khi có nhu cầu thật:** nhập đề từ Excel (Phiên 6 cũ); tự đăng ký, email để tự lấy lại mật khẩu, tài khoản giáo viên/lớp học (mục 7 bản thiết kế); **bản trả phí** (hướng đi ở mục 9 bản thiết kế; việc kĩ thuật cần làm trước ở mục 5 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)). Đề lớp 5, 7–12 đã có thứ tự và số phiên dự kiến trong [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Việc “bắt buộc đổi PIN cũ” không còn cần vì cách đăng nhập mới bỏ PIN học sinh trên máy chủ.
+**Để sau, chỉ làm khi có nhu cầu thật:** nhập đề từ Excel (Phiên 6 cũ); tự đăng ký, email để tự lấy lại mật khẩu, tài khoản giáo viên/lớp học (mục 7 bản thiết kế); **bản trả phí** (hướng đi ở mục 9 bản thiết kế; việc kĩ thuật cần làm trước ở mục 5 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)). Đề lớp 5, 7–12 đã có thứ tự và số phiên dự kiến trong [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Việc “bắt buộc đổi PIN cũ” không còn cần vì cách đăng nhập mới bỏ kiểm tra PIN ở máy chủ; `pin_hash` của hồ sơ con chỉ là khóa trên giao diện.
 
 **Mẹo tiết kiệm lượt dùng gói Pro:**
 - Một phiên một việc, giao việc rõ ràng. Phiên càng dài càng tốn, vì mỗi lượt Claude đọc lại toàn bộ cuộc trò chuyện.
@@ -116,7 +134,7 @@ Không chạy cùng lúc hai phiên cùng sửa `js/app.js` hoặc `js/quiz.js`;
 
 Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Các phiên dưới đây xếp theo thứ tự ở mục 3.
 
-**Phiên D0 · Đồng bộ tài liệu** (quyết định đã điền theo lựa chọn của chủ app ngày 18/10/2026)
+**Phiên D0 · Đồng bộ tài liệu** (đã xong, PR #40; quyết định đã điền theo lựa chọn của chủ app ngày 18/10/2026)
 > Đọc CLAUDE.md, README.md và mọi file trong docs/. Chỉ sửa tài liệu, không sửa code.
 >
 > Quyết định của chủ app (18/10/2026):
@@ -372,3 +390,17 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 
 **Phiên 16–17 · Đề cuối năm** (cũ, thay bằng N13–N22 trong [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md))
 > Đọc CLAUDE.md. Tạo đề “Kiểm tra cuối năm học” lớp [4 | 6] trong data/banks.js cho các môn của kì thi [ck2-l4 | ck2-l6] trong data/calendar-2026-2027.js, mỗi môn 1 đề 25 câu, phạm vi cả năm, có chủ đề và lời giải. Gắn vào kì thi đó. Chạy tests/e2e.js, tự rà soát một vòng, rồi mở Pull Request.
+
+---
+
+## 5. Nhật ký chạy thử
+
+Chủ app tự điền, mỗi tuần một dòng, không tốn lượt Claude. Nguồn số liệu: trang admin (số tài khoản, số tài khoản dùng trong 7 ngày, số hồ sơ con theo khối); Supabase → **Table Editor → `results`**, đếm dòng có `at` trong tuần (hoặc đếm từ file CSV xuất hằng tuần). Góp ý ghi nguyên lời của phụ huynh, học sinh; chỗ khó dùng thì chuyển sang ghi chép ở mục 2 (việc 3) để các phiên UX dùng. Không ghi tên thật của trẻ, không ghi số tiền.
+
+| Tuần (từ ngày) | Gia đình được mời | Gia đình có dùng trong tuần | Lượt làm bài trong tuần | Còn dùng sau 4 tuần | Góp ý thật (ai · nói gì) | Đã xử lí (phiên / issue) |
+|---|---|---|---|---|---|---|
+| 18/10/2026 | | | | | | |
+| | | | | | | |
+| | | | | | | |
+
+Mốc cần nhìn lại: **cuối học kì I (tháng 1/2027)**, hỏi vài gia đình app có đáng trả tiền không; **cuối năm học 2026–2027**, xem số gia đình còn dùng trước khi làm lớp 5, 7.
