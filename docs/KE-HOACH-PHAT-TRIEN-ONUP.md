@@ -194,7 +194,7 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 > - Thêm dòng "Chưa có tài khoản?" kèm chữ và link liên hệ. Thêm hai khóa tùy chọn `signupText`, `signupUrl` vào js/config.js; để trống thì dùng `contactText`, `contactUrl`.
 > - Trình duyệt còn dữ liệu của bản lưu trên máy (`Store.localData()` có học sinh) mà chưa chuyển (`Store.migratedAt()` trống): hiện thẻ ngắn "Máy này còn dữ liệu ôn tập cũ. Đăng nhập tài khoản gia đình, rồi vào Khu phụ huynh → Dữ liệu → Chuyển dữ liệu máy này lên đám mây." Đã chuyển thì không hiện.
 > - Sửa bước chờ service worker trong tests/supabase/cloud-e2e.js: thỉnh thoảng hết 30 giây vì trang chưa được service worker điều khiển; nếu chưa có controller thì tải lại trang một lần rồi chờ.
-> - **Thiết kế tham khảo:** docs/hinh-ux-2x/s1-ux3-dang-nhap.jpg (A1) và mục 2 của docs/CAI-TIEN-UX-2X.md: thẻ nhắc dữ liệu cũ trên form, thẻ "Chưa có tài khoản?" dưới form.
+> - **Thiết kế tham khảo:** docs/hinh-ux-2x/s1-dang-nhap.jpg (A1) và mục 2 của docs/CAI-TIEN-UX-2X.md: thẻ nhắc dữ liệu cũ trên form, thẻ "Chưa có tài khoản?" dưới form.
 >
 > Thêm kiểm tra vào cloud-e2e.js, chụp ảnh 360px sáng/tối màn đăng nhập. Chạy tests/e2e.js và tests/supabase/cloud-e2e.js đến khi in OK (cloud-e2e chạy 3 lần liền đều OK), chỉ tự rà soát một vòng, rồi mở Pull Request.
 
@@ -244,9 +244,9 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 > Đọc CLAUDE.md và ghi chép của bố mẹ dưới đây. Bản đám mây:
 > - Thẻ "Bắt đầu" 3 bước trên mục Các con, hiện đến khi làm xong: thêm hồ sơ con → đặt PIN (không bắt buộc) → đưa máy cho con. Có nút to "Cho con học" mở màn hình "Ai đang học?".
 > - Đổi chữ "Đổi người học" thành một tên dễ hiểu, dùng thống nhất mọi chỗ.
-> - Sau lần đăng nhập đầu, hỏi "Đây là máy của nhà mình?": Có thì ghi nhớ đăng nhập, Không thì không ghi nhớ. Ô "Ghi nhớ trên máy này" vẫn giữ để đổi lại.
 > - Trên máy đã ghi nhớ, bố mẹ có thể đặt mã 4–6 số để mở nhanh khu phụ huynh (băm và lưu trên chính máy đó; quên thì nhập mật khẩu). Đổi mật khẩu và đăng xuất vẫn cần mật khẩu.
-> - **Thiết kế tham khảo:** docs/hinh-ux-2x/s1-ux3-dang-nhap.jpg (A2), ux2-ux3-khu-phu-huynh.jpg (E2) và mục 2 của docs/CAI-TIEN-UX-2X.md. Tên gợi ý thay cho "Đổi người học": "Chọn hồ sơ khác".
+> - Không thêm màn hỏi "Đây là máy của nhà mình?" sau lần đăng nhập đầu (chủ app bỏ, 18/10/2026). Màn đăng nhập giữ ô "Ghi nhớ trên máy này" và dòng giải thích như hiện nay.
+> - **Thiết kế tham khảo:** docs/hinh-ux-2x/ux2-ux3-khu-phu-huynh.jpg (E2) và mục 2 của docs/CAI-TIEN-UX-2X.md. Tên gợi ý thay cho "Đổi người học": "Chọn hồ sơ khác".
 >
 > Thêm kiểm tra, ảnh 360px sáng/tối, chạy tests/e2e.js và tests/supabase/cloud-e2e.js, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
 >
