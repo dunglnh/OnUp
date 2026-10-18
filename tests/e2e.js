@@ -1238,6 +1238,9 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     await p.click("#leaveNo");
     await fr.evaluate(() => ontapReport({ label: "School Level · Test 1", mode: "exam", subject: "ta", r: 24, t: 30, s: 900 })); await p.waitForTimeout(200);
     io.toast = await txt("#toast");
+    // rời bài đang làm dở qua hộp hỏi (chốt rời trang còn giữ cho đến khi đồng ý rời)
+    await p.click(".player [data-go]"); await p.waitForSelector("#leaveBox"); await p.click("#leaveYes"); await p.waitForTimeout(300);
+    io.left = await p.evaluate(() => location.hash);
     ta2["ioe-" + scheme] = io;
     // phụ huynh xem thử đề Tiếng Anh: dòng "Chế độ xem thử" vẫn tiếng Việt, còn lại tiếng Anh
     await signIn("Mẹ Bin", PINS["Mẹ Bin"]);
@@ -1266,7 +1269,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const ta2OK = !ta2.problems.length && !ta2.vi.length && ta2.runs.length === 4
     && ta2.runs.every((r) => r.open && r.leave0 && r.exit0 && r.exit0Home && r.n === 25 && r.wrongN === 2 && r.mcWrong && r.fillWrong && r.rightFb && r.rpBox && r.rpNeed && r.rpDone && r.leave1 && r.exit1 && r.stay && r.result && r.saved && r.examBtn && r.leaveExam && r.exitExam && r.examResult)
     && ["light", "dark"].every((sc) => { const io = ta2["ioe-" + sc], pa = ta2["parent-" + sc], to = ta2["toan-" + sc];
-      return io.note === "Score saved" && io.back === "← Home" && io.lang === "en" && io.title === "Your score is saved to your profile each time you finish." && io.leave === "Leave this practice?Your unfinished work won't be saved. LeaveStay" && io.toast === "Result saved: 24/30 correct"
+      return io.note === "Score saved" && io.back === "← Home" && io.lang === "en" && io.title === "Your score is saved to your profile each time you finish." && io.leave === "Leave this practice?Your unfinished work won't be saved. LeaveStay" && io.toast === "Result saved: 24/30 correct" && io.left === "#/home"
         && pa.notice === "Chế độ xem thử: điểm không được lưu." && pa.lang === "vi" && pa.h1 === "English 4 · End-of-term 1 · Test 1" && pa.btn === "Practice (see the answer after each question)"
         && to.h1 === "Toán 4 · Cuối kì I · Đề 1" && to.btn === "Ôn luyện (xem đáp án từng câu)" && to.lang === null; })
     && TA2_SHOTS.every((n) => ta2.shots.includes(`ta2-${n}-light`) && ta2.shots.includes(`ta2-${n}-dark`));
