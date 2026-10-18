@@ -587,9 +587,12 @@
     return renderAdmin(u, "overview");
   }
 
+  /* Số "bài ôn" của một kì (nhãn trên thẻ kì thi, đầu nhóm bài ôn, danh sách kì thi ở quản trị): bài ôn dạng trang và đề cố định,
+     không đếm đề ngẫu nhiên (chỉ là cách làm lại các đề cố định), để khớp với nút "Đề ôn · N đề" (L25). */
+  const practiceCount = ({ mods, bks }) => mods.length + bks.filter((b) => !b.pool).length;
   function eventRow(e, opts) {
     const st = status(e), g = opts && opts.grade;
-    const { mods, bks } = practiceFor(e, g);
+    const { mods, bks } = practiceFor(e, g), nPr = practiceCount({ mods, bks });
     const extra = opts && opts.student ? readiness(e, opts.student, opts.results) : null;
     const dd = !e.start ? `<span class="d">?<small>chưa có</small></span>` : `<span class="d">${dm(e.start)}<small>${e.end && e.end !== e.start ? "đến " + dm(e.end) : WD[pd(e.start).getDay()]}</small></span>`;
     return `<button class="ev ${esc(e.kind)} ${st}" data-ev="${esc(e.id)}">
@@ -598,7 +601,7 @@
         <span class="tags">${e.kind !== "moc" ? `<span class="tag ${e.kind === "ioe" ? "ioe" : ""}">${esc(KIND[e.kind] || e.kind)}</span>` : `<span class="tag moc">Mốc năm học</span>`}
           ${e.tentative && e.start ? `<span class="tag warn">Dự kiến</span>` : ""}
           ${st === "now" ? `<span class="tag warn">Đang diễn ra</span>` : st === "future" && e.kind !== "moc" ? `<span class="tag">Còn ${daysTo(e)} ngày</span>` : ""}
-          ${mods.length + bks.length ? `<span class="tag">${mods.length + bks.length} bài ôn</span>` : ""}
+          ${nPr ? `<span class="tag">${nPr} bài ôn</span>` : ""}
           ${extra && extra.p != null ? `<span class="tag ${extra.p >= 80 ? "ioe" : "warn"}">Sẵn sàng ${extra.p}%</span>` : ""}</span>
         ${e.subjects && e.subjects.length ? `<span class="small muted">${esc(e.subjects.join(", "))}</span>` : ""}</span>
     </button>`;
@@ -658,7 +661,7 @@
     if (rest.mods.length + rest.bks.length) groups.push(rest);
     if (!groups.length) return practiceList([], [], canPlay);
     return groups.map((g, i) => `<details class="grp"${g.e ? ` data-grp="${esc(g.e.id)}"` : ""}${i ? "" : " open"}>
-      <summary><span class="grow"><b>${g.e ? esc(g.e.title) : "Bài ôn khác"}</b><span class="small muted">${g.e ? esc(range(g.e)) + " · " : ""}${g.mods.length + g.bks.length} bài ôn</span></span></summary>
+      <summary><span class="grow"><b>${g.e ? esc(g.e.title) : "Bài ôn khác"}</b><span class="small muted">${g.e ? esc(range(g.e)) + " · " : ""}${practiceCount(g)} bài ôn</span></span></summary>
       ${practiceList(g.mods, g.bks, canPlay, !g.e)}</details>`).join("");
   }
 
@@ -1065,7 +1068,7 @@
       body = sect("student", "Học sinh") + sect("parent", "Phụ huynh") + sect("admin", "Quản trị");
     } else if (tab === "events") {
       body = `<div class="row between"><p class="muted small" style="flex:1">Sửa ngày khi trường thông báo, gắn bài ôn vào từng kì thi.</p><a class="btn main sm" href="#/admin/event/new">+ Thêm kì thi</a></div>
-        <div class="list">${Store.events().map((e) => `<a class="item" href="#/admin/event/${esc(e.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${esc(e.title)} · Lớp ${esc(e.grades.join(", "))}</b><span class="small muted">${esc(range(e))}${e.tentative && e.start ? " · dự kiến" : ""} · ${(e.modules || []).length + (e.banks || []).length} bài ôn</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>
+        <div class="list">${Store.events().map((e) => `<a class="item" href="#/admin/event/${esc(e.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${esc(e.title)} · Lớp ${esc(e.grades.join(", "))}</b><span class="small muted">${esc(range(e))}${e.tentative && e.start ? " · dự kiến" : ""} · ${practiceCount(practiceFor(e, null))} bài ôn</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>
         <div class="row"><button class="btn ghost sm" id="resetEv">Khôi phục lịch mặc định</button></div><div id="resetArea"></div>`;
     } else if (tab === "banks") {
       body = `<div class="row between"><p class="muted small" style="flex:1">Dán câu hỏi từ Word, Zalo, sách bài tập. App tự nhận dạng trắc nghiệm, điền khuyết, đúng/sai, nối cột, sắp xếp, trả lời bằng số, tự luận.</p><a class="btn main sm" href="#/admin/bank/new">+ Nhập ngân hàng</a></div>

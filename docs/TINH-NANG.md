@@ -69,7 +69,7 @@ Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mố
 - **Theo môn**: thanh tỉ lệ đúng từng môn trong 30 ngày.
 - **Chủ đề hay sai**: các chủ đề có nhiều câu sai nhất (từ ngân hàng câu hỏi).
 - **Lịch thi sắp tới** (5 mục), có nhãn "Sẵn sàng x%" khi con đã ôn cho kì đó.
-- **Tất cả bài ôn** của khối, gom theo kì thi chưa qua: kì gần nhất mở sẵn, các kì sau thu gọn; bài không thuộc kì nào trong số đó ở nhóm "Bài ôn khác". Trong mỗi kì, đề ngân hàng gom theo môn thành một dòng có nút "Đề ngẫu nhiên · Đề 1 · Đề 2 · …" (nút đầu khi môn đó có đề ngẫu nhiên, Phiên K3); ở nhóm "Bài ôn khác" nút luôn ghi kèm tên kì ("Giữa kì I · Đề 1", "Cuối kì I · Đề ngẫu nhiên") để biết đề của kì nào.
+- **Tất cả bài ôn** của khối, gom theo kì thi chưa qua: kì gần nhất mở sẵn, các kì sau thu gọn; bài không thuộc kì nào trong số đó ở nhóm "Bài ôn khác". Trong mỗi kì, đề ngân hàng gom theo môn thành một dòng có nút "Đề ngẫu nhiên · Đề 1 · Đề 2 · …" (nút đầu khi môn đó có đề ngẫu nhiên, Phiên K3); ở nhóm "Bài ôn khác" nút luôn ghi kèm tên kì ("Giữa kì I · Đề 1", "Cuối kì I · Đề ngẫu nhiên") để biết đề của kì nào. Nhãn "N bài ôn" (thẻ kì thi, đầu nhóm) đếm bài ôn dạng trang và đề cố định, không đếm đề ngẫu nhiên, khớp với nút "Đề ôn · N đề".
 
 ### 4.2 Phụ huynh — Trang chính
 - Danh sách con: lần làm bài gần nhất, điểm trung bình 30 ngày, kì thi sắp tới.

@@ -777,7 +777,9 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
      lại đủ đề như lịch mặc định (bước "new seed banks" đã bỏ gắn một đề).
      L22: học sinh lớp 4, hàng "Tin học và Công nghệ" của kì cuối kì I có nút "Đề 1" (tên đề trong danh mục có số đề).
      L24: học sinh lớp 6, hàng Tiếng Anh của nhóm "Bài ôn khác" (đề giữa kì I đã qua) ghi "Giữa kì I · Đề 1"; nhóm cuối kì I
-     vẫn ghi "Đề 1"; aria-label vẫn là tên đề đầy đủ; đề thử nghiệm (tên tự đặt) ghi nguyên tên. */
+     vẫn ghi "Đề 1"; aria-label vẫn là tên đề đầy đủ; đề thử nghiệm (tên tự đặt) ghi nguyên tên.
+     L25: kì cuối kì I lớp 4 (1 bài IOE, 9 đề cố định, 2 đề ngẫu nhiên) ghi "10 bài ôn" ở thẻ kì thi trên trang chủ, đầu nhóm
+     bài ôn và trang Lịch thi; nút "Đề ôn · 9 đề" như cũ. */
   const nc = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 } });
   await localConfig(nc); watchOut(nc);
   const np = await nc.newPage(); np.on("pageerror", (e) => errs.push("pageerror 9e: " + e.message));
@@ -801,7 +803,13 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   }, [id, sub]);
   const f9e = {};
   await asStudent("Bin", PINS.Bin);
-  f9e.l4 = { today: await np.evaluate(() => new Date().toLocaleDateString("vi")), tincn: await rowOf("ck1-l4", "Tin học và Công nghệ") };
+  const textOf = (sel) => np.evaluate((sel) => [...document.querySelectorAll(sel)].map((x) => x.textContent.replace(/\s+/g, " ").trim()).join("|"), sel);
+  f9e.l4 = { today: await np.evaluate(() => new Date().toLocaleDateString("vi")), tincn: await rowOf("ck1-l4", "Tin học và Công nghệ"),
+    homeTags: await textOf('.ev[data-ev="ck1-l4"] .tag'), grpHead: await textOf('#allPractice details.grp[data-grp="ck1-l4"] summary .small'), hero: await textOf("#toBanks") };
+  await np.goto(BASE + "/#/calendar"); await np.waitForSelector(".timeline");
+  f9e.l4.calTags = await textOf('.ev[data-ev="ck1-l4"] .tag');
+  await np.goto(BASE + "/#/home"); await np.waitForSelector("#allPractice");
+  await np.evaluate(() => document.querySelectorAll("details.grp").forEach((d) => (d.open = true)));
   await np.screenshot({ path: OUT + "21-9e-lop4.png", fullPage: true });
   await asStudent("Na", "4444");
   f9e.l6 = { taOther: await rowOf("", "Tiếng Anh"), taCk1: await rowOf("ck1-l6", "Tiếng Anh"), thu: await rowOf("", "Thử nghiệm"),
@@ -810,6 +818,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await nc.close();
   console.log("9e:", JSON.stringify(f9e));
   const fix9eOK = f9e.l4.today === "21/12/2026" && f9e.l4.tincn.join() === "Đề 1"
+    && /\|10 bài ôn\|/.test("|" + f9e.l4.homeTags + "|") && / · 10 bài ôn$/.test(f9e.l4.grpHead) && /\|10 bài ôn\|/.test("|" + f9e.l4.calTags + "|") && f9e.l4.hero === "Đề ôn · 9 đề"
     && f9e.l6.taOther.join() === "Giữa kì I · Đề 1" && f9e.l6.taCk1.join() === "Đề 1" && f9e.l6.thu.join() === "Đề thử nghiệm · Các dạng câu mới"
     && f9e.l6.aria.includes("Tiếng Anh 6 · Giữa kì I · Đề 1") && !f9e.l6.aria.some((x) => /·.*·.*·/.test(x));
 
