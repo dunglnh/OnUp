@@ -1007,7 +1007,8 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await rp.click(`.tile[data-u="${ids["Mẹ Bin"]}"]`); await rp.fill("#pinIn", PINS["Mẹ Bin"]); await rp.waitForTimeout(400);
   await rp.goto(BASE + "/#/quiz/toan4-ck1-de1"); await rp.waitForSelector("#qPractice"); await rp.click("#qPractice"); await answerFirst();
   await rp.click(".rp-link"); await rp.click('.rsn .opt[data-r="unclear"]'); await rp.click(".report-box [type=submit]"); await rp.waitForSelector(".rp-done");
-  r1.parent = await rp.evaluate((id) => { const r = Store.reports()[0]; return r.userId === id && r.reason === "unclear" && Store.reports().length === 4; }, ids["Mẹ Bin"]);
+  // số báo cáo = số trước đó + 1 (trước đó 2 hoặc 3 tùy màn kết quả còn câu chưa báo hay không: thứ tự câu ngẫu nhiên)
+  r1.parent = await rp.evaluate(([id, n3]) => { const r = Store.reports()[0]; return r.userId === id && r.reason === "unclear" && Store.reports().length === n3 + 1; }, [ids["Mẹ Bin"], r1.n3]);
   await rc.close();
   console.log("R1:", r1);
   const r1OK = !r1.problems.length && r1.oldDefault && r1.examNoLink && r1.beforeCheck && r1.link.h >= 44 && r1.link.text === "Báo câu này sai" && r1.link.flag && r1.link.inFb && r1.link.after
