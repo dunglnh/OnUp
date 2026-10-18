@@ -198,6 +198,11 @@
     id: r.id, userId: r.profile_id, source: r.source, refId: r.ref_id, subject: r.subject || "", label: r.label || "", mode: r.mode || "",
     r: +r.r, t: r.t, s: r.s, at: new Date(r.at).toISOString(), wrongTopics: r.wrong_topics || undefined
   });
+  // Câu bị báo sai (bảng question_reports, Phiên R1). Phụ huynh báo thì profile_id trống: userId là PARENT.
+  const toReport = (r) => ({
+    id: r.id, userId: r.profile_id || PARENT, bankId: r.bank_id, qKey: r.q_key, qText: r.q_text || "", reason: r.reason, note: r.note || "",
+    status: r.status || "new", at: new Date(r.created_at).toISOString()
+  });
 
   /* ---------------- tải dữ liệu ---------------- */
   /* Đọc dòng families của tài khoản đang đăng nhập rồi đặt state. Chỉ khi tài khoản đang hoạt động và đã đổi mật khẩu tạm
@@ -213,10 +218,12 @@
       return false;
     }
     try { await rpc("touch"); } catch (e) { /* chỉ để ghi lần dùng gần nhất và tính lại hồ sơ bị khóa */ }
-    const [profs, evs, bks, res, plans] = await Promise.all([
+    // question_reports (Phiên R1): máy chủ chưa chạy supabase/cap-nhat-r1.sql thì chưa có bảng; app vẫn chạy, chỉ không báo câu sai được.
+    const [profs, evs, bks, res, plans, reps] = await Promise.all([
       all("profiles", (q) => q.order("created_at").order("id")), all("exam_events"), all("question_banks"),
       all("results", (q) => q.order("at", { ascending: false }).order("id")),
-      run(sb.from("plans").select("id, name, max_children"))
+      run(sb.from("plans").select("id, name, max_children")),
+      all("question_reports", (q) => q.order("created_at", { ascending: false }).order("id")).catch((e) => (noTable(e) ? null : Promise.reject(e)))
     ]);
     const paid = f.plan !== "free" && !!f.plan_until && f.plan_until >= todayVN(); // như plan_active() trong schema.sql
     const p = (plans || []).find((x) => x.id === (paid ? f.plan : "free")) || (plans || []).find((x) => x.id === "free") || {};
@@ -230,8 +237,10 @@
       events: evs.map(toEvent),
       banks: bks.map(toBank),
       results: res.reverse().map(toResult),
+      reports: (reps || []).map(toReport),
       seedBanksSeen: f.seed_banks_seen || []
     };
+    reportsTable = reps !== null;
     state = "ready";
     // kết quả còn trong hộp gửi của máy này: hiện luôn, gửi lại sau
     const seen = new Set(db.results.map((r) => r.id)), box = outbox();
@@ -286,6 +295,9 @@
 
   /* Phiên không còn dùng được (hết hạn, chủ app đặt lại mật khẩu, khóa tài khoản): máy chủ từ chối thay vì báo lỗi mạng. */
   const authFail = (e) => /^(42501|PGRST30\d)$/.test(String((e && e.code) || "")) || /JWT|session/i.test(String((e && e.message) || ""));
+  /* Bảng chưa có trên máy chủ (project chưa chạy file supabase/cap-nhat-<phiên>.sql): PostgREST báo PGRST205, PostgreSQL 42P01. */
+  const noTable = (e) => /^(42P01|PGRST205)$/.test(String((e && e.code) || "")) || /Could not find the table|does not exist/i.test(String((e && e.message) || ""));
+  let reportsTable = true; // false: máy chủ chưa có bảng question_reports
   /* Tải lại dữ liệu; phiên không dùng được thì đăng xuất trên máy này (app hiện màn hình đăng nhập). Lỗi mạng: ném lỗi. */
   async function reload() {
     try { await loadAll(); }
@@ -669,6 +681,32 @@
   }
   const resultsFor = (userId) => db.results.filter((r) => r.userId === userId).sort((a, b) => (a.at < b.at ? 1 : -1));
 
+  /* ---------------- câu bị báo sai (Phiên R1) ----------------
+     Như addReport của LocalStore (xem chú thích ở js/store.js): gửi thẳng lên bảng question_reports và chờ máy chủ trả lời
+     (trigger giới hạn 30 báo cáo mỗi ngày mỗi gia đình; máy chủ tự điền family_id, thời điểm). Phụ huynh báo thì profile_id
+     trống. Máy chủ chưa có bảng (chưa chạy supabase/cap-nhat-r1.sql) thì báo lỗi dễ hiểu. reports(): của gia đình này, mới nhất trước. */
+  const REASON_CODES = ["wrong", "unclear", "typo", "other"];
+  const NO_REPORTS_MSG = "Máy chủ chưa cập nhật để nhận báo cáo. Bạn nhắn cho người cấp tài khoản giúp nhé.";
+  async function addReport(r) {
+    if (!r || !r.userId || !r.bankId || !r.qKey) throw new Error("Thiếu thông tin câu bị báo.");
+    if (!REASON_CODES.includes(r.reason)) throw new Error("Bạn chọn một lí do nhé.");
+    if (!(state === "ready" && db)) throw new Error("Phiên đăng nhập đã hết. Đăng nhập lại nhé.");
+    if (!reportsTable) throw new Error(NO_REPORTS_MSG);
+    const u = db.users.find((x) => x.id === r.userId);
+    if (!u) throw new Error("Không tìm thấy người dùng.");
+    const row = { id: uuid(), profile_id: u.role === "student" ? u.id : null, bank_id: String(r.bankId).slice(0, 80), q_key: String(r.qKey).slice(0, 40),
+      q_text: String(r.qText || "").slice(0, 500), reason: r.reason, note: String(r.note || "").trim().slice(0, 200) };
+    try { await run(sb.from("question_reports").insert(row)); }
+    catch (e) {
+      if (noTable(e)) { reportsTable = false; throw new Error(NO_REPORTS_MSG); }
+      throw new Error(errMsg(e, "Chưa gửi được báo cáo. Thử lại nhé."));
+    }
+    const clean = toReport(Object.assign({ status: "new", created_at: new Date().toISOString() }, row));
+    db.reports.unshift(clean);
+    return clean;
+  }
+  const reports = () => (db ? db.reports.slice().sort((a, b) => (a.at < b.at ? 1 : -1)) : []);
+
   /* ---------------- sao lưu, chuyển dữ liệu ---------------- */
   function exportJSON() {
     const users = db.users.map((u) => { const x = clone(u); delete x.hasPin; delete x.locked; return x; });
@@ -739,6 +777,7 @@
     events, event: (id) => (db ? db.events.find((e) => e.id === id) || null : null), upsertEvent, removeEvent, resetEvents,
     banks, bank: bankById, loadBank, upsertBank, removeBank,
     addResult, resultsFor,
+    addReport, reports,
     exportJSON, importJSON, wipe,
     settings: () => (db ? db.settings : {}), setSettings,
     can,

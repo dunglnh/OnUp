@@ -89,6 +89,7 @@ Quên mật khẩu: dưới ô đăng nhập có dòng “Quên mật khẩu? Li
 - Trang của một tài khoản: xem nhanh (trạng thái, số hồ sơ con và khối, lần dùng gần nhất, mật khẩu tạm hay đã đổi, gói, ngày tạo), ghi chú, đặt lại mật khẩu, khóa / mở khóa (có hỏi lại), xóa (phải gõ đúng tên đăng nhập), nhật ký của tài khoản đó.
 - Tạo tài khoản hoặc đặt lại mật khẩu xong: tên đăng nhập và mật khẩu tạm hiện một lần, kèm nút **Chép lời nhắn** (tên đăng nhập, mật khẩu tạm, địa chỉ trang học) để dán vào Zalo.
 - Thao tác với tài khoản qua Edge Function `admin` (có nhật ký); ghi chú ghi thẳng vào `admin_notes`, nhật ký đọc từ `admin_log` (RLS chỉ cho chủ app). Không sửa máy chủ: không phải triển khai lại hàm `admin`. Chưa có nút đổi gói (mục 9).
+- **Thêm ở Phiên R1:** mục **Câu bị báo** (`#/reports`): các câu học sinh, phụ huynh báo sai từ app (bảng `question_reports`, đọc thẳng, RLS chỉ cho chủ app đọc tất cả và đổi `status`), gom theo câu, đếm số lần, lọc theo đề và trạng thái, nút Đã sửa / Bỏ qua / Mở lại; ảnh `admin-cau-bi-bao.jpg`.
 
 ---
 
@@ -101,6 +102,7 @@ Quên mật khẩu: dưới ô đăng nhập có dòng “Quên mật khẩu? Li
 | `profiles` | hồ sơ con: `family_id`, tên, hình, `grade` (1–12), lớp, `pin_hash` tùy chọn | phụ huynh của gia đình đó |
 | `results`, `exam_events` | giữ như hiện nay, theo `family_id` | phụ huynh của gia đình đó |
 | `plans` | hạn mức theo gói. Hôm nay chỉ có `free`: tối đa **5** hồ sơ con (chặn lạm dụng), dùng mọi nội dung | ai đã đăng nhập đều đọc; chỉ owner sửa |
+| `question_reports` | câu bị báo sai từ nút “Báo câu này sai” (Phiên R1): `family_id`, `profile_id` (trống khi phụ huynh báo), `bank_id`, `q_key`, `q_text` (bản chụp câu ≤ 500 kí tự), `reason`, `note` (≤ 200), `status` (`new`/`fixed`/`rejected`), `created_at`; tối đa 30 báo cáo mỗi ngày mỗi gia đình | gia đình chỉ thêm và đọc của mình; owner đọc tất cả, chỉ đổi `status` (tab “Câu bị báo” của trang admin) |
 | `admin_notes` | ghi chú của chủ app về tài khoản | chỉ owner |
 | `admin_log` | nhật ký thao tác admin | chỉ owner |
 

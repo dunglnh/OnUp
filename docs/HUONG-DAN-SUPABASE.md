@@ -90,6 +90,7 @@ Làm sau bước 7 (trang admin đọc `js/config.js`). Ảnh: [`docs/hinh-dam-m
 Ở trang admin còn có:
 - **Tài khoản**: số liệu nhanh (số tài khoản, số tài khoản dùng trong 7 ngày, số hồ sơ con theo khối), tìm theo tên đăng nhập, tên hoặc ghi chú, lọc tài khoản đang khóa hoặc chưa đổi mật khẩu tạm.
 - Bấm vào một tài khoản: **xem nhanh** (số hồ sơ con, khối, lần dùng gần nhất; không xem bài làm), sửa **ghi chú**, **đặt lại mật khẩu** khi phụ huynh quên (mọi máy đang đăng nhập bị đăng xuất), **khóa / mở khóa**, **xóa** (phải gõ đúng tên đăng nhập; xóa luôn hồ sơ con và kết quả).
+- **Câu bị báo**: các câu học sinh, phụ huynh bấm “Báo câu này sai” khi làm bài (cần đã chạy `supabase/cap-nhat-r1.sql`, xem “Cập nhật máy chủ” bên dưới). Mỗi câu một dòng, mới nhất trước: tên đề, file chứa câu (`data/banks/…`), nội dung câu, các lí do và ghi chú, số lần bị báo; lọc theo đề và trạng thái. Sửa đề xong bấm **Đã sửa**; câu đúng rồi bấm **Bỏ qua**; bấm nhầm thì **Mở lại**. Không hiện tên hồ sơ con.
 - **Nhật ký**: ai đã tạo, đặt lại mật khẩu, khóa, mở khóa, xóa tài khoản nào, lúc nào.
 
 Trang admin báo lỗi khi gọi hàm `admin`: xem bảng gỡ lỗi cuối trang. Cần tạo tài khoản khi hàm `admin` chưa chạy được thì làm bằng tay: **Authentication → Users → Add user** với email `nha.bin@users.onup.invalid`, mật khẩu tạm, tick **Auto Confirm User**; rồi **SQL Editor**:
@@ -127,7 +128,7 @@ Muốn tắt: tắt trên Supabase **trước**, rồi mới xóa Site Key.
 Hôm nay mọi tài khoản là gói `free`: dùng mọi nội dung, tối đa 5 hồ sơ con. Giữ như vậy đến khi bán (khi đủ đề lớp 4–12, khoảng cuối năm học 2028–2029; quyết định 18/10/2026): **không sửa bảng `plans`** trước lúc đó. Hạn mức hai gói lúc bán sẽ chốt sau ([THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md) mục 9).
 
 **Việc hằng tuần khi còn gói Free của Supabase** (đến khi bắt đầu thu tiền thì lên gói Pro, có sao lưu hằng ngày):
-- **Xuất CSV:** **Table Editor** → mở từng bảng `families`, `profiles`, `results`, `exam_events`, `question_banks` → nút **Export** (hoặc menu ⋯ của bảng) → **Export to CSV**, cất vào Google Drive theo ngày. Gói Free không có sao lưu; đây là bản sao duy nhất nếu project hỏng.
+- **Xuất CSV:** **Table Editor** → mở từng bảng `families`, `profiles`, `results`, `exam_events`, `question_banks`, `question_reports` → nút **Export** (hoặc menu ⋯ của bảng) → **Export to CSV**, cất vào Google Drive theo ngày. Gói Free không có sao lưu; đây là bản sao duy nhất nếu project hỏng.
 - **Mở app ít nhất mỗi tuần một lần** (kể cả dịp Tết, hè): project tự tạm dừng khi cả tuần không ai dùng. Thấy **Paused** thì vào Supabase bấm **Restore**; dữ liệu vẫn còn.
 
 Bảng `plans`, `plan_log`, `paid_banks` đã có sẵn cho lúc bán gói (Phiên G1, B2). Khi đó:
@@ -142,8 +143,9 @@ Project đã cài từ trước thì **không** chạy lại `supabase/schema.sq
 | File | Phiên | Đổi gì | Chưa chạy thì |
 |---|---|---|---|
 | `supabase/cap-nhat-k2.sql` | K2 (dạng câu mới) | `results.r` nhận số lẻ đến 0,01 (câu đúng/sai 4 ý, nối cột chấm từng ý); thêm cột `passages` (đoạn đọc dùng chung) cho `question_banks`, `paid_banks`; `import_local` chuyển cả hai | Kết quả có số câu đúng lẻ được làm tròn trước khi lưu; ngân hàng tự nhập có “Đoạn đọc:” chưa lưu được |
+| `supabase/cap-nhat-r1.sql` | R1 (nút “Báo câu này sai”) | Thêm bảng `question_reports` (câu bị báo sai), trigger (tối đa 30 báo cáo mỗi ngày mỗi gia đình) và RLS (gia đình chỉ thêm, đọc của mình; chủ app đọc tất cả, đổi trạng thái) | App vẫn chạy; bấm Gửi báo cáo thì báo “Máy chủ chưa cập nhật để nhận báo cáo”; tab Câu bị báo ở trang admin báo chưa có bảng |
 
-Kiểm tra sau khi chạy: **Table Editor → results**, cột `r` có kiểu `numeric`; **question_banks** có cột `passages`.
+Kiểm tra sau khi chạy: **Table Editor → results**, cột `r` có kiểu `numeric`; **question_banks** có cột `passages`; có bảng **question_reports**.
 
 ## Tự kiểm tra sau khi cài
 
@@ -154,8 +156,8 @@ Kiểm tra sau khi chạy: **Table Editor → results**, cột `r` có kiểu `n
 
 ## Bảo mật và quyền riêng tư
 
-- Máy chủ lưu: tên đăng nhập, tên hiển thị của tài khoản; tên, hình, khối, lớp của hồ sơ con; kết quả làm bài. Không có email, số điện thoại, ngày sinh, ảnh. Thông tin liên lạc của phụ huynh (nếu cần) ghi trong **ghi chú admin**, chỉ chủ app đọc được.
-- Quyền được kiểm tra trên máy chủ (RLS): mỗi tài khoản chỉ đọc/ghi dữ liệu của gia đình mình; phụ huynh không tự đổi gói, trạng thái; tài khoản bị khóa không đọc/ghi được gì và không đăng nhập được. Chủ app xem danh sách tài khoản, số hồ sơ con, khối, lần dùng gần nhất, **không** xem bài làm của các con.
+- Máy chủ lưu: tên đăng nhập, tên hiển thị của tài khoản; tên, hình, khối, lớp của hồ sơ con; kết quả làm bài; câu bị báo sai (nội dung câu, lí do, ghi chú người báo gõ). Không có email, số điện thoại, ngày sinh, ảnh. Thông tin liên lạc của phụ huynh (nếu cần) ghi trong **ghi chú admin**, chỉ chủ app đọc được.
+- Quyền được kiểm tra trên máy chủ (RLS): mỗi tài khoản chỉ đọc/ghi dữ liệu của gia đình mình; phụ huynh không tự đổi gói, trạng thái; tài khoản bị khóa không đọc/ghi được gì và không đăng nhập được. Chủ app xem danh sách tài khoản, số hồ sơ con, khối, lần dùng gần nhất và các câu bị báo sai (không kèm tên hồ sơ con), **không** xem bài làm của các con.
 - Mật khẩu do Supabase Auth băm và giới hạn số lần thử sai. Đặt lại mật khẩu ở trang admin thì mọi máy đang đăng nhập tài khoản đó bị đăng xuất.
 - PIN của hồ sơ con chỉ để anh em khỏi dùng nhầm hồ sơ, **không phải bảo mật**.
 - Xóa tài khoản ở trang admin xóa luôn hồ sơ con, kết quả, lịch thi của tài khoản đó; nhật ký admin và nhật ký gói giữ lại tên đăng nhập để đối soát.
@@ -169,6 +171,7 @@ Kiểm tra sau khi chạy: **Table Editor → results**, cột `r` có kiểu `n
 | Trang admin báo “Máy chủ chưa có hàm admin” | Chưa triển khai Edge Function, hoặc đặt tên khác `admin` (bước 5). |
 | Trang admin báo “Máy chủ từ chối lời gọi hàm admin” | Còn bật **Verify JWT** cho hàm `admin` (bước 5.4). |
 | Trang admin báo “chỉ dùng với bản đám mây” | `js/config.js` chưa điền URL và khóa (bước 7). |
+| Tab Câu bị báo báo “chưa có bảng”; app báo “Máy chủ chưa cập nhật để nhận báo cáo” | Chưa chạy `supabase/cap-nhat-r1.sql` (mục “Cập nhật máy chủ”). |
 | Gọi hàm `admin` báo lỗi 401 | Chưa tắt **Verify JWT** (bước 5.4), hoặc phiên đăng nhập đã hết hạn: đăng nhập lại. |
 | Gọi hàm `admin` báo lỗi máy chủ | Xem **Edge Functions → admin → Logs**. Kiểm tra đã chạy `schema.sql` (bước 2). |
 | `relation "families" already exists` khi chạy `schema.sql` | Project đã có bảng (đã chạy rồi, hoặc còn bảng của bản cũ). Dùng project mới (bước 1). |

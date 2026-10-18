@@ -73,6 +73,16 @@
     a.download = name; document.body.append(a); a.click();
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
+  /* Chép chữ vào bảng tạm (như copy trong admin.html): clipboard API, không được thì cách cũ. Trả về true khi chép được. */
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* thử cách cũ */ }
+    try {
+      const t = document.createElement("textarea");
+      t.value = text; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0";
+      document.body.append(t); t.select();
+      const ok = document.execCommand("copy"); t.remove(); return ok;
+    } catch (e) { return false; }
+  }
 
   /* ---------------- nút xem mật khẩu, mã PIN ----------------
      wireReveal(root): mọi ô type="password" trong root có nút hình con mắt sát cạnh phải; bấm thì hiện chữ đã gõ
@@ -949,11 +959,16 @@
         <div class="row"><button class="btn main" id="qPractice">Ôn luyện (xem đáp án từng câu)</button>${b.minutes ? `<button class="btn ghost" id="qExam">Làm như thi · ${b.minutes} phút</button>` : ""}</div></section>
       ${u.role !== "student" ? `<div class="notice">Chế độ xem thử: điểm không được lưu.</div>` : ""}</div>`;
     wireGo();
+    // Báo câu sai (Phiên R1): ai cũng báo được, kể cả phụ huynh, quản trị đang xem thử. Câu của đề ngẫu nhiên ghi mã đề gốc (q.src)
+    // để người làm đề tìm đúng file; mỗi người chỉ báo một câu một lần (link thành "Đã báo câu này").
+    const bankOf = (q) => q.src || b.id;
     const start = (mode) => {
       const run = (quizRun = Quiz.run(view, drawn ? Object.assign({}, b, { questions: drawn.questions }) : b, {
         mode, onExit: () => go("#/home"),
         // "Làm đề khác" ở trang kết quả: rút bộ câu mới (đã tính cả lượt vừa làm)
         redraw: b.pool ? () => { drawn = Quiz.draw(b, hist()); if (drawn.notes.length) toast("Kho còn thiếu câu: " + drawn.notes.join("; ")); return { questions: drawn.questions }; } : undefined,
+        reported: (q) => Store.reports().some((r) => r.userId === u.id && r.bankId === bankOf(q) && r.qKey === q.key),
+        onReport: (q, { reason, note }) => Store.addReport({ userId: u.id, bankId: bankOf(q), qKey: q.key, qText: Quiz.text(q), reason, note }),
         onFinish: (res) => {
           if (u.role !== "student") return;
           Store.addResult(Object.assign({ userId: u.id, source: "bank", refId: b.id, subject: b.subject, label: b.title }, res));
@@ -990,6 +1005,30 @@
       $("#qRetry").onclick = () => renderQuiz(u, b.id);
     };
     Store.loadBank(b.id).then((x) => { if (box.isConnected) { if (x && x.questions) renderQuiz(u, b.id); else failed(); } }, failed);
+  }
+
+  /* ---------------- câu bị báo sai (Phiên R1) ----------------
+     Danh sách ở Quản trị → Dữ liệu (bản đám mây: Khu phụ huynh → Dữ liệu). Bản lưu trên máy: nút "Chép để gửi" chép văn bản
+     gọn (reportText) để dán vào Zalo gửi người làm đề. Bản đám mây: báo cáo đã lên máy chủ, hiện kèm trạng thái chủ app xử lí. */
+  const REASON = Object.fromEntries(Quiz.REASONS);
+  const RP_STATUS = { new: "Mới", fixed: "Đã sửa", rejected: "Bỏ qua" };
+  const bankTitle = (id) => { const b = Store.bank(id); return b ? b.title : id; };
+  const whoName = (id) => { const w = Store.user(id); return w ? w.name : "?"; };
+  function reportText(list) {
+    const school = Store.settings().schoolName;
+    return [`Báo câu sai · OnUp${school ? " · " + school : ""} · ${list.length} câu`].concat(list.map((r, i) =>
+      [`${i + 1}) ${bankTitle(r.bankId)} · ${REASON[r.reason] || r.reason}`, `Câu: ${r.qText}`, r.note ? `Ghi chú: ${r.note}` : "",
+        `${whoName(r.userId)} · ${ago(r.at)} · ${r.bankId} · ${r.qKey}`].filter(Boolean).join("\n"))).join("\n\n");
+  }
+  function reportsPanel(cloud) {
+    const list = Store.reports();
+    return `<section class="panel" id="reportsBox"><h3>Câu bị báo sai${list.length ? ` (${list.length})` : ""}</h3>
+      ${list.length ? `<p class="small">${cloud ? "Các câu đã báo từ tài khoản này. Người làm đề xem và đánh dấu đã sửa hay bỏ qua." : "Bấm “Chép để gửi” rồi dán vào Zalo gửi người làm đề."}</p>
+        <div class="list">${list.slice(0, 50).map((r) => `<div class="item"><span class="grow"><b>${esc(bankTitle(r.bankId))}</b><span class="small rp-q">${esc(r.qText)}</span>
+          <span class="small muted">${esc(REASON[r.reason] || r.reason)}${r.note ? " · " + esc(r.note) : ""} · ${esc(whoName(r.userId))} · ${esc(ago(r.at))}</span></span>${cloud ? `<span class="chip${r.status === "new" ? " warn" : ""}">${esc(RP_STATUS[r.status] || r.status)}</span>` : ""}</div>`).join("")}</div>
+        ${list.length > 50 ? `<p class="small muted">Chỉ hiện 50 câu mới nhất.</p>` : ""}
+        ${cloud ? "" : `<div class="row"><button class="btn main sm" id="copyReports">Chép để gửi</button></div>`}`
+        : `<p class="small muted">Chưa có câu nào bị báo. Khi làm bài, dưới lời giải có link “Báo câu này sai”.</p>`}</section>`;
   }
 
   /* ================= QUẢN TRỊ ================= */
@@ -1042,6 +1081,7 @@
           <p class="small muted">Mỗi học sinh thành một hồ sơ con, giữ mã PIN cũ, kết quả và tiến độ bài ôn; lịch thi và ngân hàng đề tự nhập cũng được chuyển. Tài khoản quản trị, phụ huynh của bản trên máy không cần chuyển. Chuyển lại nhiều lần không bị trùng.</p>
           <div class="row"><button class="btn main sm" id="dMigrate" ${loc ? "" : "disabled"}>Chuyển dữ liệu máy này lên đám mây</button><label class="btn ghost sm" for="dMigFile">Chuyển từ file sao lưu</label><input type="file" id="dMigFile" accept=".json,application/json" hidden></div>
           <div id="migRes" aria-live="polite"></div></section>
+        ${reportsPanel(true)}
         <section class="panel"><h3>Sao lưu</h3><p class="small">Tải bản sao dữ liệu trên đám mây về máy (không chứa mã PIN).</p>
           <div class="row"><button class="btn sm" id="dExport">Tải file sao lưu</button></div></section>`;
     } else if (tab === "data") {
@@ -1054,6 +1094,7 @@
           <p class="small">Dữ liệu đang nằm trên trình duyệt của máy này. Tải file sao lưu mỗi tuần; muốn dùng trên máy khác thì mở app ở máy đó và chọn “Khôi phục từ file”.</p>
           <p class="small" id="dLast">${lastBackupTxt()}</p>
           <div class="row"><button class="btn main sm" id="dExport">Tải file sao lưu</button><label class="btn ghost sm" for="dImport">Khôi phục từ file</label><input type="file" id="dImport" accept=".json,application/json" hidden></div></section>
+        ${reportsPanel(false)}
         <section class="panel" id="homeScreen"><h3>Thêm vào Màn hình chính</h3>
           ${standalone() ? `<div class="fb ok">Máy này đang mở app từ Màn hình chính.</div>` : ""}
           <p class="small">App có biểu tượng riêng như một ứng dụng, mở được cả khi mất mạng. Trên iPhone, iPad, Safari có thể xóa dữ liệu của trang không được mở trong 7 ngày; app đã thêm vào Màn hình chính thì không bị xóa.</p>
@@ -1081,6 +1122,10 @@
       $("#dSave").onclick = () => { Store.setSettings({ schoolName: $("#dSchool").value.trim(), schoolYear: $("#dYear").value.trim() }); toast("Đã lưu"); };
       $("#dExport").onclick = () => backupNow().then((how) => { if (how && $("#dLast")) $("#dLast").textContent = lastBackupTxt(); });
       if ($("#dImport")) $("#dImport").onchange = (e) => importFile(e.target.files[0], () => go("#/"));
+      if ($("#copyReports")) $("#copyReports").onclick = async () => {
+        const list = Store.reports();
+        toast((await copyText(reportText(list))) ? `Đã chép ${list.length} câu. Dán vào Zalo gửi người làm đề nhé.` : "Chưa chép được. Bấm giữ vào danh sách để chép.");
+      };
       if (cloud) wireCloudData();
       if ($("#dWipe")) $("#dWipe").onclick = () => {
         $("#wipeArea").innerHTML = `<div class="confirm"><label class="field"><span>Gõ XOA để xác nhận</span><input id="wipeTxt" autocomplete="off"></label><div class="row"><button class="btn danger sm" id="wipeYes">Xóa hết</button><button class="btn ghost sm" id="wipeNo">Thôi</button></div></div>`;

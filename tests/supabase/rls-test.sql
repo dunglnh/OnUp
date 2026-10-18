@@ -81,6 +81,7 @@ select t.blocked($$select id from families$$, 'anon đọc families');
 select t.blocked($$select * from profiles$$, 'anon đọc profiles');
 select t.blocked($$select * from results$$, 'anon đọc results');
 select t.blocked($$select * from paid_banks$$, 'anon đọc paid_banks');
+select t.blocked($$select * from question_reports$$, 'anon đọc question_reports');
 select t.blocked($$select * from plans$$, 'anon đọc plans');
 select t.blocked($$select my_family_id()$$, 'anon gọi hàm');
 select t.blocked($$select touch()$$, 'anon gọi touch');
@@ -169,6 +170,29 @@ select t.blocked($$insert into question_banks (id, family_id, title, grade, ques
 select t.ok((select passages = '{}' from question_banks where id = 'bk-1'), 'ngân hàng tự nhập: mặc định không có đoạn đọc');
 select t.ok(t.rows($$update question_banks set passages = '{"d1":{"title":"Đoạn 1","text":"Chữ"}}' where id = 'bk-1'$$) = 1, 'ngân hàng có đoạn đọc dùng chung');
 select t.blocked($$update question_banks set passages = '[]' where id = 'bk-1'$$, 'đoạn đọc phải là đối tượng');
+-- câu bị báo sai (Phiên R1)
+select t.ok(t.rows($$insert into question_reports (profile_id, bank_id, q_key, q_text, reason, note)
+  values (t.id('BIN'), 'toan4-ck1-de1', 'k1abc', '36 480 : 6 = ___ · Đáp án: 6 080', 'wrong', '  Phải là 6 080  ')$$) = 1, 'PA báo câu sai cho hồ sơ con (không cần ghi family_id)');
+select t.ok((select family_id = t.id('FA') and status = 'new' and created_at > now() - interval '1 minute' and note = 'Phải là 6 080' from question_reports where q_key = 'k1abc'),
+  'báo cáo: gia đình, trạng thái, thời điểm do máy chủ đặt; ghi chú bỏ khoảng trắng hai đầu');
+select t.ok(t.rows($$insert into question_reports (profile_id, bank_id, q_key, q_text, reason) values (t.id('NA'), 'tv4-ck1-de1', 'k2def', 'Câu 2', 'unclear')$$) = 1, 'báo câu thứ hai, hồ sơ Na');
+select t.ok(t.rows($$insert into question_reports (bank_id, q_key, q_text, reason) values ('toan4-ck1-de1', 'k3ghi', 'Câu 3', 'typo')$$) = 1, 'phụ huynh báo (không có hồ sơ)');
+select t.ok((select profile_id is null from question_reports where q_key = 'k3ghi'), 'phụ huynh báo: profile_id trống');
+select t.blocked($$insert into question_reports (bank_id, q_key, reason) values ('x', 'k', 'sai')$$, 'lí do lạ');
+select t.blocked($$insert into question_reports (bank_id, q_key, reason) values ('', 'k', 'wrong')$$, 'thiếu mã đề');
+select t.ok(t.rows($$insert into question_reports (bank_id, q_key, reason, note) values ('toan4-ck1-de1', 'kdai', 'wrong', repeat('a', 230))$$) = 1, 'ghi chú quá 200 kí tự vẫn nhận');
+select t.ok((select char_length(note) from question_reports where q_key = 'kdai') = 200, 'ghi chú quá 200 kí tự: máy chủ cắt còn 200');
+select t.blocked($$insert into question_reports (bank_id, q_key, reason, q_text) values ('x', 'k', 'wrong', repeat('a', 501))$$, 'nội dung câu quá 500 kí tự');
+select t.blocked($$insert into question_reports (bank_id, q_key, reason, status) values ('x', 'k', 'wrong', 'fixed')$$, 'PA tự đặt trạng thái');
+select t.blocked($$insert into question_reports (family_id, bank_id, q_key, reason) values (t.id('FB'), 'x', 'k', 'wrong')$$, 'PA ghi family_id');
+select t.blocked($$insert into question_reports (bank_id, q_key, reason, created_at) values ('x', 'k', 'wrong', '2020-01-01')$$, 'PA tự đặt thời điểm');
+select t.ok(t.rows($$update question_reports set status = 'fixed'$$) = 0 and (select count(*) from question_reports where status = 'new') = 4, 'PA không tự đổi trạng thái báo cáo');
+select t.blocked($$update question_reports set note = 'sửa'$$, 'PA sửa ghi chú đã gửi');
+select t.blocked($$delete from question_reports$$, 'PA xóa báo cáo');
+select t.ok(t.rows($$insert into question_reports (bank_id, q_key, reason) select 'toan4-ck1-de2', 'k' || i, 'other' from generate_series(1, 26) i$$) = 26, 'báo tới 30 câu trong ngày được');
+select t.blocked_with($$insert into question_reports (bank_id, q_key, reason) values ('x', 'k31', 'wrong')$$, 'tối đa 30 câu', 'câu thứ 31 trong ngày bị chặn');
+select t.blocked($$insert into question_reports (bank_id, q_key, reason) select 'x', 'n' || i, 'wrong' from generate_series(1, 2) i$$, 'chèn nhiều báo cáo một lệnh cũng không vượt 30');
+select t.ok(t.n('select * from question_reports') = 30, 'PA thấy 30 báo cáo của gia đình mình');
 reset role;
 
 -- ---------- phụ huynh B tấn công nhà A ----------
@@ -183,6 +207,10 @@ select t.ok(t.rows($$update families set display_name = 'hack' where id = t.id('
 select t.blocked($$insert into results (profile_id, source, ref_id, r, t) values (t.id('BIN'), 'bank', 'x', 10, 10)$$, 'PB ghi kết quả cho con nhà A');
 select t.blocked($$insert into exam_events (id, family_id, title, kind, grades) values ('x', t.id('FA'), 'x', 'moc', '{4}')$$, 'PB thêm kì thi vào nhà A');
 select t.blocked($$insert into question_banks (id, family_id, title, grade, questions) values ('x', t.id('FA'), 'x', 4, '[]')$$, 'PB thêm ngân hàng đề vào nhà A');
+select t.ok(t.n('select * from question_reports') = 0, 'PB không thấy câu nhà A đã báo');
+select t.blocked_with($$insert into question_reports (profile_id, bank_id, q_key, reason) values (t.id('BIN'), 'x', 'k', 'wrong')$$, 'không thuộc tài khoản', 'PB báo câu sai mượn hồ sơ con nhà A');
+select t.ok(t.rows($$insert into question_reports (bank_id, q_key, q_text, reason) values ('toan4-ck1-de1', 'k1abc', 'Cùng câu nhà A báo', 'wrong')$$) = 1, 'PB báo cùng câu nhà A đã báo (đếm được 2 lần)');
+select t.ok(t.rows($$update question_reports set status = 'rejected'$$) = 0, 'PB không đổi trạng thái');
 select t.ok(t.rows($$insert into profiles (name, grade) values ('Tí', 4)$$) = 1, 'PB thêm hồ sơ con của mình');
 reset role;
 insert into t.ids select 'TI', id from profiles where name = 'Tí';
@@ -274,6 +302,7 @@ select t.ok(t.rows($$delete from profiles where id = t.id('NA')$$) = 1, 'PA xóa
 reset role;
 select t.ok((select not locked from profiles where id = t.id('UT')) and (select locked from profiles where id = t.id('NAM')), 'xóa hồ sơ: hồ sơ kế tiếp được mở khóa');
 select t.ok(not exists (select 1 from results where profile_id = t.id('NA')), 'xóa hồ sơ xóa luôn kết quả của hồ sơ đó');
+select t.ok((select profile_id is null and family_id = t.id('FA') from question_reports where q_key = 'k2def'), 'xóa hồ sơ: câu đã báo vẫn giữ, chỉ bỏ hồ sơ');
 -- trả lại cấu hình hôm nay
 update plans set max_children = 5, all_banks = true, price = null where id = 'free';
 update plans set max_children = 5, all_banks = true, price = null where id = 'family';
@@ -296,6 +325,7 @@ select t.ok((select status from families) = 'locked' and t.n('select id from fam
 select t.ok(t.n('select * from profiles') = 0 and t.n('select * from results') = 0 and t.n('select * from exam_events') = 0
   and t.n('select * from question_banks') = 0 and t.n('select * from paid_banks') = 0, 'tài khoản bị khóa không đọc được dữ liệu');
 select t.blocked($$insert into results (profile_id, source, ref_id, r, t) values (t.id('KL'), 'bank', 'x', 1, 2)$$, 'tài khoản bị khóa ghi kết quả');
+select t.blocked($$insert into question_reports (bank_id, q_key, reason) values ('x', 'k', 'wrong')$$, 'tài khoản bị khóa báo câu sai');
 select t.blocked($$insert into profiles (name, grade) values ('X', 4)$$, 'tài khoản bị khóa thêm hồ sơ');
 select t.ok(t.rows($$update families set display_name = 'x'$$) = 0 and t.rows($$delete from profiles$$) = 0, 'tài khoản bị khóa không sửa, không xóa được');
 select t.blocked($$select import_local('{"users":[]}')$$, 'tài khoản bị khóa chuyển dữ liệu');
@@ -327,6 +357,16 @@ select t.ok(t.rows($$update paid_banks set published = true where id = 'nhap-chu
   and t.rows($$delete from paid_banks where id = 'gk2-toan4-de1'$$) = 1, 'owner đăng, thêm, xóa đề');
 select t.ok(t.rows($$update plans set price = 250000 where id = 'family'$$) = 1, 'owner sửa bảng gói');
 select t.ok(t.rows($$delete from plans where id = 'free'$$) = 0, 'không xóa được gói free');
+-- câu bị báo sai: owner đọc tất cả, chỉ đổi status
+select t.ok(t.n('select * from question_reports') = 31 and t.n($$select * from question_reports where bank_id = 'toan4-ck1-de1' and q_key = 'k1abc'$$) = 2,
+  'owner đọc mọi câu bị báo của mọi gia đình (câu k1abc bị báo 2 lần)');
+select t.ok(t.rows($$update question_reports set status = 'fixed' where bank_id = 'toan4-ck1-de1' and q_key = 'k1abc'$$) = 2
+  and t.rows($$update question_reports set status = 'rejected' where q_key = 'k3ghi'$$) = 1, 'owner đánh dấu đã sửa, bỏ qua');
+select t.blocked($$update question_reports set status = 'xong' where q_key = 'k3ghi'$$, 'trạng thái lạ');
+select t.blocked($$update question_reports set note = 'x'$$, 'owner sửa ghi chú của gia đình');
+select t.blocked($$insert into question_reports (bank_id, q_key, reason) values ('x', 'k', 'wrong')$$, 'owner (không có gia đình) báo câu sai');
+select t.blocked($$delete from question_reports$$, 'owner xóa báo cáo');
+select t.ok(t.rows($$update question_reports set status = 'new' where q_key = 'k3ghi'$$) = 1, 'owner mở lại một câu');
 select t.blocked($$update families set status = 'locked'$$, 'owner đổi trạng thái trực tiếp (chỉ qua Edge Function, có nhật ký)');
 select t.blocked($$insert into admin_log (action) values ('x')$$, 'owner tự ghi nhật ký (chỉ Edge Function ghi)');
 reset role;
@@ -407,7 +447,8 @@ select t.ok((select count(*) from plan_log where username = 'nha.a') = 1, 'trư�
 delete from auth.users where id = t.id('PA');
 select t.ok(not exists (select 1 from families where id = t.id('FA')) and not exists (select 1 from profiles where family_id = t.id('FA'))
   and not exists (select 1 from results where family_id = t.id('FA')) and not exists (select 1 from exam_events where family_id = t.id('FA'))
-  and not exists (select 1 from admin_notes where family_id = t.id('FA')), 'xóa người dùng Auth: xóa tài khoản, hồ sơ con, kết quả, lịch thi, ghi chú');
+  and not exists (select 1 from admin_notes where family_id = t.id('FA')) and not exists (select 1 from question_reports where family_id = t.id('FA'))
+  and (select count(*) from question_reports) = 1, 'xóa người dùng Auth: xóa tài khoản, hồ sơ con, kết quả, lịch thi, ghi chú, câu đã báo (nhà khác giữ nguyên)');
 select t.ok((select family_id is null and username = 'nha.a' from plan_log) and (select count(*) from admin_log where username = 'nha.a') = 1,
   'nhật ký gói và nhật ký admin vẫn giữ sau khi xóa tài khoản');
 select t.ok((select count(*) from families) = 2 and (select count(*) from profiles where family_id = t.id('FB')) = 3, 'tài khoản khác không bị ảnh hưởng');

@@ -17,12 +17,16 @@ $PSQL < "$ROOT/supabase/schema.sql"
 echo "schema.sql: OK"
 $PSQL < "$ROOT/supabase/cap-nhat-k2.sql"   # file cập nhật cho project cũ: chạy trên bản mới cũng không lỗi, không đổi gì
 echo "cap-nhat-k2.sql: OK"
+$PSQL < "$ROOT/supabase/cap-nhat-r1.sql"
+$PSQL < "$ROOT/supabase/cap-nhat-r1.sql"   # chạy lại lần hai cũng không lỗi
+echo "cap-nhat-r1.sql: OK"
 node "$ROOT/supabase/banks-to-sql.js" > "$TMP/paid-banks.sql"
 $PSQL < "$TMP/paid-banks.sql"
 $PSQL < "$TMP/paid-banks.sql"   # chạy lại lần hai không lỗi, không trùng
 echo "banks-to-sql.js: OK"
-# Số đề trong danh mục data/banks/index.js, đếm thẳng từ file (không qua banks-to-sql.js): rls-test.sql so với số này.
-BANKS=$(node -e 'const c={window:{}};require("vm").runInNewContext(require("fs").readFileSync(process.argv[1],"utf8"),c);console.log(c.window.ONTAP_SEED_BANKS.length)' "$ROOT/data/banks/index.js")
+# Số đề cố định trong danh mục data/banks/index.js (đề ngẫu nhiên có pool không lưu lên máy chủ), đếm thẳng từ file
+# (không qua banks-to-sql.js): rls-test.sql so với số này.
+BANKS=$(node -e 'const c={window:{}};require("vm").runInNewContext(require("fs").readFileSync(process.argv[1],"utf8"),c);console.log(c.window.ONTAP_SEED_BANKS.filter((b)=>!b.pool).length)' "$ROOT/data/banks/index.js")
 if $PSQL -v banks="$BANKS" < "$HERE/rls-test.sql" > "$TMP/out" 2>&1; then OK=1; else OK=0; fi
 sed "s/^psql:[^ ]* NOTICE:  //" "$TMP/out"
 [ $OK = 1 ] || { echo "RLS FAILED"; exit 1; }

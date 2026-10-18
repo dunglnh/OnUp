@@ -21,6 +21,7 @@
 </div>
 <noscript>Trang này cần bật JavaScript.</noscript>
 <script src="data/grades.js"></script>
+<script src="data/banks/index.js"></script>
 <script src="js/config.js"></script>
 <script>
 /* Trang admin của chủ app: tạo và quản lý tài khoản gia đình (docs/THIET-KE-TAI-KHOAN.md mục 4.3).
@@ -31,8 +32,10 @@
      nhanh), create_account, reset_password, set_status, delete_account. Người gọi không phải owner thì hàm trả "forbidden":
      trang báo "Không có quyền".
    - Ghi chú (admin_notes) đọc/ghi thẳng, nhật ký (admin_log) chỉ đọc: RLS chỉ cho owner (supabase/schema.sql).
+   - Câu bị báo sai (question_reports, Phiên R1): đọc thẳng, chỉ đổi được status (RLS); tên đề lấy từ data/banks/index.js.
    - Không đọc hồ sơ con hay bài làm: chỉ số hồ sơ con, khối, lần dùng gần nhất do list_accounts trả về.
-   Định tuyến bằng hash: #/ (danh sách), #/new (tạo tài khoản), #/acc/<mã> (xem nhanh một tài khoản), #/log (nhật ký).
+   Định tuyến bằng hash: #/ (danh sách), #/new (tạo tài khoản), #/acc/<mã> (xem nhanh một tài khoản), #/reports (câu bị báo),
+   #/log (nhật ký).
    Kiểm thử: tests/supabase/cloud-e2e.js (bản đám mây), tests/e2e.js (bản lưu trên máy: chỉ báo, không gọi ra ngoài). */
 (function () {
   "use strict";
@@ -171,6 +174,7 @@
     self: "Đây là tài khoản của chủ app, không khóa hay xóa được ở đây.",
     confirm: "Gõ đúng tên đăng nhập để xác nhận.",
     bad_request: "Yêu cầu chưa đúng. Tải lại trang rồi thử lại.",
+    notable: "Máy chủ chưa có bảng câu bị báo. Chạy supabase/cap-nhat-r1.sql một lần (mục “Cập nhật máy chủ” của docs/HUONG-DAN-SUPABASE.md).",
     network: "Mất kết nối mạng. Kiểm tra mạng rồi thử lại.",
     server: "Máy chủ đang lỗi. Thử lại sau ít phút; vẫn lỗi thì xem Edge Functions → admin → Logs trong Supabase."
   };
@@ -195,7 +199,8 @@
     try { r = await builder; } catch (e) { throw fail("network"); }
     if (r && r.error) {
       const m = String(r.error.message || ""), c = String(r.error.code || "");
-      throw fail(/^PGRST30\d$/.test(c) || /JWT/i.test(m) ? "auth" : c === "42501" ? "forbidden" : /fetch|network|Load failed/i.test(m) ? "network" : "server");
+      throw fail(/^PGRST30\d$/.test(c) || /JWT/i.test(m) ? "auth" : c === "42501" ? "forbidden" : /^(PGRST205|42P01)$/.test(c) || /Could not find the table/i.test(m) ? "notable"
+        : /fetch|network|Load failed/i.test(m) ? "network" : "server");
     }
     return r ? r.data : null;
   }
@@ -356,13 +361,14 @@
   const recent = (a) => !!a.last_seen_at && Date.now() - new Date(a.last_seen_at).getTime() < 7 * 864e5;
 
   /* ---------------- định tuyến ---------------- */
-  const TABS = [["#/", "Tài khoản"], ["#/new", "Tạo tài khoản"], ["#/log", "Nhật ký"]];
+  const TABS = [["#/", "Tài khoản"], ["#/new", "Tạo tài khoản"], ["#/reports", "Câu bị báo"], ["#/log", "Nhật ký"]];
   const tabs = (cur) => `<div class="tabs" role="group" aria-label="Mục của trang admin">${TABS.map(([h, t]) => `<button data-go="${h}" aria-pressed="${h === cur}">${t}</button>`).join("")}</div>`;
   function route() {
     if (!data) return;
     const [name, id] = (location.hash || "#/").slice(1).split("/").filter(Boolean);
     window.scrollTo(0, 0);
     if (name === "new") return renderCreate();
+    if (name === "reports") return renderReports();
     if (name === "log") return renderLog();
     if (name === "acc" && id) return renderAccount(decodeURIComponent(id));
     return renderList();
@@ -640,6 +646,81 @@
       <div class="row"><button class="btn ghost sm" id="logMore" hidden>Xem thêm</button></div></div>`;
     wireGo();
     loadLog({ box: "#logList", from: 0, n: LOG_PAGE, user: true, more: "#logMore" });
+  }
+
+  /* ---------------- câu bị báo sai (question_reports, Phiên R1) ----------------
+     Đọc thẳng bảng (RLS: owner đọc tất cả, chỉ đổi được status). Gom theo câu (bank_id + q_key): đếm số lần bị báo, hiện từng
+     lượt báo (lí do, ghi chú, lúc nào); nút "Đã sửa" / "Bỏ qua" đổi status của mọi lượt báo về câu đó, câu đã xử lí có nút
+     "Mở lại". Mới nhất trước; lọc theo đề và trạng thái (mặc định: Mới). Tên đề và file lấy từ danh mục data/banks/index.js
+     (đề phụ huynh tự nhập thì chỉ có mã). Không đọc tên hồ sơ con. */
+  const RP_COLS = "id, family_id, profile_id, bank_id, q_key, q_text, reason, note, status, created_at";
+  const REASON = { wrong: "Đáp án sai", unclear: "Câu hỏi khó hiểu", typo: "Lỗi chính tả", other: "Khác" }; // như Quiz.REASONS (js/quiz.js)
+  const RP_STATUS = { new: "Mới", fixed: "Đã sửa", rejected: "Bỏ qua" };
+  const BANKS = window.ONTAP_SEED_BANKS || [];
+  const bankOf = (id) => BANKS.find((b) => b.id === id) || null;
+  const bankTitle = (id) => { const b = bankOf(id); return b ? b.title : id; };
+  const rpFilter = { bank: "", st: "new" };
+  let reports = null; // mọi lượt báo, mới nhất trước
+  async function loadReports() {
+    const out = [];
+    for (let from = 0; ; from += 1000) {
+      const rows = (await q(sb.from("question_reports").select(RP_COLS).order("created_at", { ascending: false }).order("id").range(from, from + 999))) || [];
+      out.push(...rows);
+      if (rows.length < 1000) break;
+    }
+    reports = out;
+  }
+  function groupReports(list) {
+    const m = new Map();
+    list.forEach((r) => { const k = r.bank_id + "|" + r.q_key; if (!m.has(k)) m.set(k, { key: k, bank_id: r.bank_id, q_key: r.q_key, q_text: r.q_text, items: [] }); m.get(k).items.push(r); });
+    return [...m.values()].map((g) => Object.assign(g, { status: g.items.some((r) => r.status === "new") ? "new" : g.items.some((r) => r.status === "fixed") ? "fixed" : "rejected" }));
+  }
+  function renderReports() {
+    view.innerHTML = `<div class="stack">${tabs("#/reports")}
+      <div><h1>Câu bị báo</h1><p class="muted">Học sinh, phụ huynh bấm “Báo câu này sai” khi làm bài. Mỗi câu một dòng, mới nhất trước. Sửa đề xong thì bấm “Đã sửa”; câu đúng rồi thì “Bỏ qua”.</p></div>
+      <div id="rpBody"><p class="small muted">Đang tải…</p></div></div>`;
+    wireGo();
+    loadReports().then(drawReports, (e) => { if (!handled(e)) $("#rpBody").innerHTML = `<div class="fb bad" id="rpErr">${esc(e.message)}</div>`; });
+  }
+  function rpRow(g) {
+    const b = bankOf(g.bank_id), n = g.items.length;
+    const file = b ? `data/banks/${b.file} · ${g.bank_id}` : `${g.bank_id} · đề tự nhập của một gia đình`;
+    const items = g.items.slice(0, 5).map((r) => `<span class="small">${esc(REASON[r.reason] || r.reason)}${r.note ? ` · “${esc(r.note)}”` : ""}<span class="muted"> · ${esc(when(r.created_at))}${r.status !== g.status ? " · " + esc(RP_STATUS[r.status] || r.status) : ""}</span></span>`).join("")
+      + (n > 5 ? `<span class="small muted">… và ${n - 5} lượt báo khác</span>` : "");
+    const btn = (st, cls, t) => `<button class="btn ${cls} sm" data-rp="${esc(g.key)}" data-st="${st}">${t}</button>`;
+    return `<div class="item rp-item" data-key="${esc(g.key)}"><span class="grow">
+      <span class="row" style="gap:6px"><b>${esc(bankTitle(g.bank_id))}</b>${n > 1 ? `<span class="chip warn">${n} lần</span>` : ""}<span class="chip">${esc(RP_STATUS[g.status])}</span></span>
+      <span class="small rp-q">${esc(g.q_text || "(không có nội dung câu)")}</span>
+      <span class="small muted">${esc(file)} · mã câu ${esc(g.q_key)}</span>
+      ${items}
+      <span class="row">${g.status === "new" ? btn("fixed", "main", "Đã sửa") + btn("rejected", "ghost", "Bỏ qua") : btn("new", "ghost", "Mở lại")}</span></span></div>`;
+  }
+  function drawReports() {
+    const box = $("#rpBody"); if (!box || !reports) return;
+    const groups = groupReports(reports), nNew = groups.filter((g) => g.status === "new").length;
+    const banks = [...new Set(reports.map((r) => r.bank_id))].sort((a, b) => bankTitle(a).localeCompare(bankTitle(b), "vi"));
+    const list = groups.filter((g) => (!rpFilter.bank || g.bank_id === rpFilter.bank) && (rpFilter.st === "all" || g.status === rpFilter.st));
+    box.innerHTML = `<div class="stats" id="rpStats"><div class="stat"><b>${nNew}</b><span>câu chưa xử lí</span></div><div class="stat"><b>${groups.length}</b><span>câu bị báo</span></div><div class="stat"><b>${reports.length}</b><span>lượt báo</span></div></div>
+      <div class="form">
+        <label class="field"><span>Đề</span><select id="rpBank"><option value="">Mọi đề</option>${banks.map((b) => `<option value="${esc(b)}" ${rpFilter.bank === b ? "selected" : ""}>${esc(bankTitle(b))}</option>`).join("")}</select></label>
+        <label class="field"><span>Trạng thái</span><select id="rpSt">${[["new", "Mới"], ["fixed", "Đã sửa"], ["rejected", "Bỏ qua"], ["all", "Tất cả"]].map(([k, t]) => `<option value="${k}" ${rpFilter.st === k ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+      </div>
+      <p class="small muted" id="rpCount" aria-live="polite">${reports.length ? (list.length === groups.length ? groups.length + " câu" : "Thấy " + list.length + "/" + groups.length + " câu") : ""}</p>
+      ${!reports.length ? `<div class="panel muted">Chưa có câu nào bị báo.</div>` : list.length ? `<div class="list" id="rpList">${list.map(rpRow).join("")}</div>` : `<div class="panel muted">Không có câu nào khớp.</div>`}
+      <div class="row"><button class="btn ghost sm" id="rpReload">Tải lại</button></div>`;
+    $("#rpBank").onchange = () => { rpFilter.bank = $("#rpBank").value; drawReports(); };
+    $("#rpSt").onchange = () => { rpFilter.st = $("#rpSt").value; drawReports(); };
+    $("#rpReload").onclick = renderReports;
+    $$("[data-rp]", box).forEach((b) => (b.onclick = () => setReportStatus(b.dataset.rp, b.dataset.st)));
+  }
+  async function setReportStatus(key, status) {
+    const ids = reports.filter((r) => r.bank_id + "|" + r.q_key === key).map((r) => r.id);
+    const btns = $$(`[data-rp="${CSS.escape(key)}"]`); btns.forEach((b) => (b.disabled = true));
+    try { await q(sb.from("question_reports").update({ status }).in("id", ids)); }
+    catch (e) { if (!handled(e)) { toast(e.message); btns.forEach((b) => (b.disabled = false)); } return; }
+    reports.forEach((r) => { if (ids.includes(r.id)) r.status = status; });
+    toast(status === "fixed" ? "Đã đánh dấu đã sửa" : status === "rejected" ? "Đã bỏ qua" : "Đã mở lại");
+    drawReports();
   }
 
   /* ---------------- khởi động ---------------- */

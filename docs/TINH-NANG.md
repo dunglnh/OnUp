@@ -81,6 +81,7 @@ Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mố
 - **Bài ôn dạng trang**: mở trong khung, giữ nguyên mọi chức năng của trang gốc. Tiến độ trong bài được tách riêng cho từng học sinh dù dùng chung máy. Mỗi lần làm xong, điểm tổng được gửi về hồ sơ.
 - **Đề ngẫu nhiên** (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì (và câu riêng nếu có); mỗi lần bấm là một đề khác, rút theo ma trận (số câu từng chủ đề, từng mức độ), ưu tiên câu con chưa làm hoặc hay sai; thiếu câu ở một ô thì lấy bù và ghi chú ngay ở màn đầu; trang kết quả có nút "Làm đề khác". Kết quả tính như đề thường (báo cáo tuần, chủ đề hay sai). Các đề cố định vẫn làm riêng được.
 - **Ngân hàng câu hỏi**: hai chế độ — *Ôn luyện* (xem đáp án và lời giải sau từng câu) và *Làm như thi* (tính giờ, chỉ xem đáp án khi nộp). Kết quả hiện điểm thang 10, thống kê theo chủ đề và theo mức độ (Biết, Hiểu, Vận dụng, khi câu có ghi mức độ), danh sách câu sai kèm lời giải.
+- **Báo câu này sai** (Phiên R1): dưới lời giải khi ôn luyện và dưới từng câu cần xem lại ở màn kết quả có link nhỏ có lá cờ; bấm thì chọn lí do (Đáp án sai · Câu hỏi khó hiểu · Lỗi chính tả · Khác), ghi chú ngắn nếu muốn, bấm Gửi là xong, có lời cảm ơn. Ai cũng báo được, kể cả phụ huynh đang xem thử. Bản lưu trên máy: Quản trị → Dữ liệu có danh sách và nút “Chép để gửi” (dán vào Zalo gửi người làm đề). Bản đám mây: báo cáo lên máy chủ (tối đa 30 câu mỗi ngày mỗi gia đình), Khu phụ huynh → Dữ liệu xem lại kèm trạng thái; chủ app xử lí ở trang admin, tab “Câu bị báo” (đếm số lần mỗi câu bị báo, lọc theo đề, Đã sửa / Bỏ qua).
 - **Dạng câu** (Phiên K2; mọi dạng làm bằng chạm trên điện thoại, không phải kéo thả): trắc nghiệm, điền khuyết, đúng/sai; **đúng/sai 4 ý** chấm từng ý như đề thi tốt nghiệp (đúng 1/2/3/4 ý được 0,1/0,25/0,5/1 câu); **trả lời bằng số** (dấu phẩy thập phân, có sai số cho phép, nút ± để gõ số âm); **nối cột** (chạm ô bên trái rồi ô bên phải, chấm theo số cặp nối đúng); **sắp xếp thứ tự** (chạm lần lượt, chạm lại để bỏ ra); **tự luận** có đáp án gợi ý và thang tự chấm (Chưa có, Một phần, Đủ cho từng ý). Câu có thể kèm **đoạn đọc dùng chung** (hiện phía trên câu hỏi, thu gọn được, các câu cùng đoạn đứng liền nhau) và **hình vẽ** (SVG đã lọc an toàn, màu đổi theo chế độ tối). Điểm tự chấm phần tự luận lưu riêng, không cộng vào điểm trung bình; báo cáo tuần có mục “Tự luận tự chấm”. Đề mẫu: “Đề thử nghiệm · Các dạng câu mới” (lớp 6, nhóm Bài ôn khác). Ảnh: [hinh-dang-cau/](hinh-dang-cau/).
 
 ### 4.4 Quản trị (bản đám mây: Khu phụ huynh)
@@ -158,7 +159,7 @@ Trang thật **chỉ dành cho gia đình được mời** (quyết định 18/1
 - Giáo viên giao bài cho cả lớp, bảng xếp hạng.
 - Đề giữa kì II lớp 6 và đề cuối năm lớp 4, lớp 6 (đã có chỗ trong lịch, chưa có câu hỏi; lớp 4 đã có 4 đề giữa kì II). Số đề đang có: `node tests/kiem-tra-de.js`.
 - Thông báo nhắc ôn qua điện thoại.
-- Nút “Báo câu này sai” trong app, các cải tiến giao diện 2.x: đã có trong lộ trình, chưa có trong app.
+- Các cải tiến giao diện 2.x (trang “Hôm nay”, làm bài tập trung…): đã có trong lộ trình, chưa có trong app.
 
 ## 7. Lộ trình tiếp theo
 
