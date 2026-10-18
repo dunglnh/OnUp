@@ -43,6 +43,7 @@
     return diff <= 0 ? "Hôm nay " + hm : diff === 1 ? "Hôm qua " + hm : d.getDate() + "/" + (d.getMonth() + 1) + " " + hm;
   };
   const pct = (r, t) => (t ? Math.round((r / t) * 100) : 0);
+  const nf = (x) => Quiz.fmtN(+x || 0); // 23,35 (số câu đúng có thể lẻ: câu đúng/sai 4 ý, nối cột chấm từng ý)
   const d10 = (r, t) => (t ? String(Math.round((r / t) * 40) / 4).replace(".", ",") : "–");
   const isoDay = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
   const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
@@ -211,6 +212,10 @@
   window.addEventListener("beforeunload", (e) => { if (guardOn()) { e.preventDefault(); e.returnValue = "leave"; } });
 
   /* ---------------- số liệu học tập ---------------- */
+  /* Kết quả mode "self": điểm tự chấm phần tự luận (js/quiz.js), r và t tính bằng phần tư điểm. Không tính vào điểm
+     trung bình, số bài, độ sẵn sàng: các màn hình lọc bằng graded() rồi mới tính; báo cáo tuần ghi riêng. */
+  const isSelf = (r) => r.mode === "self";
+  const graded = (list) => list.filter((r) => !isSelf(r));
   function within(results, days) { const lim = Date.now() - days * DAY; return results.filter((r) => new Date(r.at).getTime() >= lim); }
   function sumRT(list) { return list.reduce((a, r) => [a[0] + r.r, a[1] + r.t], [0, 0]); }
   function streak(results) {
@@ -626,7 +631,7 @@
   }
 
   function renderStudent(s, viewer, asObserver) {
-    const results = Store.resultsFor(s.id), next = nextEvent(s.grade);
+    const all = Store.resultsFor(s.id), results = graded(all), next = nextEvent(s.grade);
     const w7 = within(results, 7), [r30, t30] = sumRT(within(results, 30));
     const evs = Store.events(s.grade).filter((e) => status(e) !== "past").slice(0, 5);
     let hero = `<section class="hero"><span class="label">Kì thi tiếp theo</span><h1>Chưa có kì thi sắp tới</h1><p>Xem lịch thi cả năm để biết thêm.</p></section>`;
@@ -644,7 +649,7 @@
     }
     const subs = bySubject(within(results, 30)), weakList = wrongTopics(within(results, 30)).slice(0, 5);
     // Học sinh: 3 kết quả mới nhất ngay dưới hàng thống kê. Phụ huynh, quản trị xem hồ sơ: 30 kết quả ở cuối trang.
-    const recent = `<section class="sec" id="recent"><h2>Kết quả gần đây</h2>${resultsList(results.slice(0, asObserver ? 30 : 3))}</section>`;
+    const recent = `<section class="sec" id="recent"><h2>Kết quả gần đây</h2>${resultsList(all.slice(0, asObserver ? 30 : 3))}</section>`;
     view.innerHTML = `<div class="stack">
       ${asObserver ? `<div class="row between">${back(viewer.role === "admin" ? "#/admin/overview" : "#/home", "Về danh sách")}${viewer.role !== "student" ? `<a class="btn ghost sm" href="#/admin/user/${esc(s.id)}">Sửa hồ sơ</a>` : ""}</div>
         <div class="row between"><div class="row">${avatar(s, true)}<div><h2>${esc(s.name)}</h2><span class="muted">${esc(gradeTxt(s))}</span></div></div><a class="btn main sm" id="toReport" href="#/report/${esc(s.id)}">Báo cáo tuần</a></div>` : `<div><h2>Chào ${esc(s.name)}! ${esc(s.avatar)}</h2><span class="muted">${esc(gradeTxt(s))}</span></div>`}
@@ -672,7 +677,7 @@
   }
   function resultsList(list) {
     if (!list.length) return `<div class="panel muted">Chưa có kết quả. Làm một bài ôn để bắt đầu.</div>`;
-    return `<div class="list">${list.map((r) => `<div class="item"><div class="grow"><b>${esc(r.label || "Bài ôn")}</b><span class="small muted">${esc(ago(r.at))}${r.subject ? " · " + esc(r.subject) : ""}${r.mode === "exam" ? " · làm như thi" : ""}</span></div><b class="${pct(r.r, r.t) >= 80 ? "" : ""}" style="font-variant-numeric:tabular-nums">${r.r}/${r.t}</b></div>`).join("")}</div>`;
+    return `<div class="list">${list.map((r) => `<div class="item"><div class="grow"><b>${esc(r.label || "Bài ôn")}</b><span class="small muted">${esc(ago(r.at))}${r.subject ? " · " + esc(r.subject) : ""}${r.mode === "exam" ? " · làm như thi" : isSelf(r) ? " · tự luận tự chấm" : ""}</span></div><b style="font-variant-numeric:tabular-nums">${isSelf(r) ? nf(r.r / 4) + "/" + nf(r.t / 4) + " điểm" : nf(r.r) + "/" + r.t}</b></div>`).join("")}</div>`;
   }
 
   /* ================= BÁO CÁO TUẦN =================
@@ -713,9 +718,10 @@
     return tips.concat(later).slice(0, 5);
   }
   function renderReport(s) {
-    const all = Store.resultsFor(s.id), t0 = today0(), from = addDays(t0, -6);
-    const span = (a, b) => all.filter((r) => { const d = new Date(r.at); return d >= a && d < b; });
+    const mine = Store.resultsFor(s.id), all = graded(mine), t0 = today0(), from = addDays(t0, -6);
+    const span = (a, b, list) => (list || all).filter((r) => { const d = new Date(r.at); return d >= a && d < b; });
     const week = span(from, addDays(t0, 1)), st = weekStats(week), pv = weekStats(span(addDays(from, -7), from));
+    const selfWeek = span(from, addDays(t0, 1), mine.filter(isSelf));
     const perDay = {}; week.forEach((r) => { const k = isoDay(new Date(r.at)); perDay[k] = (perDay[k] || 0) + 1; });
     const subs = bySubject(week), topics = wrongTopics(week).slice(0, 6), school = Store.settings().schoolName;
     const evs = Store.events(s.grade).filter((e) => e.kind !== "moc" && e.start && status(e) !== "past").slice(0, 3);
@@ -739,10 +745,12 @@
         return `<div class="rp-day${n ? " on" : ""}"><span>${WD[d.getDay()]}</span><b>${n || "–"}</b><small>${d.getDate()}/${d.getMonth() + 1}</small></div>`;
       }).join("")}</div></section>
       ${st.n ? `<section class="panel" id="rpSubjects"><div class="label">Điểm theo môn</div>${subs.map((x) => `<div class="rp-sub"><div class="row between"><b>${esc(x.name)}</b><b>${d10(x.r, x.t)}<span class="small muted">/10</span></b></div>
-          <div class="bar ${pct(x.r, x.t) >= 80 ? "good" : ""}"><i style="width:${pct(x.r, x.t)}%"></i></div><span class="small muted">${x.n} bài · ${x.r}/${x.t} câu đúng</span></div>`).join("")}</section>
+          <div class="bar ${pct(x.r, x.t) >= 80 ? "good" : ""}"><i style="width:${pct(x.r, x.t)}%"></i></div><span class="small muted">${x.n} bài · ${nf(x.r)}/${x.t} câu đúng</span></div>`).join("")}</section>
         <section class="panel" id="rpTopics"><div class="label">Chủ đề hay sai</div>${topics.length ? `<div class="list">${topics.map(([t, n]) => `<div class="item"><span class="grow">${esc(t)}</span><b class="small">${n} câu sai</b></div>`).join("")}</div>`
           : `<p class="small muted">Không có câu sai nào được ghi theo chủ đề. Bài ôn IOE và ôn giữa kì I chỉ gửi về điểm tổng.</p>`}</section>`
         : `<div class="panel muted">Chưa có bài làm nào trong 7 ngày qua.</div>`}
+      ${selfWeek.length ? `<section class="panel" id="rpSelf"><div class="label">Tự luận tự chấm</div>
+        <p class="small muted">Điểm tự chấm theo thang gợi ý của đề, không tính vào điểm trung bình ở trên.</p>${resultsList(selfWeek)}</section>` : ""}
       <section class="sec"><h2>Kì thi sắp tới</h2>${evs.length ? `<div class="timeline">${evs.map((e) => eventRow(e, { grade: s.grade, student: s, results: all })).join("")}</div>` : `<div class="panel muted">Không còn kì thi nào có lịch trong năm học.</div>`}</section>
       <section class="panel" id="rpTips"><h2>Gợi ý ôn tuần sau</h2><ol class="tips">${weekTips(s, week, all).map((t) => `<li>${esc(t)}</li>`).join("")}</ol></section>
       ${st.n ? `<section class="sec"><h2>Bài đã làm trong tuần</h2>${resultsList(week)}</section>` : ""}
@@ -755,7 +763,7 @@
   /* Bản đám mây: hồ sơ vượt số hồ sơ của gói (máy chủ đặt profiles.locked) không ghi được kết quả mới. */
   const lockTag = (u) => (u.locked ? " · đang khóa theo gói" : "");
   function childCard(c) {
-    const res = Store.resultsFor(c.id), nx = nextEvent(c.grade), [r, t] = sumRT(within(res, 30));
+    const res = graded(Store.resultsFor(c.id)), nx = nextEvent(c.grade), [r, t] = sumRT(within(res, 30));
     return `<button class="item" data-child="${esc(c.id)}">${avatar(c)}<span class="grow"><b>${esc(c.name)}</b>
       <span class="small muted">${esc(gradeTxt(c))}${esc(lockTag(c))} · ${res.length ? "Lần cuối: " + esc(ago(res[0].at)) : "Chưa làm bài nào"}${t ? " · TB 30 ngày " + d10(r, t) + "/10" : ""}</span>
       ${nx ? `<span class="small">Sắp tới: ${esc(nx.title)} · ${esc(range(nx))}</span>` : ""}</span><span aria-hidden="true">›</span></button>`;
@@ -811,7 +819,7 @@
     const evs = Store.events(calGrade || null), dated = evs.filter((e) => e.start), undated = evs.filter((e) => !e.start);
     const months = {};
     dated.forEach((e) => { const d = pd(e.start), k = d.getFullYear() * 100 + d.getMonth(); (months[k] = months[k] || []).push(e); });
-    const student = u.role === "student" ? u : null, results = student ? Store.resultsFor(u.id) : [];
+    const student = u.role === "student" ? u : null, results = student ? graded(Store.resultsFor(u.id)) : [];
     view.innerHTML = `<div class="stack">
       <div class="row between">${back("#/home", "Trang chính")}${u.role === "admin" ? `<a class="btn sm" href="#/admin/event/new">+ Thêm kì thi</a>` : ""}</div>
       <div><h1>Lịch thi năm học ${esc(Store.settings().schoolYear || "2026–2027")}</h1>
@@ -873,6 +881,7 @@
 
   /* ================= LÀM BÀI TỪ NGÂN HÀNG ================= */
   let quizRun = null;
+  const essayN = (b) => (b.questions || []).filter((q) => q.type === "essay").length;
   function renderQuiz(u, id) {
     const b = Store.bank(id);
     if (!b) { renderMissing("Không tìm thấy đề", "Đề này không có trong app, hoặc đã được bỏ đi."); return; }
@@ -880,14 +889,14 @@
     if (!b.questions) { loadQuiz(u, b); return; }
     view.innerHTML = `<div class="stack">${back("#/home", "Trang chính")}
       <section class="hero"><span class="label">Lớp ${b.grade} · ${esc(b.subject)}</span><h1>${esc(b.title)}</h1>
-        <p>${b.questions.length} câu.${b.note ? " " + esc(b.note) : ""}</p>
+        <p>${b.questions.length} câu${essayN(b) ? ` (${essayN(b)} câu tự luận tự chấm)` : ""}.${b.note ? " " + esc(b.note) : ""}</p>
         <div class="row"><button class="btn main" id="qPractice">Ôn luyện (xem đáp án từng câu)</button>${b.minutes ? `<button class="btn ghost" id="qExam">Làm như thi · ${b.minutes} phút</button>` : ""}</div></section>
       ${u.role !== "student" ? `<div class="notice">Chế độ xem thử: điểm không được lưu.</div>` : ""}</div>`;
     wireGo();
     const start = (mode) => {
       const run = (quizRun = Quiz.run(view, b, {
         mode, onExit: () => go("#/home"),
-        onFinish: (res) => { if (u.role === "student") { Store.addResult(Object.assign({ userId: u.id, source: "bank", refId: b.id, subject: b.subject, label: b.title }, res)); toast("Đã lưu kết quả"); } }
+        onFinish: (res) => { if (u.role === "student") { Store.addResult(Object.assign({ userId: u.id, source: "bank", refId: b.id, subject: b.subject, label: b.title }, res)); toast(res.mode === "self" ? "Đã lưu điểm tự chấm" : "Đã lưu kết quả"); } }
       }));
       // Xem thử (phụ huynh, quản trị) không lưu điểm nên không cần hỏi.
       // Gọi qua run: "Làm lại" thay busy/answered/submit của lượt mới vào cùng đối tượng.
@@ -931,7 +940,7 @@
     const cloud = !!Store.cloud;
     let body = "";
     if (tab === "overview") {
-      const studs = Store.users("student"), w7 = within(Store.data().results, 7);
+      const studs = Store.users("student"), w7 = within(graded(Store.data().results), 7);
       const addBtn = Store.can("addChild") ? `<a class="btn sm" href="#/admin/user/new?role=student">+ Thêm hồ sơ con</a>` : "";
       body = (cloud ? `<div class="stats"><div class="stat"><b>${studs.length}</b><span>hồ sơ con</span></div><div class="stat"><b>${w7.length}</b><span>bài làm 7 ngày qua</span></div><div class="stat"><b>${new Set(w7.map((r) => r.userId)).size}</b><span>con có ôn 7 ngày qua</span></div></div>
         <section class="sec"><div class="row between"><h2>Con của tôi</h2>${addBtn}</div>${studs.length ? `<div class="list">${studs.map(childCard).join("")}</div>` : `<div class="panel muted">Chưa có hồ sơ con. Bấm “Thêm hồ sơ con”: tên, khối, lớp và mã PIN nếu muốn. Mỗi con chọn hồ sơ của mình ở màn hình “Ai đang học?”.</div>`}</section>`
@@ -954,7 +963,7 @@
         <div class="list">${Store.events().map((e) => `<a class="item" href="#/admin/event/${esc(e.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${esc(e.title)} · Lớp ${esc(e.grades.join(", "))}</b><span class="small muted">${esc(range(e))}${e.tentative && e.start ? " · dự kiến" : ""} · ${(e.modules || []).length + (e.banks || []).length} bài ôn</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>
         <div class="row"><button class="btn ghost sm" id="resetEv">Khôi phục lịch mặc định</button></div><div id="resetArea"></div>`;
     } else if (tab === "banks") {
-      body = `<div class="row between"><p class="muted small" style="flex:1">Dán câu hỏi từ Word, Zalo, sách bài tập. App tự nhận dạng trắc nghiệm, điền khuyết, đúng/sai.</p><a class="btn main sm" href="#/admin/bank/new">+ Nhập ngân hàng</a></div>
+      body = `<div class="row between"><p class="muted small" style="flex:1">Dán câu hỏi từ Word, Zalo, sách bài tập. App tự nhận dạng trắc nghiệm, điền khuyết, đúng/sai, nối cột, sắp xếp, trả lời bằng số, tự luận.</p><a class="btn main sm" href="#/admin/bank/new">+ Nhập ngân hàng</a></div>
         <div class="list">${Store.banks().map((b) => `<a class="item" href="#/${b.seed ? "quiz" : "admin/bank"}/${esc(b.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${esc(b.title)}</b><span class="small muted">Lớp ${b.grade} · ${esc(b.subject)} · ${qCount(b)} câu${b.seed ? " · có sẵn (chỉ xem)" : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>`;
     } else if (tab === "data" && cloud) {
       const st = Store.settings(), loc = Store.localData(), mig = Store.migratedAt();
@@ -1165,7 +1174,53 @@
 # Hình học
 Đúng: Hai đường thẳng song song thì không bao giờ cắt nhau.
 
-Sai: Hình thoi có bốn góc vuông.`;
+Sai: Hình thoi có bốn góc vuông.
+
+Cho hình chữ nhật dài 6 cm, rộng 4 cm. Mỗi ý sau đúng hay sai?
+a) Đúng: Chu vi hình chữ nhật là 20 cm.
+b) Sai: Diện tích hình chữ nhật là 20 cm².
+c) Đúng: Hình chữ nhật có 4 góc vuông.
+d) Sai: Hai cạnh dài và rộng bằng nhau.
+Mức: Hiểu
+
+# Đọc hiểu
+Đoạn đọc: Chú mèo con
+Nhà Bin có một chú mèo con lông trắng muốt.
+Mỗi sáng, chú nằm sưởi nắng bên cửa sổ.
+Hết đoạn
+
+Chú mèo con có bộ lông màu gì?
+* Trắng
+- Đen
+- Vàng
+
+Chú mèo nằm sưởi nắng ở đâu?
+* Bên cửa sổ
+- Trên mái nhà
+- Dưới gầm bàn
+
+# Đo lường
+Một sợi dây dài 2 m, cắt đi 0,75 m. Đoạn còn lại dài bao nhiêu mét?
+Đáp số: 1,25 m
+
+Nối dụng cụ với đại lượng đo được.
+Thước -> Chiều dài
+Cân -> Khối lượng
+Đồng hồ -> Thời gian
+-> Nhiệt độ
+
+Sắp xếp các số đo theo thứ tự từ bé đến lớn.
+1) 5 mm
+2) 3 cm
+3) 1 dm
+4) 2 m
+
+# Viết
+Tự luận: Viết 3 đến 5 câu kể về một việc tốt bạn đã làm.
++ Viết đủ 3 đến 5 câu, đúng chủ đề (1)
++ Kể rõ việc làm và cảm nghĩ của bạn (1)
++ Viết đúng chính tả (0,5)
+> Gợi ý: Nói bạn đã làm việc gì, ở đâu, giúp ai; kết thúc bằng cảm nghĩ của bạn.`;
   function renderBankForm(u, id) {
     if (u.role !== "admin") { go("#/home"); return; }
     const b = id === "new" ? { id: "", title: "", grade: gradeList()[0], subject: "", minutes: 20, note: "", src: "" } : Store.bank(id);
@@ -1184,25 +1239,35 @@ Sai: Hình thoi có bốn góc vuông.`;
 * đáp án đúng / - đáp án sai   → trắc nghiệm
 Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [a|b]
 Đúng: … hoặc Sai: …    → câu đúng/sai
-> giải thích           → hiện sau khi trả lời</pre></details>
+Câu hỏi + 4 dòng a) Đúng: … / b) Sai: …   → đúng/sai 4 ý (chấm từng ý)
+Câu hỏi + Đáp số: 2,5 ± 0,1 kg   → trả lời bằng số (sai số, đơn vị không bắt buộc)
+Câu hỏi + các dòng trái -> phải  → nối cột (-> ô thừa: ô bên phải không nối)
+Câu hỏi + 1) … 2) … 3) …   → sắp xếp (viết theo thứ tự đúng)
+Tự luận: đề bài + các dòng + ý cần có (0,5)   → tự luận tự chấm
+Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
+Đoạn đọc: tiêu đề … Hết đoạn   → đoạn văn dùng chung cho các câu bên dưới
+&lt;svg viewBox="…"&gt;…&lt;/svg&gt;   → hình vẽ của câu (màu: ink, acc, ok, bad…)
+> giải thích           → hiện sau khi trả lời (tự luận: đáp án gợi ý)</pre></details>
       <textarea id="bSrc" spellcheck="false" aria-label="Câu hỏi" placeholder="Dán câu hỏi vào đây…">${esc(b.src || "")}</textarea>
       <div class="row"><button class="btn ghost sm" type="button" id="bSample">Xem ví dụ</button><label class="btn ghost sm" for="bFile">Mở file .txt</label><input type="file" id="bFile" accept=".txt,text/plain" hidden><button class="btn sm" type="button" id="bCheck">Kiểm tra</button></div>
       <div id="bRes"></div>
       <div class="row"><button class="btn main" type="submit">Lưu ngân hàng</button>${id !== "new" ? `<button class="btn danger" type="button" id="bDel">Xóa</button>` : ""}</div><div id="bDelArea"></div></form></div>`;
     wireGo();
     const check = () => {
-      const { questions, errors } = Quiz.parse($("#bSrc").value), c = (t) => questions.filter((q) => q.type === t).length;
-      $("#bRes").innerHTML = `<div class="${errors.length ? "notice" : "fb ok"}">Nhận được ${questions.length} câu: ${c("mc")} trắc nghiệm, ${c("fill")} điền khuyết, ${c("tf")} đúng/sai.${errors.length ? "<br>" + errors.map(esc).join("<br>") : ""}</div>`;
-      return questions;
+      const { questions, passages, errors } = Quiz.parse($("#bSrc").value), c = (t) => questions.filter((q) => q.type === t).length;
+      const kinds = [["mc", "trắc nghiệm"], ["fill", "điền khuyết"], ["tf", "đúng/sai"], ["tf4", "đúng/sai 4 ý"], ["num", "trả lời bằng số"], ["match", "nối cột"], ["order", "sắp xếp"], ["essay", "tự luận"]]
+        .filter(([t], i) => i < 3 || c(t)).map(([t, nm]) => c(t) + " " + nm), np = Object.keys(passages).length;
+      $("#bRes").innerHTML = `<div class="${errors.length ? "notice" : "fb ok"}">Nhận được ${questions.length} câu: ${kinds.join(", ")}${np ? `; ${np} đoạn đọc` : ""}.${errors.length ? "<br>" + errors.map(esc).join("<br>") : ""}</div>`;
+      return { questions, passages };
     };
     $("#bSample").onclick = () => { $("#bSrc").value = BANK_SAMPLE; check(); };
     $("#bCheck").onclick = check;
     $("#bFile").onchange = (ev) => { const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $("#bSrc").value = r.result; check(); }; r.readAsText(f, "utf-8"); };
     $("#bForm").onsubmit = (ev) => {
       ev.preventDefault();
-      const qs = check();
+      const { questions, passages } = check();
       try {
-        Store.upsertBank({ id: b.id, title: $("#bTitle").value, grade: +$("#bGrade").value, subject: $("#bSubj").value.trim(), minutes: +$("#bMin").value || 0, note: $("#bNote").value.trim(), questions: qs, src: $("#bSrc").value });
+        Store.upsertBank({ id: b.id, title: $("#bTitle").value, grade: +$("#bGrade").value, subject: $("#bSubj").value.trim(), minutes: +$("#bMin").value || 0, note: $("#bNote").value.trim(), questions, passages, src: $("#bSrc").value });
         toast("Đã lưu. Vào Lịch thi để gắn ngân hàng này vào kì thi."); go("#/admin/banks");
       } catch (err) { $("#bRes").innerHTML = `<div class="fb bad">${esc(err.message)}</div>`; }
     };

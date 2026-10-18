@@ -1,6 +1,6 @@
 # Kế hoạch nội dung: đủ đề lớp 4 và 6, rồi lớp 5, 7–12
 
-Phiên bản 1 · 17/10/2026 · Trạng thái: **đang làm** (N0a, N0b, K1 đã xong). Lời giao việc từng phiên: mục 6 và 7.
+Phiên bản 1 · 17/10/2026 · Trạng thái: **đang làm** (N0a, N0b, K1, K2 đã xong). Lời giao việc từng phiên: mục 6 và 7.
 
 Tài liệu này trả lời ba câu hỏi:
 - Còn thiếu bao nhiêu đề.
@@ -102,6 +102,11 @@ Cùng lúc cần thêm **dạng câu**, vì đề thật không chỉ có trắc
 | Câu nghe (đọc bằng giọng máy của trình duyệt) | Tiếng Anh | như bài ôn IOE đang làm |
 
 Thứ tự: làm các phiên kĩ thuật K1 → K2 → K3 trước, rồi mới làm đề hàng loạt, để đề mới dùng được ngay dạng câu mới và không phải sửa lại.
+
+**Đã làm ở Phiên K2 (18/10/2026):** mọi dạng trong bảng trên trừ câu nghe. Cách viết dữ liệu ở đầu `data/banks/index.js`; cú pháp nhập cho phụ huynh, quản trị ở Quản trị → Ngân hàng đề → “Cách viết câu hỏi”; đề mẫu `thunghiem6-dang-cau-moi` (lớp 6, không gắn kì thi); ảnh ở `docs/hinh-dang-cau/`. Ghi chú cho các phiên làm đề:
+- Mỗi câu nặng như nhau (1 câu). Đúng/sai 4 ý được 0,1/0,25/0,5/1 câu; nối cột chấm theo số cặp đúng; sắp xếp đúng cả thứ tự mới được điểm. Muốn tỉ lệ điểm như đề thi tốt nghiệp (câu đúng/sai 4 ý nặng gấp 4 câu trắc nghiệm) thì thêm trọng số câu ở K3.
+- Tự luận không chấm tự động: điểm tự chấm lưu thành kết quả riêng, không vào điểm trung bình.
+- Bản đám mây: chủ app chạy `supabase/cap-nhat-k2.sql` một lần (`docs/HUONG-DAN-SUPABASE.md`).
 
 ---
 

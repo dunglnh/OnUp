@@ -34,20 +34,20 @@ function rows() {
     const trial = n != null ? n === 1 : !firstInGroup.has(group);
     firstInGroup.add(group);
     return { id: b.id, title: b.title, grade: b.grade, subject: b.subject || "", exam, minutes: b.minutes || 0, note: b.note || "",
-      questions: JSON.stringify(b.questions), free_trial: trial, published: true, sort: i + 1 };
+      questions: JSON.stringify(b.questions), passages: JSON.stringify(b.passages || {}), free_trial: trial, published: true, sort: i + 1 };
   });
 }
 
 function toSql() {
   const list = rows();
-  const cols = ["id", "title", "grade", "subject", "exam", "minutes", "note", "questions", "free_trial", "published", "sort"];
-  const values = list.map((r) => "(" + cols.map((c) => (c === "questions" ? lit(r[c]) + "::jsonb" : lit(r[c]))).join(", ") + ")");
+  const cols = ["id", "title", "grade", "subject", "exam", "minutes", "note", "questions", "passages", "free_trial", "published", "sort"];
+  const values = list.map((r) => "(" + cols.map((c) => (c === "questions" || c === "passages" ? lit(r[c]) + "::jsonb" : lit(r[c]))).join(", ") + ")");
   return [
     `-- Sinh bằng: node supabase/banks-to-sql.js (${list.length} đề từ data/banks/, ${list.filter((r) => r.free_trial).length} đề thử). Không sửa tay.`,
     `insert into paid_banks (${cols.join(", ")}) values`,
     values.join(",\n"),
     "on conflict (id) do update set title = excluded.title, grade = excluded.grade, subject = excluded.subject, exam = excluded.exam,",
-    "  minutes = excluded.minutes, note = excluded.note, questions = excluded.questions, sort = excluded.sort;",
+    "  minutes = excluded.minutes, note = excluded.note, questions = excluded.questions, passages = excluded.passages, sort = excluded.sort;",
     ""
   ].join("\n");
 }

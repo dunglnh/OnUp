@@ -15,6 +15,8 @@ PSQL="$AS $BIN/psql -h $TMP -U postgres -d postgres -v ON_ERROR_STOP=1 -q -t -A 
 $PSQL < "$HERE/auth-stub.sql"
 $PSQL < "$ROOT/supabase/schema.sql"
 echo "schema.sql: OK"
+$PSQL < "$ROOT/supabase/cap-nhat-k2.sql"   # file cập nhật cho project cũ: chạy trên bản mới cũng không lỗi, không đổi gì
+echo "cap-nhat-k2.sql: OK"
 node "$ROOT/supabase/banks-to-sql.js" > "$TMP/paid-banks.sql"
 $PSQL < "$TMP/paid-banks.sql"
 $PSQL < "$TMP/paid-banks.sql"   # chạy lại lần hai không lỗi, không trùng

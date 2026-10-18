@@ -105,6 +105,8 @@ create table question_banks (
   note text not null default '' check (char_length(note) <= 2000),
   src text not null default '' check (char_length(src) <= 200000),
   questions jsonb not null check (jsonb_typeof(questions) = 'array' and pg_column_size(questions) <= 500000),
+  -- đoạn đọc dùng chung { mã: {title, text, svg} }, câu tham chiếu bằng mã đoạn (Phiên K2)
+  passages jsonb not null default '{}' check (jsonb_typeof(passages) = 'object' and pg_column_size(passages) <= 200000),
   primary key (family_id, id)
 );
 
@@ -117,7 +119,9 @@ create table results (
   subject text not null default '' check (char_length(subject) <= 60),
   label text not null default '' check (char_length(label) <= 120),
   mode text not null default '' check (char_length(mode) <= 20),
-  r int not null check (r >= 0), t int not null check (t > 0 and t <= 1000 and r <= t), s int not null default 0 check (s >= 0),
+  -- r: số câu đúng, lẻ đến 0,01 vì câu đúng/sai 4 ý, nối cột chấm từng ý (Phiên K2). mode 'self': điểm tự chấm phần tự luận,
+  -- r và t tính bằng phần tư điểm, app không tính vào điểm trung bình.
+  r numeric(7,2) not null check (r >= 0), t int not null check (t > 0 and t <= 1000 and r <= t), s int not null default 0 check (s >= 0),
   wrong_topics text[] check (wrong_topics is null or (cardinality(wrong_topics) <= 50 and char_length(array_to_string(wrong_topics, '')) <= 5000)),
   import_key text,
   at timestamptz not null default now(),
@@ -136,6 +140,7 @@ create table paid_banks (
   minutes int not null default 0 check (minutes between 0 and 600),
   note text not null default '' check (char_length(note) <= 2000),
   questions jsonb not null check (jsonb_typeof(questions) = 'array' and pg_column_size(questions) <= 1000000),
+  passages jsonb not null default '{}' check (jsonb_typeof(passages) = 'object' and pg_column_size(passages) <= 200000),
   free_trial boolean not null default false,  -- đề thử: tài khoản nào cũng đọc được
   published boolean not null default false,   -- chưa đăng thì chỉ owner thấy
   sort int not null default 0,
@@ -476,12 +481,13 @@ begin
     for bk in select * from jsonb_array_elements(p_data->'banks') loop
       continue when coalesce(bk->>'id', '') = '' or jsonb_typeof(bk->'questions') <> 'array';
       continue when case when coalesce(bk->>'grade', '') ~ '^\d{1,2}$' then (bk->>'grade')::int not between 1 and 12 else true end;
-      insert into question_banks (id, family_id, title, grade, subject, minutes, note, src, questions)
+      insert into question_banks (id, family_id, title, grade, subject, minutes, note, src, questions, passages)
         values (left(bk->>'id', 80), fid, left(coalesce(nullif(btrim(bk->>'title'), ''), 'Ngân hàng'), 200), (bk->>'grade')::smallint,
                 left(coalesce(bk->>'subject', ''), 60), least(greatest(coalesce((bk->>'minutes')::int, 0), 0), 600),
-                left(coalesce(bk->>'note', ''), 2000), left(coalesce(bk->>'src', ''), 200000), bk->'questions')
+                left(coalesce(bk->>'note', ''), 2000), left(coalesce(bk->>'src', ''), 200000), bk->'questions',
+                case when jsonb_typeof(bk->'passages') = 'object' then bk->'passages' else '{}'::jsonb end)
         on conflict (family_id, id) do update set title = excluded.title, grade = excluded.grade, subject = excluded.subject,
-          minutes = excluded.minutes, note = excluded.note, src = excluded.src, questions = excluded.questions;
+          minutes = excluded.minutes, note = excluded.note, src = excluded.src, questions = excluded.questions, passages = excluded.passages;
     end loop;
   end if;
 
@@ -498,7 +504,7 @@ begin
       insert into results (profile_id, source, ref_id, subject, label, mode, r, t, s, wrong_topics, import_key, at)
         values ((ids->>(rs->>'userId'))::uuid, rs->>'source', left(coalesce(rs->>'refId', ''), 80), left(coalesce(rs->>'subject', ''), 60),
                 left(coalesce(rs->>'label', ''), 120), left(coalesce(rs->>'mode', ''), 20),
-                least(greatest(case when coalesce(rs->>'r', '') ~ '^\d{1,9}$' then (rs->>'r')::int else 0 end, 0), least((rs->>'t')::int, 1000)),
+                least(greatest(case when coalesce(rs->>'r', '') ~ '^\d{1,9}(\.\d+)?$' then round((rs->>'r')::numeric, 2) else 0 end, 0), least((rs->>'t')::int, 1000)),
                 least((rs->>'t')::int, 1000),
                 case when coalesce(rs->>'s', '') ~ '^\d{1,9}$' then (rs->>'s')::int else 0 end,
                 case when jsonb_typeof(rs->'wrongTopics') = 'array' then (select array_agg(x) from (select left(x, 100) x from jsonb_array_elements_text(rs->'wrongTopics') x limit 50) w) end,
