@@ -37,7 +37,7 @@ Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp tr
      - mỗi tuần vào Table Editor xuất CSV các bảng `families`, `profiles`, `results`, `exam_events`, `question_banks`, cất vào Google Drive;
      - dịp nghỉ dài (Tết, hè) vẫn mở app ít nhất mỗi tuần một lần; bị tạm dừng thì vào Supabase bấm Restore.
 2. **Liên hệ:** điền `contactText`, `contactUrl` (ví dụ link Zalo) trong `js/config.js`, để người mở trang biết hỏi ai. `main` đang được bảo vệ: sửa trên GitHub thì chọn "Create a new branch… and start a pull request", rồi tự Merge.
-3. **Ghi chỗ khó dùng** khi các con dùng thật, đến khoảng 25/10. Mỗi chỗ một dòng: ai dùng · màn hình · định làm gì · vướng ở đâu · khó chịu hay không làm được. Phiên UX1–UX3 dùng ghi chép này.
+3. **Ghi chỗ khó dùng** khi các con dùng thật, đến khoảng 25/10. Mỗi chỗ một dòng: ai dùng · màn hình · định làm gì · vướng ở đâu · khó chịu hay không làm được. Phiên UX1–UX8 dùng ghi chép này. Bản rà giao diện ngày 18/10 ([CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md), ảnh 1.x và 2.x đặt cạnh nhau) đã có đề xuất cho từng màn: khi ghi, xem con có vướng đúng những chỗ đó không, và thêm những chỗ khác.
 4. **Năm quyết định đã chốt ngày 18/10** (đầu tài liệu) và đã điền sẵn vào lời giao việc Phiên D0 (mục 4). Dán Phiên D0 là được.
 5. **Theo dõi chạy thử:** vì còn khoảng hai năm rưỡi nữa mới thu tiền, nên đo sớm xem gia đình có thật sự dùng: số gia đình được mời, số lượt làm bài mỗi tuần, gia đình còn dùng sau 4 tuần. Cuối học kì I, hỏi vài gia đình "app có đáng trả tiền không, khoảng bao nhiêu". Ghi vào mục "Nhật ký chạy thử" (Phiên D0 tạo).
 
@@ -49,28 +49,34 @@ Nội dung hiện có: 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp tr
 
 ## 3. Lộ trình khi làm tiếp
 
-Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 8 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); Phiên 9a, 9b, 9c (lỗi tìm được khi dùng thử ngày 16/10, đã làm) và Phiên 9d (lỗi phát sinh khi rà soát lại ngày 17/10) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); **các phiên làm đề và kĩ thuật cho đề (N0–N25, K1–K3, chuẩn bị bán B1–B4) ở mục 6, 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)**; các phiên khác ở mục 4 dưới đây.
+Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 8 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); Phiên 9a, 9b, 9c (lỗi tìm được khi dùng thử ngày 16/10, đã làm) và Phiên 9d (lỗi phát sinh khi rà soát lại ngày 17/10) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); **các phiên làm đề và kĩ thuật cho đề (N0–N25, K1–K3, chuẩn bị bán B1–B4) ở mục 6, 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)**; các phiên khác ở mục 4 dưới đây. Phiên UI1, UX4–UX8 đến từ bản rà giao diện ngày 18/10: vấn đề (X1–X16), ảnh và điều kiện xong ở [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md). Thiết kế nằm trong file Figma [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2): Master 1.x là 77 màn vẽ lại đúng app ở commit `0a1e8db`; Master 2.x là các đề xuất, kể cả minh họa cho S1, R1, UX1–UX3.
 
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
 | 1 | 25/10 | **D0 · Đồng bộ tài liệu** | quyết định đã chốt 18/10 (đầu tài liệu) | chỉ sửa tài liệu; từ đó trạng thái chỉ ghi ở file này |
-| 2 | 1/11 | **K3 · Rút đề ngẫu nhiên theo ma trận** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 6) | K1, K2 (đã xong) | các phiên làm đề N1 trở đi dùng dạng ngân hàng của K3 |
-| 3 | 1/11 | **S1 · Màn hình đăng nhập cho người mới** | `contactUrl` đã điền | nhỏ; dùng khi trang công khai chỉ dành cho gia đình được mời |
-| 4 | 8/11 | **R1 · Nút "Báo câu này sai"** | K3 (cùng sửa js/quiz.js) | chủ app chạy `supabase/cap-nhat-r1.sql` sau khi Merge |
-| 5 | 15/11 | **UX1 · Trang "Hôm nay" và màn kết quả của con** | R1; ghi chép của chủ app | |
-| 6 | 22/11 | **UX2 · Khu phụ huynh gọn lại** | UX1 | |
-| 7 | 29/11 | **UX3 · Bắt đầu và chuyển máy cho con** | UX2 | |
-| 8 | 15/12 | **N1–N6 · Đủ đề cuối kì I lớp 4 và 6** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3 | chỉ sửa file đề, chen được giữa các phiên UX |
-| 9 | 1/3/2027 | **N7–N12 · Giữa kì II lớp 4 và 6** | K3 | |
-| 10 | 10/3 | **N-IOE · IOE cấp quốc gia** | | thi 1–2/4/2027 (dự kiến), hiện chưa có bài ôn |
-| 11 | 10/4 | **N13–N22 · Cuối năm lớp 4 và 6** | K3 | |
-| 12 | hè 2027 | Lịch 2027–2028 (thêm kì thi các khối mới); giữa kì I lớp 4, 6 năm sau (N23–N25); giữa kì I và cuối kì I lớp 5, 7; gộp bài ôn dạng trang vào ngân hàng | | [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 4, 7 |
-| 13 | 2027–2028 | Lớp 5, 7 phần còn lại; lớp 9 (có đề thi thử vào 10); lớp 8 | | khoảng 70 phiên |
-| 14 | 2028–2029 | Lớp 12 (đề thi thử tốt nghiệp trước), 10, 11 | | khoảng 90 phiên |
-| 15 | trước khi bán | **G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** → **B2 · Đề trả phí lên máy chủ** → B4 (bớt tải dữ liệu); lên Supabase Pro | đủ đề lớp 4–12 | lời giao việc ở mục 4; B4 ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 5 |
+| 2 | 25/10 | **UI1 · Chỉnh nhỏ chữ và màu** | | sửa css/app.css, thêm một kiểm tra vào tests/e2e.js; chạy cùng lúc với D0 được |
+| 3 | 1/11 | **K3 · Rút đề ngẫu nhiên theo ma trận** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 6) | K1, K2 (đã xong) | các phiên làm đề N1 trở đi dùng dạng ngân hàng của K3 |
+| 4 | 1/11 | **S1 · Màn hình đăng nhập cho người mới** | `contactUrl` đã điền | nhỏ; dùng khi trang công khai chỉ dành cho gia đình được mời |
+| 5 | 8/11 | **R1 · Nút "Báo câu này sai"** | K3 (cùng sửa js/quiz.js) | chủ app chạy `supabase/cap-nhat-r1.sql` sau khi Merge |
+| 6 | 15/11 | **UX1 · Trang "Hôm nay" và màn kết quả của con** | R1; ghi chép của chủ app | |
+| 7 | 22/11 | **UX2 · Khu phụ huynh gọn lại** | UX1 | |
+| 8 | 29/11 | **UX3 · Bắt đầu và chuyển máy cho con** | UX2 | |
+| 9 | 6/12 | **UX4 · Chọn hồ sơ và nhập PIN** | UX3 (cùng sửa renderLogin, trang Tài khoản) | |
+| 10 | 13/12 | **UX5 · Làm bài tập trung** | R1, UX1 (cùng sửa js/quiz.js) | xong trước kì thi cuối kì I (từ 21/12) |
+| 11 | 15/12 | **N1–N6 · Đủ đề cuối kì I lớp 4 và 6** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3 | chỉ sửa file đề, chen được giữa các phiên UX |
+| 12 | 17/1/2027 | **UX6 · Biết bài đã gửi chưa** | UX1, UX5 (cùng sửa màn kết quả) | bản đám mây; làm sau kì thi cuối kì I |
+| 13 | 24/1 | **UX7 · Quản lí đề** | UX2 (tab "Đề tự soạn") | |
+| 14 | 31/1 | **UX8 · Gửi báo cáo tuần** | UX2 | |
+| 15 | 1/3 | **N7–N12 · Giữa kì II lớp 4 và 6** | K3 | |
+| 16 | 10/3 | **N-IOE · IOE cấp quốc gia** | | thi 1–2/4/2027 (dự kiến), hiện chưa có bài ôn |
+| 17 | 10/4 | **N13–N22 · Cuối năm lớp 4 và 6** | K3 | |
+| 18 | hè 2027 | Lịch 2027–2028 (thêm kì thi các khối mới); giữa kì I lớp 4, 6 năm sau (N23–N25); giữa kì I và cuối kì I lớp 5, 7; gộp bài ôn dạng trang vào ngân hàng | | [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 4, 7 |
+| 19 | 2027–2028 | Lớp 5, 7 phần còn lại; lớp 9 (có đề thi thử vào 10); lớp 8 | | khoảng 70 phiên |
+| 20 | 2028–2029 | Lớp 12 (đề thi thử tốt nghiệp trước), 10, 11 | | khoảng 90 phiên |
+| 21 | trước khi bán | **G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** → **B2 · Đề trả phí lên máy chủ** → B4 (bớt tải dữ liệu); lên Supabase Pro | đủ đề lớp 4–12 | lời giao việc ở mục 4; B4 ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 5 |
 | — | khi có | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** (GitHub Issues) | | chen vào bất cứ lúc nào |
 
-Khoảng 30 phiên từ nay đến 10/4/2027, trung bình 1–2 phiên mỗi tuần. Tháng 11 dày nhất (K3, S1, R1, UX1–UX3 và bắt đầu N1–N6). Sau đó việc chính là làm đề cho đủ lớp 4–12 (khoảng 200 phiên); chất lượng đề quyết định có bán được hay không, nên nút báo câu sai (R1) và việc rà đề đi trước.
+Khoảng 36 phiên từ nay đến 10/4/2027 (thêm UI1, UX4–UX8 từ bản rà giao diện 18/10), trung bình 1–2 phiên mỗi tuần. Tháng 11 dày nhất: K3, S1, R1, UX1–UX3 và bắt đầu N1–N6. Tháng 12 có UX4, UX5, xong trước kì thi cuối kì I. UX6–UX8 làm sau kì thi, xen với N7–N12. Sau đó việc chính là làm đề cho đủ lớp 4–12 (khoảng 200 phiên); chất lượng đề quyết định có bán được hay không, nên nút báo câu sai (R1) và việc rà đề đi trước.
 
 Lưu ý: đến khi làm B1, repo vẫn công khai nên ai cũng tải được trọn bộ đề bằng một lệnh. Nếu muốn giữ đề sớm hơn, có thể làm B1 trước (Cloudflare Pages miễn phí, chạy được từ repo riêng tư) mà chưa bật gói; giữ đề thật sự (người chưa trả tiền không tải được) thì cần B2.
 
@@ -135,11 +141,19 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 >
 > Tự rà soát một vòng: tìm "để trống", "chưa bật", "tạm dừng", "4–12", "đã đủ các môn", "16/10/2026" trong README.md, CLAUDE.md, docs/ và sửa câu không còn đúng. Chạy tests/e2e.js (phải in E2E OK), rồi mở Pull Request.
 
+**Phiên UI1 · Chỉnh nhỏ chữ và màu** (sửa css/app.css và một kiểm tra trong tests/e2e.js; chạy cùng lúc với D0 được)
+> Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md (mục 3, Phiên UI1: X15, X16; ảnh docs/hinh-ux-2x/ui1-tieu-de.jpg, ui1-o-ma.jpg). Trong css/app.css:
+> - X15: h1, h2, h3 dùng line-height 1.35 cho cả màn hình, giữ text-wrap: balance. Dòng line-height trong @media print thành thừa thì bỏ, giữ break-after.
+> - X16: thêm `.remind .code{background:var(--surface)}`, để tên đăng nhập và mật khẩu tạm trong thẻ nhắc của trang admin nổi khung.
+>
+> Thêm vào tests/e2e.js một kiểm tra: line-height của h1 ≥ 1,3 lần cỡ chữ. Chạy tests/e2e.js và tests/supabase/cloud-e2e.js đến khi in OK. Xem lại ảnh 360px sáng/tối trong tests/screenshots/360/ và ảnh admin-da-tao, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh trước và sau.
+
 **Phiên S1 · Màn hình đăng nhập cho người mới**
 > Đọc CLAUDE.md. Bản đám mây, màn hình đăng nhập (renderCloudLogin):
 > - Thêm dòng "Chưa có tài khoản?" kèm chữ và link liên hệ. Thêm hai khóa tùy chọn `signupText`, `signupUrl` vào js/config.js; để trống thì dùng `contactText`, `contactUrl`.
 > - Trình duyệt còn dữ liệu của bản lưu trên máy (`Store.localData()` có học sinh) mà chưa chuyển (`Store.migratedAt()` trống): hiện thẻ ngắn "Máy này còn dữ liệu ôn tập cũ. Đăng nhập tài khoản gia đình, rồi vào Khu phụ huynh → Dữ liệu → Chuyển dữ liệu máy này lên đám mây." Đã chuyển thì không hiện.
 > - Sửa bước chờ service worker trong tests/supabase/cloud-e2e.js: thỉnh thoảng hết 30 giây vì trang chưa được service worker điều khiển; nếu chưa có controller thì tải lại trang một lần rồi chờ.
+> - **Thiết kế tham khảo:** docs/hinh-ux-2x/s1-ux3-dang-nhap.jpg (A1) và mục 2 của docs/CAI-TIEN-UX-2X.md: thẻ nhắc dữ liệu cũ trên form, thẻ "Chưa có tài khoản?" dưới form.
 >
 > Thêm kiểm tra vào cloud-e2e.js, chụp ảnh 360px sáng/tối màn đăng nhập. Chạy tests/e2e.js và tests/supabase/cloud-e2e.js đến khi in OK (cloud-e2e chạy 3 lần liền đều OK), chỉ tự rà soát một vòng, rồi mở Pull Request.
 
@@ -153,6 +167,7 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 >   - Thêm vào supabase/schema.sql; viết `supabase/cap-nhat-r1.sql` cho project đã cài (như cap-nhat-k2.sql); cập nhật tests/supabase/rls-test.sql và fake-backend.js; ghi bước chạy vào docs/HUONG-DAN-SUPABASE.md.
 > - **Trang admin:** tab "Câu bị báo": mới nhất trước, lọc theo đề, đếm số lần mỗi câu bị báo, nút "Đã sửa" / "Bỏ qua".
 > - **Bản lưu trên máy:** lưu trong Store (trường mới, mặc định rỗng khi đọc dữ liệu cũ); Quản trị → Dữ liệu hiện danh sách và nút "Chép để gửi" (văn bản gọn để dán vào Zalo).
+> - **Thiết kế tham khảo:** docs/hinh-ux-2x/r1-ux5-bao-sai-mo-de.jpg (C3) và ux5-lam-bai.jpg (C2): link nhỏ có lá cờ dưới lời giải; ô chọn lí do mở ngay dưới lời giải theo kiểu .confirm, không dùng hộp nổi.
 >
 > Chạy tests/e2e.js, tests/supabase/admin-test.mjs, store-test.mjs, cloud-e2e.js và sh tests/supabase/run.sh đến khi in OK, chỉ tự rà soát một vòng, rồi mở Pull Request. Ghi trong Pull Request việc chủ app cần làm sau khi Merge (chạy cap-nhat-r1.sql).
 
@@ -165,6 +180,7 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 > - **Hồ sơ mới** tự lấy hình đại diện chưa có ai dùng.
 > - **Nhãn dễ hiểu:** "Sẵn sàng x%" thành "Đã làm đúng x% bài ôn của kì này"; "điểm TB 30 ngày (/10)" thành "Điểm trung bình tháng".
 > - **Phần thưởng nhẹ:** huy hiệu khi đạt chuỗi 3, 7, 14 ngày ôn và khi làm hết đề của một kì. Không có bảng xếp hạng công khai.
+> - **Thiết kế tham khảo:** docs/hinh-ux-2x/ux1-trang-chinh.jpg (B1, B2), ux1-ux6-ket-qua.jpg (D1), ux5-lam-bai.jpg (C1, một dòng nhãn) và mục 2 của docs/CAI-TIEN-UX-2X.md. Ghi chép của bố mẹ đi trước nếu khác ảnh.
 >
 > Giữ vùng bấm ≥ 44px, chữ ≥ 13px, chế độ tối. Thêm kiểm tra vào tests/e2e.js và tests/supabase/cloud-e2e.js, chụp ảnh 360px sáng/tối trang chủ học sinh và màn kết quả, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
 >
@@ -176,6 +192,7 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 > - **Các con:** mỗi con một thẻ: hôm nay (số bài, điểm), chuỗi ngày, môn chưa ôn cho kì gần nhất. Chỉ hiện kì thi của các khối con đang học. Bỏ các ô số liệu trùng ý.
 > - Bấm vào con thì mở thẳng phần báo cáo (tuần này, chủ đề hay sai, gợi ý, bài đã làm); lịch thi và danh sách bài của con thành link phụ.
 > - Bản lưu trên máy: màn hình quản trị của thầy cô giữ nguyên; phụ huynh dùng phần "Các con" như trên.
+> - **Thiết kế tham khảo:** docs/hinh-ux-2x/ux2-ux3-khu-phu-huynh.jpg (E1), ux2-lich-thi.jpg (E3), ux7-de-tu-soan.jpg (F2, tab "Đề tự soạn") và mục 2 của docs/CAI-TIEN-UX-2X.md.
 >
 > Thêm kiểm tra, ảnh 360px sáng/tối, chạy tests/e2e.js và tests/supabase/cloud-e2e.js, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
 >
@@ -187,10 +204,91 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 > - Đổi chữ "Đổi người học" thành một tên dễ hiểu, dùng thống nhất mọi chỗ.
 > - Sau lần đăng nhập đầu, hỏi "Đây là máy của nhà mình?": Có thì ghi nhớ đăng nhập, Không thì không ghi nhớ. Ô "Ghi nhớ trên máy này" vẫn giữ để đổi lại.
 > - Trên máy đã ghi nhớ, bố mẹ có thể đặt mã 4–6 số để mở nhanh khu phụ huynh (băm và lưu trên chính máy đó; quên thì nhập mật khẩu). Đổi mật khẩu và đăng xuất vẫn cần mật khẩu.
+> - **Thiết kế tham khảo:** docs/hinh-ux-2x/s1-ux3-dang-nhap.jpg (A2), ux2-ux3-khu-phu-huynh.jpg (E2) và mục 2 của docs/CAI-TIEN-UX-2X.md. Tên gợi ý thay cho "Đổi người học": "Chọn hồ sơ khác".
 >
 > Thêm kiểm tra, ảnh 360px sáng/tối, chạy tests/e2e.js và tests/supabase/cloud-e2e.js, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
 >
 > Ghi chép của bố mẹ: […]
+
+**Phiên UX4 · Chọn hồ sơ và nhập PIN** (sau UX3)
+> Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md (mục 3, Phiên UX4: X1–X4; ảnh docs/hinh-ux-2x/ux4-nhap-pin.jpg, ux4-phu-huynh-hinh-dai-dien.jpg). Sửa trong js/app.js và css/app.css, cho cả bản lưu trên máy và bản đám mây:
+> - X1: chạm hồ sơ có PIN thì sang một bước nhập riêng, gồm:
+>   - link "← Chọn hồ sơ khác";
+>   - hình to, tên, lớp;
+>   - hàng chấm, nút "Hiện số", bàn phím ngay dưới.
+>
+>   Ô Phụ huynh của bản đám mây cũng là một bước riêng, gồm:
+>   - ô mật khẩu;
+>   - nút "Vào khu phụ huynh";
+>   - dòng "Quên mật khẩu?";
+>   - nếu UX3 đã thêm mã mở nhanh thì có bàn phím của mã đó, kèm link "Nhập mật khẩu".
+>
+>   Hồ sơ không có PIN thì chạm là vào, như cũ.
+> - X2: số đã gõ chỉ hiện ở hàng chấm.
+>   - Giữ #pinIn cho bàn phím máy tính và trình đọc màn hình, nhưng ẩn khỏi mắt. Không dùng display:none, vì các bộ kiểm thử gõ PIN bằng page.fill.
+>   - Nút xem thành nút chữ "Hiện số", vẫn đi qua wireReveal/conceal.
+>   - Sửa revealTry trong tests/e2e.js và cloud-e2e.js cho ô PIN, và ghi ngoại lệ này vào quy ước "nút xem" của CLAUDE.md.
+> - X3: lỗi và đếm ngược nằm ngay dưới hàng chấm. Đang phải đợi thì bàn phím, nút Vào, nút Hiện số chuyển sang disabled; hết giờ thì tự bật lại.
+> - X4: chạm hình đại diện là lưu ngay: bỏ nút Lưu, hiện toast "Đã đổi hình đại diện". Bản lưu trên máy giữ form đổi PIN, với nút riêng.
+>
+> Giữ nguyên PinLock, lượt thử lặng lẽ và việc tự vào khi gõ đủ pinLen. Mỗi vấn đề một commit ghi mã (X1…). Thêm các bước ở mục "Xong khi" vào tests/e2e.js và tests/supabase/cloud-e2e.js, chạy đến khi in OK. Chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
+
+**Phiên UX5 · Làm bài tập trung** (sau R1 và UX1; xong trước kì thi cuối kì I, từ 21/12)
+> Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md (mục 3, Phiên UX5: X5–X9; ảnh docs/hinh-ux-2x/ux5-lam-bai.jpg, r1-ux5-bao-sai-mo-de.jpg). Sửa trong js/quiz.js, js/app.js, css/app.css, cho cả hai bản:
+> - X5: trong lúc làm đề ngân hàng, thanh trên chỉ còn chữ OnUp: ẩn "Lịch thi", hình đại diện, và cả thanh tab dưới nếu có. Chốt rời trang giữ nguyên. Trang kết quả hiện lại đủ: js/quiz.js thêm một callback báo lượt làm đã xong, gọi ở mọi nhánh của finish().
+> - X6: làm như thi thì nút trên cùng là "Nộp bài" thay cho "← Thoát", và vẫn hỏi lại như cũ. Ôn luyện giữ "← Thoát".
+> - X7: đồng hồ ghi "Còn 12:30", có biểu tượng và aria-label "Thời gian còn lại". Tiến độ ghi "Câu 9/25".
+> - X8: sau khi Kiểm tra thì ẩn hẳn nút "Bỏ qua".
+> - X9: màn mở đề có:
+>   - thẻ "Lần trước": kết quả gần nhất của đề này, lọc bằng graded();
+>   - hai thẻ chọn cách làm, mỗi thẻ một dòng giải thích.
+>
+> Không đổi cách chấm và cách lưu điểm. Mỗi vấn đề một commit ghi mã. Thêm các bước ở mục "Xong khi" vào tests/e2e.js. Chạy tests/e2e.js và tests/supabase/cloud-e2e.js đến khi in OK, chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
+
+**Phiên UX6 · Biết bài đã gửi chưa** (bản đám mây; sau UX5)
+> Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md (mục 3, Phiên UX6: X10; ảnh docs/hinh-ux-2x/ux1-ux6-ket-qua.jpg).
+> - Thêm Store.pendingResults(userId?) và Store.sendPending() ở cả hai kho:
+>   - LocalStore trả 0 và Promise.resolve();
+>   - SupabaseStore đếm các kết quả trong hộp gửi ontap_cloud_outbox của các hồ sơ thuộc tài khoản và gửi lại bằng sendOutbox.
+>   - Chỉ gọi changed() khi số bài chưa gửi thay đổi, vì Store.onChange vẽ lại cả trang.
+> - Màn kết quả đề và toast của bài ôn trong khung ghi rõ một trong hai câu: "Đã lưu và gửi cho bố mẹ." hoặc "Đã lưu trên máy này. Sẽ gửi cho bố mẹ khi có mạng." js/quiz.js thêm một chỗ trống để app điền câu này.
+> - Còn bài chưa gửi thì trang chính của con, và Khu phụ huynh trên cùng máy, có dòng "N bài chưa gửi … · Gửi lại": nền sun-soft, chữ ink, cao ≥ 44px.
+> - Bản lưu trên máy không đổi.
+>
+> Thêm kiểm tra vào tests/supabase/store-test.mjs và cloud-e2e.js theo mục "Xong khi". Vì cloud-e2e.js đi qua máy chủ giả chứ không qua mạng, thêm vào fake-backend.js một công tắc làm lượt gửi lỗi: bật công tắc rồi làm một đề, tắt công tắc rồi bấm Gửi lại. Chạy tests/e2e.js, tests/supabase/admin-test.mjs, store-test.mjs, cloud-e2e.js đến khi in OK. Chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
+
+**Phiên UX7 · Quản lí đề** (sau UX2)
+> Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md (mục 3, Phiên UX7: X11–X13; ảnh docs/hinh-ux-2x/ux7-chon-de.jpg, ux7-de-tu-soan.jpg). Sửa trong js/app.js, js/quiz.js, css/app.css, cho cả hai bản:
+> - X11: màn Sửa kì thi gộp bài ôn và đề thành một khối "Bài ôn và đề cho kì này", có nhãn "N đã chọn".
+>   - Mặc định chỉ hiện đề đúng khối của kì thi, nhóm theo môn bằng <details>.
+>   - Có ô tìm không phân biệt dấu, khớp theo từng từ, và link "Hiện cả đề của khối khác".
+>   - Không làm mất lựa chọn cũ.
+> - X12: danh sách đề:
+>   - đề tự soạn lên đầu, ghi kì thi đã gắn;
+>   - đề có sẵn chọn theo khối (gradeList()), nhóm theo môn, có ô tìm.
+> - X13: nhập đề:
+>   - sau "Kiểm tra", xem trước từng câu, kèm đáp án được chấm đúng;
+>   - lỗi gắn vào câu hoặc đoạn đọc: Quiz.parse trả thêm mảng issues (số câu, câu có bị bỏ hẳn không), giữ errors dạng chữ;
+>   - có lỗi mà bấm Lưu thì hỏi lại, nói rõ bao nhiêu câu sẽ không được lưu;
+>   - thêm ô "Gắn vào kì thi".
+>
+> Mỗi vấn đề một commit ghi mã. Thêm các bước ở mục "Xong khi" vào tests/e2e.js và tests/supabase/cloud-e2e.js, chạy đến khi in OK. Vì sửa js/quiz.js nên chạy thêm node tests/kiem-tra-de.js. Chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
+
+**Phiên UX8 · Gửi báo cáo tuần** (sau UX2)
+> Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md (mục 3, Phiên UX8: X14; ảnh docs/hinh-ux-2x/ux8-bao-cao-tuan.jpg). Trong renderReport (js/app.js), cho cả hai bản:
+> - Nút chính "Gửi báo cáo", nút phụ "In".
+> - Khối "Tin nhắn sẽ gửi" xem trước một tin nhắn chữ thuần, gồm:
+>   - tên con, khoảng ngày;
+>   - số bài, số ngày ôn, số phút;
+>   - điểm trung bình, so với tuần trước;
+>   - tối đa 3 chủ đề hay sai;
+>   - kì thi gần nhất;
+>   - 1–2 gợi ý, không lặp lại dòng kì thi;
+>   - dòng cuối "Gửi từ OnUp."
+> - Gửi bằng navigator.share({ title, text }) khi máy có; người dùng hủy thì thôi. Máy không có thì chép vào clipboard và báo "Đã chép tin nhắn…". Có thêm nút "Chép tin nhắn".
+> - Tin nhắn không có tên đăng nhập hay đường dẫn vào tài khoản. Khối xem trước không in ra.
+>
+> Thêm các bước ở mục "Xong khi" vào tests/e2e.js và tests/supabase/cloud-e2e.js, chạy đến khi in OK. Chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
 
 **Phiên G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư** (làm trước khi bán, khi đủ đề lớp 4–12)
 > Đọc CLAUDE.md, mục 9 của docs/THIET-KE-TAI-KHOAN.md và mục 5 của docs/KE-HOACH-NOI-DUNG.md. Hạn mức gói Miễn phí và gói Gia đình lúc bán: […] (chủ app điền trước khi dán).
