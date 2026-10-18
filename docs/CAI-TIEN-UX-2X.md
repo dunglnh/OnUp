@@ -28,7 +28,7 @@ Phiên Claude Code không mở được Figma. Vì vậy ảnh chụp 1.x và 2.
 
 | Flow (section Figma) | Đã có trong kế hoạch, 2.x chỉ minh họa | Mới (mã vấn đề) | Phiên mới | Ảnh |
 |---|---|---|---|---|
-| [Vào app](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=71-48) | S1 (A1), UX3 (A2) | X1–X4 | **UX4** | [s1-ux3-dang-nhap](hinh-ux-2x/s1-ux3-dang-nhap.jpg), [ux4-nhap-pin](hinh-ux-2x/ux4-nhap-pin.jpg), [ux4-phu-huynh-hinh-dai-dien](hinh-ux-2x/ux4-phu-huynh-hinh-dai-dien.jpg) |
+| [Vào app](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=71-48) | S1 (A1) | X1–X4 | **UX4** | [s1-dang-nhap](hinh-ux-2x/s1-dang-nhap.jpg), [ux4-nhap-pin](hinh-ux-2x/ux4-nhap-pin.jpg), [ux4-phu-huynh-hinh-dai-dien](hinh-ux-2x/ux4-phu-huynh-hinh-dai-dien.jpg) |
 | [Trang chính của con](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=72-730) | UX1 (B1, B2) | — | — | [ux1-trang-chinh](hinh-ux-2x/ux1-trang-chinh.jpg) |
 | [Làm bài](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=75-1327) | UX1 (một dòng nhãn), R1 (C2, C3) | X5–X9 | **UX5** | [ux5-lam-bai](hinh-ux-2x/ux5-lam-bai.jpg), [r1-ux5-bao-sai-mo-de](hinh-ux-2x/r1-ux5-bao-sai-mo-de.jpg) |
 | [Kết quả đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=78-1495) | UX1 (D1) | X10 | **UX6** | [ux1-ux6-ket-qua](hinh-ux-2x/ux1-ux6-ket-qua.jpg) |
@@ -41,13 +41,13 @@ Mã vấn đề (X1, X2…) dùng trong lời giao việc và trong commit, như
 
 ## 2. Đã có trong kế hoạch: 2.x chỉ minh họa
 
-Các phiên này giữ nguyên lời giao việc. Mục 4 của kế hoạch chỉ thêm một dòng “Thiết kế tham khảo” trỏ vào ảnh.
+Các phiên này giữ nguyên lời giao việc, trừ UX3: đã bỏ màn hỏi “Đây là máy của nhà mình?”. Mục 4 của kế hoạch chỉ thêm một dòng “Thiết kế tham khảo” trỏ vào ảnh.
 
 - **S1 · Màn hình đăng nhập cho người mới (A1):**
   - Thẻ nhắc “Máy này còn dữ liệu ôn tập cũ…” đặt trên form.
   - Thẻ “Chưa có tài khoản?” đặt dưới form, kèm link liên hệ.
 - **UX3 · Bắt đầu và chuyển máy cho con:**
-  - **A2:** sau lần đăng nhập đầu, màn hỏi riêng “Đây là máy của nhà mình?” với hai nút to.
+  - **Không làm màn hỏi “Đây là máy của nhà mình?”** (A2 cũ). Chủ app bỏ màn này ngày 18/10/2026. Màn đăng nhập giữ ô “Ghi nhớ trên máy này” và dòng giải thích như bản đang chạy; Figma đã xóa A2.
   - **E2:** thẻ “Bắt đầu trong 3 bước” thay cho ba ô số 0. Nút “Cho con học” mờ cho đến khi có hồ sơ con.
   - Tên gợi ý cho “Đổi người học” là **“Chọn hồ sơ khác”**, dùng ở cả khu phụ huynh và trang tài khoản của con.
 - **UX1 · Trang “Hôm nay” và màn kết quả:**
