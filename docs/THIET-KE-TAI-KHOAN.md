@@ -1,8 +1,12 @@
 # Thiết kế: khung quản lý tài khoản và trang admin
 
-Phiên bản 2 · 16/10/2026 · Trạng thái: **Phiên A (máy chủ), Phiên B (app) và Phiên C (trang admin) đã làm**. Các phiên Claude Code để làm: mục 8.
+Phiên bản 3 · 18/10/2026. Trạng thái và thứ tự các phiên chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); các đoạn “Đã làm ở Phiên A/B/C” dưới đây mô tả những gì đã có trong code. Lời giao việc của ba phiên đó: mục 8.
 
-**Phạm vi bây giờ:** dựng khung tài khoản để sau này phát triển tiếp. Chủ app (bạn) tạo và quản lý tài khoản ở một **trang admin riêng**; phụ huynh đăng nhập bằng **tên đăng nhập + mật khẩu**; con là hồ sơ trong tài khoản của bố mẹ. **Chưa làm bản trả phí**: mọi tài khoản dùng được mọi nội dung. Bản trả phí chỉ tính khi app đã có đủ đề từ lớp 4 đến lớp 12 (mục 9 ghi sẵn hướng đi). Khung bây giờ chừa sẵn chỗ để lúc đó không phải làm lại.
+**Phạm vi bây giờ:** khung tài khoản đã dựng xong và đang chạy trên trang thật. Chủ app (bạn) tạo và quản lý tài khoản ở một **trang admin riêng**; phụ huynh đăng nhập bằng **tên đăng nhập + mật khẩu**; con là hồ sơ trong tài khoản của bố mẹ. Theo quyết định của chủ app ngày 18/10/2026:
+- **Trang công khai chỉ dành cho gia đình được mời.** Không tự đăng ký; màn đăng nhập có dòng “Chưa có tài khoản?” kèm cách liên hệ (Phiên S1). Không làm đăng nhập email, mã mời, mã gia đình (mục 1, 2).
+- **Chưa làm bản trả phí.** Bán khi đủ đề lớp 4–12 (khoảng cuối năm học 2028–2029). Đến lúc đó gói Miễn phí giữ như hiện nay: 5 hồ sơ con, mọi đề; bảng `plans` không đổi. Hạn mức gói Miễn phí và gói Gia đình lúc bán sẽ chốt sau. Hướng đi ở mục 9; khung đã chừa sẵn chỗ để lúc đó không phải làm lại.
+- **Supabase giữ gói Free** đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần; [HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md)).
+- Không ghi giá bán, chi phí hay so sánh đối thủ vào repo.
 
 ---
 
@@ -14,7 +18,7 @@ Phiên bản 2 · 16/10/2026 · Trạng thái: **Phiên A (máy chủ), Phiên B
 4. **Khối lớp không cố định 4 và 6.** Danh sách khối lấy từ một chỗ duy nhất (lớp 1–12), nội dung nào gắn khối nấy. Thêm lớp mới chỉ là thêm nội dung, không sửa code.
 5. **Chừa sẵn chỗ cho gói** (cột `plan`, bảng hạn mức) nhưng **chưa dùng**: hôm nay mọi tài khoản là `free` và được dùng tất cả.
 
-Bỏ khỏi bản đám mây hiện tại (Phiên 5) cho gọn và bớt chỗ dễ lỗi: đăng nhập email, link/mã số qua email, cài SMTP, mã mời, mã gia đình, PIN học sinh trên máy chủ, đăng nhập ẩn danh, danh sách email được tạo gia đình.
+Bỏ khỏi bản đám mây cũ (Phiên 5) cho gọn và bớt chỗ dễ lỗi: đăng nhập email, link/mã số qua email, cài SMTP, mã mời, mã gia đình, kiểm tra PIN ở máy chủ (`pin_hash` của hồ sơ con chỉ là khóa trên giao diện, app tự băm và tự kiểm tra), đăng nhập ẩn danh, danh sách email được tạo gia đình.
 
 ---
 
@@ -158,13 +162,15 @@ Làm **theo thứ tự**, mỗi phiên một cuộc trò chuyện mới, Merge x
 
 ---
 
-## 9. Hướng phát triển bản trả phí (chưa làm — khi có đủ đề lớp 4–12)
+## 9. Hướng phát triển bản trả phí (chưa làm — khi đủ đề lớp 4–12)
 
-Ghi lại để lúc đó không phải nghĩ lại từ đầu. Khung ở mục 5 đã chừa chỗ cho tất cả. Các phiên kĩ thuật cần làm trước khi bán (chuyển hosting, đề trả phí lên máy chủ, màn hình Nâng cấp, bớt tải dữ liệu): mục 5 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md).
+**Đã chốt 18/10/2026:** bán khi đủ đề lớp 4–12 (theo nhịp 1–2 phiên mỗi tuần: khoảng cuối năm học 2028–2029). Đến lúc đó **gói Miễn phí giữ như hiện nay** (5 hồ sơ con, mọi đề; bảng `plans` không đổi, `Store.can()` chỉ giới hạn số hồ sơ). Hạn mức gói Miễn phí và gói Gia đình lúc bán **chốt sau**, chủ app điền vào lời giao việc Phiên G1. Các phiên chuẩn bị bán **G1 → B1 → B2 → B4** làm ngay trước lúc đó (lời giao việc ở mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); vì sao cần từng phiên: mục 5 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)); lên Supabase Pro khi bắt đầu thu tiền. Giá bán không ghi trong repo (giá đọc từ bảng `plans`, chủ app điền lúc kích hoạt).
 
-- **Gói:** ví dụ Miễn phí (1 hồ sơ con, bài ôn, đề thử số 1 mỗi môn) và Gói Gia đình (nhiều hồ sơ, mọi đề, hạn đến 31/8 cuối năm học). Cấu hình trong bảng `plans`; app chỉ đổi `Store.can()`.
-- **Bán qua Zalo, kích hoạt tay:** màn hình Nâng cấp (quyền lợi, giá, QR chuyển khoản, nội dung `ONUP tên-đăng-nhập`, nút Nhắn Zalo soạn sẵn) → bạn kiểm tra tiền → trang admin thêm nút “Kích hoạt gói” (gói, hạn, số tiền, ghi chú) và bảng `plan_log` để đối soát.
-- **Bảo vệ đề trả phí:** repo đang public nên đề trong `data/banks/` ai cũng tải được. Khi bán, đề trả phí chuyển vào bảng `paid_banks` trên Supabase, đọc qua RLS khi gói còn hạn hoặc đề là đề thử.
+Ghi lại để lúc đó không phải nghĩ lại từ đầu. Khung ở mục 5 đã chừa chỗ cho tất cả.
+
+- **Gói:** hướng dự kiến là Miễn phí (ít hồ sơ con hơn, bài ôn, đề thử số 1 mỗi môn mỗi kì) và Gói Gia đình (nhiều hồ sơ, mọi đề, hạn đến 31/8 cuối năm học); con số cụ thể chốt lúc bán. Cấu hình trong bảng `plans`; app chỉ đổi `Store.can()`. Gia đình đã dùng từ trước: cách chuyển (ví dụ giữ quyền lợi cũ đến hết năm học) cũng chốt lúc đó.
+- **Bán qua Zalo, kích hoạt tay (Phiên G1):** màn hình Nâng cấp (quyền lợi, giá đọc từ `plans`, QR chuyển khoản, nội dung `ONUP tên-đăng-nhập`, nút Nhắn Zalo soạn sẵn) → bạn kiểm tra tiền → trang admin thêm nút “Kích hoạt gói” (gói, hạn, số tiền, ghi chú) gọi `set_plan` đã có, bảng `plan_log` để đối soát.
+- **Bảo vệ đề trả phí (Phiên B1, B2):** repo đang công khai nên đề trong `data/banks/` ai cũng tải được; đến khi bán chấp nhận như vậy. Khi bán, repo chuyển sang riêng tư và trang chạy trên Cloudflare Pages (B1); đề trả phí chuyển vào bảng `paid_banks` trên Supabase, đọc qua RLS khi gói còn hạn hoặc đề là đề thử (B2).
 - **Hết hạn:** về gói miễn phí, không mất dữ liệu; hồ sơ vượt hạn mức bị khóa đến khi gia hạn; nhắc trước 14 ngày.
-- **Thêm khi thu tiền:** trang Điều khoản và Quyền riêng tư theo quy định bảo vệ dữ liệu cá nhân hiện hành; hỏi kế toán về thuế, hóa đơn.
+- **Thêm khi thu tiền:** trang Điều khoản và Quyền riêng tư theo quy định bảo vệ dữ liệu cá nhân hiện hành (Phiên G1); Supabase lên gói Pro; thông báo website với Bộ Công Thương; hỏi kế toán về thuế, hóa đơn.
 - **Khi đơn nhiều:** tự đăng ký có CAPTCHA, email tự lấy lại mật khẩu, thanh toán tự động.

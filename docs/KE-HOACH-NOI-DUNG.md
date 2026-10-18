@@ -1,6 +1,6 @@
 # Kế hoạch nội dung: đủ đề lớp 4 và 6, rồi lớp 5, 7–12
 
-Phiên bản 1 · 17/10/2026 · Trạng thái: **đang làm** (N0a, N0b, K1, K2 đã xong). Lời giao việc từng phiên: mục 6 và 7.
+Phiên bản 2 · 18/10/2026. Trạng thái từng phiên chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md) (mục 3). Lời giao việc các phiên làm đề và kĩ thuật cho đề: mục 6 và 7 của file này.
 
 Tài liệu này trả lời ba câu hỏi:
 - Còn thiếu bao nhiêu đề.
@@ -11,7 +11,9 @@ Phần dự trù chi phí và giá bán nằm ở tài liệu riêng của chủ
 
 ---
 
-## 1. Hiện trạng (kiểm kê ngày 17/10/2026)
+## 1. Hiện trạng (kiểm kê ngày 18/10/2026)
+
+Số đề, số câu, dạng câu dưới đây lấy từ `node tests/kiem-tra-de.js`; dung lượng từ `du -b data/banks/`. Cần số mới thì chạy lại, không chép số ở đây.
 
 **Kiểm thử toàn app sau Phiên C (17/10):**
 - Kiểm thử tự động: `tests/e2e.js` E2E OK; `admin-test.mjs` ADMIN OK; `store-test.mjs` OK; `cloud-e2e.js` 76 kiểm tra OK; RLS trên PostgreSQL 164 kiểm tra OK.
@@ -20,8 +22,8 @@ Phần dự trù chi phí và giá bán nằm ở tài liệu riêng của chủ
 
 **Nội dung có sẵn:**
 - 4 bài ôn dạng trang: giữa kì I lớp 4 (Toán, Tiếng Việt), giữa kì I lớp 6 (Ngữ văn, Toán, KHTN), IOE 4, IOE 6.
-- 22 ngân hàng đề, 550 câu, câu nào cũng có lời giải. Dạng câu: 325 trắc nghiệm, 99 đúng/sai, 126 điền khuyết. Mỗi đề 25 câu, chia 6–14 chủ đề.
-- `data/banks.js` nặng 230 KB, khoảng 420 byte mỗi câu. App nạp cả file này ngay khi mở. Phiên K1 đã tách thành danh mục `data/banks/index.js` (khoảng 5 KB, nạp lúc mở app) và các file câu hỏi `data/banks/<khối>-<mã môn>.js` (tải khi mở đề), kèm bộ kiểm tra đề `tests/kiem-tra-de.js`.
+- 29 đề trong `data/banks/` (28 đề gắn kì thi và 1 đề thử nghiệm các dạng câu mới của Phiên K2), 715 câu, câu nào cũng có lời giải. Dạng câu: 431 trắc nghiệm, 151 điền khuyết, 123 đúng/sai; mỗi dạng mới (đúng/sai 4 ý, trả lời bằng số, nối cột, sắp xếp, tự luận) mới có 2 câu, đều nằm trong đề thử nghiệm; 15 câu có ghi mức độ `lv`. Mỗi đề 25 câu (đề thử nghiệm 15), chia 3–14 chủ đề.
+- Dung lượng `data/banks/`: 321 KB, gồm danh mục `index.js` 9 KB (nạp lúc mở app) và 15 file câu hỏi `<khối>-<mã môn>.js` 312 KB, khoảng 440 byte mỗi câu, chỉ tải khi mở đề (Phiên K1). Bộ kiểm tra đề: `tests/kiem-tra-de.js`.
 
 | Kì thi (lịch 2026–2027) | Lớp 4 | Lớp 6 |
 |---|---|---|
@@ -59,23 +61,23 @@ Kì thi chuyển cấp và tốt nghiệp:
   - Toán 90 phút: 12 câu nhiều lựa chọn, 4 câu đúng/sai (mỗi câu 4 ý), 6 câu trả lời ngắn.
   - Lí, Hóa, Sinh, Địa: 18 câu nhiều lựa chọn, 4 câu đúng/sai, 6 câu trả lời ngắn. Sử: 24 câu nhiều lựa chọn, 4 câu đúng/sai. Tiếng Anh: 40 câu nhiều lựa chọn.
 
-**Khối lượng** (tính bằng code: 25 câu mỗi đề, khoảng 4 đề mỗi phiên như Phiên 10 và 14):
+**Khối lượng** (tính bằng code: 25 câu mỗi đề, khoảng 440 byte mỗi câu theo kho đề ngày 18/10/2026, khoảng 4 đề mỗi phiên như Phiên 10 và 14; cột “Đã có” không tính đề thử nghiệm):
 
 | Lớp | Đề mục tiêu | Đã có | Câu | Dữ liệu | Phiên cần thêm |
 |---|---|---|---|---|---|
-| 4 | 54 | 12 | 1.350 | 0,55 MB | 10 |
-| 5 | 54 | 0 | 1.350 | 0,55 MB | 14 |
-| 6 | 84 | 10 | 2.100 | 0,86 MB | 18 |
-| 7 | 84 | 0 | 2.100 | 0,86 MB | 21 |
-| 8 | 84 | 0 | 2.100 | 0,86 MB | 21 |
-| 9 | 110 | 0 | 2.750 | 1,1 MB | 28 |
-| 10 | 96 | 0 | 2.400 | 1,0 MB | 24 |
-| 11 | 96 | 0 | 2.400 | 1,0 MB | 24 |
-| 12 | 176 | 0 | 4.400 | 1,8 MB | 44 |
-| **Tổng** | **838** | **22** | **20.950** | **8,4 MB** | **~204** |
+| 4 | 54 | 13 | 1.350 | 0,59 MB | 10 |
+| 5 | 54 | 0 | 1.350 | 0,59 MB | 14 |
+| 6 | 84 | 15 | 2.100 | 0,92 MB | 17 |
+| 7 | 84 | 0 | 2.100 | 0,92 MB | 21 |
+| 8 | 84 | 0 | 2.100 | 0,92 MB | 21 |
+| 9 | 110 | 0 | 2.750 | 1,2 MB | 28 |
+| 10 | 96 | 0 | 2.400 | 1,1 MB | 24 |
+| 11 | 96 | 0 | 2.400 | 1,1 MB | 24 |
+| 12 | 176 | 0 | 4.400 | 1,9 MB | 44 |
+| **Tổng** | **838** | **28** | **20.950** | **9,2 MB** | **~203** |
 
 Rút ra hai điều:
-1. **Không thể giữ cách hiện nay:** nạp một file `data/banks.js` chứa mọi đề và đưa hết vào đệm của service worker. Ở mức 8 MB, máy học sinh tải chậm và tốn dung lượng. Phải tách đề theo khối và môn, cần môn nào thì tải môn đó (Phiên K1).
+1. **Không thể giữ cách cũ** (một file `data/banks.js` chứa mọi đề, đưa hết vào đệm của service worker): ở mức 9 MB, máy học sinh tải chậm và tốn dung lượng. Phiên K1 đã tách đề theo khối và môn, cần môn nào thì tải môn đó.
 2. **Viết tay 838 đề cố định không phải cách tốt nhất để đề đa dạng.** Cách tốt hơn ở mục 3.
 
 ---
@@ -127,29 +129,30 @@ Nguyên tắc:
 | 2 · Cuối kì I | trước 15/12/2026 | N1–N6: thêm đề cuối kì I lớp 4 và 6 cho đủ mục tiêu | 6 |
 | 3 · Giữa kì II | trước 1/3/2027 | N7–N12: giữa kì II lớp 4 (thêm) và lớp 6 (8 môn) | 6 |
 | 4 · Cuối năm | trước 10/4/2027 | N13–N22: cuối năm lớp 4 và lớp 6 | 10 |
-| 5 · Chuẩn bị bán, năm học mới | 5–8/2027 | B1–B4 (mục 5), lịch 2027–2028, giữa kì I lớp 4 và 6 cho năm sau; giữa kì I và cuối kì I lớp 5, 7 | ~20 |
+| 5 · Năm học mới | 5–8/2027 | lịch 2027–2028 (thêm kì thi các khối mới), giữa kì I lớp 4 và 6 cho năm sau (N23–N25); giữa kì I và cuối kì I lớp 5, 7 | ~16 |
 | 6 · Năm học 2027–2028 | 9/2027–5/2028 | lớp 5, 7 phần còn lại; lớp 9; lớp 8 | ~70 |
 | 7 · Năm học 2028–2029 | từ 2028 | lớp 12 (đề thi tốt nghiệp trước), 10, 11 | ~90 |
+| 8 · Chuẩn bị bán | ngay trước khi bán: khi đủ đề lớp 4–12 (khoảng cuối năm học 2028–2029) | G1, B1, B2, B4 (mục 5) | 4 |
 
-Nhịp làm: với gói Pro, mỗi tuần làm được khoảng 2–3 phiên đề, tùy mức dùng còn lại trong tuần. Như vậy giai đoạn 0–4 (27 phiên) xong trước mùa thi cuối năm. Muốn kịp lớp 5–12 trong hai năm học thì cần gói Max, hoặc chấp nhận làm chậm hơn.
+Nhịp làm: 1–2 phiên mỗi tuần (đã chốt 18/10/2026). Giai đoạn 0–4 (27 phiên) xong trước mùa thi cuối năm 2027; lớp 5–12 (khoảng 200 phiên) xong khoảng cuối năm học 2028–2029, là lúc bán. Làm nhanh hơn thì bán sớm hơn, nhưng không bán khi chưa đủ đề lớp 4–12; các phiên chuẩn bị bán không làm sớm hơn giai đoạn 8.
 
-**Việc của bố mẹ (không tốn lượt Claude), quan trọng nhất:** rà đề. Mỗi đề mới, cho con làm thử một lần và ghi câu sai đáp án vào GitHub Issues. Có thể nhờ giáo viên quen rà các môn mình không chắc. Chất lượng đề là thứ quyết định phụ huynh có trả tiền hay không.
+**Việc của bố mẹ (không tốn lượt Claude), quan trọng nhất:** rà đề. Mỗi đề mới, cho con làm thử một lần; câu sai đáp án thì báo bằng nút “Báo câu này sai” trong app khi đã có (Phiên R1), trước đó chủ app ghi vào GitHub Issues (Issues chỉ chủ app dùng). Có thể nhờ giáo viên quen rà các môn mình không chắc. Chất lượng đề là thứ quyết định phụ huynh có trả tiền hay không.
 
 ---
 
-## 5. Chuẩn bị trước khi bán (giai đoạn 5)
+## 5. Chuẩn bị trước khi bán (giai đoạn 8)
 
-Chỉ làm khi đã có đủ đề lớp 4 và 6 và quyết định bán. Thiết kế gói đã có ở mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
+Làm **ngay trước khi bán**, tức khi đã đủ đề lớp 4–12 (khoảng cuối năm học 2028–2029; quyết định 18/10/2026), không làm sớm hơn. Đến lúc đó gói Miễn phí giữ như hiện nay (5 hồ sơ con, mọi đề; bảng `plans` không đổi); hạn mức gói Miễn phí và gói Gia đình lúc bán chốt sau, chủ app điền vào lời giao việc Phiên G1. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); lời giao việc G1, B1, B2: mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). Thứ tự: G1 → B1 → B2 → B4.
 
 | Phiên | Việc | Vì sao |
 |---|---|---|
-| B1 · Chuyển hosting | Repo chuyển sang riêng tư; trang chạy trên Cloudflare Pages (gói miễn phí, không giới hạn băng thông trang tĩnh, cho dùng thương mại); tên miền riêng | Điều khoản GitHub Pages không cho dùng gói miễn phí để chạy dịch vụ bán hàng hay phần mềm trả phí (SaaS). Repo công khai thì ai cũng tải được toàn bộ đề |
+| G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư (trước gọi là B3) | Như mục 9 thiết kế: quyền lợi, giá đọc từ bảng `plans`, QR chuyển khoản, nút nhắn Zalo; trang admin thêm "Kích hoạt gói" (đã có `set_plan` trong Edge Function); hai trang tĩnh Điều khoản và Quyền riêng tư | Bán tay qua Zalo, không mất phí cổng thanh toán |
+| B1 · Chuyển hosting | Repo chuyển sang riêng tư; trang chạy trên Cloudflare Pages (gói miễn phí, không giới hạn băng thông trang tĩnh, cho dùng thương mại); tên miền riêng | Điều khoản GitHub Pages không cho dùng gói miễn phí để chạy dịch vụ bán hàng hay phần mềm trả phí (SaaS). Repo công khai thì ai cũng tải được toàn bộ đề; đến khi bán chấp nhận như vậy |
 | B2 · Đề trả phí lên máy chủ | Đề trả phí chỉ nằm trong bảng `paid_banks` (đã có sẵn từ Phiên A), đọc qua RLS theo gói; đề thử và bài ôn miễn phí vẫn là file tĩnh; `Store.can("bank:<mã>")` | Không ai tải được đề trả phí nếu chưa mua |
-| B3 · Màn hình Nâng cấp và kích hoạt gói | Như mục 9 thiết kế: quyền lợi, giá, QR chuyển khoản VietQR, nút nhắn Zalo; trang admin thêm "Kích hoạt gói" (đã có `set_plan` trong Edge Function) | Bán tay qua Zalo, không mất phí cổng thanh toán |
 | B4 · Bớt tải dữ liệu | Lúc mở app chỉ tải kết quả 90 ngày gần nhất (báo cáo chỉ dùng 7 và 30 ngày); đề tải khi mở và lưu lại trên máy | Hiện mỗi lần mở app tải toàn bộ kết quả của gia đình |
 
 Việc hành chính chủ app tự làm:
-- Nâng Supabase lên gói Pro (dự án không bị tạm dừng, có sao lưu hằng ngày).
+- Nâng Supabase lên gói Pro khi bắt đầu thu tiền (dự án không bị tạm dừng, có sao lưu hằng ngày). Trước đó giữ gói Free: xuất CSV hằng tuần, mở app ít nhất mỗi tuần một lần ([HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md), mục “Gói và đề trả phí”).
 - Thông báo website bán hàng với Bộ Công Thương tại online.gov.vn (không mất phí, cần mã số thuế cá nhân).
 - Trang Điều khoản và Quyền riêng tư theo Luật Bảo vệ dữ liệu cá nhân 2025 (hiệu lực 1/1/2026). App đã chỉ thu tên hiển thị, khối, lớp; phụ huynh là người tạo hồ sơ của con.
 - Hỏi kế toán về thuế hộ, cá nhân kinh doanh.
@@ -237,8 +240,9 @@ Lớp 9 và 12 cần thêm phiên đề thi thử đúng định dạng kì thi:
 
 | Rủi ro | Cách giảm |
 |---|---|
-| Đề sai đáp án, sai chương trình | Bộ kiểm tra đề (K1); tính lại đáp án Toán, Lí, Hóa bằng code; bố mẹ, giáo viên rà; nút báo câu sai (làm cùng B3) |
+| Đề sai đáp án, sai chương trình | Bộ kiểm tra đề (K1); tính lại đáp án Toán, Lí, Hóa bằng code; bố mẹ, giáo viên rà; nút “Báo câu này sai” trong app (Phiên R1, trong [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)) |
 | Hết lượt dùng Claude giữa mùa thi | Làm trước hạn kì thi ít nhất 3 tuần; một phiên một môn |
 | Dữ liệu phình to, app chậm | K1 tách file; B4 chỉ tải 90 ngày; đề trả phí tải khi mở |
-| Bị chép đề khi repo công khai | B1, B2 trước khi bán |
+| Bị chép đề khi repo công khai | Đến khi bán chấp nhận repo công khai (đã chốt 18/10/2026); B1, B2 ngay trước khi bán |
+| Mất dữ liệu trên Supabase gói Free (không có sao lưu, project tự tạm dừng) | Chủ app xuất CSV hằng tuần, mở app ít nhất mỗi tuần một lần; lên gói Pro khi bắt đầu thu tiền |
 | Sách hoặc lịch thi thay đổi | Theo dõi thông báo của Bộ, Sở; ngày chưa công bố để dự kiến; câu hỏi gắn bài và tuần học để sửa nhanh |

@@ -20,6 +20,8 @@ Mất khoảng 15 phút. Cần một máy tính và tài khoản GitHub.
 2. **New project**: Name `OnUp`; Database Password: **Generate a password**, cất kĩ; Region: **Southeast Asia (Singapore)**; gói **Free**.
 3. **Create new project**, đợi 1–2 phút.
 
+Giữ gói Free đến khi bắt đầu thu tiền (quyết định 18/10/2026). Gói này không có sao lưu tự động và tự tạm dừng project khi cả tuần không ai dùng, nên có hai việc hằng tuần ghi ở mục “Gói và đề trả phí” bên dưới.
+
 Đã cài bản cũ (đăng nhập email, mã gia đình) theo hướng dẫn trước? Bản mới không dùng chung bảng với bản cũ: xóa project cũ (**Project Settings → General → Delete project**) rồi tạo project mới.
 
 ## Bước 2. Tạo bảng dữ liệu
@@ -122,9 +124,15 @@ Muốn tắt: tắt trên Supabase **trước**, rồi mới xóa Site Key.
 
 ## Gói và đề trả phí (chưa dùng)
 
-Hôm nay mọi tài khoản là gói `free`: dùng mọi nội dung, tối đa 5 hồ sơ con. Bảng `plans`, `plan_log`, `paid_banks` đã có sẵn cho lúc bán gói (thiết kế mục 9). Khi đó:
+Hôm nay mọi tài khoản là gói `free`: dùng mọi nội dung, tối đa 5 hồ sơ con. Giữ như vậy đến khi bán (khi đủ đề lớp 4–12, khoảng cuối năm học 2028–2029; quyết định 18/10/2026): **không sửa bảng `plans`** trước lúc đó. Hạn mức hai gói lúc bán sẽ chốt sau ([THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md) mục 9).
 
-- Đổi hạn mức trong **SQL Editor**, ví dụ: `update plans set max_children = 1, all_banks = false where id = 'free';` và `update plans set max_children = 3, price = 300000 where id = 'family';`
+**Việc hằng tuần khi còn gói Free của Supabase** (đến khi bắt đầu thu tiền thì lên gói Pro, có sao lưu hằng ngày):
+- **Xuất CSV:** **Table Editor** → mở từng bảng `families`, `profiles`, `results`, `exam_events`, `question_banks` → nút **Export** (hoặc menu ⋯ của bảng) → **Export to CSV**, cất vào Google Drive theo ngày. Gói Free không có sao lưu; đây là bản sao duy nhất nếu project hỏng.
+- **Mở app ít nhất mỗi tuần một lần** (kể cả dịp Tết, hè): project tự tạm dừng khi cả tuần không ai dùng. Thấy **Paused** thì vào Supabase bấm **Restore**; dữ liệu vẫn còn.
+
+Bảng `plans`, `plan_log`, `paid_banks` đã có sẵn cho lúc bán gói (Phiên G1, B2). Khi đó:
+
+- Đổi hạn mức trong **SQL Editor** (số giữ chỗ, điền con số đã chốt): `update plans set max_children = <số hồ sơ>, all_banks = false where id = 'free';` và `update plans set max_children = <số hồ sơ>, price = <giá> where id = 'family';`
 - Chép đề vào máy chủ: trên máy có Node, chạy `node supabase/banks-to-sql.js > paid-banks.sql`, mở file, dán vào SQL Editor → **Run** (chạy lại được, không trùng). Đề số 1 mỗi môn mỗi kì là **đề thử**: tài khoản nào cũng đọc được; đề khác chỉ tài khoản có gói còn hạn mới đọc được.
 
 ## Cập nhật máy chủ khi app có phiên bản mới

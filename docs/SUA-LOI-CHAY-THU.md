@@ -1,6 +1,6 @@
 # Sửa lỗi cơ bản sau khi dùng thử (16/10/2026)
 
-Trạng thái: **Phiên 9a, 9b, 9c đã làm** (L1–L14, PR #21, #22, #23; ảnh 360px sau Phiên 9b: [hinh-360/](hinh-360/)). **Phiên 9d đã làm** (L15–L19, lỗi phát sinh tìm được khi rà soát lại ngày 17/10, PR #29); còn chờ bố mẹ thử L17 trên iPhone thật (mục 2, Phiên 9d). Các phiên Claude Code để sửa: mục 3.
+Cả bốn phiên sửa (9a, 9b, 9c: L1–L14, PR #21, #22, #23; 9d: L15–L19, lỗi phát sinh khi rà soát lại ngày 17/10, PR #29) đã gộp vào `main`; ảnh 360px sau Phiên 9b: [hinh-360/](hinh-360/). Trạng thái và việc còn chờ (bố mẹ thử L17 trên iPhone thật) chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). File này giữ phần mô tả lỗi, cách sửa và lời giao việc (mục 3).
 
 **Cách đã thử:** chạy mã nhánh `main` (commit `5866b72`, giống bản đang đăng trên GitHub Pages) bằng Chromium tự động, màn hình điện thoại 360×740, rồi thêm chế độ tối và màn hình 1280px. Đi hết các luồng:
 - thiết lập lần đầu và các tab quản trị;
