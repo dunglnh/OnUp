@@ -71,7 +71,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
-| 1 | 25/10 | ~~D0 · Đồng bộ tài liệu~~ (đã xong, PR #40) | quyết định đã chốt 18/10 (đầu tài liệu) | chỉ sửa tài liệu; từ đó trạng thái chỉ ghi ở file này |
+| 1 | 25/10 | ~~D0 · Đồng bộ tài liệu~~ (đã xong, PR #41) | quyết định đã chốt 18/10 (đầu tài liệu) | chỉ sửa tài liệu; từ đó trạng thái chỉ ghi ở file này |
 | 2 | 25/10 | **UI1 · Chỉnh nhỏ chữ và màu** | | sửa css/app.css, thêm một kiểm tra vào tests/e2e.js; chạy cùng lúc với D0 được |
 | 3 | 1/11 | **K3 · Rút đề ngẫu nhiên theo ma trận** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 6) | K1, K2 (đã xong) | các phiên làm đề N1 trở đi dùng dạng ngân hàng của K3 |
 | 4 | 1/11 | **S1 · Màn hình đăng nhập cho người mới** | `contactUrl` đã điền | nhỏ; dùng khi trang công khai chỉ dành cho gia đình được mời |
@@ -134,7 +134,7 @@ Không chạy cùng lúc hai phiên cùng sửa `js/app.js` hoặc `js/quiz.js`;
 
 Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Các phiên dưới đây xếp theo thứ tự ở mục 3.
 
-**Phiên D0 · Đồng bộ tài liệu** (đã xong, PR #40; quyết định đã điền theo lựa chọn của chủ app ngày 18/10/2026)
+**Phiên D0 · Đồng bộ tài liệu** (đã xong, PR #41; quyết định đã điền theo lựa chọn của chủ app ngày 18/10/2026)
 > Đọc CLAUDE.md, README.md và mọi file trong docs/. Chỉ sửa tài liệu, không sửa code.
 >
 > Quyết định của chủ app (18/10/2026):
