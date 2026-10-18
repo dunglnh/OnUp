@@ -772,6 +772,39 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     && !l18.toan.some((x) => /^Đề \d+$/.test(x)) && l18.tv.includes("Cuối kì I · Đề 2") && l18.tv.includes("Giữa kì II · Đề 1") && l18.ck2.join() === "Đề 2,Đề 3"
     && l18.aria.includes("Toán 4 · Giữa kì II · Đề 1") && l18.aria.includes("Toán 4 · Cuối kì I · Đề 3") && l18.wide <= 360 && l18.fits;
 
+  step("after K3 review (9e): L22, L24, L25, L26");
+  /* Ngày giả lập 21/12/2026: kì cuối kì I lớp 6 bắt đầu, giữa kì I lớp 6 đã qua; cuối kì I lớp 4 còn một tuần. Kì ck1-l4 gắn
+     lại đủ đề như lịch mặc định (bước "new seed banks" đã bỏ gắn một đề).
+     L22: học sinh lớp 4, hàng "Tin học và Công nghệ" của kì cuối kì I có nút "Đề 1" (tên đề trong danh mục có số đề). */
+  const nc = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 } });
+  await localConfig(nc); watchOut(nc);
+  const np = await nc.newPage(); np.on("pageerror", (e) => errs.push("pageerror 9e: " + e.message));
+  await np.clock.install({ time: new Date("2026-12-21T08:00:00") });
+  await np.goto(BASE + "/");
+  await np.evaluate(() => {
+    const d = JSON.parse(localStorage.getItem("ontap_db_v1"));
+    d.events.find((e) => e.id === "ck1-l4").banks = window.ONTAP_SEED_EVENTS.find((e) => e.id === "ck1-l4").banks.slice();
+    localStorage.setItem("ontap_db_v1", JSON.stringify(d));
+  });
+  const asStudent = async (name, pin) => { // vào trang chủ của một học sinh, mở mọi nhóm bài ôn
+    await np.evaluate(() => Store.setSession(null)); await np.goto(BASE + "/"); await np.reload();
+    await np.click(`.tile[data-u="${ids[name]}"]`); await np.fill("#pinIn", pin); await np.waitForSelector("#allPractice");
+    await np.evaluate(() => document.querySelectorAll("details.grp").forEach((d) => (d.open = true)));
+  };
+  // chữ trên các nút đề của một hàng môn trong một nhóm (id kì thi; "" là nhóm "Bài ôn khác")
+  const rowOf = (id, sub) => np.evaluate(([id, sub]) => {
+    const g = document.querySelector(id ? `#allPractice details.grp[data-grp="${id}"]` : "#allPractice details.grp:not([data-grp])");
+    const r = g && [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === sub);
+    return r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent) : [];
+  }, [id, sub]);
+  const f9e = {};
+  await asStudent("Bin", PINS.Bin);
+  f9e.l4 = { today: await np.evaluate(() => new Date().toLocaleDateString("vi")), tincn: await rowOf("ck1-l4", "Tin học và Công nghệ") };
+  await np.screenshot({ path: OUT + "21-9e-lop4.png", fullPage: true });
+  await nc.close();
+  console.log("9e:", JSON.stringify(f9e));
+  const fix9eOK = f9e.l4.today === "21/12/2026" && f9e.l4.tincn.join() === "Đề 1";
+
   step("random exam by matrix (K3)");
   /* Đề ngẫu nhiên (mục có pool trong data/banks/index.js): hàng Toán của kì cuối kì I lớp 6 có nút "Đề ngẫu nhiên" trước
      Đề 1, Đề 2. Na (chưa có kết quả) làm xong Đề 1 (đúng hết), rồi mở đề ngẫu nhiên: màn đầu nói rõ 25 câu rút từ kho 50 câu
@@ -1164,6 +1197,6 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const real = errs;
   console.log("ERRORS:", real);
   console.log("reveal (U1):", rv);
-  if (rv.length || real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal || !k2OK || !k3OK || !r1OK || !ta1OK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (rv.length || real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal || !k2OK || !k3OK || !r1OK || !ta1OK || !fix9eOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();

@@ -37,6 +37,8 @@ const vm = require("vm");
 const ROOT = path.join(__dirname, "..");
 const GIOI_HAN = { cau: [10, 60], phut: [10, 120], giayMoiCau: [30, 300] };
 const TRUONG_DE = ["id", "title", "grade", "subject", "minutes", "n", "file"]; // đề ngẫu nhiên có thêm pool ở cuối
+const KI = ["Giữa kì I", "Cuối kì I", "Giữa kì II", "Cuối năm"]; // tên kì trong tên đề
+const MON_THU = "Thử nghiệm"; // đề thử nghiệm các dạng câu: tên không theo quy ước
 const TRUONG_CAU = { mc: ["topic", "type", "q", "o", "x"], fill: ["topic", "type", "q", "ans", "x"], tf: ["topic", "type", "q", "a", "x"],
   tf4: ["topic", "type", "q", "o", "a", "x"], num: ["topic", "type", "q", "ans", "x"], match: ["topic", "type", "q", "l", "r", "x"],
   order: ["topic", "type", "q", "o", "x"], essay: ["topic", "type", "q", "rubric", "x"] };
@@ -52,6 +54,18 @@ function load(files) {
 const bad = [];
 const err = (at, msg) => bad.push(at + ": " + msg);
 const text = (s) => typeof s === "string" && s.trim() !== "";
+/* Tên đề có sẵn đúng quy ước "<môn> <khối> · <kì> · Đề N" (đề ngẫu nhiên: "… · Đề ngẫu nhiên"), vì chữ trên nút đề lấy từ tên
+   (bankLabels trong js/app.js: thiếu số đề thì nút chỉ ghi "Đề"). Đề thử nghiệm (môn MON_THU) không theo. Trả về lời báo lỗi hoặc "". */
+const soatTen = (b) => {
+  if (b.subject === MON_THU) return "";
+  const want = `"${b.subject} ${b.grade} · <kì> · Đề ${b.pool ? "ngẫu nhiên" : "N"}"`;
+  const m = /^(.+) (\d+) · (.+) · Đề ([1-9]\d*|ngẫu nhiên)$/u.exec(String(b.title).normalize("NFC"));
+  if (!m) return `tên "${b.title}" phải đúng dạng ${want} (kì: ${KI.join(", ")})`;
+  if (m[1] !== String(b.subject).normalize("NFC") || +m[2] !== b.grade) return `tên "${b.title}" phải bắt đầu bằng môn và khối: ${want}`;
+  if (!KI.includes(m[3])) return `tên "${b.title}" có kì "${m[3]}" lạ, chỉ dùng: ${KI.join(", ")}`;
+  if (!!b.pool !== (m[4] === "ngẫu nhiên")) return `tên "${b.title}" phải kết thúc bằng "Đề ${b.pool ? "ngẫu nhiên" : "N"}" (${b.pool ? "đề ngẫu nhiên" : "đề cố định"})`;
+  return "";
+};
 const norm = (s) => String(s).normalize("NFC").replace(/[\p{P}\s]+/gu, "");
 const opt = (s) => String(s).normalize("NFC").replace(/\s+/g, " ").trim();
 
@@ -75,6 +89,7 @@ catalog.forEach((b, i) => {
   if ((retired || []).includes(b.id)) err(at, "mã đề đã bỏ (RETIRED_SEED_BANKS), dùng mã khác");
   if (!grades.includes(b.grade)) err(at, "khối " + b.grade + " không có trong data/grades.js");
   if (!text(b.title) || !text(b.subject)) err(at, "thiếu tên đề hoặc môn");
+  else { const m = soatTen(b); if (m) err(at, m); }
   const [c0, c1] = GIOI_HAN.cau, [p0, p1] = GIOI_HAN.phut, [s0, s1] = GIOI_HAN.giayMoiCau;
   if (!(Number.isInteger(b.n) && b.n >= c0 && b.n <= c1)) err(at, `số câu n = ${b.n}, cần từ ${c0} đến ${c1}`);
   if (!(Number.isInteger(b.minutes) && b.minutes >= p0 && b.minutes <= p1)) err(at, `số phút = ${b.minutes}, cần từ ${p0} đến ${p1}`);
@@ -223,7 +238,6 @@ pools.forEach((b) => {
   if (!p || typeof p !== "object" || Array.isArray(p)) { err(at, "pool phải là { from, matrix }"); return; }
   const extra = Object.keys(p).filter((k) => !["from", "matrix"].includes(k));
   if (extra.length) err(at, "pool có trường lạ: " + extra.join(", "));
-  if (!/ · Đề ngẫu nhiên$/.test(b.title)) err(at, "tên phải kết thúc bằng “· Đề ngẫu nhiên” (chữ trên nút lấy từ tên)");
   const from = p.from === undefined ? [] : p.from;
   if (!Array.isArray(from) || !from.every((x) => typeof x === "string")) { err(at, "from phải là danh sách mã đề cố định"); return; }
   const parts = []; // [mã, {note, passages, questions}] của câu riêng và các đề trong from
@@ -359,6 +373,16 @@ catalog.forEach((b) => {
   if (JSON.stringify(got) !== JSON.stringify(want)) err(at, "chưa bắt đúng câu cố ý viết sai: " + JSON.stringify(got));
   if (chuViet("Lucy likes cafés. Voilà, a café!") !== "Voilà") err(at, "từ được phép (café, cafés) bị báo, hoặc từ có dấu khác không bị báo: " + chuViet("Lucy likes cafés. Voilà, a café!"));
   if (laCauTiengAnh({ topic: "Tiếng Anh · Đọc hiểu" }) || !laCauTiengAnh({ topic: "English · Reading" })) err(at, "nhận câu Tiếng Anh theo topic chưa đúng");
+}
+
+// tự thử quy ước tên đề: tên sai phải bị báo, tên đúng và đề thử nghiệm thì không
+{
+  const at = "kiểm tra tên đề", mk = (title, pool) => Object.assign({ title, grade: 4, subject: "Tin học và Công nghệ" }, pool ? { pool: {} } : {});
+  const sai = [mk("Tin học và Công nghệ 4 · Cuối kì I"), mk("Tin học và Công nghệ 4 · Cuối kỳ I · Đề 1"), mk("Tin học 4 · Cuối kì I · Đề 1"), mk("Tin học và Công nghệ 6 · Cuối kì I · Đề 1"),
+    mk("Tin học và Công nghệ 4 · Cuối kì I · Đề 0"), mk("Tin học và Công nghệ 4 · Cuối kì I · Đề ngẫu nhiên"), mk("Tin học và Công nghệ 4 · Cuối kì I · Đề 1", true), mk("Đề 1 · Tin học và Công nghệ 4 · Cuối kì I")];
+  sai.forEach((b, i) => { if (!soatTen(b)) err(at, `tên sai mẫu ${i + 1} không bị báo: "${b.title}"`); });
+  [mk("Tin học và Công nghệ 4 · Cuối kì I · Đề 1"), mk("Tin học và Công nghệ 4 · Giữa kì II · Đề 12"), mk("Tin học và Công nghệ 4 · Cuối năm · Đề ngẫu nhiên", true),
+    { title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: MON_THU }].forEach((b, i) => { const m = soatTen(b); if (m) err(at, `tên đúng mẫu ${i + 1} bị báo: ${m}`); });
 }
 
 /* ---------- lịch thi mặc định ---------- */
