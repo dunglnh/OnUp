@@ -31,11 +31,11 @@ const config = (siteKey, signup) => `window.ONTAP_CONFIG = { supabaseUrl: "https
 /* Thay cho script Cloudflare Turnstile (không có mạng): trả mã hợp lệ sau một chút, ghi lại ô đã dùng. */
 const TURNSTILE_STUB = `window.turnstile = { n: 0, boxes: [], render(host, o) { this.boxes.push(host.id || "?"); const t = "ok-" + Date.now() + "-" + (++this.n); setTimeout(() => o.callback(t), 20); return this.n; }, remove() {} };`;
 
-/* Như audit trong tests/e2e.js: ở 360px không tràn ngang; mọi button, a.btn, .linkbtn đang hiện cao ≥ 44px; chữ ≥ 13px. */
+/* Như audit trong tests/e2e.js: ở 360px không tràn ngang; mọi button, a.btn, .linkbtn, summary đang hiện cao ≥ 44px; chữ ≥ 13px. */
 const audit = () => {
   const bad = [], shown = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden"; };
   if (document.documentElement.scrollWidth > innerWidth) bad.push("tràn ngang: rộng " + document.documentElement.scrollWidth + "px");
-  document.querySelectorAll("button, a.btn, .linkbtn").forEach((el) => { const h = el.getBoundingClientRect().height; if (shown(el) && h < 44) bad.push(`nút "${el.textContent.trim().slice(0, 24)}" cao ${Math.round(h)}px`); });
+  document.querySelectorAll("button, a.btn, .linkbtn, summary").forEach((el) => { const h = el.getBoundingClientRect().height; if (shown(el) && h < 44) bad.push(`nút "${el.textContent.trim().slice(0, 24)}" cao ${Math.round(h)}px`); });
   const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   for (let n; (n = tw.nextNode());) {
     const el = n.parentElement, fs = parseFloat(getComputedStyle(el).fontSize);
@@ -299,7 +299,7 @@ async function run(browser, scheme) {
   c.migHint = /Trên iPhone, iPad: hãy chuyển trong Safari, nơi đang có dữ liệu, trước khi dùng app ở Màn hình chính/.test(await text(p2, "#migBox"));
   c.noHomeScreen = !(await p2.$("#homeScreen")); // hướng dẫn Màn hình chính (L17) chỉ ở bản lưu trên máy
   // R1: tab Dữ liệu của khu phụ huynh liệt kê câu đã báo kèm trạng thái, không có nút chép (đã lên máy chủ)
-  c.r1.data = await p2.evaluate(() => { const b = document.querySelector("#reportsBox"); return { n: b.querySelectorAll(".item").length, head: b.querySelector("h3").textContent, chips: [...b.querySelectorAll(".chip")].map((x) => x.textContent).join(), copy: !!b.querySelector("#copyReports"), who: /Bin/.test(b.textContent) && /Toán 4 · Cuối kì I · Đề 1/.test(b.textContent) }; });
+  c.r1.data = await p2.evaluate(() => { const b = document.querySelector("#reportsBox"); return { n: b.querySelectorAll(".item").length, head: b.querySelector("h3").textContent, chips: [...b.querySelectorAll(".chip")].map((x) => x.textContent).join(), copy: !!b.querySelector("#copyReports"), who: /Bin/.test(b.textContent) && /Toán 4 · Cuối kì I · Đề 1/.test(b.textContent.replace(/\s+/g, " ")) }; });
   await p2.click("#dMigrate"); await p2.waitForSelector("#migRes .fb");
   c.migrate = await text(p2, "#migRes");
   await shot(p2, "c14-du-lieu");

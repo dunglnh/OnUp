@@ -477,12 +477,12 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const cloudOK = /đám mây/.test(cloudBackup.msg) && cloudBackup.same;
 
   step("360px light + dark (L4–L11)");
-  /* Ở 360px: không tràn ngang; mọi button, a.btn, .linkbtn đang hiện cao ≥ 44px; không chữ nào nhỏ hơn 13px.
+  /* Ở 360px: không tràn ngang; mọi button, a.btn, .linkbtn, summary (dòng mở/đóng của <details>, L23) đang hiện cao ≥ 44px; không chữ nào nhỏ hơn 13px.
      Phần tử bị ẩn (display:none, nằm trong <details> đang đóng) không tính. Trả về danh sách lỗi. */
   const audit = () => {
     const bad = [], shown = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden"; };
     if (document.documentElement.scrollWidth > innerWidth) bad.push("tràn ngang: rộng " + document.documentElement.scrollWidth + "px");
-    document.querySelectorAll("button, a.btn, .linkbtn").forEach((el) => { const h = el.getBoundingClientRect().height; if (shown(el) && h < 44) bad.push(`nút "${el.textContent.trim().slice(0, 24)}" cao ${Math.round(h)}px`); });
+    document.querySelectorAll("button, a.btn, .linkbtn, summary").forEach((el) => { const h = el.getBoundingClientRect().height; if (shown(el) && h < 44) bad.push(`nút "${el.textContent.trim().slice(0, 24)}" cao ${Math.round(h)}px`); });
     const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     for (let n; (n = tw.nextNode());) {
       const el = n.parentElement, fs = parseFloat(getComputedStyle(el).fontSize);
@@ -556,7 +556,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       if (t === "users") r.usersFoot = !(await footShown());
       if (t === "data") await snap("du-lieu", true);
     }
-    for (const h of ["#/admin/user/new?role=student", "#/admin/event/ck1-l4", "#/admin/bank/new"]) { await open(h); await check(h); }
+    for (const h of ["#/admin/user/new?role=student", "#/admin/event/ck1-l4", "#/admin/bank/new"]) { await open(h); await check(h); } // màn nhập đề: dòng "Cách viết câu hỏi" (summary) cũng phải cao ≥ 44px (L23)
     // đề chưa tải được (mất mạng mà chưa mở đề nào của môn này): báo và có nút Thử lại
     await c.route("**/data/banks/4-tv.js", (rt) => rt.abort("internetdisconnected"));
     await open("#/quiz/tv4-ck1-de1"); await p.waitForSelector("#qRetry"); await check("đề chưa tải được"); await snap("de-chua-tai-duoc");
@@ -772,6 +772,64 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     && !l18.toan.some((x) => /^Đề \d+$/.test(x)) && l18.tv.includes("Cuối kì I · Đề 2") && l18.tv.includes("Giữa kì II · Đề 1") && l18.ck2.join() === "Đề 2,Đề 3"
     && l18.aria.includes("Toán 4 · Giữa kì II · Đề 1") && l18.aria.includes("Toán 4 · Cuối kì I · Đề 3") && l18.wide <= 360 && l18.fits;
 
+  step("after K3 review (9e): L22, L24, L25, L26");
+  /* Ngày giả lập 21/12/2026: kì cuối kì I lớp 6 bắt đầu, giữa kì I lớp 6 đã qua; cuối kì I lớp 4 còn một tuần. Kì ck1-l4 gắn
+     lại đủ đề như lịch mặc định (bước "new seed banks" đã bỏ gắn một đề).
+     L22: học sinh lớp 4, hàng "Tin học và Công nghệ" của kì cuối kì I có nút "Đề 1" (tên đề trong danh mục có số đề).
+     L24: học sinh lớp 6, hàng Tiếng Anh của nhóm "Bài ôn khác" (đề giữa kì I đã qua) ghi "Giữa kì I · Đề 1"; nhóm cuối kì I
+     vẫn ghi "Đề 1"; aria-label vẫn là tên đề đầy đủ; đề thử nghiệm (tên tự đặt) ghi nguyên tên.
+     L25: kì cuối kì I lớp 4 (1 bài IOE, 9 đề cố định, 2 đề ngẫu nhiên) ghi "10 bài ôn" ở thẻ kì thi trên trang chủ, đầu nhóm
+     bài ôn và trang Lịch thi; nút "Đề ôn · 9 đề" như cũ.
+     L26: tên đề ở màn mở đề toan6-ck1-ngau-nhien (h1 và dòng nhãn), nhãn trên thẻ câu hỏi, tên kì thi trên thẻ kì thi và đầu nhóm
+     có khoảng trắng không ngắt (U+00A0) trước mỗi dấu "·"; aria-label của nút đề vẫn là khoảng trắng thường. */
+  const nc = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 } });
+  await localConfig(nc); watchOut(nc);
+  const np = await nc.newPage(); np.on("pageerror", (e) => errs.push("pageerror 9e: " + e.message));
+  await np.clock.install({ time: new Date("2026-12-21T08:00:00") });
+  await np.goto(BASE + "/");
+  await np.evaluate(() => {
+    const d = JSON.parse(localStorage.getItem("ontap_db_v1"));
+    d.events.find((e) => e.id === "ck1-l4").banks = window.ONTAP_SEED_EVENTS.find((e) => e.id === "ck1-l4").banks.slice();
+    localStorage.setItem("ontap_db_v1", JSON.stringify(d));
+  });
+  const asStudent = async (name, pin) => { // vào trang chủ của một học sinh, mở mọi nhóm bài ôn
+    await np.evaluate(() => Store.setSession(null)); await np.goto(BASE + "/"); await np.reload();
+    await np.click(`.tile[data-u="${ids[name]}"]`); await np.fill("#pinIn", pin); await np.waitForSelector("#allPractice");
+    await np.evaluate(() => document.querySelectorAll("details.grp").forEach((d) => (d.open = true)));
+  };
+  // chữ trên các nút đề của một hàng môn trong một nhóm (id kì thi; "" là nhóm "Bài ôn khác")
+  const rowOf = (id, sub) => np.evaluate(([id, sub]) => {
+    const g = document.querySelector(id ? `#allPractice details.grp[data-grp="${id}"]` : "#allPractice details.grp:not([data-grp])");
+    const r = g && [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === sub);
+    return r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent) : [];
+  }, [id, sub]);
+  const f9e = {};
+  await asStudent("Bin", PINS.Bin);
+  const textOf = (sel) => np.evaluate((sel) => [...document.querySelectorAll(sel)].map((x) => x.textContent.replace(/\s+/g, " ").trim()).join("|"), sel);
+  f9e.l4 = { today: await np.evaluate(() => new Date().toLocaleDateString("vi")), tincn: await rowOf("ck1-l4", "Tin học và Công nghệ"),
+    homeTags: await textOf('.ev[data-ev="ck1-l4"] .tag'), grpHead: await textOf('#allPractice details.grp[data-grp="ck1-l4"] summary .small'), hero: await textOf("#toBanks") };
+  await np.goto(BASE + "/#/calendar"); await np.waitForSelector(".timeline");
+  f9e.l4.calTags = await textOf('.ev[data-ev="ck1-l4"] .tag');
+  await np.goto(BASE + "/#/home"); await np.waitForSelector("#allPractice");
+  await np.evaluate(() => document.querySelectorAll("details.grp").forEach((d) => (d.open = true)));
+  await np.screenshot({ path: OUT + "21-9e-lop4.png", fullPage: true });
+  await asStudent("Na", "4444");
+  f9e.l6 = { taOther: await rowOf("", "Tiếng Anh"), taCk1: await rowOf("ck1-l6", "Tiếng Anh"), thu: await rowOf("", "Thử nghiệm"),
+    aria: await np.$$eval('#allPractice details.grp:not([data-grp]) .des a', (a) => a.map((x) => x.getAttribute("aria-label"))) };
+  const rawOf = (sel) => np.$eval(sel, (x) => x.textContent.replace(/[ \t\n]+/g, " ").trim()); // giữ U+00A0 (textOf gộp cả \s) để kiểm tra L26
+  f9e.nb = { grp: await rawOf('#allPractice details.grp[data-grp="ck1-l6"] summary .small'), hero: await rawOf(".hero p") };
+  await np.screenshot({ path: OUT + "21-9e-lop6.png", fullPage: true });
+  await np.goto(BASE + "/#/quiz/toan6-ck1-ngau-nhien"); await np.waitForSelector("#qPractice");
+  Object.assign(f9e.nb, { h1: await rawOf(".hero h1"), label: await rawOf(".hero .label") });
+  await np.click("#qPractice"); f9e.nb.card = await rawOf(".qcard .label");
+  await nc.close();
+  console.log("9e:", JSON.stringify(f9e));
+  const fix9eOK = f9e.l4.today === "21/12/2026" && f9e.l4.tincn.join() === "Đề 1"
+    && /\|10 bài ôn\|/.test("|" + f9e.l4.homeTags + "|") && / · 10 bài ôn$/.test(f9e.l4.grpHead) && /\|10 bài ôn\|/.test("|" + f9e.l4.calTags + "|") && f9e.l4.hero === "Đề ôn · 9 đề"
+    && f9e.l6.taOther.join() === "Giữa kì I · Đề 1" && f9e.l6.taCk1.join() === "Đề 1" && f9e.l6.thu.join() === "Đề thử nghiệm · Các dạng câu mới"
+    && f9e.l6.aria.includes("Tiếng Anh 6 · Giữa kì I · Đề 1") && !f9e.l6.aria.some((x) => /·.*·.*·/.test(x))
+    && Object.values(f9e.nb).every((s) => /·/.test(s) && !/[^\u00a0]·/.test(s)) && f9e.nb.h1 === "Toán 6\u00a0· Cuối kì I\u00a0· Đề ngẫu nhiên";
+
   step("random exam by matrix (K3)");
   /* Đề ngẫu nhiên (mục có pool trong data/banks/index.js): hàng Toán của kì cuối kì I lớp 6 có nút "Đề ngẫu nhiên" trước
      Đề 1, Đề 2. Na (chưa có kết quả) làm xong Đề 1 (đúng hết), rồi mở đề ngẫu nhiên: màn đầu nói rõ 25 câu rút từ kho 50 câu
@@ -827,7 +885,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     const b = Store.bank(POOL), d = Quiz.draw(b), cnt = {}; d.questions.forEach((q) => (cnt[q.topic] = (cnt[q.topic] || 0) + 1));
     const keys = d.questions.map(Quiz.key);
     return { n: d.questions.length, kho: b.questions.length, srcs: [...new Set(b.questions.map((q) => q.src))].join(), matrix: JSON.stringify(cnt) === JSON.stringify(b.pool.matrix),
-      uniq: new Set(keys).size === keys.length, notes: d.notes.length, fixedN: Store.bank(DE1).questions.length, fixedClean: !("src" in Store.bank(DE1).questions[0]), label: document.querySelector(".hero .label").textContent };
+      uniq: new Set(keys).size === keys.length, notes: d.notes.length, fixedN: Store.bank(DE1).questions.length, fixedClean: !("src" in Store.bank(DE1).questions[0]), label: document.querySelector(".hero .label").textContent.replace(/\s+/g, " ") };
   }, { POOL, DE1 });
   const PQ = await kp.evaluate((id) => Store.bank(id).questions, POOL);
   // lượt 1: câu đầu sai, còn lại đúng
@@ -966,7 +1024,8 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await rp.click(`.tile[data-u="${ids["Mẹ Bin"]}"]`); await rp.fill("#pinIn", PINS["Mẹ Bin"]); await rp.waitForTimeout(400);
   await rp.goto(BASE + "/#/quiz/toan4-ck1-de1"); await rp.waitForSelector("#qPractice"); await rp.click("#qPractice"); await answerFirst();
   await rp.click(".rp-link"); await rp.click('.rsn .opt[data-r="unclear"]'); await rp.click(".report-box [type=submit]"); await rp.waitForSelector(".rp-done");
-  r1.parent = await rp.evaluate((id) => { const r = Store.reports()[0]; return r.userId === id && r.reason === "unclear" && Store.reports().length === 4; }, ids["Mẹ Bin"]);
+  // số báo cáo = số trước đó + 1 (trước đó 2 hoặc 3 tùy màn kết quả còn câu chưa báo hay không: thứ tự câu ngẫu nhiên)
+  r1.parent = await rp.evaluate(([id, n3]) => { const r = Store.reports()[0]; return r.userId === id && r.reason === "unclear" && Store.reports().length === n3 + 1; }, [ids["Mẹ Bin"], r1.n3]);
   await rc.close();
   console.log("R1:", r1);
   const r1OK = !r1.problems.length && r1.oldDefault && r1.examNoLink && r1.beforeCheck && r1.link.h >= 44 && r1.link.text === "Báo câu này sai" && r1.link.flag && r1.link.inFb && r1.link.after
@@ -1164,6 +1223,6 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const real = errs;
   console.log("ERRORS:", real);
   console.log("reveal (U1):", rv);
-  if (rv.length || real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal || !k2OK || !k3OK || !r1OK || !ta1OK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (rv.length || real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal || !k2OK || !k3OK || !r1OK || !ta1OK || !fix9eOK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();
