@@ -24,11 +24,142 @@
      onReport(q, {reason, note}) → Promise: gửi xong thì hiện lời cảm ơn, lỗi (reject) thì hiện e.message trong hộp.
      opts.reported(q) → true nếu người này đã báo câu đó từ trước: link ghi "Đã báo câu này", không bấm được.
      q là câu đã dựng (có key = Quiz.key(câu gốc), src nếu từ đề ngẫu nhiên). Quiz.text(q): bản chụp nội dung câu
-     (câu hỏi, các ô, đáp án; tối đa 500 kí tự) để lưu kèm báo cáo. */
+     (câu hỏi, các ô, đáp án; tối đa 500 kí tự) để lưu kèm báo cáo.
+   Đề Tiếng Anh (Phiên TA2): mọi chữ của màn làm bài lấy từ bảng chữ TXT (vi, en). Quiz.lang(bank) → "en" khi môn là Tiếng Anh
+     (hoặc bank.lang = "en"), còn lại "vi"; Quiz.run đọc opts.lang, mặc định Quiz.lang(bank). Quiz.title(bank, lang): tên đề
+     tiếng Anh dựng từ tên chuẩn ("Tiếng Anh 4 · Cuối kì I · Đề 1" → "English 4 · End-of-term 1 · Test 1"). Quiz.TXT[lang]
+     cho js/app.js dùng cùng bảng chữ (màn mở đề, hộp rời trang, thông báo lưu điểm). Quiz.fmtN(x, lang): số thập phân
+     tiếng Anh dùng dấu chấm. Khung làm bài có lang="en" để trình đọc màn hình đọc đúng giọng. */
 (function () {
   const LET = "ABCDEFGHIJ";
   const ABCD = "abcd";
-  const LV = { 1: "Biết", 2: "Hiểu", 3: "Vận dụng" };
+  /* ---------------- bảng chữ hai ngôn ngữ (Phiên TA2) ----------------
+     Mọi chữ học sinh thấy khi làm một đề (màn làm bài, màn kết quả, hộp hỏi, thang tự chấm, đoạn đọc, gợi ý nối cột và sắp xếp,
+     aria-label, tên mức độ, Đúng/Sai, link và hộp báo câu sai) và chữ của js/app.js quanh đề (các khóa app…: màn mở đề, màn tải đề,
+     hộp rời trang, thông báo lưu điểm, khung bài ôn IOE) lấy từ đây. Đề Tiếng Anh (Quiz.lang(bank) → "en") dùng cột en, còn lại
+     cột vi. Thêm chữ mới cho màn làm đề thì thêm ở cả hai cột (CLAUDE.md, "Quy ước code"); chuỗi có tham số viết là hàm.
+     Dữ liệu lưu (kết quả, bản chụp câu bị báo Quiz.text) và chữ ở trang chủ, báo cáo, khu phụ huynh không qua bảng này. */
+  const TXT = {
+    vi: {
+      lang: "vi", lv: { 1: "Biết", 2: "Hiểu", 3: "Vận dụng" }, tfYes: "Đúng", tfNo: "Sai", blank: "(bỏ trống)", topicGeneral: "Chung",
+      tol: (x) => ` (sai số cho phép ±${x})`,
+      // rút đề ngẫu nhiên (draw)
+      drawLv: (t, n, lv, from) => `${t}: thiếu ${n} câu mức ${lv}, lấy bù ${from}`, lvOf: (lv) => "mức " + lv, noLv: "câu chưa ghi mức",
+      drawOther: (t, n) => `${t}: thiếu ${n} câu, lấy từ chủ đề khác`, drawShort: (t, n) => `${t}: kho chưa đủ câu, thiếu ${n} câu`,
+      // đoạn đọc
+      psgTitle: "Đọc kĩ rồi trả lời", psgFor: (n) => `Dùng chung cho ${n} câu`, psgHide: "Thu gọn", psgShow: "Mở ra",
+      // thân câu hỏi
+      fillLabel: "Điền vào chỗ trống", fillAria: "Câu trả lời", numLabel: "Trả lời bằng số", numSign: "Thêm hoặc bỏ dấu trừ", numAria: "Đáp số",
+      numHint: "Số thập phân viết bằng dấu phẩy, ví dụ 2,5.", tf4Label: "Đúng hay sai? Chọn cho từng ý", tf4Group: (c) => `Ý ${c}`,
+      matchLabel: "Nối cột", orderLabel: "Sắp xếp thứ tự", orderYours: "Thứ tự của bạn", essayLabel: "Tự luận · tự chấm", essayAria: "Bài làm",
+      essayPh: "Viết bài làm ở đây, hoặc viết ra giấy.", essayNote: "Phần tự luận không tính vào điểm trung bình.",
+      essayExam: "Nộp bài xong, bạn xem gợi ý và tự chấm.", essayPractice: "Bấm Xem gợi ý để tự chấm theo thang điểm.",
+      tfLabel: "Đúng hay sai?", mcLabel: "Chọn đáp án đúng",
+      needTf4: "Bạn chọn Đúng hoặc Sai cho cả 4 ý", needMatch: "Bạn nối hết các ô bên trái", needOrder: "Bạn xếp hết các ô", needAnswer: "Bạn trả lời trước", needTail: ", hoặc bấm Bỏ qua nhé.",
+      // thang tự chấm (số điểm đã định dạng, kèm giá trị số để tiếng Anh chia số ít/nhiều)
+      rubricHead: (m) => `Thang tự chấm · ${m} điểm`, rubricPts: (p) => `(${p} điểm)`, lvNone: "Chưa có", lvPart: "Một phần", lvFull: "Đủ",
+      selfSum: (g, m) => `Tự chấm: <b>${g}/${m} điểm</b>`, selfPick: "Chọn mức cho từng ý để tính điểm.",
+      // báo câu sai (R1)
+      rpLink: "Báo câu này sai", rpDone: "Đã báo câu này", rpHead: "Câu này sai ở đâu?", rpReason: "Lí do",
+      reasons: { wrong: "Đáp án sai", unclear: "Câu hỏi khó hiểu", typo: "Lỗi chính tả", other: "Khác" },
+      rpNote: "Ghi chú", rpNoteOpt: "(không bắt buộc, tối đa 200 kí tự)", rpNotePh: "Viết thêm nếu muốn", rpSend: "Gửi", rpCancel: "Thôi",
+      rpNeed: "Bạn chọn một lí do nhé.", rpThanks: "Cảm ơn bạn! Người làm đề sẽ xem lại câu này.", rpFail: "Chưa gửi được. Thử lại nhé.",
+      // màn làm bài
+      exit: "← Thoát", skip: "Bỏ qua", answer: "Trả lời", seeGuide: "Xem gợi ý", check: "Kiểm tra", next: "Câu tiếp", seeResults: "Xem kết quả",
+      guide: "Gợi ý:", noGuide: "Chưa có gợi ý.", right: "Đúng rồi!", wrong: "Chưa đúng.", ansLabel: "Đáp án:", ordRight: "Thứ tự đúng:",
+      tf4All: "Đúng cả 4 ý!", tf4Part: (k, p) => `Đúng ${k}/4 ý · được ${p}/1 điểm.`,
+      mtNone: "Chưa nối", mtItem: (i) => "Ô " + i, mtDone: "Đã nối đủ. Chạm một ô bên trái để đổi.", mtPick: (i) => `Chọn ô nối với ô ${i}`,
+      mtWrong: (g) => `Bạn nối: ${g} · Đúng: `, mtAll: "Nối đúng hết!", mtPart: (k, n, p) => `Nối đúng ${k}/${n} cặp · được ${p}/1 điểm.`,
+      ordRemove: (i, s) => `Bỏ ô ${i}: ${s}`, ordTap: (i) => `Chạm ô thứ ${i}`, ordDone: "Đã xếp đủ. Chạm một ô ở trên để bỏ ra.",
+      // hộp hỏi khi bấm Thoát trong màn làm bài
+      exNone: ["Thoát đề? Bạn chưa làm câu nào nên không lưu điểm.", "Thoát"], exExam: ["Nộp bài ngay? Câu chưa làm tính là sai.", "Nộp bài"],
+      exPractice: ["Dừng ôn và xem kết quả?", "Dừng"], keepGoing: "Làm tiếp",
+      // màn kết quả
+      modeExam: "Làm như thi", modePractice: "Ôn luyện", noneDone: "Bạn chưa làm câu nào nên không lưu điểm.", again: "Làm lại", newTest: "Làm đề khác", home: "Về trang chính",
+      essayHead: (n) => `Tự luận · tự chấm (${n} câu)`, essayExamNote: "Không tính vào điểm trung bình. Đọc gợi ý, chọn mức cho từng ý rồi bấm Lưu.",
+      saveSelf: "Lưu điểm tự chấm", notMarked: "chưa chấm", selfSaved: (g, m) => `Đã lưu điểm tự chấm: ${g}/${m} điểm.`, selfNoAvg: "Không tính vào điểm trung bình.",
+      selfNeed: "Chọn mức cho từng ý của ít nhất một câu rồi bấm Lưu nhé.",
+      scoreLine: (r, t) => `${r}/${t} câu đúng`, time: "Thời gian: ", partNote: "Câu đúng/sai 4 ý và nối cột tính điểm theo từng ý.",
+      onlyEssay: "Lượt này chỉ có câu tự luận.", byTopic: "Theo chủ đề", byLv: "Theo mức độ", review: (n) => `Câu cần xem lại (${n})`,
+      yourAns: "Bạn trả lời: ", gotPts: (p) => ` (được ${p}/1 điểm)`, ansIn: " · Đáp án: ", emptyBank: "Ngân hàng này chưa có câu hỏi.",
+      // js/app.js: màn mở đề, màn tải đề, hộp rời trang, thông báo lưu điểm, khung bài ôn (renderQuiz, loadQuiz, renderPlay)
+      appHome: "Trang chính", appGrade: (g) => `Lớp ${g}`, english: "Tiếng Anh", appRandom: "Đề ngẫu nhiên",
+      appPoolIntro: (n, all, src) => `Mỗi lần làm là một đề khác: ${n} câu rút từ kho ${all} câu${src ? ` (${src} đề)` : ""} theo ma trận đề, ưu tiên câu bạn chưa làm hoặc hay sai`,
+      appCount: (n) => `${n} câu`, appEssayN: (n) => ` (${n} câu tự luận tự chấm)`, appNotes: (s) => `Kho còn thiếu câu, lần này: ${s}.`, appNotesToast: (s) => "Kho còn thiếu câu: " + s,
+      appPractice: "Ôn luyện (xem đáp án từng câu)", appExam: (m) => `Làm như thi · ${m} phút`, appSaved: "Đã lưu kết quả", appSavedSelf: "Đã lưu điểm tự chấm",
+      appLeaveNone: { ask: "Thoát đề?", note: "Bạn chưa làm câu nào nên không lưu điểm.", yes: "Thoát", no: "Làm tiếp" },
+      appLeaveExam: { ask: "Nộp bài và rời trang?", note: "Câu chưa làm tính là sai.", yes: "Nộp bài", no: "Làm tiếp" },
+      appLeavePractice: { ask: "Dừng ôn và rời trang?", note: "Kết quả các câu đã làm được lưu lại.", yes: "Dừng ôn", no: "Ôn tiếp" },
+      appLoading: "Đang tải đề…", appLoadFail: "Chưa tải được đề này. Bạn kiểm tra mạng rồi bấm Thử lại nhé.",
+      appLoadTip: "Đề đã mở một lần khi có mạng thì lần sau mở được cả khi mất mạng.", appRetry: "Thử lại",
+      appScoreSaved: ["Điểm được lưu", "Điểm mỗi lần làm xong được lưu vào hồ sơ của bạn."],
+      appLeavePlay: { ask: "Rời bài ôn?", note: "Bài đang làm dở sẽ không được lưu.", yes: "Rời bài", no: "Ở lại" },
+      appSavedModule: (r, t) => `Đã lưu kết quả: ${r}/${t} câu đúng`
+    },
+    en: {
+      lang: "en", lv: { 1: "Know", 2: "Understand", 3: "Apply" }, tfYes: "True", tfNo: "False", blank: "(no answer)", topicGeneral: "General",
+      tol: (x) => ` (±${x} allowed)`,
+      drawLv: (t, n, lv, from) => `${t}: ${n} missing at level ${lv}, filled with ${from}`, lvOf: (lv) => "level " + lv, noLv: "questions without a level",
+      drawOther: (t, n) => `${t}: ${n} missing, taken from other topics`, drawShort: (t, n) => `${t}: not enough questions in the bank, ${n} missing`,
+      psgTitle: "Read and answer", psgFor: (n) => (n === 1 ? "For 1 question" : `For ${n} questions`), psgHide: "Hide", psgShow: "Show",
+      fillLabel: "Fill in the blank", fillAria: "Your answer", numLabel: "Answer with a number", numSign: "Add or remove the minus sign", numAria: "Your answer",
+      numHint: "Use a decimal point, for example 2.5.", tf4Label: "True or false? Choose for each sentence", tf4Group: (c) => `Sentence ${c}`,
+      matchLabel: "Match", orderLabel: "Put in order", orderYours: "Your order", essayLabel: "Writing · self-check", essayAria: "Your writing",
+      essayPh: "Write here, or on paper.", essayNote: "Writing is not counted in your average score.",
+      essayExam: "After you finish, read the guide and mark your own work.", essayPractice: "Tap See the guide to mark your own work.",
+      tfLabel: "True or false?", mcLabel: "Choose the best answer",
+      needTf4: "Choose True or False for all 4 sentences", needMatch: "Match all the items on the left", needOrder: "Put all the items in order", needAnswer: "Answer the question first", needTail: ", or tap Skip.",
+      rubricHead: (m, n) => `Marking guide · ${m} ${n === 1 ? "point" : "points"}`, rubricPts: (p, n) => `(${p} ${n === 1 ? "point" : "points"})`, lvNone: "Not yet", lvPart: "Partly", lvFull: "Fully",
+      selfSum: (g, m, n) => `My score: <b>${g}/${m} ${n === 1 ? "point" : "points"}</b>`, selfPick: "Choose a level for each part to get your score.",
+      rpLink: "Report a problem", rpDone: "Reported", rpHead: "What's wrong with this question?", rpReason: "Reason",
+      reasons: { wrong: "Wrong answer", unclear: "Confusing question", typo: "Spelling mistake", other: "Other" },
+      rpNote: "Note", rpNoteOpt: "(optional, up to 200 characters)", rpNotePh: "Write more if you like", rpSend: "Send", rpCancel: "Cancel",
+      rpNeed: "Please choose a reason.", rpThanks: "Thank you! We will check this question.", rpFail: "Couldn't send. Please try again.",
+      exit: "← Exit", skip: "Skip", answer: "Answer", seeGuide: "See the guide", check: "Check", next: "Next question", seeResults: "See results",
+      guide: "Guide:", noGuide: "No guide yet.", right: "Correct!", wrong: "Not quite.", ansLabel: "Answer:", ordRight: "Correct order:",
+      tf4All: "All 4 correct!", tf4Part: (k, p) => `${k}/4 correct · ${p}/1 point.`,
+      mtNone: "Not matched yet", mtItem: (i) => "Item " + i, mtDone: "All matched. Tap an item on the left to change it.", mtPick: (i) => `Choose a match for item ${i}`,
+      mtWrong: (g) => `You matched: ${g} · Correct: `, mtAll: "All matched!", mtPart: (k, n, p) => `${k}/${n} matched · ${p}/1 point.`,
+      ordRemove: (i, s) => `Remove item ${i}: ${s}`, ordTap: (i) => `Tap item ${i}`, ordDone: "All placed. Tap an item above to remove it.",
+      exNone: ["Exit the test? You haven't answered any questions, so no score is saved.", "Exit"], exExam: ["Finish test now? Unanswered questions count as wrong.", "Finish test"],
+      exPractice: ["End practice and see your results?", "End practice"], keepGoing: "Keep going",
+      modeExam: "Test mode", modePractice: "Practice", noneDone: "You haven't answered any questions, so no score is saved.", again: "Try again", newTest: "New test", home: "Go to home",
+      essayHead: (n) => `Writing · self-check (${n} ${n === 1 ? "question" : "questions"})`, essayExamNote: "Not counted in your average score. Read the guide, choose a level for each part, then tap Save.",
+      saveSelf: "Save my score", notMarked: "not marked", selfSaved: (g, m, n) => `Self-check score saved: ${g}/${m} ${n === 1 ? "point" : "points"}.`, selfNoAvg: "Not counted in your average score.",
+      selfNeed: "Choose a level for each part of at least one question, then tap Save.",
+      scoreLine: (r, t) => `${r}/${t} correct`, time: "Time: ", partNote: "True/false and matching questions are scored by part.",
+      onlyEssay: "This round had only writing questions.", byTopic: "By topic", byLv: "By level", review: (n) => `Review mistakes (${n})`,
+      yourAns: "Your answer: ", gotPts: (p) => ` (${p}/1 point)`, ansIn: " · Answer: ", emptyBank: "This bank has no questions yet.",
+      appHome: "Home", appGrade: (g) => `Grade ${g}`, english: "English", appRandom: "Random test",
+      appPoolIntro: (n, all, src) => `A new test every time: ${n} questions from a bank of ${all}${src ? ` (${src} tests)` : ""}, more of the ones you haven't done or often get wrong`,
+      appCount: (n) => `${n} questions`, appEssayN: (n) => ` (${n} self-check writing ${n === 1 ? "question" : "questions"})`, appNotes: (s) => `Not enough questions in the bank this time: ${s}.`, appNotesToast: (s) => "Not enough questions in the bank: " + s,
+      appPractice: "Practice (see the answer after each question)", appExam: (m) => `Test mode · ${m} minutes`, appSaved: "Result saved", appSavedSelf: "Self-check score saved",
+      appLeaveNone: { ask: "Exit the test?", note: "You haven't answered any questions, so no score is saved.", yes: "Exit", no: "Keep going" },
+      appLeaveExam: { ask: "Finish the test and leave?", note: "Unanswered questions count as wrong.", yes: "Finish test", no: "Keep going" },
+      appLeavePractice: { ask: "End practice and leave?", note: "Your answers so far will be saved.", yes: "End practice", no: "Keep practising" },
+      appLoading: "Loading the test…", appLoadFail: "Can't load this test. Check your internet and tap Try again.",
+      appLoadTip: "Once a test has been opened online, it also opens offline.", appRetry: "Try again",
+      appScoreSaved: ["Score saved", "Your score is saved to your profile each time you finish."],
+      appLeavePlay: { ask: "Leave this practice?", note: "Your unfinished work won't be saved.", yes: "Leave", no: "Stay" },
+      appSavedModule: (r, t) => `Result saved: ${r}/${t} correct`
+    }
+  };
+  const LV = TXT.vi.lv; // tên mức độ tiếng Việt (Quiz.LV, dùng ở js/app.js và tests/kiem-tra-de.js)
+  /* Ngôn ngữ của một đề: "en" khi bank.lang là "en" hoặc môn là Tiếng Anh (so sau khi bỏ dấu, chữ thường: "tieng anh", "english"),
+     còn lại "vi". Đề có sẵn lẫn ngân hàng phụ huynh tự nhập đều qua đây. */
+  const foldS = (s) => String(s == null ? "" : s).normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/gi, "d").toLowerCase().replace(/\s+/g, " ").trim();
+  const EN_SUBJECTS = ["tieng anh", "english"];
+  const langOf = (bank) => (bank && (bank.lang === "en" || EN_SUBJECTS.includes(foldS(bank.subject))) ? "en" : "vi");
+  /* Tên đề bằng tiếng Anh, dựng từ tên chuẩn "<môn> <khối> · <kì> · Đề N" (CLAUDE.md): "Tiếng Anh 4 · Cuối kì I · Đề 1" →
+     "English 4 · End-of-term 1 · Test 1", "· Đề ngẫu nhiên" → "· Random test". Tên tự đặt (ngân hàng tự nhập) giữ nguyên. */
+  const TERMS = { "Giữa kì I": "Mid-term 1", "Cuối kì I": "End-of-term 1", "Giữa kì II": "Mid-term 2", "Cuối năm": "End-of-year" };
+  function title(bank, lg) {
+    const t = String((bank && bank.title) || "");
+    if ((lg || langOf(bank)) !== "en") return t;
+    const m = /^(.+?) (\d{1,2}) · (Giữa kì I|Cuối kì I|Giữa kì II|Cuối năm) · (?:Đề (\d+)|Đề ngẫu nhiên)$/u.exec(t.normalize("NFC").replace(/\s+/g, " ").trim());
+    if (!m) return t;
+    return `${EN_SUBJECTS.includes(foldS(m[1])) ? "English" : m[1]} ${m[2]} · ${TERMS[m[3]]} · ${m[4] ? "Test " + m[4] : "Random test"}`;
+  }
   const TF4_PTS = [0, 0.1, 0.25, 0.5, 1]; // đúng 0/1/2/3/4 ý, như đề thi tốt nghiệp THPT
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   // khoảng trắng ngay trước " · " thành khoảng trắng không ngắt, để tên đề không xuống dòng bắt đầu bằng "·" (như nb của js/app.js, L26)
@@ -39,8 +170,8 @@
   const mix = (n) => { let a = range(n); for (let k = 0; k < 20 && n > 1 && a.every((v, i) => v === i); k++) a = shuffle(a); return a; };
   const fmtTime = (s) => { s = Math.max(0, Math.round(s)); return String((s / 60) | 0).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); };
   const r2 = (x) => Math.round(x * 100) / 100;
-  // số kiểu Việt Nam: 12,5; từ 10 000 thì ngăn hàng nghìn bằng khoảng trắng
-  const fmtN = (x) => { const [i, d] = String(Math.abs(r2(x))).split("."); return (x < 0 ? "-" : "") + (i.length > 4 ? i.replace(/\B(?=(\d{3})+$)/g, " ") : i) + (d ? "," + d : ""); };
+  // số kiểu Việt Nam: 12,5; từ 10 000 thì ngăn hàng nghìn bằng khoảng trắng. lang "en" (đề Tiếng Anh, TA2): 12.5 và 10,000
+  const fmtN = (x, lang) => { const [i, d] = String(Math.abs(r2(x))).split("."), en = lang === "en"; return (x < 0 ? "-" : "") + (i.length > 4 ? i.replace(/\B(?=(\d{3})+$)/g, en ? "," : " ") : i) + (d ? (en ? "." : ",") + d : ""); };
   const normT = (s) => String(s).normalize("NFC").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, " ").replace(/[.!?;:,]+$/, "").trim().toLowerCase();
   const isNum = (s) => /^[-−–]?\s*\d[\d\s.,]*$/.test(String(s).trim());
   const numKey = (s) => String(s).trim().replace(/[−–]/g, "-").replace(/[\s.]/g, "").replace(",", ".");
@@ -149,9 +280,10 @@
      hist(q) → {done, wrong}: số lần học sinh đã làm, làm sai câu đó (app tính từ kết quả); không có thì coi như chưa làm.
      Mỗi ô lấy câu đúng chủ đề (đúng mức nếu ô ghi theo mức), ưu tiên câu chưa làm hoặc hay sai: điểm done − 2·wrong thấp
      trước, bằng nhau thì ngẫu nhiên. Ô thiếu câu thì lấy bù cùng chủ đề: câu chưa ghi mức trước, rồi mức gần nhất, rồi
-     từ chủ đề khác; mỗi chỗ bù ghi một dòng vào notes (chưa esc). Kho đủ câu thì trả về đúng tổng của ma trận. */
-  function draw(bank, hist) {
-    const m = (bank.pool && bank.pool.matrix) || {}, notes = [];
+     từ chủ đề khác; mỗi chỗ bù ghi một dòng vào notes (chưa esc; theo ngôn ngữ lg, mặc định Quiz.lang(bank)). Kho đủ câu thì
+     trả về đúng tổng của ma trận. */
+  function draw(bank, hist, lg) {
+    const m = (bank.pool && bank.pool.matrix) || {}, notes = [], L = TXT[lg] || TXT[langOf(bank)];
     const topicOf = (t) => String(t == null ? "" : t).normalize("NFC").replace(/\s+/g, " ").trim();
     const weight = (q) => { const h = hist ? hist(q) : null; return h ? (+h.done || 0) - 2 * (+h.wrong || 0) : 0; };
     // xáo rồi sắp theo điểm ưu tiên (sort giữ thứ tự câu bằng điểm): câu bằng điểm đứng ngẫu nhiên
@@ -171,25 +303,25 @@
       if (got.length < c.n && c.lv) {
         const near = same.filter((x) => x.q.lv !== c.lv).sort((a, b) => dist(a.q, c.lv) - dist(b.q, c.lv));
         const more = take(near, c.n - got.length);
-        if (more.length) notes.push(`${c.topic}: thiếu ${more.length} câu mức ${LV[c.lv]}, lấy bù ${[...new Set(more.map((q) => (LV[q.lv] ? "mức " + LV[q.lv] : "câu chưa ghi mức")))].join(", ")}`);
+        if (more.length) notes.push(L.drawLv(c.topic, more.length, L.lv[c.lv], [...new Set(more.map((q) => (LV[q.lv] ? L.lvOf(L.lv[q.lv]) : L.noLv)))].join(", ")));
         got = got.concat(more);
       }
       if (got.length < c.n) {
         const more = take(ranked.filter((x) => x.t !== c.topic), c.n - got.length);
-        if (more.length) notes.push(`${c.topic}: thiếu ${more.length} câu, lấy từ chủ đề khác`);
+        if (more.length) notes.push(L.drawOther(c.topic, more.length));
         got = got.concat(more);
       }
-      if (got.length < c.n) notes.push(`${c.topic}: kho chưa đủ câu, thiếu ${c.n - got.length} câu`);
+      if (got.length < c.n) notes.push(L.drawShort(c.topic, c.n - got.length));
       out.push(...got);
     });
     return { questions: out, notes };
   }
 
   /* ---------------- chấm ---------------- */
-  function prep(q) {
-    const x = Object.assign({ key: key(q) }, q); // mã câu tính trên câu gốc (đúng/sai thêm o khi dựng)
+  function prep(q, L) {
+    const x = Object.assign({ key: key(q) }, q); // mã câu tính trên câu gốc (đúng/sai thêm o khi dựng, theo ngôn ngữ L)
     if (q.type === "mc") { x.order = shuffle(q.o.map((_, i) => i)); x.a = 0; }
-    if (q.type === "tf") { x.o = ["Đúng", "Sai"]; x.order = [0, 1]; x.a = q.a ? 0 : 1; }
+    if (q.type === "tf") { x.o = [L.tfYes, L.tfNo]; x.order = [0, 1]; x.a = q.a ? 0 : 1; }
     if (q.type === "match") x.rOrder = mix(q.r.length);
     if (q.type === "order") x.pOrder = mix(q.o.length);
     return x;
@@ -241,41 +373,45 @@
     }
   }
   const isRight = (q, g) => score(q, g) === 1;
-  const yn = (v) => (v == null ? "?" : v ? "Đúng" : "Sai");
-  function correctText(q) {
+  // Chữ đáp án theo bảng chữ L (mặc định tiếng Việt: Quiz.text dùng cho bản chụp câu bị báo).
+  const yn = (v, L) => (v == null ? "?" : v ? (L || TXT.vi).tfYes : (L || TXT.vi).tfNo);
+  function correctText(q, L) {
+    L = L || TXT.vi;
     switch (q.type) {
       case "fill": return q.ans[0];
-      case "num": return fmtN(q.ans) + (q.unit ? " " + q.unit : "") + (q.tol ? ` (sai số cho phép ±${fmtN(q.tol)})` : "");
-      case "tf4": return q.a.map((v, i) => `${ABCD[i]}) ${yn(v)}`).join("; ");
+      case "num": return fmtN(q.ans, L.lang) + (q.unit ? " " + q.unit : "") + (q.tol ? L.tol(fmtN(q.tol, L.lang)) : "");
+      case "tf4": return q.a.map((v, i) => `${ABCD[i]}) ${yn(v, L)}`).join("; ");
       case "match": return q.l.map((l, i) => `${l} → ${q.r[i]}`).join("; ");
       case "order": return q.o.join(" → ");
       default: return q.o[q.a];
     }
   }
-  function givenText(q, g) {
-    if (g == null || g === "") return "(bỏ trống)";
+  function givenText(q, g, L) {
+    L = L || TXT.vi;
+    if (g == null || g === "") return L.blank;
     switch (q.type) {
       case "fill": case "num": return String(g);
-      case "tf4": return g.map((v, i) => `${ABCD[i]}) ${yn(v)}`).join("; ");
+      case "tf4": return g.map((v, i) => `${ABCD[i]}) ${yn(v, L)}`).join("; ");
       case "match": return q.l.map((l, i) => `${l} → ${g[i] == null ? "?" : q.r[g[i]]}`).join("; ");
       case "order": return g.map((k) => q.o[k]).join(" → ");
       default: return q.o[g];
     }
   }
   /* Thang tự chấm: mỗi ý chọn Chưa có (0), Một phần (nửa số điểm, khi chia được thành phần tư điểm) hoặc Đủ. */
-  const levels = (p) => [[0, "Chưa có"]].concat(Math.round(p * 2) === p * 2 && p >= 0.5 ? [[p / 2, "Một phần"]] : [], [[p, "Đủ"]]);
+  const levels = (p, L) => [[0, L.lvNone]].concat(Math.round(p * 2) === p * 2 && p >= 0.5 ? [[p / 2, L.lvPart]] : [], [[p, L.lvFull]]);
   const rubricMax = (q) => q.rubric.reduce((a, c) => a + c.p, 0);
 
   /* ---------------- báo câu sai (Phiên R1) ----------------
      REASONS: mã lí do lưu trong báo cáo (cả hai kho, bảng question_reports) và chữ hiện trên nút.
      text(q): bản chụp nội dung câu để người làm đề biết câu nào bị báo kể cả khi đề đã sửa: câu hỏi, các ô (trắc nghiệm:
-     ✓ đáp án đúng, – các ô sai), đáp án hoặc gợi ý; tối đa 500 kí tự. Nhận câu gốc lẫn câu đã dựng (prep). */
-  const REASONS = [["wrong", "Đáp án sai"], ["unclear", "Câu hỏi khó hiểu"], ["typo", "Lỗi chính tả"], ["other", "Khác"]];
+     ✓ đáp án đúng, – các ô sai), đáp án hoặc gợi ý; tối đa 500 kí tự. Nhận câu gốc lẫn câu đã dựng (prep: câu đúng/sai có a = 0
+     khi Đúng). Luôn ghi tiếng Việt, kể cả câu của đề Tiếng Anh: là dữ liệu cho người làm đề, không phải chữ trên màn hình. */
+  const REASONS = Object.entries(TXT.vi.reasons);
   const FLAG = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4h12l-2.5 4.5L17 13H5"/></svg>`;
   function text(q) {
     let s = String(q.q == null ? "" : q.q);
     if (q.type === "mc") s += " · " + (q.o || []).map((o, i) => (i ? "– " : "✓ ") + o).join(" · ");
-    else if (q.type === "tf") s += " · Đáp án: " + (typeof q.a === "boolean" ? yn(q.a) : (q.o || [])[q.a]);
+    else if (q.type === "tf") s += " · Đáp án: " + yn(typeof q.a === "boolean" ? q.a : q.a === 0);
     else if (q.type === "essay") s += q.x ? " · Gợi ý: " + q.x : "";
     else if (q.type) s += " · Đáp án: " + correctText(q);
     s = s.replace(/\s+/g, " ").trim();
@@ -285,20 +421,22 @@
   const run = (el, bank, opts) => start(el, bank, opts, { exam: opts.mode === "exam" });
   function start(el, bank, opts, h) {
     const exam = opts.mode === "exam";
+    // Ngôn ngữ của màn làm bài (TA2): opts.lang, mặc định theo môn của đề (Quiz.lang). N: số theo ngôn ngữ; LANG: lang="en" cho khung.
+    const lang = TXT[opts.lang] ? opts.lang : langOf(bank), L = TXT[lang], N = (x) => fmtN(x, lang), ttl = title(bank, lang), LANG = lang === "en" ? ' lang="en"' : "";
     const passages = bank.passages || {};
     // Câu dùng chung một đoạn đọc đứng liền nhau, giữ thứ tự trong đề; các nhóm và câu lẻ thì xáo.
     const units = [], seenP = {};
     (bank.questions || []).forEach((q) => {
       if (q.p && passages[q.p]) { if (!seenP[q.p]) units.push((seenP[q.p] = [])); seenP[q.p].push(q); } else units.push([q]);
     });
-    const qs = shuffle(units).flat().map(prep);
+    const qs = shuffle(units).flat().map((q) => prep(q, L));
     const S = { i: 0, ans: [], cur: null, checked: false, start: Date.now(), limit: exam && bank.minutes ? bank.minutes * 60 : 0, timer: null, done: false, psgOpen: {}, self: {} };
     const answered = () => S.ans.filter((a) => a && (a.done || (a.g != null && a.g !== ""))).length;
     if (S.limit) S.timer = setInterval(() => { const left = S.limit - (Date.now() - S.start) / 1000; const t = el.querySelector("#qzTimer"); if (t) { t.textContent = fmtTime(left); t.classList.toggle("warn", left < 120); } if (left <= 0) finish(); }, 500);
 
     function passageHtml(id) {
       const p = passages[id], open = S.psgOpen[id] !== false, n = qs.filter((x) => x.p === id).length;
-      return `<details class="psg" data-p="${esc(id)}"${open ? " open" : ""}><summary><span class="grow"><b>${esc(p.title || "Đọc kĩ rồi trả lời")}</b><span class="small muted">Dùng chung cho ${n} câu</span></span><span class="psg-t small">${open ? "Thu gọn" : "Mở ra"}</span></summary>
+      return `<details class="psg" data-p="${esc(id)}"${open ? " open" : ""}><summary><span class="grow"><b>${esc(p.title || L.psgTitle)}</b><span class="small muted">${L.psgFor(n)}</span></span><span class="psg-t small">${open ? L.psgHide : L.psgShow}</span></summary>
         <div class="psg-body">${p.text ? `<div class="psg-text">${esc(p.text)}</div>` : ""}${fig(p.svg)}</div></details>`;
     }
     function body(q) {
@@ -307,49 +445,49 @@
       switch (q.type) {
         case "fill": {
           const parts = esc(q.q).split("___");
-          return `<div class="label">Điền vào chỗ trống</div><div class="${qcls}">${parts[0]}<input class="blank" id="qzFill" autocomplete="off" spellcheck="false" aria-label="Câu trả lời">${parts.slice(1).join("___")}</div>${fig(q.svg)}`;
+          return `<div class="label">${L.fillLabel}</div><div class="${qcls}">${parts[0]}<input class="blank" id="qzFill" autocomplete="off" spellcheck="false" aria-label="${L.fillAria}">${parts.slice(1).join("___")}</div>${fig(q.svg)}`;
         }
         case "num":
-          return `<div class="label">Trả lời bằng số</div>${stem}
-            <div class="num-row"><button type="button" class="btn ghost" id="qzSign" aria-label="Thêm hoặc bỏ dấu trừ">±</button><input class="num-in" id="qzNum" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="Đáp số">${q.unit ? `<span class="num-unit">${esc(q.unit)}</span>` : ""}</div>
-            <p class="small muted">Số thập phân viết bằng dấu phẩy, ví dụ 2,5.</p>`;
+          return `<div class="label">${L.numLabel}</div>${stem}
+            <div class="num-row"><button type="button" class="btn ghost" id="qzSign" aria-label="${L.numSign}">±</button><input class="num-in" id="qzNum" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="${L.numAria}">${q.unit ? `<span class="num-unit">${esc(q.unit)}</span>` : ""}</div>
+            <p class="small muted">${L.numHint}</p>`;
         case "tf4":
-          return `<div class="label">Đúng hay sai? Chọn cho từng ý</div>${stem}
+          return `<div class="label">${L.tf4Label}</div>${stem}
             <div class="tf4">${q.o.map((s, i) => `<div class="tf4-row" data-i="${i}"><div class="tf4-s"><b>${ABCD[i]})</b> ${esc(s)}</div>
-              <div class="tf4-b" role="group" aria-label="Ý ${ABCD[i]}"><button type="button" class="opt" data-i="${i}" data-v="1" aria-pressed="false">Đúng</button><button type="button" class="opt" data-i="${i}" data-v="0" aria-pressed="false">Sai</button></div></div>`).join("")}</div>`;
+              <div class="tf4-b" role="group" aria-label="${L.tf4Group(ABCD[i])}"><button type="button" class="opt" data-i="${i}" data-v="1" aria-pressed="false">${L.tfYes}</button><button type="button" class="opt" data-i="${i}" data-v="0" aria-pressed="false">${L.tfNo}</button></div></div>`).join("")}</div>`;
         case "match":
-          return `<div class="label">Nối cột</div>${stem}
+          return `<div class="label">${L.matchLabel}</div>${stem}
             <div class="mt-l">${q.l.map((s, i) => `<button type="button" class="mt-li" data-i="${i}"><span class="k">${i + 1}</span><span class="grow"><span>${esc(s)}</span><span class="mt-to small"></span></span></button>`).join("")}</div>
             <div class="label" id="qzHint" aria-live="polite"></div>
             <div class="mt-r">${q.rOrder.map((ri, k) => `<button type="button" class="opt mt-ri" data-r="${ri}"><span class="k">${LET[k]}</span><span class="grow">${esc(q.r[ri])}</span><span class="mt-n"></span></button>`).join("")}</div>`;
         case "order":
-          return `<div class="label">Sắp xếp thứ tự</div>${stem}
-            <div class="label">Thứ tự của bạn</div><ol class="ord-seq" id="qzSeq"></ol>
+          return `<div class="label">${L.orderLabel}</div>${stem}
+            <div class="label">${L.orderYours}</div><ol class="ord-seq" id="qzSeq"></ol>
             <div class="label" id="qzHint" aria-live="polite"></div>
             <div class="ord-pool">${q.pOrder.map((k) => `<button type="button" class="opt ord-p" data-k="${k}">${esc(q.o[k])}</button>`).join("")}</div>`;
         case "essay":
-          return `<div class="label">Tự luận · tự chấm</div>${stem}
-            <textarea class="essay-in" id="qzEssay" aria-label="Bài làm" placeholder="Viết bài làm ở đây, hoặc viết ra giấy."></textarea>
-            <p class="small muted">Phần tự luận không tính vào điểm trung bình. ${exam ? "Nộp bài xong, bạn xem gợi ý và tự chấm." : "Bấm Xem gợi ý để tự chấm theo thang điểm."}</p>`;
+          return `<div class="label">${L.essayLabel}</div>${stem}
+            <textarea class="essay-in" id="qzEssay" aria-label="${L.essayAria}" placeholder="${L.essayPh}"></textarea>
+            <p class="small muted">${L.essayNote} ${exam ? L.essayExam : L.essayPractice}</p>`;
         default: {
           const wide = q.o.some((o) => String(o).length > 22);
-          return `<div class="label">${q.type === "tf" ? "Đúng hay sai?" : "Chọn đáp án đúng"}</div>${stem}
+          return `<div class="label">${q.type === "tf" ? L.tfLabel : L.mcLabel}</div>${stem}
             <div class="opts${wide ? " wide" : ""}">${q.order.map((oi, k) => `<button class="opt" data-o="${oi}"><span class="k">${LET[k]}</span><span>${esc(q.o[oi])}</span></button>`).join("")}</div>`;
         }
       }
     }
     const blank = (q) => (q.type === "tf4" ? [null, null, null, null] : q.type === "match" ? q.l.map(() => null) : q.type === "order" ? [] : q.type === "fill" || q.type === "num" || q.type === "essay" ? "" : null);
     const filled = (q, c) => (q.type === "tf4" || q.type === "match" ? c.every((v) => v != null) : q.type === "order" ? c.length === q.o.length : q.type === "essay" ? true : c != null && String(c).trim() !== "");
-    const NEED = { tf4: "Bạn chọn Đúng hoặc Sai cho cả 4 ý", match: "Bạn nối hết các ô bên trái", order: "Bạn xếp hết các ô" };
+    const NEED = { tf4: L.needTf4, match: L.needMatch, order: L.needOrder };
     function rubricHtml(i) {
       const q = qs[i], picks = S.self[i] || (S.self[i] = q.rubric.map(() => null));
-      return `<div class="rubric" data-q="${i}"><div class="label">Thang tự chấm · ${fmtN(rubricMax(q))} điểm</div>
-        ${q.rubric.map((c, j) => `<div class="rb-row"><div>${esc(c.c)} <span class="small muted">(${fmtN(c.p)} điểm)</span></div>
-          <div class="rb-b" role="group" aria-label="${esc(c.c)}">${levels(c.p).map(([v, nm]) => `<button type="button" class="opt" data-j="${j}" data-v="${v}" aria-pressed="${picks[j] === v}"><span>${nm}</span><b>${fmtN(v)}</b></button>`).join("")}</div></div>`).join("")}
+      return `<div class="rubric" data-q="${i}"><div class="label">${L.rubricHead(N(rubricMax(q)), rubricMax(q))}</div>
+        ${q.rubric.map((c, j) => `<div class="rb-row"><div>${esc(c.c)} <span class="small muted">${L.rubricPts(N(c.p), c.p)}</span></div>
+          <div class="rb-b" role="group" aria-label="${esc(c.c)}">${levels(c.p, L).map(([v, nm]) => `<button type="button" class="opt" data-j="${j}" data-v="${v}" aria-pressed="${picks[j] === v}"><span>${nm}</span><b>${N(v)}</b></button>`).join("")}</div></div>`).join("")}
         <div class="rb-sum" aria-live="polite">${sumText(i)}</div></div>`;
     }
     function selfSum(i) { const p = S.self[i]; return p && p.every((v) => v != null) ? { got: p.reduce((a, v) => a + v, 0), max: rubricMax(qs[i]) } : null; }
-    function sumText(i) { const s = selfSum(i); return s ? `Tự chấm: <b>${fmtN(s.got)}/${fmtN(s.max)} điểm</b>` : "Chọn mức cho từng ý để tính điểm."; }
+    function sumText(i) { const s = selfSum(i); return s ? L.selfSum(N(s.got), N(s.max), s.max) : L.selfPick; }
     function wireRubric(root, onPick) {
       root.querySelectorAll(".rubric .opt").forEach((b) => (b.onclick = () => {
         const box = b.closest(".rubric"), i = +box.dataset.q, j = +b.dataset.j;
@@ -363,7 +501,7 @@
        h.reported: mã các câu đã báo trong lần mở đề này (giữ qua "Làm lại"); opts.reported: đã báo từ trước (kho dữ liệu). */
     const canReport = typeof opts.onReport === "function";
     const reportedQ = (q) => h.reported.has(q.key) || !!(opts.reported && opts.reported(q));
-    const reportHtml = (q) => (!canReport ? "" : `<div class="rp"><button type="button" class="linkbtn rp-link" data-k="${esc(q.key)}" aria-expanded="false"${reportedQ(q) ? " disabled" : ""}>${FLAG}<span>${reportedQ(q) ? "Đã báo câu này" : "Báo câu này sai"}</span></button><div class="rp-area"></div></div>`);
+    const reportHtml = (q) => (!canReport ? "" : `<div class="rp"><button type="button" class="linkbtn rp-link" data-k="${esc(q.key)}" aria-expanded="false"${reportedQ(q) ? " disabled" : ""}>${FLAG}<span>${reportedQ(q) ? L.rpDone : L.rpLink}</span></button><div class="rp-area"></div></div>`);
     function wireReport(root) {
       if (!canReport) return;
       root.querySelectorAll(".rp-link").forEach((btn) => (btn.onclick = () => {
@@ -372,28 +510,29 @@
         const close = () => { area.innerHTML = ""; btn.setAttribute("aria-expanded", "false"); };
         if (area.firstChild) { close(); return; }
         btn.setAttribute("aria-expanded", "true");
-        area.innerHTML = `<form class="report-box" autocomplete="off"><b>Câu này sai ở đâu?</b>
-          <div class="rsn" role="group" aria-label="Lí do">${REASONS.map(([k, t]) => `<button type="button" class="opt" data-r="${k}" aria-pressed="false"><span>${t}</span></button>`).join("")}</div>
-          <label class="field"><span>Ghi chú <span class="opt-note">(không bắt buộc, tối đa 200 kí tự)</span></span><textarea class="report-note" maxlength="200" rows="3" placeholder="Viết thêm nếu muốn"></textarea></label>
+        area.innerHTML = `<form class="report-box" autocomplete="off"><b>${L.rpHead}</b>
+          <div class="rsn" role="group" aria-label="${L.rpReason}">${REASONS.map(([k]) => `<button type="button" class="opt" data-r="${k}" aria-pressed="false"><span>${L.reasons[k]}</span></button>`).join("")}</div>
+          <label class="field"><span>${L.rpNote} <span class="opt-note">${L.rpNoteOpt}</span></span><textarea class="report-note" maxlength="200" rows="3" placeholder="${L.rpNotePh}"></textarea></label>
           <div class="rp-err" aria-live="assertive"></div>
-          <div class="row"><button type="submit" class="btn main sm">Gửi</button><button type="button" class="btn ghost sm rp-no">Thôi</button></div></form>`;
+          <div class="row"><button type="submit" class="btn main sm">${L.rpSend}</button><button type="button" class="btn ghost sm rp-no">${L.rpCancel}</button></div></form>`;
         const form = area.firstElementChild, err = form.querySelector(".rp-err"), btns = () => form.querySelectorAll("button");
         let reason = "";
         form.querySelectorAll(".rsn .opt").forEach((b) => (b.onclick = () => { reason = b.dataset.r; form.querySelectorAll(".rsn .opt").forEach((x) => x.setAttribute("aria-pressed", x === b)); err.innerHTML = ""; }));
         form.querySelector(".rp-no").onclick = close;
         form.onsubmit = async (ev) => {
           ev.preventDefault();
-          if (!reason) { err.innerHTML = `<div class="fb bad">Bạn chọn một lí do nhé.</div>`; return; }
+          if (!reason) { err.innerHTML = `<div class="fb bad">${L.rpNeed}</div>`; return; }
           const note = form.querySelector(".report-note").value.trim().slice(0, 200);
           btns().forEach((b) => (b.disabled = true));
           try {
             await opts.onReport(q, { reason, note });
             h.reported.add(q.key);
-            area.innerHTML = `<div class="fb ok rp-done">Cảm ơn bạn! Người làm đề sẽ xem lại câu này.</div>`;
-            btn.disabled = true; btn.setAttribute("aria-expanded", "false"); btn.querySelector("span").textContent = "Đã báo câu này";
+            area.innerHTML = `<div class="fb ok rp-done">${L.rpThanks}</div>`;
+            btn.disabled = true; btn.setAttribute("aria-expanded", "false"); btn.querySelector("span").textContent = L.rpDone;
           } catch (e) {
             if (!form.isConnected) return;
-            err.innerHTML = `<div class="fb bad">${esc((e && e.message) || "Chưa gửi được. Thử lại nhé.")}</div>`;
+            // đề Tiếng Anh: lỗi do kho trả về là tiếng Việt, thay bằng một câu chung tiếng Anh
+            err.innerHTML = `<div class="fb bad">${esc((lang === "vi" && e && e.message) || L.rpFail)}</div>`;
             btns().forEach((b) => (b.disabled = false));
           }
         };
@@ -404,21 +543,21 @@
 
     function render() {
       const q = qs[S.i]; S.cur = blank(q); S.checked = false;
-      el.innerHTML = `<div class="stack">
-        <div class="row between"><button class="linkbtn" id="qzExit">← Thoát</button>
+      el.innerHTML = `<div class="stack"${LANG}>
+        <div class="row between"><button class="linkbtn" id="qzExit">${L.exit}</button>
           <div class="row">${S.limit ? `<span class="chip" id="qzTimer">${fmtTime(S.limit - (Date.now() - S.start) / 1000)}</span>` : ""}<span class="chip">${S.i + 1} / ${qs.length}</span></div></div>
         <div class="bar" aria-hidden="true"><i style="width:${(S.i / qs.length) * 100}%"></i></div>
         ${q.p && passages[q.p] ? passageHtml(q.p) : ""}
         <section class="qcard">
-          <div class="row between"><span class="label">${nb(esc(bank.title))}</span>${q.topic ? `<span class="label">${esc(q.topic)}</span>` : ""}</div>
+          <div class="row between"><span class="label">${nb(esc(ttl))}</span>${q.topic ? `<span class="label">${esc(q.topic)}</span>` : ""}</div>
           ${body(q)}
           <div id="qzFb" aria-live="polite"></div>
         </section>
-        <div class="row between"><button class="btn ghost" id="qzSkip">Bỏ qua</button><button class="btn main" id="qzGo">${exam ? "Trả lời" : q.type === "essay" ? "Xem gợi ý" : "Kiểm tra"}</button></div>
+        <div class="row between"><button class="btn ghost" id="qzSkip">${L.skip}</button><button class="btn main" id="qzGo">${exam ? L.answer : q.type === "essay" ? L.seeGuide : L.check}</button></div>
       </div>`;
       const $ = (s) => el.querySelector(s), $$ = (s) => el.querySelectorAll(s), go = $("#qzGo"), fb = $("#qzFb");
       const ps = $(".psg");
-      if (ps) ps.addEventListener("toggle", () => { S.psgOpen[ps.dataset.p] = ps.open; ps.querySelector(".psg-t").textContent = ps.open ? "Thu gọn" : "Mở ra"; });
+      if (ps) ps.addEventListener("toggle", () => { S.psgOpen[ps.dataset.p] = ps.open; ps.querySelector(".psg-t").textContent = ps.open ? L.psgHide : L.psgShow; });
       if (q.type === "mc" || q.type === "tf") $$(".opt").forEach((b) => (b.onclick = () => { if (S.checked) return; $$(".opt").forEach((x) => x.classList.remove("sel")); b.classList.add("sel"); S.cur = +b.dataset.o; }));
       const inp = $("#qzFill") || $("#qzNum");
       if (inp) { inp.oninput = () => (S.cur = inp.value); inp.onkeydown = (e) => { if (e.key === "Enter") go.click(); }; setTimeout(() => inp.focus({ preventScroll: true }), 50); }
@@ -436,10 +575,10 @@
         $$(".mt-li").forEach((b) => {
           const i = +b.dataset.i, ri = S.cur[i], k = ri == null ? -1 : q.rOrder.indexOf(ri);
           b.classList.toggle("on", i === act && !S.checked); b.setAttribute("aria-pressed", i === act && !S.checked);
-          if (!S.checked) b.querySelector(".mt-to").textContent = k < 0 ? "Chưa nối" : `→ ${LET[k]}. ${q.r[ri]}`;
+          if (!S.checked) b.querySelector(".mt-to").textContent = k < 0 ? L.mtNone : `→ ${LET[k]}. ${q.r[ri]}`;
         });
-        $$(".mt-ri").forEach((b) => { const i = S.cur.indexOf(+b.dataset.r); b.classList.toggle("sel", i >= 0); b.querySelector(".mt-n").textContent = i >= 0 ? "Ô " + (i + 1) : ""; });
-        if (!S.checked) $("#qzHint").textContent = act == null ? "Đã nối đủ. Chạm một ô bên trái để đổi." : `Chọn ô nối với ô ${act + 1}`;
+        $$(".mt-ri").forEach((b) => { const i = S.cur.indexOf(+b.dataset.r); b.classList.toggle("sel", i >= 0); b.querySelector(".mt-n").textContent = i >= 0 ? L.mtItem(i + 1) : ""; });
+        if (!S.checked) $("#qzHint").textContent = act == null ? L.mtDone : L.mtPick(act + 1);
       };
       if (q.type === "match") {
         $$(".mt-li").forEach((b) => (b.onclick = () => { if (S.checked) return; act = +b.dataset.i; paintMatch(); }));
@@ -454,10 +593,10 @@
       }
       /* Sắp xếp: chạm lần lượt các ô bên dưới theo thứ tự đúng; chạm một ô đã xếp thì ô đó trở lại bên dưới. */
       const paintOrder = () => {
-        $("#qzSeq").innerHTML = S.cur.map((k, n) => `<li><button type="button" class="opt ord-s" data-k="${k}"${S.checked ? " disabled" : ` aria-label="Bỏ ô ${n + 1}: ${esc(q.o[k])}"`}><span class="k">${n + 1}</span><span class="grow">${esc(q.o[k])}</span>${S.checked ? "" : `<span aria-hidden="true">✕</span>`}</button></li>`).join("")
+        $("#qzSeq").innerHTML = S.cur.map((k, n) => `<li><button type="button" class="opt ord-s" data-k="${k}"${S.checked ? " disabled" : ` aria-label="${L.ordRemove(n + 1, esc(q.o[k]))}"`}><span class="k">${n + 1}</span><span class="grow">${esc(q.o[k])}</span>${S.checked ? "" : `<span aria-hidden="true">✕</span>`}</button></li>`).join("")
           + (S.cur.length < q.o.length ? `<li class="ord-empty">${S.cur.length + 1}</li>` : "");
         $$(".ord-p").forEach((b) => (b.hidden = S.cur.includes(+b.dataset.k)));
-        $("#qzHint").textContent = S.cur.length < q.o.length ? `Chạm ô thứ ${S.cur.length + 1}` : "Đã xếp đủ. Chạm một ô ở trên để bỏ ra.";
+        $("#qzHint").textContent = S.cur.length < q.o.length ? L.ordTap(S.cur.length + 1) : L.ordDone;
         $$(".ord-s").forEach((b) => (b.onclick = () => { if (S.checked) return; S.cur = S.cur.filter((k) => k !== +b.dataset.k); paintOrder(); }));
       };
       if (q.type === "order") { $$(".ord-p").forEach((b) => (b.onclick = () => { if (S.checked) return; S.cur.push(+b.dataset.k); paintOrder(); })); paintOrder(); }
@@ -466,13 +605,13 @@
       $("#qzSkip").onclick = () => { S.ans[S.i] = { q, g: null, ok: false, pts: 0 }; next(); };
       go.onclick = () => {
         if (S.checked) { next(); return; }
-        if (!filled(q, S.cur)) { fb.innerHTML = `<div class="fb bad">${NEED[q.type] || "Bạn trả lời trước"}, hoặc bấm Bỏ qua nhé.</div>`; return; }
-        const done = () => { S.checked = true; go.textContent = S.i + 1 < qs.length ? "Câu tiếp" : "Xem kết quả"; $("#qzSkip").disabled = true; };
+        if (!filled(q, S.cur)) { fb.innerHTML = `<div class="fb bad">${NEED[q.type] || L.needAnswer}${L.needTail}</div>`; return; }
+        const done = () => { S.checked = true; go.textContent = S.i + 1 < qs.length ? L.next : L.seeResults; $("#qzSkip").disabled = true; };
         if (q.type === "essay") {
           S.ans[S.i] = { q, g: S.cur.trim(), done: true };
           if (exam) { next(); return; }
           $("#qzEssay").readOnly = true;
-          fb.innerHTML = `<div class="expl pre"><b>Gợi ý:</b> ${esc(q.x || "Chưa có gợi ý.")}</div>${rubricHtml(S.i)}${reportHtml(q)}`;
+          fb.innerHTML = `<div class="expl pre"><b>${L.guide}</b> ${esc(q.x || L.noGuide)}</div>${rubricHtml(S.i)}${reportHtml(q)}`;
           wireRubric(fb); wireReport(fb);
           done();
           return;
@@ -486,16 +625,16 @@
         if (q.type === "tf4") {
           $$(".tf4 .opt").forEach((b) => { const i = +b.dataset.i, v = b.dataset.v === "1"; if (v === q.a[i]) b.classList.add("right"); else if (g[i] === v) b.classList.add("wrong"); b.disabled = true; });
           const k = q.a.filter((a, i) => g[i] === a).length;
-          msg = k === 4 ? "Đúng cả 4 ý!" : `Đúng ${k}/4 ý · được ${fmtN(pts)}/1 điểm.`;
+          msg = k === 4 ? L.tf4All : L.tf4Part(k, N(pts));
         }
         if (q.type === "match") {
           paintMatch();
           $$(".mt-li").forEach((b) => { const i = +b.dataset.i, ok = g[i] === i; b.classList.add(ok ? "right" : "wrong"); b.disabled = true;
-            b.querySelector(".mt-to").textContent = (ok ? "→ " : `Bạn nối: ${q.r[g[i]]} · Đúng: `) + q.r[i]; });
+            b.querySelector(".mt-to").textContent = (ok ? "→ " : L.mtWrong(q.r[g[i]])) + q.r[i]; });
           $$(".mt-ri").forEach((b) => (b.disabled = true));
           $("#qzHint").textContent = "";
           const k = q.l.filter((_, i) => g[i] === i).length;
-          msg = k === q.l.length ? "Nối đúng hết!" : `Nối đúng ${k}/${q.l.length} cặp · được ${fmtN(pts)}/1 điểm.`;
+          msg = k === q.l.length ? L.mtAll : L.mtPart(k, q.l.length, N(pts));
         }
         if (q.type === "order") {
           paintOrder();
@@ -503,22 +642,22 @@
           $("#qzHint").textContent = "";
         }
         if (inp) inp.readOnly = true;
-        const ans = q.type === "order" ? `<ol class="ord-ans">${q.o.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>` : q.type === "tf4" || q.type === "match" ? "" : `<span>Đáp án: <b>${esc(correctText(q))}</b></span>`;
-        fb.innerHTML = (pts === 1 ? `<div class="fb ok">${msg || "Đúng rồi!"}</div>` : `<div class="fb bad">${msg || "Chưa đúng."}${ans ? ` ${q.type === "order" ? "<span>Thứ tự đúng:</span>" : ""}${ans}` : ""}</div>`) + (q.x ? `<div class="expl">${esc(q.x)}</div>` : "") + reportHtml(q);
+        const ans = q.type === "order" ? `<ol class="ord-ans">${q.o.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>` : q.type === "tf4" || q.type === "match" ? "" : `<span>${L.ansLabel} <b>${esc(correctText(q, L))}</b></span>`;
+        fb.innerHTML = (pts === 1 ? `<div class="fb ok">${msg || L.right}</div>` : `<div class="fb bad">${msg || L.wrong}${ans ? ` ${q.type === "order" ? `<span>${L.ordRight}</span>` : ""}${ans}` : ""}</div>`) + (q.x ? `<div class="expl">${esc(q.x)}</div>` : "") + reportHtml(q);
         wireReport(fb);
       };
       window.scrollTo(0, 0);
     }
     function confirmExit() {
       const fb = el.querySelector("#qzFb"), none = !answered();
-      const [ask, yes] = none ? ["Thoát đề? Bạn chưa làm câu nào nên không lưu điểm.", "Thoát"] : exam ? ["Nộp bài ngay? Câu chưa làm tính là sai.", "Nộp bài"] : ["Dừng ôn và xem kết quả?", "Dừng"];
-      fb.innerHTML = `<div class="confirm"><div>${ask}</div><div class="row"><button class="btn danger" id="qzYes">${yes}</button><button class="btn ghost" id="qzNo">Làm tiếp</button></div></div>`;
+      const [ask, yes] = none ? L.exNone : exam ? L.exExam : L.exPractice;
+      fb.innerHTML = `<div class="confirm"><div>${ask}</div><div class="row"><button class="btn danger" id="qzYes">${yes}</button><button class="btn ghost" id="qzNo">${L.keepGoing}</button></div></div>`;
       fb.querySelector("#qzYes").onclick = none ? () => { h.stop(); if (opts.onExit) opts.onExit(); } : finish;
       fb.querySelector("#qzNo").onclick = () => (fb.innerHTML = "");
     }
     function next() { S.i++; if (S.i >= qs.length) finish(); else render(); }
     // Làm lại: cùng bộ câu (xáo lại); đề ngẫu nhiên (opts.redraw) thì rút bộ câu mới.
-    const againTxt = opts.redraw ? "Làm đề khác" : "Làm lại";
+    const againTxt = opts.redraw ? L.newTest : L.again;
     const again = () => start(el, opts.redraw ? Object.assign({}, bank, opts.redraw()) : bank, opts, h);
     // Lưu điểm tự chấm các câu tự luận đã chấm đủ (một kết quả cho cả lượt). Trả về {got, max} hoặc null.
     function saveSelf(list) {
@@ -531,9 +670,9 @@
     function finish() {
       if (S.done) return; S.done = true; clearInterval(S.timer);
       if (!answered()) {
-        el.innerHTML = `<div class="stack">
-          <section class="panel"><div class="label">${nb(`${esc(bank.title)} · ${exam ? "Làm như thi" : "Ôn luyện"}`)}</div><p>Bạn chưa làm câu nào nên không lưu điểm.</p></section>
-          <div class="row"><button class="btn main" id="qzAgain">${againTxt}</button><button class="btn ghost" id="qzHome">Về trang chính</button></div></div>`;
+        el.innerHTML = `<div class="stack"${LANG}>
+          <section class="panel"><div class="label">${nb(`${esc(ttl)} · ${exam ? L.modeExam : L.modePractice}`)}</div><p>${L.noneDone}</p></section>
+          <div class="row"><button class="btn main" id="qzAgain">${againTxt}</button><button class="btn ghost" id="qzHome">${L.home}</button></div></div>`;
         el.querySelector("#qzAgain").onclick = again;
         el.querySelector("#qzHome").onclick = () => opts.onExit && opts.onExit();
         window.scrollTo(0, 0);
@@ -552,29 +691,29 @@
       auto.forEach((a) => { if (LV[a.q.lv]) { byLv[a.q.lv] = byLv[a.q.lv] || [0, 0]; byLv[a.q.lv][1]++; byLv[a.q.lv][0] += a.pts || 0; } });
       const saved = !exam ? saveSelf(essays) : null; // ôn luyện: chấm ngay sau từng câu, lưu luôn
       if (total && opts.onFinish) opts.onFinish({ r: right, t: total, s: Math.round(secs), mode: exam ? "exam" : "practice", wrongTopics: wrong.map((a) => a.q.topic || "Chung"), marks: auto.map((a) => [a.q.key, a.pts || 0]) });
-      const d10 = total ? fmtN(Math.round((right / total) * 40) / 4) : "0";
-      const bars = (o, name) => `<div class="ubreak">${Object.entries(o).map(([k, [r, t]]) => `<span>${esc(name(k))}</span><div class="bar"><i style="width:${(r / t) * 100}%"></i></div><span>${fmtN(r)}/${t}</span>`).join("")}</div>`;
+      const d10 = total ? N(Math.round((right / total) * 40) / 4) : "0";
+      const bars = (o, name) => `<div class="ubreak">${Object.entries(o).map(([k, [r, t]]) => `<span>${esc(name(k))}</span><div class="bar"><i style="width:${(r / t) * 100}%"></i></div><span>${N(r)}/${t}</span>`).join("")}</div>`;
       const part = auto.some((a) => a.pts > 0 && a.pts < 1);
       const essayPanel = !essays.length ? "" : exam
-        ? `<section class="panel" id="qzSelf"><div class="label">Tự luận · tự chấm (${essays.length} câu)</div>
-            <p class="small muted">Không tính vào điểm trung bình. Đọc gợi ý, chọn mức cho từng ý rồi bấm Lưu.</p>
-            ${essays.map((i) => `<div class="self-q"><b>${esc(qs[i].q)}</b>${S.ans[i].g ? `<div class="essay-done">${esc(S.ans[i].g)}</div>` : ""}<div class="expl pre"><b>Gợi ý:</b> ${esc(qs[i].x || "Chưa có gợi ý.")}</div>${rubricHtml(i)}${reportHtml(qs[i])}</div>`).join("")}
-            <div id="qzSelfArea"><div class="row"><button class="btn main" id="qzSelfSave">Lưu điểm tự chấm</button></div><div id="qzSelfMsg" aria-live="polite"></div></div></section>`
-        : `<section class="panel" id="qzSelf"><div class="label">Tự luận · tự chấm</div>
-            <div class="ubreak">${essays.map((i) => { const s = selfSum(i); return `<span>${esc(String(qs[i].q).slice(0, 60))}${String(qs[i].q).length > 60 ? "…" : ""}</span><span></span><span>${s ? fmtN(s.got) + "/" + fmtN(s.max) : "chưa chấm"}</span>`; }).join("")}</div>
-            <p class="small muted">${saved ? `Đã lưu điểm tự chấm: ${fmtN(saved.got)}/${fmtN(saved.max)} điểm. ` : ""}Không tính vào điểm trung bình.</p></section>`;
-      el.innerHTML = `<div class="stack">
+        ? `<section class="panel" id="qzSelf"><div class="label">${L.essayHead(essays.length)}</div>
+            <p class="small muted">${L.essayExamNote}</p>
+            ${essays.map((i) => `<div class="self-q"><b>${esc(qs[i].q)}</b>${S.ans[i].g ? `<div class="essay-done">${esc(S.ans[i].g)}</div>` : ""}<div class="expl pre"><b>${L.guide}</b> ${esc(qs[i].x || L.noGuide)}</div>${rubricHtml(i)}${reportHtml(qs[i])}</div>`).join("")}
+            <div id="qzSelfArea"><div class="row"><button class="btn main" id="qzSelfSave">${L.saveSelf}</button></div><div id="qzSelfMsg" aria-live="polite"></div></div></section>`
+        : `<section class="panel" id="qzSelf"><div class="label">${L.essayLabel}</div>
+            <div class="ubreak">${essays.map((i) => { const s = selfSum(i); return `<span>${esc(String(qs[i].q).slice(0, 60))}${String(qs[i].q).length > 60 ? "…" : ""}</span><span></span><span>${s ? N(s.got) + "/" + N(s.max) : L.notMarked}</span>`; }).join("")}</div>
+            <p class="small muted">${saved ? L.selfSaved(N(saved.got), N(saved.max), saved.max) + " " : ""}${L.selfNoAvg}</p></section>`;
+      el.innerHTML = `<div class="stack"${LANG}>
         <section class="panel">
-          <div class="label">${nb(`${esc(bank.title)} · ${exam ? "Làm như thi" : "Ôn luyện"}`)}</div>
+          <div class="label">${nb(`${esc(ttl)} · ${exam ? L.modeExam : L.modePractice}`)}</div>
           ${total ? `<div class="row" style="gap:18px;align-items:flex-end"><div class="score">${d10}<span class="score-sub">/10</span></div>
-          <div class="stack tight"><b>${fmtN(right)}/${total} câu đúng</b><span class="muted small">Thời gian: ${fmtTime(secs)}</span></div></div>
-          ${part ? `<p class="small muted">Câu đúng/sai 4 ý và nối cột tính điểm theo từng ý.</p>` : ""}` : `<p>Lượt này chỉ có câu tự luận. Thời gian: ${fmtTime(secs)}</p>`}
+          <div class="stack tight"><b>${L.scoreLine(N(right), total)}</b><span class="muted small">${L.time}${fmtTime(secs)}</span></div></div>
+          ${part ? `<p class="small muted">${L.partNote}</p>` : ""}` : `<p>${L.onlyEssay} ${L.time}${fmtTime(secs)}</p>`}
         </section>
-        ${Object.keys(byTopic).length > 1 ? `<section class="panel"><div class="label">Theo chủ đề</div>${bars(byTopic, (k) => k)}</section>` : ""}
-        ${Object.keys(byLv).length ? `<section class="panel" id="qzLv"><div class="label">Theo mức độ</div>${bars(byLv, (k) => LV[k])}</section>` : ""}
-        ${wrong.length ? `<section class="panel"><div class="label">Câu cần xem lại (${wrong.length})</div><div class="review">${wrong.map((a) => `<div class="rv"><div>${esc(a.q.q).replace("___", "…")}${LV[a.q.lv] ? ` <span class="tag">${LV[a.q.lv]}</span>` : ""}</div><div class="small">Bạn trả lời: <s>${esc(givenText(a.q, a.g))}</s>${a.pts > 0 ? ` (được ${fmtN(a.pts)}/1 điểm)` : ""} · Đáp án: <b>${esc(correctText(a.q))}</b></div>${a.q.x ? `<div class="expl">${esc(a.q.x)}</div>` : ""}${reportHtml(a.q)}</div>`).join("")}</div></section>` : ""}
+        ${Object.keys(byTopic).length > 1 ? `<section class="panel"><div class="label">${L.byTopic}</div>${bars(byTopic, (k) => (k === "Chung" ? L.topicGeneral : k))}</section>` : ""}
+        ${Object.keys(byLv).length ? `<section class="panel" id="qzLv"><div class="label">${L.byLv}</div>${bars(byLv, (k) => L.lv[k])}</section>` : ""}
+        ${wrong.length ? `<section class="panel"><div class="label">${L.review(wrong.length)}</div><div class="review">${wrong.map((a) => `<div class="rv"><div>${esc(a.q.q).replace("___", "…")}${LV[a.q.lv] ? ` <span class="tag">${L.lv[a.q.lv]}</span>` : ""}</div><div class="small">${L.yourAns}<s>${esc(givenText(a.q, a.g, L))}</s>${a.pts > 0 ? L.gotPts(N(a.pts)) : ""}${L.ansIn}<b>${esc(correctText(a.q, L))}</b></div>${a.q.x ? `<div class="expl">${esc(a.q.x)}</div>` : ""}${reportHtml(a.q)}</div>`).join("")}</div></section>` : ""}
         ${essayPanel}
-        <div class="row"><button class="btn main" id="qzAgain">${againTxt}</button><button class="btn ghost" id="qzHome">Về trang chính</button></div>
+        <div class="row"><button class="btn main" id="qzAgain">${againTxt}</button><button class="btn ghost" id="qzHome">${L.home}</button></div>
       </div>`;
       el.querySelector("#qzAgain").onclick = again;
       el.querySelector("#qzHome").onclick = () => opts.onExit && opts.onExit();
@@ -584,9 +723,9 @@
         wireRubric(el, () => (el.querySelector("#qzSelfMsg").innerHTML = ""));
         save.onclick = () => {
           const s = saveSelf(essays);
-          if (!s) { el.querySelector("#qzSelfMsg").innerHTML = `<div class="fb bad">Chọn mức cho từng ý của ít nhất một câu rồi bấm Lưu nhé.</div>`; return; }
+          if (!s) { el.querySelector("#qzSelfMsg").innerHTML = `<div class="fb bad">${L.selfNeed}</div>`; return; }
           el.querySelectorAll("#qzSelf .rubric .opt").forEach((b) => (b.disabled = true));
-          el.querySelector("#qzSelfArea").innerHTML = `<div class="fb ok">Đã lưu điểm tự chấm: ${fmtN(s.got)}/${fmtN(s.max)} điểm.</div>`;
+          el.querySelector("#qzSelfArea").innerHTML = `<div class="fb ok">${L.selfSaved(N(s.got), N(s.max), s.max)}</div>`;
         };
       }
       window.scrollTo(0, 0);
@@ -596,7 +735,7 @@
     h.busy = () => !S.done && (exam || S.ans.some(Boolean));
     h.answered = answered;
     h.submit = finish;
-    if (!qs.length) { h.stop(); el.innerHTML = `<div class="panel">Ngân hàng này chưa có câu hỏi.</div>`; return h; }
+    if (!qs.length) { h.stop(); el.innerHTML = `<div class="panel"${LANG}>${L.emptyBank}</div>`; return h; }
     render();
     return h;
   }
@@ -727,5 +866,5 @@
     return { questions, passages, errors };
   }
 
-  window.Quiz = { run, parse, isRight, score, svg, draw, key, text, REASONS, LV, fmtN };
+  window.Quiz = { run, parse, isRight, score, svg, draw, key, text, REASONS, LV, fmtN, TXT, lang: langOf, title };
 })();
