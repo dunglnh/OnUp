@@ -85,7 +85,7 @@ Làm sau bước 7 (trang admin đọc `js/config.js`). Ảnh: [`docs/hinh-dam-m
 1. Mở **https://dunglnh.github.io/OnUp/admin.html** (trang học thêm `admin.html` vào cuối địa chỉ). Nên lưu dấu trang trên máy của bạn; trang học không có nút dẫn tới đây.
 2. Đăng nhập bằng tài khoản chủ app (bước 4): gõ tên đăng nhập, ví dụ `chu.app`. Đóng thẻ là thoát. Tài khoản gia đình đăng nhập vào đây chỉ thấy “Không có quyền”.
 3. **Tạo tài khoản**: tên đăng nhập (ví dụ `nha.bin`), tên hiển thị (ví dụ `Nhà Bin`), ghi chú nếu cần (cách liên lạc với phụ huynh; chỉ bạn đọc được). Mật khẩu tạm đã gợi ý sẵn (bấm **Gợi ý khác** để đổi). Bấm **Tạo tài khoản**.
-4. Bấm **Chép lời nhắn** rồi dán vào Zalo gửi phụ huynh: lời nhắn có tên đăng nhập, mật khẩu tạm và địa chỉ trang học. Mật khẩu tạm chỉ hiện lần này; phụ huynh đăng nhập lần đầu sẽ phải đặt mật khẩu mới.
+4. Bấm **Chép lời nhắn** rồi dán vào Zalo gửi phụ huynh. Lời nhắn đã xuống dòng sẵn: tên đăng nhập, mật khẩu tạm, rồi ba bước vào trang học. Dán vào là gửi được, không phải sửa. Mật khẩu tạm chỉ hiện lần này; phụ huynh đăng nhập lần đầu sẽ phải đặt mật khẩu mới.
 
 Ở trang admin còn có:
 - **Tài khoản**: số liệu nhanh (số tài khoản, số tài khoản dùng trong 7 ngày, số hồ sơ con theo khối), tìm theo tên đăng nhập, tên hoặc ghi chú, lọc tài khoản đang khóa hoặc chưa đổi mật khẩu tạm.

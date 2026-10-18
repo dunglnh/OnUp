@@ -131,11 +131,11 @@ Phía trình duyệt (`js/store-supabase.js`, phần đám mây của `js/app.js
 - CAPTCHA (Cloudflare Turnstile) tùy chọn: `turnstileSiteKey` trong `js/config.js`; `captcha()` trong store-supabase.js lấy mã cho `signIn` và `checkPassword`. Không có khóa thì không tải script của Cloudflare.
 
 Trang admin (`admin.html`, chủ app mở `…/OnUp/admin.html`):
-- Một file tự chứa (script trong file, theo quy ước code bên dưới), dùng `css/app.css` (lớp `.kv`, `.note-in`, `.pw-row`, `.pw-in`, `.wrap` ở cuối file), `data/grades.js`, `js/config.js`. `js/config.js` để trống thì chỉ báo “chỉ dùng với bản đám mây”, không tải gì từ mạng (`tests/e2e.js` kiểm tra). Không nằm trong `FILES` của `sw.js`.
+- Một file tự chứa (script trong file, theo quy ước code bên dưới), dùng `css/app.css` (lớp `.kv`, `.note-in`, `.pw-row`, `.pw-in`, `.wrap`, `.share-msg` ở cuối file), `data/grades.js`, `js/config.js`. `js/config.js` để trống thì chỉ báo “chỉ dùng với bản đám mây”, không tải gì từ mạng (`tests/e2e.js` kiểm tra). Không nằm trong `FILES` của `sw.js`.
 - Đăng nhập bằng tài khoản chủ app: gõ tên đăng nhập (thành `<tên>@users.onup.invalid`) hoặc cả email. Phiên chỉ giữ trong sessionStorage, khóa `onup_admin_auth`, riêng với `ontap_sb_auth` của trang học. CAPTCHA như trang học (ô `#adCaptcha`).
 - Thao tác với tài khoản gọi Edge Function `admin`: `list_accounts` (danh sách, số liệu nhanh: tài khoản, dùng trong 7 ngày, hồ sơ con theo khối), `create_account`, `reset_password`, `set_status`, `delete_account` (gõ đúng tên đăng nhập mới bấm được). Hàm trả `forbidden` thì hiện “Không có quyền”; `auth` thì về màn hình đăng nhập. Tìm và lọc làm trên máy (không phân biệt dấu).
 - Ghi chú: upsert thẳng vào `admin_notes` (RLS chỉ owner; không vào nhật ký). Nhật ký: đọc `admin_log` (mới nhất trước, 50 dòng mỗi lần; từng tài khoản 20 dòng). Không đọc hồ sơ con, kết quả.
-- Mật khẩu tạm gợi ý trên máy, cùng bảng chữ với `tempPassword` của Edge Function; sau khi tạo hoặc đặt lại chỉ hiện một lần, kèm lời nhắn chép được để gửi phụ huynh.
+- Mật khẩu tạm gợi ý trên máy, cùng bảng chữ với `tempPassword` của Edge Function; sau khi tạo hoặc đặt lại chỉ hiện một lần, kèm lời nhắn chép được để gửi phụ huynh (`shareText`). Lời nhắn là chữ thường, mỗi thông tin một dòng (`\n`), có emoji ở hai dòng tên đăng nhập, mật khẩu tạm, để dán vào Zalo là gửi được ngay, không phải sửa tay; khung xem trước `.share-msg` (`white-space: pre-line`) hiện đúng như khi dán. `cloud-e2e.js` so chữ chép ra với chữ trên màn hình, từng dòng.
 - `LIB` (supabase-js, mã SRI) chép từ `js/store-supabase.js`: đổi phiên bản thì sửa cả hai (`cloud-e2e.js` so). Chưa có giao diện đổi gói (`set_plan`): làm khi bán gói (thiết kế mục 9).
 
 ## Quy ước code

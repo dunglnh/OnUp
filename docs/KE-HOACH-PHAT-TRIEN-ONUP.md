@@ -1,6 +1,6 @@
 # Kế hoạch phát triển OnUp
 
-> **Trạng thái (18/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy **bản đám mây** từ 17/10 (PR #27), đang chạy thử trong gia đình, chỉ dành cho gia đình được mời. Đã xong: khung tài khoản (Phiên A, B, C), sửa lỗi chạy thử (9a–9d), U1, K1, K2, đề N0a, N0b, đồng bộ tài liệu D0. Còn chờ bố mẹ thử L17 (sao lưu trên iPhone thật, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2, Phiên 9d). Kho đề: `node tests/kiem-tra-de.js` in số đề, số câu, dạng câu (18/10: 29 đề, 715 câu).
+> **Trạng thái (18/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy **bản đám mây** từ 17/10 (PR #27), đang chạy thử trong gia đình, chỉ dành cho gia đình được mời. Đã xong: khung tài khoản (Phiên A, B, C), sửa lỗi chạy thử (9a–9d), U1, K1, K2, đề N0a, N0b, đồng bộ tài liệu D0, UI1. Còn chờ bố mẹ thử L17 (sao lưu trên iPhone thật, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2, Phiên 9d). Kho đề: `node tests/kiem-tra-de.js` in số đề, số câu, dạng câu (18/10: 29 đề, 715 câu).
 > **Đã chốt 18/10/2026:** bán khi đủ đề lớp 4–12 (theo nhịp 1–2 phiên mỗi tuần: khoảng cuối năm học 2028–2029); đến lúc đó gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng `plans` không đổi), hạn mức hai gói lúc bán chốt sau; các phiên chuẩn bị bán G1, B1, B2, B4 làm ngay trước lúc đó; Supabase giữ gói Free đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần); trang công khai chỉ dành cho gia đình được mời (màn đăng nhập có dòng “Chưa có tài khoản?”, Phiên S1); câu sai báo bằng nút trong app (Phiên R1), GitHub Issues chỉ còn cho chủ app; không ghi giá bán, chi phí hay so sánh đối thủ vào repo. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 > **Quy ước (từ Phiên D0):** chỉ file này ghi trạng thái và lộ trình. CLAUDE.md, README và các tài liệu khác trong docs/ chỉ trỏ sang đây. Làm xong một phiên thì gạch dòng của nó ở mục 3 và ghi số PR; đổi quyết định thì sửa đoạn trên trước.
 > **Tiếp theo:** mục 2 (việc của chủ app) và mục 3 (thứ tự các phiên). Mục 5: nhật ký chạy thử, chủ app tự điền.
@@ -41,6 +41,9 @@
 | #37 | Phiên K2: dạng câu hỏi mới |
 | #38 | Quyết định của chủ app (bán khi đủ lớp 4–12), lộ trình các phiên tiếp theo |
 | #39 | Đề xuất UX/UI 2.x, lời giao việc UI1, UX4–UX8 ([CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)) |
+| #40 | Phiên UI1: tiêu đề line-height 1.35, ô mã trong thẻ nhắc nổi khung |
+| #41 | Phiên D0: đồng bộ tài liệu theo quyết định 18/10/2026 |
+| #42 | Góp ý chạy thử: lời nhắn gửi phụ huynh ở trang admin xuống dòng sẵn, dán vào Zalo không phải sửa |
 
 Nội dung hiện có (18/10/2026, `node tests/kiem-tra-de.js`: 29 đề, 715 câu): 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp trường, cấp xã và cấp tỉnh (Phiên 13); IOE 6 cấp xã và cấp thành phố), 19 đề cuối kì I (lớp 6 đủ 8 môn từ Phiên 10: thêm Tiếng Anh, GDCD, Tin học, Công nghệ; lớp 4 thêm Tin học và Công nghệ từ Phiên 11, Tiếng Anh từ Phiên N0b; nhiều môn mới có 1 đề, N1–N6 làm cho đủ), 4 đề giữa kì II lớp 4 (Toán, Tiếng Việt, Phiên 14), 5 đề giữa kì I lớp 6 (Tiếng Anh, Lịch sử và Địa lí, GDCD, Phiên N0a; Tin học, Công nghệ, Phiên N0b) và 1 đề thử nghiệm các dạng câu mới (Phiên K2).
 
@@ -72,7 +75,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
 | 1 | 25/10 | ~~D0 · Đồng bộ tài liệu~~ (đã xong, PR #41) | quyết định đã chốt 18/10 (đầu tài liệu) | chỉ sửa tài liệu; từ đó trạng thái chỉ ghi ở file này |
-| 2 | 25/10 | **UI1 · Chỉnh nhỏ chữ và màu** | | sửa css/app.css, thêm một kiểm tra vào tests/e2e.js; chạy cùng lúc với D0 được |
+| 2 | 25/10 | ~~UI1 · Chỉnh nhỏ chữ và màu~~ (đã xong, PR #40) | | sửa css/app.css, thêm một kiểm tra vào tests/e2e.js; chạy cùng lúc với D0 được |
 | 3 | 1/11 | **K3 · Rút đề ngẫu nhiên theo ma trận** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 6) | K1, K2 (đã xong) | các phiên làm đề N1 trở đi dùng dạng ngân hàng của K3 |
 | 4 | 1/11 | **S1 · Màn hình đăng nhập cho người mới** | `contactUrl` đã điền | nhỏ; dùng khi trang công khai chỉ dành cho gia đình được mời |
 | 5 | 8/11 | **R1 · Nút "Báo câu này sai"** | K3 (cùng sửa js/quiz.js) | chủ app chạy `supabase/cap-nhat-r1.sql` sau khi Merge |
@@ -159,7 +162,7 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 >
 > Tự rà soát một vòng: tìm "để trống", "chưa bật", "tạm dừng", "4–12", "đã đủ các môn", "16/10/2026" trong README.md, CLAUDE.md, docs/ và sửa câu không còn đúng. Chạy tests/e2e.js (phải in E2E OK), rồi mở Pull Request.
 
-**Phiên UI1 · Chỉnh nhỏ chữ và màu** (sửa css/app.css và một kiểm tra trong tests/e2e.js; chạy cùng lúc với D0 được)
+**Phiên UI1 · Chỉnh nhỏ chữ và màu** (đã xong, PR #40; sửa css/app.css và một kiểm tra trong tests/e2e.js; chạy cùng lúc với D0 được)
 > Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md (mục 3, Phiên UI1: X15, X16; ảnh docs/hinh-ux-2x/ui1-tieu-de.jpg, ui1-o-ma.jpg). Trong css/app.css:
 > - X15: h1, h2, h3 dùng line-height 1.35 cho cả màn hình, giữ text-wrap: balance. Dòng line-height trong @media print thành thừa thì bỏ, giữ break-after.
 > - X16: thêm `.remind .code{background:var(--surface)}`, để tên đăng nhập và mật khẩu tạm trong thẻ nhắc của trang admin nổi khung.

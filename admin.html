@@ -134,7 +134,20 @@
     }
     return out.join("");
   }
-  const shareText = (u, p) => `Tài khoản OnUp của gia đình: tên đăng nhập ${u}, mật khẩu tạm ${p}. Mở ${APP_URL} để đăng nhập, rồi đặt mật khẩu mới.`;
+  /* Lời nhắn gửi phụ huynh (nút "Chép lời nhắn"): mỗi thông tin một dòng, để dán vào Zalo, Messenger, tin nhắn là gửi được ngay,
+     không phải sửa tay. Chỉ dùng chữ, emoji và xuống dòng (\n): các ứng dụng đó đều giữ nguyên, không cần định dạng riêng.
+     reset: lời nhắn sau khi đặt lại mật khẩu. */
+  const shareText = (u, p, reset) => [
+    reset ? "Mật khẩu OnUp của gia đình đã được đặt lại" : "Tài khoản OnUp của gia đình",
+    "",
+    "👤 Tên đăng nhập: " + u,
+    "🔑 Mật khẩu tạm: " + p,
+    "",
+    "Cách vào:",
+    "1. Mở " + APP_URL,
+    "2. Nhập tên đăng nhập và mật khẩu tạm ở trên.",
+    "3. Đặt mật khẩu mới khi app nhắc."
+  ].join("\n");
   async function copy(text) {
     try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* thử cách cũ */ }
     try {
@@ -414,17 +427,17 @@
   }
 
   /* ---------------- tên đăng nhập + mật khẩu tạm vừa tạo (chỉ hiện một lần) ---------------- */
-  function credsPanel(title, username, password) {
+  function credsPanel(title, username, password, reset) {
     return `<section class="panel remind" id="creds"><h2>${esc(title)}</h2>
       <dl class="kv"><dt>Tên đăng nhập</dt><dd><span class="code sm" id="credUser">${esc(username)}</span></dd>
         <dt>Mật khẩu tạm</dt><dd><span class="code sm" id="credPass">${esc(password)}</span></dd></dl>
-      <p class="small">Lời nhắn gửi phụ huynh (qua Zalo hoặc tin nhắn):</p>
-      <p class="small wrap" id="credMsg">${esc(shareText(username, password))}</p>
+      <p class="small">Lời nhắn gửi phụ huynh (qua Zalo hoặc tin nhắn), dán vào là gửi được:</p>
+      <p class="small share-msg" id="credMsg">${esc(shareText(username, password, reset))}</p>
       <div class="row"><button class="btn main sm" id="copyMsg">Chép lời nhắn</button></div>
       <p class="small muted">Mật khẩu tạm chỉ hiện lần này. Phụ huynh đăng nhập lần đầu sẽ phải đặt mật khẩu mới. Quên thì đặt lại mật khẩu ở trang của tài khoản.</p></section>`;
   }
-  function wireCreds(username, password) {
-    $("#copyMsg").onclick = async () => toast((await copy(shareText(username, password))) ? "Đã chép lời nhắn" : "Chưa chép được. Bấm giữ vào lời nhắn để chép.");
+  function wireCreds(username, password, reset) {
+    $("#copyMsg").onclick = async () => toast((await copy(shareText(username, password, reset))) ? "Đã chép lời nhắn" : "Chưa chép được. Bấm giữ vào lời nhắn để chép.");
   }
   /* Ô mật khẩu tạm có nút "Gợi ý khác". */
   const pwField = (id, label) => `<div class="field full"><span id="${id}L">${label}</span>
@@ -545,8 +558,8 @@
       try { r = await call({ action: "reset_password", id: a.id, password }); }
       catch (e) { if (!handled(e)) { fb("#rpErr", e.message); btn.disabled = false; } return; }
       Object.assign(a, r.account);
-      renderAccount(a.id, credsPanel("Đã đặt lại mật khẩu", a.username, r.password || password));
-      wireCreds(a.username, r.password || password);
+      renderAccount(a.id, credsPanel("Đã đặt lại mật khẩu", a.username, r.password || password, true));
+      wireCreds(a.username, r.password || password, true);
     };
     // khóa / mở khóa
     $("#stOpen").onclick = () => toggle("#stBox", true);
