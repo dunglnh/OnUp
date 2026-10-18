@@ -101,7 +101,7 @@ select id, 'nha.bin', 'Nhà Bin' from auth.users where email = 'nha.bin@users.on
 ## Bước 7. Điền `js/config.js`
 
 1. Supabase → **Project Settings → API Keys**. Chép **Project URL** (`https://abcdxyz.supabase.co`) và khóa **publishable** (`sb_publishable_...`) hoặc **anon public**.
-2. GitHub → [`js/config.js`](../js/config.js) → **Edit** → điền `supabaseUrl`, `supabaseAnonKey`. Nên sửa luôn dòng “Quên mật khẩu?” dưới ô đăng nhập: `contactText` (ví dụ `"Nhắn Zalo cho cô Lan"`) và `contactUrl` (ví dụ `"https://zalo.me/0912345678"`, hoặc `"tel:0912345678"`; để trống thì chỉ hiện chữ). `main` đang được bảo vệ: chọn **Create a new branch… and start a pull request**, rồi tự **Merge**.
+2. GitHub → [`js/config.js`](../js/config.js) → **Edit** → điền `supabaseUrl`, `supabaseAnonKey`. Nên sửa luôn dòng “Quên mật khẩu?” dưới ô đăng nhập: `contactText` (ví dụ `"Nhắn Zalo cho cô Lan"`) và `contactUrl` (ví dụ `"https://zalo.me/0912345678"`, hoặc `"tel:0912345678"`; để trống thì chỉ hiện chữ). Thẻ “Chưa có tài khoản?” dưới form dùng `signupText`, `signupUrl` (ví dụ `"Nhắn Zalo cho cô Lan để được mời"`); để trống thì dùng luôn hai giá trị trên. `main` đang được bảo vệ: chọn **Create a new branch… and start a pull request**, rồi tự **Merge**.
 
 > ⚠️ **Không bao giờ** dán khóa `service_role` / `secret` (`sb_secret_...`) vào file này: khóa đó bỏ qua mọi lớp bảo vệ. Lỡ dán thì xóa ngay và đổi khóa (**Roll**) trong Supabase. Khóa publishable/anon là công khai, để trên GitHub được: dữ liệu được bảo vệ bằng chính sách RLS trong `schema.sql`.
 

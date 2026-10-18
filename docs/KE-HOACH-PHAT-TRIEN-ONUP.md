@@ -1,6 +1,6 @@
 # Kế hoạch phát triển OnUp
 
-> **Trạng thái (18/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy **bản đám mây** từ 17/10 (PR #27), đang chạy thử trong gia đình, chỉ dành cho gia đình được mời. Đã xong: khung tài khoản (Phiên A, B, C), sửa lỗi chạy thử (9a–9d), U1, K1, K2, đề N0a, N0b, đồng bộ tài liệu D0, UI1. Còn chờ bố mẹ thử L17 (sao lưu trên iPhone thật, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2, Phiên 9d). Kho đề: `node tests/kiem-tra-de.js` in số đề, số câu, dạng câu (18/10: 29 đề, 715 câu).
+> **Trạng thái (18/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy **bản đám mây** từ 17/10 (PR #27), đang chạy thử trong gia đình, chỉ dành cho gia đình được mời. Đã xong: khung tài khoản (Phiên A, B, C), sửa lỗi chạy thử (9a–9d), U1, K1, K2, đề N0a, N0b, đồng bộ tài liệu D0, UI1, S1 (màn đăng nhập cho người mới). Còn chờ bố mẹ thử L17 (sao lưu trên iPhone thật, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2, Phiên 9d). Kho đề: `node tests/kiem-tra-de.js` in số đề, số câu, dạng câu (18/10: 29 đề, 715 câu).
 > **Đã chốt 18/10/2026:** bán khi đủ đề lớp 4–12 (theo nhịp 1–2 phiên mỗi tuần: khoảng cuối năm học 2028–2029); đến lúc đó gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng `plans` không đổi), hạn mức hai gói lúc bán chốt sau; các phiên chuẩn bị bán G1, B1, B2, B4 làm ngay trước lúc đó; Supabase giữ gói Free đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần); trang công khai chỉ dành cho gia đình được mời (màn đăng nhập có dòng “Chưa có tài khoản?”, Phiên S1); câu sai báo bằng nút trong app (Phiên R1), GitHub Issues chỉ còn cho chủ app; không ghi giá bán, chi phí hay so sánh đối thủ vào repo. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 > **Quy ước (từ Phiên D0):** chỉ file này ghi trạng thái và lộ trình. CLAUDE.md, README và các tài liệu khác trong docs/ chỉ trỏ sang đây. Làm xong một phiên thì gạch dòng của nó ở mục 3 và ghi số PR; đổi quyết định thì sửa đoạn trên trước.
 > **Tiếp theo:** mục 2 (việc của chủ app) và mục 3 (thứ tự các phiên). Mục 5: nhật ký chạy thử, chủ app tự điền.
@@ -44,6 +44,7 @@
 | #40 | Phiên UI1: tiêu đề line-height 1.35, ô mã trong thẻ nhắc nổi khung |
 | #41 | Phiên D0: đồng bộ tài liệu theo quyết định 18/10/2026 |
 | #42 | Góp ý chạy thử: lời nhắn gửi phụ huynh ở trang admin xuống dòng sẵn, dán vào Zalo không phải sửa |
+| #43 | Phiên S1: màn đăng nhập cho người mới (thẻ “Chưa có tài khoản?” từ `signupText`, `signupUrl`; nhắc dữ liệu cũ chưa chuyển) |
 
 Nội dung hiện có (18/10/2026, `node tests/kiem-tra-de.js`: 29 đề, 715 câu): 4 bài ôn (giữa kì I lớp 4, lớp 6; IOE 4 cấp trường, cấp xã và cấp tỉnh (Phiên 13); IOE 6 cấp xã và cấp thành phố), 19 đề cuối kì I (lớp 6 đủ 8 môn từ Phiên 10: thêm Tiếng Anh, GDCD, Tin học, Công nghệ; lớp 4 thêm Tin học và Công nghệ từ Phiên 11, Tiếng Anh từ Phiên N0b; nhiều môn mới có 1 đề, N1–N6 làm cho đủ), 4 đề giữa kì II lớp 4 (Toán, Tiếng Việt, Phiên 14), 5 đề giữa kì I lớp 6 (Tiếng Anh, Lịch sử và Địa lí, GDCD, Phiên N0a; Tin học, Công nghệ, Phiên N0b) và 1 đề thử nghiệm các dạng câu mới (Phiên K2).
 
@@ -57,7 +58,7 @@ Nội dung hiện có (18/10/2026, `node tests/kiem-tra-de.js`: 29 đề, 715 c�
    - Giữ gói Free đến khi bắt đầu thu tiền. Gói này không có sao lưu và dự án tự tạm dừng khi cả tuần không ai dùng, nên:
      - mỗi tuần vào Table Editor xuất CSV các bảng `families`, `profiles`, `results`, `exam_events`, `question_banks`, cất vào Google Drive;
      - dịp nghỉ dài (Tết, hè) vẫn mở app ít nhất mỗi tuần một lần; bị tạm dừng thì vào Supabase bấm Restore.
-2. **Liên hệ:** điền `contactText`, `contactUrl` (ví dụ link Zalo) trong `js/config.js`, để người mở trang biết hỏi ai. `main` đang được bảo vệ: sửa trên GitHub thì chọn "Create a new branch… and start a pull request", rồi tự Merge.
+2. **Liên hệ:** điền `contactText`, `contactUrl` (ví dụ link Zalo) trong `js/config.js`, để người mở trang biết hỏi ai; muốn thẻ “Chưa có tài khoản?” ghi khác (ví dụ "Nhắn Zalo cho cô Lan để được mời") thì điền thêm `signupText`, `signupUrl`. `main` đang được bảo vệ: sửa trên GitHub thì chọn "Create a new branch… and start a pull request", rồi tự Merge.
 3. **Ghi chỗ khó dùng** khi các con dùng thật, đến khoảng 25/10. Mỗi chỗ một dòng: ai dùng · màn hình · định làm gì · vướng ở đâu · khó chịu hay không làm được. Phiên UX1–UX8 dùng ghi chép này. Bản rà giao diện ngày 18/10 ([CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md), ảnh 1.x và 2.x đặt cạnh nhau) đã có đề xuất cho từng màn: khi ghi, xem con có vướng đúng những chỗ đó không, và thêm những chỗ khác.
 4. **Năm quyết định đã chốt ngày 18/10** (đầu tài liệu) đã được ghi vào CLAUDE.md, README và các tài liệu trong docs/ (Phiên D0). Đổi quyết định nào thì sửa đoạn đầu file này trước, rồi mở một phiên đồng bộ tài liệu như D0.
 5. **Theo dõi chạy thử:** vì còn khoảng hai năm rưỡi nữa mới thu tiền, nên đo sớm xem gia đình có thật sự dùng: số gia đình được mời, số lượt làm bài mỗi tuần, gia đình còn dùng sau 4 tuần. Cuối học kì I, hỏi vài gia đình "app có đáng trả tiền không, khoảng bao nhiêu" (câu trả lời cất ở tài liệu riêng, không ghi số tiền vào repo). Ghi vào mục 5 "Nhật ký chạy thử" ở cuối file này.
@@ -77,7 +78,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | 1 | 25/10 | ~~D0 · Đồng bộ tài liệu~~ (đã xong, PR #41) | quyết định đã chốt 18/10 (đầu tài liệu) | chỉ sửa tài liệu; từ đó trạng thái chỉ ghi ở file này |
 | 2 | 25/10 | ~~UI1 · Chỉnh nhỏ chữ và màu~~ (đã xong, PR #40) | | sửa css/app.css, thêm một kiểm tra vào tests/e2e.js; chạy cùng lúc với D0 được |
 | 3 | 1/11 | **K3 · Rút đề ngẫu nhiên theo ma trận** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 6) | K1, K2 (đã xong) | các phiên làm đề N1 trở đi dùng dạng ngân hàng của K3 |
-| 4 | 1/11 | **S1 · Màn hình đăng nhập cho người mới** | `contactUrl` đã điền | nhỏ; dùng khi trang công khai chỉ dành cho gia đình được mời |
+| 4 | 1/11 | ~~S1 · Màn hình đăng nhập cho người mới~~ (đã xong, PR #43) | `contactUrl` đã điền | nhỏ; dùng khi trang công khai chỉ dành cho gia đình được mời |
 | 5 | 8/11 | **R1 · Nút "Báo câu này sai"** | K3 (cùng sửa js/quiz.js) | chủ app chạy `supabase/cap-nhat-r1.sql` sau khi Merge |
 | 6 | 15/11 | **UX1 · Trang "Hôm nay" và màn kết quả của con** | R1; ghi chép của chủ app | |
 | 7 | 22/11 | **UX2 · Khu phụ huynh gọn lại** | UX1 | |
@@ -123,6 +124,8 @@ Không chạy cùng lúc hai phiên cùng sửa `js/app.js` hoặc `js/quiz.js`;
 | — | — | ~~Phiên N0a, N0b · Đề giữa kì I lớp 6 còn thiếu, Tiếng Anh 4 cuối kì I~~ (đã xong, PR #32, #34) | |
 | — | — | ~~Phiên K1 · Tách dữ liệu đề, bộ kiểm tra đề~~ (đã xong, PR #36) | |
 | — | — | ~~Phiên K2 · Dạng câu hỏi mới~~ (đã xong, PR #37; chủ app chạy `supabase/cap-nhat-k2.sql`) | |
+| — | — | ~~Phiên UI1 · Chỉnh nhỏ chữ và màu~~ (đã xong, PR #40) | |
+| — | — | ~~Phiên S1 · Màn hình đăng nhập cho người mới~~ (đã xong, PR #43; chủ app điền `signupText`, `signupUrl` nếu muốn) | |
 
 **Để sau, chỉ làm khi có nhu cầu thật:** nhập đề từ Excel (Phiên 6 cũ); tự đăng ký, email để tự lấy lại mật khẩu, tài khoản giáo viên/lớp học (mục 7 bản thiết kế); **bản trả phí** (hướng đi ở mục 9 bản thiết kế; việc kĩ thuật cần làm trước ở mục 5 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)). Đề lớp 5, 7–12 đã có thứ tự và số phiên dự kiến trong [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Việc “bắt buộc đổi PIN cũ” không còn cần vì cách đăng nhập mới bỏ kiểm tra PIN ở máy chủ; `pin_hash` của hồ sơ con chỉ là khóa trên giao diện.
 
@@ -169,7 +172,7 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 >
 > Thêm vào tests/e2e.js một kiểm tra: line-height của h1 ≥ 1,3 lần cỡ chữ. Chạy tests/e2e.js và tests/supabase/cloud-e2e.js đến khi in OK. Xem lại ảnh 360px sáng/tối trong tests/screenshots/360/ và ảnh admin-da-tao, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh trước và sau.
 
-**Phiên S1 · Màn hình đăng nhập cho người mới**
+**Phiên S1 · Màn hình đăng nhập cho người mới** (đã xong, PR #43)
 > Đọc CLAUDE.md. Bản đám mây, màn hình đăng nhập (renderCloudLogin):
 > - Thêm dòng "Chưa có tài khoản?" kèm chữ và link liên hệ. Thêm hai khóa tùy chọn `signupText`, `signupUrl` vào js/config.js; để trống thì dùng `contactText`, `contactUrl`.
 > - Trình duyệt còn dữ liệu của bản lưu trên máy (`Store.localData()` có học sinh) mà chưa chuyển (`Store.migratedAt()` trống): hiện thẻ ngắn "Máy này còn dữ liệu ôn tập cũ. Đăng nhập tài khoản gia đình, rồi vào Khu phụ huynh → Dữ liệu → Chuyển dữ liệu máy này lên đám mây." Đã chuyển thì không hiện.
