@@ -146,6 +146,7 @@ Mã lỗi (L1, L2…) dùng trong lời giao việc và trong commit.
 - `run.sh` vẫn đếm mọi mục của `data/banks/index.js` (35, kể cả 6 đề ngẫu nhiên) rồi truyền vào `rls-test.sql`, nên kiểm tra "banks-to-sql.js: đủ 35 đề có sẵn (data/banks/), đã đăng" sai.
 - App không lỗi, nhưng bộ kiểm thử bắt buộc khi sửa `supabase/` không qua được. Phiên R1 (thêm bảng `question_reports`) sẽ vướng ngay.
 - K3 sửa `supabase/banks-to-sql.js` mà chưa chạy `run.sh`; Pull Request #46 cũng không ghi là chưa chạy.
+- Phiên R1 (PR #47, mở cùng ngày) gặp lỗi này khi chạy kiểm thử và đã sửa luôn trong PR đó: `run.sh` chỉ đếm đề cố định.
 
 **L21. Đề Tiếng Anh lẫn tiếng Việt (yêu cầu của chủ app: môn Tiếng Anh mọi khối 100% tiếng Anh).**
 - Chủ app dùng thử thấy đề Tiếng Anh có chữ tiếng Việt. Rà bằng script: cả 75/75 câu của 3 đề Tiếng Anh có chữ tiếng Việt (`ta4-ck1-de1` trong `data/banks/4-ta.js`; `ta6-gk1-de1`, `ta6-ck1-de1` trong `data/banks/6-ta.js`):
@@ -155,6 +156,7 @@ Mã lỗi (L1, L2…) dùng trong lời giao việc và trong commit.
 - Đoạn đọc chép lại trong từng câu, trong ngoặc «…», câu cần xét đúng/sai nằm ngay sau đoạn văn (10 câu, 3 đoạn), chưa dùng đoạn đọc dùng chung (`passages`) của K2.
 - Giao diện làm đề (chung cho mọi môn) toàn tiếng Việt: tên đề "Tiếng Anh 4 · Cuối kì I · Đề 1", "Ôn luyện", "Làm như thi", nhãn dạng câu ("Điền vào chỗ trống", "Chọn đáp án đúng"), "Đúng"/"Sai", "Kiểm tra", "Bỏ qua", "Câu tiếp", "Chưa đúng. Đáp án:", màn kết quả, hộp hỏi khi rời đề, thông báo lưu điểm.
 - Bài ôn IOE 4, IOE 6 (`modules/`) đã toàn tiếng Anh, nhưng phần app bọc ngoài vẫn tiếng Việt: nút "← Trang chính", dòng "Điểm được lưu", hộp hỏi "Rời bài ôn?", thông báo "Đã lưu kết quả: …".
+- Phiên R1 (PR #47) thêm vào màn làm đề link "Báo câu này sai" và hộp chọn lí do, cũng bằng tiếng Việt.
 - Đề thử nghiệm `thunghiem6-dang-cau-moi` có 3 câu Tiếng Anh: câu nối cột nối từ tiếng Anh với nghĩa tiếng Việt, câu đúng/sai 4 ý có lời giải tiếng Việt.
 - Ảnh (360px, trước khi sửa): [hinh-ra-soat-k3/l21-de-tieng-anh.jpg](hinh-ra-soat-k3/l21-de-tieng-anh.jpg): màn mở đề, câu điền sau khi Kiểm tra, câu đọc hiểu đúng/sai, hộp hỏi khi thoát.
 
@@ -346,8 +348,8 @@ Mã lỗi (L1, L2…) dùng trong lời giao việc và trong commit.
 ### Phiên 9e
 
 **L20 · `run.sh` đếm đúng số đề lưu lên máy chủ.**
-- Trong `tests/supabase/run.sh`, `BANKS` đếm các mục **không có** `pool`, cùng điều kiện với `supabase/banks-to-sql.js` (`.filter((b) => !b.pool).length`).
-- Sửa chú thích trong `run.sh` và chữ của kiểm tra trong `rls-test.sql`: "đủ N đề cố định (đề ngẫu nhiên không lưu lên máy chủ)".
+- PR #47 (Phiên R1) đã sửa: `BANKS` trong `tests/supabase/run.sh` chỉ đếm các mục **không có** `pool`, cùng điều kiện với `supabase/banks-to-sql.js`. Khi `main` đã có bản sửa đó thì 9e chỉ chạy lại `run.sh` cho chắc.
+- `main` chưa có bản sửa (PR #47 chưa gộp) thì sửa như vậy, kèm chú thích trong `run.sh` và chữ của kiểm tra trong `rls-test.sql`: "đủ N đề cố định (đề ngẫu nhiên không lưu lên máy chủ)".
 - Ghi vào CLAUDE.md, mục "Chạy và kiểm tra": máy không có PostgreSQL thì ghi rõ trong Pull Request là chưa chạy `run.sh`, để chủ app biết mà chạy.
 
 **L22 · Tên đề đúng quy ước.**
@@ -405,7 +407,7 @@ Mã lỗi (L1, L2…) dùng trong lời giao việc và trong commit.
 ### Phiên TA2 · Màn làm đề Tiếng Anh bằng tiếng Anh
 
 **L21, phần giao diện.**
-- **Phạm vi:** mọi chữ học sinh thấy từ lúc mở một đề Tiếng Anh đến hết màn kết quả: màn tải đề, màn mở đề, màn làm bài, màn kết quả, hộp hỏi khi rời đề, thông báo lưu điểm, tên đề, tên mức độ. Áp dụng cho mọi khối và cả ngân hàng phụ huynh tự nhập có môn Tiếng Anh. Cả phần app bọc ngoài bài ôn IOE 4, IOE 6: nút quay lại, dòng "Điểm được lưu", hộp hỏi khi rời bài, thông báo lưu điểm.
+- **Phạm vi:** mọi chữ học sinh thấy từ lúc mở một đề Tiếng Anh đến hết màn kết quả: màn tải đề, màn mở đề, màn làm bài, màn kết quả, hộp hỏi khi rời đề, thông báo lưu điểm, tên đề, tên mức độ, link "Báo câu này sai" và hộp chọn lí do (Phiên R1; lỗi tiếng Việt do kho trả về thì thay bằng một câu chung tiếng Anh). Áp dụng cho mọi khối và cả ngân hàng phụ huynh tự nhập có môn Tiếng Anh. Cả phần app bọc ngoài bài ôn IOE 4, IOE 6: nút quay lại, dòng "Điểm được lưu", hộp hỏi khi rời bài, thông báo lưu điểm.
 - **Giữ tiếng Việt:** thanh trên cùng của app, trang chủ, lịch thi, báo cáo, khu phụ huynh, trang "Không tìm thấy", "Bài này dành cho lớp X", và các dòng chỉ phụ huynh thấy ("Chế độ xem thử: điểm không được lưu.", "Xem thử, không lưu điểm"). Tên đề trong danh mục và nhãn kết quả đã lưu (`label`) không đổi, nên trang chủ, báo cáo vẫn ghi tên tiếng Việt. Đề các môn khác giữ nguyên.
 - **`js/quiz.js`:**
   - bảng chữ `TXT = { vi: {…}, en: {…} }` cho mọi chữ của màn làm bài, màn kết quả, hộp hỏi, thang tự chấm, đoạn đọc, gợi ý của nối cột và sắp xếp, `aria-label`, tên mức độ (`LV`), "Đúng"/"Sai"; ghi chú của `Quiz.draw` cũng theo ngôn ngữ;
@@ -446,12 +448,17 @@ Mã lỗi (L1, L2…) dùng trong lời giao việc và trong commit.
 | Rời bài ôn? · Bài đang làm dở sẽ không được lưu. · Rời bài · Ở lại | Leave this practice? · Your unfinished work won't be saved. · Leave · Stay |
 | Điểm được lưu · Đã lưu kết quả: 24/30 câu đúng | Score saved · Result saved: 24/30 correct |
 | Tự luận · tự chấm · Gợi ý: · Chưa có · Một phần · Đủ · Lưu điểm tự chấm | Writing · self-check · Guide: · Not yet · Partly · Fully · Save my score |
+| Báo câu này sai · Đã báo câu này · Câu này sai ở đâu? · Lí do | Report a problem · Reported · What's wrong with this question? · Reason |
+| Đáp án sai · Câu hỏi khó hiểu · Lỗi chính tả · Khác | Wrong answer · Confusing question · Spelling mistake · Other |
+| Ghi chú (không bắt buộc, tối đa 200 kí tự) · Viết thêm nếu muốn | Note (optional, up to 200 characters) · Write more if you like |
+| Gửi · Thôi · Bạn chọn một lí do nhé. | Send · Cancel · Please choose a reason. |
+| Cảm ơn bạn! Người làm đề sẽ xem lại câu này. · Chưa gửi được. Thử lại nhé. | Thank you! We will check this question. · Couldn't send. Please try again. |
 
-- Ghi vào CLAUDE.md, mục "Quy ước code": chữ trên màn làm đề, màn kết quả lấy từ bảng chữ; phiên sau thêm chữ mới ở đó (R1, UX1, UX5, UX6) thì thêm cả bản tiếng Anh. Cập nhật `docs/TINH-NANG.md`.
+- Ghi vào CLAUDE.md, mục "Quy ước code": chữ trên màn làm đề, màn kết quả lấy từ bảng chữ; phiên sau thêm chữ mới ở đó (UX1, UX5, UX6…) thì thêm cả bản tiếng Anh. Cập nhật `docs/TINH-NANG.md`.
 
 **Xong khi:**
 - `tests/e2e.js` in `E2E OK`, có thêm bước "đề Tiếng Anh toàn tiếng Anh" ở 360px sáng và tối:
-  - học sinh lớp 4 làm `ta4-ck1-de1`, học sinh lớp 6 làm `ta6-gk1-de1`, ở cả ôn luyện và làm như thi: màn mở đề, câu trắc nghiệm, câu điền, câu đúng/sai và câu có đoạn đọc (trước và sau Kiểm tra), hộp hỏi khi bấm "← Exit" và khi bấm Back (chưa trả lời; đã trả lời), màn kết quả có câu sai, thông báo lưu điểm. Mọi chữ hiện trong `#view`, `#leaveBox`, `#toast` không có chữ cái tiếng Việt (cùng biểu thức với `tests/kiem-tra-de.js`);
+  - học sinh lớp 4 làm `ta4-ck1-de1`, học sinh lớp 6 làm `ta6-gk1-de1`, ở cả ôn luyện và làm như thi: màn mở đề, câu trắc nghiệm, câu điền, câu đúng/sai và câu có đoạn đọc (trước và sau Kiểm tra), hộp hỏi khi bấm "← Exit" và khi bấm Back (chưa trả lời; đã trả lời), hộp "Report a problem" (mở ra, gửi xong), màn kết quả có câu sai, thông báo lưu điểm. Mọi chữ hiện trong `#view`, `#leaveBox`, `#toast` không có chữ cái tiếng Việt (cùng biểu thức với `tests/kiem-tra-de.js`);
   - mở `ioe-4` trong khung: nút quay lại, dòng ghi chú, hộp hỏi khi rời bài đang làm, thông báo lưu điểm bằng tiếng Anh;
   - phụ huynh xem thử một đề Tiếng Anh: dòng "Chế độ xem thử" vẫn tiếng Việt;
   - đề Toán 4 vẫn toàn tiếng Việt (các bước cũ vẫn qua).
@@ -465,7 +472,7 @@ Mã lỗi (L1, L2…) dùng trong lời giao việc và trong commit.
 
 Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Phiên A (máy chủ) đã gộp và không đụng tới các file các phiên này sửa. Nên làm 9a và 9b **trước Phiên B**, vì Phiên B sửa lại màn hình đăng nhập và trang chủ. Riêng Phiên 9c có thể làm sau Phiên C nếu cần ưu tiên khung tài khoản. Phiên 9d (sau rà soát 17/10) cũng nên làm **trước Phiên B**: nó sửa `js/app.js`, `js/quiz.js`, `sw.js`, và Phiên B sẽ sửa nhiều file cùng lúc nên cần L19 trước.
 
-Nhóm E (rà soát 18/10, sau K3): làm **TA1 → 9e → TA2**, rồi mới đến R1. TA1 gấp nhất: đề Tiếng Anh giữa kì I lớp 6 dùng cho kì thi từ 2/11. TA1 và 9e cùng sửa `tests/kiem-tra-de.js`, `tests/e2e.js` nên không chạy cùng lúc. 9e phải xong trước R1 (R1 chạy `run.sh`). TA2 sửa `js/quiz.js`, `js/app.js` như R1, UX1, UX5 nên làm trước các phiên đó, để chữ mới của chúng thêm luôn bản tiếng Anh.
+Nhóm E (rà soát 18/10, sau K3): làm **TA1 → 9e → TA2**, sau khi PR #47 (Phiên R1, mở cùng ngày) đã gộp, và trước UX1. TA1 gấp nhất: đề Tiếng Anh giữa kì I lớp 6 dùng cho kì thi từ 2/11. TA1 và 9e cùng sửa `tests/kiem-tra-de.js`, `tests/e2e.js` nên không chạy cùng lúc. TA2 sửa `js/quiz.js`, `js/app.js` như UX1, UX5 nên làm trước các phiên đó, để chữ mới của chúng thêm luôn bản tiếng Anh; TA2 dịch cả chữ R1 đã thêm.
 
 **Phiên 9a · Không mất bài, khóa PIN, đường dẫn sai**
 > Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md (mục 1 nhóm A, mục 2 Phiên 9a). Sửa L1, L2, L3 trong js/app.js và js/quiz.js theo cách gợi ý: chốt rời trang khi đang làm đề ngân hàng hoặc bài ôn trong khung (hộp xác nhận trong trang, nộp bài trước khi rời, beforeunload), khóa PIN lưu trong localStorage theo từng người với thời gian chờ tăng dần, trang "Không tìm thấy" và chặn học sinh mở bài khác khối. Không đổi ba chỗ nối của bài ôn với app, không sửa phần đám mây ngoài chỗ bắt buộc. Mỗi lỗi một commit ghi mã lỗi (L1…). Thêm các bước kiểm tra ở mục "Xong khi" vào tests/e2e.js, chạy đến khi in E2E OK, chỉ tự rà soát một vòng, rồi mở Pull Request liệt kê lỗi đã sửa và chưa sửa được kèm lí do.
@@ -483,7 +490,7 @@ Nhóm E (rà soát 18/10, sau K3): làm **TA1 → 9e → TA2**, rồi mới đ�
 > Đọc CLAUDE.md, docs/SUA-LOI-CHAY-THU.md (mục 1 L21, mục 2 Phiên TA1) và docs/KE-HOACH-NOI-DUNG.md (mục 3, phần "Đề Tiếng Anh: 100% tiếng Anh"). Viết lại toàn bộ chữ của 3 đề Tiếng Anh có sẵn (ta4-ck1-de1 trong data/banks/4-ta.js; ta6-gk1-de1, ta6-ck1-de1 trong data/banks/6-ta.js) và 3 câu Tiếng Anh của đề thử nghiệm (data/banks/6-thunghiem.js) sang 100% tiếng Anh: ghi chú, chủ đề, lời dặn, đề bài, lựa chọn, đáp án, lời giải, đoạn đọc. Lời dặn theo mẫu; lời giải bằng tiếng Anh đơn giản, không dịch nghĩa sang tiếng Việt. Giữ mã đề, số câu, dạng câu và đáp án; đoạn đọc chuyển sang passages; thêm lv cho từng câu. Thêm vào tests/kiem-tra-de.js kiểm tra đề Tiếng Anh không còn chữ tiếng Việt (cả câu tiếng Anh trong đề khác), và vào tests/e2e.js bước làm 3 đề bằng đáp án trong dữ liệu được 10/10. Không sửa giao diện (Phiên TA2). Chạy node tests/kiem-tra-de.js và tests/e2e.js đến khi in OK, chụp ảnh 360px sáng/tối một câu đọc hiểu, chỉ tự rà soát một vòng, rồi mở Pull Request.
 
 **Phiên 9e · Lỗi phát sinh sau K3** (sau TA1)
-> Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md (mục 1 nhóm E, mục 2 Phiên 9e). Sửa L20, L22–L26 theo cách gợi ý: tests/supabase/run.sh đếm đề có sẵn không tính đề ngẫu nhiên; tên đề Tin học và Công nghệ 4 thêm "· Đề 1" và tests/kiem-tra-de.js kiểm tra quy ước tên đề; summary có vùng bấm ≥ 44px và kiểm tra 360px đo cả summary; nhóm "Bài ôn khác" ghi tên kì trên nút đề; nhãn "N bài ôn" không đếm đề ngẫu nhiên; tên không xuống dòng ngay trước dấu "·". Không làm phần nào của L21 (Phiên TA1, TA2). Mỗi lỗi một commit ghi mã lỗi (L20…). Thêm các bước ở mục "Xong khi" vào tests/e2e.js, chạy node tests/kiem-tra-de.js, tests/e2e.js, tests/supabase/cloud-e2e.js và sh tests/supabase/run.sh đến khi in OK, chỉ tự rà soát một vòng, rồi mở Pull Request.
+> Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md (mục 1 nhóm E, mục 2 Phiên 9e). Sửa L22–L26 theo cách gợi ý: tên đề Tin học và Công nghệ 4 thêm "· Đề 1" và tests/kiem-tra-de.js kiểm tra quy ước tên đề; summary có vùng bấm ≥ 44px và kiểm tra 360px đo cả summary; nhóm "Bài ôn khác" ghi tên kì trên nút đề; nhãn "N bài ôn" không đếm đề ngẫu nhiên; tên không xuống dòng ngay trước dấu "·". L20 (tests/supabase/run.sh không đếm đề ngẫu nhiên) đã sửa trong PR #47 của Phiên R1: chỉ sửa khi main chưa có bản sửa đó. Không làm phần nào của L21 (Phiên TA1, TA2). Mỗi lỗi một commit ghi mã lỗi (L22…). Thêm các bước ở mục "Xong khi" vào tests/e2e.js, chạy node tests/kiem-tra-de.js, tests/e2e.js, tests/supabase/cloud-e2e.js và sh tests/supabase/run.sh đến khi in OK, chỉ tự rà soát một vòng, rồi mở Pull Request.
 
-**Phiên TA2 · Màn làm đề Tiếng Anh bằng tiếng Anh (giao diện)** (sau TA1 và 9e, trước R1)
-> Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md (mục 1 L21, mục 2 Phiên TA2). Làm cho mọi chữ học sinh thấy khi làm đề Tiếng Anh là tiếng Anh: từ màn mở đề đến hết màn kết quả, hộp hỏi khi rời đề, thông báo lưu điểm, tên đề, mức độ, số thập phân; áp dụng cho mọi khối và cả ngân hàng phụ huynh tự nhập có môn Tiếng Anh; cả phần app bọc ngoài bài ôn IOE 4, IOE 6. Dùng bảng chữ hai ngôn ngữ trong js/quiz.js theo bảng chữ gợi ý. Trang chủ, lịch thi, báo cáo, khu phụ huynh và các dòng chỉ phụ huynh thấy giữ tiếng Việt; đề môn khác không đổi. Không sửa file trong modules/, không đổi cách chấm và cách lưu điểm. Ghi quy ước bảng chữ vào CLAUDE.md (chữ mới trên màn làm đề phải có cả bản tiếng Anh). Thêm các bước ở mục "Xong khi" vào tests/e2e.js và tests/supabase/cloud-e2e.js, chạy node tests/kiem-tra-de.js, tests/e2e.js, tests/supabase/cloud-e2e.js đến khi in OK, chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh trước và sau.
+**Phiên TA2 · Màn làm đề Tiếng Anh bằng tiếng Anh (giao diện)** (sau TA1, 9e và PR #47 của R1; trước UX1)
+> Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md (mục 1 L21, mục 2 Phiên TA2). Làm cho mọi chữ học sinh thấy khi làm đề Tiếng Anh là tiếng Anh: từ màn mở đề đến hết màn kết quả, hộp hỏi khi rời đề, thông báo lưu điểm, tên đề, mức độ, số thập phân, link "Báo câu này sai" và hộp chọn lí do; áp dụng cho mọi khối và cả ngân hàng phụ huynh tự nhập có môn Tiếng Anh; cả phần app bọc ngoài bài ôn IOE 4, IOE 6. Dùng bảng chữ hai ngôn ngữ trong js/quiz.js theo bảng chữ gợi ý. Trang chủ, lịch thi, báo cáo, khu phụ huynh và các dòng chỉ phụ huynh thấy giữ tiếng Việt; đề môn khác không đổi. Không sửa file trong modules/, không đổi cách chấm và cách lưu điểm. Ghi quy ước bảng chữ vào CLAUDE.md (chữ mới trên màn làm đề phải có cả bản tiếng Anh). Thêm các bước ở mục "Xong khi" vào tests/e2e.js và tests/supabase/cloud-e2e.js, chạy node tests/kiem-tra-de.js, tests/e2e.js, tests/supabase/cloud-e2e.js đến khi in OK, chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh trước và sau.

@@ -15,7 +15,7 @@ Phần dự trù chi phí và giá bán nằm ở tài liệu riêng của chủ
 
 Số đề, số câu, dạng câu dưới đây lấy từ `node tests/kiem-tra-de.js`; dung lượng từ `du -b data/banks/`. Cần số mới thì chạy lại, không chép số ở đây.
 
-**Kiểm thử toàn app sau Phiên K3 (18/10):** `kiem-tra-de.js`, `e2e.js`, `admin-test.mjs`, `store-test.mjs` và `cloud-e2e.js` (3 lần liền) đều OK; `run.sh` báo lỗi vì vẫn đếm cả đề ngẫu nhiên (L20). Làm hết 35 mục của danh mục bằng đáp án trong dữ liệu: đề nào cũng 10/10. Đề Tiếng Anh còn lẫn tiếng Việt ở cả 75 câu (L21; quy tắc mới ở mục 3). Chi tiết và cách sửa: [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), nhóm E (Phiên TA1, 9e, TA2).
+**Kiểm thử toàn app sau Phiên K3 (18/10):** `kiem-tra-de.js`, `e2e.js`, `admin-test.mjs`, `store-test.mjs` và `cloud-e2e.js` (3 lần liền) đều OK; `run.sh` báo lỗi vì vẫn đếm cả đề ngẫu nhiên (L20, PR #47 của Phiên R1 sửa luôn). Làm hết 35 mục của danh mục bằng đáp án trong dữ liệu: đề nào cũng 10/10. Đề Tiếng Anh còn lẫn tiếng Việt ở cả 75 câu (L21; quy tắc mới ở mục 3). Chi tiết và cách sửa: [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), nhóm E (Phiên TA1, 9e, TA2).
 
 **Kiểm thử toàn app sau Phiên C (17/10):**
 - Kiểm thử tự động: `tests/e2e.js` E2E OK; `admin-test.mjs` ADMIN OK; `store-test.mjs` OK; `cloud-e2e.js` 76 kiểm tra OK; RLS trên PostgreSQL 164 kiểm tra OK.
