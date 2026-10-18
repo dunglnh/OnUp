@@ -1006,8 +1006,9 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       await p.click("#qPractice");
       const r = { id, scheme, n: 0, right: 0, vi: [], psgBad: [], seq: [] };
       for (let i = 0; i < 30 && !(await p.$(".score")); i++) {
-        const t = await p.$eval(".qcard .qtext", (e) => e.textContent);
-        const q = bank.questions.find((x) => flatQ(x.q) === flatQ(t));
+        // câu trên màn hình → câu trong đề: so chữ câu hỏi; hai câu cùng lời dặn ("Choose the odd one out.") thì so thêm các lựa chọn
+        const t = await p.$eval(".qcard .qtext", (e) => e.textContent), opts = await p.$$eval(".opts .opt", (bs) => bs.map((b) => b.lastElementChild.textContent));
+        const cands = bank.questions.filter((x) => flatQ(x.q) === flatQ(t)), q = cands.length > 1 ? cands.find((x) => (x.o || []).every((o) => opts.includes(o))) : cands[0];
         if (!q) { ta1.problems.push(`TA1 ${id}: không nhận ra câu ` + t.slice(0, 50)); break; }
         r.n++; r.seq.push(q.p || "");
         const psg = await p.evaluate(() => { const e = document.querySelector(".psg"); return e ? { title: e.querySelector("summary b").textContent, text: (e.querySelector(".psg-text") || {}).textContent || "", open: e.open } : null; });
