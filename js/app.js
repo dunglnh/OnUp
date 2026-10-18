@@ -9,6 +9,10 @@
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => [...(r || document).querySelectorAll(s)];
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  /* Chữ có " · " (tên đề, tên kì thi, dòng tóm tắt): khoảng trắng ngay trước dấu "·" thành khoảng trắng không ngắt (U+00A0, &nbsp;),
+     để khi xuống dòng dấu "·" ở cuối dòng trên chứ không mở đầu dòng dưới (L26). Dùng sau esc() cho chữ hiện ở tiêu đề và thẻ;
+     không dùng cho aria-label, dữ liệu lưu. js/quiz.js có bản giống hệt cho nhãn tên đề khi làm bài. */
+  const nb = (s) => String(s).replace(/ (?=·)/g, "\u00a0");
   const view = $("#view"), who = $("#who"), foot = $(".foot");
   const MODULES = window.ONTAP_MODULES || [];
   const modById = (id) => MODULES.find((m) => m.id === id) || null;
@@ -597,7 +601,7 @@
     const dd = !e.start ? `<span class="d">?<small>chưa có</small></span>` : `<span class="d">${dm(e.start)}<small>${e.end && e.end !== e.start ? "đến " + dm(e.end) : WD[pd(e.start).getDay()]}</small></span>`;
     return `<button class="ev ${esc(e.kind)} ${st}" data-ev="${esc(e.id)}">
       ${dd}
-      <span class="t"><b>${esc(e.title)}${g == null && e.grades ? ` · Lớp ${e.grades.join(", ")}` : ""}</b>
+      <span class="t"><b>${nb(esc(e.title) + (g == null && e.grades ? ` · Lớp ${e.grades.join(", ")}` : ""))}</b>
         <span class="tags">${e.kind !== "moc" ? `<span class="tag ${e.kind === "ioe" ? "ioe" : ""}">${esc(KIND[e.kind] || e.kind)}</span>` : `<span class="tag moc">Mốc năm học</span>`}
           ${e.tentative && e.start ? `<span class="tag warn">Dự kiến</span>` : ""}
           ${st === "now" ? `<span class="tag warn">Đang diễn ra</span>` : st === "future" && e.kind !== "moc" ? `<span class="tag">Còn ${daysTo(e)} ngày</span>` : ""}
@@ -661,7 +665,7 @@
     if (rest.mods.length + rest.bks.length) groups.push(rest);
     if (!groups.length) return practiceList([], [], canPlay);
     return groups.map((g, i) => `<details class="grp"${g.e ? ` data-grp="${esc(g.e.id)}"` : ""}${i ? "" : " open"}>
-      <summary><span class="grow"><b>${g.e ? esc(g.e.title) : "Bài ôn khác"}</b><span class="small muted">${g.e ? esc(range(g.e)) + " · " : ""}${practiceCount(g)} bài ôn</span></span></summary>
+      <summary><span class="grow"><b>${g.e ? nb(esc(g.e.title)) : "Bài ôn khác"}</b><span class="small muted">${nb((g.e ? esc(range(g.e)) + " · " : "") + practiceCount(g) + " bài ôn")}</span></span></summary>
       ${practiceList(g.mods, g.bks, canPlay, !g.e)}</details>`).join("");
   }
 
@@ -674,9 +678,9 @@
       const { mods, bks } = practiceFor(next, s.grade), st = status(next), rd = readiness(next, s, results);
       hero = `<section class="hero">
         <span class="label">${asObserver ? "Kì thi tiếp theo của " + esc(s.name) : "Kì thi tiếp theo"}${next.tentative ? " · ngày dự kiến" : ""}</span>
-        <div class="row between" style="align-items:flex-end"><h1>${esc(next.title)}</h1>
+        <div class="row between" style="align-items:flex-end"><h1>${nb(esc(next.title))}</h1>
           <div class="row" style="gap:6px;align-items:baseline"><div class="count">${st === "now" ? "Hôm nay" : daysTo(next)}</div>${st === "now" ? "" : `<span class="small">ngày nữa</span>`}</div></div>
-        <p>${esc(range(next))}${next.subjects.length ? " · " + esc(next.subjects.join(", ")) : ""}</p>
+        <p>${nb(esc(range(next)) + (next.subjects.length ? " · " + esc(next.subjects.join(", ")) : ""))}</p>
         ${next.scope ? `<p class="small">${esc(next.scope)}</p>` : ""}
         ${rd.p != null ? `<p class="small">Điểm ôn 4 tuần qua cho kì này: <b>${rd.p}%</b> (${rd.n} lần làm)</p>` : ""}
         <div class="row">${mods.map((m) => `<a class="btn main" href="#/play/${esc(m.id)}">${esc(m.title)}</a>`).join("")}${bks.length ? `<button class="btn ${mods.length ? "ghost" : "main"}" id="toBanks">Đề ôn · ${bks.filter((b) => !b.pool).length || bks.length} đề</button>` : ""}</div>
@@ -712,7 +716,7 @@
   }
   function resultsList(list) {
     if (!list.length) return `<div class="panel muted">Chưa có kết quả. Làm một bài ôn để bắt đầu.</div>`;
-    return `<div class="list">${list.map((r) => `<div class="item"><div class="grow"><b>${esc(r.label || "Bài ôn")}</b><span class="small muted">${esc(ago(r.at))}${r.subject ? " · " + esc(r.subject) : ""}${r.mode === "exam" ? " · làm như thi" : isSelf(r) ? " · tự luận tự chấm" : ""}</span></div><b style="font-variant-numeric:tabular-nums">${isSelf(r) ? nf(r.r / 4) + "/" + nf(r.t / 4) + " điểm" : nf(r.r) + "/" + r.t}</b></div>`).join("")}</div>`;
+    return `<div class="list">${list.map((r) => `<div class="item"><div class="grow"><b>${nb(esc(r.label || "Bài ôn"))}</b><span class="small muted">${esc(ago(r.at))}${r.subject ? " · " + esc(r.subject) : ""}${r.mode === "exam" ? " · làm như thi" : isSelf(r) ? " · tự luận tự chấm" : ""}</span></div><b style="font-variant-numeric:tabular-nums">${isSelf(r) ? nf(r.r / 4) + "/" + nf(r.t / 4) + " điểm" : nf(r.r) + "/" + r.t}</b></div>`).join("")}</div>`;
   }
 
   /* ================= BÁO CÁO TUẦN =================
@@ -830,8 +834,8 @@
     const box = document.createElement("div");
     box.className = "panel"; box.id = "evDetail";
     box.innerHTML = `<div class="row between"><span class="label">${esc(KIND[e.kind] || "")}${e.tentative && e.start ? " · Dự kiến" : ""}</span><button class="linkbtn" id="evClose">Đóng ✕</button></div>
-      <h2>${esc(e.title)}</h2>
-      <p><b>${esc(range(e))}</b> · Lớp ${esc((e.grades || []).join(", "))}</p>
+      <h2>${nb(esc(e.title))}</h2>
+      <p>${nb(`<b>${esc(range(e))}</b> · Lớp ${esc((e.grades || []).join(", "))}`)}</p>
       ${e.subjects && e.subjects.length ? `<p>Môn: ${esc(e.subjects.join(", "))}</p>` : ""}
       ${e.scope ? `<p class="small">Phạm vi: ${esc(e.scope)}</p>` : ""}
       ${e.note ? `<p class="small muted">${esc(e.note)}</p>` : ""}
@@ -959,7 +963,7 @@
     let drawn = b.pool ? Quiz.draw(b, hist()) : null;
     const qs = drawn ? drawn.questions : b.questions, nSrc = b.pool ? (b.pool.from || []).length : 0;
     view.innerHTML = `<div class="stack">${back("#/home", "Trang chính")}
-      <section class="hero"><span class="label">Lớp ${b.grade} · ${esc(b.subject)}${b.pool ? " · Đề ngẫu nhiên" : ""}</span><h1>${esc(b.title)}</h1>
+      <section class="hero"><span class="label">${nb(`Lớp ${b.grade} · ${esc(b.subject)}${b.pool ? " · Đề ngẫu nhiên" : ""}`)}</span><h1>${nb(esc(b.title))}</h1>
         <p>${b.pool ? `Mỗi lần làm là một đề khác: ${qs.length} câu rút từ kho ${b.questions.length} câu${nSrc ? ` (${nSrc} đề)` : ""} theo ma trận đề, ưu tiên câu bạn chưa làm hoặc hay sai` : `${qs.length} câu`}${essayN(qs) ? ` (${essayN(qs)} câu tự luận tự chấm)` : ""}.${b.note ? " " + esc(b.note) : ""}</p>
         ${drawn && drawn.notes.length ? `<p class="small" id="qNotes">Kho còn thiếu câu, lần này: ${esc(drawn.notes.join("; "))}.</p>` : ""}
         <div class="row"><button class="btn main" id="qPractice">Ôn luyện (xem đáp án từng câu)</button>${b.minutes ? `<button class="btn ghost" id="qExam">Làm như thi · ${b.minutes} phút</button>` : ""}</div></section>
@@ -1005,7 +1009,7 @@
     const box = $("#qLoad");
     const failed = () => {
       if (!box.isConnected) return;
-      box.innerHTML = `<h1>${esc(b.title)}</h1><p>Chưa tải được đề này. Bạn kiểm tra mạng rồi bấm Thử lại nhé.</p>
+      box.innerHTML = `<h1>${nb(esc(b.title))}</h1><p>Chưa tải được đề này. Bạn kiểm tra mạng rồi bấm Thử lại nhé.</p>
         <p class="small muted">Đề đã mở một lần khi có mạng thì lần sau mở được cả khi mất mạng.</p>
         <div class="row"><button class="btn main" id="qRetry">Thử lại</button></div>`;
       $("#qRetry").onclick = () => renderQuiz(u, b.id);
@@ -1030,7 +1034,7 @@
     const list = Store.reports();
     return `<section class="panel" id="reportsBox"><h3>Câu bị báo sai${list.length ? ` (${list.length})` : ""}</h3>
       ${list.length ? `<p class="small">${cloud ? "Các câu đã báo từ tài khoản này. Người làm đề xem và đánh dấu đã sửa hay bỏ qua." : "Bấm “Chép để gửi” rồi dán vào Zalo gửi người làm đề."}</p>
-        <div class="list">${list.slice(0, 50).map((r) => `<div class="item"><span class="grow"><b>${esc(bankTitle(r.bankId))}</b><span class="small rp-q">${esc(r.qText)}</span>
+        <div class="list">${list.slice(0, 50).map((r) => `<div class="item"><span class="grow"><b>${nb(esc(bankTitle(r.bankId)))}</b><span class="small rp-q">${esc(r.qText)}</span>
           <span class="small muted">${esc(REASON[r.reason] || r.reason)}${r.note ? " · " + esc(r.note) : ""} · ${esc(whoName(r.userId))} · ${esc(ago(r.at))}</span></span>${cloud ? `<span class="chip${r.status === "new" ? " warn" : ""}">${esc(RP_STATUS[r.status] || r.status)}</span>` : ""}</div>`).join("")}</div>
         ${list.length > 50 ? `<p class="small muted">Chỉ hiện 50 câu mới nhất.</p>` : ""}
         ${cloud ? "" : `<div class="row"><button class="btn main sm" id="copyReports">Chép để gửi</button></div>`}`
@@ -1056,7 +1060,7 @@
         ${!Store.persistent() ? `<div class="fb bad">Trình duyệt đang chặn lưu dữ liệu. Dữ liệu sẽ mất khi tải lại trang.</div>` : ""}
         ${backupCard()}
         <section class="sec"><h2>Học sinh</h2>${studs.length ? `<div class="list">${studs.map(childCard).join("")}</div>` : `<div class="panel">Chưa có học sinh. <div class="row"><a class="btn main" href="#/admin/user/new?role=student">Thêm học sinh</a></div></div>`}</section>`)
-        + (cloud && studs.length ? gradesOf(studs) : gradeList()).map((g) => { const n = nextEvent(g); return n ? `<section class="sec"><h2>Kì thi tiếp theo · ${esc(gradeName(g))}</h2><div class="timeline">${eventRow(n, { grade: g })}</div></section>` : ""; }).join("");
+        + (cloud && studs.length ? gradesOf(studs) : gradeList()).map((g) => { const n = nextEvent(g); return n ? `<section class="sec"><h2>${nb("Kì thi tiếp theo · " + esc(gradeName(g)))}</h2><div class="timeline">${eventRow(n, { grade: g })}</div></section>` : ""; }).join("");
     } else if (tab === "users" && cloud) {
       const us = Store.users("student"), full = !Store.can("addChild");
       body = `<section class="sec"><div class="row between"><h2>Hồ sơ con (${us.length}/${(Store.plan() || {}).maxChildren || 0})</h2>${full ? "" : `<a class="btn sm" href="#/admin/user/new?role=student">+ Thêm</a>`}</div>
@@ -1068,11 +1072,11 @@
       body = sect("student", "Học sinh") + sect("parent", "Phụ huynh") + sect("admin", "Quản trị");
     } else if (tab === "events") {
       body = `<div class="row between"><p class="muted small" style="flex:1">Sửa ngày khi trường thông báo, gắn bài ôn vào từng kì thi.</p><a class="btn main sm" href="#/admin/event/new">+ Thêm kì thi</a></div>
-        <div class="list">${Store.events().map((e) => `<a class="item" href="#/admin/event/${esc(e.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${esc(e.title)} · Lớp ${esc(e.grades.join(", "))}</b><span class="small muted">${esc(range(e))}${e.tentative && e.start ? " · dự kiến" : ""} · ${practiceCount(practiceFor(e, null))} bài ôn</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>
+        <div class="list">${Store.events().map((e) => `<a class="item" href="#/admin/event/${esc(e.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${nb(`${esc(e.title)} · Lớp ${esc(e.grades.join(", "))}`)}</b><span class="small muted">${esc(range(e))}${e.tentative && e.start ? " · dự kiến" : ""} · ${practiceCount(practiceFor(e, null))} bài ôn</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>
         <div class="row"><button class="btn ghost sm" id="resetEv">Khôi phục lịch mặc định</button></div><div id="resetArea"></div>`;
     } else if (tab === "banks") {
       body = `<div class="row between"><p class="muted small" style="flex:1">Dán câu hỏi từ Word, Zalo, sách bài tập. App tự nhận dạng trắc nghiệm, điền khuyết, đúng/sai, nối cột, sắp xếp, trả lời bằng số, tự luận.</p><a class="btn main sm" href="#/admin/bank/new">+ Nhập ngân hàng</a></div>
-        <div class="list">${Store.banks().map((b) => `<a class="item" href="#/${b.seed ? "quiz" : "admin/bank"}/${esc(b.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${esc(b.title)}</b><span class="small muted">Lớp ${b.grade} · ${esc(b.subject)} · ${qCount(b)} câu${b.pool ? " rút ngẫu nhiên" : ""}${b.seed ? " · có sẵn (chỉ xem)" : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>`;
+        <div class="list">${Store.banks().map((b) => `<a class="item" href="#/${b.seed ? "quiz" : "admin/bank"}/${esc(b.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${nb(esc(b.title))}</b><span class="small muted">Lớp ${b.grade} · ${esc(b.subject)} · ${qCount(b)} câu${b.pool ? " rút ngẫu nhiên" : ""}${b.seed ? " · có sẵn (chỉ xem)" : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>`;
     } else if (tab === "data" && cloud) {
       const st = Store.settings(), loc = Store.localData(), mig = Store.migratedAt();
       const kids = loc ? loc.users.filter((x) => x.role === "student").length : 0;

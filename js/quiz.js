@@ -31,6 +31,8 @@
   const LV = { 1: "Biết", 2: "Hiểu", 3: "Vận dụng" };
   const TF4_PTS = [0, 0.1, 0.25, 0.5, 1]; // đúng 0/1/2/3/4 ý, như đề thi tốt nghiệp THPT
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  // khoảng trắng ngay trước " · " thành khoảng trắng không ngắt, để tên đề không xuống dòng bắt đầu bằng "·" (như nb của js/app.js, L26)
+  const nb = (s) => String(s).replace(/ (?=·)/g, "\u00a0");
   const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const range = (n) => [...Array(n).keys()];
   // xáo đến khi khác thứ tự gốc (để câu nối cột, sắp xếp không có sẵn đáp án)
@@ -408,7 +410,7 @@
         <div class="bar" aria-hidden="true"><i style="width:${(S.i / qs.length) * 100}%"></i></div>
         ${q.p && passages[q.p] ? passageHtml(q.p) : ""}
         <section class="qcard">
-          <div class="row between"><span class="label">${esc(bank.title)}</span>${q.topic ? `<span class="label">${esc(q.topic)}</span>` : ""}</div>
+          <div class="row between"><span class="label">${nb(esc(bank.title))}</span>${q.topic ? `<span class="label">${esc(q.topic)}</span>` : ""}</div>
           ${body(q)}
           <div id="qzFb" aria-live="polite"></div>
         </section>
@@ -530,7 +532,7 @@
       if (S.done) return; S.done = true; clearInterval(S.timer);
       if (!answered()) {
         el.innerHTML = `<div class="stack">
-          <section class="panel"><div class="label">${esc(bank.title)} · ${exam ? "Làm như thi" : "Ôn luyện"}</div><p>Bạn chưa làm câu nào nên không lưu điểm.</p></section>
+          <section class="panel"><div class="label">${nb(`${esc(bank.title)} · ${exam ? "Làm như thi" : "Ôn luyện"}`)}</div><p>Bạn chưa làm câu nào nên không lưu điểm.</p></section>
           <div class="row"><button class="btn main" id="qzAgain">${againTxt}</button><button class="btn ghost" id="qzHome">Về trang chính</button></div></div>`;
         el.querySelector("#qzAgain").onclick = again;
         el.querySelector("#qzHome").onclick = () => opts.onExit && opts.onExit();
@@ -563,7 +565,7 @@
             <p class="small muted">${saved ? `Đã lưu điểm tự chấm: ${fmtN(saved.got)}/${fmtN(saved.max)} điểm. ` : ""}Không tính vào điểm trung bình.</p></section>`;
       el.innerHTML = `<div class="stack">
         <section class="panel">
-          <div class="label">${esc(bank.title)} · ${exam ? "Làm như thi" : "Ôn luyện"}</div>
+          <div class="label">${nb(`${esc(bank.title)} · ${exam ? "Làm như thi" : "Ôn luyện"}`)}</div>
           ${total ? `<div class="row" style="gap:18px;align-items:flex-end"><div class="score">${d10}<span class="score-sub">/10</span></div>
           <div class="stack tight"><b>${fmtN(right)}/${total} câu đúng</b><span class="muted small">Thời gian: ${fmtTime(secs)}</span></div></div>
           ${part ? `<p class="small muted">Câu đúng/sai 4 ý và nối cột tính điểm theo từng ý.</p>` : ""}` : `<p>Lượt này chỉ có câu tự luận. Thời gian: ${fmtTime(secs)}</p>`}

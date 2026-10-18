@@ -299,7 +299,7 @@ async function run(browser, scheme) {
   c.migHint = /Trên iPhone, iPad: hãy chuyển trong Safari, nơi đang có dữ liệu, trước khi dùng app ở Màn hình chính/.test(await text(p2, "#migBox"));
   c.noHomeScreen = !(await p2.$("#homeScreen")); // hướng dẫn Màn hình chính (L17) chỉ ở bản lưu trên máy
   // R1: tab Dữ liệu của khu phụ huynh liệt kê câu đã báo kèm trạng thái, không có nút chép (đã lên máy chủ)
-  c.r1.data = await p2.evaluate(() => { const b = document.querySelector("#reportsBox"); return { n: b.querySelectorAll(".item").length, head: b.querySelector("h3").textContent, chips: [...b.querySelectorAll(".chip")].map((x) => x.textContent).join(), copy: !!b.querySelector("#copyReports"), who: /Bin/.test(b.textContent) && /Toán 4 · Cuối kì I · Đề 1/.test(b.textContent) }; });
+  c.r1.data = await p2.evaluate(() => { const b = document.querySelector("#reportsBox"); return { n: b.querySelectorAll(".item").length, head: b.querySelector("h3").textContent, chips: [...b.querySelectorAll(".chip")].map((x) => x.textContent).join(), copy: !!b.querySelector("#copyReports"), who: /Bin/.test(b.textContent) && /Toán 4 · Cuối kì I · Đề 1/.test(b.textContent.replace(/\s+/g, " ")) }; });
   await p2.click("#dMigrate"); await p2.waitForSelector("#migRes .fb");
   c.migrate = await text(p2, "#migRes");
   await shot(p2, "c14-du-lieu");

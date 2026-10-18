@@ -779,7 +779,9 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
      L24: học sinh lớp 6, hàng Tiếng Anh của nhóm "Bài ôn khác" (đề giữa kì I đã qua) ghi "Giữa kì I · Đề 1"; nhóm cuối kì I
      vẫn ghi "Đề 1"; aria-label vẫn là tên đề đầy đủ; đề thử nghiệm (tên tự đặt) ghi nguyên tên.
      L25: kì cuối kì I lớp 4 (1 bài IOE, 9 đề cố định, 2 đề ngẫu nhiên) ghi "10 bài ôn" ở thẻ kì thi trên trang chủ, đầu nhóm
-     bài ôn và trang Lịch thi; nút "Đề ôn · 9 đề" như cũ. */
+     bài ôn và trang Lịch thi; nút "Đề ôn · 9 đề" như cũ.
+     L26: tên đề ở màn mở đề toan6-ck1-ngau-nhien (h1 và dòng nhãn), nhãn trên thẻ câu hỏi, tên kì thi trên thẻ kì thi và đầu nhóm
+     có khoảng trắng không ngắt (U+00A0) trước mỗi dấu "·"; aria-label của nút đề vẫn là khoảng trắng thường. */
   const nc = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 } });
   await localConfig(nc); watchOut(nc);
   const np = await nc.newPage(); np.on("pageerror", (e) => errs.push("pageerror 9e: " + e.message));
@@ -814,13 +816,19 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await asStudent("Na", "4444");
   f9e.l6 = { taOther: await rowOf("", "Tiếng Anh"), taCk1: await rowOf("ck1-l6", "Tiếng Anh"), thu: await rowOf("", "Thử nghiệm"),
     aria: await np.$$eval('#allPractice details.grp:not([data-grp]) .des a', (a) => a.map((x) => x.getAttribute("aria-label"))) };
+  const rawOf = (sel) => np.$eval(sel, (x) => x.textContent.replace(/[ \t\n]+/g, " ").trim()); // giữ U+00A0 (textOf gộp cả \s) để kiểm tra L26
+  f9e.nb = { grp: await rawOf('#allPractice details.grp[data-grp="ck1-l6"] summary .small'), hero: await rawOf(".hero p") };
   await np.screenshot({ path: OUT + "21-9e-lop6.png", fullPage: true });
+  await np.goto(BASE + "/#/quiz/toan6-ck1-ngau-nhien"); await np.waitForSelector("#qPractice");
+  Object.assign(f9e.nb, { h1: await rawOf(".hero h1"), label: await rawOf(".hero .label") });
+  await np.click("#qPractice"); f9e.nb.card = await rawOf(".qcard .label");
   await nc.close();
   console.log("9e:", JSON.stringify(f9e));
   const fix9eOK = f9e.l4.today === "21/12/2026" && f9e.l4.tincn.join() === "Đề 1"
     && /\|10 bài ôn\|/.test("|" + f9e.l4.homeTags + "|") && / · 10 bài ôn$/.test(f9e.l4.grpHead) && /\|10 bài ôn\|/.test("|" + f9e.l4.calTags + "|") && f9e.l4.hero === "Đề ôn · 9 đề"
     && f9e.l6.taOther.join() === "Giữa kì I · Đề 1" && f9e.l6.taCk1.join() === "Đề 1" && f9e.l6.thu.join() === "Đề thử nghiệm · Các dạng câu mới"
-    && f9e.l6.aria.includes("Tiếng Anh 6 · Giữa kì I · Đề 1") && !f9e.l6.aria.some((x) => /·.*·.*·/.test(x));
+    && f9e.l6.aria.includes("Tiếng Anh 6 · Giữa kì I · Đề 1") && !f9e.l6.aria.some((x) => /·.*·.*·/.test(x))
+    && Object.values(f9e.nb).every((s) => /·/.test(s) && !/[^\u00a0]·/.test(s)) && f9e.nb.h1 === "Toán 6\u00a0· Cuối kì I\u00a0· Đề ngẫu nhiên";
 
   step("random exam by matrix (K3)");
   /* Đề ngẫu nhiên (mục có pool trong data/banks/index.js): hàng Toán của kì cuối kì I lớp 6 có nút "Đề ngẫu nhiên" trước
@@ -877,7 +885,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     const b = Store.bank(POOL), d = Quiz.draw(b), cnt = {}; d.questions.forEach((q) => (cnt[q.topic] = (cnt[q.topic] || 0) + 1));
     const keys = d.questions.map(Quiz.key);
     return { n: d.questions.length, kho: b.questions.length, srcs: [...new Set(b.questions.map((q) => q.src))].join(), matrix: JSON.stringify(cnt) === JSON.stringify(b.pool.matrix),
-      uniq: new Set(keys).size === keys.length, notes: d.notes.length, fixedN: Store.bank(DE1).questions.length, fixedClean: !("src" in Store.bank(DE1).questions[0]), label: document.querySelector(".hero .label").textContent };
+      uniq: new Set(keys).size === keys.length, notes: d.notes.length, fixedN: Store.bank(DE1).questions.length, fixedClean: !("src" in Store.bank(DE1).questions[0]), label: document.querySelector(".hero .label").textContent.replace(/\s+/g, " ") };
   }, { POOL, DE1 });
   const PQ = await kp.evaluate((id) => Store.bank(id).questions, POOL);
   // lượt 1: câu đầu sai, còn lại đúng

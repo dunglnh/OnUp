@@ -151,6 +151,7 @@ Trang admin (`admin.html`, chủ app mở `…/OnUp/admin.html`):
 ## Quy ước code
 - JavaScript thuần, ES2019+, không module/import (để mở được cả bằng file://). Mỗi file bọc trong IIFE, xuất ra `window.<Tên>`.
 - Mọi chuỗi từ người dùng hoặc dữ liệu đi vào HTML phải qua `esc()`.
+- Tên đề, tên kì thi và dòng tóm tắt có “ · ” khi hiện ở tiêu đề (`h1`, `h2`), nhãn và thẻ đi qua `nb()` sau `esc()` (bản giống nhau trong js/app.js và js/quiz.js): khoảng trắng ngay trước dấu “·” thành khoảng trắng không ngắt, để xuống dòng không bắt đầu bằng “·”. Không dùng cho `aria-label`, dữ liệu lưu. Kiểm thử đọc chữ đó thì gộp khoảng trắng bằng `replace(/\s+/g, " ")` (`\s` gồm cả U+00A0).
 - Ô mật khẩu, mã PIN mới (`type="password"`; ô PIN có `inputmode="numeric"`) phải có nút xem: gọi `wireReveal(view)` (js/app.js) sau khi vẽ màn hình, admin.html dùng bản `wireReveal` riêng trong file (cùng lớp `.reveal`, `.reveal-btn` của css/app.css). Tên đọc của ô lấy từ `<span>` đầu tiên trong `<label>` chứa ô (nút nằm trong label nên ô dùng `aria-labelledby`). Xóa ô bằng code (`value = ""`) hoặc gửi không qua `<form>` thì gọi `conceal(ô)` để ẩn lại. Không lưu trạng thái hiện/ẩn. `tests/e2e.js`, `tests/supabase/cloud-e2e.js` thử từng ô bằng `revealTry`.
 - Mọi đọc/ghi localStorage/sessionStorage bọc try/catch.
 - Màu chỉ dùng token trong `:root` của `css/app.css`. Font: Baloo 2 (tiêu đề), Be Vietnam Pro (chữ), tự lưu trong `fonts/`. Bản lưu trên máy không tải gì từ host khác (không Google Fonts, không CDN); `tests/e2e.js` kiểm tra.
