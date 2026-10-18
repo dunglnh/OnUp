@@ -54,7 +54,7 @@ Nội dung hiện có (18/10/2026, `node tests/kiem-tra-de.js`: 29 đề, 715 c�
    - Giữ gói Free đến khi bắt đầu thu tiền. Gói này không có sao lưu và dự án tự tạm dừng khi cả tuần không ai dùng, nên:
      - mỗi tuần vào Table Editor xuất CSV các bảng `families`, `profiles`, `results`, `exam_events`, `question_banks`, cất vào Google Drive;
      - dịp nghỉ dài (Tết, hè) vẫn mở app ít nhất mỗi tuần một lần; bị tạm dừng thì vào Supabase bấm Restore.
-2. **Liên hệ:** điền `contactText`, `contactUrl` (ví dụ link Zalo) trong `js/config.js`, để người mở trang biết hỏi ai. `main` đang được bảo vệ: sửa trên GitHub thì chọn "Create a new branch… and start a pull request", rồi tự Merge.
+2. **Liên hệ:** điền `contactText`, `contactUrl` (ví dụ link Zalo) trong `js/config.js`, để người mở trang biết hỏi ai; muốn thẻ “Chưa có tài khoản?” ghi khác (ví dụ "Nhắn Zalo cho cô Lan để được mời") thì điền thêm `signupText`, `signupUrl`. `main` đang được bảo vệ: sửa trên GitHub thì chọn "Create a new branch… and start a pull request", rồi tự Merge.
 3. **Ghi chỗ khó dùng** khi các con dùng thật, đến khoảng 25/10. Mỗi chỗ một dòng: ai dùng · màn hình · định làm gì · vướng ở đâu · khó chịu hay không làm được. Phiên UX1–UX8 dùng ghi chép này. Bản rà giao diện ngày 18/10 ([CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md), ảnh 1.x và 2.x đặt cạnh nhau) đã có đề xuất cho từng màn: khi ghi, xem con có vướng đúng những chỗ đó không, và thêm những chỗ khác.
 4. **Năm quyết định đã chốt ngày 18/10** (đầu tài liệu) đã được ghi vào CLAUDE.md, README và các tài liệu trong docs/ (Phiên D0). Đổi quyết định nào thì sửa đoạn đầu file này trước, rồi mở một phiên đồng bộ tài liệu như D0.
 5. **Theo dõi chạy thử:** vì còn khoảng hai năm rưỡi nữa mới thu tiền, nên đo sớm xem gia đình có thật sự dùng: số gia đình được mời, số lượt làm bài mỗi tuần, gia đình còn dùng sau 4 tuần. Cuối học kì I, hỏi vài gia đình "app có đáng trả tiền không, khoảng bao nhiêu" (câu trả lời cất ở tài liệu riêng, không ghi số tiền vào repo). Ghi vào mục 5 "Nhật ký chạy thử" ở cuối file này.
@@ -72,7 +72,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
 | 1 | 25/10 | ~~D0 · Đồng bộ tài liệu~~ (đã xong, PR #41) | quyết định đã chốt 18/10 (đầu tài liệu) | chỉ sửa tài liệu; từ đó trạng thái chỉ ghi ở file này |
-| 2 | 25/10 | **UI1 · Chỉnh nhỏ chữ và màu** | | sửa css/app.css, thêm một kiểm tra vào tests/e2e.js; chạy cùng lúc với D0 được |
+| 2 | 25/10 | ~~UI1 · Chỉnh nhỏ chữ và màu~~ (đã xong, PR #40) | | sửa css/app.css, thêm một kiểm tra vào tests/e2e.js; chạy cùng lúc với D0 được |
 | 3 | 1/11 | **K3 · Rút đề ngẫu nhiên theo ma trận** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 6) | K1, K2 (đã xong) | các phiên làm đề N1 trở đi dùng dạng ngân hàng của K3 |
 | 4 | 1/11 | **S1 · Màn hình đăng nhập cho người mới** | `contactUrl` đã điền | nhỏ; dùng khi trang công khai chỉ dành cho gia đình được mời |
 | 5 | 8/11 | **R1 · Nút "Báo câu này sai"** | K3 (cùng sửa js/quiz.js) | chủ app chạy `supabase/cap-nhat-r1.sql` sau khi Merge |

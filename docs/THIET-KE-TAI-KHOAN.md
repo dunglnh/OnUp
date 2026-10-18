@@ -3,7 +3,7 @@
 Phiên bản 3 · 18/10/2026. Trạng thái và thứ tự các phiên chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); các đoạn “Đã làm ở Phiên A/B/C” dưới đây mô tả những gì đã có trong code. Lời giao việc của ba phiên đó: mục 8.
 
 **Phạm vi bây giờ:** khung tài khoản đã dựng xong và đang chạy trên trang thật. Chủ app (bạn) tạo và quản lý tài khoản ở một **trang admin riêng**; phụ huynh đăng nhập bằng **tên đăng nhập + mật khẩu**; con là hồ sơ trong tài khoản của bố mẹ. Theo quyết định của chủ app ngày 18/10/2026:
-- **Trang công khai chỉ dành cho gia đình được mời.** Không tự đăng ký; màn đăng nhập có dòng “Chưa có tài khoản?” kèm cách liên hệ (Phiên S1). Không làm đăng nhập email, mã mời, mã gia đình (mục 1, 2).
+- **Trang công khai chỉ dành cho gia đình được mời.** Không tự đăng ký; màn đăng nhập có thẻ “Chưa có tài khoản?” kèm cách liên hệ (`signupText`, `signupUrl` trong `js/config.js`). Không làm đăng nhập email, mã mời, mã gia đình (mục 1, 2).
 - **Chưa làm bản trả phí.** Bán khi đủ đề lớp 4–12 (khoảng cuối năm học 2028–2029). Đến lúc đó gói Miễn phí giữ như hiện nay: 5 hồ sơ con, mọi đề; bảng `plans` không đổi. Hạn mức gói Miễn phí và gói Gia đình lúc bán sẽ chốt sau. Hướng đi ở mục 9; khung đã chừa sẵn chỗ để lúc đó không phải làm lại.
 - **Supabase giữ gói Free** đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần; [HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md)).
 - Không ghi giá bán, chi phí hay so sánh đối thủ vào repo.
@@ -127,7 +127,7 @@ Bản lưu trên máy (LocalStore) giữ lại cho kiểm thử và dùng không
 
 **Đã làm ở Phiên B** (`data/grades.js`, `js/store-supabase.js`, `js/app.js`; ảnh 360px sáng/tối: [hinh-dam-may/](hinh-dam-may/)):
 - `data/grades.js` (lớp 1–12, chỉ lớp 4 và 6 `active`) thay mọi chỗ viết cứng `[4, 6]`. `Store.can(feature)` ở cả hai kho: bản lưu trên máy luôn được; bản đám mây chỉ giới hạn `"addChild"` theo `max_children` của gói đang hiệu lực.
-- Đăng nhập tên đăng nhập + mật khẩu, ô “Ghi nhớ trên máy này”, CAPTCHA khi có khóa, dòng “Quên mật khẩu?” lấy `contactText`, `contactUrl` từ `js/config.js`. Mật khẩu tạm thì bắt đặt mật khẩu mới. Tài khoản bị khóa, tài khoản không có gia đình (chủ app) thấy màn hình báo, có dòng liên hệ.
+- Đăng nhập tên đăng nhập + mật khẩu, ô “Ghi nhớ trên máy này”, CAPTCHA khi có khóa, dòng “Quên mật khẩu?” lấy `contactText`, `contactUrl` từ `js/config.js`. Mật khẩu tạm thì bắt đặt mật khẩu mới. Tài khoản bị khóa, tài khoản không có gia đình (chủ app) thấy màn hình báo, có dòng liên hệ. Dưới form đăng nhập có thẻ “Chưa có tài khoản?” (link từ `signupText`, `signupUrl`, để trống thì dùng hai khóa contact); máy còn dữ liệu của bản lưu trên máy có học sinh mà chưa chuyển thì trên form có thẻ nhắc đường chuyển (Khu phụ huynh → Dữ liệu); ảnh `dang-nhap.jpg`, `dang-nhap-du-lieu-cu.jpg`.
 - “Ai đang học?”: các hồ sơ con và ô Phụ huynh. Hồ sơ có PIN 4 số thì nhập PIN (băm và kiểm tra trên máy, khóa tạm sau 5 lần sai), không có thì bấm là vào. Ô Phụ huynh phải nhập lại mật khẩu (vừa nhập trong 5 phút thì không hỏi lại).
 - Khu phụ huynh (dùng chung các màn hình quản trị của bản lưu trên máy): tổng quan các con, hồ sơ con (thêm/sửa/xóa, đặt hoặc bỏ PIN, hạn mức theo gói), lịch thi, ngân hàng đề, dữ liệu (tên gia đình, chuyển dữ liệu máy này lên, tải file sao lưu); trang Tài khoản: đổi mật khẩu, “Đổi người học”, đăng xuất khỏi máy này. Tài khoản mới tự chép lịch thi mặc định ở lần mở đầu.
 - Bỏ giao diện đăng nhập email, mã mời, mã gia đình.

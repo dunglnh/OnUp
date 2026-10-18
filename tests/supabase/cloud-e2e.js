@@ -1,9 +1,10 @@
 /* Chạy giao diện bản đám mây trong Chromium với máy chủ Supabase giả (tests/supabase/fake-backend.js) và Edge Function
    admin thật (chủ app tạo tài khoản). Trình duyệt gọi máy chủ giả qua page.exposeFunction, không cần mạng.
    Chạy: python3 -m http.server 8000 &  rồi  node tests/supabase/cloud-e2e.js   (in "CLOUD E2E OK")
-   Luồng: đăng nhập tên đăng nhập + mật khẩu (ghi nhớ) → bắt đổi mật khẩu tạm → khu phụ huynh → thêm hồ sơ con (PIN 4 số
-   tùy chọn) → “Ai đang học?” → con nhập PIN, làm đề, kết quả lên máy chủ → tab mới: nhập lại mật khẩu vào khu phụ huynh →
-   báo cáo tuần, đổi mật khẩu, chuyển dữ liệu máy này, đăng xuất → máy không ghi nhớ → tài khoản bị khóa.
+   Luồng: đăng nhập tên đăng nhập + mật khẩu (ghi nhớ; thẻ “Chưa có tài khoản?”, thẻ nhắc dữ liệu cũ của bản lưu trên máy)
+   → bắt đổi mật khẩu tạm → khu phụ huynh → thêm hồ sơ con (PIN 4 số tùy chọn) → “Ai đang học?” → con nhập PIN, làm đề,
+   kết quả lên máy chủ → tab mới: nhập lại mật khẩu vào khu phụ huynh → báo cáo tuần, đổi mật khẩu, chuyển dữ liệu máy này,
+   đăng xuất → máy không ghi nhớ → tài khoản bị khóa.
    Mỗi màn hình kiểm tra ở 360px như tests/e2e.js (không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px); ảnh sáng và tối lưu ở
    tests/screenshots/cloud/ (thêm bản ghép sáng/tối cạnh nhau <tên>.jpg để xem nhanh). Lượt tối chạy với CAPTCHA bật. Cuối cùng kiểm tra service worker (sw.js) không làm hỏng bản
    đám mây và không đệm request ra ngoài app, rồi trang admin của chủ app (admin.html): tài khoản gia đình thấy “Không có
@@ -23,9 +24,10 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
 const OUT = path.join(__dirname, "..", "screenshots", "cloud");
 fs.mkdirSync(OUT, { recursive: true });
 const FAKE_CLIENT = fs.readFileSync(path.join(__dirname, "fake-client.js"), "utf8");
-const CONTACT = "https://zalo.me/0912345678";
-const config = (siteKey) => `window.ONTAP_CONFIG = { supabaseUrl: "https://fake.supabase.co", supabaseAnonKey: "anon-key", turnstileSiteKey: ${JSON.stringify(siteKey || "")},
-  contactText: "Nhắn Zalo cho cô Lan", contactUrl: ${JSON.stringify(CONTACT)} };`;
+const CONTACT = "https://zalo.me/0912345678", SIGNUP = "https://zalo.me/0912345678?moi", SIGNUP_TXT = "Nhắn Zalo cho cô Lan để được mời";
+/* signup: điền signupText, signupUrl (thẻ “Chưa có tài khoản?”); không thì để trống, thẻ phải dùng contactText, contactUrl. */
+const config = (siteKey, signup) => `window.ONTAP_CONFIG = { supabaseUrl: "https://fake.supabase.co", supabaseAnonKey: "anon-key", turnstileSiteKey: ${JSON.stringify(siteKey || "")},
+  contactText: "Nhắn Zalo cho cô Lan", contactUrl: ${JSON.stringify(CONTACT)}, signupText: ${JSON.stringify(signup ? SIGNUP_TXT : "")}, signupUrl: ${JSON.stringify(signup ? SIGNUP : "")} };`;
 /* Thay cho script Cloudflare Turnstile (không có mạng): trả mã hợp lệ sau một chút, ghi lại ô đã dùng. */
 const TURNSTILE_STUB = `window.turnstile = { n: 0, boxes: [], render(host, o) { this.boxes.push(host.id || "?"); const t = "ok-" + Date.now() + "-" + (++this.n); setTimeout(() => o.callback(t), 20); return this.n; }, remove() {} };`;
 
@@ -71,6 +73,7 @@ async function run(browser, scheme) {
   const acc = (await admin({ action: "create_account", username: "nha.bin", password: TEMP, display_name: "Nhà Bin" })).account;
 
   const withCaptcha = scheme === "dark"; // lượt tối chạy với CAPTCHA bật ở cả app và máy chủ
+  const withSignup = scheme === "light"; // lượt sáng điền signupText, signupUrl; lượt tối để trống (thẻ dùng contactText, contactUrl)
   be.captchaRequired = withCaptcha;
   const errs = [], problems = [], swOut = [];
   async function device() {
@@ -78,7 +81,7 @@ async function run(browser, scheme) {
     await ctx.exposeFunction("__fakeSupabase", (msg) => be.handle(msg));
     await ctx.addInitScript(FAKE_CLIENT);
     if (withCaptcha) await ctx.addInitScript(TURNSTILE_STUB);
-    await ctx.route("**/js/config.js", (r) => r.fulfill({ contentType: "text/javascript", body: config(withCaptcha ? "0x4AAAAAAAtest" : "") }));
+    await ctx.route("**/js/config.js", (r) => r.fulfill({ contentType: "text/javascript", body: config(withCaptcha ? "0x4AAAAAAAtest" : "", withSignup) }));
     await ctx.route(/challenges\.cloudflare\.com/, (r) => r.abort());
     await ctx.route(/cdn\.jsdelivr\.net|fonts\.g/, (r) => r.abort()); // không cần mạng
     await ctx.route(/fake\.supabase\.co/, (r) => r.fulfill({ contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: "[]" }));
@@ -100,6 +103,16 @@ async function run(browser, scheme) {
   const tile = (page, name) => page.click(`.tile:has(.nm:text-is("${name}"))`);
   const pad = async (page, digits) => { for (const k of digits) await page.click(`.pad button[data-k="${k}"]`); await wait(page, 300); };
   const until = async (page, fn) => { for (let i = 0; i < 40 && !fn(); i++) await wait(page, 100); return fn(); };
+  /* Chờ service worker điều khiển trang (sel: ô có trên trang sau khi tải lại). Trang vừa đăng kí service worker không
+     được điều khiển ngay (clients.claim chạy khi kích hoạt xong, có khi sau khi trang đã tải), thỉnh thoảng chờ 30 giây
+     vẫn chưa có controller: chưa có thì tải lại trang một lần rồi chờ. */
+  async function swControl(page, sel) {
+    await page.evaluate(() => navigator.serviceWorker.ready);
+    if (!(await page.evaluate(() => !!navigator.serviceWorker.controller))) { await page.reload(); await page.waitForSelector(sel); }
+    await page.waitForFunction(() => !!navigator.serviceWorker.controller);
+  }
+  /* Thẻ liên hệ trên trang đăng nhập: đường và chữ của link trong #sel. */
+  const linkOf = (page, sel) => page.$eval(sel + " a", (a) => a.getAttribute("href") + " · " + a.textContent).catch(() => "");
   const c = {};
   /* Nút xem mật khẩu, mã PIN (U1), như revealTry trong tests/e2e.js: ô (đã có chữ) có nút ngay sau nó; bấm thì type="text",
      aria-pressed="true", bấm lại thì ẩn; giá trị, focus, vị trí con trỏ, autocomplete giữ nguyên. Chỗ sai ghi vào rv. */
@@ -123,7 +136,11 @@ async function run(browser, scheme) {
   await p.goto(BASE + "/");
   await p.waitForSelector("#loginForm");
   await shot(p, "c1-dang-nhap");
-  c.contact = await p.$eval("#contact a", (a) => a.getAttribute("href") + " · " + a.textContent).catch(() => "");
+  c.contact = await linkOf(p, "#contact");
+  // S1: thẻ “Chưa có tài khoản?” dưới form; máy không có dữ liệu bản lưu trên máy thì không có thẻ nhắc dữ liệu cũ
+  c.signup = { text: await text(p, "#signup"), link: await linkOf(p, "#signup"),
+    below: await p.evaluate(() => !!(document.querySelector("#loginForm").compareDocumentPosition(document.querySelector("#signup")) & Node.DOCUMENT_POSITION_FOLLOWING)) };
+  c.oldData = { none: !(await p.$("#oldData")) };
   await p.fill("#lUser", "nha.bin"); await p.fill("#lPass", "sai-mat-khau");
   await revealTry(p, "#lPass", "mật khẩu");
   await eye(p, "#lPass"); await shot(p, "c1-dang-nhap-hien-mat-khau");
@@ -263,12 +280,23 @@ async function run(browser, scheme) {
   await p2.goto(BASE + "/#/account"); await p2.click("#signOut"); await p2.waitForSelector("#loginForm");
   await p2.reload(); await p2.waitForSelector("#loginForm");
   c.signedOut = await p2.evaluate(() => !localStorage.getItem("ontap_sb_auth") && !sessionStorage.getItem("ontap_sb_auth"));
+  c.oldData.migrated = !(await p2.$("#oldData")); // máy còn dữ liệu cũ nhưng đã chuyển: không nhắc
   await home.close();
 
   /* ---- máy khác, không ghi nhớ: tab mới phải đăng nhập lại ---- */
   const other = await device();
   const q = await other.newPage();
   await q.goto(BASE + "/"); await q.waitForSelector("#loginForm");
+  // S1: máy còn dữ liệu bản lưu trên máy (có học sinh) chưa chuyển: thẻ nhắc trên form; chỉ có quản trị thì không nhắc
+  const setLocal = (d) => q.evaluate((x) => { if (x) localStorage.setItem("ontap_db_v1", JSON.stringify(x)); else localStorage.removeItem("ontap_db_v1"); }, d);
+  await setLocal(localData()); await q.reload(); await q.waitForSelector("#loginForm");
+  c.oldData.text = await text(q, "#oldData");
+  c.oldData.above = await q.evaluate(() => { const o = document.querySelector("#oldData"), f = document.querySelector("#loginForm"); return !!o && !!(o.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING); });
+  await shot(q, "c1-dang-nhap-du-lieu-cu");
+  await setLocal(Object.assign(localData(), { users: localData().users.filter((u) => u.role !== "student") })); await q.reload(); await q.waitForSelector("#loginForm");
+  c.oldData.noKid = !(await q.$("#oldData"));
+  await setLocal(null); await q.reload(); await q.waitForSelector("#loginForm");
+  c.oldData.removed = !(await q.$("#oldData"));
   await q.fill("#lUser", "nha.bin"); await q.fill("#lPass", PW2); await q.click("#lGo");
   await q.waitForSelector("text=Ai đang học?");
   const q2 = await other.newPage();
@@ -284,8 +312,7 @@ async function run(browser, scheme) {
   c.lockedLogin = await text(q, "#loginErr");
 
   /* ---- service worker: đã cài và điều khiển trang; gọi Supabase, Cloudflare, CDN rồi tải lại trang ---- */
-  await q.evaluate(() => navigator.serviceWorker.ready);
-  await q.waitForFunction(() => !!navigator.serviceWorker.controller);
+  await swControl(q, "#loginForm");
   await q.evaluate(() => Promise.all(["https://fake.supabase.co/rest/v1/families?select=*", "https://challenges.cloudflare.com/turnstile/v0/api.js",
     "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"].map((u) => fetch(u).then((r) => r.text(), () => ""))));
   await q.reload(); await q.waitForSelector("#loginForm");
@@ -307,8 +334,8 @@ async function run(browser, scheme) {
   const adm = await device();
   await adm.grantPermissions(["clipboard-read", "clipboard-write"], { origin: BASE });
   const a = await adm.newPage();
-  await a.goto(BASE + "/"); // trang học cài service worker; trang admin không đi qua nó
-  await a.evaluate(() => navigator.serviceWorker.ready); await a.waitForFunction(() => !!navigator.serviceWorker.controller);
+  await a.goto(BASE + "/"); await a.waitForSelector("#loginForm"); // trang học cài service worker; trang admin không đi qua nó
+  await swControl(a, "#loginForm");
   await a.goto(BASE + "/admin.html"); await a.waitForSelector("#adLogin");
   await shot(a, "c16-admin-dang-nhap");
   await a.fill("#adUser", "nha.na"); await a.fill("#adPass", "tam-na-2026"); await a.click("#adGo"); await a.waitForSelector("#noPerm");
@@ -397,6 +424,11 @@ async function run(browser, scheme) {
   console.log(scheme, c, captchaBoxes, ad, "reveal (U1):", rv);
   const checks = {
     "đăng nhập: dòng “Quên mật khẩu?” lấy chữ và đường liên hệ từ js/config.js": c.contact === CONTACT + " · Nhắn Zalo cho cô Lan",
+    "S1: thẻ “Chưa có tài khoản?” dưới form, link từ signupText, signupUrl (để trống thì contactText, contactUrl)": /^Chưa có tài khoản\? OnUp đang dùng thử với các gia đình được mời/.test(c.signup.text)
+      && c.signup.link === (withSignup ? SIGNUP + " · " + SIGNUP_TXT : CONTACT + " · Nhắn Zalo cho cô Lan") && c.signup.below,
+    "S1: thẻ nhắc dữ liệu cũ trên form khi máy còn dữ liệu bản lưu trên máy có học sinh chưa chuyển; không có, chỉ có quản trị, hoặc đã chuyển thì không": c.oldData.none && c.oldData.above
+      && /^Máy này còn dữ liệu ôn tập cũ \(1 học sinh, 1 kết quả\)\. Đăng nhập tài khoản gia đình, rồi vào Khu phụ huynh → Dữ liệu → Chuyển dữ liệu máy này lên đám mây\.$/.test(c.oldData.text)
+      && c.oldData.noKid && c.oldData.removed && c.oldData.migrated,
     "sai mật khẩu: báo rõ": /Tên đăng nhập hoặc mật khẩu chưa đúng/.test(c.wrong),
     "mật khẩu tạm: bắt đặt mật khẩu mới (hai ô phải khớp), máy chủ bỏ cờ": /chưa khớp/.test(c.mismatch) && c.changed,
     "ghi nhớ trên máy này: phiên giữ trong localStorage": c.remembered,

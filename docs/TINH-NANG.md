@@ -147,7 +147,7 @@ App mở lại được khi mất mạng: lần mở đầu (cần mạng) trìn
 
 Mã PIN chỉ để phân biệt người dùng, không phải bảo mật thật.
 
-**Bản đám mây** (trang https://dunglnh.github.io/OnUp/ chạy bản này từ 17/10/2026; tài khoản theo [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md)): dữ liệu nằm trên Supabase và dùng chung trên nhiều máy. Một tài khoản là một gia đình, do chủ app cấp ở trang admin (`admin.html`: tạo tài khoản với mật khẩu tạm gợi ý sẵn, đặt lại mật khẩu, khóa, mở khóa, xóa, ghi chú, nhật ký, số liệu nhanh; không xem bài làm của các con): phụ huynh đăng nhập bằng tên đăng nhập + mật khẩu (lần đầu đặt mật khẩu mới; “Ghi nhớ trên máy này” cho máy con dùng hằng ngày; dòng “Quên mật khẩu?” chỉ cách liên hệ người cấp). Con là hồ sơ trong tài khoản: màn hình “Ai đang học?” hiện các hồ sơ con và ô Phụ huynh; hồ sơ có mã PIN 4 số (không bắt buộc) thì nhập PIN. Vào khu phụ huynh phải nhập lại mật khẩu; ở đó thêm/sửa/xóa hồ sơ con (tối đa 5), xem tiến độ và báo cáo tuần, sửa lịch thi, nhập ngân hàng đề, chuyển dữ liệu từ bản lưu trên máy lên (học sinh giữ PIN cũ), đổi mật khẩu, đăng xuất. Kết quả làm xong khi mất mạng được giữ trên máy và gửi lên khi có mạng. Ảnh: [hinh-dam-may/](hinh-dam-may/).
+**Bản đám mây** (trang https://dunglnh.github.io/OnUp/ chạy bản này từ 17/10/2026; tài khoản theo [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md)): dữ liệu nằm trên Supabase và dùng chung trên nhiều máy. Một tài khoản là một gia đình, do chủ app cấp ở trang admin (`admin.html`: tạo tài khoản với mật khẩu tạm gợi ý sẵn, đặt lại mật khẩu, khóa, mở khóa, xóa, ghi chú, nhật ký, số liệu nhanh; không xem bài làm của các con): phụ huynh đăng nhập bằng tên đăng nhập + mật khẩu (lần đầu đặt mật khẩu mới; “Ghi nhớ trên máy này” cho máy con dùng hằng ngày; dòng “Quên mật khẩu?” và thẻ “Chưa có tài khoản?” chỉ cách liên hệ người cấp; máy còn dữ liệu của bản lưu trên máy chưa chuyển thì màn đăng nhập nhắc đường chuyển lên). Con là hồ sơ trong tài khoản: màn hình “Ai đang học?” hiện các hồ sơ con và ô Phụ huynh; hồ sơ có mã PIN 4 số (không bắt buộc) thì nhập PIN. Vào khu phụ huynh phải nhập lại mật khẩu; ở đó thêm/sửa/xóa hồ sơ con (tối đa 5), xem tiến độ và báo cáo tuần, sửa lịch thi, nhập ngân hàng đề, chuyển dữ liệu từ bản lưu trên máy lên (học sinh giữ PIN cũ), đổi mật khẩu, đăng xuất. Kết quả làm xong khi mất mạng được giữ trên máy và gửi lên khi có mạng. Ảnh: [hinh-dam-may/](hinh-dam-may/).
 
 Trang thật **chỉ dành cho gia đình được mời** (quyết định 18/10/2026): không tự đăng ký, không đăng nhập bằng email; chưa có tài khoản thì liên hệ theo dòng ở màn đăng nhập. App đang **miễn phí**: mỗi tài khoản tối đa 5 hồ sơ con, dùng được mọi đề. Bản trả phí chỉ tính đến khi đã đủ đề lớp 4–12 (hướng đi: [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md) mục 9). Muốn cài một bản đám mây riêng: [HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md).
 
@@ -157,7 +157,7 @@ Trang thật **chỉ dành cho gia đình được mời** (quyết định 18/1
 - Giáo viên giao bài cho cả lớp, bảng xếp hạng.
 - Đề giữa kì II lớp 6 và đề cuối năm lớp 4, lớp 6 (đã có chỗ trong lịch, chưa có câu hỏi; lớp 4 đã có 4 đề giữa kì II). Số đề đang có: `node tests/kiem-tra-de.js`.
 - Thông báo nhắc ôn qua điện thoại.
-- Nút “Báo câu này sai” trong app, dòng “Chưa có tài khoản?” ở màn đăng nhập, các cải tiến giao diện 2.x: đã có trong lộ trình, chưa có trong app.
+- Nút “Báo câu này sai” trong app, các cải tiến giao diện 2.x: đã có trong lộ trình, chưa có trong app.
 
 ## 7. Lộ trình tiếp theo
 

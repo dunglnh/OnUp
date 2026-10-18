@@ -485,18 +485,29 @@
   }
 
   /* ================= ĐĂNG NHẬP ĐÁM MÂY (khi js/config.js có Supabase) ================= */
-  /* Dòng liên hệ khi quên mật khẩu hoặc tài khoản bị khóa: chữ và đường liên hệ lấy từ js/config.js (contactText, contactUrl).
-     Chỉ nhận đường https:, tel:, sms:, mailto:. */
+  /* Đường liên hệ lấy từ js/config.js, chỉ nhận https:, tel:, sms:, mailto: (không có hoặc sai thì chỉ hiện chữ).
+     kind "contact": contactText, contactUrl (quên mật khẩu, tài khoản bị khóa); "signup": signupText, signupUrl (xin tài khoản,
+     thẻ “Chưa có tài khoản?”), khóa nào để trống thì dùng khóa contact tương ứng. */
+  function contactLink(kind, cls) {
+    const c = window.ONTAP_CONFIG || {}, s = (k) => String(c[k] || "").trim();
+    const txt = (kind === "signup" && s("signupText")) || s("contactText") || "Liên hệ người cấp tài khoản.";
+    const url = (kind === "signup" && s("signupUrl")) || s("contactUrl");
+    return /^(https:|tel:|sms:|mailto:)/i.test(url)
+      ? `<a class="linkbtn${cls ? " " + cls : ""}" href="${esc(url)}"${/^https:/i.test(url) ? ` target="_blank" rel="noopener"` : ""}>${esc(txt)}</a>`
+      : `<span class="muted${cls ? " " + cls : ""}">${esc(txt)}</span>`;
+  }
+  /* Dòng liên hệ khi quên mật khẩu hoặc tài khoản bị khóa. */
   function contactLine(lead) {
-    const c = window.ONTAP_CONFIG || {}, txt = String(c.contactText || "").trim() || "Liên hệ người cấp tài khoản.", url = String(c.contactUrl || "").trim();
-    const ok = /^(https:|tel:|sms:|mailto:)/i.test(url);
-    return `<div class="row contact" id="contact" style="gap:4px 8px"><span class="small muted">${esc(lead)}</span>${ok
-      ? `<a class="linkbtn small" href="${esc(url)}"${/^https:/i.test(url) ? ` target="_blank" rel="noopener"` : ""}>${esc(txt)}</a>` : `<span class="small muted">${esc(txt)}</span>`}</div>`;
+    return `<div class="row contact" id="contact" style="gap:4px 8px"><span class="small muted">${esc(lead)}</span>${contactLink("contact", "small")}</div>`;
   }
   function renderCloudLogin() {
     drawWho(null);
+    // Máy còn dữ liệu của bản lưu trên máy (có học sinh) mà chưa chuyển lên đám mây: nhắc ngay trên form (Phiên S1).
+    const loc = Store.localData(), kids = loc ? loc.users.filter((x) => x.role === "student").length : 0;
+    const oldData = kids && !Store.migratedAt() ? `<div class="notice" id="oldData">Máy này còn dữ liệu ôn tập cũ (${kids} học sinh, ${(loc.results || []).length} kết quả). Đăng nhập tài khoản gia đình, rồi vào Khu phụ huynh → Dữ liệu → Chuyển dữ liệu máy này lên đám mây.</div>` : "";
     view.innerHTML = `<div class="stack">
       <div><h1>Xin chào!</h1><p class="muted">Bố mẹ đăng nhập bằng tài khoản được cấp. Sau đó con chọn hồ sơ của mình để học.</p></div>
+      ${oldData}
       <form class="panel" id="loginForm" autocomplete="on">
         <label class="field"><span>Tên đăng nhập</span><input id="lUser" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" required></label>
         <label class="field"><span>Mật khẩu</span><input id="lPass" name="password" type="password" autocomplete="current-password" maxlength="72" required></label>
@@ -506,7 +517,10 @@
         <div id="loginErr" aria-live="assertive"></div>
         <div class="row"><button class="btn main" type="submit" id="lGo">Đăng nhập</button></div>
         ${contactLine("Quên mật khẩu?")}
-      </form></div>`;
+      </form>
+      <section class="panel" id="signup"><b>Chưa có tài khoản?</b>
+        <span class="small">OnUp đang dùng thử với các gia đình được mời, chưa tự đăng ký được.</span>
+        ${contactLink("signup")}</section></div>`;
     wireReveal(view);
     $("#loginForm").onsubmit = async (ev) => {
       ev.preventDefault();

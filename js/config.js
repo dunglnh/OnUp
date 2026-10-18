@@ -16,5 +16,9 @@ window.ONTAP_CONFIG = {
   // Dòng "Quên mật khẩu?" dưới ô đăng nhập (và khi tài khoản bị khóa): chữ hiện ra và đường liên hệ người cấp tài khoản.
   // contactUrl nhận https://… (ví dụ https://zalo.me/0912345678), tel:…, sms:…, mailto:…; để trống thì chỉ hiện chữ.
   contactText: "Liên hệ người cấp tài khoản.",
-  contactUrl: ""
+  contactUrl: "",
+  // Không bắt buộc: thẻ “Chưa có tài khoản?” dưới ô đăng nhập (trang chỉ dành cho gia đình được mời, không tự đăng ký):
+  // chữ và đường liên hệ để xin tài khoản, ví dụ "Nhắn Zalo cho cô Lan để được mời". Để trống thì dùng contactText, contactUrl ở trên.
+  signupText: "",
+  signupUrl: ""
 };
