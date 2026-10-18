@@ -4,7 +4,7 @@
 const fs=require('fs'),vm=require('vm'),cp=require('child_process'),R=__dirname+'/../';
 function load(src){const w={};vm.runInNewContext(src,{window:w});return w.Quiz.isRight}
 const oldR=load(cp.execSync('git show '+(process.argv[2]||'274d769')+':js/quiz.js',{cwd:R}).toString()),newR=load(fs.readFileSync(R+'js/quiz.js','utf8'));
-let qs=[];require('./nap-de.js').napDe().forEach(b=>b.questions.forEach((q,i)=>q.type==='fill'&&qs.push({id:b.id+'#'+i,q})));
+let qs=[];require('./nap-de.js').napDe().filter(b=>!b.pool).forEach(b=>b.questions.forEach((q,i)=>q.type==='fill'&&qs.push({id:b.id+'#'+i,q}))); // đề ngẫu nhiên chỉ gộp câu của đề cố định
 // câu chữ kiểu quản trị viên nhập (Quiz.parse) — không được chấm đúng nhầm
 const admin=[
  {q:'Bạn ngủ đủ ___ tiếng mỗi ngày.',ans:['tám','8']},{q:'Thủ đô nước ta là ___ .',ans:['Hà Nội']},

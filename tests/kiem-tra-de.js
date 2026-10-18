@@ -15,6 +15,13 @@
    - đoạn đọc (passages): mã gọn, có chữ hoặc hình, mỗi đoạn có ít nhất một câu dùng;
    - không có hai câu trùng nhau trong mọi đề: so câu hỏi sau khi bỏ dấu câu, khoảng trắng (dấu thanh, chữ hoa giữ nguyên),
      trắc nghiệm, đúng/sai 4 ý, nối cột, sắp xếp so cả các lựa chọn (câu “Chọn từ khác loại” khác nhau ở lựa chọn);
+   - đề ngẫu nhiên (mục có pool, Phiên K3): tên kết thúc bằng "· Đề ngẫu nhiên"; from là các đề cố định có thật, cùng khối,
+     môn, file, không trùng; có câu riêng trong file thì ít nhất một câu (không có thì không ghi vào file); đoạn đọc không
+     trùng mã giữa các đề trong kho; matrix: mỗi chủ đề là số nguyên dương hoặc [Biết, Hiểu, Vận dụng], chữ chủ đề đúng
+     topic của câu trong kho, tổng bằng n; kho đủ câu cho từng chủ đề (lỗi), thiếu ở một mức thì chỉ nhắc (app lấy bù mức
+     gần nhất và ghi chú); rút thử (Quiz.draw) ra đúng n câu không trùng, không ghi chú khi kho đủ;
+   - bộ rút đề (Quiz.draw) với kho giả: đúng ma trận, ưu tiên câu chưa làm và câu hay sai, lấy bù và ghi chú khi thiếu;
+     mã câu (Quiz.key) không đổi khi sửa lời giải, chủ đề;
    - lịch thi mặc định (data/calendar-2026-2027.js): đề và bài ôn gắn vào kì thi có thật, đúng khối của kì thi;
    - bộ lọc hình (Quiz.svg) bỏ được mã chạy và link ngoài trong vài hình mẫu cố ý viết sai (SVG_THU).
    Thêm dạng câu mới thì thêm kiểm tra cho dạng đó ở đây. */
@@ -25,7 +32,7 @@ const vm = require("vm");
 
 const ROOT = path.join(__dirname, "..");
 const GIOI_HAN = { cau: [10, 60], phut: [10, 120], giayMoiCau: [30, 300] };
-const TRUONG_DE = ["id", "title", "grade", "subject", "minutes", "n", "file"];
+const TRUONG_DE = ["id", "title", "grade", "subject", "minutes", "n", "file"]; // đề ngẫu nhiên có thêm pool ở cuối
 const TRUONG_CAU = { mc: ["topic", "type", "q", "o", "x"], fill: ["topic", "type", "q", "ans", "x"], tf: ["topic", "type", "q", "a", "x"],
   tf4: ["topic", "type", "q", "o", "a", "x"], num: ["topic", "type", "q", "ans", "x"], match: ["topic", "type", "q", "l", "r", "x"],
   order: ["topic", "type", "q", "o", "x"], essay: ["topic", "type", "q", "rubric", "x"] };
@@ -57,8 +64,8 @@ if (!retired || JSON.stringify(retired) !== JSON.stringify(retiredCloud)) err("R
 if (!catalog.length) err("data/banks/index.js", "danh mục trống");
 catalog.forEach((b, i) => {
   const at = "danh mục #" + (i + 1) + " " + (b.id || "");
-  const keys = Object.keys(b);
-  if (keys.join() !== TRUONG_DE.join()) err(at, "cần đúng các trường " + TRUONG_DE.join(", ") + " (đang có " + keys.join(", ") + ")");
+  const keys = Object.keys(b), want = "pool" in b ? TRUONG_DE.concat("pool") : TRUONG_DE;
+  if (keys.join() !== want.join()) err(at, "cần đúng các trường " + want.join(", ") + " (đang có " + keys.join(", ") + ")");
   if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(b.id || "")) err(at, "mã đề chỉ gồm chữ thường không dấu, số, dấu gạch ngang");
   if (ids.indexOf(b.id) !== i) err(at, "trùng mã đề");
   if ((retired || []).includes(b.id)) err(at, "mã đề đã bỏ (RETIRED_SEED_BANKS), dùng mã khác");
@@ -92,7 +99,7 @@ files.filter((f) => onDisk.includes(f)).forEach((f) => {
   if (globals.join() !== "window,window.ONTAP_SEED_QUESTIONS") err(at, "chỉ được ghi vào window.ONTAP_SEED_QUESTIONS (đang có " + globals.join(", ") + ")");
   const got = ctx.window.ONTAP_SEED_QUESTIONS || {}, want = catalog.filter((b) => b.file === f).map((b) => b.id);
   Object.keys(got).filter((id) => !want.includes(id)).forEach((id) => err(at, `có đề "${id}" mà danh mục không ghi file này`));
-  want.filter((id) => !got[id]).forEach((id) => err(at, `thiếu đề "${id}" (danh mục ghi đề này ở file ${f})`));
+  want.filter((id) => !got[id] && !catalog.find((b) => b.id === id).pool).forEach((id) => err(at, `thiếu đề "${id}" (danh mục ghi đề này ở file ${f})`)); // đề ngẫu nhiên không bắt buộc có câu riêng
   Object.entries(got).forEach(([id, v]) => {
     if (questions[id]) err(at, `đề "${id}" có ở hai file`);
     if (!v || !["note,questions", "note,passages,questions"].includes(Object.keys(v).join())) err(at + " " + id, "cần đúng các trường note, questions (có đoạn đọc: note, passages, questions)");
@@ -120,7 +127,8 @@ catalog.forEach((b) => {
   if (typeof v.note !== "string") err(b.id, "note phải là chuỗi (có thể để trống)");
   const qs = Array.isArray(v.questions) ? v.questions : [];
   if (!Array.isArray(v.questions)) err(b.id, "questions phải là mảng");
-  if (qs.length !== b.n) err(b.id, `danh mục ghi n = ${b.n} nhưng file có ${qs.length} câu`);
+  if (b.pool) { if (!qs.length) err(b.id, "đề ngẫu nhiên có trong file thì phải có câu riêng; không có thì bỏ khỏi file"); }
+  else if (qs.length !== b.n) err(b.id, `danh mục ghi n = ${b.n} nhưng file có ${qs.length} câu`);
   const psg = v.passages === undefined ? {} : v.passages;
   if (!psg || typeof psg !== "object" || Array.isArray(psg)) err(b.id, "passages phải là đối tượng { mã: { title, text, svg } }");
   else Object.entries(psg).forEach(([pid, p]) => {
@@ -202,6 +210,85 @@ catalog.forEach((b) => {
   });
 });
 
+/* ---------- đề ngẫu nhiên (pool) ---------- */
+const topicOf = (t) => String(t == null ? "" : t).normalize("NFC").replace(/\s+/g, " ").trim();
+const warn = []; // chỗ chỉ nhắc, không tính là lỗi
+const pools = catalog.filter((b) => b.pool);
+pools.forEach((b) => {
+  const at = "đề ngẫu nhiên " + b.id, p = b.pool;
+  if (!p || typeof p !== "object" || Array.isArray(p)) { err(at, "pool phải là { from, matrix }"); return; }
+  const extra = Object.keys(p).filter((k) => !["from", "matrix"].includes(k));
+  if (extra.length) err(at, "pool có trường lạ: " + extra.join(", "));
+  if (!/ · Đề ngẫu nhiên$/.test(b.title)) err(at, "tên phải kết thúc bằng “· Đề ngẫu nhiên” (chữ trên nút lấy từ tên)");
+  const from = p.from === undefined ? [] : p.from;
+  if (!Array.isArray(from) || !from.every((x) => typeof x === "string")) { err(at, "from phải là danh sách mã đề cố định"); return; }
+  const parts = []; // [mã, {note, passages, questions}] của câu riêng và các đề trong from
+  const own = questions[b.id];
+  if (own) parts.push([b.id, own]);
+  from.forEach((id, i) => {
+    const s = catalog.find((x) => x.id === id);
+    if (!s) { err(at, `from có đề không có: ${id}`); return; }
+    if (s.pool) err(at, `from không được chứa đề ngẫu nhiên khác (${id})`);
+    if (from.indexOf(id) !== i) err(at, `from ghi hai lần ${id}`);
+    if (s.grade !== b.grade || s.subject !== b.subject || s.file !== b.file) err(at, `${id} phải cùng khối, môn, file với đề ngẫu nhiên`);
+    if (questions[id]) parts.push([id, questions[id]]);
+  });
+  if (!own && !from.length) err(at, "cần câu riêng trong file hoặc from");
+  const pids = {};
+  parts.forEach(([id, v]) => Object.keys(v.passages || {}).forEach((pid) => { if (pids[pid]) err(at, `đoạn đọc "${pid}" có ở cả ${pids[pid]} và ${id}`); pids[pid] = id; }));
+  const kho = parts.flatMap(([, v]) => (Array.isArray(v.questions) ? v.questions : []));
+  const m = p.matrix;
+  if (!m || typeof m !== "object" || Array.isArray(m) || !Object.keys(m).length) { err(at, "matrix phải là { \"chủ đề\": số câu } hoặc { \"chủ đề\": [Biết, Hiểu, Vận dụng] }"); return; }
+  const have = {}; // chủ đề → [chưa ghi mức, Biết, Hiểu, Vận dụng]
+  kho.forEach((q) => { const t = topicOf(q && q.topic); (have[t] = have[t] || [0, 0, 0, 0])[q && [1, 2, 3].includes(q.lv) ? q.lv : 0]++; });
+  const inMatrix = new Set();
+  let sum = 0, short = false;
+  Object.entries(m).forEach(([t, v]) => {
+    const topic = topicOf(t), tAt = `${at}, chủ đề "${t}"`;
+    if (!topic) err(tAt, "tên chủ đề trống");
+    if (inMatrix.has(topic)) err(tAt, "ghi hai lần");
+    inMatrix.add(topic);
+    const okN = (x) => Number.isInteger(x) && x >= 0;
+    if (Array.isArray(v) ? v.length !== 3 || !v.every(okN) || !v.some((x) => x > 0) : !(okN(v) && v > 0)) { err(tAt, "số câu phải là số nguyên dương, hoặc [Biết, Hiểu, Vận dụng] gồm 3 số nguyên ≥ 0"); return; }
+    const need = Array.isArray(v) ? v.reduce((a, x) => a + x, 0) : v;
+    sum += need;
+    const h = have[topic];
+    if (!h) { err(tAt, "kho không có câu nào của chủ đề này (chữ phải đúng như topic của câu)"); return; }
+    const total = h.reduce((a, x) => a + x, 0);
+    if (total < need) err(tAt, `ma trận cần ${need} câu mà kho chỉ có ${total}`);
+    if (Array.isArray(v)) v.forEach((n, i) => { if (n > h[i + 1]) { short = true; warn.push(`${tAt}: mức ${Quiz.LV[i + 1]} cần ${n} câu, kho có ${h[i + 1]} (app lấy bù mức gần nhất và ghi chú)`); } });
+  });
+  if (sum !== b.n) err(at, `tổng ma trận ${sum} khác n = ${b.n}`);
+  Object.keys(have).filter((t) => !inMatrix.has(t)).forEach((t) => warn.push(`${at}: chủ đề "${t}" (${have[t].reduce((a, x) => a + x, 0)} câu) không có trong ma trận, chỉ dùng để lấy bù`));
+  const d = Quiz.draw({ pool: p, questions: kho }), keys = d.questions.map(Quiz.key);
+  if (d.questions.length !== sum) err(at, `rút thử được ${d.questions.length} câu, cần ${sum}`);
+  if (new Set(keys).size !== keys.length) err(at, "rút thử có câu trùng");
+  if (!short && d.notes.length) err(at, "kho đủ câu mà rút thử vẫn ghi chú: " + d.notes.join("; "));
+});
+
+/* ---------- bộ rút đề (Quiz.draw) với kho giả ---------- */
+{
+  const at = "bộ rút đề";
+  const tf = (topic, q, lv) => Object.assign({ topic, type: "tf", q, a: true }, lv ? { lv } : {});
+  const kho = [tf("A", "a1", 1), tf("A", "a2", 1), tf("A", "a3", 2), tf("A", "a4"), tf("B", "b1", 3), tf("B", "b2", 3), tf("C", "c1", 1)];
+  const draw = (matrix, qs, hist) => Quiz.draw({ pool: { matrix }, questions: qs || kho }, hist);
+  const hist = (o) => (q) => o[q.q] || { done: 0, wrong: 0 };
+  const d1 = draw({ A: [1, 1, 0], B: 2 });
+  if (d1.questions.map((q) => q.topic).sort().join() !== "A,A,B,B" || d1.notes.length || !d1.questions.some((q) => q.topic === "A" && q.lv === 1) || !d1.questions.some((q) => q.q === "a3")) err(at, "rút theo ma trận chưa đúng: " + JSON.stringify(d1));
+  const d2 = draw({ A: 1 }, null, hist({ a1: { done: 2, wrong: 0 }, a2: { done: 1, wrong: 0 }, a3: { done: 3, wrong: 0 } }));
+  if (d2.questions.map((q) => q.q).join() !== "a4") err(at, "chưa ưu tiên câu chưa làm: " + d2.questions.map((q) => q.q));
+  const d3 = draw({ A: 1 }, null, hist({ a1: { done: 1, wrong: 0 }, a2: { done: 1, wrong: 1 }, a3: { done: 1, wrong: 0 }, a4: { done: 1, wrong: 0 } }));
+  if (d3.questions.map((q) => q.q).join() !== "a2") err(at, "chưa ưu tiên câu hay sai: " + d3.questions.map((q) => q.q));
+  const d4 = draw({ A: [0, 0, 1], C: 2 }, kho.filter((q) => q.q !== "a4")), q4 = d4.questions.map((q) => q.q);
+  if (q4.length !== 3 || q4[0] !== "a3" || q4[1] !== "c1" || d4.notes.length !== 2 || !/^A: thiếu 1 câu mức Vận dụng, lấy bù mức Hiểu$/.test(d4.notes[0]) || !/^C: thiếu 1 câu, lấy từ chủ đề khác$/.test(d4.notes[1])) err(at, "lấy bù chưa đúng: " + JSON.stringify([q4, d4.notes]));
+  const d5 = draw({ A: [0, 1, 0] }, kho.filter((q) => q.q === "a1" || q.q === "a4"));
+  if (d5.questions.length !== 1 || d5.questions[0].q !== "a4" || !/lấy bù câu chưa ghi mức$/.test(d5.notes.join())) err(at, "câu chưa ghi mức phải được lấy bù trước mức xa hơn: " + JSON.stringify([d5.questions.map((q) => q.q), d5.notes]));
+  const d6 = draw({ B: 3 }, kho.filter((q) => q.topic === "B"));
+  if (d6.questions.length !== 2 || !/^B: kho chưa đủ câu, thiếu 1 câu$/.test(d6.notes.join())) err(at, "kho thiếu chưa báo: " + JSON.stringify(d6.notes));
+  const k = Quiz.key(kho[0]);
+  if (!/^[a-z0-9]{4,12}$/.test(k) || k !== Quiz.key(Object.assign({}, kho[0], { x: "khác", topic: "Z", lv: 3 })) || k === Quiz.key(Object.assign({}, kho[0], { q: "a1 khác" }))) err(at, "mã câu (Quiz.key) chưa ổn định: " + k);
+}
+
 /* ---------- bộ lọc hình ----------
    Hình cố ý viết sai: bộ lọc phải bỏ mã chạy, link ngoài, style, màu tự đặt; hình hỏng cấu trúc thì bỏ cả hình. */
 const SVG_THU = [
@@ -244,6 +331,7 @@ const linked = new Set((W.ONTAP_SEED_EVENTS || []).flatMap((e) => e.banks || [])
 const loose = ids.filter((id) => !linked.has(id));
 
 const total = Object.values(count).reduce((a, n) => a + n, 0);
-console.log(`${catalog.length} đề, ${files.length} file câu hỏi, ${total} câu (${Object.entries(count).filter(([, n]) => n).map(([t, n]) => n + " " + TEN_DANG[t]).join(", ")}).`);
+console.log(`${catalog.length - pools.length} đề, ${files.length} file câu hỏi, ${total} câu (${Object.entries(count).filter(([, n]) => n).map(([t, n]) => n + " " + TEN_DANG[t]).join(", ")}); ${pools.length} đề ngẫu nhiên.`);
+if (warn.length) console.log("Nhắc:\n" + warn.join("\n"));
 if (loose.length) console.log("Đề chưa gắn kì thi nào (vẫn hiện ở nhóm “Bài ôn khác”): " + loose.join(", "));
 if (bad.length) { console.error(bad.join("\n")); console.error(`DE FAILED: ${bad.length} lỗi`); process.exitCode = 1; } else console.log("DE OK");

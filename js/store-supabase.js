@@ -743,6 +743,7 @@
     settings: () => (db ? db.settings : {}), setSettings,
     can,
     _mem: null,
+    _fillSeedFile: Local._fillSeedFile, // chỉ cho tests/nap-de.js (như LocalStore)
     // chỉ có ở bản đám mây
     init, refresh, flush, authState: () => state,
     signIn, signOut, checkPassword, changePassword, parentUnlocked,

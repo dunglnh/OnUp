@@ -3,17 +3,21 @@
      busy(): đang làm dở (làm như thi chưa nộp, hoặc ôn luyện đã trả lời hoặc bỏ qua ít nhất một câu);
      answered(): số câu đã trả lời (câu bấm "Bỏ qua" không tính); submit(): nộp bài như bấm Nộp.
      Chưa trả lời câu nào (kể cả khi hết giờ) thì nộp bài không gọi onFinish: không lưu điểm.
-     "Làm lại" dùng tiếp đối tượng này, nên app luôn dừng hoặc nộp đúng lượt đang làm.
+     "Làm lại" dùng tiếp đối tượng này, nên app luôn dừng hoặc nộp đúng lượt đang làm. opts.redraw() → {questions} (đề
+     ngẫu nhiên): nút thành "Làm đề khác", lượt sau dùng bộ câu mới.
    onFinish(res) được gọi cho hai loại kết quả:
      - phần chấm tự động: {r, t, s, mode, wrongTopics}. t: số câu, r: số câu đúng, có thể lẻ đến 0,01 vì câu đúng/sai 4 ý
        và nối cột chấm theo từng ý (score); câu tự luận không tính vào r, t;
      - điểm tự chấm phần tự luận: {mode: "self", r, t, s: 0}, r và t tính bằng phần tư điểm (số nguyên), không cộng vào
        điểm trung bình (app ghi riêng). Ôn luyện: lưu lúc nộp; làm như thi: lưu khi bấm "Lưu điểm tự chấm" ở trang kết quả.
+     Phần chấm tự động còn có marks: [[Quiz.key(câu), điểm 0–1]] của từng câu đã chấm (câu bỏ qua, chưa làm: 0).
    Dạng câu (xem đầu data/banks/index.js): mc, fill, tf, tf4 (đúng/sai 4 ý), num (trả lời ngắn bằng số), match (nối cột),
    order (sắp xếp), essay (tự luận tự chấm). Trường chung không bắt buộc: lv (mức độ 1 Biết, 2 Hiểu, 3 Vận dụng),
    p (mã đoạn đọc trong bank.passages), svg (hình, lọc bằng Quiz.svg). Mọi thao tác là chạm, không kéo thả.
    Quiz.parse(text) → {questions, passages, errors}: đọc câu hỏi dán từ Word/Zalo theo cú pháp đơn giản.
-   Quiz.svg(src) → {svg, problems}: hình đã lọc (chuỗi rỗng nếu không đọc được) và các chỗ bị bỏ. */
+   Quiz.svg(src) → {svg, problems}: hình đã lọc (chuỗi rỗng nếu không đọc được) và các chỗ bị bỏ.
+   Quiz.draw(bank, hist) → {questions, notes}: rút đề ngẫu nhiên theo ma trận của đề có pool (Phiên K3, xem draw).
+   Quiz.key(q): mã ổn định của một câu (băm nội dung), dùng để ghi nhớ câu đã làm; onFinish có marks: [[mã câu, điểm]]. */
 (function () {
   const LET = "ABCDEFGHIJ";
   const ABCD = "abcd";
@@ -121,9 +125,60 @@
   }
   const fig = (src) => { const c = src ? svg(src).svg : ""; return c ? `<div class="qfig">${c}</div>` : ""; };
 
+  /* ---------------- mã câu, rút đề ngẫu nhiên ----------------
+     key(q): băm dạng câu, câu hỏi và các ô (bỏ dấu câu, khoảng trắng, chữ hoa) thành chuỗi ngắn; sửa lời giải hay chủ đề
+     không đổi mã, sửa câu hỏi thì thành câu mới. */
+  const flat = (x) => String(x == null ? "" : x).normalize("NFC").replace(/[\p{P}\s]+/gu, "").toLowerCase();
+  function key(q) {
+    const text = [q.type, q.q].concat(q.o || [], q.l || [], q.r || []).map(flat).join("|");
+    let h = 2166136261;
+    for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return (h >>> 0).toString(36) + text.length.toString(36);
+  }
+  /* draw(bank, hist): rút đề từ kho câu của đề ngẫu nhiên (bank.questions, mỗi câu có topic, lv?, src?) theo ma trận
+     bank.pool.matrix: { "<chủ đề>": số câu } hoặc { "<chủ đề>": [Biết, Hiểu, Vận dụng] } (xem đầu data/banks/index.js).
+     hist(q) → {done, wrong}: số lần học sinh đã làm, làm sai câu đó (app tính từ kết quả); không có thì coi như chưa làm.
+     Mỗi ô lấy câu đúng chủ đề (đúng mức nếu ô ghi theo mức), ưu tiên câu chưa làm hoặc hay sai: điểm done − 2·wrong thấp
+     trước, bằng nhau thì ngẫu nhiên. Ô thiếu câu thì lấy bù cùng chủ đề: câu chưa ghi mức trước, rồi mức gần nhất, rồi
+     từ chủ đề khác; mỗi chỗ bù ghi một dòng vào notes (chưa esc). Kho đủ câu thì trả về đúng tổng của ma trận. */
+  function draw(bank, hist) {
+    const m = (bank.pool && bank.pool.matrix) || {}, notes = [];
+    const topicOf = (t) => String(t == null ? "" : t).normalize("NFC").replace(/\s+/g, " ").trim();
+    const weight = (q) => { const h = hist ? hist(q) : null; return h ? (+h.done || 0) - 2 * (+h.wrong || 0) : 0; };
+    // xáo rồi sắp theo điểm ưu tiên (sort giữ thứ tự câu bằng điểm): câu bằng điểm đứng ngẫu nhiên
+    const ranked = shuffle(bank.questions || []).map((q) => ({ q, w: weight(q), t: topicOf(q.topic) })).sort((a, b) => a.w - b.w);
+    const used = new Set(), out = [];
+    const take = (list, k) => { const got = []; for (const x of list) { if (got.length >= k) break; if (!used.has(x)) { used.add(x); got.push(x.q); } } return got; };
+    const cells = [];
+    Object.keys(m).forEach((t) => {
+      const v = m[t], topic = topicOf(t);
+      if (Array.isArray(v)) v.forEach((n, i) => { if (n > 0) cells.push({ topic, lv: i + 1, n: Math.floor(n) }); });
+      else if (v > 0) cells.push({ topic, lv: 0, n: Math.floor(v) });
+    });
+    const dist = (q, lv) => (LV[q.lv] ? Math.abs(q.lv - lv) : 0.5); // câu chưa ghi mức: lấy trước mức kề
+    cells.forEach((c) => {
+      const same = ranked.filter((x) => x.t === c.topic);
+      let got = take(c.lv ? same.filter((x) => x.q.lv === c.lv) : same, c.n);
+      if (got.length < c.n && c.lv) {
+        const near = same.filter((x) => x.q.lv !== c.lv).sort((a, b) => dist(a.q, c.lv) - dist(b.q, c.lv));
+        const more = take(near, c.n - got.length);
+        if (more.length) notes.push(`${c.topic}: thiếu ${more.length} câu mức ${LV[c.lv]}, lấy bù ${[...new Set(more.map((q) => (LV[q.lv] ? "mức " + LV[q.lv] : "câu chưa ghi mức")))].join(", ")}`);
+        got = got.concat(more);
+      }
+      if (got.length < c.n) {
+        const more = take(ranked.filter((x) => x.t !== c.topic), c.n - got.length);
+        if (more.length) notes.push(`${c.topic}: thiếu ${more.length} câu, lấy từ chủ đề khác`);
+        got = got.concat(more);
+      }
+      if (got.length < c.n) notes.push(`${c.topic}: kho chưa đủ câu, thiếu ${c.n - got.length} câu`);
+      out.push(...got);
+    });
+    return { questions: out, notes };
+  }
+
   /* ---------------- chấm ---------------- */
   function prep(q) {
-    const x = Object.assign({}, q);
+    const x = Object.assign({ key: key(q) }, q); // mã câu tính trên câu gốc (đúng/sai thêm o khi dựng)
     if (q.type === "mc") { x.order = shuffle(q.o.map((_, i) => i)); x.a = 0; }
     if (q.type === "tf") { x.o = ["Đúng", "Sai"]; x.order = [0, 1]; x.a = q.a ? 0 : 1; }
     if (q.type === "match") x.rOrder = mix(q.r.length);
@@ -394,6 +449,9 @@
       fb.querySelector("#qzNo").onclick = () => (fb.innerHTML = "");
     }
     function next() { S.i++; if (S.i >= qs.length) finish(); else render(); }
+    // Làm lại: cùng bộ câu (xáo lại); đề ngẫu nhiên (opts.redraw) thì rút bộ câu mới.
+    const againTxt = opts.redraw ? "Làm đề khác" : "Làm lại";
+    const again = () => start(el, opts.redraw ? Object.assign({}, bank, opts.redraw()) : bank, opts, h);
     // Lưu điểm tự chấm các câu tự luận đã chấm đủ (một kết quả cho cả lượt). Trả về {got, max} hoặc null.
     function saveSelf(list) {
       const sums = list.map(selfSum).filter(Boolean);
@@ -407,8 +465,8 @@
       if (!answered()) {
         el.innerHTML = `<div class="stack">
           <section class="panel"><div class="label">${esc(bank.title)} · ${exam ? "Làm như thi" : "Ôn luyện"}</div><p>Bạn chưa làm câu nào nên không lưu điểm.</p></section>
-          <div class="row"><button class="btn main" id="qzAgain">Làm lại</button><button class="btn ghost" id="qzHome">Về trang chính</button></div></div>`;
-        el.querySelector("#qzAgain").onclick = () => start(el, bank, opts, h);
+          <div class="row"><button class="btn main" id="qzAgain">${againTxt}</button><button class="btn ghost" id="qzHome">Về trang chính</button></div></div>`;
+        el.querySelector("#qzAgain").onclick = again;
         el.querySelector("#qzHome").onclick = () => opts.onExit && opts.onExit();
         window.scrollTo(0, 0);
         return;
@@ -425,7 +483,7 @@
       auto.forEach((a) => { const k = a.q.topic || "Chung"; byTopic[k] = byTopic[k] || [0, 0]; byTopic[k][1]++; byTopic[k][0] += a.pts || 0; });
       auto.forEach((a) => { if (LV[a.q.lv]) { byLv[a.q.lv] = byLv[a.q.lv] || [0, 0]; byLv[a.q.lv][1]++; byLv[a.q.lv][0] += a.pts || 0; } });
       const saved = !exam ? saveSelf(essays) : null; // ôn luyện: chấm ngay sau từng câu, lưu luôn
-      if (total && opts.onFinish) opts.onFinish({ r: right, t: total, s: Math.round(secs), mode: exam ? "exam" : "practice", wrongTopics: wrong.map((a) => a.q.topic || "Chung") });
+      if (total && opts.onFinish) opts.onFinish({ r: right, t: total, s: Math.round(secs), mode: exam ? "exam" : "practice", wrongTopics: wrong.map((a) => a.q.topic || "Chung"), marks: auto.map((a) => [a.q.key, a.pts || 0]) });
       const d10 = total ? fmtN(Math.round((right / total) * 40) / 4) : "0";
       const bars = (o, name) => `<div class="ubreak">${Object.entries(o).map(([k, [r, t]]) => `<span>${esc(name(k))}</span><div class="bar"><i style="width:${(r / t) * 100}%"></i></div><span>${fmtN(r)}/${t}</span>`).join("")}</div>`;
       const part = auto.some((a) => a.pts > 0 && a.pts < 1);
@@ -448,9 +506,9 @@
         ${Object.keys(byLv).length ? `<section class="panel" id="qzLv"><div class="label">Theo mức độ</div>${bars(byLv, (k) => LV[k])}</section>` : ""}
         ${wrong.length ? `<section class="panel"><div class="label">Câu cần xem lại (${wrong.length})</div><div class="review">${wrong.map((a) => `<div class="rv"><div>${esc(a.q.q).replace("___", "…")}${LV[a.q.lv] ? ` <span class="tag">${LV[a.q.lv]}</span>` : ""}</div><div class="small">Bạn trả lời: <s>${esc(givenText(a.q, a.g))}</s>${a.pts > 0 ? ` (được ${fmtN(a.pts)}/1 điểm)` : ""} · Đáp án: <b>${esc(correctText(a.q))}</b></div>${a.q.x ? `<div class="expl">${esc(a.q.x)}</div>` : ""}</div>`).join("")}</div></section>` : ""}
         ${essayPanel}
-        <div class="row"><button class="btn main" id="qzAgain">Làm lại</button><button class="btn ghost" id="qzHome">Về trang chính</button></div>
+        <div class="row"><button class="btn main" id="qzAgain">${againTxt}</button><button class="btn ghost" id="qzHome">Về trang chính</button></div>
       </div>`;
-      el.querySelector("#qzAgain").onclick = () => start(el, bank, opts, h);
+      el.querySelector("#qzAgain").onclick = again;
       el.querySelector("#qzHome").onclick = () => opts.onExit && opts.onExit();
       const save = el.querySelector("#qzSelfSave");
       if (save) {
@@ -599,5 +657,5 @@
     return { questions, passages, errors };
   }
 
-  window.Quiz = { run, parse, isRight, score, svg, LV, fmtN };
+  window.Quiz = { run, parse, isRight, score, svg, draw, key, LV, fmtN };
 })();

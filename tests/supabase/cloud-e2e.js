@@ -215,12 +215,25 @@ async function run(browser, scheme) {
   c.l16.runAsk = await leaveFrame();
   if (c.l16.runAsk) { c.l16.text = await text(p, "#leaveBox"); await p.click("#leaveYes"); await wait(p); }
   c.l16.same = (await kidRes()) === nKid;
-  // L18: nút đề ghi số đề lấy từ tên đề
+  // L18: nút đề ghi số đề lấy từ tên đề; K3: đề ngẫu nhiên đứng trước
   await p.goto(BASE + "/#/home"); await wait(p);
   c.l18 = await p.evaluate(() => Object.fromEntries([...document.querySelectorAll("#allPractice details.grp")].map((g) => {
     const r = [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === "Toán");
     return [g.querySelector("summary b").textContent, r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent).join() : ""];
   }).filter(([, v]) => v)));
+  // K3: con làm đề ngẫu nhiên (kho gộp từ 3 đề Toán 4 cuối kì I, rút 25 câu theo ma trận): kết quả lên máy chủ với ref_id là mã pool
+  await p.goto(BASE + "/#/quiz/toan4-ck1-ngau-nhien"); await p.waitForSelector("#qPractice");
+  c.k3 = { intro: await text(p, ".hero"), kho: await p.evaluate(() => { const b = Store.bank("toan4-ck1-ngau-nhien"); return b.questions.length + "/" + b.n + "/" + Store.bank("toan4-ck1-de1").questions.length; }) };
+  await shot(p, "c8b-de-ngau-nhien");
+  await p.click("#qPractice");
+  for (let i = 0; i < 40 && !(await p.$(".score")); i++) {
+    if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0");
+    await p.click("#qzGo"); await p.click("#qzGo");
+  }
+  await p.waitForSelector(".score");
+  c.k3.again = await text(p, "#qzAgain");
+  c.k3.server = await until(p, () => be.T.results.some((r) => r.profile_id === binId && r.ref_id === "toan4-ck1-ngau-nhien" && r.t === 25 && r.subject === "Toán"));
+  c.k3.hist = await p.evaluate((id) => Object.keys((JSON.parse(localStorage.getItem("ontap_pool_v1") || "{}")[id + "|toan4-ck1-ngau-nhien"]) || {}).length, binId);
   await p.goto(BASE + "/#/account"); await wait(p);
   c.kidAccount = (await p.$("#switchWho")) && !(await p.$("#signOut")) && !(await p.$("#pwForm"));
   await shot(p, "c9-tai-khoan-con");
@@ -446,11 +459,13 @@ async function run(browser, scheme) {
     "kết quả làm bài lên máy chủ": c.result,
     "L15: con vào “Làm như thi”, rời khi chưa trả lời: hỏi “Thoát đề?”, không lưu điểm": /Thoát đề\?/.test(c.l15.ask) && c.l15.hash === "#/home" && c.l15.same,
     "L16: bài ôn trong khung chỉ hỏi khi đang làm một lượt (#endBtn)": !c.l16.idleAsk && c.l16.runAsk && /Rời bài ôn/.test(c.l16.text) && c.l16.same,
-    "L18: nút đề ghi số đề theo tên đề": c.l18["Kiểm tra cuối học kì I"] === "Đề 1,Đề 2,Đề 3" && c.l18["Kiểm tra giữa học kì II"] === "Đề 1,Đề 2",
+    "L18: nút đề ghi số đề theo tên đề; K3: đề ngẫu nhiên đứng trước": c.l18["Kiểm tra cuối học kì I"] === "Đề ngẫu nhiên,Đề 1,Đề 2,Đề 3" && c.l18["Kiểm tra giữa học kì II"] === "Đề ngẫu nhiên,Đề 1,Đề 2",
+    "K3: đề ngẫu nhiên rút 25 câu từ kho 75 câu (3 đề), kết quả lên máy chủ với ref_id là mã pool, lịch sử câu trên máy": /25 câu rút từ kho 75 câu \(3 đề\)/.test(c.k3.intro) && c.k3.kho === "75/25/25"
+      && c.k3.again === "Làm đề khác" && c.k3.server && c.k3.hist === 25,
     "trang tài khoản của con: đổi người học, không đăng xuất, không đổi mật khẩu": !!c.kidAccount,
     "hồ sơ không PIN bấm là vào; con không vào được khu phụ huynh bằng địa chỉ": c.na && c.kidBlocked,
     "tab mới: nhớ hồ sơ chọn gần nhất, khu phụ huynh phải nhập lại mật khẩu": c.preselect === "Na" && /Mật khẩu chưa đúng/.test(c.wrongPw),
-    "báo cáo tuần đọc kết quả từ máy chủ": c.report.n === 1 && c.report.subj === "Toán",
+    "báo cáo tuần đọc kết quả từ máy chủ (Đề 1 và đề ngẫu nhiên)": c.report.n === 2 && c.report.subj === "Toán",
     "đổi mật khẩu: sai mật khẩu hiện tại thì báo": /hiện tại chưa đúng/.test(c.wrongOld) && c.pwChanged,
     "chuyển dữ liệu máy này: 1 hồ sơ con, 1 kết quả; PIN cũ dùng được": /1 hồ sơ con mới, 1 kết quả/.test(c.migrate) && c.bong,
     "chuyển dữ liệu: nhắc iPhone, iPad chuyển trong Safari; không có hướng dẫn Màn hình chính của bản trên máy": c.migHint && c.noHomeScreen,

@@ -19,7 +19,7 @@
    subjects   các môn thi
    scope      phạm vi kiến thức (ngắn gọn)
    modules    mã bài ôn trong data/modules.js
-   banks      mã ngân hàng câu hỏi (danh mục data/banks/index.js hoặc do quản trị viên nhập)
+   banks      mã ngân hàng câu hỏi (danh mục data/banks/index.js, kể cả đề ngẫu nhiên có pool, hoặc do quản trị viên nhập)
 */
 window.ONTAP_SEED_EVENTS = [
   { id: "khai-giang", title: "Khai giảng năm học 2026–2027", kind: "moc", grades: [4, 6],
@@ -46,13 +46,13 @@ window.ONTAP_SEED_EVENTS = [
     subjects: ["Toán", "Ngữ văn", "Tiếng Anh", "KHTN", "Lịch sử và Địa lí", "GDCD", "Tin học", "Công nghệ"],
     scope: "Toàn bộ chương trình học kì I.", modules: ["ioe-6"],
     banks: ["toan6-ck1-de1", "toan6-ck1-de2", "van6-ck1-de1", "van6-ck1-de2", "khtn6-ck1-de1", "lsdl6-ck1-de1",
-      "ta6-ck1-de1", "gdcd6-ck1-de1", "tin6-ck1-de1", "congnghe6-ck1-de1"] },
+      "ta6-ck1-de1", "gdcd6-ck1-de1", "tin6-ck1-de1", "congnghe6-ck1-de1", "toan6-ck1-ngau-nhien", "van6-ck1-ngau-nhien"] },
   { id: "ck1-l4", title: "Kiểm tra cuối học kì I", kind: "dinh-ki", grades: [4],
     start: "2026-12-28", end: "2027-01-08", tentative: true,
     subjects: ["Toán", "Tiếng Việt", "Tiếng Anh", "Lịch sử và Địa lí", "Khoa học", "Tin học và Công nghệ"],
     scope: "Toàn bộ chương trình học kì I. Tiếng Anh: Unit 1–10.", modules: ["ioe-4"],
     banks: ["toan4-ck1-de1", "toan4-ck1-de2", "toan4-ck1-de3", "tv4-ck1-de1", "tv4-ck1-de2", "khoahoc4-ck1-de1", "lsdl4-ck1-de1", "tincn4-ck1-de1",
-      "ta4-ck1-de1"] },
+      "ta4-ck1-de1", "toan4-ck1-ngau-nhien", "tv4-ck1-ngau-nhien"] },
   { id: "ioe-xa", title: "IOE cấp xã/phường", kind: "ioe", grades: [4, 6],
     start: "2027-01-07", end: "2027-01-09", tentative: false,
     subjects: ["Tiếng Anh"], scope: "Lớp 4: Unit 1–10. Lớp 6: Unit 1–6.",
@@ -71,7 +71,7 @@ window.ONTAP_SEED_EVENTS = [
     start: "2027-03-15", end: "2027-03-26", tentative: true,
     subjects: ["Toán", "Tiếng Việt"],
     scope: "Toán: Bài 38–59. Tiếng Việt: tập 2, Bài 1–16. Sách Kết nối tri thức với cuộc sống.",
-    modules: [], banks: ["toan4-gk2-de1", "toan4-gk2-de2", "tv4-gk2-de1", "tv4-gk2-de2"] },
+    modules: [], banks: ["toan4-gk2-de1", "toan4-gk2-de2", "tv4-gk2-de1", "tv4-gk2-de2", "toan4-gk2-ngau-nhien", "tv4-gk2-ngau-nhien"] },
   { id: "gk2-l6", title: "Kiểm tra giữa học kì II", kind: "dinh-ki", grades: [6],
     start: "2027-03-15", end: "2027-03-26", tentative: true,
     subjects: ["Toán", "Ngữ văn", "Tiếng Anh", "KHTN", "Lịch sử và Địa lí", "GDCD", "Tin học", "Công nghệ"],

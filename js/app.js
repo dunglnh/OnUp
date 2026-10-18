@@ -12,7 +12,7 @@
   const view = $("#view"), who = $("#who"), foot = $(".foot");
   const MODULES = window.ONTAP_MODULES || [];
   const modById = (id) => MODULES.find((m) => m.id === id) || null;
-  const qCount = (b) => (b.questions ? b.questions.length : b.n || 0); // đề có sẵn chưa tải câu hỏi: số câu ghi ở danh mục
+  const qCount = (b) => (b.pool ? b.n || 0 : b.questions ? b.questions.length : b.n || 0); // đề có sẵn chưa tải câu hỏi: số câu ghi ở danh mục; đề ngẫu nhiên: số câu rút mỗi lần
   const AVATARS = ["🐣", "🦊", "🐼", "🐯", "🐨", "🐸", "🦄", "🐙", "🐬", "🚀", "⚽", "🎨", "🌻", "🧭", "📚", "🌟"];
   const KIND = { "dinh-ki": "Kiểm tra định kì", ioe: "IOE", "thi-khac": "Thi khác", moc: "Mốc năm học" };
   const DAY = 864e5;
@@ -597,8 +597,9 @@
     $$("[data-ev]", root).forEach((b) => (b.onclick = () => openEvent(b.dataset.ev, grade, student)));
   }
 
-  /* Chữ trên nút đề trong một hàng (cùng môn), lấy từ tên đề dạng "<môn> <khối> · <kì> · Đề N" (data/banks/index.js):
-     - mọi đề cùng một kì: "Đề N", N lấy từ tên (tên không có số thì "Đề");
+  /* Chữ trên nút đề trong một hàng (cùng môn), lấy từ tên đề dạng "<môn> <khối> · <kì> · Đề N" (data/banks/index.js;
+     đề ngẫu nhiên: "… · Đề ngẫu nhiên"):
+     - mọi đề cùng một kì: "Đề N", N lấy từ tên (tên không có số thì "Đề"), đề ngẫu nhiên là "Đề ngẫu nhiên";
      - nhiều kì khác nhau (nhóm "Bài ôn khác"): tên bỏ phần môn và khối, ví dụ "Cuối kì I · Đề 1";
      - tên tự đặt không bắt đầu bằng môn và khối (ngân hàng quản trị viên nhập): nguyên tên đề.
      Hai nút trùng chữ thì ghi dài như nhóm nhiều kì, vẫn trùng thì ghi nguyên tên đề. */
@@ -607,26 +608,30 @@
     const info = list.map((b) => {
       const title = String(b.title).normalize("NFC"), parts = title.split(/\s*·\s*/), head = norm(parts[0]);
       const rest = parts.length > 1 && [b.subject + " " + b.grade, b.subject + " lớp " + b.grade].some((h) => norm(h) === head) ? parts.slice(1) : null;
-      const term = rest && rest.slice(0, /^Đề\s*\d*$/i.test(rest[rest.length - 1]) ? -1 : rest.length).join(" · ");
-      return { rest, term, n: (/Đề\s*(\d+)/i.exec(title) || [])[1], title: b.title };
+      const term = rest && rest.slice(0, /^Đề(\s*\d+|\s+ngẫu nhiên)?$/i.test(rest[rest.length - 1]) ? -1 : rest.length).join(" · ");
+      return { rest, term, n: (/Đề\s*(\d+)/i.exec(title) || [])[1], rnd: !!b.pool, title: b.title };
     });
     const uniq = (a) => new Set(a).size === a.length;
-    const short = info.map((x) => (x.n ? "Đề " + x.n : "Đề")), long = info.map((x) => (x.rest ? x.rest.join(" · ") : x.title));
+    const short = info.map((x) => (x.rnd ? "Đề ngẫu nhiên" : x.n ? "Đề " + x.n : "Đề")), long = info.map((x) => (x.rest ? x.rest.join(" · ") : x.title));
     if (info.every((x) => x.rest && x.term === info[0].term) && uniq(short)) return short;
     return uniq(long) ? long : info.map((x) => x.title);
   }
-  /* Mỗi bài ôn dạng trang một dòng; đề ngân hàng gom theo môn thành một dòng có các nút "Đề 1 · Đề 2 · …"
-     (xếp theo tên đề, chữ trên nút theo bankLabels; aria-label là tên đề đầy đủ). */
+  /* Mỗi bài ôn dạng trang một dòng; đề ngân hàng gom theo môn thành một dòng có các nút "Đề ngẫu nhiên · Đề 1 · Đề 2 · …"
+     (đề ngẫu nhiên đứng trước, đề cố định xếp theo tên; chữ trên nút theo bankLabels; aria-label là tên đề đầy đủ). */
   function practiceList(mods, bks, canPlay) {
     if (!mods.length && !bks.length) return `<div class="panel muted">Chưa có bài ôn cho mục này. Quản trị viên có thể nhập ngân hàng câu hỏi trong mục Quản trị.</div>`;
     const subs = new Map(), act = canPlay ? "main" : "";
     bks.forEach((b) => { const k = b.subject || "Khác"; subs.set(k, (subs.get(k) || []).concat(b)); });
     return `<div class="list">${mods.map((m) => `<div class="item"><span class="grow"><b>${esc(m.title)}</b><span class="small muted">${esc(m.desc)}</span></span><a class="btn ${act} sm" href="#/play/${esc(m.id)}">${canPlay ? "Vào ôn" : "Xem thử"}</a></div>`).join("")}
-      ${[...subs].map(([sub, list]) => {
-        list.sort((a, b) => a.title.localeCompare(b.title, "vi", { numeric: true }));
-        const nq = qCount(list[0]), same = list.every((b) => qCount(b) === nq);
-        return `<div class="item subj"><span class="grow"><b>${esc(sub)}</b><span class="small muted">${list.length} đề${same ? ` · ${nq} câu${list.length > 1 ? " mỗi đề" : ""}` : ""}</span></span>
-          <span class="des">${bankLabels(list).map((lb, i) => { const b = list[i]; return `<a class="btn ${act} sm" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(b.title.includes(lb) ? b.title : lb + " · " + b.title)}">${esc(lb)}</a>`; }).join("")}</span></div>`;
+      ${[...subs].map(([sub, all]) => {
+        const byTitle = (a, b) => a.title.localeCompare(b.title, "vi", { numeric: true });
+        const pools = all.filter((b) => b.pool).sort(byTitle), fixed = all.filter((b) => !b.pool).sort(byTitle), list = pools.concat(fixed);
+        const nq = fixed.length ? qCount(fixed[0]) : 0, same = fixed.every((b) => qCount(b) === nq);
+        const np = pools.length ? qCount(pools[0]) : 0, sameP = pools.every((b) => qCount(b) === np);
+        const info = [fixed.length ? `${fixed.length} đề${same ? ` · ${nq} câu${fixed.length > 1 ? " mỗi đề" : ""}` : ""}` : "",
+          pools.length ? `${pools.length > 1 ? pools.length + " " : ""}đề ngẫu nhiên${sameP ? ` ${np} câu` : ""}` : ""].filter(Boolean).join(" · ");
+        return `<div class="item subj"><span class="grow"><b>${esc(sub)}</b><span class="small muted">${info}</span></span>
+          <span class="des">${bankLabels(list).map((lb, i) => { const b = list[i]; return `<a class="btn ${act} sm${b.pool ? " rnd" : ""}" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(b.title.includes(lb) ? b.title : lb + " · " + b.title)}">${esc(lb)}</a>`; }).join("")}</span></div>`;
       }).join("")}</div>`;
   }
   /* "Tất cả bài ôn" của một khối, gom theo kì thi chưa qua: kì gần nhất mở sẵn, các kì sau thu gọn.
@@ -658,7 +663,7 @@
         <p>${esc(range(next))}${next.subjects.length ? " · " + esc(next.subjects.join(", ")) : ""}</p>
         ${next.scope ? `<p class="small">${esc(next.scope)}</p>` : ""}
         ${rd.p != null ? `<p class="small">Điểm ôn 4 tuần qua cho kì này: <b>${rd.p}%</b> (${rd.n} lần làm)</p>` : ""}
-        <div class="row">${mods.map((m) => `<a class="btn main" href="#/play/${esc(m.id)}">${esc(m.title)}</a>`).join("")}${bks.length ? `<button class="btn ${mods.length ? "ghost" : "main"}" id="toBanks">Đề ôn · ${bks.length} đề</button>` : ""}</div>
+        <div class="row">${mods.map((m) => `<a class="btn main" href="#/play/${esc(m.id)}">${esc(m.title)}</a>`).join("")}${bks.length ? `<button class="btn ${mods.length ? "ghost" : "main"}" id="toBanks">Đề ôn · ${bks.filter((b) => !b.pool).length || bks.length} đề</button>` : ""}</div>
       </section>`;
     }
     const subs = bySubject(within(results, 30)), weakList = wrongTopics(within(results, 30)).slice(0, 5);
@@ -712,11 +717,12 @@
     const later = [];
     if (nx) {
       const { mods, bks } = practiceFor(nx, s.grade), items = mods.concat(bks);
-      const todo = items.filter((x) => !all.some((r) => r.refId === x.id)).map((x) => x.title);
+      const did = (x) => all.some((r) => r.refId === x.id), done = items.filter(did);
+      const todo = items.filter((x) => !x.pool && !did(x)).map((x) => x.title); // đề ngẫu nhiên không tính là bài chưa làm
       let t = `${nx.title}: ${status(nx) === "now" ? "đang diễn ra" : "còn " + daysTo(nx) + " ngày"}.`;
       if (todo.length) t += ` Bài ôn chưa làm: ${todo.slice(0, 3).join("; ")}${todo.length > 3 ? " và " + (todo.length - 3) + " bài khác" : ""}.`;
-      else if (items.length) {
-        const low = items.map((x) => { const [r, n] = sumRT(all.filter((y) => y.refId === x.id)); return { title: x.title, p: pct(r, n) }; }).sort((a, b) => a.p - b.p)[0];
+      else if (done.length) {
+        const low = done.map((x) => { const [r, n] = sumRT(all.filter((y) => y.refId === x.id)); return { title: x.title, p: pct(r, n) }; }).sort((a, b) => a.p - b.p)[0];
         t += low.p < 90 ? ` Ôn tiếp “${low.title}”: đang đúng ${low.p}%.` : ` Các bài ôn của kì này đang đúng từ ${low.p}% trở lên.`;
       }
       tips.push(t);
@@ -895,22 +901,65 @@
 
   /* ================= LÀM BÀI TỪ NGÂN HÀNG ================= */
   let quizRun = null;
-  const essayN = (b) => (b.questions || []).filter((q) => q.type === "essay").length;
+  const essayN = (qs) => (qs || []).filter((q) => q.type === "essay").length;
+  /* Đề ngẫu nhiên (đề có pool, xem đầu data/banks/index.js): mỗi lần mở là rút một bộ câu mới theo ma trận (Quiz.draw),
+     ưu tiên câu học sinh chưa làm hoặc hay sai. Lịch sử từng câu của mỗi học sinh với mỗi đề ngẫu nhiên ghi ở localStorage
+     (ontap_pool_v1: "<mã học sinh>|<mã đề>" → { <Quiz.key(câu)>: [số lần làm, số lần sai] }), chỉ trên máy này; cộng với
+     kết quả đã lưu (dùng chung mọi máy): đã làm đề cố định nào trong pool.from thì câu của đề đó tính là đã làm, chủ đề
+     nằm trong wrongTopics của kết quả (đề cố định đó hoặc chính đề ngẫu nhiên) thì tính là hay sai. */
+  const PoolHist = (() => {
+    const KEY = "ontap_pool_v1", MAX = 600;
+    let mem = {};
+    const read = () => { try { const o = JSON.parse(localStorage.getItem(KEY) || "{}"); return o && typeof o === "object" ? o : mem; } catch (e) { return mem; } };
+    const write = (o) => { mem = o; try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) { /* chỉ giữ trong bộ nhớ */ } };
+    return {
+      get: (uid, pid) => read()[uid + "|" + pid] || {},
+      // marks: [[mã câu, điểm 0–1]] của một lượt làm xong
+      mark(uid, pid, marks) {
+        const o = read(), k = uid + "|" + pid, h = (o[k] = o[k] || {});
+        (marks || []).forEach(([key, pts]) => { const x = (h[key] = h[key] || [0, 0]); x[0]++; if (pts < 1) x[1]++; });
+        const keys = Object.keys(h);
+        if (keys.length > MAX) keys.slice(0, keys.length - MAX).forEach((key) => delete h[key]);
+        write(o);
+      }
+    };
+  })();
+  function poolHist(u, b) {
+    const local = PoolHist.get(u.id, b.id), byRef = {};
+    graded(Store.resultsFor(u.id)).filter((r) => r.source === "bank").forEach((r) => (byRef[r.refId] = byRef[r.refId] || []).push(r));
+    const wrongIn = (list, topic) => list.filter((r) => (r.wrongTopics || []).includes(topic)).length;
+    return (q) => {
+      const h = local[Quiz.key(q)] || [0, 0], fixed = q.src && q.src !== b.id ? byRef[q.src] || [] : [];
+      return { done: h[0] + fixed.length, wrong: h[1] + wrongIn(fixed, q.topic) + (wrongIn(byRef[b.id] || [], q.topic) ? 1 : 0) };
+    };
+  }
   function renderQuiz(u, id) {
     const b = Store.bank(id);
     if (!b) { renderMissing("Không tìm thấy đề", "Đề này không có trong app, hoặc đã được bỏ đi."); return; }
     if (wrongGrade(u, b.grade)) return;
     if (!b.questions) { loadQuiz(u, b); return; }
+    // hist đọc lại mỗi lần rút: "Làm đề khác" tính cả lượt vừa làm xong
+    const hist = () => (b.pool && u.role === "student" ? poolHist(u, b) : null);
+    let drawn = b.pool ? Quiz.draw(b, hist()) : null;
+    const qs = drawn ? drawn.questions : b.questions, nSrc = b.pool ? (b.pool.from || []).length : 0;
     view.innerHTML = `<div class="stack">${back("#/home", "Trang chính")}
-      <section class="hero"><span class="label">Lớp ${b.grade} · ${esc(b.subject)}</span><h1>${esc(b.title)}</h1>
-        <p>${b.questions.length} câu${essayN(b) ? ` (${essayN(b)} câu tự luận tự chấm)` : ""}.${b.note ? " " + esc(b.note) : ""}</p>
+      <section class="hero"><span class="label">Lớp ${b.grade} · ${esc(b.subject)}${b.pool ? " · Đề ngẫu nhiên" : ""}</span><h1>${esc(b.title)}</h1>
+        <p>${b.pool ? `Mỗi lần làm là một đề khác: ${qs.length} câu rút từ kho ${b.questions.length} câu${nSrc ? ` (${nSrc} đề)` : ""} theo ma trận đề, ưu tiên câu bạn chưa làm hoặc hay sai` : `${qs.length} câu`}${essayN(qs) ? ` (${essayN(qs)} câu tự luận tự chấm)` : ""}.${b.note ? " " + esc(b.note) : ""}</p>
+        ${drawn && drawn.notes.length ? `<p class="small" id="qNotes">Kho còn thiếu câu, lần này: ${esc(drawn.notes.join("; "))}.</p>` : ""}
         <div class="row"><button class="btn main" id="qPractice">Ôn luyện (xem đáp án từng câu)</button>${b.minutes ? `<button class="btn ghost" id="qExam">Làm như thi · ${b.minutes} phút</button>` : ""}</div></section>
       ${u.role !== "student" ? `<div class="notice">Chế độ xem thử: điểm không được lưu.</div>` : ""}</div>`;
     wireGo();
     const start = (mode) => {
-      const run = (quizRun = Quiz.run(view, b, {
+      const run = (quizRun = Quiz.run(view, drawn ? Object.assign({}, b, { questions: drawn.questions }) : b, {
         mode, onExit: () => go("#/home"),
-        onFinish: (res) => { if (u.role === "student") { Store.addResult(Object.assign({ userId: u.id, source: "bank", refId: b.id, subject: b.subject, label: b.title }, res)); toast(res.mode === "self" ? "Đã lưu điểm tự chấm" : "Đã lưu kết quả"); } }
+        // "Làm đề khác" ở trang kết quả: rút bộ câu mới (đã tính cả lượt vừa làm)
+        redraw: b.pool ? () => { drawn = Quiz.draw(b, hist()); if (drawn.notes.length) toast("Kho còn thiếu câu: " + drawn.notes.join("; ")); return { questions: drawn.questions }; } : undefined,
+        onFinish: (res) => {
+          if (u.role !== "student") return;
+          Store.addResult(Object.assign({ userId: u.id, source: "bank", refId: b.id, subject: b.subject, label: b.title }, res));
+          if (b.pool && res.marks) PoolHist.mark(u.id, b.id, res.marks);
+          toast(res.mode === "self" ? "Đã lưu điểm tự chấm" : "Đã lưu kết quả");
+        }
       }));
       // Xem thử (phụ huynh, quản trị) không lưu điểm nên không cần hỏi.
       // Gọi qua run: "Làm lại" thay busy/answered/submit của lượt mới vào cùng đối tượng.
@@ -978,7 +1027,7 @@
         <div class="row"><button class="btn ghost sm" id="resetEv">Khôi phục lịch mặc định</button></div><div id="resetArea"></div>`;
     } else if (tab === "banks") {
       body = `<div class="row between"><p class="muted small" style="flex:1">Dán câu hỏi từ Word, Zalo, sách bài tập. App tự nhận dạng trắc nghiệm, điền khuyết, đúng/sai, nối cột, sắp xếp, trả lời bằng số, tự luận.</p><a class="btn main sm" href="#/admin/bank/new">+ Nhập ngân hàng</a></div>
-        <div class="list">${Store.banks().map((b) => `<a class="item" href="#/${b.seed ? "quiz" : "admin/bank"}/${esc(b.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${esc(b.title)}</b><span class="small muted">Lớp ${b.grade} · ${esc(b.subject)} · ${qCount(b)} câu${b.seed ? " · có sẵn (chỉ xem)" : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>`;
+        <div class="list">${Store.banks().map((b) => `<a class="item" href="#/${b.seed ? "quiz" : "admin/bank"}/${esc(b.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${esc(b.title)}</b><span class="small muted">Lớp ${b.grade} · ${esc(b.subject)} · ${qCount(b)} câu${b.pool ? " rút ngẫu nhiên" : ""}${b.seed ? " · có sẵn (chỉ xem)" : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>`;
     } else if (tab === "data" && cloud) {
       const st = Store.settings(), loc = Store.localData(), mig = Store.migratedAt();
       const kids = loc ? loc.users.filter((x) => x.role === "student").length : 0;
