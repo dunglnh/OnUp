@@ -24,6 +24,10 @@
      mã câu (Quiz.key) không đổi khi sửa lời giải, chủ đề;
    - lịch thi mặc định (data/calendar-2026-2027.js): đề và bài ôn gắn vào kì thi có thật, đúng khối của kì thi;
    - bộ lọc hình (Quiz.svg) bỏ được mã chạy và link ngoài trong vài hình mẫu cố ý viết sai (SVG_THU).
+   - đề Tiếng Anh 100% tiếng Anh (Phiên TA1): đề có môn Tiếng Anh (mọi khối) và câu có topic bắt đầu bằng "English" trong đề
+     khác (kèm đoạn đọc câu đó dùng): mọi trường chữ (note, tên và chữ đoạn đọc, topic, q, o, ans, l, r, x, rubric[].c, unit)
+     không có chữ cái tiếng Việt (nguyên âm có dấu, ă, â, ê, ô, ơ, ư, đ); vài từ tiếng Anh có dấu được phép (TU_CO_DAU);
+     lỗi ghi mã đề, số câu, trường và chữ tiếng Việt; script tự thử với một câu cố ý viết sai.
    Thêm dạng câu mới thì thêm kiểm tra cho dạng đó ở đây. */
 "use strict";
 const fs = require("fs");
@@ -312,6 +316,51 @@ SVG_THU.forEach(([src, keep], i) => {
 const dep = Quiz.svg('<svg viewBox="0 0 10 10" width="120"><circle cx="5" cy="5" r="4" fill="acc-soft" stroke="ok"/><text x="1" y="5">A &amp; B</text></svg>');
 if (dep.problems.length || dep.svg !== '<svg viewBox="0 0 10 10" role="img" focusable="false" style="max-width:120px"><circle cx="5" cy="5" r="4" style="fill:var(--acc-soft);stroke:var(--ok)"></circle><text x="1" y="5">A &amp; B</text></svg>') err("bộ lọc hình", "hình đúng bị đổi: " + JSON.stringify(dep));
 
+/* ---------- đề Tiếng Anh: 100% tiếng Anh (Phiên TA1) ----------
+   Đề có môn Tiếng Anh: mọi trường chữ của đề (note), đoạn đọc và từng câu. Đề môn khác: câu có topic bắt đầu bằng "English"
+   và đoạn đọc câu đó dùng. Chữ cái tiếng Việt: nguyên âm có dấu thanh, ă, â, ê, ô, ơ, ư, đ (cả chữ hoa). Từ tiếng Anh có dấu
+   được phép ghi ở TU_CO_DAU (so chữ thường, bỏ dấu câu quanh từ). */
+const TU_CO_DAU = ["café", "cafés", "cliché", "fiancé", "fiancée", "résumé", "naïve", "façade", "crème"];
+const CHU_VIET = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/iu;
+const chuViet = (s) => { // các từ có chữ cái tiếng Việt trong một chuỗi (bỏ từ được phép), tối đa 5
+  const out = [];
+  String(s).normalize("NFC").split(/\s+/).forEach((w) => { const core = w.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, ""); if (CHU_VIET.test(core) && !TU_CO_DAU.includes(core.toLowerCase()) && !out.includes(core)) out.push(core); });
+  return out.slice(0, 5).join(", ") + (out.length > 5 ? "…" : "");
+};
+const truongChu = (q) => { // [tên trường, chữ] của một câu
+  const f = [["topic", q.topic], ["q", q.q], ["x", q.x], ["unit", q.unit]];
+  const list = (name, arr) => (Array.isArray(arr) ? arr : []).forEach((v, k) => f.push([`${name}[${k + 1}]`, v]));
+  list("o", q.o); list("ans", q.ans); list("l", q.l); list("r", q.r);
+  (Array.isArray(q.rubric) ? q.rubric : []).forEach((c, k) => f.push([`rubric[${k + 1}].c`, c && c.c]));
+  return f.filter(([, v]) => typeof v === "string");
+};
+const soatTiengAnh = (at, fields, report) => fields.forEach(([name, v]) => { const vi = chuViet(v); if (vi) report(at, `${name} có chữ tiếng Việt: ${vi}`); });
+const laCauTiengAnh = (q) => /^English\b/.test(topicOf(q && q.topic));
+const soTA = { de: 0, cau: 0, cauKhac: 0 };
+catalog.forEach((b) => {
+  const v = questions[b.id];
+  if (!v) return;
+  const all = b.subject === "Tiếng Anh", qs = Array.isArray(v.questions) ? v.questions : [], psg = v.passages && typeof v.passages === "object" ? v.passages : {};
+  const used = new Set();
+  if (all) { soTA.de++; soatTiengAnh(b.id, [["note", v.note]], err); Object.keys(psg).forEach((pid) => used.add(pid)); }
+  qs.forEach((q, i) => {
+    if (!q || typeof q !== "object" || !(all || laCauTiengAnh(q))) return;
+    if (all) soTA.cau++; else soTA.cauKhac++;
+    soatTiengAnh(`${b.id} câu ${i + 1}`, truongChu(q), err);
+    if (q.p) used.add(q.p);
+  });
+  used.forEach((pid) => { const p = psg[pid]; if (p && typeof p === "object") soatTiengAnh(`${b.id} đoạn đọc ${pid}`, [["title", p.title], ["text", p.text]], err); });
+});
+// tự thử: câu cố ý viết sai phải bị bắt đúng trường, đúng chữ; từ được phép không bị báo
+{
+  const at = "kiểm tra tiếng Anh", got = [];
+  soatTiengAnh("thu câu 1", truongChu({ topic: "English · Reading", type: "mc", q: "Chọn đáp án đúng: Where is Lan from?", o: ["Viet Nam", "Nhật Bản"], x: "Lan ở Việt Nam. She likes cafés." }), (a, m) => got.push(a + ": " + m));
+  const want = ["thu câu 1: q có chữ tiếng Việt: Chọn, đáp, án, đúng", "thu câu 1: x có chữ tiếng Việt: ở, Việt", "thu câu 1: o[2] có chữ tiếng Việt: Nhật, Bản"];
+  if (JSON.stringify(got) !== JSON.stringify(want)) err(at, "chưa bắt đúng câu cố ý viết sai: " + JSON.stringify(got));
+  if (chuViet("Lucy likes cafés. Voilà, a café!") !== "Voilà") err(at, "từ được phép (café, cafés) bị báo, hoặc từ có dấu khác không bị báo: " + chuViet("Lucy likes cafés. Voilà, a café!"));
+  if (laCauTiengAnh({ topic: "Tiếng Anh · Đọc hiểu" }) || !laCauTiengAnh({ topic: "English · Reading" })) err(at, "nhận câu Tiếng Anh theo topic chưa đúng");
+}
+
 /* ---------- lịch thi mặc định ---------- */
 const MODULES = W.ONTAP_MODULES || [];
 (W.ONTAP_SEED_EVENTS || []).forEach((e) => {
@@ -332,6 +381,7 @@ const loose = ids.filter((id) => !linked.has(id));
 
 const total = Object.values(count).reduce((a, n) => a + n, 0);
 console.log(`${catalog.length - pools.length} đề, ${files.length} file câu hỏi, ${total} câu (${Object.entries(count).filter(([, n]) => n).map(([t, n]) => n + " " + TEN_DANG[t]).join(", ")}); ${pools.length} đề ngẫu nhiên.`);
+console.log(`Đề Tiếng Anh 100% tiếng Anh: ${soTA.de} đề, ${soTA.cau} câu; ${soTA.cauKhac} câu Tiếng Anh trong đề khác.`);
 if (warn.length) console.log("Nhắc:\n" + warn.join("\n"));
 if (loose.length) console.log("Đề chưa gắn kì thi nào (vẫn hiện ở nhóm “Bài ôn khác”): " + loose.join(", "));
 if (bad.length) { console.error(bad.join("\n")); console.error(`DE FAILED: ${bad.length} lỗi`); process.exitCode = 1; } else console.log("DE OK");

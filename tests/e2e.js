@@ -588,7 +588,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   // order: thứ tự chạm; essay: mức chọn cho từng ý của thang (giá trị điểm).
   const KE_HOACH = [
     ["Theo đoạn văn, vào mùa nào", { mc: true }], ["Câu “Mùa hè", { mc: true }], ["Sắp xếp các hình ảnh", { order: [0, 1, 2, 3] }],
-    ["How many days", { mc: true }], ["Read the text again", { tf4: 2 }], ["Nối mỗi từ chỉ đồ dùng", { match: [0, 1, 2, 3] }],
+    ["How many days", { mc: true }], ["Read the text again", { tf4: 2 }], ["Match the words with their meanings", { match: [0, 1, 2, 3] }],
     ["Nối mỗi dụng cụ đo", { match: [1, 0, 2, 3] }], ["Quan sát hình. Chiếc bút chì", { num: "7,6 cm" }], ["Sắp xếp các số nguyên", { order: [1, 0, 2, 3] }],
     ["Cho hình chữ nhật ABCD", { tf4: 4 }], ["Một mảnh vườn", { num: "250" }], ["Hình vẽ dưới đây", { mc: false }], ["Số đối của", { fill: "7" }],
     ["Trình bày lời giải", { essay: [0.5, 0.5, 0.5, 0.5] }], ["Viết một đoạn văn", { essay: [1, 1, 1, 1], text: "Trước nhà em có cây khế. Lá khế nhỏ như cúc áo." }]
@@ -978,6 +978,76 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     && r1.clip.startsWith(`Báo câu sai · OnUp · Nhà Bin · ${r1.n3} câu`) && /\n1\) Toán 4 · Cuối kì I · Đề 1 · /.test(r1.clip) && /Lỗi chính tả\nCâu: /.test(r1.clip) && /Ghi chú: Thiếu dấu\. /.test(r1.clip)
     && /\nBin · /.test(r1.clip) && /toan4-ck1-de1 · /.test(r1.clip) && /Đã chép \d câu/.test(r1.toast) && r1.parent;
 
+  step("English banks 100% English (TA1)");
+  /* Ba đề Tiếng Anh có sẵn (ta6-gk1-de1, ta6-ck1-de1: Na lớp 6; ta4-ck1-de1: Bin lớp 4) viết 100% tiếng Anh, đoạn đọc dùng chung
+     (passages). Làm ôn luyện bằng đáp án trong dữ liệu (như K3): câu nào cũng "Đúng rồi!", mỗi đề 10/10, kết quả lưu 25/25 môn
+     Tiếng Anh; câu có đoạn đọc: hộp đoạn đọc mở sẵn, đúng tên và chữ của đoạn, các câu cùng đoạn đứng liền nhau, câu không có đoạn
+     thì không có hộp; chữ câu hỏi và lời giải trên màn hình không có chữ cái tiếng Việt (giao diện làm đề vẫn tiếng Việt: Phiên
+     TA2). Mỗi màn hình kiểm tra 360px; ảnh sáng/tối một câu đọc hiểu và một câu điền sau khi Kiểm tra ở
+     tests/screenshots/tieng-anh/ (bản ghép <tên>.jpg); chế độ tối chỉ làm đề giữa kì I lớp 6. */
+  const OUTTA = OUT + "tieng-anh/"; fs.mkdirSync(OUTTA, { recursive: true });
+  const TA_BANKS = [["ta6-gk1-de1", "Na", "4444"], ["ta6-ck1-de1", "Na", "4444"], ["ta4-ck1-de1", "Bin", PINS.Bin]];
+  const CHU_VIET = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/iu;
+  const ta1 = { problems: [], runs: [], shots: [] };
+  for (const scheme of ["light", "dark"]) {
+    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror TA1: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console TA1: " + m.text()); });
+    const tcheck = async (label) => (await p.evaluate(audit)).forEach((x) => ta1.problems.push(`TA1 · ${scheme} · ${label}: ${x}`));
+    const tsnap = async (n) => { await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await p.screenshot({ path: `${OUTTA}${n}-${scheme}.png`, fullPage: true }); ta1.shots.push(`${n}-${scheme}`); };
+    const snapped = (n) => ta1.shots.includes(`${n}-${scheme}`);
+    for (const [id, who, pin] of scheme === "light" ? TA_BANKS : TA_BANKS.slice(0, 1)) {
+      await p.goto(BASE + "/#/account"); await p.waitForTimeout(200);
+      if (await p.$("#switchWho, #logout")) { await p.click("#switchWho, #logout"); await p.waitForTimeout(200); }
+      await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids[who]}"]`); await p.fill("#pinIn", pin); await p.waitForTimeout(400);
+      await p.goto(BASE + "/#/quiz/" + id); await p.waitForSelector("#qPractice");
+      const bank = await p.evaluate((id) => { const b = Store.bank(id); return { questions: b.questions, passages: b.passages || {} }; }, id);
+      await tcheck(id + " màn đầu");
+      await p.click("#qPractice");
+      const r = { id, scheme, n: 0, right: 0, vi: [], psgBad: [], seq: [] };
+      for (let i = 0; i < 30 && !(await p.$(".score")); i++) {
+        const t = await p.$eval(".qcard .qtext", (e) => e.textContent);
+        const q = bank.questions.find((x) => flatQ(x.q) === flatQ(t));
+        if (!q) { ta1.problems.push(`TA1 ${id}: không nhận ra câu ` + t.slice(0, 50)); break; }
+        r.n++; r.seq.push(q.p || "");
+        const psg = await p.evaluate(() => { const e = document.querySelector(".psg"); return e ? { title: e.querySelector("summary b").textContent, text: (e.querySelector(".psg-text") || {}).textContent || "", open: e.open } : null; });
+        const want = q.p ? bank.passages[q.p] : null;
+        if (want ? !psg || psg.title !== want.title || psg.text !== want.text || !psg.open : psg) r.psgBad.push(i + 1);
+        if (q.type === "fill") await p.fill("#qzFill", q.ans[0]);
+        else { const w = q.type === "tf" ? (q.a ? "Đúng" : "Sai") : q.o[0]; await p.$$eval(".opts .opt", (bs, w) => bs.find((b) => b.lastElementChild.textContent === w).click(), w); }
+        await p.click("#qzGo");
+        const fb = await p.evaluate(() => ({ ok: !!document.querySelector("#qzFb .fb.ok"), text: [document.querySelector(".qcard .qtext"), document.querySelector("#qzFb .expl")].map((e) => (e ? e.textContent : "")).join(" ") }));
+        if (fb.ok) r.right++;
+        if (CHU_VIET.test(fb.text)) r.vi.push(i + 1);
+        if (q.p && !snapped("doc-hieu")) { await tcheck(id + " câu đọc hiểu"); await tsnap("doc-hieu"); }
+        if (q.type === "fill" && !snapped("dien-tu")) { await tcheck(id + " câu điền sau Kiểm tra"); await tsnap("dien-tu"); }
+        await p.click("#qzGo");
+      }
+      await p.waitForSelector(".score");
+      r.score = (await p.textContent(".score")).trim();
+      r.saved = await p.evaluate((id) => { const x = Store.resultsFor(Store.sessionUser().id)[0]; return !!x && x.refId === id && x.subject === "Tiếng Anh" && x.r === 25 && x.t === 25 && x.source === "bank"; }, id);
+      // câu cùng đoạn đọc đứng liền nhau, đủ số câu của đoạn
+      r.contiguous = Object.keys(bank.passages).every((pid) => { const at = r.seq.map((x, k) => (x === pid ? k : -1)).filter((k) => k >= 0); return at.length === bank.questions.filter((q) => q.p === pid).length && at[at.length - 1] - at[0] === at.length - 1; });
+      await tcheck(id + " kết quả");
+      ta1.runs.push(r);
+    }
+    await c.close();
+  }
+  // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/tieng-anh/<tên>.jpg)
+  {
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of ["doc-hieu", "dien-tu"]) {
+      if (!ta1.shots.includes(n + "-light") || !ta1.shots.includes(n + "-dark")) continue;
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTTA}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTTA}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("TA1:", ta1.runs.map((r) => `${r.id} ${r.scheme}: ${r.right}/${r.n} đúng, ${r.score}, lưu ${r.saved}, đoạn đọc ${r.psgBad.length ? "sai ở câu " + r.psgBad : "đúng"}${r.contiguous ? "" : ", câu cùng đoạn không liền nhau"}${r.vi.length ? ", chữ Việt ở câu " + r.vi : ""}`), "problems:", ta1.problems);
+  const ta1OK = !ta1.problems.length && ta1.runs.length === 4 && ta1.runs.every((r) => r.n === 25 && r.right === 25 && r.score === "10/10" && r.saved && !r.psgBad.length && !r.vi.length && r.contiguous)
+    && ["doc-hieu-light", "doc-hieu-dark", "dien-tu-light", "dien-tu-dark"].every((x) => ta1.shots.includes(x));
+
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
      Đề có sẵn: chỉ danh mục data/banks/index.js nằm trong FILES; file câu hỏi vào đệm khi mở đề. */
@@ -1093,6 +1163,6 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const real = errs;
   console.log("ERRORS:", real);
   console.log("reveal (U1):", rv);
-  if (rv.length || real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal || !k2OK || !k3OK || !r1OK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (rv.length || real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal || !k2OK || !k3OK || !r1OK || !ta1OK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();

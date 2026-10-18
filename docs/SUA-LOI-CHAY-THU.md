@@ -159,6 +159,7 @@ Mã lỗi (L1, L2…) dùng trong lời giao việc và trong commit.
 - Phiên R1 (PR #47) thêm vào màn làm đề link "Báo câu này sai" và hộp chọn lí do, cũng bằng tiếng Việt.
 - Đề thử nghiệm `thunghiem6-dang-cau-moi` có 3 câu Tiếng Anh: câu nối cột nối từ tiếng Anh với nghĩa tiếng Việt, câu đúng/sai 4 ý có lời giải tiếng Việt.
 - Ảnh (360px, trước khi sửa): [hinh-ra-soat-k3/l21-de-tieng-anh.jpg](hinh-ra-soat-k3/l21-de-tieng-anh.jpg): màn mở đề, câu điền sau khi Kiểm tra, câu đọc hiểu đúng/sai, hộp hỏi khi thoát.
+- Ảnh sau Phiên TA1 (360px, sáng/tối; nội dung đề đã 100% tiếng Anh, giao diện làm đề còn tiếng Việt đến Phiên TA2): [hinh-ra-soat-k3/l21-ta1-doc-hieu.jpg](hinh-ra-soat-k3/l21-ta1-doc-hieu.jpg) câu đọc hiểu với đoạn đọc dùng chung; [hinh-ra-soat-k3/l21-ta1-dien-tu.jpg](hinh-ra-soat-k3/l21-ta1-dien-tu.jpg) câu điền sau khi bấm Kiểm tra.
 
 **L22. Đề "Tin học và Công nghệ 4 · Cuối kì I" không có số đề nên nút chỉ ghi "Đề".**
 - Tên trong `data/banks/index.js` thiếu "· Đề 1", khác quy ước `<môn> <khối> · <kì> · Đề N` của CLAUDE.md. `bankLabels` lấy số đề từ tên, nên hàng "Tin học và Công nghệ" trên trang chủ lớp 4 có một nút chỉ ghi chữ "Đề".
