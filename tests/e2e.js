@@ -477,12 +477,12 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const cloudOK = /đám mây/.test(cloudBackup.msg) && cloudBackup.same;
 
   step("360px light + dark (L4–L11)");
-  /* Ở 360px: không tràn ngang; mọi button, a.btn, .linkbtn đang hiện cao ≥ 44px; không chữ nào nhỏ hơn 13px.
+  /* Ở 360px: không tràn ngang; mọi button, a.btn, .linkbtn, summary (dòng mở/đóng của <details>, L23) đang hiện cao ≥ 44px; không chữ nào nhỏ hơn 13px.
      Phần tử bị ẩn (display:none, nằm trong <details> đang đóng) không tính. Trả về danh sách lỗi. */
   const audit = () => {
     const bad = [], shown = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden"; };
     if (document.documentElement.scrollWidth > innerWidth) bad.push("tràn ngang: rộng " + document.documentElement.scrollWidth + "px");
-    document.querySelectorAll("button, a.btn, .linkbtn").forEach((el) => { const h = el.getBoundingClientRect().height; if (shown(el) && h < 44) bad.push(`nút "${el.textContent.trim().slice(0, 24)}" cao ${Math.round(h)}px`); });
+    document.querySelectorAll("button, a.btn, .linkbtn, summary").forEach((el) => { const h = el.getBoundingClientRect().height; if (shown(el) && h < 44) bad.push(`nút "${el.textContent.trim().slice(0, 24)}" cao ${Math.round(h)}px`); });
     const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     for (let n; (n = tw.nextNode());) {
       const el = n.parentElement, fs = parseFloat(getComputedStyle(el).fontSize);
@@ -556,7 +556,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       if (t === "users") r.usersFoot = !(await footShown());
       if (t === "data") await snap("du-lieu", true);
     }
-    for (const h of ["#/admin/user/new?role=student", "#/admin/event/ck1-l4", "#/admin/bank/new"]) { await open(h); await check(h); }
+    for (const h of ["#/admin/user/new?role=student", "#/admin/event/ck1-l4", "#/admin/bank/new"]) { await open(h); await check(h); } // màn nhập đề: dòng "Cách viết câu hỏi" (summary) cũng phải cao ≥ 44px (L23)
     // đề chưa tải được (mất mạng mà chưa mở đề nào của môn này): báo và có nút Thử lại
     await c.route("**/data/banks/4-tv.js", (rt) => rt.abort("internetdisconnected"));
     await open("#/quiz/tv4-ck1-de1"); await p.waitForSelector("#qRetry"); await check("đề chưa tải được"); await snap("de-chua-tai-duoc");

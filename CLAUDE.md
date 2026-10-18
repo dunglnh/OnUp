@@ -8,7 +8,7 @@ Web app ôn thi **cả năm học** cho học sinh **lớp 4 và lớp 6** (sác
 
 Người dùng là trẻ 9–12 tuổi và phụ huynh, nên:
 - Giao diện tiếng Việt, câu ngắn. Gọi người đang dùng app là "bạn" (cả học sinh, phụ huynh, quản trị); chỉ dùng "con" khi nói với phụ huynh về con của họ ("hồ sơ của con"). Không thuật ngữ kỹ thuật trên màn hình.
-- Ưu tiên điện thoại (rộng 360–420px), không cuộn ngang, vùng bấm cao ≥ 44px, chữ ≥ 13px (`tests/e2e.js` kiểm tra ở 360px).
+- Ưu tiên điện thoại (rộng 360–420px), không cuộn ngang, vùng bấm cao ≥ 44px (nút, link dạng nút, dòng `summary` của `<details>`), chữ ≥ 13px (`tests/e2e.js` kiểm tra ở 360px).
 - Thu thập dữ liệu tối thiểu: tên hiển thị, khối, lớp. **Không** hỏi ngày sinh, số điện thoại, email, ảnh của trẻ.
 
 ## Kiến trúc

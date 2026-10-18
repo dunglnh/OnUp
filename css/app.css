@@ -78,6 +78,9 @@ a{color:var(--acc)}
 .btn.sm{padding:7px 12px;font-size:.875rem;border-radius:10px;min-height:44px}
 .btn:disabled{opacity:.45;cursor:default}
 .linkbtn{border:0;background:none;color:var(--acc);font-weight:700;padding:4px 0;text-align:left;align-self:flex-start;min-height:44px;min-width:44px;display:inline-flex;align-items:center}
+/* <details class="small"> (hướng dẫn gấp lại, ví dụ "Cách viết câu hỏi" ở màn nhập đề): dòng summary là vùng bấm, cao ≥ 44px, chữ căn giữa;
+   giữ dấu tam giác mặc định (display: list-item). .grp>summary, .psg>summary có kiểu riêng bên dưới. */
+details.small>summary{min-height:44px;padding:12px 0;cursor:pointer}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 11px;font-size:.8125rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .chip.warn{border-color:var(--bad);color:var(--bad);font-weight:700}
 .chip.tent{border-style:dashed}
