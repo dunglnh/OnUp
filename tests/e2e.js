@@ -885,6 +885,99 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     && k3.report.n === "2" && k3.report.subj === "Toán 9,75/10 2 bài · 49/50 câu đúng" && k3.report.topics === 1 && /Đề ngẫu nhiên/.test(k3.report.week)
     && k3.adminRow === "Lớp 6 · Toán · 25 câu rút ngẫu nhiên · có sẵn (chỉ xem)";
 
+  step("report wrong question (R1)");
+  /* Nút "Báo câu này sai" (js/quiz.js, opts.onReport). Bin ôn luyện Toán 4 Đề 1: làm như thi không có link trong lúc làm; ôn luyện
+     thì sau khi Kiểm tra, dưới lời giải có link nhỏ (≥ 44px) có lá cờ; bấm mở hộp lí do ngay bên dưới (không phải hộp nổi), chưa chọn
+     lí do thì báo, "Thôi" đóng hộp; gửi xong hiện cảm ơn, link thành "Đã báo câu này". Báo cáo lưu trong Store (userId, mã đề, mã
+     câu = Quiz.key, bản chụp nội dung câu ≤ 500 kí tự, lí do, ghi chú cắt 200). Màn kết quả: mỗi câu cần xem lại có link, câu đã báo
+     thì link tắt. opts.reported (đã báo từ trước) và onReport bị từ chối (hiện lỗi, bấm lại được) thử bằng Quiz.run trực tiếp.
+     Dữ liệu cũ chưa có trường reports: đọc vào là []. Quản trị → Dữ liệu: danh sách và nút "Chép để gửi" (văn bản dán Zalo).
+     Phụ huynh xem thử cũng báo được. Mỗi màn hình kiểm tra 360px, ảnh 20-*.png. */
+  const rc = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
+  await localConfig(rc); watchOut(rc); await rc.grantPermissions(["clipboard-read", "clipboard-write"], { origin: BASE });
+  const rp = await rc.newPage(); rp.on("pageerror", (e) => errs.push("pageerror R1: " + e.message)); rp.on("console", (m) => { if (m.type() === "error") errs.push("console R1: " + m.text()); });
+  const r1 = { problems: [] };
+  const rcheck = async (label) => (await rp.evaluate(audit)).forEach((x) => r1.problems.push(`R1 · ${label}: ${x}`));
+  const rsnap = async (n) => { await rp.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await rp.screenshot({ path: `${OUT}20-${n}.png`, fullPage: true }); };
+  const rtext = (sel) => rp.textContent(sel).then((t) => t.replace(/\s+/g, " ").trim(), () => "");
+  const answerFirst = async () => { if (await rp.$("#qzFill")) await rp.fill("#qzFill", "1"); else await rp.click(".opt >> nth=0"); await rp.click("#qzGo"); };
+  const curKey = () => rp.evaluate((id) => { const t = document.querySelector(".qcard .qtext").textContent.replace(/___/g, "").replace(/\s+/g, ""); const q = Store.bank(id).questions.find((x) => String(x.q).replace(/___/g, "").replace(/\s+/g, "") === t); return q ? [Quiz.key(q), Quiz.text(q)] : null; }, "toan4-ck1-de1");
+  await rp.goto(BASE + "/");
+  r1.oldDefault = await rp.evaluate(() => { const d = JSON.parse(localStorage.getItem("ontap_db_v1")); delete d.reports; localStorage.setItem("ontap_db_v1", JSON.stringify(d)); Store.load(); return Array.isArray(Store.data().reports) && Store.reports().length === 0; });
+  await rp.click(`.tile[data-u="${ids.Bin}"]`); await rp.fill("#pinIn", PINS.Bin); await rp.waitForTimeout(400);
+  await rp.goto(BASE + "/#/quiz/toan4-ck1-de1"); await rp.waitForSelector("#qPractice");
+  await rp.click("#qExam"); r1.examNoLink = !(await rp.$(".rp-link")); // làm như thi: không có lời giải, không có link
+  await rp.click("#qzExit"); await rp.click("#qzYes"); await rp.waitForTimeout(300); // chưa làm câu nào: thoát
+  await rp.goto(BASE + "/#/quiz/toan4-ck1-de1"); await rp.waitForSelector("#qPractice"); await rp.click("#qPractice");
+  r1.beforeCheck = !(await rp.$(".rp-link")); // chưa kiểm tra: chưa có link
+  const rk1 = await curKey(); await answerFirst();
+  r1.link = await rp.$eval(".rp-link", (b) => ({ h: Math.round(b.getBoundingClientRect().height), text: b.textContent.trim(), flag: !!b.querySelector("svg"), inFb: !!b.closest("#qzFb"), after: !!b.closest("#qzFb").querySelector(".fb") }));
+  await rp.click(".rp-link"); await rp.waitForSelector(".report-box");
+  r1.box = await rp.evaluate(() => { const b = document.querySelector(".report-box"); return { inline: !!b.closest("#qzFb") && getComputedStyle(b).position === "static" && !document.querySelector("#leaveBox"),
+    reasons: [...b.querySelectorAll(".rsn .opt")].map((x) => x.textContent.trim()).join(), max: b.querySelector(".report-note").maxLength, btns: [...b.querySelectorAll(".row button")].map((x) => x.textContent).join() }; });
+  await rp.click(".report-box [type=submit]"); r1.needReason = await rtext(".rp-err");
+  await rcheck("hộp báo câu sai"); await rsnap("bao-cau-sai");
+  await rp.click(".report-box .rp-no"); r1.closed = !(await rp.$(".report-box")); // Thôi: đóng hộp, link vẫn bấm được
+  await rp.click(".rp-link"); await rp.click('.rsn .opt[data-r="typo"]'); await rp.fill(".report-note", "Thiếu dấu. " + "x".repeat(300));
+  r1.pressed = await rp.$eval('.rsn .opt[data-r="typo"]', (b) => b.getAttribute("aria-pressed"));
+  await rp.click(".report-box [type=submit]"); await rp.waitForSelector(".rp-done");
+  r1.done = await rtext(".rp-done"); r1.after = await rp.$eval(".rp-link", (b) => b.disabled + " " + b.textContent.trim() + " " + b.getAttribute("aria-expanded"));
+  await rcheck("đã báo"); await rsnap("bao-cau-sai-xong");
+  await rp.evaluate(() => document.querySelector(".rp-link").click()); r1.noReopen = !(await rp.$(".report-box")); // link đã tắt: bấm không mở lại
+  const saved = await rp.evaluate(() => Store.reports());
+  r1.saved = saved.length === 1 && saved[0].userId === ids.Bin && saved[0].bankId === "toan4-ck1-de1" && !!rk1 && saved[0].qKey === rk1[0] && saved[0].qText === rk1[1] && saved[0].qText.length <= 500
+    && saved[0].reason === "typo" && saved[0].note.length === 200 && saved[0].note.startsWith("Thiếu dấu. ") && /^\d{4}-/.test(saved[0].at);
+  await rp.click("#qzGo"); // câu 2: báo "Khác" không ghi chú
+  const rk2 = await curKey(); await answerFirst();
+  await rp.click(".rp-link"); await rp.click('.rsn .opt[data-r="other"]'); await rp.click(".report-box [type=submit]"); await rp.waitForSelector(".rp-done");
+  await rp.click("#qzGo"); await answerFirst(); // câu 3: không báo
+  await rp.click("#qzExit"); await rp.click("#qzYes"); await rp.waitForSelector(".score"); // dừng ôn: màn kết quả
+  r1.resultLinks = await rp.evaluate((keys) => { const rows = [...document.querySelectorAll(".rv")]; const links = rows.map((r) => r.querySelector(".rp-link"));
+    return { n: rows.length, all: links.every(Boolean), off: links.filter((b) => b.disabled).map((b) => b.dataset.k + ":" + b.textContent.trim()), on: links.filter((b) => !b.disabled).length, keys }; }, [rk1[0], rk2[0]]);
+  if (r1.resultLinks.on) { // báo một câu ở màn kết quả
+    await rp.click(".rv .rp-link:not([disabled]) >> nth=0"); await rp.click('.rsn .opt[data-r="wrong"]'); await rp.fill(".report-note", "Theo sách là 6 080.");
+    await rcheck("báo ở màn kết quả"); await rp.click(".report-box [type=submit]"); await rp.waitForSelector(".rv .rp-done");
+  }
+  r1.n3 = await rp.evaluate(() => Store.reports().length);
+  // opts.reported (đã báo từ trước) và onReport bị từ chối: thử Quiz.run trực tiếp
+  r1.direct = await rp.evaluate(async () => {
+    const mk = (opts) => { const el = document.createElement("div"); document.body.append(el); Quiz.run(el, { title: "Thử", questions: [{ type: "tf", q: "1 + 1 = 2", a: true, x: "Giải thích." }] }, Object.assign({ mode: "practice" }, opts)); el.querySelector(".opt").click(); el.querySelector("#qzGo").click(); return el; };
+    const tick = () => new Promise((ok) => setTimeout(ok, 30));
+    const a = mk({ onReport: () => Promise.resolve(), reported: () => true }), la = a.querySelector(".rp-link");
+    const was = { disabled: la.disabled, text: la.textContent.trim() };
+    const b = mk({ onReport: () => Promise.reject(new Error("Mất kết nối mạng.")) }), lb = b.querySelector(".rp-link");
+    lb.click(); b.querySelector('.rsn .opt[data-r="wrong"]').click(); b.querySelector(".report-box [type=submit]").click(); await tick();
+    const err = b.querySelector(".rp-err").textContent, again = !b.querySelector(".report-box [type=submit]").disabled && !lb.disabled;
+    const c = mk({}), none = !c.querySelector(".rp-link");
+    a.remove(); b.remove(); c.remove();
+    return { was, err, again, none };
+  });
+  // quản trị: Dữ liệu → danh sách, chép để gửi
+  await rp.goto(BASE + "/#/account"); await rp.click("#logout"); await rp.waitForTimeout(200);
+  await rp.click(`.tile[data-u="${ids["Bố Minh"]}"]`); await rp.fill("#pinIn", PINS["Bố Minh"]); await rp.waitForTimeout(400);
+  await rp.goto(BASE + "/#/admin/data"); await rp.waitForSelector("#reportsBox");
+  r1.list = await rp.evaluate(() => { const b = document.querySelector("#reportsBox"); return { head: b.querySelector("h3").textContent, n: b.querySelectorAll(".item").length, first: b.querySelector(".item").textContent.replace(/\s+/g, " ").trim(), copy: !!b.querySelector("#copyReports"), chips: b.querySelectorAll(".chip").length }; });
+  await rcheck("dữ liệu: câu bị báo"); await rsnap("du-lieu-cau-bi-bao");
+  await rp.click("#copyReports"); await rp.waitForTimeout(300);
+  r1.clip = await rp.evaluate(() => navigator.clipboard.readText()).catch((e) => "lỗi: " + e.message);
+  r1.toast = await rtext("#toast");
+  // phụ huynh xem thử cũng báo được (ghi tên phụ huynh)
+  await rp.goto(BASE + "/#/account"); await rp.click("#logout"); await rp.waitForTimeout(200);
+  await rp.click(`.tile[data-u="${ids["Mẹ Bin"]}"]`); await rp.fill("#pinIn", PINS["Mẹ Bin"]); await rp.waitForTimeout(400);
+  await rp.goto(BASE + "/#/quiz/toan4-ck1-de1"); await rp.waitForSelector("#qPractice"); await rp.click("#qPractice"); await answerFirst();
+  await rp.click(".rp-link"); await rp.click('.rsn .opt[data-r="unclear"]'); await rp.click(".report-box [type=submit]"); await rp.waitForSelector(".rp-done");
+  r1.parent = await rp.evaluate((id) => { const r = Store.reports()[0]; return r.userId === id && r.reason === "unclear" && Store.reports().length === 4; }, ids["Mẹ Bin"]);
+  await rc.close();
+  console.log("R1:", r1);
+  const r1OK = !r1.problems.length && r1.oldDefault && r1.examNoLink && r1.beforeCheck && r1.link.h >= 44 && r1.link.text === "Báo câu này sai" && r1.link.flag && r1.link.inFb && r1.link.after
+    && r1.box.inline && r1.box.reasons === "Đáp án sai,Câu hỏi khó hiểu,Lỗi chính tả,Khác" && r1.box.max === 200 && r1.box.btns === "Gửi,Thôi" && /chọn một lí do/.test(r1.needReason) && r1.closed
+    && r1.pressed === "true" && /Cảm ơn bạn/.test(r1.done) && r1.after === "true Đã báo câu này false" && r1.noReopen && r1.saved
+    && r1.resultLinks.n >= 1 && r1.resultLinks.all && r1.resultLinks.off.every((x) => /:Đã báo câu này$/.test(x) && [rk1[0], rk2[0]].includes(x.split(":")[0])) && r1.n3 === 2 + (r1.resultLinks.on ? 1 : 0)
+    && r1.direct.was.disabled && r1.direct.was.text === "Đã báo câu này" && /Mất kết nối mạng/.test(r1.direct.err) && r1.direct.again && r1.direct.none
+    && /^Câu bị báo sai \(\d\)$/.test(r1.list.head) && r1.list.n === r1.n3 && /Toán 4 · Cuối kì I · Đề 1/.test(r1.list.first) && /Bin · /.test(r1.list.first) && r1.list.copy && r1.list.chips === 0
+    && r1.clip.startsWith(`Báo câu sai · OnUp · Nhà Bin · ${r1.n3} câu`) && /\n1\) Toán 4 · Cuối kì I · Đề 1 · /.test(r1.clip) && /Lỗi chính tả\nCâu: /.test(r1.clip) && /Ghi chú: Thiếu dấu\. /.test(r1.clip)
+    && /\nBin · /.test(r1.clip) && /toan4-ck1-de1 · /.test(r1.clip) && /Đã chép \d câu/.test(r1.toast) && r1.parent;
+
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
      Đề có sẵn: chỉ danh mục data/banks/index.js nằm trong FILES; file câu hỏi vào đệm khi mở đề. */
@@ -1000,6 +1093,6 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const real = errs;
   console.log("ERRORS:", real);
   console.log("reveal (U1):", rv);
-  if (rv.length || real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal || !k2OK || !k3OK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
+  if (rv.length || real.length || cloudMode || outReqs.length || !backupOK || !offlineOK || !cloudOK || db.results.length !== 5 || db.banks.length !== 1 || dataErrs.length || !migOK || !reportOK || !modGuardOK || !examGuardOK || !pinLockOK || !routeOK || !pinAutoOK || !ok360 || !gradesOK || !noAnswerOK || !homeScreenOK || !labelsOK || !swOK || !adminLocal || !k2OK || !k3OK || !r1OK) { console.error("E2E FAILED"); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
 })();

@@ -3,13 +3,14 @@
    (hạn mức hồ sơ con theo gói, khóa hồ sơ vượt hạn mức, kết quả), các hàm RPC; Supabase Auth: đăng nhập bằng mật khẩu,
    đổi mật khẩu, API admin (tạo, sửa, cấm, xóa người dùng); gọi Edge Function (hàm thật được truyền vào).
    RLS thật được kiểm tra riêng trên PostgreSQL bằng tests/supabase/run.sh; tests/supabase/admin-test.mjs so hai bên.
-   be.intR = true: như máy chủ chưa chạy supabase/cap-nhat-k2.sql (results.r còn là số nguyên, chưa có cột passages). */
+   be.intR = true: như máy chủ chưa chạy supabase/cap-nhat-k2.sql (results.r còn là số nguyên, chưa có cột passages).
+   be.noReports = true: như máy chủ chưa chạy supabase/cap-nhat-r1.sql (chưa có bảng question_reports). */
 "use strict";
 const nodeCrypto = require("crypto");
 
 const PK = {
   plans: ["id"], app_owners: ["user_id"], families: ["id"], profiles: ["id"], exam_events: ["family_id", "id"],
-  question_banks: ["family_id", "id"], results: ["id"], paid_banks: ["id"], admin_notes: ["family_id"], plan_log: ["id"], admin_log: ["id"]
+  question_banks: ["family_id", "id"], results: ["id"], paid_banks: ["id"], question_reports: ["id"], admin_notes: ["family_id"], plan_log: ["id"], admin_log: ["id"]
 };
 const ALL = "*";
 // Quyền của người đăng nhập (authenticated) theo cột, như các lệnh grant trong schema.sql. null = không được.
@@ -22,6 +23,7 @@ const GRANT = {
   question_banks: { select: ALL, insert: ALL, update: ALL, delete: true },
   results: { select: ALL, insert: ["id", "profile_id", "source", "ref_id", "subject", "label", "mode", "r", "t", "s", "wrong_topics"], update: null, delete: true },
   paid_banks: { select: ALL, insert: ALL, update: ALL, delete: true },
+  question_reports: { select: ALL, insert: ["id", "profile_id", "bank_id", "q_key", "q_text", "reason", "note"], update: ["status"], delete: false },
   admin_notes: { select: ALL, insert: ALL, update: ALL, delete: true },
   plan_log: { select: ALL, insert: null, update: null, delete: false },
   admin_log: { select: ALL, insert: null, update: null, delete: false }
@@ -73,6 +75,7 @@ function createBackend() {
       case "families": return row.auth_user_id === uid || isOwner(uid);
       case "profiles": case "exam_events": case "question_banks": case "results": return !!fid && row.family_id === fid;
       case "paid_banks": return isOwner(uid) || (row.published && !!fid && (row.free_trial || canReadAllBanks(uid)));
+      case "question_reports": return (!!fid && row.family_id === fid) || isOwner(uid);
       case "admin_notes": case "plan_log": case "admin_log": return isOwner(uid);
       default: return false;
     }
@@ -81,7 +84,7 @@ function createBackend() {
     const fid = myFamilyId(uid);
     switch (table) {
       case "plans": case "paid_banks": case "admin_notes": return isOwner(uid);
-      case "profiles": case "exam_events": case "question_banks": case "results": return !!fid && row.family_id === fid;
+      case "profiles": case "exam_events": case "question_banks": case "results": case "question_reports": return !!fid && row.family_id === fid;
       default: return false;
     }
   }
@@ -90,6 +93,7 @@ function createBackend() {
     switch (table) {
       case "plans": return isOwner(uid) && (op !== "delete" || row.id !== "free");
       case "paid_banks": case "admin_notes": return isOwner(uid);
+      case "question_reports": return op === "update" && isOwner(uid);
       case "families": return op === "update" && !!fid && row.id === fid;
       case "profiles": case "exam_events": case "question_banks": return !!fid && row.family_id === fid;
       case "results": return op === "delete" && !!fid && row.family_id === fid;
@@ -156,6 +160,22 @@ function createBackend() {
     if (table === "paid_banks") row.updated_at = iso();
     if (table === "plan_log" || table === "admin_log") { row.id = row.id || ++seq; row.at = iso(); }
     if (table === "admin_notes") row.updated_at = row.updated_at || iso();
+    if (table === "question_reports") {
+      // như question_reports_before_insert trong schema.sql
+      row.id = row.id || nodeCrypto.randomUUID();
+      row.family_id = row.family_id || myFamilyId(uid);
+      if (!row.family_id) throw new Fail('null value in column "family_id" of relation "question_reports" violates not-null constraint', "23502");
+      if (row.profile_id != null && !T.profiles.some((p) => p.id === row.profile_id && p.family_id === row.family_id)) throw new Fail("Hồ sơ không thuộc tài khoản này.", "P0001");
+      if (row.profile_id === undefined) row.profile_id = null;
+      const len = (s) => String(s == null ? "" : s).length;
+      if (!(len(row.bank_id) >= 1 && len(row.bank_id) <= 80) || !(len(row.q_key) >= 1 && len(row.q_key) <= 40)) throw new Fail("question_reports_bank_id_check", "23514");
+      row.q_text = row.q_text == null ? "" : String(row.q_text); row.note = String(row.note == null ? "" : row.note).trim().slice(0, 200);
+      if (row.q_text.length > 500) throw new Fail("question_reports_q_text_check", "23514");
+      if (!["wrong", "unclear", "typo", "other"].includes(row.reason)) throw new Fail("question_reports_reason_check", "23514");
+      row.status = "new"; row.created_at = iso();
+      const dayStart = new Date(todayVN() + "T00:00:00+07:00");
+      if (T.question_reports.filter((x) => x.family_id === row.family_id && new Date(x.created_at) >= dayStart).length >= 30) throw new Fail("Mỗi gia đình báo được tối đa 30 câu một ngày. Mai báo tiếp nhé.", "P0001");
+    }
   }
   function afterUpdate(table, row, patch) {
     if (table === "families" && ("plan" in patch || "plan_until" in patch)) syncLocks(row.id);
@@ -165,12 +185,13 @@ function createBackend() {
   function removeRow(table, row) {
     T[table] = T[table].filter((x) => x !== row);
     if (table === "families") {
-      ["exam_events", "question_banks", "results", "admin_notes"].forEach((t) => (T[t] = T[t].filter((x) => x.family_id !== row.id)));
+      ["exam_events", "question_banks", "results", "question_reports", "admin_notes"].forEach((t) => (T[t] = T[t].filter((x) => x.family_id !== row.id)));
       T.profiles = T.profiles.filter((p) => p.family_id !== row.id);
       T.plan_log.forEach((l) => { if (l.family_id === row.id) l.family_id = null; });
     }
     if (table === "profiles") {
       T.results = T.results.filter((r) => r.profile_id !== row.id);
+      T.question_reports.forEach((r) => { if (r.profile_id === row.id) r.profile_id = null; });
       syncLocks(row.family_id);
     }
   }
@@ -200,6 +221,7 @@ function createBackend() {
   function query(q, uid, service) {
     const table = q.table;
     if (!T[table]) throw new Fail("relation does not exist");
+    if (table === "question_reports" && be.noReports) throw new Fail("Could not find the table 'public.question_reports' in the schema cache", "PGRST205");
     if (!service && !uid) throw denied(table); // vai trò anon: không được gì
     const visible = (r) => service || canSee(table, r, uid);
     if (q.op !== "select" && be.failWrites > 0) { be.failWrites--; throw new Fail(be.failMsg || "TypeError: Failed to fetch", be.failCode || ""); }
@@ -246,6 +268,7 @@ function createBackend() {
     }
     if (q.op === "update") {
       checkCols(table, "update", q.patch, service);
+      if (table === "question_reports" && "status" in q.patch && !["new", "fixed", "rejected"].includes(q.patch.status)) throw new Fail("question_reports_status_check", "23514");
       const rows = T[table].filter((r) => visible(r) && match(r, q.filters) && (service || canWrite(table, r, uid, "update")));
       rows.forEach((r) => { Object.assign(r, clone(q.patch)); afterUpdate(table, r, q.patch); });
       if (!q.returning) return null;

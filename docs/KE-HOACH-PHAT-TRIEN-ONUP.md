@@ -1,6 +1,6 @@
 # Kế hoạch phát triển OnUp
 
-> **Trạng thái (18/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy **bản đám mây** từ 17/10 (PR #27), đang chạy thử trong gia đình, chỉ dành cho gia đình được mời. Đã xong: khung tài khoản (Phiên A, B, C), sửa lỗi chạy thử (9a–9d), U1, K1, K2, K3 (đề ngẫu nhiên theo ma trận), đề N0a, N0b, đồng bộ tài liệu D0, UI1, S1 (màn đăng nhập cho người mới). Còn chờ bố mẹ thử L17 (sao lưu trên iPhone thật, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2, Phiên 9d). Kho đề: `node tests/kiem-tra-de.js` in số đề, số câu, dạng câu (18/10: 29 đề, 715 câu, 6 đề ngẫu nhiên).
+> **Trạng thái (18/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy **bản đám mây** từ 17/10 (PR #27), đang chạy thử trong gia đình, chỉ dành cho gia đình được mời. Đã xong: khung tài khoản (Phiên A, B, C), sửa lỗi chạy thử (9a–9d), U1, K1, K2, K3 (đề ngẫu nhiên theo ma trận), đề N0a, N0b, đồng bộ tài liệu D0, UI1, S1 (màn đăng nhập cho người mới), R1 (nút “Báo câu này sai”; chủ app chạy `supabase/cap-nhat-r1.sql` sau khi Merge). Còn chờ bố mẹ thử L17 (sao lưu trên iPhone thật, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2, Phiên 9d). Kho đề: `node tests/kiem-tra-de.js` in số đề, số câu, dạng câu (18/10: 29 đề, 715 câu, 6 đề ngẫu nhiên).
 > **Đã chốt 18/10/2026:** bán khi đủ đề lớp 4–12 (theo nhịp 1–2 phiên mỗi tuần: khoảng cuối năm học 2028–2029); đến lúc đó gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng `plans` không đổi), hạn mức hai gói lúc bán chốt sau; các phiên chuẩn bị bán G1, B1, B2, B4 làm ngay trước lúc đó; Supabase giữ gói Free đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần); trang công khai chỉ dành cho gia đình được mời (màn đăng nhập có dòng “Chưa có tài khoản?”, Phiên S1); câu sai báo bằng nút trong app (Phiên R1), GitHub Issues chỉ còn cho chủ app; không ghi giá bán, chi phí hay so sánh đối thủ vào repo. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 > **Quy ước (từ Phiên D0):** chỉ file này ghi trạng thái và lộ trình. CLAUDE.md, README và các tài liệu khác trong docs/ chỉ trỏ sang đây. Làm xong một phiên thì gạch dòng của nó ở mục 3 và ghi số PR; đổi quyết định thì sửa đoạn trên trước.
 > **Tiếp theo:** mục 2 (việc của chủ app) và mục 3 (thứ tự các phiên). Mục 5: nhật ký chạy thử, chủ app tự điền.
@@ -65,7 +65,7 @@ Nội dung hiện có (18/10/2026, `node tests/kiem-tra-de.js`: 29 đề, 715 c�
 5. **Theo dõi chạy thử:** vì còn khoảng hai năm rưỡi nữa mới thu tiền, nên đo sớm xem gia đình có thật sự dùng: số gia đình được mời, số lượt làm bài mỗi tuần, gia đình còn dùng sau 4 tuần. Cuối học kì I, hỏi vài gia đình "app có đáng trả tiền không, khoảng bao nhiêu" (câu trả lời cất ở tài liệu riêng, không ghi số tiền vào repo). Ghi vào mục 5 "Nhật ký chạy thử" ở cuối file này.
 
 **Thường xuyên:**
-6. Rà đề mới: cho con làm thử, ghi câu sai vào GitHub Issues (cho đến khi có nút báo câu sai của Phiên R1).
+6. Rà đề mới: cho con làm thử; câu sai thì bấm “Báo câu này sai” ngay trong app (Phiên R1). Chủ app xem và xử lí ở trang admin → tab Câu bị báo (bản lưu trên máy: Quản trị → Dữ liệu → Chép để gửi). GitHub Issues chỉ còn cho chủ app.
 7. Trường báo lịch chính thức thì sửa ngày trong Khu phụ huynh → Lịch thi.
 8. Trước khi chia sẻ trang rộng rãi: bật CAPTCHA (bước 8 của `docs/HUONG-DAN-SUPABASE.md`).
 9. Trước khi bán (khoảng năm 2029): lên Supabase Pro, thông báo website với Bộ Công Thương (online.gov.vn), hỏi kế toán về thuế.
@@ -80,7 +80,7 @@ Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn
 | 2 | 25/10 | ~~UI1 · Chỉnh nhỏ chữ và màu~~ (đã xong, PR #40) | | sửa css/app.css, thêm một kiểm tra vào tests/e2e.js; chạy cùng lúc với D0 được |
 | 3 | 1/11 | ~~K3 · Rút đề ngẫu nhiên theo ma trận~~ (đã xong, PR #46) | K1, K2 (đã xong) | các phiên làm đề N1 trở đi dùng dạng ngân hàng của K3 ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 3, 7) |
 | 4 | 1/11 | ~~S1 · Màn hình đăng nhập cho người mới~~ (đã xong, PR #43) | `contactUrl` đã điền | nhỏ; dùng khi trang công khai chỉ dành cho gia đình được mời |
-| 5 | 8/11 | **R1 · Nút "Báo câu này sai"** | K3 (cùng sửa js/quiz.js) | chủ app chạy `supabase/cap-nhat-r1.sql` sau khi Merge |
+| 5 | 8/11 | ~~R1 · Nút "Báo câu này sai"~~ (đã xong, PR #47) | K3 (đã xong) | chủ app chạy `supabase/cap-nhat-r1.sql` sau khi Merge |
 | 6 | 15/11 | **UX1 · Trang "Hôm nay" và màn kết quả của con** | R1; ghi chép của chủ app | |
 | 7 | 22/11 | **UX2 · Khu phụ huynh gọn lại** | UX1 | |
 | 8 | 29/11 | **UX3 · Bắt đầu và chuyển máy cho con** | UX2 | |
@@ -128,6 +128,7 @@ Không chạy cùng lúc hai phiên cùng sửa `js/app.js` hoặc `js/quiz.js`;
 | — | — | ~~Phiên UI1 · Chỉnh nhỏ chữ và màu~~ (đã xong, PR #40) | |
 | — | — | ~~Phiên S1 · Màn hình đăng nhập cho người mới~~ (đã xong, PR #43; chủ app điền `signupText`, `signupUrl` nếu muốn) | |
 | — | — | ~~Phiên K3 · Rút đề ngẫu nhiên theo ma trận~~ (đã xong, PR #46) | |
+| — | — | ~~Phiên R1 · Nút “Báo câu này sai”~~ (đã xong, PR #47; chủ app chạy `supabase/cap-nhat-r1.sql`) | |
 
 **Để sau, chỉ làm khi có nhu cầu thật:** nhập đề từ Excel (Phiên 6 cũ); tự đăng ký, email để tự lấy lại mật khẩu, tài khoản giáo viên/lớp học (mục 7 bản thiết kế); **bản trả phí** (hướng đi ở mục 9 bản thiết kế; việc kĩ thuật cần làm trước ở mục 5 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)). Đề lớp 5, 7–12 đã có thứ tự và số phiên dự kiến trong [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Việc “bắt buộc đổi PIN cũ” không còn cần vì cách đăng nhập mới bỏ kiểm tra PIN ở máy chủ; `pin_hash` của hồ sơ con chỉ là khóa trên giao diện.
 
@@ -183,7 +184,7 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 >
 > Thêm kiểm tra vào cloud-e2e.js, chụp ảnh 360px sáng/tối màn đăng nhập. Chạy tests/e2e.js và tests/supabase/cloud-e2e.js đến khi in OK (cloud-e2e chạy 3 lần liền đều OK), chỉ tự rà soát một vòng, rồi mở Pull Request.
 
-**Phiên R1 · Nút "Báo câu này sai"**
+**Phiên R1 · Nút "Báo câu này sai"** (đã xong, PR #47)
 > Đọc CLAUDE.md. Sau khi K3 đã gộp.
 > - **Giao diện:** nút nhỏ "Báo câu này sai" ở phần lời giải khi ôn luyện và ở từng câu trong màn kết quả. Bấm thì mở ô chọn lí do (Đáp án sai · Câu hỏi khó hiểu · Lỗi chính tả · Khác) và ô ghi chú ngắn (tối đa 200 kí tự), gửi xong hiện lời cảm ơn. Vùng bấm ≥ 44px.
 > - **Nhận diện câu:** mã đề cộng mã câu ổn định (dùng mã câu sẵn có nếu K1–K3 đã thêm; không thì băm nội dung câu), lưu kèm bản chụp nội dung câu (tối đa 500 kí tự) để sau khi sửa đề vẫn biết câu nào bị báo.

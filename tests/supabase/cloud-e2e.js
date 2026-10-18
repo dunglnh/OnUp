@@ -188,12 +188,33 @@ async function run(browser, scheme) {
   await shot(p, "c8-trang-con");
   await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await wait(p);
   await p.click("#qPractice");
+  const binId = prof.find((x) => x.name === "Bin").id;
   for (let i = 0; i < 40 && !(await p.$(".score")); i++) {
     if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0");
-    await p.click("#qzGo"); await p.click("#qzGo");
+    await p.click("#qzGo");
+    if (i === 2) { // R1: link "Báo câu này sai" dưới lời giải, hộp lí do mở ngay bên dưới, gửi lên máy chủ với hồ sơ con
+      c.r1 = { link: await p.$eval(".rp-link", (b) => ({ h: Math.round(b.getBoundingClientRect().height), text: b.textContent.trim(), inFb: !!b.closest("#qzFb") })) };
+      await p.click(".rp-link"); await p.waitForSelector(".report-box");
+      c.r1.inline = await p.evaluate(() => { const b = document.querySelector(".report-box"); return !!b.closest("#qzFb") && getComputedStyle(b).position === "static" && !document.querySelector("#leaveBox"); });
+      await p.click(".report-box [type=submit]"); c.r1.needReason = await text(p, ".rp-err");
+      await p.click('.rsn .opt[data-r="wrong"]'); await p.fill(".report-note", "Đáp án phải là 6 080. " + "x".repeat(300));
+      await shot(p, "c8c-bao-cau-sai");
+      await p.click(".report-box [type=submit]"); await p.waitForSelector(".rp-done");
+      c.r1.done = await text(p, ".rp-done");
+      c.r1.after = await p.$eval(".rp-link", (b) => b.disabled + " " + b.textContent.trim());
+      c.r1.key = await p.$eval(".rp-link", (b) => b.dataset.k);
+      await shot(p, "c8d-bao-cau-sai-xong");
+    }
+    await p.click("#qzGo");
   }
   await p.waitForSelector(".score");
-  const binId = prof.find((x) => x.name === "Bin").id;
+  // R1: màn kết quả: mỗi câu cần xem lại có link; báo thêm một câu ở đó
+  c.r1.result = await p.$$eval(".rv", (rows) => rows.length > 0 && rows.every((r) => r.querySelector(".rp-link")));
+  await p.click(".rv .rp-link:not([disabled]) >> nth=0"); await p.click('.rsn .opt[data-r="unclear"]'); await p.click(".report-box [type=submit]"); await p.waitForSelector(".rv .rp-done");
+  c.r1.server = await until(p, () => be.T.question_reports.filter((r) => r.profile_id === binId).length === 2);
+  const rpRows = be.T.question_reports.filter((r) => r.profile_id === binId), rp1 = rpRows.find((r) => r.q_key === c.r1.key);
+  c.r1.row = !!rp1 && rp1.family_id === acc.id && rp1.bank_id === "toan4-ck1-de1" && rp1.reason === "wrong" && rp1.note.length === 200 && rp1.q_text.length > 10 && rp1.q_text.length <= 500 && rp1.status === "new"
+    && rpRows.some((r) => r.reason === "unclear" && r.bank_id === "toan4-ck1-de1");
   c.result = await until(p, () => be.T.results.some((r) => r.profile_id === binId && r.ref_id === "toan4-ck1-de1"));
   /* Hồ sơ con là học sinh nên L15, L16, L18 (tests/e2e.js) cũng áp dụng ở bản đám mây. */
   const kidRes = () => p.evaluate((id) => Store.resultsFor(id).length, binId);
@@ -277,6 +298,8 @@ async function run(browser, scheme) {
   await p2.goto(BASE + "/#/admin/data"); await wait(p2);
   c.migHint = /Trên iPhone, iPad: hãy chuyển trong Safari, nơi đang có dữ liệu, trước khi dùng app ở Màn hình chính/.test(await text(p2, "#migBox"));
   c.noHomeScreen = !(await p2.$("#homeScreen")); // hướng dẫn Màn hình chính (L17) chỉ ở bản lưu trên máy
+  // R1: tab Dữ liệu của khu phụ huynh liệt kê câu đã báo kèm trạng thái, không có nút chép (đã lên máy chủ)
+  c.r1.data = await p2.evaluate(() => { const b = document.querySelector("#reportsBox"); return { n: b.querySelectorAll(".item").length, head: b.querySelector("h3").textContent, chips: [...b.querySelectorAll(".chip")].map((x) => x.textContent).join(), copy: !!b.querySelector("#copyReports"), who: /Bin/.test(b.textContent) && /Toán 4 · Cuối kì I · Đề 1/.test(b.textContent) }; });
   await p2.click("#dMigrate"); await p2.waitForSelector("#migRes .fb");
   c.migrate = await text(p2, "#migRes");
   await shot(p2, "c14-du-lieu");
@@ -425,6 +448,24 @@ async function run(browser, scheme) {
   await a.fill("#q", "0987"); ad.noteSearch = await rows();
   await a.fill("#q", "nha bin"); ad.foldSearch = await rows(); // tên hiển thị “Nhà Bin”: tìm không dấu
   await a.fill("#q", "");
+  // R1: tab "Câu bị báo": gom theo câu, đếm số lần, lọc theo đề và trạng thái, nút Đã sửa / Bỏ qua / Mở lại
+  await a.click('.tabs [data-go="#/reports"]'); await a.waitForSelector("#rpList");
+  const rpState = () => a.evaluate(() => ({ stats: [...document.querySelectorAll("#rpStats .stat")].map((s) => s.querySelector("b").textContent + " " + s.querySelector("span").textContent).join(" | "),
+    rows: [...document.querySelectorAll("#rpList .rp-item")].map((r) => r.querySelector("b").textContent + " · " + [...r.querySelectorAll(".chip")].map((c) => c.textContent).join("/") + " · " + [...r.querySelectorAll("[data-rp]")].map((b) => b.textContent).join("/")),
+    banks: [...document.querySelectorAll("#rpBank option")].map((o) => o.textContent).join(), count: document.querySelector("#rpCount").textContent, file: /data\/banks\/4-toan\.js · toan4-ck1-de1 · mã câu/.test(document.querySelector("#rpList").textContent),
+    reasons: /Đáp án sai · “Đáp án phải là 6 080/.test(document.querySelector("#rpList").textContent) && /Câu hỏi khó hiểu/.test(document.querySelector("#rpList").textContent) }));
+  const st0 = await rpState();
+  await shot(a, "c23-admin-cau-bi-bao");
+  const nStatus = (st) => be.T.question_reports.filter((r) => r.status === st).length;
+  const mark = async (sel, st, n) => { await a.click(sel); const ok = await until(a, () => nStatus(st) === n); await wait(a, 200); return ok; }; // chờ máy chủ nhận rồi vẽ lại
+  const fixedKey = await mark('#rpList .rp-item >> nth=0 >> [data-st="fixed"]', "fixed", 1);
+  const st1 = await rpState();
+  await a.selectOption("#rpSt", "all"); const st2 = await rpState();
+  await a.selectOption("#rpBank", "toan4-ck1-de1"); const st3 = await rpState();
+  const reopened = await mark('#rpList .rp-item [data-st="new"]', "new", 2);
+  await a.selectOption("#rpSt", "new"); await a.selectOption("#rpBank", "");
+  const rejected = await mark('#rpList .rp-item >> nth=1 >> [data-st="rejected"]', "rejected", 1);
+  ad.reports = { st0, st1, st2, st3, fixedKey, reopened, rejected, rows: (await rpState()).rows.length };
   // trang học trong cùng thẻ không dùng phiên của trang admin; quay lại trang admin vẫn đăng nhập
   await a.goto(BASE + "/"); await a.waitForSelector("#loginForm");
   await a.goto(BASE + "/admin.html#/log"); await a.waitForSelector("#logList .item");
@@ -462,6 +503,11 @@ async function run(browser, scheme) {
     "L18: nút đề ghi số đề theo tên đề; K3: đề ngẫu nhiên đứng trước": c.l18["Kiểm tra cuối học kì I"] === "Đề ngẫu nhiên,Đề 1,Đề 2,Đề 3" && c.l18["Kiểm tra giữa học kì II"] === "Đề ngẫu nhiên,Đề 1,Đề 2",
     "K3: đề ngẫu nhiên rút 25 câu từ kho 75 câu (3 đề), kết quả lên máy chủ với ref_id là mã pool, lịch sử câu trên máy": /25 câu rút từ kho 75 câu \(3 đề\)/.test(c.k3.intro) && c.k3.kho === "75/25/25"
       && c.k3.again === "Làm đề khác" && c.k3.server && c.k3.hist === 25,
+    "R1: link “Báo câu này sai” (≥ 44px) dưới lời giải và ở từng câu cần xem lại; hộp lí do mở tại chỗ; phải chọn lí do; gửi xong cảm ơn, link thành “Đã báo câu này”":
+      c.r1.link.h >= 44 && c.r1.link.text === "Báo câu này sai" && c.r1.link.inFb && c.r1.inline && /chọn một lí do/.test(c.r1.needReason) && /Cảm ơn bạn/.test(c.r1.done)
+      && c.r1.after === "true Đã báo câu này" && c.r1.result,
+    "R1: báo cáo lên máy chủ (hồ sơ con, gia đình, mã đề, mã câu, nội dung câu ≤ 500, ghi chú cắt 200, trạng thái mới); tab Dữ liệu liệt kê kèm trạng thái": c.r1.server && c.r1.row
+      && c.r1.data.n === 2 && c.r1.data.head === "Câu bị báo sai (2)" && c.r1.data.chips === "Mới,Mới" && !c.r1.data.copy && c.r1.data.who,
     "trang tài khoản của con: đổi người học, không đăng xuất, không đổi mật khẩu": !!c.kidAccount,
     "hồ sơ không PIN bấm là vào; con không vào được khu phụ huynh bằng địa chỉ": c.na && c.kidBlocked,
     "tab mới: nhớ hồ sơ chọn gần nhất, khu phụ huynh phải nhập lại mật khẩu": c.preselect === "Na" && /Mật khẩu chưa đúng/.test(c.wrongPw),
@@ -487,6 +533,12 @@ async function run(browser, scheme) {
     "admin: đặt lại mật khẩu, khóa, mở khóa, xóa (gõ đúng tên đăng nhập mới xóa được)": /8–72/.test(ad.shortPw) && ad.reset && ad.lock && ad.unlock && ad.delOff && ad.delOn && ad.deleted,
     "admin: nhật ký thao tác (mới nhất trước, ai làm) và nhật ký của từng tài khoản": ad.actor && ad.accLog === "Mở khóa,Khóa tài khoản,Tạo tài khoản"
       && ad.log === "Mở khóa · nha.bin | Xóa tài khoản · nha.tom | Khóa tài khoản · nha.tom | Đặt lại mật khẩu · nha.tom | Tạo tài khoản · nha.tom | Tạo tài khoản · nha.na | Khóa tài khoản · nha.bin | Tạo tài khoản · nha.bin",
+    "admin: tab Câu bị báo (gom theo câu, đếm số lần, lọc theo đề và trạng thái, Đã sửa / Bỏ qua / Mở lại)": ad.reports.st0.stats === "2 câu chưa xử lí | 2 câu bị báo | 2 lượt báo"
+      && ad.reports.st0.rows.length === 2 && ad.reports.st0.rows.every((r) => /^Toán 4 · Cuối kì I · Đề 1 · Mới · Đã sửa\/Bỏ qua$/.test(r)) && ad.reports.st0.banks === "Mọi đề,Toán 4 · Cuối kì I · Đề 1"
+      && ad.reports.st0.count === "2 câu" && ad.reports.st0.file && ad.reports.st0.reasons
+      && ad.reports.st1.rows.length === 1 && /1 câu chưa xử lí/.test(ad.reports.st1.stats) && ad.reports.st1.count === "Thấy 1/2 câu" && ad.reports.fixedKey
+      && ad.reports.st2.rows.length === 2 && ad.reports.st2.rows.some((r) => /Đã sửa · Mở lại$/.test(r)) && ad.reports.st3.rows.length === 2
+      && ad.reports.reopened && ad.reports.rejected && ad.reports.rows === 1,
     "admin: đăng xuất; CAPTCHA (khi bật) khi đăng nhập": ad.out && (!withCaptcha || ad.captcha === "adCaptcha,adCaptcha,adCaptcha"),
     "admin: không đi qua service worker; cùng bản supabase-js với trang học": ad.swSkip && ad.lib,
     "U1: nút xem mật khẩu, mã PIN (lPass, pwNew, pwNew2, pwIn, uPin, pwOld, adPass): hiện, ẩn, giữ giá trị và focus; gửi form, xóa hết ô thì ẩn lại": rv.length === 0,

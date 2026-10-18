@@ -26,6 +26,7 @@
       events: clone(window.ONTAP_SEED_EVENTS || []),
       banks: [],      // ngân hàng do quản trị viên nhập (đề có sẵn nằm ở data/banks/)
       results: [],    // {id, userId, source:"module"|"bank", refId, subject, label, mode, r, t, s, at} (xem addResult)
+      reports: [],    // câu bị báo sai: {id, userId, bankId, qKey, qText, reason, note, at} (xem addReport)
       seedBanksSeen: seedBankIds() // mã các ngân hàng có sẵn đã xét (xem linkNewSeedBanks)
     };
   }
@@ -49,6 +50,7 @@
     db.users.forEach((u) => { if (!(u.pinLen >= 4 && u.pinLen <= 6)) u.pinLen = 0; });
     if (!db.settings || typeof db.settings !== "object") db.settings = {};
     if (typeof db.settings.lastBackupAt !== "string") db.settings.lastBackupAt = null;
+    if (!Array.isArray(db.reports)) db.reports = []; // câu bị báo sai (Phiên R1): dữ liệu cũ chưa có
   }
   /* Kì thi từng có trong lịch mặc định nhưng đã bỏ khỏi bản 1.0: xóa khỏi máy đã có dữ liệu (một lần). */
   const RETIRED_EVENTS = ["violympic-l4", "trang-nguyen-l4"];
@@ -291,6 +293,25 @@
   }
   const resultsFor = (userId) => db.results.filter((r) => r.userId === userId).sort((a, b) => (a.at < b.at ? 1 : -1));
 
+  /* -------- Câu bị báo sai (Phiên R1) --------
+     addReport({userId, bankId, qKey, qText, reason, note}) → Promise<báo cáo đã lưu>. bankId: mã đề chứa câu (đề ngẫu nhiên
+     thì là mã đề gốc), qKey: Quiz.key(câu), qText: bản chụp nội dung câu (Quiz.text, tối đa 500 kí tự), reason: mã trong
+     Quiz.REASONS, note: tối đa 200 kí tự. Bản lưu trên máy giữ tối đa 200 báo cáo (Quản trị → Dữ liệu có nút chép để gửi).
+     Async như bản đám mây (gửi lên máy chủ, có thể bị từ chối). reports(): mới nhất trước. */
+  const REASON_CODES = ["wrong", "unclear", "typo", "other"];
+  async function addReport(r) {
+    if (!r || !r.userId || !r.bankId || !r.qKey) throw new Error("Thiếu thông tin câu bị báo.");
+    if (!REASON_CODES.includes(r.reason)) throw new Error("Bạn chọn một lí do nhé.");
+    const clean = {
+      id: uid(), userId: String(r.userId), bankId: String(r.bankId).slice(0, 80), qKey: String(r.qKey).slice(0, 40),
+      qText: String(r.qText || "").slice(0, 500), reason: r.reason, note: String(r.note || "").trim().slice(0, 200), at: new Date().toISOString()
+    };
+    db.reports.push(clean);
+    if (db.reports.length > 200) db.reports = db.reports.slice(-200);
+    save(); return clean;
+  }
+  const reports = () => (db ? db.reports.slice().sort((a, b) => (a.at < b.at ? 1 : -1)) : []);
+
   /* -------- Sao lưu -------- */
   function exportJSON() { return JSON.stringify(Object.assign({ app: "on-thi-4-6", exportedAt: new Date().toISOString() }, db), null, 2); }
   function importJSON(text) {
@@ -323,6 +344,7 @@
     events, event: (id) => db.events.find((e) => e.id === id) || null, upsertEvent, removeEvent, resetEvents,
     banks, bank: bankById, loadBank, upsertBank, removeBank,
     addResult, resultsFor,
+    addReport, reports,
     exportJSON, importJSON, wipe,
     settings: () => db.settings, setSettings: (p) => { Object.assign(db.settings, p); save(); },
     // Quyền theo gói (docs/THIET-KE-TAI-KHOAN.md mục 5, 9). Bản lưu trên máy không có gói: luôn được.

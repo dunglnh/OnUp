@@ -292,6 +292,45 @@ const PB = client();
   be.captchaRequired = false;
 }
 
+/* ---------- 15. máy chủ giả: câu bị báo sai (question_reports, Phiên R1), như rls-test.sql ---------- */
+{
+  const ti = (await rows(PB.from("profiles").select("id, name"))).find((p) => p.name === "Tí");
+  const ins = (row) => PB.from("question_reports").insert(row);
+  ok(!(await ins({ profile_id: ti.id, bank_id: "toan4-ck1-de1", q_key: "k1", q_text: "36 480 : 6 = ___ · Đáp án: 6 080", reason: "wrong", note: "  Phải là 6 080  " })).error
+    && !(await ins({ bank_id: "toan4-ck1-de1", q_key: "k1", reason: "typo" })).error && !(await ins({ bank_id: "tv4-ck1-de1", q_key: "k2", reason: "other", note: "x".repeat(230) })).error,
+    "phụ huynh báo câu sai: có hồ sơ con, không có hồ sơ, cùng một câu hai lần");
+  const rp = await rows(PB.from("question_reports").select("*"));
+  ok(rp.length === 3 && rp.every((r) => r.family_id === B.account.id && r.status === "new" && r.created_at) && rp[0].note === "Phải là 6 080" && rp[1].profile_id === null && rp[2].note.length === 200,
+    "máy chủ giả: family_id, status, created_at tự điền; ghi chú bỏ khoảng trắng, cắt còn 200 kí tự");
+  ok((await ins({ profile_id: "00000000-0000-4000-8000-000000000001", bank_id: "x", q_key: "k", reason: "wrong" })).error.message.includes("không thuộc tài khoản"), "mượn hồ sơ nhà khác: bị chặn");
+  ok((await ins({ bank_id: "x", q_key: "k", reason: "sai" })).error && (await ins({ bank_id: "", q_key: "k", reason: "wrong" })).error && (await ins({ bank_id: "x", q_key: "k", reason: "wrong", q_text: "a".repeat(501) })).error,
+    "lí do lạ, thiếu mã đề, nội dung câu quá 500 kí tự: bị chặn");
+  ok((await ins({ bank_id: "x", q_key: "k", reason: "wrong", status: "fixed" })).error && (await ins({ family_id: B.account.id, bank_id: "x", q_key: "k", reason: "wrong" })).error
+    && (await ins({ bank_id: "x", q_key: "k", reason: "wrong", created_at: "2020-01-01" })).error, "tự đặt status, family_id, created_at: bị chặn (quyền theo cột)");
+  ok((await PB.from("question_reports").update({ status: "fixed" }).eq("q_key", "k1").select("id")).data.length === 0 && (await PB.from("question_reports").update({ note: "x" }).eq("q_key", "k1")).error
+    && (await PB.from("question_reports").delete().eq("q_key", "k1")).error, "phụ huynh không đổi trạng thái, không sửa, không xóa báo cáo");
+  const C2 = await call(O, { action: "create_account", username: "nha.c2", password: "mat-khau-nha-c2" });
+  const PC = client(); await login(PC, "nha.c2", "mat-khau-nha-c2");
+  ok((await rows(PC.from("question_reports").select("id"))).length === 0, "nhà khác không thấy câu nhà B đã báo");
+  const all = await rows(O.from("question_reports").select("id, bank_id, q_key, status, profile_id"));
+  ok(all.length === 3 && !all.some((r) => "name" in r), "chủ app đọc mọi câu bị báo");
+  const k1 = all.filter((r) => r.q_key === "k1").map((r) => r.id);
+  ok((await O.from("question_reports").update({ status: "fixed" }).in("id", k1).select("id")).data.length === 2
+    && (await rows(PB.from("question_reports").select("status").eq("q_key", "k1"))).every((r) => r.status === "fixed"), "chủ app đánh dấu đã sửa cả hai lượt báo của một câu; phụ huynh thấy trạng thái");
+  ok((await O.from("question_reports").update({ status: "xong" }).in("id", k1)).error && (await O.from("question_reports").update({ note: "x" }).in("id", k1)).error
+    && (await O.from("question_reports").insert({ bank_id: "x", q_key: "k", reason: "wrong" })).error && (await O.from("question_reports").delete().in("id", k1)).error,
+    "chủ app: trạng thái lạ, sửa ghi chú, tự báo, xóa: bị chặn");
+  for (let i = 0; i < 27; i++) await ins({ bank_id: "toan4-ck1-de2", q_key: "n" + i, reason: "other" });
+  ok((await rows(PB.from("question_reports").select("id"))).length === 30 && (await ins({ bank_id: "x", q_key: "n31", reason: "wrong" })).error.message.includes("tối đa 30 câu"), "tối đa 30 báo cáo mỗi ngày mỗi gia đình");
+  await PB.from("profiles").delete().eq("id", ti.id);
+  ok((await rows(O.from("question_reports").select("profile_id").eq("q_key", "k1"))).every((r) => r.profile_id === null), "xóa hồ sơ con: báo cáo vẫn giữ, bỏ hồ sơ");
+  await call(O, { action: "delete_account", id: C2.account.id, confirm: "nha.c2" });
+  be.noReports = true;
+  const e = (await PB.from("question_reports").select("id")).error;
+  ok(e && e.code === "PGRST205" && !(await PB.from("profiles").select("id")).error, "be.noReports: như máy chủ chưa chạy cap-nhat-r1.sql (chỉ bảng question_reports báo lỗi)");
+  be.noReports = false;
+}
+
 console.log(`\n${passed} kiểm tra đạt, ${failures.length} lỗi.`);
 if (failures.length) { console.log("ADMIN FAILED"); process.exit(1); }
 console.log("ADMIN OK");

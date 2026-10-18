@@ -16,6 +16,8 @@
 --    Edge Function còn cấm đăng nhập (ban) người dùng đó trong Supabase Auth.
 --  * plans: ai đã đăng nhập cũng đọc; chỉ owner sửa. paid_banks: đọc được khi đề đã đăng VÀ (là đề thử, hoặc gói
 --    đang hiệu lực cho đọc mọi đề); chỉ owner ghi.
+--  * question_reports (câu bị báo sai, Phiên R1): gia đình chỉ thêm và đọc báo cáo của mình (tối đa 30 mỗi ngày);
+--    owner đọc tất cả và chỉ đổi được status.
 --  * app_owners, admin_notes, admin_log, plan_log: chỉ owner.
 --
 -- Gói: hôm nay mọi tài khoản là 'free', và gói 'free' cho dùng mọi nội dung, tối đa 5 hồ sơ con (chặn lạm dụng).
@@ -147,6 +149,25 @@ create table paid_banks (
   updated_at timestamptz not null default now()
 );
 create index on paid_banks (grade, exam);
+
+-- Câu bị báo sai (Phiên R1): học sinh hoặc phụ huynh bấm "Báo câu này sai" khi làm bài (js/quiz.js). Chủ app xem ở trang admin
+-- (tab "Câu bị báo") và đổi status. bank_id: mã đề chứa câu (đề ngẫu nhiên ghi mã đề gốc), q_key: mã câu (Quiz.key),
+-- q_text: bản chụp nội dung câu để sau khi sửa đề vẫn biết câu nào. profile_id: hồ sơ con đã báo, trống khi phụ huynh báo;
+-- xóa hồ sơ thì giữ báo cáo. family_id, status, created_at do trigger đặt. Giống hệt supabase/cap-nhat-r1.sql.
+create table question_reports (
+  id uuid primary key default gen_random_uuid(),
+  family_id uuid not null references families(id) on delete cascade,
+  profile_id uuid references profiles(id) on delete set null,
+  bank_id text not null check (char_length(bank_id) between 1 and 80),
+  q_key text not null check (char_length(q_key) between 1 and 40),
+  q_text text not null default '' check (char_length(q_text) <= 500),
+  reason text not null check (reason in ('wrong','unclear','typo','other')),  -- Quiz.REASONS: đáp án sai, khó hiểu, chính tả, khác
+  note text not null default '' check (char_length(note) <= 200),
+  status text not null default 'new' check (status in ('new','fixed','rejected')),
+  created_at timestamptz not null default now()
+);
+create index question_reports_family_idx on question_reports (family_id, created_at desc);
+create index question_reports_created_idx on question_reports (created_at desc);
 
 -- Ghi chú của chủ app về một tài khoản (tên Zalo, số điện thoại…). Chỉ owner đọc.
 create table admin_notes (
@@ -345,6 +366,25 @@ begin
 end $$;
 create trigger paid_banks_touch before insert or update on paid_banks for each row execute function paid_banks_touch();
 
+-- Báo câu sai: gia đình của người gọi; hồ sơ (nếu ghi) phải thuộc gia đình đó; trạng thái và thời điểm do máy chủ đặt;
+-- tối đa 30 báo cáo mỗi ngày (giờ Việt Nam) cho mỗi gia đình. Khóa theo gia đình để nhiều lệnh cùng lúc không vượt giới hạn.
+create function question_reports_before_insert() returns trigger
+language plpgsql security definer set search_path = public, pg_temp as $$
+begin
+  new.family_id := coalesce(new.family_id, my_family_id());
+  if new.profile_id is not null and not exists (select 1 from profiles where id = new.profile_id and family_id = new.family_id) then
+    raise exception 'Hồ sơ không thuộc tài khoản này.' using errcode = 'P0001';
+  end if;
+  new.status := 'new'; new.created_at := now(); new.note := left(btrim(new.note), 200);
+  perform pg_advisory_xact_lock(hashtextextended('question_reports:' || new.family_id::text, 0));
+  if (select count(*) from question_reports where family_id = new.family_id
+        and created_at >= (today_vn()::timestamp at time zone 'Asia/Ho_Chi_Minh')) >= 30 then
+    raise exception 'Mỗi gia đình báo được tối đa 30 câu một ngày. Mai báo tiếp nhé.' using errcode = 'P0001';
+  end if;
+  return new;
+end $$;
+create trigger question_reports_before_insert before insert on question_reports for each row execute function question_reports_before_insert();
+
 -- ============================== RLS ==============================
 
 alter table plans enable row level security;
@@ -355,12 +395,13 @@ alter table exam_events enable row level security;
 alter table question_banks enable row level security;
 alter table results enable row level security;
 alter table paid_banks enable row level security;
+alter table question_reports enable row level security;
 alter table admin_notes enable row level security;
 alter table plan_log enable row level security;
 alter table admin_log enable row level security;
 
 -- Vai trò anon (chưa đăng nhập) không đụng được bảng nào. Rồi cấp lại cho authenticated đúng phần cần.
-revoke all on plans, app_owners, families, profiles, exam_events, question_banks, results, paid_banks,
+revoke all on plans, app_owners, families, profiles, exam_events, question_banks, results, paid_banks, question_reports,
   admin_notes, plan_log, admin_log from anon, authenticated;
 
 grant select on plans to authenticated;
@@ -372,6 +413,7 @@ grant select, delete, insert (id, family_id, name, avatar, grade, class_name, pi
 grant select, insert, update, delete on exam_events, question_banks to authenticated;
 grant select, delete, insert (id, profile_id, source, ref_id, subject, label, mode, r, t, s, wrong_topics) on results to authenticated;
 grant select, insert, update, delete on paid_banks, admin_notes to authenticated;
+grant select, insert (id, profile_id, bank_id, q_key, q_text, reason, note), update (status) on question_reports to authenticated;
 grant select on plan_log, admin_log to authenticated;
 
 create policy plans_select on plans for select to authenticated using (true);
@@ -402,6 +444,11 @@ create policy pb_select on paid_banks for select to authenticated using (
 create policy pb_insert on paid_banks for insert to authenticated with check (is_owner());
 create policy pb_update on paid_banks for update to authenticated using (is_owner()) with check (is_owner());
 create policy pb_delete on paid_banks for delete to authenticated using (is_owner());
+
+-- Báo câu sai: gia đình đọc và thêm của mình (trigger điền family_id); owner đọc tất cả, chỉ đổi status (quyền theo cột). Không ai xóa.
+create policy qr_select on question_reports for select to authenticated using (family_id = (select my_family_id()) or (select is_owner()));
+create policy qr_insert on question_reports for insert to authenticated with check (family_id = (select my_family_id()));
+create policy qr_update on question_reports for update to authenticated using (is_owner()) with check (is_owner());
 
 create policy notes_all on admin_notes for all to authenticated using (is_owner()) with check (is_owner());
 create policy plan_log_select on plan_log for select to authenticated using (is_owner());

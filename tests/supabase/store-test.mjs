@@ -41,7 +41,8 @@ function browser(opts = {}) {
     console, setTimeout, clearTimeout, URLSearchParams, TextEncoder, crypto: webcrypto, atob, btoa, localStorage, sessionStorage,
     location: { origin: "https://dunglnh.github.io", pathname: "/OnUp/", search: "", hash: "", href: "https://dunglnh.github.io/OnUp/" },
     history: { replaceState() {} },
-    document: { head: { append: (s) => { loaded.push(s.src); scripts.push(s); } }, createElement: () => ({ remove() {} }), querySelector: () => null, body: { append() {} } }
+    document: { head: { append: (s) => { loaded.push(s.src); scripts.push(s); } }, createElement: () => ({ remove() {} }), querySelector: () => null, body: { append() {} } },
+    Intl
   };
   if (opts.turnstile) win.turnstile = opts.turnstile;
   win.window = win;
@@ -56,6 +57,7 @@ function browser(opts = {}) {
   load("js/store.js");
   if (!opts.realConfig) win.supabase = { createClient: (u, k, o) => createFakeSupabase((m) => be.handle(m), { storage: localStorage, auth: o && o.auth }) };
   load("js/store-supabase.js");
+  load("js/quiz.js"); // Quiz.key, Quiz.text cho báo câu sai (mục 7b)
   const errors = [];
   if (win.Store.cloud) win.Store.onError = (m) => errors.push(m);
   return { win, get Store() { return win.Store; }, Local: win.LocalStore, errors, localStorage, sessionStorage, loaded, scripts, load };
@@ -90,8 +92,8 @@ const A = browser();
   ok(missing.length === 0, "SupabaseStore có đủ mọi hàm của LocalStore" + (missing.length ? ": thiếu " + missing.join(", ") : ` (${Object.keys(L).length} mục)`));
   const isAsync = (f) => typeof f === "function" && f.constructor.name === "AsyncFunction";
   const asyncOf = (o) => Object.keys(o).filter((k) => isAsync(o[k])).sort().join(",");
-  ok(asyncOf(L) === "checkPin,createUser,updateUser" && ["checkPin", "createUser", "updateUser"].every((k) => isAsync(C[k])),
-    "createUser, updateUser, checkPin là async ở cả hai kho");
+  ok(asyncOf(L) === "addReport,checkPin,createUser,updateUser" && ["addReport", "checkPin", "createUser", "updateUser"].every((k) => isAsync(C[k])),
+    "createUser, updateUser, checkPin, addReport là async ở cả hai kho");
   const syncNow = Object.keys(L).filter((k) => typeof L[k] === "function" && !isAsync(L[k]) && isAsync(C[k]));
   ok(syncNow.length === 0, "các hàm đồng bộ của LocalStore (đọc dữ liệu, setSession, can…) cũng đồng bộ ở bản đám mây" + (syncNow.length ? ": " + syncNow.join(", ") : ""));
 }
@@ -270,6 +272,42 @@ ok(B.Store.authState() === "ready" && !!dev.getItem(AUTH) && !B.sessionStorage.g
   S.removeEvent(ev.id); S.removeBank(bk.id);
   await S.flush();
   ok(!be.T.exam_events.some((e) => e.id === ev.id) && !be.T.question_banks.some((b) => b.id === bk.id), "xóa kì thi, ngân hàng đề");
+}
+
+/* ---------- 7b. báo câu sai (question_reports, Phiên R1) ---------- */
+{
+  const S = B.Store, Q = B.win.Quiz, fid = fam("nha.bin").id;
+  const q = { type: "mc", q: "36 480 : 6 = ?", o: ["6 080", "608", "60 800", "680"], topic: "Phép chia", x: "Chia từ trái sang phải." };
+  const key = Q.key(q), qText = Q.text(q);
+  ok(qText === "36 480 : 6 = ? · ✓ 6 080 · – 608 · – 60 800 · – 680" && Q.text({ type: "fill", q: "5 tấn 30 kg = ___ kg", ans: ["5030", "5 030"] }) === "5 tấn 30 kg = ___ kg · Đáp án: 5030"
+    && Q.text({ type: "tf", q: "1 + 1 = 2", a: true }) === "1 + 1 = 2 · Đáp án: Đúng" && Q.text({ type: "essay", q: "Viết đoạn văn.", x: "Gợi ý dài" }) === "Viết đoạn văn. · Gợi ý: Gợi ý dài"
+    && Q.text({ type: "mc", q: "x".repeat(600), o: ["a", "b"] }).length === 500 && Q.REASONS.map((r) => r[0]).join() === "wrong,unclear,typo,other",
+    "Quiz.text: bản chụp nội dung câu (đáp án đúng đánh dấu ✓), tối đa 500 kí tự; Quiz.REASONS");
+  S.setSession(bin.id);
+  await throwsMsg(() => S.addReport({ userId: bin.id, bankId: "toan4-ck1-de1", qKey: key, reason: "sai" }), /chọn một lí do/, "lí do lạ: báo ngay, không gọi máy chủ");
+  await throwsMsg(() => S.addReport({ userId: "khong-co", bankId: "toan4-ck1-de1", qKey: key, reason: "wrong" }), /Không tìm thấy người dùng/, "người dùng lạ");
+  const r1 = await S.addReport({ userId: bin.id, bankId: "toan4-ck1-de1", qKey: key, qText, reason: "wrong", note: "  Phải là 6 080  " });
+  const row = be.T.question_reports.find((r) => r.id === r1.id);
+  ok(row && row.family_id === fid && row.profile_id === bin.id && row.bank_id === "toan4-ck1-de1" && row.q_key === key && row.q_text === qText && row.reason === "wrong" && row.note === "Phải là 6 080" && row.status === "new",
+    "con báo câu sai: lên máy chủ với hồ sơ con, gia đình do máy chủ điền, ghi chú bỏ khoảng trắng");
+  ok(S.reports().length === 1 && S.reports()[0].id === r1.id && S.reports()[0].userId === bin.id && S.reports()[0].status === "new" && r1.qKey === key, "reports(): có ngay trong bộ nhớ đệm");
+  const P = A.Store, parent = P.users("admin")[0];
+  const r2 = await P.addReport({ userId: parent.id, bankId: "toan4-ck1-ngau-nhien", qKey: "abc", qText: "Câu của đề ngẫu nhiên", reason: "unclear", note: "" });
+  ok(be.T.question_reports.find((r) => r.id === r2.id).profile_id === null && r2.userId === parent.id, "phụ huynh báo: không có hồ sơ (profile_id trống), trong app ghi là Phụ huynh");
+  await S.refresh();
+  ok(S.reports().length === 2 && S.reports()[0].id === r2.id && S.reports()[1].userId === bin.id, "máy khác tải lại: thấy cả hai, mới nhất trước; báo cáo của phụ huynh ghi userId Phụ huynh");
+  for (let i = 0; i < 28; i++) await S.addReport({ userId: bin.id, bankId: "toan4-ck1-de2", qKey: "k" + i, reason: "other" });
+  await throwsMsg(() => S.addReport({ userId: bin.id, bankId: "toan4-ck1-de2", qKey: "k31", reason: "typo" }), /tối đa 30 câu một ngày/, "câu thứ 31 trong ngày: máy chủ từ chối, app báo đúng lời");
+  ok(S.reports().length === 30 && be.T.question_reports.filter((r) => r.family_id === fid).length === 30, "giữ đúng 30 báo cáo");
+  // máy chủ chưa chạy supabase/cap-nhat-r1.sql: app vẫn mở được, chỉ không gửi báo cáo được
+  be.noReports = true;
+  const N = browser();
+  await N.Store.init(); await N.Store.signIn("nha.bin", PW);
+  ok(N.Store.authState() === "ready" && N.Store.users("student").length === 4 && N.Store.reports().length === 0 && N.errors.length === 0, "máy chủ chưa có bảng question_reports: app vẫn đăng nhập, dữ liệu đủ, danh sách báo cáo trống");
+  N.Store.setSession(bin.id);
+  await throwsMsg(() => N.Store.addReport({ userId: bin.id, bankId: "x", qKey: "k", reason: "wrong" }), /chưa cập nhật để nhận báo cáo/, "gửi báo cáo khi máy chủ chưa có bảng: báo rõ");
+  be.noReports = false;
+  S.setSession(null);
 }
 
 /* ---------- 8. chuyển dữ liệu từ bản lưu trên máy ---------- */

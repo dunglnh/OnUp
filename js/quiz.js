@@ -17,7 +17,14 @@
    Quiz.parse(text) → {questions, passages, errors}: đọc câu hỏi dán từ Word/Zalo theo cú pháp đơn giản.
    Quiz.svg(src) → {svg, problems}: hình đã lọc (chuỗi rỗng nếu không đọc được) và các chỗ bị bỏ.
    Quiz.draw(bank, hist) → {questions, notes}: rút đề ngẫu nhiên theo ma trận của đề có pool (Phiên K3, xem draw).
-   Quiz.key(q): mã ổn định của một câu (băm nội dung), dùng để ghi nhớ câu đã làm; onFinish có marks: [[mã câu, điểm]]. */
+   Quiz.key(q): mã ổn định của một câu (băm nội dung), dùng để ghi nhớ câu đã làm; onFinish có marks: [[mã câu, điểm]].
+   Báo câu sai (Phiên R1): có opts.onReport thì dưới lời giải khi ôn luyện (sau khi Kiểm tra, cả câu tự luận sau khi Xem gợi ý)
+     và dưới từng câu ở màn kết quả (câu cần xem lại, câu tự luận tự chấm) có link nhỏ "Báo câu này sai"; bấm thì mở hộp
+     chọn lí do (Quiz.REASONS) và ghi chú (tối đa 200 kí tự) ngay bên dưới, không dùng hộp nổi.
+     onReport(q, {reason, note}) → Promise: gửi xong thì hiện lời cảm ơn, lỗi (reject) thì hiện e.message trong hộp.
+     opts.reported(q) → true nếu người này đã báo câu đó từ trước: link ghi "Đã báo câu này", không bấm được.
+     q là câu đã dựng (có key = Quiz.key(câu gốc), src nếu từ đề ngẫu nhiên). Quiz.text(q): bản chụp nội dung câu
+     (câu hỏi, các ô, đáp án; tối đa 500 kí tự) để lưu kèm báo cáo. */
 (function () {
   const LET = "ABCDEFGHIJ";
   const ABCD = "abcd";
@@ -257,6 +264,22 @@
   const levels = (p) => [[0, "Chưa có"]].concat(Math.round(p * 2) === p * 2 && p >= 0.5 ? [[p / 2, "Một phần"]] : [], [[p, "Đủ"]]);
   const rubricMax = (q) => q.rubric.reduce((a, c) => a + c.p, 0);
 
+  /* ---------------- báo câu sai (Phiên R1) ----------------
+     REASONS: mã lí do lưu trong báo cáo (cả hai kho, bảng question_reports) và chữ hiện trên nút.
+     text(q): bản chụp nội dung câu để người làm đề biết câu nào bị báo kể cả khi đề đã sửa: câu hỏi, các ô (trắc nghiệm:
+     ✓ đáp án đúng, – các ô sai), đáp án hoặc gợi ý; tối đa 500 kí tự. Nhận câu gốc lẫn câu đã dựng (prep). */
+  const REASONS = [["wrong", "Đáp án sai"], ["unclear", "Câu hỏi khó hiểu"], ["typo", "Lỗi chính tả"], ["other", "Khác"]];
+  const FLAG = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4h12l-2.5 4.5L17 13H5"/></svg>`;
+  function text(q) {
+    let s = String(q.q == null ? "" : q.q);
+    if (q.type === "mc") s += " · " + (q.o || []).map((o, i) => (i ? "– " : "✓ ") + o).join(" · ");
+    else if (q.type === "tf") s += " · Đáp án: " + (typeof q.a === "boolean" ? yn(q.a) : (q.o || [])[q.a]);
+    else if (q.type === "essay") s += q.x ? " · Gợi ý: " + q.x : "";
+    else if (q.type) s += " · Đáp án: " + correctText(q);
+    s = s.replace(/\s+/g, " ").trim();
+    return s.length > 500 ? s.slice(0, 499) + "…" : s;
+  }
+
   const run = (el, bank, opts) => start(el, bank, opts, { exam: opts.mode === "exam" });
   function start(el, bank, opts, h) {
     const exam = opts.mode === "exam";
@@ -334,6 +357,48 @@
         if (onPick) onPick();
       }));
     }
+    /* Link "Báo câu này sai" dưới lời giải và hộp chọn lí do mở ngay bên dưới (xem đầu file). Chỉ có khi app đưa opts.onReport.
+       h.reported: mã các câu đã báo trong lần mở đề này (giữ qua "Làm lại"); opts.reported: đã báo từ trước (kho dữ liệu). */
+    const canReport = typeof opts.onReport === "function";
+    const reportedQ = (q) => h.reported.has(q.key) || !!(opts.reported && opts.reported(q));
+    const reportHtml = (q) => (!canReport ? "" : `<div class="rp"><button type="button" class="linkbtn rp-link" data-k="${esc(q.key)}" aria-expanded="false"${reportedQ(q) ? " disabled" : ""}>${FLAG}<span>${reportedQ(q) ? "Đã báo câu này" : "Báo câu này sai"}</span></button><div class="rp-area"></div></div>`);
+    function wireReport(root) {
+      if (!canReport) return;
+      root.querySelectorAll(".rp-link").forEach((btn) => (btn.onclick = () => {
+        const q = qs.find((x) => x.key === btn.dataset.k), area = btn.nextElementSibling;
+        if (!q || btn.disabled) return;
+        const close = () => { area.innerHTML = ""; btn.setAttribute("aria-expanded", "false"); };
+        if (area.firstChild) { close(); return; }
+        btn.setAttribute("aria-expanded", "true");
+        area.innerHTML = `<form class="report-box" autocomplete="off"><b>Câu này sai ở đâu?</b>
+          <div class="rsn" role="group" aria-label="Lí do">${REASONS.map(([k, t]) => `<button type="button" class="opt" data-r="${k}" aria-pressed="false"><span>${t}</span></button>`).join("")}</div>
+          <label class="field"><span>Ghi chú <span class="opt-note">(không bắt buộc, tối đa 200 kí tự)</span></span><textarea class="report-note" maxlength="200" rows="3" placeholder="Viết thêm nếu muốn"></textarea></label>
+          <div class="rp-err" aria-live="assertive"></div>
+          <div class="row"><button type="submit" class="btn main sm">Gửi</button><button type="button" class="btn ghost sm rp-no">Thôi</button></div></form>`;
+        const form = area.firstElementChild, err = form.querySelector(".rp-err"), btns = () => form.querySelectorAll("button");
+        let reason = "";
+        form.querySelectorAll(".rsn .opt").forEach((b) => (b.onclick = () => { reason = b.dataset.r; form.querySelectorAll(".rsn .opt").forEach((x) => x.setAttribute("aria-pressed", x === b)); err.innerHTML = ""; }));
+        form.querySelector(".rp-no").onclick = close;
+        form.onsubmit = async (ev) => {
+          ev.preventDefault();
+          if (!reason) { err.innerHTML = `<div class="fb bad">Bạn chọn một lí do nhé.</div>`; return; }
+          const note = form.querySelector(".report-note").value.trim().slice(0, 200);
+          btns().forEach((b) => (b.disabled = true));
+          try {
+            await opts.onReport(q, { reason, note });
+            h.reported.add(q.key);
+            area.innerHTML = `<div class="fb ok rp-done">Cảm ơn bạn! Người làm đề sẽ xem lại câu này.</div>`;
+            btn.disabled = true; btn.setAttribute("aria-expanded", "false"); btn.querySelector("span").textContent = "Đã báo câu này";
+          } catch (e) {
+            if (!form.isConnected) return;
+            err.innerHTML = `<div class="fb bad">${esc((e && e.message) || "Chưa gửi được. Thử lại nhé.")}</div>`;
+            btns().forEach((b) => (b.disabled = false));
+          }
+        };
+        form.querySelector(".rsn .opt").focus({ preventScroll: true });
+        area.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }));
+    }
 
     function render() {
       const q = qs[S.i]; S.cur = blank(q); S.checked = false;
@@ -405,8 +470,8 @@
           S.ans[S.i] = { q, g: S.cur.trim(), done: true };
           if (exam) { next(); return; }
           $("#qzEssay").readOnly = true;
-          fb.innerHTML = `<div class="expl pre"><b>Gợi ý:</b> ${esc(q.x || "Chưa có gợi ý.")}</div>${rubricHtml(S.i)}`;
-          wireRubric(fb);
+          fb.innerHTML = `<div class="expl pre"><b>Gợi ý:</b> ${esc(q.x || "Chưa có gợi ý.")}</div>${rubricHtml(S.i)}${reportHtml(q)}`;
+          wireRubric(fb); wireReport(fb);
           done();
           return;
         }
@@ -437,7 +502,8 @@
         }
         if (inp) inp.readOnly = true;
         const ans = q.type === "order" ? `<ol class="ord-ans">${q.o.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>` : q.type === "tf4" || q.type === "match" ? "" : `<span>Đáp án: <b>${esc(correctText(q))}</b></span>`;
-        fb.innerHTML = (pts === 1 ? `<div class="fb ok">${msg || "Đúng rồi!"}</div>` : `<div class="fb bad">${msg || "Chưa đúng."}${ans ? ` ${q.type === "order" ? "<span>Thứ tự đúng:</span>" : ""}${ans}` : ""}</div>`) + (q.x ? `<div class="expl">${esc(q.x)}</div>` : "");
+        fb.innerHTML = (pts === 1 ? `<div class="fb ok">${msg || "Đúng rồi!"}</div>` : `<div class="fb bad">${msg || "Chưa đúng."}${ans ? ` ${q.type === "order" ? "<span>Thứ tự đúng:</span>" : ""}${ans}` : ""}</div>`) + (q.x ? `<div class="expl">${esc(q.x)}</div>` : "") + reportHtml(q);
+        wireReport(fb);
       };
       window.scrollTo(0, 0);
     }
@@ -490,7 +556,7 @@
       const essayPanel = !essays.length ? "" : exam
         ? `<section class="panel" id="qzSelf"><div class="label">Tự luận · tự chấm (${essays.length} câu)</div>
             <p class="small muted">Không tính vào điểm trung bình. Đọc gợi ý, chọn mức cho từng ý rồi bấm Lưu.</p>
-            ${essays.map((i) => `<div class="self-q"><b>${esc(qs[i].q)}</b>${S.ans[i].g ? `<div class="essay-done">${esc(S.ans[i].g)}</div>` : ""}<div class="expl pre"><b>Gợi ý:</b> ${esc(qs[i].x || "Chưa có gợi ý.")}</div>${rubricHtml(i)}</div>`).join("")}
+            ${essays.map((i) => `<div class="self-q"><b>${esc(qs[i].q)}</b>${S.ans[i].g ? `<div class="essay-done">${esc(S.ans[i].g)}</div>` : ""}<div class="expl pre"><b>Gợi ý:</b> ${esc(qs[i].x || "Chưa có gợi ý.")}</div>${rubricHtml(i)}${reportHtml(qs[i])}</div>`).join("")}
             <div id="qzSelfArea"><div class="row"><button class="btn main" id="qzSelfSave">Lưu điểm tự chấm</button></div><div id="qzSelfMsg" aria-live="polite"></div></div></section>`
         : `<section class="panel" id="qzSelf"><div class="label">Tự luận · tự chấm</div>
             <div class="ubreak">${essays.map((i) => { const s = selfSum(i); return `<span>${esc(String(qs[i].q).slice(0, 60))}${String(qs[i].q).length > 60 ? "…" : ""}</span><span></span><span>${s ? fmtN(s.got) + "/" + fmtN(s.max) : "chưa chấm"}</span>`; }).join("")}</div>
@@ -504,12 +570,13 @@
         </section>
         ${Object.keys(byTopic).length > 1 ? `<section class="panel"><div class="label">Theo chủ đề</div>${bars(byTopic, (k) => k)}</section>` : ""}
         ${Object.keys(byLv).length ? `<section class="panel" id="qzLv"><div class="label">Theo mức độ</div>${bars(byLv, (k) => LV[k])}</section>` : ""}
-        ${wrong.length ? `<section class="panel"><div class="label">Câu cần xem lại (${wrong.length})</div><div class="review">${wrong.map((a) => `<div class="rv"><div>${esc(a.q.q).replace("___", "…")}${LV[a.q.lv] ? ` <span class="tag">${LV[a.q.lv]}</span>` : ""}</div><div class="small">Bạn trả lời: <s>${esc(givenText(a.q, a.g))}</s>${a.pts > 0 ? ` (được ${fmtN(a.pts)}/1 điểm)` : ""} · Đáp án: <b>${esc(correctText(a.q))}</b></div>${a.q.x ? `<div class="expl">${esc(a.q.x)}</div>` : ""}</div>`).join("")}</div></section>` : ""}
+        ${wrong.length ? `<section class="panel"><div class="label">Câu cần xem lại (${wrong.length})</div><div class="review">${wrong.map((a) => `<div class="rv"><div>${esc(a.q.q).replace("___", "…")}${LV[a.q.lv] ? ` <span class="tag">${LV[a.q.lv]}</span>` : ""}</div><div class="small">Bạn trả lời: <s>${esc(givenText(a.q, a.g))}</s>${a.pts > 0 ? ` (được ${fmtN(a.pts)}/1 điểm)` : ""} · Đáp án: <b>${esc(correctText(a.q))}</b></div>${a.q.x ? `<div class="expl">${esc(a.q.x)}</div>` : ""}${reportHtml(a.q)}</div>`).join("")}</div></section>` : ""}
         ${essayPanel}
         <div class="row"><button class="btn main" id="qzAgain">${againTxt}</button><button class="btn ghost" id="qzHome">Về trang chính</button></div>
       </div>`;
       el.querySelector("#qzAgain").onclick = again;
       el.querySelector("#qzHome").onclick = () => opts.onExit && opts.onExit();
+      wireReport(el);
       const save = el.querySelector("#qzSelfSave");
       if (save) {
         wireRubric(el, () => (el.querySelector("#qzSelfMsg").innerHTML = ""));
@@ -522,6 +589,7 @@
       }
       window.scrollTo(0, 0);
     }
+    h.reported = h.reported || new Set();
     h.stop = () => { clearInterval(S.timer); S.done = true; };
     h.busy = () => !S.done && (exam || S.ans.some(Boolean));
     h.answered = answered;
@@ -657,5 +725,5 @@
     return { questions, passages, errors };
   }
 
-  window.Quiz = { run, parse, isRight, score, svg, draw, key, LV, fmtN };
+  window.Quiz = { run, parse, isRight, score, svg, draw, key, text, REASONS, LV, fmtN };
 })();
