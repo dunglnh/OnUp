@@ -821,7 +821,7 @@ const store={get(k,d){try{const v=localStorage.getItem(PFX+k);return v?JSON.pars
   set(k,v){try{localStorage.setItem(PFX+k,JSON.stringify(v))}catch(e){}}};
 const $=s=>document.querySelector(s), view=$("#view"), topRight=$("#topRight");
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-// số có nhóm hàng nghìn ("1 000 000"): khi hiện chữ, khoảng trắng giữa hai nhóm số thành khoảng trắng không ngắt (NB), để số không bị tách ra hai dòng ở màn hình hẹp; dữ liệu, cách chấm không đổi
+// số có nhóm hàng nghìn ("1 000 000"): khi hiện chữ, khoảng trắng giữa hai nhóm số thành khoảng trắng không ngắt (NB), để số không bị tách ra hai dòng ở màn hình hẹp (cùng biểu thức với nbNum của js/quiz.js); dữ liệu, cách chấm không đổi
 const nbNum=s=>String(s).replace(/(\d) (?=\d{3}(?!\d))/g,"$1"+NB);
 const fmtTime=s=>{s=Math.max(0,Math.round(s));return String(s/60|0).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
 const fmtDate=d=>d.toLocaleDateString("vi-VN",{day:"2-digit",month:"2-digit"});
