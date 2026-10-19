@@ -1928,12 +1928,12 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   step("numbers with thousands spaces stay on one line (360px)");
   /* Số trong dữ liệu ngăn hàng nghìn bằng khoảng trắng ("1 200", "987 650", "2 450 − 1 800 = 650 (kg)"). Ở 360px, màn làm đề và màn
      kết quả hiện khoảng trắng đó là khoảng trắng không ngắt (nbNum trong js/quiz.js): trong #view không còn khoảng trắng thường giữa
-     hai nhóm số, không số nào nằm trên hai dòng (đo bằng Range.getClientRects), trang không tràn ngang. Bin ôn luyện ba đề Toán 4 ·
-     Cuối kì I (đủ số lớn của kho đề ngẫu nhiên; trả lời bất kì để thấy đáp án, lời giải) và một đề tự nhập có đủ dạng câu (đoạn đọc,
-     đúng/sai 4 ý, nối cột, sắp xếp, trả lời bằng số, điền, tự luận có thang chấm); mỗi câu kiểm tra lúc mới hiện, khi đã trả lời và
-     sau Kiểm tra, rồi màn kết quả với mọi câu cần xem lại mở ra. Đề tự nhập làm thêm một lượt như thi: bài tự luận có số, tự chấm sau
-     khi nộp. Câu điền, câu trả lời bằng số gõ đáp án có khoảng trắng không ngắt vẫn được chấm đúng. Một câu bị báo sai: bản chụp lưu
-     (Quiz.text) giữ khoảng trắng thường, danh sách ở Quản trị → Dữ liệu hiện khoảng trắng không ngắt. */
+     hai nhóm số, không số nào nằm trên hai dòng (đo bằng Range.getClientRects), trang không tràn ngang. Bin ôn luyện cả kho Toán 4 ·
+     Cuối kì I: ba đề cố định và các câu riêng của đề ngẫu nhiên (Phiên N1, đủ dạng câu; rút ngẫu nhiên thì không chắc gặp hết nên làm
+     thành một đề tự nhập), trả lời bất kì để thấy đáp án, lời giải; rồi một đề tự nhập có đủ dạng câu và đoạn đọc. Mỗi câu kiểm tra lúc
+     mới hiện, khi đã trả lời và sau Kiểm tra, rồi màn kết quả với mọi câu cần xem lại mở ra. Đề tự nhập làm thêm một lượt như thi: bài
+     tự luận có số, tự chấm sau khi nộp. Câu điền, câu trả lời bằng số gõ đáp án có khoảng trắng không ngắt vẫn được chấm đúng. Một câu
+     bị báo sai: bản chụp lưu (Quiz.text) giữ khoảng trắng thường, danh sách ở Quản trị → Dữ liệu hiện khoảng trắng không ngắt. */
   const NUM_BANKS = ["toan4-ck1-de1", "toan4-ck1-de2", "toan4-ck1-de3"];
   const NB = { id: "so-nhieu-chu-so", title: "Số có nhiều chữ số", grade: 4, subject: "Toán", minutes: 15,
     passages: { d1: { title: "Thư viện trường", text: "Năm 2025, thư viện trường có 12 450 cuốn sách. Năm 2026, thư viện mua thêm 570 cuốn nên có 13 020 cuốn.\nMỗi tháng có khoảng 1 200 lượt mượn sách." } },
@@ -1957,7 +1957,8 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const nump = await numc.newPage(); nump.on("pageerror", (e) => errs.push("pageerror số: " + e.message)); nump.on("console", (m) => { if (m.type() === "error") errs.push("console số: " + m.text()); });
   const nm = { problems: [], seen: 0, typed: [] };
   /* Số có nhóm hàng nghìn ("1 200", "1 020 304") đang hiện trong các phần tử root: còn khoảng trắng thường giữa hai nhóm, hoặc nằm trên
-     hai dòng (các ô chữ của Range lệch nhau quá nửa dòng). Số trong <details> đang đóng không hiện nên không tính. */
+     hai dòng (các ô chữ của Range lệch nhau quá nửa dòng). Số trong <details> đang đóng không hiện nên không tính; chữ trong hình (svg)
+     không xuống dòng và không qua nbNum nên bỏ qua. */
   const numCheck = async (label, root) => {
     const r = await nump.evaluate((root) => {
       const bad = [], re = /\d+(?:[ \u00a0]\d{3})+(?!\d)/g;
@@ -1965,7 +1966,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       if (document.documentElement.scrollWidth > innerWidth) bad.push("tràn ngang: rộng " + document.documentElement.scrollWidth + "px");
       for (const el of document.querySelectorAll(root)) {
         const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-        for (let n; (n = tw.nextNode());) for (const m of n.textContent.matchAll(re)) {
+        for (let n; (n = tw.nextNode());) if (!n.parentElement.closest("svg")) for (const m of n.textContent.matchAll(re)) {
           const rg = document.createRange(); rg.setStart(n, m.index); rg.setEnd(n, m.index + m[0].length);
           const rs = [...rg.getClientRects()].filter((x) => x.width > 0 && x.height > 0), tops = rs.map((x) => x.top);
           if (!rs.length) continue;
@@ -2008,7 +2009,11 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   };
   await nump.goto(BASE + "/"); await nump.click(`.tile[data-u="${ids.Bin}"]`); await nump.fill("#pinIn", PINS.Bin); await nump.waitForSelector("#today");
   await nump.evaluate((b) => Store.upsertBank(b), NB);
-  for (const id of NUM_BANKS) await playNum(id);
+  // câu riêng của đề ngẫu nhiên Toán 4 cuối kì I (Phiên N1) thành một đề tự nhập
+  const NUM_POOL = "toan4-ck1-ngau-nhien", NUM_POOL_OWN = "so-kho-ngau-nhien";
+  nm.pool = await nump.evaluate(async ([pool, id]) => { await Store.loadBank(pool); const b = Store.bank(pool), qs = b.questions.filter((q) => q.src === pool);
+    if (qs.length) Store.upsertBank({ id, title: "Câu riêng của " + b.title, grade: b.grade, subject: b.subject, questions: qs }); return qs.length; }, [NUM_POOL, NUM_POOL_OWN]);
+  for (const id of NUM_BANKS.concat(nm.pool ? [NUM_POOL_OWN] : [])) await playNum(id);
   await playNum(NB.id, NB_TYPED);
   // đề tự nhập, làm như thi: bỏ qua mọi câu, trừ bài tự luận; màn kết quả có câu cần xem lại, bài làm, gợi ý và thang tự chấm
   await nump.goto(BASE + "/#/home"); await nump.goto(BASE + "/#/quiz/" + NB.id); await nump.waitForSelector("#qExam"); await nump.click("#qExam");
@@ -2025,8 +2030,8 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await nump.goto(BASE + "/#/admin/data"); await nump.waitForSelector("#reportsBox .rp-q");
   const nSeen = nm.seen; await numCheck("Quản trị → Dữ liệu, câu bị báo", "#reportsBox .rp-q"); nm.list = nm.seen - nSeen;
   await numc.close();
-  console.log("số:", { seen: nm.seen, typed: nm.typed, reported: nm.reported, essay: nm.essay, saved: nm.saved, list: nm.list }, "problems:", nm.problems.length, nm.problems.slice(0, 30));
-  const numOK = !nm.problems.length && nm.seen > 600 && nm.typed.length === 2 && nm.typed.every(Boolean) && nm.reported === NUM_BANKS[0] && nm.essay && nm.saved && nm.list > 0;
+  console.log("số:", { seen: nm.seen, pool: nm.pool, typed: nm.typed, reported: nm.reported, essay: nm.essay, saved: nm.saved, list: nm.list }, "problems:", nm.problems.length, nm.problems.slice(0, 30));
+  const numOK = !nm.problems.length && nm.seen > 600 && nm.pool > 0 && nm.typed.length === 2 && nm.typed.every(Boolean) && nm.reported === NUM_BANKS[0] && nm.essay && nm.saved && nm.list > 0;
 
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
