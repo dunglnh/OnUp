@@ -38,13 +38,13 @@ h1{font-size:1.75rem} h2{font-size:1.35rem} h3{font-size:1.1rem}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,textarea:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px 10px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
-.brand{font-family:var(--display);font-weight:800;font-size:1.2rem;color:var(--acc);display:flex;align-items:center;gap:8px;background:none;border:0;padding:0}
+.brand{font-family:var(--display);font-weight:800;font-size:1.2rem;color:var(--acc);display:flex;align-items:center;gap:8px;background:none;border:0;padding:7px 0;margin:-7px 0;min-height:44px}
 .brand b{background:var(--sun);color:var(--sun-ink);border-radius:8px;padding:0 8px;font-size:1rem}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:.85rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .chip.warn{border-color:var(--bad);color:var(--bad);font-weight:700}
 .stack{display:flex;flex-direction:column;gap:14px}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.label{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.label{font-size:.8125rem;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--muted)}
 .muted{color:var(--muted)} .small{font-size:.875rem}
 .btn{border:0;border-radius:12px;padding:12px 18px;font-weight:700;background:var(--acc-soft);color:var(--acc)}
 .btn.main{background:var(--sun);color:var(--sun-ink)}
@@ -900,7 +900,7 @@ function drawEnd(){
 function record(q,g){
   const ok=isRight(q,g), w=wrongOf(S.sid);
   S.ans[S.i]={q,g,ok};
-  if(ok){if(S.mode!=="exam")w.delete(wkey(q))}else w.add(wkey(q));
+  if(ok)w.delete(wkey(q));else w.add(wkey(q)); // L27: làm đúng ở bất kì chế độ nào (cả đề thi thử) thì bỏ câu khỏi "Ôn câu sai"
   saveWrong(S.sid,w);return ok;
 }
 function next(){S.i++;if(S.i>=S.qs.length)finish();else renderQ()}
@@ -917,7 +917,7 @@ function finish(){
   const msg=pct>=.9?"Xuất sắc! Bạn đã nắm rất chắc phần này.":pct>=.75?"Tốt lắm! Xem lại các câu sai để chắc chắn hơn.":pct>=.5?"Khá ổn. Bạn đọc lại phần ghi nhớ của các bài còn yếu rồi luyện lại nhé.":"Cố lên! Bạn ôn lại từng bài trong mục Ôn theo bài rồi làm lại.";
   const by={};done.forEach(a=>{by[a.q.l]=by[a.q.l]||[0,0];by[a.q.l][1]++;if(a.ok)by[a.q.l][0]++});
   const order=s.lessons.map(l=>l.id).filter(id=>by[id]);
-  const wrong=done.filter(a=>!a.ok), test=S.test, lesson=S.lesson, sid=S.sid;
+  const wrong=done.filter(a=>!a.ok), test=S.test, lesson=S.lesson, sid=S.sid, w=wrongOf(sid);
   topRight.innerHTML="";
   view.innerHTML=`<div class="stack">
     <section class="panel">
@@ -928,12 +928,13 @@ function finish(){
     </section>
     ${order.length>1?`<section class="panel"><div class="label">Theo bài</div><div class="ubreak">${order.map(id=>{const [r,t]=by[id];return `<span>${esc(s.L[id].short)}</span><div class="bar"><i style="width:${r/t*100}%"></i></div><span>${r}/${t}</span>`}).join("")}</div></section>`:""}
     ${wrong.length?`<section class="panel"><div class="label">Câu cần xem lại (${wrong.length})</div><div class="review">${wrong.map(a=>`<div class="rv">${a.q.ptitle?`<div class="small muted">Văn bản: ${esc(a.q.ptitle)}</div>`:""}<div>${a.q.q.replace("___","…")}</div><div class="ans">Bạn trả lời: <s>${a.q.kind==="mc"&&a.g!=null?a.q.o[a.g]:esc(givenText(a.q,a.g))}</s> · Đáp án: <b>${a.q.kind==="mc"?a.q.o[a.q.a]:esc(showAns(a.q))}</b></div>${a.q.x?`<div class="expl">${a.q.x}</div>`:""}</div>`).join("")}</div></section>`:""}
+    ${!wrong.length&&total&&w.size?`<p class="muted small" id="wrongNote" style="margin:0">Lần này bạn không sai câu nào. Danh sách Ôn câu sai còn ${w.size} câu từ các lần làm trước.</p>`:""}
     <div class="row" id="resBtns"></div>
   </div>`;
   const btns=$("#resBtns"), add=(cls,txt,fn)=>{const b=document.createElement("button");b.className="btn "+cls;b.textContent=txt;b.onclick=fn;btns.append(b)};
   if(test){const nk=nextTest(sid);if(nk!=null)add("main",`Làm Đề ${nk+1}`,()=>startTest(sid,nk))}
   if(lesson)add("main","Luyện lại bài này",()=>startLesson(sid,lesson));
-  const w=wrongOf(sid);if(w.size)add("","Ôn câu sai ("+w.size+")",()=>startWrong(sid));
+  if(w.size)add("","Ôn câu sai ("+w.size+")",()=>startWrong(sid));
   add("ghost","Trang chủ",()=>renderHome());
   S=null;window.scrollTo(0,0);
 }
@@ -966,7 +967,7 @@ function renderHome(){
     ${s.writing&&s.writing.length?`<section class="sec"><h2>Luyện viết</h2><p class="muted small">Phần viết không chấm tự động. Bạn đọc đề, xem gợi ý dàn ý, viết bài rồi tự kiểm tra theo danh sách.</p>
       <div class="wlist">${s.writing.map((x,i)=>`<button class="wrow" data-w="${i}"><b>${esc(x.title)}</b><span class="small muted">${esc(x.prompt)}</span></button>`).join("")}</div></section>`:""}
     <section class="sec"><h2>Ôn câu sai</h2>
-      <div class="panel"><div>${w.size?`Có <b>${w.size}</b> câu bạn từng làm sai ở môn ${esc(s.name)}. Làm đúng khi ôn thì câu đó được bỏ khỏi danh sách.`:"Chưa có câu sai nào ở môn này."}</div>
+      <div class="panel"><div>${w.size?`Có <b>${w.size}</b> câu bạn từng làm sai ở môn ${esc(s.name)}. Làm đúng câu đó ở bất kì phần nào (ôn theo bài, đề thi thử hay ôn câu sai) thì câu được bỏ khỏi danh sách.`:"Chưa có câu sai nào ở môn này."}</div>
       ${w.size?`<div class="row"><button class="btn" id="wrongBtn">Ôn ${w.size} câu sai</button></div>`:""}</div>
     </section>
     <section class="sec"><h2>Lịch sử làm bài</h2>

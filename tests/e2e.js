@@ -1327,6 +1327,145 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
         && to.h1 === "Toán 4 · Cuối kì I · Đề 1" && to.btn === "Ôn luyện (xem đáp án từng câu)" && to.lang === null; })
     && TA2_SHOTS.every((n) => ta2.shots.includes(`ta2-${n}-light`) && ta2.shots.includes(`ta2-${n}-dark`));
 
+  step("module wrong list: a correct answer anywhere removes the question (L27)");
+  /* Bài ôn dạng trang (Phiên 9f): làm đúng một câu ở bất kì chế độ nào (cả đề thi thử) thì câu ra khỏi danh sách "Ôn câu sai"
+     (localStorage u_<mã học sinh>__<khóa bài>_wrong[_<môn>]); làm sai, Bỏ qua, nộp đề còn câu chưa làm thì vào danh sách như cũ.
+     Na lớp 6 (l6-giua-ki-1, Ngữ văn) và Bin lớp 4 (l4-giua-ki-1, Tiếng Việt): Đề 1 chọn sai câu thứ 4 (câu vào danh sách), làm lại
+     Đề 1 đúng hết (20/20, danh sách trống, không có nút "Ôn câu sai"); ghi sẵn một mã câu ngoài Đề 1 rồi làm Đề 1 đúng hết: trang
+     đầu có chữ giải thích luật mới, màn kết quả có dòng "Lần này bạn không sai câu nào…" ngay trên nút "Ôn câu sai (1)" và qua
+     kiểm tra 360px trong khung. Đáp án đọc bằng buildTest(môn, "all", 0) của khung (câu theo đúng thứ tự hàm trả về).
+     IOE 4 (Bin), IOE 6 (Na): ghi sẵn mã câu trắc nghiệm đầu tiên của đề tiếp theo, Skip đến câu đó, trả lời đúng, Finish test now:
+     câu đó ra khỏi danh sách, câu bỏ qua và chưa làm vào danh sách; rồi Review mistakes làm đúng một câu, End practice: dòng
+     "No mistakes this time…" bằng tiếng Anh. Ảnh 360px sáng/tối ở tests/screenshots/l27/ (bản ghép <tên>.jpg). */
+  const l27 = { problems: [], shots: [], runs: [] };
+  const OUTL27 = OUT + "l27/"; fs.mkdirSync(OUTL27, { recursive: true });
+  const L27_KEY = { "l6-giua-ki-1": "gk1-l6-v1", "l4-giua-ki-1": "gk1-l4-v1", "ioe-4": "ioe4v1", "ioe-6": "ioe6v2" };
+  for (const scheme of ["light", "dark"]) {
+    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror L27: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console L27: " + m.text()); });
+    const signIn = async (who, pin) => { await p.goto(BASE + "/#/account"); await p.waitForTimeout(200); if (await p.$("#switchWho, #logout")) { await p.click("#switchWho, #logout"); await p.waitForTimeout(200); } await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids[who]}"]`); await p.fill("#pinIn", pin); await p.waitForTimeout(400); };
+    let fr = null; // khung bài ôn đang mở
+    const openMod = async (m) => {
+      await p.goto(BASE + "/#/home"); await p.waitForTimeout(150); await p.goto(BASE + "/#/play/" + m);
+      for (let i = 0; i < 60 && !(fr = p.frames().find((f) => f.url().includes(`/modules/${m}/`))); i++) await p.waitForTimeout(100);
+      await fr.waitForSelector(".stab, .unit"); await p.waitForTimeout(150);
+    };
+    const wrongKeyOf = (m, who, sid) => `u_${ids[who]}__${L27_KEY[m]}_wrong${sid ? "_" + sid : ""}`;
+    const getWrong = (k) => p.evaluate((k) => JSON.parse(localStorage.getItem(k) || "[]"), k);
+    const setWrong = (k, v) => p.evaluate(([k, v]) => localStorage.setItem(k, JSON.stringify(v)), [k, v]);
+    const same = (a, b) => a.length === b.length && a.every((x) => b.includes(x));
+    const ftxt = (sel) => fr.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, sel);
+    const resBtns = () => fr.$$eval("#resBtns button", (bs) => bs.map((b) => b.textContent.trim()).join("|"));
+    const wrongPanel = () => fr.evaluate(() => { const s = [...document.querySelectorAll("section.sec")].find((x) => /^(Ôn câu sai|Review Mistakes)$/.test((x.querySelector("h2") || {}).textContent)); return s ? s.querySelector(".panel > div").textContent.replace(/\s+/g, " ").trim() : ""; });
+    const noteAboveBtns = () => fr.$eval("#wrongNote", (e) => e.nextElementSibling && e.nextElementSibling.id === "resBtns");
+    // kiểm tra 360px trong khung (màn kết quả của bài ôn) và trang app bọc ngoài
+    const check = async (label) => { (await fr.evaluate(audit)).forEach((x) => l27.problems.push(`L27 · ${scheme} · ${label}: ${x}`)); (await p.evaluate(audit)).forEach((x) => l27.problems.push(`L27 · ${scheme} · ${label} (trang app): ${x}`)); };
+    // chụp cả màn kết quả trong khung: khung cao theo màn hình (body.playing), nên tạm kéo màn hình cao bằng nội dung khung rồi trả lại 740px
+    const snap = async (n) => {
+      const h = await fr.evaluate(() => document.documentElement.scrollHeight), top = await p.$eval(".player iframe", (e) => Math.round(e.getBoundingClientRect().top));
+      await p.setViewportSize({ width: 360, height: Math.min(1600, Math.max(740, top + h + 12)) }); await p.waitForTimeout(150);
+      await p.evaluate(() => { const t = document.querySelector("#toast"); if (t) t.hidden = true; }); // thông báo lưu điểm đè lên nút
+      await p.screenshot({ path: `${OUTL27}${n}-${scheme}.png` });
+      await p.setViewportSize({ width: 360, height: 740 }); await p.waitForTimeout(100);
+      l27.shots.push(`${n}-${scheme}`);
+    };
+    // Bài ôn l4/l6: làm Đề k+1 của môn sid, câu thứ wrongAt (từ 0) cố ý sai; trả về các câu của đề (kind, a, ans, key)
+    const doTest = async (sid, k, wrongAt) => {
+      const qs = await fr.evaluate(([sid, k]) => buildTest(sid, "all", k).map((q) => ({ kind: q.kind, a: q.a, ans: q.ans, key: wkey(q) })), [sid, k]);
+      await fr.click(`.tb[data-k="${k}"]`); await fr.waitForSelector("#endBtn");
+      for (let i = 0; i < qs.length; i++) {
+        const q = qs[i], chip = await ftxt(".chip:last-child");
+        if (chip !== `${i + 1} / ${qs.length}`) { l27.problems.push(`L27 · ${scheme} · ${sid} Đề ${k + 1}: câu ${i + 1} mà khung ghi "${chip}"`); break; }
+        if (q.kind === "mc") await fr.click(i === wrongAt ? `.opt:not([data-o="${q.a}"]) >> nth=0` : `.opt[data-o="${q.a}"]`);
+        else await fr.fill("#fillIn", i === wrongAt ? "zzz" : q.ans[0]);
+        await fr.click("#goBtn");
+      }
+      await fr.waitForSelector("#resBtns");
+      return qs;
+    };
+    for (const [m, who, pin, sid] of [["l6-giua-ki-1", "Na", "4444", "van"], ["l4-giua-ki-1", "Bin", PINS.Bin, "tv"]]) {
+      const r = { m, scheme }, key = wrongKeyOf(m, who, sid);
+      await signIn(who, pin); await openMod(m);
+      await fr.click(`.stab[data-sid="${sid}"]`); await fr.waitForSelector(`.stab[data-sid="${sid}"][aria-pressed="true"]`);
+      const name = await fr.evaluate((sid) => SUBJ[sid].name, sid);
+      r.empty = same(await getWrong(key), []);
+      // Đề 1, sai câu thứ 4: câu đó vào danh sách
+      const qs = await doTest(sid, 0, 3);
+      r.wrong1 = same(await getWrong(key), [qs[3].key]) && (await ftxt(".score")).startsWith("9,5") && /Ôn câu sai \(1\)/.test(await resBtns()) && !(await fr.$("#wrongNote"));
+      await fr.click("#resBtns .ghost"); await fr.waitForSelector(".tb");
+      // làm lại Đề 1 đúng hết (làm như thi): câu được bỏ khỏi danh sách, không còn nút "Ôn câu sai"
+      await doTest(sid, 0, -1);
+      r.clean = same(await getWrong(key), []) && (await ftxt(".score")).startsWith("10") && !/Ôn câu sai/.test(await resBtns()) && !(await fr.$("#wrongNote")) && !(await fr.$(".review"));
+      // ghi sẵn một câu ngoài Đề 1 (câu từ lần trước / bài khác), mở lại bài ôn: trang đầu ghi luật mới
+      const extra = await fr.evaluate(([sid, keys]) => SUBJ[sid].items.find((it) => !it.rd && !it.g && !keys.includes(it.id)).id, [sid, qs.map((q) => q.key.split("#")[0])]);
+      await setWrong(key, [extra]); await openMod(m);
+      await fr.click(`.stab[data-sid="${sid}"]`); await fr.waitForSelector(`.stab[data-sid="${sid}"][aria-pressed="true"]`);
+      r.home = (await wrongPanel()) === `Có 1 câu bạn từng làm sai ở môn ${name}. Làm đúng câu đó ở bất kì phần nào (ôn theo bài, đề thi thử hay ôn câu sai) thì câu được bỏ khỏi danh sách.` && (await ftxt("#wrongBtn")) === "Ôn 1 câu sai";
+      await fr.evaluate(() => document.querySelector("#wrongBtn").scrollIntoView({ block: "center" })); await p.evaluate(() => { const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await p.waitForTimeout(100);
+      await p.screenshot({ path: `${OUTL27}trang-dau-${m}-${scheme}.png` }); l27.shots.push(`trang-dau-${m}-${scheme}`);
+      // Đề 1 đúng hết: dòng "Lần này bạn không sai câu nào…" ngay trên nút "Ôn câu sai (1)"
+      await doTest(sid, 0, -1);
+      r.note = (await ftxt("#wrongNote")) === "Lần này bạn không sai câu nào. Danh sách Ôn câu sai còn 1 câu từ các lần làm trước." && (await noteAboveBtns())
+        && (await resBtns()) === "Làm Đề 2|Ôn câu sai (1)|Trang chủ" && same(await getWrong(key), [extra]) && (await ftxt(".score")).startsWith("10");
+      await check(`${m} kết quả`); await snap(`ket-qua-${m}`);
+      l27.runs.push(r);
+    }
+    // Bài ôn IOE: trả lời đúng câu đang hiện theo dữ liệu trong khung (S.qs[S.i]; mọi dạng câu)
+    const answerIoe = async () => {
+      const q = await fr.evaluate(() => { const q = S.qs[S.i]; return { o: !!q.o, a: q.a, t: q.t, ans: q.ans, w: q.w, miss: q.miss, tiles: q.tiles, say: !!q.say }; });
+      if (q.o || q.t === "e") await fr.click(`.opt[data-o="${q.a}"]`);
+      else if (q.ans) await fr.fill("#fillIn", q.ans[0]);
+      else if (q.t === "l") for (let j = 0; j < q.miss.length; j++) await fr.fill(`input.letter[data-m="${j}"]`, q.w[q.miss[j]]);
+      else for (let i = 0; i < q.tiles.length; i++) await fr.click(`#pool .tile[data-k="${q.tiles.findIndex((t) => t.i === i)}"]`); // xếp từ, xếp chữ: bấm theo thứ tự gốc
+      return q.t + (q.say ? "+say" : "");
+    };
+    for (const [m, who, pin] of [["ioe-4", "Bin", PINS.Bin], ["ioe-6", "Na", "4444"]]) {
+      const r = { m, scheme }, key = wrongKeyOf(m, who);
+      await signIn(who, pin); await openMod(m);
+      const before = await getWrong(key);
+      // đề tiếp theo của bài (như nút Start Test), câu trắc nghiệm đầu tiên của đề
+      const t = await fr.evaluate(async () => { await TTS.ready; const tk = defaultTrack(), k = nextTest(tk), qs = buildTest(tk, k, !canListen()), i = qs.findIndex((q) => q.o && !q.say); return { i, id: qs[i].id, a: qs[i].a, ids: qs.map((q) => q.id), label: `${TRACKS[tk].name} · Test ${k + 1}` }; });
+      await setWrong(key, before.concat(t.id)); await openMod(m);
+      const n0 = before.length + 1;
+      r.home = (await wrongPanel()) === `You have ${n0} questions to review. Answer one correctly in any practice or test and it leaves the list.` && (await ftxt("#wrongBtn")) === `Review ${n0} questions`;
+      await fr.click("#heroBtn"); await fr.waitForSelector("#endBtn");
+      r.label = (await ftxt(".qhead .label")) === t.label;
+      for (let j = 0; j < t.i; j++) await fr.click("#skipBtn");
+      r.at = (await ftxt(".chip:last-child")) === `${t.i + 1} / ${t.ids.length}`;
+      await fr.click(`.opt[data-o="${t.a}"]`); await fr.click("#goBtn");
+      await fr.click("#endBtn"); await fr.waitForSelector("#yesEnd"); await fr.click("#yesEnd"); await fr.waitForSelector("#resBtns");
+      // câu làm đúng ra khỏi danh sách; câu bỏ qua, chưa làm vào danh sách
+      const want = [...new Set(before.concat(t.ids))].filter((x) => x !== t.id), after = await getWrong(key);
+      r.list = same(after, want) && !after.includes(t.id);
+      r.result = (await ftxt(".score")) === `1/${t.ids.length}` && /Questions to review \(/.test(await ftxt("#view")) && (await resBtns()).includes(`Review mistakes (${want.length})`) && !(await fr.$("#wrongNote"));
+      // Review mistakes: làm đúng một câu rồi End practice: lượt không sai câu nào, danh sách còn câu từ trước
+      await fr.click("#resBtns button:has-text('Review mistakes')"); await fr.waitForSelector("#endBtn");
+      r.kind = await answerIoe();
+      await fr.click("#goBtn"); r.fb = /^Correct!/.test(await ftxt("#fb"));
+      await fr.click("#endBtn"); await fr.waitForSelector("#yesEnd"); await fr.click("#yesEnd"); await fr.waitForSelector("#resBtns");
+      const n1 = want.length - 1;
+      r.note = (await ftxt("#wrongNote")) === `No mistakes this time. Your review list still has ${n1} question${n1 > 1 ? "s" : ""} from earlier.` && (await noteAboveBtns())
+        && (await resBtns()) === `Review mistakes (${n1})|Home` && (await getWrong(key)).length === n1 && (await ftxt(".score")) === "1/1" && !(await fr.$(".review"));
+      await check(`${m} kết quả`); await snap(`ket-qua-${m}`);
+      l27.runs.push(r);
+    }
+    await c.close();
+  }
+  { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/l27/<tên>.jpg)
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of [...new Set(l27.shots.map((x) => x.replace(/-(light|dark)$/, "")))]) {
+      if (!l27.shots.includes(n + "-light") || !l27.shots.includes(n + "-dark")) continue;
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTL27}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTL27}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("L27:", l27.runs, "problems:", l27.problems);
+  const l27OK = !l27.problems.length && l27.runs.length === 8 && l27.runs.every((r) => Object.keys(r).every((k) => ["m", "scheme", "kind"].includes(k) || r[k] === true))
+    && Object.keys(L27_KEY).every((m) => ["light", "dark"].every((sc) => l27.shots.includes(`ket-qua-${m}-${sc}`)));
+
   step("today page, tabs, badges, result screen (UX1)");
   /* Trang chủ học sinh là trang "Hôm nay" với thanh tab dưới (Hôm nay · Bài ôn · Lịch thi · Kết quả); thanh trên không còn nút Lịch thi.
      Ngày giả lập thứ tư 21/10/2026; Bin có 3 ngày ôn liền (Toán 4 Đề 1 21/25 sai "Góc và đo góc" hôm kia, bài ôn giữa kì I 18/20 hôm qua,
@@ -1677,7 +1816,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK };
+    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
