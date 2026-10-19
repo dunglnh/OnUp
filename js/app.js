@@ -384,7 +384,7 @@
      probe(pin), không bắt buộc: chưa biết độ dài thì gọi khi gõ đủ 4 số, để thử lặng lẽ PIN 4 số.
      Nút xem (wireReveal) đang hiện thì hàng chấm hiện chữ số đã gõ; gửi PIN hoặc xóa hết thì ẩn lại.
      show(u, opts), opts không bắt buộc (mã mở nhanh của Phụ huynh, UX3): label là tên ô thay cho "Mã PIN", sub là dòng phụ trên hàng chấm
-     (mặc định "Nhập mã PIN của bạn"), alt = {text, go} là link thay thế dưới bàn phím ("Nhập mật khẩu"); không truyền thì như bàn phím PIN của hồ sơ con. */
+     (mặc định "Nhập mã PIN của bạn"), alt = {lead?, text, go} là link thay thế dưới bàn phím ("Quên mã?" + "Nhập mật khẩu", A5b); không truyền thì như bàn phím PIN của hồ sơ con. */
   function wirePinBox(submit, probe) {
     const inp = $("#pinIn"), dots = $("#pinDots");
     let pin = "", len = 0, locked = false; // locked: đang phải đợi (PinLock), bàn phím mờ, số gõ vào bị bỏ
@@ -414,7 +414,7 @@
         len = u.pinLen >= 4 && u.pinLen <= 6 ? u.pinLen : 0;
         set(""); $("#pinErr").innerHTML = "";
         $("#pinSub").textContent = sub || "Nhập mã PIN của bạn";
-        $("#pinAlt").hidden = !alt; $("#pinAlt").innerHTML = alt ? `<button type="button" class="linkbtn" id="pinToPw">${esc(alt.text)}</button>` : "";
+        $("#pinAlt").hidden = !alt; $("#pinAlt").innerHTML = alt ? `${alt.lead ? `<span class="small muted">${esc(alt.lead)}</span>` : ""}<button type="button" class="linkbtn" id="pinToPw">${esc(alt.text)}</button>` : "";
         if (alt) $("#pinToPw").onclick = alt.go;
         $("#pinLabel").textContent = label || "Mã PIN";
         if (label) inp.dataset.what = label.toLowerCase(); else delete inp.dataset.what;
@@ -533,7 +533,7 @@
     }
     const showPin = () => {
       if (parentIn) $("#pwBox").hidden = true;
-      if (parentIn) box.show(Object.assign({}, u, { pinLen: quick }), { label: "Mã mở nhanh", sub: "Mã mở nhanh khu phụ huynh của máy này. Quên mã thì nhập mật khẩu.", alt: { text: "Nhập mật khẩu", go: () => { usePw = true; showPw(); } } });
+      if (parentIn) box.show(Object.assign({}, u, { pinLen: quick }), { label: "Mã mở nhanh", sub: "Nhập mã mở nhanh của máy này", alt: { lead: "Quên mã?", text: "Nhập mật khẩu", go: () => { usePw = true; showPw(); } } }); // A5b
       else box.show(u);
       if (PinLock.wait(id)) showWait(); else lock(false);
     };

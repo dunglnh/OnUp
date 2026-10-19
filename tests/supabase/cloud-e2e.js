@@ -424,7 +424,7 @@ async function run(browser, scheme) {
   c.ux3.tileSub = await p3.$eval('.tile:has(.nm:text-is("Phụ huynh")) .small', (x) => x.textContent);
   await tile(p3, "Phụ huynh"); await p3.waitForSelector("#pinBox:not([hidden])");
   c.ux3.pad = await p3.evaluate(() => ({ pw: document.querySelector("#pwBox").hidden, who: document.querySelector("#pinWho").textContent.replace(/\s+/g, " ").trim(), sub: document.querySelector("#pinSub").textContent, label: document.querySelector("#pinLabel").textContent,
-    dots: document.querySelectorAll("#pinDots span").length, alt: document.querySelector("#pinAlt button").textContent, altH: Math.round(document.querySelector("#pinAlt button").getBoundingClientRect().height) }));
+    dots: document.querySelectorAll("#pinDots span").length, alt: document.querySelector("#pinAlt button").textContent, altAll: document.querySelector("#pinAlt").textContent.replace(/\s+/g, " ").trim(), altH: Math.round(document.querySelector("#pinAlt button").getBoundingClientRect().height) }));
   await pad(p3, "1111"); await revealTry(p3, "#pinIn", "mã mở nhanh"); await pad(p3, "1"); await p3.waitForSelector("#pinErr .fb");
   c.ux3.padWrong = (await text(p3, "#pinErr")) + " | " + (await p3.evaluate(() => (JSON.parse(localStorage.getItem("ontap_pinlock_v1") || "{}")["phu-huynh"] || {}).fails));
   await shot(p3, "c10b-ma-mo-nhanh");
@@ -715,9 +715,9 @@ async function run(browser, scheme) {
       && c.ux3.qcErr === "Mã mở nhanh gồm 4–6 chữ số." && /bạn gõ mã 5 số /.test(c.ux3.qc1.text) && /Máy này đã có mã mở nhanh\. Mã mới \(4–6 số\) Đổi mãBỏ mã /.test(c.ux3.qc1.text) && c.ux3.qc1.toast === "Đã lưu mã mở nhanh"
       && Object.keys(c.ux3.qc1.ls).join() === acc.id && /^5\.[0-9a-f]{16}\$s256:[0-9a-f]{64}$/.test(c.ux3.qc1.ls[acc.id]) && c.ux3.dropped
       && /Máy này chưa ghi nhớ đăng nhập\. \| true$/.test(c.ux3.noRemember) && /Chọn “Ghi nhớ trên máy này” khi đăng nhập/.test(c.ux3.noRemember),
-    "UX3: tab mới trên máy đã ghi nhớ: ô Phụ huynh ghi “Nhập mã mở nhanh”, bàn phím mã (nhãn Mã mở nhanh, 5 chấm), sai thì báo và tính vào khóa tạm, link “Nhập mật khẩu” (≥ 44px) mở ô mật khẩu có “Dùng mã mở nhanh”, đúng mã thì vào khu phụ huynh; đăng xuất thì xóa mã":
-      c.ux3.tileSub === "Nhập mã mở nhanh" && c.ux3.pad.pw && c.ux3.pad.who === "🌻Phụ huynh" + "Nhà Bin · nha.bin" && c.ux3.pad.sub === "Mã mở nhanh khu phụ huynh của máy này. Quên mã thì nhập mật khẩu." && c.ux3.pad.label === "Mã mở nhanh" && c.ux3.pad.dots === 5
-      && c.ux3.pad.alt === "Nhập mật khẩu" && c.ux3.pad.altH >= 44 && c.ux3.padWrong === "Mã mở nhanh chưa đúng. Thử lại nhé. | 1" && c.ux3.toPw === "true Dùng mã mở nhanh" && c.ux3.padIn === "Khu phụ huynh | true" && c.ux3.cleared,
+    "UX3, UX4 (A5b): tab mới trên máy đã ghi nhớ: ô Phụ huynh ghi “Nhập mã mở nhanh”, bước riêng mở bàn phím mã (dòng “Nhập mã mở nhanh của máy này”, nhãn Mã mở nhanh, 5 chấm), sai thì báo và tính vào khóa tạm, dòng “Quên mã? Nhập mật khẩu” (≥ 44px) mở ô mật khẩu có “Dùng mã mở nhanh”, đúng mã thì vào khu phụ huynh; đăng xuất thì xóa mã":
+      c.ux3.tileSub === "Nhập mã mở nhanh" && c.ux3.pad.pw && c.ux3.pad.who === "🌻Phụ huynh" + "Nhà Bin · nha.bin" && c.ux3.pad.sub === "Nhập mã mở nhanh của máy này" && c.ux3.pad.label === "Mã mở nhanh" && c.ux3.pad.dots === 5
+      && c.ux3.pad.alt === "Nhập mật khẩu" && c.ux3.pad.altAll === "Quên mã?Nhập mật khẩu" && c.ux3.pad.altH >= 44 && c.ux3.padWrong === "Mã mở nhanh chưa đúng. Thử lại nhé. | 1" && c.ux3.toPw === "true Dùng mã mở nhanh" && c.ux3.padIn === "Khu phụ huynh | true" && c.ux3.cleared,
     "UX4: chạm hồ sơ có PIN thì sang bước nhập riêng (#/vao/<mã>): không cuộn, tên và 12 nút bàn phím trong khung nhìn 760px, không còn danh sách, “← Chọn hồ sơ khác”, hình, tên, lớp, nút chữ “Hiện số”, dòng quên PIN; ô #pinIn ẩn khỏi mắt; lỗi ngay dưới hàng chấm":
       c.ux4.enter.hash && c.ux4.enter.scroll === 0 && c.ux4.enter.name === "Bin" && c.ux4.enter.nameIn && c.ux4.enter.pad && c.ux4.enter.tiles === 0 && c.ux4.enter.back === "← Chọn hồ sơ khác" && c.ux4.enter.whoOK && c.ux4.enter.sub === "Nhập mã PIN của bạn"
       && c.ux4.enter.show === "Hiện sốGiấu số" && c.ux4.enter.inputW <= 1 && c.ux4.enter.help === "Quên mã PIN? Nhờ bố mẹ đặt lại trong Khu phụ huynh → Cài đặt → Hồ sơ con." && c.ux4.enter.dots === 4 && c.ux4.errOrder,
