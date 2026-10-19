@@ -1498,6 +1498,79 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const l27OK = !l27.problems.length && l27.runs.length === 8 && l27.runs.every((r) => Object.keys(r).every((k) => ["m", "scheme", "kind"].includes(k) || r[k] === true))
     && Object.keys(L27_KEY).every((m) => ["light", "dark"].every((sc) => l27.shots.includes(`ket-qua-${m}-${sc}`)));
 
+  step("lesson pages l4, l6: numbers with thousands spaces stay on one line (360px)");
+  /* Bài ôn dạng trang l4-giua-ki-1, l6-giua-ki-1 viết số kiểu Việt Nam, ngăn hàng nghìn bằng khoảng trắng thường ("20 000", "2 500 000"); khi hiện
+     ra, nbNum của trang đổi khoảng trắng đó thành khoảng trắng không ngắt (hợp đồng với bài ôn, CLAUDE.md). Bố Minh (quản trị, xem thử, không lưu
+     điểm) mở từng bài trong khung ở 360px; với mỗi môn: trang đầu (tên bài), phần Ghi nhớ của từng bài, ôn luyện từng bài (mỗi câu lúc mới hiện và
+     sau Kiểm tra, rồi màn kết quả), Đề 1 bấm Bỏ qua đến hết rồi màn kết quả (mọi câu cần xem lại, kèm đáp án, lời giải). Trong #view của khung: không
+     đoạn chữ (text node) nào còn khoảng trắng thường giữa hai nhóm số, không số nào nằm trên hai dòng (Range.getClientRects), khung không tràn ngang. Câu điền
+     trong dữ liệu có đáp án là số từ 4 chữ số: gõ đáp án ngăn hàng nghìn bằng khoảng trắng không ngắt (như chép từ màn hình) vẫn được chấm đúng;
+     câu khác trả lời sai (ô điền) hoặc chọn ô đầu tiên, để thấy đáp án và lời giải. */
+  const mn = { problems: [], seen: {}, screens: 0, typed: [], want: 0 };
+  {
+    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror số bài ôn: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console số bài ôn: " + m.text()); });
+    await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids["Bố Minh"]}"]`); await p.fill("#pinIn", PINS["Bố Minh"]); await p.waitForTimeout(400);
+    for (const m of ["l4-giua-ki-1", "l6-giua-ki-1"]) {
+      let fr = null;
+      await p.goto(BASE + "/#/home"); await p.waitForTimeout(150); await p.goto(BASE + "/#/play/" + m);
+      for (let i = 0; i < 60 && !(fr = p.frames().find((f) => f.url().includes(`/modules/${m}/`))); i++) await p.waitForTimeout(100);
+      await fr.waitForSelector(".stab");
+      mn.seen[m] = 0;
+      // số có nhóm hàng nghìn trong #view của khung: còn khoảng trắng thường (kể cả chữ đang ẩn), hoặc đang hiện mà nằm trên hai dòng (các ô chữ của Range lệch nhau quá nửa dòng)
+      const check = async (label) => {
+        const r = await fr.evaluate(() => {
+          const bad = [], re = /\d+(?:[ \u00a0]\d{3})+(?!\d)/g;
+          let seen = 0;
+          if (document.documentElement.scrollWidth > innerWidth) bad.push("tràn ngang: rộng " + document.documentElement.scrollWidth + "px");
+          const tw = document.createTreeWalker(document.querySelector("#view"), NodeFilter.SHOW_TEXT);
+          for (let n; (n = tw.nextNode());) for (const x of n.textContent.matchAll(re)) {
+            if (x[0].includes(" ")) bad.push(`khoảng trắng thường: "${x[0]}"`);
+            const rg = document.createRange(); rg.setStart(n, x.index); rg.setEnd(n, x.index + x[0].length);
+            const rs = [...rg.getClientRects()].filter((b) => b.width > 0 && b.height > 0), tops = rs.map((b) => b.top);
+            if (!rs.length) continue;
+            seen++;
+            if (Math.max(...tops) - Math.min(...tops) > Math.min(...rs.map((b) => b.height)) / 2) bad.push(`hai dòng: "${x[0].replace(/\u00a0/g, " ")}"`);
+          }
+          return { bad, seen };
+        });
+        mn.seen[m] += r.seen; mn.screens++;
+        r.bad.forEach((x) => mn.problems.push(`${m} · ${label}: ${x}`));
+      };
+      // câu điền đang hiện là câu trong dữ liệu có đáp án số từ 4 chữ số: đáp án ngăn hàng nghìn bằng khoảng trắng không ngắt ("50 000"); không thì null
+      const nbAns = (sid) => fr.evaluate((sid) => {
+        const flat = (s) => String(s).replace(/<[^>]+>/g, "").replace(/___/g, "").replace(/\s+/g, ""), t = flat(document.querySelector(".qtext").textContent);
+        const it = document.querySelector("#fillIn") && SUBJ[sid].items.find((x) => x.q && x.ans != null && flat(x.q) === t), a = it && String(it.ans).split("|")[0];
+        return a && /^\d{4,}$/.test(a) ? a.replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0") : null;
+      }, sid);
+      for (const sid of await fr.$$eval(".stab", (bs) => bs.map((b) => b.dataset.sid))) {
+        await fr.click(`.stab[data-sid="${sid}"]`); await fr.waitForSelector(`.stab[data-sid="${sid}"][aria-pressed="true"]`);
+        await check(`${sid}, trang đầu`);
+        mn.want += await fr.evaluate((sid) => SUBJ[sid].items.filter((x) => x.q && x.ans != null && /^\d{4,}$/.test(String(x.ans).split("|")[0])).length, sid);
+        for (const l of await fr.$$eval(".lrow", (bs) => bs.map((b) => b.dataset.l))) {
+          await fr.click(`.lrow[data-l="${l}"]`); await check(`${sid} ${l}, ghi nhớ`);
+          await fr.click("#goBtn");
+          for (let i = 1; i <= 80 && (await fr.$("#skipBtn")); i++) {
+            await check(`${sid} ${l}, câu ${i}`);
+            const typed = await nbAns(sid);
+            if (typed) await fr.fill("#fillIn", typed); else if (await fr.$("#fillIn")) await fr.fill("#fillIn", "zz"); else await fr.click(".opt >> nth=0");
+            await fr.click("#goBtn"); await check(`${sid} ${l}, câu ${i}, sau Kiểm tra`);
+            if (typed) mn.typed.push(!!(await fr.$("#fb .fb.ok")));
+            await fr.click("#goBtn");
+          }
+          await check(`${sid} ${l}, kết quả`); await fr.click("#homeBtn");
+        }
+        await fr.click('.tb[data-k="0"]');
+        for (let i = 1; i <= 60 && (await fr.$("#skipBtn")); i++) { await check(`${sid} Đề 1, câu ${i}`); await fr.click("#skipBtn"); }
+        await check(`${sid} Đề 1, kết quả`); await fr.click("#homeBtn");
+      }
+    }
+    await c.close();
+  }
+  console.log("số trong bài ôn dạng trang:", { screens: mn.screens, seen: mn.seen, typed: mn.typed, want: mn.want }, "problems:", mn.problems.length, mn.problems.slice(0, 30));
+  const modNumOK = !mn.problems.length && mn.seen["l4-giua-ki-1"] > 200 && mn.seen["l6-giua-ki-1"] > 20 && mn.want > 0 && mn.typed.length === mn.want && mn.typed.every(Boolean);
+
   step("today page, tabs, badges, result screen (UX1)");
   /* Trang chủ học sinh là trang "Hôm nay" với thanh tab dưới (Hôm nay · Bài ôn · Lịch thi · Kết quả); thanh trên không còn nút Lịch thi.
      Ngày giả lập thứ tư 21/10/2026; Bin có 3 ngày ôn liền (Toán 4 Đề 1 21/25 sai "Góc và đo góc" hôm kia, bài ôn giữa kì I 18/20 hôm qua,
@@ -2150,7 +2223,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, ux4OK, ux5OK, numOK };
+    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, ux4OK, ux5OK, numOK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();

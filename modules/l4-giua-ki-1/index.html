@@ -578,6 +578,8 @@ const store={get(k,d){try{const v=localStorage.getItem(PFX+k);return v?JSON.pars
   set(k,v){try{localStorage.setItem(PFX+k,JSON.stringify(v))}catch(e){}}};
 const $=s=>document.querySelector(s), view=$("#view"), topRight=$("#topRight");
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+// số có nhóm hàng nghìn ("1 000 000"): khi hiện chữ, khoảng trắng giữa hai nhóm số thành khoảng trắng không ngắt (NB), để số không bị tách ra hai dòng ở màn hình hẹp (cùng biểu thức với nbNum của js/quiz.js); dữ liệu, cách chấm không đổi
+const nbNum=s=>String(s).replace(/(\d) (?=\d{3}(?!\d))/g,"$1"+NB);
 const fmtTime=s=>{s=Math.max(0,Math.round(s));return String(s/60|0).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
 const fmtDate=d=>d.toLocaleDateString("vi-VN",{day:"2-digit",month:"2-digit"});
 let cur=store.get("sub",APP.subjects[0].id);if(!SUBJ[cur])cur=APP.subjects[0].id;
@@ -603,7 +605,7 @@ function startLesson(sid,l){const L=SUBJ[sid].L[l];start({mode:"practice",sid,qs
 function startWrong(sid){const keys=[...wrongOf(sid)];const qs=shuffleWith(keys,Math.random).flatMap(k=>byKey(sid,k));start({mode:"practice",sid,qs,label:`${SUBJ[sid].name} · Ôn câu sai`})}
 function updTimer(left){const el=$("#timer");if(!el)return;el.textContent=fmtTime(left);el.classList.toggle("warn",left<180)}
 
-function passageHTML(t){return t.split(/\n\s*\n/).map(p=>p.includes("\n")?`<p class="poem">${esc(p.trim())}</p>`:`<p>${esc(p.trim())}</p>`).join("")}
+function passageHTML(t){return t.split(/\n\s*\n/).map(p=>p.includes("\n")?`<p class="poem">${nbNum(esc(p.trim()))}</p>`:`<p>${nbNum(esc(p.trim()))}</p>`).join("")}
 function renderQ(){
   const q=S.qs[S.i], n=S.qs.length, exam=S.mode==="exam", s=SUBJ[S.sid], L=s.L[q.l];
   S.cur=null;S.checked=false;
@@ -612,19 +614,19 @@ function renderQ(){
   let body="";
   if(q.kind==="mc"){
     const wide=q.o.some(o=>stripTags(o).length>24);
-    body=`<div class="label">${q.tf?"Đúng hay sai?":"Chọn đáp án đúng"}</div><div class="qtext">${q.q}</div>
-      <div class="opts${wide?" wide":""}">${q.order.map((oi,k)=>`<button class="opt" data-o="${oi}"><span class="k">${q.tf?"":"ABCD"[k]}</span><span>${q.o[oi]}</span></button>`).join("")}</div>`;
+    body=`<div class="label">${q.tf?"Đúng hay sai?":"Chọn đáp án đúng"}</div><div class="qtext">${nbNum(q.q)}</div>
+      <div class="opts${wide?" wide":""}">${q.order.map((oi,k)=>`<button class="opt" data-o="${oi}"><span class="k">${q.tf?"":"ABCD"[k]}</span><span>${nbNum(q.o[oi])}</span></button>`).join("")}</div>`;
   }else{
     const numeric=q.ans.every(a=>isNum(a)&&!/^[-−]/.test(a.trim())), neg=q.ans.some(a=>/^[-−]/.test(a.trim()));
     const inp=`<input class="blank${q.q.includes("___")?"":" wide"}" id="fillIn" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="${numeric?"numeric":"text"}" aria-label="Câu trả lời">`;
-    body=`<div class="label">Điền vào chỗ trống</div>`+(q.q.includes("___")?`<div class="qtext">${q.q.replace("___",inp)}</div>`:`<div class="qtext">${q.q}</div>${inp}`)
+    body=`<div class="label">Điền vào chỗ trống</div>`+(q.q.includes("___")?`<div class="qtext">${nbNum(q.q).replace("___",inp)}</div>`:`<div class="qtext">${nbNum(q.q)}</div>${inp}`)
       +(neg?`<div class="hint">Số âm: gõ dấu trừ phía trước, ví dụ -12.</div>`:q.cs?`<div class="hint">Chú ý viết hoa đúng quy tắc.</div>`:"");
   }
   view.innerHTML=`<div class="stack">
     <div class="bar" aria-hidden="true"><i style="width:${S.i/n*100}%"></i></div>
     <section class="qcard">
       <div class="qhead"><span class="label">${esc(S.label)}</span><span class="label">${esc(L?L.short:"")}</span></div>
-      ${q.passage?`<details class="passage" open><summary>Đọc văn bản: ${esc(q.ptitle||"")}</summary><div class="ptext">${passageHTML(q.passage)}</div></details>`:""}
+      ${q.passage?`<details class="passage" open><summary>Đọc văn bản: ${nbNum(esc(q.ptitle||""))}</summary><div class="ptext">${passageHTML(q.passage)}</div></details>`:""}
       ${body}
       <div id="fb" aria-live="polite"></div>
     </section>
@@ -642,7 +644,7 @@ function renderQ(){
     if(S.mode==="exam"){next();return}
     S.checked=true;
     if(q.kind==="mc")view.querySelectorAll(".opt").forEach(b=>{const o=+b.dataset.o;if(o===q.a)b.classList.add("right");else if(b.classList.contains("sel"))b.classList.add("wrong")});
-    $("#fb").innerHTML=(ok?`<div class="fb ok">Chính xác!</div>`:`<div class="fb bad">Chưa đúng. <span>Đáp án: <b>${q.kind==="mc"?q.o[q.a]:esc(showAns(q))}</b></span></div>`)+(q.x?`<div class="expl">${q.x}</div>`:"");
+    $("#fb").innerHTML=(ok?`<div class="fb ok">Chính xác!</div>`:`<div class="fb bad">Chưa đúng. <span>Đáp án: <b>${nbNum(q.kind==="mc"?q.o[q.a]:esc(showAns(q)))}</b></span></div>`)+(q.x?`<div class="expl">${nbNum(q.x)}</div>`:"");
     $("#goBtn").textContent=S.i+1<n?"Câu tiếp":"Xem kết quả";$("#skipBtn").disabled=true;
   };
 }
@@ -684,7 +686,7 @@ function finish(){
       <div>${msg}</div>
     </section>
     ${order.length>1?`<section class="panel"><div class="label">Theo bài</div><div class="ubreak">${order.map(id=>{const [r,t]=by[id];return `<span>${esc(s.L[id].short)}</span><div class="bar"><i style="width:${r/t*100}%"></i></div><span>${r}/${t}</span>`}).join("")}</div></section>`:""}
-    ${wrong.length?`<section class="panel"><div class="label">Câu cần xem lại (${wrong.length})</div><div class="review">${wrong.map(a=>`<div class="rv">${a.q.ptitle?`<div class="small muted">Văn bản: ${esc(a.q.ptitle)}</div>`:""}<div>${a.q.q.replace("___","…")}</div><div class="ans">Bạn trả lời: <s>${a.q.kind==="mc"&&a.g!=null?a.q.o[a.g]:esc(givenText(a.q,a.g))}</s> · Đáp án: <b>${a.q.kind==="mc"?a.q.o[a.q.a]:esc(showAns(a.q))}</b></div>${a.q.x?`<div class="expl">${a.q.x}</div>`:""}</div>`).join("")}</div></section>`:""}
+    ${wrong.length?`<section class="panel"><div class="label">Câu cần xem lại (${wrong.length})</div><div class="review">${wrong.map(a=>`<div class="rv">${a.q.ptitle?`<div class="small muted">Văn bản: ${nbNum(esc(a.q.ptitle))}</div>`:""}<div>${nbNum(a.q.q).replace("___","…")}</div><div class="ans">Bạn trả lời: <s>${nbNum(a.q.kind==="mc"&&a.g!=null?a.q.o[a.g]:esc(givenText(a.q,a.g)))}</s> · Đáp án: <b>${nbNum(a.q.kind==="mc"?a.q.o[a.q.a]:esc(showAns(a.q)))}</b></div>${a.q.x?`<div class="expl">${nbNum(a.q.x)}</div>`:""}</div>`).join("")}</div></section>`:""}
     ${!wrong.length&&total&&w.size?`<p class="muted small" id="wrongNote" style="margin:0">Lần này bạn không sai câu nào. Danh sách Ôn câu sai còn ${w.size} câu từ các lần làm trước.</p>`:""}
     <div class="row" id="resBtns"></div>
   </div>`;
@@ -712,7 +714,7 @@ function renderHome(){
     </section>
     <section class="sec"><h2>Ôn theo bài</h2><p class="muted small">Đọc phần ghi nhớ, rồi luyện tập. Làm xong mỗi câu sẽ biết đúng sai và có giải thích.</p>
       ${groups.map(g=>`<div class="grp"><div class="grp-h">${esc(g.name)}</div><div class="lessons">${g.ls.map(l=>{const r=lres[cur+"|"+l.id];
-        return `<button class="lrow" data-l="${l.id}"><span class="lnum">${esc(l.short)}</span><span class="lname">${esc(l.name)}</span><span class="lmeta${r?(r.r/r.t>=.8?" good":" fair"):""}">${r?`${r.r}/${r.t}`:`${l.count} câu`}</span></button>`}).join("")}</div></div>`).join("")}
+        return `<button class="lrow" data-l="${l.id}"><span class="lnum">${esc(l.short)}</span><span class="lname">${nbNum(esc(l.name))}</span><span class="lmeta${r?(r.r/r.t>=.8?" good":" fair"):""}">${r?`${r.r}/${r.t}`:`${l.count} câu`}</span></button>`}).join("")}</div></div>`).join("")}
     </section>
     <section class="sec"><h2>Đề thi thử giữa kì</h2>
       <p class="muted small">${T.count} đề, mỗi đề ${T.n} câu, làm trong ${T.mins} phút. Mỗi đề cố định, làm lại vẫn ra đúng các câu đó${s.items.some(it=>it.g)?" (riêng câu tính toán có thể đổi số liệu theo từng đề)":""}. Đáp án hiện sau khi nộp bài.</p>
@@ -747,8 +749,8 @@ function renderLesson(sid,l){
   view.innerHTML=`<div class="stack">
     <button class="back" id="backBtn">‹ ${esc(s.name)}</button>
     <div class="label">${esc(L.group)}</div>
-    <h2>${esc(L.short)}. ${esc(L.name)}</h2>
-    <section class="panel notes"><h3>Ghi nhớ</h3><ul>${L.notes.map(n=>`<li>${n}</li>`).join("")}</ul></section>
+    <h2>${esc(L.short)}. ${nbNum(esc(L.name))}</h2>
+    <section class="panel notes"><h3>Ghi nhớ</h3><ul>${L.notes.map(n=>`<li>${nbNum(n)}</li>`).join("")}</ul></section>
     <div class="row"><button class="btn main" id="goBtn">Luyện tập ${L.count} câu</button>${r?`<span class="muted small">Lần trước: ${r.r}/${r.t} câu đúng</span>`:""}</div>
     ${L.hasGen?`<p class="muted small" style="margin:0">Các câu tính toán đổi số liệu mỗi lần làm, nên bạn có thể luyện lại nhiều lần.</p>`:""}
   </div>`;
