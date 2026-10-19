@@ -5,7 +5,7 @@
    → bắt đổi mật khẩu tạm → khu phụ huynh (thẻ “Bắt đầu trong 3 bước”, UX3) → thêm hồ sơ con (PIN 4 số tùy chọn) → “Cho con học” mở
    “Ai đang học?” → con nhập PIN, làm đề, kết quả lên máy chủ (con thứ hai làm một đề Tiếng Anh: màn làm đề bằng tiếng Anh, TA2)
    → tab mới: nhập lại mật khẩu vào khu phụ huynh → báo cáo tuần, đổi mật khẩu, đặt mã mở nhanh (UX3; tab mới nữa vào bằng mã đó),
-   chuyển dữ liệu máy này, đăng xuất (xóa mã) → máy không ghi nhớ (không đặt được mã) → tài khoản bị khóa.
+   chuyển dữ liệu máy này, đăng xuất (hỏi mật khẩu trước, UX3b; xóa mã) → máy không ghi nhớ (không đặt được mã) → tài khoản bị khóa.
    Mỗi màn hình kiểm tra ở 360px như tests/e2e.js (không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px); ảnh sáng và tối lưu ở
    tests/screenshots/cloud/ (thêm bản ghép sáng/tối cạnh nhau <tên>.jpg để xem nhanh). Lượt tối chạy với CAPTCHA bật. Cuối cùng kiểm tra service worker (sw.js) không làm hỏng bản
    đám mây và không đệm request ra ngoài app, rồi trang admin của chủ app (admin.html): tài khoản gia đình thấy “Không có
@@ -178,7 +178,7 @@ async function run(browser, scheme) {
   const startOf = (pg) => pg.evaluate(() => { const st = document.querySelector("#start"); return st ? { steps: [...st.querySelectorAll(".step")].map((x) => x.className.replace("step", "").trim() + ":" + x.querySelector("b").textContent).join("|"),
     text: st.textContent.replace(/\s+/g, " ").trim(), disabled: document.querySelector("#letStudy").disabled, h: Math.round(document.querySelector("#letStudy").getBoundingClientRect().height),
     add: !!st.querySelector("a.btn[href='#/admin/user/new?role=student']"), first: document.querySelector("#kids").firstElementChild.id, rows: document.querySelectorAll("#kids > .row").length } : null; });
-  c.ux3 = { start0: await startOf(p), switchTxt: await text(p, "#switchWho") };
+  c.ux3 = { start0: await startOf(p), switchTxt: await text(p, "#switchWho") }; c.ux3b = {}; // ux3b: các kiểm tra của Phiên UX3b
 
   /* ---- thêm hồ sơ con ---- */
   await p.click("a[href='#/admin/user/new?role=student']"); await p.waitForSelector("#uForm");
@@ -471,8 +471,25 @@ async function run(browser, scheme) {
   if (await p2.$("#pinBox:not([hidden])")) await pad(p2, "2468"); // vừa nhập mật khẩu trong 5 phút: không hỏi lại; quá thì bàn phím mã mở nhanh (UX3)
   else if (await p2.$("#pwBox:not([hidden])")) { await p2.fill("#pwIn", PW2); await p2.click("#pwGo"); }
   await p2.waitForSelector("text=Khu phụ huynh");
+  // UX3b (X17): "Đăng xuất khỏi máy này" hỏi mật khẩu trước: hộp .confirm mở ngay dưới nút (chưa đăng xuất): dòng giải thích, ô mật khẩu có nút xem,
+  // nút Đăng xuất / Thôi, dòng "Quên mật khẩu?" từ js/config.js; sai thì báo trong hộp, vẫn đăng nhập, tính vào PinLock của Phụ huynh; Thôi thì đóng; đúng thì về màn đăng nhập
+  await p2.goto(BASE + "/#/account"); await p2.waitForSelector("#signOut");
+  const failsOf = (pg) => pg.evaluate(() => (JSON.parse(localStorage.getItem("ontap_pinlock_v1") || "{}")["phu-huynh"] || {}).fails || 0);
+  const fails0 = await failsOf(p2);
+  await p2.click("#signOut"); await p2.waitForSelector("#outBox"); await wait(p2, 600); // hộp cuộn mượt vào khung nhìn: chờ xong rồi mới đo, chụp
+  c.ux3b.out = await p2.evaluate(() => { const b = document.querySelector("#outBox"); return { under: b.parentElement.previousElementSibling.contains(document.querySelector("#signOut")), confirm: b.classList.contains("confirm"), text: b.textContent.replace(/\s+/g, " ").trim(),
+    contact: b.querySelector("#contact a") && b.querySelector("#contact a").getAttribute("href"), focus: document.activeElement.id, yes: document.querySelector("#outYes").textContent, no: document.querySelector("#outNo").textContent, state: Store.authState() + " " + !!Store.sessionUser() }; });
+  await shot(p2, "c13c-dang-xuat");
+  await p2.fill("#outPw", "sai-mat-khau"); await revealTry(p2, "#outPw", "mật khẩu"); await eye(p2, "#outPw");
+  await p2.click("#outYes"); await p2.waitForSelector("#outErr .fb");
+  c.ux3b.outWrong = { err: await text(p2, "#outErr"), fails: (await failsOf(p2)) - fails0, state: await p2.evaluate(() => Store.authState() + " " + !!document.querySelector("#pwForm")) };
+  rvIs((await types(p2, "#outPw")) === "password", "đăng xuất: gửi sai vẫn hiện");
+  await shot(p2, "c13d-dang-xuat-sai");
+  await p2.click("#outNo"); await wait(p2, 100);
+  c.ux3b.outNo = !(await p2.$("#outBox")) && !!(await p2.$("#signOut")) && (await p2.evaluate(() => Store.authState())) === "ready";
+  await p2.click("#signOut"); await p2.waitForSelector("#outBox");
+  await p2.fill("#outPw", PW2); await p2.click("#outYes"); await p2.waitForSelector("#loginForm");
   const captchaBoxes = withCaptcha ? await p2.evaluate(() => window.turnstile.boxes.join()) + "," + await p.evaluate(() => window.turnstile.boxes.join()) : "";
-  await p2.goto(BASE + "/#/account"); await p2.click("#signOut"); await p2.waitForSelector("#loginForm");
   await p2.reload(); await p2.waitForSelector("#loginForm");
   c.signedOut = await p2.evaluate(() => !localStorage.getItem("ontap_sb_auth") && !sessionStorage.getItem("ontap_sb_auth"));
   c.ux3.cleared = await p2.evaluate(() => localStorage.getItem("ontap_cloud_quick") === null); // UX3: đăng xuất thì xóa mã mở nhanh
@@ -737,6 +754,11 @@ async function run(browser, scheme) {
     "chuyển dữ liệu máy này: 1 hồ sơ con, 1 kết quả; PIN cũ dùng được": /1 hồ sơ con mới, 1 kết quả/.test(c.migrate) && c.bong,
     "chuyển dữ liệu: nhắc iPhone, iPad chuyển trong Safari; không có hướng dẫn Màn hình chính của bản trên máy": c.migHint && c.noHomeScreen,
     "đăng xuất: xóa phiên, tải lại vẫn ở trang đăng nhập": c.signedOut,
+    "UX3b (X17): “Đăng xuất khỏi máy này” hỏi mật khẩu: hộp mở ngay dưới nút (chưa đăng xuất), dòng giải thích, ô mật khẩu có nút xem, nút Đăng xuất / Thôi, dòng “Quên mật khẩu?”; sai thì báo trong hộp, vẫn đăng nhập, tính vào khóa tạm; Thôi thì đóng; đúng thì về màn đăng nhập; CAPTCHA (khi bật) đặt trong hộp":
+      c.ux3b.out.under && c.ux3b.out.confirm && /^Đăng xuất khỏi máy này\? Nhập mật khẩu của bố mẹ để xác nhận\. Mã mở nhanh không dùng được ở đây\. Mật khẩu của bố mẹ /.test(c.ux3b.out.text) && /Đăng xuấtThôi Quên mật khẩu\?Nhắn Zalo cho cô Lan$/.test(c.ux3b.out.text)
+      && c.ux3b.out.contact === CONTACT && c.ux3b.out.focus === "outPw" && c.ux3b.out.yes === "Đăng xuất" && c.ux3b.out.no === "Thôi" && c.ux3b.out.state === "ready true"
+      && c.ux3b.outWrong.err === "Mật khẩu chưa đúng. Thử lại nhé." && c.ux3b.outWrong.fails === 1 && c.ux3b.outWrong.state === "ready true" && c.ux3b.outNo && c.signedOut && c.ux3.cleared
+      && (!withCaptcha || /outCaptcha/.test(captchaBoxes)),
     "không ghi nhớ: tab mới phải đăng nhập lại": c.notRemembered,
     "tài khoản bị khóa: màn hình báo khóa có dòng liên hệ; đăng nhập bị từ chối": /đang bị khóa/.test(c.locked) && /Nhắn Zalo/.test(c.locked) && /đang bị khóa/.test(c.lockedLogin),
     "CAPTCHA (khi bật): đăng nhập và nhập lại mật khẩu đều kèm mã xác minh": !withCaptcha || (/loginCaptcha/.test(captchaBoxes) && /pwCaptcha/.test(captchaBoxes) && be.captchaUsed >= 5),
@@ -762,7 +784,7 @@ async function run(browser, scheme) {
       && ad.reports.reopened && ad.reports.rejected && ad.reports.rows === 1,
     "admin: đăng xuất; CAPTCHA (khi bật) khi đăng nhập": ad.out && (!withCaptcha || ad.captcha === "adCaptcha,adCaptcha,adCaptcha"),
     "admin: không đi qua service worker; cùng bản supabase-js với trang học": ad.swSkip && ad.lib,
-    "U1: nút xem mật khẩu, mã PIN, mã mở nhanh (lPass, pwNew, pwNew2, pwIn, uPin, pwOld, qcNew, pinIn, adPass): hiện, ẩn, giữ giá trị và focus; gửi form, xóa hết ô thì ẩn lại": rv.length === 0,
+    "U1: nút xem mật khẩu, mã PIN, mã mở nhanh (lPass, pwNew, pwNew2, pwIn, uPin, pwOld, qcNew, pinIn, outPw, adPass): hiện, ẩn, giữ giá trị và focus; gửi form, xóa hết ô thì ẩn lại": rv.length === 0,
     "360px: không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px": problems.length === 0,
     "không lỗi trên trang": errs.length === 0
   };
