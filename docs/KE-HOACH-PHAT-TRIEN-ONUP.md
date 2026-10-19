@@ -4,7 +4,7 @@
 > **Đã chốt 18/10/2026:** bán khi đủ đề lớp 4–12 (theo nhịp 1–2 phiên mỗi tuần: khoảng cuối năm học 2028–2029); đến lúc đó gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng `plans` không đổi), hạn mức hai gói lúc bán chốt sau; các phiên chuẩn bị bán G1, B1, B2, B4 làm ngay trước lúc đó; Supabase giữ gói Free đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần); trang công khai chỉ dành cho gia đình được mời (màn đăng nhập có dòng “Chưa có tài khoản?”, Phiên S1); câu sai báo bằng nút trong app (Phiên R1), GitHub Issues chỉ còn cho chủ app; không ghi giá bán, chi phí hay so sánh đối thủ vào repo. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 > **Quy ước (từ Phiên D0):** chỉ file này ghi trạng thái và lộ trình. CLAUDE.md, README và các tài liệu khác trong docs/ chỉ trỏ sang đây. Làm xong một phiên thì gạch dòng của nó ở mục 3 và ghi số PR; đổi quyết định thì sửa đoạn trên trước.
 > **Rà soát toàn app sau K3 (18/10/2026):** app chạy tốt, 35 mục đề làm đúng hết đều được 10/10; lỗi mới L20 (PR #47 của R1 đã sửa), L22–L26 và yêu cầu L21 xếp vào Phiên TA1, 9e, TA2, làm trước UX1 ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), nhóm E). **Chủ app chốt thêm (18/10/2026):** môn Tiếng Anh của mọi khối 100% tiếng Anh, cả lời dặn, lời giải và giao diện làm đề (quy tắc ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 3).
-> **Tiếp theo:** mục 2 (việc của chủ app) và mục 3 (thứ tự các phiên). Mục 5: nhật ký chạy thử, chủ app tự điền.
+> **Tiếp theo:** Phiên 9f (L27, "Ôn câu sai" trong bài ôn dạng trang; gấp, trước kì thi giữa kì I từ 2/11), rồi UX3. Mục 2 (việc của chủ app) và mục 3 (thứ tự các phiên). Mục 5: nhật ký chạy thử, chủ app tự điền.
 
 ## 1. Tình hình hiện tại
 
@@ -79,15 +79,16 @@ Nội dung hiện có (18/10/2026, `node tests/kiem-tra-de.js`: 29 đề, 715 c�
 
 ## 3. Lộ trình khi làm tiếp
 
-Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 8 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); Phiên 9a, 9b, 9c (lỗi tìm được khi dùng thử ngày 16/10, đã làm), Phiên 9d (lỗi phát sinh khi rà soát lại ngày 17/10) và **Phiên TA1, 9e, TA2** (rà soát sau K3 ngày 18/10: lỗi L20, L22–L26, đề Tiếng Anh 100% tiếng Anh) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); **các phiên làm đề và kĩ thuật cho đề (N0–N25, K1–K3, chuẩn bị bán B1–B4) ở mục 6, 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)**; các phiên khác ở mục 4 dưới đây. Phiên UI1, UX4–UX8 đến từ bản rà giao diện ngày 18/10: vấn đề (X1–X16), ảnh và điều kiện xong ở [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md). Thiết kế nằm trong file Figma [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2): Master 1.x là 77 màn vẽ lại đúng app ở commit `0a1e8db`; Master 2.x là các đề xuất, kể cả minh họa cho S1, R1, UX1–UX3.
+Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 8 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); Phiên 9a, 9b, 9c (lỗi tìm được khi dùng thử ngày 16/10, đã làm), Phiên 9d (lỗi phát sinh khi rà soát lại ngày 17/10), **Phiên TA1, 9e, TA2** (rà soát sau K3 ngày 18/10: lỗi L20, L22–L26, đề Tiếng Anh 100% tiếng Anh) và **Phiên 9f** (góp ý chạy thử 19/10: L27, ôn câu sai trong bài ôn dạng trang) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); **các phiên làm đề và kĩ thuật cho đề (N0–N25, K1–K3, chuẩn bị bán B1–B4) ở mục 6, 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)**; các phiên khác ở mục 4 dưới đây. Phiên UI1, UX4–UX8 đến từ bản rà giao diện ngày 18/10: vấn đề (X1–X16), ảnh và điều kiện xong ở [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md). Thiết kế nằm trong file Figma [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2): Master 1.x là 77 màn vẽ lại đúng app ở commit `0a1e8db`; Master 2.x là các đề xuất, kể cả minh họa cho S1, R1, UX1–UX3.
 
-**Làm ngay, chen sau R1 và trước UX1** (rà soát sau K3 ngày 18/10; lời giao việc ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)):
+**Làm ngay, chen trước các phiên còn lại** (rà soát sau K3 ngày 18/10, góp ý chạy thử 19/10; lời giao việc ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)):
 
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
 | 5a | 1/11 | ~~TA1 · Đề Tiếng Anh 100% tiếng Anh (nội dung)~~ (đã xong, PR #49) | | 3 đề Tiếng Anh và 3 câu Tiếng Anh của đề thử nghiệm đã 100% tiếng Anh, có `lv`, đoạn đọc dùng chung; `tests/kiem-tra-de.js` báo lỗi khi đề Tiếng Anh có chữ tiếng Việt |
 | 5b | 1/11 | ~~9e · Lỗi phát sinh sau K3~~ (đã xong, PR #50) | TA1 (đã xong) | L22–L26 đã sửa; L20 đã sửa trong PR #47 (R1) |
 | 5c | 8/11 | ~~TA2 · Màn làm đề Tiếng Anh bằng tiếng Anh~~ (đã xong, PR #52) | TA1, 9e, R1 (đã xong) | bảng chữ `TXT` trong `js/quiz.js`; chữ mới của UX1, UX5 thêm ở cả hai cột vi, en |
+| 5d | 1/11 | **9f · "Ôn câu sai" trong bài ôn dạng trang** | | gấp: bài ôn giữa kì I lớp 4, 6 dùng cho kì thi từ 2/11; làm đúng 20/20 mà "Ôn câu sai" vẫn còn câu (L27); chỉ sửa 4 file trong `modules/`, `tests/e2e.js`, CLAUDE.md |
 
 Thứ tự các phiên:
 
@@ -427,7 +428,7 @@ Chủ app tự điền, mỗi tuần một dòng, không tốn lượt Claude. N
 
 | Tuần (từ ngày) | Gia đình được mời | Gia đình có dùng trong tuần | Lượt làm bài trong tuần | Còn dùng sau 4 tuần | Góp ý thật (ai · nói gì) | Đã xử lí (phiên / issue) |
 |---|---|---|---|---|---|---|
-| 18/10/2026 | | | | | Chủ app dùng thử · đề Tiếng Anh lẫn tiếng Việt; môn Tiếng Anh mọi khối phải 100% tiếng Anh | L21 · Phiên TA1, TA2 ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) |
+| 18/10/2026 | | | | | Chủ app dùng thử · đề Tiếng Anh lẫn tiếng Việt; môn Tiếng Anh mọi khối phải 100% tiếng Anh. 19/10, học sinh lớp 6 · bài ôn giữa kì I, Ngữ văn Đề 1 đúng 20/20 mà "Ôn câu sai" vẫn còn 1 câu, làm lại thì app báo đúng | L21 · Phiên TA1, TA2; L27 · Phiên 9f ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) |
 | | | | | | | |
 | | | | | | | |
 

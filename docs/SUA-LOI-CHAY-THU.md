@@ -1,6 +1,6 @@
 # Sửa lỗi cơ bản sau khi dùng thử (16/10/2026)
 
-Bốn phiên sửa đầu (9a, 9b, 9c: L1–L14, PR #21, #22, #23; 9d: L15–L19, lỗi phát sinh khi rà soát lại ngày 17/10, PR #29) đã gộp vào `main`; ảnh 360px sau Phiên 9b: [hinh-360/](hinh-360/). Lần rà soát thứ ba (18/10/2026, sau Phiên K3) tìm thêm L20–L26 (nhóm E, Phiên 9e, TA1, TA2); trong đó L21 là yêu cầu của chủ app: **đề môn Tiếng Anh của mọi khối phải 100% tiếng Anh**. Trạng thái và việc còn chờ (bố mẹ thử L17 trên iPhone thật) chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). File này giữ phần mô tả lỗi, cách sửa và lời giao việc (mục 3).
+Bốn phiên sửa đầu (9a, 9b, 9c: L1–L14, PR #21, #22, #23; 9d: L15–L19, lỗi phát sinh khi rà soát lại ngày 17/10, PR #29) đã gộp vào `main`; ảnh 360px sau Phiên 9b: [hinh-360/](hinh-360/). Lần rà soát thứ ba (18/10/2026, sau Phiên K3) tìm thêm L20–L26 (nhóm E, Phiên 9e, TA1, TA2); trong đó L21 là yêu cầu của chủ app: **đề môn Tiếng Anh của mọi khối phải 100% tiếng Anh**. Góp ý chạy thử ngày 19/10/2026: L27 (nhóm F, Phiên 9f). Trạng thái và việc còn chờ (bố mẹ thử L17 trên iPhone thật) chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). File này giữ phần mô tả lỗi, cách sửa và lời giao việc (mục 3).
 
 **Cách đã thử:** chạy mã nhánh `main` (commit `5866b72`, giống bản đang đăng trên GitHub Pages) bằng Chromium tự động, màn hình điện thoại 360×740, rồi thêm chế độ tối và màn hình 1280px. Đi hết các luồng:
 - thiết lập lần đầu và các tab quản trị;
@@ -181,6 +181,25 @@ Mã lỗi (L1, L2…) dùng trong lời giao việc và trong commit.
 
 **L26. Tên đề xuống dòng bắt đầu bằng dấu "·".**
 - Ở 360px, tiêu đề màn mở đề "Toán 6 · Cuối kì I · Đề ngẫu nhiên" xuống dòng thành "Toán 6 · Cuối kì I" và "· Đề ngẫu nhiên" (ảnh `tests/screenshots/19-de-ngau-nhien.png` của `tests/e2e.js`). Gặp ở mọi tên có " · " khi dòng ngắt ngay trước dấu chấm giữa.
+
+### Nhóm F · Góp ý chạy thử 19/10 (Phiên 9f)
+
+**L27. Bài ôn dạng trang: làm đúng hết đề mà "Ôn câu sai" vẫn còn câu.**
+- Chủ app báo ngày 19/10/2026 (bản đám mây, học sinh lớp 6, bài ôn "Ôn giữa kì · Lớp 6", môn Ngữ văn): làm "Đề 1" đúng 20/20, nhưng "Ôn câu sai" vẫn có 1 câu. Vào ôn, chọn đúng đáp án như lần trước thì app báo đúng. Báo cáo tuần ghi "Ngữ văn · Đề 1 · 20/20 · làm như thi" và "Ngữ văn · Ôn câu sai · 1/1".
+- Tái hiện (bản lưu trên máy, Chromium 360px, `main` commit `ea4dc6a`):
+  1. Ngữ văn, Đề 1, chọn sai câu thứ 4: 19/20, câu đó vào danh sách câu sai.
+  2. Làm lại Đề 1 (đề cố định, cùng 20 câu), đúng hết: 20/20, không có mục "Câu cần xem lại", nhưng màn kết quả vẫn có nút "Ôn câu sai (1)" và danh sách vẫn giữ câu đó.
+  3. Bấm "Ôn câu sai (1)": gặp đúng câu thứ 4 của lần đầu; chọn đáp án đúng thì app báo "Chính xác!", kết quả 1/1, danh sách trống.
+  - Báo cáo tuần có ba dòng như của chủ app (thêm dòng 19/20 của lần đầu).
+  - Ảnh: [hinh-ra-soat-k3/l27-on-cau-sai.jpg](hinh-ra-soat-k3/l27-on-cau-sai.jpg) (kết quả 20/20 còn nút "Ôn câu sai (1)" · câu đó khi ôn · kết quả 1/1).
+- Nguyên nhân: hàm `record()` của cả 4 bài ôn chỉ bỏ câu khỏi danh sách khi làm đúng ở chế độ ôn luyện: `if(ok){if(S.mode!=="exam")w.delete(wkey(q))}else w.add(wkey(q));` (`l4-giua-ki-1`, `l6-giua-ki-1`; `ioe-4`, `ioe-6` viết giống vậy với `wrongIds`).
+  - Câu vào danh sách khi làm sai hoặc bấm "Bỏ qua" ở bất kì đâu (ôn theo bài, đề thi thử, ôn câu sai), và khi nộp đề còn câu chưa làm.
+  - Làm đúng trong đề thi thử thì câu không được bỏ ra.
+- Vì sao dễ gặp:
+  - Đề thi thử cố định ("làm lại vẫn ra đúng các câu đó"), nên trẻ hay làm lại cho được 10 điểm. Câu sai ở lần trước vẫn bị giữ dù lần sau làm đúng.
+  - Nút "Ôn câu sai (N)" ở màn kết quả đếm cả danh sách của môn (gồm câu từ các bài, các đề khác) và đứng ngay dưới điểm 10/10, nên trông như đề vừa làm còn câu sai.
+  - Luật bỏ câu chỉ ghi ở trang đầu bài ôn ("Làm đúng khi ôn thì câu đó được bỏ khỏi danh sách"), màn kết quả không nói.
+- Không sai đáp án, không mất điểm, nhưng trẻ tưởng app chấm sai và phải làm lại câu đã biết. Bài ôn giữa kì I lớp 4, lớp 6 đang được dùng để ôn cho kì thi từ 2/11.
 
 ---
 
@@ -468,6 +487,35 @@ Mã lỗi (L1, L2…) dùng trong lời giao việc và trong commit.
 - `node tests/kiem-tra-de.js` in `DE OK` (có sửa `js/quiz.js`).
 - Ảnh 360px sáng/tối các màn trên. Pull Request đặt ảnh trước ([hinh-ra-soat-k3/l21-de-tieng-anh.jpg](hinh-ra-soat-k3/l21-de-tieng-anh.jpg)) cạnh ảnh sau.
 
+### Phiên 9f
+
+**L27 · Làm đúng ở đâu cũng bỏ câu khỏi "Ôn câu sai".**
+- `record()` trong 4 file `modules/l4-giua-ki-1/index.html`, `modules/l6-giua-ki-1/index.html`, `modules/ioe-4/index.html`, `modules/ioe-6/index.html`:
+  - làm đúng ở mọi chế độ (cả đề thi thử) thì bỏ câu khỏi danh sách;
+  - làm sai, bấm "Bỏ qua", nộp đề còn câu chưa làm thì thêm vào như cũ;
+  - câu sinh số ngẫu nhiên (`it.g` ở Toán) vẫn tính theo mã câu gốc như cũ.
+  - Đã thử trên máy khi rà soát (không đưa vào Pull Request): sửa dòng đó của `l6-giua-ki-1` thành `if(ok)w.delete(wkey(q));else w.add(wkey(q));` thì làm lại Đề 1 đúng hết, danh sách trống, màn kết quả chỉ còn nút "Làm Đề 2" và "Trang chủ".
+- Chữ ở trang đầu bài ôn, mục "Ôn câu sai":
+  - l4, l6: "Làm đúng câu đó ở bất kì phần nào (ôn theo bài, đề thi thử hay ôn câu sai) thì câu được bỏ khỏi danh sách."
+  - IOE 4, IOE 6 (giữ 100% tiếng Anh): "Answer it correctly in any practice or test and it leaves the list."
+- Màn kết quả: lượt vừa làm không sai câu nào mà danh sách vẫn còn câu (từ bài khác hoặc lần trước) thì thêm một dòng ngay trên các nút: "Lần này bạn không sai câu nào. Danh sách Ôn câu sai còn N câu từ các lần làm trước." IOE: "No mistakes this time. Your review list still has N questions from earlier." Lượt có câu sai thì giữ như cũ.
+- Không xóa danh sách câu sai đang có trên máy học sinh: không biết câu nào đã được làm đúng trong đề trước đây. Câu thừa tự ra khỏi danh sách khi làm đúng ở bất kì đâu.
+- Giữ ba chỗ nối với app và nút `#endBtn` (CLAUDE.md, mục "Hợp đồng giữa bài ôn và app"). Câu "Mỗi file `modules/*/index.html` có ba chỗ nối với app so với artifact gốc (ngoài ra chỉ sửa lời…)" của CLAUDE.md thêm việc sửa L27. Chỉ sửa nội dung HTML nên không tăng `VERSION` của `sw.js`.
+
+**Xong khi:**
+- `tests/e2e.js` in `E2E OK`, có thêm bước "L27" ở 360px:
+  - Học sinh lớp 6 mở `l6-giua-ki-1` trong khung, Ngữ văn, Đề 1:
+    - chọn sai một câu thì câu đó vào danh sách (localStorage khóa `u_<mã học sinh>__gk1-l6-v1_wrong_van`);
+    - làm lại Đề 1 đúng hết: 20/20, danh sách trống, màn kết quả không có nút "Ôn câu sai";
+    - đáp án đọc trong khung bằng `buildTest("van", "all", 0)`: hàm ở cấp ngoài cùng của script bài ôn, câu trên màn hình theo đúng thứ tự hàm trả về; câu trắc nghiệm bấm `.opt[data-o="<a>"]`, câu điền gõ `ans[0]`.
+  - Ghi sẵn vào danh sách một mã câu không có trong Đề 1, rồi làm Đề 1 đúng hết: màn kết quả có dòng "Lần này bạn không sai câu nào…" và nút "Ôn câu sai (1)"; màn đó qua kiểm tra 360px (không tràn ngang, nút ≥ 44px, chữ ≥ 13px) sáng và tối.
+  - `l4-giua-ki-1`: một môn, như trên (khóa `…gk1-l4-v1_wrong_<mã môn>`).
+  - `ioe-4`, `ioe-6`: đề IOE có câu nghe, câu xếp chữ, nên chỉ cần một câu: ghi sẵn vào danh sách (khóa `…ioe4v1_wrong`, `…ioe6v2_wrong`) mã của câu trắc nghiệm đầu tiên trong một đề (`buildTest` của khung), bắt đầu đề đó, bấm "Skip" đến câu đó, trả lời đúng, rồi "Finish test now": câu đó ra khỏi danh sách, các câu bỏ qua và chưa làm thì vào danh sách.
+  - Bước cũ "leave guard: module in frame (L1, L16)" vẫn qua.
+- `node tests/supabase/cloud-e2e.js` in `CLOUD E2E OK` (bản đám mây không đổi; chạy để chắc bài ôn trong khung vẫn gửi điểm).
+- Ảnh 360px sáng/tối màn kết quả có dòng mới. Pull Request đặt ảnh trước ([hinh-ra-soat-k3/l27-on-cau-sai.jpg](hinh-ra-soat-k3/l27-on-cau-sai.jpg)) cạnh ảnh sau.
+- Bố mẹ thử lại trên máy đang dùng: làm lại một đề đúng hết thì "Ôn câu sai" không còn câu của đề đó.
+
 ---
 
 ## 3. Các phiên Claude Code
@@ -475,6 +523,8 @@ Mã lỗi (L1, L2…) dùng trong lời giao việc và trong commit.
 Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Phiên A (máy chủ) đã gộp và không đụng tới các file các phiên này sửa. Nên làm 9a và 9b **trước Phiên B**, vì Phiên B sửa lại màn hình đăng nhập và trang chủ. Riêng Phiên 9c có thể làm sau Phiên C nếu cần ưu tiên khung tài khoản. Phiên 9d (sau rà soát 17/10) cũng nên làm **trước Phiên B**: nó sửa `js/app.js`, `js/quiz.js`, `sw.js`, và Phiên B sẽ sửa nhiều file cùng lúc nên cần L19 trước.
 
 Nhóm E (rà soát 18/10, sau K3): làm **TA1 → 9e → TA2**, sau khi PR #47 (Phiên R1, mở cùng ngày) đã gộp, và trước UX1. TA1 gấp nhất: đề Tiếng Anh giữa kì I lớp 6 dùng cho kì thi từ 2/11. TA1 và 9e cùng sửa `tests/kiem-tra-de.js`, `tests/e2e.js` nên không chạy cùng lúc. TA2 sửa `js/quiz.js`, `js/app.js` như UX1, UX5 nên làm trước các phiên đó, để chữ mới của chúng thêm luôn bản tiếng Anh; TA2 dịch cả chữ R1 đã thêm.
+
+Nhóm F (góp ý chạy thử 19/10): **Phiên 9f** làm ngay, trước UX3, để xong trước kì thi giữa kì I (từ 2/11). Phiên này sửa 4 file trong `modules/`, `tests/e2e.js`, CLAUDE.md; không sửa `js/app.js`, `js/quiz.js`. Merge 9f rồi mới mở phiên khác cũng sửa `tests/e2e.js`.
 
 **Phiên 9a · Không mất bài, khóa PIN, đường dẫn sai**
 > Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md (mục 1 nhóm A, mục 2 Phiên 9a). Sửa L1, L2, L3 trong js/app.js và js/quiz.js theo cách gợi ý: chốt rời trang khi đang làm đề ngân hàng hoặc bài ôn trong khung (hộp xác nhận trong trang, nộp bài trước khi rời, beforeunload), khóa PIN lưu trong localStorage theo từng người với thời gian chờ tăng dần, trang "Không tìm thấy" và chặn học sinh mở bài khác khối. Không đổi ba chỗ nối của bài ôn với app, không sửa phần đám mây ngoài chỗ bắt buộc. Mỗi lỗi một commit ghi mã lỗi (L1…). Thêm các bước kiểm tra ở mục "Xong khi" vào tests/e2e.js, chạy đến khi in E2E OK, chỉ tự rà soát một vòng, rồi mở Pull Request liệt kê lỗi đã sửa và chưa sửa được kèm lí do.
@@ -496,3 +546,6 @@ Nhóm E (rà soát 18/10, sau K3): làm **TA1 → 9e → TA2**, sau khi PR #47 (
 
 **Phiên TA2 · Màn làm đề Tiếng Anh bằng tiếng Anh (giao diện)** (sau TA1, 9e và PR #47 của R1; trước UX1)
 > Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md (mục 1 L21, mục 2 Phiên TA2). Làm cho mọi chữ học sinh thấy khi làm đề Tiếng Anh là tiếng Anh: từ màn mở đề đến hết màn kết quả, hộp hỏi khi rời đề, thông báo lưu điểm, tên đề, mức độ, số thập phân, link "Báo câu này sai" và hộp chọn lí do; áp dụng cho mọi khối và cả ngân hàng phụ huynh tự nhập có môn Tiếng Anh; cả phần app bọc ngoài bài ôn IOE 4, IOE 6. Dùng bảng chữ hai ngôn ngữ trong js/quiz.js theo bảng chữ gợi ý. Trang chủ, lịch thi, báo cáo, khu phụ huynh và các dòng chỉ phụ huynh thấy giữ tiếng Việt; đề môn khác không đổi. Không sửa file trong modules/, không đổi cách chấm và cách lưu điểm. Ghi quy ước bảng chữ vào CLAUDE.md (chữ mới trên màn làm đề phải có cả bản tiếng Anh). Thêm các bước ở mục "Xong khi" vào tests/e2e.js và tests/supabase/cloud-e2e.js, chạy node tests/kiem-tra-de.js, tests/e2e.js, tests/supabase/cloud-e2e.js đến khi in OK, chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh trước và sau.
+
+**Phiên 9f · "Ôn câu sai" trong bài ôn dạng trang** (gấp: trước 1/11, bài ôn giữa kì I lớp 4, 6 dùng cho kì thi từ 2/11)
+> Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md (mục 1 L27, mục 2 Phiên 9f). Sửa L27 trong 4 bài ôn modules/l4-giua-ki-1, l6-giua-ki-1, ioe-4, ioe-6: làm đúng một câu ở bất kì chế độ nào (cả đề thi thử) thì bỏ câu đó khỏi danh sách "Ôn câu sai"; sửa chữ giải thích luật này ở trang đầu bài ôn; màn kết quả của lượt không sai câu nào mà danh sách còn câu thì thêm một dòng nói rõ đó là câu từ các lần làm trước (IOE viết bằng tiếng Anh). Không xóa danh sách câu sai đang có trên máy học sinh. Giữ ba chỗ nối với app và nút #endBtn; ghi việc sửa này vào câu nói về các chỗ sửa so với artifact gốc trong CLAUDE.md. Thêm bước L27 ở mục "Xong khi" vào tests/e2e.js, chạy tests/e2e.js và tests/supabase/cloud-e2e.js đến khi in OK, chụp ảnh 360px sáng/tối màn kết quả, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh trước (docs/hinh-ra-soat-k3/l27-on-cau-sai.jpg) và sau.
