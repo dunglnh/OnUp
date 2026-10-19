@@ -158,7 +158,7 @@ a.kid{color:inherit;text-decoration:none;gap:12px}
 .enter{gap:10px}
 .enter-who{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}
 .enter-who b{font-family:var(--display);font-size:1.25rem;line-height:1.2}
-.enter .panel{gap:8px}
+.enter .panel{gap:8px;position:relative} /* ô .sr nằm trong thẻ này */
 .enter-help{text-align:center;margin:0}
 
 /* biểu mẫu */
@@ -185,6 +185,14 @@ textarea{min-height:200px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;ba
 .reveal-btn[aria-pressed="true"]{color:var(--acc)}
 .reveal-btn svg{pointer-events:none}
 .reveal-btn:not([aria-pressed="true"]) .off{display:none} /* mắt; đang hiện chữ thì mắt gạch chéo */
+.reveal-btn[aria-pressed="true"] .on{display:none} /* nút chữ đặt sẵn (data-reveal): "Hiện số" ↔ "Giấu số" */
+/* nút chữ "Hiện số" dưới hàng chấm của bàn phím PIN (UX4, X2): nút xem qua wireReveal nhưng đặt sẵn, không nằm trong ô */
+.pin-show{position:static;width:auto;height:auto;margin:0;align-self:center;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:10px;color:var(--muted);font-weight:600}
+.pin-show[aria-pressed="true"]{color:var(--acc)}
+.pin-show:disabled{opacity:.45;cursor:default}
+/* chỉ trình đọc màn hình và bàn phím máy tính thấy (ô #pinIn): không dùng display:none để vẫn focus và gõ được */
+.sr{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.sr input{width:1px;height:1px;padding:0;border:0}
 
 /* danh sách */
 .list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}

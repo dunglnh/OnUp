@@ -100,6 +100,8 @@
      - Tự ẩn lại khi gửi form, khi xóa hết ô (gõ xóa); xóa ô bằng code hoặc gửi không qua form thì gọi conceal(ô).
        Chuyển màn hình là vẽ ô mới (đang ẩn). Mỗi lần đổi, ô báo sự kiện "reveal" (bàn phím PIN vẽ lại hàng chấm).
      - Nút nằm trong <label> của ô nên ô lấy tên từ chữ nhãn (aria-labelledby), không đọc kèm tên nút.
+     - Ô có data-reveal="<id>" dùng nút chữ đặt sẵn ở chỗ khác thay cho nút mắt trong ô (bàn phím PIN: "Hiện số" dưới hàng chấm,
+       UX4): không bọc ô, không đặt aria-label; nút ghi mắt + "Hiện số", đang hiện thì "Giấu số" (hai <span> on/off, CSS ẩn một).
      - Không lưu trạng thái hiện/ẩn ở đâu cả. admin.html có bản riêng cùng cách làm, cùng lớp CSS .reveal. */
   const EYE = `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="off" d="M4 4l16 16"/></svg>`;
   const revealers = new WeakMap(); // ô → hàm đặt hiện (true) / ẩn (false)
@@ -111,12 +113,17 @@
       const what = () => inp.dataset.what || (inp.getAttribute("inputmode") === "numeric" ? "mã PIN" : "mật khẩu");
       const cap = inp.closest("label") && inp.closest("label").querySelector(":scope > span");
       if (cap) { cap.id = cap.id || "revealCap" + ++revealN; inp.setAttribute("aria-labelledby", cap.id); }
-      const box = document.createElement("span"), btn = document.createElement("button");
-      box.className = "reveal"; btn.type = "button"; btn.className = "reveal-btn";
+      const pre = inp.dataset.reveal ? document.getElementById(inp.dataset.reveal) : null; // nút chữ đặt sẵn (bàn phím PIN, UX4)
+      const btn = pre || document.createElement("button");
+      btn.type = "button"; btn.classList.add("reveal-btn");
       if (inp.id) btn.setAttribute("aria-controls", inp.id);
-      inp.before(box); box.append(inp, btn);
-      btn.innerHTML = EYE; // vẽ một lần: thay nút giữa lúc bấm thì <label> tưởng bấm vào nhãn và đặt focus vào ô
-      const draw = (show) => { btn.setAttribute("aria-pressed", show); btn.setAttribute("aria-label", (show ? "Ẩn " : "Hiện ") + what()); };
+      if (pre) btn.innerHTML = `${EYE}<span class="on">Hiện số</span><span class="off">Giấu số</span>`;
+      else {
+        const box = document.createElement("span");
+        box.className = "reveal"; inp.before(box); box.append(inp, btn);
+        btn.innerHTML = EYE; // vẽ một lần: thay nút giữa lúc bấm thì <label> tưởng bấm vào nhãn và đặt focus vào ô
+      }
+      const draw = (show) => { btn.setAttribute("aria-pressed", show); if (!pre) btn.setAttribute("aria-label", (show ? "Ẩn " : "Hiện ") + what()); };
       inp.addEventListener("relabel", () => draw(inp.type === "text"));
       const set = (show, keep) => {
         if ((inp.type === "text") === show) return;
@@ -358,11 +365,15 @@
   /* ================= ĐĂNG NHẬP ================= */
   /* Bước nhập riêng (Phiên UX4, X1): hồ sơ có PIN, hoặc ô Phụ huynh của bản đám mây, chạm vào thì chuyển sang #/vao/<mã>:
      link "← Chọn hồ sơ khác", hình to, tên, lớp, hàng chấm và bàn phím ngay dưới (vừa một màn hình 360×740, không cuộn);
-     nút Back của điện thoại quay về danh sách. Hồ sơ không có PIN thì chạm là vào như cũ. */
+     nút Back của điện thoại quay về danh sách. Hồ sơ không có PIN thì chạm là vào như cũ.
+     Số đã gõ chỉ hiện ở hàng chấm (X2): ô #pinIn vẫn có cho bàn phím máy tính và trình đọc màn hình nhưng ẩn khỏi mắt (lớp .sr,
+     không display:none vì kiểm thử gõ bằng page.fill); nút xem là nút chữ "Hiện số" (#pinShow) đặt sẵn dưới hàng chấm,
+     wireReveal nhận qua data-reveal="pinShow" của ô. */
   const pinBoxHTML = () => `<section class="panel" id="pinBox" hidden>
         <p class="small muted" id="pinSub" style="text-align:center;margin:0">Nhập mã PIN của bạn</p>
         <div class="pin" id="pinDots" aria-hidden="true"></div>
-        <label class="field" style="max-width:300px;margin:0 auto;width:100%"><span id="pinLabel">Mã PIN</span><input id="pinIn" type="password" inputmode="numeric" maxlength="6" autocomplete="off"></label>
+        <label class="field sr"><span id="pinLabel">Mã PIN</span><input id="pinIn" type="password" inputmode="numeric" maxlength="6" autocomplete="off" data-reveal="pinShow"></label>
+        <button type="button" class="linkbtn pin-show" id="pinShow"></button>
         <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join("")}<button type="button" data-k="del" aria-label="Xóa">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" aria-label="Vào" style="background:var(--sun);color:var(--sun-ink)">Vào</button></div>
         <div id="pinErr" aria-live="assertive"></div>
         <div class="row" style="justify-content:center" id="pinAlt" hidden></div>
