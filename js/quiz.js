@@ -594,7 +594,7 @@
           ${body(q)}
           <div id="qzFb" aria-live="polite"></div>
         </section>
-        <div class="row between"><button class="btn ghost" id="qzSkip">${L.skip}</button><button class="btn main" id="qzGo">${exam ? L.answer : q.type === "essay" ? L.seeGuide : L.check}</button></div>
+        <div class="row between qz-nav"><button class="btn ghost" id="qzSkip">${L.skip}</button><button class="btn main" id="qzGo">${exam ? L.answer : q.type === "essay" ? L.seeGuide : L.check}</button></div>
       </div>`;
       const $ = (s) => el.querySelector(s), $$ = (s) => el.querySelectorAll(s), go = $("#qzGo"), fb = $("#qzFb");
       const ps = $(".psg");
@@ -647,7 +647,8 @@
       go.onclick = () => {
         if (S.checked) { next(); return; }
         if (!filled(q, S.cur)) { fb.innerHTML = `<div class="fb bad">${NEED[q.type] || L.needAnswer}${L.needTail}</div>`; return; }
-        const done = () => { S.checked = true; go.textContent = S.i + 1 < qs.length ? L.next : L.seeResults; $("#qzSkip").disabled = true; };
+        // sau Kiểm tra (X8): ẩn hẳn "Bỏ qua", "Câu tiếp" (hoặc "Xem kết quả") đứng một mình bên phải
+        const done = () => { S.checked = true; go.textContent = S.i + 1 < qs.length ? L.next : L.seeResults; $("#qzSkip").hidden = true; };
         if (q.type === "essay") {
           S.ans[S.i] = { q, g: S.cur.trim(), done: true };
           if (exam) { next(); return; }
