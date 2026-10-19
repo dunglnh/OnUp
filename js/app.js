@@ -1316,7 +1316,7 @@
     const list = Store.reports();
     return `<section class="panel" id="reportsBox"><h3>Câu bị báo sai${list.length ? ` (${list.length})` : ""}</h3>
       ${list.length ? `<p class="small">${cloud ? "Các câu đã báo từ tài khoản này. Người làm đề xem và đánh dấu đã sửa hay bỏ qua." : "Bấm “Chép để gửi” rồi dán vào Zalo gửi người làm đề."}</p>
-        <div class="list">${list.slice(0, 50).map((r) => `<div class="item"><span class="grow"><b>${nb(esc(bankTitle(r.bankId)))}</b><span class="small rp-q">${esc(r.qText)}</span>
+        <div class="list">${list.slice(0, 50).map((r) => `<div class="item"><span class="grow"><b>${nb(esc(bankTitle(r.bankId)))}</b><span class="small rp-q">${Quiz.nbNum(esc(r.qText))}</span>
           <span class="small muted">${esc(REASON[r.reason] || r.reason)}${r.note ? " · " + esc(r.note) : ""} · ${esc(whoName(r.userId))} · ${esc(ago(r.at))}</span></span>${cloud ? `<span class="chip${r.status === "new" ? " warn" : ""}">${esc(RP_STATUS[r.status] || r.status)}</span>` : ""}</div>`).join("")}</div>
         ${list.length > 50 ? `<p class="small muted">Chỉ hiện 50 câu mới nhất.</p>` : ""}
         ${cloud ? "" : `<div class="row"><button class="btn main sm" id="copyReports">Chép để gửi</button></div>`}`

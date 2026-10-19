@@ -912,12 +912,13 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const k3 = { problems: [] }, POOL = "toan6-ck1-ngau-nhien", DE1 = "toan6-ck1-de1";
   const kcheck = async (label) => (await kp.evaluate(audit)).forEach((x) => k3.problems.push(`K3 · ${label}: ${x}`));
   const ksnap = async (n) => { await kp.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await kp.screenshot({ path: `${OUT}19-${n}.png`, fullPage: true }); };
-  // câu đang hiện trên màn hình → câu trong kho (so chữ câu hỏi, bỏ chỗ trống và khoảng trắng); trả lời đúng hoặc sai rồi bấm Kiểm tra
+  // câu đang hiện trên màn hình → câu trong kho (so chữ câu hỏi, bỏ chỗ trống và khoảng trắng); trả lời đúng hoặc sai rồi bấm Kiểm tra.
+  // Chữ trên nút gộp khoảng trắng trước khi so: khoảng trắng giữa các nhóm số là khoảng trắng không ngắt (nbNum, "4 512").
   const flatQ = (x) => String(x).replace(/___/g, "").replace(/\s+/g, "");
   const current = async (qs) => { const t = await kp.$eval(".qcard .qtext", (e) => e.textContent); return qs.find((q) => flatQ(q.q) === flatQ(t)) || null; };
   const answer = async (q, right) => {
     if (q.type === "fill") await kp.fill("#qzFill", right ? q.ans[0] : "không đúng");
-    else { const want = q.type === "tf" ? (q.a === right ? "Đúng" : "Sai") : right ? q.o[0] : q.o[1]; await kp.$$eval(".opts .opt", (bs, w) => bs.find((b) => b.lastElementChild.textContent === w).click(), want); }
+    else { const want = q.type === "tf" ? (q.a === right ? "Đúng" : "Sai") : right ? q.o[0] : q.o[1]; await kp.$$eval(".opts .opt", (bs, w) => bs.find((b) => b.lastElementChild.textContent.replace(/\s+/g, " ") === w).click(), want); }
     await kp.click("#qzGo");
   };
   // làm hết một lượt ôn luyện: wrongAt = số thứ tự câu trả lời sai (−1: đúng hết); snap: chụp màn hình sau câu đầu; trả về các câu đã gặp
@@ -1637,9 +1638,10 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     // màn làm bài và màn kết quả: Toán 4 Đề 1, ôn luyện, hai câu đầu cố ý sai (lần trước 21/25)
     await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await p.waitForSelector("#qPractice"); r.tabQuiz = await tabbar();
     const Q = await p.evaluate(() => Store.bank("toan4-ck1-de1").questions), nSaved0 = await p.evaluate(() => Store.resultsFor(Store.sessionUser().id).length);
+    // chữ trên nút gộp khoảng trắng trước khi so với dữ liệu: số có nhóm hàng nghìn hiện bằng khoảng trắng không ngắt (nbNum, "305 420")
     const answerQ = async (q, right) => {
       if (q.type === "fill") await p.fill("#qzFill", right ? q.ans[0] : "zzz");
-      else { const w = q.type === "tf" ? (q.a === right ? "Đúng" : "Sai") : right ? q.o[0] : q.o[1]; await p.$$eval(".opts .opt", (bs, w) => bs.find((b) => b.lastElementChild.textContent === w).click(), w); }
+      else { const w = q.type === "tf" ? (q.a === right ? "Đúng" : "Sai") : right ? q.o[0] : q.o[1]; await p.$$eval(".opts .opt", (bs, w) => bs.find((b) => b.lastElementChild.textContent.replace(/\s+/g, " ") === w).click(), w); }
     };
     const curQ = async () => { const t = await p.$eval(".qcard .qtext", (e) => e.textContent); return Q.find((x) => flatQ(x.q) === flatQ(t)); };
     await p.click("#qPractice");
@@ -1996,6 +1998,114 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       && r.noMinutes; })
     && ["c1-lam-nhu-thi", "c1-nop-bai", "c2-sau-kiem-tra", "c4-mo-de"].every((n) => ux5.shots.includes(n + "-light") && ux5.shots.includes(n + "-dark"));
 
+  step("numbers with thousands spaces stay on one line (360px)");
+  /* Số trong dữ liệu ngăn hàng nghìn bằng khoảng trắng ("1 200", "987 650", "2 450 − 1 800 = 650 (kg)"). Ở 360px, màn làm đề và màn
+     kết quả hiện khoảng trắng đó là khoảng trắng không ngắt (nbNum trong js/quiz.js): trong #view không còn khoảng trắng thường giữa
+     hai nhóm số, không số nào nằm trên hai dòng (đo bằng Range.getClientRects), trang không tràn ngang. Bin ôn luyện cả kho Toán 4 ·
+     Cuối kì I: ba đề cố định và các câu riêng của đề ngẫu nhiên (Phiên N1, đủ dạng câu; rút ngẫu nhiên thì không chắc gặp hết nên làm
+     thành một đề tự nhập), trả lời bất kì để thấy đáp án, lời giải; rồi một đề tự nhập có đủ dạng câu và đoạn đọc. Mỗi câu kiểm tra lúc
+     mới hiện, khi đã trả lời và sau Kiểm tra, rồi màn kết quả với mọi câu cần xem lại mở ra. Đề tự nhập làm thêm một lượt như thi: bài
+     tự luận có số, tự chấm sau khi nộp. Câu điền, câu trả lời bằng số gõ đáp án có khoảng trắng không ngắt vẫn được chấm đúng. Một câu
+     bị báo sai: bản chụp lưu (Quiz.text) giữ khoảng trắng thường, danh sách ở Quản trị → Dữ liệu hiện khoảng trắng không ngắt. */
+  const NUM_BANKS = ["toan4-ck1-de1", "toan4-ck1-de2", "toan4-ck1-de3"];
+  const NB = { id: "so-nhieu-chu-so", title: "Số có nhiều chữ số", grade: 4, subject: "Toán", minutes: 15,
+    passages: { d1: { title: "Thư viện trường", text: "Năm 2025, thư viện trường có 12 450 cuốn sách. Năm 2026, thư viện mua thêm 570 cuốn nên có 13 020 cuốn.\nMỗi tháng có khoảng 1 200 lượt mượn sách." } },
+    questions: [
+      { topic: "Số có nhiều chữ số", type: "mc", p: "d1", q: "Theo đoạn đọc, năm 2026 thư viện có bao nhiêu cuốn sách?", o: ["13 020", "12 450", "13 200", "1 302"], x: "Năm 2025 có 12 450 cuốn, mua thêm 570 cuốn: 12 450 + 570 = 13 020 (cuốn)." },
+      { topic: "Nhân, chia với 10, 100, 1 000", type: "num", p: "d1", q: "Theo đoạn đọc, mỗi tháng có khoảng 1 200 lượt mượn sách. Hỏi 10 tháng có khoảng bao nhiêu lượt mượn sách?", ans: 12000, unit: "lượt", x: "1 200 × 10 = 12 000 (lượt)." },
+      { topic: "Số có nhiều chữ số", type: "fill", q: "999 999 + 1 = ___", ans: ["1 000 000", "1000000"], x: "999 999 + 1 = 1 000 000 (một triệu)." },
+      { topic: "Số có nhiều chữ số", type: "tf4", q: "Mỗi ý sau đúng hay sai?", o: ["987 650 < 1 020 304", "1 200 + 600 = 1 800", "2 450 − 1 800 = 560", "Làm tròn số 3 459 210 đến hàng trăm nghìn được 3 500 000"], a: [true, true, false, true],
+        x: "987 650 có 6 chữ số, 1 020 304 có 7 chữ số nên 987 650 < 1 020 304. 1 200 + 600 = 1 800. 2 450 − 1 800 = 650, không phải 560. Chữ số hàng chục nghìn của 3 459 210 là 5 nên làm tròn lên: 3 500 000." },
+      { topic: "Cộng, trừ các số đến 1 000 000", type: "match", q: "Nối mỗi phép tính với kết quả của nó.", l: ["1 200 + 600", "2 450 − 1 800", "125 × 8"], r: ["1 800", "650", "1 000", "1 080"], x: "1 200 + 600 = 1 800; 2 450 − 1 800 = 650; 125 × 8 = 1 000." },
+      { topic: "Số có nhiều chữ số", type: "order", q: "Sắp xếp các số theo thứ tự từ bé đến lớn.", o: ["98 765", "987 650", "1 020 304", "1 200 000"], x: "98 765 < 987 650 < 1 020 304 < 1 200 000." },
+      { topic: "Cộng, trừ các số đến 1 000 000", type: "essay", q: "Một cửa hàng có 2 450 kg khoai. Buổi sáng bán được 1 200 kg, buổi chiều bán được 600 kg. Hỏi cửa hàng còn lại bao nhiêu ki-lô-gam khoai?",
+        rubric: [{ c: "Tính số khoai đã bán: 1 200 + 600 = 1 800 (kg)", p: 0.5 }, { c: "Tính số khoai còn lại: 2 450 − 1 800 = 650 (kg)", p: 0.5 }],
+        x: "Số khoai đã bán: 1 200 + 600 = 1 800 (kg).\nSố khoai còn lại: 2 450 − 1 800 = 650 (kg).\nĐáp số: 650 kg." },
+      { topic: "Số có nhiều chữ số", type: "mc", q: "So sánh 987 650 và 1 020 304.", o: ["987 650 < 1 020 304", "987 650 > 1 020 304", "987 650 = 1 020 304"], x: "987 650 có 6 chữ số, 1 020 304 có 7 chữ số. Số có ít chữ số hơn thì bé hơn. Vậy 987 650 < 1 020 304." }
+    ] };
+  // câu điền, câu trả lời bằng số của đề tự nhập: gõ đáp án có khoảng trắng không ngắt (chép từ chữ trên màn hình, bàn phím điện thoại)
+  const NB_TYPED = { [flatQ(NB.questions[1].q)]: "12\u00a0000", [flatQ(NB.questions[2].q)]: "1\u00a0000\u00a0000" };
+  const numc = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
+  await localConfig(numc); watchOut(numc);
+  const nump = await numc.newPage(); nump.on("pageerror", (e) => errs.push("pageerror số: " + e.message)); nump.on("console", (m) => { if (m.type() === "error") errs.push("console số: " + m.text()); });
+  const nm = { problems: [], seen: 0, typed: [] };
+  /* Số có nhóm hàng nghìn ("1 200", "1 020 304") đang hiện trong các phần tử root: còn khoảng trắng thường giữa hai nhóm, hoặc nằm trên
+     hai dòng (các ô chữ của Range lệch nhau quá nửa dòng). Số trong <details> đang đóng không hiện nên không tính; chữ trong hình (svg)
+     không xuống dòng và không qua nbNum nên bỏ qua. */
+  const numCheck = async (label, root) => {
+    const r = await nump.evaluate((root) => {
+      const bad = [], re = /\d+(?:[ \u00a0]\d{3})+(?!\d)/g;
+      let seen = 0;
+      if (document.documentElement.scrollWidth > innerWidth) bad.push("tràn ngang: rộng " + document.documentElement.scrollWidth + "px");
+      for (const el of document.querySelectorAll(root)) {
+        const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+        for (let n; (n = tw.nextNode());) if (!n.parentElement.closest("svg")) for (const m of n.textContent.matchAll(re)) {
+          const rg = document.createRange(); rg.setStart(n, m.index); rg.setEnd(n, m.index + m[0].length);
+          const rs = [...rg.getClientRects()].filter((x) => x.width > 0 && x.height > 0), tops = rs.map((x) => x.top);
+          if (!rs.length) continue;
+          seen++;
+          if (m[0].includes(" ")) bad.push(`khoảng trắng thường: "${m[0]}"`);
+          if (Math.max(...tops) - Math.min(...tops) > Math.min(...rs.map((x) => x.height)) / 2) bad.push(`hai dòng: "${m[0].replace(/\u00a0/g, " ")}"`);
+        }
+      }
+      return { bad, seen };
+    }, root || "#view");
+    nm.seen += r.seen;
+    r.bad.forEach((x) => nm.problems.push(`${label}: ${x}`));
+  };
+  // trả lời bất kì (thường là sai, để thấy đáp án và lời giải); typed: chữ gõ vào ô điền hoặc ô trả lời bằng số
+  const answerAny = async (typed) => {
+    if (await nump.$("#qzFill")) await nump.fill("#qzFill", typed || "1");
+    else if (await nump.$("#qzNum")) await nump.fill("#qzNum", typed || "1");
+    else if (await nump.$(".tf4")) { for (let k = 0; k < 4; k++) await nump.click(`.tf4 .opt[data-i="${k}"][data-v="1"]`); }
+    else if (await nump.$(".mt-li")) { const n = (await nump.$$(".mt-li")).length; for (let k = 0; k < n; k++) { await nump.click(`.mt-li[data-i="${k}"]`); await nump.click(`.mt-ri >> nth=${k}`); } }
+    else if (await nump.$(".ord-p")) { const n = (await nump.$$(".ord-p")).length; for (let k = 0; k < n; k++) await nump.click(".ord-p:not([hidden]) >> nth=0"); }
+    else if (!(await nump.$("#qzEssay"))) await nump.click(".opts .opt >> nth=0");
+  };
+  const openAll = () => nump.evaluate(() => document.querySelectorAll("#view details").forEach((d) => (d.open = true)));
+  // một lượt ôn luyện cả đề; câu đầu tiên có số lớn thì báo sai (Phiên R1)
+  const playNum = async (id, typedFor) => {
+    await nump.goto(BASE + "/#/home"); await nump.goto(BASE + "/#/quiz/" + id); await nump.waitForSelector("#qPractice"); await nump.click("#qPractice");
+    for (let i = 1; i <= 40 && !(await nump.$(".score")); i++) {
+      await numCheck(`${id}, câu ${i}`);
+      const typed = typedFor && typedFor[flatQ(await nump.$eval(".qcard .qtext", (e) => e.textContent))];
+      await answerAny(typed); await numCheck(`${id}, câu ${i}, đã trả lời`);
+      await nump.click("#qzGo"); await numCheck(`${id}, câu ${i}, sau Kiểm tra`);
+      if (typed) nm.typed.push(!!(await nump.$("#qzFb .fb.ok")));
+      if (!nm.reported && (await nump.$eval(".qcard .qtext", (e) => /\d[ \u00a0]\d{3}/.test(e.textContent)))) {
+        await nump.click(".rp-link"); await nump.click('.rsn .opt[data-r="wrong"]'); await nump.click(".report-box [type=submit]"); await nump.waitForSelector(".rp-done");
+        nm.reported = id;
+      }
+      await nump.click("#qzGo");
+    }
+    await nump.waitForSelector(".score"); await openAll(); await numCheck(id + ", kết quả");
+  };
+  await nump.goto(BASE + "/"); await nump.click(`.tile[data-u="${ids.Bin}"]`); await nump.fill("#pinIn", PINS.Bin); await nump.waitForSelector("#today");
+  await nump.evaluate((b) => Store.upsertBank(b), NB);
+  // câu riêng của đề ngẫu nhiên Toán 4 cuối kì I (Phiên N1) thành một đề tự nhập
+  const NUM_POOL = "toan4-ck1-ngau-nhien", NUM_POOL_OWN = "so-kho-ngau-nhien";
+  nm.pool = await nump.evaluate(async ([pool, id]) => { await Store.loadBank(pool); const b = Store.bank(pool), qs = b.questions.filter((q) => q.src === pool);
+    if (qs.length) Store.upsertBank({ id, title: "Câu riêng của " + b.title, grade: b.grade, subject: b.subject, questions: qs }); return qs.length; }, [NUM_POOL, NUM_POOL_OWN]);
+  for (const id of NUM_BANKS.concat(nm.pool ? [NUM_POOL_OWN] : [])) await playNum(id);
+  await playNum(NB.id, NB_TYPED);
+  // đề tự nhập, làm như thi: bỏ qua mọi câu, trừ bài tự luận; màn kết quả có câu cần xem lại, bài làm, gợi ý và thang tự chấm
+  await nump.goto(BASE + "/#/home"); await nump.goto(BASE + "/#/quiz/" + NB.id); await nump.waitForSelector("#qExam"); await nump.click("#qExam");
+  for (let i = 0; i < 20 && !(await nump.$(".score")); i++) {
+    if (await nump.$("#qzEssay")) { await nump.fill("#qzEssay", "Số khoai đã bán: 1 200 + 600 = 1 800 (kg).\nSố khoai còn lại: 2 450 − 1 800 = 650 (kg)."); await nump.click("#qzGo"); }
+    else await nump.click("#qzSkip");
+  }
+  await nump.waitForSelector("#qzSelf .essay-done"); await openAll(); await numCheck(NB.id + ", kết quả làm như thi");
+  nm.essay = await nump.$eval("#qzSelf .essay-done", (e) => e.textContent.includes("1\u00a0200 + 600 = 1\u00a0800"));
+  // câu bị báo sai: bản chụp lưu giữ khoảng trắng thường; danh sách ở Quản trị → Dữ liệu hiện khoảng trắng không ngắt
+  nm.saved = await nump.evaluate(() => { const r = Store.reports(); return r.length === 1 && /\d \d{3}/.test(r[0].qText) && !r[0].qText.includes("\u00a0"); });
+  await nump.goto(BASE + "/#/account"); await nump.click("#logout"); await nump.waitForTimeout(200);
+  await nump.click(`.tile[data-u="${ids["Bố Minh"]}"]`); await nump.fill("#pinIn", PINS["Bố Minh"]); await nump.waitForTimeout(400);
+  await nump.goto(BASE + "/#/admin/data"); await nump.waitForSelector("#reportsBox .rp-q");
+  const nSeen = nm.seen; await numCheck("Quản trị → Dữ liệu, câu bị báo", "#reportsBox .rp-q"); nm.list = nm.seen - nSeen;
+  await numc.close();
+  console.log("số:", { seen: nm.seen, pool: nm.pool, typed: nm.typed, reported: nm.reported, essay: nm.essay, saved: nm.saved, list: nm.list }, "problems:", nm.problems.length, nm.problems.slice(0, 30));
+  const numOK = !nm.problems.length && nm.seen > 600 && nm.pool > 0 && nm.typed.length === 2 && nm.typed.every(Boolean) && nm.reported === NUM_BANKS[0] && nm.essay && nm.saved && nm.list > 0;
+
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
      Đề có sẵn: chỉ danh mục data/banks/index.js nằm trong FILES; file câu hỏi vào đệm khi mở đề. */
@@ -2113,7 +2223,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, ux4OK, ux5OK };
+    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, ux4OK, ux5OK, numOK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
