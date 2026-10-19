@@ -1148,7 +1148,8 @@
   /* ================= BÀI ĐÃ GỬI CHO BỐ MẸ CHƯA (bản đám mây, Phiên UX6, X10) =================
      Bản đám mây đưa kết quả vào hộp gửi trên máy rồi mới gửi lên máy chủ (js/store-supabase.js). Sau khi lưu, whenSent chờ lượt
      gửi xong (tối đa SEND_WAIT) rồi gọi cb(true) khi hồ sơ không còn bài chờ gửi, cb(false) khi còn; quá giờ thì báo chưa gửi,
-     gửi xong muộn hơn thì báo lại. Màn kết quả đề ghi một dòng (#qzSaved, savedLine), bài ôn trong khung ghi trong thông báo.
+     gửi xong muộn hơn thì báo lại. Phiên đăng nhập đã hết (bài nằm lại trong hộp gửi, kho đã báo "Bố mẹ đăng nhập lại…"): cb(false, true),
+     nơi gọi không hiện thông báo của mình để khỏi che lời nhắc đó. Màn kết quả đề ghi một dòng (#qzSaved, savedLine), bài ôn trong khung ghi trong thông báo.
      Còn bài chưa gửi thì trang chính của con và mục Các con của khu phụ huynh có dòng "N bài chưa gửi" với nút "Gửi lại"
      (unsentBar); số bài đổi thì Store.onChange vẽ lại trang. Bản lưu trên máy không có hộp gửi: whenSent trả false, không có dòng. */
   const SEND_WAIT = 4000;
@@ -1157,9 +1158,9 @@
     const me = Store.user(u.id);
     if (!Store.cloud || (me && me.locked)) return false; // hồ sơ bị khóa theo gói: máy chủ không nhận bài mới, kho báo lỗi riêng
     let last = null;
-    const tell = (ok) => { if (ok !== last) { last = ok; cb(ok); } };
+    const tell = (ok) => { if (ok !== last) { last = ok; cb(ok, Store.authState() !== "ready"); } };
     const timer = setTimeout(() => tell(false), SEND_WAIT);
-    Store.sendPending().then(() => { clearTimeout(timer); tell(!Store.pendingResults(u.id)); });
+    Store.sendPending().then(() => { clearTimeout(timer); tell(Store.authState() === "ready" && !Store.pendingResults(u.id)); });
     return true;
   }
   // el: chỗ trống #qzSaved của màn kết quả lượt vừa lưu (đã rời màn đó thì dòng không hiện ở đâu cả)
@@ -1222,7 +1223,7 @@
     Store.addResult({ userId: u.id, source: "module", refId: m.id, subject: (m.subjects && m.subjects[d.subject]) || "", label: d.label, mode: d.mode, r: d.r, t: d.t, s: d.s });
     const L = Quiz.TXT[modLang(m)];
     // bản đám mây (UX6): "18/20 câu đúng. Đã lưu và gửi cho bố mẹ." hoặc "… Sẽ gửi cho bố mẹ khi có mạng."
-    if (!whenSent(u, (ok) => toast(L.appModScore(+d.r, +d.t) + " " + (ok ? L.appSent : L.appPending), ok ? 3500 : 5000))) toast(L.appSavedModule(+d.r, +d.t));
+    if (!whenSent(u, (ok, expired) => expired || toast(L.appModScore(+d.r, +d.t) + " " + (ok ? L.appSent : L.appPending), ok ? 3500 : 5000))) toast(L.appSavedModule(+d.r, +d.t));
   });
 
   /* ================= LÀM BÀI TỪ NGÂN HÀNG ================= */
@@ -1313,7 +1314,7 @@
           // bản đám mây (UX6): dòng #qzSaved ở màn kết quả và thông báo ghi bài đã gửi cho bố mẹ chưa; bản lưu trên máy giữ "Đã lưu kết quả"
           // whenSent gọi lại sau khi Quiz.run đã vẽ màn kết quả; gửi xong muộn thì ghi lại vào đúng màn đó (line), không sang lượt sau
           let line = null;
-          if (!whenSent(u, (ok) => { line = line || $("#qzSaved"); savedLine(line, ok, L); toast(ok ? L.appSent : L.appPending, ok ? 3000 : 5000); })) toast(res.mode === "self" ? L.appSavedSelf : L.appSaved);
+          if (!whenSent(u, (ok, expired) => { line = line || $("#qzSaved"); savedLine(line, ok, L); if (!expired) toast(ok ? L.appSent : L.appPending, ok ? 3000 : 5000); })) toast(res.mode === "self" ? L.appSavedSelf : L.appSaved);
         }
       }));
       // Xem thử (phụ huynh, quản trị) không lưu điểm nên không cần hỏi.
