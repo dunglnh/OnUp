@@ -256,11 +256,11 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await page.fill("#pinIn", "2222"); await page.waitForTimeout(400);
   const remindParent = await page.$eval("#view", (v) => { const c = v.querySelector("#backupRemind"); return !!c && /Chưa sao lưu lần nào/.test(c.textContent) && !!c.querySelector("#backupNow"); }); // L14
   await shot("11-parent-home");
-  await page.click("[data-child]"); await page.waitForTimeout(300); await shot("12-child");
+  await page.click("[data-child]"); await page.waitForSelector(".report"); await shot("12-child"); // UX2: bấm thẻ của con là mở báo cáo tuần
 
   step("weekly report");
-  await page.click("#toReport"); await page.waitForSelector(".report");
   const rep = await page.evaluate(() => ({
+    links: [...document.querySelectorAll("#rpLinks a")].map((a) => a.getAttribute("href")).join(),
     count: document.querySelector("#rpCount").textContent,
     subjects: [...document.querySelectorAll("#rpSubjects .rp-sub b:first-child")].map((b) => b.textContent),
     topics: document.querySelectorAll("#rpTopics .item").length,
@@ -279,7 +279,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await page.waitForTimeout(200);
   const otherKid = await page.evaluate(() => location.hash); // Na không phải con của Mẹ Bin: về trang chính
   const reportOK = rep.count === "5" && rep.subjects.join() === "Toán,Tiếng Anh" && rep.topics > 0 && rep.tips >= 2 && rep.days === 1
-    && /Bin/.test(rep.title) && rep.wide <= 390 && printHidden && otherKid === "#/home";
+    && /Bin/.test(rep.title) && rep.wide <= 390 && printHidden && otherKid === "#/home" && /^#\/calendar\?g=4,#\/child\/[^,]+\/practice$/.test(rep.links);
   console.log("report print:", printHidden, "other kid:", otherKid);
 
   step("pin lock per user survives reload (L2)");
@@ -603,7 +603,8 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     await p.click("#qzGo"); await check("đề, sau khi trả lời");
     // phụ huynh
     await signIn("Mẹ Bin"); await check("trang chủ phụ huynh");
-    await open("#/child/" + ids.Bin); await check("hồ sơ của con");
+    await open("#/child/" + ids.Bin); await check("hồ sơ của con (báo cáo tuần)");
+    await open("#/child/" + ids.Bin + "/practice"); await check("bài ôn của con");
     await open("#/report/" + ids.Bin); await check("báo cáo tuần");
     await c.close(); await fresh.close();
   }
@@ -1439,8 +1440,9 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     const used = await p.evaluate(() => Store.users().map((u) => u.avatar));
     const picked = async (role) => { await p.goto(BASE + "/#/admin/user/new?role=" + role); await p.waitForSelector("#uForm"); return p.$eval('[data-emo][aria-pressed="true"]', (b) => b.dataset.emo); };
     r.avatar = { student: await picked("student"), parent: await picked("parent"), used: used.join("") };
-    await p.goto(BASE + "/#/child/" + ids.Bin); await p.waitForSelector("#allPractice");
-    r.child = await p.evaluate(() => ({ stat: document.querySelector(".stats .stat:nth-child(2) span").textContent, ready: (document.querySelector(".ev .ready") || {}).textContent || "", streak: !!document.querySelector("#streak"), recent: document.querySelectorAll("#recent .item").length, hero: document.querySelector(".hero").textContent.replace(/\s+/g, " ") }));
+    // hồ sơ của con là báo cáo tuần (UX2): quản trị bản lưu trên máy về "Danh sách học sinh"; thẻ kì thi vẫn có nhãn "Đã làm đúng x%"
+    await p.goto(BASE + "/#/child/" + ids.Bin); await p.waitForSelector(".report");
+    r.child = await p.evaluate(() => ({ report: !!document.querySelector("#rpCount"), back: document.querySelector("#view .linkbtn[data-go]").textContent, ready: (document.querySelector(".ev .ready") || {}).textContent || "", links: document.querySelectorAll("#rpLinks a").length, edit: !!document.querySelector(`a[href="#/admin/user/${Store.users("student").find((u) => u.name === "Bin").id}"]`) }));
     await ucheck("hồ sơ của con");
     await c.close();
   }
@@ -1476,7 +1478,87 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       && r.retry.btns === "|Làm lại cả đề" && r.retry.saved === 1 && r.retry.full === "1 / 25 ← Thoát"
       && r.numeric === "decimal,null" && r.tabAdmin.tabs === "" && r.tabAdmin.cal
       && !r.avatar.used.includes(r.avatar.student) && !r.avatar.used.includes(r.avatar.parent) && r.avatar.student === "🐼" && r.avatar.parent === "🐼" // 🐣 (Bin), 🦊 (Na, form đã chọn sẵn), 🌻, 🧭 đã có người dùng
-      && r.child.stat === "Điểm trung bình tháng" && r.child.ready === "Đã làm đúng 90% bài ôn của kì này" && r.child.streak && r.child.recent === 4 && /Đã làm đúng 90% bài ôn của kì này trong 4 tuần qua \(1 lần làm\)/.test(r.child.hero); });
+      && r.child.report && r.child.back === "← Danh sách học sinh" && r.child.ready === "Đã làm đúng 90% bài ôn của kì này" && r.child.links === 2 && r.child.edit; });
+
+  step("parent area: child cards, report first (UX2)");
+  /* Phụ huynh bản lưu trên máy (Mẹ Bin, có hai con): trang chủ là mục "Các con", mỗi con một thẻ (số bài hôm nay; điểm hôm nay, chưa làm
+     hôm nay thì điểm trung bình tuần; chuỗi ngày; kì thi gần nhất của khối con còn N ngày · chưa ôn môn nào trong 7 ngày, tối đa 3 môn),
+     không còn ba ô số liệu và các mục "Lịch thi lớp N" trùng ý. Bấm thẻ là mở báo cáo tuần (#/child/<mã>): có "← Các con", "Sửa hồ sơ",
+     hai link phụ "Lịch thi lớp 4" (#/calendar?g=4: chọn sẵn tab khối) và "Bài ôn của Bin" (#/child/<mã>/practice: mọi bài ôn của khối,
+     Xem thử), bài làm trước tuần này thu gọn. Quản trị (thầy cô) giữ 5 tab và dòng học sinh cũ, bấm vào cũng mở báo cáo.
+     Ngày giả lập 21/10/2026 18:00. Ảnh 360px sáng/tối ở tests/screenshots/ux2/ (bản ghép <tên>.jpg). */
+  const OUTUX2 = OUT + "ux2/"; fs.mkdirSync(OUTUX2, { recursive: true });
+  const ux2 = { problems: [], shots: [] };
+  for (const scheme of ["light", "dark"]) {
+    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror UX2: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console UX2: " + m.text()); });
+    const r = (ux2[scheme] = {});
+    const check2 = async (label) => (await p.evaluate(audit)).forEach((x) => ux2.problems.push(`UX2 · ${scheme} · ${label}: ${x}`));
+    const snap2 = async (n) => { await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await p.screenshot({ path: `${OUTUX2}${n}-${scheme}.png`, fullPage: true }); ux2.shots.push(`${n}-${scheme}`); };
+    const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, sel);
+    await p.clock.install({ time: new Date("2026-10-21T18:00:00") });
+    await p.goto(BASE + "/");
+    await p.evaluate(() => {
+      const d = JSON.parse(localStorage.getItem("ontap_db_v1")), bin = d.users.find((u) => u.name === "Bin"), na = d.users.find((u) => u.name === "Na");
+      na.parentIds = [d.users.find((u) => u.name === "Mẹ Bin").id]; // Na cũng là con của Mẹ Bin (chỉ trong ngữ cảnh này)
+      const at = (days, h) => { const x = new Date(); x.setDate(x.getDate() - days); x.setHours(h, 10, 0, 0); return x.toISOString(); };
+      const mk = (o) => Object.assign({ id: "ux2" + Math.random().toString(36).slice(2), s: 900 }, o);
+      d.results = [
+        mk({ userId: bin.id, source: "bank", refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 1", mode: "practice", r: 19, t: 25, at: at(10, 9), wrongTopics: ["Góc và đo góc"] }), // trước tuần này
+        mk({ userId: bin.id, source: "bank", refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 1", mode: "practice", r: 21, t: 25, at: at(2, 9), wrongTopics: ["Góc và đo góc", "Góc và đo góc", "Đơn vị đo"] }),
+        mk({ userId: bin.id, source: "module", refId: "l4-giua-ki-1", subject: "Toán", label: "Toán · Đề 1", mode: "exam", r: 18, t: 20, at: at(1, 20) }),
+        mk({ userId: bin.id, source: "bank", refId: "ta4-ck1-de1", subject: "Tiếng Anh", label: "Tiếng Anh 4 · Cuối kì I · Đề 1", mode: "exam", r: 22, t: 25, at: at(0, 9) }),
+        mk({ userId: bin.id, source: "bank", refId: "toan4-ck1-de2", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 2", mode: "practice", r: 20, t: 25, at: at(0, 17) }),
+        mk({ userId: na.id, source: "bank", refId: "toan6-ck1-de1", subject: "Toán", label: "Toán 6 · Cuối kì I · Đề 1", mode: "practice", r: 15, t: 25, at: at(3, 9), wrongTopics: ["Phân số"] })];
+      localStorage.setItem("ontap_db_v1", JSON.stringify(d));
+    });
+    await p.reload(); await p.click(`.tile[data-u="${ids["Mẹ Bin"]}"]`); await p.fill("#pinIn", PINS["Mẹ Bin"]); await p.waitForSelector("#kids");
+    r.home = await p.evaluate(() => ({
+      cards: [...document.querySelectorAll("#kids a.kid")].map((k) => ({ href: k.getAttribute("href"), h: Math.round(k.getBoundingClientRect().height), stats: [...k.querySelectorAll(".stat")].map((s) => s.querySelector("b").textContent + " " + s.querySelector("span").textContent).join("|"), ev: (k.querySelector(".kid-ev") || {}).textContent || "" })),
+      extraStats: !!document.querySelector("#view > .stack > .stats"), h2: [...document.querySelectorAll("#view h2")].map((h) => h.textContent).join(), hint: document.querySelector("#kids p.small").textContent,
+      cal: (document.querySelector(".who a") || {}).getAttribute("href"), tabbar: !!document.querySelector("#tabbar") }));
+    await check2("trang chủ phụ huynh"); await snap2("phu-huynh");
+    await p.click(`a.kid[href="#/child/${ids.Bin}"]`); await p.waitForSelector(".report");
+    r.report = await p.evaluate((id) => ({ hash: location.hash, back: document.querySelector("#view .linkbtn[data-go]").textContent, edit: !!document.querySelector(`a[href="#/admin/user/${id}"]`), print: !!document.querySelector("#rpPrint"),
+      links: [...document.querySelectorAll("#rpLinks a")].map((a) => a.textContent + "=" + a.getAttribute("href")).join(), count: document.querySelector("#rpCount").textContent, topics: document.querySelectorAll("#rpTopics .item").length,
+      week: document.querySelectorAll(".report > .sec .item").length, older: { open: document.querySelector("#rpOlder").open, head: document.querySelector("#rpOlder summary").textContent.replace(/\s+/g, " ").trim(), n: document.querySelectorAll("#rpOlder .item").length } }), ids.Bin);
+    await check2("báo cáo của con"); await snap2("bao-cao-con");
+    await p.evaluate(() => (document.querySelector("#rpOlder").open = true)); await check2("báo cáo của con, mở bài trước");
+    await p.click("#rpLinks a >> nth=1"); await p.waitForSelector("#allPractice");
+    r.practice = await p.evaluate(() => ({ hash: location.hash, back: document.querySelector("#view .linkbtn[data-go]").textContent, h2: document.querySelector("#view h2").textContent, groups: document.querySelectorAll("#allPractice details.grp").length,
+      preview: [...document.querySelectorAll("#allPractice a.btn")].every((a) => /Xem thử/.test(a.getAttribute("aria-label") || a.textContent)) }));
+    await check2("bài ôn của con"); await snap2("bai-on-cua-con");
+    await p.click("#view .linkbtn[data-go]"); await p.waitForSelector(".report");
+    await p.click("#rpLinks a >> nth=0"); await p.waitForSelector(".tabs [data-g]"); // (.timeline có cả ở báo cáo)
+    r.cal = await p.evaluate(() => ({ hash: location.hash, tab: document.querySelector('.tabs [aria-pressed="true"]').textContent, h1: document.querySelector("h1").textContent }));
+    // quản trị bản lưu trên máy (thầy cô): giữ nguyên 5 tab và dòng học sinh; bấm dòng cũng mở báo cáo, về "Danh sách học sinh"
+    await p.goto(BASE + "/#/account"); await p.click("#logout"); await p.waitForTimeout(200);
+    await p.click(`.tile[data-u="${ids["Bố Minh"]}"]`); await p.fill("#pinIn", PINS["Bố Minh"]); await p.waitForSelector(".tabs");
+    r.admin = await p.evaluate(() => ({ tabs: [...document.querySelectorAll(".tabs button")].map((b) => b.textContent).join(), stats: document.querySelectorAll("#view > .stack > .stats .stat").length, rows: document.querySelectorAll("button[data-child]").length, cards: document.querySelectorAll("a.kid").length }));
+    await p.click("button[data-child] >> nth=0"); await p.waitForSelector(".report");
+    r.admin.back = await txt("#view .linkbtn[data-go]");
+    await c.close();
+  }
+  { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/ux2/<tên>.jpg)
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of [...new Set(ux2.shots.map((x) => x.replace(/-(light|dark)$/, "")))]) {
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTUX2}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTUX2}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("UX2:", JSON.stringify(ux2.light), "dark:", JSON.stringify(ux2.dark), "problems:", ux2.problems);
+  const ux2OK = !ux2.problems.length && ["light", "dark"].every((sc) => { const r = ux2[sc], bin = r.home.cards[0], na = r.home.cards[1];
+    return r.home.cards.length === 2 && bin.href === "#/child/" + ids.Bin && bin.h >= 44 && bin.stats === "2 bài hôm nay|8,5 điểm hôm nay|3 chuỗi ngày" && bin.ev.replace(/\s+/g, " ").trim() === "Kiểm tra giữa học kì I còn 12 ngày · chưa ôn Tiếng Việt"
+      && na.href === "#/child/" + ids.Na && na.stats === "Chưa ôn hôm nay|6 điểm TB tuần|0 chuỗi ngày" && na.ev.replace(/\s+/g, " ").trim() === "Kiểm tra giữa học kì I còn 12 ngày · chưa ôn Ngữ văn, KHTN, Tiếng Anh và 4 môn khác"
+      && !r.home.extraStats && r.home.h2 === "Chào Mẹ Bin,Các con" && /^Bấm vào thẻ của con để xem báo cáo tuần/.test(r.home.hint) && r.home.cal === "#/calendar" && !r.home.tabbar
+      && r.report.hash === "#/child/" + ids.Bin && r.report.back === "← Các con" && r.report.edit && r.report.print && r.report.links === `Lịch thi lớp 4=#/calendar?g=4,Bài ôn của Bin=#/child/${ids.Bin}/practice`
+      && r.report.count === "4" && r.report.topics === 2 && r.report.week === 4 && !r.report.older.open && /^Bài làm trước tuần này ?1 bài$/.test(r.report.older.head) && r.report.older.n === 1
+      && r.practice.hash === `#/child/${ids.Bin}/practice` && r.practice.back === "← Báo cáo của Bin" && r.practice.h2 === "Bài ôn lớp 4 của Bin" && r.practice.groups >= 3 && r.practice.preview
+      && r.cal.hash === "#/calendar?g=4" && r.cal.tab === "Lớp 4" && /^Lịch thi năm học/.test(r.cal.h1)
+      && r.admin.tabs === "Tổng quan,Tài khoản,Lịch thi,Ngân hàng đề,Dữ liệu" && r.admin.stats === 3 && r.admin.rows === 2 && r.admin.cards === 0 && r.admin.back === "← Danh sách học sinh"; });
 
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
@@ -1595,7 +1677,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK };
+    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();

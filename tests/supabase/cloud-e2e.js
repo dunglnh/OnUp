@@ -165,6 +165,9 @@ async function run(browser, scheme) {
   c.changed = !be.T.families.find((f) => f.username === "nha.bin").must_change_password;
   c.remembered = await p.evaluate(() => !!localStorage.getItem("ontap_sb_auth") && !sessionStorage.getItem("ontap_sb_auth"));
   await shot(p, "c3-khu-phu-huynh-moi");
+  // UX2: khu phụ huynh còn ba mục Các con · Lịch thi · Cài đặt; nút "Lịch thi" ở thanh trên về tab Lịch thi của khu phụ huynh
+  const tabsOf = (pg) => pg.$$eval(".tabs button", (b) => b.map((x) => x.textContent + (x.getAttribute("aria-pressed") === "true" ? "*" : "")).join());
+  c.ux2 = { tabs: await tabsOf(p), topCal: await p.$eval(".who a", (a) => a.getAttribute("href")), empty: await text(p, "#kids") };
 
   /* ---- thêm hồ sơ con ---- */
   await p.click("a[href='#/admin/user/new?role=student']"); await p.waitForSelector("#uForm");
@@ -172,15 +175,48 @@ async function run(browser, scheme) {
   await shot(p, "c4-them-ho-so-con");
   await p.fill("#uName", "Bin"); await p.selectOption("#uGrade", "4"); await p.fill("#uClass", "4A"); await p.fill("#uPin", "1357");
   await revealTry(p, "#uPin", "mã PIN");
-  await p.click("#uForm [type=submit]"); await p.waitForSelector("text=Hồ sơ con (1/5)");
+  await p.click("#uForm [type=submit]"); await p.waitForSelector("#kids a.kid"); // thêm xong về tab Các con, thấy thẻ của con
+  c.ux2.afterAdd = await p.evaluate(() => location.hash);
   await p.goto(BASE + "/#/admin/user/new?role=student"); await p.waitForSelector("#uForm");
   await p.fill("#uName", "Na"); await p.selectOption("#uGrade", "6");
-  await p.click("#uForm [type=submit]"); await p.waitForSelector("text=Hồ sơ con (2/5)");
-  await shot(p, "c5-ho-so-con");
+  await p.click("#uForm [type=submit]"); await p.waitForFunction(() => document.querySelectorAll("#kids a.kid").length === 2);
   const prof = be.T.profiles.filter((x) => x.family_id === acc.id);
   c.profiles = prof.length === 2 && /^4\./.test(prof.find((x) => x.name === "Bin").pin_hash) && prof.find((x) => x.name === "Na").pin_hash === null;
-  await p.goto(BASE + "/#/admin/overview"); await wait(p);
-  await shot(p, "c6-tong-quan");
+  // UX2: tab Các con: mỗi con một thẻ (chưa có bài: "Chưa ôn", "–", 0), không có ba ô số liệu và mục "Kì thi tiếp theo"; "+ Thêm hồ sơ con", "2/5 hồ sơ"
+  c.ux2.kids = await p.evaluate(() => ({ cards: [...document.querySelectorAll("#kids a.kid")].map((k) => k.getAttribute("href") + " " + [...k.querySelectorAll(".stat")].map((s) => s.querySelector("b").textContent + " " + s.querySelector("span").textContent).join("|") + " " + (k.querySelector(".kid-ev") || {}).textContent).join("; ").replace(/\s+/g, " "),
+    extraStats: !!document.querySelector("#view > .stack > .stats"), h2: [...document.querySelectorAll("#view h2")].map((h) => h.textContent).join(), count: [...document.querySelectorAll("#kids > .row > .small")].map((x) => x.textContent).join(), add: !!document.querySelector("#kids a[href='#/admin/user/new?role=student']"), hint: document.querySelector("#kids p.small").textContent }));
+  await shot(p, "c6-cac-con");
+  // UX2: tab Lịch thi của khu phụ huynh: chỉ khối của các con ("Lớp 4 · Bin", "Lớp 6 · Na"), kì thi dự kiến có nút "Trường đã báo lịch? Sửa ngày",
+  // hộp sửa ngày mở ngay dưới thẻ, Lưu thì bỏ cờ dự kiến và lên máy chủ; #/calendar của phụ huynh cũng về đây
+  await p.goto(BASE + "/#/calendar"); await wait(p);
+  c.ux2.calRedirect = await p.evaluate(() => location.hash);
+  c.ux2.cal = await p.evaluate(() => ({ tabs: [...document.querySelectorAll(".tabs")].map((t) => [...t.children].map((b) => b.textContent.replace(/\s+/g, " ") + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join()).join(" / "),
+    fix: (document.querySelector('[data-fix="gk1-l4"]') || {}).textContent, fixH: Math.round((document.querySelector('[data-fix="gk1-l4"]') || { getBoundingClientRect: () => ({}) }).getBoundingClientRect().height),
+    tent: !!document.querySelector('[data-ev="gk1-l4"] .tag.warn'), edit: (document.querySelector('[data-ev="ioe-truong"] + .ev-act a') || {}).getAttribute("href"), months: document.querySelectorAll(".month").length, grades: [...document.querySelectorAll("[data-ev]")].map((b) => Store.event(b.dataset.ev).grades.join("")).join() }));
+  await shot(p, "c6b-lich-thi");
+  await p.click('[data-fix="gk1-l4"]'); await p.waitForSelector("#fixBox");
+  c.ux2.fixBox = await p.evaluate(() => { const f = document.querySelector("#fixBox"); return { after: f.previousElementSibling.classList.contains("ev-act") && f.previousElementSibling.previousElementSibling.dataset.ev === "gk1-l4", start: f.querySelector("#fxStart").value, end: f.querySelector("#fxEnd").value, official: f.querySelector("#fxOfficial").checked, text: f.textContent.replace(/\s+/g, " ").trim() }; });
+  await p.fill("#fxStart", ""); await p.click("#fixBox [type=submit]"); c.ux2.fixErr = await text(p, "#fxErr");
+  await p.fill("#fxStart", "2026-11-04"); await p.fill("#fxEnd", "2026-11-06");
+  await shot(p, "c6c-sua-ngay");
+  await p.click("#fixBox [type=submit]"); await p.waitForSelector("#toast:not([hidden])");
+  c.ux2.fixed = await p.evaluate(() => ({ toast: document.querySelector("#toast").textContent, box: !!document.querySelector("#fixBox"), tent: !!document.querySelector('[data-ev="gk1-l4"] .tag.warn'), date: document.querySelector('[data-ev="gk1-l4"] .d').textContent.replace(/\s+/g, " "),
+    act: document.querySelector('[data-ev="gk1-l4"] + .ev-act').textContent.trim(), ev: Store.event("gk1-l4") }));
+  c.ux2.fixServer = await until(p, () => { const r = be.T.exam_events.find((x) => x.family_id === acc.id && x.id === "gk1-l4"); return !!r && r.start_date === "2026-11-04" && r.end_date === "2026-11-06" && r.tentative === false; });
+  await p.click('.tabs [data-g="6"]'); await wait(p);
+  c.ux2.calG6 = await p.evaluate(() => [...document.querySelectorAll("[data-ev]")].every((b) => Store.event(b.dataset.ev).grades.includes(6)) && !!document.querySelector("[data-ev]"));
+  // UX2: Cài đặt: hồ sơ con, đề tự soạn, thông tin chung, rồi "Chuyển dữ liệu và sao lưu" và "Tài khoản"; #/admin/users (địa chỉ cũ) về đây
+  await p.goto(BASE + "/#/admin/users"); await p.waitForSelector("#kidsBox");
+  c.ux2.settings = await p.evaluate(() => ({ tabs: [...document.querySelectorAll(".tabs button")].map((b) => b.textContent + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join(), h3: [...document.querySelectorAll("#view h3")].map((h) => h.textContent).join(),
+    kids: document.querySelectorAll("#kidsBox .item").length, links: [...document.querySelectorAll("#banksBox a, #moreBox a")].map((a) => (a.querySelector("b") || a).textContent.trim() + "=" + a.getAttribute("href")).join(), info: !!document.querySelector("#dSchool") }));
+  await shot(p, "c5-cai-dat");
+  await p.click("#banksBox a[href='#/admin/banks']"); await p.waitForSelector("#seedBanks");
+  c.ux2.banks = await p.evaluate(() => ({ tabs: document.querySelector('.tabs [aria-pressed="true"]').textContent, back: document.querySelector("#view .linkbtn[data-go]").textContent, h2: [...document.querySelectorAll("#view h2")].pop().textContent, mine: document.querySelector("#myBanks").textContent.trim(),
+    seedOpen: document.querySelector("#seedBanks").open, seedN: document.querySelectorAll("#seedBanks .item").length, seedAll: Store.banks().filter((b) => b.seed).length, add: (document.querySelector("a[href='#/admin/bank/new']") || {}).textContent }));
+  await shot(p, "c5b-de-tu-soan");
+  await p.click("a[href='#/admin/bank/new']"); await p.waitForSelector("#bForm");
+  c.ux2.bankForm = (await text(p, "#view h2")) + " | " + (await text(p, "#view .linkbtn[data-go]")) + " | " + (await text(p, "#bForm [type=submit]"));
+  await p.goto(BASE + "/#/admin/overview"); await p.waitForSelector("#switchWho");
 
   /* ---- “Ai đang học?”, con nhập PIN, làm đề ---- */
   await p.click("#switchWho"); await p.waitForSelector("text=Ai đang học?");
@@ -315,13 +351,22 @@ async function run(browser, scheme) {
   c.wrongPw = await text(p2, "#pwErr");
   rvIs((await types(p2, "#pwIn")) === "password", "mật khẩu phụ huynh: gửi sai vẫn hiện");
   await p2.fill("#pwIn", PW); await p2.click("#pwGo"); await p2.waitForSelector("text=Khu phụ huynh");
-  await p2.click(`[data-child="${binId}"]`); await p2.waitForSelector("#toReport");
-  await shot(p2, "c11-ho-so-cua-con");
-  await p2.click("#toReport"); await p2.waitForSelector(".report");
+  // UX2: thẻ của con (có bài hôm nay: số bài, điểm hôm nay, chuỗi ngày, kì thi gần nhất); bấm thẻ là mở báo cáo tuần, có hai link phụ
+  await p2.waitForSelector(`a.kid[href="#/child/${binId}"]`); // "text=Khu phụ huynh" đã khớp nút "Vào khu phụ huynh" của màn mật khẩu
+  c.ux2.binCard = await p2.$eval(`a.kid[href="#/child/${binId}"]`, (k) => [...k.querySelectorAll(".stat")].map((s) => s.querySelector("b").textContent + " " + s.querySelector("span").textContent).join("|") + " " + (k.querySelector(".kid-ev") || {}).textContent.replace(/\s+/g, " "));
+  await shot(p2, "c11-cac-con");
+  await p2.click(`[data-child="${binId}"]`); await p2.waitForSelector(".report");
   c.report = await p2.evaluate(() => ({ n: +document.querySelector("#rpCount").textContent, subj: [...document.querySelectorAll("#rpSubjects .rp-sub b:first-child")].map((b) => b.textContent).join() }));
+  c.ux2.report = await p2.evaluate(() => ({ hash: location.hash, back: document.querySelector("#view .linkbtn[data-go]").textContent, links: [...document.querySelectorAll("#rpLinks a")].map((a) => a.textContent + "=" + a.getAttribute("href")).join(), edit: !!document.querySelector("a[href^='#/admin/user/']") }));
   await shot(p2, "c12-bao-cao-tuan");
-  // đổi mật khẩu
+  await p2.click("#rpLinks a >> nth=1"); await p2.waitForSelector("#allPractice");
+  c.ux2.practice = (await text(p2, "#view h2")) + " | " + (await text(p2, "#view .linkbtn[data-go]")) + " | " + (await p2.$$eval("#allPractice a.btn", (a) => a.length));
+  await p2.click("#view .linkbtn[data-go]"); await p2.waitForSelector(".report");
+  await p2.click("#rpLinks a >> nth=0"); await p2.waitForSelector("#parentCal");
+  c.ux2.calFromReport = await p2.evaluate(() => location.hash + " " + document.querySelector('.tabs [data-g][aria-pressed="true"]').textContent.replace(/\s+/g, " "));
+  // đổi mật khẩu (trang Tài khoản về Cài đặt)
   await p2.goto(BASE + "/#/account"); await p2.waitForSelector("#pwForm");
+  c.ux2.accountBack = await text(p2, "#view .linkbtn[data-go]");
   await shot(p2, "c13-tai-khoan-phu-huynh");
   await p2.fill("#pwOld", "sai-mat-khau"); await p2.fill("#pwNew", PW2); await p2.fill("#pwNew2", PW2);
   await revealTry(p2, "#pwOld", "mật khẩu"); await eye(p2, "#pwOld");
@@ -336,6 +381,7 @@ async function run(browser, scheme) {
   await p2.goto(BASE + "/#/admin/data"); await wait(p2);
   c.migHint = /Trên iPhone, iPad: hãy chuyển trong Safari, nơi đang có dữ liệu, trước khi dùng app ở Màn hình chính/.test(await text(p2, "#migBox"));
   c.noHomeScreen = !(await p2.$("#homeScreen")); // hướng dẫn Màn hình chính (L17) chỉ ở bản lưu trên máy
+  c.ux2.data = (await text(p2, "#view .linkbtn[data-go]")) + " | " + (await p2.$$eval("#view h2", (h) => h.pop().textContent)) + " | " + (await tabsOf(p2)) + " | " + !(await p2.$("#dSchool")) + " | " + !!(await p2.$("#dExport"));
   // R1: tab Dữ liệu của khu phụ huynh liệt kê câu đã báo kèm trạng thái, không có nút chép (đã lên máy chủ)
   c.r1.data = await p2.evaluate(() => { const b = document.querySelector("#reportsBox"); return { n: b.querySelectorAll(".item").length, head: b.querySelector("h3").textContent, chips: [...b.querySelectorAll(".chip")].map((x) => x.textContent).join(), copy: !!b.querySelector("#copyReports"), who: /Bin/.test(b.textContent) && /Toán 4 · Cuối kì I · Đề 1/.test(b.textContent.replace(/\s+/g, " ")) }; });
   await p2.click("#dMigrate"); await p2.waitForSelector("#migRes .fb");
@@ -526,7 +572,7 @@ async function run(browser, scheme) {
     "S1: thẻ “Chưa có tài khoản?” dưới form, link từ signupText, signupUrl (để trống thì contactText, contactUrl)": /^Chưa có tài khoản\? OnUp đang dùng thử với các gia đình được mời/.test(c.signup.text)
       && c.signup.link === (withSignup ? SIGNUP + " · " + SIGNUP_TXT : CONTACT + " · Nhắn Zalo cho cô Lan") && c.signup.below,
     "S1: thẻ nhắc dữ liệu cũ trên form khi máy còn dữ liệu bản lưu trên máy có học sinh chưa chuyển; không có, chỉ có quản trị, hoặc đã chuyển thì không": c.oldData.none && c.oldData.above
-      && /^Máy này còn dữ liệu ôn tập cũ \(1 học sinh, 1 kết quả\)\. Đăng nhập tài khoản gia đình, rồi vào Khu phụ huynh → Dữ liệu → Chuyển dữ liệu máy này lên đám mây\.$/.test(c.oldData.text)
+      && /^Máy này còn dữ liệu ôn tập cũ \(1 học sinh, 1 kết quả\)\. Đăng nhập tài khoản gia đình, rồi vào Khu phụ huynh → Cài đặt → Chuyển dữ liệu và sao lưu\.$/.test(c.oldData.text)
       && c.oldData.noKid && c.oldData.removed && c.oldData.migrated,
     "sai mật khẩu: báo rõ": /Tên đăng nhập hoặc mật khẩu chưa đúng/.test(c.wrong),
     "mật khẩu tạm: bắt đặt mật khẩu mới (hai ô phải khớp), máy chủ bỏ cờ": /chưa khớp/.test(c.mismatch) && c.changed,
@@ -556,6 +602,25 @@ async function run(browser, scheme) {
     "UX1: màn kết quả có lời khen, nút “Ôn lại N câu sai”, câu sai thu gọn; lượt ôn lại chỉ gồm câu sai và không gửi thêm kết quả lên máy chủ":
       /^(Xuất sắc|Giỏi lắm|Khá tốt|Được rồi|Chưa sao), Bin[!.]/.test(c.ux1.result.praise) && c.ux1.result.retry === `Ôn lại ${c.ux1.result.n} câu sai` && c.ux1.result.n > 0 && c.ux1.result.closed && c.ux1.result.again === "Làm lại cả đề"
       && c.ux1.retryChip === `1 / ${c.ux1.result.n}` && /· Ôn lại câu sai /.test(c.ux1.retryResult) && /Lượt ôn lại câu sai không lưu điểm\./.test(c.ux1.retryResult) && c.ux1.retryServer,
+    "UX2: khu phụ huynh có ba mục Các con · Lịch thi · Cài đặt; nút Lịch thi trên cùng và #/calendar về tab Lịch thi; thêm hồ sơ xong về Các con": c.ux2.tabs === "Các con*,Lịch thi,Cài đặt" && c.ux2.topCal === "#/admin/events"
+      && /^Chưa có hồ sơ con\./.test(c.ux2.empty) && c.ux2.afterAdd === "#/admin/overview" && c.ux2.calRedirect === "#/admin/events",
+    "UX2: tab Các con: mỗi con một thẻ (chưa có bài: Chưa ôn · – · 0; kì thi gần nhất còn N ngày · chưa ôn …), không có ô số liệu trùng ý; thẻ có bài hôm nay ghi số bài, điểm hôm nay":
+      /^#\/child\/\S+ Chưa ôn hôm nay\|– điểm TB tuần\|0 chuỗi ngày Kiểm tra giữa học kì I còn \d+ ngày · chưa ôn Toán, Tiếng Việt; #\/child\/\S+ Chưa ôn hôm nay\|– điểm TB tuần\|0 chuỗi ngày Kiểm tra giữa học kì I còn \d+ ngày · chưa ôn Ngữ văn, Toán, KHTN và 5 môn khác$/.test(c.ux2.kids.cards)
+      && !c.ux2.kids.extraStats && c.ux2.kids.h2 === "Khu phụ huynh" && c.ux2.kids.count === "2/5 hồ sơ" && c.ux2.kids.add && /^Bấm vào thẻ của con/.test(c.ux2.kids.hint)
+      && /^2 bài hôm nay\|\d+(,\d+)? điểm hôm nay\|1 chuỗi ngày Kiểm tra giữa học kì I còn \d+ ngày · chưa ôn Tiếng Việt$/.test(c.ux2.binCard),
+    "UX2: tab Lịch thi: khối của các con (Lớp 4 · Bin, Lớp 6 · Na), gom theo tháng; kì thi dự kiến có nút “Trường đã báo lịch? Sửa ngày” (≥ 44px), kì khác có “Sửa ngày, bài ôn”":
+      c.ux2.cal.tabs === "Các con,Lịch thi*,Cài đặt / Cả hai khối*,Lớp 4 · Bin,Lớp 6 · Na" && c.ux2.cal.fix === "Trường đã báo lịch? Sửa ngày" && c.ux2.cal.fixH >= 44 && c.ux2.cal.tent && c.ux2.cal.edit === "#/admin/event/ioe-truong"
+      && c.ux2.cal.months >= 6 && c.ux2.cal.grades.split(",").every((g) => /^(4|6|46)$/.test(g)) && c.ux2.calG6,
+    "UX2: hộp sửa ngày mở ngay dưới kì thi, ô chọn “lịch chính thức” bật sẵn; thiếu ngày thì báo; Lưu thì bỏ cờ dự kiến, lên máy chủ, hộp đóng": c.ux2.fixBox.after && c.ux2.fixBox.start === "2026-11-02" && c.ux2.fixBox.end === "2026-11-13" && c.ux2.fixBox.official
+      && /^Trường đã báo lịch\? Sửa ngày cho đúng\. ?Kiểm tra giữa học kì I/.test(c.ux2.fixBox.text) && /Chọn ngày thi/.test(c.ux2.fixErr) && c.ux2.fixed.toast === "Đã lưu ngày thi" && !c.ux2.fixed.box && !c.ux2.fixed.tent
+      && c.ux2.fixed.date === "4/11đến 6/11" && c.ux2.fixed.act === "Sửa ngày, bài ôn" && c.ux2.fixed.ev.start === "2026-11-04" && c.ux2.fixed.ev.end === "2026-11-06" && c.ux2.fixed.ev.tentative === false && c.ux2.fixServer,
+    "UX2: Cài đặt: Hồ sơ con (2/5), Đề tự soạn, Thông tin chung, rồi Chuyển dữ liệu và sao lưu, Tài khoản; #/admin/users về đây; trang Đề tự soạn (đề có sẵn thu gọn), nhập đề, Dữ liệu, Tài khoản về Cài đặt":
+      c.ux2.settings.tabs === "Các con,Lịch thi,Cài đặt*" && c.ux2.settings.h3 === "Hồ sơ con (2/5),Đề tự soạn,Thông tin chung" && c.ux2.settings.kids === 2 && c.ux2.settings.info
+      && c.ux2.settings.links === "Xem đề tự soạn=#/admin/banks,+ Nhập đề=#/admin/bank/new,Chuyển dữ liệu và sao lưu=#/admin/data,Tài khoản=#/account"
+      && c.ux2.banks.tabs === "Cài đặt" && c.ux2.banks.back === "← Cài đặt" && c.ux2.banks.h2 === "Đề tự soạn" && /^Chưa có đề tự soạn/.test(c.ux2.banks.mine) && !c.ux2.banks.seedOpen && c.ux2.banks.seedN === c.ux2.banks.seedAll && c.ux2.banks.seedN > 20 && c.ux2.banks.add === "+ Nhập đề"
+      && c.ux2.bankForm === "Nhập đề | ← Đề tự soạn | Lưu đề" && c.ux2.data === "← Cài đặt | Chuyển dữ liệu và sao lưu | Các con,Lịch thi,Cài đặt* | true | true" && c.ux2.accountBack === "← Cài đặt",
+    "UX2: bấm thẻ của con là mở báo cáo tuần (#/child/<mã>), có “← Các con”, Sửa hồ sơ, link Lịch thi lớp 4 (chọn sẵn khối) và Bài ôn của Bin (xem thử)": c.ux2.report.hash === "#/child/" + binId && c.ux2.report.back === "← Các con" && c.ux2.report.edit
+      && c.ux2.report.links === `Lịch thi lớp 4=#/admin/events?g=4,Bài ôn của Bin=#/child/${binId}/practice` && /^Bài ôn lớp 4 của Bin \| ← Báo cáo của Bin \| \d+$/.test(c.ux2.practice) && c.ux2.calFromReport === "#/admin/events?g=4 Lớp 4 · Bin",
     "trang tài khoản của con: đổi người học, không đăng xuất, không đổi mật khẩu": !!c.kidAccount,
     "hồ sơ không PIN bấm là vào; con không vào được khu phụ huynh bằng địa chỉ": c.na && c.kidBlocked,
     "tab mới: nhớ hồ sơ chọn gần nhất, khu phụ huynh phải nhập lại mật khẩu": c.preselect === "Na" && /Mật khẩu chưa đúng/.test(c.wrongPw),
