@@ -477,9 +477,10 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("bank files:", lazy);
   const dataErrs = [];
   if (lazy.home !== "index.js" || lazy.quiz !== "4-toan.js,index.js" || lazy.now !== "4-toan.js,6-khtn.js,index.js") dataErrs.push("file đề tải về: " + JSON.stringify(lazy));
-  // đề ngẫu nhiên (K3): cùng file, tải xong thì có cả kho câu (3 đề cuối kì I: 75 câu, 2 đề giữa kì II: 50 câu), số câu rút mỗi lần là n
-  if (lazy.home2.loaded !== "" || lazy.home2.toan4 !== "0/25,0/25,0/25,0/25,0/25,0/25,0/25" || lazy.quiz2.loaded !== "toan4-ck1-de1,toan4-ck1-de2,toan4-ck1-de3,toan4-gk2-de1,toan4-gk2-de2"
-    || lazy.quiz2.toan4 !== "25/25,25/25,25/25,25/25,25/25,75/25,50/25") dataErrs.push("đề đã tải: " + JSON.stringify([lazy.home2, lazy.quiz2]));
+  // đề ngẫu nhiên (K3): cùng file, tải xong thì có cả kho câu (cuối kì I, Phiên N1: 31 câu riêng + 3 đề = 106 câu; giữa kì II:
+  // 2 đề = 50 câu), số câu rút mỗi lần là n
+  if (lazy.home2.loaded !== "" || lazy.home2.toan4 !== "0/25,0/25,0/25,0/25,0/25,0/25,0/25" || lazy.quiz2.loaded !== "toan4-ck1-de1,toan4-ck1-de2,toan4-ck1-de3,toan4-ck1-ngau-nhien,toan4-gk2-de1,toan4-gk2-de2"
+    || lazy.quiz2.toan4 !== "25/25,25/25,25/25,25/25,25/25,106/25,50/25") dataErrs.push("đề đã tải: " + JSON.stringify([lazy.home2, lazy.quiz2]));
 
   step("new seed banks reach old data");
   const ck1 = () => page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).events.find((e) => e.id === "ck1-l4").banks);

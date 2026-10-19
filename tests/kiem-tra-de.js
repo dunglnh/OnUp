@@ -19,7 +19,8 @@
      môn, file, không trùng; có câu riêng trong file thì ít nhất một câu (không có thì không ghi vào file); đoạn đọc không
      trùng mã giữa các đề trong kho; matrix: mỗi chủ đề là số nguyên dương hoặc [Biết, Hiểu, Vận dụng], chữ chủ đề đúng
      topic của câu trong kho, tổng bằng n; kho đủ câu cho từng chủ đề (lỗi), thiếu ở một mức thì chỉ nhắc (app lấy bù mức
-     gần nhất và ghi chú); rút thử (Quiz.draw) ra đúng n câu không trùng, không ghi chú khi kho đủ;
+     gần nhất và ghi chú); câu riêng của pool nằm ở ô (chủ đề, mức) mà ma trận không rút câu nào thì nhắc (câu đó chỉ dùng
+     để lấy bù); rút thử (Quiz.draw) ra đúng n câu không trùng, không ghi chú khi kho đủ;
    - bộ rút đề (Quiz.draw) với kho giả: đúng ma trận, ưu tiên câu chưa làm và câu hay sai, lấy bù và ghi chú khi thiếu;
      mã câu (Quiz.key) không đổi khi sửa lời giải, chủ đề;
    - lịch thi mặc định (data/calendar-2026-2027.js): đề và bài ôn gắn vào kì thi có thật, đúng khối của kì thi;
@@ -278,6 +279,11 @@ pools.forEach((b) => {
   });
   if (sum !== b.n) err(at, `tổng ma trận ${sum} khác n = ${b.n}`);
   Object.keys(have).filter((t) => !inMatrix.has(t)).forEach((t) => warn.push(`${at}: chủ đề "${t}" (${have[t].reduce((a, x) => a + x, 0)} câu) không có trong ma trận, chỉ dùng để lấy bù`));
+  // câu riêng của pool mà ô (chủ đề, mức) của ma trận là 0 thì chỉ dùng để lấy bù: viết câu mới đúng mức ma trận cần (Phiên N1)
+  if (own) (Array.isArray(own.questions) ? own.questions : []).forEach((q, i) => {
+    const v = q && m[Object.keys(m).find((t) => topicOf(t) === topicOf(q.topic))];
+    if (Array.isArray(v) && !(v[q.lv - 1] > 0)) warn.push(`${at}, câu riêng ${i + 1}: ma trận không rút câu nào ở ô (chủ đề "${topicOf(q.topic)}", ${Quiz.LV[q.lv] ? "mức " + Quiz.LV[q.lv] : "chưa ghi mức"}), câu này chỉ dùng để lấy bù`);
+  });
   const d = Quiz.draw({ pool: p, questions: kho }), keys = d.questions.map(Quiz.key);
   if (d.questions.length !== sum) err(at, `rút thử được ${d.questions.length} câu, cần ${sum}`);
   if (new Set(keys).size !== keys.length) err(at, "rút thử có câu trùng");
