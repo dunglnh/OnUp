@@ -83,6 +83,8 @@ a{color:var(--acc)}
 details.small>summary{min-height:44px;padding:12px 0;cursor:pointer}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 11px;font-size:.8125rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .chip.warn{border-color:var(--bad);color:var(--bad);font-weight:700}
+.chip.timer{font-weight:700;font-size:.9375rem;padding:5px 12px} /* "Còn 12:30" khi làm như thi (js/quiz.js, UX5 X7) */
+.chip.timer svg{flex:none}
 .chip.tent{border-style:dashed}
 /* Màn hẹp: tab xuống dòng (không cuộn ngang) để thấy đủ mọi tab. */
 .tabs{display:flex;flex-wrap:wrap;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}

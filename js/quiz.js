@@ -3,7 +3,8 @@
      busy(): đang làm dở (làm như thi chưa nộp, hoặc ôn luyện đã trả lời hoặc bỏ qua ít nhất một câu);
      answered(): số câu đã trả lời (câu bấm "Bỏ qua" không tính); submit(): nộp bài như bấm Nộp; count(): số câu của lượt đang làm.
      Nút trên cùng (Phiên UX5, X6): ôn luyện "← Thoát" (#qzExit); làm như thi "Nộp bài" (#qzSubmit, bên phải). Cả hai hỏi lại trong
-     trang trước (chưa trả lời câu nào thì hỏi "Thoát đề?").
+     trang trước (chưa trả lời câu nào thì hỏi "Thoát đề?"). Chip đồng hồ "Còn 12:30" (#qzTimer, role="timer", aria-label "Thời gian
+     còn lại", X7) và tiến độ "Câu 9/25" (#qzProg).
      Chưa trả lời câu nào (kể cả khi hết giờ) thì nộp bài không gọi onFinish: không lưu điểm.
      "Làm lại" dùng tiếp đối tượng này, nên app luôn dừng hoặc nộp đúng lượt đang làm. opts.redraw() → {questions} (đề
      ngẫu nhiên): nút thành "Làm đề khác", lượt sau dùng bộ câu mới.
@@ -75,6 +76,8 @@
       rpNote: "Ghi chú", rpNoteOpt: "(không bắt buộc, tối đa 200 kí tự)", rpNotePh: "Viết thêm nếu muốn", rpSend: "Gửi", rpCancel: "Thôi",
       rpNeed: "Bạn chọn một lí do nhé.", rpThanks: "Cảm ơn bạn! Người làm đề sẽ xem lại câu này.", rpFail: "Chưa gửi được. Thử lại nhé.",
       // màn làm bài
+      // X7: chip đồng hồ "Còn 12:30" (aria-label "Thời gian còn lại"), tiến độ "Câu 9/25"
+      timeLeft: (t) => `Còn ${t}`, timeAria: "Thời gian còn lại", progress: (i, n) => `Câu ${i}/${n}`,
       exit: "← Thoát", submit: "Nộp bài", skip: "Bỏ qua", answer: "Trả lời", seeGuide: "Xem gợi ý", check: "Kiểm tra", next: "Câu tiếp", seeResults: "Xem kết quả",
       guide: "Gợi ý:", noGuide: "Chưa có gợi ý.", right: "Đúng rồi!", wrong: "Chưa đúng.", ansLabel: "Đáp án:", ordRight: "Thứ tự đúng:",
       tf4All: "Đúng cả 4 ý!", tf4Part: (k, p) => `Đúng ${k}/4 ý · được ${p}/1 điểm.`,
@@ -131,6 +134,7 @@
       reasons: { wrong: "Wrong answer", unclear: "Confusing question", typo: "Spelling mistake", other: "Other" },
       rpNote: "Note", rpNoteOpt: "(optional, up to 200 characters)", rpNotePh: "Write more if you like", rpSend: "Send", rpCancel: "Cancel",
       rpNeed: "Please choose a reason.", rpThanks: "Thank you! We will check this question.", rpFail: "Couldn't send. Please try again.",
+      timeLeft: (t) => `${t} left`, timeAria: "Time left", progress: (i, n) => `${i} of ${n}`,
       exit: "← Exit", submit: "Finish test", skip: "Skip", answer: "Answer", seeGuide: "See the guide", check: "Check", next: "Next question", seeResults: "See results",
       guide: "Guide:", noGuide: "No guide yet.", right: "Correct!", wrong: "Not quite.", ansLabel: "Answer:", ordRight: "Correct order:",
       tf4All: "All 4 correct!", tf4Part: (k, p) => `${k}/4 correct · ${p}/1 point.`,
@@ -430,6 +434,8 @@
      ✓ đáp án đúng, – các ô sai), đáp án hoặc gợi ý; tối đa 500 kí tự. Nhận câu gốc lẫn câu đã dựng (prep: câu đúng/sai có a = 0
      khi Đúng). Luôn ghi tiếng Việt, kể cả câu của đề Tiếng Anh: là dữ liệu cho người làm đề, không phải chữ trên màn hình. */
   const REASONS = Object.entries(TXT.vi.reasons);
+  // biểu tượng đồng hồ trên chip thời gian còn lại (X7)
+  const CLOCK = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`;
   const FLAG = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4h12l-2.5 4.5L17 13H5"/></svg>`;
   function text(q) {
     let s = String(q.q == null ? "" : q.q);
@@ -462,7 +468,9 @@
     const qs = shuffle(units).flat().map((q) => prep(q, L));
     const S = { i: 0, ans: [], cur: null, checked: false, start: Date.now(), limit: exam && bank.minutes ? bank.minutes * 60 : 0, timer: null, done: false, psgOpen: {}, self: {} };
     const answered = () => S.ans.filter((a) => a && (a.done || (a.g != null && a.g !== ""))).length;
-    if (S.limit) S.timer = setInterval(() => { const left = S.limit - (Date.now() - S.start) / 1000; const t = el.querySelector("#qzTimer"); if (t) { t.textContent = fmtTime(left); t.classList.toggle("warn", left < 120); } if (left <= 0) finish(); }, 500);
+    // đồng hồ (X7): "Còn 12:30"; còn dưới 2 phút thì chip đổi màu (.warn)
+    const remain = () => S.limit - (Date.now() - S.start) / 1000;
+    if (S.limit) S.timer = setInterval(() => { const s = remain(), t = el.querySelector("#qzTimer"); if (t) { t.lastElementChild.textContent = L.timeLeft(fmtTime(s)); t.classList.toggle("warn", s < 120); } if (s <= 0) finish(); }, 500);
 
     function passageHtml(id) {
       const p = passages[id], open = S.psgOpen[id] !== false, n = qs.filter((x) => x.p === id).length;
@@ -577,7 +585,7 @@
       const q = qs[S.i]; S.cur = blank(q); S.checked = false;
       el.innerHTML = `<div class="stack"${LANG}>
         <div class="row between qz-top">${exam ? "" : `<button class="linkbtn" id="qzExit">${L.exit}</button>`}
-          <div class="row">${S.limit ? `<span class="chip" id="qzTimer">${fmtTime(S.limit - (Date.now() - S.start) / 1000)}</span>` : ""}<span class="chip">${S.i + 1} / ${qs.length}</span></div>
+          <div class="row">${S.limit ? `<span class="chip timer${remain() < 120 ? " warn" : ""}" id="qzTimer" role="timer" aria-label="${L.timeAria}">${CLOCK}<span>${L.timeLeft(fmtTime(remain()))}</span></span>` : ""}<span class="chip" id="qzProg">${L.progress(S.i + 1, qs.length)}</span></div>
           ${exam ? `<button class="btn ghost sm" id="qzSubmit">${L.submit}</button>` : ""}</div>
         <div class="bar" aria-hidden="true"><i style="width:${(S.i / qs.length) * 100}%"></i></div>
         ${q.p && passages[q.p] ? passageHtml(q.p) : ""}

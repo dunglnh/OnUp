@@ -717,7 +717,7 @@ async function run(browser, scheme) {
       c.ux1.tabs === "Hôm nay*,Bài ôn,Lịch thi,Kết quả" && c.ux1.tabH && c.ux1.today && !c.ux1.cal && c.ux1.tabbed && c.ux1.quizTabs && /^Toán · \S/.test(c.ux1.label) && !c.ux1.label.includes("|"),
     "UX1: màn kết quả có lời khen, nút “Ôn lại N câu sai”, câu sai thu gọn; lượt ôn lại chỉ gồm câu sai và không gửi thêm kết quả lên máy chủ":
       /^(Xuất sắc|Giỏi lắm|Khá tốt|Được rồi|Chưa sao), Bin[!.]/.test(c.ux1.result.praise) && c.ux1.result.retry === `Ôn lại ${c.ux1.result.n} câu sai` && c.ux1.result.n > 0 && c.ux1.result.closed && c.ux1.result.again === "Làm lại cả đề"
-      && c.ux1.retryChip === `1 / ${c.ux1.result.n}` && /· Ôn lại câu sai /.test(c.ux1.retryResult) && /Lượt ôn lại câu sai không lưu điểm\./.test(c.ux1.retryResult) && c.ux1.retryServer,
+      && c.ux1.retryChip === `Câu 1/${c.ux1.result.n}` && /· Ôn lại câu sai /.test(c.ux1.retryResult) && /Lượt ôn lại câu sai không lưu điểm\./.test(c.ux1.retryResult) && c.ux1.retryServer,
     "UX2: khu phụ huynh có ba mục Các con · Lịch thi · Cài đặt; nút Lịch thi trên cùng và #/calendar về tab Lịch thi; thêm hồ sơ xong về Các con": c.ux2.tabs === "Các con*,Lịch thi,Cài đặt" && c.ux2.topCal === "#/admin/events"
       && /^Bắt đầu trong 3 bước/.test(c.ux2.empty) && c.ux2.afterAdd === "#/admin/overview" && c.ux2.calRedirect === "#/admin/events",
     "UX2: tab Các con: mỗi con một thẻ (chưa có bài: Chưa ôn · – · 0; kì thi gần nhất còn N ngày · chưa ôn …), không có ô số liệu trùng ý; thẻ có bài hôm nay ghi số bài, điểm hôm nay":
