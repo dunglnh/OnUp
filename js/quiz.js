@@ -204,6 +204,11 @@
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   // khoảng trắng ngay trước " · " thành khoảng trắng không ngắt, để tên đề không xuống dòng bắt đầu bằng "·" (như nb của js/app.js, L26)
   const nb = (s) => String(s).replace(/ (?=·)/g, "\u00a0");
+  /* Số trong dữ liệu ngăn hàng nghìn bằng khoảng trắng ("1 200", "987 650"): khoảng trắng giữa các nhóm số thành khoảng trắng không ngắt,
+     để số không bị tách ra hai dòng ở màn hình hẹp. Dùng sau esc() cho chữ của câu khi hiện ra (câu hỏi, các ô, đáp án, câu trả lời,
+     lời giải, đoạn đọc, thang tự chấm, chủ đề); không dùng cho aria-label, hình. Dữ liệu, Quiz.key, Quiz.text giữ khoảng trắng thường;
+     cách chấm không đổi (fillRight, numVals bỏ mọi \s, gồm cả U+00A0). Quiz.nbNum cho js/app.js. */
+  const nbNum = (s) => String(s).replace(/(\d) (?=\d{3}(?!\d))/g, "$1\u00a0");
   const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const range = (n) => [...Array(n).keys()];
   // xáo đến khi khác thứ tự gốc (để câu nối cột, sắp xếp không có sẵn đáp án)
@@ -488,15 +493,15 @@
 
     function passageHtml(id) {
       const p = passages[id], open = S.psgOpen[id] !== false, n = qs.filter((x) => x.p === id).length;
-      return `<details class="psg" data-p="${esc(id)}"${open ? " open" : ""}><summary><span class="grow"><b>${esc(p.title || L.psgTitle)}</b><span class="small muted">${L.psgFor(n)}</span></span><span class="psg-t small">${open ? L.psgHide : L.psgShow}</span></summary>
-        <div class="psg-body">${p.text ? `<div class="psg-text">${esc(p.text)}</div>` : ""}${fig(p.svg)}</div></details>`;
+      return `<details class="psg" data-p="${esc(id)}"${open ? " open" : ""}><summary><span class="grow"><b>${nbNum(esc(p.title || L.psgTitle))}</b><span class="small muted">${L.psgFor(n)}</span></span><span class="psg-t small">${open ? L.psgHide : L.psgShow}</span></summary>
+        <div class="psg-body">${p.text ? `<div class="psg-text">${nbNum(esc(p.text))}</div>` : ""}${fig(p.svg)}</div></details>`;
     }
     function body(q) {
       const qcls = "qtext" + (String(q.q).length > 160 ? " long" : ""); // đoạn văn đọc hiểu dài: chữ thường, dễ đọc hơn
-      const stem = `<div class="${qcls}">${esc(q.q)}</div>${fig(q.svg)}`;
+      const stem = `<div class="${qcls}">${nbNum(esc(q.q))}</div>${fig(q.svg)}`;
       switch (q.type) {
         case "fill": {
-          const parts = esc(q.q).split("___");
+          const parts = nbNum(esc(q.q)).split("___");
           // mọi đáp án là số: mở bàn phím số trên điện thoại (UX1)
           const numeric = (q.ans || []).length && q.ans.every(isNum);
           return `<div class="${qcls}">${parts[0]}<input class="blank" id="qzFill" autocomplete="off" spellcheck="false" aria-label="${L.fillAria}"${numeric ? ' inputmode="decimal"' : ""}>${parts.slice(1).join("___")}</div>${fig(q.svg)}`;
@@ -507,18 +512,18 @@
             <p class="small muted">${L.numHint}</p>`;
         case "tf4":
           return `${stem}
-            <div class="tf4">${q.o.map((s, i) => `<div class="tf4-row" data-i="${i}"><div class="tf4-s"><b>${ABCD[i]})</b> ${esc(s)}</div>
+            <div class="tf4">${q.o.map((s, i) => `<div class="tf4-row" data-i="${i}"><div class="tf4-s"><b>${ABCD[i]})</b> ${nbNum(esc(s))}</div>
               <div class="tf4-b" role="group" aria-label="${L.tf4Group(ABCD[i])}"><button type="button" class="opt" data-i="${i}" data-v="1" aria-pressed="false">${L.tfYes}</button><button type="button" class="opt" data-i="${i}" data-v="0" aria-pressed="false">${L.tfNo}</button></div></div>`).join("")}</div>`;
         case "match":
           return `${stem}
-            <div class="mt-l">${q.l.map((s, i) => `<button type="button" class="mt-li" data-i="${i}"><span class="k">${i + 1}</span><span class="grow"><span>${esc(s)}</span><span class="mt-to small"></span></span></button>`).join("")}</div>
+            <div class="mt-l">${q.l.map((s, i) => `<button type="button" class="mt-li" data-i="${i}"><span class="k">${i + 1}</span><span class="grow"><span>${nbNum(esc(s))}</span><span class="mt-to small"></span></span></button>`).join("")}</div>
             <div class="label" id="qzHint" aria-live="polite"></div>
-            <div class="mt-r">${q.rOrder.map((ri, k) => `<button type="button" class="opt mt-ri" data-r="${ri}"><span class="k">${LET[k]}</span><span class="grow">${esc(q.r[ri])}</span><span class="mt-n"></span></button>`).join("")}</div>`;
+            <div class="mt-r">${q.rOrder.map((ri, k) => `<button type="button" class="opt mt-ri" data-r="${ri}"><span class="k">${LET[k]}</span><span class="grow">${nbNum(esc(q.r[ri]))}</span><span class="mt-n"></span></button>`).join("")}</div>`;
         case "order":
           return `${stem}
             <div class="label">${L.orderYours}</div><ol class="ord-seq" id="qzSeq"></ol>
             <div class="label" id="qzHint" aria-live="polite"></div>
-            <div class="ord-pool">${q.pOrder.map((k) => `<button type="button" class="opt ord-p" data-k="${k}">${esc(q.o[k])}</button>`).join("")}</div>`;
+            <div class="ord-pool">${q.pOrder.map((k) => `<button type="button" class="opt ord-p" data-k="${k}">${nbNum(esc(q.o[k]))}</button>`).join("")}</div>`;
         case "essay":
           return `${stem}
             <textarea class="essay-in" id="qzEssay" aria-label="${L.essayAria}" placeholder="${L.essayPh}"></textarea>
@@ -526,7 +531,7 @@
         default: {
           const wide = q.o.some((o) => String(o).length > 22);
           return `${stem}
-            <div class="opts${wide ? " wide" : ""}">${q.order.map((oi, k) => `<button class="opt" data-o="${oi}"><span class="k">${LET[k]}</span><span>${esc(q.o[oi])}</span></button>`).join("")}</div>`;
+            <div class="opts${wide ? " wide" : ""}">${q.order.map((oi, k) => `<button class="opt" data-o="${oi}"><span class="k">${LET[k]}</span><span>${nbNum(esc(q.o[oi]))}</span></button>`).join("")}</div>`;
         }
       }
     }
@@ -536,7 +541,7 @@
     function rubricHtml(i) {
       const q = qs[i], picks = S.self[i] || (S.self[i] = q.rubric.map(() => null));
       return `<div class="rubric" data-q="${i}"><div class="label">${L.rubricHead(N(rubricMax(q)), rubricMax(q))}</div>
-        ${q.rubric.map((c, j) => `<div class="rb-row"><div>${esc(c.c)} <span class="small muted">${L.rubricPts(N(c.p), c.p)}</span></div>
+        ${q.rubric.map((c, j) => `<div class="rb-row"><div>${nbNum(esc(c.c))} <span class="small muted">${L.rubricPts(N(c.p), c.p)}</span></div>
           <div class="rb-b" role="group" aria-label="${esc(c.c)}">${levels(c.p, L).map(([v, nm]) => `<button type="button" class="opt" data-j="${j}" data-v="${v}" aria-pressed="${picks[j] === v}"><span>${nm}</span><b>${N(v)}</b></button>`).join("")}</div></div>`).join("")}
         <div class="rb-sum" aria-live="polite">${sumText(i)}</div></div>`;
     }
@@ -604,7 +609,7 @@
         <div class="bar" aria-hidden="true"><i style="width:${(S.i / qs.length) * 100}%"></i></div>
         ${q.p && passages[q.p] ? passageHtml(q.p) : ""}
         <section class="qcard">
-          <div class="label">${nb(esc([subj, q.topic, INSTR[q.type]].filter(Boolean).join(" · ")))}</div>
+          <div class="label">${nb(nbNum(esc([subj, q.topic, INSTR[q.type]].filter(Boolean).join(" · "))))}</div>
           ${body(q)}
           <div id="qzFb" aria-live="polite"></div>
         </section>
@@ -630,7 +635,7 @@
         $$(".mt-li").forEach((b) => {
           const i = +b.dataset.i, ri = S.cur[i], k = ri == null ? -1 : q.rOrder.indexOf(ri);
           b.classList.toggle("on", i === act && !S.checked); b.setAttribute("aria-pressed", i === act && !S.checked);
-          if (!S.checked) b.querySelector(".mt-to").textContent = k < 0 ? L.mtNone : `→ ${LET[k]}. ${q.r[ri]}`;
+          if (!S.checked) b.querySelector(".mt-to").textContent = k < 0 ? L.mtNone : `→ ${LET[k]}. ${nbNum(q.r[ri])}`;
         });
         $$(".mt-ri").forEach((b) => { const i = S.cur.indexOf(+b.dataset.r); b.classList.toggle("sel", i >= 0); b.querySelector(".mt-n").textContent = i >= 0 ? L.mtItem(i + 1) : ""; });
         if (!S.checked) $("#qzHint").textContent = act == null ? L.mtDone : L.mtPick(act + 1);
@@ -648,7 +653,7 @@
       }
       /* Sắp xếp: chạm lần lượt các ô bên dưới theo thứ tự đúng; chạm một ô đã xếp thì ô đó trở lại bên dưới. */
       const paintOrder = () => {
-        $("#qzSeq").innerHTML = S.cur.map((k, n) => `<li><button type="button" class="opt ord-s" data-k="${k}"${S.checked ? " disabled" : ` aria-label="${L.ordRemove(n + 1, esc(q.o[k]))}"`}><span class="k">${n + 1}</span><span class="grow">${esc(q.o[k])}</span>${S.checked ? "" : `<span aria-hidden="true">✕</span>`}</button></li>`).join("")
+        $("#qzSeq").innerHTML = S.cur.map((k, n) => `<li><button type="button" class="opt ord-s" data-k="${k}"${S.checked ? " disabled" : ` aria-label="${L.ordRemove(n + 1, esc(q.o[k]))}"`}><span class="k">${n + 1}</span><span class="grow">${nbNum(esc(q.o[k]))}</span>${S.checked ? "" : `<span aria-hidden="true">✕</span>`}</button></li>`).join("")
           + (S.cur.length < q.o.length ? `<li class="ord-empty">${S.cur.length + 1}</li>` : "");
         $$(".ord-p").forEach((b) => (b.hidden = S.cur.includes(+b.dataset.k)));
         $("#qzHint").textContent = S.cur.length < q.o.length ? L.ordTap(S.cur.length + 1) : L.ordDone;
@@ -667,7 +672,7 @@
           S.ans[S.i] = { q, g: S.cur.trim(), done: true };
           if (exam) { next(); return; }
           $("#qzEssay").readOnly = true;
-          fb.innerHTML = `<div class="expl pre"><b>${L.guide}</b> ${esc(q.x || L.noGuide)}</div>${rubricHtml(S.i)}${reportHtml(q)}`;
+          fb.innerHTML = `<div class="expl pre"><b>${L.guide}</b> ${nbNum(esc(q.x || L.noGuide))}</div>${rubricHtml(S.i)}${reportHtml(q)}`;
           wireRubric(fb); wireReport(fb);
           done();
           return;
@@ -686,7 +691,7 @@
         if (q.type === "match") {
           paintMatch();
           $$(".mt-li").forEach((b) => { const i = +b.dataset.i, ok = g[i] === i; b.classList.add(ok ? "right" : "wrong"); b.disabled = true;
-            b.querySelector(".mt-to").textContent = (ok ? "→ " : L.mtWrong(q.r[g[i]])) + q.r[i]; });
+            b.querySelector(".mt-to").textContent = nbNum((ok ? "→ " : L.mtWrong(q.r[g[i]])) + q.r[i]); });
           $$(".mt-ri").forEach((b) => (b.disabled = true));
           $("#qzHint").textContent = "";
           const k = q.l.filter((_, i) => g[i] === i).length;
@@ -698,8 +703,8 @@
           $("#qzHint").textContent = "";
         }
         if (inp) inp.readOnly = true;
-        const ans = q.type === "order" ? `<ol class="ord-ans">${q.o.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>` : q.type === "tf4" || q.type === "match" ? "" : `<span>${L.ansLabel} <b>${esc(correctText(q, L))}</b></span>`;
-        fb.innerHTML = (pts === 1 ? `<div class="fb ok">${msg || L.right}</div>` : `<div class="fb bad">${msg || L.wrong}${ans ? ` ${q.type === "order" ? `<span>${L.ordRight}</span>` : ""}${ans}` : ""}</div>`) + (q.x ? `<div class="expl">${esc(q.x)}</div>` : "") + reportHtml(q);
+        const ans = q.type === "order" ? `<ol class="ord-ans">${q.o.map((s) => `<li>${nbNum(esc(s))}</li>`).join("")}</ol>` : q.type === "tf4" || q.type === "match" ? "" : `<span>${L.ansLabel} <b>${nbNum(esc(correctText(q, L)))}</b></span>`;
+        fb.innerHTML = (pts === 1 ? `<div class="fb ok">${msg || L.right}</div>` : `<div class="fb bad">${msg || L.wrong}${ans ? ` ${q.type === "order" ? `<span>${L.ordRight}</span>` : ""}${ans}` : ""}</div>`) + (q.x ? `<div class="expl">${nbNum(esc(q.x))}</div>` : "") + reportHtml(q);
         wireReport(fb);
       };
       window.scrollTo(0, 0);
@@ -735,7 +740,7 @@
       ended();
       if (!answered()) {
         el.innerHTML = `<div class="stack"${LANG}>
-          <section class="panel"><div class="label">${nb(`${esc(ttl)} · ${h.retry ? L.retryHead : exam ? L.modeExam : L.modePractice}`)}</div><p>${L.noneDone}</p></section>
+          <section class="panel"><div class="label">${nb(nbNum(`${esc(ttl)} · ${h.retry ? L.retryHead : exam ? L.modeExam : L.modePractice}`))}</div><p>${L.noneDone}</p></section>
           <div class="row"><button class="btn main" id="qzAgain">${againTxt}</button><button class="btn ghost" id="qzHome">${L.home}</button></div></div>`;
         el.querySelector("#qzAgain").onclick = again;
         el.querySelector("#qzHome").onclick = () => opts.onExit && opts.onExit();
@@ -758,7 +763,7 @@
       const saved = !exam && !h.retry ? saveSelf(essays) : null; // ôn luyện: chấm ngay sau từng câu, lưu luôn
       if (total && !h.retry && opts.onFinish) opts.onFinish({ r: right, t: total, s: Math.round(secs), mode: exam ? "exam" : "practice", wrongTopics: wrong.map((a) => a.q.topic || "Chung"), marks: auto.map((a) => [a.q.key, a.pts || 0]) });
       const d10n = total ? Math.round((right / total) * 40) / 4 : 0, d10 = N(d10n);
-      const bars = (o, name) => `<div class="ubreak">${Object.entries(o).map(([k, [r, t]]) => `<span>${esc(name(k))}</span><div class="bar"><i style="width:${(r / t) * 100}%"></i></div><span>${N(r)}/${t}</span>`).join("")}</div>`;
+      const bars = (o, name) => `<div class="ubreak">${Object.entries(o).map(([k, [r, t]]) => `<span>${nbNum(esc(name(k)))}</span><div class="bar"><i style="width:${(r / t) * 100}%"></i></div><span>${N(r)}/${t}</span>`).join("")}</div>`;
       const part = auto.some((a) => a.pts > 0 && a.pts < 1);
       // lời khen theo điểm (opts.name: tên học sinh; xem thử thì không có tên) và so với lần trước
       const praise = total ? L.praise(d10n, opts.name ? ", " + esc(opts.name) : "") : "";
@@ -774,20 +779,20 @@
           ${need.length ? bars(Object.fromEntries(need), topicName) : ""}
           ${full ? `<details class="small"><summary>${L.topicsShow(topics.length)}</summary>${bars(byTopic, topicName)}</details>` : ""}</section>`;
       // câu cần xem lại, thu gọn: bấm mới xem đáp án và lời giải
-      const reviewPanel = !wrong.length ? "" : `<section class="panel" id="qzReview"><div class="label">${L.review(wrong.length)}</div><div class="review">${wrong.map((a) => `<details class="rv"><summary><span class="grow"><span><span class="rv-n">${L.qN(a.n)}</span> · ${esc(a.q.q).replace("___", "…")}${LV[a.q.lv] ? ` <span class="tag">${L.lv[a.q.lv]}</span>` : ""}</span><span class="small">${L.yourAns}<s>${esc(givenText(a.q, a.g, L))}</s>${a.pts > 0 ? L.gotPts(N(a.pts)) : ""} · ${L.rvTap}</span></span></summary>
-          <div class="rv-body"><div class="small">${L.ansLabel} <b>${esc(correctText(a.q, L))}</b></div>${a.q.x ? `<div class="expl">${esc(a.q.x)}</div>` : ""}${reportHtml(a.q)}</div></details>`).join("")}</div></section>`;
+      const reviewPanel = !wrong.length ? "" : `<section class="panel" id="qzReview"><div class="label">${L.review(wrong.length)}</div><div class="review">${wrong.map((a) => `<details class="rv"><summary><span class="grow"><span><span class="rv-n">${L.qN(a.n)}</span> · ${nbNum(esc(a.q.q)).replace("___", "…")}${LV[a.q.lv] ? ` <span class="tag">${L.lv[a.q.lv]}</span>` : ""}</span><span class="small">${L.yourAns}<s>${nbNum(esc(givenText(a.q, a.g, L)))}</s>${a.pts > 0 ? L.gotPts(N(a.pts)) : ""} · ${L.rvTap}</span></span></summary>
+          <div class="rv-body"><div class="small">${L.ansLabel} <b>${nbNum(esc(correctText(a.q, L)))}</b></div>${a.q.x ? `<div class="expl">${nbNum(esc(a.q.x))}</div>` : ""}${reportHtml(a.q)}</div></details>`).join("")}</div></section>`;
       const againAllTxt = h.opts0.redraw ? L.newTest : L.againAll;
       const essayPanel = !essays.length ? "" : exam
         ? `<section class="panel" id="qzSelf"><div class="label">${L.essayHead(essays.length)}</div>
             <p class="small muted">${L.essayExamNote}</p>
-            ${essays.map((i) => `<div class="self-q"><b>${esc(qs[i].q)}</b>${S.ans[i].g ? `<div class="essay-done">${esc(S.ans[i].g)}</div>` : ""}<div class="expl pre"><b>${L.guide}</b> ${esc(qs[i].x || L.noGuide)}</div>${rubricHtml(i)}${reportHtml(qs[i])}</div>`).join("")}
+            ${essays.map((i) => `<div class="self-q"><b>${nbNum(esc(qs[i].q))}</b>${S.ans[i].g ? `<div class="essay-done">${nbNum(esc(S.ans[i].g))}</div>` : ""}<div class="expl pre"><b>${L.guide}</b> ${nbNum(esc(qs[i].x || L.noGuide))}</div>${rubricHtml(i)}${reportHtml(qs[i])}</div>`).join("")}
             <div id="qzSelfArea"><div class="row"><button class="btn main" id="qzSelfSave">${L.saveSelf}</button></div><div id="qzSelfMsg" aria-live="polite"></div></div></section>`
         : `<section class="panel" id="qzSelf"><div class="label">${L.essayLabel}</div>
-            <div class="ubreak">${essays.map((i) => { const s = selfSum(i); return `<span>${esc(String(qs[i].q).slice(0, 60))}${String(qs[i].q).length > 60 ? "…" : ""}</span><span></span><span>${s ? N(s.got) + "/" + N(s.max) : L.notMarked}</span>`; }).join("")}</div>
+            <div class="ubreak">${essays.map((i) => { const s = selfSum(i); return `<span>${nbNum(esc(String(qs[i].q).slice(0, 60)))}${String(qs[i].q).length > 60 ? "…" : ""}</span><span></span><span>${s ? N(s.got) + "/" + N(s.max) : L.notMarked}</span>`; }).join("")}</div>
             <p class="small muted">${saved ? L.selfSaved(N(saved.got), N(saved.max), saved.max) + " " : ""}${L.selfNoAvg}</p></section>`;
       el.innerHTML = `<div class="stack"${LANG}>
         <section class="panel" id="qzScore">
-          <div class="label">${nb(`${esc(ttl)} · ${h.retry ? L.retryHead : exam ? L.modeExam : L.modePractice}`)}</div>
+          <div class="label">${nb(nbNum(`${esc(ttl)} · ${h.retry ? L.retryHead : exam ? L.modeExam : L.modePractice}`))}</div>
           ${total ? `<h2 class="praise">${praise}</h2>
           <div class="row" style="gap:18px;align-items:flex-end"><div class="score">${d10}<span class="score-sub">/10</span></div>
           <div class="stack tight"><b>${L.scoreLine(N(right), total)}</b><span class="muted small">${L.time}${fmtTime(secs)}</span></div></div>
@@ -956,5 +961,5 @@
     return { questions, passages, errors };
   }
 
-  window.Quiz = { run, parse, isRight, score, svg, draw, key, text, REASONS, LV, fmtN, TXT, lang: langOf, title };
+  window.Quiz = { run, parse, isRight, score, svg, draw, key, text, REASONS, LV, fmtN, nbNum, TXT, lang: langOf, title };
 })();
