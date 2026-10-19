@@ -1,6 +1,6 @@
 # Cải tiến giao diện và trải nghiệm (bản 2.x, 18/10/2026)
 
-Kết quả rà lại các luồng của app trên bản vẽ Figma và đối chiếu với [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). Trạng thái và thứ tự các phiên ghi ở mục 3 của file đó; lời giao việc ở mục 4. File này giữ phần mô tả: vấn đề, đề xuất, ảnh, điều kiện xong.
+Kết quả rà lại các luồng của app trên bản vẽ Figma và đối chiếu với [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). Trạng thái và thứ tự các phiên ghi ở mục 3 của file đó; lời giao việc ở mục 4. File này giữ phần mô tả: vấn đề, đề xuất, ảnh, điều kiện xong, và kết quả kiểm thử thiết kế sau khi mỗi phiên gộp (mục 5).
 
 **Figma:** file [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2):
 - **Master 1.x:** 77 màn vẽ lại đúng app ở commit `0a1e8db`, gồm Users 51 màn, Admin 26 màn.
@@ -28,11 +28,11 @@ Phiên Claude Code không mở được Figma. Vì vậy ảnh chụp 1.x và 2.
 
 | Flow (section Figma) | Đã có trong kế hoạch, 2.x chỉ minh họa | Mới (mã vấn đề) | Phiên mới | Ảnh |
 |---|---|---|---|---|
-| [Vào app](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=71-48) | S1 (A1) | X1–X4 | **UX4** | [s1-dang-nhap](hinh-ux-2x/s1-dang-nhap.jpg), [ux4-nhap-pin](hinh-ux-2x/ux4-nhap-pin.jpg), [ux4-phu-huynh-hinh-dai-dien](hinh-ux-2x/ux4-phu-huynh-hinh-dai-dien.jpg) |
+| [Vào app](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=71-48) | S1 (A1) | X1–X4 | **UX4** | [s1-dang-nhap](hinh-ux-2x/s1-dang-nhap.jpg), [ux4-nhap-pin](hinh-ux-2x/ux4-nhap-pin.jpg), [ux4-phu-huynh-hinh-dai-dien](hinh-ux-2x/ux4-phu-huynh-hinh-dai-dien.jpg), [kt-ux3-ma-mo-nhanh](hinh-ux-2x/kt-ux3-ma-mo-nhanh.jpg) |
 | [Trang chính của con](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=72-730) | UX1 (B1, B2) | — | — | [ux1-trang-chinh](hinh-ux-2x/ux1-trang-chinh.jpg) |
 | [Làm bài](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=75-1327) | UX1 (một dòng nhãn), R1 (C2, C3) | X5–X9 | **UX5** | [ux5-lam-bai](hinh-ux-2x/ux5-lam-bai.jpg), [r1-ux5-bao-sai-mo-de](hinh-ux-2x/r1-ux5-bao-sai-mo-de.jpg) |
 | [Kết quả đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=78-1495) | UX1 (D1) | X10 | **UX6** | [ux1-ux6-ket-qua](hinh-ux-2x/ux1-ux6-ket-qua.jpg) |
-| [Khu phụ huynh](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=80-1697) | UX2 (E1, E3), UX3 (E2) | — | — | [ux2-ux3-khu-phu-huynh](hinh-ux-2x/ux2-ux3-khu-phu-huynh.jpg), [ux2-lich-thi](hinh-ux-2x/ux2-lich-thi.jpg) |
+| [Khu phụ huynh](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=80-1697) | UX2 (E1, E3), UX3 (E2) | X17–X20 (kiểm thử sau UX3) | **UX3b** | [ux2-ux3-khu-phu-huynh](hinh-ux-2x/ux2-ux3-khu-phu-huynh.jpg), [ux2-lich-thi](hinh-ux-2x/ux2-lich-thi.jpg), [kt-ux3-bat-dau](hinh-ux-2x/kt-ux3-bat-dau.jpg), [kt-ux3-dat-pin](hinh-ux-2x/kt-ux3-dat-pin.jpg), [kt-ux3-dang-xuat](hinh-ux-2x/kt-ux3-dang-xuat.jpg) |
 | [Quản lí đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=82-2135) | UX2 (tên “Đề tự soạn”) | X11–X13 | **UX7** | [ux7-chon-de](hinh-ux-2x/ux7-chon-de.jpg), [ux7-de-tu-soan](hinh-ux-2x/ux7-de-tu-soan.jpg) |
 | [Báo cáo tuần](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2729) | — | X14 | **UX8** | [ux8-bao-cao-tuan](hinh-ux-2x/ux8-bao-cao-tuan.jpg) |
 | [Chữ và màu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2933) | — | X15, X16 | **UI1** | [ui1-tieu-de](hinh-ux-2x/ui1-tieu-de.jpg), [ui1-o-ma](hinh-ux-2x/ui1-o-ma.jpg) |
@@ -48,7 +48,7 @@ Các phiên này giữ nguyên lời giao việc, trừ UX3: đã bỏ màn hỏ
   - Thẻ “Chưa có tài khoản?” đặt dưới form, kèm link liên hệ.
 - **UX3 · Bắt đầu và chuyển máy cho con:**
   - **Không làm màn hỏi “Đây là máy của nhà mình?”** (A2 cũ). Chủ app bỏ màn này ngày 18/10/2026. Màn đăng nhập giữ ô “Ghi nhớ trên máy này” và dòng giải thích như bản đang chạy; Figma đã xóa A2.
-  - **E2:** thẻ “Bắt đầu trong 3 bước” thay cho ba ô số 0. Nút “Cho con học” mờ cho đến khi có hồ sơ con.
+  - **E2:** thẻ “Bắt đầu trong 3 bước” thay cho ba ô số 0. Nút “Cho con học” mờ cho đến khi có hồ sơ con. Kết quả kiểm thử sau khi gộp ở mục 5, việc sửa thêm ở Phiên UX3b (mục 3).
   - Tên mới của “Đổi người học” là **“Chọn hồ sơ khác”** (UX3 đã làm), dùng ở cả khu phụ huynh và trang tài khoản của con. UX3 cũng thêm mã mở nhanh 4–6 số của khu phụ huynh trên máy đã ghi nhớ: ô Phụ huynh ở “Ai đang học?” mở bàn phím mã, có link “Nhập mật khẩu”.
 - **UX1 · Trang “Hôm nay” và màn kết quả:**
   - **B1:**
@@ -80,6 +80,59 @@ Các phiên này giữ nguyên lời giao việc, trừ UX3: đã bỏ màn hỏ
 
 ## 3. Vấn đề mới và đề xuất
 
+### Phiên UX3b · Sửa sau kiểm thử UX3
+
+Tìm được khi kiểm thử thiết kế sau khi gộp PR #56 (mục 5). Figma: [E2b, E4](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=80-1697) trong section Khu phụ huynh.
+
+![Kiểm thử UX3: đặt mã PIN từ thẻ Bắt đầu](hinh-ux-2x/kt-ux3-dat-pin.jpg)
+
+**X17. Đăng xuất chưa cần mật khẩu.**
+- Lời giao việc UX3 ghi “Đổi mật khẩu và đăng xuất vẫn cần mật khẩu”, và ô mã mở nhanh ở trang Tài khoản cũng ghi đúng câu đó. Nhưng nút `#signOut` trong `renderCloudAccount` gọi `Store.signOut()` ngay.
+- Vào khu phụ huynh bằng mã mở nhanh (`Store.checkQuickCode` mở khóa như vừa nhập mật khẩu), rồi Cài đặt → Tài khoản → “Đăng xuất khỏi máy này”: thoát ngay, không hỏi gì, mã bị xóa. Ai biết mã, ví dụ con nhìn bố mẹ gõ, cũng đăng xuất được tài khoản gia đình; lần sau bố mẹ phải nhập lại tên đăng nhập, mật khẩu và đặt lại mã.
+
+**X18. Đặt mã PIN từ thẻ Bắt đầu xong thì lạc sang Cài đặt.**
+- Link “Đặt mã PIN” của bước 2 (`startCard`; nhà một con: `#/admin/user/<mã>`) mở form sửa hồ sơ. Lưu xong, `renderUserForm` về Cài đặt theo quy ước của UX2 (sửa xong về Cài đặt). Thẻ Bắt đầu không còn trên màn hình; bố mẹ phải tự bấm tab Các con để làm bước 3.
+- Mở từ thẻ mà ô “Mã PIN” không được focus: trên điện thoại bàn phím số không tự mở, bố mẹ phải chạm vào ô.
+
+**X19. Bước 2 có ✓ khi mới một con có mã PIN.**
+- `step(2, pinned.length > 0, …)`: nhà có Bin (có mã) và Na (không mã) thì bước 2 có ✓, ghi “Bin đã có mã PIN.” và không còn link. Bố mẹ không biết Na chưa có mã, trong khi bước này để “anh chị em không vào nhầm hồ sơ của nhau”.
+- Nhà hai con trở lên thì link “Đặt mã PIN” mở Cài đặt (danh sách hồ sơ), chưa mở thẳng hồ sơ của con chưa có mã.
+
+**X20. Chữ ở ô mã mở nhanh.**
+- Dòng cuối có chữ kĩ thuật “(đã băm)” (CLAUDE.md: không thuật ngữ kỹ thuật trên màn hình).
+- Máy chưa ghi nhớ đăng nhập: chữ bảo chọn “Ghi nhớ trên máy này” khi đăng nhập, nhưng bố mẹ đang đăng nhập rồi; chữ chưa nói phải đăng xuất trước.
+
+![Kiểm thử UX3: mã mở nhanh và đăng xuất](hinh-ux-2x/kt-ux3-dang-xuat.jpg)
+
+**Cách làm gợi ý:**
+- **Đăng xuất hỏi mật khẩu (E4, X17).** Bấm “Đăng xuất khỏi máy này” thì hộp `.confirm` mở ngay dưới nút, không dùng hộp nổi. Hộp gồm:
+  - “Đăng xuất khỏi máy này?” và dòng “Nhập mật khẩu của bố mẹ để xác nhận. Mã mở nhanh không dùng được ở đây.”;
+  - ô “Mật khẩu của bố mẹ” (`type="password"`, nút xem qua `wireReveal`);
+  - nút “Đăng xuất” và “Thôi”;
+  - dòng “Quên mật khẩu?” lấy từ `contactText`, `contactUrl` như màn đăng nhập.
+
+  Lúc nào cũng hỏi, kể cả khi vừa nhập mật khẩu: bố mẹ ít khi đăng xuất, một luồng thì dễ hiểu hơn. Kiểm bằng `Store.checkPassword` (có CAPTCHA như ô mật khẩu ở “Ai đang học?”). Hàm này hiện luôn đặt ô CAPTCHA vào `#pwCaptcha`, mà trên trang Tài khoản ô đó nằm trong form đổi mật khẩu: cho hàm nhận thêm chỗ đặt ô (mặc định vẫn `#pwCaptcha`) để ô CAPTCHA hiện trong hộp đăng xuất, nên phiên này sửa cả `js/store-supabase.js`. Đúng thì `Store.signOut()`; sai thì báo trong hộp và tính vào `PinLock` của Phụ huynh như sai mật khẩu ở “Ai đang học?”. Nút “Đăng xuất” ở màn đổi mật khẩu tạm (`#npOut`) và màn tài khoản bị khóa (`#bOut`) giữ nguyên: ở đó chưa vào khu phụ huynh, chưa có mã mở nhanh.
+- **Đặt mã PIN từ thẻ (E2b, X18, X19).**
+  - Link trong thẻ mở form hồ sơ của con với một dấu cho biết mở từ thẻ (ví dụ `?tu=batdau`, hoặc cách tương đương). Khi đó ô Mã PIN được focus và nằm giữa màn hình; lưu xong về Các con (`#/admin/overview`): có mã thì toast “Đã đặt mã PIN cho <tên>”, để trống ô mã thì toast như lưu bình thường. Nút quay lại của form mở từ thẻ cũng về Các con. Mở form từ chỗ khác thì giữ như UX2 (về Cài đặt).
+  - Bước 2 có ✓ khi mọi con đã có mã. Còn con chưa có thì không có ✓, ghi “Bin đã có mã PIN. Na chưa có.” (chưa ai có thì giữ “Để anh chị em không vào nhầm hồ sơ của nhau.”), kèm link “Đặt mã PIN cho Na” mở thẳng form của con đầu tiên chưa có mã, kể cả khi nhà nhiều con.
+  - Bước 3 và nút “Cho con học” giữ như UX3: bật khi đã có hồ sơ con, kể cả khi bước 2 chưa xong (mã PIN không bắt buộc).
+- **Chữ (X20).**
+  - Dòng cuối ô mã mở nhanh: “Mã chỉ lưu trên máy này, không gửi đi đâu; máy khác muốn dùng thì đặt riêng. Đăng xuất thì mã bị xóa.”
+  - Máy chưa ghi nhớ: thay câu nhắc bằng “Máy này chưa ghi nhớ đăng nhập. Muốn đặt mã: bấm “Đăng xuất khỏi máy này”, rồi đăng nhập lại và chọn “Ghi nhớ trên máy này”.”
+  - `tests/supabase/cloud-e2e.js` đang so đúng chữ cũ của ô này: sửa theo chữ mới.
+
+**Xong khi:** `tests/supabase/cloud-e2e.js` kiểm các điều sau và vẫn in `CLOUD E2E OK`, cả lượt sáng và tối. Vài bước UX3 đang có phải sửa theo hành vi mới, không chỉ thêm bước:
+- **Đăng xuất.** Bước đăng xuất đang có (bấm `#signOut` rồi chờ `#loginForm`) đổi thành: bấm nút → hộp hỏi mật khẩu hiện ngay dưới nút, chưa đăng xuất.
+  - Sai mật khẩu: báo trong hộp, vẫn đăng nhập, số lần sai trong `PinLock` của Phụ huynh tăng một.
+  - “Thôi”: hộp đóng, vẫn đăng nhập.
+  - Đúng mật khẩu: về màn đăng nhập, `ontap_cloud_quick` không còn mã của gia đình.
+  - `revealTry` có ô mật khẩu của hộp.
+
+  Giữ bước này ở cuối luồng của máy gia đình: các tab dùng chung localStorage, đăng xuất ở một tab là mọi tab đều ra.
+- **Thẻ Bắt đầu.** Kiểm tra đang có so bước 2 có ✓ khi Bin có mã, Na không mã: đổi thành bước 2 không có ✓, có chữ “Na chưa có”, link “Đặt mã PIN cho Na” mở hồ sơ của Na (so đường dẫn `#/admin/user/<mã của Na>`, bỏ phần `?…` nếu có). Bấm link: ô Mã PIN được focus; lưu có mã thì về `#/admin/overview`, toast “Đã đặt mã PIN cho Na”, bước 2 có ✓. Các bước sau đang vào hồ sơ Na không mã (chạm là vào) thì đổi theo, hoặc thử bước này bằng một hồ sơ khác.
+- **Chữ.** Ô mã mở nhanh không có “băm”; máy chưa ghi nhớ có câu bảo đăng xuất rồi đăng nhập lại và chọn “Ghi nhớ trên máy này”.
+- Có ảnh 360px sáng/tối của hộp đăng xuất và thẻ Bắt đầu khi hai con mà một con chưa có mã, chép sang `docs/hinh-ux3/`.
+
 ### Phiên UX4 · Chọn hồ sơ và nhập PIN
 
 ![Nhập PIN: 1.x và 2.x](hinh-ux-2x/ux4-nhap-pin.jpg)
@@ -88,6 +141,7 @@ Các phiên này giữ nguyên lời giao việc, trừ UX3: đã bỏ màn hỏ
 - `pinBoxHTML()` nằm cuối `renderLogin` trong `js/app.js`.
 - Ở 360×740, nhà có 2 con và ô Phụ huynh: vừa chạm một hồ sơ thì nút cuối của bàn phím ở khoảng 1.180px, dưới mép màn hình (U-05, U-07). Nhiều con hơn thì còn thấp hơn.
 - `scrollIntoView` kéo trang xuống khoảng 460px, và hồ sơ vừa chọn trượt khỏi màn hình.
+- Ô Phụ huynh có mã mở nhanh (UX3) dùng chung bàn phím này nên vướng y như vậy: kiểm thử 19/10 đo trang tự cuộn 420px, ô Phụ huynh trượt một phần khỏi màn hình, mã hiện cả ở hàng chấm lẫn ô nhập ([kt-ux3-ma-mo-nhanh](hinh-ux-2x/kt-ux3-ma-mo-nhanh.jpg)).
 
 **X2. Mã PIN hiện hai lần.** Hàng chấm `#pinDots` và ô `#pinIn` (`type="password"`, có nút xem) cùng hiện số đã gõ.
 
@@ -114,6 +168,15 @@ Các phiên này giữ nguyên lời giao việc, trừ UX3: đã bỏ màn hỏ
   - nút to “Vào khu phụ huynh”;
   - dòng “Quên mật khẩu?” lấy từ `contactText`, `contactUrl`.
 
+  Máy đã đặt mã mở nhanh (UX3) thì bước của Phụ huynh mở bàn phím mã trước, cùng kiểu bước nhập PIN (A5b):
+  - dòng “Nhập mã mở nhanh của máy này”;
+  - hàng chấm theo độ dài mã (`Store.quickCodeLen()`), nút “Hiện số”, bàn phím ngay dưới;
+  - dòng “Quên mã? Nhập mật khẩu” sang bước mật khẩu ở trên; bước mật khẩu có link “Dùng mã mở nhanh” quay lại.
+
+  Giữ cách tính sai mã vào `PinLock` của Phụ huynh như UX3.
+
+  ![Ô Phụ huynh có mã mở nhanh: app sau UX3 và A5b](hinh-ux-2x/kt-ux3-ma-mo-nhanh.jpg)
+
   Hồ sơ không có PIN thì chạm là vào, như hiện nay. Bản lưu trên máy (U-07) dùng chung bước này.
 - **Một chỗ hiện số (X2).**
   - Giữ ô `#pinIn` để gõ bằng bàn phím máy tính và cho trình đọc màn hình, nhưng ẩn khỏi mắt, theo kiểu chỉ trình đọc màn hình đọc được. Không dùng `display:none`, vì các bộ kiểm thử gõ PIN bằng `page.fill("#pinIn")`.
@@ -130,18 +193,19 @@ Các phiên này giữ nguyên lời giao việc, trừ UX3: đã bỏ màn hỏ
 - **Chạm hình là đổi (A6, X4).**
   - Chạm một hình thì gọi `Store.updateUser` ngay, hiện toast “Đã đổi hình đại diện”, đổi luôn hình trên thanh trên. Bỏ nút Lưu.
   - Bản lưu trên máy: `renderAccount` dùng cho mọi vai trò và hiện lưu hình cùng PIN trong một form. Tách phần đổi mã PIN thành form riêng, với nút “Đổi mã PIN”.
-  - Nút “Đổi người học” dùng tên mà UX3 đã chọn.
+  - Nút “Chọn hồ sơ khác” (tên UX3 đã dùng) giữ nguyên.
 
 **Xong khi:** `tests/e2e.js` và `tests/supabase/cloud-e2e.js` có thêm các bước sau và vẫn in OK:
 - Sau khi chạm hồ sơ có PIN:
-  - trang không cuộn (`scrollY` = 0);
+  - trang không cuộn (`scrollY` = 0), đo sau khi cuộn mượt đã dừng: đo ngay sau khi chạm thì vẫn ra 0 dù trang sắp cuộn (kiểm thử 19/10);
   - tên hồ sơ đang nhập và cả 12 nút bàn phím đều nằm trong khung nhìn: 740px ở `tests/e2e.js`, 760px ở `cloud-e2e.js`.
 
   Hiện nay chỉ đo nút cuối sau khi trang tự cuộn thì vẫn qua, nên phải kiểm cả hai điều trên.
 - Không lúc nào vừa hiện hàng chấm vừa hiện ô nhập có chữ hoặc dấu chấm.
 - Sai 5 lần thì nút bàn phím `disabled`, đếm ngược nằm trên bàn phím; hết giờ thì bấm được lại.
 - Chạm hình đại diện thì `Store.user(id).avatar` đổi ngay, không phải bấm Lưu.
-- `revealTry` vẫn qua. Có ảnh 360px sáng/tối của các màn A3–A6.
+- Bản đám mây, máy có mã mở nhanh: chạm “Phụ huynh” thì trang không cuộn, cả 12 nút bàn phím mã nằm trong khung nhìn, số hàng chấm bằng độ dài mã; “Quên mã? Nhập mật khẩu” sang bước mật khẩu, “Dùng mã mở nhanh” quay lại; sai 5 lần thì bàn phím mã `disabled` như PIN của con.
+- `revealTry` vẫn qua. Có ảnh 360px sáng/tối của các màn A3–A6 và A5b.
 
 ### Phiên UX5 · Làm bài tập trung
 
@@ -348,3 +412,47 @@ Các phiên này giữ nguyên lời giao việc, trừ UX3: đã bỏ màn hỏ
 
 - **Bố mẹ đọc và chấm bài tự luận thay con.** Việc này cần lưu chữ con viết lên máy chủ, nên phải quyết định về dữ liệu của trẻ trước (CLAUDE.md: thu thập tối thiểu). Hiện con tự chấm theo thang, và kết quả tự chấm ghi riêng.
 - **Thanh tab dưới cho Khu phụ huynh:** xem lại sau khi đã dùng ba mục của UX2 một thời gian.
+
+## 5. Kiểm thử thiết kế sau khi gộp
+
+Sau khi một phiên UX gộp vào `main`, người làm thiết kế kiểm lại trước khi giao phiên tiếp theo:
+1. Chạy app ở 360px sáng và tối: bản đám mây trên máy chủ giả (như `tests/supabase/cloud-e2e.js`) hoặc bản lưu trên máy.
+2. Đi lại từng ý trong lời giao việc của phiên (mục 4 của kế hoạch) và màn 2.x tương ứng trong Figma; chụp từng trạng thái, đặt cạnh Figma.
+3. Ghi kết quả vào mục này: khớp, lệch so với yêu cầu, khác Figma nhưng chấp nhận.
+4. Chỗ lệch thành mã X mới (tiếp theo X1–X16) và một phiên sửa ngắn tên “<phiên>b” ở mục 3. Chỗ khác Figma mà chấp nhận thì sửa Figma theo code.
+
+Lượt kiểm thử không sửa code: chỉ ghi lại, rồi giao việc.
+
+### UX3 · Bắt đầu và chuyển máy cho con · PR #56 · kiểm thử 19/10/2026
+
+**Kết luận:** đạt phần lớn. Thẻ “Bắt đầu trong 3 bước”, nút “Chọn hồ sơ khác” và mã mở nhanh làm đúng lời giao việc và màn E2. Một ý chưa làm: đăng xuất chưa hỏi mật khẩu (X17). Thêm ba chỗ nhỏ trong luồng và chữ (X18–X20). Cả bốn giao cho Phiên UX3b (mục 3).
+
+![Thẻ Bắt đầu: E2 và app sau UX3](hinh-ux-2x/kt-ux3-bat-dau.jpg)
+
+| Yêu cầu (lời giao việc UX3, màn E2) | Kết quả | Ghi chú |
+|---|---|---|
+| Thẻ “Bắt đầu” 3 bước trên mục Các con: thêm hồ sơ con → đặt PIN (không bắt buộc) → đưa máy cho con | Khớp | Chữ, thứ tự bước, nút “+ Thêm hồ sơ con” trong thẻ đúng E2. Bước đang làm có số trên nền xanh, bước xong có ✓. Chưa có con thì mục Các con chỉ có thẻ này. |
+| Thẻ hiện đến khi làm xong | Khớp | Thẻ ẩn khi một con đã chọn hồ sơ trên máy này hoặc đã có kết quả. |
+| Nút to “Cho con học” mở “Ai đang học?”, mờ khi chưa có hồ sơ con | Khớp | Cao 55px (CSS tối thiểu 52px). Ở chế độ tối nút mờ khó nhận ra là đang tắt (xem “Ghi nhận” bên dưới). |
+| Bước 2 “Đặt mã PIN” | Lệch nhỏ | Lưu mã xong thì lạc sang Cài đặt (X18); có ✓ khi mới một con có mã (X19). |
+| Đổi “Đổi người học” thành một tên dễ hiểu, dùng thống nhất | Khớp | “Chọn hồ sơ khác” ở góc trên khu phụ huynh, trang Tài khoản của phụ huynh và của con. Code không còn chữ “Đổi người học”. |
+| Mã mở nhanh 4–6 số trên máy đã ghi nhớ, lưu trên máy, quên thì nhập mật khẩu | Khớp | Chỉ đặt được khi máy ghi nhớ đăng nhập; mã băm, lưu theo gia đình trên máy, không lên máy chủ. Ô Phụ huynh ghi “Nhập mã mở nhanh”, có link “Nhập mật khẩu” và ngược lại “Dùng mã mở nhanh”. Sai 5 lần thì ô mật khẩu cũng phải đợi; đúng mã thì vào. Dòng Tài khoản ở Cài đặt có ghi “mã mở nhanh”. Chữ trên ô mã cần sửa nhỏ (X20). |
+| Đổi mật khẩu vẫn cần mật khẩu | Khớp | Form đổi mật khẩu có ô mật khẩu hiện tại. |
+| Đăng xuất vẫn cần mật khẩu | **Chưa làm** | Vào bằng mã mở nhanh rồi bấm “Đăng xuất khỏi máy này” là thoát ngay (X17), dù ô mã ghi “đăng xuất vẫn cần mật khẩu”. |
+| Không có màn “Đây là máy của nhà mình?”; màn đăng nhập giữ ô Ghi nhớ và dòng giải thích | Khớp | Đăng nhập lần đầu, đổi mật khẩu tạm xong là vào thẳng khu phụ huynh. |
+| 360px sáng/tối: không tràn ngang, vùng bấm ≥ 44px, chữ ≥ 13px | Khớp | 11 trạng thái đo ở 360px đều đạt, ảnh chụp cả sáng và tối; `cloud-e2e.js` đo cả hai chế độ. Không có lỗi JavaScript. |
+
+**Khác Figma nhưng chấp nhận** (Figma đã vẽ theo code ở E2b):
+- Nút “Cho con học” và dòng chú thích nằm trong thẻ; E2 vẽ dưới thẻ. Gọn hơn, giữ như code.
+- Nút “Chọn hồ sơ khác” ở góc trên khu phụ huynh là nút viền; E2 vẽ nền xanh nhạt. Giữ như code.
+- Thanh trên của phụ huynh vẫn có “Lịch thi”, cuối trang có dòng chú thích lịch thi; E1, E2 không vẽ hai thứ này. Đây là phần của UX2: nút đó về đúng tab Lịch thi, nên không còn hai nút cùng tên làm hai việc khác nhau.
+
+**Đã biết, để UX4:** ô Phụ huynh có mã mở nhanh dùng chung bàn phím PIN, nên vướng cùng X1–X3: trang tự cuộn, số hiện hai lần, đang phải đợi vẫn bấm được. UX4 làm bước nhập mã riêng theo A5b (mục 3, Phiên UX4).
+
+**Ghi nhận cho design system, chưa giao việc:** nút chính bị tắt (`.btn:disabled`, `opacity: .45`) ở chế độ tối thành một khối màu ô liu nổi rõ trên thẻ (3,2:1) trong khi chữ trên nút chỉ đạt 1,7:1, nên trông như một nút khác màu đang bấm được. Ở chế độ sáng thì nhạt rõ ràng. Nếu sửa: nút tắt dùng nền `--line`, chữ `--muted` thay cho làm mờ, áp dụng cho mọi nút chính, và sửa cùng component `.btn` (State=disabled) trong Figma.
+
+**Kiểm thử tự động trên `main` sau khi gộp (`d121ca1`):**
+- `tests/e2e.js`: E2E OK.
+- `tests/supabase/cloud-e2e.js`: CLOUD E2E OK, 116 mục đạt ở hai lượt sáng và tối, trong đó có 4 kiểm tra UX3 mỗi lượt.
+- `store-test.mjs`: SUPABASE STORE OK. `admin-test.mjs`: ADMIN OK.
+- `sh tests/supabase/run.sh`: RLS OK, 205 kiểm tra. PR #56 chưa chạy bước này vì máy của phiên đó không có PostgreSQL.
