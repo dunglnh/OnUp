@@ -1747,25 +1747,40 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
   }
 
   /* -------- tài khoản của tôi -------- */
+  /* Thẻ "Hình đại diện" (UX4, X4): chạm một hình là Store.updateUser ngay, toast "Đã đổi hình đại diện", đổi luôn hình ở đầu trang
+     và thanh trên; không có nút Lưu. Dùng ở trang Tài khoản của cả hai bản. */
+  const avatarCard = (u) => `<section class="panel" id="avBox"><h3>Hình đại diện</h3><p class="small muted" style="margin:0">Chạm vào hình là đổi ngay.</p>${emojiPicker(u.avatar)}<div id="avErr"></div></section>`;
+  function wireAvatarCard(u, then) {
+    wireEmoji($("#avBox"), async (e) => {
+      try {
+        await Store.updateUser(u.id, { avatar: e });
+        const nu = Store.user(u.id);
+        $("#acAv").textContent = nu.avatar; drawWho(nu); toast("Đã đổi hình đại diện"); $("#avErr").innerHTML = "";
+        if (then) then(nu);
+      } catch (er) { $("#avErr").innerHTML = `<div class="fb bad">${esc(er.message)}</div>`; }
+    });
+  }
+  const acHead = (u, sub) => `<div class="row"><span class="av lg" id="acAv" aria-hidden="true">${esc(u.avatar || "🙂")}</span><div><h2>${esc(u.name)}</h2><span class="muted">${sub}</span></div></div>`;
+  /* Bản lưu trên máy, mọi vai trò: hình đại diện (chạm là đổi) và form đổi mã PIN riêng, nút "Đổi mã PIN". */
   function renderAccount(u) {
     if (Store.cloud) return renderCloudAccount(u);
-    let emo = u.avatar;
     view.innerHTML = `<div class="stack">${back("#/home", "Trang chính")}
-      <div class="row">${avatar(u, true)}<div><h2>${esc(u.name)}</h2><span class="muted">${esc(gradeTxt(u))}</span></div></div>
-      <form class="panel" id="aForm" autocomplete="off"><h3>Đổi hình đại diện hoặc mã PIN</h3>
-        ${emojiPicker(emo)}
+      ${acHead(u, esc(gradeTxt(u)))}
+      ${avatarCard(u)}
+      <form class="panel" id="aForm" autocomplete="off"><h3>Đổi mã PIN</h3>
         <div class="form"><label class="field"><span>Mã PIN hiện tại</span><input id="aOld" type="password" inputmode="numeric" maxlength="6"></label>
-        <label class="field"><span>Mã PIN mới</span><input id="aNew" type="password" inputmode="numeric" maxlength="6"></label></div>
-        <div id="aErr"></div><div class="row"><button class="btn sm" type="submit">Lưu</button></div></form>
+        <label class="field"><span>Mã PIN mới (4–6 số)</span><input id="aNew" type="password" inputmode="numeric" maxlength="6"></label></div>
+        <div id="aErr"></div><div class="row"><button class="btn sm" type="submit">Đổi mã PIN</button></div></form>
       <div class="row"><button class="btn main" id="logout">Đăng xuất</button></div></div>`;
-    wireGo(); wireEmoji(view, (e) => (emo = e)); wireReveal(view);
+    wireGo(); wireReveal(view); wireAvatarCard(u);
     $("#aForm").onsubmit = async (ev) => {
       ev.preventDefault();
       const nw = $("#aNew").value.trim(), old = $("#aOld").value.trim();
       try {
-        if (nw) { if (!(await Store.checkPin(u.id, old))) throw new Error("Mã PIN hiện tại chưa đúng."); }
-        await Store.updateUser(u.id, { avatar: emo, pin: nw || null });
-        toast("Đã lưu"); renderAccount(Store.user(u.id)); drawWho(Store.user(u.id));
+        if (!nw) throw new Error("Nhập mã PIN mới (4–6 số).");
+        if (!(await Store.checkPin(u.id, old))) throw new Error("Mã PIN hiện tại chưa đúng.");
+        await Store.updateUser(u.id, { pin: nw });
+        toast("Đã đổi mã PIN"); renderAccount(Store.user(u.id));
       } catch (e) { $("#aErr").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
     };
     $("#logout").onclick = () => { Store.setSession(null); go("#/"); };
@@ -1785,16 +1800,14 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
       <p class="small muted">Mã chỉ lưu trên máy này (đã băm), không gửi lên máy chủ; máy khác muốn dùng thì đặt riêng. Đăng xuất thì mã bị xóa.</p></form>`;
   }
   /* Bản đám mây. Phụ huynh: tên đăng nhập, đổi mật khẩu, mã mở nhanh (UX3), chọn hồ sơ khác, đăng xuất khỏi máy này.
-     Hồ sơ con: đổi hình đại diện, chọn hồ sơ khác (PIN do bố mẹ đặt trong khu phụ huynh; con không đăng xuất được tài khoản). */
+     Hồ sơ con: hình đại diện (chạm là đổi, X4), chọn hồ sơ khác (PIN do bố mẹ đặt trong khu phụ huynh; con không đăng xuất được tài khoản). */
   function renderCloudAccount(u) {
     const adult = u.role !== "student";
-    let emo = u.avatar;
     view.innerHTML = `<div class="stack">${back(adult ? "#/admin/settings" : "#/home", adult ? "Cài đặt" : "Trang chính")}
-      <div class="row">${avatar(u, true)}<div><h2>${esc(u.name)}</h2><span class="muted">${adult ? "Tên đăng nhập: " + esc(Store.username()) : esc(gradeTxt(u))}</span></div></div>
+      ${acHead(u, adult ? "Tên đăng nhập: " + esc(Store.username()) : esc(gradeTxt(u)))}
       ${adult ? `<form class="panel" id="pwForm" autocomplete="on"><h3>Đổi mật khẩu</h3><div class="form">${pwFields(true)}</div>
           <div class="row"><button class="btn sm" type="submit">Đổi mật khẩu</button></div></form>${quickBox()}`
-        : `<form class="panel" id="aForm" autocomplete="off"><h3>Đổi hình đại diện</h3>${emojiPicker(emo)}
-          <div id="aErr"></div><div class="row"><button class="btn sm" type="submit">Lưu</button></div></form>`}
+        : avatarCard(u)}
       <div class="row"><button class="btn main" id="switchWho">Chọn hồ sơ khác</button>${adult ? `<button class="btn ghost" id="signOut">Đăng xuất khỏi máy này</button>` : ""}</div>
       ${adult ? `<p class="small muted">Con dùng máy này hằng ngày thì chỉ cần “Chọn hồ sơ khác”. Đăng xuất thì lần sau phải nhập lại tên đăng nhập và mật khẩu.</p>` : ""}</div>`;
     wireGo(); wireReveal(view);
@@ -1815,12 +1828,7 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
       }
       return;
     }
-    wireEmoji(view, (e) => (emo = e));
-    $("#aForm").onsubmit = async (ev) => {
-      ev.preventDefault();
-      try { await Store.updateUser(u.id, { avatar: emo }); toast("Đã lưu"); renderCloudAccount(Store.user(u.id)); drawWho(Store.user(u.id)); }
-      catch (e) { $("#aErr").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
-    };
+    wireAvatarCard(u);
   }
 
   /* ================= ĐỊNH TUYẾN ================= */
