@@ -8,8 +8,8 @@
   --bg:#f3f6fb; --surface:#ffffff; --line:#d9e1ef; --ink:#14213d; --muted:#5b6782;
   --sea:#1f3c8f; --sea-soft:#e3eafb; --sun:#f5b700; --sun-soft:#fdf1c7; --sun-ink:#3a2a00;
   --ok:#167a3a; --ok-soft:#e2f4e8; --bad:#b23a0b; --bad-soft:#fde9df; --on-sea:#ffffff;
-  --display:"Baloo 2","Be Vietnam Pro",system-ui,sans-serif;
-  --body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:"Lora",Georgia,serif;
+  --body:"Noto Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --r:14px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -24,7 +24,7 @@
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
 .app{max-width:640px;margin:0 auto}
-h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1,h2,h3{font-family:var(--display);line-height:1.35;margin:0;text-wrap:balance}
 h2{font-size:1.35rem}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible,label.btn:focus-within{outline:3px solid var(--sun);outline-offset:2px}
@@ -107,7 +107,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-vis
 .fb.bad{background:var(--bad-soft);color:var(--bad)}
 .fb span{color:var(--ink);font-weight:500}
 .actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.score{font-family:var(--display);font-size:3.4rem;font-weight:800;color:var(--sea);line-height:1;font-variant-numeric:tabular-nums}
+.score{font-family:var(--display);font-size:3.4rem;font-weight:800;color:var(--sea);line-height:1}
 .ubreak{display:grid;grid-template-columns:auto 1fr auto;gap:6px 12px;align-items:center;font-size:.9rem;font-variant-numeric:tabular-nums}
 .review{display:flex;flex-direction:column;gap:10px}
 .rv{border-left:4px solid var(--bad);padding:6px 0 6px 12px;display:flex;flex-direction:column;gap:2px;overflow-wrap:anywhere}
