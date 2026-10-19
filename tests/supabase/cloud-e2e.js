@@ -347,18 +347,26 @@ async function run(browser, scheme) {
     const r = [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === "Toán");
     return [g.querySelector("summary b").textContent, r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent).join() : ""];
   }).filter(([, v]) => v)));
-  // K3: con làm đề ngẫu nhiên (kho gộp từ 3 đề Toán 4 cuối kì I, rút 25 câu theo ma trận): kết quả lên máy chủ với ref_id là mã pool
+  // K3: con làm đề ngẫu nhiên (kho gộp từ 3 đề Toán 4 cuối kì I và 31 câu riêng của ngân hàng, Phiên N1; rút 25 câu theo ma trận):
+  // kết quả lên máy chủ với ref_id là mã pool. Kho có đủ các dạng câu: mỗi câu trả lời đại cho đủ để bấm Kiểm tra; câu tự luận
+  // không tính vào số câu chấm tự động (t) và không vào lịch sử câu.
   await p.goto(BASE + "/#/quiz/toan4-ck1-ngau-nhien"); await p.waitForSelector("#qPractice");
-  c.k3 = { intro: await text(p, ".hero"), kho: await p.evaluate(() => { const b = Store.bank("toan4-ck1-ngau-nhien"); return b.questions.length + "/" + b.n + "/" + Store.bank("toan4-ck1-de1").questions.length; }) };
+  c.k3 = { intro: await text(p, ".hero"), kho: await p.evaluate(() => { const b = Store.bank("toan4-ck1-ngau-nhien"); return b.questions.length + "/" + b.n + "/" + Store.bank("toan4-ck1-de1").questions.length; }), essays: 0 };
   await shot(p, "c8b-de-ngau-nhien");
   await p.click("#qPractice");
-  for (let i = 0; i < 40 && !(await p.$(".score")); i++) {
-    if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0");
-    await p.click("#qzGo"); await p.click("#qzGo");
-  }
+  const answerAny = async () => {
+    if (await p.$("#qzFill")) await p.fill("#qzFill", "1");
+    else if (await p.$("#qzNum")) await p.fill("#qzNum", "1");
+    else if (await p.$("#qzEssay")) { c.k3.essays++; await p.fill("#qzEssay", "Bài giải"); }
+    else if (await p.$(".tf4")) for (let k = 0; k < 4; k++) await p.click(`.tf4 .opt[data-i="${k}"][data-v="1"]`);
+    else if (await p.$(".mt-li")) { const n = (await p.$$(".mt-li")).length; for (let k = 0; k < n; k++) { await p.click(`.mt-li[data-i="${k}"]`); await p.click(`.mt-ri >> nth=${k}`); } }
+    else if (await p.$(".ord-p")) { const n = (await p.$$(".ord-p")).length; for (let k = 0; k < n; k++) await p.click(".ord-p:not([hidden]) >> nth=0"); }
+    else await p.click(".opts .opt >> nth=0");
+  };
+  for (let i = 0; i < 40 && !(await p.$(".score")); i++) { await answerAny(); await p.click("#qzGo"); await p.click("#qzGo"); }
   await p.waitForSelector(".score");
   c.k3.again = await text(p, "#qzAgain");
-  c.k3.server = await until(p, () => be.T.results.some((r) => r.profile_id === binId && r.ref_id === "toan4-ck1-ngau-nhien" && r.t === 25 && r.subject === "Toán"));
+  c.k3.server = await until(p, () => be.T.results.some((r) => r.profile_id === binId && r.ref_id === "toan4-ck1-ngau-nhien" && r.t === 25 - c.k3.essays && r.subject === "Toán"));
   c.k3.hist = await p.evaluate((id) => Object.keys((JSON.parse(localStorage.getItem("ontap_pool_v1") || "{}")[id + "|toan4-ck1-ngau-nhien"]) || {}).length, binId);
   await p.goto(BASE + "/#/account"); await wait(p);
   c.kidAccount = (await p.$("#switchWho")) && !(await p.$("#signOut")) && !(await p.$("#pwForm")) && !(await p.$("#qcBox"));
@@ -708,8 +716,8 @@ async function run(browser, scheme) {
     "L15: con vào “Làm như thi”, rời khi chưa trả lời: hỏi “Thoát đề?”, không lưu điểm": /Thoát đề\?/.test(c.l15.ask) && c.l15.hash === "#/home" && c.l15.same,
     "L16: bài ôn trong khung chỉ hỏi khi đang làm một lượt (#endBtn); IOE là bài Tiếng Anh nên hộp hỏi bằng tiếng Anh (TA2)": !c.l16.idleAsk && c.l16.runAsk && /Leave this practice\?/.test(c.l16.text) && c.l16.same,
     "L18: nút đề ghi số đề theo tên đề; K3: đề ngẫu nhiên đứng trước": c.l18["Kiểm tra cuối học kì I"] === "Đề ngẫu nhiên,Đề 1,Đề 2,Đề 3" && c.l18["Kiểm tra giữa học kì II"] === "Đề ngẫu nhiên,Đề 1,Đề 2",
-    "K3: đề ngẫu nhiên rút 25 câu từ kho 75 câu (3 đề), kết quả lên máy chủ với ref_id là mã pool, lịch sử câu trên máy": /25 câu rút từ kho 75 câu \(3 đề\)/.test(c.k3.intro) && c.k3.kho === "75/25/25"
-      && c.k3.again === "Làm đề khác" && c.k3.server && c.k3.hist === 25,
+    "K3: đề ngẫu nhiên rút 25 câu từ kho 106 câu (31 câu riêng và 3 đề, N1), kết quả lên máy chủ với ref_id là mã pool, lịch sử câu trên máy": /25 câu rút từ kho 106 câu \(3 đề\)/.test(c.k3.intro) && c.k3.kho === "106/25/25"
+      && c.k3.again === "Làm đề khác" && c.k3.server && c.k3.hist === 25 - c.k3.essays,
     "R1: link “Báo câu này sai” (≥ 44px) dưới lời giải và ở từng câu cần xem lại; hộp lí do mở tại chỗ; phải chọn lí do; gửi xong cảm ơn, link thành “Đã báo câu này”":
       c.r1.link.h >= 44 && c.r1.link.text === "Báo câu này sai" && c.r1.link.inFb && c.r1.inline && /chọn một lí do/.test(c.r1.needReason) && /Cảm ơn bạn/.test(c.r1.done)
       && c.r1.after === "true Đã báo câu này" && c.r1.result,

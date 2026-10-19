@@ -283,9 +283,11 @@ ok(B.Store.authState() === "ready" && !!dev.getItem(AUTH) && !B.sessionStorage.g
     && (await S.loadBank("toan4-ck1-de3")).questions.length === 25 && A.scripts.length === nTags + 1, "tải xong: đề đủ câu hỏi, không tải lại file");
   ok((await S.loadBank(bk.id)).questions.length === 1 && (await S.loadBank("khong-co")) === null && A.scripts.length === nTags + 1,
     "loadBank: ngân hàng tự nhập có sẵn câu hỏi, đề không có thì null");
-  // Đề ngẫu nhiên (K3): cùng file, tải xong thì có cả kho câu gộp từ các đề cố định (mỗi câu ghi src), đề cố định giữ nguyên.
+  // Đề ngẫu nhiên (K3): cùng file, tải xong thì có cả kho câu: câu riêng của pool (src là mã pool) và câu của các đề cố định
+  // trong from (src là mã đề đó; Toán 4 cuối kì I, Phiên N1: 31 + 3 × 25 câu), đề cố định giữ nguyên.
   const pool = await S.loadBank("toan4-ck1-ngau-nhien"), pool2 = S.bank("toan4-gk2-ngau-nhien");
-  ok(pool.seed && pool.pool && pool.questions.length === 75 && pool.n === 25 && pool.questions.every((q) => /^toan4-ck1-de[123]$/.test(q.src)) && pool2.questions.length === 50
+  const bySrc = (b) => JSON.stringify(b.questions.reduce((o, q) => ((o[q.src] = (o[q.src] || 0) + 1), o), {}));
+  ok(pool.seed && pool.pool && pool.n === 25 && bySrc(pool) === JSON.stringify({ "toan4-ck1-ngau-nhien": 31, "toan4-ck1-de1": 25, "toan4-ck1-de2": 25, "toan4-ck1-de3": 25 }) && !!pool.note && pool2.questions.length === 50
     && S.bank("toan4-ck1-de1").questions.length === 25 && !("src" in S.bank("toan4-ck1-de1").questions[0]) && A.scripts.length === nTags + 1, "đề ngẫu nhiên: kho câu gộp từ các đề cố định cùng file, không tải lại file");
   const p3 = S.loadBank("khtn6-ck1-de1"); A.scripts[nTags + 1].onerror();
   await throwsMsg(() => p3, /Chưa tải được đề/, "mất mạng: tải đề báo lỗi");
