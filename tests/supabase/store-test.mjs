@@ -390,6 +390,11 @@ const PW2 = "me-bin-moi-2026";
   await E.Store.signIn("nha.bin", PW2);
   ok(E.Store.authState() === "ready" && be.captchaUsed === used + 1, "CAPTCHA bật: đăng nhập kèm mã xác minh");
   ok(await E.Store.checkPassword(PW2), "CAPTCHA bật: nhập lại mật khẩu cũng kèm mã xác minh");
+  // UX3b: checkPassword nhận thêm chỗ đặt ô CAPTCHA (hộp đăng xuất ở trang Tài khoản đặt ô #outCaptcha trong hộp); mặc định vẫn #pwCaptcha
+  E.win.document.querySelector = (s) => (/^#(pwCaptcha|outCaptcha)$/.test(s) ? { id: s.slice(1) } : null);
+  ok((await E.Store.checkPassword(PW2)) && stub.boxes[stub.boxes.length - 1].id === "pwCaptcha", "CAPTCHA bật: ô xác minh mặc định đặt ở #pwCaptcha");
+  ok((await E.Store.checkPassword(PW2, "#outCaptcha")) && stub.boxes[stub.boxes.length - 1].id === "outCaptcha", "UX3b: checkPassword(mật khẩu, chỗ đặt ô CAPTCHA) đặt ô vào hộp đăng xuất");
+  E.win.document.querySelector = () => null;
   const F = browser();
   await F.Store.init();
   await throwsMsg(() => F.Store.signIn("nha.bin", PW2), /chưa có khóa CAPTCHA/, "máy chủ bật CAPTCHA mà app chưa có khóa: báo rõ");

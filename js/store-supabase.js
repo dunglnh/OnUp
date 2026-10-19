@@ -9,6 +9,7 @@
      hiện tên "Phụ huynh". Mỗi hồ sơ con là một học sinh (role "student", parentIds = [PARENT]).
    - Sau khi đăng nhập, tab chọn "Ai đang học?" (setSession: mã hồ sơ con hoặc PARENT, giữ trong sessionStorage).
      Vào PARENT phải nhập lại mật khẩu (checkPassword); vừa nhập mật khẩu trong 5 phút thì không hỏi lại (parentUnlocked).
+     Đăng xuất khỏi máy này cũng hỏi mật khẩu trước (app gọi checkPassword rồi signOut; mã mở nhanh không dùng được, Phiên UX3b).
      Máy đã ghi nhớ đăng nhập có thể đặt mã mở nhanh 4–6 số (setQuickCode, checkQuickCode: băm và lưu trên máy này, UX3).
    - PIN của hồ sơ con (4 số, không bắt buộc) chỉ khóa trên giao diện: app tự băm, kiểm tra ngay trên máy.
    - Mật khẩu tạm (families.must_change_password): authState "change-password", app bắt đặt mật khẩu mới.
@@ -411,10 +412,12 @@
     try { await afterAuth(data.session); }
     catch (e) { throw new Error(errMsg(e, "Không tải được dữ liệu từ máy chủ. Thử lại nhé.")); }
   }
-  /* Nhập lại mật khẩu (vào khu phụ huynh, đổi mật khẩu): đăng nhập lại cùng tài khoản. Sai mật khẩu trả false. */
-  async function checkPassword(password) {
+  /* Nhập lại mật khẩu (vào khu phụ huynh, đổi mật khẩu, đăng xuất khỏi máy này): đăng nhập lại cùng tài khoản. Sai mật khẩu trả false.
+     captchaBox: chỗ đặt ô CAPTCHA khi Cloudflare cần người bấm (mặc định "#pwCaptcha"; hộp đăng xuất ở trang Tài khoản đặt ô riêng
+     trong hộp, Phiên UX3b). */
+  async function checkPassword(password, captchaBox) {
     if (!fam || !password) return false;
-    const captchaToken = await captcha("#pwCaptcha");
+    const captchaToken = await captcha(captchaBox || "#pwCaptcha");
     const { data, error } = await sb.auth.signInWithPassword({ email: loginEmail(fam.username), password: String(password), options: { captchaToken } });
     if (error) {
       if (/invalid login credentials/i.test(String(error.message || ""))) return false;
