@@ -6,7 +6,8 @@
    be.intR = true: như máy chủ chưa chạy supabase/cap-nhat-k2.sql (results.r còn là số nguyên, chưa có cột passages).
    be.noReports = true: như máy chủ chưa chạy supabase/cap-nhat-r1.sql (chưa có bảng question_reports).
    be.failResults = true: mọi lệnh ghi vào bảng results lỗi như mất mạng, đến khi tắt (Phiên UX6: kết quả nằm lại trong hộp gửi).
-     cloud-e2e.js gọi máy chủ giả qua exposeFunction, không qua mạng, nên context.setOffline không làm lượt gửi lỗi được. */
+     cloud-e2e.js gọi máy chủ giả qua exposeFunction, không qua mạng, nên context.setOffline không làm lượt gửi lỗi được.
+   be.delayResults = <ms>: lệnh ghi vào bảng results trả lời chậm chừng đó (mạng chậm hơn thời gian app chờ lượt gửi, UX6). */
 "use strict";
 const nodeCrypto = require("crypto");
 
@@ -42,7 +43,7 @@ function createBackend() {
   T.plans.push({ id: "free", name: "Miễn phí", max_children: 5, all_banks: true, price: null, note: "" },
     { id: "family", name: "Gói Gia đình", max_children: 5, all_banks: true, price: null, note: "" });
   const users = new Map(), tokens = new Map();
-  const be = { T, users, tokens, clock: 0, failWrites: 0, failResults: false, functions: {}, log: [], rateLimit: true, captchaRequired: false, captchaUsed: 0 };
+  const be = { T, users, tokens, clock: 0, failWrites: 0, failResults: false, delayResults: 0, functions: {}, log: [], rateLimit: true, captchaRequired: false, captchaUsed: 0 };
   const now = () => new Date(Date.now() + be.clock);
   const iso = () => now().toISOString();
   const todayVN = () => new Date(+now() + 7 * 3600e3).toISOString().slice(0, 10);
@@ -449,6 +450,7 @@ function createBackend() {
   be.handle = async function (msg) {
     const uid = msg.service ? null : uidOf(msg.token);
     be.log.push({ kind: msg.kind, op: msg.q ? msg.q.op + " " + msg.q.table : msg.name || msg.op, uid });
+    if (be.delayResults > 0 && msg.kind === "query" && msg.q.table === "results" && msg.q.op !== "select") await new Promise((r) => setTimeout(r, be.delayResults));
     try {
       if (msg.kind === "query") return { data: query(msg.q, uid, msg.service), error: null };
       if (msg.kind === "rpc") return { data: clone(rpc(msg.name, msg.args || {}, uid, msg.service)), error: null };

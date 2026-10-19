@@ -395,6 +395,7 @@ async function run(browser, scheme) {
      bấm “Gửi lại”. quick(id, n): mở đề, ôn luyện n câu rồi “← Thoát” → Dừng, đợi dòng #qzSaved hiện. */
   const naRes = () => be.T.results.filter((r) => r.profile_id === naId).length;
   const quick = async (id, n) => {
+    if (p.url().endsWith("#/quiz/" + id)) { await p.goto(BASE + "/#/home"); await p.waitForSelector("#today"); } // cùng địa chỉ thì không mở lại đề
     await p.goto(BASE + "/#/quiz/" + id); await p.waitForSelector("#qPractice"); await p.click("#qPractice");
     for (let i = 0; i < n; i++) { if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0"); await p.click("#qzGo"); await p.click("#qzGo"); }
     await p.click("#qzExit"); await p.click("#qzYes"); await p.waitForSelector(".score"); await p.waitForSelector("#qzSaved:not([hidden])");
@@ -419,6 +420,53 @@ async function run(browser, scheme) {
   c.ux6.sent = await savedOf(p); c.ux6.sentToast = await text(p, "#toast");
   c.ux6.sentServer = await until(p, () => be.T.results.some((r) => r.profile_id === naId && r.ref_id === "toan6-ck1-de2"));
   await shot(p, "c8k-da-gui");
+  // Máy chủ trả lời chậm hơn thời gian app chờ (4 giây; be.delayResults): màn kết quả ghi chưa gửi trước, gửi xong thì đổi thành đã gửi
+  // trên đúng màn đó. Lượt sau bấm “Ôn lại câu sai” ngay khi bài trước còn đang gửi: màn kết quả của lượt ôn lại (không lưu điểm) không bị ghi.
+  // aSkip: trả lời một câu, bỏ qua một câu (chắc chắn có câu sai) rồi “← Thoát” → Dừng.
+  const aSkip = async () => {
+    if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0");
+    await p.click("#qzGo"); await p.click("#qzGo"); await p.click("#qzSkip");
+    await p.click("#qzExit"); await p.click("#qzYes"); await p.waitForSelector("#qzRetry");
+  };
+  be.delayResults = 6000;
+  const n3 = naRes();
+  await p.goto(BASE + "/#/quiz/toan6-ck1-de1"); await p.waitForSelector("#qPractice"); await p.click("#qPractice");
+  await aSkip();
+  await p.waitForSelector("#qzSaved:not([hidden])", { timeout: 8000 });
+  c.ux6.slow = { first: await savedOf(p), server: naRes() === n3 };
+  await p.$eval("#qzSaved", (e) => (e.dataset.mark = "1"));
+  await p.waitForFunction(() => /^Đã lưu và gửi/.test(document.querySelector("#qzSaved").textContent), null, { timeout: 10000 });
+  c.ux6.slow.after = await savedOf(p); c.ux6.slow.same = await p.$eval("#qzSaved", (e) => e.dataset.mark === "1"); c.ux6.slow.toast = await text(p, "#toast");
+  c.ux6.slow.sent = naRes() === n3 + 1;
+  await p.click("#qzAgain"); await p.waitForSelector(".qcard"); await aSkip();
+  await p.click("#qzRetry"); await p.waitForSelector(".qcard");
+  for (let i = 0; i < 10 && !(await p.$("#qzScore")); i++) { if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0"); await p.click("#qzGo"); await p.click("#qzGo"); }
+  await p.waitForSelector("#qzScore");
+  c.ux6.slow.retryRound = /Ôn lại câu sai/.test(await text(p, "#qzScore .label"));
+  for (let i = 0; i < 100 && naRes() !== n3 + 2; i++) await wait(p, 100); // lượt gửi chậm của lượt trước xong khi đang ở màn ôn lại
+  c.ux6.slow.sent2 = naRes() === n3 + 2; await wait(p, 400);
+  c.ux6.slow.retrySlot = await p.$eval("#qzSaved", (e) => e.hidden && !e.textContent);
+  be.delayResults = 0;
+  // Bài ôn trong khung (bridge.js gửi ontapReport): thông báo ghi số câu đúng kèm câu đã gửi / chưa gửi; bài IOE bằng tiếng Anh
+  const frameReport = async (id, d) => {
+    await p.goto(BASE + "/#/home"); await p.waitForSelector("#today"); // mở lại khung mới mỗi lần (cùng địa chỉ thì không đổi màn hình)
+    await p.goto(BASE + "/#/play/" + id); await p.waitForSelector("#playerFrame");
+    const fr = await until(p, () => p.frames().find((f) => f.url().includes("/modules/" + id + "/")));
+    await fr.waitForFunction(() => typeof window.ontapReport === "function");
+    await p.evaluate(() => { const t = document.querySelector("#toast"); if (t) t.textContent = ""; });
+    await fr.evaluate((x) => window.ontapReport(x), d);
+    await p.waitForFunction(() => /\. \S/.test((document.querySelector("#toast") || {}).textContent || ""), null, { timeout: 8000 });
+    return text(p, "#toast");
+  };
+  const n4 = naRes();
+  c.ux6.frame = { sent: await frameReport("l6-giua-ki-1", { label: "Toán · Đề 1", mode: "exam", subject: "toan", r: 18, t: 20, s: 600 }) };
+  be.failResults = true;
+  c.ux6.frame.pending = await frameReport("l6-giua-ki-1", { label: "Toán · Đề 2", mode: "exam", subject: "toan", r: 17, t: 20, s: 600 });
+  c.ux6.frame.en = await frameReport("ioe-6", { label: "Test 1", mode: "exam", subject: "ta", r: 24, t: 30, s: 800 });
+  c.ux6.frame.server = naRes() === n4 + 1;
+  be.failResults = false;
+  await p.evaluate(() => Store.sendPending());
+  c.ux6.frame.drained = await until(p, () => naRes() === n4 + 3) && (await p.evaluate(() => Store.pendingResults())) === 0;
   // TA2: Na làm một đề Tiếng Anh: màn mở đề, câu hỏi và lời giải, hộp hỏi khi rời (nút Back, "← Exit"), màn kết quả, thông báo lưu điểm
   // bằng tiếng Anh (bảng chữ của js/quiz.js), không có chữ cái tiếng Việt; kết quả lên máy chủ vẫn ghi môn và tên đề trong danh mục.
   await p.goto(BASE + "/#/quiz/ta6-gk1-de1"); await p.waitForSelector("#qPractice");
@@ -479,6 +527,16 @@ async function run(browser, scheme) {
   be.failResults = false;
   await p2.click("#sendNow"); await p2.waitForSelector("#unsent", { state: "detached" });
   c.ux6.parentSent = { toast: await text(p2, "#toast"), server: await until(p2, () => naRes() === n1 + 1), kids: !!(await p2.$("a.kid")) };
+  // Tab kia (Na) gửi được trước khi bố mẹ bấm: dòng ở tab khu phụ huynh còn số cũ; bấm Gửi lại thì báo “Đã gửi” và dòng mất (vẽ lại theo số thật)
+  be.failResults = true;
+  await quick("ta6-gk1-de1", 1);
+  await p2.goto(BASE + "/#/admin/events"); await p2.waitForSelector("#parentCal"); await p2.goto(BASE + "/#/admin/overview"); await p2.waitForSelector("#unsent");
+  be.failResults = false;
+  const n6 = naRes();
+  await p.evaluate(() => Store.sendPending());
+  c.ux6.stale = { drained: await until(p, () => naRes() === n6 + 1), shown: await p2.$eval("#unsent", (e) => e.dataset.n) };
+  await p2.click("#sendNow"); await p2.waitForSelector("#unsent", { state: "detached", timeout: 5000 }).catch(() => {});
+  c.ux6.stale.gone = !(await p2.$("#unsent")); c.ux6.stale.toast = await text(p2, "#toast");
   // đổi mật khẩu (trang Tài khoản về Cài đặt)
   await p2.goto(BASE + "/#/account"); await p2.waitForSelector("#pwForm");
   c.ux2.accountBack = await text(p2, "#view .linkbtn[data-go]");
@@ -617,6 +675,20 @@ async function run(browser, scheme) {
   await q.goto(BASE + "/#/"); await q.waitForSelector("#loginForm");
   await q.fill("#lUser", "nha.bin"); await q.fill("#lPass", PW2); await q.click("#lGo"); await q.waitForSelector(WHO);
   c.ux6.expired.sent = await until(q, () => naRes() === n2 + 1);
+  // Phiên hết rồi mới bấm “Gửi lại” ở trang chính: không báo “Đã gửi” (bài chưa tới máy chủ), giữ lời nhắc đăng nhập lại của kho
+  await tile(q, "Na"); await q.waitForSelector("text=Chào Na");
+  be.failResults = true;
+  await q.goto(BASE + "/#/quiz/toan6-ck1-de2"); await q.waitForSelector("#qPractice"); await q.click("#qPractice");
+  if (await q.$("#qzFill")) await q.fill("#qzFill", "1"); else await q.click(".opt >> nth=0");
+  await q.click("#qzGo"); await q.click("#qzGo"); await q.click("#qzExit"); await q.click("#qzYes"); await q.waitForSelector("#qzSaved:not([hidden])");
+  await q.goto(BASE + "/#/home"); await q.waitForSelector("#unsent");
+  be.failResults = false;
+  for (const [t, uid] of be.tokens) if (uid === famUser) be.tokens.delete(t);
+  const n5 = naRes();
+  await q.click("#sendNow"); await q.waitForSelector("#loginForm"); await wait(q, 300);
+  c.ux6.expiredBar = { toast: await text(q, "#toast"), server: naRes() === n5 };
+  await q.fill("#lUser", "nha.bin"); await q.fill("#lPass", PW2); await q.click("#lGo"); await q.waitForSelector(WHO);
+  c.ux6.expiredBar.sent = await until(q, () => naRes() === n5 + 1);
   /* ---- tài khoản bị khóa ---- */
   await admin({ action: "set_status", id: acc.id, status: "locked" });
   await q.reload(); await q.waitForSelector("#blocked");
@@ -812,12 +884,21 @@ async function run(browser, scheme) {
       c.ux6.bar.text === "1 bài chưa gửi cho bố mẹ" && c.ux6.bar.btn === "Gửi lại" && c.ux6.bar.h >= 44 && c.ux6.bar.btnH >= 44 && c.ux6.bar.bg === c.ux6.tok.sunSoft && c.ux6.bar.color === c.ux6.tok.ink && c.ux6.bar.beforeToday
       && c.ux6.retryFail.toast === "Chưa gửi được. App sẽ thử lại khi có mạng." && c.ux6.retryFail.bar === "1 bài chưa gửi cho bố mẹ" && c.ux6.retryFail.same && c.ux6.retryFail.server
       && c.ux6.retryOK.toast === "Đã gửi" && c.ux6.retryOK.server && c.ux6.retryOK.outbox === null,
-    "UX6: đề Tiếng Anh chưa gửi được: dòng và thông báo bằng tiếng Anh; khu phụ huynh trên cùng máy có dòng “1 bài làm trên máy này chưa gửi đi · Gửi lại” ở đầu mục Các con; bấm Gửi lại thì gửi, dòng mất":
+    "UX6: đề Tiếng Anh chưa gửi được: dòng và thông báo bằng tiếng Anh; khu phụ huynh trên cùng máy có dòng “1 bài làm trên máy này chưa gửi đi · Gửi lại” ở đầu mục Các con; bấm Gửi lại thì gửi, dòng mất; tab kia gửi trước thì bấm Gửi lại cũng làm dòng mất":
       c.ux6.en.saved === "Saved on this device. It will be sent to your parents when you're online." && c.ux6.en.toast === c.ux6.en.saved && c.ux6.en.cls === "saved wait"
       && c.ux6.parent.text === "1 bài làm trên máy này chưa gửi đi" && c.ux6.parent.btn === "Gửi lại" && c.ux6.parent.h >= 44 && c.ux6.parent.beforeKids
-      && c.ux6.parentSent.toast === "Đã gửi" && c.ux6.parentSent.server && c.ux6.parentSent.kids,
+      && c.ux6.parentSent.toast === "Đã gửi" && c.ux6.parentSent.server && c.ux6.parentSent.kids
+      && c.ux6.stale.drained && c.ux6.stale.shown === "1" && c.ux6.stale.gone && c.ux6.stale.toast === "Đã gửi",
     "UX6: phiên hết giữa lúc con làm bài: màn kết quả ghi “Đã lưu trên máy này…”, thông báo vẫn là lời nhắc bố mẹ đăng nhập lại; đăng nhập lại thì tự gửi bài đó":
       c.ux6.expired.saved === "Đã lưu trên máy này. Sẽ gửi cho bố mẹ khi có mạng." && /đăng nhập lại để gửi/.test(c.ux6.expired.toast) && c.ux6.expired.server && c.ux6.expired.sent,
+    "UX6: máy chủ chậm hơn 4 giây: màn kết quả ghi chưa gửi trước, gửi xong thì đổi thành “Đã lưu và gửi cho bố mẹ.” trên đúng màn đó; bấm “Ôn lại câu sai” khi bài trước còn đang gửi: màn kết quả của lượt ôn lại không bị ghi":
+      c.ux6.slow.first.cls === "saved wait" && c.ux6.slow.server && c.ux6.slow.after.cls === "saved ok" && c.ux6.slow.after.text === "Đã lưu và gửi cho bố mẹ." && c.ux6.slow.same
+      && c.ux6.slow.toast === "Đã lưu và gửi cho bố mẹ." && c.ux6.slow.sent && c.ux6.slow.retryRound && c.ux6.slow.sent2 && c.ux6.slow.retrySlot,
+    "UX6: bài ôn trong khung: thông báo “18/20 câu đúng. Đã lưu và gửi cho bố mẹ.” hoặc “… Đã lưu trên máy này. Sẽ gửi cho bố mẹ khi có mạng.”; bài IOE bằng tiếng Anh; gửi lại thì hết bài chờ":
+      c.ux6.frame.sent === "18/20 câu đúng. Đã lưu và gửi cho bố mẹ." && c.ux6.frame.pending === "17/20 câu đúng. Đã lưu trên máy này. Sẽ gửi cho bố mẹ khi có mạng."
+      && c.ux6.frame.en === "24/30 correct. Saved on this device. It will be sent to your parents when you're online." && c.ux6.frame.server && c.ux6.frame.drained,
+    "UX6: phiên hết rồi bấm “Gửi lại”: không báo “Đã gửi”, thông báo là lời nhắc bố mẹ đăng nhập lại; đăng nhập lại thì tự gửi":
+      /đăng nhập lại để gửi/.test(c.ux6.expiredBar.toast) && c.ux6.expiredBar.server && c.ux6.expiredBar.sent,
     "UX2: khu phụ huynh có ba mục Các con · Lịch thi · Cài đặt; nút Lịch thi trên cùng và #/calendar về tab Lịch thi; thêm hồ sơ xong về Các con": c.ux2.tabs === "Các con*,Lịch thi,Cài đặt" && c.ux2.topCal === "#/admin/events"
       && /^Bắt đầu trong 3 bước/.test(c.ux2.empty) && c.ux2.afterAdd === "#/admin/overview" && c.ux2.calRedirect === "#/admin/events",
     "UX2: tab Các con: mỗi con một thẻ (chưa có bài: Chưa ôn · – · 0; kì thi gần nhất còn N ngày · chưa ôn …), không có ô số liệu trùng ý; thẻ có bài hôm nay ghi số bài, điểm hôm nay":
