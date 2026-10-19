@@ -1172,14 +1172,15 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
         const cands = bank.filter((x) => flatQ(x.q) === flatQ(t)), q = cands.length > 1 ? cands.find((x) => (x.o || []).every((o) => opts.includes(o))) : cands[0];
         if (!q) { ta2.problems.push(`TA2 ${id}: không nhận ra câu ` + t.slice(0, 50)); break; }
         n++;
-        const kind = q.p ? "doc-hieu" : q.type, first = !seen[kind]; seen[kind] = true;
-        if (first) { await check(`câu ${kind}`); if (!snapped(kind)) await snap(kind); }
+        // ảnh lần đầu gặp mỗi dạng (mc, fill, tf) và câu có đoạn đọc (doc-hieu; câu đúng/sai của đề Tiếng Anh đều thuộc đoạn đọc)
+        const kinds = [q.type].concat(q.p ? ["doc-hieu"] : []).filter((k) => !seen[k]); kinds.forEach((k) => (seen[k] = true));
+        for (const k of kinds) { await check(`câu ${k}`); if (!snapped(k)) await snap(k); }
         const wrong = (q.type === "mc" && !seen.wrongMc) || (q.type === "fill" && !seen.wrongFill);
         if (wrong) { seen[q.type === "mc" ? "wrongMc" : "wrongFill"] = true; wrongN++; }
         await answer(q, !wrong);
         await p.click("#qzGo");
         const fb = await txt("#qzFb");
-        if (first) { await check(`câu ${kind} sau Kiểm tra`); if (!snapped(kind + "-kiem-tra")) await snap(kind + "-kiem-tra"); }
+        for (const k of kinds) { await check(`câu ${k} sau Kiểm tra`); if (!snapped(k + "-kiem-tra")) await snap(k + "-kiem-tra"); }
         if (wrong) r[q.type + "Wrong"] = /^Not quite\. Answer: /.test(fb) && /Report a problem$/.test(fb) && (await txt("#qzGo")) === "Next question";
         else if (!r.rightFb) r.rightFb = /^Correct!/.test(fb);
         if (wrong && q.type === "fill" && !seen.report) { // báo câu sai: hộp lí do tiếng Anh, phải chọn lí do, gửi xong
@@ -1208,8 +1209,10 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       await p.waitForSelector(".score");
       const res = await check("màn kết quả"), d10 = String(Math.round(((25 - wrongN) / 25) * 40) / 4);
       r.n = n; r.wrongN = wrongN;
-      r.result = (await txt(".score")) === `${d10}/10` && new RegExp(`^${title.replace(/[.*+?()]/g, "\\$&")} · Practice ${d10}/10 ${25 - wrongN}/25 correctTime: \\d\\d:\\d\\d By topic`).test(res) && /By level Know/.test(res)
-        && new RegExp(`Review mistakes \\(${wrongN}\\)`).test(res) && /Your answer: /.test(res) && / · Answer: /.test(res) && /Reported/.test(res) && /Report a problem/.test(res)
+      // so chữ sau khi bỏ hết khoảng trắng (các khối liền nhau không có khoảng trắng giữa)
+      const flatRes = res.replace(/\s+/g, ""), flatHead = `${title} · Practice ${d10}/10 ${25 - wrongN}/25 correct Time:`.replace(/\s+/g, "");
+      r.result = (await txt(".score")) === `${d10}/10` && flatRes.startsWith(flatHead) && /Bytopic/.test(flatRes) && /BylevelKnow/.test(flatRes)
+        && flatRes.includes(`Reviewmistakes(${wrongN})`) && /Youranswer:/.test(flatRes) && /·Answer:/.test(flatRes) && /Reported/.test(flatRes) && /Reportaproblem/.test(flatRes)
         && (await txt("#qzAgain")) === "Try again" && (await txt("#qzHome")) === "Go to home" && (await txt("#toast")) === "Result saved";
       r.saved = await p.evaluate((id) => { const x = Store.resultsFor(Store.sessionUser().id)[0]; return !!x && x.refId === id && x.subject === "Tiếng Anh" && x.label === Store.bank(id).title && x.t === 25 && x.mode === "practice"; }, id);
       if (!snapped("ket-qua")) await snap("ket-qua", true);
