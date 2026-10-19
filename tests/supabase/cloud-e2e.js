@@ -96,11 +96,13 @@ async function run(browser, scheme) {
     return ctx;
   }
   const wait = (page, ms) => page.waitForTimeout(ms || 250);
-  /* Kiểm tra 360px rồi chụp ảnh (cả trang, từ đầu trang; ẩn toast). */
+  /* Kiểm tra 360px rồi chụp ảnh (cả trang, từ đầu trang; ẩn toast). Thanh tab dưới của con (#tabbar, UX1) cố định ở mép màn hình:
+     chụp cả trang thì ghim tạm xuống cuối trang như pinTabs của tests/e2e.js. */
   async function shot(page, name) {
     await page.evaluate(() => { window.scrollTo(0, 0); const t = document.getElementById("toast"); if (t) t.hidden = true; });
     (await page.evaluate(audit)).forEach((x) => problems.push(`${name}: ${x}`));
-    await page.screenshot({ path: path.join(OUT, `${name}-${scheme}.png`), fullPage: true });
+    const pin = (on) => page.evaluate((on) => { const b = document.querySelector("#tabbar"); if (!b) return; b.style.position = on ? "absolute" : ""; b.style.top = on ? document.documentElement.scrollHeight - b.offsetHeight + "px" : ""; }, on);
+    await pin(true); await page.screenshot({ path: path.join(OUT, `${name}-${scheme}.png`), fullPage: true }); await pin(false);
   }
   const text = (page, sel) => page.textContent(sel).then((t) => t.replace(/\s+/g, " ").trim(), () => "");
   const tile = (page, name) => page.click(`.tile:has(.nm:text-is("${name}"))`);
@@ -188,9 +190,14 @@ async function run(browser, scheme) {
   c.wrongPin = await text(p, "#pinErr");
   await pad(p, "1357"); // PIN 4 số: gõ đủ là vào
   await p.waitForSelector("text=Chào Bin");
+  // UX1: trang "Hôm nay" của con với thanh tab dưới (4 tab, tab Hôm nay đang mở), thẻ gợi ý có nút Bắt đầu, chuỗi ngày, huy hiệu; thanh trên không có nút Lịch thi
+  c.ux1 = await p.evaluate(() => ({ tabs: [...document.querySelectorAll("#tabbar a")].map((a) => a.textContent + (a.getAttribute("aria-current") ? "*" : "")).join(), tabH: [...document.querySelectorAll("#tabbar a")].every((a) => a.getBoundingClientRect().height >= 44 && a.getBoundingClientRect().bottom <= innerHeight),
+    today: !!document.querySelector("#today #todayGo") && !!document.querySelector("#streak .week") && !!document.querySelector("#badges"), cal: !!document.querySelector(".who a[href='#/calendar']"), tabbed: document.body.classList.contains("tabbed") }));
   await shot(p, "c8-trang-con");
   await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await wait(p);
+  c.ux1.quizTabs = !(await p.$("#tabbar")); // màn đề không có thanh tab
   await p.click("#qPractice");
+  c.ux1.label = await p.$$eval(".qcard .label", (l) => l.map((x) => x.textContent.replace(/\s+/g, " ")).join("|")); // một dòng nhãn "Toán · chủ đề"
   const binId = prof.find((x) => x.name === "Bin").id;
   for (let i = 0; i < 40 && !(await p.$(".score")); i++) {
     if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0");
@@ -211,14 +218,26 @@ async function run(browser, scheme) {
     await p.click("#qzGo");
   }
   await p.waitForSelector(".score");
-  // R1: màn kết quả: mỗi câu cần xem lại có link; báo thêm một câu ở đó
+  // UX1: màn kết quả có lời khen, nút "Ôn lại N câu sai" (N = số câu sai), câu sai thu gọn (bấm mới mở)
+  c.ux1.result = await p.evaluate(() => ({ praise: document.querySelector("#qzScore .praise").textContent, retry: document.querySelector("#qzRetry").textContent, n: document.querySelectorAll("details.rv").length, closed: [...document.querySelectorAll("details.rv")].every((d) => !d.open), again: document.querySelector("#qzAgain").textContent }));
+  await shot(p, "c8h-ket-qua-de");
+  // R1: màn kết quả: mỗi câu cần xem lại có link (mở câu sai ra mới bấm được); báo thêm một câu ở đó
   c.r1.result = await p.$$eval(".rv", (rows) => rows.length > 0 && rows.every((r) => r.querySelector(".rp-link")));
+  await p.evaluate(() => document.querySelectorAll("details.rv").forEach((d) => (d.open = true)));
   await p.click(".rv .rp-link:not([disabled]) >> nth=0"); await p.click('.rsn .opt[data-r="unclear"]'); await p.click(".report-box [type=submit]"); await p.waitForSelector(".rv .rp-done");
   c.r1.server = await until(p, () => be.T.question_reports.filter((r) => r.profile_id === binId).length === 2);
   const rpRows = be.T.question_reports.filter((r) => r.profile_id === binId), rp1 = rpRows.find((r) => r.q_key === c.r1.key);
   c.r1.row = !!rp1 && rp1.family_id === acc.id && rp1.bank_id === "toan4-ck1-de1" && rp1.reason === "wrong" && rp1.note.length === 200 && rp1.q_text.length > 10 && rp1.q_text.length <= 500 && rp1.status === "new"
     && rpRows.some((r) => r.reason === "unclear" && r.bank_id === "toan4-ck1-de1");
   c.result = await until(p, () => be.T.results.some((r) => r.profile_id === binId && r.ref_id === "toan4-ck1-de1"));
+  // UX1: ôn lại câu sai: lượt chỉ gồm các câu sai, xong không gửi thêm kết quả lên máy chủ
+  const nServer = be.T.results.filter((r) => r.profile_id === binId).length;
+  await p.click("#qzRetry"); await p.waitForSelector(".qcard");
+  c.ux1.retryChip = await text(p, ".chip:last-child");
+  for (let i = 0; i < 40 && !(await p.$(".score")); i++) { if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0"); await p.click("#qzGo"); await p.click("#qzGo"); }
+  await p.waitForSelector(".score");
+  c.ux1.retryResult = await text(p, "#qzScore"); await wait(p, 300);
+  c.ux1.retryServer = be.T.results.filter((r) => r.profile_id === binId).length === nServer;
   /* Hồ sơ con là học sinh nên L15, L16, L18 (tests/e2e.js) cũng áp dụng ở bản đám mây. */
   const kidRes = () => p.evaluate((id) => Store.resultsFor(id).length, binId);
   const nKid = await kidRes();
@@ -239,8 +258,8 @@ async function run(browser, scheme) {
   c.l16.runAsk = await leaveFrame();
   if (c.l16.runAsk) { c.l16.text = await text(p, "#leaveBox"); await p.click("#leaveYes"); await wait(p); }
   c.l16.same = (await kidRes()) === nKid;
-  // L18: nút đề ghi số đề lấy từ tên đề; K3: đề ngẫu nhiên đứng trước
-  await p.goto(BASE + "/#/home"); await wait(p);
+  // L18: nút đề ghi số đề lấy từ tên đề; K3: đề ngẫu nhiên đứng trước (tab Bài ôn, UX1)
+  await p.goto(BASE + "/#/practice"); await p.waitForSelector("#allPractice");
   c.l18 = await p.evaluate(() => Object.fromEntries([...document.querySelectorAll("#allPractice details.grp")].map((g) => {
     const r = [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === "Toán");
     return [g.querySelector("summary b").textContent, r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent).join() : ""];
@@ -531,7 +550,12 @@ async function run(browser, scheme) {
       && [c.ta2.open, c.ta2.fb, c.ta2.leave, c.ta2.exit, c.ta2.result, c.ta2.toast].every((t) => t && !CHU_VIET.test(t)) && /Practice \(see the answer after each question\)/.test(c.ta2.open) && /Test mode · 45 minutes/.test(c.ta2.open)
       && /Report a problem$/.test(c.ta2.fb) && c.ta2.next === "Next question" && c.ta2.leave === "End practice and leave?Your answers so far will be saved. End practiceKeep practising"
       && c.ta2.exit === "End practice and see your results?End practiceKeep going" && /^English 6 · Mid-term 1 · Test 1 · Practice /.test(c.ta2.result) && /\/2 correctTime: /.test(c.ta2.result)
-      && /Try againGo to home$/.test(c.ta2.result) && c.ta2.toast === "Result saved" && c.ta2.server,
+      && /Go to home$/.test(c.ta2.result) && c.ta2.toast === "Result saved" && c.ta2.server,
+    "UX1: trang “Hôm nay” của con có thanh tab dưới (4 tab, ≥ 44px), thẻ gợi ý, chuỗi ngày, huy hiệu; thanh trên không có nút Lịch thi; màn đề không có thanh tab; một dòng nhãn trên câu":
+      c.ux1.tabs === "Hôm nay*,Bài ôn,Lịch thi,Kết quả" && c.ux1.tabH && c.ux1.today && !c.ux1.cal && c.ux1.tabbed && c.ux1.quizTabs && /^Toán · \S/.test(c.ux1.label) && !c.ux1.label.includes("|"),
+    "UX1: màn kết quả có lời khen, nút “Ôn lại N câu sai”, câu sai thu gọn; lượt ôn lại chỉ gồm câu sai và không gửi thêm kết quả lên máy chủ":
+      /^(Xuất sắc|Giỏi lắm|Khá tốt|Được rồi|Chưa sao), Bin[!.]/.test(c.ux1.result.praise) && c.ux1.result.retry === `Ôn lại ${c.ux1.result.n} câu sai` && c.ux1.result.n > 0 && c.ux1.result.closed && c.ux1.result.again === "Làm lại cả đề"
+      && c.ux1.retryChip === `1 / ${c.ux1.result.n}` && /· Ôn lại câu sai /.test(c.ux1.retryResult) && /Lượt ôn lại câu sai không lưu điểm\./.test(c.ux1.retryResult) && c.ux1.retryServer,
     "trang tài khoản của con: đổi người học, không đăng xuất, không đổi mật khẩu": !!c.kidAccount,
     "hồ sơ không PIN bấm là vào; con không vào được khu phụ huynh bằng địa chỉ": c.na && c.kidBlocked,
     "tab mới: nhớ hồ sơ chọn gần nhất, khu phụ huynh phải nhập lại mật khẩu": c.preselect === "Na" && /Mật khẩu chưa đúng/.test(c.wrongPw),

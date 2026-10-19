@@ -62,14 +62,17 @@ Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mố
 
 ## 4. Màn hình
 
-### 4.1 Học sinh — Trang chính
-- **Kì thi tiếp theo**: tên, số ngày còn lại, môn, phạm vi, nút vào bài ôn của kì đó (đề ngân hàng gộp thành một nút "Đề ôn · N đề" mở nhóm của kì này ở mục Tất cả bài ôn), và "điểm ôn 4 tuần qua cho kì này".
-- **Ba con số**: số bài trong 7 ngày, điểm trung bình 30 ngày (thang 10), số ngày ôn liên tiếp.
-- **Kết quả gần đây**: 3 lần làm bài mới nhất.
-- **Theo môn**: thanh tỉ lệ đúng từng môn trong 30 ngày.
-- **Chủ đề hay sai**: các chủ đề có nhiều câu sai nhất (từ ngân hàng câu hỏi).
-- **Lịch thi sắp tới** (5 mục), có nhãn "Sẵn sàng x%" khi con đã ôn cho kì đó.
-- **Tất cả bài ôn** của khối, gom theo kì thi chưa qua: kì gần nhất mở sẵn, các kì sau thu gọn; bài không thuộc kì nào trong số đó ở nhóm "Bài ôn khác". Trong mỗi kì, đề ngân hàng gom theo môn thành một dòng có nút "Đề ngẫu nhiên · Đề 1 · Đề 2 · …" (nút đầu khi môn đó có đề ngẫu nhiên, Phiên K3); ở nhóm "Bài ôn khác" nút luôn ghi kèm tên kì ("Giữa kì I · Đề 1", "Cuối kì I · Đề ngẫu nhiên") để biết đề của kì nào. Nhãn "N bài ôn" (thẻ kì thi, đầu nhóm) đếm bài ôn dạng trang và đề cố định, không đếm đề ngẫu nhiên, khớp với nút "Đề ôn · N đề".
+### 4.1 Học sinh — Trang chính (Phiên UX1)
+Bốn tab dưới màn hình: **Hôm nay · Bài ôn · Lịch thi · Kết quả**. Thanh trên chỉ còn hình đại diện (bấm vào là trang Tài khoản). Ảnh: [hinh-ux1/](hinh-ux1/).
+- **Hôm nay**:
+  - Thẻ **"Hôm nay ôn gì?"**: một bài chính với nút Bắt đầu to, lấy từ kì thi gần nhất có bài ôn (ưu tiên bài chưa làm, rồi bài đúng dưới 90%, rồi đề ngẫu nhiên), kèm câu giải thích ("Kiểm tra giữa học kì I còn 12 ngày. Bài này bạn chưa làm…") và link "Tất cả bài ôn cho kì này · N bài ôn". Thêm một bài phụ: đề của môn chưa làm trong 7 ngày, hoặc đề có nhiều câu sai ở chủ đề hay sai.
+  - **Chuỗi ngày ôn**: số ngày liền, hàng T2–CN tuần này (ngày có ôn tô xanh), mục tiêu 5 ngày mỗi tuần ("Tuần này bạn ôn 3/5 ngày", "Đạt mục tiêu tuần").
+  - **Huy hiệu** (phần thưởng nhẹ, không có bảng xếp hạng): Chuỗi 3, 7, 14 ngày (tính theo chuỗi dài nhất từ trước đến nay nên không mất khi chuỗi đứt) và "Hết đề · <kì thi>" khi đã làm mọi bài ôn của một kì; huy hiệu mới có dòng chúc mừng một lần, kèm gợi ý huy hiệu tiếp theo.
+  - **Kết quả gần đây**: 3 lần làm bài mới nhất, link "Xem tất cả" sang tab Kết quả. **Kì thi tiếp theo**: một thẻ, bấm để xem chi tiết và bài ôn của kì.
+- **Bài ôn**: mọi bài ôn của khối, gom theo kì thi chưa qua: kì gần nhất mở sẵn, các kì sau thu gọn; bài không thuộc kì nào trong số đó ở nhóm "Bài ôn khác". Trong mỗi kì, đề ngân hàng gom theo môn thành một dòng có nút "Đề ngẫu nhiên · Đề 1 · Đề 2 · …" (nút đầu khi môn đó có đề ngẫu nhiên, Phiên K3); ở nhóm "Bài ôn khác" nút luôn ghi kèm tên kì ("Giữa kì I · Đề 1", "Cuối kì I · Đề ngẫu nhiên") để biết đề của kì nào. Nhãn "N bài ôn" (thẻ kì thi, đầu nhóm) đếm bài ôn dạng trang và đề cố định, không đếm đề ngẫu nhiên.
+- **Lịch thi**: chỉ các kì thi chưa qua của khối mình (không có mốc năm học), mỗi kì một nhãn "Còn N ngày"; kì đã ôn có dòng "Đã làm đúng x% bài ôn của kì này".
+- **Kết quả**: ba con số (số bài trong 7 ngày, **Điểm trung bình tháng** thang 10, số ngày ôn liên tiếp), **Theo môn** (thanh tỉ lệ đúng từng môn trong 30 ngày), **Chủ đề hay sai** (các chủ đề có nhiều câu sai nhất, từ ngân hàng câu hỏi), 30 bài gần nhất.
+- Hồ sơ mới (thêm con, thêm học sinh) tự chọn sẵn hình đại diện chưa có ai dùng.
 
 ### 4.2 Phụ huynh — Trang chính
 - Danh sách con: lần làm bài gần nhất, điểm trung bình 30 ngày, kì thi sắp tới.
@@ -80,7 +83,8 @@ Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mố
 ### 4.3 Làm bài
 - **Bài ôn dạng trang**: mở trong khung, giữ nguyên mọi chức năng của trang gốc. Tiến độ trong bài được tách riêng cho từng học sinh dù dùng chung máy. Mỗi lần làm xong, điểm tổng được gửi về hồ sơ.
 - **Đề ngẫu nhiên** (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì (và câu riêng nếu có); mỗi lần bấm là một đề khác, rút theo ma trận (số câu từng chủ đề, từng mức độ), ưu tiên câu con chưa làm hoặc hay sai; thiếu câu ở một ô thì lấy bù và ghi chú ngay ở màn đầu; trang kết quả có nút "Làm đề khác". Kết quả tính như đề thường (báo cáo tuần, chủ đề hay sai). Các đề cố định vẫn làm riêng được.
-- **Ngân hàng câu hỏi**: hai chế độ — *Ôn luyện* (xem đáp án và lời giải sau từng câu) và *Làm như thi* (tính giờ, chỉ xem đáp án khi nộp). Kết quả hiện điểm thang 10, thống kê theo chủ đề và theo mức độ (Biết, Hiểu, Vận dụng, khi câu có ghi mức độ), danh sách câu sai kèm lời giải.
+- **Ngân hàng câu hỏi**: hai chế độ — *Ôn luyện* (xem đáp án và lời giải sau từng câu) và *Làm như thi* (tính giờ, chỉ xem đáp án khi nộp). Trên mỗi câu chỉ một dòng nhãn "môn · chủ đề"; câu điền mà mọi đáp án là số thì mở bàn phím số (Phiên UX1).
+- **Màn kết quả** (Phiên UX1): điểm thang 10 kèm lời khen hoặc động viên theo mức điểm ("Xuất sắc, Bin!", "Chưa sao, Bin. Xem lại lời giải rồi thử lại nhé."), so với lần trước cùng đề ("Hơn lần trước 2 câu (21/25)"), nút **"Ôn lại N câu sai"** (làm lại đúng các câu sai, không lưu điểm) và "Làm lại cả đề"; danh sách câu sai thu gọn, bấm từng câu mới xem đáp án và lời giải; thống kê theo chủ đề chỉ hiện chủ đề cần ôn thêm (có "Xem cả N chủ đề"), theo mức độ (Biết, Hiểu, Vận dụng, khi câu có ghi mức độ).
 - **Đề Tiếng Anh bằng tiếng Anh** (Phiên TA2): với đề có môn Tiếng Anh (mọi khối, cả ngân hàng phụ huynh tự nhập) và bài ôn IOE, mọi chữ học sinh thấy từ màn mở đề đến hết màn kết quả đều bằng tiếng Anh: tên đề (“English 4 · End-of-term 1 · Test 1”), Practice / Test mode, True / False, Check, Skip, Next question, hộp hỏi khi rời đề, thông báo “Result saved”, link “Report a problem” và hộp chọn lí do, mức độ Know / Understand / Apply, số thập phân viết 9.25. Trang chủ, lịch thi, báo cáo, khu phụ huynh và dòng chỉ phụ huynh thấy (“Chế độ xem thử…”) giữ tiếng Việt; đề môn khác không đổi.
 - **Báo câu này sai** (Phiên R1): dưới lời giải khi ôn luyện và dưới từng câu cần xem lại ở màn kết quả có link nhỏ có lá cờ; bấm thì chọn lí do (Đáp án sai · Câu hỏi khó hiểu · Lỗi chính tả · Khác), ghi chú ngắn nếu muốn, bấm Gửi là xong, có lời cảm ơn. Ai cũng báo được, kể cả phụ huynh đang xem thử. Bản lưu trên máy: Quản trị → Dữ liệu có danh sách và nút “Chép để gửi” (dán vào Zalo gửi người làm đề). Bản đám mây: báo cáo lên máy chủ (tối đa 30 câu mỗi ngày mỗi gia đình), Khu phụ huynh → Dữ liệu xem lại kèm trạng thái; chủ app xử lí ở trang admin, tab “Câu bị báo” (đếm số lần mỗi câu bị báo, lọc theo đề, Đã sửa / Bỏ qua).
 - **Dạng câu** (Phiên K2; mọi dạng làm bằng chạm trên điện thoại, không phải kéo thả): trắc nghiệm, điền khuyết, đúng/sai; **đúng/sai 4 ý** chấm từng ý như đề thi tốt nghiệp (đúng 1/2/3/4 ý được 0,1/0,25/0,5/1 câu); **trả lời bằng số** (dấu phẩy thập phân, có sai số cho phép, nút ± để gõ số âm); **nối cột** (chạm ô bên trái rồi ô bên phải, chấm theo số cặp nối đúng); **sắp xếp thứ tự** (chạm lần lượt, chạm lại để bỏ ra); **tự luận** có đáp án gợi ý và thang tự chấm (Chưa có, Một phần, Đủ cho từng ý). Câu có thể kèm **đoạn đọc dùng chung** (hiện phía trên câu hỏi, thu gọn được, các câu cùng đoạn đứng liền nhau) và **hình vẽ** (SVG đã lọc an toàn, màu đổi theo chế độ tối). Điểm tự chấm phần tự luận lưu riêng, không cộng vào điểm trung bình; báo cáo tuần có mục “Tự luận tự chấm”. Đề mẫu: “Đề thử nghiệm · Các dạng câu mới” (lớp 6, nhóm Bài ôn khác). Ảnh: [hinh-dang-cau/](hinh-dang-cau/).
@@ -160,7 +164,7 @@ Trang thật **chỉ dành cho gia đình được mời** (quyết định 18/1
 - Giáo viên giao bài cho cả lớp, bảng xếp hạng.
 - Đề giữa kì II lớp 6 và đề cuối năm lớp 4, lớp 6 (đã có chỗ trong lịch, chưa có câu hỏi; lớp 4 đã có 4 đề giữa kì II). Số đề đang có: `node tests/kiem-tra-de.js`.
 - Thông báo nhắc ôn qua điện thoại.
-- Các cải tiến giao diện 2.x (trang “Hôm nay”, làm bài tập trung…): đã có trong lộ trình, chưa có trong app.
+- Các cải tiến giao diện 2.x còn lại (khu phụ huynh gọn lại, làm bài tập trung…): đã có trong lộ trình, chưa có trong app. Trang “Hôm nay” và màn kết quả mới đã làm ở Phiên UX1.
 
 ## 7. Lộ trình tiếp theo
 

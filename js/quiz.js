@@ -1,10 +1,16 @@
 /* Bộ làm bài chung cho các ngân hàng câu hỏi (đề có sẵn trong data/banks/ và ngân hàng do quản trị viên nhập).
-   Quiz.run(el, bank, {mode:"exam"|"practice", onExit, onFinish}) → {stop(), busy(), answered(), submit(), exam}
+   Quiz.run(el, bank, {mode:"exam"|"practice", onExit, onFinish, name?, previous?}) → {stop(), busy(), answered(), submit(), count(), exam, retry}
      busy(): đang làm dở (làm như thi chưa nộp, hoặc ôn luyện đã trả lời hoặc bỏ qua ít nhất một câu);
-     answered(): số câu đã trả lời (câu bấm "Bỏ qua" không tính); submit(): nộp bài như bấm Nộp.
+     answered(): số câu đã trả lời (câu bấm "Bỏ qua" không tính); submit(): nộp bài như bấm Nộp; count(): số câu của lượt đang làm.
      Chưa trả lời câu nào (kể cả khi hết giờ) thì nộp bài không gọi onFinish: không lưu điểm.
      "Làm lại" dùng tiếp đối tượng này, nên app luôn dừng hoặc nộp đúng lượt đang làm. opts.redraw() → {questions} (đề
      ngẫu nhiên): nút thành "Làm đề khác", lượt sau dùng bộ câu mới.
+   Màn kết quả (Phiên UX1): lời khen theo điểm (opts.name: tên học sinh, để trống thì không xưng tên); opts.previous() → {r, t} của
+     lần trước cùng đề (app đọc từ kết quả đã lưu, gọi trước khi lưu lượt này) thì có nhãn "Hơn/Kém/Bằng lần trước"; nút "Ôn lại N câu sai"
+     mở một lượt ôn luyện chỉ gồm các câu sai (retry = true trong lúc đó), không gọi onFinish, không lưu điểm; "Làm lại cả đề" về đề đầy đủ
+     cùng cách làm; câu cần xem lại thu gọn (<details class="rv">, bấm mới xem đáp án, lời giải); theo chủ đề chỉ hiện chủ đề cần ôn thêm.
+     Trên câu chỉ một dòng nhãn "môn · chủ đề" (dạng đúng/sai 4 ý, nối cột, sắp xếp, tự luận ghi thêm cách làm); câu điền mà mọi đáp án
+     là số thì ô nhập có inputmode="decimal" (bàn phím số).
    onFinish(res) được gọi cho hai loại kết quả:
      - phần chấm tự động: {r, t, s, mode, wrongTopics}. t: số câu, r: số câu đúng, có thể lẻ đến 0,01 vì câu đúng/sai 4 ý
        và nối cột chấm theo từng ý (score); câu tự luận không tính vào r, t;
@@ -48,13 +54,12 @@
       drawOther: (t, n) => `${t}: thiếu ${n} câu, lấy từ chủ đề khác`, drawShort: (t, n) => `${t}: kho chưa đủ câu, thiếu ${n} câu`,
       // đoạn đọc
       psgTitle: "Đọc kĩ rồi trả lời", psgFor: (n) => `Dùng chung cho ${n} câu`, psgHide: "Thu gọn", psgShow: "Mở ra",
-      // thân câu hỏi
-      fillLabel: "Điền vào chỗ trống", fillAria: "Câu trả lời", numLabel: "Trả lời bằng số", numSign: "Thêm hoặc bỏ dấu trừ", numAria: "Đáp số",
+      // thân câu hỏi (UX1: trên câu chỉ một dòng nhãn "môn · chủ đề", dạng phức tạp ghi thêm cách làm: tf4Label, matchLabel, orderLabel, essayLabel)
+      fillAria: "Câu trả lời", numSign: "Thêm hoặc bỏ dấu trừ", numAria: "Đáp số",
       numHint: "Số thập phân viết bằng dấu phẩy, ví dụ 2,5.", tf4Label: "Đúng hay sai? Chọn cho từng ý", tf4Group: (c) => `Ý ${c}`,
       matchLabel: "Nối cột", orderLabel: "Sắp xếp thứ tự", orderYours: "Thứ tự của bạn", essayLabel: "Tự luận · tự chấm", essayAria: "Bài làm",
       essayPh: "Viết bài làm ở đây, hoặc viết ra giấy.", essayNote: "Phần tự luận không tính vào điểm trung bình.",
       essayExam: "Nộp bài xong, bạn xem gợi ý và tự chấm.", essayPractice: "Bấm Xem gợi ý để tự chấm theo thang điểm.",
-      tfLabel: "Đúng hay sai?", mcLabel: "Chọn đáp án đúng",
       needTf4: "Bạn chọn Đúng hoặc Sai cho cả 4 ý", needMatch: "Bạn nối hết các ô bên trái", needOrder: "Bạn xếp hết các ô", needAnswer: "Bạn trả lời trước", needTail: ", hoặc bấm Bỏ qua nhé.",
       // thang tự chấm (số điểm đã định dạng, kèm giá trị số để tiếng Anh chia số ít/nhiều)
       rubricHead: (m) => `Thang tự chấm · ${m} điểm`, rubricPts: (p) => `(${p} điểm)`, lvNone: "Chưa có", lvPart: "Một phần", lvFull: "Đủ",
@@ -73,9 +78,15 @@
       ordRemove: (i, s) => `Bỏ ô ${i}: ${s}`, ordTap: (i) => `Chạm ô thứ ${i}`, ordDone: "Đã xếp đủ. Chạm một ô ở trên để bỏ ra.",
       // hộp hỏi khi bấm Thoát trong màn làm bài
       exNone: ["Thoát đề? Bạn chưa làm câu nào nên không lưu điểm.", "Thoát"], exExam: ["Nộp bài ngay? Câu chưa làm tính là sai.", "Nộp bài"],
-      exPractice: ["Dừng ôn và xem kết quả?", "Dừng"], keepGoing: "Làm tiếp",
+      exPractice: ["Dừng ôn và xem kết quả?", "Dừng"], exRetry: ["Dừng ôn lại câu sai? Lượt này không lưu điểm.", "Dừng"], keepGoing: "Làm tiếp",
       // màn kết quả
       modeExam: "Làm như thi", modePractice: "Ôn luyện", noneDone: "Bạn chưa làm câu nào nên không lưu điểm.", again: "Làm lại", newTest: "Làm đề khác", home: "Về trang chính",
+      // UX1: lời khen theo điểm (thang 10; nm: ", tên" hoặc rỗng), so với lần trước cùng đề, ôn lại câu sai, câu sai thu gọn, chủ đề cần ôn
+      praise: (d, nm) => (d >= 9 ? `Xuất sắc${nm}!` : d >= 8 ? `Giỏi lắm${nm}!` : d >= 6.5 ? `Khá tốt${nm}! Cố thêm chút nữa nhé.` : d >= 5 ? `Được rồi${nm}! Ôn thêm là lên điểm thôi.` : `Chưa sao${nm}. Xem lại lời giải rồi thử lại nhé.`),
+      cmpMore: (n, p) => `Hơn lần trước ${n} câu (${p})`, cmpLess: (n, p) => `Kém lần trước ${n} câu (${p})`, cmpSame: (p) => `Bằng lần trước (${p})`, cmpPrev: (p) => `Lần trước: ${p}`,
+      retry: (n) => `Ôn lại ${n} câu sai`, againAll: "Làm lại cả đề", retryHead: "Ôn lại câu sai", retryNote: "Lượt ôn lại câu sai không lưu điểm.",
+      qN: (n) => `Câu ${n}`, rvTap: "bấm để xem đáp án, lời giải",
+      topicsAll: (m) => `Đúng hết cả ${m} chủ đề!`, topicsOk: (k, m) => `Đúng hết ${k}/${m} chủ đề. Cần ôn thêm:`, topicsShow: (m) => `Xem cả ${m} chủ đề`,
       essayHead: (n) => `Tự luận · tự chấm (${n} câu)`, essayExamNote: "Không tính vào điểm trung bình. Đọc gợi ý, chọn mức cho từng ý rồi bấm Lưu.",
       saveSelf: "Lưu điểm tự chấm", notMarked: "chưa chấm", selfSaved: (g, m) => `Đã lưu điểm tự chấm: ${g}/${m} điểm.`, selfNoAvg: "Không tính vào điểm trung bình.",
       selfNeed: "Chọn mức cho từng ý của ít nhất một câu rồi bấm Lưu nhé.",
@@ -90,6 +101,7 @@
       appLeaveNone: { ask: "Thoát đề?", note: "Bạn chưa làm câu nào nên không lưu điểm.", yes: "Thoát", no: "Làm tiếp" },
       appLeaveExam: { ask: "Nộp bài và rời trang?", note: "Câu chưa làm tính là sai.", yes: "Nộp bài", no: "Làm tiếp" },
       appLeavePractice: { ask: "Dừng ôn và rời trang?", note: "Kết quả các câu đã làm được lưu lại.", yes: "Dừng ôn", no: "Ôn tiếp" },
+      appLeaveRetry: { ask: "Dừng ôn lại và rời trang?", note: "Lượt ôn lại câu sai không lưu điểm.", yes: "Dừng", no: "Ôn tiếp" },
       appLoading: "Đang tải đề…", appLoadFail: "Chưa tải được đề này. Bạn kiểm tra mạng rồi bấm Thử lại nhé.",
       appLoadTip: "Đề đã mở một lần khi có mạng thì lần sau mở được cả khi mất mạng.", appRetry: "Thử lại",
       appScoreSaved: ["Điểm được lưu", "Điểm mỗi lần làm xong được lưu vào hồ sơ của bạn."],
@@ -102,12 +114,11 @@
       drawLv: (t, n, lv, from) => `${t}: ${n} missing at level ${lv}, filled with ${from}`, lvOf: (lv) => "level " + lv, noLv: "questions without a level",
       drawOther: (t, n) => `${t}: ${n} missing, taken from other topics`, drawShort: (t, n) => `${t}: not enough questions in the bank, ${n} missing`,
       psgTitle: "Read and answer", psgFor: (n) => (n === 1 ? "For 1 question" : `For ${n} questions`), psgHide: "Hide", psgShow: "Show",
-      fillLabel: "Fill in the blank", fillAria: "Your answer", numLabel: "Answer with a number", numSign: "Add or remove the minus sign", numAria: "Your answer",
+      fillAria: "Your answer", numSign: "Add or remove the minus sign", numAria: "Your answer",
       numHint: "Use a decimal point, for example 2.5.", tf4Label: "True or false? Choose for each sentence", tf4Group: (c) => `Sentence ${c}`,
       matchLabel: "Match", orderLabel: "Put in order", orderYours: "Your order", essayLabel: "Writing · self-check", essayAria: "Your writing",
       essayPh: "Write here, or on paper.", essayNote: "Writing is not counted in your average score.",
       essayExam: "After you finish, read the guide and mark your own work.", essayPractice: "Tap See the guide to mark your own work.",
-      tfLabel: "True or false?", mcLabel: "Choose the best answer",
       needTf4: "Choose True or False for all 4 sentences", needMatch: "Match all the items on the left", needOrder: "Put all the items in order", needAnswer: "Answer the question first", needTail: ", or tap Skip.",
       rubricHead: (m, n) => `Marking guide · ${m} ${n === 1 ? "point" : "points"}`, rubricPts: (p, n) => `(${p} ${n === 1 ? "point" : "points"})`, lvNone: "Not yet", lvPart: "Partly", lvFull: "Fully",
       selfSum: (g, m, n) => `My score: <b>${g}/${m} ${n === 1 ? "point" : "points"}</b>`, selfPick: "Choose a level for each part to get your score.",
@@ -122,8 +133,13 @@
       mtWrong: (g) => `You matched: ${g} · Correct: `, mtAll: "All matched!", mtPart: (k, n, p) => `${k}/${n} matched · ${p}/1 point.`,
       ordRemove: (i, s) => `Remove item ${i}: ${s}`, ordTap: (i) => `Tap item ${i}`, ordDone: "All placed. Tap an item above to remove it.",
       exNone: ["Exit the test? You haven't answered any questions, so no score is saved.", "Exit"], exExam: ["Finish test now? Unanswered questions count as wrong.", "Finish test"],
-      exPractice: ["End practice and see your results?", "End practice"], keepGoing: "Keep going",
+      exPractice: ["End practice and see your results?", "End practice"], exRetry: ["Stop reviewing your mistakes? This round is not scored.", "Stop"], keepGoing: "Keep going",
       modeExam: "Test mode", modePractice: "Practice", noneDone: "You haven't answered any questions, so no score is saved.", again: "Try again", newTest: "New test", home: "Go to home",
+      praise: (d, nm) => (d >= 9 ? `Excellent${nm}!` : d >= 8 ? `Great job${nm}!` : d >= 6.5 ? `Good work${nm}! Keep it up.` : d >= 5 ? `Nice try${nm}! A bit more practice and you'll get there.` : `Don't worry${nm}. Read the guides and try again.`),
+      cmpMore: (n, p) => `${n} more than last time (${p})`, cmpLess: (n, p) => `${n} fewer than last time (${p})`, cmpSame: (p) => `Same as last time (${p})`, cmpPrev: (p) => `Last time: ${p}`,
+      retry: (n) => `Review ${n} ${n === 1 ? "mistake" : "mistakes"}`, againAll: "Try the whole test again", retryHead: "Reviewing mistakes", retryNote: "Reviewing your mistakes is not scored.",
+      qN: (n) => `Question ${n}`, rvTap: "tap to see the answer and guide",
+      topicsAll: (m) => `All ${m} topics correct!`, topicsOk: (k, m) => `${k}/${m} topics fully correct. Needs more practice:`, topicsShow: (m) => `Show all ${m} topics`,
       essayHead: (n) => `Writing · self-check (${n} ${n === 1 ? "question" : "questions"})`, essayExamNote: "Not counted in your average score. Read the guide, choose a level for each part, then tap Save.",
       saveSelf: "Save my score", notMarked: "not marked", selfSaved: (g, m, n) => `Self-check score saved: ${g}/${m} ${n === 1 ? "point" : "points"}.`, selfNoAvg: "Not counted in your average score.",
       selfNeed: "Choose a level for each part of at least one question, then tap Save.",
@@ -137,6 +153,7 @@
       appLeaveNone: { ask: "Exit the test?", note: "You haven't answered any questions, so no score is saved.", yes: "Exit", no: "Keep going" },
       appLeaveExam: { ask: "Finish the test and leave?", note: "Unanswered questions count as wrong.", yes: "Finish test", no: "Keep going" },
       appLeavePractice: { ask: "End practice and leave?", note: "Your answers so far will be saved.", yes: "End practice", no: "Keep practising" },
+      appLeaveRetry: { ask: "Stop reviewing and leave?", note: "Reviewing your mistakes is not scored.", yes: "Stop", no: "Keep going" },
       appLoading: "Loading the test…", appLoadFail: "Can't load this test. Check your internet and tap Try again.",
       appLoadTip: "Once a test has been opened online, it also opens offline.", appRetry: "Try again",
       appScoreSaved: ["Score saved", "Your score is saved to your profile each time you finish."],
@@ -319,7 +336,8 @@
 
   /* ---------------- chấm ---------------- */
   function prep(q, L) {
-    const x = Object.assign({ key: key(q) }, q); // mã câu tính trên câu gốc (đúng/sai thêm o khi dựng, theo ngôn ngữ L)
+    // mã câu tính trên câu gốc (đúng/sai thêm o khi dựng, theo ngôn ngữ L); orig: câu gốc, để "Ôn lại câu sai" dựng lại từ đầu
+    const x = Object.assign({ key: key(q), orig: q }, q);
     if (q.type === "mc") { x.order = shuffle(q.o.map((_, i) => i)); x.a = 0; }
     if (q.type === "tf") { x.o = [L.tfYes, L.tfNo]; x.order = [0, 1]; x.a = q.a ? 0 : 1; }
     if (q.type === "match") x.rOrder = mix(q.r.length);
@@ -418,11 +436,18 @@
     return s.length > 500 ? s.slice(0, 499) + "…" : s;
   }
 
-  const run = (el, bank, opts) => start(el, bank, opts, { exam: opts.mode === "exam" });
-  function start(el, bank, opts, h) {
+  const run = (el, bank, opts) => start(el, bank, opts, {});
+  /* retry (UX1, "Ôn lại câu sai"): lượt ôn luyện chỉ gồm các câu sai của lượt trước, không gọi onFinish (không lưu điểm);
+     h.full, h.opts0: đề và tùy chọn của lượt đầy đủ, để "Làm lại cả đề" quay về đề đầy đủ (cùng cách làm). */
+  function start(el, bank, opts, h, retry) {
     const exam = opts.mode === "exam";
+    h.exam = exam; h.retry = !!retry;
+    if (!retry) { h.full = bank; h.opts0 = opts; }
     // Ngôn ngữ của màn làm bài (TA2): opts.lang, mặc định theo môn của đề (Quiz.lang). N: số theo ngôn ngữ; LANG: lang="en" cho khung.
     const lang = TXT[opts.lang] ? opts.lang : langOf(bank), L = TXT[lang], N = (x) => fmtN(x, lang), ttl = title(bank, lang), LANG = lang === "en" ? ' lang="en"' : "";
+    // Dòng nhãn trên câu (UX1): "môn · chủ đề", dạng phức tạp ghi thêm cách làm. Đề Tiếng Anh ghi môn bằng tiếng Anh; đề không ghi môn thì tên đề.
+    const subj = bank.subject ? (lang === "en" && EN_SUBJECTS.includes(foldS(bank.subject)) ? L.english : bank.subject) : ttl;
+    const INSTR = { tf4: L.tf4Label, match: L.matchLabel, order: L.orderLabel, essay: L.essayLabel };
     const passages = bank.passages || {};
     // Câu dùng chung một đoạn đọc đứng liền nhau, giữ thứ tự trong đề; các nhóm và câu lẻ thì xáo.
     const units = [], seenP = {};
@@ -445,33 +470,35 @@
       switch (q.type) {
         case "fill": {
           const parts = esc(q.q).split("___");
-          return `<div class="label">${L.fillLabel}</div><div class="${qcls}">${parts[0]}<input class="blank" id="qzFill" autocomplete="off" spellcheck="false" aria-label="${L.fillAria}">${parts.slice(1).join("___")}</div>${fig(q.svg)}`;
+          // mọi đáp án là số: mở bàn phím số trên điện thoại (UX1)
+          const numeric = (q.ans || []).length && q.ans.every(isNum);
+          return `<div class="${qcls}">${parts[0]}<input class="blank" id="qzFill" autocomplete="off" spellcheck="false" aria-label="${L.fillAria}"${numeric ? ' inputmode="decimal"' : ""}>${parts.slice(1).join("___")}</div>${fig(q.svg)}`;
         }
         case "num":
-          return `<div class="label">${L.numLabel}</div>${stem}
+          return `${stem}
             <div class="num-row"><button type="button" class="btn ghost" id="qzSign" aria-label="${L.numSign}">±</button><input class="num-in" id="qzNum" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="${L.numAria}">${q.unit ? `<span class="num-unit">${esc(q.unit)}</span>` : ""}</div>
             <p class="small muted">${L.numHint}</p>`;
         case "tf4":
-          return `<div class="label">${L.tf4Label}</div>${stem}
+          return `${stem}
             <div class="tf4">${q.o.map((s, i) => `<div class="tf4-row" data-i="${i}"><div class="tf4-s"><b>${ABCD[i]})</b> ${esc(s)}</div>
               <div class="tf4-b" role="group" aria-label="${L.tf4Group(ABCD[i])}"><button type="button" class="opt" data-i="${i}" data-v="1" aria-pressed="false">${L.tfYes}</button><button type="button" class="opt" data-i="${i}" data-v="0" aria-pressed="false">${L.tfNo}</button></div></div>`).join("")}</div>`;
         case "match":
-          return `<div class="label">${L.matchLabel}</div>${stem}
+          return `${stem}
             <div class="mt-l">${q.l.map((s, i) => `<button type="button" class="mt-li" data-i="${i}"><span class="k">${i + 1}</span><span class="grow"><span>${esc(s)}</span><span class="mt-to small"></span></span></button>`).join("")}</div>
             <div class="label" id="qzHint" aria-live="polite"></div>
             <div class="mt-r">${q.rOrder.map((ri, k) => `<button type="button" class="opt mt-ri" data-r="${ri}"><span class="k">${LET[k]}</span><span class="grow">${esc(q.r[ri])}</span><span class="mt-n"></span></button>`).join("")}</div>`;
         case "order":
-          return `<div class="label">${L.orderLabel}</div>${stem}
+          return `${stem}
             <div class="label">${L.orderYours}</div><ol class="ord-seq" id="qzSeq"></ol>
             <div class="label" id="qzHint" aria-live="polite"></div>
             <div class="ord-pool">${q.pOrder.map((k) => `<button type="button" class="opt ord-p" data-k="${k}">${esc(q.o[k])}</button>`).join("")}</div>`;
         case "essay":
-          return `<div class="label">${L.essayLabel}</div>${stem}
+          return `${stem}
             <textarea class="essay-in" id="qzEssay" aria-label="${L.essayAria}" placeholder="${L.essayPh}"></textarea>
             <p class="small muted">${L.essayNote} ${exam ? L.essayExam : L.essayPractice}</p>`;
         default: {
           const wide = q.o.some((o) => String(o).length > 22);
-          return `<div class="label">${q.type === "tf" ? L.tfLabel : L.mcLabel}</div>${stem}
+          return `${stem}
             <div class="opts${wide ? " wide" : ""}">${q.order.map((oi, k) => `<button class="opt" data-o="${oi}"><span class="k">${LET[k]}</span><span>${esc(q.o[oi])}</span></button>`).join("")}</div>`;
         }
       }
@@ -549,7 +576,7 @@
         <div class="bar" aria-hidden="true"><i style="width:${(S.i / qs.length) * 100}%"></i></div>
         ${q.p && passages[q.p] ? passageHtml(q.p) : ""}
         <section class="qcard">
-          <div class="row between"><span class="label">${nb(esc(ttl))}</span>${q.topic ? `<span class="label">${esc(q.topic)}</span>` : ""}</div>
+          <div class="label">${nb(esc([subj, q.topic, INSTR[q.type]].filter(Boolean).join(" · ")))}</div>
           ${body(q)}
           <div id="qzFb" aria-live="polite"></div>
         </section>
@@ -650,15 +677,17 @@
     }
     function confirmExit() {
       const fb = el.querySelector("#qzFb"), none = !answered();
-      const [ask, yes] = none ? L.exNone : exam ? L.exExam : L.exPractice;
+      const [ask, yes] = none ? L.exNone : h.retry ? L.exRetry : exam ? L.exExam : L.exPractice;
       fb.innerHTML = `<div class="confirm"><div>${ask}</div><div class="row"><button class="btn danger" id="qzYes">${yes}</button><button class="btn ghost" id="qzNo">${L.keepGoing}</button></div></div>`;
       fb.querySelector("#qzYes").onclick = none ? () => { h.stop(); if (opts.onExit) opts.onExit(); } : finish;
       fb.querySelector("#qzNo").onclick = () => (fb.innerHTML = "");
     }
     function next() { S.i++; if (S.i >= qs.length) finish(); else render(); }
-    // Làm lại: cùng bộ câu (xáo lại); đề ngẫu nhiên (opts.redraw) thì rút bộ câu mới.
-    const againTxt = opts.redraw ? L.newTest : L.again;
-    const again = () => start(el, opts.redraw ? Object.assign({}, bank, opts.redraw()) : bank, opts, h);
+    // Làm lại: cả đề (h.full), cùng bộ câu (xáo lại); đề ngẫu nhiên (redraw) thì rút bộ câu mới. Sau lượt ôn lại câu sai: về đề đầy đủ, cùng cách làm.
+    const againTxt = h.opts0.redraw ? L.newTest : L.again;
+    const again = () => start(el, h.opts0.redraw ? Object.assign({}, h.full, h.opts0.redraw()) : h.full, h.opts0, h);
+    // Ôn lại câu sai (UX1): lượt ôn luyện chỉ gồm các câu gốc của các câu sai, không lưu điểm.
+    const retryWith = (list) => () => start(el, Object.assign({}, h.full, { questions: list.map((a) => a.q.orig || a.q) }), Object.assign({}, h.opts0, { mode: "practice" }), h, true);
     // Lưu điểm tự chấm các câu tự luận đã chấm đủ (một kết quả cho cả lượt). Trả về {got, max} hoặc null.
     function saveSelf(list) {
       const sums = list.map(selfSum).filter(Boolean);
@@ -671,7 +700,7 @@
       if (S.done) return; S.done = true; clearInterval(S.timer);
       if (!answered()) {
         el.innerHTML = `<div class="stack"${LANG}>
-          <section class="panel"><div class="label">${nb(`${esc(ttl)} · ${exam ? L.modeExam : L.modePractice}`)}</div><p>${L.noneDone}</p></section>
+          <section class="panel"><div class="label">${nb(`${esc(ttl)} · ${h.retry ? L.retryHead : exam ? L.modeExam : L.modePractice}`)}</div><p>${L.noneDone}</p></section>
           <div class="row"><button class="btn main" id="qzAgain">${againTxt}</button><button class="btn ghost" id="qzHome">${L.home}</button></div></div>`;
         el.querySelector("#qzAgain").onclick = again;
         el.querySelector("#qzHome").onclick = () => opts.onExit && opts.onExit();
@@ -680,7 +709,7 @@
       }
       if (exam) for (let i = 0; i < qs.length; i++) if (!S.ans[i]) S.ans[i] = { q: qs[i], g: null, ok: false, pts: 0 };
       const idx = range(qs.length).filter((i) => S.ans[i]);
-      const auto = idx.filter((i) => qs[i].type !== "essay").map((i) => S.ans[i]);
+      const auto = idx.filter((i) => qs[i].type !== "essay").map((i) => Object.assign({ n: i + 1 }, S.ans[i])); // n: số thứ tự câu trong lượt này
       // Tự luận: ôn luyện thì các câu đã xem gợi ý; làm như thi thì mọi câu (có thể đã viết ra giấy).
       const essays = idx.filter((i) => qs[i].type === "essay" && (exam || S.ans[i].done));
       const right = r2(auto.reduce((a, x) => a + (x.pts || 0), 0)), total = auto.length;
@@ -689,11 +718,30 @@
       const byTopic = {}, byLv = {};
       auto.forEach((a) => { const k = a.q.topic || "Chung"; byTopic[k] = byTopic[k] || [0, 0]; byTopic[k][1]++; byTopic[k][0] += a.pts || 0; });
       auto.forEach((a) => { if (LV[a.q.lv]) { byLv[a.q.lv] = byLv[a.q.lv] || [0, 0]; byLv[a.q.lv][1]++; byLv[a.q.lv][0] += a.pts || 0; } });
-      const saved = !exam ? saveSelf(essays) : null; // ôn luyện: chấm ngay sau từng câu, lưu luôn
-      if (total && opts.onFinish) opts.onFinish({ r: right, t: total, s: Math.round(secs), mode: exam ? "exam" : "practice", wrongTopics: wrong.map((a) => a.q.topic || "Chung"), marks: auto.map((a) => [a.q.key, a.pts || 0]) });
-      const d10 = total ? N(Math.round((right / total) * 40) / 4) : "0";
+      // Lần trước cùng đề (UX1): đọc trước khi lưu lượt này. Lượt ôn lại câu sai không so, không lưu.
+      const prev = !h.retry && typeof opts.previous === "function" ? opts.previous() : null;
+      const saved = !exam && !h.retry ? saveSelf(essays) : null; // ôn luyện: chấm ngay sau từng câu, lưu luôn
+      if (total && !h.retry && opts.onFinish) opts.onFinish({ r: right, t: total, s: Math.round(secs), mode: exam ? "exam" : "practice", wrongTopics: wrong.map((a) => a.q.topic || "Chung"), marks: auto.map((a) => [a.q.key, a.pts || 0]) });
+      const d10n = total ? Math.round((right / total) * 40) / 4 : 0, d10 = N(d10n);
       const bars = (o, name) => `<div class="ubreak">${Object.entries(o).map(([k, [r, t]]) => `<span>${esc(name(k))}</span><div class="bar"><i style="width:${(r / t) * 100}%"></i></div><span>${N(r)}/${t}</span>`).join("")}</div>`;
       const part = auto.some((a) => a.pts > 0 && a.pts < 1);
+      // lời khen theo điểm (opts.name: tên học sinh; xem thử thì không có tên) và so với lần trước
+      const praise = total ? L.praise(d10n, opts.name ? ", " + esc(opts.name) : "") : "";
+      let cmp = "";
+      if (prev && prev.t > 0 && total) {
+        const ps = `${N(prev.r)}/${prev.t}`, d = r2(right - prev.r);
+        cmp = prev.t !== total ? `<span class="tag">${L.cmpPrev(ps)}</span>` : d > 0 ? `<span class="tag ioe">${L.cmpMore(N(d), ps)}</span>` : d < 0 ? `<span class="tag warn">${L.cmpLess(N(-d), ps)}</span>` : `<span class="tag">${L.cmpSame(ps)}</span>`;
+      }
+      // theo chủ đề: chỉ hiện chủ đề cần ôn thêm, cả bảng thu gọn trong "Xem cả N chủ đề"
+      const topicName = (k) => (k === "Chung" ? L.topicGeneral : k), topics = Object.entries(byTopic), need = topics.filter(([, [r, t]]) => r < t), full = topics.length - need.length;
+      const topicPanel = topics.length < 2 ? "" : `<section class="panel" id="qzTopics"><div class="label">${L.byTopic}</div>
+          ${full ? `<p class="small">${need.length ? L.topicsOk(full, topics.length) : L.topicsAll(topics.length)}</p>` : ""}
+          ${need.length ? bars(Object.fromEntries(need), topicName) : ""}
+          ${full ? `<details class="small"><summary>${L.topicsShow(topics.length)}</summary>${bars(byTopic, topicName)}</details>` : ""}</section>`;
+      // câu cần xem lại, thu gọn: bấm mới xem đáp án và lời giải
+      const reviewPanel = !wrong.length ? "" : `<section class="panel" id="qzReview"><div class="label">${L.review(wrong.length)}</div><div class="review">${wrong.map((a) => `<details class="rv"><summary><span class="grow"><span><span class="rv-n">${L.qN(a.n)}</span> · ${esc(a.q.q).replace("___", "…")}${LV[a.q.lv] ? ` <span class="tag">${L.lv[a.q.lv]}</span>` : ""}</span><span class="small">${L.yourAns}<s>${esc(givenText(a.q, a.g, L))}</s>${a.pts > 0 ? L.gotPts(N(a.pts)) : ""} · ${L.rvTap}</span></span></summary>
+          <div class="rv-body"><div class="small">${L.ansLabel} <b>${esc(correctText(a.q, L))}</b></div>${a.q.x ? `<div class="expl">${esc(a.q.x)}</div>` : ""}${reportHtml(a.q)}</div></details>`).join("")}</div></section>`;
+      const againAllTxt = h.opts0.redraw ? L.newTest : L.againAll;
       const essayPanel = !essays.length ? "" : exam
         ? `<section class="panel" id="qzSelf"><div class="label">${L.essayHead(essays.length)}</div>
             <p class="small muted">${L.essayExamNote}</p>
@@ -703,19 +751,24 @@
             <div class="ubreak">${essays.map((i) => { const s = selfSum(i); return `<span>${esc(String(qs[i].q).slice(0, 60))}${String(qs[i].q).length > 60 ? "…" : ""}</span><span></span><span>${s ? N(s.got) + "/" + N(s.max) : L.notMarked}</span>`; }).join("")}</div>
             <p class="small muted">${saved ? L.selfSaved(N(saved.got), N(saved.max), saved.max) + " " : ""}${L.selfNoAvg}</p></section>`;
       el.innerHTML = `<div class="stack"${LANG}>
-        <section class="panel">
-          <div class="label">${nb(`${esc(ttl)} · ${exam ? L.modeExam : L.modePractice}`)}</div>
-          ${total ? `<div class="row" style="gap:18px;align-items:flex-end"><div class="score">${d10}<span class="score-sub">/10</span></div>
+        <section class="panel" id="qzScore">
+          <div class="label">${nb(`${esc(ttl)} · ${h.retry ? L.retryHead : exam ? L.modeExam : L.modePractice}`)}</div>
+          ${total ? `<h2 class="praise">${praise}</h2>
+          <div class="row" style="gap:18px;align-items:flex-end"><div class="score">${d10}<span class="score-sub">/10</span></div>
           <div class="stack tight"><b>${L.scoreLine(N(right), total)}</b><span class="muted small">${L.time}${fmtTime(secs)}</span></div></div>
+          ${cmp ? `<div class="tags" id="qzCmp">${cmp}</div>` : ""}
+          ${h.retry ? `<p class="small muted">${L.retryNote}</p>` : ""}
           ${part ? `<p class="small muted">${L.partNote}</p>` : ""}` : `<p>${L.onlyEssay} ${L.time}${fmtTime(secs)}</p>`}
         </section>
-        ${Object.keys(byTopic).length > 1 ? `<section class="panel"><div class="label">${L.byTopic}</div>${bars(byTopic, (k) => (k === "Chung" ? L.topicGeneral : k))}</section>` : ""}
+        <div class="row">${wrong.length ? `<button class="btn main" id="qzRetry">${L.retry(wrong.length)}</button>` : ""}<button class="btn ${wrong.length ? "ghost" : "main"}" id="qzAgain">${wrong.length || h.retry ? againAllTxt : againTxt}</button></div>
+        ${reviewPanel}
+        ${topicPanel}
         ${Object.keys(byLv).length ? `<section class="panel" id="qzLv"><div class="label">${L.byLv}</div>${bars(byLv, (k) => L.lv[k])}</section>` : ""}
-        ${wrong.length ? `<section class="panel"><div class="label">${L.review(wrong.length)}</div><div class="review">${wrong.map((a) => `<div class="rv"><div>${esc(a.q.q).replace("___", "…")}${LV[a.q.lv] ? ` <span class="tag">${L.lv[a.q.lv]}</span>` : ""}</div><div class="small">${L.yourAns}<s>${esc(givenText(a.q, a.g, L))}</s>${a.pts > 0 ? L.gotPts(N(a.pts)) : ""}${L.ansIn}<b>${esc(correctText(a.q, L))}</b></div>${a.q.x ? `<div class="expl">${esc(a.q.x)}</div>` : ""}${reportHtml(a.q)}</div>`).join("")}</div></section>` : ""}
         ${essayPanel}
-        <div class="row"><button class="btn main" id="qzAgain">${againTxt}</button><button class="btn ghost" id="qzHome">${L.home}</button></div>
+        <div class="row"><button class="btn ghost" id="qzHome">${L.home}</button></div>
       </div>`;
       el.querySelector("#qzAgain").onclick = again;
+      if (wrong.length) el.querySelector("#qzRetry").onclick = retryWith(wrong);
       el.querySelector("#qzHome").onclick = () => opts.onExit && opts.onExit();
       wireReport(el);
       const save = el.querySelector("#qzSelfSave");
@@ -733,6 +786,7 @@
     h.reported = h.reported || new Set();
     h.stop = () => { clearInterval(S.timer); S.done = true; };
     h.busy = () => !S.done && (exam || S.ans.some(Boolean));
+    h.count = () => qs.length;
     h.answered = answered;
     h.submit = finish;
     if (!qs.length) { h.stop(); el.innerHTML = `<div class="panel"${LANG}>${L.emptyBank}</div>`; return h; }

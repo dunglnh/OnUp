@@ -88,6 +88,37 @@ details.small>summary{min-height:44px;padding:12px 0;cursor:pointer}
 .tabs{display:flex;flex-wrap:wrap;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
 .tabs button{border:0;background:transparent;border-radius:10px;padding:9px 12px;font-weight:700;color:var(--muted);white-space:nowrap;flex:1 1 auto;min-height:44px}
 .tabs button[aria-pressed="true"]{background:var(--acc);color:var(--on-acc)}
+/* thanh tab dưới màn hình của học sinh (drawTabs trong js/app.js, Phiên UX1): Hôm nay · Bài ôn · Lịch thi · Kết quả.
+   Cố định ở mép dưới, mỗi tab cao ≥ 52px; body.tabbed chừa chỗ ở dưới, thông báo nổi (.toast) nhảy lên trên thanh. */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);
+  padding:4px max(8px,env(safe-area-inset-right,0px)) max(4px,env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.tabbar-in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.tabbar a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:52px;border-radius:12px;text-decoration:none;color:var(--muted);font-size:.8125rem;font-weight:700;padding:4px 2px;min-width:0}
+.tabbar a span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.tabbar a[aria-current="page"]{color:var(--acc);background:var(--acc-soft)}
+.tabbar svg{width:24px;height:24px;flex:none}
+body.tabbed{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+.tabbed .toast{bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+
+/* trang "Hôm nay" của học sinh (renderToday, Phiên UX1): thẻ gợi ý với nút Bắt đầu to, bài phụ, chuỗi ngày ôn T2–CN, huy hiệu */
+.today h1{font-size:1.5rem}
+.today .btn.lg{padding:14px 24px;font-size:1.1rem;width:100%;min-height:52px}
+.hero .linkbtn{color:inherit;text-decoration:underline;font-weight:600;align-self:flex-start}
+.pick{flex-direction:row;align-items:center;gap:12px;padding:12px 14px}
+.pick .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.pick .grow b{overflow-wrap:anywhere}
+.pick-ic{font-size:1.5rem;flex:none}
+.streak .big{font-family:var(--display);font-size:1.3rem;line-height:1.15}
+.fire{font-size:1.7rem;line-height:1}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.wd{width:100%;max-width:44px;aspect-ratio:1;margin:0 auto;border:2px solid var(--line);border-radius:50%;display:grid;place-items:center;font-size:.8125rem;font-weight:700;color:var(--muted)}
+.wd.on{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.wd.now{border-color:var(--acc);color:var(--acc)}
+.wd.on.now{border-color:var(--ok);box-shadow:0 0 0 2px var(--acc-soft)}
+.wd.later{border-style:dashed}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:.8125rem;border-radius:999px;padding:3px 10px;background:var(--sun-soft);color:var(--ink);font-weight:600;border:1px solid transparent}
+.badge:not(.on){background:transparent;border-color:var(--line);color:var(--muted)}
+.ready{color:var(--ink);font-weight:600} .ready.good{color:var(--ok)} /* "Đã làm đúng x% bài ôn của kì này" trên thẻ kì thi */
 
 /* đăng nhập */
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
@@ -213,8 +244,17 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .expl{margin-top:8px;padding:10px 12px;border-left:4px solid var(--acc);background:var(--bg);border-radius:0 10px 10px 0;font-size:.92rem}
 .score{font-family:var(--display);font-size:3.2rem;font-weight:800;color:var(--acc);line-height:1;font-variant-numeric:tabular-nums}
 .score-sub{font-size:1.4rem;color:var(--muted)}
+.praise{font-size:1.3rem} /* lời khen theo điểm ở màn kết quả (UX1) */
+/* Câu cần xem lại thu gọn (UX1): dòng summary là câu hỏi và câu trả lời sai, bấm mới mở đáp án, lời giải, link báo câu sai. */
 .review{display:flex;flex-direction:column;gap:12px}
-.rv{border-left:4px solid var(--bad);padding:6px 0 6px 12px;display:flex;flex-direction:column;gap:3px;overflow-wrap:anywhere}
+.rv{border-left:4px solid var(--bad);padding:0 0 0 12px;display:block;overflow-wrap:anywhere}
+.rv>summary{display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 0;cursor:pointer;list-style:none}
+.rv>summary::-webkit-details-marker{display:none}
+.rv>summary .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.rv>summary::after{content:"";flex:none;width:9px;height:9px;margin:-4px 4px 0 0;border:solid var(--muted);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.rv[open]>summary::after{margin-top:4px;transform:rotate(-135deg)}
+.rv-n{font-weight:700;color:var(--muted)}
+.rv-body{display:flex;flex-direction:column;gap:3px;padding:0 0 8px}
 .rv b{color:var(--ok)} .rv s{color:var(--bad)}
 /* dạng câu mới (js/quiz.js): đoạn đọc dùng chung (thu gọn được, dài thì cuộn trong khung), hình SVG, đúng/sai 4 ý,
    trả lời bằng số, nối cột, sắp xếp, tự luận tự chấm. Mọi thao tác là chạm, nút cao ít nhất 44px. */
@@ -328,7 +368,8 @@ body.playing{padding-bottom:0}
   @page{margin:12mm}
   body{padding:0}
   .app{max-width:none}
-  .top,.foot,.noprint,.toast{display:none!important}
+  .top,.foot,.noprint,.toast,.tabbar{display:none!important}
+  body.tabbed{padding-bottom:0}
   .panel,.stat,.ev,.item,.rp-sub,.rp-days{break-inside:avoid}
   h1,h2,.label{break-after:avoid}
   .bar,.bar i,.rp-day,.tag,.av,.ev{-webkit-print-color-adjust:exact;print-color-adjust:exact}
