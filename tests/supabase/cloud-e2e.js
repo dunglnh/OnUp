@@ -177,7 +177,8 @@ async function run(browser, scheme) {
   // UX3: chưa có hồ sơ con: mục Các con chỉ có thẻ "Bắt đầu trong 3 bước" (bước 1 đang làm, nút thêm trong thẻ), "Cho con học" mờ; nút góc trên là "Chọn hồ sơ khác"
   const startOf = (pg) => pg.evaluate(() => { const st = document.querySelector("#start"); return st ? { steps: [...st.querySelectorAll(".step")].map((x) => x.className.replace("step", "").trim() + ":" + x.querySelector("b").textContent).join("|"),
     text: st.textContent.replace(/\s+/g, " ").trim(), disabled: document.querySelector("#letStudy").disabled, h: Math.round(document.querySelector("#letStudy").getBoundingClientRect().height),
-    add: !!st.querySelector("a.btn[href='#/admin/user/new?role=student']"), first: document.querySelector("#kids").firstElementChild.id, rows: document.querySelectorAll("#kids > .row").length } : null; });
+    add: !!st.querySelector("a.btn[href='#/admin/user/new?role=student']"), first: document.querySelector("#kids").firstElementChild.id, rows: document.querySelectorAll("#kids > .row").length,
+    link2: [...st.querySelectorAll(".step:nth-child(2) a")].map((a) => a.getAttribute("href") + " · " + a.textContent).join() } : null; }); // link2: link đặt mã PIN của bước 2 (UX3b)
   c.ux3 = { start0: await startOf(p), switchTxt: await text(p, "#switchWho") }; c.ux3b = {}; // ux3b: các kiểm tra của Phiên UX3b
 
   /* ---- thêm hồ sơ con ---- */
@@ -196,7 +197,7 @@ async function run(browser, scheme) {
   // UX2: tab Các con: mỗi con một thẻ (chưa có bài: "Chưa ôn", "–", 0), không có ba ô số liệu và mục "Kì thi tiếp theo"; "+ Thêm hồ sơ con", "2/5 hồ sơ"
   c.ux2.kids = await p.evaluate(() => ({ cards: [...document.querySelectorAll("#kids a.kid")].map((k) => k.getAttribute("href") + " " + [...k.querySelectorAll(".stat")].map((s) => s.querySelector("b").textContent + " " + s.querySelector("span").textContent).join("|") + " " + (k.querySelector(".kid-ev") || {}).textContent).join("; ").replace(/\s+/g, " "),
     extraStats: !!document.querySelector("#view > .stack > .stats"), h2: [...document.querySelectorAll("#view h2")].map((h) => h.textContent).join(), count: [...document.querySelectorAll("#kids > .row > .small")].map((x) => x.textContent).join(), add: !!document.querySelector("#kids > .row > a[href='#/admin/user/new?role=student']"), hint: document.querySelector("#kids > p.small").textContent }));
-  c.ux3.start2 = await startOf(p); // UX3: có con nhưng chưa con nào học: bước 1, 2 xong (Bin có PIN), bước 3 đang làm, "Cho con học" bật
+  c.ux3.start2 = await startOf(p); // UX3: có con nhưng chưa con nào học: bước 1 xong, bước 3 đang làm, "Cho con học" bật; UX3b (X19): Bin có mã, Na không: bước 2 chưa ✓, "Na chưa có", link "Đặt mã PIN cho Na"
   await shot(p, "c6-cac-con");
   // UX2: tab Lịch thi của khu phụ huynh: chỉ khối của các con ("Lớp 4 · Bin", "Lớp 6 · Na"), kì thi dự kiến có nút "Trường đã báo lịch? Sửa ngày",
   // hộp sửa ngày mở ngay dưới thẻ, Lưu thì bỏ cờ dự kiến và lên máy chủ; #/calendar của phụ huynh cũng về đây
@@ -719,11 +720,11 @@ async function run(browser, scheme) {
       && c.ux2.bankForm === "Nhập đề | ← Đề tự soạn | Lưu đề" && c.ux2.data === "← Cài đặt | Chuyển dữ liệu và sao lưu | Các con,Lịch thi,Cài đặt* | true | true" && c.ux2.accountBack === "← Cài đặt",
     "UX2: bấm thẻ của con là mở báo cáo tuần (#/child/<mã>), có “← Các con”, Sửa hồ sơ, link Lịch thi lớp 4 (chọn sẵn khối) và Bài ôn của Bin (xem thử)": c.ux2.report.hash === "#/child/" + binId && c.ux2.report.back === "← Các con" && c.ux2.report.edit
       && c.ux2.report.links === `Lịch thi lớp 4=#/admin/events?g=4,Bài ôn của Bin=#/child/${binId}/practice` && /^Bài ôn lớp 4 của Bin \| ← Báo cáo của Bin \| \d+$/.test(c.ux2.practice) && c.ux2.calFromReport === "#/admin/events?g=4 Lớp 4 · Bin",
-    "UX3: thẻ “Bắt đầu trong 3 bước” ở đầu mục Các con: chưa có con thì chỉ có thẻ (bước 1 đang làm, nút thêm trong thẻ, “Cho con học” mờ); có con thì bước 1, 2 xong (Bin có PIN), bước 3 đang làm, nút bật ≥ 52px và mở “Ai đang học?”; con đã học thì thẻ ẩn":
-      !!c.ux3.start0 && c.ux3.start0.steps === "now:Thêm hồ sơ con|:Đặt mã PIN (không bắt buộc)|:Đưa máy cho con" && c.ux3.start0.disabled && c.ux3.start0.add && c.ux3.start0.first === "start" && c.ux3.start0.rows === 0
+    "UX3: thẻ “Bắt đầu trong 3 bước” ở đầu mục Các con: chưa có con thì chỉ có thẻ (bước 1 đang làm, nút thêm trong thẻ, “Cho con học” mờ); có con thì bước 1 xong, bước 3 đang làm, nút bật ≥ 52px và mở “Ai đang học?”; con đã học thì thẻ ẩn":
+      !!c.ux3.start0 && c.ux3.start0.steps === "now:Thêm hồ sơ con|:Đặt mã PIN (không bắt buộc)|:Đưa máy cho con" && c.ux3.start0.disabled && c.ux3.start0.add && c.ux3.start0.first === "start" && c.ux3.start0.rows === 0 && c.ux3.start0.link2 === ""
       && /^Bắt đầu trong 3 bước 1Thêm hồ sơ conTên, khối, lớp và hình đại diện\. App không hỏi ngày sinh hay ảnh của con\.\+ Thêm hồ sơ con 2Đặt mã PIN \(không bắt buộc\)Để anh chị em không vào nhầm hồ sơ của nhau\. 3Đưa máy cho conBấm “Cho con học”, con chọn hồ sơ của mình rồi bắt đầu ôn\. Cho con học Nút này mở màn hình “Ai đang học\?” khi đã có hồ sơ con\.$/.test(c.ux3.start0.text)
-      && !!c.ux3.start2 && c.ux3.start2.steps === "done:Thêm hồ sơ con|done:Đặt mã PIN (không bắt buộc)|now:Đưa máy cho con" && !c.ux3.start2.disabled && c.ux3.start2.h >= 52 && c.ux3.start2.first === "start" && c.ux3.start2.rows === 1
-      && /✓Thêm hồ sơ conĐã có 2 hồ sơ: Bin, Na\. ✓Đặt mã PIN \(không bắt buộc\)Bin đã có mã PIN\. 3Đưa máy cho con/.test(c.ux3.start2.text) && /Lúc khác, bấm “Chọn hồ sơ khác” ở góc trên\.$/.test(c.ux3.start2.text)
+      && !!c.ux3.start2 && c.ux3.start2.steps === "done:Thêm hồ sơ con|:Đặt mã PIN (không bắt buộc)|now:Đưa máy cho con" && !c.ux3.start2.disabled && c.ux3.start2.h >= 52 && c.ux3.start2.first === "start" && c.ux3.start2.rows === 1
+      && /✓Thêm hồ sơ conĐã có 2 hồ sơ: Bin, Na\. 2Đặt mã PIN \(không bắt buộc\)Bin đã có mã PIN\. Na chưa có\.Đặt mã PIN cho Na 3Đưa máy cho con/.test(c.ux3.start2.text) && /Lúc khác, bấm “Chọn hồ sơ khác” ở góc trên\.$/.test(c.ux3.start2.text)
       && c.ux3.letStudy && c.ux3.gone,
     "UX3: “Đổi người học” thành “Chọn hồ sơ khác” ở khu phụ huynh và trang Tài khoản của phụ huynh, của con": c.ux3.switchTxt === "Chọn hồ sơ khác" && c.ux3.parentSwitch === "Chọn hồ sơ khác" && c.ux3.kidSwitch === "Chọn hồ sơ khác"
       && /chỉ cần “Chọn hồ sơ khác”/.test(c.ux3.accountText) && !/Đổi người học/.test(c.ux3.accountText),

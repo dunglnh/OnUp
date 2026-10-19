@@ -1042,14 +1042,16 @@
      Nút to "Cho con học" (#letStudy) mở màn hình "Ai đang học?" như nút "Chọn hồ sơ khác" ở góc trên; mờ khi chưa có hồ sơ con. */
   const startDone = (studs) => studs.some((c) => c.id === Store.lastUserId() || Store.resultsFor(c.id).length > 0);
   function startCard(studs) {
-    const has = studs.length > 0, pinned = studs.filter((c) => c.hasPin), names = (list) => esc(list.map((c) => c.name).join(", "));
+    const has = studs.length > 0, pinned = studs.filter((c) => c.hasPin), noPin = studs.filter((c) => !c.hasPin), names = (list) => esc(list.map((c) => c.name).join(", "));
     const step = (n, done, now, title, body) => `<li class="step${done ? " done" : now ? " now" : ""}"><span class="n" aria-hidden="true">${done ? "✓" : n}</span><span class="grow"><b>${title}</b>${body}</span></li>`;
-    const pinHref = studs.length === 1 ? "#/admin/user/" + esc(studs[0].id) : "#/admin/settings";
+    // Bước 2 (Phiên UX3b, X19): ✓ khi mọi con đã có mã PIN. Còn con chưa có thì ghi tên con đó và link "Đặt mã PIN cho <tên>" mở thẳng
+    // hồ sơ của con đầu tiên chưa có mã, kể cả khi nhà nhiều con (?tu=batdau: ô Mã PIN được focus, lưu xong về Các con, X18).
+    const pinNote = pinned.length ? `${names(pinned)} đã có mã PIN.${noPin.length ? ` ${names(noPin)} chưa có.` : ""}` : "Để anh chị em không vào nhầm hồ sơ của nhau.";
+    const pinLink = noPin.length ? `<a class="linkbtn small" href="#/admin/user/${esc(noPin[0].id)}?tu=batdau">Đặt mã PIN cho ${esc(noPin[0].name)}</a>` : "";
     return `<section class="panel start" id="start"><h3>Bắt đầu trong 3 bước</h3><ol class="steps">
       ${step(1, has, !has, "Thêm hồ sơ con", has ? `<span class="small muted">Đã có ${studs.length} hồ sơ: ${names(studs)}.</span>`
         : `<span class="small muted">Tên, khối, lớp và hình đại diện. App không hỏi ngày sinh hay ảnh của con.</span>${Store.can("addChild") ? `<a class="btn main sm" href="#/admin/user/new?role=student">+ Thêm hồ sơ con</a>` : ""}`)}
-      ${step(2, pinned.length > 0, false, "Đặt mã PIN (không bắt buộc)", pinned.length ? `<span class="small muted">${names(pinned)} đã có mã PIN.</span>`
-        : `<span class="small muted">Để anh chị em không vào nhầm hồ sơ của nhau.</span>${has ? `<a class="linkbtn small" href="${pinHref}">Đặt mã PIN</a>` : ""}`)}
+      ${step(2, has && !noPin.length, false, "Đặt mã PIN (không bắt buộc)", `<span class="small muted">${pinNote}</span>${pinLink}`)}
       ${step(3, false, has, "Đưa máy cho con", `<span class="small muted">Bấm “Cho con học”, con chọn hồ sơ của mình rồi bắt đầu ôn.</span>`)}</ol>
       <button class="btn main lg" id="letStudy" ${has ? "" : "disabled"}>Cho con học</button>
       <p class="small muted" style="text-align:center;margin:0">${has ? "Nút này mở màn hình “Ai đang học?”. Lúc khác, bấm “Chọn hồ sơ khác” ở góc trên." : "Nút này mở màn hình “Ai đang học?” khi đã có hồ sơ con."}</p></section>`;
