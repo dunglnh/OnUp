@@ -201,7 +201,15 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     if (i === 3) await shot("07-quiz-feedback");
     await page.click("#qzGo"); // next
   }
-  await page.waitForTimeout(200); await shot("08-quiz-result");
+  await page.waitForTimeout(200);
+  // UX6: bản lưu trên máy không có hộp gửi: màn kết quả không ghi "Đã lưu và gửi cho bố mẹ" (chỗ trống #qzSaved ẩn), thông báo vẫn
+  // "Đã lưu kết quả"; trang chính của con không có dòng "N bài chưa gửi"
+  const ux6Local = { saved: await page.$eval("#qzSaved", (e) => e.hidden && !e.textContent).catch(() => false), toast: await page.textContent("#toast").catch(() => "") };
+  await shot("08-quiz-result");
+  await page.goto(BASE + "/#/home"); await page.waitForSelector("#today");
+  ux6Local.bar = !(await page.$("#unsent, .unsent, #sendNow"));
+  console.log("UX6 local:", ux6Local);
+  const ux6LocalOK = ux6Local.saved && ux6Local.toast === "Đã lưu kết quả" && ux6Local.bar;
 
   step("open bank from practice tab");
   await page.goto(BASE + "/#/practice"); await page.waitForSelector("#allPractice"); // UX1: mọi bài ôn ở tab Bài ôn
@@ -2223,7 +2231,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, ux4OK, ux5OK, numOK };
+    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, ux4OK, ux5OK, numOK, ux6LocalOK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();

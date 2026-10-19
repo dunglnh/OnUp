@@ -344,6 +344,8 @@
     events, event: (id) => db.events.find((e) => e.id === id) || null, upsertEvent, removeEvent, resetEvents,
     banks, bank: bankById, loadBank, upsertBank, removeBank,
     addResult, resultsFor,
+    // Hộp gửi kết quả lên máy chủ chỉ có ở bản đám mây (Phiên UX6): bản lưu trên máy không có bài nào chờ gửi.
+    pendingResults: () => 0, sendPending: () => Promise.resolve(),
     addReport, reports,
     exportJSON, importJSON, wipe,
     settings: () => db.settings, setSettings: (p) => { Object.assign(db.settings, p); save(); },

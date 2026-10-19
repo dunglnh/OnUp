@@ -3,7 +3,9 @@
    Chạy: python3 -m http.server 8000 &  rồi  node tests/supabase/cloud-e2e.js   (in "CLOUD E2E OK")
    Luồng: đăng nhập tên đăng nhập + mật khẩu (ghi nhớ; thẻ “Chưa có tài khoản?”, thẻ nhắc dữ liệu cũ của bản lưu trên máy)
    → bắt đổi mật khẩu tạm → khu phụ huynh (thẻ “Bắt đầu trong 3 bước”, UX3) → thêm hồ sơ con (PIN 4 số tùy chọn) → “Cho con học” mở
-   “Ai đang học?” → con nhập PIN, làm đề, kết quả lên máy chủ (con thứ hai làm một đề Tiếng Anh: màn làm đề bằng tiếng Anh, TA2)
+   “Ai đang học?” → con nhập PIN, làm đề, kết quả lên máy chủ (con thứ hai làm một đề Tiếng Anh: màn làm đề bằng tiếng Anh, TA2;
+   UX6: máy chủ giả làm lượt gửi kết quả lỗi (be.failResults) → màn kết quả ghi “Sẽ gửi cho bố mẹ khi có mạng”, trang chính có dòng
+   “1 bài chưa gửi” → tắt lỗi, bấm Gửi lại; khu phụ huynh trên cùng máy cũng có dòng đó)
    → tab mới: nhập lại mật khẩu vào khu phụ huynh → báo cáo tuần, đổi mật khẩu, đặt mã mở nhanh (UX3; tab mới nữa vào bằng mã đó),
    chuyển dữ liệu máy này, đăng xuất (hỏi mật khẩu trước, UX3b; xóa mã) → máy không ghi nhớ (không đặt được mã) → tài khoản bị khóa.
    Mỗi màn hình kiểm tra ở 360px như tests/e2e.js (không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px); ảnh sáng và tối lưu ở
@@ -300,6 +302,11 @@ async function run(browser, scheme) {
   c.ux5.result = await topBar(); // màn kết quả: thanh trên có lại hình đại diện
   // UX1: màn kết quả có lời khen, nút "Ôn lại N câu sai" (N = số câu sai), câu sai thu gọn (bấm mới mở)
   c.ux1.result = await p.evaluate(() => ({ praise: document.querySelector("#qzScore .praise").textContent, retry: document.querySelector("#qzRetry").textContent, n: document.querySelectorAll("details.rv").length, closed: [...document.querySelectorAll("details.rv")].every((d) => !d.open), again: document.querySelector("#qzAgain").textContent }));
+  // UX6 (X10, D1): bài gửi được thì màn kết quả ghi “Đã lưu và gửi cho bố mẹ.” (trong ô điểm, nền ok-soft, chữ ok), thông báo cùng ý
+  const savedOf = (page) => page.$eval("#qzSaved", (e) => { const cs = getComputedStyle(e); return { text: e.textContent, cls: e.className, shown: !e.hidden, inScore: !!e.closest("#qzScore"), bg: cs.backgroundColor, color: cs.color, icon: !!e.querySelector("svg") }; }).catch(() => null);
+  const tok = (page, n) => page.evaluate((n) => { const i = document.createElement("i"); i.style.color = `var(--${n})`; document.body.append(i); const x = getComputedStyle(i).color; i.remove(); return x; }, n);
+  await p.waitForSelector("#qzSaved:not([hidden])");
+  c.ux6 = { first: await savedOf(p), firstToast: await text(p, "#toast"), tok: { ok: await tok(p, "ok"), okSoft: await tok(p, "ok-soft"), sunSoft: await tok(p, "sun-soft"), ink: await tok(p, "ink") } };
   await shot(p, "c8h-ket-qua-de");
   // R1: màn kết quả: mỗi câu cần xem lại có link (mở câu sai ra mới bấm được); báo thêm một câu ở đó
   c.r1.result = await p.$$eval(".rv", (rows) => rows.length > 0 && rows.every((r) => r.querySelector(".rp-link")));
@@ -317,6 +324,7 @@ async function run(browser, scheme) {
   for (let i = 0; i < 40 && !(await p.$(".score")); i++) { if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0"); await p.click("#qzGo"); await p.click("#qzGo"); }
   await p.waitForSelector(".score");
   c.ux1.retryResult = await text(p, "#qzScore"); await wait(p, 300);
+  c.ux6.retryHidden = await p.$eval("#qzSaved", (e) => e.hidden && !e.textContent); // lượt ôn lại câu sai không lưu điểm: không có dòng gửi cho bố mẹ
   c.ux1.retryServer = be.T.results.filter((r) => r.profile_id === binId).length === nServer;
   /* Hồ sơ con là học sinh nên L15, L16, L18 (tests/e2e.js) cũng áp dụng ở bản đám mây. */
   const kidRes = () => p.evaluate((id) => Store.resultsFor(id).length, binId);
@@ -381,6 +389,36 @@ async function run(browser, scheme) {
   await p.click("#switchWho"); await p.waitForSelector(WHO);
   await tile(p, "Na"); await p.waitForSelector("text=Chào Na"); // hồ sơ không có PIN: bấm là vào
   c.na = true;
+  /* UX6 (X10): bài đã gửi cho bố mẹ chưa (làm với Na để số bài của Bin ở các kiểm tra khác giữ nguyên). cloud-e2e gọi máy chủ giả qua
+     exposeFunction, không qua mạng, nên context.setOffline không làm lượt gửi lỗi được: bật be.failResults (mọi lệnh ghi vào bảng results
+     lỗi như mất mạng). Không dùng sự kiện online (sự kiện đó cũng tự gửi lại, kết quả sẽ phụ thuộc bên nào chạy trước): tắt công tắc rồi
+     bấm “Gửi lại”. quick(id, n): mở đề, ôn luyện n câu rồi “← Thoát” → Dừng, đợi dòng #qzSaved hiện. */
+  const naRes = () => be.T.results.filter((r) => r.profile_id === naId).length;
+  const quick = async (id, n) => {
+    await p.goto(BASE + "/#/quiz/" + id); await p.waitForSelector("#qPractice"); await p.click("#qPractice");
+    for (let i = 0; i < n; i++) { if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0"); await p.click("#qzGo"); await p.click("#qzGo"); }
+    await p.click("#qzExit"); await p.click("#qzYes"); await p.waitForSelector(".score"); await p.waitForSelector("#qzSaved:not([hidden])");
+  };
+  const n0 = naRes();
+  be.failResults = true;
+  await quick("toan6-ck1-de1", 2); // D2: chưa gửi được
+  c.ux6.wait = await savedOf(p); c.ux6.waitToast = await text(p, "#toast"); c.ux6.waitServer = naRes() === n0;
+  await shot(p, "c8i-chua-gui");
+  await p.goto(BASE + "/#/home"); await p.waitForSelector("#unsent"); // D3: trang chính có dòng “1 bài chưa gửi cho bố mẹ · Gửi lại”
+  c.ux6.bar = await p.$eval("#unsent", (e) => { const cs = getComputedStyle(e), b = e.querySelector("#sendNow"); return { text: e.querySelector(".grow").textContent, btn: b.textContent, h: Math.round(e.getBoundingClientRect().height), btnH: Math.round(b.getBoundingClientRect().height),
+    bg: cs.backgroundColor, color: cs.color, beforeToday: !!(e.compareDocumentPosition(document.querySelector("#today")) & Node.DOCUMENT_POSITION_FOLLOWING) }; });
+  await shot(p, "c8j-bai-chua-gui");
+  // Gửi lại khi máy chủ vẫn lỗi: báo chưa gửi được, dòng còn nguyên, trang không vẽ lại (số bài chưa gửi không đổi)
+  await p.$eval("#unsent", (e) => (e.dataset.mark = "1"));
+  await p.click("#sendNow"); await p.waitForFunction(() => /^Chưa gửi được/.test(document.querySelector("#toast").textContent));
+  c.ux6.retryFail = { toast: await text(p, "#toast"), bar: await text(p, "#unsent .grow"), same: await p.$eval("#unsent", (e) => e.dataset.mark === "1"), server: naRes() === n0 };
+  be.failResults = false;
+  await p.click("#sendNow"); await p.waitForSelector("#unsent", { state: "detached" });
+  c.ux6.retryOK = { toast: await text(p, "#toast"), server: await until(p, () => naRes() === n0 + 1 && be.T.results.some((r) => r.profile_id === naId && r.ref_id === "toan6-ck1-de1")), outbox: await p.evaluate(() => localStorage.getItem("ontap_cloud_outbox")) };
+  await quick("toan6-ck1-de2", 1); // lượt sau: đã lưu và gửi
+  c.ux6.sent = await savedOf(p); c.ux6.sentToast = await text(p, "#toast");
+  c.ux6.sentServer = await until(p, () => be.T.results.some((r) => r.profile_id === naId && r.ref_id === "toan6-ck1-de2"));
+  await shot(p, "c8k-da-gui");
   // TA2: Na làm một đề Tiếng Anh: màn mở đề, câu hỏi và lời giải, hộp hỏi khi rời (nút Back, "← Exit"), màn kết quả, thông báo lưu điểm
   // bằng tiếng Anh (bảng chữ của js/quiz.js), không có chữ cái tiếng Việt; kết quả lên máy chủ vẫn ghi môn và tên đề trong danh mục.
   await p.goto(BASE + "/#/quiz/ta6-gk1-de1"); await p.waitForSelector("#qPractice");
@@ -392,8 +430,8 @@ async function run(browser, scheme) {
   c.ta2.leave = await text(p, "#leaveBox"); await p.click("#leaveNo"); await wait(p, 100);
   await p.click("#qzExit"); c.ta2.exit = await text(p, "#qzFb .confirm");
   await shot(p, "c8f-de-tieng-anh-dung-on");
-  await p.click("#qzYes"); await p.waitForSelector(".score");
-  c.ta2.result = await text(p, "#view"); c.ta2.toast = await text(p, "#toast");
+  await p.click("#qzYes"); await p.waitForSelector(".score"); await p.waitForSelector("#qzSaved:not([hidden])"); // UX6: dòng gửi cho bố mẹ bằng tiếng Anh
+  c.ta2.result = await text(p, "#view"); c.ta2.toast = await text(p, "#toast"); c.ta2.saved = await text(p, "#qzSaved");
   await shot(p, "c8g-de-tieng-anh-ket-qua");
   c.ta2.server = await until(p, () => be.T.results.some((r) => r.profile_id === naId && r.ref_id === "ta6-gk1-de1" && r.subject === "Tiếng Anh" && r.label === "Tiếng Anh 6 · Giữa kì I · Đề 1" && r.t === 2));
   await p.goto(BASE + "/#/admin/overview"); await wait(p);
@@ -429,6 +467,18 @@ async function run(browser, scheme) {
   await p2.click("#view .linkbtn[data-go]"); await p2.waitForSelector(".report");
   await p2.click("#rpLinks a >> nth=0"); await p2.waitForSelector("#parentCal");
   c.ux2.calFromReport = await p2.evaluate(() => location.hash + " " + document.querySelector('.tabs [data-g][aria-pressed="true"]').textContent.replace(/\s+/g, " "));
+  // UX6 (D3): khu phụ huynh trên cùng máy: Na (tab kia) làm đề Tiếng Anh khi máy chủ lỗi: màn kết quả ghi chưa gửi bằng tiếng Anh;
+  // mục Các con có dòng “1 bài làm trên máy này chưa gửi đi · Gửi lại”; bấm Gửi lại thì gửi, dòng mất
+  const n1 = naRes();
+  be.failResults = true;
+  await quick("ta6-gk1-de1", 1);
+  c.ux6.en = { saved: await text(p, "#qzSaved"), toast: await text(p, "#toast"), cls: (await savedOf(p)).cls };
+  await p2.goto(BASE + "/#/admin/overview"); await p2.waitForSelector("#unsent");
+  c.ux6.parent = await p2.$eval("#unsent", (e) => ({ text: e.querySelector(".grow").textContent, btn: e.querySelector("#sendNow").textContent, h: Math.round(e.getBoundingClientRect().height), beforeKids: !!(e.compareDocumentPosition(document.querySelector("#kids")) & Node.DOCUMENT_POSITION_FOLLOWING) }));
+  await shot(p2, "c11b-bai-chua-gui");
+  be.failResults = false;
+  await p2.click("#sendNow"); await p2.waitForSelector("#unsent", { state: "detached" });
+  c.ux6.parentSent = { toast: await text(p2, "#toast"), server: await until(p2, () => naRes() === n1 + 1), kids: !!(await p2.$("a.kid")) };
   // đổi mật khẩu (trang Tài khoản về Cài đặt)
   await p2.goto(BASE + "/#/account"); await p2.waitForSelector("#pwForm");
   c.ux2.accountBack = await text(p2, "#view .linkbtn[data-go]");
@@ -553,6 +603,20 @@ async function run(browser, scheme) {
   c.ux3.noRemember = (await text(q, "#qcBox")) + " | " + !(await q.$("#qcNew"));
   await shot(q, "c14b-tai-khoan-chua-ghi-nho"); // UX3b (X20): lời nhắc đăng xuất rồi đăng nhập lại có ghi nhớ
   await q.goto(BASE + "/#/"); await wait(q);
+  // UX6: phiên hết giữa lúc con làm bài (máy chủ thu hồi phiên của tài khoản, như khi chủ app đặt lại mật khẩu): màn kết quả ghi chưa gửi,
+  // thông báo giữ lời nhắc “Bố mẹ đăng nhập lại…” của kho (câu của app không che); đăng nhập lại thì tự gửi bài đó
+  await q.click("#switchWho"); await q.waitForSelector(WHO);
+  await tile(q, "Na"); await q.waitForSelector("text=Chào Na");
+  const n2 = naRes(), famUser = be.T.families.find((f) => f.id === acc.id).auth_user_id;
+  await q.goto(BASE + "/#/quiz/toan6-ck1-de1"); await q.waitForSelector("#qPractice"); await q.click("#qPractice");
+  if (await q.$("#qzFill")) await q.fill("#qzFill", "1"); else await q.click(".opt >> nth=0");
+  await q.click("#qzGo"); await q.click("#qzGo");
+  for (const [t, uid] of be.tokens) if (uid === famUser) be.tokens.delete(t);
+  await q.click("#qzExit"); await q.click("#qzYes"); await q.waitForSelector("#qzSaved:not([hidden])");
+  c.ux6.expired = { saved: await text(q, "#qzSaved"), toast: await text(q, "#toast"), server: naRes() === n2 };
+  await q.goto(BASE + "/#/"); await q.waitForSelector("#loginForm");
+  await q.fill("#lUser", "nha.bin"); await q.fill("#lPass", PW2); await q.click("#lGo"); await q.waitForSelector(WHO);
+  c.ux6.expired.sent = await until(q, () => naRes() === n2 + 1);
   /* ---- tài khoản bị khóa ---- */
   await admin({ action: "set_status", id: acc.id, status: "locked" });
   await q.reload(); await q.waitForSelector("#blocked");
@@ -727,7 +791,7 @@ async function run(browser, scheme) {
       && [c.ta2.open, c.ta2.fb, c.ta2.leave, c.ta2.exit, c.ta2.result, c.ta2.toast].every((t) => t && !CHU_VIET.test(t)) && /Choose a mode ?PracticeSee the answer and guide right after each question\. No timer\. ?Test mode · 45 minutesTimed like at school, scored when you finish\./.test(c.ta2.open)
       && /Report a problem$/.test(c.ta2.fb) && c.ta2.next === "Next question" && c.ta2.leave === "End practice and leave?Your answers so far will be saved. End practiceKeep practising"
       && c.ta2.exit === "End practice and see your results?End practiceKeep going" && /^English 6 · Mid-term 1 · Test 1 · Practice /.test(c.ta2.result) && /\/2 correctTime: /.test(c.ta2.result)
-      && /Go to home$/.test(c.ta2.result) && c.ta2.toast === "Result saved" && c.ta2.server,
+      && /Go to home$/.test(c.ta2.result) && c.ta2.toast === "Saved and sent to your parents." && c.ta2.saved === "Saved and sent to your parents." && c.ta2.server,
     "UX1: trang “Hôm nay” của con có thanh tab dưới (4 tab, ≥ 44px), thẻ gợi ý, chuỗi ngày, huy hiệu; thanh trên không có nút Lịch thi; màn đề không có thanh tab; một dòng nhãn trên câu":
       c.ux1.tabs === "Hôm nay*,Bài ôn,Lịch thi,Kết quả" && c.ux1.tabH && c.ux1.today && !c.ux1.cal && c.ux1.tabbed && c.ux1.quizTabs && /^Toán · \S/.test(c.ux1.label) && !c.ux1.label.includes("|"),
     "UX1: màn kết quả có lời khen, nút “Ôn lại N câu sai”, câu sai thu gọn; lượt ôn lại chỉ gồm câu sai và không gửi thêm kết quả lên máy chủ":
@@ -737,6 +801,23 @@ async function run(browser, scheme) {
       c.ux5.run.quizzing && !c.ux5.run.av && c.ux5.exit === "← Thoát" && c.ux5.prog === "Câu 1/25" && !c.ux5.result.quizzing && c.ux5.result.av
       && /^Lần trước: \d+(,\d+)?\/25 câu đúng$/.test(c.ux5.prev) && c.ux5.modes === "Ôn luyện,Làm như thi · 40 phút"
       && c.ux5.exam.submit === "Nộp bài" && !c.ux5.exam.exit && /^Còn (40:00|39:5\d)$/.test(c.ux5.exam.timer) && c.ux5.exam.top.quizzing && !c.ux5.exam.top.av,
+    "UX6 (X10, D1): bài gửi được thì màn kết quả có dòng “Đã lưu và gửi cho bố mẹ.” trong ô điểm (nền ok-soft, chữ ok, có biểu tượng), thông báo cùng ý; lượt ôn lại câu sai không có dòng":
+      !!c.ux6.first && c.ux6.first.text === "Đã lưu và gửi cho bố mẹ." && c.ux6.first.cls === "saved ok" && c.ux6.first.shown && c.ux6.first.inScore && c.ux6.first.icon
+      && c.ux6.first.bg === c.ux6.tok.okSoft && c.ux6.first.color === c.ux6.tok.ok && c.ux6.firstToast === "Đã lưu và gửi cho bố mẹ." && c.ux6.retryHidden
+      && c.ux6.sent.text === "Đã lưu và gửi cho bố mẹ." && c.ux6.sent.cls === "saved ok" && c.ux6.sentToast === "Đã lưu và gửi cho bố mẹ." && c.ux6.sentServer,
+    "UX6 (X10, D2): máy chủ lỗi (be.failResults) thì màn kết quả ghi “Đã lưu trên máy này. Sẽ gửi cho bố mẹ khi có mạng.” (nền sun-soft, chữ ink), thông báo cùng ý; kết quả chưa lên máy chủ":
+      c.ux6.wait.text === "Đã lưu trên máy này. Sẽ gửi cho bố mẹ khi có mạng." && c.ux6.wait.cls === "saved wait" && c.ux6.wait.inScore && c.ux6.wait.icon && c.ux6.wait.bg === c.ux6.tok.sunSoft && c.ux6.wait.color === c.ux6.tok.ink
+      && c.ux6.waitToast === c.ux6.wait.text && c.ux6.waitServer,
+    "UX6 (X10, D3): trang chính của con có dòng “1 bài chưa gửi cho bố mẹ · Gửi lại” trên thẻ Hôm nay (≥ 44px, nền sun-soft, chữ ink); Gửi lại khi máy chủ còn lỗi: báo chưa gửi được, trang không vẽ lại; tắt công tắc, Gửi lại: dòng mất, máy chủ có kết quả, hộp gửi trống":
+      c.ux6.bar.text === "1 bài chưa gửi cho bố mẹ" && c.ux6.bar.btn === "Gửi lại" && c.ux6.bar.h >= 44 && c.ux6.bar.btnH >= 44 && c.ux6.bar.bg === c.ux6.tok.sunSoft && c.ux6.bar.color === c.ux6.tok.ink && c.ux6.bar.beforeToday
+      && c.ux6.retryFail.toast === "Chưa gửi được. App sẽ thử lại khi có mạng." && c.ux6.retryFail.bar === "1 bài chưa gửi cho bố mẹ" && c.ux6.retryFail.same && c.ux6.retryFail.server
+      && c.ux6.retryOK.toast === "Đã gửi" && c.ux6.retryOK.server && c.ux6.retryOK.outbox === null,
+    "UX6: đề Tiếng Anh chưa gửi được: dòng và thông báo bằng tiếng Anh; khu phụ huynh trên cùng máy có dòng “1 bài làm trên máy này chưa gửi đi · Gửi lại” ở đầu mục Các con; bấm Gửi lại thì gửi, dòng mất":
+      c.ux6.en.saved === "Saved on this device. It will be sent to your parents when you're online." && c.ux6.en.toast === c.ux6.en.saved && c.ux6.en.cls === "saved wait"
+      && c.ux6.parent.text === "1 bài làm trên máy này chưa gửi đi" && c.ux6.parent.btn === "Gửi lại" && c.ux6.parent.h >= 44 && c.ux6.parent.beforeKids
+      && c.ux6.parentSent.toast === "Đã gửi" && c.ux6.parentSent.server && c.ux6.parentSent.kids,
+    "UX6: phiên hết giữa lúc con làm bài: màn kết quả ghi “Đã lưu trên máy này…”, thông báo vẫn là lời nhắc bố mẹ đăng nhập lại; đăng nhập lại thì tự gửi bài đó":
+      c.ux6.expired.saved === "Đã lưu trên máy này. Sẽ gửi cho bố mẹ khi có mạng." && /đăng nhập lại để gửi/.test(c.ux6.expired.toast) && c.ux6.expired.server && c.ux6.expired.sent,
     "UX2: khu phụ huynh có ba mục Các con · Lịch thi · Cài đặt; nút Lịch thi trên cùng và #/calendar về tab Lịch thi; thêm hồ sơ xong về Các con": c.ux2.tabs === "Các con*,Lịch thi,Cài đặt" && c.ux2.topCal === "#/admin/events"
       && /^Bắt đầu trong 3 bước/.test(c.ux2.empty) && c.ux2.afterAdd === "#/admin/overview" && c.ux2.calRedirect === "#/admin/events",
     "UX2: tab Các con: mỗi con một thẻ (chưa có bài: Chưa ôn · – · 0; kì thi gần nhất còn N ngày · chưa ôn …), không có ô số liệu trùng ý; thẻ có bài hôm nay ghi số bài, điểm hôm nay":

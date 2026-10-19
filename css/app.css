@@ -402,6 +402,16 @@ body.playing{padding-bottom:0}
 .playing main{flex:1;min-height:0;display:flex;flex-direction:column}
 .player{display:flex;flex-direction:column;gap:6px;flex:1;min-height:0;padding-bottom:max(8px,env(safe-area-inset-bottom,0px))}
 .player>.row{flex-wrap:nowrap}
+/* bài đã gửi cho bố mẹ chưa (bản đám mây, Phiên UX6): dòng ở màn kết quả (#qzSaved: đã gửi nền ok-soft, chưa gửi nền sun-soft)
+   và dòng "N bài chưa gửi · Gửi lại" ở trang chính của con, khu phụ huynh (#unsent, cao ≥ 44px nhờ nút Gửi lại) */
+.saved{display:flex;gap:8px;align-items:flex-start;border-radius:10px;padding:8px 12px;font-size:.875rem;font-weight:600;overflow-wrap:anywhere}
+.saved svg,.unsent svg{flex:none;width:18px;height:18px;margin-top:2px}
+.saved.ok{background:var(--ok-soft);color:var(--ok)}
+.saved.wait,.unsent{background:var(--sun-soft);color:var(--ink)}
+.unsent{display:flex;gap:8px;align-items:center;border-radius:12px;padding:0 14px;min-height:44px;font-size:.9rem;font-weight:600}
+.unsent svg{margin-top:0}
+.unsent .grow{flex:1;min-width:0;padding:8px 0}
+.unsent .linkbtn{flex:none;align-self:center}
 .player .note{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .player iframe{flex:1;min-height:0;width:100%;border:1px solid var(--line);border-radius:16px;background:var(--bg)}
 .foot{margin-top:28px;font-size:.8125rem;color:var(--muted)}

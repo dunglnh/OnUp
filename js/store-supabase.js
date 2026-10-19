@@ -24,7 +24,8 @@
      createUser, updateUser, checkPin là async như LocalStore; hai hàm đầu chờ máy chủ trả lời và báo lỗi trực tiếp.
    - Đề có sẵn (data/banks/) không lưu lên máy chủ; seed_banks_seen của families làm việc như seedBanksSeen.
    Phiên đăng nhập mặc định chỉ giữ trong tab (sessionStorage), như bản cục bộ; chọn "Ghi nhớ trên máy này" thì giữ lâu dài.
-   Kết quả làm bài được giữ trong hộp gửi (localStorage) tới khi máy chủ nhận, nên mất mạng cũng không mất điểm. */
+   Kết quả làm bài được giữ trong hộp gửi (localStorage) tới khi máy chủ nhận, nên mất mạng cũng không mất điểm. App hỏi số bài còn
+   chờ gửi (pendingResults) để ghi "Đã lưu và gửi cho bố mẹ" hay "Sẽ gửi khi có mạng", và gửi lại ngay (sendPending; Phiên UX6). */
 (function () {
   "use strict";
   const CFG = window.ONTAP_CONFIG || {};
@@ -678,44 +679,63 @@
   let warned = false;
   // Mỗi lần gọi nối thêm một lượt gửi vào hàng đợi; lượt nào cũng đọc hộp gửi lúc chạy nên không gửi trùng.
   // Gửi kết quả của mọi hồ sơ con thuộc tài khoản này (máy dùng chung cho anh em); hồ sơ của tài khoản khác thì để lại.
+  // Store.onChange vẽ lại cả trang (cuộn lên đầu, đóng #evDetail), mà lượt gửi còn chạy lúc mở app và mỗi khi có mạng lại:
+  // chỉ báo khi lượt gửi làm đổi số bài chưa gửi (dòng "N bài chưa gửi" ở trang chính của con, khu phụ huynh; Phiên UX6).
+  // Đếm cả tài khoản trong hộp gửi dùng chung của máy, nên tab khu phụ huynh gửi được bài con làm ở tab khác cũng vẽ lại.
   function sendOutbox() {
     queue = queue.then(async () => {
       if (state !== "ready" || !db) return;
-      for (const pid of Object.keys(outbox())) {
-        if (!db.users.some((u) => u.id === pid && u.role === "student")) continue;
-        for (const r of (outbox()[pid] || []).slice()) {
-          if (state !== "ready") return;
-          const row = { id: r.id, profile_id: pid, source: r.source, ref_id: String(r.refId || "").slice(0, 80), subject: String(r.subject || "").slice(0, 60),
-            label: r.label, mode: String(r.mode || "").slice(0, 20), r: r.r, t: Math.min(r.t, 1000), s: r.s,
-            wrong_topics: r.wrongTopics ? r.wrongTopics.slice(0, 50).map((x) => String(x).slice(0, 100)) : null };
-          let res = await sb.from("results").upsert(row, { onConflict: "id", ignoreDuplicates: true });
-          // Máy chủ chưa chạy supabase/cap-nhat-k2.sql (cột r còn là số nguyên): gửi lại số câu đúng làm tròn.
-          if (res && res.error && String(res.error.code) === "22P02" && row.r % 1) { row.r = Math.round(row.r); res = await sb.from("results").upsert(row, { onConflict: "id", ignoreDuplicates: true }); }
-          const err = res && res.error, msg = err ? String(err.message || "") : "", code = err ? String(err.code || "") : "";
-          // Chỉ bỏ kết quả khi máy chủ không bao giờ nhận (hồ sơ đã xóa, dữ liệu sai dạng, hồ sơ bị khóa theo gói). Lỗi khác: giữ lại.
-          const never = ["23503", "23514", "22P02", "22001"].includes(code) || (code === "P0001" && /bị khóa/.test(msg));
-          if (err && !never) {
-            if (code === "42501" || /^PGRST3/.test(code) || /JWT/i.test(msg)) {
-              // Phiên hết hạn hoặc tài khoản vừa bị khóa: giữ kết quả, mời đăng nhập lại (đăng nhập xong sẽ tự gửi).
-              forget();
-              report("Phiên đăng nhập đã hết. Bố mẹ đăng nhập lại để gửi kết quả nhé.");
-              changed();
-              return;
-            }
-            if (!warned) report(/Gửi quá nhiều/.test(msg) ? msg : "Chưa gửi được kết quả lên máy chủ. App sẽ tự gửi lại khi có mạng.");
-            warned = true;
-            return; // giữ trong hộp, thử lại sau
-          }
-          if (err) report(errMsg(err, "Máy chủ không nhận một kết quả làm bài."));
-          const box = outbox();
-          box[pid] = (box[pid] || []).filter((x) => x.id !== r.id);
-          saveOutbox(box);
-          warned = false;
-        }
-      }
+      const before = pendingResults();
+      try { await sendBox(); }
+      finally { if (state === "ready" && db && pendingResults() !== before) changed(); }
     }).catch((e) => { console.warn("SupabaseStore:", e); });
     return queue;
   }
+  async function sendBox() {
+    for (const pid of Object.keys(outbox())) {
+      if (!db.users.some((u) => u.id === pid && u.role === "student")) continue;
+      for (const r of (outbox()[pid] || []).slice()) {
+        if (state !== "ready") return;
+        const row = { id: r.id, profile_id: pid, source: r.source, ref_id: String(r.refId || "").slice(0, 80), subject: String(r.subject || "").slice(0, 60),
+          label: r.label, mode: String(r.mode || "").slice(0, 20), r: r.r, t: Math.min(r.t, 1000), s: r.s,
+          wrong_topics: r.wrongTopics ? r.wrongTopics.slice(0, 50).map((x) => String(x).slice(0, 100)) : null };
+        let res = await sb.from("results").upsert(row, { onConflict: "id", ignoreDuplicates: true });
+        // Máy chủ chưa chạy supabase/cap-nhat-k2.sql (cột r còn là số nguyên): gửi lại số câu đúng làm tròn.
+        if (res && res.error && String(res.error.code) === "22P02" && row.r % 1) { row.r = Math.round(row.r); res = await sb.from("results").upsert(row, { onConflict: "id", ignoreDuplicates: true }); }
+        const err = res && res.error, msg = err ? String(err.message || "") : "", code = err ? String(err.code || "") : "";
+        // Chỉ bỏ kết quả khi máy chủ không bao giờ nhận (hồ sơ đã xóa, dữ liệu sai dạng, hồ sơ bị khóa theo gói). Lỗi khác: giữ lại.
+        const never = ["23503", "23514", "22P02", "22001"].includes(code) || (code === "P0001" && /bị khóa/.test(msg));
+        if (err && !never) {
+          if (code === "42501" || /^PGRST3/.test(code) || /JWT/i.test(msg)) {
+            // Phiên hết hạn hoặc tài khoản vừa bị khóa: giữ kết quả, mời đăng nhập lại (đăng nhập xong sẽ tự gửi).
+            forget();
+            report("Phiên đăng nhập đã hết. Bố mẹ đăng nhập lại để gửi kết quả nhé.");
+            changed();
+            return;
+          }
+          // Mất mạng, máy chủ lỗi: giữ trong hộp, thử lại sau. App tự ghi bài nào chưa gửi (màn kết quả, dòng "N bài chưa gửi", UX6),
+          // nên chỉ báo riêng khi máy chủ từ chối vì gửi quá nhiều (một lần, đến khi gửi được).
+          if (/Gửi quá nhiều/.test(msg)) { if (!warned) report(msg); warned = true; }
+          return;
+        }
+        if (err) report(errMsg(err, "Máy chủ không nhận một kết quả làm bài."));
+        const box = outbox();
+        box[pid] = (box[pid] || []).filter((x) => x.id !== r.id);
+        saveOutbox(box);
+        warned = false;
+      }
+    }
+  }
+  /* Bài chưa gửi (Phiên UX6, X10): số kết quả còn trong hộp gửi của các hồ sơ con thuộc tài khoản đang đăng nhập; có userId thì
+     chỉ của hồ sơ đó. Hộp gửi của tài khoản khác trên cùng máy không tính (sendOutbox cũng để lại). */
+  function pendingResults(userId) {
+    if (state !== "ready" || !db) return 0;
+    const box = outbox();
+    return Object.keys(box).filter((pid) => (!userId || pid === userId) && db.users.some((u) => u.id === pid && u.role === "student"))
+      .reduce((n, pid) => n + (box[pid] || []).length, 0);
+  }
+  // Gửi lại ngay (nút "Gửi lại", màn kết quả chờ lượt gửi): một lượt sendOutbox; Promise xong khi lượt gửi xong, không bao giờ lỗi.
+  const sendPending = () => sendOutbox().then(() => {});
   const resultsFor = (userId) => db.results.filter((r) => r.userId === userId).sort((a, b) => (a.at < b.at ? 1 : -1));
 
   /* ---------------- câu bị báo sai (Phiên R1) ----------------
@@ -813,7 +833,7 @@
     setSession, sessionUser, lastUserId: () => lsGet(LAST_KEY),
     events, event: (id) => (db ? db.events.find((e) => e.id === id) || null : null), upsertEvent, removeEvent, resetEvents,
     banks, bank: bankById, loadBank, upsertBank, removeBank,
-    addResult, resultsFor,
+    addResult, resultsFor, pendingResults, sendPending,
     addReport, reports,
     exportJSON, importJSON, wipe,
     settings: () => (db ? db.settings : {}), setSettings,

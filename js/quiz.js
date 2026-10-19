@@ -14,6 +14,8 @@
      cùng cách làm; câu cần xem lại thu gọn (<details class="rv">, bấm mới xem đáp án, lời giải); theo chủ đề chỉ hiện chủ đề cần ôn thêm.
      Trên câu chỉ một dòng nhãn "môn · chủ đề" (dạng đúng/sai 4 ý, nối cột, sắp xếp, tự luận ghi thêm cách làm); câu điền mà mọi đáp án
      là số thì ô nhập có inputmode="decimal" (bàn phím số).
+   Bài đã gửi cho bố mẹ chưa (Phiên UX6, X10): màn kết quả có chỗ trống <p class="saved" id="qzSaved" hidden> trong #qzScore;
+     bản đám mây, app điền sau khi lưu (onFinish) và lượt gửi xong (js/app.js, savedLine). Chữ: TXT.appSent, appPending.
    Chế độ tập trung (Phiên UX5, X5): opts.onStart() khi một lượt bắt đầu (cả "Làm lại", "Ôn lại câu sai"), opts.onEnd() khi lượt
      đó xong, ở mọi nhánh của finish() (có màn kết quả hoặc chưa trả lời câu nào) và khi thoát đề chưa làm câu nào. App ẩn thanh trên
      trong khoảng giữa hai lần gọi.
@@ -108,6 +110,8 @@
       appPoolIntro: (n, all, src) => `Mỗi lần làm là một đề khác: ${n} câu rút từ kho ${all} câu${src ? ` (${src} đề)` : ""} theo ma trận đề, ưu tiên câu bạn chưa làm hoặc hay sai`,
       appCount: (n) => `${n} câu`, appEssayN: (n) => ` (${n} câu tự luận tự chấm)`, appNotes: (s) => `Kho còn thiếu câu, lần này: ${s}.`, appNotesToast: (s) => "Kho còn thiếu câu: " + s,
       appSaved: "Đã lưu kết quả", appSavedSelf: "Đã lưu điểm tự chấm",
+      // bản đám mây (UX6, X10): dòng #qzSaved ở màn kết quả và thông báo lưu điểm ghi bài đã tới bố mẹ chưa; bài ôn trong khung: "18/20 câu đúng. Đã lưu và gửi…"
+      appSent: "Đã lưu và gửi cho bố mẹ.", appPending: "Đã lưu trên máy này. Sẽ gửi cho bố mẹ khi có mạng.", appModScore: (r, t) => `${r}/${t} câu đúng.`,
       // màn mở đề (UX5, X9): thẻ "Lần trước" (số câu đúng; lúc làm · cách làm · thời gian), hai thẻ chọn cách làm có một dòng giải thích.
       // appWhen: lúc làm (diff: số ngày trước hôm nay, hm: giờ:phút, d/m: ngày, tháng), cũng là chữ "Hôm nay 12:43" của ago() trong js/app.js
       appPrev: (r, t) => `Lần trước: ${r}/${t} câu đúng`, appPrevMode: { exam: "làm như thi", practice: "ôn luyện" },
@@ -168,6 +172,7 @@
       appPoolIntro: (n, all, src) => `A new test every time: ${n} questions from a bank of ${all}${src ? ` (${src} tests)` : ""}, more of the ones you haven't done or often get wrong`,
       appCount: (n) => `${n} questions`, appEssayN: (n) => ` (${n} self-check writing ${n === 1 ? "question" : "questions"})`, appNotes: (s) => `Not enough questions in the bank this time: ${s}.`, appNotesToast: (s) => "Not enough questions in the bank: " + s,
       appSaved: "Result saved", appSavedSelf: "Self-check score saved",
+      appSent: "Saved and sent to your parents.", appPending: "Saved on this device. It will be sent to your parents when you're online.", appModScore: (r, t) => `${r}/${t} correct.`,
       appPrev: (r, t) => `Last time: ${r}/${t} correct`, appPrevMode: { exam: "test mode", practice: "practice" },
       appWhen: (diff, hm, d, m) => (diff <= 0 ? "Today " + hm : diff === 1 ? "Yesterday " + hm : `${d} ${MONTHS[m - 1]} ${hm}`),
       appDur: (s) => (s < 60 ? `${s} ${s === 1 ? "second" : "seconds"}` : `${Math.round(s / 60)} ${Math.round(s / 60) === 1 ? "minute" : "minutes"}`),
@@ -782,6 +787,8 @@
       const reviewPanel = !wrong.length ? "" : `<section class="panel" id="qzReview"><div class="label">${L.review(wrong.length)}</div><div class="review">${wrong.map((a) => `<details class="rv"><summary><span class="grow"><span><span class="rv-n">${L.qN(a.n)}</span> · ${nbNum(esc(a.q.q)).replace("___", "…")}${LV[a.q.lv] ? ` <span class="tag">${L.lv[a.q.lv]}</span>` : ""}</span><span class="small">${L.yourAns}<s>${nbNum(esc(givenText(a.q, a.g, L)))}</s>${a.pts > 0 ? L.gotPts(N(a.pts)) : ""} · ${L.rvTap}</span></span></summary>
           <div class="rv-body"><div class="small">${L.ansLabel} <b>${nbNum(esc(correctText(a.q, L)))}</b></div>${a.q.x ? `<div class="expl">${nbNum(esc(a.q.x))}</div>` : ""}${reportHtml(a.q)}</div></details>`).join("")}</div></section>`;
       const againAllTxt = h.opts0.redraw ? L.newTest : L.againAll;
+      // chỗ trống để app ghi bài đã gửi cho bố mẹ chưa (bản đám mây, UX6); lượt không lưu điểm (ôn lại câu sai, xem thử) để trống
+      const saved0 = `<p class="saved" id="qzSaved" hidden></p>`;
       const essayPanel = !essays.length ? "" : exam
         ? `<section class="panel" id="qzSelf"><div class="label">${L.essayHead(essays.length)}</div>
             <p class="small muted">${L.essayExamNote}</p>
@@ -797,8 +804,9 @@
           <div class="row" style="gap:18px;align-items:flex-end"><div class="score">${d10}<span class="score-sub">/10</span></div>
           <div class="stack tight"><b>${L.scoreLine(N(right), total)}</b><span class="muted small">${L.time}${fmtTime(secs)}</span></div></div>
           ${cmp ? `<div class="tags" id="qzCmp">${cmp}</div>` : ""}
+          ${saved0}
           ${h.retry ? `<p class="small muted">${L.retryNote}</p>` : ""}
-          ${part ? `<p class="small muted">${L.partNote}</p>` : ""}` : `<p>${L.onlyEssay} ${L.time}${fmtTime(secs)}</p>`}
+          ${part ? `<p class="small muted">${L.partNote}</p>` : ""}` : `<p>${L.onlyEssay} ${L.time}${fmtTime(secs)}</p>${saved0}`}
         </section>
         <div class="row">${wrong.length ? `<button class="btn main" id="qzRetry">${L.retry(wrong.length)}</button>` : ""}<button class="btn ${wrong.length ? "ghost" : "main"}" id="qzAgain">${wrong.length || h.retry ? againAllTxt : againTxt}</button></div>
         ${reviewPanel}
