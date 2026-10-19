@@ -96,6 +96,10 @@ const A = browser();
     "createUser, updateUser, checkPin, addReport là async ở cả hai kho");
   const syncNow = Object.keys(L).filter((k) => typeof L[k] === "function" && !isAsync(L[k]) && isAsync(C[k]));
   ok(syncNow.length === 0, "các hàm đồng bộ của LocalStore (đọc dữ liệu, setSession, can…) cũng đồng bộ ở bản đám mây" + (syncNow.length ? ": " + syncNow.join(", ") : ""));
+  // UX6: bản lưu trên máy không có hộp gửi: không có bài chờ gửi, gửi lại là xong ngay
+  const p = L.sendPending();
+  ok(L.pendingResults() === 0 && L.pendingResults("x") === 0 && typeof p.then === "function" && (await p) === undefined && C.pendingResults() === 0,
+    "pendingResults, sendPending: LocalStore trả 0 và Promise.resolve(); bản đám mây chưa đăng nhập: 0");
 }
 
 /* ---------- 3. chủ app tạo tài khoản ---------- */
@@ -236,6 +240,39 @@ ok(B.Store.authState() === "ready" && !!dev.getItem(AUTH) && !B.sessionStorage.g
   ok(be.T.results.length === before + 1 && !dev.getItem("ontap_cloud_outbox") && S.resultsFor(bin.id).length === 2, "có mạng lại: gửi kết quả trong hộp gửi, không trùng");
   await A.Store.refresh();
   ok(A.Store.resultsFor(bin.id).length === 2 && A.Store.resultsFor(bin.id)[0].label === "IOE · Test 1", "máy khác tải lại thấy kết quả");
+  // UX6 (X10): số bài chưa gửi (pendingResults) và gửi lại ngay (sendPending). Store.onChange vẽ lại cả trang nên chỉ gọi khi số bài chưa gửi đổi.
+  let nChange = 0;
+  S.onChange = () => nChange++;
+  const tick = () => new Promise((r) => setTimeout(r, 5));
+  ok(S.pendingResults() === 0 && S.pendingResults(bin.id) === 0, "pendingResults: hộp gửi trống thì 0");
+  const nBefore = be.T.results.length;
+  be.failResults = true; // máy chủ giả: lượt gửi kết quả lỗi như mất mạng
+  S.addResult({ userId: bin.id, source: "bank", refId: "toan4-ck1-de2", subject: "Toán", label: "Toán 4 · Đề 2", mode: "practice", r: 18, t: 25, s: 600 });
+  await S.sendPending(); await tick();
+  ok(S.pendingResults() === 1 && S.pendingResults(bin.id) === 1 && S.pendingResults(na.id) === 0 && be.T.results.length === nBefore,
+    "gửi lỗi: pendingResults đếm bài trong hộp gửi (cả tài khoản, theo hồ sơ)");
+  ok(nChange === 0 && !B.errors.some((m) => /Chưa gửi được/.test(m)), "gửi lỗi: lượt gửi không đổi số bài chưa gửi nên không gọi onChange; không báo lỗi chung (app tự ghi bài chưa gửi)");
+  await S.sendPending(); await tick();
+  ok(S.pendingResults() === 1 && nChange === 0, "gửi lại vẫn lỗi: còn 1 bài, không vẽ lại trang");
+  be.failResults = false;
+  const sent = S.sendPending();
+  ok(typeof sent.then === "function", "sendPending trả Promise");
+  await sent; await tick();
+  ok(S.pendingResults() === 0 && be.T.results.length === nBefore + 1 && !dev.getItem("ontap_cloud_outbox") && nChange === 1, "có mạng lại: sendPending gửi bài còn chờ, pendingResults về 0, onChange một lần");
+  await S.sendPending(); await tick();
+  ok(nChange === 1, "hộp gửi trống: gửi lại không gọi onChange");
+  // tab khác trên cùng máy (khu phụ huynh) gửi được bài con làm ở tab này: tab đó cũng vẽ lại (hộp gửi dùng chung)
+  be.failResults = true;
+  S.addResult({ userId: bin.id, source: "bank", refId: "toan4-ck1-de3", subject: "Toán", label: "Toán 4 · Đề 3", mode: "practice", r: 20, t: 25, s: 600 });
+  await S.sendPending();
+  const B4 = browser({ local: dev });
+  await B4.Store.init(); await B4.Store.flush();
+  let n4 = 0; B4.Store.onChange = () => n4++;
+  ok(B4.Store.pendingResults() === 1, "tab khác trên cùng máy thấy 1 bài chưa gửi");
+  be.failResults = false;
+  await B4.Store.sendPending(); await tick();
+  ok(B4.Store.pendingResults() === 0 && S.pendingResults() === 0 && be.T.results.length === nBefore + 2 && n4 >= 1, "tab khác bấm Gửi lại: gửi được, vẽ lại trang");
+  S.onChange = null;
   // Dạng câu mới (Phiên K2): số câu đúng lẻ đến 0,01; điểm tự chấm tự luận là kết quả riêng (mode "self", phần tư điểm).
   const tn = { userId: bin.id, source: "bank", refId: "thunghiem6-dang-cau-moi", subject: "Thử nghiệm", label: "Đề thử nghiệm" };
   S.addResult(Object.assign({ mode: "practice", r: 2.354, t: 4, s: 60 }, tn));
@@ -441,6 +478,7 @@ const PW2 = "me-bin-moi-2026";
   await K.Store.flush();
   ok(K.Store.users("student").length === 0 && JSON.parse(shared.getItem("ontap_cloud_outbox"))[bin.id].length === 1 && K.errors.length === 0,
     "gia đình khác đăng nhập trên cùng máy: không thấy, không gửi kết quả còn chờ của gia đình trước");
+  ok(K.Store.pendingResults() === 0 && K.Store.pendingResults(bin.id) === 0, "pendingResults không đếm bài của gia đình khác trên cùng máy (UX6)");
   const S = A.Store, kid = S.users("student")[0].id;
   S.setSession(kid);
   await S.signOut();

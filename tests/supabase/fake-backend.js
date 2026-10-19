@@ -4,7 +4,9 @@
    đổi mật khẩu, API admin (tạo, sửa, cấm, xóa người dùng); gọi Edge Function (hàm thật được truyền vào).
    RLS thật được kiểm tra riêng trên PostgreSQL bằng tests/supabase/run.sh; tests/supabase/admin-test.mjs so hai bên.
    be.intR = true: như máy chủ chưa chạy supabase/cap-nhat-k2.sql (results.r còn là số nguyên, chưa có cột passages).
-   be.noReports = true: như máy chủ chưa chạy supabase/cap-nhat-r1.sql (chưa có bảng question_reports). */
+   be.noReports = true: như máy chủ chưa chạy supabase/cap-nhat-r1.sql (chưa có bảng question_reports).
+   be.failResults = true: mọi lệnh ghi vào bảng results lỗi như mất mạng, đến khi tắt (Phiên UX6: kết quả nằm lại trong hộp gửi).
+     cloud-e2e.js gọi máy chủ giả qua exposeFunction, không qua mạng, nên context.setOffline không làm lượt gửi lỗi được. */
 "use strict";
 const nodeCrypto = require("crypto");
 
@@ -40,7 +42,7 @@ function createBackend() {
   T.plans.push({ id: "free", name: "Miễn phí", max_children: 5, all_banks: true, price: null, note: "" },
     { id: "family", name: "Gói Gia đình", max_children: 5, all_banks: true, price: null, note: "" });
   const users = new Map(), tokens = new Map();
-  const be = { T, users, tokens, clock: 0, failWrites: 0, functions: {}, log: [], rateLimit: true, captchaRequired: false, captchaUsed: 0 };
+  const be = { T, users, tokens, clock: 0, failWrites: 0, failResults: false, functions: {}, log: [], rateLimit: true, captchaRequired: false, captchaUsed: 0 };
   const now = () => new Date(Date.now() + be.clock);
   const iso = () => now().toISOString();
   const todayVN = () => new Date(+now() + 7 * 3600e3).toISOString().slice(0, 10);
@@ -225,6 +227,7 @@ function createBackend() {
     if (!service && !uid) throw denied(table); // vai trò anon: không được gì
     const visible = (r) => service || canSee(table, r, uid);
     if (q.op !== "select" && be.failWrites > 0) { be.failWrites--; throw new Fail(be.failMsg || "TypeError: Failed to fetch", be.failCode || ""); }
+    if (q.op !== "select" && table === "results" && be.failResults) throw new Fail("TypeError: Failed to fetch", "");
     if (q.op === "select") {
       let rows = T[table].filter((r) => visible(r) && match(r, q.filters));
       q.orders.slice().reverse().forEach(([c, asc]) => rows.sort((a, b) => (a[c] === b[c] ? 0 : (a[c] < b[c] ? -1 : 1) * (asc ? 1 : -1))));
