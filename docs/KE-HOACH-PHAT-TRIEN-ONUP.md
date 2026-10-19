@@ -4,7 +4,7 @@
 > **Đã chốt 18/10/2026:** bán khi đủ đề lớp 4–12 (theo nhịp 1–2 phiên mỗi tuần: khoảng cuối năm học 2028–2029); đến lúc đó gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng `plans` không đổi), hạn mức hai gói lúc bán chốt sau; các phiên chuẩn bị bán G1, B1, B2, B4 làm ngay trước lúc đó; Supabase giữ gói Free đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần); trang công khai chỉ dành cho gia đình được mời (màn đăng nhập có dòng “Chưa có tài khoản?”, Phiên S1); câu sai báo bằng nút trong app (Phiên R1), GitHub Issues chỉ còn cho chủ app; không ghi giá bán, chi phí hay so sánh đối thủ vào repo. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 > **Quy ước (từ Phiên D0):** chỉ file này ghi trạng thái và lộ trình. CLAUDE.md, README và các tài liệu khác trong docs/ chỉ trỏ sang đây. Làm xong một phiên thì gạch dòng của nó ở mục 3 và ghi số PR; đổi quyết định thì sửa đoạn trên trước.
 > **Rà soát toàn app sau K3 (18/10/2026):** app chạy tốt, 35 mục đề làm đúng hết đều được 10/10; lỗi mới L20 (PR #47 của R1 đã sửa), L22–L26 và yêu cầu L21 xếp vào Phiên TA1, 9e, TA2, làm trước UX1 ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), nhóm E). **Chủ app chốt thêm (18/10/2026):** môn Tiếng Anh của mọi khối 100% tiếng Anh, cả lời dặn, lời giải và giao diện làm đề (quy tắc ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 3).
-> **Tiếp theo:** N2–N6 (đủ đề cuối kì I lớp 4 và 6, trước kì thi từ 21/12; N1 đã xong, PR #62), rồi UX6 sau kì thi; kiểm thử thiết kế sau UX5 (mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)); bố mẹ thử lại L27 trên máy đang dùng sau khi Merge PR #57 (làm lại một đề đúng hết thì “Ôn câu sai” không còn câu của đề đó). Mục 2 (việc của chủ app) và mục 3 (thứ tự các phiên). Mục 5: nhật ký chạy thử, chủ app tự điền.
+> **Tiếp theo:** UX6 (đang làm, sớm hơn dự kiến); các phiên làm đề theo lời giao việc chủ app chốt 19/10/2026 ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7): cuối kì I N2 → N4 (trước 13/11) → N4b → N5 → N6 (lớp 6, hạn 30/11) → N3 → N3b (lớp 4, hạn 7/12; N1 đã xong, PR #62), rồi K4 và giữa kì II (hạn 22/2/2027); kiểm thử thiết kế sau UX5 (mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)); bố mẹ thử lại L27 trên máy đang dùng sau khi Merge PR #57 (làm lại một đề đúng hết thì “Ôn câu sai” không còn câu của đề đó). Mục 2 (việc của chủ app) và mục 3 (thứ tự các phiên). Mục 5: nhật ký chạy thử, chủ app tự điền.
 
 ## 1. Tình hình hiện tại
 
@@ -86,7 +86,7 @@ Nội dung hiện có (19/10/2026, `node tests/kiem-tra-de.js`: 29 đề, 746 c�
 
 ## 3. Lộ trình khi làm tiếp
 
-Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 8 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); Phiên 9a, 9b, 9c (lỗi tìm được khi dùng thử ngày 16/10, đã làm), Phiên 9d (lỗi phát sinh khi rà soát lại ngày 17/10), **Phiên TA1, 9e, TA2** (rà soát sau K3 ngày 18/10: lỗi L20, L22–L26, đề Tiếng Anh 100% tiếng Anh) và **Phiên 9f** (góp ý chạy thử 19/10: L27, ôn câu sai trong bài ôn dạng trang) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); **các phiên làm đề và kĩ thuật cho đề (N0–N25, K1–K3, chuẩn bị bán B1–B4) ở mục 6, 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)**; các phiên khác ở mục 4 dưới đây. Phiên UI1, UX4–UX8 đến từ bản rà giao diện ngày 18/10: vấn đề (X1–X16), ảnh và điều kiện xong ở [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md). Sau khi gộp mỗi phiên UX có một lượt kiểm thử thiết kế, ghi ở mục 5 của file đó; chỗ lệch thành một phiên sửa ngắn tên “b”, như UX3b (X17–X20, kiểm thử 19/10). Thiết kế nằm trong file Figma [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2): Master 1.x là 77 màn vẽ lại đúng app ở commit `0a1e8db`; Master 2.x là các đề xuất, kể cả minh họa cho S1, R1, UX1–UX3.
+Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 8 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); Phiên 9a, 9b, 9c (lỗi tìm được khi dùng thử ngày 16/10, đã làm), Phiên 9d (lỗi phát sinh khi rà soát lại ngày 17/10), **Phiên TA1, 9e, TA2** (rà soát sau K3 ngày 18/10: lỗi L20, L22–L26, đề Tiếng Anh 100% tiếng Anh) và **Phiên 9f** (góp ý chạy thử 19/10: L27, ôn câu sai trong bài ôn dạng trang) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); **các phiên làm đề và kĩ thuật cho đề (N0–N25 cùng N3b, N4b, N7b, N12b; K1–K4; chuẩn bị bán B1–B4) ở mục 6, 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)**; các phiên khác ở mục 4 dưới đây. Phiên UI1, UX4–UX8 đến từ bản rà giao diện ngày 18/10: vấn đề (X1–X16), ảnh và điều kiện xong ở [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md). Sau khi gộp mỗi phiên UX có một lượt kiểm thử thiết kế, ghi ở mục 5 của file đó; chỗ lệch thành một phiên sửa ngắn tên “b”, như UX3b (X17–X20, kiểm thử 19/10). Thiết kế nằm trong file Figma [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2): Master 1.x là 77 màn vẽ lại đúng app ở commit `0a1e8db`; Master 2.x là các đề xuất, kể cả minh họa cho S1, R1, UX1–UX3.
 
 **Làm ngay, chen trước các phiên còn lại** (rà soát sau K3 ngày 18/10, góp ý chạy thử 19/10; lời giao việc ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)):
 
@@ -112,11 +112,12 @@ Thứ tự các phiên:
 | 8b | 1/11 | ~~UX3b · Sửa sau kiểm thử UX3~~ (đã xong, PR #60) | UX3 (đã xong) | bản đám mây, nhỏ: đăng xuất hỏi mật khẩu, đặt mã PIN từ thẻ Bắt đầu xong về Các con, bước 2 ghi con chưa có mã, chữ ô mã mở nhanh (X17–X20, [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md) mục 3, 5); cùng sửa js/app.js; UX4 đã xong trước (PR #59) nên làm trên bản có bước nhập riêng |
 | 9 | 6/12 | ~~UX4 · Chọn hồ sơ và nhập PIN~~ (đã xong, PR #59) | UX3 (đã xong; cùng sửa renderLogin, trang Tài khoản) | ô Phụ huynh có bàn phím mã mở nhanh kèm link “Nhập mật khẩu” (UX3 đã làm trên bàn phím PIN dùng chung); UX4 làm thành bước nhập mã riêng (A5b) |
 | 10 | 13/12 | ~~UX5 · Làm bài tập trung~~ (đã xong, PR #61) | R1, UX1 (đã xong; cùng sửa js/quiz.js) | X5–X9: chế độ tập trung (`body.quizzing`, `opts.onStart`/`onEnd` của `Quiz.run`), nút “Nộp bài”, đồng hồ “Còn 12:30”, ẩn “Bỏ qua” sau Kiểm tra, thẻ “Lần trước” và hai thẻ cách làm ở màn mở đề |
-| 11 | 15/12 | **N1–N6 · Đủ đề cuối kì I lớp 4 và 6** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7; ~~N1 · Toán 4~~ đã xong, PR #62) | K3; N5 (Tiếng Anh 6) sau TA1 | chỉ sửa file đề, chen được giữa các phiên UX |
+| 11 | 30/11 (lớp 6), 7/12 (lớp 4) | **N1–N6, N3b, N4b · Đủ đề cuối kì I lớp 4 và 6** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7; ~~N1 · Toán 4~~ đã xong, PR #62) | K3; N5 (Tiếng Anh 6) sau TA1 | chạy theo thứ tự N2 → N4 (trước 13/11: viết lại bước K3 của tests/e2e.js, dòng k3.hero hỏng từ 14/11) → N4b → N5 → N6 (lớp 6) → N3 → N3b (lớp 4); chỉ sửa file đề và kiểm thử, chen được giữa các phiên UX |
+| 11b | 14/12 | **K4 · Đề ngẫu nhiên rút giữ trọn đoạn đọc** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | N4, UX6 (cùng sửa js/quiz.js, bước K3 của tests/e2e.js) | trước các phiên giữa kì II có đoạn đọc (N7b, N9, N10) |
 | 12 | 17/1/2027 | **UX6 · Biết bài đã gửi chưa** | UX1, UX5 (cùng sửa màn kết quả) | bản đám mây; làm sau kì thi cuối kì I |
 | 13 | 24/1 | **UX7 · Quản lí đề** | UX2 (tab "Đề tự soạn") | |
 | 14 | 31/1 | **UX8 · Gửi báo cáo tuần** | UX2 | |
-| 15 | 1/3 | **N7–N12 · Giữa kì II lớp 4 và 6** | K3 | |
+| 15 | 22/2 | **N7–N12, N7b, N12b · Giữa kì II lớp 4 và 6** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3; K4 trước N7b, N9, N10 | chạy theo thứ tự N8 → N9 → N10 → N11 → N12 → N12b (lớp 6 chưa có đề nào) → N7 → N7b; bắt đầu sau N3b (tháng 12), xen với UX7, UX8 |
 | 16 | 10/3 | **N-IOE · IOE cấp quốc gia** | | thi 1–2/4/2027 (dự kiến), hiện chưa có bài ôn |
 | 17 | 10/4 | **N13–N22 · Cuối năm lớp 4 và 6** | K3 | |
 | 18 | hè 2027 | Lịch 2027–2028 (thêm kì thi các khối mới); giữa kì I lớp 4, 6 năm sau (N23–N25); giữa kì I và cuối kì I lớp 5, 7; gộp bài ôn dạng trang vào ngân hàng | | [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 4, 7 |
@@ -125,7 +126,7 @@ Thứ tự các phiên:
 | 21 | trước khi bán | **G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** → **B2 · Đề trả phí lên máy chủ** → B4 (bớt tải dữ liệu); lên Supabase Pro | đủ đề lớp 4–12 | lời giao việc ở mục 4; B4 ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 5 |
 | — | khi có | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** (GitHub Issues do chủ app ghi từ góp ý của gia đình) | | chen vào bất cứ lúc nào |
 
-Khoảng 36 phiên từ 18/10/2026 đến 10/4/2027 (gồm UX4–UX8 từ bản rà giao diện 18/10, TA1, 9e, TA2 từ lần rà soát sau K3, và UX3b từ kiểm thử thiết kế sau UX3), trung bình 1–2 phiên mỗi tuần. Cuối tháng 10 và tháng 11 dày nhất: R1, TA1, 9e, TA2, UX1–UX3 và bắt đầu N1–N6. Tháng 12 có UX4, UX5, xong trước kì thi cuối kì I. UX6–UX8 làm sau kì thi, xen với N7–N12. Sau đó việc chính là làm đề cho đủ lớp 4–12 (khoảng 200 phiên); chất lượng đề quyết định có bán được hay không, nên nút báo câu sai (R1) và việc rà đề đi trước.
+Khoảng 41 phiên từ 18/10/2026 đến 10/4/2027 (gồm UX4–UX8 từ bản rà giao diện 18/10, TA1, 9e, TA2 từ lần rà soát sau K3, UX3b từ kiểm thử thiết kế sau UX3, và N3b, N4b, N7b, N12b, K4 thêm ngày 19/10), trung bình 1–2 phiên mỗi tuần. Cuối tháng 10 và tháng 11 dày nhất: R1, TA1, 9e, TA2, UX1–UX3 và bắt đầu N1–N6. UX4, UX5 đã xong trong tháng 10, UX6 làm từ 19/10. Tháng 12 có K4 và bắt đầu giữa kì II; UX7, UX8 làm sau kì thi cuối kì I, xen với các phiên giữa kì II. Sau đó việc chính là làm đề cho đủ lớp 4–12 (khoảng 200 phiên); chất lượng đề quyết định có bán được hay không, nên nút báo câu sai (R1) và việc rà đề đi trước.
 
 Lưu ý: đến khi làm B1 (ngay trước khi bán), repo vẫn công khai nên ai cũng tải được trọn bộ đề bằng một lệnh; chủ app đã chấp nhận như vậy (18/10/2026). Nếu sau này muốn giữ đề sớm hơn thì đổi quyết định ở đầu file rồi làm B1 trước (Cloudflare Pages miễn phí, chạy được từ repo riêng tư) mà chưa bật gói; giữ đề thật sự (người chưa trả tiền không tải được) thì cần B2.
 
@@ -167,7 +168,7 @@ Không chạy cùng lúc hai phiên cùng sửa `js/app.js` hoặc `js/quiz.js`;
 
 ## 4. Lời giao việc (dán nguyên vào phiên mới)
 
-Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Các phiên dưới đây xếp theo thứ tự ở mục 3.
+Phiên K3, K4 và các phiên làm đề N1–N25 (cùng N3b, N4b, N7b, N12b): lời giao việc ở mục 6, 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Các phiên dưới đây xếp theo thứ tự ở mục 3.
 
 **Phiên D0 · Đồng bộ tài liệu** (đã xong, PR #41; quyết định đã điền theo lựa chọn của chủ app ngày 18/10/2026)
 > Đọc CLAUDE.md, README.md và mọi file trong docs/. Chỉ sửa tài liệu, không sửa code.
@@ -437,7 +438,7 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 **Phiên 14 · Đề giữa kì II lớp 4**
 > Đọc CLAUDE.md. Tạo 2 đề Toán 4 và 2 đề Tiếng Việt 4 “Kiểm tra giữa học kì II” trong data/banks.js (sách Kết nối tri thức, phạm vi nửa đầu học kì II), mỗi đề 25 câu, có chủ đề và lời giải. Tự tính lại mọi đáp án Toán bằng code. Gắn vào kì thi gk2-l4. Chạy tests/e2e.js, tự rà soát một vòng, rồi mở Pull Request.
 
-**Phiên 15 · Đề giữa kì II lớp 6** (cũ, thay bằng N8–N12 trong [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md))
+**Phiên 15 · Đề giữa kì II lớp 6** (cũ, thay bằng N8–N12, N12b trong [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md))
 > Đọc CLAUDE.md. Tạo mỗi môn 1 đề 25 câu “Kiểm tra giữa học kì II” lớp 6 trong data/banks.js: Toán, Ngữ văn, KHTN (Kết nối tri thức), Tiếng Anh (Global Success, Unit 7–9). Có chủ đề và lời giải; tự tính lại đáp án Toán bằng code. Gắn vào kì thi gk2-l6. Chạy tests/e2e.js, tự rà soát một vòng, rồi mở Pull Request.
 
 **Phiên 16–17 · Đề cuối năm** (cũ, thay bằng N13–N22 trong [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md))
