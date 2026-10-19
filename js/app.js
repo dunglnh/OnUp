@@ -888,14 +888,19 @@
   }
 
   /* ================= MỞ BÀI ÔN ================= */
+  /* Ngôn ngữ của bài ôn dạng trang (TA2): lang trong data/modules.js ("en": bài IOE); không ghi thì bài chỉ có môn Tiếng Anh (ta)
+     là tiếng Anh. Phần app bọc ngoài (nút quay lại, dòng ghi chú, hộp hỏi khi rời bài, thông báo lưu điểm) lấy chữ ở Quiz.TXT;
+     dòng chỉ phụ huynh thấy ("Xem thử, không lưu điểm") giữ tiếng Việt. */
+  const modLang = (m) => (Quiz.TXT[m.lang] ? m.lang : Object.keys(m.subjects || {}).join() === "ta" ? "en" : "vi");
   function renderPlay(u, id) {
     const m = modById(id);
     if (!m) { renderMissing("Không tìm thấy bài ôn", "Bài ôn này không có trong app, hoặc đã được bỏ đi."); return; }
     if (wrongGrade(u, m.grade)) return;
     const src = m.path + "?u=" + encodeURIComponent(u.id) + "&m=" + encodeURIComponent(m.id);
-    const note = u.role === "student" ? ["Điểm được lưu", "Điểm mỗi lần làm xong được lưu vào hồ sơ của bạn."] : ["Xem thử, không lưu điểm", "Chế độ xem thử: điểm không được lưu."];
-    view.innerHTML = `<div class="player">
-      <div class="row between">${back("#/home", "Trang chính")}<span class="small muted note" title="${note[1]}">${note[0]}</span></div>
+    const lang = modLang(m), L = Quiz.TXT[lang], en = lang === "en" ? ' lang="en"' : "";
+    const note = u.role === "student" ? L.appScoreSaved : ["Xem thử, không lưu điểm", "Chế độ xem thử: điểm không được lưu."];
+    view.innerHTML = `<div class="player"${en}>
+      <div class="row between">${back("#/home", L.appHome)}<span class="small muted note"${u.role === "student" ? "" : ' lang="vi"'} title="${note[1]}">${note[0]}</span></div>
       <iframe id="playerFrame" title="${esc(m.title)}" src="${esc(src)}"></iframe></div>`;
     document.body.classList.add("playing");
     wireGo();
@@ -905,7 +910,7 @@
     // Mở bằng file:// hoặc không đọc được khung thì không hỏi.
     const fr = $("#playerFrame");
     const busy = () => { try { const d = fr.contentDocument; return !!(d && d.querySelector("#endBtn, #yesEnd")); } catch (e) { return false; } };
-    guard = { busy, ask: "Rời bài ôn?", note: "Bài đang làm dở sẽ không được lưu.", yes: "Rời bài", no: "Ở lại" };
+    guard = Object.assign({ busy }, L.appLeavePlay);
   }
   window.addEventListener("message", (e) => {
     const fr = $("#playerFrame");
@@ -916,7 +921,7 @@
     const m = modById(d.module); if (!m || m.grade !== u.grade) return;
     if (!(+d.t > 0)) return;
     Store.addResult({ userId: u.id, source: "module", refId: m.id, subject: (m.subjects && m.subjects[d.subject]) || "", label: d.label, mode: d.mode, r: d.r, t: d.t, s: d.s });
-    toast(`Đã lưu kết quả: ${+d.r}/${+d.t} câu đúng`);
+    toast(Quiz.TXT[modLang(m)].appSavedModule(+d.r, +d.t));
   });
 
   /* ================= LÀM BÀI TỪ NGÂN HÀNG ================= */
@@ -958,32 +963,35 @@
     if (!b) { renderMissing("Không tìm thấy đề", "Đề này không có trong app, hoặc đã được bỏ đi."); return; }
     if (wrongGrade(u, b.grade)) return;
     if (!b.questions) { loadQuiz(u, b); return; }
+    // Đề Tiếng Anh (TA2): mọi chữ quanh đề bằng tiếng Anh, lấy từ bảng chữ của js/quiz.js (Quiz.lang, Quiz.TXT, Quiz.title);
+    // dòng chỉ phụ huynh thấy ("Chế độ xem thử") giữ tiếng Việt. Tên đề trong kết quả (label) vẫn là tên trong danh mục.
+    const lang = Quiz.lang(b), L = Quiz.TXT[lang], en = lang === "en";
     // hist đọc lại mỗi lần rút: "Làm đề khác" tính cả lượt vừa làm xong
     const hist = () => (b.pool && u.role === "student" ? poolHist(u, b) : null);
-    let drawn = b.pool ? Quiz.draw(b, hist()) : null;
+    let drawn = b.pool ? Quiz.draw(b, hist(), lang) : null;
     const qs = drawn ? drawn.questions : b.questions, nSrc = b.pool ? (b.pool.from || []).length : 0;
-    view.innerHTML = `<div class="stack">${back("#/home", "Trang chính")}
-      <section class="hero"><span class="label">${nb(`Lớp ${b.grade} · ${esc(b.subject)}${b.pool ? " · Đề ngẫu nhiên" : ""}`)}</span><h1>${nb(esc(b.title))}</h1>
-        <p>${b.pool ? `Mỗi lần làm là một đề khác: ${qs.length} câu rút từ kho ${b.questions.length} câu${nSrc ? ` (${nSrc} đề)` : ""} theo ma trận đề, ưu tiên câu bạn chưa làm hoặc hay sai` : `${qs.length} câu`}${essayN(qs) ? ` (${essayN(qs)} câu tự luận tự chấm)` : ""}.${b.note ? " " + esc(b.note) : ""}</p>
-        ${drawn && drawn.notes.length ? `<p class="small" id="qNotes">Kho còn thiếu câu, lần này: ${esc(drawn.notes.join("; "))}.</p>` : ""}
-        <div class="row"><button class="btn main" id="qPractice">Ôn luyện (xem đáp án từng câu)</button>${b.minutes ? `<button class="btn ghost" id="qExam">Làm như thi · ${b.minutes} phút</button>` : ""}</div></section>
-      ${u.role !== "student" ? `<div class="notice">Chế độ xem thử: điểm không được lưu.</div>` : ""}</div>`;
+    view.innerHTML = `<div class="stack"${en ? ' lang="en"' : ""}>${back("#/home", L.appHome)}
+      <section class="hero"><span class="label">${nb(`${L.appGrade(b.grade)} · ${en ? L.english : esc(b.subject)}${b.pool ? " · " + L.appRandom : ""}`)}</span><h1>${nb(esc(Quiz.title(b, lang)))}</h1>
+        <p>${b.pool ? L.appPoolIntro(qs.length, b.questions.length, nSrc) : L.appCount(qs.length)}${essayN(qs) ? L.appEssayN(essayN(qs)) : ""}.${b.note ? " " + esc(b.note) : ""}</p>
+        ${drawn && drawn.notes.length ? `<p class="small" id="qNotes">${L.appNotes(esc(drawn.notes.join("; ")))}</p>` : ""}
+        <div class="row"><button class="btn main" id="qPractice">${L.appPractice}</button>${b.minutes ? `<button class="btn ghost" id="qExam">${L.appExam(b.minutes)}</button>` : ""}</div></section>
+      ${u.role !== "student" ? `<div class="notice" lang="vi">Chế độ xem thử: điểm không được lưu.</div>` : ""}</div>`;
     wireGo();
     // Báo câu sai (Phiên R1): ai cũng báo được, kể cả phụ huynh, quản trị đang xem thử. Câu của đề ngẫu nhiên ghi mã đề gốc (q.src)
     // để người làm đề tìm đúng file; mỗi người chỉ báo một câu một lần (link thành "Đã báo câu này").
     const bankOf = (q) => q.src || b.id;
     const start = (mode) => {
       const run = (quizRun = Quiz.run(view, drawn ? Object.assign({}, b, { questions: drawn.questions }) : b, {
-        mode, onExit: () => go("#/home"),
+        mode, lang, onExit: () => go("#/home"),
         // "Làm đề khác" ở trang kết quả: rút bộ câu mới (đã tính cả lượt vừa làm)
-        redraw: b.pool ? () => { drawn = Quiz.draw(b, hist()); if (drawn.notes.length) toast("Kho còn thiếu câu: " + drawn.notes.join("; ")); return { questions: drawn.questions }; } : undefined,
+        redraw: b.pool ? () => { drawn = Quiz.draw(b, hist(), lang); if (drawn.notes.length) toast(L.appNotesToast(drawn.notes.join("; "))); return { questions: drawn.questions }; } : undefined,
         reported: (q) => Store.reports().some((r) => r.userId === u.id && r.bankId === bankOf(q) && r.qKey === q.key),
         onReport: (q, { reason, note }) => Store.addReport({ userId: u.id, bankId: bankOf(q), qKey: q.key, qText: Quiz.text(q), reason, note }),
         onFinish: (res) => {
           if (u.role !== "student") return;
           Store.addResult(Object.assign({ userId: u.id, source: "bank", refId: b.id, subject: b.subject, label: b.title }, res));
           if (b.pool && res.marks) PoolHist.mark(u.id, b.id, res.marks);
-          toast(res.mode === "self" ? "Đã lưu điểm tự chấm" : "Đã lưu kết quả");
+          toast(res.mode === "self" ? L.appSavedSelf : L.appSaved);
         }
       }));
       // Xem thử (phụ huynh, quản trị) không lưu điểm nên không cần hỏi.
@@ -992,9 +1000,7 @@
       if (u.role === "student") guard = {
         busy: () => run.busy(),
         leave: () => (run.answered() ? run.submit() : run.stop()),
-        text: () => (!run.answered() ? { ask: "Thoát đề?", note: "Bạn chưa làm câu nào nên không lưu điểm.", yes: "Thoát", no: "Làm tiếp" }
-          : run.exam ? { ask: "Nộp bài và rời trang?", note: "Câu chưa làm tính là sai.", yes: "Nộp bài", no: "Làm tiếp" }
-          : { ask: "Dừng ôn và rời trang?", note: "Kết quả các câu đã làm được lưu lại.", yes: "Dừng ôn", no: "Ôn tiếp" })
+        text: () => (!run.answered() ? L.appLeaveNone : run.exam ? L.appLeaveExam : L.appLeavePractice)
       };
     };
     $("#qPractice").onclick = () => start("practice");
@@ -1003,15 +1009,16 @@
   /* Câu hỏi của đề có sẵn chỉ tải khi mở đề (Store.loadBank). Tải xong mà đã sang màn hình khác thì thôi. Mất mạng mà
      chưa mở đề nào của môn này lần nào (chưa có trong đệm của sw.js) thì báo và cho thử lại. */
   function loadQuiz(u, b) {
-    view.innerHTML = `<div class="stack">${back("#/home", "Trang chính")}
-      <section class="panel" id="qLoad"><p class="muted">Đang tải đề…</p></section></div>`;
+    const lang = Quiz.lang(b), L = Quiz.TXT[lang]; // đề Tiếng Anh: màn tải đề cũng bằng tiếng Anh (TA2)
+    view.innerHTML = `<div class="stack"${lang === "en" ? ' lang="en"' : ""}>${back("#/home", L.appHome)}
+      <section class="panel" id="qLoad"><p class="muted">${L.appLoading}</p></section></div>`;
     wireGo();
     const box = $("#qLoad");
     const failed = () => {
       if (!box.isConnected) return;
-      box.innerHTML = `<h1>${nb(esc(b.title))}</h1><p>Chưa tải được đề này. Bạn kiểm tra mạng rồi bấm Thử lại nhé.</p>
-        <p class="small muted">Đề đã mở một lần khi có mạng thì lần sau mở được cả khi mất mạng.</p>
-        <div class="row"><button class="btn main" id="qRetry">Thử lại</button></div>`;
+      box.innerHTML = `<h1>${nb(esc(Quiz.title(b, lang)))}</h1><p>${L.appLoadFail}</p>
+        <p class="small muted">${L.appLoadTip}</p>
+        <div class="row"><button class="btn main" id="qRetry">${L.appRetry}</button></div>`;
       $("#qRetry").onclick = () => renderQuiz(u, b.id);
     };
     Store.loadBank(b.id).then((x) => { if (box.isConnected) { if (x && x.questions) renderQuiz(u, b.id); else failed(); } }, failed);
