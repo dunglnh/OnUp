@@ -120,6 +120,7 @@ Thứ tự: làm các phiên kĩ thuật K1 → K2 → K3 trước, rồi mới 
   - Câu riêng chỉ được rút khi ô (chủ đề, mức) của nó có câu trong ma trận (`tests/kiem-tra-de.js` nhắc nếu không). Câu của đề cố định ở ô không rút vẫn dùng trong đề cố định.
   - Câu tự luận trong kho: lần rút có câu tự luận thì phần chấm tự động ít hơn `n` câu, điểm tự luận lưu riêng (K2).
   - Toán: script tính lại đáp án theo mẫu `tests/toan4-ck1.js` (đủ các dạng câu mới, đọc toạ độ trong hình để tính góc, kiểm tra vuông góc, song song, cạnh bằng nhau).
+- Rút ra từ Phiên N2 (Tiếng Việt 4 cuối kì I): chủ đề “Viết” chỉ gồm câu tự luận để lần rút nào cũng đúng một câu Viết (câu sắp xếp câu thành đoạn văn ghi chủ đề “Đọc hiểu”); ô điền chấm không phân biệt chữ hoa, nên quy tắc viết hoa (danh từ riêng, tên cơ quan) hỏi bằng trắc nghiệm hoặc đúng/sai 4 ý; đáp án đúng không dài hơn hẳn các lựa chọn sai.
 
 **Đề Tiếng Anh: 100% tiếng Anh** (chủ app yêu cầu 18/10/2026, áp dụng cho mọi khối, mọi kì, cả đề thi thử vào 10 và tốt nghiệp)
 - Mọi chữ của đề và câu Tiếng Anh viết bằng tiếng Anh: `note`, `topic`, lời dặn và đề bài `q`, lựa chọn `o`, đáp án `ans`, cột nối `l`, `r`, lời giải `x`, đoạn đọc (`passages`), thang tự chấm. Câu Tiếng Anh nằm trong đề nhiều môn (như đề thử nghiệm) cũng vậy.
