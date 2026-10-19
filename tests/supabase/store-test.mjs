@@ -190,9 +190,31 @@ ok(B.Store.authState() === "ready" && !!dev.getItem(AUTH) && !B.sessionStorage.g
   ok((await B2.Store.checkPassword(PW)) && B2.Store.parentUnlocked(), "nhập lại mật khẩu đúng");
   B2.Store.setSession(p.id);
   ok(B2.Store.sessionUser() && B2.Store.sessionUser().id === p.id, "vào khu phụ huynh");
+  // UX3: mã mở nhanh khu phụ huynh, chỉ trên máy đã ghi nhớ: băm và lưu trên máy theo mã gia đình, đúng mã thì mở khóa như vừa nhập mật khẩu
+  ok(B2.Store.quickCodeLen() === 0 && !(await B2.Store.checkQuickCode("2468")), "máy chưa có mã mở nhanh: độ dài 0, kiểm tra mã nào cũng sai");
+  await throwsMsg(() => B2.Store.setQuickCode("12"), /4–6 chữ số/, "mã mở nhanh phải 4–6 chữ số");
+  await throwsMsg(() => B2.Store.setQuickCode("abcd"), /4–6 chữ số/, "mã mở nhanh chỉ gồm chữ số");
+  await B2.Store.setQuickCode("24680");
+  const saved = JSON.parse(dev.getItem("ontap_cloud_quick") || "{}");
+  ok(B2.Store.quickCodeLen() === 5 && Object.keys(saved).join() === fam("nha.bin").id && /^5\.[0-9a-f]{16}\$s256:[0-9a-f]{64}$/.test(saved[fam("nha.bin").id]), "đặt mã 5 số: lưu trên máy theo mã gia đình, băm như PIN, muối ghi độ dài");
+  const B3 = browser({ local: dev });
+  await B3.Store.init();
+  ok(B3.Store.quickCodeLen() === 5 && !B3.Store.parentUnlocked(), "tab mới: biết máy có mã 5 số, nhưng chưa mở khóa");
+  ok(!(await B3.Store.checkQuickCode("2468")) && !(await B3.Store.checkQuickCode("24681")) && !B3.Store.parentUnlocked(), "sai mã mở nhanh: không mở khóa");
+  B3.Store.setSession(p.id);
+  ok(B3.Store.sessionUser() === null, "chưa đúng mã thì không chọn được Phụ huynh");
+  ok((await B3.Store.checkQuickCode("24680")) && B3.Store.parentUnlocked(), "đúng mã mở nhanh: mở khóa như vừa nhập mật khẩu");
+  B3.Store.setSession(p.id);
+  ok(B3.Store.sessionUser() && B3.Store.sessionUser().id === p.id, "vào khu phụ huynh bằng mã mở nhanh");
+  await B3.Store.setQuickCode(null);
+  ok(B3.Store.quickCodeLen() === 0 && dev.getItem("ontap_cloud_quick") === null && B2.Store.quickCodeLen() === 0, "bỏ mã: xóa khỏi máy, tab khác cũng không còn");
+  await B3.Store.setQuickCode("2468");
+  ok(B3.Store.quickCodeLen() === 4 && (await B3.Store.checkQuickCode("2468")), "đặt lại mã 4 số");
   const C = browser({ local: A.localStorage });
   await C.Store.init();
   ok(C.Store.authState() === "signed-out", "tab mới trên máy không ghi nhớ: phải đăng nhập lại");
+  await throwsMsg(() => A.Store.setQuickCode("2468"), /Ghi nhớ trên máy này/, "máy không ghi nhớ: không đặt được mã mở nhanh");
+  ok(A.Store.quickCodeLen() === 0, "máy không ghi nhớ: không có mã");
 }
 {
   const S = B.Store;
@@ -292,6 +314,7 @@ ok(B.Store.authState() === "ready" && !!dev.getItem(AUTH) && !B.sessionStorage.g
     "con báo câu sai: lên máy chủ với hồ sơ con, gia đình do máy chủ điền, ghi chú bỏ khoảng trắng");
   ok(S.reports().length === 1 && S.reports()[0].id === r1.id && S.reports()[0].userId === bin.id && S.reports()[0].status === "new" && r1.qKey === key, "reports(): có ngay trong bộ nhớ đệm");
   const P = A.Store, parent = P.users("admin")[0];
+  await new Promise((r) => setTimeout(r, 2)); // created_at tính đến mili giây: hai báo cáo cùng một ms thì "mới nhất trước" không xác định
   const r2 = await P.addReport({ userId: parent.id, bankId: "toan4-ck1-ngau-nhien", qKey: "abc", qText: "Câu của đề ngẫu nhiên", reason: "unclear", note: "" });
   ok(be.T.question_reports.find((r) => r.id === r2.id).profile_id === null && r2.userId === parent.id, "phụ huynh báo: không có hồ sơ (profile_id trống), trong app ghi là Phụ huynh");
   await S.refresh();

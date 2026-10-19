@@ -49,7 +49,7 @@ Các phiên này giữ nguyên lời giao việc, trừ UX3: đã bỏ màn hỏ
 - **UX3 · Bắt đầu và chuyển máy cho con:**
   - **Không làm màn hỏi “Đây là máy của nhà mình?”** (A2 cũ). Chủ app bỏ màn này ngày 18/10/2026. Màn đăng nhập giữ ô “Ghi nhớ trên máy này” và dòng giải thích như bản đang chạy; Figma đã xóa A2.
   - **E2:** thẻ “Bắt đầu trong 3 bước” thay cho ba ô số 0. Nút “Cho con học” mờ cho đến khi có hồ sơ con.
-  - Tên gợi ý cho “Đổi người học” là **“Chọn hồ sơ khác”**, dùng ở cả khu phụ huynh và trang tài khoản của con.
+  - Tên mới của “Đổi người học” là **“Chọn hồ sơ khác”** (UX3 đã làm), dùng ở cả khu phụ huynh và trang tài khoản của con. UX3 cũng thêm mã mở nhanh 4–6 số của khu phụ huynh trên máy đã ghi nhớ: ô Phụ huynh ở “Ai đang học?” mở bàn phím mã, có link “Nhập mật khẩu”.
 - **UX1 · Trang “Hôm nay” và màn kết quả:**
   - **B1:**
     - Thẻ “Hôm nay ôn gì?” có một việc chính với nút Bắt đầu to, thêm một việc phụ.

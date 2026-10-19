@@ -107,7 +107,8 @@
   function wireReveal(root) {
     $$('input[type="password"]', root || view).forEach((inp) => {
       if (revealers.has(inp)) return;
-      const what = inp.getAttribute("inputmode") === "numeric" ? "mã PIN" : "mật khẩu";
+      // Tên trong aria-label của nút: data-what của ô (ví dụ "mã mở nhanh"), không có thì theo loại ô; ô đổi tên thì báo sự kiện "relabel".
+      const what = () => inp.dataset.what || (inp.getAttribute("inputmode") === "numeric" ? "mã PIN" : "mật khẩu");
       const cap = inp.closest("label") && inp.closest("label").querySelector(":scope > span");
       if (cap) { cap.id = cap.id || "revealCap" + ++revealN; inp.setAttribute("aria-labelledby", cap.id); }
       const box = document.createElement("span"), btn = document.createElement("button");
@@ -115,7 +116,8 @@
       if (inp.id) btn.setAttribute("aria-controls", inp.id);
       inp.before(box); box.append(inp, btn);
       btn.innerHTML = EYE; // vẽ một lần: thay nút giữa lúc bấm thì <label> tưởng bấm vào nhãn và đặt focus vào ô
-      const draw = (show) => { btn.setAttribute("aria-pressed", show); btn.setAttribute("aria-label", (show ? "Ẩn " : "Hiện ") + what); };
+      const draw = (show) => { btn.setAttribute("aria-pressed", show); btn.setAttribute("aria-label", (show ? "Ẩn " : "Hiện ") + what()); };
+      inp.addEventListener("relabel", () => draw(inp.type === "text"));
       const set = (show, keep) => {
         if ((inp.type === "text") === show) return;
         const s = inp.selectionStart, e = inp.selectionEnd;
@@ -356,15 +358,19 @@
   /* ================= ĐĂNG NHẬP ================= */
   const pinBoxHTML = () => `<section class="panel" id="pinBox" hidden>
         <div class="row" style="justify-content:center" id="pinWho"></div>
+        <p class="small muted" id="pinSub" style="text-align:center;margin:-4px 0 0" hidden></p>
         <div class="pin" id="pinDots" aria-hidden="true"></div>
-        <label class="field" style="max-width:300px;margin:0 auto;width:100%"><span>Mã PIN</span><input id="pinIn" type="password" inputmode="numeric" maxlength="6" autocomplete="off"></label>
+        <label class="field" style="max-width:300px;margin:0 auto;width:100%"><span id="pinLabel">Mã PIN</span><input id="pinIn" type="password" inputmode="numeric" maxlength="6" autocomplete="off"></label>
         <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join("")}<button type="button" data-k="del" aria-label="Xóa">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" aria-label="Vào" style="background:var(--sun);color:var(--sun-ink)">Vào</button></div>
         <div id="pinErr" aria-live="assertive"></div>
+        <div class="row" style="justify-content:center" id="pinAlt" hidden></div>
       </section>`;
   /* Bàn phím PIN dùng chung cho đăng nhập trên máy và trên đám mây. submit(pin) được gọi khi bấm Vào, Enter,
      hoặc gõ đủ độ dài PIN của người đã chọn (u.pinLen; chưa biết thì 6).
      probe(pin), không bắt buộc: chưa biết độ dài thì gọi khi gõ đủ 4 số, để thử lặng lẽ PIN 4 số.
-     Nút xem (wireReveal) đang hiện thì hàng chấm hiện chữ số đã gõ; gửi PIN hoặc xóa hết thì ẩn lại. */
+     Nút xem (wireReveal) đang hiện thì hàng chấm hiện chữ số đã gõ; gửi PIN hoặc xóa hết thì ẩn lại.
+     show(u, opts), opts không bắt buộc (mã mở nhanh của Phụ huynh, UX3): label là tên ô thay cho "Mã PIN", sub là dòng phụ dưới tên,
+     alt = {text, go} là link thay thế dưới bàn phím ("Nhập mật khẩu"); không truyền thì như bàn phím PIN của hồ sơ con. */
   function wirePinBox(submit, probe) {
     const inp = $("#pinIn"), dots = $("#pinDots");
     let pin = "", len = 0;
@@ -387,10 +393,17 @@
     inp.addEventListener("reveal", draw);
     return {
       clear: () => set(""),
-      show(u) {
+      show(u, opts) {
+        const { sub, alt, label } = opts || {};
         len = u.pinLen >= 4 && u.pinLen <= 6 ? u.pinLen : 0;
         set(""); $("#pinErr").innerHTML = "";
         $("#pinWho").innerHTML = `${avatar(u)}<b>${esc(u.name)}</b>`;
+        $("#pinSub").hidden = !sub; $("#pinSub").textContent = sub || "";
+        $("#pinAlt").hidden = !alt; $("#pinAlt").innerHTML = alt ? `<button type="button" class="linkbtn" id="pinToPw">${esc(alt.text)}</button>` : "";
+        if (alt) $("#pinToPw").onclick = alt.go;
+        $("#pinLabel").textContent = label || "Mã PIN";
+        if (label) inp.dataset.what = label.toLowerCase(); else delete inp.dataset.what;
+        inp.dispatchEvent(new Event("relabel"));
         $("#pinBox").hidden = false; setTimeout(() => inp.focus({ preventScroll: true }), 30);
         $("#pinBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
@@ -430,14 +443,17 @@
 
   /* Chọn người dùng rồi nhập PIN. Bản lưu trên máy: mọi tài khoản của máy, theo vai trò.
      Bản đám mây ("Ai đang học?", đã đăng nhập tài khoản gia đình): các hồ sơ con và ô Phụ huynh. Hồ sơ con không có PIN
-     thì bấm là vào; Phụ huynh phải nhập lại mật khẩu (vừa nhập trong 5 phút thì không hỏi lại). */
+     thì bấm là vào; Phụ huynh phải nhập lại mật khẩu (vừa nhập trong 5 phút thì không hỏi lại). Máy đã đặt mã mở nhanh
+     (Store.quickCodeLen(), UX3) thì ô Phụ huynh mở bàn phím mã đó, có link "Nhập mật khẩu" (quên mã); sai mã cũng tính vào PinLock. */
   function renderLogin() {
     drawWho(null);
-    const cloud = !!Store.cloud, parent = cloud ? Store.users("admin")[0] : null;
+    const cloud = !!Store.cloud, parent = cloud ? Store.users("admin")[0] : null, quick = cloud ? Store.quickCodeLen() : 0;
+    const isParent = (id) => cloud && !!parent && id === parent.id;
+    let usePw = false; // Phụ huynh có mã mở nhanh nhưng chọn nhập mật khẩu
     // Bản đám mây, tài khoản chưa có hồ sơ con và bố mẹ vừa đăng nhập: vào thẳng khu phụ huynh để thêm hồ sơ.
     if (cloud && !Store.users("student").length && Store.parentUnlocked()) { Store.setSession(parent.id); go("#/home"); return; }
     const groups = cloud ? [["student", "Con"], ["admin", "Bố mẹ"]] : [["student", "Học sinh"], ["parent", "Phụ huynh"], ["admin", "Quản trị"]];
-    const sub = (u) => (cloud && u.role === "admin" ? "Nhập mật khẩu" : gradeTxt(u));
+    const sub = (u) => (cloud && u.role === "admin" ? (quick ? "Nhập mã mở nhanh" : "Nhập mật khẩu") : gradeTxt(u));
     let sel = Store.user(Store.lastUserId()) ? Store.lastUserId() : null;
     view.innerHTML = `<div class="stack">
       <div><h1>${cloud ? "Ai đang học?" : "Xin chào!"}</h1><p class="muted">${esc(Store.settings().schoolName || (cloud ? "Chọn hồ sơ của bạn." : "Chọn tên của bạn để bắt đầu."))}</p></div>
@@ -451,11 +467,12 @@
         <div class="captcha" id="pwCaptcha"></div>
         <div id="pwErr" aria-live="assertive"></div>
         <div class="row" style="justify-content:center"><button class="btn main" type="submit" id="pwGo">Vào khu phụ huynh</button></div>
+        ${quick ? `<div class="row" style="justify-content:center"><button type="button" class="linkbtn" id="pwToPin">Dùng mã mở nhanh</button></div>` : ""}
       </form>` : ""}</div>`;
     const box = wirePinBox(submit, probe);
     wireReveal(view);
     let tick = null, busy = false;
-    const errBox = () => $(cloud && sel === (parent && parent.id) ? "#pwErr" : "#pinErr");
+    const errBox = () => $(isParent(sel) && !$("#pwBox").hidden ? "#pwErr" : "#pinErr");
     const err = (msg) => { errBox().innerHTML = `<div class="fb bad">${esc(msg)}</div>`; };
     // Đếm ngược trong #pinWait (aria-live="off" để trình đọc màn hình không đọc lại mỗi giây).
     function showWait(id, lead) {
@@ -472,12 +489,18 @@
     /* tapped: người dùng bấm vào ô (không phải ô chọn sẵn lúc mở trang). Ô chọn sẵn không tự vào hồ sơ không có PIN. */
     function pick(id, tapped) {
       sel = id; clearInterval(tick);
+      if (!isParent(id)) usePw = false; // chọn lại ô Phụ huynh sau thì bàn phím mã mở nhanh hiện trước như lúc đầu
       $$(".tile").forEach((t) => t.setAttribute("aria-pressed", t.dataset.u === id));
       const u = Store.user(id);
       if (cloud) {
         $("#pwBox").hidden = true; $("#pinBox").hidden = true;
         if (u.role === "admin") {
           if (tapped && Store.parentUnlocked()) { enter(id); return; }
+          if (quick && !usePw) { // máy có mã mở nhanh (UX3): bàn phím mã, link "Nhập mật khẩu"
+            box.show(Object.assign({}, u, { pinLen: quick }), { label: "Mã mở nhanh", sub: "Mã mở nhanh khu phụ huynh của máy này. Quên mã thì nhập mật khẩu.", alt: { text: "Nhập mật khẩu", go: () => { usePw = true; pick(id, false); } } });
+            if (PinLock.wait(id)) showWait(id);
+            return;
+          }
           $("#pwErr").innerHTML = ""; $("#pwIn").value = ""; conceal($("#pwIn")); $("#pwBox").hidden = false;
           setTimeout(() => $("#pwIn").focus({ preventScroll: true }), 30);
           $("#pwBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -496,19 +519,20 @@
       const id = sel;
       if (PinLock.wait(id)) { box.clear(); showWait(id); return; }
       busy = true;
-      const ok = await Store.checkPin(id, pin);
+      const ok = isParent(id) ? await Store.checkQuickCode(pin) : await Store.checkPin(id, pin); // Phụ huynh: mã mở nhanh của máy này (UX3)
       busy = false;
       if (sel !== id) return;
       if (ok) { enter(id); return; }
       box.clear();
-      if (PinLock.fail(id)) { showWait(id, "Mã PIN chưa đúng."); return; }
+      const what = isParent(id) ? "Mã mở nhanh" : "Mã PIN";
+      if (PinLock.fail(id)) { showWait(id, what + " chưa đúng."); return; }
       const left = PinLock.left(id);
-      pinError(left <= 2 ? `Mã PIN chưa đúng. Sai thêm ${left} lần nữa thì phải đợi một lúc.` : "Mã PIN chưa đúng. Thử lại nhé.");
+      pinError(left <= 2 ? `${what} chưa đúng. Sai thêm ${left} lần nữa thì phải đợi một lúc.` : `${what} chưa đúng. Thử lại nhé.`);
     }
     // Tài khoản cũ chưa biết độ dài PIN: gõ đủ 4 số thì thử lặng lẽ. Sai thì không báo, không tính là lần sai, chờ gõ tiếp.
     async function probe(pin) {
       const id = sel;
-      if (!id || busy || !PinLock.probe(id)) return;
+      if (!id || busy || isParent(id) || !PinLock.probe(id)) return;
       busy = true;
       const ok = await Store.checkPin(id, pin);
       busy = false;
@@ -532,6 +556,7 @@
       } catch (e) { err(e.message); } finally { busy = false; if ($("#pwGo")) $("#pwGo").disabled = false; }
     };
     $$(".tile").forEach((t) => (t.onclick = () => pick(t.dataset.u, true)));
+    if ($("#pwToPin")) $("#pwToPin").onclick = () => { usePw = false; pick(parent.id, false); };
     if (sel) pick(sel, false);
     if (!cloud && !Store.users().length) view.insertAdjacentHTML("afterbegin", `<div class="fb bad">Chưa có tài khoản nào.</div>`);
   }
@@ -984,6 +1009,23 @@
       </span>${ev}</a>`;
   }
   const kidsHint = `<p class="small muted">Bấm vào thẻ của con để xem báo cáo tuần, chủ đề hay sai và bài đã làm.</p>`;
+  /* Thẻ "Bắt đầu trong 3 bước" ở đầu mục Các con (bản đám mây, Phiên UX3): thêm hồ sơ con → đặt mã PIN (không bắt buộc) → đưa máy
+     cho con. Hiện đến khi một con đã học: có kết quả (máy nào cũng thấy) hoặc đã chọn hồ sơ con trên máy này (Store.lastUserId()).
+     Nút to "Cho con học" (#letStudy) mở màn hình "Ai đang học?" như nút "Chọn hồ sơ khác" ở góc trên; mờ khi chưa có hồ sơ con. */
+  const startDone = (studs) => studs.some((c) => c.id === Store.lastUserId() || Store.resultsFor(c.id).length > 0);
+  function startCard(studs) {
+    const has = studs.length > 0, pinned = studs.filter((c) => c.hasPin), names = (list) => esc(list.map((c) => c.name).join(", "));
+    const step = (n, done, now, title, body) => `<li class="step${done ? " done" : now ? " now" : ""}"><span class="n" aria-hidden="true">${done ? "✓" : n}</span><span class="grow"><b>${title}</b>${body}</span></li>`;
+    const pinHref = studs.length === 1 ? "#/admin/user/" + esc(studs[0].id) : "#/admin/settings";
+    return `<section class="panel start" id="start"><h3>Bắt đầu trong 3 bước</h3><ol class="steps">
+      ${step(1, has, !has, "Thêm hồ sơ con", has ? `<span class="small muted">Đã có ${studs.length} hồ sơ: ${names(studs)}.</span>`
+        : `<span class="small muted">Tên, khối, lớp và hình đại diện. App không hỏi ngày sinh hay ảnh của con.</span>${Store.can("addChild") ? `<a class="btn main sm" href="#/admin/user/new?role=student">+ Thêm hồ sơ con</a>` : ""}`)}
+      ${step(2, pinned.length > 0, false, "Đặt mã PIN (không bắt buộc)", pinned.length ? `<span class="small muted">${names(pinned)} đã có mã PIN.</span>`
+        : `<span class="small muted">Để anh chị em không vào nhầm hồ sơ của nhau.</span>${has ? `<a class="linkbtn small" href="${pinHref}">Đặt mã PIN</a>` : ""}`)}
+      ${step(3, false, has, "Đưa máy cho con", `<span class="small muted">Bấm “Cho con học”, con chọn hồ sơ của mình rồi bắt đầu ôn.</span>`)}</ol>
+      <button class="btn main lg" id="letStudy" ${has ? "" : "disabled"}>Cho con học</button>
+      <p class="small muted" style="text-align:center;margin:0">${has ? "Nút này mở màn hình “Ai đang học?”. Lúc khác, bấm “Chọn hồ sơ khác” ở góc trên." : "Nút này mở màn hình “Ai đang học?” khi đã có hồ sơ con."}</p></section>`;
+  }
   function renderParent(p) {
     const kids = Store.childrenOf(p.id);
     view.innerHTML = `<div class="stack">
@@ -1305,10 +1347,10 @@
     const kidRow = (x) => itemLink("#/admin/user/" + esc(x.id), esc(x.name), `${esc(gradeTxt(x))} · ${x.hasPin ? "có mã PIN" : "không có mã PIN"}${esc(lockTag(x))}`, avatar(x));
     const bankRow = (b) => itemLink(`#/${b.seed ? "quiz" : "admin/bank"}/${esc(b.id)}`, nb(esc(b.title)), `Lớp ${b.grade} · ${esc(b.subject)} · ${qCount(b)} câu${b.pool ? " rút ngẫu nhiên" : ""}${b.seed ? " · có sẵn (chỉ xem)" : ""}`);
     if (tab === "overview" && cloud) {
+      // Thẻ "Bắt đầu trong 3 bước" (UX3) đứng đầu đến khi một con đã học; chưa có hồ sơ con thì chỉ có thẻ này (nút thêm nằm trong thẻ).
       const studs = Store.users("student"), max = (Store.plan() || {}).maxChildren || 0;
-      body = `<section class="sec" id="kids">${studs.length ? studs.map(kidCard).join("") : `<div class="panel muted">Chưa có hồ sơ con. Bấm “Thêm hồ sơ con”: tên, khối, lớp và mã PIN nếu muốn. Mỗi con chọn hồ sơ của mình ở màn hình “Ai đang học?”.</div>`}
-        <div class="row">${Store.can("addChild") ? `<a class="btn sm" href="#/admin/user/new?role=student">+ Thêm hồ sơ con</a>` : ""}<span class="small muted">${studs.length}/${max} hồ sơ${Store.can("addChild") ? "" : " · " + esc(fullMsg())}</span></div>
-        ${studs.length ? kidsHint : ""}</section>`;
+      body = `<section class="sec" id="kids">${startDone(studs) ? "" : startCard(studs)}${studs.map(kidCard).join("")}
+        ${studs.length ? `<div class="row">${Store.can("addChild") ? `<a class="btn sm" href="#/admin/user/new?role=student">+ Thêm hồ sơ con</a>` : ""}<span class="small muted">${studs.length}/${max} hồ sơ${Store.can("addChild") ? "" : " · " + esc(fullMsg())}</span></div>${kidsHint}` : ""}</section>`;
     } else if (tab === "overview") {
       const studs = Store.users("student"), w7 = within(graded(Store.data().results), 7);
       body = `<div class="stats"><div class="stat"><b>${studs.length}</b><span>học sinh</span></div><div class="stat"><b>${Store.users("parent").length}</b><span>phụ huynh</span></div><div class="stat"><b>${w7.length}</b><span>bài làm 7 ngày qua</span></div></div>
@@ -1330,7 +1372,7 @@
           <label class="field"><span>Năm học</span><input id="dYear" value="${esc(st.schoolYear || "")}" maxlength="20"></label></div>
           <div class="row"><button class="btn sm" id="dSave">Lưu</button></div></section>
         <div class="list" id="moreBox">${itemLink("#/admin/data", "Chuyển dữ liệu và sao lưu", "Chuyển dữ liệu của bản lưu trên máy lên đám mây, tải file sao lưu, xem câu đã báo sai")}
-          ${itemLink("#/account", "Tài khoản", `Tên đăng nhập ${esc(Store.username())} · đổi mật khẩu, đăng xuất khỏi máy này`)}</div>`;
+          ${itemLink("#/account", "Tài khoản", `Tên đăng nhập ${esc(Store.username())} · đổi mật khẩu, mã mở nhanh, đăng xuất khỏi máy này`)}</div>`;
     } else if (tab === "users") {
       const sect = (role, name) => { const us = Store.users(role); return `<section class="sec"><div class="row between"><h2>${name} (${us.length})</h2><a class="btn sm" href="#/admin/user/new?role=${role}">+ Thêm</a></div>${us.length ? `<div class="list">${us.map((x) => `<a class="item" href="#/admin/user/${esc(x.id)}" style="color:inherit;text-decoration:none">${avatar(x)}<span class="grow"><b>${esc(x.name)}</b><span class="small muted">${esc(gradeTxt(x))}${role === "student" ? " · Phụ huynh: " + esc((x.parentIds || []).map((p) => (Store.user(p) || {}).name).filter(Boolean).join(", ") || "chưa gắn") : role === "parent" ? " · Con: " + esc(Store.childrenOf(x.id).map((c) => c.name).join(", ") || "chưa gắn") : ""}</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>` : `<div class="panel muted">Chưa có.</div>`}</section>`; };
       body = sect("student", "Học sinh") + sect("parent", "Phụ huynh") + sect("admin", "Quản trị");
@@ -1388,12 +1430,13 @@
         <section class="panel"><h3>Xóa toàn bộ dữ liệu</h3><p class="small">Xóa mọi tài khoản, kết quả và lịch đã sửa trên máy này. Không hoàn tác được.</p>
           <div class="row"><button class="btn danger sm" id="dWipe">Xóa toàn bộ…</button></div><div id="wipeArea"></div></section>`;
     }
-    view.innerHTML = `<div class="stack"><div class="row between"><div><h2>${cloud ? "Khu phụ huynh" : "Quản trị"}</h2><span class="muted">${esc(Store.settings().schoolName || "")}</span></div>${cloud ? `<button class="btn ghost sm" id="switchWho">Đổi người học</button>` : ""}</div>${adminTabs(tab)}${body}</div>`;
+    view.innerHTML = `<div class="stack"><div class="row between"><div><h2>${cloud ? "Khu phụ huynh" : "Quản trị"}</h2><span class="muted">${esc(Store.settings().schoolName || "")}</span></div>${cloud ? `<button class="btn ghost sm" id="switchWho">Chọn hồ sơ khác</button>` : ""}</div>${adminTabs(tab)}${body}</div>`;
     wireGo();
     wireBackupCard();
     $$("button[data-child]").forEach((b) => (b.onclick = () => go("#/child/" + b.dataset.child))); // dòng học sinh của quản trị bản lưu trên máy (thẻ của con là link)
     wireEvents(view, tab === "events" && cloud ? calGrade || null : null, null); // tab Lịch thi của khu phụ huynh: chi tiết kì thi theo khối đang chọn
     if ($("#switchWho")) $("#switchWho").onclick = switchWho;
+    if ($("#letStudy")) $("#letStudy").onclick = switchWho; // thẻ Bắt đầu (UX3)
     if (tab === "events") $("#resetEv").onclick = () => {
       $("#resetArea").innerHTML = `<div class="confirm"><div>Chép lại lịch thi gốc? Các kì thi bạn đã thêm hoặc sửa sẽ bị thay thế.</div><div class="row"><button class="btn danger sm" id="rsYes">Khôi phục</button><button class="btn ghost sm" id="rsNo">Thôi</button></div></div>`;
       $("#rsYes").onclick = () => { Store.resetEvents(); toast("Đã khôi phục lịch mặc định"); renderAdmin(u, "events"); };
@@ -1420,7 +1463,7 @@
     }
   }
 
-  /* Bản đám mây: về màn hình "Ai đang học?" (không đăng xuất tài khoản gia đình). */
+  /* Bản đám mây: "Chọn hồ sơ khác", "Cho con học": về màn hình "Ai đang học?" (không đăng xuất tài khoản gia đình). */
   function switchWho() {
     if (!Store.users("student").length) { toast("Chưa có hồ sơ con. Thêm hồ sơ con trước nhé."); return; }
     Store.setSession(null); go("#/");
@@ -1699,24 +1742,49 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
     };
     $("#logout").onclick = () => { Store.setSession(null); go("#/"); };
   }
-  /* Bản đám mây. Phụ huynh: tên đăng nhập, đổi mật khẩu, đổi người học, đăng xuất khỏi máy này.
-     Hồ sơ con: đổi hình đại diện, đổi người học (PIN do bố mẹ đặt trong khu phụ huynh; con không đăng xuất được tài khoản). */
+  /* Ô mã mở nhanh khu phụ huynh ở trang Tài khoản (bản đám mây, Phiên UX3): mã 4–6 số băm và lưu trên máy này (Store.setQuickCode),
+     chỉ đặt được khi máy đã ghi nhớ đăng nhập (Store.rememberLogin()); đã có mã thì đổi hoặc bỏ. Đổi mật khẩu, đăng xuất vẫn cần mật khẩu. */
+  function quickBox() {
+    const len = Store.quickCodeLen();
+    if (!Store.rememberLogin()) return `<section class="panel" id="qcBox"><h3>Mã mở nhanh khu phụ huynh</h3>
+      <p class="small">Chọn “Ghi nhớ trên máy này” khi đăng nhập thì đặt được mã 4–6 số để vào khu phụ huynh mà không phải gõ mật khẩu. Máy này chưa ghi nhớ đăng nhập.</p></section>`;
+    return `<form class="panel" id="qcBox" autocomplete="off"><h3>Mã mở nhanh khu phụ huynh</h3>
+      <p class="small">Trên máy này, bạn gõ mã ${len ? len + " số" : "4–6 số"} ở màn hình “Ai đang học?” là vào khu phụ huynh, không phải gõ mật khẩu. Quên mã thì nhập mật khẩu như cũ. Đổi mật khẩu và đăng xuất vẫn cần mật khẩu.</p>
+      ${len ? `<div class="fb ok" id="qcState">Máy này đã có mã mở nhanh.</div>` : ""}
+      <label class="field" style="max-width:300px"><span>${len ? "Mã mới (4–6 số)" : "Mã mở nhanh (4–6 số)"}</span><input id="qcNew" type="password" inputmode="numeric" maxlength="6" autocomplete="off" data-what="mã mở nhanh"></label>
+      <div id="qcErr" aria-live="assertive"></div>
+      <div class="row"><button class="btn sm" type="submit" id="qcSave">${len ? "Đổi mã" : "Lưu mã"}</button>${len ? `<button class="btn ghost sm" type="button" id="qcDrop">Bỏ mã</button>` : ""}</div>
+      <p class="small muted">Mã chỉ lưu trên máy này (đã băm), không gửi lên máy chủ; máy khác muốn dùng thì đặt riêng. Đăng xuất thì mã bị xóa.</p></form>`;
+  }
+  /* Bản đám mây. Phụ huynh: tên đăng nhập, đổi mật khẩu, mã mở nhanh (UX3), chọn hồ sơ khác, đăng xuất khỏi máy này.
+     Hồ sơ con: đổi hình đại diện, chọn hồ sơ khác (PIN do bố mẹ đặt trong khu phụ huynh; con không đăng xuất được tài khoản). */
   function renderCloudAccount(u) {
     const adult = u.role !== "student";
     let emo = u.avatar;
     view.innerHTML = `<div class="stack">${back(adult ? "#/admin/settings" : "#/home", adult ? "Cài đặt" : "Trang chính")}
       <div class="row">${avatar(u, true)}<div><h2>${esc(u.name)}</h2><span class="muted">${adult ? "Tên đăng nhập: " + esc(Store.username()) : esc(gradeTxt(u))}</span></div></div>
       ${adult ? `<form class="panel" id="pwForm" autocomplete="on"><h3>Đổi mật khẩu</h3><div class="form">${pwFields(true)}</div>
-          <div class="row"><button class="btn sm" type="submit">Đổi mật khẩu</button></div></form>`
+          <div class="row"><button class="btn sm" type="submit">Đổi mật khẩu</button></div></form>${quickBox()}`
         : `<form class="panel" id="aForm" autocomplete="off"><h3>Đổi hình đại diện</h3>${emojiPicker(emo)}
           <div id="aErr"></div><div class="row"><button class="btn sm" type="submit">Lưu</button></div></form>`}
-      <div class="row"><button class="btn main" id="switchWho">Đổi người học</button>${adult ? `<button class="btn ghost" id="signOut">Đăng xuất khỏi máy này</button>` : ""}</div>
-      ${adult ? `<p class="small muted">Con dùng máy này hằng ngày thì chỉ cần “Đổi người học”. Đăng xuất thì lần sau phải nhập lại tên đăng nhập và mật khẩu.</p>` : ""}</div>`;
+      <div class="row"><button class="btn main" id="switchWho">Chọn hồ sơ khác</button>${adult ? `<button class="btn ghost" id="signOut">Đăng xuất khỏi máy này</button>` : ""}</div>
+      ${adult ? `<p class="small muted">Con dùng máy này hằng ngày thì chỉ cần “Chọn hồ sơ khác”. Đăng xuất thì lần sau phải nhập lại tên đăng nhập và mật khẩu.</p>` : ""}</div>`;
     wireGo(); wireReveal(view);
     $("#switchWho").onclick = switchWho;
     if (adult) {
       wirePwForm($("#pwForm"), true, () => { toast("Đã đổi mật khẩu"); renderCloudAccount(u); });
       $("#signOut").onclick = async () => { await Store.signOut(); go("#/"); };
+      if ($("#qcSave")) {
+        const qcErr = (m) => ($("#qcErr").innerHTML = m ? `<div class="fb bad">${esc(m)}</div>` : "");
+        $("#qcBox").onsubmit = async (ev) => {
+          ev.preventDefault(); qcErr("");
+          const code = $("#qcNew").value.trim();
+          if (!code) { qcErr("Mã mở nhanh gồm 4–6 chữ số."); return; } // ô trống không phải là bỏ mã (có nút Bỏ mã riêng)
+          try { await Store.setQuickCode(code); toast("Đã lưu mã mở nhanh"); renderCloudAccount(u); }
+          catch (e) { qcErr(e.message); }
+        };
+        if ($("#qcDrop")) $("#qcDrop").onclick = async () => { try { await Store.setQuickCode(null); toast("Đã bỏ mã mở nhanh"); renderCloudAccount(u); } catch (e) { qcErr(e.message); } };
+      }
       return;
     }
     wireEmoji(view, (e) => (emo = e));

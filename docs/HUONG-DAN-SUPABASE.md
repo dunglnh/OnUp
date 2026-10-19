@@ -110,8 +110,8 @@ Muốn quay lại bản lưu trên máy: xóa hai giá trị đầu (để `""`)
 
 **Phụ huynh dùng app thế nào** (ảnh: [`docs/hinh-dam-may/`](hinh-dam-may/)):
 - Đăng nhập bằng tên đăng nhập + mật khẩu tạm, đặt mật khẩu mới. Trên máy con dùng hằng ngày thì tick **Ghi nhớ trên máy này**.
-- **Khu phụ huynh**: thêm hồ sơ cho từng con (tên, khối, lớp, mã PIN 4 số nếu muốn; tối đa 5 hồ sơ), xem tiến độ, báo cáo tuần, sửa lịch thi, nhập ngân hàng đề, chuyển dữ liệu từ bản lưu trên máy (tab Dữ liệu), đổi mật khẩu, đăng xuất.
-- **Đổi người học** → màn hình **Ai đang học?**: con chọn hồ sơ của mình (nhập PIN nếu có) là học. Vào lại khu phụ huynh phải nhập mật khẩu của bố mẹ.
+- **Khu phụ huynh**: thẻ “Bắt đầu trong 3 bước” dẫn việc đầu tiên (thêm hồ sơ con → đặt mã PIN nếu muốn → đưa máy cho con); thêm hồ sơ cho từng con (tên, khối, lớp, mã PIN 4 số nếu muốn; tối đa 5 hồ sơ), xem tiến độ, báo cáo tuần, sửa lịch thi, nhập đề tự soạn, chuyển dữ liệu từ bản lưu trên máy (Cài đặt → Chuyển dữ liệu và sao lưu), đổi mật khẩu, đăng xuất.
+- **Cho con học** hoặc **Chọn hồ sơ khác** → màn hình **Ai đang học?**: con chọn hồ sơ của mình (nhập PIN nếu có) là học. Vào lại khu phụ huynh phải nhập mật khẩu của bố mẹ, hoặc mã mở nhanh 4–6 số đã đặt ở Cài đặt → Tài khoản trên máy đã ghi nhớ (quên mã thì nhập mật khẩu).
 
 ## Bước 8 (nên làm). Chống máy tự động đoán mật khẩu (CAPTCHA)
 
@@ -152,7 +152,7 @@ Kiểm tra sau khi chạy: **Table Editor → results**, cột `r` có kiểu `n
 - [ ] **Table Editor**: có các bảng `families`, `profiles`, `plans` (2 dòng: `free`, `family`), `app_owners` (1 dòng).
 - [ ] **Authentication → Users**: chỉ có tài khoản chủ app (và các tài khoản bạn đã tạo).
 - [ ] **Edge Functions → admin**: đã deploy, Verify JWT tắt, **Logs** không có lỗi đỏ.
-- [ ] Tạo một tài khoản thử ở trang admin (bước 6) → đăng nhập trang học bằng mật khẩu tạm → app bắt đặt mật khẩu mới → thêm hồ sơ con → **Đổi người học** → chọn hồ sơ con, làm một đề → Phụ huynh nhập lại mật khẩu, mở hồ sơ của con thấy kết quả.
+- [ ] Tạo một tài khoản thử ở trang admin (bước 6) → đăng nhập trang học bằng mật khẩu tạm → app bắt đặt mật khẩu mới → thêm hồ sơ con → **Cho con học** → chọn hồ sơ con, làm một đề → Phụ huynh nhập lại mật khẩu, mở hồ sơ của con thấy kết quả.
 
 ## Bảo mật và quyền riêng tư
 

@@ -9,6 +9,7 @@
      hiện tên "Phụ huynh". Mỗi hồ sơ con là một học sinh (role "student", parentIds = [PARENT]).
    - Sau khi đăng nhập, tab chọn "Ai đang học?" (setSession: mã hồ sơ con hoặc PARENT, giữ trong sessionStorage).
      Vào PARENT phải nhập lại mật khẩu (checkPassword); vừa nhập mật khẩu trong 5 phút thì không hỏi lại (parentUnlocked).
+     Máy đã ghi nhớ đăng nhập có thể đặt mã mở nhanh 4–6 số (setQuickCode, checkQuickCode: băm và lưu trên máy này, UX3).
    - PIN của hồ sơ con (4 số, không bắt buộc) chỉ khóa trên giao diện: app tự băm, kiểm tra ngay trên máy.
    - Mật khẩu tạm (families.must_change_password): authState "change-password", app bắt đặt mật khẩu mới.
    - Hạn mức hồ sơ con theo gói (bảng plans): Store.can("addChild"). Máy chủ cũng chặn bằng trigger.
@@ -41,6 +42,7 @@
   const MIGRATED_KEY = "ontap_cloud_migrated";
   const REMEMBER_KEY = "ontap_cloud_remember"; // localStorage: "1" = giữ đăng nhập trên máy này
   const OUTBOX_KEY = "ontap_cloud_outbox";    // localStorage: kết quả chưa gửi được, theo mã hồ sơ
+  const QUICK_KEY = "ontap_cloud_quick";      // localStorage: mã mở nhanh khu phụ huynh của máy này, theo mã gia đình ("<muối>$<mã băm>" như PIN; UX3)
   const AUTH_KEY = "ontap_sb_auth";
   const UNLOCK_MS = 5 * 60e3;                 // vừa nhập mật khẩu trong 5 phút: vào khu phụ huynh không hỏi lại
   const MAX_PER_STUDENT = 2000;               // như trim_results_of trong schema.sql
@@ -306,6 +308,7 @@
       forget();
       try { await sb.auth.signOut({ scope: "local" }); } catch (x) { /* phiên trên máy vẫn bị xóa */ }
       authStorage.removeItem(AUTH_KEY);
+      lsDel(QUICK_KEY); // máy không còn được tin: mã mở nhanh cũng bỏ
       return;
     }
     if (state === "ready") sendOutbox();
@@ -438,14 +441,45 @@
     state = "signed-out"; db = null; fam = null; famId = null; plan = null; authUser = null; unlockedAt = 0;
     pins.clear(); ssDel(WHO_KEY); who = null;
   }
-  /* Đăng xuất trên máy này (gửi xong các thay đổi đang chờ). Kết quả chưa gửi được vẫn nằm trong hộp gửi. */
+  /* Đăng xuất trên máy này (gửi xong các thay đổi đang chờ). Kết quả chưa gửi được vẫn nằm trong hộp gửi; mã mở nhanh bị xóa. */
   async function signOut() {
     forget();
     await flush();
     try { await sb.auth.signOut({ scope: "local" }); } catch (e) { /* không có mạng: phiên trên máy vẫn bị xóa */ }
     authStorage.removeItem(AUTH_KEY);
+    lsDel(QUICK_KEY);
   }
   const parentUnlocked = () => state === "ready" && Date.now() - unlockedAt < UNLOCK_MS;
+
+  /* ---------------- mã mở nhanh khu phụ huynh (Phiên UX3) ----------------
+     Trên máy đã ghi nhớ đăng nhập, bố mẹ đặt mã 4–6 số để vào khu phụ huynh mà không phải gõ mật khẩu. Mã chỉ băm và lưu trên
+     máy này (localStorage QUICK_KEY, theo mã gia đình, dạng "<muối>$<mã băm>" như PIN, muối ghi độ dài), không gửi lên máy chủ;
+     quên mã thì nhập mật khẩu như cũ. Đổi mật khẩu, đăng xuất vẫn cần mật khẩu; đăng xuất (kể cả khi máy chủ từ chối phiên) thì
+     xóa mã. Sai nhiều lần: app tính vào PinLock như khi sai mật khẩu. */
+  const quickAll = () => { try { const o = JSON.parse(lsGet(QUICK_KEY) || "{}"); return o && typeof o === "object" ? o : {}; } catch (e) { return {}; } };
+  const quickHash = () => (famId && lsGet(REMEMBER_KEY) === "1" ? String(quickAll()[famId] || "") : "");
+  const quickCodeLen = () => { const p = parsePin(quickHash()); return p && p.len ? p.len : 0; }; // 0: máy này chưa có mã; 4–6: độ dài mã
+  const validQuick = (code) => /^\d{4,6}$/.test(String(code == null ? "" : code));
+  /* Đặt mã (4–6 số) hoặc bỏ mã (null, ""). */
+  async function setQuickCode(code) {
+    if (state !== "ready" || !famId) throw new Error("Phiên đăng nhập đã hết. Đăng nhập lại nhé.");
+    const all = quickAll();
+    if (code == null || code === "") delete all[famId];
+    else {
+      if (lsGet(REMEMBER_KEY) !== "1") throw new Error("Chọn “Ghi nhớ trên máy này” khi đăng nhập thì mới đặt được mã mở nhanh.");
+      if (!validQuick(code)) throw new Error("Mã mở nhanh gồm 4–6 chữ số.");
+      all[famId] = await makePinHash(String(code));
+    }
+    if (Object.keys(all).length) lsSet(QUICK_KEY, JSON.stringify(all)); else lsDel(QUICK_KEY);
+  }
+  /* Đúng mã thì mở khóa khu phụ huynh như vừa nhập mật khẩu (setSession(PARENT) được phép). */
+  async function checkQuickCode(code) {
+    const p = parsePin(quickHash());
+    if (!p || state !== "ready" || !validQuick(code)) return false;
+    if ((await hashPin(String(code), p.salt)) !== p.hash) return false;
+    unlockedAt = Date.now();
+    return true;
+  }
 
   /* ---------------- hồ sơ đang dùng trong tab ("Ai đang học?") ---------------- */
   function setSession(id) {
@@ -786,6 +820,7 @@
     // chỉ có ở bản đám mây
     init, refresh, flush, authState: () => state,
     signIn, signOut, checkPassword, changePassword, parentUnlocked,
+    quickCodeLen, setQuickCode, checkQuickCode,
     rememberLogin: () => lsGet(REMEMBER_KEY) === "1",
     username: () => (fam ? fam.username : ""),
     plan: () => (plan ? Object.assign({}, plan) : null),

@@ -102,7 +102,7 @@ body.tabbed{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 
 /* trang "Hôm nay" của học sinh (renderToday, Phiên UX1): thẻ gợi ý với nút Bắt đầu to, bài phụ, chuỗi ngày ôn T2–CN, huy hiệu */
 .today h1{font-size:1.5rem}
-.today .btn.lg{padding:14px 24px;font-size:1.1rem;width:100%;min-height:52px}
+.btn.lg{padding:14px 24px;font-size:1.1rem;width:100%;min-height:52px} /* nút Bắt đầu (Hôm nay), "Cho con học" (thẻ Bắt đầu của khu phụ huynh, UX3) */
 .hero .linkbtn{color:inherit;text-decoration:underline;font-weight:600;align-self:flex-start}
 .pick{flex-direction:row;align-items:center;gap:12px;padding:12px 14px}
 .pick .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
@@ -129,6 +129,16 @@ a.kid{color:inherit;text-decoration:none;gap:12px}
 .kid-ev svg{flex:none;width:18px;height:18px;margin-top:2px}
 .ev-act{display:flex;flex-wrap:wrap;gap:0 16px;padding:0 12px 0 17px;margin-top:-2px}
 .fix{border-color:var(--acc);margin:2px 0 4px}
+/* thẻ "Bắt đầu trong 3 bước" ở đầu mục Các con (startCard, Phiên UX3): số bước trong vòng tròn, bước đang làm nền acc, bước xong dấu ✓ */
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
+.step{display:flex;gap:12px;align-items:flex-start}
+.step .n{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;font:800 .875rem var(--display);color:var(--muted)}
+.step.now .n{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+.step.done .n{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.step:not(.now):not(.done)>.grow>b{color:var(--muted)}
+.step .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;padding-top:3px}
+.step .btn{align-self:flex-start;margin-top:4px}
+.step .linkbtn{padding:0}
 
 /* đăng nhập */
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
