@@ -153,6 +153,13 @@ a.kid{color:inherit;text-decoration:none;gap:12px}
 .pin.shown span.on{background:var(--surface);color:var(--ink)}
 .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:0 auto;width:100%}
 .pad button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px 0;font-size:1.35rem;font-weight:700;font-family:var(--display);min-height:44px}
+/* bước nhập PIN, mật khẩu (#/vao/<mã>, renderEnter trong js/app.js, UX4): hình to, tên, lớp ở giữa; bàn phím ngay dưới,
+   cả màn hình vừa 360×740 không cuộn (tests/e2e.js, cloud-e2e.js đo tên và 12 nút bàn phím trong khung nhìn). */
+.enter{gap:10px}
+.enter-who{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}
+.enter-who b{font-family:var(--display);font-size:1.25rem;line-height:1.2}
+.enter .panel{gap:8px}
+.enter-help{text-align:center;margin:0}
 
 /* biểu mẫu */
 .field{display:flex;flex-direction:column;gap:4px;min-width:0}

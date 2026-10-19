@@ -356,9 +356,11 @@
   }
 
   /* ================= ĐĂNG NHẬP ================= */
+  /* Bước nhập riêng (Phiên UX4, X1): hồ sơ có PIN, hoặc ô Phụ huynh của bản đám mây, chạm vào thì chuyển sang #/vao/<mã>:
+     link "← Chọn hồ sơ khác", hình to, tên, lớp, hàng chấm và bàn phím ngay dưới (vừa một màn hình 360×740, không cuộn);
+     nút Back của điện thoại quay về danh sách. Hồ sơ không có PIN thì chạm là vào như cũ. */
   const pinBoxHTML = () => `<section class="panel" id="pinBox" hidden>
-        <div class="row" style="justify-content:center" id="pinWho"></div>
-        <p class="small muted" id="pinSub" style="text-align:center;margin:-4px 0 0" hidden></p>
+        <p class="small muted" id="pinSub" style="text-align:center;margin:0">Nhập mã PIN của bạn</p>
         <div class="pin" id="pinDots" aria-hidden="true"></div>
         <label class="field" style="max-width:300px;margin:0 auto;width:100%"><span id="pinLabel">Mã PIN</span><input id="pinIn" type="password" inputmode="numeric" maxlength="6" autocomplete="off"></label>
         <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join("")}<button type="button" data-k="del" aria-label="Xóa">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" aria-label="Vào" style="background:var(--sun);color:var(--sun-ink)">Vào</button></div>
@@ -369,8 +371,8 @@
      hoặc gõ đủ độ dài PIN của người đã chọn (u.pinLen; chưa biết thì 6).
      probe(pin), không bắt buộc: chưa biết độ dài thì gọi khi gõ đủ 4 số, để thử lặng lẽ PIN 4 số.
      Nút xem (wireReveal) đang hiện thì hàng chấm hiện chữ số đã gõ; gửi PIN hoặc xóa hết thì ẩn lại.
-     show(u, opts), opts không bắt buộc (mã mở nhanh của Phụ huynh, UX3): label là tên ô thay cho "Mã PIN", sub là dòng phụ dưới tên,
-     alt = {text, go} là link thay thế dưới bàn phím ("Nhập mật khẩu"); không truyền thì như bàn phím PIN của hồ sơ con. */
+     show(u, opts), opts không bắt buộc (mã mở nhanh của Phụ huynh, UX3): label là tên ô thay cho "Mã PIN", sub là dòng phụ trên hàng chấm
+     (mặc định "Nhập mã PIN của bạn"), alt = {text, go} là link thay thế dưới bàn phím ("Nhập mật khẩu"); không truyền thì như bàn phím PIN của hồ sơ con. */
   function wirePinBox(submit, probe) {
     const inp = $("#pinIn"), dots = $("#pinDots");
     let pin = "", len = 0;
@@ -397,15 +399,13 @@
         const { sub, alt, label } = opts || {};
         len = u.pinLen >= 4 && u.pinLen <= 6 ? u.pinLen : 0;
         set(""); $("#pinErr").innerHTML = "";
-        $("#pinWho").innerHTML = `${avatar(u)}<b>${esc(u.name)}</b>`;
-        $("#pinSub").hidden = !sub; $("#pinSub").textContent = sub || "";
+        $("#pinSub").textContent = sub || "Nhập mã PIN của bạn";
         $("#pinAlt").hidden = !alt; $("#pinAlt").innerHTML = alt ? `<button type="button" class="linkbtn" id="pinToPw">${esc(alt.text)}</button>` : "";
         if (alt) $("#pinToPw").onclick = alt.go;
         $("#pinLabel").textContent = label || "Mã PIN";
         if (label) inp.dataset.what = label.toLowerCase(); else delete inp.dataset.what;
         inp.dispatchEvent(new Event("relabel"));
         $("#pinBox").hidden = false; setTimeout(() => inp.focus({ preventScroll: true }), 30);
-        $("#pinBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
     };
   }
@@ -441,124 +441,136 @@
   })();
   const waitTxt = (s) => (s < 60 ? s + " giây" : Math.floor(s / 60) + " phút" + (s % 60 ? " " + (s % 60) + " giây" : ""));
 
-  /* Chọn người dùng rồi nhập PIN. Bản lưu trên máy: mọi tài khoản của máy, theo vai trò.
+  /* Chọn hồ sơ rồi nhập PIN. Bản lưu trên máy: mọi tài khoản của máy, theo vai trò (ai cũng có PIN).
      Bản đám mây ("Ai đang học?", đã đăng nhập tài khoản gia đình): các hồ sơ con và ô Phụ huynh. Hồ sơ con không có PIN
      thì bấm là vào; Phụ huynh phải nhập lại mật khẩu (vừa nhập trong 5 phút thì không hỏi lại). Máy đã đặt mã mở nhanh
-     (Store.quickCodeLen(), UX3) thì ô Phụ huynh mở bàn phím mã đó, có link "Nhập mật khẩu" (quên mã); sai mã cũng tính vào PinLock. */
+     (Store.quickCodeLen(), UX3) thì ô Phụ huynh mở bàn phím mã đó, có link "Nhập mật khẩu" (quên mã); sai mã cũng tính vào PinLock.
+     Hồ sơ phải nhập thì chạm vào là sang #/vao/<mã> (renderEnter, UX4); hồ sơ chọn gần nhất chỉ được đánh dấu trên danh sách. */
+  const loginCtx = () => { const cloud = !!Store.cloud, parent = cloud ? Store.users("admin")[0] : null; return { cloud, parent, quick: cloud ? Store.quickCodeLen() : 0, isParent: (id) => cloud && !!parent && id === parent.id }; };
+  const needsEntry = (u, c) => !!u && (!c.cloud || c.isParent(u.id) || !!u.hasPin);
+  const enterHash = (id) => "#/vao/" + encodeURIComponent(id);
+  let loginTick = null; // đếm ngược khi phải đợi (showWait); vẽ lại màn hình đăng nhập thì dừng
+  let enterFromList = false; // bước nhập mở từ danh sách trong lần tải trang này: "← Chọn hồ sơ khác" lùi lịch sử để không chồng thêm mục
+  function loginEnter(id) { PinLock.clear(id); clearInterval(loginTick); Store.setSession(id); if (/^#\/vao\//.test(location.hash)) location.replace("#/home"); else go("#/home"); }
   function renderLogin() {
-    drawWho(null);
-    const cloud = !!Store.cloud, parent = cloud ? Store.users("admin")[0] : null, quick = cloud ? Store.quickCodeLen() : 0;
-    const isParent = (id) => cloud && !!parent && id === parent.id;
-    let usePw = false; // Phụ huynh có mã mở nhanh nhưng chọn nhập mật khẩu
+    drawWho(null); clearInterval(loginTick);
+    const c = loginCtx(), { cloud, parent, quick } = c;
     // Bản đám mây, tài khoản chưa có hồ sơ con và bố mẹ vừa đăng nhập: vào thẳng khu phụ huynh để thêm hồ sơ.
     if (cloud && !Store.users("student").length && Store.parentUnlocked()) { Store.setSession(parent.id); go("#/home"); return; }
+    window.scrollTo(0, 0);
+    const m = /^#\/vao\/([^/?#]+)/.exec(location.hash || ""), target = m ? Store.user(decodeURIComponent(m[1])) : null;
+    if (needsEntry(target, c)) { renderEnter(target, c); return; }
+    if (m) { try { history.replaceState(null, "", "#/"); } catch (e) { /* vẫn hiện danh sách */ } } // mã lạ hoặc hồ sơ không có PIN: về danh sách
     const groups = cloud ? [["student", "Con"], ["admin", "Bố mẹ"]] : [["student", "Học sinh"], ["parent", "Phụ huynh"], ["admin", "Quản trị"]];
     const sub = (u) => (cloud && u.role === "admin" ? (quick ? "Nhập mã mở nhanh" : "Nhập mật khẩu") : gradeTxt(u));
-    let sel = Store.user(Store.lastUserId()) ? Store.lastUserId() : null;
+    const last = Store.user(Store.lastUserId()) ? Store.lastUserId() : null;
     view.innerHTML = `<div class="stack">
       <div><h1>${cloud ? "Ai đang học?" : "Xin chào!"}</h1><p class="muted">${esc(Store.settings().schoolName || (cloud ? "Chọn hồ sơ của bạn." : "Chọn tên của bạn để bắt đầu."))}</p></div>
       ${cloud && !Store.users("student").length ? `<div class="notice">Chưa có hồ sơ con. Bố mẹ chọn “Phụ huynh” để thêm hồ sơ cho con.</div>` : ""}
-      ${groups.map(([role, name]) => { const us = Store.users(role); return us.length ? `<section class="sec"><div class="label">${name}</div><div class="tiles">${us.map((u) => `<button class="tile" data-u="${esc(u.id)}" aria-pressed="${u.id === sel}">${avatar(u, true)}<span class="nm">${esc(u.name)}</span><span class="small muted">${esc(sub(u))}</span></button>`).join("")}</div></section>` : ""; }).join("")}
+      ${groups.map(([role, name]) => { const us = Store.users(role); return us.length ? `<section class="sec"><div class="label">${name}</div><div class="tiles">${us.map((u) => `<button class="tile" data-u="${esc(u.id)}" aria-pressed="${u.id === last}">${avatar(u, true)}<span class="nm">${esc(u.name)}</span><span class="small muted">${esc(sub(u))}</span></button>`).join("")}</div></section>` : ""; }).join("")}</div>`;
+    $$(".tile").forEach((t) => (t.onclick = () => {
+      const id = t.dataset.u, u = Store.user(id);
+      if (!u) return;
+      if (c.isParent(id) && Store.parentUnlocked()) { loginEnter(id); return; }
+      if (!needsEntry(u, c)) { loginEnter(id); return; }
+      enterFromList = true; location.hash = enterHash(id);
+    }));
+    if (!cloud && !Store.users().length) view.insertAdjacentHTML("afterbegin", `<div class="fb bad">Chưa có tài khoản nào.</div>`);
+  }
+  /* Bước nhập của một hồ sơ (#/vao/<mã>, UX4). Hồ sơ con, tài khoản của bản lưu trên máy: bàn phím PIN. Phụ huynh (bản đám mây):
+     ô mật khẩu, nút "Vào khu phụ huynh", dòng "Quên mật khẩu?"; máy có mã mở nhanh thì bàn phím mã hiện trước, kèm link "Nhập mật khẩu". */
+  function renderEnter(u, c) {
+    const { cloud, quick } = c, parentIn = c.isParent(u.id), id = u.id;
+    let usePw = false, busy = false; // usePw: Phụ huynh có mã mở nhanh nhưng chọn nhập mật khẩu
+    const sub = u.role === "student" ? gradeTxt(u) : cloud ? [Store.settings().schoolName, Store.username()].filter(Boolean).join(" · ") : Store.ROLES[u.role];
+    view.innerHTML = `<div class="stack enter" id="enterBox">
+      <button class="linkbtn" type="button" id="toList">← Chọn hồ sơ khác</button>
+      <div class="enter-who" id="pinWho">${avatar(u, true)}<b>${esc(u.name)}</b><span class="muted">${nb(esc(sub))}</span></div>
       ${pinBoxHTML()}
-      ${cloud ? `<form class="panel" id="pwBox" hidden autocomplete="on">
-        <div class="row" style="justify-content:center">${avatar(parent)}<b>Phụ huynh</b></div>
+      ${parentIn ? `<form class="panel" id="pwBox" hidden autocomplete="on">
         <input type="text" name="username" autocomplete="username" value="${esc(Store.username())}" hidden>
-        <label class="field" style="max-width:300px;margin:0 auto;width:100%"><span>Mật khẩu của bố mẹ</span><input id="pwIn" type="password" autocomplete="current-password" maxlength="72"></label>
+        <label class="field"><span>Mật khẩu của bố mẹ</span><input id="pwIn" type="password" autocomplete="current-password" maxlength="72"></label>
         <div class="captcha" id="pwCaptcha"></div>
         <div id="pwErr" aria-live="assertive"></div>
-        <div class="row" style="justify-content:center"><button class="btn main" type="submit" id="pwGo">Vào khu phụ huynh</button></div>
+        <button class="btn main lg" type="submit" id="pwGo">Vào khu phụ huynh</button>
+        ${contactLine("Quên mật khẩu?")}
         ${quick ? `<div class="row" style="justify-content:center"><button type="button" class="linkbtn" id="pwToPin">Dùng mã mở nhanh</button></div>` : ""}
-      </form>` : ""}</div>`;
-    const box = wirePinBox(submit, probe);
+      </form>` : ""}
+      ${u.role === "admin" ? "" : `<p class="small muted enter-help" id="pinHelp">Quên mã PIN? ${cloud ? "Nhờ bố mẹ đặt lại trong Khu phụ huynh → Cài đặt → Hồ sơ con." : "Nhờ quản trị đặt lại trong Quản trị → Tài khoản."}</p>`}
+    </div>`;
+    const box = wirePinBox(submit, probe), here = $("#enterBox");
     wireReveal(view);
-    let tick = null, busy = false;
-    const errBox = () => $(isParent(sel) && !$("#pwBox").hidden ? "#pwErr" : "#pinErr");
+    $("#toList").onclick = () => { clearInterval(loginTick); if (enterFromList) history.back(); else location.replace("#/"); };
+    const errBox = () => $(parentIn && !$("#pwBox").hidden ? "#pwErr" : "#pinErr");
     const err = (msg) => { errBox().innerHTML = `<div class="fb bad">${esc(msg)}</div>`; };
     // Đếm ngược trong #pinWait (aria-live="off" để trình đọc màn hình không đọc lại mỗi giây).
-    function showWait(id, lead) {
-      clearInterval(tick);
+    function showWait(lead) {
+      clearInterval(loginTick);
       const out = errBox();
       out.innerHTML = `<div class="fb bad">${esc(lead || "Sai nhiều lần.")} Đợi <b id="pinWait" aria-live="off">${waitTxt(PinLock.wait(id))}</b> rồi thử lại.</div>`;
-      tick = setInterval(() => {
+      loginTick = setInterval(() => {
         const w = $("#pinWait"), s = PinLock.wait(id);
-        if (!w || sel !== id) { clearInterval(tick); return; }
-        if (!s) { clearInterval(tick); out.innerHTML = `<div class="fb ok">Bạn nhập lại được rồi.</div>`; return; }
+        if (!w || !here.isConnected) { clearInterval(loginTick); return; }
+        if (!s) { clearInterval(loginTick); out.innerHTML = `<div class="fb ok">Bạn nhập lại được rồi.</div>`; return; }
         w.textContent = waitTxt(s);
       }, 1000);
     }
-    /* tapped: người dùng bấm vào ô (không phải ô chọn sẵn lúc mở trang). Ô chọn sẵn không tự vào hồ sơ không có PIN. */
-    function pick(id, tapped) {
-      sel = id; clearInterval(tick);
-      if (!isParent(id)) usePw = false; // chọn lại ô Phụ huynh sau thì bàn phím mã mở nhanh hiện trước như lúc đầu
-      $$(".tile").forEach((t) => t.setAttribute("aria-pressed", t.dataset.u === id));
-      const u = Store.user(id);
-      if (cloud) {
-        $("#pwBox").hidden = true; $("#pinBox").hidden = true;
-        if (u.role === "admin") {
-          if (tapped && Store.parentUnlocked()) { enter(id); return; }
-          if (quick && !usePw) { // máy có mã mở nhanh (UX3): bàn phím mã, link "Nhập mật khẩu"
-            box.show(Object.assign({}, u, { pinLen: quick }), { label: "Mã mở nhanh", sub: "Mã mở nhanh khu phụ huynh của máy này. Quên mã thì nhập mật khẩu.", alt: { text: "Nhập mật khẩu", go: () => { usePw = true; pick(id, false); } } });
-            if (PinLock.wait(id)) showWait(id);
-            return;
-          }
-          $("#pwErr").innerHTML = ""; $("#pwIn").value = ""; conceal($("#pwIn")); $("#pwBox").hidden = false;
-          setTimeout(() => $("#pwIn").focus({ preventScroll: true }), 30);
-          $("#pwBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
-          if (PinLock.wait(id)) showWait(id);
-          return;
-        }
-        if (!u.hasPin) { if (tapped) enter(id); return; }
-      }
-      box.show(u);
-      if (PinLock.wait(id)) showWait(id);
-    }
-    const enter = (id) => { PinLock.clear(id); clearInterval(tick); Store.setSession(id); go("#/home"); };
+    const showPin = () => {
+      if (parentIn) $("#pwBox").hidden = true;
+      if (parentIn) box.show(Object.assign({}, u, { pinLen: quick }), { label: "Mã mở nhanh", sub: "Mã mở nhanh khu phụ huynh của máy này. Quên mã thì nhập mật khẩu.", alt: { text: "Nhập mật khẩu", go: () => { usePw = true; showPw(); } } });
+      else box.show(u);
+      if (PinLock.wait(id)) showWait();
+    };
+    const showPw = () => {
+      $("#pinBox").hidden = true; clearInterval(loginTick);
+      $("#pwErr").innerHTML = ""; $("#pwIn").value = ""; conceal($("#pwIn")); $("#pwBox").hidden = false;
+      setTimeout(() => $("#pwIn").focus({ preventScroll: true }), 30);
+      if (PinLock.wait(id)) showWait();
+    };
     // busy: gõ đủ số rồi bấm Enter ngay (hoặc thử lặng lẽ chưa xong) thì không kiểm tra hai lần.
     async function submit(pin) {
-      if (!sel || !pin || busy) return;
-      const id = sel;
-      if (PinLock.wait(id)) { box.clear(); showWait(id); return; }
+      if (!pin || busy) return;
+      if (PinLock.wait(id)) { box.clear(); showWait(); return; }
       busy = true;
-      const ok = isParent(id) ? await Store.checkQuickCode(pin) : await Store.checkPin(id, pin); // Phụ huynh: mã mở nhanh của máy này (UX3)
+      const ok = parentIn ? await Store.checkQuickCode(pin) : await Store.checkPin(id, pin); // Phụ huynh: mã mở nhanh của máy này (UX3)
       busy = false;
-      if (sel !== id) return;
-      if (ok) { enter(id); return; }
+      if (!here.isConnected) return; // đã rời màn hình
+      if (ok) { loginEnter(id); return; }
       box.clear();
-      const what = isParent(id) ? "Mã mở nhanh" : "Mã PIN";
-      if (PinLock.fail(id)) { showWait(id, what + " chưa đúng."); return; }
+      const what = parentIn ? "Mã mở nhanh" : "Mã PIN";
+      if (PinLock.fail(id)) { showWait(what + " chưa đúng."); return; }
       const left = PinLock.left(id);
       pinError(left <= 2 ? `${what} chưa đúng. Sai thêm ${left} lần nữa thì phải đợi một lúc.` : `${what} chưa đúng. Thử lại nhé.`);
     }
     // Tài khoản cũ chưa biết độ dài PIN: gõ đủ 4 số thì thử lặng lẽ. Sai thì không báo, không tính là lần sai, chờ gõ tiếp.
     async function probe(pin) {
-      const id = sel;
-      if (!id || busy || isParent(id) || !PinLock.probe(id)) return;
+      if (busy || parentIn || !PinLock.probe(id)) return;
       busy = true;
       const ok = await Store.checkPin(id, pin);
       busy = false;
-      if (ok && sel === id) enter(id);
+      if (ok && here.isConnected) loginEnter(id);
     }
     // Mật khẩu của bố mẹ (bản đám mây): sai cũng tính vào khóa tạm như PIN, để con không đoán mãi được.
-    if (cloud) $("#pwBox").onsubmit = async (ev) => {
-      ev.preventDefault();
-      const id = sel, pw = $("#pwIn").value;
-      if (!pw || busy) return;
-      if (PinLock.wait(id)) { showWait(id); return; }
-      busy = true; $("#pwGo").disabled = true;
-      try {
-        const ok = await Store.checkPassword(pw);
-        if (sel !== id) return;
-        if (ok) { enter(id); return; }
-        $("#pwIn").value = "";
-        if (PinLock.fail(id)) { showWait(id, "Mật khẩu chưa đúng."); return; }
-        const left = PinLock.left(id);
-        err(left <= 2 ? `Mật khẩu chưa đúng. Sai thêm ${left} lần nữa thì phải đợi một lúc.` : "Mật khẩu chưa đúng. Thử lại nhé.");
-      } catch (e) { err(e.message); } finally { busy = false; if ($("#pwGo")) $("#pwGo").disabled = false; }
-    };
-    $$(".tile").forEach((t) => (t.onclick = () => pick(t.dataset.u, true)));
-    if ($("#pwToPin")) $("#pwToPin").onclick = () => { usePw = false; pick(parent.id, false); };
-    if (sel) pick(sel, false);
-    if (!cloud && !Store.users().length) view.insertAdjacentHTML("afterbegin", `<div class="fb bad">Chưa có tài khoản nào.</div>`);
+    if (parentIn) {
+      $("#pwBox").onsubmit = async (ev) => {
+        ev.preventDefault();
+        const pw = $("#pwIn").value;
+        if (!pw || busy) return;
+        if (PinLock.wait(id)) { showWait(); return; }
+        busy = true; $("#pwGo").disabled = true;
+        try {
+          const ok = await Store.checkPassword(pw);
+          if (!here.isConnected) return;
+          if (ok) { loginEnter(id); return; }
+          $("#pwIn").value = "";
+          if (PinLock.fail(id)) { showWait("Mật khẩu chưa đúng."); return; }
+          const left = PinLock.left(id);
+          err(left <= 2 ? `Mật khẩu chưa đúng. Sai thêm ${left} lần nữa thì phải đợi một lúc.` : "Mật khẩu chưa đúng. Thử lại nhé.");
+        } catch (e) { err(e.message); } finally { busy = false; if ($("#pwGo")) $("#pwGo").disabled = false; }
+      };
+      if ($("#pwToPin")) $("#pwToPin").onclick = () => { usePw = false; showPin(); };
+      if (quick && !usePw) showPin(); else showPw();
+    } else showPin();
   }
 
   /* ================= ĐĂNG NHẬP ĐÁM MÂY (khi js/config.js có Supabase) ================= */
@@ -1828,6 +1840,7 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
       case "play": return renderPlay(u, a);
       case "quiz": return renderQuiz(u, a);
       case "account": return renderAccount(u);
+      case "vao": location.replace("#/home"); return; // đã đăng nhập mà còn ở bước nhập PIN (UX4): về trang chính
       case "child":
       case "report": {
         const c = Store.user(a);
@@ -1864,7 +1877,7 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
   });
   if (Store.cloud) {
     // Đang nhập liệu thì không vẽ lại màn hình khi dữ liệu trên máy chủ thay đổi.
-    const calm = () => !/^\/(play|quiz|account)|^\/admin\/(user|event|bank|data|settings)/.test((location.hash || "#/").slice(1)) && !$("#fixBox"); // #fixBox: đang sửa ngày thi tại chỗ (UX2)
+    const calm = () => !/^\/(play|quiz|account|vao)|^\/admin\/(user|event|bank|data|settings)/.test((location.hash || "#/").slice(1)) && !$("#fixBox"); // #fixBox: đang sửa ngày thi tại chỗ (UX2); /vao: đang nhập PIN (UX4)
     Store.onError = toast;
     Store.onChange = () => { if (booted && calm()) route(); };
     view.innerHTML = `<div class="panel muted" role="status">Đang tải dữ liệu…</div>`;
