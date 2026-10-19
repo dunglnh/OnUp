@@ -122,17 +122,21 @@ async function run(browser, scheme) {
   const linkOf = (page, sel) => page.$eval(sel + " a", (a) => a.getAttribute("href") + " · " + a.textContent).catch(() => "");
   const c = {};
   /* Nút xem mật khẩu, mã PIN (U1), như revealTry trong tests/e2e.js: ô (đã có chữ) có nút ngay sau nó; bấm thì type="text",
-     aria-pressed="true", bấm lại thì ẩn; giá trị, focus, vị trí con trỏ, autocomplete giữ nguyên. Chỗ sai ghi vào rv. */
+     aria-pressed="true", bấm lại thì ẩn; giá trị, focus, vị trí con trỏ, autocomplete giữ nguyên. Ngoại lệ (UX4, X2): ô có
+     data-reveal="<id>" (bàn phím PIN, #pinIn) dùng nút chữ đặt sẵn, không có aria-label ("Hiện số" ↔ "Giấu số"), ô ẩn khỏi mắt (≤ 1px). Chỗ sai ghi vào rv. */
   const rv = [];
-  const eye = (page, sel) => page.click(sel + " + .reveal-btn");
+  const eyeOf = (page, sel) => page.$eval(sel, (i) => (i.dataset.reveal ? "#" + i.dataset.reveal : null)).then((x) => x || sel + " + .reveal-btn");
+  const eye = async (page, sel) => page.click(await eyeOf(page, sel));
   const types = (page, ...sels) => Promise.all(sels.map((x) => page.$eval(x, (i) => i.type))).then((t) => t.join());
   async function revealTry(page, sel, what) {
-    const st = () => page.$eval(sel, (i) => { const b = i.nextElementSibling; return { type: i.type, btn: !!b && b.matches("button.reveal-btn[type=button]") && !!b.querySelector("svg"), pressed: b && b.getAttribute("aria-pressed"), label: b && b.getAttribute("aria-label"), value: i.value, focus: document.activeElement === i, caret: i.selectionStart, mode: i.getAttribute("inputmode"), ac: i.getAttribute("autocomplete") }; });
+    const st = () => page.$eval(sel, (i) => { const pre = !!i.dataset.reveal, b = pre ? document.getElementById(i.dataset.reveal) : i.nextElementSibling, shown = (el) => el.offsetParent !== null;
+      return { pre, type: i.type, btn: !!b && b.matches("button.reveal-btn[type=button]") && !!b.querySelector("svg"), pressed: b && b.getAttribute("aria-pressed"), label: b && (pre ? [...b.querySelectorAll("span")].filter(shown).map((x) => x.textContent).join() : b.getAttribute("aria-label")),
+        hidden: !pre || i.getBoundingClientRect().width <= 1, value: i.value, focus: document.activeElement === i, caret: i.selectionStart, mode: i.getAttribute("inputmode"), ac: i.getAttribute("autocomplete") }; });
     await page.focus(sel); await page.$eval(sel, (i) => i.setSelectionRange(1, 1));
     const a = await st(); await eye(page, sel);
     const b = await st(); await eye(page, sel);
     const d = await st();
-    const good = (x, type, pressed, verb) => x.btn && x.type === type && x.pressed === pressed && x.label === verb + " " + what && x.value === a.value && x.focus && x.caret === 1 && x.mode === a.mode && x.ac === a.ac;
+    const good = (x, type, pressed, verb) => x.btn && x.type === type && x.pressed === pressed && x.label === (x.pre ? (verb === "Hiện" ? "Hiện số" : "Giấu số") : verb + " " + what) && x.hidden && x.value === a.value && x.focus && x.caret === 1 && x.mode === a.mode && x.ac === a.ac;
     if (!a.value || !good(a, "password", "false", "Hiện") || !good(b, "text", "true", "Ẩn") || !good(d, "password", "false", "Hiện")) rv.push(sel + ": " + JSON.stringify([a, b, d]));
   }
   const rvIs = (ok, msg) => { if (!ok) rv.push(msg); };
@@ -231,8 +235,17 @@ async function run(browser, scheme) {
   c.ux3.letStudy = true;
   c.tiles = await p.$$eval(".tile .nm", (t) => t.map((x) => x.textContent).join());
   await shot(p, "c7-ai-dang-hoc");
-  await tile(p, "Bin"); await pad(p, "9999");
+  // UX4 X1: chạm hồ sơ có PIN thì sang bước nhập riêng (#/vao/<mã>): không cuộn, tên và 12 nút bàn phím trong khung nhìn 760px, không còn danh sách,
+  // "← Chọn hồ sơ khác", hình to, tên, lớp, "Nhập mã PIN của bạn", nút chữ "Hiện số", dòng quên PIN của bản đám mây; ô #pinIn ẩn khỏi mắt (X2)
+  await p.evaluate(() => scrollTo(0, 300));
+  await tile(p, "Bin"); await p.waitForSelector("#pinBox:not([hidden])"); await wait(p, 300);
+  c.ux4 = { enter: await p.evaluate(() => { const pad = [...document.querySelectorAll(".pad button")].map((b) => b.getBoundingClientRect()), nm = document.querySelector("#pinWho b"), vis = (x) => x.top >= 0 && x.bottom <= innerHeight;
+    return { hash: /^#\/vao\//.test(location.hash), scroll: scrollY, name: nm.textContent, nameIn: vis(nm.getBoundingClientRect()), pad: pad.length === 12 && pad.every(vis), tiles: document.querySelectorAll(".tile").length, back: document.querySelector("#toList").textContent,
+      whoOK: document.querySelector("#pinWho").textContent.replace(/\s+/g, " ").trim() === Store.users("student").find((u) => u.name === "Bin").avatar + "BinLớp 4 · 4A", sub: document.querySelector("#pinSub").textContent, show: document.querySelector("#pinShow").textContent, inputW: document.querySelector("#pinIn").getBoundingClientRect().width, help: document.querySelector("#pinHelp").textContent, dots: document.querySelectorAll("#pinDots span").length }; }) };
+  await shot(p, "c7b-nhap-pin");
+  await pad(p, "9999");
   c.wrongPin = await text(p, "#pinErr");
+  c.ux4.errOrder = await p.evaluate(() => { const top = (s) => document.querySelector(s).getBoundingClientRect().top; return top("#pinDots") < top("#pinErr") && top("#pinErr") < top("#pinShow") && top("#pinShow") < top(".pad"); }); // X3: lỗi ngay dưới hàng chấm
   await pad(p, "1357"); // PIN 4 số: gõ đủ là vào
   await p.waitForSelector("text=Chào Bin");
   // UX1: trang "Hôm nay" của con với thanh tab dưới (4 tab, tab Hôm nay đang mở), thẻ gợi ý có nút Bắt đầu, chuỗi ngày, huy hiệu; thanh trên không có nút Lịch thi
@@ -326,6 +339,12 @@ async function run(browser, scheme) {
   c.kidAccount = (await p.$("#switchWho")) && !(await p.$("#signOut")) && !(await p.$("#pwForm")) && !(await p.$("#qcBox"));
   c.ux3.kidSwitch = await text(p, "#switchWho");
   await shot(p, "c9-tai-khoan-con");
+  // UX4 X4: chạm hình là đổi ngay (lên máy chủ), toast "Đã đổi hình đại diện", không có nút Lưu; hình ở đầu trang và thanh trên đổi theo
+  c.ux4.account = await p.evaluate(() => ({ hint: document.querySelector("#avBox p").textContent, save: !!document.querySelector("#avBox [type=submit], #aForm"), h3: [...document.querySelectorAll("#view h3")].map((h) => h.textContent).join() }));
+  await p.click('#avBox [data-emo="🐬"]'); await p.waitForSelector("#toast:not([hidden])");
+  c.ux4.avatar = await p.evaluate((id) => ({ av: Store.user(id).avatar, toast: document.querySelector("#toast").textContent, head: document.querySelector("#acAv").textContent, top: document.querySelector("#who .av").textContent, pressed: document.querySelector('#avBox [aria-pressed="true"]').dataset.emo }), binId);
+  c.ux4.avatarServer = await until(p, () => be.T.profiles.find((x) => x.id === binId).avatar === "🐬");
+  await shot(p, "c9b-doi-hinh-dai-dien");
   await p.click("#switchWho"); await p.waitForSelector(WHO);
   await tile(p, "Na"); await p.waitForSelector("text=Chào Na"); // hồ sơ không có PIN: bấm là vào
   c.na = true;
@@ -354,7 +373,10 @@ async function run(browser, scheme) {
   const p2 = await home.newPage();
   await p2.goto(BASE + "/"); await p2.waitForSelector(WHO);
   c.preselect = await p2.$eval(`.tile[aria-pressed="true"] .nm`, (x) => x.textContent).catch(() => ""); // máy nhớ hồ sơ chọn gần nhất (Na, không PIN: không tự vào)
-  await tile(p2, "Phụ huynh"); await p2.waitForSelector("#pwBox:not([hidden])");
+  await tile(p2, "Phụ huynh"); await p2.waitForSelector("#pwBox:not([hidden])"); await wait(p2, 300);
+  // UX4 X1: ô Phụ huynh là bước riêng: "← Chọn hồ sơ khác", hình, tên, tên gia đình · tên đăng nhập, ô mật khẩu, nút to "Vào khu phụ huynh", dòng "Quên mật khẩu?" từ js/config.js
+  c.ux4.parent = await p2.evaluate(() => ({ hash: /^#\/vao\//.test(location.hash), scroll: scrollY, back: document.querySelector("#toList").textContent, who: document.querySelector("#pinWho").textContent.replace(/\s+/g, " ").trim(), go: document.querySelector("#pwGo").textContent, goH: Math.round(document.querySelector("#pwGo").getBoundingClientRect().height),
+    contact: document.querySelector("#pwBox #contact") ? document.querySelector("#pwBox #contact a").getAttribute("href") + " · " + document.querySelector("#pwBox #contact").textContent.replace(/\s+/g, " ").trim() : "", pin: document.querySelector("#pinBox").hidden, tiles: document.querySelectorAll(".tile").length, quick: !!document.querySelector("#pwToPin"), help: !!document.querySelector("#pinHelp") }));
   await shot(p2, "c10-mat-khau-phu-huynh");
   await p2.fill("#pwIn", "sai-mat-khau"); await revealTry(p2, "#pwIn", "mật khẩu");
   await eye(p2, "#pwIn"); await p2.click("#pwGo"); await p2.waitForSelector("#pwErr .fb");
@@ -401,11 +423,22 @@ async function run(browser, scheme) {
   await p3.goto(BASE + "/"); await p3.waitForSelector(WHO);
   c.ux3.tileSub = await p3.$eval('.tile:has(.nm:text-is("Phụ huynh")) .small', (x) => x.textContent);
   await tile(p3, "Phụ huynh"); await p3.waitForSelector("#pinBox:not([hidden])");
-  c.ux3.pad = await p3.evaluate(() => ({ pw: document.querySelector("#pwBox").hidden, who: document.querySelector("#pinWho").textContent, sub: document.querySelector("#pinSub").textContent, label: document.querySelector("#pinLabel").textContent,
-    dots: document.querySelectorAll("#pinDots span").length, alt: document.querySelector("#pinAlt button").textContent, altH: Math.round(document.querySelector("#pinAlt button").getBoundingClientRect().height) }));
+  c.ux3.pad = await p3.evaluate(() => ({ pw: document.querySelector("#pwBox").hidden, who: document.querySelector("#pinWho").textContent.replace(/\s+/g, " ").trim(), sub: document.querySelector("#pinSub").textContent, label: document.querySelector("#pinLabel").textContent,
+    dots: document.querySelectorAll("#pinDots span").length, alt: document.querySelector("#pinAlt button").textContent, altAll: document.querySelector("#pinAlt").textContent.replace(/\s+/g, " ").trim(), altH: Math.round(document.querySelector("#pinAlt button").getBoundingClientRect().height) }));
   await pad(p3, "1111"); await revealTry(p3, "#pinIn", "mã mở nhanh"); await pad(p3, "1"); await p3.waitForSelector("#pinErr .fb");
   c.ux3.padWrong = (await text(p3, "#pinErr")) + " | " + (await p3.evaluate(() => (JSON.parse(localStorage.getItem("ontap_pinlock_v1") || "{}")["phu-huynh"] || {}).fails));
   await shot(p3, "c10b-ma-mo-nhanh");
+  // UX4 X3: sai thêm 4 lần (đủ 5) thì phải đợi: đếm ngược ngay dưới hàng chấm, trên nút Hiện số và bàn phím; 12 nút bàn phím và Hiện số disabled;
+  // rút ngắn còn 1,2 giây thì tự bật lại kèm "Bạn nhập lại được rồi."
+  for (let i = 0; i < 4; i++) await pad(p3, "11111");
+  await p3.waitForSelector("#pinWait");
+  const lockUI3 = () => p3.evaluate(() => { const top = (s) => document.querySelector(s).getBoundingClientRect().top; return { dis: [...document.querySelectorAll(".pad button")].filter((b) => b.disabled).length, show: document.querySelector("#pinShow").disabled,
+    order: top("#pinDots") < top("#pinErr") && top("#pinErr") < top("#pinShow") && top("#pinShow") < top(".pad"), err: document.querySelector("#pinErr").textContent.replace(/\s+/g, " ").trim(), fails: (JSON.parse(localStorage.getItem("ontap_pinlock_v1") || "{}")["phu-huynh"] || {}).fails }; });
+  c.ux4.locked = await lockUI3();
+  await shot(p3, "c10c-dang-doi");
+  await p3.evaluate(() => { const o = JSON.parse(localStorage.getItem("ontap_pinlock_v1")); o["phu-huynh"].until = Date.now() + 1200; localStorage.setItem("ontap_pinlock_v1", JSON.stringify(o)); });
+  await p3.waitForSelector("#pinErr .fb.ok", { timeout: 5000 });
+  c.ux4.unlocked = await lockUI3();
   await p3.click("#pinToPw"); await p3.waitForSelector("#pwBox:not([hidden])");
   c.ux3.toPw = (await p3.$eval("#pinBox", (b) => b.hidden)) + " " + (await text(p3, "#pwToPin"));
   await p3.click("#pwToPin"); await p3.waitForSelector("#pinBox:not([hidden])");
@@ -434,6 +467,7 @@ async function run(browser, scheme) {
   // đăng xuất
   await p2.goto(BASE + "/#/account"); await wait(p2);
   await p2.click("#switchWho"); await tile(p2, "Phụ huynh");
+  await p2.waitForSelector("#kids, #pinBox:not([hidden]), #pwBox:not([hidden])"); // bước nhập riêng (UX4) vẽ sau khi đổi hash
   if (await p2.$("#pinBox:not([hidden])")) await pad(p2, "2468"); // vừa nhập mật khẩu trong 5 phút: không hỏi lại; quá thì bàn phím mã mở nhanh (UX3)
   else if (await p2.$("#pwBox:not([hidden])")) { await p2.fill("#pwIn", PW2); await p2.click("#pwGo"); }
   await p2.waitForSelector("text=Khu phụ huynh");
@@ -681,9 +715,20 @@ async function run(browser, scheme) {
       && c.ux3.qcErr === "Mã mở nhanh gồm 4–6 chữ số." && /bạn gõ mã 5 số /.test(c.ux3.qc1.text) && /Máy này đã có mã mở nhanh\. Mã mới \(4–6 số\) Đổi mãBỏ mã /.test(c.ux3.qc1.text) && c.ux3.qc1.toast === "Đã lưu mã mở nhanh"
       && Object.keys(c.ux3.qc1.ls).join() === acc.id && /^5\.[0-9a-f]{16}\$s256:[0-9a-f]{64}$/.test(c.ux3.qc1.ls[acc.id]) && c.ux3.dropped
       && /Máy này chưa ghi nhớ đăng nhập\. \| true$/.test(c.ux3.noRemember) && /Chọn “Ghi nhớ trên máy này” khi đăng nhập/.test(c.ux3.noRemember),
-    "UX3: tab mới trên máy đã ghi nhớ: ô Phụ huynh ghi “Nhập mã mở nhanh”, bàn phím mã (nhãn Mã mở nhanh, 5 chấm), sai thì báo và tính vào khóa tạm, link “Nhập mật khẩu” (≥ 44px) mở ô mật khẩu có “Dùng mã mở nhanh”, đúng mã thì vào khu phụ huynh; đăng xuất thì xóa mã":
-      c.ux3.tileSub === "Nhập mã mở nhanh" && c.ux3.pad.pw && c.ux3.pad.who === "🌻Phụ huynh" && c.ux3.pad.sub === "Mã mở nhanh khu phụ huynh của máy này. Quên mã thì nhập mật khẩu." && c.ux3.pad.label === "Mã mở nhanh" && c.ux3.pad.dots === 5
-      && c.ux3.pad.alt === "Nhập mật khẩu" && c.ux3.pad.altH >= 44 && c.ux3.padWrong === "Mã mở nhanh chưa đúng. Thử lại nhé. | 1" && c.ux3.toPw === "true Dùng mã mở nhanh" && c.ux3.padIn === "Khu phụ huynh | true" && c.ux3.cleared,
+    "UX3, UX4 (A5b): tab mới trên máy đã ghi nhớ: ô Phụ huynh ghi “Nhập mã mở nhanh”, bước riêng mở bàn phím mã (dòng “Nhập mã mở nhanh của máy này”, nhãn Mã mở nhanh, 5 chấm), sai thì báo và tính vào khóa tạm, dòng “Quên mã? Nhập mật khẩu” (≥ 44px) mở ô mật khẩu có “Dùng mã mở nhanh”, đúng mã thì vào khu phụ huynh; đăng xuất thì xóa mã":
+      c.ux3.tileSub === "Nhập mã mở nhanh" && c.ux3.pad.pw && c.ux3.pad.who === "🌻Phụ huynh" + "Nhà Bin · nha.bin" && c.ux3.pad.sub === "Nhập mã mở nhanh của máy này" && c.ux3.pad.label === "Mã mở nhanh" && c.ux3.pad.dots === 5
+      && c.ux3.pad.alt === "Nhập mật khẩu" && c.ux3.pad.altAll === "Quên mã?Nhập mật khẩu" && c.ux3.pad.altH >= 44 && c.ux3.padWrong === "Mã mở nhanh chưa đúng. Thử lại nhé. | 1" && c.ux3.toPw === "true Dùng mã mở nhanh" && c.ux3.padIn === "Khu phụ huynh | true" && c.ux3.cleared,
+    "UX4: chạm hồ sơ có PIN thì sang bước nhập riêng (#/vao/<mã>): không cuộn, tên và 12 nút bàn phím trong khung nhìn 760px, không còn danh sách, “← Chọn hồ sơ khác”, hình, tên, lớp, nút chữ “Hiện số”, dòng quên PIN; ô #pinIn ẩn khỏi mắt; lỗi ngay dưới hàng chấm":
+      c.ux4.enter.hash && c.ux4.enter.scroll === 0 && c.ux4.enter.name === "Bin" && c.ux4.enter.nameIn && c.ux4.enter.pad && c.ux4.enter.tiles === 0 && c.ux4.enter.back === "← Chọn hồ sơ khác" && c.ux4.enter.whoOK && c.ux4.enter.sub === "Nhập mã PIN của bạn"
+      && c.ux4.enter.show === "Hiện sốGiấu số" && c.ux4.enter.inputW <= 1 && c.ux4.enter.help === "Quên mã PIN? Nhờ bố mẹ đặt lại trong Khu phụ huynh → Cài đặt → Hồ sơ con." && c.ux4.enter.dots === 4 && c.ux4.errOrder,
+    "UX4: ô Phụ huynh là bước riêng: “← Chọn hồ sơ khác”, hình, tên, tên gia đình · tên đăng nhập, ô mật khẩu, nút “Vào khu phụ huynh” (≥ 44px), dòng “Quên mật khẩu?” từ js/config.js; không có bàn phím, dòng quên PIN":
+      c.ux4.parent.hash && c.ux4.parent.scroll === 0 && c.ux4.parent.back === "← Chọn hồ sơ khác" && c.ux4.parent.who === "🌻Phụ huynhNhà Bin · nha.bin" && c.ux4.parent.go === "Vào khu phụ huynh" && c.ux4.parent.goH >= 44
+      && c.ux4.parent.contact === CONTACT + " · Quên mật khẩu?Nhắn Zalo cho cô Lan" && c.ux4.parent.pin && c.ux4.parent.tiles === 0 && !c.ux4.parent.quick && !c.ux4.parent.help,
+    "UX4: sai 5 lần mã mở nhanh thì đếm ngược ngay dưới hàng chấm, 12 nút bàn phím và Hiện số disabled; hết giờ thì bật lại kèm “Bạn nhập lại được rồi.”":
+      c.ux4.locked.dis === 12 && c.ux4.locked.show && c.ux4.locked.order && /^Mã mở nhanh chưa đúng\. Đợi (30|29) giây rồi thử lại\.$/.test(c.ux4.locked.err) && c.ux4.locked.fails === 5
+      && c.ux4.unlocked.dis === 0 && !c.ux4.unlocked.show && c.ux4.unlocked.order && c.ux4.unlocked.err === "Bạn nhập lại được rồi.",
+    "UX4: trang Tài khoản của con: thẻ Hình đại diện chạm là đổi ngay (lên máy chủ), toast “Đã đổi hình đại diện”, hình đầu trang và thanh trên đổi theo, không có nút Lưu":
+      c.ux4.account.hint === "Chạm vào hình là đổi ngay." && !c.ux4.account.save && c.ux4.account.h3 === "Hình đại diện" && c.ux4.avatar.av === "🐬" && c.ux4.avatar.toast === "Đã đổi hình đại diện" && c.ux4.avatar.head === "🐬" && c.ux4.avatar.top === "🐬" && c.ux4.avatar.pressed === "🐬" && c.ux4.avatarServer,
     "trang tài khoản của con: chọn hồ sơ khác, không đăng xuất, không đổi mật khẩu, không có ô mã mở nhanh": !!c.kidAccount,
     "hồ sơ không PIN bấm là vào; con không vào được khu phụ huynh bằng địa chỉ": c.na && c.kidBlocked,
     "tab mới: nhớ hồ sơ chọn gần nhất, khu phụ huynh phải nhập lại mật khẩu": c.preselect === "Na" && /Mật khẩu chưa đúng/.test(c.wrongPw),

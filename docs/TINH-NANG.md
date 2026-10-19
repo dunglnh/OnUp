@@ -27,8 +27,9 @@ Phần mở rộng so với 4 trang gốc: **tài khoản người dùng**, **l�
 
 Bảng trên là **bản lưu trên máy** (một máy dùng chung cho cả nhà hoặc cả lớp). **Bản đám mây** (trang thật, mục 5) chỉ có hai vai trò trong app: **Phụ huynh** (tài khoản gia đình; dùng chung các màn hình quản trị dưới tên “Khu phụ huynh”: hồ sơ con, lịch thi, ngân hàng đề, dữ liệu, tài khoản) và **hồ sơ con** (học sinh). Tài khoản gia đình do **chủ app** tạo ở trang admin riêng (`admin.html`); chủ app không xem bài làm của các con.
 
-- Đăng nhập: chọn tên trên màn hình, nhập mã PIN 4–6 số (gõ đủ số là tự vào, không cần bấm “Vào”). Sai 5 lần phải đợi, thời gian chờ tăng dần (30 giây, 1 phút, 5 phút, rồi 15 phút), tính riêng từng người và không mất khi tải lại trang. Bản đám mây: hồ sơ con có mã PIN 4 số nếu bố mẹ đặt (không bắt buộc), Phụ huynh nhập lại mật khẩu; nhập sai cũng tính vào cùng bộ đếm chờ.
-- Ô mật khẩu và mã PIN nào cũng có nút hình con mắt: bấm để xem mình đã gõ gì, bấm lại để ẩn (bàn phím PIN hiện chữ số thay cho chấm). Gửi đi, xóa hết ô hoặc sang màn hình khác thì tự ẩn lại. Ảnh: [hinh-xem-mat-khau/](hinh-xem-mat-khau/).
+- Đăng nhập: chọn tên trên màn hình. Hồ sơ có mã PIN thì sang **màn nhập riêng** (Phiên UX4, ảnh [hinh-ux4/](hinh-ux4/)): hình to, tên, lớp, hàng chấm và bàn phím ngay dưới, vừa một màn hình điện thoại không phải cuộn; link “← Chọn hồ sơ khác” hoặc nút Back về danh sách; hồ sơ không có PIN chạm là vào. Nhập mã PIN 4–6 số (gõ đủ số là tự vào, không cần bấm “Vào”). Sai 5 lần phải đợi, thời gian chờ tăng dần (30 giây, 1 phút, 5 phút, rồi 15 phút), tính riêng từng người và không mất khi tải lại trang; đang đợi thì đếm ngược hiện ngay dưới hàng chấm và bàn phím mờ đi, hết giờ tự bật lại. Bản đám mây: hồ sơ con có mã PIN 4 số nếu bố mẹ đặt (không bắt buộc); ô Phụ huynh cũng là một màn riêng: ô mật khẩu, nút “Vào khu phụ huynh”, dòng “Quên mật khẩu?” (máy đã đặt mã mở nhanh thì bàn phím mã hiện trước, kèm dòng “Quên mã? Nhập mật khẩu”, mục 5); nhập sai cũng tính vào cùng bộ đếm chờ.
+- Ô mật khẩu và mã PIN nào cũng có nút hình con mắt: bấm để xem mình đã gõ gì, bấm lại để ẩn. Bàn phím PIN: số đã gõ chỉ hiện ở hàng chấm, nút chữ “Hiện số” dưới hàng chấm cho xem chữ số (bấm lại: “Giấu số”). Gửi đi, xóa hết ô hoặc sang màn hình khác thì tự ẩn lại. Ảnh: [hinh-xem-mat-khau/](hinh-xem-mat-khau/).
+- Trang Tài khoản: chạm một hình đại diện là đổi ngay (có thông báo “Đã đổi hình đại diện”), không phải bấm Lưu; bản lưu trên máy có thêm form đổi mã PIN riêng.
 - Một học sinh có thể có nhiều phụ huynh; một phụ huynh có thể có nhiều con (khác khối cũng được).
 - Phải luôn còn ít nhất một tài khoản quản trị.
 - Dữ liệu về trẻ chỉ gồm tên hiển thị, khối, lớp, hình đại diện (biểu tượng cảm xúc). Không thu thập thông tin khác.
@@ -165,7 +166,7 @@ Trang thật **chỉ dành cho gia đình được mời** (quyết định 18/1
 - Giáo viên giao bài cho cả lớp, bảng xếp hạng.
 - Đề giữa kì II lớp 6 và đề cuối năm lớp 4, lớp 6 (đã có chỗ trong lịch, chưa có câu hỏi; lớp 4 đã có 4 đề giữa kì II). Số đề đang có: `node tests/kiem-tra-de.js`.
 - Thông báo nhắc ôn qua điện thoại.
-- Các cải tiến giao diện 2.x còn lại (bắt đầu 3 bước cho tài khoản mới, nhập PIN, làm bài tập trung…): đã có trong lộ trình, chưa có trong app. Trang “Hôm nay” và màn kết quả mới đã làm ở Phiên UX1; khu phụ huynh gọn lại ở Phiên UX2.
+- Các cải tiến giao diện 2.x còn lại (làm bài tập trung, biết bài đã gửi chưa…): đã có trong lộ trình, chưa có trong app. Trang “Hôm nay” và màn kết quả mới đã làm ở Phiên UX1; khu phụ huynh gọn lại ở Phiên UX2; chọn hồ sơ và nhập PIN ở Phiên UX4.
 
 ## 7. Lộ trình tiếp theo
 
