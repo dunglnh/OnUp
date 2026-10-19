@@ -368,14 +368,15 @@
      nút Back của điện thoại quay về danh sách. Hồ sơ không có PIN thì chạm là vào như cũ.
      Số đã gõ chỉ hiện ở hàng chấm (X2): ô #pinIn vẫn có cho bàn phím máy tính và trình đọc màn hình nhưng ẩn khỏi mắt (lớp .sr,
      không display:none vì kiểm thử gõ bằng page.fill); nút xem là nút chữ "Hiện số" (#pinShow) đặt sẵn dưới hàng chấm,
-     wireReveal nhận qua data-reveal="pinShow" của ô. */
+     wireReveal nhận qua data-reveal="pinShow" của ô. Lỗi và đếm ngược (#pinErr) nằm ngay dưới hàng chấm (X3); đang phải đợi
+     (PinLock) thì bàn phím, Vào, Hiện số disabled (box.lock), số gõ từ bàn phím máy tính bị bỏ, hết giờ tự bật lại. */
   const pinBoxHTML = () => `<section class="panel" id="pinBox" hidden>
         <p class="small muted" id="pinSub" style="text-align:center;margin:0">Nhập mã PIN của bạn</p>
         <div class="pin" id="pinDots" aria-hidden="true"></div>
         <label class="field sr"><span id="pinLabel">Mã PIN</span><input id="pinIn" type="password" inputmode="numeric" maxlength="6" autocomplete="off" data-reveal="pinShow"></label>
+        <div id="pinErr" aria-live="assertive"></div>
         <button type="button" class="linkbtn pin-show" id="pinShow"></button>
         <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join("")}<button type="button" data-k="del" aria-label="Xóa">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" aria-label="Vào" style="background:var(--sun);color:var(--sun-ink)">Vào</button></div>
-        <div id="pinErr" aria-live="assertive"></div>
         <div class="row" style="justify-content:center" id="pinAlt" hidden></div>
       </section>`;
   /* Bàn phím PIN dùng chung cho đăng nhập trên máy và trên đám mây. submit(pin) được gọi khi bấm Vào, Enter,
@@ -386,7 +387,7 @@
      (mặc định "Nhập mã PIN của bạn"), alt = {text, go} là link thay thế dưới bàn phím ("Nhập mật khẩu"); không truyền thì như bàn phím PIN của hồ sơ con. */
   function wirePinBox(submit, probe) {
     const inp = $("#pinIn"), dots = $("#pinDots");
-    let pin = "", len = 0;
+    let pin = "", len = 0, locked = false; // locked: đang phải đợi (PinLock), bàn phím mờ, số gõ vào bị bỏ
     const draw = () => {
       const show = inp.type === "text";
       dots.classList.toggle("shown", show);
@@ -397,15 +398,17 @@
     const typed = (v) => { set(v); if (pin.length === (len || 6)) send(pin); else if (!len && pin.length === 4 && probe) probe(pin); };
     $$(".pad button").forEach((b) => (b.onclick = () => {
       const k = b.dataset.k;
+      if (locked) return;
       if (k === "ok") send(pin);
       else if (k === "del") set(pin.slice(0, -1));
       else if (pin.length < (len || 6)) typed(pin + k);
     }));
-    inp.oninput = () => { const v = inp.value.replace(/\D/g, "").slice(0, len || 6); if (v.length > pin.length) typed(v); else set(v); };
-    inp.onkeydown = (e) => { if (e.key === "Enter") send(pin); };
+    inp.oninput = () => { if (locked) { set(""); return; } const v = inp.value.replace(/\D/g, "").slice(0, len || 6); if (v.length > pin.length) typed(v); else set(v); };
+    inp.onkeydown = (e) => { if (e.key === "Enter" && !locked) send(pin); };
     inp.addEventListener("reveal", draw);
     return {
       clear: () => set(""),
+      lock(on) { locked = !!on; if (locked) set(""); [...$$(".pad button"), $("#pinShow")].forEach((b) => { if (b) b.disabled = locked; }); },
       show(u, opts) {
         const { sub, alt, label } = opts || {};
         len = u.pinLen >= 4 && u.pinLen <= 6 ? u.pinLen : 0;
@@ -515,14 +518,16 @@
     const errBox = () => $(parentIn && !$("#pwBox").hidden ? "#pwErr" : "#pinErr");
     const err = (msg) => { errBox().innerHTML = `<div class="fb bad">${esc(msg)}</div>`; };
     // Đếm ngược trong #pinWait (aria-live="off" để trình đọc màn hình không đọc lại mỗi giây).
+    // Đang đợi thì bàn phím, Vào, Hiện số (box.lock) và nút "Vào khu phụ huynh" mờ; hết giờ tự bật lại (X3).
+    const lock = (on) => { box.lock(on); if (parentIn) $("#pwGo").disabled = on; };
     function showWait(lead) {
-      clearInterval(loginTick);
+      clearInterval(loginTick); lock(true);
       const out = errBox();
       out.innerHTML = `<div class="fb bad">${esc(lead || "Sai nhiều lần.")} Đợi <b id="pinWait" aria-live="off">${waitTxt(PinLock.wait(id))}</b> rồi thử lại.</div>`;
       loginTick = setInterval(() => {
         const w = $("#pinWait"), s = PinLock.wait(id);
         if (!w || !here.isConnected) { clearInterval(loginTick); return; }
-        if (!s) { clearInterval(loginTick); out.innerHTML = `<div class="fb ok">Bạn nhập lại được rồi.</div>`; return; }
+        if (!s) { clearInterval(loginTick); lock(false); out.innerHTML = `<div class="fb ok">Bạn nhập lại được rồi.</div>`; return; }
         w.textContent = waitTxt(s);
       }, 1000);
     }
@@ -530,13 +535,13 @@
       if (parentIn) $("#pwBox").hidden = true;
       if (parentIn) box.show(Object.assign({}, u, { pinLen: quick }), { label: "Mã mở nhanh", sub: "Mã mở nhanh khu phụ huynh của máy này. Quên mã thì nhập mật khẩu.", alt: { text: "Nhập mật khẩu", go: () => { usePw = true; showPw(); } } });
       else box.show(u);
-      if (PinLock.wait(id)) showWait();
+      if (PinLock.wait(id)) showWait(); else lock(false);
     };
     const showPw = () => {
       $("#pinBox").hidden = true; clearInterval(loginTick);
       $("#pwErr").innerHTML = ""; $("#pwIn").value = ""; conceal($("#pwIn")); $("#pwBox").hidden = false;
       setTimeout(() => $("#pwIn").focus({ preventScroll: true }), 30);
-      if (PinLock.wait(id)) showWait();
+      if (PinLock.wait(id)) showWait(); else lock(false);
     };
     // busy: gõ đủ số rồi bấm Enter ngay (hoặc thử lặng lẽ chưa xong) thì không kiểm tra hai lần.
     async function submit(pin) {
@@ -577,7 +582,7 @@
           if (PinLock.fail(id)) { showWait("Mật khẩu chưa đúng."); return; }
           const left = PinLock.left(id);
           err(left <= 2 ? `Mật khẩu chưa đúng. Sai thêm ${left} lần nữa thì phải đợi một lúc.` : "Mật khẩu chưa đúng. Thử lại nhé.");
-        } catch (e) { err(e.message); } finally { busy = false; if ($("#pwGo")) $("#pwGo").disabled = false; }
+        } catch (e) { err(e.message); } finally { busy = false; if ($("#pwGo")) $("#pwGo").disabled = !!PinLock.wait(id); }
       };
       if ($("#pwToPin")) $("#pwToPin").onclick = () => { usePw = false; showPin(); };
       if (quick && !usePw) showPin(); else showPw();
