@@ -261,6 +261,8 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 @media (max-width:520px){.stats.four{grid-template-columns:1fr 1fr}}
 
 /* làm bài */
+/* chế độ tập trung (body.quizzing, renderQuiz trong js/app.js, Phiên UX5): trong lúc làm một lượt, thanh trên chỉ còn chữ OnUp */
+.quizzing .who,.quizzing .tabbar{display:none}
 .qcard{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px 18px;display:flex;flex-direction:column;gap:14px}
 .qtext{font-size:1.15rem;font-weight:600;overflow-wrap:anywhere}
 .qtext.long{font-size:1.02rem;font-weight:500;line-height:1.65}

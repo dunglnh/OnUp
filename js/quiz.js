@@ -11,6 +11,9 @@
      cùng cách làm; câu cần xem lại thu gọn (<details class="rv">, bấm mới xem đáp án, lời giải); theo chủ đề chỉ hiện chủ đề cần ôn thêm.
      Trên câu chỉ một dòng nhãn "môn · chủ đề" (dạng đúng/sai 4 ý, nối cột, sắp xếp, tự luận ghi thêm cách làm); câu điền mà mọi đáp án
      là số thì ô nhập có inputmode="decimal" (bàn phím số).
+   Chế độ tập trung (Phiên UX5, X5): opts.onStart() khi một lượt bắt đầu (cả "Làm lại", "Ôn lại câu sai"), opts.onEnd() khi lượt
+     đó xong, ở mọi nhánh của finish() (có màn kết quả hoặc chưa trả lời câu nào) và khi thoát đề chưa làm câu nào. App ẩn thanh trên
+     trong khoảng giữa hai lần gọi.
    onFinish(res) được gọi cho hai loại kết quả:
      - phần chấm tự động: {r, t, s, mode, wrongTopics}. t: số câu, r: số câu đúng, có thể lẻ đến 0,01 vì câu đúng/sai 4 ý
        và nối cột chấm theo từng ý (score); câu tự luận không tính vào r, t;
@@ -679,10 +682,12 @@
       const fb = el.querySelector("#qzFb"), none = !answered();
       const [ask, yes] = none ? L.exNone : h.retry ? L.exRetry : exam ? L.exExam : L.exPractice;
       fb.innerHTML = `<div class="confirm"><div>${ask}</div><div class="row"><button class="btn danger" id="qzYes">${yes}</button><button class="btn ghost" id="qzNo">${L.keepGoing}</button></div></div>`;
-      fb.querySelector("#qzYes").onclick = none ? () => { h.stop(); if (opts.onExit) opts.onExit(); } : finish;
+      fb.querySelector("#qzYes").onclick = none ? () => { h.stop(); ended(); if (opts.onExit) opts.onExit(); } : finish;
       fb.querySelector("#qzNo").onclick = () => (fb.innerHTML = "");
     }
     function next() { S.i++; if (S.i >= qs.length) finish(); else render(); }
+    // lượt làm đã xong (X5): app bỏ chế độ tập trung, thanh trên có lại đủ
+    function ended() { if (opts.onEnd) opts.onEnd(); }
     // Làm lại: cả đề (h.full), cùng bộ câu (xáo lại); đề ngẫu nhiên (redraw) thì rút bộ câu mới. Sau lượt ôn lại câu sai: về đề đầy đủ, cùng cách làm.
     const againTxt = h.opts0.redraw ? L.newTest : L.again;
     const again = () => start(el, h.opts0.redraw ? Object.assign({}, h.full, h.opts0.redraw()) : h.full, h.opts0, h);
@@ -698,6 +703,7 @@
     }
     function finish() {
       if (S.done) return; S.done = true; clearInterval(S.timer);
+      ended();
       if (!answered()) {
         el.innerHTML = `<div class="stack"${LANG}>
           <section class="panel"><div class="label">${nb(`${esc(ttl)} · ${h.retry ? L.retryHead : exam ? L.modeExam : L.modePractice}`)}</div><p>${L.noneDone}</p></section>
@@ -790,6 +796,7 @@
     h.answered = answered;
     h.submit = finish;
     if (!qs.length) { h.stop(); el.innerHTML = `<div class="panel"${LANG}>${L.emptyBank}</div>`; return h; }
+    if (opts.onStart) opts.onStart();
     render();
     return h;
   }

@@ -1182,6 +1182,9 @@
 
   /* ================= LÀM BÀI TỪ NGÂN HÀNG ================= */
   let quizRun = null;
+  /* Chế độ tập trung (Phiên UX5, X5): body.quizzing ẩn hình đại diện, nút "Lịch thi" của thanh trên và thanh tab dưới, chỉ còn
+     chữ OnUp (vẫn qua chốt rời trang). Bật khi một lượt bắt đầu, tắt khi lượt xong (opts.onStart, onEnd của Quiz.run); route() cũng tắt. */
+  const focusMode = (on) => document.body.classList.toggle("quizzing", on);
   const essayN = (qs) => (qs || []).filter((q) => q.type === "essay").length;
   /* Đề ngẫu nhiên (đề có pool, xem đầu data/banks/index.js): mỗi lần mở là rút một bộ câu mới theo ma trận (Quiz.draw),
      ưu tiên câu học sinh chưa làm hoặc hay sai. Lịch sử từng câu của mỗi học sinh với mỗi đề ngẫu nhiên ghi ở localStorage
@@ -1241,6 +1244,8 @@
     const start = (mode) => {
       const run = (quizRun = Quiz.run(view, drawn ? Object.assign({}, b, { questions: drawn.questions }) : b, {
         mode, lang, onExit: () => go("#/home"),
+        // Chế độ tập trung (UX5, X5): trong lúc làm một lượt (cả "Làm lại", "Ôn lại câu sai"), thanh trên chỉ còn chữ OnUp
+        onStart: () => focusMode(true), onEnd: () => focusMode(false),
         name: u.role === "student" ? u.name : "", previous: u.role === "student" ? previous : undefined,
         // "Làm đề khác" ở trang kết quả: rút bộ câu mới (đã tính cả lượt vừa làm)
         redraw: b.pool ? () => { drawn = Quiz.draw(b, hist(), lang); if (drawn.notes.length) toast(L.appNotesToast(drawn.notes.join("; "))); return { questions: drawn.questions }; } : undefined,
@@ -1896,7 +1901,7 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
   function route() {
     if (quizRun) { quizRun.stop(); quizRun = null; }
     guard = null; closeLeave(); shownHash = location.hash;
-    document.body.classList.remove("playing");
+    document.body.classList.remove("playing", "quizzing");
     foot.hidden = true;
     const old = $("#evDetail"); if (old) old.remove();
     document.title = TITLE;
