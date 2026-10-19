@@ -216,7 +216,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   ex0.back = { hash: await page.evaluate(() => location.hash), n: await nRes() };
   await page.goto(BASE + "/#/quiz/toan4-ck1-de1"); await page.waitForTimeout(200);
   await page.click("#qExam"); await page.click("#qzSkip"); // bỏ qua không tính là đã trả lời
-  await page.click("#qzExit"); ex0.exit = (await page.textContent("#qzFb")).replace(/\s+/g, " ");
+  await page.click("#qzSubmit"); ex0.exit = (await page.textContent("#qzFb")).replace(/\s+/g, " ");
   await page.click("#qzYes"); await page.waitForTimeout(300);
   ex0.exitLeft = { hash: await page.evaluate(() => location.hash), n: await nRes() };
   ex0.timeUp = await page.evaluate(() => new Promise((ok) => { // hết giờ mà chưa trả lời câu nào: không lưu
@@ -1037,7 +1037,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await rp.click(`.tile[data-u="${ids.Bin}"]`); await rp.fill("#pinIn", PINS.Bin); await rp.waitForTimeout(400);
   await rp.goto(BASE + "/#/quiz/toan4-ck1-de1"); await rp.waitForSelector("#qPractice");
   await rp.click("#qExam"); r1.examNoLink = !(await rp.$(".rp-link")); // làm như thi: không có lời giải, không có link
-  await rp.click("#qzExit"); await rp.click("#qzYes"); await rp.waitForTimeout(300); // chưa làm câu nào: thoát
+  await rp.click("#qzSubmit"); await rp.click("#qzYes"); await rp.waitForTimeout(300); // chưa làm câu nào: thoát
   await rp.goto(BASE + "/#/quiz/toan4-ck1-de1"); await rp.waitForSelector("#qPractice"); await rp.click("#qPractice");
   r1.beforeCheck = !(await rp.$(".rp-link")); // chưa kiểm tra: chưa có link
   const rk1 = await curKey(); await answerFirst();
@@ -1183,7 +1183,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
 
   step("English test UI in English (TA2)");
   /* Đề Tiếng Anh (Quiz.lang(bank) → "en"): mọi chữ học sinh thấy từ màn mở đề đến hết màn kết quả, hộp hỏi khi rời đề (nút Back và
-     "← Exit"; chưa trả lời, đã trả lời, làm như thi), link và hộp "Report a problem", thông báo lưu điểm lấy từ bảng chữ TXT của
+     "← Exit", "Finish test"; chưa trả lời, đã trả lời, làm như thi), link và hộp "Report a problem", thông báo lưu điểm lấy từ bảng chữ TXT của
      js/quiz.js: tên đề dựng lại ("English 4 · End-of-term 1 · Test 1"), mức độ Know/Understand/Apply, nút True/False, số thập phân
      dùng dấu chấm (9.25/10), khung có lang="en". Bin lớp 4 làm ta4-ck1-de1, Na lớp 6 làm ta6-gk1-de1: ôn luyện (câu trắc nghiệm đầu
      và câu điền đầu cố ý sai, báo câu sai ở câu điền) rồi làm như thi (2 câu rồi nộp sớm); mọi chữ trong #view, #leaveBox, #toast
@@ -1217,11 +1217,11 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       r.open = (await txt(".hero h1")) === title && (await txt(".hero .label")) === label && (await txt("#qPractice")) === "Practice (see the answer after each question)" && (await txt("#qExam")) === `Test mode · ${minutes} minutes`
         && (await txt("#view .linkbtn")) === "← Home" && (await p.$eval("#view > .stack", (e) => e.getAttribute("lang"))) === "en" && /25 questions\./.test(open);
       if (!snapped("mo-de")) await snap("mo-de");
-      // làm như thi, rời khi chưa trả lời: nút Back hỏi "Exit the test?"; "← Exit" hỏi ngay trong trang
+      // làm như thi, rời khi chưa trả lời: nút Back hỏi "Exit the test?"; nút "Finish test" (X6) hỏi ngay trong trang
       await p.click("#qExam"); await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox");
       await check("hộp rời trang, chưa trả lời"); r.leave0 = (await txt("#leaveBox")) === "Exit the test?You haven't answered any questions, so no score is saved. ExitKeep going";
       if (!snapped("roi-trang-chua-lam")) await snap("roi-trang-chua-lam");
-      await p.click("#leaveNo"); await p.click("#qzExit");
+      await p.click("#leaveNo"); await p.click("#qzSubmit");
       await check("hộp Thoát, chưa trả lời"); r.exit0 = (await txt("#qzFb")) === "Exit the test? You haven't answered any questions, so no score is saved.ExitKeep going";
       if (!snapped("thoat-de")) await snap("thoat-de");
       await p.click("#qzYes"); await p.waitForTimeout(300);
@@ -1291,12 +1291,12 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       r.retryResult = (await txt("#view .panel .label")) === `${title} · Reviewing mistakes` && /Reviewing your mistakes is not scored\./.test(rr) && (await txt("#qzAgain")) === "Try the whole test again"
         && (await p.evaluate(() => Store.resultsFor(Store.sessionUser().id).length)) === nSaved;
       if (!snapped("ket-qua-on-lai")) await snap("ket-qua-on-lai", true);
-      // làm như thi: 2 câu rồi nộp sớm bằng "← Exit"; nút Back hỏi "Finish the test and leave?"
+      // làm như thi: 2 câu rồi nộp sớm bằng nút "Finish test" (UX5, X6); nút Back hỏi "Finish the test and leave?"
       await p.goto(BASE + "/#/home"); await p.goto(BASE + "/#/quiz/" + id); await p.waitForSelector("#qExam"); await p.click("#qExam");
       for (let k = 0; k < 2; k++) { if (await p.$("#qzFill")) await p.fill("#qzFill", "x"); else await p.click(".opt >> nth=0"); r.examBtn = (await txt("#qzGo")) === "Answer" && (await txt("#qzSkip")) === "Skip"; await p.click("#qzGo"); }
       await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox");
       await check("hộp rời trang, làm như thi"); r.leaveExam = (await txt("#leaveBox")) === "Finish the test and leave?Unanswered questions count as wrong. Finish testKeep going";
-      await p.click("#leaveNo"); await p.click("#qzExit");
+      await p.click("#leaveNo"); await p.click("#qzSubmit");
       r.exitExam = (await txt("#qzFb .confirm")) === "Finish test now? Unanswered questions count as wrong.Finish testKeep going";
       if (!snapped("nop-bai")) await snap("nop-bai");
       await p.click("#qzYes"); await p.waitForSelector(".score");

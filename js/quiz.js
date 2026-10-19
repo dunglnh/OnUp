@@ -2,6 +2,8 @@
    Quiz.run(el, bank, {mode:"exam"|"practice", onExit, onFinish, name?, previous?}) → {stop(), busy(), answered(), submit(), count(), exam, retry}
      busy(): đang làm dở (làm như thi chưa nộp, hoặc ôn luyện đã trả lời hoặc bỏ qua ít nhất một câu);
      answered(): số câu đã trả lời (câu bấm "Bỏ qua" không tính); submit(): nộp bài như bấm Nộp; count(): số câu của lượt đang làm.
+     Nút trên cùng (Phiên UX5, X6): ôn luyện "← Thoát" (#qzExit); làm như thi "Nộp bài" (#qzSubmit, bên phải). Cả hai hỏi lại trong
+     trang trước (chưa trả lời câu nào thì hỏi "Thoát đề?").
      Chưa trả lời câu nào (kể cả khi hết giờ) thì nộp bài không gọi onFinish: không lưu điểm.
      "Làm lại" dùng tiếp đối tượng này, nên app luôn dừng hoặc nộp đúng lượt đang làm. opts.redraw() → {questions} (đề
      ngẫu nhiên): nút thành "Làm đề khác", lượt sau dùng bộ câu mới.
@@ -73,13 +75,13 @@
       rpNote: "Ghi chú", rpNoteOpt: "(không bắt buộc, tối đa 200 kí tự)", rpNotePh: "Viết thêm nếu muốn", rpSend: "Gửi", rpCancel: "Thôi",
       rpNeed: "Bạn chọn một lí do nhé.", rpThanks: "Cảm ơn bạn! Người làm đề sẽ xem lại câu này.", rpFail: "Chưa gửi được. Thử lại nhé.",
       // màn làm bài
-      exit: "← Thoát", skip: "Bỏ qua", answer: "Trả lời", seeGuide: "Xem gợi ý", check: "Kiểm tra", next: "Câu tiếp", seeResults: "Xem kết quả",
+      exit: "← Thoát", submit: "Nộp bài", skip: "Bỏ qua", answer: "Trả lời", seeGuide: "Xem gợi ý", check: "Kiểm tra", next: "Câu tiếp", seeResults: "Xem kết quả",
       guide: "Gợi ý:", noGuide: "Chưa có gợi ý.", right: "Đúng rồi!", wrong: "Chưa đúng.", ansLabel: "Đáp án:", ordRight: "Thứ tự đúng:",
       tf4All: "Đúng cả 4 ý!", tf4Part: (k, p) => `Đúng ${k}/4 ý · được ${p}/1 điểm.`,
       mtNone: "Chưa nối", mtItem: (i) => "Ô " + i, mtDone: "Đã nối đủ. Chạm một ô bên trái để đổi.", mtPick: (i) => `Chọn ô nối với ô ${i}`,
       mtWrong: (g) => `Bạn nối: ${g} · Đúng: `, mtAll: "Nối đúng hết!", mtPart: (k, n, p) => `Nối đúng ${k}/${n} cặp · được ${p}/1 điểm.`,
       ordRemove: (i, s) => `Bỏ ô ${i}: ${s}`, ordTap: (i) => `Chạm ô thứ ${i}`, ordDone: "Đã xếp đủ. Chạm một ô ở trên để bỏ ra.",
-      // hộp hỏi khi bấm Thoát trong màn làm bài
+      // hộp hỏi khi bấm "← Thoát" (ôn luyện) hoặc "Nộp bài" (làm như thi, X6) trong màn làm bài
       exNone: ["Thoát đề? Bạn chưa làm câu nào nên không lưu điểm.", "Thoát"], exExam: ["Nộp bài ngay? Câu chưa làm tính là sai.", "Nộp bài"],
       exPractice: ["Dừng ôn và xem kết quả?", "Dừng"], exRetry: ["Dừng ôn lại câu sai? Lượt này không lưu điểm.", "Dừng"], keepGoing: "Làm tiếp",
       // màn kết quả
@@ -129,7 +131,7 @@
       reasons: { wrong: "Wrong answer", unclear: "Confusing question", typo: "Spelling mistake", other: "Other" },
       rpNote: "Note", rpNoteOpt: "(optional, up to 200 characters)", rpNotePh: "Write more if you like", rpSend: "Send", rpCancel: "Cancel",
       rpNeed: "Please choose a reason.", rpThanks: "Thank you! We will check this question.", rpFail: "Couldn't send. Please try again.",
-      exit: "← Exit", skip: "Skip", answer: "Answer", seeGuide: "See the guide", check: "Check", next: "Next question", seeResults: "See results",
+      exit: "← Exit", submit: "Finish test", skip: "Skip", answer: "Answer", seeGuide: "See the guide", check: "Check", next: "Next question", seeResults: "See results",
       guide: "Guide:", noGuide: "No guide yet.", right: "Correct!", wrong: "Not quite.", ansLabel: "Answer:", ordRight: "Correct order:",
       tf4All: "All 4 correct!", tf4Part: (k, p) => `${k}/4 correct · ${p}/1 point.`,
       mtNone: "Not matched yet", mtItem: (i) => "Item " + i, mtDone: "All matched. Tap an item on the left to change it.", mtPick: (i) => `Choose a match for item ${i}`,
@@ -574,8 +576,9 @@
     function render() {
       const q = qs[S.i]; S.cur = blank(q); S.checked = false;
       el.innerHTML = `<div class="stack"${LANG}>
-        <div class="row between"><button class="linkbtn" id="qzExit">${L.exit}</button>
-          <div class="row">${S.limit ? `<span class="chip" id="qzTimer">${fmtTime(S.limit - (Date.now() - S.start) / 1000)}</span>` : ""}<span class="chip">${S.i + 1} / ${qs.length}</span></div></div>
+        <div class="row between qz-top">${exam ? "" : `<button class="linkbtn" id="qzExit">${L.exit}</button>`}
+          <div class="row">${S.limit ? `<span class="chip" id="qzTimer">${fmtTime(S.limit - (Date.now() - S.start) / 1000)}</span>` : ""}<span class="chip">${S.i + 1} / ${qs.length}</span></div>
+          ${exam ? `<button class="btn ghost sm" id="qzSubmit">${L.submit}</button>` : ""}</div>
         <div class="bar" aria-hidden="true"><i style="width:${(S.i / qs.length) * 100}%"></i></div>
         ${q.p && passages[q.p] ? passageHtml(q.p) : ""}
         <section class="qcard">
@@ -631,7 +634,7 @@
       };
       if (q.type === "order") { $$(".ord-p").forEach((b) => (b.onclick = () => { if (S.checked) return; S.cur.push(+b.dataset.k); paintOrder(); })); paintOrder(); }
 
-      $("#qzExit").onclick = confirmExit;
+      $(exam ? "#qzSubmit" : "#qzExit").onclick = confirmExit; // làm như thi: nút "Nộp bài" (X6), vẫn hỏi lại như "← Thoát"
       $("#qzSkip").onclick = () => { S.ans[S.i] = { q, g: null, ok: false, pts: 0 }; next(); };
       go.onclick = () => {
         if (S.checked) { next(); return; }
