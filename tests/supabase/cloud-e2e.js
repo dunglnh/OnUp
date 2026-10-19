@@ -2,9 +2,10 @@
    admin thật (chủ app tạo tài khoản). Trình duyệt gọi máy chủ giả qua page.exposeFunction, không cần mạng.
    Chạy: python3 -m http.server 8000 &  rồi  node tests/supabase/cloud-e2e.js   (in "CLOUD E2E OK")
    Luồng: đăng nhập tên đăng nhập + mật khẩu (ghi nhớ; thẻ “Chưa có tài khoản?”, thẻ nhắc dữ liệu cũ của bản lưu trên máy)
-   → bắt đổi mật khẩu tạm → khu phụ huynh → thêm hồ sơ con (PIN 4 số tùy chọn) → “Ai đang học?” → con nhập PIN, làm đề,
-   kết quả lên máy chủ (con thứ hai làm một đề Tiếng Anh: màn làm đề bằng tiếng Anh, TA2) → tab mới: nhập lại mật khẩu vào khu phụ huynh → báo cáo tuần, đổi mật khẩu, chuyển dữ liệu máy này,
-   đăng xuất → máy không ghi nhớ → tài khoản bị khóa.
+   → bắt đổi mật khẩu tạm → khu phụ huynh (thẻ “Bắt đầu trong 3 bước”, UX3) → thêm hồ sơ con (PIN 4 số tùy chọn) → “Cho con học” mở
+   “Ai đang học?” → con nhập PIN, làm đề, kết quả lên máy chủ (con thứ hai làm một đề Tiếng Anh: màn làm đề bằng tiếng Anh, TA2)
+   → tab mới: nhập lại mật khẩu vào khu phụ huynh → báo cáo tuần, đổi mật khẩu, đặt mã mở nhanh (UX3; tab mới nữa vào bằng mã đó),
+   chuyển dữ liệu máy này, đăng xuất (xóa mã) → máy không ghi nhớ (không đặt được mã) → tài khoản bị khóa.
    Mỗi màn hình kiểm tra ở 360px như tests/e2e.js (không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px); ảnh sáng và tối lưu ở
    tests/screenshots/cloud/ (thêm bản ghép sáng/tối cạnh nhau <tên>.jpg để xem nhanh). Lượt tối chạy với CAPTCHA bật. Cuối cùng kiểm tra service worker (sw.js) không làm hỏng bản
    đám mây và không đệm request ra ngoài app, rồi trang admin của chủ app (admin.html): tài khoản gia đình thấy “Không có
@@ -106,6 +107,7 @@ async function run(browser, scheme) {
   }
   const text = (page, sel) => page.textContent(sel).then((t) => t.replace(/\s+/g, " ").trim(), () => "");
   const tile = (page, name) => page.click(`.tile:has(.nm:text-is("${name}"))`);
+  const WHO = 'h1:text-is("Ai đang học?")'; // màn hình "Ai đang học?" (text= khớp cả lời ghi trên thẻ Bắt đầu của khu phụ huynh)
   const pad = async (page, digits) => { for (const k of digits) await page.click(`.pad button[data-k="${k}"]`); await wait(page, 300); };
   const until = async (page, fn) => { for (let i = 0; i < 40 && !fn(); i++) await wait(page, 100); return fn(); };
   /* Chờ service worker điều khiển trang (sel: ô có trên trang sau khi tải lại). Trang vừa đăng kí service worker không
@@ -168,6 +170,11 @@ async function run(browser, scheme) {
   // UX2: khu phụ huynh còn ba mục Các con · Lịch thi · Cài đặt; nút "Lịch thi" ở thanh trên về tab Lịch thi của khu phụ huynh
   const tabsOf = (pg) => pg.$$eval(".tabs button", (b) => b.map((x) => x.textContent + (x.getAttribute("aria-pressed") === "true" ? "*" : "")).join());
   c.ux2 = { tabs: await tabsOf(p), topCal: await p.$eval(".who a", (a) => a.getAttribute("href")), empty: await text(p, "#kids") };
+  // UX3: chưa có hồ sơ con: mục Các con chỉ có thẻ "Bắt đầu trong 3 bước" (bước 1 đang làm, nút thêm trong thẻ), "Cho con học" mờ; nút góc trên là "Chọn hồ sơ khác"
+  const startOf = (pg) => pg.evaluate(() => { const st = document.querySelector("#start"); return st ? { steps: [...st.querySelectorAll(".step")].map((x) => x.className.replace("step", "").trim() + ":" + x.querySelector("b").textContent).join("|"),
+    text: st.textContent.replace(/\s+/g, " ").trim(), disabled: document.querySelector("#letStudy").disabled, h: Math.round(document.querySelector("#letStudy").getBoundingClientRect().height),
+    add: !!st.querySelector("a.btn[href='#/admin/user/new?role=student']"), first: document.querySelector("#kids").firstElementChild.id, rows: document.querySelectorAll("#kids > .row").length } : null; });
+  c.ux3 = { start0: await startOf(p), switchTxt: await text(p, "#switchWho") };
 
   /* ---- thêm hồ sơ con ---- */
   await p.click("a[href='#/admin/user/new?role=student']"); await p.waitForSelector("#uForm");
@@ -184,7 +191,8 @@ async function run(browser, scheme) {
   c.profiles = prof.length === 2 && /^4\./.test(prof.find((x) => x.name === "Bin").pin_hash) && prof.find((x) => x.name === "Na").pin_hash === null;
   // UX2: tab Các con: mỗi con một thẻ (chưa có bài: "Chưa ôn", "–", 0), không có ba ô số liệu và mục "Kì thi tiếp theo"; "+ Thêm hồ sơ con", "2/5 hồ sơ"
   c.ux2.kids = await p.evaluate(() => ({ cards: [...document.querySelectorAll("#kids a.kid")].map((k) => k.getAttribute("href") + " " + [...k.querySelectorAll(".stat")].map((s) => s.querySelector("b").textContent + " " + s.querySelector("span").textContent).join("|") + " " + (k.querySelector(".kid-ev") || {}).textContent).join("; ").replace(/\s+/g, " "),
-    extraStats: !!document.querySelector("#view > .stack > .stats"), h2: [...document.querySelectorAll("#view h2")].map((h) => h.textContent).join(), count: [...document.querySelectorAll("#kids > .row > .small")].map((x) => x.textContent).join(), add: !!document.querySelector("#kids a[href='#/admin/user/new?role=student']"), hint: document.querySelector("#kids p.small").textContent }));
+    extraStats: !!document.querySelector("#view > .stack > .stats"), h2: [...document.querySelectorAll("#view h2")].map((h) => h.textContent).join(), count: [...document.querySelectorAll("#kids > .row > .small")].map((x) => x.textContent).join(), add: !!document.querySelector("#kids > .row > a[href='#/admin/user/new?role=student']"), hint: document.querySelector("#kids > p.small").textContent }));
+  c.ux3.start2 = await startOf(p); // UX3: có con nhưng chưa con nào học: bước 1, 2 xong (Bin có PIN), bước 3 đang làm, "Cho con học" bật
   await shot(p, "c6-cac-con");
   // UX2: tab Lịch thi của khu phụ huynh: chỉ khối của các con ("Lớp 4 · Bin", "Lớp 6 · Na"), kì thi dự kiến có nút "Trường đã báo lịch? Sửa ngày",
   // hộp sửa ngày mở ngay dưới thẻ, Lưu thì bỏ cờ dự kiến và lên máy chủ; #/calendar của phụ huynh cũng về đây
@@ -216,10 +224,11 @@ async function run(browser, scheme) {
   await shot(p, "c5b-de-tu-soan");
   await p.click("a[href='#/admin/bank/new']"); await p.waitForSelector("#bForm");
   c.ux2.bankForm = (await text(p, "#view h2")) + " | " + (await text(p, "#view .linkbtn[data-go]")) + " | " + (await text(p, "#bForm [type=submit]"));
-  await p.goto(BASE + "/#/admin/overview"); await p.waitForSelector("#switchWho");
+  await p.goto(BASE + "/#/admin/overview"); await p.waitForSelector("#letStudy");
 
-  /* ---- “Ai đang học?”, con nhập PIN, làm đề ---- */
-  await p.click("#switchWho"); await p.waitForSelector("text=Ai đang học?");
+  /* ---- “Cho con học” (UX3) mở “Ai đang học?”, con nhập PIN, làm đề ---- */
+  await p.click("#letStudy"); await p.waitForSelector(WHO);
+  c.ux3.letStudy = true;
   c.tiles = await p.$$eval(".tile .nm", (t) => t.map((x) => x.textContent).join());
   await shot(p, "c7-ai-dang-hoc");
   await tile(p, "Bin"); await pad(p, "9999");
@@ -314,9 +323,10 @@ async function run(browser, scheme) {
   c.k3.server = await until(p, () => be.T.results.some((r) => r.profile_id === binId && r.ref_id === "toan4-ck1-ngau-nhien" && r.t === 25 && r.subject === "Toán"));
   c.k3.hist = await p.evaluate((id) => Object.keys((JSON.parse(localStorage.getItem("ontap_pool_v1") || "{}")[id + "|toan4-ck1-ngau-nhien"]) || {}).length, binId);
   await p.goto(BASE + "/#/account"); await wait(p);
-  c.kidAccount = (await p.$("#switchWho")) && !(await p.$("#signOut")) && !(await p.$("#pwForm"));
+  c.kidAccount = (await p.$("#switchWho")) && !(await p.$("#signOut")) && !(await p.$("#pwForm")) && !(await p.$("#qcBox"));
+  c.ux3.kidSwitch = await text(p, "#switchWho");
   await shot(p, "c9-tai-khoan-con");
-  await p.click("#switchWho"); await p.waitForSelector("text=Ai đang học?");
+  await p.click("#switchWho"); await p.waitForSelector(WHO);
   await tile(p, "Na"); await p.waitForSelector("text=Chào Na"); // hồ sơ không có PIN: bấm là vào
   c.na = true;
   // TA2: Na làm một đề Tiếng Anh: màn mở đề, câu hỏi và lời giải, hộp hỏi khi rời (nút Back, "← Exit"), màn kết quả, thông báo lưu điểm
@@ -342,7 +352,7 @@ async function run(browser, scheme) {
 
   /* ---- tab mới trên máy đã ghi nhớ: vào khu phụ huynh phải nhập lại mật khẩu ---- */
   const p2 = await home.newPage();
-  await p2.goto(BASE + "/"); await p2.waitForSelector("text=Ai đang học?");
+  await p2.goto(BASE + "/"); await p2.waitForSelector(WHO);
   c.preselect = await p2.$eval(`.tile[aria-pressed="true"] .nm`, (x) => x.textContent).catch(() => ""); // máy nhớ hồ sơ chọn gần nhất (Na, không PIN: không tự vào)
   await tile(p2, "Phụ huynh"); await p2.waitForSelector("#pwBox:not([hidden])");
   await shot(p2, "c10-mat-khau-phu-huynh");
@@ -353,6 +363,7 @@ async function run(browser, scheme) {
   await p2.fill("#pwIn", PW); await p2.click("#pwGo"); await p2.waitForSelector("text=Khu phụ huynh");
   // UX2: thẻ của con (có bài hôm nay: số bài, điểm hôm nay, chuỗi ngày, kì thi gần nhất); bấm thẻ là mở báo cáo tuần, có hai link phụ
   await p2.waitForSelector(`a.kid[href="#/child/${binId}"]`); // "text=Khu phụ huynh" đã khớp nút "Vào khu phụ huynh" của màn mật khẩu
+  c.ux3.gone = !(await p2.$("#start")); // UX3: con đã học (có kết quả, đã chọn hồ sơ trên máy này): thẻ Bắt đầu ẩn
   c.ux2.binCard = await p2.$eval(`a.kid[href="#/child/${binId}"]`, (k) => [...k.querySelectorAll(".stat")].map((s) => s.querySelector("b").textContent + " " + s.querySelector("span").textContent).join("|") + " " + (k.querySelector(".kid-ev") || {}).textContent.replace(/\s+/g, " "));
   await shot(p2, "c11-cac-con");
   await p2.click(`[data-child="${binId}"]`); await p2.waitForSelector(".report");
@@ -376,6 +387,35 @@ async function run(browser, scheme) {
   rvIs((await types(p2, "#pwOld", "#pwNew", "#pwNew2")) === "password,password,password", "đổi mật khẩu: gửi sai vẫn hiện");
   await p2.fill("#pwOld", PW); await p2.click("#pwForm [type=submit]"); await p2.waitForSelector("text=Đã đổi mật khẩu");
   c.pwChanged = true;
+  // UX3: trang Tài khoản: "Chọn hồ sơ khác"; ô mã mở nhanh (máy đã ghi nhớ): sai dạng thì báo, đặt mã 5 số thì băm và lưu trên máy theo mã gia đình
+  c.ux3.parentSwitch = await text(p2, "#switchWho"); c.ux3.accountText = await text(p2, "#view");
+  c.ux3.qc0 = await text(p2, "#qcBox");
+  await p2.fill("#qcNew", "12"); await revealTry(p2, "#qcNew", "mã mở nhanh"); await p2.click("#qcSave"); await p2.waitForSelector("#qcErr .fb");
+  c.ux3.qcErr = await text(p2, "#qcErr");
+  await p2.fill("#qcNew", "24680"); await p2.click("#qcSave"); await p2.waitForSelector("#qcState");
+  c.ux3.qc1 = { text: await text(p2, "#qcBox"), toast: await text(p2, "#toast"), ls: await p2.evaluate(() => JSON.parse(localStorage.getItem("ontap_cloud_quick") || "{}")) };
+  await shot(p2, "c13b-ma-mo-nhanh");
+  // UX3: tab mới nữa: ô Phụ huynh ghi "Nhập mã mở nhanh", bàn phím mã (nhãn "Mã mở nhanh", 5 chấm), sai thì báo (tính vào PinLock), link "Nhập mật khẩu" mở ô mật khẩu
+  // (có "Dùng mã mở nhanh" quay lại), đúng mã thì vào khu phụ huynh; ở đó bỏ mã được rồi đặt lại
+  const p3 = await home.newPage();
+  await p3.goto(BASE + "/"); await p3.waitForSelector(WHO);
+  c.ux3.tileSub = await p3.$eval('.tile:has(.nm:text-is("Phụ huynh")) .small', (x) => x.textContent);
+  await tile(p3, "Phụ huynh"); await p3.waitForSelector("#pinBox:not([hidden])");
+  c.ux3.pad = await p3.evaluate(() => ({ pw: document.querySelector("#pwBox").hidden, who: document.querySelector("#pinWho").textContent, sub: document.querySelector("#pinSub").textContent, label: document.querySelector("#pinLabel").textContent,
+    dots: document.querySelectorAll("#pinDots span").length, alt: document.querySelector("#pinAlt button").textContent, altH: Math.round(document.querySelector("#pinAlt button").getBoundingClientRect().height) }));
+  await pad(p3, "1111"); await revealTry(p3, "#pinIn", "mã mở nhanh"); await pad(p3, "1"); await p3.waitForSelector("#pinErr .fb");
+  c.ux3.padWrong = (await text(p3, "#pinErr")) + " | " + (await p3.evaluate(() => (JSON.parse(localStorage.getItem("ontap_pinlock_v1") || "{}")["phu-huynh"] || {}).fails));
+  await shot(p3, "c10b-ma-mo-nhanh");
+  await p3.click("#pinToPw"); await p3.waitForSelector("#pwBox:not([hidden])");
+  c.ux3.toPw = (await p3.$eval("#pinBox", (b) => b.hidden)) + " " + (await text(p3, "#pwToPin"));
+  await p3.click("#pwToPin"); await p3.waitForSelector("#pinBox:not([hidden])");
+  await pad(p3, "24680"); await p3.waitForSelector("#kids");
+  c.ux3.padIn = (await text(p3, "#view h2")) + " | " + !(await p3.$("#start"));
+  await p3.goto(BASE + "/#/account"); await p3.waitForSelector("#qcDrop");
+  await p3.click("#qcDrop"); await p3.waitForFunction(() => !document.querySelector("#qcState") && document.querySelector("#qcBox"));
+  c.ux3.dropped = (await p3.evaluate(() => localStorage.getItem("ontap_cloud_quick"))) === null && (await text(p3, "#toast")) === "Đã bỏ mã mở nhanh" && (await text(p3, "#qcSave")) === "Lưu mã";
+  await p3.fill("#qcNew", "2468"); await p3.click("#qcSave"); await p3.waitForSelector("#qcState");
+  await p3.close();
   // chuyển dữ liệu bản lưu trên máy
   await p2.evaluate((d) => localStorage.setItem("ontap_db_v1", JSON.stringify(d)), localData());
   await p2.goto(BASE + "/#/admin/data"); await wait(p2);
@@ -388,18 +428,20 @@ async function run(browser, scheme) {
   c.migrate = await text(p2, "#migRes");
   await shot(p2, "c14-du-lieu");
   // Bông (PIN cũ 4 số, chưa biết độ dài): gõ đủ 4 số thì thử lặng lẽ và vào được
-  await p2.click("#switchWho"); await p2.waitForSelector("text=Ai đang học?");
+  await p2.click("#switchWho"); await p2.waitForSelector(WHO);
   await tile(p2, "Bông"); await pad(p2, "4321");
   c.bong = await p2.waitForSelector("text=Chào Bông", { timeout: 3000 }).then(() => true, () => false);
   // đăng xuất
   await p2.goto(BASE + "/#/account"); await wait(p2);
   await p2.click("#switchWho"); await tile(p2, "Phụ huynh");
-  if (await p2.$("#pwBox:not([hidden])")) { await p2.fill("#pwIn", PW2); await p2.click("#pwGo"); } // vừa nhập mật khẩu trong 5 phút: không hỏi lại
+  if (await p2.$("#pinBox:not([hidden])")) await pad(p2, "2468"); // vừa nhập mật khẩu trong 5 phút: không hỏi lại; quá thì bàn phím mã mở nhanh (UX3)
+  else if (await p2.$("#pwBox:not([hidden])")) { await p2.fill("#pwIn", PW2); await p2.click("#pwGo"); }
   await p2.waitForSelector("text=Khu phụ huynh");
   const captchaBoxes = withCaptcha ? await p2.evaluate(() => window.turnstile.boxes.join()) + "," + await p.evaluate(() => window.turnstile.boxes.join()) : "";
   await p2.goto(BASE + "/#/account"); await p2.click("#signOut"); await p2.waitForSelector("#loginForm");
   await p2.reload(); await p2.waitForSelector("#loginForm");
   c.signedOut = await p2.evaluate(() => !localStorage.getItem("ontap_sb_auth") && !sessionStorage.getItem("ontap_sb_auth"));
+  c.ux3.cleared = await p2.evaluate(() => localStorage.getItem("ontap_cloud_quick") === null); // UX3: đăng xuất thì xóa mã mở nhanh
   c.oldData.migrated = !(await p2.$("#oldData")); // máy còn dữ liệu cũ nhưng đã chuyển: không nhắc
   await home.close();
 
@@ -418,10 +460,15 @@ async function run(browser, scheme) {
   await setLocal(null); await q.reload(); await q.waitForSelector("#loginForm");
   c.oldData.removed = !(await q.$("#oldData"));
   await q.fill("#lUser", "nha.bin"); await q.fill("#lPass", PW2); await q.click("#lGo");
-  await q.waitForSelector("text=Ai đang học?");
+  await q.waitForSelector(WHO);
   const q2 = await other.newPage();
   await q2.goto(BASE + "/"); await q2.waitForSelector("form");
   c.notRemembered = !!(await q2.$("#loginForm"));
+  // UX3: máy không ghi nhớ: ô Phụ huynh vẫn là mật khẩu (không có link mã), trang Tài khoản chỉ nhắc chọn "Ghi nhớ trên máy này", không có ô đặt mã
+  await tile(q, "Phụ huynh"); await q.waitForSelector("#kids"); // vừa đăng nhập: không hỏi lại mật khẩu
+  await q.goto(BASE + "/#/account"); await q.waitForSelector("#qcBox");
+  c.ux3.noRemember = (await text(q, "#qcBox")) + " | " + !(await q.$("#qcNew"));
+  await q.goto(BASE + "/#/"); await wait(q);
   /* ---- tài khoản bị khóa ---- */
   await admin({ action: "set_status", id: acc.id, status: "locked" });
   await q.reload(); await q.waitForSelector("#blocked");
@@ -603,7 +650,7 @@ async function run(browser, scheme) {
       /^(Xuất sắc|Giỏi lắm|Khá tốt|Được rồi|Chưa sao), Bin[!.]/.test(c.ux1.result.praise) && c.ux1.result.retry === `Ôn lại ${c.ux1.result.n} câu sai` && c.ux1.result.n > 0 && c.ux1.result.closed && c.ux1.result.again === "Làm lại cả đề"
       && c.ux1.retryChip === `1 / ${c.ux1.result.n}` && /· Ôn lại câu sai /.test(c.ux1.retryResult) && /Lượt ôn lại câu sai không lưu điểm\./.test(c.ux1.retryResult) && c.ux1.retryServer,
     "UX2: khu phụ huynh có ba mục Các con · Lịch thi · Cài đặt; nút Lịch thi trên cùng và #/calendar về tab Lịch thi; thêm hồ sơ xong về Các con": c.ux2.tabs === "Các con*,Lịch thi,Cài đặt" && c.ux2.topCal === "#/admin/events"
-      && /^Chưa có hồ sơ con\./.test(c.ux2.empty) && c.ux2.afterAdd === "#/admin/overview" && c.ux2.calRedirect === "#/admin/events",
+      && /^Bắt đầu trong 3 bước/.test(c.ux2.empty) && c.ux2.afterAdd === "#/admin/overview" && c.ux2.calRedirect === "#/admin/events",
     "UX2: tab Các con: mỗi con một thẻ (chưa có bài: Chưa ôn · – · 0; kì thi gần nhất còn N ngày · chưa ôn …), không có ô số liệu trùng ý; thẻ có bài hôm nay ghi số bài, điểm hôm nay":
       /^#\/child\/\S+ Chưa ôn hôm nay\|– điểm TB tuần\|0 chuỗi ngày Kiểm tra giữa học kì I còn \d+ ngày · chưa ôn Toán, Tiếng Việt; #\/child\/\S+ Chưa ôn hôm nay\|– điểm TB tuần\|0 chuỗi ngày Kiểm tra giữa học kì I còn \d+ ngày · chưa ôn Ngữ văn, Toán, KHTN và 5 môn khác$/.test(c.ux2.kids.cards)
       && !c.ux2.kids.extraStats && c.ux2.kids.h2 === "Khu phụ huynh" && c.ux2.kids.count === "2/5 hồ sơ" && c.ux2.kids.add && /^Bấm vào thẻ của con/.test(c.ux2.kids.hint)
@@ -621,7 +668,23 @@ async function run(browser, scheme) {
       && c.ux2.bankForm === "Nhập đề | ← Đề tự soạn | Lưu đề" && c.ux2.data === "← Cài đặt | Chuyển dữ liệu và sao lưu | Các con,Lịch thi,Cài đặt* | true | true" && c.ux2.accountBack === "← Cài đặt",
     "UX2: bấm thẻ của con là mở báo cáo tuần (#/child/<mã>), có “← Các con”, Sửa hồ sơ, link Lịch thi lớp 4 (chọn sẵn khối) và Bài ôn của Bin (xem thử)": c.ux2.report.hash === "#/child/" + binId && c.ux2.report.back === "← Các con" && c.ux2.report.edit
       && c.ux2.report.links === `Lịch thi lớp 4=#/admin/events?g=4,Bài ôn của Bin=#/child/${binId}/practice` && /^Bài ôn lớp 4 của Bin \| ← Báo cáo của Bin \| \d+$/.test(c.ux2.practice) && c.ux2.calFromReport === "#/admin/events?g=4 Lớp 4 · Bin",
-    "trang tài khoản của con: đổi người học, không đăng xuất, không đổi mật khẩu": !!c.kidAccount,
+    "UX3: thẻ “Bắt đầu trong 3 bước” ở đầu mục Các con: chưa có con thì chỉ có thẻ (bước 1 đang làm, nút thêm trong thẻ, “Cho con học” mờ); có con thì bước 1, 2 xong (Bin có PIN), bước 3 đang làm, nút bật ≥ 52px và mở “Ai đang học?”; con đã học thì thẻ ẩn":
+      !!c.ux3.start0 && c.ux3.start0.steps === "now:Thêm hồ sơ con|:Đặt mã PIN (không bắt buộc)|:Đưa máy cho con" && c.ux3.start0.disabled && c.ux3.start0.add && c.ux3.start0.first === "start" && c.ux3.start0.rows === 0
+      && /^Bắt đầu trong 3 bước 1Thêm hồ sơ conTên, khối, lớp và hình đại diện\. App không hỏi ngày sinh hay ảnh của con\.\+ Thêm hồ sơ con 2Đặt mã PIN \(không bắt buộc\)Để anh chị em không vào nhầm hồ sơ của nhau\. 3Đưa máy cho conBấm “Cho con học”, con chọn hồ sơ của mình rồi bắt đầu ôn\. Cho con học Nút này mở màn hình “Ai đang học\?” khi đã có hồ sơ con\.$/.test(c.ux3.start0.text)
+      && !!c.ux3.start2 && c.ux3.start2.steps === "done:Thêm hồ sơ con|done:Đặt mã PIN (không bắt buộc)|now:Đưa máy cho con" && !c.ux3.start2.disabled && c.ux3.start2.h >= 52 && c.ux3.start2.first === "start" && c.ux3.start2.rows === 1
+      && /✓Thêm hồ sơ conĐã có 2 hồ sơ: Bin, Na\. ✓Đặt mã PIN \(không bắt buộc\)Bin đã có mã PIN\. 3Đưa máy cho con/.test(c.ux3.start2.text) && /Lúc khác, bấm “Chọn hồ sơ khác” ở góc trên\.$/.test(c.ux3.start2.text)
+      && c.ux3.letStudy && c.ux3.gone,
+    "UX3: “Đổi người học” thành “Chọn hồ sơ khác” ở khu phụ huynh và trang Tài khoản của phụ huynh, của con": c.ux3.switchTxt === "Chọn hồ sơ khác" && c.ux3.parentSwitch === "Chọn hồ sơ khác" && c.ux3.kidSwitch === "Chọn hồ sơ khác"
+      && /chỉ cần “Chọn hồ sơ khác”/.test(c.ux3.accountText) && !/Đổi người học/.test(c.ux3.accountText),
+    "UX3: mã mở nhanh: trang Tài khoản trên máy đã ghi nhớ đặt được mã 4–6 số (sai dạng thì báo; băm, lưu trên máy theo mã gia đình, muối ghi độ dài), bỏ mã được; máy không ghi nhớ chỉ nhắc, không có ô":
+      /^Mã mở nhanh khu phụ huynh Trên máy này, bạn gõ mã 4–6 số ở màn hình “Ai đang học\?” là vào khu phụ huynh, không phải gõ mật khẩu\. Quên mã thì nhập mật khẩu như cũ\. Đổi mật khẩu và đăng xuất vẫn cần mật khẩu\. Mã mở nhanh \(4–6 số\) Lưu mã /.test(c.ux3.qc0)
+      && c.ux3.qcErr === "Mã mở nhanh gồm 4–6 chữ số." && /bạn gõ mã 5 số /.test(c.ux3.qc1.text) && /Máy này đã có mã mở nhanh\. Mã mới \(4–6 số\) Đổi mãBỏ mã /.test(c.ux3.qc1.text) && c.ux3.qc1.toast === "Đã lưu mã mở nhanh"
+      && Object.keys(c.ux3.qc1.ls).join() === acc.id && /^5\.[0-9a-f]{16}\$s256:[0-9a-f]{64}$/.test(c.ux3.qc1.ls[acc.id]) && c.ux3.dropped
+      && /Máy này chưa ghi nhớ đăng nhập\. \| true$/.test(c.ux3.noRemember) && /Chọn “Ghi nhớ trên máy này” khi đăng nhập/.test(c.ux3.noRemember),
+    "UX3: tab mới trên máy đã ghi nhớ: ô Phụ huynh ghi “Nhập mã mở nhanh”, bàn phím mã (nhãn Mã mở nhanh, 5 chấm), sai thì báo và tính vào khóa tạm, link “Nhập mật khẩu” (≥ 44px) mở ô mật khẩu có “Dùng mã mở nhanh”, đúng mã thì vào khu phụ huynh; đăng xuất thì xóa mã":
+      c.ux3.tileSub === "Nhập mã mở nhanh" && c.ux3.pad.pw && c.ux3.pad.who === "🌻Phụ huynh" && c.ux3.pad.sub === "Mã mở nhanh khu phụ huynh của máy này. Quên mã thì nhập mật khẩu." && c.ux3.pad.label === "Mã mở nhanh" && c.ux3.pad.dots === 5
+      && c.ux3.pad.alt === "Nhập mật khẩu" && c.ux3.pad.altH >= 44 && c.ux3.padWrong === "Mã mở nhanh chưa đúng. Thử lại nhé. | 1" && c.ux3.toPw === "true Dùng mã mở nhanh" && c.ux3.padIn === "Khu phụ huynh | true" && c.ux3.cleared,
+    "trang tài khoản của con: chọn hồ sơ khác, không đăng xuất, không đổi mật khẩu, không có ô mã mở nhanh": !!c.kidAccount,
     "hồ sơ không PIN bấm là vào; con không vào được khu phụ huynh bằng địa chỉ": c.na && c.kidBlocked,
     "tab mới: nhớ hồ sơ chọn gần nhất, khu phụ huynh phải nhập lại mật khẩu": c.preselect === "Na" && /Mật khẩu chưa đúng/.test(c.wrongPw),
     "báo cáo tuần đọc kết quả từ máy chủ (Đề 1 và đề ngẫu nhiên)": c.report.n === 2 && c.report.subj === "Toán",
@@ -654,7 +717,7 @@ async function run(browser, scheme) {
       && ad.reports.reopened && ad.reports.rejected && ad.reports.rows === 1,
     "admin: đăng xuất; CAPTCHA (khi bật) khi đăng nhập": ad.out && (!withCaptcha || ad.captcha === "adCaptcha,adCaptcha,adCaptcha"),
     "admin: không đi qua service worker; cùng bản supabase-js với trang học": ad.swSkip && ad.lib,
-    "U1: nút xem mật khẩu, mã PIN (lPass, pwNew, pwNew2, pwIn, uPin, pwOld, adPass): hiện, ẩn, giữ giá trị và focus; gửi form, xóa hết ô thì ẩn lại": rv.length === 0,
+    "U1: nút xem mật khẩu, mã PIN, mã mở nhanh (lPass, pwNew, pwNew2, pwIn, uPin, pwOld, qcNew, pinIn, adPass): hiện, ẩn, giữ giá trị và focus; gửi form, xóa hết ô thì ẩn lại": rv.length === 0,
     "360px: không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px": problems.length === 0,
     "không lỗi trên trang": errs.length === 0
   };
