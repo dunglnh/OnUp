@@ -59,11 +59,11 @@
 
   /* ---------------- tiện ích giao diện ---------------- */
   let toastTimer;
-  function toast(msg) {
+  function toast(msg, ms) { // ms: thời gian hiện (mặc định 2,6 giây; câu dài như "Sẽ gửi cho bố mẹ khi có mạng" cần lâu hơn)
     let t = $("#toast");
     if (!t) { t = document.createElement("div"); t.id = "toast"; t.className = "toast"; t.setAttribute("role", "status"); document.body.append(t); }
     t.textContent = msg; t.hidden = false; clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => (t.hidden = true), 2600);
+    toastTimer = setTimeout(() => (t.hidden = true), ms || 2600);
   }
   const go = (h) => { if (guardOn()) { askLeave(h, false); return; } if (location.hash === h) route(); else location.hash = h; };
   const back = (h, txt) => `<button class="linkbtn" data-go="${h}">← ${esc(txt || "Quay lại")}</button>`;
@@ -881,6 +881,7 @@
       : `<section class="hero today" id="today"><span class="label">Hôm nay ôn gì?</span><h1>Chưa có bài ôn cho lớp ${s.grade}</h1><p>Quản trị viên có thể nhập thêm đề trong mục Quản trị.</p></section>`;
     view.innerHTML = `<div class="stack">
       <div><h2>Chào ${esc(s.name)}! ${esc(s.avatar)}</h2><span class="muted">${WDL[t.getDay()]} ${dm(isoDay(t))} · ${esc(gradeTxt(s))}</span></div>
+      ${unsentBar(s.id)}
       ${s.locked ? `<div class="notice">Hồ sơ này đang khóa vì tài khoản có nhiều hồ sơ con hơn gói hiện tại cho phép. Vẫn xem được kết quả cũ, bài làm mới chưa được lưu.</div>` : ""}
       ${card}
       ${more ? `<div class="panel pick" id="todayMore"><span class="pick-ic" aria-hidden="true">📖</span><span class="grow"><b>${nb(esc(more.title))}</b><span class="small muted">${nb(esc(more.why))}</span></span><a class="btn sm" href="${more.href}" aria-label="Làm ${esc(more.title)}">Làm</a></div>` : ""}
@@ -889,7 +890,7 @@
       <section class="sec" id="recent"><div class="row between"><h2>Kết quả gần đây</h2><a class="linkbtn" href="#/results">Xem tất cả →</a></div>${resultsList(all.slice(0, 3))}</section>
       ${next ? `<section class="sec" id="nextEvent"><h2>Kì thi tiếp theo</h2><div class="timeline">${eventRow(next, { grade: s.grade, student: s, results })}</div></section>` : ""}
     </div>`;
-    wireEvents(view, s.grade, s); wireGo();
+    wireEvents(view, s.grade, s); wireGo(); wireUnsent(s.id);
   }
   /* Tab Bài ôn: mọi bài ôn của khối, gom theo kì thi (practiceGroups). ?ki=<mã kì thi>: mở sẵn và cuộn tới nhóm đó. */
   function renderPractice(s, query) {
@@ -1144,6 +1145,47 @@
     return true;
   }
 
+  /* ================= BÀI ĐÃ GỬI CHO BỐ MẸ CHƯA (bản đám mây, Phiên UX6, X10) =================
+     Bản đám mây đưa kết quả vào hộp gửi trên máy rồi mới gửi lên máy chủ (js/store-supabase.js). Sau khi lưu, whenSent chờ lượt
+     gửi xong (tối đa SEND_WAIT) rồi gọi cb(true) khi hồ sơ không còn bài chờ gửi, cb(false) khi còn; quá giờ thì báo chưa gửi,
+     gửi xong muộn hơn thì báo lại. Màn kết quả đề ghi một dòng (#qzSaved, savedLine), bài ôn trong khung ghi trong thông báo.
+     Còn bài chưa gửi thì trang chính của con và mục Các con của khu phụ huynh có dòng "N bài chưa gửi" với nút "Gửi lại"
+     (unsentBar); số bài đổi thì Store.onChange vẽ lại trang. Bản lưu trên máy không có hộp gửi: whenSent trả false, không có dòng. */
+  const SEND_WAIT = 4000;
+  const CLOCK = ICO('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>');
+  function whenSent(u, cb) {
+    const me = Store.user(u.id);
+    if (!Store.cloud || (me && me.locked)) return false; // hồ sơ bị khóa theo gói: máy chủ không nhận bài mới, kho báo lỗi riêng
+    let last = null;
+    const tell = (ok) => { if (ok !== last) { last = ok; cb(ok); } };
+    const timer = setTimeout(() => tell(false), SEND_WAIT);
+    Store.sendPending().then(() => { clearTimeout(timer); tell(!Store.pendingResults(u.id)); });
+    return true;
+  }
+  // el: chỗ trống #qzSaved của màn kết quả lượt vừa lưu (đã rời màn đó thì dòng không hiện ở đâu cả)
+  function savedLine(el, ok, L) {
+    if (!el) return;
+    el.className = "saved " + (ok ? "ok" : "wait");
+    el.innerHTML = (ok ? ICO('<path d="m5 12 5 5 9-10"/>') : CLOCK) + `<span>${ok ? L.appSent : L.appPending}</span>`;
+    el.hidden = false;
+  }
+  // userId: trang chính của con (bài của con); null: khu phụ huynh (mọi hồ sơ con của tài khoản, làm trên máy này)
+  function unsentBar(userId) {
+    const n = Store.pendingResults(userId);
+    if (!n) return "";
+    return `<div class="unsent" id="unsent">${CLOCK}<span class="grow">${userId ? `${n} bài chưa gửi cho bố mẹ` : `${n} bài làm trên máy này chưa gửi đi`}</span><button class="linkbtn" id="sendNow">Gửi lại</button></div>`;
+  }
+  function wireUnsent(userId) {
+    const b = $("#sendNow");
+    if (!b) return;
+    b.onclick = async () => {
+      b.disabled = true; b.textContent = "Đang gửi…";
+      await Store.sendPending();
+      toast(Store.pendingResults(userId) ? "Chưa gửi được. App sẽ thử lại khi có mạng." : "Đã gửi", 4000);
+      b.disabled = false; b.textContent = "Gửi lại"; // gửi được bài nào thì trang vẽ lại (dòng đổi số hoặc mất)
+    };
+  }
+
   /* ================= MỞ BÀI ÔN ================= */
   /* Ngôn ngữ của bài ôn dạng trang (TA2): lang trong data/modules.js ("en": bài IOE); không ghi thì bài chỉ có môn Tiếng Anh (ta)
      là tiếng Anh. Phần app bọc ngoài (nút quay lại, dòng ghi chú, hộp hỏi khi rời bài, thông báo lưu điểm) lấy chữ ở Quiz.TXT;
@@ -1178,7 +1220,9 @@
     const m = modById(d.module); if (!m || m.grade !== u.grade) return;
     if (!(+d.t > 0)) return;
     Store.addResult({ userId: u.id, source: "module", refId: m.id, subject: (m.subjects && m.subjects[d.subject]) || "", label: d.label, mode: d.mode, r: d.r, t: d.t, s: d.s });
-    toast(Quiz.TXT[modLang(m)].appSavedModule(+d.r, +d.t));
+    const L = Quiz.TXT[modLang(m)];
+    // bản đám mây (UX6): "18/20 câu đúng. Đã lưu và gửi cho bố mẹ." hoặc "… Sẽ gửi cho bố mẹ khi có mạng."
+    if (!whenSent(u, (ok) => toast(L.appModScore(+d.r, +d.t) + " " + (ok ? L.appSent : L.appPending), ok ? 3500 : 5000))) toast(L.appSavedModule(+d.r, +d.t));
   });
 
   /* ================= LÀM BÀI TỪ NGÂN HÀNG ================= */
@@ -1266,7 +1310,10 @@
           if (u.role !== "student") return;
           Store.addResult(Object.assign({ userId: u.id, source: "bank", refId: b.id, subject: b.subject, label: b.title }, res));
           if (b.pool && res.marks) PoolHist.mark(u.id, b.id, res.marks);
-          toast(res.mode === "self" ? L.appSavedSelf : L.appSaved);
+          // bản đám mây (UX6): dòng #qzSaved ở màn kết quả và thông báo ghi bài đã gửi cho bố mẹ chưa; bản lưu trên máy giữ "Đã lưu kết quả"
+          // whenSent gọi lại sau khi Quiz.run đã vẽ màn kết quả; gửi xong muộn thì ghi lại vào đúng màn đó (line), không sang lượt sau
+          let line = null;
+          if (!whenSent(u, (ok) => { line = line || $("#qzSaved"); savedLine(line, ok, L); toast(ok ? L.appSent : L.appPending, ok ? 3000 : 5000); })) toast(res.mode === "self" ? L.appSavedSelf : L.appSaved);
         }
       }));
       // Xem thử (phụ huynh, quản trị) không lưu điểm nên không cần hỏi.
@@ -1395,7 +1442,7 @@
     if (tab === "overview" && cloud) {
       // Thẻ "Bắt đầu trong 3 bước" (UX3) đứng đầu đến khi một con đã học; chưa có hồ sơ con thì chỉ có thẻ này (nút thêm nằm trong thẻ).
       const studs = Store.users("student"), max = (Store.plan() || {}).maxChildren || 0;
-      body = `<section class="sec" id="kids">${startDone(studs) ? "" : startCard(studs)}${studs.map(kidCard).join("")}
+      body = `${unsentBar(null)}<section class="sec" id="kids">${startDone(studs) ? "" : startCard(studs)}${studs.map(kidCard).join("")}
         ${studs.length ? `<div class="row">${Store.can("addChild") ? `<a class="btn sm" href="#/admin/user/new?role=student">+ Thêm hồ sơ con</a>` : ""}<span class="small muted">${studs.length}/${max} hồ sơ${Store.can("addChild") ? "" : " · " + esc(fullMsg())}</span></div>${kidsHint}` : ""}</section>`;
     } else if (tab === "overview") {
       const studs = Store.users("student"), w7 = within(graded(Store.data().results), 7);
@@ -1483,6 +1530,7 @@
     wireEvents(view, tab === "events" && cloud ? calGrade || null : null, null); // tab Lịch thi của khu phụ huynh: chi tiết kì thi theo khối đang chọn
     if ($("#switchWho")) $("#switchWho").onclick = switchWho;
     if ($("#letStudy")) $("#letStudy").onclick = switchWho; // thẻ Bắt đầu (UX3)
+    wireUnsent(null); // dòng "N bài làm trên máy này chưa gửi đi" ở mục Các con (UX6)
     if (tab === "events") $("#resetEv").onclick = () => {
       $("#resetArea").innerHTML = `<div class="confirm"><div>Chép lại lịch thi gốc? Các kì thi bạn đã thêm hoặc sửa sẽ bị thay thế.</div><div class="row"><button class="btn danger sm" id="rsYes">Khôi phục</button><button class="btn ghost sm" id="rsNo">Thôi</button></div></div>`;
       $("#rsYes").onclick = () => { Store.resetEvents(); toast("Đã khôi phục lịch mặc định"); renderAdmin(u, "events"); };
