@@ -473,7 +473,7 @@
     if (cloud && !Store.users("student").length && Store.parentUnlocked()) { Store.setSession(parent.id); go("#/home"); return; }
     window.scrollTo(0, 0);
     const m = /^#\/vao\/([^/?#]+)/.exec(location.hash || ""), target = m ? Store.user(decodeURIComponent(m[1])) : null;
-    if (needsEntry(target, c)) { renderEnter(target, c); return; }
+    if (needsEntry(target, c)) { if (c.isParent(target.id) && Store.parentUnlocked()) { loginEnter(target.id); return; } renderEnter(target, c); return; } // Phụ huynh vừa nhập mật khẩu: vào thẳng như khi chạm ô
     if (m) { try { history.replaceState(null, "", "#/"); } catch (e) { /* vẫn hiện danh sách */ } } // mã lạ hoặc hồ sơ không có PIN: về danh sách
     const groups = cloud ? [["student", "Con"], ["admin", "Bố mẹ"]] : [["student", "Học sinh"], ["parent", "Phụ huynh"], ["admin", "Quản trị"]];
     const sub = (u) => (cloud && u.role === "admin" ? (quick ? "Nhập mã mở nhanh" : "Nhập mật khẩu") : gradeTxt(u));
@@ -1750,14 +1750,16 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
   /* Thẻ "Hình đại diện" (UX4, X4): chạm một hình là Store.updateUser ngay, toast "Đã đổi hình đại diện", đổi luôn hình ở đầu trang
      và thanh trên; không có nút Lưu. Dùng ở trang Tài khoản của cả hai bản. */
   const avatarCard = (u) => `<section class="panel" id="avBox"><h3>Hình đại diện</h3><p class="small muted" style="margin:0">Chạm vào hình là đổi ngay.</p>${emojiPicker(u.avatar)}<div id="avErr"></div></section>`;
-  function wireAvatarCard(u, then) {
+  function wireAvatarCard(u) {
     wireEmoji($("#avBox"), async (e) => {
       try {
         await Store.updateUser(u.id, { avatar: e });
         const nu = Store.user(u.id);
         $("#acAv").textContent = nu.avatar; drawWho(nu); toast("Đã đổi hình đại diện"); $("#avErr").innerHTML = "";
-        if (then) then(nu);
-      } catch (er) { $("#avErr").innerHTML = `<div class="fb bad">${esc(er.message)}</div>`; }
+      } catch (er) { // không lưu được (bản đám mây): báo lỗi, trả khung chọn về hình đang có
+        $("#avErr").innerHTML = `<div class="fb bad">${esc(er.message)}</div>`;
+        $$("[data-emo]", $("#avBox")).forEach((x) => x.setAttribute("aria-pressed", x.dataset.emo === Store.user(u.id).avatar));
+      }
     });
   }
   const acHead = (u, sub) => `<div class="row"><span class="av lg" id="acAv" aria-hidden="true">${esc(u.avatar || "🙂")}</span><div><h2>${esc(u.name)}</h2><span class="muted">${sub}</span></div></div>`;
