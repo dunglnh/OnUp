@@ -256,7 +256,8 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 **Quy định chung của các phiên N** (mỗi lời giao việc bên dưới trỏ về đây; sửa ở đây là áp dụng cho mọi phiên):
 > - Chỉ sửa data/banks/, data/calendar-2026-2027.js, script và kiểm thử trong tests/, tài liệu; không sửa js/, css/, modules/ (thấy lỗi app thì ghi vào Pull Request).
 > - Xong khi node tests/kiem-tra-de.js in DE OK và không còn dòng “Nhắc:” nào về đề của phiên, node tests/e2e.js in E2E OK.
-> - Chỗ nào của tests/e2e.js hỏng chỉ vì ngày chạy (bước không cài đồng hồ giả lập; đã biết: dòng k3.hero của bước K3 hỏng từ 14/11/2026, Phiên N4 viết lại bước này) thì sửa kiểm thử cho không phụ thuộc ngày, không sửa app, ghi trong Pull Request.
+> - Chỗ nào của tests/e2e.js hỏng chỉ vì ngày chạy (bước không cài đồng hồ giả lập; đã biết: dòng k3.hero của bước K3 hỏng từ 14/11/2026, Phiên N4 viết lại bước này) thì sửa kiểm thử cho không phụ thuộc ngày, không sửa app, ghi trong Pull Request. Phiên 9g (L28 ở docs/SUA-LOI-CHAY-THU.md) sửa hẳn việc này: hai script kiểm thử chạy ở một ngày cố định; 9g đã gộp thì bước mới tạo context bằng hàm dùng chung của script.
+> - Đến khi Phiên 9h xong (L30, L31 ở docs/SUA-LOI-CHAY-THU.md): câu có đáp án là số âm hoặc số thập phân dùng dạng trả lời bằng số (có nút ±, nhận cả dấu phẩy và dấu chấm thập phân), không dùng câu điền. Trên iPhone, câu điền có đáp án âm không gõ được dấu trừ, câu điền số thập phân gõ dấu chấm thì bị chấm sai.
 > - Chỉ tự rà soát một vòng, rồi mở Pull Request. Có số PR thì ghi phiên đã xong vào docs/KE-HOACH-PHAT-TRIEN-ONUP.md (dòng trạng thái đầu file, mục 3); điều mới rút ra cho các phiên sau (nếu có) ghi một dòng vào mục 3 của docs/KE-HOACH-NOI-DUNG.md.
 
 **Danh sách phiên lớp 4 và 6.** Hạn: xong trước kì thi ít nhất 3 tuần (mục 8). Thứ tự chạy ở mục 3 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). “Kho” là số câu mục tiêu theo mục 2 (25 câu mỗi đề): đề cố định + câu riêng của đề ngẫu nhiên.

@@ -1,6 +1,6 @@
 # Sửa lỗi cơ bản sau khi dùng thử (16/10/2026)
 
-Bốn phiên sửa đầu (9a, 9b, 9c: L1–L14, PR #21, #22, #23; 9d: L15–L19, lỗi phát sinh khi rà soát lại ngày 17/10, PR #29) đã gộp vào `main`; ảnh 360px sau Phiên 9b: [hinh-360/](hinh-360/). Lần rà soát thứ ba (18/10/2026, sau Phiên K3) tìm thêm L20–L26 (nhóm E, Phiên 9e, TA1, TA2); trong đó L21 là yêu cầu của chủ app: **đề môn Tiếng Anh của mọi khối phải 100% tiếng Anh**. Góp ý chạy thử ngày 19/10/2026: L27 (nhóm F, Phiên 9f). Trạng thái và việc còn chờ (bố mẹ thử L17 trên iPhone thật) chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). File này giữ phần mô tả lỗi, cách sửa và lời giao việc (mục 3).
+Bốn phiên sửa đầu (9a, 9b, 9c: L1–L14, PR #21, #22, #23; 9d: L15–L19, lỗi phát sinh khi rà soát lại ngày 17/10, PR #29) đã gộp vào `main`; ảnh 360px sau Phiên 9b: [hinh-360/](hinh-360/). Lần rà soát thứ ba (18/10/2026, sau Phiên K3) tìm thêm L20–L26 (nhóm E, Phiên 9e, TA1, TA2); trong đó L21 là yêu cầu của chủ app: **đề môn Tiếng Anh của mọi khối phải 100% tiếng Anh**. Góp ý chạy thử ngày 19/10/2026: L27 (nhóm F, Phiên 9f). Rà lời giao việc N2–N12 cùng ngày: L28 (kiểm thử hỏng theo ngày chạy), L29–L31 (ô nhập số trên điện thoại) (nhóm G, Phiên 9g, 9h). Trạng thái và việc còn chờ (bố mẹ thử L17 trên iPhone thật) chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). File này giữ phần mô tả lỗi, cách sửa và lời giao việc (mục 3).
 
 **Cách đã thử:** chạy mã nhánh `main` (commit `5866b72`, giống bản đang đăng trên GitHub Pages) bằng Chromium tự động, màn hình điện thoại 360×740, rồi thêm chế độ tối và màn hình 1280px. Đi hết các luồng:
 - thiết lập lần đầu và các tab quản trị;
@@ -201,6 +201,89 @@ Mã lỗi (L1, L2…) dùng trong lời giao việc và trong commit.
   - Nút "Ôn câu sai (N)" ở màn kết quả đếm cả danh sách của môn (gồm câu từ các bài, các đề khác) và đứng ngay dưới điểm 10/10, nên trông như đề vừa làm còn câu sai.
   - Luật bỏ câu chỉ ghi ở trang đầu bài ôn ("Làm đúng khi ôn thì câu đó được bỏ khỏi danh sách"), màn kết quả không nói.
 - Không sai đáp án, không mất điểm, nhưng trẻ tưởng app chấm sai và phải làm lại câu đã biết. Bài ôn giữa kì I lớp 4, lớp 6 đang được dùng để ôn cho kì thi từ 2/11.
+
+### Nhóm G · Rà lời giao việc N2–N12 ngày 19/10 (Phiên 9g, 9h)
+
+PO rà lời giao việc các phiên làm đề N2–N12 ngày 19/10/2026 (sau PR #62, #63) và giao QC ghi mã hai việc: kiểm thử tự động sẽ hỏng theo ngày chạy (L28), ô nhập số trên iPhone không gõ được phân số (L29). QC thử lại trên `main` commit `9d44883`, rồi chạy lại các ngày chính trên `5ef6475` (sau PR #65: lời giao việc N2–N12b vào repo; PR #66: UX6), và tìm thêm L30, L31 ở cùng ô nhập số. Số dòng trong mục này theo `5ef6475`.
+
+**L28. Kiểm thử tự động hỏng theo ngày chạy, dù không ai sửa gì.**
+- Cách thử: chạy nguyên hai script (không sửa file) với giờ giả lập ở cả node và trình duyệt, bằng script bọc ở cuối mục này. Ở ngày thật (19/10/2026) cả hai in OK.
+- Kết quả:
+
+| Ngày giả lập | `tests/e2e.js` | `tests/supabase/cloud-e2e.js` |
+|---|---|---|
+| 19/10/2026 (ngày thật) | `E2E OK` | `CLOUD E2E OK` |
+| 22/10/2026 | `E2E OK` | |
+| 1/11/2026 | | `CLOUD E2E OK` |
+| 2/11/2026 | các kiểm tra theo ngày đều qua; lượt này `ux5OK` sai vì kiểm tra chập chờn (nguyên nhân 7) | sai "UX2: tab Các con…" (nguyên nhân 2): thẻ của con ghi "Kiểm tra giữa học kì I đang diễn ra · chưa ôn Toán, Tiếng Việt" |
+| 13/11/2026 | `E2E OK` | |
+| 14/11/2026 | `E2E FAILED: k3OK` (nguyên nhân 1): link ghi "Tất cả bài ôn cho kì này · 1 bài ôn →" | sai UX2: "IOE cấp trường còn 12 ngày · chưa ôn Tiếng Anh" |
+| 29/11/2026 | | sai UX2: "Kiểm tra cuối học kì I còn 29 ngày · …" |
+| 21–22/12/2026 | `E2E FAILED: k3OK, ux5OK` (link ghi "· 11 bài ôn →"; `ux5OK`: nguyên nhân 6 và 7) | sai UX2 |
+| 8/1/2027 | `E2E FAILED: k3OK, ux5OK` (`ux5OK`: nguyên nhân 6) | sai UX2 |
+| 9/1/2027 | dừng giữa chừng sau 55 giây, ở bước "leave guard: bank exam, one answer (L1)" (nguyên nhân 3) | sai UX2 và "L18: nút đề ghi số đề theo tên đề; K3: đề ngẫu nhiên đứng trước" (nguyên nhân 4) |
+| 10/1/2027, 27/3/2027 | dừng như 9/1 | sai như 9/1 |
+| 7/3/2027, 14/5/2027 | | sai như 9/1 |
+| 15/5/2027 | | dừng giữa chừng sau 25 giây, ở dòng 459 (`TypeError`, nguyên nhân 5) |
+| 1/6/2027 | dừng như 9/1 | dừng như 15/5 |
+
+- Nguyên nhân (đánh số để lời giao việc dẫn lại). Từ 1 đến 5: bước không tự cài đồng hồ giả lập thì chạy theo ngày thật, nhưng chữ mong đợi lại ghi theo lịch thi ở ngày viết kiểm thử.
+  1. `tests/e2e.js`, bước K3: dòng `k3.hero` mong "Tất cả bài ôn cho kì này · 7 bài ôn →". Đó là kì giữa kì I lớp 6 (2 bài ôn dạng trang, 5 đề), thi đến hết 13/11. Từ 14/11, kì gần nhất có bài ôn của lớp 6 là IOE cấp trường, nên link ghi "· 1 bài ôn →".
+  2. `tests/supabase/cloud-e2e.js`, kiểm tra "UX2: tab Các con…": thẻ của hai con mong "Kiểm tra giữa học kì I còn N ngày · chưa ôn …". Từ 2/11 kì đang diễn ra nên thẻ ghi "Kiểm tra giữa học kì I đang diễn ra · chưa ôn Toán, Tiếng Việt". Từ 14/11 thẻ ghi "IOE cấp trường còn 12 ngày · chưa ôn Tiếng Anh".
+  3. Lịch thi của học sinh chỉ hiện kì thi chưa qua. `tests/e2e.js` bấm `[data-ev='ck1-l4']` ở bước thiết lập (dòng 266) và ở bước 360px (dòng 606). Từ 9/1/2027 kì cuối kì I lớp 4 đã qua, `page.click` chờ hết 30 giây rồi script dừng. Cũng ở bước 360px, điều kiện `evs.length > 3` sẽ sai từ 7/3/2027 (lớp 4 chỉ còn 3 kì thi chưa qua); QC chưa chạy tới vì script dừng trước đó.
+  4. `cloud-e2e.js`, kiểm tra "L18: nút đề…": mong tab Bài ôn có nhóm "Kiểm tra cuối học kì I" và "Kiểm tra giữa học kì II". Từ 9/1/2027 kì cuối kì I đã qua, nên đề của kì đó chuyển sang nhóm "Bài ôn khác".
+  5. `cloud-e2e.js`, dòng 459, đọc dòng kì thi trên thẻ của con bằng `(k.querySelector(".kid-ev") || {}).textContent.replace(…)`. Từ 15/5/2027 lớp 4 không còn kì thi nào, thẻ không có dòng này, `textContent` là `undefined` nên script dừng.
+  6. Bước tự cài đồng hồ ở một ngày sớm hơn ngày chạy thì gặp dữ liệu "ở tương lai", vì dữ liệu của các bước đầu (`state`) ghi theo ngày thật. Bước UX5 (ngày giả lập 14/12/2026) lấy kết quả vừa nộp bằng `Store.resultsFor(…)[0]`, tức kết quả mới nhất theo giờ. Chạy sau 14/12/2026 thì đó là kết quả của một bước trước, nên dòng mong đợi của thẻ "Lần trước" (`prev.want`) lấy nhầm điểm. Hai điểm khác nhau thì `ux5OK` sai (gặp ở 22/12/2026 và 8/1/2027).
+  7. Không theo ngày, nhưng cũng làm kết quả lúc qua lúc không: kiểm tra `submitSeen` của bước UX5 (hộp "Nộp bài ngay?" nằm trong màn hình). Đề như thi xáo câu. Câu thứ 4 mà là câu dài "Hai ngày đầu, mỗi ngày đội công nhân sửa được 1 250 m đường…" (`toan4-ck1-de3`) thì hộp được cuộn sát mép dưới, `bottom` = 740,125 lớn hơn `innerHeight` = 740. Hộp vẫn hiện đủ, app không sai. QC gặp ở 3 trong 8 lượt chạy đủ.
+- Vì sao phải sửa trước 1/11:
+  - Pull Request nào cũng phải có `tests/e2e.js` in `E2E OK` (CLAUDE.md); phiên sửa bản đám mây còn phải có `CLOUD E2E OK`.
+  - Từ 2/11, phiên nào chạy `cloud-e2e.js` cũng thấy FAILED; từ 14/11 thì cả `e2e.js`, dù phiên đó không sửa gì. Phiên dễ sửa nhầm app cho khớp kiểm thử, hoặc tốn lượt đi tìm lỗi không có.
+  - "Quy định chung của các phiên N" (mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)) có dặn phiên tự sửa `tests/e2e.js` khi hỏng chỉ vì ngày. Nhưng mỗi phiên có thể sửa một kiểu, và các phiên N không chạy `cloud-e2e.js`. Phiên nào sửa bản đám mây sau 1/11 cũng gặp ngay (UX6 xong trước đó, PR #66).
+- Script bọc QC dùng để thử (chưa có trong repo). Script lệch `Date` của node (script kiểm thử, máy chủ giả, Edge Function admin) và cài đồng hồ Playwright ở cùng giờ cho mọi context; bước nào tự cài đồng hồ thì vẫn đè lên như cũ. Riêng đồng hồ của Playwright (`server/clock.js`) phải đọc giờ thật: nó ghi `Date.now()` của node vào nhật kí để trang dựng lại giờ, nếu cũng lệch thì giờ trong trang bị trừ mất khoảng lệch. Chạy: `FAKE_NOW=2026-11-14T10:00:00Z NODE_PATH=… node chay-theo-ngay.js tests/e2e.js` (máy chủ `python3 -m http.server 8000` đang chạy).
+
+```js
+// chay-theo-ngay.js: chạy một bộ kiểm thử như thể hôm nay là FAKE_NOW, không sửa file kiểm thử
+process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS = "1";
+const FAKE = process.env.FAKE_NOW;
+if (FAKE) {
+  const Real = Date, OFF = new Real(FAKE).getTime() - Real.now();
+  const pwClock = () => /playwright-core[\\/]lib[\\/]server[\\/]clock/.test(new Error().stack);
+  const now = () => (pwClock() ? Real.now() : Real.now() + OFF);
+  class D extends Real { constructor(...a) { if (a.length) super(...a); else super(now()); } static now() { return now(); } }
+  global.Date = D;
+}
+const pw = require("playwright"), launch = pw.chromium.launch.bind(pw.chromium);
+pw.chromium.launch = async (...args) => {
+  const b = await launch(...args), nc = b.newContext.bind(b);
+  b.newContext = async (...o) => { const c = await nc(...o); if (FAKE) await c.clock.install({ time: new Date() }); return c; };
+  return b;
+};
+require(require("path").resolve(process.argv[2]));
+```
+
+**L29. Câu trả lời bằng số: trên iPhone không gõ được phân số.**
+- Ô `#qzNum` (dạng `num` trong `js/quiz.js`) có `inputmode="decimal"`. Trên iPhone (trình duyệt nào cũng chạy bằng WebKit), ô này mở bàn phím số thập phân ([`UIKeyboardType.decimalPad`](https://developer.apple.com/documentation/uikit/uikeyboardtype/decimalpad): chữ số, một dấu thập phân, nút xóa). Bàn phím này không có "/" (cũng không có "-"; số âm đã có nút ±, xem [WebKit bug 193825](https://bugs.webkit.org/show_bug.cgi?id=193825)).
+- Bộ chấm thì nhận phân số: `numVals` đọc "3/4" thành 0,75. Thử bằng `Quiz.score` (node, không cần trình duyệt):
+  - đáp án 0,75: gõ "3/4" hay "0,75" đều đúng. Nhưng lớp 4 chưa học số thập phân (lớp 5), lớp 6 học phân số (chương VI) trước số thập phân (chương VII). Trên iPhone con không gõ được cách viết đã học.
+  - đáp án 1/3: chỉ "1/3" đúng, "0,33" và "0,333" đều sai. Trên iPhone không làm được câu này.
+- Chỗ hiện đáp án cũng chưa hợp với phân số: `correctText` làm tròn 2 chữ số (`fmtN`). Câu đáp án 2/3 hiện "0,67", mà gõ "0,67" thì bị chấm sai.
+- Dòng nhắc dưới ô chỉ nói số thập phân: "Số thập phân viết bằng dấu phẩy, ví dụ 2,5."
+- Ngân hàng tự nhập còn đọc sai đáp án phân số mà không báo lỗi. Thử `Quiz.parse` với câu "1/2 + 1/4 = ?" và dòng "Đáp số: 3/4": ra câu trả lời bằng số có đáp án 3 và đơn vị "/4" (ô nhập có chữ "/4" đứng sau). Gõ "3/4" hay "0,75" thì bị chấm sai, gõ "3" mới đúng.
+- Đề có sẵn chưa có câu nào như vậy: có 10 câu trả lời bằng số, đáp án đều là số nguyên, trừ một câu 7,5 cm. Nhưng hai phiên Toán sắp tới, N7 (Toán 4 giữa kì II) và N8 (Toán 6 giữa kì II), đều có chương phân số. Khung đề lớp 6 (Công văn 7991) lại có phần trả lời ngắn. Lời giao việc N7, N8 (mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)) đã dặn không dùng dạng câu này cho đáp án phân số, chờ sửa.
+
+**L30. Câu điền có đáp án là số âm: trên iPhone không gõ được dấu trừ.**
+- Hàm `body()` của `js/quiz.js` đặt `inputmode="decimal"` cho ô `#qzFill` khi mọi đáp án là số. Số âm cũng được tính là số (`isNum("-7")`). Bàn phím số thập phân của iPhone không có "-", câu điền lại không có nút ± như câu trả lời bằng số. Con không gõ được "-7", cũng không gõ được "(-7)".
+- Thử ở 360px (Chromium, câu dựng bằng `Quiz.run`): câu "(-3) + (-4) = ___" (đáp án -7) có ô `inputmode="decimal"` và không có nút ±. Bộ chấm nhận "-7" và "(-7)".
+- Bài ôn dạng trang (`l4-giua-ki-1`, `l6-giua-ki-1`) đã tránh lỗi này: đáp án có số âm thì ô dùng bàn phím thường và nhắc "Số âm: gõ dấu trừ phía trước, ví dụ -12."
+- Đề có sẵn chưa có câu nào như vậy (QC quét 83 câu điền có đáp án là số). Nhưng ngân hàng phụ huynh, thầy cô tự nhập gặp ngay: viết "(−3) · 4 = [-12]" là ra câu điền như vậy (cũng là một câu mẫu trong `tests/so-bo-cham.js`). Toán 6 cuối kì I (Phiên N4) lại có chương số nguyên.
+
+**L31. Câu điền số thập phân: gõ dấu chấm thì bị chấm sai.**
+- `fillRight` so số bằng `numKey`: bỏ mọi dấu chấm (coi là dấu ngăn hàng nghìn) rồi đổi dấu phẩy thành dấu chấm. Thử bằng `Quiz.score`:
+  - đáp án "1,25": gõ "1,25" đúng; gõ "1.25" (đọc thành 125) sai;
+  - đáp án "25": gõ "2.5" lại được tính đúng.
+- Câu trả lời bằng số không bị lỗi này: `numVals` nhận cả hai cách viết.
+- Dấu thập phân trên bàn phím số của iPhone đi theo vùng và bàn phím đặt trên máy: có máy hiện dấu phẩy, có máy hiện dấu chấm ([Apple Developer Forums](https://developer.apple.com/forums/thread/107269)). Máy chỉ có dấu chấm thì không làm được câu điền có đáp án thập phân. Phần này chưa thử trên iPhone thật, cần bố mẹ xem lại (mục 2, Phiên 9h).
+- Đề có sẵn chưa có câu điền đáp án thập phân. Số thập phân là chương VII của Toán 6 (giữa kì II, Phiên N8), và ngân hàng tự nhập viết được ngay ("1 250 g = [1,25] kg").
 
 ---
 
@@ -517,6 +600,114 @@ Mã lỗi (L1, L2…) dùng trong lời giao việc và trong commit.
 - Ảnh 360px sáng/tối màn kết quả có dòng mới. Pull Request đặt ảnh trước ([hinh-ra-soat-k3/l27-on-cau-sai.jpg](hinh-ra-soat-k3/l27-on-cau-sai.jpg)) cạnh ảnh sau.
 - Bố mẹ thử lại trên máy đang dùng: làm lại một đề đúng hết thì "Ôn câu sai" không còn câu của đề đó.
 
+### Phiên 9g
+
+**L28 · Hai script kiểm thử chạy ở một ngày cố định.** Chỉ sửa `tests/e2e.js`, `tests/supabase/cloud-e2e.js` và CLAUDE.md, không sửa app.
+- `tests/e2e.js`:
+  - Thêm hằng `TODAY` ở đầu file, ví dụ `"2026-10-21T08:00:00"`, và một hàm tạo context dùng chung: gọi `browser.newContext(opts)` rồi `ctx.clock.install({ time: new Date(TODAY) })`.
+    - `TODAY` không được muộn hơn ngày giả lập sớm nhất của các bước tự cài đồng hồ (21/10/2026 của UX1, UX2), để không bước nào gặp dữ liệu "ở tương lai" (nguyên nhân 6).
+    - Ngày 21/10/2026 là ngày các chữ mong đợi đang đúng: `k3.hero` vẫn là "· 7 bài ôn →", lớp 4 có 8 kì thi chưa qua (nguyên nhân 1, 3).
+  - Mọi chỗ tạo context đi qua hàm này: 20 chỗ `browser.newContext` ở `main` hôm nay, kể cả context đầu tiên của bước thiết lập. Như vậy dữ liệu của các bước đầu (`state`) cũng ghi ở `TODAY`. Trang ghép ảnh (`browser.newPage` cho `gp`) không mở app nên giữ nguyên.
+  - Bước tự cài đồng hồ giữ như cũ: L18 (1/4/2027), 9e (21/12/2026), UX1 (21/10 rồi 1/12), UX2 (21/10), UX5 (14/12). Cài lại đè lên `TODAY` được: QC đã thử với Playwright 1.56, cả khi tải lại trang và sau `setSystemTime`.
+  - Bước UX5 lấy kết quả vừa nộp theo đề và cách làm (`refId` là `toan4-ck1-de3`, `mode` là `"exam"`), không lấy phần tử đầu của `Store.resultsFor(…)` (nguyên nhân 6).
+  - Chỗ so giờ ở node thì so với giờ trong trang. Hiện có một chỗ: `fresh` của bước L14 (sao lưu) so `lastBackupAt` với `Date.now()` của node. Bước service worker (L19) đo thời gian bằng giờ node, giữ như cũ.
+  - Chữ mong đợi đang ghi (`k3.hero`, lịch thi của học sinh) giữ nguyên, vì đúng ở `TODAY`. Phiên N4 viết lại bước K3 thì giữ `TODAY`.
+  - Kiểm tra `submitSeen` của bước UX5 cho sai lệch 1px: `b.bottom <= innerHeight + 1` (nguyên nhân 7).
+- `tests/supabase/cloud-e2e.js`:
+  - `device()` là chỗ duy nhất tạo context của trang học và trang admin: cài đồng hồ ở `TODAY` ở đó (nguyên nhân 2, 4).
+  - Máy chủ giả và Edge Function admin dùng cùng giờ đó: đặt `be.clock = new Date(TODAY) - Date.now()` ngay sau `createBackend()`, và tạo `createHandler({ …, now: () => new Date(Date.now() + be.clock) })` như `tests/supabase/store-test.mjs`.
+    - Không thì máy chủ giả vẫn theo giờ thật. Nó ghi `at` của kết quả là giờ sớm hơn trong hai giờ (giờ gửi, giờ máy chủ), nên chạy trước `TODAY` thì "2 bài hôm nay" thành 0. "Dùng trong 7 ngày" của trang admin cũng tính theo giờ thật.
+  - Dòng 459 đọc dòng kì thi trên thẻ của con sao cho thẻ không có dòng đó thì kiểm tra báo sai, không làm script dừng (nguyên nhân 5).
+- CLAUDE.md, mục "Chạy và kiểm tra": hai script chạy ở một ngày cố định (`TODAY` ở đầu file); bước nào cần ngày khác thì tự cài đồng hồ; bước mới tạo context bằng hàm dùng chung. Có thể thêm script bọc ở mục 1 (L28) vào `tests/` để lần sau thử lại theo ngày.
+
+**Xong khi:**
+- `tests/e2e.js` in `E2E OK` và `tests/supabase/cloud-e2e.js` in `CLOUD E2E OK`:
+  - ở ngày thật;
+  - và qua script bọc ở mục 1 (L28) với `FAKE_NOW` là 2/11/2026, 14/11/2026, 22/12/2026, 10/1/2027 và 1/6/2027. Bản đã sửa thì đồng hồ của script đè lên giờ của script bọc, nên kết quả không đổi theo ngày.
+- Không còn `browser.newContext` nào ngoài hàm dùng chung (trang ghép ảnh dùng `browser.newPage` thì được).
+- Pull Request ghi các ngày đã thử.
+
+### Phiên 9h
+
+**L29 · Câu trả lời bằng số nhận phân số trên mọi máy.**
+- Thêm nút "/" cạnh nút ± ở hàng `.num-row` (ví dụ `#qzSlash`, cao ≥ 44px ở 360px).
+  - Bấm thì thêm "/" vào chỗ con trỏ trong ô; ô đã có "/" thì không thêm nữa. Rồi trả focus về ô như nút ±.
+  - Nút hiện ở mọi câu trả lời bằng số, không tùy đáp án, để không lộ ra đáp án là phân số.
+  - Giữ `inputmode="decimal"`.
+- Dữ liệu ghi được đáp án phân số, ví dụ `ans: "2/3"` (chuỗi a/b, có thể có dấu trừ). Số nguyên, số thập phân vẫn ghi dạng số như cũ.
+  - Chấm: đổi ra giá trị bằng `numVals`, sai số `tol` như cũ.
+  - Chỗ hiện đáp án (`correctText`, cũng là bản chụp `Quiz.text` khi báo câu sai) ghi đúng "2/3", không làm tròn.
+  - Câu trả lời bằng số so giá trị, nên 6/8 cũng đúng với đáp án 3/4. Đề bắt viết phân số tối giản thì vẫn dùng câu điền (so chữ), như lời giao việc N7, N8.
+- Chữ mới (bảng chữ `TXT`, cả cột `vi` và `en`):
+  - dòng nhắc dưới ô: "Phân số viết a/b, ví dụ 3/4. Số thập phân viết bằng dấu phẩy, ví dụ 2,5." / "Write a fraction as a/b, for example 3/4. Use a decimal point, for example 2.5.";
+  - tên đọc của nút: "Thêm dấu phân số" / "Add a fraction bar".
+- `Quiz.parse`: "Đáp số: 3/4" (và "-3/4") thành câu trả lời bằng số có đáp án "3/4", không còn đọc thành đáp án 3 với đơn vị "/4". Dòng "Cách viết câu hỏi" thêm ví dụ này.
+- `tests/kiem-tra-de.js`: câu `num` có `ans` là chuỗi thì phải đúng dạng a/b, b khác 0. Ghi cách viết này vào chú thích dạng câu ở đầu `data/banks/index.js`.
+
+**L30 · Câu điền có đáp án âm mở bàn phím có dấu trừ.**
+- Làm như bài ôn dạng trang. Đáp án có số âm thì ô `#qzFill` không đặt `inputmode="decimal"`, để điện thoại mở bàn phím thường (có "-").
+- Dưới câu thêm dòng nhắc "Số âm: gõ dấu trừ phía trước, ví dụ -12." / "For a negative number, type the minus sign first, for example -12."
+- Đáp án toàn số không âm thì giữ `inputmode="decimal"` như UX1.
+
+**L31 · Câu điền số so theo giá trị.**
+- Trong `fillRight`, khi đáp án và chữ gõ đều là số thì so giá trị như `numVals`, thay cho so chuỗi `numKey`.
+  - Chữ viết mơ hồ như "1.200" có hai cách đọc; trùng một cách là đúng.
+  - "1.25" và "1,25" đều đúng với đáp án 1,25; "2.5" không còn đúng với đáp án 25.
+  - Vẫn như cũ: "1 200", "1200", "1.200" đúng với đáp án "1 200"; "(-7)" đúng với -7; số gõ kèm đơn vị.
+- Chạy `CHI_TIET=1 node tests/so-bo-cham.js` (so bộ chấm câu điền bản cũ với bản mới).
+  - Chỗ khác nhau chỉ được thuộc hai loại trên: gõ dấu chấm thập phân nay đúng; gõ "2.5" cho đáp án "25" nay sai.
+  - Ghi danh sách vào Pull Request, rồi đổi bản so mặc định của script sang commit của phiên, để lần sau script lại in 0.
+
+**Chung:**
+- Chỉ sửa:
+  - `js/quiz.js` (cả hai cột của `TXT`);
+  - `css/app.css` nếu nút mới cần;
+  - `tests/`;
+  - chú thích ở đầu `data/banks/index.js`;
+  - tài liệu.
+- Không sửa `modules/`. Không đổi câu, đáp án của đề có sẵn: `Quiz.key` của câu cũ giữ nguyên.
+- CLAUDE.md:
+  - câu "câu điền mà mọi đáp án là số có `inputmode="decimal"`" (mục "Trang Hôm nay", UX1) thêm "trừ khi có đáp án âm";
+  - ghi nút "/" và đáp án phân số của dạng `num`.
+- `docs/KE-HOACH-NOI-DUNG.md` mục 3, phần ghi chú cho các phiên làm đề:
+  - câu trả lời bằng số dùng được cho phân số (`ans: "a/b"`), số âm, số thập phân;
+  - câu điền dùng được cho số âm, số thập phân.
+- `docs/KE-HOACH-NOI-DUNG.md` mục 7:
+  - lời giao việc N7, N8: thay câu dặn "không dùng câu trả lời bằng số" cho đáp án phân số bằng cách viết mới (`ans: "a/b"`; đề bắt viết phân số tối giản thì dùng câu điền);
+  - "Quy định chung của các phiên N": bỏ câu dặn tạm về số âm, số thập phân (L30, L31).
+
+**Xong khi:**
+- `tests/e2e.js` in `E2E OK`, có thêm bước "L29–L31" ở 360px, sáng và tối. Bước này dùng một đề thử thêm vào danh mục lúc chạy, như pool giả ở bước K3:
+  - câu trả lời bằng số đáp án "2/3":
+    - có nút "/" (≥ 44px) cạnh nút ±;
+    - gõ 2, bấm nút "/", gõ 3 (chỉ gõ chữ số, dấu bằng nút), Kiểm tra: đúng;
+    - gõ "0,67": sai, phần đáp án hiện "2/3";
+  - câu đáp án "-3/4", dùng nút ± và nút "/": đúng;
+  - câu điền đáp án "-7": ô không có `inputmode="decimal"`, có dòng nhắc số âm, gõ "-7" đúng;
+  - câu điền đáp án "1,25": ô có `inputmode="decimal"`, gõ "1.25" đúng;
+  - câu điền đáp án "25": gõ "2.5" sai;
+  - màn đó qua kiểm tra 360px (không tràn ngang, nút ≥ 44px, chữ ≥ 13px);
+  - `Quiz.TXT.en` có đủ chữ mới, không có chữ cái tiếng Việt;
+  - bước TA2 vẫn qua.
+- `node tests/kiem-tra-de.js` in `DE OK`. Script tự thử:
+  - câu `num` với `ans: "2/3"` qua; `ans: "2/0"` và `ans: "hai phần ba"` bị báo lỗi;
+  - `Quiz.parse` đọc "Đáp số: 3/4" thành đáp án "3/4", không có đơn vị.
+- `CHI_TIET=1 node tests/so-bo-cham.js`: chỉ khác như ở L31.
+- `node tests/supabase/cloud-e2e.js` in `CLOUD E2E OK`: màn làm đề dùng chung cho bản đám mây, kể cả màn làm đề Tiếng Anh (`c8e`–`c8g`).
+- Bố mẹ thử trên iPhone thật một đề tự nhập (Khu phụ huynh → Cài đặt → + Nhập đề) có ba câu:
+  ```
+  1/2 + 1/4 = ?
+  Đáp số: 3/4
+
+  (−3) · 4 = [-12]
+
+  1 250 g = [1,25] kg
+  ```
+  Làm ở chế độ ôn luyện:
+  - câu 1 gõ được "3/4" nhờ nút "/";
+  - câu 2 bàn phím có dấu trừ;
+  - câu 3 gõ được bằng dấu thập phân trên bàn phím của máy, dấu phẩy hay dấu chấm đều được chấm đúng.
+
 ---
 
 ## 3. Các phiên Claude Code
@@ -526,6 +717,11 @@ Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong 
 Nhóm E (rà soát 18/10, sau K3): làm **TA1 → 9e → TA2**, sau khi PR #47 (Phiên R1, mở cùng ngày) đã gộp, và trước UX1. TA1 gấp nhất: đề Tiếng Anh giữa kì I lớp 6 dùng cho kì thi từ 2/11. TA1 và 9e cùng sửa `tests/kiem-tra-de.js`, `tests/e2e.js` nên không chạy cùng lúc. TA2 sửa `js/quiz.js`, `js/app.js` như UX1, UX5 nên làm trước các phiên đó, để chữ mới của chúng thêm luôn bản tiếng Anh; TA2 dịch cả chữ R1 đã thêm.
 
 Nhóm F (góp ý chạy thử 19/10): **Phiên 9f** làm ngay, trước UX3, để xong trước kì thi giữa kì I (từ 2/11). Phiên này sửa 4 file trong `modules/`, `tests/e2e.js`, CLAUDE.md; không sửa `js/app.js`, `js/quiz.js`. Merge 9f rồi mới mở phiên khác cũng sửa `tests/e2e.js`.
+
+Nhóm G (rà lời giao việc N2–N12, 19/10):
+- **Phiên 9g** làm ngay, trước 1/11: từ 2/11 `tests/supabase/cloud-e2e.js` báo FAILED, từ 14/11 cả `tests/e2e.js`. Phiên này chỉ sửa hai file kiểm thử và CLAUDE.md, không sửa app. Merge 9g rồi mới mở phiên khác cũng sửa `tests/e2e.js`, nhất là N4 (viết lại bước K3).
+- **Phiên 9h** sau 9g (cùng sửa `tests/e2e.js`), nên trước N4 vì Toán 6 cuối kì I có chương số nguyên. 9h sửa `js/quiz.js`, nên không chạy cùng lúc với phiên khác sửa file này.
+- Trong lúc chờ 9h, "Quy định chung của các phiên N" (mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)) dặn: câu có đáp án là số âm hoặc số thập phân dùng dạng trả lời bằng số (có nút ±), không dùng câu điền. 9h xong thì bỏ câu dặn đó.
 
 **Phiên 9a · Không mất bài, khóa PIN, đường dẫn sai**
 > Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md (mục 1 nhóm A, mục 2 Phiên 9a). Sửa L1, L2, L3 trong js/app.js và js/quiz.js theo cách gợi ý: chốt rời trang khi đang làm đề ngân hàng hoặc bài ôn trong khung (hộp xác nhận trong trang, nộp bài trước khi rời, beforeunload), khóa PIN lưu trong localStorage theo từng người với thời gian chờ tăng dần, trang "Không tìm thấy" và chặn học sinh mở bài khác khối. Không đổi ba chỗ nối của bài ôn với app, không sửa phần đám mây ngoài chỗ bắt buộc. Mỗi lỗi một commit ghi mã lỗi (L1…). Thêm các bước kiểm tra ở mục "Xong khi" vào tests/e2e.js, chạy đến khi in E2E OK, chỉ tự rà soát một vòng, rồi mở Pull Request liệt kê lỗi đã sửa và chưa sửa được kèm lí do.
@@ -550,3 +746,9 @@ Nhóm F (góp ý chạy thử 19/10): **Phiên 9f** làm ngay, trước UX3, đ�
 
 **Phiên 9f · "Ôn câu sai" trong bài ôn dạng trang** (gấp: trước 1/11, bài ôn giữa kì I lớp 4, 6 dùng cho kì thi từ 2/11)
 > Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md (mục 1 L27, mục 2 Phiên 9f). Sửa L27 trong 4 bài ôn modules/l4-giua-ki-1, l6-giua-ki-1, ioe-4, ioe-6: làm đúng một câu ở bất kì chế độ nào (cả đề thi thử) thì bỏ câu đó khỏi danh sách "Ôn câu sai"; sửa chữ giải thích luật này ở trang đầu bài ôn; màn kết quả của lượt không sai câu nào mà danh sách còn câu thì thêm một dòng nói rõ đó là câu từ các lần làm trước (IOE viết bằng tiếng Anh). Không xóa danh sách câu sai đang có trên máy học sinh. Giữ ba chỗ nối với app và nút #endBtn; ghi việc sửa này vào câu nói về các chỗ sửa so với artifact gốc trong CLAUDE.md. Thêm bước L27 ở mục "Xong khi" vào tests/e2e.js, chạy tests/e2e.js và tests/supabase/cloud-e2e.js đến khi in OK, chụp ảnh 360px sáng/tối màn kết quả, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh trước (docs/hinh-ra-soat-k3/l27-on-cau-sai.jpg) và sau.
+
+**Phiên 9g · Kiểm thử không phụ thuộc ngày chạy** (gấp: trước 1/11; từ 2/11 cloud-e2e.js báo lỗi)
+> Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md (mục 1 L28, mục 2 Phiên 9g). Sửa L28 chỉ trong tests/e2e.js, tests/supabase/cloud-e2e.js và CLAUDE.md, không sửa app: cả lần chạy dùng một ngày "hôm nay" cố định (hằng TODAY, đồng hồ giả lập của Playwright cài trong một hàm tạo context dùng chung cho mọi context); bước nào cần ngày khác tự cài đồng hồ như cũ; chỗ so giờ ở node thì so với giờ trong trang; cloud-e2e.js cho máy chủ giả và Edge Function admin dùng cùng giờ đó (be.clock); chữ mong đợi theo kì thi gần nhất ghi theo TODAY. Ghi cách chạy mới vào CLAUDE.md (mục "Chạy và kiểm tra"). Mỗi file một commit ghi mã L28. Chạy tests/e2e.js và tests/supabase/cloud-e2e.js ở ngày thật và qua script bọc ở mục 1 L28 với các ngày ở mục "Xong khi" đến khi đều in OK, chỉ tự rà soát một vòng, rồi mở Pull Request ghi các ngày đã thử.
+
+**Phiên 9h · Ô nhập số trên điện thoại** (sau 9g; nên trước N4)
+> Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md (mục 1 L29–L31, mục 2 Phiên 9h). Sửa trong js/quiz.js theo cách gợi ý: câu trả lời bằng số có nút "/" cạnh nút ± và nhận đáp án phân số trong dữ liệu (ans "a/b", hiện đáp án đúng dạng phân số), Quiz.parse nhận "Đáp số: 3/4"; câu điền có đáp án âm không mở bàn phím số thập phân và có dòng nhắc số âm; câu điền số so theo giá trị, nên gõ dấu chấm hay dấu phẩy thập phân đều đúng. Chữ mới thêm ở cả hai cột của bảng chữ TXT. Không sửa modules/, không đổi câu và đáp án của đề có sẵn. Thêm kiểm tra ans dạng a/b vào tests/kiem-tra-de.js và bước L29–L31 vào tests/e2e.js; chạy CHI_TIET=1 node tests/so-bo-cham.js và ghi các chỗ khác vào Pull Request. Ghi cách dùng mới vào CLAUDE.md và mục 3 của docs/KE-HOACH-NOI-DUNG.md. Mỗi lỗi một commit ghi mã lỗi (L29…). Chạy node tests/kiem-tra-de.js, tests/e2e.js và tests/supabase/cloud-e2e.js đến khi in OK, chụp ảnh 360px sáng/tối câu trả lời bằng số có nút "/" và câu điền số âm, chỉ tự rà soát một vòng, rồi mở Pull Request kèm các bước bố mẹ cần thử trên iPhone.
