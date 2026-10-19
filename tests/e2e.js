@@ -216,7 +216,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   ex0.back = { hash: await page.evaluate(() => location.hash), n: await nRes() };
   await page.goto(BASE + "/#/quiz/toan4-ck1-de1"); await page.waitForTimeout(200);
   await page.click("#qExam"); await page.click("#qzSkip"); // bỏ qua không tính là đã trả lời
-  await page.click("#qzExit"); ex0.exit = (await page.textContent("#qzFb")).replace(/\s+/g, " ");
+  await page.click("#qzSubmit"); ex0.exit = (await page.textContent("#qzFb")).replace(/\s+/g, " ");
   await page.click("#qzYes"); await page.waitForTimeout(300);
   ex0.exitLeft = { hash: await page.evaluate(() => location.hash), n: await nRes() };
   ex0.timeUp = await page.evaluate(() => new Promise((ok) => { // hết giờ mà chưa trả lời câu nào: không lưu
@@ -1011,7 +1011,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     && k3.saved.histN === 25 && k3.saved.histWrong === "[1,1]" && k3.saved.histRight === 24
     && k3.run2.n === 25 && k3.run2.hasWrong && /^2\/[12]$/.test(k3.run2.leftovers) && k3.run2.missOK && k3.run2.differs && /Thoát đề\?/.test(k3.exitAsk)
     && k3.home.hash === "#/home" && k3.home.weak === wrongQ.topic + " · 1 câu" && /Toán 6 · Cuối kì I · Đề ngẫu nhiên/.test(k3.home.recent) && /24\/25/.test(k3.home.recent) && k3.home.n === 2
-    && k3.short && k3.notes === "Kho còn thiếu câu, lần này: Hình phẳng: thiếu 2 câu mức Vận dụng, lấy bù câu chưa ghi mức; Hình phẳng: thiếu 1 câu, lấy từ chủ đề khác." && k3.shortN === "1 / 3"
+    && k3.short && k3.notes === "Kho còn thiếu câu, lần này: Hình phẳng: thiếu 2 câu mức Vận dụng, lấy bù câu chưa ghi mức; Hình phẳng: thiếu 1 câu, lấy từ chủ đề khác." && k3.shortN === "Câu 1/3"
     && k3.report.n === "2" && k3.report.subj === "Toán 9,75/10 2 bài · 49/50 câu đúng" && k3.report.topics === 1 && /Đề ngẫu nhiên/.test(k3.report.week)
     && k3.adminRow === "Lớp 6 · Toán · 25 câu rút ngẫu nhiên · có sẵn (chỉ xem)";
 
@@ -1037,7 +1037,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await rp.click(`.tile[data-u="${ids.Bin}"]`); await rp.fill("#pinIn", PINS.Bin); await rp.waitForTimeout(400);
   await rp.goto(BASE + "/#/quiz/toan4-ck1-de1"); await rp.waitForSelector("#qPractice");
   await rp.click("#qExam"); r1.examNoLink = !(await rp.$(".rp-link")); // làm như thi: không có lời giải, không có link
-  await rp.click("#qzExit"); await rp.click("#qzYes"); await rp.waitForTimeout(300); // chưa làm câu nào: thoát
+  await rp.click("#qzSubmit"); await rp.click("#qzYes"); await rp.waitForTimeout(300); // chưa làm câu nào: thoát
   await rp.goto(BASE + "/#/quiz/toan4-ck1-de1"); await rp.waitForSelector("#qPractice"); await rp.click("#qPractice");
   r1.beforeCheck = !(await rp.$(".rp-link")); // chưa kiểm tra: chưa có link
   const rk1 = await curKey(); await answerFirst();
@@ -1183,7 +1183,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
 
   step("English test UI in English (TA2)");
   /* Đề Tiếng Anh (Quiz.lang(bank) → "en"): mọi chữ học sinh thấy từ màn mở đề đến hết màn kết quả, hộp hỏi khi rời đề (nút Back và
-     "← Exit"; chưa trả lời, đã trả lời, làm như thi), link và hộp "Report a problem", thông báo lưu điểm lấy từ bảng chữ TXT của
+     "← Exit", "Finish test"; chưa trả lời, đã trả lời, làm như thi), link và hộp "Report a problem", thông báo lưu điểm lấy từ bảng chữ TXT của
      js/quiz.js: tên đề dựng lại ("English 4 · End-of-term 1 · Test 1"), mức độ Know/Understand/Apply, nút True/False, số thập phân
      dùng dấu chấm (9.25/10), khung có lang="en". Bin lớp 4 làm ta4-ck1-de1, Na lớp 6 làm ta6-gk1-de1: ôn luyện (câu trắc nghiệm đầu
      và câu điền đầu cố ý sai, báo câu sai ở câu điền) rồi làm như thi (2 câu rồi nộp sớm); mọi chữ trong #view, #leaveBox, #toast
@@ -1214,14 +1214,14 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       await p.goto(BASE + "/#/quiz/" + id); await p.waitForSelector("#qPractice");
       const bank = await p.evaluate((id) => Store.bank(id).questions, id);
       const open = await check("màn mở đề");
-      r.open = (await txt(".hero h1")) === title && (await txt(".hero .label")) === label && (await txt("#qPractice")) === "Practice (see the answer after each question)" && (await txt("#qExam")) === `Test mode · ${minutes} minutes`
+      r.open = (await txt(".hero h1")) === title && (await txt(".hero .label")) === label && (await txt("#qPractice b")) === "Practice" && (await txt("#qExam b")) === `Test mode · ${minutes} minutes` && (await txt("#qModes")) === "Choose a mode"
         && (await txt("#view .linkbtn")) === "← Home" && (await p.$eval("#view > .stack", (e) => e.getAttribute("lang"))) === "en" && /25 questions\./.test(open);
       if (!snapped("mo-de")) await snap("mo-de");
-      // làm như thi, rời khi chưa trả lời: nút Back hỏi "Exit the test?"; "← Exit" hỏi ngay trong trang
+      // làm như thi, rời khi chưa trả lời: nút Back hỏi "Exit the test?"; nút "Finish test" (X6) hỏi ngay trong trang
       await p.click("#qExam"); await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox");
       await check("hộp rời trang, chưa trả lời"); r.leave0 = (await txt("#leaveBox")) === "Exit the test?You haven't answered any questions, so no score is saved. ExitKeep going";
       if (!snapped("roi-trang-chua-lam")) await snap("roi-trang-chua-lam");
-      await p.click("#leaveNo"); await p.click("#qzExit");
+      await p.click("#leaveNo"); await p.click("#qzSubmit");
       await check("hộp Thoát, chưa trả lời"); r.exit0 = (await txt("#qzFb")) === "Exit the test? You haven't answered any questions, so no score is saved.ExitKeep going";
       if (!snapped("thoat-de")) await snap("thoat-de");
       await p.click("#qzYes"); await p.waitForTimeout(300);
@@ -1282,7 +1282,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       // ôn lại câu sai (UX1) bằng tiếng Anh: lượt chỉ có 2 câu, dừng giữa chừng hỏi "Stop reviewing…", kết quả ghi "Reviewing mistakes", không lưu thêm kết quả
       const nSaved = await p.evaluate(() => Store.resultsFor(Store.sessionUser().id).length);
       await p.click("#qzRetry"); await p.waitForSelector(".qcard");
-      r.retryN = (await txt(".chip:last-child")) === "1 / 2";
+      r.retryN = (await txt(".chip:last-child")) === "1 of 2";
       if (await p.$("#qzFill")) await p.fill("#qzFill", "zzz"); else await p.click(".opt >> nth=0");
       await p.click("#qzGo"); await check("ôn lại câu sai"); if (!snapped("on-lai-cau-sai")) await snap("on-lai-cau-sai");
       await p.click("#qzExit"); r.retryExit = (await txt("#qzFb .confirm")) === "Stop reviewing your mistakes? This round is not scored.StopKeep going";
@@ -1291,12 +1291,17 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       r.retryResult = (await txt("#view .panel .label")) === `${title} · Reviewing mistakes` && /Reviewing your mistakes is not scored\./.test(rr) && (await txt("#qzAgain")) === "Try the whole test again"
         && (await p.evaluate(() => Store.resultsFor(Store.sessionUser().id).length)) === nSaved;
       if (!snapped("ket-qua-on-lai")) await snap("ket-qua-on-lai", true);
-      // làm như thi: 2 câu rồi nộp sớm bằng "← Exit"; nút Back hỏi "Finish the test and leave?"
-      await p.goto(BASE + "/#/home"); await p.goto(BASE + "/#/quiz/" + id); await p.waitForSelector("#qExam"); await p.click("#qExam");
+      // làm như thi: 2 câu rồi nộp sớm bằng nút "Finish test" (UX5, X6); nút Back hỏi "Finish the test and leave?"
+      await p.goto(BASE + "/#/home"); await p.goto(BASE + "/#/quiz/" + id); await p.waitForSelector("#qExam");
+      // UX5: thẻ "Last time" (lượt ôn luyện vừa xong), chip đồng hồ "35:00 left" (aria-label "Time left"), tiến độ "1 of 25", nút "Finish test"
+      r.prevEn = /^Last time: \d+\/25 correct$/.test(await txt("#qPrev b")) && /^Today \d\d:\d\d · practice( · \d+ (seconds?|minutes?))?$/.test(await txt("#qPrev .muted"));
+      await p.click("#qExam");
+      r.examTop = (await txt("#qzSubmit")) === "Finish test" && new RegExp(`^(${minutes}:00|${minutes - 1}:5\\d) left$`).test(await txt("#qzTimer")) && (await p.$eval("#qzTimer", (e) => e.getAttribute("aria-label"))) === "Time left"
+        && (await txt("#qzProg")) === "1 of 25" && !(await p.$("#qzExit"));
       for (let k = 0; k < 2; k++) { if (await p.$("#qzFill")) await p.fill("#qzFill", "x"); else await p.click(".opt >> nth=0"); r.examBtn = (await txt("#qzGo")) === "Answer" && (await txt("#qzSkip")) === "Skip"; await p.click("#qzGo"); }
       await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox");
       await check("hộp rời trang, làm như thi"); r.leaveExam = (await txt("#leaveBox")) === "Finish the test and leave?Unanswered questions count as wrong. Finish testKeep going";
-      await p.click("#leaveNo"); await p.click("#qzExit");
+      await p.click("#leaveNo"); await p.click("#qzSubmit");
       r.exitExam = (await txt("#qzFb .confirm")) === "Finish test now? Unanswered questions count as wrong.Finish testKeep going";
       if (!snapped("nop-bai")) await snap("nop-bai");
       await p.click("#qzYes"); await p.waitForSelector(".score");
@@ -1323,12 +1328,12 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     // phụ huynh xem thử đề Tiếng Anh: dòng "Chế độ xem thử" vẫn tiếng Việt, còn lại tiếng Anh
     await signIn("Mẹ Bin", PINS["Mẹ Bin"]);
     await p.goto(BASE + "/#/quiz/ta4-ck1-de1"); await p.waitForSelector("#qPractice");
-    ta2["parent-" + scheme] = { notice: await txt(".notice"), lang: await p.$eval(".notice", (e) => e.getAttribute("lang")), h1: await txt(".hero h1"), btn: await txt("#qPractice") };
+    ta2["parent-" + scheme] = { notice: await txt(".notice"), lang: await p.$eval(".notice", (e) => e.getAttribute("lang")), h1: await txt(".hero h1"), btn: await txt("#qPractice b") };
     (await p.evaluate(audit)).forEach((x) => ta2.problems.push(`TA2 · ${scheme} · xem thử: ${x}`));
     if (!snapped("xem-thu")) await snap("xem-thu");
     // đề Toán 4 vẫn tiếng Việt, không có lang="en"
     await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await p.waitForSelector("#qPractice");
-    ta2["toan-" + scheme] = { h1: await txt(".hero h1"), btn: await txt("#qPractice"), lang: await p.$eval("#view > .stack", (e) => e.getAttribute("lang")) };
+    ta2["toan-" + scheme] = { h1: await txt(".hero h1"), btn: await txt("#qPractice b"), lang: await p.$eval("#view > .stack", (e) => e.getAttribute("lang")) };
     await c.close();
   }
   // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/tieng-anh/ta2-<tên>.jpg)
@@ -1345,11 +1350,11 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("TA2:", ta2.runs, { ioe: [ta2["ioe-light"], ta2["ioe-dark"]], parent: [ta2["parent-light"], ta2["parent-dark"]], toan: [ta2["toan-light"], ta2["toan-dark"]] }, "chữ Việt:", ta2.vi, "problems:", ta2.problems);
   const TA2_SHOTS = ["mo-de", "roi-trang-chua-lam", "thoat-de", "mc", "mc-kiem-tra", "fill", "fill-kiem-tra", "tf", "tf-kiem-tra", "doc-hieu", "doc-hieu-kiem-tra", "bao-cau-sai", "bao-cau-sai-xong", "roi-trang-da-lam", "dung-on", "ket-qua", "on-lai-cau-sai", "ket-qua-on-lai", "nop-bai", "ioe-roi-bai", "xem-thu"];
   const ta2OK = !ta2.problems.length && !ta2.vi.length && ta2.runs.length === 4
-    && ta2.runs.every((r) => r.open && r.leave0 && r.exit0 && r.exit0Home && r.n === 25 && r.wrongN === 2 && r.mcWrong && r.fillWrong && r.rightFb && r.rpBox && r.rpNeed && r.rpDone && r.leave1 && r.exit1 && r.stay && r.result && r.saved && r.retryN && r.retryExit && r.retryResult && r.examBtn && r.leaveExam && r.exitExam && r.examResult)
+    && ta2.runs.every((r) => r.open && r.leave0 && r.exit0 && r.exit0Home && r.n === 25 && r.wrongN === 2 && r.mcWrong && r.fillWrong && r.rightFb && r.rpBox && r.rpNeed && r.rpDone && r.leave1 && r.exit1 && r.stay && r.result && r.saved && r.retryN && r.retryExit && r.retryResult && r.examBtn && r.prevEn && r.examTop && r.leaveExam && r.exitExam && r.examResult)
     && ["light", "dark"].every((sc) => { const io = ta2["ioe-" + sc], pa = ta2["parent-" + sc], to = ta2["toan-" + sc];
       return io.note === "Score saved" && io.back === "← Home" && io.lang === "en" && io.title === "Your score is saved to your profile each time you finish." && io.leave === "Leave this practice?Your unfinished work won't be saved. LeaveStay" && io.toast === "Result saved: 24/30 correct" && io.left === "#/home"
-        && pa.notice === "Chế độ xem thử: điểm không được lưu." && pa.lang === "vi" && pa.h1 === "English 4 · End-of-term 1 · Test 1" && pa.btn === "Practice (see the answer after each question)"
-        && to.h1 === "Toán 4 · Cuối kì I · Đề 1" && to.btn === "Ôn luyện (xem đáp án từng câu)" && to.lang === null; })
+        && pa.notice === "Chế độ xem thử: điểm không được lưu." && pa.lang === "vi" && pa.h1 === "English 4 · End-of-term 1 · Test 1" && pa.btn === "Practice"
+        && to.h1 === "Toán 4 · Cuối kì I · Đề 1" && to.btn === "Ôn luyện" && to.lang === null; })
     && TA2_SHOTS.every((n) => ta2.shots.includes(`ta2-${n}-light`) && ta2.shots.includes(`ta2-${n}-dark`));
 
   step("module wrong list: a correct answer anywhere removes the question (L27)");
@@ -1638,8 +1643,8 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       && r.result.label === "Toán 4 · Cuối kì I · Đề 1 · Ôn luyện" && r.result.praise === "Xuất sắc, Bin!" && r.result.score === "9,25/10" && r.result.cmp === "Hơn lần trước 2 câu (21/25)" && r.result.retry === "Ôn lại 2 câu sai" && r.result.again === "Làm lại cả đề" && r.result.home === "Về trang chính"
       && /^closed:(4[4-9]|[5-9]\d|\d{3}):hidden\|closed:(4[4-9]|[5-9]\d|\d{3}):hidden$/.test(r.result.rv) && /^Câu [12] · .+Bạn trả lời: .+ · bấm để xem đáp án, lời giải$/.test(r.result.rvHead) && !/Đáp án:/.test(r.result.rvHead)
       && /^Theo chủ đề Đúng hết \d+\/\d+ chủ đề\. Cần ôn thêm: .+Xem cả \d+ chủ đề/.test(r.result.topics) && /^qzScore,row,qzReview,qzTopics,(qzLv,)?row$/.test(r.result.order) && r.rvOpen
-      && r.retry.chip === "1 / 2" && r.retry.leave === "Dừng ôn lại và rời trang?Lượt ôn lại câu sai không lưu điểm. DừngÔn tiếp" && /^Toán 4 · Cuối kì I · Đề 1 · Ôn lại câu sai Xuất sắc, Bin! 10\/10 2\/2 câu đúng.*Lượt ôn lại câu sai không lưu điểm\.$/.test(r.retry.result)
-      && r.retry.btns === "|Làm lại cả đề" && r.retry.saved === 1 && r.retry.full === "1 / 25 ← Thoát"
+      && r.retry.chip === "Câu 1/2" && r.retry.leave === "Dừng ôn lại và rời trang?Lượt ôn lại câu sai không lưu điểm. DừngÔn tiếp" && /^Toán 4 · Cuối kì I · Đề 1 · Ôn lại câu sai Xuất sắc, Bin! 10\/10 2\/2 câu đúng.*Lượt ôn lại câu sai không lưu điểm\.$/.test(r.retry.result)
+      && r.retry.btns === "|Làm lại cả đề" && r.retry.saved === 1 && r.retry.full === "Câu 1/25 ← Thoát"
       && r.numeric === "decimal,null" && r.tabAdmin.tabs === "" && r.tabAdmin.cal
       && !r.avatar.used.includes(r.avatar.student) && !r.avatar.used.includes(r.avatar.parent) && r.avatar.student === "🐼" && r.avatar.parent === "🐼" // 🐣 (Bin), 🦊 (Na, form đã chọn sẵn), 🌻, 🧭 đã có người dùng
       && r.child.report && r.child.back === "← Danh sách học sinh" && r.child.ready === "Đã làm đúng 90% bài ôn của kì này" && r.child.links === 2 && r.child.edit; });
@@ -1796,6 +1801,127 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       && r.account.hint === "Chạm vào hình là đổi ngay." && !r.account.save && r.account.pinBtn === "Đổi mã PIN" && r.account.h3 === "Hình đại diện,Đổi mã PIN"
       && r.changed.av && r.changed.toast === "Đã đổi hình đại diện" && r.changed.head && r.changed.top && r.changed.pressed && r.changed.saved && /Nhập mã PIN mới/.test(r.pinForm); });
 
+  step("focused test screen: top bar, Finish button, timer, Skip, open screen (UX5)");
+  /* Phiên UX5 (X5–X9), bản lưu trên máy, ngày giả lập 14/12/2026 8:00. Bin (lớp 4) mở Toán 4 · Cuối kì I · Đề 3 (chưa làm lần nào):
+     màn mở đề không có thẻ "Lần trước", có "Chọn cách làm" với hai thẻ (cao ≥ 64px, biểu tượng, một dòng giải thích). Làm như thi (X5–X7):
+     thanh trên chỉ còn chữ OnUp (không hình đại diện, không thanh tab, body.quizzing), nút "Nộp bài" thay "← Thoát", chip "Còn 40:00" có
+     biểu tượng, role="timer", aria-label "Thời gian còn lại", tiến độ "Câu 1/25"; chưa trả lời mà bấm Nộp bài thì hỏi "Thoát đề?", thoát
+     thì không lưu điểm. Trả lời 3 câu, tua đồng hồ còn dưới 2 phút (chip .warn), Nộp bài hỏi lại như cũ, nộp thì màn kết quả có lại hình
+     đại diện. Mở lại đề (X9): thẻ "Lần trước: x/25 câu đúng" (Hôm nay … · làm như thi · N phút), không lấy kết quả tự chấm mới hơn
+     (graded). Ôn luyện (X8): "← Thoát", không có đồng hồ; sau Kiểm tra không còn nút "Bỏ qua" nào hiện ra, "Câu tiếp" ở mép phải;
+     "Làm lại" từ màn kết quả lại vào chế độ tập trung. Phụ huynh xem thử: trong lúc làm không có nút "Lịch thi", hình đại diện; màn
+     kết quả có lại; không có thẻ "Lần trước". Đề tự nhập không có số phút: chỉ thẻ Ôn luyện. Mỗi màn hình kiểm tra 360px (audit).
+     Ảnh 360px sáng/tối ở tests/screenshots/ux5/ (bản ghép <tên>.jpg): c1-lam-nhu-thi, c1-nop-bai, c2-sau-kiem-tra, c4-mo-de. */
+  const OUTUX5 = OUT + "ux5/"; fs.mkdirSync(OUTUX5, { recursive: true });
+  const ux5 = { problems: [], shots: [] };
+  const UX5_BANK = "toan4-ck1-de3";
+  for (const scheme of ["light", "dark"]) {
+    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror UX5: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console UX5: " + m.text()); });
+    await p.clock.install({ time: new Date("2026-12-14T08:00:00") });
+    const r = (ux5[scheme] = {});
+    const check5 = async (label) => (await p.evaluate(audit)).forEach((x) => ux5.problems.push(`UX5 · ${scheme} · ${label}: ${x}`));
+    const snap5 = async (n) => { await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await p.screenshot({ path: `${OUTUX5}${n}-${scheme}.png`, fullPage: true }); ux5.shots.push(`${n}-${scheme}`); };
+    const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : null; }, sel);
+    // thanh trên: hình đại diện, nút Lịch thi có hiện không; chế độ tập trung; thanh tab dưới
+    const top = () => p.evaluate(() => { const vis = (e) => !!e && e.getBoundingClientRect().width > 0; return { av: vis(document.querySelector("#who .av")), cal: vis(document.querySelector('#who a[href="#/calendar"]')), brand: vis(document.querySelector(".top .brand")), quizzing: document.body.classList.contains("quizzing"), tabbar: vis(document.querySelector("#tabbar")) }; });
+    const answer = async () => { if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else if (await p.$("#qzNum")) await p.fill("#qzNum", "1"); else await p.click(".opts .opt >> nth=0"); await p.click("#qzGo"); };
+    const nRes = () => p.evaluate(() => Store.resultsFor(Store.sessionUser().id).length);
+    await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids.Bin}"]`); await p.fill("#pinIn", PINS.Bin); await p.waitForSelector("#today");
+    // X9: màn mở đề, chưa làm lần nào
+    await p.goto(BASE + "/#/quiz/" + UX5_BANK); await p.waitForSelector("#qPractice");
+    r.open0 = await p.evaluate(() => { const card = (id) => { const b = document.querySelector(id), x = b.getBoundingClientRect(); return { h: x.height >= 64, ic: b.querySelectorAll("svg").length === 2, head: b.querySelector("b").textContent.replace(/\s+/g, " "), note: b.querySelector(".muted").textContent }; }; // nb(): khoảng trắng không ngắt trước "·"
+      return { prev: !!document.querySelector("#qPrev"), choose: document.querySelector("#qModes").textContent, group: document.querySelector(".modes").getAttribute("aria-labelledby"), practice: card("#qPractice"), exam: card("#qExam"), heroBtns: document.querySelectorAll(".hero button").length }; });
+    r.top0 = await top();
+    await check5("màn mở đề, chưa làm");
+    // X6: làm như thi, chưa trả lời câu nào mà bấm "Nộp bài": hỏi "Thoát đề?", thoát thì không lưu điểm và bỏ chế độ tập trung
+    const n0 = await nRes();
+    await p.click("#qExam"); await p.click("#qzSubmit");
+    r.exit0 = { ask: await txt("#qzFb .confirm") };
+    await p.click("#qzYes"); await p.waitForTimeout(300);
+    Object.assign(r.exit0, { hash: await p.evaluate(() => location.hash), same: (await nRes()) === n0, top: await top() });
+    // X5–X7: làm như thi
+    await p.goto(BASE + "/#/quiz/" + UX5_BANK); await p.waitForSelector("#qExam"); await p.click("#qExam"); await p.waitForSelector("#qzGo");
+    r.exam = await p.evaluate(() => { const t = document.querySelector("#qzTimer"), s = document.querySelector("#qzSubmit"), row = document.querySelector(".qz-top").getBoundingClientRect(), sb = s.getBoundingClientRect();
+      return { exit: !!document.querySelector("#qzExit"), thoat: /Thoát/.test(document.querySelector("#view").textContent), submit: s.textContent, cls: s.className, right: Math.round(row.right - sb.right), oneRow: Math.abs(sb.top - t.getBoundingClientRect().top) < 12,
+        timer: t.textContent, role: t.getAttribute("role"), aria: t.getAttribute("aria-label"), icon: !!t.querySelector("svg"), warn: t.classList.contains("warn"), prog: document.querySelector("#qzProg").textContent }; });
+    r.examTop = await top();
+    await check5("làm như thi"); await snap5("c1-lam-nhu-thi");
+    for (let k = 0; k < 3; k++) await answer();
+    r.examProg = await txt("#qzProg");
+    await p.clock.fastForward("38:30"); await p.waitForTimeout(100); // còn dưới 2 phút: chip đổi màu
+    r.warn = await p.evaluate(() => { const t = document.querySelector("#qzTimer"); return { warn: t.classList.contains("warn"), text: t.textContent }; });
+    await p.click("#qzSubmit");
+    r.submitAsk = await txt("#qzFb .confirm");
+    await p.waitForTimeout(500); // hộp hỏi lại nằm trong màn hình (cuộn tới nếu câu dài), "Làm tiếp" được focus
+    r.submitSeen = await p.evaluate(() => { const b = document.querySelector("#qzFb .confirm").getBoundingClientRect(); return b.top >= 0 && b.bottom <= innerHeight && document.activeElement.id === "qzNo"; });
+    await check5("hỏi lại khi nộp bài"); await snap5("c1-nop-bai");
+    await p.click("#qzYes"); await p.waitForSelector(".score");
+    r.resultTop = await top();
+    const saved = await p.evaluate(() => Store.resultsFor(Store.sessionUser().id)[0]);
+    // kết quả tự chấm mới hơn cùng đề không phải "Lần trước" (graded)
+    await p.evaluate((id) => Store.addResult({ userId: Store.sessionUser().id, source: "bank", refId: id, subject: "Toán", label: "x", mode: "self", r: 4, t: 8, s: 0 }), UX5_BANK);
+    // X9: mở lại đề: thẻ "Lần trước"
+    await p.goto(BASE + "/#/home"); await p.goto(BASE + "/#/quiz/" + UX5_BANK); await p.waitForSelector("#qPrev");
+    r.prev = { head: await txt("#qPrev b"), sub: await txt("#qPrev .muted"), want: `Lần trước: ${String(saved.r).replace(".", ",")}/${saved.t} câu đúng`, mode: saved.mode, icon: await p.$eval("#qPrev", (e) => !!e.querySelector("svg")) };
+    await check5("màn mở đề, đã làm"); await snap5("c4-mo-de");
+    // X8: ôn luyện: "← Thoát", không có đồng hồ; sau Kiểm tra không còn nút "Bỏ qua" nào hiện ra, "Câu tiếp" ở mép phải
+    await p.click("#qPractice"); await p.waitForSelector("#qzGo");
+    r.practice = { exit: await txt("#qzExit"), submit: !!(await p.$("#qzSubmit")), timer: !!(await p.$("#qzTimer")), prog: await txt("#qzProg"), top: await top(), skip: await p.$eval("#qzSkip", (b) => !b.hidden && b.getBoundingClientRect().width > 0) };
+    await answer();
+    r.checked = await p.evaluate(() => { const g = document.querySelector("#qzGo").getBoundingClientRect(), row = document.querySelector(".qz-nav").getBoundingClientRect();
+      return { skips: [...document.querySelectorAll("button")].filter((b) => /Bỏ qua/.test(b.textContent) && b.getBoundingClientRect().width > 0).length, right: Math.round(row.right - g.right), go: document.querySelector("#qzGo").textContent }; });
+    await check5("ôn luyện, sau Kiểm tra"); await snap5("c2-sau-kiem-tra");
+    await p.click("#qzGo"); r.nextSkip = await p.$eval("#qzSkip", (b) => !b.hidden && b.getBoundingClientRect().width > 0); // câu sau: "Bỏ qua" hiện lại
+    await p.click("#qzExit"); await p.click("#qzYes"); await p.waitForSelector(".score");
+    r.practiceEnd = await top();
+    await p.click("#qzAgain"); await p.waitForSelector("#qzGo"); r.again = await top(); // "Làm lại": lại vào chế độ tập trung
+    await p.goto(BASE + "/#/home"); await p.waitForSelector("#today"); r.home = await top();
+    // phụ huynh xem thử: trong lúc làm không có nút "Lịch thi" và hình đại diện, màn kết quả có lại; không có thẻ "Lần trước"
+    await p.goto(BASE + "/#/account"); await p.click("#logout"); await p.waitForTimeout(200);
+    await p.click(`.tile[data-u="${ids["Mẹ Bin"]}"]`); await p.fill("#pinIn", PINS["Mẹ Bin"]); await p.waitForTimeout(400);
+    await p.goto(BASE + "/#/quiz/" + UX5_BANK); await p.waitForSelector("#qPractice");
+    r.parent = { prev: !!(await p.$("#qPrev")), notice: await txt(".notice"), open: await top() };
+    await p.click("#qPractice"); await p.waitForSelector("#qzGo"); r.parent.run = await top();
+    await answer(); await p.click("#qzExit"); await p.click("#qzYes"); await p.waitForSelector(".score");
+    r.parent.result = await top();
+    // đề tự nhập không có số phút: chỉ thẻ Ôn luyện
+    await p.evaluate(() => Store.upsertBank({ id: "ux5-khong-gio", title: "Ôn nhanh phép nhân", grade: 4, subject: "Toán", minutes: 0, questions: [{ type: "mc", q: "6 × 7 = ?", o: ["42", "48"], topic: "Phép nhân" }] }));
+    await p.goto(BASE + "/#/quiz/ux5-khong-gio"); await p.waitForSelector("#qPractice");
+    r.noMinutes = await p.evaluate(() => document.querySelectorAll(".modes .mode").length === 1 && !document.querySelector("#qExam"));
+    await check5("đề không có số phút");
+    await p.evaluate(() => Store.removeBank("ux5-khong-gio"));
+    await c.close();
+  }
+  { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/ux5/<tên>.jpg)
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of [...new Set(ux5.shots.map((x) => x.replace(/-(light|dark)$/, "")))]) {
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTUX5}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTUX5}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("UX5:", JSON.stringify(ux5.light), "dark:", JSON.stringify(ux5.dark), "problems:", ux5.problems);
+  const offTop = (t) => !t.av && !t.cal && t.brand && t.quizzing && !t.tabbar, fullTop = (t) => t.av && t.brand && !t.quizzing;
+  const ux5OK = !ux5.problems.length && ["light", "dark"].every((sc) => { const r = ux5[sc];
+    return !r.open0.prev && r.open0.choose === "Chọn cách làm" && r.open0.group === "qModes" && r.open0.heroBtns === 0 && fullTop(r.top0)
+      && r.open0.practice.h && r.open0.practice.ic && r.open0.practice.head === "Ôn luyện" && r.open0.practice.note === "Xem đáp án và lời giải ngay sau mỗi câu. Không tính giờ."
+      && r.open0.exam.h && r.open0.exam.ic && r.open0.exam.head === "Làm như thi · 40 phút" && r.open0.exam.note === "Tính giờ như ở trường, chấm điểm khi nộp bài."
+      && r.exit0.ask === "Thoát đề? Bạn chưa làm câu nào nên không lưu điểm.ThoátLàm tiếp" && r.exit0.hash === "#/home" && r.exit0.same && fullTop(r.exit0.top)
+      && !r.exam.exit && !r.exam.thoat && r.exam.submit === "Nộp bài" && r.exam.cls === "btn ghost sm" && r.exam.right === 0 && r.exam.oneRow
+      && /^Còn (40:00|39:5\d)$/.test(r.exam.timer) && r.exam.role === "timer" && r.exam.aria === "Thời gian còn lại" && r.exam.icon && !r.exam.warn && r.exam.prog === "Câu 1/25"
+      && offTop(r.examTop) && r.examProg === "Câu 4/25" && r.warn.warn && /^Còn 01:[23]\d$/.test(r.warn.text)
+      && r.submitAsk === "Nộp bài ngay? Câu chưa làm tính là sai.Nộp bàiLàm tiếp" && r.submitSeen && fullTop(r.resultTop)
+      && r.prev.head === r.prev.want && r.prev.mode === "exam" && /^Hôm nay 08:\d\d · làm như thi · \d+ phút$/.test(r.prev.sub) && r.prev.icon
+      && r.practice.exit === "← Thoát" && !r.practice.submit && !r.practice.timer && r.practice.prog === "Câu 1/25" && offTop(r.practice.top) && r.practice.skip
+      && r.checked.skips === 0 && r.checked.right === 0 && r.checked.go === "Câu tiếp" && r.nextSkip
+      && fullTop(r.practiceEnd) && offTop(r.again) && fullTop(r.home) && r.home.tabbar
+      && !r.parent.prev && r.parent.notice === "Chế độ xem thử: điểm không được lưu." && fullTop(r.parent.open) && r.parent.open.cal && offTop(r.parent.run) && fullTop(r.parent.result) && r.parent.result.cal
+      && r.noMinutes; })
+    && ["c1-lam-nhu-thi", "c1-nop-bai", "c2-sau-kiem-tra", "c4-mo-de"].every((n) => ux5.shots.includes(n + "-light") && ux5.shots.includes(n + "-dark"));
+
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
      Đề có sẵn: chỉ danh mục data/banks/index.js nằm trong FILES; file câu hỏi vào đệm khi mở đề. */
@@ -1913,7 +2039,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, ux4OK };
+    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, ux4OK, ux5OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();

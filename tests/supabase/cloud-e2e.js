@@ -273,6 +273,9 @@ async function run(browser, scheme) {
   await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await wait(p);
   c.ux1.quizTabs = !(await p.$("#tabbar")); // màn đề không có thanh tab
   await p.click("#qPractice");
+  // UX5 (X5): trong lúc làm đề, thanh trên chỉ còn chữ OnUp (không hình đại diện); ôn luyện giữ "← Thoát", tiến độ "Câu 1/25"
+  const topBar = () => p.evaluate(() => { const av = document.querySelector("#who .av"); return { quizzing: document.body.classList.contains("quizzing"), av: !!av && av.getBoundingClientRect().width > 0 }; });
+  c.ux5 = { run: await topBar(), exit: await text(p, "#qzExit"), prog: await text(p, "#qzProg") };
   c.ux1.label = await p.$$eval(".qcard .label", (l) => l.map((x) => x.textContent.replace(/\s+/g, " ")).join("|")); // một dòng nhãn "Toán · chủ đề"
   const binId = prof.find((x) => x.name === "Bin").id;
   for (let i = 0; i < 40 && !(await p.$(".score")); i++) {
@@ -294,6 +297,7 @@ async function run(browser, scheme) {
     await p.click("#qzGo");
   }
   await p.waitForSelector(".score");
+  c.ux5.result = await topBar(); // màn kết quả: thanh trên có lại hình đại diện
   // UX1: màn kết quả có lời khen, nút "Ôn lại N câu sai" (N = số câu sai), câu sai thu gọn (bấm mới mở)
   c.ux1.result = await p.evaluate(() => ({ praise: document.querySelector("#qzScore .praise").textContent, retry: document.querySelector("#qzRetry").textContent, n: document.querySelectorAll("details.rv").length, closed: [...document.querySelectorAll("details.rv")].every((d) => !d.open), again: document.querySelector("#qzAgain").textContent }));
   await shot(p, "c8h-ket-qua-de");
@@ -319,7 +323,10 @@ async function run(browser, scheme) {
   const nKid = await kidRes();
   // L15: vào "Làm như thi" rồi bấm Back khi chưa trả lời câu nào: hỏi "Thoát đề?", thoát thì không lưu điểm
   await p.goto(BASE + "/#/home"); await wait(p); await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await wait(p);
-  await p.click("#qExam"); await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox");
+  c.ux5.prev = await text(p, "#qPrev b"); c.ux5.modes = await p.$$eval(".modes .mode", (b) => b.map((x) => x.querySelector("b").textContent.replace(/\s+/g, " ")).join()); // UX5 (X9): thẻ "Lần trước", hai thẻ cách làm
+  await p.click("#qExam");
+  c.ux5.exam = { submit: await text(p, "#qzSubmit"), exit: !!(await p.$("#qzExit")), timer: await text(p, "#qzTimer"), top: await topBar() }; // UX5 (X6, X7): "Nộp bài", "Còn 40:00"
+  await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox");
   c.l15 = { ask: await text(p, "#leaveBox") };
   await p.click("#leaveYes"); await wait(p, 400);
   Object.assign(c.l15, { hash: await p.evaluate(() => location.hash), same: (await kidRes()) === nKid });
@@ -709,7 +716,7 @@ async function run(browser, scheme) {
     "R1: báo cáo lên máy chủ (hồ sơ con, gia đình, mã đề, mã câu, nội dung câu ≤ 500, ghi chú cắt 200, trạng thái mới); tab Dữ liệu liệt kê kèm trạng thái": c.r1.server && c.r1.row
       && c.r1.data.n === 2 && c.r1.data.head === "Câu bị báo sai (2)" && c.r1.data.chips === "Mới,Mới" && !c.r1.data.copy && c.r1.data.who,
     "TA2: đề Tiếng Anh: màn mở đề, câu hỏi, hộp hỏi khi rời, màn kết quả, thông báo lưu điểm bằng tiếng Anh, không có chữ tiếng Việt; kết quả lên máy chủ vẫn ghi môn Tiếng Anh": c.ta2.h1 === "English 6 · Mid-term 1 · Test 1" && c.ta2.lang === "en"
-      && [c.ta2.open, c.ta2.fb, c.ta2.leave, c.ta2.exit, c.ta2.result, c.ta2.toast].every((t) => t && !CHU_VIET.test(t)) && /Practice \(see the answer after each question\)/.test(c.ta2.open) && /Test mode · 45 minutes/.test(c.ta2.open)
+      && [c.ta2.open, c.ta2.fb, c.ta2.leave, c.ta2.exit, c.ta2.result, c.ta2.toast].every((t) => t && !CHU_VIET.test(t)) && /Choose a mode ?PracticeSee the answer and guide right after each question\. No timer\. ?Test mode · 45 minutesTimed like at school, scored when you finish\./.test(c.ta2.open)
       && /Report a problem$/.test(c.ta2.fb) && c.ta2.next === "Next question" && c.ta2.leave === "End practice and leave?Your answers so far will be saved. End practiceKeep practising"
       && c.ta2.exit === "End practice and see your results?End practiceKeep going" && /^English 6 · Mid-term 1 · Test 1 · Practice /.test(c.ta2.result) && /\/2 correctTime: /.test(c.ta2.result)
       && /Go to home$/.test(c.ta2.result) && c.ta2.toast === "Result saved" && c.ta2.server,
@@ -717,7 +724,11 @@ async function run(browser, scheme) {
       c.ux1.tabs === "Hôm nay*,Bài ôn,Lịch thi,Kết quả" && c.ux1.tabH && c.ux1.today && !c.ux1.cal && c.ux1.tabbed && c.ux1.quizTabs && /^Toán · \S/.test(c.ux1.label) && !c.ux1.label.includes("|"),
     "UX1: màn kết quả có lời khen, nút “Ôn lại N câu sai”, câu sai thu gọn; lượt ôn lại chỉ gồm câu sai và không gửi thêm kết quả lên máy chủ":
       /^(Xuất sắc|Giỏi lắm|Khá tốt|Được rồi|Chưa sao), Bin[!.]/.test(c.ux1.result.praise) && c.ux1.result.retry === `Ôn lại ${c.ux1.result.n} câu sai` && c.ux1.result.n > 0 && c.ux1.result.closed && c.ux1.result.again === "Làm lại cả đề"
-      && c.ux1.retryChip === `1 / ${c.ux1.result.n}` && /· Ôn lại câu sai /.test(c.ux1.retryResult) && /Lượt ôn lại câu sai không lưu điểm\./.test(c.ux1.retryResult) && c.ux1.retryServer,
+      && c.ux1.retryChip === `Câu 1/${c.ux1.result.n}` && /· Ôn lại câu sai /.test(c.ux1.retryResult) && /Lượt ôn lại câu sai không lưu điểm\./.test(c.ux1.retryResult) && c.ux1.retryServer,
+    "UX5: làm đề tập trung (thanh trên chỉ còn chữ OnUp, màn kết quả có lại); làm như thi có “Nộp bài”, “Còn 40:00”; màn mở đề có thẻ “Lần trước” và hai thẻ cách làm":
+      c.ux5.run.quizzing && !c.ux5.run.av && c.ux5.exit === "← Thoát" && c.ux5.prog === "Câu 1/25" && !c.ux5.result.quizzing && c.ux5.result.av
+      && /^Lần trước: \d+(,\d+)?\/25 câu đúng$/.test(c.ux5.prev) && c.ux5.modes === "Ôn luyện,Làm như thi · 40 phút"
+      && c.ux5.exam.submit === "Nộp bài" && !c.ux5.exam.exit && /^Còn (40:00|39:5\d)$/.test(c.ux5.exam.timer) && c.ux5.exam.top.quizzing && !c.ux5.exam.top.av,
     "UX2: khu phụ huynh có ba mục Các con · Lịch thi · Cài đặt; nút Lịch thi trên cùng và #/calendar về tab Lịch thi; thêm hồ sơ xong về Các con": c.ux2.tabs === "Các con*,Lịch thi,Cài đặt" && c.ux2.topCal === "#/admin/events"
       && /^Bắt đầu trong 3 bước/.test(c.ux2.empty) && c.ux2.afterAdd === "#/admin/overview" && c.ux2.calRedirect === "#/admin/events",
     "UX2: tab Các con: mỗi con một thẻ (chưa có bài: Chưa ôn · – · 0; kì thi gần nhất còn N ngày · chưa ôn …), không có ô số liệu trùng ý; thẻ có bài hôm nay ghi số bài, điểm hôm nay":

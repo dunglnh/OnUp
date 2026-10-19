@@ -2,6 +2,9 @@
    Quiz.run(el, bank, {mode:"exam"|"practice", onExit, onFinish, name?, previous?}) → {stop(), busy(), answered(), submit(), count(), exam, retry}
      busy(): đang làm dở (làm như thi chưa nộp, hoặc ôn luyện đã trả lời hoặc bỏ qua ít nhất một câu);
      answered(): số câu đã trả lời (câu bấm "Bỏ qua" không tính); submit(): nộp bài như bấm Nộp; count(): số câu của lượt đang làm.
+     Nút trên cùng (Phiên UX5, X6): ôn luyện "← Thoát" (#qzExit); làm như thi "Nộp bài" (#qzSubmit, bên phải). Cả hai hỏi lại trong
+     trang trước (chưa trả lời câu nào thì hỏi "Thoát đề?"). Chip đồng hồ "Còn 12:30" (#qzTimer, role="timer", aria-label "Thời gian
+     còn lại", X7) và tiến độ "Câu 9/25" (#qzProg).
      Chưa trả lời câu nào (kể cả khi hết giờ) thì nộp bài không gọi onFinish: không lưu điểm.
      "Làm lại" dùng tiếp đối tượng này, nên app luôn dừng hoặc nộp đúng lượt đang làm. opts.redraw() → {questions} (đề
      ngẫu nhiên): nút thành "Làm đề khác", lượt sau dùng bộ câu mới.
@@ -11,6 +14,9 @@
      cùng cách làm; câu cần xem lại thu gọn (<details class="rv">, bấm mới xem đáp án, lời giải); theo chủ đề chỉ hiện chủ đề cần ôn thêm.
      Trên câu chỉ một dòng nhãn "môn · chủ đề" (dạng đúng/sai 4 ý, nối cột, sắp xếp, tự luận ghi thêm cách làm); câu điền mà mọi đáp án
      là số thì ô nhập có inputmode="decimal" (bàn phím số).
+   Chế độ tập trung (Phiên UX5, X5): opts.onStart() khi một lượt bắt đầu (cả "Làm lại", "Ôn lại câu sai"), opts.onEnd() khi lượt
+     đó xong, ở mọi nhánh của finish() (có màn kết quả hoặc chưa trả lời câu nào) và khi thoát đề chưa làm câu nào. App ẩn thanh trên
+     trong khoảng giữa hai lần gọi.
    onFinish(res) được gọi cho hai loại kết quả:
      - phần chấm tự động: {r, t, s, mode, wrongTopics}. t: số câu, r: số câu đúng, có thể lẻ đến 0,01 vì câu đúng/sai 4 ý
        và nối cột chấm theo từng ý (score); câu tự luận không tính vào r, t;
@@ -44,7 +50,9 @@
      aria-label, tên mức độ, Đúng/Sai, link và hộp báo câu sai) và chữ của js/app.js quanh đề (các khóa app…: màn mở đề, màn tải đề,
      hộp rời trang, thông báo lưu điểm, khung bài ôn IOE) lấy từ đây. Đề Tiếng Anh (Quiz.lang(bank) → "en") dùng cột en, còn lại
      cột vi. Thêm chữ mới cho màn làm đề thì thêm ở cả hai cột (CLAUDE.md, "Quy ước code"); chuỗi có tham số viết là hàm.
-     Dữ liệu lưu (kết quả, bản chụp câu bị báo Quiz.text) và chữ ở trang chủ, báo cáo, khu phụ huynh không qua bảng này. */
+     Dữ liệu lưu (kết quả, bản chụp câu bị báo Quiz.text) và chữ ở trang chủ, báo cáo, khu phụ huynh không qua bảng này (trừ appWhen:
+     ago() trong js/app.js dùng TXT.vi.appWhen cho chữ "Hôm nay 12:43" ở mọi màn hình, Phiên UX5). */
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const TXT = {
     vi: {
       lang: "vi", lv: { 1: "Biết", 2: "Hiểu", 3: "Vận dụng" }, tfYes: "Đúng", tfNo: "Sai", blank: "(bỏ trống)", topicGeneral: "Chung",
@@ -70,13 +78,15 @@
       rpNote: "Ghi chú", rpNoteOpt: "(không bắt buộc, tối đa 200 kí tự)", rpNotePh: "Viết thêm nếu muốn", rpSend: "Gửi", rpCancel: "Thôi",
       rpNeed: "Bạn chọn một lí do nhé.", rpThanks: "Cảm ơn bạn! Người làm đề sẽ xem lại câu này.", rpFail: "Chưa gửi được. Thử lại nhé.",
       // màn làm bài
-      exit: "← Thoát", skip: "Bỏ qua", answer: "Trả lời", seeGuide: "Xem gợi ý", check: "Kiểm tra", next: "Câu tiếp", seeResults: "Xem kết quả",
+      // X7: chip đồng hồ "Còn 12:30" (aria-label "Thời gian còn lại"), tiến độ "Câu 9/25"
+      timeLeft: (t) => `Còn ${t}`, timeAria: "Thời gian còn lại", progress: (i, n) => `Câu ${i}/${n}`,
+      exit: "← Thoát", submit: "Nộp bài", skip: "Bỏ qua", answer: "Trả lời", seeGuide: "Xem gợi ý", check: "Kiểm tra", next: "Câu tiếp", seeResults: "Xem kết quả",
       guide: "Gợi ý:", noGuide: "Chưa có gợi ý.", right: "Đúng rồi!", wrong: "Chưa đúng.", ansLabel: "Đáp án:", ordRight: "Thứ tự đúng:",
       tf4All: "Đúng cả 4 ý!", tf4Part: (k, p) => `Đúng ${k}/4 ý · được ${p}/1 điểm.`,
       mtNone: "Chưa nối", mtItem: (i) => "Ô " + i, mtDone: "Đã nối đủ. Chạm một ô bên trái để đổi.", mtPick: (i) => `Chọn ô nối với ô ${i}`,
       mtWrong: (g) => `Bạn nối: ${g} · Đúng: `, mtAll: "Nối đúng hết!", mtPart: (k, n, p) => `Nối đúng ${k}/${n} cặp · được ${p}/1 điểm.`,
       ordRemove: (i, s) => `Bỏ ô ${i}: ${s}`, ordTap: (i) => `Chạm ô thứ ${i}`, ordDone: "Đã xếp đủ. Chạm một ô ở trên để bỏ ra.",
-      // hộp hỏi khi bấm Thoát trong màn làm bài
+      // hộp hỏi khi bấm "← Thoát" (ôn luyện) hoặc "Nộp bài" (làm như thi, X6) trong màn làm bài
       exNone: ["Thoát đề? Bạn chưa làm câu nào nên không lưu điểm.", "Thoát"], exExam: ["Nộp bài ngay? Câu chưa làm tính là sai.", "Nộp bài"],
       exPractice: ["Dừng ôn và xem kết quả?", "Dừng"], exRetry: ["Dừng ôn lại câu sai? Lượt này không lưu điểm.", "Dừng"], keepGoing: "Làm tiếp",
       // màn kết quả
@@ -97,7 +107,14 @@
       appHome: "Trang chính", appGrade: (g) => `Lớp ${g}`, english: "Tiếng Anh", appRandom: "Đề ngẫu nhiên",
       appPoolIntro: (n, all, src) => `Mỗi lần làm là một đề khác: ${n} câu rút từ kho ${all} câu${src ? ` (${src} đề)` : ""} theo ma trận đề, ưu tiên câu bạn chưa làm hoặc hay sai`,
       appCount: (n) => `${n} câu`, appEssayN: (n) => ` (${n} câu tự luận tự chấm)`, appNotes: (s) => `Kho còn thiếu câu, lần này: ${s}.`, appNotesToast: (s) => "Kho còn thiếu câu: " + s,
-      appPractice: "Ôn luyện (xem đáp án từng câu)", appExam: (m) => `Làm như thi · ${m} phút`, appSaved: "Đã lưu kết quả", appSavedSelf: "Đã lưu điểm tự chấm",
+      appSaved: "Đã lưu kết quả", appSavedSelf: "Đã lưu điểm tự chấm",
+      // màn mở đề (UX5, X9): thẻ "Lần trước" (số câu đúng; lúc làm · cách làm · thời gian), hai thẻ chọn cách làm có một dòng giải thích.
+      // appWhen: lúc làm (diff: số ngày trước hôm nay, hm: giờ:phút, d/m: ngày, tháng), cũng là chữ "Hôm nay 12:43" của ago() trong js/app.js
+      appPrev: (r, t) => `Lần trước: ${r}/${t} câu đúng`, appPrevMode: { exam: "làm như thi", practice: "ôn luyện" },
+      appWhen: (diff, hm, d, m) => (diff <= 0 ? "Hôm nay " + hm : diff === 1 ? "Hôm qua " + hm : `${d}/${m} ${hm}`),
+      appDur: (s) => (s < 60 ? `${s} giây` : `${Math.round(s / 60)} phút`),
+      appChoose: "Chọn cách làm", appPractice: "Ôn luyện", appPracticeNote: "Xem đáp án và lời giải ngay sau mỗi câu. Không tính giờ.",
+      appExam: (m) => `Làm như thi · ${m} phút`, appExamNote: "Tính giờ như ở trường, chấm điểm khi nộp bài.",
       appLeaveNone: { ask: "Thoát đề?", note: "Bạn chưa làm câu nào nên không lưu điểm.", yes: "Thoát", no: "Làm tiếp" },
       appLeaveExam: { ask: "Nộp bài và rời trang?", note: "Câu chưa làm tính là sai.", yes: "Nộp bài", no: "Làm tiếp" },
       appLeavePractice: { ask: "Dừng ôn và rời trang?", note: "Kết quả các câu đã làm được lưu lại.", yes: "Dừng ôn", no: "Ôn tiếp" },
@@ -126,7 +143,8 @@
       reasons: { wrong: "Wrong answer", unclear: "Confusing question", typo: "Spelling mistake", other: "Other" },
       rpNote: "Note", rpNoteOpt: "(optional, up to 200 characters)", rpNotePh: "Write more if you like", rpSend: "Send", rpCancel: "Cancel",
       rpNeed: "Please choose a reason.", rpThanks: "Thank you! We will check this question.", rpFail: "Couldn't send. Please try again.",
-      exit: "← Exit", skip: "Skip", answer: "Answer", seeGuide: "See the guide", check: "Check", next: "Next question", seeResults: "See results",
+      timeLeft: (t) => `${t} left`, timeAria: "Time left", progress: (i, n) => `${i} of ${n}`,
+      exit: "← Exit", submit: "Finish test", skip: "Skip", answer: "Answer", seeGuide: "See the guide", check: "Check", next: "Next question", seeResults: "See results",
       guide: "Guide:", noGuide: "No guide yet.", right: "Correct!", wrong: "Not quite.", ansLabel: "Answer:", ordRight: "Correct order:",
       tf4All: "All 4 correct!", tf4Part: (k, p) => `${k}/4 correct · ${p}/1 point.`,
       mtNone: "Not matched yet", mtItem: (i) => "Item " + i, mtDone: "All matched. Tap an item on the left to change it.", mtPick: (i) => `Choose a match for item ${i}`,
@@ -149,7 +167,12 @@
       appHome: "Home", appGrade: (g) => `Grade ${g}`, english: "English", appRandom: "Random test",
       appPoolIntro: (n, all, src) => `A new test every time: ${n} questions from a bank of ${all}${src ? ` (${src} tests)` : ""}, more of the ones you haven't done or often get wrong`,
       appCount: (n) => `${n} questions`, appEssayN: (n) => ` (${n} self-check writing ${n === 1 ? "question" : "questions"})`, appNotes: (s) => `Not enough questions in the bank this time: ${s}.`, appNotesToast: (s) => "Not enough questions in the bank: " + s,
-      appPractice: "Practice (see the answer after each question)", appExam: (m) => `Test mode · ${m} minutes`, appSaved: "Result saved", appSavedSelf: "Self-check score saved",
+      appSaved: "Result saved", appSavedSelf: "Self-check score saved",
+      appPrev: (r, t) => `Last time: ${r}/${t} correct`, appPrevMode: { exam: "test mode", practice: "practice" },
+      appWhen: (diff, hm, d, m) => (diff <= 0 ? "Today " + hm : diff === 1 ? "Yesterday " + hm : `${d} ${MONTHS[m - 1]} ${hm}`),
+      appDur: (s) => (s < 60 ? `${s} ${s === 1 ? "second" : "seconds"}` : `${Math.round(s / 60)} ${Math.round(s / 60) === 1 ? "minute" : "minutes"}`),
+      appChoose: "Choose a mode", appPractice: "Practice", appPracticeNote: "See the answer and guide right after each question. No timer.",
+      appExam: (m) => `Test mode · ${m} minutes`, appExamNote: "Timed like at school, scored when you finish.",
       appLeaveNone: { ask: "Exit the test?", note: "You haven't answered any questions, so no score is saved.", yes: "Exit", no: "Keep going" },
       appLeaveExam: { ask: "Finish the test and leave?", note: "Unanswered questions count as wrong.", yes: "Finish test", no: "Keep going" },
       appLeavePractice: { ask: "End practice and leave?", note: "Your answers so far will be saved.", yes: "End practice", no: "Keep practising" },
@@ -425,6 +448,8 @@
      ✓ đáp án đúng, – các ô sai), đáp án hoặc gợi ý; tối đa 500 kí tự. Nhận câu gốc lẫn câu đã dựng (prep: câu đúng/sai có a = 0
      khi Đúng). Luôn ghi tiếng Việt, kể cả câu của đề Tiếng Anh: là dữ liệu cho người làm đề, không phải chữ trên màn hình. */
   const REASONS = Object.entries(TXT.vi.reasons);
+  // biểu tượng đồng hồ trên chip thời gian còn lại (X7)
+  const CLOCK = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`;
   const FLAG = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4h12l-2.5 4.5L17 13H5"/></svg>`;
   function text(q) {
     let s = String(q.q == null ? "" : q.q);
@@ -457,7 +482,9 @@
     const qs = shuffle(units).flat().map((q) => prep(q, L));
     const S = { i: 0, ans: [], cur: null, checked: false, start: Date.now(), limit: exam && bank.minutes ? bank.minutes * 60 : 0, timer: null, done: false, psgOpen: {}, self: {} };
     const answered = () => S.ans.filter((a) => a && (a.done || (a.g != null && a.g !== ""))).length;
-    if (S.limit) S.timer = setInterval(() => { const left = S.limit - (Date.now() - S.start) / 1000; const t = el.querySelector("#qzTimer"); if (t) { t.textContent = fmtTime(left); t.classList.toggle("warn", left < 120); } if (left <= 0) finish(); }, 500);
+    // đồng hồ (X7): "Còn 12:30"; còn dưới 2 phút thì chip đổi màu (.warn)
+    const remain = () => S.limit - (Date.now() - S.start) / 1000;
+    if (S.limit) S.timer = setInterval(() => { const s = remain(), t = el.querySelector("#qzTimer"); if (t) { t.lastElementChild.textContent = L.timeLeft(fmtTime(s)); t.classList.toggle("warn", s < 120); } if (s <= 0) finish(); }, 500);
 
     function passageHtml(id) {
       const p = passages[id], open = S.psgOpen[id] !== false, n = qs.filter((x) => x.p === id).length;
@@ -571,8 +598,9 @@
     function render() {
       const q = qs[S.i]; S.cur = blank(q); S.checked = false;
       el.innerHTML = `<div class="stack"${LANG}>
-        <div class="row between"><button class="linkbtn" id="qzExit">${L.exit}</button>
-          <div class="row">${S.limit ? `<span class="chip" id="qzTimer">${fmtTime(S.limit - (Date.now() - S.start) / 1000)}</span>` : ""}<span class="chip">${S.i + 1} / ${qs.length}</span></div></div>
+        <div class="row between qz-top">${exam ? "" : `<button class="linkbtn" id="qzExit">${L.exit}</button>`}
+          <div class="row">${S.limit ? `<span class="chip timer${remain() < 120 ? " warn" : ""}" id="qzTimer" role="timer" aria-label="${L.timeAria}">${CLOCK}<span>${L.timeLeft(fmtTime(remain()))}</span></span>` : ""}<span class="chip" id="qzProg">${L.progress(S.i + 1, qs.length)}</span></div>
+          ${exam ? `<button class="btn ghost sm" id="qzSubmit">${L.submit}</button>` : ""}</div>
         <div class="bar" aria-hidden="true"><i style="width:${(S.i / qs.length) * 100}%"></i></div>
         ${q.p && passages[q.p] ? passageHtml(q.p) : ""}
         <section class="qcard">
@@ -580,7 +608,7 @@
           ${body(q)}
           <div id="qzFb" aria-live="polite"></div>
         </section>
-        <div class="row between"><button class="btn ghost" id="qzSkip">${L.skip}</button><button class="btn main" id="qzGo">${exam ? L.answer : q.type === "essay" ? L.seeGuide : L.check}</button></div>
+        <div class="row between qz-nav"><button class="btn ghost" id="qzSkip">${L.skip}</button><button class="btn main" id="qzGo">${exam ? L.answer : q.type === "essay" ? L.seeGuide : L.check}</button></div>
       </div>`;
       const $ = (s) => el.querySelector(s), $$ = (s) => el.querySelectorAll(s), go = $("#qzGo"), fb = $("#qzFb");
       const ps = $(".psg");
@@ -628,12 +656,13 @@
       };
       if (q.type === "order") { $$(".ord-p").forEach((b) => (b.onclick = () => { if (S.checked) return; S.cur.push(+b.dataset.k); paintOrder(); })); paintOrder(); }
 
-      $("#qzExit").onclick = confirmExit;
+      $(exam ? "#qzSubmit" : "#qzExit").onclick = confirmExit; // làm như thi: nút "Nộp bài" (X6), vẫn hỏi lại như "← Thoát"
       $("#qzSkip").onclick = () => { S.ans[S.i] = { q, g: null, ok: false, pts: 0 }; next(); };
       go.onclick = () => {
         if (S.checked) { next(); return; }
         if (!filled(q, S.cur)) { fb.innerHTML = `<div class="fb bad">${NEED[q.type] || L.needAnswer}${L.needTail}</div>`; return; }
-        const done = () => { S.checked = true; go.textContent = S.i + 1 < qs.length ? L.next : L.seeResults; $("#qzSkip").disabled = true; };
+        // sau Kiểm tra (X8): ẩn hẳn "Bỏ qua", "Câu tiếp" (hoặc "Xem kết quả") đứng một mình bên phải
+        const done = () => { S.checked = true; go.textContent = S.i + 1 < qs.length ? L.next : L.seeResults; $("#qzSkip").hidden = true; };
         if (q.type === "essay") {
           S.ans[S.i] = { q, g: S.cur.trim(), done: true };
           if (exam) { next(); return; }
@@ -679,10 +708,15 @@
       const fb = el.querySelector("#qzFb"), none = !answered();
       const [ask, yes] = none ? L.exNone : h.retry ? L.exRetry : exam ? L.exExam : L.exPractice;
       fb.innerHTML = `<div class="confirm"><div>${ask}</div><div class="row"><button class="btn danger" id="qzYes">${yes}</button><button class="btn ghost" id="qzNo">${L.keepGoing}</button></div></div>`;
-      fb.querySelector("#qzYes").onclick = none ? () => { h.stop(); if (opts.onExit) opts.onExit(); } : finish;
+      fb.querySelector("#qzYes").onclick = none ? () => { h.stop(); ended(); if (opts.onExit) opts.onExit(); } : finish;
       fb.querySelector("#qzNo").onclick = () => (fb.innerHTML = "");
+      // hộp hỏi nằm cuối thẻ câu hỏi: câu dài (đoạn đọc, nối cột…) thì cuộn tới để thấy ngay sau khi bấm nút trên cùng (X6)
+      fb.querySelector("#qzNo").focus({ preventScroll: true });
+      fb.firstElementChild.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
     function next() { S.i++; if (S.i >= qs.length) finish(); else render(); }
+    // lượt làm đã xong (X5): app bỏ chế độ tập trung, thanh trên có lại đủ
+    function ended() { if (opts.onEnd) opts.onEnd(); }
     // Làm lại: cả đề (h.full), cùng bộ câu (xáo lại); đề ngẫu nhiên (redraw) thì rút bộ câu mới. Sau lượt ôn lại câu sai: về đề đầy đủ, cùng cách làm.
     const againTxt = h.opts0.redraw ? L.newTest : L.again;
     const again = () => start(el, h.opts0.redraw ? Object.assign({}, h.full, h.opts0.redraw()) : h.full, h.opts0, h);
@@ -698,6 +732,7 @@
     }
     function finish() {
       if (S.done) return; S.done = true; clearInterval(S.timer);
+      ended();
       if (!answered()) {
         el.innerHTML = `<div class="stack"${LANG}>
           <section class="panel"><div class="label">${nb(`${esc(ttl)} · ${h.retry ? L.retryHead : exam ? L.modeExam : L.modePractice}`)}</div><p>${L.noneDone}</p></section>
@@ -790,6 +825,7 @@
     h.answered = answered;
     h.submit = finish;
     if (!qs.length) { h.stop(); el.innerHTML = `<div class="panel"${LANG}>${L.emptyBank}</div>`; return h; }
+    if (opts.onStart) opts.onStart();
     render();
     return h;
   }
