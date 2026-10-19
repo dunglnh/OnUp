@@ -266,6 +266,17 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 /* chế độ tập trung (body.quizzing, renderQuiz trong js/app.js, Phiên UX5): trong lúc làm một lượt, thanh trên chỉ còn chữ OnUp */
 .quizzing .who,.quizzing .tabbar{display:none}
 .qz-nav>.btn.main{margin-left:auto} /* sau Kiểm tra "Bỏ qua" ẩn hẳn (X8): "Câu tiếp" vẫn ở bên phải */
+/* màn mở đề (renderQuiz, UX5 X9): thẻ "Lần trước" và hai thẻ chọn cách làm (cao ≥ 64px, biểu tượng, một dòng giải thích, mũi tên) */
+.prev{flex-direction:row;align-items:center;gap:12px}
+:is(.prev,.mode)>svg{flex:none;width:24px;height:24px;color:var(--acc)}
+:is(.prev,.mode) .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+:is(.prev,.mode) .grow b{overflow-wrap:anywhere}
+.modes{display:flex;flex-direction:column;gap:10px;margin-top:-6px}
+.mode{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:12px 14px;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:var(--r);color:var(--ink)}
+.mode.main{border-color:var(--acc)}
+.mode:hover{border-color:var(--acc)}
+.mode .grow b{font-size:1.05rem}
+.mode>svg:last-child{width:20px;height:20px;color:var(--muted)}
 .qcard{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px 18px;display:flex;flex-direction:column;gap:14px}
 .qtext{font-size:1.15rem;font-weight:600;overflow-wrap:anywhere}
 .qtext.long{font-size:1.02rem;font-weight:500;line-height:1.65}

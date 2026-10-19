@@ -1214,7 +1214,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       await p.goto(BASE + "/#/quiz/" + id); await p.waitForSelector("#qPractice");
       const bank = await p.evaluate((id) => Store.bank(id).questions, id);
       const open = await check("màn mở đề");
-      r.open = (await txt(".hero h1")) === title && (await txt(".hero .label")) === label && (await txt("#qPractice")) === "Practice (see the answer after each question)" && (await txt("#qExam")) === `Test mode · ${minutes} minutes`
+      r.open = (await txt(".hero h1")) === title && (await txt(".hero .label")) === label && (await txt("#qPractice b")) === "Practice" && (await txt("#qExam b")) === `Test mode · ${minutes} minutes` && (await txt("#qModes")) === "Choose a mode"
         && (await txt("#view .linkbtn")) === "← Home" && (await p.$eval("#view > .stack", (e) => e.getAttribute("lang"))) === "en" && /25 questions\./.test(open);
       if (!snapped("mo-de")) await snap("mo-de");
       // làm như thi, rời khi chưa trả lời: nút Back hỏi "Exit the test?"; nút "Finish test" (X6) hỏi ngay trong trang
@@ -1323,12 +1323,12 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     // phụ huynh xem thử đề Tiếng Anh: dòng "Chế độ xem thử" vẫn tiếng Việt, còn lại tiếng Anh
     await signIn("Mẹ Bin", PINS["Mẹ Bin"]);
     await p.goto(BASE + "/#/quiz/ta4-ck1-de1"); await p.waitForSelector("#qPractice");
-    ta2["parent-" + scheme] = { notice: await txt(".notice"), lang: await p.$eval(".notice", (e) => e.getAttribute("lang")), h1: await txt(".hero h1"), btn: await txt("#qPractice") };
+    ta2["parent-" + scheme] = { notice: await txt(".notice"), lang: await p.$eval(".notice", (e) => e.getAttribute("lang")), h1: await txt(".hero h1"), btn: await txt("#qPractice b") };
     (await p.evaluate(audit)).forEach((x) => ta2.problems.push(`TA2 · ${scheme} · xem thử: ${x}`));
     if (!snapped("xem-thu")) await snap("xem-thu");
     // đề Toán 4 vẫn tiếng Việt, không có lang="en"
     await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await p.waitForSelector("#qPractice");
-    ta2["toan-" + scheme] = { h1: await txt(".hero h1"), btn: await txt("#qPractice"), lang: await p.$eval("#view > .stack", (e) => e.getAttribute("lang")) };
+    ta2["toan-" + scheme] = { h1: await txt(".hero h1"), btn: await txt("#qPractice b"), lang: await p.$eval("#view > .stack", (e) => e.getAttribute("lang")) };
     await c.close();
   }
   // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/tieng-anh/ta2-<tên>.jpg)
@@ -1348,8 +1348,8 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     && ta2.runs.every((r) => r.open && r.leave0 && r.exit0 && r.exit0Home && r.n === 25 && r.wrongN === 2 && r.mcWrong && r.fillWrong && r.rightFb && r.rpBox && r.rpNeed && r.rpDone && r.leave1 && r.exit1 && r.stay && r.result && r.saved && r.retryN && r.retryExit && r.retryResult && r.examBtn && r.leaveExam && r.exitExam && r.examResult)
     && ["light", "dark"].every((sc) => { const io = ta2["ioe-" + sc], pa = ta2["parent-" + sc], to = ta2["toan-" + sc];
       return io.note === "Score saved" && io.back === "← Home" && io.lang === "en" && io.title === "Your score is saved to your profile each time you finish." && io.leave === "Leave this practice?Your unfinished work won't be saved. LeaveStay" && io.toast === "Result saved: 24/30 correct" && io.left === "#/home"
-        && pa.notice === "Chế độ xem thử: điểm không được lưu." && pa.lang === "vi" && pa.h1 === "English 4 · End-of-term 1 · Test 1" && pa.btn === "Practice (see the answer after each question)"
-        && to.h1 === "Toán 4 · Cuối kì I · Đề 1" && to.btn === "Ôn luyện (xem đáp án từng câu)" && to.lang === null; })
+        && pa.notice === "Chế độ xem thử: điểm không được lưu." && pa.lang === "vi" && pa.h1 === "English 4 · End-of-term 1 · Test 1" && pa.btn === "Practice"
+        && to.h1 === "Toán 4 · Cuối kì I · Đề 1" && to.btn === "Ôn luyện" && to.lang === null; })
     && TA2_SHOTS.every((n) => ta2.shots.includes(`ta2-${n}-light`) && ta2.shots.includes(`ta2-${n}-dark`));
 
   step("module wrong list: a correct answer anywhere removes the question (L27)");

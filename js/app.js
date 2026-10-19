@@ -45,10 +45,11 @@
     return en < t ? "past" : s <= t ? "now" : "future";
   }
   const daysTo = (e) => Math.round((pd(e.start) - today0()) / DAY);
-  const ago = (iso) => {
+  // "Hôm nay 12:43", "Hôm qua 12:43", "2/11 12:43". L: bảng chữ của js/quiz.js (đề Tiếng Anh: "Today 12:43", "2 Nov 12:43")
+  const ago = (iso, L) => {
     const d = new Date(iso), t = today0(), diff = Math.floor((t - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / DAY);
     const hm = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
-    return diff <= 0 ? "Hôm nay " + hm : diff === 1 ? "Hôm qua " + hm : d.getDate() + "/" + (d.getMonth() + 1) + " " + hm;
+    return (L || Quiz.TXT.vi).appWhen(diff, hm, d.getDate(), d.getMonth() + 1);
   };
   const pct = (r, t) => (t ? Math.round((r / t) * 100) : 0);
   const nf = (x) => Quiz.fmtN(+x || 0); // 23,35 (số câu đúng có thể lẻ: câu đúng/sai 4 ý, nối cột chấm từng ý)
@@ -1229,18 +1230,28 @@
     const hist = () => (b.pool && u.role === "student" ? poolHist(u, b) : null);
     let drawn = b.pool ? Quiz.draw(b, hist(), lang) : null;
     const qs = drawn ? drawn.questions : b.questions, nSrc = b.pool ? (b.pool.from || []).length : 0;
+    // Lần trước cùng đề: kết quả gần nhất của học sinh với đề này, lọc bằng graded() (kết quả tự chấm cùng refId tính bằng phần tư điểm).
+    // Màn mở đề có thẻ "Lần trước" (UX5, X9); màn kết quả so sánh (UX1, previous) đọc lúc kết thúc lượt, trước khi lưu.
+    const last = () => (u.role === "student" ? graded(Store.resultsFor(u.id)).find((x) => x.source === "bank" && x.refId === b.id) || null : null);
+    const previous = () => { const r = last(); return r ? { r: r.r, t: r.t } : null; };
+    /* Màn mở đề (UX5, X9): thẻ "Lần trước: 21/25 câu đúng" (lúc làm · cách làm · thời gian; chưa làm lần nào thì không có), rồi hai thẻ
+       chọn cách làm, mỗi thẻ có biểu tượng và một dòng giải thích. Đề không có số phút thì chỉ có thẻ Ôn luyện. */
+    const pr = last();
+    const prevCard = !pr ? "" : `<section class="panel prev" id="qPrev">${ICO('<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>')}<span class="grow">
+        <b>${L.appPrev(Quiz.fmtN(pr.r, lang), pr.t)}</b><span class="small muted">${esc([ago(pr.at, L), L.appPrevMode[pr.mode], pr.s > 0 ? L.appDur(pr.s) : ""].filter(Boolean).join(" · "))}</span></span></section>`;
+    const modeCard = (id, ic, head, note, main) => `<button class="mode${main ? " main" : ""}" id="${id}">${ICO(ic)}<span class="grow"><b>${head}</b><span class="small muted">${note}</span></span>${ICO('<path d="m9 6 6 6-6 6"/>')}</button>`;
     view.innerHTML = `<div class="stack"${en ? ' lang="en"' : ""}>${back("#/home", L.appHome)}
       <section class="hero"><span class="label">${nb(`${L.appGrade(b.grade)} · ${en ? L.english : esc(b.subject)}${b.pool ? " · " + L.appRandom : ""}`)}</span><h1>${nb(esc(Quiz.title(b, lang)))}</h1>
         <p>${b.pool ? L.appPoolIntro(qs.length, b.questions.length, nSrc) : L.appCount(qs.length)}${essayN(qs) ? L.appEssayN(essayN(qs)) : ""}.${b.note ? " " + esc(b.note) : ""}</p>
-        ${drawn && drawn.notes.length ? `<p class="small" id="qNotes">${L.appNotes(esc(drawn.notes.join("; ")))}</p>` : ""}
-        <div class="row"><button class="btn main" id="qPractice">${L.appPractice}</button>${b.minutes ? `<button class="btn ghost" id="qExam">${L.appExam(b.minutes)}</button>` : ""}</div></section>
+        ${drawn && drawn.notes.length ? `<p class="small" id="qNotes">${L.appNotes(esc(drawn.notes.join("; ")))}</p>` : ""}</section>
+      ${prevCard}
+      <div class="label" id="qModes">${L.appChoose}</div>
+      <div class="modes" role="group" aria-labelledby="qModes">${modeCard("qPractice", '<path d="M4 5a2 2 0 0 1 2-2h6v16H6a2 2 0 0 0-2 2z"/><path d="M20 5a2 2 0 0 0-2-2h-6v16h6a2 2 0 0 1 2 2z"/>', L.appPractice, L.appPracticeNote, true)}${b.minutes ? modeCard("qExam", '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', esc(L.appExam(b.minutes)), L.appExamNote) : ""}</div>
       ${u.role !== "student" ? `<div class="notice" lang="vi">Chế độ xem thử: điểm không được lưu.</div>` : ""}</div>`;
     wireGo();
     // Báo câu sai (Phiên R1): ai cũng báo được, kể cả phụ huynh, quản trị đang xem thử. Câu của đề ngẫu nhiên ghi mã đề gốc (q.src)
     // để người làm đề tìm đúng file; mỗi người chỉ báo một câu một lần (link thành "Đã báo câu này").
     const bankOf = (q) => q.src || b.id;
-    // Lần trước cùng đề (UX1, màn kết quả so sánh): kết quả gần nhất của học sinh với đề này, lọc bằng graded(); đọc lúc kết thúc lượt, trước khi lưu.
-    const previous = () => { const r = graded(Store.resultsFor(u.id)).find((x) => x.source === "bank" && x.refId === b.id); return r ? { r: r.r, t: r.t } : null; };
     const start = (mode) => {
       const run = (quizRun = Quiz.run(view, drawn ? Object.assign({}, b, { questions: drawn.questions }) : b, {
         mode, lang, onExit: () => go("#/home"),

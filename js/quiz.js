@@ -51,6 +51,7 @@
      hộp rời trang, thông báo lưu điểm, khung bài ôn IOE) lấy từ đây. Đề Tiếng Anh (Quiz.lang(bank) → "en") dùng cột en, còn lại
      cột vi. Thêm chữ mới cho màn làm đề thì thêm ở cả hai cột (CLAUDE.md, "Quy ước code"); chuỗi có tham số viết là hàm.
      Dữ liệu lưu (kết quả, bản chụp câu bị báo Quiz.text) và chữ ở trang chủ, báo cáo, khu phụ huynh không qua bảng này. */
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const TXT = {
     vi: {
       lang: "vi", lv: { 1: "Biết", 2: "Hiểu", 3: "Vận dụng" }, tfYes: "Đúng", tfNo: "Sai", blank: "(bỏ trống)", topicGeneral: "Chung",
@@ -105,7 +106,14 @@
       appHome: "Trang chính", appGrade: (g) => `Lớp ${g}`, english: "Tiếng Anh", appRandom: "Đề ngẫu nhiên",
       appPoolIntro: (n, all, src) => `Mỗi lần làm là một đề khác: ${n} câu rút từ kho ${all} câu${src ? ` (${src} đề)` : ""} theo ma trận đề, ưu tiên câu bạn chưa làm hoặc hay sai`,
       appCount: (n) => `${n} câu`, appEssayN: (n) => ` (${n} câu tự luận tự chấm)`, appNotes: (s) => `Kho còn thiếu câu, lần này: ${s}.`, appNotesToast: (s) => "Kho còn thiếu câu: " + s,
-      appPractice: "Ôn luyện (xem đáp án từng câu)", appExam: (m) => `Làm như thi · ${m} phút`, appSaved: "Đã lưu kết quả", appSavedSelf: "Đã lưu điểm tự chấm",
+      appSaved: "Đã lưu kết quả", appSavedSelf: "Đã lưu điểm tự chấm",
+      // màn mở đề (UX5, X9): thẻ "Lần trước" (số câu đúng; lúc làm · cách làm · thời gian), hai thẻ chọn cách làm có một dòng giải thích.
+      // appWhen: lúc làm (diff: số ngày trước hôm nay, hm: giờ:phút, d/m: ngày, tháng), cũng là chữ "Hôm nay 12:43" của ago() trong js/app.js
+      appPrev: (r, t) => `Lần trước: ${r}/${t} câu đúng`, appPrevMode: { exam: "làm như thi", practice: "ôn luyện" },
+      appWhen: (diff, hm, d, m) => (diff <= 0 ? "Hôm nay " + hm : diff === 1 ? "Hôm qua " + hm : `${d}/${m} ${hm}`),
+      appDur: (s) => (s < 60 ? `${s} giây` : `${Math.round(s / 60)} phút`),
+      appChoose: "Chọn cách làm", appPractice: "Ôn luyện", appPracticeNote: "Xem đáp án và lời giải ngay sau mỗi câu. Không tính giờ.",
+      appExam: (m) => `Làm như thi · ${m} phút`, appExamNote: "Tính giờ như ở trường, chấm điểm khi nộp bài.",
       appLeaveNone: { ask: "Thoát đề?", note: "Bạn chưa làm câu nào nên không lưu điểm.", yes: "Thoát", no: "Làm tiếp" },
       appLeaveExam: { ask: "Nộp bài và rời trang?", note: "Câu chưa làm tính là sai.", yes: "Nộp bài", no: "Làm tiếp" },
       appLeavePractice: { ask: "Dừng ôn và rời trang?", note: "Kết quả các câu đã làm được lưu lại.", yes: "Dừng ôn", no: "Ôn tiếp" },
@@ -158,7 +166,12 @@
       appHome: "Home", appGrade: (g) => `Grade ${g}`, english: "English", appRandom: "Random test",
       appPoolIntro: (n, all, src) => `A new test every time: ${n} questions from a bank of ${all}${src ? ` (${src} tests)` : ""}, more of the ones you haven't done or often get wrong`,
       appCount: (n) => `${n} questions`, appEssayN: (n) => ` (${n} self-check writing ${n === 1 ? "question" : "questions"})`, appNotes: (s) => `Not enough questions in the bank this time: ${s}.`, appNotesToast: (s) => "Not enough questions in the bank: " + s,
-      appPractice: "Practice (see the answer after each question)", appExam: (m) => `Test mode · ${m} minutes`, appSaved: "Result saved", appSavedSelf: "Self-check score saved",
+      appSaved: "Result saved", appSavedSelf: "Self-check score saved",
+      appPrev: (r, t) => `Last time: ${r}/${t} correct`, appPrevMode: { exam: "test mode", practice: "practice" },
+      appWhen: (diff, hm, d, m) => (diff <= 0 ? "Today " + hm : diff === 1 ? "Yesterday " + hm : `${d} ${MONTHS[m - 1]} ${hm}`),
+      appDur: (s) => (s < 60 ? `${s} ${s === 1 ? "second" : "seconds"}` : `${Math.round(s / 60)} ${Math.round(s / 60) === 1 ? "minute" : "minutes"}`),
+      appChoose: "Choose a mode", appPractice: "Practice", appPracticeNote: "See the answer and guide right after each question. No timer.",
+      appExam: (m) => `Test mode · ${m} minutes`, appExamNote: "Timed like at school, scored when you finish.",
       appLeaveNone: { ask: "Exit the test?", note: "You haven't answered any questions, so no score is saved.", yes: "Exit", no: "Keep going" },
       appLeaveExam: { ask: "Finish the test and leave?", note: "Unanswered questions count as wrong.", yes: "Finish test", no: "Keep going" },
       appLeavePractice: { ask: "End practice and leave?", note: "Your answers so far will be saved.", yes: "End practice", no: "Keep practising" },

@@ -709,7 +709,7 @@ async function run(browser, scheme) {
     "R1: báo cáo lên máy chủ (hồ sơ con, gia đình, mã đề, mã câu, nội dung câu ≤ 500, ghi chú cắt 200, trạng thái mới); tab Dữ liệu liệt kê kèm trạng thái": c.r1.server && c.r1.row
       && c.r1.data.n === 2 && c.r1.data.head === "Câu bị báo sai (2)" && c.r1.data.chips === "Mới,Mới" && !c.r1.data.copy && c.r1.data.who,
     "TA2: đề Tiếng Anh: màn mở đề, câu hỏi, hộp hỏi khi rời, màn kết quả, thông báo lưu điểm bằng tiếng Anh, không có chữ tiếng Việt; kết quả lên máy chủ vẫn ghi môn Tiếng Anh": c.ta2.h1 === "English 6 · Mid-term 1 · Test 1" && c.ta2.lang === "en"
-      && [c.ta2.open, c.ta2.fb, c.ta2.leave, c.ta2.exit, c.ta2.result, c.ta2.toast].every((t) => t && !CHU_VIET.test(t)) && /Practice \(see the answer after each question\)/.test(c.ta2.open) && /Test mode · 45 minutes/.test(c.ta2.open)
+      && [c.ta2.open, c.ta2.fb, c.ta2.leave, c.ta2.exit, c.ta2.result, c.ta2.toast].every((t) => t && !CHU_VIET.test(t)) && /Choose a mode ?PracticeSee the answer and guide right after each question\. No timer\. ?Test mode · 45 minutesTimed like at school, scored when you finish\./.test(c.ta2.open)
       && /Report a problem$/.test(c.ta2.fb) && c.ta2.next === "Next question" && c.ta2.leave === "End practice and leave?Your answers so far will be saved. End practiceKeep practising"
       && c.ta2.exit === "End practice and see your results?End practiceKeep going" && /^English 6 · Mid-term 1 · Test 1 · Practice /.test(c.ta2.result) && /\/2 correctTime: /.test(c.ta2.result)
       && /Go to home$/.test(c.ta2.result) && c.ta2.toast === "Result saved" && c.ta2.server,
