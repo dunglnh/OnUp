@@ -4,7 +4,7 @@
 > **Đã chốt 18/10/2026:** bán khi đủ đề lớp 4–12 (theo nhịp 1–2 phiên mỗi tuần: khoảng cuối năm học 2028–2029); đến lúc đó gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng `plans` không đổi), hạn mức hai gói lúc bán chốt sau; các phiên chuẩn bị bán G1, B1, B2, B4 làm ngay trước lúc đó; Supabase giữ gói Free đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần); trang công khai chỉ dành cho gia đình được mời (màn đăng nhập có dòng “Chưa có tài khoản?”, Phiên S1); câu sai báo bằng nút trong app (Phiên R1), GitHub Issues chỉ còn cho chủ app; không ghi giá bán, chi phí hay so sánh đối thủ vào repo. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 > **Quy ước (từ Phiên D0):** chỉ file này ghi trạng thái và lộ trình. CLAUDE.md, README và các tài liệu khác trong docs/ chỉ trỏ sang đây. Làm xong một phiên thì gạch dòng của nó ở mục 3 và ghi số PR; đổi quyết định thì sửa đoạn trên trước.
 > **Rà soát toàn app sau K3 (18/10/2026):** app chạy tốt, 35 mục đề làm đúng hết đều được 10/10; lỗi mới L20 (PR #47 của R1 đã sửa), L22–L26 và yêu cầu L21 xếp vào Phiên TA1, 9e, TA2, làm trước UX1 ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), nhóm E). **Chủ app chốt thêm (18/10/2026):** môn Tiếng Anh của mọi khối 100% tiếng Anh, cả lời dặn, lời giải và giao diện làm đề (quy tắc ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 3).
-> **Tiếp theo:** Phiên UX4 (Chọn hồ sơ và nhập PIN), rồi UX5 (làm bài tập trung, trước kì thi cuối kì I từ 21/12) và N1–N6 (đủ đề cuối kì I lớp 4 và 6); bố mẹ thử lại L27 trên máy đang dùng sau khi Merge PR #57 (làm lại một đề đúng hết thì “Ôn câu sai” không còn câu của đề đó). Mục 2 (việc của chủ app) và mục 3 (thứ tự các phiên). Mục 5: nhật ký chạy thử, chủ app tự điền.
+> **Tiếp theo:** Phiên UX3b (sửa sau kiểm thử thiết kế UX3: đăng xuất hỏi mật khẩu, đặt mã PIN từ thẻ Bắt đầu, [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md) mục 5), rồi UX4 (Chọn hồ sơ và nhập PIN), UX5 (làm bài tập trung, trước kì thi cuối kì I từ 21/12) và N1–N6 (đủ đề cuối kì I lớp 4 và 6); bố mẹ thử lại L27 trên máy đang dùng sau khi Merge PR #57 (làm lại một đề đúng hết thì “Ôn câu sai” không còn câu của đề đó). Mục 2 (việc của chủ app) và mục 3 (thứ tự các phiên). Mục 5: nhật ký chạy thử, chủ app tự điền.
 
 ## 1. Tình hình hiện tại
 
@@ -81,7 +81,7 @@ Nội dung hiện có (18/10/2026, `node tests/kiem-tra-de.js`: 29 đề, 715 c�
 
 ## 3. Lộ trình khi làm tiếp
 
-Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 8 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); Phiên 9a, 9b, 9c (lỗi tìm được khi dùng thử ngày 16/10, đã làm), Phiên 9d (lỗi phát sinh khi rà soát lại ngày 17/10), **Phiên TA1, 9e, TA2** (rà soát sau K3 ngày 18/10: lỗi L20, L22–L26, đề Tiếng Anh 100% tiếng Anh) và **Phiên 9f** (góp ý chạy thử 19/10: L27, ôn câu sai trong bài ôn dạng trang) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); **các phiên làm đề và kĩ thuật cho đề (N0–N25, K1–K3, chuẩn bị bán B1–B4) ở mục 6, 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)**; các phiên khác ở mục 4 dưới đây. Phiên UI1, UX4–UX8 đến từ bản rà giao diện ngày 18/10: vấn đề (X1–X16), ảnh và điều kiện xong ở [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md). Thiết kế nằm trong file Figma [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2): Master 1.x là 77 màn vẽ lại đúng app ở commit `0a1e8db`; Master 2.x là các đề xuất, kể cả minh họa cho S1, R1, UX1–UX3.
+Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Phiên A, B, C lấy lời giao việc ở mục 8 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); Phiên 9a, 9b, 9c (lỗi tìm được khi dùng thử ngày 16/10, đã làm), Phiên 9d (lỗi phát sinh khi rà soát lại ngày 17/10), **Phiên TA1, 9e, TA2** (rà soát sau K3 ngày 18/10: lỗi L20, L22–L26, đề Tiếng Anh 100% tiếng Anh) và **Phiên 9f** (góp ý chạy thử 19/10: L27, ôn câu sai trong bài ôn dạng trang) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); **các phiên làm đề và kĩ thuật cho đề (N0–N25, K1–K3, chuẩn bị bán B1–B4) ở mục 6, 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)**; các phiên khác ở mục 4 dưới đây. Phiên UI1, UX4–UX8 đến từ bản rà giao diện ngày 18/10: vấn đề (X1–X16), ảnh và điều kiện xong ở [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md). Sau khi gộp mỗi phiên UX có một lượt kiểm thử thiết kế, ghi ở mục 5 của file đó; chỗ lệch thành một phiên sửa ngắn tên “b”, như UX3b (X17–X20, kiểm thử 19/10). Thiết kế nằm trong file Figma [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2): Master 1.x là 77 màn vẽ lại đúng app ở commit `0a1e8db`; Master 2.x là các đề xuất, kể cả minh họa cho S1, R1, UX1–UX3.
 
 **Làm ngay, chen trước các phiên còn lại** (rà soát sau K3 ngày 18/10, góp ý chạy thử 19/10; lời giao việc ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)):
 
@@ -104,7 +104,8 @@ Thứ tự các phiên:
 | 6 | 15/11 | ~~UX1 · Trang "Hôm nay" và màn kết quả của con~~ (đã xong, PR #53) | R1 (đã xong); ghi chép của chủ app chưa có, làm theo lời giao việc và ảnh B1, B2, C1, D1 | thanh tab dưới của học sinh ẩn trong lúc làm bài: UX5 |
 | 7 | 22/11 | ~~UX2 · Khu phụ huynh gọn lại~~ (đã xong, PR #54) | UX1 (đã xong); ghi chép của chủ app chưa có, làm theo lời giao việc và ảnh E1, E3, F2 | trang Đề tự soạn chia theo khối, môn, ô tìm: UX7 |
 | 8 | 29/11 | ~~UX3 · Bắt đầu và chuyển máy cho con~~ (đã xong, PR #56) | UX2 (đã xong); ghi chép của chủ app chưa có, làm theo lời giao việc và ảnh E2 | tên nút là “Chọn hồ sơ khác”; mã mở nhanh 4–6 số của khu phụ huynh lưu trên máy đã ghi nhớ |
-| 9 | 6/12 | **UX4 · Chọn hồ sơ và nhập PIN** | UX3 (đã xong; cùng sửa renderLogin, trang Tài khoản) | ô Phụ huynh có bàn phím mã mở nhanh kèm link “Nhập mật khẩu” (UX3 đã làm trên bàn phím PIN dùng chung) |
+| 8b | 1/11 | **UX3b · Sửa sau kiểm thử UX3** | UX3 (đã xong) | bản đám mây, nhỏ: đăng xuất hỏi mật khẩu, đặt mã PIN từ thẻ Bắt đầu xong về Các con, bước 2 ghi con chưa có mã, chữ ô mã mở nhanh (X17–X20, [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md) mục 3, 5); cùng sửa js/app.js nên làm trước UX4 |
+| 9 | 6/12 | **UX4 · Chọn hồ sơ và nhập PIN** | UX3b (cùng sửa trang Tài khoản trong js/app.js) | ô Phụ huynh có bàn phím mã mở nhanh kèm link “Nhập mật khẩu” (UX3 đã làm trên bàn phím PIN dùng chung); UX4 làm thành bước nhập mã riêng (A5b) |
 | 10 | 13/12 | **UX5 · Làm bài tập trung** | R1, UX1 (cùng sửa js/quiz.js) | xong trước kì thi cuối kì I (từ 21/12) |
 | 11 | 15/12 | **N1–N6 · Đủ đề cuối kì I lớp 4 và 6** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3; N5 (Tiếng Anh 6) sau TA1 | chỉ sửa file đề, chen được giữa các phiên UX |
 | 12 | 17/1/2027 | **UX6 · Biết bài đã gửi chưa** | UX1, UX5 (cùng sửa màn kết quả) | bản đám mây; làm sau kì thi cuối kì I |
@@ -119,7 +120,7 @@ Thứ tự các phiên:
 | 21 | trước khi bán | **G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** → **B2 · Đề trả phí lên máy chủ** → B4 (bớt tải dữ liệu); lên Supabase Pro | đủ đề lớp 4–12 | lời giao việc ở mục 4; B4 ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 5 |
 | — | khi có | **Phiên 9 · Sửa lỗi từ góp ý chạy thử** (GitHub Issues do chủ app ghi từ góp ý của gia đình) | | chen vào bất cứ lúc nào |
 
-Khoảng 35 phiên từ 18/10/2026 đến 10/4/2027 (gồm UX4–UX8 từ bản rà giao diện 18/10 và TA1, 9e, TA2 từ lần rà soát sau K3), trung bình 1–2 phiên mỗi tuần. Cuối tháng 10 và tháng 11 dày nhất: R1, TA1, 9e, TA2, UX1–UX3 và bắt đầu N1–N6. Tháng 12 có UX4, UX5, xong trước kì thi cuối kì I. UX6–UX8 làm sau kì thi, xen với N7–N12. Sau đó việc chính là làm đề cho đủ lớp 4–12 (khoảng 200 phiên); chất lượng đề quyết định có bán được hay không, nên nút báo câu sai (R1) và việc rà đề đi trước.
+Khoảng 36 phiên từ 18/10/2026 đến 10/4/2027 (gồm UX4–UX8 từ bản rà giao diện 18/10, TA1, 9e, TA2 từ lần rà soát sau K3, và UX3b từ kiểm thử thiết kế sau UX3), trung bình 1–2 phiên mỗi tuần. Cuối tháng 10 và tháng 11 dày nhất: R1, TA1, 9e, TA2, UX1–UX3 và bắt đầu N1–N6. Tháng 12 có UX4, UX5, xong trước kì thi cuối kì I. UX6–UX8 làm sau kì thi, xen với N7–N12. Sau đó việc chính là làm đề cho đủ lớp 4–12 (khoảng 200 phiên); chất lượng đề quyết định có bán được hay không, nên nút báo câu sai (R1) và việc rà đề đi trước.
 
 Lưu ý: đến khi làm B1 (ngay trước khi bán), repo vẫn công khai nên ai cũng tải được trọn bộ đề bằng một lệnh; chủ app đã chấp nhận như vậy (18/10/2026). Nếu sau này muốn giữ đề sớm hơn thì đổi quyết định ở đầu file rồi làm B1 trước (Cloudflare Pages miễn phí, chạy được từ repo riêng tư) mà chưa bật gói; giữ đề thật sự (người chưa trả tiền không tải được) thì cần B2.
 
@@ -258,8 +259,23 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 >
 > Ghi chép của bố mẹ: […]
 
-**Phiên UX4 · Chọn hồ sơ và nhập PIN** (sau UX3)
-> Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md (mục 3, Phiên UX4: X1–X4; ảnh docs/hinh-ux-2x/ux4-nhap-pin.jpg, ux4-phu-huynh-hinh-dai-dien.jpg). Sửa trong js/app.js và css/app.css, cho cả bản lưu trên máy và bản đám mây:
+**Phiên UX3b · Sửa sau kiểm thử UX3** (bản đám mây; sau UX3, trước UX4)
+> Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md (mục 3, Phiên UX3b: X17–X20; mục 5, kiểm thử UX3; ảnh docs/hinh-ux-2x/kt-ux3-dang-xuat.jpg, kt-ux3-dat-pin.jpg). Sửa trong js/app.js và js/store-supabase.js, chỉ bản đám mây:
+> - X17: nút "Đăng xuất khỏi máy này" ở trang Tài khoản của Phụ huynh hỏi mật khẩu trước (E4). Hộp mở ngay dưới nút, gồm:
+>   - dòng "Nhập mật khẩu của bố mẹ để xác nhận. Mã mở nhanh không dùng được ở đây.";
+>   - ô mật khẩu có nút xem (wireReveal);
+>   - nút "Đăng xuất" và "Thôi";
+>   - dòng "Quên mật khẩu?" lấy từ contactText, contactUrl.
+>
+>   Kiểm bằng Store.checkPassword, có CAPTCHA như ô mật khẩu ở "Ai đang học?": cho hàm nhận thêm chỗ đặt ô CAPTCHA (mặc định vẫn #pwCaptcha) để ô hiện trong hộp này. Sai thì báo trong hộp và tính vào PinLock của Phụ huynh. Lúc nào cũng hỏi, kể cả khi vừa nhập mật khẩu. Nút Đăng xuất ở màn đổi mật khẩu tạm và màn tài khoản bị khóa giữ nguyên. Ghi hộp này vào mục "Bắt đầu và chuyển máy cho con" của CLAUDE.md.
+> - X18: link đặt mã PIN trong thẻ "Bắt đầu" mở form hồ sơ của con với ô Mã PIN được focus. Lưu xong về Các con: có mã thì toast "Đã đặt mã PIN cho <tên>", để trống thì toast như lưu bình thường; nút quay lại cũng về Các con. Mở form từ chỗ khác thì vẫn về Cài đặt như UX2.
+> - X19: bước 2 chỉ có ✓ khi mọi con đã có mã PIN. Còn con chưa có thì ghi tên con đó và link "Đặt mã PIN cho <tên>" mở thẳng hồ sơ của con đó (E2b), kể cả khi nhà nhiều con. Bước 3 và nút "Cho con học" giữ như UX3.
+> - X20: bỏ chữ "(đã băm)" ở ô mã mở nhanh. Máy chưa ghi nhớ đăng nhập thì thay câu nhắc: nói rõ phải bấm "Đăng xuất khỏi máy này", rồi đăng nhập lại và chọn "Ghi nhớ trên máy này".
+>
+> Mỗi vấn đề một commit ghi mã (X17…). Làm theo mục "Xong khi" trong tests/supabase/cloud-e2e.js: vài bước UX3 đang có (bước 2 có ✓ với Bin, Na; bấm đăng xuất rồi chờ màn đăng nhập) phải sửa theo hành vi mới. Chạy tests/e2e.js, tests/supabase/store-test.mjs, admin-test.mjs, cloud-e2e.js, và sh tests/supabase/run.sh nếu máy có PostgreSQL, đến khi in OK. Chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
+
+**Phiên UX4 · Chọn hồ sơ và nhập PIN** (sau UX3b)
+> Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md (mục 3, Phiên UX4: X1–X4; ảnh docs/hinh-ux-2x/ux4-nhap-pin.jpg, ux4-phu-huynh-hinh-dai-dien.jpg, kt-ux3-ma-mo-nhanh.jpg). Sửa trong js/app.js và css/app.css, cho cả bản lưu trên máy và bản đám mây:
 > - X1: chạm hồ sơ có PIN thì sang một bước nhập riêng, gồm:
 >   - link "← Chọn hồ sơ khác";
 >   - hình to, tên, lớp;
@@ -269,7 +285,7 @@ Phiên K3 và các phiên làm đề N1–N25: lời giao việc ở mục 6, 7 
 >   - ô mật khẩu;
 >   - nút "Vào khu phụ huynh";
 >   - dòng "Quên mật khẩu?";
->   - nếu UX3 đã thêm mã mở nhanh thì có bàn phím của mã đó, kèm link "Nhập mật khẩu".
+>   - máy đã đặt mã mở nhanh (UX3) thì bước này mở bàn phím mã trước, như A5b: dòng "Nhập mã mở nhanh của máy này", hàng chấm theo độ dài mã, nút "Hiện số", dòng "Quên mã? Nhập mật khẩu" sang ô mật khẩu; ô mật khẩu có link "Dùng mã mở nhanh" quay lại. Sai mã vẫn tính vào PinLock của Phụ huynh.
 >
 >   Hồ sơ không có PIN thì chạm là vào, như cũ.
 > - X2: số đã gõ chỉ hiện ở hàng chấm.
