@@ -323,7 +323,7 @@ async function run(browser, scheme) {
   const nKid = await kidRes();
   // L15: vào "Làm như thi" rồi bấm Back khi chưa trả lời câu nào: hỏi "Thoát đề?", thoát thì không lưu điểm
   await p.goto(BASE + "/#/home"); await wait(p); await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await wait(p);
-  c.ux5.prev = await text(p, "#qPrev b"); c.ux5.modes = await p.$$eval(".modes .mode", (b) => b.map((x) => x.querySelector("b").textContent).join()); // UX5 (X9): thẻ "Lần trước", hai thẻ cách làm
+  c.ux5.prev = await text(p, "#qPrev b"); c.ux5.modes = await p.$$eval(".modes .mode", (b) => b.map((x) => x.querySelector("b").textContent.replace(/\s+/g, " ")).join()); // UX5 (X9): thẻ "Lần trước", hai thẻ cách làm
   await p.click("#qExam");
   c.ux5.exam = { submit: await text(p, "#qzSubmit"), exit: !!(await p.$("#qzExit")), timer: await text(p, "#qzTimer"), top: await topBar() }; // UX5 (X6, X7): "Nộp bài", "Còn 40:00"
   await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox");

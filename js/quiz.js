@@ -50,7 +50,8 @@
      aria-label, tên mức độ, Đúng/Sai, link và hộp báo câu sai) và chữ của js/app.js quanh đề (các khóa app…: màn mở đề, màn tải đề,
      hộp rời trang, thông báo lưu điểm, khung bài ôn IOE) lấy từ đây. Đề Tiếng Anh (Quiz.lang(bank) → "en") dùng cột en, còn lại
      cột vi. Thêm chữ mới cho màn làm đề thì thêm ở cả hai cột (CLAUDE.md, "Quy ước code"); chuỗi có tham số viết là hàm.
-     Dữ liệu lưu (kết quả, bản chụp câu bị báo Quiz.text) và chữ ở trang chủ, báo cáo, khu phụ huynh không qua bảng này. */
+     Dữ liệu lưu (kết quả, bản chụp câu bị báo Quiz.text) và chữ ở trang chủ, báo cáo, khu phụ huynh không qua bảng này (trừ appWhen:
+     ago() trong js/app.js dùng TXT.vi.appWhen cho chữ "Hôm nay 12:43" ở mọi màn hình, Phiên UX5). */
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const TXT = {
     vi: {
@@ -709,6 +710,9 @@
       fb.innerHTML = `<div class="confirm"><div>${ask}</div><div class="row"><button class="btn danger" id="qzYes">${yes}</button><button class="btn ghost" id="qzNo">${L.keepGoing}</button></div></div>`;
       fb.querySelector("#qzYes").onclick = none ? () => { h.stop(); ended(); if (opts.onExit) opts.onExit(); } : finish;
       fb.querySelector("#qzNo").onclick = () => (fb.innerHTML = "");
+      // hộp hỏi nằm cuối thẻ câu hỏi: câu dài (đoạn đọc, nối cột…) thì cuộn tới để thấy ngay sau khi bấm nút trên cùng (X6)
+      fb.querySelector("#qzNo").focus({ preventScroll: true });
+      fb.firstElementChild.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
     function next() { S.i++; if (S.i >= qs.length) finish(); else render(); }
     // lượt làm đã xong (X5): app bỏ chế độ tập trung, thanh trên có lại đủ

@@ -1238,7 +1238,7 @@
        chọn cách làm, mỗi thẻ có biểu tượng và một dòng giải thích. Đề không có số phút thì chỉ có thẻ Ôn luyện. */
     const pr = last();
     const prevCard = !pr ? "" : `<section class="panel prev" id="qPrev">${ICO('<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>')}<span class="grow">
-        <b>${L.appPrev(Quiz.fmtN(pr.r, lang), pr.t)}</b><span class="small muted">${esc([ago(pr.at, L), L.appPrevMode[pr.mode], pr.s > 0 ? L.appDur(pr.s) : ""].filter(Boolean).join(" · "))}</span></span></section>`;
+        <b>${L.appPrev(Quiz.fmtN(pr.r, lang), pr.t)}</b><span class="small muted">${nb(esc([ago(pr.at, L), L.appPrevMode[pr.mode], pr.s > 0 ? L.appDur(pr.s) : ""].filter(Boolean).join(" · ")))}</span></span></section>`;
     const modeCard = (id, ic, head, note, main) => `<button class="mode${main ? " main" : ""}" id="${id}">${ICO(ic)}<span class="grow"><b>${head}</b><span class="small muted">${note}</span></span>${ICO('<path d="m9 6 6 6-6 6"/>')}</button>`;
     view.innerHTML = `<div class="stack"${en ? ' lang="en"' : ""}>${back("#/home", L.appHome)}
       <section class="hero"><span class="label">${nb(`${L.appGrade(b.grade)} · ${en ? L.english : esc(b.subject)}${b.pool ? " · " + L.appRandom : ""}`)}</span><h1>${nb(esc(Quiz.title(b, lang)))}</h1>
@@ -1246,7 +1246,7 @@
         ${drawn && drawn.notes.length ? `<p class="small" id="qNotes">${L.appNotes(esc(drawn.notes.join("; ")))}</p>` : ""}</section>
       ${prevCard}
       <div class="label" id="qModes">${L.appChoose}</div>
-      <div class="modes" role="group" aria-labelledby="qModes">${modeCard("qPractice", '<path d="M4 5a2 2 0 0 1 2-2h6v16H6a2 2 0 0 0-2 2z"/><path d="M20 5a2 2 0 0 0-2-2h-6v16h6a2 2 0 0 1 2 2z"/>', L.appPractice, L.appPracticeNote, true)}${b.minutes ? modeCard("qExam", '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', esc(L.appExam(b.minutes)), L.appExamNote) : ""}</div>
+      <div class="modes" role="group" aria-labelledby="qModes">${modeCard("qPractice", '<path d="M4 5a2 2 0 0 1 2-2h6v16H6a2 2 0 0 0-2 2z"/><path d="M20 5a2 2 0 0 0-2-2h-6v16h6a2 2 0 0 1 2 2z"/>', L.appPractice, L.appPracticeNote, true)}${b.minutes ? modeCard("qExam", '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', nb(esc(L.appExam(b.minutes))), L.appExamNote) : ""}</div>
       ${u.role !== "student" ? `<div class="notice" lang="vi">Chế độ xem thử: điểm không được lưu.</div>` : ""}</div>`;
     wireGo();
     // Báo câu sai (Phiên R1): ai cũng báo được, kể cả phụ huynh, quản trị đang xem thử. Câu của đề ngẫu nhiên ghi mã đề gốc (q.src)

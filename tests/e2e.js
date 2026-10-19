@@ -1831,7 +1831,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids.Bin}"]`); await p.fill("#pinIn", PINS.Bin); await p.waitForSelector("#today");
     // X9: màn mở đề, chưa làm lần nào
     await p.goto(BASE + "/#/quiz/" + UX5_BANK); await p.waitForSelector("#qPractice");
-    r.open0 = await p.evaluate(() => { const card = (id) => { const b = document.querySelector(id), x = b.getBoundingClientRect(); return { h: x.height >= 64, ic: b.querySelectorAll("svg").length === 2, head: b.querySelector("b").textContent, note: b.querySelector(".muted").textContent }; };
+    r.open0 = await p.evaluate(() => { const card = (id) => { const b = document.querySelector(id), x = b.getBoundingClientRect(); return { h: x.height >= 64, ic: b.querySelectorAll("svg").length === 2, head: b.querySelector("b").textContent.replace(/\s+/g, " "), note: b.querySelector(".muted").textContent }; }; // nb(): khoảng trắng không ngắt trước "·"
       return { prev: !!document.querySelector("#qPrev"), choose: document.querySelector("#qModes").textContent, group: document.querySelector(".modes").getAttribute("aria-labelledby"), practice: card("#qPractice"), exam: card("#qExam"), heroBtns: document.querySelectorAll(".hero button").length }; });
     r.top0 = await top();
     await check5("màn mở đề, chưa làm");
@@ -1854,6 +1854,8 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     r.warn = await p.evaluate(() => { const t = document.querySelector("#qzTimer"); return { warn: t.classList.contains("warn"), text: t.textContent }; });
     await p.click("#qzSubmit");
     r.submitAsk = await txt("#qzFb .confirm");
+    await p.waitForTimeout(500); // hộp hỏi lại nằm trong màn hình (cuộn tới nếu câu dài), "Làm tiếp" được focus
+    r.submitSeen = await p.evaluate(() => { const b = document.querySelector("#qzFb .confirm").getBoundingClientRect(); return b.top >= 0 && b.bottom <= innerHeight && document.activeElement.id === "qzNo"; });
     await check5("hỏi lại khi nộp bài"); await snap5("c1-nop-bai");
     await p.click("#qzYes"); await p.waitForSelector(".score");
     r.resultTop = await top();
@@ -1911,7 +1913,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       && !r.exam.exit && !r.exam.thoat && r.exam.submit === "Nộp bài" && r.exam.cls === "btn ghost sm" && r.exam.right === 0 && r.exam.oneRow
       && /^Còn (40:00|39:5\d)$/.test(r.exam.timer) && r.exam.role === "timer" && r.exam.aria === "Thời gian còn lại" && r.exam.icon && !r.exam.warn && r.exam.prog === "Câu 1/25"
       && offTop(r.examTop) && r.examProg === "Câu 4/25" && r.warn.warn && /^Còn 01:[23]\d$/.test(r.warn.text)
-      && r.submitAsk === "Nộp bài ngay? Câu chưa làm tính là sai.Nộp bàiLàm tiếp" && fullTop(r.resultTop)
+      && r.submitAsk === "Nộp bài ngay? Câu chưa làm tính là sai.Nộp bàiLàm tiếp" && r.submitSeen && fullTop(r.resultTop)
       && r.prev.head === r.prev.want && r.prev.mode === "exam" && /^Hôm nay 08:\d\d · làm như thi · \d+ phút$/.test(r.prev.sub) && r.prev.icon
       && r.practice.exit === "← Thoát" && !r.practice.submit && !r.practice.timer && r.practice.prog === "Câu 1/25" && offTop(r.practice.top) && r.practice.skip
       && r.checked.skips === 0 && r.checked.right === 0 && r.checked.go === "Câu tiếp" && r.nextSkip
