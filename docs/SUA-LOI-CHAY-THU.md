@@ -192,6 +192,7 @@ Mã lỗi (L1, L2…) dùng trong lời giao việc và trong commit.
   3. Bấm "Ôn câu sai (1)": gặp đúng câu thứ 4 của lần đầu; chọn đáp án đúng thì app báo "Chính xác!", kết quả 1/1, danh sách trống.
   - Báo cáo tuần có ba dòng như của chủ app (thêm dòng 19/20 của lần đầu).
   - Ảnh: [hinh-ra-soat-k3/l27-on-cau-sai.jpg](hinh-ra-soat-k3/l27-on-cau-sai.jpg) (kết quả 20/20 còn nút "Ôn câu sai (1)" · câu đó khi ôn · kết quả 1/1).
+  - Ảnh sau Phiên 9f (360px sáng/tối, Chromium): [hinh-ra-soat-k3/l27-9f-ket-qua-l6.jpg](hinh-ra-soat-k3/l27-9f-ket-qua-l6.jpg) (làm lại Đề 1 đúng hết khi danh sách còn một câu từ lần trước: dòng "Lần này bạn không sai câu nào…" ngay trên nút "Ôn câu sai (1)"; làm lại mà danh sách chỉ có câu của Đề 1 thì nút này không còn), [hinh-ra-soat-k3/l27-9f-trang-dau-l6.jpg](hinh-ra-soat-k3/l27-9f-trang-dau-l6.jpg) (chữ giải thích luật mới ở trang đầu), [hinh-ra-soat-k3/l27-9f-ket-qua-ioe-6.jpg](hinh-ra-soat-k3/l27-9f-ket-qua-ioe-6.jpg) (IOE 6: Review mistakes làm đúng một câu rồi End practice, dòng "No mistakes this time…").
 - Nguyên nhân: hàm `record()` của cả 4 bài ôn chỉ bỏ câu khỏi danh sách khi làm đúng ở chế độ ôn luyện: `if(ok){if(S.mode!=="exam")w.delete(wkey(q))}else w.add(wkey(q));` (`l4-giua-ki-1`, `l6-giua-ki-1`; `ioe-4`, `ioe-6` viết giống vậy với `wrongIds`).
   - Câu vào danh sách khi làm sai hoặc bấm "Bỏ qua" ở bất kì đâu (ôn theo bài, đề thi thử, ôn câu sai), và khi nộp đề còn câu chưa làm.
   - Làm đúng trong đề thi thử thì câu không được bỏ ra.

@@ -63,7 +63,7 @@ docs/HUONG-DAN-SUPABASE.md  hướng dẫn chủ app cài Supabase từng bướ
 5. Đề cố định mới cùng môn, cùng kì với một đề ngẫu nhiên thì thêm mã vào `from` của pool đó và chỉnh `matrix` (tổng bằng `n`, chủ đề đúng chữ `topic`). Môn, kì chưa có pool: thêm một mục `pool` (bước 1 kèm `pool: { from, matrix }`; có câu riêng thì ghi `"<mã pool>": { note, questions }` vào file, không có thì không ghi), gắn vào kì thi như đề thường. Ngân hàng ~100 câu của các phiên N: câu riêng của pool + 1–2 đề cố định trong `from`.
 
 ### Hợp đồng giữa bài ôn và app (không được phá)
-Mỗi file `modules/*/index.html` có ba chỗ nối với app so với artifact gốc (ngoài ra chỉ sửa lời: xưng “bạn” với học sinh, và thay Google Fonts bằng `<link rel="stylesheet" href="../../fonts/fonts.css">`):
+Mỗi file `modules/*/index.html` có ba chỗ nối với app so với artifact gốc (ngoài ra chỉ sửa lời: xưng “bạn” với học sinh, thay Google Fonts bằng `<link rel="stylesheet" href="../../fonts/fonts.css">`, và sửa L27 (Phiên 9f): `record()` bỏ câu khỏi danh sách “Ôn câu sai” khi làm đúng ở bất kì chế độ nào, cả đề thi thử; chữ giải thích luật đó ở trang đầu; màn kết quả có dòng `#wrongNote` khi lượt vừa làm không sai câu nào mà danh sách còn câu từ các lần trước, IOE viết tiếng Anh; để màn kết quả qua kiểm tra 360px trong khung, nhãn `.label` 13px thay vì 12px và nút tiêu đề `.brand` có vùng bấm 44px mà bố cục không đổi):
 - `<script src="../../js/bridge.js"></script>` ngay trước thẻ `<script>` chính.
 - `const PFX=(window.ONTAP_NS||"")+...` — khóa localStorage có tiền tố theo học sinh.
 - Sau dòng lưu lịch sử trong `finish()`: `window.ontapReport&&ontapReport({label,mode,subject,r,t,s})`.

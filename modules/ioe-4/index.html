@@ -29,7 +29,7 @@ h2{font-size:1.35rem}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,textarea:focus-visible,input:focus-visible,label.btn:focus-within{outline:3px solid var(--sun);outline-offset:2px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px 10px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
-.brand{font-family:var(--display);font-weight:800;font-size:1.25rem;color:var(--sea);display:flex;align-items:center;gap:8px;background:none;border:0;padding:0}
+.brand{font-family:var(--display);font-weight:800;font-size:1.25rem;color:var(--sea);display:flex;align-items:center;gap:8px;background:none;border:0;padding:7px 0;margin:-7px 0;min-height:44px}
 .brand b{background:var(--sun);color:var(--sun-ink);border-radius:8px;padding:0 8px;font-size:1rem}
 .chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:.85rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .chip.warn{border-color:var(--bad);color:var(--bad);font-weight:700}
@@ -40,7 +40,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,label.btn:focus-
 .unit .last{font-size:.8rem;font-weight:700;color:var(--ok)}
 .unit .last.fair{color:var(--ink)}
 .hero p{margin:0;opacity:.9;max-width:60ch}
-.label{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.label{font-size:.8125rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--muted)}
 .hero .label{color:inherit;opacity:.8}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .btn{border:0;border-radius:12px;padding:12px 18px;font-weight:700;background:var(--sea-soft);color:var(--sea)}
@@ -1184,7 +1184,7 @@ function givenText(q,given){
 function record(q,given){
   const ok=isRight(q,given);
   S.ans[S.i]={q,given,ok};
-  if(ok){if(S.mode!=="exam")wrongIds.delete(q.id)}else wrongIds.add(q.id);
+  if(ok)wrongIds.delete(q.id);else wrongIds.add(q.id); // L27: a correct answer in any mode (tests too) removes the question from the review list
   saveWrong();return ok;
 }
 function showFeedback(q,ok){
@@ -1220,6 +1220,7 @@ function finish(){
     </section>
     ${total?`<section class="panel"><div class="label">By unit</div><div class="ubreak">${Object.keys(units).sort((a,b)=>a-b).map(k=>{const [r,t]=units[k];return `<span>${+k?"Unit "+k:"My Questions"}</span><div class="bar"><i style="width:${r/t*100}%"></i></div><span>${r}/${t}</span>`}).join("")}</div></section>`:""}
     ${wrong.length?`<section class="panel"><div class="label">Questions to review (${wrong.length})</div><div class="review">${wrong.map(a=>`<div class="rv"><div>${stemText(a.q)}</div><div class="ans">Your answer: <s>${esc(givenText(a.q,a.given))}</s> · Correct: <b>${esc(correctText(a.q))}</b></div></div>`).join("")}</div></section>`:""}
+    ${!wrong.length&&total&&wrongIds.size?`<p class="muted small" id="wrongNote" style="margin:0">No mistakes this time. Your review list still has ${wrongIds.size} question${wrongIds.size>1?"s":""} from earlier.</p>`:""}
     <div class="row" id="resBtns"></div>
   </div>`;
   const btns=$("#resBtns");
@@ -1264,7 +1265,7 @@ function renderHome(note){
     </section>
 
     <section class="sec"><h2>Review Mistakes</h2>
-      <div class="panel"><div>${wrongIds.size?`You have <b>${wrongIds.size}</b> questions to review. Answer one correctly here and it leaves the list.`:"No mistakes saved yet. Do a test to get started."}</div>
+      <div class="panel"><div>${wrongIds.size?`You have <b>${wrongIds.size}</b> questions to review. Answer one correctly in any practice or test and it leaves the list.`:"No mistakes saved yet. Do a test to get started."}</div>
       ${wrongIds.size?`<div class="row"><button class="btn" id="wrongBtn">Review ${wrongIds.size} questions</button></div>`:""}</div>
     </section>
 
