@@ -192,13 +192,30 @@ async function run(browser, scheme) {
   await p.goto(BASE + "/#/admin/user/new?role=student"); await p.waitForSelector("#uForm");
   await p.fill("#uName", "Na"); await p.selectOption("#uGrade", "6");
   await p.click("#uForm [type=submit]"); await p.waitForFunction(() => document.querySelectorAll("#kids a.kid").length === 2);
-  const prof = be.T.profiles.filter((x) => x.family_id === acc.id);
+  const prof = be.T.profiles.filter((x) => x.family_id === acc.id), naId = prof.find((x) => x.name === "Na").id;
   c.profiles = prof.length === 2 && /^4\./.test(prof.find((x) => x.name === "Bin").pin_hash) && prof.find((x) => x.name === "Na").pin_hash === null;
   // UX2: tab Các con: mỗi con một thẻ (chưa có bài: "Chưa ôn", "–", 0), không có ba ô số liệu và mục "Kì thi tiếp theo"; "+ Thêm hồ sơ con", "2/5 hồ sơ"
   c.ux2.kids = await p.evaluate(() => ({ cards: [...document.querySelectorAll("#kids a.kid")].map((k) => k.getAttribute("href") + " " + [...k.querySelectorAll(".stat")].map((s) => s.querySelector("b").textContent + " " + s.querySelector("span").textContent).join("|") + " " + (k.querySelector(".kid-ev") || {}).textContent).join("; ").replace(/\s+/g, " "),
     extraStats: !!document.querySelector("#view > .stack > .stats"), h2: [...document.querySelectorAll("#view h2")].map((h) => h.textContent).join(), count: [...document.querySelectorAll("#kids > .row > .small")].map((x) => x.textContent).join(), add: !!document.querySelector("#kids > .row > a[href='#/admin/user/new?role=student']"), hint: document.querySelector("#kids > p.small").textContent }));
   c.ux3.start2 = await startOf(p); // UX3: có con nhưng chưa con nào học: bước 1 xong, bước 3 đang làm, "Cho con học" bật; UX3b (X19): Bin có mã, Na không: bước 2 chưa ✓, "Na chưa có", link "Đặt mã PIN cho Na"
   await shot(p, "c6-cac-con");
+  // UX3b (X18): link của bước 2 mở thẳng hồ sơ của Na (?tu=batdau): ô Mã PIN được focus, nút quay lại về Các con; để trống mã mà Lưu thì toast "Đã lưu",
+  // về Các con, bước 2 vẫn chưa ✓; có mã thì toast "Đã đặt mã PIN cho Na", về Các con, bước 2 có ✓ "Bin, Na đã có mã PIN." và hết link
+  await p.click("#start .step:nth-child(2) a"); await p.waitForSelector("#uForm"); await wait(p, 100);
+  c.ux3b.form = await p.evaluate(() => ({ hash: location.hash, focus: document.activeElement.id, name: document.querySelector("#uName").value, back: document.querySelector("#view .linkbtn[data-go]").dataset.go }));
+  await shot(p, "c6d-dat-ma-pin-tu-the");
+  await p.click("#uForm [type=submit]"); await p.waitForSelector("#start");
+  c.ux3b.emptySave = (await p.evaluate(() => location.hash)) + " | " + (await text(p, "#toast")) + " | " + (await startOf(p)).steps;
+  await p.click("#start .step:nth-child(2) a"); await p.waitForSelector("#uForm");
+  await p.fill("#uPin", "2468"); await p.click("#uForm [type=submit]"); await p.waitForSelector("#start");
+  c.ux3b.pinSave = { hash: await p.evaluate(() => location.hash), toast: await text(p, "#toast"), start: await startOf(p), server: await until(p, () => /^4\./.test(be.T.profiles.find((x) => x.id === naId).pin_hash || "")) };
+  await shot(p, "c6e-du-ma-pin");
+  // Mở form của Na từ chỗ khác (địa chỉ, như từ Cài đặt): không focus ô mã, lưu xong về Cài đặt như UX2. Bỏ mã PIN của Na để các bước sau chạm là vào.
+  await p.goto(BASE + "/#/admin/user/" + naId); await p.waitForSelector("#uNoPin"); await wait(p, 100);
+  c.ux3b.settingsForm = await p.evaluate(() => ({ focus: document.activeElement.id, back: document.querySelector("#view .linkbtn[data-go]").dataset.go }));
+  await p.check("#uNoPin"); await p.click("#uForm [type=submit]"); await p.waitForSelector("#kidsBox");
+  c.ux3b.noPin = (await p.evaluate(() => location.hash)) + " | " + (await text(p, "#toast")) + " | " + (await until(p, () => !be.T.profiles.find((x) => x.id === naId).pin_hash));
+  await p.goto(BASE + "/#/admin/overview"); await p.waitForSelector("#start");
   // UX2: tab Lịch thi của khu phụ huynh: chỉ khối của các con ("Lớp 4 · Bin", "Lớp 6 · Na"), kì thi dự kiến có nút "Trường đã báo lịch? Sửa ngày",
   // hộp sửa ngày mở ngay dưới thẻ, Lưu thì bỏ cờ dự kiến và lên máy chủ; #/calendar của phụ huynh cũng về đây
   await p.goto(BASE + "/#/calendar"); await wait(p);
@@ -351,7 +368,6 @@ async function run(browser, scheme) {
   c.na = true;
   // TA2: Na làm một đề Tiếng Anh: màn mở đề, câu hỏi và lời giải, hộp hỏi khi rời (nút Back, "← Exit"), màn kết quả, thông báo lưu điểm
   // bằng tiếng Anh (bảng chữ của js/quiz.js), không có chữ cái tiếng Việt; kết quả lên máy chủ vẫn ghi môn và tên đề trong danh mục.
-  const naId = prof.find((x) => x.name === "Na").id;
   await p.goto(BASE + "/#/quiz/ta6-gk1-de1"); await p.waitForSelector("#qPractice");
   c.ta2 = { open: await text(p, "#view"), h1: await text(p, ".hero h1"), lang: await p.$eval("#view > .stack", (e) => e.getAttribute("lang")) };
   await shot(p, "c8e-de-tieng-anh");
@@ -726,6 +742,14 @@ async function run(browser, scheme) {
       && !!c.ux3.start2 && c.ux3.start2.steps === "done:Thêm hồ sơ con|:Đặt mã PIN (không bắt buộc)|now:Đưa máy cho con" && !c.ux3.start2.disabled && c.ux3.start2.h >= 52 && c.ux3.start2.first === "start" && c.ux3.start2.rows === 1
       && /✓Thêm hồ sơ conĐã có 2 hồ sơ: Bin, Na\. 2Đặt mã PIN \(không bắt buộc\)Bin đã có mã PIN\. Na chưa có\.Đặt mã PIN cho Na 3Đưa máy cho con/.test(c.ux3.start2.text) && /Lúc khác, bấm “Chọn hồ sơ khác” ở góc trên\.$/.test(c.ux3.start2.text)
       && c.ux3.letStudy && c.ux3.gone,
+    "UX3b (X19): bước 2 chưa ✓ khi Na chưa có mã: ghi “Bin đã có mã PIN. Na chưa có.”, link “Đặt mã PIN cho Na” mở thẳng hồ sơ của Na; mọi con có mã thì ✓ “Bin, Na đã có mã PIN.”, hết link; nút “Cho con học” vẫn bật":
+      c.ux3.start2.link2 === `#/admin/user/${naId}?tu=batdau · Đặt mã PIN cho Na` && c.ux3b.pinSave.start.steps === "done:Thêm hồ sơ con|done:Đặt mã PIN (không bắt buộc)|now:Đưa máy cho con"
+      && /✓Đặt mã PIN \(không bắt buộc\)Bin, Na đã có mã PIN\. 3Đưa máy cho con/.test(c.ux3b.pinSave.start.text) && c.ux3b.pinSave.start.link2 === "" && !c.ux3b.pinSave.start.disabled,
+    "UX3b (X18): link từ thẻ mở form của Na với ô Mã PIN được focus, nút quay lại về Các con; lưu có mã thì về Các con, toast “Đã đặt mã PIN cho Na”, lên máy chủ; để trống thì toast “Đã lưu”; mở từ chỗ khác thì không focus, về Cài đặt như UX2":
+      c.ux3b.form.hash === `#/admin/user/${naId}?tu=batdau` && c.ux3b.form.focus === "uPin" && c.ux3b.form.name === "Na" && c.ux3b.form.back === "#/admin/overview"
+      && c.ux3b.emptySave === "#/admin/overview | Đã lưu | done:Thêm hồ sơ con|:Đặt mã PIN (không bắt buộc)|now:Đưa máy cho con"
+      && c.ux3b.pinSave.hash === "#/admin/overview" && c.ux3b.pinSave.toast === "Đã đặt mã PIN cho Na" && c.ux3b.pinSave.server
+      && c.ux3b.settingsForm.focus !== "uPin" && c.ux3b.settingsForm.back === "#/admin/settings" && c.ux3b.noPin === "#/admin/settings | Đã lưu | true",
     "UX3: “Đổi người học” thành “Chọn hồ sơ khác” ở khu phụ huynh và trang Tài khoản của phụ huynh, của con": c.ux3.switchTxt === "Chọn hồ sơ khác" && c.ux3.parentSwitch === "Chọn hồ sơ khác" && c.ux3.kidSwitch === "Chọn hồ sơ khác"
       && /chỉ cần “Chọn hồ sơ khác”/.test(c.ux3.accountText) && !/Đổi người học/.test(c.ux3.accountText),
     "UX3: mã mở nhanh: trang Tài khoản trên máy đã ghi nhớ đặt được mã 4–6 số (sai dạng thì báo; băm, lưu trên máy theo mã gia đình, muối ghi độ dài), bỏ mã được; máy không ghi nhớ chỉ nhắc, không có ô":

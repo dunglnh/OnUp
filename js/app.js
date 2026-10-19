@@ -1534,8 +1534,10 @@
     const used = new Set(Store.users().map((x) => x.avatar)), fav = role === "student" ? "🐣" : role === "parent" ? "🌻" : "🧭";
     let emo = editing ? editing.avatar : !used.has(fav) ? fav : AVATARS.find((a) => !used.has(a)) || fav;
     const parents = Store.users("parent"), studs = Store.users("student");
-    // Bản đám mây (UX2): thêm hồ sơ thì về tab Các con (thấy thẻ mới), sửa thì về Cài đặt → Hồ sơ con.
-    const backTo = cloud ? (editing ? "#/admin/settings" : "#/admin/overview") : isAdmin ? "#/admin/users" : editing ? "#/child/" + editing.id : "#/home";
+    // Bản đám mây (UX2): thêm hồ sơ thì về tab Các con (thấy thẻ mới), sửa thì về Cài đặt → Hồ sơ con. Mở từ link "Đặt mã PIN cho <tên>"
+    // của thẻ "Bắt đầu" (?tu=batdau, Phiên UX3b, X18): ô Mã PIN được focus; lưu xong và nút quay lại về Các con để làm tiếp bước 3.
+    const fromStart = cloud && !!editing && query.tu === "batdau";
+    const backTo = cloud ? (editing && !fromStart ? "#/admin/settings" : "#/admin/overview") : isAdmin ? "#/admin/users" : editing ? "#/child/" + editing.id : "#/home";
     const full = cloud && !editing && !Store.can("addChild");
     const title = cloud ? (editing ? "Sửa hồ sơ con" : "Thêm hồ sơ con") : editing ? "Sửa tài khoản" : "Thêm " + Store.ROLES[role].toLowerCase();
     const pinLabel = cloud ? (editing && editing.hasPin ? "Mã PIN mới, 4 số (để trống nếu giữ nguyên)" : "Mã PIN 4 số (không bắt buộc)")
@@ -1556,6 +1558,7 @@
       <div class="row"><button class="btn main" type="submit" ${full ? "disabled" : ""}>${editing ? "Lưu" : cloud ? "Tạo hồ sơ" : "Tạo tài khoản"}</button>${editing && (isAdmin || role === "student") && editing.id !== viewer.id ? `<button class="btn danger" type="button" id="uDel">${cloud ? "Xóa hồ sơ" : "Xóa tài khoản"}</button>` : ""}</div>
       <div id="uDelArea"></div></form></div>`;
     wireGo(); wireEmoji(view, (e) => (emo = e)); wireReveal(view);
+    if (fromStart) { const pin = $("#uPin"); pin.scrollIntoView({ block: "center" }); pin.focus({ preventScroll: true }); }
     $("#uForm").onsubmit = async (ev) => {
       ev.preventDefault();
       const data = { name: $("#uName").value, pin: $("#uPin").value.trim(), avatar: emo, noPin: !!($("#uNoPin") && $("#uNoPin").checked) };
@@ -1578,7 +1581,7 @@
             if (!kids.has(s.id) && has) await Store.updateUser(s.id, { parentIds: s.parentIds.filter((p) => p !== saved.id) });
           }
         }
-        toast(editing ? "Đã lưu" : (cloud ? "Đã tạo hồ sơ " : "Đã tạo tài khoản ") + saved.name);
+        toast(editing ? (fromStart && data.pin ? "Đã đặt mã PIN cho " + saved.name : "Đã lưu") : (cloud ? "Đã tạo hồ sơ " : "Đã tạo tài khoản ") + saved.name);
         go(cloud ? backTo : isAdmin ? "#/admin/users" : "#/home");
       } catch (e) { $("#uErr").innerHTML = `<div class="fb bad">${esc(e.message)}</div>`; }
     };
