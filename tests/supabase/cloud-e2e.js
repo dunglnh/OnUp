@@ -536,6 +536,7 @@ async function run(browser, scheme) {
   await tile(q, "Phụ huynh"); await q.waitForSelector("#kids"); // vừa đăng nhập: không hỏi lại mật khẩu
   await q.goto(BASE + "/#/account"); await q.waitForSelector("#qcBox");
   c.ux3.noRemember = (await text(q, "#qcBox")) + " | " + !(await q.$("#qcNew"));
+  await shot(q, "c14b-tai-khoan-chua-ghi-nho"); // UX3b (X20): lời nhắc đăng xuất rồi đăng nhập lại có ghi nhớ
   await q.goto(BASE + "/#/"); await wait(q);
   /* ---- tài khoản bị khóa ---- */
   await admin({ action: "set_status", id: acc.id, status: "locked" });
@@ -756,7 +757,9 @@ async function run(browser, scheme) {
       /^Mã mở nhanh khu phụ huynh Trên máy này, bạn gõ mã 4–6 số ở màn hình “Ai đang học\?” là vào khu phụ huynh, không phải gõ mật khẩu\. Quên mã thì nhập mật khẩu như cũ\. Đổi mật khẩu và đăng xuất vẫn cần mật khẩu\. Mã mở nhanh \(4–6 số\) Lưu mã /.test(c.ux3.qc0)
       && c.ux3.qcErr === "Mã mở nhanh gồm 4–6 chữ số." && /bạn gõ mã 5 số /.test(c.ux3.qc1.text) && /Máy này đã có mã mở nhanh\. Mã mới \(4–6 số\) Đổi mãBỏ mã /.test(c.ux3.qc1.text) && c.ux3.qc1.toast === "Đã lưu mã mở nhanh"
       && Object.keys(c.ux3.qc1.ls).join() === acc.id && /^5\.[0-9a-f]{16}\$s256:[0-9a-f]{64}$/.test(c.ux3.qc1.ls[acc.id]) && c.ux3.dropped
-      && /Máy này chưa ghi nhớ đăng nhập\. \| true$/.test(c.ux3.noRemember) && /Chọn “Ghi nhớ trên máy này” khi đăng nhập/.test(c.ux3.noRemember),
+      // UX3b (X20): không có chữ "băm"; máy chưa ghi nhớ thì nói rõ phải đăng xuất rồi đăng nhập lại và chọn "Ghi nhớ trên máy này"
+      && /Mã chỉ lưu trên máy này, không gửi đi đâu; máy khác muốn dùng thì đặt riêng\. Đăng xuất thì mã bị xóa\.$/.test(c.ux3.qc0) && !/băm/i.test(c.ux3.qc0 + c.ux3.qc1.text + c.ux3.noRemember)
+      && /chỉ đặt được trên máy đã ghi nhớ đăng nhập\. Máy này chưa ghi nhớ đăng nhập\. Muốn đặt mã: bấm “Đăng xuất khỏi máy này”, rồi đăng nhập lại và chọn “Ghi nhớ trên máy này”\. \| true$/.test(c.ux3.noRemember),
     "UX3, UX4 (A5b): tab mới trên máy đã ghi nhớ: ô Phụ huynh ghi “Nhập mã mở nhanh”, bước riêng mở bàn phím mã (dòng “Nhập mã mở nhanh của máy này”, nhãn Mã mở nhanh, 5 chấm), sai thì báo và tính vào khóa tạm, dòng “Quên mã? Nhập mật khẩu” (≥ 44px) mở ô mật khẩu có “Dùng mã mở nhanh”, đúng mã thì vào khu phụ huynh; đăng xuất thì xóa mã":
       c.ux3.tileSub === "Nhập mã mở nhanh" && c.ux3.pad.pw && c.ux3.pad.who === "🌻Phụ huynh" + "Nhà Bin · nha.bin" && c.ux3.pad.sub === "Nhập mã mở nhanh của máy này" && c.ux3.pad.label === "Mã mở nhanh" && c.ux3.pad.dots === 5
       && c.ux3.pad.alt === "Nhập mật khẩu" && c.ux3.pad.altAll === "Quên mã?Nhập mật khẩu" && c.ux3.pad.altH >= 44 && c.ux3.padWrong === "Mã mở nhanh chưa đúng. Thử lại nhé. | 1" && c.ux3.toPw === "true Dùng mã mở nhanh" && c.ux3.padIn === "Khu phụ huynh | true" && c.ux3.cleared,

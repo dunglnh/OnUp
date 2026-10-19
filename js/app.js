@@ -1796,15 +1796,16 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
      chỉ đặt được khi máy đã ghi nhớ đăng nhập (Store.rememberLogin()); đã có mã thì đổi hoặc bỏ. Đổi mật khẩu, đăng xuất vẫn cần mật khẩu. */
   function quickBox() {
     const len = Store.quickCodeLen();
+    // Máy chưa ghi nhớ đăng nhập (X20): nói rõ phải đăng xuất rồi đăng nhập lại và chọn "Ghi nhớ trên máy này" (bố mẹ đang đăng nhập rồi).
     if (!Store.rememberLogin()) return `<section class="panel" id="qcBox"><h3>Mã mở nhanh khu phụ huynh</h3>
-      <p class="small">Chọn “Ghi nhớ trên máy này” khi đăng nhập thì đặt được mã 4–6 số để vào khu phụ huynh mà không phải gõ mật khẩu. Máy này chưa ghi nhớ đăng nhập.</p></section>`;
+      <p class="small">Mã 4–6 số để vào khu phụ huynh mà không phải gõ mật khẩu, chỉ đặt được trên máy đã ghi nhớ đăng nhập. Máy này chưa ghi nhớ đăng nhập. Muốn đặt mã: bấm “Đăng xuất khỏi máy này”, rồi đăng nhập lại và chọn “Ghi nhớ trên máy này”.</p></section>`;
     return `<form class="panel" id="qcBox" autocomplete="off"><h3>Mã mở nhanh khu phụ huynh</h3>
       <p class="small">Trên máy này, bạn gõ mã ${len ? len + " số" : "4–6 số"} ở màn hình “Ai đang học?” là vào khu phụ huynh, không phải gõ mật khẩu. Quên mã thì nhập mật khẩu như cũ. Đổi mật khẩu và đăng xuất vẫn cần mật khẩu.</p>
       ${len ? `<div class="fb ok" id="qcState">Máy này đã có mã mở nhanh.</div>` : ""}
       <label class="field" style="max-width:300px"><span>${len ? "Mã mới (4–6 số)" : "Mã mở nhanh (4–6 số)"}</span><input id="qcNew" type="password" inputmode="numeric" maxlength="6" autocomplete="off" data-what="mã mở nhanh"></label>
       <div id="qcErr" aria-live="assertive"></div>
       <div class="row"><button class="btn sm" type="submit" id="qcSave">${len ? "Đổi mã" : "Lưu mã"}</button>${len ? `<button class="btn ghost sm" type="button" id="qcDrop">Bỏ mã</button>` : ""}</div>
-      <p class="small muted">Mã chỉ lưu trên máy này (đã băm), không gửi lên máy chủ; máy khác muốn dùng thì đặt riêng. Đăng xuất thì mã bị xóa.</p></form>`;
+      <p class="small muted">Mã chỉ lưu trên máy này, không gửi đi đâu; máy khác muốn dùng thì đặt riêng. Đăng xuất thì mã bị xóa.</p></form>`;
   }
   /* Bản đám mây. Phụ huynh: tên đăng nhập, đổi mật khẩu, mã mở nhanh (UX3), chọn hồ sơ khác, đăng xuất khỏi máy này (hỏi mật khẩu
      trước, openSignOut). Hồ sơ con: hình đại diện (chạm là đổi, X4), chọn hồ sơ khác (PIN do bố mẹ đặt trong khu phụ huynh; con không
