@@ -1174,7 +1174,7 @@
   function unsentBar(userId) {
     const n = Store.pendingResults(userId);
     if (!n) return "";
-    return `<div class="unsent" id="unsent">${CLOCK}<span class="grow">${userId ? `${n} bài chưa gửi cho bố mẹ` : `${n} bài làm trên máy này chưa gửi đi`}</span><button class="linkbtn" id="sendNow">Gửi lại</button></div>`;
+    return `<div class="unsent" id="unsent" data-n="${n}">${CLOCK}<span class="grow">${userId ? `${n} bài chưa gửi cho bố mẹ` : `${n} bài làm trên máy này chưa gửi đi`}</span><button class="linkbtn" id="sendNow">Gửi lại</button></div>`;
   }
   function wireUnsent(userId) {
     const b = $("#sendNow");
@@ -1182,8 +1182,14 @@
     b.onclick = async () => {
       b.disabled = true; b.textContent = "Đang gửi…";
       await Store.sendPending();
-      toast(Store.pendingResults(userId) ? "Chưa gửi được. App sẽ thử lại khi có mạng." : "Đã gửi", 4000);
-      b.disabled = false; b.textContent = "Gửi lại"; // gửi được bài nào thì trang vẽ lại (dòng đổi số hoặc mất)
+      b.disabled = false; b.textContent = "Gửi lại";
+      // Phiên đăng nhập đã hết (bài vẫn nằm trên máy): không báo gì thêm, để lời nhắc "Bố mẹ đăng nhập lại…" của kho còn hiện
+      if (Store.authState() !== "ready") return;
+      const n = Store.pendingResults(userId);
+      toast(n ? "Chưa gửi được. App sẽ thử lại khi có mạng." : "Đã gửi", 4000);
+      // Lượt gửi làm đổi số bài thì kho đã vẽ lại trang (Store.onChange). Tab khác trên cùng máy gửi trước thì số bài đã đổi mà lượt
+      // này không đổi gì: vẽ lại để dòng khớp số thật (sau lượt vẽ lại của kho, nếu có)
+      setTimeout(() => { const bar = $("#unsent"); if (bar && bar.contains(b) && +bar.dataset.n !== n) route(); }, 0);
     };
   }
 
@@ -1312,9 +1318,11 @@
           Store.addResult(Object.assign({ userId: u.id, source: "bank", refId: b.id, subject: b.subject, label: b.title }, res));
           if (b.pool && res.marks) PoolHist.mark(u.id, b.id, res.marks);
           // bản đám mây (UX6): dòng #qzSaved ở màn kết quả và thông báo ghi bài đã gửi cho bố mẹ chưa; bản lưu trên máy giữ "Đã lưu kết quả"
-          // whenSent gọi lại sau khi Quiz.run đã vẽ màn kết quả; gửi xong muộn thì ghi lại vào đúng màn đó (line), không sang lượt sau
+          // Quiz.run gọi onFinish ngay trước khi vẽ màn kết quả (lưu điểm tự chấm khi làm như thi: màn đó đã có): lấy chỗ trống của đúng màn
+          // này ở microtask kế tiếp, xếp trước mọi lần whenSent gọi lại. Gửi xong muộn mà đã sang lượt khác thì không ghi (chỗ đó đã bị gỡ).
           let line = null;
-          if (!whenSent(u, (ok, expired) => { line = line || $("#qzSaved"); savedLine(line, ok, L); if (!expired) toast(ok ? L.appSent : L.appPending, ok ? 3000 : 5000); })) toast(res.mode === "self" ? L.appSavedSelf : L.appSaved);
+          Promise.resolve().then(() => (line = $("#qzSaved")));
+          if (!whenSent(u, (ok, expired) => { if (line && line.isConnected) savedLine(line, ok, L); if (!expired) toast(ok ? L.appSent : L.appPending, ok ? 3000 : 5000); })) toast(res.mode === "self" ? L.appSavedSelf : L.appSaved);
         }
       }));
       // Xem thử (phụ huynh, quản trị) không lưu điểm nên không cần hỏi.

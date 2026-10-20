@@ -272,6 +272,17 @@ ok(B.Store.authState() === "ready" && !!dev.getItem(AUTH) && !B.sessionStorage.g
   be.failResults = false;
   await B4.Store.sendPending(); await tick();
   ok(B4.Store.pendingResults() === 0 && S.pendingResults() === 0 && be.T.results.length === nBefore + 2 && n4 >= 1, "tab khác bấm Gửi lại: gửi được, vẽ lại trang");
+  // máy chủ từ chối vì gửi quá nhiều (60 kết quả mỗi 10 phút mỗi hồ sơ): báo một lần dù gửi lại nhiều lần, bài nằm lại trong hộp gửi;
+  // hết hạn chế thì gửi được (lỗi mạng thường thì không báo chung nữa: app tự ghi bài chưa gửi)
+  const at = new Date(Date.now() + be.clock - 1000).toISOString(), fid = fam("nha.bin").id;
+  for (let i = 0; i < 60; i++) be.T.results.push({ id: "rl-" + i, profile_id: bin.id, family_id: fid, source: "bank", ref_id: "x", subject: "", label: "", mode: "", r: 1, t: 2, s: 1, wrong_topics: null, at, import_key: null });
+  const nErr = B.errors.length, rateMsg = () => B.errors.slice(nErr).filter((m) => /Gửi quá nhiều/.test(m)).length;
+  S.addResult({ userId: bin.id, source: "bank", refId: "toan4-gk2-de1", subject: "Toán", label: "Toán 4 · Giữa kì II · Đề 1", mode: "practice", r: 20, t: 25, s: 600 });
+  await S.sendPending(); await S.sendPending();
+  ok(S.pendingResults(bin.id) === 1 && rateMsg() === 1 && B.errors.length === nErr + 1, "gửi quá nhiều: báo một lần (gửi lại không báo thêm), bài nằm lại trong hộp gửi");
+  be.T.results = be.T.results.filter((r) => !String(r.id).startsWith("rl-"));
+  await S.sendPending();
+  ok(S.pendingResults() === 0 && be.T.results.some((r) => r.profile_id === bin.id && r.ref_id === "toan4-gk2-de1"), "hết hạn chế: gửi được bài còn chờ");
   S.onChange = null;
   // Dạng câu mới (Phiên K2): số câu đúng lẻ đến 0,01; điểm tự chấm tự luận là kết quả riêng (mode "self", phần tư điểm).
   const tn = { userId: bin.id, source: "bank", refId: "thunghiem6-dang-cau-moi", subject: "Thử nghiệm", label: "Đề thử nghiệm" };
@@ -488,7 +499,7 @@ const PW2 = "me-bin-moi-2026";
   ok(JSON.parse(A.localStorage.getItem("ontap_cloud_outbox") || "{}")[kid].length === 1 && A.errors.some((m) => /đăng nhập lại để gửi/.test(m)), "phiên hết giữa lúc làm bài: kết quả vào hộp gửi, mời bố mẹ đăng nhập lại");
   await S.signIn("nha.bin", PW); await S.flush();
   ok(be.T.results.length === n + 1 && !A.localStorage.getItem("ontap_cloud_outbox"), "đăng nhập lại: tự gửi kết quả còn chờ");
-  const unexpected = A.errors.filter((m) => !/đăng nhập lại để gửi/.test(m)).concat(B.errors.filter((m) => !/hồ sơ đang học|Chưa gửi được/.test(m)));
+  const unexpected = A.errors.filter((m) => !/đăng nhập lại để gửi/.test(m)).concat(B.errors.filter((m) => !/hồ sơ đang học|Chưa gửi được|Gửi quá nhiều/.test(m)));
   ok(!unexpected.length, "không có lỗi ngoài ý muốn" + (unexpected.length ? ": " + unexpected.join(" | ") : ""));
 }
 
