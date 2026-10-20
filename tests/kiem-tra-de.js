@@ -7,7 +7,8 @@
      file chứa đúng các đề danh mục ghi cho nó, chỉ ghi vào window.ONTAP_SEED_QUESTIONS; không có file thừa;
    - từng câu: dạng có trong TRUONG_CAU, không có trường lạ; có câu hỏi, chủ đề, lời giải (tự luận: đáp án gợi ý);
      trắc nghiệm có ít nhất 2 lựa chọn, không trùng nhau (phân biệt chữ hoa: có câu hỏi cách viết hoa); điền khuyết có đáp án
-     và đúng một chỗ trống ___ (js/quiz.js chấm đáp án đầu là đúng); đúng/sai có a là true hoặc false;
+     và đúng một chỗ trống ___ (js/quiz.js chấm đáp án đầu là đúng), không phải câu về số âm (L33: đáp án là số âm, hoặc mọi đáp
+     án là số mà đề có số âm; script tự thử với hai câu cố ý viết sai); đúng/sai có a là true hoặc false;
      đúng/sai 4 ý (tf4) có đúng 4 ý không trùng, a là 4 giá trị true/false; trả lời bằng số (num) có ans là số hoặc phân số
      viết "a/b" (chuỗi, mẫu số khác 0, L29), tol ≥ 0, app chấm đúng ans (số viết kiểu Việt Nam, như 2,5; phân số viết như trong
      dữ liệu) và hiện đúng chữ phân số; script tự thử với đáp án cố ý viết sai ("2/0", "hai phần ba") và Quiz.parse đọc "Đáp số: 3/4";
@@ -86,6 +87,15 @@ const soatSo = (q) => {
   if (frac) return Quiz.isRight(q, q.ans) && Quiz.text(Object.assign({}, q, { q: "" })).includes("Đáp án: " + q.ans) ? "" : `app không chấm đúng hoặc không hiện đúng đáp án "${q.ans}"`;
   return Quiz.isRight(q, Quiz.fmtN(q.ans)) && Quiz.isRight(q, String(q.ans)) ? "" : `app không chấm đúng đáp án ${q.ans} (viết ${Quiz.fmtN(q.ans)})`;
 };
+/* Câu điền về số âm (L33) lộ dấu của đáp án: có đáp án là số âm thì app hiện dòng nhắc số âm dưới câu; mọi đáp án là số (không âm)
+   thì app mở bàn phím số, bàn phím này trên iPhone không có dấu trừ. Câu như vậy dùng câu trả lời bằng số (nút ± ở mọi câu) hoặc
+   trắc nghiệm. Số âm trong đề: dấu trừ (− hoặc -) liền trước chữ số, đứng đầu câu, sau khoảng trắng hoặc dấu mở ngoặc ("(−25)",
+   "−5"); dấu trừ của phép trừ có khoảng trắng hai bên ("862 450 − 315 270"), gạch nối khoảng ("Bài 1–22") không tính. SO, SO_AM
+   chép từ isNum, isNeg của js/quiz.js (chỗ chọn bàn phím và dòng nhắc), script kiểm tra hai biểu thức còn giống nhau. Trả về lời
+   báo lỗi hoặc "". */
+const SO = /^[-−–]?\s*\d[\d\s.,]*$/, SO_AM = /^\(?\s*[-−–]\s*\d/, SO_AM_TRONG_DE = /(^|[\s([])[-−]\d/;
+const soatSoAm = (q) => (q.ans.some((a) => SO_AM.test(String(a).trim())) || (q.ans.every((a) => SO.test(String(a).trim())) && SO_AM_TRONG_DE.test(q.q))
+  ? "câu về số âm dùng câu trả lời bằng số hoặc trắc nghiệm (L33)" : "");
 
 /* ---------- danh mục ---------- */
 const catalog = load(["data/banks/index.js"]).window.ONTAP_SEED_BANKS || [];
@@ -204,6 +214,7 @@ catalog.forEach((b) => {
       if (blanks.length !== 1 || blanks[0] !== "___") err(at, "điền khuyết cần đúng một chỗ trống ___ (ba dấu gạch dưới)");
       if (!Array.isArray(q.ans) || !q.ans.length || !q.ans.every(text)) err(at, "điền khuyết cần đáp án");
       else if (!Quiz.isRight(q, q.ans[0])) err(at, `app không chấm đúng đáp án "${q.ans[0]}"`);
+      else { const m = soatSoAm(q); if (m) err(at, m); }
     } else if (q.type === "tf") {
       if (typeof q.a !== "boolean") err(at, "đúng/sai cần a: true hoặc false");
     } else if (q.type === "tf4") {
@@ -412,6 +423,17 @@ catalog.forEach((b) => {
     const p = Quiz.parse(src), q = p.questions[0];
     if (p.errors.length || p.questions.length !== 1 || q.type !== "num" || q.ans !== want || "unit" in q || soatSo(Object.assign(q, { x: "Lời giải" }))) err(at, `Quiz.parse đọc “${src.split("\n")[1]}” chưa đúng: ` + JSON.stringify(p));
   });
+}
+
+// tự thử câu điền về số âm (L33): hai câu cố ý viết sai bị báo; phép trừ, gạch nối khoảng, đáp án có chữ thì không;
+// SO, SO_AM vẫn giống isNum, isNeg của js/quiz.js
+{
+  const at = "kiểm tra câu điền về số âm (L33)", mk = (q, ans) => ({ topic: "Số nguyên", type: "fill", q, ans, x: "Lời giải" });
+  [mk("(−72) : 8 = ___", ["-9"]), mk("(−25) + 30 = ___", ["5"]), mk("−5 + 2 = ___", ["(−3)"])].forEach((q) => { if (!soatSoAm(q)) err(at, `câu sai "${q.q}" (đáp án ${q.ans}) không bị báo`); });
+  [mk("862 450 − 315 270 = ___", ["547 180"]), mk("Bài 1–22: số liền sau của 99 là ___", ["100"]), mk("Số đối của −7 là ___.", ["7", "+7"]), mk("Nhiệt độ −2 °C tăng thêm 7 °C thì được ___ °C.", ["5", "+5"])]
+    .forEach((q) => { if (soatSoAm(q)) err(at, `câu đúng "${q.q}" (đáp án ${q.ans}) bị báo`); });
+  const src = read("js/quiz.js");
+  [["isNum", SO], ["isNeg", SO_AM]].forEach(([n, re]) => { if (!src.includes(`const ${n} = (s) => /${re.source}/.test(`)) err(at, `${n} trong js/quiz.js đã đổi: sửa ${n === "isNum" ? "SO" : "SO_AM"} trong script này cho khớp`); });
 }
 
 /* ---------- lịch thi mặc định ---------- */
