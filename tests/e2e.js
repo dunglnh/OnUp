@@ -630,8 +630,8 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     await open("#/quiz/tv4-ck1-de1"); await p.waitForSelector("#qRetry"); await check("đề chưa tải được"); await snap("de-chua-tai-duoc");
     await c.unroute("**/data/banks/4-tv.js"); await p.click("#qRetry"); r.retry = !!(await p.waitForSelector("#qPractice").catch(() => null));
     await open("#/quiz/toan4-ck1-de1"); await p.waitForSelector("#qPractice"); await check("đề, màn đầu"); r.quizFoot = !(await footShown());
-    // tiêu đề (X15): line-height tính ra của h1 ≥ 1,3 lần cỡ chữ, để dấu thanh của tiêu đề hai dòng không chạm nhau
-    r.h1Line = await p.evaluate(() => { const cs = getComputedStyle(document.querySelector(".hero h1")); return parseFloat(cs.lineHeight) >= 1.3 * parseFloat(cs.fontSize); });
+    // tiêu đề (X15, font Lora): line-height tính ra của h1 ≥ 1,35 lần cỡ chữ; thấp hơn thì chữ hoa hai dấu (Ố, Ẫ) của dòng dưới chạm chân chữ g, y của dòng trên
+    r.h1Line = await p.evaluate(() => { const cs = getComputedStyle(document.querySelector(".hero h1")); return parseFloat(cs.lineHeight) >= 1.35 * parseFloat(cs.fontSize) - 0.01; });
     await p.click("#qPractice"); await check("đề, câu hỏi");
     if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0");
     await p.click("#qzGo"); await check("đề, sau khi trả lời");
@@ -2122,6 +2122,12 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const want = ["./", "manifest.webmanifest"].concat(ls("css/", /\.css$/), ls("js/", /\.js$/), ls("data/", /\.js$/), ["data/banks/index.js"], ls("fonts/", /\.(css|woff2)$/), ls("icons/", /./),
     fs.readdirSync(ROOT + "modules").map((m) => `modules/${m}/index.html`));
   const swList = { missing: want.filter((f) => !sw.FILES.includes(f)), extra: sw.FILES.filter((f) => !want.includes(f)) };
+  /* Font Lora (tiêu đề, số to) và Noto Sans: luật chép trong CLAUDE.md. Trong css/app.css và 4 bài ôn, quy tắc có var(--display) không ghi
+     tabular-nums (chữ số bằng nhau và dấu phẩy của Lora rộng), h1,h2,h3 có line-height 1.35; css/app.css không ghi 800 (Lora chỉ có đến 700). */
+  const fontBad = ["css/app.css"].concat(fs.readdirSync(ROOT + "modules").map((m) => `modules/${m}/index.html`))
+    .flatMap((f) => (fs.readFileSync(ROOT + f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").match(/[^{}]*\{[^{}]*var\(--display\)[^{}]*\}/g) || [])
+      .filter((r) => /tabular-nums/.test(r) || (/^\s*h1,h2,h3\{/.test(r) && !/line-height:1\.35/.test(r)) || (f === "css/app.css" && /font-weight:800|font:800/.test(r)))
+      .map((r) => f + ": " + r.trim().slice(0, 60)));
   // Tải trang một lần (service worker cài và đệm), rồi mất mạng: tải lại vẫn vào được, đăng nhập, mở bài ôn và đề ngân hàng.
   const off = await browser.newContext({ storageState: state, viewport: { width: 390, height: 844 } });
   await localConfig(off);
@@ -2182,10 +2188,10 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await op.goto(BASE + "/index.html"); await op.waitForTimeout(300); // trang chưa đệm riêng: trả về trang chính
   ol.other = await op.evaluate(() => !!document.querySelector("#view .tile, #view .hero"));
   offline = false; await off.close();
-  console.log("offline:", ol, "sw list:", swList, "sw version:", sw.VERSION, "cache:", cache.names, cache.urls.length, "new version:", bump, "sw requests:", swSeen.length, "leaked:", leaked);
-  const offlineOK = !swList.missing.length && !swList.extra.length && cache.names.join() === sw.VERSION && cache.urls.length === sw.FILES.length && cache.urls.every((u) => u.startsWith(BASE + "/"))
+  console.log("offline:", ol, "font rules:", fontBad, "sw list:", swList, "sw version:", sw.VERSION, "cache:", cache.names, cache.urls.length, "new version:", bump, "sw requests:", swSeen.length, "leaked:", leaked);
+  const offlineOK = !swList.missing.length && !swList.extra.length && !fontBad.length && cache.names.join() === sw.VERSION && cache.urls.length === sw.FILES.length && cache.urls.every((u) => u.startsWith(BASE + "/"))
     && bump.keys === sw.VERSION && bump.n === sw.FILES.length + 2 && bump.tv === "/* ban-cu */" && bump.toan && bump.index !== "/* ban-cu */" && bump.cu === null
-    && swSeen.length > 0 && !leaked.length && ol.login && ol.fonts === "Baloo 2,Be Vietnam Pro" && ol.who === "Bin" && /Global Success 4/.test(ol.play) && ol.quiz && ol.keptTv && ol.notOpened && ol.other;
+    && swSeen.length > 0 && !leaked.length && ol.login && ol.fonts === "Lora,Noto Sans" && ol.who === "Bin" && /Global Success 4/.test(ol.play) && ol.quiz && ol.keptTv && ol.notOpened && ol.other;
 
   step("service worker: one set of files per page load (L19)");
   /* Service worker đã cài. Mọi file của app chậm 6 giây: trang vẫn hiện trước 6 giây (cả bộ lấy từ đệm), không lỗi JS,

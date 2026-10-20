@@ -10,8 +10,8 @@
   --ok:#167a3a; --ok-soft:#e2f4e8; --bad:#b23a0b; --bad-soft:#fde9df;
   --math:#1d4ed8; --math-soft:#e4ebfd; --lang:#b4235a; --lang-soft:#fbe6ee; --sci:#0f7a4a; --sci-soft:#dff3e8;
   --on-acc:#ffffff; --acc:var(--math); --acc-soft:var(--math-soft);
-  --display:"Baloo 2","Be Vietnam Pro",system-ui,sans-serif;
-  --body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:"Lora",Georgia,serif;
+  --body:"Noto Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --r:14px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -33,7 +33,7 @@ body[data-tone="sci"]{--acc:var(--sci);--acc-soft:var(--sci-soft)}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
 .app{max-width:660px;margin:0 auto}
-h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0;text-wrap:balance}
+h1,h2,h3{font-family:var(--display);line-height:1.35;margin:0;text-wrap:balance}
 h1{font-size:1.75rem} h2{font-size:1.35rem} h3{font-size:1.1rem}
 button{font:inherit;color:inherit;cursor:pointer}
 button:focus-visible,textarea:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
@@ -118,7 +118,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,summary:focus-vi
 .fb span{color:var(--ink);font-weight:500}
 .expl{margin-top:8px;padding:10px 12px;border-left:4px solid var(--acc);background:var(--bg);border-radius:0 10px 10px 0;font-size:.92rem;font-weight:500;color:var(--ink)}
 .actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.score{font-family:var(--display);font-size:3.4rem;font-weight:800;color:var(--acc);line-height:1;font-variant-numeric:tabular-nums}
+.score{font-family:var(--display);font-size:3.4rem;font-weight:800;color:var(--acc);line-height:1}
 .ubreak{display:grid;grid-template-columns:auto 1fr auto;gap:6px 12px;align-items:center;font-size:.9rem;font-variant-numeric:tabular-nums}
 .review{display:flex;flex-direction:column;gap:12px}
 .rv{border-left:4px solid var(--bad);padding:6px 0 6px 12px;display:flex;flex-direction:column;gap:3px;overflow-wrap:anywhere}

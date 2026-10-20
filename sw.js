@@ -17,10 +17,10 @@
      cần mạng, không đệm, và mạng chậm hay mất mạng thì không bị thay bằng trang học.
    Thêm, bớt, đổi tên file trong FILES, hoặc đổi font, biểu tượng: tăng VERSION. Bản mới cài lại đệm và xóa đệm cũ.
    tests/e2e.js so FILES với các file có trong repo. */
-const VERSION = "onup-v4";
+const VERSION = "onup-v5";
 const PREFIX = "onup-"; // GitHub Pages: các repo của một tài khoản chung origin, chỉ xóa đệm của app này
 const SLOW_MS = 4000;
-const FONTS = [["baloo-2", [600, 700, 800]], ["be-vietnam-pro", [400, 500, 600, 700]]]
+const FONTS = [["lora", [600, 700]], ["noto-sans", [400, 500, 600, 700]]]
   .flatMap(([name, weights]) => weights.flatMap((w) => ["latin", "latin-ext", "vietnamese"].map((s) => `fonts/${name}-${s}-${w}-normal.woff2`)));
 const FILES = [
   "./", "manifest.webmanifest", "css/app.css",
