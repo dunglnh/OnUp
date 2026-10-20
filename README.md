@@ -5,9 +5,9 @@ Có lịch thi năm học 2026–2027, đề luyện giữa kì, cuối kì và 
 
 - Mô tả tính năng: [docs/TINH-NANG.md](docs/TINH-NANG.md)
 - Trạng thái, lộ trình và lời giao việc từng phiên (chỗ duy nhất ghi trạng thái): [docs/KE-HOACH-PHAT-TRIEN-ONUP.md](docs/KE-HOACH-PHAT-TRIEN-ONUP.md)
-- Kế hoạch nội dung (đủ đề lớp 4 và 6, rồi lớp 5, 7–12; lời giao việc N0–N25, K1–K3, chuẩn bị bán B1–B4): [docs/KE-HOACH-NOI-DUNG.md](docs/KE-HOACH-NOI-DUNG.md)
+- Kế hoạch nội dung (đủ đề lớp 4 và 6, rồi lớp 5, 7–12; lời giao việc các phiên làm đề chưa làm, K4; chuẩn bị bán B4): [docs/KE-HOACH-NOI-DUNG.md](docs/KE-HOACH-NOI-DUNG.md)
 - Cải tiến giao diện 2.x (vấn đề X1–X16, lời giao việc UI1, UX4–UX8): [docs/CAI-TIEN-UX-2X.md](docs/CAI-TIEN-UX-2X.md)
-- Lỗi cơ bản tìm được khi dùng thử và lời giao việc sửa (Phiên 9a–9d): [docs/SUA-LOI-CHAY-THU.md](docs/SUA-LOI-CHAY-THU.md)
+- Lỗi tìm được khi dùng thử (L1–L31) và lời giao việc các phiên sửa lỗi chưa làm: [docs/SUA-LOI-CHAY-THU.md](docs/SUA-LOI-CHAY-THU.md)
 - Thiết kế khung tài khoản, trang admin và hướng đi bản trả phí: [docs/THIET-KE-TAI-KHOAN.md](docs/THIET-KE-TAI-KHOAN.md)
 - Hướng dẫn cho Claude khi sửa code: [CLAUDE.md](CLAUDE.md)
 - Cài bản đám mây (Supabase), từng bước: [docs/HUONG-DAN-SUPABASE.md](docs/HUONG-DAN-SUPABASE.md)
