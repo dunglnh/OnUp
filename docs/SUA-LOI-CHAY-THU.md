@@ -1,6 +1,6 @@
 # Sửa lỗi cơ bản sau khi dùng thử (16/10/2026)
 
-Bốn phiên sửa đầu (9a, 9b, 9c: L1–L14, PR #21, #22, #23; 9d: L15–L19, lỗi phát sinh khi rà soát lại ngày 17/10, PR #29) đã gộp vào `main`; ảnh 360px sau Phiên 9b: [hinh-360/](hinh-360/). Lần rà soát thứ ba (18/10/2026, sau Phiên K3) tìm thêm L20–L26 (nhóm E, Phiên 9e, TA1, TA2); trong đó L21 là yêu cầu của chủ app: **đề môn Tiếng Anh của mọi khối phải 100% tiếng Anh**. Góp ý chạy thử ngày 19/10/2026: L27 (nhóm F, Phiên 9f). Rà lời giao việc N2–N12 cùng ngày: L28 (kiểm thử hỏng theo ngày chạy), L29–L31 (ô nhập số trên điện thoại) (nhóm G, Phiên 9g, 9h). Trạng thái và việc còn chờ (bố mẹ thử L17 và L29–L31 trên iPhone thật) chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). File này giữ phần mô tả lỗi, cách sửa và lời giao việc (mục 3).
+Bốn phiên sửa đầu (9a, 9b, 9c: L1–L14, PR #21, #22, #23; 9d: L15–L19, lỗi phát sinh khi rà soát lại ngày 17/10, PR #29) đã gộp vào `main`; ảnh 360px sau Phiên 9b: [hinh-360/](hinh-360/). Lần rà soát thứ ba (18/10/2026, sau Phiên K3) tìm thêm L20–L26 (nhóm E, Phiên 9e, TA1, TA2); trong đó L21 là yêu cầu của chủ app: **đề môn Tiếng Anh của mọi khối phải 100% tiếng Anh**. Góp ý chạy thử ngày 19/10/2026: L27 (nhóm F, Phiên 9f). Rà lời giao việc N2–N12 cùng ngày: L28 (kiểm thử hỏng theo ngày chạy), L29–L31 (ô nhập số trên điện thoại) (nhóm G, Phiên 9g, 9h). Kiểm thử định kì ngày 20/10/2026, sau Phiên 9g, 9h: L32 (gõ phân số, hỗn số có khoảng trắng), L33 (câu điền về số âm lộ dấu của đáp án) (nhóm H, Phiên 9i; L33 sửa trong Phiên N4). Trạng thái và việc còn chờ (bố mẹ thử L17 và L29–L31 trên iPhone thật) chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). File này giữ phần mô tả lỗi, cách sửa và lời giao việc (mục 3).
 
 **Cách đã thử:** chạy mã nhánh `main` (commit `5866b72`, giống bản đang đăng trên GitHub Pages) bằng Chromium tự động, màn hình điện thoại 360×740, rồi thêm chế độ tối và màn hình 1280px. Đi hết các luồng:
 - thiết lập lần đầu và các tab quản trị;
@@ -284,6 +284,27 @@ require(require("path").resolve(process.argv[2]));
 - Câu trả lời bằng số không bị lỗi này: `numVals` nhận cả hai cách viết.
 - Dấu thập phân trên bàn phím số của iPhone đi theo vùng và bàn phím đặt trên máy: có máy hiện dấu phẩy, có máy hiện dấu chấm ([Apple Developer Forums](https://developer.apple.com/forums/thread/107269)). Máy chỉ có dấu chấm thì không làm được câu điền có đáp án thập phân. Phần này chưa thử trên iPhone thật, cần bố mẹ xem lại (mục 2, Phiên 9h).
 - Đề có sẵn chưa có câu điền đáp án thập phân. Số thập phân là chương VII của Toán 6 (giữa kì II, Phiên N8), và ngân hàng tự nhập viết được ngay ("1 250 g = [1,25] kg").
+
+### Nhóm H · Kiểm thử định kì sau Phiên 9g, 9h ngày 20/10 (Phiên 9i, N4)
+
+QC chạy lại mọi bộ kiểm thử trên `main` commit `def0de1` (sau PR #72: Phiên 9g, PR #74: Phiên 9h). Tất cả in OK, kể cả khi chạy như vào các ngày 2/11/2026, 14/11/2026, 22/12/2026, 10/1/2027 và 1/6/2027 bằng `tests/chay-theo-ngay.js` (`cloud-e2e.js` thêm ngày 15/5/2027): L28 đã sửa xong. QC thử thêm bộ chấm bằng `Quiz.score` trong node (khoảng 90 cách gõ) và quét câu điền của đề có sẵn, tìm thêm hai chỗ dưới đây.
+
+**L32. Gõ phân số, hỗn số có khoảng trắng: chấm sai hoặc đọc nhầm.**
+- Câu trả lời bằng số: `numVals` (`js/quiz.js`) bỏ mọi khoảng trắng trước khi đọc, để "1 200" thành 1200. Nên hỗn số "1 1/2" (một và một phần hai, tức 1,5) bị đọc thành "11/2", tức 5,5. Thử bằng `Quiz.score`:
+  - đáp án "3/2" (hay 1,5): gõ "1 1/2" bị chấm sai, dù đúng giá trị;
+  - đáp án "11/2" (hay 5,5): gõ "1 1/2" lại được chấm đúng;
+  - "2 3/4" cũng bị đọc thành "23/4".
+- Câu điền có đáp án là phân số (đề bắt viết phân số tối giản thì so chữ; lời giao việc N7, N8 dùng cách này): gõ "3 / 4" hay "3/ 4" bị chấm sai với đáp án "3/4". Câu trả lời bằng số thì nhận "2 / 3".
+- Bàn phím số thập phân của iPhone không có phím cách, nên ở câu trả lời bằng số, trên iPhone không gõ được hỗn số. Bàn phím máy tính và một số bàn phím Android thì gõ được; câu điền mở bàn phím chữ, gõ được khoảng trắng ở mọi máy.
+- Đọc nhầm hỗn số có từ trước Phiên 9h (đáp án số 5,5 cũng nhận "1 1/2"). Nay ô có nút "/" ở mọi câu, và lớp 6 học hỗn số dương ở Bài 24, nằm trong ngân hàng Toán 6 giữa kì II (Phiên N8), nên dễ gặp hơn. Đề có sẵn chưa có câu nào có đáp án là phân số.
+
+**L33. Câu điền về số âm lộ dấu của đáp án.**
+- Từ Phiên 9h (L30), câu điền có đáp án âm hiện dòng nhắc "Số âm: gõ dấu trừ phía trước, ví dụ -12." dưới câu. Câu điền mà mọi đáp án là số không âm thì mở bàn phím số, bàn phím này trên iPhone không có dấu trừ. Câu hỏi về dấu của kết quả (cộng, trừ, nhân, chia số nguyên) vì thế lộ đáp án: có dòng nhắc là đáp án âm, không gõ được dấu trừ là đáp án không âm (dòng nhắc: ảnh [hinh-9h/dien-so-am.jpg](hinh-9h/dien-so-am.jpg)). Cách sửa L30 do QC đề xuất đã không lường trước chỗ này.
+- Ghi chú của Phiên 9h ở mục 3 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) đã dặn câu như vậy dùng câu trả lời bằng số hoặc trắc nghiệm. Nhưng 5 câu của hai đề Toán 6 cuối kì I có sẵn vẫn là câu điền, và lời giao việc N4 dặn giữ nguyên câu của hai đề:
+  - có dòng nhắc số âm, con biết trước đáp án âm: `toan6-ck1-de1` "Tính nhanh: (135 − 49) − (135 + 51) = ___" (−100) và "(−72) : 8 = ___" (−9); `toan6-ck1-de2` "(−38) + (−62) = ___" (−100);
+  - bàn phím số không có dấu trừ, con tính ra số âm thì không gõ được: `toan6-ck1-de1` "(−25) + 17 − (−8) = ___" (0); `toan6-ck1-de2` "(−7) · 4 − 6 · (−5) = ___" (2).
+- QC chép nguyên 5 câu vào một đề thử, làm ở chế độ ôn luyện ở 360px: đúng như trên (3 câu có dòng nhắc và bàn phím thường; 2 câu có `inputmode="decimal"`, không có dòng nhắc).
+- Đề ngẫu nhiên Toán 6 cuối kì I rút cả 5 câu này. `tests/kiem-tra-de.js` chưa kiểm tra điều này, nên các phiên làm đề sau vẫn có thể viết câu như vậy.
 
 ---
 
@@ -708,9 +729,42 @@ require(require("path").resolve(process.argv[2]));
   - câu 2 bàn phím có dấu trừ;
   - câu 3 gõ được bằng dấu thập phân trên bàn phím của máy, dấu phẩy hay dấu chấm đều được chấm đúng.
 
+### Phiên 9i
+
+**L32 · Phân số, hỗn số gõ có khoảng trắng.** Chỉ sửa `js/quiz.js`, `tests/` và tài liệu; không đổi đề có sẵn, không sửa `modules/`.
+- Câu trả lời bằng số (`numVals`): chữ gõ có dạng hỗn số "a b/c" (số tự nhiên, khoảng trắng, phân số; có thể có dấu trừ phía trước, có thể nằm trong ngoặc) thì đọc là a + b/c, dấu trừ áp cho cả số ("-1 1/2" là −1,5). Đọc hỗn số trước bước bỏ khoảng trắng; c bằng 0 thì không đọc được.
+  - "1 1/2" đúng với đáp án "3/2" và 1,5, không còn đúng với "11/2".
+  - Các cách đọc khác giữ nguyên: "1 200" vẫn là 1200; "11/2", "2 / 3", "3/4 kg" như cũ.
+  - Chữ đọc được hai cách ("1 200/3": hỗn số, hay 1 200 phần 3) thì nhận cả hai, như `numVals` đang làm với "1.000".
+- Câu điền (`fillRight`): đáp án là phân số hoặc hỗn số ("3/4", "-3/4", "3 1/2") thì bỏ khoảng trắng quanh dấu "/" ở cả đáp án và chữ gõ rồi mới so chữ. Vẫn so chữ, nên "6/8" vẫn sai với "3/4" (câu bắt viết phân số tối giản).
+- Không đổi dòng nhắc dưới ô: trên iPhone con đổi hỗn số ra phân số như sách. `Quiz.parse` vẫn báo lỗi dòng "Đáp số: 1 1/2" và dặn viết 3/2.
+
+**Xong khi:**
+- `node tests/kiem-tra-de.js` in `DE OK`. Phần tự thử câu trả lời bằng số thử thêm bằng `Quiz.score`:
+  - "1 1/2" đúng với "3/2" và với 1,5, sai với "11/2"; "-1 1/2" đúng với "-3/2"; "2 3/4" đúng với "11/4", sai với "23/4"; "1 1/0" sai;
+  - vẫn như cũ: "1 200" đúng với 1200, "2 / 3" đúng với "2/3";
+  - câu điền đáp án "3/4": "3 / 4" và "3/ 4" đúng, "6/8" sai; đáp án "3 1/2": "3 1 / 2" đúng.
+- `CHI_TIET=1 node tests/so-bo-cham.js`: thêm một câu đáp án "3/4" vào nhóm câu kiểu quản trị viên nhập của script; chỗ khác so với bản mặc định chỉ được là gõ có khoảng trắng quanh "/". Ghi danh sách vào Pull Request, rồi đổi bản so mặc định sang commit của phiên.
+- `tests/e2e.js` in `E2E OK`, `node tests/supabase/cloud-e2e.js` in `CLOUD E2E OK`.
+- CLAUDE.md, mục "Nội dung câu hỏi": hỗn số "1 1/2" đọc là 1,5; câu điền phân số không tính khoảng trắng quanh "/".
+
+**L33 · Câu về số âm không dùng câu điền.** Sửa trong Phiên N4, vì N4 làm lại ngân hàng Toán 6 cuối kì I từ đúng hai đề này (lời giao việc N4 ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) đã ghi thêm). Sửa câu và thêm kiểm tra trong cùng một phiên, để `DE OK` không hỏng ở giữa.
+- Đổi 5 câu ở L33 sang câu trả lời bằng số: `type: "num"`, `ans` là số (−100, −9, −100, 0, 2), đề bỏ "___" (ví dụ "(−72) : 8 = ?"); giữ chủ đề, lời giải, thêm `lv` như các câu khác.
+  - `Quiz.key` của 5 câu đổi theo, nên lịch sử từng câu của đề ngẫu nhiên (`PoolHist`) với 5 câu này bắt đầu lại. Điểm đã lưu và "chủ đề hay sai" không đổi.
+- `tests/kiem-tra-de.js` báo lỗi câu điền có đáp án là số âm, hoặc câu điền mà mọi đáp án là số và đề có số âm: "câu về số âm dùng câu trả lời bằng số hoặc trắc nghiệm (L33)".
+  - Số âm trong đề là dấu trừ ("−" hoặc "-") đứng liền trước chữ số, và đứng đầu câu, sau khoảng trắng hoặc sau dấu mở ngoặc, như "(−25)", "−5". Dấu trừ của phép trừ có khoảng trắng hai bên, như "862 450 − 315 270", nên không tính; gạch nối khoảng như "Bài 1–22" cũng không tính.
+  - Script tự thử với hai câu cố ý viết sai: "(−72) : 8 = ___" đáp án "-9"; "(−25) + 30 = ___" đáp án "5".
+  - Đề phụ huynh tự nhập không qua script này. Dòng nhắc số âm của L30 vẫn dùng cho các đề đó.
+- CLAUDE.md, đoạn về `tests/kiem-tra-de.js` ở mục "Chạy và kiểm tra": ghi kiểm tra mới.
+
+**Xong khi** (cùng với điều kiện xong của N4): `node tests/kiem-tra-de.js` in `DE OK` với dữ liệu mới, và báo lỗi hai câu tự thử; không câu điền nào của đề có sẵn hiện dòng nhắc số âm.
+
 ---
 
 ## 3. Các phiên Claude Code
 
-Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9h, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74), lời giao việc cũ còn trong lịch sử git. Hiện chưa có phiên sửa lỗi nào chờ làm: lỗi mới thì QC ghi mã (tiếp theo L31) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9h, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74), lời giao việc cũ còn trong lịch sử git. Phiên chờ làm: 9i (L32), lời giao việc bên dưới; L33 sửa trong Phiên N4 (lời giao việc ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)). Lỗi mới thì QC ghi mã (tiếp theo L33) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+
+**Phiên 9i · Phân số, hỗn số gõ có khoảng trắng (L32)** (hạn 14/12, trước các phiên Toán giữa kì II N8, N7; chen giữa các phiên N được, nhưng không chạy cùng lúc với phiên khác sửa `js/quiz.js`, như K4)
+> Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md: L32 ở nhóm H của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9i", phần L32 (phần L33 làm trong Phiên N4, không làm ở phiên này). Sửa L32 trong js/quiz.js: câu trả lời bằng số đọc hỗn số "a b/c" là a + b/c; câu điền có đáp án là phân số hoặc hỗn số không tính khoảng trắng quanh "/". Chỉ sửa js/quiz.js, tests/ và tài liệu; không đổi đề có sẵn, không sửa modules/. Chạy python3 -m http.server 8000 ở thư mục repo, rồi làm đủ "Xong khi": node tests/kiem-tra-de.js, CHI_TIET=1 node tests/so-bo-cham.js, node tests/e2e.js, node tests/supabase/cloud-e2e.js. Mở Pull Request, ghi các lệnh đã chạy và danh sách chỗ khác của so-bo-cham. Ghi PR vào bảng "Đã xong" ở mục 1 của docs/KE-HOACH-PHAT-TRIEN-ONUP.md, xóa dòng 9i ở mục 3 của file đó; ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và câu "Phiên chờ làm: 9i (L32)…".
 
