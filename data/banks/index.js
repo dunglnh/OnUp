@@ -49,6 +49,7 @@ window.ONTAP_SEED_BANKS = [
   { id: "lsdl4-ck1-de1", title: "Lịch sử và Địa lí 4 · Cuối kì I · Đề 1", grade: 4, subject: "Lịch sử và Địa lí", minutes: 35, n: 25, file: "4-lsdl.js" },
   { id: "lsdl4-ck1-de2", title: "Lịch sử và Địa lí 4 · Cuối kì I · Đề 2", grade: 4, subject: "Lịch sử và Địa lí", minutes: 35, n: 25, file: "4-lsdl.js" },
   { id: "khtn6-ck1-de1", title: "KHTN 6 · Cuối kì I · Đề 1", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js" },
+  { id: "khtn6-ck1-de2", title: "KHTN 6 · Cuối kì I · Đề 2", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js" },
   { id: "lsdl6-ck1-de1", title: "Lịch sử và Địa lí 6 · Cuối kì I · Đề 1", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js" },
 
   /* Toán 4 · Kiểm tra cuối học kì I (Kết nối tri thức, Bài 1–37) */
@@ -70,6 +71,7 @@ window.ONTAP_SEED_BANKS = [
 
   /* Tiếng Anh, GDCD, Tin học, Công nghệ 6 · Kiểm tra cuối học kì I */
   { id: "ta6-ck1-de1", title: "Tiếng Anh 6 · Cuối kì I · Đề 1", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js" },
+  { id: "ta6-ck1-de2", title: "Tiếng Anh 6 · Cuối kì I · Đề 2", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js" },
   { id: "gdcd6-ck1-de1", title: "GDCD 6 · Cuối kì I · Đề 1", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js" },
   { id: "tin6-ck1-de1", title: "Tin học 6 · Cuối kì I · Đề 1", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js" },
   { id: "congnghe6-ck1-de1", title: "Công nghệ 6 · Cuối kì I · Đề 1", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js" },
@@ -174,6 +176,23 @@ window.ONTAP_SEED_BANKS = [
       "Những nẻo đường xứ sở": [1, 1, 1], "Dấu câu": [0, 1, 0], "Từ đơn và từ phức": [1, 0, 1], "Nghĩa của từ": [0, 1, 0],
       "Biện pháp tu từ": [3, 0, 0], "Cụm danh từ, cụm động từ, cụm tính từ": [1, 0, 0], "Từ đồng âm và từ đa nghĩa": [0, 1, 0],
       "Viết": [0, 0, 1] } } },
+  /* Ngân hàng Tiếng Anh 6 cuối kì I (Phiên N5): kho câu = 26 câu riêng trong file (2 đoạn đọc) + 50 câu của 2 đề cố định ở trên,
+     câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%): mỗi chủ đề bằng số câu của đề 1
+     (Pronunciation 2, Unit 1–6 mỗi Unit 3–4, Reading 3); ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút. */
+  { id: "ta6-ck1-ngau-nhien", title: "Tiếng Anh 6 · Cuối kì I · Đề ngẫu nhiên", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js",
+    pool: { from: ["ta6-ck1-de1", "ta6-ck1-de2"], matrix: {
+      "Pronunciation": [2, 0, 0], "Unit 1 · My New School": [1, 1, 1], "Unit 2 · My House": [2, 1, 1], "Unit 3 · My Friends": [1, 2, 1],
+      "Unit 4 · My Neighbourhood": [1, 1, 1], "Unit 5 · Natural Wonders of Viet Nam": [1, 1, 1], "Unit 6 · Our Tet Holiday": [1, 1, 1],
+      "Reading": [1, 1, 1] } } },
+  /* Ngân hàng KHTN 6 cuối kì I (Phiên N5): kho câu = 26 câu riêng trong file + 50 câu của 2 đề cố định ở trên, câu nào cũng có
+     mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): đủ 11 chủ
+     đề như đề 1, mỗi chủ đề 1–3 câu; ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút. */
+  { id: "khtn6-ck1-ngau-nhien", title: "KHTN 6 · Cuối kì I · Đề ngẫu nhiên", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js",
+    pool: { from: ["khtn6-ck1-de1", "khtn6-ck1-de2"], matrix: {
+      "Giới thiệu về Khoa học tự nhiên": [1, 1, 0], "An toàn trong phòng thực hành": [1, 0, 1], "Kính lúp, kính hiển vi": [1, 0, 1],
+      "Đo chiều dài, khối lượng, thời gian": [1, 1, 1], "Đo nhiệt độ": [1, 0, 1], "Chất và sự chuyển thể": [1, 1, 1],
+      "Oxygen và không khí": [1, 1, 0], "Vật liệu, nhiên liệu, lương thực – thực phẩm": [1, 1, 0], "Hỗn hợp và tách chất": [1, 1, 1],
+      "Tế bào": [1, 1, 1], "Từ tế bào đến cơ thể": [0, 1, 0] } } },
   /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
      mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",

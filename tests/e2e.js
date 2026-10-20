@@ -860,7 +860,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      L22: học sinh lớp 4, hàng "Tin học và Công nghệ" của kì cuối kì I có các nút "Đề ngẫu nhiên", "Đề 1", "Đề 2" (tên đề
      trong danh mục có số đề; đề ngẫu nhiên đứng trước; Đề 2 và đề ngẫu nhiên thêm ở Phiên N3b).
      L24: học sinh lớp 6, hàng Tiếng Anh của nhóm "Bài ôn khác" (đề giữa kì I đã qua) ghi "Giữa kì I · Đề 1"; nhóm cuối kì I
-     vẫn ghi "Đề 1"; aria-label vẫn là tên đề đầy đủ; đề thử nghiệm (tên tự đặt) ghi nguyên tên.
+     vẫn ghi chữ ngắn "Đề ngẫu nhiên", "Đề 1", "Đề 2" (Đề 2 và đề ngẫu nhiên thêm ở Phiên N5); aria-label vẫn là tên đề đầy đủ;
+     đề thử nghiệm (tên tự đặt) ghi nguyên tên.
      L25: kì cuối kì I lớp 4 (1 bài IOE, 13 đề cố định, 6 đề ngẫu nhiên; Phiên N3b thêm Đề 2 và đề ngẫu nhiên của Tiếng Anh,
      Tin học và Công nghệ; Phiên N3 thêm Đề 2 và đề ngẫu nhiên của Khoa học, Lịch sử và Địa lí) ghi "14 bài ôn" (đề ngẫu nhiên
      không tính) ở thẻ kì thi trên trang chủ, đầu nhóm bài ôn, trang Lịch thi và link "Tất cả bài ôn cho kì này" của trang "Hôm nay"
@@ -914,7 +915,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("9e:", JSON.stringify(f9e));
   const fix9eOK = f9e.l4.today === "21/12/2026" && f9e.l4.tincn.join() === "Đề ngẫu nhiên,Đề 1,Đề 2"
     && /\|14 bài ôn\|/.test("|" + f9e.l4.homeTags + "|") && / · 14 bài ôn$/.test(f9e.l4.grpHead) && /\|14 bài ôn\|/.test("|" + f9e.l4.calTags + "|") && f9e.l4.hero === "Tất cả bài ôn cho kì này · 14 bài ôn →"
-    && f9e.l6.taOther.join() === "Giữa kì I · Đề 1" && f9e.l6.taCk1.join() === "Đề 1" && f9e.l6.thu.join() === "Đề thử nghiệm · Các dạng câu mới"
+    && f9e.l6.taOther.join() === "Giữa kì I · Đề 1" && f9e.l6.taCk1.join() === "Đề ngẫu nhiên,Đề 1,Đề 2" && f9e.l6.thu.join() === "Đề thử nghiệm · Các dạng câu mới"
     && f9e.l6.aria.includes("Tiếng Anh 6 · Giữa kì I · Đề 1") && !f9e.l6.aria.some((x) => /·.*·.*·/.test(x))
     && Object.values(f9e.nb).every((s) => /·/.test(s) && !/[^\u00a0]·/.test(s)) && f9e.nb.h1 === "Toán 6\u00a0· Cuối kì I\u00a0· Đề ngẫu nhiên";
 
