@@ -24,6 +24,10 @@ const { createBackend } = require("./fake-backend.js");
 const { createFakeSupabase } = require("./fake-client.js");
 
 const BASE = process.env.BASE_URL || "http://localhost:8000";
+/* Cả lần chạy dùng một ngày "hôm nay" cố định, không theo ngày chạy (L28), như tests/e2e.js: mỗi lượt (sáng, tối) tạo máy chủ giả với
+   be.clock bắt đầu ở TODAY; Edge Function admin và mọi context (device()) theo cùng giờ đó, giờ đi như thường. Chữ mong đợi theo kì thi
+   gần nhất (thẻ của con “Kiểm tra giữa học kì I còn N ngày”, nhóm kì thi ở tab Bài ôn) ghi theo ngày này. */
+const TODAY = "2026-10-21T07:00:00";
 const OUT = path.join(__dirname, "..", "screenshots", "cloud");
 fs.mkdirSync(OUT, { recursive: true });
 const FAKE_CLIENT = fs.readFileSync(path.join(__dirname, "fake-client.js"), "utf8");
@@ -67,8 +71,9 @@ function localData() {
 
 async function run(browser, scheme) {
   const be = createBackend();
+  be.clock = new Date(TODAY) - Date.now(); // máy chủ giả ở TODAY (L28); Edge Function admin và trình duyệt (device()) dùng cùng giờ
   const { createHandler, LOGIN_DOMAIN } = await (await import(pathToFileURL(path.join(__dirname, "load-edge.mjs")).href)).loadEdgeFunction();
-  be.functions.admin = createHandler({ db: createFakeSupabase((m) => be.handle(m), { service: true }), getUser: be.getUser });
+  be.functions.admin = createHandler({ db: createFakeSupabase((m) => be.handle(m), { service: true }), getUser: be.getUser, now: () => new Date(Date.now() + be.clock) });
   const OWNER_PW = "chu-app-mat-khau-rat-dai-2026";
   const ownerUser = be.addUser("chu.app@" + LOGIN_DOMAIN, OWNER_PW);
   be.T.app_owners.push({ user_id: ownerUser.id, created_at: new Date().toISOString() });
@@ -82,8 +87,9 @@ async function run(browser, scheme) {
   const withSignup = scheme === "light"; // lượt sáng điền signupText, signupUrl; lượt tối để trống (thẻ dùng contactText, contactUrl)
   be.captchaRequired = withCaptcha;
   const errs = [], problems = [], swOut = [];
-  async function device() {
+  async function device() { // chỗ duy nhất tạo context của trang học và trang admin
     const ctx = await browser.newContext({ viewport: { width: 360, height: 760 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await ctx.clock.install({ time: new Date(Date.now() + be.clock) }); // đồng hồ giả lập cùng giờ với máy chủ giả (L28)
     await ctx.exposeFunction("__fakeSupabase", (msg) => be.handle(msg));
     await ctx.addInitScript(FAKE_CLIENT);
     if (withCaptcha) await ctx.addInitScript(TURNSTILE_STUB);
@@ -504,7 +510,8 @@ async function run(browser, scheme) {
   // UX2: thẻ của con (có bài hôm nay: số bài, điểm hôm nay, chuỗi ngày, kì thi gần nhất); bấm thẻ là mở báo cáo tuần, có hai link phụ
   await p2.waitForSelector(`a.kid[href="#/child/${binId}"]`); // "text=Khu phụ huynh" đã khớp nút "Vào khu phụ huynh" của màn mật khẩu
   c.ux3.gone = !(await p2.$("#start")); // UX3: con đã học (có kết quả, đã chọn hồ sơ trên máy này): thẻ Bắt đầu ẩn
-  c.ux2.binCard = await p2.$eval(`a.kid[href="#/child/${binId}"]`, (k) => [...k.querySelectorAll(".stat")].map((s) => s.querySelector("b").textContent + " " + s.querySelector("span").textContent).join("|") + " " + (k.querySelector(".kid-ev") || {}).textContent.replace(/\s+/g, " "));
+  // thẻ không có dòng kì thi (.kid-ev) thì chữ rỗng: kiểm tra báo sai, script không dừng (L28, nguyên nhân 5)
+  c.ux2.binCard = await p2.$eval(`a.kid[href="#/child/${binId}"]`, (k) => [...k.querySelectorAll(".stat")].map((s) => s.querySelector("b").textContent + " " + s.querySelector("span").textContent).join("|") + " " + ((k.querySelector(".kid-ev") || {}).textContent || "").replace(/\s+/g, " "));
   await shot(p2, "c11-cac-con");
   await p2.click(`[data-child="${binId}"]`); await p2.waitForSelector(".report");
   c.report = await p2.evaluate(() => ({ n: +document.querySelector("#rpCount").textContent, subj: [...document.querySelectorAll("#rpSubjects .rp-sub b:first-child")].map((b) => b.textContent).join() }));

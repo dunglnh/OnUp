@@ -12,9 +12,17 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
    bản để trống hai giá trị đó cho mọi request tới js/config.js. Bản đám mây kiểm thử riêng ở tests/supabase/. */
 const LOCAL_CONFIG = fs.readFileSync(ROOT + "js/config.js", "utf8").replace(/(supabaseUrl|supabaseAnonKey):\s*"[^"]*"/g, '$1: ""');
 const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ contentType: "text/javascript", body: LOCAL_CONFIG }));
+/* Cả lần chạy dùng một ngày "hôm nay" cố định, không theo ngày chạy (L28). Mọi context của app tạo bằng newContext(): đồng hồ giả lập
+   của Playwright bắt đầu ở TODAY lúc script chạy rồi đi như thường; context tạo sau ở TODAY cộng thời gian đã chạy, để dữ liệu bước trước
+   ghi (state) không nằm ở "tương lai" của bước sau. Chữ mong đợi theo kì thi gần nhất (k3.hero, lịch thi của học sinh…) ghi theo ngày này.
+   Bước cần ngày khác thì tự cài đồng hồ (page.clock.install, setSystemTime), đè lên TODAY; TODAY sớm hơn giờ của các bước đó (sớm nhất là
+   21/10/2026 8:00 của UX1). Giờ so ở node thì lấy giờ trong trang (nowIn). Thử như chạy vào ngày khác: tests/chay-theo-ngay.js. */
+const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
 (async () => {
   const browser = await chromium.launch();
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+  // chỗ duy nhất tạo context (L28); trang ghép ảnh (browser.newPage) không mở app nên không cần
+  const newContext = async (opts) => { const c = await browser.newContext(opts); await c.clock.install({ time: new Date(Date.parse(TODAY) + Date.now() - T0) }); return c; };
+  const ctx = await newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   const page = await ctx.newPage();
   const errs = [];
   page.on("pageerror", (e) => errs.push("pageerror: " + e.message));
@@ -35,6 +43,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   // độ dài PIN đã lưu và số lần sai PIN của từng người, theo tên
   const pinLog = () => page.evaluate(() => { const o = JSON.parse(localStorage.getItem("ontap_pinlock_v1") || "{}"), d = JSON.parse(localStorage.getItem("ontap_db_v1")); return Object.fromEntries(d.users.map((u) => [u.name, { len: u.pinLen, fails: (o[u.id] || {}).fails || 0 }])); });
   const step = (s) => console.log("STEP", s);
+  const nowIn = (pg) => pg.evaluate(() => Date.now()); // giờ trong trang (đồng hồ giả lập): node so giờ với giờ này, không với Date.now() của node (L28)
   /* Nút xem mật khẩu, mã PIN (U1). revealTry: ô (đã có chữ) có nút ngay sau nó; bấm thì hiện chữ (type="text",
      aria-pressed="true", aria-label "Ẩn …"), bấm lại thì ẩn; giá trị, focus, vị trí con trỏ, inputmode, autocomplete giữ nguyên.
      Ngoại lệ (UX4, X2): ô có data-reveal="<id>" (bàn phím PIN, #pinIn) dùng nút chữ đặt sẵn ở chỗ khác, không có aria-label: chữ đang
@@ -356,14 +365,14 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   bk.old = await remind();
   await shot("14b-backup-remind");
   console.log("L14:", bk, "parent:", remindParent, "student:", remindStudent);
-  const fresh = (iso) => !!iso && Math.abs(Date.now() - Date.parse(iso)) < 60000;
-  const backupOK = /Chưa sao lưu lần nào/.test(bk.first) && /^on-thi-sao-luu-\d{4}-\d\d-\d\d\.json$/.test(bk.file) && bk.gone && fresh(bk.at) && bk.after === ""
+  const fresh = (iso, now) => !!iso && Math.abs(now - Date.parse(iso)) < 60000, bkNow = await nowIn(page);
+  const backupOK = /Chưa sao lưu lần nào/.test(bk.first) && /^on-thi-sao-luu-\d{4}-\d\d-\d\d\.json$/.test(bk.file) && bk.gone && fresh(bk.at, bkNow) && bk.after === ""
     && /Đã 8 ngày chưa sao lưu/.test(bk.d8) && bk.d6 === "" && /Lần sao lưu gần nhất: \d+\/\d+ \d\d:\d\d/.test(bk.dataTab.last) && /Thêm vào MH chính/.test(bk.dataTab.home) && /⋮/.test(bk.dataTab.home)
-    && fresh(bk.dataAt) && /Hôm nay/.test(bk.dataLast) && bk.oldDefault === null && /Chưa sao lưu lần nào/.test(bk.old) && remindParent && !remindStudent;
+    && fresh(bk.dataAt, bkNow) && /Hôm nay/.test(bk.dataLast) && bk.oldDefault === null && /Chưa sao lưu lần nào/.test(bk.old) && remindParent && !remindStudent;
 
   step("iPhone home screen: restore tip, backup via share sheet (L17)");
   // App mở từ Màn hình chính trên iPhone (navigator.standalone), máy chưa có dữ liệu: màn hình thiết lập có thẻ hướng dẫn khôi phục.
-  const tipCtx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const tipCtx = await newContext({ viewport: { width: 390, height: 844 } });
   await localConfig(tipCtx); watchOut(tipCtx);
   await tipCtx.addInitScript(() => Object.defineProperty(navigator, "standalone", { get: () => true }));
   const tp = await tipCtx.newPage(); tp.on("pageerror", (e) => errs.push("pageerror L17: " + e.message));
@@ -376,7 +385,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   hs.results = await tp.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).results.length);
   await tipCtx.close();
   // Máy cảm ứng có bảng chia sẻ (giả lập navigator.share): hủy thì không ghi lastBackupAt, chia sẻ xong thì ghi.
-  const shareCtx = await browser.newContext({ storageState: await ctx.storageState(), viewport: { width: 390, height: 844 }, hasTouch: true });
+  const shareCtx = await newContext({ storageState: await ctx.storageState(), viewport: { width: 390, height: 844 }, hasTouch: true });
   await localConfig(shareCtx); watchOut(shareCtx);
   await shareCtx.addInitScript(() => {
     window.__share = { mode: "abort", calls: [] };
@@ -415,14 +424,15 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   await sp.click("#backupNow"); await sp.waitForTimeout(300); // thẻ nhắc trên trang chủ, chia sẻ xong
   sh.ok = { at: await spAt(), card: !!(await sp.$("#backupRemind")), toast: await sp.textContent("#toast"), calls: await sp.evaluate(() => __share.calls.length) };
   sh.downloads = spDownloads;
+  const spNow = await nowIn(sp);
   await shareCtx.close();
   console.log("L17:", hs, sh, "tip in browser:", tipInBrowser);
   const homeScreenOK = !tipInBrowser && hs.tip && /Đã dùng OnUp trong Safari/.test(hs.tip.text) && hs.tip.btn && hs.tip.above && /Bố Minh/.test(hs.restored) && /Bin/.test(hs.restored) && hs.results === 5
     && /không dùng chung dữ liệu/.test(sh.home) && /Khôi phục từ file sao lưu/.test(sh.home) && /Android.*không cần chuyển/.test(sh.home)
     && sh.before == null && sh.abort.at == null && sh.abort.card && sh.abortData.at == null && /chưa sao lưu lần nào/.test(sh.abortData.last)
     && sh.double.at == null && sh.double.calls === 3
-    && fresh(sh.okData.at) && /Hôm nay/.test(sh.okData.last) && sh.calls.length === 4 && sh.calls.every((n) => /^on-thi-sao-luu-\d{4}-\d\d-\d\d\.json$/.test(n))
-    && fresh(sh.ok.at) && !sh.ok.card && /Đã lưu file sao lưu/.test(sh.ok.toast) && sh.ok.calls === 1 && sh.downloads === 0;
+    && fresh(sh.okData.at, spNow) && /Hôm nay/.test(sh.okData.last) && sh.calls.length === 4 && sh.calls.every((n) => /^on-thi-sao-luu-\d{4}-\d\d-\d\d\.json$/.test(n))
+    && fresh(sh.ok.at, spNow) && !sh.ok.card && /Đã lưu file sao lưu/.test(sh.ok.toast) && sh.ok.calls === 1 && sh.downloads === 0;
 
   step("not found + wrong grade (L3)");
   const view = async (h) => { await page.goto(BASE + "/" + h); await page.waitForTimeout(200); await page.waitForSelector("#missing, #qPractice, #playerFrame", { timeout: 5000 }).catch(() => {}); return { text: (await page.textContent("#view")).replace(/\s+/g, " ").trim(), missing: !!(await page.$("#missing")), quiz: !!(await page.$("#qPractice")), frame: !!(await page.$("#playerFrame")) }; };
@@ -536,7 +546,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const m360 = [], c360 = {};
   for (const scheme of ["light", "dark"]) {
     const opts = { viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme };
-    const c = await browser.newContext(Object.assign({ storageState: state }, opts)), fresh = await browser.newContext(opts);
+    const c = await newContext(Object.assign({ storageState: state }, opts)), fresh = await newContext(opts);
     for (const x of [c, fresh]) { await localConfig(x); watchOut(x); x.on("page", (pg) => pg.on("pageerror", (e) => errs.push("pageerror 360: " + e.message))); }
     let p = await fresh.newPage();
     const open = async (h, wait) => { await p.goto(BASE + "/" + h); await p.waitForTimeout(wait || 250); };
@@ -665,7 +675,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const k2 = { problems: [] };
   for (const scheme of ["light", "dark"]) {
     const r = (k2[scheme] = {});
-    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
     await localConfig(c); watchOut(c);
     const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror K2: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console K2: " + m.text()); });
     const check = async (label) => (await p.evaluate(audit)).forEach((x) => k2.problems.push(`${scheme} · ${label}: ${x}`));
@@ -814,7 +824,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   step("practice buttons named by exam (L18)");
   // 1/4/2027: cuối kì I, giữa kì II đã qua nên đề lớp 4 dồn vào "Bài ôn khác"; kì cuối năm chỉ gắn Đề 2, Đề 3 Toán cuối kì I;
   // thêm một đề tên tự đặt dài (nút xuống dòng, không tràn ngang ở 360px).
-  const lc = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 } });
+  const lc = await newContext({ storageState: state, viewport: { width: 360, height: 740 } });
   await localConfig(lc); watchOut(lc);
   const lp = await lc.newPage(); lp.on("pageerror", (e) => errs.push("pageerror L18: " + e.message));
   await lp.clock.install({ time: new Date("2027-04-01T08:00:00") });
@@ -854,7 +864,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
      bài ôn và trang Lịch thi; nút "Đề ôn · 9 đề" như cũ.
      L26: tên đề ở màn mở đề toan6-ck1-ngau-nhien (h1 và dòng nhãn), nhãn trên thẻ câu hỏi, tên kì thi trên thẻ kì thi và đầu nhóm
      có khoảng trắng không ngắt (U+00A0) trước mỗi dấu "·"; aria-label của nút đề vẫn là khoảng trắng thường. */
-  const nc = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 } });
+  const nc = await newContext({ storageState: state, viewport: { width: 360, height: 740 } });
   await localConfig(nc); watchOut(nc);
   const np = await nc.newPage(); np.on("pageerror", (e) => errs.push("pageerror 9e: " + e.message));
   await np.clock.install({ time: new Date("2026-12-21T08:00:00") });
@@ -914,7 +924,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
      khác": bộ mới có câu vừa sai (hay sai) và hai câu Đề 2 chưa làm, không giống bộ cũ. Trang chủ: "Chủ đề hay sai", kết quả
      gần đây; báo cáo tuần tính đề ngẫu nhiên như đề thường; tab Ngân hàng đề ghi "rút ngẫu nhiên". Kho thiếu câu (pool giả
      thêm vào danh mục lúc chạy): màn đầu ghi chú lấy bù. Mỗi màn hình kiểm tra 360px. */
-  const kc = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
+  const kc = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
   await localConfig(kc); watchOut(kc);
   const kp = await kc.newPage(); kp.on("pageerror", (e) => errs.push("pageerror K3: " + e.message)); kp.on("console", (m) => { if (m.type() === "error") errs.push("console K3: " + m.text()); });
   const k3 = { problems: [] }, POOL = "toan6-ck1-ngau-nhien", DE1 = "toan6-ck1-de1";
@@ -1033,7 +1043,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
      thì link tắt. opts.reported (đã báo từ trước) và onReport bị từ chối (hiện lỗi, bấm lại được) thử bằng Quiz.run trực tiếp.
      Dữ liệu cũ chưa có trường reports: đọc vào là []. Quản trị → Dữ liệu: danh sách và nút "Chép để gửi" (văn bản dán Zalo).
      Phụ huynh xem thử cũng báo được. Mỗi màn hình kiểm tra 360px, ảnh 20-*.png. */
-  const rc = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
+  const rc = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
   await localConfig(rc); watchOut(rc); await rc.grantPermissions(["clipboard-read", "clipboard-write"], { origin: BASE });
   const rp = await rc.newPage(); rp.on("pageerror", (e) => errs.push("pageerror R1: " + e.message)); rp.on("console", (m) => { if (m.type() === "error") errs.push("console R1: " + m.text()); });
   const r1 = { problems: [] };
@@ -1132,7 +1142,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const CHU_VIET = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/iu;
   const ta1 = { problems: [], runs: [], shots: [] };
   for (const scheme of ["light", "dark"]) {
-    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
     await localConfig(c); watchOut(c);
     const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror TA1: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console TA1: " + m.text()); });
     const tcheck = async (label) => (await p.evaluate(audit)).forEach((x) => ta1.problems.push(`TA1 · ${scheme} · ${label}: ${x}`));
@@ -1204,7 +1214,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const ta2 = { problems: [], vi: [], shots: [], runs: [] };
   const TA2_BANKS = [["ta4-ck1-de1", "Bin", PINS.Bin, "English 4 · End-of-term 1 · Test 1", "Grade 4 · English", 35], ["ta6-gk1-de1", "Na", "4444", "English 6 · Mid-term 1 · Test 1", "Grade 6 · English", 45]];
   for (const scheme of ["light", "dark"]) {
-    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
     await localConfig(c); watchOut(c);
     const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror TA2: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console TA2: " + m.text()); });
     const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, sel);
@@ -1381,7 +1391,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const OUTL27 = OUT + "l27/"; fs.mkdirSync(OUTL27, { recursive: true });
   const L27_KEY = { "l6-giua-ki-1": "gk1-l6-v1", "l4-giua-ki-1": "gk1-l4-v1", "ioe-4": "ioe4v1", "ioe-6": "ioe6v2" };
   for (const scheme of ["light", "dark"]) {
-    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
     await localConfig(c); watchOut(c);
     const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror L27: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console L27: " + m.text()); });
     const signIn = async (who, pin) => { await p.goto(BASE + "/#/account"); await p.waitForTimeout(200); if (await p.$("#switchWho, #logout")) { await p.click("#switchWho, #logout"); await p.waitForTimeout(200); } await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids[who]}"]`); await p.fill("#pinIn", pin); await p.waitForTimeout(400); };
@@ -1516,7 +1526,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
      câu khác trả lời sai (ô điền) hoặc chọn ô đầu tiên, để thấy đáp án và lời giải. */
   const mn = { problems: [], seen: {}, screens: 0, typed: [], want: 0 };
   {
-    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
     await localConfig(c); watchOut(c);
     const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror số bài ôn: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console số bài ôn: " + m.text()); });
     await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids["Bố Minh"]}"]`); await p.fill("#pinIn", PINS["Bố Minh"]); await p.waitForTimeout(400);
@@ -1594,7 +1604,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const OUTUX = OUT + "ux1/"; fs.mkdirSync(OUTUX, { recursive: true });
   const ux1 = { problems: [], shots: [] };
   for (const scheme of ["light", "dark"]) {
-    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
     await localConfig(c); watchOut(c);
     const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror UX1: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console UX1: " + m.text()); });
     const r = (ux1[scheme] = {});
@@ -1743,7 +1753,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const OUTUX2 = OUT + "ux2/"; fs.mkdirSync(OUTUX2, { recursive: true });
   const ux2 = { problems: [], shots: [] };
   for (const scheme of ["light", "dark"]) {
-    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
     await localConfig(c); watchOut(c);
     const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror UX2: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console UX2: " + m.text()); });
     const r = (ux2[scheme] = {});
@@ -1822,7 +1832,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const OUTUX4 = OUT + "ux4/"; fs.mkdirSync(OUTUX4, { recursive: true });
   const ux4 = { problems: [], shots: [] };
   for (const scheme of ["light", "dark"]) {
-    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
     await localConfig(c); watchOut(c);
     const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror UX4: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console UX4: " + m.text()); });
     const r = (ux4[scheme] = {});
@@ -1900,7 +1910,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   const ux5 = { problems: [], shots: [] };
   const UX5_BANK = "toan4-ck1-de3";
   for (const scheme of ["light", "dark"]) {
-    const c = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
     await localConfig(c); watchOut(c);
     const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror UX5: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console UX5: " + m.text()); });
     await p.clock.install({ time: new Date("2026-12-14T08:00:00") });
@@ -1939,11 +1949,13 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     await p.click("#qzSubmit");
     r.submitAsk = await txt("#qzFb .confirm");
     await p.waitForTimeout(500); // hộp hỏi lại nằm trong màn hình (cuộn tới nếu câu dài), "Làm tiếp" được focus
-    r.submitSeen = await p.evaluate(() => { const b = document.querySelector("#qzFb .confirm").getBoundingClientRect(); return b.top >= 0 && b.bottom <= innerHeight && document.activeElement.id === "qzNo"; });
+    // sai lệch 1px: câu dài thì hộp được cuộn sát mép dưới, bottom có thể là 740,125 (L28, nguyên nhân 7)
+    r.submitSeen = await p.evaluate(() => { const b = document.querySelector("#qzFb .confirm").getBoundingClientRect(); return b.top >= 0 && b.bottom <= innerHeight + 1 && document.activeElement.id === "qzNo"; });
     await check5("hỏi lại khi nộp bài"); await snap5("c1-nop-bai");
     await p.click("#qzYes"); await p.waitForSelector(".score");
     r.resultTop = await top();
-    const saved = await p.evaluate(() => Store.resultsFor(Store.sessionUser().id)[0]);
+    // kết quả vừa nộp: tìm theo đề và cách làm, không lấy kết quả mới nhất theo giờ (có thể là dữ liệu của bước trước; L28, nguyên nhân 6)
+    const saved = (await p.evaluate((id) => Store.resultsFor(Store.sessionUser().id).find((x) => x.refId === id && x.mode === "exam"), UX5_BANK)) || {};
     // kết quả tự chấm mới hơn cùng đề không phải "Lần trước" (graded)
     await p.evaluate((id) => Store.addResult({ userId: Store.sessionUser().id, source: "bank", refId: id, subject: "Toán", label: "x", mode: "self", r: 4, t: 8, s: 0 }), UX5_BANK);
     // X9: mở lại đề: thẻ "Lần trước"
@@ -2033,7 +2045,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
     ] };
   // câu điền, câu trả lời bằng số của đề tự nhập: gõ đáp án có khoảng trắng không ngắt (chép từ chữ trên màn hình, bàn phím điện thoại)
   const NB_TYPED = { [flatQ(NB.questions[1].q)]: "12\u00a0000", [flatQ(NB.questions[2].q)]: "1\u00a0000\u00a0000" };
-  const numc = await browser.newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
+  const numc = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
   await localConfig(numc); watchOut(numc);
   const nump = await numc.newPage(); nump.on("pageerror", (e) => errs.push("pageerror số: " + e.message)); nump.on("console", (m) => { if (m.type() === "error") errs.push("console số: " + m.text()); });
   const nm = { problems: [], seen: 0, typed: [] };
@@ -2129,7 +2141,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
       .filter((r) => /tabular-nums/.test(r) || (/^\s*h1,h2,h3\{/.test(r) && !/line-height:1\.35/.test(r)) || (f === "css/app.css" && /font-weight:800|font:800/.test(r)))
       .map((r) => f + ": " + r.trim().slice(0, 60)));
   // Tải trang một lần (service worker cài và đệm), rồi mất mạng: tải lại vẫn vào được, đăng nhập, mở bài ôn và đề ngân hàng.
-  const off = await browser.newContext({ storageState: state, viewport: { width: 390, height: 844 } });
+  const off = await newContext({ storageState: state, viewport: { width: 390, height: 844 } });
   await localConfig(off);
   watchOut(off);
   const swSeen = [], leaked = []; let offline = false;
@@ -2197,7 +2209,7 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
   /* Service worker đã cài. Mọi file của app chậm 6 giây: trang vẫn hiện trước 6 giây (cả bộ lấy từ đệm), không lỗi JS,
      và trang HTML đến muộn không ghi vào đệm. Rồi chỉ js/app.js chậm 6 giây, js/store.js có bản mới: không được chạy
      app.js cũ cùng store.js mới. Route của context áp dụng cho request do service worker gửi (cờ ở đầu file). */
-  const sc = await browser.newContext({ storageState: state, viewport: { width: 390, height: 844 } });
+  const sc = await newContext({ storageState: state, viewport: { width: 390, height: 844 } });
   await localConfig(sc); watchOut(sc);
   const sp19 = await sc.newPage();
   sp19.on("pageerror", (e) => errs.push("pageerror L19: " + e.message));
