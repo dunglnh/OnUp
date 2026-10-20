@@ -748,7 +748,7 @@ QC chạy lại mọi bộ kiểm thử trên `main` commit `def0de1` (sau PR #7
 - `tests/e2e.js` in `E2E OK`, `node tests/supabase/cloud-e2e.js` in `CLOUD E2E OK`.
 - CLAUDE.md, mục "Nội dung câu hỏi": hỗn số "1 1/2" đọc là 1,5; câu điền phân số không tính khoảng trắng quanh "/".
 
-**L33 · Câu về số âm không dùng câu điền.** Sửa trong Phiên N4, vì N4 làm lại ngân hàng Toán 6 cuối kì I từ đúng hai đề này (lời giao việc N4 ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) đã ghi thêm). Sửa câu và thêm kiểm tra trong cùng một phiên, để `DE OK` không hỏng ở giữa.
+**L33 · Câu về số âm không dùng câu điền.** Sửa trong Phiên N4 (PR #78), vì N4 làm lại ngân hàng Toán 6 cuối kì I từ đúng hai đề này. Sửa câu và thêm kiểm tra trong cùng một phiên, để `DE OK` không hỏng ở giữa.
 - Đổi 5 câu ở L33 sang câu trả lời bằng số: `type: "num"`, `ans` là số (−100, −9, −100, 0, 2), đề bỏ "___" (ví dụ "(−72) : 8 = ?"); giữ chủ đề, lời giải, thêm `lv` như các câu khác.
   - `Quiz.key` của 5 câu đổi theo, nên lịch sử từng câu của đề ngẫu nhiên (`PoolHist`) với 5 câu này bắt đầu lại. Điểm đã lưu và "chủ đề hay sai" không đổi.
 - `tests/kiem-tra-de.js` báo lỗi câu điền có đáp án là số âm, hoặc câu điền mà mọi đáp án là số và đề có số âm: "câu về số âm dùng câu trả lời bằng số hoặc trắc nghiệm (L33)".
@@ -763,7 +763,7 @@ QC chạy lại mọi bộ kiểm thử trên `main` commit `def0de1` (sau PR #7
 
 ## 3. Các phiên Claude Code
 
-Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9h, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74), lời giao việc cũ còn trong lịch sử git. Phiên chờ làm: 9i (L32), lời giao việc bên dưới; L33 sửa trong Phiên N4 (lời giao việc ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)). Lỗi mới thì QC ghi mã (tiếp theo L33) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9h, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74), lời giao việc cũ còn trong lịch sử git. Phiên chờ làm: 9i (L32), lời giao việc bên dưới; L33 đã sửa trong Phiên N4 (PR #78). Lỗi mới thì QC ghi mã (tiếp theo L33) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
 
 **Phiên 9i · Phân số, hỗn số gõ có khoảng trắng (L32)** (hạn 14/12, trước các phiên Toán giữa kì II N8, N7; chen giữa các phiên N được, nhưng không chạy cùng lúc với phiên khác sửa `js/quiz.js`, như K4)
 > Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md: L32 ở nhóm H của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9i", phần L32 (phần L33 làm trong Phiên N4, không làm ở phiên này). Sửa L32 trong js/quiz.js: câu trả lời bằng số đọc hỗn số "a b/c" là a + b/c; câu điền có đáp án là phân số hoặc hỗn số không tính khoảng trắng quanh "/". Chỉ sửa js/quiz.js, tests/ và tài liệu; không đổi đề có sẵn, không sửa modules/. Chạy python3 -m http.server 8000 ở thư mục repo, rồi làm đủ "Xong khi": node tests/kiem-tra-de.js, CHI_TIET=1 node tests/so-bo-cham.js, node tests/e2e.js, node tests/supabase/cloud-e2e.js. Mở Pull Request, ghi các lệnh đã chạy và danh sách chỗ khác của so-bo-cham. Ghi PR vào bảng "Đã xong" ở mục 1 của docs/KE-HOACH-PHAT-TRIEN-ONUP.md, xóa dòng 9i ở mục 3 của file đó; ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và câu "Phiên chờ làm: 9i (L32)…".

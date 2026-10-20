@@ -154,12 +154,17 @@ window.ONTAP_SEED_BANKS = [
       "Đền Hùng và lễ giỗ Tổ Hùng Vương": [1, 0, 1], "Thiên nhiên Đồng bằng Bắc Bộ": [1, 1, 0],
       "Dân cư, sản xuất ở Đồng bằng Bắc Bộ": [0, 1, 1], "Văn hoá vùng Đồng bằng Bắc Bộ": [1, 1, 0],
       "Sông Hồng và văn minh sông Hồng": [1, 1, 1], "Thăng Long – Hà Nội": [1, 1, 1], "Văn Miếu – Quốc Tử Giám": [1, 1, 1] } } },
-  /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
-     mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
+  /* Ngân hàng Toán 6 cuối kì I (Phiên N4): kho câu = 58 câu riêng trong file + 50 câu của 2 đề cố định ở trên, câu nào cũng
+     có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991); mỗi
+     chủ đề số học 3 câu, Hình phẳng 2 câu Biết, Chu vi, diện tích 3 câu, Tính đối xứng 2 câu; ô (chủ đề, mức) nào cũng có ít nhất
+     gấp đôi số câu ô đó rút. Câu tự luận chỉ ở hai ô Vận dụng (ƯCLN và BCNN; Chu vi, diện tích): mỗi lần rút nhiều nhất 2 câu. */
   { id: "toan6-ck1-ngau-nhien", title: "Toán 6 · Cuối kì I · Đề ngẫu nhiên", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js",
     pool: { from: ["toan6-ck1-de1", "toan6-ck1-de2"], matrix: {
-      "Tập hợp các số tự nhiên": 4, "Lũy thừa, thứ tự thực hiện phép tính": 4, "Tính chia hết, số nguyên tố": 5, "ƯCLN và BCNN": 2,
-      "Số nguyên": 4, "Nhân, chia số nguyên": 2, "Hình phẳng": 1, "Chu vi, diện tích": 1, "Tính đối xứng": 2 } } },
+      "Tập hợp các số tự nhiên": [1, 1, 1], "Lũy thừa, thứ tự thực hiện phép tính": [1, 1, 1], "Tính chia hết, số nguyên tố": [1, 1, 1],
+      "ƯCLN và BCNN": [1, 1, 1], "Số nguyên": [1, 1, 1], "Nhân, chia số nguyên": [1, 1, 1], "Hình phẳng": [2, 0, 0],
+      "Chu vi, diện tích": [1, 1, 1], "Tính đối xứng": [1, 1, 0] } } },
+  /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
+     mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "van6-ck1-ngau-nhien", title: "Ngữ văn 6 · Cuối kì I · Đề ngẫu nhiên", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js",
     pool: { from: ["van6-ck1-de1", "van6-ck1-de2"], matrix: {
       "Tôi và các bạn": 3, "Dấu câu": 1, "Từ đơn và từ phức": 3, "Nghĩa của từ": 1, "Biện pháp tu từ": 5, "Gõ cửa trái tim": 2,

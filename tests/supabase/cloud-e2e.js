@@ -398,12 +398,13 @@ async function run(browser, scheme) {
   /* UX6 (X10): bài đã gửi cho bố mẹ chưa (làm với Na để số bài của Bin ở các kiểm tra khác giữ nguyên). cloud-e2e gọi máy chủ giả qua
      exposeFunction, không qua mạng, nên context.setOffline không làm lượt gửi lỗi được: bật be.failResults (mọi lệnh ghi vào bảng results
      lỗi như mất mạng). Không dùng sự kiện online (sự kiện đó cũng tự gửi lại, kết quả sẽ phụ thuộc bên nào chạy trước): tắt công tắc rồi
-     bấm “Gửi lại”. quick(id, n): mở đề, ôn luyện n câu rồi “← Thoát” → Dừng, đợi dòng #qzSaved hiện. */
+     bấm “Gửi lại”. quick(id, n): mở đề, ôn luyện n câu (câu điền, câu trả lời bằng số gõ 1, câu khác chọn ô đầu; đề Toán 6 cuối kì I
+     có câu trả lời bằng số từ Phiên N4) rồi “← Thoát” → Dừng, đợi dòng #qzSaved hiện. */
   const naRes = () => be.T.results.filter((r) => r.profile_id === naId).length;
   const quick = async (id, n) => {
     if (p.url().endsWith("#/quiz/" + id)) { await p.goto(BASE + "/#/home"); await p.waitForSelector("#today"); } // cùng địa chỉ thì không mở lại đề
     await p.goto(BASE + "/#/quiz/" + id); await p.waitForSelector("#qPractice"); await p.click("#qPractice");
-    for (let i = 0; i < n; i++) { if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0"); await p.click("#qzGo"); await p.click("#qzGo"); }
+    for (let i = 0; i < n; i++) { if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else if (await p.$("#qzNum")) await p.fill("#qzNum", "1"); else await p.click(".opt >> nth=0"); await p.click("#qzGo"); await p.click("#qzGo"); }
     await p.click("#qzExit"); await p.click("#qzYes"); await p.waitForSelector(".score"); await p.waitForSelector("#qzSaved:not([hidden])");
   };
   const n0 = naRes();
@@ -430,7 +431,7 @@ async function run(browser, scheme) {
   // trên đúng màn đó. Lượt sau bấm “Ôn lại câu sai” ngay khi bài trước còn đang gửi: màn kết quả của lượt ôn lại (không lưu điểm) không bị ghi.
   // aSkip: trả lời một câu, bỏ qua một câu (chắc chắn có câu sai) rồi “← Thoát” → Dừng.
   const aSkip = async () => {
-    if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0");
+    if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else if (await p.$("#qzNum")) await p.fill("#qzNum", "1"); else await p.click(".opt >> nth=0");
     await p.click("#qzGo"); await p.click("#qzGo"); await p.click("#qzSkip");
     await p.click("#qzExit"); await p.click("#qzYes"); await p.waitForSelector("#qzRetry");
   };
@@ -446,7 +447,7 @@ async function run(browser, scheme) {
   c.ux6.slow.sent = naRes() === n3 + 1;
   await p.click("#qzAgain"); await p.waitForSelector(".qcard"); await aSkip();
   await p.click("#qzRetry"); await p.waitForSelector(".qcard");
-  for (let i = 0; i < 10 && !(await p.$("#qzScore")); i++) { if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0"); await p.click("#qzGo"); await p.click("#qzGo"); }
+  for (let i = 0; i < 10 && !(await p.$("#qzScore")); i++) { if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else if (await p.$("#qzNum")) await p.fill("#qzNum", "1"); else await p.click(".opt >> nth=0"); await p.click("#qzGo"); await p.click("#qzGo"); }
   await p.waitForSelector("#qzScore");
   c.ux6.slow.retryRound = /Ôn lại câu sai/.test(await text(p, "#qzScore .label"));
   for (let i = 0; i < 100 && naRes() !== n3 + 2; i++) await wait(p, 100); // lượt gửi chậm của lượt trước xong khi đang ở màn ôn lại
@@ -674,7 +675,7 @@ async function run(browser, scheme) {
   await tile(q, "Na"); await q.waitForSelector("text=Chào Na");
   const n2 = naRes(), famUser = be.T.families.find((f) => f.id === acc.id).auth_user_id;
   await q.goto(BASE + "/#/quiz/toan6-ck1-de1"); await q.waitForSelector("#qPractice"); await q.click("#qPractice");
-  if (await q.$("#qzFill")) await q.fill("#qzFill", "1"); else await q.click(".opt >> nth=0");
+  if (await q.$("#qzFill")) await q.fill("#qzFill", "1"); else if (await q.$("#qzNum")) await q.fill("#qzNum", "1"); else await q.click(".opt >> nth=0");
   await q.click("#qzGo"); await q.click("#qzGo");
   for (const [t, uid] of be.tokens) if (uid === famUser) be.tokens.delete(t);
   await q.click("#qzExit"); await q.click("#qzYes"); await q.waitForSelector("#qzSaved:not([hidden])");
@@ -686,7 +687,7 @@ async function run(browser, scheme) {
   await tile(q, "Na"); await q.waitForSelector("text=Chào Na");
   be.failResults = true;
   await q.goto(BASE + "/#/quiz/toan6-ck1-de2"); await q.waitForSelector("#qPractice"); await q.click("#qPractice");
-  if (await q.$("#qzFill")) await q.fill("#qzFill", "1"); else await q.click(".opt >> nth=0");
+  if (await q.$("#qzFill")) await q.fill("#qzFill", "1"); else if (await q.$("#qzNum")) await q.fill("#qzNum", "1"); else await q.click(".opt >> nth=0");
   await q.click("#qzGo"); await q.click("#qzGo"); await q.click("#qzExit"); await q.click("#qzYes"); await q.waitForSelector("#qzSaved:not([hidden])");
   await q.goto(BASE + "/#/home"); await q.waitForSelector("#unsent");
   be.failResults = false;
