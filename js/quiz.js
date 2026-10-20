@@ -13,7 +13,7 @@
      mở một lượt ôn luyện chỉ gồm các câu sai (retry = true trong lúc đó), không gọi onFinish, không lưu điểm; "Làm lại cả đề" về đề đầy đủ
      cùng cách làm; câu cần xem lại thu gọn (<details class="rv">, bấm mới xem đáp án, lời giải); theo chủ đề chỉ hiện chủ đề cần ôn thêm.
      Trên câu chỉ một dòng nhãn "môn · chủ đề" (dạng đúng/sai 4 ý, nối cột, sắp xếp, tự luận ghi thêm cách làm); câu điền mà mọi đáp án
-     là số thì ô nhập có inputmode="decimal" (bàn phím số).
+     là số thì ô nhập có inputmode="decimal" (bàn phím số), trừ khi có đáp án âm (L30: bàn phím thường, dòng nhắc số âm dưới câu).
    Bài đã gửi cho bố mẹ chưa (Phiên UX6, X10): màn kết quả có chỗ trống <p class="saved" id="qzSaved" hidden> trong #qzScore;
      bản đám mây, app điền sau khi lưu (onFinish) và lượt gửi xong (js/app.js, savedLine). Chữ: TXT.appSent, appPending.
    Chế độ tập trung (Phiên UX5, X5): opts.onStart() khi một lượt bắt đầu (cả "Làm lại", "Ôn lại câu sai"), opts.onEnd() khi lượt
@@ -66,7 +66,7 @@
       // đoạn đọc
       psgTitle: "Đọc kĩ rồi trả lời", psgFor: (n) => `Dùng chung cho ${n} câu`, psgHide: "Thu gọn", psgShow: "Mở ra",
       // thân câu hỏi (UX1: trên câu chỉ một dòng nhãn "môn · chủ đề", dạng phức tạp ghi thêm cách làm: tf4Label, matchLabel, orderLabel, essayLabel)
-      fillAria: "Câu trả lời", numSign: "Thêm hoặc bỏ dấu trừ", numSlash: "Thêm dấu phân số", numAria: "Đáp số",
+      fillAria: "Câu trả lời", negHint: "Số âm: gõ dấu trừ phía trước, ví dụ -12.", numSign: "Thêm hoặc bỏ dấu trừ", numSlash: "Thêm dấu phân số", numAria: "Đáp số",
       numHint: "Phân số viết a/b, ví dụ 3/4. Số thập phân viết bằng dấu phẩy, ví dụ 2,5.", tf4Label: "Đúng hay sai? Chọn cho từng ý", tf4Group: (c) => `Ý ${c}`,
       matchLabel: "Nối cột", orderLabel: "Sắp xếp thứ tự", orderYours: "Thứ tự của bạn", essayLabel: "Tự luận · tự chấm", essayAria: "Bài làm",
       essayPh: "Viết bài làm ở đây, hoặc viết ra giấy.", essayNote: "Phần tự luận không tính vào điểm trung bình.",
@@ -136,7 +136,7 @@
       drawLv: (t, n, lv, from) => `${t}: ${n} missing at level ${lv}, filled with ${from}`, lvOf: (lv) => "level " + lv, noLv: "questions without a level",
       drawOther: (t, n) => `${t}: ${n} missing, taken from other topics`, drawShort: (t, n) => `${t}: not enough questions in the bank, ${n} missing`,
       psgTitle: "Read and answer", psgFor: (n) => (n === 1 ? "For 1 question" : `For ${n} questions`), psgHide: "Hide", psgShow: "Show",
-      fillAria: "Your answer", numSign: "Add or remove the minus sign", numSlash: "Add a fraction bar", numAria: "Your answer",
+      fillAria: "Your answer", negHint: "For a negative number, type the minus sign first, for example -12.", numSign: "Add or remove the minus sign", numSlash: "Add a fraction bar", numAria: "Your answer",
       numHint: "Write a fraction as a/b, for example 3/4. Use a decimal point, for example 2.5.", tf4Label: "True or false? Choose for each sentence", tf4Group: (c) => `Sentence ${c}`,
       matchLabel: "Match", orderLabel: "Put in order", orderYours: "Your order", essayLabel: "Writing · self-check", essayAria: "Your writing",
       essayPh: "Write here, or on paper.", essayNote: "Writing is not counted in your average score.",
@@ -225,6 +225,7 @@
   const fmtN = (x, lang) => { const [i, d] = String(Math.abs(r2(x))).split("."), en = lang === "en"; return (x < 0 ? "-" : "") + (i.length > 4 ? i.replace(/\B(?=(\d{3})+$)/g, en ? "," : " ") : i) + (d ? (en ? "." : ",") + d : ""); };
   const normT = (s) => String(s).normalize("NFC").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, " ").replace(/[.!?;:,]+$/, "").trim().toLowerCase();
   const isNum = (s) => /^[-−–]?\s*\d[\d\s.,]*$/.test(String(s).trim());
+  const isNeg = (s) => /^\(?\s*[-−–]\s*\d/.test(String(s).trim()); // số âm: "-7", "(−7)" (L30)
   const numKey = (s) => String(s).trim().replace(/[−–]/g, "-").replace(/[\s.]/g, "").replace(",", ".");
 
   /* ---------------- hình SVG ----------------
@@ -511,9 +512,10 @@
       switch (q.type) {
         case "fill": {
           const parts = nbNum(esc(q.q)).split("___");
-          // mọi đáp án là số: mở bàn phím số trên điện thoại (UX1)
-          const numeric = (q.ans || []).length && q.ans.every(isNum);
-          return `<div class="${qcls}">${parts[0]}<input class="blank" id="qzFill" autocomplete="off" spellcheck="false" aria-label="${L.fillAria}"${numeric ? ' inputmode="decimal"' : ""}>${parts.slice(1).join("___")}</div>${fig(q.svg)}`;
+          // mọi đáp án là số không âm: mở bàn phím số trên điện thoại (UX1). Có đáp án âm (L30): bàn phím số thập phân của iPhone
+          // không có dấu trừ, nên dùng bàn phím thường và nhắc cách gõ dưới câu, như bài ôn dạng trang.
+          const neg = (q.ans || []).some(isNeg), numeric = (q.ans || []).length && q.ans.every(isNum) && !neg;
+          return `<div class="${qcls}">${parts[0]}<input class="blank" id="qzFill" autocomplete="off" spellcheck="false" aria-label="${L.fillAria}"${numeric ? ' inputmode="decimal"' : ""}>${parts.slice(1).join("___")}</div>${fig(q.svg)}${neg ? `<p class="small muted">${L.negHint}</p>` : ""}`;
         }
         case "num":
           // bàn phím số thập phân của iPhone không có "-" và "/": nút ± và nút "/" (L29) cạnh ô; nút "/" có ở mọi câu, để không lộ đáp án là phân số
