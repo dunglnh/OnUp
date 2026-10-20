@@ -382,6 +382,14 @@
   // Đơn vị in ngay sau chỗ trống ("___ kg", "___ cây.", "___°"); học sinh hay gõ kèm nó vào ô.
   const fold = (s) => s.normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/gi, "d").toLowerCase().replace(/2/g, "²").replace(/3/g, "³");
   const unitAfter = (q) => { const w = ((String(q.q).split("___")[1] || "").trim().split(/\s+/)[0] || "").normalize("NFC").replace(/[.,;:!?]+$/, ""); return /^[\p{L}°²³]+$/u.test(w) ? w.toLowerCase() : ""; };
+  /* Đáp án và chữ gõ đều là số (L31): có dấu chấm hoặc dấu phẩy thì so giá trị, đọc như câu trả lời bằng số (numVals), nên dấu phẩy
+     hay dấu chấm thập phân đều đúng ("1,25", "1.25" với đáp án 1,25), còn "2.5" không đúng với đáp án 25. Chữ viết mơ hồ ("1.200")
+     có hai cách đọc, trùng một cách là đúng. Chỉ có chữ số (và khoảng trắng), hoặc không đọc được thành một số (dãy "1, 2, 3, 6"),
+     thì so chữ như trước (numKey): "1 200" đúng với "1200", "05" không đúng với 5. */
+  const sameNum = (a, c) => {
+    const va = /[.,]/.test(a + c) ? numVals(a) : [], vc = va.length ? numVals(c) : [];
+    return vc.length ? vc.some((v) => va.some((w) => Math.abs(v - w) < 1e-9)) : numKey(a) === numKey(c);
+  };
   function fillRight(q, g) {
     const t = String(g).normalize("NFC").trim(), u = unitAfter(q), cands = [t];
     const bare = t.replace(/[.!?;:]+$/, "").trim();
@@ -394,7 +402,7 @@
     }
     // Số âm hay được viết trong ngoặc: "(-7)".
     cands.slice().forEach((c) => { const m = /^\(\s*(.+?)\s*\)$/.exec(c.replace(/[.!?;:]+$/, "").trim()); if (m && isNum(m[1])) cands.push(m[1]); });
-    return cands.some((c) => q.ans.some((a) => (isNum(a) && isNum(c)) ? numKey(a) === numKey(c) : normT(a) === normT(c)));
+    return cands.some((c) => q.ans.some((a) => (isNum(a) && isNum(c)) ? sameNum(a, c) : normT(a) === normT(c)));
   }
   /* Trả lời ngắn bằng số: các cách đọc của số học sinh gõ. Dấu phẩy thập phân kiểu Việt Nam ("12,5", "1.000,5"), dấu chấm
      thập phân ("12.5"), phân số ("3/4"), số âm ("-2", "(-2)"), gõ kèm đơn vị của câu. Số viết mơ hồ ("1.000", "1,000")
