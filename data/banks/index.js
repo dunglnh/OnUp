@@ -26,6 +26,9 @@
    { type: "tf4",  q: "Đề chung", o: ["ý a", "ý b", "ý c", "ý d"], a: [true, false, true, true], x: "..." }
                    // đúng/sai 4 ý, chấm từng ý như đề thi tốt nghiệp: đúng 1/2/3/4 ý được 0,1/0,25/0,5/1 câu
    { type: "num",  q: "...", ans: 2.5, tol: 0.1, unit: "kg", x: "..." }   // trả lời ngắn bằng số; tol (sai số cho phép), unit không bắt buộc
+                   // đáp án là phân số: ans là chuỗi "a/b" (ví dụ "2/3", "-3/4"; mẫu số khác 0); số nguyên, số thập phân vẫn ghi dạng số.
+                   // Chấm theo giá trị (6/8, 0,75 cũng đúng với "3/4"), hiện đáp án đúng "2/3". Ô nhập có nút ± và nút "/" (bàn phím số
+                   // của iPhone không có hai dấu này). Đề bắt viết phân số tối giản thì dùng câu điền (so chữ).
    { type: "match", q: "Nối…", l: ["trái 1", "trái 2"], r: ["phải 1", "phải 2", "ô thừa"], x: "..." }
                    // nối cột: l[i] nối với r[i]; r có thể thêm ô thừa ở cuối; chấm theo số cặp nối đúng
    { type: "order", q: "Sắp xếp…", o: ["thứ 1", "thứ 2", "thứ 3"], x: "..." }   // viết theo thứ tự đúng (ít nhất 3 ô), app tự xáo
