@@ -120,6 +120,7 @@ Thứ tự: làm các phiên kĩ thuật K1 → K2 → K3 trước, rồi mới 
   - Câu riêng chỉ được rút khi ô (chủ đề, mức) của nó có câu trong ma trận (`tests/kiem-tra-de.js` nhắc nếu không). Câu của đề cố định ở ô không rút vẫn dùng trong đề cố định.
   - Câu tự luận trong kho: lần rút có câu tự luận thì phần chấm tự động ít hơn `n` câu, điểm tự luận lưu riêng (K2).
   - Toán: script tính lại đáp án theo mẫu `tests/toan4-ck1.js` (đủ các dạng câu mới, đọc toạ độ trong hình để tính góc, kiểm tra vuông góc, song song, cạnh bằng nhau).
+- Rút ra từ Phiên N2 (Tiếng Việt 4 cuối kì I): chủ đề “Viết” chỉ gồm câu tự luận để lần rút nào cũng đúng một câu Viết (câu sắp xếp câu thành đoạn văn ghi chủ đề “Đọc hiểu”); ô điền chấm không phân biệt chữ hoa, nên quy tắc viết hoa (danh từ riêng, tên cơ quan) hỏi bằng trắc nghiệm hoặc đúng/sai 4 ý; đáp án đúng không dài hơn hẳn các lựa chọn sai.
 
 **Đề Tiếng Anh: 100% tiếng Anh** (chủ app yêu cầu 18/10/2026, áp dụng cho mọi khối, mọi kì, cả đề thi thử vào 10 và tốt nghiệp)
 - Mọi chữ của đề và câu Tiếng Anh viết bằng tiếng Anh: `note`, `topic`, lời dặn và đề bài `q`, lựa chọn `o`, đáp án `ans`, cột nối `l`, `r`, lời giải `x`, đoạn đọc (`passages`), thang tự chấm. Câu Tiếng Anh nằm trong đề nhiều môn (như đề thử nghiệm) cũng vậy.
@@ -256,7 +257,8 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 **Quy định chung của các phiên N** (mỗi lời giao việc bên dưới trỏ về đây; sửa ở đây là áp dụng cho mọi phiên):
 > - Chỉ sửa data/banks/, data/calendar-2026-2027.js, script và kiểm thử trong tests/, tài liệu; không sửa js/, css/, modules/ (thấy lỗi app thì ghi vào Pull Request).
 > - Xong khi node tests/kiem-tra-de.js in DE OK và không còn dòng “Nhắc:” nào về đề của phiên, node tests/e2e.js in E2E OK.
-> - Chỗ nào của tests/e2e.js hỏng chỉ vì ngày chạy (bước không cài đồng hồ giả lập; đã biết: dòng k3.hero của bước K3 hỏng từ 14/11/2026, Phiên N4 viết lại bước này) thì sửa kiểm thử cho không phụ thuộc ngày, không sửa app, ghi trong Pull Request.
+> - Chỗ nào của tests/e2e.js hỏng chỉ vì ngày chạy (bước không cài đồng hồ giả lập; đã biết: dòng k3.hero của bước K3 hỏng từ 14/11/2026, Phiên N4 viết lại bước này) thì sửa kiểm thử cho không phụ thuộc ngày, không sửa app, ghi trong Pull Request. Phiên 9g (L28 ở docs/SUA-LOI-CHAY-THU.md) sửa hẳn việc này: hai script kiểm thử chạy ở một ngày cố định; 9g đã gộp thì bước mới tạo context bằng hàm dùng chung của script.
+> - Đến khi Phiên 9h xong (L30, L31 ở docs/SUA-LOI-CHAY-THU.md): câu có đáp án là số âm hoặc số thập phân dùng dạng trả lời bằng số (có nút ±, nhận cả dấu phẩy và dấu chấm thập phân), không dùng câu điền. Trên iPhone, câu điền có đáp án âm không gõ được dấu trừ, câu điền số thập phân gõ dấu chấm thì bị chấm sai.
 > - Chỉ tự rà soát một vòng, rồi mở Pull Request. Có số PR thì ghi phiên đã xong vào docs/KE-HOACH-PHAT-TRIEN-ONUP.md (dòng trạng thái đầu file, mục 3); điều mới rút ra cho các phiên sau (nếu có) ghi một dòng vào mục 3 của docs/KE-HOACH-NOI-DUNG.md.
 
 **Danh sách phiên lớp 4 và 6.** Hạn: xong trước kì thi ít nhất 3 tuần (mục 8). Thứ tự chạy ở mục 3 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). “Kho” là số câu mục tiêu theo mục 2 (25 câu mỗi đề): đề cố định + câu riêng của đề ngẫu nhiên.
