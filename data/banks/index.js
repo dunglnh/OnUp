@@ -98,12 +98,19 @@ window.ONTAP_SEED_BANKS = [
       "Phép cộng, phép trừ": [1, 1, 1], "Phép nhân, phép chia": [1, 0, 0], "Tính chất phép cộng": [0, 1, 0], "Tổng và hiệu": [0, 1, 1],
       "Giải bài toán có ba bước tính": [0, 0, 2], "Góc và đo góc": [1, 1, 0], "Đơn vị đo": [1, 1, 1],
       "Đường thẳng vuông góc, song song": [1, 1, 0], "Hình bình hành, hình thoi": [0, 1, 0] } } },
+  /* Ngân hàng Tiếng Việt 4 cuối kì I (Phiên N2): kho câu = 54 câu riêng trong file (6 đoạn đọc, 6 câu Viết) + 50 câu của 2 đề
+     cố định ở trên, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, trong đó 7 câu
+     Đọc hiểu và 1 câu Viết (đoạn văn tự chấm, nên 40 phút; hai đề cố định 35 phút). 16 câu Luyện từ và câu chia theo số bài
+     Luyện từ và câu của từng chủ đề trong sách: danh từ, viết tên cơ quan 5 câu (Bài 1, 3, 5, 7 và một phần Bài 31 luyện tập
+     danh từ, động từ, tính từ); động từ 3 (Bài 9, 11, 13); từ điển 1 (Bài 15); nhân hoá 2 (Bài 17, 19); tính từ 3 (Bài 21, 23,
+     25); dấu gạch ngang 2 (Bài 27, 29); thêm 1 câu Chính tả. */
+  { id: "tv4-ck1-ngau-nhien", title: "Tiếng Việt 4 · Cuối kì I · Đề ngẫu nhiên", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js",
+    pool: { from: ["tv4-ck1-de1", "tv4-ck1-de2"], matrix: {
+      "Đọc hiểu": [3, 2, 2], "Danh từ": [1, 1, 0], "Danh từ chung, danh từ riêng": [1, 0, 1], "Viết tên cơ quan, tổ chức": [0, 1, 0],
+      "Động từ": [1, 1, 1], "Tính từ": [1, 1, 1], "Biện pháp nhân hoá": [0, 1, 1], "Dấu gạch ngang": [1, 1, 0], "Sử dụng từ điển": [1, 0, 0],
+      "Chính tả": [1, 0, 0], "Viết": [0, 0, 1] } } },
   /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
      mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
-  { id: "tv4-ck1-ngau-nhien", title: "Tiếng Việt 4 · Cuối kì I · Đề ngẫu nhiên", grade: 4, subject: "Tiếng Việt", minutes: 35, n: 25, file: "4-tv.js",
-    pool: { from: ["tv4-ck1-de1", "tv4-ck1-de2"], matrix: {
-      "Đọc hiểu": 7, "Danh từ": 2, "Danh từ chung, danh từ riêng": 2, "Viết tên cơ quan, tổ chức": 1, "Động từ": 3, "Tính từ": 3,
-      "Biện pháp nhân hoá": 2, "Dấu gạch ngang": 2, "Sử dụng từ điển": 1, "Chính tả": 2 } } },
   { id: "toan6-ck1-ngau-nhien", title: "Toán 6 · Cuối kì I · Đề ngẫu nhiên", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js",
     pool: { from: ["toan6-ck1-de1", "toan6-ck1-de2"], matrix: {
       "Tập hợp các số tự nhiên": 4, "Lũy thừa, thứ tự thực hiện phép tính": 4, "Tính chia hết, số nguyên tố": 5, "ƯCLN và BCNN": 2,
