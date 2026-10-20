@@ -51,6 +51,7 @@ window.ONTAP_SEED_BANKS = [
   { id: "khtn6-ck1-de1", title: "KHTN 6 · Cuối kì I · Đề 1", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js" },
   { id: "khtn6-ck1-de2", title: "KHTN 6 · Cuối kì I · Đề 2", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js" },
   { id: "lsdl6-ck1-de1", title: "Lịch sử và Địa lí 6 · Cuối kì I · Đề 1", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js" },
+  { id: "lsdl6-ck1-de2", title: "Lịch sử và Địa lí 6 · Cuối kì I · Đề 2", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js" },
 
   /* Toán 4 · Kiểm tra cuối học kì I (Kết nối tri thức, Bài 1–37) */
   { id: "toan4-ck1-de1", title: "Toán 4 · Cuối kì I · Đề 1", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js" },
@@ -73,8 +74,11 @@ window.ONTAP_SEED_BANKS = [
   { id: "ta6-ck1-de1", title: "Tiếng Anh 6 · Cuối kì I · Đề 1", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js" },
   { id: "ta6-ck1-de2", title: "Tiếng Anh 6 · Cuối kì I · Đề 2", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js" },
   { id: "gdcd6-ck1-de1", title: "GDCD 6 · Cuối kì I · Đề 1", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js" },
+  { id: "gdcd6-ck1-de2", title: "GDCD 6 · Cuối kì I · Đề 2", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js" },
   { id: "tin6-ck1-de1", title: "Tin học 6 · Cuối kì I · Đề 1", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js" },
+  { id: "tin6-ck1-de2", title: "Tin học 6 · Cuối kì I · Đề 2", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js" },
   { id: "congnghe6-ck1-de1", title: "Công nghệ 6 · Cuối kì I · Đề 1", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js" },
+  { id: "congnghe6-ck1-de2", title: "Công nghệ 6 · Cuối kì I · Đề 2", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js" },
 
   /* Tin học và Công nghệ 4 · Kiểm tra cuối học kì I (Kết nối tri thức) */
   { id: "tincn4-ck1-de1", title: "Tin học và Công nghệ 4 · Cuối kì I · Đề 1", grade: 4, subject: "Tin học và Công nghệ", minutes: 35, n: 25, file: "4-tincn.js" },
@@ -193,6 +197,45 @@ window.ONTAP_SEED_BANKS = [
       "Đo chiều dài, khối lượng, thời gian": [1, 1, 1], "Đo nhiệt độ": [1, 0, 1], "Chất và sự chuyển thể": [1, 1, 1],
       "Oxygen và không khí": [1, 1, 0], "Vật liệu, nhiên liệu, lương thực – thực phẩm": [1, 1, 0], "Hỗn hợp và tách chất": [1, 1, 1],
       "Tế bào": [1, 1, 1], "Từ tế bào đến cơ thể": [0, 1, 0] } } },
+  /* Ngân hàng Lịch sử và Địa lí 6 cuối kì I (Phiên N6): kho câu = 10 câu riêng trong file + 50 câu của 2 đề cố định ở trên, câu
+     nào cũng có mức độ. Phạm vi: Lịch sử Bài 1–10 như đề 1; Địa lí Bài 1–15 (đề 1 chỉ có Bài 1–9; Bài 10–15 ở Đề 2 và câu riêng,
+     6 chủ đề mới theo tên bài rút gọn). Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6
+     (Công văn 7991): 12 câu Lịch sử (mỗi bài 1–2 câu), 13 câu Địa lí (Bài 1–9 6 câu, Bài 10–15 7 câu); đề 2 chia đúng theo ma
+     trận, câu riêng thêm vào các ô của 6 chủ đề mới, nên ô nào cũng đủ câu, ô của chủ đề mới có ít nhất gấp đôi số câu ô đó rút. */
+  { id: "lsdl6-ck1-ngau-nhien", title: "Lịch sử và Địa lí 6 · Cuối kì I · Đề ngẫu nhiên", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js",
+    pool: { from: ["lsdl6-ck1-de1", "lsdl6-ck1-de2"], matrix: {
+      "Tư liệu lịch sử": [1, 1, 0], "Thời gian trong lịch sử": [0, 1, 1], "Thời kì nguyên thủy": [1, 1, 0], "Ai Cập và Lưỡng Hà cổ đại": [1, 1, 0],
+      "Ấn Độ cổ đại": [1, 0, 0], "Trung Quốc cổ đại": [1, 0, 0], "Hy Lạp và La Mã cổ đại": [1, 0, 1],
+      "Kinh tuyến, vĩ tuyến, tọa độ địa lí": [1, 1, 0], "Bản đồ": [0, 0, 1], "Trái Đất trong hệ Mặt Trời": [1, 0, 0], "Chuyển động của Trái Đất": [0, 1, 1],
+      "Cấu tạo của Trái Đất": [1, 0, 0], "Nội sinh và ngoại sinh": [0, 1, 0], "Núi lửa và động đất": [0, 0, 1], "Địa hình và khoáng sản": [1, 0, 1],
+      "Lược đồ địa hình, lát cắt": [0, 0, 1], "Lớp vỏ khí, khí áp và gió": [0, 1, 0] } } },
+  /* Ngân hàng GDCD 6 cuối kì I (Phiên N6): kho câu = 50 câu của 2 đề cố định ở trên (không có câu riêng), câu nào cũng có mức
+     độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): Bài 1–5 mỗi
+     bài 4 câu, Bài 6 Tự nhận thức bản thân 5 câu, bài nào cũng có câu xử lí tình huống; đề 2 chia đúng theo ma trận và bù câu Vận
+     dụng đề 1 còn thiếu, nên ô nào cũng đủ câu. */
+  { id: "gdcd6-ck1-ngau-nhien", title: "GDCD 6 · Cuối kì I · Đề ngẫu nhiên", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js",
+    pool: { from: ["gdcd6-ck1-de1", "gdcd6-ck1-de2"], matrix: {
+      "Truyền thống gia đình, dòng họ": [2, 1, 1], "Yêu thương con người": [2, 1, 1], "Siêng năng, kiên trì": [2, 1, 1],
+      "Tôn trọng sự thật": [1, 2, 1], "Tự lập": [2, 1, 1], "Tự nhận thức bản thân": [1, 2, 2] } } },
+  /* Ngân hàng Tin học 6 cuối kì I (Phiên N6): kho câu = 50 câu của 2 đề cố định ở trên (không có câu riêng), câu nào cũng có
+     mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): đủ 9 chủ
+     đề như đề 1 (Bài 1–9), mỗi chủ đề 2–4 câu; đề 2 chia đúng theo ma trận và bù câu Vận dụng đề 1 còn thiếu, nên ô nào cũng đủ
+     câu. Ô “Tìm kiếm thông tin trên Internet” chỉ rút câu Vận dụng (chọn từ khóa, nguồn tin, các bước tìm kiếm): các bước tìm
+     kiếm ghi sẵn cách dùng máy tìm kiếm, nên câu Biết “Máy tìm kiếm là” của đề 1 không được rút cùng. */
+  { id: "tin6-ck1-ngau-nhien", title: "Tin học 6 · Cuối kì I · Đề ngẫu nhiên", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js",
+    pool: { from: ["tin6-ck1-de1", "tin6-ck1-de2"], matrix: {
+      "Thông tin và dữ liệu": [1, 1, 0], "Xử lí thông tin": [2, 0, 0], "Thông tin trong máy tính": [1, 1, 2], "Mạng máy tính": [1, 2, 0],
+      "Internet": [1, 1, 0], "Mạng thông tin toàn cầu": [2, 0, 1], "Tìm kiếm thông tin trên Internet": [0, 0, 2], "Thư điện tử": [1, 2, 1],
+      "An toàn thông tin trên Internet": [1, 1, 1] } } },
+  /* Ngân hàng Công nghệ 6 cuối kì I (Phiên N6): kho câu = 50 câu của 2 đề cố định ở trên (không có câu riêng), câu nào cũng có
+     mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): Chương I
+     Nhà ở 12 câu (Bài 1–3), Chương II 13 câu (Bài 4–6, Bài 5 bảo quản và chế biến thực phẩm 6 câu); đề 2 chia đúng theo ma trận
+     và bù câu Vận dụng đề 1 còn thiếu, nên ô nào cũng đủ câu. Ô Biết của “Thực phẩm và dinh dưỡng” rút 1 câu, nên câu nối nhóm
+     thực phẩm – chất dinh dưỡng của đề 2 không cùng một đề với các câu về nhóm thực phẩm của đề 1. */
+  { id: "congnghe6-ck1-ngau-nhien", title: "Công nghệ 6 · Cuối kì I · Đề ngẫu nhiên", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js",
+    pool: { from: ["congnghe6-ck1-de1", "congnghe6-ck1-de2"], matrix: {
+      "Khái quát về nhà ở": [3, 1, 1], "Sử dụng năng lượng trong gia đình": [2, 1, 1], "Ngôi nhà thông minh": [1, 1, 1],
+      "Thực phẩm và dinh dưỡng": [1, 2, 1], "Bảo quản và chế biến thực phẩm": [3, 2, 1], "Bữa ăn kết nối yêu thương": [0, 1, 2] } } },
   /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
      mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
