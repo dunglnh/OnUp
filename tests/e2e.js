@@ -284,7 +284,11 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
 
   step("weekly report");
   const rep = await page.evaluate(() => ({
-    links: [...document.querySelectorAll("#rpLinks a")].map((a) => a.getAttribute("href")).join(),
+    links: [...document.querySelectorAll("#rpCal, #rpPractice")].map((a) => a.getAttribute("href")).join(), oldLinks: !!document.querySelector("#rpLinks"),
+    head: [...document.querySelectorAll("#rpHead h1, #rpHead .rp-who .muted")].map((x) => x.textContent.replace(/\s+/g, " ").trim()).join(" | "), headAll: document.querySelector("#rpHead").innerText,
+    side: (() => { const a = document.querySelector("#rpHead .av").getBoundingClientRect(), h = document.querySelector("#rpHead h1").getBoundingClientRect(); return h.left >= a.right && h.top < a.bottom; })(), // tên đứng cạnh hình
+    label: getComputedStyle(document.querySelector("#rpHead .onlyprint")).display,
+    printMain: document.querySelector("#rpPrint").classList.contains("main"), topCal: !!document.querySelector(".who a"),
     count: document.querySelector("#rpCount").textContent,
     subjects: [...document.querySelectorAll("#rpSubjects .rp-sub b:first-child")].map((b) => b.textContent),
     topics: document.querySelectorAll("#rpTopics .item").length,
@@ -295,15 +299,16 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("report:", rep);
   await shot("12b-report");
   await page.emulateMedia({ media: "print", colorScheme: "dark" });
-  const printHidden = await page.evaluate(() => [".top", ".noprint", ".foot"].every((s) => getComputedStyle(document.querySelector(s)).display === "none")
-    && getComputedStyle(document.body).backgroundColor === "rgb(255, 255, 255)");
+  const printHidden = await page.evaluate(() => [".top", ".noprint", ".foot", "#rpCal", "#rpPractice"].every((s) => getComputedStyle(document.querySelector(s)).display === "none")
+    && getComputedStyle(document.body).backgroundColor === "rgb(255, 255, 255)" && getComputedStyle(document.querySelector("#rpHead .onlyprint")).display !== "none"); // in: có nhãn OnUp · Báo cáo tuần, không có hai link
   await page.pdf({ path: OUT + "12c-bao-cao-tuan.pdf", format: "A4", printBackground: false });
   await page.emulateMedia({ media: "screen", colorScheme: "light" });
   await page.goto(BASE + "/#/report/" + (await page.evaluate(() => Store.users("student").find((u) => u.name === "Na").id)));
   await page.waitForTimeout(200);
   const otherKid = await page.evaluate(() => location.hash); // Na không phải con của Mẹ Bin: về trang chính
   const reportOK = rep.count === "5" && rep.subjects.join() === "Toán,Tiếng Anh" && rep.topics > 0 && rep.tips >= 2 && rep.days === 1
-    && /Bin/.test(rep.title) && rep.wide <= 390 && printHidden && otherKid === "#/home" && /^#\/calendar\?g=4,#\/child\/[^,]+\/practice$/.test(rep.links);
+    && /Bin/.test(rep.title) && rep.wide <= 390 && printHidden && otherKid === "#/home" && /^#\/calendar\?g=4,#\/child\/[^,]+\/practice$/.test(rep.links)
+    && !rep.oldLinks && /^Bin \| Lớp 4 · 4A \| Báo cáo \d+\/\d+ – \d+\/\d+\/\d{4}$/.test(rep.head) && !/OnUp/.test(rep.headAll) && rep.side && rep.label === "none" && !rep.printMain && !rep.topCal;
   console.log("report print:", printHidden, "other kid:", otherKid);
 
   step("pin lock per user survives reload (L2); waiting disables the keypad (UX4 X3)");
@@ -640,7 +645,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await open("#/quiz/tv4-ck1-de1"); await p.waitForSelector("#qRetry"); await check("đề chưa tải được"); await snap("de-chua-tai-duoc");
     await c.unroute("**/data/banks/4-tv.js"); await p.click("#qRetry"); r.retry = !!(await p.waitForSelector("#qPractice").catch(() => null));
     await open("#/quiz/toan4-ck1-de1"); await p.waitForSelector("#qPractice"); await check("đề, màn đầu"); r.quizFoot = !(await footShown());
-    // tiêu đề (X15, font Lora): line-height tính ra của h1 ≥ 1,35 lần cỡ chữ; thấp hơn thì chữ hoa hai dấu (Ố, Ẫ) của dòng dưới chạm chân chữ g, y của dòng trên
+    // tiêu đề (X15): line-height tính ra của h1 ≥ 1,35 lần cỡ chữ, để chữ hoa hai dấu (Ố, Ẫ) của dòng dưới không chạm chân chữ g, y của dòng trên
     r.h1Line = await p.evaluate(() => { const cs = getComputedStyle(document.querySelector(".hero h1")); return parseFloat(cs.lineHeight) >= 1.35 * parseFloat(cs.fontSize) - 0.01; });
     await p.click("#qPractice"); await check("đề, câu hỏi");
     if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0");
@@ -1689,7 +1694,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      trước 2 câu (21/25)", nút "Ôn lại 2 câu sai" (lượt chỉ có 2 câu, hộp rời trang riêng, không lưu điểm, "Làm lại cả đề" về đủ 25 câu),
      câu sai thu gọn (bấm mới thấy đáp án, lời giải), chủ đề chỉ hiện chỗ cần ôn thêm. Trên câu chỉ một dòng nhãn "Toán · chủ đề"; câu điền
      mà mọi đáp án là số có inputmode="decimal". Hồ sơ mới chọn sẵn hình chưa ai dùng. Hồ sơ của con (phụ huynh xem) và trang phụ huynh,
-     quản trị giữ bố cục cũ với nhãn mới, không có thanh tab. Ảnh 360px sáng/tối ở tests/screenshots/ux1/ (bản ghép <tên>.jpg). */
+     quản trị giữ bố cục cũ với nhãn mới, không có thanh tab; thanh trên của quản trị cũng không có nút Lịch thi (20/10/2026: chỉ tab Lịch thi).
+     Ảnh 360px sáng/tối ở tests/screenshots/ux1/ (bản ghép <tên>.jpg). */
   const OUTUX = OUT + "ux1/"; fs.mkdirSync(OUTUX, { recursive: true });
   const ux1 = { problems: [], shots: [] };
   for (const scheme of ["light", "dark"]) {
@@ -1700,7 +1706,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     const ucheck = async (label) => (await p.evaluate(audit)).forEach((x) => ux1.problems.push(`UX1 · ${scheme} · ${label}: ${x}`));
     const usnap = async (n) => { await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await pinTabs(p, true); await p.screenshot({ path: `${OUTUX}${n}-${scheme}.png`, fullPage: true }); await pinTabs(p, false); ux1.shots.push(`${n}-${scheme}`); };
     const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, sel);
-    const tabbar = () => p.evaluate(() => ({ tabs: [...document.querySelectorAll("#tabbar a")].map((a) => a.textContent + (a.getAttribute("aria-current") ? "*" : "")).join(), tabbed: document.body.classList.contains("tabbed"), cal: !!document.querySelector(".who a[href='#/calendar']") }));
+    const tabbar = () => p.evaluate(() => ({ tabs: [...document.querySelectorAll("#tabbar a")].map((a) => a.textContent + (a.getAttribute("aria-current") ? "*" : "")).join(), tabbed: document.body.classList.contains("tabbed"), cal: !!document.querySelector(".who a") })); // cal: nút Lịch thi ở thanh trên (đã bỏ ở mọi vai trò, 20/10/2026)
     await p.clock.install({ time: new Date("2026-10-21T08:00:00") });
     await p.goto(BASE + "/");
     await p.evaluate(() => {
@@ -1794,7 +1800,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     r.avatar = { student: await picked("student"), parent: await picked("parent"), used: used.join("") };
     // hồ sơ của con là báo cáo tuần (UX2): quản trị bản lưu trên máy về "Danh sách học sinh"; thẻ kì thi vẫn có nhãn "Đã làm đúng x%"
     await p.goto(BASE + "/#/child/" + ids.Bin); await p.waitForSelector(".report");
-    r.child = await p.evaluate(() => ({ report: !!document.querySelector("#rpCount"), back: document.querySelector("#view .linkbtn[data-go]").textContent, ready: (document.querySelector(".ev .ready") || {}).textContent || "", links: document.querySelectorAll("#rpLinks a").length, edit: !!document.querySelector(`a[href="#/admin/user/${Store.users("student").find((u) => u.name === "Bin").id}"]`) }));
+    r.child = await p.evaluate(() => ({ report: !!document.querySelector("#rpCount"), back: document.querySelector("#view .linkbtn[data-go]").textContent, ready: (document.querySelector(".ev .ready") || {}).textContent || "", links: document.querySelectorAll("#rpCal, #rpPractice").length, edit: !!document.querySelector(`a[href="#/admin/user/${Store.users("student").find((u) => u.name === "Bin").id}"]`) }));
     await ucheck("hồ sơ của con");
     await c.close();
   }
@@ -1828,16 +1834,18 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && /^Theo chủ đề Đúng hết \d+\/\d+ chủ đề\. Cần ôn thêm: .+Xem cả \d+ chủ đề/.test(r.result.topics) && /^qzScore,row,qzReview,qzTopics,(qzLv,)?row$/.test(r.result.order) && r.rvOpen
       && r.retry.chip === "Câu 1/2" && r.retry.leave === "Dừng ôn lại và rời trang?Lượt ôn lại câu sai không lưu điểm. DừngÔn tiếp" && /^Toán 4 · Cuối kì I · Đề 1 · Ôn lại câu sai Xuất sắc, Bin! 10\/10 2\/2 câu đúng.*Lượt ôn lại câu sai không lưu điểm\.$/.test(r.retry.result)
       && r.retry.btns === "|Làm lại cả đề" && r.retry.saved === 1 && r.retry.full === "Câu 1/25 ← Thoát"
-      && r.numeric === "decimal,null" && r.tabAdmin.tabs === "" && r.tabAdmin.cal
+      && r.numeric === "decimal,null" && r.tabAdmin.tabs === "" && !r.tabAdmin.cal
       && !r.avatar.used.includes(r.avatar.student) && !r.avatar.used.includes(r.avatar.parent) && r.avatar.student === "🐼" && r.avatar.parent === "🐼" // 🐣 (Bin), 🦊 (Na, form đã chọn sẵn), 🌻, 🧭 đã có người dùng
       && r.child.report && r.child.back === "← Danh sách học sinh" && r.child.ready === "Đã làm đúng 90% bài ôn của kì này" && r.child.links === 2 && r.child.edit; });
 
   step("parent area: child cards, report first (UX2)");
   /* Phụ huynh bản lưu trên máy (Mẹ Bin, có hai con): trang chủ là mục "Các con", mỗi con một thẻ (số bài hôm nay; điểm hôm nay, chưa làm
      hôm nay thì điểm trung bình tuần; chuỗi ngày; kì thi gần nhất của khối con còn N ngày · chưa ôn môn nào trong 7 ngày, tối đa 3 môn),
-     không còn ba ô số liệu và các mục "Lịch thi lớp N" trùng ý. Bấm thẻ là mở báo cáo tuần (#/child/<mã>): có "← Các con", "Sửa hồ sơ",
-     hai link phụ "Lịch thi lớp 4" (#/calendar?g=4: chọn sẵn tab khối) và "Bài ôn của Bin" (#/child/<mã>/practice: mọi bài ôn của khối,
-     Xem thử), bài làm trước tuần này thu gọn. Quản trị (thầy cô) giữ 5 tab và dòng học sinh cũ, bấm vào cũng mở báo cáo.
+     không còn ba ô số liệu và các mục "Lịch thi lớp N" trùng ý; thanh trên không có nút Lịch thi, dưới thẻ có link "Lịch thi cả năm →".
+     Bấm thẻ là mở báo cáo tuần (#/child/<mã>): có "← Các con", "Sửa hồ sơ", đầu trang chỉ hình, bên cạnh là tên con, dòng "Lớp 4 · 4A",
+     dòng "Báo cáo <ngày> – <ngày>", link "Xem cả năm →" ở mục Kì thi sắp tới (#/calendar?g=4: chọn sẵn tab khối) và "Bài ôn của Bin →" cuối mục
+     Gợi ý ôn tuần sau (#/child/<mã>/practice: mọi bài ôn của khối, Xem thử), bài làm trước tuần này thu gọn. Quản trị (thầy cô) giữ
+     5 tab và dòng học sinh cũ, bấm vào cũng mở báo cáo; tab Lịch thi có link "Xem theo tháng →" (#/calendar).
      Ngày giả lập 21/10/2026 18:00. Ảnh 360px sáng/tối ở tests/screenshots/ux2/ (bản ghép <tên>.jpg). */
   const OUTUX2 = OUT + "ux2/"; fs.mkdirSync(OUTUX2, { recursive: true });
   const ux2 = { problems: [], shots: [] };
@@ -1869,27 +1877,29 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     r.home = await p.evaluate(() => ({
       cards: [...document.querySelectorAll("#kids a.kid")].map((k) => ({ href: k.getAttribute("href"), h: Math.round(k.getBoundingClientRect().height), stats: [...k.querySelectorAll(".stat")].map((s) => s.querySelector("b").textContent + " " + s.querySelector("span").textContent).join("|"), ev: (k.querySelector(".kid-ev") || {}).textContent || "" })),
       extraStats: !!document.querySelector("#view > .stack > .stats"), h2: [...document.querySelectorAll("#view h2")].map((h) => h.textContent).join(), hint: document.querySelector("#kids p.small").textContent,
-      cal: (document.querySelector(".who a") || {}).getAttribute("href"), tabbar: !!document.querySelector("#tabbar") }));
+      topCal: !!document.querySelector(".who a"), calLink: (() => { const a = document.querySelector("#calLink"); return a ? a.textContent + "=" + a.getAttribute("href") : ""; })(), tabbar: !!document.querySelector("#tabbar") }));
     await check2("trang chủ phụ huynh"); await snap2("phu-huynh");
     await p.click(`a.kid[href="#/child/${ids.Bin}"]`); await p.waitForSelector(".report");
     r.report = await p.evaluate((id) => ({ hash: location.hash, back: document.querySelector("#view .linkbtn[data-go]").textContent, edit: !!document.querySelector(`a[href="#/admin/user/${id}"]`), print: !!document.querySelector("#rpPrint"),
-      links: [...document.querySelectorAll("#rpLinks a")].map((a) => a.textContent + "=" + a.getAttribute("href")).join(), count: document.querySelector("#rpCount").textContent, topics: document.querySelectorAll("#rpTopics .item").length,
+      links: [...document.querySelectorAll("#rpCal, #rpPractice")].map((a) => a.textContent + "=" + a.getAttribute("href")).join(), head: [...document.querySelectorAll("#rpHead h1, #rpHead .rp-who .muted")].map((x) => x.textContent.replace(/\s+/g, " ").trim()).join(" | "), count: document.querySelector("#rpCount").textContent, topics: document.querySelectorAll("#rpTopics .item").length,
       week: document.querySelectorAll(".report > .sec .item").length, older: { open: document.querySelector("#rpOlder").open, head: document.querySelector("#rpOlder summary").textContent.replace(/\s+/g, " ").trim(), n: document.querySelectorAll("#rpOlder .item").length } }), ids.Bin);
     await check2("báo cáo của con"); await snap2("bao-cao-con");
     await p.evaluate(() => (document.querySelector("#rpOlder").open = true)); await check2("báo cáo của con, mở bài trước");
-    await p.click("#rpLinks a >> nth=1"); await p.waitForSelector("#allPractice");
+    await p.click("#rpPractice"); await p.waitForSelector("#allPractice");
     r.practice = await p.evaluate(() => ({ hash: location.hash, back: document.querySelector("#view .linkbtn[data-go]").textContent, h2: document.querySelector("#view h2").textContent, groups: document.querySelectorAll("#allPractice details.grp").length,
       preview: [...document.querySelectorAll("#allPractice a.btn")].every((a) => /Xem thử/.test(a.getAttribute("aria-label") || a.textContent)) }));
     await check2("bài ôn của con"); await snap2("bai-on-cua-con");
     await p.click("#view .linkbtn[data-go]"); await p.waitForSelector(".report");
-    await p.click("#rpLinks a >> nth=0"); await p.waitForSelector(".tabs [data-g]"); // (.timeline có cả ở báo cáo)
+    await p.click("#rpCal"); await p.waitForSelector(".tabs [data-g]"); // (.timeline có cả ở báo cáo)
     r.cal = await p.evaluate(() => ({ hash: location.hash, tab: document.querySelector('.tabs [aria-pressed="true"]').textContent, h1: document.querySelector("h1").textContent }));
     // quản trị bản lưu trên máy (thầy cô): giữ nguyên 5 tab và dòng học sinh; bấm dòng cũng mở báo cáo, về "Danh sách học sinh"
     await p.goto(BASE + "/#/account"); await p.click("#logout"); await p.waitForTimeout(200);
     await p.click(`.tile[data-u="${ids["Bố Minh"]}"]`); await p.fill("#pinIn", PINS["Bố Minh"]); await p.waitForSelector(".tabs");
-    r.admin = await p.evaluate(() => ({ tabs: [...document.querySelectorAll(".tabs button")].map((b) => b.textContent).join(), stats: document.querySelectorAll("#view > .stack > .stats .stat").length, rows: document.querySelectorAll("button[data-child]").length, cards: document.querySelectorAll("a.kid").length }));
+    r.admin = await p.evaluate(() => ({ tabs: [...document.querySelectorAll(".tabs button")].map((b) => b.textContent).join(), topCal: !!document.querySelector(".who a"), stats: document.querySelectorAll("#view > .stack > .stats .stat").length, rows: document.querySelectorAll("button[data-child]").length, cards: document.querySelectorAll("a.kid").length }));
     await p.click("button[data-child] >> nth=0"); await p.waitForSelector(".report");
     r.admin.back = await txt("#view .linkbtn[data-go]");
+    await p.goto(BASE + "/#/admin/events"); await p.waitForSelector("#calLink");
+    r.admin.calLink = await p.evaluate(() => { const a = document.querySelector("#calLink"); return a.textContent + "=" + a.getAttribute("href"); });
     await c.close();
   }
   { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/ux2/<tên>.jpg)
@@ -1905,12 +1915,12 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   const ux2OK = !ux2.problems.length && ["light", "dark"].every((sc) => { const r = ux2[sc], bin = r.home.cards[0], na = r.home.cards[1];
     return r.home.cards.length === 2 && bin.href === "#/child/" + ids.Bin && bin.h >= 44 && bin.stats === "2 bài hôm nay|8,5 điểm hôm nay|3 chuỗi ngày" && bin.ev.replace(/\s+/g, " ").trim() === "Kiểm tra giữa học kì I còn 12 ngày · chưa ôn Tiếng Việt"
       && na.href === "#/child/" + ids.Na && na.stats === "Chưa ôn hôm nay|6 điểm TB tuần|0 chuỗi ngày" && na.ev.replace(/\s+/g, " ").trim() === "Kiểm tra giữa học kì I còn 12 ngày · chưa ôn Ngữ văn, KHTN, Tiếng Anh và 4 môn khác"
-      && !r.home.extraStats && r.home.h2 === "Chào Mẹ Bin,Các con" && /^Bấm vào thẻ của con để xem báo cáo tuần/.test(r.home.hint) && r.home.cal === "#/calendar" && !r.home.tabbar
-      && r.report.hash === "#/child/" + ids.Bin && r.report.back === "← Các con" && r.report.edit && r.report.print && r.report.links === `Lịch thi lớp 4=#/calendar?g=4,Bài ôn của Bin=#/child/${ids.Bin}/practice`
+      && !r.home.extraStats && r.home.h2 === "Chào Mẹ Bin,Các con" && /^Bấm vào thẻ của con để xem báo cáo tuần/.test(r.home.hint) && !r.home.topCal && r.home.calLink === "Lịch thi cả năm →=#/calendar" && !r.home.tabbar
+      && r.report.hash === "#/child/" + ids.Bin && r.report.back === "← Các con" && r.report.edit && r.report.print && r.report.links === `Xem cả năm →=#/calendar?g=4,Bài ôn của Bin →=#/child/${ids.Bin}/practice` && r.report.head === "Bin | Lớp 4 · 4A | Báo cáo 15/10 – 21/10/2026"
       && r.report.count === "4" && r.report.topics === 2 && r.report.week === 4 && !r.report.older.open && /^Bài làm trước tuần này ?1 bài$/.test(r.report.older.head) && r.report.older.n === 1
       && r.practice.hash === `#/child/${ids.Bin}/practice` && r.practice.back === "← Báo cáo của Bin" && r.practice.h2 === "Bài ôn lớp 4 của Bin" && r.practice.groups >= 3 && r.practice.preview
       && r.cal.hash === "#/calendar?g=4" && r.cal.tab === "Lớp 4" && /^Lịch thi năm học/.test(r.cal.h1)
-      && r.admin.tabs === "Tổng quan,Tài khoản,Lịch thi,Ngân hàng đề,Dữ liệu" && r.admin.stats === 3 && r.admin.rows === 2 && r.admin.cards === 0 && r.admin.back === "← Danh sách học sinh"; });
+      && r.admin.tabs === "Tổng quan,Tài khoản,Lịch thi,Ngân hàng đề,Dữ liệu" && !r.admin.topCal && r.admin.calLink === "Xem theo tháng →=#/calendar" && r.admin.stats === 3 && r.admin.rows === 2 && r.admin.cards === 0 && r.admin.back === "← Danh sách học sinh"; });
 
   step("profile entry step, PIN lock UI, tap-to-change avatar (UX4)");
   /* Phiên UX4 (X1–X4), bản lưu trên máy: chạm hồ sơ có PIN thì sang bước nhập riêng #/vao/<mã> (không cuộn, tên và 12 nút bàn phím
@@ -1992,8 +2002,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      thì không lưu điểm. Trả lời 3 câu, tua đồng hồ còn dưới 2 phút (chip .warn), Nộp bài hỏi lại như cũ, nộp thì màn kết quả có lại hình
      đại diện. Mở lại đề (X9): thẻ "Lần trước: x/25 câu đúng" (Hôm nay … · làm như thi · N phút), không lấy kết quả tự chấm mới hơn
      (graded). Ôn luyện (X8): "← Thoát", không có đồng hồ; sau Kiểm tra không còn nút "Bỏ qua" nào hiện ra, "Câu tiếp" ở mép phải;
-     "Làm lại" từ màn kết quả lại vào chế độ tập trung. Phụ huynh xem thử: trong lúc làm không có nút "Lịch thi", hình đại diện; màn
-     kết quả có lại; không có thẻ "Lần trước". Đề tự nhập không có số phút: chỉ thẻ Ôn luyện. Mỗi màn hình kiểm tra 360px (audit).
+     "Làm lại" từ màn kết quả lại vào chế độ tập trung. Phụ huynh xem thử: trong lúc làm không có hình đại diện, màn kết quả có lại
+     (thanh trên không có nút Lịch thi ở mọi màn); không có thẻ "Lần trước". Đề tự nhập không có số phút: chỉ thẻ Ôn luyện. Mỗi màn hình kiểm tra 360px (audit).
      Ảnh 360px sáng/tối ở tests/screenshots/ux5/ (bản ghép <tên>.jpg): c1-lam-nhu-thi, c1-nop-bai, c2-sau-kiem-tra, c4-mo-de. */
   const OUTUX5 = OUT + "ux5/"; fs.mkdirSync(OUTUX5, { recursive: true });
   const ux5 = { problems: [], shots: [] };
@@ -2007,8 +2017,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     const check5 = async (label) => (await p.evaluate(audit)).forEach((x) => ux5.problems.push(`UX5 · ${scheme} · ${label}: ${x}`));
     const snap5 = async (n) => { await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await p.screenshot({ path: `${OUTUX5}${n}-${scheme}.png`, fullPage: true }); ux5.shots.push(`${n}-${scheme}`); };
     const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : null; }, sel);
-    // thanh trên: hình đại diện, nút Lịch thi có hiện không; chế độ tập trung; thanh tab dưới
-    const top = () => p.evaluate(() => { const vis = (e) => !!e && e.getBoundingClientRect().width > 0; return { av: vis(document.querySelector("#who .av")), cal: vis(document.querySelector('#who a[href="#/calendar"]')), brand: vis(document.querySelector(".top .brand")), quizzing: document.body.classList.contains("quizzing"), tabbar: vis(document.querySelector("#tabbar")) }; });
+    // thanh trên: hình đại diện, có link nào khác không (không còn nút Lịch thi); chế độ tập trung; thanh tab dưới
+    const top = () => p.evaluate(() => { const vis = (e) => !!e && e.getBoundingClientRect().width > 0; return { av: vis(document.querySelector("#who .av")), cal: vis(document.querySelector("#who a")), brand: vis(document.querySelector(".top .brand")), quizzing: document.body.classList.contains("quizzing"), tabbar: vis(document.querySelector("#tabbar")) }; });
     const answer = async () => { if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else if (await p.$("#qzNum")) await p.fill("#qzNum", "1"); else await p.click(".opts .opt >> nth=0"); await p.click("#qzGo"); };
     const nRes = () => p.evaluate(() => Store.resultsFor(Store.sessionUser().id).length);
     await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids.Bin}"]`); await p.fill("#pinIn", PINS.Bin); await p.waitForSelector("#today");
@@ -2103,7 +2113,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.practice.exit === "← Thoát" && !r.practice.submit && !r.practice.timer && r.practice.prog === "Câu 1/25" && offTop(r.practice.top) && r.practice.skip
       && r.checked.skips === 0 && r.checked.right === 0 && r.checked.go === "Câu tiếp" && r.nextSkip
       && fullTop(r.practiceEnd) && offTop(r.again) && fullTop(r.home) && r.home.tabbar
-      && !r.parent.prev && r.parent.notice === "Chế độ xem thử: điểm không được lưu." && fullTop(r.parent.open) && r.parent.open.cal && offTop(r.parent.run) && fullTop(r.parent.result) && r.parent.result.cal
+      && !r.parent.prev && r.parent.notice === "Chế độ xem thử: điểm không được lưu." && fullTop(r.parent.open) && !r.parent.open.cal && offTop(r.parent.run) && fullTop(r.parent.result) && !r.parent.result.cal
       && r.noMinutes; })
     && ["c1-lam-nhu-thi", "c1-nop-bai", "c2-sau-kiem-tra", "c4-mo-de"].every((n) => ux5.shots.includes(n + "-light") && ux5.shots.includes(n + "-dark"));
 
@@ -2330,12 +2340,19 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   const want = ["./", "manifest.webmanifest"].concat(ls("css/", /\.css$/), ls("js/", /\.js$/), ls("data/", /\.js$/), ["data/banks/index.js"], ls("fonts/", /\.(css|woff2)$/), ls("icons/", /./),
     fs.readdirSync(ROOT + "modules").map((m) => `modules/${m}/index.html`));
   const swList = { missing: want.filter((f) => !sw.FILES.includes(f)), extra: sw.FILES.filter((f) => !want.includes(f)) };
-  /* Font Lora (tiêu đề, số to) và Noto Sans: luật chép trong CLAUDE.md. Trong css/app.css và 4 bài ôn, quy tắc có var(--display) không ghi
-     tabular-nums (chữ số bằng nhau và dấu phẩy của Lora rộng), h1,h2,h3 có line-height 1.35; css/app.css không ghi 800 (Lora chỉ có đến 700). */
-  const fontBad = ["css/app.css"].concat(fs.readdirSync(ROOT + "modules").map((m) => `modules/${m}/index.html`))
-    .flatMap((f) => (fs.readFileSync(ROOT + f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").match(/[^{}]*\{[^{}]*var\(--display\)[^{}]*\}/g) || [])
-      .filter((r) => /tabular-nums/.test(r) || (/^\s*h1,h2,h3\{/.test(r) && !/line-height:1\.35/.test(r)) || (f === "css/app.css" && /font-weight:800|font:800/.test(r)))
-      .map((r) => f + ": " + r.trim().slice(0, 60)));
+  /* Chữ (luật trong CLAUDE.md, “Quy ước code”): Lora (var(--display)) chỉ ở chữ OnUp (.brand) và điểm to (.score) của css/app.css, ở
+     4 bài ôn chỉ .score; các quy tắc đó không ghi tabular-nums (chữ số bằng nhau và dấu phẩy của Lora rộng); h1,h2,h3 có line-height 1.35;
+     css/app.css không ghi độ đậm 800 (chỉ có font 400–700). */
+  const fontBad = ["css/app.css"].concat(fs.readdirSync(ROOT + "modules").map((m) => `modules/${m}/index.html`)).flatMap((f) => {
+    const css = fs.readFileSync(ROOT + f, "utf8").replace(/\/\*[\s\S]*?\*\//g, ""), bad = [];
+    const disp = css.match(/[^{}]*\{[^{}]*var\(--display\)[^{}]*\}/g) || [], sels = disp.map((r) => r.slice(0, r.indexOf("{")).trim()).join();
+    if (sels !== (f === "css/app.css" ? ".brand,.score" : ".score")) bad.push(f + ": Lora ở " + sels);
+    disp.filter((r) => /tabular-nums/.test(r)).forEach((r) => bad.push(f + ": tabular-nums ở " + r.trim().slice(0, 40)));
+    const h = css.match(/(^|\})\s*h1,h2,h3\{[^}]*\}/);
+    if (!h || !/line-height:1\.35/.test(h[0])) bad.push(f + ": h1,h2,h3 chưa có line-height 1.35");
+    if (f === "css/app.css" && /font-weight:800|font:800/.test(css)) bad.push(f + ": còn độ đậm 800");
+    return bad;
+  });
   // Tải trang một lần (service worker cài và đệm), rồi mất mạng: tải lại vẫn vào được, đăng nhập, mở bài ôn và đề ngân hàng.
   const off = await newContext({ storageState: state, viewport: { width: 390, height: 844 } });
   await localConfig(off);
