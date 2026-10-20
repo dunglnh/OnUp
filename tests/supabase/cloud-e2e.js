@@ -363,7 +363,7 @@ async function run(browser, scheme) {
   }).filter(([, v]) => v)));
   // K3: con làm đề ngẫu nhiên (kho gộp từ 3 đề Toán 4 cuối kì I và 31 câu riêng của ngân hàng, Phiên N1; rút 25 câu theo ma trận):
   // kết quả lên máy chủ với ref_id là mã pool. Kho có đủ các dạng câu: mỗi câu trả lời đại cho đủ để bấm Kiểm tra; câu tự luận
-  // không tính vào số câu chấm tự động (t) và không vào lịch sử câu.
+  // không tính vào số câu chấm tự động (t), đã xem gợi ý nên vẫn vào lịch sử câu (cả 25 câu).
   await p.goto(BASE + "/#/quiz/toan4-ck1-ngau-nhien"); await p.waitForSelector("#qPractice");
   c.k3 = { intro: await text(p, ".hero"), kho: await p.evaluate(() => { const b = Store.bank("toan4-ck1-ngau-nhien"); return b.questions.length + "/" + b.n + "/" + Store.bank("toan4-ck1-de1").questions.length; }), essays: 0 };
   await shot(p, "c8b-de-ngau-nhien");
@@ -860,8 +860,8 @@ async function run(browser, scheme) {
     "L15: con vào “Làm như thi”, rời khi chưa trả lời: hỏi “Thoát đề?”, không lưu điểm": /Thoát đề\?/.test(c.l15.ask) && c.l15.hash === "#/home" && c.l15.same,
     "L16: bài ôn trong khung chỉ hỏi khi đang làm một lượt (#endBtn); IOE là bài Tiếng Anh nên hộp hỏi bằng tiếng Anh (TA2)": !c.l16.idleAsk && c.l16.runAsk && /Leave this practice\?/.test(c.l16.text) && c.l16.same,
     "L18: nút đề ghi số đề theo tên đề; K3: đề ngẫu nhiên đứng trước": c.l18["Kiểm tra cuối học kì I"] === "Đề ngẫu nhiên,Đề 1,Đề 2,Đề 3" && c.l18["Kiểm tra giữa học kì II"] === "Đề ngẫu nhiên,Đề 1,Đề 2",
-    "K3: đề ngẫu nhiên rút 25 câu từ kho 106 câu (31 câu riêng và 3 đề, N1), kết quả lên máy chủ với ref_id là mã pool, lịch sử câu trên máy": /25 câu rút từ kho 106 câu \(3 đề\)/.test(c.k3.intro) && c.k3.kho === "106/25/25"
-      && c.k3.again === "Làm đề khác" && c.k3.server && c.k3.hist === 25 - c.k3.essays,
+    "K3: đề ngẫu nhiên rút 25 câu từ kho 106 câu (31 câu riêng và 3 đề, N1), kết quả lên máy chủ với ref_id là mã pool, lịch sử câu trên máy (cả câu tự luận)": /25 câu rút từ kho 106 câu \(3 đề\)/.test(c.k3.intro) && c.k3.kho === "106/25/25"
+      && c.k3.again === "Làm đề khác" && c.k3.server && c.k3.hist === 25,
     "R1: link “Báo câu này sai” (≥ 44px) dưới lời giải và ở từng câu cần xem lại; hộp lí do mở tại chỗ; phải chọn lí do; gửi xong cảm ơn, link thành “Đã báo câu này”":
       c.r1.link.h >= 44 && c.r1.link.text === "Báo câu này sai" && c.r1.link.inFb && c.r1.inline && /chọn một lí do/.test(c.r1.needReason) && /Cảm ơn bạn/.test(c.r1.done)
       && c.r1.after === "true Đã báo câu này" && c.r1.result,

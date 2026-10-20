@@ -1240,9 +1240,10 @@
   const essayN = (qs) => (qs || []).filter((q) => q.type === "essay").length;
   /* Đề ngẫu nhiên (đề có pool, xem đầu data/banks/index.js): mỗi lần mở là rút một bộ câu mới theo ma trận (Quiz.draw),
      ưu tiên câu học sinh chưa làm hoặc hay sai. Lịch sử từng câu của mỗi học sinh với mỗi đề ngẫu nhiên ghi ở localStorage
-     (ontap_pool_v1: "<mã học sinh>|<mã đề>" → { <Quiz.key(câu)>: [số lần làm, số lần sai] }), chỉ trên máy này; cộng với
-     kết quả đã lưu (dùng chung mọi máy): đã làm đề cố định nào trong pool.from thì câu của đề đó tính là đã làm, chủ đề
-     nằm trong wrongTopics của kết quả (đề cố định đó hoặc chính đề ngẫu nhiên) thì tính là hay sai. */
+     (ontap_pool_v1: "<mã học sinh>|<mã đề>" → { <Quiz.key(câu)>: [số lần làm, số lần sai] }), chỉ trên máy này, từ opts.onMarks
+     của Quiz.run: cả câu tự luận đã làm (tự chấm dưới một nửa số điểm là sai); cộng với kết quả đã lưu (dùng chung mọi máy):
+     đã làm đề cố định nào trong pool.from thì câu của đề đó tính là đã làm, chủ đề nằm trong wrongTopics của kết quả (đề cố định
+     đó hoặc chính đề ngẫu nhiên) thì tính là hay sai. */
   const PoolHist = (() => {
     const KEY = "ontap_pool_v1", MAX = 600;
     let mem = {};
@@ -1250,10 +1251,11 @@
     const write = (o) => { mem = o; try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) { /* chỉ giữ trong bộ nhớ */ } };
     return {
       get: (uid, pid) => read()[uid + "|" + pid] || {},
-      // marks: [[mã câu, điểm 0–1]] của một lượt làm xong
-      mark(uid, pid, marks) {
+      // marks: [[mã câu, điểm 0–1]] của một lượt làm xong: mỗi câu thêm một lần làm, điểm dưới 1 thêm một lần sai.
+      // late: điểm tự chấm câu tự luận sau khi nộp bài (làm như thi), lần làm đã ghi lúc nộp nên chỉ thêm lần sai.
+      mark(uid, pid, marks, late) {
         const o = read(), k = uid + "|" + pid, h = (o[k] = o[k] || {});
-        (marks || []).forEach(([key, pts]) => { const x = (h[key] = h[key] || [0, 0]); x[0]++; if (pts < 1) x[1]++; });
+        (marks || []).forEach(([key, pts]) => { const x = (h[key] = h[key] || [0, 0]); if (!late) x[0]++; if (pts < 1) x[1]++; });
         const keys = Object.keys(h);
         if (keys.length > MAX) keys.slice(0, keys.length - MAX).forEach((key) => delete h[key]);
         write(o);
@@ -1311,12 +1313,13 @@
         name: u.role === "student" ? u.name : "", previous: u.role === "student" ? previous : undefined,
         // "Làm đề khác" ở trang kết quả: rút bộ câu mới (đã tính cả lượt vừa làm)
         redraw: b.pool ? () => { drawn = Quiz.draw(b, hist(), lang); if (drawn.notes.length) toast(L.appNotesToast(drawn.notes.join("; "))); return { questions: drawn.questions }; } : undefined,
+        // lịch sử câu của đề ngẫu nhiên, chỉ của học sinh (xem PoolHist)
+        onMarks: b.pool && u.role === "student" ? (marks, late) => PoolHist.mark(u.id, b.id, marks, late) : undefined,
         reported: (q) => Store.reports().some((r) => r.userId === u.id && r.bankId === bankOf(q) && r.qKey === q.key),
         onReport: (q, { reason, note }) => Store.addReport({ userId: u.id, bankId: bankOf(q), qKey: q.key, qText: Quiz.text(q), reason, note }),
         onFinish: (res) => {
           if (u.role !== "student") return;
           Store.addResult(Object.assign({ userId: u.id, source: "bank", refId: b.id, subject: b.subject, label: b.title }, res));
-          if (b.pool && res.marks) PoolHist.mark(u.id, b.id, res.marks);
           // bản đám mây (UX6): dòng #qzSaved ở màn kết quả và thông báo ghi bài đã gửi cho bố mẹ chưa; bản lưu trên máy giữ "Đã lưu kết quả"
           // Quiz.run gọi onFinish ngay trước khi vẽ màn kết quả (lưu điểm tự chấm khi làm như thi: màn đó đã có): lấy chỗ trống của đúng màn
           // này ở microtask kế tiếp, xếp trước mọi lần whenSent gọi lại. Gửi xong muộn mà đã sang lượt khác thì không ghi (chỗ đó đã bị gỡ).

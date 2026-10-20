@@ -24,7 +24,12 @@
        và nối cột chấm theo từng ý (score); câu tự luận không tính vào r, t;
      - điểm tự chấm phần tự luận: {mode: "self", r, t, s: 0}, r và t tính bằng phần tư điểm (số nguyên), không cộng vào
        điểm trung bình (app ghi riêng). Ôn luyện: lưu lúc nộp; làm như thi: lưu khi bấm "Lưu điểm tự chấm" ở trang kết quả.
-     Phần chấm tự động còn có marks: [[Quiz.key(câu), điểm 0–1]] của từng câu đã chấm (câu bỏ qua, chưa làm: 0).
+   Lịch sử câu (đề ngẫu nhiên): opts.onMarks(marks, late) khi một lượt làm xong (không gọi ở lượt ôn lại câu sai), marks:
+     [[Quiz.key(câu), điểm 0–1]] của từng câu đã làm: câu chấm tự động (câu bỏ qua, chưa làm: 0) và câu tự luận đã làm (ôn luyện: đã
+     bấm Xem gợi ý; làm như thi: đã bấm Trả lời), điểm 0 khi đã tự chấm mà được dưới một nửa số điểm, còn lại 1 (essayMark). Làm như
+     thi tự chấm sau khi nộp, nên bấm "Lưu điểm tự chấm" thì gọi thêm: onMarks(marks, true) với các câu đã trả lời mà tự chấm dưới một
+     nửa số điểm (lần làm đã ghi lúc nộp, app chỉ ghi thêm lần sai), onMarks(marks) với các câu bỏ qua hoặc chưa tới mà nay tự chấm
+     (có thể đã làm ra giấy). Câu tự luận bỏ qua mà không tự chấm không ghi gì: vẫn là câu chưa làm.
    Dạng câu (xem đầu data/banks/index.js): mc, fill, tf, tf4 (đúng/sai 4 ý), num (trả lời ngắn bằng số; ans là số hoặc phân số
    "a/b", ô nhập có nút ± và nút "/", L29), match (nối cột),
    order (sắp xếp), essay (tự luận tự chấm). Trường chung không bắt buộc: lv (mức độ 1 Biết, 2 Hiểu, 3 Vận dụng),
@@ -32,7 +37,7 @@
    Quiz.parse(text) → {questions, passages, errors}: đọc câu hỏi dán từ Word/Zalo theo cú pháp đơn giản.
    Quiz.svg(src) → {svg, problems}: hình đã lọc (chuỗi rỗng nếu không đọc được) và các chỗ bị bỏ.
    Quiz.draw(bank, hist) → {questions, notes}: rút đề ngẫu nhiên theo ma trận của đề có pool (Phiên K3, xem draw).
-   Quiz.key(q): mã ổn định của một câu (băm nội dung), dùng để ghi nhớ câu đã làm; onFinish có marks: [[mã câu, điểm]].
+   Quiz.key(q): mã ổn định của một câu (băm nội dung), dùng để ghi nhớ câu đã làm; opts.onMarks nhận [[mã câu, điểm]].
    Báo câu sai (Phiên R1): có opts.onReport thì dưới lời giải khi ôn luyện (sau khi Kiểm tra, cả câu tự luận sau khi Xem gợi ý)
      và dưới từng câu ở màn kết quả (câu cần xem lại, câu tự luận tự chấm) có link nhỏ "Báo câu này sai"; bấm thì mở hộp
      chọn lí do (Quiz.REASONS) và ghi chú (tối đa 200 kí tự) ngay bên dưới, không dùng hộp nổi.
@@ -567,6 +572,10 @@
     }
     function selfSum(i) { const p = S.self[i]; return p && p.every((v) => v != null) ? { got: p.reduce((a, v) => a + v, 0), max: rubricMax(qs[i]) } : null; }
     function sumText(i) { const s = selfSum(i); return s ? L.selfSum(N(s.got), N(s.max), s.max) : L.selfPick; }
+    /* Câu tự luận trong lịch sử câu (onMarks): 0 (sai) khi đã tự chấm đủ các ý mà được dưới một nửa số điểm, còn lại 1; chưa tự chấm
+       thì không biết đúng sai nên không tính là sai. Ngưỡng là một nửa, không phải đủ điểm như câu chấm tự động: tự chấm "Một phần" ở
+       một ý là thường gặp, lấy đủ điểm thì câu tự luận hay bị rút lại. */
+    const essayMark = (i) => { const s = selfSum(i); return s && s.got * 2 < s.max ? 0 : 1; };
     function wireRubric(root, onPick) {
       root.querySelectorAll(".rubric .opt").forEach((b) => (b.onclick = () => {
         const box = b.closest(".rubric"), i = +box.dataset.q, j = +b.dataset.j;
@@ -789,7 +798,10 @@
       // Lần trước cùng đề (UX1): đọc trước khi lưu lượt này. Lượt ôn lại câu sai không so, không lưu.
       const prev = !h.retry && typeof opts.previous === "function" ? opts.previous() : null;
       const saved = !exam && !h.retry ? saveSelf(essays) : null; // ôn luyện: chấm ngay sau từng câu, lưu luôn
-      if (total && !h.retry && opts.onFinish) opts.onFinish({ r: right, t: total, s: Math.round(secs), mode: exam ? "exam" : "practice", wrongTopics: wrong.map((a) => a.q.topic || "Chung"), marks: auto.map((a) => [a.q.key, a.pts || 0]) });
+      if (total && !h.retry && opts.onFinish) opts.onFinish({ r: right, t: total, s: Math.round(secs), mode: exam ? "exam" : "practice", wrongTopics: wrong.map((a) => a.q.topic || "Chung") });
+      // lịch sử câu: câu chấm tự động và câu tự luận đã làm (ôn luyện: đã xem gợi ý; làm như thi: đã trả lời), kể cả lượt chỉ có câu
+      // tự luận (không có phần chấm tự động để lưu)
+      if (!h.retry && opts.onMarks) opts.onMarks(auto.map((a) => [a.q.key, a.pts || 0]).concat(essays.filter((i) => S.ans[i].done).map((i) => [qs[i].key, essayMark(i)])));
       const d10n = total ? Math.round((right / total) * 40) / 4 : 0, d10 = N(d10n);
       const bars = (o, name) => `<div class="ubreak">${Object.entries(o).map(([k, [r, t]]) => `<span>${nbNum(esc(name(k)))}</span><div class="bar"><i style="width:${(r / t) * 100}%"></i></div><span>${N(r)}/${t}</span>`).join("")}</div>`;
       const part = auto.some((a) => a.pts > 0 && a.pts < 1);
@@ -848,6 +860,14 @@
         save.onclick = () => {
           const s = saveSelf(essays);
           if (!s) { el.querySelector("#qzSelfMsg").innerHTML = `<div class="fb bad">${L.selfNeed}</div>`; return; }
+          // lịch sử câu: câu đã trả lời có lần làm ghi lúc nộp bài, nay chỉ thêm lần sai nếu tự chấm dưới một nửa số điểm (late); câu bỏ
+          // qua hoặc chưa tới mà nay tự chấm (có thể đã làm ra giấy) thì ghi một lần làm
+          if (opts.onMarks) {
+            const marked = essays.filter((i) => selfSum(i)), mark = (i) => [qs[i].key, essayMark(i)];
+            const fresh = marked.filter((i) => !S.ans[i].done).map(mark), late = marked.filter((i) => S.ans[i].done && !essayMark(i)).map(mark);
+            if (fresh.length) opts.onMarks(fresh);
+            if (late.length) opts.onMarks(late, true);
+          }
           el.querySelectorAll("#qzSelf .rubric .opt").forEach((b) => (b.disabled = true));
           el.querySelector("#qzSelfArea").innerHTML = `<div class="fb ok">${L.selfSaved(N(s.got), N(s.max), s.max)}</div>`;
         };

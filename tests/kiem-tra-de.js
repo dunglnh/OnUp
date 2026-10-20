@@ -24,7 +24,7 @@
      topic của câu trong kho, tổng bằng n; kho đủ câu cho từng chủ đề (lỗi), thiếu ở một mức thì chỉ nhắc (app lấy bù mức
      gần nhất và ghi chú); câu riêng của pool nằm ở ô (chủ đề, mức) mà ma trận không rút câu nào thì nhắc (câu đó chỉ dùng
      để lấy bù); rút thử (Quiz.draw) ra đúng n câu không trùng, không ghi chú khi kho đủ;
-   - bộ rút đề (Quiz.draw) với kho giả: đúng ma trận, ưu tiên câu chưa làm và câu hay sai, lấy bù và ghi chú khi thiếu;
+   - bộ rút đề (Quiz.draw) với kho giả: đúng ma trận, ưu tiên câu chưa làm và câu hay sai (cả câu tự luận), lấy bù và ghi chú khi thiếu;
      mã câu (Quiz.key) không đổi khi sửa lời giải, chủ đề;
    - lịch thi mặc định (data/calendar-2026-2027.js): đề và bài ôn gắn vào kì thi có thật, đúng khối của kì thi;
    - bộ lọc hình (Quiz.svg) bỏ được mã chạy và link ngoài trong vài hình mẫu cố ý viết sai (SVG_THU).
@@ -332,6 +332,10 @@ pools.forEach((b) => {
   if (d5.questions.length !== 1 || d5.questions[0].q !== "a4" || !/lấy bù câu chưa ghi mức$/.test(d5.notes.join())) err(at, "câu chưa ghi mức phải được lấy bù trước mức xa hơn: " + JSON.stringify([d5.questions.map((q) => q.q), d5.notes]));
   const d6 = draw({ B: 3 }, kho.filter((q) => q.topic === "B"));
   if (d6.questions.length !== 2 || !/^B: kho chưa đủ câu, thiếu 1 câu$/.test(d6.notes.join())) err(at, "kho thiếu chưa báo: " + JSON.stringify(d6.notes));
+  // câu tự luận có lịch sử như câu khác (js/app.js ghi cả câu tự luận đã làm): đã làm thì nhường câu chưa làm cùng ô, sai thì được rút lại
+  const es = (q) => ({ topic: "E", type: "essay", q, rubric: [{ c: "Đủ ý", p: 1 }], x: "Gợi ý", lv: 3 }), khoE = [es("e1"), es("e2"), tf("E", "e3", 3)];
+  const d7 = draw({ E: [0, 0, 1] }, khoE, hist({ e1: { done: 1, wrong: 0 }, e2: { done: 2, wrong: 0 } })), d8 = draw({ E: [0, 0, 1] }, khoE, hist({ e1: { done: 1, wrong: 0 }, e2: { done: 1, wrong: 1 }, e3: { done: 1, wrong: 0 } }));
+  if (d7.questions.map((q) => q.q).join() !== "e3" || d8.questions.map((q) => q.q).join() !== "e2") err(at, "câu tự luận chưa theo lịch sử câu: " + [d7, d8].map((d) => d.questions.map((q) => q.q)).join(" | "));
   const k = Quiz.key(kho[0]);
   if (!/^[a-z0-9]{4,12}$/.test(k) || k !== Quiz.key(Object.assign({}, kho[0], { x: "khác", topic: "Z", lv: 3 })) || k === Quiz.key(Object.assign({}, kho[0], { q: "a1 khác" }))) err(at, "mã câu (Quiz.key) chưa ổn định: " + k);
 }
