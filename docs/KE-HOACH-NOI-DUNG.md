@@ -238,7 +238,6 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 
 | Phiên | Hạn | Nội dung | Kho | Mã mới | Kiểm thử phải sửa |
 |---|---|---|---|---|---|
-| N4b | 30/11 | Ngữ văn 6 cuối kì I: nâng lên ngân hàng (từ 2 đề có sẵn) | 50 + ~25 | (câu riêng của `van6-ck1-ngau-nhien`) | không |
 | N5 | 30/11 | Tiếng Anh 6, KHTN 6 cuối kì I | mỗi môn 50 + ~25 | `ta6-ck1-de2`, `ta6-ck1-ngau-nhien`, `khtn6-ck1-de2`, `khtn6-ck1-ngau-nhien`; `tests/khtn6-ck1.js` | 9e: hàng Tiếng Anh ck1-l6 |
 | N6 | 30/11 | LS&ĐL 6, GDCD 6, Tin học 6, Công nghệ 6 cuối kì I | LS&ĐL 50 + ~10; ba môn kia 50 | `<mã>6-ck1-de2`, `<mã>6-ck1-ngau-nhien` cho lsdl, gdcd, tin, congnghe | không |
 | K4 | 14/12 | Kĩ thuật: đề ngẫu nhiên rút giữ trọn đoạn đọc (`Quiz.draw`) | | | bước K3; rút thử trong `kiem-tra-de.js` |
@@ -263,16 +262,6 @@ Chủ app chốt ngày 19/10/2026, so với phiên bản 2 của kế hoạch:
 - Thêm **K4** để đề ngẫu nhiên giống đề thật hơn: một đoạn đọc nhiều câu thay cho các câu lẻ của nhiều đoạn.
 
 ### Cuối kì I
-
-**Phiên N4b · Ngữ văn 6 cuối kì I: nâng lên ngân hàng (từ 2 đề có sẵn)** (tách từ N4)
-> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Ngữ văn 6 · Cuối kì I" khoảng 75 câu, sách Kết nối tri thức, phạm vi Bài 1–5 (Tôi và các bạn; Gõ cửa trái tim; Yêu thương và chia sẻ; Quê hương yêu dấu; Những nẻo đường xứ sở), có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
-> - Kho = 50 câu của van6-ck1-de1, van6-ck1-de2 (giữ nguyên mã, câu, chữ chủ đề; chỉ thêm lv) + khoảng 25 câu riêng của van6-ck1-ngau-nhien (đã có trong danh mục, chưa có câu riêng), ghi vào data/banks/6-van.js. Không thêm đề cố định.
-> - Đọc hiểu: ngữ liệu ngoài sách, tự viết, cùng thể loại với văn bản của từng bài, viết một lần ở passages (3–5 đoạn, mỗi đoạn 3–4 câu đủ ba mức; câu nào cũng làm được khi chỉ rút riêng câu đó cùng đoạn). Câu đọc hiểu đặt chủ đề theo tên bài cùng thể loại, như đề có sẵn ("Tôi và các bạn", "Gõ cửa trái tim"…). Tiếng Việt như đề có sẵn, dùng đúng chữ chủ đề cũ (Dấu câu; Từ đơn và từ phức; Nghĩa của từ; Biện pháp tu từ; Cụm danh từ, cụm động từ, cụm tính từ; Từ đồng âm và từ đa nghĩa).
-> - Viết: 4–5 câu tự luận chủ đề "Viết" theo kiểu bài học kì I (kể lại một trải nghiệm của bản thân; đoạn văn ghi lại cảm xúc về một bài thơ có yếu tố tự sự và miêu tả; đoạn văn thể hiện cảm xúc về một bài thơ lục bát; tả cảnh sinh hoạt), đề nêu rõ độ dài (đoạn văn khoảng 150–200 chữ), thang tự chấm theo ý (điểm chia hết cho 0,25), đáp án gợi ý. Dạng khác: đúng/sai 4 ý, nối cột, sắp xếp, điền.
-> - Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu, 45 phút (như Phiên N1, không cần tra lại): đổi matrix của van6-ck1-ngau-nhien sang [Biết, Hiểu, Vận dụng], "Viết": [0, 0, 1]; mỗi ô nên có ít nhất gấp đôi số câu ô đó rút. Note của đề ngẫu nhiên ghi phạm vi, 10 – 8 – 7, một câu Viết tự chấm; note hai đề cố định giữ nguyên.
-> - Kì thi: van6-ck1-ngau-nhien đã gắn vào ck1-l6. Kiểm thử: không có số ghi cứng về kho Ngữ văn 6.
->
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 **Phiên N5 · Tiếng Anh 6, KHTN 6 cuối kì I**
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Tiếng Anh 6 · Cuối kì I" (Global Success 6, đề 100% tiếng Anh kể cả lời dặn, lời giải, đoạn đọc theo mục 3) và "KHTN 6 · Cuối kì I" (Kết nối tri thức), mỗi ngân hàng khoảng 75 câu, có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
