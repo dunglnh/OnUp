@@ -163,13 +163,19 @@ window.ONTAP_SEED_BANKS = [
       "Tập hợp các số tự nhiên": [1, 1, 1], "Lũy thừa, thứ tự thực hiện phép tính": [1, 1, 1], "Tính chia hết, số nguyên tố": [1, 1, 1],
       "ƯCLN và BCNN": [1, 1, 1], "Số nguyên": [1, 1, 1], "Nhân, chia số nguyên": [1, 1, 1], "Hình phẳng": [2, 0, 0],
       "Chu vi, diện tích": [1, 1, 1], "Tính đối xứng": [1, 1, 0] } } },
-  /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
-     mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
+  /* Ngân hàng Ngữ văn 6 cuối kì I (Phiên N4b): kho câu = 33 câu riêng trong file (5 đoạn đọc, 5 câu Viết) + 50 câu của 2 đề cố
+     định ở trên, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%): năm bài đọc (Bài 1–5)
+     mỗi bài một câu mỗi mức (câu của đoạn đọc tự viết cùng thể loại và câu của đề cố định), 9 câu Tiếng Việt (nhận ra biện pháp
+     tu từ 3 câu; từ đơn và từ phức 2; dấu câu, nghĩa của từ, cụm từ, từ đồng âm và từ đa nghĩa mỗi chủ đề 1), 1 câu Viết đoạn văn
+     tự chấm; ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút. Câu tự luận chỉ ở ô Viết: mỗi lần rút đúng 1 câu. */
   { id: "van6-ck1-ngau-nhien", title: "Ngữ văn 6 · Cuối kì I · Đề ngẫu nhiên", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js",
     pool: { from: ["van6-ck1-de1", "van6-ck1-de2"], matrix: {
-      "Tôi và các bạn": 3, "Dấu câu": 1, "Từ đơn và từ phức": 3, "Nghĩa của từ": 1, "Biện pháp tu từ": 5, "Gõ cửa trái tim": 2,
-      "Yêu thương và chia sẻ": 3, "Cụm danh từ, cụm động từ, cụm tính từ": 2, "Quê hương yêu dấu": 2, "Từ đồng âm và từ đa nghĩa": 1,
-      "Những nẻo đường xứ sở": 2 } } },
+      "Tôi và các bạn": [1, 1, 1], "Gõ cửa trái tim": [1, 1, 1], "Yêu thương và chia sẻ": [1, 1, 1], "Quê hương yêu dấu": [1, 1, 1],
+      "Những nẻo đường xứ sở": [1, 1, 1], "Dấu câu": [0, 1, 0], "Từ đơn và từ phức": [1, 0, 1], "Nghĩa của từ": [0, 1, 0],
+      "Biện pháp tu từ": [3, 0, 0], "Cụm danh từ, cụm động từ, cụm tính từ": [1, 0, 0], "Từ đồng âm và từ đa nghĩa": [0, 1, 0],
+      "Viết": [0, 0, 1] } } },
+  /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
+     mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
     pool: { from: ["toan4-gk2-de1", "toan4-gk2-de2"], matrix: {
       "Phép nhân": 3, "Phép chia": 4, "Tính chất phép nhân": 3, "Nhân, chia với 10, 100, 1 000": 1, "Ước lượng": 1, "Số trung bình cộng": 2,
