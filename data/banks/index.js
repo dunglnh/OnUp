@@ -45,7 +45,9 @@
 window.ONTAP_SEED_BANKS = [
   /* Khoa học, Lịch sử và Địa lí, KHTN · Kiểm tra cuối học kì I (Kết nối tri thức) */
   { id: "khoahoc4-ck1-de1", title: "Khoa học 4 · Cuối kì I · Đề 1", grade: 4, subject: "Khoa học", minutes: 35, n: 25, file: "4-khoahoc.js" },
+  { id: "khoahoc4-ck1-de2", title: "Khoa học 4 · Cuối kì I · Đề 2", grade: 4, subject: "Khoa học", minutes: 35, n: 25, file: "4-khoahoc.js" },
   { id: "lsdl4-ck1-de1", title: "Lịch sử và Địa lí 4 · Cuối kì I · Đề 1", grade: 4, subject: "Lịch sử và Địa lí", minutes: 35, n: 25, file: "4-lsdl.js" },
+  { id: "lsdl4-ck1-de2", title: "Lịch sử và Địa lí 4 · Cuối kì I · Đề 2", grade: 4, subject: "Lịch sử và Địa lí", minutes: 35, n: 25, file: "4-lsdl.js" },
   { id: "khtn6-ck1-de1", title: "KHTN 6 · Cuối kì I · Đề 1", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js" },
   { id: "lsdl6-ck1-de1", title: "Lịch sử và Địa lí 6 · Cuối kì I · Đề 1", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js" },
 
@@ -133,6 +135,25 @@ window.ONTAP_SEED_BANKS = [
       "Tin học · Bài trình chiếu": [1, 1, 1], "Công nghệ · Lợi ích của hoa, cây cảnh": [1, 1, 0], "Công nghệ · Một số loại hoa, cây cảnh": [2, 0, 0],
       "Công nghệ · Vật liệu và dụng cụ trồng cây trong chậu": [1, 0, 1], "Công nghệ · Gieo hạt hoa, cây cảnh trong chậu": [0, 1, 1],
       "Công nghệ · Trồng hoa, cây cảnh trong chậu": [1, 1, 0], "Công nghệ · Chăm sóc hoa, cây cảnh trong chậu": [0, 1, 1] } } },
+  /* Ngân hàng Khoa học 4 cuối kì I (Phiên N3): kho câu = 27 câu riêng trong file + 50 câu của 2 đề cố định ở trên, câu nào
+     cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu; chủ đề Chất 12 câu (nước 7, không khí 3,
+     gió và bão 2), Năng lượng 9 câu, Thực vật và động vật 4 câu; ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút. */
+  { id: "khoahoc4-ck1-ngau-nhien", title: "Khoa học 4 · Cuối kì I · Đề ngẫu nhiên", grade: 4, subject: "Khoa học", minutes: 35, n: 25, file: "4-khoahoc.js",
+    pool: { from: ["khoahoc4-ck1-de1", "khoahoc4-ck1-de2"], matrix: {
+      "Tính chất của nước": [1, 1, 0], "Sự chuyển thể của nước": [1, 1, 1], "Bảo vệ nguồn nước": [1, 0, 1], "Không khí": [1, 1, 0],
+      "Ô nhiễm không khí": [1, 0, 0], "Gió, bão và phòng chống bão": [1, 0, 1], "Ánh sáng": [1, 1, 1], "Âm thanh": [1, 1, 1],
+      "Nhiệt độ và sự truyền nhiệt": [1, 1, 1], "Thực vật cần gì để sống": [1, 1, 0], "Động vật cần gì để sống": [0, 1, 0],
+      "Chăm sóc cây trồng, vật nuôi": [0, 0, 1] } } },
+  /* Ngân hàng Lịch sử và Địa lí 4 cuối kì I (Phiên N3): kho câu = 28 câu riêng trong file + 50 câu của 2 đề cố định ở trên,
+     câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu; Bài 1 và Bài 4–10 mỗi bài
+     2 câu, Bài 11, 12, 13 (lịch sử) mỗi bài 3 câu, một câu mỗi mức; ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút. */
+  { id: "lsdl4-ck1-ngau-nhien", title: "Lịch sử và Địa lí 4 · Cuối kì I · Đề ngẫu nhiên", grade: 4, subject: "Lịch sử và Địa lí", minutes: 35, n: 25, file: "4-lsdl.js",
+    pool: { from: ["lsdl4-ck1-de1", "lsdl4-ck1-de2"], matrix: {
+      "Phương tiện học tập": [1, 0, 1], "Thiên nhiên Trung du và miền núi Bắc Bộ": [1, 1, 0],
+      "Dân cư, sản xuất ở Trung du và miền núi Bắc Bộ": [1, 1, 0], "Văn hoá vùng Trung du và miền núi Bắc Bộ": [1, 0, 1],
+      "Đền Hùng và lễ giỗ Tổ Hùng Vương": [1, 0, 1], "Thiên nhiên Đồng bằng Bắc Bộ": [1, 1, 0],
+      "Dân cư, sản xuất ở Đồng bằng Bắc Bộ": [0, 1, 1], "Văn hoá vùng Đồng bằng Bắc Bộ": [1, 1, 0],
+      "Sông Hồng và văn minh sông Hồng": [1, 1, 1], "Thăng Long – Hà Nội": [1, 1, 1], "Văn Miếu – Quốc Tử Giám": [1, 1, 1] } } },
   /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
      mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "toan6-ck1-ngau-nhien", title: "Toán 6 · Cuối kì I · Đề ngẫu nhiên", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js",
