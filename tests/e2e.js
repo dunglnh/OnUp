@@ -861,9 +861,10 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      trong danh mục có số đề; đề ngẫu nhiên đứng trước; Đề 2 và đề ngẫu nhiên thêm ở Phiên N3b).
      L24: học sinh lớp 6, hàng Tiếng Anh của nhóm "Bài ôn khác" (đề giữa kì I đã qua) ghi "Giữa kì I · Đề 1"; nhóm cuối kì I
      vẫn ghi "Đề 1"; aria-label vẫn là tên đề đầy đủ; đề thử nghiệm (tên tự đặt) ghi nguyên tên.
-     L25: kì cuối kì I lớp 4 (1 bài IOE, 11 đề cố định, 4 đề ngẫu nhiên; Phiên N3b thêm Đề 2 và đề ngẫu nhiên của Tiếng Anh,
-     Tin học và Công nghệ) ghi "12 bài ôn" (đề ngẫu nhiên không tính) ở thẻ kì thi trên trang chủ, đầu nhóm bài ôn, trang Lịch thi
-     và link "Tất cả bài ôn cho kì này" của trang "Hôm nay" (UX1, thay nút "Đề ôn · N đề" cũ).
+     L25: kì cuối kì I lớp 4 (1 bài IOE, 13 đề cố định, 6 đề ngẫu nhiên; Phiên N3b thêm Đề 2 và đề ngẫu nhiên của Tiếng Anh,
+     Tin học và Công nghệ; Phiên N3 thêm Đề 2 và đề ngẫu nhiên của Khoa học, Lịch sử và Địa lí) ghi "14 bài ôn" (đề ngẫu nhiên
+     không tính) ở thẻ kì thi trên trang chủ, đầu nhóm bài ôn, trang Lịch thi và link "Tất cả bài ôn cho kì này" của trang "Hôm nay"
+     (UX1, thay nút "Đề ôn · N đề" cũ).
      L26: tên đề ở màn mở đề toan6-ck1-ngau-nhien (h1 và dòng nhãn), nhãn trên thẻ câu hỏi, tên kì thi trên thẻ kì thi và đầu nhóm
      có khoảng trắng không ngắt (U+00A0) trước mỗi dấu "·"; aria-label của nút đề vẫn là khoảng trắng thường. */
   const nc = await newContext({ storageState: state, viewport: { width: 360, height: 740 } });
@@ -912,7 +913,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   await nc.close();
   console.log("9e:", JSON.stringify(f9e));
   const fix9eOK = f9e.l4.today === "21/12/2026" && f9e.l4.tincn.join() === "Đề ngẫu nhiên,Đề 1,Đề 2"
-    && /\|12 bài ôn\|/.test("|" + f9e.l4.homeTags + "|") && / · 12 bài ôn$/.test(f9e.l4.grpHead) && /\|12 bài ôn\|/.test("|" + f9e.l4.calTags + "|") && f9e.l4.hero === "Tất cả bài ôn cho kì này · 12 bài ôn →"
+    && /\|14 bài ôn\|/.test("|" + f9e.l4.homeTags + "|") && / · 14 bài ôn$/.test(f9e.l4.grpHead) && /\|14 bài ôn\|/.test("|" + f9e.l4.calTags + "|") && f9e.l4.hero === "Tất cả bài ôn cho kì này · 14 bài ôn →"
     && f9e.l6.taOther.join() === "Giữa kì I · Đề 1" && f9e.l6.taCk1.join() === "Đề 1" && f9e.l6.thu.join() === "Đề thử nghiệm · Các dạng câu mới"
     && f9e.l6.aria.includes("Tiếng Anh 6 · Giữa kì I · Đề 1") && !f9e.l6.aria.some((x) => /·.*·.*·/.test(x))
     && Object.values(f9e.nb).every((s) => /·/.test(s) && !/[^\u00a0]·/.test(s)) && f9e.nb.h1 === "Toán 6\u00a0· Cuối kì I\u00a0· Đề ngẫu nhiên";
