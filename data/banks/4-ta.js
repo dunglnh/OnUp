@@ -4,8 +4,9 @@
    đáp án, lời giải, đoạn đọc. tests/kiem-tra-de.js báo lỗi khi có chữ cái tiếng Việt. */
 window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
   /* ---------- Tiếng Anh 4 · Kiểm tra cuối học kì I (Global Success 4, Unit 1–10) ----------
-     Dạng đề kiểm tra ở trường (không phải IOE): chọn đáp án, điền từ, chọn từ khác loại, sắp xếp câu, đọc hiểu.
-     Không có câu nghe. Câu và đoạn văn tự soạn, khác câu của bài ôn IOE 4. */
+     Dạng đề kiểm tra ở trường (không phải IOE): chọn đáp án, điền từ, chọn từ khác loại, sắp xếp câu, nối câu hỏi với
+     câu trả lời, đọc hiểu. Không có câu nghe. Câu và đoạn văn tự soạn, khác câu của bài ôn IOE 4. Hai đề cùng các câu riêng
+     của "ta4-ck1-ngau-nhien" bên dưới là kho của đề ngẫu nhiên (Phiên N3b); mã đoạn đọc không trùng nhau trong cả kho. */
   "ta4-ck1-de1": {
     note: "Global Success 4, Units 1–10: My Friends, Time and Daily Routines, My Week, My Birthday Party, Things We Can Do, Our School Facilities, Our Timetables, My Favourite Subjects, Our Sports Day, Our Summer Holidays. School test format: multiple choice, fill in the blank, odd one out, word order, reading. No listening (practise listening in IOE 4). Every question has an explanation.",
     passages: {
@@ -40,6 +41,93 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
       { topic: "Reading", type: "mc", q: "Where is Lucy from?", o: ["She's from Australia.", "She's from Viet Nam.", "She's from America.", "She's from Japan."], x: "The text says: My new friend is Lucy. She's from Australia. Lan is from Viet Nam.", lv: 1, p: "lan" },
       { topic: "Reading", type: "tf", q: "Lan and Lucy have English on Mondays and Thursdays.", a: true, x: "True. The text says: We have English on Mondays and Thursdays. We means Lan and Lucy.", lv: 2, p: "lan" },
       { topic: "Reading", type: "tf", q: "Lucy can swim.", a: false, x: "False. The text says: I can swim, but Lucy can't. Lan can swim. Lucy can't.", lv: 2, p: "lan" }
+    ]
+  },
+
+  /* Đề 2 (Phiên N3b): cùng phạm vi, mỗi Unit 2–3 câu và một đoạn đọc 3 câu như đề 1; 10 câu Biết, 8 Hiểu, 7 Vận dụng, chia
+     theo đúng ma trận của đề ngẫu nhiên (đề 1 có 11 – 11 – 3, nên đề 2 thêm câu Vận dụng: sắp xếp câu, chia động từ, đọc thời
+     khoá biểu, suy luận từ lời mời và từ đoạn đọc). */
+  "ta4-ck1-de2": {
+    note: "Global Success 4, Units 1–10: My Friends, Time and Daily Routines, My Week, My Birthday Party, Things We Can Do, Our School Facilities, Our Timetables, My Favourite Subjects, Our Sports Day, Our Summer Holidays. School test format: multiple choice, odd one out, fill in the blank, word order, matching, reading. 10 Know, 8 Understand and 7 Apply questions. No listening (practise listening in IOE 4). Every question has an explanation.",
+    passages: {
+      "mary": {
+        title: "Read the text. Then answer the questions.",
+        text: "Hello! My name is Mary. I'm from America. My family and I are in Ha Noi now. I'm in class 4B. My birthday is in July. Every morning, I get up at six thirty and go to school at seven o'clock. I have English on Tuesdays and Fridays. My favourite subject is Science because I like animals. I can play the piano, but I can't sing well. Last summer, I was in Da Nang with my family. We played on the beach every day."
+      }
+    },
+    questions: [
+      { topic: "Unit 1 · My Friends", type: "mc", q: "Ben is from Britain. He is ___.", o: ["British", "Britain", "Thai", "America"], x: "Britain is a country. British is a nationality: He's British.", lv: 1 },
+      { topic: "Unit 1 · My Friends", type: "mc", q: "Lucy is from Australia. – What nationality is she? – ___", o: ["She's Australian.", "She's Australia.", "She's from Australian.", "He's Australian."], x: "Lucy is a girl, so we use she. Australia is a country and Australian is a nationality: She's Australian.", lv: 2 },
+      { topic: "Unit 2 · Time and Daily Routines", type: "mc", q: "Nine fifteen is ___.", o: ["9:15", "9:50", "5:15", "9:05"], x: "Say the hour first, then the minutes: nine fifteen is 9:15. Nine fifty is 9:50.", lv: 1 },
+      { topic: "Unit 2 · Time and Daily Routines", type: "mc", q: "– What time do you have breakfast? – ___", o: ["At six forty-five.", "In the kitchen.", "Yes, I do.", "With my family."], x: "What time asks about the time, so the answer is a time: At six forty-five.", lv: 2 },
+      { topic: "Unit 2 · Time and Daily Routines", type: "order", q: "Put the words in the correct order.", o: ["What time", "does", "your brother", "go", "to school?"], x: "A question about time: What time + does + he or she + verb? → What time does your brother go to school?", lv: 3 },
+      { topic: "Unit 3 · My Week", type: "mc", q: "The day after Tuesday is ___.", o: ["Wednesday", "Monday", "Thursday", "Sunday"], x: "The days of the week are Monday, Tuesday, Wednesday, Thursday… Wednesday comes after Tuesday.", lv: 1 },
+      { topic: "Unit 3 · My Week", type: "order", q: "Put the words in the correct order.", o: ["We", "don't go", "to school", "at", "the weekend."], x: "Saturday and Sunday are the weekend. We say at the weekend: We don't go to school at the weekend.", lv: 3 },
+      { topic: "Unit 4 · My Birthday Party", type: "fill", q: "Fill in the blank with one word. The month after January is ___.", ans: ["February"], x: "The year starts with January, February, March… February comes after January.", lv: 1 },
+      { topic: "Unit 4 · My Birthday Party", type: "mc", q: "Choose the odd one out.", o: ["Sunday", "May", "June", "August"], x: "May, June and August are months. Sunday is a day of the week.", lv: 2 },
+      { topic: "Unit 4 · My Birthday Party", type: "mc", q: "Mai says to Lucy: “My birthday is on Sunday. Please come to my party at three o'clock.” Choose the correct sentence.", o: ["Mai's party is on Sunday afternoon.", "Mai's party is on Saturday.", "Lucy's birthday is on Sunday.", "Mai's party is at three thirty."], x: "The party is on Sunday at three o'clock. Three o'clock is in the afternoon, so Mai's party is on Sunday afternoon.", lv: 3 },
+      { topic: "Unit 5 · Things We Can Do", type: "mc", q: "I can ___ a horse and a bike.", o: ["ride", "play", "swim", "sing"], x: "We ride a horse and ride a bike. We play games, swim in the water and sing songs.", lv: 1 },
+      { topic: "Unit 5 · Things We Can Do", type: "match", q: "Match the questions with the answers.", l: ["Can you play the piano?", "What can your sister do?", "Can your brothers swim?"], r: ["Yes, I can.", "She can dance.", "No, they can't.", "Yes, it is."], x: "Can you…? → Yes, I can. Your sister = she: She can dance. Your brothers = they: No, they can't. Yes, it is answers an Is it…? question.", lv: 2 },
+      { topic: "Unit 6 · Our School Facilities", type: "mc", q: "We read books in the ___.", o: ["library", "gym", "playground", "computer room"], x: "A library is a room with lots of books. We play sports in the gym and play games in the playground.", lv: 1 },
+      { topic: "Unit 6 · Our School Facilities", type: "mc", q: "Choose the odd one out.", o: ["teacher", "library", "gym", "playground"], x: "A library, a gym and a playground are places at school. A teacher is a person.", lv: 2 },
+      { topic: "Unit 7 · Our Timetables", type: "mc", q: "– When do you have PE? – I have ___ on Tuesdays and Fridays.", o: ["it", "them", "they", "its"], x: "PE is one subject, so we use it: I have it on Tuesdays and Fridays.", lv: 2 },
+      { topic: "Unit 7 · Our Timetables", type: "fill", q: "Read the timetable: Tuesday – Science, Maths, PE; Wednesday – English, Vietnamese, Music. Fill in the blank with one word. – When do you have Music? – I have it on ___.", ans: ["Wednesday", "Wednesdays"], x: "Music is on the timetable for Wednesday: I have it on Wednesday.", lv: 3 },
+      { topic: "Unit 8 · My Favourite Subjects", type: "mc", q: "– What's your favourite subject? – ___", o: ["It's Maths.", "It's Monday.", "It's seven o'clock.", "It's in May."], x: "The question asks about a school subject. Maths is a subject. Monday is a day and May is a month.", lv: 1 },
+      { topic: "Unit 8 · My Favourite Subjects", type: "fill", q: "Fill in the blank with one word. – ___ do you like Art? – Because I like drawing.", ans: ["Why"], x: "The answer starts with Because, so the question starts with Why: Why do you like Art?", lv: 2 },
+      { topic: "Unit 9 · Our Sports Day", type: "mc", q: "We play ___ with a small ball on a big table.", o: ["table tennis", "football", "basketball", "volleyball"], x: "We play table tennis on a table with a small ball. Football, basketball and volleyball use a big ball.", lv: 1 },
+      { topic: "Unit 9 · Our Sports Day", type: "order", q: "Put the words in the correct order.", o: ["What", "are", "the girls", "doing", "now?"], x: "A question about now: What + are + they + V-ing? → What are the girls doing now?", lv: 3 },
+      { topic: "Unit 10 · Our Summer Holidays", type: "mc", q: "– Where were you last summer? – I ___ at the beach.", o: ["was", "were", "am", "be"], x: "Last summer is in the past. With I, we use was: I was at the beach.", lv: 1 },
+      { topic: "Unit 10 · Our Summer Holidays", type: "fill", q: "Write the correct form of the verb in brackets. Last summer, my brother and I ___ (play) badminton every evening.", ans: ["played"], x: "Last summer is in the past: play + -ed → played.", lv: 3 },
+      { topic: "Reading", type: "mc", q: "When is Mary's birthday?", o: ["It's in July.", "It's in June.", "It's on Tuesday.", "It's at seven o'clock."], x: "The text says: My birthday is in July.", lv: 1, p: "mary" },
+      { topic: "Reading", type: "tf4", q: "Read the text again. Is each sentence true or false?", o: ["Mary is from America.", "Mary has English on Mondays and Fridays.", "Mary likes Science because she likes animals.", "Mary can sing well."], a: [true, false, true, false], x: "a) True: I'm from America. b) False: Mary has English on Tuesdays and Fridays. c) True: My favourite subject is Science because I like animals. d) False: I can't sing well.", lv: 2, p: "mary" },
+      { topic: "Reading", type: "order", q: "Put the words in the correct order to answer the question: Where was Mary last summer?", o: ["She", "was", "in Da Nang", "last summer."], x: "Mary says: Last summer, I was in Da Nang. We talk about Mary with she: She was in Da Nang last summer.", lv: 3, p: "mary" }
+    ]
+  },
+
+  /* ---------- Tiếng Anh 4 · Đề ngẫu nhiên cuối học kì I: câu riêng của ngân hàng (Phiên N3b) ----------
+     Kho câu của đề ngẫu nhiên = 26 câu dưới đây + 50 câu của hai đề cố định ở trên (mọi câu có lv). Ma trận trong
+     data/banks/index.js: mỗi lần rút 25 câu, 10 Biết, 8 Hiểu, 7 Vận dụng; mỗi Unit 2–3 câu, Reading 3 câu; ô (chủ đề, mức) nào
+     cũng có ít nhất gấp đôi số câu ô đó rút. Câu riêng chỉ nằm ở ô ma trận có rút câu, phần nhiều là câu Vận dụng (sắp xếp
+     câu, chia động từ, đọc thời khoá biểu), cùng hai đoạn đọc, mỗi đoạn 3 câu đủ ba mức. Câu và đoạn văn tự soạn. */
+  "ta4-ck1-ngau-nhien": {
+    note: "Global Success 4, Units 1–10. Each test has 2–3 questions for each unit and 3 reading questions: 10 Know, 8 Understand and 7 Apply. No listening (practise listening in IOE 4). Every question has an explanation.",
+    passages: {
+      "phong": {
+        title: "Read the text. Then answer the questions.",
+        text: "My name is Phong. I'm ten years old and I'm in class 4C. My school is big and beautiful. It has a playground, a library and two computer rooms. I have English on Mondays, Wednesdays and Fridays. My favourite subject is PE because I like playing football. My friend Akio is from Japan. He can draw very well, but he can't play football."
+      },
+      "lucy": {
+        title: "Read the text. Then answer the questions.",
+        text: "Hi, I'm Lucy. I'm from Australia. Last summer, I was in Viet Nam with my parents. First, we were in Ha Long Bay. We played on the beach every day. Then we were in Ha Noi and visited my friend Mai. Mai's birthday is in August, and I was at her birthday party! We danced and played games. It was great!"
+      }
+    },
+    questions: [
+      { topic: "Unit 1 · My Friends", type: "mc", q: "Somchai is from Thailand. He's ___.", o: ["Thai", "Thailand", "Malaysian", "Japan"], x: "Thailand is a country. Thai is a nationality: He's Thai.", lv: 1 },
+      { topic: "Unit 1 · My Friends", type: "match", q: "Match the questions with the answers.", l: ["Where are you from?", "What nationality is he?", "Where is she from?"], r: ["I'm from Malaysia.", "He's Japanese.", "She's from Australia.", "They're Thai."], x: "Where are you from? → I'm from Malaysia. What nationality is he? → He's Japanese. Where is she from? → She's from Australia. They're Thai talks about they, not you, he or she.", lv: 2 },
+      { topic: "Unit 2 · Time and Daily Routines", type: "tf4", q: "Look at Linh's day: get up – 6:15, have breakfast – 6:30, go to school – 6:45, go to bed – 9:30. Is each sentence true or false?", o: ["Linh gets up at six fifteen.", "Linh has breakfast at six thirty.", "Linh goes to school at seven forty-five.", "Linh goes to bed at nine thirty."], a: [true, true, false, true], x: "a) True: 6:15 is six fifteen. b) True: 6:30 is six thirty. c) False: Linh goes to school at 6:45, six forty-five. d) True: 9:30 is nine thirty.", lv: 2 },
+      { topic: "Unit 2 · Time and Daily Routines", type: "fill", q: "Write the correct form of the verb in brackets. Every evening, Mai ___ (watch) TV after dinner.", ans: ["watches"], x: "Mai = she. A verb that ends in -ch takes -es: watch → watches.", lv: 3 },
+      { topic: "Unit 3 · My Week", type: "fill", q: "Fill in the blank with one word. I go to school from Monday to ___. I don't go to school at the weekend.", ans: ["Friday"], x: "Saturday and Sunday are the weekend, so we go to school from Monday to Friday.", lv: 3 },
+      { topic: "Unit 3 · My Week", type: "order", q: "Put the words in the correct order.", o: ["My brother", "plays", "football", "on", "Saturday mornings."], x: "My brother = he, so play → plays: My brother plays football on Saturday mornings.", lv: 3 },
+      { topic: "Unit 4 · My Birthday Party", type: "mc", q: "Choose the correct question for the answer: It's in April.", o: ["When's your birthday?", "How old are you?", "What day is it today?", "What time is it?"], x: "It's in April tells us a month, so the question is: When's your birthday?", lv: 2 },
+      { topic: "Unit 4 · My Birthday Party", type: "order", q: "Put the words in the correct order.", o: ["When", "is", "your", "birthday", "party?"], x: "A question about the time of an event starts with When: When is your birthday party?", lv: 3 },
+      { topic: "Unit 5 · Things We Can Do", type: "mc", q: "– Can you ride a bike? – Yes, I ___.", o: ["can", "can't", "do", "am"], x: "We answer Can you…? with Yes, I can or No, I can't.", lv: 1 },
+      { topic: "Unit 5 · Things We Can Do", type: "mc", q: "Choose the odd one out.", o: ["piano", "sing", "swim", "draw"], x: "Sing, swim and draw are things we can do. A piano is a thing we play.", lv: 2 },
+      { topic: "Unit 6 · Our School Facilities", type: "mc", q: "– Is there a swimming pool at your school? – No, ___.", o: ["there isn't", "there aren't", "it isn't", "isn't there"], x: "We answer Is there…? with Yes, there is or No, there isn't.", lv: 2 },
+      { topic: "Unit 6 · Our School Facilities", type: "fill", q: "Fill in the blank with one word. There ___ two playgrounds at my school.", ans: ["are"], x: "Two playgrounds is more than one, so we use There are.", lv: 2 },
+      { topic: "Unit 7 · Our Timetables", type: "order", q: "Put the words in the correct order.", o: ["What", "subjects", "do you have", "on Fridays?"], x: "Start with the question words What subjects, then do you have, then the day: What subjects do you have on Fridays?", lv: 3 },
+      { topic: "Unit 7 · Our Timetables", type: "tf4", q: "Read Nam's timetable: Monday – Maths, English, Music; Tuesday – Vietnamese, Science, PE; Wednesday – Maths, Art, IT. Is each sentence true or false?", o: ["Nam has Maths on Mondays and Wednesdays.", "Nam has PE on Wednesdays.", "Nam has three subjects on Tuesdays.", "Nam has English on Tuesdays."], a: [true, false, true, false], x: "a) True: Maths is on Monday and Wednesday. b) False: PE is on Tuesday. c) True: Vietnamese, Science and PE. d) False: English is on Monday.", lv: 3 },
+      { topic: "Unit 8 · My Favourite Subjects", type: "mc", q: "We use computers in ___ lessons.", o: ["IT", "Music", "Art", "PE"], x: "In IT lessons, we use computers. We sing in Music, draw in Art and play sports in PE.", lv: 1 },
+      { topic: "Unit 8 · My Favourite Subjects", type: "match", q: "Match the questions with the answers.", l: ["What's your favourite subject?", "Why do you like PE?", "Do you like Maths?"], r: ["It's English.", "Because I like playing football.", "Yes, I do.", "It's on Tuesday."], x: "What's your favourite subject? → It's English. Why do you like PE? → Because I like playing football. Do you like Maths? → Yes, I do. It's on Tuesday answers a When question.", lv: 2 },
+      { topic: "Unit 9 · Our Sports Day", type: "mc", q: "– Are they playing badminton? – Yes, they ___.", o: ["are", "do", "can", "is"], x: "We answer Are they…? with Yes, they are or No, they aren't.", lv: 1 },
+      { topic: "Unit 9 · Our Sports Day", type: "fill", q: "Write the correct form of the verb in brackets. Look! Our teacher ___ (watch) the race.", ans: ["is watching", "'s watching"], x: "Look! means it is happening now. Our teacher = he or she, so we use is + V-ing: is watching.", lv: 3 },
+      { topic: "Unit 10 · Our Summer Holidays", type: "mc", q: "Last summer, I was at the ___. I played in the sea with my brother.", o: ["beach", "library", "gym", "computer room"], x: "The sea is at the beach, so I was at the beach.", lv: 1 },
+      { topic: "Unit 10 · Our Summer Holidays", type: "order", q: "Put the words in the correct order.", o: ["Where", "were", "you", "last", "summer?"], x: "A question about a place in the past: Where + were + you + last summer?", lv: 3 },
+      { topic: "Reading", type: "mc", q: "How many computer rooms are there at Phong's school?", o: ["There are two.", "There is one.", "There are three.", "There aren't any."], x: "The text says: It has a playground, a library and two computer rooms.", lv: 1, p: "phong" },
+      { topic: "Reading", type: "tf", q: "Akio can play football very well.", a: false, x: "False. The text says: He can draw very well, but he can't play football.", lv: 2, p: "phong" },
+      { topic: "Reading", type: "mc", q: "Today is Wednesday. Does Phong have English today?", o: ["Yes, he does.", "No, he doesn't.", "Yes, he is.", "No, he isn't."], x: "Phong has English on Mondays, Wednesdays and Fridays, so he has English today: Yes, he does.", lv: 3, p: "phong" },
+      { topic: "Reading", type: "mc", q: "Where was Lucy first?", o: ["In Ha Long Bay", "In Ha Noi", "In Australia", "At Mai's birthday party"], x: "The text says: First, we were in Ha Long Bay. Then they were in Ha Noi.", lv: 1, p: "lucy" },
+      { topic: "Reading", type: "tf", q: "Lucy was at Mai's birthday party in Ha Noi.", a: true, x: "True. Lucy visited Mai in Ha Noi and was at her birthday party.", lv: 2, p: "lucy" },
+      { topic: "Reading", type: "mc", q: "When was Lucy in Ha Noi?", o: ["In August", "In May", "In December", "In March"], x: "Lucy was at Mai's birthday party in Ha Noi, and Mai's birthday is in August. So Lucy was in Ha Noi in August.", lv: 3, p: "lucy" }
     ]
   }
 });
