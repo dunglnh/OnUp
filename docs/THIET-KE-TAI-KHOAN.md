@@ -1,6 +1,6 @@
 # Thiết kế: khung quản lý tài khoản và trang admin
 
-Phiên bản 3 · 18/10/2026. Trạng thái và thứ tự các phiên chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); các đoạn “Đã làm ở Phiên A/B/C” dưới đây mô tả những gì đã có trong code. Lời giao việc của ba phiên đó: mục 8.
+Phiên bản 3 · 18/10/2026. Trạng thái và thứ tự các phiên chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); các đoạn “Đã làm ở Phiên A/B/C” dưới đây mô tả những gì đã có trong code; ba phiên đó đã xong (mục 8).
 
 **Phạm vi bây giờ:** khung tài khoản đã dựng xong và đang chạy trên trang thật. Chủ app (bạn) tạo và quản lý tài khoản ở một **trang admin riêng**; phụ huynh đăng nhập bằng **tên đăng nhập + mật khẩu**; con là hồ sơ trong tài khoản của bố mẹ. Theo quyết định của chủ app ngày 18/10/2026:
 - **Trang công khai chỉ dành cho gia đình được mời.** Không tự đăng ký; màn đăng nhập có thẻ “Chưa có tài khoản?” kèm cách liên hệ (`signupText`, `signupUrl` trong `js/config.js`). Không làm đăng nhập email, mã mời, mã gia đình (mục 1, 2).
@@ -149,18 +149,9 @@ Tự đăng ký; email không bắt buộc để tự lấy lại mật khẩu; 
 
 ---
 
-## 8. Các phiên Claude Code để làm
+## 8. Các phiên Claude Code (đã làm)
 
-Làm **theo thứ tự**, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau.
-
-**Phiên A · Máy chủ: tài khoản, hồ sơ, Edge Function admin**
-> Đọc CLAUDE.md và docs/THIET-KE-TAI-KHOAN.md (mục 1–5). Viết lại supabase/schema.sql theo mục 5: app_owners, families (username, display_name, must_change_password, status, plan mặc định 'free', plan_until, last_seen_at), profiles (hồ sơ con, grade 1–12, pin_hash tùy chọn), plans (chỉ 'free', max_children 5), admin_notes, admin_log; giữ results và exam_events theo family_id; trigger giới hạn số hồ sơ con theo plans; tài khoản locked không đọc/ghi được; RLS đúng bảng quyền mục 5. Bỏ các phần mục 1 nói bỏ (mã gia đình, mã mời, PIN học sinh trên máy chủ, đăng nhập ẩn danh, allowed_creators). Thay Edge Function student-login bằng Edge Function admin (create_account, reset_password, set_status, delete_account, list_accounts; chỉ owner; tạo người dùng bằng email nội bộ tên-đăng-nhập@users.onup.invalid; ghi admin_log). Viết lại tests/supabase (RLS trên PostgreSQL, Edge Function trên máy chủ giả) cho đủ các quy tắc. Viết lại docs/HUONG-DAN-SUPABASE.md ngắn gọn, không còn bước email. Chưa sửa giao diện app. Chạy sh tests/supabase/run.sh, tự rà soát một vòng, mở Pull Request.
-
-**Phiên B · App: đăng nhập, chọn hồ sơ, khu phụ huynh, khối lớp chung**
-> Đọc CLAUDE.md và docs/THIET-KE-TAI-KHOAN.md (mục 4.2 và 5). Sau khi Phiên A đã gộp: tạo data/grades.js (lớp 1–12, chỉ lớp 4 và 6 active) và thay mọi chỗ viết cứng [4, 6] trong js/store.js, js/store-supabase.js, js/app.js bằng danh sách này. Sửa js/store-supabase.js và js/app.js cho bản đám mây: đăng nhập tên đăng nhập + mật khẩu (+ Ghi nhớ, CAPTCHA nếu có khóa), bắt buộc đổi mật khẩu tạm, màn hình “Ai đang học?”, PIN 4 số tùy chọn cho hồ sơ con, nhập lại mật khẩu khi vào khu phụ huynh, thêm/sửa/xóa hồ sơ con (giới hạn theo plans), đổi mật khẩu, dòng “Quên mật khẩu?” lấy từ js/config.js. Thêm Store.can(feature) ở cả hai kho, hôm nay luôn cho phép trừ hạn mức hồ sơ. Bỏ giao diện đăng nhập email, mã mời, mã gia đình. Bản lưu trên máy giữ nguyên cách dùng. Cập nhật tests/e2e.js, tests/supabase/store-test.mjs, tests/supabase/cloud-e2e.js, ảnh 360px sáng/tối, cập nhật CLAUDE.md phần bản đám mây, tự rà soát một vòng, mở Pull Request.
-
-**Phiên C · Trang admin**
-> Đọc CLAUDE.md và docs/THIET-KE-TAI-KHOAN.md (mục 4.3). Sau khi Phiên B đã gộp: tạo admin.html (dùng css/app.css, JavaScript thuần, không build) cho chủ app: danh sách và tìm tài khoản, tạo tài khoản (gợi ý mật khẩu tạm), đặt lại mật khẩu, khóa/mở khóa/xóa có xác nhận, xem nhanh một tài khoản, ghi chú, nhật ký thao tác, số liệu nhanh. Gọi Edge Function admin; tài khoản không phải owner thấy “Không có quyền”. Thêm kiểm thử trang admin vào tests/supabase/cloud-e2e.js, tự rà soát một vòng, mở Pull Request.
+Phiên A, B, C đã xong (PR #19, #25, #30); các đoạn “Đã làm ở Phiên A/B/C” ở trên mô tả những gì đã có trong code. Lời giao việc cũ còn trong lịch sử git của file này. Việc còn lại của khung tài khoản là các phiên chuẩn bị bán (mục 9; lời giao việc G1, B1, B2 ở mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)).
 
 ---
 
