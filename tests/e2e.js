@@ -920,39 +920,70 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
 
   step("random exam by matrix (K3)");
   /* Đề ngẫu nhiên (mục có pool trong data/banks/index.js): hàng Toán của kì cuối kì I lớp 6 có nút "Đề ngẫu nhiên" trước
-     Đề 1, Đề 2. Na (chưa có kết quả) làm xong Đề 1 (đúng hết), rồi mở đề ngẫu nhiên: màn đầu nói rõ 25 câu rút từ kho 50 câu
-     (2 đề); kho gộp từ hai đề, mỗi câu ghi src, đề cố định không bị sửa; bộ rút đúng ma trận; vì đã làm Đề 1 nên bộ rút lấy
-     câu của Đề 2 trước (chỉ 2 câu của Đề 1, ở hai chủ đề Đề 2 không đủ). Làm ôn luyện: câu đầu sai, còn lại đúng → kết quả
-     ghi refId là mã pool, môn Toán, 24/25, chủ đề sai; lịch sử câu (ontap_pool_v1) ghi 25 câu, câu sai đánh dấu. "Làm đề
-     khác": bộ mới có câu vừa sai (hay sai) và hai câu Đề 2 chưa làm, không giống bộ cũ. Trang chủ: "Chủ đề hay sai", kết quả
-     gần đây; báo cáo tuần tính đề ngẫu nhiên như đề thường; tab Ngân hàng đề ghi "rút ngẫu nhiên". Kho thiếu câu (pool giả
-     thêm vào danh mục lúc chạy): màn đầu ghi chú lấy bù. Mỗi màn hình kiểm tra 360px. */
+     Đề 1, Đề 2. Kho của toan6-ck1-ngau-nhien (Phiên N4) = câu riêng của pool + hai đề cố định, câu nào cũng có mức độ, ma trận
+     [Biết, Hiểu, Vận dụng], đủ các dạng câu (có câu tự luận); số liệu mong đợi (số câu của kho, nguồn câu, ma trận, điểm, số câu
+     chấm tự động) tính từ dữ liệu, không ghi cứng, nên thêm câu vào kho không phải sửa bước này. Na (chưa có kết quả) làm xong
+     Đề 1 (đúng hết), rồi mở đề ngẫu nhiên: màn đầu nói rõ số câu rút từ kho bao nhiêu câu (2 đề); kho gộp từ câu riêng và hai đề,
+     mỗi câu ghi src, đề cố định không bị sửa; bộ rút đúng ma trận, không ghi chú; vì đã làm Đề 1 nên bộ rút chỉ lấy câu của Đề 1
+     ở ô (chủ đề, mức) không đủ câu khác. Làm ôn luyện, trả lời theo dữ liệu mọi dạng câu: câu chấm tự động đầu tiên sai hết
+     (0 điểm), còn lại đúng hết (câu nào cũng được chấm đúng như dữ liệu), câu tự luận viết bài, xem gợi ý, không tự chấm → kết
+     quả ghi refId là mã pool, môn Toán, (t − 1)/t với t là số câu chấm tự động (25 trừ số câu tự luận rút được), chủ đề sai; lịch
+     sử câu (ontap_pool_v1) ghi t câu, câu sai đánh dấu. "Làm đề khác": bộ mới có câu vừa sai (hay sai) và ở mỗi ô của ma trận
+     lấy câu chưa làm trước câu đã làm (câu tự luận không vào lịch sử câu nên luôn tính là chưa làm), không giống bộ cũ. Trang chủ:
+     "Chủ đề hay sai", kết quả gần đây; báo cáo tuần tính đề ngẫu nhiên như đề thường; tab Ngân hàng đề ghi "rút ngẫu nhiên".
+     Kho thiếu câu (pool giả thêm vào danh mục lúc chạy): màn đầu ghi chú lấy bù. Mỗi màn hình kiểm tra 360px, cả từng câu của
+     lượt đầu sau khi Kiểm tra. */
   const kc = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
   await localConfig(kc); watchOut(kc);
   const kp = await kc.newPage(); kp.on("pageerror", (e) => errs.push("pageerror K3: " + e.message)); kp.on("console", (m) => { if (m.type() === "error") errs.push("console K3: " + m.text()); });
   const k3 = { problems: [] }, POOL = "toan6-ck1-ngau-nhien", DE1 = "toan6-ck1-de1";
   const kcheck = async (label) => (await kp.evaluate(audit)).forEach((x) => k3.problems.push(`K3 · ${label}: ${x}`));
   const ksnap = async (n) => { await kp.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await kp.screenshot({ path: `${OUT}19-${n}.png`, fullPage: true }); };
-  // câu đang hiện trên màn hình → câu trong kho (so chữ câu hỏi, bỏ chỗ trống và khoảng trắng); trả lời đúng hoặc sai rồi bấm Kiểm tra.
-  // Chữ trên nút gộp khoảng trắng trước khi so: khoảng trắng giữa các nhóm số là khoảng trắng không ngắt (nbNum, "4 512").
+  /* Câu đang hiện trên màn hình → câu trong kho: so chữ câu hỏi (bỏ chỗ trống và khoảng trắng); nhiều câu cùng lời dặn thì so thêm
+     các ô (lựa chọn, ý, cột nối, ô sắp xếp) như bước TA1. Chữ trên màn hình gộp khoảng trắng trước khi so: khoảng trắng giữa các
+     nhóm số là khoảng trắng không ngắt (nbNum, "4 512"). */
   const flatQ = (x) => String(x).replace(/___/g, "").replace(/\s+/g, "");
-  const current = async (qs) => { const t = await kp.$eval(".qcard .qtext", (e) => e.textContent); return qs.find((q) => flatQ(q.q) === flatQ(t)) || null; };
-  const answer = async (q, right) => {
-    if (q.type === "fill") await kp.fill("#qzFill", right ? q.ans[0] : "không đúng");
-    else { const want = q.type === "tf" ? (q.a === right ? "Đúng" : "Sai") : right ? q.o[0] : q.o[1]; await kp.$$eval(".opts .opt", (bs, w) => bs.find((b) => b.lastElementChild.textContent.replace(/\s+/g, " ") === w).click(), want); }
-    await kp.click("#qzGo");
+  const current = async (qs) => {
+    const s = await kp.evaluate(() => ({ t: document.querySelector(".qcard .qtext").textContent, card: document.querySelector(".qcard").textContent }));
+    const cands = qs.filter((q) => flatQ(q.q) === flatQ(s.t));
+    return (cands.length > 1 ? cands.find((q) => [].concat(q.o || [], q.l || [], q.r || []).every((o) => flatQ(s.card).includes(flatQ(o)))) : cands[0]) || null;
   };
-  // làm hết một lượt ôn luyện: wrongAt = số thứ tự câu trả lời sai (−1: đúng hết); snap: chụp màn hình sau câu đầu; trả về các câu đã gặp
-  const playAll = async (qs, wrongAt, snap) => {
+  /* Trả lời câu đang hiện theo dữ liệu, mọi dạng câu, rồi bấm Kiểm tra (tự luận: Xem gợi ý). right = true: đúng hết; false: sai hết,
+     0 điểm (trắc nghiệm, đúng/sai chọn ô sai; điền, số gõ số khác; đúng/sai 4 ý chọn ngược cả 4 ý; nối cột nối lệch mọi cặp; sắp xếp
+     xếp ngược). Chữ trên nút so sau khi gộp khoảng trắng. Trả về false khi không tìm thấy ô cần chạm. */
+  const answer = async (q, right) => {
+    const pick = (w) => kp.$$eval(".opts .opt", (bs, w) => { const b = bs.find((x) => x.lastElementChild.textContent.replace(/\s+/g, " ") === w); if (b) b.click(); return !!b; }, String(w).replace(/\s+/g, " "));
+    const v = typeof q.ans === "number" ? q.ans : String(q.ans).split("/").reduce((a, b) => a / b);
+    let ok = true;
+    if (q.type === "mc") ok = await pick(right ? q.o[0] : q.o[1]);
+    else if (q.type === "tf") ok = await pick(q.a === right ? "Đúng" : "Sai");
+    else if (q.type === "fill") await kp.fill("#qzFill", right ? q.ans[0] : "không đúng");
+    else if (q.type === "num") await kp.fill("#qzNum", right ? String(q.ans) : String(v + 1 + 2 * (q.tol || 0)));
+    else if (q.type === "tf4") for (let k = 0; k < 4; k++) await kp.click(`.tf4 .opt[data-i="${k}"][data-v="${q.a[k] === right ? 1 : 0}"]`);
+    else if (q.type === "match") for (let k = 0; k < q.l.length; k++) { await kp.click(`.mt-li[data-i="${k}"]`); await kp.click(`.mt-ri[data-r="${right ? k : (k + 1) % q.l.length}"]`); }
+    else if (q.type === "order") for (let k = 0; k < q.o.length; k++) await kp.click(`.ord-p[data-k="${right ? k : q.o.length - 1 - k}"]`);
+    else if (q.type === "essay") await kp.fill("#qzEssay", "Bài làm thử.");
+    if (ok) await kp.click("#qzGo");
+    return ok;
+  };
+  /* Làm hết một lượt ôn luyện. wrong: câu chấm tự động đầu tiên (không lấy câu của Đề 1) trả lời sai, còn lại đúng; snap: chụp màn
+     hình câu sai sau khi Kiểm tra; audit: kiểm tra 360px từng câu sau khi Kiểm tra. Ghi chỗ chấm khác dữ liệu. Trả về các câu đã gặp. */
+  const playAll = async (qs, wrong, snap, audit360) => {
     const seen = [];
+    let wrongQ = null;
     for (let i = 0; i < 40 && !(await kp.$(".score")); i++) {
       const q = await current(qs);
       if (!q) { k3.problems.push("K3: không nhận ra câu " + (await kp.textContent(".qcard .qtext")).slice(0, 50)); break; }
-      seen.push(q); await answer(q, i !== wrongAt);
-      if (i === 0 && snap) { await kcheck("đề ngẫu nhiên, sau khi trả lời"); await ksnap(snap); }
+      seen.push(q);
+      const bad = wrong && !wrongQ && q.type !== "essay" && q.src !== DE1;
+      if (bad) wrongQ = q;
+      if (!(await answer(q, !bad))) { k3.problems.push(`K3: không tìm thấy ô để trả lời câu ${q.q.slice(0, 50)}`); break; }
+      if (q.type !== "essay" && !!(await kp.$("#qzFb .fb.ok")) !== !bad) k3.problems.push(`K3: câu ${q.q.slice(0, 50)} được chấm ${bad ? "đúng" : "sai"} khi trả lời ${bad ? "sai" : "đúng"} theo dữ liệu`);
+      if (audit360) await kcheck(`câu ${q.type} ${q.topic}, sau khi Kiểm tra`);
+      if (bad && snap) await ksnap(snap);
       await kp.click("#qzGo");
     }
-    await kp.waitForSelector(".score"); return seen;
+    await kp.waitForSelector(".score"); return { seen, wrongQ };
   };
   await kp.goto(BASE + "/"); await kp.click(`.tile[data-u="${ids.Na}"]`); await kp.fill("#pinIn", "4444"); await kp.waitForSelector("#today");
   k3.hero = (await kp.textContent("#toBanks")).replace(/\s+/g, " "); // trang "Hôm nay" (UX1): link tới nhóm bài ôn của kì gần nhất (giữa kì I lớp 6: 2 bài ôn, 5 đề)
@@ -962,53 +993,62 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     return { labels: a.map((x) => x.textContent).join(), first: a[0].getAttribute("href") === "#/quiz/" + id && a[0].classList.contains("rnd"), aria: a[0].getAttribute("aria-label"), info: row.querySelector(".small").textContent };
   }, POOL);
   await kcheck("tab Bài ôn có nút Đề ngẫu nhiên");
-  // Đề 1: làm đúng hết
+  // Đề 1: làm đúng hết (có câu trả lời bằng số)
   await kp.goto(BASE + "/#/quiz/" + DE1); await kp.waitForSelector("#qPractice");
   const QS = await kp.evaluate((id) => Store.bank(id).questions, DE1);
-  await kp.click("#qPractice"); await playAll(QS, -1);
+  await kp.click("#qPractice"); await playAll(QS, false);
   k3.de1 = await kp.evaluate((id) => { const r = Store.resultsFor(Store.sessionUser().id); return r.length === 1 && r[0].refId === id && r[0].r === 25 && r[0].t === 25; }, DE1);
-  // đề ngẫu nhiên: màn đầu, kho câu, ma trận
+  // đề ngẫu nhiên: màn đầu, kho câu, ma trận (số mong đợi tính từ danh mục và file câu hỏi)
   await kp.goto(BASE + "/#/quiz/" + POOL); await kp.waitForSelector("#qPractice");
   k3.intro = (await kp.textContent(".hero")).replace(/\s+/g, " ");
   k3.noNotes = !(await kp.$("#qNotes"));
   await kcheck("đề ngẫu nhiên, màn đầu"); await ksnap("de-ngau-nhien");
   k3.kho = await kp.evaluate(({ POOL, DE1 }) => {
-    const b = Store.bank(POOL), d = Quiz.draw(b), cnt = {}; d.questions.forEach((q) => (cnt[q.topic] = (cnt[q.topic] || 0) + 1));
-    const keys = d.questions.map(Quiz.key);
-    return { n: d.questions.length, kho: b.questions.length, srcs: [...new Set(b.questions.map((q) => q.src))].join(), matrix: JSON.stringify(cnt) === JSON.stringify(b.pool.matrix),
+    const b = Store.bank(POOL), d = Quiz.draw(b), cnt = {}, own = (window.ONTAP_SEED_QUESTIONS[POOL] || { questions: [] }).questions.length;
+    d.questions.forEach((q) => ((cnt[q.topic] = cnt[q.topic] || [0, 0, 0])[q.lv - 1]++));
+    const keys = d.questions.map(Quiz.key), m = b.pool.matrix;
+    return { n: d.questions.length, want: b.n, kho: b.questions.length, khoWant: own + b.pool.from.reduce((a, id) => a + Store.bank(id).questions.length, 0), own, from: b.pool.from.length,
+      srcs: [...new Set(b.questions.map((q) => q.src))].join() === [POOL].concat(b.pool.from).join(), matrix: Object.keys(m).every((t) => JSON.stringify(cnt[t] || [0, 0, 0]) === JSON.stringify(m[t])) && Object.keys(cnt).every((t) => t in m),
       uniq: new Set(keys).size === keys.length, notes: d.notes.length, fixedN: Store.bank(DE1).questions.length, fixedClean: !("src" in Store.bank(DE1).questions[0]), label: document.querySelector(".hero .label").textContent.replace(/\s+/g, " ") };
   }, { POOL, DE1 });
-  const PQ = await kp.evaluate((id) => Store.bank(id).questions, POOL);
-  // lượt 1: câu đầu sai, còn lại đúng
+  const PQ = await kp.evaluate((id) => Store.bank(id).questions, POOL), MATRIX = await kp.evaluate((id) => Store.bank(id).pool.matrix, POOL);
+  const cellOf = (q) => q.topic + "|" + q.lv, CELLS = Object.entries(MATRIX).flatMap(([t, v]) => v.map((n, i) => [t + "|" + (i + 1), n]).filter(([, n]) => n > 0));
+  const inCell = (c, list) => list.filter((q) => cellOf(q) === c);
+  // lượt 1: câu chấm tự động đầu tiên sai, còn lại đúng; câu tự luận xem gợi ý, không tự chấm
   await kp.click("#qPractice");
-  const run1 = await playAll(PQ, 0, "de-ngau-nhien-cau-sai");
-  const wrongQ = run1[0];
-  k3.run1 = { n: run1.length, de1: run1.filter((q) => q.src === DE1).length, score: (await kp.textContent(".score")).trim(), again: (await kp.textContent("#qzAgain")).trim() };
+  const { seen: run1, wrongQ } = await playAll(PQ, true, "de-ngau-nhien-cau-sai", true);
+  const auto1 = run1.filter((q) => q.type !== "essay"), t1 = auto1.length, e1 = run1.length - t1, d10 = (r, t) => String(Math.round((r / t) * 40) / 4).replace(".", ",");
+  k3.run1 = { n: run1.length, essays: e1, de1: run1.filter((q) => q.src === DE1).length, score: (await kp.textContent(".score")).trim(), again: (await kp.textContent("#qzAgain")).trim(),
+    de1Want: CELLS.reduce((a, [c, n]) => a + Math.max(0, n - inCell(c, PQ).filter((q) => q.src !== DE1).length), 0), wrong: !!wrongQ };
   await kcheck("kết quả đề ngẫu nhiên");
-  k3.saved = await kp.evaluate(({ POOL, key }) => {
+  k3.saved = !wrongQ ? {} : await kp.evaluate(({ POOL, key }) => {
     const u = Store.sessionUser(), r = Store.resultsFor(u.id)[0], h = JSON.parse(localStorage.getItem("ontap_pool_v1"))[u.id + "|" + POOL] || {};
     return { refId: r.refId, subject: r.subject, label: r.label, r: r.r, t: r.t, wrong: (r.wrongTopics || []).length, histN: Object.keys(h).length, histWrong: JSON.stringify(h[key]), histRight: Object.values(h).filter((x) => x[0] === 1 && x[1] === 0).length };
   }, { POOL, key: await kp.evaluate((q) => Quiz.key(q), wrongQ) });
-  // lượt 2 ("Làm đề khác"): bộ mới
+  // lượt 2 ("Làm đề khác"): bộ mới, bỏ qua từng câu để xem đủ 25 câu
   await kp.click("#qzAgain"); await kp.waitForSelector(".qcard");
-  const seen2 = [];
-  for (let i = 0; i < 25; i++) { const q = await current(PQ); if (!q) break; seen2.push(q); if (i < 24) { await kp.click("#qzSkip"); } }
-  const leftover = PQ.filter((q) => q.src !== DE1 && !run1.includes(q)); // câu Đề 2 chưa làm ở lượt 1
-  // Câu chưa làm chỉ bị bỏ khi cùng ô ma trận (chủ đề, mức) với câu vừa sai mà ô chỉ lấy 1 câu: câu sai (hay sai) được ưu tiên hơn.
-  const sameCell = (a, b) => a.topic === b.topic && (a.lv || 0) === (b.lv || 0);
-  k3.run2 = { n: seen2.length, hasWrong: seen2.includes(wrongQ), leftovers: leftover.length + "/" + leftover.filter((q) => seen2.includes(q)).length, differs: seen2.some((q) => !run1.includes(q)),
-    missOK: leftover.filter((q) => !seen2.includes(q)).every((q) => sameCell(q, wrongQ)) };
+  const run2 = [];
+  for (let i = 0; i < 25; i++) { const q = await current(PQ); if (!q) break; run2.push(q); if (i < 24) { await kp.click("#qzSkip"); } }
+  /* Ở mỗi ô (chủ đề, mức) của ma trận, bộ rút lấy câu theo thứ tự: câu vừa sai; câu chưa làm (không có ở lượt 1 hoặc là câu tự luận,
+     không phải câu của Đề 1); rồi mới tới câu đã làm (lượt 1, Đề 1). Ô nào cũng chỉ lấy câu đã làm khi hết câu chưa làm. */
+  const undone = (q) => q !== wrongQ && q.src !== DE1 && (q.type === "essay" || !auto1.includes(q));
+  k3.run2 = { n: run2.length, hasWrong: run2.includes(wrongQ), differs: run2.some((q) => !run1.includes(q)), fresh: run2.filter(undone).length,
+    cellsOK: CELLS.every(([c, n]) => inCell(c, run2).length === n && inCell(c, run2).filter((q) => q !== wrongQ && !undone(q)).length === Math.max(0, n - inCell(c, wrongQ ? [wrongQ] : []).length - inCell(c, PQ).filter(undone).length)) };
   await kp.click("#qzExit"); k3.exitAsk = (await kp.textContent("#qzFb")).replace(/\s+/g, " "); // bỏ qua hết: chưa trả lời câu nào
   await kp.click("#qzYes"); await kp.waitForTimeout(300);
   k3.home = await kp.evaluate(() => ({ hash: location.hash, recent: document.querySelector("#recent").textContent.replace(/\s+/g, " "), n: Store.resultsFor(Store.sessionUser().id).length }));
   await kp.goto(BASE + "/#/results"); await kp.waitForSelector("#allResults"); // chủ đề hay sai ở tab Kết quả (UX1)
   k3.home.weak = await kp.evaluate(() => [...document.querySelectorAll("#weakTopics .tag.warn")].map((t) => t.textContent).join("|"));
-  // kho thiếu câu: pool giả (3 câu "Hình phẳng" mức Vận dụng, kho chỉ có 2 câu chưa ghi mức) → màn đầu ghi chú lấy bù
-  k3.short = await kp.evaluate((POOL) => {
+  /* kho thiếu câu: pool giả rút số câu mức Vận dụng của chủ đề "Hình phẳng" nhiều hơn số câu chủ đề đó có trong kho (kho chỉ có câu
+     mức Biết của chủ đề này) → màn đầu ghi chú lấy bù mức khác, rồi lấy từ chủ đề khác */
+  const HP = PQ.filter((q) => q.topic === "Hình phẳng"), LVN = ["", "Biết", "Hiểu", "Vận dụng"];
+  const hpLv = [...new Set(HP.map((q) => q.lv).sort((a, b) => Math.abs(3 - a) - Math.abs(3 - b)))].map((l) => "mức " + LVN[l]).join(", ");
+  k3.shortWant = { notes: `Kho còn thiếu câu, lần này: Hình phẳng: thiếu ${HP.length} câu mức Vận dụng, lấy bù ${hpLv}; Hình phẳng: thiếu 1 câu, lấy từ chủ đề khác.`, n: `Câu 1/${HP.length + 1}`, noV: HP.length > 0 && !HP.some((q) => q.lv === 3) };
+  k3.short = await kp.evaluate(([POOL, k]) => {
     const b = Store.bank(POOL);
-    window.ONTAP_SEED_BANKS.push({ id: "thu-pool", title: "Toán 6 · Thử · Đề ngẫu nhiên", grade: 6, subject: "Toán", minutes: 10, n: 3, file: "6-toan.js", pool: { matrix: { "Hình phẳng": [0, 0, 3] } }, note: "", questions: b.questions });
+    window.ONTAP_SEED_BANKS.push({ id: "thu-pool", title: "Toán 6 · Thử · Đề ngẫu nhiên", grade: 6, subject: "Toán", minutes: 10, n: k, file: "6-toan.js", pool: { matrix: { "Hình phẳng": [0, 0, k] } }, note: "", questions: b.questions });
     return true;
-  }, POOL);
+  }, [POOL, HP.length + 1]);
   await kp.goto(BASE + "/#/quiz/thu-pool"); await kp.waitForSelector("#qPractice");
   k3.notes = (await kp.textContent("#qNotes").catch(() => "")).replace(/\s+/g, " ");
   await kcheck("đề ngẫu nhiên, kho thiếu câu"); await ksnap("de-ngau-nhien-thieu-cau");
@@ -1026,16 +1066,17 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   await kcheck("ngân hàng đề có đề ngẫu nhiên");
   await kc.close();
   console.log("K3:", k3);
+  const k3Intro = new RegExp(`Mỗi lần làm là một đề khác: ${k3.kho.want} câu rút từ kho ${k3.kho.khoWant} câu \\(${k3.kho.from} đề\\) theo ma trận đề, ưu tiên câu bạn chưa làm hoặc hay sai${e1 ? ` \\(${e1} câu tự luận tự chấm\\)` : ""}\\.`);
   const k3OK = !k3.problems.length && k3.row.labels === "Đề ngẫu nhiên,Đề 1,Đề 2" && k3.row.first && k3.row.aria === "Toán 6 · Cuối kì I · Đề ngẫu nhiên" && k3.row.info === "2 đề · 25 câu mỗi đề · đề ngẫu nhiên 25 câu" && k3.hero === "Tất cả bài ôn cho kì này · 7 bài ôn →"
-    && k3.de1 && /Mỗi lần làm là một đề khác: 25 câu rút từ kho 50 câu \(2 đề\) theo ma trận đề, ưu tiên câu bạn chưa làm hoặc hay sai\./.test(k3.intro) && k3.noNotes
-    && k3.kho.n === 25 && k3.kho.kho === 50 && k3.kho.srcs === "toan6-ck1-de1,toan6-ck1-de2" && k3.kho.matrix && k3.kho.uniq && k3.kho.notes === 0 && k3.kho.fixedN === 25 && k3.kho.fixedClean && k3.kho.label === "Lớp 6 · Toán · Đề ngẫu nhiên"
-    && k3.run1.n === 25 && k3.run1.de1 === 2 && k3.run1.score === "9,5/10" && k3.run1.again === "Làm đề khác"
-    && k3.saved.refId === POOL && k3.saved.subject === "Toán" && k3.saved.label === "Toán 6 · Cuối kì I · Đề ngẫu nhiên" && k3.saved.r === 24 && k3.saved.t === 25 && k3.saved.wrong === 1
-    && k3.saved.histN === 25 && k3.saved.histWrong === "[1,1]" && k3.saved.histRight === 24
-    && k3.run2.n === 25 && k3.run2.hasWrong && /^2\/[12]$/.test(k3.run2.leftovers) && k3.run2.missOK && k3.run2.differs && /Thoát đề\?/.test(k3.exitAsk)
-    && k3.home.hash === "#/home" && k3.home.weak === wrongQ.topic + " · 1 câu" && /Toán 6 · Cuối kì I · Đề ngẫu nhiên/.test(k3.home.recent) && /24\/25/.test(k3.home.recent) && k3.home.n === 2
-    && k3.short && k3.notes === "Kho còn thiếu câu, lần này: Hình phẳng: thiếu 2 câu mức Vận dụng, lấy bù câu chưa ghi mức; Hình phẳng: thiếu 1 câu, lấy từ chủ đề khác." && k3.shortN === "Câu 1/3"
-    && k3.report.n === "2" && k3.report.subj === "Toán 9,75/10 2 bài · 49/50 câu đúng" && k3.report.topics === 1 && /Đề ngẫu nhiên/.test(k3.report.week)
+    && k3.de1 && k3Intro.test(k3.intro) && k3.noNotes
+    && k3.kho.n === k3.kho.want && k3.kho.kho === k3.kho.khoWant && k3.kho.own > 0 && k3.kho.srcs && k3.kho.matrix && k3.kho.uniq && k3.kho.notes === 0 && k3.kho.fixedN === 25 && k3.kho.fixedClean && k3.kho.label === "Lớp 6 · Toán · Đề ngẫu nhiên"
+    && k3.run1.n === k3.kho.want && k3.run1.wrong && k3.run1.de1 === k3.run1.de1Want && k3.run1.score === d10(t1 - 1, t1) + "/10" && k3.run1.again === "Làm đề khác"
+    && k3.saved.refId === POOL && k3.saved.subject === "Toán" && k3.saved.label === "Toán 6 · Cuối kì I · Đề ngẫu nhiên" && k3.saved.r === t1 - 1 && k3.saved.t === t1 && k3.saved.wrong === 1
+    && k3.saved.histN === t1 && k3.saved.histWrong === "[1,1]" && k3.saved.histRight === t1 - 1
+    && k3.run2.n === k3.kho.want && k3.run2.hasWrong && k3.run2.cellsOK && k3.run2.differs && /Thoát đề\?/.test(k3.exitAsk)
+    && k3.home.hash === "#/home" && k3.home.weak === wrongQ.topic + " · 1 câu" && /Toán 6 · Cuối kì I · Đề ngẫu nhiên/.test(k3.home.recent) && k3.home.recent.includes(`${t1 - 1}/${t1}`) && k3.home.n === 2
+    && k3.short && k3.shortWant.noV && k3.notes === k3.shortWant.notes && k3.shortN === k3.shortWant.n
+    && k3.report.n === "2" && k3.report.subj === `Toán ${d10(25 + t1 - 1, 25 + t1)}/10 2 bài · ${25 + t1 - 1}/${25 + t1} câu đúng` && k3.report.topics === 1 && /Đề ngẫu nhiên/.test(k3.report.week)
     && k3.adminRow === "Lớp 6 · Toán · 25 câu rút ngẫu nhiên · có sẵn (chỉ xem)";
 
   step("report wrong question (R1)");
