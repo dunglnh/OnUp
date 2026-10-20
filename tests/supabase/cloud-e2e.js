@@ -179,9 +179,9 @@ async function run(browser, scheme) {
   c.changed = !be.T.families.find((f) => f.username === "nha.bin").must_change_password;
   c.remembered = await p.evaluate(() => !!localStorage.getItem("ontap_sb_auth") && !sessionStorage.getItem("ontap_sb_auth"));
   await shot(p, "c3-khu-phu-huynh-moi");
-  // UX2: khu phụ huynh còn ba mục Các con · Lịch thi · Cài đặt; nút "Lịch thi" ở thanh trên về tab Lịch thi của khu phụ huynh
+  // UX2: khu phụ huynh còn ba mục Các con · Lịch thi · Cài đặt; thanh trên không có nút Lịch thi (lịch thi chỉ ở tab, 20/10/2026)
   const tabsOf = (pg) => pg.$$eval(".tabs button", (b) => b.map((x) => x.textContent + (x.getAttribute("aria-pressed") === "true" ? "*" : "")).join());
-  c.ux2 = { tabs: await tabsOf(p), topCal: await p.$eval(".who a", (a) => a.getAttribute("href")), empty: await text(p, "#kids") };
+  c.ux2 = { tabs: await tabsOf(p), topCal: !!(await p.$(".who a")), empty: await text(p, "#kids") };
   // UX3: chưa có hồ sơ con: mục Các con chỉ có thẻ "Bắt đầu trong 3 bước" (bước 1 đang làm, nút thêm trong thẻ), "Cho con học" mờ; nút góc trên là "Chọn hồ sơ khác"
   const startOf = (pg) => pg.evaluate(() => { const st = document.querySelector("#start"); return st ? { steps: [...st.querySelectorAll(".step")].map((x) => x.className.replace("step", "").trim() + ":" + x.querySelector("b").textContent).join("|"),
     text: st.textContent.replace(/\s+/g, " ").trim(), disabled: document.querySelector("#letStudy").disabled, h: Math.round(document.querySelector("#letStudy").getBoundingClientRect().height),
@@ -516,12 +516,12 @@ async function run(browser, scheme) {
   await shot(p2, "c11-cac-con");
   await p2.click(`[data-child="${binId}"]`); await p2.waitForSelector(".report");
   c.report = await p2.evaluate(() => ({ n: +document.querySelector("#rpCount").textContent, subj: [...document.querySelectorAll("#rpSubjects .rp-sub b:first-child")].map((b) => b.textContent).join() }));
-  c.ux2.report = await p2.evaluate(() => ({ hash: location.hash, back: document.querySelector("#view .linkbtn[data-go]").textContent, links: [...document.querySelectorAll("#rpLinks a")].map((a) => a.textContent + "=" + a.getAttribute("href")).join(), edit: !!document.querySelector("a[href^='#/admin/user/']") }));
+  c.ux2.report = await p2.evaluate(() => ({ hash: location.hash, back: document.querySelector("#view .linkbtn[data-go]").textContent, links: [...document.querySelectorAll("#rpCal, #rpPractice")].map((a) => a.textContent + "=" + a.getAttribute("href")).join(), head: [...document.querySelectorAll("#rpHead h1, #rpHead .rp-who .muted")].map((x) => x.textContent.replace(/\s+/g, " ").trim()).join(" | "), headAll: document.querySelector("#rpHead").innerText, topCal: !!document.querySelector(".who a"), edit: !!document.querySelector("a[href^='#/admin/user/']") }));
   await shot(p2, "c12-bao-cao-tuan");
-  await p2.click("#rpLinks a >> nth=1"); await p2.waitForSelector("#allPractice");
+  await p2.click("#rpPractice"); await p2.waitForSelector("#allPractice");
   c.ux2.practice = (await text(p2, "#view h2")) + " | " + (await text(p2, "#view .linkbtn[data-go]")) + " | " + (await p2.$$eval("#allPractice a.btn", (a) => a.length));
   await p2.click("#view .linkbtn[data-go]"); await p2.waitForSelector(".report");
-  await p2.click("#rpLinks a >> nth=0"); await p2.waitForSelector("#parentCal");
+  await p2.click("#rpCal"); await p2.waitForSelector("#parentCal");
   c.ux2.calFromReport = await p2.evaluate(() => location.hash + " " + document.querySelector('.tabs [data-g][aria-pressed="true"]').textContent.replace(/\s+/g, " "));
   // UX6 (D3): khu phụ huynh trên cùng máy: Na (tab kia) làm đề Tiếng Anh khi máy chủ lỗi: màn kết quả ghi chưa gửi bằng tiếng Anh;
   // mục Các con có dòng “1 bài làm trên máy này chưa gửi đi · Gửi lại”; bấm Gửi lại thì gửi, dòng mất
@@ -907,7 +907,7 @@ async function run(browser, scheme) {
       && c.ux6.frame.en === "24/30 correct. Saved on this device. It will be sent to your parents when you're online." && c.ux6.frame.server && c.ux6.frame.drained,
     "UX6: phiên hết rồi bấm “Gửi lại”: không báo “Đã gửi”, thông báo là lời nhắc bố mẹ đăng nhập lại; đăng nhập lại thì tự gửi":
       /đăng nhập lại để gửi/.test(c.ux6.expiredBar.toast) && c.ux6.expiredBar.server && c.ux6.expiredBar.sent,
-    "UX2: khu phụ huynh có ba mục Các con · Lịch thi · Cài đặt; nút Lịch thi trên cùng và #/calendar về tab Lịch thi; thêm hồ sơ xong về Các con": c.ux2.tabs === "Các con*,Lịch thi,Cài đặt" && c.ux2.topCal === "#/admin/events"
+    "UX2: khu phụ huynh có ba mục Các con · Lịch thi · Cài đặt; thanh trên không có nút Lịch thi, #/calendar về tab Lịch thi; thêm hồ sơ xong về Các con": c.ux2.tabs === "Các con*,Lịch thi,Cài đặt" && !c.ux2.topCal
       && /^Bắt đầu trong 3 bước/.test(c.ux2.empty) && c.ux2.afterAdd === "#/admin/overview" && c.ux2.calRedirect === "#/admin/events",
     "UX2: tab Các con: mỗi con một thẻ (chưa có bài: Chưa ôn · – · 0; kì thi gần nhất còn N ngày · chưa ôn …), không có ô số liệu trùng ý; thẻ có bài hôm nay ghi số bài, điểm hôm nay":
       /^#\/child\/\S+ Chưa ôn hôm nay\|– điểm TB tuần\|0 chuỗi ngày Kiểm tra giữa học kì I còn \d+ ngày · chưa ôn Toán, Tiếng Việt; #\/child\/\S+ Chưa ôn hôm nay\|– điểm TB tuần\|0 chuỗi ngày Kiểm tra giữa học kì I còn \d+ ngày · chưa ôn Ngữ văn, Toán, KHTN và 5 môn khác$/.test(c.ux2.kids.cards)
@@ -924,8 +924,8 @@ async function run(browser, scheme) {
       && c.ux2.settings.links === "Xem đề tự soạn=#/admin/banks,+ Nhập đề=#/admin/bank/new,Chuyển dữ liệu và sao lưu=#/admin/data,Tài khoản=#/account"
       && c.ux2.banks.tabs === "Cài đặt" && c.ux2.banks.back === "← Cài đặt" && c.ux2.banks.h2 === "Đề tự soạn" && /^Chưa có đề tự soạn/.test(c.ux2.banks.mine) && !c.ux2.banks.seedOpen && c.ux2.banks.seedN === c.ux2.banks.seedAll && c.ux2.banks.seedN > 20 && c.ux2.banks.add === "+ Nhập đề"
       && c.ux2.bankForm === "Nhập đề | ← Đề tự soạn | Lưu đề" && c.ux2.data === "← Cài đặt | Chuyển dữ liệu và sao lưu | Các con,Lịch thi,Cài đặt* | true | true" && c.ux2.accountBack === "← Cài đặt",
-    "UX2: bấm thẻ của con là mở báo cáo tuần (#/child/<mã>), có “← Các con”, Sửa hồ sơ, link Lịch thi lớp 4 (chọn sẵn khối) và Bài ôn của Bin (xem thử)": c.ux2.report.hash === "#/child/" + binId && c.ux2.report.back === "← Các con" && c.ux2.report.edit
-      && c.ux2.report.links === `Lịch thi lớp 4=#/admin/events?g=4,Bài ôn của Bin=#/child/${binId}/practice` && /^Bài ôn lớp 4 của Bin \| ← Báo cáo của Bin \| \d+$/.test(c.ux2.practice) && c.ux2.calFromReport === "#/admin/events?g=4 Lớp 4 · Bin",
+    "UX2: bấm thẻ của con là mở báo cáo tuần (#/child/<mã>), có “← Các con”, Sửa hồ sơ; đầu trang chỉ hình, tên, dòng lớp và dòng “Báo cáo <ngày> – <ngày>”; link “Xem cả năm →” ở Kì thi sắp tới (tab Lịch thi, chọn sẵn khối) và “Bài ôn của Bin →” cuối Gợi ý (xem thử)": c.ux2.report.hash === "#/child/" + binId && c.ux2.report.back === "← Các con" && c.ux2.report.edit
+      && c.ux2.report.links === `Xem cả năm →=#/admin/events?g=4,Bài ôn của Bin →=#/child/${binId}/practice` && /^Bin \| Lớp 4 · 4A \| Báo cáo \d+\/\d+ – \d+\/\d+\/\d{4}$/.test(c.ux2.report.head) && !/OnUp/.test(c.ux2.report.headAll) && !c.ux2.report.topCal && /^Bài ôn lớp 4 của Bin \| ← Báo cáo của Bin \| \d+$/.test(c.ux2.practice) && c.ux2.calFromReport === "#/admin/events?g=4 Lớp 4 · Bin",
     "UX3: thẻ “Bắt đầu trong 3 bước” ở đầu mục Các con: chưa có con thì chỉ có thẻ (bước 1 đang làm, nút thêm trong thẻ, “Cho con học” mờ); có con thì bước 1 xong, bước 3 đang làm, nút bật ≥ 52px và mở “Ai đang học?”; con đã học thì thẻ ẩn":
       !!c.ux3.start0 && c.ux3.start0.steps === "now:Thêm hồ sơ con|:Đặt mã PIN (không bắt buộc)|:Đưa máy cho con" && c.ux3.start0.disabled && c.ux3.start0.add && c.ux3.start0.first === "start" && c.ux3.start0.rows === 0 && c.ux3.start0.link2 === ""
       && /^Bắt đầu trong 3 bước 1Thêm hồ sơ conTên, khối, lớp và hình đại diện\. App không hỏi ngày sinh hay ảnh của con\.\+ Thêm hồ sơ con 2Đặt mã PIN \(không bắt buộc\)Để anh chị em không vào nhầm hồ sơ của nhau\. 3Đưa máy cho conBấm “Cho con học”, con chọn hồ sơ của mình rồi bắt đầu ôn\. Cho con học Nút này mở màn hình “Ai đang học\?” khi đã có hồ sơ con\.$/.test(c.ux3.start0.text)

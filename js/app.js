@@ -201,7 +201,7 @@
 
   /* ---------------- chốt rời trang ----------------
      Đang làm bài (đề ngân hàng chưa nộp, bài ôn trong khung đang làm một lượt) thì rời màn hình phải qua hộp hỏi lại:
-     - link và nút trong app (go(), thẻ <a href="#…">, kể cả "Lịch thi" và nút tài khoản trên thanh đầu): hỏi trước khi đổi hash;
+     - link và nút trong app (go(), thẻ <a href="#…">, kể cả chữ OnUp và nút tài khoản trên thanh đầu): hỏi trước khi đổi hash;
      - nút Back/Forward, gõ địa chỉ: hashchange không hủy được, nên thêm lại địa chỉ cũ vào lịch sử (không vẽ lại màn hình)
        rồi hỏi; đồng ý thì lùi về đúng địa chỉ đích;
      - tải lại, đóng tab: hộp hỏi của trình duyệt (beforeunload).
@@ -294,12 +294,13 @@
   }
 
   /* ---------------- thanh người dùng ---------------- */
-  /* Học sinh có thanh tab dưới màn hình (Lịch thi là một tab) nên thanh trên chỉ còn hình đại diện (UX1).
-     Phụ huynh bản đám mây: nút "Lịch thi" về tab Lịch thi của khu phụ huynh (xem và sửa ngày ở một chỗ, UX2). */
+  /* Thanh trên chỉ có chữ OnUp và nút tài khoản (hình đại diện). Lịch thi có một lối vào cố định ở mỗi vai trò: tab Lịch thi ở thanh
+     dưới (học sinh, UX1), tab Lịch thi của khu phụ huynh (bản đám mây, UX2) và của quản trị; phụ huynh bản lưu trên máy (không có tab)
+     có link ở trang chủ. Báo cáo của con có link "Xem cả năm" ngay ở mục Kì thi sắp tới (calHref: bản đám mây là tab Lịch thi). */
   const calHref = (u) => (Store.cloud && u.role === "admin" ? "#/admin/events" : "#/calendar");
   function drawWho(u) {
     if (!u) { who.innerHTML = ""; return; }
-    who.innerHTML = `${u.role === "student" ? "" : `<a class="btn ghost sm" href="${calHref(u)}">Lịch thi</a>`}<button class="linkbtn row" id="whoBtn" aria-label="Tài khoản của ${esc(u.name)}" style="gap:6px">${avatar(u)}<span class="nm">${esc(u.name)}</span></button>`;
+    who.innerHTML = `<button class="linkbtn row" id="whoBtn" aria-label="Tài khoản của ${esc(u.name)}" style="gap:6px">${avatar(u)}<span class="nm">${esc(u.name)}</span></button>`;
     $("#whoBtn").onclick = () => go("#/account");
   }
   /* ---------------- thanh tab dưới màn hình (học sinh, Phiên UX1) ----------------
@@ -917,9 +918,10 @@
 
   /* ================= BÁO CÁO TUẦN = HỒ SƠ CỦA CON =================
      Phụ huynh, quản trị mở từ thẻ của con (#/child/<mã>; #/report/<mã> là cùng trang, Phiên UX2). Tóm tắt 7 ngày gần nhất
-     (hôm nay và 6 ngày trước), in được (@media print trong css/app.css). Lịch thi của khối con và danh sách bài ôn của con là
-     hai link phụ (#rpLinks); bài làm trước tuần này thu gọn ở cuối (#rpOlder, không in). Chỉ đọc qua Store nên chạy như nhau ở
-     bản trên máy và bản đám mây. */
+     (hôm nay và 6 ngày trước), in được (@media print trong css/app.css). Đầu trang chỉ có hình, bên cạnh là tên con, dòng lớp và dòng
+     "Báo cáo <ngày> – <ngày>" (.rp-who; nhãn "OnUp · Báo cáo tuần · <tên gia đình>" chỉ hiện khi in). Lịch thi của khối con là link "Xem cả năm" ở mục
+     Kì thi sắp tới (#rpCal), danh sách bài ôn của con là link cuối mục Gợi ý ôn tuần sau (#rpPractice); bài làm trước tuần này thu
+     gọn ở cuối (#rpOlder, không in). Chỉ đọc qua Store nên chạy như nhau ở bản trên máy và bản đám mây. */
   const MAX_SECS = 5400; // một lần làm quá 90 phút thường là quên đóng bài: chỉ tính 90 phút
   function weekStats(list) {
     const [r, t] = sumRT(list);
@@ -969,14 +971,12 @@
     document.title = `Báo cáo tuần · ${s.name} · ${dm(a)}–${dmy(b)}`; // tên file gợi ý khi lưu PDF
     view.innerHTML = `<div class="stack report">
       <div class="row between noprint">${back(teacher ? "#/admin/overview" : "#/home", teacher ? "Danh sách học sinh" : "Các con")}
-        <span class="row">${viewer.role === "student" ? "" : `<a class="btn ghost sm" href="#/admin/user/${esc(s.id)}">Sửa hồ sơ</a>`}<button class="btn main sm" id="rpPrint">In báo cáo</button></span></div>
-      <header class="stack tight">
-        <span class="label">OnUp · Báo cáo tuần</span>
-        <div class="row">${avatar(s, true)}<div><h1>${esc(s.name)}</h1><span class="muted">${esc(gradeTxt(s))}${esc(lockTag(s))}${school ? " · " + esc(school) : ""}</span></div></div>
-        <p><b>${WD[from.getDay()]}, ${dm(a)} – ${WD[t0.getDay()]}, ${dmy(b)}</b> <span class="small muted">· 7 ngày gần nhất</span></p>
+        <span class="row">${viewer.role === "student" ? "" : `<a class="btn ghost sm" href="#/admin/user/${esc(s.id)}">Sửa hồ sơ</a>`}<button class="btn ghost sm" id="rpPrint">In báo cáo</button></span></div>
+      <header class="stack tight" id="rpHead">
+        <span class="label onlyprint">${nb("OnUp · Báo cáo tuần" + (school ? " · " + esc(school) : ""))}</span>
+        <div class="rp-who">${avatar(s, true)}<div><h1>${esc(s.name)}</h1><span class="muted">${nb(esc(gradeTxt(s)) + esc(lockTag(s)))}</span><span class="muted">Báo cáo ${dm(a)} – ${dmy(b)}</span></div></div>
       </header>
       ${s.locked ? `<div class="notice">Hồ sơ này đang khóa vì tài khoản có nhiều hồ sơ con hơn gói hiện tại cho phép. Vẫn xem được kết quả cũ, bài làm mới chưa được lưu.</div>` : ""}
-      <div class="row noprint" id="rpLinks"><a class="btn sm" href="${calHref(viewer)}?g=${s.grade}">Lịch thi lớp ${s.grade}</a><a class="btn sm" href="#/child/${esc(s.id)}/practice">Bài ôn của ${esc(s.name)}</a></div>
       <div class="stats four">
         <div class="stat"><b id="rpCount">${st.n}</b><span>bài đã làm</span><small>Tuần trước: ${pv.n}</small></div>
         <div class="stat"><b>${st.days}/7</b><span>ngày có ôn</span><small>Tuần trước: ${pv.days}/7</small></div>
@@ -994,8 +994,9 @@
         : `<div class="panel muted">Chưa có bài làm nào trong 7 ngày qua.</div>`}
       ${selfWeek.length ? `<section class="panel" id="rpSelf"><div class="label">Tự luận tự chấm</div>
         <p class="small muted">Điểm tự chấm theo thang gợi ý của đề, không tính vào điểm trung bình ở trên.</p>${resultsList(selfWeek)}</section>` : ""}
-      <section class="sec"><h2>Kì thi sắp tới</h2>${evs.length ? `<div class="timeline">${evs.map((e) => eventRow(e, { grade: s.grade, student: s, results: all })).join("")}</div>` : `<div class="panel muted">Không còn kì thi nào có lịch trong năm học.</div>`}</section>
-      <section class="panel" id="rpTips"><h2>Gợi ý ôn tuần sau</h2><ol class="tips">${weekTips(s, week, all).map((t) => `<li>${esc(t)}</li>`).join("")}</ol></section>
+      <section class="sec" id="rpEvents"><div class="row between"><h2>Kì thi sắp tới</h2><a class="linkbtn noprint" id="rpCal" href="${calHref(viewer)}?g=${s.grade}">Xem cả năm →</a></div>${evs.length ? `<div class="timeline">${evs.map((e) => eventRow(e, { grade: s.grade, student: s, results: all })).join("")}</div>` : `<div class="panel muted">Không còn kì thi nào có lịch trong năm học.</div>`}</section>
+      <section class="panel" id="rpTips"><h2>Gợi ý ôn tuần sau</h2><ol class="tips">${weekTips(s, week, all).map((t) => `<li>${esc(t)}</li>`).join("")}</ol>
+        <a class="linkbtn noprint" id="rpPractice" href="#/child/${esc(s.id)}/practice">Bài ôn của ${esc(s.name)} →</a></section>
       ${st.n ? `<section class="sec"><h2>Bài đã làm trong tuần</h2>${resultsList(week)}</section>` : ""}
       ${olderN ? `<details class="grp noprint" id="rpOlder"><summary><span class="grow"><b>Bài làm trước tuần này</b><span class="small muted">${olderN} bài${olderN > 30 ? " · hiện 30 bài gần nhất" : ""}</span></span></summary>${resultsList(older.slice(0, 30))}</details>` : ""}
       <p class="small muted">Lập ngày ${dmy(b)}. Điểm quy về thang 10 theo số câu đúng.</p>
@@ -1065,6 +1066,7 @@
       ${backupCard()}
       <section class="sec" id="kids"><div class="row between"><h2>Các con</h2><button class="btn sm" id="addKid">+ Thêm con</button></div>
         ${kids.length ? kids.map(kidCard).join("") + kidsHint : `<div class="panel muted">Chưa có tài khoản con. Bấm “Thêm con” để tạo, hoặc nhờ quản trị viên gắn tài khoản của con vào.</div>`}</section>
+      <a class="linkbtn" id="calLink" href="#/calendar">Lịch thi cả năm →</a>
     </div>`;
     $("#addKid").onclick = () => go("#/admin/user/new?role=student");
     wireBackupCard();
@@ -1104,7 +1106,7 @@
     return { months, undated: evs.filter((e) => !e.start) };
   }
   const monthsHTML = (months, row) => Object.keys(months).sort().map((k) => `<div class="month">Tháng ${(k % 100) + 1}/${Math.floor(k / 100)}</div>${months[k].map(row).join("")}`).join("");
-  /* ?g=<khối> (link "Lịch thi lớp 4" ở báo cáo của con) chọn sẵn tab khối. */
+  /* ?g=<khối> (link "Xem cả năm" ở mục Kì thi sắp tới của báo cáo con) chọn sẵn tab khối. */
   function renderCalendar(u, query) {
     const fixed = u.role === "student" ? u.grade : null;
     const kidGrades = u.role === "parent" || (Store.cloud && u.role === "admin") ? gradesOf(Store.childrenOf(u.id)) : [];
@@ -1234,7 +1236,7 @@
 
   /* ================= LÀM BÀI TỪ NGÂN HÀNG ================= */
   let quizRun = null;
-  /* Chế độ tập trung (Phiên UX5, X5): body.quizzing ẩn hình đại diện, nút "Lịch thi" của thanh trên và thanh tab dưới, chỉ còn
+  /* Chế độ tập trung (Phiên UX5, X5): body.quizzing ẩn hình đại diện (nút tài khoản) của thanh trên và thanh tab dưới, chỉ còn
      chữ OnUp (vẫn qua chốt rời trang). Bật khi một lượt bắt đầu, tắt khi lượt xong (opts.onStart, onEnd của Quiz.run); route() cũng tắt. */
   const focusMode = (on) => document.body.classList.toggle("quizzing", on);
   const essayN = (qs) => (qs || []).filter((q) => q.type === "essay").length;
@@ -1400,8 +1402,8 @@
   /* Tab Lịch thi của khu phụ huynh (bản đám mây, Phiên UX2): cả năm học, gom theo tháng như renderCalendar, chỉ kì thi của các khối
      con đang học (chưa có hồ sơ con thì mọi khối đang mở), chọn khối bằng tab "Lớp 4 · Bin"; ?g=<khối> chọn sẵn. Dưới mỗi kì thi
      dự kiến (hoặc chưa có ngày) có nút "Trường đã báo lịch? Sửa ngày": hộp sửa ngày mở ngay dưới thẻ (openFix, #fixBox), Lưu thì bỏ
-     cờ dự kiến; kì thi khác có link "Sửa ngày, bài ôn" sang form đầy đủ. Bấm thẻ vẫn mở chi tiết kì thi (openEvent). Nút "Lịch thi" ở
-     thanh trên và #/calendar của phụ huynh đều về đây, nên không còn hai nút "Lịch thi" làm hai việc khác nhau. */
+     cờ dự kiến; kì thi khác có link "Sửa ngày, bài ôn" sang form đầy đủ. Bấm thẻ vẫn mở chi tiết kì thi (openEvent). #/calendar của
+     phụ huynh và link "Xem cả năm" ở báo cáo của con đều về đây: lịch thi chỉ có một chỗ. */
   function parentCalendar(query) {
     const kids = Store.users("student"), kg = gradesOf(kids), gl = kg.length ? kg : gradeList();
     if (query && gl.includes(+query.g)) calGrade = +query.g;
@@ -1485,6 +1487,7 @@
       body = parentCalendar(query);
     } else if (tab === "events") {
       body = `<div class="row between"><p class="muted small" style="flex:1">Sửa ngày khi trường thông báo, gắn bài ôn vào từng kì thi.</p><a class="btn main sm" href="#/admin/event/new">+ Thêm kì thi</a></div>
+        <a class="linkbtn" id="calLink" href="#/calendar">Xem theo tháng →</a>
         <div class="list">${Store.events().map((e) => `<a class="item" href="#/admin/event/${esc(e.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${nb(`${esc(e.title)} · Lớp ${esc(e.grades.join(", "))}`)}</b><span class="small muted">${esc(range(e))}${e.tentative && e.start ? " · dự kiến" : ""} · ${practiceCount(practiceFor(e, null))} bài ôn</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>
         <div class="row"><button class="btn ghost sm" id="resetEv">Khôi phục lịch mặc định</button></div><div id="resetArea"></div>`;
     } else if (tab === "banks" && cloud) {

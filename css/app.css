@@ -1,12 +1,13 @@
-/* Cùng hệ màu với các bài ôn: nền dịu, tiêu đề Lora, chữ Noto Sans, nút hành động chính màu hoa hướng dương. */
+/* Cùng hệ màu với các bài ôn: nền dịu, chữ Noto Sans (chữ OnUp và điểm to bằng Lora), nút hành động chính màu hoa hướng dương. */
 :root{
   --bg:#f3f5f7; --surface:#ffffff; --line:#dde2e8; --ink:#172029; --muted:#5c6773;
   --sun:#f5b700; --sun-soft:#fdf1c7; --sun-ink:#3a2a00;
   --ok:#167a3a; --ok-soft:#e2f4e8; --bad:#b23a0b; --bad-soft:#fde9df;
   --acc:#1f3c8f; --acc-soft:#e3eafb; --on-acc:#ffffff; --scrim:rgb(23 32 41 / .55);
   --ioe:#0f5f63; --ioe-soft:#dcefee; --moc:#6b5b95; --moc-soft:#ece8f6;
-  --display:"Lora",Georgia,serif; /* Lora chỉ có đến 700: chữ đậm nhất của tiêu đề, số to là 700. Số bằng Lora dùng chữ số
-     tỉ lệ (mặc định): tabular-nums của Lora rộng, dấu phẩy rộng gần nửa chữ số (“9 ,25”) */
+  --display:"Lora",Georgia,serif; /* Chỉ hai chỗ: chữ OnUp (.brand) và điểm to ở màn kết quả (.score). Mọi chữ khác, kể cả tiêu đề,
+     số liệu, ngày thi, bàn phím PIN, dùng --body. Lora chỉ lấy 700; số bằng Lora dùng chữ số tỉ lệ: tabular-nums của Lora rộng,
+     dấu phẩy rộng gần nửa chữ số (“9 ,25”) */
   --body:"Noto Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   /* Chữ nhỏ nhất .8125rem (13px), vùng bấm cao ít nhất 44px (tests/e2e.js kiểm tra ở 360px). */
   --r:14px;
@@ -29,7 +30,7 @@ html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
   padding:0 max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
 .app{max-width:720px;margin:0 auto}
-h1,h2,h3{font-family:var(--display);line-height:1.35;margin:0;text-wrap:balance} /* 1.35: chữ hoa hai dấu của Lora (Ố, Ẫ) cao, thấp hơn thì chạm chân chữ g, y của dòng trên (tiêu đề hai dòng, cả bản in) */
+h1,h2,h3{line-height:1.35;margin:0;text-wrap:balance} /* 1.35: tiêu đề hai dòng, chữ hoa hai dấu (Ố, Ẫ) không chạm chân chữ g, y của dòng trên (cả bản in) */
 h1{font-size:1.75rem} h2{font-size:1.35rem} h3{font-size:1.1rem}
 p{margin:0}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -40,14 +41,12 @@ a{color:var(--acc)}
 
 /* thanh trên */
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0 10px;position:sticky;top:0;background:var(--bg);z-index:10}
-.brand{font-family:var(--display);font-weight:700;font-size:1.2rem;color:var(--acc);display:flex;align-items:center;gap:8px;background:none;border:0;padding:0;text-decoration:none}
-.brand-sub{font-weight:700;color:var(--ink)}
+/* Logo: chữ OnUp (Lora), dưới là dòng nhỏ màu nhạt (Noto Sans) ở mọi bề rộng màn hình */
+.brand{font-family:var(--display);font-weight:700;font-size:1.3rem;line-height:1.1;color:var(--acc);display:flex;flex-direction:column;align-items:flex-start;gap:0;background:none;border:0;padding:0;text-decoration:none}
+.brand-sub{font-family:var(--body);font-size:.8125rem;font-weight:600;color:var(--muted)}
 .who .btn{white-space:nowrap}
 @media (max-width:560px){
-  .brand{flex-direction:column;align-items:flex-start;gap:0;line-height:1.1;font-size:1.3rem}
-  .brand-sub{font-size:.8125rem;font-family:var(--body);font-weight:600;color:var(--muted)}
   .who .nm{display:none}
-  .brand .dash{display:none}
 }
 .brand b{background:var(--sun);color:var(--sun-ink);border-radius:8px;padding:0 8px;font-size:.95rem}
 .who{display:flex;align-items:center;gap:8px;min-width:0}
@@ -68,7 +67,7 @@ a{color:var(--acc)}
 .hero .label{color:inherit;opacity:.85}
 .hero .btn.ghost{border-color:currentColor;color:inherit}
 .hero p{opacity:.95}
-.count{font-family:var(--display);font-weight:700;font-size:2.6rem;line-height:1}
+.count{font-weight:700;font-size:2.6rem;line-height:1}
 
 /* nút */
 .btn{border:0;border-radius:12px;padding:12px 18px;font-weight:700;background:var(--acc-soft);color:var(--acc);text-decoration:none;display:inline-flex;align-items:center;gap:6px;justify-content:center}
@@ -111,7 +110,7 @@ body.tabbed{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .pick .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .pick .grow b{overflow-wrap:anywhere}
 .pick-ic{font-size:1.5rem;flex:none}
-.streak .big{font-family:var(--display);font-size:1.3rem;line-height:1.15}
+.streak .big{font-size:1.3rem;line-height:1.15}
 .fire{font-size:1.7rem;line-height:1}
 .week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
 .wd{width:100%;max-width:44px;aspect-ratio:1;margin:0 auto;border:2px solid var(--line);border-radius:50%;display:grid;place-items:center;font-size:.8125rem;font-weight:700;color:var(--muted)}
@@ -135,7 +134,7 @@ a.kid{color:inherit;text-decoration:none;gap:12px}
 /* thẻ "Bắt đầu trong 3 bước" ở đầu mục Các con (startCard, Phiên UX3): số bước trong vòng tròn, bước đang làm nền acc, bước xong dấu ✓ */
 .steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
 .step{display:flex;gap:12px;align-items:flex-start}
-.step .n{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;font:700 .875rem var(--display);color:var(--muted)}
+.step .n{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:var(--surface);display:grid;place-items:center;font:700 .875rem var(--body);color:var(--muted)}
 .step.now .n{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
 .step.done .n{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
 .step:not(.now):not(.done)>.grow>b{color:var(--muted)}
@@ -152,16 +151,16 @@ a.kid{color:inherit;text-decoration:none;gap:12px}
 .pin span{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted)}
 .pin span.on{background:var(--ink);border-color:var(--ink)}
 /* nút xem đang hiện (wirePinBox): chấm thành ô có chữ số đã gõ */
-.pin.shown span{width:26px;height:34px;border-radius:8px;display:grid;place-items:center;font:700 1.25rem/1 var(--display)}
+.pin.shown span{width:26px;height:34px;border-radius:8px;display:grid;place-items:center;font:700 1.25rem/1 var(--body)}
 .pin.shown span.on{background:var(--surface);color:var(--ink)}
 .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:0 auto;width:100%}
-.pad button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px 0;font-size:1.35rem;font-weight:700;font-family:var(--display);min-height:44px}
+.pad button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px 0;font-size:1.35rem;font-weight:700;min-height:44px}
 .pad button:disabled{opacity:.45;cursor:default} /* đang phải đợi sau nhiều lần sai (UX4, X3) */
 /* bước nhập PIN, mật khẩu (#/vao/<mã>, renderEnter trong js/app.js, UX4): hình to, tên, lớp ở giữa; bàn phím ngay dưới,
    cả màn hình vừa 360×740 không cuộn (tests/e2e.js, cloud-e2e.js đo tên và 12 nút bàn phím trong khung nhìn). */
 .enter{gap:10px}
 .enter-who{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}
-.enter-who b{font-family:var(--display);font-size:1.25rem;line-height:1.2}
+.enter-who b{font-size:1.25rem;line-height:1.2}
 .enter .panel{gap:8px;position:relative} /* ô .sr nằm trong thẻ này */
 .enter-help{text-align:center;margin:0}
 
@@ -221,12 +220,12 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 
 /* lịch thi */
 .timeline{display:flex;flex-direction:column;gap:6px}
-.month{font-family:var(--display);font-weight:700;color:var(--muted);margin-top:10px;font-size:1rem}
+.month{font-weight:700;color:var(--muted);margin-top:10px;font-size:1rem}
 .ev{display:grid;grid-template-columns:4.2em minmax(0,1fr);gap:12px;align-items:start;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--acc);border-radius:12px;padding:10px 12px;text-align:left;width:100%}
 .ev.ioe{border-left-color:var(--ioe)} .ev.moc{border-left-color:var(--moc);background:transparent} .ev.thi-khac{border-left-color:var(--sun)}
 .ev.past{opacity:.6}
 .ev.now{border-color:var(--sun);border-left-color:var(--sun);box-shadow:0 0 0 1px var(--sun)}
-.ev .d{font-family:var(--display);font-weight:700;line-height:1.1}
+.ev .d{font-weight:700;line-height:1.1}
 .ev .d small{display:block;font-family:var(--body);font-weight:500;font-size:.8125rem;color:var(--muted)}
 .ev .t{display:flex;flex-direction:column;gap:3px;min-width:0}
 .ev .t b{overflow-wrap:anywhere}
@@ -239,7 +238,7 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 /* thống kê */
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;min-width:0}
-.stat b{font-family:var(--display);font-size:1.5rem;line-height:1.1}
+.stat b{font-size:1.5rem;line-height:1.1}
 .stat span{font-size:.8125rem;line-height:1.35;color:var(--muted)}
 .bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
 .bar i{display:block;height:100%;background:var(--sun)}
@@ -248,13 +247,15 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .ubreak>span:first-child,.ubreak>span:nth-child(3n+1){overflow-wrap:anywhere}
 
 /* báo cáo tuần */
+.rp-who{display:flex;gap:12px;align-items:center}
+.rp-who>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px} /* tên, dòng lớp, dòng ngày luôn đứng cạnh hình */
 .stat small{font-size:.8125rem;line-height:1.35;color:var(--muted)}
 .stats.four{grid-template-columns:repeat(4,minmax(0,1fr))}
 .rp-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
 .rp-day{border:1px solid var(--line);border-radius:10px;padding:6px 0;display:flex;flex-direction:column;align-items:center;min-width:0;font-variant-numeric:tabular-nums}
 .rp-day span,.rp-day small{font-size:.8125rem;color:var(--muted)}
 .rp-day small{letter-spacing:-.02em} /* "28/12" vừa ô ở 360px */
-.rp-day b{font-family:var(--display);font-size:1.2rem;line-height:1.2;color:var(--muted)}
+.rp-day b{font-size:1.2rem;line-height:1.2;color:var(--muted)}
 .rp-day.on{background:var(--ok-soft);border-color:var(--ok)}
 .rp-day.on b{color:var(--ok)}
 .rp-sub{display:flex;flex-direction:column;gap:4px;min-width:0}
@@ -285,7 +286,7 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .opts.wide{grid-template-columns:1fr}
 @media (max-width:420px){.opts{grid-template-columns:1fr}}
 .opt{text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:baseline;min-width:0;overflow-wrap:anywhere}
-.opt .k{font-family:var(--display);font-weight:700;color:var(--muted)}
+.opt .k{font-weight:700;color:var(--muted)}
 .opt.sel{border-color:var(--acc);background:var(--acc-soft)}
 .opt.right{border-color:var(--ok);background:var(--ok-soft)}
 .opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
@@ -334,7 +335,7 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .num-unit{font-weight:700}
 .mt-l,.mt-r{display:flex;flex-direction:column;gap:8px}
 .mt-li{display:flex;gap:10px;align-items:baseline;text-align:left;border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:10px 14px;min-height:44px;min-width:0;overflow-wrap:anywhere}
-:is(.mt-li,.ord-s) .k{font-family:var(--display);font-weight:700;color:var(--muted)}
+:is(.mt-li,.ord-s) .k{font-weight:700;color:var(--muted)}
 :is(.mt-li,.mt-ri,.ord-s) .grow{flex:1;min-width:0;display:flex;flex-direction:column}
 .mt-to{color:var(--muted)}
 .mt-li.on{border-color:var(--sun);box-shadow:0 0 0 2px var(--sun-soft)}
@@ -343,7 +344,7 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .mt-n{font-size:.8125rem;font-weight:700;color:var(--acc);white-space:nowrap}
 .ord-seq{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .ord-seq .opt{width:100%}
-.ord-empty{border:2px dashed var(--line);border-radius:12px;min-height:44px;display:flex;align-items:center;padding:0 14px;font-family:var(--display);font-weight:700;color:var(--muted)}
+.ord-empty{border:2px dashed var(--line);border-radius:12px;min-height:44px;display:flex;align-items:center;padding:0 14px;font-weight:700;color:var(--muted)}
 .ord-pool{display:flex;flex-wrap:wrap;gap:8px}
 .ord-pool .opt{min-height:44px;max-width:100%}
 .ord-ans{margin:6px 0 0;padding-left:1.4em;color:var(--ink);font-weight:500}
@@ -421,6 +422,7 @@ body.playing{padding-bottom:0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 /* In (dùng cho Báo cáo tuần): chỉ phần nội dung, nền trắng chữ tối kể cả khi máy đang ở chế độ tối.
    :root:root:root để thắng các khối token tối ở trên. */
+@media screen{.onlyprint{display:none!important}} /* chỉ hiện khi in (nhãn đầu báo cáo tuần) */
 @media print{
   :root:root:root{
     --bg:#ffffff; --surface:#ffffff; --line:#dde2e8; --ink:#172029; --muted:#5c6773;
