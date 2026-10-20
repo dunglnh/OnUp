@@ -52,7 +52,7 @@ window.ONTAP_SEED_EVENTS = [
     subjects: ["Toán", "Tiếng Việt", "Tiếng Anh", "Lịch sử và Địa lí", "Khoa học", "Tin học và Công nghệ"],
     scope: "Toàn bộ chương trình học kì I. Tiếng Anh: Unit 1–10.", modules: ["ioe-4"],
     banks: ["toan4-ck1-de1", "toan4-ck1-de2", "toan4-ck1-de3", "tv4-ck1-de1", "tv4-ck1-de2", "khoahoc4-ck1-de1", "lsdl4-ck1-de1", "tincn4-ck1-de1",
-      "ta4-ck1-de1", "toan4-ck1-ngau-nhien", "tv4-ck1-ngau-nhien"] },
+      "tincn4-ck1-de2", "ta4-ck1-de1", "ta4-ck1-de2", "toan4-ck1-ngau-nhien", "tv4-ck1-ngau-nhien", "ta4-ck1-ngau-nhien", "tincn4-ck1-ngau-nhien"] },
   { id: "ioe-xa", title: "IOE cấp xã/phường", kind: "ioe", grades: [4, 6],
     start: "2027-01-07", end: "2027-01-09", tentative: false,
     subjects: ["Tiếng Anh"], scope: "Lớp 4: Unit 1–10. Lớp 6: Unit 1–6.",

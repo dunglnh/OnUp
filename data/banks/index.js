@@ -74,9 +74,11 @@ window.ONTAP_SEED_BANKS = [
 
   /* Tin học và Công nghệ 4 · Kiểm tra cuối học kì I (Kết nối tri thức) */
   { id: "tincn4-ck1-de1", title: "Tin học và Công nghệ 4 · Cuối kì I · Đề 1", grade: 4, subject: "Tin học và Công nghệ", minutes: 35, n: 25, file: "4-tincn.js" },
+  { id: "tincn4-ck1-de2", title: "Tin học và Công nghệ 4 · Cuối kì I · Đề 2", grade: 4, subject: "Tin học và Công nghệ", minutes: 35, n: 25, file: "4-tincn.js" },
 
   /* Tiếng Anh 4 · Kiểm tra cuối học kì I (Global Success 4, Unit 1–10) */
   { id: "ta4-ck1-de1", title: "Tiếng Anh 4 · Cuối kì I · Đề 1", grade: 4, subject: "Tiếng Anh", minutes: 35, n: 25, file: "4-ta.js" },
+  { id: "ta4-ck1-de2", title: "Tiếng Anh 4 · Cuối kì I · Đề 2", grade: 4, subject: "Tiếng Anh", minutes: 35, n: 25, file: "4-ta.js" },
 
   /* Toán 4 · Kiểm tra giữa học kì II (Kết nối tri thức, Bài 38–59) */
   { id: "toan4-gk2-de1", title: "Toán 4 · Giữa kì II · Đề 1", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js" },
@@ -112,6 +114,25 @@ window.ONTAP_SEED_BANKS = [
       "Đọc hiểu": [3, 2, 2], "Danh từ": [1, 1, 0], "Danh từ chung, danh từ riêng": [1, 0, 1], "Viết tên cơ quan, tổ chức": [0, 1, 0],
       "Động từ": [1, 1, 1], "Tính từ": [1, 1, 1], "Biện pháp nhân hoá": [0, 1, 1], "Dấu gạch ngang": [1, 1, 0], "Sử dụng từ điển": [1, 0, 0],
       "Chính tả": [1, 0, 0], "Viết": [0, 0, 1] } } },
+  /* Ngân hàng Tiếng Anh 4 cuối kì I (Phiên N3b): kho câu = 26 câu riêng trong file (2 đoạn đọc) + 50 câu của 2 đề cố định ở trên,
+     câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, mỗi Unit 2–3 câu và Reading
+     3 câu như đề cố định; ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút. */
+  { id: "ta4-ck1-ngau-nhien", title: "Tiếng Anh 4 · Cuối kì I · Đề ngẫu nhiên", grade: 4, subject: "Tiếng Anh", minutes: 35, n: 25, file: "4-ta.js",
+    pool: { from: ["ta4-ck1-de1", "ta4-ck1-de2"], matrix: {
+      "Unit 1 · My Friends": [1, 1, 0], "Unit 2 · Time and Daily Routines": [1, 1, 1], "Unit 3 · My Week": [1, 0, 1],
+      "Unit 4 · My Birthday Party": [1, 1, 1], "Unit 5 · Things We Can Do": [1, 1, 0], "Unit 6 · Our School Facilities": [1, 1, 0],
+      "Unit 7 · Our Timetables": [0, 1, 1], "Unit 8 · My Favourite Subjects": [1, 1, 0], "Unit 9 · Our Sports Day": [1, 0, 1],
+      "Unit 10 · Our Summer Holidays": [1, 0, 1], "Reading": [1, 1, 1] } } },
+  /* Ngân hàng Tin học và Công nghệ 4 cuối kì I (Phiên N3b): kho câu = 50 câu của 2 đề cố định ở trên (không có câu riêng),
+     câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, 13 câu Tin học và 12 câu
+     Công nghệ như đề cố định; đề 2 chia đúng theo ma trận và bù câu Vận dụng đề 1 còn thiếu, nên ô nào cũng đủ câu. */
+  { id: "tincn4-ck1-ngau-nhien", title: "Tin học và Công nghệ 4 · Cuối kì I · Đề ngẫu nhiên", grade: 4, subject: "Tin học và Công nghệ", minutes: 35, n: 25, file: "4-tincn.js",
+    pool: { from: ["tincn4-ck1-de1", "tincn4-ck1-de2"], matrix: {
+      "Tin học · Phần cứng và phần mềm": [1, 1, 0], "Tin học · Gõ bàn phím đúng cách": [1, 0, 1], "Tin học · Thông tin trên trang web": [1, 0, 1],
+      "Tin học · Tìm kiếm thông tin trên Internet": [0, 0, 1], "Tin học · Tệp và thư mục": [1, 1, 0], "Tin học · Dùng phần mềm khi được phép": [0, 1, 0],
+      "Tin học · Bài trình chiếu": [1, 1, 1], "Công nghệ · Lợi ích của hoa, cây cảnh": [1, 1, 0], "Công nghệ · Một số loại hoa, cây cảnh": [2, 0, 0],
+      "Công nghệ · Vật liệu và dụng cụ trồng cây trong chậu": [1, 0, 1], "Công nghệ · Gieo hạt hoa, cây cảnh trong chậu": [0, 1, 1],
+      "Công nghệ · Trồng hoa, cây cảnh trong chậu": [1, 1, 0], "Công nghệ · Chăm sóc hoa, cây cảnh trong chậu": [0, 1, 1] } } },
   /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
      mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "toan6-ck1-ngau-nhien", title: "Toán 6 · Cuối kì I · Đề ngẫu nhiên", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js",
