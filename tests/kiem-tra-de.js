@@ -8,8 +8,10 @@
    - từng câu: dạng có trong TRUONG_CAU, không có trường lạ; có câu hỏi, chủ đề, lời giải (tự luận: đáp án gợi ý);
      trắc nghiệm có ít nhất 2 lựa chọn, không trùng nhau (phân biệt chữ hoa: có câu hỏi cách viết hoa); điền khuyết có đáp án
      và đúng một chỗ trống ___ (js/quiz.js chấm đáp án đầu là đúng); đúng/sai có a là true hoặc false;
-     đúng/sai 4 ý (tf4) có đúng 4 ý không trùng, a là 4 giá trị true/false; trả lời bằng số (num) có ans là số, tol ≥ 0,
-     app chấm đúng ans (viết kiểu Việt Nam, như 2,5); nối cột (match) có ít nhất 2 ô trái, cột phải đủ ô (thêm tối đa 3 ô thừa),
+     đúng/sai 4 ý (tf4) có đúng 4 ý không trùng, a là 4 giá trị true/false; trả lời bằng số (num) có ans là số hoặc phân số
+     viết "a/b" (chuỗi, mẫu số khác 0, L29), tol ≥ 0, app chấm đúng ans (số viết kiểu Việt Nam, như 2,5; phân số viết như trong
+     dữ liệu) và hiện đúng chữ phân số; script tự thử với đáp án cố ý viết sai ("2/0", "hai phần ba") và Quiz.parse đọc "Đáp số: 3/4";
+     nối cột (match) có ít nhất 2 ô trái, cột phải đủ ô (thêm tối đa 3 ô thừa),
      không ô nào trùng; sắp xếp (order) có 3–8 ô không trùng; tự luận (essay) có thang chấm, điểm mỗi ý chia hết cho 0,25,
      tổng không quá 10; lv là 1, 2 hoặc 3; p là mã một đoạn đọc của đề; hình (svg) qua bộ lọc Quiz.svg không bị bỏ gì;
    - đoạn đọc (passages): mã gọn, có chữ hoặc hình, mỗi đoạn có ít nhất một câu dùng;
@@ -73,6 +75,17 @@ const opt = (s) => String(s).normalize("NFC").replace(/\s+/g, " ").trim();
 const W = load(["data/grades.js", "data/calendar-2026-2027.js", "data/modules.js"]).window;
 const grades = (W.ONTAP_GRADES || []).map((g) => g.grade);
 const Quiz = load(["js/quiz.js"]).window.Quiz;
+/* Câu trả lời bằng số (num): ans là một số, hoặc phân số là chuỗi "a/b" (L29: "2/3", "-3/4", mẫu số khác 0); tol ≥ 0 và nhỏ hơn
+   đáp án; app chấm đúng đáp án (số viết kiểu Việt Nam như 2,5 và như trong dữ liệu; phân số viết như trong dữ liệu) và chỗ hiện
+   đáp án ghi đúng chữ phân số, không làm tròn (Quiz.text dùng cùng chữ với màn làm bài). Trả về lời báo lỗi hoặc "". */
+const soatSo = (q) => {
+  const frac = typeof q.ans === "string" && /^-?\d+\/\d+$/.test(q.ans) && +q.ans.split("/")[1] !== 0;
+  if (!frac && !(typeof q.ans === "number" && Number.isFinite(q.ans))) return 'trả lời bằng số cần ans là một số (ví dụ 2.5, không để trong ngoặc kép) hoặc phân số viết "a/b" (ví dụ "2/3", "-3/4"), mẫu số khác 0';
+  const v = frac ? q.ans.split("/")[0] / q.ans.split("/")[1] : q.ans;
+  if ("tol" in q && !(typeof q.tol === "number" && q.tol >= 0 && q.tol < Math.max(1, Math.abs(v)))) return "sai số tol phải là số ≥ 0 và nhỏ hơn đáp án";
+  if (frac) return Quiz.isRight(q, q.ans) && Quiz.text(Object.assign({}, q, { q: "" })).includes("Đáp án: " + q.ans) ? "" : `app không chấm đúng hoặc không hiện đúng đáp án "${q.ans}"`;
+  return Quiz.isRight(q, Quiz.fmtN(q.ans)) && Quiz.isRight(q, String(q.ans)) ? "" : `app không chấm đúng đáp án ${q.ans} (viết ${Quiz.fmtN(q.ans)})`;
+};
 
 /* ---------- danh mục ---------- */
 const catalog = load(["data/banks/index.js"]).window.ONTAP_SEED_BANKS || [];
@@ -200,9 +213,8 @@ catalog.forEach((b) => {
       else if (Quiz.score(q, q.a) !== 1 || Quiz.score(q, q.a.map((x, k) => (k ? x : !x))) !== 0.5) err(at, "app chấm chưa đúng câu đúng/sai 4 ý");
       key += "|" + (Array.isArray(q.o) ? q.o.map(norm).sort().join("|") : "");
     } else if (q.type === "num") {
-      if (typeof q.ans !== "number" || !Number.isFinite(q.ans)) err(at, "trả lời bằng số cần ans là một số (ví dụ 2.5, không để trong ngoặc kép)");
-      else if ("tol" in q && !(typeof q.tol === "number" && q.tol >= 0 && q.tol < Math.max(1, Math.abs(q.ans)))) err(at, "sai số tol phải là số ≥ 0 và nhỏ hơn đáp án");
-      else if (!Quiz.isRight(q, Quiz.fmtN(q.ans)) || !Quiz.isRight(q, String(q.ans))) err(at, `app không chấm đúng đáp án ${q.ans} (viết ${Quiz.fmtN(q.ans)})`);
+      const m = soatSo(q);
+      if (m) err(at, m);
       if ("unit" in q && !text(q.unit)) err(at, "đơn vị unit phải là chữ");
     } else if (q.type === "match") {
       const l = Array.isArray(q.l) ? q.l : [], r = Array.isArray(q.r) ? q.r : [];
@@ -389,6 +401,17 @@ catalog.forEach((b) => {
   sai.forEach((b, i) => { if (!soatTen(b)) err(at, `tên sai mẫu ${i + 1} không bị báo: "${b.title}"`); });
   [mk("Tin học và Công nghệ 4 · Cuối kì I · Đề 1"), mk("Tin học và Công nghệ 4 · Giữa kì II · Đề 12"), mk("Tin học và Công nghệ 4 · Cuối năm · Đề ngẫu nhiên", true),
     { title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: MON_THU }].forEach((b, i) => { const m = soatTen(b); if (m) err(at, `tên đúng mẫu ${i + 1} bị báo: ${m}`); });
+}
+
+// tự thử câu trả lời bằng số (L29): phân số "2/3", "-3/4" và số qua; đáp án viết sai bị báo; Quiz.parse đọc "Đáp số: 3/4" thành phân số
+{
+  const at = "kiểm tra trả lời bằng số", mk = (ans) => ({ topic: "Phân số", type: "num", q: "Câu thử", ans, x: "Lời giải" });
+  ["2/3", "-3/4", 2.5, -7].forEach((a) => { const m = soatSo(mk(a)); if (m) err(at, `ans ${JSON.stringify(a)} đúng mà bị báo: ${m}`); });
+  ["2/0", "hai phần ba", "2,5", "2/3/4", " 2/3", "−3/4"].forEach((a) => { if (!soatSo(mk(a))) err(at, `ans ${JSON.stringify(a)} sai mà không bị báo`); });
+  [["1/2 + 1/4 = ?\nĐáp số: 3/4", "3/4"], ["1/4 − 1 = ?\nĐáp số: -3/4", "-3/4"]].forEach(([src, want]) => {
+    const p = Quiz.parse(src), q = p.questions[0];
+    if (p.errors.length || p.questions.length !== 1 || q.type !== "num" || q.ans !== want || "unit" in q || soatSo(Object.assign(q, { x: "Lời giải" }))) err(at, `Quiz.parse đọc “${src.split("\n")[1]}” chưa đúng: ` + JSON.stringify(p));
+  });
 }
 
 /* ---------- lịch thi mặc định ---------- */

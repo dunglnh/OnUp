@@ -2126,6 +2126,113 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("số:", { seen: nm.seen, pool: nm.pool, typed: nm.typed, reported: nm.reported, essay: nm.essay, saved: nm.saved, list: nm.list }, "problems:", nm.problems.length, nm.problems.slice(0, 30));
   const numOK = !nm.problems.length && nm.seen > 600 && nm.pool > 0 && nm.typed.length === 2 && nm.typed.every(Boolean) && nm.reported === NUM_BANKS[0] && nm.essay && nm.saved && nm.list > 0;
 
+  step("number inputs on phones: fraction button, negative and decimal fill answers (L29–L31)");
+  /* Bàn phím số thập phân của iPhone không có "/" và "-" (Phiên 9h). Câu trả lời bằng số: nút "/" (#qzSlash, ≥ 44px) ngay sau nút ±
+     ở mọi câu, ô vẫn inputmode="decimal"; đáp án phân số "a/b" chấm theo giá trị, phần đáp án hiện đúng "2/3" (L29). Câu điền có đáp
+     án âm: ô không có inputmode="decimal", dưới câu có dòng nhắc số âm (L30). Câu điền số so theo giá trị: gõ dấu chấm hay dấu phẩy
+     thập phân đều đúng, "2.5" không đúng với 25 (L31). Đề thử thêm vào danh mục lúc chạy (như pool giả ở bước K3); Na lớp 6 ôn luyện
+     ở 360px sáng và tối. Lượt 1: câu "2/3" gõ 2, bấm "/", gõ 3 (dấu chỉ bằng nút; bấm "/" lần nữa không thêm), Kiểm tra: đúng; câu
+     "-3/4" bấm ±, gõ 3, bấm "/", gõ 4: đúng; câu điền "-7" gõ "-7": đúng; câu điền "1,25" gõ "1.25": đúng; câu điền "25" gõ "2.5":
+     sai; kết quả lưu 4/5. Lượt 2 ("Làm lại cả đề"): câu "2/3" gõ "0,67": sai, phần đáp án hiện "2/3"; còn lại bỏ qua; màn kết quả
+     ghi đáp án "2/3", "-3/4". Mỗi màn hình kiểm tra 360px (audit). Quiz.TXT.en có đủ các khóa như cột vi, chữ mới không có chữ cái
+     tiếng Việt. Ảnh sáng/tối ở tests/screenshots/l29-l31/ (bản ghép <tên>.jpg): so-phan-so, so-phan-so-sai, dien-so-am. */
+  const OUTL29 = OUT + "l29-l31/"; fs.mkdirSync(OUTL29, { recursive: true });
+  const L29_BANK = { id: "thu-o-so", title: "Toán 6 · Thử ô nhập số", grade: 6, subject: "Toán", minutes: 10, n: 5, file: "6-toan.js", note: "",
+    questions: [
+      { topic: "Phân số", type: "num", q: "Tính: 1/3 + 1/3 = ?", ans: "2/3", x: "1/3 + 1/3 = 2/3." },
+      { topic: "Phân số", type: "num", q: "Tính: 1/4 − 1 = ?", ans: "-3/4", x: "1/4 − 1 = 1/4 − 4/4 = −3/4." },
+      { topic: "Số nguyên", type: "fill", q: "(−3) + (−4) = ___", ans: ["-7"], x: "Cộng hai số nguyên âm: 3 + 4 = 7 rồi đặt dấu “−” trước kết quả: −7." },
+      { topic: "Số thập phân", type: "fill", q: "1 250 g = ___ kg", ans: ["1,25"], x: "1 000 g = 1 kg, nên 1 250 g = 1,25 kg." },
+      { topic: "Số tự nhiên", type: "fill", q: "5 × 5 = ___", ans: ["25"], x: "5 × 5 = 25." }
+    ] };
+  const L29_TYPE = { "-7": "-7", "1,25": "1.25", "25": "2.5" }; // câu điền: chữ gõ vào ô
+  const L29_SHOTS = ["so-phan-so", "so-phan-so-sai", "dien-so-am"];
+  const l29 = { problems: [], shots: [], runs: [] };
+  { // bảng chữ: cột en đủ khóa như cột vi; chữ mới của Phiên 9h có ở cả hai cột, cột en không có chữ cái tiếng Việt
+    const w = {}; require("vm").runInNewContext(fs.readFileSync(ROOT + "js/quiz.js", "utf8"), { window: w });
+    const T = w.Quiz.TXT, keys = (o) => Object.keys(o).sort().join();
+    l29.txt = keys(T.vi) === keys(T.en) && ["numSlash", "numHint", "negHint"].every((k) => typeof T.vi[k] === "string" && typeof T.en[k] === "string" && T.en[k] !== T.vi[k] && !CHU_VIET.test(T.en[k]));
+  }
+  for (const scheme of ["light", "dark"]) {
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror L29: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console L29: " + m.text()); });
+    const check = async (label) => (await p.evaluate(audit)).forEach((x) => l29.problems.push(`L29 · ${scheme} · ${label}: ${x}`));
+    const snap = async (n) => { await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await p.screenshot({ path: `${OUTL29}${n}-${scheme}.png`, fullPage: true }); l29.shots.push(`${n}-${scheme}`); };
+    const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, sel);
+    const cur = async () => { const t = await p.$eval(".qcard .qtext", (e) => e.textContent); return L29_BANK.questions.find((q) => flatQ(q.q) === flatQ(t)) || null; };
+    // hàng ô số: nút ±, nút "/" rồi ô, cùng một hàng; hai nút cao ≥ 44px; ô vẫn mở bàn phím số thập phân
+    const numRow = () => p.evaluate(() => {
+      const s = document.querySelector("#qzSign"), sl = document.querySelector("#qzSlash"), i = document.querySelector("#qzNum"), box = (e) => e.getBoundingClientRect();
+      return !!sl && s.nextElementSibling === sl && sl.nextElementSibling === i && box(s).height >= 44 && box(sl).height >= 44 && Math.abs(box(sl).top - box(s).top) < 1
+        && sl.textContent === "/" && sl.getAttribute("aria-label") === "Thêm dấu phân số" && i.getAttribute("inputmode") === "decimal";
+    });
+    const val = () => p.inputValue("#qzNum"), focused = () => p.evaluate(() => (document.activeElement || {}).id);
+    const r = { scheme, ok: {}, fill: {} };
+    await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids.Na}"]`); await p.fill("#pinIn", "4444"); await p.waitForSelector("#today");
+    await p.evaluate((b) => window.ONTAP_SEED_BANKS.push(b), L29_BANK);
+    await p.goto(BASE + "/#/quiz/" + L29_BANK.id); await p.waitForSelector("#qPractice"); await p.click("#qPractice");
+    // lượt 1
+    for (let i = 0; i < 10 && !(await p.$(".score")); i++) {
+      const q = await cur(), a = q && [].concat(q.ans)[0];
+      if (!q) { l29.problems.push(`L29 · ${scheme}: không nhận ra câu ` + (await txt(".qcard .qtext"))); break; }
+      await check("câu " + a);
+      if (a === "2/3") {
+        r.row = await numRow();
+        await p.focus("#qzNum"); await p.keyboard.type("2"); await p.click("#qzSlash"); await p.keyboard.type("3");
+        r.slash = (await val()) === "2/3" && (await focused()) === "qzNum";
+        await p.click("#qzSlash"); r.once = (await val()) === "2/3" && (await focused()) === "qzNum"; // ô đã có "/": không thêm nữa
+        await check("câu 2/3, đã gõ"); await snap("so-phan-so");
+      } else if (a === "-3/4") {
+        r.row2 = await numRow();
+        await p.click("#qzSign"); await p.keyboard.type("3"); await p.click("#qzSlash"); await p.keyboard.type("4");
+        r.neg = (await val()) === "-3/4";
+      } else {
+        r.fill[a] = await p.$eval("#qzFill", (e) => ({ mode: e.getAttribute("inputmode"), hint: [...e.closest(".qcard").querySelectorAll("p.small")].map((x) => x.textContent).join("|") }));
+        await p.fill("#qzFill", L29_TYPE[a]);
+        if (a === "-7") { await check("câu điền -7, đã gõ"); await snap("dien-so-am"); }
+      }
+      await p.click("#qzGo"); await check(`câu ${a} sau Kiểm tra`);
+      r.ok[a] = !!(await p.$("#qzFb .fb.ok"));
+      await p.click("#qzGo");
+    }
+    await p.waitForSelector(".score"); await check("kết quả lượt 1");
+    r.saved = await p.evaluate((id) => { const x = Store.resultsFor(Store.sessionUser().id).find((y) => y.refId === id); return !!x && x.r === 4 && x.t === 5 && x.mode === "practice"; }, L29_BANK.id);
+    // lượt 2: câu 2/3 gõ "0,67" → sai, phần đáp án hiện "2/3"; còn lại bỏ qua
+    await p.click("#qzAgain"); await p.waitForSelector(".qcard");
+    for (let i = 0; i < 10 && !(await p.$(".score")); i++) {
+      const q = await cur();
+      if (q && q.ans === "2/3") {
+        await p.fill("#qzNum", "0,67"); await p.click("#qzGo");
+        r.wrong = await txt("#qzFb .fb.bad");
+        await check("câu 2/3 gõ 0,67"); await snap("so-phan-so-sai");
+        await p.click("#qzGo");
+      } else await p.click("#qzSkip");
+    }
+    await p.waitForSelector(".score");
+    r.review = await p.$$eval("#qzReview .rv-body > .small", (xs) => xs.map((x) => x.textContent.replace(/\s+/g, " ").trim()));
+    await p.evaluate(() => document.querySelectorAll("#view details").forEach((d) => (d.open = true))); await check("kết quả lượt 2, mở câu cần xem lại");
+    l29.runs.push(r);
+    await c.close();
+  }
+  { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/l29-l31/<tên>.jpg)
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of L29_SHOTS) {
+      if (!l29.shots.includes(n + "-light") || !l29.shots.includes(n + "-dark")) continue;
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTL29}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTL29}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("L29–L31:", l29.runs, "txt:", l29.txt, "problems:", l29.problems);
+  const l29OK = !l29.problems.length && l29.txt && l29.runs.length === 2
+    && l29.runs.every((r) => r.row && r.row2 && r.slash && r.once && r.neg && r.ok["2/3"] && r.ok["-3/4"] && r.ok["-7"] && r.ok["1,25"] && r.ok["25"] === false
+      && r.fill["-7"].mode === null && r.fill["-7"].hint === "Số âm: gõ dấu trừ phía trước, ví dụ -12."
+      && r.fill["1,25"].mode === "decimal" && !r.fill["1,25"].hint && r.fill["25"].mode === "decimal" && !r.fill["25"].hint
+      && r.saved && r.wrong === "Chưa đúng. Đáp án: 2/3" && r.review.includes("Đáp án: 2/3") && r.review.includes("Đáp án: -3/4"))
+    && L29_SHOTS.every((n) => l29.shots.includes(n + "-light") && l29.shots.includes(n + "-dark"));
+
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
      Đề có sẵn: chỉ danh mục data/banks/index.js nằm trong FILES; file câu hỏi vào đệm khi mở đề. */
@@ -2249,7 +2356,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, ux4OK, ux5OK, numOK, ux6LocalOK };
+    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, ux4OK, ux5OK, numOK, l29OK, ux6LocalOK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();

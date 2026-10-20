@@ -13,7 +13,7 @@
      mở một lượt ôn luyện chỉ gồm các câu sai (retry = true trong lúc đó), không gọi onFinish, không lưu điểm; "Làm lại cả đề" về đề đầy đủ
      cùng cách làm; câu cần xem lại thu gọn (<details class="rv">, bấm mới xem đáp án, lời giải); theo chủ đề chỉ hiện chủ đề cần ôn thêm.
      Trên câu chỉ một dòng nhãn "môn · chủ đề" (dạng đúng/sai 4 ý, nối cột, sắp xếp, tự luận ghi thêm cách làm); câu điền mà mọi đáp án
-     là số thì ô nhập có inputmode="decimal" (bàn phím số).
+     là số thì ô nhập có inputmode="decimal" (bàn phím số), trừ khi có đáp án âm (L30: bàn phím thường, dòng nhắc số âm dưới câu).
    Bài đã gửi cho bố mẹ chưa (Phiên UX6, X10): màn kết quả có chỗ trống <p class="saved" id="qzSaved" hidden> trong #qzScore;
      bản đám mây, app điền sau khi lưu (onFinish) và lượt gửi xong (js/app.js, savedLine). Chữ: TXT.appSent, appPending.
    Chế độ tập trung (Phiên UX5, X5): opts.onStart() khi một lượt bắt đầu (cả "Làm lại", "Ôn lại câu sai"), opts.onEnd() khi lượt
@@ -25,7 +25,8 @@
      - điểm tự chấm phần tự luận: {mode: "self", r, t, s: 0}, r và t tính bằng phần tư điểm (số nguyên), không cộng vào
        điểm trung bình (app ghi riêng). Ôn luyện: lưu lúc nộp; làm như thi: lưu khi bấm "Lưu điểm tự chấm" ở trang kết quả.
      Phần chấm tự động còn có marks: [[Quiz.key(câu), điểm 0–1]] của từng câu đã chấm (câu bỏ qua, chưa làm: 0).
-   Dạng câu (xem đầu data/banks/index.js): mc, fill, tf, tf4 (đúng/sai 4 ý), num (trả lời ngắn bằng số), match (nối cột),
+   Dạng câu (xem đầu data/banks/index.js): mc, fill, tf, tf4 (đúng/sai 4 ý), num (trả lời ngắn bằng số; ans là số hoặc phân số
+   "a/b", ô nhập có nút ± và nút "/", L29), match (nối cột),
    order (sắp xếp), essay (tự luận tự chấm). Trường chung không bắt buộc: lv (mức độ 1 Biết, 2 Hiểu, 3 Vận dụng),
    p (mã đoạn đọc trong bank.passages), svg (hình, lọc bằng Quiz.svg). Mọi thao tác là chạm, không kéo thả.
    Quiz.parse(text) → {questions, passages, errors}: đọc câu hỏi dán từ Word/Zalo theo cú pháp đơn giản.
@@ -65,8 +66,8 @@
       // đoạn đọc
       psgTitle: "Đọc kĩ rồi trả lời", psgFor: (n) => `Dùng chung cho ${n} câu`, psgHide: "Thu gọn", psgShow: "Mở ra",
       // thân câu hỏi (UX1: trên câu chỉ một dòng nhãn "môn · chủ đề", dạng phức tạp ghi thêm cách làm: tf4Label, matchLabel, orderLabel, essayLabel)
-      fillAria: "Câu trả lời", numSign: "Thêm hoặc bỏ dấu trừ", numAria: "Đáp số",
-      numHint: "Số thập phân viết bằng dấu phẩy, ví dụ 2,5.", tf4Label: "Đúng hay sai? Chọn cho từng ý", tf4Group: (c) => `Ý ${c}`,
+      fillAria: "Câu trả lời", negHint: "Số âm: gõ dấu trừ phía trước, ví dụ -12.", numSign: "Thêm hoặc bỏ dấu trừ", numSlash: "Thêm dấu phân số", numAria: "Đáp số",
+      numHint: "Phân số viết a/b, ví dụ 3/4. Số thập phân viết bằng dấu phẩy, ví dụ 2,5.", tf4Label: "Đúng hay sai? Chọn cho từng ý", tf4Group: (c) => `Ý ${c}`,
       matchLabel: "Nối cột", orderLabel: "Sắp xếp thứ tự", orderYours: "Thứ tự của bạn", essayLabel: "Tự luận · tự chấm", essayAria: "Bài làm",
       essayPh: "Viết bài làm ở đây, hoặc viết ra giấy.", essayNote: "Phần tự luận không tính vào điểm trung bình.",
       essayExam: "Nộp bài xong, bạn xem gợi ý và tự chấm.", essayPractice: "Bấm Xem gợi ý để tự chấm theo thang điểm.",
@@ -135,8 +136,8 @@
       drawLv: (t, n, lv, from) => `${t}: ${n} missing at level ${lv}, filled with ${from}`, lvOf: (lv) => "level " + lv, noLv: "questions without a level",
       drawOther: (t, n) => `${t}: ${n} missing, taken from other topics`, drawShort: (t, n) => `${t}: not enough questions in the bank, ${n} missing`,
       psgTitle: "Read and answer", psgFor: (n) => (n === 1 ? "For 1 question" : `For ${n} questions`), psgHide: "Hide", psgShow: "Show",
-      fillAria: "Your answer", numSign: "Add or remove the minus sign", numAria: "Your answer",
-      numHint: "Use a decimal point, for example 2.5.", tf4Label: "True or false? Choose for each sentence", tf4Group: (c) => `Sentence ${c}`,
+      fillAria: "Your answer", negHint: "For a negative number, type the minus sign first, for example -12.", numSign: "Add or remove the minus sign", numSlash: "Add a fraction bar", numAria: "Your answer",
+      numHint: "Write a fraction as a/b, for example 3/4. Use a decimal point, for example 2.5.", tf4Label: "True or false? Choose for each sentence", tf4Group: (c) => `Sentence ${c}`,
       matchLabel: "Match", orderLabel: "Put in order", orderYours: "Your order", essayLabel: "Writing · self-check", essayAria: "Your writing",
       essayPh: "Write here, or on paper.", essayNote: "Writing is not counted in your average score.",
       essayExam: "After you finish, read the guide and mark your own work.", essayPractice: "Tap See the guide to mark your own work.",
@@ -224,6 +225,7 @@
   const fmtN = (x, lang) => { const [i, d] = String(Math.abs(r2(x))).split("."), en = lang === "en"; return (x < 0 ? "-" : "") + (i.length > 4 ? i.replace(/\B(?=(\d{3})+$)/g, en ? "," : " ") : i) + (d ? (en ? "." : ",") + d : ""); };
   const normT = (s) => String(s).normalize("NFC").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, " ").replace(/[.!?;:,]+$/, "").trim().toLowerCase();
   const isNum = (s) => /^[-−–]?\s*\d[\d\s.,]*$/.test(String(s).trim());
+  const isNeg = (s) => /^\(?\s*[-−–]\s*\d/.test(String(s).trim()); // số âm: "-7", "(−7)" (L30)
   const numKey = (s) => String(s).trim().replace(/[−–]/g, "-").replace(/[\s.]/g, "").replace(",", ".");
 
   /* ---------------- hình SVG ----------------
@@ -380,6 +382,14 @@
   // Đơn vị in ngay sau chỗ trống ("___ kg", "___ cây.", "___°"); học sinh hay gõ kèm nó vào ô.
   const fold = (s) => s.normalize("NFD").replace(/\p{M}/gu, "").replace(/đ/gi, "d").toLowerCase().replace(/2/g, "²").replace(/3/g, "³");
   const unitAfter = (q) => { const w = ((String(q.q).split("___")[1] || "").trim().split(/\s+/)[0] || "").normalize("NFC").replace(/[.,;:!?]+$/, ""); return /^[\p{L}°²³]+$/u.test(w) ? w.toLowerCase() : ""; };
+  /* Đáp án và chữ gõ đều là số (L31): có dấu chấm hoặc dấu phẩy thì so giá trị, đọc như câu trả lời bằng số (numVals), nên dấu phẩy
+     hay dấu chấm thập phân đều đúng ("1,25", "1.25" với đáp án 1,25), còn "2.5" không đúng với đáp án 25. Chữ viết mơ hồ ("1.200")
+     có hai cách đọc, trùng một cách là đúng. Chỉ có chữ số (và khoảng trắng), hoặc không đọc được thành một số (dãy "1, 2, 3, 6"),
+     thì so chữ như trước (numKey): "1 200" đúng với "1200", "05" không đúng với 5. */
+  const sameNum = (a, c) => {
+    const va = /[.,]/.test(a + c) ? numVals(a) : [], vc = va.length ? numVals(c) : [];
+    return vc.length ? vc.some((v) => va.some((w) => Math.abs(v - w) < 1e-9)) : numKey(a) === numKey(c);
+  };
   function fillRight(q, g) {
     const t = String(g).normalize("NFC").trim(), u = unitAfter(q), cands = [t];
     const bare = t.replace(/[.!?;:]+$/, "").trim();
@@ -392,7 +402,7 @@
     }
     // Số âm hay được viết trong ngoặc: "(-7)".
     cands.slice().forEach((c) => { const m = /^\(\s*(.+?)\s*\)$/.exec(c.replace(/[.!?;:]+$/, "").trim()); if (m && isNum(m[1])) cands.push(m[1]); });
-    return cands.some((c) => q.ans.some((a) => (isNum(a) && isNum(c)) ? numKey(a) === numKey(c) : normT(a) === normT(c)));
+    return cands.some((c) => q.ans.some((a) => (isNum(a) && isNum(c)) ? sameNum(a, c) : normT(a) === normT(c)));
   }
   /* Trả lời ngắn bằng số: các cách đọc của số học sinh gõ. Dấu phẩy thập phân kiểu Việt Nam ("12,5", "1.000,5"), dấu chấm
      thập phân ("12.5"), phân số ("3/4"), số âm ("-2", "(-2)"), gõ kèm đơn vị của câu. Số viết mơ hồ ("1.000", "1,000")
@@ -409,13 +419,16 @@
     if (/^-?\d{1,3}(,\d{3})+(\.\d+)?$/.test(t) || /^-?\d+\.\d+$/.test(t)) out.push(+t.replace(/,/g, ""));
     return out.filter(Number.isFinite);
   }
+  /* Đáp án của câu trả lời bằng số: một số, hoặc phân số là chuỗi "a/b" ("2/3", "-3/4"; L29). Chấm theo giá trị nên 0,75 hay 6/8
+     cũng đúng với đáp án "3/4"; chỗ hiện đáp án (correctText) ghi đúng "2/3", không làm tròn. */
+  const numAns = (q) => (typeof q.ans === "number" ? [q.ans] : numVals(q.ans));
   /* Điểm của một câu, từ 0 đến 1. Câu đúng/sai 4 ý: đúng 1/2/3/4 ý được 0,1/0,25/0,5/1. Nối cột: theo số cặp nối đúng.
      Sắp xếp: đúng cả thứ tự mới được điểm. Tự luận: 0 (tự chấm riêng). */
   function score(q, g) {
     if (g == null || g === "") return 0;
     switch (q.type) {
       case "fill": return fillRight(q, g) ? 1 : 0;
-      case "num": return numVals(g, q.unit).some((v) => Math.abs(v - q.ans) <= (+q.tol || 0) + 1e-9) ? 1 : 0;
+      case "num": { const a = numAns(q); return numVals(g, q.unit).some((v) => a.some((x) => Math.abs(v - x) <= (+q.tol || 0) + 1e-9)) ? 1 : 0; }
       case "tf4": return Array.isArray(g) ? TF4_PTS[q.a.filter((a, i) => g[i] === a).length] : 0;
       case "match": return Array.isArray(g) ? q.l.filter((_, i) => g[i] === i).length / q.l.length : 0;
       case "order": return Array.isArray(g) && g.length === q.o.length && g.every((v, k) => v === k) ? 1 : 0;
@@ -430,7 +443,7 @@
     L = L || TXT.vi;
     switch (q.type) {
       case "fill": return q.ans[0];
-      case "num": return fmtN(q.ans, L.lang) + (q.unit ? " " + q.unit : "") + (q.tol ? L.tol(fmtN(q.tol, L.lang)) : "");
+      case "num": return (typeof q.ans === "number" ? fmtN(q.ans, L.lang) : String(q.ans).trim()) + (q.unit ? " " + q.unit : "") + (q.tol ? L.tol(fmtN(q.tol, L.lang)) : "");
       case "tf4": return q.a.map((v, i) => `${ABCD[i]}) ${yn(v, L)}`).join("; ");
       case "match": return q.l.map((l, i) => `${l} → ${q.r[i]}`).join("; ");
       case "order": return q.o.join(" → ");
@@ -507,13 +520,15 @@
       switch (q.type) {
         case "fill": {
           const parts = nbNum(esc(q.q)).split("___");
-          // mọi đáp án là số: mở bàn phím số trên điện thoại (UX1)
-          const numeric = (q.ans || []).length && q.ans.every(isNum);
-          return `<div class="${qcls}">${parts[0]}<input class="blank" id="qzFill" autocomplete="off" spellcheck="false" aria-label="${L.fillAria}"${numeric ? ' inputmode="decimal"' : ""}>${parts.slice(1).join("___")}</div>${fig(q.svg)}`;
+          // mọi đáp án là số không âm: mở bàn phím số trên điện thoại (UX1). Có đáp án âm (L30): bàn phím số thập phân của iPhone
+          // không có dấu trừ, nên dùng bàn phím thường và nhắc cách gõ dưới câu, như bài ôn dạng trang.
+          const neg = (q.ans || []).some(isNeg), numeric = (q.ans || []).length && q.ans.every(isNum) && !neg;
+          return `<div class="${qcls}">${parts[0]}<input class="blank" id="qzFill" autocomplete="off" spellcheck="false" aria-label="${L.fillAria}"${numeric ? ' inputmode="decimal"' : ""}>${parts.slice(1).join("___")}</div>${fig(q.svg)}${neg ? `<p class="small muted">${L.negHint}</p>` : ""}`;
         }
         case "num":
+          // bàn phím số thập phân của iPhone không có "-" và "/": nút ± và nút "/" (L29) cạnh ô; nút "/" có ở mọi câu, để không lộ đáp án là phân số
           return `${stem}
-            <div class="num-row"><button type="button" class="btn ghost" id="qzSign" aria-label="${L.numSign}">±</button><input class="num-in" id="qzNum" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="${L.numAria}">${q.unit ? `<span class="num-unit">${esc(q.unit)}</span>` : ""}</div>
+            <div class="num-row"><button type="button" class="btn ghost" id="qzSign" aria-label="${L.numSign}">±</button><button type="button" class="btn ghost" id="qzSlash" aria-label="${L.numSlash}">/</button><input class="num-in" id="qzNum" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="${L.numAria}">${q.unit ? `<span class="num-unit">${esc(q.unit)}</span>` : ""}</div>
             <p class="small muted">${L.numHint}</p>`;
         case "tf4":
           return `${stem}
@@ -627,6 +642,14 @@
       const inp = $("#qzFill") || $("#qzNum");
       if (inp) { inp.oninput = () => (S.cur = inp.value); inp.onkeydown = (e) => { if (e.key === "Enter") go.click(); }; setTimeout(() => inp.focus({ preventScroll: true }), 50); }
       if ($("#qzSign")) $("#qzSign").onclick = () => { if (S.checked) return; const v = inp.value.trim(); inp.value = /^[-−–]/.test(v) ? v.replace(/^[-−–]\s*/, "") : "-" + v; S.cur = inp.value; inp.focus({ preventScroll: true }); };
+      // nút "/" (L29): thêm "/" vào chỗ con trỏ (ô đã có "/" thì thôi), rồi trả focus về ô như nút ±
+      if ($("#qzSlash")) $("#qzSlash").onclick = () => {
+        if (S.checked) return;
+        const v = inp.value, a = inp.selectionStart == null ? v.length : inp.selectionStart, b = inp.selectionEnd == null ? a : inp.selectionEnd;
+        inp.focus({ preventScroll: true });
+        if (v.includes("/")) return;
+        inp.value = v.slice(0, a) + "/" + v.slice(b); inp.setSelectionRange(a + 1, a + 1); S.cur = inp.value;
+      };
       if ($("#qzEssay")) $("#qzEssay").oninput = (e) => (S.cur = e.target.value);
       if (q.type === "tf4") $$(".tf4 .opt").forEach((b) => (b.onclick = () => {
         if (S.checked) return;
@@ -853,6 +876,7 @@
      Đúng: Hình vuông có 4 góc vuông.   → câu đúng/sai (hoặc "Sai: ...")
      Câu hỏi + 4 dòng "a) Đúng: …", "b) Sai: …"   → đúng/sai 4 ý
      Câu hỏi + dòng "Đáp số: 2,5 ± 0,1 kg"       → trả lời ngắn bằng số (sai số, đơn vị không bắt buộc)
+     Câu hỏi + dòng "Đáp số: 3/4" (hoặc -3/4)    → trả lời ngắn bằng số, đáp án là phân số (ans "3/4")
      Câu hỏi + các dòng "trái -> phải"           → nối cột; dòng "-> ô thừa" là ô bên phải không nối với ô nào
      Câu hỏi + các dòng "1) …", "2) …", "3) …"   → sắp xếp (viết theo thứ tự đúng, app tự xáo)
      Tự luận: đề bài + các dòng "+ ý cần có (0,5)" (thang tự chấm) + "> gợi ý"   → tự luận tự chấm
@@ -939,11 +963,17 @@
       }
       const dap = ls.find((l) => /^Đáp số\s*:/i.test(l));
       if (dap) {
-        const m = /^([-−–]?\s*\d[\d\s.]*(?:,\d+)?)(?:\s*(?:±|\+\/?-)\s*(\d[\d.]*(?:,\d+)?))?\s*(.*)$/.exec(dap.replace(/^Đáp số\s*:\s*/i, ""));
-        if (!m || !Number.isFinite(vnNum(m[1]))) { err("dòng “Đáp số:” cần một số, ví dụ Đáp số: 2,5 hoặc Đáp số: 2,5 ± 0,1 kg"); return; }
-        const q = { topic, type: "num", q: ls.filter((l) => l !== dap).join(" "), ans: vnNum(m[1]) };
+        // số ("2,5", "1 250", "-3") hoặc phân số a/b ("3/4", "-3/4"; L29), rồi sai số và đơn vị nếu có
+        const m = /^([-−–]?\s*\d+\s*\/\s*\d+(?![\d,]|\.\d)|[-−–]?\s*\d[\d\s.]*(?:,\d+)?)(?:\s*(?:±|\+\/?-)\s*(\d[\d.]*(?:,\d+)?))?\s*(.*)$/.exec(dap.replace(/^Đáp số\s*:\s*/i, ""));
+        const f = m && /^([-−–]?)\s*(\d+)\s*\/\s*(\d+)$/.exec(m[1]), unit = m ? m[3].trim().replace(/\.$/, "") : "";
+        if (!m || (!f && !Number.isFinite(vnNum(m[1])))) { err("dòng “Đáp số:” cần một số, ví dụ Đáp số: 2,5, Đáp số: 3/4 hoặc Đáp số: 2,5 ± 0,1 kg"); return; }
+        if (f && !+f[3]) { err("phân số cần mẫu số khác 0, ví dụ Đáp số: 3/4"); return; }
+        // hỗn số "1 1/2", "3/4,5": phần sau số bắt đầu bằng "/" và chữ số thì không phải đơn vị
+        if (/^\/\s*\d/.test(unit)) { err("phân số viết a/b, ví dụ Đáp số: 3/4 (hỗn số 1 1/2 viết thành 3/2)"); return; }
+        // phân số: đáp án là chuỗi "3/4" (chấm theo giá trị, hiện đúng "3/4"), không còn đọc thành 3 với đơn vị "/4"
+        const q = { topic, type: "num", q: ls.filter((l) => l !== dap).join(" "), ans: f ? `${f[1] ? "-" : ""}${+f[2]}/${+f[3]}` : vnNum(m[1]) };
         if (m[2]) q.tol = vnNum(m[2]);
-        if (m[3].trim()) q.unit = m[3].trim().replace(/\.$/, "");
+        if (unit) q.unit = unit;
         if (!q.q) { err("thiếu câu hỏi trước dòng “Đáp số:”"); return; }
         add(q);
         return;

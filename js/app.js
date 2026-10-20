@@ -1787,6 +1787,7 @@ Câu có [đáp án]        → điền vào chỗ trống, nhiều đáp án: [
 Đúng: … hoặc Sai: …    → câu đúng/sai
 Câu hỏi + 4 dòng a) Đúng: … / b) Sai: …   → đúng/sai 4 ý (chấm từng ý)
 Câu hỏi + Đáp số: 2,5 ± 0,1 kg   → trả lời bằng số (sai số, đơn vị không bắt buộc)
+Câu hỏi + Đáp số: 3/4   → trả lời bằng số, đáp án là phân số
 Câu hỏi + các dòng trái -> phải  → nối cột (-> ô thừa: ô bên phải không nối)
 Câu hỏi + 1) … 2) … 3) …   → sắp xếp (viết theo thứ tự đúng)
 Tự luận: đề bài + các dòng + ý cần có (0,5)   → tự luận tự chấm
