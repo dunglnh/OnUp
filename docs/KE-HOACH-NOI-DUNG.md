@@ -220,7 +220,7 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 **Quy định chung của các phiên N** (mỗi lời giao việc bên dưới trỏ về đây; sửa ở đây là áp dụng cho mọi phiên):
 > - Chỉ sửa data/banks/, data/calendar-2026-2027.js, script và kiểm thử trong tests/, tài liệu; không sửa js/, css/, modules/ (thấy lỗi app thì ghi vào Pull Request).
 > - Xong khi node tests/kiem-tra-de.js in DE OK và không còn dòng “Nhắc:” nào về đề của phiên, node tests/e2e.js in E2E OK.
-> - Chỗ nào của tests/e2e.js hỏng chỉ vì ngày chạy (bước không cài đồng hồ giả lập; đã biết: dòng k3.hero của bước K3 hỏng từ 14/11/2026, Phiên N4 viết lại bước này) thì sửa kiểm thử cho không phụ thuộc ngày, không sửa app, ghi trong Pull Request. Phiên 9g (L28 ở docs/SUA-LOI-CHAY-THU.md) sửa hẳn việc này: hai script kiểm thử chạy ở một ngày cố định; 9g đã gộp thì bước mới tạo context bằng hàm dùng chung của script.
+> - Hai script kiểm thử chạy ở một ngày cố định (hằng TODAY 21/10/2026 ở đầu tests/e2e.js và tests/supabase/cloud-e2e.js, Phiên 9g; CLAUDE.md, mục “Chạy và kiểm tra”), nên không bước nào hỏng theo ngày chạy. Bước mới hoặc bước viết lại tạo context bằng hàm dùng chung (newContext của tests/e2e.js), không gọi browser.newContext; chữ mong đợi theo kì thi gần nhất ghi theo TODAY.
 > - Đến khi Phiên 9h xong (L30, L31 ở docs/SUA-LOI-CHAY-THU.md): câu có đáp án là số âm hoặc số thập phân dùng dạng trả lời bằng số (có nút ±, nhận cả dấu phẩy và dấu chấm thập phân), không dùng câu điền. Trên iPhone, câu điền có đáp án âm không gõ được dấu trừ, câu điền số thập phân gõ dấu chấm thì bị chấm sai.
 > - Chỉ tự rà soát một vòng, rồi mở Pull Request. Có số PR thì làm theo quy ước ở đầu docs/KE-HOACH-PHAT-TRIEN-ONUP.md: ghi PR vào dòng trạng thái và bảng “Đã xong” ở mục 1, xóa dòng của phiên ở mục 3 của file đó; xóa khối lời giao việc của phiên và dòng của phiên trong bảng ở mục 7 của docs/KE-HOACH-NOI-DUNG.md. Điều mới rút ra cho các phiên sau (nếu có) ghi một dòng vào mục 3 của docs/KE-HOACH-NOI-DUNG.md.
 
@@ -230,7 +230,7 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 |---|---|---|---|---|---|
 | N3 | 7/12 | Khoa học 4, Lịch sử và Địa lí 4 cuối kì I | mỗi môn 50 + ~25 | `khoahoc4-ck1-de2`, `khoahoc4-ck1-ngau-nhien`, `lsdl4-ck1-de2`, `lsdl4-ck1-ngau-nhien` | 9e: “10 bài ôn” → 12 |
 | N3b | 7/12 | Tiếng Anh 4, Tin học và Công nghệ 4 cuối kì I | TA 50 + ~25; Tin&CN 50 | `ta4-ck1-de2`, `ta4-ck1-ngau-nhien`, `tincn4-ck1-de2`, `tincn4-ck1-ngau-nhien` | 9e: hàng Tin&CN, số bài ôn +2 |
-| N4 | 30/11, nên trước 13/11 | Toán 6 cuối kì I: nâng lên ngân hàng (từ 2 đề có sẵn) | 50 + ~50 | (câu riêng của `toan6-ck1-ngau-nhien`); `tests/toan6-ck1.js` | bước K3 (viết lại) |
+| N4 | 30/11, sau 9h | Toán 6 cuối kì I: nâng lên ngân hàng (từ 2 đề có sẵn) | 50 + ~50 | (câu riêng của `toan6-ck1-ngau-nhien`); `tests/toan6-ck1.js` | bước K3 (viết lại) |
 | N4b | 30/11 | Ngữ văn 6 cuối kì I: nâng lên ngân hàng (từ 2 đề có sẵn) | 50 + ~25 | (câu riêng của `van6-ck1-ngau-nhien`) | không |
 | N5 | 30/11 | Tiếng Anh 6, KHTN 6 cuối kì I | mỗi môn 50 + ~25 | `ta6-ck1-de2`, `ta6-ck1-ngau-nhien`, `khtn6-ck1-de2`, `khtn6-ck1-ngau-nhien`; `tests/khtn6-ck1.js` | 9e: hàng Tiếng Anh ck1-l6 |
 | N6 | 30/11 | LS&ĐL 6, GDCD 6, Tin học 6, Công nghệ 6 cuối kì I | LS&ĐL 50 + ~10; ba môn kia 50 | `<mã>6-ck1-de2`, `<mã>6-ck1-ngau-nhien` cho lsdl, gdcd, tin, congnghe | không |
@@ -264,7 +264,7 @@ Chủ app chốt ngày 19/10/2026, so với phiên bản 2 của kế hoạch:
 > - Cả hai: ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu (Thông tư 27/2020, như Phiên N1, không cần tra lại). Đề 2 và câu riêng bù mức mà đề 1 còn thiếu (thường là Vận dụng), để ô nào của ma trận cũng đủ câu, tốt nhất gấp đôi số câu ô đó rút. Note của đề mới ghi phạm vi, 10 – 8 – 7, “Có lời giải từng câu.” Gắn khoahoc4-ck1-de2, khoahoc4-ck1-ngau-nhien, lsdl4-ck1-de2, lsdl4-ck1-ngau-nhien vào banks của ck1-l4 trong data/calendar-2026-2027.js.
 > - Kiểm thử phải sửa: bước 9e của tests/e2e.js ghi cứng "10 bài ôn" cho ck1-l4 (1 bài IOE + 9 đề cố định; đề ngẫu nhiên không tính) ở thẻ kì thi, đầu nhóm, trang Lịch thi và #toBanks: thêm 2 đề cố định thì thành 12; sửa cả chú thích L25 của bước (số đề cố định, đề ngẫu nhiên). Ngoài bước 9e không chỗ nào ghi cứng số bài ôn của ck1-l4 (bước UX1 ngày 1/12 chỉ kiểm tra bài chính IOE 4 và bài phụ Toán, không đổi).
 >
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, kiểm thử hỏng vì ngày chạy, Pull Request, ghi trạng thái).
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 **Phiên N3b · Tiếng Anh 4, Tin học và Công nghệ 4 cuối kì I** (thêm ngày 19/10/2026: kế hoạch cũ bỏ sót hai môn này)
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Tiếng Anh 4 · Cuối kì I" khoảng 75 câu (Global Success 4, đề 100% tiếng Anh kể cả lời dặn, lời giải, đoạn đọc theo mục 3) và "Tin học và Công nghệ 4 · Cuối kì I" 50 câu (Kết nối tri thức), có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
@@ -273,18 +273,18 @@ Chủ app chốt ngày 19/10/2026, so với phiên bản 2 của kế hoạch:
 > - Cả hai: ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu (Thông tư 27/2020, như Phiên N1, không cần tra lại); Đề 2 bù mức mà đề 1 còn thiếu (thường là Vận dụng). Tiếng Anh 4 (kho 75 câu): mỗi ô có ít nhất gấp đôi số câu ô đó rút. Tin học và Công nghệ 4 (kho 50 câu, đúng gấp đôi 25): ô nào của ma trận cũng đủ câu. Gắn ta4-ck1-de2, ta4-ck1-ngau-nhien, tincn4-ck1-de2, tincn4-ck1-ngau-nhien vào ck1-l4.
 > - Kiểm thử phải sửa, bước 9e của tests/e2e.js: hàng "Tin học và Công nghệ" của ck1-l4 (f9e.l4.tincn) đang mong "Đề 1" → "Đề ngẫu nhiên,Đề 1,Đề 2"; số "N bài ôn" của ck1-l4 (10 trước N3, 12 sau N3) tăng thêm 2; sửa cả chú thích L22, L25 của bước. Ngoài bước 9e không chỗ nào ghi cứng số bài ôn của ck1-l4 (bước UX1 ngày 1/12 chỉ kiểm tra bài chính IOE 4 và bài phụ Toán, không đổi).
 >
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, kiểm thử hỏng vì ngày chạy, Pull Request, ghi trạng thái).
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
-**Phiên N4 · Toán 6 cuối kì I: nâng lên ngân hàng (từ 2 đề có sẵn), viết lại bước K3 của tests/e2e.js** (nên chạy trước 13/11)
+**Phiên N4 · Toán 6 cuối kì I: nâng lên ngân hàng (từ 2 đề có sẵn), viết lại bước K3 của tests/e2e.js** (sau Phiên 9h)
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Toán 6 · Cuối kì I" khoảng 100 câu, sách Kết nối tri thức, phạm vi Chương I–V, Bài 1–22 như 2 đề có sẵn (tập hợp các số tự nhiên; luỹ thừa, thứ tự thực hiện phép tính; tính chia hết, số nguyên tố; ƯCLN, BCNN; số nguyên và các phép tính; hình phẳng trong thực tiễn; chu vi, diện tích; hình có trục đối xứng, tâm đối xứng), có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
 > - Kho = 50 câu của toan6-ck1-de1, toan6-ck1-de2 (giữ nguyên mã, câu, chữ chủ đề; chỉ thêm lv) + khoảng 50 câu riêng của toan6-ck1-ngau-nhien (đã có trong danh mục), ghi vào data/banks/6-toan.js. Không thêm đề cố định. Chủ đề đúng chữ cũ (Tập hợp các số tự nhiên; Lũy thừa, thứ tự thực hiện phép tính; Tính chia hết, số nguyên tố; ƯCLN và BCNN; Số nguyên; Nhân, chia số nguyên; Hình phẳng; Chu vi, diện tích; Tính đối xứng).
 > - Dạng câu theo khung đề lớp 6 các trường đang dùng (Công văn 7991/BGDĐT-GDTrH: nhiều lựa chọn, đúng/sai 4 ý, trả lời ngắn, tự luận): trong câu riêng có khoảng 8 câu đúng/sai 4 ý, 12 câu trả lời bằng số, 3–4 câu tự luận (lời giải từng bước, thang tự chấm; đặt ở ô Vận dụng xen với câu chấm tự động, để mỗi lần rút có nhiều nhất 1–2 câu tự luận), nối cột, sắp xếp, khoảng 10 câu có hình SVG (hình phẳng trên lưới ô vuông, trục và tâm đối xứng, chu vi, diện tích). Số viết như dữ liệu đang có: ngăn hàng nghìn bằng khoảng trắng (“1 200”, CLAUDE.md, Quy ước code).
 > - Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu, 45 phút (khoảng 40 – 30 – 30%, như Phiên N1, không cần tra lại): đổi matrix của toan6-ck1-ngau-nhien sang [Biết, Hiểu, Vận dụng], mỗi ô nên có ít nhất gấp đôi số câu ô đó rút. Note của đề ngẫu nhiên ghi phạm vi, 10 – 8 – 7, “Có lời giải từng câu.”
 > - Tính lại mọi đáp án bằng code: viết tests/toan6-ck1.js theo mẫu tests/toan4-ck1.js cho cả 100 câu (2 đề cố định và câu riêng, mọi dạng; câu có hình đọc toạ độ trong hình), kiểm tra mọi câu có lv, rút thử nhiều lần ra đúng 10 – 8 – 7; in MATH OK.
 > - Kì thi: toan6-ck1-ngau-nhien đã gắn vào ck1-l6, không đổi lịch.
-> - Kiểm thử phải sửa: bước K3 của tests/e2e.js ("random exam by matrix (K3)") dùng toan6-ck1-ngau-nhien và đang ghi cứng theo kho cũ: kho 50 câu, nguồn câu "toan6-ck1-de1,toan6-ck1-de2", chữ “25 câu rút từ kho 50 câu (2 đề)”, số câu của Đề 1 ở lượt đầu, điểm 9,5/10 và 24/25, số câu Đề 2 còn lại ở lượt hai, ghi chú của pool thử "Hình phẳng" [0, 0, 3], báo cáo tuần “Toán 9,75/10 2 bài · 49/50 câu đúng”; hàm answer chỉ trả lời trắc nghiệm, điền, đúng/sai; dòng k3.hero đọc theo ngày thật (hỏng từ 14/11/2026). Viết lại bước này cho khớp kho mới mà vẫn giữ các ý đang kiểm tra (ưu tiên câu chưa làm, câu vừa sai được rút lại, lịch sử câu, kết quả ghi refId là mã pool, chủ đề hay sai, báo cáo tuần, ghi chú khi kho thiếu): trả lời được mọi dạng câu, đúng hoặc sai theo ý muốn (tìm ô như answerAny ở bước “numbers with thousands spaces stay on one line (360px)” của tests/e2e.js và vòng K3 của tests/supabase/cloud-e2e.js; trả lời đúng theo dữ liệu như bước K2; nhận ra câu trên màn hình bằng chữ câu hỏi, nhiều câu cùng lời dặn thì so thêm các ô như bước TA1; so chữ trên nút sau khi gộp khoảng trắng như hàm answer hiện nay, vì số có nhóm hàng nghìn hiện bằng khoảng trắng không ngắt từ PR #63), số câu chấm tự động trừ câu tự luận rút được, số liệu tính từ dữ liệu thay vì ghi cứng, k3.hero không phụ thuộc ngày. Ghi thêm vào CLAUDE.md (mục "Thêm đề có sẵn", bước 4): bước K3 của tests/e2e.js dùng toan6-ck1-ngau-nhien. Xong thì bỏ ý “đã biết: dòng k3.hero …” trong Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md.
+> - Kiểm thử phải sửa: bước K3 của tests/e2e.js ("random exam by matrix (K3)") dùng toan6-ck1-ngau-nhien và đang ghi cứng theo kho cũ: kho 50 câu, nguồn câu "toan6-ck1-de1,toan6-ck1-de2", chữ “25 câu rút từ kho 50 câu (2 đề)”, số câu của Đề 1 ở lượt đầu, điểm 9,5/10 và 24/25, số câu Đề 2 còn lại ở lượt hai, ghi chú của pool thử "Hình phẳng" [0, 0, 3], báo cáo tuần “Toán 9,75/10 2 bài · 49/50 câu đúng”; hàm answer chỉ trả lời trắc nghiệm, điền, đúng/sai. Viết lại bước này cho khớp kho mới mà vẫn giữ các ý đang kiểm tra (ưu tiên câu chưa làm, câu vừa sai được rút lại, lịch sử câu, kết quả ghi refId là mã pool, chủ đề hay sai, báo cáo tuần, ghi chú khi kho thiếu): trả lời được mọi dạng câu, đúng hoặc sai theo ý muốn (tìm ô như answerAny ở bước “numbers with thousands spaces stay on one line (360px)” của tests/e2e.js và vòng K3 của tests/supabase/cloud-e2e.js; trả lời đúng theo dữ liệu như bước K2; nhận ra câu trên màn hình bằng chữ câu hỏi, nhiều câu cùng lời dặn thì so thêm các ô như bước TA1; so chữ trên nút sau khi gộp khoảng trắng như hàm answer hiện nay, vì số có nhóm hàng nghìn hiện bằng khoảng trắng không ngắt từ PR #63), số câu chấm tự động trừ câu tự luận rút được, số liệu tính từ dữ liệu thay vì ghi cứng; giữ ngày cố định của Phiên 9g (context tạo bằng newContext; dòng k3.hero đúng ở TODAY nên giữ nguyên). Ghi thêm vào CLAUDE.md (mục "Thêm đề có sẵn", bước 4): bước K3 của tests/e2e.js dùng toan6-ck1-ngau-nhien.
 >
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, kiểm thử hỏng vì ngày chạy, Pull Request, ghi trạng thái).
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 **Phiên N4b · Ngữ văn 6 cuối kì I: nâng lên ngân hàng (từ 2 đề có sẵn)** (tách từ N4)
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Ngữ văn 6 · Cuối kì I" khoảng 75 câu, sách Kết nối tri thức, phạm vi Bài 1–5 (Tôi và các bạn; Gõ cửa trái tim; Yêu thương và chia sẻ; Quê hương yêu dấu; Những nẻo đường xứ sở), có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
@@ -294,7 +294,7 @@ Chủ app chốt ngày 19/10/2026, so với phiên bản 2 của kế hoạch:
 > - Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu, 45 phút (như Phiên N1, không cần tra lại): đổi matrix của van6-ck1-ngau-nhien sang [Biết, Hiểu, Vận dụng], "Viết": [0, 0, 1]; mỗi ô nên có ít nhất gấp đôi số câu ô đó rút. Note của đề ngẫu nhiên ghi phạm vi, 10 – 8 – 7, một câu Viết tự chấm; note hai đề cố định giữ nguyên.
 > - Kì thi: van6-ck1-ngau-nhien đã gắn vào ck1-l6. Kiểm thử: không có số ghi cứng về kho Ngữ văn 6.
 >
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, kiểm thử hỏng vì ngày chạy, Pull Request, ghi trạng thái).
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 **Phiên N5 · Tiếng Anh 6, KHTN 6 cuối kì I**
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Tiếng Anh 6 · Cuối kì I" (Global Success 6, đề 100% tiếng Anh kể cả lời dặn, lời giải, đoạn đọc theo mục 3) và "KHTN 6 · Cuối kì I" (Kết nối tri thức), mỗi ngân hàng khoảng 75 câu, có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
@@ -303,7 +303,7 @@ Chủ app chốt ngày 19/10/2026, so với phiên bản 2 của kế hoạch:
 > - Cả hai: ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu (khoảng 40 – 30 – 30%, như Phiên N1, không cần tra lại), mỗi ô có ít nhất gấp đôi số câu ô đó rút. Note của đề mới ghi phạm vi, 10 – 8 – 7 (Tiếng Anh viết bằng tiếng Anh). Gắn ta6-ck1-de2, ta6-ck1-ngau-nhien, khtn6-ck1-de2, khtn6-ck1-ngau-nhien vào ck1-l6.
 > - Kiểm thử phải sửa, bước 9e của tests/e2e.js: hàng Tiếng Anh của nhóm ck1-l6 (f9e.l6.taCk1) đang mong "Đề 1" → "Đề ngẫu nhiên,Đề 1,Đề 2"; sửa cả chú thích L24 của bước. Bước TA1, TA2 chỉ làm ta4-ck1-de1, ta6-ck1-de1, ta6-gk1-de1 (giữ nguyên) nên không đổi.
 >
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, kiểm thử hỏng vì ngày chạy, Pull Request, ghi trạng thái).
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 **Phiên N6 · Lịch sử và Địa lí 6, GDCD 6, Tin học 6, Công nghệ 6 cuối kì I**
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo bốn ngân hàng câu "Lịch sử và Địa lí 6 · Cuối kì I" (khoảng 60 câu), "GDCD 6 · Cuối kì I", "Tin học 6 · Cuối kì I", "Công nghệ 6 · Cuối kì I" (mỗi ngân hàng 50 câu), sách Kết nối tri thức, có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
@@ -316,7 +316,7 @@ Chủ app chốt ngày 19/10/2026, so với phiên bản 2 của kế hoạch:
 > - Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu (khoảng 40 – 30 – 30%, như Phiên N1, không cần tra lại). Kho GDCD, Tin học, Công nghệ chỉ 50 câu nên Đề 2 bù mức mà đề 1 còn thiếu (thường là Vận dụng), để ô nào của ma trận cũng đủ câu. Câu có phép tính (Địa lí, Tin học) kiểm tra bằng một script node nhỏ trong tests/ (in MATH OK). Gắn 8 mã mới vào ck1-l6.
 > - Kiểm thử: không có số ghi cứng về bốn môn này.
 >
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, kiểm thử hỏng vì ngày chạy, Pull Request, ghi trạng thái).
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 ### Kĩ thuật cho đề ngẫu nhiên
 
@@ -344,7 +344,7 @@ Phạm vi lớp 6 lấy theo phân phối chương trình và đề cương gi�
 > - Kì thi: toan4-gk2-ngau-nhien đã gắn vào gk2-l4.
 > - Kiểm thử phải sửa (CLAUDE.md, mục "Thêm đề có sẵn", bước 4 đã ghi): tests/e2e.js bước "seed banks load on demand" (danh sách mã trong ONTAP_SEED_QUESTIONS sau khi tải 4-toan.js có thêm toan4-gk2-ngau-nhien; số câu kho "50/25" của đề ngẫu nhiên giữa kì II thành số mới) và tests/supabase/store-test.mjs mục 7 (pool2.questions.length === 50). Chạy thêm node tests/supabase/store-test.mjs (in SUPABASE STORE OK). Sửa luôn chú thích "giữa kì II: 2 đề = 50 câu" ở bước đó của tests/e2e.js.
 >
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, kiểm thử hỏng vì ngày chạy, Pull Request, ghi trạng thái).
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 **Phiên N7b · Tiếng Việt 4 giữa kì II: nâng lên ngân hàng (từ 2 đề có sẵn)** (tách từ N7; làm sau N2)
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Tiếng Việt 4 · Giữa kì II" khoảng 100 câu, sách Kết nối tri thức, phạm vi tập 2, Bài 1–16 (chủ điểm Sống để yêu thương, Uống nước nhớ nguồn), có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền; đoạn đọc tự viết.
@@ -354,7 +354,7 @@ Phạm vi lớp 6 lấy theo phân phối chương trình và đề cương gi�
 > - Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu (Thông tư 27/2020, như Phiên N1, không cần tra lại): đổi matrix của tv4-gk2-ngau-nhien sang [Biết, Hiểu, Vận dụng], Đọc hiểu khoảng 7 câu, "Viết": [0, 0, 1], mỗi ô có ít nhất gấp đôi số câu ô đó rút; minutes của đề ngẫu nhiên 40 (hai đề cố định giữ 35). Note ghi phạm vi, 10 – 8 – 7, một câu Viết tự chấm.
 > - Kì thi: đã gắn vào gk2-l4. Kiểm thử: không có số ghi cứng về kho Tiếng Việt 4 giữa kì II.
 >
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, kiểm thử hỏng vì ngày chạy, Pull Request, ghi trạng thái).
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 **Phiên N8 · Toán 6 giữa kì II**
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Toán 6 · Giữa kì II" khoảng 100 câu, sách Kết nối tri thức, phạm vi Bài 23–35 (kiểm tra giữa kì II đặt sau Bài 35 theo phân phối chương trình): Chương VI Phân số (Bài 23 Mở rộng phân số. Phân số bằng nhau; Bài 24 So sánh phân số. Hỗn số dương; Bài 25 Phép cộng và phép trừ phân số; Bài 26 Phép nhân và phép chia phân số; Bài 27 Hai bài toán về phân số), Chương VII Số thập phân (Bài 28 Số thập phân; Bài 29 Tính toán với số thập phân; Bài 30 Làm tròn và ước lượng; Bài 31 Một số bài toán về tỉ số và tỉ số phần trăm), Chương VIII đến Bài 35 (Bài 32 Điểm và đường thẳng; Bài 33 Điểm nằm giữa hai điểm. Tia; Bài 34 Đoạn thẳng. Độ dài đoạn thẳng; Bài 35 Trung điểm của đoạn thẳng). Có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
@@ -366,7 +366,7 @@ Phạm vi lớp 6 lấy theo phân phối chương trình và đề cương gi�
 > - Lịch thi: gắn 3 mã vào gk2-l6 trong data/calendar-2026-2027.js; thay scope "Nửa đầu học kì II." bằng: "Toán: Bài 23–35. Ngữ văn: Bài 6–7. Tiếng Anh: Unit 7–9. KHTN: Bài 25–39 (Đa dạng thế giới sống). Lịch sử và Địa lí: Lịch sử Bài 11–15, Địa lí Bài 16–22. GDCD: Bài 7–9. Tin học: Bài 9–13. Công nghệ: Bài 7–10." (máy và tài khoản đã có lịch giữ chữ cũ; ghi điều này trong Pull Request).
 > - Kiểm thử: không có số ghi cứng về giữa kì II lớp 6.
 >
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, kiểm thử hỏng vì ngày chạy, Pull Request, ghi trạng thái).
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 **Phiên N9 · Ngữ văn 6 giữa kì II**
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Ngữ văn 6 · Giữa kì II" khoảng 75 câu, sách Kết nối tri thức, phạm vi Bài 6 Chuyện kể về những người anh hùng (truyền thuyết Thánh Gióng; Sơn Tinh, Thủy Tinh; văn bản thông tin Ai ơi mồng 9 tháng 4) và Bài 7 Thế giới cổ tích (Thạch Sanh; Cây khế; Vua chích chòe), có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
@@ -377,7 +377,7 @@ Phạm vi lớp 6 lấy theo phân phối chương trình và đề cương gi�
 > - Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu, 45 phút (như Phiên N1, không cần tra lại), "Viết": [0, 0, 1], mỗi ô có ít nhất gấp đôi số câu ô đó rút. Gắn 3 mã vào gk2-l6.
 > - Kiểm thử: không có số ghi cứng.
 >
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, kiểm thử hỏng vì ngày chạy, Pull Request, ghi trạng thái).
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 **Phiên N10 · Tiếng Anh 6 giữa kì II**
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Tiếng Anh 6 · Giữa kì II" khoảng 75 câu, Global Success 6, đề 100% tiếng Anh kể cả lời dặn, lời giải, đoạn đọc theo mục 3, phạm vi Unit 7 Television, Unit 8 Sports and Games, Unit 9 Cities of the World (và Review 3): từ vựng của từng Unit; ngữ pháp Wh-questions, liên từ and, but, so, because, although (Unit 7), thì quá khứ đơn, câu mệnh lệnh (Unit 8), tính từ sở hữu, đại từ sở hữu (Unit 9); phát âm /θ/ – /ð/ (Unit 7), /e/ – /æ/ (Unit 8), /əʊ/ – /aʊ/ (Unit 9). Không có câu nghe (luyện nghe ở bài ôn IOE 6). Có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
@@ -386,7 +386,7 @@ Phạm vi lớp 6 lấy theo phân phối chương trình và đề cương gi�
 > - Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu, 45 phút (như Phiên N1, không cần tra lại), mỗi ô có ít nhất gấp đôi số câu ô đó rút. Note viết bằng tiếng Anh. Gắn 3 mã vào gk2-l6.
 > - Kiểm thử: không có số ghi cứng.
 >
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, kiểm thử hỏng vì ngày chạy, Pull Request, ghi trạng thái).
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 **Phiên N11 · KHTN 6 giữa kì II**
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "KHTN 6 · Giữa kì II" khoảng 75 câu, sách Kết nối tri thức, phạm vi Chương VII Đa dạng thế giới sống, Bài 25–39: hệ thống phân loại sinh vật; khoá lưỡng phân; vi khuẩn (thực hành làm sữa chua và quan sát vi khuẩn); virus; nguyên sinh vật; nấm; thực vật; động vật; đa dạng sinh học; tìm hiểu sinh vật ngoài thiên nhiên; các bài thực hành ra câu về dụng cụ, các bước, điều quan sát được. Có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền. Note nhắc: trường dạy ba phân môn song song có thể kiểm tra thêm phần đầu Chương VIII Lực trong đời sống (từ Bài 40), phụ huynh đối chiếu đề cương.
@@ -396,7 +396,7 @@ Phạm vi lớp 6 lấy theo phân phối chương trình và đề cương gi�
 > - Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu, 45 phút (như Phiên N1, không cần tra lại), mỗi ô có ít nhất gấp đôi số câu ô đó rút. Gắn 3 mã vào gk2-l6.
 > - Kiểm thử: không có số ghi cứng.
 >
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, kiểm thử hỏng vì ngày chạy, Pull Request, ghi trạng thái).
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 **Phiên N12 · Lịch sử và Địa lí 6, GDCD 6 giữa kì II**
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Lịch sử và Địa lí 6 · Giữa kì II" và "GDCD 6 · Giữa kì II", mỗi ngân hàng 50 câu, sách Kết nối tri thức, có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
@@ -406,7 +406,7 @@ Phạm vi lớp 6 lấy theo phân phối chương trình và đề cương gi�
 > - Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu (như Phiên N1, không cần tra lại); hai đề cùng phân bố chủ đề và mức như ma trận, nên ô nào cũng có gấp đôi số câu ô đó rút. Câu có phép tính kiểm tra bằng một script node nhỏ trong tests/ (in MATH OK). Gắn 6 mã vào gk2-l6.
 > - Kiểm thử: không có số ghi cứng.
 >
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, kiểm thử hỏng vì ngày chạy, Pull Request, ghi trạng thái).
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 **Phiên N12b · Tin học 6, Công nghệ 6 giữa kì II** (thêm ngày 19/10/2026: hàng N8–N12 cũ có 6 nhóm môn cho 5 số phiên)
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Tin học 6 · Giữa kì II" và "Công nghệ 6 · Giữa kì II", mỗi ngân hàng 50 câu, sách Kết nối tri thức, có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
@@ -416,7 +416,7 @@ Phạm vi lớp 6 lấy theo phân phối chương trình và đề cương gi�
 > - Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu (như Phiên N1, không cần tra lại); hai đề cùng phân bố chủ đề và mức như ma trận, nên ô nào cũng có gấp đôi số câu ô đó rút. Câu có phép tính (nếu có) kiểm tra bằng code. Gắn 6 mã vào gk2-l6.
 > - Kiểm thử: không có số ghi cứng.
 >
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, kiểm thử hỏng vì ngày chạy, Pull Request, ghi trạng thái).
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 ### Nguồn phạm vi bài (tra ngày 19/10/2026)
 
@@ -449,7 +449,7 @@ Lớp 9 và 12 cần thêm phiên đề thi thử đúng định dạng kì thi:
 | Đề sai đáp án, sai chương trình | Bộ kiểm tra đề (K1); tính lại đáp án Toán, Lí, Hóa bằng code; bố mẹ, giáo viên rà; nút “Báo câu này sai” trong app (Phiên R1, trong [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)) |
 | Đề không theo yêu cầu của chủ app (đề Tiếng Anh lẫn tiếng Việt, gặp khi chạy thử 18/10/2026) | Quy tắc ở mục 3 và CLAUDE.md; `tests/kiem-tra-de.js` kiểm tra đề Tiếng Anh không có chữ tiếng Việt (Phiên TA1) |
 | Hết lượt dùng Claude giữa mùa thi | Làm trước hạn kì thi ít nhất 3 tuần; một phiên một môn lớn hoặc hai môn nhỏ (mục 7) |
-| Kiểm thử ghi cứng theo kho đề hoặc theo ngày thật nên hỏng khi thêm đề | Lời giao việc ghi chỗ phải sửa; kiểm thử hỏng chỉ vì ngày chạy thì sửa cho không phụ thuộc ngày (Quy định chung ở mục 7) |
+| Kiểm thử ghi cứng theo kho đề nên hỏng khi thêm đề | Lời giao việc ghi chỗ phải sửa; từ Phiên 9g hai script kiểm thử chạy ở một ngày cố định nên không hỏng theo ngày chạy (Quy định chung ở mục 7) |
 | Dữ liệu phình to, app chậm | K1 tách file; B4 chỉ tải 90 ngày; đề trả phí tải khi mở |
 | Bị chép đề khi repo công khai | Đến khi bán chấp nhận repo công khai (đã chốt 18/10/2026); B1, B2 ngay trước khi bán |
 | Mất dữ liệu trên Supabase gói Free (không có sao lưu, project tự tạm dừng) | Chủ app xuất CSV hằng tuần, mở app ít nhất mỗi tuần một lần; lên gói Pro khi bắt đầu thu tiền |
