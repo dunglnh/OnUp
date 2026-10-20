@@ -240,7 +240,6 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 
 | Phiên | Hạn | Nội dung | Kho | Mã mới | Kiểm thử phải sửa |
 |---|---|---|---|---|---|
-| N6 | 30/11 | LS&ĐL 6, GDCD 6, Tin học 6, Công nghệ 6 cuối kì I | LS&ĐL 50 + ~10; ba môn kia 50 | `<mã>6-ck1-de2`, `<mã>6-ck1-ngau-nhien` cho lsdl, gdcd, tin, congnghe | không |
 | K4 | 14/12 | Kĩ thuật: đề ngẫu nhiên rút giữ trọn đoạn đọc (`Quiz.draw`) | | | bước K3; rút thử trong `kiem-tra-de.js` |
 | N7 | 22/2/2027 | Toán 4 giữa kì II: nâng lên ngân hàng (từ 2 đề có sẵn) | 50 + ~50 | (câu riêng của `toan4-gk2-ngau-nhien`); mở rộng `tests/toan4-gk2.js` | bước “seed banks load on demand”, `store-test.mjs` mục 7 |
 | N7b | 22/2 | Tiếng Việt 4 giữa kì II: nâng lên ngân hàng (từ 2 đề có sẵn) | 50 + ~50 | (câu riêng của `tv4-gk2-ngau-nhien`) | không |
@@ -261,21 +260,6 @@ Chủ app chốt ngày 19/10/2026, so với phiên bản 2 của kế hoạch:
 - Đề có sẵn còn thiếu bài được bù bằng Đề 2 và câu riêng, không sửa đề 1: Địa lí 6 cuối kì I chỉ có Bài 1–9 (bù ở N6); Khoa học 4 thiếu Bài 6, LS&ĐL 4 thiếu Bài 6, Bài 10 (bù ở N3).
 - Hạn mới 30/11 (lớp 6), 7/12 (lớp 4) cho cuối kì I và 22/2/2027 cho giữa kì II, thay cho 15/12 và 1/3.
 - Thêm **K4** để đề ngẫu nhiên giống đề thật hơn: một đoạn đọc nhiều câu thay cho các câu lẻ của nhiều đoạn.
-
-### Cuối kì I
-
-**Phiên N6 · Lịch sử và Địa lí 6, GDCD 6, Tin học 6, Công nghệ 6 cuối kì I**
-> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo bốn ngân hàng câu "Lịch sử và Địa lí 6 · Cuối kì I" (khoảng 60 câu), "GDCD 6 · Cuối kì I", "Tin học 6 · Cuối kì I", "Công nghệ 6 · Cuối kì I" (mỗi ngân hàng 50 câu), sách Kết nối tri thức, có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
-> - Mỗi môn: giữ đề có sẵn …6-ck1-de1 (giữ nguyên mã, câu, chữ chủ đề; chỉ thêm lv); thêm đề cố định "<môn> 6 · Cuối kì I · Đề 2" (<môn> đúng chữ môn của đề 1: Lịch sử và Địa lí, GDCD, Tin học, Công nghệ) (25 câu, cùng số phút với đề 1, đủ chủ đề, 10 – 8 – 7) và đề ngẫu nhiên "<môn> 6 · Cuối kì I · Đề ngẫu nhiên" (pool, from = mã đề 1 và Đề 2 của môn đó, cùng số phút). Mã mới: lsdl6-ck1-de2, lsdl6-ck1-ngau-nhien (6-lsdl.js, 45 phút); gdcd6-ck1-de2, gdcd6-ck1-ngau-nhien (6-gdcd.js, 35 phút); tin6-ck1-de2, tin6-ck1-ngau-nhien (6-tin.js, 35 phút); congnghe6-ck1-de2, congnghe6-ck1-ngau-nhien (6-congnghe.js, 35 phút). Chỉ đề ngẫu nhiên Lịch sử và Địa lí có câu riêng; ba đề ngẫu nhiên kia không ghi vào file.
-> - **Lịch sử và Địa lí 6**: Lịch sử Bài 1–10 như đề 1. Địa lí: đề 1 chỉ có Bài 1–9 (bản đồ; Trái Đất trong hệ Mặt Trời, các chuyển động, xác định phương hướng), còn phân phối chương trình các trường thường dạy học kì I đến hết Chương 3 và lớp vỏ khí, nên phạm vi ngân hàng là Bài 1–15: thêm Bài 10 Cấu tạo của Trái Đất. Các mảng kiến tạo; Bài 11 Quá trình nội sinh và ngoại sinh. Hiện tượng tạo núi; Bài 12 Núi lửa và động đất; Bài 13 Các dạng địa hình chính trên Trái Đất. Khoáng sản; Bài 14 Thực hành đọc lược đồ địa hình, lát cắt địa hình; Bài 15 Lớp vỏ khí của Trái Đất. Khí áp và gió. Câu cho các bài này nằm ở Đề 2 và khoảng 10 câu riêng của đề ngẫu nhiên (chủ đề mới theo tên bài rút gọn). Note của Đề 2 và đề ngẫu nhiên ghi phạm vi Bài 1–15 và nhắc phụ huynh đối chiếu đề cương của trường. Câu tính tỉ lệ bản đồ, khoảng cách, giờ tính lại bằng code.
-> - **GDCD 6**: Bài 1–6 như đề 1 (Tự hào về truyền thống gia đình, dòng họ; Yêu thương con người; Siêng năng, kiên trì; Tôn trọng sự thật; Tự lập; Tự nhận thức bản thân); nhiều câu tình huống, đúng/sai 4 ý về một tình huống, nối cột (biểu hiện – phẩm chất).
-> - **Tin học 6**: Bài 1–9 như đề 1; trả lời bằng số đổi đơn vị dữ liệu (bit, byte, KB, MB, GB), sắp xếp các bước (gửi thư điện tử, tìm kiếm thông tin), nối cột (thiết bị – chức năng, dịch vụ – công dụng).
-> - **Công nghệ 6**: Bài 1–6 như đề 1 (nhà ở; sử dụng năng lượng trong gia đình; ngôi nhà thông minh; thực phẩm và dinh dưỡng; bảo quản và chế biến thực phẩm; dự án bữa ăn); sắp xếp các bước chế biến, bảo quản; nối cột (nhóm thực phẩm – chất dinh dưỡng chính).
-> - Dạng câu chung theo khung Công văn 7991 (nhiều lựa chọn, đúng/sai 4 ý, trả lời ngắn bằng điền hoặc số): mỗi môn có ít nhất 3 câu đúng/sai 4 ý; không thêm câu tự luận (ma trận không rút thì kiem-tra-de.js nhắc).
-> - Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu (khoảng 40 – 30 – 30%, như Phiên N1, không cần tra lại). Kho GDCD, Tin học, Công nghệ chỉ 50 câu nên Đề 2 bù mức mà đề 1 còn thiếu (thường là Vận dụng), để ô nào của ma trận cũng đủ câu. Câu có phép tính (Địa lí, Tin học) kiểm tra bằng một script node nhỏ trong tests/ (in MATH OK). Gắn 8 mã mới vào ck1-l6.
-> - Kiểm thử: không có số ghi cứng về bốn môn này.
->
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 ### Kĩ thuật cho đề ngẫu nhiên
 
