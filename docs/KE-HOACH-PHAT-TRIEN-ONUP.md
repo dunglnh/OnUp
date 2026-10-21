@@ -101,26 +101,25 @@ Nội dung hiện có (20/10/2026, `node tests/kiem-tra-de.js`: 39 đề, 1 284 
 
 ## 3. Lộ trình khi làm tiếp
 
-Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Lời giao việc chỉ giữ cho phiên chưa làm: phiên sửa lỗi (QC ghi mã lỗi và lời giao việc; đang chờ: 9i) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); **các phiên làm đề và kĩ thuật cho đề (N7–N25, K4) ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)** (B4 ở mục 5 của file đó); các phiên khác ở mục 4 dưới đây. Phiên UX7, UX8 đến từ bản rà giao diện ngày 18/10: vấn đề (X11–X14), ảnh và điều kiện xong ở [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md). Sau khi gộp mỗi phiên UX có một lượt kiểm thử thiết kế, ghi ở mục 5 của file đó; chỗ lệch thành một phiên sửa ngắn tên “b”, như UX3b (X17–X20, kiểm thử 19/10). Thiết kế nằm trong file Figma [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2): Master 1.x là 77 màn vẽ lại đúng app ở commit `0a1e8db`; Master 2.x là các đề xuất, kể cả minh họa cho S1, R1, UX1–UX3.
+Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Lời giao việc chỉ giữ cho phiên chưa làm: phiên sửa lỗi (QC ghi mã lỗi và lời giao việc; đang chờ: 9i) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); **các phiên làm đề (N7–N25) ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)** (B4 ở mục 5 của file đó); các phiên khác ở mục 4 dưới đây. Phiên UX7, UX8 đến từ bản rà giao diện ngày 18/10: vấn đề (X11–X14), ảnh và điều kiện xong ở [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md). Sau khi gộp mỗi phiên UX có một lượt kiểm thử thiết kế, ghi ở mục 5 của file đó; chỗ lệch thành một phiên sửa ngắn tên “b”, như UX3b (X17–X20, kiểm thử 19/10). Thiết kế nằm trong file Figma [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2): Master 1.x là 77 màn vẽ lại đúng app ở commit `0a1e8db`; Master 2.x là các đề xuất, kể cả minh họa cho S1, R1, UX1–UX3.
 
 Thứ tự các phiên:
 
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
-| 1 | 14/12 | **K4 · Đề ngẫu nhiên rút giữ trọn đoạn đọc** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | | trước các phiên giữa kì II có đoạn đọc (N7b, N9, N10); bước K3 của tests/e2e.js đã viết lại ở N4 |
-| 2 | 24/1 | **UX7 · Quản lí đề** | UX2 (tab "Đề tự soạn") | |
-| 3 | 31/1 | **UX8 · Gửi báo cáo tuần** | UX2 | |
-| 4 | 22/2 | **N7–N12, N7b, N12b · Giữa kì II lớp 4 và 6** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3; K4 trước N7b, N9, N10 | chạy theo thứ tự N8 → N9 → N10 → N11 → N12 → N12b (lớp 6 chưa có đề nào) → N7 → N7b; bắt đầu sau các phiên cuối kì I (tháng 12), xen với UX7, UX8 |
-| 5 | 10/3 | **N-IOE · IOE cấp quốc gia** | | thi 1–2/4/2027 (dự kiến), hiện chưa có bài ôn |
-| 6 | 10/4 | **N13–N22 · Cuối năm lớp 4 và 6** | K3 | |
-| 7 | hè 2027 | Lịch 2027–2028 (thêm kì thi các khối mới); giữa kì I lớp 4, 6 năm sau (N23–N25); giữa kì I và cuối kì I lớp 5, 7; gộp bài ôn dạng trang vào ngân hàng | | [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 4, 7 |
-| 8 | 2027–2028 | Lớp 5, 7 phần còn lại; lớp 9 (có đề thi thử vào 10); lớp 8 | | khoảng 70 phiên |
-| 9 | 2028–2029 | Lớp 12 (đề thi thử tốt nghiệp trước), 10, 11 | | khoảng 90 phiên |
-| 10 | trước khi bán | **G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** → **B2 · Đề trả phí lên máy chủ** → B4 (bớt tải dữ liệu); lên Supabase Pro | đủ đề lớp 4–12 | lời giao việc ở mục 4; B4 ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 5 |
-| — | 14/12 | **9i · Phân số, hỗn số gõ có khoảng trắng (L32)** (lời giao việc ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) | | phiên ngắn, chỉ sửa `js/quiz.js` và kiểm thử; chen giữa các phiên N, trước N8, N7; không chạy cùng lúc với K4 (cùng sửa `js/quiz.js`). L33 (kiểm thử định kì 20/10) đã sửa trong N4 (PR #78) |
+| 1 | 24/1 | **UX7 · Quản lí đề** | UX2 (tab "Đề tự soạn") | |
+| 2 | 31/1 | **UX8 · Gửi báo cáo tuần** | UX2 | |
+| 3 | 22/2 | **N7–N12, N7b, N12b · Giữa kì II lớp 4 và 6** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3, K4 | chạy theo thứ tự N8 → N9 → N10 → N11 → N12 → N12b (lớp 6 chưa có đề nào) → N7 → N7b; bắt đầu sau các phiên cuối kì I (tháng 12), xen với UX7, UX8 |
+| 4 | 10/3 | **N-IOE · IOE cấp quốc gia** | | thi 1–2/4/2027 (dự kiến), hiện chưa có bài ôn |
+| 5 | 10/4 | **N13–N22 · Cuối năm lớp 4 và 6** | K3 | |
+| 6 | hè 2027 | Lịch 2027–2028 (thêm kì thi các khối mới); giữa kì I lớp 4, 6 năm sau (N23–N25); giữa kì I và cuối kì I lớp 5, 7; gộp bài ôn dạng trang vào ngân hàng | | [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 4, 7 |
+| 7 | 2027–2028 | Lớp 5, 7 phần còn lại; lớp 9 (có đề thi thử vào 10); lớp 8 | | khoảng 70 phiên |
+| 8 | 2028–2029 | Lớp 12 (đề thi thử tốt nghiệp trước), 10, 11 | | khoảng 90 phiên |
+| 9 | trước khi bán | **G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** → **B2 · Đề trả phí lên máy chủ** → B4 (bớt tải dữ liệu); lên Supabase Pro | đủ đề lớp 4–12 | lời giao việc ở mục 4; B4 ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 5 |
+| — | 14/12 | **9i · Phân số, hỗn số gõ có khoảng trắng (L32)** (lời giao việc ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) | | phiên ngắn, chỉ sửa `js/quiz.js` và kiểm thử; chen giữa các phiên N, trước N8, N7. L33 (kiểm thử định kì 20/10) đã sửa trong N4 (PR #78) |
 | — | khi có | **Sửa lỗi từ góp ý chạy thử**: QC ghi mã lỗi (tiếp theo L33) và lời giao việc phiên 9 + chữ cái ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) | | chen vào bất cứ lúc nào; gấp thì xếp vào bảng “Làm ngay” |
 
-Từ 20/10/2026 đến 10/4/2027 còn khoảng 23 phiên: 9i; K4; UX7, UX8; 8 phiên đề giữa kì II (N7–N12, N7b, N12b); N-IOE; 10 phiên đề cuối năm (N13–N22); thêm phiên sửa ngắn “b” sau kiểm thử thiết kế nếu có. Trung bình 1–2 phiên mỗi tuần. Đề cuối kì I lớp 4 và 6 đã đủ từ 20/10 (N6). Tháng 12 có K4 và bắt đầu giữa kì II; UX7, UX8 làm sau kì thi cuối kì I, xen với các phiên giữa kì II. Sau đó việc chính là làm đề cho đủ lớp 4–12 (khoảng 200 phiên); chất lượng đề quyết định có bán được hay không, nên nút báo câu sai (R1) và việc rà đề đi trước.
+Từ 20/10/2026 đến 10/4/2027 còn khoảng 22 phiên: 9i; UX7, UX8; 8 phiên đề giữa kì II (N7–N12, N7b, N12b); N-IOE; 10 phiên đề cuối năm (N13–N22); thêm phiên sửa ngắn “b” sau kiểm thử thiết kế nếu có. Trung bình 1–2 phiên mỗi tuần. Đề cuối kì I lớp 4 và 6 đã đủ từ 20/10 (N6). Tháng 12 bắt đầu giữa kì II (K4 đã xong 21/10); UX7, UX8 làm sau kì thi cuối kì I, xen với các phiên giữa kì II. Sau đó việc chính là làm đề cho đủ lớp 4–12 (khoảng 200 phiên); chất lượng đề quyết định có bán được hay không, nên nút báo câu sai (R1) và việc rà đề đi trước.
 
 Lưu ý: đến khi làm B1 (ngay trước khi bán), repo vẫn công khai nên ai cũng tải được trọn bộ đề bằng một lệnh; chủ app đã chấp nhận như vậy (18/10/2026). Nếu sau này muốn giữ đề sớm hơn thì đổi quyết định ở đầu file rồi làm B1 trước (Cloudflare Pages miễn phí, chạy được từ repo riêng tư) mà chưa bật gói; giữ đề thật sự (người chưa trả tiền không tải được) thì cần B2.
 
@@ -137,7 +136,7 @@ Không chạy cùng lúc hai phiên cùng sửa `js/app.js` hoặc `js/quiz.js`;
 
 ## 4. Lời giao việc (dán nguyên vào phiên mới)
 
-Chỉ giữ lời giao việc của phiên chưa làm, và của phiên UX đã xong mà chưa kiểm thử thiết kế (UX5, UX6). Phiên K4 và các phiên làm đề: mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); phiên sửa lỗi: mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md). Các phiên dưới đây xếp theo thứ tự ở mục 3.
+Chỉ giữ lời giao việc của phiên chưa làm, và của phiên UX đã xong mà chưa kiểm thử thiết kế (UX5, UX6). Các phiên làm đề: mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); phiên sửa lỗi: mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md). Các phiên dưới đây xếp theo thứ tự ở mục 3.
 
 **Phiên UX5 · Làm bài tập trung** (đã xong, PR #61; giữ đến khi kiểm thử thiết kế xong, mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md))
 > Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md (mục 3, Phiên UX5: X5–X9; ảnh docs/hinh-ux-2x/ux5-lam-bai.jpg, r1-ux5-bao-sai-mo-de.jpg). Sửa trong js/quiz.js, js/app.js, css/app.css, cho cả hai bản:

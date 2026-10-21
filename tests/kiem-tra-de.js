@@ -23,9 +23,14 @@
      trùng mã giữa các đề trong kho; matrix: mỗi chủ đề là số nguyên dương hoặc [Biết, Hiểu, Vận dụng], chữ chủ đề đúng
      topic của câu trong kho, tổng bằng n; kho đủ câu cho từng chủ đề (lỗi), thiếu ở một mức thì chỉ nhắc (app lấy bù mức
      gần nhất và ghi chú); câu riêng của pool nằm ở ô (chủ đề, mức) mà ma trận không rút câu nào thì nhắc (câu đó chỉ dùng
-     để lấy bù); rút thử (Quiz.draw) ra đúng n câu không trùng, không ghi chú khi kho đủ;
+     để lấy bù; câu có đoạn đọc được rút cùng đoạn nên không nhắc); rút thử (Quiz.draw, kèm đoạn đọc của kho) ra đúng n câu
+     không trùng, không ghi chú khi kho đủ;
+   - chủ đề có đoạn đọc (Phiên K4, app rút theo đoạn): thử mọi thứ tự ưu tiên đoạn (ép qua hist; dãy dài ⌈k/3⌉, nhiều hơn 1 000 dãy thì
+     lấy mẫu): lần nào cũng đúng n câu không trùng, chủ đề đúng số câu, câu cùng đoạn của một chủ đề đứng liền nhau, nhiều nhất một
+     đoạn lấy một phần (lỗi); quá ⌈k/3⌉ đoạn (đoạn có dưới 3 câu của chủ đề) hoặc app ghi chú mức lệch quá 1 câu thì nhắc kèm dãy đoạn;
    - bộ rút đề (Quiz.draw) với kho giả: đúng ma trận, ưu tiên câu chưa làm và câu hay sai (cả câu tự luận), lấy bù và ghi chú khi thiếu;
-     mã câu (Quiz.key) không đổi khi sửa lời giải, chủ đề;
+     mã câu (Quiz.key) không đổi khi sửa lời giải, chủ đề; kho giả có đoạn đọc (K4): lấy cả đoạn, không quá ⌈k/3⌉ đoạn, đoạn chưa làm
+     trước đoạn đã làm, đoạn hay sai trước, lấy một phần theo mức, ghi chú khi mức lệch quá 1 câu, câu Viết đi cùng đoạn đã rút;
    - lịch thi mặc định (data/calendar-2026-2027.js): đề và bài ôn gắn vào kì thi có thật, đúng khối của kì thi;
    - bộ lọc hình (Quiz.svg) bỏ được mã chạy và link ngoài trong vài hình mẫu cố ý viết sai (SVG_THU).
    - đề Tiếng Anh 100% tiếng Anh (Phiên TA1): đề có môn Tiếng Anh (mọi khối) và câu có topic bắt đầu bằng "English" trong đề
@@ -279,6 +284,8 @@ pools.forEach((b) => {
   const pids = {};
   parts.forEach(([id, v]) => Object.keys(v.passages || {}).forEach((pid) => { if (pids[pid]) err(at, `đoạn đọc "${pid}" có ở cả ${pids[pid]} và ${id}`); pids[pid] = id; }));
   const kho = parts.flatMap(([, v]) => (Array.isArray(v.questions) ? v.questions : []));
+  const psgAll = Object.assign({}, ...parts.map(([, v]) => (v.passages && typeof v.passages === "object" ? v.passages : {})));
+  const hasPsg = (q) => !!q && q.p != null && Object.prototype.hasOwnProperty.call(psgAll, q.p);
   const m = p.matrix;
   if (!m || typeof m !== "object" || Array.isArray(m) || !Object.keys(m).length) { err(at, "matrix phải là { \"chủ đề\": số câu } hoặc { \"chủ đề\": [Biết, Hiểu, Vận dụng] }"); return; }
   const have = {}; // chủ đề → [chưa ghi mức, Biết, Hiểu, Vận dụng]
@@ -302,15 +309,45 @@ pools.forEach((b) => {
   });
   if (sum !== b.n) err(at, `tổng ma trận ${sum} khác n = ${b.n}`);
   Object.keys(have).filter((t) => !inMatrix.has(t)).forEach((t) => warn.push(`${at}: chủ đề "${t}" (${have[t].reduce((a, x) => a + x, 0)} câu) không có trong ma trận, chỉ dùng để lấy bù`));
-  // câu riêng của pool mà ô (chủ đề, mức) của ma trận là 0 thì chỉ dùng để lấy bù: viết câu mới đúng mức ma trận cần (Phiên N1)
+  // câu riêng của pool mà ô (chủ đề, mức) của ma trận là 0 thì chỉ dùng để lấy bù: viết câu mới đúng mức ma trận cần (Phiên N1);
+  // câu có đoạn đọc được rút cùng đoạn (K4), mức lệch quá 1 câu thì nhắc ở phần thử theo đoạn bên dưới
   if (own) (Array.isArray(own.questions) ? own.questions : []).forEach((q, i) => {
     const v = q && m[Object.keys(m).find((t) => topicOf(t) === topicOf(q.topic))];
-    if (Array.isArray(v) && !(v[q.lv - 1] > 0)) warn.push(`${at}, câu riêng ${i + 1}: ma trận không rút câu nào ở ô (chủ đề "${topicOf(q.topic)}", ${Quiz.LV[q.lv] ? "mức " + Quiz.LV[q.lv] : "chưa ghi mức"}), câu này chỉ dùng để lấy bù`);
+    if (Array.isArray(v) && !(v[q.lv - 1] > 0) && !hasPsg(q)) warn.push(`${at}, câu riêng ${i + 1}: ma trận không rút câu nào ở ô (chủ đề "${topicOf(q.topic)}", ${Quiz.LV[q.lv] ? "mức " + Quiz.LV[q.lv] : "chưa ghi mức"}), câu này chỉ dùng để lấy bù`);
   });
-  const d = Quiz.draw({ pool: p, questions: kho }), keys = d.questions.map(Quiz.key);
+  const d = Quiz.draw({ pool: p, questions: kho, passages: psgAll }), keys = d.questions.map(Quiz.key);
   if (d.questions.length !== sum) err(at, `rút thử được ${d.questions.length} câu, cần ${sum}`);
   if (new Set(keys).size !== keys.length) err(at, "rút thử có câu trùng");
-  if (!short && d.notes.length) err(at, "kho đủ câu mà rút thử vẫn ghi chú: " + d.notes.join("; "));
+  /* Chủ đề có đoạn đọc (K4): app rút theo đoạn, thứ tự đoạn theo lịch sử của học sinh. Thử mọi dãy ⌈k/3⌉ đoạn làm thứ tự ưu tiên (ép qua
+     hist: đoạn trong dãy done = vị trí trong dãy, đoạn khác của chủ đề 50, câu lẻ 60; chủ đề khác 0), nhiều hơn 1 000 dãy thì lấy mẫu:
+     bộ rút của app luôn trùng với một dãy nào đó, nên kho qua đây thì app không bao giờ ghi chú cho chủ đề này. */
+  let psgWarn = false;
+  const pTopics = [...new Set(kho.filter(hasPsg).map((q) => topicOf(q.topic)))].filter((t) => inMatrix.has(t));
+  pTopics.forEach((t) => {
+    const v = m[Object.keys(m).find((x) => topicOf(x) === t)], k = Array.isArray(v) ? v.reduce((a, x) => a + x, 0) : v;
+    if (!(k > 0)) return;
+    const cap = Math.ceil(k / 3), pids = [...new Set(kho.filter((q) => hasPsg(q) && topicOf(q.topic) === t).map((q) => String(q.p)))], len = Math.min(cap, pids.length);
+    const seqs = [], rec = (pre) => { if (pre.length === len) { seqs.push(pre); return; } pids.forEach((x) => { if (!pre.includes(x)) rec(pre.concat(x)); }); };
+    if (pids.slice(0, len).reduce((a, _, i) => a * (pids.length - i), 1) > 1000) for (let i = 0; i < 1000; i++) seqs.push(pids.slice().sort(() => Math.random() - 0.5).slice(0, len)); else rec([]);
+    const hits = new Map(); // lời nhắc → [số dãy gặp, dãy đầu tiên]: mỗi lời nhắc chỉ ghi một dòng
+    const remind = (seq, msg) => { psgWarn = true; const h = hits.get(msg) || [0, seq]; h[0]++; hits.set(msg, h); };
+    seqs.forEach((seq) => {
+      const hist = (q) => ({ done: topicOf(q.topic) !== t ? 0 : !hasPsg(q) ? 60 : seq.includes(String(q.p)) ? seq.indexOf(String(q.p)) : 50, wrong: 0 });
+      const d2 = Quiz.draw({ pool: p, questions: kho, passages: psgAll }, hist), k2 = d2.questions.map(Quiz.key), tag = `${at}, chủ đề "${t}", rút các đoạn ${seq.join(" → ")} trước`;
+      if (d2.questions.length !== sum) err(tag, `rút được ${d2.questions.length} câu, cần ${sum}`);
+      if (new Set(k2).size !== k2.length) err(tag, "có câu trùng");
+      const inT = d2.questions.filter((q) => topicOf(q.topic) === t), got = [...new Set(inT.filter(hasPsg).map((q) => String(q.p)))];
+      if (inT.length !== k) err(tag, `chủ đề được ${inT.length} câu, ma trận ${k}`);
+      got.forEach((pid) => { const pos = inT.map((q, i) => (hasPsg(q) && String(q.p) === pid ? i : -1)).filter((i) => i >= 0); if (pos[pos.length - 1] - pos[0] !== pos.length - 1) err(tag, `câu của đoạn ${pid} không đứng liền nhau`); });
+      const partial = got.filter((pid) => inT.filter((q) => hasPsg(q) && String(q.p) === pid).length < kho.filter((q) => hasPsg(q) && String(q.p) === pid && topicOf(q.topic) === t).length);
+      if (partial.length > 1) err(tag, `lấy một phần ở ${partial.length} đoạn (${partial.join(", ")}), chỉ được một`);
+      if (got.length > cap) remind(seq, `lấy ${got.length} đoạn, quá ⌈${k}/3⌉ = ${cap} (mỗi đoạn nên có ít nhất 3 câu của chủ đề)`);
+      const ns = d2.notes.filter((x) => x.startsWith(t + ":"));
+      if (ns.length) remind(seq, `app ghi chú cho học sinh: ${ns.join("; ")}`);
+    });
+    hits.forEach(([n, seq], msg) => warn.push(`${at}, chủ đề "${t}": ${n}/${seqs.length} thứ tự đoạn (ví dụ rút ${seq.join(" → ")} trước) ${msg}`));
+  });
+  if (!short && !psgWarn && d.notes.length) err(at, "kho đủ câu mà rút thử vẫn ghi chú: " + d.notes.join("; "));
 });
 
 /* ---------- bộ rút đề (Quiz.draw) với kho giả ---------- */
@@ -338,6 +375,77 @@ pools.forEach((b) => {
   if (d7.questions.map((q) => q.q).join() !== "e3" || d8.questions.map((q) => q.q).join() !== "e2") err(at, "câu tự luận chưa theo lịch sử câu: " + [d7, d8].map((d) => d.questions.map((q) => q.q)).join(" | "));
   const k = Quiz.key(kho[0]);
   if (!/^[a-z0-9]{4,12}$/.test(k) || k !== Quiz.key(Object.assign({}, kho[0], { x: "khác", topic: "Z", lv: 3 })) || k === Quiz.key(Object.assign({}, kho[0], { q: "a1 khác" }))) err(at, "mã câu (Quiz.key) chưa ổn định: " + k);
+}
+
+/* ---------- bộ rút đề theo đoạn đọc (K4) với kho giả ---------- */
+{
+  const at = "bộ rút đề theo đoạn đọc (K4)";
+  const tf = (topic, q, lv, p) => Object.assign({ topic, type: "tf", q, a: true, x: "." }, lv ? { lv } : {}, p ? { p } : {});
+  // chủ đề R: đoạn A, C, D 3 câu mức 1-2-3, đoạn B 4 câu mức 1-1-2-3, 6 câu lẻ (mức 1, 1, 1, 2, 2, 3); chủ đề V (Viết): tự luận ở đoạn A, B và 3 câu lẻ
+  const psg = { A: { text: "a" }, B: { text: "b" }, C: { text: "c" }, D: { text: "d" } };
+  const P = (id, lvs) => lvs.map((lv, i) => tf("R", `${id}${i + 1}`, lv, id));
+  const singles = [1, 1, 1, 2, 2, 3].map((lv, i) => tf("R", `s${i + 1}`, lv));
+  const es = (q, p) => Object.assign({ topic: "V", type: "essay", q, rubric: [{ c: "Đủ ý", p: 1 }], x: "Gợi ý", lv: 3 }, p ? { p } : {});
+  const kho = [...P("A", [1, 2, 3]), ...P("B", [1, 1, 2, 3]), ...P("C", [1, 2, 3]), ...P("D", [1, 2, 3]), ...singles, es("vA", "A"), es("vB", "B"), es("v1"), es("v2"), es("v3")];
+  const draw = (matrix, hist, qs) => Quiz.draw({ pool: { matrix }, questions: qs || kho, passages: psg }, hist);
+  const hist = (o) => (q) => o[q.q] || { done: 0, wrong: 0 };
+  const doneAll = (ids, extra) => Object.assign(Object.fromEntries(kho.filter((q) => ids.includes(q.p)).map((q) => [q.q, { done: 1, wrong: 0 }])), extra || {});
+  const byP = (d, t) => { const r = {}; d.questions.filter((q) => q.topic === t && q.p).forEach((q) => (r[q.p] = (r[q.p] || 0) + 1)); return r; };
+  const lvs = (d, t) => [1, 2, 3].map((lv) => d.questions.filter((q) => q.topic === t && q.lv === lv).length).join("");
+  // 1. chưa có lịch sử: 7 câu R lấy cả đoạn B (4) và một đoạn 3 câu, đúng mức 3-2-2, không câu lẻ, không ghi chú; câu cùng đoạn liền nhau theo thứ tự trong kho
+  for (let i = 0; i < 20; i++) {
+    const d = draw({ R: [3, 2, 2] }), bp = byP(d, "R"), ids = Object.keys(bp).sort(), seq = d.questions.map((q) => q.p || "");
+    const contiguous = ids.every((p) => { const a = seq.map((x, k) => (x === p ? k : -1)).filter((k) => k >= 0); return a[a.length - 1] - a[0] === a.length - 1; });
+    const ordered = ids.every((p) => { const a = d.questions.filter((q) => q.p === p).map((q) => kho.indexOf(q)); return a.every((v, k) => !k || v > a[k - 1]); });
+    if (d.questions.length !== 7 || ids.length !== 2 || bp.B !== 4 || bp[ids.find((p) => p !== "B")] !== 3 || lvs(d, "R") !== "322" || d.notes.length || !contiguous || !ordered || d.questions.some((q) => !q.p)) { err(at, "rút theo đoạn chưa đúng: " + JSON.stringify([bp, lvs(d, "R"), d.notes, contiguous, ordered])); break; }
+  }
+  // 2. "Làm đề khác": B, C đã làm đúng → A, D (3 + 3) rồi 1 câu lẻ mức 1 (câu lẻ chưa làm ưu tiên hơn đoạn đã làm), không ghi chú
+  {
+    const d = draw({ R: [3, 2, 2] }, hist(doneAll(["B", "C"]))), bp = byP(d, "R"), single = d.questions.filter((q) => q.topic === "R" && !q.p);
+    if (Object.keys(bp).sort().join() !== "A,D" || bp.A !== 3 || bp.D !== 3 || single.length !== 1 || single[0].lv !== 1 || d.notes.length) err(at, "đoạn chưa làm phải được rút trước, câu lẻ chưa làm trước đoạn đã làm: " + JSON.stringify([bp, single.map((q) => q.q), d.notes]));
+  }
+  // 3. đoạn hay sai (2/3 câu sai, điểm trung bình −1/3) được rút cả đoạn trước đoạn chưa làm; sai 1/3 câu (1/3) thì nhường đoạn chưa làm
+  {
+    const d = draw({ R: [3, 2, 2] }, hist(doneAll(["A"], { A1: { done: 1, wrong: 1 }, A2: { done: 1, wrong: 1 } }))), bp = byP(d, "R");
+    if (bp.A !== 3 || Object.keys(bp).length !== 2) err(at, "đoạn hay sai phải được rút cả đoạn: " + JSON.stringify(bp));
+    const d2 = draw({ R: [3, 2, 2] }, hist(doneAll(["A"], { A1: { done: 1, wrong: 1 } })));
+    if ("A" in byP(d2, "R")) err(at, "đoạn mới sai 1/3 câu phải nhường đoạn chưa làm: " + JSON.stringify(byP(d2, "R")));
+  }
+  // 4. đoạn nhiều câu hơn số cần: lấy phần vừa đủ theo mức ma trận; cả đoạn lệch 1 câu mỗi mức thì không ghi chú
+  {
+    const d = draw({ R: [1, 1, 1] }, null, P("B", [1, 1, 2, 3]));
+    if (d.questions.length !== 3 || lvs(d, "R") !== "111" || d.notes.length) err(at, "lấy một phần đoạn phải theo mức ma trận: " + JSON.stringify([d.questions.map((q) => q.q), d.notes]));
+    const d2 = draw({ R: [2, 1, 0] }, null, P("A", [1, 2, 3]));
+    if (d2.questions.length !== 3 || d2.notes.length) err(at, "lệch 1 câu mỗi mức thì không ghi chú: " + JSON.stringify(d2.notes));
+  }
+  // 5. lệch quá 1 câu thì ghi chú
+  {
+    const d = draw({ R: [3, 0, 0] }, null, P("A", [1, 2, 3]));
+    if (d.questions.length !== 3 || d.notes.join() !== "R: lấy cả đoạn đọc nên mức Biết có 1 câu thay vì 3, mức Hiểu có 1 câu thay vì 0, mức Vận dụng có 1 câu thay vì 0") err(at, "ghi chú mức lệch chưa đúng: " + JSON.stringify(d.notes));
+  }
+  // 6. không quá ⌈k/3⌉ đoạn: đoạn chỉ 2 câu → 7 câu lấy từ 3 đoạn (6 câu) và 1 câu lẻ, không ghi chú
+  {
+    const d = draw({ R: [3, 2, 2] }, null, [...P("A", [1, 2]), ...P("B", [1, 3]), ...P("C", [2, 3]), ...P("D", [1, 2]), ...singles]), bp = byP(d, "R");
+    if (d.questions.length !== 7 || Object.keys(bp).length !== 3 || Object.values(bp).some((n) => n !== 2) || d.questions.filter((q) => !q.p).length !== 1 || d.notes.length) err(at, "quá ⌈k/3⌉ đoạn: " + JSON.stringify([bp, d.notes]));
+  }
+  // 7. câu Viết về bài thơ đi cùng bài thơ: R rút đoạn A (các đoạn khác đã làm) thì V lấy câu tự luận của A, đứng sau; câu tự luận của A đã làm thì nhường câu chưa làm
+  {
+    const d = draw({ R: [1, 1, 1], V: [0, 0, 1] }, hist(doneAll(["B", "C", "D"]))), v = d.questions.find((q) => q.topic === "V");
+    if (Object.keys(byP(d, "R")).join() !== "A" || !v || v.q !== "vA" || d.questions.indexOf(v) < d.questions.findIndex((q) => q.p === "A")) err(at, "câu Viết phải đi cùng đoạn đã rút, đứng sau: " + JSON.stringify([byP(d, "R"), v && v.q]));
+    const d2 = draw({ R: [1, 1, 1], V: [0, 0, 1] }, hist(doneAll(["B", "C", "D"], { vA: { done: 1, wrong: 0 } }))), v2 = d2.questions.find((q) => q.topic === "V");
+    if (Object.keys(byP(d2, "R")).join() !== "A" || !v2 || v2.q === "vA") err(at, "câu Viết đã làm phải nhường câu chưa làm: " + JSON.stringify([byP(d2, "R"), v2 && v2.q]));
+  }
+  // 8. ma trận không ghi mức: cả đoạn rồi phần vừa đủ của đoạn thứ hai
+  {
+    const d = draw({ R: 4 }, null, [...P("A", [1, 2, 3]), ...P("C", [1, 2, 3])]), bp = byP(d, "R");
+    if (d.questions.length !== 4 || Object.values(bp).sort().join() !== "1,3" || d.notes.length) err(at, "ma trận không ghi mức: " + JSON.stringify([bp, d.notes]));
+  }
+  // 9. mọi câu đã làm như nhau: vẫn rút theo đoạn (bằng điểm thì đoạn trước câu lẻ)
+  {
+    const d = draw({ R: [3, 2, 2] }, hist(Object.fromEntries(kho.map((q) => [q.q, { done: 1, wrong: 0 }])))), bp = byP(d, "R");
+    if (Object.keys(bp).length !== 2 || d.questions.some((q) => !q.p) || d.notes.length) err(at, "mọi câu đã làm thì vẫn rút theo đoạn: " + JSON.stringify(bp));
+  }
+  if (!Object.keys(Quiz.TXT.vi).every((k) => k in Quiz.TXT.en) || typeof Quiz.TXT.en.drawPsg !== "function") err(at, "bảng chữ tiếng Anh thiếu khóa");
 }
 
 /* ---------- bộ lọc hình ----------

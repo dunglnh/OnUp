@@ -15,6 +15,10 @@
        câu). Tổng bằng n (số câu rút mỗi lần). Chủ đề phải đúng chữ topic của câu. Mỗi lần học sinh bấm "Đề ngẫu nhiên",
        app rút câu theo ma trận (Quiz.draw trong js/quiz.js), ưu tiên câu chưa làm hoặc hay sai; ô thiếu câu thì lấy bù
        cùng chủ đề (câu chưa ghi mức, rồi mức gần nhất) rồi từ chủ đề khác, và ghi chú cho học sinh. Kết quả ghi refId là mã pool.
+     Câu dùng chung đoạn đọc (p, Phiên K4) rút theo đoạn: k câu của một chủ đề lấy từ không quá ⌈k/3⌉ đoạn, mỗi đoạn lấy cả đoạn
+       (hoặc phần vừa đủ, chọn câu theo mức còn thiếu), đoạn có câu hay sai, chưa làm được chọn trước; số câu từng mức theo đoạn
+       có thể lệch ma trận, lệch quá 1 câu ở một mức thì ghi chú. Nên viết mỗi đoạn 3–4 câu của một chủ đề, đủ ba mức theo tỉ lệ
+       của ô (tests/kiem-tra-de.js thử mọi thứ tự đoạn và nhắc khi app sẽ ghi chú). Câu không có đoạn vẫn rút theo ô như trên.
      Kho phải đủ câu cho từng chủ đề (tests/kiem-tra-de.js báo lỗi); thiếu ở một mức thì chỉ nhắc.
    Mã môn: toan, tv (Tiếng Việt), van (Ngữ văn), ta (Tiếng Anh), khoahoc, lsdl (Lịch sử và Địa lí), khtn, gdcd, tin,
    congnghe, tincn (Tin học và Công nghệ), thunghiem (đề thử nghiệm). Môn mới thì đặt mã mới, viết thường không dấu.
