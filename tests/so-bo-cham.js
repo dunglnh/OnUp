@@ -14,7 +14,10 @@ const admin=[
  {q:'Từ trái nghĩa với "cao" là ___',ans:['thấp']},{q:'(−3) · 4 = ___',ans:['-12']},{q:'___ kg là khối lượng con heo',ans:['80']},
  {q:'Một năm có ___ tháng',ans:['mười hai','12']},{q:'Sông ___ chảy qua Hà Nội',ans:['Hồng']},{q:'Âm ___ không',ans:['-']},{q:'Góc bẹt bằng ___°',ans:['180']},{q:'Diện tích là ___ m²',ans:['5']},{q:'Lũy thừa: 4 = 2___',ans:['²']},{q:'1 250 g = ___ kg',ans:['1,25']},
  {q:'Viết phân số tối giản: 1/2 + 1/4 = ___',ans:['3/4']},
- {q:'1/2 kg + 1/4 kg = ___ kg',ans:['3/4'],them:['3/4 kg','3/4kg','3 / 4 kg','3/4 KG','6/8 kg','0,75 kg','3/4 g']}];
+ {q:'1/2 kg + 1/4 kg = ___ kg',ans:['3/4'],them:['3/4 kg','3/4kg','3 / 4 kg','3/4 KG','6/8 kg','0,75 kg','3/4 g']},
+ {q:'1/4 kg − 1 kg = ___ kg',ans:['−3/4'],them:['-3/4','–3/4','- 3/4','− 3/4','-3/4 kg','- 3/4 kg','–3/4 kg','3/4','3/4 kg','-6/8','-6/8 kg','-0,75 kg']},
+ {q:'Viết phân số tối giản: 1/4 − 1 = ___',ans:['-3/4'],them:['−3/4','–3/4','- 3/4','− 3/4','-3/4 kg','3/4','-6/8','−6/8']},
+ {q:'Viết dưới dạng hỗn số: −3/2 = ___',ans:['−1 1/2'],them:['-1 1/2','- 1 1/2','–1 1/2','1 1/2','-11/2','-3/2']}];
 admin.forEach((q,i)=>qs.push({id:'admin#'+i,q:Object.assign({type:'fill'},q)}));
 const unit=q=>((q.q.split('___')[1]||'').trim().split(/\s+/)[0]||'').replace(/[.,;:!?]+$/,'');
 const others=[...new Set(qs.flatMap(x=>x.q.ans))];
@@ -29,8 +32,9 @@ console.log('Số câu điền khuyết:',qs.length,'(trong đó',admin.length,'
 console.log('Khác nhau:',diff.length);if(process.env.CHI_TIET)diff.forEach(d=>console.log('  '+d));
 const lost=diff.filter(d=>/cũ true → mới false/.test(d));console.log('Cũ đúng → mới sai:',lost.length);
 // Mọi trường hợp cũ sai → mới đúng phải là: bỏ ngoặc hoặc bỏ từ in sau ___, hoặc đổi dấu chấm thập phân thành dấu phẩy (L31),
-// hoặc bỏ khoảng trắng quanh "/" (L32), thì cũ đã chấm đúng.
+// hoặc bỏ khoảng trắng quanh "/" (L32), hoặc viết dấu trừ đầu chữ và khoảng trắng ngay sau nó đúng như đáp án ("−", "–", "-";
+// L35), thì cũ đã chấm đúng.
 const strip=g=>{let s=g.trim().replace(/[.!?;:]+$/,'').trim();const m=/^\(\s*(.+?)\s*\)(.*)$/.exec(s);if(m)s=(m[1]+m[2]).trim();return s};
-let bad=0;for(const {id,q} of qs){const u=unit(q).toLowerCase();for(const d of diff.filter(d=>d.startsWith(id+' |'))){const g=d.split(' | ')[1].slice(1,-1);let s=strip(g);const F=x=>x.normalize('NFD').replace(/\p{M}/gu,'').replace(/đ/g,'d').toLowerCase().replace(/2/g,'²');for(let k=1;u&&k<=s.length;k++)if(F(s.slice(-k))===F(u)){s=s.slice(0,-k).trim();break}s=strip(s);if(!oldR(q,s)&&!oldR(q,s.replace(/^(-?\d+)\.(\d+)$/,'$1,$2'))&&!oldR(q,s.replace(/\s*\/\s*/g,'/'))){bad++;console.log('NGHI:',d)}}}
+let bad=0;for(const {id,q} of qs){const u=unit(q).toLowerCase(),tru=q.ans.map(a=>(/^\s*([-−–]\s*)/.exec(a)||[])[1]).filter(Boolean);for(const d of diff.filter(d=>d.startsWith(id+' |'))){const g=d.split(' | ')[1].slice(1,-1);let s=strip(g);const F=x=>x.normalize('NFD').replace(/\p{M}/gu,'').replace(/đ/g,'d').toLowerCase().replace(/2/g,'²');for(let k=1;u&&k<=s.length;k++)if(F(s.slice(-k))===F(u)){s=s.slice(0,-k).trim();break}s=strip(s);if(![s,s.replace(/^(-?\d+)\.(\d+)$/,'$1,$2'),s.replace(/\s*\/\s*/g,'/')].concat(tru.map(m=>s.replace(/^[-−–]\s*/,m))).some(x=>oldR(q,x))){bad++;console.log('NGHI:',d)}}}
 console.log('Chấm đúng nhầm (sau khi bỏ ngoặc/đơn vị mà bản cũ vẫn chấm sai):',bad);
 if(bad||lost.length)process.exitCode=1;
