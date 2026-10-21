@@ -20,7 +20,7 @@ Mất khoảng 15 phút. Cần một máy tính và tài khoản GitHub.
 2. **New project**: Name `OnUp`; Database Password: **Generate a password**, cất kĩ; Region: **Southeast Asia (Singapore)**; gói **Free**. Có ô **Automatically expose new tables and functions** thì để trống (không tick): `schema.sql` tự cấp quyền cho từng bảng, đúng phần app cần.
 3. **Create new project**, đợi 1–2 phút.
 
-Giữ gói Free đến khi bắt đầu thu tiền (quyết định 18/10/2026). Gói này không có sao lưu tự động và tự tạm dừng project khi cả tuần không ai dùng, nên có hai việc hằng tuần ghi ở mục “Gói và đề trả phí” bên dưới.
+Giữ gói Free đến khi bắt đầu thu tiền (quyết định 18/10/2026; mở bán từ tháng 6/2027, chủ app chốt 21/10/2026). Gói này không có sao lưu tự động và tự tạm dừng project khi cả tuần không ai dùng, nên có hai việc hằng tuần ghi ở mục “Gói và đề trả phí” bên dưới.
 
 Đã cài bản cũ (đăng nhập email, mã gia đình) theo hướng dẫn trước? Bản mới không dùng chung bảng với bản cũ: xóa project cũ (**Project Settings → General → Delete project**) rồi tạo project mới.
 
@@ -125,7 +125,7 @@ Muốn tắt: tắt trên Supabase **trước**, rồi mới xóa Site Key.
 
 ## Gói và đề trả phí (chưa dùng)
 
-Hôm nay mọi tài khoản là gói `free`: dùng mọi nội dung, tối đa 5 hồ sơ con. Giữ như vậy đến khi bán (khi đủ đề lớp 4–12, khoảng cuối năm học 2028–2029; quyết định 18/10/2026): **không sửa bảng `plans`** trước lúc đó. Hạn mức hai gói lúc bán sẽ chốt sau ([THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md) mục 9).
+Hôm nay mọi tài khoản là gói `free`: dùng mọi nội dung, tối đa 5 hồ sơ con. Giữ như vậy đến khi bán (tháng 6/2027, chủ app chốt 21/10/2026), cả trong thời gian dùng thử từ tháng 3/2027: **không sửa bảng `plans`** trước lúc đó. Hạn mức hai gói lúc bán sẽ chốt sau ([THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md) mục 9).
 
 **Việc hằng tuần khi còn gói Free của Supabase** (đến khi bắt đầu thu tiền thì lên gói Pro, có sao lưu hằng ngày):
 - **Xuất CSV:** **Table Editor** → mở từng bảng `families`, `profiles`, `results`, `exam_events`, `question_banks`, `question_reports` → nút **Export** (hoặc menu ⋯ của bảng) → **Export to CSV**, cất vào Google Drive theo ngày. Gói Free không có sao lưu; đây là bản sao duy nhất nếu project hỏng.

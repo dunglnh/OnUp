@@ -5,7 +5,7 @@ Có lịch thi năm học 2026–2027, đề luyện giữa kì, cuối kì và 
 
 - Mô tả tính năng: [docs/TINH-NANG.md](docs/TINH-NANG.md)
 - Trạng thái, lộ trình và lời giao việc từng phiên (chỗ duy nhất ghi trạng thái): [docs/KE-HOACH-PHAT-TRIEN-ONUP.md](docs/KE-HOACH-PHAT-TRIEN-ONUP.md)
-- Kế hoạch nội dung (đủ đề lớp 4 và 6, rồi lớp 5, 7–12; lời giao việc các phiên làm đề chưa làm; chuẩn bị bán B4): [docs/KE-HOACH-NOI-DUNG.md](docs/KE-HOACH-NOI-DUNG.md)
+- Kế hoạch nội dung (đủ đề lớp 4 và 6, rồi lớp 9, 12, 5, 7, 8, 10, 11, xong trong tháng 2/2027; lời giao việc các phiên làm đề chưa làm; chuẩn bị dùng thử và bán): [docs/KE-HOACH-NOI-DUNG.md](docs/KE-HOACH-NOI-DUNG.md)
 - Cải tiến giao diện 2.x (vấn đề X1–X16, lời giao việc UI1, UX4–UX8): [docs/CAI-TIEN-UX-2X.md](docs/CAI-TIEN-UX-2X.md)
 - Lỗi tìm được khi dùng thử (L1–L31) và lời giao việc các phiên sửa lỗi chưa làm: [docs/SUA-LOI-CHAY-THU.md](docs/SUA-LOI-CHAY-THU.md)
 - Thiết kế khung tài khoản, trang admin và hướng đi bản trả phí: [docs/THIET-KE-TAI-KHOAN.md](docs/THIET-KE-TAI-KHOAN.md)
@@ -14,7 +14,7 @@ Có lịch thi năm học 2026–2027, đề luyện giữa kì, cuối kì và 
 
 ## Dùng ngay
 
-**Trang https://dunglnh.github.io/OnUp/** chạy bản đám mây và **chỉ dành cho gia đình được mời**: chủ app tạo tài khoản ở trang admin (`admin.html`) rồi gửi tên đăng nhập + mật khẩu tạm; phụ huynh đăng nhập, đặt mật khẩu mới, thêm hồ sơ cho từng con; con chọn hồ sơ của mình ở màn hình “Ai đang học?” (nhập mã PIN nếu có) là vào ôn. Không có tự đăng ký; chưa có tài khoản thì liên hệ theo dòng ghi ở màn đăng nhập. App đang miễn phí: mỗi tài khoản tối đa 5 hồ sơ con, dùng được mọi đề. Bản trả phí chỉ tính đến khi đã đủ đề lớp 4–12.
+**Trang https://dunglnh.github.io/OnUp/** chạy bản đám mây và **chỉ dành cho gia đình được mời**: chủ app tạo tài khoản ở trang admin (`admin.html`) rồi gửi tên đăng nhập + mật khẩu tạm; phụ huynh đăng nhập, đặt mật khẩu mới, thêm hồ sơ cho từng con; con chọn hồ sơ của mình ở màn hình “Ai đang học?” (nhập mã PIN nếu có) là vào ôn. Không có tự đăng ký; chưa có tài khoản thì liên hệ theo dòng ghi ở màn đăng nhập. App đang miễn phí: mỗi tài khoản tối đa 5 hồ sơ con, dùng được mọi đề, đến hết các kì thi năm học 2026–2027; bản trả phí dự kiến mở bán từ tháng 6/2027.
 
 **Tự chạy trên máy tính (bản lưu trên máy, không cần Supabase):** trong `js/config.js` để trống hai giá trị `supabaseUrl`, `supabaseAnonKey` (`""`), rồi trong thư mục này chạy `python3 -m http.server 8000` và mở http://localhost:8000. Lần đầu mở app: tạo tài khoản quản trị → thêm phụ huynh, học sinh → học sinh chọn tên, nhập PIN là vào ôn. Dữ liệu nằm trong trình duyệt của máy đó, mở lại được cả khi không có mạng (sau lần mở đầu). Nhớ vào Quản trị → Dữ liệu để tải file sao lưu định kì (quá 7 ngày app sẽ nhắc), và thêm app vào Màn hình chính trên iPhone, iPad để Safari không xóa dữ liệu.
 

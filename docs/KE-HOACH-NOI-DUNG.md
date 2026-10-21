@@ -1,6 +1,6 @@
 # Kế hoạch nội dung: đủ đề lớp 4 và 6, rồi lớp 5, 7–12
 
-Phiên bản 4 · 21/10/2026 (mục 7: thêm lời giao việc N13–N25b cho phần còn lại của lớp 4 và 6; mục 2, 4: số phiên và mốc đủ đề ước tính lại theo nhịp thật). Phiên bản 3 · 19/10/2026: lời giao việc N2–N12b, chủ app chốt 19/10; ngày 20/10 bỏ lời giao việc của các phiên đã xong. Trạng thái từng phiên chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). Lời giao việc các phiên làm đề và kĩ thuật cho đề chưa làm: mục 7 của file này.
+Phiên bản 4 · 21/10/2026 (mục 7: thêm lời giao việc N13–N25b cho phần còn lại của lớp 4 và 6; mục 2: số phiên ước tính lại theo nhịp thật; mục 4, 5: mốc chủ app chốt 21/10/2026, đủ đề lớp 4–12 và rà xong trong tháng 2/2027, dùng thử từ tháng 3/2027, mở bán từ tháng 6/2027). Phiên bản 3 · 19/10/2026: lời giao việc N2–N12b, chủ app chốt 19/10; ngày 20/10 bỏ lời giao việc của các phiên đã xong. Trạng thái từng phiên chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). Lời giao việc các phiên làm đề và kĩ thuật cho đề chưa làm: mục 7 của file này.
 
 Tài liệu này trả lời ba câu hỏi:
 - Còn thiếu bao nhiêu đề.
@@ -78,7 +78,7 @@ Kì thi chuyển cấp và tốt nghiệp:
 | 12 | 176 | 4.400 | 0 | 1,9 MB | 53 (28 + 25 đề thi thử tốt nghiệp) |
 | **Tổng** | **838** | **20.950** | **1.269** | **9,2 MB** | **232** |
 
-Ngoài 232 phiên làm đề còn 16 phiên: N-IOE; 7 phiên rà soát trước khi bật lớp 5, 7–12; 4 phiên kĩ thuật và lịch (Lịch các khối mới, K5, Lịch 2027–2028, gộp bài ôn dạng trang vào ngân hàng); 4 phiên chuẩn bị bán (mục 5). Tổng 248 phiên, thứ tự và mốc ở mục 4.
+Ngoài 232 phiên làm đề còn 17 phiên: N-IOE; 7 phiên rà soát trước khi bật lớp 5, 7–12; 4 phiên kĩ thuật và lịch (Lịch các khối mới, K5, Lịch 2027–2028, gộp bài ôn dạng trang vào ngân hàng); 5 phiên chuẩn bị dùng thử và bán (G0, B1, B2, B4, G1; mục 5). Tổng 249 phiên, thứ tự và mốc ở mục 4.
 
 Rút ra hai điều:
 1. **Không thể giữ cách cũ** (một file `data/banks.js` chứa mọi đề, đưa hết vào đệm của service worker): ở mức 9 MB, máy học sinh tải chậm và tốn dung lượng. Phiên K1 đã tách đề theo khối và môn, cần môn nào thì tải môn đó.
@@ -172,52 +172,57 @@ Thứ tự: làm các phiên kĩ thuật K1 → K2 → K3 trước, rồi mới 
 
 ## 4. Thứ tự làm
 
+**Mốc chủ app chốt ngày 21/10/2026** (thay mốc “bán khi đủ đề lớp 4–12, khoảng cuối năm học 2028–2029” của ngày 18/10): **đủ đề lớp 4–12 và rà xong trong tháng 2/2027**; từ đầu tháng 3/2027 mời khách tiềm năng **dùng thử miễn phí đến hết các kì thi của năm học 2026–2027** (kì cuối là thi tốt nghiệp THPT, dự kiến 11–12/6/2027); **mở bán chính thức từ tháng 6/2027** nếu không vướng thủ tục hành chính (mục 5).
+
 Nguyên tắc:
 1. Kì thi nào gần thì làm đề cho kì đó trước.
 2. Xong lớp 4 và 6 rồi mới sang khối khác.
-3. Thứ tự khối tiếp theo: **5 và 7 → 9 → 8 → 12 → 10 → 11.**
-   - Học sinh lớp 4, 6 năm nay sẽ lên lớp 5, 7 vào tháng 9/2027, nên làm 5 và 7 trước để giữ chân người dùng hiện có.
-   - Lớp 9 (thi vào 10) và lớp 12 (thi tốt nghiệp) là hai khối phụ huynh sẵn lòng trả tiền nhất, nên đi ngay sau.
-4. Chỉ bật một khối (`active: true` trong `data/grades.js`) khi khối đó đã có đủ đề cho kì thi sắp tới.
+3. Thứ tự khối tiếp theo: **9 → 12 → 5 → 7 → 8 → 10 → 11** (đổi ngày 21/10/2026 theo mốc mới; trước là 5 và 7 → 9 → 8 → 12 → 10 → 11).
+   - Lớp 9 (thi vào 10) và lớp 12 (thi tốt nghiệp) là hai khối phụ huynh sẵn lòng trả tiền nhất, lại có kì thi lớn ngay trong thời gian dùng thử, nên làm trước.
+   - Lớp 5, 7: học sinh lớp 4, 6 năm nay lên lớp 5, 7 vào tháng 9/2027, nên đi ngay sau; có chậm thì vẫn còn thời gian.
+4. Trong mỗi khối, làm đề các kì còn thi trong năm học 2026–2027 trước (cuối kì I nếu còn xong được trước kì thi 3 tuần, giữa kì II, cuối năm, đề thi thử); kì đã thi (giữa kì I, và cuối kì I khi đã qua) làm sau cùng, vì chỉ dùng cho năm học 2027–2028.
+5. Bật một khối (`active: true` trong `data/grades.js`) khi khối đó đã đủ đề các kì còn thi trong năm học 2026–2027 và đã qua phiên rà soát độc lập (mục 7, “Lớp 5, 7–12”); bật xong thì chủ app mời vài gia đình có con học khối đó dùng thử ngay, trước khi mở dùng thử rộng.
 
-| Giai đoạn | Việc | Số phiên | Xong khoảng, 1 phiên mỗi ngày | Xong khoảng, 2 phiên mỗi ngày |
+| Giai đoạn | Việc | Số phiên | Cộng dồn từ 22/10/2026 | Xong trước (mốc kiểm tra) |
 |---|---|---|---|---|
-| 0–2 · Đã xong | N0a, N0b; kĩ thuật K1–K4; cuối kì I lớp 4 và 6 (N1–N6, N3b, N4b) | 14 | xong 21/10/2026 | |
-| 3 · Lớp 4 và 6 còn lại | giữa kì I (N23–N25b, làm ngay), giữa kì II (N7–N12b), IOE quốc gia (N-IOE), cuối năm (N13–N22b) | 27 | giữa 11/2026 | đầu 11/2026 |
-| 4 · Lớp 5, 7 | phiên “Lịch các khối mới” (thêm kì thi lớp 5, 7–12 vào lịch 2026–2027); đề bốn kì lớp 5 (16 phiên), lớp 7 (24); mỗi khối một phiên rà soát trước khi bật | 43 | cuối 12/2026 | cuối 11/2026 |
-| 5 · Lớp 9, 8 | K5 (trọng số câu, định dạng đề thi thử); lớp 9 bốn kì và đề thi thử vào 10 (33); lớp 8 (24); rà soát | 60 | cuối 2/2027 | cuối 12/2026 |
-| 6 · Lớp 12 | bốn kì (28) và đề thi thử tốt nghiệp (25); rà soát | 54 | cuối 4/2027 | cuối 1/2027 |
-| 7 · Lớp 10, 11; năm học mới | lớp 10, 11 (56); rà soát; lịch 2027–2028 (hè 2027); gộp bài ôn dạng trang vào ngân hàng | 60 | cuối 6/2027 | cuối 2/2027 (lịch 2027–2028: hè 2027) |
-| 8 · Chuẩn bị bán | G1, B1, B2, B4 (mục 5) | 4 | ngay trước khi bán | |
+| 0–2 · Đã xong | N0a, N0b; kĩ thuật K1–K4; cuối kì I lớp 4 và 6 (N1–N6, N3b, N4b) | 14 | | xong 21/10/2026 |
+| 3 · Lớp 4 và 6 còn lại | giữa kì I (N23–N25b, trước 30/10), giữa kì II (N7–N12b), IOE quốc gia (N-IOE), cuối năm (N13–N22b) | 27 | 27 | 10/11/2026 |
+| 4 · Lớp 9 | phiên “Lịch các khối mới” (kì thi năm học 2026–2027 của lớp 5, 7–12); K5 (trọng số câu, định dạng đề thi thử); lớp 9 bốn kì và đề thi thử vào 10 (33); rà soát | 36 | 63 | 30/11/2026 |
+| 5 · Lớp 12, 5 | lớp 12 bốn kì và đề thi thử tốt nghiệp (53); lớp 5 (16); mỗi khối một phiên rà soát | 71 | 134 | 31/12/2026 |
+| 6 · Lớp 7, 8 | lớp 7 (24), lớp 8 (24); mỗi khối một phiên rà soát | 50 | 184 | 31/1/2027 |
+| 7 · Lớp 10, 11 | lớp 10 (28), lớp 11 (28); mỗi khối một phiên rà soát; sửa lỗi các phiên rà soát tìm ra | 58, cùng phiên sửa lỗi | 242 | 28/2/2027: đủ đề lớp 4–12, rà xong |
+| 8a · Chuẩn bị dùng thử | G0, B1 (mục 5) | 2 | 244 | 28/2/2027; mở dùng thử đầu tháng 3/2027 |
+| 8b · Chuẩn bị bán | B2, B4, G1 (mục 5), trong thời gian dùng thử | 3 | | 31/5/2027; mở bán tháng 6/2027 |
+| 9 · Năm học mới | Lịch 2027–2028 (khi Bộ, Sở công bố khung năm học); gộp bài ôn dạng trang vào ngân hàng | 2 | | 31/8/2027 |
 
-**Nhịp làm và mốc (ước tính lại ngày 21/10/2026).** Kế hoạch ngày 18/10 tính 1–2 phiên mỗi tuần, nên đủ đề lớp 4–12 khoảng cuối năm học 2028–2029. Nhịp thật từ 17/10 đến sáng 21/10/2026 (lịch sử Pull Request): 10 phiên làm đề và 4 phiên kĩ thuật cho đề (K1–K4) trong 4 ngày, cùng khoảng 40 Pull Request khác (giao diện, sửa lỗi, tài liệu); riêng ngày 20/10 có 6 phiên làm đề, khoảng 430 câu mới. Mỗi phiên làm đề thêm 30–110 câu mới (phiên nâng đề có sẵn ít hơn; môn chưa có đề 75–110 câu). Còn 248 phiên (bảng trên; số phiên từng khối ở mục 2). Một phiên mỗi ngày thì đủ đề lớp 4–12 khoảng cuối tháng 6/2027; hai phiên mỗi ngày thì khoảng cuối tháng 2/2027; giữ nhịp 17–21/10 (khoảng 2,5 phiên làm đề mỗi ngày) thì khoảng cuối tháng 1/2027; trở lại 1–2 phiên mỗi tuần thì năm 2029–2031. Nhịp thật phụ thuộc giới hạn lượt dùng Claude và thời gian chủ app xem, Merge Pull Request, rà đề.
+**Nhịp cần để kịp mốc.** Từ 22/10/2026 đến 28/2/2027 có 130 ngày cho 244 phiên (giai đoạn 3–7 và G0, B1), chưa tính UX7, UX8 và phiên sửa lỗi: cần khoảng **2 phiên mỗi ngày, mọi ngày kể cả cuối tuần** (khoảng 14 phiên mỗi tuần); Tết Nguyên đán (đầu tháng 2/2027) nghỉ thì làm bù trước Tết. Nhịp đó làm được khoảng 80 phiên đến 30/11/2026, 140 đến 31/12, 200 đến 31/1/2027, 260 đến 28/2; phần dư so với cột “Cộng dồn” dành cho UX7, UX8, phiên sửa lỗi và ngày nghỉ. Nhịp đo được từ 17/10 đến sáng 21/10/2026 (lịch sử Pull Request): 10 phiên làm đề và 4 phiên kĩ thuật cho đề (K1–K4) trong 4 ngày, cùng khoảng 40 Pull Request khác (giao diện, sửa lỗi, tài liệu); riêng ngày 20/10 có 6 phiên làm đề, khoảng 430 câu mới; mỗi phiên làm đề thêm 30–110 câu mới. Giữ được nhịp đó thì kịp mốc. Nhịp phụ thuộc giới hạn lượt dùng Claude (mục 1 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)) và thời gian chủ app xem, Merge Pull Request; một phiên mỗi ngày thì chỉ đủ đề khoảng cuối tháng 6/2027.
 
-**Mốc bán: chủ app chốt lại.** Quyết định hiện hành vẫn là “bán khi đủ đề lớp 4–12” (đoạn đầu [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)); các phiên chuẩn bị bán không làm sớm hơn giai đoạn 8. Đề xuất của PO ngày 21/10/2026:
-1. Giữ điều kiện “đủ đề lớp 4–12”, đổi mốc dự kiến thành **đầu năm học 2027–2028 (tháng 8/2027)**: kịp ở nhịp một phiên mỗi ngày, còn 1–2 tháng để rà đề, làm G1, B1, B2, B4 và các việc hành chính ở mục 5; sớm hơn kế hoạch cũ khoảng hai năm.
-2. Nếu đến cuối tháng 2/2027 đã đủ đề và rà xong (nhịp từ hai phiên mỗi ngày), mở bán sớm hơn, khoảng tháng 4/2027, trước mùa thi cuối năm, thi vào 10 và thi tốt nghiệp.
-3. Muốn giữ được cách 2 cả khi nhịp chậm hơn: đổi thứ tự khối thành 9 → 12 → 5, 7 → 8 → 10 → 11 (một phiên mỗi ngày thì lớp 9 xong khoảng cuối 12/2026, lớp 12 khoảng giữa 2/2027); lớp 5, 7 vẫn xong trước tháng 9/2027, lúc học sinh lớp 4, 6 năm nay lên lớp.
-4. Chất lượng đi cùng nhịp nhanh: mỗi khối có một phiên rà soát độc lập trước khi bật (đã tính trong số phiên), và mời vài gia đình có con học khối đó dùng thử trước khi bán, vì bố mẹ trong nhà chỉ rà được đề lớp 4, 6.
+**Mốc kiểm tra và cách lùi khi chậm.** Cuối mỗi tháng, so bảng “Đã xong” (mục 1 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)) với hai cột cuối của bảng trên. Chậm hơn mốc quá một tuần thì:
+1. Không bỏ phiên rà soát của khối nào: mốc tháng 2/2027 là đủ đề **và** rà xong.
+2. Lùi đề các kì đã thi (nguyên tắc 4) của các khối làm sau cùng, theo thứ tự 11, 10, 8, 7, sang tháng 3–8/2027: vẫn kịp năm học 2027–2028; mỗi khối THPT bớt khoảng 14 phiên trước mốc, mỗi khối THCS khoảng 12. Không lùi đề cho các kì thi trong thời gian dùng thử (giữa kì II, cuối năm, thi vào 10, thi tốt nghiệp).
+3. Vẫn chậm thì mở dùng thử đúng hẹn với các khối đã bật, các khối còn lại bật dần; PO báo chủ app để quyết định có lùi mốc bán không.
 
-**Việc của bố mẹ (không tốn lượt Claude), quan trọng nhất:** rà đề. Mỗi đề mới, cho con làm thử một lần; câu sai đáp án thì báo bằng nút “Báo câu này sai” trong app khi đã có (Phiên R1), trước đó chủ app ghi vào GitHub Issues (Issues chỉ chủ app dùng). Có thể nhờ giáo viên quen rà các môn mình không chắc. Chất lượng đề là thứ quyết định phụ huynh có trả tiền hay không.
+**Việc của bố mẹ (không tốn lượt Claude), quan trọng nhất:** rà đề. Mỗi đề mới, cho con làm thử một lần; câu sai đáp án thì báo bằng nút “Báo câu này sai” trong app (Phiên R1). Có thể nhờ giáo viên quen rà các môn mình không chắc. Lớp 5, 7–12 trong nhà không có con học: ngoài phiên rà soát độc lập, mời vài gia đình có con học khối đó dùng thử ngay khi khối được bật (nguyên tắc 5). Chất lượng đề là thứ quyết định phụ huynh có trả tiền hay không.
 
 ---
 
-## 5. Chuẩn bị trước khi bán (giai đoạn 8)
+## 5. Chuẩn bị dùng thử và bán (giai đoạn 8)
 
-Làm **ngay trước khi bán**, tức khi đã đủ đề lớp 4–12 (khoảng cuối năm học 2028–2029; quyết định 18/10/2026; ngày 21/10/2026 ước tính lại theo nhịp thật, đề xuất mốc mới ở mục 4, chờ chủ app chốt), không làm sớm hơn. Đến lúc đó gói Miễn phí giữ như hiện nay (5 hồ sơ con, mọi đề; bảng `plans` không đổi); hạn mức gói Miễn phí và gói Gia đình lúc bán chốt sau, chủ app điền vào lời giao việc Phiên G1. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); lời giao việc G1, B1, B2: mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). Thứ tự: G1 → B1 → B2 → B4.
+Theo mốc chủ app chốt ngày 21/10/2026 (mục 4): **G0 → B1** làm trong tháng 2/2027, xong trước khi mở dùng thử (đầu tháng 3/2027); **B2 → B4 → G1** làm trong thời gian dùng thử, xong trước khi mở bán (tháng 6/2027); không làm sớm hơn. Trong thời gian dùng thử và đến lúc bán, gói Miễn phí giữ như hiện nay (5 hồ sơ con, mọi đề; bảng `plans` không đổi). Hạn mức gói Miễn phí và gói Gia đình lúc bán chốt sau (giữa tháng 5/2027), chủ app điền vào lời giao việc Phiên G1, cùng cách giữ quyền lợi của gia đình dùng thử đến hết kì thi. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md); lời giao việc G0, B1, B2, G1: mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md).
 
 | Phiên | Việc | Vì sao |
 |---|---|---|
-| G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư (trước gọi là B3) | Như mục 9 thiết kế: quyền lợi, giá đọc từ bảng `plans`, QR chuyển khoản, nút nhắn Zalo; trang admin thêm "Kích hoạt gói" (đã có `set_plan` trong Edge Function); hai trang tĩnh Điều khoản và Quyền riêng tư | Bán tay qua Zalo, không mất phí cổng thanh toán |
-| B1 · Chuyển hosting | Repo chuyển sang riêng tư; trang chạy trên Cloudflare Pages (gói miễn phí, không giới hạn băng thông trang tĩnh, cho dùng thương mại); tên miền riêng | Điều khoản GitHub Pages không cho dùng gói miễn phí để chạy dịch vụ bán hàng hay phần mềm trả phí (SaaS). Repo công khai thì ai cũng tải được toàn bộ đề; đến khi bán chấp nhận như vậy |
-| B2 · Đề trả phí lên máy chủ | Đề trả phí chỉ nằm trong bảng `paid_banks` (đã có sẵn từ Phiên A), đọc qua RLS theo gói; đề thử và bài ôn miễn phí vẫn là file tĩnh; `Store.can("bank:<mã>")` | Không ai tải được đề trả phí nếu chưa mua |
-| B4 · Bớt tải dữ liệu | Lúc mở app chỉ tải kết quả 90 ngày gần nhất (báo cáo chỉ dùng 7 và 30 ngày); đề tải khi mở và lưu lại trên máy | Hiện mỗi lần mở app tải toàn bộ kết quả của gia đình |
+| G0 · Chuẩn bị dùng thử | Hai trang tĩnh Điều khoản và Quyền riêng tư (trước nằm trong G1), link ở màn đăng nhập, Khu phụ huynh và lời nhắn gửi phụ huynh; dòng “dùng thử miễn phí đến …” trong Khu phụ huynh (`trialText` trong `js/config.js`) | Gia đình dùng thử phần lớn không quen chủ app, và dữ liệu là của trẻ em (Luật Bảo vệ dữ liệu cá nhân 2025); họ cần biết trước app sẽ có gói trả phí |
+| B1 · Chuyển hosting | Repo chuyển sang riêng tư; trang chạy trên Cloudflare Pages (gói miễn phí, không giới hạn băng thông trang tĩnh, cho dùng thương mại); tên miền riêng | Điều khoản GitHub Pages không cho dùng gói miễn phí để chạy dịch vụ bán hàng hay phần mềm trả phí (SaaS). Repo công khai thì ai cũng tải được toàn bộ đề. Đổi địa chỉ trang thì mỗi máy phải đăng nhập lại, đặt lại mã mở nhanh, thêm lại vào Màn hình chính, nên làm trước khi mở dùng thử, lúc còn ít gia đình |
+| B2 · Đề trả phí lên máy chủ | Đề trả phí chỉ nằm trong bảng `paid_banks` (đã có sẵn từ Phiên A), đọc qua RLS theo gói; đề thử và bài ôn miễn phí vẫn là file tĩnh; `Store.can("bank:<mã>")` | Không ai tải được đề trả phí nếu chưa mua. Trong thời gian dùng thử gói Miễn phí vẫn đọc mọi đề, nên gia đình dùng thử không mất đề nào |
+| B4 · Bớt tải dữ liệu | Lúc mở app chỉ tải kết quả 90 ngày gần nhất (báo cáo chỉ dùng 7 và 30 ngày); đề tải khi mở và lưu lại trên máy | Hiện mỗi lần mở app tải toàn bộ kết quả của gia đình; lúc dùng thử có thêm nhiều gia đình |
+| G1 · Kích hoạt gói, màn hình Nâng cấp (trước gọi là B3) | Như mục 9 thiết kế: quyền lợi, giá đọc từ bảng `plans`, QR chuyển khoản, nút nhắn Zalo; trang admin thêm "Kích hoạt gói" (đã có `set_plan` trong Edge Function); thêm phần gói, thanh toán vào trang Điều khoản | Bán tay qua Zalo, không mất phí cổng thanh toán |
 
-Việc hành chính chủ app tự làm:
-- Nâng Supabase lên gói Pro khi bắt đầu thu tiền (dự án không bị tạm dừng, có sao lưu hằng ngày). Trước đó giữ gói Free: xuất CSV hằng tuần, mở app ít nhất mỗi tuần một lần ([HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md), mục “Gói và đề trả phí”).
-- Thông báo website bán hàng với Bộ Công Thương tại online.gov.vn (không mất phí, cần mã số thuế cá nhân).
-- Trang Điều khoản và Quyền riêng tư theo Luật Bảo vệ dữ liệu cá nhân 2025 (hiệu lực 1/1/2026). App đã chỉ thu tên hiển thị, khối, lớp; phụ huynh là người tạo hồ sơ của con.
-- Hỏi kế toán về thuế hộ, cá nhân kinh doanh.
+Việc hành chính chủ app tự làm (ngày cụ thể ở việc 9, mục 2 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)); việc nào chưa xong thì lùi ngày mở bán, dùng thử vẫn chạy đến hết kì thi:
+- Supabase: giữ gói Free đến khi bắt đầu thu tiền (quyết định 18/10/2026), lên gói Pro trước ngày mở bán (dự án không bị tạm dừng, có sao lưu hằng ngày). Trước đó xuất CSV hằng tuần, mở app ít nhất mỗi tuần một lần ([HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md), mục “Gói và đề trả phí”); trước khi mở dùng thử, chủ app xem lại có nên lên Pro sớm hơn không.
+- Trang Điều khoản và Quyền riêng tư theo Luật Bảo vệ dữ liệu cá nhân 2025 (hiệu lực 1/1/2026) có từ G0, trước khi mở dùng thử; nhờ người hiểu luật xem lời. App đã chỉ thu tên hiển thị, khối, lớp; phụ huynh là người tạo hồ sơ của con.
+- Hỏi kế toán về thuế hộ, cá nhân kinh doanh, hóa đơn (tháng 3–4/2027).
+- Thông báo website bán hàng với Bộ Công Thương tại online.gov.vn (không mất phí, cần mã số thuế cá nhân), sau G1, khi trang đã có màn Nâng cấp và Điều khoản đủ phần thanh toán (tháng 5/2027).
 
 ---
 
@@ -605,11 +610,11 @@ Phạm vi các bài khác nhau giữa các trường; các nguồn dưới đây
 
 ### Lớp 5, 7–12
 
-Dùng cùng mẫu lời giao việc, bốn ý thêm từ Phiên N1 và Quy định chung ở đầu mục này, theo thứ tự ở mục 4. Mỗi khối trước khi bật cần:
-1. Thêm các kì thi của khối vào lịch: một phiên "Lịch các khối mới" thêm kì thi năm học 2026–2027 của lớp 5, 7–12 vào data/calendar-2026-2027.js trước khi làm đề khối mới (ngày chưa công bố thì để dự kiến), để phiên làm đề gắn đề vào kì thi như lớp 4, 6; phiên "Lịch 2027–2028" làm chung cho mọi khối vào hè 2027, gồm thi vào 10 và thi tốt nghiệp THPT.
-2. Có đủ đề cho kì thi gần nhất.
-3. Qua một phiên rà soát độc lập (đề xuất ngày 21/10/2026, mục 4): phiên Claude không làm đề của khối đó đọc lại kho đề so với chương trình, tính lại đáp án, ghi lỗi vào [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md).
-4. Đổi `active: true` trong `data/grades.js`.
+Dùng cùng mẫu lời giao việc, bốn ý thêm từ Phiên N1 và Quy định chung ở đầu mục này, theo thứ tự khối và thứ tự kì ở mục 4 (nguyên tắc 3, 4); PO viết lời giao việc từng khối khi đến lượt, của lớp 9 trước khi lớp 4, 6 xong. Mỗi khối trước khi bật cần:
+1. Thêm các kì thi của khối vào lịch: một phiên "Lịch các khối mới" thêm kì thi năm học 2026–2027 của lớp 5, 7–12, kể cả thi vào 10 và thi tốt nghiệp THPT năm 2027 (dự kiến 11–12/6/2027), vào data/calendar-2026-2027.js trước khi làm đề khối mới (ngày chưa công bố thì để dự kiến), để phiên làm đề gắn đề vào kì thi như lớp 4, 6; phiên "Lịch 2027–2028" làm chung cho mọi khối vào hè 2027, gồm thi vào 10 và thi tốt nghiệp THPT năm 2028.
+2. Có đủ đề các kì còn thi trong năm học 2026–2027 (mục 4, nguyên tắc 4).
+3. Qua một phiên rà soát độc lập: phiên Claude không làm đề của khối đó đọc lại kho đề so với chương trình, tính lại đáp án, ghi lỗi vào [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); lỗi sửa xong trước mốc của khối (mục 4).
+4. Đổi `active: true` trong `data/grades.js`; bật xong thì chủ app mời vài gia đình có con học khối đó dùng thử (mục 4, nguyên tắc 5).
 
 Lớp 9 và 12 cần thêm phiên đề thi thử đúng định dạng kì thi:
 - **Thi vào 10:** Toán, Ngữ văn, Tiếng Anh. Môn thứ ba các tỉnh công bố trước 31/3, nên làm Tiếng Anh trước.
@@ -625,9 +630,11 @@ Lớp 9 và 12 cần thêm phiên đề thi thử đúng định dạng kì thi:
 | Đề sai đáp án, sai chương trình | Bộ kiểm tra đề (K1); tính lại đáp án Toán, Lí, Hóa bằng code; bố mẹ, giáo viên rà; nút “Báo câu này sai” trong app (Phiên R1, trong [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)) |
 | Đề không theo yêu cầu của chủ app (đề Tiếng Anh lẫn tiếng Việt, gặp khi chạy thử 18/10/2026) | Quy tắc ở mục 3 và CLAUDE.md; `tests/kiem-tra-de.js` kiểm tra đề Tiếng Anh không có chữ tiếng Việt (Phiên TA1) |
 | Hết lượt dùng Claude giữa mùa thi | Làm trước hạn kì thi ít nhất 3 tuần; một phiên một môn lớn hoặc hai môn nhỏ (mục 7) |
-| Làm đề nhanh hơn sức rà của bố mẹ (lớp 5, 7–12 trong nhà không có con học) | Mỗi khối một phiên rà soát độc lập trước khi bật; mời gia đình có con học khối đó dùng thử trước khi bán; nút “Báo câu này sai” (đề xuất ngày 21/10/2026, mục 4) |
+| Không giữ được nhịp khoảng 2 phiên mỗi ngày (giới hạn lượt dùng Claude, thời gian xem và Merge Pull Request) nên trễ mốc tháng 2/2027 | Mốc kiểm tra cuối mỗi tháng và cách lùi ở mục 4: giữ phiên rà soát, lùi đề các kì đã thi của các khối làm sau cùng, mở dùng thử với các khối đã bật |
+| Làm đề nhanh hơn sức rà của bố mẹ (lớp 5, 7–12 trong nhà không có con học) | Mỗi khối một phiên rà soát độc lập trước khi bật; bật xong mời vài gia đình có con học khối đó dùng thử; từ tháng 3/2027 gia đình dùng thử báo câu sai bằng nút “Báo câu này sai” (mục 4) |
 | Kiểm thử ghi cứng theo kho đề nên hỏng khi thêm đề | Lời giao việc ghi chỗ phải sửa; từ Phiên 9g hai script kiểm thử chạy ở một ngày cố định nên không hỏng theo ngày chạy (Quy định chung ở mục 7) |
 | Dữ liệu phình to, app chậm | K1 tách file; B4 chỉ tải 90 ngày; đề trả phí tải khi mở |
-| Bị chép đề khi repo công khai | Đến khi bán chấp nhận repo công khai (đã chốt 18/10/2026); B1, B2 ngay trước khi bán |
-| Mất dữ liệu trên Supabase gói Free (không có sao lưu, project tự tạm dừng) | Chủ app xuất CSV hằng tuần, mở app ít nhất mỗi tuần một lần; lên gói Pro khi bắt đầu thu tiền |
+| Bị chép đề khi repo công khai | Chấp nhận repo công khai đến B1 (đã chốt 18/10/2026); B1 trước khi mở dùng thử (tháng 2/2027), B2 trong thời gian dùng thử, trước khi bán (mục 5) |
+| Mất dữ liệu trên Supabase gói Free (không có sao lưu, project tự tạm dừng) | Chủ app xuất CSV hằng tuần, mở app ít nhất mỗi tuần một lần; lên gói Pro khi bắt đầu thu tiền; từ khi mở dùng thử có dữ liệu của các gia đình không quen, nên chủ app xem lại có lên Pro sớm hơn không |
 | Sách hoặc lịch thi thay đổi | Theo dõi thông báo của Bộ, Sở; ngày chưa công bố để dự kiến; câu hỏi gắn bài và tuần học để sửa nhanh |
+| Vướng thủ tục hành chính trước ngày bán | Làm sớm theo mốc ở việc 9, mục 2 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md) (trang Quyền riêng tư từ G0, kế toán tháng 3–4/2027, thông báo Bộ Công Thương sau G1); việc nào chưa xong thì lùi ngày mở bán, dùng thử vẫn đến hết kì thi |
