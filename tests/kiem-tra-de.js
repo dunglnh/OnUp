@@ -13,7 +13,8 @@
      viết "a/b" (chuỗi, mẫu số khác 0, L29), tol ≥ 0, app chấm đúng ans (số viết kiểu Việt Nam, như 2,5; phân số viết như trong
      dữ liệu) và hiện đúng chữ phân số; script tự thử với đáp án cố ý viết sai ("2/0", "hai phần ba") và Quiz.parse đọc "Đáp số: 3/4";
      tự thử chấm phân số, hỗn số gõ có khoảng trắng (L32: "1 1/2" đúng với "3/2", sai với "11/2"; câu điền "3 / 4" đúng với "3/4")
-     và câu điền đáp án phân số gõ kèm đơn vị in sau chỗ trống (L34: "3/4 kg" đúng với "___ kg" đáp án "3/4", "6/8 kg" sai);
+     và câu điền đáp án phân số gõ kèm đơn vị in sau chỗ trống (L34: "3/4 kg" đúng với "___ kg" đáp án "3/4", "6/8 kg" sai),
+     câu điền đáp án phân số, hỗn số âm (L35: "-3/4", "- 3/4", "-3/4 kg" đúng với đáp án "−3/4"; "-6/8", "3/4" sai);
      nối cột (match) có ít nhất 2 ô trái, cột phải đủ ô (thêm tối đa 3 ô thừa),
      không ô nào trùng; sắp xếp (order) có 3–8 ô không trùng; tự luận (essay) có thang chấm, điểm mỗi ý chia hết cho 0,25,
      tổng không quá 10; lv là 1, 2 hoặc 3; p là mã một đoạn đọc của đề; hình (svg) qua bộ lọc Quiz.svg không bị bỏ gì;
@@ -563,6 +564,22 @@ catalog.forEach((b) => {
   [[kg, "3/4 kg", 1], [kg, "3/4kg", 1], [kg, "3 / 4 kg", 1], [kg, "3/4 KG", 1], [kg, "6/8 kg", 0], [kg, "0,75 kg", 0], [kg, "3/4 g", 0],
     [m, "3 1/2 m", 1], [m, "31/2 m", 0], [m2, "3/4 m²", 1], [m2, "3/4 m2", 1], [m2, "3/4 m", 0]]
     .forEach(([q, g, want]) => { if (Quiz.score(q, g) !== want) err(at, `câu điền “${q.q}” đáp án "${q.ans[0]}": gõ "${g}" phải ${want ? "đúng" : "sai"}`); });
+}
+
+// tự thử câu điền đáp án phân số, hỗn số âm (L35): đáp án viết dấu trừ chữ in "−", gạch "–" hay "-" đều nhận mọi kiểu dấu trừ
+// và khoảng trắng sau dấu trừ, cả khi gõ kèm đơn vị (L34); vẫn so chữ nên phân số chưa tối giản, thiếu hay thừa dấu trừ vẫn sai
+{
+  const at = "kiểm tra câu điền đáp án phân số âm (L35)";
+  const dien = (q, ans) => ({ topic: "Phân số", type: "fill", q, ans: [ans], x: "Lời giải" });
+  const thu = [];
+  ["−3/4", "–3/4", "-3/4"].forEach((a) => {
+    const p = dien("Viết phân số tối giản: 1/4 − 1 = ___", a), kg = dien("1/4 kg − 1 kg = ___ kg", a);
+    thu.push([p, "-3/4", 1], [p, "−3/4", 1], [p, "–3/4", 1], [p, "- 3/4", 1], [p, "3/4", 0], [p, "-6/8", 0], [p, "-0,75", 0],
+      [kg, "-3/4 kg", 1], [kg, "- 3/4 kg", 1], [kg, "−3/4 kg", 1], [kg, "-6/8 kg", 0], [kg, "3/4 kg", 0]);
+  });
+  const h = dien("Viết dưới dạng hỗn số: −3/2 = ___", "−1 1/2"), duong = dien("Viết phân số tối giản: 1/2 + 1/4 = ___", "3/4");
+  thu.push([h, "-1 1/2", 1], [h, "- 1 1/2", 1], [h, "1 1/2", 0], [h, "-11/2", 0], [duong, "-3/4", 0], [duong, "−3/4", 0]);
+  thu.forEach(([q, g, want]) => { if (Quiz.score(q, g) !== want) err(at, `câu điền “${q.q}” đáp án "${q.ans[0]}": gõ "${g}" phải ${want ? "đúng" : "sai"}`); });
 }
 
 // tự thử câu điền về số âm (L33): hai câu cố ý viết sai bị báo; phép trừ, gạch nối khoảng, đáp án có chữ thì không;

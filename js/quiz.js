@@ -451,9 +451,11 @@
     return vc.length ? vc.some((v) => va.some((w) => Math.abs(v - w) < 1e-9)) : numKey(a) === numKey(c);
   };
   /* Đáp án là phân số, hỗn số ("3/4", "-3/4", "3 1/2"; L32): bỏ khoảng trắng quanh "/" ở cả đáp án và chữ gõ rồi so chữ, nên
-     "3 / 4" đúng với "3/4", "3 1 / 2" đúng với "3 1/2"; "6/8" vẫn sai với "3/4" (câu bắt viết phân số tối giản). */
+     "3 / 4" đúng với "3/4", "3 1 / 2" đúng với "3 1/2"; "6/8" vẫn sai với "3/4" (câu bắt viết phân số tối giản). Dấu trừ đầu chữ
+     "−", "–" thành "-" và bỏ khoảng trắng ngay sau nó (L35, như numKey, numVals với số): "-3/4", "- 3/4" đúng với "−3/4";
+     "-6/8" vẫn sai với "−3/4", "-3/4" sai với "3/4". */
   const isFrac = (s) => /^[-−–]?\s*(\d+\s+)?\d+\s*\/\s*\d+$/.test(String(s).trim());
-  const fracT = (s) => normT(s).replace(/\s*\/\s*/g, "/");
+  const fracT = (s) => normT(s).replace(/^[-−–]\s*/, "-").replace(/\s*\/\s*/g, "/");
   function fillRight(q, g) {
     const t = String(g).normalize("NFC").trim(), u = unitAfter(q), cands = [t];
     const bare = t.replace(/[.!?;:]+$/, "").trim();
