@@ -16,7 +16,9 @@ const localConfig = (c) => c.route("**/js/config.js", (r) => r.fulfill({ content
    của Playwright bắt đầu ở TODAY lúc script chạy rồi đi như thường; context tạo sau ở TODAY cộng thời gian đã chạy, để dữ liệu bước trước
    ghi (state) không nằm ở "tương lai" của bước sau. Chữ mong đợi theo kì thi gần nhất (k3.hero, lịch thi của học sinh…) ghi theo ngày này.
    Bước cần ngày khác thì tự cài đồng hồ (page.clock.install, setSystemTime), đè lên TODAY; TODAY sớm hơn giờ của các bước đó (sớm nhất là
-   21/10/2026 8:00 của UX1). Giờ so ở node thì lấy giờ trong trang (nowIn). Thử như chạy vào ngày khác: tests/chay-theo-ngay.js. */
+   21/10/2026 8:00 của UX1). Giờ so ở node thì lấy giờ trong trang (nowIn). Tua giờ khi trang đang chạy cũng dùng setSystemTime rồi chờ
+   trang tự cập nhật, không dùng clock.fastForward, runFor, pauseAt (giờ có thể lùi lại ngay sau lần tua, xem bước UX5).
+   Thử như chạy vào ngày khác: tests/chay-theo-ngay.js. */
 const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
 (async () => {
   const browser = await chromium.launch();
@@ -2190,7 +2192,10 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await check5("làm như thi"); await snap5("c1-lam-nhu-thi");
     for (let k = 0; k < 3; k++) await answer();
     r.examProg = await txt("#qzProg");
-    await p.clock.fastForward("38:30"); await p.waitForTimeout(100); // còn dưới 2 phút: chip đổi màu
+    /* Tua đồng hồ 38:30, còn dưới 2 phút: lượt đếm giờ kế tiếp của trang (mỗi 500 ms) đổi màu chip. Đặt giờ bằng setSystemTime, không
+       dùng clock.fastForward: đồng hồ giả lập của Playwright (1.56) đi theo giờ thật bằng một vòng gọi timer của trang; lần tua rơi vào
+       lúc vòng đó đang gọi dở một timer thì xong lượt nó kéo giờ lùi về chỗ cũ, kết quả vừa nộp ghi "1 giây" (21/10/2026). */
+    await p.clock.setSystemTime((await nowIn(p)) + (38 * 60 + 30) * 1000); await p.waitForSelector("#qzTimer.warn", { timeout: 5000 }).catch(() => {});
     r.warn = await p.evaluate(() => { const t = document.querySelector("#qzTimer"); return { warn: t.classList.contains("warn"), text: t.textContent }; });
     await p.click("#qzSubmit");
     r.submitAsk = await txt("#qzFb .confirm");
