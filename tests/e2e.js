@@ -1830,6 +1830,55 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("L36 (KHTN 6 theo sách Kết nối tri thức):", l36Errs.length ? l36Errs : "OK");
   const l36OK = !l36Errs.length;
 
+  step("selected answer: one blue in every subject (lesson pages l4, l6, IOE)");
+  /* Ô đang chọn (chưa kiểm tra) và ô điền đang gõ của 4 bài ôn dạng trang dùng một màu ở mọi môn (chủ app yêu cầu 21/10/2026): token --pick,
+     --pick-soft của trang, cùng giá trị với .opt.sel của app (--acc, --acc-soft của css/app.css), cả sáng và tối. Trước đây ô đang chọn theo màu
+     của môn: Tiếng Việt, Ngữ văn hồng (giống câu sai), KHTN xanh lá (giống câu đúng), IOE 4 xanh mòng két. Mở từng trang (không qua khung): ở mỗi
+     môn của l4, l6, ôn luyện từ bài đầu tiên, chọn một ô ở câu trắc nghiệm đầu tiên và gõ vào ô điền đầu tiên (câu khác bấm Bỏ qua); IOE: Start
+     Test, chọn một ô ở câu trắc nghiệm đầu tiên. Màu viền và nền phải bằng màu .opt.sel của app, màu đó khác màu câu đúng, câu sai. */
+  const pick = { problems: [], seen: [] };
+  for (const scheme of ["light", "dark"]) {
+    const c = await newContext({ viewport: { width: 360, height: 740 }, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror ô đang chọn: " + e.message));
+    await p.goto(BASE + "/");
+    const [want, right, wrong] = await p.evaluate(() => ["opt sel", "opt right", "opt wrong"].map((cls) => {
+      const b = document.createElement("button"); b.className = cls; document.body.append(b);
+      const cs = getComputedStyle(b), v = cs.borderTopColor + " / " + cs.backgroundColor; b.remove(); return v;
+    }));
+    if (want === right || want === wrong) pick.problems.push(`${scheme} · app: ô đang chọn trùng màu câu đúng hoặc câu sai (${want})`);
+    const colors = (sel, side) => p.evaluate(([sel, side]) => { const b = document.querySelector(sel); if (!b) return ""; const cs = getComputedStyle(b); return cs[side] + " / " + cs.backgroundColor; }, [sel, side]);
+    const look = (what, got) => { pick.seen.push(`${scheme} ${what}`); if (got !== want) pick.problems.push(`${scheme} · ${what}: ${got || "không thấy"} (app: ${want})`); };
+    for (const [m, sids] of [["l4-giua-ki-1", ["toan", "tv"]], ["l6-giua-ki-1", ["toan", "van", "khtn"]]]) {
+      let fills = 0;
+      for (const sid of sids) {
+        let mc = false, fill = false;
+        for (let l = 0; l < 6 && !(mc && fill); l++) {
+          await p.goto(`${BASE}/modules/${m}/index.html?u=pick&m=${m}`); await p.waitForSelector(".stab");
+          await p.click(`.stab[data-sid="${sid}"]`); await p.waitForSelector(`.stab[data-sid="${sid}"][aria-pressed="true"]`);
+          const row = (await p.$$(".lrow[data-l]"))[l]; if (!row) break;
+          await row.click(); await p.click("#goBtn"); await p.waitForSelector("#skipBtn");
+          for (let i = 0; i < 40 && !(mc && fill) && (await p.$("#skipBtn")); i++) {
+            if (!mc && (await p.$(".opt"))) { await p.click(".opt >> nth=-1"); look(`${m} ${sid} ô đang chọn`, await colors(".opt.sel", "borderTopColor")); mc = true; }
+            else if (!fill && (await p.$("#fillIn"))) { await p.fill("#fillIn", "abc"); look(`${m} ${sid} ô điền`, await colors("#fillIn", "borderBottomColor")); fill = true; fills++; }
+            await p.click("#skipBtn"); await p.waitForTimeout(50);
+          }
+        }
+        if (!mc) pick.problems.push(`${scheme} · ${m} ${sid}: không gặp câu trắc nghiệm nào`);
+      }
+      if (!fills) pick.problems.push(`${scheme} · ${m}: không gặp câu điền nào`);
+    }
+    for (const m of ["ioe-4", "ioe-6"]) {
+      await p.goto(`${BASE}/modules/${m}/index.html?u=pick&m=${m}`); await p.waitForSelector("#heroBtn");
+      await p.click("#heroBtn"); await p.waitForSelector("#endBtn");
+      for (let j = 0; j < 40 && !(await p.$(".opt")); j++) await p.click("#skipBtn");
+      await p.click(".opt >> nth=-1"); look(`${m} ô đang chọn`, await colors(".opt.sel", "borderTopColor"));
+    }
+    await c.close();
+  }
+  console.log("ô đang chọn:", pick.seen.length, "chỗ", pick.problems.length ? pick.problems : "OK");
+  const pickOK = !pick.problems.length && pick.seen.length >= 2 * 9;
+
   step("today page, tabs, badges, result screen (UX1)");
   /* Trang chủ học sinh là trang "Hôm nay" với thanh tab dưới (Hôm nay · Bài ôn · Lịch thi · Kết quả); thanh trên không còn nút Lịch thi.
      Ngày giả lập thứ tư 21/10/2026; Bin có 3 ngày ôn liền (Toán 4 Đề 1 21/25 sai "Góc và đo góc" hôm kia, bài ôn giữa kì I 18/20 hôm qua,
@@ -2609,7 +2658,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, l36OK, ux4OK, ux5OK, numOK, l29OK, ux6LocalOK };
+    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, l36OK, pickOK, ux4OK, ux5OK, numOK, l29OK, ux6LocalOK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
