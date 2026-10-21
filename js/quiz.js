@@ -461,8 +461,9 @@
     const tail = !u ? "" : bare.toLowerCase().endsWith(u) ? bare.slice(-u.length) : !/\p{L}/u.test(u) ? "" : [...Array(Math.min(bare.length, u.length + 3)).keys()].map((k) => bare.slice(-(k + 1))).find((w) => /^[\p{L}°]/u.test(w) && fold(w) === fold(u))  || "";
     if (tail) {
       const rest = bare.slice(0, -tail.length);
-      // "5030kg", "5 030 kg". Chỗ trống là một số lượng (có đáp án bằng số) thì nhận cả số viết bằng chữ: "tám tiếng".
-      if (isNum(rest) || (/\s$/.test(rest) && rest.trim() && /___\s/.test(q.q) && q.ans.some(isNum))) cands.push(rest.trim());
+      // "5030kg", "5 030 kg"; phân số, hỗn số cũng vậy (L34): "3/4 kg", "3 1/2 m", rồi so như L32 ("6/8 kg" vẫn sai với "3/4").
+      // Chỗ trống là một số lượng (có đáp án bằng số) thì nhận cả số viết bằng chữ: "tám tiếng".
+      if (isNum(rest) || isFrac(rest) || (/\s$/.test(rest) && rest.trim() && /___\s/.test(q.q) && q.ans.some(isNum))) cands.push(rest.trim());
     }
     // Số âm hay được viết trong ngoặc: "(-7)".
     cands.slice().forEach((c) => { const m = /^\(\s*(.+?)\s*\)$/.exec(c.replace(/[.!?;:]+$/, "").trim()); if (m && isNum(m[1])) cands.push(m[1]); });
