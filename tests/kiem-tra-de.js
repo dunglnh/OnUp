@@ -12,6 +12,8 @@
      đúng/sai 4 ý (tf4) có đúng 4 ý không trùng, a là 4 giá trị true/false; trả lời bằng số (num) có ans là số hoặc phân số
      viết "a/b" (chuỗi, mẫu số khác 0, L29), tol ≥ 0, app chấm đúng ans (số viết kiểu Việt Nam, như 2,5; phân số viết như trong
      dữ liệu) và hiện đúng chữ phân số; script tự thử với đáp án cố ý viết sai ("2/0", "hai phần ba") và Quiz.parse đọc "Đáp số: 3/4";
+     tự thử chấm phân số, hỗn số gõ có khoảng trắng (L32: "1 1/2" đúng với "3/2", sai với "11/2"; câu điền "3 / 4" đúng với "3/4")
+     và câu điền đáp án phân số gõ kèm đơn vị in sau chỗ trống (L34: "3/4 kg" đúng với "___ kg" đáp án "3/4", "6/8 kg" sai);
      nối cột (match) có ít nhất 2 ô trái, cột phải đủ ô (thêm tối đa 3 ô thừa),
      không ô nào trùng; sắp xếp (order) có 3–8 ô không trùng; tự luận (essay) có thang chấm, điểm mỗi ý chia hết cho 0,25,
      tổng không quá 10; lv là 1, 2 hoặc 3; p là mã một đoạn đọc của đề; hình (svg) qua bộ lọc Quiz.svg không bị bỏ gì;
@@ -535,6 +537,32 @@ catalog.forEach((b) => {
     const p = Quiz.parse(src), q = p.questions[0];
     if (p.errors.length || p.questions.length !== 1 || q.type !== "num" || q.ans !== want || "unit" in q || soatSo(Object.assign(q, { x: "Lời giải" }))) err(at, `Quiz.parse đọc “${src.split("\n")[1]}” chưa đúng: ` + JSON.stringify(p));
   });
+}
+
+// tự thử phân số, hỗn số gõ có khoảng trắng (L32): câu trả lời bằng số đọc hỗn số "a b/c" là a + b/c, không còn là "ab/c";
+// câu điền có đáp án là phân số, hỗn số không tính khoảng trắng quanh "/" (vẫn so chữ); Quiz.parse vẫn báo lỗi "Đáp số: 1 1/2"
+{
+  const at = "kiểm tra phân số, hỗn số gõ có khoảng trắng (L32)";
+  const so = (ans, unit) => Object.assign({ topic: "Phân số", type: "num", q: "Câu thử", ans, x: "Lời giải" }, unit ? { unit } : {});
+  const dien = (ans) => ({ topic: "Phân số", type: "fill", q: "Viết phân số tối giản: ___", ans: [ans], x: "Lời giải" });
+  [[so("3/2"), "1 1/2", 1], [so(1.5), "1 1/2", 1], [so("11/2"), "1 1/2", 0], [so("-3/2"), "-1 1/2", 1], [so("-3/2"), "(-1 1/2)", 1],
+    [so("11/4"), "2 3/4", 1], [so("23/4"), "2 3/4", 0], [so("3/2"), "1 1/0", 0], [so(400), "1 200/3", 1], [so("203/3"), "1 200/3", 1],
+    [so(1200), "1 200", 1], [so("2/3"), "2 / 3", 1], [so("11/2"), "11/2", 1], [so("3/4", "kg"), "3/4 kg", 1],
+    [dien("3/4"), "3 / 4", 1], [dien("3/4"), "3/ 4", 1], [dien("3/4"), "6/8", 0], [dien("3 1/2"), "3 1 / 2", 1], [dien("3 1/2"), "31/2", 0]]
+    .forEach(([q, g, want]) => { if (Quiz.score(q, g) !== want) err(at, `${q.type === "num" ? "câu trả lời bằng số" : "câu điền"} đáp án ${JSON.stringify(q.type === "num" ? q.ans : q.ans[0])}${q.unit ? " " + q.unit : ""}: gõ "${g}" phải ${want ? "đúng" : "sai"}`); });
+  const p = Quiz.parse("1 + 1/2 = ?\nĐáp số: 1 1/2");
+  if (p.questions.length || !p.errors.some((e) => e.includes("3/2"))) err(at, "Quiz.parse phải báo lỗi dòng “Đáp số: 1 1/2” và dặn viết 3/2: " + JSON.stringify(p));
+}
+
+// tự thử câu điền đáp án phân số, hỗn số gõ kèm đơn vị in ngay sau chỗ trống (L34): đúng như câu có đáp án là số
+// (cả gõ "m2" thay "m²"); vẫn so chữ nên phân số chưa tối giản, số thập phân, đơn vị khác vẫn sai
+{
+  const at = "kiểm tra câu điền đáp án phân số gõ kèm đơn vị (L34)";
+  const dien = (q, ans) => ({ topic: "Phân số", type: "fill", q, ans: [ans], x: "Lời giải" });
+  const kg = dien("1/2 kg + 1/4 kg = ___ kg", "3/4"), m = dien("Sợi dây dài ___ m", "3 1/2"), m2 = dien("Diện tích hình vuông là ___ m²", "3/4");
+  [[kg, "3/4 kg", 1], [kg, "3/4kg", 1], [kg, "3 / 4 kg", 1], [kg, "3/4 KG", 1], [kg, "6/8 kg", 0], [kg, "0,75 kg", 0], [kg, "3/4 g", 0],
+    [m, "3 1/2 m", 1], [m, "31/2 m", 0], [m2, "3/4 m²", 1], [m2, "3/4 m2", 1], [m2, "3/4 m", 0]]
+    .forEach(([q, g, want]) => { if (Quiz.score(q, g) !== want) err(at, `câu điền “${q.q}” đáp án "${q.ans[0]}": gõ "${g}" phải ${want ? "đúng" : "sai"}`); });
 }
 
 // tự thử câu điền về số âm (L33): hai câu cố ý viết sai bị báo; phép trừ, gạch nối khoảng, đáp án có chữ thì không;

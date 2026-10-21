@@ -1,6 +1,6 @@
 # Sửa lỗi cơ bản sau khi dùng thử (16/10/2026)
 
-Bốn phiên sửa đầu (9a, 9b, 9c: L1–L14, PR #21, #22, #23; 9d: L15–L19, lỗi phát sinh khi rà soát lại ngày 17/10, PR #29) đã gộp vào `main`; ảnh 360px sau Phiên 9b: [hinh-360/](hinh-360/). Lần rà soát thứ ba (18/10/2026, sau Phiên K3) tìm thêm L20–L26 (nhóm E, Phiên 9e, TA1, TA2); trong đó L21 là yêu cầu của chủ app: **đề môn Tiếng Anh của mọi khối phải 100% tiếng Anh**. Góp ý chạy thử ngày 19/10/2026: L27 (nhóm F, Phiên 9f). Rà lời giao việc N2–N12 cùng ngày: L28 (kiểm thử hỏng theo ngày chạy), L29–L31 (ô nhập số trên điện thoại) (nhóm G, Phiên 9g, 9h). Kiểm thử định kì ngày 20/10/2026, sau Phiên 9g, 9h: L32 (gõ phân số, hỗn số có khoảng trắng), L33 (câu điền về số âm lộ dấu của đáp án) (nhóm H, Phiên 9i; L33 sửa trong Phiên N4). Trạng thái và việc còn chờ (bố mẹ thử L17 và L29–L31 trên iPhone thật) chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). File này giữ phần mô tả lỗi, cách sửa và lời giao việc (mục 3).
+Bốn phiên sửa đầu (9a, 9b, 9c: L1–L14, PR #21, #22, #23; 9d: L15–L19, lỗi phát sinh khi rà soát lại ngày 17/10, PR #29) đã gộp vào `main`; ảnh 360px sau Phiên 9b: [hinh-360/](hinh-360/). Lần rà soát thứ ba (18/10/2026, sau Phiên K3) tìm thêm L20–L26 (nhóm E, Phiên 9e, TA1, TA2); trong đó L21 là yêu cầu của chủ app: **đề môn Tiếng Anh của mọi khối phải 100% tiếng Anh**. Góp ý chạy thử ngày 19/10/2026: L27 (nhóm F, Phiên 9f). Rà lời giao việc N2–N12 cùng ngày: L28 (kiểm thử hỏng theo ngày chạy), L29–L31 (ô nhập số trên điện thoại) (nhóm G, Phiên 9g, 9h). Kiểm thử định kì ngày 20/10/2026, sau Phiên 9g, 9h: L32 (gõ phân số, hỗn số có khoảng trắng), L33 (câu điền về số âm lộ dấu của đáp án) (nhóm H, Phiên 9i; L33 sửa trong Phiên N4). Chủ app báo ngày 21/10/2026, sau Phiên 9i: L34 (câu điền đáp án phân số, gõ kèm đơn vị bị chấm sai) (nhóm I, Phiên 9j). Trạng thái và việc còn chờ (bố mẹ thử L17 và L29–L31 trên iPhone thật) chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). File này giữ phần mô tả lỗi, cách sửa và lời giao việc (mục 3).
 
 **Cách đã thử:** chạy mã nhánh `main` (commit `5866b72`, giống bản đang đăng trên GitHub Pages) bằng Chromium tự động, màn hình điện thoại 360×740, rồi thêm chế độ tối và màn hình 1280px. Đi hết các luồng:
 - thiết lập lần đầu và các tab quản trị;
@@ -305,6 +305,18 @@ QC chạy lại mọi bộ kiểm thử trên `main` commit `def0de1` (sau PR #7
   - bàn phím số không có dấu trừ, con tính ra số âm thì không gõ được: `toan6-ck1-de1` "(−25) + 17 − (−8) = ___" (0); `toan6-ck1-de2` "(−7) · 4 − 6 · (−5) = ___" (2).
 - QC chép nguyên 5 câu vào một đề thử, làm ở chế độ ôn luyện ở 360px: đúng như trên (3 câu có dòng nhắc và bàn phím thường; 2 câu có `inputmode="decimal"`, không có dòng nhắc).
 - Đề ngẫu nhiên Toán 6 cuối kì I rút cả 5 câu này. `tests/kiem-tra-de.js` chưa kiểm tra điều này, nên các phiên làm đề sau vẫn có thể viết câu như vậy.
+
+### Nhóm I · Chủ app báo sau Phiên 9i ngày 21/10 (Phiên 9j)
+
+Lỗi có từ trước Phiên 9i, chưa sửa vì ngoài phạm vi phiên đó. QC tái hiện bằng `Quiz.score` trong node trên `main` commit `4bc49f6` (sau PR #85).
+
+**L34. Câu điền có đáp án là phân số: gõ kèm đơn vị bị chấm sai.**
+- Đề in đơn vị ngay sau chỗ trống, như "1/2 kg + 1/4 kg = ___ kg", đáp án "3/4". Gõ "3/4" thì đúng; gõ "3/4 kg", "3/4kg", "3 / 4 kg", "3/4 KG" đều bị chấm sai.
+- Đáp án là số thì gõ kèm đơn vị vẫn đúng: "5 tấn 30 kg = ___ kg" nhận "5030 kg", "5 030 kg"; "1/2 giờ = ___ phút" nhận "30 phút". Học sinh quen gõ kèm đơn vị ở các câu đó, sang câu phân số thì bị chấm sai dù đúng.
+- Cùng lỗi với hỗn số ("3 1/2 m") và đơn vị có số mũ ("___ m²" gõ "3/4 m²").
+- Nguyên nhân: `fillRight` (`js/quiz.js`) chỉ bỏ đơn vị ở cuối chữ gõ khi phần còn lại là một số (`isNum(rest)`), hoặc chỗ trống là số lượng viết bằng chữ khi đáp án là số. "3/4" không phải `isNum`, nên chỉ còn chữ gõ nguyên "3/4 kg" để so với đáp án "3/4". So phân số (`isFrac`, `fracT`, L32) chỉ áp cho chữ gõ nguyên.
+- Câu trả lời bằng số không bị lỗi này: `numVals` bỏ đơn vị của câu (`q.unit`) trước khi đọc phân số.
+- Đề có sẵn chưa có câu điền nào có đáp án là phân số. Ngân hàng Toán giữa kì II (N8 lớp 6, N7 lớp 4) có chương phân số, và lời giao việc dặn dùng câu điền khi đề bắt viết phân số tối giản; đề phụ huynh tự nhập cũng viết được câu như vậy.
 
 ---
 
@@ -759,12 +771,23 @@ QC chạy lại mọi bộ kiểm thử trên `main` commit `def0de1` (sau PR #7
 
 **Xong khi** (cùng với điều kiện xong của N4): `node tests/kiem-tra-de.js` in `DE OK` với dữ liệu mới, và báo lỗi hai câu tự thử; không câu điền nào của đề có sẵn hiện dòng nhắc số âm.
 
+### Phiên 9j
+
+**L34 · Câu điền đáp án phân số, gõ kèm đơn vị.** Chỉ sửa `js/quiz.js`, `tests/` và tài liệu; không đổi đề có sẵn, không sửa `modules/`.
+- `fillRight`: khi chữ gõ có đơn vị của câu ở cuối (`tail`, như hôm nay), phần còn lại là phân số hoặc hỗn số (`isFrac(rest)`) thì cũng đưa vào `cands`, như với số. Sau đó so như L32: bỏ khoảng trắng quanh "/" rồi so chữ.
+  - "3/4 kg", "3/4kg", "3 / 4 kg", "3/4 KG" đúng. Chỉ bỏ đơn vị in sau chỗ trống, kể cả gõ không dấu hay "m2" thay "m²" như hôm nay; đơn vị khác ("3/4 g") vẫn sai.
+  - Vẫn so chữ: "6/8 kg" vẫn sai với "3/4"; "0,75 kg" vẫn sai (câu điền phân số bắt viết phân số).
+  - "3 1/2 m" đúng với đáp án "3 1/2"; "3/4 m²", "3/4 m2" đúng với "___ m²".
+- Không đổi cách chấm câu có đáp án là số, câu trả lời bằng số và câu chữ.
+
+**Xong khi:**
+- `node tests/kiem-tra-de.js` in `DE OK`; phần tự thử câu điền thêm bằng `Quiz.score`: câu "1/2 kg + 1/4 kg = ___ kg" đáp án "3/4": "3/4 kg", "3/4kg", "3 / 4 kg" đúng, "6/8 kg", "0,75 kg", "3/4 g" sai; câu "___ m" đáp án "3 1/2": "3 1/2 m" đúng; câu "___ m²" đáp án "3/4": "3/4 m²", "3/4 m2" đúng.
+- `CHI_TIET=1 node tests/so-bo-cham.js`: thêm câu "1/2 kg + 1/4 kg = ___ kg" đáp án "3/4" vào nhóm câu kiểu quản trị viên nhập, với các cách gõ trên. Chỗ khác so với bản mặc định (`74b7645`) chỉ được là phân số gõ kèm đơn vị của câu. Ghi danh sách vào Pull Request, rồi đổi bản so mặc định sang commit của phiên.
+- `tests/e2e.js` in `E2E OK`, `node tests/supabase/cloud-e2e.js` in `CLOUD E2E OK`.
+- CLAUDE.md, mục "Nội dung câu hỏi": câu điền đáp án phân số nhận chữ gõ kèm đơn vị in sau chỗ trống.
+
 ---
 
 ## 3. Các phiên Claude Code
 
-Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9h, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74), lời giao việc cũ còn trong lịch sử git. Phiên chờ làm: 9i (L32), lời giao việc bên dưới; L33 đã sửa trong Phiên N4 (PR #78). Lỗi mới thì QC ghi mã (tiếp theo L33) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
-
-**Phiên 9i · Phân số, hỗn số gõ có khoảng trắng (L32)** (hạn 14/12, trước các phiên Toán giữa kì II N8, N7; chen giữa các phiên N được, nhưng không chạy cùng lúc với phiên khác sửa `js/quiz.js`, như K4)
-> Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md: L32 ở nhóm H của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9i", phần L32 (phần L33 làm trong Phiên N4, không làm ở phiên này). Sửa L32 trong js/quiz.js: câu trả lời bằng số đọc hỗn số "a b/c" là a + b/c; câu điền có đáp án là phân số hoặc hỗn số không tính khoảng trắng quanh "/". Chỉ sửa js/quiz.js, tests/ và tài liệu; không đổi đề có sẵn, không sửa modules/. Chạy python3 -m http.server 8000 ở thư mục repo, rồi làm đủ "Xong khi": node tests/kiem-tra-de.js, CHI_TIET=1 node tests/so-bo-cham.js, node tests/e2e.js, node tests/supabase/cloud-e2e.js. Mở Pull Request, ghi các lệnh đã chạy và danh sách chỗ khác của so-bo-cham. Ghi PR vào bảng "Đã xong" ở mục 1 của docs/KE-HOACH-PHAT-TRIEN-ONUP.md, xóa dòng 9i ở mục 3 của file đó; ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và câu "Phiên chờ làm: 9i (L32)…".
-
+Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9j, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87), lời giao việc cũ còn trong lịch sử git. Lỗi mới thì QC ghi mã (tiếp theo L34) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
