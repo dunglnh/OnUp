@@ -221,7 +221,7 @@
   /* Số trong dữ liệu ngăn hàng nghìn bằng khoảng trắng ("1 200", "987 650"): khoảng trắng giữa các nhóm số thành khoảng trắng không ngắt,
      để số không bị tách ra hai dòng ở màn hình hẹp. Dùng sau esc() cho chữ của câu khi hiện ra (câu hỏi, các ô, đáp án, câu trả lời,
      lời giải, đoạn đọc, thang tự chấm, chủ đề); không dùng cho aria-label, hình. Dữ liệu, Quiz.key, Quiz.text giữ khoảng trắng thường;
-     cách chấm không đổi (fillRight, numVals bỏ mọi \s, gồm cả U+00A0). Quiz.nbNum cho js/app.js. */
+     cách chấm không đổi (fillRight, numVals coi U+00A0 như khoảng trắng thường). Quiz.nbNum cho js/app.js. */
   const nbNum = (s) => String(s).replace(/(\d) (?=\d{3}(?!\d))/g, "$1\u00a0");
   const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const range = (n) => [...Array(n).keys()];
@@ -450,6 +450,10 @@
     const va = /[.,]/.test(a + c) ? numVals(a) : [], vc = va.length ? numVals(c) : [];
     return vc.length ? vc.some((v) => va.some((w) => Math.abs(v - w) < 1e-9)) : numKey(a) === numKey(c);
   };
+  /* Đáp án là phân số, hỗn số ("3/4", "-3/4", "3 1/2"; L32): bỏ khoảng trắng quanh "/" ở cả đáp án và chữ gõ rồi so chữ, nên
+     "3 / 4" đúng với "3/4", "3 1 / 2" đúng với "3 1/2"; "6/8" vẫn sai với "3/4" (câu bắt viết phân số tối giản). */
+  const isFrac = (s) => /^[-−–]?\s*(\d+\s+)?\d+\s*\/\s*\d+$/.test(String(s).trim());
+  const fracT = (s) => normT(s).replace(/\s*\/\s*/g, "/");
   function fillRight(q, g) {
     const t = String(g).normalize("NFC").trim(), u = unitAfter(q), cands = [t];
     const bare = t.replace(/[.!?;:]+$/, "").trim();
@@ -462,17 +466,23 @@
     }
     // Số âm hay được viết trong ngoặc: "(-7)".
     cands.slice().forEach((c) => { const m = /^\(\s*(.+?)\s*\)$/.exec(c.replace(/[.!?;:]+$/, "").trim()); if (m && isNum(m[1])) cands.push(m[1]); });
-    return cands.some((c) => q.ans.some((a) => (isNum(a) && isNum(c)) ? sameNum(a, c) : normT(a) === normT(c)));
+    return cands.some((c) => q.ans.some((a) => (isNum(a) && isNum(c)) ? sameNum(a, c) : isFrac(a) ? fracT(a) === fracT(c) : normT(a) === normT(c)));
   }
   /* Trả lời ngắn bằng số: các cách đọc của số học sinh gõ. Dấu phẩy thập phân kiểu Việt Nam ("12,5", "1.000,5"), dấu chấm
-     thập phân ("12.5"), phân số ("3/4"), số âm ("-2", "(-2)"), gõ kèm đơn vị của câu. Số viết mơ hồ ("1.000", "1,000")
-     thì nhận cả hai cách đọc. */
+     thập phân ("12.5"), phân số ("3/4"), hỗn số ("1 1/2"), số âm ("-2", "(-2)"), gõ kèm đơn vị của câu. Số viết mơ hồ ("1.000",
+     "1,000") thì nhận cả hai cách đọc. */
   function numVals(g, unit) {
     let t = String(g).normalize("NFC").trim().replace(/[−–]/g, "-");
     if (unit) { const m = /^(.*\d)\s*(\D+?)\.?$/u.exec(t); if (m && fold(m[2].trim()) === fold(unit)) t = m[1]; }
-    t = t.replace(/\.$/, "").replace(/\s+/g, "");
-    const p = /^\((.+)\)$/.exec(t); if (p) t = p[1];
+    t = t.replace(/\.$/, "");
     const out = [];
+    /* Hỗn số "a b/c" (L32): a + b/c, dấu trừ áp cho cả số ("-1 1/2" là −1,5), có thể trong ngoặc. Đọc trước khi bỏ khoảng trắng,
+       nên "1 1/2" không còn là 11/2. Phần trước "/" viết được như số ngăn hàng nghìn ("1 200/3") thì nhận cả cách đọc 1 200 phần 3. */
+    const h = /^(-?)\s*(\d+)\s+(\d+)\s*\/\s*(\d+)$/.exec(t.trim().replace(/^\(\s*(.+?)\s*\)$/, "$1"));
+    if (h && +h[4]) out.push((h[1] ? -1 : 1) * (+h[2] + h[3] / h[4]));
+    if (h && !(h[2].length <= 3 && h[3].length === 3)) return out;
+    t = t.replace(/\s+/g, "");
+    const p = /^\((.+)\)$/.exec(t); if (p) t = p[1];
     const f = /^(-?)(\d+)\/(\d+)$/.exec(t);
     if (f && +f[3]) out.push((f[1] ? -1 : 1) * f[2] / f[3]);
     if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(t) || /^-?\d+(,\d+)?$/.test(t)) out.push(+t.replace(/\./g, "").replace(",", "."));
