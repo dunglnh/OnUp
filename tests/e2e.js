@@ -1732,7 +1732,18 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      câu khác trả lời sai (ô điền) hoặc chọn ô đầu tiên, để thấy đáp án và lời giải.
      L36 (Phiên 9l): trang môn KHTN của l6 đánh số bài, tên chương theo mục lục sách KHTN 6 Kết nối tri thức (bài ôn gốc theo sách Chân trời
      sáng tạo): đúng tên chương, số bài và thứ tự bài; mỗi phạm vi đề thi thử ghi đúng các bài sách của các bài trong phạm vi (ở nút chọn phạm vi
-     và dòng phạm vi đầu trang), bài cùng một bài sách thì cùng phạm vi; không còn "Bài 35", "Bài 36", "Thang nhiệt độ Celsius". */
+     và dòng phạm vi đầu trang), bài cùng một bài sách thì cùng phạm vi; không còn "Bài 35", "Bài 36", "Thang nhiệt độ Celsius".
+     L37 (Phiên 9m): phần Ngữ văn của l6 theo sách Ngữ văn 6 tập một in năm 2026: phần Ghi nhớ của Bài 1, Bài 2 hiện ý về «Tia nắng hạt mưa»
+     (Lệ Bình), «Hương và Phai» (Nguyễn Minh Châu); không còn tên hai văn bản cũ, tác giả, nhân vật của chúng; tên tác giả, nhân vật của hai văn
+     bản mới chỉ làm lựa chọn sai ở câu hỏi về chính văn bản đó; bài của từng câu trong items giữ như cũ (lres lưu theo id bài, “Ôn câu sai”
+     theo số thứ tự câu). */
+  const L37 = {
+    notes: { v1: "“Tia nắng hạt mưa” (Lệ Bình)", v2: "“Hương và Phai” (trích, Nguyễn Minh Châu)" },
+    items: "v1×13 v2×13 v3×11 t1×14 t2×10 t3×13 t4×10 d×6",
+    old: /Bắt nạt|Bức tranh của em gái tôi|Nguyễn Thế Hoàng Linh|Tạ Duy Anh|Kiều Phương/g,
+    names: [["Tia nắng hạt mưa", /Lệ Bình/], ["Hương và Phai", /Nguyễn Minh Châu|(^|[^\p{L}])(Hương|Phai|Định)(?!\p{L})/u]],
+  };
+  const l37 = { data: null, screen: {} };
   const L36 = {
     chapters: ["Chương I. Mở đầu về Khoa học tự nhiên", "Chương II. Chất quanh ta", "Chương III. Một số vật liệu, nguyên liệu, nhiên liệu, lương thực – thực phẩm thông dụng",
       "Chương IV. Hỗn hợp. Tách chất ra khỏi hỗn hợp", "Chương V. Tế bào", "Chương VI. Từ tế bào đến cơ thể", "Chương VIII. Lực trong đời sống"],
@@ -1787,9 +1798,16 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
           scopes: SUBJ.khtn.test.scopes.map((x) => ({ note: x.note, lessons: x.lessons })), shorts: SUBJ.khtn.lessons.map((l) => [l.id, l.short]),
           text: JSON.stringify([SUBJ.khtn.lessons, SUBJ.khtn.test, SUBJ.khtn.scopeText, SUBJ.khtn.items]) + document.querySelector("#view").textContent,
         }));
+        if (m === "l6-giua-ki-1" && sid === "van") l37.data = await fr.evaluate(() => ({
+          notes: Object.fromEntries(SUBJ.van.lessons.map((l) => [l.id, l.notes])),
+          items: SUBJ.van.items.reduce((a, it) => { const z = a[a.length - 1]; if (z && z[0] === it.l) z[1]++; else a.push([it.l, 1]); return a; }, []).map(([l, n]) => l + "×" + n).join(" "),
+          qs: SUBJ.van.items.flatMap((it) => (it.qs || [it]).map((x) => [(it.qs ? it.t + " · " : "") + x.q, (x.o || []).filter((_, i) => i !== (x.a || 0))])),
+          text: JSON.stringify([SUBJ.van.lessons, SUBJ.van.items, SUBJ.van.writing, SUBJ.van.scopeText]) + document.querySelector("#view").textContent,
+        }));
         mn.want += await fr.evaluate((sid) => SUBJ[sid].items.filter((x) => x.q && x.ans != null && /^\d{4,}$/.test(String(x.ans).split("|")[0])).length, sid);
         for (const l of await fr.$$eval(".lrow", (bs) => bs.map((b) => b.dataset.l))) {
           await fr.click(`.lrow[data-l="${l}"]`); await check(`${sid} ${l}, ghi nhớ`);
+          if (m === "l6-giua-ki-1" && sid === "van" && L37.notes[l]) l37.screen[l] = await fr.$$eval("#view .notes li", (li) => li.map((x) => x.textContent.replace(/\s+/g, " ")));
           await fr.click("#goBtn");
           for (let i = 1; i <= 80 && (await fr.$("#skipBtn")); i++) {
             await check(`${sid} ${l}, câu ${i}`);
@@ -1831,6 +1849,23 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   }
   console.log("L36 (KHTN 6 theo sách Kết nối tri thức):", l36Errs.length ? l36Errs : "OK");
   const l36OK = !l36Errs.length;
+  const l37Errs = [];
+  if (!l37.data) l37Errs.push("không đọc được trang môn Ngữ văn");
+  else {
+    Object.entries(L37.notes).forEach(([l, want]) => {
+      if (!l37.data.notes[l].some((n) => n.startsWith(want))) l37Errs.push(`Ghi nhớ ${l} không có ${want}`);
+      if (!(l37.screen[l] || []).some((n) => n.startsWith(want))) l37Errs.push(`trang Ghi nhớ ${l} không hiện ${want}`);
+    });
+    if (l37.data.items !== L37.items) l37Errs.push("bài của các câu: " + l37.data.items);
+    const old = (l37.data.text + Object.values(l37.screen).flat().join(" ")).match(L37.old);
+    if (old) l37Errs.push("còn chữ cũ: " + [...new Set(old)].join(", "));
+    l37.data.qs.forEach(([q, wrong]) => L37.names.forEach(([title, re]) => {
+      const bad = q.includes(title) ? [] : wrong.filter((x) => re.test(x));
+      if (bad.length) l37Errs.push(`lựa chọn sai mang tên của «${title}»: ${q} → ${bad.join(", ")}`);
+    }));
+  }
+  console.log("L37 (Ngữ văn 6 theo sách in năm 2026):", l37Errs.length ? l37Errs : "OK");
+  const l37OK = !l37Errs.length;
 
   step("selected answer: one blue in every subject (lesson pages l4, l6, IOE)");
   /* Ô đang chọn (chưa kiểm tra) và ô điền đang gõ của 4 bài ôn dạng trang dùng một màu ở mọi môn (chủ app yêu cầu 21/10/2026): token --pick,
@@ -2663,7 +2698,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, l36OK, pickOK, ux4OK, ux5OK, numOK, l29OK, ux6LocalOK };
+    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, l36OK, l37OK, pickOK, ux4OK, ux5OK, numOK, l29OK, ux6LocalOK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
