@@ -1719,7 +1719,17 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      sau Kiểm tra, rồi màn kết quả), Đề 1 bấm Bỏ qua đến hết rồi màn kết quả (mọi câu cần xem lại, kèm đáp án, lời giải). Trong #view của khung: không
      đoạn chữ (text node) nào còn khoảng trắng thường giữa hai nhóm số, không số nào nằm trên hai dòng (Range.getClientRects), khung không tràn ngang. Câu điền
      trong dữ liệu có đáp án là số từ 4 chữ số: gõ đáp án ngăn hàng nghìn bằng khoảng trắng không ngắt (như chép từ màn hình) vẫn được chấm đúng;
-     câu khác trả lời sai (ô điền) hoặc chọn ô đầu tiên, để thấy đáp án và lời giải. */
+     câu khác trả lời sai (ô điền) hoặc chọn ô đầu tiên, để thấy đáp án và lời giải.
+     L36 (Phiên 9l): trang môn KHTN của l6 đánh số bài, tên chương theo mục lục sách KHTN 6 Kết nối tri thức (bài ôn gốc theo sách Chân trời
+     sáng tạo): đúng tên chương, số bài và thứ tự bài; mỗi phạm vi đề thi thử ghi đúng các bài sách của các bài trong phạm vi (ở nút chọn phạm vi
+     và dòng phạm vi đầu trang), bài cùng một bài sách thì cùng phạm vi; không còn "Bài 35", "Bài 36", "Thang nhiệt độ Celsius". */
+  const L36 = {
+    chapters: ["Chương I. Mở đầu về Khoa học tự nhiên", "Chương II. Chất quanh ta", "Chương III. Một số vật liệu, nguyên liệu, nhiên liệu, lương thực – thực phẩm thông dụng",
+      "Chương IV. Hỗn hợp. Tách chất ra khỏi hỗn hợp", "Chương V. Tế bào", "Chương VI. Từ tế bào đến cơ thể", "Chương VIII. Lực trong đời sống"],
+    lessons: "k1 Bài 1|k2 Bài 1|k3 Bài 2–4|k4 Bài 5|k5 Bài 6|k6 Bài 7|k7 Bài 8|k8 Bài 9–10|k9 Bài 11|k10 Bài 11|k11 Bài 12|k13 Bài 13|k12 Bài 14|k14 Bài 15|k15 Bài 16|k17 Bài 18–20|k18 Bài 21|k19 Bài 22–23|k36 Bài 40|k35 Bài 40–41",
+    notes: ["Bài 1–16", "Bài 1–11, 18–23, 40–41"],
+  };
+  let l36 = null;
   const mn = { problems: [], seen: {}, screens: 0, typed: [], want: 0 };
   {
     const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
@@ -1761,6 +1771,12 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       for (const sid of await fr.$$eval(".stab", (bs) => bs.map((b) => b.dataset.sid))) {
         await fr.click(`.stab[data-sid="${sid}"]`); await fr.waitForSelector(`.stab[data-sid="${sid}"][aria-pressed="true"]`);
         await check(`${sid}, trang đầu`);
+        if (m === "l6-giua-ki-1" && sid === "khtn") l36 = await fr.evaluate(() => ({
+          groups: [...document.querySelectorAll("#view .grp")].map((g) => [g.querySelector(".grp-h").textContent, [...g.querySelectorAll(".lrow")].map((b) => b.dataset.l + " " + b.querySelector(".lnum").textContent)]),
+          seg: [...document.querySelectorAll("#view .seg button")].map((b) => b.textContent), scopeText: SUBJ.khtn.scopeText,
+          scopes: SUBJ.khtn.test.scopes.map((x) => ({ note: x.note, lessons: x.lessons })), shorts: SUBJ.khtn.lessons.map((l) => [l.id, l.short]),
+          text: JSON.stringify([SUBJ.khtn.lessons, SUBJ.khtn.test, SUBJ.khtn.scopeText, SUBJ.khtn.items]) + document.querySelector("#view").textContent,
+        }));
         mn.want += await fr.evaluate((sid) => SUBJ[sid].items.filter((x) => x.q && x.ans != null && /^\d{4,}$/.test(String(x.ans).split("|")[0])).length, sid);
         for (const l of await fr.$$eval(".lrow", (bs) => bs.map((b) => b.dataset.l))) {
           await fr.click(`.lrow[data-l="${l}"]`); await check(`${sid} ${l}, ghi nhớ`);
@@ -1784,6 +1800,27 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   }
   console.log("số trong bài ôn dạng trang:", { screens: mn.screens, seen: mn.seen, typed: mn.typed, want: mn.want }, "problems:", mn.problems.length, mn.problems.slice(0, 30));
   const modNumOK = !mn.problems.length && mn.seen["l4-giua-ki-1"] > 200 && mn.seen["l6-giua-ki-1"] > 20 && mn.want > 0 && mn.typed.length === mn.want && mn.typed.every(Boolean);
+  const l36Errs = [];
+  if (!l36) l36Errs.push("không đọc được trang môn KHTN");
+  else {
+    const nums = (s) => { const x = /^Bài (\d+)(?:–(\d+))?$/.exec(s); return x ? Array.from({ length: +(x[2] || x[1]) - +x[1] + 1 }, (_, i) => +x[1] + i) : []; }; // "Bài 18–20" → 18, 19, 20
+    const range = (ns) => "Bài " + ns.sort((a, b) => a - b).reduce((acc, n) => { const z = acc[acc.length - 1]; if (z && n === z[1] + 1) z[1] = n; else acc.push([n, n]); return acc; }, [])
+      .map(([a, b]) => (a === b ? String(a) : a + "–" + b)).join(", ");
+    if (l36.groups.map((g) => g[0]).join("|") !== L36.chapters.join("|")) l36Errs.push("chương: " + l36.groups.map((g) => g[0]).join(" | "));
+    if (l36.groups.flatMap((g) => g[1]).join("|") !== L36.lessons) l36Errs.push("bài: " + l36.groups.flatMap((g) => g[1]).join(" | "));
+    l36.scopes.forEach((sc, i) => {
+      const cov = new Set(l36.shorts.filter(([id]) => sc.lessons.includes(id)).flatMap(([, s]) => nums(s)));
+      const out = l36.shorts.filter(([id, s]) => !sc.lessons.includes(id) && nums(s).some((n) => cov.has(n))).map(([id]) => id);
+      if (sc.note !== L36.notes[i] || range([...cov]) !== sc.note) l36Errs.push(`phạm vi ${i + 1}: ghi "${sc.note}", các bài ${range([...cov])}`);
+      if (out.length) l36Errs.push(`phạm vi ${i + 1} thiếu ${out.join(", ")} (cùng bài sách với bài đã có)`);
+    });
+    if (l36.seg.join("|") !== `Cuốn chiếu${L36.notes[0]}|Song song${L36.notes[1]}`) l36Errs.push("nút phạm vi: " + l36.seg.join(" | "));
+    if (!l36.scopeText.includes(`cuốn chiếu: ${L36.notes[0]}.`) || !l36.scopeText.includes(`song song: ${L36.notes[1]}.`)) l36Errs.push("dòng phạm vi: " + l36.scopeText);
+    const old = l36.text.match(/Bài 3[56]\b|Thang nhiệt độ Celsius/g);
+    if (old) l36Errs.push("còn chữ cũ: " + [...new Set(old)].join(", "));
+  }
+  console.log("L36 (KHTN 6 theo sách Kết nối tri thức):", l36Errs.length ? l36Errs : "OK");
+  const l36OK = !l36Errs.length;
 
   step("today page, tabs, badges, result screen (UX1)");
   /* Trang chủ học sinh là trang "Hôm nay" với thanh tab dưới (Hôm nay · Bài ôn · Lịch thi · Kết quả); thanh trên không còn nút Lịch thi.
@@ -2564,7 +2601,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, ux4OK, ux5OK, numOK, l29OK, ux6LocalOK };
+    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, l36OK, ux4OK, ux5OK, numOK, l29OK, ux6LocalOK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
