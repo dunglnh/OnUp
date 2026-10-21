@@ -995,7 +995,15 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await kp.waitForSelector(".score"); return { seen, wrongQ };
   };
   await kp.goto(BASE + "/"); await kp.click(`.tile[data-u="${ids.Na}"]`); await kp.fill("#pinIn", "4444"); await kp.waitForSelector("#today");
-  k3.hero = (await kp.textContent("#toBanks")).replace(/\s+/g, " "); // trang "Hôm nay" (UX1): link tới nhóm bài ôn của kì gần nhất (giữa kì I lớp 6: 2 bài ôn, 5 đề)
+  /* trang "Hôm nay" (UX1): link tới nhóm bài ôn của kì gần nhất (giữa kì I lớp 6). Số bài ôn mong đợi tính từ lịch mặc định: bài ôn
+     dạng trang lớp 6 và đề cố định lớp 6 gắn vào gk1-l6 trong ONTAP_SEED_EVENTS (đề ngẫu nhiên không tính), nên các phiên thêm đề
+     cho kì này không phải sửa dòng này. */
+  k3.hero = (await kp.textContent("#toBanks")).replace(/\s+/g, " ");
+  k3.heroWant = await kp.evaluate(() => {
+    const e = window.ONTAP_SEED_EVENTS.find((x) => x.id === "gk1-l6"), mods = e.modules.filter((id) => (window.ONTAP_MODULES.find((m) => m.id === id) || {}).grade === 6);
+    const bks = e.banks.filter((id) => { const b = window.ONTAP_SEED_BANKS.find((x) => x.id === id); return b && b.grade === 6 && !b.pool; });
+    return `Tất cả bài ôn cho kì này · ${mods.length + bks.length} bài ôn →`;
+  });
   await kp.goto(BASE + "/#/practice"); await kp.waitForSelector("#allPractice");
   k3.row = await kp.evaluate((id) => {
     const g = document.querySelector('#allPractice details.grp[data-grp="ck1-l6"]'), row = [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === "Toán"), a = [...row.querySelectorAll(".des a")];
@@ -1116,7 +1124,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   await kc.close();
   console.log("K3:", k3);
   const k3Intro = new RegExp(`Mỗi lần làm là một đề khác: ${k3.kho.want} câu rút từ kho ${k3.kho.khoWant} câu \\(${k3.kho.from} đề\\) theo ma trận đề, ưu tiên câu bạn chưa làm hoặc hay sai${e1 ? ` \\(${e1} câu tự luận tự chấm\\)` : ""}\\.`);
-  const k3OK = !k3.problems.length && k3.row.labels === "Đề ngẫu nhiên,Đề 1,Đề 2" && k3.row.first && k3.row.aria === "Toán 6 · Cuối kì I · Đề ngẫu nhiên" && k3.row.info === "2 đề · 25 câu mỗi đề · đề ngẫu nhiên 25 câu" && k3.hero === "Tất cả bài ôn cho kì này · 7 bài ôn →"
+  const k3OK = !k3.problems.length && k3.row.labels === "Đề ngẫu nhiên,Đề 1,Đề 2" && k3.row.first && k3.row.aria === "Toán 6 · Cuối kì I · Đề ngẫu nhiên" && k3.row.info === "2 đề · 25 câu mỗi đề · đề ngẫu nhiên 25 câu" && k3.hero === k3.heroWant
     && k3.de1 && k3Intro.test(k3.intro) && k3.noNotes
     && k3.kho.n === k3.kho.want && k3.kho.kho === k3.kho.khoWant && k3.kho.own > 0 && k3.kho.srcs && k3.kho.matrix && k3.kho.uniq && k3.kho.notes === 0 && k3.kho.fixedN === 25 && k3.kho.fixedClean && k3.kho.label === "Lớp 6 · Toán · Đề ngẫu nhiên"
     && k3.run1.n === k3.kho.want && k3.run1.wrong && k3.run1.essays > 0 && k3.run1.de1 === k3.run1.de1Want && k3.run1.score === d10(t1 - 1, t1) + "/10" && k3.run1.again === "Làm đề khác"

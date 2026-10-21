@@ -107,6 +107,11 @@ window.ONTAP_SEED_BANKS = [
   { id: "tin6-gk1-de1", title: "Tin học 6 · Giữa kì I · Đề 1", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js" },
   { id: "congnghe6-gk1-de1", title: "Công nghệ 6 · Giữa kì I · Đề 1", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js" },
 
+  /* Toán 6 · Kiểm tra giữa học kì I (Kết nối tri thức; Đề 1: Chương I–II, Bài 1–12, cho lớp chưa học số nguyên;
+     Đề 2: Chương I–III, Bài 1–17) */
+  { id: "toan6-gk1-de1", title: "Toán 6 · Giữa kì I · Đề 1", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js" },
+  { id: "toan6-gk1-de2", title: "Toán 6 · Giữa kì I · Đề 2", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js" },
+
   /* Ngân hàng Toán 4 cuối kì I (Phiên N1): kho câu = 31 câu riêng trong file + 75 câu của 3 đề cố định ở trên, câu nào cũng
      có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020 (3 mức, không quy định tỉ lệ): 10 – 8 – 7 câu (40% – 32% – 28%). */
   { id: "toan4-ck1-ngau-nhien", title: "Toán 4 · Cuối kì I · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
@@ -240,6 +245,14 @@ window.ONTAP_SEED_BANKS = [
     pool: { from: ["congnghe6-ck1-de1", "congnghe6-ck1-de2"], matrix: {
       "Khái quát về nhà ở": [3, 1, 1], "Sử dụng năng lượng trong gia đình": [2, 1, 1], "Ngôi nhà thông minh": [1, 1, 1],
       "Thực phẩm và dinh dưỡng": [1, 2, 1], "Bảo quản và chế biến thực phẩm": [3, 2, 1], "Bữa ăn kết nối yêu thương": [0, 1, 2] } } },
+  /* Ngân hàng Toán 6 giữa kì I (Phiên N24): kho câu = 51 câu riêng trong file + 50 câu của 2 đề cố định ở trên (Đề 1 chỉ có
+     Chương I–II), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì
+     lớp 6 (Công văn 7991): Chương I 8 câu, Chương II 8 câu, Chương III 9 câu; ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô
+     đó rút. Câu tự luận chỉ ở hai ô Vận dụng (ƯCLN và BCNN; Nhân, chia số nguyên): mỗi lần rút nhiều nhất 2 câu. */
+  { id: "toan6-gk1-ngau-nhien", title: "Toán 6 · Giữa kì I · Đề ngẫu nhiên", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js",
+    pool: { from: ["toan6-gk1-de1", "toan6-gk1-de2"], matrix: {
+      "Tập hợp các số tự nhiên": [2, 1, 1], "Lũy thừa, thứ tự thực hiện phép tính": [2, 1, 1], "Tính chia hết, số nguyên tố": [2, 1, 1],
+      "ƯCLN và BCNN": [1, 2, 1], "Số nguyên": [2, 1, 2], "Nhân, chia số nguyên": [1, 2, 1] } } },
   /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
      mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
