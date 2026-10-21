@@ -36,7 +36,8 @@
    p (mã đoạn đọc trong bank.passages), svg (hình, lọc bằng Quiz.svg). Mọi thao tác là chạm, không kéo thả.
    Quiz.parse(text) → {questions, passages, errors}: đọc câu hỏi dán từ Word/Zalo theo cú pháp đơn giản.
    Quiz.svg(src) → {svg, problems}: hình đã lọc (chuỗi rỗng nếu không đọc được) và các chỗ bị bỏ.
-   Quiz.draw(bank, hist) → {questions, notes}: rút đề ngẫu nhiên theo ma trận của đề có pool (Phiên K3, xem draw).
+   Quiz.draw(bank, hist) → {questions, notes}: rút đề ngẫu nhiên theo ma trận của đề có pool (Phiên K3; câu dùng chung đoạn đọc
+     rút theo đoạn từ Phiên K4, xem draw).
    Quiz.key(q): mã ổn định của một câu (băm nội dung), dùng để ghi nhớ câu đã làm; opts.onMarks nhận [[mã câu, điểm]].
    Báo câu sai (Phiên R1): có opts.onReport thì dưới lời giải khi ôn luyện (sau khi Kiểm tra, cả câu tự luận sau khi Xem gợi ý)
      và dưới từng câu ở màn kết quả (câu cần xem lại, câu tự luận tự chấm) có link nhỏ "Báo câu này sai"; bấm thì mở hộp
@@ -68,6 +69,7 @@
       // rút đề ngẫu nhiên (draw)
       drawLv: (t, n, lv, from) => `${t}: thiếu ${n} câu mức ${lv}, lấy bù ${from}`, lvOf: (lv) => "mức " + lv, noLv: "câu chưa ghi mức",
       drawOther: (t, n) => `${t}: thiếu ${n} câu, lấy từ chủ đề khác`, drawShort: (t, n) => `${t}: kho chưa đủ câu, thiếu ${n} câu`,
+      drawPsg: (t, d) => `${t}: lấy cả đoạn đọc nên ${d}`, lvDiff: (lv, n, want) => `mức ${lv} có ${n} câu thay vì ${want}`,
       // đoạn đọc
       psgTitle: "Đọc kĩ rồi trả lời", psgFor: (n) => `Dùng chung cho ${n} câu`, psgHide: "Thu gọn", psgShow: "Mở ra",
       // thân câu hỏi (UX1: trên câu chỉ một dòng nhãn "môn · chủ đề", dạng phức tạp ghi thêm cách làm: tf4Label, matchLabel, orderLabel, essayLabel)
@@ -140,6 +142,7 @@
       tol: (x) => ` (±${x} allowed)`,
       drawLv: (t, n, lv, from) => `${t}: ${n} missing at level ${lv}, filled with ${from}`, lvOf: (lv) => "level " + lv, noLv: "questions without a level",
       drawOther: (t, n) => `${t}: ${n} missing, taken from other topics`, drawShort: (t, n) => `${t}: not enough questions in the bank, ${n} missing`,
+      drawPsg: (t, d) => `${t}: whole passages were kept, so ${d}`, lvDiff: (lv, n, want) => `${n} at level ${lv} instead of ${want}`,
       psgTitle: "Read and answer", psgFor: (n) => (n === 1 ? "For 1 question" : `For ${n} questions`), psgHide: "Hide", psgShow: "Show",
       fillAria: "Your answer", negHint: "For a negative number, type the minus sign first, for example -12.", numSign: "Add or remove the minus sign", numSlash: "Add a fraction bar", numAria: "Your answer",
       numHint: "Write a fraction as a/b, for example 3/4. Use a decimal point, for example 2.5.", tf4Label: "True or false? Choose for each sentence", tf4Group: (c) => `Sentence ${c}`,
@@ -332,44 +335,96 @@
     for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
     return (h >>> 0).toString(36) + text.length.toString(36);
   }
-  /* draw(bank, hist): rút đề từ kho câu của đề ngẫu nhiên (bank.questions, mỗi câu có topic, lv?, src?) theo ma trận
+  /* draw(bank, hist, lg): rút đề từ kho câu của đề ngẫu nhiên (bank.questions, mỗi câu có topic, lv?, src?, p?) theo ma trận
      bank.pool.matrix: { "<chủ đề>": số câu } hoặc { "<chủ đề>": [Biết, Hiểu, Vận dụng] } (xem đầu data/banks/index.js).
      hist(q) → {done, wrong}: số lần học sinh đã làm, làm sai câu đó (app tính từ kết quả); không có thì coi như chưa làm.
-     Mỗi ô lấy câu đúng chủ đề (đúng mức nếu ô ghi theo mức), ưu tiên câu chưa làm hoặc hay sai: điểm done − 2·wrong thấp
-     trước, bằng nhau thì ngẫu nhiên. Ô thiếu câu thì lấy bù cùng chủ đề: câu chưa ghi mức trước, rồi mức gần nhất, rồi
-     từ chủ đề khác; mỗi chỗ bù ghi một dòng vào notes (chưa esc; theo ngôn ngữ lg, mặc định Quiz.lang(bank)). Kho đủ câu thì
-     trả về đúng tổng của ma trận. */
+     Điểm ưu tiên của một câu là done − 2·wrong, thấp trước (câu hay sai, rồi câu chưa làm, rồi câu đã làm đúng), bằng nhau thì
+     ngẫu nhiên. Đi theo từng chủ đề của ma trận:
+     - Câu dùng chung đoạn đọc (q.p có trong bank.passages, Phiên K4) rút theo đoạn: k câu của chủ đề lấy từ không quá ⌈k/3⌉ đoạn.
+       Mỗi đoạn tính điểm trung bình của các câu còn lại (đoạn có câu hay sai, chưa làm đứng trước), bằng điểm thì đoạn đã rút cho
+       chủ đề khác trong lần này đứng trước (câu Viết về bài thơ đi cùng bài thơ), rồi đoạn nhiều câu trước, rồi ngẫu nhiên. Mỗi
+       lượt lấy cả đoạn: trong nhóm đoạn bằng điểm chọn đoạn lớn nhất còn vừa số câu cần; không đoạn nào vừa thì lấy phần vừa đủ của
+       đoạn hợp mức ma trận nhất, chọn câu theo mức còn thiếu. Câu lẻ (không đoạn) của chủ đề chỉ được rút khi ưu tiên hơn mọi đoạn
+       còn lại (câu lẻ chưa làm, đoạn đã làm) hoặc khi đã đủ số đoạn: phần còn lại rút theo ô như bên dưới. Số câu từng mức theo
+       đoạn có thể lệch ma trận: lệch quá 1 câu ở một mức thì ghi notes (L.drawPsg). Câu cùng đoạn đứng liền nhau trong questions,
+       theo thứ tự trong kho (Quiz.run giữ nhóm đó, chủ đề sau đứng sau).
+     - Câu không có đoạn đọc (và đề không có passages) rút theo từng ô (chủ đề, mức) như Phiên K3: ô lấy câu đúng chủ đề (đúng mức
+       nếu ô ghi theo mức) theo điểm ưu tiên; ở chủ đề có đoạn đọc, câu còn lại của các đoạn chỉ được lấy khi câu lẻ không đủ (câu
+       hay sai của một đoạn được rút cùng đoạn, không tách lẻ). Ô thiếu câu thì lấy bù cùng chủ đề: câu chưa ghi mức trước, rồi mức
+       gần nhất, rồi từ chủ đề khác; mỗi chỗ bù ghi một dòng vào notes (chưa esc; theo ngôn ngữ lg, mặc định Quiz.lang(bank)). Kho
+       đủ câu thì trả về đúng tổng của ma trận. */
   function draw(bank, hist, lg) {
     const m = (bank.pool && bank.pool.matrix) || {}, notes = [], L = TXT[lg] || TXT[langOf(bank)];
     const topicOf = (t) => String(t == null ? "" : t).normalize("NFC").replace(/\s+/g, " ").trim();
     const weight = (q) => { const h = hist ? hist(q) : null; return h ? (+h.done || 0) - 2 * (+h.wrong || 0) : 0; };
-    // xáo rồi sắp theo điểm ưu tiên (sort giữ thứ tự câu bằng điểm): câu bằng điểm đứng ngẫu nhiên
-    const ranked = shuffle(bank.questions || []).map((q) => ({ q, w: weight(q), t: topicOf(q.topic) })).sort((a, b) => a.w - b.w);
-    const used = new Set(), out = [];
-    const take = (list, k) => { const got = []; for (const x of list) { if (got.length >= k) break; if (!used.has(x)) { used.add(x); got.push(x.q); } } return got; };
-    const cells = [];
+    const psg = bank.passages && typeof bank.passages === "object" && !Array.isArray(bank.passages) ? bank.passages : {};
+    const pOf = (q) => (q && q.p != null && Object.prototype.hasOwnProperty.call(psg, q.p) ? String(q.p) : "");
+    // xáo rồi sắp theo điểm ưu tiên (sort giữ thứ tự câu bằng điểm): câu bằng điểm đứng ngẫu nhiên. i: vị trí trong kho.
+    const ranked = shuffle((bank.questions || []).map((q, i) => ({ q, i, w: weight(q), t: topicOf(q.topic), p: pOf(q) }))).sort((a, b) => a.w - b.w);
+    const used = new Set(), usedP = new Set(), out = [];
+    const take = (list, k) => { const got = []; for (const x of list) { if (got.length >= k) break; if (!used.has(x)) { used.add(x); got.push(x); } } return got; };
+    const lvN = (x) => (LV[x.q.lv] ? x.q.lv : 0);
+    const dist = (q, lv) => (LV[q.lv] ? Math.abs(q.lv - lv) : 0.5); // câu chưa ghi mức: lấy trước mức kề
+    const topics = [];
     Object.keys(m).forEach((t) => {
       const v = m[t], topic = topicOf(t);
-      if (Array.isArray(v)) v.forEach((n, i) => { if (n > 0) cells.push({ topic, lv: i + 1, n: Math.floor(n) }); });
-      else if (v > 0) cells.push({ topic, lv: 0, n: Math.floor(v) });
+      if (Array.isArray(v)) { const need = [0, 1, 2].map((i) => Math.max(0, Math.floor(v[i]) || 0)); if (need.some((n) => n > 0)) topics.push({ topic, need, k: need.reduce((a, n) => a + n, 0) }); }
+      else if (v > 0) topics.push({ topic, need: null, k: Math.floor(v) });
     });
-    const dist = (q, lv) => (LV[q.lv] ? Math.abs(q.lv - lv) : 0.5); // câu chưa ghi mức: lấy trước mức kề
-    cells.forEach((c) => {
-      const same = ranked.filter((x) => x.t === c.topic);
-      let got = take(c.lv ? same.filter((x) => x.q.lv === c.lv) : same, c.n);
-      if (got.length < c.n && c.lv) {
-        const near = same.filter((x) => x.q.lv !== c.lv).sort((a, b) => dist(a.q, c.lv) - dist(b.q, c.lv));
-        const more = take(near, c.n - got.length);
-        if (more.length) notes.push(L.drawLv(c.topic, more.length, L.lv[c.lv], [...new Set(more.map((q) => (LV[q.lv] ? L.lvOf(L.lv[q.lv]) : L.noLv)))].join(", ")));
-        got = got.concat(more);
+    topics.forEach((T) => {
+      const same = ranked.filter((x) => x.t === T.topic), need = T.need ? T.need.slice() : null, got = [], cap = Math.ceil(T.k / 3);
+      let r = T.k, nP = 0;
+      const useLv = (x) => { if (need && lvN(x)) need[lvN(x) - 1] = Math.max(0, need[lvN(x) - 1] - 1); };
+      const fit = (x) => (need ? (lvN(x) ? need[lvN(x) - 1] : 0.5) : 0); // mức còn thiếu nhiều lấy trước; câu chưa ghi mức sau mức còn thiếu
+      // --- theo đoạn (K4) ---
+      while (r > 0 && nP < cap && same.some((x) => x.p && !used.has(x))) {
+        const groups = {}, units = [];
+        same.forEach((x) => { if (used.has(x)) return; if (x.p) (groups[x.p] = groups[x.p] || []).push(x); else units.push({ p: "", g: [x], size: 1, mean: x.w, inUse: 0 }); });
+        Object.keys(groups).forEach((p) => { const g = groups[p]; units.push({ p, g, size: g.length, mean: g.reduce((a, x) => a + x.w, 0) / g.length, inUse: usedP.has(p) ? 1 : 0 }); });
+        units.forEach((u) => (u.rnd = Math.random()));
+        units.sort((a, b) => a.mean - b.mean || b.inUse - a.inUse || b.size - a.size || a.rnd - b.rnd);
+        const top = units[0];
+        if (!top.p) break; // câu lẻ ưu tiên hơn mọi đoạn còn lại: phần còn lại rút theo ô
+        const group = units.filter((u) => u.p && u.mean === top.mean && u.inUse === top.inUse);
+        const fitOf = (u) => (need ? [1, 2, 3].reduce((a, lv) => a + Math.min(need[lv - 1], u.g.filter((x) => x.q.lv === lv).length), 0) : 0);
+        const pick = group.find((u) => u.size <= r) || group.slice().sort((a, b) => fitOf(b) - fitOf(a) || a.rnd - b.rnd)[0];
+        let sel = pick.g.slice();
+        if (sel.length > r) { // lấy một phần: câu theo mức còn thiếu, rồi điểm ưu tiên, rồi ngẫu nhiên
+          const rest = sel, want = r; sel = [];
+          while (sel.length < want) { rest.sort((a, b) => fit(b) - fit(a) || a.w - b.w); const x = rest.shift(); sel.push(x); useLv(x); }
+        } else sel.forEach(useLv);
+        sel.sort((a, b) => a.i - b.i).forEach((x) => { used.add(x); got.push(x); });
+        r -= sel.length; nP++; usedP.add(pick.p);
       }
-      if (got.length < c.n) {
-        const more = take(ranked.filter((x) => x.t !== c.topic), c.n - got.length);
-        if (more.length) notes.push(L.drawOther(c.topic, more.length));
-        got = got.concat(more);
-      }
-      if (got.length < c.n) notes.push(L.drawShort(c.topic, c.n - got.length));
-      out.push(...got);
+      // --- phần còn lại theo ô (K3) ---
+      let cells = [];
+      if (need) {
+        // ô còn lại theo mức còn thiếu, bớt cho vừa số câu còn cần (đoạn đã lấy dư ở mức này thì bớt ở mức còn thiếu nhiều nhất)
+        for (let s = need.reduce((a, n) => a + n, 0); s > r; s--) need[need.indexOf(Math.max(...need))]--;
+        cells = [1, 2, 3].filter((lv) => need[lv - 1] > 0).map((lv) => ({ lv, n: need[lv - 1] }));
+        const plan = [1, 2, 3].map((lv) => got.filter((x) => x.q.lv === lv).length + need[lv - 1]);
+        if (plan.some((n, i) => Math.abs(n - T.need[i]) > 1)) notes.push(L.drawPsg(T.topic, plan.map((n, i) => (n === T.need[i] ? "" : L.lvDiff(L.lv[i + 1], n, T.need[i]))).filter(Boolean).join(", ")));
+      } else if (r > 0) cells = [{ lv: 0, n: r }];
+      // câu lẻ trước (theo điểm ưu tiên), câu còn lại của các đoạn chỉ khi câu lẻ không đủ: câu hay sai của một đoạn được rút theo đoạn, không tách lẻ
+      const rest = same.filter((x) => !used.has(x)).sort((a, b) => (a.p ? 1 : 0) - (b.p ? 1 : 0) || a.w - b.w);
+      cells.forEach((c) => {
+        let g = take(c.lv ? rest.filter((x) => x.q.lv === c.lv) : rest, c.n);
+        if (g.length < c.n && c.lv) {
+          const near = rest.filter((x) => x.q.lv !== c.lv).sort((a, b) => dist(a.q, c.lv) - dist(b.q, c.lv));
+          const more = take(near, c.n - g.length);
+          if (more.length) notes.push(L.drawLv(T.topic, more.length, L.lv[c.lv], [...new Set(more.map((x) => (LV[x.q.lv] ? L.lvOf(L.lv[x.q.lv]) : L.noLv)))].join(", ")));
+          g = g.concat(more);
+        }
+        if (g.length < c.n) {
+          const more = take(ranked.filter((x) => x.t !== T.topic), c.n - g.length);
+          if (more.length) notes.push(L.drawOther(T.topic, more.length));
+          g = g.concat(more);
+        }
+        if (g.length < c.n) notes.push(L.drawShort(T.topic, c.n - g.length));
+        g.forEach((x) => { if (x.p) usedP.add(x.p); }); // đoạn có câu được lấy ở đây cũng tính là đã rút (chủ đề sau ưu tiên câu của nó khi bằng điểm)
+        got.push(...g);
+      });
+      out.push(...got.map((x) => x.q));
     });
     return { questions: out, notes };
   }

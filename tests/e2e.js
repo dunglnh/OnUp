@@ -950,29 +950,31 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      các ô (lựa chọn, ý, cột nối, ô sắp xếp) như bước TA1. Chữ trên màn hình gộp khoảng trắng trước khi so: khoảng trắng giữa các
      nhóm số là khoảng trắng không ngắt (nbNum, "4 512"). */
   const flatQ = (x) => String(x).replace(/___/g, "").replace(/\s+/g, "");
-  const current = async (qs) => {
-    const s = await kp.evaluate(() => ({ t: document.querySelector(".qcard .qtext").textContent, card: document.querySelector(".qcard").textContent }));
+  const currentOn = async (pg, qs) => {
+    const s = await pg.evaluate(() => ({ t: document.querySelector(".qcard .qtext").textContent, card: document.querySelector(".qcard").textContent }));
     const cands = qs.filter((q) => flatQ(q.q) === flatQ(s.t));
     return (cands.length > 1 ? cands.find((q) => [].concat(q.o || [], q.l || [], q.r || []).every((o) => flatQ(s.card).includes(flatQ(o)))) : cands[0]) || null;
   };
+  const current = (qs) => currentOn(kp, qs);
   /* Trả lời câu đang hiện theo dữ liệu, mọi dạng câu, rồi bấm Kiểm tra (tự luận: Xem gợi ý). right = true: đúng hết; false: sai hết,
      0 điểm (trắc nghiệm, đúng/sai chọn ô sai; điền, số gõ số khác; đúng/sai 4 ý chọn ngược cả 4 ý; nối cột nối lệch mọi cặp; sắp xếp
      xếp ngược). Chữ trên nút so sau khi gộp khoảng trắng. Trả về false khi không tìm thấy ô cần chạm. */
-  const answer = async (q, right) => {
-    const pick = (w) => kp.$$eval(".opts .opt", (bs, w) => { const b = bs.find((x) => x.lastElementChild.textContent.replace(/\s+/g, " ") === w); if (b) b.click(); return !!b; }, String(w).replace(/\s+/g, " "));
+  const answerOn = async (pg, q, right) => {
+    const pick = (w) => pg.$$eval(".opts .opt", (bs, w) => { const b = bs.find((x) => x.lastElementChild.textContent.replace(/\s+/g, " ") === w); if (b) b.click(); return !!b; }, String(w).replace(/\s+/g, " "));
     const v = typeof q.ans === "number" ? q.ans : String(q.ans).split("/").reduce((a, b) => a / b);
     let ok = true;
     if (q.type === "mc") ok = await pick(right ? q.o[0] : q.o[1]);
     else if (q.type === "tf") ok = await pick(q.a === right ? "Đúng" : "Sai");
-    else if (q.type === "fill") await kp.fill("#qzFill", right ? q.ans[0] : "không đúng");
-    else if (q.type === "num") await kp.fill("#qzNum", right ? String(q.ans) : String(v + 1 + 2 * (q.tol || 0)));
-    else if (q.type === "tf4") for (let k = 0; k < 4; k++) await kp.click(`.tf4 .opt[data-i="${k}"][data-v="${q.a[k] === right ? 1 : 0}"]`);
-    else if (q.type === "match") for (let k = 0; k < q.l.length; k++) { await kp.click(`.mt-li[data-i="${k}"]`); await kp.click(`.mt-ri[data-r="${right ? k : (k + 1) % q.l.length}"]`); }
-    else if (q.type === "order") for (let k = 0; k < q.o.length; k++) await kp.click(`.ord-p[data-k="${right ? k : q.o.length - 1 - k}"]`);
-    else if (q.type === "essay") await kp.fill("#qzEssay", "Bài làm thử.");
-    if (ok) await kp.click("#qzGo");
+    else if (q.type === "fill") await pg.fill("#qzFill", right ? q.ans[0] : "không đúng");
+    else if (q.type === "num") await pg.fill("#qzNum", right ? String(q.ans) : String(v + 1 + 2 * (q.tol || 0)));
+    else if (q.type === "tf4") for (let k = 0; k < 4; k++) await pg.click(`.tf4 .opt[data-i="${k}"][data-v="${q.a[k] === right ? 1 : 0}"]`);
+    else if (q.type === "match") for (let k = 0; k < q.l.length; k++) { await pg.click(`.mt-li[data-i="${k}"]`); await pg.click(`.mt-ri[data-r="${right ? k : (k + 1) % q.l.length}"]`); }
+    else if (q.type === "order") for (let k = 0; k < q.o.length; k++) await pg.click(`.ord-p[data-k="${right ? k : q.o.length - 1 - k}"]`);
+    else if (q.type === "essay") await pg.fill("#qzEssay", "Bài làm thử.");
+    if (ok) await pg.click("#qzGo");
     return ok;
   };
+  const answer = (q, right) => answerOn(kp, q, right);
   /* Làm hết một lượt ôn luyện. wrong: câu chấm tự động đầu tiên (không lấy câu của Đề 1) trả lời sai, còn lại đúng; snap: chụp màn
      hình câu sai sau khi Kiểm tra; audit: kiểm tra 360px từng câu sau khi Kiểm tra. Ghi chỗ chấm khác dữ liệu. Trả về các câu đã gặp. */
   const playAll = async (qs, wrong, snap, audit360) => {
@@ -1128,6 +1130,106 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     && k3.short && k3.shortWant.noV && k3.notes === k3.shortWant.notes && k3.shortN === k3.shortWant.n
     && k3.report.n === "2" && k3.report.subj === `Toán ${d10(25 + t1 - 1, 25 + t1)}/10 2 bài · ${25 + t1 - 1}/${25 + t1} câu đúng` && k3.report.topics === 1 && /Đề ngẫu nhiên/.test(k3.report.week)
     && k3.adminRow === "Lớp 6 · Toán · 25 câu rút ngẫu nhiên · có sẵn (chỉ xem)";
+  step("random exams keep passages whole (K4)");
+  /* Đề ngẫu nhiên có đoạn đọc (Phiên K4): câu dùng chung một đoạn đọc được rút theo đoạn (Quiz.draw, CLAUDE.md mục “Đề ngẫu nhiên”). Bốn đề
+     ngẫu nhiên đang có đoạn đọc: Tiếng Việt 4, Tiếng Anh 4 (Bin), Ngữ văn 6, Tiếng Anh 6 cuối kì I (Na). Với mỗi đề: (1) rút 60 lần ngay
+     trong trang (xen kẽ không lịch sử và lịch sử ngẫu nhiên): lần nào cũng đủ n câu không trùng, đúng số câu từng chủ đề, mức lệch ma trận
+     không quá 1 câu, không ghi chú, mỗi chủ đề không quá ⌈k/3⌉ đoạn, nhiều nhất một đoạn lấy một phần, câu cùng đoạn liền nhau; rút lần 2
+     sau khi đánh dấu cả bộ lần 1 đã làm thì chủ đề có đoạn không lấy lại câu nào của lần 1 và không lấy lại đoạn nào (trừ Ngữ văn 6: mỗi chủ
+     đề chỉ có một đoạn); (2) mở ôn luyện, bỏ qua từng câu để xem đủ n câu trên màn làm bài: tiến độ "Câu 1/n" (đề Tiếng Anh "1 of n"), đúng
+     số câu từng chủ đề (dòng nhãn "môn · chủ đề"), các câu cùng đoạn đứng liền nhau và hộp đoạn đọc ghi đúng "Dùng chung cho N câu", không
+     quá ⌈k/3⌉ đoạn mỗi chủ đề; màn đầu không ghi chú. Tiếng Việt 4 (Bin) còn làm hết một lượt đúng theo dữ liệu (câu Viết xem gợi ý,
+     24/24 câu chấm tự động → 10/10) rồi "Làm đề khác": bộ mới không có đoạn nào của lượt đầu (kho còn đoạn chưa làm) và câu Viết khác. Mỗi
+     màn hình kiểm tra 360px; ảnh một câu đọc hiểu sau khi Kiểm tra ở tests/screenshots/19-k4-doan-doc.png. */
+  const K4_POOLS = [["tv4-ck1-ngau-nhien", "Bin", PINS.Bin], ["ta4-ck1-ngau-nhien", "Bin", PINS.Bin], ["van6-ck1-ngau-nhien", "Na", "4444"], ["ta6-ck1-ngau-nhien", "Na", "4444"]];
+  const k4 = { problems: [], pools: {} };
+  const k4c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
+  await localConfig(k4c); watchOut(k4c);
+  const k4p = await k4c.newPage(); k4p.on("pageerror", (e) => errs.push("pageerror K4: " + e.message)); k4p.on("console", (m) => { if (m.type() === "error") errs.push("console K4: " + m.text()); });
+  const k4check = async (label) => (await k4p.evaluate(audit)).forEach((x) => k4.problems.push(`K4 · ${label}: ${x}`));
+  // câu đang hiện: dòng nhãn "môn · chủ đề[ · cách làm]", mã đoạn đọc và dòng "Dùng chung cho N câu" của hộp đoạn đọc, tiến độ, chữ câu hỏi
+  const k4now = () => k4p.evaluate(() => { const ps = document.querySelector(".psg"); return { label: document.querySelector(".qcard .label").textContent.replace(/\s+/g, " "), p: ps ? ps.dataset.p : "", psgN: ps ? ps.querySelector("summary .small").textContent : "", prog: document.querySelector("#qzProg").textContent, text: document.querySelector(".qcard .qtext").textContent }; });
+  // chủ đề của câu: chữ sau "môn · " khớp một chủ đề của ma trận (chủ đề có thể chứa " · ", sau chủ đề có thể còn " · cách làm")
+  const k4topic = (label, m) => { const i = label.indexOf(" · "), rest = i < 0 ? label : label.slice(i + 3); return Object.keys(m).find((t) => rest === t || rest.startsWith(t + " · ")) || rest; };
+  // xem hết n câu của lượt đang làm bằng "Bỏ qua" (không trả lời câu nào); mỗi câu ghi chủ đề theo ma trận m
+  const k4walk = async (n, m) => { const seen = []; for (let i = 0; i < n; i++) { const x = await k4now(); x.topic = k4topic(x.label, m); seen.push(x); if (i < n - 1) await k4p.click("#qzSkip"); } return seen; };
+  const k4login = async (who, pin) => { await k4p.goto(BASE + "/#/account"); await k4p.waitForTimeout(200); if (await k4p.$("#switchWho, #logout")) { await k4p.click("#switchWho, #logout"); await k4p.waitForTimeout(200); } await k4p.goto(BASE + "/"); await k4p.click(`.tile[data-u="${ids[who]}"]`); await k4p.fill("#pinIn", pin); await k4p.waitForTimeout(400); };
+  const kOf = (m, t) => (Array.isArray(m[t]) ? m[t].reduce((a, x) => a + x, 0) : m[t]);
+  const topicsOK = (list, m) => Object.keys(m).every((t) => list.filter((x) => x.topic === t).length === kOf(m, t)) && list.every((x) => x.topic in m);
+  // câu cùng đoạn liền nhau, hộp ghi đúng số câu; mỗi chủ đề không quá ⌈k/3⌉ đoạn
+  const psgOK = (list, m) => {
+    const pids = [...new Set(list.map((x) => x.p).filter(Boolean))];
+    const contiguous = pids.every((p) => { const at = list.map((x, k) => (x.p === p ? k : -1)).filter((k) => k >= 0); return at[at.length - 1] - at[0] === at.length - 1 && list.filter((x) => x.p === p).every((x) => [`Dùng chung cho ${at.length} câu`, `For ${at.length} question${at.length === 1 ? "" : "s"}`].includes(x.psgN)); });
+    return contiguous && Object.keys(m).every((t) => new Set(list.filter((x) => x.topic === t && x.p).map((x) => x.p)).size <= Math.ceil(kOf(m, t) / 3));
+  };
+  for (const [id, who, pin] of K4_POOLS) {
+    await k4login(who, pin);
+    await k4p.goto(BASE + "/#/quiz/" + id); await k4p.waitForSelector("#qPractice");
+    const r = { notes: !!(await k4p.$("#qNotes")) };
+    // (1) rút nhiều lần ngay trong trang
+    r.draws = await k4p.evaluate((id) => {
+      const b = Store.bank(id), m = b.pool.matrix, ps = b.passages || {}, bad = [], kOf = (t) => (Array.isArray(m[t]) ? m[t].reduce((a, x) => a + x, 0) : m[t]);
+      const chk = (d, label) => {
+        const keys = d.questions.map(Quiz.key), cnt = {};
+        if (d.questions.length !== b.n) bad.push(`${label}: ${d.questions.length} câu`);
+        if (new Set(keys).size !== keys.length) bad.push(`${label}: câu trùng`);
+        if (d.notes.length) bad.push(`${label}: ghi chú ${d.notes.join("; ")}`);
+        d.questions.forEach((q) => (cnt[q.topic] = (cnt[q.topic] || 0) + 1));
+        Object.keys(cnt).forEach((t) => { if (!(t in m)) bad.push(`${label}: chủ đề lạ ${t}`); });
+        Object.keys(m).forEach((t) => {
+          if ((cnt[t] || 0) !== kOf(t)) bad.push(`${label}: ${t} ${cnt[t] || 0}/${kOf(t)} câu`);
+          if (Array.isArray(m[t])) [1, 2, 3].forEach((lv) => { const n = d.questions.filter((q) => q.topic === t && q.lv === lv).length; if (Math.abs(n - m[t][lv - 1]) > 1) bad.push(`${label}: ${t} mức ${lv} ${n}/${m[t][lv - 1]}`); });
+          const inT = d.questions.filter((q) => q.topic === t), pids = [...new Set(inT.filter((q) => q.p && ps[q.p]).map((q) => q.p))];
+          if (pids.length > Math.ceil(kOf(t) / 3)) bad.push(`${label}: ${t} lấy ${pids.length} đoạn`);
+          if (pids.filter((p) => inT.filter((q) => q.p === p).length < b.questions.filter((q) => q.p === p && q.topic === t).length).length > 1) bad.push(`${label}: ${t} lấy một phần ở hơn một đoạn`);
+          pids.forEach((p) => { const at = inT.map((q, k) => (q.p === p ? k : -1)).filter((k) => k >= 0); if (at[at.length - 1] - at[0] !== at.length - 1) bad.push(`${label}: đoạn ${p} không liền nhau`); });
+        });
+      };
+      for (let i = 0; i < 60; i++) chk(Quiz.draw(b, i % 2 ? () => ({ done: Math.floor(Math.random() * 3), wrong: Math.random() < 0.2 ? 1 : 0 }) : null), "lần " + (i + 1));
+      // lần 2 sau khi làm hết bộ lần 1: chủ đề có đoạn không lấy lại câu đã làm; chủ đề có từ 2 đoạn trở lên không lấy lại đoạn đã rút cho
+      // chủ đề đó ở lần 1 (Ngữ văn 6: mỗi bài đọc chỉ có một đoạn, lần 2 lấy câu lẻ và câu còn lại của đoạn; câu Viết sang đoạn khác hoặc câu lẻ)
+      const d1 = Quiz.draw(b), done = new Set(d1.questions.map(Quiz.key)), d2 = Quiz.draw(b, (q) => ({ done: done.has(Quiz.key(q)) ? 1 : 0, wrong: 0 }));
+      const pt = new Set(b.questions.filter((q) => q.p && ps[q.p]).map((q) => q.topic)), p1 = new Set(d1.questions.filter((q) => q.p && ps[q.p]).map((q) => q.topic + "|" + q.p));
+      const multi = new Set([...pt].filter((t) => new Set(b.questions.filter((q) => q.topic === t && q.p && ps[q.p]).map((q) => q.p)).size >= 2));
+      return { bad: bad.slice(0, 8), nBad: bad.length, reuseQ: d2.questions.filter((q) => pt.has(q.topic) && done.has(Quiz.key(q))).length, reuseP: d2.questions.filter((q) => q.p && ps[q.p] && multi.has(q.topic) && p1.has(q.topic + "|" + q.p)).length, n: b.n, matrix: m, nPsg: Object.keys(ps).length };
+    }, id);
+    // (2) trên màn làm bài: bỏ qua từng câu
+    await k4check(id + " màn đầu");
+    await k4p.click("#qPractice"); await k4p.waitForSelector(".qcard");
+    const seen = await k4walk(r.draws.n, r.draws.matrix);
+    r.walk = { n: seen.length, prog: seen[0].prog, topics: topicsOK(seen, r.draws.matrix), psg: psgOK(seen, r.draws.matrix), nPsg: new Set(seen.map((x) => x.p).filter(Boolean)).size };
+    await k4check(id + " câu cuối");
+    await k4p.click("#qzExit"); await k4p.click("#qzYes"); await k4p.waitForSelector("#today");
+    k4.pools[id] = r;
+  }
+  // Tiếng Việt 4: làm hết một lượt đúng theo dữ liệu, rồi "Làm đề khác" ra đoạn khác, câu Viết khác
+  const TV_ID = "tv4-ck1-ngau-nhien", TV_M = k4.pools[TV_ID].draws.matrix, tv = { run1: [] };
+  await k4login("Bin", PINS.Bin);
+  await k4p.goto(BASE + "/#/quiz/" + TV_ID); await k4p.waitForSelector("#qPractice");
+  const TVQ = await k4p.evaluate((id) => Store.bank(id).questions, TV_ID);
+  await k4p.click("#qPractice"); await k4p.waitForSelector(".qcard");
+  let k4shot = false;
+  for (let i = 0; i < 40 && !(await k4p.$(".score")); i++) {
+    const q = await currentOn(k4p, TVQ);
+    if (!q) { k4.problems.push("K4: không nhận ra câu " + (await k4p.textContent(".qcard .qtext")).slice(0, 50)); break; }
+    tv.run1.push(q);
+    if (!(await answerOn(k4p, q, true))) { k4.problems.push(`K4: không tìm thấy ô để trả lời câu ${q.q.slice(0, 50)}`); break; }
+    if (q.type !== "essay" && !(await k4p.$("#qzFb .fb.ok"))) k4.problems.push(`K4: câu ${q.q.slice(0, 50)} bị chấm sai khi trả lời đúng theo dữ liệu`);
+    if (q.p && !k4shot) { k4shot = true; await k4check("Tiếng Việt 4, câu đọc hiểu sau khi Kiểm tra"); await k4p.evaluate(() => scrollTo(0, 0)); await k4p.screenshot({ path: `${OUT}19-k4-doan-doc.png`, fullPage: true }); }
+    await k4p.click("#qzGo");
+  }
+  await k4p.waitForSelector(".score");
+  tv.score = (await k4p.textContent(".score")).trim(); tv.again = (await k4p.textContent("#qzAgain")).trim();
+  await k4check("Tiếng Việt 4, kết quả");
+  await k4p.click("#qzAgain"); await k4p.waitForSelector(".qcard");
+  const tvRun2 = await k4walk(25, TV_M), tvP1 = new Set(tv.run1.filter((q) => q.p).map((q) => q.p)), essay2 = tvRun2.find((x) => x.topic === "Viết");
+  tv.run2 = { n: tvRun2.length, samePsg: tvRun2.filter((x) => x.p && tvP1.has(x.p)).length, nPsg: new Set(tvRun2.map((x) => x.p).filter(Boolean)).size, psg: psgOK(tvRun2, TV_M), topics: topicsOK(tvRun2, TV_M),
+    newEssay: !!essay2 && !tv.run1.some((q) => q.type === "essay" && flatQ(q.q) === flatQ(essay2.text)) };
+  await k4p.click("#qzExit"); await k4p.click("#qzYes"); await k4p.waitForSelector("#today");
+  await k4c.close();
+  console.log("K4:", JSON.stringify(Object.fromEntries(Object.entries(k4.pools).map(([id, r]) => [id, { notes: r.notes, draws: Object.assign({}, r.draws, { matrix: undefined }), walk: r.walk }]))), "tv4:", tv.run1.length, tv.score, tv.again, JSON.stringify(tv.run2), "problems:", k4.problems);
+  const k4OK = !k4.problems.length && K4_POOLS.every(([id]) => { const r = k4.pools[id]; return r && !r.notes && r.draws.nPsg > 0 && r.draws.nBad === 0 && r.draws.reuseQ === 0 && r.draws.reuseP === 0 && r.walk.n === r.draws.n && r.walk.nPsg > 0 && r.walk.topics && r.walk.psg && r.walk.prog === (id.startsWith("ta") ? `1 of ${r.draws.n}` : `Câu 1/${r.draws.n}`); })
+    && tv.run1.length === 25 && tv.score === "10/10" && tv.again === "Làm đề khác" && tv.run2.n === 25 && tv.run2.samePsg === 0 && tv.run2.nPsg >= 2 && tv.run2.psg && tv.run2.topics && tv.run2.newEssay;
 
   step("report wrong question (R1)");
   /* Nút "Báo câu này sai" (js/quiz.js, opts.onReport). Bin ôn luyện Toán 4 Đề 1: làm như thi không có link trong lúc làm; ôn luyện
@@ -2462,7 +2564,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, ux4OK, ux5OK, numOK, l29OK, ux6LocalOK };
+    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, ux4OK, ux5OK, numOK, l29OK, ux6LocalOK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
