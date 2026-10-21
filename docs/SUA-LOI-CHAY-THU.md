@@ -347,7 +347,7 @@ QC đối chiếu `modules/l6-giua-ki-1/index.html` trên `main` commit `bd26bb0
 Phiên N24b đối chiếu bản PDF Ngữ văn 6 tập một, sách in năm 2026 (mã G1HH6V001h26, ĐKXB 7-2026; PR #94, mục “Chỗ chủ app nên xem”, ý 2). PO dò lại trên `main` commit `9af28fb`.
 
 **L37. Đề và bài ôn Ngữ văn 6 còn câu về hai văn bản sách in năm 2026 đã thay.**
-- Sách in năm 2026 đổi văn bản 3 của hai bài: Bài 1 «Tia nắng hạt mưa» (Lê Bình, tr. 27) thay «Bắt nạt» (Nguyễn Thế Hoàng Linh); Bài 2 «Hương và Phai» (trích, Nguyễn Minh Châu, tr. 48) thay «Bức tranh của em gái tôi» (Tạ Duy Anh).
+- Sách in năm 2026 đổi văn bản 3 của hai bài: Bài 1 «Tia nắng hạt mưa» (Lệ Bình, tr. 27) thay «Bắt nạt» (Nguyễn Thế Hoàng Linh); Bài 2 «Hương và Phai» (trích, Nguyễn Minh Châu, tr. 48) thay «Bức tranh của em gái tôi» (Tạ Duy Anh).
 - Bài ôn `modules/l6-giua-ki-1/index.html` (kì giữa kì I lớp 6, `gk1-l6`):
   - Ghi nhớ của Bài 1 (`v1`) và Bài 2 (`v2`) còn một ý về mỗi văn bản cũ.
   - 6 câu hỏi thẳng về hai văn bản cũ (dòng 330, 331, 342–345 ở commit `9af28fb`; câu thứ 10, 11, 21–24 của môn Ngữ văn trong `items`): tác giả và lời nhắn của «Bắt nạt»; ngôi kể, tác giả, tên cô em gái của «Bức tranh của em gái tôi»; tâm trạng người anh trước bức tranh (câu này không ghi tên văn bản).
@@ -356,6 +356,7 @@ Phiên N24b đối chiếu bản PDF Ngữ văn 6 tập một, sách in năm 202
 - Học sinh học sách in năm 2026 không học hai văn bản cũ, nên gặp câu lạ, dễ làm sai, và “chủ đề hay sai” của Bài 1, Bài 2 bị lệch.
 - Kì kiểm tra giữa kì I lớp 6 dự kiến từ 2/11/2026, cuối kì I từ 21/12/2026.
 - Phiên N24b chỉ đối chiếu Bài 1–3. Bài 4, Bài 5 của sách in năm 2026 (thuộc phạm vi cuối kì I) chưa ai dò.
+- Ghi chú của Phiên 9m: số dòng, chữ cũ ở trên là của bản trước PR #96. PR #96 (Merge ở commit `9af28fb`) đã viết lại Ghi nhớ, 6 câu của bài ôn và câu 1, câu 9 của Đề 2 theo hai văn bản mới; 5 lựa chọn sai thay tên cũ là tên có trong Bài 1–2 (Lệ Bình, Nguyễn Minh Châu, “Hương, Phai, anh Định”). Phiên 9m đối chiếu lại với sách, đổi 5 lựa chọn sai đó sang tên không có trong Bài 1–3 và dò Bài 4, Bài 5 (không văn bản nào bị thay).
 
 ---
 
@@ -883,7 +884,4 @@ Phiên N24b đối chiếu bản PDF Ngữ văn 6 tập một, sách in năm 202
 
 ## 3. Các phiên Claude Code
 
-Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9l, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91), lời giao việc cũ còn trong lịch sử git. Phiên chờ làm: 9m (L37, gấp: trước 2/11). Lỗi mới thì QC ghi mã (tiếp theo L37) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
-
-**Phiên 9m · Ngữ văn 6 theo sách in năm 2026 (L37)** (gấp, hạn 30/10, trước kì kiểm tra giữa kì I lớp 6 từ 2/11; môi trường của phiên cần truy cập `taphuan.nxbgd.vn` và `crt.sectigo.com` như Phiên N24b; Merge PR #98, #99 trước vì cùng sửa `modules/l6-giua-ki-1/index.html`; không chung file đề với N23–N25b nên chạy xen được)
-> Đọc CLAUDE.md (nhất là "Hợp đồng giữa bài ôn và app") và docs/SUA-LOI-CHAY-THU.md: L37 ở nhóm L của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9m". Sách Ngữ văn 6 tập một in năm 2026 thay văn bản 3 của Bài 1 («Tia nắng hạt mưa» thay «Bắt nạt») và Bài 2 («Hương và Phai» thay «Bức tranh của em gái tôi»), nhưng bài ôn modules/l6-giua-ki-1 và đề van6-ck1-de2 còn câu về hai văn bản cũ. Mở bản PDF theo mục 4 của docs/KE-HOACH-NOI-DUNG.md (đoạn “Sách”, bảng “Sách và link của từng phiên”), đọc hai văn bản mới và mục lục Bài 4, Bài 5. Sửa Ghi nhớ và các câu theo mục 2; câu tự soạn, không chép nguyên văn sách, không đưa tệp hay ảnh trang sách vào repo. Không đổi id của bài, không chèn, xóa hay đổi thứ tự câu trong items; không sửa phần Toán, KHTN, không sửa js/, css/. Chạy python3 -m http.server 8000 ở thư mục repo, rồi làm đủ "Xong khi", gồm node tests/kiem-tra-de.js và node tests/e2e.js. Chỉ tự rà soát một vòng, rồi mở Pull Request, ghi trang sách đã đọc cho từng câu mới, kết quả dò Bài 4, Bài 5 và các lệnh đã chạy. Ghi PR vào bảng "Đã xong" ở mục 1 của docs/KE-HOACH-PHAT-TRIEN-ONUP.md, xóa dòng 9m ở mục 3 của file đó; ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và "9m (L37, gấp: trước 2/11)" ở câu "Phiên chờ làm"; ở bảng “Sách và link của từng phiên” (mục 4 của docs/KE-HOACH-NOI-DUNG.md) bỏ “9m” khỏi dòng Ngữ văn 6, tập một.
+Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. Hiện không có phiên chờ làm. Lỗi mới thì QC ghi mã (tiếp theo L37) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
