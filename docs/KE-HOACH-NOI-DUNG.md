@@ -57,11 +57,14 @@ Số đề mục tiêu mỗi môn, mỗi kì:
 Định dạng đề kiểm tra định kì THPT (Công văn 7991/BGDĐT-GDTrH, từ học kì 2 năm học 2024–2025): phần khách quan 7 điểm (nhiều lựa chọn 3 điểm, đúng/sai 4 ý 2 điểm, trả lời ngắn 2 điểm) và tự luận 3 điểm. Một số nơi ra đề THCS theo cùng khung (có ma trận đề THCS ghi theo Công văn này). Vì vậy dạng đúng/sai 4 ý và trả lời ngắn (mục 3) cần cho cả đề hằng kì, không chỉ đề thi tốt nghiệp.
 
 Kì thi chuyển cấp và tốt nghiệp:
-- **Thi vào 10** (Thông tư 30/2024): Toán, Ngữ văn bắt buộc. Môn thứ ba do từng tỉnh chọn, đa số chọn Tiếng Anh hoặc Ngoại ngữ (Hà Nội, TP.HCM đều thi Ngoại ngữ), và được công bố trước 31/3 hằng năm.
-- **Tốt nghiệp THPT** (Thông tư 24/2024): 4 môn. Toán, Ngữ văn bắt buộc; chọn 2 môn trong Ngoại ngữ, Lí, Hóa, Sinh, Sử, Địa, GDKT&PL, Tin học, Công nghệ.
-  - Ngữ văn thi tự luận 120 phút.
-  - Toán 90 phút: 12 câu nhiều lựa chọn, 4 câu đúng/sai (mỗi câu 4 ý), 6 câu trả lời ngắn.
-  - Lí, Hóa, Sinh, Địa: 18 câu nhiều lựa chọn, 4 câu đúng/sai, 6 câu trả lời ngắn. Sử: 24 câu nhiều lựa chọn, 4 câu đúng/sai. Tiếng Anh: 40 câu nhiều lựa chọn.
+- **Thi vào 10** (Thông tư 30/2024): Toán, Ngữ văn bắt buộc. Môn thứ ba do từng tỉnh chọn, đa số chọn Tiếng Anh hoặc Ngoại ngữ (Hà Nội, TP.HCM đều thi Ngoại ngữ), và được công bố trước 31/3 hằng năm. Điểm xét tuyển là tổng điểm các bài thi, mỗi bài thang 10; thông tư không quy định dạng câu. Năm 2026 ([Hà Nội](https://luatvietnam.vn/tin-van-ban-moi/ha-noi-chot-lich-thi-lop-10-nam-hoc-2026-2027-186-107621-article.html), [TP.HCM](https://thanhnien.vn/thong-tin-moi-nhat-ve-mon-thi-lop-10-tai-tphcm-nam-hoc-2026-2027-185260106155428202.htm)):
+  - Hà Nội: Toán, Ngữ văn tự luận 120 phút (Văn: đọc hiểu 4 điểm, viết 6 điểm); Ngoại ngữ 40 câu trắc nghiệm, 60 phút.
+  - TP.HCM: Toán 7 câu tự luận, 120 phút; Ngữ văn 120 phút; Tiếng Anh 40 câu, 90 phút (ngữ âm, từ vựng và ngữ pháp, đọc, viết).
+- **Tốt nghiệp THPT** (Thông tư 24/2024): 4 môn. Toán, Ngữ văn bắt buộc; chọn 2 môn trong Ngoại ngữ, Lí, Hóa, Sinh, Sử, Địa, GDKT&PL, Tin học, Công nghệ. Cấu trúc đề từ năm 2025 theo [Quyết định 764/QĐ-BGDĐT ngày 8/3/2024](https://www.sggp.org.vn/bo-gd-dt-ban-hanh-cau-truc-dinh-dang-de-thi-tot-nghiep-thpt-tu-nam-2025-post729940.html), năm 2026 giữ nguyên; từ năm 2027 thí điểm thi trên máy tính ở nơi đủ điều kiện, đề như thi giấy.
+  - Ngữ văn thi tự luận 120 phút: đọc hiểu 4 điểm; viết 6 điểm (đoạn văn khoảng 200 chữ 2 điểm, bài văn khoảng 600 chữ 4 điểm).
+  - Cách chấm các môn trắc nghiệm: phần I nhiều lựa chọn 0,25 điểm mỗi câu; phần II đúng/sai 4 ý, đúng 1, 2, 3, 4 ý được 0,1, 0,25, 0,5, 1 điểm; phần III trả lời ngắn 0,5 điểm mỗi câu ở Toán, 0,25 điểm ở môn khác.
+  - Toán 90 phút: 12 câu nhiều lựa chọn, 4 câu đúng/sai (mỗi câu 4 ý), 6 câu trả lời ngắn (3 + 4 + 3 điểm).
+  - Lí, Hóa, Sinh, Địa 50 phút: 18 câu nhiều lựa chọn, 4 câu đúng/sai, 6 câu trả lời ngắn (4,5 + 4 + 1,5 điểm). Sử, GDKT&PL, Tin học, Công nghệ 50 phút: 24 câu nhiều lựa chọn, 4 câu đúng/sai (6 + 4 điểm). Tiếng Anh 50 phút: 40 câu nhiều lựa chọn.
 
 **Khối lượng** (25 câu mỗi đề, khoảng 440 byte mỗi câu theo kho đề ngày 18/10/2026; cột “Câu đã có” lấy từ kho ngày 21/10/2026, không tính đề thử nghiệm). Số phiên ước tính lại ngày 21/10/2026 theo cỡ phiên thật của N1–N6: một phiên làm một môn lớn của một kì (ngân hàng 75–100 câu) hoặc hai môn nhỏ (mỗi môn 50 câu), tức 75–110 câu mới; mỗi kì THCS 6 phiên, THPT 7 phiên, tiểu học 6 phiên kì cuối kì và 2 phiên kì giữa kì; lớp 9, 12 thêm phiên đề thi thử:
 
@@ -621,7 +624,7 @@ Phạm vi các bài khác nhau giữa các trường; các nguồn dưới đây
 ### Lớp 5, 7–12
 
 Dùng cùng mẫu lời giao việc, bốn ý thêm từ Phiên N1 và Quy định chung ở đầu mục này, theo thứ tự khối và thứ tự kì ở mục 4 (nguyên tắc 3, 4); PO viết lời giao việc từng khối khi đến lượt, của lớp 9 trước khi lớp 4, 6 xong. Mỗi khối trước khi bật cần:
-1. Thêm các kì thi của khối vào lịch: một phiên "Lịch các khối mới" thêm kì thi năm học 2026–2027 của lớp 5, 7–12, kể cả thi vào 10 và thi tốt nghiệp THPT năm 2027 (dự kiến 11–12/6/2027), vào data/calendar-2026-2027.js trước khi làm đề khối mới (ngày chưa công bố thì để dự kiến), để phiên làm đề gắn đề vào kì thi như lớp 4, 6; phiên "Lịch 2027–2028" làm chung cho mọi khối vào hè 2027, gồm thi vào 10 và thi tốt nghiệp THPT năm 2028.
+1. Thêm các kì thi của khối vào lịch: phiên "Lịch các khối mới" (lời giao việc ở cuối mục này) thêm kì thi năm học 2026–2027 của lớp 5, 7–12, kể cả thi vào 10 và thi tốt nghiệp THPT năm 2027 (dự kiến 11–12/6/2027), vào data/calendar-2026-2027.js trước khi làm đề khối mới (ngày chưa công bố thì để dự kiến), để phiên làm đề gắn đề vào kì thi như lớp 4, 6, và cho gia đình đang dùng nhận kì thi mới; phiên "Lịch 2027–2028" làm chung cho mọi khối vào hè 2027, gồm thi vào 10 và thi tốt nghiệp THPT năm 2028.
 2. Có đủ đề các kì còn thi trong năm học 2026–2027 (mục 4, nguyên tắc 4).
 3. Qua một phiên rà soát độc lập: phiên Claude không làm đề của khối đó đọc lại kho đề so với chương trình, tính lại đáp án, ghi lỗi vào [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); lỗi sửa xong trước mốc của khối (mục 4).
 4. Đổi `active: true` trong `data/grades.js`; bật xong thì chủ app mời vài gia đình có con học khối đó dùng thử (mục 4, nguyên tắc 5).
@@ -629,7 +632,43 @@ Dùng cùng mẫu lời giao việc, bốn ý thêm từ Phiên N1 và Quy đị
 Lớp 9 và 12 cần thêm phiên đề thi thử đúng định dạng kì thi:
 - **Thi vào 10:** Toán, Ngữ văn, Tiếng Anh. Môn thứ ba các tỉnh công bố trước 31/3, nên làm Tiếng Anh trước.
 - **Tốt nghiệp THPT:** dùng dạng đúng/sai 4 ý và trả lời ngắn của K2. Ngữ văn làm phần đọc hiểu chấm tự động, phần viết tự chấm theo thang.
-- Trước các phiên đề thi thử: phiên kĩ thuật K5 thêm trọng số câu (câu đúng/sai 4 ý nặng gấp 4 câu trắc nghiệm như đề thi tốt nghiệp; ghi chú ở “Đã làm ở Phiên K2”, mục 3).
+- Trước các phiên đề thi thử: phiên kĩ thuật K5 thêm đề tính điểm (câu đúng/sai 4 ý nặng gấp 4 câu trắc nghiệm như đề thi tốt nghiệp; ghi chú ở “Đã làm ở Phiên K2”, mục 3; lời giao việc ở cuối mục này).
+
+### Phiên chuẩn bị cho lớp 5, 7–12 (PO viết ngày 21/10/2026)
+
+Hai phiên kĩ thuật, chạy theo thứ tự: Lịch các khối mới → K5. Cả hai sửa `js/app.js`, nên Merge phiên trước rồi mới mở phiên sau, và không chạy cùng lúc với UX7, UX8. Nguồn tra ngày 21/10/2026: [Quyết định 2308/QĐ-BGDĐT ngày 6/8/2026](https://moet.gov.vn/tin-tuc/ban-hanh-khung-ke-hoach-thoi-gian-nam-hoc-toan-quoc-tu-nam-hoc-2026-20273.html) (khung năm học: học kì I xong trước 18/1/2027, năm học xong trước 31/5/2027, thi tốt nghiệp THPT dự kiến 11–12/6), lịch thi vào 10 năm 2026 ([Hà Nội 30–31/5](https://daibieunhandan.vn/ha-noi-cong-bo-thoi-gian-thi-vao-lop-10-nam-hoc-2026-2027-10409601.html), [TP.HCM 1–2/6](https://tuoitre.vn/tp-hcm-chot-ngay-thi-lop-10-la-1-va-2-6-2026-20260319142525166.htm)) và cấu trúc đề ở mục 2.
+
+Mặc định PO chọn, chủ app đổi trước khi mở phiên nếu muốn:
+- IOE chưa thêm khối mới, vì chưa có bài ôn IOE cho các khối đó.
+- Thi vào 10 để ngày dự kiến 30/5–2/6/2027, môn thứ ba ghi Tiếng Anh đến khi Sở công bố (trước 31/3/2027); bố mẹ sửa ngày theo tỉnh trong Khu phụ huynh.
+- Đề tính điểm lưu điểm thang 10 (t = 10), nên trong điểm trung bình một đề thi thử nặng như 10 câu; phần tự luận tự chấm vẫn không vào điểm trung bình.
+
+**Phiên Lịch các khối mới · Kì thi năm học 2026–2027 của lớp 5, 7–12** (hạn 8/11/2026, trước mọi phiên làm đề lớp 5, 7–12; sau khi Merge, chủ app chạy `supabase/cap-nhat-lich.sql` một lần)
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2; mục 7: “Lớp 5, 7–12” và “Phiên chuẩn bị cho lớp 5, 7–12”). Thêm kì thi năm học 2026–2027 của lớp 5, 7, 8, 9, 10, 11, 12 vào data/calendar-2026-2027.js, và làm cho gia đình đang dùng nhận được kì thi mới mà không mất lịch đã sửa.
+> 1. Dữ liệu. Mọi kì kiểm tra định kì để `tentative: true`; tra lại kế hoạch năm học của Bộ, Sở trước khi điền, ghi nguồn vào Pull Request.
+>    - Mã và tên như lớp 4, 6: `gk1-l<khối>`, `ck1-l<khối>`, `gk2-l<khối>`, `ck2-l<khối>`.
+>    - Môn: lớp 5 như lớp 4 (giữa kì: Toán, Tiếng Việt; cuối kì: 6 môn như `ck1-l4`); lớp 7, 8, 9 như lớp 6 (8 môn); lớp 10, 11, 12: Toán, Ngữ văn, Tiếng Anh, Lịch sử, Vật lí, Hóa học, Sinh học, Địa lí, GDKT&PL, Tin học, Công nghệ.
+>    - Ngày dự kiến: lớp 5 như lớp 4; lớp 7, 8, 10, 11 như lớp 6. Lớp 9, 12 học xong sớm hơn: cuối kì I 14/12/2026–2/1/2027, giữa kì II 8–19/3/2027, cuối năm 19/4–14/5/2027 (lớp 9) và 12/4–14/5/2027 (lớp 12).
+>    - `vao10-2027` “Thi tuyển sinh vào lớp 10”: kind "thi-khac", grades [9], 30/5–2/6/2027, tentative true, môn Toán, Ngữ văn, Tiếng Anh; note: mỗi tỉnh một lịch (năm 2026: Hà Nội 30–31/5, TP.HCM 1–2/6), môn thứ ba công bố trước 31/3/2027.
+>    - `tn-thpt-2027` “Thi tốt nghiệp THPT”: kind "thi-khac", grades [12], 11–12/6/2027, tentative true (ngày dự kiến của Quyết định 2308/QĐ-BGDĐT), môn Toán, Ngữ văn và 9 môn tự chọn ở mục 2; note: chọn 2 môn tự chọn; năm 2027 thí điểm thi trên máy tính ở nơi đủ điều kiện.
+>    - Mốc năm học (`khai-giang`, `het-hk1`, `tet-2027`, `het-nam`): thêm mọi khối vào `grades`; `het-hk1` đổi sang 18/1/2027 cho khớp “trước 18/1” của khung năm học. IOE giữ khối 4, 6.
+> 2. Gia đình đang dùng nhận kì thi mới, ở cả bản lưu trên máy và bản đám mây. Hiện lịch mặc định chỉ chép một lần lúc thiết lập (js/store.js, `seedEvents` của js/store-supabase.js), còn “Khôi phục lịch mặc định” thay cả lịch; đề mới gắn vào kì thi gia đình chưa có thì vẫn bị ghi là đã xét nên mất (`linkNewSeedBanks`).
+>    - Làm cơ chế “đã xét” cho kì thi như `seedBanksSeen`: mở app thì thêm kì thi mặc định chưa xét; kì dùng chung đã có thì chỉ thêm khối mới vào `grades`, giữ ngày bố mẹ đã sửa; con thêm sau thuộc khối mới cũng nhận đủ kì thi của khối đó. Đề mới chỉ ghi là đã xét khi đã gắn được.
+>    - Bản đám mây: cột `families.seed_events_seen` (như `seed_banks_seen`, grant theo cột) trong file mới supabase/cap-nhat-lich.sql; cập nhật supabase/schema.sql, máy chủ giả, kiểm thử RLS. Cùng file đó nâng trần số mã của `seed_banks_seen` (hiện 1 000; danh mục sẽ vượt 1 000 đề) và số đề gắn vào một kì thi (hiện 100; kì thi tốt nghiệp sẽ gắn khoảng 80 đề thi thử).
+> 3. Kì thi của khối chưa bật (`active: false` trong data/grades.js) không hiện ở đâu: tab “Cả hai khối” của Lịch thi (`renderCalendar`), tab Lịch thi của quản trị bản lưu trên máy, form kì thi. Chỉ hiện khối đang bật và khối đang có dữ liệu (`gradeList()`).
+> 4. Kiểm thử: thêm bước vào tests/e2e.js (máy đã có lịch cũ mở bản mới: có kì thi của khối con đang học, không thấy kì thi của khối chưa bật, ngày đã sửa giữ nguyên, mở lại không chép lần hai, đề mới gắn đúng) và vào tests/supabase/cloud-e2e.js, store-test.mjs, rls-test.sql (cột mới, grant, trần mới). Sửa chỗ ghi cứng theo lịch cũ, như regex `grades` của kì dùng chung trong cloud-e2e.js.
+> 5. Cập nhật CLAUDE.md (lịch mặc định đến gia đình đang dùng thế nào, cách thêm kì thi mới), docs/TINH-NANG.md, docs/HUONG-DAN-SUPABASE.md (chạy cap-nhat-lich.sql).
+> Không đổi `active` trong data/grades.js, không sửa js/quiz.js. Chạy node tests/kiem-tra-de.js, node tests/e2e.js, node tests/supabase/admin-test.mjs, node tests/supabase/store-test.mjs, node tests/supabase/cloud-e2e.js và sh tests/supabase/run.sh (máy có PostgreSQL 16). Chỉ tự rà soát một vòng, rồi mở Pull Request, ghi nguồn ngày thi và việc chủ app phải làm. Có số PR thì ghi PR vào dòng trạng thái và bảng “Đã xong” ở mục 1 của docs/KE-HOACH-PHAT-TRIEN-ONUP.md, xóa dòng của phiên ở mục 3 của file đó, và xóa lời giao việc này.
+
+**Phiên K5 · Đề tính điểm cho đề thi thử vào 10 và tốt nghiệp THPT** (hạn 15/11/2026; Merge phiên Lịch các khối mới trước; trước các phiên đề thi thử lớp 9, 12)
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2 “Kì thi chuyển cấp và tốt nghiệp”; mục 3 “Đã làm ở Phiên K2”, K3, K4; mục 7 “Phiên chuẩn bị cho lớp 5, 7–12”). Hiện mỗi câu chấm 0–1 và điểm /10 tính theo số câu (`score`, `finish` trong js/quiz.js), nên đề thi thử không ra điểm như đề thật: đề Toán tốt nghiệp đúng 10/12 câu nhiều lựa chọn, 4 câu đúng/sai 4 ý đúng 4, 3, 2, 1 ý và 4/6 câu trả lời ngắn được 6,35 điểm theo cách chấm thật, app cho 7,25. Thêm “đề tính điểm”, đề và câu cũ chạy như cũ:
+> 1. Dữ liệu (không bắt buộc): câu có `pt` (điểm tối đa của câu, bội của 0,25; câu đúng/sai 4 ý có `pt: 1` và vẫn chấm 0,1/0,25/0,5/1 theo `TF4_PTS`) và `part` (tên phần, ví dụ “Phần I. Trắc nghiệm nhiều lựa chọn”); mục danh mục có `pts: 10`, để app biết đề tính điểm trước khi tải file câu hỏi. Ghi cách viết ở đầu data/banks/index.js.
+> 2. Chấm: giữ `score` từng câu; thêm hàm thuần `Quiz.grade(questions, answers)` trả điểm từng phần và tổng (tổng của `score` × `pt`), thử được bằng node. Đề tính điểm không xáo thứ tự câu (Phần I → II → III, câu cùng đoạn đọc liền nhau), vẫn xáo phương án. Màn kết quả: điểm hai chữ số lẻ (“6,35/10”), bảng theo phần, so với lần trước theo điểm; đề có tự luận thì ghi riêng phần tự chấm và dòng “tổng tạm tính” gồm cả phần đó. Chữ mới có ở cả hai cột của `TXT` (đề Tiếng Anh: “6.35/10”).
+> 3. Lưu: đề tính điểm lưu `r` = điểm phần chấm tự động, `t` = 10, hợp với cột đang có, không đổi bảng, js/store.js, js/store-supabase.js hay SQL; điểm trung bình vẫn Σr/Σt; tự luận lưu riêng như hiện nay. Thẻ “Lần trước”, báo cáo tuần, danh sách kết quả: đề tính điểm ghi “điểm”, không ghi “câu đúng”.
+> 4. Tên kì: thêm “Thi thử vào 10”, “Thi thử tốt nghiệp” vào bộ soát tên đề của tests/kiem-tra-de.js và bảng dịch tên kì `TERMS` của js/quiz.js (tiếng Anh: “Mock Entrance Exam”, “Mock Graduation Exam”). Tên đề `<môn> <khối> · Thi thử vào 10 · Đề N`, `<môn> <khối> · Thi thử tốt nghiệp · Đề N`; mã `<mã môn><khối>-vao10-de<N>`, `<mã môn><khối>-tn-de<N>`.
+> 5. Kiểm thử. tests/kiem-tra-de.js: đề có `pts` thì mọi câu có `pt`, tổng `pt` bằng `pts`, câu cùng `part` liền nhau; nới giới hạn số câu, số phút cho đề tính điểm (Ngữ văn 120 phút, ít câu); tự thử `Quiz.grade` với ví dụ 6,35 ở trên. tests/e2e.js: bước K5 với một đề thử thêm lúc chạy (như bước L29–L31): thứ tự phần, “6,35/10”, bảng theo phần, kết quả lưu 6,35/10, thẻ “Lần trước”, báo cáo tuần, một đề Tiếng Anh, 360px sáng và tối. Số mong đợi của đề cũ trong tests/e2e.js và tests/supabase/* giữ nguyên.
+> 6. Chưa làm ở phiên này: đề ngẫu nhiên cho đề tính điểm (rút theo từng phần), dòng “Điểm:” trong cú pháp nhập đề của phụ huynh, giao diện thi trên máy tính.
+> Không đổi `Quiz.key`, `PoolHist`, cách chấm đề cũ, bài ôn dạng trang. Cập nhật CLAUDE.md, docs/TINH-NANG.md và mục 3 của docs/KE-HOACH-NOI-DUNG.md (“Đã làm ở Phiên K5”, ghi chú cho các phiên đề thi thử). Chạy node tests/kiem-tra-de.js, node tests/e2e.js, node tests/supabase/cloud-e2e.js. Chỉ tự rà soát một vòng, rồi mở Pull Request. Có số PR thì ghi PR vào dòng trạng thái và bảng “Đã xong” ở mục 1 của docs/KE-HOACH-PHAT-TRIEN-ONUP.md, xóa dòng của phiên ở mục 3 của file đó, và xóa lời giao việc này.
 
 ---
 
