@@ -17,10 +17,10 @@ Mất khoảng 15 phút. Cần một máy tính và tài khoản GitHub.
 ## Bước 1. Tạo project Supabase
 
 1. Vào https://supabase.com → **Start your project** → đăng nhập bằng GitHub.
-2. **New project**: Name `OnUp`; Database Password: **Generate a password**, cất kĩ; Region: **Southeast Asia (Singapore)**; gói **Free**.
+2. **New project**: Name `OnUp`; Database Password: **Generate a password**, cất kĩ; Region: **Southeast Asia (Singapore)**; gói **Free**. Có ô **Automatically expose new tables and functions** thì để trống (không tick): `schema.sql` tự cấp quyền cho từng bảng, đúng phần app cần.
 3. **Create new project**, đợi 1–2 phút.
 
-Giữ gói Free đến khi bắt đầu thu tiền (quyết định 18/10/2026). Gói này không có sao lưu tự động và tự tạm dừng project khi cả tuần không ai dùng, nên có hai việc hằng tuần ghi ở mục “Gói và đề trả phí” bên dưới.
+Giữ gói Free đến khi bắt đầu thu tiền (quyết định 18/10/2026; mở bán từ tháng 6/2027, chủ app chốt 21/10/2026). Gói này không có sao lưu tự động và tự tạm dừng project khi cả tuần không ai dùng, nên có hai việc hằng tuần ghi ở mục “Gói và đề trả phí” bên dưới.
 
 Đã cài bản cũ (đăng nhập email, mã gia đình) theo hướng dẫn trước? Bản mới không dùng chung bảng với bản cũ: xóa project cũ (**Project Settings → General → Delete project**) rồi tạo project mới.
 
@@ -125,7 +125,7 @@ Muốn tắt: tắt trên Supabase **trước**, rồi mới xóa Site Key.
 
 ## Gói và đề trả phí (chưa dùng)
 
-Hôm nay mọi tài khoản là gói `free`: dùng mọi nội dung, tối đa 5 hồ sơ con. Giữ như vậy đến khi bán (khi đủ đề lớp 4–12, khoảng cuối năm học 2028–2029; quyết định 18/10/2026): **không sửa bảng `plans`** trước lúc đó. Hạn mức hai gói lúc bán sẽ chốt sau ([THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md) mục 9).
+Hôm nay mọi tài khoản là gói `free`: dùng mọi nội dung, tối đa 5 hồ sơ con. Giữ như vậy đến khi bán (tháng 6/2027, chủ app chốt 21/10/2026), cả trong thời gian dùng thử từ tháng 3/2027: **không sửa bảng `plans`** trước lúc đó. Hạn mức hai gói lúc bán sẽ chốt sau ([THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md) mục 9).
 
 **Việc hằng tuần khi còn gói Free của Supabase** (đến khi bắt đầu thu tiền thì lên gói Pro, có sao lưu hằng ngày):
 - **Xuất CSV:** **Table Editor** → mở từng bảng `families`, `profiles`, `results`, `exam_events`, `question_banks`, `question_reports` → nút **Export** (hoặc menu ⋯ của bảng) → **Export to CSV**, cất vào Google Drive theo ngày. Gói Free không có sao lưu; đây là bản sao duy nhất nếu project hỏng.
@@ -139,6 +139,8 @@ Bảng `plans`, `plan_log`, `paid_banks` đã có sẵn cho lúc bán gói (Phi�
 ## Cập nhật máy chủ khi app có phiên bản mới
 
 Project đã cài từ trước thì **không** chạy lại `supabase/schema.sql` (file đó tạo bảng mới từ đầu). Phiên bản nào cần đổi bảng sẽ có một file `supabase/cap-nhat-<phiên>.sql`: mở **SQL Editor**, dán toàn bộ file → **Run**. Chạy lại lần hai cũng không sao. Nên chạy trước hoặc ngay sau khi gộp Pull Request của phiên đó.
+
+**Supabase đổi cách cấp quyền từ 30/10/2026** (có thể nhận email “Breaking change: tables not exposed to Data and GraphQL API automatically”): bảng tạo mới sau ngày đó không còn tự được cấp quyền. OnUp không bị ảnh hưởng: `schema.sql` và mọi file `cap-nhat-*.sql` đã tự cấp quyền cho từng bảng; chủ app không phải bật hay chạy gì thêm.
 
 | File | Phiên | Đổi gì | Chưa chạy thì |
 |---|---|---|---|
@@ -172,6 +174,7 @@ Kiểm tra sau khi chạy: **Table Editor → results**, cột `r` có kiểu `n
 | Trang admin báo “Máy chủ từ chối lời gọi hàm admin” | Còn bật **Verify JWT** cho hàm `admin` (bước 5.4). |
 | Trang admin báo “chỉ dùng với bản đám mây” | `js/config.js` chưa điền URL và khóa (bước 7). |
 | Tab Câu bị báo báo “chưa có bảng”; app báo “Máy chủ chưa cập nhật để nhận báo cáo” | Chưa chạy `supabase/cap-nhat-r1.sql` (mục “Cập nhật máy chủ”). |
+| Lỗi `42501` “permission denied for table …” (ở **Logs** của hàm `admin`, hoặc app báo chưa lưu được) | Bảng thiếu quyền (grant). Kiểm tra đã chạy đủ các file `cap-nhat-*.sql` (mục “Cập nhật máy chủ”); còn lỗi thì ghi tên bảng vào GitHub Issues để sửa file cập nhật. |
 | Gọi hàm `admin` báo lỗi 401 | Chưa tắt **Verify JWT** (bước 5.4), hoặc phiên đăng nhập đã hết hạn: đăng nhập lại. |
 | Gọi hàm `admin` báo lỗi máy chủ | Xem **Edge Functions → admin → Logs**. Kiểm tra đã chạy `schema.sql` (bước 2). |
 | `relation "families" already exists` khi chạy `schema.sql` | Project đã có bảng (đã chạy rồi, hoặc còn bảng của bản cũ). Dùng project mới (bước 1). |

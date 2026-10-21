@@ -50,6 +50,35 @@ create function t.n(q text) returns int language plpgsql as $$
 declare n int; begin execute 'select count(*) from (' || q || ') x' into n; return n; end $$;
 grant execute on all functions in schema t to public;
 
+-- ---------- quyền chung của mọi bảng (grant) ----------
+-- Supabase từ 30/10/2026 không tự cấp quyền cho bảng mới (auth-stub.sql giả lập như vậy), nên bảng thêm sau này mà quên
+-- bật RLS, quên thu hồi hay quên grant bị bắt ở đây, không cần viết kiểm tra riêng. Máy chủ giả tests/supabase/fake-backend.js
+-- cho khóa service bỏ qua grant, nên quyền của service_role (Edge Function admin đi qua Data API bằng khóa bí mật) chỉ được
+-- kiểm ở đây. Hàm has_*_privilege bọc trong case theo relkind vì PostgreSQL không giữ thứ tự các điều kiện trong where
+-- (has_sequence_privilege gọi với một bảng là lỗi).
+select t.ok(count(*) > 0 and bool_and(c.relrowsecurity), format('mọi bảng trong public bật RLS (%s bảng)%s', count(*),
+  coalesce(', chưa bật: ' || string_agg(c.relname::text, ', ') filter (where not c.relrowsecurity), '')))
+from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relkind in ('r', 'p');
+select t.ok(x.bad is null, 'anon không có quyền gì trên bảng, cột, view, sequence, hàm trong public'
+  || coalesce(' (có quyền: ' || x.bad || ')', ''))
+from (select string_agg(o, ', ') bad from (
+  select c.relname::text o from pg_class c join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public' and case when c.relkind in ('r', 'p', 'v', 'm', 'f')
+    then has_table_privilege('anon', c.oid, 'select, insert, update, delete, truncate, references, trigger')
+      or has_any_column_privilege('anon', c.oid, 'select, insert, update, references') else false end
+  union all
+  select c.relname::text from pg_class c join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public' and case when c.relkind = 'S' then has_sequence_privilege('anon', c.oid, 'usage, select, update') else false end
+  union all
+  select p.oid::regprocedure::text from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public' and has_function_privilege('anon', p.oid, 'execute')) y) x;
+select t.ok(x.bad is null, 'service_role có select, insert, update, delete trên mọi bảng trong public'
+  || coalesce(' (thiếu ở: ' || x.bad || ')', ''))
+from (select string_agg(c.relname::text, ', ') bad from pg_class c join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public' and case when c.relkind in ('r', 'p')
+    then not (has_table_privilege('service_role', c.oid, 'select') and has_table_privilege('service_role', c.oid, 'insert')
+      and has_table_privilege('service_role', c.oid, 'update') and has_table_privilege('service_role', c.oid, 'delete')) else false end) x;
+
 -- ---------- dữ liệu: người dùng Supabase Auth và tài khoản (Edge Function admin tạo bằng khóa bí mật) ----------
 insert into t.ids values ('OWNER', gen_random_uuid()), ('PA', gen_random_uuid()), ('PB', gen_random_uuid()),
   ('PL', gen_random_uuid()), ('X', gen_random_uuid());
