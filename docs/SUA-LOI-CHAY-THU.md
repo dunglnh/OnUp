@@ -1,6 +1,6 @@
 # Sửa lỗi cơ bản sau khi dùng thử (16/10/2026)
 
-Bốn phiên sửa đầu (9a, 9b, 9c: L1–L14, PR #21, #22, #23; 9d: L15–L19, lỗi phát sinh khi rà soát lại ngày 17/10, PR #29) đã gộp vào `main`; ảnh 360px sau Phiên 9b: [hinh-360/](hinh-360/). Lần rà soát thứ ba (18/10/2026, sau Phiên K3) tìm thêm L20–L26 (nhóm E, Phiên 9e, TA1, TA2); trong đó L21 là yêu cầu của chủ app: **đề môn Tiếng Anh của mọi khối phải 100% tiếng Anh**. Góp ý chạy thử ngày 19/10/2026: L27 (nhóm F, Phiên 9f). Rà lời giao việc N2–N12 cùng ngày: L28 (kiểm thử hỏng theo ngày chạy), L29–L31 (ô nhập số trên điện thoại) (nhóm G, Phiên 9g, 9h). Kiểm thử định kì ngày 20/10/2026, sau Phiên 9g, 9h: L32 (gõ phân số, hỗn số có khoảng trắng), L33 (câu điền về số âm lộ dấu của đáp án) (nhóm H, Phiên 9i; L33 sửa trong Phiên N4). Chủ app báo ngày 21/10/2026, sau Phiên 9i: L34 (câu điền đáp án phân số, gõ kèm đơn vị bị chấm sai) (nhóm I, Phiên 9j). Trạng thái và việc còn chờ (bố mẹ thử L17 và L29–L31 trên iPhone thật) chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). File này giữ phần mô tả lỗi, cách sửa và lời giao việc (mục 3).
+Bốn phiên sửa đầu (9a, 9b, 9c: L1–L14, PR #21, #22, #23; 9d: L15–L19, lỗi phát sinh khi rà soát lại ngày 17/10, PR #29) đã gộp vào `main`; ảnh 360px sau Phiên 9b: [hinh-360/](hinh-360/). Lần rà soát thứ ba (18/10/2026, sau Phiên K3) tìm thêm L20–L26 (nhóm E, Phiên 9e, TA1, TA2); trong đó L21 là yêu cầu của chủ app: **đề môn Tiếng Anh của mọi khối phải 100% tiếng Anh**. Góp ý chạy thử ngày 19/10/2026: L27 (nhóm F, Phiên 9f). Rà lời giao việc N2–N12 cùng ngày: L28 (kiểm thử hỏng theo ngày chạy), L29–L31 (ô nhập số trên điện thoại) (nhóm G, Phiên 9g, 9h). Kiểm thử định kì ngày 20/10/2026, sau Phiên 9g, 9h: L32 (gõ phân số, hỗn số có khoảng trắng), L33 (câu điền về số âm lộ dấu của đáp án) (nhóm H, Phiên 9i; L33 sửa trong Phiên N4). Chủ app báo ngày 21/10/2026, sau Phiên 9i: L34 (câu điền đáp án phân số, gõ kèm đơn vị bị chấm sai) (nhóm I, Phiên 9j); sau Phiên 9j: L35 (câu điền đáp án phân số âm viết bằng dấu trừ chữ in) (nhóm J, Phiên 9k); bài ôn KHTN giữa kì I lớp 6 đánh số bài theo bộ sách khác: L36 (nhóm K, Phiên 9l). Trạng thái và việc còn chờ (bố mẹ thử L17 và L29–L31 trên iPhone thật) chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). File này giữ phần mô tả lỗi, cách sửa và lời giao việc (mục 3).
 
 **Cách đã thử:** chạy mã nhánh `main` (commit `5866b72`, giống bản đang đăng trên GitHub Pages) bằng Chromium tự động, màn hình điện thoại 360×740, rồi thêm chế độ tối và màn hình 1280px. Đi hết các luồng:
 - thiết lập lần đầu và các tab quản trị;
@@ -317,6 +317,30 @@ Lỗi có từ trước Phiên 9i, chưa sửa vì ngoài phạm vi phiên đó.
 - Nguyên nhân: `fillRight` (`js/quiz.js`) chỉ bỏ đơn vị ở cuối chữ gõ khi phần còn lại là một số (`isNum(rest)`), hoặc chỗ trống là số lượng viết bằng chữ khi đáp án là số. "3/4" không phải `isNum`, nên chỉ còn chữ gõ nguyên "3/4 kg" để so với đáp án "3/4". So phân số (`isFrac`, `fracT`, L32) chỉ áp cho chữ gõ nguyên.
 - Câu trả lời bằng số không bị lỗi này: `numVals` bỏ đơn vị của câu (`q.unit`) trước khi đọc phân số.
 - Đề có sẵn chưa có câu điền nào có đáp án là phân số. Ngân hàng Toán giữa kì II (N8 lớp 6, N7 lớp 4) có chương phân số, và lời giao việc dặn dùng câu điền khi đề bắt viết phân số tối giản; đề phụ huynh tự nhập cũng viết được câu như vậy.
+
+### Nhóm J · Chủ app báo sau Phiên 9j ngày 21/10 (Phiên 9k)
+
+Lỗi có từ Phiên 9i (L32), khi câu điền có đáp án là phân số bắt đầu so chữ riêng. QC tái hiện bằng `Quiz.score` trong node trên `main` commit `bd26bb0` (sau PR #87).
+
+**L35. Câu điền có đáp án là phân số âm: dấu trừ khác kiểu thì bị chấm sai.**
+- Đề phụ huynh tự nhập ghi đáp án bằng dấu trừ chữ in "−" (U+2212) hay gạch "–" (U+2013), như "Đáp án: −3/4". Dấu này hay có khi dán từ Word, PDF. Bàn phím chỉ gõ được "-", nên con gõ "-3/4" bị chấm sai. Gõ "-3/4 kg" (L34) cũng sai.
+- Đáp án "-3/4" (gạch thường) thì ngược lại: con dán "−3/4" bị chấm sai. Gõ "- 3/4" (có khoảng trắng sau dấu trừ) sai với mọi kiểu dấu trừ, cả "-3/4".
+- Cùng lỗi với hỗn số âm: đáp án "−1 1/2", gõ "-1 1/2" bị chấm sai.
+- Đáp án là số thì không bị: "−7" nhận "-7", "−2,5" nhận "-2,5" (`numKey`, `numVals` đổi "−", "–" thành "-"). Câu trả lời bằng số cũng không bị: đáp án "−3/4" nhận "-3/4".
+- Nguyên nhân: `fracT` (`js/quiz.js`, L32) chỉ bỏ khoảng trắng quanh "/" rồi so chữ, không đổi "−", "–" thành "-", không bỏ khoảng trắng sau dấu trừ. `isFrac` thì nhận cả ba kiểu dấu trừ và khoảng trắng đó, nên câu vẫn đi vào nhánh so phân số.
+- Đề có sẵn không gặp: câu điền về số âm bị `tests/kiem-tra-de.js` cấm từ L33. Chỉ đề phụ huynh, thầy cô tự nhập bị (dòng nhắc số âm của L30 vẫn hiện cho các câu đó, nên con biết phải gõ dấu trừ, gõ đúng mà vẫn bị chấm sai).
+
+### Nhóm K · Chủ app báo ngày 21/10 (Phiên 9l)
+
+QC đối chiếu `modules/l6-giua-ki-1/index.html` trên `main` commit `bd26bb0` với mục lục sách Khoa học tự nhiên 6 của hai bộ sách. Bài ôn Ngữ văn (Bài 1–3), Toán (Bài 1–17) của cùng trang và bài ôn lớp 4 đánh số đúng sách Kết nối tri thức.
+
+**L36. Bài ôn KHTN giữa kì I lớp 6 đánh số và đặt tên bài theo sách Chân trời sáng tạo.**
+- Trang ghi "Sách Khoa học tự nhiên 6 Kết nối tri thức với cuộc sống", nhưng 20 bài trong `lessons` của môn KHTN (`k1`–`k15`, `k17`–`k19`, `k35`, `k36`) theo đúng số bài và tên bài của sách Chân trời sáng tạo: "Bài 9 · Oxygen", "Bài 2 · Các lĩnh vực chủ yếu của Khoa học tự nhiên", "Bài 7 · Thang nhiệt độ Celsius. Đo nhiệt độ", "Bài 17 · Tế bào", "Bài 35 · Lực và biểu diễn lực"…
+- Sách Kết nối tri thức (sách của app) đánh số khác, ví dụ: Bài 2 An toàn trong phòng thực hành, Bài 3 Sử dụng kính lúp, Bài 4 Sử dụng kính hiển vi quang học, Bài 8 Đo nhiệt độ, Bài 11 Oxygen. Không khí, Bài 16 Hỗn hợp các chất, Bài 17 Tách chất ra khỏi hỗn hợp, Bài 18 Tế bào – đơn vị cơ bản của sự sống, Bài 40 Lực là gì.
+- Con và bố mẹ thấy số bài sai ở nhiều chỗ: danh sách bài ở trang môn KHTN, dòng phạm vi "Trường dạy cuốn chiếu: Bài 1–15. Trường dạy song song: Bài 1–9, 17–19, 35–36", nút chọn phạm vi đề thi thử ("Bài 1–15", "Bài 1–9, 17–19, 35–36"), nhãn trên câu, mục "Theo bài" ở màn kết quả, tên lượt ôn ("KHTN · Bài 9") lưu vào kết quả và báo cáo tuần. Con đối chiếu với sách, đề cương của trường thì không khớp, nhất là với phạm vi "song song".
+- Nội dung câu hỏi (110 câu) phần lớn vẫn hợp với sách Kết nối tri thức, vì hai bộ sách cùng chương trình. Lỗi là ở số bài, tên bài, tên chủ đề, cách chia phạm vi.
+- Kì thi giữa kì I lớp 6 dự kiến từ 2/11/2026 (`gk1-l6`), nên cần sửa trước đó.
+- Ngân hàng KHTN 6 cuối kì I (`data/banks/6-khtn.js`, Phiên N5) ghi chủ đề không kèm số bài, không bị lỗi này.
 
 ---
 
@@ -786,8 +810,47 @@ Lỗi có từ trước Phiên 9i, chưa sửa vì ngoài phạm vi phiên đó.
 - `tests/e2e.js` in `E2E OK`, `node tests/supabase/cloud-e2e.js` in `CLOUD E2E OK`.
 - CLAUDE.md, mục "Nội dung câu hỏi": câu điền đáp án phân số nhận chữ gõ kèm đơn vị in sau chỗ trống.
 
+### Phiên 9k
+
+**L35 · Câu điền đáp án phân số âm, dấu trừ khác kiểu.** Chỉ sửa `js/quiz.js`, `tests/` và tài liệu; không đổi đề có sẵn, không sửa `modules/`.
+- `fracT`: trước khi so, đổi "−" (U+2212), "–" (U+2013) thành "-" và bỏ khoảng trắng ngay sau dấu trừ đầu chữ, ở cả đáp án và chữ gõ (như `numKey`, `numVals` đang làm với số).
+  - Đáp án "−3/4", "–3/4" hay "-3/4": "-3/4", "−3/4", "- 3/4", "-3/4 kg" (câu "___ kg", L34) đều đúng.
+  - Đáp án "−1 1/2": "-1 1/2" đúng.
+  - Vẫn so chữ: "3/4" sai với "−3/4", "-6/8" sai với "−3/4", "-3/4" sai với "3/4".
+- Không đổi cách chấm câu có đáp án là số, câu trả lời bằng số và câu chữ. Không đổi `isFrac`, dòng nhắc số âm, `Quiz.parse` (đáp án vẫn lưu như phụ huynh viết).
+
+**Xong khi:**
+- `node tests/kiem-tra-de.js` in `DE OK`; phần tự thử câu điền thêm bằng `Quiz.score` các cách gõ ở trên (đúng và sai).
+- `CHI_TIET=1 node tests/so-bo-cham.js`: thêm câu đáp án "−3/4" (dấu trừ chữ in) và câu đáp án "-3/4" vào nhóm câu kiểu quản trị viên nhập, với các cách gõ trên. Chỗ khác so với bản mặc định (`fe01877`) chỉ được là phân số âm gõ bằng dấu trừ khác kiểu hoặc có khoảng trắng sau dấu trừ. Ghi danh sách vào Pull Request, rồi đổi bản so mặc định sang commit của phiên.
+- `tests/e2e.js` in `E2E OK`, `node tests/supabase/cloud-e2e.js` in `CLOUD E2E OK`.
+- CLAUDE.md, mục "Nội dung câu hỏi": câu điền đáp án phân số không phân biệt kiểu dấu trừ ("−3/4" đúng với "-3/4").
+
+### Phiên 9l
+
+**L36 · Bài ôn KHTN 6 theo đúng sách Kết nối tri thức.** Chỉ sửa phần KHTN 6 trong `modules/l6-giua-ki-1/index.html` (khối `/* KHTN 6 */`), `tests/` và tài liệu.
+- Đối chiếu từng bài với mục lục sách Khoa học tự nhiên 6 Kết nối tri thức (tìm mục lục trên mạng, so ít nhất hai nguồn). Sửa `short`, `name` của từng bài, tên chủ đề `K1`–`K6` (theo tên chương của sách), `scopeText` và `note`, `name` của hai phạm vi đề thi thử.
+  - QC đối chiếu sơ bộ (phiên sửa kiểm lại): `k1`, `k2` → Bài 1; `k3` → Bài 2–4; `k4`–`k7` → Bài 5–8; `k8` → Bài 9–10; `k9`, `k10` → Bài 11; `k11` → Bài 12; `k13` → Bài 13; `k12` → Bài 14; `k14` → Bài 15; `k15` → Bài 16–17; `k17` → Bài 18–19; `k18` → Bài 21; `k19` → Bài 22–23; `k35`, `k36` → Bài 40–41.
+  - Bài nào gộp nhiều bài sách thì `short` ghi khoảng ("Bài 2–4"); hai bài của trang cùng một bài sách thì ghi cùng số và tên bài phân biệt nội dung ("Bài 11 · Oxygen", "Bài 11 · Không khí"). Có thể gộp hai bài đó thành một nếu giữ nguyên `id` của câu.
+  - Phạm vi viết lại theo số bài Kết nối tri thức (ví dụ cuốn chiếu Bài 1–17; song song Bài 1–11, 18–23, 40–41). Thêm `k10` vào phạm vi song song nếu `k9` có mặt (cùng Bài 11).
+- Không đổi `id` của bài (`k1`…`k36`), không chèn, xóa hay đổi thứ tự câu trong `items`: kết quả theo bài (`lres`) lưu theo `id` bài, danh sách "Ôn câu sai" lưu theo số thứ tự câu trong môn (`wkey`). Đổi thứ tự hiện của bài trong `lessons` theo sách thì được.
+- Sửa câu nào nói theo cách của sách Chân trời sáng tạo mà sách Kết nối tri thức không có (nếu có); giữ số câu. Không đổi phần Toán, Ngữ văn và ba chỗ nối với app (hợp đồng ở CLAUDE.md).
+- Kết quả cũ đã lưu giữ tên cũ ("KHTN · Bài 9"); không cần sửa.
+
+**Xong khi:**
+- Mọi `short`, `name`, chủ đề, phạm vi của KHTN khớp mục lục sách Kết nối tri thức; Pull Request có bảng đối chiếu (bài của trang → bài sách) và nguồn mục lục.
+- Không còn chữ "Bài 35", "Bài 36", "Thang nhiệt độ Celsius" trong phần KHTN.
+- Câu và `id` không đổi: script nhỏ so `items` của KHTN trước và sau (cùng số câu, cùng `l`, cùng `q`, trừ câu cố ý sửa ghi trong Pull Request).
+- `tests/e2e.js` in `E2E OK` (bước "lesson pages l4, l6").
+- `docs/TINH-NANG.md`, `docs/KE-HOACH-NOI-DUNG.md` nếu có ghi số bài KHTN 6 theo sách cũ thì sửa theo.
+
 ---
 
 ## 3. Các phiên Claude Code
 
-Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9j, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87), lời giao việc cũ còn trong lịch sử git. Lỗi mới thì QC ghi mã (tiếp theo L34) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9j, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87), lời giao việc cũ còn trong lịch sử git. Phiên chờ làm: 9l (L36, gấp: trước 2/11), 9k (L35), lời giao việc bên dưới. Lỗi mới thì QC ghi mã (tiếp theo L36) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+
+**Phiên 9k · Câu điền đáp án phân số âm, dấu trừ khác kiểu (L35)** (hạn 14/12, trước các phiên Toán giữa kì II N8, N7; chen giữa các phiên N được, nhưng không chạy cùng lúc với phiên khác sửa `js/quiz.js`)
+> Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md: L35 ở nhóm J của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9k". Sửa L35 trong js/quiz.js: câu điền có đáp án là phân số hoặc hỗn số âm không phân biệt dấu trừ "−", "–", "-" và không tính khoảng trắng sau dấu trừ ("-3/4", "- 3/4" đúng với đáp án "−3/4"); vẫn so chữ, nên "-6/8" vẫn sai. Chỉ sửa js/quiz.js, tests/ và tài liệu; không đổi đề có sẵn, không sửa modules/. Chạy python3 -m http.server 8000 ở thư mục repo, rồi làm đủ "Xong khi": node tests/kiem-tra-de.js, CHI_TIET=1 node tests/so-bo-cham.js, node tests/e2e.js, node tests/supabase/cloud-e2e.js. Mở Pull Request, ghi các lệnh đã chạy và danh sách chỗ khác của so-bo-cham. Ghi PR vào bảng "Đã xong" ở mục 1 của docs/KE-HOACH-PHAT-TRIEN-ONUP.md, xóa dòng 9k ở mục 3 của file đó; ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và câu "Phiên chờ làm: 9k (L35)…".
+
+**Phiên 9l · Bài ôn KHTN 6 theo đúng sách Kết nối tri thức (L36)** (gấp, hạn 30/10, trước kì kiểm tra giữa kì I lớp 6 từ 2/11; làm trước 9k, không đụng `js/quiz.js` nên chạy cùng lúc được)
+> Đọc CLAUDE.md (nhất là "Hợp đồng giữa bài ôn và app") và docs/SUA-LOI-CHAY-THU.md: L36 ở nhóm K của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9l". Bài ôn modules/l6-giua-ki-1 ghi sách KHTN 6 Kết nối tri thức nhưng đánh số và đặt tên bài theo sách Chân trời sáng tạo (Bài 9 Oxygen, sách Kết nối tri thức là Bài 11). Tìm mục lục sách Kết nối tri thức trên mạng (ít nhất hai nguồn), sửa số bài, tên bài, tên chủ đề, dòng phạm vi và hai phạm vi đề thi thử của phần KHTN. Không đổi id của bài, không chèn, xóa hay đổi thứ tự câu trong items; không sửa phần Toán, Ngữ văn, không sửa js/. Chạy python3 -m http.server 8000 ở thư mục repo, rồi làm đủ "Xong khi", gồm node tests/e2e.js. Mở Pull Request, ghi bảng đối chiếu, nguồn mục lục, các lệnh đã chạy. Ghi PR vào bảng "Đã xong" ở mục 1 của docs/KE-HOACH-PHAT-TRIEN-ONUP.md, xóa dòng 9l ở mục 3 của file đó; ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và "9l (L36, gấp: trước 2/11)" ở câu "Phiên chờ làm".
