@@ -104,6 +104,7 @@ window.ONTAP_SEED_BANKS = [
   { id: "ta6-gk1-de1", title: "Tiếng Anh 6 · Giữa kì I · Đề 1", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js" },
   { id: "lsdl6-gk1-de1", title: "Lịch sử và Địa lí 6 · Giữa kì I · Đề 1", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js" },
   { id: "gdcd6-gk1-de1", title: "GDCD 6 · Giữa kì I · Đề 1", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js" },
+  { id: "gdcd6-gk1-de2", title: "GDCD 6 · Giữa kì I · Đề 2", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js" },
   { id: "tin6-gk1-de1", title: "Tin học 6 · Giữa kì I · Đề 1", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js" },
   { id: "congnghe6-gk1-de1", title: "Công nghệ 6 · Giữa kì I · Đề 1", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js" },
 
@@ -111,6 +112,10 @@ window.ONTAP_SEED_BANKS = [
      Đề 2: Chương I–III, Bài 1–17) */
   { id: "toan6-gk1-de1", title: "Toán 6 · Giữa kì I · Đề 1", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js" },
   { id: "toan6-gk1-de2", title: "Toán 6 · Giữa kì I · Đề 2", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js" },
+
+  /* Ngữ văn 6 · Kiểm tra giữa học kì I (Kết nối tri thức, Bài 1–3) */
+  { id: "van6-gk1-de1", title: "Ngữ văn 6 · Giữa kì I · Đề 1", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js" },
+  { id: "van6-gk1-de2", title: "Ngữ văn 6 · Giữa kì I · Đề 2", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js" },
 
   /* Ngân hàng Toán 4 cuối kì I (Phiên N1): kho câu = 31 câu riêng trong file + 75 câu của 3 đề cố định ở trên, câu nào cũng
      có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020 (3 mức, không quy định tỉ lệ): 10 – 8 – 7 câu (40% – 32% – 28%). */
@@ -253,6 +258,24 @@ window.ONTAP_SEED_BANKS = [
     pool: { from: ["toan6-gk1-de1", "toan6-gk1-de2"], matrix: {
       "Tập hợp các số tự nhiên": [2, 1, 1], "Lũy thừa, thứ tự thực hiện phép tính": [2, 1, 1], "Tính chia hết, số nguyên tố": [2, 1, 1],
       "ƯCLN và BCNN": [1, 2, 1], "Số nguyên": [2, 1, 2], "Nhân, chia số nguyên": [1, 2, 1] } } },
+  /* Ngân hàng Ngữ văn 6 giữa kì I (Phiên N24b): kho câu = 25 câu riêng trong file (3 đoạn đọc, 3 câu Viết) + 50 câu của 2 đề cố
+     định ở trên (mỗi đề 3 đoạn đọc, 1 câu Viết), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% –
+     28%): ba bài đọc (Bài 1–3) mỗi bài một đoạn 4 câu [1, 1, 2]; 12 câu Tiếng Việt chỉ mức Biết, Hiểu (từ đơn và từ phức 3, nghĩa
+     của từ 2, biện pháp tu từ 4, cụm từ 2, dấu câu 1); 1 câu Viết đoạn văn tự chấm. Hai đề cố định đúng ma trận, câu riêng thêm vào
+     mọi ô, nên ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút. Câu tự luận chỉ ở ô Viết: mỗi lần rút đúng 1 câu. */
+  { id: "van6-gk1-ngau-nhien", title: "Ngữ văn 6 · Giữa kì I · Đề ngẫu nhiên", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js",
+    pool: { from: ["van6-gk1-de1", "van6-gk1-de2"], matrix: {
+      "Tôi và các bạn": [1, 1, 2], "Gõ cửa trái tim": [1, 1, 2], "Yêu thương và chia sẻ": [1, 1, 2],
+      "Từ đơn và từ phức": [2, 1, 0], "Nghĩa của từ": [0, 2, 0], "Biện pháp tu từ": [3, 1, 0],
+      "Cụm danh từ, cụm động từ, cụm tính từ": [2, 0, 0], "Dấu câu": [0, 1, 0], "Viết": [0, 0, 1] } } },
+  /* Ngân hàng GDCD 6 giữa kì I (Phiên N24b): kho câu = 50 câu của 2 đề cố định ở trên (không có câu riêng), câu nào cũng có mức
+     độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): Bài 1–3 mỗi
+     bài 7 câu, Bài 4 Tôn trọng sự thật 4 câu như đề 1; đề 2 chia đúng theo ma trận và bù câu Vận dụng đề 1 còn thiếu, nên ô nào
+     cũng đủ câu. */
+  { id: "gdcd6-gk1-ngau-nhien", title: "GDCD 6 · Giữa kì I · Đề ngẫu nhiên", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js",
+    pool: { from: ["gdcd6-gk1-de1", "gdcd6-gk1-de2"], matrix: {
+      "Truyền thống gia đình, dòng họ": [3, 2, 2], "Yêu thương con người": [3, 2, 2], "Siêng năng, kiên trì": [3, 2, 2],
+      "Tôn trọng sự thật": [1, 2, 1] } } },
   /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
      mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
