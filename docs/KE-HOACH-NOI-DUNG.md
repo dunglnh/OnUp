@@ -225,7 +225,7 @@ Nguyên tắc:
 | Công nghệ 4 | — | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/cong-nghe-4-940256332.940256332) | N17 |
 | Toán 6, tập một | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-toan-6-tap-mot.4699854777) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/toan-6-tap-mot-940011379.940011379) | phiên rà soát, sửa đề có sẵn |
 | Toán 6, tập hai | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-toan-6-tap-hai.4699864675) | — | N8, N18 |
-| Ngữ văn 6, tập một | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-ngu-van-6-tap-mot.4699839775) | — | phiên rà soát, sửa đề có sẵn (`van6-ck1`, bài ôn `l6-giua-ki-1`: Rút ra N24b ở mục 3) |
+| Ngữ văn 6, tập một | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-ngu-van-6-tap-mot.4699839775) | — | 9m (sửa `van6-ck1-de2`, bài ôn `l6-giua-ki-1`: L37 ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)); phiên rà soát |
 | Ngữ văn 6, tập hai | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-ngu-van-6-tap-hai.4699846798) | — | N9, N19 |
 | Tiếng Anh 6 – Global Success, tập 1 | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-tieng-anh-6-tap-1-global-success.4879705889) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/tieng-anh-6-tap-1-global-success-939897970.939897970) | N25b |
 | Tiếng Anh 6 – Global Success, tập 2 | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-tieng-anh-6-tap-2-global-success.4879712416) (chủ app gửi) | — | N10, N20 |
