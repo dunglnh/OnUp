@@ -1,11 +1,11 @@
 // So bộ chấm điền khuyết bản cũ và bản mới (js/quiz.js) trên mọi câu điền khuyết của đề có sẵn (data/banks/)
 // và một nhóm câu chữ kiểu quản trị viên nhập, với nhiều cách gõ.
-// Chạy: node tests/so-bo-cham.js [bản cũ, mặc định 74b7645: bộ chấm sau L32, Phiên 9i] → in 0 chỗ khác, hai dòng cuối là 0.
+// Chạy: node tests/so-bo-cham.js [bản cũ, mặc định fe01877: bộ chấm sau L34, Phiên 9j] → in 0 chỗ khác, hai dòng cuối là 0.
 // Sửa bộ chấm câu điền thì so với bản mặc định, ghi các chỗ khác vào Pull Request, rồi đổi bản mặc định sang commit của phiên đó.
 // Bản sao nông (git clone --depth) có thể thiếu commit đó: chạy git fetch --unshallow trước.
 const fs=require('fs'),vm=require('vm'),cp=require('child_process'),R=__dirname+'/../';
 function load(src){const w={};vm.runInNewContext(src,{window:w});return w.Quiz.isRight}
-const oldR=load(cp.execSync('git show '+(process.argv[2]||'74b7645')+':js/quiz.js',{cwd:R}).toString()),newR=load(fs.readFileSync(R+'js/quiz.js','utf8'));
+const oldR=load(cp.execSync('git show '+(process.argv[2]||'fe01877')+':js/quiz.js',{cwd:R}).toString()),newR=load(fs.readFileSync(R+'js/quiz.js','utf8'));
 let qs=[];require('./nap-de.js').napDe().filter(b=>!b.pool).forEach(b=>b.questions.forEach((q,i)=>q.type==='fill'&&qs.push({id:b.id+'#'+i,q}))); // đề ngẫu nhiên chỉ gộp câu của đề cố định
 // câu chữ kiểu quản trị viên nhập (Quiz.parse) — không được chấm đúng nhầm; them: cách gõ thêm riêng cho câu đó
 const admin=[
