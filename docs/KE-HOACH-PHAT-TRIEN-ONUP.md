@@ -118,7 +118,8 @@ Thứ tự các phiên:
 | 7 | 2027–2028 | Lớp 5, 7 phần còn lại; lớp 9 (có đề thi thử vào 10); lớp 8 | | khoảng 70 phiên |
 | 8 | 2028–2029 | Lớp 12 (đề thi thử tốt nghiệp trước), 10, 11 | | khoảng 90 phiên |
 | 9 | trước khi bán | **G1 · Kích hoạt gói, màn hình Nâng cấp, Điều khoản và Quyền riêng tư** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** → **B2 · Đề trả phí lên máy chủ** → B4 (bớt tải dữ liệu); lên Supabase Pro | đủ đề lớp 4–12 | lời giao việc ở mục 4; B4 ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 5 |
-| — | khi có | **Sửa lỗi từ góp ý chạy thử**: QC ghi mã lỗi (tiếp theo L33) và lời giao việc phiên 9 + chữ cái ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) | | chen vào bất cứ lúc nào; gấp thì xếp vào bảng “Làm ngay” |
+| — | 14/12 | **9j · Câu điền đáp án phân số, gõ kèm đơn vị (L34)** (lời giao việc ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) | | phiên ngắn, chỉ sửa `js/quiz.js` và kiểm thử; chen giữa các phiên N, trước N8, N7; không chạy cùng lúc với phiên khác sửa `js/quiz.js` |
+| — | khi có | **Sửa lỗi từ góp ý chạy thử**: QC ghi mã lỗi (tiếp theo L34) và lời giao việc phiên 9 + chữ cái ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) | | chen vào bất cứ lúc nào; gấp thì xếp vào bảng “Làm ngay” |
 
 Từ 20/10/2026 đến 10/4/2027 còn khoảng 21 phiên: UX7, UX8; 8 phiên đề giữa kì II (N7–N12, N7b, N12b); N-IOE; 10 phiên đề cuối năm (N13–N22); thêm phiên sửa ngắn “b” sau kiểm thử thiết kế nếu có. Trung bình 1–2 phiên mỗi tuần. Đề cuối kì I lớp 4 và 6 đã đủ từ 20/10 (N6). Tháng 12 bắt đầu giữa kì II (K4 đã xong 21/10); UX7, UX8 làm sau kì thi cuối kì I, xen với các phiên giữa kì II. Sau đó việc chính là làm đề cho đủ lớp 4–12 (khoảng 200 phiên); chất lượng đề quyết định có bán được hay không, nên nút báo câu sai (R1) và việc rà đề đi trước.
 
