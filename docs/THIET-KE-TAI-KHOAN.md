@@ -1,11 +1,11 @@
 # Thiết kế: khung quản lý tài khoản và trang admin
 
-Phiên bản 3 · 18/10/2026. Trạng thái và thứ tự các phiên chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); các đoạn “Đã làm ở Phiên A/B/C” dưới đây mô tả những gì đã có trong code; ba phiên đó đã xong (mục 8).
+Phiên bản 3 · 18/10/2026 (21/10/2026: mốc dùng thử và bán, đoạn dưới và mục 9). Trạng thái và thứ tự các phiên chỉ ghi ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); các đoạn “Đã làm ở Phiên A/B/C” dưới đây mô tả những gì đã có trong code; ba phiên đó đã xong (mục 8).
 
 **Phạm vi bây giờ:** khung tài khoản đã dựng xong và đang chạy trên trang thật. Chủ app (bạn) tạo và quản lý tài khoản ở một **trang admin riêng**; phụ huynh đăng nhập bằng **tên đăng nhập + mật khẩu**; con là hồ sơ trong tài khoản của bố mẹ. Theo quyết định của chủ app ngày 18/10/2026:
-- **Trang công khai chỉ dành cho gia đình được mời.** Không tự đăng ký; màn đăng nhập có thẻ “Chưa có tài khoản?” kèm cách liên hệ (`signupText`, `signupUrl` trong `js/config.js`). Không làm đăng nhập email, mã mời, mã gia đình (mục 1, 2).
-- **Chưa làm bản trả phí.** Bán khi đủ đề lớp 4–12 (khoảng cuối năm học 2028–2029). Đến lúc đó gói Miễn phí giữ như hiện nay: 5 hồ sơ con, mọi đề; bảng `plans` không đổi. Hạn mức gói Miễn phí và gói Gia đình lúc bán sẽ chốt sau. Hướng đi ở mục 9; khung đã chừa sẵn chỗ để lúc đó không phải làm lại.
-- **Supabase giữ gói Free** đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần; [HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md)).
+- **Trang công khai chỉ dành cho gia đình được mời.** Không tự đăng ký; gia đình dùng thử từ tháng 3/2027 cũng do chủ app tạo tài khoản; màn đăng nhập có thẻ “Chưa có tài khoản?” kèm cách liên hệ (`signupText`, `signupUrl` trong `js/config.js`). Không làm đăng nhập email, mã mời, mã gia đình (mục 1, 2).
+- **Chưa làm bản trả phí.** Mốc chủ app chốt 21/10/2026: đủ đề lớp 4–12 và rà xong trong tháng 2/2027; từ đầu tháng 3/2027 mời khách tiềm năng dùng thử miễn phí đến hết các kì thi của năm học 2026–2027; mở bán chính thức từ tháng 6/2027 nếu không vướng thủ tục hành chính. Đến lúc bán gói Miễn phí giữ như hiện nay: 5 hồ sơ con, mọi đề; bảng `plans` không đổi. Hạn mức gói Miễn phí và gói Gia đình lúc bán sẽ chốt sau. Hướng đi ở mục 9; khung đã chừa sẵn chỗ để lúc đó không phải làm lại.
+- **Supabase giữ gói Free** đến khi bắt đầu thu tiền, lên Pro trước ngày mở bán (chủ app xuất CSV hằng tuần, mở app mỗi tuần; [HUONG-DAN-SUPABASE.md](HUONG-DAN-SUPABASE.md)).
 - Không ghi giá bán, chi phí hay so sánh đối thủ vào repo.
 
 ---
@@ -155,15 +155,16 @@ Phiên A, B, C đã xong (PR #19, #25, #30); các đoạn “Đã làm ở Phiê
 
 ---
 
-## 9. Hướng phát triển bản trả phí (chưa làm — khi đủ đề lớp 4–12)
+## 9. Hướng phát triển bản trả phí (chưa làm — mở bán từ tháng 6/2027)
 
-**Đã chốt 18/10/2026:** bán khi đủ đề lớp 4–12 (theo nhịp 1–2 phiên mỗi tuần: khoảng cuối năm học 2028–2029). Đến lúc đó **gói Miễn phí giữ như hiện nay** (5 hồ sơ con, mọi đề; bảng `plans` không đổi, `Store.can()` chỉ giới hạn số hồ sơ). Hạn mức gói Miễn phí và gói Gia đình lúc bán **chốt sau**, chủ app điền vào lời giao việc Phiên G1. Các phiên chuẩn bị bán **G1 → B1 → B2 → B4** làm ngay trước lúc đó (lời giao việc ở mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); vì sao cần từng phiên: mục 5 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)); lên Supabase Pro khi bắt đầu thu tiền. Giá bán không ghi trong repo (giá đọc từ bảng `plans`, chủ app điền lúc kích hoạt).
+**Đã chốt 18/10/2026, đổi mốc 21/10/2026:** đủ đề lớp 4–12 và rà xong trong tháng 2/2027; từ đầu tháng 3/2027 mời khách tiềm năng dùng thử miễn phí đến hết các kì thi của năm học 2026–2027; mở bán chính thức từ tháng 6/2027 nếu không vướng thủ tục hành chính (trước là “bán khi đủ đề lớp 4–12, khoảng cuối năm học 2028–2029”). Trong thời gian dùng thử và đến lúc bán, **gói Miễn phí giữ như hiện nay** (5 hồ sơ con, mọi đề; bảng `plans` không đổi, `Store.can()` chỉ giới hạn số hồ sơ). Hạn mức gói Miễn phí và gói Gia đình lúc bán **chốt sau** (giữa tháng 5/2027), chủ app điền vào lời giao việc Phiên G1. Các phiên chuẩn bị: **G0 → B1** trước khi mở dùng thử, **B2 → B4 → G1** trong thời gian dùng thử, trước khi bán (lời giao việc ở mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); vì sao cần từng phiên: mục 5 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)); lên Supabase Pro trước ngày mở bán. Giá bán không ghi trong repo (giá đọc từ bảng `plans`, chủ app điền lúc kích hoạt).
 
 Ghi lại để lúc đó không phải nghĩ lại từ đầu. Khung ở mục 5 đã chừa chỗ cho tất cả.
 
-- **Gói:** hướng dự kiến là Miễn phí (ít hồ sơ con hơn, bài ôn, đề thử số 1 mỗi môn mỗi kì) và Gói Gia đình (nhiều hồ sơ, mọi đề, hạn đến 31/8 cuối năm học); con số cụ thể chốt lúc bán. Cấu hình trong bảng `plans`; app chỉ đổi `Store.can()`. Gia đình đã dùng từ trước: cách chuyển (ví dụ giữ quyền lợi cũ đến hết năm học) cũng chốt lúc đó.
+- **Gói:** hướng dự kiến là Miễn phí (ít hồ sơ con hơn, bài ôn, đề thử số 1 mỗi môn mỗi kì) và Gói Gia đình (nhiều hồ sơ, mọi đề, hạn đến 31/8 cuối năm học; mua từ tháng 6 thì đến 31/8 năm sau); con số cụ thể chốt lúc bán. Cấu hình trong bảng `plans`; app chỉ đổi `Store.can()`. Gia đình dùng thử và gia đình đã dùng từ trước giữ mọi quyền lợi hiện có đến hết thời gian dùng thử; sau đó chuyển thế nào cũng chốt lúc bán (Phiên G1).
 - **Bán qua Zalo, kích hoạt tay (Phiên G1):** màn hình Nâng cấp (quyền lợi, giá đọc từ `plans`, QR chuyển khoản, nội dung `ONUP tên-đăng-nhập`, nút Nhắn Zalo soạn sẵn) → bạn kiểm tra tiền → trang admin thêm nút “Kích hoạt gói” (gói, hạn, số tiền, ghi chú) gọi `set_plan` đã có, bảng `plan_log` để đối soát.
-- **Bảo vệ đề trả phí (Phiên B1, B2):** repo đang công khai nên đề trong `data/banks/` ai cũng tải được; đến khi bán chấp nhận như vậy. Khi bán, repo chuyển sang riêng tư và trang chạy trên Cloudflare Pages (B1); đề trả phí chuyển vào bảng `paid_banks` trên Supabase, đọc qua RLS khi gói còn hạn hoặc đề là đề thử (B2).
+- **Bảo vệ đề trả phí (Phiên B1, B2):** repo đang công khai nên đề trong `data/banks/` ai cũng tải được; chấp nhận như vậy đến B1. Trước khi mở dùng thử, repo chuyển sang riêng tư và trang chạy trên Cloudflare Pages với tên miền riêng (B1); trước khi bán, đề trả phí chuyển vào bảng `paid_banks` trên Supabase, đọc qua RLS khi gói còn hạn hoặc đề là đề thử (B2).
 - **Hết hạn:** về gói miễn phí, không mất dữ liệu; hồ sơ vượt hạn mức bị khóa đến khi gia hạn; nhắc trước 14 ngày.
-- **Thêm khi thu tiền:** trang Điều khoản và Quyền riêng tư theo quy định bảo vệ dữ liệu cá nhân hiện hành (Phiên G1); Supabase lên gói Pro; thông báo website với Bộ Công Thương; hỏi kế toán về thuế, hóa đơn.
+- **Dùng thử (từ đầu tháng 3/2027 đến hết các kì thi năm học 2026–2027):** gia đình dùng thử do chủ app mời và tạo tài khoản như bây giờ, dùng gói Miễn phí hiện nay (mọi đề). Trước đó có trang Điều khoản và Quyền riêng tư theo quy định bảo vệ dữ liệu cá nhân hiện hành, và dòng “dùng thử miễn phí đến …” trong Khu phụ huynh (Phiên G0).
+- **Thêm khi thu tiền:** phần gói, thanh toán trong trang Điều khoản (Phiên G1); Supabase lên gói Pro; thông báo website với Bộ Công Thương; hỏi kế toán về thuế, hóa đơn.
 - **Khi đơn nhiều:** tự đăng ký có CAPTCHA, email tự lấy lại mật khẩu, thanh toán tự động.
