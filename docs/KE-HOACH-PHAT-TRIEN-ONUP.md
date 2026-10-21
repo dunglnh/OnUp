@@ -122,9 +122,9 @@ Nội dung hiện có (21/10/2026, `node tests/kiem-tra-de.js`: 44 đề, 1 485 
    - Sau G1 (cuối tháng 5/2027): thông báo website với Bộ Công Thương (online.gov.vn); lên Supabase Pro trước ngày mở bán.
    - Việc hành chính nào chưa xong thì lùi ngày mở bán; dùng thử vẫn chạy đến hết kì thi.
 
-**Sách giáo khoa** (bộ Kết nối tri thức dùng thống nhất từ năm học 2026–2027; bản PDF ở https://taphuan.nxbgd.vn/tap-huan, phiên Claude không mở được trang này):
+**Sách giáo khoa** (bộ Kết nối tri thức dùng thống nhất từ năm học 2026–2027; bản PDF ở https://taphuan.nxbgd.vn/tap-huan?grade=all, mục “Bộ SGK thống nhất”; phiên Claude mở được khi môi trường của phiên cho truy cập trang này, cách làm ở mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách”):
 
-10. Trước 2/11/2026: mở bản PDF Khoa học tự nhiên 6, dò mục lục Bài 1–16 với bài ôn giữa kì I lớp 6 (Phiên 9l, PR #91); mở bản PDF Lịch sử và Địa lí 4, 6 (bản chỉnh sửa năm 2026), dò số bài, tên bài với note các đề Lịch sử và Địa lí đang có. Chỗ lệch thì báo QC.
+10. Trước 2/11/2026: mở bản PDF Lịch sử và Địa lí 4, 6 (bản chỉnh sửa năm 2026), dò số bài, tên bài với note các đề Lịch sử và Địa lí đang có. Chỗ lệch thì báo QC. (Khoa học tự nhiên 6 đã dò ở Phiên 9l ngày 21/10/2026 trên bản điện tử ở taphuan.nxbgd.vn, mục “Bộ SGK thống nhất”: mục lục trang 4–6 khớp với bài ôn giữa kì I lớp 6.)
 11. Theo dõi danh mục sách chỉnh sửa cho năm học 2027–2028 (lần trước Bộ công bố ngày 26/12/2025); có danh mục thì báo PO để lập các phiên rà đề (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách”). Phiên nào cần mục lục bản mới thì chủ app chép mục lục vào lời giao việc.
 
 ## 3. Lộ trình khi làm tiếp
