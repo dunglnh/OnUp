@@ -2,7 +2,7 @@
 // toan6-gk1-de2 và các câu riêng của đề ngẫu nhiên toan6-gk1-ngau-nhien (Phiên N24). Mỗi câu: kiểm tra đề có đúng số liệu (has)
 // rồi so đáp án với kết quả tính bằng code: trắc nghiệm o[0], điền khuyết ans[0], đúng/sai a, đúng/sai 4 ý a (4 ý), trả lời bằng
 // số ans, nối cột r[i] của từng ô l[i], sắp xếp thứ tự o; tự luận: các số trong thang chấm và đáp án gợi ý. Câu có hình: đọc toạ
-// độ, chữ trong hình (tia số, trục số, nhiệt kế, bảng, phân tích ra thừa số nguyên tố theo cột dọc) rồi mới tính.
+// độ, chữ trong hình (tia số, trục số, nhiệt kế, bảng, phân tích ra thừa số nguyên tố theo sơ đồ cột) rồi mới tính.
 // Cuối cùng kiểm tra mức độ và ma trận: mọi câu có lv; Đề 1 chỉ có bốn chủ đề của Chương I–II, không có số âm; Đề 2 chia đúng
 // theo ma trận; mỗi ô (chủ đề, mức) có ít nhất gấp đôi số câu ô đó rút; rút thử nhiều lần ra đúng 10 Biết, 8 Hiểu, 7 Vận dụng,
 // nhiều nhất 2 câu tự luận.
@@ -80,8 +80,9 @@ const bang = (svg) => {
   texts(svg).forEach((t) => (rows[t.at[1]] = rows[t.at[1]] || []).push(t));
   return Object.keys(rows).map(Number).sort((a, b) => a - b).map((y) => rows[y].sort((a, b) => a.at[0] - b.at[0])).filter((r) => !r.every((t) => t.bold)).map((r) => r.map((t) => t.t));
 };
-// phân tích ra thừa số nguyên tố theo cột dọc: cột trái (số bị chia) và cột phải (thừa số nguyên tố) hai bên một đường dọc
-const cotDoc = (svg) => {
+// phân tích ra thừa số nguyên tố theo sơ đồ cột (tên trong SGK Toán 6, Bài 10): cột trái (số bị chia) và cột phải (thừa số
+// nguyên tố) hai bên một đường dọc
+const soDoCot = (svg) => {
   const v = lines(svg).filter((l) => l.a[0] === l.b[0]); assert.equal(v.length, 1, "một đường kẻ dọc"); const xm = v[0].a[0], T = texts(svg);
   const col = (f) => T.filter((t) => f(t.at[0])).sort((a, b) => a.at[1] - b.at[1]), L = col((x) => x < xm), R = col((x) => x > xm);
   assert.equal(L.length, R.length + 1); R.forEach((t, i) => assert.equal(t.at[1], L[i].at[1], "thừa số đứng cùng hàng với số bị chia"));
@@ -97,7 +98,8 @@ const has = (q, list) => list.forEach((s) => assert.ok(q.x.includes(s), "lời g
 const de1 = [
   { has: "Tập hợp các chữ số của số 2 026", right: () => "{" + [...new Set("2026".split(""))].sort().join("; ") + "}" },
   { has: "Số 0 thuộc tập hợp ℕ*", right: () => range(1, 100).includes(0) },
-  { has: "Số 27 được viết bằng số La Mã", right: () => toRoman(27), more: (q) => { assert.deepEqual(q.o.slice(2), [toRoman(17), toRoman(28)]); assert.ok(!range(1, 30).some((k) => toRoman(k) === q.o[1]), q.o[1] + " không phải số La Mã đúng"); } },
+  { has: "Số 29 được viết bằng số La Mã", right: () => toRoman(29), more: (q) => { // nhiễu đều là số La Mã đúng: nhầm IX với IV, thiếu một X, kém 1
+    assert.deepEqual(q.o.slice(1).map(fromRoman), [24, 19, 28]); has(q, q.o.slice(1).map((o) => o + " là " + fromRoman(o))); } },
   { has: "C = {x ∈ ℕ | 15 ≤ x ≤ 40}", right: () => String(range(0, 100).filter((x) => 15 <= x && x <= 40).length) },
   { has: "Sắp xếp các số La Mã sau", right: (q) => q.o.slice().sort((a, b) => fromRoman(a) - fromRoman(b)), more: (q) => assert.equal(new Set(q.o.map(fromRoman)).size, q.o.length) },
   { has: "5 thùng sữa, mỗi thùng 48 hộp", right: () => { const n = 5 * 48; return `${Math.floor(n / 18)} khay, thừa ${n % 18} hộp`; },
@@ -125,7 +127,7 @@ const de1 = [
   { has: "nhỏ nhất có ba chữ số chia hết cho cả 2, 3 và 5", right: () => String(range(100, 999).find((n) => n % 2 === 0 && n % 3 === 0 && n % 5 === 0)) },
   { has: "chia cho 6 thì dư 5", right: () => { const r = new Set(range(0, 100).map((k) => (6 * k + 5) % 3)); assert.equal(r.size, 1); return String([...r][0]); } },
   { has: "ước chung của 12 và 30", right: (q) => { const m = q.o.filter((o) => 12 % val(o) === 0 && 30 % val(o) === 0); assert.equal(m.length, 1); return m[0]; } },
-  { has: "BCNN(9, 36) = 36", right: () => lcm(9, 36) === 36 },
+  { has: "BCNN(14, 42) = 42", right: () => lcm(14, 42) === 42, more: (q) => has(q, ["42 = 14 · " + div(42, 14)]) },
   { has: "ƯCLN(66, 110)", right: () => String(gcd(66, 110)), more: (q) => has(q, ["66 = " + factor(66), "110 = " + factor(110)]) },
   { has: "BCNN(16, 20)", right: () => String(lcm(16, 20)), more: (q) => { has(q, ["16 = " + factor(16), "20 = " + factor(20)]); assert.deepEqual(q.o.slice(1).map(Number), [gcd(16, 20), 16 * 20, 2 * lcm(16, 20)]); } },
   { has: "dây thứ nhất cứ 15 giây nháy sáng", right: () => range(0, 5 * 60).filter((t) => t % 15 === 0 && t % 20 === 0).length, more: (q) => has(q, [`BCNN(15, 20) = ${factor(lcm(15, 20))} = ${lcm(15, 20)}`]) },
@@ -202,7 +204,7 @@ const own = [
   { has: "180 − 4 · (x + 3) = 10²", right: () => { const m = range(0, 100).filter((x) => ev("180 − 4 · (x + 3)", { x }) === ev("10²")); assert.equal(m.length, 1); return String(m[0]); } },
   { has: "2 · {150 − [(17 − 3²) · 5 + 10]}", right: (q) => fmt(ev(/biểu thức (.+) là:/.exec(q.q)[1])) },
   { has: "gấp đôi một tờ giấy", right: () => 2 ** 6 },
-  { has: "phân tích số 126 ra thừa số nguyên tố theo cột dọc", right: (q) => { const c = cotDoc(q.svg); assert.equal(c.n, 126); assert.equal(c.primes.reduce((a, p) => a * p, 1), 126); return "126 = " + factor(126); },
+  { has: "phân tích số 126 ra thừa số nguyên tố theo sơ đồ cột", right: (q) => { const c = soDoCot(q.svg); assert.equal(c.n, 126); assert.equal(c.primes.reduce((a, p) => a * p, 1), 126); return "126 = " + factor(126); },
     more: (q) => q.o.slice(1).forEach((o) => { const [, r] = o.split(" = "), f = r.split(" · ").map((x) => ev(x)); assert.ok(ev(r) !== 126 || !f.every((x) => isPrime(x) || /\D/.test(x)), "lựa chọn " + o); assert.ok(ev(r) !== 126 || f.some((x) => !isPrime(x)), "lựa chọn " + o + " không được là một cách phân tích đúng"); }) },
   { has: "Nếu một số chia hết cho 9 thì số đó chia hết cho 3", right: () => range(0, 3000).filter((n) => n % 9 === 0).every((n) => n % 3 === 0), more: () => assert.ok(21 % 3 === 0 && 21 % 9 !== 0) },
   { has: "Tổng tất cả các ước của 28", right: () => String(sum(divisors(28))), more: (q) => has(q, [divisors(28).join("; ")]) },
@@ -218,11 +220,11 @@ const own = [
     return [ok(2), ok(3), divisors(4).every(ok), all.length === 4]; } },
   { has: "Tích của hai số tự nhiên liên tiếp bằng 156", right: () => { const m = range(0, 156).filter((a) => a * (a + 1) === 156); assert.equal(m.length, 1); return String(2 * m[0] + 1); }, more: (q) => has(q, ["156 = " + factor(156)]) },
   { has: "Nếu số a chia hết cho số b", right: () => range(1, 60).every((b) => range(1, 12).every((k) => gcd(b * k, b) === b)), more: () => assert.ok(57 === 19 * 3 && gcd(57, 19) === 19) },
-  { has: "các bội nhỏ hơn 40 của 6 và của 9", right: (q) => {
-    const rows = bang(q.svg).map((r) => [r[0], r.slice(1).map(Number)]); assert.deepEqual(rows.map((r) => r[0]), ["B(6)", "B(9)"]);
-    rows.forEach(([lab, v]) => { const k = +/\d+/.exec(lab)[0]; assert.deepEqual(v, range(0, 39).filter((n) => n % k === 0), lab + " ghi đủ các bội nhỏ hơn 40"); });
-    const chung = rows[0][1].filter((n) => rows[1][1].includes(n) && n > 0); assert.equal(Math.min(...chung), lcm(6, 9)); return String(Math.min(...chung));
-  }, more: (q) => has(q, ["0; 18; 36", "ƯCLN(6, 9)"]) },
+  { has: "các bội nhỏ hơn 70 của 10 và của 15", right: (q) => {
+    const rows = bang(q.svg).map((r) => [r[0], r.slice(1).map(Number)]); assert.deepEqual(rows.map((r) => r[0]), ["B(10)", "B(15)"]);
+    rows.forEach(([lab, v]) => { const k = +/\d+/.exec(lab)[0]; assert.deepEqual(v, range(0, 69).filter((n) => n % k === 0), lab + " ghi đủ các bội nhỏ hơn 70"); });
+    const chung = rows[0][1].filter((n) => rows[1][1].includes(n) && n > 0); assert.equal(Math.min(...chung), lcm(10, 15)); return String(Math.min(...chung));
+  }, more: (q) => { has(q, ["0; 30; 60", "ƯCLN(10, 15)"]); assert.deepEqual(q.o.slice(1).map(Number), [2 * lcm(10, 15), 0, gcd(10, 15)]); } }, // nhiễu: bội chung kế tiếp, số 0, ƯCLN
   { has: "quy đồng mẫu hai phân số 5/14 và 3/35, mẫu chung nhỏ nhất", right: () => String(lcm(14, 35)), more: (q) => { assert.ok(gcd(5, 14) === 1 && gcd(3, 35) === 1); has(q, [`5/14 = ${5 * 70 / 14}/70`, `3/35 = ${3 * 70 / 35}/70`]); } },
   { has: "ƯCLN(68, 102)", right: () => String(gcd(68, 102)), more: (q) => { has(q, ["68 = " + factor(68), "102 = " + factor(102)]); assert.equal(+q.o[3], lcm(68, 102)); } },
   { has: "ba con tàu cùng cập một cảng", right: () => lcm(9, 12, 15) + " ngày",
