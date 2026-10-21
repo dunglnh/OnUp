@@ -5,7 +5,8 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
      Hai đề cùng phạm vi: Bài 1 Tôi và các bạn, Bài 2 Gõ cửa trái tim, Bài 3 Yêu thương và chia sẻ,
      Bài 4 Quê hương yêu dấu, Bài 5 Những nẻo đường xứ sở; phần Tiếng Việt của năm bài.
      Văn bản trong sách theo bản in năm 2026 (Ngữ văn 6 tập một, mã G1HH6V001h26): văn bản 3 của Bài 1 là «Tia nắng hạt mưa»
-     (Lệ Bình, tr. 27), của Bài 2 là «Hương và Phai» (trích, Nguyễn Minh Châu, tr. 48), thay «Bắt nạt», «Bức tranh của em gái tôi».
+     (Lệ Bình, tr. 27), của Bài 2 là «Hương và Phai» (trích, Nguyễn Minh Châu, tr. 48), thay hai văn bản của bản in trước
+     (L37 ở docs/SUA-LOI-CHAY-THU.md); văn bản của Bài 4, Bài 5 mà các câu nhắc tới vẫn có trong mục lục bản in năm 2026 (tr. 6–7).
      Đoạn văn, đoạn thơ đọc hiểu do người soạn tự viết (trừ ca dao, tục ngữ dân gian).
      Mức độ lv ghi ở Phiên N4b (nội dung, chủ đề giữ nguyên); hai đề cùng các câu riêng của "van6-ck1-ngau-nhien" bên dưới
      là kho của đề ngẫu nhiên. Cách xếp mức: nhớ tác giả, thể loại, khái niệm, nhận ra từ láy, cụm từ, biện pháp tu từ (đề bài
