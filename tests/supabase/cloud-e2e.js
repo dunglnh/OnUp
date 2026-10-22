@@ -38,9 +38,51 @@ const config = (siteKey, signup) => `window.ONTAP_CONFIG = { supabaseUrl: "https
 /* Thay cho script Cloudflare Turnstile (không có mạng): trả mã hợp lệ sau một chút, ghi lại ô đã dùng. */
 const TURNSTILE_STUB = `window.turnstile = { n: 0, boxes: [], render(host, o) { this.boxes.push(host.id || "?"); const t = "ok-" + Date.now() + "-" + (++this.n); setTimeout(() => o.callback(t), 20); return this.n; }, remove() {} };`;
 
-/* Như audit trong tests/e2e.js: ở 360px không tràn ngang; mọi button, a.btn, .linkbtn, summary đang hiện cao ≥ 44px; chữ ≥ 13px. */
+/* Như audit trong tests/e2e.js: ở 360px không tràn ngang; mọi button, a.btn, .linkbtn, summary đang hiện cao ≥ 44px; chữ ≥ 13px; chữ không đè
+   lên nhau, không tràn khỏi ô, không đè lên ô nhập, hình (chủ app yêu cầu 22/10/2026; cách đo ghi ở audit của tests/e2e.js, hai bản giống nhau). */
 const audit = () => {
   const bad = [], shown = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden"; };
+  {
+    const cs = (e) => getComputedStyle(e), say = (s) => `"${s.slice(0, 32)}"`;
+    /* ẩn: nằm trong <details> đang đóng (trừ dòng summary; getComputedStyle không ghi display:none), display:none, visibility, opacity 0,
+       content-visibility:hidden. <details> đang đóng xét bằng DOM trước, không gọi getComputedStyle trong phần đang đóng: gọi rồi thì
+       getBoundingClientRect của nút trong đó có lúc ra 0, kiểm tra cỡ nút bên dưới đo sai. */
+    const closed = (el) => { for (let e = el; e; e = e.parentElement) { const d = e.parentElement; if ((e === el && e.tagName === "DETAILS" && !e.open) || (d && d.tagName === "DETAILS" && !d.open && e.tagName !== "SUMMARY")) return true; } return false; };
+    const hid = (el) => { if (closed(el)) return true; for (let e = el; e; e = e.parentElement) { const s = cs(e); if (s.display === "none" || s.visibility !== "visible" || parseFloat(s.opacity) === 0 || s.contentVisibility === "hidden") return true; } return false; };
+    const layer = (el) => { for (let e = el; e; e = e.parentElement) if (/^(fixed|sticky)$/.test(cs(e).position)) return e; return null; };
+    const cut = (el, r) => { // phần đang thấy của ô chữ r: cắt theo các khung có overflow khác visible (không tính body, html: cuộn cả trang)
+      let L = r.left, T = r.top, R = r.right, B = r.bottom;
+      for (let e = el; e && e !== document.body && e !== document.documentElement; e = e.parentElement) {
+        const s = cs(e), x = s.overflowX !== "visible", y = s.overflowY !== "visible";
+        if (x || y) { const b = e.getBoundingClientRect(); if (x) { L = Math.max(L, b.left); R = Math.min(R, b.right); } if (y) { T = Math.max(T, b.top); B = Math.min(B, b.bottom); } }
+        if (s.position === "fixed") break;
+      }
+      return R - L > 0.5 && B - T > 0.5 ? { left: L, top: T, right: R, bottom: B } : null;
+    };
+    const items = [], tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let n; (n = tw.nextNode());) {
+      const t = n.textContent, a = t.search(/\S/), el = n.parentElement;
+      if (a < 0 || !el || el.closest("script,style,template,noscript,option") || hid(el)) continue;
+      const rg = document.createRange(); rg.setStart(n, a); rg.setEnd(n, t.trimEnd().length);
+      for (const r of rg.getClientRects()) { const c = r.width >= 1 && r.height >= 1 && cut(el, r); if (c) items.push({ n, el, ly: layer(el), r: c, h: r.height, t: t.trim().replace(/\s+/g, " ") }); }
+    }
+    const over = (a, b) => [Math.min(a.right, b.right) - Math.max(a.left, b.left), Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top)];
+    for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) {
+      const a = items[i], b = items[j], [w, h] = over(a.r, b.r);
+      if (a.n !== b.n && a.ly === b.ly && w > 2 && h > 0.4 * Math.min(a.h, b.h)) bad.push(`chữ đè lên nhau: ${say(a.t)} và ${say(b.t)}`);
+    }
+    for (const it of items) {
+      let box = it.el; while (box && /^(inline|contents)$/.test(cs(box).display)) box = box.parentElement;
+      if (!box || box.closest("svg")) continue;
+      const b = box.getBoundingClientRect(), d = Math.max(it.r.right - b.right, b.left - it.r.left);
+      if (d > 1.5) bad.push(`chữ tràn khỏi ô: ${say(it.t)} ra ngoài ${Math.round(d)}px`);
+    }
+    const boxes = [...document.querySelectorAll("input:not([type=hidden]),textarea,select,img,canvas,video")].filter((e) => !hid(e)).map((e) => ({ e, ly: layer(e), r: e.getBoundingClientRect() }));
+    for (const it of items) for (const x of boxes) {
+      const [w, h] = over(it.r, x.r);
+      if (x.ly === it.ly && x.r.width > 2 && x.r.height > 2 && w > 2 && h > 0.4 * it.h) bad.push(`chữ đè lên ô nhập, hình: ${say(it.t)} và <${x.e.tagName.toLowerCase()}>`);
+    }
+  }
   if (document.documentElement.scrollWidth > innerWidth) bad.push("tràn ngang: rộng " + document.documentElement.scrollWidth + "px");
   document.querySelectorAll("button, a.btn, .linkbtn, summary").forEach((el) => { const h = el.getBoundingClientRect().height; if (shown(el) && h < 44) bad.push(`nút "${el.textContent.trim().slice(0, 24)}" cao ${Math.round(h)}px`); });
   const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
@@ -1002,7 +1044,7 @@ async function run(browser, scheme) {
     "admin: đăng xuất; CAPTCHA (khi bật) khi đăng nhập": ad.out && (!withCaptcha || ad.captcha === "adCaptcha,adCaptcha,adCaptcha"),
     "admin: không đi qua service worker; cùng bản supabase-js với trang học": ad.swSkip && ad.lib,
     "U1: nút xem mật khẩu, mã PIN, mã mở nhanh (lPass, pwNew, pwNew2, pwIn, uPin, pwOld, qcNew, pinIn, outPw, adPass): hiện, ẩn, giữ giá trị và focus; gửi form, xóa hết ô thì ẩn lại": rv.length === 0,
-    "360px: không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px": problems.length === 0,
+    "360px: không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px, chữ không đè lên nhau": problems.length === 0,
     "không lỗi trên trang": errs.length === 0
   };
   return { checks, errs: errs.concat(problems, swOut) };

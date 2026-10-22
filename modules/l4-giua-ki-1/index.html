@@ -64,7 +64,9 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,summary:focus-vi
 .grp{display:flex;flex-direction:column;gap:6px}
 .grp-h{font-size:.8rem;font-weight:700;color:var(--acc);letter-spacing:.02em;margin-top:6px}
 .lessons{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.lrow{display:grid;grid-template-columns:4.6em minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;border:0;border-top:1px solid var(--line);background:transparent;padding:12px 14px}
+.lrow{display:grid;grid-template-columns:minmax(4.6em,max-content) minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;border:0;border-top:1px solid var(--line);background:transparent;padding:12px 14px}
+/* Cột số bài rộng ít nhất 4.6em, số dài hơn thì cột rộng theo (không tràn sang tên bài). Bài không đánh số (Luyện từ và câu, Đọc hiểu): chỉ có tên bài, không có cột số (chủ app yêu cầu 22/10/2026: chữ không đè lên nhau) */
+.lrow.plain{grid-template-columns:minmax(0,1fr) auto}
 .lrow:first-child{border-top:0}
 .lrow .lnum{font-weight:800;color:var(--acc);white-space:nowrap}
 .lrow .lname{min-width:0;overflow-wrap:anywhere}
@@ -699,6 +701,7 @@ function finish(){
   S=null;window.scrollTo(0,0);
 }
 
+function numbered(l){return /^Bài\s/.test(l.short)} // bài có số ("Bài 3", "Bài 10"); bài khác (Luyện từ và câu, Đọc hiểu) có tên ngắn là chữ, chỉ hiện tên bài
 function renderHome(){
   clearInterval(tick);S=null;topRight.innerHTML="";
   const s=SUBJ[cur];setTone(cur);store.set("sub",cur);
@@ -715,7 +718,7 @@ function renderHome(){
     </section>
     <section class="sec"><h2>Ôn theo bài</h2><p class="muted small">Đọc phần ghi nhớ, rồi luyện tập. Làm xong mỗi câu sẽ biết đúng sai và có giải thích.</p>
       ${groups.map(g=>`<div class="grp"><div class="grp-h">${esc(g.name)}</div><div class="lessons">${g.ls.map(l=>{const r=lres[cur+"|"+l.id];
-        return `<button class="lrow" data-l="${l.id}"><span class="lnum">${esc(l.short)}</span><span class="lname">${nbNum(esc(l.name))}</span><span class="lmeta${r?(r.r/r.t>=.8?" good":" fair"):""}">${r?`${r.r}/${r.t}`:`${l.count} câu`}</span></button>`}).join("")}</div></div>`).join("")}
+        return `<button class="lrow${numbered(l)?"":" plain"}" data-l="${l.id}">${numbered(l)?`<span class="lnum">${esc(l.short)}</span>`:""}<span class="lname">${nbNum(esc(l.name))}</span><span class="lmeta${r?(r.r/r.t>=.8?" good":" fair"):""}">${r?`${r.r}/${r.t}`:`${l.count} câu`}</span></button>`}).join("")}</div></div>`).join("")}
     </section>
     <section class="sec"><h2>Đề thi thử giữa kì</h2>
       <p class="muted small">${T.count} đề, mỗi đề ${T.n} câu, làm trong ${T.mins} phút. Mỗi đề cố định, làm lại vẫn ra đúng các câu đó${s.items.some(it=>it.g)?" (riêng câu tính toán có thể đổi số liệu theo từng đề)":""}. Đáp án hiện sau khi nộp bài.</p>
@@ -750,7 +753,7 @@ function renderLesson(sid,l){
   view.innerHTML=`<div class="stack">
     <button class="back" id="backBtn">‹ ${esc(s.name)}</button>
     <div class="label">${esc(L.group)}</div>
-    <h2>${esc(L.short)}. ${nbNum(esc(L.name))}</h2>
+    <h2>${numbered(L)?esc(L.short)+". ":""}${nbNum(esc(L.name))}</h2>
     <section class="panel notes"><h3>Ghi nhớ</h3><ul>${L.notes.map(n=>`<li>${nbNum(n)}</li>`).join("")}</ul></section>
     <div class="row"><button class="btn main" id="goBtn">Luyện tập ${L.count} câu</button>${r?`<span class="muted small">Lần trước: ${r.r}/${r.t} câu đúng</span>`:""}</div>
     ${L.hasGen?`<p class="muted small" style="margin:0">Các câu tính toán đổi số liệu mỗi lần làm, nên bạn có thể luyện lại nhiều lần.</p>`:""}
