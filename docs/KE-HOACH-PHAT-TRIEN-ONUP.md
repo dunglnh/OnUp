@@ -135,6 +135,10 @@ Nội dung hiện có (22/10/2026, `node tests/kiem-tra-de.js`: 46 đề, 1 586 
 10. Trước 2/11/2026: mở bản PDF Lịch sử và Địa lí 4, 6 (bản chỉnh sửa năm 2026), dò số bài, tên bài với note các đề Lịch sử và Địa lí đang có. Chỗ lệch thì báo QC. (Khoa học tự nhiên 6 đã dò ở Phiên 9l ngày 21/10/2026 trên bản điện tử ở taphuan.nxbgd.vn, mục “Bộ SGK thống nhất”: mục lục trang 4–6 khớp với bài ôn giữa kì I lớp 6.)
 11. Theo dõi danh mục sách chỉnh sửa cho năm học 2027–2028 (lần trước Bộ công bố ngày 26/12/2025); có danh mục thì báo PO để lập các phiên rà đề (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách”). Phiên nào cần mục lục bản mới thì chủ app chép mục lục vào lời giao việc.
 
+**Quy định kiểm tra:**
+
+12. Theo dõi thông báo của Sở GD&ĐT (tỉnh mình; Hà Nội, TP.HCM) về đề kiểm tra định kì chung lớp 5, 9, 12 (Thông tư 89/2026/TT-BGDĐT, từ 1/12/2026): môn nào, cấu trúc đề, ngày kiểm tra cuối kì I (tháng 12/2026–1/2027). Có thì báo PO để ghi vào lời giao việc các khối đó (mục 2 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)).
+
 ## 3. Lộ trình khi làm tiếp
 
 Mỗi dòng là **một phiên Claude Code riêng**: mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge. Lời giao việc chỉ giữ cho phiên chưa làm: phiên sửa lỗi (QC ghi mã lỗi và lời giao việc) ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); **các phiên làm đề (N7–N25b), Lịch các khối mới và K5 ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), xếp thành hàng đợi theo độ gấp: mở từ trên xuống** (B4 ở mục 5 của file đó); các phiên khác ở mục 4 dưới đây. Phiên UX7, UX8 đến từ bản rà giao diện ngày 18/10: vấn đề (X11–X14), ảnh và điều kiện xong ở [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md). Sau khi gộp mỗi phiên UX có một lượt kiểm thử thiết kế, ghi ở mục 5 của file đó; chỗ lệch thành một phiên sửa ngắn tên “b”, như UX3b (X17–X20, kiểm thử 19/10). Thiết kế nằm trong file Figma [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2): Master 1.x là 77 màn vẽ lại đúng app ở commit `0a1e8db`; Master 2.x là các đề xuất, kể cả minh họa cho S1, R1, UX1–UX3.
