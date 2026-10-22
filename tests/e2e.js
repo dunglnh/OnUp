@@ -2659,7 +2659,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
         key: (document.querySelector(".qz-key") || {}).textContent || "", open: !(document.querySelector("#qzGrid") || { hidden: true }).hidden, exp: document.querySelector("#qzProg") ? document.querySelector("#qzProg").getAttribute("aria-expanded") : null }; });
     // hàng trên cùng của làm như thi: một hàng (đồng hồ, nút mở bảng, "Nộp bài" cùng mép trên), cao ≤ 48px (X26)
     const topRow = () => p.evaluate(() => { const row = document.querySelector(".qz-top").getBoundingClientRect(), bs = ["#qzTimer", "#qzProg", "#qzSubmit"].map((s) => document.querySelector(s).getBoundingClientRect());
-      return { h: Math.round(row.height), oneRow: bs.every((b) => Math.abs(b.top - bs[0].top) < 2 && b.height >= 44), used: Math.round(bs.reduce((a, b) => a + b.width, 0)), w: Math.round(row.width) }; });
+      const mid = (b) => (b.top + b.bottom) / 2; // chip đồng hồ thấp hơn hai nút, canh giữa theo chiều dọc
+      return { h: Math.round(row.height), oneRow: bs.every((b) => Math.abs(mid(b) - mid(bs[0])) < 2) && bs.slice(1).every((b) => b.height >= 44), used: Math.round(bs.reduce((a, b) => a + b.width, 0)), w: Math.round(row.width) }; });
     const login = async (who, pin) => { await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids[who]}"]`); await p.fill("#pinIn", pin); await p.waitForSelector("#today"); };
     const guess = async () => { if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else if (await p.$("#qzNum")) await p.fill("#qzNum", "1"); else if (await p.$("#qzEssay")) await p.fill("#qzEssay", "Bài làm thử."); else await p.click(".opts .opt >> nth=0"); };
     const scoreLine = () => txt("#qzScore .stack b");
@@ -2803,7 +2804,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.result.line === r.result.want && r.result.review && r.exitAsk === "Dừng ôn và xem kết quả?DừngLàm tiếp" && r.exitResult.line === r.exitResult.want
       && r.exJump && r.exJump.st[0] === "st-ans:" && r.exJump.cur === 1 && /Đã trả lời \(1\)/.test(r.exJump.key) && !r.exSame.open && r.exSame.prog === "Câu 2/15"
       && r.exRecap.p === "Bạn đã làm hết 15 câu. Xem lại hoặc nộp bài." && r.exRecap.end === "Nộp bài|btn main" && !r.exRecap.more && /^Còn \d\d:\d\d$/.test(r.exRecap.timer) && r.exRecap.ticks && !r.exRecap.gone.length && eb.st.every((s) => s === "st-ans:") && eb.key === "Chưa làm (0)Đã trả lời (15)"
-      && r.exReopen.length === 15 && r.exReopen.every((x) => x.ok && x.note === "Bạn đã trả lời câu này. Muốn sửa thì chọn lại rồi bấm Trả lời." && !x.skip && x.go === "Trả lời") && ["mc", "fill", "tf", "tf4", "num", "match", "order", "essay"].every((t) => r.exReopen.some((x) => x.type === t))
+      && r.exReopen.length === 15 && r.exReopen.every((x) => x.ok && x.note === "Bạn đã trả lời câu này. Muốn sửa thì chọn lại rồi bấm Trả lời." && !x.skip && x.go === "Trả lời") && ["mc", "fill", "tf4", "num", "match", "order", "essay"].every((t) => r.exReopen.some((x) => x.type === t))
       && r.viTop.oneRow && r.viTop.h <= 48 && r.viTop.prog === "Câu 11/15" && r.exResult.line === r.exResult.want && !r.exResult.review && r.timeout.score && r.timeout.line === r.timeout.want
       && r.en.prog === "11 of 25" && r.en.top.oneRow && r.en.top.h <= 48 && !r.en.viGrid && /^Not done \(15\)–Skipped \(10\)Current$/.test(r.en.board.key) && r.en.board.aria[0] === "Question 1, skipped" && r.en.board.aria[10] === "Question 11, not done, current"
       && r.en.recap.p === "You have 25 questions left." && r.en.recap.end === "Finish test" && r.en.recap.more === "Do the 25 left" && !r.en.recap.vi && r.en.ask === "Exit the test? You haven't answered any questions, so no score is saved.ExitKeep going" && r.en.home === "#/home"; })
