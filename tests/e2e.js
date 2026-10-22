@@ -492,9 +492,17 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   /* Nội dung đề (mã, khối, chủ đề, lời giải, đáp án, gắn kì thi…) do tests/kiem-tra-de.js kiểm tra. Ở đây: trước khi mở đề
      chỉ có danh mục; mở đề Toán 4 thì tải 4-toan.js; đến giờ mới mở thêm đề KHTN 6 (quản trị xem thử, L3) nên chỉ thêm 6-khtn.js.
      Số câu trên nút đề ở trang chủ lấy từ danh mục (n), nên trang chủ không cần tải câu hỏi. Trang vừa tải lại (L10, Bin đang
-     đăng nhập): chưa có câu hỏi nào; mở một đề Toán 4 thì có đủ câu của cả năm đề Toán 4 (cùng file). */
+     đăng nhập): chưa có câu hỏi nào; mở một đề Toán 4 thì mọi đề của file 4-toan.js có đủ câu (cùng file). Số mong đợi tính từ
+     danh mục (ONTAP_SEED_BANKS) và file đã tải, không ghi cứng (Phiên N23), nên thêm đề Toán 4 không phải sửa bước này: đề cố định
+     nào cũng đủ n câu; đề ngẫu nhiên (K3) có kho = câu riêng của pool trong file (nếu có) + câu của các đề trong from; file chỉ ghi
+     mã đề của chính nó (không có mã của file khác) và có đủ các đề cố định danh mục ghi cho nó. */
   lazy.now = bankList();
-  const seedState = () => page.evaluate(() => ({ loaded: Object.keys(window.ONTAP_SEED_QUESTIONS || {}).sort().join(), toan4: Store.banks(4).filter((b) => b.subject === "Toán" && b.seed).map((b) => (b.questions || []).length + "/" + b.n).join() }));
+  const seedState = () => page.evaluate(() => {
+    const cat = window.ONTAP_SEED_BANKS.filter((b) => b.file === "4-toan.js"), Q = window.ONTAP_SEED_QUESTIONS || {}, loaded = Object.keys(Q);
+    const n = (id) => cat.find((b) => b.id === id).n, want = (b) => (!loaded.length ? 0 : b.pool ? ((Q[b.id] || {}).questions || []).length + b.pool.from.map(n).reduce((a, x) => a + x, 0) : b.n);
+    return { loaded: loaded.length, banks: cat.length, pools: cat.filter((b) => b.pool).length, foreign: loaded.filter((id) => !cat.some((b) => b.id === id)),
+      missing: cat.filter((b) => !b.pool && !Q[b.id]).map((b) => b.id), bad: cat.filter((b) => (Store.bank(b.id).questions || []).length !== want(b)).map((b) => b.id + ": " + (Store.bank(b.id).questions || []).length + "/" + want(b)) };
+  });
   await page.goto(BASE + "/#/home"); await page.waitForTimeout(200);
   lazy.home2 = await seedState();
   await page.goto(BASE + "/#/quiz/toan4-ck1-de2"); await page.waitForSelector("#qPractice");
@@ -502,10 +510,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("bank files:", lazy);
   const dataErrs = [];
   if (lazy.home !== "index.js" || lazy.quiz !== "4-toan.js,index.js" || lazy.now !== "4-toan.js,6-khtn.js,index.js") dataErrs.push("file đề tải về: " + JSON.stringify(lazy));
-  // đề ngẫu nhiên (K3): cùng file, tải xong thì có cả kho câu (cuối kì I, Phiên N1: 31 câu riêng + 3 đề = 106 câu; giữa kì II:
-  // 2 đề = 50 câu), số câu rút mỗi lần là n
-  if (lazy.home2.loaded !== "" || lazy.home2.toan4 !== "0/25,0/25,0/25,0/25,0/25,0/25,0/25" || lazy.quiz2.loaded !== "toan4-ck1-de1,toan4-ck1-de2,toan4-ck1-de3,toan4-ck1-ngau-nhien,toan4-gk2-de1,toan4-gk2-de2"
-    || lazy.quiz2.toan4 !== "25/25,25/25,25/25,25/25,25/25,106/25,50/25") dataErrs.push("đề đã tải: " + JSON.stringify([lazy.home2, lazy.quiz2]));
+  const seedOK = (s, open) => s.banks > s.pools && s.pools > 0 && !s.foreign.length && !s.bad.length && (open ? s.loaded > 0 && !s.missing.length : s.loaded === 0);
+  if (!seedOK(lazy.home2, false) || !seedOK(lazy.quiz2, true)) dataErrs.push("đề đã tải: " + JSON.stringify([lazy.home2, lazy.quiz2]));
 
   step("new seed banks reach old data");
   const ck1 = () => page.evaluate(() => JSON.parse(localStorage.getItem("ontap_db_v1")).events.find((e) => e.id === "ck1-l4").banks);
@@ -829,8 +835,9 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("K2:", k2.light, k2.dark, "problems:", k2.problems, "bank import:", bankImportOK);
 
   step("practice buttons named by exam (L18)");
-  // 1/4/2027: cuối kì I, giữa kì II đã qua nên đề lớp 4 dồn vào "Bài ôn khác"; kì cuối năm chỉ gắn Đề 2, Đề 3 Toán cuối kì I;
-  // thêm một đề tên tự đặt dài (nút xuống dòng, không tràn ngang ở 360px).
+  // 1/4/2027: giữa kì I, cuối kì I, giữa kì II đã qua nên đề lớp 4 dồn vào "Bài ôn khác"; kì cuối năm chỉ gắn Đề 2, Đề 3 Toán cuối kì I;
+  // thêm một đề tên tự đặt dài (nút xuống dòng, không tràn ngang ở 360px). Hàng Toán của "Bài ôn khác": mọi nút "… · Đề ngẫu nhiên"
+  // (K3) đứng trước đề cố định, xếp theo tên, có đủ đề ngẫu nhiên cuối kì I và giữa kì II (đề Toán 4 thêm sau này cũng ở nhóm này).
   const lc = await newContext({ storageState: state, viewport: { width: 360, height: 740 } });
   await localConfig(lc); watchOut(lc);
   const lp = await lc.newPage(); lp.on("pageerror", (e) => errs.push("pageerror L18: " + e.message));
@@ -856,8 +863,10 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   await lp.screenshot({ path: OUT + "18-de-theo-ki.png", fullPage: true });
   await lc.close();
   console.log("L18:", l18);
+  const l18rnd = l18.toan.filter((x) => / · Đề ngẫu nhiên$/.test(x)); // đề ngẫu nhiên (K3) đứng trước, xếp theo tên, ghi kì khi nhiều kì
   const labelsOK = l18.today === "1/4/2027" && ["Cuối kì I · Đề 1", "Giữa kì II · Đề 1", "Giữa kì II · Đề 2", "Đề ôn tập tổng hợp cuối năm của cô Lan cho cả lớp 4A"].every((x) => l18.toan.includes(x))
-    && l18.toan.slice(0, 2).join() === "Cuối kì I · Đề ngẫu nhiên,Giữa kì II · Đề ngẫu nhiên" // đề ngẫu nhiên (K3) đứng trước, ghi kì khi nhiều kì
+    && l18.toan.slice(0, l18rnd.length).join() === l18rnd.join() && l18rnd.join() === l18rnd.slice().sort((a, b) => a.localeCompare(b, "vi", { numeric: true })).join()
+    && ["Cuối kì I · Đề ngẫu nhiên", "Giữa kì II · Đề ngẫu nhiên"].every((x) => l18rnd.includes(x))
     && !l18.toan.some((x) => /^Đề \d+$/.test(x)) && l18.tv.includes("Cuối kì I · Đề 2") && l18.tv.includes("Giữa kì II · Đề 1") && l18.ck2.join() === "Đề 2,Đề 3"
     && l18.aria.includes("Toán 4 · Giữa kì II · Đề 1") && l18.aria.includes("Toán 4 · Cuối kì I · Đề 3") && l18.wide <= 360 && l18.fits;
 
@@ -1944,6 +1953,11 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await p.goto(BASE + "/");
     await p.evaluate(() => {
       const d = JSON.parse(localStorage.getItem("ontap_db_v1")), bin = d.users.find((u) => u.name === "Bin");
+      /* Kịch bản của bước là kì giữa kì I lớp 4 chỉ có bài ôn l4-giua-ki-1 (Bin đã làm đúng 90%). Lịch mặc định gắn thêm đề Toán 4
+         giữa kì I (Phiên N23) vào gk1-l4, nên bỏ các đề gắn vào kì đó ở đây, để bài chính, “1 bài ôn”, huy hiệu “Hết đề · Kiểm tra
+         giữa học kì I”, “Đã làm đúng 90% bài ôn của kì này”, bài phụ theo chủ đề hay sai và hồ sơ của con vẫn như kịch bản. Tải lại
+         không gắn lại: các mã đề đó đã có trong seedBanksSeen. */
+      d.events.find((e) => e.id === "gk1-l4").banks = [];
       const at = (days, h) => { const x = new Date(); x.setDate(x.getDate() - days); x.setHours(h, 10, 0, 0); return x.toISOString(); };
       const mk = (o) => Object.assign({ id: "ux" + Math.random().toString(36).slice(2), userId: bin.id, s: 900 }, o);
       d.results = d.results.filter((x) => x.userId !== bin.id).concat([

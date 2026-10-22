@@ -31,7 +31,7 @@ window.ONTAP_SEED_EVENTS = [
     subjects: ["Toán", "Tiếng Việt"],
     scope: "Toán: Bài 1–19. Tiếng Việt: tuần 1–8. Sách Kết nối tri thức với cuộc sống.",
     note: "Theo Thông tư 27, lớp 4 kiểm tra giữa kì môn Toán và Tiếng Việt.",
-    modules: ["l4-giua-ki-1"], banks: [] },
+    modules: ["l4-giua-ki-1"], banks: ["toan4-gk1-de1", "toan4-gk1-de2", "toan4-gk1-ngau-nhien"] },
   { id: "gk1-l6", title: "Kiểm tra giữa học kì I", kind: "dinh-ki", grades: [6],
     start: "2026-11-02", end: "2026-11-13", tentative: true,
     subjects: ["Toán", "Ngữ văn", "Tiếng Anh", "KHTN", "Lịch sử và Địa lí", "GDCD", "Tin học", "Công nghệ"],
