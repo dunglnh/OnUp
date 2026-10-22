@@ -536,6 +536,85 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("cloud backup:", cloudBackup);
   const cloudOK = /đám mây/.test(cloudBackup.msg) && cloudBackup.same;
 
+  step("default calendar reaches old data; exams of inactive grades stay hidden (Lịch các khối mới)");
+  /* Máy đã có lịch cũ (16 kì thi của khối 4, 6, chưa có seedEventsSeen; bố mẹ đã sửa ngày gk1-l4, xóa ioe-qg, bỏ khối 6 khỏi tet-2027, het-hk1
+     còn ngày cũ 17/1 của lịch mặc định) mở bản mới: có thêm mọi kì thi của khối 5, 7–12 (kể cả thi vào 10, thi tốt nghiệp THPT), mốc năm học
+     được thêm khối (tet-2027 không thêm lại khối 6), gk1-l4 giữ ngày đã sửa, ioe-qg không quay lại, het-hk1 sang 18/1; mở lại không chép lần hai;
+     kì thi mới bố mẹ xóa không quay lại. Khối chưa bật (data/grades.js) không hiện: lịch thi "Cả hai khối", chi tiết kì thi, danh sách kì thi của
+     quản trị, form kì thi (khối ẩn giữ nguyên khi lưu). Đề mới chỉ ghi là đã xét khi đã gắn được: thử hai hàm thuần (Store._linkSeedBanks,
+     Store._mergeSeedEvents) với kì thi giả gắn đề giả thêm tạm vào lịch và danh mục. Chạy trong context riêng (bản sao dữ liệu), không đụng
+     dữ liệu của các bước sau. */
+  const calCtx = await newContext({ storageState: await ctx.storageState(), viewport: { width: 390, height: 844 } });
+  await localConfig(calCtx); watchOut(calCtx);
+  const cp = await calCtx.newPage(); cp.on("pageerror", (e) => errs.push("pageerror lịch: " + e.message)); cp.on("console", (m) => { if (m.type() === "error") errs.push("console lịch: " + m.text()); });
+  await cp.goto(BASE + "/"); await cp.waitForTimeout(200);
+  const cal = {};
+  const V1 = { "khai-giang": [4, 6], "gk1-l4": [4], "gk1-l6": [6], "ioe-truong": [4, 6], "ck1-l6": [6], "ck1-l4": [4], "ioe-xa": [4, 6], "het-hk1": [4, 6], "tet-2027": [4, 6],
+    "ioe-tinh": [4, 6], "gk2-l4": [4], "gk2-l6": [6], "ioe-qg": [4, 6], "ck2-l6": [6], "ck2-l4": [4], "het-nam": [4, 6] }; // lịch khối 4, 6 trước phiên này
+  await cp.evaluate((V1) => {
+    const d = JSON.parse(localStorage.getItem("ontap_db_v1"));
+    d.events = window.ONTAP_SEED_EVENTS.filter((e) => V1[e.id] && e.id !== "ioe-qg").map((e) => Object.assign(JSON.parse(JSON.stringify(e)), { grades: V1[e.id] })); // ioe-qg: bố mẹ đã xóa
+    const gk = d.events.find((e) => e.id === "gk1-l4"); gk.start = "2026-11-04"; gk.end = "2026-11-06"; gk.tentative = false; // trường đã báo lịch
+    d.events.find((e) => e.id === "tet-2027").grades = [4]; // bố mẹ bỏ khối 6
+    const hk = d.events.find((e) => e.id === "het-hk1"); hk.start = hk.end = "2027-01-17"; // ngày cũ của lịch mặc định
+    delete d.seedEventsSeen;
+    localStorage.setItem("ontap_db_v1", JSON.stringify(d));
+  }, V1);
+  const calState = () => cp.evaluate(() => { const d = JSON.parse(localStorage.getItem("ontap_db_v1")), ev = (id) => d.events.find((e) => e.id === id) || null, g = (id) => (ev(id) ? ev(id).grades.join() : null);
+    return { n: d.events.length, seed: window.ONTAP_SEED_EVENTS.length, seen: (d.seedEventsSeen || []).length, keys: Store._seedEventKeys().length, ids: d.events.map((e) => e.id).sort().join(),
+      gk1: ev("gk1-l4") && [ev("gk1-l4").start, ev("gk1-l4").end, ev("gk1-l4").tentative].join(), ioeQg: !!ev("ioe-qg"), tet: g("tet-2027"), kg: g("khai-giang"), hk1: ev("het-hk1") && ev("het-hk1").start + "/" + ev("het-hk1").end,
+      vao10: ev("vao10-2027") && g("vao10-2027") + " " + ev("vao10-2027").start + " " + ev("vao10-2027").subjects.join("+"), l9: !!ev("ck1-l9") && g("ck1-l9") === "9" && /Thông tư 89/.test(ev("ck1-l9").note),
+      banks: ev("gk1-l4").banks.length, bseen: d.seedBanksSeen.length }; });
+  await cp.reload(); await cp.waitForTimeout(300);
+  cal.first = await calState();
+  await cp.reload(); await cp.waitForTimeout(300);
+  cal.second = await calState(); // mở lại: không chép lần hai
+  await cp.evaluate(() => Store.removeEvent("vao10-2027")); await cp.reload(); await cp.waitForTimeout(300);
+  cal.removed = await calState(); // kì thi mới bố mẹ xóa không quay lại
+  cal.link = await cp.evaluate(() => {
+    const ev = { id: "thu-l9", title: "Thi thử", kind: "thi-khac", grades: [9], start: "2027-05-01", end: "2027-05-02", tentative: true, subjects: [], scope: "", modules: [], banks: ["thu9-de1"] };
+    const bk = { id: "thu9-de1", title: "Thử 9 · Thi thử · Đề 1", grade: 9, subject: "Toán", minutes: 10, n: 1, file: "9-thu.js" };
+    window.ONTAP_SEED_EVENTS.push(ev); window.ONTAP_SEED_BANKS.push(bk);
+    try {
+      const d = Store.data(), events = JSON.parse(JSON.stringify(d.events)), seenB = d.seedBanksSeen.slice(), seenE = d.seedEventsSeen.slice();
+      const a = Store._linkSeedBanks(events, seenB, seenE); // kì thi máy chưa có, chưa xét: đề để lại
+      const b = Store._linkSeedBanks(events, seenB, seenE.concat("thu-l9:9")); // kì thi bố mẹ đã xóa: đã xét, không gắn
+      const m = Store._mergeSeedEvents(events, seenE), c = Store._linkSeedBanks(m.events, seenB, m.seen); // kì thi đến cùng lần mở: có đề, đã xét
+      return { a: !a.seen.includes("thu9-de1") && a.changed.length === 0 && a.seen.length === seenB.length, b: b.seen.includes("thu9-de1") && b.changed.length === 0,
+        m: m.added.length === 1 && m.added[0].id === "thu-l9" && m.added[0].banks.join() === "thu9-de1" && m.seen.includes("thu-l9:9") && m.changed.length === 0,
+        c: c.seen.includes("thu9-de1") && c.changed.length === 0 && m.events.find((e) => e.id === "thu-l9").banks.join() === "thu9-de1" };
+    } finally { window.ONTAP_SEED_EVENTS.pop(); window.ONTAP_SEED_BANKS.pop(); }
+  });
+  // context mới không có phiên đăng nhập (sessionStorage không chép theo): đang ở màn chọn hồ sơ, vào bằng Bố Minh (quản trị)
+  await cp.goto(BASE + "/#/"); await cp.waitForSelector(".tile");
+  await cp.click(`.tile[data-u="${await cp.evaluate(() => Store.users("admin")[0].id)}"]`); await cp.fill("#pinIn", "1234"); await cp.waitForTimeout(400);
+  await cp.goto(BASE + "/#/calendar"); await cp.waitForSelector(".tabs [data-g]"); await cp.click('.tabs [data-g="0"]'); await cp.waitForTimeout(200);
+  const HIDDEN_GRADE = /Lớp (1|2|3|5|7|8|9|10|11|12)(,|$)/;
+  cal.ui = await cp.evaluate((re) => { const evs = [...document.querySelectorAll("[data-ev]")], lbl = (id) => ((document.querySelector(`[data-ev="${id}"] .t b`) || {}).textContent || "").replace(/\s+/g, " ");
+    return { tabs: [...document.querySelectorAll(".tabs button")].map((b) => b.textContent).join(), n: evs.length, shown: Store.events().filter((e) => e.grades.some((g) => g === 4 || g === 6)).length, all: Store.events().length,
+      only46: evs.every((b) => Store.event(b.dataset.ev).grades.some((g) => g === 4 || g === 6)), kg: lbl("khai-giang"), tet: lbl("tet-2027"), hidden: evs.some((b) => new RegExp(re).test(b.querySelector(".t b").textContent)) }; }, HIDDEN_GRADE.source);
+  await cp.click('[data-ev="khai-giang"]'); await cp.waitForSelector("#evDetail");
+  cal.ui.detail = (await cp.textContent("#evDetail p")).replace(/\s+/g, " ").trim();
+  await cp.goto(BASE + "/#/admin/events"); await cp.waitForSelector("#calLink");
+  cal.ui.adminList = await cp.evaluate((re) => ({ n: document.querySelectorAll("#view .list .item").length, hidden: [...document.querySelectorAll("#view .list .item b")].some((b) => new RegExp(re).test(b.textContent)) }), HIDDEN_GRADE.source);
+  await cp.goto(BASE + "/#/admin/event/khai-giang"); await cp.waitForSelector("#eForm");
+  cal.ui.form = await cp.$$eval("input[name=eg]", (o) => o.map((x) => x.value + (x.checked ? "*" : "")).join());
+  await cp.click("#eForm [type=submit]"); await cp.waitForTimeout(200);
+  cal.ui.formSaved = await cp.evaluate(() => Store.event("khai-giang").grades.join()); // khối ẩn giữ nguyên khi lưu
+  await cp.goto(BASE + "/#/admin/event/gk1-l4"); await cp.waitForSelector("#eForm");
+  cal.ui.form4 = await cp.$$eval("input[name=eg]", (o) => o.map((x) => x.value + (x.checked ? "*" : "")).join());
+  await calCtx.close();
+  console.log("Lịch các khối mới:", JSON.stringify(cal));
+  const calOK = cal.first.n === cal.first.seed - 1 && cal.first.seed > 40 && cal.first.seen === cal.first.keys && cal.first.gk1 === "2026-11-04,2026-11-06,false" && !cal.first.ioeQg
+    && cal.first.tet === "4,1,2,3,5,7,8,9,10,11,12" && cal.first.kg === "4,6,1,2,3,5,7,8,9,10,11,12" && cal.first.hk1 === "2027-01-18/2027-01-18"
+    && cal.first.vao10 === "9 2027-06-01 Toán+Ngữ văn+Tiếng Anh" && cal.first.l9 && cal.first.banks === 6
+    && cal.second.n === cal.first.n && cal.second.seen === cal.first.keys && cal.second.ids === cal.first.ids && cal.second.hk1 === cal.first.hk1 && cal.second.bseen === cal.first.bseen
+    && cal.removed.n === cal.first.n - 1 && !cal.removed.vao10 && cal.removed.seen === cal.first.keys
+    && cal.link.a && cal.link.b && cal.link.m && cal.link.c
+    && cal.ui.tabs === "Cả hai khối,Lớp 4,Lớp 6" && cal.ui.n === cal.ui.shown && cal.ui.all > cal.ui.shown && cal.ui.only46 && !cal.ui.hidden
+    && cal.ui.kg === "Khai giảng năm học 2026–2027 · Lớp 4, 6" && cal.ui.tet === "Tết Nguyên đán Đinh Mùi (mùng 1) · Lớp 4" && /· Lớp 4, 6$/.test(cal.ui.detail)
+    && cal.ui.adminList.n === cal.ui.shown && !cal.ui.adminList.hidden && cal.ui.form === "4*,6*" && cal.ui.formSaved === cal.first.kg && cal.ui.form4 === "4*,6";
+
   step("360px light + dark (L4–L11)");
   /* Ở 360px: không tràn ngang; mọi button, a.btn, .linkbtn, summary (dòng mở/đóng của <details>, L23) đang hiện cao ≥ 44px; không chữ nào nhỏ hơn 13px.
      Phần tử bị ẩn (display:none, nằm trong <details> đang đóng) không tính. Trả về danh sách lỗi.
@@ -2827,7 +2906,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, pickOK, ux4OK, ux5OK, numOK, l29OK, ux6LocalOK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, pickOK, ux4OK, ux5OK, numOK, l29OK, ux6LocalOK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();

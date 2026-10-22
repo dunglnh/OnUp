@@ -146,8 +146,9 @@ Project đã cài từ trước thì **không** chạy lại `supabase/schema.sq
 |---|---|---|---|
 | `supabase/cap-nhat-k2.sql` | K2 (dạng câu mới) | `results.r` nhận số lẻ đến 0,01 (câu đúng/sai 4 ý, nối cột chấm từng ý); thêm cột `passages` (đoạn đọc dùng chung) cho `question_banks`, `paid_banks`; `import_local` chuyển cả hai | Kết quả có số câu đúng lẻ được làm tròn trước khi lưu; ngân hàng tự nhập có “Đoạn đọc:” chưa lưu được |
 | `supabase/cap-nhat-r1.sql` | R1 (nút “Báo câu này sai”) | Thêm bảng `question_reports` (câu bị báo sai), trigger (tối đa 30 báo cáo mỗi ngày mỗi gia đình) và RLS (gia đình chỉ thêm, đọc của mình; chủ app đọc tất cả, đổi trạng thái) | App vẫn chạy; bấm Gửi báo cáo thì báo “Máy chủ chưa cập nhật để nhận báo cáo”; tab Câu bị báo ở trang admin báo chưa có bảng |
+| `supabase/cap-nhat-lich.sql` | Lịch các khối mới (kì thi của lớp 5, 7–12) | Thêm cột `families.seed_events_seen` (kì thi của lịch mặc định mà tài khoản đã xét, phụ huynh sửa được); nâng trần số mã đã xét của `seed_banks_seen`, `seed_events_seen` lên 5 000 và số đề gắn vào một kì thi lên 500; `import_local` gộp thêm `seedEventsSeen` | App vẫn chạy, tài khoản mới vẫn có đủ lịch; nhưng gia đình đang dùng **không nhận** kì thi mới của lịch mặc định (lớp 5, 7–12, thi vào 10, thi tốt nghiệp) và các đề gắn vào kì thi mới, đến khi chạy file này |
 
-Kiểm tra sau khi chạy: **Table Editor → results**, cột `r` có kiểu `numeric`; **question_banks** có cột `passages`; có bảng **question_reports**.
+Kiểm tra sau khi chạy: **Table Editor → results**, cột `r` có kiểu `numeric`; **question_banks** có cột `passages`; có bảng **question_reports**; **families** có cột `seed_events_seen`.
 
 ## Tự kiểm tra sau khi cài
 
@@ -174,6 +175,7 @@ Kiểm tra sau khi chạy: **Table Editor → results**, cột `r` có kiểu `n
 | Trang admin báo “Máy chủ từ chối lời gọi hàm admin” | Còn bật **Verify JWT** cho hàm `admin` (bước 5.4). |
 | Trang admin báo “chỉ dùng với bản đám mây” | `js/config.js` chưa điền URL và khóa (bước 7). |
 | Tab Câu bị báo báo “chưa có bảng”; app báo “Máy chủ chưa cập nhật để nhận báo cáo” | Chưa chạy `supabase/cap-nhat-r1.sql` (mục “Cập nhật máy chủ”). |
+| Gia đình đang dùng không thấy kì thi của lớp 5, 7–12 trong Lịch thi dù đã có con học khối đó | Chưa chạy `supabase/cap-nhat-lich.sql` (mục “Cập nhật máy chủ”); chạy xong, mở lại app là có. |
 | Lỗi `42501` “permission denied for table …” (ở **Logs** của hàm `admin`, hoặc app báo chưa lưu được) | Bảng thiếu quyền (grant). Kiểm tra đã chạy đủ các file `cap-nhat-*.sql` (mục “Cập nhật máy chủ”); còn lỗi thì ghi tên bảng vào GitHub Issues để sửa file cập nhật. |
 | Gọi hàm `admin` báo lỗi 401 | Chưa tắt **Verify JWT** (bước 5.4), hoặc phiên đăng nhập đã hết hạn: đăng nhập lại. |
 | Gọi hàm `admin` báo lỗi máy chủ | Xem **Edge Functions → admin → Logs**. Kiểm tra đã chạy `schema.sql` (bước 2). |

@@ -383,6 +383,101 @@ ok(B.Store.authState() === "ready" && !!dev.getItem(AUTH) && !B.sessionStorage.g
   S.setSession(null);
 }
 
+/* ---------- 7b. lịch mặc định đến máy đã có dữ liệu, tài khoản cũ (Phiên Lịch các khối mới) ---------- */
+{
+  const SEED = A.win.ONTAP_SEED_EVENTS, keysN = A.Local._seedEventKeys().length, bankIds = () => A.win.ONTAP_SEED_BANKS.map((b) => b.id);
+  const V1 = { "khai-giang": [4, 6], "gk1-l4": [4], "gk1-l6": [6], "ioe-truong": [4, 6], "ck1-l6": [6], "ck1-l4": [4], "ioe-xa": [4, 6], "het-hk1": [4, 6], "tet-2027": [4, 6],
+    "ioe-tinh": [4, 6], "gk2-l4": [4], "gk2-l6": [6], "ioe-qg": [4, 6], "ck2-l6": [6], "ck2-l4": [4], "het-nam": [4, 6] }; // lịch khối 4, 6 trước phiên này
+  // lịch cũ của một gia đình: 15 kì thi (bố mẹ đã xóa ioe-qg, sửa ngày gk1-l4 thành lịch chính thức, bỏ khối 6 khỏi tet-2027; het-hk1 còn ngày cũ 17/1)
+  const oldEvents = () => SEED.filter((e) => V1[e.id] && e.id !== "ioe-qg").map((e) => ({ id: e.id, title: e.title, kind: e.kind, grades: e.id === "tet-2027" ? [4] : V1[e.id],
+    start: e.id === "gk1-l4" ? "2026-11-04" : e.id === "het-hk1" ? "2027-01-17" : e.start, end: e.id === "gk1-l4" ? "2026-11-06" : e.id === "het-hk1" ? "2027-01-17" : e.end,
+    tentative: e.id === "gk1-l4" ? false : !!e.tentative, subjects: e.subjects || [], scope: e.scope || "", note: e.note || "", modules: e.modules || [], banks: e.banks || [] }));
+  ok(SEED.length > 40 && keysN === SEED.reduce((a, e) => a + e.grades.length, 0) && SEED.filter((e) => V1[e.id]).length === 16, "lịch mặc định có kì thi của khối 4–12; 16 kì thi cũ vẫn còn, đúng mã");
+  { // hàm thuần của LocalStore, dùng chung hai kho
+    const L = A.Local, evs = oldEvents();
+    const m = L._mergeSeedEvents(evs, undefined);
+    const by = (id) => m.events.find((e) => e.id === id);
+    ok(m.events.length === SEED.length - 1 && m.added.length === SEED.length - 16 && m.seen.length === keysN && !by("ioe-qg") && by("ck1-l9") && by("vao10-2027") && by("tn-thpt-2027"),
+      "mergeSeedEvents: dữ liệu cũ (chưa có seedEventsSeen) nhận mọi kì thi mới, kì đã xóa không quay lại, đã xét đủ khóa");
+    ok(by("gk1-l4").start === "2026-11-04" && by("gk1-l4").tentative === false && by("tet-2027").grades.join() === "4,1,2,3,5,7,8,9,10,11,12"
+      && by("khai-giang").grades.join() === "4,6,1,2,3,5,7,8,9,10,11,12" && by("het-hk1").start === "2027-01-18" && by("het-hk1").end === "2027-01-18" && m.changed.length === 4,
+      "mergeSeedEvents: giữ ngày đã sửa; chỉ thêm khối mới, không thêm lại khối đã bỏ; het-hk1 còn ngày cũ của lịch mặc định thì sang 18/1; changed = 4 mốc năm học");
+    const m2 = L._mergeSeedEvents(m.events, m.seen);
+    ok(m2.added.length === 0 && m2.changed.length === 0 && m2.seen.length === keysN, "mergeSeedEvents: gộp lần hai không đổi gì");
+    const m3 = L._mergeSeedEvents(m.events.filter((e) => e.id !== "vao10-2027"), m.seen);
+    ok(!m3.events.some((e) => e.id === "vao10-2027") && m3.added.length === 0, "mergeSeedEvents: kì thi mới bố mẹ đã xóa không quay lại");
+    const m4 = L._mergeSeedEvents([], []);
+    ok(m4.added.length === SEED.length - 16 && m4.events.length === SEED.length - 16 && m4.seen.length === keysN,
+      "mergeSeedEvents: seen rỗng coi như dữ liệu cũ: 16 kì thi cũ không còn (bố mẹ đã xóa) thì không chép lại, chỉ chép kì thi mới");
+    // đề mới chỉ ghi là đã xét khi đã gắn được: kì thi giả gắn đề giả thêm tạm vào lịch và danh mục
+    A.win.ONTAP_SEED_EVENTS.push({ id: "thu-l9", title: "Thi thử", kind: "thi-khac", grades: [9], start: "2027-05-01", end: "2027-05-02", tentative: true, subjects: [], scope: "", modules: [], banks: ["thu9-de1"] });
+    A.win.ONTAP_SEED_BANKS.push({ id: "thu9-de1", title: "Thử 9 · Thi thử · Đề 1", grade: 9, subject: "Toán", minutes: 10, n: 1, file: "9-thu.js" });
+    try {
+      const seenB = bankIds().filter((id) => id !== "thu9-de1");
+      const a = L._linkSeedBanks(m.events, seenB, m.seen);
+      ok(!a.seen.includes("thu9-de1") && a.changed.length === 0 && a.seen.length === seenB.length, "linkSeedBanks: đề của kì thi máy chưa có (chưa xét) chưa ghi là đã xét");
+      const b = L._linkSeedBanks(m.events, seenB, m.seen.concat("thu-l9:9"));
+      ok(b.seen.includes("thu9-de1") && b.changed.length === 0, "linkSeedBanks: kì thi bố mẹ đã xóa thì đề ghi đã xét, không gắn");
+      const m5 = L._mergeSeedEvents(m.events, m.seen), c = L._linkSeedBanks(m5.events, seenB, m5.seen);
+      ok(m5.added.length === 1 && m5.added[0].banks.join() === "thu9-de1" && c.seen.includes("thu9-de1") && c.changed.length === 0, "kì thi mới đến cùng lần mở: có sẵn đề, đề ghi đã xét");
+      // máy chưa xét hai đề: toan4-gk1-de1 (kì gk1-l4 đang có, chưa gắn) và thu9-de1 (kì thu-l9 máy chưa có, eventsSeen cũ = lịch khối 4, 6)
+      const evs2 = oldEvents(), gk = evs2.find((e) => e.id === "gk1-l4"); gk.banks = gk.banks.filter((id) => id !== "toan4-gk1-de1");
+      const d = L._linkSeedBanks(evs2, bankIds().filter((id) => id !== "toan4-gk1-de1" && id !== "thu9-de1"), undefined);
+      ok(d.changed.length === 1 && d.changed[0].id === "gk1-l4" && d.changed[0].banks[0] === "toan4-gk1-de1" && d.seen.includes("toan4-gk1-de1") && !d.seen.includes("thu9-de1"),
+        "linkSeedBanks: đề mới của kì thi đang có được gắn (đứng đầu) và ghi đã xét; đề của kì thi chưa có để lại");
+    } finally { A.win.ONTAP_SEED_EVENTS.pop(); A.win.ONTAP_SEED_BANKS.pop(); }
+    // LocalStore.load() với dữ liệu cũ trong localStorage (bản lưu trên máy)
+    const Lb = browser({ realConfig: true, blank: true });
+    Lb.localStorage.setItem("ontap_db_v1", JSON.stringify({ v: 1, settings: {}, users: [{ id: "a1", role: "admin", name: "Bố", salt: "s", pinHash: "h", pinLen: 4 }], events: oldEvents(), banks: [], results: [], seedBanksSeen: bankIds() }));
+    const d = Lb.Store.load(), saved = JSON.parse(Lb.localStorage.getItem("ontap_db_v1"));
+    ok(d.events.length === SEED.length - 1 && d.seedEventsSeen.length === keysN && !!d.events.find((e) => e.id === "ck1-l9") && saved.seedEventsSeen.length === keysN && saved.events.length === SEED.length - 1,
+      "LocalStore.load: máy đã có lịch cũ nhận kì thi mới và ghi lại seedEventsSeen");
+    const d2 = Lb.Store.load();
+    ok(d2.events.length === SEED.length - 1 && Lb.Store.events(9).length === 9 && Lb.Store.events(4).length === 11,
+      "LocalStore.load lần hai không chép thêm; events(9) có 9 kì (4 kì định kì, thi vào 10, 4 mốc năm học), events(4) có 11 kì (12 kì cũ trừ ioe-qg đã xóa)");
+  }
+  // bản đám mây: tài khoản cũ (tạo thẳng trong máy chủ giả, đã đổi mật khẩu tạm) có lịch cũ, chưa xét kì thi nào
+  const mkOld = (username) => {
+    const u = be.addUser(username + "@" + LOGIN_DOMAIN, "mat-khau-cu-2026");
+    const f = { id: nodeCrypto.randomUUID(), auth_user_id: u.id, username, display_name: "Nhà " + username, school_year: "2026–2027", seed_banks_seen: bankIds(), seed_events_seen: [],
+      plan: "free", plan_until: null, must_change_password: false, status: "active", created_at: new Date().toISOString(), last_seen_at: null };
+    be.T.families.push(f);
+    oldEvents().forEach((e) => be.T.exam_events.push({ family_id: f.id, id: e.id, title: e.title, kind: e.kind, grades: e.grades, start_date: e.start, end_date: e.end, tentative: e.tentative, subjects: e.subjects, scope: e.scope, note: e.note, modules: e.modules, banks: e.banks }));
+    return f;
+  };
+  const rowsOf = (f) => be.T.exam_events.filter((x) => x.family_id === f.id);
+  const f1 = mkOld("nha.cu"), row = (id) => rowsOf(f1).find((x) => x.id === id) || null;
+  be.noEventsSeen = true; // máy chủ chưa chạy supabase/cap-nhat-lich.sql
+  const M = browser();
+  await M.Store.init(); await M.Store.signIn("nha.cu", "mat-khau-cu-2026"); await M.Store.flush();
+  ok(M.Store.events().length === 15 && rowsOf(f1).length === 15 && f1.seed_events_seen.length === 0 && M.errors.length === 0, "máy chủ chưa có cột seed_events_seen: lịch của tài khoản cũ giữ nguyên, không lỗi");
+  const accMoi = await admin({ action: "create_account", username: "nha.moi", password: "tam-moi-2026x" });
+  const N = browser();
+  await N.Store.init(); await N.Store.signIn("nha.moi", accMoi.password); await N.Store.changePassword("nha-moi-2026-ok"); await N.Store.flush();
+  ok(N.Store.events().length === SEED.length && rowsOf(fam("nha.moi")).length === SEED.length && fam("nha.moi").seed_events_seen.length === 0 && fam("nha.moi").seed_banks_seen.length === bankIds().length && N.errors.length === 0,
+    "máy chủ chưa có cột: tài khoản mới vẫn chép đủ lịch mặc định (mọi khối), ghi seed_banks_seen, không lỗi");
+  be.noEventsSeen = false; // chủ app đã chạy file cập nhật
+  await M.Store.refresh(); await M.Store.flush();
+  ok(rowsOf(f1).length === SEED.length - 1 && f1.seed_events_seen.length === keysN && M.Store.events().length === SEED.length - 1 && M.errors.length === 0, "có cột: tài khoản cũ nhận kì thi mới lên máy chủ, đã xét đủ khóa");
+  ok(row("gk1-l4").start_date === "2026-11-04" && row("gk1-l4").tentative === false && !row("ioe-qg") && row("tet-2027").grades.join() === "4,1,2,3,5,7,8,9,10,11,12"
+    && row("khai-giang").grades.join() === "4,6,1,2,3,5,7,8,9,10,11,12" && row("het-hk1").start_date === "2027-01-18" && row("vao10-2027").grades.join() === "9" && /Thông tư 89/.test(row("ck1-l5").note),
+    "máy chủ: giữ ngày đã sửa và kì đã xóa, mốc năm học thêm khối (không thêm lại khối 6 của tet-2027), het-hk1 sang 18/1, có thi vào 10, cuối kì I lớp 5 ghi chú Thông tư 89");
+  await N.Store.refresh(); await N.Store.flush();
+  ok(fam("nha.moi").seed_events_seen.length === keysN && rowsOf(fam("nha.moi")).length === SEED.length && N.errors.length === 0, "tài khoản mới chép lịch lúc chưa có cột: có cột rồi chỉ ghi đã xét, không chép thêm kì thi nào");
+  const n1 = rowsOf(f1).length;
+  await M.Store.refresh(); await M.Store.flush();
+  ok(rowsOf(f1).length === n1 && f1.seed_events_seen.length === keysN, "mở lại không chép lần hai");
+  M.Store.removeEvent("vao10-2027"); await M.Store.flush(); await M.Store.refresh(); await M.Store.flush();
+  ok(!row("vao10-2027") && rowsOf(f1).length === n1 - 1 && !M.Store.event("vao10-2027"), "kì thi mới bố mẹ xóa không quay lại");
+  ok(/"seedEventsSeen"/.test(M.Store.exportJSON()), "file sao lưu đám mây có seedEventsSeen");
+  await M.Store.migrate({ users: [], events: [], results: [], seedEventsSeen: ["thu-cu:4"] });
+  ok(f1.seed_events_seen.includes("thu-cu:4") && f1.seed_events_seen.length === keysN + 1, "chuyển dữ liệu từ bản lưu trên máy: import_local gộp seedEventsSeen");
+  M.Store.resetEvents(); await M.Store.flush();
+  ok(rowsOf(f1).length === SEED.length && f1.seed_events_seen.length === keysN && !!row("ioe-qg") && row("gk1-l4").tentative === true, "Khôi phục lịch mặc định: cả lịch mới, đã xét đủ (bản sửa bị thay)");
+  ok(M.errors.length === 0 && N.errors.length === 0, "Lịch các khối mới: không lỗi ở hai máy");
+  await M.Store.signOut(); await N.Store.signOut();
+}
+
 /* ---------- 8. chuyển dữ liệu từ bản lưu trên máy ---------- */
 {
   const h = (salt, pin) => "s256:" + nodeCrypto.createHash("sha256").update(salt + ":" + pin).digest("hex");

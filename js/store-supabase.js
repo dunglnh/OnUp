@@ -22,7 +22,9 @@
    - Các hàm ghi cập nhật bộ nhớ đệm ngay, rồi đẩy lên máy chủ theo hàng đợi (giữ đúng thứ tự).
      Đẩy lên thất bại thì báo qua Store.onError (app hiện toast) và tải lại dữ liệu thật từ máy chủ.
      createUser, updateUser, checkPin là async như LocalStore; hai hàm đầu chờ máy chủ trả lời và báo lỗi trực tiếp.
-   - Đề có sẵn (data/banks/) không lưu lên máy chủ; seed_banks_seen của families làm việc như seedBanksSeen.
+   - Đề có sẵn (data/banks/) không lưu lên máy chủ; seed_banks_seen của families làm việc như seedBanksSeen. Lịch mặc định đến tài khoản
+     đang dùng qua seed_events_seen (như seedEventsSeen của js/store.js; hàm gộp dùng chung LocalStore._mergeSeedEvents): kì thi mới và khối mới
+     của kì dùng chung được chép lên máy chủ ở lần mở sau. Máy chủ chưa chạy supabase/cap-nhat-lich.sql (chưa có cột) thì bỏ qua bước này.
    Phiên đăng nhập mặc định chỉ giữ trong tab (sessionStorage), như bản cục bộ; chọn "Ghi nhớ trên máy này" thì giữ lâu dài.
    Kết quả làm bài được giữ trong hộp gửi (localStorage) tới khi máy chủ nhận, nên mất mạng cũng không mất điểm. App hỏi số bài còn
    chờ gửi (pendingResults) để ghi "Đã lưu và gửi cho bố mẹ" hay "Sẽ gửi khi có mạng", và gửi lại ngay (sendPending; Phiên UX6). */
@@ -165,7 +167,9 @@
     return queue;
   }
   const flush = () => queue;
-  const FAMILY_COLS = "id, username, display_name, school_year, seed_banks_seen, plan, plan_until, must_change_password, status, created_at";
+  /* Dòng families đọc bằng select("*"): cột có mặt trong kết quả cho biết máy chủ đã chạy file cập nhật nào (seed_events_seen: supabase/cap-nhat-lich.sql). */
+  let eventsSeenCol = true; // false: máy chủ chưa có cột families.seed_events_seen
+  const famSeen = (banks, events) => Object.assign({ seed_banks_seen: banks }, eventsSeenCol ? { seed_events_seen: events } : {});
 
   async function all(table, order) {
     const N = 1000, out = [];
@@ -213,7 +217,7 @@
      mới tải hồ sơ con, kết quả, lịch thi. Lỗi mạng thì ném lỗi, giữ nguyên bộ nhớ đệm cũ. */
   async function loadAll() {
     // Lọc theo người đăng nhập: chủ app đọc được mọi dòng families.
-    const f = await run(sb.from("families").select(FAMILY_COLS).eq("auth_user_id", authUser.id).maybeSingle());
+    const f = await run(sb.from("families").select("*").eq("auth_user_id", authUser.id).maybeSingle());
     fam = f || null;
     famId = f && f.status === "active" ? f.id : null;
     if (!f || f.status !== "active" || f.must_change_password) {
@@ -242,9 +246,11 @@
       banks: bks.map(toBank),
       results: res.reverse().map(toResult),
       reports: (reps || []).map(toReport),
-      seedBanksSeen: f.seed_banks_seen || []
+      seedBanksSeen: f.seed_banks_seen || [],
+      seedEventsSeen: f.seed_events_seen || []
     };
     reportsTable = reps !== null;
+    eventsSeenCol = Object.prototype.hasOwnProperty.call(f, "seed_events_seen");
     state = "ready";
     // kết quả còn trong hộp gửi của máy này: hiện luôn, gửi lại sau
     const seen = new Set(db.results.map((r) => r.id)), box = outbox();
@@ -252,7 +258,7 @@
       if (!seen.has(r.id) && db.users.some((u) => u.id === r.userId)) db.results.push(Object.assign({}, r));
     }));
     if (!db.events.length && !db.seedBanksSeen.length) seedEvents();
-    else { dropRetiredBanks(); linkNewSeedBanks(); }
+    else { dropRetiredBanks(); syncSeedEvents(); linkNewSeedBanks(); }
     return true;
   }
   /* Như LocalStore: bộ có sẵn đã bỏ khỏi danh mục data/banks/index.js thì gỡ khỏi kì thi, ghi lại lên máy chủ. */
@@ -268,19 +274,27 @@
       push(() => sb.from("exam_events").upsert(rows, { onConflict: "family_id,id" }));
     }
   }
-  /* Như LocalStore: bộ có sẵn mới trong danh mục data/banks/index.js được gắn vào kì thi theo lịch mặc định; bộ phụ huynh đã bỏ gắn
-     (đã có trong seedBanksSeen) thì không gắn lại. */
-  function linkNewSeedBanks() {
-    const seen = new Set(db.seedBanksSeen);
-    const fresh = seedBankIds().filter((id) => !seen.has(id));
-    if (!fresh.length) return;
-    const changedEv = [];
-    (window.ONTAP_SEED_EVENTS || []).forEach((se) => {
-      const ev = db.events.find((e) => e.id === se.id), add = (se.banks || []).filter((id) => fresh.includes(id));
-      if (ev && add.length) { ev.banks = add.concat((ev.banks || []).filter((id) => !add.includes(id))); changedEv.push(ev); }
+  /* Như LocalStore (cùng hàm thuần LocalStore._mergeSeedEvents): kì thi mới của lịch mặc định và khối mới của kì dùng chung được chép lên
+     máy chủ, ngày bố mẹ đã sửa và kì bố mẹ đã xóa giữ nguyên; đã xét ghi ở families.seed_events_seen (cột của supabase/cap-nhat-lich.sql).
+     Máy chủ chưa có cột đó thì không gộp (lịch giữ như cũ, tài khoản mới vẫn chép đủ lịch), để không chép lại kì thi bố mẹ đã xóa mỗi lần mở. */
+  function syncSeedEvents() {
+    if (!eventsSeenCol) return;
+    const r = Local._mergeSeedEvents(db.events, db.seedEventsSeen);
+    if (!r.added.length && !r.changed.length && r.seen.length === db.seedEventsSeen.length) return;
+    db.events = r.events; db.seedEventsSeen = r.seen;
+    const rows = r.added.concat(r.changed).map(fromEvent), seenNow = r.seen.slice();
+    push(async () => {
+      if (rows.length) await run(sb.from("exam_events").upsert(rows, { onConflict: "family_id,id" }));
+      return sb.from("families").update({ seed_events_seen: seenNow }).eq("id", famId);
     });
-    db.seedBanksSeen = Array.from(seen).concat(fresh);
-    const seenNow = db.seedBanksSeen.slice(), rows = changedEv.map(fromEvent);
+  }
+  /* Như LocalStore (cùng hàm thuần LocalStore._linkSeedBanks): bộ có sẵn mới trong danh mục data/banks/index.js được gắn vào kì thi theo lịch
+     mặc định; bộ phụ huynh đã bỏ gắn (đã có trong seedBanksSeen) thì không gắn lại; bộ gắn vào kì thi tài khoản chưa có thì chưa ghi là đã xét. */
+  function linkNewSeedBanks() {
+    const r = Local._linkSeedBanks(db.events, db.seedBanksSeen, db.seedEventsSeen);
+    if (!r || (!r.changed.length && r.seen.length === db.seedBanksSeen.length)) return;
+    db.seedBanksSeen = r.seen;
+    const seenNow = r.seen.slice(), rows = r.changed.map(fromEvent);
     push(async () => {
       if (rows.length) await run(sb.from("exam_events").upsert(rows, { onConflict: "family_id,id" }));
       return sb.from("families").update({ seed_banks_seen: seenNow }).eq("id", famId);
@@ -289,11 +303,11 @@
   /* Tài khoản mới (Edge Function admin chỉ tạo dòng families) chưa có lịch thi nào và chưa xét bộ có sẵn nào:
      chép lịch mặc định, như bản cục bộ chép lúc thiết lập lần đầu. */
   function seedEvents() {
-    db.events = clone(window.ONTAP_SEED_EVENTS || []); db.seedBanksSeen = seedBankIds();
-    const rows = db.events.map(fromEvent), seen = db.seedBanksSeen.slice();
+    db.events = clone(window.ONTAP_SEED_EVENTS || []); db.seedBanksSeen = seedBankIds(); db.seedEventsSeen = Local._seedEventKeys();
+    const rows = db.events.map(fromEvent), cols = famSeen(db.seedBanksSeen.slice(), db.seedEventsSeen.slice());
     push(async () => {
       if (rows.length) await run(sb.from("exam_events").upsert(rows, { onConflict: "family_id,id" }));
-      return sb.from("families").update({ seed_banks_seen: seen }).eq("id", famId);
+      return sb.from("families").update(cols).eq("id", famId);
     });
   }
 
@@ -603,12 +617,12 @@
     push(() => sb.from("exam_events").delete().eq("family_id", famId).eq("id", id));
   }
   function resetEvents() {
-    db.events = clone(window.ONTAP_SEED_EVENTS || []); db.seedBanksSeen = seedBankIds();
-    const rows = db.events.map(fromEvent), seen = db.seedBanksSeen.slice();
+    db.events = clone(window.ONTAP_SEED_EVENTS || []); db.seedBanksSeen = seedBankIds(); db.seedEventsSeen = Local._seedEventKeys();
+    const rows = db.events.map(fromEvent), cols = famSeen(db.seedBanksSeen.slice(), db.seedEventsSeen.slice());
     push(async () => {
       await run(sb.from("exam_events").delete().eq("family_id", famId));
       if (rows.length) await run(sb.from("exam_events").insert(rows));
-      return sb.from("families").update({ seed_banks_seen: seen }).eq("id", famId);
+      return sb.from("families").update(cols).eq("id", famId);
     });
   }
 
@@ -769,7 +783,7 @@
     const users = db.users.map((u) => { const x = clone(u); delete x.hasPin; delete x.locked; return x; });
     return JSON.stringify({ app: "on-thi-4-6", exportedAt: new Date().toISOString(), from: "cloud", v: 1,
       settings: { schoolName: db.settings.schoolName, schoolYear: db.settings.schoolYear }, users, events: db.events, banks: db.banks,
-      results: db.results, seedBanksSeen: db.seedBanksSeen }, null, 2);
+      results: db.results, seedBanksSeen: db.seedBanksSeen, seedEventsSeen: db.seedEventsSeen }, null, 2);
   }
   function localData() {
     try { const d = JSON.parse(lsGet(LOCAL_KEY) || "null"); return d && Array.isArray(d.users) ? d : null; } catch (e) { return null; }
@@ -783,7 +797,8 @@
     const payload = {
       users: data.users.filter((u) => u.role === "student").map((u) => ({ id: u.id, role: u.role, name: u.name, avatar: u.avatar, grade: u.grade, className: u.className, salt: u.salt, pinHash: u.pinHash })),
       events: data.events, banks: Array.isArray(data.banks) ? data.banks : [], results: data.results.slice(-5000),
-      seedBanksSeen: Array.isArray(data.seedBanksSeen) ? data.seedBanksSeen : undefined, settings: data.settings || {}
+      seedBanksSeen: Array.isArray(data.seedBanksSeen) ? data.seedBanksSeen : undefined,
+      seedEventsSeen: Array.isArray(data.seedEventsSeen) ? data.seedEventsSeen : undefined, settings: data.settings || {}
     };
     await flush();
     let res;
@@ -840,6 +855,7 @@
     can,
     _mem: null,
     _fillSeedFile: Local._fillSeedFile, // chỉ cho tests/nap-de.js (như LocalStore)
+    _mergeSeedEvents: Local._mergeSeedEvents, _linkSeedBanks: Local._linkSeedBanks, _seedEventKeys: Local._seedEventKeys, // hàm thuần dùng chung (như LocalStore)
     // chỉ có ở bản đám mây
     init, refresh, flush, authState: () => state,
     signIn, signOut, checkPassword, changePassword, parentUnlocked,

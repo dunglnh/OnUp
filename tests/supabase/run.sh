@@ -20,6 +20,9 @@ echo "cap-nhat-k2.sql: OK"
 $PSQL < "$ROOT/supabase/cap-nhat-r1.sql"
 $PSQL < "$ROOT/supabase/cap-nhat-r1.sql"   # chạy lại lần hai cũng không lỗi
 echo "cap-nhat-r1.sql: OK"
+$PSQL < "$ROOT/supabase/cap-nhat-lich.sql"
+$PSQL < "$ROOT/supabase/cap-nhat-lich.sql"   # chạy lại lần hai cũng không lỗi
+echo "cap-nhat-lich.sql: OK"
 node "$ROOT/supabase/banks-to-sql.js" > "$TMP/paid-banks.sql"
 $PSQL < "$TMP/paid-banks.sql"
 $PSQL < "$TMP/paid-banks.sql"   # chạy lại lần hai không lỗi, không trùng

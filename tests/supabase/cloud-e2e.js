@@ -24,6 +24,10 @@ const { createBackend } = require("./fake-backend.js");
 const { createFakeSupabase } = require("./fake-client.js");
 
 const BASE = process.env.BASE_URL || "http://localhost:8000";
+/* Dữ liệu của app nạp trong node (như run.sh): lịch mặc định và danh mục đề, cho kiểm tra "tài khoản cũ nhận lịch mới". */
+const loadData = (f) => { const c = { window: {} }; c.window.window = c.window; require("vm").runInNewContext(fs.readFileSync(path.join(__dirname, "..", "..", f), "utf8"), c); return c.window; };
+const SEED_EVENTS = loadData("data/calendar-2026-2027.js").ONTAP_SEED_EVENTS, SEED_BANK_IDS = loadData("data/banks/index.js").ONTAP_SEED_BANKS.map((b) => b.id);
+const HIDDEN_GRADE = "Lớp (1|2|3|5|7|8|9|10|11|12)(,|$)"; // chữ "Lớp …" của khối chưa bật: không được hiện ở đâu (Lịch các khối mới)
 /* Cả lần chạy dùng một ngày "hôm nay" cố định, không theo ngày chạy (L28), như tests/e2e.js: mỗi lượt (sáng, tối) tạo máy chủ giả với
    be.clock bắt đầu ở TODAY; Edge Function admin và mọi context (device()) theo cùng giờ đó, giờ đi như thường. Chữ mong đợi theo kì thi
    gần nhất (thẻ của con “Kiểm tra giữa học kì I còn N ngày”, nhóm kì thi ở tab Bài ôn) ghi theo ngày này. */
@@ -270,9 +274,13 @@ async function run(browser, scheme) {
   // hộp sửa ngày mở ngay dưới thẻ, Lưu thì bỏ cờ dự kiến và lên máy chủ; #/calendar của phụ huynh cũng về đây
   await p.goto(BASE + "/#/calendar"); await wait(p);
   c.ux2.calRedirect = await p.evaluate(() => location.hash);
-  c.ux2.cal = await p.evaluate(() => ({ tabs: [...document.querySelectorAll(".tabs")].map((t) => [...t.children].map((b) => b.textContent.replace(/\s+/g, " ") + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join()).join(" / "),
+  c.ux2.cal = await p.evaluate((re) => ({ tabs: [...document.querySelectorAll(".tabs")].map((t) => [...t.children].map((b) => b.textContent.replace(/\s+/g, " ") + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join()).join(" / "),
     fix: (document.querySelector('[data-fix="gk1-l4"]') || {}).textContent, fixH: Math.round((document.querySelector('[data-fix="gk1-l4"]') || { getBoundingClientRect: () => ({}) }).getBoundingClientRect().height),
-    tent: !!document.querySelector('[data-ev="gk1-l4"] .tag.warn'), edit: (document.querySelector('[data-ev="ioe-truong"] + .ev-act a') || {}).getAttribute("href"), months: document.querySelectorAll(".month").length, grades: [...document.querySelectorAll("[data-ev]")].map((b) => Store.event(b.dataset.ev).grades.join("")).join() }));
+    tent: !!document.querySelector('[data-ev="gk1-l4"] .tag.warn'), edit: (document.querySelector('[data-ev="ioe-truong"] + .ev-act a') || {}).getAttribute("href"), months: document.querySelectorAll(".month").length,
+    // Lịch các khối mới: chỉ kì thi của khối 4, 6 (khối của các con), không có kì thi hay chữ "Lớp …" của khối chưa bật; mốc năm học ghi "Lớp 4, 6"
+    only46: [...document.querySelectorAll("[data-ev]")].every((b) => Store.event(b.dataset.ev).grades.some((g) => g === 4 || g === 6)), n: document.querySelectorAll("[data-ev]").length,
+    shown: Store.events().filter((e) => e.grades.some((g) => g === 4 || g === 6)).length, all: Store.events().length, kg: document.querySelector('[data-ev="khai-giang"] .t b').textContent.replace(/\s+/g, " "),
+    hidden: [...document.querySelectorAll("[data-ev] .t b")].some((b) => new RegExp(re).test(b.textContent)) }), HIDDEN_GRADE);
   await shot(p, "c6b-lich-thi");
   await p.click('[data-fix="gk1-l4"]'); await p.waitForSelector("#fixBox");
   c.ux2.fixBox = await p.evaluate(() => { const f = document.querySelector("#fixBox"); return { after: f.previousElementSibling.classList.contains("ev-act") && f.previousElementSibling.previousElementSibling.dataset.ev === "gk1-l4", start: f.querySelector("#fxStart").value, end: f.querySelector("#fxEnd").value, official: f.querySelector("#fxOfficial").checked, text: f.textContent.replace(/\s+/g, " ").trim() }; });
@@ -748,6 +756,45 @@ async function run(browser, scheme) {
   await q.fill("#lUser", "nha.bin"); await q.fill("#lPass", PW2); await q.click("#lGo"); await q.waitForSelector("#loginErr .fb");
   c.lockedLogin = await text(q, "#loginErr");
 
+  /* ---- tài khoản cũ (lịch khối 4, 6 trước Phiên Lịch các khối mới) mở bản mới: máy chủ chưa chạy cap-nhat-lich.sql thì lịch giữ nguyên, không lỗi;
+     có cột seed_events_seen thì kì thi của khối 5, 7–12 lên máy chủ, mốc năm học thêm khối (không thêm lại khối bố mẹ đã bỏ), ngày đã sửa và kì đã xóa giữ,
+     mở lại không chép lần hai, kì mới bố mẹ xóa không quay lại; tab Lịch thi không có khối chưa bật. Tài khoản tạo thẳng trong máy chủ giả (không qua
+     Edge Function, để nhật ký admin và danh sách tài khoản của phần trang admin bên dưới không đổi) và xóa khi xong. ---- */
+  const V1 = { "khai-giang": [4, 6], "gk1-l4": [4], "gk1-l6": [6], "ioe-truong": [4, 6], "ck1-l6": [6], "ck1-l4": [4], "ioe-xa": [4, 6], "het-hk1": [4, 6], "tet-2027": [4, 6],
+    "ioe-tinh": [4, 6], "gk2-l4": [4], "gk2-l6": [6], "ioe-qg": [4, 6], "ck2-l6": [6], "ck2-l4": [4], "het-nam": [4, 6] };
+  const oldUser = be.addUser("nha.cu@" + LOGIN_DOMAIN, "mat-khau-cu-2026");
+  const oldFam = { id: nodeCrypto.randomUUID(), auth_user_id: oldUser.id, username: "nha.cu", display_name: "Nhà Cũ", school_year: "2026–2027", seed_banks_seen: SEED_BANK_IDS.slice(), seed_events_seen: [],
+    plan: "free", plan_until: null, must_change_password: false, status: "active", created_at: new Date(Date.now() + be.clock).toISOString(), last_seen_at: null };
+  be.T.families.push(oldFam);
+  SEED_EVENTS.filter((e) => V1[e.id] && e.id !== "ioe-qg").forEach((e) => be.T.exam_events.push({ family_id: oldFam.id, id: e.id, title: e.title, kind: e.kind, grades: e.id === "tet-2027" ? [4] : V1[e.id],
+    start_date: e.id === "gk1-l4" ? "2026-11-04" : e.id === "het-hk1" ? "2027-01-17" : e.start, end_date: e.id === "gk1-l4" ? "2026-11-06" : e.id === "het-hk1" ? "2027-01-17" : e.end,
+    tentative: e.id === "gk1-l4" ? false : !!e.tentative, subjects: e.subjects || [], scope: e.scope || "", note: e.note || "", modules: e.modules || [], banks: e.banks || [] }));
+  const oldRows = () => be.T.exam_events.filter((x) => x.family_id === oldFam.id), oldRow = (id) => oldRows().find((x) => x.id === id) || null;
+  const oldDev = await device(), qo = await oldDev.newPage();
+  be.noEventsSeen = true;
+  await qo.goto(BASE + "/"); await qo.waitForSelector("#loginForm");
+  await qo.fill("#lUser", "nha.cu"); await qo.fill("#lPass", "mat-khau-cu-2026"); await qo.click("#lGo"); await qo.waitForSelector("#kids"); await wait(qo, 500);
+  c.lich = { noCol: { n: oldRows().length, seen: oldFam.seed_events_seen.length, inApp: await qo.evaluate(() => Store.events().length), toast: await text(qo, "#toast") } };
+  be.noEventsSeen = false;
+  await qo.reload(); await qo.waitForSelector("#kids");
+  c.lich.keysN = await qo.evaluate(() => Store._seedEventKeys().length);
+  c.lich.synced = await until(qo, () => oldRows().length === SEED_EVENTS.length - 1 && oldFam.seed_events_seen.length === c.lich.keysN);
+  c.lich.after = { gk1: [oldRow("gk1-l4").start_date, oldRow("gk1-l4").end_date, oldRow("gk1-l4").tentative].join(), ioeQg: !!oldRow("ioe-qg"), tet: (oldRow("tet-2027") || { grades: [] }).grades.join(), kg: (oldRow("khai-giang") || { grades: [] }).grades.join(),
+    hk1: (oldRow("het-hk1") || {}).start_date, vao10: !!oldRow("vao10-2027") && oldRow("vao10-2027").grades.join() === "9", l12: !!oldRow("ck1-l12") && /Thông tư 89/.test(oldRow("ck1-l12").note), inApp: await qo.evaluate(() => Store.events().length) };
+  await qo.reload(); await qo.waitForSelector("#kids"); await wait(qo, 500);
+  c.lich.again = { n: oldRows().length, seen: oldFam.seed_events_seen.length };
+  await qo.evaluate(() => { Store.removeEvent("vao10-2027"); return Store.flush(); });
+  await qo.reload(); await qo.waitForSelector("#kids"); await wait(qo, 500);
+  c.lich.removed = { n: oldRows().length, vao10: !!oldRow("vao10-2027") };
+  await qo.goto(BASE + "/#/admin/events"); await qo.waitForSelector("#parentCal");
+  c.lich.cal = await qo.evaluate((re) => ({ tabs: [...document.querySelectorAll(".tabs")].map((t) => [...t.children].map((b) => b.textContent.replace(/\s+/g, " ") + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join()).join(" / "),
+    n: document.querySelectorAll("[data-ev]").length, shown: Store.events().filter((e) => e.grades.some((g) => g === 4 || g === 6)).length, all: Store.events().length,
+    hidden: [...document.querySelectorAll("[data-ev] .t b")].some((b) => new RegExp(re).test(b.textContent)) }), HIDDEN_GRADE);
+  await shot(qo, "c15b-lich-tai-khoan-cu");
+  await oldDev.close();
+  be.T.exam_events = be.T.exam_events.filter((x) => x.family_id !== oldFam.id); be.T.families = be.T.families.filter((f) => f.id !== oldFam.id); be.users.delete(oldUser.id);
+  for (const [t, uid] of be.tokens) if (uid === oldUser.id) be.tokens.delete(t);
+
   /* ---- service worker: đã cài và điều khiển trang; gọi Supabase, Cloudflare, CDN rồi tải lại trang ---- */
   await swControl(q, "#loginForm");
   await q.evaluate(() => Promise.all(["https://fake.supabase.co/rest/v1/families?select=*", "https://challenges.cloudflare.com/turnstile/v0/api.js",
@@ -957,7 +1004,7 @@ async function run(browser, scheme) {
       && /^2 bài hôm nay\|\d+(,\d+)? điểm hôm nay\|1 chuỗi ngày Kiểm tra giữa học kì I còn \d+ ngày · chưa ôn Tiếng Việt$/.test(c.ux2.binCard),
     "UX2: tab Lịch thi: khối của các con (Lớp 4 · Bin, Lớp 6 · Na), gom theo tháng; kì thi dự kiến có nút “Trường đã báo lịch? Sửa ngày” (≥ 44px), kì khác có “Sửa ngày, bài ôn”":
       c.ux2.cal.tabs === "Các con,Lịch thi*,Cài đặt / Cả hai khối*,Lớp 4 · Bin,Lớp 6 · Na" && c.ux2.cal.fix === "Trường đã báo lịch? Sửa ngày" && c.ux2.cal.fixH >= 44 && c.ux2.cal.tent && c.ux2.cal.edit === "#/admin/event/ioe-truong"
-      && c.ux2.cal.months >= 6 && c.ux2.cal.grades.split(",").every((g) => /^(4|6|46)$/.test(g)) && c.ux2.calG6,
+      && c.ux2.cal.months >= 6 && c.ux2.cal.only46 && c.ux2.cal.n === c.ux2.cal.shown && c.ux2.cal.all > c.ux2.cal.shown && !c.ux2.cal.hidden && c.ux2.cal.kg === "Khai giảng năm học 2026–2027 · Lớp 4, 6" && c.ux2.calG6,
     "UX2: hộp sửa ngày mở ngay dưới kì thi, ô chọn “lịch chính thức” bật sẵn; thiếu ngày thì báo; Lưu thì bỏ cờ dự kiến, lên máy chủ, hộp đóng": c.ux2.fixBox.after && c.ux2.fixBox.start === "2026-11-02" && c.ux2.fixBox.end === "2026-11-13" && c.ux2.fixBox.official
       && /^Trường đã báo lịch\? Sửa ngày cho đúng\. ?Kiểm tra giữa học kì I/.test(c.ux2.fixBox.text) && /Chọn ngày thi/.test(c.ux2.fixErr) && c.ux2.fixed.toast === "Đã lưu ngày thi" && !c.ux2.fixed.box && !c.ux2.fixed.tent
       && c.ux2.fixed.date === "4/11đến 6/11" && c.ux2.fixed.act === "Sửa ngày, bài ôn" && c.ux2.fixed.ev.start === "2026-11-04" && c.ux2.fixed.ev.end === "2026-11-06" && c.ux2.fixed.ev.tentative === false && c.ux2.fixServer,
@@ -1043,6 +1090,12 @@ async function run(browser, scheme) {
       && ad.reports.reopened && ad.reports.rejected && ad.reports.rows === 1,
     "admin: đăng xuất; CAPTCHA (khi bật) khi đăng nhập": ad.out && (!withCaptcha || ad.captcha === "adCaptcha,adCaptcha,adCaptcha"),
     "admin: không đi qua service worker; cùng bản supabase-js với trang học": ad.swSkip && ad.lib,
+    "Lịch các khối mới: tài khoản cũ (lịch khối 4, 6) mở bản mới: máy chủ chưa chạy cap-nhat-lich.sql thì lịch giữ nguyên, không lỗi; có cột thì kì thi của khối 5, 7–12 (thi vào 10, tốt nghiệp) lên máy chủ, mốc năm học thêm khối (tet-2027 không thêm lại khối 6), gk1-l4 giữ ngày đã sửa, ioe-qg không quay lại, het-hk1 sang 18/1; mở lại không chép lần hai; kì mới bố mẹ xóa không quay lại; tab Lịch thi không có khối chưa bật":
+      c.lich.noCol.n === 15 && c.lich.noCol.seen === 0 && c.lich.noCol.inApp === 15 && !/Máy chủ|chưa nhận|lỗi/i.test(c.lich.noCol.toast)
+      && c.lich.synced && c.lich.keysN === SEED_EVENTS.reduce((a, e) => a + e.grades.length, 0) && c.lich.after.gk1 === "2026-11-04,2026-11-06,false" && !c.lich.after.ioeQg
+      && c.lich.after.tet === "4,1,2,3,5,7,8,9,10,11,12" && c.lich.after.kg === "4,6,1,2,3,5,7,8,9,10,11,12" && c.lich.after.hk1 === "2027-01-18" && c.lich.after.vao10 && c.lich.after.l12
+      && c.lich.after.inApp === SEED_EVENTS.length - 1 && c.lich.again.n === SEED_EVENTS.length - 1 && c.lich.again.seen === c.lich.keysN && c.lich.removed.n === SEED_EVENTS.length - 2 && !c.lich.removed.vao10
+      && c.lich.cal.tabs === "Các con,Lịch thi*,Cài đặt / Cả hai khối*,Lớp 4,Lớp 6" && c.lich.cal.n === c.lich.cal.shown && c.lich.cal.all > c.lich.cal.shown && !c.lich.cal.hidden,
     "U1: nút xem mật khẩu, mã PIN, mã mở nhanh (lPass, pwNew, pwNew2, pwIn, uPin, pwOld, qcNew, pinIn, outPw, adPass): hiện, ẩn, giữ giá trị và focus; gửi form, xóa hết ô thì ẩn lại": rv.length === 0,
     "360px: không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px, chữ không đè lên nhau": problems.length === 0,
     "không lỗi trên trang": errs.length === 0

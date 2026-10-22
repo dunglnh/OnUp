@@ -26,12 +26,18 @@
   const WDL = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"];
   const GOAL = 5; // mục tiêu số ngày ôn mỗi tuần (thẻ "Hôm nay", Phiên UX1)
   const TITLE = document.title;
-  /* Khối lớp (data/grades.js): chỉ hiện khối đang có nội dung, cộng thêm các khối trong keep (dữ liệu đang có) để sửa không mất khối. */
+  /* Khối lớp (data/grades.js): chỉ hiện khối đang có nội dung, cộng thêm các khối trong keep (dữ liệu đang có) để sửa không mất khối.
+     Lịch mặc định có kì thi của mọi khối 4–12 (mốc năm học: 1–12), nhưng kì thi của khối chưa bật không hiện ở đâu (Phiên Lịch các khối mới):
+     shownGrades() = khối đang bật + khối đang có học sinh; lịch thi "Mọi khối", danh sách kì thi của quản trị, form kì thi và chữ "Lớp …"
+     trên thẻ kì thi (gradesTxt) chỉ dùng các khối đó; khối ẩn của một kì thi vẫn giữ trong dữ liệu (form lưu lại nguyên). */
   const GRADES = window.ONTAP_GRADES || [];
   const gradeList = (keep) => GRADES.filter((g) => g.active || (keep || []).includes(g.grade)).map((g) => g.grade);
   const gradeName = (g) => (GRADES.find((x) => x.grade === +g) || { name: "Lớp " + g }).name;
   const gradeOptions = (sel) => gradeList([+sel]).map((g) => `<option value="${g}" ${+sel === g ? "selected" : ""}>${esc(gradeName(g))}</option>`).join("");
   const gradesOf = (users) => [...new Set(users.map((u) => +u.grade))].sort((a, b) => a - b);
+  const shownGrades = () => gradeList(gradesOf(Store.users("student")));
+  const shownEvents = (evs, gl) => { const s = gl || shownGrades(); return evs.filter((e) => (e.grades || []).some((g) => s.includes(+g))); };
+  const gradesTxt = (e) => { const s = shownGrades(), v = (e.grades || []).map(Number).filter((g) => s.includes(g)); return (v.length ? v : (e.grades || [])).join(", "); };
 
   /* ---------------- ngày tháng ---------------- */
   const today0 = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
@@ -694,7 +700,7 @@
     const dd = !e.start ? `<span class="d">?<small>chưa có</small></span>` : `<span class="d">${dm(e.start)}<small>${e.end && e.end !== e.start ? "đến " + dm(e.end) : WD[pd(e.start).getDay()]}</small></span>`;
     return `<button class="ev ${esc(e.kind)} ${st}" data-ev="${esc(e.id)}">
       ${dd}
-      <span class="t"><b>${nb(esc(e.title) + (g == null && e.grades ? ` · Lớp ${e.grades.join(", ")}` : ""))}</b>
+      <span class="t"><b>${nb(esc(e.title) + (g == null && e.grades ? ` · Lớp ${gradesTxt(e)}` : ""))}</b>
         <span class="tags">${e.kind !== "moc" ? `<span class="tag ${e.kind === "ioe" ? "ioe" : ""}">${esc(KIND[e.kind] || e.kind)}</span>` : `<span class="tag moc">Mốc năm học</span>`}
           ${e.tentative && e.start ? `<span class="tag warn">Dự kiến</span>` : ""}
           ${st === "now" ? `<span class="tag warn">Đang diễn ra</span>` : st === "future" && e.kind !== "moc" ? `<span class="tag">Còn ${daysTo(e)} ngày</span>` : ""}
@@ -1083,7 +1089,7 @@
     box.className = "panel"; box.id = "evDetail";
     box.innerHTML = `<div class="row between"><span class="label">${esc(KIND[e.kind] || "")}${e.tentative && e.start ? " · Dự kiến" : ""}</span><button class="linkbtn" id="evClose">Đóng ✕</button></div>
       <h2>${nb(esc(e.title))}</h2>
-      <p>${nb(`<b>${esc(range(e))}</b> · Lớp ${esc((e.grades || []).join(", "))}`)}</p>
+      <p>${nb(`<b>${esc(range(e))}</b> · Lớp ${esc(gradesTxt(e))}`)}</p>
       ${e.subjects && e.subjects.length ? `<p>Môn: ${esc(e.subjects.join(", "))}</p>` : ""}
       ${e.scope ? `<p class="small">Phạm vi: ${esc(e.scope)}</p>` : ""}
       ${e.note ? `<p class="small muted">${esc(e.note)}</p>` : ""}
@@ -1115,7 +1121,8 @@
     else if (query && gl.includes(+query.g)) calGrade = +query.g;
     else if (calGrade == null) calGrade = kidGrades.length === 1 ? kidGrades[0] : 0;
     // Học sinh (tab Lịch thi, UX1): chỉ kì thi chưa qua của khối mình, không có mốc năm học; mỗi kì có "Còn N ngày" (eventRow).
-    const evs = Store.events(calGrade || null).filter((e) => !fixed || (e.kind !== "moc" && status(e) !== "past"));
+    // Tab "Mọi khối": chỉ kì thi của các khối đang hiện (gl), không có kì thi của khối chưa bật.
+    const evs = (calGrade ? Store.events(calGrade) : shownEvents(Store.events(), gl)).filter((e) => !fixed || (e.kind !== "moc" && status(e) !== "past"));
     const { months, undated } = byMonth(evs);
     const student = u.role === "student" ? u : null, results = student ? graded(Store.resultsFor(u.id)) : [];
     const year = esc(Store.settings().schoolYear || "2026–2027");
@@ -1464,7 +1471,7 @@
         ${!Store.persistent() ? `<div class="fb bad">Trình duyệt đang chặn lưu dữ liệu. Dữ liệu sẽ mất khi tải lại trang.</div>` : ""}
         ${backupCard()}
         <section class="sec"><h2>Học sinh</h2>${studs.length ? `<div class="list">${studs.map(childCard).join("")}</div>` : `<div class="panel">Chưa có học sinh. <div class="row"><a class="btn main" href="#/admin/user/new?role=student">Thêm học sinh</a></div></div>`}</section>`
-        + gradeList().map((g) => { const n = nextEvent(g); return n ? `<section class="sec"><h2>${nb("Kì thi tiếp theo · " + esc(gradeName(g)))}</h2><div class="timeline">${eventRow(n, { grade: g })}</div></section>` : ""; }).join("");
+        + shownGrades().map((g) => { const n = nextEvent(g); return n ? `<section class="sec"><h2>${nb("Kì thi tiếp theo · " + esc(gradeName(g)))}</h2><div class="timeline">${eventRow(n, { grade: g })}</div></section>` : ""; }).join("");
     } else if (tab === "settings") {
       const us = Store.users("student"), full = !Store.can("addChild"), st = Store.settings(), mine = Store.banks().filter((b) => !b.seed);
       body = `<section class="panel" id="kidsBox"><div class="row between"><h3>Hồ sơ con (${us.length}/${(Store.plan() || {}).maxChildren || 0})</h3>${full ? "" : `<a class="btn sm" href="#/admin/user/new?role=student">+ Thêm</a>`}</div>
@@ -1488,7 +1495,7 @@
     } else if (tab === "events") {
       body = `<div class="row between"><p class="muted small" style="flex:1">Sửa ngày khi trường thông báo, gắn bài ôn vào từng kì thi.</p><a class="btn main sm" href="#/admin/event/new">+ Thêm kì thi</a></div>
         <a class="linkbtn" id="calLink" href="#/calendar">Xem theo tháng →</a>
-        <div class="list">${Store.events().map((e) => `<a class="item" href="#/admin/event/${esc(e.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${nb(`${esc(e.title)} · Lớp ${esc(e.grades.join(", "))}`)}</b><span class="small muted">${esc(range(e))}${e.tentative && e.start ? " · dự kiến" : ""} · ${practiceCount(practiceFor(e, null))} bài ôn</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>
+        <div class="list">${shownEvents(Store.events()).map((e) => `<a class="item" href="#/admin/event/${esc(e.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${nb(`${esc(e.title)} · Lớp ${esc(gradesTxt(e))}`)}</b><span class="small muted">${esc(range(e))}${e.tentative && e.start ? " · dự kiến" : ""} · ${practiceCount(practiceFor(e, null))} bài ôn</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>
         <div class="row"><button class="btn ghost sm" id="resetEv">Khôi phục lịch mặc định</button></div><div id="resetArea"></div>`;
     } else if (tab === "banks" && cloud) {
       const all = Store.banks(), mine = all.filter((b) => !b.seed), seed = all.filter((b) => b.seed);
@@ -1676,12 +1683,14 @@
     if (u.role !== "admin") { go("#/home"); return; }
     const e = id === "new" ? { id: "", title: "", kind: "dinh-ki", grades: gradeList().slice(0, 1), start: "", end: "", tentative: true, subjects: [], scope: "", note: "", modules: [], banks: [] } : Store.event(id);
     if (!e) { go("#/admin/events"); return; }
+    // Ô chọn khối: khối đang hiện (đang bật, đang có học sinh); khối ẩn của kì thi (mốc năm học cho cả 12 khối) không hiện nhưng được giữ khi lưu
+    const shown = shownGrades(), hiddenGrades = (e.grades || []).map(Number).filter((g) => !shown.includes(g));
     view.innerHTML = `<div class="stack">${back("#/admin/events", "Lịch thi")}
       <h2>${id === "new" ? "Thêm kì thi" : "Sửa kì thi"}</h2>
       <form class="panel" id="eForm" autocomplete="off"><div class="form">
         <label class="field full"><span>Tên kì thi</span><input id="eTitle" value="${esc(e.title)}" required placeholder="Ví dụ: Kiểm tra cuối học kì I"></label>
         <label class="field"><span>Loại</span><select id="eKind">${Object.entries(KIND).map(([k, t]) => `<option value="${k}" ${e.kind === k ? "selected" : ""}>${t}</option>`).join("")}</select></label>
-        <div class="field"><span>Khối</span><div class="checks">${gradeList(e.grades).map((g) => `<label><input type="checkbox" name="eg" value="${g}" ${e.grades.includes(g) ? "checked" : ""}>${esc(gradeName(g))}</label>`).join("")}</div></div>
+        <div class="field"><span>Khối</span><div class="checks">${shown.map((g) => `<label><input type="checkbox" name="eg" value="${g}" ${(e.grades || []).map(Number).includes(g) ? "checked" : ""}>${esc(gradeName(g))}</label>`).join("")}</div></div>
         <label class="field"><span>Từ ngày (để trống nếu chưa có lịch)</span><input type="date" id="eStart" value="${esc(e.start || "")}"></label>
         <label class="field"><span>Đến ngày</span><input type="date" id="eEnd" value="${esc(e.end || "")}"></label>
         <div class="field full"><div class="checks"><label><input type="checkbox" id="eTent" ${e.tentative ? "checked" : ""}>Ngày dự kiến (chưa có thông báo chính thức)</label></div></div>
@@ -1697,7 +1706,7 @@
       ev.preventDefault();
       try {
         Store.upsertEvent({
-          id: e.id, title: $("#eTitle").value, kind: $("#eKind").value, grades: $$("input[name=eg]:checked").map((x) => +x.value),
+          id: e.id, title: $("#eTitle").value, kind: $("#eKind").value, grades: $$("input[name=eg]:checked").map((x) => +x.value).concat(hiddenGrades),
           start: $("#eStart").value || null, end: $("#eEnd").value || null, tentative: $("#eTent").checked,
           subjects: $("#eSubj").value.split(",").map((s) => s.trim()).filter(Boolean), scope: $("#eScope").value.trim(), note: $("#eNote").value.trim(),
           modules: $$("input[name=em]:checked").map((x) => x.value), banks: $$("input[name=eb]:checked").map((x) => x.value)
