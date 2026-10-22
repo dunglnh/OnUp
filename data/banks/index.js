@@ -107,6 +107,11 @@ window.ONTAP_SEED_BANKS = [
   { id: "gdcd6-gk1-de2", title: "GDCD 6 · Giữa kì I · Đề 2", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js" },
   { id: "tin6-gk1-de1", title: "Tin học 6 · Giữa kì I · Đề 1", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js" },
   { id: "congnghe6-gk1-de1", title: "Công nghệ 6 · Giữa kì I · Đề 1", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js" },
+  { id: "congnghe6-gk1-de2", title: "Công nghệ 6 · Giữa kì I · Đề 2", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js" },
+
+  /* KHTN 6 · Kiểm tra giữa học kì I (Kết nối tri thức, Bài 1–16, trường dạy cuốn chiếu; Phiên N25) */
+  { id: "khtn6-gk1-de1", title: "KHTN 6 · Giữa kì I · Đề 1", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js" },
+  { id: "khtn6-gk1-de2", title: "KHTN 6 · Giữa kì I · Đề 2", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js" },
 
   /* Toán 6 · Kiểm tra giữa học kì I (Kết nối tri thức; Đề 1: Chương I–II, Bài 1–12, cho lớp chưa học số nguyên;
      Đề 2: Chương I–III, Bài 1–17) */
@@ -284,6 +289,22 @@ window.ONTAP_SEED_BANKS = [
     pool: { from: ["gdcd6-gk1-de1", "gdcd6-gk1-de2"], matrix: {
       "Truyền thống gia đình, dòng họ": [3, 2, 2], "Yêu thương con người": [3, 2, 2], "Siêng năng, kiên trì": [3, 2, 2],
       "Tôn trọng sự thật": [1, 2, 1] } } },
+  /* Ngân hàng KHTN 6 giữa kì I (Phiên N25): kho câu = 27 câu riêng trong file + 50 câu của 2 đề cố định ở trên, câu nào cũng có
+     mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): đủ 9 chủ
+     đề của Bài 1–16 (chữ chủ đề như khtn6-ck1), mỗi chủ đề 2–4 câu; hai đề cố định đều chia đúng theo ma trận, nên ô (chủ đề, mức)
+     nào cũng có ít nhất gấp đôi số câu ô đó rút. */
+  { id: "khtn6-gk1-ngau-nhien", title: "KHTN 6 · Giữa kì I · Đề ngẫu nhiên", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js",
+    pool: { from: ["khtn6-gk1-de1", "khtn6-gk1-de2"], matrix: {
+      "Giới thiệu về Khoa học tự nhiên": [1, 1, 0], "An toàn trong phòng thực hành": [1, 1, 1], "Kính lúp, kính hiển vi": [1, 0, 1],
+      "Đo chiều dài, khối lượng, thời gian": [2, 1, 1], "Đo nhiệt độ": [1, 1, 1], "Chất và sự chuyển thể": [1, 1, 1],
+      "Oxygen và không khí": [1, 1, 1], "Vật liệu, nhiên liệu, lương thực – thực phẩm": [1, 1, 1], "Hỗn hợp và tách chất": [1, 1, 0] } } },
+  /* Ngân hàng Công nghệ 6 giữa kì I (Phiên N25): kho câu = 50 câu của 2 đề cố định ở trên (không có câu riêng), câu nào cũng có
+     mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): Bài 1
+     Khái quát về nhà ở 10 câu, Bài 2 Sử dụng năng lượng trong gia đình 8 câu, Bài 3 Ngôi nhà thông minh 7 câu như đề 1; đề 2 chia
+     đúng theo ma trận và bù câu Vận dụng đề 1 còn thiếu (đề 1 có 11 – 11 – 3), nên ô nào cũng đủ câu. */
+  { id: "congnghe6-gk1-ngau-nhien", title: "Công nghệ 6 · Giữa kì I · Đề ngẫu nhiên", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js",
+    pool: { from: ["congnghe6-gk1-de1", "congnghe6-gk1-de2"], matrix: {
+      "Khái quát về nhà ở": [4, 3, 3], "Sử dụng năng lượng trong gia đình": [3, 3, 2], "Ngôi nhà thông minh": [3, 2, 2] } } },
   /* Ngân hàng Toán 4 giữa kì I (Phiên N23): kho câu = 51 câu riêng trong file + 50 câu của 2 đề cố định ở trên, câu nào cũng có
      mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu (40% – 32% – 28%) trên chín chủ đề của toan4-ck1
      có trong Bài 1–19 (chưa có tính chất phép cộng, tổng và hiệu, đường thẳng vuông góc, song song, hình bình hành, hình thoi):
