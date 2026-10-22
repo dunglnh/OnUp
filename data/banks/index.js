@@ -121,6 +121,10 @@ window.ONTAP_SEED_BANKS = [
   { id: "toan4-gk1-de1", title: "Toán 4 · Giữa kì I · Đề 1", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js" },
   { id: "toan4-gk1-de2", title: "Toán 4 · Giữa kì I · Đề 2", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js" },
 
+  /* Tiếng Việt 4 · Kiểm tra giữa học kì I (Kết nối tri thức, tập 1, Bài 1–16, tuần 1–8) */
+  { id: "tv4-gk1-de1", title: "Tiếng Việt 4 · Giữa kì I · Đề 1", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js" },
+  { id: "tv4-gk1-de2", title: "Tiếng Việt 4 · Giữa kì I · Đề 2", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js" },
+
   /* Ngân hàng Toán 4 cuối kì I (Phiên N1): kho câu = 31 câu riêng trong file + 75 câu của 3 đề cố định ở trên, câu nào cũng
      có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020 (3 mức, không quy định tỉ lệ): 10 – 8 – 7 câu (40% – 32% – 28%). */
   { id: "toan4-ck1-ngau-nhien", title: "Toán 4 · Cuối kì I · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
@@ -292,6 +296,16 @@ window.ONTAP_SEED_BANKS = [
       "Số có nhiều chữ số": [3, 2, 1], "Làm tròn số": [1, 1, 0], "Số chẵn, số lẻ": [1, 1, 0], "Biểu thức chứa chữ": [1, 1, 1],
       "Phép cộng, phép trừ": [1, 1, 0], "Phép nhân, phép chia": [1, 0, 1], "Giải bài toán có ba bước tính": [0, 0, 2],
       "Góc và đo góc": [1, 1, 1], "Đơn vị đo": [1, 1, 1] } } },
+  /* Ngân hàng Tiếng Việt 4 giữa kì I (Phiên N23b): kho câu = 52 câu riêng trong file (4 đoạn đọc, 4 câu Viết) + 50 câu của 2 đề
+     cố định ở trên, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, trong đó 7 câu
+     Đọc hiểu, 1 câu Viết (tự chấm, nên cả ba đề 40 phút). 17 câu Luyện từ và câu, Chính tả trên các chủ đề của tv4-ck1 có trong
+     Bài 1–16, chia theo số bài trong sách: danh từ 4 (Bài 1, 5), danh từ chung, danh từ riêng 3 (Bài 3), viết tên cơ quan, tổ
+     chức 2 (Bài 7), động từ 5 (Bài 9, 11, 13), từ điển 2 (Bài 15), chính tả 1. Hai đề cố định chia đúng theo ma trận, câu riêng
+     ở ô nào cũng gấp đôi số câu ô đó rút, nên học sinh đã làm hai đề cố định vẫn gặp toàn câu mới. */
+  { id: "tv4-gk1-ngau-nhien", title: "Tiếng Việt 4 · Giữa kì I · Đề ngẫu nhiên", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js",
+    pool: { from: ["tv4-gk1-de1", "tv4-gk1-de2"], matrix: {
+      "Đọc hiểu": [3, 2, 2], "Danh từ": [2, 1, 1], "Danh từ chung, danh từ riêng": [1, 1, 1], "Viết tên cơ quan, tổ chức": [1, 1, 0],
+      "Động từ": [1, 2, 2], "Sử dụng từ điển": [1, 1, 0], "Chính tả": [1, 0, 0], "Viết": [0, 0, 1] } } },
   /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
      mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
