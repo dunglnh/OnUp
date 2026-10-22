@@ -538,9 +538,57 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
 
   step("360px light + dark (L4–L11)");
   /* Ở 360px: không tràn ngang; mọi button, a.btn, .linkbtn, summary (dòng mở/đóng của <details>, L23) đang hiện cao ≥ 44px; không chữ nào nhỏ hơn 13px.
-     Phần tử bị ẩn (display:none, nằm trong <details> đang đóng) không tính. Trả về danh sách lỗi. */
-  const audit = () => {
+     Phần tử bị ẩn (display:none, nằm trong <details> đang đóng) không tính. Trả về danh sách lỗi.
+     Chữ không đè lên nhau (chủ app yêu cầu 22/10/2026; trước đây tên ngắn dài như “Từ đơn, từ phức” tràn khỏi cột số bài, đè lên tên bài ở
+     bài ôn l4, l6). Mỗi đoạn chữ (text node) đang hiện đo bằng Range.getClientRects, cắt theo khung có overflow khác visible (phần cuộn
+     khuất không tính); hai đoạn khác nhau cùng lớp (cùng phần tử position fixed/sticky gần nhất, hoặc cùng không có: thanh dính, thông báo
+     nổi che nội dung là đúng thiết kế) chồng lên nhau quá 2px theo chiều ngang và quá 40% chiều cao dòng thấp hơn (hai dòng liền nhau của một
+     đoạn, dòng sát nhau vì line-height nhỏ không tính); chữ không tràn ra ngoài ô chứa nó (phần tử không inline gần nhất) quá 1,5px theo chiều
+     ngang; chữ không đè lên ô nhập, hình. only === "chữ": chỉ kiểm tra chữ đè, chữ tràn (bài ôn dạng trang giữ cỡ chữ, cỡ nút của bài gốc). */
+  const audit = (only) => {
     const bad = [], shown = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden"; };
+    {
+      const cs = (e) => getComputedStyle(e), say = (s) => `"${s.slice(0, 32)}"`;
+      /* ẩn: nằm trong <details> đang đóng (trừ dòng summary; getComputedStyle không ghi display:none), display:none, visibility, opacity 0,
+         content-visibility:hidden. <details> đang đóng xét bằng DOM trước, không gọi getComputedStyle trong phần đang đóng: gọi rồi thì
+         getBoundingClientRect của nút trong đó có lúc ra 0, kiểm tra cỡ nút bên dưới đo sai. */
+      const closed = (el) => { for (let e = el; e; e = e.parentElement) { const d = e.parentElement; if ((e === el && e.tagName === "DETAILS" && !e.open) || (d && d.tagName === "DETAILS" && !d.open && e.tagName !== "SUMMARY")) return true; } return false; };
+      const hid = (el) => { if (closed(el)) return true; for (let e = el; e; e = e.parentElement) { const s = cs(e); if (s.display === "none" || s.visibility !== "visible" || parseFloat(s.opacity) === 0 || s.contentVisibility === "hidden") return true; } return false; };
+      const layer = (el) => { for (let e = el; e; e = e.parentElement) if (/^(fixed|sticky)$/.test(cs(e).position)) return e; return null; };
+      const cut = (el, r) => { // phần đang thấy của ô chữ r: cắt theo các khung có overflow khác visible (không tính body, html: cuộn cả trang)
+        let L = r.left, T = r.top, R = r.right, B = r.bottom;
+        for (let e = el; e && e !== document.body && e !== document.documentElement; e = e.parentElement) {
+          const s = cs(e), x = s.overflowX !== "visible", y = s.overflowY !== "visible";
+          if (x || y) { const b = e.getBoundingClientRect(); if (x) { L = Math.max(L, b.left); R = Math.min(R, b.right); } if (y) { T = Math.max(T, b.top); B = Math.min(B, b.bottom); } }
+          if (s.position === "fixed") break;
+        }
+        return R - L > 0.5 && B - T > 0.5 ? { left: L, top: T, right: R, bottom: B } : null;
+      };
+      const items = [], tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      for (let n; (n = tw.nextNode());) {
+        const t = n.textContent, a = t.search(/\S/), el = n.parentElement;
+        if (a < 0 || !el || el.closest("script,style,template,noscript,option") || hid(el)) continue;
+        const rg = document.createRange(); rg.setStart(n, a); rg.setEnd(n, t.trimEnd().length);
+        for (const r of rg.getClientRects()) { const c = r.width >= 1 && r.height >= 1 && cut(el, r); if (c) items.push({ n, el, ly: layer(el), r: c, h: r.height, t: t.trim().replace(/\s+/g, " ") }); }
+      }
+      const over = (a, b) => [Math.min(a.right, b.right) - Math.max(a.left, b.left), Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top)];
+      for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) {
+        const a = items[i], b = items[j], [w, h] = over(a.r, b.r);
+        if (a.n !== b.n && a.ly === b.ly && w > 2 && h > 0.4 * Math.min(a.h, b.h)) bad.push(`chữ đè lên nhau: ${say(a.t)} và ${say(b.t)}`);
+      }
+      for (const it of items) {
+        let box = it.el; while (box && /^(inline|contents)$/.test(cs(box).display)) box = box.parentElement;
+        if (!box || box.closest("svg")) continue;
+        const b = box.getBoundingClientRect(), d = Math.max(it.r.right - b.right, b.left - it.r.left);
+        if (d > 1.5) bad.push(`chữ tràn khỏi ô: ${say(it.t)} ra ngoài ${Math.round(d)}px`);
+      }
+      const boxes = [...document.querySelectorAll("input:not([type=hidden]),textarea,select,img,canvas,video")].filter((e) => !hid(e)).map((e) => ({ e, ly: layer(e), r: e.getBoundingClientRect() }));
+      for (const it of items) for (const x of boxes) {
+        const [w, h] = over(it.r, x.r);
+        if (x.ly === it.ly && x.r.width > 2 && x.r.height > 2 && w > 2 && h > 0.4 * it.h) bad.push(`chữ đè lên ô nhập, hình: ${say(it.t)} và <${x.e.tagName.toLowerCase()}>`);
+      }
+    }
+    if (only === "chữ") return [...new Set(bad)];
     if (document.documentElement.scrollWidth > innerWidth) bad.push("tràn ngang: rộng " + document.documentElement.scrollWidth + "px");
     document.querySelectorAll("button, a.btn, .linkbtn, summary").forEach((el) => { const h = el.getBoundingClientRect().height; if (shown(el) && h < 44) bad.push(`nút "${el.textContent.trim().slice(0, 24)}" cao ${Math.round(h)}px`); });
     const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
@@ -1731,7 +1779,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   const l27OK = !l27.problems.length && l27.runs.length === 8 && l27.runs.every((r) => Object.keys(r).every((k) => ["m", "scheme", "kind"].includes(k) || r[k] === true))
     && Object.keys(L27_KEY).every((m) => ["light", "dark"].every((sc) => l27.shots.includes(`ket-qua-${m}-${sc}`)));
 
-  step("lesson pages l4, l6: numbers with thousands spaces stay on one line (360px)");
+  step("lesson pages l4, l6: numbers with thousands spaces stay on one line, no overlapping text (360px, 720px)");
   /* Bài ôn dạng trang l4-giua-ki-1, l6-giua-ki-1 viết số kiểu Việt Nam, ngăn hàng nghìn bằng khoảng trắng thường ("20 000", "2 500 000"); khi hiện
      ra, nbNum của trang đổi khoảng trắng đó thành khoảng trắng không ngắt (hợp đồng với bài ôn, CLAUDE.md). Bố Minh (quản trị, xem thử, không lưu
      điểm) mở từng bài trong khung ở 360px; với mỗi môn: trang đầu (tên bài), phần Ghi nhớ của từng bài, ôn luyện từng bài (mỗi câu lúc mới hiện và
@@ -1739,6 +1787,11 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      đoạn chữ (text node) nào còn khoảng trắng thường giữa hai nhóm số, không số nào nằm trên hai dòng (Range.getClientRects), khung không tràn ngang. Câu điền
      trong dữ liệu có đáp án là số từ 4 chữ số: gõ đáp án ngăn hàng nghìn bằng khoảng trắng không ngắt (như chép từ màn hình) vẫn được chấm đúng;
      câu khác trả lời sai (ô điền) hoặc chọn ô đầu tiên, để thấy đáp án và lời giải.
+     Chữ đè (chủ app yêu cầu 22/10/2026): mỗi màn trên còn chạy audit(…, "chữ") trong khung (chữ không đè lên nhau, không tràn khỏi ô). Trang đầu: bài
+     có số ("Bài 3", "Bài 22–23") có cột số bài đúng tên ngắn; bài có tên ngắn là chữ (Tiếng Việt 4: “DT chung, riêng”, “Tên cơ quan”; Ngữ văn 6:
+     “Từ đơn, từ phức”, “Biện pháp tu từ”…) không có cột số (.lrow.plain), chỉ có tên bài; tiêu đề phần Ghi nhớ là “Bài 3. <tên bài>” hoặc chỉ tên bài
+     (trước đây “Nghĩa của từ. Nghĩa của từ”). Ở 720px (máy tính bảng) mở lại trang đầu và phần Ghi nhớ của mọi bài; IOE 4, IOE 6 ở 360px và 720px:
+     trang đầu, câu đầu của Unit 1 trước và sau Check, câu đầu của Test 1, màn kết quả.
      L36 (Phiên 9l): trang môn KHTN của l6 đánh số bài, tên chương theo mục lục sách KHTN 6 Kết nối tri thức (bài ôn gốc theo sách Chân trời
      sáng tạo): đúng tên chương, số bài và thứ tự bài; mỗi phạm vi đề thi thử ghi đúng các bài sách của các bài trong phạm vi (ở nút chọn phạm vi
      và dòng phạm vi đầu trang), bài cùng một bài sách thì cùng phạm vi; không còn "Bài 35", "Bài 36", "Thang nhiệt độ Celsius".
@@ -1761,6 +1814,23 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   };
   let l36 = null;
   const mn = { problems: [], seen: {}, screens: 0, typed: [], want: 0 };
+  // chữ đè (22/10/2026): ov.problems ghi chỗ sai, ov.screens số màn đã xét, ov.plain số dòng bài không đánh số đã thấy
+  const ov = { problems: [], screens: 0, plain: 0, titles: 0 };
+  const chu = async (fr, label) => { (await fr.evaluate(audit, "chữ")).forEach((x) => ov.problems.push(`${label}: ${x}`)); ov.screens++; };
+  // trang đầu của một môn: bài có số có cột số bài đúng tên ngắn; bài khác là .lrow.plain, không có cột số
+  const lessonRows = async (fr, sid, label) => {
+    const r = await fr.evaluate((sid) => ({ plain: document.querySelectorAll("#view .lrow.plain").length, bad: SUBJ[sid].lessons.filter((l) => {
+      const b = document.querySelector(`#view .lrow[data-l="${l.id}"]`), n = b && b.querySelector(".lnum");
+      return !(b && (/^Bài\s/.test(l.short) ? n && n.textContent === l.short && !b.classList.contains("plain") : !n && b.classList.contains("plain")));
+    }).map((l) => l.id + " " + l.short) }), sid);
+    ov.plain += r.plain; r.bad.forEach((x) => ov.problems.push(`${label}: dòng bài ${x}`));
+  };
+  // phần Ghi nhớ: tiêu đề "Bài 3. <tên bài>", bài không đánh số chỉ có tên bài (không "Nghĩa của từ. Nghĩa của từ")
+  const lessonTitle = async (fr, sid, l, label) => {
+    const got = await fr.evaluate(([sid, l]) => { const L = SUBJ[sid].L[l], t = document.querySelector("#view h2").textContent.replace(/\s+/g, " ");
+      return t === ((/^Bài\s/.test(L.short) ? L.short + ". " : "") + L.name).replace(/\s+/g, " ") ? null : t; }, [sid, l]);
+    ov.titles++; if (got) ov.problems.push(`${label}: tiêu đề "${got}"`);
+  };
   {
     const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
     await localConfig(c); watchOut(c);
@@ -1791,6 +1861,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
         });
         mn.seen[m] += r.seen; mn.screens++;
         r.bad.forEach((x) => mn.problems.push(`${m} · ${label}: ${x}`));
+        await chu(fr, `360 · ${m} · ${label}`);
       };
       // câu điền đang hiện là câu trong dữ liệu có đáp án số từ 4 chữ số: đáp án ngăn hàng nghìn bằng khoảng trắng không ngắt ("50 000"); không thì null
       const nbAns = (sid) => fr.evaluate((sid) => {
@@ -1800,7 +1871,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       }, sid);
       for (const sid of await fr.$$eval(".stab", (bs) => bs.map((b) => b.dataset.sid))) {
         await fr.click(`.stab[data-sid="${sid}"]`); await fr.waitForSelector(`.stab[data-sid="${sid}"][aria-pressed="true"]`);
-        await check(`${sid}, trang đầu`);
+        await check(`${sid}, trang đầu`); await lessonRows(fr, sid, `360 · ${m} · ${sid}, trang đầu`);
         if (m === "l6-giua-ki-1" && sid === "khtn") l36 = await fr.evaluate(() => ({
           groups: [...document.querySelectorAll("#view .grp")].map((g) => [g.querySelector(".grp-h").textContent, [...g.querySelectorAll(".lrow")].map((b) => b.dataset.l + " " + b.querySelector(".lnum").textContent)]),
           seg: [...document.querySelectorAll("#view .seg button")].map((b) => b.textContent), scopeText: SUBJ.khtn.scopeText,
@@ -1815,7 +1886,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
         }));
         mn.want += await fr.evaluate((sid) => SUBJ[sid].items.filter((x) => x.q && x.ans != null && /^\d{4,}$/.test(String(x.ans).split("|")[0])).length, sid);
         for (const l of await fr.$$eval(".lrow", (bs) => bs.map((b) => b.dataset.l))) {
-          await fr.click(`.lrow[data-l="${l}"]`); await check(`${sid} ${l}, ghi nhớ`);
+          await fr.click(`.lrow[data-l="${l}"]`); await check(`${sid} ${l}, ghi nhớ`); await lessonTitle(fr, sid, l, `360 · ${m} · ${sid} ${l}, ghi nhớ`);
           if (m === "l6-giua-ki-1" && sid === "van" && L37.notes[l]) l37.screen[l] = await fr.$$eval("#view .notes li", (li) => li.map((x) => x.textContent.replace(/\s+/g, " ")));
           await fr.click("#goBtn");
           for (let i = 1; i <= 80 && (await fr.$("#skipBtn")); i++) {
@@ -1835,6 +1906,49 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     }
     await c.close();
   }
+  // chữ đè: 720px (máy tính bảng) trang đầu và phần Ghi nhớ của mọi bài ở l4, l6; IOE 4, IOE 6 ở 360px và 720px
+  for (const w of [360, 720]) {
+    const c = await newContext({ storageState: state, viewport: { width: w, height: w === 360 ? 740 : 1000 } });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push(`pageerror chữ đè ${w}: ` + e.message));
+    await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids["Bố Minh"]}"]`); await p.fill("#pinIn", PINS["Bố Minh"]); await p.waitForTimeout(400);
+    const frameOf = async (m) => {
+      await p.goto(BASE + "/#/home"); await p.waitForTimeout(150); await p.goto(BASE + "/#/play/" + m);
+      let fr = null; for (let i = 0; i < 60 && !(fr = p.frames().find((f) => f.url().includes(`/modules/${m}/`))); i++) await p.waitForTimeout(100);
+      return fr;
+    };
+    for (const m of w === 720 ? ["l4-giua-ki-1", "l6-giua-ki-1"] : []) {
+      const fr = await frameOf(m); await fr.waitForSelector(".stab");
+      for (const sid of await fr.$$eval(".stab", (bs) => bs.map((b) => b.dataset.sid))) {
+        await fr.click(`.stab[data-sid="${sid}"]`); await fr.waitForSelector(`.stab[data-sid="${sid}"][aria-pressed="true"]`);
+        await chu(fr, `${w} · ${m} · ${sid}, trang đầu`); await lessonRows(fr, sid, `${w} · ${m} · ${sid}, trang đầu`);
+        for (const l of await fr.$$eval(".lrow", (bs) => bs.map((b) => b.dataset.l))) {
+          await fr.click(`.lrow[data-l="${l}"]`); await chu(fr, `${w} · ${m} · ${sid} ${l}, ghi nhớ`); await lessonTitle(fr, sid, l, `${w} · ${m} · ${sid} ${l}, ghi nhớ`);
+          await fr.click("#backBtn"); await fr.waitForSelector(".stab");
+        }
+      }
+    }
+    for (const m of ["ioe-4", "ioe-6"]) {
+      const fr = await frameOf(m); await fr.waitForSelector("#heroBtn");
+      const at = (label) => chu(fr, `${w} · ${m} · ${label}`);
+      // trả lời câu đang hiện, dạng nào cũng được: chọn ô đầu, gõ vào ô điền, chạm hết các ô chữ cần sắp xếp
+      const answer = async () => {
+        if (await fr.$(".opt")) return fr.click(".opt >> nth=0");
+        for (const b of await fr.$$("input.blank.letter")) await b.fill("z");
+        if (await fr.$("#fillIn")) return fr.fill("#fillIn", "zz");
+        for (let k = 0; k < 20; k++) { const t = fr.locator("#pool .tile:visible:not([disabled])").first(); if (!(await t.count())) break; await t.click(); }
+      };
+      await at("trang đầu");
+      await fr.click('.unit[data-u="1"]'); await fr.waitForSelector("#endBtn", { timeout: 15000 });
+      await at("Unit 1, câu 1"); await answer(); await fr.click("#goBtn"); await at("Unit 1, câu 1, sau Check");
+      await fr.click("#endBtn"); await fr.click("#yesEnd"); await fr.waitForSelector("#resBtns"); await at("Unit 1, kết quả");
+      await fr.click("#homeBtn"); await fr.click("#heroBtn"); await fr.waitForSelector("#endBtn", { timeout: 15000 }); await at("Test 1, câu 1");
+      await fr.click("#endBtn"); await fr.click("#yesEnd"); await fr.waitForSelector("#resBtns"); await at("Test 1, kết quả");
+    }
+    await c.close();
+  }
+  console.log("chữ đè (bài ôn dạng trang):", { screens: ov.screens, plain: ov.plain, titles: ov.titles }, "problems:", ov.problems.length, ov.problems.slice(0, 30));
+  const overlapOK = !ov.problems.length && ov.screens > 500 && ov.plain > 0 && ov.titles > 0;
   console.log("số trong bài ôn dạng trang:", { screens: mn.screens, seen: mn.seen, typed: mn.typed, want: mn.want }, "problems:", mn.problems.length, mn.problems.slice(0, 30));
   const modNumOK = !mn.problems.length && mn.seen["l4-giua-ki-1"] > 200 && mn.seen["l6-giua-ki-1"] > 20 && mn.want > 0 && mn.typed.length === mn.want && mn.typed.every(Boolean);
   const l36Errs = [];
@@ -2712,7 +2826,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, l36OK, l37OK, pickOK, ux4OK, ux5OK, numOK, l29OK, ux6LocalOK };
+    migOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, pickOK, ux4OK, ux5OK, numOK, l29OK, ux6LocalOK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
