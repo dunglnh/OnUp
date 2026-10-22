@@ -134,10 +134,8 @@ const CHECKS = [
     cols.forEach((c) => assert.ok(q.x.includes(`${c.pct}% ${KHI[c.pct].toLowerCase()} (cột ${c.n})`) || q.x.includes(`${c.pct}% là các khí khác như ${KHI[c.pct].toLowerCase()}, hơi nước, argon (cột ${c.n})`), "lời giải cột " + c.n)); return KHI[cols.find((c) => c.n === 2).pct]; } },
   { id: DE2, has: "kính lúp phóng to 5 lần để quan sát một con kiến dài 4 mm", right: () => 4 * 5 },
   { id: DE2, has: "Một chiếc bút sáp đặt dọc theo thước", right: (q) => { const r = docThuoc(q.svg); assert.equal(r.perCm, 2, "mỗi xentimét chia làm 2 khoảng"); assert.ok(r.from > 0, "một đầu không ở vạch 0"); assert.ok(q.x.includes("2 khoảng") && q.x.includes(`${String(r.to).replace(".", ",")} − ${r.from} = `)); return r.len; } },
-  { id: DE2, has: "được đặt ở 50 °C. Nhiệt độ này bằng bao nhiêu độ F", right: () => 50 * 1.8 + 32 },
   { id: POOL, has: "thị kính 10x. Muốn ảnh của mẫu vật được phóng to 600 lần", right: () => 600 / 10 },
-  { id: POOL, has: "khối lượng 0,52 kg", right: () => 0.52 * 1000 },
-  { id: POOL, has: "khối lượng tịnh 360 g, trong hộp có 12 chiếc bánh", right: () => 360 / 12 },
+  { id: POOL, has: "Mỗi bước chân của Nam dài khoảng 50 cm, Nam đi hết 12 bước", right: (q) => { const m = q.q.match(/dài khoảng (\d+) cm, Nam đi hết (\d+) bước/); assert.ok(q.x.includes(`${m[2]} × 0,5 = `)); return (+m[1] * +m[2]) / 100; } },
   { id: POOL, has: "pha sữa cho em bé", right: (q) => { const r = docNhietKe(q.svg); assert.equal(r.buoc, 1, "mỗi khoảng chia 1 °C"); assert.ok(q.x.includes(r.khoang + " khoảng chia") && q.x.includes("1 °C")); return r.t; } },
   { id: POOL, has: "Nhiệt độ sôi của nước là 100 °C, của cồn (ethanol) là 78 °C", right: (q) => { const m = q.q.match(/nước là (\d+) °C, của cồn \(ethanol\) là (\d+) °C/); return +m[1] > +m[2] ? "Cồn, vì cồn có nhiệt độ sôi thấp hơn" : "Nước, vì nước có nhiệt độ sôi thấp hơn"; } },
   { id: POOL, has: "thang đo từ −10 °C đến 110 °C", right: (q) => { const ghd = +q.q.match(/đến (\d+) °C/)[1], hot = q.o.find((o) => { const m = o.match(/khoảng (\d+) °C/); return m && +m[1] > ghd; }); assert.ok(hot && q.x.includes(`Giới hạn đo của nhiệt kế là ${ghd} °C`)); return hot; } }
@@ -179,7 +177,7 @@ Object.entries(M).forEach(([t, v]) => v.forEach((k, i) => { const have = kho.fil
 kho.forEach((q) => assert.ok(M[q.topic] && M[q.topic][q.lv - 1] > 0, `${q.src}: ô (${q.topic}, mức ${q.lv}) không có trong ma trận: ${q.q.slice(0, 50)}`));
 // cả hai đề cố định chia đúng theo ma trận
 [DE1, DE2].forEach((id) => Object.entries(M).forEach(([t, v]) => assert.deepEqual([1, 2, 3].map((l) => bank(id).questions.filter((q) => q.topic === t && q.lv === l).length), v, id + " đúng ma trận ở chủ đề " + t)));
-// ít nhất 3 câu đúng/sai 4 ý mỗi đề, không có câu tự luận
+// ít nhất 2 câu đúng/sai 4 ý mỗi đề, không có câu tự luận
 [DE1, DE2].forEach((id) => { assert.ok(bank(id).questions.filter((q) => q.type === "tf4").length >= 2, id + ": cần câu đúng/sai 4 ý"); assert.ok(!bank(id).questions.some((q) => q.type === "essay"), id + ": không có tự luận"); });
 const seen = new Set();
 for (let k = 0; k < 400; k++) {
