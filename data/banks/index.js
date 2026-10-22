@@ -137,6 +137,9 @@ window.ONTAP_SEED_BANKS = [
      Phiên N8) */
   { id: "toan6-gk2-de1", title: "Toán 6 · Giữa kì II · Đề 1", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js" },
   { id: "toan6-gk2-de2", title: "Toán 6 · Giữa kì II · Đề 2", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js" },
+  /* Ngữ văn 6 · Kiểm tra giữa học kì II (Kết nối tri thức, Bài 6 Chuyện kể về những người anh hùng, Bài 7 Thế giới cổ tích; Phiên N9) */
+  { id: "van6-gk2-de1", title: "Ngữ văn 6 · Giữa kì II · Đề 1", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js" },
+  { id: "van6-gk2-de2", title: "Ngữ văn 6 · Giữa kì II · Đề 2", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js" },
 
   /* Ngân hàng Toán 4 cuối kì I (Phiên N1): kho câu = 31 câu riêng trong file + 75 câu của 3 đề cố định ở trên, câu nào cũng
      có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020 (3 mức, không quy định tỉ lệ): 10 – 8 – 7 câu (40% – 32% – 28%). */
@@ -373,6 +376,18 @@ window.ONTAP_SEED_BANKS = [
       "Phân số bằng nhau": [1, 1, 0], "So sánh phân số, hỗn số": [1, 1, 0], "Cộng, trừ phân số": [1, 1, 1], "Nhân, chia phân số": [1, 0, 1],
       "Hai bài toán về phân số": [0, 1, 1], "Số thập phân": [1, 1, 0], "Tính toán với số thập phân": [1, 0, 1], "Làm tròn và ước lượng": [1, 1, 0],
       "Tỉ số, tỉ số phần trăm": [0, 1, 1], "Điểm, đường thẳng, tia": [2, 0, 1], "Đoạn thẳng, trung điểm": [1, 1, 1] } } },
+  /* Ngân hàng Ngữ văn 6 giữa kì II (Phiên N9): kho câu = 31 câu riêng trong file (4 đoạn đọc, 3 câu Viết) + 50 câu của 2 đề cố
+     định ở trên (mỗi đề 2 đoạn đọc, 6 câu lẻ về thể loại và văn bản trong sách, 1 câu Viết), câu nào cũng có mức độ. Ma trận [Biết,
+     Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%): hai bài đọc (Bài 6, 7) mỗi bài 7 câu [2, 2, 3], rút theo đoạn (đoạn 4 câu mức
+     1-2-3-3 hoặc 3 câu mức 1-2-3, nên lần nào cũng lấy hai đoạn, đúng mức; câu lẻ được rút khi đã làm hết các đoạn); 10 câu Tiếng
+     Việt chỉ mức Biết, Hiểu (nghĩa của từ 3, từ ghép và từ láy 2, cụm từ 2, biện pháp tu từ 2, dấu chấm phẩy 1); 1 câu Viết tự chấm.
+     Hai đề cố định đúng ma trận, câu riêng thêm vào mọi ô, nên ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút. Câu tự
+     luận chỉ ở ô Viết: mỗi lần rút đúng 1 câu. */
+  { id: "van6-gk2-ngau-nhien", title: "Ngữ văn 6 · Giữa kì II · Đề ngẫu nhiên", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js",
+    pool: { from: ["van6-gk2-de1", "van6-gk2-de2"], matrix: {
+      "Chuyện kể về những người anh hùng": [2, 2, 3], "Thế giới cổ tích": [2, 2, 3],
+      "Nghĩa của từ": [1, 2, 0], "Từ đơn và từ phức": [2, 0, 0], "Cụm danh từ, cụm động từ, cụm tính từ": [2, 0, 0],
+      "Biện pháp tu từ": [1, 1, 0], "Dấu câu": [0, 1, 0], "Viết": [0, 0, 1] } } },
   /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
      mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
