@@ -365,6 +365,10 @@ Phiên N24b đối chiếu bản PDF Ngữ văn 6 tập một, sách in năm 202
 - Bài ôn dạng trang (`l4-giua-ki-1`, `l6-giua-ki-1`, `ioe-4`, `ioe-6`): `#skipBtn` gọi `record(q, null)` (câu vào “Ôn câu sai”) rồi `next()`; hết câu là `finish()`.
 - Con lỡ tay bấm, hoặc muốn để câu khó lại làm sau, thì câu đó tính là sai mà không được làm. Làm bài trên giấy thì học sinh quay lại câu bỏ trống được trước khi nộp.
 
+**L39. Không có bảng số câu: không nhảy tới câu bất kì, làm như thi không sửa được câu đã trả lời.**
+- Đề ngân hàng và bài ôn dạng trang chỉ đi lần lượt từng câu. Làm như thi, bấm “Trả lời” là sang câu sau; câu đã trả lời không mở lại để xem hay sửa trước khi nộp.
+- Chủ app muốn có bảng số câu như khi làm bài kiểm tra trên máy tính: nhảy tới câu bất kì, sửa câu trả lời trước khi nộp (22/10/2026).
+
 ---
 
 ## 2. Cách sửa gợi ý và điều kiện xong
@@ -889,70 +893,73 @@ Phiên N24b đối chiếu bản PDF Ngữ văn 6 tập một, sách in năm 202
 
 ### Phiên 9n
 
-**L38 · Bỏ qua rồi quay lại: đề ngân hàng.** Chỉ sửa `js/quiz.js`, `css/app.css` (nếu cần), `tests/` và tài liệu.
+**L38, L39 · Bỏ qua rồi quay lại, bảng số câu: đề ngân hàng.** Chỉ sửa `js/quiz.js`, `css/app.css` (nếu cần), `tests/` và tài liệu. Phiên lớn: làm L38 (bỏ qua, màn “Xem lại bài làm”) trước rồi L39 (bảng số câu).
 
-Flow (chủ app yêu cầu 22/10/2026; Phiên 9o dùng lại cho bài ôn dạng trang):
-1. Trong lượt làm, “Bỏ qua” như bây giờ: câu được đánh dấu đã bỏ qua, sang câu sau. Câu đã Kiểm tra thì không còn nút “Bỏ qua” (X8).
-2. Hết câu cuối mà còn câu bỏ qua thì chưa ra kết quả. Nút ở câu cuối ghi “Câu tiếp” thay cho “Xem kết quả”, rồi sang màn **“Câu bạn đã bỏ qua”**. Màn này vẫn thuộc lượt đang làm: đồng hồ vẫn chạy, chế độ tập trung giữ nguyên, rời trang vẫn hỏi lại.
-   - Dòng đầu: “Bạn đã bỏ qua 3 câu.”
-   - Hàng nút số câu (“Câu 4”, “Câu 9”, “Câu 15”), cao ≥ 44px. Bấm thì làm ngay câu đó.
-   - Nút chính “Làm lại 3 câu bỏ qua”: làm lần lượt theo số câu.
-   - Nút phụ: ôn luyện “Xem kết quả”, làm như thi “Nộp bài”. Bấm thì hỏi lại ngay trong trang như X6: “Còn 3 câu chưa làm, sẽ tính là sai.”
-3. Vòng làm lại chỉ gồm các câu còn bỏ qua, theo số câu trong lượt.
+Flow (chủ app yêu cầu 22/10/2026; Phiên 9o dùng lại cho bài ôn dạng trang). Mỗi câu của lượt ở một trong bốn trạng thái: chưa mở, đã bỏ qua, đã trả lời (làm như thi) hoặc đã Kiểm tra (ôn luyện; câu tự luận là đã Xem gợi ý). “Câu còn trống” là câu chưa mở hoặc đã bỏ qua.
+1. **Bỏ qua** như bây giờ: câu thành đã bỏ qua, sang câu sau. Câu đã Kiểm tra thì không còn nút “Bỏ qua” (X8).
+2. **Bảng số câu (L39):**
+   - `#qzProg` (“Câu 9/25”) ở thanh trên thành nút mở, đóng bảng (`aria-expanded`). Bảng mở ngay dưới thanh trên, không phải hộp nổi.
+   - Mỗi câu một ô số, cao ≥ 44px, 5 ô mỗi hàng ở 360px.
+   - Ô ghi trạng thái bằng màu token kèm dấu, không chỉ dựa vào màu: câu đang làm có viền đậm; đã trả lời có nền nhạt; đã bỏ qua có dấu “–”; chưa mở để trống; ôn luyện thì câu đã Kiểm tra có ✓ hoặc ✗. Dưới bảng có một dòng chú thích.
+   - Bấm ô thì tới câu đó, bảng đóng lại. “Câu tiếp” và “Bỏ qua” vẫn đi tới câu sau theo số câu.
+   - Làm như thi: mở lại câu đã trả lời thì thấy câu trả lời cũ và sửa được; bấm “Trả lời” thì ghi câu trả lời mới. Chỉ chấm khi nộp.
+   - Ôn luyện: mở lại câu đã Kiểm tra thì chỉ xem lại (câu trả lời, đáp án, lời giải như ngay sau Kiểm tra), không làm lại. Câu còn trống thì làm như thường.
+3. **Màn “Xem lại bài làm”** (`#qzReview`) vẫn thuộc lượt đang làm: đồng hồ vẫn chạy, chế độ tập trung giữ nguyên, rời trang vẫn hỏi lại. Bảng số câu hiện sẵn trên màn này; bấm ô nào thì tới câu đó.
+   - Hiện khi đi qua câu cuối (bấm “Câu tiếp”, “Trả lời” hay “Bỏ qua” ở câu cuối) mà còn câu còn trống. Làm như thi thì hiện cả khi đã làm hết, trước khi nộp. Ôn luyện mà không còn câu trống thì ra kết quả như bây giờ.
+   - Nút ở câu cuối ghi “Câu tiếp” thay cho “Xem kết quả” khi màn này sẽ hiện.
+   - Còn câu trống: dòng đầu “Bạn còn 3 câu chưa làm.” Nút chính “Làm tiếp 3 câu”. Nút phụ: ôn luyện “Xem kết quả”, làm như thi “Nộp bài”. Bấm nút phụ thì hỏi lại ngay trong trang như X6: “Còn 3 câu chưa làm, sẽ tính là sai.”
+   - Làm như thi, đã làm hết: dòng đầu “Bạn đã làm hết 25 câu. Xem lại hoặc nộp bài.” Nút chính “Nộp bài”, không hỏi lại.
+4. **Vòng làm tiếp** chỉ gồm các câu còn trống, theo số câu.
    - Câu hiện như lần đầu; câu có đoạn đọc chung thì đoạn đọc hiện lại.
-   - Trên thẻ câu có dòng nhỏ “Câu bỏ qua 2/3”; `#qzProg` vẫn ghi “Câu 9/25”.
-   - Trả lời thì câu thành đã làm: ôn luyện thì Kiểm tra và xem đáp án như thường; làm như thi thì chỉ ghi câu trả lời.
-   - Bỏ qua lần nữa thì câu vẫn trong danh sách.
-   - Hết vòng mà còn câu bỏ qua thì về màn “Câu bạn đã bỏ qua” với số mới; hết câu bỏ qua thì ra kết quả. Không giới hạn số vòng.
-4. Làm như thi: “Nộp bài” ở thanh trên bấm lúc nào cũng được, lời hỏi lại ghi số câu chưa làm; hết giờ thì nộp ngay như bây giờ. Ôn luyện: “← Thoát” như bây giờ.
-5. Chấm và lưu không đổi:
-   - Câu làm lại chấm theo câu trả lời; câu còn bỏ qua tính như bây giờ (câu chấm tự động tính sai).
-   - Lịch sử câu của đề ngẫu nhiên (`opts.onMarks`) ghi theo lần cuối của mỗi câu.
+   - Trên thẻ câu có dòng nhỏ “Câu còn trống 2/3”.
+   - Bỏ qua lần nữa thì câu vẫn còn trống. Hết vòng thì về màn “Xem lại bài làm”. Không giới hạn số vòng.
+5. **Nộp, thoát:** làm như thi, “Nộp bài” ở thanh trên bấm lúc nào cũng được, lời hỏi lại ghi số câu còn trống; hết giờ thì nộp ngay như bây giờ. Ôn luyện: “← Thoát” như bây giờ.
+6. **Chấm và lưu không đổi:**
+   - Câu đã trả lời chấm theo câu trả lời cuối cùng; câu còn trống lúc nộp tính như bây giờ (câu chấm tự động tính sai).
+   - Lịch sử câu của đề ngẫu nhiên (`opts.onMarks`) ghi theo câu trả lời cuối cùng của mỗi câu.
    - Lượt chưa trả lời câu nào thì như bây giờ (“chưa làm câu nào”, không lưu).
-   - Câu tự luận bỏ qua và làm lại như câu khác.
-   - Mọi lượt đều theo flow này: đề cố định, đề ngẫu nhiên, “Làm lại”, “Ôn lại N câu sai”.
-6. Đề Tiếng Anh và bài ôn IOE: chữ mới có bản tiếng Anh trong bảng `TXT` (“You skipped 3 questions.”, “Q4”, “Try 3 skipped questions”, “See results”, “Finish test”, “Skipped 2 of 3”).
+   - Câu tự luận theo cùng flow.
+   - Mọi lượt đều như vậy: đề cố định, đề ngẫu nhiên, “Làm lại”, “Ôn lại N câu sai”.
+7. **Đề Tiếng Anh và bài ôn IOE:** chữ mới có bản tiếng Anh trong bảng `TXT` (ví dụ “You have 3 questions left.”, “Do the 3 left”, “You have answered all 25 questions. Review or finish the test.”, “See results”, “Finish test”).
 
 **Xong khi:**
-- `tests/e2e.js` có bước L38 mới, ở 360px sáng/tối, dùng một đề có đoạn đọc, chạy cả ôn luyện và làm như thi:
-  - bỏ qua 2 câu thì màn câu bỏ qua có đúng 2 nút số câu, mỗi nút ≥ 44px;
-  - bấm một nút để làm lại câu đó cho đúng thì còn 1 câu; hết vòng lại thấy màn câu bỏ qua;
-  - “Xem kết quả” hay “Nộp bài” hỏi lại rồi mới ra kết quả: câu làm lại tính theo câu trả lời, câu còn bỏ qua tính sai;
-  - làm như thi: đồng hồ vẫn chạy ở màn câu bỏ qua, tua hết giờ thì nộp;
-  - rời trang khi đang ở màn câu bỏ qua thì vẫn hỏi lại;
+- `tests/e2e.js` có bước L38, L39 mới, ở 360px sáng/tối, dùng một đề có đoạn đọc:
+  - ôn luyện: bỏ qua 2 câu, đi hết đề thì thấy màn “Xem lại bài làm” ghi còn 2 câu; bảng số câu đúng trạng thái (ô ≥ 44px, có dấu, không chỉ màu); “Làm tiếp” rồi làm đúng một câu thì còn 1 câu; mở lại câu đã Kiểm tra từ bảng thì chỉ xem lại; “Xem kết quả” hỏi lại rồi ra kết quả, câu còn trống tính sai;
+  - làm như thi: trả lời một câu, mở lại từ bảng, sửa câu trả lời, nộp: điểm tính theo câu trả lời cuối; đã làm hết vẫn thấy màn “Xem lại bài làm” trước khi nộp; đồng hồ vẫn chạy ở màn này, tua hết giờ thì nộp;
+  - rời trang khi đang ở màn “Xem lại bài làm” thì vẫn hỏi lại;
   - đề Tiếng Anh không có chữ cái tiếng Việt (như bước TA2).
-- Các bước đang bấm “Bỏ qua” đến hết đề (K3, K4, 9e, TA2, UX5, L29–L31…) đi qua màn mới mà không bỏ kiểm tra nào. `tests/supabase/cloud-e2e.js` cũng vậy.
+- Các bước đang đi hết đề bằng “Bỏ qua” hay “Trả lời” (K3, K4, 9e, TA2, UX5, L29–L31…) đi qua màn mới mà không bỏ kiểm tra nào. `tests/supabase/cloud-e2e.js` cũng vậy.
 - `node tests/kiem-tra-de.js`, `tests/e2e.js`, `tests/supabase/store-test.mjs`, `tests/supabase/cloud-e2e.js` đều in OK.
-- Ảnh màn “Câu bạn đã bỏ qua” ở 360px sáng/tối chép sang `docs/hinh-9n/`.
-- CLAUDE.md ghi flow bỏ qua vào mô tả `Quiz.run`.
+- Ảnh 360px sáng/tối (bảng số câu; màn “Xem lại bài làm” khi còn câu trống và khi đã làm hết) chép sang `docs/hinh-9n/`.
+- CLAUDE.md ghi flow mới vào mô tả `Quiz.run` và mục “Làm bài tập trung”.
 
 ### Phiên 9o
 
-**L38 · Bỏ qua rồi quay lại: bài ôn dạng trang.** Làm sau Phiên 9n. Chỉ sửa phần làm bài của `modules/l4-giua-ki-1`, `l6-giua-ki-1`, `ioe-4`, `ioe-6` (`index.html`), `tests/` và tài liệu.
-- Cùng flow như Phiên 9n, ở mọi lượt làm của trang (luyện theo bài, đề thi thử, ôn câu sai). Chữ như 9n (IOE viết tiếng Anh), trình bày theo token của trang.
-- Màn “Câu bạn đã bỏ qua” thuộc lượt đang làm, nên `#endArea` vẫn có `#endBtn` (“Nộp bài sớm”, “Dừng luyện tập”, “Finish test now”…) để app hỏi lại khi rời bài (hợp đồng ở CLAUDE.md). Màn kết quả của trang giữ như cũ.
-- Bỏ qua vẫn gọi `record(q, null)`, nên câu vào “Ôn câu sai”. Làm lại thì `record` theo câu trả lời; làm đúng thì câu ra khỏi “Ôn câu sai” (L27).
+**L38, L39 · Bỏ qua rồi quay lại, bảng số câu: bài ôn dạng trang.** Làm sau Phiên 9n. Chỉ sửa phần làm bài của `modules/l4-giua-ki-1`, `l6-giua-ki-1`, `ioe-4`, `ioe-6` (`index.html`), `tests/` và tài liệu.
+- Cùng flow như Phiên 9n (bảng số câu, màn “Xem lại bài làm”, vòng làm tiếp), ở mọi lượt làm của trang (luyện theo bài, đề thi thử, ôn câu sai). Chữ như 9n (IOE viết tiếng Anh), trình bày theo token của trang.
+- Bảng số câu và màn “Xem lại bài làm” thuộc lượt đang làm, nên `#endArea` vẫn có `#endBtn` (“Nộp bài sớm”, “Dừng luyện tập”, “Finish test now”…) để app hỏi lại khi rời bài (hợp đồng ở CLAUDE.md). Màn kết quả của trang giữ như cũ.
+- Bỏ qua vẫn gọi `record(q, null)`, nên câu vào “Ôn câu sai”. Trả lời (cả khi sửa câu trả lời ở đề thi thử) thì `record` theo câu trả lời mới; làm đúng thì câu ra khỏi “Ôn câu sai” (L27).
 - `finish()` và `ontapReport` vẫn chỉ gọi một lần, khi ra màn kết quả. Câu nghe của IOE phát lại được.
 - Không đổi dữ liệu câu, `id` của bài, thứ tự câu trong `items`, `wkey`, khóa localStorage và ba chỗ nối với app.
 
 **Xong khi:**
-- Bước “lesson pages l4, l6” và bước bài ôn IOE của `tests/e2e.js` (360px, chạy trong khung), mỗi bài một lượt: bỏ qua 2 câu → màn câu bỏ qua → làm lại → kết quả. Kiểm tra thêm:
-  - ở màn câu bỏ qua trang có `#endBtn`, và app hỏi lại khi rời bài;
+- Bước “lesson pages l4, l6” và bước bài ôn IOE của `tests/e2e.js` (360px, chạy trong khung): mỗi bài một lượt luyện tập (bỏ qua 2 câu → màn “Xem lại bài làm” → làm tiếp → kết quả) và một lượt đề thi thử (sửa một câu đã trả lời từ bảng số câu rồi nộp). Kiểm tra thêm:
+  - ở bảng số câu và màn “Xem lại bài làm” trang có `#endBtn`, và app hỏi lại khi rời bài;
   - `ontapReport` chỉ gọi một lần;
   - “Ôn câu sai” đúng;
   - IOE không có chữ cái tiếng Việt.
 - Script nhỏ so `items` của 4 bài trước và sau khi sửa: không đổi.
-- CLAUDE.md, đoạn “Hợp đồng giữa bài ôn và app”, thêm một ý: Phiên 9o, L38, chủ app duyệt 22/10/2026.
+- CLAUDE.md, đoạn “Hợp đồng giữa bài ôn và app”, thêm một ý: Phiên 9o, L38, L39, chủ app duyệt 22/10/2026.
 - Ảnh 360px sáng/tối chép sang `docs/hinh-9o/`.
 
 ---
 
 ## 3. Các phiên Claude Code
 
-Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. Phiên chờ làm: 9n rồi 9o (L38, gấp), lời giao việc bên dưới. Lỗi mới thì QC ghi mã (tiếp theo L39) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. Phiên chờ làm: 9n rồi 9o (L38, L39, gấp), lời giao việc bên dưới. Lỗi mới thì QC ghi mã (tiếp theo L40) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
 
-**Phiên 9n · Bỏ qua rồi quay lại: đề ngân hàng (L38)** (gấp, chủ app yêu cầu 22/10/2026; không chạy cùng lúc với phiên khác sửa `js/quiz.js`)
-> Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md: L38 ở nhóm M của mục 1; flow, cách sửa và "Xong khi" ở mục 2, "Phiên 9n". Sửa L38 trong js/quiz.js cho mọi lượt làm đề ngân hàng, ở cả ôn luyện và làm như thi: con bấm "Bỏ qua" thì, khi hết câu cuối, được quay lại các câu đã bỏ qua trước khi xem kết quả hoặc nộp bài. Chữ mới có cả bản tiếng Anh trong bảng TXT. Không đổi cách chấm, cách lưu điểm. Thêm bước L38 vào tests/e2e.js và sửa các bước đang bỏ qua đến hết đề. Chạy node tests/kiem-tra-de.js, tests/e2e.js, tests/supabase/store-test.mjs, tests/supabase/cloud-e2e.js đến khi in OK. Chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
+**Phiên 9n · Bỏ qua rồi quay lại, bảng số câu: đề ngân hàng (L38, L39)** (gấp, chủ app yêu cầu 22/10/2026; không chạy cùng lúc với phiên khác sửa `js/quiz.js`)
+> Đọc CLAUDE.md và docs/SUA-LOI-CHAY-THU.md: L38, L39 ở nhóm M của mục 1; flow, cách sửa và "Xong khi" ở mục 2, "Phiên 9n". Sửa trong js/quiz.js cho mọi lượt làm đề ngân hàng, ở cả ôn luyện và làm như thi: câu đã bỏ qua được làm tiếp trước khi xem kết quả hoặc nộp bài (màn "Xem lại bài làm"); có bảng số câu để nhảy tới câu bất kì; làm như thi sửa được câu đã trả lời trước khi nộp. Chữ mới có cả bản tiếng Anh trong bảng TXT. Không đổi cách chấm, cách lưu điểm. Làm L38 trước rồi L39; hết lượt dùng giữa chừng thì mở Pull Request phần đã xong và ghi rõ phần còn lại. Thêm bước L38, L39 vào tests/e2e.js và sửa các bước đang đi hết đề. Chạy node tests/kiem-tra-de.js, tests/e2e.js, tests/supabase/store-test.mjs, tests/supabase/cloud-e2e.js đến khi in OK. Chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
 
-**Phiên 9o · Bỏ qua rồi quay lại: bài ôn dạng trang (L38)** (gấp, mở sau khi Phiên 9n đã Merge)
-> Đọc CLAUDE.md (nhất là "Hợp đồng giữa bài ôn và app") và docs/SUA-LOI-CHAY-THU.md: L38 ở nhóm M của mục 1; flow ở "Phiên 9n", cách sửa và "Xong khi" ở "Phiên 9o" của mục 2. Làm cùng flow bỏ qua rồi quay lại trong 4 bài ôn modules/l4-giua-ki-1, l6-giua-ki-1, ioe-4, ioe-6 (IOE viết tiếng Anh). Trong lúc ở màn câu bỏ qua vẫn giữ #endBtn. Giữ ba chỗ nối với app. Không đổi dữ liệu câu và thứ tự câu. Thêm kiểm tra vào tests/e2e.js, chạy đến khi in E2E OK. Ghi ý mới vào hợp đồng ở CLAUDE.md. Chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
+**Phiên 9o · Bỏ qua rồi quay lại, bảng số câu: bài ôn dạng trang (L38, L39)** (gấp, mở sau khi Phiên 9n đã Merge)
+> Đọc CLAUDE.md (nhất là "Hợp đồng giữa bài ôn và app") và docs/SUA-LOI-CHAY-THU.md: L38, L39 ở nhóm M của mục 1; flow ở "Phiên 9n", cách sửa và "Xong khi" ở "Phiên 9o" của mục 2. Làm cùng flow (bảng số câu, màn "Xem lại bài làm", sửa câu trả lời ở đề thi thử) trong 4 bài ôn modules/l4-giua-ki-1, l6-giua-ki-1, ioe-4, ioe-6 (IOE viết tiếng Anh). Trong lúc ở bảng số câu và màn "Xem lại bài làm" vẫn giữ #endBtn. Giữ ba chỗ nối với app. Không đổi dữ liệu câu và thứ tự câu. Thêm kiểm tra vào tests/e2e.js, chạy đến khi in E2E OK. Ghi ý mới vào hợp đồng ở CLAUDE.md. Chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
