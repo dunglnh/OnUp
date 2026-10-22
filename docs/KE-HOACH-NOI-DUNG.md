@@ -66,6 +66,8 @@ Kì thi chuyển cấp và tốt nghiệp:
   - Toán 90 phút: 12 câu nhiều lựa chọn, 4 câu đúng/sai (mỗi câu 4 ý), 6 câu trả lời ngắn (3 + 4 + 3 điểm).
   - Lí, Hóa, Sinh, Địa 50 phút: 18 câu nhiều lựa chọn, 4 câu đúng/sai, 6 câu trả lời ngắn (4,5 + 4 + 1,5 điểm). Sử, GDKT&PL, Tin học, Công nghệ 50 phút: 24 câu nhiều lựa chọn, 4 câu đúng/sai (6 + 4 điểm). Tiếng Anh 50 phút: 40 câu nhiều lựa chọn.
 
+**Kiểm tra định kì theo đề chung của Sở (từ 1/12/2026).** [Thông tư 89/2026/TT-BGDĐT](https://luatvietnam.vn/giao-duc/thong-tu-89-2026-tt-bgddt-sua-doi-quy-dinh-danh-gia-hoc-sinh-tieu-hoc-va-trung-hoc-451705-d1.html) ngày 16/10/2026, hiệu lực 1/12/2026, sửa quy định đánh giá học sinh tiểu học (Thông tư 27/2020) và THCS, THPT (Thông tư 22/2021): Sở GD&ĐT ra đề kiểm tra định kì chung cho một số môn do Sở chọn: lớp 5 cuối kì I và cuối năm (môn đánh giá bằng điểm số), lớp 9 và lớp 12 cuối kì I và cuối kì II. Đề theo yêu cầu cần đạt của chương trình. Khối, kì, môn khác vẫn do trường ra đề (lớp 4, 6 không đổi). Trường THCS, THPT được kiểm tra định kì trên máy tính khi đủ điều kiện. Theo các phần đọc được, số bài kiểm tra định kì, giữa kì, thang điểm, các mức câu hỏi không đổi (chưa đọc được toàn văn: trang của Bộ chặn công cụ đọc web).
+
 **Khối lượng** (25 câu mỗi đề, khoảng 440 byte mỗi câu theo kho đề ngày 18/10/2026; cột “Câu đã có” lấy từ kho ngày 21/10/2026, không tính đề thử nghiệm). Số phiên ước tính lại ngày 21/10/2026 theo cỡ phiên thật của N1–N6: một phiên làm một môn lớn của một kì (ngân hàng 75–100 câu) hoặc hai môn nhỏ (mỗi môn 50 câu), tức 75–110 câu mới; mỗi kì THCS 6 phiên, THPT 7 phiên, tiểu học 6 phiên kì cuối kì và 2 phiên kì giữa kì; lớp 9, 12 thêm phiên đề thi thử:
 
 | Lớp | Đề mục tiêu | Câu | Câu đã có | Dữ liệu | Phiên cần thêm |
@@ -354,6 +356,7 @@ Mặc định PO chọn, chủ app đổi trước khi mở phiên nếu muốn:
 >    - Mã và tên như lớp 4, 6: `gk1-l<khối>`, `ck1-l<khối>`, `gk2-l<khối>`, `ck2-l<khối>`.
 >    - Môn: lớp 5 như lớp 4 (giữa kì: Toán, Tiếng Việt; cuối kì: 6 môn như `ck1-l4`); lớp 7, 8, 9 như lớp 6 (8 môn); lớp 10, 11, 12: Toán, Ngữ văn, Tiếng Anh, Lịch sử, Vật lí, Hóa học, Sinh học, Địa lí, GDKT&PL, Tin học, Công nghệ.
 >    - Ngày dự kiến: lớp 5 như lớp 4; lớp 7, 8, 10, 11 như lớp 6. Lớp 9, 12 học xong sớm hơn: cuối kì I 14/12/2026–2/1/2027, giữa kì II 8–19/3/2027, cuối năm 19/4–14/5/2027 (lớp 9) và 12/4–14/5/2027 (lớp 12).
+>    - Sáu kì cuối kì của lớp 5 (`ck1-l5`, `ck2-l5`), lớp 9 (`ck1-l9`, `ck2-l9`), lớp 12 (`ck1-l12`, `ck2-l12`): note ghi “Sở GD&ĐT ra đề chung một số môn (Thông tư 89/2026/TT-BGDĐT, từ 1/12/2026); môn và ngày kiểm tra theo thông báo của Sở.” (mục 2).
 >    - `vao10-2027` “Thi tuyển sinh vào lớp 10”: kind "thi-khac", grades [9], 1–2/6/2027 (như TP.HCM), tentative true, môn Toán, Ngữ văn, Tiếng Anh; note: mỗi tỉnh một lịch (năm 2026: TP.HCM 1–2/6, Hà Nội 30–31/5), môn thứ ba công bố trước 31/3/2027.
 >    - `tn-thpt-2027` “Thi tốt nghiệp THPT”: kind "thi-khac", grades [12], 11–12/6/2027, tentative true (ngày dự kiến của Quyết định 2308/QĐ-BGDĐT), môn Toán, Ngữ văn và 9 môn tự chọn ở mục 2; note: chọn 2 môn tự chọn; năm 2027 thí điểm thi trên máy tính ở nơi đủ điều kiện.
 >    - Mốc năm học (`khai-giang`, `het-hk1`, `tet-2027`, `het-nam`): thêm mọi khối vào `grades`; `het-hk1` đổi sang 18/1/2027 cho khớp “trước 18/1” của khung năm học. IOE giữ khối 4, 6.
@@ -615,6 +618,7 @@ Phiên kĩ thuật cho các phiên đề thi thử lớp 9, 12. Mặc định PO
    - Lớp 6: các trường ra đề định kì theo khung Công văn 7991/BGDĐT-GDTrH (nhiều lựa chọn, đúng/sai 4 ý, trả lời ngắn, tự luận; ma trận lớp 6 ghi “CV 7991”), nên kho lớp 6 cần đủ câu đúng/sai 4 ý và trả lời ngắn.
 3. **Kiểm thử ghi cứng theo kho:** lời giao việc ghi chỗ phải sửa (bước 9e, K3, “seed banks load on demand” của `tests/e2e.js`; mục 7 của `tests/supabase/store-test.mjs`).
 4. **Xong khi chặt hơn:** `tests/kiem-tra-de.js` in DE OK và không còn dòng “Nhắc:” về đề của phiên (ô ma trận thiếu câu, chủ đề ngoài ma trận, câu riêng chỉ để lấy bù).
+5. **Đề cuối kì lớp 5, 9, 12** (Thông tư 89/2026, mục 2): Sở ra đề chung một số môn. Ma trận, dạng câu, thời gian theo khung chung của cấp học (lớp 5: ba mức của Thông tư 27/2020; lớp 9, 12: Công văn 7991) và theo cấu trúc đề chung của Sở Hà Nội, TP.HCM nếu đã công bố (ghi nguồn trong lời giao việc). Câu tự soạn, không chép đề của Sở. Note của đề nhắc phụ huynh xem thông báo của Sở về môn có đề chung và cấu trúc đề.
 
 ### Ghi chép khi viết lời giao việc
 
@@ -680,4 +684,5 @@ Lớp 9 và 12 cần thêm phiên đề thi thử đúng định dạng kì thi:
 | Bị chép đề khi repo công khai | Chấp nhận repo công khai đến B1 (đã chốt 18/10/2026); B1 trước khi mở dùng thử (tháng 2/2027), B2 trong thời gian dùng thử, trước khi bán (mục 5) |
 | Mất dữ liệu trên Supabase gói Free (không có sao lưu, project tự tạm dừng) | Chủ app xuất CSV hằng tuần, mở app ít nhất mỗi tuần một lần; lên gói Pro khi bắt đầu thu tiền; từ khi mở dùng thử có dữ liệu của các gia đình không quen, nên chủ app xem lại có lên Pro sớm hơn không |
 | Sách hoặc lịch thi thay đổi (năm 2026: 11 đầu sách chỉnh sửa; chủ app dự kiến năm 2027 sách lại được chỉnh sửa) | Theo dõi danh mục sách chỉnh sửa và lịch của Bộ, Sở; ngày chưa công bố để dự kiến; câu hỏi gắn bài và tuần học để sửa nhanh; dự trù khoảng 15 phiên rà đề theo sách 2027 trong tháng 6–8/2027, đề các kì đã thi của môn có trong danh mục làm theo bản mới (mục 4, đoạn “Sách”) |
+| Quy định kiểm tra thay đổi (Thông tư 89/2026: từ 1/12/2026 Sở ra đề chung cuối kì lớp 5, 9, 12) | Đề theo yêu cầu cần đạt và khung chung của cấp học; theo dõi cấu trúc đề chung của Sở (việc 12, mục 2 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)); note nhắc phụ huynh xem thông báo của Sở |
 | Vướng thủ tục hành chính trước ngày bán | Làm sớm theo mốc ở việc 9, mục 2 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md) (trang Quyền riêng tư từ G0, kế toán tháng 3–4/2027, thông báo Bộ Công Thương sau G1); việc nào chưa xong thì lùi ngày mở bán, dùng thử vẫn đến hết kì thi |
