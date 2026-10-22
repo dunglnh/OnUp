@@ -176,7 +176,7 @@ const de1 = [
   { has: "đánh số chẵn liên tiếp: 2, 4, 6, …, 48", right: () => range(2, 48).filter((n) => n % 2 === 0).length },
   { has: "b = 36, giá trị của biểu thức 50 + b : 4", right: () => fmt(ev("50 + b : 4", { b: 36 })) },
   { has: "a = 12 và b = 4, nối", right: (q) => q.l.map((e) => fmt(ev(e, { a: 12, b: 4 }))), more: (q) => thua(q, (e) => fmt(ev(e, { a: 12, b: 4 }))) },
-  { has: "P = 64 cm, a = 15 cm, b = 20 cm", right: () => { const c = 64 - 15 - 20; assert.equal(ev("a + b + c", { a: 15, b: 20, c }), 64); return c; } },
+  { has: "chu vi 64 cm, a = 15 cm, b = 20 cm", right: () => { const c = 64 - 15 - 20; assert.equal(ev("a + b + c", { a: 15, b: 20, c }), 64); return c; } },
   { has: "45 638 + 23 517", right: () => fmt(45638 + 23517) },
   { has: "? − 26 450 = 48 320", right: () => fmt(48320 + 26450), more: (q) => { assert.equal(q.o[1], fmt(48320 - 26450)); nhoOK(48320, 26450, "+"); } }, // nhiễu: nhầm phép tính
   { has: "12 104 × 6", right: () => fmt(12104 * 6) },
@@ -205,11 +205,11 @@ const de2 = [
   { has: "Số chẵn liền sau của số 1 999", right: () => fmt(range(2000, 2010).find((n) => n % 2 === 0)) },
   { has: "biểu thức chứa ba chữ", right: (q) => motDung(q, (o) => new Set(o.match(/[a-z]/g) || []).size === 3) },
   { has: "a − b × c là 45", right: () => ev("a − b × c", { a: 20, b: 5, c: 3 }) === 45, more: () => assert.equal(ev("(a − b) × c", { a: 20, b: 5, c: 3 }), 45) },
-  { has: "a = 8 000 và b = 5 000, mua 3 quyển vở và 2 chiếc bút", right: () => ev("a × 3 + b × 2", { a: 8000, b: 5000 }) },
+  { has: "a = 30 000 và b = 15 000, mua 1 vé người lớn và 3 vé trẻ em", right: () => ev("a + b × 3", { a: 30000, b: 15000 }) },
   { has: "82 740 − 37 425", right: () => fmt(82740 - 37425) },
   { has: "64 000 − ? = 13 500", right: () => fmt(64000 - 13500), more: (q) => { assert.equal(q.o[1], fmt(64000 + 13500)); nhoOK(64000, 13500, "−"); } },
   { has: "63 045 : 9", right: () => fmt(div(63045, 9)), more: (q) => q.o.slice(1).forEach((o) => assert.notEqual(val(o) * 9, 63045)) },
-  { has: "4 xe tải, mỗi xe chở 12 400 kg", right: () => div(12400 * 4, 8) },
+  { has: "thu được 2 030 quả trứng. Sau 4 ngày, trang trại đã bán 5 500 quả", right: () => 2030 * 4 - 5500, more: () => { nhoOK(2030, 4, "×"); nhoOK(2030 * 4, 5500, "−"); } },
   { has: "2 130 kg gạo nếp", right: () => fmt(2130 + 2130 * 3 - 5800) },
   { has: "Lớp 4A có 32 học sinh", right: () => (32 + (32 - 2)) * 4 },
   { has: "Quan sát hình. Góc nào là góc nhọn", right: (q) => {
@@ -244,16 +244,17 @@ const own = [
   { has: "khi làm tròn đến hàng trăm nghìn thì được 400 000", right: (q) => motDung(q, (o) => round(val(o), 100000) === 400000) },
   { has: "Nối mỗi số ở cột trái với số làm tròn", right: (q) => q.l.map((l) => fmt(round(val(l), 100000))), more: (q) => thua(q, (l) => fmt(round(val(l), 100000))) },
   { has: "Số lẻ bé nhất có ba chữ số", right: () => fmt(range(100, 999).find((n) => n % 2)) },
-  { has: "Hai số lẻ liên tiếp hơn kém nhau", right: () => { const le = range(0, 500).filter((n) => n % 2), d = new Set(le.slice(1).map((v, i) => v - le[i])); assert.equal(d.size, 1); return [...d][0] + " đơn vị"; } },
+  { has: "có bao nhiêu số lẻ?", right: (q) => { const so = /các số (.+), có bao nhiêu/.exec(q.q)[1].split("; ").map(val); assert.equal(so.length, 5); return so.filter((n) => n % 2).length + " số"; } },
   { has: "Mỗi ý sau về số chẵn, số lẻ", right: () => { const E = range(0, 300).filter((n) => n % 2 === 0), O = range(0, 300).filter((n) => n % 2);
     return [O.every((n) => (n + 1) % 2 === 0), E.every((a) => E.every((b) => (a + b) % 2 === 1)), 45678 % 2 === 0, range(1, 10).filter((n) => n % 2).length === 5]; } },
   { has: "quyển truyện có 60 trang", right: () => range(1, 60).filter((n) => n % 2).length + " trang" },
   { has: "a = 6, b = 7 và c = 5", right: () => fmt(ev("a × b × c", { a: 6, b: 7, c: 5 })) },
   { has: "m = 1 500, giá trị của biểu thức 8 000 − m × 3", right: () => fmt(ev("8 000 − m × 3", { m: 1500 })) },
   { has: "a = 6 và b = 9, biểu thức nào", right: (q) => motDung(q, (o) => ev(o, { a: 6, b: 9 }) === 54) },
-  { has: "a = 26 m, b = 18 m", right: () => ev("(a + b) × 2", { a: 26, b: 18 }) },
-  { has: "Chu vi P của hình vuông có cạnh a là P = a × 4", right: () => { const P = (a) => ev("a × 4", { a });
-    return [P(9) === 36, P(9) === 13, range(1, 50).every((a) => P(a + 2) - P(a) === 8), div(100, 4) === 20]; }, more: () => assert.equal(9 + 4, 13) },
+  { has: "chiều dài a = 26 m, chiều rộng b = 18 m", right: () => ev("(a + b) × 2", { a: 26, b: 18 }) },
+  { has: "Hình vuông cạnh a có chu vi là a × 4", right: (q) => { const P = (a) => ev("a × 4", { a });
+    assert.deepEqual(q.o.slice(0, 2), ["Với a = 8 cm thì chu vi là 32 cm.", "Với a = 8 cm thì chu vi là 12 cm."]);
+    return [P(8) === 32, P(8) === 12, range(1, 50).every((a) => P(a + 2) - P(a) === 8), div(100, 4) === 20]; }, more: () => assert.equal(8 + 4, 12) }, // nhiễu: nhầm nhân thành cộng
   { has: "Bạn An có a viên bi", right: (q) => { assert.ok(q.q.includes("nhiều hơn bạn An 15 viên bi") && q.q.includes("a = 28")); return ev("a + (a + 15)", { a: 28 }); } },
   { has: "Tính nhẩm: 60 000 − 25 000 + 5 000", right: () => fmt(ev("60 000 − 25 000 + 5 000")), more: (q) => assert.equal(q.o[1], fmt(ev("60 000 − (25 000 + 5 000)"))) },
   { has: "93 516 − 8 409", right: () => fmt(93516 - 8409) },
@@ -285,7 +286,8 @@ const own = [
   { has: "Nối mỗi số đo góc với tên gọi", right: (q) => q.l.map((l) => loai(parseInt(l, 10))) },
   { has: "Quan sát bốn đồng hồ", right: (q) => {
     const D = dongHo(q.svg); assert.equal(D.length, 4);
-    assert.deepEqual(D.map((d) => loai(d.goc)).sort(), ["Góc bẹt", "Góc nhọn", "Góc tù", "Góc vuông"], "bốn đồng hồ bốn loại góc");
+    assert.deepEqual(D.map((d) => loai(d.goc)).sort(), ["Góc nhọn", "Góc nhọn", "Góc tù", "Góc vuông"], "đúng một đồng hồ có góc tù, nhiễu có góc vuông");
+    assert.equal(new Set(D.map((d) => d.gio)).size, 4, "bốn đồng hồ chỉ bốn giờ khác nhau");
     D.forEach((d) => assert.ok(q.x.includes(`Đồng hồ ${d.ten} chỉ ${d.gio} giờ`), "lời giải đọc đúng giờ của đồng hồ " + d.ten));
     return "Đồng hồ " + D.find((d) => loai(d.goc) === "Góc tù").ten;
   } },
