@@ -46,7 +46,6 @@ const HANG = ["đơn vị", "chục", "trăm", "nghìn", "chục nghìn", "trăm
 const LOP = ["đơn vị", "nghìn", "triệu"];
 const hangOf = (n, d) => { const s = String(n), i = s.indexOf(String(d)); assert.ok(i >= 0 && s.lastIndexOf(String(d)) === i, `chữ số ${d} phải có đúng một lần trong ${n}`); return s.length - 1 - i; };
 const loai = (deg) => (deg < 90 ? "Góc nhọn" : deg === 90 ? "Góc vuông" : deg < 180 ? "Góc tù" : "Góc bẹt");
-const kim = (h, m) => { const a = Math.abs(30 * h - 5.5 * m) % 360; return Math.min(a, 360 - a); };
 const theKi = (y) => Math.ceil(y / 100);
 const LA_MA = (n) => [[10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]].reduce((s, [v, r]) => { while (n >= v) { s += r; n -= v; } return s; }, "");
 
@@ -98,21 +97,21 @@ const de1 = [
   { has: "489 760; 498 670; 489 706; 498 607", right: () => fmt(Math.max(489760, 498670, 489706, 498607)) },
   { has: "3 459 210 đến hàng trăm nghìn", right: () => fmt(round(3459210, 100000)) },
   { has: "9 998 là số lẻ", right: () => 9998 % 2 === 1 },
-  { has: "Số liền sau của số 999 999", right: () => fmt(999999 + 1) },
+  { has: "Số liền sau của số 2 099 999", right: () => fmt(2099999 + 1) },
   { has: "a = 125, giá trị của biểu thức 900 − a × 4", right: () => fmt(ev("900 − a × 4", { a: 125 })) },
-  { has: "chu vi P của hình vuông", right: (q) => { const m = q.o.filter((o) => [3, 5, 7].every((a) => ev(o.slice(4), { a }) === a + a + a + a)); assert.equal(m.length, 1); return m[0]; } },
+  { has: "tấm thảm hình vuông có cạnh dài n mét", right: (q) => { const m = q.o.filter((o) => [3, 5, 7].every((n) => ev(o, { n }) === n + n + n + n)); assert.equal(m.length, 1); return m[0]; } },
   { has: "458 362 + 236 519", right: () => fmt(458362 + 236519) },
   { has: "862 450 − 315 270", right: () => fmt(862450 - 315270) },
   { has: "36 480 : 6", right: () => fmt(div(36480, 6)) },
   { has: "1 568 + 3 750 + 432", right: () => fmt(1568 + 3750 + 432), more: () => assert.equal(1568 + 432, 2000) },
-  // (a + b) + c = a + (b + c) là tính chất kết hợp; giao hoán là a + b = b + a
-  { has: "(a + b) + c = a + (b + c) là tính chất giao hoán", right: () => false, more: () => { const [a, b, c] = [12, 30, 7]; assert.equal((a + b) + c, a + (b + c)); } },
-  { has: "86 cây", right: () => fmt(div(86 + 8, 2)), more: () => assert.equal(86 - 47, 39) },
-  { has: "Tổng của hai số là 1 250. Số lớn hơn số bé 150", right: () => fmt(div(1250 - 150, 2)) },
+  // giao hoán là đổi chỗ các số hạng; hai vế giữ nguyên thứ tự 27, 45, 55, chỉ đổi cách nhóm, là tính chất kết hợp
+  { has: "(27 + 45) + 55 = 27 + (45 + 55), ta đã dùng tính chất giao hoán", right: (q) => { const [, l, r] = /(\(27 \+ 45\) \+ 55) = (27 \+ \(45 \+ 55\))/.exec(q.q); assert.equal(ev(l), ev(r)); return l.match(/\d+/g).join() !== r.match(/\d+/g).join(); }, more: () => assert.equal(45 + 55, 100) },
+  { has: "94 quả dưa hấu", right: () => fmt(div(94 + 12, 2)), more: (q) => assert.ok(q.x.includes(`94 − ${div(94 + 12, 2)} = ${94 - div(94 + 12, 2)}`)) },
+  { has: "Tổng của hai số là 1 260. Số lớn hơn số bé 140", right: () => fmt(div(1260 - 140, 2)), more: (q) => [fmt(div(1260 + 140, 2)), fmt(1260 - 140), fmt(div(1260, 2))].forEach((o) => assert.ok(q.o.includes(o), "nhiễu " + o)) },
   { has: "3 thùng dầu, mỗi thùng 45 lít", right: () => fmt(45 * 3 - (32 + 41)) },
   { has: "Góc có số đo 120°", right: () => loai(120) },
   { has: "Góc bẹt có số đo bằng", right: () => fmt(90 * 2) },
-  { has: "tâm của thước trùng với", right: () => "Đỉnh của góc" }, // cách đo góc (Bài 7), không tính được
+  { has: "Hai mép của một trang vở", right: () => loai(deg([1, 0], [0, 1])) }, // trang vở hình chữ nhật: hai mép kề nhau vuông góc
   { has: "3 tạ 5 kg", right: () => fmt(3 * 100 + 5) },
   { has: "2 m² = ? dm²", right: () => fmt(2 * 100) + " dm²" },
   { has: "3 phút 20 giây", right: () => fmt(3 * 60 + 20) },
@@ -126,20 +125,20 @@ const de2 = [
   { has: "987 654 > 1 000 000", right: () => 987654 > 1000000 },
   { has: "Làm tròn số 7 249 860", right: () => fmt(round(7249860, 100000)) },
   { has: "Số chẵn lớn nhất có năm chữ số", right: () => { let n = 99999; while (n % 2) n--; return fmt(n); } },
-  { has: "Số tự nhiên bé nhất là", right: () => "0" },
-  { has: "m = 9 và n = 6", right: () => fmt(ev("(m + n) × 7", { m: 9, n: 6 })) },
+  { has: "Có bao nhiêu số tự nhiên bé hơn 5", right: () => { let c = 0; for (let k = 0; k < 5; k++) c++; return String(c); } }, // số tự nhiên bắt đầu từ 0
+  { has: "m = 7 và n = 9", right: () => fmt(ev("(m + n) × 7", { m: 7, n: 9 })) },
   { has: "Với b = 5, biểu thức nào có giá trị lớn nhất", right: (q) => q.o.slice().sort((x, y) => ev(y, { b: 5 }) - ev(x, { b: 5 }))[0], more: (q) => assert.equal(new Set(q.o.map((o) => ev(o, { b: 5 }))).size, 4) },
   { has: "386 405 + 572 718", right: () => fmt(386405 + 572718) },
   { has: "657 928 − 219 635", right: () => fmt(657928 - 219635) },
   { has: "135 470 + ___ = 482 650", right: () => fmt(482650 - 135470) },
   { has: "4 725 + 999 + 275", right: () => fmt(4725 + 999 + 275), more: (q) => q.o.slice(1).forEach((o) => assert.notEqual(val(o), 4725 + 999 + 275)) },
   { has: "số lớn nhất có ba chữ số, hiệu của chúng là 101", right: () => fmt(div(999 + 101, 2)) },
-  { has: "muốn tìm số bé ta lấy tổng trừ đi hiệu rồi chia cho 2", right: () => { const [l, b] = [70, 30]; return div((l + b) - (l - b), 2) === b; } },
+  { has: "tổng là 90 và hiệu là 14. Số bé là (90 + 14) : 2", right: () => div(90 + 14, 2) === div(90 - 14, 2), more: (q) => assert.ok(q.x.includes(`(90 − 14) : 2 = ${div(90 - 14, 2)}`)) },
   { has: "4 kg táo", right: () => fmt(150000 - (22000 * 4 + 21000)) + " đồng" },
   { has: "12 850 kg gạo", right: () => fmt(12850 - (3200 + 3200 * 2)) },
-  { has: "Lúc 3 giờ", right: () => loai(kim(3, 0)) },
-  // voi trưởng thành nặng khoảng 2–7 tấn: chỉ đơn vị tấn cho số đo hợp lí
-  { has: "con voi trưởng thành nặng khoảng 5", right: (q) => { const kg = { tấn: 1000, tạ: 100, yến: 10, kg: 1 }, m = q.o.filter((u) => 5 * kg[u] >= 2000 && 5 * kg[u] <= 7000); assert.equal(m.length, 1); return m[0]; } },
+  { has: "gấp 5 lần 20°", right: () => loai(20 * 5) },
+  // xe máy nặng khoảng 80–150 kg: chỉ đơn vị tạ cho số đo hợp lí
+  { has: "xe máy nặng khoảng 1", right: (q) => { const kg = { tấn: 1000, tạ: 100, yến: 10, kg: 1 }, m = q.o.filter((u) => 1 * kg[u] >= 80 && 1 * kg[u] <= 150); assert.equal(m.length, 1); return m[0]; } },
   { has: "Thước đo góc dùng để đo góc theo đơn vị nào", right: () => "Độ (°)" },
   { has: "7 yến 6 kg", right: () => fmt(7 * 10 + 6) },
   { has: "5 dm² 8 cm²", right: () => fmt(5 * 100 + 8) },
@@ -153,7 +152,7 @@ const de3 = [
   { has: "Từ bốn chữ số 0, 3, 5, 9", right: () => { const d = [0, 3, 5, 9], all = []; d.forEach((a) => d.forEach((b) => d.forEach((c) => d.forEach((e) => { if (a && new Set([a, b, c, e]).size === 4) all.push(a * 1000 + b * 100 + c * 10 + e); })))); return fmt(Math.min(...all)); } },
   { has: "5 309 280; 5 390 028; 5 093 820; 5 309 082", right: () => [5309280, 5390028, 5093820, 5309082].sort((a, b) => a - b).map(fmt).join("; ") },
   { has: "Làm tròn số 8 950 000", right: () => round(8950000, 100000) === 9000000 },
-  { has: "Từ 11 đến 29 có bao nhiêu số lẻ", right: () => { let n = 0; for (let k = 11; k <= 29; k++) if (k % 2) n++; return String(n); } },
+  { has: "số lẻ lớn hơn 60 và bé hơn 80", right: () => { let n = 0; for (let k = 61; k < 80; k++) if (k % 2) n++; return String(n); } },
   { has: "Số liền trước của số 4 000 000", right: () => fmt(4000000 - 1) },
   { has: "a = 2 400 và b = 8", right: () => fmt(ev("a : b + a", { a: 2400, b: 8 })) },
   { has: "chu vi 30 cm, cạnh AB dài 9 cm", right: () => fmt(div(30, 2) - 9) },
@@ -161,16 +160,17 @@ const de3 = [
   { has: "Hiệu của số lớn nhất có sáu chữ số và số bé nhất có sáu chữ số", right: () => fmt(999999 - 100000) },
   { has: "___ + 48 735 = 351 960", right: () => fmt(351960 - 48735) },
   { has: "2 345 + 1 860 + 655 + 140", right: () => fmt(2345 + 1860 + 655 + 140), more: () => { assert.equal(2345 + 655, 3000); assert.equal(1860 + 140, 2000); } },
-  { has: "13 204 × 4", right: () => fmt(13204 * 4) },
-  { has: "Bố hơn con 28 tuổi", right: () => fmt(div(46 - 28, 2)) },
-  { has: "chu vi 64 cm, chiều dài hơn chiều rộng 8 cm", right: () => fmt(div(div(64, 2) + 8, 2)) + " cm" },
+  // nhân với số có một chữ số trong phạm vi 100 000, có nhớ không quá hai lượt, không liên tiếp (Rút ra N23)
+  { has: "21 403 × 4", right: () => fmt(21403 * 4), more: () => { let c = 0; const nho = String(21403).split("").reverse().map((d) => (c = Math.floor((+d * 4 + c) / 10))).map((v, i) => (v ? i : -1)).filter((i) => i >= 0); assert.ok(21403 * 4 <= 100000 && nho.length <= 2 && nho.every((i, k) => !k || i - nho[k - 1] > 1), "lượt nhớ " + nho); } },
+  { has: "sợi dây dài 58 m", right: () => fmt(div(58 - 16, 2)) },
+  { has: "Buổi tập bơi của Khoa kéo dài 1 giờ", right: () => fmt(div(60 + 32, 2)) + " phút", more: (q) => [60 - div(60 + 32, 2), div(60, 2), 60 - 32].forEach((n) => assert.ok(q.o.includes(n + " phút"), "nhiễu " + n)) }, // 1 giờ = 60 phút
   { has: "Thư viện có 2 450 quyển truyện", right: () => fmt(2450 + 380 + 380 * 3) },
   { has: "mỗi ngày đội công nhân sửa được 1 250 m", right: () => fmt(1250 * 2 + (1250 - 320)) + " m" },
   { has: "Góc nào dưới đây là góc nhọn", right: (q) => { const m = q.o.filter((o) => loai(val(/\d+/.exec(o)[0])) === "Góc nhọn"); assert.equal(m.length, 1); return m[0]; } },
-  { has: "Lúc 6 giờ", right: () => fmt(kim(6, 0)) },
+  { has: "Chia một góc vuông thành hai góc bằng nhau", right: () => fmt(div(90, 2)) },
   { has: "2 tấn 3 tạ", right: () => fmt(2 * 1000 + 3 * 100) },
-  { has: "4 cm² = ? mm²", right: () => fmt(4 * 100) + " mm²" },
-  { has: "Thế kỉ XXI tính từ năm 2000 đến hết năm 2099", right: () => theKi(2000) === 21 && theKi(2099) === 21 && theKi(2100) === 22, more: () => { assert.equal(LA_MA(21), "XXI"); assert.equal(theKi(2001), 21); assert.equal(theKi(2100), 21); } },
+  { has: "9 cm² = ? mm²", right: () => fmt(9 * 100) + " mm²" },
+  { has: "Năm 1800 thuộc thế kỉ XIX", right: () => LA_MA(theKi(1800)) === "XIX", more: (q) => { assert.equal(LA_MA(theKi(1800)), "XVIII"); assert.equal(LA_MA(theKi(1801)), "XIX"); assert.equal(theKi(1701), 18); assert.ok(q.x.includes("từ năm 1701 đến hết năm 1800")); } },
   { has: "Bạn An chạy 300 m hết 1 phút 5 giây", right: () => fmt(1 * 60 + 5 - 58) },
   // hai đường thẳng cùng vuông góc với đường thẳng thứ ba (hướng (1, 0)) thì có hướng (0, k), song song với nhau
   { has: "Hai đường thẳng cùng vuông góc với một đường thẳng thứ ba", right: () => vuongGoc([0, 2], [1, 0]) && vuongGoc([0, -5], [1, 0]) && songSong([0, 2], [0, -5]) }
@@ -181,11 +181,11 @@ const own = [
   { has: "Sắp xếp các số sau theo thứ tự từ bé đến lớn", right: (q) => q.o.slice().sort((a, b) => val(a) - val(b)) },
   { has: "Số bé nhất có bảy chữ số khác nhau", right: () => { for (let n = 1000000; ; n++) if (new Set(String(n)).size === 7) return fmt(n); } },
   { has: "số tròn triệu lớn hơn 3 500 000 và bé hơn 8 000 000", right: () => { let c = 0; for (let n = 0; n < 8000000; n += 1000000) if (n > 3500000) c++; return c; } },
-  { has: "1 284 600 người", right: () => fmt(round(1284600, 100000)) + " người" },
+  { has: "1 362 500 chiếc bút bi", right: () => fmt(round(1362500, 100000)) + " chiếc" },
   { has: "4 571; 6 038; 9 995; 2 403, số chẵn", right: () => { const m = [4571, 6038, 9995, 2403].filter((n) => n % 2 === 0); assert.equal(m.length, 1); return fmt(m[0]); } },
   { has: "Với a = 8, nối mỗi biểu thức", right: (q) => q.l.map((e) => fmt(ev(e, { a: 8 }))), more: (q) => q.r.slice(q.l.length).forEach((x) => assert.ok(!q.l.some((e) => ev(e, { a: 8 }) === val(x)))) },
-  { has: "Với a = 25 và b = 14, hàng rào dài", right: () => ev("(a + b) × 2", { a: 25, b: 14 }) - 2 },
-  { has: "P = (a + b) × 2. Mỗi ý", right: () => { const P = (a, b) => ev("(a + b) × 2", { a, b }); return [P(12, 8) === 40, P(12, 8) === 28, [[12, 8], [30, 7], [5, 5]].every(([a, b]) => P(a + 1, b + 1) - P(a, b) === 4), 10 * 4 === P(12, 8)]; }, more: () => assert.equal(ev("12 + 8 × 2"), 28) },
+  { has: "phòng chiếu phim có a hàng ghế", right: () => ev("a × b − c", { a: 18, b: 9, c: 143 }) },
+  { has: "tính chu vi chiếc khăn bằng biểu thức (a + b) × 2. Mỗi ý", right: () => { const P = (a, b) => ev("(a + b) × 2", { a, b }); return [P(12, 8) === 40, P(12, 8) === 28, [[12, 8], [30, 7], [5, 5]].every(([a, b]) => P(a + 1, b + 1) - P(a, b) === 4), P(15, 5) === P(12, 8)]; }, more: () => assert.equal(ev("12 + 8 × 2"), 28) },
   { has: "___ − 125 360 = 274 640", right: () => fmt(274640 + 125360) },
   { has: "tổng của số bị trừ, số trừ và hiệu là 1 000 000", right: () => { const T = 1000000, sbt = div(T, 2); [1, 123456, 499999].forEach((st) => assert.equal(sbt + st + (sbt - st), T)); return sbt; } },
   { has: "cộng với 45 678 thì được tổng bé hơn 100 000", right: () => { for (let n = 99999; n >= 10000; n--) if (n + 45678 < 100000) return n; } },
@@ -205,7 +205,7 @@ const own = [
     [`1 200 : 2 = ${fmt(hai)}`, `1 200 + ${fmt(hai)} = ${fmt(ban)}`, `2 450 − ${fmt(ban)} = ${fmt(con)}`].forEach((s) => { assert.ok(rb.includes(s), "thang chấm thiếu " + s); assert.ok(q.x.includes(s), "gợi ý thiếu " + s); });
     assert.ok(q.x.includes(`Đáp số: ${fmt(con)} kg`));
   } },
-  { has: "Mai mua 3 quyển vở", right: () => 50000 - (8500 * 3 + 6000 * 2) },
+  { has: "8 thùng nước uống, mỗi thùng có 24 chai", right: () => div(24 * 8 - 75, 3) },
   { has: "Một cuộn vải dài 120 m", right: () => 120 - (3 * 15 + 2 * 20) },
   { has: "Góc nào là góc tù", right: (q) => {
     const L = lines(q.svg), m = ["A", "B", "C", "D"].map((n) => {
@@ -237,7 +237,7 @@ const own = [
     q.r.slice(q.l.length).forEach((x) => assert.ok(!q.l.some((l) => JSON.stringify(D[l]) === JSON.stringify(parse(x)))));
     return q.l.map((l) => q.r.find((x) => JSON.stringify(parse(x)) === JSON.stringify(D[l])));
   } },
-  { has: "mỗi viên có diện tích 4 dm²", right: () => div(6 * 4 * 100, 4) },
+  { has: "1 tấn 5 tạ cà phê", right: () => div(1 * 1000 + 5 * 100 - 11 * 100, 8) }, // 1 tấn = 1 000 kg, 1 tạ = 100 kg
   { has: "Minh chạy hết 2 phút 15 giây", right: () => { const t = { Minh: 2 * 60 + 15, Hùng: 128, Nam: 2 * 60 + 5 }; return Object.keys(t).sort((a, b) => t[a] - t[b])[0]; } },
   { has: "Đường thẳng nào vuông góc với đường thẳng m", right: (q) => {
     const d = tenDuong(q.svg, lines(q.svg));
@@ -251,16 +251,29 @@ const own = [
     assert.equal(pairs.length, 1); assert.ok(cat(d.c, d.a) && cat(d.c, d.b), "c phải cắt a và b trong hình");
     return pairs[0].join(" và ");
   } },
-  { has: "Quan sát tứ giác ABCD", right: (q) => { const p = tuGiac(q.svg, ["A", "B", "C", "D"]), s = (x, y) => sub(p[y], p[x]); return [songSong(s("A", "B"), s("D", "C")), vuongGoc(s("A", "D"), s("D", "C")), vuongGoc(s("B", "C"), s("D", "C")), songSong(s("A", "D"), s("B", "C"))]; } },
+  { has: "Quan sát tứ giác PQRS", right: (q) => {
+    const p = tuGiac(q.svg, ["P", "Q", "R", "S"]), s = (x, y) => sub(p[y], p[x]);
+    assert.ok(Math.abs(deg(s("P", "Q"), s("P", "S")) - 90) >= 15 && deg(s("P", "Q"), s("S", "R")) >= 15, "PQ phải nhìn rõ là không vuông góc với PS, không song song với SR");
+    const keo = (a, b) => ({ a, b: [a[0] + 100 * (b[0] - a[0]), a[1] + 100 * (b[1] - a[1])] }), g = cat(keo(p.P, p.Q), keo(p.S, p.R));
+    assert.ok(g && g[0] > p.R[0], "kéo dài PQ và SR về phía bên phải thì cắt nhau (lời giải ý d)");
+    // kí hiệu góc vuông (đường gấp khúc ngắn) ở hai đỉnh S và R, nơi cạnh SR vuông góc với PS và QR
+    const ki = [...q.svg.matchAll(/<path d="M([\d.]+) ([\d.]+) [HV]([\d.]+) [HV]([\d.]+)"/g)].map((m) => [+m[1], +m[2]]);
+    ["S", "R"].forEach((n) => assert.ok(vuongGoc(s(n === "S" ? "P" : "Q", n), s("S", "R")) && ki.some((k) => dist(k, p[n]) <= 15), "kí hiệu góc vuông ở đỉnh " + n));
+    return [songSong(s("P", "S"), s("Q", "R")), vuongGoc(s("P", "Q"), s("P", "S")), vuongGoc(s("S", "R"), s("P", "S")), songSong(s("P", "Q"), s("S", "R"))];
+  } },
   { has: "Hình nào là hình thoi", right: (q) => {
-    const ps = polys(q.svg), cuoi = (P) => P.map((p, i) => sub(P[(i + 1) % 4], p));
-    const thoi = ps.map((P) => { const s = cuoi(P), len = s.map((v) => Math.hypot(...v)); return songSong(s[0], s[2]) && songSong(s[1], s[3]) && len.every((x) => Math.abs(x - len[0]) < 1e-9); });
+    const ps = polys(q.svg), cuoi = (P) => P.map((p, i) => sub(P[(i + 1) % 4], p)), dai = (v) => Math.hypot(...v);
+    const thoi = ps.map((P) => { const s = cuoi(P), len = s.map(dai); return songSong(s[0], s[2]) && songSong(s[1], s[3]) && len.every((x) => Math.abs(x - len[0]) < 1e-9); });
     assert.equal(ps.length, 4); assert.equal(thoi.filter(Boolean).length, 1);
     ps.flat(2).forEach((v) => assert.equal(v % 16, 0, "đỉnh phải nằm trên giao điểm của lưới ô vuông (ô 16)")); // học sinh đếm ô để so cạnh
     ps.flat().forEach(([x]) => assert.ok(x > 0 && x < 320, "hình nằm trong khung, không chạm mép"));
     const k = thoi.indexOf(true), at = ps[k].reduce((a, p) => a + p[0], 0) / 4, lb = texts(q.svg).filter((t) => /^Hình \d$/.test(t.t)).sort((x, y) => Math.abs(x.at[0] - at) - Math.abs(y.at[0] - at))[0];
-    cuoi(ps[k]).forEach((v) => assert.deepEqual(v.map((x) => Math.abs(x) / 16), [2, 3])); // lời giải: mỗi cạnh đi 2 ô ngang, 3 ô dọc
-    const s3 = cuoi(ps[2]); assert.ok(songSong(s3[0], s3[2]) && songSong(s3[1], s3[3]) && Math.hypot(...s3[0]) < Math.hypot(...s3[1]), "hình 3 là hình bình hành, cạnh ngang ngắn hơn cạnh xiên");
+    cuoi(ps[k]).forEach((v) => assert.deepEqual(v.map((x) => Math.abs(x) / 16), [1, 3])); // lời giải: mỗi cạnh đi 1 ô ngang, 3 ô dọc
+    // lời giải các hình còn lại: hình 1 bình hành, cạnh ngang ngắn hơn cạnh xiên; hình 2 hai cạnh trên dài hơn hai cạnh dưới; hình 4 hình chữ nhật
+    const s1 = cuoi(ps[0]); assert.ok(songSong(s1[0], s1[2]) && songSong(s1[1], s1[3]) && s1[0][1] === 0 && dai(s1[0]) < dai(s1[1]), "hình 1 là hình bình hành, cạnh ngang ngắn hơn cạnh xiên");
+    const P2 = ps[1], tren = P2.reduce((a, v) => (v[1] < a[1] ? v : a)), duoi = P2.reduce((a, v) => (v[1] > a[1] ? v : a));
+    assert.ok(P2.filter((v) => v !== tren && v !== duoi).every((v) => dai(sub(v, tren)) > dai(sub(v, duoi)) + 1), "hình 2: hai cạnh trên dài hơn hai cạnh dưới");
+    const s4 = cuoi(ps[3]); assert.ok(s4.every((v, i) => vuongGoc(v, s4[(i + 1) % 4])) && dai(s4[0]) !== dai(s4[1]), "hình 4 là hình chữ nhật, không phải hình vuông");
     return lb.t;
   } },
   { has: "Cho hình bình hành MNPQ", right: (q) => {
