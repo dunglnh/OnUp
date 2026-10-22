@@ -595,6 +595,16 @@ catalog.forEach((b) => {
 
 /* ---------- lịch thi mặc định ---------- */
 const MODULES = W.ONTAP_MODULES || [];
+{ // mã kì thi không trùng, mọi kì thi có khối trong data/grades.js và ngày đúng dạng (Lịch các khối mới: lịch có kì thi của khối 4–12)
+  const seenEv = new Set();
+  (W.ONTAP_SEED_EVENTS || []).forEach((e) => {
+    const at = "kì thi " + e.id;
+    if (seenEv.has(e.id)) err(at, "mã kì thi trùng"); seenEv.add(e.id);
+    if (!Array.isArray(e.grades) || !e.grades.length || e.grades.some((g) => !grades.includes(g))) err(at, `khối ${JSON.stringify(e.grades)} không có trong data/grades.js`);
+    [e.start, e.end].forEach((d) => { if (d != null && !/^\d{4}-\d{2}-\d{2}$/.test(d)) err(at, `ngày "${d}" không đúng dạng YYYY-MM-DD`); });
+    if (e.start && e.end && e.end < e.start) err(at, "ngày kết thúc trước ngày bắt đầu");
+  });
+}
 (W.ONTAP_SEED_EVENTS || []).forEach((e) => {
   const at = "kì thi " + e.id;
   (e.banks || []).forEach((id) => {

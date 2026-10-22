@@ -36,30 +36,39 @@ Bảng trên là **bản lưu trên máy** (một máy dùng chung cho cả nhà
 
 ## 3. Lịch thi cả năm
 
-Lịch năm học 2026–2027 có sẵn cho cả hai khối, chia theo tháng:
+Lịch năm học 2026–2027 có sẵn cho mọi khối 4–12 (mốc năm học cho mọi khối), chia theo tháng. App chỉ hiện kì thi của khối đang mở (hôm nay lớp 4, 6) và khối đang có học sinh; kì thi của các khối khác đã nằm sẵn trong dữ liệu, bật khối nào là thấy ngay.
 
 | Thời gian | Kì thi | Khối | Trạng thái |
 |---|---|---|---|
-| 5/9/2026 | Khai giảng | 4, 6 | Chính thức |
-| 2–13/11/2026 | Kiểm tra giữa học kì I | 4 (Toán, TV); 6 (các môn có điểm số) | Dự kiến |
+| 5/9/2026 | Khai giảng | mọi khối | Chính thức |
+| 2–13/11/2026 | Kiểm tra giữa học kì I | 4, 5 (Toán, TV); 6–12 (các môn có điểm số) | Dự kiến |
 | 26–28/11/2026 | IOE cấp trường | 4, 6 | Đã công bố |
-| 21/12/2026–8/1/2027 | Kiểm tra cuối học kì I | 6 | Dự kiến |
-| 28/12/2026–8/1/2027 | Kiểm tra cuối học kì I | 4 | Dự kiến |
+| 14/12/2026–2/1/2027 | Kiểm tra cuối học kì I | 9, 12 (Sở ra đề chung một số môn) | Dự kiến |
+| 21/12/2026–8/1/2027 | Kiểm tra cuối học kì I | 6, 7, 8, 10, 11 | Dự kiến |
+| 28/12/2026–8/1/2027 | Kiểm tra cuối học kì I | 4, 5 (lớp 5: Sở ra đề chung một số môn) | Dự kiến |
 | 7–9/1/2027 | IOE cấp xã/phường | 4, 6 | Đã công bố |
-| trước 18/1/2027 | Kết thúc học kì I | 4, 6 | Theo khung của Bộ |
-| 6/2/2027 | Tết Nguyên đán | 4, 6 | Mốc |
+| trước 18/1/2027 | Kết thúc học kì I | mọi khối | Theo khung của Bộ |
+| 6/2/2027 | Tết Nguyên đán | mọi khối | Mốc |
 | 4–6/3/2027 | IOE cấp tỉnh/thành phố | 4, 6 | Đã công bố |
-| 15–26/3/2027 | Kiểm tra giữa học kì II | 4, 6 | Dự kiến |
+| 8–19/3/2027 | Kiểm tra giữa học kì II | 9, 12 | Dự kiến |
+| 15–26/3/2027 | Kiểm tra giữa học kì II | 4, 5, 6, 7, 8, 10, 11 | Dự kiến |
 | 1–2/4/2027 | IOE cấp quốc gia | 4, 6 | Dự kiến |
-| 26/4–14/5/2027 | Kiểm tra cuối năm | 6 | Dự kiến |
-| 3–14/5/2027 | Kiểm tra cuối năm | 4 | Dự kiến |
-| trước 31/5/2027 | Kết thúc năm học | 4, 6 | Theo khung của Bộ |
+| 12/4–14/5/2027 | Kiểm tra cuối năm | 12 (Sở ra đề chung một số môn) | Dự kiến |
+| 19/4–14/5/2027 | Kiểm tra cuối năm | 9 (Sở ra đề chung một số môn) | Dự kiến |
+| 26/4–14/5/2027 | Kiểm tra cuối năm | 6, 7, 8, 10, 11 | Dự kiến |
+| 3–14/5/2027 | Kiểm tra cuối năm | 4, 5 (lớp 5: Sở ra đề chung một số môn) | Dự kiến |
+| trước 31/5/2027 | Kết thúc năm học | mọi khối | Theo khung của Bộ |
+| 1–2/6/2027 | Thi tuyển sinh vào lớp 10 (Toán, Ngữ văn, Tiếng Anh; mỗi tỉnh một lịch, ở đây như TP.HCM năm 2026) | 9 | Dự kiến |
+| 11–12/6/2027 | Thi tốt nghiệp THPT (Toán, Ngữ văn và 2 môn tự chọn) | 12 | Dự kiến (khung năm học của Bộ) |
+
+Môn thi: lớp 4, 5 giữa kì Toán, Tiếng Việt, cuối kì thêm Tiếng Anh, Lịch sử và Địa lí, Khoa học, Tin học và Công nghệ; lớp 6–9 tám môn (Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ); lớp 10–12 Toán, Ngữ văn, Tiếng Anh, Lịch sử, Vật lí, Hóa học, Sinh học, Địa lí, GDKT&PL, Tin học, Công nghệ. Từ 1/12/2026 Sở GD&ĐT ra đề chung một số môn cuối kì của lớp 5, 9, 12 (Thông tư 89/2026): các kì đó có ghi chú nhắc xem thông báo của Sở.
 
 Mỗi kì thi có: tên, loại (kiểm tra định kì / IOE / thi khác / mốc), khối, ngày bắt đầu–kết thúc, cờ "dự kiến", môn, phạm vi kiến thức, ghi chú, **bài ôn và ngân hàng câu hỏi được gắn vào**.
 
-- Học sinh chỉ thấy lịch của khối mình. Phụ huynh và quản trị chọn xem lớp 4, lớp 6 hoặc cả hai.
+- Học sinh chỉ thấy lịch của khối mình. Phụ huynh và quản trị chọn xem từng khối đang hiện hoặc cả hai (mọi) khối.
 - Bấm vào một kì thi để xem chi tiết và vào thẳng bài ôn của kì đó.
 - Quản trị sửa ngày khi trường thông báo, thêm kì thi mới, hoặc khôi phục lịch mặc định.
+- Gia đình đang dùng tự nhận kì thi mới của lịch mặc định ở lần mở app sau (cả bản lưu trên máy và bản đám mây): kì thi mới được thêm vào, kì dùng chung đã có chỉ được thêm khối mới; ngày bố mẹ đã sửa, kì bố mẹ đã xóa giữ nguyên. Đề mới của app cũng tự gắn vào đúng kì thi như vậy.
 
 ## 4. Màn hình
 

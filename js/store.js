@@ -27,7 +27,8 @@
       banks: [],      // ngân hàng do quản trị viên nhập (đề có sẵn nằm ở data/banks/)
       results: [],    // {id, userId, source:"module"|"bank", refId, subject, label, mode, r, t, s, at} (xem addResult)
       reports: [],    // câu bị báo sai: {id, userId, bankId, qKey, qText, reason, note, at} (xem addReport)
-      seedBanksSeen: seedBankIds() // mã các ngân hàng có sẵn đã xét (xem linkNewSeedBanks)
+      seedBanksSeen: seedBankIds(), // mã các ngân hàng có sẵn đã xét (xem linkNewSeedBanks)
+      seedEventsSeen: seedEventKeys() // khóa "<mã kì thi>:<khối>" của lịch mặc định đã xét (xem mergeSeedEvents)
     };
   }
 
@@ -40,7 +41,7 @@
       db = raw ? JSON.parse(raw) : null;
     } catch (e) { db = null; memoryOnly = true; }
     if (!db || typeof db !== "object" || !Array.isArray(db.users)) db = null;
-    if (db) { fillDefaults(); dropRetiredEvents(); dropRetiredBanks(); linkNewSeedBanks(); }
+    if (db) { fillDefaults(); dropRetiredEvents(); dropRetiredBanks(); syncSeedEvents(); linkNewSeedBanks(); }
     return db;
   }
   /* Giá trị mặc định cho trường thêm sau khi đã có dữ liệu trên máy.
@@ -72,20 +73,77 @@
     });
     if (changed) save();
   }
-  /* Lịch thi chỉ được chép vào máy một lần khi thiết lập. Khi data/banks/index.js có bộ mới và lịch mặc định
-     gắn bộ đó vào một kì thi, gắn thêm vào kì thi đó trên máy đã có dữ liệu. Bộ đã xét thì không gắn lại,
-     để giữ lựa chọn của quản trị viên khi họ bỏ gắn. */
+  /* ---- Lịch mặc định đến máy đã có dữ liệu (Phiên Lịch các khối mới) ----
+     Lịch thi được chép vào máy khi thiết lập; sau đó mỗi lần mở app (và sau khi khôi phục từ file), lịch mặc định (data/calendar-2026-2027.js)
+     được gộp thêm vào lịch trên máy theo từng khối của từng kì thi: khóa "<mã kì thi>:<khối>" đã xét ghi ở seedEventsSeen (như seedBanksSeen).
+     - Kì thi chưa xét khối nào (kì thi mới trong lịch mặc định): chép cả kì thi vào máy (kèm bài ôn, đề của nó).
+     - Kì thi đã có trên máy mà lịch mặc định thêm khối mới (mốc năm học cho thêm khối): chỉ thêm khối đó vào grades; ngày, môn, ghi chú,
+       bài ôn bố mẹ đã sửa giữ nguyên; khối bố mẹ đã bỏ (đã xét) không thêm lại.
+     - Kì thi đã xét mà không còn trên máy (bố mẹ đã xóa): không chép lại, kể cả khi có khối mới.
+     - Ngày của mốc năm học đổi trong lịch mặc định (SEED_DATE_FIXES): máy còn đúng ngày cũ của lịch mặc định thì đổi theo; ngày bố mẹ đã sửa giữ nguyên.
+     Kì thi của khối chưa bật (data/grades.js) vẫn được chép (app không hiện), nên con thêm sau thuộc khối đó có đủ kì thi.
+     Dữ liệu cũ chưa có seedEventsSeen (hoặc rỗng) coi như đã xét 16 kì thi của lịch khối 4, 6 ban đầu (SEED_EVENTS_V1).
+     mergeSeedEvents là hàm thuần dùng chung với SupabaseStore (Store._mergeSeedEvents): nhận events, seen của kho, trả về
+     { events, seen, added, changed }: added = kì thi chép mới, changed = kì thi được thêm khối hoặc đổi ngày (cùng đối tượng trong events);
+     seen là danh sách đã xét mới (có thể dài ra dù added, changed rỗng). */
+  const SEED_EVENTS_V1 = { "khai-giang": [4, 6], "gk1-l4": [4], "gk1-l6": [6], "ioe-truong": [4, 6], "ck1-l6": [6], "ck1-l4": [4], "ioe-xa": [4, 6],
+    "het-hk1": [4, 6], "tet-2027": [4, 6], "ioe-tinh": [4, 6], "gk2-l4": [4], "gk2-l6": [6], "ioe-qg": [4, 6], "ck2-l6": [6], "ck2-l4": [4], "het-nam": [4, 6] };
+  const SEED_DATE_FIXES = [{ id: "het-hk1", from: "2027-01-17", to: "2027-01-18" }]; // khung năm học: học kì I xong trước 18/1 (lịch cũ ghi 17/1)
+  const seedEventKeys = () => (window.ONTAP_SEED_EVENTS || []).flatMap((e) => (e.grades || []).map((g) => e.id + ":" + g));
+  const seenEventKeys = (seen) => (Array.isArray(seen) && seen.length ? seen : Object.entries(SEED_EVENTS_V1).flatMap(([id, gs]) => gs.map((g) => id + ":" + g)));
+  function mergeSeedEvents(events, seen) {
+    const was = new Set(seenEventKeys(seen)), out = events.slice(), added = [], changed = [], fresh = [];
+    (window.ONTAP_SEED_EVENTS || []).forEach((se) => {
+      const gs = (se.grades || []).map(Number), ev = out.find((e) => e.id === se.id);
+      const add = gs.filter((g) => !was.has(se.id + ":" + g));
+      add.forEach((g) => fresh.push(se.id + ":" + g));
+      if (!add.length) return;
+      if (ev) {
+        const more = add.filter((g) => !(ev.grades || []).map(Number).includes(g));
+        if (more.length) { ev.grades = (ev.grades || []).map(Number).concat(more); changed.push(ev); }
+      } else if (add.length === gs.length) { const c = clone(se); out.push(c); added.push(c); } // chưa xét khối nào: kì thi mới
+    });
+    SEED_DATE_FIXES.forEach((f) => {
+      const ev = out.find((e) => e.id === f.id);
+      if (ev && ev.start === f.from && (ev.end || ev.start) === f.from) { ev.start = f.to; ev.end = f.to; if (!changed.includes(ev)) changed.push(ev); }
+    });
+    return { events: out, seen: Array.from(was).concat(fresh), added, changed };
+  }
+  function syncSeedEvents() {
+    if (!Array.isArray(db.events)) return;
+    const r = mergeSeedEvents(db.events, db.seedEventsSeen);
+    if (!r.added.length && !r.changed.length && Array.isArray(db.seedEventsSeen) && r.seen.length === db.seedEventsSeen.length) return;
+    db.events = r.events; db.seedEventsSeen = r.seen; save();
+  }
+  /* Khi data/banks/index.js có bộ mới và lịch mặc định gắn bộ đó vào một kì thi, gắn thêm vào kì thi đó trên máy đã có dữ liệu.
+     Bộ đã xét thì không gắn lại, để giữ lựa chọn của quản trị viên khi họ bỏ gắn. Bộ chỉ được ghi là đã xét khi đã gắn được, khi không
+     kì thi mặc định nào gắn nó, hoặc khi kì thi gắn nó đã bị bố mẹ xóa (đã xét mà không còn trên máy); bộ gắn vào kì thi máy chưa có
+     thì để lại, gắn ở lần sau (syncSeedEvents chạy trước nên thường gắn ngay trong lần mở này).
+     linkSeedBanks là hàm thuần dùng chung với SupabaseStore (Store._linkSeedBanks): trả về { changed, seen } (changed: kì thi có banks đổi,
+     cùng đối tượng trong events) hoặc null khi danh mục không có bộ mới. */
   const SEED_BANKS_V1 = ["mau-toan4-ck1", "mau-toan6-ck1"]; // các bộ có sẵn trước khi có seedBanksSeen
+  function linkSeedBanks(events, seen, eventsSeen) {
+    const was = new Set(Array.isArray(seen) ? seen : SEED_BANKS_V1), fresh = seedBankIds().filter((id) => !was.has(id));
+    if (!fresh.length) return null;
+    const evSeen = new Set(seenEventKeys(eventsSeen).map((k) => k.slice(0, k.lastIndexOf(":"))));
+    const changed = [], done = new Set(), waiting = new Set();
+    (window.ONTAP_SEED_EVENTS || []).forEach((se) => {
+      const add = (se.banks || []).filter((id) => fresh.includes(id));
+      if (!add.length) return;
+      const ev = events.find((e) => e.id === se.id);
+      if (ev) {
+        if (add.some((id) => !(ev.banks || []).includes(id))) { ev.banks = add.concat((ev.banks || []).filter((id) => !add.includes(id))); changed.push(ev); }
+        add.forEach((id) => done.add(id));
+      } else if (evSeen.has(se.id)) add.forEach((id) => done.add(id)); // kì thi bố mẹ đã xóa: không còn chỗ gắn
+      else add.forEach((id) => waiting.add(id)); // kì thi máy chưa có: chờ kì thi đến
+    });
+    return { changed, seen: Array.from(was).concat(fresh.filter((id) => done.has(id) || !waiting.has(id))) };
+  }
   function linkNewSeedBanks() {
     if (!Array.isArray(db.events)) return;
-    const seen = new Set(Array.isArray(db.seedBanksSeen) ? db.seedBanksSeen : SEED_BANKS_V1);
-    const fresh = seedBankIds().filter((id) => !seen.has(id));
-    if (!fresh.length) return;
-    (window.ONTAP_SEED_EVENTS || []).forEach((se) => {
-      const ev = db.events.find((e) => e.id === se.id), add = (se.banks || []).filter((id) => fresh.includes(id));
-      if (ev && add.length) ev.banks = add.concat((ev.banks || []).filter((id) => !add.includes(id)));
-    });
-    db.seedBanksSeen = Array.from(seen).concat(fresh);
+    const r = linkSeedBanks(db.events, db.seedBanksSeen, db.seedEventsSeen);
+    if (!r || (!r.changed.length && Array.isArray(db.seedBanksSeen) && r.seen.length === db.seedBanksSeen.length)) return;
+    db.seedBanksSeen = r.seen;
     save();
   }
   function save() {
@@ -206,7 +264,7 @@
     save(); return clean;
   }
   function removeEvent(id) { db.events = db.events.filter((e) => e.id !== id); save(); }
-  function resetEvents() { db.events = clone(window.ONTAP_SEED_EVENTS || []); db.seedBanksSeen = seedBankIds(); save(); }
+  function resetEvents() { db.events = clone(window.ONTAP_SEED_EVENTS || []); db.seedBanksSeen = seedBankIds(); db.seedEventsSeen = seedEventKeys(); save(); }
 
   /* -------- Ngân hàng câu hỏi -------- */
   function banks(grade) {
@@ -325,7 +383,7 @@
     data.banks = Array.isArray(data.banks) ? data.banks : [];
     data.settings = data.settings || {};
     data.v = SCHEMA_VERSION;
-    db = data; fillDefaults(); linkNewSeedBanks(); save();
+    db = data; fillDefaults(); syncSeedEvents(); linkNewSeedBanks(); save();
   }
   function wipe() {
     try {
@@ -352,6 +410,8 @@
     // Quyền theo gói (docs/THIET-KE-TAI-KHOAN.md mục 5, 9). Bản lưu trên máy không có gói: luôn được.
     can: () => true,
     _mem: null,
-    _fillSeedFile: fillSeedFile // chỉ cho tests/nap-de.js
+    _fillSeedFile: fillSeedFile, // chỉ cho tests/nap-de.js
+    // hàm thuần gộp lịch mặc định, gắn đề có sẵn: SupabaseStore dùng chung (và kiểm thử)
+    _mergeSeedEvents: mergeSeedEvents, _linkSeedBanks: linkSeedBanks, _seedEventKeys: seedEventKeys
   };
 })();

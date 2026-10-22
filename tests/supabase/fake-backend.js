@@ -7,7 +7,9 @@
    be.noReports = true: như máy chủ chưa chạy supabase/cap-nhat-r1.sql (chưa có bảng question_reports).
    be.failResults = true: mọi lệnh ghi vào bảng results lỗi như mất mạng, đến khi tắt (Phiên UX6: kết quả nằm lại trong hộp gửi).
      cloud-e2e.js gọi máy chủ giả qua exposeFunction, không qua mạng, nên context.setOffline không làm lượt gửi lỗi được.
-   be.delayResults = <ms>: lệnh ghi vào bảng results trả lời chậm chừng đó (mạng chậm hơn thời gian app chờ lượt gửi, UX6). */
+   be.delayResults = <ms>: lệnh ghi vào bảng results trả lời chậm chừng đó (mạng chậm hơn thời gian app chờ lượt gửi, UX6).
+   be.noEventsSeen = true: như máy chủ chưa chạy supabase/cap-nhat-lich.sql (families chưa có cột seed_events_seen: select không trả cột đó,
+     update có cột đó lỗi PGRST204; app bỏ qua bước gộp lịch mặc định). */
 "use strict";
 const nodeCrypto = require("crypto");
 
@@ -20,7 +22,7 @@ const ALL = "*";
 const GRANT = {
   plans: { select: ALL, insert: ALL, update: ALL, delete: true },
   app_owners: { select: ALL, insert: null, update: null, delete: false },
-  families: { select: ALL, insert: null, update: ["display_name", "school_year", "seed_banks_seen"], delete: false },
+  families: { select: ALL, insert: null, update: ["display_name", "school_year", "seed_banks_seen", "seed_events_seen"], delete: false },
   profiles: { select: ALL, insert: ["id", "family_id", "name", "avatar", "grade", "class_name", "pin_hash"], update: ["name", "avatar", "grade", "class_name", "pin_hash"], delete: true },
   exam_events: { select: ALL, insert: ALL, update: ALL, delete: true },
   question_banks: { select: ALL, insert: ALL, update: ALL, delete: true },
@@ -111,7 +113,7 @@ function createBackend() {
       if (!USERNAME_RE.test(row.username || "") || row.username.includes("..")) throw new Fail('new row for relation "families" violates check constraint "families_username_check"', "23514");
       if (T.families.some((f) => f.username === row.username || f.auth_user_id === row.auth_user_id)) throw new Fail("duplicate key value violates unique constraint", "23505");
       if (!users.has(row.auth_user_id)) throw new Fail("insert or update on table \"families\" violates foreign key constraint", "23503");
-      Object.assign(row, Object.assign({ display_name: "", school_year: "2026–2027", seed_banks_seen: [], plan: "free", plan_until: null,
+      Object.assign(row, Object.assign({ display_name: "", school_year: "2026–2027", seed_banks_seen: [], seed_events_seen: [], plan: "free", plan_until: null,
         must_change_password: true, status: "active", created_at: iso(), last_seen_at: null }, row));
     }
     if (table === "profiles") {
@@ -150,6 +152,9 @@ function createBackend() {
     if (table === "exam_events") {
       if (!["dinh-ki", "ioe", "thi-khac", "moc"].includes(row.kind)) throw new Fail("exam_events_kind_check", "23514");
       if ((row.grades || []).some((g) => !(g >= 1 && g <= 12))) throw new Fail("exam_events_grades_check", "23514");
+      // như ràng buộc exam_events_check trong schema.sql (trần nâng ở supabase/cap-nhat-lich.sql: 500 đề một kì thi)
+      if ((row.grades || []).length > 12 || (row.subjects || []).length > 30 || (row.modules || []).length > 50 || (row.banks || []).length > 500
+        || (row.subjects || []).concat(row.modules || [], row.banks || []).join("").length > 20000) throw new Fail('new row for relation "exam_events" violates check constraint "exam_events_check"', "23514");
       row.start_date = row.start_date || null; row.end_date = row.end_date || null;
       if (T.exam_events.filter((x) => x.family_id === row.family_id).length >= 500) throw new Fail("Tài khoản đã có 500 mục, không thêm được nữa.", "P0001");
     }
@@ -182,6 +187,9 @@ function createBackend() {
   }
   function afterUpdate(table, row, patch) {
     if (table === "families" && ("plan" in patch || "plan_until" in patch)) syncLocks(row.id);
+    if (table === "families") { // trần số mã đã xét (families_seed_banks_seen_check, families_seed_events_seen_check: 5 000, cap-nhat-lich.sql)
+      ["seed_banks_seen", "seed_events_seen"].forEach((c) => { if (c in patch && (!Array.isArray(patch[c]) || patch[c].length > 5000)) throw new Fail(`new row for relation "families" violates check constraint "families_${c}_check"`, "23514"); });
+    }
     if (table === "profiles" && "name" in patch) row.name = String(row.name).trim();
     if (table === "paid_banks") row.updated_at = iso();
   }
@@ -210,12 +218,16 @@ function createBackend() {
 
   /* ---------- truy vấn ---------- */
   const match = (row, filters) => filters.every(([k, c, v]) => (k === "eq" ? row[c] === v : k === "neq" ? row[c] !== v : k === "in" ? v.includes(row[c]) : true));
-  const pick = (row, cols) => {
-    if (!cols || cols === "*") return clone(row);
-    const o = {}; cols.split(",").map((c) => c.trim()).forEach((c) => (o[c] = row[c] === undefined ? null : clone(row[c]))); return o;
+  const pick = (row, cols, table) => {
+    let out;
+    if (!cols || cols === "*") out = clone(row);
+    else { out = {}; cols.split(",").map((c) => c.trim()).forEach((c) => (out[c] = row[c] === undefined ? null : clone(row[c]))); }
+    if (table === "families" && be.noEventsSeen) delete out.seed_events_seen; // máy chủ chưa có cột
+    return out;
   };
   const pkOf = (table, row, keys) => (keys || PK[table]).map((k) => row[k]).join("|");
   function checkCols(table, op, row, service) {
+    if (table === "families" && be.noEventsSeen && "seed_events_seen" in row) throw new Fail("Could not find the 'seed_events_seen' column of 'families' in the schema cache", "PGRST204");
     if (service) return;
     const g = GRANT[table];
     if (!g || g[op] == null) throw denied(table);
@@ -234,7 +246,7 @@ function createBackend() {
       q.orders.slice().reverse().forEach(([c, asc]) => rows.sort((a, b) => (a[c] === b[c] ? 0 : (a[c] < b[c] ? -1 : 1) * (asc ? 1 : -1))));
       const [a, b] = q.range || [0, 999];
       rows = rows.slice(a, Math.min(b, a + 999) + 1); // như PostgREST: tối đa 1000 dòng mỗi lần
-      rows = rows.map((r) => pick(r, q.cols));
+      rows = rows.map((r) => pick(r, q.cols, table));
       if (q.single) {
         if (rows.length > 1 || (q.single === "one" && !rows.length)) throw new Fail("JSON object requested, multiple (or no) rows returned");
         return rows[0] || null;
@@ -267,16 +279,17 @@ function createBackend() {
         if (table === "results") trimResults(out.map((r) => r.profile_id));
       } catch (e) { Object.keys(staged).forEach((k) => (T[k] = staged[k])); throw e; }
       if (!q.returning) return null;
-      const rows = out.map((r) => pick(r, q.returning));
+      const rows = out.map((r) => pick(r, q.returning, table));
       return q.single ? rows[0] || null : rows;
     }
     if (q.op === "update") {
       checkCols(table, "update", q.patch, service);
+      if (table === "families") afterUpdate(table, {}, q.patch); // ràng buộc trên patch (trần số mã đã xét) trước khi ghi
       if (table === "question_reports" && "status" in q.patch && !["new", "fixed", "rejected"].includes(q.patch.status)) throw new Fail("question_reports_status_check", "23514");
       const rows = T[table].filter((r) => visible(r) && match(r, q.filters) && (service || canWrite(table, r, uid, "update")));
       rows.forEach((r) => { Object.assign(r, clone(q.patch)); afterUpdate(table, r, q.patch); });
       if (!q.returning) return null;
-      const out = rows.map((r) => pick(r, q.returning));
+      const out = rows.map((r) => pick(r, q.returning, table));
       return q.single ? out[0] || null : out;
     }
     if (q.op === "delete") {
@@ -360,6 +373,7 @@ function createBackend() {
     trimResults(touched);
     const f = T.families.find((x) => x.id === fid);
     if (Array.isArray(d.seedBanksSeen)) f.seed_banks_seen = Array.from(new Set(f.seed_banks_seen.concat(d.seedBanksSeen)));
+    if (Array.isArray(d.seedEventsSeen) && !be.noEventsSeen) f.seed_events_seen = Array.from(new Set((f.seed_events_seen || []).concat(d.seedEventsSeen)));
     if (!f.display_name && d.settings && d.settings.schoolName) f.display_name = String(d.settings.schoolName).trim().slice(0, 80);
     return { profiles: nProf, results: nRes, ids };
   }

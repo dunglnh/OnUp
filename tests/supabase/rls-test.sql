@@ -98,6 +98,10 @@ select t.blocked($$insert into families (auth_user_id, username) values (t.id('X
 select t.blocked($$insert into families (auth_user_id, username) values (t.id('PA'), 'nha.a2')$$, 'một người dùng hai tài khoản');
 select t.ok((select plan = 'free' and plan_until is null and must_change_password and status = 'active' from families where username = 'nha.a'),
   'tài khoản mới: gói free, bắt đổi mật khẩu tạm, đang hoạt động');
+select t.ok((select seed_banks_seen = '{}' and seed_events_seen = '{}' from families where username = 'nha.a'), 'tài khoản mới: chưa xét đề có sẵn, kì thi nào (app chép lịch mặc định ở lần mở đầu)');
+select t.ok(has_column_privilege('authenticated', 'families', 'seed_events_seen', 'update') and has_column_privilege('authenticated', 'families', 'seed_banks_seen', 'update')
+  and not has_column_privilege('authenticated', 'families', 'plan', 'update') and not has_column_privilege('authenticated', 'families', 'status', 'update'),
+  'grant theo cột: authenticated sửa được seed_banks_seen, seed_events_seen; không sửa được plan, status');
 select t.ok((select max_children from plans where id = 'free') = 5 and (select all_banks from plans where id = 'free'), 'gói free hôm nay: 5 hồ sơ con, mọi đề');
 reset role;
 insert into t.ids select 'FA', id from families where username = 'nha.a';
@@ -125,6 +129,13 @@ select t.ok(t.n('select * from app_owners') = 0 and t.n('select * from admin_not
   and t.n('select * from admin_log') = 0, 'PA không thấy app_owners, ghi chú, nhật ký');
 select t.ok(t.rows($$update families set display_name = 'Nhà Bin', school_year = '2026–2027', seed_banks_seen = '{toan4-ck1-de1}'$$) = 1,
   'PA sửa tên hiển thị, năm học, seed_banks_seen');
+-- Lịch các khối mới: cột seed_events_seen (kì thi của lịch mặc định đã xét), trần 5 000 mã cho cả hai cột (trần cũ của seed_banks_seen: 1 000)
+select t.ok(t.rows($$update families set seed_events_seen = '{khai-giang:4,gk1-l4:4}'$$) = 1, 'PA sửa seed_events_seen');
+select t.ok(t.rows($$update families set seed_banks_seen = array(select 'de-' || i from generate_series(1, 1500) i)$$) = 1, 'seed_banks_seen nhận 1 500 mã (trần cũ 1 000)');
+select t.ok(t.rows($$update families set seed_events_seen = array(select 'ev-' || i from generate_series(1, 1500) i)$$) = 1, 'seed_events_seen nhận 1 500 mã');
+select t.blocked($$update families set seed_banks_seen = array(select 'de-' || i from generate_series(1, 5001) i)$$, 'seed_banks_seen quá 5 000 mã');
+select t.blocked($$update families set seed_events_seen = array(select 'ev-' || i from generate_series(1, 5001) i)$$, 'seed_events_seen quá 5 000 mã');
+select t.ok(t.rows($$update families set seed_banks_seen = '{toan4-ck1-de1}', seed_events_seen = '{khai-giang:4,gk1-l4:4}'$$) = 1, 'trả hai cột đã xét về gọn');
 select t.blocked($$update families set plan = 'family', plan_until = '2099-01-01'$$, 'PA tự nâng gói');
 select t.blocked($$update families set status = 'active'$$, 'PA tự đổi trạng thái');
 select t.blocked($$update families set must_change_password = false$$, 'PA tự bỏ cờ đổi mật khẩu bằng UPDATE');
@@ -194,6 +205,12 @@ select t.ok(t.rows($$insert into exam_events (id, family_id, title, kind, grades
   on conflict (family_id, id) do update set title = excluded.title, grades = excluded.grades$$) = 1, 'PA sửa kì thi bằng upsert');
 select t.blocked($$insert into exam_events (id, family_id, title, kind, grades) values ('x', my_family_id(), 'x', 'moc', '{13}')$$, 'kì thi khối 13');
 select t.blocked($$insert into exam_events (id, family_id, title, kind, grades, subjects) values ('big', my_family_id(), 'x', 'moc', '{4}', array(select 'm' || i from generate_series(1, 40) i))$$, 'mảng môn thi quá dài');
+-- Lịch các khối mới: trần 500 đề một kì thi (trần cũ 100), tổng chữ 20 000; mốc năm học cho cả 12 khối
+select t.ok(t.rows($$insert into exam_events (id, family_id, title, kind, grades, banks) values ('tn-thu', my_family_id(), 'Thi tốt nghiệp', 'thi-khac', '{12}', array(select 'toan12-tn-de' || i from generate_series(1, 300) i))$$) = 1,
+  'kì thi gắn 300 đề (trần cũ 100 đề, 5 000 chữ)');
+select t.blocked($$insert into exam_events (id, family_id, title, kind, grades, banks) values ('tn-thu2', my_family_id(), 'x', 'thi-khac', '{12}', array(select 'de-' || i from generate_series(1, 501) i))$$, 'kì thi gắn quá 500 đề');
+select t.ok(t.rows($$insert into exam_events (id, family_id, title, kind, grades) values ('moc-thu', my_family_id(), 'Khai giảng', 'moc', '{1,2,3,4,5,6,7,8,9,10,11,12}')$$) = 1, 'mốc năm học cho cả 12 khối');
+select t.ok(t.rows($$delete from exam_events where id in ('tn-thu', 'moc-thu')$$) = 2, 'xóa hai kì thi thử');
 select t.ok(t.rows($$insert into question_banks (id, family_id, title, grade, questions) values ('bk-1', my_family_id(), 'Đề tự nhập', 4, '[{"type":"tf","q":"1+1=2","a":true}]')$$) = 1, 'PA thêm ngân hàng đề tự nhập');
 select t.blocked($$insert into question_banks (id, family_id, title, grade, questions) select 'q' || i, my_family_id(), 'x', 4, '[]' from generate_series(1, 100) i$$, 'quá 100 ngân hàng đề');
 select t.ok((select passages = '{}' from question_banks where id = 'bk-1'), 'ngân hàng tự nhập: mặc định không có đoạn đọc');
@@ -428,6 +445,7 @@ select t.ok((import_local($j${
              {"id":"r-sai","userId":"s-old2","source":"bank","refId":"x","r":"?","t":2,"at":"hôm qua"},
              {"id":"r-le","userId":"s-old2","source":"bank","refId":"x","mode":"practice","r":1.35,"t":2}],
   "seedBanksSeen":["mau-toan4-ck1","toan4-ck1-de1"],
+  "seedEventsSeen":["khai-giang:4","ck1-l4:4"],
   "settings":{"schoolName":"Không ghi đè"}
 }$j$)->>'profiles')::int = 2, 'chuyển dữ liệu: 2 hồ sơ con (bỏ quản trị, phụ huynh, hồ sơ lỗi)');
 select t.ok((select at from results where import_key = 'r-old') = '2026-09-01T08:00:00Z', 'giữ thời điểm làm bài cũ');
@@ -440,6 +458,7 @@ select t.ok(t.n($$select * from exam_events where id = 'ev-local'$$) = 1 and t.n
 select t.ok((select passages->'d1'->>'text' from question_banks where id = 'bk-local') = 'Đoạn đọc' and (select r from results where import_key = 'r-le') = 1.35,
   'chuyển cả đoạn đọc của ngân hàng và số câu đúng lẻ');
 select t.ok((select seed_banks_seen @> '{toan4-ck1-de1}' and display_name = 'Nhà B' from families), 'seedBanksSeen được gộp, không ghi đè tên hiển thị');
+select t.ok((select seed_events_seen @> '{khai-giang:4,ck1-l4:4}' and cardinality(seed_events_seen) = 2 from families), 'seedEventsSeen được gộp (Lịch các khối mới)');
 select t.ok((import_local($j${"users":[{"id":"s-old","role":"student","name":"Bông","grade":6}],"results":[{"id":"r-old","userId":"s-old","source":"bank","refId":"bk-local","r":1,"t":1,"at":"2026-09-01T08:00:00.000Z"}]}$j$)->>'results')::int = 0
   and t.n($$select * from profiles where name = 'Bông'$$) = 1, 'chuyển lại lần hai không bị trùng');
 select t.blocked($$select import_local('{"from":"cloud","users":[]}')$$, 'chuyển lại bản sao lưu từ đám mây');

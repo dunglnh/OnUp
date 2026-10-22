@@ -11,7 +11,7 @@
 --
 -- Quyền (khóa anon/publishable là công khai, nên mọi quyền do RLS dưới đây quyết định):
 --  * Tài khoản đang hoạt động: đọc/ghi hồ sơ con, kết quả, lịch thi, ngân hàng đề tự nhập của gia đình mình;
---    đọc dòng families của mình, chỉ sửa display_name, school_year, seed_banks_seen.
+--    đọc dòng families của mình, chỉ sửa display_name, school_year, seed_banks_seen, seed_events_seen.
 --  * Tài khoản bị khóa (status = 'locked'): chỉ còn đọc được dòng families của mình (để app báo "đã bị khóa").
 --    Edge Function còn cấm đăng nhập (ban) người dùng đó trong Supabase Auth.
 --  * plans: ai đã đăng nhập cũng đọc; chỉ owner sửa. paid_banks: đọc được khi đề đã đăng VÀ (là đề thử, hoặc gói
@@ -56,7 +56,10 @@ create table families (
   username text not null unique check (username ~ '^[a-z0-9][a-z0-9._]{2,18}[a-z0-9]$' and position('..' in username) = 0),
   display_name text not null default '' check (char_length(display_name) <= 80),
   school_year text not null default '2026–2027' check (char_length(school_year) <= 20),
-  seed_banks_seen text[] not null default '{}' check (cardinality(seed_banks_seen) <= 1000),  -- như seedBanksSeen trong js/store.js
+  -- như seedBanksSeen, seedEventsSeen trong js/store.js (đề có sẵn, kì thi của lịch mặc định đã xét; trần 5 000 mã, nâng từ 1 000 ở
+  -- supabase/cap-nhat-lich.sql vì danh mục đề sẽ vượt 1 000). Tên ràng buộc ghi rõ để file cập nhật thay được.
+  seed_banks_seen text[] not null default '{}' constraint families_seed_banks_seen_check check (cardinality(seed_banks_seen) <= 5000),
+  seed_events_seen text[] not null default '{}' constraint families_seed_events_seen_check check (cardinality(seed_events_seen) <= 5000),
   plan text not null default 'free' references plans(id),
   plan_until date,                                   -- gói trả phí dùng đến hết ngày này (giờ Việt Nam)
   must_change_password boolean not null default true,  -- mật khẩu tạm: app bắt đổi ở lần đăng nhập tới
@@ -92,8 +95,9 @@ create table exam_events (
   subjects text[] not null default '{}', scope text not null default '' check (char_length(scope) <= 2000),
   note text not null default '' check (char_length(note) <= 2000),
   modules text[] not null default '{}', banks text[] not null default '{}',
-  check (cardinality(grades) <= 12 and cardinality(subjects) <= 30 and cardinality(modules) <= 50 and cardinality(banks) <= 100
-         and char_length(array_to_string(subjects || modules || banks, '')) <= 5000),
+  -- trần 500 đề một kì thi (nâng từ 100 ở supabase/cap-nhat-lich.sql: kì thi tốt nghiệp sẽ gắn khoảng 80 đề thi thử cùng các đề khác)
+  constraint exam_events_check check (cardinality(grades) <= 12 and cardinality(subjects) <= 30 and cardinality(modules) <= 50 and cardinality(banks) <= 500
+         and char_length(array_to_string(subjects || modules || banks, '')) <= 20000),
   primary key (family_id, id)
 );
 
@@ -407,7 +411,7 @@ revoke all on plans, app_owners, families, profiles, exam_events, question_banks
 grant select on plans to authenticated;
 grant insert, update, delete on plans to authenticated;  -- chính sách bên dưới chỉ cho owner
 grant select on app_owners to authenticated;
-grant select, update (display_name, school_year, seed_banks_seen) on families to authenticated;
+grant select, update (display_name, school_year, seed_banks_seen, seed_events_seen) on families to authenticated;
 grant select, delete, insert (id, family_id, name, avatar, grade, class_name, pin_hash),
   update (name, avatar, grade, class_name, pin_hash) on profiles to authenticated;
 grant select, insert, update, delete on exam_events, question_banks to authenticated;
@@ -565,6 +569,11 @@ begin
     select array(select distinct x from (select unnest(seed_banks_seen) x from families where id = fid
                                          union select jsonb_array_elements_text(p_data->'seedBanksSeen')) s) into seen;
     update families set seed_banks_seen = seen where id = fid;
+  end if;
+  if jsonb_typeof(p_data->'seedEventsSeen') = 'array' then  -- kì thi của lịch mặc định đã xét (seedEventsSeen của js/store.js), gộp như trên
+    select array(select distinct x from (select unnest(seed_events_seen) x from families where id = fid
+                                         union select jsonb_array_elements_text(p_data->'seedEventsSeen')) s) into seen;
+    update families set seed_events_seen = seen where id = fid;
   end if;
   if coalesce(btrim(p_data#>>'{settings,schoolName}'), '') <> '' then
     update families set display_name = left(btrim(p_data#>>'{settings,schoolName}'), 80) where id = fid and display_name = '';
