@@ -487,7 +487,7 @@ Có bảng số câu thì câu nghe đã bỏ qua có thể nằm trước `S.i`
 - **Đi giữa các câu** (X22):
   - Lượt đầu: “Bỏ qua”, “Trả lời”, “Câu tiếp” tới câu sau theo số câu, kể cả câu vừa nhảy tới bằng bảng (từ câu 20 thì tới câu 21). Qua câu cuối thì tới màn “Xem lại bài làm” hoặc màn kết quả, như flow.
   - Vòng làm tiếp: danh sách câu còn trống lúc bấm “Làm tiếp N câu”, theo số câu. Câu sau là câu kế tiếp trong danh sách, có số lớn hơn câu đang mở; hết danh sách thì về màn “Xem lại bài làm”. Nhãn `span.tag.warn.qz-left` “Câu còn trống 2/3” (vị trí trong danh sách) đứng đầu thẻ câu, chỉ trên câu của danh sách mà còn trống.
-  - Câu mở từ màn “Xem lại bài làm”: xong câu đó (“Trả lời”, “Bỏ qua”, hay nút đi tiếp sau Kiểm tra) thì về lại màn đó. Từ câu đó chạm một ô khác trên bảng cũng vậy, cho đến khi bấm “Làm tiếp”.
+  - Câu mở từ màn “Xem lại bài làm”: xong câu đó (“Trả lời”, “Bỏ qua”, hay nút đi tiếp sau Kiểm tra) thì về lại màn đó; ôn luyện mà không còn câu trống thì ra kết quả. Từ câu đó chạm một ô khác trên bảng cũng vậy, cho đến khi bấm “Làm tiếp”.
   - Chạm ô thì tới câu đó, bảng đóng, trang cuộn lên đầu (`render()` đã `scrollTo(0,0)`). Câu có đoạn đọc chung thì đoạn đọc hiện lại, giữ trạng thái mở/thu gọn (`S.psgOpen`).
 - **Ghi câu trả lời** (X23):
   - Làm như thi:
@@ -500,7 +500,7 @@ Có bảng số câu thì câu nghe đã bỏ qua có thể nằm trước `S.i`
     - Chỉ “Kiểm tra” (tự luận: “Xem gợi ý”) ghi câu trả lời. Rời câu bằng bảng thì bỏ lựa chọn chưa kiểm tra; câu giữ trạng thái cũ.
     - Câu đã Kiểm tra mở lại thì vẽ lại như ngay sau Kiểm tra: lựa chọn, đúng/sai, đáp án, lời giải, link báo câu sai. Tự luận hiện bài làm (chỉ đọc), gợi ý, thang tự chấm (vẫn chọn lại mức được). Chỉ có một nút đi tiếp.
     - Nên tách phần vẽ sau Kiểm tra thành một hàm, dùng cho cả hai chỗ.
-- **Nút đi tiếp ghi tên màn sẽ tới** (ôn luyện, sau Kiểm tra; X25): “Câu tiếp” (câu khác), “Xem lại bài làm” (về màn mới: còn câu trống, hoặc câu mở từ màn đó), “Xem kết quả” (không còn câu trống). Làm như thi giữ “Trả lời”.
+- **Nút đi tiếp ghi tên màn sẽ tới** (ôn luyện, sau Kiểm tra; X25): “Câu tiếp” (câu khác), “Xem lại bài làm” (về màn mới, khi còn câu trống), “Xem kết quả” (không còn câu trống, kể cả câu mở từ màn mới). Làm như thi giữ “Trả lời”.
 - **Kết thúc lượt** (X24):
   - Làm như thi: mọi lối chấm như bây giờ, câu còn trống tính sai.
   - Ôn luyện:
