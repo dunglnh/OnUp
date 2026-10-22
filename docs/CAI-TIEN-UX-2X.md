@@ -36,6 +36,7 @@ Phiên Claude Code không mở được Figma. Vì vậy ảnh chụp 1.x và 2.
 | [Quản lí đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=82-2135) | UX2 (tên “Đề tự soạn”) | X11–X13 | **UX7** | [ux7-chon-de](hinh-ux-2x/ux7-chon-de.jpg), [ux7-de-tu-soan](hinh-ux-2x/ux7-de-tu-soan.jpg) |
 | [Báo cáo tuần](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2729) | — | X14 | **UX8** | [ux8-bao-cao-tuan](hinh-ux-2x/ux8-bao-cao-tuan.jpg) |
 | [Chữ và màu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2933) | — | X15, X16 | **UI1** | [ui1-tieu-de](hinh-ux-2x/ui1-tieu-de.jpg), [ui1-o-ma](hinh-ux-2x/ui1-o-ma.jpg) |
+| Làm bài · bảng số câu (chưa vẽ trong Figma, ảnh chụp bản mẫu) | L38, L39 (flow của PO, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2) | X21–X27 | **9n, 9o** | [9n-bang-so-cau](hinh-ux-2x/9n-bang-so-cau.jpg), [9n-xem-lai-bai-lam](hinh-ux-2x/9n-xem-lai-bai-lam.jpg), [9n-lam-tiep-sua-cau](hinh-ux-2x/9n-lam-tiep-sua-cau.jpg), [9o-bai-on](hinh-ux-2x/9o-bai-on.jpg) |
 
 Mã vấn đề (X1, X2…) dùng trong lời giao việc và trong commit, như mã lỗi L1–L19 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md).
 
@@ -408,8 +409,157 @@ Tìm được khi kiểm thử thiết kế sau khi gộp PR #56 (mục 5). Figm
 - Thêm một kiểm tra: `line-height` tính ra của `h1` ≥ 1,3 lần cỡ chữ.
 - Xem lại ảnh 360px sáng/tối trong `tests/screenshots/360/` và ảnh `admin-da-tao` của `tests/supabase/cloud-e2e.js`: không có chỗ nào vỡ, ô mã nổi khung.
 
+### Phiên 9n, 9o · Bảng số câu và màn “Xem lại bài làm” (L38, L39)
+
+Flow do PO viết ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), mục 2, “Phiên 9n” (chủ app yêu cầu 22/10/2026). Mục này là phần thiết kế cho flow đó: ảnh, cách trình bày, id, chữ. Khi rà flow có bảy chỗ chưa rõ (X21–X27); cách chốt đã ghi vào flow. Ảnh chụp bản mẫu ở 360px: `css/app.css` thật, câu hỏi vẽ bằng `Quiz.run` thật, bài ôn dạng trang thật (như X15). Chưa vẽ trong Figma. Ảnh là hướng làm, không bắt giống từng điểm ảnh.
+
+![Bảng số câu: hiện tại và đề xuất](hinh-ux-2x/9n-bang-so-cau.jpg)
+
+**X21. Trùng id.** Flow đặt id màn mới là `#qzReview`. Nhưng id này đang là mục “Câu cần xem lại” của màn kết quả: `tests/e2e.js` đọc `#qzReview .rv-body` và so thứ tự `qzScore,row,qzReview,…`. Màn mới dùng `#qzRecap`.
+
+**X22. Sửa câu từ màn “Xem lại bài làm” xong thì đi đâu.** Theo luật “Câu tiếp tới câu sau theo số câu”, sửa câu 7 xong thì phải bấm qua câu 8–25 mới về lại màn này để nộp. Cách khác là mở bảng tìm ô 25.
+
+**X23. Lựa chọn chưa bấm “Trả lời” (làm như thi).**
+- Con chọn B rồi chạm ô số khác: flow chưa nói B có được ghi không. Con nghĩ đã chọn là đã trả lời (như tô phiếu), nên mất B thì bất ngờ. Hết giờ hay bấm “Nộp bài” lúc đang chọn cũng vậy: hiện nay lựa chọn đó bị bỏ.
+- Câu đã trả lời mở lại mà vẫn có nút “Bỏ qua”: bấm “Bỏ qua” để đi tiếp là xóa câu trả lời cũ.
+
+**X24. Ôn luyện có hai lối kết thúc, tính câu chưa mở khác nhau.**
+- “← Thoát” (như bây giờ): câu chưa tới không tính.
+- “Xem kết quả” ở màn mới: hỏi lại “Còn 3 câu chưa làm, sẽ tính là sai”.
+
+Có bảng số câu thì có câu chưa mở, vì con nhảy qua. Vậy phải chốt mỗi lối tính câu đó thế nào, và màn mới chỉ nên có một lối ra. Thêm một trường hợp: chưa trả lời câu nào mà bấm “Nộp bài” ở màn mới thì lời “sẽ tính là sai” không đúng. Khi đó app không lưu điểm (“Thoát đề?”).
+
+**X25. Nút ở câu cuối ghi “Câu tiếp” mà lại tới màn “Xem lại bài làm”.**
+
+**X26. Hàng trên cùng chật ở 360px.**
+- Làm như thi: [Còn 08:40] [Câu 11/25 ▾] [Nộp bài] cần 335px mà khung có 328px. Từ câu 10, “Nộp bài” rớt xuống hàng thứ hai. Tiếng Anh cần 336px.
+- Bài ôn dạng trang: thanh trên đã kín 328px (chữ của trang 184px, đồng hồ, chip “1 / 20”), chưa thêm được nút.
+
+**X27. IOE thay câu nghe theo vị trí.** Máy không phát được tiếng thì `soundFailed()` làm như sau:
+- đề thi thử: thay các câu nghe từ `S.i` trở đi;
+- luyện tập: bỏ các câu nghe khỏi `S.qs`.
+
+Có bảng số câu thì câu nghe đã bỏ qua có thể nằm trước `S.i`, và bỏ câu khỏi `S.qs` làm lệch `S.ans`, vốn ghi theo vị trí. Ngoài ra, mỗi lần vẽ câu nghe, `renderQ` đặt lại 3 lượt nghe, nên rời câu rồi quay lại là có thêm lượt.
+
+![Màn “Xem lại bài làm”](hinh-ux-2x/9n-xem-lai-bai-lam.jpg)
+
+**Thiết kế cho đề ngân hàng (9n, `js/quiz.js`, `css/app.css`):**
+- **Nút mở bảng.** `#qzProg` đổi từ chip thành `button.btn.ghost.sm.qz-prog`, cao 44px như “Nộp bài”:
+  - chữ `L.progress` (“Câu 9/25”, tiếng Anh “9 of 25”) và mũi tên xuống 16px màu `acc`;
+  - `aria-expanded`, `aria-controls="qzGrid"`; mở thì viền `acc`, mũi tên quay lên.
+
+  Hàng trên cùng: ôn luyện [← Thoát] … [Câu 9/25 ▾]; làm như thi [Còn 31:20] [Câu 9/25 ▾] … [Nộp bài]. Để vừa một hàng (X26), sửa trong `.qz-top`:
+  - gap 8px;
+  - chip đồng hồ padding 5px 10px, gap 4px;
+  - nút “Nộp bài” padding 7px 10px;
+  - nút mở bảng padding 7px 6px 7px 10px, gap 2px.
+
+  Đo ở câu 11/25: tiếng Việt 313px, tiếng Anh 314px, trong khung 328px.
+- **Bảng số câu.** `section.panel.qz-grid#qzGrid` (gap 12px) nằm ngay dưới `.qz-top`, trên `.bar`. Khi vẽ câu mới, bảng đóng sẵn.
+  - Ô là `button.qz-cell`: số câu (`<b>`) ở dòng trên, dấu trạng thái (`<i aria-hidden="true">`, 13px) ở dòng dưới.
+  - Lưới `repeat(auto-fill,minmax(48px,1fr))`, gap 8px, ô cao 48px, bo 10px. Ở 360px có 5 ô một hàng (52×48px); màn rộng hơn có nhiều ô hơn.
+  - Nhóm ô có `role="group"` và `aria-label` “Bảng số câu”. Mỗi ô có `aria-label` “Câu 5, đã bỏ qua”; ô đang làm thêm “, đang làm” và `aria-current="step"`.
+  - Dòng chú thích `p.qz-key`: mẫu ô 18px, tên trạng thái và số câu, như “Bỏ qua (2)”. Chỉ ghi trạng thái đang có (luôn có “Chưa làm”), thêm “Đang làm” khi bảng mở trên một câu. Chữ 13px màu `muted`, tự xuống dòng.
+
+  Trạng thái phân biệt bằng viền và dấu, không chỉ bằng màu:
+
+  | Trạng thái | Ô | Dấu | Chú thích (vi / en) |
+  |---|---|---|---|
+  | Chưa làm: chưa mở, hoặc mở rồi rời đi mà chưa trả lời | viền 1px `line`, nền `surface` | | Chưa làm / Not done |
+  | Bỏ qua: đã bấm “Bỏ qua”, chưa làm lại | viền 2px nét đứt `muted` | – | Bỏ qua / Skipped |
+  | Đã trả lời (làm như thi) | viền 2px `acc`, nền `acc-soft`, như ô đang chọn | | Đã trả lời / Answered |
+  | Đã làm (ôn luyện, câu tự luận đã Xem gợi ý) | như Đã trả lời | | Đã làm / Done |
+  | Đúng (ôn luyện, đủ điểm) | viền 2px `ok`, nền `ok-soft` | ✓ màu `ok` | Đúng / Correct |
+  | Chưa đúng (ôn luyện, dưới 1 điểm, cả câu đúng một phần) | viền 2px `bad`, nền `bad-soft` | ✗ màu `bad` | Chưa đúng / Not correct |
+  | Đang làm | thêm vòng ngoài `box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink)` | | Đang làm / Current |
+
+  Làm như thi không hiện ✓, ✗ trước khi nộp.
+- **Màn “Xem lại bài làm”** (`section.panel.qz-grid.qz-recap#qzRecap`, X21):
+  - Tiêu đề `h2` “Xem lại bài làm” (1.25rem), một dòng chữ thường (“Bạn còn 3 câu chưa làm.” / “Bạn đã làm hết 25 câu. Xem lại hoặc nộp bài.”), bảng số câu và chú thích. Không có ô đang làm.
+  - Dưới thẻ là `.row.between.qz-nav`:
+    - còn câu trống: nút phụ `#qzEnd` (`btn ghost`: “Nộp bài” / “Xem kết quả”) bên trái, nút chính `#qzMore` “Làm tiếp 3 câu” bên phải, cùng chỗ với “Trả lời”, “Câu tiếp” ở màn câu hỏi;
+    - đã làm hết (làm như thi): chỉ `#qzEnd` “Nộp bài”, là nút chính (`btn main`), bên phải.
+  - Bấm `#qzEnd` khi còn câu trống thì hộp `.confirm` mở ngay dưới, trong `#qzFb`: “Còn 3 câu chưa làm, sẽ tính là sai.”, nút `#qzYes` (`btn danger`, chữ như `#qzEnd`) và `#qzNo` “Làm tiếp” (đóng hộp, ở lại màn này). Chưa trả lời câu nào thì hỏi như bây giờ (“Thoát đề?…”, X24).
+  - Hàng trên cùng của màn này: làm như thi chỉ còn chip đồng hồ (vẫn chạy, vẫn đổi màu dưới 2 phút); ôn luyện không có hàng trên. Không có “← Thoát”, “Nộp bài” ở hàng trên, nút mở bảng, `.bar`: nút ở cuối màn là lối ra duy nhất (X24).
+
+![Vòng làm tiếp, sửa câu, đề Tiếng Anh](hinh-ux-2x/9n-lam-tiep-sua-cau.jpg)
+
+- **Đi giữa các câu** (X22):
+  - Lượt đầu: “Bỏ qua”, “Trả lời”, “Câu tiếp” tới câu sau theo số câu, kể cả câu vừa nhảy tới bằng bảng (từ câu 20 thì tới câu 21). Qua câu cuối thì tới màn “Xem lại bài làm” hoặc màn kết quả, như flow.
+  - Vòng làm tiếp: danh sách câu còn trống lúc bấm “Làm tiếp N câu”, theo số câu. Câu sau là câu kế tiếp trong danh sách, có số lớn hơn câu đang mở; hết danh sách thì về màn “Xem lại bài làm”. Nhãn `span.tag.warn.qz-left` “Câu còn trống 2/3” (vị trí trong danh sách) đứng đầu thẻ câu, chỉ trên câu của danh sách mà còn trống.
+  - Câu mở từ màn “Xem lại bài làm”: xong câu đó (“Trả lời”, “Bỏ qua”, hay nút đi tiếp sau Kiểm tra) thì về lại màn đó; ôn luyện mà không còn câu trống thì ra kết quả. Từ câu đó chạm một ô khác trên bảng cũng vậy, cho đến khi bấm “Làm tiếp”.
+  - Chạm ô thì tới câu đó, bảng đóng, trang cuộn lên đầu (`render()` đã `scrollTo(0,0)`). Câu có đoạn đọc chung thì đoạn đọc hiện lại, giữ trạng thái mở/thu gọn (`S.psgOpen`).
+- **Ghi câu trả lời** (X23):
+  - Làm như thi:
+    - “Trả lời” ghi lựa chọn đang có rồi đi tiếp; chưa đủ thì báo như bây giờ.
+    - “Bỏ qua” bỏ lựa chọn đang có, để trống câu, rồi đi tiếp. Nút này chỉ có ở câu chưa trả lời.
+    - Câu đã trả lời mở lại thì vẽ sẵn câu trả lời cũ: ô đã chọn, chữ đã gõ, Đúng/Sai của 4 ý, cặp đã nối, thứ tự đã xếp, bài tự luận. Dưới câu có dòng `p.small.muted#qzEditNote` “Bạn đã trả lời câu này. Muốn sửa thì chọn lại rồi bấm Trả lời.”. Chỉ có nút “Trả lời”, bên phải. Chưa đủ thì báo lỗi không kèm đuôi “hoặc bấm Bỏ qua nhé.”.
+    - Rời câu bằng bảng số câu: lựa chọn đã đủ thì ghi như bấm “Trả lời” nhưng không đi tiếp. Chưa đủ thì giữ câu trả lời đã ghi trước đó (nếu có). Câu tự luận để trống không tính là đã trả lời.
+    - Nộp bài bằng mọi lối (nút, hết giờ, rời trang): câu đang mở mà lựa chọn đã đủ thì ghi trước khi chấm.
+  - Ôn luyện:
+    - Chỉ “Kiểm tra” (tự luận: “Xem gợi ý”) ghi câu trả lời. Rời câu bằng bảng thì bỏ lựa chọn chưa kiểm tra; câu giữ trạng thái cũ.
+    - Câu đã Kiểm tra mở lại thì vẽ lại như ngay sau Kiểm tra: lựa chọn, đúng/sai, đáp án, lời giải, link báo câu sai. Tự luận hiện bài làm (chỉ đọc), gợi ý, thang tự chấm (vẫn chọn lại mức được). Chỉ có một nút đi tiếp.
+    - Nên tách phần vẽ sau Kiểm tra thành một hàm, dùng cho cả hai chỗ.
+- **Nút đi tiếp ghi tên màn sẽ tới** (ôn luyện, sau Kiểm tra; X25): “Câu tiếp” (câu khác), “Xem lại bài làm” (về màn mới, khi còn câu trống), “Xem kết quả” (không còn câu trống, kể cả câu mở từ màn mới). Làm như thi giữ “Trả lời”.
+- **Kết thúc lượt** (X24):
+  - Làm như thi: mọi lối chấm như bây giờ, câu còn trống tính sai.
+  - Ôn luyện:
+    - “Xem kết quả” ở màn mới tính mọi câu còn trống (bỏ qua và chưa làm) là sai, đúng như lời hỏi lại. Cách làm: ghi các câu đó như câu bỏ qua rồi gọi `finish()`.
+    - “← Thoát” ở màn câu hỏi và rời trang: như bây giờ (câu bỏ qua tính sai, câu chưa làm không tính).
+- **Thanh tiến độ** `.bar`: theo số câu đã trả lời hoặc đã Kiểm tra trên tổng số câu, không theo vị trí, vì giờ nhảy câu được.
+
+**Chữ mới** (bảng `TXT`, cả hai cột; chuỗi có tham số viết là hàm):
+
+| Khóa (gợi ý) | vi | en |
+|---|---|---|
+| `gridAria` | Bảng số câu | Question board |
+| `cellAria(n, st, cur)` | Câu 5, đã bỏ qua(, đang làm) | Question 5, skipped(, current) |
+| `st` (aria) | chưa làm · đã bỏ qua · đã trả lời · đã làm · đúng · chưa đúng | not done · skipped · answered · done · correct · not correct |
+| `key` (chú thích) | Chưa làm · Bỏ qua · Đã trả lời · Đã làm · Đúng · Chưa đúng · Đang làm | Not done · Skipped · Answered · Done · Correct · Not correct · Current |
+| `recapHead` | Xem lại bài làm | Review your answers |
+| `recapLeft(n)` | Bạn còn 3 câu chưa làm. | You have 3 questions left. (1: “1 question”) |
+| `recapAll(n)` | Bạn đã làm hết 25 câu. Xem lại hoặc nộp bài. | You have answered all 25 questions. Review or finish the test. |
+| `doLeft(n)` | Làm tiếp 3 câu | Do the 3 left |
+| `leftWarn(n)` | Còn 3 câu chưa làm, sẽ tính là sai. | 3 questions are not done and will count as wrong. (1: “1 question is …”) |
+| `leftTag(i, n)` | Câu còn trống 2/3 | Left to do: 2 of 3 |
+| `editNote` | Bạn đã trả lời câu này. Muốn sửa thì chọn lại rồi bấm Trả lời. | You have answered this question. To change it, choose again and tap Answer. |
+| `backRecap` | Xem lại bài làm | Back to review |
+
+Dùng lại khóa có sẵn: `progress`, `submit` (“Nộp bài” / “Finish test”), `seeResults`, `next`, `keepGoing`, `exNone`.
+
+![Bài ôn dạng trang: bảng số câu, Xem lại bài làm](hinh-ux-2x/9o-bai-on.jpg)
+
+**Thiết kế cho bài ôn dạng trang (9o):**
+- **Số câu chuyển xuống màn làm bài (X26).** Bỏ chip “10 / 20” khỏi thanh trên (`#topRight` chỉ còn đồng hồ khi làm đề thi thử). Hàng đầu của màn làm bài là `.qtop`: thanh tiến độ co giãn bên trái, nút `#gridBtn` bên phải.
+  - Nút: “Câu 10/20 ▾”, IOE “10 of 30 ▾”; viên thuốc cao 44px, viền `line`, mũi tên màu `--acc` của môn; mở thì viền `--acc`.
+  - Bảng `#grid` (`.panel.qgrid`) ngay dưới, cùng kiểu ô, chú thích như 9n. Ô đã trả lời dùng `--pick`, `--pick-soft` (không theo màu của môn, như ô đang chọn).
+- **Màn “Xem lại bài làm” `#recap`.** Nút kết thúc của màn chính là `#endBtn` (“Nộp bài” / “Xem kết quả”, IOE “Finish test” / “See results”), đứng bên trái `#moreBtn` “Làm tiếp N câu”. Hỏi lại trong `#endArea` bằng `#yesEnd`, `#noEnd` như bây giờ. Đã làm hết thì `#endBtn` là nút chính, bấm là nộp. Như vậy:
+  - app vẫn biết bài đang làm dở (hợp đồng: có `#endBtn` hoặc `#yesEnd`);
+  - màn này không có hai nút nộp;
+  - màn câu hỏi giữ `#endArea` (“Nộp bài sớm”, “Dừng luyện tập”…) như bây giờ.
+- **Chữ.** Như 9n, viết thẳng trong trang. IOE viết tiếng Anh như bảng trên.
+- **IOE (X27).**
+  - `soundFailed()` thay mọi câu nghe chưa trả lời, ở mọi vị trí, bằng câu đọc. Luyện tập cũng thay như đề thi thử, không bỏ câu khỏi `S.qs`.
+  - Số lượt nghe còn lại giữ theo từng câu (ví dụ `S.plays[i]`), rời câu rồi quay lại không có thêm lượt.
+  - Câu đã Check thì nghe lại thoải mái như bây giờ.
+
+**Kiểm thử thêm** (ngoài “Xong khi” của flow):
+- 9n:
+  - hàng trên cùng của làm như thi một hàng (cao 44px) ở 360px, ở câu từ 10 trở đi, cả đề Tiếng Anh;
+  - ô bảng ≥ 44px, 5 ô một hàng ở 360px;
+  - `#qzReview` chỉ có ở màn kết quả;
+  - câu mở từ màn “Xem lại bài làm” xong thì về màn đó;
+  - làm như thi: chọn rồi chạm ô khác thì câu thành “Đã trả lời” và điểm tính lựa chọn đó; câu đã trả lời không có “Bỏ qua”; chọn rồi để hết giờ thì câu đó được chấm;
+  - ôn luyện: “Xem kết quả” ở màn mới tính câu chưa làm là sai; “← Thoát” giữa chừng không tính câu chưa tới;
+  - mở lại từng dạng câu ở làm như thi (đề `thunghiem6-dang-cau-moi` có đủ dạng) thì thấy đúng câu trả lời cũ;
+  - `audit` không báo chữ đè ở bảng và màn mới.
+- 9o:
+  - thanh trên của trang một hàng ở 360px;
+  - IOE: máy không phát được tiếng thì câu nghe đã bỏ qua cũng được thay; rời câu nghe rồi quay lại không có thêm lượt nghe.
+
 ## 4. Để sau
 
+- **Đánh dấu câu để xem lại trên bảng số câu** (như lá cờ của bài thi trên máy tính): làm sau khi con đã quen bảng số câu của 9n, 9o; hiện “Bỏ qua” đã dùng để để dành câu khó.
 - **Bố mẹ đọc và chấm bài tự luận thay con.** Việc này cần lưu chữ con viết lên máy chủ, nên phải quyết định về dữ liệu của trẻ trước (CLAUDE.md: thu thập tối thiểu). Hiện con tự chấm theo thang, và kết quả tự chấm ghi riêng.
 - **Thanh tab dưới cho Khu phụ huynh:** xem lại sau khi đã dùng ba mục của UX2 một thời gian.
 
