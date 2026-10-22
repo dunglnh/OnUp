@@ -145,7 +145,7 @@ Thứ tự các phiên:
 | 1 | 30/10/2026 | **N23b, N25, N25b · Giữa kì I lớp 6 và 4** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3, K4 | làm ngay theo thứ tự này, Merge xong mới mở phiên sau (cùng sửa lịch, danh mục, vài bước của `tests/e2e.js`); xong trước 30/10 thì kịp kì giữa kì I năm nay (2–13/11, dự kiến), muộn hơn thì dùng cho năm học 2027–2028 |
 | 2 | 10/11/2026 (hạn theo kì thi: 22/2/2027) | **N7–N12, N7b, N12b · Giữa kì II lớp 4 và 6** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3, K4 | chạy theo thứ tự N8 → N9 → N10 → N11 → N12 → N12b (lớp 6 chưa có đề nào) → N7 → N7b |
 | 3 | 10/11/2026 (hạn theo kì thi: 5/4, 12/4/2027) | **N18–N22, N22b, N13–N17, N16b · Cuối năm lớp 6 và 4** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3, K4 | chạy theo thứ tự N18 → N19 → N20 → N21 → N22 → N22b (lớp 6 thi trước) → N13 → N14 → N15 → N16 → N16b → N17 |
-| 4 | 10/11/2026 (thi 1–2/4/2027, dự kiến) | **N-IOE · IOE cấp quốc gia** | | hiện chưa có bài ôn |
+| 4 | 10/11/2026 (thi 1–2/4/2027, dự kiến) | **N-IOE · IOE cấp quốc gia** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7, hàng đợi) | | hiện chưa có bài ôn; lời giao việc chuyển vào hàng đợi ngày 22/10/2026 |
 | 5 | 8/11/2026 (Lịch), 15/11/2026 (K5) | **Lịch các khối mới** (kì thi năm học 2026–2027 của lớp 5, 7–12; gia đình đang dùng nhận kì thi mới) → **K5 · Đề tính điểm** cho đề thi thử vào 10 và tốt nghiệp THPT ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7, hàng đợi) | | trước các phiên lớp 9 (K5 trước các phiên đề thi thử); cả hai sửa `js/app.js`: Merge Lịch rồi mới mở K5, không chạy cùng lúc với UX7, UX8; sau phiên Lịch, chủ app chạy `supabase/cap-nhat-lich.sql` |
 | 6 | 30/11/2026 | Lớp 9 (33 phiên, có 9 phiên đề thi thử vào 10); phiên rà soát lớp 9 | Lịch các khối mới, K5 | thứ tự khối, thứ tự kì trong mỗi khối và mốc kiểm tra: mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); các bước trước khi bật một khối: mục 7 (“Lớp 5, 7–12”) |
 | 7 | 31/12/2026 | Lớp 12 (53 phiên, có 25 phiên đề thi thử tốt nghiệp), lớp 5 (16); mỗi khối một phiên rà soát | | |
@@ -201,9 +201,6 @@ Chỉ giữ lời giao việc của phiên chưa làm, và của phiên UX đã 
 > - Bản lưu trên máy không đổi.
 >
 > Thêm kiểm tra vào tests/supabase/store-test.mjs và cloud-e2e.js theo mục "Xong khi". Vì cloud-e2e.js đi qua máy chủ giả chứ không qua mạng, thêm vào fake-backend.js một công tắc làm lượt gửi lỗi: bật công tắc rồi làm một đề, tắt công tắc rồi bấm Gửi lại. Chạy tests/e2e.js, tests/supabase/admin-test.mjs, store-test.mjs, cloud-e2e.js đến khi in OK. Chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
-
-**Phiên N-IOE · IOE cấp quốc gia**
-> Đọc CLAUDE.md, giữ nguyên ba chỗ nối của bài ôn với app và nút #endBtn khi đang làm một lượt. Trong modules/ioe-4/index.html và modules/ioe-6/index.html thêm lộ trình "National Level": khó hơn cấp tỉnh, có câu nghe, bắt đầu sau IOE cấp tỉnh (6/3/2027), thi 1–2/4/2027 (dự kiến), cùng cách chia 7 đề mỗi tuần như các lộ trình đang có. Câu tự soạn. Gắn ioe-4, ioe-6 vào kì thi ioe-qg trong data/calendar-2026-2027.js. Chạy tests/e2e.js, chỉ tự rà soát một vòng, rồi mở Pull Request.
 
 **Phiên UX7 · Quản lí đề** (sau UX2)
 > Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md (mục 3, Phiên UX7: X11–X13; ảnh docs/hinh-ux-2x/ux7-chon-de.jpg, ux7-de-tu-soan.jpg). Sửa trong js/app.js, js/quiz.js, css/app.css, cho cả hai bản:
