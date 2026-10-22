@@ -53,6 +53,9 @@ a{color:var(--acc)}
 .who .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:9em}
 .av{width:36px;height:36px;border-radius:50%;background:var(--acc-soft);display:grid;place-items:center;font-size:1.25rem;flex:none}
 .av.lg{width:64px;height:64px;font-size:2.2rem}
+/* hình đại diện vẽ riêng (img.art, icons/avatars/): to bằng emoji cùng cỡ chữ; trong vòng tròn và ô chọn hình thì đứng giữa */
+.art{width:1.4em;height:1.4em;vertical-align:-.3em}
+.av .art,.emojis .art{display:block;margin:auto}
 
 /* bố cục */
 .stack{display:flex;flex-direction:column;gap:14px}

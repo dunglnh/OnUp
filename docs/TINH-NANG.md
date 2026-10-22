@@ -30,9 +30,10 @@ Bảng trên là **bản lưu trên máy** (một máy dùng chung cho cả nhà
 - Đăng nhập: chọn tên trên màn hình. Hồ sơ có mã PIN thì sang **màn nhập riêng** (Phiên UX4, ảnh [hinh-ux4/](hinh-ux4/)): hình to, tên, lớp, hàng chấm và bàn phím ngay dưới, vừa một màn hình điện thoại không phải cuộn; link “← Chọn hồ sơ khác” hoặc nút Back về danh sách; hồ sơ không có PIN chạm là vào. Nhập mã PIN 4–6 số (gõ đủ số là tự vào, không cần bấm “Vào”). Sai 5 lần phải đợi, thời gian chờ tăng dần (30 giây, 1 phút, 5 phút, rồi 15 phút), tính riêng từng người và không mất khi tải lại trang; đang đợi thì đếm ngược hiện ngay dưới hàng chấm và bàn phím mờ đi, hết giờ tự bật lại. Bản đám mây: hồ sơ con có mã PIN 4 số nếu bố mẹ đặt (không bắt buộc); ô Phụ huynh cũng là một màn riêng: ô mật khẩu, nút “Vào khu phụ huynh”, dòng “Quên mật khẩu?” (máy đã đặt mã mở nhanh thì bàn phím mã hiện trước, kèm dòng “Quên mã? Nhập mật khẩu”, mục 5); nhập sai cũng tính vào cùng bộ đếm chờ.
 - Ô mật khẩu và mã PIN nào cũng có nút hình con mắt: bấm để xem mình đã gõ gì, bấm lại để ẩn. Bàn phím PIN: số đã gõ chỉ hiện ở hàng chấm, nút chữ “Hiện số” dưới hàng chấm cho xem chữ số (bấm lại: “Giấu số”). Gửi đi, xóa hết ô hoặc sang màn hình khác thì tự ẩn lại. Ảnh: [hinh-xem-mat-khau/](hinh-xem-mat-khau/).
 - Trang Tài khoản: chạm một hình đại diện là đổi ngay (có thông báo “Đã đổi hình đại diện”), không phải bấm Lưu; bản lưu trên máy có thêm form đổi mã PIN riêng.
+- Hình đại diện: 16 biểu tượng cảm xúc và 6 hình hải cẩu vẽ riêng (xám, con trắng, đốm, đội mũ tốt nghiệp, tung bóng, đeo kính đọc sách; chủ app yêu cầu 22/10/2026). Hình vẽ riêng giống nhau trên mọi máy, kể cả máy cũ không có emoji hải cẩu. Ảnh: [hinh-hai-cau/](hinh-hai-cau/).
 - Một học sinh có thể có nhiều phụ huynh; một phụ huynh có thể có nhiều con (khác khối cũng được).
 - Phải luôn còn ít nhất một tài khoản quản trị.
-- Dữ liệu về trẻ chỉ gồm tên hiển thị, khối, lớp, hình đại diện (biểu tượng cảm xúc). Không thu thập thông tin khác.
+- Dữ liệu về trẻ chỉ gồm tên hiển thị, khối, lớp, hình đại diện (biểu tượng cảm xúc hoặc hình vẽ có sẵn trong app). Không thu thập thông tin khác.
 
 ## 3. Lịch thi cả năm
 
