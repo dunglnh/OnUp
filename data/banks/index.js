@@ -102,10 +102,13 @@ window.ONTAP_SEED_BANKS = [
 
   /* Tiếng Anh, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ 6 · Kiểm tra giữa học kì I (Kết nối tri thức, Global Success) */
   { id: "ta6-gk1-de1", title: "Tiếng Anh 6 · Giữa kì I · Đề 1", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js" },
+  { id: "ta6-gk1-de2", title: "Tiếng Anh 6 · Giữa kì I · Đề 2", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js" },
   { id: "lsdl6-gk1-de1", title: "Lịch sử và Địa lí 6 · Giữa kì I · Đề 1", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js" },
+  { id: "lsdl6-gk1-de2", title: "Lịch sử và Địa lí 6 · Giữa kì I · Đề 2", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js" },
   { id: "gdcd6-gk1-de1", title: "GDCD 6 · Giữa kì I · Đề 1", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js" },
   { id: "gdcd6-gk1-de2", title: "GDCD 6 · Giữa kì I · Đề 2", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js" },
   { id: "tin6-gk1-de1", title: "Tin học 6 · Giữa kì I · Đề 1", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js" },
+  { id: "tin6-gk1-de2", title: "Tin học 6 · Giữa kì I · Đề 2", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js" },
   { id: "congnghe6-gk1-de1", title: "Công nghệ 6 · Giữa kì I · Đề 1", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js" },
   { id: "congnghe6-gk1-de2", title: "Công nghệ 6 · Giữa kì I · Đề 2", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js" },
 
@@ -305,6 +308,33 @@ window.ONTAP_SEED_BANKS = [
   { id: "congnghe6-gk1-ngau-nhien", title: "Công nghệ 6 · Giữa kì I · Đề ngẫu nhiên", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js",
     pool: { from: ["congnghe6-gk1-de1", "congnghe6-gk1-de2"], matrix: {
       "Khái quát về nhà ở": [4, 3, 3], "Sử dụng năng lượng trong gia đình": [3, 3, 2], "Ngôi nhà thông minh": [3, 2, 2] } } },
+  /* Ngân hàng Tiếng Anh 6 giữa kì I (Phiên N25b): kho câu = 28 câu riêng trong file + 50 câu của 2 đề cố định ở trên, câu nào
+     cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991):
+     số câu từng chủ đề như đề 1 (Pronunciation 3, mỗi Unit 6, Reading 4); đề 1 ít câu Vận dụng (12 – 10 – 3) nên Đề 2 chia đúng
+     ma trận và câu riêng bù các ô Vận dụng; ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút. Reading rút theo đoạn
+     (K4): bốn đoạn đọc của kho đều 4 câu mức 1-2-2-3, đúng ô [1, 2, 1]. */
+  { id: "ta6-gk1-ngau-nhien", title: "Tiếng Anh 6 · Giữa kì I · Đề ngẫu nhiên", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js",
+    pool: { from: ["ta6-gk1-de1", "ta6-gk1-de2"], matrix: {
+      "Pronunciation": [2, 1, 0], "Unit 1 · My New School": [2, 2, 2], "Unit 2 · My House": [3, 1, 2], "Unit 3 · My Friends": [2, 2, 2],
+      "Reading": [1, 2, 1] } } },
+  /* Ngân hàng Lịch sử và Địa lí 6 giữa kì I (Phiên N25b): kho câu = 50 câu của 2 đề cố định ở trên (không có câu riêng), câu nào
+     cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991):
+     12 chủ đề với số câu như đề 1 (Lịch sử Bài 1–6: 13 câu; Địa lí Bài 1–6: 12 câu); đề 1 có 14 – 8 – 3 nên Đề 2 chia đúng ma trận
+     và bù các ô Vận dụng, nên ô nào cũng đủ câu. */
+  { id: "lsdl6-gk1-ngau-nhien", title: "Lịch sử và Địa lí 6 · Giữa kì I · Đề ngẫu nhiên", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js",
+    pool: { from: ["lsdl6-gk1-de1", "lsdl6-gk1-de2"], matrix: {
+      "Lịch sử và cuộc sống": [1, 1, 0], "Tư liệu lịch sử": [1, 1, 1], "Thời gian trong lịch sử": [1, 1, 1], "Nguồn gốc loài người": [1, 0, 1],
+      "Xã hội nguyên thủy": [1, 0, 1], "Chuyển biến của xã hội nguyên thủy": [0, 1, 0],
+      "Kinh tuyến, vĩ tuyến, tọa độ địa lí": [1, 1, 1], "Kí hiệu và chú giải bản đồ": [0, 1, 0], "Phương hướng và tỉ lệ bản đồ": [1, 1, 1],
+      "Lược đồ trí nhớ": [0, 1, 0], "Trái Đất trong hệ Mặt Trời": [2, 0, 0], "Chuyển động tự quay của Trái Đất": [1, 0, 1] } } },
+  /* Ngân hàng Tin học 6 giữa kì I (Phiên N25b): kho câu = 50 câu của 2 đề cố định ở trên (không có câu riêng), câu nào cũng có
+     mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): 5 chủ đề
+     với số câu như đề 1 (Bài 1: 5, Bài 2: 6, Bài 3: 6, Bài 4: 4, Bài 5: 4); đề 1 có 14 – 10 – 1 nên Đề 2 chia đúng ma trận và bù
+     các ô Vận dụng, nên ô nào cũng đủ câu. */
+  { id: "tin6-gk1-ngau-nhien", title: "Tin học 6 · Giữa kì I · Đề ngẫu nhiên", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js",
+    pool: { from: ["tin6-gk1-de1", "tin6-gk1-de2"], matrix: {
+      "Thông tin và dữ liệu": [2, 2, 1], "Xử lí thông tin": [2, 2, 2], "Thông tin trong máy tính": [2, 2, 2], "Mạng máy tính": [2, 1, 1],
+      "Internet": [2, 1, 1] } } },
   /* Ngân hàng Toán 4 giữa kì I (Phiên N23): kho câu = 51 câu riêng trong file + 50 câu của 2 đề cố định ở trên, câu nào cũng có
      mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu (40% – 32% – 28%) trên chín chủ đề của toan4-ck1
      có trong Bài 1–19 (chưa có tính chất phép cộng, tổng và hiệu, đường thẳng vuông góc, song song, hình bình hành, hình thoi):
