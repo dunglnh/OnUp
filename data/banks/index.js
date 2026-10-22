@@ -117,6 +117,10 @@ window.ONTAP_SEED_BANKS = [
   { id: "van6-gk1-de1", title: "Ngữ văn 6 · Giữa kì I · Đề 1", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js" },
   { id: "van6-gk1-de2", title: "Ngữ văn 6 · Giữa kì I · Đề 2", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js" },
 
+  /* Toán 4 · Kiểm tra giữa học kì I (Kết nối tri thức, Bài 1–19) */
+  { id: "toan4-gk1-de1", title: "Toán 4 · Giữa kì I · Đề 1", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js" },
+  { id: "toan4-gk1-de2", title: "Toán 4 · Giữa kì I · Đề 2", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js" },
+
   /* Ngân hàng Toán 4 cuối kì I (Phiên N1): kho câu = 31 câu riêng trong file + 75 câu của 3 đề cố định ở trên, câu nào cũng
      có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020 (3 mức, không quy định tỉ lệ): 10 – 8 – 7 câu (40% – 32% – 28%). */
   { id: "toan4-ck1-ngau-nhien", title: "Toán 4 · Cuối kì I · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
@@ -276,6 +280,18 @@ window.ONTAP_SEED_BANKS = [
     pool: { from: ["gdcd6-gk1-de1", "gdcd6-gk1-de2"], matrix: {
       "Truyền thống gia đình, dòng họ": [3, 2, 2], "Yêu thương con người": [3, 2, 2], "Siêng năng, kiên trì": [3, 2, 2],
       "Tôn trọng sự thật": [1, 2, 1] } } },
+  /* Ngân hàng Toán 4 giữa kì I (Phiên N23): kho câu = 51 câu riêng trong file + 50 câu của 2 đề cố định ở trên, câu nào cũng có
+     mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu (40% – 32% – 28%) trên chín chủ đề của toan4-ck1
+     có trong Bài 1–19 (chưa có tính chất phép cộng, tổng và hiệu, đường thẳng vuông góc, song song, hình bình hành, hình thoi):
+     Số có nhiều chữ số 6 câu, Biểu thức chứa chữ, Góc và đo góc, Đơn vị đo mỗi chủ đề 3 câu, các chủ đề còn lại 2 câu. Hai đề cố
+     định chia đúng theo ma trận, câu riêng ở ô nào cũng ít nhất gấp đôi số câu ô đó rút, nên ô (chủ đề, mức) nào cũng có ít nhất gấp
+     bốn số câu ô đó rút và học sinh đã làm hai đề cố định vẫn gặp toàn câu mới. Ba câu tự luận chỉ ở ô Vận dụng của “Giải bài toán
+     có ba bước tính” (rút 2 câu): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "toan4-gk1-ngau-nhien", title: "Toán 4 · Giữa kì I · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
+    pool: { from: ["toan4-gk1-de1", "toan4-gk1-de2"], matrix: {
+      "Số có nhiều chữ số": [3, 2, 1], "Làm tròn số": [1, 1, 0], "Số chẵn, số lẻ": [1, 1, 0], "Biểu thức chứa chữ": [1, 1, 1],
+      "Phép cộng, phép trừ": [1, 1, 0], "Phép nhân, phép chia": [1, 0, 1], "Giải bài toán có ba bước tính": [0, 0, 2],
+      "Góc và đo góc": [1, 1, 1], "Đơn vị đo": [1, 1, 1] } } },
   /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
      mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
