@@ -45,6 +45,9 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   // độ dài PIN đã lưu và số lần sai PIN của từng người, theo tên
   const pinLog = () => page.evaluate(() => { const o = JSON.parse(localStorage.getItem("ontap_pinlock_v1") || "{}"), d = JSON.parse(localStorage.getItem("ontap_db_v1")); return Object.fromEntries(d.users.map((u) => [u.name, { len: u.pinLen, fails: (o[u.id] || {}).fails || 0 }])); });
   const step = (s) => console.log("STEP", s);
+  /* Màn "Xem lại bài làm" (#qzRecap, Phiên 9n): đi hết đề mà còn câu bỏ qua, hoặc làm như thi, thì tới màn này trước màn kết quả.
+     Các bước đi hết đề gọi endRecap(pg) để nộp (hỏi lại khi còn câu trống thì xác nhận). */
+  const endRecap = async (pg) => { if (await pg.$("#qzRecap")) { await pg.click("#qzEnd"); if (await pg.$("#qzYes")) await pg.click("#qzYes"); } };
   const nowIn = (pg) => pg.evaluate(() => Date.now()); // giờ trong trang (đồng hồ giả lập): node so giờ với giờ này, không với Date.now() của node (L28)
   /* Nút xem mật khẩu, mã PIN (U1). revealTry: ô (đã có chữ) có nút ngay sau nó; bấm thì hiện chữ (type="text",
      aria-pressed="true", aria-label "Ẩn …"), bấm lại thì ẩn; giá trị, focus, vị trí con trỏ, inputmode, autocomplete giữ nguyên.
@@ -903,13 +906,13 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await check("kết quả ôn luyện"); await snap("ket-qua");
     // làm như thi: bỏ qua mọi câu trừ một câu đúng/sai 4 ý (đúng hết) và hai câu tự luận; tự chấm sau khi nộp
     await p.goto(BASE + "/#/home"); await p.goto(BASE + "/#/quiz/" + BANK); await p.waitForSelector("#qExam"); await p.click("#qExam");
-    for (let i = 0; i < 20 && !(await p.$("#qzSelf, .score")); i++) {
+    for (let i = 0; i < 20 && !(await p.$("#qzRecap, #qzSelf, .score")); i++) {
       const head = (await p.textContent(".qcard .qtext")).trim(), q = Q.find((x) => head.startsWith(x.q.slice(0, 12)));
       if (q.type === "essay") await p.click("#qzGo");
       else if (q.type === "tf4" && q.svg) { for (let k = 0; k < 4; k++) await p.click(`.tf4 .opt[data-i="${k}"][data-v="${q.a[k] ? 1 : 0}"]`); await p.click("#qzGo"); }
       else await p.click("#qzSkip");
     }
-    await p.waitForSelector("#qzSelfSave");
+    await endRecap(p); await p.waitForSelector("#qzSelfSave");
     await p.click("#qzSelfSave"); r.needPick = /Chọn mức cho từng ý/.test(await p.textContent("#qzSelfMsg"));
     const rows = await p.$$eval("#qzSelf .rubric", (x) => x.map((b) => b.querySelectorAll(".rb-row").length));
     for (let k = 0; k < rows.length; k++) for (let j = 0; j < rows[k]; j++) await p.click(`#qzSelf .rubric >> nth=${k} >> .opt[data-j="${j}"] >> nth=-1`);
@@ -1098,7 +1101,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   /* Trả lời câu đang hiện theo dữ liệu, mọi dạng câu, rồi bấm Kiểm tra (tự luận: Xem gợi ý). right = true: đúng hết; false: sai hết,
      0 điểm (trắc nghiệm, đúng/sai chọn ô sai; điền, số gõ số khác; đúng/sai 4 ý chọn ngược cả 4 ý; nối cột nối lệch mọi cặp; sắp xếp
      xếp ngược). Chữ trên nút so sau khi gộp khoảng trắng. Trả về false khi không tìm thấy ô cần chạm. */
-  const answerOn = async (pg, q, right) => {
+  const answerOn = async (pg, q, right, go = true) => {
     const pick = (w) => pg.$$eval(".opts .opt", (bs, w) => { const b = bs.find((x) => x.lastElementChild.textContent.replace(/\s+/g, " ") === w); if (b) b.click(); return !!b; }, String(w).replace(/\s+/g, " "));
     const v = typeof q.ans === "number" ? q.ans : String(q.ans).split("/").reduce((a, b) => a / b);
     let ok = true;
@@ -1110,7 +1113,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     else if (q.type === "match") for (let k = 0; k < q.l.length; k++) { await pg.click(`.mt-li[data-i="${k}"]`); await pg.click(`.mt-ri[data-r="${right ? k : (k + 1) % q.l.length}"]`); }
     else if (q.type === "order") for (let k = 0; k < q.o.length; k++) await pg.click(`.ord-p[data-k="${right ? k : q.o.length - 1 - k}"]`);
     else if (q.type === "essay") await pg.fill("#qzEssay", "Bài làm thử.");
-    if (ok) await pg.click("#qzGo");
+    if (ok && go) await pg.click("#qzGo");
     return ok;
   };
   const answer = (q, right) => answerOn(kp, q, right);
@@ -1216,7 +1219,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   await kp.goto(BASE + "/#/quiz/thu-pool"); await kp.waitForSelector("#qPractice");
   k3.notes = (await kp.textContent("#qNotes").catch(() => "")).replace(/\s+/g, " ");
   await kcheck("đề ngẫu nhiên, kho thiếu câu"); await ksnap("de-ngau-nhien-thieu-cau");
-  await kp.click("#qPractice"); k3.shortN = await kp.$eval(".chip:last-child", (c) => c.textContent);
+  await kp.click("#qPractice"); k3.shortN = await kp.$eval("#qzProg", (c) => c.textContent);
   await kp.evaluate(() => window.ONTAP_SEED_BANKS.pop());
   /* Câu tự luận tự chấm trong lịch sử câu: pool giả (thêm vào danh mục lúc chạy) gồm hai câu tự luận của kho, chép sang một chủ đề
      riêng. Ôn luyện, mỗi lần rút 1 câu (bộ rút chỉ chọn giữa hai câu): câu rút được (A) xem gợi ý, tự chấm đủ điểm → lịch sử [1, 0]
@@ -1245,7 +1248,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   await kp.click("#qzExit"); await kp.click("#qzYes"); await kp.waitForSelector("#today");
   await fakeE(2); await kp.goto(BASE + "/#/quiz/thu-tu-luan"); await kp.click("#qExam");
   for (let i = 0; i < 2; i++) { if ((await current(ES)) === eB) { await kp.fill("#qzEssay", "Bài làm thử."); await kp.click("#qzGo"); } else await kp.click("#qzSkip"); }
-  await kp.waitForSelector("#qzSelfSave"); k3.essay.submit = await eHist([eA, eB]);
+  await endRecap(kp); await kp.waitForSelector("#qzSelfSave"); k3.essay.submit = await eHist([eA, eB]);
   await selfMarkEach(eA.q); await kp.click("#qzSelfSave"); await kp.waitForSelector("#qzSelfArea .fb.ok"); k3.essay.late = await eHist([eA, eB]);
   k3.essay.saved = await kp.evaluate(() => Store.resultsFor(Store.sessionUser().id).filter((r) => r.refId === "thu-tu-luan").map((r) => `${r.mode}:${r.r}/${r.t}`).sort().join(" "));
   k3.essayWant = [`self:${eMax(eA)}/${eMax(eA)}`, `self:0/${eMax(eB)}`, `self:${eMax(eA)}/${eMax(eA) + eMax(eB)}`].sort().join(" ");
@@ -1645,7 +1648,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       // ôn lại câu sai (UX1) bằng tiếng Anh: lượt chỉ có 2 câu, dừng giữa chừng hỏi "Stop reviewing…", kết quả ghi "Reviewing mistakes", không lưu thêm kết quả
       const nSaved = await p.evaluate(() => Store.resultsFor(Store.sessionUser().id).length);
       await p.click("#qzRetry"); await p.waitForSelector(".qcard");
-      r.retryN = (await txt(".chip:last-child")) === "1 of 2";
+      r.retryN = (await txt("#qzProg")) === "1 of 2";
       if (await p.$("#qzFill")) await p.fill("#qzFill", "zzz"); else await p.click(".opt >> nth=0");
       await p.click("#qzGo"); await check("ôn lại câu sai"); if (!snapped("on-lai-cau-sai")) await snap("on-lai-cau-sai");
       await p.click("#qzExit"); r.retryExit = (await txt("#qzFb .confirm")) === "Stop reviewing your mistakes? This round is not scored.StopKeep going";
@@ -1665,7 +1668,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox");
       await check("hộp rời trang, làm như thi"); r.leaveExam = (await txt("#leaveBox")) === "Finish the test and leave?Unanswered questions count as wrong. Finish testKeep going";
       await p.click("#leaveNo"); await p.click("#qzSubmit");
-      r.exitExam = (await txt("#qzFb .confirm")) === "Finish test now? Unanswered questions count as wrong.Finish testKeep going";
+      r.exitExam = (await txt("#qzFb .confirm")) === "Finish test now? 23 questions are not done and will count as wrong.Finish testKeep going"; // 9n: ghi số câu còn trống
       if (!snapped("nop-bai")) await snap("nop-bai");
       await p.click("#qzYes"); await p.waitForSelector(".score");
       const ex = await check("kết quả làm như thi");
@@ -2219,7 +2222,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await ucheck("màn kết quả, mở câu sai"); await usnap("ket-qua-de-mo");
     // ôn lại câu sai: lượt 2 câu, rời trang hỏi riêng, không lưu điểm; "Làm lại cả đề" về đủ 25 câu
     await p.click("#qzRetry"); await p.waitForSelector(".qcard");
-    r.retry = { chip: await txt(".chip:last-child") };
+    r.retry = { chip: await txt("#qzProg") };
     await answerQ(await curQ(), true); await p.click("#qzGo");
     await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox");
     r.retry.leave = await txt("#leaveBox"); await p.click("#leaveNo"); await p.waitForTimeout(100);
@@ -2227,7 +2230,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     r.retry.result = await txt("#qzScore"); r.retry.btns = (await txt("#qzRetry")) + "|" + (await txt("#qzAgain"));
     r.retry.saved = (await p.evaluate(() => Store.resultsFor(Store.sessionUser().id).length)) - nSaved0; // chỉ lượt đầy đủ được lưu
     await ucheck("kết quả ôn lại câu sai"); await usnap("ket-qua-on-lai");
-    await p.click("#qzAgain"); await p.waitForSelector(".qcard"); r.retry.full = (await txt(".chip:last-child")) + " " + (await txt("#qzExit"));
+    await p.click("#qzAgain"); await p.waitForSelector(".qcard"); r.retry.full = (await txt("#qzProg")) + " " + (await txt("#qzExit"));
     await p.click("#qzExit"); await p.click("#qzYes"); await p.waitForTimeout(300);
     // câu điền: mọi đáp án là số → bàn phím số
     r.numeric = await p.evaluate(() => { const mk = (ans) => { const el = document.createElement("div"); document.body.append(el); Quiz.run(el, { title: "Thử", questions: [{ type: "fill", q: "2 + 2 = ___", ans }] }, { mode: "practice" }); const m = el.querySelector("#qzFill").getAttribute("inputmode"); el.remove(); return m; }; return mk(["4", "04"]) + "," + mk(["bốn", "4"]); });
@@ -2615,7 +2618,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && !r.exam.exit && !r.exam.thoat && r.exam.submit === "Nộp bài" && r.exam.cls === "btn ghost sm" && r.exam.right === 0 && r.exam.oneRow
       && /^Còn (40:00|39:5\d)$/.test(r.exam.timer) && r.exam.role === "timer" && r.exam.aria === "Thời gian còn lại" && r.exam.icon && !r.exam.warn && r.exam.prog === "Câu 1/25"
       && offTop(r.examTop) && r.examProg === "Câu 4/25" && r.warn.warn && /^Còn 01:[23]\d$/.test(r.warn.text)
-      && r.submitAsk === "Nộp bài ngay? Câu chưa làm tính là sai.Nộp bàiLàm tiếp" && r.submitSeen && fullTop(r.resultTop)
+      && r.submitAsk === "Nộp bài ngay? Còn 22 câu chưa làm, sẽ tính là sai.Nộp bàiLàm tiếp" && r.submitSeen && fullTop(r.resultTop) // 9n: ghi số câu còn trống
       && r.prev.head === r.prev.want && r.prev.mode === "exam" && /^Hôm nay 08:\d\d · làm như thi · \d+ phút$/.test(r.prev.sub) && r.prev.icon
       && r.practice.exit === "← Thoát" && !r.practice.submit && !r.practice.timer && r.practice.prog === "Câu 1/25" && offTop(r.practice.top) && r.practice.skip
       && r.checked.skips === 0 && r.checked.right === 0 && r.checked.go === "Câu tiếp" && r.nextSkip
@@ -2623,6 +2626,188 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && !r.parent.prev && r.parent.notice === "Chế độ xem thử: điểm không được lưu." && fullTop(r.parent.open) && !r.parent.open.cal && offTop(r.parent.run) && fullTop(r.parent.result) && !r.parent.result.cal
       && r.noMinutes; })
     && ["c1-lam-nhu-thi", "c1-nop-bai", "c2-sau-kiem-tra", "c4-mo-de"].every((n) => ux5.shots.includes(n + "-light") && ux5.shots.includes(n + "-dark"));
+
+  step("skip and come back, question board, review screen (L38, L39)");
+  /* Phiên 9n (L38, L39), bản lưu trên máy, 360px sáng/tối. Ôn luyện (Bin, Tiếng Việt 4 · Cuối kì I · Đề 1, có đoạn đọc): "Câu 1/25" là nút
+     mở bảng số câu #qzGrid (25 ô ≥ 44px, 5 ô một hàng, aria-label theo trạng thái, ô đang làm aria-current, chú thích); bỏ qua 2 câu, làm
+     các câu còn lại thì sau câu cuối (nút ghi "Xem lại bài làm", X25) tới màn #qzRecap "Bạn còn 2 câu chưa làm." với bảng đúng trạng thái
+     (–, ✓, ✗), không có "← Thoát", nút mở bảng, .bar, #qzReview (X21, X24); rời trang vẫn hỏi; mở lại câu đã Kiểm tra từ bảng thì chỉ xem
+     lại (đáp án, lời giải, không "Bỏ qua") và xong về lại màn đó (X22); "Làm tiếp 2 câu": nhãn "Câu còn trống 1/2", làm một câu thì còn 1;
+     "Xem kết quả" hỏi lại "Còn 1 câu chưa làm, sẽ tính là sai." rồi ra kết quả, câu trống tính sai. "← Thoát" giữa chừng vẫn không tính câu
+     chưa tới. Làm như thi (Na, đề thử nghiệm đủ dạng câu): chọn rồi chạm ô khác thì câu thành "Đã trả lời" (X23); trả lời hết 15 câu (một
+     câu trắc nghiệm cố ý sai) thì màn "Xem lại bài làm" ghi đã làm hết, chỉ có "Nộp bài"; mở lại từng câu thấy đúng câu trả lời cũ (dòng
+     #qzEditNote, không "Bỏ qua"), "Trả lời" về lại màn đó; sửa câu sai thành đúng rồi nộp: điểm theo câu trả lời cuối (đúng hết, không có
+     #qzReview); đồng hồ chạy ở màn đó; hàng trên cùng một hàng ở câu 11; lượt khác chọn rồi để hết giờ thì câu đó được chấm. Đề Tiếng Anh
+     (Bin, làm như thi): hàng trên cùng một hàng ở câu 11/25, bảng và màn "Xem lại bài làm" không có chữ cái tiếng Việt. Ảnh ở
+     tests/screenshots/l38-l39/ (bản ghép <tên>.jpg: bang-so-cau, xem-lai-con-trong, lam-tiep, sua-cau, xem-lai-da-lam-het; chép sang docs/hinh-9n/). */
+  const OUTL38 = OUT + "l38-l39/"; fs.mkdirSync(OUTL38, { recursive: true });
+  const l38 = { problems: [], shots: [], runs: [] };
+  const CHU_VIET38 = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/iu;
+  for (const scheme of ["light", "dark"]) {
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror L38: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console L38: " + m.text()); });
+    const r = { scheme }; l38.runs.push(r);
+    const check = async (label) => (await p.evaluate(audit)).forEach((x) => l38.problems.push(`L38 · ${scheme} · ${label}: ${x}`));
+    const snap = async (n) => { await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await p.screenshot({ path: `${OUTL38}${n}-${scheme}.png`, fullPage: true }); l38.shots.push(`${n}-${scheme}`); };
+    const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : null; }, sel);
+    const has = (sel) => p.evaluate((s) => !!document.querySelector(s), sel);
+    // bảng số câu đang hiện (#qzGrid hay #qzRecap): số ô, cỡ ô, số ô ở hàng đầu, lớp và dấu của từng ô, aria-label, ô đang làm, chú thích, bảng đang mở
+    const board = () => p.evaluate(() => { const cells = [...document.querySelectorAll(".qz-cells .qz-cell[data-i]")], b0 = cells[0] && cells[0].getBoundingClientRect();
+      return { n: cells.length, h: b0 ? Math.round(b0.height) : 0, perRow: b0 ? cells.filter((e) => Math.abs(e.getBoundingClientRect().top - b0.top) < 1).length : 0,
+        st: cells.map((e) => e.className.replace("qz-cell ", "") + ":" + e.querySelector("i").textContent), aria: cells.map((e) => e.getAttribute("aria-label")), cur: cells.findIndex((e) => e.getAttribute("aria-current") === "step"),
+        key: (document.querySelector(".qz-key") || {}).textContent || "", open: !(document.querySelector("#qzGrid") || { hidden: true }).hidden, exp: document.querySelector("#qzProg") ? document.querySelector("#qzProg").getAttribute("aria-expanded") : null }; });
+    // hàng trên cùng của làm như thi: một hàng (đồng hồ, nút mở bảng, "Nộp bài" cùng mép trên), cao ≤ 48px (X26)
+    const topRow = () => p.evaluate(() => { const row = document.querySelector(".qz-top").getBoundingClientRect(), bs = ["#qzTimer", "#qzProg", "#qzSubmit"].map((s) => document.querySelector(s).getBoundingClientRect());
+      return { h: Math.round(row.height), oneRow: bs.every((b) => Math.abs(b.top - bs[0].top) < 2 && b.height >= 44), used: Math.round(bs.reduce((a, b) => a + b.width, 0)), w: Math.round(row.width) }; });
+    const login = async (who, pin) => { await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids[who]}"]`); await p.fill("#pinIn", pin); await p.waitForSelector("#today"); };
+    const guess = async () => { if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else if (await p.$("#qzNum")) await p.fill("#qzNum", "1"); else if (await p.$("#qzEssay")) await p.fill("#qzEssay", "Bài làm thử."); else await p.click(".opts .opt >> nth=0"); };
+    const scoreLine = () => txt("#qzScore .stack b");
+    // ---- ôn luyện: Bin, Tiếng Việt 4 · Cuối kì I · Đề 1
+    await login("Bin", PINS.Bin);
+    await p.goto(BASE + "/#/quiz/tv4-ck1-de1"); await p.waitForSelector("#qPractice");
+    const TVQ = await p.evaluate(() => Store.bank("tv4-ck1-de1").questions), nEssay = TVQ.filter((q) => q.type === "essay").length;
+    await p.click("#qPractice"); await p.waitForSelector("#qzGo");
+    r.prog = await p.$eval("#qzProg", (b) => ({ tag: b.tagName, text: b.textContent.trim(), exp: b.getAttribute("aria-expanded"), ctl: b.getAttribute("aria-controls"), h: Math.round(b.getBoundingClientRect().height), svg: !!b.querySelector("svg") }));
+    r.grid0 = await board();
+    await p.click("#qzProg"); r.grid1 = await board(); await check("bảng số câu mở"); await snap("bang-so-cau");
+    await p.click("#qzProg"); r.grid2 = await board();
+    let ok = 0; r.goMid = null; r.goLast = null;
+    for (let i = 0; i < 40 && !(await p.$("#qzRecap, .score")); i++) {
+      if (i === 1 || i === 3) { await p.click("#qzSkip"); continue; }
+      await guess(); await p.click("#qzGo");
+      if (await p.$("#qzFb .fb.ok")) ok++;
+      if (i === 5) r.goMid = await txt("#qzGo");
+      if (i === 24) r.goLast = await txt("#qzGo");
+      await p.click("#qzGo");
+    }
+    r.recap1 = { has: await has("#qzRecap"), h2: await txt("#qzRecap h2"), p: await txt("#qzRecap p"), end: await txt("#qzEnd"), more: await txt("#qzMore"), gone: await p.evaluate(() => ["#qzExit", "#qzProg", "#qzSubmit", ".bar", "#qzReview", "#qzTimer", "#qzSkip"].filter((s) => document.querySelector(s))),
+      board: await board(), quizzing: await p.evaluate(() => document.body.classList.contains("quizzing")) };
+    await check("Xem lại bài làm, còn câu trống"); await snap("xem-lai-con-trong");
+    // rời trang khi đang ở màn này: vẫn hỏi lại
+    await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox"); r.leave = await txt("#leaveBox"); await p.click("#leaveNo"); await p.waitForTimeout(300); r.stay = await has("#qzRecap");
+    // mở lại câu đã Kiểm tra (chấm tự động) từ bảng: chỉ xem lại; xong về lại màn này (X22)
+    const okCell = await p.$eval(".qz-cells", (g) => { const x = [...g.querySelectorAll(".qz-cell")].find((e) => /st-(ok|bad)/.test(e.className)); return x ? +x.dataset.i : -1; });
+    await p.click(`.qz-cells .qz-cell[data-i="${okCell}"]`); await p.waitForSelector("#qzGo");
+    r.reopen = { prog: await txt("#qzProg"), want: `Câu ${okCell + 1}/25`, fb: await has("#qzFb .fb"), marked: await p.evaluate(() => !!document.querySelector(".opt.right, .opt.wrong, .mt-li.right, .mt-li.wrong, .ord-s.right, .ord-s.wrong, #qzFill[readonly], #qzNum[readonly]")),
+      skip: await has("#qzSkip"), go: await txt("#qzGo"), report: await has(".rp-link") };
+    await check("câu đã Kiểm tra mở lại"); await p.click("#qzGo"); r.reopen.back = await has("#qzRecap");
+    // làm tiếp: chỉ các câu còn trống, theo số câu
+    await p.click("#qzMore"); await p.waitForSelector("#qzGo");
+    r.round = { tag: await txt(".qz-left"), prog: await txt("#qzProg"), skip: await has("#qzSkip") };
+    await check("vòng làm tiếp"); await snap("lam-tiep");
+    await guess(); await p.click("#qzGo"); if (await p.$("#qzFb .fb.ok")) ok++; r.round.go = await txt("#qzGo"); await p.click("#qzGo");
+    r.round.tag2 = await txt(".qz-left"); r.round.prog2 = await txt("#qzProg"); await p.click("#qzSkip");
+    r.recap2 = { p: await txt("#qzRecap p"), more: await txt("#qzMore") };
+    await p.click("#qzEnd"); r.ask = await txt("#qzFb .confirm"); await check("hỏi lại khi xem kết quả"); await p.click("#qzNo"); r.askClosed = (await txt("#qzFb")) === "" && (await has("#qzRecap"));
+    await p.click("#qzEnd"); await p.click("#qzYes"); await p.waitForSelector(".score");
+    r.result = { line: await scoreLine(), want: `${ok}/${25 - nEssay} câu đúng`, review: await has("#qzReview") };
+    // "← Thoát" giữa chừng (như trước): câu bỏ qua tính sai, câu chưa tới không tính
+    await p.click("#qzAgain"); await p.waitForSelector("#qzGo");
+    const q1 = await currentOn(p, TVQ); await guess(); await p.click("#qzGo"); const ok2 = (await p.$("#qzFb .fb.ok")) ? 1 : 0; await p.click("#qzGo"); await p.click("#qzSkip");
+    await p.click("#qzExit"); r.exitAsk = await txt("#qzFb .confirm"); await p.click("#qzYes"); await p.waitForSelector(".score");
+    r.exitResult = { line: await scoreLine(), want: `${ok2}/${q1 && q1.type === "essay" ? 1 : 2} câu đúng` };
+    // ---- làm như thi: Na, đề thử nghiệm đủ dạng câu
+    await p.goto(BASE + "/#/account"); await p.click("#switchWho, #logout"); await p.waitForTimeout(200);
+    await login("Na", "4444");
+    const EX = "thunghiem6-dang-cau-moi";
+    await p.goto(BASE + "/#/quiz/" + EX); await p.waitForSelector("#qExam");
+    const Q = await p.evaluate((id) => Store.bank(id).questions, EX), nAuto = Q.filter((q) => q.type !== "essay").length;
+    await p.click("#qExam"); await p.waitForSelector("#qzGo");
+    // chọn rồi chạm ô khác (X23): câu thành "Đã trả lời"; chạm ô đang làm thì chỉ đóng bảng
+    const q0 = await currentOn(p, Q);
+    if (!q0) l38.problems.push(`L38 · ${scheme}: không nhận ra câu đầu của đề thử nghiệm`);
+    else {
+      await answerOn(p, q0, true, false);
+      await p.click("#qzProg"); await p.click('.qz-cells .qz-cell[data-i="1"]'); await p.waitForSelector("#qzGo");
+      await p.click("#qzProg"); r.exJump = await board();
+      await p.click('.qz-cells .qz-cell[data-i="1"]'); r.exSame = { open: (await board()).open, prog: await txt("#qzProg") };
+      // trả lời hết theo dữ liệu, câu trắc nghiệm đầu tiên cố ý sai
+      let wrongQ = null;
+      for (let i = 0; i < 20 && !(await p.$("#qzRecap, .score")); i++) {
+        const q = await currentOn(p, Q); if (!q) { l38.problems.push(`L38 · ${scheme}: không nhận ra câu ` + (await txt(".qcard .qtext"))); break; }
+        const bad = !wrongQ && q.type === "mc"; if (bad) wrongQ = q;
+        if (!(await answerOn(p, q, !bad))) { l38.problems.push(`L38 · ${scheme}: không trả lời được câu ${q.q.slice(0, 40)}`); break; }
+      }
+      r.exRecap = { p: await txt("#qzRecap p"), end: await p.$eval("#qzEnd", (b) => b.textContent + "|" + b.className).catch(() => null), more: await has("#qzMore"), timer: await txt("#qzTimer"), board: await board(), gone: await p.evaluate(() => ["#qzExit", "#qzProg", "#qzSubmit", ".bar", "#qzReview"].filter((s) => document.querySelector(s))) };
+      await check("Xem lại bài làm, đã làm hết"); await snap("xem-lai-da-lam-het");
+      await p.waitForTimeout(1200); r.exRecap.ticks = (await txt("#qzTimer")) !== r.exRecap.timer; // đồng hồ vẫn chạy
+      // mở lại từng câu: đúng câu trả lời cũ; "Trả lời" về lại màn này; sửa câu sai thành đúng
+      r.exReopen = []; let shotSua = false;
+      for (let i = 0; i < Q.length; i++) {
+        await p.click(`.qz-cells .qz-cell[data-i="${i}"]`); await p.waitForSelector("#qzGo");
+        const q = await currentOn(p, Q); if (!q) { l38.problems.push(`L38 · ${scheme}: không nhận ra câu ${i + 1} mở lại`); break; }
+        const right = q !== wrongQ;
+        const got = await p.evaluate(([q, right]) => {
+          const T = (s) => s.replace(/\s+/g, " ").trim(), sel = document.querySelector(".opts .opt.sel");
+          switch (q.type) {
+            case "mc": return !!sel && T(sel.lastElementChild.textContent) === T(right ? q.o[0] : q.o[1]);
+            case "tf": return !!sel && T(sel.lastElementChild.textContent) === (q.a === right ? "Đúng" : "Sai");
+            case "fill": return document.querySelector("#qzFill").value === q.ans[0];
+            case "num": return document.querySelector("#qzNum").value === String(q.ans);
+            case "tf4": return q.a.every((a, k) => { const b = document.querySelector(`.tf4 .opt[data-i="${k}"].sel`); return !!b && b.dataset.v === (a === right ? "1" : "0") && b.getAttribute("aria-pressed") === "true"; });
+            case "match": return document.querySelectorAll(".mt-ri.sel").length === q.l.length && q.l.every((_, k) => T(document.querySelector(`.mt-li[data-i="${k}"] .mt-to`).textContent).endsWith(T(q.r[right ? k : (k + 1) % q.l.length])));
+            case "order": return [...document.querySelectorAll(".ord-s")].map((b) => +b.dataset.k).join() === q.o.map((_, k) => (right ? k : q.o.length - 1 - k)).join();
+            case "essay": return document.querySelector("#qzEssay").value === "Bài làm thử." && !document.querySelector("#qzEssay").readOnly;
+          }
+          return false;
+        }, [q, right]);
+        r.exReopen.push({ type: q.type, ok: got, note: await txt("#qzEditNote"), skip: await has("#qzSkip"), go: await txt("#qzGo") });
+        if (i === 10) r.viTop = Object.assign(await topRow(), { prog: await txt("#qzProg") });
+        if (!right) { if (!shotSua) { await check("câu đã trả lời mở lại"); await snap("sua-cau"); shotSua = true; } await answerOn(p, q, true); }
+        else await p.click("#qzGo");
+        if (!(await has("#qzRecap"))) { l38.problems.push(`L38 · ${scheme}: xong câu ${i + 1} mở lại không về màn Xem lại bài làm`); break; }
+      }
+      await p.click("#qzEnd"); await p.waitForSelector(".score");
+      r.exResult = { line: await scoreLine(), want: `${nAuto}/${nAuto} câu đúng`, review: await has("#qzReview") };
+      // chọn rồi để hết giờ: câu đó được chấm (X23)
+      await p.goto(BASE + "/#/home"); await p.waitForSelector("#today"); await p.goto(BASE + "/#/quiz/" + EX); await p.waitForSelector("#qExam"); await p.click("#qExam"); await p.waitForSelector("#qzGo");
+      const qt = await currentOn(p, Q);
+      if (qt) { await answerOn(p, qt, true, false); await p.clock.setSystemTime((await nowIn(p)) + 31 * 60 * 1000); await p.waitForSelector(".score", { timeout: 5000 }).catch(() => {}); }
+      r.timeout = { score: await has(".score"), line: await scoreLine(), want: qt ? `${qt.type === "essay" ? 0 : 1}/${nAuto} câu đúng` : null };
+    }
+    // ---- đề Tiếng Anh, làm như thi (Bin): hàng trên cùng một hàng ở câu 11/25; bảng và màn "Xem lại bài làm" bằng tiếng Anh
+    await p.goto(BASE + "/#/account"); await p.click("#switchWho, #logout"); await p.waitForTimeout(200);
+    await login("Bin", PINS.Bin);
+    await p.goto(BASE + "/#/quiz/ta4-ck1-de1"); await p.waitForSelector("#qExam"); await p.click("#qExam"); await p.waitForSelector("#qzGo");
+    for (let k = 0; k < 10; k++) await p.click("#qzSkip");
+    r.en = { prog: await txt("#qzProg"), top: await topRow() };
+    await check("đề Tiếng Anh, câu 11"); await p.click("#qzProg"); r.en.board = await board(); r.en.viGrid = CHU_VIET38.test(await txt("#qzGrid")); await check("đề Tiếng Anh, bảng số câu");
+    await p.click("#qzProg");
+    for (let k = 0; k < 20 && !(await p.$("#qzRecap")); k++) await p.click("#qzSkip");
+    r.en.recap = { p: await txt("#qzRecap p"), end: await txt("#qzEnd"), more: await txt("#qzMore"), key: await txt(".qz-key"), vi: CHU_VIET38.test(await txt("#view")) };
+    await check("đề Tiếng Anh, Xem lại bài làm");
+    await p.click("#qzEnd"); r.en.ask = await txt("#qzFb .confirm"); await p.click("#qzYes"); await p.waitForTimeout(300); r.en.home = await p.evaluate(() => location.hash);
+    await c.close();
+  }
+  { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/l38-l39/<tên>.jpg)
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of [...new Set(l38.shots.map((x) => x.replace(/-(light|dark)$/, "")))]) {
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTL38}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTL38}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("L38:", JSON.stringify(l38.runs), "problems:", l38.problems);
+  const l38OK = !l38.problems.length && l38.runs.length === 2 && l38.runs.every((r) => { const g1 = r.grid1, rb = r.recap1.board, eb = r.exRecap && r.exRecap.board;
+    return r.prog.tag === "BUTTON" && r.prog.text === "Câu 1/25" && r.prog.exp === "false" && r.prog.ctl === "qzGrid" && r.prog.h >= 44 && r.prog.svg && !r.grid0.open
+      && g1.open && g1.exp === "true" && g1.n === 25 && g1.h >= 44 && g1.perRow === 5 && g1.cur === 0 && g1.aria[0] === "Câu 1, chưa làm, đang làm" && g1.aria[1] === "Câu 2, chưa làm" && g1.key === "Chưa làm (25)Đang làm" && g1.st.every((s) => s.startsWith("st-blank"))
+      && !r.grid2.open && r.grid2.exp === "false" && r.goMid === "Câu tiếp" && r.goLast === "Xem lại bài làm"
+      && r.recap1.has && r.recap1.h2 === "Xem lại bài làm" && r.recap1.p === "Bạn còn 2 câu chưa làm." && r.recap1.end === "Xem kết quả" && r.recap1.more === "Làm tiếp 2 câu" && !r.recap1.gone.length && r.recap1.quizzing
+      && rb.n === 25 && rb.cur === -1 && rb.st.filter((s) => s === "st-skip:–").length === 2 && rb.st.filter((s) => s === "st-ok:✓" || s === "st-bad:✗" || s === "st-done:").length === 23 && /Bỏ qua \(2\)/.test(rb.key) && !/Đang làm/.test(rb.key) && rb.aria.filter((a) => / đã bỏ qua$/.test(a)).length === 2
+      && /Dừng ôn và rời trang\?/.test(r.leave) && r.stay
+      && r.reopen.prog === r.reopen.want && r.reopen.fb && r.reopen.marked && !r.reopen.skip && r.reopen.go === "Xem lại bài làm" && r.reopen.report && r.reopen.back
+      && r.round.tag === "Câu còn trống 1/2" && r.round.prog === "Câu 2/25" && r.round.skip && r.round.go === "Câu tiếp" && r.round.tag2 === "Câu còn trống 2/2" && r.round.prog2 === "Câu 4/25"
+      && r.recap2.p === "Bạn còn 1 câu chưa làm." && r.recap2.more === "Làm tiếp 1 câu" && r.ask === "Còn 1 câu chưa làm, sẽ tính là sai.Xem kết quảLàm tiếp" && r.askClosed
+      && r.result.line === r.result.want && r.result.review && r.exitAsk === "Dừng ôn và xem kết quả?DừngLàm tiếp" && r.exitResult.line === r.exitResult.want
+      && r.exJump && r.exJump.st[0] === "st-ans:" && r.exJump.cur === 1 && /Đã trả lời \(1\)/.test(r.exJump.key) && !r.exSame.open && r.exSame.prog === "Câu 2/15"
+      && r.exRecap.p === "Bạn đã làm hết 15 câu. Xem lại hoặc nộp bài." && r.exRecap.end === "Nộp bài|btn main" && !r.exRecap.more && /^Còn \d\d:\d\d$/.test(r.exRecap.timer) && r.exRecap.ticks && !r.exRecap.gone.length && eb.st.every((s) => s === "st-ans:") && eb.key === "Chưa làm (0)Đã trả lời (15)"
+      && r.exReopen.length === 15 && r.exReopen.every((x) => x.ok && x.note === "Bạn đã trả lời câu này. Muốn sửa thì chọn lại rồi bấm Trả lời." && !x.skip && x.go === "Trả lời") && ["mc", "fill", "tf", "tf4", "num", "match", "order", "essay"].every((t) => r.exReopen.some((x) => x.type === t))
+      && r.viTop.oneRow && r.viTop.h <= 48 && r.viTop.prog === "Câu 11/15" && r.exResult.line === r.exResult.want && !r.exResult.review && r.timeout.score && r.timeout.line === r.timeout.want
+      && r.en.prog === "11 of 25" && r.en.top.oneRow && r.en.top.h <= 48 && !r.en.viGrid && /^Not done \(15\)–Skipped \(10\)Current$/.test(r.en.board.key) && r.en.board.aria[0] === "Question 1, skipped" && r.en.board.aria[10] === "Question 11, not done, current"
+      && r.en.recap.p === "You have 25 questions left." && r.en.recap.end === "Finish test" && r.en.recap.more === "Do the 25 left" && !r.en.recap.vi && r.en.ask === "Exit the test? You haven't answered any questions, so no score is saved.ExitKeep going" && r.en.home === "#/home"; })
+    && ["bang-so-cau", "xem-lai-con-trong", "lam-tiep", "sua-cau", "xem-lai-da-lam-het"].every((n) => l38.shots.includes(n + "-light") && l38.shots.includes(n + "-dark"));
 
   step("numbers with thousands spaces stay on one line (360px)");
   /* Số trong dữ liệu ngăn hàng nghìn bằng khoảng trắng ("1 200", "987 650", "2 450 − 1 800 = 650 (kg)"). Ở 360px, màn làm đề và màn
@@ -2716,11 +2901,11 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   await playNum(NB.id, NB_TYPED);
   // đề tự nhập, làm như thi: bỏ qua mọi câu, trừ bài tự luận; màn kết quả có câu cần xem lại, bài làm, gợi ý và thang tự chấm
   await nump.goto(BASE + "/#/home"); await nump.goto(BASE + "/#/quiz/" + NB.id); await nump.waitForSelector("#qExam"); await nump.click("#qExam");
-  for (let i = 0; i < 20 && !(await nump.$(".score")); i++) {
+  for (let i = 0; i < 20 && !(await nump.$("#qzRecap, .score")); i++) {
     if (await nump.$("#qzEssay")) { await nump.fill("#qzEssay", "Số khoai đã bán: 1 200 + 600 = 1 800 (kg).\nSố khoai còn lại: 2 450 − 1 800 = 650 (kg)."); await nump.click("#qzGo"); }
     else await nump.click("#qzSkip");
   }
-  await nump.waitForSelector("#qzSelf .essay-done"); await openAll(); await numCheck(NB.id + ", kết quả làm như thi");
+  await endRecap(nump); await nump.waitForSelector("#qzSelf .essay-done"); await openAll(); await numCheck(NB.id + ", kết quả làm như thi");
   nm.essay = await nump.$eval("#qzSelf .essay-done", (e) => e.textContent.includes("1\u00a0200 + 600 = 1\u00a0800"));
   // câu bị báo sai: bản chụp lưu giữ khoảng trắng thường; danh sách ở Quản trị → Dữ liệu hiện khoảng trắng không ngắt
   nm.saved = await nump.evaluate(() => { const r = Store.reports(); return r.length === 1 && /\d \d{3}/.test(r[0].qText) && !r[0].qText.includes("\u00a0"); });
@@ -2806,7 +2991,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     r.saved = await p.evaluate((id) => { const x = Store.resultsFor(Store.sessionUser().id).find((y) => y.refId === id); return !!x && x.r === 4 && x.t === 5 && x.mode === "practice"; }, L29_BANK.id);
     // lượt 2: câu 2/3 gõ "0,67" → sai, phần đáp án hiện "2/3"; còn lại bỏ qua
     await p.click("#qzAgain"); await p.waitForSelector(".qcard");
-    for (let i = 0; i < 10 && !(await p.$(".score")); i++) {
+    for (let i = 0; i < 10 && !(await p.$("#qzRecap, .score")); i++) {
       const q = await cur();
       if (q && q.ans === "2/3") {
         await p.fill("#qzNum", "0,67"); await p.click("#qzGo");
@@ -2815,7 +3000,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
         await p.click("#qzGo");
       } else await p.click("#qzSkip");
     }
-    await p.waitForSelector(".score");
+    await endRecap(p); await p.waitForSelector(".score");
     r.review = await p.$$eval("#qzReview .rv-body > .small", (xs) => xs.map((x) => x.textContent.replace(/\s+/g, " ").trim()));
     await p.evaluate(() => document.querySelectorAll("#view details").forEach((d) => (d.open = true))); await check("kết quả lượt 2, mở câu cần xem lại");
     l29.runs.push(r);
@@ -2969,7 +3154,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK, l38OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();

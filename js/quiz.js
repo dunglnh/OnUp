@@ -6,6 +6,14 @@
      trang trước (chưa trả lời câu nào thì hỏi "Thoát đề?"). Chip đồng hồ "Còn 12:30" (#qzTimer, role="timer", aria-label "Thời gian
      còn lại", X7) và tiến độ "Câu 9/25" (#qzProg).
      Chưa trả lời câu nào (kể cả khi hết giờ) thì nộp bài không gọi onFinish: không lưu điểm.
+     Bỏ qua rồi quay lại, bảng số câu (Phiên 9n, L38, L39; flow ở docs/SUA-LOI-CHAY-THU.md mục 2, thiết kế ở docs/CAI-TIEN-UX-2X.md mục 3):
+     #qzProg là nút mở bảng số câu #qzGrid (ô .qz-cell theo trạng thái chưa làm, bỏ qua, đã trả lời, đã làm, đúng, chưa đúng; bấm ô thì
+     tới câu đó). Làm như thi mở lại câu đã trả lời thì sửa được (dòng #qzEditNote, chỉ nút "Trả lời"); rời câu bằng bảng hay nộp bài
+     (nút, hết giờ, rời trang) thì lựa chọn đã đủ của câu đang mở được ghi (X23). Ôn luyện mở lại câu đã Kiểm tra thì chỉ xem lại. Qua câu
+     cuối mà còn câu trống (chưa làm hoặc bỏ qua), hoặc làm như thi (cả khi đã làm hết), thì tới màn "Xem lại bài làm" #qzRecap (vẫn thuộc
+     lượt: đồng hồ chạy, chế độ tập trung giữ nguyên): "Làm tiếp N câu" (#qzMore) mở vòng chỉ gồm các câu còn trống (nhãn "Câu còn trống
+     2/3"), "Nộp bài"/"Xem kết quả" (#qzEnd) hỏi lại "Còn N câu chưa làm, sẽ tính là sai." (ôn luyện: ghi các câu đó như bỏ qua rồi chấm).
+     Nút đi tiếp sau Kiểm tra ghi tên màn sẽ tới (X25). Cách chấm, cách lưu không đổi; answered() tính cả lựa chọn đã đủ đang chờ ghi.
      "Làm lại" dùng tiếp đối tượng này, nên app luôn dừng hoặc nộp đúng lượt đang làm. opts.redraw() → {questions} (đề
      ngẫu nhiên): nút thành "Làm đề khác", lượt sau dùng bộ câu mới.
    Màn kết quả (Phiên UX1): lời khen theo điểm (opts.name: tên học sinh, để trống thì không xưng tên); opts.previous() → {r, t} của
@@ -97,8 +105,15 @@
       mtWrong: (g) => `Bạn nối: ${g} · Đúng: `, mtAll: "Nối đúng hết!", mtPart: (k, n, p) => `Nối đúng ${k}/${n} cặp · được ${p}/1 điểm.`,
       ordRemove: (i, s) => `Bỏ ô ${i}: ${s}`, ordTap: (i) => `Chạm ô thứ ${i}`, ordDone: "Đã xếp đủ. Chạm một ô ở trên để bỏ ra.",
       // hộp hỏi khi bấm "← Thoát" (ôn luyện) hoặc "Nộp bài" (làm như thi, X6) trong màn làm bài
-      exNone: ["Thoát đề? Bạn chưa làm câu nào nên không lưu điểm.", "Thoát"], exExam: ["Nộp bài ngay? Câu chưa làm tính là sai.", "Nộp bài"],
+      exNone: ["Thoát đề? Bạn chưa làm câu nào nên không lưu điểm.", "Thoát"], exExam: ["Nộp bài ngay?", "Nộp bài"],
       exPractice: ["Dừng ôn và xem kết quả?", "Dừng"], exRetry: ["Dừng ôn lại câu sai? Lượt này không lưu điểm.", "Dừng"], keepGoing: "Làm tiếp",
+      // bảng số câu và màn "Xem lại bài làm" (Phiên 9n, L38, L39): ô số câu (aria và chú thích theo trạng thái), nhãn vòng làm tiếp, dòng ở câu đã trả lời mở lại
+      gridAria: "Bảng số câu", cellAria: (n, st, cur) => `Câu ${n}, ${st}${cur ? ", đang làm" : ""}`,
+      stAria: { blank: "chưa làm", skip: "đã bỏ qua", ans: "đã trả lời", done: "đã làm", ok: "đúng", bad: "chưa đúng" },
+      stKey: { blank: "Chưa làm", skip: "Bỏ qua", ans: "Đã trả lời", done: "Đã làm", ok: "Đúng", bad: "Chưa đúng", cur: "Đang làm" },
+      recapHead: "Xem lại bài làm", recapLeft: (n) => `Bạn còn ${n} câu chưa làm.`, recapAll: (n) => `Bạn đã làm hết ${n} câu. Xem lại hoặc nộp bài.`,
+      doLeft: (n) => `Làm tiếp ${n} câu`, leftWarn: (n) => `Còn ${n} câu chưa làm, sẽ tính là sai.`, leftTag: (i, n) => `Câu còn trống ${i}/${n}`,
+      editNote: "Bạn đã trả lời câu này. Muốn sửa thì chọn lại rồi bấm Trả lời.", backRecap: "Xem lại bài làm",
       // màn kết quả
       modeExam: "Làm như thi", modePractice: "Ôn luyện", noneDone: "Bạn chưa làm câu nào nên không lưu điểm.", again: "Làm lại", newTest: "Làm đề khác", home: "Về trang chính",
       // UX1: lời khen theo điểm (thang 10; nm: ", tên" hoặc rỗng), so với lần trước cùng đề, ôn lại câu sai, câu sai thu gọn, chủ đề cần ôn
@@ -163,8 +178,14 @@
       mtNone: "Not matched yet", mtItem: (i) => "Item " + i, mtDone: "All matched. Tap an item on the left to change it.", mtPick: (i) => `Choose a match for item ${i}`,
       mtWrong: (g) => `You matched: ${g} · Correct: `, mtAll: "All matched!", mtPart: (k, n, p) => `${k}/${n} matched · ${p}/1 point.`,
       ordRemove: (i, s) => `Remove item ${i}: ${s}`, ordTap: (i) => `Tap item ${i}`, ordDone: "All placed. Tap an item above to remove it.",
-      exNone: ["Exit the test? You haven't answered any questions, so no score is saved.", "Exit"], exExam: ["Finish test now? Unanswered questions count as wrong.", "Finish test"],
+      exNone: ["Exit the test? You haven't answered any questions, so no score is saved.", "Exit"], exExam: ["Finish test now?", "Finish test"],
       exPractice: ["End practice and see your results?", "End practice"], exRetry: ["Stop reviewing your mistakes? This round is not scored.", "Stop"], keepGoing: "Keep going",
+      gridAria: "Question board", cellAria: (n, st, cur) => `Question ${n}, ${st}${cur ? ", current" : ""}`,
+      stAria: { blank: "not done", skip: "skipped", ans: "answered", done: "done", ok: "correct", bad: "not correct" },
+      stKey: { blank: "Not done", skip: "Skipped", ans: "Answered", done: "Done", ok: "Correct", bad: "Not correct", cur: "Current" },
+      recapHead: "Review your answers", recapLeft: (n) => `You have ${n} ${n === 1 ? "question" : "questions"} left.`, recapAll: (n) => `You have answered all ${n} questions. Review or finish the test.`,
+      doLeft: (n) => `Do the ${n} left`, leftWarn: (n) => (n === 1 ? "1 question is not done and will count as wrong." : `${n} questions are not done and will count as wrong.`), leftTag: (i, n) => `Left to do: ${i} of ${n}`,
+      editNote: "You have answered this question. To change it, choose again and tap Answer.", backRecap: "Back to review",
       modeExam: "Test mode", modePractice: "Practice", noneDone: "You haven't answered any questions, so no score is saved.", again: "Try again", newTest: "New test", home: "Go to home",
       praise: (d, nm) => (d >= 9 ? `Excellent${nm}!` : d >= 8 ? `Great job${nm}!` : d >= 6.5 ? `Good work${nm}! Keep it up.` : d >= 5 ? `Nice try${nm}! A bit more practice and you'll get there.` : `Don't worry${nm}. Read the guides and try again.`),
       cmpMore: (n, p) => `${n} more than last time (${p})`, cmpLess: (n, p) => `${n} fewer than last time (${p})`, cmpSame: (p) => `Same as last time (${p})`, cmpPrev: (p) => `Last time: ${p}`,
@@ -547,6 +568,9 @@
   // biểu tượng đồng hồ trên chip thời gian còn lại (X7)
   const CLOCK = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`;
   const FLAG = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4h12l-2.5 4.5L17 13H5"/></svg>`;
+  // mũi tên của nút mở bảng số câu (#qzProg, 9n) và dấu trạng thái trong ô số câu (không chỉ dựa vào màu)
+  const CHEV = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>`;
+  const MARK = { skip: "–", ok: "✓", bad: "✗" };
   function text(q) {
     let s = String(q.q == null ? "" : q.q);
     if (q.type === "mc") s += " · " + (q.o || []).map((o, i) => (i ? "– " : "✓ ") + o).join(" · ");
@@ -576,8 +600,21 @@
       if (q.p && passages[q.p]) { if (!seenP[q.p]) units.push((seenP[q.p] = [])); seenP[q.p].push(q); } else units.push([q]);
     });
     const qs = shuffle(units).flat().map((q) => prep(q, L));
-    const S = { i: 0, ans: [], cur: null, checked: false, start: Date.now(), limit: exam && bank.minutes ? bank.minutes * 60 : 0, timer: null, done: false, psgOpen: {}, self: {} };
+    /* Đi giữa các câu (Phiên 9n, L38, L39): from = "seq" (lượt đầu: đi tiếp theo số câu), "round" (vòng làm tiếp: S.round là danh sách
+       câu còn trống lúc bấm "Làm tiếp", đi tiếp tới câu kế tiếp trong danh sách còn trống), "recap" (câu mở từ màn "Xem lại bài làm":
+       xong câu đó thì về lại màn đó). recap: đang ở màn "Xem lại bài làm" (#qzRecap). */
+    const S = { i: 0, ans: [], cur: null, checked: false, start: Date.now(), limit: exam && bank.minutes ? bank.minutes * 60 : 0, timer: null, done: false, psgOpen: {}, self: {}, from: "seq", round: null, recap: false };
     const answered = () => S.ans.filter((a) => a && (a.done || (a.g != null && a.g !== ""))).length;
+    /* Trạng thái từng câu (bảng số câu): blank chưa làm (chưa mở, hoặc mở rồi rời đi mà chưa trả lời), skip đã bỏ qua, ans đã trả lời
+       (làm như thi), done đã làm (ôn luyện, câu tự luận đã Xem gợi ý), ok đúng, bad chưa đúng (ôn luyện, dưới 1 điểm). "Câu còn trống" là
+       blank hoặc skip. */
+    const stOf = (i) => { const a = S.ans[i]; return !a ? "blank" : a.g == null && !a.done ? "skip" : exam ? "ans" : a.done ? "done" : a.pts === 1 ? "ok" : "bad"; };
+    const isBlank = (i) => { const st = stOf(i); return st === "blank" || st === "skip"; };
+    const blanks = () => range(qs.length).filter(isBlank);
+    // câu đang mở có lựa chọn đã đủ (câu tự luận: có chữ); làm như thi thì nộp bài hay rời câu bằng bảng số câu đều ghi lựa chọn đó (X23)
+    const curFilled = () => { const q = qs[S.i]; return !!q && S.cur != null && (q.type === "essay" ? String(S.cur).trim() !== "" : filled(q, S.cur)); };
+    const pending = () => exam && !S.done && !S.recap && !S.checked && isBlank(S.i) && curFilled();
+    const answeredNow = () => answered() + (pending() ? 1 : 0);
     // đồng hồ (X7): "Còn 12:30"; còn dưới 2 phút thì chip đổi màu (.warn)
     const remain = () => S.limit - (Date.now() - S.start) / 1000;
     if (S.limit) S.timer = setInterval(() => { const s = remain(), t = el.querySelector("#qzTimer"); if (t) { t.lastElementChild.textContent = L.timeLeft(fmtTime(s)); t.classList.toggle("warn", s < 120); } if (s <= 0) finish(); }, 500);
@@ -697,22 +734,65 @@
       }));
     }
 
+    /* Bảng số câu (L39): mỗi câu một ô (số câu và dấu trạng thái), ô đang làm có vòng ngoài và aria-current; dưới bảng là dòng chú thích
+       chỉ ghi các trạng thái đang có (luôn có "Chưa làm"; "Đang làm" khi bảng mở trên một câu). Bấm ô thì tới câu đó (goTo). */
+    const timerHtml = () => (S.limit ? `<span class="chip timer${remain() < 120 ? " warn" : ""}" id="qzTimer" role="timer" aria-label="${L.timeAria}">${CLOCK}<span>${L.timeLeft(fmtTime(remain()))}</span></span>` : "");
+    const cellsHtml = (cur) => `<div class="qz-cells" role="group" aria-label="${L.gridAria}">${qs.map((q, i) => { const st = stOf(i), on = i === cur;
+      return `<button type="button" class="qz-cell st-${st}${on ? " cur" : ""}" data-i="${i}" aria-label="${L.cellAria(i + 1, L.stAria[st], on)}"${on ? ' aria-current="step"' : ""}><b>${i + 1}</b><i aria-hidden="true">${MARK[st] || ""}</i></button>`; }).join("")}</div>`;
+    const keyHtml = (cur) => {
+      const cnt = {}; qs.forEach((q, i) => { const st = stOf(i); cnt[st] = (cnt[st] || 0) + 1; });
+      const items = ["blank", "skip", "ans", "done", "ok", "bad"].filter((st) => st === "blank" || cnt[st]).map((st) => `<span><i class="qz-cell st-${st}" aria-hidden="true">${MARK[st] || ""}</i>${L.stKey[st]} (${cnt[st] || 0})</span>`);
+      if (cur >= 0) items.push(`<span><i class="qz-cell cur" aria-hidden="true"></i>${L.stKey.cur}</span>`);
+      return `<p class="qz-key small muted">${items.join("")}</p>`;
+    };
+    const wireCells = (root, onSame) => root.querySelectorAll(".qz-cell[data-i]").forEach((b) => (b.onclick = () => { const i = +b.dataset.i; if (!S.recap && i === S.i) { if (onSame) onSame(); return; } goTo(i); }));
+    // câu sẽ tới khi đi tiếp từ câu đang mở ("Trả lời", "Câu tiếp", "Bỏ qua"); -1: về màn "Xem lại bài làm" hoặc ra kết quả
+    const nextIdx = () => {
+      if (S.from === "recap") return -1;
+      if (S.from === "round") { const j = S.round.find((k) => k > S.i && isBlank(k)); return j == null ? -1 : j; }
+      return S.i + 1 < qs.length ? S.i + 1 : -1;
+    };
+    // nút đi tiếp sau Kiểm tra ghi tên màn sẽ tới (X25): "Câu tiếp", "Xem lại bài làm" (còn câu trống) hoặc "Xem kết quả"
+    const nextLabel = () => (nextIdx() >= 0 ? L.next : blanks().length ? L.backRecap : L.seeResults);
+    // ghi câu trả lời của câu đang mở theo lựa chọn hiện có (làm như thi: "Trả lời", rời câu bằng bảng, nộp bài; ôn luyện: Kiểm tra)
+    function record(q) {
+      if (q.type === "essay") { S.ans[S.i] = { q, g: String(S.cur).trim(), done: true }; return; }
+      const g = Array.isArray(S.cur) ? S.cur.slice() : S.cur, pts = score(q, g);
+      S.ans[S.i] = { q, g, pts, ok: pts === 1 };
+    }
+    // rời câu đang mở không qua nút (bảng số câu, nộp bài, hết giờ; X23): làm như thi ghi lựa chọn đã đủ như bấm "Trả lời", chưa đủ thì giữ
+    // câu trả lời cũ; ôn luyện bỏ lựa chọn chưa Kiểm tra (câu giữ trạng thái cũ)
+    function leaveCur() { if (exam && !S.recap && !S.checked && curFilled()) record(qs[S.i]); }
+    function goTo(i) { leaveCur(); S.i = i; render(); }
+
     function render() {
-      const q = qs[S.i]; S.cur = blank(q); S.checked = false;
+      const q = qs[S.i], prev = S.ans[S.i], st = stOf(S.i);
+      // câu đã trả lời (làm như thi) hoặc đã Kiểm tra (ôn luyện) mở lại từ bảng số câu: vẽ sẵn câu trả lời cũ; làm như thi sửa được,
+      // ôn luyện chỉ xem lại (như ngay sau Kiểm tra); không có nút "Bỏ qua"
+      const reopen = st !== "blank" && st !== "skip";
+      S.cur = reopen ? (Array.isArray(prev.g) ? prev.g.slice() : prev.g) : blank(q); S.checked = false; S.recap = false;
+      const inRound = S.from === "round" && S.round.includes(S.i) && !reopen;
       el.innerHTML = `<div class="stack"${LANG}>
         <div class="row between qz-top">${exam ? "" : `<button class="linkbtn" id="qzExit">${L.exit}</button>`}
-          <div class="row">${S.limit ? `<span class="chip timer${remain() < 120 ? " warn" : ""}" id="qzTimer" role="timer" aria-label="${L.timeAria}">${CLOCK}<span>${L.timeLeft(fmtTime(remain()))}</span></span>` : ""}<span class="chip" id="qzProg">${L.progress(S.i + 1, qs.length)}</span></div>
+          <div class="row">${timerHtml()}<button type="button" class="btn ghost sm qz-prog" id="qzProg" aria-expanded="false" aria-controls="qzGrid"><span>${L.progress(S.i + 1, qs.length)}</span>${CHEV}</button></div>
           ${exam ? `<button class="btn ghost sm" id="qzSubmit">${L.submit}</button>` : ""}</div>
-        <div class="bar" aria-hidden="true"><i style="width:${(S.i / qs.length) * 100}%"></i></div>
+        <section class="panel qz-grid" id="qzGrid" hidden></section>
+        <div class="bar" aria-hidden="true"><i style="width:${((qs.length - blanks().length) / qs.length) * 100}%"></i></div>
         ${q.p && passages[q.p] ? passageHtml(q.p) : ""}
         <section class="qcard">
+          ${inRound ? `<span class="tag warn qz-left">${L.leftTag(S.round.indexOf(S.i) + 1, S.round.length)}</span>` : ""}
           <div class="label">${nb(nbNum(esc([subj, q.topic, INSTR[q.type]].filter(Boolean).join(" · "))))}</div>
           ${body(q)}
+          ${exam && reopen ? `<p class="small muted" id="qzEditNote">${L.editNote}</p>` : ""}
           <div id="qzFb" aria-live="polite"></div>
         </section>
-        <div class="row between qz-nav"><button class="btn ghost" id="qzSkip">${L.skip}</button><button class="btn main" id="qzGo">${exam ? L.answer : q.type === "essay" ? L.seeGuide : L.check}</button></div>
+        <div class="row between qz-nav">${reopen ? "" : `<button class="btn ghost" id="qzSkip">${L.skip}</button>`}<button class="btn main" id="qzGo">${exam ? L.answer : q.type === "essay" ? L.seeGuide : L.check}</button></div>
       </div>`;
       const $ = (s) => el.querySelector(s), $$ = (s) => el.querySelectorAll(s), go = $("#qzGo"), fb = $("#qzFb");
+      // nút "Câu 9/25" mở, đóng bảng số câu ngay dưới hàng trên cùng; mỗi lần mở vẽ lại bảng theo trạng thái hiện tại
+      const grid = $("#qzGrid"), prog = $("#qzProg");
+      const showGrid = (open) => { if (open) { grid.innerHTML = cellsHtml(S.i) + keyHtml(S.i); wireCells(grid, () => showGrid(false)); } grid.hidden = !open; prog.setAttribute("aria-expanded", open); };
+      prog.onclick = () => showGrid(grid.hidden);
       const ps = $(".psg");
       if (ps) ps.addEventListener("toggle", () => { S.psgOpen[ps.dataset.p] = ps.open; ps.querySelector(".psg-t").textContent = ps.open ? L.psgHide : L.psgShow; });
       if (q.type === "mc" || q.type === "tf") $$(".opt").forEach((b) => (b.onclick = () => { if (S.checked) return; $$(".opt").forEach((x) => x.classList.remove("sel")); b.classList.add("sel"); S.cur = +b.dataset.o; }));
@@ -735,7 +815,7 @@
       }));
       /* Nối cột: chạm một ô bên trái (đang chọn), rồi chạm ô bên phải để nối. Chạm lại ô bên phải đang nối thì bỏ nối.
          Một ô bên phải chỉ nối với một ô bên trái: nối sang ô khác thì bỏ nối cũ. Nối xong tự chuyển sang ô chưa nối tiếp theo. */
-      let act = 0;
+      let act = q.type === "match" && reopen ? (S.cur.includes(null) ? S.cur.indexOf(null) : null) : 0;
       const paintMatch = () => {
         $$(".mt-li").forEach((b) => {
           const i = +b.dataset.i, ri = S.cur[i], k = ri == null ? -1 : q.rOrder.indexOf(ri);
@@ -767,25 +847,26 @@
       if (q.type === "order") { $$(".ord-p").forEach((b) => (b.onclick = () => { if (S.checked) return; S.cur.push(+b.dataset.k); paintOrder(); })); paintOrder(); }
 
       $(exam ? "#qzSubmit" : "#qzExit").onclick = confirmExit; // làm như thi: nút "Nộp bài" (X6), vẫn hỏi lại như "← Thoát"
-      $("#qzSkip").onclick = () => { S.ans[S.i] = { q, g: null, ok: false, pts: 0 }; next(); };
+      if ($("#qzSkip")) $("#qzSkip").onclick = () => { S.ans[S.i] = { q, g: null, ok: false, pts: 0 }; next(); };
       go.onclick = () => {
         if (S.checked) { next(); return; }
-        if (!filled(q, S.cur)) { fb.innerHTML = `<div class="fb bad">${NEED[q.type] || L.needAnswer}${L.needTail}</div>`; return; }
-        // sau Kiểm tra (X8): ẩn hẳn "Bỏ qua", "Câu tiếp" (hoặc "Xem kết quả") đứng một mình bên phải
-        const done = () => { S.checked = true; go.textContent = S.i + 1 < qs.length ? L.next : L.seeResults; $("#qzSkip").hidden = true; };
+        // câu đã trả lời mở lại (làm như thi) không có "Bỏ qua": lỗi không kèm đuôi "hoặc bấm Bỏ qua nhé."
+        if (!filled(q, S.cur)) { fb.innerHTML = `<div class="fb bad">${NEED[q.type] || L.needAnswer}${reopen ? "." : L.needTail}</div>`; return; }
+        record(q);
+        if (exam) { next(); return; }
+        reveal();
+      };
+      /* Phần sau Kiểm tra (ôn luyện), theo câu trả lời đã ghi ở S.ans[S.i]: ẩn hẳn "Bỏ qua" (X8), nút đi tiếp ghi tên màn sẽ tới (X25),
+         đánh dấu ô đúng, sai, khóa ô, đáp án, lời giải, link báo câu sai. Dùng cho câu vừa Kiểm tra và câu đã Kiểm tra mở lại từ bảng số câu. */
+      function reveal() {
+        const a = S.ans[S.i], g = a.g, pts = a.pts;
+        S.checked = true; go.textContent = nextLabel(); if ($("#qzSkip")) $("#qzSkip").hidden = true;
         if (q.type === "essay") {
-          S.ans[S.i] = { q, g: S.cur.trim(), done: true };
-          if (exam) { next(); return; }
           $("#qzEssay").readOnly = true;
           fb.innerHTML = `<div class="expl pre"><b>${L.guide}</b> ${nbNum(esc(q.x || L.noGuide))}</div>${rubricHtml(S.i)}${reportHtml(q)}`;
           wireRubric(fb); wireReport(fb);
-          done();
           return;
         }
-        const g = Array.isArray(S.cur) ? S.cur.slice() : S.cur, pts = score(q, g);
-        S.ans[S.i] = { q, g, pts, ok: pts === 1 };
-        if (exam) { next(); return; }
-        done();
         let msg = "";
         if (q.type === "mc" || q.type === "tf") $$(".opt").forEach((b) => { const o = +b.dataset.o; if (o === q.a) b.classList.add("right"); else if (b.classList.contains("sel")) b.classList.add("wrong"); });
         if (q.type === "tf4") {
@@ -811,12 +892,54 @@
         const ans = q.type === "order" ? `<ol class="ord-ans">${q.o.map((s) => `<li>${nbNum(esc(s))}</li>`).join("")}</ol>` : q.type === "tf4" || q.type === "match" ? "" : `<span>${L.ansLabel} <b>${nbNum(esc(correctText(q, L)))}</b></span>`;
         fb.innerHTML = (pts === 1 ? `<div class="fb ok">${msg || L.right}</div>` : `<div class="fb bad">${msg || L.wrong}${ans ? ` ${q.type === "order" ? `<span>${L.ordRight}</span>` : ""}${ans}` : ""}</div>`) + (q.x ? `<div class="expl">${nbNum(esc(q.x))}</div>` : "") + reportHtml(q);
         wireReport(fb);
+      }
+      if (reopen) { // vẽ sẵn câu trả lời cũ (nối cột, sắp xếp đã vẽ theo S.cur ở trên)
+        if (q.type === "mc" || q.type === "tf") $$(".opt").forEach((b) => b.classList.toggle("sel", +b.dataset.o === S.cur));
+        if (inp) inp.value = S.cur == null ? "" : S.cur;
+        if ($("#qzEssay")) $("#qzEssay").value = S.cur || "";
+        if (q.type === "tf4") $$(".tf4 .opt").forEach((b) => { const on = S.cur[+b.dataset.i] === (b.dataset.v === "1"); b.classList.toggle("sel", on); b.setAttribute("aria-pressed", on); });
+        if (!exam) reveal();
+      }
+      window.scrollTo(0, 0);
+    }
+    /* Màn "Xem lại bài làm" (#qzRecap, L38; X21: không dùng #qzReview, id của mục "Câu cần xem lại" ở màn kết quả) vẫn thuộc lượt đang
+       làm: đồng hồ chạy tiếp, chế độ tập trung giữ nguyên, rời trang vẫn hỏi. Hiện khi đi qua câu cuối mà còn câu trống (làm như thi: cả
+       khi đã làm hết, trước khi nộp). Bảng số câu hiện sẵn, bấm ô thì tới câu đó (xong câu thì về lại đây). Nút cuối màn là lối ra duy
+       nhất (X24): còn câu trống thì "Nộp bài"/"Xem kết quả" hỏi lại "Còn N câu chưa làm, sẽ tính là sai." (ôn luyện ghi các câu đó như
+       câu bỏ qua rồi finish()); chưa trả lời câu nào thì hỏi "Thoát đề?" như confirmExit; làm như thi đã làm hết thì "Nộp bài" nộp ngay. */
+    function recap() {
+      S.recap = true; S.from = "recap";
+      const left = blanks(), n = left.length;
+      el.innerHTML = `<div class="stack"${LANG}>
+        ${S.limit ? `<div class="row between qz-top"><div class="row">${timerHtml()}</div></div>` : ""}
+        <section class="panel qz-grid qz-recap" id="qzRecap">
+          <h2>${L.recapHead}</h2>
+          <p>${n ? L.recapLeft(n) : L.recapAll(qs.length)}</p>
+          ${cellsHtml(-1)}${keyHtml(-1)}
+        </section>
+        <div class="row between qz-nav">${n ? `<button class="btn ghost" id="qzEnd">${exam ? L.submit : L.seeResults}</button><button class="btn main" id="qzMore">${L.doLeft(n)}</button>` : `<button class="btn main" id="qzEnd">${L.submit}</button>`}</div>
+        <div id="qzFb" aria-live="polite"></div>
+      </div>`;
+      wireCells(el);
+      // vòng làm tiếp: chỉ các câu còn trống lúc này, theo số câu; bỏ qua lần nữa thì câu vẫn còn trống; hết vòng thì về lại màn này
+      if (n) el.querySelector("#qzMore").onclick = () => { S.round = blanks(); S.from = "round"; S.i = S.round[0]; render(); };
+      el.querySelector("#qzEnd").onclick = () => {
+        if (!answered()) { confirmExit(); return; }
+        if (!n) { finish(); return; }
+        const fb = el.querySelector("#qzFb");
+        fb.innerHTML = `<div class="confirm"><div>${L.leftWarn(n)}</div><div class="row"><button class="btn danger" id="qzYes">${exam ? L.submit : L.seeResults}</button><button class="btn ghost" id="qzNo">${L.keepGoing}</button></div></div>`;
+        fb.querySelector("#qzYes").onclick = () => { if (!exam) left.forEach((i) => { if (isBlank(i)) S.ans[i] = { q: qs[i], g: null, ok: false, pts: 0 }; }); finish(); };
+        fb.querySelector("#qzNo").onclick = () => (fb.innerHTML = "");
+        fb.querySelector("#qzNo").focus({ preventScroll: true });
+        fb.firstElementChild.scrollIntoView({ behavior: "smooth", block: "nearest" });
       };
       window.scrollTo(0, 0);
     }
     function confirmExit() {
-      const fb = el.querySelector("#qzFb"), none = !answered();
-      const [ask, yes] = none ? L.exNone : h.retry ? L.exRetry : exam ? L.exExam : L.exPractice;
+      // làm như thi: lựa chọn đã đủ của câu đang mở tính là đã trả lời (nộp thì ghi, X23); lời hỏi lại ghi số câu còn trống
+      const fb = el.querySelector("#qzFb"), none = !answeredNow(), n = blanks().length - (pending() ? 1 : 0);
+      const [ask0, yes] = none ? L.exNone : h.retry ? L.exRetry : exam ? L.exExam : L.exPractice;
+      const ask = !none && exam && n ? `${ask0} ${L.leftWarn(n)}` : ask0;
       fb.innerHTML = `<div class="confirm"><div>${ask}</div><div class="row"><button class="btn danger" id="qzYes">${yes}</button><button class="btn ghost" id="qzNo">${L.keepGoing}</button></div></div>`;
       fb.querySelector("#qzYes").onclick = none ? () => { h.stop(); ended(); if (opts.onExit) opts.onExit(); } : finish;
       fb.querySelector("#qzNo").onclick = () => (fb.innerHTML = "");
@@ -824,7 +947,13 @@
       fb.querySelector("#qzNo").focus({ preventScroll: true });
       fb.firstElementChild.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-    function next() { S.i++; if (S.i >= qs.length) finish(); else render(); }
+    // đi tiếp: câu kế tiếp theo nextIdx; hết thì về màn "Xem lại bài làm", ôn luyện không còn câu trống thì ra kết quả như trước
+    function next() {
+      const j = nextIdx();
+      if (j >= 0) { S.i = j; render(); return; }
+      if (!exam && !blanks().length) { finish(); return; }
+      recap();
+    }
     // lượt làm đã xong (X5): app bỏ chế độ tập trung, thanh trên có lại đủ
     function ended() { if (opts.onEnd) opts.onEnd(); }
     // Làm lại: cả đề (h.full), cùng bộ câu (xáo lại); đề ngẫu nhiên (redraw) thì rút bộ câu mới. Sau lượt ôn lại câu sai: về đề đầy đủ, cùng cách làm.
@@ -841,7 +970,9 @@
       return { got, max };
     }
     function finish() {
-      if (S.done) return; S.done = true; clearInterval(S.timer);
+      if (S.done) return;
+      leaveCur(); // làm như thi: lựa chọn đã đủ của câu đang mở được ghi trước khi chấm (nút Nộp bài, hết giờ, rời trang; X23)
+      S.done = true; clearInterval(S.timer);
       ended();
       if (!answered()) {
         el.innerHTML = `<div class="stack"${LANG}>
@@ -946,7 +1077,7 @@
     h.stop = () => { clearInterval(S.timer); S.done = true; };
     h.busy = () => !S.done && (exam || S.ans.some(Boolean));
     h.count = () => qs.length;
-    h.answered = answered;
+    h.answered = answeredNow;
     h.submit = finish;
     if (!qs.length) { h.stop(); el.innerHTML = `<div class="panel"${LANG}>${L.emptyBank}</div>`; return h; }
     if (opts.onStart) opts.onStart();
