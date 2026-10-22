@@ -19,7 +19,13 @@
   const MODULES = window.ONTAP_MODULES || [];
   const modById = (id) => MODULES.find((m) => m.id === id) || null;
   const qCount = (b) => (b.pool ? b.n || 0 : b.questions ? b.questions.length : b.n || 0); // đề có sẵn chưa tải câu hỏi: số câu ghi ở danh mục; đề ngẫu nhiên: số câu rút mỗi lần
-  const AVATARS = ["🐣", "🦊", "🐼", "🐯", "🐨", "🐸", "🦄", "🐙", "🐬", "🚀", "⚽", "🎨", "🌻", "🧭", "📚", "🌟"];
+  /* Hình đại diện (trường avatar của người dùng): một emoji, hoặc mã của hình vẽ riêng trong ART (file icons/avatars/<mã>.svg, giống nhau
+     trên mọi máy; mã ≤ 16 kí tự như cột profiles.avatar của bản đám mây). Chủ app yêu cầu 22/10/2026: thêm hải cẩu (emoji chỉ có một 🦭,
+     máy cũ không hiện được). Thêm hình vẽ: thêm file SVG, thêm mã và tên đọc vào ART, thêm file vào FILES của sw.js và tăng VERSION. */
+  const ART = { "hai-cau-xam": "Hải cẩu xám", "hai-cau-con": "Hải cẩu con", "hai-cau-dom": "Hải cẩu đốm", "hai-cau-mu": "Hải cẩu đội mũ tốt nghiệp",
+    "hai-cau-bong": "Hải cẩu tung bóng", "hai-cau-kinh": "Hải cẩu đeo kính đọc sách" };
+  const isArt = (a) => Object.prototype.hasOwnProperty.call(ART, a);
+  const AVATARS = ["🐣", "🦊", "🐼", "🐯", "🐨", "🐸", "🦄", "🐙", "🐬", "🚀", "⚽", "🎨", "🌻", "🧭", "📚", "🌟"].concat(Object.keys(ART));
   const KIND = { "dinh-ki": "Kiểm tra định kì", ioe: "IOE", "thi-khac": "Thi khác", moc: "Mốc năm học" };
   const DAY = 864e5;
   const WD = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
@@ -74,10 +80,12 @@
   const go = (h) => { if (guardOn()) { askLeave(h, false); return; } if (location.hash === h) route(); else location.hash = h; };
   const back = (h, txt) => `<button class="linkbtn" data-go="${h}">← ${esc(txt || "Quay lại")}</button>`;
   function wireGo(root) { $$("[data-go]", root || view).forEach((b) => (b.onclick = () => go(b.dataset.go))); }
-  const avatar = (u, lg) => `<span class="av${lg ? " lg" : ""}" aria-hidden="true">${esc(u.avatar || "🙂")}</span>`;
+  // chỗ duy nhất vẽ hình đại diện: emoji là chữ, hình vẽ là <img class="art"> (to bằng emoji cùng cỡ chữ, css/app.css)
+  const avIn = (a) => (isArt(a) ? `<img class="art" src="icons/avatars/${a}.svg" alt="">` : esc(a || "🙂"));
+  const avatar = (u, lg) => `<span class="av${lg ? " lg" : ""}" aria-hidden="true">${avIn(u.avatar)}</span>`;
   const gradeTxt = (u) => (u.role === "student" ? "Lớp " + u.grade + (u.className ? " · " + u.className : "") : Store.ROLES[u.role]);
   function emojiPicker(sel) {
-    return `<div class="emojis" role="group" aria-label="Chọn hình đại diện">${AVATARS.map((a) => `<button type="button" data-emo="${a}" aria-pressed="${a === sel}">${a}</button>`).join("")}</div>`;
+    return `<div class="emojis" role="group" aria-label="Chọn hình đại diện">${AVATARS.map((a) => `<button type="button" data-emo="${a}" aria-pressed="${a === sel}"${isArt(a) ? ` aria-label="${ART[a]}"` : ""}>${avIn(a)}</button>`).join("")}</div>`;
   }
   function wireEmoji(root, cb) {
     $$("[data-emo]", root).forEach((b) => (b.onclick = () => { $$("[data-emo]", root).forEach((x) => x.setAttribute("aria-pressed", x === b)); cb(b.dataset.emo); }));
@@ -887,7 +895,7 @@
         ${ev ? `<a class="linkbtn" id="toBanks" href="#/practice?ki=${encodeURIComponent(ev.id)}">${nb(`Tất cả bài ôn cho kì này · ${count} bài ôn`)} →</a>` : ""}</section>`
       : `<section class="hero today" id="today"><span class="label">Hôm nay ôn gì?</span><h1>Chưa có bài ôn cho lớp ${s.grade}</h1><p>Quản trị viên có thể nhập thêm đề trong mục Quản trị.</p></section>`;
     view.innerHTML = `<div class="stack">
-      <div><h2>Chào ${esc(s.name)}! ${esc(s.avatar)}</h2><span class="muted">${WDL[t.getDay()]} ${dm(isoDay(t))} · ${esc(gradeTxt(s))}</span></div>
+      <div><h2>Chào ${esc(s.name)}! ${avIn(s.avatar)}</h2><span class="muted">${WDL[t.getDay()]} ${dm(isoDay(t))} · ${esc(gradeTxt(s))}</span></div>
       ${unsentBar(s.id)}
       ${s.locked ? `<div class="notice">Hồ sơ này đang khóa vì tài khoản có nhiều hồ sơ con hơn gói hiện tại cho phép. Vẫn xem được kết quả cũ, bài làm mới chưa được lưu.</div>` : ""}
       ${card}
@@ -1849,14 +1857,14 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
       try {
         await Store.updateUser(u.id, { avatar: e });
         const nu = Store.user(u.id);
-        $("#acAv").textContent = nu.avatar; drawWho(nu); toast("Đã đổi hình đại diện"); $("#avErr").innerHTML = "";
+        $("#acAv").innerHTML = avIn(nu.avatar); drawWho(nu); toast("Đã đổi hình đại diện"); $("#avErr").innerHTML = "";
       } catch (er) { // không lưu được (bản đám mây): báo lỗi, trả khung chọn về hình đang có
         $("#avErr").innerHTML = `<div class="fb bad">${esc(er.message)}</div>`;
         $$("[data-emo]", $("#avBox")).forEach((x) => x.setAttribute("aria-pressed", x.dataset.emo === Store.user(u.id).avatar));
       }
     });
   }
-  const acHead = (u, sub) => `<div class="row"><span class="av lg" id="acAv" aria-hidden="true">${esc(u.avatar || "🙂")}</span><div><h2>${esc(u.name)}</h2><span class="muted">${sub}</span></div></div>`;
+  const acHead = (u, sub) => `<div class="row"><span class="av lg" id="acAv" aria-hidden="true">${avIn(u.avatar)}</span><div><h2>${esc(u.name)}</h2><span class="muted">${sub}</span></div></div>`;
   /* Bản lưu trên máy, mọi vai trò: hình đại diện (chạm là đổi) và form đổi mã PIN riêng, nút "Đổi mã PIN". */
   function renderAccount(u) {
     if (Store.cloud) return renderCloudAccount(u);

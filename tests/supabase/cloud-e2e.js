@@ -442,7 +442,16 @@ async function run(browser, scheme) {
   c.ux4.avatar = await p.evaluate((id) => ({ av: Store.user(id).avatar, toast: document.querySelector("#toast").textContent, head: document.querySelector("#acAv").textContent, top: document.querySelector("#who .av").textContent, pressed: document.querySelector('#avBox [aria-pressed="true"]').dataset.emo }), binId);
   c.ux4.avatarServer = await until(p, () => be.T.profiles.find((x) => x.id === binId).avatar === "🐬");
   await shot(p, "c9b-doi-hinh-dai-dien");
+  /* Hình đại diện vẽ riêng (hải cẩu, chủ app yêu cầu 22/10/2026): mã "hai-cau-con" lên máy chủ như emoji (cột avatar ≤ 16 kí tự); đầu
+     trang, thanh trên và ô hồ sơ ở "Ai đang học?" vẽ <img class="art" src="icons/avatars/hai-cau-con.svg">. Bin giữ hình này đến hết. */
+  await p.click('#avBox [data-emo="hai-cau-con"]'); await p.waitForFunction(() => Store.sessionUser().avatar === "hai-cau-con");
+  const artIn = (sel) => p.waitForFunction((sel) => { const i = document.querySelector(sel + " img.art"); return !!i && i.complete && i.naturalWidth > 0 && i.getAttribute("src") === "icons/avatars/hai-cau-con.svg"; }, sel, { timeout: 5000 }).then(() => true, () => false);
+  c.art = { head: await artIn("#acAv"), top: await artIn("#who .av"), seals: await p.$$eval('#avBox [data-emo^="hai-cau-"][aria-label] img.art', (x) => x.length) };
+  c.art.server = await until(p, () => be.T.profiles.find((x) => x.id === binId).avatar === "hai-cau-con");
+  await shot(p, "c9c-hinh-hai-cau");
   await p.click("#switchWho"); await p.waitForSelector(WHO);
+  c.art.tile = await p.waitForFunction(() => { const t = [...document.querySelectorAll(".tile")].find((x) => (x.querySelector(".nm") || {}).textContent === "Bin"), i = t && t.querySelector(".av img.art");
+    return !!i && i.complete && i.naturalWidth > 0 && i.getAttribute("src") === "icons/avatars/hai-cau-con.svg"; }, null, { timeout: 5000 }).then(() => true, () => false);
   await tile(p, "Na"); await p.waitForSelector("text=Chào Na"); // hồ sơ không có PIN: bấm là vào
   c.na = true;
   /* UX6 (X10): bài đã gửi cho bố mẹ chưa (làm với Na để số bài của Bin ở các kiểm tra khác giữ nguyên). cloud-e2e gọi máy chủ giả qua
@@ -1097,6 +1106,8 @@ async function run(browser, scheme) {
       && c.lich.after.inApp === SEED_EVENTS.length - 1 && c.lich.again.n === SEED_EVENTS.length - 1 && c.lich.again.seen === c.lich.keysN && c.lich.removed.n === SEED_EVENTS.length - 2 && !c.lich.removed.vao10
       && c.lich.cal.tabs === "Các con,Lịch thi*,Cài đặt / Cả hai khối*,Lớp 4,Lớp 6" && c.lich.cal.n === c.lich.cal.shown && c.lich.cal.all > c.lich.cal.shown && !c.lich.cal.hidden,
     "U1: nút xem mật khẩu, mã PIN, mã mở nhanh (lPass, pwNew, pwNew2, pwIn, uPin, pwOld, qcNew, pinIn, outPw, adPass): hiện, ẩn, giữ giá trị và focus; gửi form, xóa hết ô thì ẩn lại": rv.length === 0,
+    "hình hải cẩu (22/10/2026): chọn là lưu lên máy chủ (hai-cau-con); đầu trang, thanh trên, ô hồ sơ ở “Ai đang học?” vẽ hình; bộ chọn có 6 hải cẩu có tên đọc":
+      !!c.art && c.art.head && c.art.top && c.art.seals === 6 && c.art.server && c.art.tile,
     "360px: không cuộn ngang, nút cao ≥ 44px, chữ ≥ 13px, chữ không đè lên nhau": problems.length === 0,
     "không lỗi trên trang": errs.length === 0
   };

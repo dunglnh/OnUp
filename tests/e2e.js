@@ -2435,6 +2435,69 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.account.hint === "Chạm vào hình là đổi ngay." && !r.account.save && r.account.pinBtn === "Đổi mã PIN" && r.account.h3 === "Hình đại diện,Đổi mã PIN"
       && r.changed.av && r.changed.toast === "Đã đổi hình đại diện" && r.changed.head && r.changed.top && r.changed.pressed && r.changed.saved && /Nhập mã PIN mới/.test(r.pinForm); });
 
+  step("seal avatars: drawn art in the avatar picker and everywhere the avatar shows");
+  /* Hình đại diện vẽ riêng (chủ app yêu cầu 22/10/2026: thêm vài hình hải cẩu; emoji chỉ có một 🦭, máy cũ không hiện được). Mã hình
+     (hai-cau-…, ≤ 16 kí tự như cột profiles.avatar) lưu ở trường avatar như emoji; app vẽ <img class="art" src="icons/avatars/<mã>.svg">.
+     Ở 360px sáng/tối: bộ chọn hình có 16 emoji và 6 hải cẩu (mỗi ô có tên đọc, hình tải được, rộng gần bằng emoji); Bin chọn "Hải cẩu đội
+     mũ tốt nghiệp": lưu ngay, hình ở đầu trang Tài khoản và thanh trên là hình vẽ; lời chào ở trang Hôm nay, ô hồ sơ ở "Xin chào!", thẻ
+     của con ở trang chủ phụ huynh và đầu báo cáo tuần cũng vậy. Mỗi màn chạy audit (cả chữ đè). Ảnh ở tests/screenshots/hai-cau/
+     (bản ghép <tên>.jpg; chép sang docs/hinh-hai-cau/). */
+  const OUTART = OUT + "hai-cau/"; fs.mkdirSync(OUTART, { recursive: true });
+  const art = { problems: [], shots: [] }, SEAL = "hai-cau-mu";
+  for (const scheme of ["light", "dark"]) {
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror hải cẩu: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console hải cẩu: " + m.text()); });
+    const r = (art[scheme] = {});
+    const checkA = async (label) => (await p.evaluate(audit)).forEach((x) => art.problems.push(`hải cẩu · ${scheme} · ${label}: ${x}`));
+    const snapA = async (n) => { await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await p.screenshot({ path: `${OUTART}${n}-${scheme}.png` }); art.shots.push(`${n}-${scheme}`); };
+    // hình vẽ trong phần tử sel: đúng file, tải xong (rộng tự nhiên > 0); hình vừa chèn thì chờ tải xong
+    const drawn = async (sel) => {
+      await p.waitForFunction((sel) => { const i = document.querySelector(sel + " img.art"); return !i || i.complete; }, sel, { timeout: 5000 }).catch(() => {});
+      return p.evaluate((sel) => { const i = document.querySelector(sel + " img.art"); return !!i && i.complete && i.naturalWidth > 0 && i.getAttribute("src") === "icons/avatars/hai-cau-mu.svg"; }, sel);
+    };
+    const signIn = async (name) => { await p.goto(BASE + "/#/account"); if (await p.$("#logout")) { await p.click("#logout"); await p.waitForTimeout(200); }
+      await p.goto(BASE + "/#/"); await p.click(`.tile[data-u="${ids[name]}"]`); await p.fill("#pinIn", PINS[name]); await p.waitForTimeout(400); };
+    await signIn("Bin");
+    await p.goto(BASE + "/#/account"); await p.waitForSelector("#avBox"); await p.waitForFunction(() => [...document.querySelectorAll("#avBox img.art")].every((i) => i.complete));
+    r.picker = await p.evaluate(() => {
+      const bs = [...document.querySelectorAll("#avBox [data-emo]")], seals = bs.filter((b) => b.dataset.emo.startsWith("hai-cau-")), emo = bs.find((b) => b.dataset.emo === "🦊").getBoundingClientRect();
+      return { n: bs.length, seals: seals.map((b) => b.dataset.emo).join(), names: seals.every((b) => /^Hải cẩu/.test(b.getAttribute("aria-label"))), short: seals.every((b) => b.dataset.emo.length <= 16),
+        loaded: seals.every((b) => { const i = b.querySelector("img.art"); return i && i.complete && i.naturalWidth > 0 && i.alt === ""; }),
+        size: seals.every((b) => { const i = b.querySelector("img.art").getBoundingClientRect(), x = b.getBoundingClientRect(); return i.width >= 26 && i.width <= 34 && i.left >= x.left && i.right <= x.right && i.top >= x.top && i.bottom <= x.bottom; }), emoW: emo.width };
+    });
+    await p.click(`#avBox [data-emo="${SEAL}"]`); await p.waitForFunction((s) => Store.sessionUser().avatar === s, SEAL);
+    r.changed = { head: await drawn("#acAv"), top: await drawn("#who .av"), pressed: await p.$eval('#avBox [aria-pressed="true"]', (b) => b.dataset.emo) === SEAL,
+      saved: await p.evaluate((s) => JSON.parse(localStorage.getItem("ontap_db_v1")).users.find((u) => u.name === "Bin").avatar === s, SEAL) };
+    await checkA("tài khoản, đã chọn hải cẩu"); await snapA("chon-hinh");
+    await p.goto(BASE + "/#/home"); await p.waitForSelector("#today");
+    r.home = await drawn("#view h2") && (await p.$eval("#view h2", (h) => { const i = h.querySelector("img.art").getBoundingClientRect(), fs = parseFloat(getComputedStyle(h).fontSize); return h.textContent.trim() === "Chào Bin!" && i.height >= 1.2 * fs && i.height <= 1.6 * fs; }));
+    await checkA("Hôm nay"); await snapA("hom-nay");
+    await p.goto(BASE + "/#/account"); await p.click("#logout"); await p.waitForSelector(".tile");
+    r.tile = await drawn(`.tile[data-u="${ids.Bin}"] .av`);
+    await checkA("Xin chào!"); await snapA("xin-chao");
+    await signIn("Mẹ Bin");
+    r.kid = await drawn(`a.kid[href="#/child/${ids.Bin}"] .av`);
+    await checkA("trang chủ phụ huynh");
+    await p.goto(BASE + "/#/child/" + ids.Bin); await p.waitForSelector("#rpHead");
+    r.report = await drawn("#rpHead .av");
+    await checkA("báo cáo tuần"); await snapA("bao-cao");
+    await c.close();
+  }
+  { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/hai-cau/<tên>.jpg)
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of [...new Set(art.shots.map((x) => x.replace(/-(light|dark)$/, "")))]) {
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTART}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTART}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("hải cẩu:", JSON.stringify({ light: art.light, dark: art.dark }), "problems:", art.problems);
+  const artOK = !art.problems.length && ["light", "dark"].every((sc) => { const r = art[sc];
+    return r.picker.n === 22 && r.picker.seals === "hai-cau-xam,hai-cau-con,hai-cau-dom,hai-cau-mu,hai-cau-bong,hai-cau-kinh" && r.picker.names && r.picker.short && r.picker.loaded && r.picker.size
+      && r.changed.head && r.changed.top && r.changed.pressed && r.changed.saved && r.home && r.tile && r.kid && r.report; });
+
   step("focused test screen: top bar, Finish button, timer, Skip, open screen (UX5)");
   /* Phiên UX5 (X5–X9), bản lưu trên máy, ngày giả lập 14/12/2026 8:00. Bin (lớp 4) mở Toán 4 · Cuối kì I · Đề 3 (chưa làm lần nào):
      màn mở đề không có thẻ "Lần trước", có "Chọn cách làm" với hai thẻ (cao ≥ 64px, biểu tượng, một dòng giải thích). Làm như thi (X5–X7):
@@ -2781,7 +2844,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      Đề có sẵn: chỉ danh mục data/banks/index.js nằm trong FILES; file câu hỏi vào đệm khi mở đề. */
   const sw = new Function("self", fs.readFileSync(ROOT + "sw.js", "utf8") + "\nreturn { VERSION, FILES };")({ addEventListener() {} });
   const ls = (dir, re) => fs.readdirSync(ROOT + dir).filter((n) => re.test(n)).map((n) => dir + n);
-  const want = ["./", "manifest.webmanifest"].concat(ls("css/", /\.css$/), ls("js/", /\.js$/), ls("data/", /\.js$/), ["data/banks/index.js"], ls("fonts/", /\.(css|woff2)$/), ls("icons/", /./),
+  const want = ["./", "manifest.webmanifest"].concat(ls("css/", /\.css$/), ls("js/", /\.js$/), ls("data/", /\.js$/), ["data/banks/index.js"], ls("fonts/", /\.(css|woff2)$/), ls("icons/", /\./), ls("icons/avatars/", /\.svg$/),
     fs.readdirSync(ROOT + "modules").map((m) => `modules/${m}/index.html`));
   const swList = { missing: want.filter((f) => !sw.FILES.includes(f)), extra: sw.FILES.filter((f) => !want.includes(f)) };
   /* Chữ (luật trong CLAUDE.md, “Quy ước code”): Lora (var(--display)) chỉ ở chữ OnUp (.brand) và điểm to (.score) của css/app.css, ở
@@ -2906,7 +2969,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, pickOK, ux4OK, ux5OK, numOK, l29OK, ux6LocalOK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
