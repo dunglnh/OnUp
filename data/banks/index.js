@@ -133,6 +133,11 @@ window.ONTAP_SEED_BANKS = [
   { id: "tv4-gk1-de1", title: "Tiếng Việt 4 · Giữa kì I · Đề 1", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js" },
   { id: "tv4-gk1-de2", title: "Tiếng Việt 4 · Giữa kì I · Đề 2", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js" },
 
+  /* Toán 6 · Kiểm tra giữa học kì II (Kết nối tri thức, Bài 23–35: Chương VI Phân số, Chương VII Số thập phân, Chương VIII Bài 32–35;
+     Phiên N8) */
+  { id: "toan6-gk2-de1", title: "Toán 6 · Giữa kì II · Đề 1", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js" },
+  { id: "toan6-gk2-de2", title: "Toán 6 · Giữa kì II · Đề 2", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js" },
+
   /* Ngân hàng Toán 4 cuối kì I (Phiên N1): kho câu = 31 câu riêng trong file + 75 câu của 3 đề cố định ở trên, câu nào cũng
      có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020 (3 mức, không quy định tỉ lệ): 10 – 8 – 7 câu (40% – 32% – 28%). */
   { id: "toan4-ck1-ngau-nhien", title: "Toán 4 · Cuối kì I · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
@@ -357,6 +362,17 @@ window.ONTAP_SEED_BANKS = [
     pool: { from: ["tv4-gk1-de1", "tv4-gk1-de2"], matrix: {
       "Đọc hiểu": [3, 2, 2], "Danh từ": [2, 1, 1], "Danh từ chung, danh từ riêng": [1, 1, 1], "Viết tên cơ quan, tổ chức": [1, 1, 0],
       "Động từ": [1, 2, 2], "Sử dụng từ điển": [1, 1, 0], "Chính tả": [1, 0, 0], "Viết": [0, 0, 1] } } },
+  /* Ngân hàng Toán 6 giữa kì II (Phiên N8): kho câu = 58 câu riêng trong file + 50 câu của 2 đề cố định ở trên, câu nào cũng có
+     mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%) theo khung đề định kì lớp 6 (Công văn 7991) trên 11 chủ
+     đề theo tên bài: phân số 11 câu (Bài 23–27), số thập phân 8 câu (Bài 28–31), hình học 6 câu (Bài 32–35). Hai đề cố định chia
+     đúng theo ma trận, câu riêng ở ô nào cũng ít nhất bằng số câu ô đó rút, nên ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu
+     ô đó rút và học sinh đã làm một đề cố định vẫn gặp câu mới. Bốn câu tự luận chỉ ở hai ô Vận dụng rút 1 câu (Hai bài toán về
+     phân số; Đoạn thẳng, trung điểm): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "toan6-gk2-ngau-nhien", title: "Toán 6 · Giữa kì II · Đề ngẫu nhiên", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js",
+    pool: { from: ["toan6-gk2-de1", "toan6-gk2-de2"], matrix: {
+      "Phân số bằng nhau": [1, 1, 0], "So sánh phân số, hỗn số": [1, 1, 0], "Cộng, trừ phân số": [1, 1, 1], "Nhân, chia phân số": [1, 0, 1],
+      "Hai bài toán về phân số": [0, 1, 1], "Số thập phân": [1, 1, 0], "Tính toán với số thập phân": [1, 0, 1], "Làm tròn và ước lượng": [1, 1, 0],
+      "Tỉ số, tỉ số phần trăm": [0, 1, 1], "Điểm, đường thẳng, tia": [2, 0, 1], "Đoạn thẳng, trung điểm": [1, 1, 1] } } },
   /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
      mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
