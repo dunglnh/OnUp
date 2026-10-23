@@ -4,7 +4,7 @@ Kết quả rà lại các luồng của app trên bản vẽ Figma và đối c
 
 **Figma:** file [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2):
 - **Master 1.x:** 77 màn vẽ lại đúng app ở commit `0a1e8db`, gồm Users 51 màn, Admin 26 màn.
-- **🚧 Master 2.x · Đề xuất UX/UI:** mỗi flow một section, theo thứ tự ghi chú → 1.x hiện tại → 2.x đề xuất. Section cuối có các thành phần mới: icon, thanh tab dưới `.tabbar (2.x)`. Đây chỉ là đề xuất, chưa có trong code.
+- **🚧 Master 2.x · Đề xuất UX/UI:** mỗi flow một section, theo thứ tự ghi chú → 1.x hiện tại → 2.x đề xuất. Section cuối có các thành phần mới: icon, thanh tab dưới `.tabbar (2.x)`. Đây chỉ là đề xuất, chưa có trong code. Riêng section “Làm bài · Bảng số câu (9n)” vẽ theo code sau khi gộp Phiên 9n (PR #119), có sửa hai chỗ của kiểm thử thiết kế (X28, X29).
 
 Phiên Claude Code không mở được Figma. Vì vậy ảnh chụp 1.x và 2.x đặt cạnh nhau ở [hinh-ux-2x/](hinh-ux-2x/), và lời giao việc trỏ vào các ảnh đó. Ảnh là hướng làm, không bắt giống từng điểm ảnh. Ghi chép chỗ khó dùng của bố mẹ (mục 2 của kế hoạch) đi trước ảnh khi hai bên khác nhau.
 
@@ -36,7 +36,7 @@ Phiên Claude Code không mở được Figma. Vì vậy ảnh chụp 1.x và 2.
 | [Quản lí đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=82-2135) | UX2 (tên “Đề tự soạn”) | X11–X13 | **UX7** | [ux7-chon-de](hinh-ux-2x/ux7-chon-de.jpg), [ux7-de-tu-soan](hinh-ux-2x/ux7-de-tu-soan.jpg) |
 | [Báo cáo tuần](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2729) | — | X14 | **UX8** | [ux8-bao-cao-tuan](hinh-ux-2x/ux8-bao-cao-tuan.jpg) |
 | [Chữ và màu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2933) | — | X15, X16 | **UI1** | [ui1-tieu-de](hinh-ux-2x/ui1-tieu-de.jpg), [ui1-o-ma](hinh-ux-2x/ui1-o-ma.jpg) |
-| Làm bài · bảng số câu (chưa vẽ trong Figma, ảnh chụp bản mẫu) | L38, L39 (flow của PO, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2) | X21–X27 | **9n, 9o** | [9n-bang-so-cau](hinh-ux-2x/9n-bang-so-cau.jpg), [9n-xem-lai-bai-lam](hinh-ux-2x/9n-xem-lai-bai-lam.jpg), [9n-lam-tiep-sua-cau](hinh-ux-2x/9n-lam-tiep-sua-cau.jpg), [9o-bai-on](hinh-ux-2x/9o-bai-on.jpg) |
+| [Làm bài · bảng số câu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=267-3035) | L38, L39 (flow của PO, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2) | X21–X27; X28, X29 (kiểm thử sau 9n) | **9nb**, **9o** (9n xong ở PR #119) | [9n-bang-so-cau](hinh-ux-2x/9n-bang-so-cau.jpg), [9n-xem-lai-bai-lam](hinh-ux-2x/9n-xem-lai-bai-lam.jpg), [9n-lam-tiep-sua-cau](hinh-ux-2x/9n-lam-tiep-sua-cau.jpg), [9o-bai-on](hinh-ux-2x/9o-bai-on.jpg), [kt-9n-xem-lai](hinh-ux-2x/kt-9n-xem-lai.jpg), [kt-9n-chu-thich](hinh-ux-2x/kt-9n-chu-thich.jpg) |
 
 Mã vấn đề (X1, X2…) dùng trong lời giao việc và trong commit, như mã lỗi L1–L19 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md).
 
@@ -409,9 +409,36 @@ Tìm được khi kiểm thử thiết kế sau khi gộp PR #56 (mục 5). Figm
 - Thêm một kiểm tra: `line-height` tính ra của `h1` ≥ 1,3 lần cỡ chữ.
 - Xem lại ảnh 360px sáng/tối trong `tests/screenshots/360/` và ảnh `admin-da-tao` của `tests/supabase/cloud-e2e.js`: không có chỗ nào vỡ, ô mã nổi khung.
 
+### Phiên 9nb · Sửa sau kiểm thử 9n
+
+Tìm được khi kiểm thử thiết kế sau khi gộp PR #119 (mục 5). Figma: [C5–C8](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=267-3035) trong section Làm bài · Bảng số câu (9n), vẽ theo code, chú thích đã sửa theo hai mục dưới đây. Phiên ngắn: sửa `keyHtml` trong `js/quiz.js`, bước L38, L39 của `tests/e2e.js` và CLAUDE.md. Làm trước 9o, vì 9o vẽ cùng chú thích trong bài ôn dạng trang.
+
+![Chú thích dưới bảng số câu: app sau 9n và Figma](hinh-ux-2x/kt-9n-chu-thich.jpg)
+
+**X28. Mẫu ô ở chú thích không giống ô thật.**
+- `keyHtml` vẽ mẫu ô là `<i class="qz-cell st-ok">✓</i>`: dấu nằm thẳng trong thẻ `<i>` mang lớp `.qz-cell`. Các quy tắc cho dấu (`.qz-cell i`: chữ đứng, màu `muted`; `.qz-cell.st-ok i`, `.qz-cell.st-bad i`: màu `ok`, `bad`) chỉ áp vào thẻ `<i>` nằm bên trong ô, nên không áp vào mẫu ô. Quy tắc `.qz-key .qz-cell i` có sẵn trong `css/app.css` cũng không áp vào đâu.
+- Đo ở 360px: dấu –, ✓, ✗ của mẫu ô là chữ nghiêng (mặc định của `<i>`), màu `ink` (sáng #172029, tối #e8edf2). Dấu trong ô thật là chữ đứng, màu `muted`, `ok`, `bad`. Ở chế độ tối, ✓ và ✗ của chú thích thành chữ trắng trên nền xanh, nền cam, khác ô mà chú thích giải thích.
+
+**X29. Chú thích ghi “Chưa làm (0)”.**
+- `keyHtml` luôn ghi mục “Chưa làm” (`st === "blank" || cnt[st]`), đúng như mục thiết kế bên dưới từng ghi “luôn có Chưa làm”. Lỗi nằm ở thiết kế.
+- Ở màn “Xem lại bài làm”, khi các câu còn trống đều là câu đã bỏ qua, dòng đầu ghi “Bạn còn 3 câu chưa làm.” mà chú thích ngay dưới ghi “Chưa làm (0)”. Con đọc thấy hai số trái nhau. Đề Tiếng Anh cũng vậy: “You have 2 questions left.” và “Not done (0)”. Gặp ở mọi lượt đi hết đề lần lượt, vì đi lần lượt thì không còn câu chưa mở. Ảnh `docs/hinh-9n/xem-lai-con-trong.jpg` của PR #119 cũng có.
+
+**Cách làm gợi ý:**
+- **Mẫu ô (X28).** Trong `keyHtml`, đặt dấu vào một thẻ `<i>` bên trong mẫu ô, như ô thật: `<i class="qz-cell st-skip" aria-hidden="true"><i>–</i></i>`. Các quy tắc có sẵn sẽ tự áp vào: dấu đứng, cùng màu với dấu trong ô, cỡ 13px (`.qz-key .qz-cell i`). Mẫu ô vẫn 18px, bo 5px, viền và nền như cũ. Không phải sửa `css/app.css`.
+- **Chỉ ghi mục có câu (X29).** `keyHtml` bỏ ngoại lệ của “Chưa làm”: mục nào 0 câu thì không ghi. “Đang làm” giữ như cũ (khi bảng mở trên một câu). Mở bảng ở câu đầu của lượt thì chú thích vẫn là “Chưa làm (25)”, “Đang làm”.
+- **Kiểm thử** (bước L38, L39 của `tests/e2e.js`):
+  - chỗ so `eb.key === "Chưa làm (0)Đã trả lời (15)"` đổi thành `"Đã trả lời (15)"`;
+  - màn “Xem lại bài làm” còn câu đã bỏ qua mà không còn câu chưa mở: chú thích không có “Chưa làm” (ôn luyện), không có “Not done” (đề Tiếng Anh);
+  - mẫu ô: dấu nằm trong một thẻ `<i>` bên trong mẫu; `getComputedStyle` của dấu đó có `font-style: normal` và màu bằng màu dấu trong ô thật cùng trạng thái, ở cả sáng và tối.
+- **CLAUDE.md:** câu “dòng chú thích `p.qz-key` chỉ ghi trạng thái đang có” ghi thêm: mục 0 câu không ghi, kể cả “Chưa làm”; mẫu ô có dấu trong thẻ `<i>` như ô thật.
+
+**Xong khi:**
+- `tests/e2e.js` in `E2E OK`, có ba kiểm tra trên.
+- Ảnh 360px sáng/tối của bước L38, L39 chép lại sang `docs/hinh-9n/` (`bang-so-cau`, `xem-lai-con-trong`, `xem-lai-da-lam-het`): chú thích không còn “Chưa làm (0)”, dấu ✓, ✗ của chú thích cùng màu với ô.
+
 ### Phiên 9n, 9o · Bảng số câu và màn “Xem lại bài làm” (L38, L39)
 
-Flow do PO viết ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), mục 2, “Phiên 9n” (chủ app yêu cầu 22/10/2026). Mục này là phần thiết kế cho flow đó: ảnh, cách trình bày, id, chữ. Khi rà flow có bảy chỗ chưa rõ (X21–X27); cách chốt đã ghi vào flow. Ảnh chụp bản mẫu ở 360px: `css/app.css` thật, câu hỏi vẽ bằng `Quiz.run` thật, bài ôn dạng trang thật (như X15). Chưa vẽ trong Figma. Ảnh là hướng làm, không bắt giống từng điểm ảnh.
+Flow do PO viết ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), mục 2, “Phiên 9n” (chủ app yêu cầu 22/10/2026). Mục này là phần thiết kế cho flow đó: ảnh, cách trình bày, id, chữ. Khi rà flow có bảy chỗ chưa rõ (X21–X27); cách chốt đã ghi vào flow. Ảnh chụp bản mẫu ở 360px: `css/app.css` thật, câu hỏi vẽ bằng `Quiz.run` thật, bài ôn dạng trang thật (như X15). Ảnh là hướng làm, không bắt giống từng điểm ảnh. Phiên 9n đã làm phần đề ngân hàng (PR #119, kiểm thử ở mục 5). Figma: section [Làm bài · Bảng số câu (9n)](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=267-3035), vẽ theo code sau khi gộp (C5–C11, bản tối của C6, C7); bài ôn dạng trang (9o) chưa vẽ.
 
 ![Bảng số câu: hiện tại và đề xuất](hinh-ux-2x/9n-bang-so-cau.jpg)
 
@@ -459,7 +486,7 @@ Có bảng số câu thì câu nghe đã bỏ qua có thể nằm trước `S.i`
   - Ô là `button.qz-cell`: số câu (`<b>`) ở dòng trên, dấu trạng thái (`<i aria-hidden="true">`, 13px) ở dòng dưới.
   - Lưới `repeat(auto-fill,minmax(48px,1fr))`, gap 8px, ô cao 48px, bo 10px. Ở 360px có 5 ô một hàng (52×48px); màn rộng hơn có nhiều ô hơn.
   - Nhóm ô có `role="group"` và `aria-label` “Bảng số câu”. Mỗi ô có `aria-label` “Câu 5, đã bỏ qua”; ô đang làm thêm “, đang làm” và `aria-current="step"`.
-  - Dòng chú thích `p.qz-key`: mẫu ô 18px, tên trạng thái và số câu, như “Bỏ qua (2)”. Chỉ ghi trạng thái đang có (luôn có “Chưa làm”), thêm “Đang làm” khi bảng mở trên một câu. Chữ 13px màu `muted`, tự xuống dòng.
+  - Dòng chú thích `p.qz-key`: mẫu ô 18px, tên trạng thái và số câu, như “Bỏ qua (2)”. Chỉ ghi trạng thái có câu, không ghi mục 0 câu, kể cả “Chưa làm” (X29); thêm “Đang làm” khi bảng mở trên một câu. Mẫu ô vẽ như ô thật: cùng viền, nền, dấu đứng cùng màu với dấu trong ô (X28). Chữ 13px màu `muted`, tự xuống dòng.
 
   Trạng thái phân biệt bằng viền và dấu, không chỉ bằng màu:
 
@@ -533,6 +560,7 @@ Dùng lại khóa có sẵn: `progress`, `submit` (“Nộp bài” / “Finish 
 - **Số câu chuyển xuống màn làm bài (X26).** Bỏ chip “10 / 20” khỏi thanh trên (`#topRight` chỉ còn đồng hồ khi làm đề thi thử). Hàng đầu của màn làm bài là `.qtop`: thanh tiến độ co giãn bên trái, nút `#gridBtn` bên phải.
   - Nút: “Câu 10/20 ▾”, IOE “10 of 30 ▾”; viên thuốc cao 44px, viền `line`, mũi tên màu `--acc` của môn; mở thì viền `--acc`.
   - Bảng `#grid` (`.panel.qgrid`) ngay dưới, cùng kiểu ô, chú thích như 9n. Ô đã trả lời dùng `--pick`, `--pick-soft` (không theo màu của môn, như ô đang chọn).
+  - Số đo lấy từ code của 9n sau 9nb (`.qz-cells`, `.qz-cell`, `.qz-cell.st-…`, `.cur`, `.qz-key` trong `css/app.css`; Figma C5–C8), chép vào CSS của trang. Chú thích theo X28, X29: mẫu ô như ô thật, không ghi mục 0 câu. Nên đặt tên lớp trạng thái như 9n (`st-blank`, `st-skip`, `st-ans`, `st-ok`, `st-bad`, `cur`) để kiểm thử đọc bảng của hai nơi theo một cách.
 - **Màn “Xem lại bài làm” `#recap`.** Nút kết thúc của màn chính là `#endBtn` (“Nộp bài” / “Xem kết quả”, IOE “Finish test” / “See results”), đứng bên trái `#moreBtn` “Làm tiếp N câu”. Hỏi lại trong `#endArea` bằng `#yesEnd`, `#noEnd` như bây giờ. Đã làm hết thì `#endBtn` là nút chính, bấm là nộp. Như vậy:
   - app vẫn biết bài đang làm dở (hợp đồng: có `#endBtn` hoặc `#yesEnd`);
   - màn này không có hai nút nộp;
@@ -555,6 +583,7 @@ Dùng lại khóa có sẵn: `progress`, `submit` (“Nộp bài” / “Finish 
   - `audit` không báo chữ đè ở bảng và màn mới.
 - 9o:
   - thanh trên của trang một hàng ở 360px;
+  - chú thích dưới bảng không có mục 0 câu, dấu trong mẫu ô cùng màu với dấu trong ô (X28, X29);
   - IOE: máy không phát được tiếng thì câu nghe đã bỏ qua cũng được thay; rời câu nghe rồi quay lại không có thêm lượt nghe.
 
 ## 4. Để sau
@@ -606,3 +635,50 @@ Lượt kiểm thử không sửa code: chỉ ghi lại, rồi giao việc.
 - `tests/supabase/cloud-e2e.js`: CLOUD E2E OK, 116 mục đạt ở hai lượt sáng và tối, trong đó có 4 kiểm tra UX3 mỗi lượt.
 - `store-test.mjs`: SUPABASE STORE OK. `admin-test.mjs`: ADMIN OK.
 - `sh tests/supabase/run.sh`: RLS OK, 205 kiểm tra. PR #56 chưa chạy bước này vì máy của phiên đó không có PostgreSQL.
+
+### 9n · Bảng số câu và màn “Xem lại bài làm” · PR #119 · kiểm thử 23/10/2026
+
+**Kết luận:** đạt. Bảng số câu, màn “Xem lại bài làm”, vòng làm tiếp, sửa câu khi làm như thi và chỉ xem lại khi ôn luyện làm đúng flow “Phiên 9n” ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), mục 2) và mục thiết kế ở mục 3 (X21–X26). Còn hai chỗ nhỏ ở dòng chú thích dưới bảng: mẫu ô không giống ô thật (X28), và mục “Chưa làm (0)” trái với dòng đầu của màn “Xem lại bài làm” (X29, lỗi ở mục thiết kế). Cả hai giao cho Phiên 9nb (mục 3), làm trước 9o.
+
+**Cách kiểm:**
+- Chạy `Quiz.run` của `main` (`34aa512`) với `css/app.css` thật và đề có sẵn (Toán 4, Tiếng Việt 4, Tiếng Anh 4 · Cuối kì I), ở 360px sáng và tối; đi các luồng bằng chạm; đo bằng `getBoundingClientRect`, `getComputedStyle`.
+- Đọc `js/quiz.js`, `css/app.css` của PR #119.
+- Vẽ section [Làm bài · Bảng số câu (9n)](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=267-3035) trong Figma theo code, rồi đặt cạnh app.
+
+![Màn “Xem lại bài làm”: app sau 9n và Figma C7](hinh-ux-2x/kt-9n-xem-lai.jpg)
+
+| Yêu cầu (flow “Phiên 9n”, mục thiết kế) | Kết quả | Ghi chú |
+|---|---|---|
+| “Câu 9/25” là nút mở bảng ngay dưới hàng trên (`aria-expanded`, `aria-controls="qzGrid"`); mở thì viền `acc`, mũi tên quay lên | Khớp | Nút cao 44px. Bảng vẽ lại mỗi lần mở, đóng sẵn khi sang câu mới. |
+| Ô ≥ 44px, 5 ô một hàng ở 360px; trạng thái bằng viền và dấu, không chỉ màu; ô đang làm có vòng ngoài; `aria-label` theo trạng thái | Khớp | Ô 52×48px. `aria-label` “Câu 5, đã bỏ qua”; ô đang làm thêm “, đang làm” và `aria-current="step"`. Làm như thi không hiện ✓, ✗. |
+| Dòng chú thích dưới bảng | **Lệch nhỏ** | Dấu trong mẫu ô nghiêng, màu `ink` (X28). Luôn có “Chưa làm”, kể cả “Chưa làm (0)” (X29). |
+| Bấm ô thì tới câu đó, bảng đóng, trang lên đầu; đoạn đọc hiện lại, giữ mở/thu gọn | Khớp | |
+| Hàng trên cùng một hàng ở 360px từ câu 10, cả đề Tiếng Anh (X26) | Khớp | [Còn 31:20] [Câu 11/25 ▾] [Nộp bài] và “11 of 25” một hàng, cao 44px. |
+| Làm như thi: mở lại câu đã trả lời thấy câu trả lời cũ, sửa được; dòng `#qzEditNote`; chỉ nút “Trả lời”; rời câu bằng bảng, nộp, hết giờ thì lựa chọn đã đủ được ghi (X23) | Khớp | `tests/e2e.js` mở lại đủ 7 dạng câu của đề thử nghiệm. |
+| Ôn luyện: câu đã Kiểm tra mở lại chỉ xem lại; rời câu bằng bảng thì bỏ lựa chọn chưa Kiểm tra | Khớp | Câu mở từ màn “Xem lại bài làm” có một nút “Xem lại bài làm” (Figma C11). |
+| Màn “Xem lại bài làm” `#qzRecap` (X21): tiêu đề, một dòng, bảng không có ô đang làm; còn câu trống thì [Nộp bài hoặc Xem kết quả] [Làm tiếp N câu]; làm như thi đã làm hết thì chỉ “Nộp bài”, là nút chính | Khớp | `#qzReview` chỉ còn ở màn kết quả. |
+| Màn đó không có “← Thoát”, nút mở bảng, “Nộp bài” ở hàng trên, `.bar`; làm như thi hàng trên chỉ còn đồng hồ, vẫn chạy (X24) | Khớp | Rời trang vẫn hỏi lại. |
+| Bấm nút phụ khi còn câu trống: hỏi lại ngay dưới (“Còn 3 câu chưa làm, sẽ tính là sai.”, `#qzYes` đỏ, `#qzNo` “Làm tiếp”); chưa trả lời câu nào thì “Thoát đề?” | Khớp | |
+| Vòng làm tiếp chỉ gồm câu còn trống; nhãn “Câu còn trống 1/3” đầu thẻ câu; hết vòng về màn đó; câu mở từ màn đó xong là về màn đó (X22) | Khớp | |
+| Nút đi tiếp sau Kiểm tra ghi tên màn sẽ tới (X25) | Khớp | “Câu tiếp”, “Xem lại bài làm”, “Xem kết quả”. |
+| Ôn luyện: “Xem kết quả” ở màn mới tính câu còn trống là sai; “← Thoát” giữa chừng không tính câu chưa tới (X24) | Khớp | `tests/e2e.js` so dòng điểm của cả hai lối. |
+| Thanh tiến độ theo số câu đã làm, không theo vị trí | Khớp | |
+| Chữ mới ở cả hai cột `TXT`; đề Tiếng Anh không có chữ cái tiếng Việt | Khớp | “Review your answers”, “Do the 2 left”, “Left to do: 1 of 3”, “Back to review”. |
+| 360px sáng/tối: không tràn ngang, vùng bấm ≥ 44px, chữ ≥ 13px, chữ không đè | Khớp | Mẫu ô 18px của chú thích không phải nút. `audit` của `tests/e2e.js` không báo gì. |
+
+**Khác thiết kế nhưng chấp nhận** (Figma vẽ theo code):
+- “Nộp bài” ở hàng trên khi còn câu trống hỏi “Nộp bài ngay? Còn 22 câu chưa làm, sẽ tính là sai.”. Thiết kế chỉ ghi lời hỏi lại có số câu còn trống; code ghép câu hỏi cũ với `leftWarn`. Rõ, giữ.
+- Chạm ô của câu đang mở thì bảng đóng, ở lại câu đó. Thiết kế không nói; giữ.
+
+**Figma:** section [Làm bài · Bảng số câu (9n)](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=267-3035), ngay dưới section Làm bài:
+- C5: làm như thi, bảng mở ở câu 11. C6: ôn luyện, bảng mở ở câu 12.
+- C7: màn “Xem lại bài làm” còn câu trống, đang hỏi lại. C8: làm như thi, đã làm hết.
+- C9: vòng làm tiếp, câu có đoạn đọc. C10: làm như thi, sửa câu đã trả lời. C11: ôn luyện, câu đã Kiểm tra mở từ màn “Xem lại bài làm”.
+- Bản tối của C6, C7.
+
+Ba component mới ở Local Components: `.qz-cell` (State chưa làm, bỏ qua, đã trả lời, đã làm, đúng, chưa đúng × Current), `.qz-key item`, `.qz-prog` (Expanded). Chú thích ở C5–C8 vẽ theo X28, X29.
+
+**Kiểm thử tự động trên `main` sau khi gộp (`34aa512`):**
+- `tests/e2e.js`: E2E OK.
+- `tests/supabase/cloud-e2e.js`: CLOUD E2E OK, 152 mục đạt ở hai lượt sáng và tối. PR #119 chỉ sửa chỗ đọc tiến độ ở đây (`#qzProg`); các luồng làm đề của bản đám mây kết thúc bằng “Nộp bài”, “← Thoát” hoặc làm hết mọi câu, nên chưa đi qua màn “Xem lại bài làm”.
+- Không chạy `store-test.mjs`, `admin-test.mjs`, `run.sh`: PR #119 không sửa kho dữ liệu, trang admin, máy chủ.
