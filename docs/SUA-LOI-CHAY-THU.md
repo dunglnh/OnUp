@@ -941,6 +941,7 @@ Flow (chủ app yêu cầu 22/10/2026; Phiên 9o dùng lại cho bài ôn dạng
 **L38, L39 · Bỏ qua rồi quay lại, bảng số câu: bài ôn dạng trang.** Làm sau Phiên 9n. Chỉ sửa phần làm bài của `modules/l4-giua-ki-1`, `l6-giua-ki-1`, `ioe-4`, `ioe-6` (`index.html`), `tests/` và tài liệu.
 - Cùng flow như Phiên 9n (bảng số câu, màn “Xem lại bài làm”, vòng làm tiếp), ở mọi lượt làm của trang (luyện theo bài, đề thi thử, ôn câu sai). Chữ như 9n (IOE viết tiếng Anh), trình bày theo token của trang. Thiết kế: [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md), mục 3, “Phiên 9n, 9o” (ảnh `9o-bai-on`).
 - Thanh trên của trang ở 360px đã kín (X26): chip “10 / 20” rời thanh trên, xuống hàng đầu của màn làm bài thành nút mở bảng (cạnh thanh tiến độ).
+- Ô và chú thích như đề ngân hàng sau Phiên 9nb: mẫu ô ở chú thích có dấu đứng, cùng màu với dấu trong ô (X28); chú thích không ghi mục 0 câu, kể cả “Chưa làm” (X29). Số đo và Figma C5–C8: [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md), mục 3.
 - Bảng số câu và màn “Xem lại bài làm” thuộc lượt đang làm, nên `#endArea` vẫn có `#endBtn` (“Nộp bài sớm”, “Dừng luyện tập”, “Finish test now”…) để app hỏi lại khi rời bài (hợp đồng ở CLAUDE.md). Trên màn “Xem lại bài làm”, `#endBtn` chính là nút “Nộp bài”/“Xem kết quả” của màn (không thêm nút nộp thứ hai), hỏi lại bằng `#yesEnd`, `#noEnd`. Màn kết quả của trang giữ như cũ.
 - Bỏ qua vẫn gọi `record(q, null)`, nên câu vào “Ôn câu sai”. Trả lời (cả khi sửa câu trả lời ở đề thi thử) thì `record` theo câu trả lời mới; làm đúng thì câu ra khỏi “Ôn câu sai” (L27).
 - `finish()` và `ontapReport` vẫn chỉ gọi một lần, khi ra màn kết quả. Câu nghe của IOE phát lại được; lượt nghe còn lại giữ theo từng câu. Máy không phát được tiếng thì `soundFailed()` thay mọi câu nghe chưa trả lời ở mọi vị trí, không bỏ câu khỏi `S.qs` (`S.ans` ghi theo vị trí; X27).
@@ -952,7 +953,8 @@ Flow (chủ app yêu cầu 22/10/2026; Phiên 9o dùng lại cho bài ôn dạng
   - `ontapReport` chỉ gọi một lần;
   - “Ôn câu sai” đúng;
   - IOE không có chữ cái tiếng Việt;
-  - thanh trên của trang một hàng ở 360px.
+  - thanh trên của trang một hàng ở 360px;
+  - chú thích dưới bảng không có mục 0 câu, dấu trong mẫu ô cùng màu với dấu trong ô (X28, X29).
 - Script nhỏ so `items` của 4 bài trước và sau khi sửa: không đổi.
 - CLAUDE.md, đoạn “Hợp đồng giữa bài ôn và app”, thêm một ý: Phiên 9o, L38, L39, chủ app duyệt 22/10/2026.
 - Ảnh 360px sáng/tối chép sang `docs/hinh-9o/`.
@@ -961,7 +963,10 @@ Flow (chủ app yêu cầu 22/10/2026; Phiên 9o dùng lại cho bài ôn dạng
 
 ## 3. Các phiên Claude Code
 
-Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n đã xong (PR #119). Phiên chờ làm: 9o (L38, L39 ở bài ôn dạng trang, gấp), lời giao việc bên dưới. Lỗi mới thì QC ghi mã (tiếp theo L40) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n đã xong (PR #119). Phiên chờ làm: 9nb (ngắn: sửa chú thích dưới bảng số câu sau kiểm thử thiết kế 9n ngày 23/10/2026, X28, X29), rồi 9o (L38, L39 ở bài ôn dạng trang, gấp); lời giao việc bên dưới. Lỗi mới thì QC ghi mã (tiếp theo L40) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
 
-**Phiên 9o · Bỏ qua rồi quay lại, bảng số câu: bài ôn dạng trang (L38, L39)** (gấp; Phiên 9n đã xong ở PR #119)
-> Đọc CLAUDE.md (nhất là "Hợp đồng giữa bài ôn và app") và docs/SUA-LOI-CHAY-THU.md: L38, L39 ở nhóm M của mục 1; flow ở "Phiên 9n", cách sửa và "Xong khi" ở "Phiên 9o" của mục 2; thiết kế ở docs/CAI-TIEN-UX-2X.md, mục 3, "Phiên 9n, 9o". Làm cùng flow (bảng số câu, màn "Xem lại bài làm", sửa câu trả lời ở đề thi thử) trong 4 bài ôn modules/l4-giua-ki-1, l6-giua-ki-1, ioe-4, ioe-6 (IOE viết tiếng Anh). Trong lúc ở bảng số câu và màn "Xem lại bài làm" vẫn giữ #endBtn. Giữ ba chỗ nối với app. Không đổi dữ liệu câu và thứ tự câu. Thêm kiểm tra vào tests/e2e.js, chạy đến khi in E2E OK. Ghi ý mới vào hợp đồng ở CLAUDE.md. Chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
+**Phiên 9nb · Chú thích dưới bảng số câu (X28, X29)** (ngắn; sửa sau kiểm thử thiết kế 9n ngày 23/10/2026; làm trước 9o)
+> Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md: mục 3 "Phiên 9nb" (X28, X29, cách làm, "Xong khi") và mục 5 "9n" (kết quả kiểm thử, ảnh kt-9n-chu-thich.jpg). Chỉ sửa keyHtml trong js/quiz.js: mẫu ô ở chú thích có dấu nằm trong một thẻ `<i>` như ô thật, chú thích không ghi mục 0 câu (kể cả "Chưa làm"). Sửa bước L38, L39 của tests/e2e.js (chỗ so "Chưa làm (0)…", thêm hai kiểm tra) và câu về chú thích trong CLAUDE.md. Chạy tests/e2e.js đến khi in E2E OK, chép lại ảnh docs/hinh-9n/. Chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh chú thích trước và sau.
+
+**Phiên 9o · Bỏ qua rồi quay lại, bảng số câu: bài ôn dạng trang (L38, L39)** (gấp; làm sau 9nb; Phiên 9n đã xong ở PR #119)
+> Đọc CLAUDE.md (nhất là "Hợp đồng giữa bài ôn và app") và docs/SUA-LOI-CHAY-THU.md: L38, L39 ở nhóm M của mục 1; flow ở "Phiên 9n", cách sửa và "Xong khi" ở "Phiên 9o" của mục 2; thiết kế ở docs/CAI-TIEN-UX-2X.md, mục 3, "Phiên 9n, 9o" (ô và chú thích như đề ngân hàng sau "Phiên 9nb"). Làm cùng flow (bảng số câu, màn "Xem lại bài làm", sửa câu trả lời ở đề thi thử) trong 4 bài ôn modules/l4-giua-ki-1, l6-giua-ki-1, ioe-4, ioe-6 (IOE viết tiếng Anh). Trong lúc ở bảng số câu và màn "Xem lại bài làm" vẫn giữ #endBtn. Giữ ba chỗ nối với app. Không đổi dữ liệu câu và thứ tự câu. Thêm kiểm tra vào tests/e2e.js, chạy đến khi in E2E OK. Ghi ý mới vào hợp đồng ở CLAUDE.md. Chụp ảnh 360px sáng/tối, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
