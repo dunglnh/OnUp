@@ -735,13 +735,14 @@
     }
 
     /* Bảng số câu (L39): mỗi câu một ô (số câu và dấu trạng thái), ô đang làm có vòng ngoài và aria-current; dưới bảng là dòng chú thích
-       chỉ ghi các trạng thái đang có (luôn có "Chưa làm"; "Đang làm" khi bảng mở trên một câu). Bấm ô thì tới câu đó (goTo). */
+       chỉ ghi các trạng thái đang có: mục 0 câu không ghi, kể cả "Chưa làm" (X29); "Đang làm" khi bảng mở trên một câu. Mẫu ô ở chú thích
+       có dấu trong một thẻ <i> như ô thật (X28), nên dấu đứng và cùng màu với dấu trong ô. Bấm ô thì tới câu đó (goTo). */
     const timerHtml = () => (S.limit ? `<span class="chip timer${remain() < 120 ? " warn" : ""}" id="qzTimer" role="timer" aria-label="${L.timeAria}">${CLOCK}<span>${L.timeLeft(fmtTime(remain()))}</span></span>` : "");
     const cellsHtml = (cur) => `<div class="qz-cells" role="group" aria-label="${L.gridAria}">${qs.map((q, i) => { const st = stOf(i), on = i === cur;
       return `<button type="button" class="qz-cell st-${st}${on ? " cur" : ""}" data-i="${i}" aria-label="${L.cellAria(i + 1, L.stAria[st], on)}"${on ? ' aria-current="step"' : ""}><b>${i + 1}</b><i aria-hidden="true">${MARK[st] || ""}</i></button>`; }).join("")}</div>`;
     const keyHtml = (cur) => {
       const cnt = {}; qs.forEach((q, i) => { const st = stOf(i); cnt[st] = (cnt[st] || 0) + 1; });
-      const items = ["blank", "skip", "ans", "done", "ok", "bad"].filter((st) => st === "blank" || cnt[st]).map((st) => `<span><i class="qz-cell st-${st}" aria-hidden="true">${MARK[st] || ""}</i>${L.stKey[st]} (${cnt[st] || 0})</span>`);
+      const items = ["blank", "skip", "ans", "done", "ok", "bad"].filter((st) => cnt[st]).map((st) => `<span><i class="qz-cell st-${st}" aria-hidden="true"><i>${MARK[st] || ""}</i></i>${L.stKey[st]} (${cnt[st]})</span>`);
       if (cur >= 0) items.push(`<span><i class="qz-cell cur" aria-hidden="true"></i>${L.stKey.cur}</span>`);
       return `<p class="qz-key small muted">${items.join("")}</p>`;
     };
