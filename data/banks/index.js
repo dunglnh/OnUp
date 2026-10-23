@@ -472,12 +472,20 @@ window.ONTAP_SEED_BANKS = [
       "Ước lượng": [0, 1, 0], "Số trung bình cộng": [1, 0, 1], "Rút về đơn vị": [0, 1, 1], "Dãy số liệu, biểu đồ cột": [1, 1, 1],
       "Số lần xuất hiện của sự kiện": [1, 0, 0], "Phân số": [1, 0, 0], "Tính chất cơ bản của phân số": [1, 0, 0], "Rút gọn phân số": [0, 1, 0],
       "Quy đồng mẫu số": [0, 1, 0], "So sánh phân số": [1, 0, 1] } } },
-  /* Đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
-     mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
-  { id: "tv4-gk2-ngau-nhien", title: "Tiếng Việt 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Tiếng Việt", minutes: 35, n: 25, file: "4-tv.js",
+  /* Ngân hàng Tiếng Việt 4 giữa kì II (Phiên N7b, nâng hai đề có sẵn lên ngân hàng): kho câu = 50 câu riêng trong file (5 đoạn
+     đọc, 6 câu Viết) + 50 câu của 2 đề cố định ở trên (giữ nguyên câu, chỉ thêm mức độ), câu nào cũng có mức độ. Ma trận [Biết,
+     Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, trong đó 7 câu Đọc hiểu (rút theo đoạn: đoạn 4 câu mức 1-1-2-3, đoạn 3
+     câu mức 1-2-3, nên lần nào cũng đúng mức; câu đọc hiểu của hai đề cố định chép đoạn văn trong từng câu nên là câu lẻ, được rút
+     khi đã làm hết các đoạn) và 1 câu Viết (tự chấm, nên 40 phút; hai đề cố định 35 phút). 17 câu Luyện từ và câu, Chính tả trên các
+     chủ đề của hai đề cố định, chia theo các bài Luyện từ và câu Bài 1–15: câu 2 (Bài 1), chủ ngữ 3, vị ngữ 3 (Bài 3, 5, 7, 9),
+     trạng ngữ 1 (Bài 11), trạng ngữ chỉ thời gian, nơi chốn 2 (Bài 13), chỉ nguyên nhân, mục đích 2 (Bài 15), mở rộng vốn từ theo
+     hai chủ điểm 3, chính tả 1. Cả 50 câu của hai đề cố định nằm ở ô có rút; câu riêng ở ô nào cũng ít nhất bằng số câu ô đó rút,
+     nên ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút và học sinh đã làm hai đề cố định vẫn gặp câu mới. */
+  { id: "tv4-gk2-ngau-nhien", title: "Tiếng Việt 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js",
     pool: { from: ["tv4-gk2-de1", "tv4-gk2-de2"], matrix: {
-      "Đọc hiểu": 7, "Câu": 2, "Chủ ngữ": 3, "Vị ngữ": 4, "Trạng ngữ": 1, "Trạng ngữ chỉ thời gian, nơi chốn": 2,
-      "Trạng ngữ chỉ nguyên nhân, mục đích": 2, "Mở rộng vốn từ": 2, "Chính tả": 2 } } },
+      "Đọc hiểu": [3, 2, 2], "Câu": [1, 1, 0], "Chủ ngữ": [1, 1, 1], "Vị ngữ": [1, 1, 1], "Trạng ngữ": [1, 0, 0],
+      "Trạng ngữ chỉ thời gian, nơi chốn": [1, 1, 0], "Trạng ngữ chỉ nguyên nhân, mục đích": [0, 1, 1], "Mở rộng vốn từ": [1, 1, 1],
+      "Chính tả": [1, 0, 0], "Viết": [0, 0, 1] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
