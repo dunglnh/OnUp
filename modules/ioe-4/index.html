@@ -91,7 +91,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,label.btn:focus-
 .qtext{font-size:1.2rem;font-weight:600;min-width:0;overflow-wrap:anywhere}
 .qtext .pic{font-size:2.6rem;line-height:1;display:block;margin-bottom:6px}
 .qtext u,.opt u{text-decoration-thickness:2px;text-underline-offset:3px;color:var(--sea);font-weight:700}
-.qtext sub{font-size:.7rem;font-weight:800;color:var(--sea);margin-left:1px}
+.qtext sub{font-size:.8125rem;font-weight:800;color:var(--sea);margin-left:1px}
 .read{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 14px;line-height:1.6;overflow-wrap:anywhere}
 .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .opts.wide{grid-template-columns:1fr}
@@ -106,7 +106,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,label.btn:focus-
 .word{font-size:1.6rem;letter-spacing:.06em}
 .slot{min-height:56px;border:2px dashed var(--line);border-radius:12px;padding:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .pool{display:flex;flex-wrap:wrap;gap:8px}
-.tile{border:1px solid var(--line);background:var(--sea-soft);color:var(--ink);border-radius:10px;padding:8px 12px;font-weight:600}
+.tile{border:1px solid var(--line);background:var(--sea-soft);color:var(--ink);border-radius:10px;padding:8px 12px;min-height:44px;font-weight:600} /* vùng bấm ≥ 44px (Phiên 9o) */
 .tile.ch{min-width:2.4em;font-size:1.25rem;padding:4px 10px}
 .tile.used{visibility:hidden}
 .fb{border-radius:12px;padding:12px 14px;font-weight:600}
@@ -135,6 +135,32 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background
 .opt.picopt .k{font-size:1rem}
 .notice{background:var(--sun-soft);color:var(--ink);border-radius:12px;padding:10px 14px;font-size:.9rem}
 .heard{margin-top:8px;font-size:.9rem;color:var(--muted);font-weight:500}
+/* Phiên 9o (L38, L39): nút mở bảng số câu cạnh thanh tiến độ (X26: số câu rời thanh trên), bảng số câu, chú thích, màn "Xem lại bài làm";
+   số đo chép từ .qz-* của css/app.css (Phiên 9n, 9nb); ô đã trả lời dùng --pick như ô đang chọn, không theo màu của môn */
+.qtop{display:flex;align-items:center;gap:10px}
+.qtop .bar{flex:1;min-width:0}
+.gbtn{display:inline-flex;align-items:center;gap:2px;min-height:44px;padding:7px 6px 7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font-weight:700;font-size:.9rem;font-variant-numeric:tabular-nums;white-space:nowrap;flex:none}
+.gbtn svg{color:var(--sea);flex:none}
+.gbtn[aria-expanded="true"]{border-color:var(--sea)}
+.gbtn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.qgrid{gap:12px}
+.qz-cells{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:8px} /* ô rộng ít nhất 44px (app dùng 48px): trong khung của app ở 360px bảng chỉ rộng 262px, 44px mới đủ 5 ô một hàng */
+.qz-cell{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;height:48px;min-height:48px;padding:0;border:1px solid var(--line);background:var(--surface);border-radius:10px;color:var(--ink);font-weight:700;line-height:1.1}
+.qz-cell i{font-style:normal;font-size:13px;line-height:1;min-height:13px;color:var(--muted)}
+.qz-cell.st-skip{border:2px dashed var(--muted)}
+.qz-cell.st-ans{border:2px solid var(--pick);background:var(--pick-soft)}
+.qz-cell.st-ok{border:2px solid var(--ok);background:var(--ok-soft)} .qz-cell.st-ok i{color:var(--ok)}
+.qz-cell.st-bad{border:2px solid var(--bad);background:var(--bad-soft)} .qz-cell.st-bad i{color:var(--bad)}
+.qz-cell.cur{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
+.qz-key{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0;font-size:13px}
+.qz-key span{display:inline-flex;align-items:center;gap:6px}
+.qz-key .qz-cell{width:18px;height:18px;min-height:18px;border-radius:5px;box-shadow:none}
+.qz-key .qz-cell i{font-size:13px;min-height:0}
+.qz-key .qz-cell.cur{box-shadow:0 0 0 1px var(--surface),0 0 0 2px var(--ink)}
+.recap h2{font-size:1.25rem}
+.recap p{margin:0}
+.qleft{align-self:flex-start;background:var(--sun-soft);color:var(--ink);border-radius:6px;padding:2px 8px;font-size:.8125rem;font-weight:700} /* nhãn "Câu còn trống 2/3" đầu thẻ câu trong vòng làm tiếp */
+.actions>.btn.main{margin-left:auto} /* câu mở lại không có "Bỏ qua": nút chính vẫn ở mép phải */
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
@@ -967,30 +993,32 @@ function speak(text,rate,cb){
 }
 function stopSpeech(){try{if(TTS.api&&(speechSynthesis.speaking||speechSynthesis.pending))speechSynthesis.cancel()}catch(e){}}
 function wireListen(q){
-  S.playsLeft=3;S.speaking=false;
+  if(S.plays[S.i]==null)S.plays[S.i]=3; // lượt nghe còn lại giữ theo từng câu (X27): rời câu rồi quay lại không có thêm lượt
+  const i=S.i, left=()=>S.plays[i];
+  S.speaking=false;
   const play=$("#playBtn"), slow=$("#slowBtn"), info=$("#plays");
   const upd=()=>{if(!S||S.qs[S.i]!==q)return;
-    const out=!S.checked&&S.playsLeft<=0;
+    const out=!S.checked&&left()<=0;
     play.disabled=slow.disabled=S.speaking||out;
     play.querySelector("span").textContent=S.speaking?"Playing…":"Play";
-    info.textContent=S.checked?"Listen again as many times as you like.":out?"No plays left.":`${S.playsLeft} of 3 plays left`};
-  const go=rate=>{if(S.speaking)return;if(!S.checked){if(S.playsLeft<=0)return;S.playsLeft--}
+    info.textContent=S.checked?"Listen again as many times as you like.":out?"No plays left.":`${left()} of 3 plays left`};
+  const go=rate=>{if(S.speaking)return;if(!S.checked){if(left()<=0)return;S.plays[i]--}
     S.speaking=true;upd();
     speak(q.say,rate,err=>{if(!S||S.qs[S.i]!==q)return;S.speaking=false;upd();if(err)soundFailed()})};
   play.onclick=()=>go(.9);slow.onclick=()=>go(.6);
   S.updPlay=upd;upd();
 }
+// máy không phát được tiếng: thay mọi câu nghe còn trống (chưa làm, đã bỏ qua) ở mọi vị trí bằng câu đọc (cùng unit nếu còn), cả luyện tập lẫn
+// đề thi thử; không bỏ câu khỏi S.qs vì S.ans, S.plays ghi theo vị trí (X27). Câu nghe đã trả lời giữ nguyên.
 function soundFailed(){
   TTS.off=true;store.set("listenOff",true);
   if(!S)return;
-  if(S.mode==="exam"){
-    const used=new Set(S.qs.map(x=>x.id));
-    const pool=TRACKS[S.test.tk].pools.flatMap(([b])=>BANKS[b]).filter(x=>!x.say&&!used.has(x.id));
-    for(let i=S.i;i<S.qs.length;i++)if(S.qs[i].say&&pool.length){const nq=pool.splice(Math.floor(Math.random()*pool.length),1)[0];S.qs[i]=inst(nq)}
-  }else{
-    S.qs=S.qs.filter((x,i)=>i<S.i||!x.say);
-    if(S.i>=S.qs.length){finish();return}
-  }
+  const used=new Set(S.qs.map(x=>x.id));
+  const src=S.mode==="exam"?TRACKS[S.test.tk].pools.flatMap(([b])=>BANKS[b]):allQ();
+  const pool=src.filter(x=>!x.say&&!used.has(x.id));
+  S.qs.forEach((x,i)=>{if(!x.say||!isBlank(i))return;
+    const same=pool.filter(y=>y.u===x.u), from=same.length?same:pool;if(!from.length)return;
+    const nq=from[Math.floor(Math.random()*from.length)];pool.splice(pool.indexOf(nq),1);S.qs[i]=inst(nq);delete S.ans[i];delete S.plays[i]});
   S.notice="Sound didn't play on this device, so the listening questions have been replaced with reading questions.";
   renderQ();
 }
@@ -1064,10 +1092,39 @@ function defaultTrack(){let tk=TRACK_ORDER[0];for(const k of TRACK_ORDER)if(toda
 
 /* ================= Session ================= */
 let S=null, tick=null;
+/* Phiên 9o (L38, L39; chủ app duyệt 22/10/2026): bảng số câu, màn "Review your answers" và vòng làm tiếp, cùng flow với đề ngân hàng
+   (js/quiz.js, Phiên 9n), chữ tiếng Anh. Trạng thái từng câu (stOf): blank chưa làm (chưa mở, hoặc mở rồi rời đi mà chưa trả lời), skip đã
+   bỏ qua (record(q,null): câu vào "Review mistakes" như trước), ans đã trả lời (đề thi thử), ok đúng, bad chưa đúng (luyện tập, sau Check).
+   "Câu còn trống" là blank hoặc skip. S.from: "seq" lượt đầu (đi tiếp theo số câu), "round" vòng làm tiếp (S.round: các câu còn trống lúc bấm
+   "Do the N left"), "recap" câu mở từ màn "Review your answers" (xong câu thì về lại màn đó); S.recap: đang ở màn đó. Chữ "9 / 30" rời thanh
+   trên (X26), thành nút #gridBtn "9 of 30" cạnh thanh tiến độ, mở bảng #grid. S.plays: lượt nghe còn lại theo từng câu (X27). Chấm, lưu,
+   finish() và ontapReport không đổi (gọi một lần khi ra kết quả). */
+const MARK={skip:"–",ok:"✓",bad:"✗"}, ST_KEY={blank:"Not done",skip:"Skipped",ans:"Answered",ok:"Correct",bad:"Not correct",cur:"Current"}, ST_ARIA={blank:"not done",skip:"skipped",ans:"answered",ok:"correct",bad:"not correct"};
+const CHEV='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+const stOf=i=>{const a=S.ans[i];return !a?"blank":a.given==null?"skip":S.mode==="exam"?"ans":a.ok?"ok":"bad"};
+const isBlank=i=>{const st=stOf(i);return st==="blank"||st==="skip"};
+const blanks=()=>S.qs.map((q,i)=>i).filter(isBlank);
+const curFilled=()=>!(S.cur==null||S.cur===""||(Array.isArray(S.cur)&&(!S.cur.length||S.cur.some(x=>x===""))));
+const timerChip=()=>S.limit?`<span class="chip" id="timer" aria-label="Time left"></span>`:"";
+const leftWarn=n=>n===1?"1 question is not done and will count as wrong.":`${n} questions are not done and will count as wrong.`;
+const cellsHtml=cur=>`<div class="qz-cells" role="group" aria-label="Question board">${S.qs.map((q,i)=>{const st=stOf(i), on=i===cur;
+  return `<button type="button" class="qz-cell st-${st}${on?" cur":""}" data-i="${i}" aria-label="Question ${i+1}, ${ST_ARIA[st]}${on?", current":""}"${on?' aria-current="step"':""}><b>${i+1}</b><i aria-hidden="true">${MARK[st]||""}</i></button>`}).join("")}</div>`;
+// chú thích chỉ ghi trạng thái đang có, mục 0 câu không ghi (X29); mẫu ô có dấu trong một thẻ <i> như ô thật, nên dấu đứng và cùng màu (X28)
+const keyHtml=cur=>{const cnt={};S.qs.forEach((q,i)=>{const st=stOf(i);cnt[st]=(cnt[st]||0)+1});
+  const items=["blank","skip","ans","ok","bad"].filter(st=>cnt[st]).map(st=>`<span><i class="qz-cell st-${st}" aria-hidden="true"><i>${MARK[st]||""}</i></i>${ST_KEY[st]} (${cnt[st]})</span>`);
+  if(cur>=0)items.push(`<span><i class="qz-cell cur" aria-hidden="true"></i>${ST_KEY.cur}</span>`);
+  return `<p class="qz-key muted">${items.join("")}</p>`};
+const wireCells=(root,onSame)=>root.querySelectorAll(".qz-cell[data-i]").forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(!S.recap&&i===S.i){if(onSame)onSame();return}goTo(i)});
+// câu sẽ tới khi đi tiếp ("Submit answer", "Next question", "Skip"); -1: về màn "Review your answers" hoặc ra kết quả
+const nextIdx=()=>{if(S.from==="recap")return -1;if(S.from==="round"){const j=S.round.find(k=>k>S.i&&isBlank(k));return j==null?-1:j}return S.i+1<S.qs.length?S.i+1:-1};
+const nextLabel=()=>nextIdx()>=0?"Next question":blanks().length?"Back to review":"See results"; // nút đi tiếp sau Check ghi tên màn sẽ tới (X25)
+// rời câu không qua nút (bảng số câu, nộp bài, hết giờ; X23): đề thi thử ghi lựa chọn đã đủ như bấm "Submit answer"; luyện tập bỏ lựa chọn chưa Check
+function leaveCur(){if(S.mode==="exam"&&!S.recap&&!S.checked&&curFilled())record(S.qs[S.i],S.cur)}
+function goTo(i){leaveCur();S.i=i;renderQ()}
 function startSession(opts){
   const qs=opts.qs;
   if(!qs.length){renderHome("There are no questions in this section yet.");return}
-  S={notice:opts.notice||null,mode:opts.mode,label:opts.label,test:opts.test||null,unit:opts.unit||null,qs,i:0,ans:[],start:Date.now(),limit:opts.limit||0,checked:false,cur:null};
+  S={notice:opts.notice||null,mode:opts.mode,label:opts.label,test:opts.test||null,unit:opts.unit||null,qs,i:0,ans:[],start:Date.now(),limit:opts.limit||0,checked:false,cur:null,from:"seq",round:null,recap:false,plays:{}};
   clearInterval(tick);
   if(S.limit){tick=setInterval(()=>{const left=S.limit-(Date.now()-S.start)/1000;updTimer(left);if(left<=0)finish()},500)}
   renderQ();
@@ -1086,16 +1143,19 @@ function updTimer(left){const el=$("#timer");if(!el)return;el.textContent=fmtTim
 
 function renderQ(){
   stopSpeech();
-  const q=S.qs[S.i];S.cur=(q.t==="r"||q.t==="w")?[]:q.t==="l"?q.miss.map(()=>""):null;S.checked=false;
-  const n=S.qs.length, exam=S.mode==="exam";
-  topRight.innerHTML=(S.limit?`<span class="chip" id="timer" aria-label="Time left"></span>`:"")+`<span class="chip">${S.i+1} / ${n}</span>`;
+  const q=S.qs[S.i], prev=S.ans[S.i], st=stOf(S.i), n=S.qs.length, exam=S.mode==="exam";
+  // câu đã trả lời (đề thi thử) hoặc đã Check (luyện tập) mở lại từ bảng số câu: vẽ sẵn câu trả lời cũ; đề thi thử sửa được, luyện tập chỉ xem lại; không có "Skip"
+  const reopen=st!=="blank"&&st!=="skip";
+  S.cur=reopen?(Array.isArray(prev.given)?prev.given.slice():prev.given):(q.t==="r"||q.t==="w")?[]:q.t==="l"?q.miss.map(()=>""):null;S.checked=false;S.recap=false;
+  const inRound=S.from==="round"&&S.round.includes(S.i)&&!reopen, sel=oi=>reopen&&oi===prev.given?" sel":"";
+  topRight.innerHTML=timerChip();
   if(S.limit)updTimer(S.limit-(Date.now()-S.start)/1000);
   let body="";
   const listenBar=q.say?`<div class="listen"><button class="play" id="playBtn" aria-label="Play the recording">${PLAY_SVG}<span>Play</span></button><button class="btn ghost" id="slowBtn">Slow</button><span class="plays" id="plays"></span></div>`:"";
   if(q.say){
     if(q.o){
       const longOpts=!q.pics&&q.o.some(o=>strip(o).length>22);
-      body=`<div class="label">${q.pics?"Listen and choose the right picture":"Listen and choose the right answer"}</div>${listenBar}${q.pics?"":`<div class="qtext">${safe(q.q)}</div>`}<div class="opts${longOpts?" wide":""}">${q.order.map((oi,k)=>`<button class="opt${q.pics?" picopt":""}" data-o="${oi}"><span class="k">${LETTERS[k]}</span><span>${safe(q.o[oi])}</span></button>`).join("")}</div>`;
+      body=`<div class="label">${q.pics?"Listen and choose the right picture":"Listen and choose the right answer"}</div>${listenBar}${q.pics?"":`<div class="qtext">${safe(q.q)}</div>`}<div class="opts${longOpts?" wide":""}">${q.order.map((oi,k)=>`<button class="opt${q.pics?" picopt":""}${sel(oi)}" data-o="${oi}"><span class="k">${LETTERS[k]}</span><span>${safe(q.o[oi])}</span></button>`).join("")}</div>`;
     }else{
       const parts=safe(q.q).split("___");
       body=`<div class="label">Listen and fill in the missing word</div>${listenBar}<div class="qtext">${parts[0]}<input class="blank" id="fillIn" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Your answer">${parts.slice(1).join("___")}</div>`;
@@ -1103,10 +1163,10 @@ function renderQ(){
   }else if(q.o){
     const label=q.t==="m"?`<div class="label">Choose the best answer</div>`:q.t==="rd"?`<div class="label">Read and choose the best answer</div><div class="read">${esc(q.read)}</div>`:"";
     const longOpts=q.o.some(o=>strip(o).length>22);
-    body=`${label}<div class="qtext">${q.pic?`<span class="pic" role="img" aria-label="picture">${esc(q.pic)}</span>`:""}${safe(q.q)}</div><div class="opts${longOpts?" wide":""}">${q.order.map((oi,k)=>`<button class="opt" data-o="${oi}"><span class="k">${LETTERS[k]}</span><span>${safe(q.o[oi])}</span></button>`).join("")}</div>`;
+    body=`${label}<div class="qtext">${q.pic?`<span class="pic" role="img" aria-label="picture">${esc(q.pic)}</span>`:""}${safe(q.q)}</div><div class="opts${longOpts?" wide":""}">${q.order.map((oi,k)=>`<button class="opt${sel(oi)}" data-o="${oi}"><span class="k">${LETTERS[k]}</span><span>${safe(q.o[oi])}</span></button>`).join("")}</div>`;
   }else if(q.t==="e"){
     let k=0;const sent=esc(q.s).replace(/\[([^\]]+)\]/g,(_,p)=>`<u>${p}</u><sub>${LETTERS[k++]}</sub>`);
-    body=`<div class="label">Find the mistake</div><div class="qtext">${sent}</div><div class="opts">${q.parts.map((p,i)=>`<button class="opt" data-o="${i}"><span class="k">${LETTERS[i]}</span><span>${esc(p)}</span></button>`).join("")}</div>`;
+    body=`<div class="label">Find the mistake</div><div class="qtext">${sent}</div><div class="opts">${q.parts.map((p,i)=>`<button class="opt${sel(i)}" data-o="${i}"><span class="k">${LETTERS[i]}</span><span>${esc(p)}</span></button>`).join("")}</div>`;
   }else if(q.t==="f"){
     const parts=safe(q.q).split("___");
     body=`<div class="label">Fill in the blank</div><div class="qtext">${parts[0]}<input class="blank" id="fillIn" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Your answer">${parts.slice(1).join("___")}</div>`;
@@ -1118,34 +1178,70 @@ function renderQ(){
     body=`<div class="label">${isW?"Put the letters in order to make a word":"Put the words in the correct order"}</div>${isW?`<div class="qtext">Clue: ${esc(q.h)}</div>`:""}<div class="slot" id="slot" aria-label="Your answer"></div><div class="pool" id="pool">${q.tiles.map((t,k)=>`<button class="tile${isW?" ch":""}" data-k="${k}">${esc(t.c)}</button>`).join("")}</div>`;
   }
   view.innerHTML=`<div class="stack">
-    <div class="bar" aria-hidden="true"><i style="width:${S.i/n*100}%"></i></div>
+    <div class="qtop"><div class="bar" aria-hidden="true"><i style="width:${(n-blanks().length)/n*100}%"></i></div><button type="button" class="gbtn" id="gridBtn" aria-expanded="false" aria-controls="grid"><span>${S.i+1} of ${n}</span>${CHEV}</button></div>
+    <section class="panel qgrid" id="grid" hidden></section>
     ${S.notice?`<div class="notice" role="status">${esc(S.notice)}</div>`:""}
     <section class="qcard">
+      ${inRound?`<span class="qleft">Left to do: ${S.round.indexOf(S.i)+1} of ${S.round.length}</span>`:""}
       <div class="qhead"><span class="label">${esc(S.label)}</span><span class="label">${q.u?("Unit "+q.u):"My Questions"}</span></div>
       ${body}
+      ${exam&&reopen?`<p class="small muted" id="editNote">You have answered this question. To change it, choose again and tap Submit answer.</p>`:""}
       <div id="fb" aria-live="polite"></div>
     </section>
-    <div class="actions"><button class="btn ghost" id="skipBtn">Skip</button><button class="btn main" id="goBtn">${exam?"Submit answer":"Check"}</button></div>
+    <div class="actions">${reopen?"":`<button class="btn ghost" id="skipBtn">Skip</button>`}<button class="btn main" id="goBtn">${exam?"Submit answer":"Check"}</button></div>
     <div id="endArea"></div>
   </div>`;
-  drawEnd();wireQ(q);S.notice=null;
+  drawEnd();
+  // nút "9 of 30" mở, đóng bảng số câu ngay dưới; mỗi lần mở vẽ lại theo trạng thái hiện tại; sang câu khác thì bảng đóng sẵn
+  const grid=$("#grid"), gb=$("#gridBtn");
+  const showGrid=open=>{if(open){grid.innerHTML=cellsHtml(S.i)+keyHtml(S.i);wireCells(grid,()=>showGrid(false))}grid.hidden=!open;gb.setAttribute("aria-expanded",open)};
+  gb.onclick=()=>showGrid(grid.hidden);
+  wireQ(q,reopen);S.notice=null;
+  window.scrollTo(0,0);
 }
 function drawEnd(){
   const exam=S.mode==="exam";
   $("#endArea").innerHTML=`<button class="btn ghost small" id="endBtn">${exam?"Finish test now":"End practice"}</button>`;
   $("#endBtn").onclick=()=>{
-    $("#endArea").innerHTML=`<div class="confirm"><div>${exam?"Finish the test now? Unanswered questions will count as wrong.":"End practice and see your results?"}</div><div class="row"><button class="btn danger" id="yesEnd">${exam?"Finish test":"End practice"}</button><button class="btn ghost" id="noEnd">Keep going</button></div></div>`;
+    const n=blanks().length-(exam&&!S.checked&&curFilled()&&isBlank(S.i)?1:0); // nộp thì lựa chọn đã đủ của câu đang mở được ghi (X23)
+    $("#endArea").innerHTML=`<div class="confirm"><div>${exam?"Finish the test now?"+(n?" "+leftWarn(n):""):"End practice and see your results?"}</div><div class="row"><button class="btn danger" id="yesEnd">${exam?"Finish test":"End practice"}</button><button class="btn ghost" id="noEnd">Keep going</button></div></div>`;
     $("#yesEnd").onclick=finish;$("#noEnd").onclick=drawEnd;
   };
 }
-function wireQ(q){
+/* Màn "Review your answers" (#recap) vẫn thuộc lượt đang làm: đồng hồ chạy tiếp, app vẫn hỏi khi rời bài vì #endBtn của màn chính là nút
+   "Finish test"/"See results" (hợp đồng với app: có #endBtn hoặc #yesEnd là đang làm dở). Hiện khi đi qua câu cuối mà còn câu trống (đề thi
+   thử: cả khi đã làm hết, trước khi nộp). Bảng số câu hiện sẵn, bấm ô thì tới câu đó (xong câu thì về lại đây). Còn câu trống thì nút đó hỏi
+   lại trong #endArea (#yesEnd, #noEnd) (luyện tập ghi các câu đó như câu bỏ qua rồi finish()); đề thi thử đã làm hết thì nộp ngay (X24). */
+function recap(){
+  stopSpeech();S.recap=true;S.from="recap";S.checked=false;S.cur=null;
+  const exam=S.mode==="exam", left=blanks(), n=left.length, endTxt=exam?"Finish test":"See results";
+  topRight.innerHTML=timerChip();
+  if(S.limit)updTimer(S.limit-(Date.now()-S.start)/1000);
+  view.innerHTML=`<div class="stack">
+    <section class="panel qgrid recap" id="recap"><h2>Review your answers</h2><p>${n?`You have ${n} question${n===1?"":"s"} left.`:`You have answered all ${S.qs.length} questions. Review or finish the test.`}</p>${cellsHtml(-1)}${keyHtml(-1)}</section>
+    <div class="actions">${n?`<button class="btn ghost" id="endBtn">${endTxt}</button><button class="btn main" id="moreBtn">Do the ${n} left</button>`:`<button class="btn main" id="endBtn">${endTxt}</button>`}</div>
+    <div id="endArea"></div>
+  </div>`;
+  wireCells(view);
+  // vòng làm tiếp: chỉ các câu còn trống lúc này, theo số câu; bỏ qua lần nữa thì câu vẫn còn trống; hết vòng thì về lại màn này
+  if(n)$("#moreBtn").onclick=()=>{S.round=blanks();S.from="round";S.i=S.round[0];renderQ()};
+  $("#endBtn").onclick=()=>{
+    if(!n){finish();return}
+    $("#endArea").innerHTML=`<div class="confirm"><div>${leftWarn(n)}</div><div class="row"><button class="btn danger" id="yesEnd">${endTxt}</button><button class="btn ghost" id="noEnd">Keep going</button></div></div>`;
+    $("#yesEnd").onclick=()=>{if(!exam){left.forEach(i=>{if(isBlank(i)&&!S.ans[i]){S.ans[i]={q:S.qs[i],given:null,ok:false};wrongIds.add(S.qs[i].id)}});saveWrong()}finish()};
+    $("#noEnd").onclick=()=>{$("#endArea").innerHTML=""};
+  };
+  window.scrollTo(0,0);
+}
+function wireQ(q,reopen){
+  const exam=S.mode==="exam";
   if(q.say)wireListen(q);
   if(q.o||q.t==="e")view.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{if(S.checked)return;view.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");S.cur=+b.dataset.o});
-  if(q.t==="f"||q.t==="hf"){const inp=$("#fillIn");inp.oninput=()=>S.cur=inp.value;inp.onkeydown=e=>{if(e.key==="Enter")$("#goBtn").click()};setTimeout(()=>inp.focus({preventScroll:true}),50)}
+  if(q.t==="f"||q.t==="hf"){const inp=$("#fillIn");if(reopen)inp.value=S.cur;inp.oninput=()=>S.cur=inp.value;inp.onkeydown=e=>{if(e.key==="Enter")$("#goBtn").click()};if(exam||!reopen)setTimeout(()=>inp.focus({preventScroll:true}),50)}
   if(q.t==="l"){
     const ins=[...view.querySelectorAll("input.letter")];
-    ins.forEach((inp,j)=>{inp.oninput=()=>{S.cur[j]=inp.value;if(inp.value&&ins[j+1])ins[j+1].focus()};inp.onkeydown=e=>{if(e.key==="Enter")$("#goBtn").click();if(e.key==="Backspace"&&!inp.value&&ins[j-1])ins[j-1].focus()}});
-    setTimeout(()=>ins[0].focus({preventScroll:true}),50);
+    ins.forEach((inp,j)=>{if(reopen)inp.value=S.cur[j]||"";inp.oninput=()=>{S.cur[j]=inp.value;if(inp.value&&ins[j+1])ins[j+1].focus()};inp.onkeydown=e=>{if(e.key==="Enter")$("#goBtn").click();if(e.key==="Backspace"&&!inp.value&&ins[j-1])ins[j-1].focus()}});
+    if(exam||!reopen)setTimeout(()=>ins[0].focus({preventScroll:true}),50);
   }
   if(q.t==="r"||q.t==="w"){
     const isW=q.t==="w", hint=isW?"Tap the letters below to build the word.":"Tap the words below to build the sentence.";
@@ -1155,14 +1251,19 @@ function wireQ(q){
     view.querySelectorAll("#pool .tile").forEach(t=>t.onclick=()=>{if(S.checked)return;const k=+t.dataset.k;if(!S.cur.includes(k)){S.cur.push(k);draw()}});
     draw();
   }
-  $("#skipBtn").onclick=()=>{record(q,null);next()};
+  // sau Check (luyện tập): tô đúng, sai, đáp án; câu đã Check mở lại từ bảng cũng vẽ như vậy (chỉ xem lại)
+  const reveal=ok=>{
+    S.checked=true;showFeedback(q,ok);if(q.say){$("#fb").insertAdjacentHTML("beforeend",`<div class="heard">You heard: “${esc(q.say)}”</div>`);S.updPlay&&S.updPlay()}
+    $("#goBtn").textContent=nextLabel();const sk=$("#skipBtn");if(sk)sk.disabled=true;view.querySelectorAll("input.blank").forEach(i=>i.readOnly=true);
+  };
+  if(reopen&&!exam)reveal(S.ans[S.i].ok);
+  const sk=$("#skipBtn");if(sk)sk.onclick=()=>{record(q,null);next()};
   $("#goBtn").onclick=()=>{
     if(S.checked){next();return}
-    const empty=S.cur==null||S.cur===""||(Array.isArray(S.cur)&&(!S.cur.length||S.cur.some(x=>x==="")));
-    if(empty){$("#fb").innerHTML=`<div class="fb bad">Answer the question first, or tap Skip.</div>`;return}
+    if(!curFilled()){$("#fb").innerHTML=`<div class="fb bad">Answer the question first${reopen?"":", or tap Skip"}.</div>`;return}
     const ok=record(q,S.cur);
-    if(S.mode==="exam"){next();return}
-    S.checked=true;showFeedback(q,ok);if(q.say){$("#fb").insertAdjacentHTML("beforeend",`<div class="heard">You heard: “${esc(q.say)}”</div>`);S.updPlay&&S.updPlay()}$("#goBtn").textContent=S.i+1<S.qs.length?"Next question":"See results";$("#skipBtn").disabled=true;
+    if(exam){next();return}
+    reveal(ok);
   };
 }
 function isRight(q,given){
@@ -1192,10 +1293,12 @@ function showFeedback(q,ok){
   if(q.o||q.t==="e")view.querySelectorAll(".opt").forEach(b=>{const o=+b.dataset.o;if(o===q.a)b.classList.add("right");else if(b.classList.contains("sel"))b.classList.add("wrong")});
   $("#fb").innerHTML=ok?`<div class="fb ok">Correct!</div>`:`<div class="fb bad">Not quite. <span>Answer: <b>${esc(correctText(q))}</b></span></div>`;
 }
-function next(){S.i++;if(S.i>=S.qs.length)finish();else renderQ()}
+// đi tiếp: câu kế tiếp theo nextIdx; hết thì về màn "Review your answers"; luyện tập không còn câu trống thì ra kết quả như trước
+function next(){const j=nextIdx();if(j>=0){S.i=j;renderQ();return}if(S.mode!=="exam"&&!blanks().length){finish();return}recap()}
 
 function finish(){
   if(!S)return;
+  leaveCur(); // nộp bài bằng mọi lối (nút, hết giờ, rời trang): câu đang mở mà lựa chọn đã đủ thì ghi trước khi chấm (đề thi thử, X23)
   stopSpeech();
   clearInterval(tick);
   const secs=Math.min((Date.now()-S.start)/1000,S.limit||Infinity);
