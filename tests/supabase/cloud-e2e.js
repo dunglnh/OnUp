@@ -96,6 +96,12 @@ const audit = () => {
   }
   return [...new Set(bad)];
 };
+/* Phiên UI2 (X32), như btnTone của tests/e2e.js: màu đã vẽ của nút (nền, chữ, opacity) và màu đã tính của token line, muted, sun, sun-ink.
+   Nút chính, phím Vào bị tắt: nền line, chữ muted, opacity 1 (offTone); bật: nền sun, chữ sun-ink (onTone). */
+const btnTone = (sel) => { const b = document.querySelector(sel), s = getComputedStyle(b), tok = (v) => { const i = document.createElement("i"); i.style.color = `var(${v})`; document.body.appendChild(i); const c = getComputedStyle(i).color; i.remove(); return c; };
+  return { dis: b.disabled, bg: s.backgroundColor, color: s.color, op: s.opacity, line: tok("--line"), muted: tok("--muted"), sun: tok("--sun"), sunInk: tok("--sun-ink") }; };
+const offTone = (t) => !!t && t.dis && t.bg === t.line && t.color === t.muted && t.op === "1";
+const onTone = (t) => !!t && !t.dis && t.bg === t.sun && t.color === t.sunInk && t.op === "1";
 
 // Chữ cái tiếng Việt (như tests/kiem-tra-de.js): màn làm đề Tiếng Anh không được có (TA2).
 const CHU_VIET = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/iu;
@@ -234,6 +240,7 @@ async function run(browser, scheme) {
     add: !!st.querySelector("a.btn[href='#/admin/user/new?role=student']"), first: document.querySelector("#kids").firstElementChild.id, rows: document.querySelectorAll("#kids > .row").length,
     link2: [...st.querySelectorAll(".step:nth-child(2) a")].map((a) => a.getAttribute("href") + " · " + a.textContent).join() } : null; }); // link2: link đặt mã PIN của bước 2 (UX3b)
   c.ux3 = { start0: await startOf(p), switchTxt: await text(p, "#switchWho") }; c.ux3b = {}; // ux3b: các kiểm tra của Phiên UX3b
+  c.ui2 = { letOff: await p.evaluate(btnTone, "#letStudy") }; // UI2 (X32): "Cho con học" bị tắt: nền line, chữ muted, không mờ
 
   /* ---- thêm hồ sơ con ---- */
   await p.click("a[href='#/admin/user/new?role=student']"); await p.waitForSelector("#uForm");
@@ -252,6 +259,7 @@ async function run(browser, scheme) {
   c.ux2.kids = await p.evaluate(() => ({ cards: [...document.querySelectorAll("#kids a.kid")].map((k) => k.getAttribute("href") + " " + [...k.querySelectorAll(".stat")].map((s) => s.querySelector("b").textContent + " " + s.querySelector("span").textContent).join("|") + " " + (k.querySelector(".kid-ev") || {}).textContent).join("; ").replace(/\s+/g, " "),
     extraStats: !!document.querySelector("#view > .stack > .stats"), h2: [...document.querySelectorAll("#view h2")].map((h) => h.textContent).join(), count: [...document.querySelectorAll("#kids > .row > .small")].map((x) => x.textContent).join(), add: !!document.querySelector("#kids > .row > a[href='#/admin/user/new?role=student']"), hint: document.querySelector("#kids > p.small").textContent }));
   c.ux3.start2 = await startOf(p); // UX3: có con nhưng chưa con nào học: bước 1 xong, bước 3 đang làm, "Cho con học" bật; UX3b (X19): Bin có mã, Na không: bước 2 chưa ✓, "Na chưa có", link "Đặt mã PIN cho Na"
+  c.ui2.letOn = await p.evaluate(btnTone, "#letStudy");
   await shot(p, "c6-cac-con");
   // UX3b (X18): link của bước 2 mở thẳng hồ sơ của Na (?tu=batdau): ô Mã PIN được focus, nút quay lại về Các con; để trống mã mà Lưu thì toast "Đã lưu",
   // về Các con, bước 2 vẫn chưa ✓; có mã thì toast "Đã đặt mã PIN cho Na", về Các con, bước 2 có ✓ "Bin, Na đã có mã PIN." và hết link
@@ -642,10 +650,13 @@ async function run(browser, scheme) {
   const lockUI3 = () => p3.evaluate(() => { const top = (s) => document.querySelector(s).getBoundingClientRect().top; return { dis: [...document.querySelectorAll(".pad button")].filter((b) => b.disabled).length, show: document.querySelector("#pinShow").disabled,
     order: top("#pinDots") < top("#pinErr") && top("#pinErr") < top("#pinShow") && top("#pinShow") < top(".pad"), err: document.querySelector("#pinErr").textContent.replace(/\s+/g, " ").trim(), fails: (JSON.parse(localStorage.getItem("ontap_pinlock_v1") || "{}")["phu-huynh"] || {}).fails }; });
   c.ux4.locked = await lockUI3();
+  c.ui2.padOff = await p3.evaluate(btnTone, ".pad .ok"); // UI2 (X32): phím Vào bị tắt như nút chính bị tắt; phím số, Hiện số vẫn mờ .45
+  c.ui2.padDim = await p3.evaluate(() => [...document.querySelectorAll('.pad button:not(.ok)'), document.querySelector("#pinShow")].map((b) => getComputedStyle(b).opacity));
   await shot(p3, "c10c-dang-doi");
   await p3.evaluate(() => { const o = JSON.parse(localStorage.getItem("ontap_pinlock_v1")); o["phu-huynh"].until = Date.now() + 1200; localStorage.setItem("ontap_pinlock_v1", JSON.stringify(o)); });
   await p3.waitForSelector("#pinErr .fb.ok", { timeout: 5000 });
   c.ux4.unlocked = await lockUI3();
+  c.ui2.padOn = await p3.evaluate(btnTone, ".pad .ok");
   await p3.click("#pinToPw"); await p3.waitForSelector("#pwBox:not([hidden])");
   c.ux3.toPw = (await p3.$eval("#pinBox", (b) => b.hidden)) + " " + (await text(p3, "#pwToPin"));
   await p3.click("#pwToPin"); await p3.waitForSelector("#pinBox:not([hidden])");
@@ -1030,6 +1041,8 @@ async function run(browser, scheme) {
       && !!c.ux3.start2 && c.ux3.start2.steps === "done:Thêm hồ sơ con|:Đặt mã PIN (không bắt buộc)|now:Đưa máy cho con" && !c.ux3.start2.disabled && c.ux3.start2.h >= 52 && c.ux3.start2.first === "start" && c.ux3.start2.rows === 1
       && /✓Thêm hồ sơ conĐã có 2 hồ sơ: Bin, Na\. 2Đặt mã PIN \(không bắt buộc\)Bin đã có mã PIN\. Na chưa có\.Đặt mã PIN cho Na 3Đưa máy cho con/.test(c.ux3.start2.text) && /Lúc khác, bấm “Chọn hồ sơ khác” ở góc trên\.$/.test(c.ux3.start2.text)
       && c.ux3.letStudy && c.ux3.gone,
+    "UI2 (X32): nút chính, phím Vào bị tắt có nền line, chữ muted, không mờ (“Cho con học” khi chưa có hồ sơ con, Vào khi phải đợi); bật lại thì nền sun, chữ sun-ink; phím số, Hiện số bị tắt vẫn mờ .45":
+      offTone(c.ui2.letOff) && onTone(c.ui2.letOn) && offTone(c.ui2.padOff) && onTone(c.ui2.padOn) && c.ui2.padDim.length === 12 && c.ui2.padDim.every((o) => o === "0.45"),
     "UX3b (X19): bước 2 chưa ✓ khi Na chưa có mã: ghi “Bin đã có mã PIN. Na chưa có.”, link “Đặt mã PIN cho Na” mở thẳng hồ sơ của Na; mọi con có mã thì ✓ “Bin, Na đã có mã PIN.”, hết link; nút “Cho con học” vẫn bật":
       c.ux3.start2.link2 === `#/admin/user/${naId}?tu=batdau · Đặt mã PIN cho Na` && c.ux3b.pinSave.start.steps === "done:Thêm hồ sơ con|done:Đặt mã PIN (không bắt buộc)|now:Đưa máy cho con"
       && /✓Đặt mã PIN \(không bắt buộc\)Bin, Na đã có mã PIN\. 3Đưa máy cho con/.test(c.ux3b.pinSave.start.text) && c.ux3b.pinSave.start.link2 === "" && !c.ux3b.pinSave.start.disabled,
