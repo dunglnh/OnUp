@@ -147,6 +147,12 @@ window.ONTAP_SEED_BANKS = [
   /* KHTN 6 · Kiểm tra giữa học kì II (Kết nối tri thức, Chương VII Đa dạng thế giới sống, Bài 25–39; Phiên N11) */
   { id: "khtn6-gk2-de1", title: "KHTN 6 · Giữa kì II · Đề 1", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js" },
   { id: "khtn6-gk2-de2", title: "KHTN 6 · Giữa kì II · Đề 2", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js" },
+  /* Lịch sử và Địa lí 6, GDCD 6 · Kiểm tra giữa học kì II (Kết nối tri thức; Lịch sử Bài 11–15, Địa lí Bài 16–22; GDCD Bài 7–9;
+     Phiên N12) */
+  { id: "lsdl6-gk2-de1", title: "Lịch sử và Địa lí 6 · Giữa kì II · Đề 1", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js" },
+  { id: "lsdl6-gk2-de2", title: "Lịch sử và Địa lí 6 · Giữa kì II · Đề 2", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js" },
+  { id: "gdcd6-gk2-de1", title: "GDCD 6 · Giữa kì II · Đề 1", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js" },
+  { id: "gdcd6-gk2-de2", title: "GDCD 6 · Giữa kì II · Đề 2", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js" },
 
   /* Ngân hàng Toán 4 cuối kì I (Phiên N1): kho câu = 31 câu riêng trong file + 75 câu của 3 đề cố định ở trên, câu nào cũng
      có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020 (3 mức, không quy định tỉ lệ): 10 – 8 – 7 câu (40% – 32% – 28%). */
@@ -414,6 +420,25 @@ window.ONTAP_SEED_BANKS = [
       "Phân loại sinh vật": [1, 1, 0], "Khoá lưỡng phân": [0, 1, 1], "Vi khuẩn": [1, 1, 1], "Virus": [1, 1, 1], "Nguyên sinh vật": [1, 0, 1],
       "Nấm": [1, 1, 1], "Thực vật": [1, 1, 1], "Động vật": [2, 1, 1], "Đa dạng sinh học": [1, 1, 0],
       "Tìm hiểu sinh vật ngoài thiên nhiên": [1, 0, 0] } } },
+  /* Ngân hàng Lịch sử và Địa lí 6 giữa kì II (Phiên N12): kho câu = 50 câu của 2 đề cố định ở trên (không có câu riêng), câu nào
+     cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991):
+     12 câu Lịch sử (Bài 11–15, chủ đề theo tên bài rút gọn, mỗi bài 2–3 câu), 13 câu Địa lí (Bài 16, 17 mỗi bài 3 câu; Bài 18, 20
+     mỗi bài 2 câu; Bài 19, 21, 22 mỗi bài 1 câu). Hai đề cố định chia đúng theo ma trận, nên ô (chủ đề, mức) nào cũng có đúng 2 câu,
+     gấp đôi số câu ô đó rút. */
+  { id: "lsdl6-gk2-ngau-nhien", title: "Lịch sử và Địa lí 6 · Giữa kì II · Đề ngẫu nhiên", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js",
+    pool: { from: ["lsdl6-gk2-de1", "lsdl6-gk2-de2"], matrix: {
+      "Các quốc gia sơ kì ở Đông Nam Á": [1, 1, 0], "Các vương quốc phong kiến ở Đông Nam Á": [1, 1, 0], "Giao lưu văn hóa ở Đông Nam Á": [1, 0, 1],
+      "Nhà nước Văn Lang, Âu Lạc": [1, 1, 1], "Thời Bắc thuộc": [1, 1, 1],
+      "Nhiệt độ không khí, mây và mưa": [1, 1, 1], "Thời tiết, khí hậu và biến đổi khí hậu": [1, 1, 1], "Biểu đồ nhiệt độ, lượng mưa": [0, 1, 1],
+      "Thủy quyển, vòng tuần hoàn của nước": [0, 1, 0], "Sông, hồ, nước ngầm, băng hà": [1, 0, 1], "Biển và đại dương": [1, 0, 0],
+      "Lớp đất trên Trái Đất": [1, 0, 0] } } },
+  /* Ngân hàng GDCD 6 giữa kì II (Phiên N12): kho câu = 50 câu của 2 đề cố định ở trên (không có câu riêng), câu nào cũng có mức
+     độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): Bài 7 Ứng phó
+     với tình huống nguy hiểm 10 câu, Bài 8 Tiết kiệm 11 câu, Bài 9 Công dân nước Cộng hòa xã hội chủ nghĩa Việt Nam 4 câu (có trường
+     chỉ kiểm tra đến Bài 8). Hai đề cố định chia đúng theo ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "gdcd6-gk2-ngau-nhien", title: "GDCD 6 · Giữa kì II · Đề ngẫu nhiên", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js",
+    pool: { from: ["gdcd6-gk2-de1", "gdcd6-gk2-de2"], matrix: {
+      "Ứng phó với tình huống nguy hiểm": [4, 3, 3], "Tiết kiệm": [4, 4, 3], "Công dân nước Việt Nam": [2, 1, 1] } } },
   /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
      mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
