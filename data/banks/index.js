@@ -140,6 +140,10 @@ window.ONTAP_SEED_BANKS = [
   /* Ngữ văn 6 · Kiểm tra giữa học kì II (Kết nối tri thức, Bài 6 Chuyện kể về những người anh hùng, Bài 7 Thế giới cổ tích; Phiên N9) */
   { id: "van6-gk2-de1", title: "Ngữ văn 6 · Giữa kì II · Đề 1", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js" },
   { id: "van6-gk2-de2", title: "Ngữ văn 6 · Giữa kì II · Đề 2", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js" },
+  /* Tiếng Anh 6 · Kiểm tra giữa học kì II (Global Success 6, Unit 7 Television, Unit 8 Sports and Games, Unit 9 Cities of the World,
+     Review 3; Phiên N10) */
+  { id: "ta6-gk2-de1", title: "Tiếng Anh 6 · Giữa kì II · Đề 1", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js" },
+  { id: "ta6-gk2-de2", title: "Tiếng Anh 6 · Giữa kì II · Đề 2", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js" },
 
   /* Ngân hàng Toán 4 cuối kì I (Phiên N1): kho câu = 31 câu riêng trong file + 75 câu của 3 đề cố định ở trên, câu nào cũng
      có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020 (3 mức, không quy định tỉ lệ): 10 – 8 – 7 câu (40% – 32% – 28%). */
@@ -388,6 +392,15 @@ window.ONTAP_SEED_BANKS = [
       "Chuyện kể về những người anh hùng": [2, 2, 3], "Thế giới cổ tích": [2, 2, 3],
       "Nghĩa của từ": [1, 2, 0], "Từ đơn và từ phức": [2, 0, 0], "Cụm danh từ, cụm động từ, cụm tính từ": [2, 0, 0],
       "Biện pháp tu từ": [1, 1, 0], "Dấu câu": [0, 1, 0], "Viết": [0, 0, 1] } } },
+  /* Ngân hàng Tiếng Anh 6 giữa kì II (Phiên N10): kho câu = 25 câu riêng trong file (hai đoạn đọc) + 50 câu của 2 đề cố định ở trên,
+     câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn
+     7991): số câu từng chủ đề như kho giữa kì I (Pronunciation 3, mỗi Unit 6, Reading 4). Cả hai đề cố định chia đúng ma trận nên ô
+     (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút; câu riêng chỉ ở ô có rút câu. Reading rút theo đoạn (K4): bốn đoạn
+     đọc của kho đều 4 câu mức 1-2-2-3, đúng ô [1, 2, 1], nên lần rút nào cũng lấy trọn một đoạn. */
+  { id: "ta6-gk2-ngau-nhien", title: "Tiếng Anh 6 · Giữa kì II · Đề ngẫu nhiên", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js",
+    pool: { from: ["ta6-gk2-de1", "ta6-gk2-de2"], matrix: {
+      "Pronunciation": [2, 1, 0], "Unit 7 · Television": [2, 2, 2], "Unit 8 · Sports and Games": [3, 1, 2], "Unit 9 · Cities of the World": [2, 2, 2],
+      "Reading": [1, 2, 1] } } },
   /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
      mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
