@@ -153,6 +153,8 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background
 .qz-key .qz-cell.cur{box-shadow:0 0 0 1px var(--surface),0 0 0 2px var(--ink)}
 .recap h2{font-size:1.25rem}
 .recap p{margin:0}
+.recap+.actions{gap:8px} /* Phiên 9ob (X30): hàng nút dưới màn "Review your answers" chỉ rộng 294px ở 360px; nút gọn hơn để "See results" và "Do the 120 left" vẫn một hàng (màn câu hỏi giữ 18px, 10px) */
+.recap+.actions .btn{padding-left:12px;padding-right:12px}
 .qleft{align-self:flex-start;background:var(--sun-soft);color:var(--ink);border-radius:6px;padding:2px 8px;font-size:.8125rem;font-weight:700} /* nhãn "Câu còn trống 2/3" đầu thẻ câu trong vòng làm tiếp */
 .actions>.btn.main{margin-left:auto} /* câu mở lại không có "Bỏ qua": nút chính vẫn ở mép phải */
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -877,7 +879,7 @@ function goTo(i){leaveCur();S.i=i;renderQ()}
 function startSession(opts){
   const qs=opts.qs;
   if(!qs.length){renderHome("There are no questions in this section yet.");return}
-  S={notice:opts.notice||null,mode:opts.mode,label:opts.label,test:opts.test||null,qs,i:0,ans:[],start:Date.now(),limit:opts.limit||0,checked:false,cur:null,from:"seq",round:null,recap:false,plays:{}};
+  S={notice:opts.notice||null,mode:opts.mode,label:opts.label,test:opts.test||null,unit:opts.unit||null,qs,i:0,ans:[],start:Date.now(),limit:opts.limit||0,checked:false,cur:null,from:"seq",round:null,recap:false,plays:{}};
   clearInterval(tick);
   if(S.limit){tick=setInterval(()=>{const left=S.limit-(Date.now()-S.start)/1000;updTimer(left);if(left<=0)finish()},500)}
   renderQ();
@@ -887,10 +889,10 @@ async function startTest(tk,k){
   const T=TRACKS[tk];
   startSession({mode:"exam",qs:buildTest(tk,k,nl),limit:T.mins*60,label:`${T.name} · Test ${k+1}`,test:{tk,k},notice:nl?NO_SOUND:null});
 }
-async function startPractice(qs,label){
+async function startPractice(qs,label,unit){
   await TTS.ready;const nl=!canListen(), had=qs.some(q=>q.say);
   if(nl)qs=qs.filter(q=>!q.say);
-  startSession({mode:"practice",qs:shuffleWith(qs,Math.random).map(q=>inst(q)),label,notice:nl&&had?NO_SOUND:null});
+  startSession({mode:"practice",qs:shuffleWith(qs,Math.random).map(q=>inst(q)),label,unit,notice:nl&&had?NO_SOUND:null});
 }
 function updTimer(left){const el=$("#timer");if(!el)return;el.textContent=fmtTime(left);el.classList.toggle("warn",left<120)}
 
@@ -929,13 +931,15 @@ function renderQ(){
   }else{
     body=`<div class="label">Put the words in the correct order</div><div class="slot" id="slot" aria-label="Your sentence"></div><div class="pool" id="pool">${q.tiles.map((t,k)=>`<button class="tile" data-k="${k}">${esc(t.c)}</button>`).join("")}</div>`;
   }
+  // nhãn trên câu (Phiên 9ob, X31): luyện theo unit thì tên lượt đã có unit ("Unit 3 Practice"), chỉ vẽ nhãn đó; đề thi thử, "Mistake Review",
+  // "My Questions" có câu của nhiều unit nên thêm unit của câu bên phải. S.label (lưu trong lịch sử, gửi về app) không đổi
   view.innerHTML=`<div class="stack">
     <div class="qtop"><div class="bar" aria-hidden="true"><i style="width:${(n-blanks().length)/n*100}%"></i></div><button type="button" class="gbtn" id="gridBtn" aria-expanded="false" aria-controls="grid"><span>${S.i+1} of ${n}</span>${CHEV}</button></div>
     <section class="panel qgrid" id="grid" hidden></section>
     ${S.notice?`<div class="notice" role="status">${esc(S.notice)}</div>`:""}
     <section class="qcard">
       ${inRound?`<span class="qleft">Left to do: ${S.round.indexOf(S.i)+1} of ${S.round.length}</span>`:""}
-      <div class="qhead"><span class="label">${esc(S.label)}</span><span class="label">${q.u?("Unit "+q.u):"My Questions"}</span></div>
+      <div class="qhead"><span class="label">${esc(S.label)}</span>${S.unit?"":`<span class="label">${q.u?("Unit "+q.u):"My Questions"}</span>`}</div>
       ${body}
       ${exam&&reopen?`<p class="small muted" id="editNote">You have answered this question. To change it, choose again and tap Submit answer.</p>`:""}
       <div id="fb" aria-live="polite"></div>
@@ -1139,7 +1143,7 @@ function renderHome(note){
   if($("#heroWrong"))$("#heroWrong").onclick=startWrong;
   view.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;store.set("tab",tab);view.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed",x===b));drawWeeks()});
   drawWeeks();drawSound();
-  view.querySelectorAll(".unit").forEach(b=>b.onclick=()=>startPractice(allQ().filter(q=>q.u==b.dataset.u),"Unit "+b.dataset.u+" Practice"));
+  view.querySelectorAll(".unit").forEach(b=>b.onclick=()=>startPractice(allQ().filter(q=>q.u==b.dataset.u),"Unit "+b.dataset.u+" Practice",b.dataset.u));
   if($("#wrongBtn"))$("#wrongBtn").onclick=startWrong;
   $("#impBtn").onclick=renderImport;
   if($("#custBtn"))$("#custBtn").onclick=()=>startPractice(custom,"My Questions");

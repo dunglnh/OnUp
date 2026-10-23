@@ -159,6 +159,8 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background
 .qz-key .qz-cell.cur{box-shadow:0 0 0 1px var(--surface),0 0 0 2px var(--ink)}
 .recap h2{font-size:1.25rem}
 .recap p{margin:0}
+.recap+.actions{gap:8px} /* Phiên 9ob (X30): hàng nút dưới màn "Review your answers" chỉ rộng 294px ở 360px; nút gọn hơn để "See results" và "Do the 120 left" vẫn một hàng (màn câu hỏi giữ 18px, 10px) */
+.recap+.actions .btn{padding-left:12px;padding-right:12px}
 .qleft{align-self:flex-start;background:var(--sun-soft);color:var(--ink);border-radius:6px;padding:2px 8px;font-size:.8125rem;font-weight:700} /* nhãn "Câu còn trống 2/3" đầu thẻ câu trong vòng làm tiếp */
 .actions>.btn.main{margin-left:auto} /* câu mở lại không có "Bỏ qua": nút chính vẫn ở mép phải */
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -1177,13 +1179,15 @@ function renderQ(){
     const isW=q.t==="w";
     body=`<div class="label">${isW?"Put the letters in order to make a word":"Put the words in the correct order"}</div>${isW?`<div class="qtext">Clue: ${esc(q.h)}</div>`:""}<div class="slot" id="slot" aria-label="Your answer"></div><div class="pool" id="pool">${q.tiles.map((t,k)=>`<button class="tile${isW?" ch":""}" data-k="${k}">${esc(t.c)}</button>`).join("")}</div>`;
   }
+  // nhãn trên câu (Phiên 9ob, X31): luyện theo unit thì tên lượt đã có unit ("Unit 3 Practice"), chỉ vẽ nhãn đó; đề thi thử, "Mistake Review",
+  // "My Questions" có câu của nhiều unit nên thêm unit của câu bên phải. S.label (lưu trong lịch sử, gửi về app) không đổi
   view.innerHTML=`<div class="stack">
     <div class="qtop"><div class="bar" aria-hidden="true"><i style="width:${(n-blanks().length)/n*100}%"></i></div><button type="button" class="gbtn" id="gridBtn" aria-expanded="false" aria-controls="grid"><span>${S.i+1} of ${n}</span>${CHEV}</button></div>
     <section class="panel qgrid" id="grid" hidden></section>
     ${S.notice?`<div class="notice" role="status">${esc(S.notice)}</div>`:""}
     <section class="qcard">
       ${inRound?`<span class="qleft">Left to do: ${S.round.indexOf(S.i)+1} of ${S.round.length}</span>`:""}
-      <div class="qhead"><span class="label">${esc(S.label)}</span><span class="label">${q.u?("Unit "+q.u):"My Questions"}</span></div>
+      <div class="qhead"><span class="label">${esc(S.label)}</span>${S.unit?"":`<span class="label">${q.u?("Unit "+q.u):"My Questions"}</span>`}</div>
       ${body}
       ${exam&&reopen?`<p class="small muted" id="editNote">You have answered this question. To change it, choose again and tap Submit answer.</p>`:""}
       <div id="fb" aria-live="polite"></div>
