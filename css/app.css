@@ -174,7 +174,7 @@ a.kid{color:inherit;text-decoration:none;gap:12px}
 /* biểu mẫu */
 .field{display:flex;flex-direction:column;gap:4px;min-width:0}
 .field>span:not(.reveal){font-size:.85rem;font-weight:600;color:var(--muted)}
-input[type=text],input[type=email],input[type=password],input[type=date],input[type=number],input:not([type]),select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);min-width:0}
+input[type=text],input[type=email],input[type=password],input[type=date],input[type=number],input[type=search],input:not([type]),select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);min-width:0}
 textarea{min-height:200px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--bg)}
 .checks{display:flex;flex-wrap:wrap;gap:8px 16px}
 .checks label{display:flex;gap:6px;align-items:center}
@@ -221,6 +221,18 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .grp[open]>summary::after{margin-top:4px;transform:rotate(-135deg)}
 .grp>summary .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .grp>.list{border:0;border-top:1px solid var(--line);border-radius:0}
+/* ô tìm đề (Phiên UX7): kính lúp trong ô, bên trái; tìm không phân biệt dấu, theo từng từ (findHit trong js/app.js) */
+.find{position:relative;display:block;min-width:0}
+.find svg{position:absolute;left:12px;top:50%;width:18px;height:18px;margin-top:-9px;color:var(--muted);pointer-events:none}
+.find input{padding-left:40px;min-height:44px}
+/* Sửa kì thi: khối "Bài ôn và đề cho kì này" (pickBoxHTML, X11): nhóm theo môn (.grp), mỗi dòng ô đánh dấu cao ≥ 44px */
+.pk{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:14px;min-width:0}
+.pk .tag{white-space:nowrap}
+.pk-list{border-top:1px solid var(--line);padding:4px 0}
+.ck{display:flex;gap:10px;align-items:center;min-height:44px;padding:6px 14px;cursor:pointer;min-width:0}
+.ck input{width:20px;height:20px;flex:none;margin:0;accent-color:var(--acc)}
+.ck>span{min-width:0;overflow-wrap:anywhere}
+.pk>.linkbtn{align-self:flex-start}
 .subj{flex-wrap:wrap}
 .subj .grow{flex-basis:7em}
 .des{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}

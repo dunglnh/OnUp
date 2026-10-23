@@ -1687,6 +1687,64 @@
   }
 
   /* -------- sửa kì thi -------- */
+  /* ---------------- ô tìm đề (Phiên UX7) ----------------
+     Tìm không phân biệt dấu, theo từng từ: mọi từ gõ vào phải là đầu một từ của tên ("toan de 2" khớp "Toán 4 · Cuối kì I · Đề 2";
+     "2" không khớp "Đề 12"). findKey(chữ): các từ đã bỏ dấu, ghi vào data-k của dòng; findHit(chữ gõ, data-k). */
+  const fold = (s) => String(s == null ? "" : s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
+  const findWords = (s) => fold(s).split(/[^a-z0-9]+/).filter(Boolean);
+  const findKey = (s) => findWords(s).join(" ");
+  const findHit = (q, k) => { const h = String(k || "").split(" "); return findWords(q).every((w) => h.some((x) => x.startsWith(w))); };
+  const findBox = (id, label, ph) => `<label class="find"><span class="sr">${label}</span>${ICO('<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>')}<input type="search" id="${id}" placeholder="${esc(ph)}" autocomplete="off" enterkeyhint="search"></label>`;
+
+  /* Khối "Bài ôn và đề cho kì này" của màn Sửa kì thi (Phiên UX7, X11): bài ôn dạng trang và đề (có sẵn, tự soạn) trong một danh sách,
+     nhóm theo môn bằng <details class="grp"> (bài ôn dạng trang một nhóm, đứng đầu; nhóm có mục đã chọn mở sẵn), nhãn "N đã chọn"
+     ở đầu khối, mỗi nhóm "x/y đã chọn". Mặc định chỉ hiện mục có khối nằm trong các ô Khối đang chọn (cộng khối ẩn của kì thi): đổi
+     ô Khối thì danh sách đổi theo; link "Hiện cả đề của khối khác" hiện mọi khối. Mục đã chọn (lúc mở form hoặc vừa chọn, data-keep)
+     luôn hiện dù khác khối. Ô tìm lọc theo tên và môn (findHit). Mọi ô đánh dấu luôn nằm trong form (chỉ ẩn bằng hidden), nên Lưu
+     giữ đủ lựa chọn cũ, kể cả mục đang ẩn. Dòng ô đánh dấu cao ≥ 44px. */
+  function pickBoxHTML(e) {
+    const on = new Set((e.modules || []).map((x) => "em:" + x).concat((e.banks || []).map((x) => "eb:" + x)));
+    const groups = new Map([["Bài ôn dạng trang", []]]), add = (g, it) => groups.set(g, (groups.get(g) || []).concat(it));
+    MODULES.forEach((m) => add("Bài ôn dạng trang", { n: "em", id: m.id, title: m.title, grade: m.grade }));
+    Store.banks().forEach((b) => add(b.subject || "Khác", { n: "eb", id: b.id, title: b.title, grade: +b.grade, own: !b.seed, subj: b.subject }));
+    const sort = (a, b) => a.grade - b.grade || !!a.own - !!b.own || a.title.localeCompare(b.title, "vi", { numeric: true });
+    const isOn = (it) => on.has(it.n + ":" + it.id);
+    const row = (it) => `<label class="ck" data-g="${it.grade}" data-k="${esc(findKey(it.title + " " + (it.subj || "")))}"${it.own ? " data-own" : ""}${isOn(it) ? " data-keep" : ""}><input type="checkbox" name="${it.n}" value="${esc(it.id)}"${isOn(it) ? " checked" : ""}><span>${nb(esc(it.title))}${it.own ? `<span class="muted"> · tự soạn</span>` : ""}</span></label>`;
+    const grps = [...groups].filter(([, l]) => l.length).map(([name, l]) => `<details class="grp pk-g"${l.some(isOn) ? " open" : ""}><summary><span class="grow"><b>${esc(name)}</b><span class="small muted pk-n"></span></span></summary><div class="pk-list">${l.sort(sort).map(row).join("")}</div></details>`).join("");
+    return `<section class="full pk" id="ePick" aria-labelledby="ePickH"><div class="row between"><h3 id="ePickH">Bài ôn và đề cho kì này</h3><span class="tag" id="ePickN"></span></div>
+      ${findBox("eFind", "Tìm bài ôn, đề", "Tìm đề, ví dụ “Toán Đề 2”")}
+      <p class="small muted" id="eScope"></p>${grps}<p class="small muted" id="eNone" hidden></p>
+      <button type="button" class="linkbtn" id="eAll" aria-pressed="false">Hiện cả đề của khối khác</button></section>`;
+  }
+  function wirePickBox(hiddenGrades) {
+    const box = $("#ePick"), find = $("#eFind"), rows = $$(".ck", box);
+    let all = false;
+    const count = () => {
+      $("#ePickN").textContent = $$("input:checked", box).length + " đã chọn";
+      $$(".pk-g", box).forEach((d) => {
+        const vis = $$(".ck:not([hidden])", d), own = vis.filter((r) => r.hasAttribute("data-own")).length;
+        $(".pk-n", d).textContent = `${vis.filter((r) => r.firstChild.checked).length}/${vis.length} đã chọn${own ? ` · ${own} đề tự soạn` : ""}`;
+      });
+    };
+    const filter = () => {
+      const shown = $$("input[name=eg]:checked").map((x) => +x.value), gs = shown.concat(hiddenGrades), q = find.value.trim();
+      rows.forEach((r) => (r.hidden = !((all || gs.includes(+r.dataset.g) || r.hasAttribute("data-keep")) && findHit(q, r.dataset.k))));
+      $$(".pk-g", box).forEach((d) => { const n = $$(".ck:not([hidden])", d).length; d.hidden = !n; if (q && n) d.open = true; });
+      const none = rows.every((r) => r.hidden);
+      $("#eScope").textContent = all ? "Đang hiện bài ôn và đề của mọi khối." : shown.length ? `Đang hiện bài ôn và đề của Lớp ${shown.join(", ")}, khối của kì thi này.` : "Chọn khối ở trên để thấy bài ôn và đề của khối đó.";
+      $("#eNone").hidden = !none || (!q && !all && !shown.length);
+      $("#eNone").textContent = q ? `Không có bài ôn hay đề nào khớp “${q}”.` : "Chưa có bài ôn hay đề nào cho khối này.";
+      $("#eAll").textContent = all ? "Chỉ hiện đề của khối kì thi" : "Hiện cả đề của khối khác";
+      $("#eAll").setAttribute("aria-pressed", all);
+      count();
+    };
+    rows.forEach((r) => r.firstChild.addEventListener("change", () => { if (r.firstChild.checked) r.setAttribute("data-keep", ""); count(); }));
+    find.addEventListener("input", filter);
+    find.addEventListener("keydown", (ev) => { if (ev.key === "Enter") ev.preventDefault(); }); // Enter trong ô tìm không gửi form
+    $$("input[name=eg]").forEach((x) => x.addEventListener("change", filter));
+    $("#eAll").onclick = () => { all = !all; filter(); };
+    filter();
+  }
   function renderEventForm(u, id) {
     if (u.role !== "admin") { go("#/home"); return; }
     const e = id === "new" ? { id: "", title: "", kind: "dinh-ki", grades: gradeList().slice(0, 1), start: "", end: "", tentative: true, subjects: [], scope: "", note: "", modules: [], banks: [] } : Store.event(id);
@@ -1694,7 +1752,7 @@
     // Ô chọn khối: khối đang hiện (đang bật, đang có học sinh); khối ẩn của kì thi (mốc năm học cho cả 12 khối) không hiện nhưng được giữ khi lưu
     const shown = shownGrades(), hiddenGrades = (e.grades || []).map(Number).filter((g) => !shown.includes(g));
     view.innerHTML = `<div class="stack">${back("#/admin/events", "Lịch thi")}
-      <h2>${id === "new" ? "Thêm kì thi" : "Sửa kì thi"}</h2>
+      <div><h2>${id === "new" ? "Thêm kì thi" : "Sửa kì thi"}</h2>${id === "new" ? "" : `<p class="muted small">${nb(esc(`${e.title} · Lớp ${gradesTxt(e)} · ${range(e)}`))}</p>`}</div>
       <form class="panel" id="eForm" autocomplete="off"><div class="form">
         <label class="field full"><span>Tên kì thi</span><input id="eTitle" value="${esc(e.title)}" required placeholder="Ví dụ: Kiểm tra cuối học kì I"></label>
         <label class="field"><span>Loại</span><select id="eKind">${Object.entries(KIND).map(([k, t]) => `<option value="${k}" ${e.kind === k ? "selected" : ""}>${t}</option>`).join("")}</select></label>
@@ -1705,11 +1763,11 @@
         <label class="field full"><span>Môn thi (cách nhau bằng dấu phẩy)</span><input id="eSubj" value="${esc((e.subjects || []).join(", "))}"></label>
         <label class="field full"><span>Phạm vi kiến thức</span><input id="eScope" value="${esc(e.scope || "")}"></label>
         <label class="field full"><span>Ghi chú</span><input id="eNote" value="${esc(e.note || "")}"></label>
-        <div class="field full"><span>Bài ôn gắn với kì thi</span><div class="checks">${MODULES.map((m) => `<label><input type="checkbox" name="em" value="${m.id}" ${(e.modules || []).includes(m.id) ? "checked" : ""}>${esc(m.title)}</label>`).join("")}</div></div>
-        <div class="field full"><span>Ngân hàng câu hỏi</span><div class="checks">${Store.banks().map((b) => `<label><input type="checkbox" name="eb" value="${esc(b.id)}" ${(e.banks || []).includes(b.id) ? "checked" : ""}>${esc(b.title)}</label>`).join("") || `<span class="small muted">Chưa có.</span>`}</div></div>
+        ${pickBoxHTML(e)}
       </div><div id="eErr"></div>
       <div class="row"><button class="btn main" type="submit">Lưu</button>${id !== "new" ? `<button class="btn danger" type="button" id="eDel">Xóa kì thi</button>` : ""}</div><div id="eDelArea"></div></form></div>`;
     wireGo();
+    wirePickBox(hiddenGrades);
     $("#eForm").onsubmit = (ev) => {
       ev.preventDefault();
       try {
