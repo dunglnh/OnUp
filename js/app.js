@@ -1894,17 +1894,61 @@ Tự luận: Viết 3 đến 5 câu kể về một việc tốt bạn đã làm
 + Kể rõ việc làm và cảm nghĩ của bạn (1)
 + Viết đúng chính tả (0,5)
 > Gợi ý: Nói bạn đã làm việc gì, ở đâu, giúp ai; kết thúc bằng cảm nghĩ của bạn.`;
+  /* -------- nhập đề: xem trước, lỗi gắn vào câu (Phiên UX7, X13) --------
+     Sau "Kiểm tra" (cả Xem ví dụ, Mở file .txt) có dòng tóm tắt (#bRes) và danh sách xem trước (#bPrev): mỗi câu một thẻ (số câu như
+     trong lỗi "Câu N", chủ đề, dạng câu, mức độ, rồi Quiz.preview: câu hỏi, hình, đáp án được chấm đúng, lời giải); đoạn đọc một thẻ thu
+     gọn đứng trước câu đầu tiên dùng nó (đoạn không có câu nào thì đứng đầu). Lỗi (issues của Quiz.parse) gắn vào thẻ của câu, đoạn đọc
+     bị lỗi (viền đỏ, data-bad); câu bị bỏ hẳn ghi "Chưa lưu được" và chữ đã dán. Có lỗi thì có bộ lọc "Tất cả · Cần sửa".
+     bankProblems: các mức lỗi để báo ("1 câu sẽ không được lưu", "1 câu thiếu phần bị lỗi", "1 đoạn đọc có lỗi"), dùng cho dòng tóm
+     tắt và hộp hỏi lại khi bấm Lưu. */
+  const QTYPE = { mc: "Trắc nghiệm", fill: "Điền khuyết", tf: "Đúng/sai", tf4: "Đúng/sai 4 ý", num: "Trả lời bằng số", match: "Nối cột", order: "Sắp xếp", essay: "Tự luận" };
+  function bankProblems(res) {
+    const drop = new Set(res.issues.filter((x) => x.n && x.dropped).map((x) => x.n)), part = new Set(res.issues.filter((x) => x.n && !drop.has(x.n)).map((x) => x.n));
+    const psg = new Set(res.issues.filter((x) => x.p).map((x) => x.p));
+    return [drop.size ? `${drop.size} câu sẽ không được lưu` : "", part.size ? `${part.size} câu thiếu phần bị lỗi` : "", psg.size ? `${psg.size} đoạn đọc có lỗi` : ""].filter(Boolean);
+  }
+  function bankPreview(res) {
+    const { questions, passages, issues } = res, T = (s) => Quiz.nbNum(esc(s));
+    const drop = new Set(issues.filter((x) => x.n && x.dropped).map((x) => x.n)), total = questions.length + drop.size;
+    const errs = (list) => (list.length ? `<div class="fb bad pv-err">${list.map((x) => T(x.msg.charAt(0).toUpperCase() + x.msg.slice(1))).join("<br>")}</div>` : "");
+    const head = (lbl, tags) => `<div class="pv-head"><span class="label">${nb(T(lbl))}</span><span class="tags">${tags.map(([t, c]) => `<span class="tag${c ? " " + c : ""}">${esc(t)}</span>`).join("")}</span></div>`;
+    let bad = 0;
+    const card = (b, id, inner) => { if (b) bad++; return `<article class="pv-card${b ? " bad" : ""}" id="${id}"${b ? " data-bad" : ""}>${inner}</article>`; };
+    const psgCard = (p) => {
+      const ps = passages["d" + p], iss = issues.filter((x) => x.p === p), n = questions.filter((q) => q.p === "d" + p).length;
+      return card(iss.length, "pvd" + p, head(`Đoạn đọc ${p}${ps && ps.title ? " · " + ps.title : ""}`, ps ? [[n ? `Dùng cho ${n} câu` : "Chưa có câu nào"]] : [["Chưa lưu được", "bad"]])
+        + (ps ? `<details class="pv-psg"><summary>Xem đoạn đọc</summary>${ps.text ? `<div class="psg-text">${T(ps.text)}</div>` : ""}${ps.svg ? `<div class="qfig">${Quiz.svg(ps.svg).svg}</div>` : ""}</details>` : "") + errs(iss));
+    };
+    const pNums = [...new Set(Object.keys(passages).map((k) => +k.slice(1)).concat(issues.filter((x) => x.p).map((x) => x.p)))].sort((a, b) => a - b);
+    const placed = new Set(pNums.filter((p) => !questions.some((q) => q.p === "d" + p))), out = [...placed].map(psgCard);
+    for (let n = 1, qi = 0; n <= total; n++) {
+      const iss = issues.filter((x) => x.n === n);
+      if (drop.has(n)) {
+        const d = iss.find((x) => x.dropped);
+        out.push(card(true, "pv" + n, head(`Câu ${n}${d.topic ? " · " + d.topic : ""}`, [["Chưa lưu được", "bad"]]) + `<pre class="pv-src">${T(d.text)}</pre>` + errs(iss)));
+        continue;
+      }
+      const q = questions[qi++], p = q.p ? +q.p.slice(1) : 0;
+      if (p && !placed.has(p)) { placed.add(p); out.push(psgCard(p)); }
+      out.push(card(iss.length, "pv" + n, head(`Câu ${n}${q.topic ? " · " + q.topic : ""}`, [[QTYPE[q.type]]].concat(q.lv ? [[Quiz.LV[q.lv]]] : [])) + Quiz.preview(q) + errs(iss)));
+    }
+    return (bad ? `<div class="tabs" role="group" aria-label="Lọc câu"><button type="button" data-pf="all" aria-pressed="true">Tất cả · ${out.length}</button><button type="button" data-pf="bad" aria-pressed="false">Cần sửa · ${bad}</button></div>` : "")
+      + `<p class="small muted">Đáp án được chấm đúng có dấu ✓ hoặc chữ đậm. Khi làm bài, app tự xáo các lựa chọn.</p>` + out.join("");
+  }
   function renderBankForm(u, id) {
     if (u.role !== "admin") { go("#/home"); return; }
     const b = id === "new" ? { id: "", title: "", grade: gradeList()[0], subject: "", minutes: 20, note: "", src: "" } : Store.bank(id);
     if (!b || b.seed) { go("#/admin/banks"); return; }
     const cloud = !!Store.cloud; // bản đám mây gọi là "đề tự soạn" (UX2)
+    const linkedEvs = b.id ? Store.events().filter((e) => (e.banks || []).includes(b.id)) : [];
     view.innerHTML = `<div class="stack">${back("#/admin/banks", cloud ? "Đề tự soạn" : "Ngân hàng đề")}
       <h2>${id === "new" ? (cloud ? "Nhập đề" : "Nhập ngân hàng câu hỏi") : cloud ? "Sửa đề" : "Sửa ngân hàng câu hỏi"}</h2>
       <form class="panel" id="bForm" autocomplete="off"><div class="form">
         <label class="field full"><span>Tên</span><input id="bTitle" value="${esc(b.title)}" required placeholder="Ví dụ: Toán 4 · Đề ôn cuối kì I số 1"></label>
         <label class="field"><span>Khối</span><select id="bGrade">${gradeOptions(b.grade)}</select></label>
         <label class="field"><span>Môn</span><input id="bSubj" value="${esc(b.subject)}" placeholder="Toán, Tiếng Việt, Tiếng Anh…"></label>
+        <label class="field full"><span>Gắn vào kì thi <span class="opt-note">(không bắt buộc)</span></span><select id="bEvent"></select></label>
+        ${linkedEvs.length ? `<p class="full small muted" id="bLinked">${nb(esc("Đang gắn vào: " + linkedEvs.map((e) => e.title).join(", ")))}. Bỏ gắn ở Lịch thi → Sửa kì thi.</p>` : ""}
         <label class="field"><span>Thời gian khi làm như thi (phút, 0 = không tính giờ)</span><input id="bMin" type="number" min="0" max="180" value="${+b.minutes || 0}"></label>
         <label class="field full"><span>Ghi chú</span><input id="bNote" value="${esc(b.note || "")}"></label>
       </div>
@@ -1925,26 +1969,53 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
 > giải thích           → hiện sau khi trả lời (tự luận: đáp án gợi ý)</pre></details>
       <textarea id="bSrc" spellcheck="false" aria-label="Câu hỏi" placeholder="Dán câu hỏi vào đây…">${esc(b.src || "")}</textarea>
       <div class="row"><button class="btn ghost sm" type="button" id="bSample">Xem ví dụ</button><label class="btn ghost sm" for="bFile">Mở file .txt</label><input type="file" id="bFile" accept=".txt,text/plain" hidden><button class="btn sm" type="button" id="bCheck">Kiểm tra</button></div>
-      <div id="bRes"></div>
-      <div class="row"><button class="btn main" type="submit">${cloud ? "Lưu đề" : "Lưu ngân hàng"}</button>${id !== "new" ? `<button class="btn danger" type="button" id="bDel">Xóa</button>` : ""}</div><div id="bDelArea"></div></form></div>`;
+      <div id="bRes"></div><section class="pv" id="bPrev" aria-label="Xem trước các câu" hidden></section>
+      <div class="row"><button class="btn main" type="submit">${cloud ? "Lưu đề" : "Lưu ngân hàng"}</button>${id !== "new" ? `<button class="btn danger" type="button" id="bDel">Xóa</button>` : ""}</div><div id="bAsk"></div><div id="bDelArea"></div></form></div>`;
     wireGo();
+    // "Gắn vào kì thi": kì thi chưa qua của khối đang chọn (không có mốc năm học, kì thi đã gắn đề này); đổi khối thì đổi danh sách
+    const evOpts = () => {
+      const g = +$("#bGrade").value, cur = $("#bEvent").value;
+      const evs = Store.events(g).filter((e) => e.kind !== "moc" && status(e) !== "past" && !(b.id && (e.banks || []).includes(b.id)));
+      $("#bEvent").innerHTML = `<option value="">${linkedEvs.length ? "Không gắn thêm" : "Chưa gắn"}</option>`
+        + evs.map((e) => `<option value="${esc(e.id)}"${e.id === cur ? " selected" : ""}>${esc(`${e.title} (${e.start ? dm(e.start) : "chưa có lịch"})`)}</option>`).join(""); // khối đã ghi ở ô Khối; tên ngắn để vừa ô ở 360px
+    };
+    $("#bGrade").onchange = evOpts; evOpts();
+    const KINDS = [["mc", "trắc nghiệm"], ["fill", "điền khuyết"], ["tf", "đúng/sai"], ["tf4", "đúng/sai 4 ý"], ["num", "trả lời bằng số"], ["match", "nối cột"], ["order", "sắp xếp"], ["essay", "tự luận"]];
+    const showBad = (only) => {
+      $$("[data-pf]").forEach((x) => x.setAttribute("aria-pressed", (x.dataset.pf === "bad") === only));
+      $$(".pv-card:not([data-bad])", $("#bPrev")).forEach((c) => (c.hidden = only));
+      const first = $(".pv-card[data-bad]", $("#bPrev"));
+      if (only && first) first.scrollIntoView({ block: "start" });
+    };
     const check = () => {
-      const { questions, passages, errors } = Quiz.parse($("#bSrc").value), c = (t) => questions.filter((q) => q.type === t).length;
-      const kinds = [["mc", "trắc nghiệm"], ["fill", "điền khuyết"], ["tf", "đúng/sai"], ["tf4", "đúng/sai 4 ý"], ["num", "trả lời bằng số"], ["match", "nối cột"], ["order", "sắp xếp"], ["essay", "tự luận"]]
-        .filter(([t], i) => i < 3 || c(t)).map(([t, nm]) => c(t) + " " + nm), np = Object.keys(passages).length;
-      $("#bRes").innerHTML = `<div class="${errors.length ? "notice" : "fb ok"}">Nhận được ${questions.length} câu: ${kinds.join(", ")}${np ? `; ${np} đoạn đọc` : ""}.${errors.length ? "<br>" + errors.map(esc).join("<br>") : ""}</div>`;
-      return { questions, passages };
+      const res = Quiz.parse($("#bSrc").value), { questions, passages } = res, c = (t) => questions.filter((q) => q.type === t).length;
+      const kinds = KINDS.filter(([t], i) => i < 3 || c(t)).map(([t, nm]) => c(t) + " " + nm), np = Object.keys(passages).length, pr = bankProblems(res);
+      $("#bRes").innerHTML = `<div class="${pr.length ? "notice" : "fb ok"}">Nhận được ${questions.length} câu: ${kinds.join(", ")}${np ? `; ${np} đoạn đọc` : ""}.${pr.length ? ` Cần sửa: ${esc(pr.join(", "))}. Xem các thẻ viền đỏ bên dưới.` : ""}</div>`;
+      $("#bPrev").innerHTML = bankPreview(res); $("#bPrev").hidden = false;
+      $$("[data-pf]").forEach((x) => (x.onclick = () => showBad(x.dataset.pf === "bad")));
+      $("#bCheck").textContent = "Kiểm tra lại"; $("#bAsk").innerHTML = "";
+      return res;
     };
     $("#bSample").onclick = () => { $("#bSrc").value = BANK_SAMPLE; check(); };
     $("#bCheck").onclick = check;
     $("#bFile").onchange = (ev) => { const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $("#bSrc").value = r.result; check(); }; r.readAsText(f, "utf-8"); };
+    const save = ({ questions, passages }) => {
+      try {
+        const saved = Store.upsertBank({ id: b.id, title: $("#bTitle").value, grade: +$("#bGrade").value, subject: $("#bSubj").value.trim(), minutes: +$("#bMin").value || 0, note: $("#bNote").value.trim(), questions, passages, src: $("#bSrc").value });
+        const ev = $("#bEvent").value && Store.event($("#bEvent").value);
+        if (ev) Store.upsertEvent(Object.assign({}, ev, { banks: [saved.id].concat((ev.banks || []).filter((x) => x !== saved.id)) })); // đề mới đứng đầu, như đề có sẵn mới
+        toast((cloud ? "Đã lưu đề" : "Đã lưu") + (ev ? `, gắn vào “${ev.title}”.` : "."), ev ? 3600 : 0); go("#/admin/banks");
+      } catch (err) { $("#bAsk").innerHTML = ""; $("#bRes").innerHTML = `<div class="fb bad">${esc(err.message)}</div>`; }
+    };
     $("#bForm").onsubmit = (ev) => {
       ev.preventDefault();
-      const { questions, passages } = check();
-      try {
-        Store.upsertBank({ id: b.id, title: $("#bTitle").value, grade: +$("#bGrade").value, subject: $("#bSubj").value.trim(), minutes: +$("#bMin").value || 0, note: $("#bNote").value.trim(), questions, passages, src: $("#bSrc").value });
-        toast(cloud ? "Đã lưu đề. Gắn đề vào kì thi ở mục Lịch thi → Sửa ngày, bài ôn." : "Đã lưu. Vào Lịch thi để gắn ngân hàng này vào kì thi."); go("#/admin/banks");
-      } catch (err) { $("#bRes").innerHTML = `<div class="fb bad">${esc(err.message)}</div>`; }
+      const res = check(), pr = bankProblems(res);
+      if (!pr.length || !res.questions.length) { save(res); return; } // không câu nào lưu được: kho tự báo "cần ít nhất một câu hỏi"
+      // có lỗi: hỏi lại ngay dưới nút Lưu, nói rõ bao nhiêu câu sẽ không được lưu, bao nhiêu câu thiếu phần bị lỗi
+      $("#bAsk").innerHTML = `<div class="confirm" id="bAskBox"><div>${esc(pr.join(", "))}. Vẫn lưu?</div><div class="row"><button class="btn sm" type="button" id="bAskYes">Vẫn lưu</button><button class="btn ghost sm" type="button" id="bAskNo">Sửa tiếp</button></div></div>`;
+      $("#bAskYes").onclick = () => save(res);
+      $("#bAskNo").onclick = () => { $("#bAsk").innerHTML = ""; showBad(true); };
+      $("#bAskBox").scrollIntoView({ block: "nearest" });
     };
     if ($("#bDel")) $("#bDel").onclick = () => {
       $("#bDelArea").innerHTML = `<div class="confirm"><div>Xóa ${cloud ? "đề" : "ngân hàng"} “${esc(b.title)}”?</div><div class="row"><button class="btn danger sm" type="button" id="bdYes">Xóa</button><button class="btn ghost sm" type="button" id="bdNo">Thôi</button></div></div>`;
