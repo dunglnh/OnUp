@@ -144,6 +144,9 @@ window.ONTAP_SEED_BANKS = [
      Review 3; Phiên N10) */
   { id: "ta6-gk2-de1", title: "Tiếng Anh 6 · Giữa kì II · Đề 1", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js" },
   { id: "ta6-gk2-de2", title: "Tiếng Anh 6 · Giữa kì II · Đề 2", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js" },
+  /* KHTN 6 · Kiểm tra giữa học kì II (Kết nối tri thức, Chương VII Đa dạng thế giới sống, Bài 25–39; Phiên N11) */
+  { id: "khtn6-gk2-de1", title: "KHTN 6 · Giữa kì II · Đề 1", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js" },
+  { id: "khtn6-gk2-de2", title: "KHTN 6 · Giữa kì II · Đề 2", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js" },
 
   /* Ngân hàng Toán 4 cuối kì I (Phiên N1): kho câu = 31 câu riêng trong file + 75 câu của 3 đề cố định ở trên, câu nào cũng
      có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020 (3 mức, không quy định tỉ lệ): 10 – 8 – 7 câu (40% – 32% – 28%). */
@@ -401,6 +404,16 @@ window.ONTAP_SEED_BANKS = [
     pool: { from: ["ta6-gk2-de1", "ta6-gk2-de2"], matrix: {
       "Pronunciation": [2, 1, 0], "Unit 7 · Television": [2, 2, 2], "Unit 8 · Sports and Games": [3, 1, 2], "Unit 9 · Cities of the World": [2, 2, 2],
       "Reading": [1, 2, 1] } } },
+  /* Ngân hàng KHTN 6 giữa kì II (Phiên N11): kho câu = 26 câu riêng trong file + 50 câu của 2 đề cố định ở trên, câu nào cũng có
+     mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): 10 chủ đề
+     theo nhóm bài của Chương VII (Bài 25–39), mỗi chủ đề 1–4 câu (Động vật nhiều nhất). Hai đề cố định chia đúng theo ma trận, câu
+     riêng ở ô nào cũng ít nhất bằng số câu ô đó rút, nên ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút và học sinh
+     đã làm một đề cố định vẫn gặp câu mới. */
+  { id: "khtn6-gk2-ngau-nhien", title: "KHTN 6 · Giữa kì II · Đề ngẫu nhiên", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js",
+    pool: { from: ["khtn6-gk2-de1", "khtn6-gk2-de2"], matrix: {
+      "Phân loại sinh vật": [1, 1, 0], "Khoá lưỡng phân": [0, 1, 1], "Vi khuẩn": [1, 1, 1], "Virus": [1, 1, 1], "Nguyên sinh vật": [1, 0, 1],
+      "Nấm": [1, 1, 1], "Thực vật": [1, 1, 1], "Động vật": [2, 1, 1], "Đa dạng sinh học": [1, 1, 0],
+      "Tìm hiểu sinh vật ngoài thiên nhiên": [1, 0, 0] } } },
   /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
      mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
