@@ -462,13 +462,18 @@ window.ONTAP_SEED_BANKS = [
     pool: { from: ["congnghe6-gk2-de1", "congnghe6-gk2-de2"], matrix: {
       "Trang phục trong đời sống": [3, 2, 2], "Sử dụng và bảo quản trang phục": [3, 3, 2], "Thời trang": [2, 2, 1],
       "Đồ dùng điện trong gia đình": [2, 1, 2] } } },
-  /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
-     mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
+  /* Ngân hàng Toán 4 giữa kì II (Phiên N7, nâng hai đề có sẵn lên ngân hàng): kho câu = 56 câu riêng trong file + 50 câu của
+     2 đề cố định ở trên (giữ nguyên câu, chỉ thêm mức độ), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư
+     27/2020: 10 – 8 – 7 câu trên 14 chủ đề như hai đề cố định; ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút.
+     Ba câu tự luận ở ô Vận dụng của “Phép chia”, “Số trung bình cộng”, “Rút về đơn vị” (mỗi ô rút 1 câu). */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
     pool: { from: ["toan4-gk2-de1", "toan4-gk2-de2"], matrix: {
-      "Phép nhân": 3, "Phép chia": 4, "Tính chất phép nhân": 3, "Nhân, chia với 10, 100, 1 000": 1, "Ước lượng": 1, "Số trung bình cộng": 2,
-      "Rút về đơn vị": 2, "Dãy số liệu, biểu đồ cột": 3, "Số lần xuất hiện của sự kiện": 1, "Phân số": 1, "Rút gọn phân số": 1,
-      "Quy đồng mẫu số": 1, "So sánh phân số": 1, "Tính chất cơ bản của phân số": 1 } } },
+      "Phép nhân": [1, 1, 1], "Phép chia": [1, 1, 1], "Tính chất phép nhân": [1, 1, 1], "Nhân, chia với 10, 100, 1 000": [1, 0, 0],
+      "Ước lượng": [0, 1, 0], "Số trung bình cộng": [1, 0, 1], "Rút về đơn vị": [0, 1, 1], "Dãy số liệu, biểu đồ cột": [1, 1, 1],
+      "Số lần xuất hiện của sự kiện": [1, 0, 0], "Phân số": [1, 0, 0], "Tính chất cơ bản của phân số": [1, 0, 0], "Rút gọn phân số": [0, 1, 0],
+      "Quy đồng mẫu số": [0, 1, 0], "So sánh phân số": [1, 0, 1] } } },
+  /* Đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
+     mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "tv4-gk2-ngau-nhien", title: "Tiếng Việt 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Tiếng Việt", minutes: 35, n: 25, file: "4-tv.js",
     pool: { from: ["tv4-gk2-de1", "tv4-gk2-de2"], matrix: {
       "Đọc hiểu": 7, "Câu": 2, "Chủ ngữ": 3, "Vị ngữ": 4, "Trạng ngữ": 1, "Trạng ngữ chỉ thời gian, nơi chốn": 2,
