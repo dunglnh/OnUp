@@ -2373,11 +2373,18 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   step("profile entry step, PIN lock UI, tap-to-change avatar (UX4)");
   /* Phiên UX4 (X1–X4), bản lưu trên máy: chạm hồ sơ có PIN thì sang bước nhập riêng #/vao/<mã> (không cuộn, tên và 12 nút bàn phím
      trong khung nhìn 740px, "← Chọn hồ sơ khác", hình to, tên, lớp, "Nhập mã PIN của bạn", hàng chấm, nút chữ "Hiện số", bàn phím, dòng
-     quên PIN); số đã gõ chỉ hiện ở hàng chấm (ô #pinIn ẩn); sai 5 lần thì đếm ngược ngay dưới hàng chấm, bàn phím và Hiện số disabled,
-     hết giờ bật lại; trang Tài khoản: chạm hình là đổi ngay (Store.user(id).avatar đổi, toast, không có nút Lưu), form đổi mã PIN riêng.
+     quên PIN); số đã gõ chỉ hiện ở hàng chấm (ô #pinIn ẩn); sai 5 lần thì đếm ngược ngay dưới hàng chấm, bàn phím và Hiện số disabled
+     (phím Vào nền line, chữ muted, không mờ; phím khác mờ .45; Phiên UI2, X32), hết giờ bật lại; trang Tài khoản: chạm hình là đổi ngay
+     (Store.user(id).avatar đổi, toast, không có nút Lưu), form đổi mã PIN riêng.
      Ảnh 360px sáng/tối ở tests/screenshots/ux4/ (bản ghép <tên>.jpg): a3-nhap-pin, a3-hien-so, a4-dang-doi, a6-hinh-dai-dien, a6-da-doi. */
   const OUTUX4 = OUT + "ux4/"; fs.mkdirSync(OUTUX4, { recursive: true });
   const ux4 = { problems: [], shots: [] };
+  /* Phiên UI2 (X32): màu đã vẽ của nút (nền, chữ, opacity) và màu đã tính của token line, muted, sun, sun-ink (bản giống trong
+     tests/supabase/cloud-e2e.js). Phím Vào bị tắt khi phải đợi: nền line, chữ muted, opacity 1 (offTone); bật lại: nền sun, chữ sun-ink (onTone). */
+  const btnTone = (sel) => { const b = document.querySelector(sel), s = getComputedStyle(b), tok = (v) => { const i = document.createElement("i"); i.style.color = `var(${v})`; document.body.appendChild(i); const c = getComputedStyle(i).color; i.remove(); return c; };
+    return { dis: b.disabled, bg: s.backgroundColor, color: s.color, op: s.opacity, line: tok("--line"), muted: tok("--muted"), sun: tok("--sun"), sunInk: tok("--sun-ink") }; };
+  const offTone = (t) => !!t && t.dis && t.bg === t.line && t.color === t.muted && t.op === "1";
+  const onTone = (t) => !!t && !t.dis && t.bg === t.sun && t.color === t.sunInk && t.op === "1";
   for (const scheme of ["light", "dark"]) {
     const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
     await localConfig(c); watchOut(c);
@@ -2402,10 +2409,13 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     for (let i = 0; i < 5; i++) { for (const k of "0000") await p.click(`.pad button[data-k="${k}"]`); await p.waitForTimeout(250); } // sai 5 lần
     await p.waitForSelector("#pinWait");
     r.locked = await lockUI4();
+    r.okOff = await p.evaluate(btnTone, ".pad .ok"); // UI2 (X32): phím Vào bị tắt; phím số, Hiện số vẫn mờ .45
+    r.dim = await p.evaluate(() => [...document.querySelectorAll(".pad button:not(.ok)"), document.querySelector("#pinShow")].map((b) => getComputedStyle(b).opacity));
     await check4("đang phải đợi"); await snap4("a4-dang-doi");
     await p.evaluate(() => { const o = JSON.parse(localStorage.getItem("ontap_pinlock_v1")); for (const k in o) if (o[k].until) o[k].until = Date.now() + 1200; localStorage.setItem("ontap_pinlock_v1", JSON.stringify(o)); });
     await p.waitForSelector("#pinErr .fb.ok", { timeout: 5000 });
     r.unlocked = await lockUI4();
+    r.okOn = await p.evaluate(btnTone, ".pad .ok");
     for (const k of "4444") await p.click(`.pad button[data-k="${k}"]`); await p.waitForSelector("#today"); // bật lại thì vào được
     r.in = await p.evaluate(() => (Store.sessionUser() || {}).name);
     // X4: trang Tài khoản: thẻ "Hình đại diện" chạm là đổi; form "Đổi mã PIN" riêng
@@ -2439,6 +2449,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.shown.dots === "44" && /shown/.test(r.shown.cls) && r.shown.pressed === "true" && r.shown.inputW <= 1 && r.shown.type === "text"
       && r.locked.dis === 12 && r.locked.show && r.locked.order && /^Mã PIN chưa đúng\. Đợi (30|29) giây rồi thử lại\.$/.test(r.locked.err) && r.locked.inputW <= 1
       && r.unlocked.dis === 0 && !r.unlocked.show && r.unlocked.order && r.unlocked.err === "Bạn nhập lại được rồi." && r.in === "Na"
+      && offTone(r.okOff) && onTone(r.okOn) && r.dim.length === 12 && r.dim.every((o) => o === "0.45")
       && r.account.hint === "Chạm vào hình là đổi ngay." && !r.account.save && r.account.pinBtn === "Đổi mã PIN" && r.account.h3 === "Hình đại diện,Đổi mã PIN"
       && r.changed.av && r.changed.toast === "Đã đổi hình đại diện" && r.changed.head && r.changed.top && r.changed.pressed && r.changed.saved && /Nhập mã PIN mới/.test(r.pinForm); });
 

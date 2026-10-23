@@ -80,6 +80,9 @@ a{color:var(--acc)}
 /* Vùng bấm tối thiểu 44×44px (tay trẻ): nút nhỏ, link dạng nút giữ cỡ chữ, chỉ cao thêm. */
 .btn.sm{padding:7px 12px;font-size:.875rem;border-radius:10px;min-height:44px}
 .btn:disabled{opacity:.45;cursor:default}
+/* Nút chính và phím Vào của bàn phím PIN bị tắt (X32, Phiên UI2): nền line, chữ muted, không làm mờ. Làm mờ nền sun trên thẻ tối
+   thành khối màu ô liu, trông như một nút khác màu vẫn bấm được. Nút khác (.btn thường, ghost, danger, phím số, Hiện số) vẫn mờ .45. */
+.btn.main:disabled,.pad .ok:disabled{background:var(--line);color:var(--muted);opacity:1}
 .linkbtn{border:0;background:none;color:var(--acc);font-weight:700;padding:4px 0;text-align:left;align-self:flex-start;min-height:44px;min-width:44px;display:inline-flex;align-items:center}
 /* <details class="small"> (hướng dẫn gấp lại, ví dụ "Cách viết câu hỏi" ở màn nhập đề): dòng summary là vùng bấm, cao ≥ 44px, chữ căn giữa;
    giữ dấu tam giác mặc định (display: list-item). .grp>summary, .psg>summary có kiểu riêng bên dưới. */
@@ -159,6 +162,7 @@ a.kid{color:inherit;text-decoration:none;gap:12px}
 .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:0 auto;width:100%}
 .pad button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:14px 0;font-size:1.35rem;font-weight:700;min-height:44px}
 .pad button:disabled{opacity:.45;cursor:default} /* đang phải đợi sau nhiều lần sai (UX4, X3) */
+.pad .ok{background:var(--sun);color:var(--sun-ink)} /* phím Vào; bị tắt thì như nút chính bị tắt (X32, quy tắc ở phần nút) */
 /* bước nhập PIN, mật khẩu (#/vao/<mã>, renderEnter trong js/app.js, UX4): hình to, tên, lớp ở giữa; bàn phím ngay dưới,
    cả màn hình vừa 360×740 không cuộn (tests/e2e.js, cloud-e2e.js đo tên và 12 nút bàn phím trong khung nhìn). */
 .enter{gap:10px}

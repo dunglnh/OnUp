@@ -392,7 +392,7 @@
         <label class="field sr"><span id="pinLabel">Mã PIN</span><input id="pinIn" type="password" inputmode="numeric" maxlength="6" autocomplete="off" data-reveal="pinShow"></label>
         <div id="pinErr" aria-live="assertive"></div>
         <button type="button" class="linkbtn pin-show" id="pinShow"></button>
-        <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join("")}<button type="button" data-k="del" aria-label="Xóa">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" aria-label="Vào" style="background:var(--sun);color:var(--sun-ink)">Vào</button></div>
+        <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join("")}<button type="button" data-k="del" aria-label="Xóa">⌫</button><button type="button" data-k="0">0</button><button type="button" class="ok" data-k="ok" aria-label="Vào">Vào</button></div>
         <div class="row" style="justify-content:center" id="pinAlt" hidden></div>
       </section>`;
   /* Bàn phím PIN dùng chung cho đăng nhập trên máy và trên đám mây. submit(pin) được gọi khi bấm Vào, Enter,
