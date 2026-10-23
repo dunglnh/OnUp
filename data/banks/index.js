@@ -153,6 +153,11 @@ window.ONTAP_SEED_BANKS = [
   { id: "lsdl6-gk2-de2", title: "Lịch sử và Địa lí 6 · Giữa kì II · Đề 2", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js" },
   { id: "gdcd6-gk2-de1", title: "GDCD 6 · Giữa kì II · Đề 1", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js" },
   { id: "gdcd6-gk2-de2", title: "GDCD 6 · Giữa kì II · Đề 2", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js" },
+  /* Tin học 6, Công nghệ 6 · Kiểm tra giữa học kì II (Kết nối tri thức; Tin học Bài 9–13; Công nghệ Bài 7–10; Phiên N12b) */
+  { id: "tin6-gk2-de1", title: "Tin học 6 · Giữa kì II · Đề 1", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js" },
+  { id: "tin6-gk2-de2", title: "Tin học 6 · Giữa kì II · Đề 2", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js" },
+  { id: "congnghe6-gk2-de1", title: "Công nghệ 6 · Giữa kì II · Đề 1", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js" },
+  { id: "congnghe6-gk2-de2", title: "Công nghệ 6 · Giữa kì II · Đề 2", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js" },
 
   /* Ngân hàng Toán 4 cuối kì I (Phiên N1): kho câu = 31 câu riêng trong file + 75 câu của 3 đề cố định ở trên, câu nào cũng
      có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020 (3 mức, không quy định tỉ lệ): 10 – 8 – 7 câu (40% – 32% – 28%). */
@@ -439,6 +444,24 @@ window.ONTAP_SEED_BANKS = [
   { id: "gdcd6-gk2-ngau-nhien", title: "GDCD 6 · Giữa kì II · Đề ngẫu nhiên", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js",
     pool: { from: ["gdcd6-gk2-de1", "gdcd6-gk2-de2"], matrix: {
       "Ứng phó với tình huống nguy hiểm": [4, 3, 3], "Tiết kiệm": [4, 4, 3], "Công dân nước Việt Nam": [2, 1, 1] } } },
+  /* Ngân hàng Tin học 6 giữa kì II (Phiên N12b): kho câu = 50 câu của 2 đề cố định ở trên (không có câu riêng), câu nào cũng có
+     mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): Bài 9 An
+     toàn thông tin trên Internet 3 câu (có trường dạy ở học kì I), Bài 10 Sơ đồ tư duy 5 câu, Bài 11 Định dạng văn bản 8 câu, Bài 12
+     Trình bày thông tin ở dạng bảng 6 câu, Bài 13 Tìm kiếm và thay thế 3 câu. Hai đề cố định chia đúng theo ma trận, nên ô (chủ
+     đề, mức) nào cũng có đúng 2 câu, gấp đôi số câu ô đó rút. */
+  { id: "tin6-gk2-ngau-nhien", title: "Tin học 6 · Giữa kì II · Đề ngẫu nhiên", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js",
+    pool: { from: ["tin6-gk2-de1", "tin6-gk2-de2"], matrix: {
+      "An toàn thông tin trên Internet": [1, 1, 1], "Sơ đồ tư duy": [2, 2, 1], "Định dạng văn bản": [3, 3, 2],
+      "Trình bày thông tin ở dạng bảng": [3, 1, 2], "Tìm kiếm và thay thế": [1, 1, 1] } } },
+  /* Ngân hàng Công nghệ 6 giữa kì II (Phiên N12b): kho câu = 50 câu của 2 đề cố định ở trên (không có câu riêng), câu nào cũng có
+     mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): Bài 7
+     Trang phục trong đời sống 7 câu, Bài 8 Sử dụng và bảo quản trang phục 8 câu, Bài 9 Thời trang 5 câu, Bài 10 Khái quát về đồ
+     dùng điện trong gia đình 5 câu (có trường chỉ kiểm tra đến Bài 9). Hai đề cố định chia đúng theo ma trận, nên ô (chủ đề, mức)
+     nào cũng có đúng 2 câu, gấp đôi số câu ô đó rút. */
+  { id: "congnghe6-gk2-ngau-nhien", title: "Công nghệ 6 · Giữa kì II · Đề ngẫu nhiên", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js",
+    pool: { from: ["congnghe6-gk2-de1", "congnghe6-gk2-de2"], matrix: {
+      "Trang phục trong đời sống": [3, 2, 2], "Sử dụng và bảo quản trang phục": [3, 3, 2], "Thời trang": [2, 2, 1],
+      "Đồ dùng điện trong gia đình": [2, 1, 2] } } },
   /* Các đề ngẫu nhiên dưới đây (Phiên K3): kho câu gộp từ các đề cố định cùng môn, cùng kì ở trên; ma trận theo chủ đề (số câu
      mỗi chủ đề tỉ lệ với số câu có trong kho, mỗi chủ đề ít nhất 1 câu). Câu chưa ghi mức độ nên chưa chia theo mức. */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
