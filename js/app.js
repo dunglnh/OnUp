@@ -1467,7 +1467,6 @@
     if (cloud && tab === "users") tab = "settings"; // địa chỉ cũ của tab Hồ sơ con
     let body = "";
     const kidRow = (x) => itemLink("#/admin/user/" + esc(x.id), esc(x.name), `${esc(gradeTxt(x))} · ${x.hasPin ? "có mã PIN" : "không có mã PIN"}${esc(lockTag(x))}`, avatar(x));
-    const bankRow = (b) => itemLink(`#/${b.seed ? "quiz" : "admin/bank"}/${esc(b.id)}`, nb(esc(b.title)), `Lớp ${b.grade} · ${esc(b.subject)} · ${qCount(b)} câu${b.pool ? " rút ngẫu nhiên" : ""}${b.seed ? " · có sẵn (chỉ xem)" : ""}`);
     if (tab === "overview" && cloud) {
       // Thẻ "Bắt đầu trong 3 bước" (UX3) đứng đầu đến khi một con đã học; chưa có hồ sơ con thì chỉ có thẻ này (nút thêm nằm trong thẻ).
       const studs = Store.users("student"), max = (Store.plan() || {}).maxChildren || 0;
@@ -1505,17 +1504,8 @@
         <a class="linkbtn" id="calLink" href="#/calendar">Xem theo tháng →</a>
         <div class="list">${shownEvents(Store.events()).map((e) => `<a class="item" href="#/admin/event/${esc(e.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${nb(`${esc(e.title)} · Lớp ${esc(gradesTxt(e))}`)}</b><span class="small muted">${esc(range(e))}${e.tentative && e.start ? " · dự kiến" : ""} · ${practiceCount(practiceFor(e, null))} bài ôn</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>
         <div class="row"><button class="btn ghost sm" id="resetEv">Khôi phục lịch mặc định</button></div><div id="resetArea"></div>`;
-    } else if (tab === "banks" && cloud) {
-      const all = Store.banks(), mine = all.filter((b) => !b.seed), seed = all.filter((b) => b.seed);
-      const linked = (b) => { const ev = Store.events().filter((e) => (e.banks || []).includes(b.id)).map((e) => e.title); return ev.length ? "gắn vào " + ev.join(", ") : "chưa gắn vào kì thi nào"; };
-      body = `${back("#/admin/settings", "Cài đặt")}
-        <div class="row between"><h2>Đề tự soạn${mine.length ? ` (${mine.length})` : ""}</h2><a class="btn main sm" href="#/admin/bank/new">+ Nhập đề</a></div>
-        <p class="muted small">Dán câu hỏi từ Word, Zalo, sách bài tập. App tự nhận dạng trắc nghiệm, điền khuyết, đúng/sai, nối cột, sắp xếp, trả lời bằng số, tự luận.</p>
-        ${mine.length ? `<div class="list" id="myBanks">${mine.map((b) => itemLink("#/admin/bank/" + esc(b.id), nb(esc(b.title)), `Lớp ${b.grade} · ${esc(b.subject)} · ${qCount(b)} câu · ${esc(linked(b))}`)).join("")}</div>` : `<div class="panel muted" id="myBanks">Chưa có đề tự soạn. Bấm “Nhập đề” để thêm.</div>`}
-        <details class="grp" id="seedBanks"><summary><span class="grow"><b>Đề có sẵn của app</b><span class="small muted">${seed.length} đề · bấm để xem thử</span></span></summary><div class="list">${seed.map(bankRow).join("")}</div></details>`;
     } else if (tab === "banks") {
-      body = `<div class="row between"><p class="muted small" style="flex:1">Dán câu hỏi từ Word, Zalo, sách bài tập. App tự nhận dạng trắc nghiệm, điền khuyết, đúng/sai, nối cột, sắp xếp, trả lời bằng số, tự luận.</p><a class="btn main sm" href="#/admin/bank/new">+ Nhập ngân hàng</a></div>
-        <div class="list">${Store.banks().map(bankRow).join("")}</div>`;
+      body = (cloud ? back("#/admin/settings", "Cài đặt") : "") + banksHTML(cloud);
     } else if (tab === "data" && cloud) {
       const loc = Store.localData(), mig = Store.migratedAt();
       const kids = loc ? loc.users.filter((x) => x.role === "student").length : 0;
@@ -1561,6 +1551,7 @@
     if ($("#switchWho")) $("#switchWho").onclick = switchWho;
     if ($("#letStudy")) $("#letStudy").onclick = switchWho; // thẻ Bắt đầu (UX3)
     wireUnsent(null); // dòng "N bài làm trên máy này chưa gửi đi" ở mục Các con (UX6)
+    if (tab === "banks") wireSeedBanks();
     if (tab === "events") $("#resetEv").onclick = () => {
       $("#resetArea").innerHTML = `<div class="confirm"><div>Chép lại lịch thi gốc? Các kì thi bạn đã thêm hoặc sửa sẽ bị thay thế.</div><div class="row"><button class="btn danger sm" id="rsYes">Khôi phục</button><button class="btn ghost sm" id="rsNo">Thôi</button></div></div>`;
       $("#rsYes").onclick = () => { Store.resetEvents(); toast("Đã khôi phục lịch mặc định"); renderAdmin(u, "events"); };
@@ -1585,6 +1576,62 @@
         $("#wipeNo").onclick = () => ($("#wipeArea").innerHTML = "");
       };
     }
+  }
+
+  /* Danh sách đề (Phiên UX7, X12): trang "Đề tự soạn" của bản đám mây, tab "Ngân hàng đề" của bản lưu trên máy. Đề tự soạn (#myBanks)
+     lên đầu, mỗi đề ghi kì thi đã gắn hoặc "chưa gắn vào kì thi nào". Đề có sẵn (#seedBanks) chọn theo khối: tab khối lấy từ gradeList(),
+     ghi số đề (đang tìm thì số đề khớp), mặc định khối của các con; trong mỗi khối đề nhóm theo môn bằng <details> thu gọn (đang tìm thì
+     nhóm có đề khớp mở ra). Ô tìm như ô tìm của màn Sửa kì thi (findHit), tìm ở mọi khối. Mọi khối vẽ sẵn, tab chỉ ẩn, hiện; bankGrade
+     nhớ khối đang chọn. */
+  let bankGrade = null;
+  function banksHTML(cloud) {
+    const all = Store.banks(), mine = all.filter((b) => !b.seed), seed = all.filter((b) => b.seed), gl = gradeList();
+    const linked = (b) => { const ev = Store.events().filter((e) => (e.banks || []).includes(b.id)).map((e) => e.title); return ev.length ? "gắn vào " + ev.join(", ") : "chưa gắn vào kì thi nào"; };
+    if (!gl.includes(bankGrade)) bankGrade = gradesOf(Store.users("student")).find((g) => gl.includes(g)) || gl[0];
+    const byTitle = (a, b) => a.title.localeCompare(b.title, "vi", { numeric: true });
+    const row = (b) => `<a class="item" href="#/quiz/${esc(b.id)}" data-k="${esc(findKey(b.title + " " + b.subject))}" style="color:inherit;text-decoration:none"><span class="grow"><b>${nb(esc(b.title))}</b><span class="small muted">${qCount(b)} câu${b.pool ? " rút ngẫu nhiên" : ""}${b.minutes ? ` · ${b.minutes} phút` : ""} · xem thử</span></span><span aria-hidden="true">›</span></a>`;
+    const pane = (g) => {
+      const subs = new Map();
+      seed.filter((b) => +b.grade === g).forEach((b) => subs.set(b.subject || "Khác", (subs.get(b.subject || "Khác") || []).concat(b)));
+      return `<div class="sb-g" data-sg="${g}"${g === bankGrade ? "" : " hidden"}>${[...subs].map(([sub, l]) => `<details class="grp"><summary><span class="grow"><b>${esc(sub)}</b><span class="small muted sb-n">${l.length} đề</span></span></summary><div class="list">${l.sort(byTitle).map(row).join("")}</div></details>`).join("")
+        || `<div class="panel muted">Chưa có đề có sẵn cho ${esc(gradeName(g))}.</div>`}</div>`;
+    };
+    const what = cloud ? "đề tự soạn" : "ngân hàng tự nhập", add = cloud ? "Nhập đề" : "Nhập ngân hàng";
+    return `<div class="row between"><h2>${cloud ? "Đề tự soạn" : "Ngân hàng tự nhập"}${mine.length ? ` (${mine.length})` : ""}</h2><a class="btn main sm" href="#/admin/bank/new">+ ${add}</a></div>
+      <p class="muted small">Dán câu hỏi từ Word, Zalo, sách bài tập. App tự nhận dạng trắc nghiệm, điền khuyết, đúng/sai, nối cột, sắp xếp, trả lời bằng số, tự luận.</p>
+      ${mine.length ? `<div class="list" id="myBanks">${mine.map((b) => itemLink("#/admin/bank/" + esc(b.id), nb(esc(b.title)), `Lớp ${b.grade} · ${esc(b.subject)} · ${qCount(b)} câu · ${esc(linked(b))}`)).join("")}</div>`
+        : `<div class="panel muted" id="myBanks">Chưa có ${what}. Bấm “${add}” để thêm.</div>`}
+      <section class="sec" id="seedBanks"><h2>Đề có sẵn của app</h2>
+        ${findBox("seedFind", "Tìm đề có sẵn", "Tìm đề có sẵn, ví dụ “Toán Đề 2”")}
+        <div class="tabs" role="group" aria-label="Chọn khối">${gl.map((g) => `<button type="button" data-sg="${g}" aria-pressed="${g === bankGrade}">${esc(gradeName(g))} · <span class="sb-c">${seed.filter((b) => +b.grade === g).length}</span> đề</button>`).join("")}</div>
+        ${gl.map(pane).join("")}<p class="muted small" id="seedNone" hidden></p></section>`;
+  }
+  function wireSeedBanks() {
+    const box = $("#seedBanks"), find = $("#seedFind");
+    let was = "";
+    const sync = () => {
+      const q = find.value.trim();
+      $$(".tabs [data-sg]", box).forEach((b) => b.setAttribute("aria-pressed", +b.dataset.sg === bankGrade));
+      let cur = 0, other = 0;
+      $$(".sb-g", box).forEach((p) => {
+        let n = 0;
+        p.hidden = +p.dataset.sg !== bankGrade;
+        $$(".grp", p).forEach((d) => {
+          const rows = $$("a.item", d);
+          rows.forEach((r) => (r.hidden = !findHit(q, r.dataset.k)));
+          const k = rows.filter((r) => !r.hidden).length;
+          n += k; d.hidden = !k; $(".sb-n", d).textContent = k + " đề";
+          if (q && k) d.open = true; else if (!q && was) d.open = false; // xóa chữ tìm thì thu gọn lại như lúc mở trang
+        });
+        $(`.tabs [data-sg="${p.dataset.sg}"] .sb-c`, box).textContent = n;
+        if (p.hidden) other += n; else cur = n;
+      });
+      $("#seedNone").hidden = !q || cur > 0;
+      $("#seedNone").textContent = `Không có đề nào của ${gradeName(bankGrade)} khớp “${q}”.${other ? " Xem tab khối khác." : ""}`;
+      was = q;
+    };
+    $$(".tabs [data-sg]", box).forEach((b) => (b.onclick = () => { bankGrade = +b.dataset.sg; sync(); }));
+    find.addEventListener("input", sync);
   }
 
   /* Bản đám mây: "Chọn hồ sơ khác", "Cho con học": về màn hình "Ai đang học?" (không đăng xuất tài khoản gia đình). */
