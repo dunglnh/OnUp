@@ -376,7 +376,7 @@ async function run(browser, scheme) {
   // UX1: ôn lại câu sai: lượt chỉ gồm các câu sai, xong không gửi thêm kết quả lên máy chủ
   const nServer = be.T.results.filter((r) => r.profile_id === binId).length;
   await p.click("#qzRetry"); await p.waitForSelector(".qcard");
-  c.ux1.retryChip = await text(p, ".chip:last-child");
+  c.ux1.retryChip = await text(p, "#qzProg"); // 9n: tiến độ là nút mở bảng số câu
   for (let i = 0; i < 40 && !(await p.$(".score")); i++) { if (await p.$("#qzFill")) await p.fill("#qzFill", "1"); else await p.click(".opt >> nth=0"); await p.click("#qzGo"); await p.click("#qzGo"); }
   await p.waitForSelector(".score");
   c.ux1.retryResult = await text(p, "#qzScore"); await wait(p, 300);

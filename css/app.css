@@ -271,6 +271,33 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 /* chế độ tập trung (body.quizzing, renderQuiz trong js/app.js, Phiên UX5): trong lúc làm một lượt, thanh trên chỉ còn chữ OnUp */
 .quizzing .who,.quizzing .tabbar{display:none}
 .qz-nav>.btn.main{margin-left:auto} /* sau Kiểm tra "Bỏ qua" ẩn hẳn (X8): "Câu tiếp" vẫn ở bên phải */
+/* bảng số câu và màn "Xem lại bài làm" (js/quiz.js, Phiên 9n, L38, L39). Hàng trên cùng vừa một hàng ở 360px từ câu 10 (X26):
+   gap 8px, chip đồng hồ và nút gọn hơn. Nút "Câu 9/25" (#qzProg) mở bảng #qzGrid ngay dưới; mở thì viền acc, mũi tên quay lên. */
+.qz-top,.qz-top .row{gap:8px}
+.qz-top .chip.timer{padding:5px 10px;gap:4px}
+.qz-top .btn.sm{padding:7px 10px}
+.qz-prog{padding:7px 6px 7px 10px;gap:2px;font-variant-numeric:tabular-nums}
+.qz-prog svg{color:var(--acc);flex:none}
+.qz-prog[aria-expanded="true"]{border-color:var(--acc)}
+.qz-prog[aria-expanded="true"] svg{transform:rotate(180deg)}
+.qz-grid{gap:12px}
+.qz-cells{display:grid;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:8px} /* 360px: 5 ô một hàng */
+/* ô số câu: trạng thái phân biệt bằng viền và dấu (–, ✓, ✗), không chỉ bằng màu; ô đang làm có vòng ngoài */
+.qz-cell{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;height:48px;min-height:48px;padding:0;border:1px solid var(--line);background:var(--surface);border-radius:10px;color:var(--ink);font-weight:700;line-height:1.1}
+.qz-cell i{font-style:normal;font-size:13px;line-height:1;min-height:13px;color:var(--muted)}
+.qz-cell.st-skip{border:2px dashed var(--muted)}
+.qz-cell.st-ans,.qz-cell.st-done{border:2px solid var(--acc);background:var(--acc-soft)}
+.qz-cell.st-ok{border:2px solid var(--ok);background:var(--ok-soft)} .qz-cell.st-ok i{color:var(--ok)}
+.qz-cell.st-bad{border:2px solid var(--bad);background:var(--bad-soft)} .qz-cell.st-bad i{color:var(--bad)}
+.qz-cell.cur{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
+.qz-key{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0;font-size:13px}
+.qz-key span{display:inline-flex;align-items:center;gap:6px}
+.qz-key .qz-cell{width:18px;height:18px;min-height:18px;border-radius:5px;box-shadow:none}
+.qz-key .qz-cell i{font-size:13px;min-height:0}
+.qz-key .qz-cell.cur{box-shadow:0 0 0 1px var(--surface),0 0 0 2px var(--ink)}
+.qz-recap h2{font-size:1.25rem;margin:0}
+.qz-recap p{margin:0}
+.qz-left{align-self:flex-start} /* nhãn "Câu còn trống 2/3" đầu thẻ câu trong vòng làm tiếp */
 /* màn mở đề (renderQuiz, UX5 X9): thẻ "Lần trước" và hai thẻ chọn cách làm (cao ≥ 64px, biểu tượng, một dòng giải thích, mũi tên) */
 .prev{flex-direction:row;align-items:center;gap:12px}
 :is(.prev,.mode)>svg{flex:none;width:24px;height:24px;color:var(--acc)}
