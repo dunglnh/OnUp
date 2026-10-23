@@ -35,7 +35,7 @@ Phiên Claude Code không mở được Figma. Vì vậy ảnh chụp 1.x và 2.
 | [Khu phụ huynh](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=80-1697) | UX2 (E1, E3), UX3 (E2) | X17–X20 (kiểm thử sau UX3) | **UX3b** | [ux2-ux3-khu-phu-huynh](hinh-ux-2x/ux2-ux3-khu-phu-huynh.jpg), [ux2-lich-thi](hinh-ux-2x/ux2-lich-thi.jpg), [kt-ux3-bat-dau](hinh-ux-2x/kt-ux3-bat-dau.jpg), [kt-ux3-dat-pin](hinh-ux-2x/kt-ux3-dat-pin.jpg), [kt-ux3-dang-xuat](hinh-ux-2x/kt-ux3-dang-xuat.jpg) |
 | [Quản lí đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=82-2135) | UX2 (tên “Đề tự soạn”) | X11–X13 | **UX7** | [ux7-chon-de](hinh-ux-2x/ux7-chon-de.jpg), [ux7-de-tu-soan](hinh-ux-2x/ux7-de-tu-soan.jpg) |
 | [Báo cáo tuần](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2729) | — | X14 | **UX8** | [ux8-bao-cao-tuan](hinh-ux-2x/ux8-bao-cao-tuan.jpg) |
-| [Chữ và màu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2933) | — | X15, X16 | **UI1** | [ui1-tieu-de](hinh-ux-2x/ui1-tieu-de.jpg), [ui1-o-ma](hinh-ux-2x/ui1-o-ma.jpg) |
+| [Chữ và màu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2933) | — | X15, X16; X32 (kiểm thử sau UX3, UX4) | UI1 xong (PR #40); **UI2** | [ui1-tieu-de](hinh-ux-2x/ui1-tieu-de.jpg), [ui1-o-ma](hinh-ux-2x/ui1-o-ma.jpg), [ui2-nut-tat](hinh-ux-2x/ui2-nut-tat.jpg) |
 | [Làm bài · bảng số câu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=267-3035) | L38, L39 (flow của PO, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2) | X21–X27; X28, X29 (kiểm thử sau 9n) | 9n, 9nb xong (PR #119, #122; kiểm thử ở mục 5) | [9n-bang-so-cau](hinh-ux-2x/9n-bang-so-cau.jpg), [9n-xem-lai-bai-lam](hinh-ux-2x/9n-xem-lai-bai-lam.jpg), [9n-lam-tiep-sua-cau](hinh-ux-2x/9n-lam-tiep-sua-cau.jpg), [kt-9n-xem-lai](hinh-ux-2x/kt-9n-xem-lai.jpg), [kt-9n-chu-thich](hinh-ux-2x/kt-9n-chu-thich.jpg) |
 | [Bài ôn dạng trang · bảng số câu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=290-3561) | L38, L39 (Phiên 9o) | X26–X29 (chung với 9n); X30, X31 (kiểm thử sau 9o) | 9o xong (PR #123); **9ob** | [9o-bai-on](hinh-ux-2x/9o-bai-on.jpg), [kt-9o-bang-so-cau](hinh-ux-2x/kt-9o-bang-so-cau.jpg), [kt-9o-xem-lai](hinh-ux-2x/kt-9o-xem-lai.jpg) |
 
@@ -410,6 +410,28 @@ Tìm được khi kiểm thử thiết kế sau khi gộp PR #56 (mục 5). Figm
 - Thêm một kiểm tra: `line-height` tính ra của `h1` ≥ 1,3 lần cỡ chữ.
 - Xem lại ảnh 360px sáng/tối trong `tests/screenshots/360/` và ảnh `admin-da-tao` của `tests/supabase/cloud-e2e.js`: không có chỗ nào vỡ, ô mã nổi khung.
 
+### Phiên UI2 · Nút chính bị tắt ở chế độ tối
+
+Ghi nhận ở kiểm thử UX3 (mục 5, 19/10/2026: nút “Cho con học”), gặp lại ở kiểm thử UX4 (23/10/2026: phím Vào khi phải đợi). Figma: khung [H3](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=298-4156) sáng và tối trong section Chữ và màu; component `.btn` (Variant=main, State=disabled) đã vẽ theo đề xuất, nên E2 cũng đổi theo.
+
+![Nút chính bị tắt: hiện nay và đề xuất, sáng và tối](hinh-ux-2x/ui2-nut-tat.jpg)
+
+**X32. Nút chính bị tắt trông như nút đang bấm được ở chế độ tối.**
+- `.btn:disabled` và `.pad button:disabled` chỉ làm mờ (`opacity: .45`). Nút chính có nền `--sun`; phím Vào của bàn phím PIN cũng tô `--sun` (style viết thẳng trong `pinBoxHTML` của `js/app.js`).
+- Chế độ sáng: nút mờ thành vàng nhạt, nhìn là biết đang tắt (nút so với thẻ 1,3:1, chữ 2,0:1).
+- Chế độ tối: làm mờ trên nền thẻ tối thành khối màu ô liu, nổi trên thẻ 3,2:1 (nút bấm được: 10,7:1), chữ trên nút 3,2:1. Trông như một nút khác màu vẫn bấm được, nhất là khi đứng cạnh nút chính bấm được.
+- Các nút chính có lúc bị tắt: “Cho con học” (`#letStudy`, chưa có hồ sơ con), “Vào khu phụ huynh” (`#pwGo`) và phím Vào khi phải đợi, “Đăng xuất” trong hộp hỏi (`#outYes`) khi phải đợi, “Tạo hồ sơ” khi đã đủ 5 hồ sơ, “Chuyển dữ liệu máy này lên đám mây” (`#dMigrate`) khi máy không có dữ liệu cũ.
+
+**Cách làm gợi ý:**
+- Nút chính bị tắt (`.btn.main:disabled`) và phím Vào bị tắt: nền `--line`, chữ `--muted`, không làm mờ (`opacity: 1`), ở cả sáng và tối. Đo: chữ 4,4:1 (sáng), 5,0:1 (tối); nút so với thẻ 1,3:1 ở cả hai chế độ, nên nhìn là biết đang tắt.
+- Phím Vào: bỏ style viết thẳng trong `pinBoxHTML`, dùng một lớp trong `css/app.css` (ví dụ `.pad .ok`) có nền `--sun`, chữ `--sun-ink` và trạng thái `:disabled` như trên.
+- Nút khác (`.btn` thường, `ghost`, `danger`, phím số, “Hiện số”) giữ `opacity: .45`.
+- Không đổi cách bật, tắt nút; 4 bài ôn dạng trang không có nút chính bị tắt nên không phải sửa.
+
+**Xong khi:**
+- `tests/e2e.js` (bước UX4, lúc phải đợi) và `tests/supabase/cloud-e2e.js` (UX3, “Cho con học” khi chưa có hồ sơ con) kiểm tra ở cả sáng và tối: nút chính bị tắt và phím Vào bị tắt có màu nền bằng `--line`, chữ bằng `--muted`, `opacity` 1; hai bộ kiểm thử in OK.
+- Ảnh 360px sáng/tối chép lại: `docs/hinh-ux4/a4-dang-doi.jpg`, `ma-mo-nhanh-dang-doi.jpg` (phải đợi) và `docs/hinh-ux3/bat-dau-3-buoc.jpg` (“Cho con học” khi chưa có hồ sơ con).
+
 ### Phiên 9nb · Sửa sau kiểm thử 9n
 
 Tìm được khi kiểm thử thiết kế sau khi gộp PR #119 (mục 5). Figma: [C5–C8](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=267-3035) trong section Làm bài · Bảng số câu (9n), vẽ theo code, chú thích đã sửa theo hai mục dưới đây. Phiên ngắn: sửa `keyHtml` trong `js/quiz.js`, bước L38, L39 của `tests/e2e.js` và CLAUDE.md. Làm trước 9o, vì 9o vẽ cùng chú thích trong bài ôn dạng trang.
@@ -658,13 +680,64 @@ Lượt kiểm thử không sửa code: chỉ ghi lại, rồi giao việc.
 
 **Đã biết, để UX4:** ô Phụ huynh có mã mở nhanh dùng chung bàn phím PIN, nên vướng cùng X1–X3: trang tự cuộn, số hiện hai lần, đang phải đợi vẫn bấm được. UX4 làm bước nhập mã riêng theo A5b (mục 3, Phiên UX4).
 
-**Ghi nhận cho design system, chưa giao việc:** nút chính bị tắt (`.btn:disabled`, `opacity: .45`) ở chế độ tối thành một khối màu ô liu nổi rõ trên thẻ (3,2:1) trong khi chữ trên nút chỉ đạt 1,7:1, nên trông như một nút khác màu đang bấm được. Ở chế độ sáng thì nhạt rõ ràng. Nếu sửa: nút tắt dùng nền `--line`, chữ `--muted` thay cho làm mờ, áp dụng cho mọi nút chính, và sửa cùng component `.btn` (State=disabled) trong Figma.
+**Ghi nhận cho design system, chưa giao việc:** nút chính bị tắt (`.btn:disabled`, `opacity: .45`) ở chế độ tối thành một khối màu ô liu nổi rõ trên thẻ (3,2:1) trong khi chữ trên nút chỉ đạt 1,7:1, nên trông như một nút khác màu đang bấm được. Ở chế độ sáng thì nhạt rõ ràng. Nếu sửa: nút tắt dùng nền `--line`, chữ `--muted` thay cho làm mờ, áp dụng cho mọi nút chính, và sửa cùng component `.btn` (State=disabled) trong Figma. (23/10/2026: gặp lại ở kiểm thử UX4, thành X32, giao Phiên UI2 ở mục 3.)
 
 **Kiểm thử tự động trên `main` sau khi gộp (`d121ca1`):**
 - `tests/e2e.js`: E2E OK.
 - `tests/supabase/cloud-e2e.js`: CLOUD E2E OK, 116 mục đạt ở hai lượt sáng và tối, trong đó có 4 kiểm tra UX3 mỗi lượt.
 - `store-test.mjs`: SUPABASE STORE OK. `admin-test.mjs`: ADMIN OK.
 - `sh tests/supabase/run.sh`: RLS OK, 205 kiểm tra. PR #56 chưa chạy bước này vì máy của phiên đó không có PostgreSQL.
+
+### UX4 · Chọn hồ sơ và nhập PIN · PR #59 · kiểm thử 23/10/2026
+
+**Kết luận:** đạt. Bước nhập riêng (A3), bàn phím mờ khi phải đợi (A4), mật khẩu và mã mở nhanh của Phụ huynh (A5, A5b), chạm hình là đổi (A6) đúng lời giao việc, trên `main` hiện nay (sau đổi font, hình hải cẩu, 9n). Một chỗ cũ gặp lại: ở chế độ tối, phím Vào bị tắt khi phải đợi thành khối màu ô liu, như nút “Cho con học” của kiểm thử UX3 (X32, giao Phiên UI2 ở mục 3).
+
+**Cách kiểm:** ảnh 360px sáng/tối của `tests/e2e.js` (bước UX4) và `tests/supabase/cloud-e2e.js` (các kiểm tra “UX4:”) chạy trên `main` (`2f6b5d9`), đặt cạnh khung A3–A6, A5b của section [Vào app](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=71-48); đọc `renderEnter`, `pinBoxHTML` (`js/app.js`) và `.enter`, `.pin-show` (`css/app.css`).
+
+| Yêu cầu (mục 3, “Phiên UX4”) | Kết quả | Ghi chú |
+|---|---|---|
+| Bước nhập riêng `#/vao/<mã>`: “← Chọn hồ sơ khác”, hình to, tên, lớp, hàng chấm, “Hiện số”, bàn phím ngay dưới, dòng quên PIN (A3, X1) | Khớp | Cả màn vừa 360×740, không cuộn; kiểm thử đo `scrollY` và 12 phím trong khung nhìn. |
+| Số chỉ hiện ở hàng chấm; “Hiện số” là nút chữ dưới hàng chấm (X2) | Khớp | Ô `#pinIn` ẩn khỏi mắt; nút đổi “Hiện số”, “Giấu số”. |
+| Lỗi và đếm ngược ngay dưới hàng chấm; đang phải đợi thì bàn phím, Vào, “Hiện số” tắt, hết giờ tự bật lại (A4, X3) | Khớp | “Mã PIN chưa đúng. Đợi 30 giây rồi thử lại.” Ở chế độ tối phím Vào bị tắt thành khối ô liu (X32). |
+| Phụ huynh: ô mật khẩu, nút to “Vào khu phụ huynh”, “Quên mật khẩu?”; máy có mã mở nhanh thì bàn phím mã trước, “Quên mã? Nhập mật khẩu” (A5, A5b) | Khớp | Số chấm theo độ dài mã. |
+| Chạm hình là đổi, toast “Đã đổi hình đại diện”, không có nút Lưu; bản lưu trên máy có form “Đổi mã PIN” riêng (A6, X4) | Khớp | Bộ chọn có 16 emoji và 6 hải cẩu (PR #116). |
+| 360px sáng/tối: không tràn ngang, vùng bấm ≥ 44px, chữ ≥ 13px, chữ không đè | Khớp | `audit` của hai bộ kiểm thử. |
+
+**Khác Figma nhưng chấp nhận** (đã sửa A3, A4, A5b theo code): hàng chấm, “Hiện số”, bàn phím (A5b có thêm “Quên mã? Nhập mật khẩu”) nằm trong thẻ `.panel#pinBox`; dòng “Nhập mã PIN của bạn” chữ nhỏ màu nhạt, “Hiện số” màu nhạt (Figma cũ: chữ đậm, màu `acc`); lời báo phải đợi theo code.
+
+### UX5 · Làm bài tập trung · PR #61 · kiểm thử 23/10/2026
+
+**Kết luận:** đạt. Chế độ tập trung, nút “Nộp bài”, đồng hồ “Còn …”, bỏ “Bỏ qua” sau Kiểm tra và màn mở đề có thẻ “Lần trước” làm đúng lời giao việc và khung C1, C2, C4. Hàng trên cùng đã đổi ở Phiên 9n (nút mở bảng số câu), khớp section 9n.
+
+**Cách kiểm:** ảnh 360px sáng/tối của bước UX5 của `tests/e2e.js` (`c1-lam-nhu-thi`, `c1-nop-bai`, `c2-sau-kiem-tra`, `c4-mo-de`) trên `main` (`2f6b5d9`), đặt cạnh khung C1, C2, C4 của section [Làm bài](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=75-1327).
+
+| Yêu cầu (mục 3, “Phiên UX5”) | Kết quả | Ghi chú |
+|---|---|---|
+| Trong lúc làm đề, thanh trên chỉ còn chữ OnUp; màn kết quả có lại đủ (X5) | Khớp | Không hình đại diện, không thanh tab; chốt rời trang vẫn hỏi. |
+| Làm như thi: “Nộp bài” thay “← Thoát”; ôn luyện giữ “← Thoát” (X6) | Khớp | |
+| Đồng hồ “Còn 40:00” có biểu tượng và `aria-label`; tiến độ “Câu 1/25” (X7) | Khớp | Từ Phiên 9n, “Câu 1/25 ▾” là nút mở bảng số câu; hàng trên một hàng ở 360px (X26). |
+| Sau Kiểm tra không còn “Bỏ qua”; “Câu tiếp” đứng một mình bên phải (X8) | Khớp | |
+| Màn mở đề: thẻ “Lần trước: 1/25 câu đúng” (lúc làm, cách làm, thời gian); hai thẻ cách làm cao ≥ 64px, có biểu tượng và một dòng giải thích (X9) | Khớp | |
+| 360px sáng/tối | Khớp | |
+
+**Khác Figma nhưng chấp nhận:** C1 vẽ “Câu 9/25” là chip; code (từ 9n) là nút `.qz-prog`, hàng cách nhau 8px. Đã sửa C1 theo code.
+
+### UX6 · Biết bài đã gửi chưa · PR #66, #70 · kiểm thử 23/10/2026
+
+**Kết luận:** đạt. Màn kết quả ghi rõ đã gửi hay chưa, trang chính của con và Khu phụ huynh có dòng “N bài chưa gửi · Gửi lại”, bản lưu trên máy không đổi; đúng lời giao việc và khung D1–D3.
+
+**Cách kiểm:** ảnh 360px sáng/tối của `tests/supabase/cloud-e2e.js` (`c8i-chua-gui`, `c8j-bai-chua-gui`, `c8k-da-gui`, `c11b-bai-chua-gui`; máy chủ giả có công tắc làm lượt gửi lỗi) trên `main` (`2f6b5d9`), đặt cạnh khung D1–D3 của section [Kết quả đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=78-1495).
+
+| Yêu cầu (mục 3, “Phiên UX6”) | Kết quả | Ghi chú |
+|---|---|---|
+| Màn kết quả: “Đã lưu và gửi cho bố mẹ.” (nền `ok-soft`) hoặc “Đã lưu trên máy này. Sẽ gửi cho bố mẹ khi có mạng.” (nền `sun-soft`), kèm toast (D1, D2) | Khớp | Có biểu tượng ✓ hoặc đồng hồ. |
+| Trang chính của con: “1 bài chưa gửi cho bố mẹ · Gửi lại” dưới lời chào, trên thẻ “Hôm nay ôn gì?”; Khu phụ huynh: “N bài làm trên máy này chưa gửi đi · Gửi lại” (D3) | Khớp | Dòng cao ≥ 44px, nền `sun-soft`, chữ `ink`. |
+| Bài ôn trong khung: toast ghi rõ đã gửi hay chưa | Khớp | Theo `cloud-e2e.js` (UX6), cả IOE. |
+| Bản lưu trên máy không có dòng mới | Khớp | Cờ `ux6LocalOK` của `tests/e2e.js`. |
+
+**Khác Figma nhưng chấp nhận:** D1, D2 vẽ link “← Về trang chính” ở đầu màn kết quả và câu cần xem lại thành từng dòng trong một thẻ; code (UX1) để câu cần xem lại thành khối có vạch trái, nút “Về trang chính” ở cuối màn. Phần này thuộc UX1 (chưa có lượt kiểm thử ở mục này), giữ như code; Figma D1, D2 chưa sửa phần đó.
+
+**Kiểm thử tự động cho UX4, UX5, UX6:** cùng lượt với 9o (mục “9o” bên dưới): `tests/e2e.js` E2E OK, `tests/supabase/cloud-e2e.js` CLOUD E2E OK (152 mục) trên `main` `2f6b5d9`.
 
 ### 9n · Bảng số câu và màn “Xem lại bài làm” · PR #119 · kiểm thử 23/10/2026
 
