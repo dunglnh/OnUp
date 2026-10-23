@@ -2631,15 +2631,18 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   /* Phiên 9n (L38, L39), bản lưu trên máy, 360px sáng/tối. Ôn luyện (Bin, Tiếng Việt 4 · Cuối kì I · Đề 1, có đoạn đọc): "Câu 1/25" là nút
      mở bảng số câu #qzGrid (25 ô ≥ 44px, 5 ô một hàng, aria-label theo trạng thái, ô đang làm aria-current, chú thích); bỏ qua 2 câu, làm
      các câu còn lại thì sau câu cuối (nút ghi "Xem lại bài làm", X25) tới màn #qzRecap "Bạn còn 2 câu chưa làm." với bảng đúng trạng thái
-     (–, ✓, ✗), không có "← Thoát", nút mở bảng, .bar, #qzReview (X21, X24); rời trang vẫn hỏi; mở lại câu đã Kiểm tra từ bảng thì chỉ xem
-     lại (đáp án, lời giải, không "Bỏ qua") và xong về lại màn đó (X22); "Làm tiếp 2 câu": nhãn "Câu còn trống 1/2", làm một câu thì còn 1;
-     "Xem kết quả" hỏi lại "Còn 1 câu chưa làm, sẽ tính là sai." rồi ra kết quả, câu trống tính sai. "← Thoát" giữa chừng vẫn không tính câu
-     chưa tới. Làm như thi (Na, đề thử nghiệm đủ dạng câu): chọn rồi chạm ô khác thì câu thành "Đã trả lời" (X23); trả lời hết 15 câu (một
-     câu trắc nghiệm cố ý sai) thì màn "Xem lại bài làm" ghi đã làm hết, chỉ có "Nộp bài"; mở lại từng câu thấy đúng câu trả lời cũ (dòng
-     #qzEditNote, không "Bỏ qua"), "Trả lời" về lại màn đó; sửa câu sai thành đúng rồi nộp: điểm theo câu trả lời cuối (đúng hết, không có
-     #qzReview); đồng hồ chạy ở màn đó; hàng trên cùng một hàng ở câu 11; lượt khác chọn rồi để hết giờ thì câu đó được chấm. Đề Tiếng Anh
-     (Bin, làm như thi): hàng trên cùng một hàng ở câu 11/25, bảng và màn "Xem lại bài làm" không có chữ cái tiếng Việt. Ảnh ở
-     tests/screenshots/l38-l39/ (bản ghép <tên>.jpg: bang-so-cau, xem-lai-con-trong, lam-tiep, sua-cau, xem-lai-da-lam-het; chép sang docs/hinh-9n/). */
+     (–, ✓, ✗), không có "← Thoát", nút mở bảng, .bar, #qzReview (X21, X24); chú thích ở màn đó không ghi mục 0 câu (không có "Chưa làm",
+     X29), mẫu ô ở chú thích có dấu trong một thẻ <i> như ô thật: chữ đứng, cùng màu với dấu trong ô cùng trạng thái (X28, Phiên 9nb);
+     rời trang vẫn hỏi; mở lại câu đã Kiểm tra từ bảng thì chỉ xem lại (đáp án, lời giải, không "Bỏ qua") và xong về lại màn đó (X22);
+     "Làm tiếp 2 câu": nhãn "Câu còn trống 1/2", làm một câu thì còn 1; "Xem kết quả" hỏi lại "Còn 1 câu chưa làm, sẽ tính là sai." rồi ra
+     kết quả, câu trống tính sai. "← Thoát" giữa chừng vẫn không tính câu chưa tới. Làm như thi (Na, đề thử nghiệm đủ dạng câu): chọn rồi
+     chạm ô khác thì câu thành "Đã trả lời" (X23); trả lời hết 15 câu (một câu trắc nghiệm cố ý sai) thì màn "Xem lại bài làm" ghi đã làm
+     hết, chỉ có "Nộp bài", chú thích chỉ có "Đã trả lời (15)"; mở lại từng câu thấy đúng câu trả lời cũ (dòng #qzEditNote, không "Bỏ qua"),
+     "Trả lời" về lại màn đó; sửa câu sai thành đúng rồi nộp: điểm theo câu trả lời cuối (đúng hết, không có #qzReview); đồng hồ chạy ở màn
+     đó; hàng trên cùng một hàng ở câu 11; lượt khác chọn rồi để hết giờ thì câu đó được chấm. Đề Tiếng Anh (Bin, làm như thi): hàng trên
+     cùng một hàng ở câu 11/25, bảng và màn "Xem lại bài làm" không có chữ cái tiếng Việt; bỏ qua cả 25 câu thì chú thích ở màn đó chỉ có
+     "Skipped (25)", không có "Not done" (X29). Ảnh ở tests/screenshots/l38-l39/ (bản ghép <tên>.jpg: bang-so-cau, xem-lai-con-trong,
+     lam-tiep, sua-cau, xem-lai-da-lam-het; chép sang docs/hinh-9n/). */
   const OUTL38 = OUT + "l38-l39/"; fs.mkdirSync(OUTL38, { recursive: true });
   const l38 = { problems: [], shots: [], runs: [] };
   const CHU_VIET38 = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/iu;
@@ -2657,6 +2660,13 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       return { n: cells.length, h: b0 ? Math.round(b0.height) : 0, perRow: b0 ? cells.filter((e) => Math.abs(e.getBoundingClientRect().top - b0.top) < 1).length : 0,
         st: cells.map((e) => e.className.replace("qz-cell ", "") + ":" + e.querySelector("i").textContent), aria: cells.map((e) => e.getAttribute("aria-label")), cur: cells.findIndex((e) => e.getAttribute("aria-current") === "step"),
         key: (document.querySelector(".qz-key") || {}).textContent || "", open: !(document.querySelector("#qzGrid") || { hidden: true }).hidden, exp: document.querySelector("#qzProg") ? document.querySelector("#qzProg").getAttribute("aria-expanded") : null }; });
+    // mẫu ô có dấu ở chú thích (X28): dấu có nằm trong một thẻ <i> bên trong mẫu như ô thật không; kiểu chữ, màu của dấu đó và của dấu trong
+    // một ô thật cùng trạng thái
+    const keyMarks = () => p.evaluate(() => [...document.querySelectorAll(".qz-key .qz-cell")].filter((e) => e.textContent).map((e) => {
+      const st = (e.className.match(/\bst-(\w+)/) || [])[1], m = e.querySelector("i"), real = document.querySelector(`.qz-cells .qz-cell.st-${st} i`);
+      return { st, mark: e.textContent, inner: !!m && m.textContent === e.textContent, style: m && getComputedStyle(m).fontStyle, color: m && getComputedStyle(m).color,
+        want: real && getComputedStyle(real).color, wantMark: real && real.textContent };
+    }));
     // hàng trên cùng của làm như thi: một hàng (đồng hồ, nút mở bảng, "Nộp bài" cùng mép trên), cao ≤ 48px (X26)
     const topRow = () => p.evaluate(() => { const row = document.querySelector(".qz-top").getBoundingClientRect(), bs = ["#qzTimer", "#qzProg", "#qzSubmit"].map((s) => document.querySelector(s).getBoundingClientRect());
       const mid = (b) => (b.top + b.bottom) / 2; // chip đồng hồ thấp hơn hai nút, canh giữa theo chiều dọc
@@ -2683,7 +2693,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       await p.click("#qzGo");
     }
     r.recap1 = { has: await has("#qzRecap"), h2: await txt("#qzRecap h2"), p: await txt("#qzRecap p"), end: await txt("#qzEnd"), more: await txt("#qzMore"), gone: await p.evaluate(() => ["#qzExit", "#qzProg", "#qzSubmit", ".bar", "#qzReview", "#qzTimer", "#qzSkip"].filter((s) => document.querySelector(s))),
-      board: await board(), quizzing: await p.evaluate(() => document.body.classList.contains("quizzing")) };
+      board: await board(), marks: await keyMarks(), quizzing: await p.evaluate(() => document.body.classList.contains("quizzing")) };
     await check("Xem lại bài làm, còn câu trống"); await snap("xem-lai-con-trong");
     // rời trang khi đang ở màn này: vẫn hỏi lại
     await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox"); r.leave = await txt("#leaveBox"); await p.click("#leaveNo"); await p.waitForTimeout(300); r.stay = await has("#qzRecap");
@@ -2797,17 +2807,18 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && !r.grid2.open && r.grid2.exp === "false" && r.goMid === "Câu tiếp" && r.goLast === "Xem lại bài làm"
       && r.recap1.has && r.recap1.h2 === "Xem lại bài làm" && r.recap1.p === "Bạn còn 2 câu chưa làm." && r.recap1.end === "Xem kết quả" && r.recap1.more === "Làm tiếp 2 câu" && !r.recap1.gone.length && r.recap1.quizzing
       && rb.n === 25 && rb.cur === -1 && rb.st.filter((s) => s === "st-skip:–").length === 2 && rb.st.filter((s) => s === "st-ok:✓" || s === "st-bad:✗" || s === "st-done:").length === 23 && /Bỏ qua \(2\)/.test(rb.key) && !/Đang làm/.test(rb.key) && rb.aria.filter((a) => / đã bỏ qua$/.test(a)).length === 2
+      && !/Chưa làm/.test(rb.key) && ["skip", "ok", "bad"].every((st) => r.recap1.marks.some((k) => k.st === st)) && r.recap1.marks.every((k) => k.inner && k.style === "normal" && k.color === k.want && k.mark === k.wantMark) // X29, X28
       && /Dừng ôn và rời trang\?/.test(r.leave) && r.stay
       && r.reopen.prog === r.reopen.want && r.reopen.fb && r.reopen.marked && !r.reopen.skip && r.reopen.go === "Xem lại bài làm" && r.reopen.report && r.reopen.back
       && r.round.tag === "Câu còn trống 1/2" && r.round.prog === "Câu 2/25" && r.round.skip && r.round.go === "Câu tiếp" && r.round.tag2 === "Câu còn trống 2/2" && r.round.prog2 === "Câu 4/25"
       && r.recap2.p === "Bạn còn 1 câu chưa làm." && r.recap2.more === "Làm tiếp 1 câu" && r.ask === "Còn 1 câu chưa làm, sẽ tính là sai.Xem kết quảLàm tiếp" && r.askClosed
       && r.result.line === r.result.want && r.result.review && r.exitAsk === "Dừng ôn và xem kết quả?DừngLàm tiếp" && r.exitResult.line === r.exitResult.want
       && r.exJump && r.exJump.st[0] === "st-ans:" && r.exJump.cur === 1 && /Đã trả lời \(1\)/.test(r.exJump.key) && !r.exSame.open && r.exSame.prog === "Câu 2/15"
-      && r.exRecap.p === "Bạn đã làm hết 15 câu. Xem lại hoặc nộp bài." && r.exRecap.end === "Nộp bài|btn main" && !r.exRecap.more && /^Còn \d\d:\d\d$/.test(r.exRecap.timer) && r.exRecap.ticks && !r.exRecap.gone.length && eb.st.every((s) => s === "st-ans:") && eb.key === "Chưa làm (0)Đã trả lời (15)"
+      && r.exRecap.p === "Bạn đã làm hết 15 câu. Xem lại hoặc nộp bài." && r.exRecap.end === "Nộp bài|btn main" && !r.exRecap.more && /^Còn \d\d:\d\d$/.test(r.exRecap.timer) && r.exRecap.ticks && !r.exRecap.gone.length && eb.st.every((s) => s === "st-ans:") && eb.key === "Đã trả lời (15)"
       && r.exReopen.length === 15 && r.exReopen.every((x) => x.ok && x.note === "Bạn đã trả lời câu này. Muốn sửa thì chọn lại rồi bấm Trả lời." && !x.skip && x.go === "Trả lời") && ["mc", "fill", "tf4", "num", "match", "order", "essay"].every((t) => r.exReopen.some((x) => x.type === t))
       && r.viTop.oneRow && r.viTop.h <= 48 && r.viTop.prog === "Câu 11/15" && r.exResult.line === r.exResult.want && !r.exResult.review && r.timeout.score && r.timeout.line === r.timeout.want
       && r.en.prog === "11 of 25" && r.en.top.oneRow && r.en.top.h <= 48 && !r.en.viGrid && /^Not done \(15\)–Skipped \(10\)Current$/.test(r.en.board.key) && r.en.board.aria[0] === "Question 1, skipped" && r.en.board.aria[10] === "Question 11, not done, current"
-      && r.en.recap.p === "You have 25 questions left." && r.en.recap.end === "Finish test" && r.en.recap.more === "Do the 25 left" && !r.en.recap.vi && r.en.ask === "Exit the test? You haven't answered any questions, so no score is saved.ExitKeep going" && r.en.home === "#/home"; })
+      && r.en.recap.p === "You have 25 questions left." && r.en.recap.end === "Finish test" && r.en.recap.more === "Do the 25 left" && !r.en.recap.vi && r.en.recap.key === "–Skipped (25)" && r.en.ask === "Exit the test? You haven't answered any questions, so no score is saved.ExitKeep going" && r.en.home === "#/home"; })
     && ["bang-so-cau", "xem-lai-con-trong", "lam-tiep", "sua-cau", "xem-lai-da-lam-het"].every((n) => l38.shots.includes(n + "-light") && l38.shots.includes(n + "-dark"));
 
   step("numbers with thousands spaces stay on one line (360px)");
