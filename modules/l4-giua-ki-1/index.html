@@ -162,6 +162,8 @@ textarea{width:100%;min-height:240px;font:16px/1.6 var(--body);border:1px solid 
 .qz-key .qz-cell.cur{box-shadow:0 0 0 1px var(--surface),0 0 0 2px var(--ink)}
 .recap h2{font-size:1.25rem}
 .recap p{margin:0}
+.recap+.actions{gap:8px} /* Phiên 9ob (X30): hàng nút dưới màn "Xem lại bài làm" chỉ rộng 294px ở 360px; nút gọn hơn để "Xem kết quả" và "Làm tiếp 120 câu" vẫn một hàng (màn câu hỏi giữ 18px, 10px) */
+.recap+.actions .btn{padding-left:12px;padding-right:12px}
 .qleft{align-self:flex-start;background:var(--sun-soft);color:var(--ink);border-radius:6px;padding:2px 8px;font-size:.8125rem;font-weight:700} /* nhãn "Câu còn trống 2/3" đầu thẻ câu trong vòng làm tiếp */
 .actions>.btn.main{margin-left:auto} /* câu mở lại không có "Bỏ qua": nút chính vẫn ở mép phải */
 .foot{margin:6px 0 0}
@@ -681,12 +683,14 @@ function renderQ(){
     body=`<div class="label">Điền vào chỗ trống</div>`+(q.q.includes("___")?`<div class="qtext">${nbNum(q.q).replace("___",inp)}</div>`:`<div class="qtext">${nbNum(q.q)}</div>${inp}`)
       +(neg?`<div class="hint">Số âm: gõ dấu trừ phía trước, ví dụ -12.</div>`:q.cs?`<div class="hint">Chú ý viết hoa đúng quy tắc.</div>`:"");
   }
+  // nhãn trên câu (Phiên 9ob, X31): luyện theo bài thì tên lượt đã có tên bài ("Tiếng Việt · Tên cơ quan"), chỉ vẽ nhãn đó; đề thi thử,
+  // "Ôn câu sai" có câu của nhiều bài nên thêm bài của câu (L.short) bên phải. S.label (lưu trong lịch sử, gửi về app) không đổi
   view.innerHTML=`<div class="stack">
     <div class="qtop"><div class="bar" aria-hidden="true"><i style="width:${(n-blanks().length)/n*100}%"></i></div><button type="button" class="gbtn" id="gridBtn" aria-expanded="false" aria-controls="grid"><span>Câu ${S.i+1}/${n}</span>${CHEV}</button></div>
     <section class="panel qgrid" id="grid" hidden></section>
     <section class="qcard">
       ${inRound?`<span class="qleft">Câu còn trống ${S.round.indexOf(S.i)+1}/${S.round.length}</span>`:""}
-      <div class="qhead"><span class="label">${esc(S.label)}</span><span class="label">${esc(L?L.short:"")}</span></div>
+      <div class="qhead"><span class="label">${esc(S.label)}</span>${S.lesson?"":`<span class="label">${esc(L?L.short:"")}</span>`}</div>
       ${q.passage?`<details class="passage" open><summary>Đọc văn bản: ${nbNum(esc(q.ptitle||""))}</summary><div class="ptext">${passageHTML(q.passage)}</div></details>`:""}
       ${body}
       ${exam&&reopen?`<p class="small muted" id="editNote">Bạn đã trả lời câu này. Muốn sửa thì chọn lại rồi bấm Trả lời.</p>`:""}
