@@ -4,7 +4,7 @@ Kết quả rà lại các luồng của app trên bản vẽ Figma và đối c
 
 **Figma:** file [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2):
 - **Master 1.x:** 77 màn vẽ lại đúng app ở commit `0a1e8db`, gồm Users 51 màn, Admin 26 màn.
-- **🚧 Master 2.x · Đề xuất UX/UI:** mỗi flow một section, theo thứ tự ghi chú → 1.x hiện tại → 2.x đề xuất. Section cuối có các thành phần mới: icon, thanh tab dưới `.tabbar (2.x)`. Đây chỉ là đề xuất, chưa có trong code. Riêng section “Làm bài · Bảng số câu (9n)” vẽ theo code sau khi gộp Phiên 9n (PR #119), có sửa hai chỗ của kiểm thử thiết kế (X28, X29).
+- **🚧 Master 2.x · Đề xuất UX/UI:** mỗi flow một section, theo thứ tự ghi chú → 1.x hiện tại → 2.x đề xuất. Section cuối có các thành phần mới: icon, thanh tab dưới `.tabbar (2.x)`. Đây chỉ là đề xuất, chưa có trong code. Riêng section “Làm bài · Bảng số câu (9n)” vẽ theo code sau khi gộp Phiên 9n (PR #119; X28, X29 đã sửa ở Phiên 9nb, PR #122), và section “Bài ôn dạng trang · Bảng số câu (9o)” vẽ theo code sau khi gộp Phiên 9o (PR #123), có sửa hai chỗ của kiểm thử thiết kế (X30, X31).
 
 Phiên Claude Code không mở được Figma. Vì vậy ảnh chụp 1.x và 2.x đặt cạnh nhau ở [hinh-ux-2x/](hinh-ux-2x/), và lời giao việc trỏ vào các ảnh đó. Ảnh là hướng làm, không bắt giống từng điểm ảnh. Ghi chép chỗ khó dùng của bố mẹ (mục 2 của kế hoạch) đi trước ảnh khi hai bên khác nhau.
 
@@ -36,7 +36,8 @@ Phiên Claude Code không mở được Figma. Vì vậy ảnh chụp 1.x và 2.
 | [Quản lí đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=82-2135) | UX2 (tên “Đề tự soạn”) | X11–X13 | **UX7** | [ux7-chon-de](hinh-ux-2x/ux7-chon-de.jpg), [ux7-de-tu-soan](hinh-ux-2x/ux7-de-tu-soan.jpg) |
 | [Báo cáo tuần](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2729) | — | X14 | **UX8** | [ux8-bao-cao-tuan](hinh-ux-2x/ux8-bao-cao-tuan.jpg) |
 | [Chữ và màu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2933) | — | X15, X16 | **UI1** | [ui1-tieu-de](hinh-ux-2x/ui1-tieu-de.jpg), [ui1-o-ma](hinh-ux-2x/ui1-o-ma.jpg) |
-| [Làm bài · bảng số câu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=267-3035) | L38, L39 (flow của PO, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2) | X21–X27; X28, X29 (kiểm thử sau 9n) | 9n, 9nb, 9o xong (PR #119, #122, #123; kiểm thử thiết kế 9o ở mục 5 nếu cần) | [9n-bang-so-cau](hinh-ux-2x/9n-bang-so-cau.jpg), [9n-xem-lai-bai-lam](hinh-ux-2x/9n-xem-lai-bai-lam.jpg), [9n-lam-tiep-sua-cau](hinh-ux-2x/9n-lam-tiep-sua-cau.jpg), [9o-bai-on](hinh-ux-2x/9o-bai-on.jpg), [kt-9n-xem-lai](hinh-ux-2x/kt-9n-xem-lai.jpg), [kt-9n-chu-thich](hinh-ux-2x/kt-9n-chu-thich.jpg) |
+| [Làm bài · bảng số câu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=267-3035) | L38, L39 (flow của PO, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2) | X21–X27; X28, X29 (kiểm thử sau 9n) | 9n, 9nb xong (PR #119, #122; kiểm thử ở mục 5) | [9n-bang-so-cau](hinh-ux-2x/9n-bang-so-cau.jpg), [9n-xem-lai-bai-lam](hinh-ux-2x/9n-xem-lai-bai-lam.jpg), [9n-lam-tiep-sua-cau](hinh-ux-2x/9n-lam-tiep-sua-cau.jpg), [kt-9n-xem-lai](hinh-ux-2x/kt-9n-xem-lai.jpg), [kt-9n-chu-thich](hinh-ux-2x/kt-9n-chu-thich.jpg) |
+| [Bài ôn dạng trang · bảng số câu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=290-3561) | L38, L39 (Phiên 9o) | X26–X29 (chung với 9n); X30, X31 (kiểm thử sau 9o) | 9o xong (PR #123); **9ob** | [9o-bai-on](hinh-ux-2x/9o-bai-on.jpg), [kt-9o-bang-so-cau](hinh-ux-2x/kt-9o-bang-so-cau.jpg), [kt-9o-xem-lai](hinh-ux-2x/kt-9o-xem-lai.jpg) |
 
 Mã vấn đề (X1, X2…) dùng trong lời giao việc và trong commit, như mã lỗi L1–L19 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md).
 
@@ -436,9 +437,38 @@ Tìm được khi kiểm thử thiết kế sau khi gộp PR #119 (mục 5). Fig
 - `tests/e2e.js` in `E2E OK`, có ba kiểm tra trên.
 - Ảnh 360px sáng/tối của bước L38, L39 chép lại sang `docs/hinh-9n/` (`bang-so-cau`, `xem-lai-con-trong`, `xem-lai-da-lam-het`): chú thích không còn “Chưa làm (0)”, dấu ✓, ✗ của chú thích cùng màu với ô.
 
+Đã làm ở PR #122; kiểm thử thiết kế ở mục 5 (“9nb”).
+
+### Phiên 9ob · Sửa sau kiểm thử 9o
+
+Tìm được khi kiểm thử thiết kế sau khi gộp PR #123 (mục 5). Figma: [C12–C18](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=290-3561) trong section Bài ôn dạng trang · Bảng số câu (9o), vẽ theo code, đã sửa theo hai mục dưới đây. Phiên ngắn: CSS và phần vẽ nhãn trên câu của 4 bài ôn (`modules/*/index.html`), bước 9o của `tests/e2e.js` và CLAUDE.md.
+
+![Màn “Xem lại bài làm” của bài ôn: app sau 9o và Figma C14](hinh-ux-2x/kt-9o-xem-lai.jpg)
+
+**X30. Hai nút của màn “Xem lại bài làm” (luyện tập) xuống hai hàng.**
+- Khung bài ôn hẹp hơn màn đề ngân hàng: ở 360px, hàng `.actions` dưới `#recap` rộng 294px (đề ngân hàng 328px).
+- Luyện tập ở l4, l6: `#endBtn` “Xem kết quả” 138,7px, khoảng cách 10px, `#moreBtn` “Làm tiếp 2 câu” 151,4px, tổng 300px. Hàng tự xuống dòng (`flex-wrap: wrap`): “Xem kết quả” đứng một mình bên trái, nút chính “Làm tiếp 2 câu” xuống hàng dưới, bên phải. Hộp hỏi lại trong `#endArea` cách nút vừa bấm thêm một hàng. Thiết kế (mục 3, “Phiên 9n, 9o”) đặt hai nút một hàng như đề ngân hàng.
+- Gặp ở mọi lượt luyện tập còn câu trống của l4, l6, với mọi số câu (“Làm tiếp 12 câu” 160,5px). Đề thi thử (“Nộp bài” 99,8px) và IOE (“See results” 124,6px, “Finish test” 120,8px) vẫn một hàng.
+
+**X31. Nhãn trên câu lặp tên bài khi luyện theo bài, theo unit.**
+- `.qhead` có hai nhãn: tên lượt (`S.label`) bên trái, bài của câu (`L.short`; IOE “Unit N”) bên phải. Luyện theo bài thì tên lượt đã có tên bài (“Tiếng Việt · Tên cơ quan”), nên nhãn bên phải lặp lại “Tên cơ quan”. Tên dài thì nhãn đó xuống dòng, và trên câu có ba dòng nhãn chữ hoa chồng nhau (thêm “Chọn đáp án đúng”). IOE luyện theo unit: “Unit 3 Practice” rồi “Unit 3”.
+- Trái quy tắc chữ chủ app chốt 20/10/2026 (CLAUDE.md, “Quy ước code”: một khối một tiêu đề, không chồng nhãn chữ hoa). Đề ngân hàng chỉ có một dòng nhãn trên câu (UX1, C1). Chỗ này có từ artifact gốc, không do 9o.
+
+**Cách làm gợi ý:**
+- **Một hàng (X30).** Ở cả 4 bài, hai nút dưới `#recap` có padding ngang 12px (thay 18px) và cách nhau 8px (thay 10px), ví dụ `.recap+.actions{gap:8px}` và `.recap+.actions .btn{padding-inline:12px}`. Đo ở 360px: “Xem kết quả” 126,7px, 8px, “Làm tiếp 120 câu” 157,7px, tổng 292,4px, vừa hàng 294px kể cả số câu có ba chữ số (“Ôn câu sai” không giới hạn số câu); IOE “See results” và “Do the 120 left” 260,6px. Nút vẫn cao 50,8px. Màn câu hỏi và đề ngân hàng giữ như cũ.
+- **Một nhãn (X31).** Lượt luyện theo bài (l4, l6: nút “Ôn tập: …”, một dòng ở “Ôn theo bài”) và luyện theo unit (IOE) chỉ vẽ nhãn bên trái. Đề thi thử, “Ôn câu sai”/“Mistake Review”, “My Questions” giữ nhãn bài bên phải, vì câu thuộc nhiều bài. Chỉ đổi phần vẽ `.qhead`; `label` của lượt (lưu trong lịch sử, gửi về app) giữ nguyên.
+- **Kiểm thử** (bước 9o của `tests/e2e.js`, 360px, trong khung):
+  - màn “Xem lại bài làm” còn câu trống ở cả 4 bài: `#endBtn`, `#moreBtn` cùng một hàng (cùng `top`), không tràn khung; đổi chữ của `#moreBtn` thành “Làm tiếp 120 câu” (IOE “Do the 120 left”) rồi đo lại, vẫn một hàng;
+  - luyện theo bài (l4, l6) và theo unit (IOE): `.qhead` chỉ có một nhãn; đề thi thử vẫn có hai.
+- **CLAUDE.md:** thêm một ý vào “Hợp đồng giữa bài ôn và app”: Phiên 9ob, X30, X31; chủ app duyệt khi Merge lời giao việc này.
+
+**Xong khi:**
+- `tests/e2e.js` in `E2E OK`, có các kiểm tra trên; `node tests/so-du-lieu-bai-on.js` in `DU LIEU BAI ON OK`.
+- Ảnh 360px sáng/tối chép lại sang `docs/hinh-9o/` (`bai-on-xem-lai`: hai nút một hàng; `bai-on-bang-so-cau`: một nhãn trên câu).
+
 ### Phiên 9n, 9o · Bảng số câu và màn “Xem lại bài làm” (L38, L39)
 
-Flow do PO viết ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), mục 2, “Phiên 9n” (chủ app yêu cầu 22/10/2026). Mục này là phần thiết kế cho flow đó: ảnh, cách trình bày, id, chữ. Khi rà flow có bảy chỗ chưa rõ (X21–X27); cách chốt đã ghi vào flow. Ảnh chụp bản mẫu ở 360px: `css/app.css` thật, câu hỏi vẽ bằng `Quiz.run` thật, bài ôn dạng trang thật (như X15). Ảnh là hướng làm, không bắt giống từng điểm ảnh. Phiên 9n đã làm phần đề ngân hàng (PR #119, kiểm thử ở mục 5). Figma: section [Làm bài · Bảng số câu (9n)](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=267-3035), vẽ theo code sau khi gộp (C5–C11, bản tối của C6, C7); bài ôn dạng trang (9o) chưa vẽ, ảnh app sau khi làm ở [hinh-9o/](hinh-9o/) (PR #123).
+Flow do PO viết ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), mục 2, “Phiên 9n” (chủ app yêu cầu 22/10/2026). Mục này là phần thiết kế cho flow đó: ảnh, cách trình bày, id, chữ. Khi rà flow có bảy chỗ chưa rõ (X21–X27); cách chốt đã ghi vào flow. Ảnh chụp bản mẫu ở 360px: `css/app.css` thật, câu hỏi vẽ bằng `Quiz.run` thật, bài ôn dạng trang thật (như X15). Ảnh là hướng làm, không bắt giống từng điểm ảnh. Phiên 9n đã làm phần đề ngân hàng (PR #119, kiểm thử ở mục 5). Figma: section [Làm bài · Bảng số câu (9n)](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=267-3035), vẽ theo code sau khi gộp (C5–C11, bản tối của C6, C7). Bài ôn dạng trang (9o, PR #123): section [Bài ôn dạng trang · Bảng số câu (9o)](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=290-3561), vẽ theo code sau khi gộp (C12–C18, bản tối của C12, C18; X30, X31 sửa ở Phiên 9ob), ảnh app ở [hinh-9o/](hinh-9o/), kiểm thử ở mục 5.
 
 ![Bảng số câu: hiện tại và đề xuất](hinh-ux-2x/9n-bang-so-cau.jpg)
 
@@ -682,3 +712,59 @@ Ba component mới ở Local Components: `.qz-cell` (State chưa làm, bỏ qua,
 - `tests/e2e.js`: E2E OK.
 - `tests/supabase/cloud-e2e.js`: CLOUD E2E OK, 152 mục đạt ở hai lượt sáng và tối. PR #119 chỉ sửa chỗ đọc tiến độ ở đây (`#qzProg`); các luồng làm đề của bản đám mây kết thúc bằng “Nộp bài”, “← Thoát” hoặc làm hết mọi câu, nên chưa đi qua màn “Xem lại bài làm”.
 - Không chạy `store-test.mjs`, `admin-test.mjs`, `run.sh`: PR #119 không sửa kho dữ liệu, trang admin, máy chủ.
+
+### 9nb · Chú thích dưới bảng số câu · PR #122 · kiểm thử 23/10/2026
+
+**Kết luận:** đạt. Mẫu ô ở chú thích giống ô thật (X28) và chú thích không còn mục 0 câu (X29), ở ôn luyện, làm như thi và đề Tiếng Anh, sáng và tối. Figma C5–C8 đã vẽ theo hai ý này từ trước, nay khớp code; ghi chú của section 9n đổi từ “giao Phiên 9nb” thành “đã sửa”. Ảnh trước và sau của phiên: [chu-thich-truoc-sau](hinh-9n/chu-thich-truoc-sau.jpg).
+
+**Cách kiểm:** chạy `Quiz.run` của `main` (`2f6b5d9`) với `css/app.css` thật ở 360px sáng, tối: Tiếng Việt 4 · Cuối kì I · Đề 1 ôn luyện (bảng mở ở câu 12, màn “Xem lại bài làm”) và làm như thi; Tiếng Anh 4 · Cuối kì I · Đề 1 làm như thi, bỏ qua cả đề. So `getComputedStyle` của dấu trong mẫu ô với dấu trong ô thật cùng trạng thái.
+
+| Yêu cầu (mục 3, “Phiên 9nb”) | Kết quả | Ghi chú |
+|---|---|---|
+| Mẫu ô có dấu trong một thẻ `<i>` như ô thật: chữ đứng, cùng màu với dấu trong ô (X28) | Khớp | –, ✓, ✗ đứng, màu `muted`, `ok`, `bad` như dấu trong ô, cả sáng và tối. Mẫu ô vẫn 18px, bo 5px. |
+| Không ghi mục 0 câu, kể cả “Chưa làm” (X29) | Khớp | “Xem lại bài làm” ôn luyện: “Bỏ qua (6) · Đúng (7) · Chưa đúng (12)”; làm như thi: “Bỏ qua (7) · Đã trả lời (18)”; đề Tiếng Anh bỏ qua cả đề: chỉ “Skipped (25)”. Bảng mở ở câu 12 vẫn có “Chưa làm (14)” và “Đang làm”. |
+
+### 9o · Bảng số câu ở 4 bài ôn dạng trang · PR #123 · kiểm thử 23/10/2026
+
+**Kết luận:** đạt phần lớn. Bảng số câu, màn “Xem lại bài làm”, vòng làm tiếp và sửa câu ở đề thi thử chạy đúng flow “Phiên 9o” ([SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), mục 2) và mục thiết kế ở mục 3 (X26–X29), ở cả 4 bài, sáng và tối. Lệch một chỗ: ở luyện tập của l4, l6, hai nút của màn “Xem lại bài làm” xuống hai hàng (X30). Thêm một chỗ có từ trước 9o: nhãn trên câu lặp tên bài khi luyện theo bài, theo unit (X31). Cả hai giao cho Phiên 9ob (mục 3).
+
+**Cách kiểm:**
+- Chạy app bản lưu trên máy của `main` (`2f6b5d9`) ở 360px sáng và tối, mở bài ôn trong khung như học sinh: l4 Tiếng Việt, bài “Tên cơ quan” (10 câu, luyện tập); l6 Ngữ văn, Đề 1 (20 câu, đề thi thử); IOE 4, đề thi thử (30 câu); IOE 6, luyện theo unit (45 câu). Đi các luồng bằng chạm; đo bằng `getBoundingClientRect`, `getComputedStyle` trong khung (khung rộng 326px, nội dung 294px).
+- Đọc phần làm bài và CSS của 4 trang sau PR #123.
+- Vẽ section [Bài ôn dạng trang · Bảng số câu (9o)](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=290-3561) trong Figma theo code, rồi đặt cạnh app.
+
+![Bảng số câu ở bài ôn: app sau 9o và Figma C12](hinh-ux-2x/kt-9o-bang-so-cau.jpg)
+
+| Yêu cầu (flow “Phiên 9o”, mục thiết kế) | Kết quả | Ghi chú |
+|---|---|---|
+| Chip số câu rời thanh trên; thanh trên của trang một hàng ở 360px (X26) | Khớp | Thanh trên cao 58–59px; đề thi thử: tên bài và đồng hồ (60,8 × 31px) cùng hàng. |
+| Hàng `.qtop`: thanh tiến độ co giãn, nút `#gridBtn` “Câu 6/10 ▾” (IOE “11 of 30 ▾”) dạng viên thuốc cao 44px, viền `line`, mũi tên màu của bài; mở thì viền màu của bài, mũi tên quay lên | Khớp | Nút 99,6 × 44px (“Câu 10/20” 107,9px), thanh tiến độ cao 8px. Màu của bài: `--lang` (Tiếng Việt, Ngữ văn), `--sea` (IOE). |
+| Bảng `#grid` ngay dưới; ô như đề ngân hàng sau 9nb, 5 ô một hàng, ô ≥ 44px; ô đã trả lời dùng `--pick`, `--pick-soft` | Khớp | Ô 45,6 × 48px (xem bên dưới). Bỏ qua: viền nét đứt `muted`, dấu –; đúng: `ok`, ✓; chưa đúng: `bad`, ✗; ô đang làm có vòng ngoài. `aria-label` “Câu 5, đã bỏ qua”, IOE “Question 3, skipped”. |
+| Chú thích không ghi mục 0 câu; mẫu ô có dấu đứng, cùng màu với dấu trong ô (X28, X29) | Khớp | Ví dụ màn “Xem lại bài làm” của đề thi thử: “Bỏ qua (3) · Đã trả lời (17)”. |
+| Màn “Xem lại bài làm” `#recap`: tiêu đề 20px, một dòng, bảng không có ô đang làm; không có `#gridBtn`, `#skipBtn`, `.bar`; đề thi thử: đồng hồ ở thanh trên vẫn chạy | Khớp | |
+| `#endBtn` (“Xem kết quả”, “Nộp bài”) bên trái `#moreBtn` “Làm tiếp N câu”, cùng hàng; đã làm hết thì chỉ `#endBtn` “Nộp bài”, là nút chính | **Lệch** ở luyện tập của l4, l6 | Hai nút cần 300px mà hàng có 294px: “Làm tiếp 2 câu” xuống hàng dưới (X30). Đề thi thử và IOE một hàng. |
+| Hỏi lại trong `#endArea` (`#yesEnd` đỏ, `#noEnd` “Làm tiếp”); luyện tập: câu còn trống tính sai | Khớp | Hộp hỏi lại nằm dưới hàng nút. |
+| Vòng làm tiếp: nhãn `.qleft` “Câu còn trống 1/2” ở đầu thẻ câu; hết vòng về màn đó | Khớp | Nền `sun-soft`, chữ 13px đậm. |
+| Đề thi thử mở lại câu đã trả lời: thấy câu trả lời cũ, dòng `#editNote`, chỉ nút “Trả lời” | Khớp | Dòng ghi chú 14px `muted`. |
+| Nút đi tiếp ở câu cuối ghi tên màn sẽ tới | Khớp | “Xem lại bài làm”. |
+| IOE: chữ tiếng Anh; lượt nghe theo từng câu, thay câu nghe khi máy không phát được tiếng (X27) | Khớp | Theo bước 9o của `tests/e2e.js` (máy kiểm thử không phát tiếng). |
+| Ở bảng số câu và màn “Xem lại bài làm” app vẫn hỏi khi rời bài (`#endBtn`) | Khớp | Bước 9o của `tests/e2e.js`; L16 của `cloud-e2e.js`. |
+| 360px sáng/tối: không tràn ngang, vùng bấm ≥ 44px, chữ ≥ 13px, chữ không đè | Khớp | Không có nút nào dưới 44px trong khung (mẫu ô 18px của chú thích không phải nút). |
+
+**Khác thiết kế nhưng chấp nhận** (Figma vẽ theo code):
+- Cột ô `minmax(44px,1fr)` (đề ngân hàng 48px): khung bài ôn hẹp hơn 34px, nên ô 45,6 × 48px để vẫn 5 ô một hàng, vẫn ≥ 44px.
+- Nút `#gridBtn` padding trái 12px (đề ngân hàng 10px), chữ 14,4px.
+- Nhãn `.qleft` chữ 700 (đề ngân hàng dùng `.tag`, chữ 600).
+
+**Figma:** section [Bài ôn dạng trang · Bảng số câu (9o)](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=290-3561), ngay dưới section 9n:
+- C12: luyện theo bài (l4 Tiếng Việt), bảng mở ở câu 6. C13: đề thi thử (l6 Ngữ văn), bảng mở ở câu 10.
+- C14: màn “Xem lại bài làm” của luyện tập, còn 2 câu, đang hỏi lại. C15: đề thi thử, còn 3 câu.
+- C16: vòng làm tiếp. C17: đề thi thử, mở lại câu đã trả lời. C18: IOE 4 “Review your answers”.
+- Bản tối của C12, C18.
+
+C14, C15, C18 vẽ hai nút một hàng theo X30; C12, C16 vẽ một nhãn trên câu theo X31. Bộ biến mới `OnUp/Bài ôn` (Light, Dark) giữ màu riêng của 4 bài ôn: màu môn của l4, l6 (`math`, `lang`, `sci` và bản nhạt) và bảng màu của IOE 4 (`ioe/bg`, `ioe/surface`, `ioe/line`, `ioe/ink`, `ioe/muted`, `ioe/sea`, `ioe/sea-soft`). Component mới `.gbtn (bài ôn)` (Expanded) ở Local Components.
+
+**Kiểm thử tự động trên `main` sau khi gộp (`2f6b5d9`, sau PR #122, #123 và bốn phiên làm đề):**
+- `tests/e2e.js`: E2E OK (bước L38, L39 có kiểm tra X28, X29; bước 9o chạy 4 bài, sáng và tối).
+- `tests/supabase/cloud-e2e.js`: CLOUD E2E OK, 152 mục đạt ở hai lượt sáng và tối.
+- Không chạy `store-test.mjs`, `admin-test.mjs`, `run.sh`: PR #122, #123 không sửa kho dữ liệu, trang admin, máy chủ.
