@@ -174,7 +174,7 @@ a.kid{color:inherit;text-decoration:none;gap:12px}
 /* biểu mẫu */
 .field{display:flex;flex-direction:column;gap:4px;min-width:0}
 .field>span:not(.reveal){font-size:.85rem;font-weight:600;color:var(--muted)}
-input[type=text],input[type=email],input[type=password],input[type=date],input[type=number],input:not([type]),select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);min-width:0}
+input[type=text],input[type=email],input[type=password],input[type=date],input[type=number],input[type=search],input:not([type]),select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);min-width:0}
 textarea{min-height:200px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--bg)}
 .checks{display:flex;flex-wrap:wrap;gap:8px 16px}
 .checks label{display:flex;gap:6px;align-items:center}
@@ -221,6 +221,18 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .grp[open]>summary::after{margin-top:4px;transform:rotate(-135deg)}
 .grp>summary .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .grp>.list{border:0;border-top:1px solid var(--line);border-radius:0}
+/* ô tìm đề (Phiên UX7): kính lúp trong ô, bên trái; tìm không phân biệt dấu, theo từng từ (findHit trong js/app.js) */
+.find{position:relative;display:block;min-width:0}
+.find svg{position:absolute;left:12px;top:50%;width:18px;height:18px;margin-top:-9px;color:var(--muted);pointer-events:none}
+.find input{padding-left:40px;min-height:44px}
+/* Sửa kì thi: khối "Bài ôn và đề cho kì này" (pickBoxHTML, X11): nhóm theo môn (.grp), mỗi dòng ô đánh dấu cao ≥ 44px */
+.pk{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:14px;min-width:0}
+.pk .tag{white-space:nowrap}
+.pk-list{border-top:1px solid var(--line);padding:4px 0}
+.ck{display:flex;gap:10px;align-items:center;min-height:44px;padding:6px 14px;cursor:pointer;min-width:0}
+.ck input{width:20px;height:20px;flex:none;margin:0;accent-color:var(--acc)}
+.ck>span{min-width:0;overflow-wrap:anywhere}
+.pk>.linkbtn{align-self:flex-start}
 .subj{flex-wrap:wrap}
 .subj .grow{flex-basis:7em}
 .des{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
@@ -411,6 +423,29 @@ textarea.report-note{font:inherit;min-height:72px;background:var(--surface)}
 .leave{position:fixed;inset:0;z-index:40;background:var(--scrim);display:grid;place-items:center;padding:16px}
 .leave .confirm{background:var(--surface);width:100%;max-width:420px;margin:0;padding:18px}
 .notice{background:var(--sun-soft);border-radius:12px;padding:10px 14px;font-size:.9rem}
+/* nhập đề: xem trước từng câu (bankPreview trong js/app.js, Quiz.preview; Phiên UX7, X13). Thẻ có lỗi viền đỏ, lỗi ghi ngay trong thẻ;
+   lựa chọn đúng viền xanh kèm dấu ✓ (không chỉ dựa vào màu); câu bị bỏ hẳn hiện lại chữ đã dán (.pv-src). */
+.pv{display:flex;flex-direction:column;gap:10px;min-width:0}
+.pv-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.pv-card.bad{border:2px solid var(--bad)}
+.pv-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:4px 8px}
+.pv-head .label{min-width:0;overflow-wrap:anywhere}
+.tag.bad{background:var(--bad-soft);color:var(--bad)}
+.pv-q{font-weight:600;overflow-wrap:anywhere}
+.pv-blank{display:inline-block;min-width:3em;border-bottom:3px solid var(--acc);background:var(--acc-soft);color:var(--acc);border-radius:6px 6px 0 0;padding:0 6px;text-align:center}
+.pv-opts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.pv-opts li{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;border:2px solid var(--line);border-radius:10px;padding:8px 12px;min-width:0;overflow-wrap:anywhere}
+.pv-opts .grow{flex:1 1 4em;min-width:0}
+.pv-opts .k{font-weight:700;color:var(--muted)}
+.pv-opts li.right{border-color:var(--ok);background:var(--ok-soft)}
+.pv-opts li.pv-extra{border-style:dashed;color:var(--muted)}
+.pv-ok{color:var(--ok);font-weight:700;white-space:nowrap}
+.pv-to{margin-left:auto;min-width:0}
+.pv-ans{overflow-wrap:anywhere}
+.pv-x{color:var(--muted);overflow-wrap:anywhere}
+.pv-src{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;background:var(--bg);border-radius:10px;padding:10px 12px}
+.pv-err{font-weight:500}
+.pv-psg>summary{min-height:44px;padding:12px 0;cursor:pointer;color:var(--acc);font-weight:700}
 .remind{background:var(--sun-soft);border-color:var(--sun)} /* thẻ nhắc sao lưu (trang chủ quản trị, phụ huynh) */
 .remind .code{background:var(--surface)} /* ô mã trong thẻ nhắc (tên đăng nhập, mật khẩu tạm ở trang admin) nổi khung thay vì cùng nền sun-soft */
 .code{display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;font-size:1.35rem;letter-spacing:.12em;background:var(--sun-soft);color:var(--ink);border-radius:10px;padding:6px 12px;overflow-wrap:anywhere}
