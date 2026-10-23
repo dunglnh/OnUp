@@ -594,7 +594,8 @@
       case "order": h += `<p class="pv-ans">Thứ tự đúng:</p>` + list("ol", q.o.map((o, i) => `<li><span class="k">${i + 1}</span><span class="grow">${T(o)}</span></li>`)); break;
       case "essay": h += `<p class="pv-ans">${L.rubricHead(fmtN(rubricMax(q)))}</p>` + list("ul", q.rubric.map((c) => `<li><span class="grow">${T(c.c)}</span><b class="pv-to">${L.rubricPts(fmtN(c.p))}</b></li>`)); break;
     }
-    if (q.x) h += `<p class="small pv-x"><b>${q.type === "essay" ? "Gợi ý" : "Lời giải"}:</b> ${T(q.x)}</p>`;
+    const own = /^\s*(gợi ý|lời giải|giải)\s*:/i.test(q.x || ""); // lời giải đã tự ghi "Gợi ý:" thì không ghi lặp
+    if (q.x) h += `<p class="small pv-x">${own ? "" : `<b>${q.type === "essay" ? "Gợi ý" : "Lời giải"}:</b> `}${T(q.x)}</p>`;
     return h;
   }
   function text(q) {

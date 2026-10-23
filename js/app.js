@@ -1737,7 +1737,7 @@
   /* ---------------- ô tìm đề (Phiên UX7) ----------------
      Tìm không phân biệt dấu, theo từng từ: mọi từ gõ vào phải là đầu một từ của tên ("toan de 2" khớp "Toán 4 · Cuối kì I · Đề 2";
      "2" không khớp "Đề 12"). findKey(chữ): các từ đã bỏ dấu, ghi vào data-k của dòng; findHit(chữ gõ, data-k). */
-  const fold = (s) => String(s == null ? "" : s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
+  const fold = (s) => String(s == null ? "" : s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
   const findWords = (s) => fold(s).split(/[^a-z0-9]+/).filter(Boolean);
   const findKey = (s) => findWords(s).join(" ");
   const findHit = (q, k) => { const h = String(k || "").split(" "); return findWords(q).every((w) => h.some((x) => x.startsWith(w))); };
@@ -2013,7 +2013,7 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
       if (!pr.length || !res.questions.length) { save(res); return; } // không câu nào lưu được: kho tự báo "cần ít nhất một câu hỏi"
       // có lỗi: hỏi lại ngay dưới nút Lưu, nói rõ bao nhiêu câu sẽ không được lưu, bao nhiêu câu thiếu phần bị lỗi
       $("#bAsk").innerHTML = `<div class="confirm" id="bAskBox"><div>${esc(pr.join(", "))}. Vẫn lưu?</div><div class="row"><button class="btn sm" type="button" id="bAskYes">Vẫn lưu</button><button class="btn ghost sm" type="button" id="bAskNo">Sửa tiếp</button></div></div>`;
-      $("#bAskYes").onclick = () => save(res);
+      $("#bAskYes").onclick = () => save(check()); // đọc lại chữ đang có: câu lưu và văn bản gốc (src) luôn khớp nhau
       $("#bAskNo").onclick = () => { $("#bAsk").innerHTML = ""; showBad(true); };
       $("#bAskBox").scrollIntoView({ block: "nearest" });
     };
