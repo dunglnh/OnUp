@@ -1263,7 +1263,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     topics: document.querySelectorAll("#rpTopics .item").length, week: [...document.querySelectorAll(".sec")].find((x) => /Bài đã làm trong tuần/.test(x.textContent)).textContent.replace(/\s+/g, " ") }));
   await kcheck("báo cáo tuần có đề ngẫu nhiên");
   await kp.goto(BASE + "/#/admin/banks"); await kp.waitForTimeout(200);
-  k3.adminRow = await kp.$eval(`a[href="#/quiz/${POOL}"] .small`, (x) => x.textContent);
+  k3.adminRow = await kp.$eval(`a[href="#/quiz/${POOL}"] .small`, (x) => x.textContent); // tab Ngân hàng đề (UX7, X12): đề có sẵn theo tab khối, nhóm theo môn; dòng đề ghi số câu, số phút
   await kcheck("ngân hàng đề có đề ngẫu nhiên");
   await kc.close();
   console.log("K3:", k3);
@@ -1281,7 +1281,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     && k3.home.hash === "#/home" && k3.home.weak === wrongQ.topic + " · 1 câu" && /Toán 6 · Cuối kì I · Đề ngẫu nhiên/.test(k3.home.recent) && k3.home.recent.includes(`${t1 - 1}/${t1}`) && k3.home.n === 2
     && k3.short && k3.shortWant.noV && k3.notes === k3.shortWant.notes && k3.shortN === k3.shortWant.n
     && k3.report.n === "2" && k3.report.subj === `Toán ${d10(25 + t1 - 1, 25 + t1)}/10 2 bài · ${25 + t1 - 1}/${25 + t1} câu đúng` && k3.report.topics === 1 && /Đề ngẫu nhiên/.test(k3.report.week)
-    && k3.adminRow === "Lớp 6 · Toán · 25 câu rút ngẫu nhiên · có sẵn (chỉ xem)";
+    && k3.adminRow === "25 câu rút ngẫu nhiên · 45 phút · xem thử";
   step("random exams keep passages whole (K4)");
   /* Đề ngẫu nhiên có đoạn đọc (Phiên K4): câu dùng chung một đoạn đọc được rút theo đoạn (Quiz.draw, CLAUDE.md mục “Đề ngẫu nhiên”). Bốn đề
      ngẫu nhiên đang có đoạn đọc: Tiếng Việt 4, Tiếng Anh 4 (Bin), Ngữ văn 6, Tiếng Anh 6 cuối kì I (Na). Với mỗi đề: (1) rút 60 lần ngay
