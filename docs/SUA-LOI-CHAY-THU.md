@@ -369,6 +369,38 @@ Phiên N24b đối chiếu bản PDF Ngữ văn 6 tập một, sách in năm 202
 - Đề ngân hàng và bài ôn dạng trang chỉ đi lần lượt từng câu. Làm như thi, bấm “Trả lời” là sang câu sau; câu đã trả lời không mở lại để xem hay sửa trước khi nộp.
 - Chủ app muốn có bảng số câu như khi làm bài kiểm tra trên máy tính: nhảy tới câu bất kì, sửa câu trả lời trước khi nộp (22/10/2026).
 
+### Nhóm N · Phiên DS1 ghi ngày 23/10 (Phiên 9p)
+
+Phiên DS1 dò `modules/l4-giua-ki-1/index.html` (Toán Bài 1–19, Tiếng Việt tuần 1–8) và phần Toán của `modules/l6-giua-ki-1/index.html` (Chương I–III) trên `main` commit `6314d28` với bản PDF sách in năm 2026: Toán 4 tập một (mã G1HH4T001h26), Tiếng Việt 4 tập một (G1HH4V001h26), Toán 6 tập một (G1HH6T001h26), số ĐKXB 7-2026. Tên bài, tên chủ đề, chủ điểm và phạm vi khớp mục lục. Số trang dưới đây là trang in. Kì kiểm tra giữa kì I lớp 4 và lớp 6 dự kiến từ 2/11/2026 (`gk1-l4`, `gk1-l6`).
+
+**L40. Phần Toán của bài ôn giữa kì I lớp 4: một Ghi nhớ dễ hiểu sai, vài câu lệch bài, 17 câu quá gần sách.**
+- Ghi nhớ Bài 1 (`b1`), ý thứ ba: “Số liền sau hơn số liền trước 1 đơn vị.” Câu này dễ hiểu sai. Sách cho câu “Số liền trước của một số bé hơn số liền sau của số đó 2 đơn vị” là Đúng (Bài 15, tr. 50, HĐ1d); khung tr. 50 nói hai số tự nhiên liên tiếp hơn kém nhau 1 đơn vị.
+- Bài 2 (`b2`): hai câu “Tìm x, biết: x + 2 450 = 10 000”, “Tìm x, biết: x × 4 = 3 600” và hai ý Ghi nhớ về tìm số hạng, thừa số chưa biết. Bài 2 của sách (tr. 9–11) chỉ ôn tính nhẩm, đặt tính, tính giá trị biểu thức và bài toán có lời. Bài 1–19 không dùng chữ x cho số chưa biết.
+- Bài 3 (`b3`): câu đúng/sai “Tổng của hai số lẻ là một số chẵn.” là điều sách không dạy (tr. 12–13). Ghi nhớ định nghĩa số chẵn, số lẻ bằng chữ số tận cùng; sách định nghĩa số chẵn là số chia hết cho 2, số lẻ là số không chia hết cho 2, còn chữ số tận cùng là phần nhận xét (tr. 12).
+- Bài 5 (`b5`, “Giải bài toán có ba bước tính”): câu cố định “Một đội có 3 xe, mỗi xe chở 2 450 kg hàng và 1 xe chở 1 800 kg hàng…” chỉ có hai bước tính. Bối cảnh xe chở hàng gần bài tập 3 tr. 10 (4 xe chở gạo).
+- Bài 11, Bài 12 (`b11`, `b12`): sách dạy lớp triệu, mười triệu, một trăm triệu ở Bài 11 (tr. 38). Bài 12 (tr. 41–44) dạy đọc, viết số đến lớp triệu và số 1 000 000 000 (một tỉ). Bài ôn để Ghi nhớ về lớp triệu và câu “Số mười triệu viết là:” ở Bài 12; Ghi nhớ Bài 11 không có lớp triệu, cả hai bài không có “một tỉ”.
+- 17 câu cố định quá gần sách: câu khái niệm của khung kiến thức thành câu hỏi, cùng số liệu, hoặc cùng khung chỉ đổi số với bài tập (Rút ra N23 và “Rút ra khi dò `toan4-ck1`” ở mục 3 của `docs/KE-HOACH-NOI-DUNG.md`):
+  - `b3`: “Từ 1 đến 20 có bao nhiêu số lẻ?” (tr. 13, HĐ3: từ 10 đến 31).
+  - `b7`: “Đơn vị đo góc là:”, “Khi đo góc, ta đặt tâm của thước đo góc trùng với:” (khung tr. 23).
+  - `b8`: “Góc bẹt bằng mấy góc vuông?”, đúng/sai “Góc tù bé hơn góc vuông.” (khung tr. 26); “Lúc 3 giờ đúng…”, “Lúc 6 giờ đúng, kim giờ và kim phút tạo thành:” (tr. 25, 28, 121).
+  - `b11`: “Lớp nghìn gồm những hàng nào?” (khung tr. 37). `b12`: “Số mười triệu viết là:” (khung tr. 38).
+  - `b15`: “Số tự nhiên bé nhất là:”, đúng/sai “Có số tự nhiên lớn nhất.” (khung và HĐ1 tr. 50); “Số tự nhiên liền trước của 100 000 là:” (tr. 51).
+  - `b17`: “1 tấn bằng bao nhiêu tạ?” (khung tr. 56, tr. 125); “Một con voi trưởng thành có thể nặng khoảng:” 5 tấn (tr. 56, HĐ1: voi 4 tấn).
+  - `b18`: “Diện tích một phòng học khoảng:” 50 m² (tr. 62–63, HĐ2, HĐ3); “1 m² = ___ cm²” (tr. 126).
+  - `b19`: “1 thế kỉ = ___ năm” (khung tr. 66, tr. 67, tr. 126).
+  PR #108 đã soạn lại các câu cùng loại ở `toan4-ck1` (voi nặng mấy tấn, góc của hai kim lúc 3 giờ và 6 giờ, tâm thước đo góc, số tự nhiên bé nhất).
+- Ghi nhớ của các bài 4, 8, 11, 13, 14, 15, 17, 18, 19 chép gần nguyên văn khung kiến thức của sách; kiến thức đúng. Câu sinh ngẫu nhiên (ngoài phạm vi dò của DS1, ghi để phiên sửa xem): lời dẫn của `perim` ghi công thức chu vi của khung (tr. 15–16); `step3` có hai bối cảnh gần bài tập của sách (cửa hàng bán hai buổi, buổi sau gấp mấy lần, hỏi còn lại: tr. 20, bài tập 2; mua hàng, đưa tiền, hỏi tiền trả lại: tr. 22, bài tập 3).
+
+**L41. Phần Tiếng Việt của bài ôn giữa kì I lớp 4: nội dung ngoài tuần 1–8, hai kiểu bài Viết lệch sách.**
+- Sách tuần 1–8 (Bài 1–16), Luyện từ và câu: Danh từ (tr. 9), Danh từ chung, danh từ riêng (tr. 18), Luyện tập về danh từ (tr. 24), Quy tắc viết tên cơ quan, tổ chức (tr. 32), Động từ (tr. 41), Luyện tập về động từ (tr. 49, tr. 57), Cách dùng và công dụng của từ điển (tr. 64). Viết: đoạn văn nêu ý kiến (Bài 2–5), báo cáo thảo luận nhóm (Bài 6–8), bài văn thuật lại một sự việc (Bài 9–11), bài văn kể lại một câu chuyện (Bài 12–16). Ghi nhớ về danh từ, danh từ chung và riêng, tên cơ quan, hai ý đầu của Ghi nhớ về động từ, hai kiểu bài Viết thứ ba, thứ tư và 6 bài đọc tự soạn của bài ôn khớp sách; không câu nào nhắc văn bản, tác giả, nhân vật của sách.
+- Bài “Động từ” (`n4`): Ghi nhớ có ý “Các từ đã, đang, sẽ đứng trước động từ để cho biết thời gian của hoạt động” và ba câu chọn từ điền “sẽ” (“Ngày mai, lớp em ___ đi tham quan.”), “đã” (“Em ___ làm xong bài tập từ tối qua.”), “đang” (“Lúc này, mẹ ___ nấu cơm dưới bếp.”). Tuần 1–8 chỉ dạy động từ chỉ hoạt động, trạng thái (tr. 41), động từ chỉ hoạt động di chuyển (tr. 50), động từ thể hiện tình cảm, cảm xúc (tr. 57); không có đã, đang, sẽ.
+- Kiểu bài Viết thứ nhất (`writing[0]`, “Viết đoạn văn nêu ý kiến”): đề và dàn ý nêu ý kiến về một nhân vật em yêu thích. Sách tuần 1–4 dạy đoạn văn nêu ý kiến về **một câu chuyện** đã đọc hoặc đã nghe: nói rõ thích hay không thích câu chuyện và nêu rõ lí do (Ghi nhớ tr. 15); dàn ý Mở đầu (tên câu chuyện, ý kiến chung), Triển khai (lí do, dẫn chứng), Kết thúc (khẳng định lại ý kiến) (tr. 19).
+- Kiểu bài Viết thứ hai (`writing[1]`, “Viết báo cáo thảo luận nhóm”): dàn ý ghi phần đầu là tên báo cáo, nhóm, lớp, thời gian; phần cuối là người viết ghi tên; bảng kiểm không có quốc hiệu, tiêu ngữ, người nhận, chữ kí. Ghi nhớ tr. 29: báo cáo gồm phần đầu (quốc hiệu và tiêu ngữ, địa điểm và thời gian viết báo cáo), phần chính (tiêu đề, người nhận, nội dung báo cáo), phần cuối (chữ kí, họ và tên của người viết báo cáo); nội dung sắp xếp theo mục (mẫu tr. 28, dàn ý tr. 33, mỗi kết quả đánh dấu bằng dấu gạch ngang tr. 36).
+- Chỗ nhỏ:
+  - Ghi nhớ bài “Từ điển” (`n5`) và câu đúng/sai “Từ điển giúp em kiểm tra một từ viết đúng hay sai chính tả.” nói từ điển giúp kiểm tra chính tả. Sách nêu công dụng là cho biết từ loại, cách dùng từ qua ví dụ và nghĩa của từ (tr. 65, bài tập 3).
+  - Câu đúng/sai “Khi viết tên cơ quan, tổ chức, ta viết hoa chữ cái đầu của mỗi bộ phận tạo thành tên đó.” (`n3`) chép gần nguyên khung Ghi nhớ tr. 32 thành câu hỏi.
+  - Câu “Trong câu “Mùa hè, em được về quê ngoại ở Nam Định thăm bà.”, danh từ riêng là:” (`n2`) dùng tên tỉnh đã sáp nhập năm 2025 (CLAUDE.md: không dựa vào đơn vị hành chính cũ; Rút ra N3).
+
 ---
 
 ## 2. Cách sửa gợi ý và điều kiện xong
@@ -958,6 +990,34 @@ Flow (chủ app yêu cầu 22/10/2026; Phiên 9o dùng lại cho bài ôn dạng
 - Script nhỏ so `items` của 4 bài trước và sau khi sửa: không đổi.
 - CLAUDE.md, đoạn “Hợp đồng giữa bài ôn và app”, thêm một ý: Phiên 9o, L38, L39, chủ app duyệt 22/10/2026.
 - Ảnh 360px sáng/tối chép sang `docs/hinh-9o/`.
+
+### Phiên 9p
+
+**L40, L41 · Bài ôn giữa kì I lớp 4 theo sách in năm 2026.** Chỉ sửa phần dữ liệu của `modules/l4-giua-ki-1/index.html` (khối `/* TOÁN 4 */`, khối `/* TIẾNG VIỆT 4 */`, hai hàm `perim`, `step3` trong `gen`), `tests/` và tài liệu.
+- Mở bản PDF Toán 4 tập một và Tiếng Việt 4 tập một: link ở bảng “Sách và link của từng phiên”, cách mở ở đoạn “Sách” ngay trên bảng (mục 4 của `docs/KE-HOACH-NOI-DUNG.md`); cả hai cuốn ảnh page-N là trang in N − 2. Đọc các trang ghi ở L40, L41.
+- Toán (L40):
+  - Ghi nhớ `b1`: viết lại ý thứ ba cho không hiểu sai được (số liền sau của một số hơn số đó 1 đơn vị; số liền trước kém số đó 1 đơn vị).
+  - `b2`: hai câu “Tìm x” và hai ý Ghi nhớ về tìm số hạng, thừa số chưa biết đổi sang nội dung của Bài 2 (tính nhẩm, đặt tính, tính giá trị biểu thức, bài toán có lời trong phạm vi 100 000; phép tính theo Rút ra N23).
+  - `b3`: câu đúng/sai về tổng hai số lẻ đổi sang câu trong Bài 3; Ghi nhớ nêu định nghĩa của sách (số chia hết cho 2 là số chẵn…) rồi cách nhận ra bằng chữ số tận cùng.
+  - `b5`: câu cố định thành bài toán có đúng ba bước tính, bối cảnh khác bài tập của Bài 2, Bài 5, Bài 6.
+  - `b11`, `b12`: Ghi nhớ theo bài của sách: lớp triệu, mười triệu, một trăm triệu ở `b11`; đọc, viết số đến lớp triệu và số 1 000 000 000 (một tỉ) ở `b12`. Câu “Số mười triệu viết là:” đổi thành câu đọc hoặc viết số đến lớp triệu (vẫn `l: "b12"`).
+  - 17 câu quá gần sách: soạn lại như Rút ra N23 và “Rút ra khi dò `toan4-ck1`”: điều trong khung kiến thức hỏi qua ví dụ bằng số hoặc tình huống; bài tập của sách thì đổi bối cảnh, không chỉ đổi số. Xem cách PR #108 soạn lại các câu cùng loại.
+  - Ghi nhớ chép gần nguyên văn khung (bài 4, 8, 11, 13, 14, 15, 17, 18, 19): viết lại bằng lời của mình, giữ kiến thức (quy tắc đổi đơn vị, công thức chu vi giữ như sách).
+  - `perim`: lời dẫn không ghi sẵn công thức chu vi. `step3`: đổi hai bối cảnh gần sách (cửa hàng bán hai buổi; mua hàng, đưa tiền, hỏi tiền trả lại). Đáp án vẫn tính bằng code trong hàm.
+- Tiếng Việt (L41):
+  - `n4`: thay ý Ghi nhớ “đã, đang, sẽ” bằng một ý của tuần 1–8 (động từ chỉ hoạt động di chuyển, hoặc động từ thể hiện tình cảm, cảm xúc), viết bằng lời của mình. Ba câu “sẽ”, “đã”, “đang” viết lại thành câu về động từ trong phạm vi đó, cùng dạng trắc nghiệm 4 lựa chọn; không dùng câu, đoạn văn, tục ngữ, từ ngữ của bài tập trong sách (tr. 41, 49–50, 57).
+  - `writing[0]`: đề, dàn ý, bảng kiểm theo đoạn văn nêu ý kiến về một câu chuyện đã đọc hoặc đã nghe (nói rõ thích hay không thích và lí do; Mở đầu – Triển khai – Kết thúc; tr. 15, 19). Đề tự soạn, khác hai đề tr. 19 (câu chuyện về tình cảm gia đình, về các con vật). Giữ tên mục.
+  - `writing[1]`: dàn ý, bảng kiểm theo bố cục ba phần của sách (tr. 29): quốc hiệu, tiêu ngữ, địa điểm và thời gian viết báo cáo; tiêu đề, người nhận, nội dung sắp theo mục, mỗi kết quả một dòng có dấu gạch ngang; chữ kí, họ và tên người viết. Chủ đề khác hai chủ đề của sách (tr. 33, 36).
+  - Chỗ nhỏ: Ghi nhớ `n5` nêu công dụng theo sách (nghĩa, từ loại, cách dùng từ qua ví dụ); câu đúng/sai về chính tả đổi thành câu về một công dụng sách nêu. Câu đúng/sai của `n3` hỏi qua một tên cơ quan, tổ chức cụ thể (tên khác các tên trong sách tr. 32). Câu có “Nam Định” (`n2`) đổi sang tên tỉnh, thành phố còn giữ sau năm 2025 (Rút ra N3: Hà Nội, Phú Thọ, Lào Cai, Bắc Ninh, Thái Nguyên…); đáp án vẫn là danh từ riêng của câu.
+- Không đổi `id` của bài, không chèn, xóa hay đổi thứ tự câu trong `items`: kết quả theo bài (`lres`) lưu theo `id` bài, “Ôn câu sai” lưu theo số thứ tự câu trong môn (`wkey`), như Phiên 9l, 9m. Giữ 4 mục `writing` đúng thứ tự, bảng kiểm mỗi mục 5 dòng (bản nháp `wdraft_`, ô đã tích `wchk_` lưu theo số thứ tự). Câu sửa giữ bài (`l`), dạng câu, số lựa chọn. Câu tự soạn, không chép nguyên văn sách, không đưa tệp hay ảnh trang sách vào repo. Không sửa ba chỗ nối với app (hợp đồng ở CLAUDE.md), `js/`, `css/`, `data/`.
+- Kết quả đã lưu và danh sách “Ôn câu sai” giữ theo `id` bài, số thứ tự câu, nên không cần chuyển dữ liệu.
+
+**Xong khi:**
+- Phần dữ liệu của `l4-giua-ki-1` không còn “Tìm x”, “Tổng của hai số lẻ”, “Nam Định”, không còn “đã, đang, sẽ” ở bài `n4`; `writing[0]` là đoạn văn nêu ý kiến về một câu chuyện; dàn ý và bảng kiểm của `writing[1]` có quốc hiệu, tiêu ngữ, người nhận, chữ kí.
+- Đáp án Toán mới tính lại bằng code. Script nhỏ so `lessons`, `items`, `writing` của hai môn trước và sau: cùng số câu, cùng `l`, cùng dạng câu; chỉ khác ở các câu, Ghi nhớ, mục Viết ghi trong Pull Request. `node tests/so-du-lieu-bai-on.js` báo `l6-giua-ki-1`, `ioe-4`, `ioe-6` không đổi.
+- Dò lộ đáp án bằng code giữa các câu cố định của cùng môn (đề thi thử rút câu từ mọi bài; Rút ra N5).
+- `tests/e2e.js` in `E2E OK` (bước “lesson pages l4, l6”: chữ không đè ở 360px, 720px; thêm kiểm tra Ghi nhớ `n4` không còn “đã, đang, sẽ” và dàn ý `writing[1]` có quốc hiệu, như kiểm tra L37 của Phiên 9m).
+- CLAUDE.md, đoạn “Hợp đồng giữa bài ôn và app”: thêm một ý (Phiên 9p, L40, L41) như ý của Phiên 9l, 9m. Pull Request ghi trang sách đã đọc cho từng chỗ sửa.
 
 ---
 
