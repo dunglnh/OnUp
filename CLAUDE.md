@@ -86,6 +86,8 @@ App còn **đọc** (không ghi) DOM của khung để biết học sinh đang l
 
 **Thêm bài ôn dạng trang mới:** tạo `modules/<mã>/index.html`, làm ba chỗ sửa trên, dùng font qua `../../fonts/fonts.css` (token `--display`, `--body` như css/app.css; chỉ `.score` dùng `--display`), ô đang chọn, ô điền dùng `--pick`, `--pick-soft` như 4 bài đang có, khai báo trong `data/modules.js`, gắn mã vào `modules` của các kì thi trong `data/calendar-2026-2027.js`, rồi thêm file vào `FILES` trong `sw.js` và tăng `VERSION`.
 
+**Tính năng mới** (từ 24/10/2026, chủ app giao PO quyết; đoạn “Bài ôn dạng trang” ở đầu `docs/KE-HOACH-PHAT-TRIEN-ONUP.md`): mặc định chỉ làm ở đề ngân hàng (`js/quiz.js`); bài ôn dạng trang chỉ sửa nội dung và lỗi, làm cả hai chỉ khi chủ app yêu cầu rõ.
+
 ### Chạy khi mất mạng (sw.js, manifest.webmanifest)
 - `js/app.js` đăng kí `sw.js` sau khi trang tải xong (bọc try/catch; bỏ qua khi mở bằng file://; trình duyệt chỉ cho chạy trên https hoặc localhost).
 - Khi cài, `sw.js` tải sẵn mọi file trong `FILES` vào đệm tên `VERSION`; khi kích hoạt thì xóa đệm cũ có tiền tố `onup-` (GitHub Pages: các repo của một tài khoản chung origin, không đụng đệm của trang khác).
