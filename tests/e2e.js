@@ -1890,7 +1890,18 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      ý kiến” là ý kiến về một câu chuyện (Mở đầu – Triển khai – Kết thúc), dàn ý và bảng kiểm của “Viết báo cáo thảo luận nhóm” có quốc hiệu,
      tiêu ngữ, người nhận, chữ kí (trang Viết mở ra ở 360px, chạy audit); không còn “Tìm x”, “Tổng của hai số lẻ”, “Nam Định”; bài và dạng câu
      của từng câu trong items, tên và thứ tự 4 mục Viết giữ như cũ (lres theo id bài, “Ôn câu sai” theo số thứ tự câu, wdraft_, wchk_ theo số
-     thứ tự mục). */
+     thứ tự mục).
+     L42 (Phiên 9q): phần Toán của l6 theo sách Toán 6 tập một in năm 2026: Ghi nhớ Bài 2 viết số La Mã bằng năm thành phần, số bằng tổng giá trị
+     các thành phần (không còn quy tắc trừ); Ghi nhớ Bài 5 có “0 ≤ r < b”, r = 0 là phép chia hết; số đối ở Ghi nhớ Bài 14, không ở Bài 13 (kể
+     cả trang Ghi nhớ đang hiện); không còn “ước nguyên của”, “NHA TRANG”, “Các bội của 6 nhỏ hơn 30”; bài và dạng câu của từng câu trong items
+     giữ như cũ (lres theo id bài, “Ôn câu sai” theo số thứ tự câu). */
+  const L42 = {
+    items: "b1×5 b2×4 b3×4 b4×3 b5×4 b6×5 b7×3 b8×3 b9×4 b10×4 b11×3 b12×3 b13×4 b14×3 b15×3 b16×3 b17×4",
+    kinds: "oooggooggotggffgffggoogggoggoogtgggooggfggfggoogggggoggoggoogg",
+    notes: { b2: /năm thành phần: I = 1, V = 5, X = 10, IV = 4, IX = 9/, b5: /0 ≤ r < b/, b14: /số đối/ },
+    old: /thì trừ|0 < r|ước nguyên của|NHA TRANG|Các bội của 6 nhỏ hơn 30|tính chất đặc trưng/g,
+  };
+  const l42 = { data: null, screen: {} };
   const L40 = {
     items: { toan: "b1×5 b2×5 b3×5 b4×4 b5×3 b7×4 b8×5 b10×4 b11×3 b12×4 b13×3 b14×3 b15×4 b17×4 b18×4 b19×4", tv: "n1×14 n2×14 n3×10 n4×16 n5×10 d1×6" },
     // dạng từng câu: o trắc nghiệm 4 lựa chọn, t đúng/sai, f điền, g sinh ngẫu nhiên, r bài đọc 4 câu
@@ -1985,6 +1996,12 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
           qs: SUBJ.van.items.flatMap((it) => (it.qs || [it]).map((x) => [(it.qs ? it.t + " · " : "") + x.q, (x.o || []).filter((_, i) => i !== (x.a || 0))])),
           text: JSON.stringify([SUBJ.van.lessons, SUBJ.van.items, SUBJ.van.writing, SUBJ.van.scopeText]) + document.querySelector("#view").textContent,
         }));
+        if (m === "l6-giua-ki-1" && sid === "toan") l42.data = await fr.evaluate(() => ({
+          notes: Object.fromEntries(SUBJ.toan.lessons.map((l) => [l.id, l.notes])),
+          items: SUBJ.toan.items.reduce((a, it) => { const z = a[a.length - 1]; if (z && z[0] === it.l) z[1]++; else a.push([it.l, 1]); return a; }, []).map(([l, n]) => l + "×" + n).join(" "),
+          kinds: SUBJ.toan.items.map((it) => (it.g ? "g" : it.o ? (it.o.length === 4 ? "o" : "?") : it.tf !== undefined ? "t" : "f")).join(""),
+          text: JSON.stringify([SUBJ.toan.lessons, SUBJ.toan.items]) + document.querySelector("#view").textContent,
+        }));
         if (m === "l4-giua-ki-1") l40.data[sid] = await fr.evaluate((sid) => ({
           notes: Object.fromEntries(SUBJ[sid].lessons.map((l) => [l.id, l.notes])),
           items: SUBJ[sid].items.reduce((a, it) => { const z = a[a.length - 1]; if (z && z[0] === it.l) z[1]++; else a.push([it.l, 1]); return a; }, []).map(([l, n]) => l + "×" + n).join(" "),
@@ -1996,6 +2013,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
         for (const l of await fr.$$eval(".lrow", (bs) => bs.map((b) => b.dataset.l))) {
           await fr.click(`.lrow[data-l="${l}"]`); await check(`${sid} ${l}, ghi nhớ`); await lessonTitle(fr, sid, l, `360 · ${m} · ${sid} ${l}, ghi nhớ`);
           if (m === "l6-giua-ki-1" && sid === "van" && L37.notes[l]) l37.screen[l] = await fr.$$eval("#view .notes li", (li) => li.map((x) => x.textContent.replace(/\s+/g, " ")));
+          if (m === "l6-giua-ki-1" && sid === "toan") l42.screen[l] = await fr.$$eval("#view .notes li", (li) => li.map((x) => x.textContent.replace(/\s+/g, " ")));
           if (m === "l4-giua-ki-1") l40.screen[`${sid} ${l}`] = await fr.$$eval("#view .notes li", (li) => li.map((x) => x.textContent.replace(/\s+/g, " ")));
           await fr.click("#goBtn");
           for (let i = 1; i <= 80 && (await fr.$("#skipBtn")); i++) {
@@ -2136,6 +2154,21 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   }
   console.log("L40, L41 (bài ôn lớp 4 theo sách in năm 2026):", l40Errs.length ? l40Errs : "OK");
   const l40OK = !l40Errs.length;
+  const l42Errs = [];
+  if (!l42.data) l42Errs.push("không đọc được trang môn Toán của l6");
+  else {
+    if (l42.data.items !== L42.items) l42Errs.push("bài của các câu: " + l42.data.items);
+    if (l42.data.kinds !== L42.kinds) l42Errs.push("dạng các câu: " + l42.data.kinds);
+    Object.entries(L42.notes).forEach(([l, re]) => {
+      if (!l42.data.notes[l].some((n) => re.test(n))) l42Errs.push(`Ghi nhớ ${l} không có ${re}`);
+      if (!(l42.screen[l] || []).some((n) => re.test(n))) l42Errs.push(`trang Ghi nhớ ${l} không hiện ${re}`);
+    });
+    if ([...l42.data.notes.b13, ...(l42.screen.b13 || [])].some((n) => /đối/.test(n))) l42Errs.push("số đối còn ở Ghi nhớ Bài 13");
+    const old = (l42.data.text + Object.values(l42.screen).flat().join(" ")).match(L42.old);
+    if (old) l42Errs.push("còn chữ cũ: " + [...new Set(old)].join(", "));
+  }
+  console.log("L42 (Toán 6 của bài ôn lớp 6 theo sách in năm 2026):", l42Errs.length ? l42Errs : "OK");
+  const l42OK = !l42Errs.length;
 
   step("selected answer: one blue in every subject (lesson pages l4, l6, IOE)");
   /* Ô đang chọn (chưa kiểm tra) và ô điền đang gõ của 4 bài ôn dạng trang dùng một màu ở mọi môn (chủ app yêu cầu 21/10/2026): token --pick,
@@ -3650,7 +3683,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK, l38OK, mod9oOK, ux7OK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK, l38OK, mod9oOK, ux7OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
