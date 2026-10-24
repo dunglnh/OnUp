@@ -194,7 +194,7 @@ Thứ tự các phiên:
 | 12 | 31/8/2027 | Rà đề theo sách chỉnh sửa năm 2027 (dự trù khoảng 15 phiên, theo danh mục Bộ công bố); Lịch 2027–2028 (khi Bộ, Sở công bố khung năm học); gộp bài ôn dạng trang vào ngân hàng | | trước năm học 2027–2028: khách mua từ tháng 6/2027 dùng đề cho năm học đó (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách”) |
 | — | khi có | **Sửa lỗi từ góp ý chạy thử**: QC ghi mã lỗi (tiếp theo L43) và lời giao việc phiên 9 + chữ cái ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) | | chen vào bất cứ lúc nào; gấp thì xếp vào bảng “Làm ngay” |
 
-Từ 22/10/2026 đến 28/2/2027 còn khoảng 272 phiên (232 phiên làm đề, 29 phiên dò sách, N-IOE, 7 phiên rà soát, K5, G0, B1), cùng UX8 và phiên sửa lỗi: cần khoảng 2 phiên mỗi ngày, mọi ngày; Tết nghỉ thì làm bù trước Tết. Cột Hạn là mốc theo nhịp (hạn theo kì thi trong ngoặc); chậm hơn mốc quá một tuần thì lùi theo mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Phiên rà soát của mỗi khối không bỏ khi chậm.
+Từ 22/10/2026 đến 28/2/2027 còn khoảng 273 phiên (232 phiên làm đề, N26, 29 phiên dò sách, N-IOE, 7 phiên rà soát, K5, G0, B1), cùng UX8 và phiên sửa lỗi: cần khoảng 2 phiên mỗi ngày, mọi ngày; Tết nghỉ thì làm bù trước Tết. Cột Hạn là mốc theo nhịp (hạn theo kì thi trong ngoặc); chậm hơn mốc quá một tuần thì lùi theo mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Phiên rà soát của mỗi khối không bỏ khi chậm.
 
 Lưu ý: đến B1 (tháng 2/2027) repo vẫn công khai, ai cũng tải được trọn bộ đề (chủ app chấp nhận 18/10/2026); giữ đề thật sự cần B2, làm trước khi bán.
 
