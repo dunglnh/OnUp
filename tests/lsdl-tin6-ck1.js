@@ -31,7 +31,9 @@ const close = (x, y) => Math.abs(x - y) < 1e-9;
 const laMa = (n) => [[10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]].reduce((s, [v, c]) => { while (n >= v) { s += c; n -= v; } return s; }, "");
 const tuLaMa = (s) => [...s].reduce((t, c, i) => { const v = { I: 1, V: 5, X: 10 }[c], w = { I: 1, V: 5, X: 10 }[s[i + 1]] || 0; return t + (v < w ? -v : v); }, 0);
 const theKi = (nam) => Math.ceil(nam / 100); // năm Công nguyên, hoặc số của năm TCN → thế kỉ (thế kỉ II TCN: năm 200 TCN đến 101 TCN)
-const loaiNui = (h) => (h < 1000 ? "Núi thấp" : h < 2000 ? "Núi trung bình" : "Núi cao"); // độ cao tuyệt đối từ 500 m trở lên
+// dạng địa hình theo Bài 13 (sách in năm 2026; sách không chia núi thấp, trung bình, cao): bằng phẳng, cao trên 500 m, sườn dốc là
+// cao nguyên; bằng phẳng, dưới 200 m là đồng bằng; nhô cao, đỉnh nhọn từ 500 m là núi; đỉnh tròn, sườn thoải là đồi
+const dangDiaHinh = ({ cao, bangPhang, suonDoc }) => (bangPhang ? (cao > 500 && suonDoc ? "Cao nguyên" : cao < 200 ? "Đồng bằng" : "?") : cao >= 500 ? "Núi" : "Đồi");
 const DON_VI = { bit: 1 / 8, Bit: 1 / 8, byte: 1, Byte: 1, KB: 1024, MB: 1024 ** 2, GB: 1024 ** 3, TB: 1024 ** 4 }; // theo byte
 const dungLuong = (s) => { const m = /(\d+(?:,\d+)?)\s*(byte|KB|MB|GB|TB)\b/.exec(s); assert.ok(m, "không đọc được dung lượng: " + s); return +m[1].replace(",", ".") * DON_VI[m[2]]; };
 const lonNhat = (arr, f) => arr.reduce((a, b) => (f(b) > f(a) ? b : a));
@@ -98,7 +100,8 @@ const CHECKS = [
   { id: L.de2, has: "Hà Nội ở khu vực giờ số 7, Tô-ky-ô (Nhật Bản) ở khu vực giờ số 9", right: (q) => { assert.ok(q.q.includes("là 8 giờ sáng")); return 8 + (9 - 7); } },
   { id: L.de2, has: "Đỉnh núi X cao 1 500 m", right: (q) => { assert.ok(q.q.includes("độ cao 400 m")); return 1500 - 400; } },
   { id: L.de2, has: "Điểm A cao hơn điểm B bao nhiêu mét", right: (q) => { const [a, b] = [doCao(q.svg, "A"), doCao(q.svg, "B")]; assert.ok(q.x.includes(`đồng mức ${a} m`) && q.x.includes(`đồng mức ${b} m`)); return a - b; } },
-  { id: L.pool, has: "độ cao tuyệt đối là 1 600 m", right: () => loaiNui(1600) },
+  { id: L.pool, has: "Bạn Hà đi tham quan một vùng đất rộng", right: (q) => { const m = /cao khoảng ([\d ]+) m so với mực nước biển/.exec(q.q); assert.ok(m, "đề ghi độ cao");
+    return dangDiaHinh({ cao: +m[1].replace(/ /g, ""), bangPhang: q.q.includes("tương đối bằng phẳng"), suonDoc: q.q.includes("sườn dốc dựng đứng") }); } },
   { id: L.pool, has: "sườn nào của ngọn núi dốc hơn", right: (q) => { assert.ok(q.o[0].startsWith("Sườn " + suonDoc(q.svg) + ", vì các đường đồng mức ở đó gần nhau hơn")); return q.o[0]; } },
   // Tin học
   { id: T.de1, has: "1 byte = ___ bit", right: () => String(DON_VI.byte / DON_VI.bit) },

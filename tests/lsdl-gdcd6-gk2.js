@@ -146,7 +146,7 @@ const CHECKS = [
     assert.ok(q.x.includes(`tháng ${t} (${Math.max(...nhiet)} °C)`) && q.x.includes(`tháng ${r} (${Math.max(...mua)} mm)`), "lời giải ghi đúng số liệu đọc trên biểu đồ");
     assert.ok(Math.max(...nhiet) - [...nhiet].sort((a, b) => b - a)[1] >= 2 && Math.max(...mua) - [...mua].sort((a, b) => b - a)[1] >= 40, "đỉnh của đường, cột cao nhất nhìn rõ");
     return `Tháng ${t} và tháng ${r}`; } },
-  { id: L.de1, has: "biên độ nhiệt năm) ở địa điểm C", right: (q) => {
+  { id: L.de1, has: "biên độ nhiệt độ năm) ở địa điểm C", right: (q) => {
     const { nhiet } = docBieuDo(q.svg), hi = Math.max(...nhiet), lo = Math.min(...nhiet), t = viTriLon(nhiet), c = viTriNho(nhiet);
     assert.ok(hi % 5 === 0 && lo % 5 === 0, "tháng nóng nhất, lạnh nhất nằm đúng trên đường lưới (đọc được chính xác)");
     assert.ok(q.tol === 1 && q.unit === "°C" && q.x.includes(`tháng ${t} (${hi} °C)`) && q.x.includes(`tháng ${c} (${lo} °C)`) && q.x.includes(`${hi} − ${lo} = ${hi - lo}`));
