@@ -1,7 +1,7 @@
 // Tính lại đáp án và kiểm tra ma trận ngân hàng Công nghệ 6 giữa kì I (data/banks/6-congnghe.js, Phiên N25): đề 1 có sẵn (chỉ thêm
-// lv), Đề 2 và đề ngẫu nhiên congnghe6-gk1-ngau-nhien (không có câu riêng), theo mẫu tests/lsdl-tin6-ck1.js. Câu có phép tính (tiền
-// gas tiết kiệm) nhận ra bằng một đoạn chữ của đề, tính lại bằng code; câu trả lời bằng số và câu điền có đáp án là số nào trong kho
-// cũng phải có kiểm tra ở đây. Rồi kiểm tra: mọi câu có lv; ma trận 10 Biết, 8 Hiểu, 7 Vận dụng, đúng ba chủ đề của đề 1; Đề 2 chia
+// lv), Đề 2 và đề ngẫu nhiên congnghe6-gk1-ngau-nhien (không có câu riêng), theo mẫu tests/lsdl-tin6-ck1.js; chủ đề theo tên
+// ba bài của sách in năm 2026 (Phiên DS7). Câu có phép tính (tiền điện tiết kiệm) nhận ra bằng một đoạn chữ của đề, tính lại
+// bằng code; câu trả lời bằng số và câu điền có đáp án là số nào trong kho cũng phải có kiểm tra ở đây. Rồi kiểm tra: mọi câu có lv; ma trận 10 Biết, 8 Hiểu, 7 Vận dụng, đúng ba chủ đề của đề 1; Đề 2 chia
 // đúng theo ma trận; ô nào cũng đủ câu; Đề 2 có ít nhất 3 câu đúng/sai 4 ý, không có câu tự luận; rút thử nhiều lần ra đúng ma trận;
 // học sinh đã làm hết đề 1 vẫn rút được 25 câu chưa làm (Đề 2 đúng ma trận).
 // Chạy: node tests/congnghe6-gk1.js → in MATH OK.
@@ -19,7 +19,7 @@ const DE1 = "congnghe6-gk1-de1", DE2 = "congnghe6-gk1-de2", POOL = "congnghe6-gk
 const val = (s) => +String(s).replace(/\s/g, "").replace(",", ".");
 
 const CHECKS = [
-  { id: DE2, has: "2 bình gas, giá 400 000 đồng một bình", right: (q) => { const m = q.q.match(/hết (\d+) bình gas, giá ([\d ]+) đồng một bình.*còn dùng ([\d,]+) bình/); return (val(m[1]) - val(m[3])) * val(m[2]); } }
+  { id: DE2, has: "dùng hết 180 số điện", right: (q) => { const m = q.q.match(/hết (\d+) số điện.*chỉ dùng (\d+) số.*trung bình ([\d ]+) đồng một số/); return (val(m[1]) - val(m[2])) * val(m[3]); } }
 ];
 
 const pool = bank(POOL);
