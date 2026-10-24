@@ -55,7 +55,7 @@ const CHECKS = [
   { id: T.de1, has: "1 GB = ___ MB", right: () => String(DON_VI.GB / DON_VI.MB) },
   { id: T.de1, has: "USB của Hà còn trống 2 GB", right: (q) => { const n = (2 * DON_VI.GB) / (4 * DON_VI.MB); assert.equal(n, 512); return lonNhat(q.o, (o) => -Math.abs(num(o.replace(/[^\d ]/g, "")) - n)); } },
   // Tin học: Đề 2
-  { id: T.de2, has: "Dãy bit 01000001 gồm bao nhiêu bit", right: (q) => { assert.equal(q.unit, "bit"); return /Dãy bit ([01]+) /.exec(q.q)[1].length; } },
+  { id: T.de2, has: "Dãy bit 11001010 gồm bao nhiêu bit", right: (q) => { assert.equal(q.unit, "bit"); return /Dãy bit ([01]+) /.exec(q.q)[1].length; } },
   { id: T.de2, has: "Phát biểu nào sau đây đúng?", right: (q) => { const ok = q.o.filter((o) => { const m = /^1 (\w+) lớn hơn 1 (\w+)$/.exec(o); return m && DON_VI[m[1]] > DON_VI[m[2]]; }); assert.equal(ok.length, 1, "đúng một phát biểu đúng"); return ok[0]; } },
   { id: T.de2, has: "dung lượng 4 096 byte", right: (q) => { assert.equal(q.unit, "KB"); return 4096 / DON_VI.KB; } },
   { id: T.de2, has: "còn trống 1 GB. Mai muốn chép 6 đoạn phim, mỗi đoạn 200 MB", right: (q) => { const need = 6 * 200, free = DON_VI.GB / DON_VI.MB; assert.ok(need > free && q.o[0].includes("1 200 MB") && q.o[0].includes("1 024 MB") && q.x.includes("6 × 200 = 1 200")); return q.o[0]; } }
