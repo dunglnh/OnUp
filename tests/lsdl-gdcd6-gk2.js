@@ -133,7 +133,7 @@ const QUA_TRINH = {
    id: đề chứa câu; has: đoạn chữ của đề; right(q): đáp án tính bằng code (so với ans[0], ans hoặc o[0]); more(q): kiểm tra thêm. */
 const CHECKS = [
   // Lịch sử và Địa lí: Đề 1
-  { id: L.de1, has: "Năm 208 TCN, Thục Phán lập ra nhà nước Âu Lạc. Tính đến năm 2026", right: (q) => { assert.equal(q.unit, "năm"); return 208 + 2026; }, more: (q) => assert.ok(q.x.includes("208 + 2026 = 2 234")) }, // từ năm TCN đến năm CN: cộng hai số năm
+  { id: L.de1, has: "Khoảng năm 208 TCN, Thục Phán lập ra nhà nước Âu Lạc. Tính đến năm 2026", right: (q) => { assert.equal(q.unit, "năm"); return 208 + 2026; }, more: (q) => assert.ok(q.x.includes("208 + 2026 = 2 234")) }, // từ năm TCN đến năm CN: cộng hai số năm
   { id: L.de1, has: "kéo dài từ năm 179 TCN đến năm 938", right: (q) => { assert.equal(q.unit, "năm"); return 179 + 938; }, more: (q) => assert.ok(q.x.includes("179 + 938 = 1 117") && q.x.includes("hơn một nghìn năm")) },
   { id: L.de1, has: "nhiệt kế đo nhiệt độ không khí được đặt trong lều khí tượng, cách mặt đất ___ m", right: () => "1,5" }, // số liệu của sách, không phải phép tính
   { id: L.de1, has: "Một trạm khí tượng đo nhiệt độ không khí trong ngày", right: (q) => {
