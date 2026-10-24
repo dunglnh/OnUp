@@ -48,9 +48,12 @@ const SHARE_STUB = () => {
 };
 
 /* Như audit trong tests/e2e.js: ở 360px không tràn ngang; mọi button, a.btn, .linkbtn, summary đang hiện cao ≥ 44px; chữ ≥ 13px; chữ không đè
-   lên nhau, không tràn khỏi ô, không đè lên ô nhập, hình (chủ app yêu cầu 22/10/2026; cách đo ghi ở audit của tests/e2e.js, hai bản giống nhau). */
+   lên nhau, không tràn khỏi ô, không đè lên ô nhập, hình (chủ app yêu cầu 22/10/2026; cách đo ghi ở audit của tests/e2e.js, hai bản giống nhau);
+   không có hai phần tử cùng id, kể cả phần tử đang ẩn (X33, Phiên UX7b). */
 const audit = () => {
   const bad = [], shown = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden"; };
+  const idN = new Map(); document.querySelectorAll("[id]").forEach((e) => { if (e.id) idN.set(e.id, (idN.get(e.id) || 0) + 1); });
+  idN.forEach((n, id) => { if (n > 1) bad.push(`id trùng: #${id} (${n} phần tử)`); });
   {
     const cs = (e) => getComputedStyle(e), say = (s) => `"${s.slice(0, 32)}"`;
     /* ẩn: nằm trong <details> đang đóng (trừ dòng summary; getComputedStyle không ghi display:none), display:none, visibility, opacity 0,
@@ -330,19 +333,28 @@ async function run(browser, scheme) {
   const evRow = (id) => be.T.exam_events.find((x) => x.family_id === acc.id && x.id === id) || {};
   await p.goto(BASE + "/#/admin/event/ck1-l4"); await p.waitForSelector("#ePick");
   const ck0 = await ebChecked(), toan6 = await p.evaluate(() => Store.banks(6).find((b) => b.subject === "Toán" && / · Đề 2$/.test(b.title)).id);
+  /* X33 (Phiên UX7b): dòng khối đang hiện là #ePickScope, hiện ra (cao hơn 0), đổi chữ theo link “Hiện cả đề của khối khác” và ô Khối;
+     ô Phạm vi kiến thức (#eScope) không bị ghi chữ vào, Lưu lên máy chủ giữ nguyên phạm vi kiến thức. */
+  const scopeLine = () => p.$eval("#ePickScope", (x) => (x.getBoundingClientRect().height > 0 ? x.textContent : "(không hiện)"));
+  const scope0 = await p.evaluate(() => Store.event("ck1-l4").scope);
   c.ux7 = { only4: (await ebShown()) === (await p.evaluate(() => Store.banks(4).map((b) => b.id).sort().join())), n: await text(p, "#ePickN"),
-    nWant: await p.evaluate(() => Store.event("ck1-l4").banks.length + Store.event("ck1-l4").modules.length + " đã chọn"), head: await text(p, "#ePickH") };
+    nWant: await p.evaluate(() => Store.event("ck1-l4").banks.length + Store.event("ck1-l4").modules.length + " đã chọn"), head: await text(p, "#ePickH"),
+    scope: [await scopeLine()], scopeIn: await p.$eval("#eScope", (x) => [x.tagName, x.value === Store.event("ck1-l4").scope, x.textContent].join("|")) };
   await shot(p, "c5c-sua-ki-thi");
   await p.fill("#eFind", "toan de 2");
   c.ux7.find = (await ebShown()) === (await de2([4])) && (await de2([4])).split(",").length >= 2;
   await p.click("#eAll");
   c.ux7.findAll = (await ebShown()) === (await de2([4, 6])) && (await de2([6])).includes(toan6);
+  c.ux7.scope.push(await scopeLine());
   await shot(p, "c5d-sua-ki-thi-tim");
   await p.click(`#ePick input[value="${toan6}"]`); await p.click("#eAll"); await p.fill("#eFind", "");
   c.ux7.sticky = (await ebShown()).split(",").includes(toan6) && (await text(p, "#eAll")) === "Hiện cả đề của khối khác";
+  await p.uncheck('input[name=eg][value="4"]'); c.ux7.scope.push(await scopeLine());
+  await p.check('input[name=eg][value="4"]'); c.ux7.scope.push(await scopeLine());
   const ck1 = await ebChecked();
   await p.click("#eForm [type=submit]"); await p.waitForSelector("#parentCal");
   c.ux7.saved = ck1 === ck0.split(",").concat(toan6).sort().join() && await until(p, () => (evRow("ck1-l4").banks || []).slice().sort().join() === ck1);
+  c.ux7.scopeSaved = scope0.length > 10 && evRow("ck1-l4").scope === scope0;
   await p.goto(BASE + "/#/admin/event/ck1-l4"); await p.waitForSelector("#ePick");
   c.ux7.reopen = (await ebChecked()) === ck1 && (await ebShown()).split(",").includes(toan6);
   await p.click(`#ePick input[value="${toan6}"]`); await p.click("#eForm [type=submit]"); await p.waitForSelector("#parentCal");
@@ -1112,6 +1124,9 @@ async function run(browser, scheme) {
       && c.ux2.fixed.date === "4/11đến 6/11" && c.ux2.fixed.act === "Sửa ngày, bài ôn" && c.ux2.fixed.ev.start === "2026-11-04" && c.ux2.fixed.ev.end === "2026-11-06" && c.ux2.fixed.ev.tentative === false && c.ux2.fixServer,
     "UX7 (X11): Sửa kì thi lớp 4 chỉ hiện đề lớp 4 (bằng Store.banks(4)), “N đã chọn”; tìm “toan de 2” còn đúng đề Toán 4 có “Đề 2”, hiện cả khối khác thì thêm Toán 6; đề lớp 6 vừa chọn vẫn hiện khi ẩn khối khác; Lưu lên máy chủ đủ lựa chọn cũ cộng đề đó, mở lại vẫn đủ, bỏ đi thì về như cũ":
       c.ux7.only4 && c.ux7.n === c.ux7.nWant && c.ux7.head === "Bài ôn và đề cho kì này" && c.ux7.find && c.ux7.findAll && c.ux7.sticky && c.ux7.saved && c.ux7.reopen && c.ux7.restored,
+    "UX7b (X33): Sửa kì thi cuối kì I lớp 4: dòng #ePickScope hiện, ghi “Đang hiện bài ôn và đề của Lớp 4…”, hiện cả khối khác thì “… của mọi khối.”, bỏ ô Lớp 4 thì “Chọn khối ở trên…”; ô Phạm vi kiến thức không bị ghi chữ vào, Lưu giữ nguyên; audit không báo id trùng":
+      c.ux7.scope.join(" | ") === "Đang hiện bài ôn và đề của Lớp 4, khối của kì thi này. | Đang hiện bài ôn và đề của mọi khối. | Chọn khối ở trên để thấy bài ôn và đề của khối đó. | Đang hiện bài ôn và đề của Lớp 4, khối của kì thi này."
+      && c.ux7.scopeIn === "INPUT|true|" && c.ux7.scopeSaved && !problems.some((x) => /id trùng/.test(x)),
     "UX7 (X12): Đề tự soạn đứng trước đề có sẵn; đề có sẵn theo tab khối (Lớp 4 · N đề chọn sẵn, Lớp 6 · N đề), tìm “toan de 2” còn đúng đề Toán 4 có “Đề 2”":
       c.ux7.list.first && c.ux7.list.tabs === c.ux7.list.want && c.ux7.list.find,
     "UX7 (X13): nhập đề có một câu bị bỏ, một câu thiếu phần: thẻ hai câu đó viền đỏ, lỗi trong thẻ; Lưu thì hỏi lại; gắn vào kì thi thì đề lên máy chủ, đứng đầu danh sách đề của kì thi; form sửa đề ghi kì thi đã gắn; xóa đề thì kì thi bỏ đề theo":

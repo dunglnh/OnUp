@@ -628,9 +628,13 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      khuất không tính); hai đoạn khác nhau cùng lớp (cùng phần tử position fixed/sticky gần nhất, hoặc cùng không có: thanh dính, thông báo
      nổi che nội dung là đúng thiết kế) chồng lên nhau quá 2px theo chiều ngang và quá 40% chiều cao dòng thấp hơn (hai dòng liền nhau của một
      đoạn, dòng sát nhau vì line-height nhỏ không tính); chữ không tràn ra ngoài ô chứa nó (phần tử không inline gần nhất) quá 1,5px theo chiều
-     ngang; chữ không đè lên ô nhập, hình. only === "chữ": chỉ kiểm tra chữ đè, chữ tràn (bài ôn dạng trang giữ cỡ chữ, cỡ nút của bài gốc). */
+     ngang; chữ không đè lên ô nhập, hình. Không có hai phần tử cùng id, kể cả phần tử đang ẩn (X33, Phiên UX7b: $("#…") chỉ thấy phần tử
+     đầu; dòng khối đang hiện của Sửa kì thi từng trùng id với ô Phạm vi kiến thức nên không hiện). only === "chữ": chỉ kiểm tra chữ đè,
+     chữ tràn, id trùng (bài ôn dạng trang giữ cỡ chữ, cỡ nút của bài gốc). */
   const audit = (only) => {
     const bad = [], shown = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden"; };
+    const idN = new Map(); document.querySelectorAll("[id]").forEach((e) => { if (e.id) idN.set(e.id, (idN.get(e.id) || 0) + 1); });
+    idN.forEach((n, id) => { if (n > 1) bad.push(`id trùng: #${id} (${n} phần tử)`); });
     {
       const cs = (e) => getComputedStyle(e), say = (s) => `"${s.slice(0, 32)}"`;
       /* ẩn: nằm trong <details> đang đóng (trừ dòng summary; getComputedStyle không ghi display:none), display:none, visibility, opacity 0,
@@ -3451,7 +3455,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await p.goto(BASE + "/#/admin/event/gk2-l4"); await p.waitForSelector("#ePick");
     r.only4 = await p.evaluate(() => { const e = Store.event("gk2-l4"), ck = document.querySelectorAll("#ePick input:checked").length;
       return { grades: e.grades.join(), want: Store.banks(4).map((b) => b.id).sort().join(), wantM: window.ONTAP_MODULES.filter((m) => m.grade === 4).map((m) => m.id).sort().join(), n: document.querySelector("#ePickN").textContent, ck, mine: e.banks.length + e.modules.length,
-        head: document.querySelector("#ePickH").textContent, scope: document.querySelector("#eScope").textContent, all: document.querySelector("#eAll").textContent,
+        head: document.querySelector("#ePickH").textContent, scope: document.querySelector("#ePickScope").textContent, all: document.querySelector("#eAll").textContent,
         rows: [...document.querySelectorAll("#ePick .ck")].filter((x) => x.offsetParent).every((x) => x.getBoundingClientRect().height >= 44), find: document.querySelector("#eFind").placeholder }; });
     r.only4.eb = await shown("eb"); r.only4.em = await shown("em");
     await p.check('input[name=eg][value="6"]');
@@ -3459,7 +3463,10 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     // X11: kì thi có lựa chọn khác khối, tìm, hiện cả khối khác, lưu
     await p.goto(BASE + "/#/admin/event/ck1-l4"); await p.waitForSelector("#ePick");
     const before = await picked();
-    r.keep = { n: await txt("#ePickN"), ck: before, van6: (await shown("eb")).split(",").includes(r.other), ioe6: (await shown("em")).split(",").includes("ioe-6"),
+    // X33 (Phiên UX7b): dòng khối đang hiện là #ePickScope, hiện ra (cao hơn 0); ô Phạm vi kiến thức giữ id eScope, Lưu đọc ô đó
+    const scopeLine = () => p.$eval("#ePickScope", (x) => ({ t: x.textContent, h: x.getBoundingClientRect().height }));
+    before.scope = await p.evaluate(() => [Store.event("ck1-l4").scope, document.querySelector("#eScope").tagName, document.querySelector("#eScope").value, document.querySelector("#eScope").textContent].join("|"));
+    r.keep = { n: await txt("#ePickN"), ck: before, van6: (await shown("eb")).split(",").includes(r.other), ioe6: (await shown("em")).split(",").includes("ioe-6"), scope: await scopeLine(),
       groups: await p.$$eval("#ePick .pk-g", (d) => d.map((x) => (x.hidden ? "-" : x.open ? "+" : "") + x.querySelector("b").textContent + " " + x.querySelector(".pk-n").textContent).join("|")) };
     await check7("sửa kì thi"); await snap7("sua-ki-thi");
     await p.fill("#eFind", "toan de 2");
@@ -3467,17 +3474,20 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     r.find = { eb: await shown("eb"), want: await de2([4]), em: await shown("em"), n: await txt("#ePickN") };
     await check7("sửa kì thi, tìm"); await snap7("sua-ki-thi-tim");
     await p.click("#eAll");
-    r.find.all = { eb: await shown("eb"), want: await de2([4, 6]), link: await txt("#eAll"), scope: await txt("#eScope") };
+    r.find.all = { eb: await shown("eb"), want: await de2([4, 6]), link: await txt("#eAll"), scope: await txt("#ePickScope") };
     await p.click("#eAll"); await p.fill("#eFind", "");
     r.find.back = (await shown("eb")).split(",").length;
+    await p.uncheck('input[name=eg][value="4"]'); r.find.none = await scopeLine(); // bỏ ô Lớp 4: dòng nhắc chọn khối
+    await p.check('input[name=eg][value="4"]'); r.find.again = await scopeLine();
     // bỏ một đề Toán 4 đã chọn, chọn một đề Toán 4 chưa chọn
     const flip = await p.evaluate(() => { const ins = [...document.querySelectorAll("#ePick .ck:not([hidden]) input[name=eb]")].filter((i) => /^Toán 4\s/.test(i.parentElement.textContent)); // nb(): khoảng trắng trước "·" là U+00A0
       return { off: (ins.find((i) => i.checked) || {}).value, on: (ins.find((i) => !i.checked) || {}).value }; });
     await p.click(`#ePick input[value="${flip.off}"]`); await p.click(`#ePick input[value="${flip.on}"]`);
     r.keep.n2 = await txt("#ePickN");
     await p.click("#eForm [type=submit]"); await p.waitForFunction(() => location.hash === "#/admin/events");
-    const after = await p.evaluate(() => { const e = Store.event("ck1-l4"); return { eb: e.banks.slice().sort().join(), em: e.modules.slice().sort().join() }; });
+    const after = await p.evaluate(() => { const e = Store.event("ck1-l4"); return { eb: e.banks.slice().sort().join(), em: e.modules.slice().sort().join(), scope: e.scope }; });
     r.keep.saved = after.em === before.em && after.eb === before.eb.split(",").filter((x) => x !== flip.off).concat(flip.on).sort().join() && after.eb.includes(r.other) && after.em.includes("ioe-6") && !!flip.off && !!flip.on;
+    r.keep.scopeSaved = before.scope === `${after.scope}|INPUT|${after.scope}|` && after.scope.length > 10; // ô Phạm vi kiến thức không có chữ ghi nhầm vào, Lưu giữ nguyên
     // X12: tab Ngân hàng đề
     await p.goto(BASE + "/#/admin/banks"); await p.waitForSelector("#seedBanks");
     r.list = await p.evaluate(() => { const seed = window.ONTAP_SEED_BANKS, act = window.ONTAP_GRADES.filter((g) => g.active).map((g) => g.grade), mine = document.querySelector("#myBanks");
@@ -3542,6 +3552,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.keep.van6 && r.keep.ioe6 && r.keep.n === (r.keep.ck.eb.split(",").length + r.keep.ck.em.split(",").length) + " đã chọn" && /^\+Bài ôn dạng trang \d+\/\d+ đã chọn\|/.test(r.keep.groups) && /\|\+Toán \d+\/\d+ đã chọn\|/.test(r.keep.groups) && /\|\+Ngữ văn 1\/1 đã chọn(\||$)/.test(r.keep.groups) && /\|\+?Tiếng Việt \d+\/\d+ đã chọn · 1 đề tự soạn\|/.test(r.keep.groups)
       && r.find.eb === r.find.want && r.find.want.split(",").length >= 2 && r.find.em === "" && r.find.all.eb === r.find.all.want && r.find.all.want.split(",").length > r.find.want.split(",").length
       && r.find.all.link === "Chỉ hiện đề của khối kì thi" && r.find.all.scope === "Đang hiện bài ôn và đề của mọi khối." && r.find.back > 10 && r.keep.n2 === r.keep.n && r.keep.saved
+      && r.keep.scope.t === "Đang hiện bài ôn và đề của Lớp 4, khối của kì thi này." && r.keep.scope.h > 0 && r.keep.scopeSaved
+      && r.find.none.t === "Chọn khối ở trên để thấy bài ôn và đề của khối đó." && r.find.none.h > 0 && r.find.again.t === r.keep.scope.t
       && r.list.first && /^Tiếng Việt 4 · thử ?Lớp 4 · Tiếng Việt · 11 câu · chưa gắn vào kì thi nào/.test(r.list.mine) && r.list.tabs === r.list.wantTabs && r.list.groups === r.list.wantGroups && r.list.rows === r.list.wantRows
       && r.list.find4.got === r.list.find4.want && r.list.find4.want.split(",").length >= 2 && /^Lớp 4 · \d+ đề,Lớp 6 · \d+ đề$/.test(r.list.find4.tabs) && r.list.find4.open === "Toán+" && r.list.find6.got === r.list.find6.want && r.list.find6.want.split(",").length >= 2
       && r.evOpts.first === "" && r.evOpts.n > 3 && r.evOpts.ok && r.evOpts.gk1 && /^Kiểm tra giữa học kì I \(\d+\/\d+\)$/.test(r.evOpts.label)

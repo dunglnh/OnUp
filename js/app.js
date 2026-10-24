@@ -1795,7 +1795,8 @@
   /* Khối "Bài ôn và đề cho kì này" của màn Sửa kì thi (Phiên UX7, X11): bài ôn dạng trang và đề (có sẵn, tự soạn) trong một danh sách,
      nhóm theo môn bằng <details class="grp"> (bài ôn dạng trang một nhóm, đứng đầu; nhóm có mục đã chọn mở sẵn), nhãn "N đã chọn"
      ở đầu khối, mỗi nhóm "x/y đã chọn". Mặc định chỉ hiện mục có khối nằm trong các ô Khối đang chọn (cộng khối ẩn của kì thi): đổi
-     ô Khối thì danh sách đổi theo; link "Hiện cả đề của khối khác" hiện mọi khối. Mục đã chọn (lúc mở form hoặc vừa chọn, data-keep)
+     ô Khối thì danh sách đổi theo; link "Hiện cả đề của khối khác" hiện mọi khối; dòng #ePickScope ghi đang hiện khối nào (X33: không
+     dùng id eScope, đó là ô Phạm vi kiến thức). Mục đã chọn (lúc mở form hoặc vừa chọn, data-keep)
      luôn hiện dù khác khối. Ô tìm lọc theo tên và môn (findHit). Mọi ô đánh dấu luôn nằm trong form (chỉ ẩn bằng hidden), nên Lưu
      giữ đủ lựa chọn cũ, kể cả mục đang ẩn. Dòng ô đánh dấu cao ≥ 44px. */
   function pickBoxHTML(e) {
@@ -1809,7 +1810,7 @@
     const grps = [...groups].filter(([, l]) => l.length).map(([name, l]) => `<details class="grp pk-g"${l.some(isOn) ? " open" : ""}><summary><span class="grow"><b>${esc(name)}</b><span class="small muted pk-n"></span></span></summary><div class="pk-list">${l.sort(sort).map(row).join("")}</div></details>`).join("");
     return `<section class="full pk" id="ePick" aria-labelledby="ePickH"><div class="row between"><h3 id="ePickH">Bài ôn và đề cho kì này</h3><span class="tag" id="ePickN"></span></div>
       ${findBox("eFind", "Tìm bài ôn, đề", "Tìm đề, ví dụ “Toán Đề 2”")}
-      <p class="small muted" id="eScope"></p>${grps}<p class="small muted" id="eNone" hidden></p>
+      <p class="small muted" id="ePickScope"></p>${grps}<p class="small muted" id="eNone" hidden></p>
       <button type="button" class="linkbtn" id="eAll" aria-pressed="false">Hiện cả đề của khối khác</button></section>`;
   }
   function wirePickBox(hiddenGrades) {
@@ -1827,7 +1828,7 @@
       rows.forEach((r) => (r.hidden = !((all || gs.includes(+r.dataset.g) || r.hasAttribute("data-keep")) && findHit(q, r.dataset.k))));
       $$(".pk-g", box).forEach((d) => { const n = $$(".ck:not([hidden])", d).length; d.hidden = !n; if (q && n) d.open = true; });
       const none = rows.every((r) => r.hidden);
-      $("#eScope").textContent = all ? "Đang hiện bài ôn và đề của mọi khối." : shown.length ? `Đang hiện bài ôn và đề của Lớp ${shown.join(", ")}, khối của kì thi này.` : "Chọn khối ở trên để thấy bài ôn và đề của khối đó.";
+      $("#ePickScope").textContent = all ? "Đang hiện bài ôn và đề của mọi khối." : shown.length ? `Đang hiện bài ôn và đề của Lớp ${shown.join(", ")}, khối của kì thi này.` : "Chọn khối ở trên để thấy bài ôn và đề của khối đó.";
       $("#eNone").hidden = !none || (!q && !all && !shown.length);
       $("#eNone").textContent = q ? `Không có bài ôn hay đề nào khớp “${q}”.` : "Chưa có bài ôn hay đề nào cho khối này.";
       $("#eAll").textContent = all ? "Chỉ hiện đề của khối kì thi" : "Hiện cả đề của khối khác";
