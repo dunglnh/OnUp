@@ -2,9 +2,10 @@
 // Địa lí (6-lsdl.js), Tin học (6-tin.js). Mỗi ngân hàng = đề 1 có sẵn (Tiếng Anh có lv từ Phiên TA1; hai môn kia chỉ thêm lv ở
 // N25b) + Đề 2 + đề ngẫu nhiên; chỉ đề ngẫu nhiên Tiếng Anh có câu riêng (28 câu, hai đoạn đọc), theo mẫu tests/lsdl-tin6-ck1.js.
 // Câu có phép tính được nhận ra bằng một đoạn chữ của đề (has, đúng một câu trong ba kho, đúng đề ghi ở id); kiểm tra đề có đúng
-// số liệu rồi so đáp án với kết quả tính bằng code: điền khuyết ans[0], trả lời bằng số ans, trắc nghiệm o[0]. Lịch sử và Địa lí:
-// thế kỉ, khoảng cách thời gian (cả từ năm TCN đến năm CN), tỉ lệ bản đồ (từ bản đồ ra thực tế và ngược lại), giờ khu vực (cả khi
-// sang ngày hôm sau), số khu vực giờ. Tin học: số bit của một dãy, đổi đơn vị dung lượng (1 KB = 1 024 byte…), so sánh đơn vị,
+// số liệu rồi so đáp án với kết quả tính bằng code: điền khuyết ans[0], trả lời bằng số ans, trắc nghiệm o[0], đúng/sai a. Lịch sử
+// và Địa lí: thế kỉ, số thập kỉ trong một thế kỉ (Phiên DS2), khoảng cách thời gian (cả từ năm TCN đến năm CN), tỉ lệ bản đồ (từ
+// bản đồ ra thực tế và ngược lại), giờ khu vực (cả khi sang ngày hôm sau), số khu vực giờ. Tin học: số bit của một dãy, đổi đơn vị
+// dung lượng (1 KB = 1 024 byte…), so sánh đơn vị,
 // chỗ trống trên điện thoại. Câu trả lời bằng số và câu điền có đáp án là số nào trong ba kho cũng phải có kiểm tra ở đây.
 // Cuối cùng kiểm tra mức độ và ma trận: mọi câu có lv; đề 1 có mức độ như đã ghi (Tiếng Anh 12 – 10 – 3, Lịch sử và Địa lí
 // 14 – 8 – 3, Tin học 14 – 10 – 1); ma trận 10 Biết, 8 Hiểu, 7 Vận dụng, đúng chữ và thứ tự chủ đề của đề 1, số câu từng chủ đề
@@ -37,9 +38,10 @@ const lonNhat = (arr, f) => arr.reduce((a, b) => (f(b) > f(a) ? b : a));
 /* ---------- các câu cần tính ----------
    id: đề chứa câu; has: đoạn chữ của đề; right(q): đáp án tính bằng code (so với ans[0], ans hoặc o[0]); more(q): kiểm tra thêm. */
 const CHECKS = [
-  // Lịch sử và Địa lí: đề 1 (giữ nguyên, chỉ thêm lv)
+  // Lịch sử và Địa lí: đề 1 (N25b chỉ thêm lv; Phiên DS2 dò với sách in năm 2026, thay câu đúng/sai về Công lịch)
   { id: L.de1, has: "Năm 938 thuộc thế kỉ nào", right: () => "Thế kỉ " + laMa(theKi(938)) },
   { id: L.de1, has: "Khởi nghĩa Hai Bà Trưng nổ ra năm 40. Tính đến năm 2026", right: () => String(2026 - 40) },
+  { id: L.de1, has: "Một thế kỉ gồm", right: (q) => { const [, n] = /^Một thế kỉ gồm (\d+) thập kỉ\.$/.exec(q.q); return 100 / 10 === +n; } }, // thế kỉ 100 năm, thập kỉ 10 năm
   { id: L.de1, has: "tỉ lệ 1 : 200 000, khoảng cách giữa hai điểm đo được 3 cm", right: () => String((3 * 200000) / 100000) }, // cm → km: chia 100 000
   { id: L.de1, has: "Khi ở khu vực giờ gốc là 8 giờ sáng thì ở Việt Nam", right: (q) => { assert.ok(q.q.includes("khu vực giờ thứ 7")); return String(8 + 7); } },
   // Lịch sử và Địa lí: Đề 2
@@ -78,7 +80,7 @@ CHECKS.forEach((c) => {
   assert.equal(m.length, 1, `“${c.has}”: cần đúng một câu trong kho, có ${m.length}`);
   const q = m[0], at = c.id + ": " + c.has;
   assert.equal(q.src, c.id, at + ": câu nằm ở đề " + q.src);
-  const want = c.right(q), got = q.type === "fill" ? q.ans[0] : q.type === "num" ? q.ans : q.o[0];
+  const want = c.right(q), got = q.type === "fill" ? q.ans[0] : q.type === "num" ? q.ans : q.type === "tf" ? q.a : q.o[0];
   assert.ok(typeof want === "number" ? typeof got === "number" && close(got, want) : got === want, at + ": đáp án " + JSON.stringify(got) + ", tính được " + JSON.stringify(want));
   if (q.type === "mc") assert.ok(!q.o.slice(1).includes(want), at + ": nhiễu trùng đáp án đúng");
   if (c.more) c.more(q);
