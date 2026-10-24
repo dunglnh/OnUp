@@ -42,7 +42,11 @@
    "a/b", ô nhập có nút ± và nút "/", L29), match (nối cột),
    order (sắp xếp), essay (tự luận tự chấm). Trường chung không bắt buộc: lv (mức độ 1 Biết, 2 Hiểu, 3 Vận dụng),
    p (mã đoạn đọc trong bank.passages), svg (hình, lọc bằng Quiz.svg). Mọi thao tác là chạm, không kéo thả.
-   Quiz.parse(text) → {questions, passages, errors}: đọc câu hỏi dán từ Word/Zalo theo cú pháp đơn giản.
+   Quiz.parse(text) → {questions, passages, errors, issues}: đọc câu hỏi dán từ Word/Zalo theo cú pháp đơn giản. errors: lỗi dạng chữ
+     ("Câu 3: …", "Đoạn đọc 1: …"); issues (Phiên UX7, X13): cùng các lỗi đó gắn với câu hoặc đoạn đọc: {n, msg, dropped} cho câu (n: thứ
+     tự câu trong văn bản dán vào, kể cả câu bị bỏ; dropped: câu bị bỏ hẳn, kèm topic và text là chữ đã dán của câu), {p, msg} cho đoạn
+     đọc (p: số thứ tự đoạn; dropped khi thiếu “Hết đoạn”, đoạn không được tạo).
+   Quiz.preview(q): HTML xem trước một câu ở màn nhập đề (câu hỏi, hình, đáp án được chấm đúng, lời giải; Phiên UX7, X13).
    Quiz.svg(src) → {svg, problems}: hình đã lọc (chuỗi rỗng nếu không đọc được) và các chỗ bị bỏ.
    Quiz.draw(bank, hist) → {questions, notes}: rút đề ngẫu nhiên theo ma trận của đề có pool (Phiên K3; câu dùng chung đoạn đọc
      rút theo đoạn từ Phiên K4, xem draw).
@@ -571,6 +575,29 @@
   // mũi tên của nút mở bảng số câu (#qzProg, 9n) và dấu trạng thái trong ô số câu (không chỉ dựa vào màu)
   const CHEV = `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>`;
   const MARK = { skip: "–", ok: "✓", bad: "✗" };
+  /* preview(q): xem trước một câu ở màn nhập đề (js/app.js, renderBankForm; Phiên UX7, X13). Chữ của khu quản trị nên luôn tiếng Việt:
+     câu hỏi (câu điền: chỗ trống tô màu), hình (qua svg), đáp án được chấm đúng: trắc nghiệm đánh dấu ✓ lựa chọn đúng (đứng đầu như
+     trong dữ liệu; khi làm bài app tự xáo); điền khuyết ghi mọi đáp án nhận được; trả lời bằng số ghi đáp án, đơn vị, sai số; đúng/sai,
+     đúng/sai 4 ý, nối cột (cả ô thừa), sắp xếp ghi đáp án; tự luận ghi thang tự chấm. Cuối cùng là lời giải (tự luận: gợi ý). */
+  function preview(q) {
+    const T = (s) => nbNum(esc(s)), B = (s) => `<b>${T(s)}</b>`, L = TXT.vi;
+    let h = `<p class="pv-q">${q.type === "fill" ? T(q.q).replace("___", '<span class="pv-blank">___</span>') : T(q.q)}</p>` + fig(q.svg);
+    const list = (tag, items) => `<${tag} class="pv-opts">${items.join("")}</${tag}>`;
+    switch (q.type) {
+      case "mc": h += list("ul", q.o.map((o, i) => `<li${i ? "" : ' class="right"'}><span class="k">${LET[i]}</span><span class="grow">${T(o)}</span>${i ? "" : `<span class="pv-ok">✓ ${L.tfYes}</span>`}</li>`)); break;
+      case "fill": h += `<p class="pv-ans">Đáp án được chấm đúng: ${q.ans.map(B).join(" hoặc ")}</p>`; break;
+      case "tf": h += `<p class="pv-ans">Đáp án: ${B(yn(q.a))}</p>`; break;
+      case "tf4": h += list("ul", q.o.map((o, i) => `<li><span class="k">${ABCD[i]})</span><span class="grow">${T(o)}</span><b class="pv-tf">${yn(q.a[i])}</b></li>`)); break;
+      case "num": h += `<p class="pv-ans">Đáp án được chấm đúng: ${B(correctText(q))}${typeof q.ans === "string" ? ". Số bằng giá trị đó (6/8 với 3/4, 0,75) cũng đúng" : ""}</p>`; break;
+      case "match": h += `<p class="pv-ans">Nối đúng:</p>` + list("ul", q.l.map((l, i) => `<li><span class="grow">${T(l)}</span><b class="pv-to">→ ${T(q.r[i])}</b></li>`)
+        .concat(q.r.slice(q.l.length).map((r) => `<li class="pv-extra"><span class="grow">Ô thừa: ${T(r)}</span></li>`))); break;
+      case "order": h += `<p class="pv-ans">Thứ tự đúng:</p>` + list("ol", q.o.map((o, i) => `<li><span class="k">${i + 1}</span><span class="grow">${T(o)}</span></li>`)); break;
+      case "essay": h += `<p class="pv-ans">${L.rubricHead(fmtN(rubricMax(q)))}</p>` + list("ul", q.rubric.map((c) => `<li><span class="grow">${T(c.c)}</span><b class="pv-to">${L.rubricPts(fmtN(c.p))}</b></li>`)); break;
+    }
+    const own = /^\s*(gợi ý|lời giải|giải)\s*:/i.test(q.x || ""); // lời giải đã tự ghi "Gợi ý:" thì không ghi lặp
+    if (q.x) h += `<p class="small pv-x">${own ? "" : `<b>${q.type === "essay" ? "Gợi ý" : "Lời giải"}:</b> `}${T(q.x)}</p>`;
+    return h;
+  }
   function text(q) {
     let s = String(q.q == null ? "" : q.q);
     if (q.type === "mc") s += " · " + (q.o || []).map((o, i) => (i ? "– " : "✓ ") + o).join(" · ");
@@ -1103,12 +1130,14 @@
      Mức: Biết | Hiểu | Vận dụng  → mức độ của câu (dòng trong câu, không bắt buộc)
      <svg viewBox="…">…</svg>    → hình của câu (được lọc, màu dùng tên token: ink, acc, ok…)
      Đoạn đọc: Tiêu đề … Hết đoạn → đoạn văn dùng chung (có thể nhiều dòng, dòng trống) cho các câu sau nó,
-                                    đến chủ đề mới (#) hoặc đoạn đọc mới. */
+                                    đến chủ đề mới (#) hoặc đoạn đọc mới.
+     Lỗi: errors (chữ) và issues (gắn với câu, đoạn đọc; Phiên UX7). Lỗi ở dòng mức độ, hình, ý chấm chỉ bỏ phần sai, câu vẫn lưu
+     (dropped: false); lỗi khác bỏ hẳn câu (dropped: true). */
   const LV_WORDS = [[1, /^(biết|nhận biết|nb|1)$/], [2, /^(hiểu|thông hiểu|th|2)$/], [3, /^(vận dụng|vận dụng cao|vd|vdc|3)$/]];
   const quarter = (p) => p > 0 && Math.abs(p * 4 - Math.round(p * 4)) < 1e-9;
   const vnNum = (s) => +String(s).replace(/[−–]/g, "-").replace(/[\s.]/g, "").replace(",", ".");
   function parse(text) {
-    const questions = [], errors = [], passages = {};
+    const questions = [], errors = [], passages = {}, issues = [];
     let topic = "", psg = "", used = false, np = 0, nq = 0;
     // Hình viết trên nhiều dòng: gộp thành một dòng. Đoạn đọc (giữ dòng trống bên trong): thay bằng một dòng đánh dấu.
     const lines = String(text || "").replace(/\r/g, "").replace(/<svg[\s\S]*?<\/svg>/gi, (m) => m.replace(/\s*\n\s*/g, " ")).split("\n"), kept = [];
@@ -1118,14 +1147,14 @@
       let j = i + 1;
       while (j < lines.length && !/^\s*Hết đoạn(\s+đọc)?\s*\.?\s*$/i.test(lines[j])) j++;
       np++;
-      if (j >= lines.length) { errors.push(`Đoạn đọc ${np}: thiếu dòng “Hết đoạn” ở cuối đoạn`); continue; }
+      if (j >= lines.length) { errors.push(`Đoạn đọc ${np}: thiếu dòng “Hết đoạn” ở cuối đoạn`); issues.push({ p: np, msg: "thiếu dòng “Hết đoạn” ở cuối đoạn", dropped: true }); continue; }
       const inner = lines.slice(i + 1, j), isSvg = (l) => /^\s*<svg/i.test(l);
       const txt = inner.filter((l) => !isSvg(l)).join("\n").replace(/\n\s*\n(\s*\n)+/g, "\n\n").trim(), pic = inner.filter(isSvg).map((l) => l.trim()).join(" ");
       const id = "d" + np, p = {};
       if (m[1].trim()) p.title = m[1].trim();
       if (txt) p.text = txt;
-      if (pic) { const c = svg(pic); if (c.svg) p.svg = pic; if (c.problems.length) errors.push(`Đoạn đọc ${np}, hình: ${c.problems.join("; ")}`); }
-      if (!p.text && !p.svg) errors.push(`Đoạn đọc ${np}: chưa có nội dung`);
+      if (pic) { const c = svg(pic); if (c.svg) p.svg = pic; if (c.problems.length) { errors.push(`Đoạn đọc ${np}, hình: ${c.problems.join("; ")}`); issues.push({ p: np, msg: "hình: " + c.problems.join("; ") }); } }
+      if (!p.text && !p.svg) { errors.push(`Đoạn đọc ${np}: chưa có nội dung`); issues.push({ p: np, msg: "chưa có nội dung" }); }
       passages[id] = p;
       kept.push("", "\u0001" + id, "");
       i = j;
@@ -1138,7 +1167,9 @@
         ls.shift();
       }
       if (!ls.length) return;
-      const n = ++nq, err = (msg) => errors.push(`Câu ${n}: ${msg}`);
+      // err: lỗi còn giữ câu (bỏ phần sai: mức độ, hình, ý chấm); drop: câu bị bỏ hẳn (issues ghi kèm chữ đã dán để app hiện lại)
+      const n = ++nq, raw = ls.join("\n"), issue = (msg, dropped) => { errors.push(`Câu ${n}: ${msg}`); issues.push(dropped ? { n, msg, dropped, topic, text: raw } : { n, msg, dropped }); };
+      const err = (msg) => issue(msg, false), drop = (msg) => issue(msg, true);
       const x = ls.filter((l) => l.startsWith(">")).map((l) => l.replace(/^>\s*/, "")).join(" ");
       const extra = {}, pics = [];
       ls = ls.filter((l) => {
@@ -1151,7 +1182,7 @@
       if (psg) { extra.p = psg; used = true; }
       if (pics.length) { const s = pics.join(" "), c = svg(s); if (c.svg) extra.svg = s; if (c.problems.length) err("hình: " + c.problems.join("; ")); }
       const add = (q) => questions.push(Object.assign(q, { x }, extra));
-      if (!ls.length) { err("chưa có nội dung câu hỏi"); return; }
+      if (!ls.length) { drop("chưa có nội dung câu hỏi"); return; }
       const essay = /^Tự luận\s*:\s*(.*)$/i.exec(ls[0]);
       if (essay) {
         const rubric = [];
@@ -1160,15 +1191,15 @@
           if (!m || !quarter(p)) err(`ý chấm “${l.slice(0, 40)}” cần điểm ở cuối, chia hết cho 0,25, ví dụ (0,5)`); else rubric.push({ c: m[1], p });
         });
         const stem = [essay[1]].concat(ls.slice(1).filter((l) => !l.startsWith("+"))).join(" ").trim();
-        if (!stem) { err("thiếu đề bài tự luận"); return; }
+        if (!stem) { drop("thiếu đề bài tự luận"); return; }
         add({ topic, type: "essay", q: stem, rubric: rubric.length ? rubric : [{ c: "Bài làm đúng, đủ ý như gợi ý", p: 1 }] });
         return;
       }
       const isOpt = (l) => /^[*-]\s+/.test(l), opts = ls.filter(isOpt);
       if (opts.length) {
         const right = opts.filter((l) => l.startsWith("*"));
-        if (right.length !== 1) { err("cần đúng một đáp án đánh dấu *"); return; }
-        if (opts.length < 2) { err("cần ít nhất 2 lựa chọn"); return; }
+        if (right.length !== 1) { drop("cần đúng một đáp án đánh dấu *"); return; }
+        if (opts.length < 2) { drop("cần ít nhất 2 lựa chọn"); return; }
         const o = [right[0]].concat(opts.filter((l) => !l.startsWith("*"))).map((l) => l.replace(/^[*-]\s+/, ""));
         add({ topic, type: "mc", q: ls.filter((l) => !isOpt(l)).join(" ") || "Chọn đáp án đúng.", o });
         return;
@@ -1176,7 +1207,7 @@
       const tfRe = /^(?:[a-dA-D][).]\s*)?(Đúng|Sai)\s*:\s*(.+)$/i, tfl = ls.filter((l) => tfRe.test(l)), rest = ls.filter((l) => !tfRe.test(l));
       if (tfl.length === 1 && !rest.length) { const m = tfRe.exec(tfl[0]); add({ topic, type: "tf", q: m[2], a: /^đúng$/i.test(m[1]) }); return; }
       if (tfl.length > 1) {
-        if (tfl.length !== 4) { err(`câu đúng/sai nhiều ý cần đúng 4 ý (đang có ${tfl.length})`); return; }
+        if (tfl.length !== 4) { drop(`câu đúng/sai nhiều ý cần đúng 4 ý (đang có ${tfl.length})`); return; }
         const it = tfl.map((l) => tfRe.exec(l));
         add({ topic, type: "tf4", q: rest.join(" ") || "Mỗi ý sau đúng hay sai?", o: it.map((m) => m[2].trim()), a: it.map((m) => /^đúng$/i.test(m[1])) });
         return;
@@ -1186,22 +1217,22 @@
         // số ("2,5", "1 250", "-3") hoặc phân số a/b ("3/4", "-3/4"; L29), rồi sai số và đơn vị nếu có
         const m = /^([-−–]?\s*\d+\s*\/\s*\d+(?![\d,]|\.\d)|[-−–]?\s*\d[\d\s.]*(?:,\d+)?)(?:\s*(?:±|\+\/?-)\s*(\d[\d.]*(?:,\d+)?))?\s*(.*)$/.exec(dap.replace(/^Đáp số\s*:\s*/i, ""));
         const f = m && /^([-−–]?)\s*(\d+)\s*\/\s*(\d+)$/.exec(m[1]), unit = m ? m[3].trim().replace(/\.$/, "") : "";
-        if (!m || (!f && !Number.isFinite(vnNum(m[1])))) { err("dòng “Đáp số:” cần một số, ví dụ Đáp số: 2,5, Đáp số: 3/4 hoặc Đáp số: 2,5 ± 0,1 kg"); return; }
-        if (f && !+f[3]) { err("phân số cần mẫu số khác 0, ví dụ Đáp số: 3/4"); return; }
+        if (!m || (!f && !Number.isFinite(vnNum(m[1])))) { drop("dòng “Đáp số:” cần một số, ví dụ Đáp số: 2,5, Đáp số: 3/4 hoặc Đáp số: 2,5 ± 0,1 kg"); return; }
+        if (f && !+f[3]) { drop("phân số cần mẫu số khác 0, ví dụ Đáp số: 3/4"); return; }
         // hỗn số "1 1/2", "3/4,5": phần sau số bắt đầu bằng "/" và chữ số thì không phải đơn vị
-        if (/^\/\s*\d/.test(unit)) { err("phân số viết a/b, ví dụ Đáp số: 3/4 (hỗn số 1 1/2 viết thành 3/2)"); return; }
+        if (/^\/\s*\d/.test(unit)) { drop("phân số viết a/b, ví dụ Đáp số: 3/4 (hỗn số 1 1/2 viết thành 3/2)"); return; }
         // phân số: đáp án là chuỗi "3/4" (chấm theo giá trị, hiện đúng "3/4"), không còn đọc thành 3 với đơn vị "/4"
         const q = { topic, type: "num", q: ls.filter((l) => l !== dap).join(" "), ans: f ? `${f[1] ? "-" : ""}${+f[2]}/${+f[3]}` : vnNum(m[1]) };
         if (m[2]) q.tol = vnNum(m[2]);
         if (unit) q.unit = unit;
-        if (!q.q) { err("thiếu câu hỏi trước dòng “Đáp số:”"); return; }
+        if (!q.q) { drop("thiếu câu hỏi trước dòng “Đáp số:”"); return; }
         add(q);
         return;
       }
       const arrow = /^(.*?)\s*(?:->|→)\s*(.+)$/, ml = ls.filter((l) => arrow.test(l));
       if (ml.length >= 2) {
         const pr = ml.map((l) => arrow.exec(l)), l = pr.filter((p) => p[1].trim());
-        if (l.length < 2) { err("nối cột cần ít nhất 2 cặp “trái -> phải”"); return; }
+        if (l.length < 2) { drop("nối cột cần ít nhất 2 cặp “trái -> phải”"); return; }
         add({ topic, type: "match", q: ls.filter((x2) => !arrow.test(x2)).join(" ") || "Nối mỗi ô bên trái với một ô bên phải.",
           l: l.map((p) => p[1].trim()), r: l.map((p) => p[2].trim()).concat(pr.filter((p) => !p[1].trim()).map((p) => p[2].trim())) });
         return;
@@ -1213,11 +1244,14 @@
         add({ topic, type: "order", q: ls.filter((l) => !ordRe.test(l)).join(" ") || "Sắp xếp theo thứ tự đúng.", o: ol.map((l) => ordRe.exec(l)[2].trim()) });
         return;
       }
-      err(`chưa nhận ra dạng câu ("${stem.slice(0, 40)}…")`);
+      drop(`chưa nhận ra dạng câu ("${stem.slice(0, 40)}…")`);
     });
-    Object.keys(passages).forEach((id) => { if (!questions.some((q) => q.p === id)) errors.push(`Đoạn đọc ${id.slice(1)}: chưa có câu hỏi nào bên dưới`); });
-    return { questions, passages, errors };
+    Object.keys(passages).forEach((id) => {
+      if (questions.some((q) => q.p === id)) return;
+      errors.push(`Đoạn đọc ${id.slice(1)}: chưa có câu hỏi nào bên dưới`); issues.push({ p: +id.slice(1), msg: "chưa có câu hỏi nào bên dưới" });
+    });
+    return { questions, passages, errors, issues };
   }
 
-  window.Quiz = { run, parse, isRight, score, svg, draw, key, text, REASONS, LV, fmtN, nbNum, TXT, lang: langOf, title };
+  window.Quiz = { run, parse, preview, isRight, score, svg, draw, key, text, REASONS, LV, fmtN, nbNum, TXT, lang: langOf, title };
 })();

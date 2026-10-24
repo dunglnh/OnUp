@@ -15,6 +15,7 @@
      tự thử chấm phân số, hỗn số gõ có khoảng trắng (L32: "1 1/2" đúng với "3/2", sai với "11/2"; câu điền "3 / 4" đúng với "3/4")
      và câu điền đáp án phân số gõ kèm đơn vị in sau chỗ trống (L34: "3/4 kg" đúng với "___ kg" đáp án "3/4", "6/8 kg" sai),
      câu điền đáp án phân số, hỗn số âm (L35: "-3/4", "- 3/4", "-3/4 kg" đúng với đáp án "−3/4"; "-6/8", "3/4" sai);
+     Quiz.parse báo lỗi gắn với câu, đoạn đọc (issues, UX7: số câu đếm cả câu bị bỏ, câu bị bỏ hẳn có dropped và chữ đã dán);
      nối cột (match) có ít nhất 2 ô trái, cột phải đủ ô (thêm tối đa 3 ô thừa),
      không ô nào trùng; sắp xếp (order) có 3–8 ô không trùng; tự luận (essay) có thang chấm, điểm mỗi ý chia hết cho 0,25,
      tổng không quá 10; lv là 1, 2 hoặc 3; p là mã một đoạn đọc của đề; hình (svg) qua bộ lọc Quiz.svg không bị bỏ gì;
@@ -553,6 +554,18 @@ catalog.forEach((b) => {
     .forEach(([q, g, want]) => { if (Quiz.score(q, g) !== want) err(at, `${q.type === "num" ? "câu trả lời bằng số" : "câu điền"} đáp án ${JSON.stringify(q.type === "num" ? q.ans : q.ans[0])}${q.unit ? " " + q.unit : ""}: gõ "${g}" phải ${want ? "đúng" : "sai"}`); });
   const p = Quiz.parse("1 + 1/2 = ?\nĐáp số: 1 1/2");
   if (p.questions.length || !p.errors.some((e) => e.includes("3/2"))) err(at, "Quiz.parse phải báo lỗi dòng “Đáp số: 1 1/2” và dặn viết 3/2: " + JSON.stringify(p));
+}
+
+// tự thử issues của Quiz.parse (Phiên UX7, X13): lỗi gắn với câu (n đếm cả câu bị bỏ, dropped: câu bị bỏ hẳn, kèm chữ đã dán) và đoạn
+// đọc (p); errors dạng chữ giữ nguyên
+{
+  const at = "kiểm tra lỗi gắn vào câu (UX7)";
+  const p = Quiz.parse("# Cộng\n2 + 2 = ?\n* 4\n- 5\nMức: Rất khó\n\nDây dài 2 m, cắt 0,75 m. Còn bao nhiêu mét?\nĐáp số: một phẩy hai lăm\n\n3 + 3 = [6]\n\nĐoạn đọc: Mèo\nNhà Bin có mèo.\nHết đoạn\n\n# Viết\nĐoạn đọc: Trống\nHết đoạn");
+  const got = JSON.stringify(p.issues.map((x) => (x.n ? [x.n, !!x.dropped, x.dropped ? x.topic + "|" + x.text.split("\n")[1] : ""] : ["p" + x.p, !!x.dropped])));
+  const want = JSON.stringify([["p2", false], [1, false, ""], [2, true, "Cộng|Đáp số: một phẩy hai lăm"], ["p1", false], ["p2", false]]); // đoạn đọc đọc trước câu
+  if (got !== want || p.questions.length !== 2 || p.errors.length !== p.issues.length || !/^Câu 2: dòng “Đáp số:”/.test(p.errors[2]) || p.questions[0].lv) err(at, `issues chưa đúng: ${got}, mong đợi ${want}; errors ${JSON.stringify(p.errors)}`);
+  const q = Quiz.parse("Thiếu cuối\nĐoạn đọc: Mèo\nNhà Bin có mèo.").issues;
+  if (JSON.stringify(q) !== JSON.stringify([{ p: 1, msg: "thiếu dòng “Hết đoạn” ở cuối đoạn", dropped: true }, { n: 1, msg: "chưa nhận ra dạng câu (\"Thiếu cuối Nhà Bin có mèo.…\")", dropped: true, topic: "", text: "Thiếu cuối\nNhà Bin có mèo." }])) err(at, "đoạn đọc thiếu “Hết đoạn”: " + JSON.stringify(q));
 }
 
 // tự thử câu điền đáp án phân số, hỗn số gõ kèm đơn vị in ngay sau chỗ trống (L34): đúng như câu có đáp án là số

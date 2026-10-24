@@ -96,6 +96,12 @@ const audit = () => {
   }
   return [...new Set(bad)];
 };
+/* Phiên UI2 (X32), như btnTone của tests/e2e.js: màu đã vẽ của nút (nền, chữ, opacity) và màu đã tính của token line, muted, sun, sun-ink.
+   Nút chính, phím Vào bị tắt: nền line, chữ muted, opacity 1 (offTone); bật: nền sun, chữ sun-ink (onTone). */
+const btnTone = (sel) => { const b = document.querySelector(sel), s = getComputedStyle(b), tok = (v) => { const i = document.createElement("i"); i.style.color = `var(${v})`; document.body.appendChild(i); const c = getComputedStyle(i).color; i.remove(); return c; };
+  return { dis: b.disabled, bg: s.backgroundColor, color: s.color, op: s.opacity, line: tok("--line"), muted: tok("--muted"), sun: tok("--sun"), sunInk: tok("--sun-ink") }; };
+const offTone = (t) => !!t && t.dis && t.bg === t.line && t.color === t.muted && t.op === "1";
+const onTone = (t) => !!t && !t.dis && t.bg === t.sun && t.color === t.sunInk && t.op === "1";
 
 // Chữ cái tiếng Việt (như tests/kiem-tra-de.js): màn làm đề Tiếng Anh không được có (TA2).
 const CHU_VIET = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/iu;
@@ -234,6 +240,7 @@ async function run(browser, scheme) {
     add: !!st.querySelector("a.btn[href='#/admin/user/new?role=student']"), first: document.querySelector("#kids").firstElementChild.id, rows: document.querySelectorAll("#kids > .row").length,
     link2: [...st.querySelectorAll(".step:nth-child(2) a")].map((a) => a.getAttribute("href") + " · " + a.textContent).join() } : null; }); // link2: link đặt mã PIN của bước 2 (UX3b)
   c.ux3 = { start0: await startOf(p), switchTxt: await text(p, "#switchWho") }; c.ux3b = {}; // ux3b: các kiểm tra của Phiên UX3b
+  c.ui2 = { letOff: await p.evaluate(btnTone, "#letStudy") }; // UI2 (X32): "Cho con học" bị tắt: nền line, chữ muted, không mờ
 
   /* ---- thêm hồ sơ con ---- */
   await p.click("a[href='#/admin/user/new?role=student']"); await p.waitForSelector("#uForm");
@@ -252,6 +259,7 @@ async function run(browser, scheme) {
   c.ux2.kids = await p.evaluate(() => ({ cards: [...document.querySelectorAll("#kids a.kid")].map((k) => k.getAttribute("href") + " " + [...k.querySelectorAll(".stat")].map((s) => s.querySelector("b").textContent + " " + s.querySelector("span").textContent).join("|") + " " + (k.querySelector(".kid-ev") || {}).textContent).join("; ").replace(/\s+/g, " "),
     extraStats: !!document.querySelector("#view > .stack > .stats"), h2: [...document.querySelectorAll("#view h2")].map((h) => h.textContent).join(), count: [...document.querySelectorAll("#kids > .row > .small")].map((x) => x.textContent).join(), add: !!document.querySelector("#kids > .row > a[href='#/admin/user/new?role=student']"), hint: document.querySelector("#kids > p.small").textContent }));
   c.ux3.start2 = await startOf(p); // UX3: có con nhưng chưa con nào học: bước 1 xong, bước 3 đang làm, "Cho con học" bật; UX3b (X19): Bin có mã, Na không: bước 2 chưa ✓, "Na chưa có", link "Đặt mã PIN cho Na"
+  c.ui2.letOn = await p.evaluate(btnTone, "#letStudy");
   await shot(p, "c6-cac-con");
   // UX3b (X18): link của bước 2 mở thẳng hồ sơ của Na (?tu=batdau): ô Mã PIN được focus, nút quay lại về Các con; để trống mã mà Lưu thì toast "Đã lưu",
   // về Các con, bước 2 vẫn chưa ✓; có mã thì toast "Đã đặt mã PIN cho Na", về Các con, bước 2 có ✓ "Bin, Na đã có mã PIN." và hết link
@@ -299,11 +307,67 @@ async function run(browser, scheme) {
     kids: document.querySelectorAll("#kidsBox .item").length, links: [...document.querySelectorAll("#banksBox a, #moreBox a")].map((a) => (a.querySelector("b") || a).textContent.trim() + "=" + a.getAttribute("href")).join(), info: !!document.querySelector("#dSchool") }));
   await shot(p, "c5-cai-dat");
   await p.click("#banksBox a[href='#/admin/banks']"); await p.waitForSelector("#seedBanks");
-  c.ux2.banks = await p.evaluate(() => ({ tabs: document.querySelector('.tabs [aria-pressed="true"]').textContent, back: document.querySelector("#view .linkbtn[data-go]").textContent, h2: [...document.querySelectorAll("#view h2")].pop().textContent, mine: document.querySelector("#myBanks").textContent.trim(),
-    seedOpen: document.querySelector("#seedBanks").open, seedN: document.querySelectorAll("#seedBanks .item").length, seedAll: Store.banks().filter((b) => b.seed).length, add: (document.querySelector("a[href='#/admin/bank/new']") || {}).textContent }));
+  c.ux2.banks = await p.evaluate(() => ({ tabs: document.querySelector('.tabs [aria-pressed="true"]').textContent, back: document.querySelector("#view .linkbtn[data-go]").textContent, h2: [...document.querySelectorAll("#view h2")].map((h) => h.textContent).join(), mine: document.querySelector("#myBanks").textContent.trim(),
+    seedOpen: document.querySelectorAll("#seedBanks details[open]").length, seedN: document.querySelectorAll("#seedBanks .item").length, seedAll: Store.banks().filter((b) => b.seed).length, add: (document.querySelector("a[href='#/admin/bank/new']") || {}).textContent }));
   await shot(p, "c5b-de-tu-soan");
   await p.click("a[href='#/admin/bank/new']"); await p.waitForSelector("#bForm");
   c.ux2.bankForm = (await text(p, "#view h2")) + " | " + (await text(p, "#view .linkbtn[data-go]")) + " | " + (await text(p, "#bForm [type=submit]"));
+  /* UX7 (X11–X13, docs/CAI-TIEN-UX-2X.md mục 3): Sửa kì thi ck1-l4: chỉ đề lớp 4 (số đề bằng Store.banks(4)), tìm "toan de 2" chỉ còn đề Toán 4
+     có "Đề 2", "Hiện cả đề của khối khác" thêm Toán 6; chọn một đề Toán 6 rồi ẩn khối khác: đề đó vẫn hiện; Lưu lên máy chủ đủ lựa chọn cũ cộng
+     đề lớp 6; mở lại vẫn đủ, bỏ đề lớp 6 rồi Lưu thì máy chủ về như cũ. Trang Đề tự soạn: đề có sẵn theo tab khối (mặc định Lớp 4, khối của
+     con đầu), ô tìm. Nhập đề có một câu bị bỏ, một câu thiếu phần: thẻ viền đỏ, Lưu thì hỏi lại; gắn vào kì thi cuối năm (ck2-l4, để không
+     đổi bài ôn gần nhất của các bước sau) thì đề lên máy chủ và đứng đầu danh sách đề của kì thi đó; rồi xóa đề (kì thi bỏ đề theo). */
+  const UX7_SRC = "# Phép cộng\n345 678 + 254 322 = ?\n* 600 000\n- 590 000\n> Cộng từ phải sang trái.\n\n1 000 000 − 456 789 = [543211|543 211]\nMức: Rất khó\n\n"
+    + "# Đo lường\nMột sợi dây dài 2 m, cắt đi 0,75 m. Đoạn còn lại dài bao nhiêu mét?\nĐáp số: một phẩy hai lăm m";
+  const ebShown = () => p.$$eval("#ePick .ck:not([hidden]) input[name=eb]", (i) => i.map((x) => x.value).sort().join());
+  const ebChecked = () => p.$$eval("#ePick input[name=eb]:checked", (i) => i.map((x) => x.value).sort().join());
+  const de2 = (gs) => p.evaluate((gs) => Store.banks().filter((b) => gs.includes(+b.grade) && b.subject === "Toán" && / · Đề 2$/.test(b.title)).map((b) => b.id).sort().join(), gs);
+  const evRow = (id) => be.T.exam_events.find((x) => x.family_id === acc.id && x.id === id) || {};
+  await p.goto(BASE + "/#/admin/event/ck1-l4"); await p.waitForSelector("#ePick");
+  const ck0 = await ebChecked(), toan6 = await p.evaluate(() => Store.banks(6).find((b) => b.subject === "Toán" && / · Đề 2$/.test(b.title)).id);
+  c.ux7 = { only4: (await ebShown()) === (await p.evaluate(() => Store.banks(4).map((b) => b.id).sort().join())), n: await text(p, "#ePickN"),
+    nWant: await p.evaluate(() => Store.event("ck1-l4").banks.length + Store.event("ck1-l4").modules.length + " đã chọn"), head: await text(p, "#ePickH") };
+  await shot(p, "c5c-sua-ki-thi");
+  await p.fill("#eFind", "toan de 2");
+  c.ux7.find = (await ebShown()) === (await de2([4])) && (await de2([4])).split(",").length >= 2;
+  await p.click("#eAll");
+  c.ux7.findAll = (await ebShown()) === (await de2([4, 6])) && (await de2([6])).includes(toan6);
+  await shot(p, "c5d-sua-ki-thi-tim");
+  await p.click(`#ePick input[value="${toan6}"]`); await p.click("#eAll"); await p.fill("#eFind", "");
+  c.ux7.sticky = (await ebShown()).split(",").includes(toan6) && (await text(p, "#eAll")) === "Hiện cả đề của khối khác";
+  const ck1 = await ebChecked();
+  await p.click("#eForm [type=submit]"); await p.waitForSelector("#parentCal");
+  c.ux7.saved = ck1 === ck0.split(",").concat(toan6).sort().join() && await until(p, () => (evRow("ck1-l4").banks || []).slice().sort().join() === ck1);
+  await p.goto(BASE + "/#/admin/event/ck1-l4"); await p.waitForSelector("#ePick");
+  c.ux7.reopen = (await ebChecked()) === ck1 && (await ebShown()).split(",").includes(toan6);
+  await p.click(`#ePick input[value="${toan6}"]`); await p.click("#eForm [type=submit]"); await p.waitForSelector("#parentCal");
+  c.ux7.restored = await until(p, () => (evRow("ck1-l4").banks || []).slice().sort().join() === ck0);
+  // Đề tự soạn: đề có sẵn theo tab khối, ô tìm
+  await p.goto(BASE + "/#/admin/banks"); await p.waitForSelector("#seedFind");
+  c.ux7.list = await p.evaluate(() => ({ tabs: [...document.querySelectorAll("#seedBanks .tabs button")].map((b) => b.textContent + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join(),
+    want: [4, 6].map((g, i) => `Lớp ${g} · ${Store.banks(g).filter((b) => b.seed).length} đề` + (i ? "" : "*")).join(), first: !!(document.querySelector("#myBanks").compareDocumentPosition(document.querySelector("#seedBanks")) & Node.DOCUMENT_POSITION_FOLLOWING) }));
+  await p.fill("#seedFind", "toan de 2");
+  c.ux7.list.find = await p.$$eval(".sb-g:not([hidden]) a.item:not([hidden])", (a) => a.map((x) => x.getAttribute("href").slice(7)).sort().join()) === (await de2([4]));
+  await shot(p, "c5e-de-co-san-tim");
+  // nhập đề có lỗi, gắn vào kì thi
+  await p.goto(BASE + "/#/admin/bank/new"); await p.waitForSelector("#bForm");
+  await p.fill("#bTitle", "Ôn tổng hợp · tuần 7"); await p.selectOption("#bGrade", "4"); await p.fill("#bSubj", "Toán");
+  await p.fill("#bSrc", UX7_SRC); await p.click("#bCheck");
+  c.ux7.prev = await p.evaluate(() => [...document.querySelectorAll(".pv-card")].map((x) => x.id + (x.hasAttribute("data-bad") ? "!" : "")).join() + " | " + document.querySelector("#pv3 .tag.bad").textContent + " | " + document.querySelector("#pv2 .fb.bad").textContent);
+  await shot(p, "c5f-nhap-de-loi");
+  await p.selectOption("#bEvent", "ck2-l4");
+  await p.click("#bForm [type=submit]"); await p.waitForSelector("#bAskBox");
+  c.ux7.ask = await p.$eval("#bAskBox > div", (d) => d.textContent);
+  await shot(p, "c5g-nhap-de-hoi-lai");
+  await p.click("#bAskYes"); await p.waitForSelector("#myBanks .item");
+  const newId = await p.evaluate(() => (Store.banks().find((b) => b.title === "Ôn tổng hợp · tuần 7") || {}).id);
+  c.ux7.saved = { toast: await text(p, "#toast"), row: await text(p, "#myBanks .item"),
+    server: await until(p, () => { const r = be.T.question_banks.find((x) => x.family_id === acc.id && x.id === newId); return !!r && r.questions.length === 2 && (evRow("ck2-l4").banks || [])[0] === newId; }) };
+  await shot(p, "c5h-de-tu-soan-sau-khi-luu");
+  await p.goto(BASE + "/#/admin/bank/" + newId); await p.waitForSelector("#bDel");
+  c.ux7.linked = await text(p, "#bLinked");
+  await p.click("#bDel"); await p.click("#bdYes"); await p.waitForSelector("#myBanks");
+  c.ux7.removed = await until(p, () => !be.T.question_banks.some((x) => x.family_id === acc.id && x.id === newId) && !(evRow("ck2-l4").banks || []).includes(newId));
   await p.goto(BASE + "/#/admin/overview"); await p.waitForSelector("#letStudy");
 
   /* ---- “Cho con học” (UX3) mở “Ai đang học?”, con nhập PIN, làm đề ---- */
@@ -642,10 +706,13 @@ async function run(browser, scheme) {
   const lockUI3 = () => p3.evaluate(() => { const top = (s) => document.querySelector(s).getBoundingClientRect().top; return { dis: [...document.querySelectorAll(".pad button")].filter((b) => b.disabled).length, show: document.querySelector("#pinShow").disabled,
     order: top("#pinDots") < top("#pinErr") && top("#pinErr") < top("#pinShow") && top("#pinShow") < top(".pad"), err: document.querySelector("#pinErr").textContent.replace(/\s+/g, " ").trim(), fails: (JSON.parse(localStorage.getItem("ontap_pinlock_v1") || "{}")["phu-huynh"] || {}).fails }; });
   c.ux4.locked = await lockUI3();
+  c.ui2.padOff = await p3.evaluate(btnTone, ".pad .ok"); // UI2 (X32): phím Vào bị tắt như nút chính bị tắt; phím số, Hiện số vẫn mờ .45
+  c.ui2.padDim = await p3.evaluate(() => [...document.querySelectorAll('.pad button:not(.ok)'), document.querySelector("#pinShow")].map((b) => getComputedStyle(b).opacity));
   await shot(p3, "c10c-dang-doi");
   await p3.evaluate(() => { const o = JSON.parse(localStorage.getItem("ontap_pinlock_v1")); o["phu-huynh"].until = Date.now() + 1200; localStorage.setItem("ontap_pinlock_v1", JSON.stringify(o)); });
   await p3.waitForSelector("#pinErr .fb.ok", { timeout: 5000 });
   c.ux4.unlocked = await lockUI3();
+  c.ui2.padOn = await p3.evaluate(btnTone, ".pad .ok");
   await p3.click("#pinToPw"); await p3.waitForSelector("#pwBox:not([hidden])");
   c.ux3.toPw = (await p3.$eval("#pinBox", (b) => b.hidden)) + " " + (await text(p3, "#pwToPin"));
   await p3.click("#pwToPin"); await p3.waitForSelector("#pinBox:not([hidden])");
@@ -1017,10 +1084,18 @@ async function run(browser, scheme) {
     "UX2: hộp sửa ngày mở ngay dưới kì thi, ô chọn “lịch chính thức” bật sẵn; thiếu ngày thì báo; Lưu thì bỏ cờ dự kiến, lên máy chủ, hộp đóng": c.ux2.fixBox.after && c.ux2.fixBox.start === "2026-11-02" && c.ux2.fixBox.end === "2026-11-13" && c.ux2.fixBox.official
       && /^Trường đã báo lịch\? Sửa ngày cho đúng\. ?Kiểm tra giữa học kì I/.test(c.ux2.fixBox.text) && /Chọn ngày thi/.test(c.ux2.fixErr) && c.ux2.fixed.toast === "Đã lưu ngày thi" && !c.ux2.fixed.box && !c.ux2.fixed.tent
       && c.ux2.fixed.date === "4/11đến 6/11" && c.ux2.fixed.act === "Sửa ngày, bài ôn" && c.ux2.fixed.ev.start === "2026-11-04" && c.ux2.fixed.ev.end === "2026-11-06" && c.ux2.fixed.ev.tentative === false && c.ux2.fixServer,
-    "UX2: Cài đặt: Hồ sơ con (2/5), Đề tự soạn, Thông tin chung, rồi Chuyển dữ liệu và sao lưu, Tài khoản; #/admin/users về đây; trang Đề tự soạn (đề có sẵn thu gọn), nhập đề, Dữ liệu, Tài khoản về Cài đặt":
+    "UX7 (X11): Sửa kì thi lớp 4 chỉ hiện đề lớp 4 (bằng Store.banks(4)), “N đã chọn”; tìm “toan de 2” còn đúng đề Toán 4 có “Đề 2”, hiện cả khối khác thì thêm Toán 6; đề lớp 6 vừa chọn vẫn hiện khi ẩn khối khác; Lưu lên máy chủ đủ lựa chọn cũ cộng đề đó, mở lại vẫn đủ, bỏ đi thì về như cũ":
+      c.ux7.only4 && c.ux7.n === c.ux7.nWant && c.ux7.head === "Bài ôn và đề cho kì này" && c.ux7.find && c.ux7.findAll && c.ux7.sticky && c.ux7.saved && c.ux7.reopen && c.ux7.restored,
+    "UX7 (X12): Đề tự soạn đứng trước đề có sẵn; đề có sẵn theo tab khối (Lớp 4 · N đề chọn sẵn, Lớp 6 · N đề), tìm “toan de 2” còn đúng đề Toán 4 có “Đề 2”":
+      c.ux7.list.first && c.ux7.list.tabs === c.ux7.list.want && c.ux7.list.find,
+    "UX7 (X13): nhập đề có một câu bị bỏ, một câu thiếu phần: thẻ hai câu đó viền đỏ, lỗi trong thẻ; Lưu thì hỏi lại; gắn vào kì thi thì đề lên máy chủ, đứng đầu danh sách đề của kì thi; form sửa đề ghi kì thi đã gắn; xóa đề thì kì thi bỏ đề theo":
+      c.ux7.prev === "pv1,pv2!,pv3! | Chưa lưu được | Mức độ “Rất khó” chưa đúng (Biết, Hiểu hoặc Vận dụng)" && c.ux7.ask === "1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Vẫn lưu?"
+      && c.ux7.saved.toast === "Đã lưu đề, gắn vào “Kiểm tra cuối năm học”." && /^Ôn tổng hợp · tuần 7 ?Lớp 4 · Toán · 2 câu · gắn vào Kiểm tra cuối năm học/.test(c.ux7.saved.row) && c.ux7.saved.server
+      && c.ux7.linked === "Đang gắn vào: Kiểm tra cuối năm học. Bỏ gắn ở Lịch thi → Sửa kì thi." && c.ux7.removed,
+    "UX2: Cài đặt: Hồ sơ con (2/5), Đề tự soạn, Thông tin chung, rồi Chuyển dữ liệu và sao lưu, Tài khoản; #/admin/users về đây; trang Đề tự soạn (đề có sẵn theo khối, các nhóm môn thu gọn; UX7), nhập đề, Dữ liệu, Tài khoản về Cài đặt":
       c.ux2.settings.tabs === "Các con,Lịch thi,Cài đặt*" && c.ux2.settings.h3 === "Hồ sơ con (2/5),Đề tự soạn,Thông tin chung" && c.ux2.settings.kids === 2 && c.ux2.settings.info
       && c.ux2.settings.links === "Xem đề tự soạn=#/admin/banks,+ Nhập đề=#/admin/bank/new,Chuyển dữ liệu và sao lưu=#/admin/data,Tài khoản=#/account"
-      && c.ux2.banks.tabs === "Cài đặt" && c.ux2.banks.back === "← Cài đặt" && c.ux2.banks.h2 === "Đề tự soạn" && /^Chưa có đề tự soạn/.test(c.ux2.banks.mine) && !c.ux2.banks.seedOpen && c.ux2.banks.seedN === c.ux2.banks.seedAll && c.ux2.banks.seedN > 20 && c.ux2.banks.add === "+ Nhập đề"
+      && c.ux2.banks.tabs === "Cài đặt" && c.ux2.banks.back === "← Cài đặt" && c.ux2.banks.h2 === "Khu phụ huynh,Đề tự soạn,Đề có sẵn của app" && /^Chưa có đề tự soạn/.test(c.ux2.banks.mine) && !c.ux2.banks.seedOpen && c.ux2.banks.seedN === c.ux2.banks.seedAll && c.ux2.banks.seedN > 20 && c.ux2.banks.add === "+ Nhập đề"
       && c.ux2.bankForm === "Nhập đề | ← Đề tự soạn | Lưu đề" && c.ux2.data === "← Cài đặt | Chuyển dữ liệu và sao lưu | Các con,Lịch thi,Cài đặt* | true | true" && c.ux2.accountBack === "← Cài đặt",
     "UX2: bấm thẻ của con là mở báo cáo tuần (#/child/<mã>), có “← Các con”, Sửa hồ sơ; đầu trang chỉ hình, tên, dòng lớp và dòng “Báo cáo <ngày> – <ngày>”; link “Xem cả năm →” ở Kì thi sắp tới (tab Lịch thi, chọn sẵn khối) và “Bài ôn của Bin →” cuối Gợi ý (xem thử)": c.ux2.report.hash === "#/child/" + binId && c.ux2.report.back === "← Các con" && c.ux2.report.edit
       && c.ux2.report.links === `Xem cả năm →=#/admin/events?g=4,Bài ôn của Bin →=#/child/${binId}/practice` && /^Bin \| Lớp 4 · 4A \| Báo cáo \d+\/\d+ – \d+\/\d+\/\d{4}$/.test(c.ux2.report.head) && !/OnUp/.test(c.ux2.report.headAll) && !c.ux2.report.topCal && /^Bài ôn lớp 4 của Bin \| ← Báo cáo của Bin \| \d+$/.test(c.ux2.practice) && c.ux2.calFromReport === "#/admin/events?g=4 Lớp 4 · Bin",
@@ -1030,6 +1105,8 @@ async function run(browser, scheme) {
       && !!c.ux3.start2 && c.ux3.start2.steps === "done:Thêm hồ sơ con|:Đặt mã PIN (không bắt buộc)|now:Đưa máy cho con" && !c.ux3.start2.disabled && c.ux3.start2.h >= 52 && c.ux3.start2.first === "start" && c.ux3.start2.rows === 1
       && /✓Thêm hồ sơ conĐã có 2 hồ sơ: Bin, Na\. 2Đặt mã PIN \(không bắt buộc\)Bin đã có mã PIN\. Na chưa có\.Đặt mã PIN cho Na 3Đưa máy cho con/.test(c.ux3.start2.text) && /Lúc khác, bấm “Chọn hồ sơ khác” ở góc trên\.$/.test(c.ux3.start2.text)
       && c.ux3.letStudy && c.ux3.gone,
+    "UI2 (X32): nút chính, phím Vào bị tắt có nền line, chữ muted, không mờ (“Cho con học” khi chưa có hồ sơ con, Vào khi phải đợi); bật lại thì nền sun, chữ sun-ink; phím số, Hiện số bị tắt vẫn mờ .45":
+      offTone(c.ui2.letOff) && onTone(c.ui2.letOn) && offTone(c.ui2.padOff) && onTone(c.ui2.padOn) && c.ui2.padDim.length === 12 && c.ui2.padDim.every((o) => o === "0.45"),
     "UX3b (X19): bước 2 chưa ✓ khi Na chưa có mã: ghi “Bin đã có mã PIN. Na chưa có.”, link “Đặt mã PIN cho Na” mở thẳng hồ sơ của Na; mọi con có mã thì ✓ “Bin, Na đã có mã PIN.”, hết link; nút “Cho con học” vẫn bật":
       c.ux3.start2.link2 === `#/admin/user/${naId}?tu=batdau · Đặt mã PIN cho Na` && c.ux3b.pinSave.start.steps === "done:Thêm hồ sơ con|done:Đặt mã PIN (không bắt buộc)|now:Đưa máy cho con"
       && /✓Đặt mã PIN \(không bắt buộc\)Bin, Na đã có mã PIN\. 3Đưa máy cho con/.test(c.ux3b.pinSave.start.text) && c.ux3b.pinSave.start.link2 === "" && !c.ux3b.pinSave.start.disabled,

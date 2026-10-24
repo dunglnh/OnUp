@@ -33,9 +33,9 @@ Phiên Claude Code không mở được Figma. Vì vậy ảnh chụp 1.x và 2.
 | [Làm bài](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=75-1327) | UX1 (một dòng nhãn), R1 (C2, C3) | X5–X9 | **UX5** | [ux5-lam-bai](hinh-ux-2x/ux5-lam-bai.jpg), [r1-ux5-bao-sai-mo-de](hinh-ux-2x/r1-ux5-bao-sai-mo-de.jpg) |
 | [Kết quả đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=78-1495) | UX1 (D1) | X10 | **UX6** | [ux1-ux6-ket-qua](hinh-ux-2x/ux1-ux6-ket-qua.jpg) |
 | [Khu phụ huynh](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=80-1697) | UX2 (E1, E3), UX3 (E2) | X17–X20 (kiểm thử sau UX3) | **UX3b** | [ux2-ux3-khu-phu-huynh](hinh-ux-2x/ux2-ux3-khu-phu-huynh.jpg), [ux2-lich-thi](hinh-ux-2x/ux2-lich-thi.jpg), [kt-ux3-bat-dau](hinh-ux-2x/kt-ux3-bat-dau.jpg), [kt-ux3-dat-pin](hinh-ux-2x/kt-ux3-dat-pin.jpg), [kt-ux3-dang-xuat](hinh-ux-2x/kt-ux3-dang-xuat.jpg) |
-| [Quản lí đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=82-2135) | UX2 (tên “Đề tự soạn”) | X11–X13 | **UX7** | [ux7-chon-de](hinh-ux-2x/ux7-chon-de.jpg), [ux7-de-tu-soan](hinh-ux-2x/ux7-de-tu-soan.jpg) |
+| [Quản lí đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=82-2135) | UX2 (tên “Đề tự soạn”) | X11–X13 | UX7 xong (PR #134; kiểm thử thiết kế ở mục 5) | [ux7-chon-de](hinh-ux-2x/ux7-chon-de.jpg), [ux7-de-tu-soan](hinh-ux-2x/ux7-de-tu-soan.jpg) |
 | [Báo cáo tuần](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2729) | — | X14 | **UX8** | [ux8-bao-cao-tuan](hinh-ux-2x/ux8-bao-cao-tuan.jpg) |
-| [Chữ và màu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2933) | — | X15, X16; X32 (kiểm thử sau UX3, UX4) | UI1 xong (PR #40); **UI2** | [ui1-tieu-de](hinh-ux-2x/ui1-tieu-de.jpg), [ui1-o-ma](hinh-ux-2x/ui1-o-ma.jpg), [ui2-nut-tat](hinh-ux-2x/ui2-nut-tat.jpg) |
+| [Chữ và màu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2933) | — | X15, X16; X32 (kiểm thử sau UX3, UX4) | UI1, UI2 xong (PR #40, #133; kiểm thử thiết kế UI2 ở mục 5) | [ui1-tieu-de](hinh-ux-2x/ui1-tieu-de.jpg), [ui1-o-ma](hinh-ux-2x/ui1-o-ma.jpg), [ui2-nut-tat](hinh-ux-2x/ui2-nut-tat.jpg) |
 | [Làm bài · bảng số câu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=267-3035) | L38, L39 (flow của PO, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2) | X21–X27; X28, X29 (kiểm thử sau 9n) | 9n, 9nb xong (PR #119, #122; kiểm thử ở mục 5) | [9n-bang-so-cau](hinh-ux-2x/9n-bang-so-cau.jpg), [9n-xem-lai-bai-lam](hinh-ux-2x/9n-xem-lai-bai-lam.jpg), [9n-lam-tiep-sua-cau](hinh-ux-2x/9n-lam-tiep-sua-cau.jpg), [kt-9n-xem-lai](hinh-ux-2x/kt-9n-xem-lai.jpg), [kt-9n-chu-thich](hinh-ux-2x/kt-9n-chu-thich.jpg) |
 | [Bài ôn dạng trang · bảng số câu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=290-3561) | L38, L39 (Phiên 9o) | X26–X29 (chung với 9n); X30, X31 (kiểm thử sau 9o) | 9o, 9ob xong (PR #123, #132; kiểm thử thiết kế 9ob ở mục 5 nếu cần) | [9o-bai-on](hinh-ux-2x/9o-bai-on.jpg), [kt-9o-bang-so-cau](hinh-ux-2x/kt-9o-bang-so-cau.jpg), [kt-9o-xem-lai](hinh-ux-2x/kt-9o-xem-lai.jpg) |
 
@@ -349,6 +349,8 @@ Tìm được khi kiểm thử thiết kế sau khi gộp PR #56 (mục 5). Figm
 - Chọn “Gắn vào kì thi” thì kì thi có đề mới.
 - Có ảnh 360px sáng/tối.
 
+Đã làm ở PR #134; ảnh 360px sáng/tối ở [hinh-ux7/](hinh-ux7/): [sua-ki-thi](hinh-ux7/sua-ki-thi.jpg), [dam-may-sua-ki-thi-tim](hinh-ux7/dam-may-sua-ki-thi-tim.jpg), [ngan-hang-de-tim](hinh-ux7/ngan-hang-de-tim.jpg), [nhap-de-loi](hinh-ux7/nhap-de-loi.jpg), [nhap-de-hoi-lai](hinh-ux7/nhap-de-hoi-lai.jpg), [nhap-de-xem-truoc](hinh-ux7/nhap-de-xem-truoc.jpg).
+
 ### Phiên UX8 · Gửi báo cáo tuần
 
 ![Báo cáo tuần: 1.x và 2.x](hinh-ux-2x/ux8-bao-cao-tuan.jpg)
@@ -431,6 +433,8 @@ Ghi nhận ở kiểm thử UX3 (mục 5, 19/10/2026: nút “Cho con học”),
 **Xong khi:**
 - `tests/e2e.js` (bước UX4, lúc phải đợi) và `tests/supabase/cloud-e2e.js` (UX3, “Cho con học” khi chưa có hồ sơ con) kiểm tra ở cả sáng và tối: nút chính bị tắt và phím Vào bị tắt có màu nền bằng `--line`, chữ bằng `--muted`, `opacity` 1; hai bộ kiểm thử in OK.
 - Ảnh 360px sáng/tối chép lại: `docs/hinh-ux4/a4-dang-doi.jpg`, `ma-mo-nhanh-dang-doi.jpg` (phải đợi) và `docs/hinh-ux3/bat-dau-3-buoc.jpg` (“Cho con học” khi chưa có hồ sơ con).
+
+Đã làm ở PR #133; ảnh trước/sau: [ui2-truoc-sau](hinh-ux-2x/ui2-truoc-sau.jpg).
 
 ### Phiên 9nb · Sửa sau kiểm thử 9n
 

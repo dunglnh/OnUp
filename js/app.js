@@ -392,7 +392,7 @@
         <label class="field sr"><span id="pinLabel">Mã PIN</span><input id="pinIn" type="password" inputmode="numeric" maxlength="6" autocomplete="off" data-reveal="pinShow"></label>
         <div id="pinErr" aria-live="assertive"></div>
         <button type="button" class="linkbtn pin-show" id="pinShow"></button>
-        <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join("")}<button type="button" data-k="del" aria-label="Xóa">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" aria-label="Vào" style="background:var(--sun);color:var(--sun-ink)">Vào</button></div>
+        <div class="pad">${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join("")}<button type="button" data-k="del" aria-label="Xóa">⌫</button><button type="button" data-k="0">0</button><button type="button" class="ok" data-k="ok" aria-label="Vào">Vào</button></div>
         <div class="row" style="justify-content:center" id="pinAlt" hidden></div>
       </section>`;
   /* Bàn phím PIN dùng chung cho đăng nhập trên máy và trên đám mây. submit(pin) được gọi khi bấm Vào, Enter,
@@ -1467,7 +1467,6 @@
     if (cloud && tab === "users") tab = "settings"; // địa chỉ cũ của tab Hồ sơ con
     let body = "";
     const kidRow = (x) => itemLink("#/admin/user/" + esc(x.id), esc(x.name), `${esc(gradeTxt(x))} · ${x.hasPin ? "có mã PIN" : "không có mã PIN"}${esc(lockTag(x))}`, avatar(x));
-    const bankRow = (b) => itemLink(`#/${b.seed ? "quiz" : "admin/bank"}/${esc(b.id)}`, nb(esc(b.title)), `Lớp ${b.grade} · ${esc(b.subject)} · ${qCount(b)} câu${b.pool ? " rút ngẫu nhiên" : ""}${b.seed ? " · có sẵn (chỉ xem)" : ""}`);
     if (tab === "overview" && cloud) {
       // Thẻ "Bắt đầu trong 3 bước" (UX3) đứng đầu đến khi một con đã học; chưa có hồ sơ con thì chỉ có thẻ này (nút thêm nằm trong thẻ).
       const studs = Store.users("student"), max = (Store.plan() || {}).maxChildren || 0;
@@ -1505,17 +1504,8 @@
         <a class="linkbtn" id="calLink" href="#/calendar">Xem theo tháng →</a>
         <div class="list">${shownEvents(Store.events()).map((e) => `<a class="item" href="#/admin/event/${esc(e.id)}" style="color:inherit;text-decoration:none"><span class="grow"><b>${nb(`${esc(e.title)} · Lớp ${esc(gradesTxt(e))}`)}</b><span class="small muted">${esc(range(e))}${e.tentative && e.start ? " · dự kiến" : ""} · ${practiceCount(practiceFor(e, null))} bài ôn</span></span><span aria-hidden="true">›</span></a>`).join("")}</div>
         <div class="row"><button class="btn ghost sm" id="resetEv">Khôi phục lịch mặc định</button></div><div id="resetArea"></div>`;
-    } else if (tab === "banks" && cloud) {
-      const all = Store.banks(), mine = all.filter((b) => !b.seed), seed = all.filter((b) => b.seed);
-      const linked = (b) => { const ev = Store.events().filter((e) => (e.banks || []).includes(b.id)).map((e) => e.title); return ev.length ? "gắn vào " + ev.join(", ") : "chưa gắn vào kì thi nào"; };
-      body = `${back("#/admin/settings", "Cài đặt")}
-        <div class="row between"><h2>Đề tự soạn${mine.length ? ` (${mine.length})` : ""}</h2><a class="btn main sm" href="#/admin/bank/new">+ Nhập đề</a></div>
-        <p class="muted small">Dán câu hỏi từ Word, Zalo, sách bài tập. App tự nhận dạng trắc nghiệm, điền khuyết, đúng/sai, nối cột, sắp xếp, trả lời bằng số, tự luận.</p>
-        ${mine.length ? `<div class="list" id="myBanks">${mine.map((b) => itemLink("#/admin/bank/" + esc(b.id), nb(esc(b.title)), `Lớp ${b.grade} · ${esc(b.subject)} · ${qCount(b)} câu · ${esc(linked(b))}`)).join("")}</div>` : `<div class="panel muted" id="myBanks">Chưa có đề tự soạn. Bấm “Nhập đề” để thêm.</div>`}
-        <details class="grp" id="seedBanks"><summary><span class="grow"><b>Đề có sẵn của app</b><span class="small muted">${seed.length} đề · bấm để xem thử</span></span></summary><div class="list">${seed.map(bankRow).join("")}</div></details>`;
     } else if (tab === "banks") {
-      body = `<div class="row between"><p class="muted small" style="flex:1">Dán câu hỏi từ Word, Zalo, sách bài tập. App tự nhận dạng trắc nghiệm, điền khuyết, đúng/sai, nối cột, sắp xếp, trả lời bằng số, tự luận.</p><a class="btn main sm" href="#/admin/bank/new">+ Nhập ngân hàng</a></div>
-        <div class="list">${Store.banks().map(bankRow).join("")}</div>`;
+      body = (cloud ? back("#/admin/settings", "Cài đặt") : "") + banksHTML(cloud);
     } else if (tab === "data" && cloud) {
       const loc = Store.localData(), mig = Store.migratedAt();
       const kids = loc ? loc.users.filter((x) => x.role === "student").length : 0;
@@ -1561,6 +1551,7 @@
     if ($("#switchWho")) $("#switchWho").onclick = switchWho;
     if ($("#letStudy")) $("#letStudy").onclick = switchWho; // thẻ Bắt đầu (UX3)
     wireUnsent(null); // dòng "N bài làm trên máy này chưa gửi đi" ở mục Các con (UX6)
+    if (tab === "banks") wireSeedBanks();
     if (tab === "events") $("#resetEv").onclick = () => {
       $("#resetArea").innerHTML = `<div class="confirm"><div>Chép lại lịch thi gốc? Các kì thi bạn đã thêm hoặc sửa sẽ bị thay thế.</div><div class="row"><button class="btn danger sm" id="rsYes">Khôi phục</button><button class="btn ghost sm" id="rsNo">Thôi</button></div></div>`;
       $("#rsYes").onclick = () => { Store.resetEvents(); toast("Đã khôi phục lịch mặc định"); renderAdmin(u, "events"); };
@@ -1585,6 +1576,62 @@
         $("#wipeNo").onclick = () => ($("#wipeArea").innerHTML = "");
       };
     }
+  }
+
+  /* Danh sách đề (Phiên UX7, X12): trang "Đề tự soạn" của bản đám mây, tab "Ngân hàng đề" của bản lưu trên máy. Đề tự soạn (#myBanks)
+     lên đầu, mỗi đề ghi kì thi đã gắn hoặc "chưa gắn vào kì thi nào". Đề có sẵn (#seedBanks) chọn theo khối: tab khối lấy từ gradeList(),
+     ghi số đề (đang tìm thì số đề khớp), mặc định khối của các con; trong mỗi khối đề nhóm theo môn bằng <details> thu gọn (đang tìm thì
+     nhóm có đề khớp mở ra). Ô tìm như ô tìm của màn Sửa kì thi (findHit), tìm ở mọi khối. Mọi khối vẽ sẵn, tab chỉ ẩn, hiện; bankGrade
+     nhớ khối đang chọn. */
+  let bankGrade = null;
+  function banksHTML(cloud) {
+    const all = Store.banks(), mine = all.filter((b) => !b.seed), seed = all.filter((b) => b.seed), gl = gradeList();
+    const linked = (b) => { const ev = Store.events().filter((e) => (e.banks || []).includes(b.id)).map((e) => e.title); return ev.length ? "gắn vào " + ev.join(", ") : "chưa gắn vào kì thi nào"; };
+    if (!gl.includes(bankGrade)) bankGrade = gradesOf(Store.users("student")).find((g) => gl.includes(g)) || gl[0];
+    const byTitle = (a, b) => a.title.localeCompare(b.title, "vi", { numeric: true });
+    const row = (b) => `<a class="item" href="#/quiz/${esc(b.id)}" data-k="${esc(findKey(b.title + " " + b.subject))}" style="color:inherit;text-decoration:none"><span class="grow"><b>${nb(esc(b.title))}</b><span class="small muted">${qCount(b)} câu${b.pool ? " rút ngẫu nhiên" : ""}${b.minutes ? ` · ${b.minutes} phút` : ""} · xem thử</span></span><span aria-hidden="true">›</span></a>`;
+    const pane = (g) => {
+      const subs = new Map();
+      seed.filter((b) => +b.grade === g).forEach((b) => subs.set(b.subject || "Khác", (subs.get(b.subject || "Khác") || []).concat(b)));
+      return `<div class="sb-g" data-sg="${g}"${g === bankGrade ? "" : " hidden"}>${[...subs].map(([sub, l]) => `<details class="grp"><summary><span class="grow"><b>${esc(sub)}</b><span class="small muted sb-n">${l.length} đề</span></span></summary><div class="list">${l.sort(byTitle).map(row).join("")}</div></details>`).join("")
+        || `<div class="panel muted">Chưa có đề có sẵn cho ${esc(gradeName(g))}.</div>`}</div>`;
+    };
+    const what = cloud ? "đề tự soạn" : "ngân hàng tự nhập", add = cloud ? "Nhập đề" : "Nhập ngân hàng";
+    return `<div class="row between"><h2>${cloud ? "Đề tự soạn" : "Ngân hàng tự nhập"}${mine.length ? ` (${mine.length})` : ""}</h2><a class="btn main sm" href="#/admin/bank/new">+ ${add}</a></div>
+      <p class="muted small">Dán câu hỏi từ Word, Zalo, sách bài tập. App tự nhận dạng trắc nghiệm, điền khuyết, đúng/sai, nối cột, sắp xếp, trả lời bằng số, tự luận.</p>
+      ${mine.length ? `<div class="list" id="myBanks">${mine.map((b) => itemLink("#/admin/bank/" + esc(b.id), nb(esc(b.title)), `Lớp ${b.grade} · ${esc(b.subject)} · ${qCount(b)} câu · ${esc(linked(b))}`)).join("")}</div>`
+        : `<div class="panel muted" id="myBanks">Chưa có ${what}. Bấm “${add}” để thêm.</div>`}
+      <section class="sec" id="seedBanks"><h2>Đề có sẵn của app</h2>
+        ${findBox("seedFind", "Tìm đề có sẵn", "Tìm đề có sẵn, ví dụ “Toán Đề 2”")}
+        <div class="tabs" role="group" aria-label="Chọn khối">${gl.map((g) => `<button type="button" data-sg="${g}" aria-pressed="${g === bankGrade}">${esc(gradeName(g))} · <span class="sb-c">${seed.filter((b) => +b.grade === g).length}</span> đề</button>`).join("")}</div>
+        ${gl.map(pane).join("")}<p class="muted small" id="seedNone" hidden></p></section>`;
+  }
+  function wireSeedBanks() {
+    const box = $("#seedBanks"), find = $("#seedFind");
+    let was = "";
+    const sync = () => {
+      const q = find.value.trim();
+      $$(".tabs [data-sg]", box).forEach((b) => b.setAttribute("aria-pressed", +b.dataset.sg === bankGrade));
+      let cur = 0, other = 0;
+      $$(".sb-g", box).forEach((p) => {
+        let n = 0;
+        p.hidden = +p.dataset.sg !== bankGrade;
+        $$(".grp", p).forEach((d) => {
+          const rows = $$("a.item", d);
+          rows.forEach((r) => (r.hidden = !findHit(q, r.dataset.k)));
+          const k = rows.filter((r) => !r.hidden).length;
+          n += k; d.hidden = !k; $(".sb-n", d).textContent = k + " đề";
+          if (q && k) d.open = true; else if (!q && was) d.open = false; // xóa chữ tìm thì thu gọn lại như lúc mở trang
+        });
+        $(`.tabs [data-sg="${p.dataset.sg}"] .sb-c`, box).textContent = n;
+        if (p.hidden) other += n; else cur = n;
+      });
+      $("#seedNone").hidden = !q || cur > 0;
+      $("#seedNone").textContent = `Không có đề nào của ${gradeName(bankGrade)} khớp “${q}”.${other ? " Xem tab khối khác." : ""}`;
+      was = q;
+    };
+    $$(".tabs [data-sg]", box).forEach((b) => (b.onclick = () => { bankGrade = +b.dataset.sg; sync(); }));
+    find.addEventListener("input", sync);
   }
 
   /* Bản đám mây: "Chọn hồ sơ khác", "Cho con học": về màn hình "Ai đang học?" (không đăng xuất tài khoản gia đình). */
@@ -1687,6 +1734,64 @@
   }
 
   /* -------- sửa kì thi -------- */
+  /* ---------------- ô tìm đề (Phiên UX7) ----------------
+     Tìm không phân biệt dấu, theo từng từ: mọi từ gõ vào phải là đầu một từ của tên ("toan de 2" khớp "Toán 4 · Cuối kì I · Đề 2";
+     "2" không khớp "Đề 12"). findKey(chữ): các từ đã bỏ dấu, ghi vào data-k của dòng; findHit(chữ gõ, data-k). */
+  const fold = (s) => String(s == null ? "" : s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
+  const findWords = (s) => fold(s).split(/[^a-z0-9]+/).filter(Boolean);
+  const findKey = (s) => findWords(s).join(" ");
+  const findHit = (q, k) => { const h = String(k || "").split(" "); return findWords(q).every((w) => h.some((x) => x.startsWith(w))); };
+  const findBox = (id, label, ph) => `<label class="find"><span class="sr">${label}</span>${ICO('<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>')}<input type="search" id="${id}" placeholder="${esc(ph)}" autocomplete="off" enterkeyhint="search"></label>`;
+
+  /* Khối "Bài ôn và đề cho kì này" của màn Sửa kì thi (Phiên UX7, X11): bài ôn dạng trang và đề (có sẵn, tự soạn) trong một danh sách,
+     nhóm theo môn bằng <details class="grp"> (bài ôn dạng trang một nhóm, đứng đầu; nhóm có mục đã chọn mở sẵn), nhãn "N đã chọn"
+     ở đầu khối, mỗi nhóm "x/y đã chọn". Mặc định chỉ hiện mục có khối nằm trong các ô Khối đang chọn (cộng khối ẩn của kì thi): đổi
+     ô Khối thì danh sách đổi theo; link "Hiện cả đề của khối khác" hiện mọi khối. Mục đã chọn (lúc mở form hoặc vừa chọn, data-keep)
+     luôn hiện dù khác khối. Ô tìm lọc theo tên và môn (findHit). Mọi ô đánh dấu luôn nằm trong form (chỉ ẩn bằng hidden), nên Lưu
+     giữ đủ lựa chọn cũ, kể cả mục đang ẩn. Dòng ô đánh dấu cao ≥ 44px. */
+  function pickBoxHTML(e) {
+    const on = new Set((e.modules || []).map((x) => "em:" + x).concat((e.banks || []).map((x) => "eb:" + x)));
+    const groups = new Map([["Bài ôn dạng trang", []]]), add = (g, it) => groups.set(g, (groups.get(g) || []).concat(it));
+    MODULES.forEach((m) => add("Bài ôn dạng trang", { n: "em", id: m.id, title: m.title, grade: m.grade }));
+    Store.banks().forEach((b) => add(b.subject || "Khác", { n: "eb", id: b.id, title: b.title, grade: +b.grade, own: !b.seed, subj: b.subject }));
+    const sort = (a, b) => a.grade - b.grade || !!a.own - !!b.own || a.title.localeCompare(b.title, "vi", { numeric: true });
+    const isOn = (it) => on.has(it.n + ":" + it.id);
+    const row = (it) => `<label class="ck" data-g="${it.grade}" data-k="${esc(findKey(it.title + " " + (it.subj || "")))}"${it.own ? " data-own" : ""}${isOn(it) ? " data-keep" : ""}><input type="checkbox" name="${it.n}" value="${esc(it.id)}"${isOn(it) ? " checked" : ""}><span>${nb(esc(it.title))}${it.own ? `<span class="muted"> · tự soạn</span>` : ""}</span></label>`;
+    const grps = [...groups].filter(([, l]) => l.length).map(([name, l]) => `<details class="grp pk-g"${l.some(isOn) ? " open" : ""}><summary><span class="grow"><b>${esc(name)}</b><span class="small muted pk-n"></span></span></summary><div class="pk-list">${l.sort(sort).map(row).join("")}</div></details>`).join("");
+    return `<section class="full pk" id="ePick" aria-labelledby="ePickH"><div class="row between"><h3 id="ePickH">Bài ôn và đề cho kì này</h3><span class="tag" id="ePickN"></span></div>
+      ${findBox("eFind", "Tìm bài ôn, đề", "Tìm đề, ví dụ “Toán Đề 2”")}
+      <p class="small muted" id="eScope"></p>${grps}<p class="small muted" id="eNone" hidden></p>
+      <button type="button" class="linkbtn" id="eAll" aria-pressed="false">Hiện cả đề của khối khác</button></section>`;
+  }
+  function wirePickBox(hiddenGrades) {
+    const box = $("#ePick"), find = $("#eFind"), rows = $$(".ck", box);
+    let all = false;
+    const count = () => {
+      $("#ePickN").textContent = $$("input:checked", box).length + " đã chọn";
+      $$(".pk-g", box).forEach((d) => {
+        const vis = $$(".ck:not([hidden])", d), own = vis.filter((r) => r.hasAttribute("data-own")).length;
+        $(".pk-n", d).textContent = `${vis.filter((r) => r.firstChild.checked).length}/${vis.length} đã chọn${own ? ` · ${own} đề tự soạn` : ""}`;
+      });
+    };
+    const filter = () => {
+      const shown = $$("input[name=eg]:checked").map((x) => +x.value), gs = shown.concat(hiddenGrades), q = find.value.trim();
+      rows.forEach((r) => (r.hidden = !((all || gs.includes(+r.dataset.g) || r.hasAttribute("data-keep")) && findHit(q, r.dataset.k))));
+      $$(".pk-g", box).forEach((d) => { const n = $$(".ck:not([hidden])", d).length; d.hidden = !n; if (q && n) d.open = true; });
+      const none = rows.every((r) => r.hidden);
+      $("#eScope").textContent = all ? "Đang hiện bài ôn và đề của mọi khối." : shown.length ? `Đang hiện bài ôn và đề của Lớp ${shown.join(", ")}, khối của kì thi này.` : "Chọn khối ở trên để thấy bài ôn và đề của khối đó.";
+      $("#eNone").hidden = !none || (!q && !all && !shown.length);
+      $("#eNone").textContent = q ? `Không có bài ôn hay đề nào khớp “${q}”.` : "Chưa có bài ôn hay đề nào cho khối này.";
+      $("#eAll").textContent = all ? "Chỉ hiện đề của khối kì thi" : "Hiện cả đề của khối khác";
+      $("#eAll").setAttribute("aria-pressed", all);
+      count();
+    };
+    rows.forEach((r) => r.firstChild.addEventListener("change", () => { if (r.firstChild.checked) r.setAttribute("data-keep", ""); count(); }));
+    find.addEventListener("input", filter);
+    find.addEventListener("keydown", (ev) => { if (ev.key === "Enter") ev.preventDefault(); }); // Enter trong ô tìm không gửi form
+    $$("input[name=eg]").forEach((x) => x.addEventListener("change", filter));
+    $("#eAll").onclick = () => { all = !all; filter(); };
+    filter();
+  }
   function renderEventForm(u, id) {
     if (u.role !== "admin") { go("#/home"); return; }
     const e = id === "new" ? { id: "", title: "", kind: "dinh-ki", grades: gradeList().slice(0, 1), start: "", end: "", tentative: true, subjects: [], scope: "", note: "", modules: [], banks: [] } : Store.event(id);
@@ -1694,7 +1799,7 @@
     // Ô chọn khối: khối đang hiện (đang bật, đang có học sinh); khối ẩn của kì thi (mốc năm học cho cả 12 khối) không hiện nhưng được giữ khi lưu
     const shown = shownGrades(), hiddenGrades = (e.grades || []).map(Number).filter((g) => !shown.includes(g));
     view.innerHTML = `<div class="stack">${back("#/admin/events", "Lịch thi")}
-      <h2>${id === "new" ? "Thêm kì thi" : "Sửa kì thi"}</h2>
+      <div><h2>${id === "new" ? "Thêm kì thi" : "Sửa kì thi"}</h2>${id === "new" ? "" : `<p class="muted small">${nb(esc(`${e.title} · Lớp ${gradesTxt(e)} · ${range(e)}`))}</p>`}</div>
       <form class="panel" id="eForm" autocomplete="off"><div class="form">
         <label class="field full"><span>Tên kì thi</span><input id="eTitle" value="${esc(e.title)}" required placeholder="Ví dụ: Kiểm tra cuối học kì I"></label>
         <label class="field"><span>Loại</span><select id="eKind">${Object.entries(KIND).map(([k, t]) => `<option value="${k}" ${e.kind === k ? "selected" : ""}>${t}</option>`).join("")}</select></label>
@@ -1705,11 +1810,11 @@
         <label class="field full"><span>Môn thi (cách nhau bằng dấu phẩy)</span><input id="eSubj" value="${esc((e.subjects || []).join(", "))}"></label>
         <label class="field full"><span>Phạm vi kiến thức</span><input id="eScope" value="${esc(e.scope || "")}"></label>
         <label class="field full"><span>Ghi chú</span><input id="eNote" value="${esc(e.note || "")}"></label>
-        <div class="field full"><span>Bài ôn gắn với kì thi</span><div class="checks">${MODULES.map((m) => `<label><input type="checkbox" name="em" value="${m.id}" ${(e.modules || []).includes(m.id) ? "checked" : ""}>${esc(m.title)}</label>`).join("")}</div></div>
-        <div class="field full"><span>Ngân hàng câu hỏi</span><div class="checks">${Store.banks().map((b) => `<label><input type="checkbox" name="eb" value="${esc(b.id)}" ${(e.banks || []).includes(b.id) ? "checked" : ""}>${esc(b.title)}</label>`).join("") || `<span class="small muted">Chưa có.</span>`}</div></div>
+        ${pickBoxHTML(e)}
       </div><div id="eErr"></div>
       <div class="row"><button class="btn main" type="submit">Lưu</button>${id !== "new" ? `<button class="btn danger" type="button" id="eDel">Xóa kì thi</button>` : ""}</div><div id="eDelArea"></div></form></div>`;
     wireGo();
+    wirePickBox(hiddenGrades);
     $("#eForm").onsubmit = (ev) => {
       ev.preventDefault();
       try {
@@ -1789,17 +1894,61 @@ Tự luận: Viết 3 đến 5 câu kể về một việc tốt bạn đã làm
 + Kể rõ việc làm và cảm nghĩ của bạn (1)
 + Viết đúng chính tả (0,5)
 > Gợi ý: Nói bạn đã làm việc gì, ở đâu, giúp ai; kết thúc bằng cảm nghĩ của bạn.`;
+  /* -------- nhập đề: xem trước, lỗi gắn vào câu (Phiên UX7, X13) --------
+     Sau "Kiểm tra" (cả Xem ví dụ, Mở file .txt) có dòng tóm tắt (#bRes) và danh sách xem trước (#bPrev): mỗi câu một thẻ (số câu như
+     trong lỗi "Câu N", chủ đề, dạng câu, mức độ, rồi Quiz.preview: câu hỏi, hình, đáp án được chấm đúng, lời giải); đoạn đọc một thẻ thu
+     gọn đứng trước câu đầu tiên dùng nó (đoạn không có câu nào thì đứng đầu). Lỗi (issues của Quiz.parse) gắn vào thẻ của câu, đoạn đọc
+     bị lỗi (viền đỏ, data-bad); câu bị bỏ hẳn ghi "Chưa lưu được" và chữ đã dán. Có lỗi thì có bộ lọc "Tất cả · Cần sửa".
+     bankProblems: các mức lỗi để báo ("1 câu sẽ không được lưu", "1 câu thiếu phần bị lỗi", "1 đoạn đọc có lỗi"), dùng cho dòng tóm
+     tắt và hộp hỏi lại khi bấm Lưu. */
+  const QTYPE = { mc: "Trắc nghiệm", fill: "Điền khuyết", tf: "Đúng/sai", tf4: "Đúng/sai 4 ý", num: "Trả lời bằng số", match: "Nối cột", order: "Sắp xếp", essay: "Tự luận" };
+  function bankProblems(res) {
+    const drop = new Set(res.issues.filter((x) => x.n && x.dropped).map((x) => x.n)), part = new Set(res.issues.filter((x) => x.n && !drop.has(x.n)).map((x) => x.n));
+    const psg = new Set(res.issues.filter((x) => x.p).map((x) => x.p));
+    return [drop.size ? `${drop.size} câu sẽ không được lưu` : "", part.size ? `${part.size} câu thiếu phần bị lỗi` : "", psg.size ? `${psg.size} đoạn đọc có lỗi` : ""].filter(Boolean);
+  }
+  function bankPreview(res) {
+    const { questions, passages, issues } = res, T = (s) => Quiz.nbNum(esc(s));
+    const drop = new Set(issues.filter((x) => x.n && x.dropped).map((x) => x.n)), total = questions.length + drop.size;
+    const errs = (list) => (list.length ? `<div class="fb bad pv-err">${list.map((x) => T(x.msg.charAt(0).toUpperCase() + x.msg.slice(1))).join("<br>")}</div>` : "");
+    const head = (lbl, tags) => `<div class="pv-head"><span class="label">${nb(T(lbl))}</span><span class="tags">${tags.map(([t, c]) => `<span class="tag${c ? " " + c : ""}">${esc(t)}</span>`).join("")}</span></div>`;
+    let bad = 0;
+    const card = (b, id, inner) => { if (b) bad++; return `<article class="pv-card${b ? " bad" : ""}" id="${id}"${b ? " data-bad" : ""}>${inner}</article>`; };
+    const psgCard = (p) => {
+      const ps = passages["d" + p], iss = issues.filter((x) => x.p === p), n = questions.filter((q) => q.p === "d" + p).length;
+      return card(iss.length, "pvd" + p, head(`Đoạn đọc ${p}${ps && ps.title ? " · " + ps.title : ""}`, ps ? [[n ? `Dùng cho ${n} câu` : "Chưa có câu nào"]] : [["Chưa lưu được", "bad"]])
+        + (ps ? `<details class="pv-psg"><summary>Xem đoạn đọc</summary>${ps.text ? `<div class="psg-text">${T(ps.text)}</div>` : ""}${ps.svg ? `<div class="qfig">${Quiz.svg(ps.svg).svg}</div>` : ""}</details>` : "") + errs(iss));
+    };
+    const pNums = [...new Set(Object.keys(passages).map((k) => +k.slice(1)).concat(issues.filter((x) => x.p).map((x) => x.p)))].sort((a, b) => a - b);
+    const placed = new Set(pNums.filter((p) => !questions.some((q) => q.p === "d" + p))), out = [...placed].map(psgCard);
+    for (let n = 1, qi = 0; n <= total; n++) {
+      const iss = issues.filter((x) => x.n === n);
+      if (drop.has(n)) {
+        const d = iss.find((x) => x.dropped);
+        out.push(card(true, "pv" + n, head(`Câu ${n}${d.topic ? " · " + d.topic : ""}`, [["Chưa lưu được", "bad"]]) + `<pre class="pv-src">${T(d.text)}</pre>` + errs(iss)));
+        continue;
+      }
+      const q = questions[qi++], p = q.p ? +q.p.slice(1) : 0;
+      if (p && !placed.has(p)) { placed.add(p); out.push(psgCard(p)); }
+      out.push(card(iss.length, "pv" + n, head(`Câu ${n}${q.topic ? " · " + q.topic : ""}`, [[QTYPE[q.type]]].concat(q.lv ? [[Quiz.LV[q.lv]]] : [])) + Quiz.preview(q) + errs(iss)));
+    }
+    return (bad ? `<div class="tabs" role="group" aria-label="Lọc câu"><button type="button" data-pf="all" aria-pressed="true">Tất cả · ${out.length}</button><button type="button" data-pf="bad" aria-pressed="false">Cần sửa · ${bad}</button></div>` : "")
+      + `<p class="small muted">Đáp án được chấm đúng có dấu ✓ hoặc chữ đậm. Khi làm bài, app tự xáo các lựa chọn.</p>` + out.join("");
+  }
   function renderBankForm(u, id) {
     if (u.role !== "admin") { go("#/home"); return; }
     const b = id === "new" ? { id: "", title: "", grade: gradeList()[0], subject: "", minutes: 20, note: "", src: "" } : Store.bank(id);
     if (!b || b.seed) { go("#/admin/banks"); return; }
     const cloud = !!Store.cloud; // bản đám mây gọi là "đề tự soạn" (UX2)
+    const linkedEvs = b.id ? Store.events().filter((e) => (e.banks || []).includes(b.id)) : [];
     view.innerHTML = `<div class="stack">${back("#/admin/banks", cloud ? "Đề tự soạn" : "Ngân hàng đề")}
       <h2>${id === "new" ? (cloud ? "Nhập đề" : "Nhập ngân hàng câu hỏi") : cloud ? "Sửa đề" : "Sửa ngân hàng câu hỏi"}</h2>
       <form class="panel" id="bForm" autocomplete="off"><div class="form">
         <label class="field full"><span>Tên</span><input id="bTitle" value="${esc(b.title)}" required placeholder="Ví dụ: Toán 4 · Đề ôn cuối kì I số 1"></label>
         <label class="field"><span>Khối</span><select id="bGrade">${gradeOptions(b.grade)}</select></label>
         <label class="field"><span>Môn</span><input id="bSubj" value="${esc(b.subject)}" placeholder="Toán, Tiếng Việt, Tiếng Anh…"></label>
+        <label class="field full"><span>Gắn vào kì thi <span class="opt-note">(không bắt buộc)</span></span><select id="bEvent"></select></label>
+        ${linkedEvs.length ? `<p class="full small muted" id="bLinked">${nb(esc("Đang gắn vào: " + linkedEvs.map((e) => e.title).join(", ")))}. Bỏ gắn ở Lịch thi → Sửa kì thi.</p>` : ""}
         <label class="field"><span>Thời gian khi làm như thi (phút, 0 = không tính giờ)</span><input id="bMin" type="number" min="0" max="180" value="${+b.minutes || 0}"></label>
         <label class="field full"><span>Ghi chú</span><input id="bNote" value="${esc(b.note || "")}"></label>
       </div>
@@ -1820,26 +1969,53 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
 > giải thích           → hiện sau khi trả lời (tự luận: đáp án gợi ý)</pre></details>
       <textarea id="bSrc" spellcheck="false" aria-label="Câu hỏi" placeholder="Dán câu hỏi vào đây…">${esc(b.src || "")}</textarea>
       <div class="row"><button class="btn ghost sm" type="button" id="bSample">Xem ví dụ</button><label class="btn ghost sm" for="bFile">Mở file .txt</label><input type="file" id="bFile" accept=".txt,text/plain" hidden><button class="btn sm" type="button" id="bCheck">Kiểm tra</button></div>
-      <div id="bRes"></div>
-      <div class="row"><button class="btn main" type="submit">${cloud ? "Lưu đề" : "Lưu ngân hàng"}</button>${id !== "new" ? `<button class="btn danger" type="button" id="bDel">Xóa</button>` : ""}</div><div id="bDelArea"></div></form></div>`;
+      <div id="bRes"></div><section class="pv" id="bPrev" aria-label="Xem trước các câu" hidden></section>
+      <div class="row"><button class="btn main" type="submit">${cloud ? "Lưu đề" : "Lưu ngân hàng"}</button>${id !== "new" ? `<button class="btn danger" type="button" id="bDel">Xóa</button>` : ""}</div><div id="bAsk"></div><div id="bDelArea"></div></form></div>`;
     wireGo();
+    // "Gắn vào kì thi": kì thi chưa qua của khối đang chọn (không có mốc năm học, kì thi đã gắn đề này); đổi khối thì đổi danh sách
+    const evOpts = () => {
+      const g = +$("#bGrade").value, cur = $("#bEvent").value;
+      const evs = Store.events(g).filter((e) => e.kind !== "moc" && status(e) !== "past" && !(b.id && (e.banks || []).includes(b.id)));
+      $("#bEvent").innerHTML = `<option value="">${linkedEvs.length ? "Không gắn thêm" : "Chưa gắn"}</option>`
+        + evs.map((e) => `<option value="${esc(e.id)}"${e.id === cur ? " selected" : ""}>${esc(`${e.title} (${e.start ? dm(e.start) : "chưa có lịch"})`)}</option>`).join(""); // khối đã ghi ở ô Khối; tên ngắn để vừa ô ở 360px
+    };
+    $("#bGrade").onchange = evOpts; evOpts();
+    const KINDS = [["mc", "trắc nghiệm"], ["fill", "điền khuyết"], ["tf", "đúng/sai"], ["tf4", "đúng/sai 4 ý"], ["num", "trả lời bằng số"], ["match", "nối cột"], ["order", "sắp xếp"], ["essay", "tự luận"]];
+    const showBad = (only) => {
+      $$("[data-pf]").forEach((x) => x.setAttribute("aria-pressed", (x.dataset.pf === "bad") === only));
+      $$(".pv-card:not([data-bad])", $("#bPrev")).forEach((c) => (c.hidden = only));
+      const first = $(".pv-card[data-bad]", $("#bPrev"));
+      if (only && first) first.scrollIntoView({ block: "start" });
+    };
     const check = () => {
-      const { questions, passages, errors } = Quiz.parse($("#bSrc").value), c = (t) => questions.filter((q) => q.type === t).length;
-      const kinds = [["mc", "trắc nghiệm"], ["fill", "điền khuyết"], ["tf", "đúng/sai"], ["tf4", "đúng/sai 4 ý"], ["num", "trả lời bằng số"], ["match", "nối cột"], ["order", "sắp xếp"], ["essay", "tự luận"]]
-        .filter(([t], i) => i < 3 || c(t)).map(([t, nm]) => c(t) + " " + nm), np = Object.keys(passages).length;
-      $("#bRes").innerHTML = `<div class="${errors.length ? "notice" : "fb ok"}">Nhận được ${questions.length} câu: ${kinds.join(", ")}${np ? `; ${np} đoạn đọc` : ""}.${errors.length ? "<br>" + errors.map(esc).join("<br>") : ""}</div>`;
-      return { questions, passages };
+      const res = Quiz.parse($("#bSrc").value), { questions, passages } = res, c = (t) => questions.filter((q) => q.type === t).length;
+      const kinds = KINDS.filter(([t], i) => i < 3 || c(t)).map(([t, nm]) => c(t) + " " + nm), np = Object.keys(passages).length, pr = bankProblems(res);
+      $("#bRes").innerHTML = `<div class="${pr.length ? "notice" : "fb ok"}">Nhận được ${questions.length} câu: ${kinds.join(", ")}${np ? `; ${np} đoạn đọc` : ""}.${pr.length ? ` Cần sửa: ${esc(pr.join(", "))}. Xem các thẻ viền đỏ bên dưới.` : ""}</div>`;
+      $("#bPrev").innerHTML = bankPreview(res); $("#bPrev").hidden = false;
+      $$("[data-pf]").forEach((x) => (x.onclick = () => showBad(x.dataset.pf === "bad")));
+      $("#bCheck").textContent = "Kiểm tra lại"; $("#bAsk").innerHTML = "";
+      return res;
     };
     $("#bSample").onclick = () => { $("#bSrc").value = BANK_SAMPLE; check(); };
     $("#bCheck").onclick = check;
     $("#bFile").onchange = (ev) => { const f = ev.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { $("#bSrc").value = r.result; check(); }; r.readAsText(f, "utf-8"); };
+    const save = ({ questions, passages }) => {
+      try {
+        const saved = Store.upsertBank({ id: b.id, title: $("#bTitle").value, grade: +$("#bGrade").value, subject: $("#bSubj").value.trim(), minutes: +$("#bMin").value || 0, note: $("#bNote").value.trim(), questions, passages, src: $("#bSrc").value });
+        const ev = $("#bEvent").value && Store.event($("#bEvent").value);
+        if (ev) Store.upsertEvent(Object.assign({}, ev, { banks: [saved.id].concat((ev.banks || []).filter((x) => x !== saved.id)) })); // đề mới đứng đầu, như đề có sẵn mới
+        toast((cloud ? "Đã lưu đề" : "Đã lưu") + (ev ? `, gắn vào “${ev.title}”.` : "."), ev ? 3600 : 0); go("#/admin/banks");
+      } catch (err) { $("#bAsk").innerHTML = ""; $("#bRes").innerHTML = `<div class="fb bad">${esc(err.message)}</div>`; }
+    };
     $("#bForm").onsubmit = (ev) => {
       ev.preventDefault();
-      const { questions, passages } = check();
-      try {
-        Store.upsertBank({ id: b.id, title: $("#bTitle").value, grade: +$("#bGrade").value, subject: $("#bSubj").value.trim(), minutes: +$("#bMin").value || 0, note: $("#bNote").value.trim(), questions, passages, src: $("#bSrc").value });
-        toast(cloud ? "Đã lưu đề. Gắn đề vào kì thi ở mục Lịch thi → Sửa ngày, bài ôn." : "Đã lưu. Vào Lịch thi để gắn ngân hàng này vào kì thi."); go("#/admin/banks");
-      } catch (err) { $("#bRes").innerHTML = `<div class="fb bad">${esc(err.message)}</div>`; }
+      const res = check(), pr = bankProblems(res);
+      if (!pr.length || !res.questions.length) { save(res); return; } // không câu nào lưu được: kho tự báo "cần ít nhất một câu hỏi"
+      // có lỗi: hỏi lại ngay dưới nút Lưu, nói rõ bao nhiêu câu sẽ không được lưu, bao nhiêu câu thiếu phần bị lỗi
+      $("#bAsk").innerHTML = `<div class="confirm" id="bAskBox"><div>${esc(pr.join(", "))}. Vẫn lưu?</div><div class="row"><button class="btn sm" type="button" id="bAskYes">Vẫn lưu</button><button class="btn ghost sm" type="button" id="bAskNo">Sửa tiếp</button></div></div>`;
+      $("#bAskYes").onclick = () => save(check()); // đọc lại chữ đang có: câu lưu và văn bản gốc (src) luôn khớp nhau
+      $("#bAskNo").onclick = () => { $("#bAsk").innerHTML = ""; showBad(true); };
+      $("#bAskBox").scrollIntoView({ block: "nearest" });
     };
     if ($("#bDel")) $("#bDel").onclick = () => {
       $("#bDelArea").innerHTML = `<div class="confirm"><div>Xóa ${cloud ? "đề" : "ngân hàng"} “${esc(b.title)}”?</div><div class="row"><button class="btn danger sm" type="button" id="bdYes">Xóa</button><button class="btn ghost sm" type="button" id="bdNo">Thôi</button></div></div>`;

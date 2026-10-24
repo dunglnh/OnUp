@@ -1263,7 +1263,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     topics: document.querySelectorAll("#rpTopics .item").length, week: [...document.querySelectorAll(".sec")].find((x) => /Bài đã làm trong tuần/.test(x.textContent)).textContent.replace(/\s+/g, " ") }));
   await kcheck("báo cáo tuần có đề ngẫu nhiên");
   await kp.goto(BASE + "/#/admin/banks"); await kp.waitForTimeout(200);
-  k3.adminRow = await kp.$eval(`a[href="#/quiz/${POOL}"] .small`, (x) => x.textContent);
+  k3.adminRow = await kp.$eval(`a[href="#/quiz/${POOL}"] .small`, (x) => x.textContent); // tab Ngân hàng đề (UX7, X12): đề có sẵn theo tab khối, nhóm theo môn; dòng đề ghi số câu, số phút
   await kcheck("ngân hàng đề có đề ngẫu nhiên");
   await kc.close();
   console.log("K3:", k3);
@@ -1281,7 +1281,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     && k3.home.hash === "#/home" && k3.home.weak === wrongQ.topic + " · 1 câu" && /Toán 6 · Cuối kì I · Đề ngẫu nhiên/.test(k3.home.recent) && k3.home.recent.includes(`${t1 - 1}/${t1}`) && k3.home.n === 2
     && k3.short && k3.shortWant.noV && k3.notes === k3.shortWant.notes && k3.shortN === k3.shortWant.n
     && k3.report.n === "2" && k3.report.subj === `Toán ${d10(25 + t1 - 1, 25 + t1)}/10 2 bài · ${25 + t1 - 1}/${25 + t1} câu đúng` && k3.report.topics === 1 && /Đề ngẫu nhiên/.test(k3.report.week)
-    && k3.adminRow === "Lớp 6 · Toán · 25 câu rút ngẫu nhiên · có sẵn (chỉ xem)";
+    && k3.adminRow === "25 câu rút ngẫu nhiên · 45 phút · xem thử";
   step("random exams keep passages whole (K4)");
   /* Đề ngẫu nhiên có đoạn đọc (Phiên K4): câu dùng chung một đoạn đọc được rút theo đoạn (Quiz.draw, CLAUDE.md mục “Đề ngẫu nhiên”). Bốn đề
      ngẫu nhiên đang có đoạn đọc: Tiếng Việt 4, Tiếng Anh 4 (Bin), Ngữ văn 6, Tiếng Anh 6 cuối kì I (Na). Với mỗi đề: (1) rút 60 lần ngay
@@ -2373,11 +2373,18 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   step("profile entry step, PIN lock UI, tap-to-change avatar (UX4)");
   /* Phiên UX4 (X1–X4), bản lưu trên máy: chạm hồ sơ có PIN thì sang bước nhập riêng #/vao/<mã> (không cuộn, tên và 12 nút bàn phím
      trong khung nhìn 740px, "← Chọn hồ sơ khác", hình to, tên, lớp, "Nhập mã PIN của bạn", hàng chấm, nút chữ "Hiện số", bàn phím, dòng
-     quên PIN); số đã gõ chỉ hiện ở hàng chấm (ô #pinIn ẩn); sai 5 lần thì đếm ngược ngay dưới hàng chấm, bàn phím và Hiện số disabled,
-     hết giờ bật lại; trang Tài khoản: chạm hình là đổi ngay (Store.user(id).avatar đổi, toast, không có nút Lưu), form đổi mã PIN riêng.
+     quên PIN); số đã gõ chỉ hiện ở hàng chấm (ô #pinIn ẩn); sai 5 lần thì đếm ngược ngay dưới hàng chấm, bàn phím và Hiện số disabled
+     (phím Vào nền line, chữ muted, không mờ; phím khác mờ .45; Phiên UI2, X32), hết giờ bật lại; trang Tài khoản: chạm hình là đổi ngay
+     (Store.user(id).avatar đổi, toast, không có nút Lưu), form đổi mã PIN riêng.
      Ảnh 360px sáng/tối ở tests/screenshots/ux4/ (bản ghép <tên>.jpg): a3-nhap-pin, a3-hien-so, a4-dang-doi, a6-hinh-dai-dien, a6-da-doi. */
   const OUTUX4 = OUT + "ux4/"; fs.mkdirSync(OUTUX4, { recursive: true });
   const ux4 = { problems: [], shots: [] };
+  /* Phiên UI2 (X32): màu đã vẽ của nút (nền, chữ, opacity) và màu đã tính của token line, muted, sun, sun-ink (bản giống trong
+     tests/supabase/cloud-e2e.js). Phím Vào bị tắt khi phải đợi: nền line, chữ muted, opacity 1 (offTone); bật lại: nền sun, chữ sun-ink (onTone). */
+  const btnTone = (sel) => { const b = document.querySelector(sel), s = getComputedStyle(b), tok = (v) => { const i = document.createElement("i"); i.style.color = `var(${v})`; document.body.appendChild(i); const c = getComputedStyle(i).color; i.remove(); return c; };
+    return { dis: b.disabled, bg: s.backgroundColor, color: s.color, op: s.opacity, line: tok("--line"), muted: tok("--muted"), sun: tok("--sun"), sunInk: tok("--sun-ink") }; };
+  const offTone = (t) => !!t && t.dis && t.bg === t.line && t.color === t.muted && t.op === "1";
+  const onTone = (t) => !!t && !t.dis && t.bg === t.sun && t.color === t.sunInk && t.op === "1";
   for (const scheme of ["light", "dark"]) {
     const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
     await localConfig(c); watchOut(c);
@@ -2402,10 +2409,13 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     for (let i = 0; i < 5; i++) { for (const k of "0000") await p.click(`.pad button[data-k="${k}"]`); await p.waitForTimeout(250); } // sai 5 lần
     await p.waitForSelector("#pinWait");
     r.locked = await lockUI4();
+    r.okOff = await p.evaluate(btnTone, ".pad .ok"); // UI2 (X32): phím Vào bị tắt; phím số, Hiện số vẫn mờ .45
+    r.dim = await p.evaluate(() => [...document.querySelectorAll(".pad button:not(.ok)"), document.querySelector("#pinShow")].map((b) => getComputedStyle(b).opacity));
     await check4("đang phải đợi"); await snap4("a4-dang-doi");
     await p.evaluate(() => { const o = JSON.parse(localStorage.getItem("ontap_pinlock_v1")); for (const k in o) if (o[k].until) o[k].until = Date.now() + 1200; localStorage.setItem("ontap_pinlock_v1", JSON.stringify(o)); });
     await p.waitForSelector("#pinErr .fb.ok", { timeout: 5000 });
     r.unlocked = await lockUI4();
+    r.okOn = await p.evaluate(btnTone, ".pad .ok");
     for (const k of "4444") await p.click(`.pad button[data-k="${k}"]`); await p.waitForSelector("#today"); // bật lại thì vào được
     r.in = await p.evaluate(() => (Store.sessionUser() || {}).name);
     // X4: trang Tài khoản: thẻ "Hình đại diện" chạm là đổi; form "Đổi mã PIN" riêng
@@ -2439,6 +2449,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.shown.dots === "44" && /shown/.test(r.shown.cls) && r.shown.pressed === "true" && r.shown.inputW <= 1 && r.shown.type === "text"
       && r.locked.dis === 12 && r.locked.show && r.locked.order && /^Mã PIN chưa đúng\. Đợi (30|29) giây rồi thử lại\.$/.test(r.locked.err) && r.locked.inputW <= 1
       && r.unlocked.dis === 0 && !r.unlocked.show && r.unlocked.order && r.unlocked.err === "Bạn nhập lại được rồi." && r.in === "Na"
+      && offTone(r.okOff) && onTone(r.okOn) && r.dim.length === 12 && r.dim.every((o) => o === "0.45")
       && r.account.hint === "Chạm vào hình là đổi ngay." && !r.account.save && r.account.pinBtn === "Đổi mã PIN" && r.account.h3 === "Hình đại diện,Đổi mã PIN"
       && r.changed.av && r.changed.toast === "Đã đổi hình đại diện" && r.changed.head && r.changed.top && r.changed.pressed && r.changed.saved && /Nhập mã PIN mới/.test(r.pinForm); });
 
@@ -3306,6 +3317,149 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.saved && r.wrong === "Chưa đúng. Đáp án: 2/3" && r.review.includes("Đáp án: 2/3") && r.review.includes("Đáp án: -3/4"))
     && L29_SHOTS.every((n) => l29.shots.includes(n + "-light") && l29.shots.includes(n + "-dark"));
 
+  step("bank management: exam picker, bank list, import preview (UX7, X11–X13)");
+  /* Phiên UX7 (docs/CAI-TIEN-UX-2X.md, mục 3): quản trị bản lưu trên máy (Bố Minh) ở 360px sáng/tối; mỗi lượt một context mới từ state
+     (đề, kì thi lưu ở đây không sang các bước khác). Ảnh ở tests/screenshots/ux7/ (bản ghép <tên>.jpg; chép sang docs/hinh-ux7/).
+     X11 Sửa kì thi: khối "Bài ôn và đề cho kì này" có nhãn "N đã chọn"; kì thi lớp 4 (gk2-l4) chỉ hiện đề, bài ôn có khối của kì thi,
+     số đề hiện ra bằng Store.banks(4); chọn thêm ô Lớp 6 thì thấy cả đề lớp 6. Kì thi ck1-l4 đã chọn sẵn một đề Ngữ văn 6 và bài ôn
+     IOE 6 (khác khối): hai mục đó vẫn hiện; tìm "toan de 2" chỉ còn các đề Toán 4 có "Đề 2" (cộng đề khác khối không khớp thì ẩn),
+     "Hiện cả đề của khối khác" thì thêm Toán 6; bỏ một đề, chọn một đề rồi Lưu: kì thi giữ đủ lựa chọn cũ, kể cả hai mục khác khối.
+     X12 Ngân hàng đề: ngân hàng tự nhập đứng trước đề có sẵn và ghi kì thi đã gắn; đề có sẵn theo tab khối (Lớp 4 · N đề, Lớp 6 · N đề;
+     mặc định lớp của học sinh đầu tiên), nhóm theo môn thu gọn; tìm "toan de 2" thì tab ghi số đề khớp, mở nhóm Toán; tab Lớp 6 ra Toán 6.
+     X13 Nhập đề: một câu bị bỏ (dòng "Đáp số:" không phải số), một câu thiếu phần (mức độ sai), một đoạn đọc: thẻ của hai câu đó viền
+     đỏ, lỗi ở trong thẻ; trắc nghiệm có lựa chọn đúng đánh dấu ✓, câu điền ghi đáp án nhận được; lọc "Cần sửa" chỉ còn hai thẻ; Lưu thì
+     hỏi lại "1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Vẫn lưu?", "Sửa tiếp" đóng hộp và lọc thẻ cần sửa; ô "Gắn vào kì thi" chỉ
+     có kì thi chưa qua của lớp 4 (không có mốc năm học); "Vẫn lưu" thì đề có 3 câu và đứng đầu danh sách đề của kì thi đã chọn. Đề mẫu
+     ("Xem ví dụ", mọi dạng câu) không có thẻ lỗi, không có bộ lọc. */
+  const OUTUX7 = OUT + "ux7/"; fs.mkdirSync(OUTUX7, { recursive: true });
+  const ux7 = { problems: [], shots: [] };
+  const UX7_SRC = "# Phép cộng\n345 678 + 254 322 = ?\n* 600 000\n- 590 000\n- 599 990\n> Cộng từ phải sang trái, nhớ sang hàng bên trái.\n\n1 000 000 − 456 789 = [543211|543 211]\nMức: Rất khó\n\n"
+    + "# Đo lường\nMột sợi dây dài 2 m, cắt đi 0,75 m. Đoạn còn lại dài bao nhiêu mét?\nĐáp số: một phẩy hai lăm m\n\n"
+    + "# Đọc hiểu\nĐoạn đọc: Chú mèo con\nNhà Bin có một chú mèo con lông trắng muốt.\nHết đoạn\n\nChú mèo con có bộ lông màu gì?\n* Trắng\n- Đen\n- Vàng";
+  for (const scheme of ["light", "dark"]) {
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror UX7: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console UX7: " + m.text()); });
+    const r = (ux7[scheme] = {});
+    const check7 = async (label) => (await p.evaluate(audit)).forEach((x) => ux7.problems.push(`UX7 · ${scheme} · ${label}: ${x}`));
+    const snap7 = async (n) => { await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await p.screenshot({ path: `${OUTUX7}${n}-${scheme}.png`, fullPage: true }); ux7.shots.push(`${n}-${scheme}`); };
+    const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, sel);
+    const shown = (name) => p.$$eval(`#ePick .ck:not([hidden]) input[name=${name}]`, (i) => i.map((x) => x.value).sort().join());
+    const picked = () => p.evaluate(() => ({ eb: [...document.querySelectorAll("#ePick input[name=eb]:checked")].map((x) => x.value).sort().join(), em: [...document.querySelectorAll("#ePick input[name=em]:checked")].map((x) => x.value).sort().join() }));
+    await p.goto(BASE + "/");
+    // kì thi ck1-l4 đã gắn sẵn một đề Ngữ văn 6 và bài ôn IOE 6 (khác khối)
+    r.other = await p.evaluate(() => {
+      const d = JSON.parse(localStorage.getItem("ontap_db_v1")), ev = d.events.find((e) => e.id === "ck1-l4"), van6 = window.ONTAP_SEED_BANKS.find((b) => b.grade === 6 && b.subject === "Ngữ văn" && !b.pool).id;
+      ev.banks = ev.banks.filter((x) => x !== van6).concat(van6); ev.modules = (ev.modules || []).filter((x) => x !== "ioe-6").concat("ioe-6");
+      localStorage.setItem("ontap_db_v1", JSON.stringify(d)); return van6;
+    });
+    await p.reload(); await p.click(`.tile[data-u="${ids["Bố Minh"]}"]`); await p.fill("#pinIn", PINS["Bố Minh"]); await p.waitForSelector(".tabs");
+    // X11: kì thi chỉ của lớp 4
+    await p.goto(BASE + "/#/admin/event/gk2-l4"); await p.waitForSelector("#ePick");
+    r.only4 = await p.evaluate(() => { const e = Store.event("gk2-l4"), ck = document.querySelectorAll("#ePick input:checked").length;
+      return { grades: e.grades.join(), want: Store.banks(4).map((b) => b.id).sort().join(), wantM: window.ONTAP_MODULES.filter((m) => m.grade === 4).map((m) => m.id).sort().join(), n: document.querySelector("#ePickN").textContent, ck, mine: e.banks.length + e.modules.length,
+        head: document.querySelector("#ePickH").textContent, scope: document.querySelector("#eScope").textContent, all: document.querySelector("#eAll").textContent,
+        rows: [...document.querySelectorAll("#ePick .ck")].filter((x) => x.offsetParent).every((x) => x.getBoundingClientRect().height >= 44), find: document.querySelector("#eFind").placeholder }; });
+    r.only4.eb = await shown("eb"); r.only4.em = await shown("em");
+    await p.check('input[name=eg][value="6"]');
+    r.only4.with6 = (await shown("eb")) === (await p.evaluate(() => Store.banks().filter((b) => b.grade === 4 || b.grade === 6).map((b) => b.id).sort().join()));
+    // X11: kì thi có lựa chọn khác khối, tìm, hiện cả khối khác, lưu
+    await p.goto(BASE + "/#/admin/event/ck1-l4"); await p.waitForSelector("#ePick");
+    const before = await picked();
+    r.keep = { n: await txt("#ePickN"), ck: before, van6: (await shown("eb")).split(",").includes(r.other), ioe6: (await shown("em")).split(",").includes("ioe-6"),
+      groups: await p.$$eval("#ePick .pk-g", (d) => d.map((x) => (x.hidden ? "-" : x.open ? "+" : "") + x.querySelector("b").textContent + " " + x.querySelector(".pk-n").textContent).join("|")) };
+    await check7("sửa kì thi"); await snap7("sua-ki-thi");
+    await p.fill("#eFind", "toan de 2");
+    const de2 = (gs) => p.evaluate((gs) => Store.banks().filter((b) => gs.includes(b.grade) && b.subject === "Toán" && / · Đề 2$/.test(b.title)).map((b) => b.id).sort().join(), gs);
+    r.find = { eb: await shown("eb"), want: await de2([4]), em: await shown("em"), n: await txt("#ePickN") };
+    await check7("sửa kì thi, tìm"); await snap7("sua-ki-thi-tim");
+    await p.click("#eAll");
+    r.find.all = { eb: await shown("eb"), want: await de2([4, 6]), link: await txt("#eAll"), scope: await txt("#eScope") };
+    await p.click("#eAll"); await p.fill("#eFind", "");
+    r.find.back = (await shown("eb")).split(",").length;
+    // bỏ một đề Toán 4 đã chọn, chọn một đề Toán 4 chưa chọn
+    const flip = await p.evaluate(() => { const ins = [...document.querySelectorAll("#ePick .ck:not([hidden]) input[name=eb]")].filter((i) => /^Toán 4\s/.test(i.parentElement.textContent)); // nb(): khoảng trắng trước "·" là U+00A0
+      return { off: (ins.find((i) => i.checked) || {}).value, on: (ins.find((i) => !i.checked) || {}).value }; });
+    await p.click(`#ePick input[value="${flip.off}"]`); await p.click(`#ePick input[value="${flip.on}"]`);
+    r.keep.n2 = await txt("#ePickN");
+    await p.click("#eForm [type=submit]"); await p.waitForFunction(() => location.hash === "#/admin/events");
+    const after = await p.evaluate(() => { const e = Store.event("ck1-l4"); return { eb: e.banks.slice().sort().join(), em: e.modules.slice().sort().join() }; });
+    r.keep.saved = after.em === before.em && after.eb === before.eb.split(",").filter((x) => x !== flip.off).concat(flip.on).sort().join() && after.eb.includes(r.other) && after.em.includes("ioe-6") && !!flip.off && !!flip.on;
+    // X12: tab Ngân hàng đề
+    await p.goto(BASE + "/#/admin/banks"); await p.waitForSelector("#seedBanks");
+    r.list = await p.evaluate(() => { const seed = window.ONTAP_SEED_BANKS, act = window.ONTAP_GRADES.filter((g) => g.active).map((g) => g.grade), mine = document.querySelector("#myBanks");
+      return { first: !!(mine.compareDocumentPosition(document.querySelector("#seedBanks")) & Node.DOCUMENT_POSITION_FOLLOWING), mine: mine.textContent.replace(/\s+/g, " ").trim(),
+        tabs: [...document.querySelectorAll("#seedBanks .tabs button")].map((b) => b.textContent + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join(),
+        wantTabs: act.map((g, i) => `Lớp ${g} · ${seed.filter((b) => b.grade === g).length} đề` + (i ? "" : "*")).join(),
+        groups: [...document.querySelectorAll('.sb-g[data-sg="4"] .grp')].map((d) => d.querySelector("b").textContent + (d.open ? "+" : "")).join(),
+        wantGroups: [...new Set(seed.filter((b) => b.grade === 4).map((b) => b.subject))].join(), rows: document.querySelectorAll("#seedBanks a.item").length, wantRows: seed.filter((b) => act.includes(b.grade)).length }; });
+    await check7("ngân hàng đề"); await snap7("ngan-hang-de");
+    await p.fill("#seedFind", "toan de 2");
+    const visTitles = () => p.$$eval(".sb-g:not([hidden]) a.item:not([hidden]) b", (b) => b.map((x) => x.textContent.replace(/\s+/g, " ")).sort().join());
+    const de2T = (g) => p.evaluate((g) => Store.banks(g).filter((b) => b.seed && b.subject === "Toán" && / · Đề 2$/.test(b.title)).map((b) => b.title).sort().join(), g);
+    r.list.find4 = { got: await visTitles(), want: await de2T(4), tabs: await p.$$eval("#seedBanks .tabs button", (b) => b.map((x) => x.textContent).join()), open: await p.$$eval('.sb-g[data-sg="4"] .grp:not([hidden])', (d) => d.map((x) => x.querySelector("b").textContent + (x.open ? "+" : "")).join()) };
+    await check7("ngân hàng đề, tìm"); await snap7("ngan-hang-de-tim");
+    await p.click('#seedBanks .tabs [data-sg="6"]');
+    r.list.find6 = { got: await visTitles(), want: await de2T(6) };
+    // X13: nhập đề có lỗi
+    await p.goto(BASE + "/#/admin/bank/new"); await p.waitForSelector("#bForm");
+    await p.fill("#bTitle", "Ôn tổng hợp · tuần 7"); await p.selectOption("#bGrade", "4"); await p.fill("#bSubj", "Toán");
+    r.evOpts = await p.evaluate(() => { const v = [...document.querySelectorAll("#bEvent option")].map((o) => o.value), today = new Date().toISOString().slice(0, 10);
+      return { first: v[0], n: v.length, ok: v.slice(1).every((id) => { const e = Store.event(id); return e && e.grades.includes(4) && e.kind !== "moc" && (!e.end || e.end >= today); }), gk1: v.includes("gk1-l4"), label: (document.querySelector('#bEvent option[value="gk1-l4"]') || {}).textContent }; });
+    await p.fill("#bSrc", UX7_SRC); await p.click("#bCheck");
+    r.prev = await p.evaluate(() => { const t = (s) => (document.querySelector(s) || { textContent: "" }).textContent.replace(/\s+/g, " ").trim();
+      return { res: t("#bRes"), cards: [...document.querySelectorAll(".pv-card")].map((x) => x.id + (x.hasAttribute("data-bad") ? "!" : "")).join(), filter: t("#bPrev .tabs"),
+        pv2: t("#pv2 .fb.bad"), pv3: { tag: t("#pv3 .tag.bad"), src: t("#pv3 .pv-src"), err: t("#pv3 .fb.bad"), head: t("#pv3 .label") },
+        right: [...document.querySelectorAll("#pv1 .pv-opts li.right")].map((x) => x.textContent.replace(/\s+/g, " ").trim()).join("|"), fill: t("#pv2 .pv-ans"), psg: t("#pvd1 .pv-head"), check: t("#bCheck") }; });
+    await check7("nhập đề có lỗi"); await snap7("nhap-de-loi");
+    await p.click('[data-pf="bad"]');
+    r.prev.onlyBad = await p.$$eval(".pv-card", (c) => c.filter((x) => !x.hidden).map((x) => x.id).join());
+    await p.click('[data-pf="all"]');
+    await p.selectOption("#bEvent", "gk1-l4");
+    await p.click("#bForm [type=submit]"); await p.waitForSelector("#bAskBox");
+    r.ask = await txt("#bAskBox");
+    await check7("nhập đề, hỏi lại"); await snap7("nhap-de-hoi-lai");
+    await p.click("#bAskNo");
+    r.askNo = { box: !(await p.$("#bAskBox")), bad: await p.$eval('[data-pf="bad"]', (b) => b.getAttribute("aria-pressed")), shown: await p.$$eval(".pv-card", (c) => c.filter((x) => !x.hidden).map((x) => x.id).join()), saved: await p.evaluate(() => Store.banks().filter((b) => !b.seed).length) };
+    await p.click("#bForm [type=submit]"); await p.click("#bAskYes"); await p.waitForSelector("#myBanks");
+    r.saved = await p.evaluate(() => { const b = Store.banks().find((x) => x.title === "Ôn tổng hợp · tuần 7"), e = Store.event("gk1-l4");
+      return { hash: location.hash, toast: document.querySelector("#toast").textContent, n: b && b.questions.length, lv: b && b.questions.map((q) => q.lv || 0).join(), first: !!b && e.banks[0] === b.id, once: !!b && e.banks.filter((x) => x === b.id).length === 1,
+        row: [...document.querySelectorAll("#myBanks .item")].map((x) => x.textContent.replace(/\s+/g, " ").trim()).find((x) => /tuần 7/.test(x)) || "" }; });
+    await check7("ngân hàng đề sau khi lưu"); await snap7("ngan-hang-de-sau-khi-luu");
+    // đề mẫu: mọi dạng câu, không lỗi
+    await p.goto(BASE + "/#/admin/bank/new"); await p.waitForSelector("#bForm"); await p.click("#bSample");
+    r.sample = await p.evaluate(() => ({ cards: document.querySelectorAll(".pv-card").length, bad: document.querySelectorAll(".pv-card[data-bad]").length, filter: !!document.querySelector("#bPrev .tabs"),
+      types: [...document.querySelectorAll(".pv-card .pv-head .tag")].map((x) => x.textContent).join(), right: document.querySelectorAll(".pv-opts li.right").length, svgless: !document.querySelector(".pv-card .qfig svg script") }));
+    await check7("nhập đề, xem trước đề mẫu"); await snap7("nhap-de-xem-truoc");
+    await c.close();
+  }
+  { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/ux7/<tên>.jpg)
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of [...new Set(ux7.shots.map((x) => x.replace(/-(light|dark)$/, "")))]) {
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTUX7}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTUX7}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("UX7:", JSON.stringify(ux7.light), "dark:", JSON.stringify(ux7.dark), "problems:", ux7.problems);
+  const ux7OK = !ux7.problems.length && ["light", "dark"].every((sc) => { const r = ux7[sc];
+    return r.only4.grades === "4" && r.only4.eb === r.only4.want && r.only4.em === r.only4.wantM && r.only4.n === r.only4.ck + " đã chọn" && r.only4.ck === r.only4.mine && r.only4.head === "Bài ôn và đề cho kì này"
+      && r.only4.scope === "Đang hiện bài ôn và đề của Lớp 4, khối của kì thi này." && r.only4.all === "Hiện cả đề của khối khác" && r.only4.rows && r.only4.find === "Tìm đề, ví dụ “Toán Đề 2”" && r.only4.with6
+      && r.keep.van6 && r.keep.ioe6 && r.keep.n === (r.keep.ck.eb.split(",").length + r.keep.ck.em.split(",").length) + " đã chọn" && /^\+Bài ôn dạng trang \d+\/\d+ đã chọn\|/.test(r.keep.groups) && /\|\+Toán \d+\/\d+ đã chọn\|/.test(r.keep.groups) && /\|\+Ngữ văn 1\/1 đã chọn(\||$)/.test(r.keep.groups) && /\|\+?Tiếng Việt \d+\/\d+ đã chọn · 1 đề tự soạn\|/.test(r.keep.groups)
+      && r.find.eb === r.find.want && r.find.want.split(",").length >= 2 && r.find.em === "" && r.find.all.eb === r.find.all.want && r.find.all.want.split(",").length > r.find.want.split(",").length
+      && r.find.all.link === "Chỉ hiện đề của khối kì thi" && r.find.all.scope === "Đang hiện bài ôn và đề của mọi khối." && r.find.back > 10 && r.keep.n2 === r.keep.n && r.keep.saved
+      && r.list.first && /^Tiếng Việt 4 · thử ?Lớp 4 · Tiếng Việt · 11 câu · chưa gắn vào kì thi nào/.test(r.list.mine) && r.list.tabs === r.list.wantTabs && r.list.groups === r.list.wantGroups && r.list.rows === r.list.wantRows
+      && r.list.find4.got === r.list.find4.want && r.list.find4.want.split(",").length >= 2 && /^Lớp 4 · \d+ đề,Lớp 6 · \d+ đề$/.test(r.list.find4.tabs) && r.list.find4.open === "Toán+" && r.list.find6.got === r.list.find6.want && r.list.find6.want.split(",").length >= 2
+      && r.evOpts.first === "" && r.evOpts.n > 3 && r.evOpts.ok && r.evOpts.gk1 && /^Kiểm tra giữa học kì I \(\d+\/\d+\)$/.test(r.evOpts.label)
+      && r.prev.res === "Nhận được 3 câu: 2 trắc nghiệm, 1 điền khuyết, 0 đúng/sai; 1 đoạn đọc. Cần sửa: 1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Xem các thẻ viền đỏ bên dưới."
+      && r.prev.cards === "pv1,pv2!,pv3!,pvd1,pv4" && r.prev.filter === "Tất cả · 5Cần sửa · 2" && r.prev.pv2 === "Mức độ “Rất khó” chưa đúng (Biết, Hiểu hoặc Vận dụng)"
+      && r.prev.pv3.tag === "Chưa lưu được" && r.prev.pv3.head === "Câu 3 · Đo lường" && /^Một sợi dây dài 2 m.*Đáp số: một phẩy hai lăm m$/.test(r.prev.pv3.src) && /^Dòng “Đáp số:” cần một số/.test(r.prev.pv3.err)
+      && r.prev.right === "A600 000✓ Đúng" && r.prev.fill === "Đáp án được chấm đúng: 543211 hoặc 543 211" && r.prev.psg === "Đoạn đọc 1 · Chú mèo conDùng cho 1 câu" && r.prev.check === "Kiểm tra lại" && r.prev.onlyBad === "pv2,pv3"
+      && r.ask === "1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Vẫn lưu?Vẫn lưuSửa tiếp" && r.askNo.box && r.askNo.bad === "true" && r.askNo.shown === "pv2,pv3" && r.askNo.saved === 1
+      && r.saved.hash === "#/admin/banks" && r.saved.toast === "Đã lưu, gắn vào “Kiểm tra giữa học kì I”." && r.saved.n === 3 && r.saved.lv === "0,0,0" && r.saved.first && r.saved.once && /gắn vào Kiểm tra giữa học kì I/.test(r.saved.row)
+      && r.sample.cards === 12 && r.sample.bad === 0 && !r.sample.filter && r.sample.types === "Trắc nghiệm,Điền khuyết,Đúng/sai,Đúng/sai,Đúng/sai 4 ý,Hiểu,Dùng cho 2 câu,Trắc nghiệm,Trắc nghiệm,Trả lời bằng số,Nối cột,Sắp xếp,Tự luận" && r.sample.right === 3 && r.sample.svgless; });
+
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
      Đề có sẵn: chỉ danh mục data/banks/index.js nằm trong FILES; file câu hỏi vào đệm khi mở đề. */
@@ -3436,7 +3590,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK, l38OK, mod9oOK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK, l38OK, mod9oOK, ux7OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
