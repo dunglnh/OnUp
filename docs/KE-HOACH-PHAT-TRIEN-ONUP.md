@@ -2,7 +2,7 @@
 
 > **Tìm nhanh:** phiên làm đề, dò sách, kĩ thuật cho đề: hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) (mở từ trên xuống) · phiên sửa lỗi: mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) · việc của chủ app: mục 2 · thứ tự các phiên: mục 3 · lời giao việc phiên giao diện, chuẩn bị bán: mục 4 · đã xong: mục 1.
 
-> **Trạng thái (24/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy bản đám mây từ 17/10/2026 (PR #27), chỉ dành cho gia đình được mời. Đã gộp tới PR #138; PR #139 (Phiên 9q) chờ Merge (bảng “Đã xong” ở mục 1). Phiên xong chỉ sửa ngày và số PR ở dòng này.
+> **Trạng thái (24/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy bản đám mây từ 17/10/2026 (PR #27), chỉ dành cho gia đình được mời. Đã gộp tới PR #142; PR #143 (Phiên UX8) chờ Merge (bảng “Đã xong” ở mục 1). Phiên xong chỉ sửa ngày và số PR ở dòng này.
 
 > **Đã chốt 18/10/2026, đổi mốc 21/10/2026:** đủ đề lớp 4–12 và rà xong trong tháng 2/2027; từ đầu tháng 3/2027 mời khách tiềm năng dùng thử miễn phí đến hết các kì thi của năm học 2026–2027 (kì cuối là thi tốt nghiệp THPT, dự kiến 11–12/6/2027); mở bán chính thức từ tháng 6/2027 nếu không vướng thủ tục hành chính (thay mốc “bán khi đủ đề lớp 4–12, khoảng cuối năm học 2028–2029” của ngày 18/10; nhịp cần, mốc kiểm tra và cách lùi khi chậm ở mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)); trong thời gian dùng thử và đến lúc bán, gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng `plans` không đổi), hạn mức hai gói lúc bán chốt sau (giữa tháng 5/2027); các phiên chuẩn bị G0, B1 làm trước khi mở dùng thử, B2, B4, G1 trước khi bán (mục 3); Supabase giữ gói Free đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần); trang công khai chỉ dành cho gia đình được mời, gia đình dùng thử cũng do chủ app tạo tài khoản (màn đăng nhập có dòng “Chưa có tài khoản?”, Phiên S1; muốn mở tự đăng kí thì đổi quyết định này trước, việc 9 ở mục 2); câu sai báo bằng nút trong app (Phiên R1), GitHub Issues chỉ còn cho chủ app; không ghi giá bán, chi phí hay so sánh đối thủ vào repo. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 
@@ -13,7 +13,7 @@
 > **Tiếp theo (24/10/2026):**
 > - 9q đã xong (PR #139, chờ Merge); 9p đã xong (PR #137).
 > - Hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md): các phiên dò sách (9 phiên trước 28/10), cuối năm lớp 6 rồi lớp 4, N-IOE (trước 10/11), K5 (15/11); rồi lớp 9 (trước 30/11).
-> - UI2, UX7 chờ kiểm thử thiết kế (mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)); UX8 trước 31/1/2027.
+> - UI2, UX7 chờ kiểm thử thiết kế (mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)); UX8 đã xong (PR #143, chờ Merge), kiểm thử thiết kế sau khi Merge.
 > - Mốc: đủ đề lớp 4–12, rà xong trong tháng 2/2027; dùng thử từ tháng 3/2027; mở bán từ tháng 6/2027 (đoạn “Đã chốt”).
 
 ## 1. Tình hình hiện tại
@@ -126,6 +126,7 @@
 | #135 | Phiên DS1: dò bài ôn giữa kì I lớp 4, 6 với sách in năm 2026 (L40–L42, Phiên 9p, 9q) |
 | #137 | Phiên 9p: bài ôn giữa kì I lớp 4 theo sách in năm 2026 (L40, L41) |
 | #139 | Phiên 9q: phần Toán của bài ôn giữa kì I lớp 6 theo sách in năm 2026 (L42) |
+| #143 | Phiên UX8: gửi báo cáo tuần: xem trước tin nhắn, Gửi báo cáo, Chép tin nhắn, nút In (X14) |
 
 </details>
 
@@ -186,7 +187,6 @@ Thứ tự các phiên:
 | 3 | 15/11/2026 | **K5 · Đề tính điểm** cho đề thi thử vào 10 và tốt nghiệp THPT ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7, hàng đợi) | Lịch các khối mới (đã xong, PR #113) | trước các phiên đề thi thử lớp 9; sửa `js/app.js`: không chạy cùng lúc với UX8 |
 | 4 | 30/11/2026 | Lớp 9 (33 phiên, có 9 phiên đề thi thử vào 10); phiên rà soát lớp 9 | K5 | thứ tự khối, thứ tự kì trong mỗi khối và mốc kiểm tra: mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); các bước trước khi bật một khối: mục 7 (“Lớp 5, 7–12”) |
 | 5 | 31/12/2026 | Lớp 12 (53 phiên, có 25 phiên đề thi thử tốt nghiệp), lớp 5 (16); mỗi khối một phiên rà soát | | |
-| 7 | 31/1/2027 | **UX8 · Gửi báo cáo tuần** | UX2 | chạy xen với các phiên làm đề bất cứ lúc nào trước hạn (phiên làm đề không sửa `js/`, `css/`) |
 | 8 | 31/1/2027 | Lớp 7, 8 (mỗi khối 24 phiên); mỗi khối một phiên rà soát | | |
 | 9 | 28/2/2027 | Lớp 10, 11 (mỗi khối 28 phiên); mỗi khối một phiên rà soát; sửa lỗi các phiên rà soát tìm ra | | xong là đủ đề lớp 4–12 và rà xong |
 | 10 | 28/2/2027 | **G0 · Chuẩn bị dùng thử** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** | | trước khi mở dùng thử (đầu tháng 3/2027); lời giao việc ở mục 4 |
@@ -194,7 +194,7 @@ Thứ tự các phiên:
 | 12 | 31/8/2027 | Rà đề theo sách chỉnh sửa năm 2027 (dự trù khoảng 15 phiên, theo danh mục Bộ công bố); Lịch 2027–2028 (khi Bộ, Sở công bố khung năm học); gộp bài ôn dạng trang vào ngân hàng | | trước năm học 2027–2028: khách mua từ tháng 6/2027 dùng đề cho năm học đó (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách”) |
 | — | khi có | **Sửa lỗi từ góp ý chạy thử**: QC ghi mã lỗi (tiếp theo L43) và lời giao việc phiên 9 + chữ cái ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) | | chen vào bất cứ lúc nào; gấp thì xếp vào bảng “Làm ngay” |
 
-Từ 22/10/2026 đến 28/2/2027 còn khoảng 273 phiên (232 phiên làm đề, N26, 29 phiên dò sách, N-IOE, 7 phiên rà soát, K5, G0, B1), cùng UX8 và phiên sửa lỗi: cần khoảng 2 phiên mỗi ngày, mọi ngày; Tết nghỉ thì làm bù trước Tết. Cột Hạn là mốc theo nhịp (hạn theo kì thi trong ngoặc); chậm hơn mốc quá một tuần thì lùi theo mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Phiên rà soát của mỗi khối không bỏ khi chậm.
+Từ 22/10/2026 đến 28/2/2027 còn khoảng 273 phiên (232 phiên làm đề, N26, 29 phiên dò sách, N-IOE, 7 phiên rà soát, K5, G0, B1), cùng phiên sửa lỗi: cần khoảng 2 phiên mỗi ngày, mọi ngày; Tết nghỉ thì làm bù trước Tết. Cột Hạn là mốc theo nhịp (hạn theo kì thi trong ngoặc); chậm hơn mốc quá một tuần thì lùi theo mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Phiên rà soát của mỗi khối không bỏ khi chậm.
 
 Lưu ý: đến B1 (tháng 2/2027) repo vẫn công khai, ai cũng tải được trọn bộ đề (chủ app chấp nhận 18/10/2026); giữ đề thật sự cần B2, làm trước khi bán.
 
@@ -243,9 +243,9 @@ Chỉ giữ lời giao việc của phiên chưa làm (phiên UX, UI đã xong t
 
 </details>
 
-<details><summary>Phiên UX8 · Gửi báo cáo tuần (sau UX2)</summary>
+<details><summary>Phiên UX8 · Gửi báo cáo tuần (đã xong, PR #143; giữ đến khi kiểm thử thiết kế xong, mục 5 của CAI-TIEN-UX-2X.md)</summary>
 
-**Phiên UX8 · Gửi báo cáo tuần** (sau UX2)
+**Phiên UX8 · Gửi báo cáo tuần** (đã xong, PR #143; giữ đến khi kiểm thử thiết kế xong, mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md))
 > Đọc CLAUDE.md và docs/CAI-TIEN-UX-2X.md (mục 3, Phiên UX8: X14; ảnh docs/hinh-ux-2x/ux8-bao-cao-tuan.jpg). Trong renderReport (js/app.js), cho cả hai bản:
 > - Nút chính "Gửi báo cáo", nút phụ "In".
 > - Khối "Tin nhắn sẽ gửi" xem trước một tin nhắn chữ thuần, gồm:

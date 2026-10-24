@@ -34,7 +34,7 @@ Phiên Claude Code không mở được Figma. Vì vậy ảnh chụp 1.x và 2.
 | [Kết quả đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=78-1495) | UX1 (D1) | X10 | **UX6** | [ux1-ux6-ket-qua](hinh-ux-2x/ux1-ux6-ket-qua.jpg) |
 | [Khu phụ huynh](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=80-1697) | UX2 (E1, E3), UX3 (E2) | X17–X20 (kiểm thử sau UX3) | **UX3b** | [ux2-ux3-khu-phu-huynh](hinh-ux-2x/ux2-ux3-khu-phu-huynh.jpg), [ux2-lich-thi](hinh-ux-2x/ux2-lich-thi.jpg), [kt-ux3-bat-dau](hinh-ux-2x/kt-ux3-bat-dau.jpg), [kt-ux3-dat-pin](hinh-ux-2x/kt-ux3-dat-pin.jpg), [kt-ux3-dang-xuat](hinh-ux-2x/kt-ux3-dang-xuat.jpg) |
 | [Quản lí đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=82-2135) | UX2 (tên “Đề tự soạn”) | X11–X13 | UX7 xong (PR #134; kiểm thử thiết kế ở mục 5) | [ux7-chon-de](hinh-ux-2x/ux7-chon-de.jpg), [ux7-de-tu-soan](hinh-ux-2x/ux7-de-tu-soan.jpg) |
-| [Báo cáo tuần](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2729) | — | X14 | **UX8** | [ux8-bao-cao-tuan](hinh-ux-2x/ux8-bao-cao-tuan.jpg) |
+| [Báo cáo tuần](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2729) | — | X14 | UX8 xong (PR #143; kiểm thử thiết kế ở mục 5) | [ux8-bao-cao-tuan](hinh-ux-2x/ux8-bao-cao-tuan.jpg) |
 | [Chữ và màu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2933) | — | X15, X16; X32 (kiểm thử sau UX3, UX4) | UI1, UI2 xong (PR #40, #133; kiểm thử thiết kế UI2 ở mục 5) | [ui1-tieu-de](hinh-ux-2x/ui1-tieu-de.jpg), [ui1-o-ma](hinh-ux-2x/ui1-o-ma.jpg), [ui2-nut-tat](hinh-ux-2x/ui2-nut-tat.jpg) |
 | [Làm bài · bảng số câu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=267-3035) | L38, L39 (flow của PO, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2) | X21–X27; X28, X29 (kiểm thử sau 9n) | 9n, 9nb xong (PR #119, #122; kiểm thử ở mục 5) | [9n-bang-so-cau](hinh-ux-2x/9n-bang-so-cau.jpg), [9n-xem-lai-bai-lam](hinh-ux-2x/9n-xem-lai-bai-lam.jpg), [9n-lam-tiep-sua-cau](hinh-ux-2x/9n-lam-tiep-sua-cau.jpg), [kt-9n-xem-lai](hinh-ux-2x/kt-9n-xem-lai.jpg), [kt-9n-chu-thich](hinh-ux-2x/kt-9n-chu-thich.jpg) |
 | [Bài ôn dạng trang · bảng số câu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=290-3561) | L38, L39 (Phiên 9o) | X26–X29 (chung với 9n); X30, X31 (kiểm thử sau 9o) | 9o, 9ob xong (PR #123, #132; kiểm thử thiết kế 9ob ở mục 5 nếu cần) | [9o-bai-on](hinh-ux-2x/9o-bai-on.jpg), [kt-9o-bang-so-cau](hinh-ux-2x/kt-9o-bang-so-cau.jpg), [kt-9o-xem-lai](hinh-ux-2x/kt-9o-xem-lai.jpg) |
@@ -382,6 +382,8 @@ Tìm được khi kiểm thử thiết kế sau khi gộp PR #56 (mục 5). Figm
 - Không có `navigator.share` thì clipboard có tin nhắn.
 - Bản in (`emulateMedia print`) không có khối xem trước.
 - Có ảnh 360px sáng/tối.
+
+Đã làm ở PR #143; ảnh 360px sáng/tối ở [hinh-ux8/](hinh-ux8/): [bao-cao-tin-nhan](hinh-ux8/bao-cao-tin-nhan.jpg), [da-chep](hinh-ux8/da-chep.jpg), [ban-in](hinh-ux8/ban-in.jpg), [dam-may-bao-cao-tuan](hinh-ux8/dam-may-bao-cao-tuan.jpg).
 
 ### Phiên UI1 · Chỉnh nhỏ chữ và màu
 
