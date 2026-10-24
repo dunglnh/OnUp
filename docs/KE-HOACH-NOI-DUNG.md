@@ -309,7 +309,6 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 
 | Phiên | Hạn | Nội dung | Kho | Mã mới | Kiểm thử phải sửa |
 |---|---|---|---|---|---|
-| DS5b | 10/11/2026 (muộn nhất 30/11/2026) | Tiếng Anh 6 tập 1, Unit 4–6: dò câu còn lại của kho cuối kì I (Unit 4–6, Pronunciation, Reading) | 45 câu có sẵn | — | không |
 | DS6b | 10/11/2026 (muộn nhất 30/11/2026) | Tin học 6 Bài 6–13: dò câu còn lại của đề cuối kì I và đề giữa kì II | 72 câu có sẵn | — | `tests/lsdl-tin6-ck1.js`, `tests/tin-congnghe6-gk2.js` khi đổi câu |
 | DS7b | 10/11/2026 (muộn nhất 30/11/2026) | Công nghệ 6 Bài 4–10: dò câu còn lại của đề cuối kì I và đề giữa kì II | 74 câu có sẵn | — | `tests/lsdl-tin6-ck1.js`, `tests/tin-congnghe6-gk2.js` khi đổi câu |
 | DS8 | 10/11/2026 (muộn nhất 30/11/2026) | Toán 6 tập một Chương I–II (Bài 1–12): dò câu của kho cuối kì I | 55 câu có sẵn | — | `tests/toan6-ck1.js`; `tests/supabase/cloud-e2e.js` khi đổi đề 1, đề 2 |
@@ -376,10 +375,6 @@ Chủ app yêu cầu ngày 23/10/2026: đề, bài ôn chưa đối chiếu vớ
 ### Trước 10/11/2026: dò sách in năm 2026, cuối kì I và giữa kì II còn lại
 
 Theo Quy định chung của các phiên dò sách ở nhóm trên. Cuối kì I lớp 6 thi từ 21/12/2026 (muộn nhất 30/11), lớp 4 từ 28/12/2026 (muộn nhất 7/12); giữa kì II muộn nhất 22/2/2027.
-
-**Phiên DS5b · Tiếng Anh 6 tập 1, Unit 4–6: dò với sách in năm 2026** (hạn 10/11/2026; muộn nhất 30/11/2026)
-> CLAUDE.md đã nạp sẵn, nhất là mục “Môn Tiếng Anh (mọi khối): 100% tiếng Anh”. Ở docs/KE-HOACH-NOI-DUNG.md chỉ đọc (tìm bằng `grep -n`): mục 3 các dòng “Rút ra” của N5, N10, DS5; mục 4 đoạn “Sách” và dòng của cuốn sách ở bảng “Sách và link của từng phiên”; mục 7 Quy định chung của các phiên N và của các phiên dò sách. Mở bản PDF Tiếng Anh 6 – Global Success tập 1, Unit 4–6 và Review 2. Dò theo unit, trong data/banks/6-ta.js, 45 câu của `ta6-ck1-de1`, `ta6-ck1-de2` và câu riêng của `ta6-ck1-ngau-nhien` (Phiên N5, PR #81) có chữ chủ đề Unit 4, Unit 5, Unit 6, “Pronunciation”, “Reading” (câu Unit 1–3 do DS5 dò; âm, từ của Pronunciation, Reading có thể thuộc Unit 1–6). Từ vựng, ngữ pháp, âm đúng như sách in năm 2026; câu về điều sách không dạy thì soạn lại (Rút ra N10). Câu sửa vẫn 100% tiếng Anh. Kho này chưa có script tính lại đáp án: dò lộ đáp án bằng code như Rút ra N5.
-> Còn lại theo Quy định chung của các phiên dò sách và của các phiên N ở mục 7 của docs/KE-HOACH-NOI-DUNG.md.
 
 **Phiên DS6b · Tin học 6 Bài 6–13: dò với sách in năm 2026** (hạn 10/11/2026; muộn nhất 30/11/2026)
 > Ở docs/KE-HOACH-NOI-DUNG.md chỉ đọc (tìm bằng `grep -n`): mục 3 các dòng “Rút ra” của N6, N12b; mục 4 đoạn “Sách” và dòng của cuốn sách ở bảng “Sách và link của từng phiên”; mục 7 Quy định chung của các phiên N và của các phiên dò sách. Mở bản PDF Tin học 6 (như DS6), Bài 6–13. Dò theo bài, trong data/banks/6-tin.js, 72 câu:
