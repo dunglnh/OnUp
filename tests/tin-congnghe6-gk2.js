@@ -100,7 +100,7 @@ const CHECKS = [
     return tiet + 1; } },
   { id: T.de2, has: "Sơ đồ tư duy ở hình có bao nhiêu chủ đề nhánh", right: (q) => {
     const s = docSoDo(q.svg);
-    assert.equal(s.chinh, "Lớp 6A"); assert.equal(s.chiTiet, s.nhanh.length, "mỗi nhánh một dòng chi tiết");
+    assert.equal(s.chinh, "Vườn rau"); assert.equal(s.chiTiet, s.nhanh.length, "mỗi nhánh một dòng chi tiết");
     assert.ok(q.x.includes(s.nhanh.join(", ")) && q.x.includes(`${s.nhanh.length} chủ đề nhánh`), "lời giải kể tên các nhánh");
     return s.nhanh.length; } },
   { id: T.de2, has: "Bảng ở hình có bao nhiêu hàng và bao nhiêu cột", right: (q) => {
