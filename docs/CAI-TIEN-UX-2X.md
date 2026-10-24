@@ -4,7 +4,7 @@ Kết quả rà lại các luồng của app trên bản vẽ Figma và đối c
 
 **Figma:** file [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2):
 - **Master 1.x:** 77 màn vẽ lại đúng app ở commit `0a1e8db`, gồm Users 51 màn, Admin 26 màn.
-- **🚧 Master 2.x · Đề xuất UX/UI:** mỗi flow một section, theo thứ tự ghi chú → 1.x hiện tại → 2.x đề xuất. Section cuối có các thành phần mới: icon, thanh tab dưới `.tabbar (2.x)`. Phiên nào đã có lượt kiểm thử ở mục 5 thì màn 2.x của phiên đó đã vẽ lại theo code, cộng các chỗ sửa đang chờ phiên “b” (ví dụ F1, F2 vẽ theo cách sửa của Phiên UX7b). Section “Làm bài · Bảng số câu (9n)” và “Bài ôn dạng trang · Bảng số câu (9o)” vẽ theo code từ đầu (PR #119, #122, #123, #132).
+- **🚧 Master 2.x · Đề xuất UX/UI:** mỗi flow một section, theo thứ tự ghi chú → 1.x hiện tại → 2.x đề xuất. Section cuối có các thành phần mới: icon, thanh tab dưới `.tabbar (2.x)`. Phiên nào đã có lượt kiểm thử ở mục 5 thì màn 2.x của phiên đó đã vẽ lại theo code; chỗ lệch còn chờ phiên “b” thì vẽ theo cách sửa (như F1, F2 trước Phiên UX7b). Section “Làm bài · Bảng số câu (9n)” và “Bài ôn dạng trang · Bảng số câu (9o)” vẽ theo code từ đầu (PR #119, #122, #123, #132).
 
 Phiên Claude Code không mở được Figma. Vì vậy ảnh chụp 1.x và 2.x đặt cạnh nhau ở [hinh-ux-2x/](hinh-ux-2x/), và lời giao việc trỏ vào các ảnh đó. Ảnh là hướng làm, không bắt giống từng điểm ảnh. Ghi chép chỗ khó dùng của bố mẹ (mục 2 của kế hoạch) đi trước ảnh khi hai bên khác nhau.
 
@@ -33,8 +33,8 @@ Phiên Claude Code không mở được Figma. Vì vậy ảnh chụp 1.x và 2.
 | [Làm bài](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=75-1327) | UX1 (một dòng nhãn), R1 (C2, C3) | X5–X9 | **UX5** | [ux5-lam-bai](hinh-ux-2x/ux5-lam-bai.jpg), [r1-ux5-bao-sai-mo-de](hinh-ux-2x/r1-ux5-bao-sai-mo-de.jpg) |
 | [Kết quả đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=78-1495) | UX1 (D1) | X10 | **UX6** | [ux1-ux6-ket-qua](hinh-ux-2x/ux1-ux6-ket-qua.jpg) |
 | [Khu phụ huynh](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=80-1697) | UX2 (E1, E3), UX3 (E2) | X17–X20 (kiểm thử sau UX3) | **UX3b** | [ux2-ux3-khu-phu-huynh](hinh-ux-2x/ux2-ux3-khu-phu-huynh.jpg), [ux2-lich-thi](hinh-ux-2x/ux2-lich-thi.jpg), [kt-ux3-bat-dau](hinh-ux-2x/kt-ux3-bat-dau.jpg), [kt-ux3-dat-pin](hinh-ux-2x/kt-ux3-dat-pin.jpg), [kt-ux3-dang-xuat](hinh-ux-2x/kt-ux3-dang-xuat.jpg) |
-| [Quản lí đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=82-2135) | UX2 (tên “Đề tự soạn”) | X11–X13; X33–X36 (kiểm thử sau UX7) | UX7, UX7b xong (PR #134, #150; kiểm thử UX7 ở mục 5) | [ux7-chon-de](hinh-ux-2x/ux7-chon-de.jpg), [ux7-de-tu-soan](hinh-ux-2x/ux7-de-tu-soan.jpg), [kt-ux7-chon-de](hinh-ux-2x/kt-ux7-chon-de.jpg), [kt-ux7-de-tu-soan](hinh-ux-2x/kt-ux7-de-tu-soan.jpg), [kt-ux7-nhap-de](hinh-ux-2x/kt-ux7-nhap-de.jpg) |
-| [Báo cáo tuần](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2729) | — | X14; X37 (kiểm thử sau UX8) | UX8, UX7b (X37) xong (PR #143, #150; kiểm thử UX8 ở mục 5) | [ux8-bao-cao-tuan](hinh-ux-2x/ux8-bao-cao-tuan.jpg), [kt-ux8-bao-cao](hinh-ux-2x/kt-ux8-bao-cao.jpg) |
+| [Quản lí đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=82-2135) | UX2 (tên “Đề tự soạn”) | X11–X13; X33–X36 (kiểm thử sau UX7) | UX7, UX7b xong (PR #134, #150; kiểm thử ở mục 5) | [ux7-chon-de](hinh-ux-2x/ux7-chon-de.jpg), [ux7-de-tu-soan](hinh-ux-2x/ux7-de-tu-soan.jpg), [kt-ux7-chon-de](hinh-ux-2x/kt-ux7-chon-de.jpg), [kt-ux7-de-tu-soan](hinh-ux-2x/kt-ux7-de-tu-soan.jpg), [kt-ux7-nhap-de](hinh-ux-2x/kt-ux7-nhap-de.jpg), [kt-ux7b-chon-de](hinh-ux-2x/kt-ux7b-chon-de.jpg), [kt-ux7b-de-co-san](hinh-ux-2x/kt-ux7b-de-co-san.jpg) |
+| [Báo cáo tuần](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2729) | — | X14; X37 (kiểm thử sau UX8) | UX8, UX7b (X37) xong (PR #143, #150; kiểm thử ở mục 5) | [ux8-bao-cao-tuan](hinh-ux-2x/ux8-bao-cao-tuan.jpg), [kt-ux8-bao-cao](hinh-ux-2x/kt-ux8-bao-cao.jpg), [kt-ux7b-tom-tat-goi-y](hinh-ux-2x/kt-ux7b-tom-tat-goi-y.jpg) |
 | [Chữ và màu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2933) | — | X15, X16; X32 (kiểm thử sau UX3, UX4) | UI1, UI2 xong (PR #40, #133; kiểm thử UI2 ở mục 5) | [ui1-tieu-de](hinh-ux-2x/ui1-tieu-de.jpg), [ui1-o-ma](hinh-ux-2x/ui1-o-ma.jpg), [ui2-nut-tat](hinh-ux-2x/ui2-nut-tat.jpg), [kt-ui2-nut-tat](hinh-ux-2x/kt-ui2-nut-tat.jpg) |
 | [Làm bài · bảng số câu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=267-3035) | L38, L39 (flow của PO, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2) | X21–X27; X28, X29 (kiểm thử sau 9n) | 9n, 9nb xong (PR #119, #122; kiểm thử ở mục 5) | [9n-bang-so-cau](hinh-ux-2x/9n-bang-so-cau.jpg), [9n-xem-lai-bai-lam](hinh-ux-2x/9n-xem-lai-bai-lam.jpg), [9n-lam-tiep-sua-cau](hinh-ux-2x/9n-lam-tiep-sua-cau.jpg), [kt-9n-xem-lai](hinh-ux-2x/kt-9n-xem-lai.jpg), [kt-9n-chu-thich](hinh-ux-2x/kt-9n-chu-thich.jpg) |
 | [Bài ôn dạng trang · bảng số câu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=290-3561) | L38, L39 (Phiên 9o) | X26–X29 (chung với 9n); X30, X31 (kiểm thử sau 9o) | 9o, 9ob xong (PR #123, #132; kiểm thử ở mục 5) | [9o-bai-on](hinh-ux-2x/9o-bai-on.jpg), [kt-9o-bang-so-cau](hinh-ux-2x/kt-9o-bang-so-cau.jpg), [kt-9o-xem-lai](hinh-ux-2x/kt-9o-xem-lai.jpg), [kt-9ob-xem-lai](hinh-ux-2x/kt-9ob-xem-lai.jpg) |
@@ -128,7 +128,7 @@ Tìm được khi kiểm thử thiết kế sau khi gộp PR #134 (UX7) và PR #
 - CLAUDE.md (mục “Quản lí đề”, “Gửi báo cáo tuần”) ghi id `#ePickScope`, thứ tự nhóm và đề, khoảng cách các thẻ môn.
 - Ảnh 360px sáng/tối chép lại: `docs/hinh-ux7/sua-ki-thi.jpg`, `ngan-hang-de-tim.jpg`, `dam-may-de-tu-soan.jpg`.
 
-Đã làm ở PR #150; ảnh 360px sáng/tối ở [hinh-ux7/](hinh-ux7/): [sua-ki-thi](hinh-ux7/sua-ki-thi.jpg), [ngan-hang-de-tim](hinh-ux7/ngan-hang-de-tim.jpg), [dam-may-de-tu-soan](hinh-ux7/dam-may-de-tu-soan.jpg) (cùng các ảnh khác của hinh-ux7/ có chỗ đổi, và báo cáo tuần ở [hinh-ux8/](hinh-ux8/)); ảnh trước/sau: [ux7b-truoc-sau](hinh-ux7/ux7b-truoc-sau.jpg).
+Đã làm ở PR #150; ảnh 360px sáng/tối ở [hinh-ux7/](hinh-ux7/): [sua-ki-thi](hinh-ux7/sua-ki-thi.jpg), [ngan-hang-de-tim](hinh-ux7/ngan-hang-de-tim.jpg), [dam-may-de-tu-soan](hinh-ux7/dam-may-de-tu-soan.jpg) (cùng các ảnh khác của hinh-ux7/ có chỗ đổi, và báo cáo tuần ở [hinh-ux8/](hinh-ux8/)); ảnh trước/sau: [ux7b-truoc-sau](hinh-ux7/ux7b-truoc-sau.jpg); kiểm thử thiết kế ở mục 5 (“UX7b”).
 
 ### Phiên UX3b · Sửa sau kiểm thử UX3
 
@@ -1011,3 +1011,56 @@ C14, C15, C18 vẽ hai nút một hàng theo X30; C12, C16 vẽ một nhãn trê
 - `main` `68353f0` (sau PR #132–#134, trước UX8): `tests/e2e.js` E2E OK; `tests/supabase/cloud-e2e.js` CLOUD E2E OK, 160 mục đạt ở hai lượt sáng và tối (có kiểm tra UX7, UI2).
 - `main` `6d11b6a` (sau PR #143): `tests/e2e.js` E2E OK (bước UX8 sáng và tối); `cloud-e2e.js` CLOUD E2E OK, 162 mục đạt; `node tests/kiem-tra-de.js` DE OK (PR #134 sửa `Quiz.parse`).
 - Không chạy `store-test.mjs`, `admin-test.mjs`, `run.sh`: bốn PR không sửa kho dữ liệu, trang admin, máy chủ.
+
+### UX7b · Sửa sau kiểm thử UX7, UX8 · PR #150 · kiểm thử 24/10/2026
+
+**Kết luận:** đạt. Năm chỗ X33–X37 sửa đúng mục 3 (“Phiên UX7b”), cả sáng và tối:
+- dòng cho biết đang hiện đề của khối nào có lại, ngay dưới ô tìm;
+- nhóm môn theo lịch thi, đề theo kì, đề ngẫu nhiên đầu mỗi kì;
+- thẻ môn của danh sách đề cách nhau 10px;
+- dòng tóm tắt khi nhập đề không còn ghi dạng 0 câu;
+- gợi ý về chủ đề hay sai ngăn tên chủ đề bằng “; ” như tin nhắn.
+
+Khớp F1–F3 và G1 (đã vẽ theo cách sửa từ lượt kiểm thử UX7, UX8). F1 vẽ thêm cho đủ đề lớp 4 như app. Không có chỗ lệch mới, không cần phiên “b”.
+
+**Cách kiểm:**
+- Chạy app bản lưu trên máy của `main` (`6a261b8`, sau PR #150, #151) ở 360px sáng và tối:
+  - Sửa kì thi giữa kì I và cuối kì I lớp 4, có thêm một đề tự soạn lớp 4: bấm “Hiện cả đề của khối khác”, bỏ rồi chọn lại ô Lớp 4, rồi Lưu;
+  - tab Ngân hàng đề: Lớp 4, Lớp 6, mở nhóm Toán, tìm “de 1”;
+  - nhập đề ba lần: đề có hai dạng câu và một đoạn đọc, chữ không có câu nào, đề mẫu;
+  - Mẹ Bin (phụ huynh) mở báo cáo tuần của Bin, có chủ đề “Phép cộng, phép trừ”.
+- Đo bằng `getBoundingClientRect`, `getComputedStyle`.
+- Quét id trùng ở 38 màn, sáng và tối. Các màn gồm: quản trị, phụ huynh, bốn tab của học sinh, mở đề, làm đề, bảng số câu, màn “Xem lại bài làm”, kết quả, bài ôn trong khung (cả trang trong khung), “Xin chào!”, nhập PIN.
+- Đặt cạnh F1, F2 của section [Quản lí đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=82-2135) và G1 của section [Báo cáo tuần](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2729).
+
+![Sửa kì thi: app sau UX7b và Figma F1](hinh-ux-2x/kt-ux7b-chon-de.jpg)
+
+| Yêu cầu (mục 3, “Phiên UX7b”) | Kết quả | Ghi chú |
+|---|---|---|
+| X33: dòng `#ePickScope` hiện, ghi “Đang hiện bài ôn và đề của Lớp 4, khối của kì thi này.”; hiện cả khối khác thì “… của mọi khối.”; bỏ hết ô Khối thì “Chọn khối ở trên…” | Khớp | Ngay dưới ô tìm, cách ô tìm và thẻ đầu 10px. Chữ 14px màu `muted`, hai dòng ở 360px. Chọn lại ô Lớp 4 thì về như cũ. |
+| X33: ô “Phạm vi kiến thức” giữ `#eScope`, Lưu giữ nguyên | Khớp | Sau mọi lần đổi, ô vẫn ghi chữ của kì thi; Lưu xong `scope` không đổi. |
+| X33: không màn nào có hai phần tử cùng id | Khớp | 38 màn, sáng và tối. `audit` của hai bộ kiểm thử nay cũng báo id trùng. |
+| X34: Sửa kì thi: nhóm Bài ôn dạng trang đầu, rồi môn thi của kì, rồi môn khác theo lịch thi; môn không có trong lịch cuối | Khớp | Giữa kì I và cuối kì I lớp 4: Bài ôn dạng trang, Toán, Tiếng Việt, Tiếng Anh, Lịch sử và Địa lí, Khoa học, Tin học và Công nghệ. Hiện cả khối khác thì sau đó có Ngữ văn, KHTN, GDCD, Tin học, Công nghệ, Thử nghiệm. |
+| X34: trong nhóm, đề theo kì, đề ngẫu nhiên đầu mỗi kì; đề tự soạn cuối; mục của khối kì thi trước | Khớp | Toán lớp 4: Giữa kì I (Đề ngẫu nhiên, Đề 1, Đề 2), Cuối kì I (Đề ngẫu nhiên, Đề 1–3), Giữa kì II (Đề ngẫu nhiên, Đề 1, Đề 2), rồi đề tự soạn. Hiện cả lớp 6: 11 mục lớp 4 rồi 11 mục lớp 6, mỗi phần theo kì. |
+| X34: danh sách đề có sẵn theo thứ tự môn của lịch thi của khối | Khớp | Lớp 4: Toán, Tiếng Việt, Tiếng Anh, Lịch sử và Địa lí, Khoa học, Tin học và Công nghệ. Lớp 6: Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ, Thử nghiệm. |
+| X35: thẻ môn cách nhau 10px | Khớp | 10px ở tab Lớp 4, Lớp 6, khi mở nhóm Toán và khi đang tìm; bằng khoảng cách ở Sửa kì thi. |
+| X36: dòng tóm tắt chỉ ghi dạng có câu | Khớp | “Nhận được 3 câu: 2 trắc nghiệm, 1 điền khuyết; 1 đoạn đọc.” Đề mẫu ghi đủ 8 dạng, không dạng nào 0 câu. Chữ không có câu nào: “Nhận được 0 câu.” |
+| X37: gợi ý về chủ đề hay sai ngăn bằng “; ” | Khớp | “Ôn lại chủ đề hay sai: Góc và đo góc; Phép cộng, phép trừ; Danh từ.”: cùng ba chủ đề, cùng thứ tự với dòng “Chủ đề hay sai” của tin nhắn. Tin nhắn không đổi. |
+| 360px sáng/tối | Khớp | Không cuộn ngang, nút ≥ 44px, chữ ≥ 13px; không lỗi JavaScript. |
+
+![Đề có sẵn: app sau UX7b và Figma F2](hinh-ux-2x/kt-ux7b-de-co-san.jpg)
+
+![Dòng tóm tắt khi nhập đề, gợi ý về chủ đề hay sai](hinh-ux-2x/kt-ux7b-tom-tat-goi-y.jpg)
+
+**Figma:**
+- F1 trước đây chỉ vẽ một phần đề (11 đã chọn, không có đề giữa kì I), nay vẽ lại đủ đề lớp 4 như app: kì thi cuối kì I lớp 4 có 20 đã chọn; nhóm Toán 11 mục, Tiếng Việt 9 mục, bốn môn còn lại mỗi môn 3 mục. Sửa kì thi lọc theo khối, không theo kì (mục 3, “Phiên UX7”), nên đề của mọi kì đều hiện.
+- Component `.ck (chọn đề)` cao theo chữ, ít nhất 44px, như `.ck` của `css/app.css`: tên đề dài hai dòng thì dòng cao 62px. Section Quản lí đề cao thêm 158px, các section bên dưới dời xuống theo.
+- F2: tab Lớp 6 ghi “75 đề” như danh mục hôm nay.
+- Ghi chú hai section có tag “UX7b đã làm (PR #150)”; caption F1–F3 và dòng Code của Quản lí đề sửa theo code mới.
+- Khung giới thiệu: tag “Đã làm” thêm UI2, UX7, UX8, UX7b, 9ob; tag “Mới · UX7b” ẩn đi vì chưa có việc mới.
+
+**Kiểm thử tự động trên `main` sau khi gộp (`6a261b8`):**
+- `tests/e2e.js`: E2E OK. Bước UX7, UX8 có kiểm tra X33–X37, sáng và tối.
+- `tests/supabase/cloud-e2e.js`: CLOUD E2E OK, 172 mục đạt ở hai lượt sáng và tối, mỗi lượt có 5 kiểm tra “UX7b (X33)”–“UX7b (X37)”.
+- `node tests/kiem-tra-de.js`: DE OK.
+- Không chạy `store-test.mjs`, `admin-test.mjs`, `run.sh`: PR #150 không sửa kho dữ liệu, trang admin, máy chủ.
