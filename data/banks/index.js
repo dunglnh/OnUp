@@ -117,9 +117,12 @@ window.ONTAP_SEED_BANKS = [
   { id: "khtn6-gk1-de2", title: "KHTN 6 · Giữa kì I · Đề 2", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js" },
 
   /* Toán 6 · Kiểm tra giữa học kì I (Kết nối tri thức; Đề 1: Chương I–II, Bài 1–12, cho lớp chưa học số nguyên;
-     Đề 2: Chương I–III, Bài 1–17) */
+     Đề 2: Chương I–III, Bài 1–17; Đề 3, Đề 4: Chương I, II, IV, Bài 1–12 và 18–20, cho trường dạy song song số và hình,
+     60 phút như đề tự luận của trường, không nằm trong kho của đề ngẫu nhiên; Phiên N26) */
   { id: "toan6-gk1-de1", title: "Toán 6 · Giữa kì I · Đề 1", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js" },
   { id: "toan6-gk1-de2", title: "Toán 6 · Giữa kì I · Đề 2", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js" },
+  { id: "toan6-gk1-de3", title: "Toán 6 · Giữa kì I · Đề 3", grade: 6, subject: "Toán", minutes: 60, n: 25, file: "6-toan.js" },
+  { id: "toan6-gk1-de4", title: "Toán 6 · Giữa kì I · Đề 4", grade: 6, subject: "Toán", minutes: 60, n: 25, file: "6-toan.js" },
 
   /* Ngữ văn 6 · Kiểm tra giữa học kì I (Kết nối tri thức, Bài 1–3) */
   { id: "van6-gk1-de1", title: "Ngữ văn 6 · Giữa kì I · Đề 1", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js" },
