@@ -88,7 +88,7 @@ const docTeBao = (svg) => {
 /* ---------- các câu cần tính ----------
    id: đề chứa câu; has: đoạn chữ của đề; right(q): đáp án tính bằng code (so với ans[0], ans hoặc o[0]); more(q): kiểm tra thêm. */
 const CHECKS = [
-  { id: DE1, has: "vật kính 40x và thị kính 10x", right: () => String(40 * 10) },
+  { id: DE1, has: "phóng to 1 000 lần, thấy ảnh của tế bào dài 15 mm", right: () => String(15 / 1000).replace(".", ",") },
   { id: DE1, has: "1,5 m = ___ cm", right: () => String(Math.round(1.5 * 100)) },
   { id: DE1, has: "nặng 2,5 kg", right: () => String(Math.round(2.5 * 1000)), more: (q) => assert.ok(q.ans.includes("2 500")) },
   { id: DE1, has: "25 °C = ___ °F", right: () => String(25 * 1.8 + 32) },
@@ -96,7 +96,7 @@ const CHECKS = [
   { id: DE2, has: "Đặt chiếc bút chì dọc theo thước", right: (q) => { const r = docThuoc(q.svg); assert.equal(r.perCm, 2, "mỗi xentimét chia làm 2 khoảng"); assert.ok(q.x.includes("2 khoảng") && q.x.includes("0,5 cm")); return r.len; } },
   { id: DE2, has: "1 quả cân 500 g, 2 quả cân 200 g và 1 quả cân 50 g", right: (q) => [...q.q.matchAll(/(\d+) quả cân (\d+) g/g)].reduce((s, m) => s + m[1] * m[2], 0) },
   { id: DE2, has: "Có 4 tế bào, mỗi tế bào phân chia liên tiếp 3 lần", right: () => 4 * 2 ** 3 },
-  { id: POOL, has: "vật kính 10x và thị kính 15x", right: () => 10 * 15 },
+  { id: POOL, has: "ảnh của con kiến dài 30 mm, trong khi con kiến thật dài 5 mm", right: () => 30 / 5 },
   { id: POOL, has: "xếp chồng 100 tờ giấy", right: (q) => { assert.ok(q.q.includes("bề dày 1 cm") && q.unit === "mm"); return (1 * 10) / 100; } },
   { id: POOL, has: "là 95 °F", right: () => (95 - 32) / 1.8 },
   { id: POOL, has: "nhiệt kế đang đo nhiệt độ của một cốc nước", right: (q) => { const r = docNhietKe(q.svg); assert.equal(r.buoc, 2, "mỗi khoảng chia 2 °C"); assert.ok(q.x.includes(r.khoang + " khoảng chia") && q.x.includes("2 °C")); return r.t; } },
