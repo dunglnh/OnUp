@@ -706,7 +706,7 @@ Sau khi một phiên UX gộp vào `main`, người làm thiết kế kiểm l�
 1. Chạy app ở 360px sáng và tối: bản đám mây trên máy chủ giả (như `tests/supabase/cloud-e2e.js`) hoặc bản lưu trên máy.
 2. Đi lại từng ý trong lời giao việc của phiên (mục 4 của kế hoạch) và màn 2.x tương ứng trong Figma; chụp từng trạng thái, đặt cạnh Figma.
 3. Ghi kết quả vào mục này: khớp, lệch so với yêu cầu, khác Figma nhưng chấp nhận.
-4. Chỗ lệch thành mã X mới (tiếp theo X1–X16) và một phiên sửa ngắn tên “<phiên>b” ở mục 3. Chỗ khác Figma mà chấp nhận thì sửa Figma theo code.
+4. Chỗ lệch thành mã X mới (nối tiếp mã X lớn nhất đã dùng trong file này) và một phiên sửa ngắn tên “<phiên>b” ở mục 3. Chỗ khác Figma mà chấp nhận thì sửa Figma theo code.
 
 Lượt kiểm thử không sửa code: chỉ ghi lại, rồi giao việc.
 
