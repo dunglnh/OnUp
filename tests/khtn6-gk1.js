@@ -120,7 +120,7 @@ const docBieuDo = (svg) => {
 
 /* ---------- các câu cần tính ----------
    id: đề chứa câu; has: đoạn chữ của đề; right(q): đáp án tính bằng code (so với ans hoặc o[0]); more(q): kiểm tra thêm. */
-const THE = { "rắn→lỏng": "Sự nóng chảy", "lỏng→rắn": "Sự đông đặc", "lỏng→khí": "Sự bay hơi", "khí→lỏng": "Sự ngưng tụ" };
+const THE = { "rắn→lỏng": "Sự nóng chảy", "lỏng→rắn": "Sự đông đặc", "lỏng→khí": "Sự hoá hơi", "khí→lỏng": "Sự ngưng tụ" };
 const KHI = { 78: "Nitrogen", 21: "Oxygen", 1: "Carbon dioxide" };
 const CHECKS = [
   { id: DE1, has: "Bộ phận số 2 là", right: (q) => { const t = docKinhLup(q.svg); assert.deepEqual(Object.keys(t).sort(), ["1", "2", "3"]); assert.deepEqual(Object.values(t).sort(), ["Khung kính", "Mặt kính", "Tay cầm"]);
@@ -131,10 +131,10 @@ const CHECKS = [
   { id: DE1, has: "Mũi tên số 3 ứng với", right: (q) => { const d = docSoDo(q.svg); assert.deepEqual(Object.keys(d).sort(), ["1", "2", "3", "4"]); assert.deepEqual(Object.values(d).sort(), Object.keys(THE).sort(), "bốn mũi tên là bốn quá trình khác nhau");
     Object.entries(d).forEach(([k, v]) => { const [a, b] = v.split("→"); assert.ok(q.x.includes(`mũi tên ${k} từ thể ${a} sang thể ${b} là ${THE[v].toLowerCase()}`) || q.x.includes(`Mũi tên ${k} từ thể ${a} sang thể ${b} là ${THE[v].toLowerCase()}`), "lời giải mũi tên " + k); }); return THE[d["3"]]; } },
   { id: DE1, has: "Cột số 2 ứng với khí nào", right: (q) => { const cols = docBieuDo(q.svg); assert.deepEqual(cols.map((c) => c.pct).sort((a, b) => b - a), [78, 21, 1]);
-    cols.forEach((c) => assert.ok(q.x.includes(`${c.pct}% ${KHI[c.pct].toLowerCase()} (cột ${c.n})`) || q.x.includes(`${c.pct}% là các khí khác như ${KHI[c.pct].toLowerCase()}, hơi nước, argon (cột ${c.n})`), "lời giải cột " + c.n)); return KHI[cols.find((c) => c.n === 2).pct]; } },
+    cols.forEach((c) => assert.ok(q.x.includes(`${c.pct}% ${KHI[c.pct].toLowerCase()} (cột ${c.n})`) || q.x.includes(`${c.pct}% là ${KHI[c.pct].toLowerCase()}, hơi nước và các khí khác (cột ${c.n})`), "lời giải cột " + c.n)); return KHI[cols.find((c) => c.n === 2).pct]; } },
   { id: DE2, has: "kính lúp phóng to 5 lần để quan sát một con kiến dài 4 mm", right: () => 4 * 5 },
   { id: DE2, has: "Một chiếc bút sáp đặt dọc theo thước", right: (q) => { const r = docThuoc(q.svg); assert.equal(r.perCm, 2, "mỗi xentimét chia làm 2 khoảng"); assert.ok(r.from > 0, "một đầu không ở vạch 0"); assert.ok(q.x.includes("2 khoảng") && q.x.includes(`${String(r.to).replace(".", ",")} − ${r.from} = `)); return r.len; } },
-  { id: POOL, has: "thị kính 10x. Muốn ảnh của mẫu vật được phóng to 600 lần", right: () => 600 / 10 },
+  { id: POOL, has: "tế bào lá cây dài 0,03 mm. Quan sát tế bào bằng kính hiển vi quang học phóng to 400 lần", right: () => Math.round(0.03 * 400 * 1000) / 1000 },
   { id: POOL, has: "Mỗi bước chân của Nam dài khoảng 50 cm, Nam đi hết 12 bước", right: (q) => { const m = q.q.match(/dài khoảng (\d+) cm, Nam đi hết (\d+) bước/); assert.ok(q.x.includes(`${m[2]} × 0,5 = `)); return (+m[1] * +m[2]) / 100; } },
   { id: POOL, has: "pha sữa cho em bé", right: (q) => { const r = docNhietKe(q.svg); assert.equal(r.buoc, 1, "mỗi khoảng chia 1 °C"); assert.ok(q.x.includes(r.khoang + " khoảng chia") && q.x.includes("1 °C")); return r.t; } },
   { id: POOL, has: "Nhiệt độ sôi của nước là 100 °C, của cồn (ethanol) là 78 °C", right: (q) => { const m = q.q.match(/nước là (\d+) °C, của cồn \(ethanol\) là (\d+) °C/); return +m[1] > +m[2] ? "Cồn, vì cồn có nhiệt độ sôi thấp hơn" : "Nước, vì nước có nhiệt độ sôi thấp hơn"; } },
