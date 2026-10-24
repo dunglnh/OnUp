@@ -4,7 +4,7 @@ Kết quả rà lại các luồng của app trên bản vẽ Figma và đối c
 
 **Figma:** file [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2):
 - **Master 1.x:** 77 màn vẽ lại đúng app ở commit `0a1e8db`, gồm Users 51 màn, Admin 26 màn.
-- **🚧 Master 2.x · Đề xuất UX/UI:** mỗi flow một section, theo thứ tự ghi chú → 1.x hiện tại → 2.x đề xuất. Section cuối có các thành phần mới: icon, thanh tab dưới `.tabbar (2.x)`. Đây chỉ là đề xuất, chưa có trong code. Riêng section “Làm bài · Bảng số câu (9n)” vẽ theo code sau khi gộp Phiên 9n (PR #119; X28, X29 đã sửa ở Phiên 9nb, PR #122), và section “Bài ôn dạng trang · Bảng số câu (9o)” vẽ theo code sau khi gộp Phiên 9o (PR #123), có sửa hai chỗ của kiểm thử thiết kế (X30, X31).
+- **🚧 Master 2.x · Đề xuất UX/UI:** mỗi flow một section, theo thứ tự ghi chú → 1.x hiện tại → 2.x đề xuất. Section cuối có các thành phần mới: icon, thanh tab dưới `.tabbar (2.x)`. Phiên nào đã có lượt kiểm thử ở mục 5 thì màn 2.x của phiên đó đã vẽ lại theo code, cộng các chỗ sửa đang chờ phiên “b” (ví dụ F1, F2 vẽ theo cách sửa của Phiên UX7b). Section “Làm bài · Bảng số câu (9n)” và “Bài ôn dạng trang · Bảng số câu (9o)” vẽ theo code từ đầu (PR #119, #122, #123, #132).
 
 Phiên Claude Code không mở được Figma. Vì vậy ảnh chụp 1.x và 2.x đặt cạnh nhau ở [hinh-ux-2x/](hinh-ux-2x/), và lời giao việc trỏ vào các ảnh đó. Ảnh là hướng làm, không bắt giống từng điểm ảnh. Ghi chép chỗ khó dùng của bố mẹ (mục 2 của kế hoạch) đi trước ảnh khi hai bên khác nhau.
 
@@ -33,11 +33,11 @@ Phiên Claude Code không mở được Figma. Vì vậy ảnh chụp 1.x và 2.
 | [Làm bài](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=75-1327) | UX1 (một dòng nhãn), R1 (C2, C3) | X5–X9 | **UX5** | [ux5-lam-bai](hinh-ux-2x/ux5-lam-bai.jpg), [r1-ux5-bao-sai-mo-de](hinh-ux-2x/r1-ux5-bao-sai-mo-de.jpg) |
 | [Kết quả đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=78-1495) | UX1 (D1) | X10 | **UX6** | [ux1-ux6-ket-qua](hinh-ux-2x/ux1-ux6-ket-qua.jpg) |
 | [Khu phụ huynh](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=80-1697) | UX2 (E1, E3), UX3 (E2) | X17–X20 (kiểm thử sau UX3) | **UX3b** | [ux2-ux3-khu-phu-huynh](hinh-ux-2x/ux2-ux3-khu-phu-huynh.jpg), [ux2-lich-thi](hinh-ux-2x/ux2-lich-thi.jpg), [kt-ux3-bat-dau](hinh-ux-2x/kt-ux3-bat-dau.jpg), [kt-ux3-dat-pin](hinh-ux-2x/kt-ux3-dat-pin.jpg), [kt-ux3-dang-xuat](hinh-ux-2x/kt-ux3-dang-xuat.jpg) |
-| [Quản lí đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=82-2135) | UX2 (tên “Đề tự soạn”) | X11–X13 | UX7 xong (PR #134; kiểm thử thiết kế ở mục 5) | [ux7-chon-de](hinh-ux-2x/ux7-chon-de.jpg), [ux7-de-tu-soan](hinh-ux-2x/ux7-de-tu-soan.jpg) |
-| [Báo cáo tuần](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2729) | — | X14 | UX8 xong (PR #143; kiểm thử thiết kế ở mục 5) | [ux8-bao-cao-tuan](hinh-ux-2x/ux8-bao-cao-tuan.jpg) |
-| [Chữ và màu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2933) | — | X15, X16; X32 (kiểm thử sau UX3, UX4) | UI1, UI2 xong (PR #40, #133; kiểm thử thiết kế UI2 ở mục 5) | [ui1-tieu-de](hinh-ux-2x/ui1-tieu-de.jpg), [ui1-o-ma](hinh-ux-2x/ui1-o-ma.jpg), [ui2-nut-tat](hinh-ux-2x/ui2-nut-tat.jpg) |
+| [Quản lí đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=82-2135) | UX2 (tên “Đề tự soạn”) | X11–X13; X33–X36 (kiểm thử sau UX7) | UX7 xong (PR #134; kiểm thử ở mục 5); **UX7b** | [ux7-chon-de](hinh-ux-2x/ux7-chon-de.jpg), [ux7-de-tu-soan](hinh-ux-2x/ux7-de-tu-soan.jpg), [kt-ux7-chon-de](hinh-ux-2x/kt-ux7-chon-de.jpg), [kt-ux7-de-tu-soan](hinh-ux-2x/kt-ux7-de-tu-soan.jpg), [kt-ux7-nhap-de](hinh-ux-2x/kt-ux7-nhap-de.jpg) |
+| [Báo cáo tuần](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2729) | — | X14; X37 (kiểm thử sau UX8) | UX8 xong (PR #143; kiểm thử ở mục 5); **UX7b** (X37) | [ux8-bao-cao-tuan](hinh-ux-2x/ux8-bao-cao-tuan.jpg), [kt-ux8-bao-cao](hinh-ux-2x/kt-ux8-bao-cao.jpg) |
+| [Chữ và màu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2933) | — | X15, X16; X32 (kiểm thử sau UX3, UX4) | UI1, UI2 xong (PR #40, #133; kiểm thử UI2 ở mục 5) | [ui1-tieu-de](hinh-ux-2x/ui1-tieu-de.jpg), [ui1-o-ma](hinh-ux-2x/ui1-o-ma.jpg), [ui2-nut-tat](hinh-ux-2x/ui2-nut-tat.jpg), [kt-ui2-nut-tat](hinh-ux-2x/kt-ui2-nut-tat.jpg) |
 | [Làm bài · bảng số câu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=267-3035) | L38, L39 (flow của PO, [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) mục 2) | X21–X27; X28, X29 (kiểm thử sau 9n) | 9n, 9nb xong (PR #119, #122; kiểm thử ở mục 5) | [9n-bang-so-cau](hinh-ux-2x/9n-bang-so-cau.jpg), [9n-xem-lai-bai-lam](hinh-ux-2x/9n-xem-lai-bai-lam.jpg), [9n-lam-tiep-sua-cau](hinh-ux-2x/9n-lam-tiep-sua-cau.jpg), [kt-9n-xem-lai](hinh-ux-2x/kt-9n-xem-lai.jpg), [kt-9n-chu-thich](hinh-ux-2x/kt-9n-chu-thich.jpg) |
-| [Bài ôn dạng trang · bảng số câu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=290-3561) | L38, L39 (Phiên 9o) | X26–X29 (chung với 9n); X30, X31 (kiểm thử sau 9o) | 9o, 9ob xong (PR #123, #132; kiểm thử thiết kế 9ob ở mục 5 nếu cần) | [9o-bai-on](hinh-ux-2x/9o-bai-on.jpg), [kt-9o-bang-so-cau](hinh-ux-2x/kt-9o-bang-so-cau.jpg), [kt-9o-xem-lai](hinh-ux-2x/kt-9o-xem-lai.jpg) |
+| [Bài ôn dạng trang · bảng số câu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=290-3561) | L38, L39 (Phiên 9o) | X26–X29 (chung với 9n); X30, X31 (kiểm thử sau 9o) | 9o, 9ob xong (PR #123, #132; kiểm thử ở mục 5) | [9o-bai-on](hinh-ux-2x/9o-bai-on.jpg), [kt-9o-bang-so-cau](hinh-ux-2x/kt-9o-bang-so-cau.jpg), [kt-9o-xem-lai](hinh-ux-2x/kt-9o-xem-lai.jpg), [kt-9ob-xem-lai](hinh-ux-2x/kt-9ob-xem-lai.jpg) |
 
 Mã vấn đề (X1, X2…) dùng trong lời giao việc và trong commit, như mã lỗi L1–L19 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md).
 
@@ -81,6 +81,52 @@ Các phiên này giữ nguyên lời giao việc, trừ UX3: đã bỏ màn hỏ
   - **F2:** tab “Đề tự soạn” nằm trong Cài đặt.
 
 ## 3. Vấn đề mới và đề xuất
+
+### Phiên UX7b · Sửa sau kiểm thử UX7, UX8
+
+Tìm được khi kiểm thử thiết kế sau khi gộp PR #134 (UX7) và PR #143 (UX8) (mục 5, 24/10/2026). Figma: [F1, F2](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=82-2135) trong section Quản lí đề đã vẽ theo code và theo các mục dưới đây; [G1, G1b](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2729) vẽ theo code. Phiên ngắn, chỉ sửa `js/app.js` (`pickBoxHTML`, `wirePickBox`, `banksHTML`, `renderBankForm`, `weekTips`) và hai bộ kiểm thử; X35 thêm một dòng vào `css/app.css`.
+
+![Sửa kì thi: app sau UX7, Figma F1 trước và sau kiểm thử](hinh-ux-2x/kt-ux7-chon-de.jpg)
+
+**X33. Dòng cho biết đang hiện đề của khối nào không hiện.**
+- Khối “Bài ôn và đề cho kì này” của Sửa kì thi có dòng `<p id="eScope">` (“Đang hiện bài ôn và đề của Lớp 4, khối của kì thi này.”; hiện cả khối khác: “… của mọi khối.”; bỏ hết ô Khối: “Chọn khối ở trên để thấy bài ôn và đề của khối đó.”).
+- Ô “Phạm vi kiến thức” của cùng form cũng có `id="eScope"` và đứng trước, nên `wirePickBox` ghi chữ vào ô nhập (không hiện ra), còn dòng trong khối luôn trống. Bỏ hết ô Khối thì khối chỉ còn ô tìm, các mục đã chọn và link, không có lời nhắc chọn khối.
+- Bước UX7 của `tests/e2e.js` đọc `querySelector("#eScope").textContent`, tức chữ đã ghi vào ô nhập, nên vẫn qua. Quét 23 màn của bản lưu trên máy thì đây là chỗ trùng id duy nhất.
+
+**X34. Thứ tự nhóm môn và thứ tự đề trong nhóm.**
+- Nhóm môn theo thứ tự đề xuất hiện trong danh mục `data/banks/index.js`: lớp 4 là Khoa học, Lịch sử và Địa lí, Toán, Tiếng Việt, Tin học và Công nghệ, Tiếng Anh; lớp 6 bắt đầu bằng KHTN. Ở Sửa kì thi, khi hiện cả khối khác, nhóm của hai khối xen nhau. Figma F1, F2 xếp môn chính trước, như ô “Môn thi” của lịch mặc định.
+- Trong nhóm, đề xếp theo tên: “Cuối kì I” đứng trước “Giữa kì I”, đề ngẫu nhiên đứng sau Đề 3. Tab Bài ôn của con thì để đề ngẫu nhiên trước Đề 1.
+- Ví dụ: Sửa kì thi giữa kì I lớp 4 (môn thi Toán, Tiếng Việt) thì nhóm Toán, Tiếng Việt đứng sau Khoa học, Lịch sử và Địa lí; trong nhóm Toán, bốn đề cuối kì I đứng trước các đề giữa kì I.
+
+![Đề tự soạn: app sau UX7, Figma F2 trước và sau kiểm thử](hinh-ux-2x/kt-ux7-de-tu-soan.jpg)
+
+**X35. Thẻ các môn ở danh sách đề có sẵn sát nhau.** Trong `.sb-g` các thẻ `details.grp` không có khoảng cách: viền hai thẻ chồng thành 2px, góc bo tạo khe nhỏ. Ở Sửa kì thi, các thẻ môn cách nhau 10px (`.pk`).
+
+**X36. Dòng tóm tắt khi nhập đề ghi cả dạng 0 câu.** Sau “Kiểm tra”, `#bRes` luôn ghi ba dạng đầu: “Nhận được 3 câu: 2 trắc nghiệm, 1 điền khuyết, 0 đúng/sai; 1 đoạn đọc.” (có từ trước UX7). Như X29: không ghi mục 0 câu.
+
+**X37. Gợi ý về chủ đề hay sai ngăn tên chủ đề bằng dấu phẩy.**
+- Mục Gợi ý ôn tuần sau của báo cáo tuần ghi “Ôn lại chủ đề hay sai: Góc và đo góc, Phép cộng, phép trừ, Danh từ.”: đọc như bốn chủ đề. 45 chủ đề của đề có sẵn có dấu phẩy (“Phép cộng, phép trừ”, “Số chẵn, số lẻ”, “Chu vi, diện tích”…).
+- Tin nhắn gửi báo cáo của UX8 đã ngăn bằng “; ” (“• Chủ đề hay sai: Góc và đo góc; Phép cộng, phép trừ; Danh từ.”), nên trang và tin nhắn ghi khác nhau.
+
+**Cách làm gợi ý:**
+- **X33:** đổi id của dòng trong khối thành `ePickScope`; ô Phạm vi kiến thức giữ `eScope`, vì Lưu đọc ô đó. Thêm vào `audit` của hai bộ kiểm thử (hai bản giống nhau) một kiểm tra: trên màn không có hai phần tử cùng id.
+- **X34:**
+  - Nhóm môn theo thứ tự môn của lịch thi. Ở Sửa kì thi, nhóm Bài ôn dạng trang đứng đầu, rồi các môn trong ô “Môn thi” của kì đang sửa, theo thứ tự đã ghi, rồi các môn còn lại theo thứ tự môn trong `subjects` của các kì thi của khối đó. Lịch mặc định ghi lớp 4: Toán, Tiếng Việt, Tiếng Anh, Lịch sử và Địa lí, Khoa học, Tin học và Công nghệ; lớp 6: Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ. Môn không có trong lịch đứng cuối, theo danh mục.
+  - Danh sách đề có sẵn (trang Đề tự soạn, tab Ngân hàng đề) theo thứ tự môn của lịch thi của khối đó.
+  - Trong nhóm, đề có sẵn xếp theo kì: Giữa kì I, Cuối kì I, Giữa kì II, Cuối năm (tên chuẩn của đề có sẵn, `tests/kiem-tra-de.js` đã kiểm tra). Trong một kì, đề ngẫu nhiên đứng trước, rồi Đề 1, Đề 2…, như tab Bài ôn. Đề tự soạn cuối nhóm như bây giờ. Ở Sửa kì thi, đề của khối kì thi đứng trước đề khối khác như bây giờ.
+- **X35:** các thẻ môn trong `.sb-g` cách nhau 10px như `.pk` (ví dụ `.sb-g{display:flex;flex-direction:column;gap:10px}`).
+- **X36:** dòng tóm tắt chỉ ghi dạng có ít nhất 1 câu.
+- **X37:** `weekTips` ngăn tên chủ đề bằng “; ” như tin nhắn: “Ôn lại chủ đề hay sai: Góc và đo góc; Phép cộng, phép trừ; Danh từ.”
+- Không đổi cách lưu kì thi, cách chọn đề, cách tìm, nội dung tin nhắn.
+
+**Xong khi:** `tests/e2e.js` và `tests/supabase/cloud-e2e.js` có thêm các bước sau và vẫn in OK:
+- Sửa kì thi cuối kì I lớp 4: dòng `#ePickScope` hiện (cao hơn 0) và ghi “Đang hiện bài ôn và đề của Lớp 4…”; bấm “Hiện cả đề của khối khác” thì đổi chữ; bỏ ô Lớp 4 thì ghi “Chọn khối ở trên…”. `audit` không báo id trùng ở màn nào.
+- Thứ tự: Sửa kì thi giữa kì I lớp 4 có các nhóm Bài ôn dạng trang, Toán, Tiếng Việt đứng đầu; tab Lớp 4 của đề có sẵn: Toán, Tiếng Việt, Tiếng Anh, Lịch sử và Địa lí, Khoa học, Tin học và Công nghệ; nhóm Toán lớp 4: ba đề giữa kì I trước bốn đề cuối kì I, đề ngẫu nhiên đầu mỗi kì.
+- Các thẻ môn của danh sách đề cách nhau 10px.
+- Nhập đề không có câu đúng/sai: dòng tóm tắt không có “0 đúng/sai”.
+- Báo cáo tuần có chủ đề hay sai có dấu phẩy: gợi ý ngăn bằng “; ”, giống dòng của tin nhắn.
+- CLAUDE.md (mục “Quản lí đề”, “Gửi báo cáo tuần”) ghi id `#ePickScope`, thứ tự nhóm và đề, khoảng cách các thẻ môn.
+- Ảnh 360px sáng/tối chép lại: `docs/hinh-ux7/sua-ki-thi.jpg`, `ngan-hang-de-tim.jpg`, `dam-may-de-tu-soan.jpg`.
 
 ### Phiên UX3b · Sửa sau kiểm thử UX3
 
@@ -849,3 +895,117 @@ C14, C15, C18 vẽ hai nút một hàng theo X30; C12, C16 vẽ một nhãn trê
 - `tests/e2e.js`: E2E OK (bước L38, L39 có kiểm tra X28, X29; bước 9o chạy 4 bài, sáng và tối).
 - `tests/supabase/cloud-e2e.js`: CLOUD E2E OK, 152 mục đạt ở hai lượt sáng và tối.
 - Không chạy `store-test.mjs`, `admin-test.mjs`, `run.sh`: PR #122, #123 không sửa kho dữ liệu, trang admin, máy chủ.
+
+### 9ob · Bài ôn dạng trang: hai nút một hàng, một nhãn trên câu · PR #132 · kiểm thử 24/10/2026
+
+**Kết luận:** đạt. Ở màn “Xem lại bài làm” của cả 4 bài, hai nút luôn một hàng ở 360px, kể cả số câu ba chữ số; luyện theo bài, theo unit chỉ còn một nhãn trên câu. Khớp C12, C14, C16, C18 của section [Bài ôn dạng trang · Bảng số câu (9o)](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=290-3561), vốn đã vẽ theo X30, X31; ghi chú của section đổi thành “đã sửa ở 9ob”.
+
+**Cách kiểm:** chạy app bản lưu trên máy của `main` (`68353f0`) ở 360px sáng và tối, mở bài ôn trong khung như học sinh: l4 Tiếng Việt, bài “Tên cơ quan” (luyện theo bài); l6 Ngữ văn, Bài 1 (luyện theo bài) và Đề 1 (đề thi thử); IOE 4 luyện theo unit. Đo trong khung bằng `getBoundingClientRect`, `getComputedStyle`; đổi chữ của `#moreBtn` thành số câu ba chữ số rồi đo lại.
+
+![Màn “Xem lại bài làm” của bài ôn: app sau 9ob và Figma C14](hinh-ux-2x/kt-9ob-xem-lai.jpg)
+
+| Yêu cầu (mục 3, “Phiên 9ob”) | Kết quả | Ghi chú |
+|---|---|---|
+| Hai nút dưới `#recap` có padding ngang 12px, cách nhau 8px; màn câu hỏi giữ 18px, 10px (X30) | Khớp | Cả 4 bài. |
+| Một hàng ở 360px, kể cả “Làm tiếp 120 câu”, “Do the 120 left” | Khớp | Hàng rộng 294px: l4 “Xem kết quả” và “Làm tiếp 2 câu” cần 266px, “Làm tiếp 120 câu” (157,7px) 284px; IOE “Do the 120 left” 140px. Hai nút cao 50,8px. |
+| Luyện theo bài, theo unit chỉ có một nhãn trên câu (tên lượt); đề thi thử, “Ôn câu sai” giữ nhãn bài, unit bên phải (X31) | Khớp | “Tiếng Việt · Tên cơ quan”, “Ngữ văn · Bài 1”, “Unit 1 Practice”, cả câu mở lại và vòng làm tiếp; đề thi thử l6: “Ngữ văn · Đề 1” và “Đọc hiểu”. |
+| `label` của lượt và dữ liệu bài ôn không đổi | Khớp | `node tests/so-du-lieu-bai-on.js` ở commit của PR #132 so với commit trước đó: `DU LIEU BAI ON OK`. |
+| 360px sáng/tối: không tràn ngang, vùng bấm ≥ 44px, chữ ≥ 13px, chữ không đè | Khớp | Bước 9o của `tests/e2e.js`. |
+
+### UI2 · Nút chính bị tắt · PR #133 · kiểm thử 24/10/2026
+
+**Kết luận:** đạt. Nút chính và phím Vào bị tắt có nền `line`, chữ `muted`, không làm mờ, ở cả sáng và tối: nhìn là biết đang tắt, không còn khối màu ô liu. Khớp component `.btn` (State=disabled) và khung H3 của section [Chữ và màu](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2933); A4 của section Vào app sửa theo code.
+
+**Cách kiểm:** ảnh 360px sáng/tối của `tests/supabase/cloud-e2e.js` (`c3-khu-phu-huynh-moi`: “Cho con học” khi chưa có hồ sơ con; `c10c-dang-doi`: phím Vào của mã mở nhanh khi phải đợi) và bước UX4 của `tests/e2e.js`; đo màu và độ tương phản bằng `getComputedStyle` với `css/app.css` thật: nút chính cỡ thường, `sm`, `lg`, phím Vào, nút thường, `ghost`, `danger`, phím số.
+
+![Nút chính và phím Vào bị tắt sau UI2, sáng và tối](hinh-ux-2x/kt-ui2-nut-tat.jpg)
+
+| Yêu cầu (mục 3, “Phiên UI2”) | Kết quả | Ghi chú |
+|---|---|---|
+| Nút chính bị tắt (`.btn.main:disabled`, mọi cỡ): nền `--line`, chữ `--muted`, `opacity` 1, sáng và tối | Khớp | Chữ 4,4:1 (sáng), 5,0:1 (tối); nút so với thẻ 1,3:1. Bật lại: nền `sun`, chữ `sun-ink`. |
+| Phím Vào bị tắt như trên; bỏ style viết thẳng trong `pinBoxHTML`, dùng lớp `.pad .ok` | Khớp | Phím Vào giữ viền `line` như phím số. |
+| Nút khác (`.btn` thường, `ghost`, `danger`, phím số, “Hiện số”) giữ `opacity: .45` | Khớp | |
+| Không đổi cách bật, tắt nút | Khớp | |
+| Kiểm thử ở cả sáng và tối | Khớp | Kiểm tra “UI2 (X32)” của `cloud-e2e.js` (cả phím Vào của mã mở nhanh), bước UX4 của `tests/e2e.js`. |
+
+**Figma:** A4 (Nhập PIN · đang phải đợi) trước đây làm mờ cả bàn phím; nay phím số mờ .45, phím Vào nền `line`, chữ `muted`. Khung H3 ghi “Đã làm ở UI2 (PR #133)”; mô tả của component `.btn`, `.pad button` ghi quy tắc nút bị tắt.
+
+### UX7 · Quản lí đề · PR #134 · kiểm thử 24/10/2026
+
+**Kết luận:** đạt phần lớn. Sửa kì thi chỉ hiện đề đúng khối, nhóm theo môn, tìm theo từng từ, giữ lựa chọn khác khối; danh sách đề có đề tự soạn trước, đề có sẵn theo tab khối; nhập đề xem trước từng câu, lỗi nằm trong thẻ của câu, có lỗi thì hỏi lại khi lưu, gắn được vào kì thi. Một chỗ lệch yêu cầu: dòng “Đang hiện bài ôn và đề của Lớp 4…” không hiện vì trùng id (X33). Ba chỗ nhỏ: thứ tự nhóm môn và thứ tự đề (X34), các thẻ môn của danh sách đề sát nhau (X35), dòng tóm tắt ghi “0 đúng/sai” (X36). Cả bốn, cùng X37 của UX8, giao cho Phiên UX7b (mục 3).
+
+**Cách kiểm:**
+- Chạy app bản lưu trên máy của `main` (`68353f0`) ở 360px sáng và tối: Sửa kì thi cuối kì I lớp 4 (20 mục đã chọn), tìm, hiện cả khối khác, bỏ ô Khối; tab Ngân hàng đề; nhập đề có một câu bị bỏ, một câu thiếu phần và một đoạn đọc, rồi đề mẫu đủ dạng câu. Đo bằng `getBoundingClientRect`, `getComputedStyle`; quét id trùng ở 23 màn.
+- Ảnh 360px sáng/tối của `cloud-e2e.js` (`c5b`–`c5h`) cho bản đám mây.
+- Đặt cạnh F1–F3 của section [Quản lí đề](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=82-2135).
+
+![Nhập đề có lỗi: app sau UX7 và Figma F3](hinh-ux-2x/kt-ux7-nhap-de.jpg)
+
+| Yêu cầu (mục 3, “Phiên UX7”) | Kết quả | Ghi chú |
+|---|---|---|
+| Sửa kì thi: một khối “Bài ôn và đề cho kì này”, nhãn “N đã chọn” (X11) | Khớp | |
+| Mặc định chỉ hiện mục có khối trong `grades` của kì thi; đổi ô Khối thì danh sách đổi theo | Khớp | Lớp 4: đúng số đề của `Store.banks(4)`; bỏ ô Lớp 4 thì chỉ còn các mục đã chọn. |
+| Dòng cho biết đang hiện khối nào (F1) | **Lệch** | Dòng luôn trống vì trùng id với ô “Phạm vi kiến thức” (X33). |
+| Nhóm theo môn bằng `<details>`, tóm tắt “3/5 đã chọn”, nhóm có mục đã chọn mở sẵn | Khớp | “4/11 đã chọn · 1 đề tự soạn”. Thứ tự nhóm, thứ tự đề khác F1 (X34). |
+| Ô tìm không phân biệt dấu, theo từng từ | Khớp | “toan de 2” còn đúng các đề Toán có “Đề 2”; “2” không khớp “Đề 12”; nhóm có đề khớp mở ra; không có gì khớp thì “Không có bài ôn hay đề nào khớp …”. |
+| Link “Hiện cả đề của khối khác”; mục đã chọn khác khối vẫn hiện, Lưu giữ đủ lựa chọn cũ | Khớp | Link đổi thành “Chỉ hiện đề của khối kì thi”. |
+| Dòng ô đánh dấu ≥ 44px | Khớp | 44px, ô 20px màu `acc`. |
+| Danh sách đề: đề tự soạn đầu, ghi kì thi đã gắn hoặc “chưa gắn vào kì thi nào” (X12) | Khớp | |
+| Đề có sẵn theo tab khối (`gradeList()`, mặc định khối của con), nhóm theo môn thu gọn, có ô tìm | Khớp | “Lớp 4 · 31 đề”; đang tìm thì tab ghi số đề khớp. Thẻ các môn sát nhau (X35); thứ tự môn khác F2 (X34). |
+| Nhập đề: sau “Kiểm tra”, xem trước từng câu: dạng, chủ đề, câu hỏi, đáp án được chấm đúng, hình, đoạn đọc thu gọn (X13) | Khớp | Lựa chọn đúng có viền xanh và “✓ Đúng”; điền khuyết ghi mọi đáp án nhận được; đề mẫu (11 câu, một đoạn đọc) ra đủ 8 dạng câu, mỗi câu một thẻ. |
+| Lỗi nằm trong thẻ của câu, của đoạn đọc; biết câu nào bị bỏ hẳn | Khớp | Thẻ lỗi viền đỏ 2px; câu bị bỏ có nhãn “Chưa lưu được” và chữ đã dán. Dòng tóm tắt ghi cả “0 đúng/sai” (X36). |
+| Bộ lọc “Tất cả · Cần sửa” | Khớp | “Tất cả · 5”, “Cần sửa · 2”. |
+| Có lỗi mà bấm Lưu thì hỏi lại, nói đúng mức độ | Khớp | “1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Vẫn lưu?”, nút “Vẫn lưu”, “Sửa tiếp”. |
+| Ô “Gắn vào kì thi”: kì thi chưa qua của khối; lưu xong đề có ở kì thi đó | Khớp | “Kiểm tra giữa học kì I (2/11)”; đề đứng đầu `banks` của kì thi; toast ghi tên kì thi. |
+| 360px sáng/tối | Khớp | `audit` của hai bộ kiểm thử không báo gì; không lỗi JavaScript. |
+
+**Khác Figma nhưng chấp nhận** (đã vẽ lại F1–F3 theo code):
+- Mỗi nhóm môn là một thẻ `.grp` riêng (viền, bo 14px); Figma vẽ các nhóm trong một thẻ chung. Dòng ô đánh dấu cao 44px (Figma 25px).
+- Nhãn “N đã chọn” màu `acc` như các `.tag` khác (Figma: màu IOE).
+- Mọi nhóm có mục đã chọn đều mở sẵn, đúng mục 3; F1 vẽ thu gọn vài nhóm có mục đã chọn. Kì thi chọn nhiều đề thì trang dài (cuối kì I lớp 4, 20 mục: khoảng 3 600px); bấm tóm tắt để thu gọn từng nhóm.
+- Bài ôn dạng trang xếp theo tên (“IOE · Global Success 4” trước “Ôn giữa kì I · Lớp 4”).
+- Danh sách đề: tiêu đề “Đề có sẵn của app”, chữ mờ trong ô tìm “Tìm đề có sẵn, ví dụ “Toán Đề 2””, dưới “Đề tự soạn” có đoạn giải thích cách dán câu hỏi; nút “Chọn hồ sơ khác” là nút viền.
+- Nhập đề: ô dán câu hỏi và các nút “Xem ví dụ”, “Mở file .txt”, “Kiểm tra lại” vẫn ở dưới form (F3 thu gọn thành một dòng); mọi thẻ đều hiện (F3: “Xem câu 3–7”); bộ lọc là nhóm nút `.tabs` (F3: chip); dòng “Đáp án được chấm đúng có dấu ✓ hoặc chữ đậm…” một lần, trên các thẻ; thẻ có “Lời giải”; ô “Gắn vào kì thi” ghi “(2/11)”, không ghi lớp; hàng cuối chỉ có nút Lưu.
+
+**Figma:** F1, F2 vẽ lại theo code và theo cách sửa của X33–X35 (dòng khối đang hiện; môn theo lịch thi; đề theo kì, đề ngẫu nhiên đầu mỗi kì; thẻ môn cách nhau 10px); F3 vẽ lại theo code, dòng tóm tắt theo X36. Component mới ở Local Components: `.ck (chọn đề)` (Checked) cho dòng ô đánh dấu 44px, `.pv-opt (xem trước)` (State default, right) cho lựa chọn trong thẻ xem trước; `.tag` có thêm Variant=bad (“Chưa lưu được”).
+
+### UX8 · Gửi báo cáo tuần · PR #143 · kiểm thử 24/10/2026
+
+**Kết luận:** đạt. Khối “Tin nhắn sẽ gửi”, nút “Gửi báo cáo”, “Chép tin nhắn” và nút “In” làm đúng lời giao việc và khung G1. Bốn chỗ khác bản vẽ chủ app đã nêu khi Merge đều hợp lí; Figma vẽ lại theo code. Thêm một chỗ nhỏ có từ trước UX8: gợi ý về chủ đề hay sai ở mục Gợi ý ôn tuần sau còn ngăn tên chủ đề bằng dấu phẩy, khác tin nhắn (X37, giao Phiên UX7b).
+
+**Cách kiểm:**
+- Chạy app bản lưu trên máy của `main` (`6d11b6a`) ở 360px, 375px, 390px sáng và tối: Mẹ Bin (phụ huynh) mở báo cáo tuần của Bin (5 bài trong 7 ngày, có chủ đề “Phép cộng, phép trừ”, 1 bài tuần trước) và của Na (chưa làm bài nào); bản in (`emulateMedia print`).
+- Đọc kết quả bước UX8 của `tests/e2e.js` (giả lập `navigator.share`: gửi, hủy, lỗi khác; máy không có bảng chia sẻ; chép không được) và ảnh `c12-bao-cao-tuan` của `cloud-e2e.js`.
+- Đặt cạnh khung G1 của section [Báo cáo tuần](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=84-2729).
+
+![Báo cáo tuần: app sau UX8 ở 360px, 390px và Figma G1](hinh-ux-2x/kt-ux8-bao-cao.jpg)
+
+| Yêu cầu (mục 3, “Phiên UX8”) | Kết quả | Ghi chú |
+|---|---|---|
+| Nút chính “Gửi báo cáo”, nút phụ “In” | Khớp | “Gửi báo cáo” có biểu tượng chia sẻ, nằm trong khối tin nhắn như G1; “In” ở hàng trên, 44 × 44px, `aria-label` “In báo cáo”. |
+| Khối “Tin nhắn sẽ gửi” xem trước tin nhắn chữ thuần, khoảng 600 chữ cái trở xuống | Khớp | Ngay dưới đầu trang, trước các ô số liệu; viền `acc` 2px; tin nhắn 15px, nền `bg`, xuống dòng như khi gửi. Ví dụ dài 388 chữ cái. |
+| Tên con, khoảng ngày; số bài, số ngày ôn, số phút; điểm trung bình so với tuần trước | Khớp | Khớp các ô số liệu; tuần trước không có bài: “(tuần trước chưa làm bài)”. |
+| Tối đa 3 chủ đề hay sai | Khớp | “• Chủ đề hay sai: Góc và đo góc; Phép cộng, phép trừ; Danh từ.” |
+| Kì thi gần nhất: ngày, còn N ngày | Khớp | “• Sắp tới: Kiểm tra giữa học kì I, 2/11 – 13/11/2026 (dự kiến, còn 10 ngày).” |
+| 1–2 gợi ý của `weekTips`, bỏ gợi ý đã nói về kì thi | Khớp | Bỏ cả gợi ý về chủ đề hay sai (trùng dòng trên); gợi ý ngày ôn chỉ lấy phần lời khuyên. |
+| Dòng cuối “Gửi từ OnUp.”; không có tên đăng nhập, đường dẫn | Khớp | Không có cả tên gia đình; `cloud-e2e.js` kiểm tra ở bản đám mây. |
+| “Gửi báo cáo”: `navigator.share({ title, text })`; hủy thì thôi; máy không có bảng chia sẻ thì chép, toast “Đã chép tin nhắn…”; chép không được thì chọn sẵn chữ | Khớp | Bấm lần nữa khi bảng chia sẻ đang mở cũng bỏ qua, không báo gì. |
+| Thêm nút “Chép tin nhắn” | Khớp | |
+| Khối xem trước không in | Khớp | Bản in không có khối tin nhắn, nút In; vẫn có nhãn “OnUp · Báo cáo tuần · Nhà Bin”. |
+| 360px sáng/tối | Khớp | Không tràn ngang; nút ≥ 44px; chữ ≥ 13px; `audit` không báo gì. |
+
+**Khác Figma nhưng chấp nhận** (chủ app nêu khi Merge PR #143; Figma đã vẽ lại theo code):
+- Ở 360px (cả 375px) hai nút mỗi nút một hàng, rộng cả khối, “Gửi báo cáo” ở trên; từ 390px chung một hàng như G1 (hai nút cần 322px).
+- “Hay sai:” thành “Chủ đề hay sai:”; các chủ đề ngăn bằng “; ” vì tên chủ đề có thể có dấu phẩy.
+- Gợi ý lấy nguyên câu của mục Gợi ý ôn tuần sau, sau chữ “Gợi ý:”, không viết gọn thành “Tuần sau: …”; tin nhắn bỏ gợi ý trùng dòng kì thi và dòng chủ đề.
+- Hàng trên giữ nút “Sửa hồ sơ” (có từ UX2) cạnh “In”; link về là “← Các con” (G1: “← Báo cáo của con”).
+- Dòng kì thi ghi cả ngày cuối và “dự kiến” như thẻ kì thi (“2/11 – 13/11/2026 (dự kiến, còn 10 ngày)”).
+
+**Ghi nhận cho design system, chưa giao việc:** nút chính và nút viền cùng cỡ thường đứng cạnh nhau lệch nhau 2px: `.btn.main` không viền cao 48,8px, `.btn.ghost` viền 1px cao 50,8px. Gặp ở UX8 từ 390px (“Gửi báo cáo”, “Chép tin nhắn”), ở hộp hỏi lại của bài ôn (`#yesEnd` 48,8px, `#noEnd` 50,8px) và vài hộp hỏi khác. Nếu sửa: `.btn` có viền 1px trong suốt, mọi nút cùng cỡ cao bằng nhau (nút chính cao thêm 2px); để khi có phiên UI khác. Đã ghi vào mô tả component `.btn` trong Figma.
+
+**Figma:** G1 (390px) sửa theo code: hàng trên “← Các con”, “Sửa hồ sơ”, “In”; chữ của tin nhắn; viền khối 2px. Thêm G1b ở 360px, sáng và tối: hai nút mỗi nút một hàng. Ghi chú của section ghi bốn chỗ khác bản vẽ và X37.
+
+**Kiểm thử tự động cho 9ob, UI2, UX7, UX8:**
+- `main` `68353f0` (sau PR #132–#134, trước UX8): `tests/e2e.js` E2E OK; `tests/supabase/cloud-e2e.js` CLOUD E2E OK, 160 mục đạt ở hai lượt sáng và tối (có kiểm tra UX7, UI2).
+- `main` `6d11b6a` (sau PR #143): `tests/e2e.js` E2E OK (bước UX8 sáng và tối); `cloud-e2e.js` CLOUD E2E OK, 162 mục đạt; `node tests/kiem-tra-de.js` DE OK (PR #134 sửa `Quiz.parse`).
+- Không chạy `store-test.mjs`, `admin-test.mjs`, `run.sh`: bốn PR không sửa kho dữ liệu, trang admin, máy chủ.
