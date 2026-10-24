@@ -3606,6 +3606,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      - In (emulateMedia print): không có khối tin nhắn, nút In; vẫn có nhãn OnUp · Báo cáo tuần.
      - Na (lớp 6, cũng là con của Mẹ Bin trong bước này) chưa làm bài nào trong tuần: tin nhắn chỉ có dòng "Chưa làm bài nào", kì thi
        gần nhất, gợi ý bắt đầu lại; không có dòng điểm, chủ đề.
+     - X37 (Phiên UX7b): Bin có chủ đề hay sai có dấu phẩy (“Phép cộng, phép trừ”): gợi ý “Ôn lại chủ đề hay sai: …” ở mục Gợi ý ôn tuần
+       sau ngăn tên chủ đề bằng “; ”, giống dòng “Chủ đề hay sai” của tin nhắn.
      Ảnh 360px sáng/tối ở tests/screenshots/ux8/ (bản ghép <tên>.jpg; chép sang docs/hinh-ux8/): bao-cao-tin-nhan, da-chep, ban-in. */
   const OUTUX8 = OUT + "ux8/"; fs.mkdirSync(OUTUX8, { recursive: true });
   const ux8 = { problems: [], shots: [] };
@@ -3640,7 +3642,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       const mk = (o) => Object.assign({ id: "ux8" + Math.random().toString(36).slice(2), userId: bin.id, s: 900 }, o);
       d.results = [
         mk({ source: "bank", refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 1", mode: "practice", r: 19, t: 25, at: at(10, 9), wrongTopics: ["Góc và đo góc"] }), // tuần trước
-        mk({ source: "bank", refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 1", mode: "practice", r: 21, t: 25, at: at(2, 9), wrongTopics: ["Góc và đo góc", "Góc và đo góc", "Đơn vị đo"] }),
+        mk({ source: "bank", refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 1", mode: "practice", r: 21, t: 25, at: at(2, 9), wrongTopics: ["Góc và đo góc", "Góc và đo góc", "Đơn vị đo", "Phép cộng, phép trừ"] }), // X37: chủ đề có dấu phẩy
         mk({ source: "module", refId: "l4-giua-ki-1", subject: "Toán", label: "Toán · Đề 1", mode: "exam", r: 18, t: 20, at: at(1, 20) }),
         mk({ source: "bank", refId: "ta4-ck1-de1", subject: "Tiếng Anh", label: "Tiếng Anh 4 · Cuối kì I · Đề 1", mode: "exam", r: 22, t: 25, at: at(0, 9) }),
         mk({ source: "bank", refId: "toan4-ck1-de2", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 2", mode: "practice", r: 20, t: 25, at: at(0, 17) })];
@@ -3704,7 +3706,10 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   const ux8OK = !ux8.problems.length && ["light", "dark"].every((sc) => { const r = ux8[sc], g = r.page, L = g.msg.split("\n"), tipL = L.slice(5, -1), flat = (x) => x.replace(/\s+/g, " ").trim();
     return L[0] === "Báo cáo tuần của Bin (15/10 – 21/10/2026)" && L[1] === `• Làm ${g.count} bài, ôn ${g.days} ngày, ${g.mins} phút.` && g.count === "4" && g.days === "3/7" && g.mins === "60"
       && L[2] === `• Điểm trung bình ${g.avg}/10 (tuần trước ${g.pvAvg.replace(/^Tuần trước: /, "")}).` && g.avg === "8,5" && g.pvAvg === "Tuần trước: 7,5"
-      && L[3] === `• Chủ đề hay sai: ${g.topics.slice(0, 3).join("; ")}.` && g.topics.join() === "Góc và đo góc,Đơn vị đo"
+      && L[3] === `• Chủ đề hay sai: ${g.topics.slice(0, 3).join("; ")}.` && g.topics.join("|") === "Góc và đo góc|Đơn vị đo|Phép cộng, phép trừ"
+      // X37 (Phiên UX7b): gợi ý về chủ đề hay sai ngăn tên chủ đề bằng "; " như dòng của tin nhắn
+      && g.tips.filter((x) => /^Ôn lại chủ đề hay sai: /.test(x)).join("|") === "Ôn lại chủ đề hay sai: " + L[3].slice("• Chủ đề hay sai: ".length)
+      && L[3] === "• Chủ đề hay sai: Góc và đo góc; Đơn vị đo; Phép cộng, phép trừ."
       && L[4] === `• Sắp tới: ${g.ev.title}, 2/11 – 13/11/2026 (dự kiến, ${g.ev.left.toLowerCase()}).` && g.ev.title === "Kiểm tra giữa học kì I" && g.ev.left === "Còn 12 ngày"
       && tipL.join("|") === "• Gợi ý: Tuần sau cố gắng ôn ít nhất 5 ngày, mỗi ngày 20–30 phút, thay vì làm dồn một buổi.|• Gợi ý: Tuần này chưa ôn Tiếng Việt cho kì thi sắp tới."
       && tipL.every((x) => g.tips.some((li) => li.includes(x.slice("• Gợi ý: ".length))) && !x.includes(g.ev.title) && !/còn \d+ ngày|chủ đề hay sai/i.test(x)) && g.tips.length === 4

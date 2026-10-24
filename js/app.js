@@ -974,7 +974,7 @@
     const weak = bySubject(week).filter((x) => x.t >= 5 && pct(x.r, x.t) < 70);
     if (weak.length) tips.push({ k: "weak", t: `${weak.map((x) => x.name + " mới đúng " + pct(x.r, x.t) + "%").join(", ")}: xem lại lời giải các câu sai rồi làm lại đề đó.` });
     const tp = wrongTopics(week).slice(0, 3).map(([t]) => t);
-    if (tp.length) tips.push({ k: "topics", t: `Ôn lại chủ đề hay sai: ${tp.join(", ")}.` });
+    if (tp.length) tips.push({ k: "topics", t: `Ôn lại chủ đề hay sai: ${tp.join("; ")}.` }); // "; " như tin nhắn (reportMsg): tên chủ đề có thể có dấu phẩy (X37)
     return tips.concat(later).slice(0, 5);
   }
   /* Tin nhắn gửi báo cáo tuần (Phiên UX8, X14): chữ thuần để bố mẹ gửi ông bà, cô giáo hay người kia trong nhà qua Zalo, khoảng

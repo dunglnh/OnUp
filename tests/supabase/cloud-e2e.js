@@ -689,6 +689,17 @@ async function run(browser, scheme) {
   await p2.emulateMedia({ media: "print" });
   c.ux8.printCss = await p2.evaluate(() => getComputedStyle(document.querySelector("#rpMsg")).display + "," + document.querySelector("#rpPrint").getBoundingClientRect().height); // nút In nằm trong hàng .noprint
   await p2.emulateMedia({ media: "screen" });
+  /* X37 (Phiên UX7b): chủ đề hay sai có dấu phẩy: gợi ý “Ôn lại chủ đề hay sai: …” ngăn tên chủ đề bằng “; ”, giống dòng của tin nhắn. Thêm
+     thẳng vào máy chủ giả một kết quả hôm nay của Bin có hai chủ đề có dấu phẩy (đứng đầu Chủ đề hay sai), tải lại, so, rồi bỏ đi. */
+  const x37 = { id: "x37-" + Date.now(), profile_id: binId, family_id: acc.id, source: "bank", ref_id: "toan4-ck1-de2", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 2", mode: "practice",
+    r: 20, t: 25, s: 600, wrong_topics: Array(30).fill("Phép cộng, phép trừ").concat(Array(25).fill("Số chẵn, số lẻ")), at: new Date(Date.now() + be.clock).toISOString(), import_key: null };
+  be.T.results.push(x37);
+  await p2.reload(); await p2.waitForSelector("#rpTips");
+  c.x37 = await p2.evaluate(() => ({ tip: [...document.querySelectorAll("#rpTips li")].map((x) => x.textContent).filter((x) => /^Ôn lại chủ đề hay sai: /.test(x)).join("|"),
+    line: document.querySelector("#rpMsgText").textContent.split("\n").filter((x) => /^• Chủ đề hay sai: /.test(x)).join("|") }));
+  be.T.results = be.T.results.filter((r) => r.id !== x37.id);
+  await p2.reload(); await p2.waitForSelector("#rpTips");
+  c.x37.gone = await p2.evaluate(() => !/Phép cộng, phép trừ; Số chẵn, số lẻ/.test(document.querySelector("#rpMsgText").textContent));
   await p2.click("#rpPractice"); await p2.waitForSelector("#allPractice");
   c.ux2.practice = (await text(p2, "#view h2")) + " | " + (await text(p2, "#view .linkbtn[data-go]")) + " | " + (await p2.$$eval("#allPractice a.btn", (a) => a.length));
   await p2.click("#view .linkbtn[data-go]"); await p2.waitForSelector(".report");
@@ -1145,6 +1156,8 @@ async function run(browser, scheme) {
     "UX7b (X35): trang Đề tự soạn: các thẻ môn của đề có sẵn cách nhau 10px như ở Sửa kì thi": c.ux7.list.gaps === "10",
     "UX7b (X36): nhập đề không có câu đúng/sai: dòng tóm tắt chỉ ghi dạng có câu, không có “0 đúng/sai”":
       c.ux7.res === "Nhận được 2 câu: 1 trắc nghiệm, 1 điền khuyết. Cần sửa: 1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Xem các thẻ viền đỏ bên dưới.",
+    "UX7b (X37): báo cáo tuần có chủ đề hay sai có dấu phẩy: gợi ý “Ôn lại chủ đề hay sai: …” ngăn bằng “; ”, giống dòng “Chủ đề hay sai” của tin nhắn":
+      /^Ôn lại chủ đề hay sai: Phép cộng, phép trừ; Số chẵn, số lẻ; [^;]+\.$/.test(c.x37.tip) && c.x37.tip === "Ôn lại chủ đề hay sai: " + c.x37.line.slice("• Chủ đề hay sai: ".length) && c.x37.gone,
     "UX7 (X12): Đề tự soạn đứng trước đề có sẵn; đề có sẵn theo tab khối (Lớp 4 · N đề chọn sẵn, Lớp 6 · N đề), tìm “toan de 2” còn đúng đề Toán 4 có “Đề 2”":
       c.ux7.list.first && c.ux7.list.tabs === c.ux7.list.want && c.ux7.list.find,
     "UX7 (X13): nhập đề có một câu bị bỏ, một câu thiếu phần: thẻ hai câu đó viền đỏ, lỗi trong thẻ; Lưu thì hỏi lại; gắn vào kì thi thì đề lên máy chủ, đứng đầu danh sách đề của kì thi; form sửa đề ghi kì thi đã gắn; xóa đề thì kì thi bỏ đề theo":
