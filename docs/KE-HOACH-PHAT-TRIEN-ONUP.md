@@ -133,6 +133,7 @@
 | #148 | Phiên DS3b: dò Luyện từ và câu Tiếng Việt 4 Bài 1–16 với sách in năm 2026 |
 | #149 | Phiên DS3: dò Đọc hiểu, Chính tả, Viết Tiếng Việt 4 giữa kì I với sách in năm 2026 |
 | #150 | Phiên UX7b: sửa sau kiểm thử UX7, UX8 (X33–X37) |
+| #153 | Kiểm thử R1 hết lúc qua lúc không: Bin trả lời sai có chủ ý |
 
 </details>
 
