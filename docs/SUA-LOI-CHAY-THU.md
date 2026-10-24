@@ -1059,4 +1059,4 @@ Flow (chủ app yêu cầu 22/10/2026; Phiên 9o dùng lại cho bài ôn dạng
 
 ## 3. Các phiên Claude Code
 
-Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n, 9nb, 9o, 9ob, 9p, 9q đã xong (PR #119, #122, #123, #132, #137, #SOPR). Chưa có phiên chờ làm. Lỗi mới thì QC ghi mã (tiếp theo L43) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n, 9nb, 9o, 9ob, 9p, 9q đã xong (PR #119, #122, #123, #132, #137, #139). Chưa có phiên chờ làm. Lỗi mới thì QC ghi mã (tiếp theo L43) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
