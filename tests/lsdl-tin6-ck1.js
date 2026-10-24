@@ -103,7 +103,7 @@ const CHECKS = [
   // Tin học
   { id: T.de1, has: "1 byte = ___ bit", right: () => String(DON_VI.byte / DON_VI.bit) },
   { id: T.de1, has: "đơn vị nào lớn nhất", right: (q) => lonNhat(q.o, (o) => DON_VI[/\((\w+)\)/.exec(o)[1]]) },
-  { id: T.de1, has: "Một thẻ nhớ 8 GB", right: (q) => { const n = (8 * DON_VI.GB) / (4 * DON_VI.MB); assert.equal(n, 2048); return lonNhat(q.o, (o) => -Math.abs(+o.replace(/\D/g, "") - n)); } },
+  { id: T.de1, has: "máy ghi âm có bộ nhớ còn trống 8 GB", right: (q) => { const n = (8 * DON_VI.GB) / (4 * DON_VI.MB); assert.equal(n, 2048); return lonNhat(q.o, (o) => -Math.abs(+o.replace(/\D/g, "") - n)); } },
   { id: T.de2, has: "Đơn vị nhỏ nhất dùng để đo dung lượng", right: (q) => lonNhat(q.o, (o) => -DON_VI[(/\((\w+)\)/.exec(o) || [0, o])[1]]) },
   { id: T.de2, has: "Thiết bị lưu trữ nào sau đây có dung lượng lớn nhất", right: (q) => lonNhat(q.o, dungLuong) },
   { id: T.de2, has: "Một tệp bài hát có dung lượng 1,5 MB", right: (q) => { assert.equal(q.unit, "KB"); return (1.5 * DON_VI.MB) / DON_VI.KB; } },
