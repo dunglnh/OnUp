@@ -315,7 +315,6 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 
 | Phiên | Hạn | Nội dung | Kho | Mã mới | Kiểm thử phải sửa |
 |---|---|---|---|---|---|
-| DS9 | 10/11/2026 (muộn nhất 30/11/2026) | GDCD 6 cuối kì I, giữa kì II: dò | 100 câu có sẵn | — | `tests/lsdl-tin6-ck1.js`, `tests/lsdl-gdcd6-gk2.js` khi đổi câu |
 | DS10 | 10/11/2026 (muộn nhất 7/12/2026) | Lịch sử và Địa lí 4 (bản chỉnh sửa năm 2026) cuối kì I, Bài 1 và vùng Trung du và miền núi Bắc Bộ: dò | 32 câu có sẵn | — | không |
 | DS10b | 10/11/2026 (muộn nhất 7/12/2026) | Lịch sử và Địa lí 4 (bản chỉnh sửa năm 2026) cuối kì I, vùng Đồng bằng Bắc Bộ: dò | 46 câu có sẵn | — | không |
 | DS10c | 10/11/2026 (muộn nhất 7/12/2026) | Khoa học 4 cuối kì I, chủ đề Chất (nước, không khí): dò | 41 câu có sẵn | — | không |
@@ -377,13 +376,6 @@ Chủ app yêu cầu ngày 23/10/2026: đề, bài ôn chưa đối chiếu vớ
 
 Theo Quy định chung của các phiên dò sách ở nhóm trên. Cuối kì I lớp 6 thi từ 21/12/2026 (muộn nhất 30/11), lớp 4 từ 28/12/2026 (muộn nhất 7/12); giữa kì II muộn nhất 22/2/2027.
 
-> Còn lại theo Quy định chung của các phiên dò sách và của các phiên N ở mục 7 của docs/KE-HOACH-NOI-DUNG.md.
-
-**Phiên DS9 · GDCD 6 cuối kì I, giữa kì II: dò với sách in năm 2026** (hạn 10/11/2026; muộn nhất 30/11/2026)
-> Ở docs/KE-HOACH-NOI-DUNG.md chỉ đọc (tìm bằng `grep -n`): mục 3 các dòng “Rút ra” của N6, N12, N24b; mục 4 đoạn “Sách” và dòng của cuốn sách ở bảng “Sách và link của từng phiên”; mục 7 Quy định chung của các phiên N và của các phiên dò sách. Mở bản PDF Giáo dục công dân 6 (N24b đã mở), Bài 1–9. Dò theo bài, trong data/banks/6-gdcd.js, 100 câu:
-> 1. `gdcd6-ck1-de1` (Phiên 10), `gdcd6-ck1-de2` (Phiên N6, PR #83): học kì I theo `note` của đề, 50 câu.
-> 2. `gdcd6-gk2-de1`, `gdcd6-gk2-de2` (Phiên N12; chỗ nhờ dò lại ở PR #125): Bài 7–9, 50 câu.
-> Đổi câu thì chạy lại và sửa tests/lsdl-tin6-ck1.js, tests/lsdl-gdcd6-gk2.js (in MATH OK).
 > Còn lại theo Quy định chung của các phiên dò sách và của các phiên N ở mục 7 của docs/KE-HOACH-NOI-DUNG.md.
 
 **Phiên DS10 · Lịch sử và Địa lí 4 (bản chỉnh sửa năm 2026) cuối kì I, Bài 1 và vùng Trung du và miền núi Bắc Bộ: dò với sách in năm 2026** (hạn 10/11/2026; muộn nhất 7/12/2026)
