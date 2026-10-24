@@ -221,6 +221,7 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .grp[open]>summary::after{margin-top:4px;transform:rotate(-135deg)}
 .grp>summary .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .grp>.list{border:0;border-top:1px solid var(--line);border-radius:0}
+.sb-g{display:flex;flex-direction:column;gap:10px} /* danh sách đề có sẵn (banksHTML): thẻ môn cách nhau 10px như ở Sửa kì thi (.pk; UX7b, X35) */
 /* ô tìm đề (Phiên UX7): kính lúp trong ô, bên trái; tìm không phân biệt dấu, theo từng từ (findHit trong js/app.js) */
 .find{position:relative;display:block;min-width:0}
 .find svg{position:absolute;left:12px;top:50%;width:18px;height:18px;margin-top:-9px;color:var(--muted);pointer-events:none}

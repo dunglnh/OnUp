@@ -628,9 +628,13 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      khuất không tính); hai đoạn khác nhau cùng lớp (cùng phần tử position fixed/sticky gần nhất, hoặc cùng không có: thanh dính, thông báo
      nổi che nội dung là đúng thiết kế) chồng lên nhau quá 2px theo chiều ngang và quá 40% chiều cao dòng thấp hơn (hai dòng liền nhau của một
      đoạn, dòng sát nhau vì line-height nhỏ không tính); chữ không tràn ra ngoài ô chứa nó (phần tử không inline gần nhất) quá 1,5px theo chiều
-     ngang; chữ không đè lên ô nhập, hình. only === "chữ": chỉ kiểm tra chữ đè, chữ tràn (bài ôn dạng trang giữ cỡ chữ, cỡ nút của bài gốc). */
+     ngang; chữ không đè lên ô nhập, hình. Không có hai phần tử cùng id, kể cả phần tử đang ẩn (X33, Phiên UX7b: $("#…") chỉ thấy phần tử
+     đầu; dòng khối đang hiện của Sửa kì thi từng trùng id với ô Phạm vi kiến thức nên không hiện). only === "chữ": chỉ kiểm tra chữ đè,
+     chữ tràn, id trùng (bài ôn dạng trang giữ cỡ chữ, cỡ nút của bài gốc). */
   const audit = (only) => {
     const bad = [], shown = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden"; };
+    const idN = new Map(); document.querySelectorAll("[id]").forEach((e) => { if (e.id) idN.set(e.id, (idN.get(e.id) || 0) + 1); });
+    idN.forEach((n, id) => { if (n > 1) bad.push(`id trùng: #${id} (${n} phần tử)`); });
     {
       const cs = (e) => getComputedStyle(e), say = (s) => `"${s.slice(0, 32)}"`;
       /* ẩn: nằm trong <details> đang đóng (trừ dòng summary; getComputedStyle không ghi display:none), display:none, visibility, opacity 0,
@@ -3426,6 +3430,13 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      ("Xem ví dụ", mọi dạng câu) không có thẻ lỗi, không có bộ lọc. */
   const OUTUX7 = OUT + "ux7/"; fs.mkdirSync(OUTUX7, { recursive: true });
   const ux7 = { problems: [], shots: [] };
+  /* X34 (Phiên UX7b): trong một nhóm môn, đề có sẵn theo kì (Giữa kì I, Cuối kì I, Giữa kì II, Cuối năm), trong một kì đề ngẫu nhiên trước
+     rồi Đề 1, Đề 2…; đề tự soạn (dòng ghi “· tự soạn”) sau đề có sẵn. inOrder(tên các dòng theo thứ tự trên màn). Nhóm môn theo lịch thi:
+     lớp 4 Toán, Tiếng Việt, Tiếng Anh, Lịch sử và Địa lí, Khoa học, Tin học và Công nghệ; lớp 6 Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và
+     Địa lí, GDCD, Tin học, Công nghệ; môn không có trong lịch (Thử nghiệm) cuối. */
+  const TERMS7 = ["Giữa kì I", "Cuối kì I", "Giữa kì II", "Cuối năm"], SUBJ4 = "Toán,Tiếng Việt,Tiếng Anh,Lịch sử và Địa lí,Khoa học,Tin học và Công nghệ";
+  const orderKey = (t) => { const p = t.split(" · "); return /· tự soạn$/.test(t) ? [1, 0, 0, 0] : [0, TERMS7.findIndex((m) => p.includes(m)), /· Đề ngẫu nhiên$/.test(t) ? 0 : 1, +((/· Đề (\d+)$/.exec(t) || [])[1] || 0)]; };
+  const inOrder = (titles) => titles.length > 0 && titles.every((t, i) => { if (!i) return true; const a = orderKey(titles[i - 1]), b = orderKey(t), j = a.findIndex((v, k) => v !== b[k]); return j < 0 || a[j] < b[j]; });
   const UX7_SRC = "# Phép cộng\n345 678 + 254 322 = ?\n* 600 000\n- 590 000\n- 599 990\n> Cộng từ phải sang trái, nhớ sang hàng bên trái.\n\n1 000 000 − 456 789 = [543211|543 211]\nMức: Rất khó\n\n"
     + "# Đo lường\nMột sợi dây dài 2 m, cắt đi 0,75 m. Đoạn còn lại dài bao nhiêu mét?\nĐáp số: một phẩy hai lăm m\n\n"
     + "# Đọc hiểu\nĐoạn đọc: Chú mèo con\nNhà Bin có một chú mèo con lông trắng muốt.\nHết đoạn\n\nChú mèo con có bộ lông màu gì?\n* Trắng\n- Đen\n- Vàng";
@@ -3451,33 +3462,47 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await p.goto(BASE + "/#/admin/event/gk2-l4"); await p.waitForSelector("#ePick");
     r.only4 = await p.evaluate(() => { const e = Store.event("gk2-l4"), ck = document.querySelectorAll("#ePick input:checked").length;
       return { grades: e.grades.join(), want: Store.banks(4).map((b) => b.id).sort().join(), wantM: window.ONTAP_MODULES.filter((m) => m.grade === 4).map((m) => m.id).sort().join(), n: document.querySelector("#ePickN").textContent, ck, mine: e.banks.length + e.modules.length,
-        head: document.querySelector("#ePickH").textContent, scope: document.querySelector("#eScope").textContent, all: document.querySelector("#eAll").textContent,
+        head: document.querySelector("#ePickH").textContent, scope: document.querySelector("#ePickScope").textContent, all: document.querySelector("#eAll").textContent,
         rows: [...document.querySelectorAll("#ePick .ck")].filter((x) => x.offsetParent).every((x) => x.getBoundingClientRect().height >= 44), find: document.querySelector("#eFind").placeholder }; });
     r.only4.eb = await shown("eb"); r.only4.em = await shown("em");
     await p.check('input[name=eg][value="6"]');
     r.only4.with6 = (await shown("eb")) === (await p.evaluate(() => Store.banks().filter((b) => b.grade === 4 || b.grade === 6).map((b) => b.id).sort().join()));
+    // X34: các nhóm đang hiện, mỗi nhóm [tên môn, tên các dòng đang hiện]
+    const pickRows = () => p.$$eval("#ePick .pk-g", (d) => d.filter((x) => !x.hidden).map((x) => { const ck = [...x.querySelectorAll(".ck")].filter((c) => !c.hidden);
+      return [x.querySelector("b").textContent, ck.map((c) => c.textContent.replace(/\s+/g, " ").trim()), ck.map((c) => +c.dataset.g)]; }));
+    r.only4.rows6 = await pickRows(); // gk2-l4 có cả lớp 6: mục của khối kì thi (lớp 4) trước mục lớp 6 trong mỗi nhóm
+    // X34: kì thi giữa kì I lớp 4 (môn thi Toán, Tiếng Việt): Bài ôn dạng trang, Toán, Tiếng Việt đứng đầu, rồi các môn khác theo lịch thi lớp 4
+    await p.goto(BASE + "/#/admin/event/gk1-l4"); await p.waitForSelector("#ePick");
+    r.order = { subj: await p.evaluate(() => Store.event("gk1-l4").subjects.join()), gk1: (await pickRows()).map(([g]) => g).join() };
     // X11: kì thi có lựa chọn khác khối, tìm, hiện cả khối khác, lưu
     await p.goto(BASE + "/#/admin/event/ck1-l4"); await p.waitForSelector("#ePick");
     const before = await picked();
-    r.keep = { n: await txt("#ePickN"), ck: before, van6: (await shown("eb")).split(",").includes(r.other), ioe6: (await shown("em")).split(",").includes("ioe-6"),
-      groups: await p.$$eval("#ePick .pk-g", (d) => d.map((x) => (x.hidden ? "-" : x.open ? "+" : "") + x.querySelector("b").textContent + " " + x.querySelector(".pk-n").textContent).join("|")) };
+    // X33 (Phiên UX7b): dòng khối đang hiện là #ePickScope, hiện ra (cao hơn 0); ô Phạm vi kiến thức giữ id eScope, Lưu đọc ô đó
+    const scopeLine = () => p.$eval("#ePickScope", (x) => ({ t: x.textContent, h: x.getBoundingClientRect().height }));
+    before.scope = await p.evaluate(() => [Store.event("ck1-l4").scope, document.querySelector("#eScope").tagName, document.querySelector("#eScope").value, document.querySelector("#eScope").textContent].join("|"));
+    r.keep = { n: await txt("#ePickN"), ck: before, van6: (await shown("eb")).split(",").includes(r.other), ioe6: (await shown("em")).split(",").includes("ioe-6"), scope: await scopeLine(),
+      groups: await p.$$eval("#ePick .pk-g", (d) => d.map((x) => (x.hidden ? "-" : x.open ? "+" : "") + x.querySelector("b").textContent + " " + x.querySelector(".pk-n").textContent).join("|")), rows: await pickRows(),
+      gaps: await p.$$eval("#ePick .pk-g:not([hidden])", (d) => [...new Set(d.slice(1).map((x, i) => Math.round(x.getBoundingClientRect().top - d[i].getBoundingClientRect().bottom)))].join()) }; // X35: khoảng cách các thẻ môn ở Sửa kì thi
     await check7("sửa kì thi"); await snap7("sua-ki-thi");
     await p.fill("#eFind", "toan de 2");
     const de2 = (gs) => p.evaluate((gs) => Store.banks().filter((b) => gs.includes(b.grade) && b.subject === "Toán" && / · Đề 2$/.test(b.title)).map((b) => b.id).sort().join(), gs);
     r.find = { eb: await shown("eb"), want: await de2([4]), em: await shown("em"), n: await txt("#ePickN") };
     await check7("sửa kì thi, tìm"); await snap7("sua-ki-thi-tim");
     await p.click("#eAll");
-    r.find.all = { eb: await shown("eb"), want: await de2([4, 6]), link: await txt("#eAll"), scope: await txt("#eScope") };
+    r.find.all = { eb: await shown("eb"), want: await de2([4, 6]), link: await txt("#eAll"), scope: await txt("#ePickScope") };
     await p.click("#eAll"); await p.fill("#eFind", "");
     r.find.back = (await shown("eb")).split(",").length;
+    await p.uncheck('input[name=eg][value="4"]'); r.find.none = await scopeLine(); // bỏ ô Lớp 4: dòng nhắc chọn khối
+    await p.check('input[name=eg][value="4"]'); r.find.again = await scopeLine();
     // bỏ một đề Toán 4 đã chọn, chọn một đề Toán 4 chưa chọn
     const flip = await p.evaluate(() => { const ins = [...document.querySelectorAll("#ePick .ck:not([hidden]) input[name=eb]")].filter((i) => /^Toán 4\s/.test(i.parentElement.textContent)); // nb(): khoảng trắng trước "·" là U+00A0
       return { off: (ins.find((i) => i.checked) || {}).value, on: (ins.find((i) => !i.checked) || {}).value }; });
     await p.click(`#ePick input[value="${flip.off}"]`); await p.click(`#ePick input[value="${flip.on}"]`);
     r.keep.n2 = await txt("#ePickN");
     await p.click("#eForm [type=submit]"); await p.waitForFunction(() => location.hash === "#/admin/events");
-    const after = await p.evaluate(() => { const e = Store.event("ck1-l4"); return { eb: e.banks.slice().sort().join(), em: e.modules.slice().sort().join() }; });
+    const after = await p.evaluate(() => { const e = Store.event("ck1-l4"); return { eb: e.banks.slice().sort().join(), em: e.modules.slice().sort().join(), scope: e.scope }; });
     r.keep.saved = after.em === before.em && after.eb === before.eb.split(",").filter((x) => x !== flip.off).concat(flip.on).sort().join() && after.eb.includes(r.other) && after.em.includes("ioe-6") && !!flip.off && !!flip.on;
+    r.keep.scopeSaved = before.scope === `${after.scope}|INPUT|${after.scope}|` && after.scope.length > 10; // ô Phạm vi kiến thức không có chữ ghi nhầm vào, Lưu giữ nguyên
     // X12: tab Ngân hàng đề
     await p.goto(BASE + "/#/admin/banks"); await p.waitForSelector("#seedBanks");
     r.list = await p.evaluate(() => { const seed = window.ONTAP_SEED_BANKS, act = window.ONTAP_GRADES.filter((g) => g.active).map((g) => g.grade), mine = document.querySelector("#myBanks");
@@ -3485,7 +3510,10 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
         tabs: [...document.querySelectorAll("#seedBanks .tabs button")].map((b) => b.textContent + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join(),
         wantTabs: act.map((g, i) => `Lớp ${g} · ${seed.filter((b) => b.grade === g).length} đề` + (i ? "" : "*")).join(),
         groups: [...document.querySelectorAll('.sb-g[data-sg="4"] .grp')].map((d) => d.querySelector("b").textContent + (d.open ? "+" : "")).join(),
-        wantGroups: [...new Set(seed.filter((b) => b.grade === 4).map((b) => b.subject))].join(), rows: document.querySelectorAll("#seedBanks a.item").length, wantRows: seed.filter((b) => act.includes(b.grade)).length }; });
+        groups6: [...document.querySelectorAll('.sb-g[data-sg="6"] .grp')].map((d) => d.querySelector("b").textContent).join(),
+        lists: [...document.querySelectorAll(".sb-g .grp")].map((d) => [...d.querySelectorAll("a.item b")].map((x) => x.textContent.replace(/\s+/g, " "))), // X34: tên đề trong từng nhóm, theo thứ tự trên màn
+        gaps: (() => { const d = [...document.querySelectorAll(".sb-g:not([hidden]) > .grp")]; return d.slice(1).map((x, i) => Math.round(x.getBoundingClientRect().top - d[i].getBoundingClientRect().bottom)).join(); })(), // X35: thẻ môn cách nhau 10px
+        rows: document.querySelectorAll("#seedBanks a.item").length, wantRows: seed.filter((b) => act.includes(b.grade)).length }; });
     await check7("ngân hàng đề"); await snap7("ngan-hang-de");
     await p.fill("#seedFind", "toan de 2");
     const visTitles = () => p.$$eval(".sb-g:not([hidden]) a.item:not([hidden]) b", (b) => b.map((x) => x.textContent.replace(/\s+/g, " ")).sort().join());
@@ -3542,10 +3570,21 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.keep.van6 && r.keep.ioe6 && r.keep.n === (r.keep.ck.eb.split(",").length + r.keep.ck.em.split(",").length) + " đã chọn" && /^\+Bài ôn dạng trang \d+\/\d+ đã chọn\|/.test(r.keep.groups) && /\|\+Toán \d+\/\d+ đã chọn\|/.test(r.keep.groups) && /\|\+Ngữ văn 1\/1 đã chọn(\||$)/.test(r.keep.groups) && /\|\+?Tiếng Việt \d+\/\d+ đã chọn · 1 đề tự soạn\|/.test(r.keep.groups)
       && r.find.eb === r.find.want && r.find.want.split(",").length >= 2 && r.find.em === "" && r.find.all.eb === r.find.all.want && r.find.all.want.split(",").length > r.find.want.split(",").length
       && r.find.all.link === "Chỉ hiện đề của khối kì thi" && r.find.all.scope === "Đang hiện bài ôn và đề của mọi khối." && r.find.back > 10 && r.keep.n2 === r.keep.n && r.keep.saved
-      && r.list.first && /^Tiếng Việt 4 · thử ?Lớp 4 · Tiếng Việt · 11 câu · chưa gắn vào kì thi nào/.test(r.list.mine) && r.list.tabs === r.list.wantTabs && r.list.groups === r.list.wantGroups && r.list.rows === r.list.wantRows
+      && r.keep.scope.t === "Đang hiện bài ôn và đề của Lớp 4, khối của kì thi này." && r.keep.scope.h > 0 && r.keep.scopeSaved
+      && r.find.none.t === "Chọn khối ở trên để thấy bài ôn và đề của khối đó." && r.find.none.h > 0 && r.find.again.t === r.keep.scope.t
+      && r.list.first && /^Tiếng Việt 4 · thử ?Lớp 4 · Tiếng Việt · 11 câu · chưa gắn vào kì thi nào/.test(r.list.mine) && r.list.tabs === r.list.wantTabs && r.list.rows === r.list.wantRows
+      // X34: môn theo lịch thi của khối; đề theo kì, đề ngẫu nhiên đầu mỗi kì (Toán 4: ba đề giữa kì I trước bốn đề cuối kì I); Sửa kì thi
+      && r.list.groups === SUBJ4 && r.list.groups6 === "Toán,Ngữ văn,Tiếng Anh,KHTN,Lịch sử và Địa lí,GDCD,Tin học,Công nghệ,Thử nghiệm" && r.list.lists.length > 10 && r.list.lists.every(inOrder)
+      && r.list.lists[0].slice(0, 7).join("|") === "Toán 4 · Giữa kì I · Đề ngẫu nhiên|Toán 4 · Giữa kì I · Đề 1|Toán 4 · Giữa kì I · Đề 2|Toán 4 · Cuối kì I · Đề ngẫu nhiên|Toán 4 · Cuối kì I · Đề 1|Toán 4 · Cuối kì I · Đề 2|Toán 4 · Cuối kì I · Đề 3"
+      && r.order.subj === "Toán,Tiếng Việt" && r.order.gk1 === "Bài ôn dạng trang," + SUBJ4
+      && r.keep.rows.map(([g]) => g).join() === "Bài ôn dạng trang," + SUBJ4 + ",Ngữ văn" && r.keep.rows.slice(1).every(([, t]) => inOrder(t))
+      && /· tự soạn$/.test(r.keep.rows[2][1][r.keep.rows[2][1].length - 1]) && r.keep.rows[1][1].slice(0, 3).join("|") === "Toán 4 · Giữa kì I · Đề ngẫu nhiên|Toán 4 · Giữa kì I · Đề 1|Toán 4 · Giữa kì I · Đề 2"
+      && r.only4.rows6.slice(1).every(([, t, g]) => { const k = g.includes(6) ? g.indexOf(6) : g.length; return g.slice(0, k).every((x) => x === 4) && g.slice(k).every((x) => x === 6) && (!k || inOrder(t.slice(0, k))) && (k === g.length || inOrder(t.slice(k))); })
+      && r.only4.rows6.some(([, , g]) => g.includes(4) && g.includes(6))
+      && r.keep.gaps === "10" && r.list.gaps === "10,10,10,10,10" // X35: thẻ môn của danh sách đề có sẵn cách nhau 10px như ở Sửa kì thi
       && r.list.find4.got === r.list.find4.want && r.list.find4.want.split(",").length >= 2 && /^Lớp 4 · \d+ đề,Lớp 6 · \d+ đề$/.test(r.list.find4.tabs) && r.list.find4.open === "Toán+" && r.list.find6.got === r.list.find6.want && r.list.find6.want.split(",").length >= 2
       && r.evOpts.first === "" && r.evOpts.n > 3 && r.evOpts.ok && r.evOpts.gk1 && /^Kiểm tra giữa học kì I \(\d+\/\d+\)$/.test(r.evOpts.label)
-      && r.prev.res === "Nhận được 3 câu: 2 trắc nghiệm, 1 điền khuyết, 0 đúng/sai; 1 đoạn đọc. Cần sửa: 1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Xem các thẻ viền đỏ bên dưới."
+      && r.prev.res === "Nhận được 3 câu: 2 trắc nghiệm, 1 điền khuyết; 1 đoạn đọc. Cần sửa: 1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Xem các thẻ viền đỏ bên dưới." // X36: không ghi dạng 0 câu
       && r.prev.cards === "pv1,pv2!,pv3!,pvd1,pv4" && r.prev.filter === "Tất cả · 5Cần sửa · 2" && r.prev.pv2 === "Mức độ “Rất khó” chưa đúng (Biết, Hiểu hoặc Vận dụng)"
       && r.prev.pv3.tag === "Chưa lưu được" && r.prev.pv3.head === "Câu 3 · Đo lường" && /^Một sợi dây dài 2 m.*Đáp số: một phẩy hai lăm m$/.test(r.prev.pv3.src) && /^Dòng “Đáp số:” cần một số/.test(r.prev.pv3.err)
       && r.prev.right === "A600 000✓ Đúng" && r.prev.fill === "Đáp án được chấm đúng: 543211 hoặc 543 211" && r.prev.psg === "Đoạn đọc 1 · Chú mèo conDùng cho 1 câu" && r.prev.check === "Kiểm tra lại" && r.prev.onlyBad === "pv2,pv3"
@@ -3567,6 +3606,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      - In (emulateMedia print): không có khối tin nhắn, nút In; vẫn có nhãn OnUp · Báo cáo tuần.
      - Na (lớp 6, cũng là con của Mẹ Bin trong bước này) chưa làm bài nào trong tuần: tin nhắn chỉ có dòng "Chưa làm bài nào", kì thi
        gần nhất, gợi ý bắt đầu lại; không có dòng điểm, chủ đề.
+     - X37 (Phiên UX7b): Bin có chủ đề hay sai có dấu phẩy (“Phép cộng, phép trừ”): gợi ý “Ôn lại chủ đề hay sai: …” ở mục Gợi ý ôn tuần
+       sau ngăn tên chủ đề bằng “; ”, giống dòng “Chủ đề hay sai” của tin nhắn.
      Ảnh 360px sáng/tối ở tests/screenshots/ux8/ (bản ghép <tên>.jpg; chép sang docs/hinh-ux8/): bao-cao-tin-nhan, da-chep, ban-in. */
   const OUTUX8 = OUT + "ux8/"; fs.mkdirSync(OUTUX8, { recursive: true });
   const ux8 = { problems: [], shots: [] };
@@ -3601,7 +3642,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       const mk = (o) => Object.assign({ id: "ux8" + Math.random().toString(36).slice(2), userId: bin.id, s: 900 }, o);
       d.results = [
         mk({ source: "bank", refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 1", mode: "practice", r: 19, t: 25, at: at(10, 9), wrongTopics: ["Góc và đo góc"] }), // tuần trước
-        mk({ source: "bank", refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 1", mode: "practice", r: 21, t: 25, at: at(2, 9), wrongTopics: ["Góc và đo góc", "Góc và đo góc", "Đơn vị đo"] }),
+        mk({ source: "bank", refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 1", mode: "practice", r: 21, t: 25, at: at(2, 9), wrongTopics: ["Góc và đo góc", "Góc và đo góc", "Đơn vị đo", "Phép cộng, phép trừ"] }), // X37: chủ đề có dấu phẩy
         mk({ source: "module", refId: "l4-giua-ki-1", subject: "Toán", label: "Toán · Đề 1", mode: "exam", r: 18, t: 20, at: at(1, 20) }),
         mk({ source: "bank", refId: "ta4-ck1-de1", subject: "Tiếng Anh", label: "Tiếng Anh 4 · Cuối kì I · Đề 1", mode: "exam", r: 22, t: 25, at: at(0, 9) }),
         mk({ source: "bank", refId: "toan4-ck1-de2", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 2", mode: "practice", r: 20, t: 25, at: at(0, 17) })];
@@ -3665,7 +3706,10 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   const ux8OK = !ux8.problems.length && ["light", "dark"].every((sc) => { const r = ux8[sc], g = r.page, L = g.msg.split("\n"), tipL = L.slice(5, -1), flat = (x) => x.replace(/\s+/g, " ").trim();
     return L[0] === "Báo cáo tuần của Bin (15/10 – 21/10/2026)" && L[1] === `• Làm ${g.count} bài, ôn ${g.days} ngày, ${g.mins} phút.` && g.count === "4" && g.days === "3/7" && g.mins === "60"
       && L[2] === `• Điểm trung bình ${g.avg}/10 (tuần trước ${g.pvAvg.replace(/^Tuần trước: /, "")}).` && g.avg === "8,5" && g.pvAvg === "Tuần trước: 7,5"
-      && L[3] === `• Chủ đề hay sai: ${g.topics.slice(0, 3).join("; ")}.` && g.topics.join() === "Góc và đo góc,Đơn vị đo"
+      && L[3] === `• Chủ đề hay sai: ${g.topics.slice(0, 3).join("; ")}.` && g.topics.join("|") === "Góc và đo góc|Đơn vị đo|Phép cộng, phép trừ"
+      // X37 (Phiên UX7b): gợi ý về chủ đề hay sai ngăn tên chủ đề bằng "; " như dòng của tin nhắn
+      && g.tips.filter((x) => /^Ôn lại chủ đề hay sai: /.test(x)).join("|") === "Ôn lại chủ đề hay sai: " + L[3].slice("• Chủ đề hay sai: ".length)
+      && L[3] === "• Chủ đề hay sai: Góc và đo góc; Đơn vị đo; Phép cộng, phép trừ."
       && L[4] === `• Sắp tới: ${g.ev.title}, 2/11 – 13/11/2026 (dự kiến, ${g.ev.left.toLowerCase()}).` && g.ev.title === "Kiểm tra giữa học kì I" && g.ev.left === "Còn 12 ngày"
       && tipL.join("|") === "• Gợi ý: Tuần sau cố gắng ôn ít nhất 5 ngày, mỗi ngày 20–30 phút, thay vì làm dồn một buổi.|• Gợi ý: Tuần này chưa ôn Tiếng Việt cho kì thi sắp tới."
       && tipL.every((x) => g.tips.some((li) => li.includes(x.slice("• Gợi ý: ".length))) && !x.includes(g.ev.title) && !/còn \d+ ngày|chủ đề hay sai/i.test(x)) && g.tips.length === 4

@@ -974,7 +974,7 @@
     const weak = bySubject(week).filter((x) => x.t >= 5 && pct(x.r, x.t) < 70);
     if (weak.length) tips.push({ k: "weak", t: `${weak.map((x) => x.name + " mới đúng " + pct(x.r, x.t) + "%").join(", ")}: xem lại lời giải các câu sai rồi làm lại đề đó.` });
     const tp = wrongTopics(week).slice(0, 3).map(([t]) => t);
-    if (tp.length) tips.push({ k: "topics", t: `Ôn lại chủ đề hay sai: ${tp.join(", ")}.` });
+    if (tp.length) tips.push({ k: "topics", t: `Ôn lại chủ đề hay sai: ${tp.join("; ")}.` }); // "; " như tin nhắn (reportMsg): tên chủ đề có thể có dấu phẩy (X37)
     return tips.concat(later).slice(0, 5);
   }
   /* Tin nhắn gửi báo cáo tuần (Phiên UX8, X14): chữ thuần để bố mẹ gửi ông bà, cô giáo hay người kia trong nhà qua Zalo, khoảng
@@ -1630,19 +1630,18 @@
   /* Danh sách đề (Phiên UX7, X12): trang "Đề tự soạn" của bản đám mây, tab "Ngân hàng đề" của bản lưu trên máy. Đề tự soạn (#myBanks)
      lên đầu, mỗi đề ghi kì thi đã gắn hoặc "chưa gắn vào kì thi nào". Đề có sẵn (#seedBanks) chọn theo khối: tab khối lấy từ gradeList(),
      ghi số đề (đang tìm thì số đề khớp), mặc định khối của các con; trong mỗi khối đề nhóm theo môn bằng <details> thu gọn (đang tìm thì
-     nhóm có đề khớp mở ra). Ô tìm như ô tìm của màn Sửa kì thi (findHit), tìm ở mọi khối. Mọi khối vẽ sẵn, tab chỉ ẩn, hiện; bankGrade
-     nhớ khối đang chọn. */
+     nhóm có đề khớp mở ra), môn theo thứ tự môn của lịch thi của khối, đề theo kì, đề ngẫu nhiên đầu mỗi kì (X34). Ô tìm như ô tìm của
+     màn Sửa kì thi (findHit), tìm ở mọi khối. Mọi khối vẽ sẵn, tab chỉ ẩn, hiện; bankGrade nhớ khối đang chọn. */
   let bankGrade = null;
   function banksHTML(cloud) {
     const all = Store.banks(), mine = all.filter((b) => !b.seed), seed = all.filter((b) => b.seed), gl = gradeList();
     const linked = (b) => { const ev = Store.events().filter((e) => (e.banks || []).includes(b.id)).map((e) => e.title); return ev.length ? "gắn vào " + ev.join(", ") : "chưa gắn vào kì thi nào"; };
     if (!gl.includes(bankGrade)) bankGrade = gradesOf(Store.users("student")).find((g) => gl.includes(g)) || gl[0];
-    const byTitle = (a, b) => a.title.localeCompare(b.title, "vi", { numeric: true });
     const row = (b) => `<a class="item" href="#/quiz/${esc(b.id)}" data-k="${esc(findKey(b.title + " " + b.subject))}" style="color:inherit;text-decoration:none"><span class="grow"><b>${nb(esc(b.title))}</b><span class="small muted">${qCount(b)} câu${b.pool ? " rút ngẫu nhiên" : ""}${b.minutes ? ` · ${b.minutes} phút` : ""} · xem thử</span></span><span aria-hidden="true">›</span></a>`;
-    const pane = (g) => {
-      const subs = new Map();
+    const pane = (g) => { // môn theo lịch thi của khối (subjOrder), đề theo kì, đề ngẫu nhiên đầu mỗi kì (bankOrder; X34)
+      const subs = new Map(), bs = bySubj(subjOrder([], [g]));
       seed.filter((b) => +b.grade === g).forEach((b) => subs.set(b.subject || "Khác", (subs.get(b.subject || "Khác") || []).concat(b)));
-      return `<div class="sb-g" data-sg="${g}"${g === bankGrade ? "" : " hidden"}>${[...subs].map(([sub, l]) => `<details class="grp"><summary><span class="grow"><b>${esc(sub)}</b><span class="small muted sb-n">${l.length} đề</span></span></summary><div class="list">${l.sort(byTitle).map(row).join("")}</div></details>`).join("")
+      return `<div class="sb-g" data-sg="${g}"${g === bankGrade ? "" : " hidden"}>${[...subs].sort((a, b) => bs(a[0], b[0])).map(([sub, l]) => `<details class="grp"><summary><span class="grow"><b>${esc(sub)}</b><span class="small muted sb-n">${l.length} đề</span></span></summary><div class="list">${l.sort(bankOrder).map(row).join("")}</div></details>`).join("")
         || `<div class="panel muted">Chưa có đề có sẵn cho ${esc(gradeName(g))}.</div>`}</div>`;
     };
     const what = cloud ? "đề tự soạn" : "ngân hàng tự nhập", add = cloud ? "Nhập đề" : "Nhập ngân hàng";
@@ -1792,24 +1791,45 @@
   const findHit = (q, k) => { const h = String(k || "").split(" "); return findWords(q).every((w) => h.some((x) => x.startsWith(w))); };
   const findBox = (id, label, ph) => `<label class="find"><span class="sr">${label}</span>${ICO('<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>')}<input type="search" id="${id}" placeholder="${esc(ph)}" autocomplete="off" enterkeyhint="search"></label>`;
 
+  /* ---------------- thứ tự môn, thứ tự đề (Phiên UX7b, X34) ----------------
+     Sửa kì thi và danh sách đề có sẵn nhóm đề theo môn, xếp theo thứ tự môn của lịch thi. subjOrder(head, gs): các môn trong head (Sửa kì
+     thi: ô "Môn thi" của kì đang sửa, theo thứ tự đã ghi), rồi môn trong subjects của các kì thi của từng khối trong gs (kì thi theo
+     ngày), rồi của các khối còn lại (data/grades.js); bySubj(thứ tự) so hai tên môn theo thứ tự đó (không phân biệt hoa thường, dấu), môn
+     không có trong lịch đứng cuối, giữ thứ tự danh mục (sort ổn định). Trong một nhóm (bankOrder): đề có sẵn theo kì (TERMS, tên chuẩn
+     của đề có sẵn), trong một kì đề ngẫu nhiên trước rồi Đề 1, Đề 2… như tab Bài ôn; đề tự soạn (own) sau đề có sẵn, theo tên; bài ôn
+     dạng trang theo tên. */
+  const TERMS = ["Giữa kì I", "Cuối kì I", "Giữa kì II", "Cuối năm"];
+  const subjOrder = (head, gs) => [...new Set(head.concat(gs.concat(GRADES.map((g) => g.grade).filter((g) => !gs.includes(g)))
+    .flatMap((g) => Store.events(g).flatMap((e) => e.subjects || []))).map(findKey))];
+  const bySubj = (order) => { const at = (s) => { const i = order.indexOf(findKey(s)); return i < 0 ? order.length : i; }; return (a, b) => at(a) - at(b); };
+  const bankKey = (x) => {
+    const title = String(x.title).normalize("NFC"), t = TERMS.indexOf(title.split(/\s*·\s*/).find((p) => TERMS.includes(p)));
+    return x.own ? [1, 0, 0, 0] : [0, t < 0 ? TERMS.length : t, x.pool ? 0 : 1, +((/Đề\s*(\d+)/.exec(title) || [])[1] || 0)];
+  };
+  const bankOrder = (a, b) => { const ka = bankKey(a), kb = bankKey(b), i = ka.findIndex((v, j) => v !== kb[j]); return i >= 0 ? ka[i] - kb[i] : a.title.localeCompare(b.title, "vi", { numeric: true }); };
+
   /* Khối "Bài ôn và đề cho kì này" của màn Sửa kì thi (Phiên UX7, X11): bài ôn dạng trang và đề (có sẵn, tự soạn) trong một danh sách,
      nhóm theo môn bằng <details class="grp"> (bài ôn dạng trang một nhóm, đứng đầu; nhóm có mục đã chọn mở sẵn), nhãn "N đã chọn"
      ở đầu khối, mỗi nhóm "x/y đã chọn". Mặc định chỉ hiện mục có khối nằm trong các ô Khối đang chọn (cộng khối ẩn của kì thi): đổi
-     ô Khối thì danh sách đổi theo; link "Hiện cả đề của khối khác" hiện mọi khối. Mục đã chọn (lúc mở form hoặc vừa chọn, data-keep)
+     ô Khối thì danh sách đổi theo; link "Hiện cả đề của khối khác" hiện mọi khối; dòng #ePickScope ghi đang hiện khối nào (X33: không
+     dùng id eScope, đó là ô Phạm vi kiến thức). Mục đã chọn (lúc mở form hoặc vừa chọn, data-keep)
      luôn hiện dù khác khối. Ô tìm lọc theo tên và môn (findHit). Mọi ô đánh dấu luôn nằm trong form (chỉ ẩn bằng hidden), nên Lưu
-     giữ đủ lựa chọn cũ, kể cả mục đang ẩn. Dòng ô đánh dấu cao ≥ 44px. */
+     giữ đủ lựa chọn cũ, kể cả mục đang ẩn. Dòng ô đánh dấu cao ≥ 44px. Thứ tự (X34): nhóm Bài ôn dạng trang, rồi các môn trong ô "Môn thi"
+     của kì đang sửa, rồi theo lịch thi của khối kì thi, của các khối khác (subjOrder); trong nhóm, mục của khối kì thi trước mục khối
+     khác, trong một khối theo bankOrder (kì, đề ngẫu nhiên trước, đề tự soạn cuối). */
   function pickBoxHTML(e) {
-    const on = new Set((e.modules || []).map((x) => "em:" + x).concat((e.banks || []).map((x) => "eb:" + x)));
+    const on = new Set((e.modules || []).map((x) => "em:" + x).concat((e.banks || []).map((x) => "eb:" + x))), eg = (e.grades || []).map(Number);
     const groups = new Map([["Bài ôn dạng trang", []]]), add = (g, it) => groups.set(g, (groups.get(g) || []).concat(it));
     MODULES.forEach((m) => add("Bài ôn dạng trang", { n: "em", id: m.id, title: m.title, grade: m.grade }));
-    Store.banks().forEach((b) => add(b.subject || "Khác", { n: "eb", id: b.id, title: b.title, grade: +b.grade, own: !b.seed, subj: b.subject }));
-    const sort = (a, b) => a.grade - b.grade || !!a.own - !!b.own || a.title.localeCompare(b.title, "vi", { numeric: true });
+    Store.banks().forEach((b) => add(b.subject || "Khác", { n: "eb", id: b.id, title: b.title, grade: +b.grade, own: !b.seed, pool: !!b.pool, subj: b.subject }));
+    const sort = (a, b) => !eg.includes(a.grade) - !eg.includes(b.grade) || a.grade - b.grade || bankOrder(a, b);
+    const [mods, ...subs] = [...groups], bs = bySubj(subjOrder(e.subjects || [], eg));
     const isOn = (it) => on.has(it.n + ":" + it.id);
     const row = (it) => `<label class="ck" data-g="${it.grade}" data-k="${esc(findKey(it.title + " " + (it.subj || "")))}"${it.own ? " data-own" : ""}${isOn(it) ? " data-keep" : ""}><input type="checkbox" name="${it.n}" value="${esc(it.id)}"${isOn(it) ? " checked" : ""}><span>${nb(esc(it.title))}${it.own ? `<span class="muted"> · tự soạn</span>` : ""}</span></label>`;
-    const grps = [...groups].filter(([, l]) => l.length).map(([name, l]) => `<details class="grp pk-g"${l.some(isOn) ? " open" : ""}><summary><span class="grow"><b>${esc(name)}</b><span class="small muted pk-n"></span></span></summary><div class="pk-list">${l.sort(sort).map(row).join("")}</div></details>`).join("");
+    const grps = [mods].concat(subs.sort((a, b) => bs(a[0], b[0]))).filter(([, l]) => l.length).map(([name, l]) => `<details class="grp pk-g"${l.some(isOn) ? " open" : ""}><summary><span class="grow"><b>${esc(name)}</b><span class="small muted pk-n"></span></span></summary><div class="pk-list">${l.sort(sort).map(row).join("")}</div></details>`).join("");
     return `<section class="full pk" id="ePick" aria-labelledby="ePickH"><div class="row between"><h3 id="ePickH">Bài ôn và đề cho kì này</h3><span class="tag" id="ePickN"></span></div>
       ${findBox("eFind", "Tìm bài ôn, đề", "Tìm đề, ví dụ “Toán Đề 2”")}
-      <p class="small muted" id="eScope"></p>${grps}<p class="small muted" id="eNone" hidden></p>
+      <p class="small muted" id="ePickScope"></p>${grps}<p class="small muted" id="eNone" hidden></p>
       <button type="button" class="linkbtn" id="eAll" aria-pressed="false">Hiện cả đề của khối khác</button></section>`;
   }
   function wirePickBox(hiddenGrades) {
@@ -1827,7 +1847,7 @@
       rows.forEach((r) => (r.hidden = !((all || gs.includes(+r.dataset.g) || r.hasAttribute("data-keep")) && findHit(q, r.dataset.k))));
       $$(".pk-g", box).forEach((d) => { const n = $$(".ck:not([hidden])", d).length; d.hidden = !n; if (q && n) d.open = true; });
       const none = rows.every((r) => r.hidden);
-      $("#eScope").textContent = all ? "Đang hiện bài ôn và đề của mọi khối." : shown.length ? `Đang hiện bài ôn và đề của Lớp ${shown.join(", ")}, khối của kì thi này.` : "Chọn khối ở trên để thấy bài ôn và đề của khối đó.";
+      $("#ePickScope").textContent = all ? "Đang hiện bài ôn và đề của mọi khối." : shown.length ? `Đang hiện bài ôn và đề của Lớp ${shown.join(", ")}, khối của kì thi này.` : "Chọn khối ở trên để thấy bài ôn và đề của khối đó.";
       $("#eNone").hidden = !none || (!q && !all && !shown.length);
       $("#eNone").textContent = q ? `Không có bài ôn hay đề nào khớp “${q}”.` : "Chưa có bài ôn hay đề nào cho khối này.";
       $("#eAll").textContent = all ? "Chỉ hiện đề của khối kì thi" : "Hiện cả đề của khối khác";
@@ -2038,8 +2058,8 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
     };
     const check = () => {
       const res = Quiz.parse($("#bSrc").value), { questions, passages } = res, c = (t) => questions.filter((q) => q.type === t).length;
-      const kinds = KINDS.filter(([t], i) => i < 3 || c(t)).map(([t, nm]) => c(t) + " " + nm), np = Object.keys(passages).length, pr = bankProblems(res);
-      $("#bRes").innerHTML = `<div class="${pr.length ? "notice" : "fb ok"}">Nhận được ${questions.length} câu: ${kinds.join(", ")}${np ? `; ${np} đoạn đọc` : ""}.${pr.length ? ` Cần sửa: ${esc(pr.join(", "))}. Xem các thẻ viền đỏ bên dưới.` : ""}</div>`;
+      const kinds = KINDS.filter(([t]) => c(t)).map(([t, nm]) => c(t) + " " + nm), np = Object.keys(passages).length, pr = bankProblems(res); // chỉ dạng có câu, không ghi "0 đúng/sai" (X36)
+      $("#bRes").innerHTML = `<div class="${pr.length ? "notice" : "fb ok"}">Nhận được ${questions.length} câu${kinds.length ? ": " + kinds.join(", ") : ""}${np ? `; ${np} đoạn đọc` : ""}.${pr.length ? ` Cần sửa: ${esc(pr.join(", "))}. Xem các thẻ viền đỏ bên dưới.` : ""}</div>`;
       $("#bPrev").innerHTML = bankPreview(res); $("#bPrev").hidden = false;
       $$("[data-pf]").forEach((x) => (x.onclick = () => showBad(x.dataset.pf === "bad")));
       $("#bCheck").textContent = "Kiểm tra lại"; $("#bAsk").innerHTML = "";
