@@ -3553,6 +3553,133 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.saved.hash === "#/admin/banks" && r.saved.toast === "Đã lưu, gắn vào “Kiểm tra giữa học kì I”." && r.saved.n === 3 && r.saved.lv === "0,0,0" && r.saved.first && r.saved.once && /gắn vào Kiểm tra giữa học kì I/.test(r.saved.row)
       && r.sample.cards === 12 && r.sample.bad === 0 && !r.sample.filter && r.sample.types === "Trắc nghiệm,Điền khuyết,Đúng/sai,Đúng/sai,Đúng/sai 4 ý,Hiểu,Dùng cho 2 câu,Trắc nghiệm,Trắc nghiệm,Trả lời bằng số,Nối cột,Sắp xếp,Tự luận" && r.sample.right === 3 && r.sample.svgless; });
 
+  step("send weekly report: message preview, share sheet, copy, print (UX8, X14)");
+  /* Phiên UX8 (docs/CAI-TIEN-UX-2X.md, mục 3, X14): Mẹ Bin mở báo cáo tuần của Bin ở 360px sáng/tối, ngày giả lập 21/10/2026 18:00, dữ
+     liệu như bước UX2 (4 bài trong tuần, 1 bài tuần trước). Khối "Tin nhắn sẽ gửi" (#rpMsg) ngay dưới đầu trang, trước các ô số liệu:
+     tin nhắn chữ thuần khớp các ô (số bài, ngày ôn, phút, điểm trung bình và điểm tuần trước), chủ đề hay sai như mục Chủ đề hay sai
+     (tối đa 3), kì thi gần nhất như thẻ đầu ở Kì thi sắp tới (ngày, dự kiến, còn N ngày), 1–2 gợi ý lấy từ mục Gợi ý ôn tuần sau nhưng
+     không nói về kì thi, chủ đề hay sai, dòng cuối "Gửi từ OnUp.", không quá 600 chữ cái, không có tên gia đình, đường dẫn; nút chính
+     "Gửi báo cáo" có biểu tượng, nút "Chép tin nhắn"; hàng trên cùng có nút phụ "In" (≥ 44×44px).
+     - Giả lập navigator.share (page.addInitScript): "Gửi báo cáo" truyền đúng { title, text } (không có url), không chép, không báo gì;
+       người dùng hủy (AbortError) cũng không chép, không báo; share lỗi khác (NotAllowedError) thì chép tin nhắn.
+     - Không có navigator.share: "Gửi báo cáo" chép tin nhắn vào clipboard, toast "Đã chép tin nhắn…"; "Chép tin nhắn" cũng vậy; chép
+       không được (clipboard, execCommand đều lỗi) thì chữ trong khối xem trước được chọn sẵn, toast "Chưa chép được…".
+     - In (emulateMedia print): không có khối tin nhắn, nút In; vẫn có nhãn OnUp · Báo cáo tuần.
+     - Na (lớp 6, cũng là con của Mẹ Bin trong bước này) chưa làm bài nào trong tuần: tin nhắn chỉ có dòng "Chưa làm bài nào", kì thi
+       gần nhất, gợi ý bắt đầu lại; không có dòng điểm, chủ đề.
+     Ảnh 360px sáng/tối ở tests/screenshots/ux8/ (bản ghép <tên>.jpg; chép sang docs/hinh-ux8/): bao-cao-tin-nhan, da-chep, ban-in. */
+  const OUTUX8 = OUT + "ux8/"; fs.mkdirSync(OUTUX8, { recursive: true });
+  const ux8 = { problems: [], shots: [] };
+  const SHARE_STUB = () => {
+    window.__share = { mode: "ok", calls: [] };
+    Object.defineProperty(navigator, "share", { configurable: true, value: (d) => {
+      __share.calls.push(d);
+      if (__share.mode === "abort") return Promise.reject(new DOMException("Share canceled", "AbortError"));
+      if (__share.mode === "fail") return Promise.reject(new DOMException("Not allowed", "NotAllowedError"));
+      return Promise.resolve();
+    } });
+  };
+  for (const scheme of ["light", "dark"]) {
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c); await c.grantPermissions(["clipboard-read", "clipboard-write"], { origin: BASE });
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror UX8: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console UX8: " + m.text()); });
+    await p.addInitScript(SHARE_STUB);
+    const r = (ux8[scheme] = {});
+    const check8 = async (label) => (await p.evaluate(audit)).forEach((x) => ux8.problems.push(`UX8 · ${scheme} · ${label}: ${x}`));
+    const snap8 = async (n, view) => { await p.evaluate((view) => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t && !view) t.hidden = true; }, view); await p.screenshot({ path: `${OUTUX8}${n}-${scheme}.png`, fullPage: !view }); ux8.shots.push(`${n}-${scheme}`); };
+    const clip = () => p.evaluate(() => navigator.clipboard.readText()).catch((e) => "lỗi: " + e.message);
+    const toastNow = () => p.evaluate(() => { const t = document.querySelector("#toast"); return t && !t.hidden ? t.textContent : ""; });
+    const hush = () => p.evaluate(() => { const t = document.querySelector("#toast"); if (t) t.hidden = true; });
+    const tap = async (sel) => { await hush(); await p.click(sel); await p.waitForTimeout(250); }; // bấm nút, chờ chép xong
+    const shares = () => p.evaluate(() => __share.calls.length);
+    await p.clock.install({ time: new Date("2026-10-21T18:00:00") });
+    await p.goto(BASE + "/");
+    await p.evaluate(() => {
+      const d = JSON.parse(localStorage.getItem("ontap_db_v1")), bin = d.users.find((u) => u.name === "Bin");
+      d.users.find((u) => u.name === "Na").parentIds = [d.users.find((u) => u.name === "Mẹ Bin").id]; // Na cũng là con của Mẹ Bin (chỉ trong bước này)
+      const at = (days, h) => { const x = new Date(); x.setDate(x.getDate() - days); x.setHours(h, 10, 0, 0); return x.toISOString(); };
+      const mk = (o) => Object.assign({ id: "ux8" + Math.random().toString(36).slice(2), userId: bin.id, s: 900 }, o);
+      d.results = [
+        mk({ source: "bank", refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 1", mode: "practice", r: 19, t: 25, at: at(10, 9), wrongTopics: ["Góc và đo góc"] }), // tuần trước
+        mk({ source: "bank", refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 1", mode: "practice", r: 21, t: 25, at: at(2, 9), wrongTopics: ["Góc và đo góc", "Góc và đo góc", "Đơn vị đo"] }),
+        mk({ source: "module", refId: "l4-giua-ki-1", subject: "Toán", label: "Toán · Đề 1", mode: "exam", r: 18, t: 20, at: at(1, 20) }),
+        mk({ source: "bank", refId: "ta4-ck1-de1", subject: "Tiếng Anh", label: "Tiếng Anh 4 · Cuối kì I · Đề 1", mode: "exam", r: 22, t: 25, at: at(0, 9) }),
+        mk({ source: "bank", refId: "toan4-ck1-de2", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 2", mode: "practice", r: 20, t: 25, at: at(0, 17) })];
+      localStorage.setItem("ontap_db_v1", JSON.stringify(d));
+    });
+    await p.reload(); await p.click(`.tile[data-u="${ids["Mẹ Bin"]}"]`); await p.fill("#pinIn", PINS["Mẹ Bin"]); await p.waitForSelector("#kids");
+    await p.click(`a.kid[href="#/child/${ids.Bin}"]`); await p.waitForSelector("#rpMsg");
+    r.page = await p.evaluate(() => {
+      const t = (s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, box = (s) => document.querySelector(s).getBoundingClientRect();
+      let next = document.querySelector("#rpHead").nextElementSibling; while (next && next.classList.contains("notice")) next = next.nextElementSibling;
+      const btn = (s) => ({ text: t(s), main: document.querySelector(s).classList.contains("main"), icon: !!document.querySelector(s + " svg"), w: Math.round(box(s).width), h: Math.round(box(s).height) });
+      return { msg: document.querySelector("#rpMsgText").textContent, label: t("#rpMsg .label"), pre: getComputedStyle(document.querySelector("#rpMsgText")).whiteSpace, after: next && next.id,
+        beforeStats: !!(document.querySelector("#rpMsg").compareDocumentPosition(document.querySelector(".stats.four")) & Node.DOCUMENT_POSITION_FOLLOWING),
+        count: t("#rpCount"), days: t("#rpDays"), mins: t("#rpMins"), avg: t("#rpAvg"), pvAvg: t("#rpAvg + span + small"),
+        topics: [...document.querySelectorAll("#rpTopics .item .grow")].map((x) => x.textContent.trim()), tips: [...document.querySelectorAll("#rpTips li")].map((x) => x.textContent.trim()),
+        ev: { title: t("#rpEvents .ev b"), left: [...document.querySelectorAll("#rpEvents .ev:first-child .tag")].map((x) => x.textContent).find((x) => /^Còn \d+ ngày$/.test(x)) || "" },
+        send: btn("#rpSend"), copy: btn("#rpCopy"), print: Object.assign(btn("#rpPrint"), { top: box("#rpPrint").bottom <= box("#rpHead").top }), school: Store.settings().schoolName };
+    });
+    await check8("báo cáo tuần, tin nhắn"); await snap8("bao-cao-tin-nhan");
+    // giả lập navigator.share: tin nhắn truyền vào đúng, không chép, không báo gì; hủy cũng vậy; lỗi khác thì chép
+    await p.evaluate(() => navigator.clipboard.writeText("trước"));
+    await tap("#rpSend");
+    r.share = { calls: await p.evaluate(() => __share.calls.map((d) => ({ keys: Object.keys(d).sort().join(), title: d.title, text: d.text }))), clip: await clip(), toast: await toastNow() };
+    await p.evaluate(() => (__share.mode = "abort")); await tap("#rpSend");
+    r.abort = { n: await shares(), clip: await clip(), toast: await toastNow() };
+    await p.evaluate(() => (__share.mode = "fail")); await tap("#rpSend");
+    r.fail = { n: await shares(), clip: await clip(), toast: await toastNow() };
+    // máy không có bảng chia sẻ: "Gửi báo cáo" chép tin nhắn; "Chép tin nhắn" cũng vậy
+    await p.evaluate(() => { delete navigator.share; return navigator.clipboard.writeText("trước"); }); await tap("#rpSend");
+    r.noShare = { type: await p.evaluate(() => typeof navigator.share), n: await shares(), clip: await clip(), toast: await toastNow() };
+    await p.evaluate(() => navigator.clipboard.writeText("trước")); await tap("#rpCopy");
+    r.copy = { clip: await clip(), toast: await toastNow() };
+    await check8("báo cáo tuần, đã chép"); await snap8("da-chep", true);
+    // chép không được: chữ trong khối xem trước được chọn sẵn
+    await p.evaluate(() => { navigator.clipboard.writeText = () => Promise.reject(new DOMException("Denied", "NotAllowedError")); document.execCommand = () => false; getSelection().removeAllRanges(); });
+    await tap("#rpCopy");
+    r.noCopy = await p.evaluate(() => { const s = getSelection(), t = document.querySelector("#toast"); return { sel: s.toString(), inBox: s.rangeCount > 0 && document.querySelector("#rpMsg").contains(s.getRangeAt(0).commonAncestorContainer), toast: t && !t.hidden ? t.textContent : "" }; });
+    // bản in: không có khối tin nhắn, nút In
+    await p.evaluate(() => getSelection().removeAllRanges()); await hush();
+    await p.emulateMedia({ media: "print" });
+    r.print = await p.evaluate(() => ({ msg: getComputedStyle(document.querySelector("#rpMsg")).display, send: document.querySelector("#rpSend").getBoundingClientRect().height, printBtn: document.querySelector("#rpPrint").getBoundingClientRect().height, label: getComputedStyle(document.querySelector("#rpHead .onlyprint")).display }));
+    await snap8("ban-in");
+    await p.emulateMedia({ media: "screen" });
+    // con chưa làm bài nào trong tuần
+    await p.goto(BASE + "/#/child/" + ids.Na); await p.waitForFunction(() => /của Na/.test((document.querySelector("#rpMsgText") || {}).textContent || ""));
+    r.empty = await p.evaluate(() => document.querySelector("#rpMsgText").textContent);
+    await c.close();
+  }
+  { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/ux8/<tên>.jpg)
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of [...new Set(ux8.shots.map((x) => x.replace(/-(light|dark)$/, "")))]) {
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTUX8}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTUX8}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  const brief8 = (r) => r && JSON.stringify(r, (k, v) => (k !== "msg" && typeof v === "string" && v === r.page.msg ? "= tin nhắn" : v)); // tin nhắn chỉ in một lần
+  console.log("UX8:", brief8(ux8.light), "dark:", brief8(ux8.dark), "problems:", ux8.problems);
+  const COPIED = "Đã chép tin nhắn. Dán vào Zalo hoặc tin nhắn để gửi.";
+  const ux8OK = !ux8.problems.length && ["light", "dark"].every((sc) => { const r = ux8[sc], g = r.page, L = g.msg.split("\n"), tipL = L.slice(5, -1), flat = (x) => x.replace(/\s+/g, " ").trim();
+    return L[0] === "Báo cáo tuần của Bin (15/10 – 21/10/2026)" && L[1] === `• Làm ${g.count} bài, ôn ${g.days} ngày, ${g.mins} phút.` && g.count === "4" && g.days === "3/7" && g.mins === "60"
+      && L[2] === `• Điểm trung bình ${g.avg}/10 (tuần trước ${g.pvAvg.replace(/^Tuần trước: /, "")}).` && g.avg === "8,5" && g.pvAvg === "Tuần trước: 7,5"
+      && L[3] === `• Chủ đề hay sai: ${g.topics.slice(0, 3).join("; ")}.` && g.topics.join() === "Góc và đo góc,Đơn vị đo"
+      && L[4] === `• Sắp tới: ${g.ev.title}, 2/11 – 13/11/2026 (dự kiến, ${g.ev.left.toLowerCase()}).` && g.ev.title === "Kiểm tra giữa học kì I" && g.ev.left === "Còn 12 ngày"
+      && tipL.join("|") === "• Gợi ý: Tuần sau cố gắng ôn ít nhất 5 ngày, mỗi ngày 20–30 phút, thay vì làm dồn một buổi.|• Gợi ý: Tuần này chưa ôn Tiếng Việt cho kì thi sắp tới."
+      && tipL.every((x) => g.tips.some((li) => li.includes(x.slice("• Gợi ý: ".length))) && !x.includes(g.ev.title) && !/còn \d+ ngày|chủ đề hay sai/i.test(x)) && g.tips.length === 4
+      && L[L.length - 1] === "Gửi từ OnUp." && g.msg.length <= 600 && g.school === "Nhà Bin" && !g.msg.includes(g.school) && !/https?:|#\/|www\./.test(g.msg)
+      && g.label === "Tin nhắn sẽ gửi" && g.pre === "pre-line" && g.after === "rpMsg" && g.beforeStats
+      && g.send.text === "Gửi báo cáo" && g.send.main && g.send.icon && g.send.h >= 44 && g.copy.text === "Chép tin nhắn" && !g.copy.main && g.copy.h >= 44
+      && g.print.text === "In" && !g.print.main && g.print.w >= 44 && g.print.h >= 44 && g.print.top
+      && r.share.calls.length === 1 && r.share.calls[0].keys === "text,title" && r.share.calls[0].title === "Báo cáo tuần của Bin" && r.share.calls[0].text === g.msg && r.share.clip === "trước" && r.share.toast === ""
+      && r.abort.n === 2 && r.abort.clip === "trước" && r.abort.toast === "" && r.fail.n === 3 && r.fail.clip === g.msg && r.fail.toast === COPIED
+      && r.noShare.type === "undefined" && r.noShare.n === 3 && r.noShare.clip === g.msg && r.noShare.toast === COPIED && r.copy.clip === g.msg && r.copy.toast === COPIED
+      && r.noCopy.inBox && flat(r.noCopy.sel) === flat(g.msg) && r.noCopy.toast === "Chưa chép được. Tin nhắn đã được chọn sẵn, bấm giữ để chép."
+      && r.print.msg === "none" && r.print.send === 0 && r.print.printBtn === 0 && r.print.label !== "none"
+      && /^Báo cáo tuần của Na \(15\/10 – 21\/10\/2026\)\n• Chưa làm bài nào trong 7 ngày qua\.\n• Sắp tới: Kiểm tra giữa học kì I, \d+\/\d+ – \d+\/\d+\/2026 \(dự kiến, còn \d+ ngày\)\.\n• Gợi ý: Tuần sau bắt đầu lại nhẹ nhàng: mỗi ngày một đề ngắn 20–30 phút\.\nGửi từ OnUp\.$/.test(r.empty); });
+
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
      Đề có sẵn: chỉ danh mục data/banks/index.js nằm trong FILES; file câu hỏi vào đệm khi mở đề. */
@@ -3683,7 +3810,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK, l38OK, mod9oOK, ux7OK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK, l38OK, mod9oOK, ux7OK, ux8OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();

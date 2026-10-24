@@ -282,6 +282,13 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .rp-sub+.rp-sub{border-top:1px solid var(--line);padding-top:10px}
 .tips{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:8px}
 @media (max-width:520px){.stats.four{grid-template-columns:1fr 1fr}}
+/* khối "Tin nhắn sẽ gửi" (Phiên UX8, X14): viền acc; tin nhắn nền bg, xuống dòng đúng như khi gửi (.share-msg); hai nút chia hàng,
+   không đủ chỗ thì mỗi nút một hàng; không in (noprint). Nút "In" ở hàng trên chữ ngắn: rộng ít nhất 44px. */
+.rp-msg{border:2px solid var(--acc)}
+.rp-msg .share-msg{background:var(--bg);font-size:.9375rem}
+.rp-msg .row>.btn{flex:1 1 auto}
+.rp-msg .btn svg{width:20px;height:20px;flex:none}
+.rp-print{min-width:44px}
 
 /* làm bài */
 /* chế độ tập trung (body.quizzing, renderQuiz trong js/app.js, Phiên UX5): trong lúc làm một lượt, thanh trên chỉ còn chữ OnUp */
