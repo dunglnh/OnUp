@@ -1391,10 +1391,12 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   /* Nút "Báo câu này sai" (js/quiz.js, opts.onReport). Bin ôn luyện Toán 4 Đề 1: làm như thi không có link trong lúc làm; ôn luyện
      thì sau khi Kiểm tra, dưới lời giải có link nhỏ (≥ 44px) có lá cờ; bấm mở hộp lí do ngay bên dưới (không phải hộp nổi), chưa chọn
      lí do thì báo, "Thôi" đóng hộp; gửi xong hiện cảm ơn, link thành "Đã báo câu này". Báo cáo lưu trong Store (userId, mã đề, mã
-     câu = Quiz.key, bản chụp nội dung câu ≤ 500 kí tự, lí do, ghi chú cắt 200). Màn kết quả: mỗi câu cần xem lại có link, câu đã báo
-     thì link tắt. opts.reported (đã báo từ trước) và onReport bị từ chối (hiện lỗi, bấm lại được) thử bằng Quiz.run trực tiếp.
+     câu = Quiz.key, bản chụp nội dung câu ≤ 500 kí tự, lí do, ghi chú cắt 200). Bin trả lời sai có chủ ý cả 3 câu, theo dữ liệu
+     (ranswer): thứ tự câu, thứ tự lựa chọn do js/quiz.js xáo, nên chọn ô đầu tiên thì có lần đúng cả 3 câu, màn kết quả không có câu
+     cần xem lại. Màn kết quả: mỗi câu cần xem lại có link, câu đã báo (câu 1, câu 2) thì link tắt, câu 3 báo ở đó. opts.reported (đã
+     báo từ trước) và onReport bị từ chối (hiện lỗi, bấm lại được) thử bằng Quiz.run trực tiếp.
      Dữ liệu cũ chưa có trường reports: đọc vào là []. Quản trị → Dữ liệu: danh sách và nút "Chép để gửi" (văn bản dán Zalo).
-     Phụ huynh xem thử cũng báo được. Mỗi màn hình kiểm tra 360px, ảnh 20-*.png. */
+     Phụ huynh xem thử cũng báo được (trả lời đúng: câu đúng cũng có link). Mỗi màn hình kiểm tra 360px, ảnh 20-*.png. */
   const rc = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2 });
   await localConfig(rc); watchOut(rc); await rc.grantPermissions(["clipboard-read", "clipboard-write"], { origin: BASE });
   const rp = await rc.newPage(); rp.on("pageerror", (e) => errs.push("pageerror R1: " + e.message)); rp.on("console", (m) => { if (m.type() === "error") errs.push("console R1: " + m.text()); });
@@ -1402,7 +1404,12 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   const rcheck = async (label) => (await rp.evaluate(audit)).forEach((x) => r1.problems.push(`R1 · ${label}: ${x}`));
   const rsnap = async (n) => { await rp.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await rp.screenshot({ path: `${OUT}20-${n}.png`, fullPage: true }); };
   const rtext = (sel) => rp.textContent(sel).then((t) => t.replace(/\s+/g, " ").trim(), () => "");
-  const answerFirst = async () => { if (await rp.$("#qzFill")) await rp.fill("#qzFill", "1"); else await rp.click(".opt >> nth=0"); await rp.click("#qzGo"); };
+  // Trả lời câu đang hiện theo dữ liệu (currentOn, answerOn của bước K3) rồi bấm Kiểm tra; right = false: sai có chủ ý. Chấm khác ý muốn thì ghi lỗi.
+  const ranswer = async (right) => {
+    const q = await currentOn(rp, await rp.evaluate((id) => Store.bank(id).questions, "toan4-ck1-de1"));
+    if (!q || !(await answerOn(rp, q, right))) throw new Error("R1: không trả lời được câu " + (await rtext(".qcard .qtext")).slice(0, 50));
+    if (!!(await rp.$("#qzFb .fb.ok")) !== right) r1.problems.push(`R1: câu ${q.q.slice(0, 50)} được chấm ${right ? "sai" : "đúng"} khi trả lời ${right ? "đúng" : "sai"} theo dữ liệu`);
+  };
   const curKey = () => rp.evaluate((id) => { const t = document.querySelector(".qcard .qtext").textContent.replace(/___/g, "").replace(/\s+/g, ""); const q = Store.bank(id).questions.find((x) => String(x.q).replace(/___/g, "").replace(/\s+/g, "") === t); return q ? [Quiz.key(q), Quiz.text(q)] : null; }, "toan4-ck1-de1");
   await rp.goto(BASE + "/");
   r1.oldDefault = await rp.evaluate(() => { const d = JSON.parse(localStorage.getItem("ontap_db_v1")); delete d.reports; localStorage.setItem("ontap_db_v1", JSON.stringify(d)); Store.load(); return Array.isArray(Store.data().reports) && Store.reports().length === 0; });
@@ -1412,7 +1419,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   await rp.click("#qzSubmit"); await rp.click("#qzYes"); await rp.waitForTimeout(300); // chưa làm câu nào: thoát
   await rp.goto(BASE + "/#/quiz/toan4-ck1-de1"); await rp.waitForSelector("#qPractice"); await rp.click("#qPractice");
   r1.beforeCheck = !(await rp.$(".rp-link")); // chưa kiểm tra: chưa có link
-  const rk1 = await curKey(); await answerFirst();
+  const rk1 = await curKey(); await ranswer(false);
   r1.link = await rp.$eval(".rp-link", (b) => ({ h: Math.round(b.getBoundingClientRect().height), text: b.textContent.trim(), flag: !!b.querySelector("svg"), inFb: !!b.closest("#qzFb"), after: !!b.closest("#qzFb").querySelector(".fb") }));
   await rp.click(".rp-link"); await rp.waitForSelector(".report-box");
   r1.box = await rp.evaluate(() => { const b = document.querySelector(".report-box"); return { inline: !!b.closest("#qzFb") && getComputedStyle(b).position === "static" && !document.querySelector("#leaveBox"),
@@ -1430,9 +1437,9 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   r1.saved = saved.length === 1 && saved[0].userId === ids.Bin && saved[0].bankId === "toan4-ck1-de1" && !!rk1 && saved[0].qKey === rk1[0] && saved[0].qText === rk1[1] && saved[0].qText.length <= 500
     && saved[0].reason === "typo" && saved[0].note.length === 200 && saved[0].note.startsWith("Thiếu dấu. ") && /^\d{4}-/.test(saved[0].at);
   await rp.click("#qzGo"); // câu 2: báo "Khác" không ghi chú
-  const rk2 = await curKey(); await answerFirst();
+  const rk2 = await curKey(); await ranswer(false);
   await rp.click(".rp-link"); await rp.click('.rsn .opt[data-r="other"]'); await rp.click(".report-box [type=submit]"); await rp.waitForSelector(".rp-done");
-  await rp.click("#qzGo"); await answerFirst(); // câu 3: không báo
+  await rp.click("#qzGo"); await ranswer(false); // câu 3: không báo (báo ở màn kết quả)
   await rp.click("#qzExit"); await rp.click("#qzYes"); await rp.waitForSelector(".score"); // dừng ôn: màn kết quả
   r1.resultLinks = await rp.evaluate((keys) => { const rows = [...document.querySelectorAll(".rv")]; const links = rows.map((r) => r.querySelector(".rp-link"));
     return { n: rows.length, all: links.every(Boolean), off: links.filter((b) => b.disabled).map((b) => b.dataset.k + ":" + b.textContent.trim()), on: links.filter((b) => !b.disabled).length, keys }; }, [rk1[0], rk2[0]]);
@@ -1467,9 +1474,9 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   // phụ huynh xem thử cũng báo được (ghi tên phụ huynh)
   await rp.goto(BASE + "/#/account"); await rp.click("#logout"); await rp.waitForTimeout(200);
   await rp.click(`.tile[data-u="${ids["Mẹ Bin"]}"]`); await rp.fill("#pinIn", PINS["Mẹ Bin"]); await rp.waitForTimeout(400);
-  await rp.goto(BASE + "/#/quiz/toan4-ck1-de1"); await rp.waitForSelector("#qPractice"); await rp.click("#qPractice"); await answerFirst();
+  await rp.goto(BASE + "/#/quiz/toan4-ck1-de1"); await rp.waitForSelector("#qPractice"); await rp.click("#qPractice"); await ranswer(true);
   await rp.click(".rp-link"); await rp.click('.rsn .opt[data-r="unclear"]'); await rp.click(".report-box [type=submit]"); await rp.waitForSelector(".rp-done");
-  // số báo cáo = số trước đó + 1 (trước đó 2 hoặc 3 tùy màn kết quả còn câu chưa báo hay không: thứ tự câu ngẫu nhiên)
+  // số báo cáo = số trước đó + 1 (trước đó 3: câu 1, câu 2 báo lúc làm, câu 3 báo ở màn kết quả)
   r1.parent = await rp.evaluate(([id, n3]) => { const r = Store.reports()[0]; return r.userId === id && r.reason === "unclear" && Store.reports().length === n3 + 1; }, [ids["Mẹ Bin"], r1.n3]);
   await rc.close();
   console.log("R1:", r1);

@@ -135,6 +135,7 @@
 | #150 | Phiên UX7b: sửa sau kiểm thử UX7, UX8 (X33–X37) |
 | #151 | Phiên DS4: dò KHTN 6 Bài 1–8 với sách in năm 2026 |
 | #152 | Phiên DS4b: dò KHTN 6 Bài 9–17 với sách in năm 2026 |
+| #153 | Kiểm thử R1 hết lúc qua lúc không: Bin trả lời sai có chủ ý |
 
 </details>
 
