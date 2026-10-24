@@ -165,7 +165,7 @@
 
 **Sách giáo khoa** (bộ Kết nối tri thức dùng thống nhất từ năm học 2026–2027; cách mở bản PDF và link từng cuốn: mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách”):
 
-10. Dò sách in năm 2026 là việc của các phiên DS (hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)), không phải của chủ app (chủ app yêu cầu 23/10/2026). Phiên làm đề không mở được sách thì ghi mã đề vào dòng “Đề chờ dò sách” ở mục 7, PO lập phiên DS. Chủ app chỉ làm khi một phiên DS hai lần không mở được sách: phiên đó ghi một dòng ngay dưới đây (phiên, sách, lỗi, ngày) để chủ app xem mạng của môi trường chạy phiên hoặc mở sách giúp.
+10. Dò sách in năm 2026 là việc của các phiên DS (hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)), không phải của chủ app (chủ app yêu cầu 23/10/2026). Phiên làm đề không mở được sách thì ghi mã đề vào dòng “Đề chờ dò sách” ở mục 7, PO lập phiên DS. Từ 24/10/2026 chủ app tải file “SGK …” (mục “Phiên bản sách điện tử” của trang sách) của các cuốn ở bảng “Sách và link của từng phiên” chưa có trong repo riêng tư OnUp-Book, theo thứ tự hàng đợi, rồi gửi PO; PO đưa lên repo đó, các phiên đọc sách ở đó (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách đã tải sẵn”). Một phiên DS hai lần không mở được sách thì ghi một dòng ngay dưới đây (phiên, sách, lỗi, ngày) để chủ app tải cuốn đó trước.
 11. Theo dõi danh mục sách chỉnh sửa cho năm học 2027–2028 (lần trước Bộ công bố ngày 26/12/2025); có danh mục thì báo PO để lập các phiên rà đề (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách”). Phiên nào cần mục lục bản mới thì chủ app chép mục lục vào lời giao việc.
 
 **Quy định kiểm tra:**
