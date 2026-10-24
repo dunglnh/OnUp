@@ -755,8 +755,8 @@ PO tách DS2–DS12 thành 28 phiên nhỏ ngày 24/10/2026 (chủ app thấy ph
 PO so nội dung kiểm tra giữa kì I năm học 2026–2027 lớp 6 của một trường THCS ở TP.HCM (chủ app gửi ngày 24/10/2026) với kho của app:
 - Ngày gần khớp lịch mặc định 2–13/11/2026: Toán 2/11; Tiếng Anh, KHTN tuần 9 (2–7/11); Ngữ văn, GDCD, Tin học, Lịch sử và Địa lí tuần 10 (9–14/11). Ngữ văn (thơ có yếu tố tự sự và miêu tả, biện pháp tu từ, cụm danh từ, đoạn văn ghi lại cảm xúc về bài thơ) và Tiếng Anh (Unit 1–3) khớp; app chưa có phần nghe.
 - Toán thi Chương I, II, IV, tự luận 100%: thêm Phiên N26.
-- Phạm vi hẹp hơn kho của app: GDCD Bài 1–2 (kho có Bài 1–4), Tin học Bài 1–4 (kho có Internet), KHTN Bài 5–15 (kho có cả Bài 1–4, 16–17; Bài 12–15 chỉ 9 câu), Lịch sử Bài 2–6 (tự luận Bài 6, kho chỉ 2 câu), Địa lí Bài 1–4 và 6. Đề ngẫu nhiên rút cả bài trường không thi; chọn phạm vi theo trường cho đề ngẫu nhiên là việc giao diện, chờ chủ app quyết.
-- Công nghệ chấm sản phẩm (thiết kế nhà ở), không thi viết. Giáo dục địa phương thi viết (vị trí địa lí, điều kiện tự nhiên của TP.HCM); app chưa có môn này, chờ chủ app quyết.
+- Phạm vi hẹp hơn kho của app: GDCD Bài 1–2 (kho có Bài 1–4), Tin học Bài 1–4 (kho có Internet), KHTN Bài 5–15 (kho có cả Bài 1–4, 16–17; Bài 12–15 chỉ 9 câu), Lịch sử Bài 2–6 (tự luận Bài 6, kho chỉ 2 câu), Địa lí Bài 1–4 và 6. Đề ngẫu nhiên rút cả bài trường không thi; chủ app quyết ngày 24/10/2026 không làm tính năng chọn phạm vi theo trường cho đề ngẫu nhiên.
+- Công nghệ chấm sản phẩm (thiết kế nhà ở), không thi viết. Giáo dục địa phương thi viết (vị trí địa lí, điều kiện tự nhiên của TP.HCM); chủ app quyết ngày 24/10/2026 không làm môn này.
 
 ### Nguồn phạm vi bài (tra ngày 19/10/2026)
 
