@@ -1884,7 +1884,22 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      L37 (Phiên 9m): phần Ngữ văn của l6 theo sách Ngữ văn 6 tập một in năm 2026: phần Ghi nhớ của Bài 1, Bài 2 hiện ý về «Tia nắng hạt mưa»
      (Lệ Bình), «Hương và Phai» (Nguyễn Minh Châu); không còn tên hai văn bản cũ, tác giả, nhân vật của chúng; tên tác giả, nhân vật của hai văn
      bản mới chỉ làm lựa chọn sai ở câu hỏi về chính văn bản đó; bài của từng câu trong items giữ như cũ (lres lưu theo id bài, “Ôn câu sai”
-     theo số thứ tự câu). */
+     theo số thứ tự câu).
+     L40, L41 (Phiên 9p): phần Toán, Tiếng Việt của l4 theo sách Toán 4, Tiếng Việt 4 tập một in năm 2026: phần Ghi nhớ của bài Động từ (n4)
+     không còn “đã, đang, sẽ”, có động từ chỉ hoạt động di chuyển; lớp triệu ở Ghi nhớ Bài 11, số một tỉ ở Bài 12; mục Viết “Viết đoạn văn nêu
+     ý kiến” là ý kiến về một câu chuyện (Mở đầu – Triển khai – Kết thúc), dàn ý và bảng kiểm của “Viết báo cáo thảo luận nhóm” có quốc hiệu,
+     tiêu ngữ, người nhận, chữ kí (trang Viết mở ra ở 360px, chạy audit); không còn “Tìm x”, “Tổng của hai số lẻ”, “Nam Định”; bài và dạng câu
+     của từng câu trong items, tên và thứ tự 4 mục Viết giữ như cũ (lres theo id bài, “Ôn câu sai” theo số thứ tự câu, wdraft_, wchk_ theo số
+     thứ tự mục). */
+  const L40 = {
+    items: { toan: "b1×5 b2×5 b3×5 b4×4 b5×3 b7×4 b8×5 b10×4 b11×3 b12×4 b13×3 b14×3 b15×4 b17×4 b18×4 b19×4", tv: "n1×14 n2×14 n3×10 n4×16 n5×10 d1×6" },
+    // dạng từng câu: o trắc nghiệm 4 lựa chọn, t đúng/sai, f điền, g sinh ngẫu nhiên, r bài đọc 4 câu
+    kinds: { toan: "ofoggfffggooftgffggfggoooooootgofggoggooggoggoggotfgooggofggofgg", tv: "ooooooooootoooooooottoffooofoooooffttoooooooooooottooooooooootoorrrrrr" },
+    writing: "Viết đoạn văn nêu ý kiến|Viết báo cáo thảo luận nhóm|Viết bài văn thuật lại một sự việc|Viết bài văn kể lại một câu chuyện",
+    notes: { "toan b11": /hàng triệu, hàng chục triệu, hàng trăm triệu/, "toan b12": /1 000 000 000, đọc là một tỉ/, "tv n4": /di chuyển/ },
+    old: /Tìm x|Tổng của hai số lẻ|mười triệu viết là|Số liền sau hơn số liền trước|Nam Định/gi,
+  };
+  const l40 = { data: {}, screen: {}, writing: [] };
   const L37 = {
     notes: { v1: "“Tia nắng hạt mưa” (Lệ Bình)", v2: "“Hương và Phai” (trích, Nguyễn Minh Châu)" },
     items: "v1×13 v2×13 v3×11 t1×14 t2×10 t3×13 t4×10 d×6",
@@ -1970,10 +1985,18 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
           qs: SUBJ.van.items.flatMap((it) => (it.qs || [it]).map((x) => [(it.qs ? it.t + " · " : "") + x.q, (x.o || []).filter((_, i) => i !== (x.a || 0))])),
           text: JSON.stringify([SUBJ.van.lessons, SUBJ.van.items, SUBJ.van.writing, SUBJ.van.scopeText]) + document.querySelector("#view").textContent,
         }));
+        if (m === "l4-giua-ki-1") l40.data[sid] = await fr.evaluate((sid) => ({
+          notes: Object.fromEntries(SUBJ[sid].lessons.map((l) => [l.id, l.notes])),
+          items: SUBJ[sid].items.reduce((a, it) => { const z = a[a.length - 1]; if (z && z[0] === it.l) z[1]++; else a.push([it.l, 1]); return a; }, []).map(([l, n]) => l + "×" + n).join(" "),
+          kinds: SUBJ[sid].items.map((it) => (it.rd ? (it.qs.length === 4 ? "r" : "?") : it.g ? "g" : it.o ? (it.o.length === 4 ? "o" : "?") : it.tf !== undefined ? "t" : "f")).join(""),
+          writing: (SUBJ[sid].writing || []).map((w) => ({ title: w.title, prompt: w.prompt, outline: w.outline, checklist: w.checklist })),
+          text: JSON.stringify([SUBJ[sid].lessons, SUBJ[sid].items, SUBJ[sid].writing || []]) + document.querySelector("#view").textContent,
+        }), sid);
         mn.want += await fr.evaluate((sid) => SUBJ[sid].items.filter((x) => x.q && x.ans != null && /^\d{4,}$/.test(String(x.ans).split("|")[0])).length, sid);
         for (const l of await fr.$$eval(".lrow", (bs) => bs.map((b) => b.dataset.l))) {
           await fr.click(`.lrow[data-l="${l}"]`); await check(`${sid} ${l}, ghi nhớ`); await lessonTitle(fr, sid, l, `360 · ${m} · ${sid} ${l}, ghi nhớ`);
           if (m === "l6-giua-ki-1" && sid === "van" && L37.notes[l]) l37.screen[l] = await fr.$$eval("#view .notes li", (li) => li.map((x) => x.textContent.replace(/\s+/g, " ")));
+          if (m === "l4-giua-ki-1") l40.screen[`${sid} ${l}`] = await fr.$$eval("#view .notes li", (li) => li.map((x) => x.textContent.replace(/\s+/g, " ")));
           await fr.click("#goBtn");
           for (let i = 1; i <= 80 && (await fr.$("#skipBtn")); i++) {
             await check(`${sid} ${l}, câu ${i}`);
@@ -1984,6 +2007,15 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
             await fr.click("#goBtn");
           }
           await check(`${sid} ${l}, kết quả`); await fr.click("#homeBtn");
+        }
+        // L41: hai mục Viết đầu của l4 (đoạn văn nêu ý kiến, báo cáo thảo luận nhóm), mở cả phần gợi ý dàn ý
+        if (m === "l4-giua-ki-1" && sid === "tv") for (const w of [0, 1]) {
+          await fr.click(`.wrow[data-w="${w}"]`); await fr.click("#view details.outline summary");
+          await check(`${sid} Viết ${w + 1}`);
+          l40.writing[w] = await fr.evaluate(() => ({ title: document.querySelector("#view h2").textContent,
+            outline: [...document.querySelectorAll("#view details.outline li")].map((x) => x.textContent.replace(/\s+/g, " ")),
+            checklist: [...document.querySelectorAll("#view .check span")].map((x) => x.textContent.replace(/\s+/g, " ")) }));
+          await fr.click("#backBtn"); await fr.waitForSelector(".stab");
         }
         await fr.click('.tb[data-k="0"]');
         for (let i = 1; i <= 60 && (await fr.$("#skipBtn")); i++) { await check(`${sid} Đề 1, câu ${i}`); await fr.click("#skipBtn"); }
@@ -2076,6 +2108,34 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   }
   console.log("L37 (Ngữ văn 6 theo sách in năm 2026):", l37Errs.length ? l37Errs : "OK");
   const l37OK = !l37Errs.length;
+  const l40Errs = [];
+  if (!l40.data.toan || !l40.data.tv) l40Errs.push("không đọc được trang môn Toán, Tiếng Việt của l4");
+  else {
+    for (const sid of ["toan", "tv"]) {
+      if (l40.data[sid].items !== L40.items[sid]) l40Errs.push(`${sid}: bài của các câu: ${l40.data[sid].items}`);
+      if (l40.data[sid].kinds !== L40.kinds[sid]) l40Errs.push(`${sid}: dạng các câu: ${l40.data[sid].kinds}`);
+    }
+    Object.entries(L40.notes).forEach(([k, re]) => {
+      const [sid, l] = k.split(" ");
+      if (!l40.data[sid].notes[l].some((n) => re.test(n))) l40Errs.push(`Ghi nhớ ${k} không có ${re}`);
+      if (!(l40.screen[k] || []).some((n) => re.test(n))) l40Errs.push(`trang Ghi nhớ ${k} không hiện ${re}`);
+    });
+    if (l40.data.toan.notes.b12.some((n) => /hàng chục triệu/.test(n))) l40Errs.push("lớp triệu còn ở Ghi nhớ Bài 12");
+    const dds = /(^|[^\p{L}])(đã|đang|sẽ)(?!\p{L})/u;
+    if (l40.data.tv.notes.n4.some((n) => dds.test(n)) || (l40.screen["tv n4"] || []).some((n) => dds.test(n))) l40Errs.push("Ghi nhớ bài Động từ còn “đã, đang, sẽ”");
+    const old = (l40.data.toan.text + l40.data.tv.text + Object.values(l40.screen).flat().join(" ")).match(L40.old);
+    if (old) l40Errs.push("còn chữ cũ: " + [...new Set(old)].join(", "));
+    const W = l40.data.tv.writing;
+    if (W.map((w) => w.title).join("|") !== L40.writing || W.some((w) => w.checklist.length !== 5)) l40Errs.push("mục Viết: " + W.map((w) => `${w.title} (${w.checklist.length})`).join(" | "));
+    if (!/một câu chuyện/.test(W[0].prompt) || !/thích hay không thích/.test(W[0].prompt + W[0].outline.join(" ")) || W[0].outline.map((x) => x.split(":")[0]).join("|") !== "Mở đầu|Triển khai|Kết thúc") l40Errs.push("Viết đoạn văn nêu ý kiến: " + W[0].prompt);
+    for (const word of ["quốc hiệu", "tiêu ngữ", "người nhận", "chữ kí"]) {
+      if (!W[1].outline.some((x) => x.toLowerCase().includes(word)) || !W[1].checklist.some((x) => x.toLowerCase().includes(word))) l40Errs.push(`báo cáo thảo luận nhóm: dàn ý, bảng kiểm chưa có “${word}”`);
+      if (!l40.writing[1] || !l40.writing[1].outline.some((x) => x.toLowerCase().includes(word)) || !l40.writing[1].checklist.some((x) => x.toLowerCase().includes(word))) l40Errs.push(`trang Viết báo cáo thảo luận nhóm không hiện “${word}”`);
+    }
+    if (!l40.writing[0] || l40.writing[0].title !== W[0].title || l40.writing[0].outline.length !== 3) l40Errs.push("trang Viết đoạn văn nêu ý kiến: " + JSON.stringify(l40.writing[0]));
+  }
+  console.log("L40, L41 (bài ôn lớp 4 theo sách in năm 2026):", l40Errs.length ? l40Errs : "OK");
+  const l40OK = !l40Errs.length;
 
   step("selected answer: one blue in every subject (lesson pages l4, l6, IOE)");
   /* Ô đang chọn (chưa kiểm tra) và ô điền đang gõ của 4 bài ôn dạng trang dùng một màu ở mọi môn (chủ app yêu cầu 21/10/2026): token --pick,
@@ -3590,7 +3650,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK, l38OK, mod9oOK, ux7OK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK, l38OK, mod9oOK, ux7OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
