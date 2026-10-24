@@ -323,7 +323,6 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 | DS12 | 10/11/2026 (muộn nhất 7/12/2026) | Tiếng Anh 4 tập một cuối kì I, Unit 1–5: dò | 34 câu có sẵn | — | không (bước K4 của `tests/e2e.js` dùng `ta4-ck1-ngau-nhien`) |
 | DS12b | 10/11/2026 (muộn nhất 7/12/2026) | Tiếng Anh 4 tập một cuối kì I, Unit 6–10 và Reading: dò | 42 câu có sẵn | — | như DS12 |
 | DS12c | 10/11/2026 (muộn nhất 7/12/2026) | Tin học và Công nghệ 4 cuối kì I: dò | 50 câu có sẵn | — | không |
-| DS9b | 10/11/2026 (muộn nhất 22/2/2027) | Tiếng Anh 6 tập 2 giữa kì II: dò | 75 câu có sẵn | — | không |
 | DS11b | 10/11/2026 (muộn nhất 22/2/2027) | Tiếng Việt 4 tập hai: dò hai đề có sẵn của giữa kì II | 50 câu có sẵn | — | không |
 | N18 | 10/11/2026 (muộn nhất 5/4/2027) | Toán 6 cuối năm | 50 + ~50 | `toan6-ck2-de1`, `-de2`, `-ngau-nhien`; `tests/toan6-ck2.js`; phạm vi của ck2-l6 | không |
 | N19 | 10/11/2026 (muộn nhất 5/4/2027) | Ngữ văn 6 cuối năm | 50 + ~25 | `van6-ck2-de1`, `-de2`, `-ngau-nhien` | không |
@@ -439,10 +438,6 @@ Theo Quy định chung của các phiên dò sách ở nhóm trên. Cuối kì I
 
 **Phiên DS12c · Tin học và Công nghệ 4 cuối kì I: dò với sách in năm 2026** (hạn 10/11/2026; muộn nhất 7/12/2026)
 > Ở docs/KE-HOACH-NOI-DUNG.md chỉ đọc (tìm bằng `grep -n`): mục 3 các dòng “Rút ra” của N3b, N5; mục 4 đoạn “Sách” và dòng của cuốn sách ở bảng “Sách và link của từng phiên”; mục 7 Quy định chung của các phiên N và của các phiên dò sách. Mở bản PDF Tin học 4 và Công nghệ 4 (hai cuốn mỏng, chỉ các bài học kì I của mỗi cuốn). Dò theo bài, trong data/banks/4-tincn.js, 50 câu của `tincn4-ck1-de1` (Phiên 11), `tincn4-ck1-de2` (Phiên N3b, PR #75): chữ chủ đề bắt đầu “Tin học ·” theo Tin học 4, “Công nghệ ·” theo Công nghệ 4. Hai môn chưa có script tính lại đáp án: dò lộ đáp án bằng code như Rút ra N5.
-> Còn lại theo Quy định chung của các phiên dò sách và của các phiên N ở mục 7 của docs/KE-HOACH-NOI-DUNG.md.
-
-**Phiên DS9b · Tiếng Anh 6 tập 2 giữa kì II: dò với sách in năm 2026** (hạn 10/11/2026; muộn nhất 22/2/2027)
-> CLAUDE.md đã nạp sẵn, nhất là mục “Môn Tiếng Anh (mọi khối): 100% tiếng Anh”. Ở docs/KE-HOACH-NOI-DUNG.md chỉ đọc (tìm bằng `grep -n`): mục 3 các dòng “Rút ra” của N5, N10; mục 4 đoạn “Sách” và dòng của cuốn sách ở bảng “Sách và link của từng phiên”; mục 7 Quy định chung của các phiên N và của các phiên dò sách. Mở bản PDF Tiếng Anh 6 – Global Success tập 2 (N10 không mở được trang này từ phiên cloud; thử theo đoạn “Sách”), Unit 7–9 và Review 3. Dò theo unit, trong data/banks/6-ta.js, 75 câu của `ta6-gk2-de1`, `ta6-gk2-de2` và câu riêng của `ta6-gk2-ngau-nhien` (Phiên N10; chỗ nhờ dò lại ở PR #121). Câu sửa vẫn 100% tiếng Anh. Kho này chưa có script tính lại đáp án: dò lộ đáp án bằng code như Rút ra N5.
 > Còn lại theo Quy định chung của các phiên dò sách và của các phiên N ở mục 7 của docs/KE-HOACH-NOI-DUNG.md.
 
 **Phiên DS11b · Tiếng Việt 4 tập hai, hai đề có sẵn của giữa kì II: dò với sách in năm 2026** (hạn 10/11/2026; muộn nhất 22/2/2027)
