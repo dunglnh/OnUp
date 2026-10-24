@@ -370,7 +370,8 @@ async function run(browser, scheme) {
   c.ux7.list = await p.evaluate(() => ({ tabs: [...document.querySelectorAll("#seedBanks .tabs button")].map((b) => b.textContent + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join(),
     want: [4, 6].map((g, i) => `Lớp ${g} · ${Store.banks(g).filter((b) => b.seed).length} đề` + (i ? "" : "*")).join(), first: !!(document.querySelector("#myBanks").compareDocumentPosition(document.querySelector("#seedBanks")) & Node.DOCUMENT_POSITION_FOLLOWING),
     groups: [4, 6].map((g) => [...document.querySelectorAll(`.sb-g[data-sg="${g}"] .grp`)].map((d) => d.querySelector("b").textContent).join()).join(" / "), // X34: môn theo lịch thi của khối
-    toan4: [...document.querySelectorAll('.sb-g[data-sg="4"] .grp:first-child a.item b')].map((x) => x.textContent.replace(/\s+/g, " ")).slice(0, 7).join("|") }));
+    toan4: [...document.querySelectorAll('.sb-g[data-sg="4"] .grp:first-child a.item b')].map((x) => x.textContent.replace(/\s+/g, " ")).slice(0, 7).join("|"),
+    gaps: (() => { const d = [...document.querySelectorAll(".sb-g:not([hidden]) > .grp")]; return [...new Set(d.slice(1).map((x, i) => Math.round(x.getBoundingClientRect().top - d[i].getBoundingClientRect().bottom)))].join(); })() })); // X35
   await p.fill("#seedFind", "toan de 2");
   c.ux7.list.find = await p.$$eval(".sb-g:not([hidden]) a.item:not([hidden])", (a) => a.map((x) => x.getAttribute("href").slice(7)).sort().join()) === (await de2([4]));
   await shot(p, "c5e-de-co-san-tim");
@@ -1140,6 +1141,7 @@ async function run(browser, scheme) {
       return c.ux7.order.subj === "Toán,Tiếng Việt" && c.ux7.order.groups === "Bài ôn dạng trang," + S4 && c.ux7.order.toan === T4
         && c.ux7.list.groups === S4 + " / Toán,Ngữ văn,Tiếng Anh,KHTN,Lịch sử và Địa lí,GDCD,Tin học,Công nghệ,Thử nghiệm" && c.ux7.list.toan4 === T4;
     })(),
+    "UX7b (X35): trang Đề tự soạn: các thẻ môn của đề có sẵn cách nhau 10px như ở Sửa kì thi": c.ux7.list.gaps === "10",
     "UX7 (X12): Đề tự soạn đứng trước đề có sẵn; đề có sẵn theo tab khối (Lớp 4 · N đề chọn sẵn, Lớp 6 · N đề), tìm “toan de 2” còn đúng đề Toán 4 có “Đề 2”":
       c.ux7.list.first && c.ux7.list.tabs === c.ux7.list.want && c.ux7.list.find,
     "UX7 (X13): nhập đề có một câu bị bỏ, một câu thiếu phần: thẻ hai câu đó viền đỏ, lỗi trong thẻ; Lưu thì hỏi lại; gắn vào kì thi thì đề lên máy chủ, đứng đầu danh sách đề của kì thi; form sửa đề ghi kì thi đã gắn; xóa đề thì kì thi bỏ đề theo":

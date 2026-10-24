@@ -3481,7 +3481,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     const scopeLine = () => p.$eval("#ePickScope", (x) => ({ t: x.textContent, h: x.getBoundingClientRect().height }));
     before.scope = await p.evaluate(() => [Store.event("ck1-l4").scope, document.querySelector("#eScope").tagName, document.querySelector("#eScope").value, document.querySelector("#eScope").textContent].join("|"));
     r.keep = { n: await txt("#ePickN"), ck: before, van6: (await shown("eb")).split(",").includes(r.other), ioe6: (await shown("em")).split(",").includes("ioe-6"), scope: await scopeLine(),
-      groups: await p.$$eval("#ePick .pk-g", (d) => d.map((x) => (x.hidden ? "-" : x.open ? "+" : "") + x.querySelector("b").textContent + " " + x.querySelector(".pk-n").textContent).join("|")), rows: await pickRows() };
+      groups: await p.$$eval("#ePick .pk-g", (d) => d.map((x) => (x.hidden ? "-" : x.open ? "+" : "") + x.querySelector("b").textContent + " " + x.querySelector(".pk-n").textContent).join("|")), rows: await pickRows(),
+      gaps: await p.$$eval("#ePick .pk-g:not([hidden])", (d) => [...new Set(d.slice(1).map((x, i) => Math.round(x.getBoundingClientRect().top - d[i].getBoundingClientRect().bottom)))].join()) }; // X35: khoảng cách các thẻ môn ở Sửa kì thi
     await check7("sửa kì thi"); await snap7("sua-ki-thi");
     await p.fill("#eFind", "toan de 2");
     const de2 = (gs) => p.evaluate((gs) => Store.banks().filter((b) => gs.includes(b.grade) && b.subject === "Toán" && / · Đề 2$/.test(b.title)).map((b) => b.id).sort().join(), gs);
@@ -3511,6 +3512,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
         groups: [...document.querySelectorAll('.sb-g[data-sg="4"] .grp')].map((d) => d.querySelector("b").textContent + (d.open ? "+" : "")).join(),
         groups6: [...document.querySelectorAll('.sb-g[data-sg="6"] .grp')].map((d) => d.querySelector("b").textContent).join(),
         lists: [...document.querySelectorAll(".sb-g .grp")].map((d) => [...d.querySelectorAll("a.item b")].map((x) => x.textContent.replace(/\s+/g, " "))), // X34: tên đề trong từng nhóm, theo thứ tự trên màn
+        gaps: (() => { const d = [...document.querySelectorAll(".sb-g:not([hidden]) > .grp")]; return d.slice(1).map((x, i) => Math.round(x.getBoundingClientRect().top - d[i].getBoundingClientRect().bottom)).join(); })(), // X35: thẻ môn cách nhau 10px
         rows: document.querySelectorAll("#seedBanks a.item").length, wantRows: seed.filter((b) => act.includes(b.grade)).length }; });
     await check7("ngân hàng đề"); await snap7("ngan-hang-de");
     await p.fill("#seedFind", "toan de 2");
@@ -3579,6 +3581,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && /· tự soạn$/.test(r.keep.rows[2][1][r.keep.rows[2][1].length - 1]) && r.keep.rows[1][1].slice(0, 3).join("|") === "Toán 4 · Giữa kì I · Đề ngẫu nhiên|Toán 4 · Giữa kì I · Đề 1|Toán 4 · Giữa kì I · Đề 2"
       && r.only4.rows6.slice(1).every(([, t, g]) => { const k = g.includes(6) ? g.indexOf(6) : g.length; return g.slice(0, k).every((x) => x === 4) && g.slice(k).every((x) => x === 6) && (!k || inOrder(t.slice(0, k))) && (k === g.length || inOrder(t.slice(k))); })
       && r.only4.rows6.some(([, , g]) => g.includes(4) && g.includes(6))
+      && r.keep.gaps === "10" && r.list.gaps === "10,10,10,10,10" // X35: thẻ môn của danh sách đề có sẵn cách nhau 10px như ở Sửa kì thi
       && r.list.find4.got === r.list.find4.want && r.list.find4.want.split(",").length >= 2 && /^Lớp 4 · \d+ đề,Lớp 6 · \d+ đề$/.test(r.list.find4.tabs) && r.list.find4.open === "Toán+" && r.list.find6.got === r.list.find6.want && r.list.find6.want.split(",").length >= 2
       && r.evOpts.first === "" && r.evOpts.n > 3 && r.evOpts.ok && r.evOpts.gk1 && /^Kiểm tra giữa học kì I \(\d+\/\d+\)$/.test(r.evOpts.label)
       && r.prev.res === "Nhận được 3 câu: 2 trắc nghiệm, 1 điền khuyết, 0 đúng/sai; 1 đoạn đọc. Cần sửa: 1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Xem các thẻ viền đỏ bên dưới."
