@@ -359,10 +359,18 @@ async function run(browser, scheme) {
   c.ux7.reopen = (await ebChecked()) === ck1 && (await ebShown()).split(",").includes(toan6);
   await p.click(`#ePick input[value="${toan6}"]`); await p.click("#eForm [type=submit]"); await p.waitForSelector("#parentCal");
   c.ux7.restored = await until(p, () => (evRow("ck1-l4").banks || []).slice().sort().join() === ck0);
+  /* X34 (Phiên UX7b): nhóm môn theo lịch thi. Sửa kì thi giữa kì I lớp 4 (môn thi Toán, Tiếng Việt): Bài ôn dạng trang, Toán, Tiếng Việt
+     đứng đầu, rồi các môn khác theo lịch thi lớp 4; nhóm Toán: đề giữa kì I trước đề cuối kì I, đề ngẫu nhiên đầu mỗi kì. */
+  await p.goto(BASE + "/#/admin/event/gk1-l4"); await p.waitForSelector("#ePick");
+  c.ux7.order = await p.evaluate(() => { const g = [...document.querySelectorAll("#ePick .pk-g")].filter((d) => !d.hidden);
+    return { subj: Store.event("gk1-l4").subjects.join(), groups: g.map((d) => d.querySelector("b").textContent).join(),
+      toan: [...g[1].querySelectorAll(".ck")].filter((x) => !x.hidden).map((x) => x.textContent.replace(/\s+/g, " ").trim()).slice(0, 7).join("|") }; });
   // Đề tự soạn: đề có sẵn theo tab khối, ô tìm
   await p.goto(BASE + "/#/admin/banks"); await p.waitForSelector("#seedFind");
   c.ux7.list = await p.evaluate(() => ({ tabs: [...document.querySelectorAll("#seedBanks .tabs button")].map((b) => b.textContent + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join(),
-    want: [4, 6].map((g, i) => `Lớp ${g} · ${Store.banks(g).filter((b) => b.seed).length} đề` + (i ? "" : "*")).join(), first: !!(document.querySelector("#myBanks").compareDocumentPosition(document.querySelector("#seedBanks")) & Node.DOCUMENT_POSITION_FOLLOWING) }));
+    want: [4, 6].map((g, i) => `Lớp ${g} · ${Store.banks(g).filter((b) => b.seed).length} đề` + (i ? "" : "*")).join(), first: !!(document.querySelector("#myBanks").compareDocumentPosition(document.querySelector("#seedBanks")) & Node.DOCUMENT_POSITION_FOLLOWING),
+    groups: [4, 6].map((g) => [...document.querySelectorAll(`.sb-g[data-sg="${g}"] .grp`)].map((d) => d.querySelector("b").textContent).join()).join(" / "), // X34: môn theo lịch thi của khối
+    toan4: [...document.querySelectorAll('.sb-g[data-sg="4"] .grp:first-child a.item b')].map((x) => x.textContent.replace(/\s+/g, " ")).slice(0, 7).join("|") }));
   await p.fill("#seedFind", "toan de 2");
   c.ux7.list.find = await p.$$eval(".sb-g:not([hidden]) a.item:not([hidden])", (a) => a.map((x) => x.getAttribute("href").slice(7)).sort().join()) === (await de2([4]));
   await shot(p, "c5e-de-co-san-tim");
@@ -1127,6 +1135,11 @@ async function run(browser, scheme) {
     "UX7b (X33): Sửa kì thi cuối kì I lớp 4: dòng #ePickScope hiện, ghi “Đang hiện bài ôn và đề của Lớp 4…”, hiện cả khối khác thì “… của mọi khối.”, bỏ ô Lớp 4 thì “Chọn khối ở trên…”; ô Phạm vi kiến thức không bị ghi chữ vào, Lưu giữ nguyên; audit không báo id trùng":
       c.ux7.scope.join(" | ") === "Đang hiện bài ôn và đề của Lớp 4, khối của kì thi này. | Đang hiện bài ôn và đề của mọi khối. | Chọn khối ở trên để thấy bài ôn và đề của khối đó. | Đang hiện bài ôn và đề của Lớp 4, khối của kì thi này."
       && c.ux7.scopeIn === "INPUT|true|" && c.ux7.scopeSaved && !problems.some((x) => /id trùng/.test(x)),
+    "UX7b (X34): nhóm môn theo lịch thi: Sửa kì thi giữa kì I lớp 4 có Bài ôn dạng trang, Toán, Tiếng Việt đứng đầu; Đề tự soạn: Lớp 4 Toán, Tiếng Việt, Tiếng Anh, Lịch sử và Địa lí, Khoa học, Tin học và Công nghệ, Lớp 6 theo lịch lớp 6 (Thử nghiệm cuối); nhóm Toán lớp 4: ba đề giữa kì I trước bốn đề cuối kì I, đề ngẫu nhiên đầu mỗi kì": (() => {
+      const S4 = "Toán,Tiếng Việt,Tiếng Anh,Lịch sử và Địa lí,Khoa học,Tin học và Công nghệ", T4 = "Toán 4 · Giữa kì I · Đề ngẫu nhiên|Toán 4 · Giữa kì I · Đề 1|Toán 4 · Giữa kì I · Đề 2|Toán 4 · Cuối kì I · Đề ngẫu nhiên|Toán 4 · Cuối kì I · Đề 1|Toán 4 · Cuối kì I · Đề 2|Toán 4 · Cuối kì I · Đề 3";
+      return c.ux7.order.subj === "Toán,Tiếng Việt" && c.ux7.order.groups === "Bài ôn dạng trang," + S4 && c.ux7.order.toan === T4
+        && c.ux7.list.groups === S4 + " / Toán,Ngữ văn,Tiếng Anh,KHTN,Lịch sử và Địa lí,GDCD,Tin học,Công nghệ,Thử nghiệm" && c.ux7.list.toan4 === T4;
+    })(),
     "UX7 (X12): Đề tự soạn đứng trước đề có sẵn; đề có sẵn theo tab khối (Lớp 4 · N đề chọn sẵn, Lớp 6 · N đề), tìm “toan de 2” còn đúng đề Toán 4 có “Đề 2”":
       c.ux7.list.first && c.ux7.list.tabs === c.ux7.list.want && c.ux7.list.find,
     "UX7 (X13): nhập đề có một câu bị bỏ, một câu thiếu phần: thẻ hai câu đó viền đỏ, lỗi trong thẻ; Lưu thì hỏi lại; gắn vào kì thi thì đề lên máy chủ, đứng đầu danh sách đề của kì thi; form sửa đề ghi kì thi đã gắn; xóa đề thì kì thi bỏ đề theo":
