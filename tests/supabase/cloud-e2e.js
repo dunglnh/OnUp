@@ -41,6 +41,11 @@ const config = (siteKey, signup) => `window.ONTAP_CONFIG = { supabaseUrl: "https
   contactText: "Nhắn Zalo cho cô Lan", contactUrl: ${JSON.stringify(CONTACT)}, signupText: ${JSON.stringify(signup ? SIGNUP_TXT : "")}, signupUrl: ${JSON.stringify(signup ? SIGNUP : "")} };`;
 /* Thay cho script Cloudflare Turnstile (không có mạng): trả mã hợp lệ sau một chút, ghi lại ô đã dùng. */
 const TURNSTILE_STUB = `window.turnstile = { n: 0, boxes: [], render(host, o) { this.boxes.push(host.id || "?"); const t = "ok-" + Date.now() + "-" + (++this.n); setTimeout(() => o.callback(t), 20); return this.n; }, remove() {} };`;
+/* Bảng chia sẻ của máy (navigator.share) giả lập cho nút "Gửi báo cáo" (UX8, như tests/e2e.js): ghi lại dữ liệu được truyền vào. */
+const SHARE_STUB = () => {
+  window.__share = { calls: [] };
+  Object.defineProperty(navigator, "share", { configurable: true, value: (d) => { __share.calls.push(d); return Promise.resolve(); } });
+};
 
 /* Như audit trong tests/e2e.js: ở 360px không tràn ngang; mọi button, a.btn, .linkbtn, summary đang hiện cao ≥ 44px; chữ ≥ 13px; chữ không đè
    lên nhau, không tràn khỏi ô, không đè lên ô nhập, hình (chủ app yêu cầu 22/10/2026; cách đo ghi ở audit của tests/e2e.js, hai bản giống nhau). */
@@ -641,6 +646,27 @@ async function run(browser, scheme) {
   c.report = await p2.evaluate(() => ({ n: +document.querySelector("#rpCount").textContent, subj: [...document.querySelectorAll("#rpSubjects .rp-sub b:first-child")].map((b) => b.textContent).join() }));
   c.ux2.report = await p2.evaluate(() => ({ hash: location.hash, back: document.querySelector("#view .linkbtn[data-go]").textContent, links: [...document.querySelectorAll("#rpCal, #rpPractice")].map((a) => a.textContent + "=" + a.getAttribute("href")).join(), head: [...document.querySelectorAll("#rpHead h1, #rpHead .rp-who .muted")].map((x) => x.textContent.replace(/\s+/g, " ").trim()).join(" | "), headAll: document.querySelector("#rpHead").innerText, topCal: !!document.querySelector(".who a"), edit: !!document.querySelector("a[href^='#/admin/user/']") }));
   await shot(p2, "c12-bao-cao-tuan");
+  /* UX8 (X14): khối “Tin nhắn sẽ gửi” ngay dưới đầu trang: tin nhắn khớp các ô số liệu, không có tên đăng nhập, tên gia đình, đường dẫn;
+     giả lập navigator.share (addInitScript, tải lại trang) thì “Gửi báo cáo” truyền đúng { title, text }; không có navigator.share thì
+     clipboard có tin nhắn; “Chép tin nhắn” cũng vậy; bản in không có khối này. */
+  const readMsg = () => p2.evaluate(() => { const t = (s) => document.querySelector(s).textContent.replace(/\s+/g, " ").trim();
+    return { msg: document.querySelector("#rpMsgText").textContent, after: document.querySelector("#rpHead").nextElementSibling.id, head: t("#rpHead .rp-who .muted:last-child"), count: t("#rpCount"), days: t("#rpDays"),
+      mins: t("#rpMins"), avg: t("#rpAvg"), pvAvg: t("#rpAvg + span + small"), send: t("#rpSend"), main: document.querySelector("#rpSend").classList.contains("main"), copy: t("#rpCopy"), printBtn: t("#rpPrint"), family: Store.settings().schoolName, user: Store.username() }; });
+  c.ux8 = await readMsg();
+  await home.grantPermissions(["clipboard-read", "clipboard-write"], { origin: BASE });
+  await p2.addInitScript(SHARE_STUB); await p2.reload(); await p2.waitForSelector("#rpSend");
+  c.ux8.reload = (await readMsg()).msg === c.ux8.msg;
+  await p2.click("#rpSend"); await wait(p2);
+  c.ux8.shared = await p2.evaluate(() => __share.calls.map((d) => ({ keys: Object.keys(d).sort().join(), title: d.title, text: d.text })));
+  await p2.evaluate(() => { delete navigator.share; const t = document.getElementById("toast"); if (t) t.hidden = true; return navigator.clipboard.writeText("trước"); });
+  await p2.click("#rpSend"); await wait(p2);
+  c.ux8.noShare = { clip: await p2.evaluate(() => navigator.clipboard.readText()).catch((e) => "lỗi: " + e.message), toast: await text(p2, "#toast") };
+  await p2.evaluate(() => navigator.clipboard.writeText("trước"));
+  await p2.click("#rpCopy"); await wait(p2);
+  c.ux8.copied = await p2.evaluate(() => navigator.clipboard.readText()).catch((e) => "lỗi: " + e.message);
+  await p2.emulateMedia({ media: "print" });
+  c.ux8.printCss = await p2.evaluate(() => getComputedStyle(document.querySelector("#rpMsg")).display + "," + document.querySelector("#rpPrint").getBoundingClientRect().height); // nút In nằm trong hàng .noprint
+  await p2.emulateMedia({ media: "screen" });
   await p2.click("#rpPractice"); await p2.waitForSelector("#allPractice");
   c.ux2.practice = (await text(p2, "#view h2")) + " | " + (await text(p2, "#view .linkbtn[data-go]")) + " | " + (await p2.$$eval("#allPractice a.btn", (a) => a.length));
   await p2.click("#view .linkbtn[data-go]"); await p2.waitForSelector(".report");
@@ -1142,6 +1168,16 @@ async function run(browser, scheme) {
     "hồ sơ không PIN bấm là vào; con không vào được khu phụ huynh bằng địa chỉ": c.na && c.kidBlocked,
     "tab mới: nhớ hồ sơ chọn gần nhất, khu phụ huynh phải nhập lại mật khẩu": c.preselect === "Na" && /Mật khẩu chưa đúng/.test(c.wrongPw),
     "báo cáo tuần đọc kết quả từ máy chủ (Đề 1 và đề ngẫu nhiên)": c.report.n === 2 && c.report.subj === "Toán",
+    "UX8 (X14): báo cáo tuần có khối “Tin nhắn sẽ gửi” ngay dưới đầu trang: tin nhắn chữ thuần khớp các ô số liệu (số bài, ngày ôn, phút, điểm trung bình, tuần trước), có kì thi gần nhất, gợi ý, dòng cuối “Gửi từ OnUp.”, không có tên đăng nhập, tên gia đình, đường dẫn; giả lập navigator.share thì “Gửi báo cáo” truyền đúng { title, text }; không có thì chép vào clipboard và báo; “Chép tin nhắn” cũng chép; bản in không có khối này": (() => {
+      const u = c.ux8, L = u.msg.split("\n"), pv = u.pvAvg.replace(/^Tuần trước: /, "");
+      return u.after === "rpMsg" && L[0] === `Báo cáo tuần của Bin (${u.head.replace(/^Báo cáo /, "")})` && L[1] === `• Làm ${u.count} bài, ôn ${u.days} ngày, ${u.mins} phút.` && u.count === "2"
+        && L[2] === `• Điểm trung bình ${u.avg}/10 (tuần trước ${pv === "–" ? "chưa làm bài" : pv}).` && L.some((x) => /^• Sắp tới: Kiểm tra giữa học kì I, \d+\/\d+ – \d+\/\d+\/\d{4} \((dự kiến, )?còn \d+ ngày\)\.$/.test(x))
+        && L.slice(3, -1).every((x) => /^• (Chủ đề hay sai|Sắp tới|Gợi ý): /.test(x)) && [1, 2].includes(L.filter((x) => /^• Gợi ý: /.test(x)).length) && L[L.length - 1] === "Gửi từ OnUp." && u.msg.length <= 600
+        && u.user === "nha.bin" && u.family === "Nhà Bin" && !u.msg.includes(u.user) && !u.msg.includes(u.family) && !/https?:|#\/|www\./.test(u.msg)
+        && u.send === "Gửi báo cáo" && u.main && u.copy === "Chép tin nhắn" && u.printBtn === "In" && u.reload
+        && u.shared.length === 1 && u.shared[0].keys === "text,title" && u.shared[0].title === "Báo cáo tuần của Bin" && u.shared[0].text === u.msg
+        && u.noShare.clip === u.msg && u.noShare.toast === "Đã chép tin nhắn. Dán vào Zalo hoặc tin nhắn để gửi." && u.copied === u.msg && u.printCss === "none,0";
+    })(),
     "đổi mật khẩu: sai mật khẩu hiện tại thì báo": /hiện tại chưa đúng/.test(c.wrongOld) && c.pwChanged,
     "chuyển dữ liệu máy này: 1 hồ sơ con, 1 kết quả; PIN cũ dùng được": /1 hồ sơ con mới, 1 kết quả/.test(c.migrate) && c.bong,
     "chuyển dữ liệu: nhắc iPhone, iPad chuyển trong Safari; không có hướng dẫn Màn hình chính của bản trên máy": c.migHint && c.noHomeScreen,
