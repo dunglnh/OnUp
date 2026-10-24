@@ -303,7 +303,6 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 
 | Phiên | Hạn | Nội dung | Kho | Mã mới | Kiểm thử phải sửa |
 |---|---|---|---|---|---|
-| DS4b | 28/10/2026 (thi giữa kì I từ 2/11/2026) | KHTN 6 Bài 9–17 (chất, vật liệu, hỗn hợp): dò câu của kho giữa kì I và kho cuối kì I | 63 câu có sẵn | — | `tests/khtn6-gk1.js`, `tests/khtn6-ck1.js` khi đổi câu |
 | DS5 | 28/10/2026 (thi giữa kì I từ 2/11/2026) | Tiếng Anh 6 tập 1, Unit 1–3: dò kho giữa kì I và câu Unit 1–3 của kho cuối kì I | 109 câu có sẵn | — | `tests/ta-lsdl-tin6-gk1.js` khi đổi câu giữa kì I; `tests/supabase/cloud-e2e.js` khi đổi `ta6-gk1-de1` |
 | DS6 | 28/10/2026 (thi giữa kì I từ 2/11/2026) | Tin học 6 Bài 1–5: dò đề giữa kì I và câu cùng bài của đề cuối kì I | 78 câu có sẵn | — | `tests/ta-lsdl-tin6-gk1.js`, `tests/lsdl-tin6-ck1.js` khi đổi câu |
 | DS7 | 28/10/2026 (thi giữa kì I từ 2/11/2026) | Công nghệ 6 Bài 1–3: dò đề giữa kì I và câu cùng bài của đề cuối kì I | 76 câu có sẵn | — | `tests/congnghe6-gk1.js`, `tests/lsdl-tin6-ck1.js` khi đổi câu |
@@ -373,13 +372,6 @@ Chủ app yêu cầu ngày 23/10/2026: đề, bài ôn chưa đối chiếu vớ
 >   4. Mỗi phiên mở tối đa khoảng 40 ảnh trang. Đến ngưỡng mà chưa dò hết: dò xong bài đang dò rồi dừng, mở Pull Request phần đã dò (tiêu đề ghi “phần 1”), sửa dòng và khối của phiên ở bảng “Hàng đợi” thành phần chưa dò với mã mới `<mã>-2` (giữ chỗ cũ trong hàng đợi). Phải dừng trước khi hết lượt dùng: hết lượt giữa chừng thì phiên đứng yên tới khi có lượt lại, không tự mở Pull Request được, và các lượt tự chạy sau đều nghỉ vì nhánh chưa có Pull Request.
 > - Pull Request “Phiên <mã>: dò … với sách in năm 2026”: từng câu đã sửa (mã đề, số câu, lí do, trang sách), chỗ sách khác `note`, chủ đề, `scope`, câu trả lời cho các chỗ nhờ dò lại, chỗ còn chưa chắc, số ảnh trang đã mở và có dùng chữ OCR không (để PO chỉnh cỡ phiên). Xong khi node tests/kiem-tra-de.js in DE OK và không thêm dòng “Nhắc:” về các đề đã dò, các script ghi trong lời giao việc in MATH OK, node tests/e2e.js in E2E OK.
 > - Có số PR: thêm một dòng ngắn (số PR, tiêu đề Pull Request) vào cuối bảng “Đã xong” ở mục 1, sửa ngày và số PR ở dòng trạng thái của docs/KE-HOACH-PHAT-TRIEN-ONUP.md, xóa dòng của phiên ở bảng “Hàng đợi” và khối lời giao việc của phiên; hàng đợi không còn dòng DS nào thì xóa dòng 0 ở mục 3 của file đó và nhóm “Trước 10/11/2026: dò sách in năm 2026…”, còn nhóm này đổi tiêu đề thành “### Dò sách in năm 2026” và chỉ giữ dòng “Đề chờ dò sách” cùng Quy định chung của các phiên dò sách (Quy định chung của các phiên N trỏ tới). Điều mới rút ra ghi một dòng vào mục 3 của file này.
-
-**Phiên DS4b · KHTN 6 Bài 9–17 (chất, vật liệu, hỗn hợp): dò với sách in năm 2026** (hạn 28/10/2026; thi giữa kì I từ 2/11/2026)
-> Ở docs/KE-HOACH-NOI-DUNG.md chỉ đọc (tìm bằng `grep -n`): mục 3 các dòng “Rút ra” của N5, N25, N11; mục 4 đoạn “Sách” và dòng của cuốn sách ở bảng “Sách và link của từng phiên”; mục 7 Quy định chung của các phiên N và của các phiên dò sách. Mở Khoa học tự nhiên 6 (có trong OnUp-Book: mã G1HH6K001h26, ảnh page-N là trang in N − 1; mục lục trang 4–6), Bài 9–17. Dò theo bài, trong data/banks/6-khtn.js, 63 câu có chữ chủ đề “Chất và sự chuyển thể”, “Oxygen và không khí”, “Vật liệu, nhiên liệu, lương thực – thực phẩm”, “Hỗn hợp và tách chất”:
-> 1. `khtn6-gk1-de1`, `khtn6-gk1-de2` và câu riêng của `khtn6-gk1-ngau-nhien` (Phiên N25; PR #111): 33 câu.
-> 2. `khtn6-ck1-de1`, `khtn6-ck1-de2` và câu riêng của `khtn6-ck1-ngau-nhien` (Phiên N5, PR #81): 30 câu.
-> Câu, lời giải dùng đúng chữ và cách phân loại của sách (Rút ra N11). Đổi câu thì chạy lại và sửa tests/khtn6-gk1.js, tests/khtn6-ck1.js (in MATH OK).
-> Còn lại theo Quy định chung của các phiên dò sách và của các phiên N ở mục 7 của docs/KE-HOACH-NOI-DUNG.md.
 
 **Phiên DS5 · Tiếng Anh 6 tập 1, Unit 1–3: dò với sách in năm 2026** (hạn 28/10/2026; thi giữa kì I từ 2/11/2026)
 > CLAUDE.md đã nạp sẵn, nhất là mục “Môn Tiếng Anh (mọi khối): 100% tiếng Anh”. Ở docs/KE-HOACH-NOI-DUNG.md chỉ đọc (tìm bằng `grep -n`): mục 3 các dòng “Rút ra” của N5, N10, N25b; mục 4 đoạn “Sách” và dòng của cuốn sách ở bảng “Sách và link của từng phiên”; mục 7 Quy định chung của các phiên N và của các phiên dò sách. Mở bản PDF Tiếng Anh 6 – Global Success tập 1, Unit 1–3 và Review 1. Dò theo unit, trong data/banks/6-ta.js, 109 câu:
