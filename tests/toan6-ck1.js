@@ -94,21 +94,21 @@ const doiCanh = (P) => { const s = sides(P); return [songSong(s[0], s[2]), songS
    right(q): đáp án tính bằng code (so với o[0], ans[0], a, ans, r của từng ô trái, o); more(q): kiểm tra thêm (nhiễu, bước giải, hình). */
 const RECT = [[0, 0], [5, 0], [5, 3], [0, 3]];
 const de1 = [
-  { has: "A = {x ∈ ℕ | 3 < x ≤ 7}", right: () => "A = {" + range(0, 20).filter((x) => 3 < x && x <= 7).join("; ") + "}" },
-  { has: "Số La Mã XIV", right: () => String(fromRoman("XIV")) },
-  { has: "25 · 37 · 4", right: () => String(ev("25 · 37 · 4")), more: () => assert.equal(25 * 4, 100) },
+  { has: "A = {x ∈ ℕ | 5 < x ≤ 9}", right: () => "A = {" + range(0, 20).filter((x) => 5 < x && x <= 9).join("; ") + "}" },
+  { has: "Số La Mã XVII", right: () => String(fromRoman("XVII")), more: (q) => assert.ok(q.x.includes("XVII = 10 + 5 + 1 + 1 = 17")) },
+  { has: "50 · 37 · 2", right: () => String(ev("50 · 37 · 2")), more: () => assert.equal(50 * 2, 100) },
   { has: "46 · 73 + 46 · 27", right: () => String(ev("46 · 73 + 46 · 27")), more: () => assert.equal(73 + 27, 100) },
-  { has: "5³ · 5⁴", right: () => "5" + sup(3 + 4), more: (q) => q.o.forEach((o, i) => assert.equal(ev(o) === ev("5³ · 5⁴"), i === 0, "lựa chọn " + o)) },
-  { has: "7¹⁰ : 7² = 7⁵", right: () => eq("7¹⁰ : 7² = 7⁵"), more: () => assert.ok(eq("7¹⁰ : 7² = 7⁸")) },
+  { has: "3⁴ · 3⁵", right: () => "3" + sup(4 + 5), more: (q) => q.o.forEach((o, i) => assert.equal(ev(o) === ev("3⁴ · 3⁵"), i === 0, "lựa chọn " + o)) },
+  { has: "4¹⁰ : 4² = 4⁵", right: () => eq("4¹⁰ : 4² = 4⁵"), more: () => assert.ok(eq("4¹⁰ : 4² = 4⁸")) },
   { has: "80 − 2 · (5 + 3²)", right: () => String(ev("80 − 2 · (5 + 3²)")) },
   { has: "3x − 15 = 42", right: () => String(range(0, 100).find((x) => 3 * x - 15 === 42)) },
   { has: "chia hết cho cả 2, 3 và 5", right: (q) => { const m = q.o.filter((o) => val(o) % 30 === 0); assert.equal(m.length, 1); return m[0]; } },
   { has: "Số 2 457 chia hết cho 9", right: () => 2457 % 9 === 0, more: () => assert.equal(2 + 4 + 5 + 7, 18) },
   { has: "37* chia hết cho cả 2 và 5", right: () => { const m = range(0, 9).filter((d) => (370 + d) % 10 === 0); assert.equal(m.length, 1); return String(m[0]); } },
-  { has: "1; 15; 23; 51, số nào là số nguyên tố", right: () => { const m = [1, 15, 23, 51].filter(isPrime); assert.equal(m.length, 1); return String(m[0]); } },
+  { has: "1; 15; 29; 51, số nào là số nguyên tố", right: () => { const m = [1, 15, 29, 51].filter(isPrime); assert.equal(m.length, 1); return String(m[0]); } },
   { has: "Phân tích số 120 ra thừa số nguyên tố", right: () => factor(120), more: (q) => q.o.forEach((o) => assert.equal(ev(o), 120, "lựa chọn " + o + " phải bằng 120")) },
   { has: "ƯCLN(48, 72)", right: () => String(gcd(48, 72)), more: (q) => assert.ok(q.x.includes("48 = " + factor(48)) && q.x.includes("72 = " + factor(72))) },
-  { has: "An cứ 8 ngày", right: () => String(lcm(8, 12)) },
+  { has: "cứ 10 ngày một lần và bón phân cho chậu hoa hồng cứ 15 ngày", right: () => String(lcm(10, 15)), more: (q) => assert.ok(q.x.includes(`BCNN = ${factor(lcm(10, 15))} = ${lcm(10, 15)}`)) },
   { has: "Số đối của −12", right: () => fmt(-(-12)) },
   { has: "−5 > −3", right: () => -5 > -3 },
   { has: "(−25) + 17 − (−8)", right: () => ev("(−25) + 17 − (−8)") },
@@ -134,8 +134,8 @@ const de1 = [
 ];
 const SHAPE = { "Hình chữ nhật": RECT, "Tam giác đều": [[0, 0], [2, 0], [1, Math.sqrt(3)]], "Hình thang cân": [[1, 0], [3, 0], [4, 2], [0, 2]], "Tam giác vuông": [[0, 0], [3, 0], [0, 2]] };
 const de2 = [
-  { has: "P = {x ∈ ℕ* | x < 6}", right: () => String(range(1, 20).filter((x) => x < 6).length) },
-  { has: "XIX biểu diễn số 21", right: () => fromRoman("XIX") === 21, more: () => assert.equal(toRoman(21), "XXI") },
+  { has: "H = {x ∈ ℕ* | x ≤ 9}", right: () => String(range(1, 20).filter((x) => x <= 9).length) },
+  { has: "XIX biểu diễn số 21", right: () => fromRoman("XIX") === 21, more: (q) => { assert.equal(toRoman(21), "XXI"); assert.ok(q.x.includes("XIX = 10 + 9 = 19") && !q.x.includes("−"), "lời giải không dùng quy tắc trừ"); } },
   { has: "4 052 817, chữ số 5", right: () => { const s = "4052817", i = s.indexOf("5"); return fmt(5 * 10 ** (s.length - 1 - i)); } },
   { has: "Hình nào dưới đây có tâm đối xứng", right: (q) => { const m = q.o.filter((n) => coTam(SHAPE[n])); assert.equal(m.length, 1); return m[0]; } },
   { has: "Tam giác đều có đúng 1 trục đối xứng", right: () => truc(SHAPE["Tam giác đều"]).length === 1, more: () => assert.equal(truc(SHAPE["Tam giác đều"]).length, 3) },
@@ -143,12 +143,12 @@ const de2 = [
   { has: "4² + 3³", right: () => String(ev("4² + 3³")), more: (q) => q.o.slice(1).forEach((o) => assert.notEqual(val(o), ev("4² + 3³"))) },
   { has: "[(14 − 4) · 5 + 50] : 10", right: () => String(ev("[(14 − 4) · 5 + 50] : 10")) },
   { has: "18 − 6 : 3 là 4", right: () => ev("18 − 6 : 3") === 4, more: () => assert.equal(ev("18 − 6 : 3"), 16) },
-  { has: "Nếu a chia hết cho 4 và b chia hết cho 4", right: () => range(0, 30).every((i) => range(0, 30).every((j) => (4 * i + 4 * j) % 4 === 0)) },
+  { has: "28 + 64 + 92 chia hết cho 4", right: () => (28 + 64 + 92) % 4 === 0, more: () => [28, 64, 92].forEach((v) => assert.equal(v % 4, 0)) },
   { has: "chia hết cho 3 nhưng không chia hết cho 9", right: (q) => { const m = q.o.filter((o) => val(o) % 3 === 0 && val(o) % 9 !== 0); assert.equal(m.length, 1); return m[0]; } },
   { has: "số nguyên tố nhỏ hơn 20", right: () => String(range(1, 19).filter(isPrime).length) },
   { has: "Số nào dưới đây là hợp số", right: (q) => { const m = q.o.filter((o) => !isPrime(val(o))); assert.equal(m.length, 1); return m[0]; }, more: () => assert.equal(7 * 13, 91) },
   { has: "BCNN(12, 18)", right: () => String(lcm(12, 18)) },
-  { has: "36 quyển vở và 24 chiếc bút", right: () => String(gcd(36, 24)), more: (q) => q.o.forEach((o) => assert.equal(36 % val(o) === 0 && 24 % val(o) === 0, val(o) !== 72, "lựa chọn " + o)) },
+  { has: "36 cuốn truyện tranh và 24 cuốn truyện chữ", right: () => String(gcd(36, 24)), more: (q) => q.o.forEach((o) => assert.equal(36 % val(o) === 0 && 24 % val(o) === 0, val(o) !== 72, "lựa chọn " + o)) },
   { has: "8 và 15 là hai số nguyên tố cùng nhau", right: () => gcd(8, 15) === 1 },
   { has: "4; −7; 0; −2; 9 theo thứ tự giảm dần", right: () => [4, -7, 0, -2, 9].sort((a, b) => b - a).map(fmt).join("; ") },
   { has: "−2 °C, đến trưa nhiệt độ tăng thêm 7 °C", right: () => String(-2 + 7) },
@@ -162,17 +162,17 @@ const de2 = [
 ];
 // câu riêng của đề ngẫu nhiên
 const own = [
-  { has: "Nối mỗi số La Mã", right: (q) => q.l.map((r) => String(fromRoman(r))), more: (q) => { q.r.slice(q.l.length).forEach((x) => assert.ok(!q.l.some((r) => fromRoman(r) === val(x)))); assert.ok(q.x.includes("Số 26 viết là " + toRoman(26))); } },
+  { has: "Nối mỗi số La Mã", right: (q) => q.l.map((r) => String(fromRoman(r))), more: (q) => { q.r.slice(q.l.length).forEach((x) => assert.ok(!q.l.some((r) => fromRoman(r) === val(x)))); assert.ok(q.x.includes("XXIX = 10 + 10 + 9 = 29") && !q.x.includes("trừ"), "lời giải theo năm thành phần, không dùng quy tắc trừ"); } },
   { has: "A = {x ∈ ℕ | 2 ≤ x < 7}", right: (q) => { // đọc số trong từng ý
     const A = range(0, 20).filter((x) => 2 <= x && x < 7), set = (a) => "{" + a.join("; ") + "}", m = q.o.map((o) => /^A = (\{.*\})$|^(\d+) ∈ A$|^Tập hợp A có (\d+) phần tử$|^Tập hợp các số chẵn thuộc A là (\{.*\})$/.exec(o));
     assert.ok(m.every(Boolean) && m.every((x, i) => x[i + 1] !== undefined), "chữ các ý: " + q.o);
     return [set(A) === m[0][1], A.includes(+m[1][2]), A.length === +m[2][3], set(A.filter((x) => x % 2 === 0)) === m[3][4]];
   } },
   { has: "Sắp xếp các số sau theo thứ tự từ bé đến lớn", right: (q) => q.o.slice().sort((a, b) => val(a) - val(b)), more: (q) => assert.equal(new Set(q.o.map(val)).size, 4) },
-  { has: "1 245 học sinh đi tham quan", right: () => Math.ceil(1245 / 45), more: () => { assert.equal(45 * 27, 1215); assert.equal(1245 - 1215, 30); } },
+  { has: "1 228 cuốn vở", right: () => Math.ceil(1228 / 22), more: () => { assert.equal(22 * 55, 1210); assert.equal(1228 - 1210, 18); } },
   { has: "đánh số trang cho một cuốn sổ dày 120 trang", right: () => String(sum(range(1, 120).map((p) => String(p).length))), more: () => assert.equal(9 + 90 * 2 + 21 * 3, 252) },
   { has: "Tổng S = 2 + 4 + 6 + … + 98 + 100", right: () => fmt(sum(range(1, 50).map((k) => 2 * k))), more: (q) => { q.o.slice(1).forEach((o) => assert.notEqual(val(o), 2550)); assert.equal(102 * 25, 2550); } },
-  { has: "Viết gọn tích 7 · 7 · 7 · 7 · 7", right: () => "7" + sup(5), more: (q) => q.o.forEach((o, i) => assert.equal(ev(o) === 7 ** 5, i === 0, "lựa chọn " + o)) },
+  { has: "Viết gọn tích 7 · 7 · 7 · 7 · 7 · 7 ", right: () => "7" + sup(6), more: (q) => q.o.forEach((o, i) => assert.equal(ev(o) === 7 ** 6, i === 0, "lựa chọn " + o)) },
   { has: "Sắp xếp các lũy thừa sau", right: (q) => q.o.slice().sort((a, b) => ev(a) - ev(b)), more: (q) => assert.equal(new Set(q.o.map((o) => ev(o))).size, 4) },
   { has: "Mỗi đẳng thức sau về lũy thừa", right: (q) => q.o.map(eq), more: () => assert.equal(ev("3⁴"), 81) },
   { has: "5 · (x + 3) − 2³ = 47", right: () => { const m = range(0, 100).filter((x) => ev("5 · (x + 3) − 2³", { x }) === 47); assert.equal(m.length, 1); return String(m[0]); } },
@@ -180,17 +180,17 @@ const own = [
   { has: "Giá trị của biểu thức 2 000 − [5³ · 2³ − 4 · (3² + 2⁴)]", right: (q) => fmt(ev(/biểu thức (.+) là:/.exec(q.q)[1])), more: (q) => { assert.equal(ev("5³ · 2³ − 4 · (3² + 2⁴)"), 900); q.o.slice(1).forEach((o) => assert.notEqual(val(o), 1100)); } },
   { has: "chia hết cho 5 nhưng không chia hết cho 2", right: (q) => { const m = q.o.filter((o) => val(o) % 5 === 0 && val(o) % 2 !== 0); assert.equal(m.length, 1); return m[0]; } },
   { has: "số tự nhiên có ba chữ số chia hết cho 9", right: () => fmt(range(100, 999).filter((n) => n % 9 === 0).length), more: () => assert.equal((999 - 108) / 9 + 1, 100) },
-  { has: "số 2*75 chia hết cho 3 nhưng không chia hết cho 9", right: () => range(0, 9).filter((d) => (2075 + 100 * d) % 3 === 0 && (2075 + 100 * d) % 9 !== 0).join("; ") },
+  { has: "số 4*72 chia hết cho 3 nhưng không chia hết cho 9", right: () => range(0, 9).filter((d) => (4072 + 100 * d) % 3 === 0 && (4072 + 100 * d) % 9 !== 0).join("; ") },
   { has: "Cho A = 2 · 3 · 5 · 7 + 35", right: (q) => {
     const A = ev("2 · 3 · 5 · 7 + 35"); assert.equal(A, 245);
     return q.o.map((o) => { const m = /^A chia hết cho (\d+)$/.exec(o); return m ? A % +m[1] === 0 : o === "A là hợp số" ? A > 1 && !isPrime(A) : assert.fail(o); });
   } },
-  { has: "Lớp 6A có 40 học sinh", right: () => divisors(40).filter((d) => d > 1 && d < 40).length, more: (q) => assert.ok(q.x.includes("Ư(40) = {" + divisors(40).join("; ") + "}")) },
-  { has: "Sắp xếp các bước tìm ƯCLN", right: (q) => ["Phân tích", "Chọn", "Lập tích"].map((k) => q.o.find((o) => o.startsWith(k))),
-    more: (q) => { assert.equal(gcd(20, 28), 4); ["20 = " + factor(20), "28 = " + factor(28), "ƯCLN(20, 28) = 2² = 4"].forEach((s) => assert.ok(q.x.includes(s), "ví dụ thiếu " + s)); } },
-  { has: "bội chung của 4 và 6", right: (q) => { const m = q.o.filter((o) => val(o) % 4 === 0 && val(o) % 6 === 0); assert.equal(m.length, 1); return m[0]; } },
+  { has: "42 quả bưởi", right: () => divisors(42).filter((d) => d > 1 && d < 42).length, more: (q) => assert.ok(q.x.includes("Ư(42) = {" + divisors(42).join("; ") + "}")) },
+  { has: "tìm ƯCLN(44, 110) bằng cách phân tích", right: (q) => ["44 = ", "Thừa số nguyên tố chung", "ƯCLN("].map((k) => q.o.find((o) => o.startsWith(k))),
+    more: (q) => { assert.ok(q.o.includes(`44 = ${factor(44)} và 110 = ${factor(110)}`) && q.o.includes(`ƯCLN(44, 110) = 2 · 11 = ${gcd(44, 110)}`), "chữ các dòng: " + q.o); } },
+  { has: "bội chung của 6 và 14", right: (q) => { const m = q.o.filter((o) => val(o) % 6 === 0 && val(o) % 14 === 0); assert.equal(m.length, 1); return m[0]; } },
   { has: "Hai số nguyên tố khác nhau bao giờ cũng có ƯCLN bằng 1", right: () => { const p = range(2, 60).filter(isPrime); return p.every((a) => p.every((b) => a === b || gcd(a, b) === 1)); } },
-  { has: "Nối mỗi cặp số ở cột trái với ƯCLN", right: (q) => q.l.map((s) => String(gcd(...s.split(" và ").map(Number)))), more: (q) => { assert.ok(!q.l.some((s) => gcd(...s.split(" và ").map(Number)) === 5)); assert.ok(30 % 5 === 0 && 45 % 5 === 0); } },
+  { has: "Nối mỗi cặp số ở cột trái với ƯCLN", right: (q) => q.l.map((s) => String(gcd(...s.split(" và ").map(Number)))), more: (q) => { assert.ok(!q.l.some((s) => gcd(...s.split(" và ").map(Number)) === 11)); assert.ok(66 % 11 === 0 && 99 % 11 === 0); } },
   { has: "Cho m = 2² · 3 · 5 và n = 2 · 3² · 7", right: (q) => { const m = ev("2² · 3 · 5"), n = ev("2 · 3² · 7"); return q.o.map((o) => { const [l, r] = o.split(" = "), v = ev(r); return /^ƯCLN/.test(l) ? gcd(m, n) === v : /^BCNN/.test(l) ? lcm(m, n) === v : l === "m" ? m === v : assert.fail(o); }); },
     more: (q) => assert.ok(q.x.includes(fmt(lcm(60, 126)))) },
   { has: "khoảng từ 200 đến 250", right: (q) => { const m = range(200, 250).filter((x) => x % 10 === 0 && x % 12 === 0 && x % 15 === 0); assert.equal(m.length, 1); assert.ok(q.x.includes(`BCNN(10, 12, 15) = ${factor(lcm(10, 12, 15))} = ${lcm(10, 12, 15)}`)); return m[0]; } },
