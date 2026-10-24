@@ -305,7 +305,6 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 
 | Phiên | Hạn | Nội dung | Kho | Mã mới | Kiểm thử phải sửa |
 |---|---|---|---|---|---|
-| DS6 | 28/10/2026 (thi giữa kì I từ 2/11/2026) | Tin học 6 Bài 1–5: dò đề giữa kì I và câu cùng bài của đề cuối kì I | 78 câu có sẵn | — | `tests/ta-lsdl-tin6-gk1.js`, `tests/lsdl-tin6-ck1.js` khi đổi câu |
 | DS7 | 28/10/2026 (thi giữa kì I từ 2/11/2026) | Công nghệ 6 Bài 1–3: dò đề giữa kì I và câu cùng bài của đề cuối kì I | 76 câu có sẵn | — | `tests/congnghe6-gk1.js`, `tests/lsdl-tin6-ck1.js` khi đổi câu |
 | DS2c | 10/11/2026 (muộn nhất 30/11/2026) | Lịch sử 6 (bản chỉnh sửa năm 2026), Bài 7–15: dò câu Lịch sử còn lại của đề cuối kì I và đề giữa kì II | 38 câu có sẵn | — | `tests/lsdl-tin6-ck1.js`, `tests/lsdl-gdcd6-gk2.js` khi đổi câu |
 | DS2d | 10/11/2026 (muộn nhất 30/11/2026) | Địa lí 6 (bản chỉnh sửa năm 2026), từ cấu tạo của Trái Đất đến hết giữa kì II: dò câu Địa lí còn lại của kho cuối kì I và đề giữa kì II | 43 câu có sẵn | — | như DS2c |
@@ -373,13 +372,6 @@ Chủ app yêu cầu ngày 23/10/2026: đề, bài ôn chưa đối chiếu vớ
 >   4. Mỗi phiên mở tối đa khoảng 40 ảnh trang. Đến ngưỡng mà chưa dò hết: dò xong bài đang dò rồi dừng, mở Pull Request phần đã dò (tiêu đề ghi “phần 1”), sửa dòng và khối của phiên ở bảng “Hàng đợi” thành phần chưa dò với mã mới `<mã>-2` (giữ chỗ cũ trong hàng đợi). Phải dừng trước khi hết lượt dùng: hết lượt giữa chừng thì phiên đứng yên tới khi có lượt lại, không tự mở Pull Request được, và các lượt tự chạy sau đều nghỉ vì nhánh chưa có Pull Request.
 > - Pull Request “Phiên <mã>: dò … với sách in năm 2026”: từng câu đã sửa (mã đề, số câu, lí do, trang sách), chỗ sách khác `note`, chủ đề, `scope`, câu trả lời cho các chỗ nhờ dò lại, chỗ còn chưa chắc, số ảnh trang đã mở và có dùng chữ OCR không (để PO chỉnh cỡ phiên). Xong khi node tests/kiem-tra-de.js in DE OK và không thêm dòng “Nhắc:” về các đề đã dò, các script ghi trong lời giao việc in MATH OK, node tests/e2e.js in E2E OK.
 > - Có số PR: thêm một dòng ngắn (số PR, tiêu đề Pull Request) vào cuối bảng “Đã xong” ở mục 1, sửa ngày và số PR ở dòng trạng thái của docs/KE-HOACH-PHAT-TRIEN-ONUP.md, xóa dòng của phiên ở bảng “Hàng đợi” và khối lời giao việc của phiên; hàng đợi không còn dòng DS nào thì xóa dòng 0 ở mục 3 của file đó và nhóm “Trước 10/11/2026: dò sách in năm 2026…”, còn nhóm này đổi tiêu đề thành “### Dò sách in năm 2026” và chỉ giữ dòng “Đề chờ dò sách” cùng Quy định chung của các phiên dò sách (Quy định chung của các phiên N trỏ tới). Điều mới rút ra ghi một dòng vào mục 3 của file này.
-
-**Phiên DS6 · Tin học 6 Bài 1–5: dò với sách in năm 2026** (hạn 28/10/2026; thi giữa kì I từ 2/11/2026)
-> Ở docs/KE-HOACH-NOI-DUNG.md chỉ đọc (tìm bằng `grep -n`): mục 3 các dòng “Rút ra” của N6, N25b, N12b; mục 4 đoạn “Sách” và dòng của cuốn sách ở bảng “Sách và link của từng phiên”; mục 7 Quy định chung của các phiên N và của các phiên dò sách. Mở bản PDF Tin học 6 (N12b gặp lỗi 503: thử lại như Quy định chung của các phiên dò sách), Bài 1–5. Dò theo bài, trong data/banks/6-tin.js, 78 câu:
-> 1. `tin6-gk1-de1` (Phiên N0b), `tin6-gk1-de2` (Phiên N25b; chỗ nhờ dò lại ở PR #112): cả 50 câu.
-> 2. `tin6-ck1-de1` (Phiên 10), `tin6-ck1-de2` (Phiên N6, PR #83): 28 câu có chữ chủ đề “Thông tin và dữ liệu”, “Xử lí thông tin”, “Thông tin trong máy tính”, “Mạng máy tính”, “Internet”.
-> Đổi câu thì chạy lại và sửa tests/ta-lsdl-tin6-gk1.js, tests/lsdl-tin6-ck1.js (in MATH OK).
-> Còn lại theo Quy định chung của các phiên dò sách và của các phiên N ở mục 7 của docs/KE-HOACH-NOI-DUNG.md.
 
 **Phiên DS7 · Công nghệ 6 Bài 1–3: dò với sách in năm 2026** (hạn 28/10/2026; thi giữa kì I từ 2/11/2026)
 > Ở docs/KE-HOACH-NOI-DUNG.md chỉ đọc (tìm bằng `grep -n`): mục 3 các dòng “Rút ra” của N6, N25, N12b; mục 4 đoạn “Sách” và dòng của cuốn sách ở bảng “Sách và link của từng phiên”; mục 7 Quy định chung của các phiên N và của các phiên dò sách. Mở bản PDF Công nghệ 6 (N12b gặp lỗi 503: thử lại như Quy định chung của các phiên dò sách), Bài 1–3. Dò theo bài, trong data/banks/6-congnghe.js, 76 câu:
