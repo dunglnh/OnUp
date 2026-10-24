@@ -2058,8 +2058,8 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
     };
     const check = () => {
       const res = Quiz.parse($("#bSrc").value), { questions, passages } = res, c = (t) => questions.filter((q) => q.type === t).length;
-      const kinds = KINDS.filter(([t], i) => i < 3 || c(t)).map(([t, nm]) => c(t) + " " + nm), np = Object.keys(passages).length, pr = bankProblems(res);
-      $("#bRes").innerHTML = `<div class="${pr.length ? "notice" : "fb ok"}">Nhận được ${questions.length} câu: ${kinds.join(", ")}${np ? `; ${np} đoạn đọc` : ""}.${pr.length ? ` Cần sửa: ${esc(pr.join(", "))}. Xem các thẻ viền đỏ bên dưới.` : ""}</div>`;
+      const kinds = KINDS.filter(([t]) => c(t)).map(([t, nm]) => c(t) + " " + nm), np = Object.keys(passages).length, pr = bankProblems(res); // chỉ dạng có câu, không ghi "0 đúng/sai" (X36)
+      $("#bRes").innerHTML = `<div class="${pr.length ? "notice" : "fb ok"}">Nhận được ${questions.length} câu${kinds.length ? ": " + kinds.join(", ") : ""}${np ? `; ${np} đoạn đọc` : ""}.${pr.length ? ` Cần sửa: ${esc(pr.join(", "))}. Xem các thẻ viền đỏ bên dưới.` : ""}</div>`;
       $("#bPrev").innerHTML = bankPreview(res); $("#bPrev").hidden = false;
       $$("[data-pf]").forEach((x) => (x.onclick = () => showBad(x.dataset.pf === "bad")));
       $("#bCheck").textContent = "Kiểm tra lại"; $("#bAsk").innerHTML = "";

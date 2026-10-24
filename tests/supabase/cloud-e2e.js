@@ -379,6 +379,7 @@ async function run(browser, scheme) {
   await p.goto(BASE + "/#/admin/bank/new"); await p.waitForSelector("#bForm");
   await p.fill("#bTitle", "Ôn tổng hợp · tuần 7"); await p.selectOption("#bGrade", "4"); await p.fill("#bSubj", "Toán");
   await p.fill("#bSrc", UX7_SRC); await p.click("#bCheck");
+  c.ux7.res = await text(p, "#bRes"); // X36: dòng tóm tắt không ghi dạng 0 câu ("0 đúng/sai")
   c.ux7.prev = await p.evaluate(() => [...document.querySelectorAll(".pv-card")].map((x) => x.id + (x.hasAttribute("data-bad") ? "!" : "")).join() + " | " + document.querySelector("#pv3 .tag.bad").textContent + " | " + document.querySelector("#pv2 .fb.bad").textContent);
   await shot(p, "c5f-nhap-de-loi");
   await p.selectOption("#bEvent", "ck2-l4");
@@ -1142,6 +1143,8 @@ async function run(browser, scheme) {
         && c.ux7.list.groups === S4 + " / Toán,Ngữ văn,Tiếng Anh,KHTN,Lịch sử và Địa lí,GDCD,Tin học,Công nghệ,Thử nghiệm" && c.ux7.list.toan4 === T4;
     })(),
     "UX7b (X35): trang Đề tự soạn: các thẻ môn của đề có sẵn cách nhau 10px như ở Sửa kì thi": c.ux7.list.gaps === "10",
+    "UX7b (X36): nhập đề không có câu đúng/sai: dòng tóm tắt chỉ ghi dạng có câu, không có “0 đúng/sai”":
+      c.ux7.res === "Nhận được 2 câu: 1 trắc nghiệm, 1 điền khuyết. Cần sửa: 1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Xem các thẻ viền đỏ bên dưới.",
     "UX7 (X12): Đề tự soạn đứng trước đề có sẵn; đề có sẵn theo tab khối (Lớp 4 · N đề chọn sẵn, Lớp 6 · N đề), tìm “toan de 2” còn đúng đề Toán 4 có “Đề 2”":
       c.ux7.list.first && c.ux7.list.tabs === c.ux7.list.want && c.ux7.list.find,
     "UX7 (X13): nhập đề có một câu bị bỏ, một câu thiếu phần: thẻ hai câu đó viền đỏ, lỗi trong thẻ; Lưu thì hỏi lại; gắn vào kì thi thì đề lên máy chủ, đứng đầu danh sách đề của kì thi; form sửa đề ghi kì thi đã gắn; xóa đề thì kì thi bỏ đề theo":

@@ -3584,7 +3584,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.keep.gaps === "10" && r.list.gaps === "10,10,10,10,10" // X35: thẻ môn của danh sách đề có sẵn cách nhau 10px như ở Sửa kì thi
       && r.list.find4.got === r.list.find4.want && r.list.find4.want.split(",").length >= 2 && /^Lớp 4 · \d+ đề,Lớp 6 · \d+ đề$/.test(r.list.find4.tabs) && r.list.find4.open === "Toán+" && r.list.find6.got === r.list.find6.want && r.list.find6.want.split(",").length >= 2
       && r.evOpts.first === "" && r.evOpts.n > 3 && r.evOpts.ok && r.evOpts.gk1 && /^Kiểm tra giữa học kì I \(\d+\/\d+\)$/.test(r.evOpts.label)
-      && r.prev.res === "Nhận được 3 câu: 2 trắc nghiệm, 1 điền khuyết, 0 đúng/sai; 1 đoạn đọc. Cần sửa: 1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Xem các thẻ viền đỏ bên dưới."
+      && r.prev.res === "Nhận được 3 câu: 2 trắc nghiệm, 1 điền khuyết; 1 đoạn đọc. Cần sửa: 1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Xem các thẻ viền đỏ bên dưới." // X36: không ghi dạng 0 câu
       && r.prev.cards === "pv1,pv2!,pv3!,pvd1,pv4" && r.prev.filter === "Tất cả · 5Cần sửa · 2" && r.prev.pv2 === "Mức độ “Rất khó” chưa đúng (Biết, Hiểu hoặc Vận dụng)"
       && r.prev.pv3.tag === "Chưa lưu được" && r.prev.pv3.head === "Câu 3 · Đo lường" && /^Một sợi dây dài 2 m.*Đáp số: một phẩy hai lăm m$/.test(r.prev.pv3.src) && /^Dòng “Đáp số:” cần một số/.test(r.prev.pv3.err)
       && r.prev.right === "A600 000✓ Đúng" && r.prev.fill === "Đáp án được chấm đúng: 543211 hoặc 543 211" && r.prev.psg === "Đoạn đọc 1 · Chú mèo conDùng cho 1 câu" && r.prev.check === "Kiểm tra lại" && r.prev.onlyBad === "pv2,pv3"
