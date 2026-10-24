@@ -288,12 +288,13 @@ window.ONTAP_SEED_BANKS = [
       "An toàn thông tin trên Internet": [1, 1, 1] } } },
   /* Ngân hàng Công nghệ 6 cuối kì I (Phiên N6): kho câu = 50 câu của 2 đề cố định ở trên (không có câu riêng), câu nào cũng có
      mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): Chương I
-     Nhà ở 12 câu (Bài 1–3), Chương II 13 câu (Bài 4–6, Bài 5 bảo quản và chế biến thực phẩm 6 câu); đề 2 chia đúng theo ma trận
+     Nhà ở 12 câu (Bài 1–3; chủ đề theo tên bài của sách in năm 2026, Phiên DS7: tiết kiệm năng lượng là mục III của Bài 3 Ngôi
+     nhà thông minh), Chương II 13 câu (Bài 4–6, Bài 5 bảo quản và chế biến thực phẩm 6 câu); đề 2 chia đúng theo ma trận
      và bù câu Vận dụng đề 1 còn thiếu, nên ô nào cũng đủ câu. Ô Biết của “Thực phẩm và dinh dưỡng” rút 1 câu, nên câu nối nhóm
      thực phẩm – chất dinh dưỡng của đề 2 không cùng một đề với các câu về nhóm thực phẩm của đề 1. */
   { id: "congnghe6-ck1-ngau-nhien", title: "Công nghệ 6 · Cuối kì I · Đề ngẫu nhiên", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js",
     pool: { from: ["congnghe6-ck1-de1", "congnghe6-ck1-de2"], matrix: {
-      "Khái quát về nhà ở": [3, 1, 1], "Sử dụng năng lượng trong gia đình": [2, 1, 1], "Ngôi nhà thông minh": [1, 1, 1],
+      "Khái quát về nhà ở": [2, 1, 1], "Xây dựng nhà ở": [2, 1, 0], "Ngôi nhà thông minh": [2, 1, 2],
       "Thực phẩm và dinh dưỡng": [1, 2, 1], "Bảo quản và chế biến thực phẩm": [3, 2, 1], "Bữa ăn kết nối yêu thương": [0, 1, 2] } } },
   /* Ngân hàng Toán 6 giữa kì I (Phiên N24): kho câu = 51 câu riêng trong file + 50 câu của 2 đề cố định ở trên (Đề 1 chỉ có
      Chương I–II), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì
@@ -331,12 +332,12 @@ window.ONTAP_SEED_BANKS = [
       "Đo chiều dài, khối lượng, thời gian": [2, 1, 1], "Đo nhiệt độ": [1, 1, 1], "Chất và sự chuyển thể": [1, 1, 1],
       "Oxygen và không khí": [1, 1, 1], "Vật liệu, nhiên liệu, lương thực – thực phẩm": [1, 1, 1], "Hỗn hợp và tách chất": [1, 1, 0] } } },
   /* Ngân hàng Công nghệ 6 giữa kì I (Phiên N25): kho câu = 50 câu của 2 đề cố định ở trên (không có câu riêng), câu nào cũng có
-     mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): Bài 1
-     Khái quát về nhà ở 10 câu, Bài 2 Sử dụng năng lượng trong gia đình 8 câu, Bài 3 Ngôi nhà thông minh 7 câu như đề 1; đề 2 chia
-     đúng theo ma trận và bù câu Vận dụng đề 1 còn thiếu (đề 1 có 11 – 11 – 3), nên ô nào cũng đủ câu. */
+     mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): chủ đề theo
+     tên bài của sách in năm 2026 (Phiên DS7): Bài 1 Khái quát về nhà ở 6 câu, Bài 2 Xây dựng nhà ở 7 câu, Bài 3 Ngôi nhà thông
+     minh 12 câu (cả mục III Sử dụng năng lượng tiết kiệm và hiệu quả trong gia đình) như đề 1; đề 2 chia đúng theo ma trận và bù câu Vận dụng đề 1 còn thiếu (đề 1 có 11 – 11 – 3), nên ô nào cũng đủ câu. */
   { id: "congnghe6-gk1-ngau-nhien", title: "Công nghệ 6 · Giữa kì I · Đề ngẫu nhiên", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js",
     pool: { from: ["congnghe6-gk1-de1", "congnghe6-gk1-de2"], matrix: {
-      "Khái quát về nhà ở": [4, 3, 3], "Sử dụng năng lượng trong gia đình": [3, 3, 2], "Ngôi nhà thông minh": [3, 2, 2] } } },
+      "Khái quát về nhà ở": [3, 2, 1], "Xây dựng nhà ở": [3, 2, 2], "Ngôi nhà thông minh": [4, 4, 4] } } },
   /* Ngân hàng Tiếng Anh 6 giữa kì I (Phiên N25b): kho câu = 28 câu riêng trong file + 50 câu của 2 đề cố định ở trên, câu nào
      cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991):
      số câu từng chủ đề như đề 1 (Pronunciation 3, mỗi Unit 6, Reading 4); đề 1 ít câu Vận dụng (12 – 10 – 3) nên Đề 2 chia đúng
