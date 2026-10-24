@@ -48,9 +48,12 @@ const SHARE_STUB = () => {
 };
 
 /* Như audit trong tests/e2e.js: ở 360px không tràn ngang; mọi button, a.btn, .linkbtn, summary đang hiện cao ≥ 44px; chữ ≥ 13px; chữ không đè
-   lên nhau, không tràn khỏi ô, không đè lên ô nhập, hình (chủ app yêu cầu 22/10/2026; cách đo ghi ở audit của tests/e2e.js, hai bản giống nhau). */
+   lên nhau, không tràn khỏi ô, không đè lên ô nhập, hình (chủ app yêu cầu 22/10/2026; cách đo ghi ở audit của tests/e2e.js, hai bản giống nhau);
+   không có hai phần tử cùng id, kể cả phần tử đang ẩn (X33, Phiên UX7b). */
 const audit = () => {
   const bad = [], shown = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== "hidden"; };
+  const idN = new Map(); document.querySelectorAll("[id]").forEach((e) => { if (e.id) idN.set(e.id, (idN.get(e.id) || 0) + 1); });
+  idN.forEach((n, id) => { if (n > 1) bad.push(`id trùng: #${id} (${n} phần tử)`); });
   {
     const cs = (e) => getComputedStyle(e), say = (s) => `"${s.slice(0, 32)}"`;
     /* ẩn: nằm trong <details> đang đóng (trừ dòng summary; getComputedStyle không ghi display:none), display:none, visibility, opacity 0,
@@ -330,27 +333,45 @@ async function run(browser, scheme) {
   const evRow = (id) => be.T.exam_events.find((x) => x.family_id === acc.id && x.id === id) || {};
   await p.goto(BASE + "/#/admin/event/ck1-l4"); await p.waitForSelector("#ePick");
   const ck0 = await ebChecked(), toan6 = await p.evaluate(() => Store.banks(6).find((b) => b.subject === "Toán" && / · Đề 2$/.test(b.title)).id);
+  /* X33 (Phiên UX7b): dòng khối đang hiện là #ePickScope, hiện ra (cao hơn 0), đổi chữ theo link “Hiện cả đề của khối khác” và ô Khối;
+     ô Phạm vi kiến thức (#eScope) không bị ghi chữ vào, Lưu lên máy chủ giữ nguyên phạm vi kiến thức. */
+  const scopeLine = () => p.$eval("#ePickScope", (x) => (x.getBoundingClientRect().height > 0 ? x.textContent : "(không hiện)"));
+  const scope0 = await p.evaluate(() => Store.event("ck1-l4").scope);
   c.ux7 = { only4: (await ebShown()) === (await p.evaluate(() => Store.banks(4).map((b) => b.id).sort().join())), n: await text(p, "#ePickN"),
-    nWant: await p.evaluate(() => Store.event("ck1-l4").banks.length + Store.event("ck1-l4").modules.length + " đã chọn"), head: await text(p, "#ePickH") };
+    nWant: await p.evaluate(() => Store.event("ck1-l4").banks.length + Store.event("ck1-l4").modules.length + " đã chọn"), head: await text(p, "#ePickH"),
+    scope: [await scopeLine()], scopeIn: await p.$eval("#eScope", (x) => [x.tagName, x.value === Store.event("ck1-l4").scope, x.textContent].join("|")) };
   await shot(p, "c5c-sua-ki-thi");
   await p.fill("#eFind", "toan de 2");
   c.ux7.find = (await ebShown()) === (await de2([4])) && (await de2([4])).split(",").length >= 2;
   await p.click("#eAll");
   c.ux7.findAll = (await ebShown()) === (await de2([4, 6])) && (await de2([6])).includes(toan6);
+  c.ux7.scope.push(await scopeLine());
   await shot(p, "c5d-sua-ki-thi-tim");
   await p.click(`#ePick input[value="${toan6}"]`); await p.click("#eAll"); await p.fill("#eFind", "");
   c.ux7.sticky = (await ebShown()).split(",").includes(toan6) && (await text(p, "#eAll")) === "Hiện cả đề của khối khác";
+  await p.uncheck('input[name=eg][value="4"]'); c.ux7.scope.push(await scopeLine());
+  await p.check('input[name=eg][value="4"]'); c.ux7.scope.push(await scopeLine());
   const ck1 = await ebChecked();
   await p.click("#eForm [type=submit]"); await p.waitForSelector("#parentCal");
   c.ux7.saved = ck1 === ck0.split(",").concat(toan6).sort().join() && await until(p, () => (evRow("ck1-l4").banks || []).slice().sort().join() === ck1);
+  c.ux7.scopeSaved = scope0.length > 10 && evRow("ck1-l4").scope === scope0;
   await p.goto(BASE + "/#/admin/event/ck1-l4"); await p.waitForSelector("#ePick");
   c.ux7.reopen = (await ebChecked()) === ck1 && (await ebShown()).split(",").includes(toan6);
   await p.click(`#ePick input[value="${toan6}"]`); await p.click("#eForm [type=submit]"); await p.waitForSelector("#parentCal");
   c.ux7.restored = await until(p, () => (evRow("ck1-l4").banks || []).slice().sort().join() === ck0);
+  /* X34 (Phiên UX7b): nhóm môn theo lịch thi. Sửa kì thi giữa kì I lớp 4 (môn thi Toán, Tiếng Việt): Bài ôn dạng trang, Toán, Tiếng Việt
+     đứng đầu, rồi các môn khác theo lịch thi lớp 4; nhóm Toán: đề giữa kì I trước đề cuối kì I, đề ngẫu nhiên đầu mỗi kì. */
+  await p.goto(BASE + "/#/admin/event/gk1-l4"); await p.waitForSelector("#ePick");
+  c.ux7.order = await p.evaluate(() => { const g = [...document.querySelectorAll("#ePick .pk-g")].filter((d) => !d.hidden);
+    return { subj: Store.event("gk1-l4").subjects.join(), groups: g.map((d) => d.querySelector("b").textContent).join(),
+      toan: [...g[1].querySelectorAll(".ck")].filter((x) => !x.hidden).map((x) => x.textContent.replace(/\s+/g, " ").trim()).slice(0, 7).join("|") }; });
   // Đề tự soạn: đề có sẵn theo tab khối, ô tìm
   await p.goto(BASE + "/#/admin/banks"); await p.waitForSelector("#seedFind");
   c.ux7.list = await p.evaluate(() => ({ tabs: [...document.querySelectorAll("#seedBanks .tabs button")].map((b) => b.textContent + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join(),
-    want: [4, 6].map((g, i) => `Lớp ${g} · ${Store.banks(g).filter((b) => b.seed).length} đề` + (i ? "" : "*")).join(), first: !!(document.querySelector("#myBanks").compareDocumentPosition(document.querySelector("#seedBanks")) & Node.DOCUMENT_POSITION_FOLLOWING) }));
+    want: [4, 6].map((g, i) => `Lớp ${g} · ${Store.banks(g).filter((b) => b.seed).length} đề` + (i ? "" : "*")).join(), first: !!(document.querySelector("#myBanks").compareDocumentPosition(document.querySelector("#seedBanks")) & Node.DOCUMENT_POSITION_FOLLOWING),
+    groups: [4, 6].map((g) => [...document.querySelectorAll(`.sb-g[data-sg="${g}"] .grp`)].map((d) => d.querySelector("b").textContent).join()).join(" / "), // X34: môn theo lịch thi của khối
+    toan4: [...document.querySelectorAll('.sb-g[data-sg="4"] .grp:first-child a.item b')].map((x) => x.textContent.replace(/\s+/g, " ")).slice(0, 7).join("|"),
+    gaps: (() => { const d = [...document.querySelectorAll(".sb-g:not([hidden]) > .grp")]; return [...new Set(d.slice(1).map((x, i) => Math.round(x.getBoundingClientRect().top - d[i].getBoundingClientRect().bottom)))].join(); })() })); // X35
   await p.fill("#seedFind", "toan de 2");
   c.ux7.list.find = await p.$$eval(".sb-g:not([hidden]) a.item:not([hidden])", (a) => a.map((x) => x.getAttribute("href").slice(7)).sort().join()) === (await de2([4]));
   await shot(p, "c5e-de-co-san-tim");
@@ -358,6 +379,7 @@ async function run(browser, scheme) {
   await p.goto(BASE + "/#/admin/bank/new"); await p.waitForSelector("#bForm");
   await p.fill("#bTitle", "Ôn tổng hợp · tuần 7"); await p.selectOption("#bGrade", "4"); await p.fill("#bSubj", "Toán");
   await p.fill("#bSrc", UX7_SRC); await p.click("#bCheck");
+  c.ux7.res = await text(p, "#bRes"); // X36: dòng tóm tắt không ghi dạng 0 câu ("0 đúng/sai")
   c.ux7.prev = await p.evaluate(() => [...document.querySelectorAll(".pv-card")].map((x) => x.id + (x.hasAttribute("data-bad") ? "!" : "")).join() + " | " + document.querySelector("#pv3 .tag.bad").textContent + " | " + document.querySelector("#pv2 .fb.bad").textContent);
   await shot(p, "c5f-nhap-de-loi");
   await p.selectOption("#bEvent", "ck2-l4");
@@ -667,6 +689,17 @@ async function run(browser, scheme) {
   await p2.emulateMedia({ media: "print" });
   c.ux8.printCss = await p2.evaluate(() => getComputedStyle(document.querySelector("#rpMsg")).display + "," + document.querySelector("#rpPrint").getBoundingClientRect().height); // nút In nằm trong hàng .noprint
   await p2.emulateMedia({ media: "screen" });
+  /* X37 (Phiên UX7b): chủ đề hay sai có dấu phẩy: gợi ý “Ôn lại chủ đề hay sai: …” ngăn tên chủ đề bằng “; ”, giống dòng của tin nhắn. Thêm
+     thẳng vào máy chủ giả một kết quả hôm nay của Bin có hai chủ đề có dấu phẩy (đứng đầu Chủ đề hay sai), tải lại, so, rồi bỏ đi. */
+  const x37 = { id: "x37-" + Date.now(), profile_id: binId, family_id: acc.id, source: "bank", ref_id: "toan4-ck1-de2", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 2", mode: "practice",
+    r: 20, t: 25, s: 600, wrong_topics: Array(30).fill("Phép cộng, phép trừ").concat(Array(25).fill("Số chẵn, số lẻ")), at: new Date(Date.now() + be.clock).toISOString(), import_key: null };
+  be.T.results.push(x37);
+  await p2.reload(); await p2.waitForSelector("#rpTips");
+  c.x37 = await p2.evaluate(() => ({ tip: [...document.querySelectorAll("#rpTips li")].map((x) => x.textContent).filter((x) => /^Ôn lại chủ đề hay sai: /.test(x)).join("|"),
+    line: document.querySelector("#rpMsgText").textContent.split("\n").filter((x) => /^• Chủ đề hay sai: /.test(x)).join("|") }));
+  be.T.results = be.T.results.filter((r) => r.id !== x37.id);
+  await p2.reload(); await p2.waitForSelector("#rpTips");
+  c.x37.gone = await p2.evaluate(() => !/Phép cộng, phép trừ; Số chẵn, số lẻ/.test(document.querySelector("#rpMsgText").textContent));
   await p2.click("#rpPractice"); await p2.waitForSelector("#allPractice");
   c.ux2.practice = (await text(p2, "#view h2")) + " | " + (await text(p2, "#view .linkbtn[data-go]")) + " | " + (await p2.$$eval("#allPractice a.btn", (a) => a.length));
   await p2.click("#view .linkbtn[data-go]"); await p2.waitForSelector(".report");
@@ -1112,6 +1145,19 @@ async function run(browser, scheme) {
       && c.ux2.fixed.date === "4/11đến 6/11" && c.ux2.fixed.act === "Sửa ngày, bài ôn" && c.ux2.fixed.ev.start === "2026-11-04" && c.ux2.fixed.ev.end === "2026-11-06" && c.ux2.fixed.ev.tentative === false && c.ux2.fixServer,
     "UX7 (X11): Sửa kì thi lớp 4 chỉ hiện đề lớp 4 (bằng Store.banks(4)), “N đã chọn”; tìm “toan de 2” còn đúng đề Toán 4 có “Đề 2”, hiện cả khối khác thì thêm Toán 6; đề lớp 6 vừa chọn vẫn hiện khi ẩn khối khác; Lưu lên máy chủ đủ lựa chọn cũ cộng đề đó, mở lại vẫn đủ, bỏ đi thì về như cũ":
       c.ux7.only4 && c.ux7.n === c.ux7.nWant && c.ux7.head === "Bài ôn và đề cho kì này" && c.ux7.find && c.ux7.findAll && c.ux7.sticky && c.ux7.saved && c.ux7.reopen && c.ux7.restored,
+    "UX7b (X33): Sửa kì thi cuối kì I lớp 4: dòng #ePickScope hiện, ghi “Đang hiện bài ôn và đề của Lớp 4…”, hiện cả khối khác thì “… của mọi khối.”, bỏ ô Lớp 4 thì “Chọn khối ở trên…”; ô Phạm vi kiến thức không bị ghi chữ vào, Lưu giữ nguyên; audit không báo id trùng":
+      c.ux7.scope.join(" | ") === "Đang hiện bài ôn và đề của Lớp 4, khối của kì thi này. | Đang hiện bài ôn và đề của mọi khối. | Chọn khối ở trên để thấy bài ôn và đề của khối đó. | Đang hiện bài ôn và đề của Lớp 4, khối của kì thi này."
+      && c.ux7.scopeIn === "INPUT|true|" && c.ux7.scopeSaved && !problems.some((x) => /id trùng/.test(x)),
+    "UX7b (X34): nhóm môn theo lịch thi: Sửa kì thi giữa kì I lớp 4 có Bài ôn dạng trang, Toán, Tiếng Việt đứng đầu; Đề tự soạn: Lớp 4 Toán, Tiếng Việt, Tiếng Anh, Lịch sử và Địa lí, Khoa học, Tin học và Công nghệ, Lớp 6 theo lịch lớp 6 (Thử nghiệm cuối); nhóm Toán lớp 4: ba đề giữa kì I trước bốn đề cuối kì I, đề ngẫu nhiên đầu mỗi kì": (() => {
+      const S4 = "Toán,Tiếng Việt,Tiếng Anh,Lịch sử và Địa lí,Khoa học,Tin học và Công nghệ", T4 = "Toán 4 · Giữa kì I · Đề ngẫu nhiên|Toán 4 · Giữa kì I · Đề 1|Toán 4 · Giữa kì I · Đề 2|Toán 4 · Cuối kì I · Đề ngẫu nhiên|Toán 4 · Cuối kì I · Đề 1|Toán 4 · Cuối kì I · Đề 2|Toán 4 · Cuối kì I · Đề 3";
+      return c.ux7.order.subj === "Toán,Tiếng Việt" && c.ux7.order.groups === "Bài ôn dạng trang," + S4 && c.ux7.order.toan === T4
+        && c.ux7.list.groups === S4 + " / Toán,Ngữ văn,Tiếng Anh,KHTN,Lịch sử và Địa lí,GDCD,Tin học,Công nghệ,Thử nghiệm" && c.ux7.list.toan4 === T4;
+    })(),
+    "UX7b (X35): trang Đề tự soạn: các thẻ môn của đề có sẵn cách nhau 10px như ở Sửa kì thi": c.ux7.list.gaps === "10",
+    "UX7b (X36): nhập đề không có câu đúng/sai: dòng tóm tắt chỉ ghi dạng có câu, không có “0 đúng/sai”":
+      c.ux7.res === "Nhận được 2 câu: 1 trắc nghiệm, 1 điền khuyết. Cần sửa: 1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Xem các thẻ viền đỏ bên dưới.",
+    "UX7b (X37): báo cáo tuần có chủ đề hay sai có dấu phẩy: gợi ý “Ôn lại chủ đề hay sai: …” ngăn bằng “; ”, giống dòng “Chủ đề hay sai” của tin nhắn":
+      /^Ôn lại chủ đề hay sai: Phép cộng, phép trừ; Số chẵn, số lẻ; [^;]+\.$/.test(c.x37.tip) && c.x37.tip === "Ôn lại chủ đề hay sai: " + c.x37.line.slice("• Chủ đề hay sai: ".length) && c.x37.gone,
     "UX7 (X12): Đề tự soạn đứng trước đề có sẵn; đề có sẵn theo tab khối (Lớp 4 · N đề chọn sẵn, Lớp 6 · N đề), tìm “toan de 2” còn đúng đề Toán 4 có “Đề 2”":
       c.ux7.list.first && c.ux7.list.tabs === c.ux7.list.want && c.ux7.list.find,
     "UX7 (X13): nhập đề có một câu bị bỏ, một câu thiếu phần: thẻ hai câu đó viền đỏ, lỗi trong thẻ; Lưu thì hỏi lại; gắn vào kì thi thì đề lên máy chủ, đứng đầu danh sách đề của kì thi; form sửa đề ghi kì thi đã gắn; xóa đề thì kì thi bỏ đề theo":
