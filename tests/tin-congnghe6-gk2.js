@@ -109,7 +109,7 @@ const CHECKS = [
     assert.ok(q.x.includes(`${b.hang} hàng`) && q.x.includes(`${b.cot} cột`) && q.x.includes(b.o.slice(1).map((h) => h[0]).join(", ")), "lời giải ghi đúng số hàng, số cột, tên các bạn");
     assert.ok(q.o.includes(`${b.cot} hàng, ${b.hang} cột`), "có lựa chọn sai đảo hàng với cột");
     return `${b.hang} hàng, ${b.cot} cột`; } },
-  { id: C.de1, has: "Điện áp định mức của quạt là bao nhiêu vôn", right: (q) => {
+  { id: C.de1, has: "Điện áp định mức của máy xay là bao nhiêu vôn", right: (q) => {
     const m = q.q.match(/ghi: (\d+) V – (\d+) W/); assert.ok(m, "nhãn ghi “<số> V – <số> W”"); assert.equal(q.unit, "V");
     assert.ok(q.x.includes(`${m[1]} V`) && q.x.includes(`${m[2]} W là công suất`)); return +m[1]; } }
 ];
