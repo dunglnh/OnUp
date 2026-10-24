@@ -1,11 +1,16 @@
 // Tính lại đáp án ngân hàng Toán 6 giữa kì I (data/banks/6-toan.js): hai đề cố định toan6-gk1-de1 (chỉ Chương I–II),
-// toan6-gk1-de2 và các câu riêng của đề ngẫu nhiên toan6-gk1-ngau-nhien (Phiên N24). Mỗi câu: kiểm tra đề có đúng số liệu (has)
+// toan6-gk1-de2, các câu riêng của đề ngẫu nhiên toan6-gk1-ngau-nhien (Phiên N24) và hai đề cố định toan6-gk1-de3, toan6-gk1-de4
+// cho trường dạy song song số và hình (Chương I, II, IV; Phiên N26). Mỗi câu: kiểm tra đề có đúng số liệu (has)
 // rồi so đáp án với kết quả tính bằng code: trắc nghiệm o[0], điền khuyết ans[0], đúng/sai a, đúng/sai 4 ý a (4 ý), trả lời bằng
 // số ans, nối cột r[i] của từng ô l[i], sắp xếp thứ tự o; tự luận: các số trong thang chấm và đáp án gợi ý. Câu có hình: đọc toạ
-// độ, chữ trong hình (tia số, trục số, nhiệt kế, bảng, phân tích ra thừa số nguyên tố theo sơ đồ cột) rồi mới tính.
+// độ, chữ trong hình (tia số, trục số, nhiệt kế, bảng, phân tích ra thừa số nguyên tố theo sơ đồ cột; Đề 3, Đề 4: hình chữ nhật,
+// hình thang cân, hình bình hành, hình thoi ghi số đo, lục giác đều ghép từ sáu tam giác đều, tấm bìa cắt bốn góc, mặt trước
+// ngôi nhà) rồi mới tính.
 // Cuối cùng kiểm tra mức độ và ma trận: mọi câu có lv; Đề 1 chỉ có bốn chủ đề của Chương I–II, không có số âm; Đề 2 chia đúng
 // theo ma trận; mỗi ô (chủ đề, mức) có ít nhất gấp đôi số câu ô đó rút; rút thử nhiều lần ra đúng 10 Biết, 8 Hiểu, 7 Vận dụng,
-// nhiều nhất 2 câu tự luận.
+// nhiều nhất 2 câu tự luận. Đề 3, Đề 4: không nằm trong kho của đề ngẫu nhiên; số câu từng chủ đề 3 – 4 – 5 – 5 – 4 – 4,
+// 10 – 8 – 7, ít nhất 10 câu trả lời bằng số hoặc điền khuyết, 3 câu tự luận Vận dụng, khoảng 4 câu có hình, không có số âm,
+// đề bài không trùng câu nào trong data/banks/6-toan.js, không câu nào lộ đáp án của câu khác cùng đề.
 // Chạy: node tests/toan6-gk1.js → in MATH OK.
 const assert = require("assert");
 const fs = require("fs");
@@ -13,7 +18,7 @@ const path = require("path");
 const vm = require("vm");
 const BANKS = require("./nap-de.js").napDe();
 const bank = (id) => BANKS.find((b) => b.id === id);
-const POOL = "toan6-gk1-ngau-nhien", DE1 = "toan6-gk1-de1", DE2 = "toan6-gk1-de2";
+const POOL = "toan6-gk1-ngau-nhien", DE1 = "toan6-gk1-de1", DE2 = "toan6-gk1-de2", DE3 = "toan6-gk1-de3", DE4 = "toan6-gk1-de4";
 
 /* ---------- số ---------- */
 const fmt = (n) => { assert.ok(Number.isInteger(n), "không phải số nguyên: " + n); return (n < 0 ? "−" : "") + String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }; // số nguyên kiểu Việt Nam, dấu trừ "−"
@@ -48,7 +53,7 @@ const attrs = (tag) => Object.fromEntries([...tag.matchAll(/([\w-]+)="([^"]*)"/g
 const lines = (svg) => [...svg.matchAll(/<line [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { a: [+a.x1, +a.y1], b: [+a.x2, +a.y2] }; });
 const rects = (svg) => [...svg.matchAll(/<rect [^>]*>/g)].map((m) => attrs(m[0]));
 const dots = (svg) => [...svg.matchAll(/<circle [^>]*>/g)].map((m) => { const a = attrs(m[0]); return [+a.cx, +a.cy]; });
-const texts = (svg) => [...svg.matchAll(/<text ([^>]*)>([^<]*)<\/text>/g)].map((m) => { const a = attrs("<t " + m[1] + ">"); return { at: [+a.x, +a.y], t: m[2], bold: a["font-weight"] === "700" }; });
+const texts = (svg) => [...svg.matchAll(/<text ([^>]*)>([^<]*)<\/text>/g)].map((m) => { const a = attrs("<t " + m[1] + ">"); return { at: [+a.x, +a.y], t: m[2], bold: a["font-weight"] === "700", anchor: a["text-anchor"] || "start" }; });
 const dist = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
 const nhan = (svg, name) => { const t = texts(svg).filter((x) => x.t === name); assert.equal(t.length, 1, "hình cần đúng một nhãn " + name); return t[0].at; };
 const dinh = (pts, svg, name) => { const at = nhan(svg, name); return pts.slice().sort((p, q) => dist(p, at) - dist(q, at))[0]; }; // điểm gần nhãn nhất
@@ -90,6 +95,63 @@ const soDoCot = (svg) => {
   r.forEach((p, i) => { assert.ok(isPrime(p), p + " phải là số nguyên tố"); assert.equal(l[i + 1], div(l[i], p)); });
   assert.equal(l[l.length - 1], 1, "cột trái kết thúc bằng 1"); assert.deepEqual(r, r.slice().sort((a, b) => a - b), "thừa số xếp từ bé đến lớn");
   return { n: l[0], primes: r };
+};
+/* hình phẳng của Đề 3, Đề 4 (Chương IV, Phiên N26) */
+const nums = (s) => s.trim().split(/[\s,]+/).map(Number);
+const polys = (svg) => [...svg.matchAll(/<polygon [^>]*>/g)].map((m) => nums(attrs(m[0]).points).reduce((o, v, i) => (i % 2 ? o[o.length - 1].push(v) : o.push([v]), o), []));
+const sub = (p, q) => [p[0] - q[0], p[1] - q[1]];
+const dot = (u, v) => u[0] * v[0] + u[1] * v[1];
+const cross = (u, v) => u[0] * v[1] - u[1] * v[0];
+const close = (x, y, e) => Math.abs(x - y) <= (e || 1e-6) * Math.max(1, Math.abs(x), Math.abs(y));
+const songSong = (u, v) => Math.abs(cross(u, v)) <= 1e-3 * Math.hypot(...u) * Math.hypot(...v);
+const vuongGoc = (u, v) => Math.abs(dot(u, v)) <= 1e-3 * Math.hypot(...u) * Math.hypot(...v);
+const gocDo = (u, v) => Math.acos(dot(u, v) / Math.hypot(...u) / Math.hypot(...v)) * 180 / Math.PI;
+const sides = (P) => P.map((p, i) => sub(P[(i + 1) % P.length], p));
+const dienTich = (P) => Math.abs(sum(P.map((p, i) => cross(p, P[(i + 1) % P.length])))) / 2;
+const chuVi = (P) => sum(sides(P).map((v) => Math.hypot(...v)));
+const goc = (P) => P.map((p, i) => gocDo(sub(P[(i + P.length - 1) % P.length], p), sub(P[(i + 1) % P.length], p))); // góc trong của đa giác lồi
+const segDist = (p, a, b) => { const ab = sub(b, a), t = Math.max(0, Math.min(1, dot(sub(p, a), ab) / dot(ab, ab))); return dist(p, [a[0] + t * ab[0], a[1] + t * ab[1]]); };
+const tuGiac = (svg, names) => { // đa giác duy nhất trong hình, đỉnh có tên → {A: [x, y], …} (thứ tự đỉnh như trong polygon)
+  const ps = polys(svg); assert.equal(ps.length, 1, "hình cần đúng một đa giác"); assert.equal(ps[0].length, names.length);
+  const o = {}; names.forEach((n, i) => { o[n] = dinh(ps[0], svg, n); assert.deepEqual(o[n], ps[0][i], "đỉnh " + n + " phải đứng thứ " + (i + 1) + " trong polygon"); });
+  return o;
+};
+// số đo ghi trong hình ("13 cm"): mỗi nhãn thuộc đoạn thẳng gần nó nhất trong segs ({AB: [A, B], …}), gần hơn hẳn đoạn kế tiếp
+// (cách ít nhất 5 px); các đoạn có nhãn cùng một tỉ lệ (hình vẽ đúng tỉ lệ) → { AB: 13, … }. Chữ cỡ 15: mỗi kí tự rộng khoảng 8 px.
+const soDo = (svg, segs, unit) => {
+  const out = {}, k = [];
+  texts(svg).filter((t) => new RegExp("^\\d+ " + unit + "$").test(t.t)).forEach((t) => {
+    const w = 8 * t.t.length, c = [t.at[0] + (t.anchor === "middle" ? 0 : t.anchor === "end" ? -w / 2 : w / 2), t.at[1] - 5];
+    const near = Object.keys(segs).map((n) => [n, segDist(c, ...segs[n])]).sort((a, b) => a[1] - b[1]), name = near[0][0];
+    assert.ok(near[1][1] - near[0][1] >= 5, `nhãn “${t.t}” gần cả ${near[0][0]} lẫn ${near[1][0]}`);
+    assert.ok(!(name in out), "hai nhãn cùng ghi đoạn " + name); out[name] = parseInt(t.t, 10); k.push(dist(...segs[name]) / out[name]);
+  });
+  k.forEach((x) => assert.ok(close(x, k[0], 1e-3), `hình vẽ đúng tỉ lệ (${k.join("; ")} px một ${unit})`));
+  return out;
+};
+// lục giác đều ghép từ sáu tam giác đều chung một đỉnh O: mỗi tam giác đều, sáu đỉnh ngoài tạo lục giác đều (sáu cạnh bằng nhau,
+// sáu góc 120°, ba đường chéo chính đi qua O), mỗi cạnh của lục giác là cạnh của đúng một tam giác → { O, V (đỉnh ngoài theo
+// vòng), s (độ dài cạnh, px) }
+const lucGiac = (svg) => {
+  const T = polys(svg); assert.equal(T.length, 6, "sáu tam giác"); T.forEach((t) => assert.equal(t.length, 3, "mỗi đa giác là một tam giác"));
+  const key = (p) => p.join(","), cnt = {}; T.flat().forEach((p) => (cnt[key(p)] = (cnt[key(p)] || 0) + 1));
+  const O = T[0].find((p) => cnt[key(p)] === 6); assert.ok(O, "sáu tam giác chung một đỉnh");
+  const ang = (p) => Math.atan2(p[1] - O[1], p[0] - O[0]);
+  const V = Object.keys(cnt).filter((k) => cnt[k] === 2).map((k) => k.split(",").map(Number)).sort((a, b) => ang(a) - ang(b));
+  assert.equal(V.length, 6, "sáu đỉnh ngoài, mỗi đỉnh chung cho hai tam giác"); const s = dist(V[0], V[1]);
+  T.forEach((t) => sides(t).forEach((v) => assert.ok(close(Math.hypot(...v), s, 1e-3), "tam giác đều, cạnh bằng cạnh lục giác")));
+  sides(V).forEach((v) => assert.ok(close(Math.hypot(...v), s, 1e-3), "lục giác có sáu cạnh bằng nhau"));
+  goc(V).forEach((g) => assert.ok(close(g, 120, 1e-3), "mỗi góc của lục giác đều bằng 120°"));
+  [0, 1, 2].forEach((i) => assert.ok(segDist(O, V[i], V[i + 3]) < 0.01, "đường chéo chính đi qua O"));
+  V.forEach((p, i) => assert.equal(T.filter((t) => [p, V[(i + 1) % 6]].every((q) => t.some((r) => dist(q, r) < 0.01))).length, 1, "cạnh lục giác là cạnh của đúng một tam giác"));
+  return { O, V, s };
+};
+// đường cao vẽ nét đứt từ đỉnh P xuống cạnh XY: đầu kia là chân đường cao (nhãn H), nằm trên đoạn XY, vuông góc với XY
+const duongCao = (svg, P, X, Y) => {
+  const L = lines(svg); assert.equal(L.length, 1, "một đường cao"); const ends = [L[0].a, L[0].b];
+  assert.deepEqual(dinh(ends, svg, "H"), ends.find((e) => dist(e, P) > 0.01), "nhãn H ở chân đường cao"); const H = ends.find((e) => dist(e, P) > 0.01);
+  assert.ok(ends.some((e) => dist(e, P) < 0.01) && segDist(H, X, Y) < 0.01 && vuongGoc(sub(P, H), sub(Y, X)), "đường cao vuông góc với cạnh, chân nằm trên cạnh");
+  return H;
 };
 
 /* ---------- kiểm tra từng câu ----------
@@ -285,6 +347,189 @@ const own = [
   } }
 ];
 
+/* Đề 3, Đề 4 (Phiên N26): Chương I, II, IV cho trường dạy song song số và hình */
+const rb = (q) => q.rubric.map((c) => c.c).join(" | ");
+const both = (q, list) => list.forEach((s) => { assert.ok(rb(q).includes(s), "thang chấm thiếu " + s); assert.ok(q.x.includes(s), "gợi ý thiếu " + s); });
+const ABCD = (P) => ({ AB: [P.A, P.B], BC: [P.B, P.C], CD: [P.C, P.D], DA: [P.D, P.A] });
+const de3 = [
+  { has: "Cho tập hợp M = {2; 5; 8; 11}", right: (q) => { const M = [2, 5, 8, 11];
+    const m = q.o.filter((o) => { const [, a, r] = /^(\d+) (∈|∉) M$/.exec(o); return M.includes(+a) === (r === "∈"); }); assert.equal(m.length, 1); return m[0]; } },
+  { has: "lẻ lớn hơn 10 và nhỏ hơn 45", right: () => String(range(11, 44).filter((x) => x % 2).length), more: (q) => has(q, ["(43 − 11) : 2 + 1 = 16 + 1 = 17"]) },
+  { has: "chia số tự nhiên cho 12, thương là 25", right: () => { const a = 12 * 25 + (12 - 1); assert.ok(Math.floor(a / 12) === 25 && a % 12 === 11); return a; }, more: (q) => has(q, ["12 · 25 + 11 = 300 + 11 = 311"]) },
+  { has: "Bạn Hà tính bốn lũy thừa", right: (q) => q.o.map(eq), more: (q) => has(q, [`3³ = 3 · 3 · 3 = ${ev("3³")}`]) },
+  { has: "Với biểu thức không có dấu ngoặc, có các phép cộng", right: () => "Lũy thừa → nhân và chia → cộng và trừ", more: (q) => has(q, [`20 − 3 · 2² = 20 − 3 · 4 = 20 − 12 = ${ev("20 − 3 · 2²")}`]) },
+  { has: "4 · 3² − 60 : 2²", right: (q) => String(ev(q.q.replace(" = ___", ""))) },
+  { has: "4 · 23 · 25 + 10² · 27", essay: (q) => {
+    const a = ev("4 · 23 · 25 + 10² · 27"), x = range(4, 200).filter((x) => 3 * (x - 4) + 5 ** 2 === 70); assert.deepEqual(x, [19]);
+    both(q, [`100 · (23 + 27) = 100 · 50 = ${fmt(a)}`, "70 − 25 = 45", "45 : 3 = 15", "15 + 4 = 19"]); assert.ok(q.x.includes(`Đáp số: a) ${fmt(a)}; b) x = ${x[0]}.`));
+  } },
+  { has: "Tập hợp các bội của 11 nhỏ hơn 60", right: () => "{" + range(0, 59).filter((n) => n % 11 === 0).join("; ") + "}" },
+  { has: "Số nào dưới đây là số nguyên tố?", right: (q) => { const m = q.o.filter((o) => isPrime(+o)); assert.equal(m.length, 1); return m[0]; },
+    more: (q) => has(q, q.o.slice(1).map((o) => { assert.ok(+o % 3 === 0 && digitSum(+o) % 3 === 0); return `${o} = 3 · ${+o / 3}`; })) },
+  { has: "hai chữ số vừa chia hết cho 2, vừa chia hết cho 9", right: () => range(10, 99).filter((n) => n % 2 === 0 && n % 9 === 0).length,
+    more: (q) => has(q, [range(10, 99).filter((n) => digitSum(n) % 9 === 0).join("; "), range(10, 99).filter((n) => n % 18 === 0).join("; ")]) },
+  { has: "tổng nào dưới đây chia hết cho 6", right: (q) => { const m = q.o.filter((o) => sum(o.split(" + ").map(Number)) % 6 === 0); assert.equal(m.length, 1); return m[0]; },
+    more: (q) => q.o.forEach((o, i) => assert.equal(o.split(" + ").filter((t) => +t % 6).length, i ? 1 : 0, "tổng " + o + ": tính chất chia hết của một tổng")) },
+  { has: "Tổng của hai số nguyên tố bằng 31", right: () => { const p = range(2, 15).filter((p) => isPrime(p) && isPrime(31 - p)); assert.deepEqual(p, [2]); return p[0] * (31 - p[0]); } },
+  { has: "Tập hợp các ước chung của 16 và 24", right: () => "{" + divisors(16).filter((d) => 24 % d === 0).join("; ") + "}",
+    more: (q) => { has(q, [16, 24].map((k) => `Ư(${k}) = {${divisors(k).join("; ")}}`)); assert.equal(+q.o[3].replace(/[{}]/g, ""), gcd(16, 24)); } },
+  { has: "BCNN(15, 36)", right: () => String(lcm(15, 36)), more: (q) => has(q, [`15 = ${factor(15)}; 36 = ${factor(36)}`, `BCNN(15, 36) = ${factor(lcm(15, 36))} = ${lcm(15, 36)}`]) },
+  { has: "Phân số tối giản bằng phân số 45/60", right: () => { const g = gcd(45, 60); return `${45 / g}/${60 / g}`; }, more: (q) => has(q, [`ƯCLN(45, 60) = 3 · 5 = ${gcd(45, 60)}`]) },
+  { has: "bánh thứ nhất có 18 răng, bánh thứ hai có 12 răng", right: () => { const k = range(1, 500).find((t) => t % 18 === 0 && t % 12 === 0); assert.equal(k, lcm(18, 12)); return k / 18; },
+    more: (q) => has(q, [`BCNN(18, 12) = ${factor(lcm(18, 12))} = ${lcm(18, 12)}`, `${lcm(18, 12)} : 12 = ${lcm(18, 12) / 12} (vòng)`]) },
+  { has: "ba cuộn ruy băng dài 84 cm, 126 cm và 210 cm", essay: (q) => {
+    const L = [84, 126, 210], g = gcd(...L), k = L.map((l) => l / g);
+    both(q, [L.map((l) => `${l} = ${factor(l)}`).join("; "), `ƯCLN(84, 126, 210) = ${factor(g)} = ${g}`]);
+    assert.ok(rb(q).includes(L.map((l) => `${l} : ${g}`).join(" + ") + ` = ${k.join(" + ")} = ${sum(k)}`));
+    assert.ok(q.x.includes(`${k.join(" + ")} = ${sum(k)} (đoạn)`) && q.x.includes(`Đáp số: a) ${g} cm; b) ${sum(k)} đoạn.`));
+  } },
+  { has: "đặc điểm về cạnh và góc", right: (q) => {
+    // hình đều n cạnh: mỗi góc (n − 2) · 180° : n; chỉ hình thang có cạnh bên
+    const F = { "Hình tam giác đều": { n: 3 }, "Hình vuông": { n: 4 }, "Hình lục giác đều": { n: 6 }, "Hình thang cân": { ben: true } }, SO = { Ba: 3, Bốn: 4, Năm: 5, Sáu: 6 };
+    const holds = (r, f) => { let m;
+      if ((m = /^(Ba|Bốn|Năm|Sáu) cạnh bằng nhau, (ba|bốn|năm|sáu) góc bằng nhau(?: và bằng (\d+)°)?$/.exec(r))) return f.n === SO[m[1]] && m[2] === m[1].toLowerCase() && (!m[3] || +m[3] === (f.n - 2) * 180 / f.n);
+      if (r === "Hai cạnh bên bằng nhau, hai góc kề một đáy bằng nhau") return !!f.ben;
+      return assert.fail("chưa có cách kiểm tra: " + r); };
+    q.r.slice(q.l.length).forEach((r) => assert.ok(q.l.every((l) => !holds(r, F[l])), "ô thừa không đúng với hình nào: " + r));
+    return q.l.map((l) => { const m = q.r.filter((r) => holds(r, F[l])); assert.equal(m.length, 1, l); return m[0]; });
+  } },
+  { has: "Hai đường chéo của mọi hình thoi luôn", right: (q) => {
+    // hình thoi A(−p; 0), B(0; r), C(p; 0), D(0; −r) với nhiều cặp p, r: lựa chọn đúng với mọi hình thoi
+    const T = { "vuông góc với nhau": (u, v) => vuongGoc(u, v), "bằng nhau": (u, v) => close(Math.hypot(...u), Math.hypot(...v)), "song song với nhau": (u, v) => songSong(u, v), "cắt nhau tại một đỉnh của hình thoi": () => false };
+    const ok = q.o.filter((o) => { assert.ok(T[o], o); return range(1, 6).every((p) => range(1, 6).every((r) => T[o]([2 * p, 0], [0, -2 * r]))); }); assert.equal(ok.length, 1); return ok[0];
+  } },
+  { has: "Hình lục giác đều ABCDEF trong hình được chia thành sáu tam giác chung đỉnh O", right: (q) => {
+    const { O, V, s } = lucGiac(q.svg), N = "ABCDEF".split(""), P = {}, segs = {};
+    N.forEach((n) => (P[n] = dinh(V, q.svg, n)));
+    N.forEach((n, i) => { const m = N[(i + 1) % 6]; assert.ok(close(dist(P[n], P[m]), s, 1e-3), `${n}${m} là cạnh của lục giác`); segs[n + m] = [P[n], P[m]]; segs["O" + n] = [O, P[n]]; });
+    assert.deepEqual(dinh(V.concat([O]), q.svg, "O"), O, "nhãn O ở tâm");
+    const m = soDo(q.svg, segs, "cm"); assert.deepEqual(Object.keys(m), ["AB"]); const k = s / m.AB, cm = (p, r) => dist(p, r) / k;
+    assert.deepEqual(q.o, ["Tam giác OAB là tam giác đều.", "OA = 3 cm.", "Đường chéo chính AD dài 6 cm.", "Đường chéo chính BE ngắn hơn đường chéo chính AD."]);
+    return [close(cm(O, P.A), cm(O, P.B), 1e-3) && close(cm(O, P.A), m.AB, 1e-3), close(cm(O, P.A), 3, 1e-3), close(cm(P.A, P.D), 6, 1e-3), cm(P.B, P.E) < cm(P.A, P.D) - 1e-3];
+  } },
+  { has: "xếp 5 hình lục giác đều thành một hàng", right: () => {
+    // 5 lục giác đều (đỉnh ở trên) cạnh 1, tâm cách nhau √3 trên một hàng ngang: đếm các cạnh khác nhau (mỗi cạnh một que)
+    const E = new Set(); range(0, 4).forEach((i) => { const c = [i * Math.sqrt(3), 0], v = range(0, 5).map((j) => [c[0] + Math.cos((30 + 60 * j) * Math.PI / 180), c[1] + Math.sin((30 + 60 * j) * Math.PI / 180)].map((x) => (Math.round(x * 1e6) + 0) / 1e6).join(";"));
+      v.forEach((p, j) => E.add([p, v[(j + 1) % 6]].sort().join("|"))); });
+    return E.size;
+  }, more: (q) => has(q, ["6 − 1 = 5", "6 + 5 · 4 = 6 + 20 = 26"]) },
+  { has: "Tính diện tích hình chữ nhật ABCD", right: (q) => {
+    const P = tuGiac(q.svg, ["A", "B", "C", "D"]); goc([P.A, P.B, P.C, P.D]).forEach((g) => assert.ok(close(g, 90), "bốn góc vuông"));
+    const m = soDo(q.svg, ABCD(P), "cm"); assert.deepEqual(Object.keys(m).sort(), ["AB", "BC"]);
+    const k = dist(P.A, P.B) / m.AB; assert.ok(close(dienTich([P.A, P.B, P.C, P.D]) / k / k, m.AB * m.BC)); return m.AB * m.BC;
+  }, more: (q) => has(q, ["AB = 13 cm", "BC = 4 cm", "13 · 4 = 52"]) },
+  { has: "độ dài hai đường chéo là 11 cm và 6 cm", right: () => `${11 * 6 / 2} cm²`,
+    more: (q) => assert.deepEqual(q.o.slice(1).map((o) => +o.replace(" cm²", "")), [11 * 6, 11 + 6, 2 * (11 + 6)]) }, // nhiễu: quên chia 2, tổng hai đường chéo, gấp đôi tổng
+  { has: "Tính diện tích hình thang cân ABCD (đáy nhỏ AB, đáy lớn CD, đường cao AH)", right: (q) => {
+    const P = tuGiac(q.svg, ["A", "B", "C", "D"]);
+    assert.ok(songSong(sub(P.B, P.A), sub(P.C, P.D)) && dist(P.A, P.B) < dist(P.C, P.D), "AB song song với CD, AB là đáy nhỏ");
+    assert.ok(close(dist(P.A, P.D), dist(P.B, P.C)) && !songSong(sub(P.D, P.A), sub(P.C, P.B)), "hình thang cân: hai cạnh bên bằng nhau, không song song");
+    const H = duongCao(q.svg, P.A, P.D, P.C), m = soDo(q.svg, Object.assign(ABCD(P), { AH: [P.A, H] }), "cm");
+    assert.deepEqual(Object.keys(m).sort(), ["AB", "AH", "CD"]);
+    const k = dist(P.A, P.B) / m.AB, S = (m.AB + m.CD) * m.AH / 2; assert.ok(close(dienTich([P.A, P.B, P.C, P.D]) / k / k, S)); return S;
+  }, more: (q) => has(q, ["AB = 7 cm, CD = 13 cm, AH = 6 cm", "(7 + 13) · 6 : 2 = 20 · 6 : 2 = 120 : 2 = 60"]) },
+  { has: "tấm bìa hình chữ nhật dài 28 cm, rộng 20 cm", essay: (q) => {
+    const [W, H, c] = [28, 20, 3], P = polys(q.svg); assert.ok(P.length === 1 && P[0].length === 12, "phần bìa còn lại là đa giác 12 đỉnh"); const pts = P[0];
+    assert.ok(q.q.includes(`một hình vuông cạnh ${c} cm`));
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]), [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)], k = (x1 - x0) / W;
+    assert.ok(close((y1 - y0) / k, H), "hình vẽ đúng tỉ lệ dài, rộng");
+    const R = rects(q.svg).map((r) => [+r.x, +r.y, +r.width, +r.height]); assert.equal(R.length, 4, "bốn hình vuông bị cắt");
+    R.forEach(([x, y, w, h]) => assert.ok(close(w / k, c) && close(h / k, c) && [x0, x1 - w].includes(x) && [y0, y1 - h].includes(y), "hình vuông cạnh 3 cm ở một góc"));
+    assert.equal(new Set(R.map((r) => r[0] + "," + r[1])).size, 4, "mỗi góc một hình vuông");
+    assert.deepEqual(texts(q.svg).map((t) => t.t).sort(), [`${W} cm`, `${H} cm`, `${c} cm`].sort());
+    const S0 = W * H, cat = 4 * c * c, S = S0 - cat, C = 2 * (W + H);
+    assert.ok(close(dienTich(pts) / k / k, S), "diện tích phần còn lại đọc từ hình"); assert.ok(close(chuVi(pts) / k, C), "chu vi phần còn lại bằng chu vi tấm bìa");
+    both(q, [`${W} · ${H} = ${S0}`, `${S0} − ${cat} = ${S}`, `2 · (${W} + ${H}) = ${C}`]); assert.ok(rb(q).includes(`4 · (${c} · ${c}) = ${cat}`) && q.x.includes(`4 · ${c * c} = ${cat}`));
+    assert.ok(q.x.includes(`Đáp số: a) ${S0} cm²; b) ${S} cm²; c) bằng nhau (cùng bằng ${C} cm).`));
+  } }
+];
+// hình bình hành, hình chữ nhật mẫu (toạ độ) để tính các ý đúng/sai về cạnh, đường chéo
+const PARA = range(1, 4).flatMap((a) => range(1, 3).map((h) => ({ A: [0, 0], B: [4 + a, 0], C: [4 + a + a, h + 1], D: [a, h + 1] })));
+const DATE = (d, them) => { const t = new Date(2026, 10, d + them); return `Ngày ${t.getDate()} tháng ${t.getMonth() + 1}`; }; // tháng 11 có 30 ngày
+const de4 = [
+  { has: "Chương 27 của cuốn truyện", right: () => toRoman(27), more: (q) => { assert.deepEqual(q.o.slice(1).map(fromRoman), [23, 17, 22]); has(q, q.o.slice(1).map((o) => o + " là " + fromRoman(o))); } },
+  { has: "(x − 25) · 6 = 132", right: () => { const m = range(25, 500).filter((x) => (x - 25) * 6 === 132); assert.equal(m.length, 1); return String(m[0]); }, more: (q) => has(q, ["132 : 6 = 22", "22 + 25 = 47"]) },
+  { has: "cuốn sách dày 260 trang", right: () => { let con = 260, ngay = 0; while (con > 0) { con -= ngay < 4 ? 25 : 32; ngay++; } assert.equal(con, 0, "ngày cuối đọc vừa hết"); return ngay; },
+    more: (q) => has(q, ["4 · 25 = 100", "260 − 100 = 160", "160 : 32 = 5", "4 + 5 = 9"]) },
+  { has: "a⁰ bằng", right: () => String(range(1, 30).every((a) => a ** 0 === 1) ? 1 : 0), more: (q) => has(q, ["a⁰ = 1"]) },
+  { has: "Để tính giá trị của biểu thức 50 − 4 · 3²", right: () => { assert.ok(ev("50 − 4 · 3²") === 50 - 4 * 9 && ev("50 − 4 · 3²") !== (50 - 4) * 9 && ev("50 − 4 · 3²") !== 50 - 12 ** 2); return "Tính 3²"; } },
+  { has: "6 · [70 − (2 + 6)²] + 2³", right: (q) => String(ev(q.q.replace(" = ___", ""))), more: (q) => has(q, ["8² = 64", "70 − 64 = 6", "6 · 6 = 36", "36 + 8 = 44"]) },
+  { has: "a) 2³ · 17 + 2³ · 83; b) 25 · 5 · 4 · 27 · 2", essay: (q) => {
+    const a = ev("2³ · 17 + 2³ · 83"), b = ev("25 · 5 · 4 · 27 · 2");
+    assert.ok(rb(q).includes("2³ · (17 + 83)") && rb(q).includes("(25 · 4) · (5 · 2) · 27")); both(q, [`8 · 100 = ${a}`, `100 · 10 · 27 = ${fmt(b)}`]);
+    assert.ok(q.x.includes(`Đáp số: a) ${a}; b) ${fmt(b)}.`));
+  } },
+  { has: "Số nào dưới đây là ước của 52", right: (q) => { const m = q.o.filter((o) => 52 % +o === 0); assert.equal(m.length, 1); return m[0]; }, more: (q) => has(q, ["52 = 13 · 4", "104 = 52 · 2"]) },
+  { has: "Nối mỗi số ở cột trái với nhận xét đúng", right: (q) => {
+    const T = { "Số nguyên tố chẵn duy nhất": (n) => isPrime(n) && n % 2 === 0, "Số nguyên tố lẻ": (n) => isPrime(n) && n % 2 === 1, "Hợp số": (n) => n > 1 && !isPrime(n),
+      "Không là số nguyên tố, cũng không là hợp số": (n) => n < 2, "Hợp số chẵn": (n) => n > 1 && !isPrime(n) && n % 2 === 0 };
+    q.r.forEach((r) => assert.ok(T[r], "chưa có cách kiểm tra: " + r)); assert.deepEqual(range(0, 1000).filter(T["Số nguyên tố chẵn duy nhất"]), [2]);
+    q.r.slice(q.l.length).forEach((r) => assert.ok(q.l.every((l) => !T[r](+l)), "ô thừa không đúng với số nào: " + r));
+    return q.l.map((l) => { const m = q.r.filter((r) => T[r](+l)); assert.equal(m.length, 1, "số " + l); return m[0]; });
+  }, more: (q) => has(q, ["21 = 3 · 7"]) },
+  { has: "lớn hơn 21 và nhỏ hơn 79 chia hết cho 5", right: () => range(22, 78).filter((n) => n % 5 === 0).length, more: (q) => has(q, [range(22, 78).filter((n) => n % 5 === 0).join("; ")]) },
+  { has: "phân tích số 264 ra thừa số nguyên tố", right: () => factor(264),
+    more: (q) => q.o.slice(1).forEach((o) => { const f = o.split(" · ").map((x) => ev(x)); assert.ok(ev(o) === 264 && f.some((x) => !isPrime(x) && !/[²³]/.test(o.split(" · ")[f.indexOf(x)])), "lựa chọn " + o + " bằng 264 nhưng còn thừa số là hợp số"); }) },
+  { has: "chữ số hàng chục gấp đôi chữ số hàng đơn vị", right: () => { const m = range(10, 99).filter((n) => Math.floor(n / 10) === 2 * (n % 10) && n % 9 === 0); assert.equal(m.length, 1); return m[0]; },
+    more: (q) => has(q, [range(10, 99).filter((n) => Math.floor(n / 10) === 2 * (n % 10)).join("; ")]) },
+  { has: "Các bội chung của 6 và 10 nhỏ hơn 100", right: () => range(0, 99).filter((n) => n % 6 === 0 && n % 10 === 0).join("; "),
+    more: (q) => { assert.ok(16 % 6 && 96 % 10 && !(96 % 6)); has(q, [range(0, 99).filter((n) => n % 10 === 0).join("; ")]); } },
+  { has: "ƯCLN(42, 98)", right: () => String(gcd(42, 98)), more: (q) => has(q, [`42 = ${factor(42)}; 98 = ${factor(98)}`, `ƯCLN(42, 98) = 2 · 7 = ${gcd(42, 98)}`]) },
+  { has: "Mẫu chung nhỏ nhất của ba phân số 3/8, 5/12 và 7/30", right: () => String(lcm(8, 12, 30)),
+    more: (q) => { [[3, 8], [5, 12], [7, 30]].forEach(([a, b]) => { assert.equal(gcd(a, b), 1, `${a}/${b} tối giản`); has(q, [`${a}/${b} = ${a * 120 / b}/120`]); }); has(q, [`BCNN(8, 12, 30) = ${factor(lcm(8, 12, 30))} = ${lcm(8, 12, 30)}`]); } },
+  { has: "bạn An cứ 4 ngày đến tập một lần", right: () => DATE(1, lcm(4, 6, 9)),
+    more: (q) => { assert.deepEqual(q.o.slice(1), ["Ngày 6 tháng 12", DATE(1, lcm(4, 6)), DATE(1, lcm(6, 9))]); assert.equal(new Date(2026, 10, 31).getDate(), 1); // nhiễu: coi tháng 11 có 31 ngày; BCNN của hai bạn
+      has(q, [`BCNN(4, 6, 9) = ${factor(lcm(4, 6, 9))} = ${lcm(4, 6, 9)}`, `12 = BCNN(4, 6)`, `18 = BCNN(6, 9)`]); } },
+  { has: "tấm bìa hình chữ nhật giống nhau, mỗi tấm dài 20 cm, rộng 12 cm", essay: (q) => {
+    const c = lcm(20, 12), so = (c / 20) * (c / 12); assert.equal(so, (c * c) / (20 * 12));
+    both(q, [`BCNN(20, 12) = ${factor(c)} = ${c}`, `60 : 20 = 3`, `60 : 12 = 5`, `3 · 5 = ${so}`]); assert.ok(rb(q).includes("20 = 2² · 5; 12 = 2² · 3") && q.x.includes(`Đáp số: a) ${c} cm; b) ${so} tấm.`));
+  } },
+  { has: "Cho hình bình hành ABCD có hai đường chéo AC và BD cắt nhau tại O", right: (q) => {
+    assert.deepEqual(q.o, ["AB = CD và AD = BC.", "AB song song với CD.", "OA = OC và OB = OD.", "Hai đường chéo AC và BD luôn bằng nhau."]);
+    const mid = (p, r) => [(p[0] + r[0]) / 2, (p[1] + r[1]) / 2];
+    return [PARA.every((P) => close(dist(P.A, P.B), dist(P.C, P.D)) && close(dist(P.A, P.D), dist(P.B, P.C))), PARA.every((P) => songSong(sub(P.B, P.A), sub(P.C, P.D))),
+      PARA.every((P) => dist(mid(P.A, P.C), mid(P.B, P.D)) < 1e-9), PARA.every((P) => close(dist(P.A, P.C), dist(P.B, P.D)))];
+  } },
+  { has: "Để vẽ tam giác đều ABC có cạnh 4 cm", right: () => { const t = [[0, 0], [4, 0], [2, 2 * Math.sqrt(3)]]; sides(t).forEach((v) => assert.ok(close(Math.hypot(...v), 4))); return Math.round(goc(t)[0]) + "°"; } },
+  { has: "Cho hình chữ nhật ABCD có AB = 8 cm, BC = 5 cm", right: (q) => {
+    const A = [0, 0], B = [8, 0], C = [8, 5], D = [0, 5];
+    assert.deepEqual(q.o, ["CD = 8 cm và AD = 5 cm.", "Hai đường chéo AC và BD bằng nhau.", "Hai đường chéo AC và BD vuông góc với nhau.", "Góc ABC bằng 90°."]);
+    return [dist(C, D) === 8 && dist(A, D) === 5, close(dist(A, C), dist(B, D)), vuongGoc(sub(C, A), sub(D, B)), close(goc([A, B, C, D])[1], 90)];
+  } },
+  { has: "Biết chu vi của hình lục giác đều là 48 cm", right: (q) => { lucGiac(q.svg); assert.equal(texts(q.svg).length, 0, "hình không ghi chữ"); return 3 * div(+/là (\d+) cm/.exec(q.q)[1], 6); }, more: (q) => has(q, ["48 : 6 = 8", "3 · 8 = 24"]) },
+  { has: "Tính diện tích hình bình hành ABCD", right: (q) => {
+    const P = tuGiac(q.svg, ["A", "B", "C", "D"]);
+    assert.ok(songSong(sub(P.B, P.A), sub(P.C, P.D)) && songSong(sub(P.D, P.A), sub(P.C, P.B)) && !vuongGoc(sub(P.B, P.A), sub(P.D, P.A)), "hình bình hành (không phải hình chữ nhật)");
+    const H = duongCao(q.svg, P.A, P.D, P.C), m = soDo(q.svg, Object.assign(ABCD(P), { AH: [P.A, H] }), "cm");
+    assert.deepEqual(Object.keys(m).sort(), ["AH", "CD"]);
+    const k = dist(P.C, P.D) / m.CD; assert.ok(close(dienTich([P.A, P.B, P.C, P.D]) / k / k, m.CD * m.AH)); return m.CD * m.AH;
+  }, more: (q) => has(q, ["DC = 12 cm, AH = 7 cm", "12 · 7 = 84"]) },
+  { has: "khung tranh có dạng hình thoi với chu vi 28 cm", right: () => div(28, 4) },
+  { has: "viên gạch trang trí có dạng hình thoi ABCD", right: (q) => {
+    const P = tuGiac(q.svg, ["A", "B", "C", "D"]); sides([P.A, P.B, P.C, P.D]).forEach((v) => assert.ok(close(Math.hypot(...v), dist(P.A, P.B)), "bốn cạnh bằng nhau"));
+    const L = lines(q.svg); assert.equal(L.length, 2, "hai đường chéo");
+    [[P.A, P.C], [P.B, P.D]].forEach(([p, r]) => assert.ok(L.some((l) => [l.a, l.b].every((e) => dist(e, p) < 0.01 || dist(e, r) < 0.01)), "vẽ đường chéo"));
+    assert.ok(vuongGoc(sub(P.C, P.A), sub(P.D, P.B)), "hai đường chéo vuông góc");
+    const m = soDo(q.svg, Object.assign(ABCD(P), { AC: [P.A, P.C], BD: [P.B, P.D] }), "cm"); assert.deepEqual(Object.keys(m).sort(), ["AC", "BD"]);
+    const k = dist(P.A, P.C) / m.AC; assert.ok(close(dienTich([P.A, P.B, P.C, P.D]) / k / k, m.AC * m.BD / 2)); return m.AC * m.BD / 2;
+  }, more: (q) => has(q, ["AC = 12 cm, BD = 9 cm", "12 · 9 : 2 = 108 : 2 = 54"]) },
+  { has: "Mặt trước của một ngôi nhà nhỏ", essay: (q) => {
+    // hình: tường (hình chữ nhật tô acc-soft), cửa (hình chữ nhật tô surface, sát chân tường), mái (hình thang cân nằm trên tường)
+    const R = rects(q.svg), tuong = R.find((r) => r.fill === "acc-soft"), cua = R.find((r) => r.fill === "surface"), mai = polys(q.svg);
+    assert.ok(R.length === 2 && tuong && cua && mai.length === 1 && mai[0].length === 4);
+    const [tx, ty, tw, th] = ["x", "y", "width", "height"].map((a) => +tuong[a]), [cx, cy, cw, ch] = ["x", "y", "width", "height"].map((a) => +cua[a]), k = tw / 8;
+    assert.ok(cx > tx && cx + cw < tx + tw && cy > ty && cy + ch === ty + th, "cửa nằm trong tường, sát chân tường");
+    const M = mai[0].slice().sort((a, b) => a[1] - b[1] || a[0] - b[0]), [t1, t2, d1, d2] = M; // hai đỉnh trên, hai đỉnh dưới
+    assert.ok(t1[1] === t2[1] && d1[1] === d2[1] && d1[1] === ty && close(dist(t1, d1), dist(t2, d2)), "mái là hình thang cân, đáy lớn nằm trên mép tường");
+    const so = { tuongDai: tw / k, tuongCao: th / k, cuaRong: cw / k, cuaCao: ch / k, daiLon: (d2[0] - d1[0]) / k, daiNho: (t2[0] - t1[0]) / k, maiCao: (d1[1] - t1[1]) / k };
+    assert.deepEqual(so, { tuongDai: 8, tuongCao: 4, cuaRong: 2, cuaCao: 3, daiLon: 10, daiNho: 6, maiCao: 2 }, "kích thước trong hình đúng tỉ lệ với đề");
+    assert.deepEqual(texts(q.svg).map((t) => +t.t.replace(" m", "")).sort((a, b) => a - b), Object.values(so).sort((a, b) => a - b), "nhãn số đo trong hình");
+    assert.ok(q.q.includes("dài 8 m, cao 4 m") && q.q.includes("rộng 2 m, cao 3 m") && q.q.includes("đáy lớn 10 m, đáy nhỏ 6 m, chiều cao 2 m") && q.q.includes("45 000 đồng"));
+    const tuongS = 8 * 4, cuaS = 2 * 3, son = tuongS - cuaS, maiS = (10 + 6) * 2 / 2, tien = son * 45000;
+    both(q, [`8 · 4 = ${tuongS}`, `2 · 3 = ${cuaS}`, `${tuongS} − ${cuaS} = ${son}`, `(10 + 6) · 2 : 2 = ${maiS}`, `${son} · 45 000 = ${fmt(tien)}`]);
+    assert.ok(q.x.includes(`Đáp số: a) ${son} m²; b) ${maiS} m²; c) ${fmt(tien)} đồng.`));
+  } }
+];
 let n = 0;
 const run = (id, qs, checks) => {
   assert.equal(qs.length, checks.length, id + ": số câu khác số kiểm tra");
@@ -301,7 +546,7 @@ const run = (id, qs, checks) => {
     n++;
   });
 };
-for (const [id, checks] of [[DE1, de1], [DE2, de2]]) {
+for (const [id, checks] of [[DE1, de1], [DE2, de2], [DE3, de3], [DE4, de4]]) {
   const b = bank(id); assert.ok(b, "thiếu " + id); assert.equal(b.questions.length, 25);
   run(id, b.questions, checks);
 }
@@ -351,5 +596,57 @@ assert.ok(mine.every((q) => seen.has(Quiz.key(q))), "400 lần rút thử phải
 // học sinh đã làm Đề 1 (đúng hết): lần rút sau chỉ lấy câu của Đề 2 và câu riêng (lịch sử câu như PoolHist: {done, wrong})
 const hist = (q) => (q.src === DE1 ? { done: 1, wrong: 0 } : null);
 for (let k = 0; k < 50; k++) assert.ok(!Quiz.draw(pool, hist).questions.some((q) => q.src === DE1), "đã làm Đề 1 thì bộ rút không lấy lại câu của Đề 1");
-console.log(n, "câu đã tính lại (50 câu của 2 đề cố định, " + mine.length + " câu riêng của đề ngẫu nhiên); kho " + pool.questions.length + " câu; trung bình " + (essays / 400).toFixed(2) + " câu tự luận mỗi lần rút.");
+
+/* ---------- Đề 3, Đề 4 (Phiên N26): Chương I, II, IV cho trường dạy song song số và hình ---------- */
+const HINH = ["Hình phẳng", "Chu vi, diện tích"], CHU_DE = TOPICS.slice(0, 4).concat(HINH), SO_CAU = [3, 4, 5, 5, 4, 4];
+HINH.forEach((t) => assert.ok(t in bank("toan6-ck1-ngau-nhien").pool.matrix, "chủ đề “" + t + "” đúng chữ của kho cuối kì I"));
+const chu = (q) => [q.q, q.x].concat(q.o || [], q.ans == null ? [] : [].concat(q.ans), q.l || [], q.r || [], (q.rubric || []).map((c) => c.c)).map(String);
+for (const id of [DE3, DE4]) {
+  const b = bank(id), qs = b.questions;
+  assert.ok(b.minutes === 60 && !pool.pool.from.includes(id), id + ": 60 phút, không nằm trong kho của đề ngẫu nhiên");
+  assert.deepEqual(qs.map((q) => q.topic), CHU_DE.flatMap((t, i) => Array(SO_CAU[i]).fill(t)), id + ": số câu từng chủ đề 3 – 4 – 5 – 5 – 4 – 4, theo thứ tự");
+  assert.deepEqual(levels(qs), [10, 8, 7], id + ": 10 Biết, 8 Hiểu, 7 Vận dụng");
+  assert.ok(qs.filter((q) => ["num", "fill"].includes(q.type)).length >= 10, id + ": ít nhất 10 câu trả lời bằng số hoặc điền khuyết");
+  const tl = qs.filter((q) => q.type === "essay");
+  assert.deepEqual(tl.map((q) => q.topic), ["Lũy thừa, thứ tự thực hiện phép tính", "ƯCLN và BCNN", "Chu vi, diện tích"], id + ": ba câu tự luận (tính hợp lí, tìm x; ƯCLN, BCNN; chu vi, diện tích)");
+  assert.ok(tl.every((q) => q.lv === 3 && q.rubric.every((c) => c.p > 0 && Number.isInteger(c.p * 4))) && tl[2].svg, id + ": tự luận mức Vận dụng, thang điểm, bài chu vi, diện tích có hình");
+  assert.ok(qs.every((q) => ["num", "fill", "essay", "mc", "tf4", "match"].includes(q.type)), id + ": còn lại là trắc nghiệm, đúng/sai 4 ý, nối cột");
+  const nh = qs.filter((q) => q.svg).length; assert.ok(nh >= 3 && nh <= 5, id + ": khoảng 4 câu có hình (" + nh + ")");
+  qs.forEach((q, i) => chu(q).forEach((s) => assert.ok(!AM.test(s), `${id}#${i + 1}: có số âm: ${s}`)));
+}
+// đề bài không trùng câu nào khác trong data/banks/6-toan.js (Rút ra N8), so sau khi bỏ dấu câu, khoảng trắng
+const goc6 = (s) => String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+const deBai = BANKS.filter((b) => b.file === "6-toan.js").flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id).map((q, i) => ({ at: b.id + "#" + (i + 1), k: goc6(q.q) })));
+deBai.filter((d) => /^toan6-gk1-de[34]#/.test(d.at)).forEach((d) => { const cung = deBai.filter((e) => e.k === d.k).map((e) => e.at); assert.deepEqual(cung, [d.at], "đề bài trùng: " + cung.join(", ")); });
+/* dò lộ đáp án trong từng đề (Rút ra N5, N24, N8): đáp án của mỗi câu có trong đề bài, lựa chọn, lời giải, thang chấm của câu khác cùng
+   đề không. Đáp án là số (từ hai chữ số) chỉ tìm ở vị trí kết quả: ngay sau “=”, “là”, “bằng”, “được” (không tính số đo góc, phân số,
+   số thập phân); đáp án khác (lựa chọn đúng, đáp án điền, đáp số của câu tự luận) tìm cả chữ; cặp nối: câu khác có cả hai vế; biểu thức
+   của đề (ƯCLN(…), BCNN(…), ƯC(…), phân số) có ở câu khác. */
+const soKQ = (s) => [...String(s).matchAll(/(?:=|(?:^|[\s(])(?:là|bằng|được))\s+(\d{1,3}(?: \d{3})*)(?!\d|,\d|\/|°|[⁰¹²³⁴⁵⁶⁷⁸⁹]|\s*[·+−:](?:\s|\d|\())/gu)].map((m) => val(m[1])); // không tính số còn phép tính theo sau
+const doLo = (id, qs) => {
+  const lo = [];
+  qs.forEach((q, i) => {
+    const so = [], cum = [], cap = q.type === "match" ? q.l.map((l, k) => [l, q.r[k]]) : [];
+    const them = (a) => (/^\d{1,3}(?: \d{3})*(?: [^\d\s]+)?$/.test(String(a)) && !/°$/.test(String(a)) ? so.push(val(String(a).split(/ (?=[^\d\s])/)[0])) : cum.push(String(a)));
+    if (q.type === "essay") (/Đáp số: (.+)$/m.exec(q.x)[1].match(/\d{1,3}(?: \d{3})*/g) || []).forEach((x) => so.push(val(x)));
+    else if (q.type === "num") so.push(q.ans); else if (q.type === "fill") them(q.ans[0]); else if (q.type === "mc") them(q.o[0]);
+    const bt = q.q.match(/(?:ƯCLN|BCNN|ƯC|BC)\([^)]*\)|\d+\/\d+/g) || [];
+    qs.forEach((p, j) => {
+      if (j === i) return; const kq = chu(p).flatMap(soKQ), T = chu(p).map((s) => s.toLowerCase()), co = (s) => T.some((t) => t.includes(s.toLowerCase())), at = `${id}#${j + 1} lộ đáp án câu ${i + 1}: `;
+      so.filter((x) => x >= 10 && kq.includes(x)).forEach((x) => lo.push(at + x));
+      cum.concat(bt).filter(co).forEach((s) => lo.push(at + s));
+      cap.filter(([l, r]) => T.some((t) => t.includes(l.toLowerCase()) && t.includes(r.toLowerCase()))).forEach(([l, r]) => lo.push(at + l + " → " + r));
+    });
+  });
+  return lo;
+};
+[DE3, DE4].forEach((id) => { const lo = doLo(id, bank(id).questions); assert.deepEqual(lo, [], "lộ đáp án:\n" + lo.join("\n")); });
+// bộ dò bắt được chỗ lộ cố ý viết sai: lời giải câu khác có “= 311”, có chữ “3/4”, có biểu thức BCNN(15, 36), có cả hai vế một cặp nối
+const d3 = bank(DE3).questions, gia = (i, x) => Object.assign({}, d3[i], { x: d3[i].x + " " + x });
+assert.deepEqual(doLo("thử", [d3[2], gia(5, "Ví dụ: 12 · 25 + 11 = 311.")]), ["thử#2 lộ đáp án câu 1: 311"]);
+assert.deepEqual(doLo("thử", [d3[14], d3[13], gia(0, "45/60 = 3/4; BCNN(15, 36) lớn hơn 36.")]), ["thử#3 lộ đáp án câu 1: 3/4", "thử#3 lộ đáp án câu 1: 45/60", "thử#3 lộ đáp án câu 2: BCNN(15, 36)"]);
+assert.deepEqual(doLo("thử", [d3[17], gia(0, "Hình vuông có bốn cạnh bằng nhau, bốn góc bằng nhau và bằng 90°.")]), ["thử#2 lộ đáp án câu 1: Hình vuông → Bốn cạnh bằng nhau, bốn góc bằng nhau và bằng 90°"]);
+// bộ đọc số ở vị trí kết quả: lấy 21, 1 170 000, 35; bỏ số đo góc, phân số, số thập phân, lũy thừa, số còn phép tính theo sau
+assert.deepEqual(soKQ("Ví dụ: 3 · 7 = 21; góc bằng 120°; 45/60 = 3/4; được 1 170 000 đồng; là 12,5; S = 10 · 7 : 2 = 35; được 10² · 27"), [21, 1170000, 35]);
+console.log(n, "câu đã tính lại (100 câu của 4 đề cố định, " + mine.length + " câu riêng của đề ngẫu nhiên); kho đề ngẫu nhiên " + pool.questions.length + " câu; trung bình " + (essays / 400).toFixed(2) + " câu tự luận mỗi lần rút.");
 console.log("MATH OK");
