@@ -95,7 +95,7 @@ const CHECKS = [
   { id: L.de2, has: "kim giờ chỉ đúng số IX, kim phút chỉ số XII", right: () => tuLaMa("IX") },
   { id: L.de2, has: "tỉ lệ 1 : 500 000, quãng đường", right: (q) => { assert.ok(q.q.includes("dài 6 cm") && q.unit === "km"); return (6 * 500000) / 100000; } },
   { id: L.de2, has: "Hệ Mặt Trời gồm Mặt Trời và ___ hành tinh", right: () => "8" },
-  { id: L.de2, has: "Hà Nội ở khu vực giờ thứ 7, Tô-ky-ô (Nhật Bản) ở khu vực giờ thứ 9", right: (q) => { assert.ok(q.q.includes("là 8 giờ sáng")); return 8 + (9 - 7); } },
+  { id: L.de2, has: "Hà Nội ở khu vực giờ số 7, Tô-ky-ô (Nhật Bản) ở khu vực giờ số 9", right: (q) => { assert.ok(q.q.includes("là 8 giờ sáng")); return 8 + (9 - 7); } },
   { id: L.de2, has: "Đỉnh núi X cao 1 500 m", right: (q) => { assert.ok(q.q.includes("độ cao 400 m")); return 1500 - 400; } },
   { id: L.de2, has: "Điểm A cao hơn điểm B bao nhiêu mét", right: (q) => { const [a, b] = [doCao(q.svg, "A"), doCao(q.svg, "B")]; assert.ok(q.x.includes(`đồng mức ${a} m`) && q.x.includes(`đồng mức ${b} m`)); return a - b; } },
   { id: L.pool, has: "độ cao tuyệt đối là 1 600 m", right: () => loaiNui(1600) },

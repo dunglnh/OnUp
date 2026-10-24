@@ -43,13 +43,13 @@ const CHECKS = [
   { id: L.de1, has: "Khởi nghĩa Hai Bà Trưng nổ ra năm 40. Tính đến năm 2026", right: () => String(2026 - 40) },
   { id: L.de1, has: "Một thế kỉ gồm", right: (q) => { const [, n] = /^Một thế kỉ gồm (\d+) thập kỉ\.$/.exec(q.q); return 100 / 10 === +n; } }, // thế kỉ 100 năm, thập kỉ 10 năm
   { id: L.de1, has: "tỉ lệ 1 : 200 000, khoảng cách giữa hai điểm đo được 3 cm", right: () => String((3 * 200000) / 100000) }, // cm → km: chia 100 000
-  { id: L.de1, has: "Khi ở khu vực giờ gốc là 8 giờ sáng thì ở Việt Nam", right: (q) => { assert.ok(q.q.includes("khu vực giờ thứ 7")); return String(8 + 7); } },
+  { id: L.de1, has: "Khi ở khu vực giờ số 0 là 8 giờ sáng thì ở Việt Nam", right: (q) => { assert.ok(q.q.includes("khu vực giờ số 7")); return String(8 + 7); } },
   // Lịch sử và Địa lí: Đề 2
   { id: L.de2, has: "Năm 1288 thuộc thế kỉ nào", right: () => "Thế kỉ " + laMa(theKi(1288)), more: (q) => assert.ok(q.x.includes("từ năm 1201 đến năm 1300")) },
   { id: L.de2, has: "chế tạo vào khoảng năm 500 TCN. Tính đến năm 2026", right: (q) => { assert.equal(q.unit, "năm"); return 500 + 2026; } }, // từ năm TCN đến năm CN: cộng hai số năm
   { id: L.de2, has: "Hai thành phố cách nhau 120 km. Trên bản đồ tỉ lệ 1 : 2 000 000", right: (q) => { assert.equal(q.unit, "cm"); return (120 * 100000) / 2000000; } },
   { id: L.de2, has: "được chia thành bao nhiêu khu vực giờ", right: () => "24 khu vực" },
-  { id: L.de2, has: "bắt đầu lúc 20 giờ (giờ Luân Đôn)", right: (q) => { assert.ok(q.q.includes("khu vực giờ thứ 7") && q.unit === "giờ" && q.x.includes("sáng hôm sau")); return (20 + 7) % 24; } },
+  { id: L.de2, has: "bắt đầu lúc 20 giờ (giờ Luân Đôn)", right: (q) => { assert.ok(q.q.includes("khu vực giờ số 7") && q.q.includes("khu vực giờ số 0") && q.unit === "giờ" && q.x.includes("sáng hôm sau")); return (20 + 7) % 24; } },
   // Tin học: đề 1 (giữ nguyên, chỉ thêm lv)
   { id: T.de1, has: "Mỗi bit chỉ nhận một trong hai giá trị: 0 hoặc", right: () => "1" },
   { id: T.de1, has: "1 GB = ___ MB", right: () => String(DON_VI.GB / DON_VI.MB) },
