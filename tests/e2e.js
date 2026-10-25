@@ -3370,7 +3370,10 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       const snap = async (n, at) => { // at: phần tử cuộn lên đầu khung trước khi chụp (trang đầu của ioe-4: mục IOE Mock Tests nằm dưới Practise by Unit)
         const h = await fr.evaluate(() => document.documentElement.scrollHeight), top = await p.$eval(".player iframe", (e) => Math.round(e.getBoundingClientRect().top));
         await p.setViewportSize({ width: 360, height: Math.min(1600, Math.max(740, top + h + 12)) }); await p.waitForTimeout(150);
-        if (at) { await fr.evaluate((s) => document.querySelector(s).scrollIntoView(), at); await p.waitForTimeout(100); }
+        if (at) { // cả mục chứa phần tử, ngay dưới thanh tiêu đề dính ở đầu trang bài ôn (header.top)
+          await fr.evaluate((s) => { const e = document.querySelector(s), t = e.closest("section") || e, bar = document.querySelector("header.top"); scrollTo(0, t.getBoundingClientRect().top + scrollY - (bar ? bar.getBoundingClientRect().height : 0) - 8); }, at);
+          await p.waitForTimeout(100);
+        }
         await p.evaluate(() => { const t = document.querySelector("#toast"); if (t) t.hidden = true; });
         await p.screenshot({ path: `${OUTNQ}${M.pre}-${n}-${scheme}.png` });
         await p.setViewportSize({ width: 360, height: 740 }); await p.waitForTimeout(100);
