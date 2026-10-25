@@ -51,7 +51,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,label.btn:focus-
 .btn.danger{background:var(--bad-soft);color:var(--bad)}
 .btn:disabled{opacity:.45;cursor:default}
 .sec{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;background:var(--sea-soft);border-radius:12px;padding:4px}
+.seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;background:var(--sea-soft);border-radius:12px;padding:4px}
 .seg button{border:0;background:transparent;border-radius:9px;padding:9px 8px;font-weight:700;color:var(--sea);line-height:1.2}
 .seg button small{display:block;font-weight:500;font-size:.75rem;opacity:.85}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(18,48,47,.15)}
@@ -182,8 +182,12 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background
    p = pronunciation, e = find the mistake [part] x4 + wrong index + correction,
    f = fill in the blank (answers split by |), l = missing letters (word, clue),
    w = put the letters in order (word, clue), r = reorder words (chunks split by /),
-   rd = read and choose (short text, question, correct answer, wrong x3).                        */
-const UNITS={1:"My Friends",2:"Time and Daily Routines",3:"My Week",4:"My Birthday Party",5:"Things We Can Do",6:"Our School Facilities",7:"Our Timetables",8:"My Favourite Subjects",9:"Our Sports Day",10:"Our Summer Holidays"};
+   rd = read and choose (short text, question, correct answer, wrong x3).
+   NATIONAL (Phiên N-IOE): National Level, Units 1–15 (IOE cấp quốc gia 1–2/4/2027, dự kiến), khó hơn PROVINCE; Unit 11–15 (tập hai) chỉ có ở
+   NATIONAL, NATIONAL_L. Viết theo sách Tiếng Anh 4 Global Success in năm 2026; mã câu N0, N1… theo vị trí trong NATIONAL rồi NATIONAL_L.
+   Không sửa chữ, không chèn câu vào giữa SCHOOL, WARD, PROVINCE và các bộ nghe: mã câu S…, W…, P… tính theo vị trí, "Review Mistakes" lưu
+   theo mã câu, đề đã làm phải giữ đúng câu. UNITS chỉ thêm Unit 11–15 ở cuối.                                                        */
+const UNITS={1:"My Friends",2:"Time and Daily Routines",3:"My Week",4:"My Birthday Party",5:"Things We Can Do",6:"Our School Facilities",7:"Our Timetables",8:"My Favourite Subjects",9:"Our Sports Day",10:"Our Summer Holidays",11:"My Home",12:"Jobs",13:"Appearance",14:"Daily Activities",15:"My Family's Weekends"};
 
 const SCHOOL=[
 // Unit 1
@@ -830,6 +834,9 @@ const PROVINCE=[
 ["w",10,"hotel","a building where you pay to stay on holiday"],
 ["r",10,"What / did / you / do / at the beach / last summer?"]
 ];
+const NATIONAL=[
+
+];
 const PROVINCE_L=[
 ["h",1,"Hello, I'm Somchai. I'm from Bangkok. My friend Lucy is from Sydney.","Where is Lucy from?","Sydney","Bangkok","Tokyo","London"],
 ["hf",1,"My best friend is Malaysian. Her name is Aisha.","My best friend is ___.","Malaysian"],
@@ -862,6 +869,9 @@ const PROVINCE_L=[
 ["hp",10,"Last weekend, we went fishing on the river.","🎣","🏊","🚲","📷"],
 ["hf",10,"We took a lot of photos in Hoi An.","We took a lot of ___ in Hoi An.","photos|pictures"]
 ];
+const NATIONAL_L=[
+
+];
 
 /* ================= Normalise ================= */
 const PROMPT={o:"Choose the odd one out.",p:"Choose the word whose underlined part is pronounced differently."};
@@ -879,8 +889,8 @@ function toQ(row,lv,i){
   else if(t==="hf"){q.say=row[2];q.q=row[3];q.ans=row[4].split("|")}
   return q;
 }
-const BANKS={S:SCHOOL.concat(SCHOOL_L).map((r,i)=>toQ(r,"S",i)),W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i)),P:PROVINCE.concat(PROVINCE_L).map((r,i)=>toQ(r,"P",i))};
-const TWO_LETTER_LEVELS=["W","P"];
+const BANKS={S:SCHOOL.concat(SCHOOL_L).map((r,i)=>toQ(r,"S",i)),W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i)),P:PROVINCE.concat(PROVINCE_L).map((r,i)=>toQ(r,"P",i)),N:NATIONAL.concat(NATIONAL_L).map((r,i)=>toQ(r,"N",i))};
+const TWO_LETTER_LEVELS=["W","P","N"];
 
 /* ================= Test plan =================
    Every test is fixed: the same test number always gives the same questions.
@@ -890,9 +900,11 @@ const DAY=864e5;
 const TRACKS={
   S:{key:"S",name:"School Level",units:"Units 1–6",start:new Date(2026,9,12),weeks:7,exam:new Date(2026,10,26),examText:"26–28 Nov 2026",pools:[["S",30]],mins:20},
   W:{key:"W",name:"Ward Level",units:"Units 1–10",start:new Date(2026,10,30),weeks:6,exam:new Date(2027,0,7),examText:"7–9 Jan 2027",pools:[["W",24],["S",6]],mins:20},
-  P:{key:"P",name:"Province Level",units:"Units 1–10",start:new Date(2027,0,11),weeks:8,exam:new Date(2027,2,4),examText:"4–6 Mar 2027",pools:[["P",24],["W",6]],mins:20}
+  P:{key:"P",name:"Province Level",units:"Units 1–10",start:new Date(2027,0,11),weeks:8,exam:new Date(2027,2,4),examText:"4–6 Mar 2027",pools:[["P",24],["W",6]],mins:20},
+  // Phiên N-IOE: bắt đầu thứ hai 8/3/2027, ngay sau IOE cấp tỉnh (4–6/3); thi cấp quốc gia 1–2/4/2027 (dự kiến), tuần thứ tư là tuần thi
+  N:{key:"N",name:"National Level",units:"Units 1–15",start:new Date(2027,2,8),weeks:4,exam:new Date(2027,3,1),examText:"1–2 Apr 2027 (expected)",pools:[["N",24],["P",6]],mins:20}
 };
-const TRACK_ORDER=["S","W","P"];
+const TRACK_ORDER=["S","W","P","N"];
 const PER_WEEK=7, TEST_LEN=30;
 
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
@@ -1056,7 +1068,7 @@ const safe=s=>esc(s).replace(/&lt;(\/?)u&gt;/g,"<$1u>");
 const norm=s=>String(s).toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," ").replace(/[.!?]+$/,"").trim();
 const fmtTime=s=>{s=Math.max(0,Math.round(s));return String(s/60|0).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
 const fmtDate=d=>d.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
-const allQ=()=>BANKS.S.concat(BANKS.W,BANKS.P,custom);
+const allQ=()=>BANKS.S.concat(BANKS.W,BANKS.P,BANKS.N,custom);
 const byId=id=>allQ().find(q=>q.id===id);
 const LETTERS="ABCD";
 function strip(h){const d=document.createElement("div");d.innerHTML=h;return d.textContent}
@@ -1350,7 +1362,7 @@ function renderHome(note){
     ${note?`<div class="fb bad">${esc(note)}</div>`:""}
     <section class="sec" style="margin-top:0"><h1 class="page-h">Practise by Unit</h1><p class="muted small" style="margin:0">Choose a unit to revise. No timer, and you see the answer after each question.</p>
       <div class="units">${Object.entries(UNITS).map(([u,t])=>{const n=allQ().filter(q=>q.u==u).length, ur=unitRes[u];
-        return `<button class="unit" data-u="${u}"><span class="n">Unit ${u}</span><span class="t">${t}</span><span class="small muted">${n} questions${u>6?" · Ward Level":""}</span>${ur?`<span class="last${ur.r/ur.t>=.8?"":" fair"}">Last score: ${ur.r}/${ur.t}</span>`:""}</button>`}).join("")}</div>
+        return `<button class="unit" data-u="${u}"><span class="n">Unit ${u}</span><span class="t">${t}</span><span class="small muted">${n} questions${u>10?" · National Level":u>6?" · Ward Level":""}</span>${ur?`<span class="last${ur.r/ur.t>=.8?"":" fair"}">Last score: ${ur.r}/${ur.t}</span>`:""}</button>`}).join("")}</div>
     </section>
 
     <section class="sec"><h2>Listening</h2><div class="panel" id="soundPanel"></div></section>

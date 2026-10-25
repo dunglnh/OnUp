@@ -3209,13 +3209,13 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   step("IOE 6 School Level track (9s, L44)");
   /* Phiên 9s (L44): bài ôn IOE 6 có thêm lộ trình School Level (Units 1–4, IOE cấp trường 26–28/11/2026), như School Level của ioe-4. Na mở IOE 6
      trong khung ở 360px sáng/tối, ngày TODAY (21/10/2026), máy chưa lưu khóa tab: hero "Up next · School Level · Units 1–4", "School Level exam:
-     26–28 Nov 2026 · N days to go"; hàng chọn lộ trình có ba nút trên một hàng, trong khung, cao ≥ 44px (School Level, Ward Level, City Level), School
-     Level đang chọn, "Units 1–4 · 49 tests", 7 tuần, tuần này là tuần 2; Practise by Unit: Unit 1–4 có câu School Level, Unit 5–9 không. Làm đề
+     26–28 Nov 2026 · N days to go"; hàng chọn lộ trình (Phiên N-IOE: bốn nút, hai hàng hai cột) trong khung, cao ≥ 44px (School Level, Ward Level, City
+     Level, National Level), School Level đang chọn, "Units 1–4 · 49 tests", 7 tuần, tuần này là tuần 2; Practise by Unit: Unit 1–4 có câu School Level, Unit 5–9 không. Làm đề
      School Level tiếp theo (Start Test; giả lập máy đọc được tiếng như bước 9o để đề có câu nghe): 30 câu, mọi câu mã S…, Unit ≤ 4, có câu nghe; trả
      lời đúng hết theo dữ liệu, nộp: 30/30, ontapReport gọi đúng một lần với label "School Level · Test N", app lưu kết quả đó (bài ôn ioe-6). Đề sau:
      tiếng lỗi thì câu nghe còn trống thành câu đọc của School Level (X27). Ở màu sáng còn mở lần lượt mọi câu của SCHOOL, SCHOOL_L trong khung
      (lượt luyện tập dựng từ BANKS.S) và chạy audit chữ đè ở từng câu. Cài đồng hồ trong bước sang 30/11/2026 thì hero là Ward Level, sang 11/1/2027
-     là City Level. Ảnh ở tests/screenshots/9s/ (bản ghép <tên>.jpg: trang-dau, cau-hoi, ket-qua; chép sang docs/hinh-9s/). */
+     là City Level, sang 8/3/2027 là National Level (Phiên N-IOE). Ảnh ở tests/screenshots/9s/ (bản ghép <tên>.jpg: trang-dau, cau-hoi, ket-qua; chép sang docs/hinh-9s/). */
   const OUT9S = OUT + "9s/"; fs.mkdirSync(OUT9S, { recursive: true });
   const s9 = { problems: [], shots: [], runs: [], sweep: 0 };
   for (const scheme of ["light", "dark"]) {
@@ -3258,7 +3258,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await openMod();
     r.hero = await hero();
     r.seg = await fr.evaluate(() => { const bs = [...document.querySelectorAll(".seg button")], t0 = bs.length ? bs[0].getBoundingClientRect().top : 0, seg = document.querySelector(".seg").getBoundingClientRect();
-      return { txt: bs.map((b) => b.textContent.replace(/\s+/g, " ").trim() + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join("|"), oneRow: bs.every((b) => Math.abs(b.getBoundingClientRect().top - t0) < 1),
+      const tops = [...new Set(bs.map((b) => Math.round(b.getBoundingClientRect().top)))], lefts = [...new Set(bs.map((b) => Math.round(b.getBoundingClientRect().left)))];
+      return { txt: bs.map((b) => b.textContent.replace(/\s+/g, " ").trim() + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join("|"), grid: tops.length === 2 && lefts.length === 2 && Math.abs(bs[1].getBoundingClientRect().top - t0) < 1,
         fit: bs.every((b) => b.getBoundingClientRect().left >= seg.left && b.getBoundingClientRect().right <= seg.right + 0.5) && seg.right <= innerWidth, h: Math.round(Math.min(...bs.map((b) => b.getBoundingClientRect().height))),
         weeks: document.querySelectorAll("#weeks .week").length, now: (document.querySelector("#weeks .week.now") || {}).id || "", tests: document.querySelectorAll("#weeks .tb").length,
         units: [1, 2, 3, 4].every((u) => allQ().some((q) => q.u == u && q.lv === "S")) && [5, 6, 7, 8, 9].every((u) => !allQ().some((q) => q.u == u && q.lv === "S")) };
@@ -3306,6 +3307,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     // ngày khác: 30/11/2026 hero là Ward Level, 11/1/2027 là City Level
     await p.clock.setSystemTime(new Date("2026-11-30T08:00:00")); await signIn("Na", "4444"); await openMod(); r.ward = await hero();
     await p.clock.setSystemTime(new Date("2027-01-11T08:00:00")); await signIn("Na", "4444"); await openMod(); r.city = await hero();
+    await p.clock.setSystemTime(new Date("2027-03-08T08:00:00")); await signIn("Na", "4444"); await openMod(); r.nat = await hero();
     console.log("9s", scheme, JSON.stringify(r));
     await c.close();
   }
@@ -3321,13 +3323,145 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   }
   console.log("9s problems:", s9.problems.length, s9.problems.slice(0, 30));
   const s9sOK = !s9.problems.length && s9.runs.length === 2 && s9.runs.every((r) => /^Up next · School Level · Units 1–4$/.test(r.hero.label) && /^School Level exam: 26–28 Nov 2026 · \d+ days to go$/.test(r.hero.exam)
-      && r.seg.txt === "School LevelUnits 1–4 · 49 tests*|Ward LevelUnits 1–6 · 91 tests|City LevelUnits 1–9 · 56 tests" && r.seg.oneRow && r.seg.fit && r.seg.h >= 44 && r.seg.weeks === 7 && r.seg.now === "Sw1" && r.seg.tests === 49 && r.seg.units
+      && r.seg.txt === "School LevelUnits 1–4 · 49 tests*|Ward LevelUnits 1–6 · 91 tests|City LevelUnits 1–9 · 56 tests|National LevelUnits 1–10 · 28 tests" && r.seg.grid && r.seg.fit && r.seg.h >= 44 && r.seg.weeks === 7 && r.seg.now === "Sw1" && r.seg.tests === 49 && r.seg.units
       && r.btn && r.test.n === 30 && r.test.ids && r.test.units && r.test.say >= 1 && r.test.label === r.test.head && /^School Level · Test \d+$/.test(r.test.label)
       && r.recap && r.result.score === "30/30" && r.result.reps.length === 1 && r.result.reps[0] === `${r.test.label}|exam|ta|30|30` && r.saved
       && r.x27.nSay >= 1 && !r.x27.anySay && r.x27.school && r.x27.n === 30
       && (r.scheme !== "light" || r.sweep)
-      && /^Up next · Ward Level · Units 1–6$/.test(r.ward.label) && /^Ward Level exam: 7–9 Jan 2027/.test(r.ward.exam) && /^Up next · City Level · Units 1–9$/.test(r.city.label) && /^City Level exam: 4–6 Mar 2027/.test(r.city.exam))
+      && /^Up next · Ward Level · Units 1–6$/.test(r.ward.label) && /^Ward Level exam: 7–9 Jan 2027/.test(r.ward.exam) && /^Up next · City Level · Units 1–9$/.test(r.city.label) && /^City Level exam: 4–6 Mar 2027/.test(r.city.exam)
+      && /^Up next · National Level · Units 1–10$/.test(r.nat.label) && /^National Level exam: 1–2 Apr 2027 \(expected\) · 24 days to go$/.test(r.nat.exam))
     && s9.sweep > 150 && ["trang-dau", "cau-hoi", "ket-qua"].every((n) => s9.shots.includes(n + "-light") && s9.shots.includes(n + "-dark"));
+
+  step("IOE National Level track (N-IOE)");
+  /* Phiên N-IOE: ioe-4 và ioe-6 có thêm lộ trình National Level (IOE cấp quốc gia 1–2/4/2027, dự kiến): từ thứ hai 8/3/2027, 4 tuần × 7 đề 30 câu,
+     20 phút; ioe-4 Units 1–15, mỗi đề 24 câu National + 6 câu Province; ioe-6 Units 1–10, 24 câu National + 6 câu City. Bin mở IOE 4, Na mở IOE 6
+     trong khung ở 360px sáng/tối, đồng hồ đặt sang 8/3/2027 8:00, máy chưa lưu khóa tab: hero "Up next · National Level · Units 1–15" (ioe-6:
+     Units 1–10), "National Level exam: 1–2 Apr 2027 (expected) · 24 days to go"; hàng chọn lộ trình bốn nút, hai hàng hai cột, trong khung, cao
+     ≥ 44px, National Level đang chọn ("28 tests"), 4 tuần, tuần này là tuần 1; Practise by Unit: Unit 11–15 (ioe-6: Unit 10) ghi "· National
+     Level" và chỉ có câu National, unit cũ không ghi. Làm đề National Level tiếp theo (Start Test; giả lập máy đọc được tiếng như bước 9o, 9s):
+     30 câu (24 câu N…, 6 câu P… hay C…), Unit trong phạm vi, có câu nghe, có câu đọc (rd: đoạn đọc .read hiện đúng chữ, trong khung); trả lời
+     đúng hết theo dữ liệu, nộp: 30/30, ontapReport gọi đúng một lần với label "National Level · Test N", app lưu kết quả đó. Ở màu sáng còn
+     mở lần lượt mọi câu của NATIONAL, NATIONAL_L trong khung (lượt luyện tập dựng từ BANKS.N) và chạy audit chữ đè ở từng câu. Ảnh ở
+     tests/screenshots/n-ioe/ (bản ghép <tên>.jpg: ioe4-trang-dau, ioe4-cau-doc, ioe4-ket-qua, ioe6-…; chép sang docs/hinh-n-ioe/). */
+  const OUTNQ = OUT + "n-ioe/"; fs.mkdirSync(OUTNQ, { recursive: true });
+  const nq = { problems: [], shots: [], runs: [], sweep: { "ioe-4": 0, "ioe-6": 0 }, bank: {} };
+  const NQ = [
+    { m: "ioe-4", who: "Bin", pin: PINS.Bin, tabKey: "ioe4v1", pre: "ioe4", units: "Units 1–15", newU: [11, 12, 13, 14, 15], u: [1, 15], other: "P",
+      seg: "School LevelUnits 1–6 · 49 tests|Ward LevelUnits 1–10 · 42 tests|Province LevelUnits 1–10 · 56 tests|National LevelUnits 1–15 · 28 tests*" },
+    { m: "ioe-6", who: "Na", pin: "4444", tabKey: "ioe6v2", pre: "ioe6", units: "Units 1–10", newU: [10], u: [1, 10], other: "C",
+      seg: "School LevelUnits 1–4 · 49 tests|Ward LevelUnits 1–6 · 91 tests|City LevelUnits 1–9 · 56 tests|National LevelUnits 1–10 · 28 tests*" },
+  ];
+  for (const scheme of ["light", "dark"]) {
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror n-ioe: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console n-ioe: " + m.text()); });
+    await p.clock.setSystemTime(new Date("2027-03-08T08:00:00")); // tuần đầu của National Level (sau TODAY: dữ liệu các bước trước không ở "tương lai")
+    const signIn = async (who, pin) => { await p.goto(BASE + "/#/account"); await p.waitForTimeout(200); if (await p.$("#switchWho, #logout")) { await p.click("#switchWho, #logout"); await p.waitForTimeout(200); } await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids[who]}"]`); await p.fill("#pinIn", pin); await p.waitForTimeout(400); };
+    for (const M of NQ) {
+      const r = { scheme, m: M.m }; nq.runs.push(r);
+      let fr = null;
+      const openMod = async () => {
+        fr = null; await p.goto(BASE + "/#/home"); await p.waitForTimeout(150); await p.goto(BASE + "/#/play/" + M.m);
+        for (let i = 0; i < 60 && !(fr = p.frames().find((f) => f.url().includes(`/modules/${M.m}/`))); i++) await p.waitForTimeout(100);
+        await fr.waitForSelector("#heroBtn"); await p.waitForTimeout(150);
+      };
+      const ftxt = (sel) => fr.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : null; }, sel);
+      const check = async (label, only) => { (await fr.evaluate(audit, only)).forEach((x) => nq.problems.push(`n-ioe · ${M.m} · ${scheme} · ${label}: ${x}`)); (await p.evaluate(audit)).forEach((x) => nq.problems.push(`n-ioe · ${M.m} · ${scheme} · ${label} (trang app): ${x}`)); };
+      const snap = async (n) => {
+        const h = await fr.evaluate(() => document.documentElement.scrollHeight), top = await p.$eval(".player iframe", (e) => Math.round(e.getBoundingClientRect().top));
+        await p.setViewportSize({ width: 360, height: Math.min(1600, Math.max(740, top + h + 12)) }); await p.waitForTimeout(150);
+        await p.evaluate(() => { const t = document.querySelector("#toast"); if (t) t.hidden = true; });
+        await p.screenshot({ path: `${OUTNQ}${M.pre}-${n}-${scheme}.png` });
+        await p.setViewportSize({ width: 360, height: 740 }); await p.waitForTimeout(100);
+        nq.shots.push(`${M.pre}-${n}-${scheme}`);
+      };
+      // giả lập máy đọc được tiếng (như bước 9o, 9s): chờ TTS.ready trước, rồi đề có câu nghe
+      const fakeVoice = () => fr.evaluate(async () => { await TTS.ready; TTS.done = true; TTS.ok = true; TTS.off = false; store.set("listenOff", false); window.__speakErr = null; window.speak = (text, rate, cb) => setTimeout(() => cb(window.__speakErr), 20); });
+      // trả lời đúng câu đang hiện theo dữ liệu (mọi dạng câu của National Level: m, o, p, s, rd, h, hp chọn ô; e chọn phần sai; f, hf điền; l điền chữ; r, w xếp ô)
+      const answerRight = async () => {
+        const q = await fr.evaluate(() => { const q = S.qs[S.i]; return { o: !!q.o, a: q.a, t: q.t, ans: q.ans, w: q.w, miss: q.miss, tiles: q.tiles }; });
+        if (q.o || q.t === "e") await fr.click(`.opt[data-o="${q.a}"]`);
+        else if (q.ans) await fr.fill("#fillIn", q.ans[0]);
+        else if (q.t === "l") for (let j = 0; j < q.miss.length; j++) await fr.fill(`input.letter[data-m="${j}"]`, q.w[q.miss[j]]);
+        else for (const k of q.tiles.map((t, k) => [t.i, k]).sort((a, b) => a[0] - b[0]).map((x) => x[1])) await fr.click(`#pool .tile[data-k="${k}"]`);
+      };
+
+      await signIn(M.who, M.pin);
+      await p.evaluate((k) => localStorage.removeItem(k), `u_${ids[M.who]}__${M.tabKey}_tab`); // máy chưa lưu khóa tab
+      await openMod();
+      r.hero = { label: await ftxt(".hero .label"), exam: await ftxt(".hero p.small") };
+      r.seg = await fr.evaluate((newU) => {
+        const bs = [...document.querySelectorAll(".seg button")], seg = document.querySelector(".seg").getBoundingClientRect(), wk = [...document.querySelectorAll("#weeks .week")];
+        const tops = [...new Set(bs.map((b) => Math.round(b.getBoundingClientRect().top)))], lefts = [...new Set(bs.map((b) => Math.round(b.getBoundingClientRect().left)))];
+        return { txt: bs.map((b) => b.textContent.replace(/\s+/g, " ").trim() + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join("|"), grid: bs.length === 4 && tops.length === 2 && lefts.length === 2,
+          fit: bs.every((b) => b.getBoundingClientRect().left >= seg.left && b.getBoundingClientRect().right <= seg.right + 0.5) && seg.right <= innerWidth, h: Math.round(Math.min(...bs.map((b) => b.getBoundingClientRect().height))),
+          weeks: wk.length, now: wk.findIndex((w) => w.classList.contains("now")), tests: document.querySelectorAll("#weeks .tb").length,
+          units: newU.every((u) => { const b = document.querySelector(`.unit[data-u="${u}"]`), qs = allQ().filter((q) => q.u == u); return !!b && / · National Level$/.test(b.querySelector(".small").textContent.trim()) && qs.length > 0 && qs.every((q) => q.lv === "N"); }),
+          oldUnits: [...document.querySelectorAll(".unit")].filter((b) => !newU.includes(+b.dataset.u)).every((b) => !/National/.test(b.textContent)) };
+      }, M.newU);
+      nq.bank[M.m] = await fr.evaluate(() => ({ n: BANKS.N.length, say: BANKS.N.filter((q) => q.say).length, rd: BANKS.N.filter((q) => q.t === "rd").length }));
+      await check("trang đầu", "chữ"); await snap("trang-dau");
+      // đề National Level tiếp theo (nút Start Test của hero), có câu nghe, câu đọc; trả lời đúng hết rồi nộp
+      await fakeVoice();
+      const t = await fr.evaluate(() => { window.__reps = []; const o = window.ontapReport; window.ontapReport = (x) => { window.__reps.push(x); return o(x); }; const k = nextTest("N"); return { k, label: `${TRACKS.N.name} · Test ${k + 1}`, btn: document.querySelector("#heroBtn").textContent }; });
+      r.btn = t.btn === `Start Test ${t.k + 1}`;
+      await fr.click("#heroBtn"); await fr.waitForSelector("#endBtn", { timeout: 15000 });
+      r.test = await fr.evaluate(([other, u]) => ({ n: S.qs.length, nN: S.qs.filter((q) => /^N\d+$/.test(q.id)).length, nO: S.qs.filter((q) => new RegExp(`^${other}\\d+$`).test(q.id)).length,
+        units: S.qs.every((q) => q.u >= u[0] && q.u <= u[1]), say: S.qs.filter((q) => q.say).length, rd: S.qs.filter((q) => q.t === "rd").length, label: S.label, head: document.querySelector(".qhead .label").textContent }), [M.other, M.u]);
+      r.read = [];
+      let shot = false;
+      for (let i = 0; i < r.test.n; i++) {
+        const q = await fr.evaluate(() => ({ t: S.qs[S.i].t, say: !!S.qs[S.i].say, i: S.i }));
+        if (q.i !== i) { nq.problems.push(`n-ioe · ${M.m} · ${scheme}: câu ${i + 1} mà trang ở câu ${q.i + 1}`); break; }
+        await check(`đề National Level, câu ${i + 1} (${q.t}${q.say ? ", nghe" : ""})`, q.say ? "chữ" : undefined);
+        if (q.t === "rd") {
+          r.read.push(await fr.evaluate(() => { const e = document.querySelector(".read"), b = e && e.getBoundingClientRect(); return !!e && e.textContent === S.qs[S.i].read && b.height > 20 && b.left >= 0 && b.right <= innerWidth; }));
+          if (!shot) { await snap("cau-doc"); shot = true; }
+        }
+        await answerRight(); await fr.click("#goBtn");
+      }
+      r.recap = (await ftxt("#recap p")) === `You have answered all ${r.test.n} questions. Review or finish the test.`;
+      await fr.click("#endBtn"); await fr.waitForSelector("#resBtns");
+      r.result = await fr.evaluate(() => ({ score: document.querySelector(".score").textContent, reps: window.__reps.map((x) => [x.label, x.mode, x.subject, x.r, x.t].join("|")) }));
+      r.saved = await p.evaluate(([id, m, label]) => { const rs = JSON.parse(localStorage.getItem("ontap_db_v1")).results.filter((x) => x.userId === id && x.refId === m); const z = rs[rs.length - 1]; return !!z && z.label === label && z.r === 30 && z.t === 30 && z.source === "module"; }, [ids[M.who], M.m, t.label]);
+      r.label = t.label;
+      await check("kết quả"); await snap("ket-qua");
+      // màu sáng: mở lần lượt mọi câu của NATIONAL, NATIONAL_L (lượt luyện tập dựng từ BANKS.N, Skip từng câu), audit chữ đè ở từng câu
+      if (scheme === "light") {
+        await fr.click("#homeBtn"); await fr.waitForSelector("#heroBtn"); await fakeVoice();
+        const n = await fr.evaluate(() => { startSession({ mode: "practice", qs: BANKS.N.map((q) => inst(q)), label: "National Level check" }); return S.qs.length; });
+        for (let i = 0; i < n; i++) {
+          await fr.waitForSelector("#skipBtn"); const id = await fr.evaluate(() => S.qs[S.i].id);
+          (await fr.evaluate(audit, "chữ")).forEach((x) => nq.problems.push(`n-ioe · ${M.m} · câu ${id}: ${x}`)); nq.sweep[M.m]++;
+          await fr.click("#skipBtn");
+        }
+        r.sweep = (await fr.$("#recap")) !== null && nq.sweep[M.m] === n;
+        await fr.evaluate(() => renderHome()); // bỏ lượt kiểm tra này (không nộp, không gửi điểm về app), để rời bài không bị hỏi
+      }
+      console.log("n-ioe", scheme, M.m, JSON.stringify(r));
+    }
+    await c.close();
+  }
+  { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/n-ioe/<tên>.jpg)
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of [...new Set(nq.shots.map((x) => x.replace(/-(light|dark)$/, "")))]) {
+      if (!nq.shots.includes(n + "-light") || !nq.shots.includes(n + "-dark")) continue;
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTNQ}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTNQ}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("n-ioe problems:", nq.problems.length, nq.problems.slice(0, 30), "bank:", JSON.stringify(nq.bank));
+  const nIoeOK = !nq.problems.length && nq.runs.length === 4 && nq.runs.every((r) => { const M = NQ.find((x) => x.m === r.m);
+      return r.hero.label === `Up next · National Level · ${M.units}` && r.hero.exam === "National Level exam: 1–2 Apr 2027 (expected) · 24 days to go"
+        && r.seg.txt === M.seg && r.seg.grid && r.seg.fit && r.seg.h >= 44 && r.seg.weeks === 4 && r.seg.now === 0 && r.seg.tests === 28 && r.seg.units && r.seg.oldUnits
+        && r.btn && r.test.n === 30 && r.test.nN === 24 && r.test.nO === 6 && r.test.units && r.test.say >= 1 && r.test.rd >= 1 && r.read.length === r.test.rd && r.read.every(Boolean)
+        && r.test.label === r.test.head && r.test.label === r.label && /^National Level · Test \d+$/.test(r.label)
+        && r.recap && r.result.score === "30/30" && r.result.reps.length === 1 && r.result.reps[0] === `${r.label}|exam|ta|30|30` && r.saved
+        && (r.scheme !== "light" || r.sweep); })
+    && NQ.every((M) => nq.bank[M.m] && nq.sweep[M.m] === nq.bank[M.m].n && nq.bank[M.m].n >= 200 && nq.bank[M.m].say >= 30 && nq.bank[M.m].rd >= 15)
+    && NQ.every((M) => ["trang-dau", "cau-doc", "ket-qua"].every((n) => nq.shots.includes(`${M.pre}-${n}-light`) && nq.shots.includes(`${M.pre}-${n}-dark`)));
 
   step("numbers with thousands spaces stay on one line (360px)");
   /* Số trong dữ liệu ngăn hàng nghìn bằng khoảng trắng ("1 200", "987 650", "2 450 − 1 800 = 650 (kg)"). Ở 360px, màn làm đề và màn
@@ -3984,7 +4118,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK, l38OK, mod9oOK, s9sOK, ux7OK, ux8OK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();

@@ -48,7 +48,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-vis
 .btn.danger{background:var(--bad-soft);color:var(--bad)}
 .btn:disabled{opacity:.45;cursor:default}
 .sec{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;background:var(--sea-soft);border-radius:12px;padding:4px}
+.seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;background:var(--sea-soft);border-radius:12px;padding:4px}
 .seg button{border:0;background:transparent;border-radius:9px;padding:9px 8px;font-weight:700;color:var(--sea);line-height:1.2}
 .seg button small{display:block;font-weight:500;font-size:.75rem;opacity:.85}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(20,33,61,.15)}
@@ -128,6 +128,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background
 .opt.picopt{justify-content:center;align-items:center;font-size:2.4rem;line-height:1.1;padding:12px}
 .opt.picopt .k{font-size:1rem}
 .notice{background:var(--sun-soft);color:var(--ink);border-radius:12px;padding:10px 14px;font-size:.9rem}
+.read{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 14px;line-height:1.6;overflow-wrap:anywhere} /* đoạn đọc của câu rd (National Level, Phiên N-IOE), như ioe-4 */
 .heard{margin-top:8px;font-size:.9rem;color:var(--muted);font-weight:500}
 /* Phiên 9o (L38, L39): nút mở bảng số câu cạnh thanh tiến độ (X26: số câu rời thanh trên), bảng số câu, chú thích, màn "Xem lại bài làm";
    số đo chép từ .qz-* của css/app.css (Phiên 9n, 9nb); ô đã trả lời dùng --pick như ô đang chọn, không theo màu của môn */
@@ -174,11 +175,15 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background
    Written for the Global Success English 6 curriculum.
    m = multiple choice (correct answer first), o = odd one out, p = pronunciation, s = stress,
    e = find the mistake [part] x4 + wrong index + correction, f = fill in the blank (answers split by |),
-   l = missing letters (word, clue), r = reorder (chunks split by /).
+   l = missing letters (word, clue), r = reorder (chunks split by /),
+   rd = read and choose (short text, question, correct answer, wrong x3; Phiên N-IOE, chỉ ở NATIONAL).
    SCHOOL (Phiên 9s, L44): School Level, Units 1–4 (IOE cấp trường 26–28/11/2026), viết theo sách Tiếng Anh 6 Global Success tập 1 in năm 2026,
    không có câu e; mã câu S0, S1… theo vị trí trong SCHOOL rồi SCHOOL_L. Không sửa chữ, không chèn câu vào giữa WARD, CITY, WARD_L, CITY_L:
-   mã câu W…, C… tính theo vị trí, "Review Mistakes" lưu theo mã câu, đề Ward Level, City Level đã làm phải giữ đúng câu.            */
-const UNITS={1:"My New School",2:"My House",3:"My Friends",4:"My Neighbourhood",5:"Natural Wonders of Viet Nam",6:"Our Tet Holiday",7:"Television",8:"Sports and Games",9:"Cities of the World"};
+   mã câu W…, C… tính theo vị trí, "Review Mistakes" lưu theo mã câu, đề Ward Level, City Level đã làm phải giữ đúng câu.
+   NATIONAL (Phiên N-IOE): National Level, Units 1–10 (IOE cấp quốc gia 1–2/4/2027, dự kiến), khó hơn CITY, có câu đọc rd; Unit 10 (tập 2)
+   chỉ có ở NATIONAL, NATIONAL_L. Mã câu N0, N1… theo vị trí trong NATIONAL rồi NATIONAL_L. Không sửa chữ, không chèn câu vào giữa các bộ cũ
+   (SCHOOL, WARD, CITY và các bộ nghe); UNITS chỉ thêm Unit 10 ở cuối.                                                                  */
+const UNITS={1:"My New School",2:"My House",3:"My Friends",4:"My Neighbourhood",5:"Natural Wonders of Viet Nam",6:"Our Tet Holiday",7:"Television",8:"Sports and Games",9:"Cities of the World",10:"Our Houses in the Future"};
 
 const SCHOOL=[
 // Unit 1
@@ -747,6 +752,9 @@ const CITY=[
 ["r",9,"Sydney / is / famous for / its beautiful beaches / and / the Opera House."],
 ["o",9,"Australia","Tokyo","London","Bangkok"]
 ];
+const NATIONAL=[
+
+];
 
 /* ================= LISTENING =================
    h  = listen and choose: [spoken text, question, correct, wrong x3]
@@ -852,6 +860,9 @@ const CITY_L=[
 ["h",5,"You mustn't take photos in the cave.","What mustn't you do in the cave?","take photos","eat food","walk alone","speak loudly"],
 ["h",6,"We should visit our teachers on the third day of Tet.","When should they visit their teachers?","on the third day of Tet","on the first day of Tet","on the second day of Tet","before Tet"]
 ];
+const NATIONAL_L=[
+
+];
 
 /* ================= Normalise ================= */
 const PROMPT={o:"Choose the odd one out.",p:"Choose the word whose underlined part is pronounced differently.",s:"Choose the word with a different stress pattern."};
@@ -859,6 +870,7 @@ function toQ(row,lv,i){
   const [t,u]=row, id=lv+i, q={id,lv,t,u};
   if(t==="m"){q.q=row[2];q.o=row.slice(3);q.a=0}
   else if(t==="o"||t==="p"||t==="s"){q.q=PROMPT[t];q.o=row.slice(2);q.a=0}
+  else if(t==="rd"){q.read=row[2];q.q=row[3];q.o=row.slice(4);q.a=0}
   else if(t==="e"){q.s=row[2];q.a=row[3];q.fix=row[4];q.parts=[...row[2].matchAll(/\[([^\]]+)\]/g)].map(m=>m[1])}
   else if(t==="f"){q.q=row[2];q.ans=row[3].split("|")}
   else if(t==="l"){q.w=row[2];q.h=row[3]}
@@ -868,7 +880,7 @@ function toQ(row,lv,i){
   else if(t==="hf"){q.say=row[2];q.q=row[3];q.ans=row[4].split("|")}
   return q;
 }
-const BANKS={S:SCHOOL.concat(SCHOOL_L).map((r,i)=>toQ(r,"S",i)),W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i)),C:CITY.concat(CITY_L).map((r,i)=>toQ(r,"C",i))};
+const BANKS={S:SCHOOL.concat(SCHOOL_L).map((r,i)=>toQ(r,"S",i)),W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i)),C:CITY.concat(CITY_L).map((r,i)=>toQ(r,"C",i)),N:NATIONAL.concat(NATIONAL_L).map((r,i)=>toQ(r,"N",i))};
 
 /* ================= Test plan =================
    Every test is fixed: the same test number always gives the same questions.
@@ -878,9 +890,11 @@ const DAY=864e5;
 const TRACKS={
   S:{key:"S",name:"School Level",units:"Units 1–4",start:new Date(2026,9,12),weeks:7,exam:new Date(2026,10,26),examText:"26–28 Nov 2026",pools:[["S",30]],mins:20},
   W:{key:"W",name:"Ward Level",units:"Units 1–6",start:new Date(2026,9,12),weeks:13,exam:new Date(2027,0,7),examText:"7–9 Jan 2027",pools:[["W",30]],mins:20},
-  C:{key:"C",name:"City Level",units:"Units 1–9",start:new Date(2027,0,11),weeks:8,exam:new Date(2027,2,4),examText:"4–6 Mar 2027",pools:[["C",24],["W",6]],mins:20}
+  C:{key:"C",name:"City Level",units:"Units 1–9",start:new Date(2027,0,11),weeks:8,exam:new Date(2027,2,4),examText:"4–6 Mar 2027",pools:[["C",24],["W",6]],mins:20},
+  // Phiên N-IOE: bắt đầu thứ hai 8/3/2027, ngay sau IOE cấp thành phố (4–6/3); thi cấp quốc gia 1–2/4/2027 (dự kiến), tuần thứ tư là tuần thi
+  N:{key:"N",name:"National Level",units:"Units 1–10",start:new Date(2027,2,8),weeks:4,exam:new Date(2027,3,1),examText:"1–2 Apr 2027 (expected)",pools:[["N",24],["C",6]],mins:20}
 };
-const TRACK_ORDER=["S","W","C"];
+const TRACK_ORDER=["S","W","C","N"];
 const PER_WEEK=7, TEST_LEN=30;
 
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
@@ -930,7 +944,7 @@ function inst(q,seed){
   if(x.t==="r"){const c=chunks(x.s).map((c,i)=>({c,i}));let s=c;for(let n=0;n<6;n++){s=shuffleWith(c,r);if(s.some((t,i)=>t.i!==i))break}x.tiles=s}
   if(x.t==="l"){
     const idx=[...x.w].map((ch,i)=>/[a-z]/i.test(ch)?i:-1).filter(i=>i>=0);
-    const n=x.lv==="C"&&x.w.length>=7?2:1;
+    const n=(x.lv==="C"||x.lv==="N")&&x.w.length>=7?2:1;
     x.miss=shuffleWith(idx,r).slice(0,n).sort((a,b)=>a-b);
   }
   return x;
@@ -1039,7 +1053,7 @@ const norm=s=>String(s).toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," 
 const chunks=s=>s.split("/").map(x=>x.trim()).filter(Boolean);
 const fmtTime=s=>{s=Math.max(0,Math.round(s));return String(s/60|0).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
 const fmtDate=d=>d.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
-const allQ=()=>BANKS.S.concat(BANKS.W,BANKS.C,custom);
+const allQ=()=>BANKS.S.concat(BANKS.W,BANKS.C,BANKS.N,custom);
 const byId=id=>allQ().find(q=>q.id===id);
 const LETTERS="ABCD";
 function strip(h){const d=document.createElement("div");d.innerHTML=h;return d.textContent}
@@ -1053,6 +1067,7 @@ function correctText(q){
 }
 function stemText(q){
   if(q.say)return "Listening: “"+esc(q.say)+"”"+(q.t==="h"?" · "+esc(q.q):"");
+  if(q.t==="rd")return "Reading: “"+esc(q.read)+"” · "+safe(q.q);
   if(q.t==="r")return "Reorder: "+esc(chunks(q.s).join(" / "));
   if(q.t==="l")return "Missing letters: "+esc(q.w.split("").map((c,i)=>q.miss&&q.miss.includes(i)?"_":c).join(""))+" ("+esc(q.h)+")";
   if(q.t==="e")return "Find the mistake: "+esc(q.s.replace(/\[|\]/g,""));
@@ -1071,10 +1086,11 @@ function nextTest(tk){
   for(let k=0;k<total;k++)if(!results[resKey(tk,k)])return k;
   return null;
 }
-// lộ trình mặc định (hero, khóa tab lần đầu): School Level đến hết 29/11/2026 (sau kì thi cấp trường, như ioe-4), Ward Level đến trước City Level.
-// Không lấy lộ trình bắt đầu muộn nhất như ioe-4, vì School Level và Ward Level cùng bắt đầu 12/10/2026.
+// lộ trình mặc định (hero, khóa tab lần đầu): School Level đến hết 29/11/2026 (sau kì thi cấp trường, như ioe-4), rồi lộ trình bắt đầu muộn
+// nhất trong Ward Level, City Level, National Level (từ 8/3/2027, Phiên N-IOE). School Level và Ward Level cùng bắt đầu 12/10/2026, nên
+// School Level xét riêng theo ngày.
 const SCHOOL_END=new Date(2026,10,30);
-function defaultTrack(){const d=today();return d<SCHOOL_END?"S":d<TRACKS.C.start?"W":"C"}
+function defaultTrack(){const d=today();if(d<SCHOOL_END)return "S";let tk="W";for(const k of TRACK_ORDER)if(k!=="S"&&d>=TRACKS[k].start)tk=k;return tk}
 
 /* ================= Session ================= */
 let S=null, tick=null;
@@ -1147,7 +1163,7 @@ function renderQ(){
       body=`<div class="label">Listen and fill in the missing word</div>${listenBar}<div class="qtext">${parts[0]}<input class="blank" id="fillIn" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Your answer">${parts.slice(1).join("___")}</div>`;
     }
   }else if(q.o){
-    const label=q.t==="m"?`<div class="label">Choose the best answer</div>`:"";
+    const label=q.t==="m"?`<div class="label">Choose the best answer</div>`:q.t==="rd"?`<div class="label">Read and choose the best answer</div><div class="read">${esc(q.read)}</div>`:"";
     const longOpts=q.o.some(o=>strip(o).length>22);
     body=`${label}<div class="qtext">${safe(q.q)}</div><div class="opts${longOpts?" wide":""}">${q.order.map((oi,k)=>`<button class="opt${sel(oi)}" data-o="${oi}"><span class="k">${LETTERS[k]}</span><span>${safe(q.o[oi])}</span></button>`).join("")}</div>`;
   }else if(q.t==="e"){
@@ -1349,7 +1365,7 @@ function renderHome(note){
     <section class="sec"><h2>Listening</h2><div class="panel" id="soundPanel"></div></section>
 
     <section class="sec"><h2>Practise by Unit</h2><p class="muted small" style="margin:0">No timer. You see the answer after each question.</p>
-      <div class="units">${Object.entries(UNITS).map(([u,t])=>{const n=allQ().filter(q=>q.u==u).length;return `<button class="unit" data-u="${u}"><span class="n">Unit ${u}</span><span class="t">${t}</span><span class="small muted">${n} questions${u>6?" · City Level":""}</span></button>`}).join("")}</div>
+      <div class="units">${Object.entries(UNITS).map(([u,t])=>{const n=allQ().filter(q=>q.u==u).length;return `<button class="unit" data-u="${u}"><span class="n">Unit ${u}</span><span class="t">${t}</span><span class="small muted">${n} questions${u>9?" · National Level":u>6?" · City Level":""}</span></button>`}).join("")}</div>
     </section>
 
     <section class="sec"><h2>Review Mistakes</h2>
