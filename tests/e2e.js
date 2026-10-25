@@ -3206,6 +3206,129 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       // một nhãn trên câu khi luyện theo bài, theo unit; hai nhãn ở "Ôn câu sai" và đề thi thử (X31)
       && r.headP.length === n && r.headP.every(Boolean) && r.reopen.head && r.round.head && r.wrongHead && r.headE.length === ne && r.headE.every(Boolean) && r.exReopen.head; })
     && ["bai-on-bang-so-cau", "bai-on-xem-lai", "bai-on-lam-tiep", "bai-on-da-lam-het", "bai-on-sua-cau", "ioe-bang-so-cau", "ioe-xem-lai", "ioe-lam-tiep", "ioe-da-lam-het", "ioe-sua-cau"].every((n) => mo.shots.includes(n + "-light") && mo.shots.includes(n + "-dark"));
+  step("IOE 6 School Level track (9s, L44)");
+  /* Phiên 9s (L44): bài ôn IOE 6 có thêm lộ trình School Level (Units 1–4, IOE cấp trường 26–28/11/2026), như School Level của ioe-4. Na mở IOE 6
+     trong khung ở 360px sáng/tối, ngày TODAY (21/10/2026), máy chưa lưu khóa tab: hero "Up next · School Level · Units 1–4", "School Level exam:
+     26–28 Nov 2026 · N days to go"; hàng chọn lộ trình có ba nút trên một hàng, trong khung, cao ≥ 44px (School Level, Ward Level, City Level), School
+     Level đang chọn, "Units 1–4 · 49 tests", 7 tuần, tuần này là tuần 2; Practise by Unit: Unit 1–4 có câu School Level, Unit 5–9 không. Làm đề
+     School Level tiếp theo (Start Test; giả lập máy đọc được tiếng như bước 9o để đề có câu nghe): 30 câu, mọi câu mã S…, Unit ≤ 4, có câu nghe; trả
+     lời đúng hết theo dữ liệu, nộp: 30/30, ontapReport gọi đúng một lần với label "School Level · Test N", app lưu kết quả đó (bài ôn ioe-6). Đề sau:
+     tiếng lỗi thì câu nghe còn trống thành câu đọc của School Level (X27). Ở màu sáng còn mở lần lượt mọi câu của SCHOOL, SCHOOL_L trong khung
+     (lượt luyện tập dựng từ BANKS.S) và chạy audit chữ đè ở từng câu. Cài đồng hồ trong bước sang 30/11/2026 thì hero là Ward Level, sang 11/1/2027
+     là City Level. Ảnh ở tests/screenshots/9s/ (bản ghép <tên>.jpg: trang-dau, cau-hoi, ket-qua; chép sang docs/hinh-9s/). */
+  const OUT9S = OUT + "9s/"; fs.mkdirSync(OUT9S, { recursive: true });
+  const s9 = { problems: [], shots: [], runs: [], sweep: 0 };
+  for (const scheme of ["light", "dark"]) {
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror 9s: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console 9s: " + m.text()); });
+    const r = { scheme }; s9.runs.push(r);
+    const signIn = async (who, pin) => { await p.goto(BASE + "/#/account"); await p.waitForTimeout(200); if (await p.$("#switchWho, #logout")) { await p.click("#switchWho, #logout"); await p.waitForTimeout(200); } await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids[who]}"]`); await p.fill("#pinIn", pin); await p.waitForTimeout(400); };
+    let fr = null;
+    const openMod = async () => {
+      fr = null; await p.goto(BASE + "/#/home"); await p.waitForTimeout(150); await p.goto(BASE + "/#/play/ioe-6");
+      for (let i = 0; i < 60 && !(fr = p.frames().find((f) => f.url().includes("/modules/ioe-6/"))); i++) await p.waitForTimeout(100);
+      await fr.waitForSelector("#heroBtn"); await p.waitForTimeout(150);
+    };
+    const ftxt = (sel) => fr.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : null; }, sel);
+    const check = async (label, only) => { (await fr.evaluate(audit, only)).forEach((x) => s9.problems.push(`9s · ${scheme} · ${label}: ${x}`)); (await p.evaluate(audit)).forEach((x) => s9.problems.push(`9s · ${scheme} · ${label} (trang app): ${x}`)); };
+    const snap = async (n) => {
+      const h = await fr.evaluate(() => document.documentElement.scrollHeight), top = await p.$eval(".player iframe", (e) => Math.round(e.getBoundingClientRect().top));
+      await p.setViewportSize({ width: 360, height: Math.min(1600, Math.max(740, top + h + 12)) }); await p.waitForTimeout(150);
+      await p.evaluate(() => { const t = document.querySelector("#toast"); if (t) t.hidden = true; });
+      await p.screenshot({ path: `${OUT9S}${n}-${scheme}.png` });
+      await p.setViewportSize({ width: 360, height: 740 }); await p.waitForTimeout(100);
+      s9.shots.push(`${n}-${scheme}`);
+    };
+    const hero = async () => ({ label: await ftxt(".hero .label"), exam: await ftxt(".hero p.small") });
+    // giả lập máy đọc được tiếng (như bước 9o, X27): đề có câu nghe; window.__speakErr: lần phát sau báo lỗi. Chờ TTS.ready trước (TTS.done = true sớm hơn thì
+    // lượt dò giọng đọc của trang không bao giờ xong, Start Test chờ mãi)
+    const fakeVoice = () => fr.evaluate(async () => { await TTS.ready; TTS.done = true; TTS.ok = true; TTS.off = false; store.set("listenOff", false); window.__speakErr = null; window.speak = (text, rate, cb) => setTimeout(() => cb(window.__speakErr), 20); });
+    // trả lời đúng câu đang hiện theo dữ liệu (mọi dạng câu của School Level)
+    const answerRight = async () => {
+      const q = await fr.evaluate(() => { const q = S.qs[S.i]; return { o: !!q.o, a: q.a, t: q.t, ans: q.ans, w: q.w, miss: q.miss, tiles: q.tiles }; });
+      if (q.o) await fr.click(`.opt[data-o="${q.a}"]`);
+      else if (q.ans) await fr.fill("#fillIn", q.ans[0]);
+      else if (q.t === "l") for (let j = 0; j < q.miss.length; j++) await fr.fill(`input.letter[data-m="${j}"]`, q.w[q.miss[j]]);
+      else for (const k of q.tiles.map((t, k) => [t.i, k]).sort((a, b) => a[0] - b[0]).map((x) => x[1])) await fr.click(`#pool .tile[data-k="${k}"]`);
+    };
+
+    await signIn("Na", "4444");
+    await p.evaluate((k) => localStorage.removeItem(k), `u_${ids.Na}__ioe6v2_tab`); // máy chưa lưu khóa tab
+    await openMod();
+    r.hero = await hero();
+    r.seg = await fr.evaluate(() => { const bs = [...document.querySelectorAll(".seg button")], t0 = bs.length ? bs[0].getBoundingClientRect().top : 0, seg = document.querySelector(".seg").getBoundingClientRect();
+      return { txt: bs.map((b) => b.textContent.replace(/\s+/g, " ").trim() + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join("|"), oneRow: bs.every((b) => Math.abs(b.getBoundingClientRect().top - t0) < 1),
+        fit: bs.every((b) => b.getBoundingClientRect().left >= seg.left && b.getBoundingClientRect().right <= seg.right + 0.5) && seg.right <= innerWidth, h: Math.round(Math.min(...bs.map((b) => b.getBoundingClientRect().height))),
+        weeks: document.querySelectorAll("#weeks .week").length, now: (document.querySelector("#weeks .week.now") || {}).id || "", tests: document.querySelectorAll("#weeks .tb").length,
+        units: [1, 2, 3, 4].every((u) => allQ().some((q) => q.u == u && q.lv === "S")) && [5, 6, 7, 8, 9].every((u) => !allQ().some((q) => q.u == u && q.lv === "S")) };
+    });
+    await check("trang đầu", "chữ"); await snap("trang-dau");
+    // đề School Level tiếp theo (nút Start Test của hero), có câu nghe; trả lời đúng hết rồi nộp
+    await fakeVoice();
+    const t = await fr.evaluate(() => { window.__reps = []; const o = window.ontapReport; window.ontapReport = (x) => { window.__reps.push(x); return o(x); }; const k = nextTest("S"); return { k, label: `${TRACKS.S.name} · Test ${k + 1}`, btn: document.querySelector("#heroBtn").textContent }; });
+    r.btn = t.btn === `Start Test ${t.k + 1}`;
+    await fr.click("#heroBtn"); await fr.waitForSelector("#endBtn", { timeout: 15000 });
+    r.test = await fr.evaluate(() => ({ n: S.qs.length, ids: S.qs.every((q) => /^S\d+$/.test(q.id)), units: S.qs.every((q) => q.u >= 1 && q.u <= 4), say: S.qs.filter((q) => q.say).length, label: S.label, head: document.querySelector(".qhead .label").textContent }));
+    let shot = false;
+    for (let i = 0; i < r.test.n; i++) {
+      const q = await fr.evaluate(() => ({ t: S.qs[S.i].t, say: !!S.qs[S.i].say, i: S.i }));
+      if (q.i !== i) { s9.problems.push(`9s · ${scheme}: câu ${i + 1} mà trang ở câu ${q.i + 1}`); break; }
+      await check(`đề School Level, câu ${i + 1} (${q.t}${q.say ? ", nghe" : ""})`, q.say ? "chữ" : undefined);
+      if (!shot && q.t === "m" && !q.say) { await snap("cau-hoi"); shot = true; }
+      await answerRight(); await fr.click("#goBtn");
+    }
+    r.recap = (await ftxt("#recap p")) === `You have answered all ${r.test.n} questions. Review or finish the test.`;
+    await fr.click("#endBtn"); await fr.waitForSelector("#resBtns");
+    r.result = await fr.evaluate(() => ({ score: document.querySelector(".score").textContent, reps: window.__reps.map((x) => [x.label, x.mode, x.subject, x.r, x.t].join("|")) }));
+    r.saved = await p.evaluate(([id, label]) => { const rs = JSON.parse(localStorage.getItem("ontap_db_v1")).results.filter((x) => x.userId === id && x.refId === "ioe-6"); const z = rs[rs.length - 1]; return !!z && z.label === label && z.r === 30 && z.t === 30 && z.source === "module"; }, [ids.Na, t.label]);
+    await check("kết quả"); await snap("ket-qua");
+    // đề sau: tiếng lỗi thì mọi câu nghe còn trống thành câu đọc của School Level (X27)
+    await fr.click("#resBtns .btn.main"); await fr.waitForSelector("#endBtn", { timeout: 15000 });
+    const li = await fr.evaluate(() => S.qs.map((q, i) => (q.say ? i : -1)).filter((i) => i >= 0));
+    for (let k = 0; k < li[0]; k++) await fr.click("#skipBtn");
+    await fr.evaluate(() => { window.__speakErr = "error"; }); await fr.click("#playBtn"); await fr.waitForSelector(".notice", { timeout: 3000 }).catch(() => {});
+    r.x27 = await fr.evaluate((li) => ({ nSay: li.length, anySay: S.qs.some((q) => q.say), school: li.every((i) => /^S\d+$/.test(S.qs[i].id) && S.qs[i].u <= 4), n: S.qs.length }), li);
+    await fr.click("#endBtn"); await fr.waitForSelector("#yesEnd"); await fr.click("#yesEnd"); await fr.waitForSelector("#resBtns");
+    await fr.evaluate(() => { TTS.ok = false; TTS.off = false; store.set("listenOff", false); });
+    // màu sáng: mở lần lượt mọi câu của SCHOOL, SCHOOL_L (lượt luyện tập dựng từ BANKS.S, Skip từng câu), audit chữ đè ở từng câu
+    if (scheme === "light") {
+      await fr.click("#homeBtn"); await fr.waitForSelector("#heroBtn"); await fakeVoice();
+      const n = await fr.evaluate(() => { startSession({ mode: "practice", qs: BANKS.S.map((q) => inst(q)), label: "School Level check" }); return S.qs.length; });
+      for (let i = 0; i < n; i++) {
+        await fr.waitForSelector("#skipBtn"); const id = await fr.evaluate(() => S.qs[S.i].id);
+        (await fr.evaluate(audit, "chữ")).forEach((x) => s9.problems.push(`9s · câu ${id}: ${x}`)); s9.sweep++;
+        await fr.click("#skipBtn");
+      }
+      r.sweep = (await fr.$("#recap")) !== null && s9.sweep === n;
+      await fr.evaluate(() => renderHome()); // bỏ lượt kiểm tra này (không nộp, không gửi điểm về app), để rời bài không bị hỏi
+    }
+    // ngày khác: 30/11/2026 hero là Ward Level, 11/1/2027 là City Level
+    await p.clock.setSystemTime(new Date("2026-11-30T08:00:00")); await signIn("Na", "4444"); await openMod(); r.ward = await hero();
+    await p.clock.setSystemTime(new Date("2027-01-11T08:00:00")); await signIn("Na", "4444"); await openMod(); r.city = await hero();
+    console.log("9s", scheme, JSON.stringify(r));
+    await c.close();
+  }
+  { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/9s/<tên>.jpg)
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of [...new Set(s9.shots.map((x) => x.replace(/-(light|dark)$/, "")))]) {
+      if (!s9.shots.includes(n + "-light") || !s9.shots.includes(n + "-dark")) continue;
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUT9S}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUT9S}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("9s problems:", s9.problems.length, s9.problems.slice(0, 30));
+  const s9sOK = !s9.problems.length && s9.runs.length === 2 && s9.runs.every((r) => /^Up next · School Level · Units 1–4$/.test(r.hero.label) && /^School Level exam: 26–28 Nov 2026 · \d+ days to go$/.test(r.hero.exam)
+      && r.seg.txt === "School LevelUnits 1–4 · 49 tests*|Ward LevelUnits 1–6 · 91 tests|City LevelUnits 1–9 · 56 tests" && r.seg.oneRow && r.seg.fit && r.seg.h >= 44 && r.seg.weeks === 7 && r.seg.now === "Sw1" && r.seg.tests === 49 && r.seg.units
+      && r.btn && r.test.n === 30 && r.test.ids && r.test.units && r.test.say >= 1 && r.test.label === r.test.head && /^School Level · Test \d+$/.test(r.test.label)
+      && r.recap && r.result.score === "30/30" && r.result.reps.length === 1 && r.result.reps[0] === `${r.test.label}|exam|ta|30|30` && r.saved
+      && r.x27.nSay >= 1 && !r.x27.anySay && r.x27.school && r.x27.n === 30
+      && (r.scheme !== "light" || r.sweep)
+      && /^Up next · Ward Level · Units 1–6$/.test(r.ward.label) && /^Ward Level exam: 7–9 Jan 2027/.test(r.ward.exam) && /^Up next · City Level · Units 1–9$/.test(r.city.label) && /^City Level exam: 4–6 Mar 2027/.test(r.city.exam))
+    && s9.sweep > 150 && ["trang-dau", "cau-hoi", "ket-qua"].every((n) => s9.shots.includes(n + "-light") && s9.shots.includes(n + "-dark"));
+
   step("numbers with thousands spaces stay on one line (360px)");
   /* Số trong dữ liệu ngăn hàng nghìn bằng khoảng trắng ("1 200", "987 650", "2 450 − 1 800 = 650 (kg)"). Ở 360px, màn làm đề và màn
      kết quả hiện khoảng trắng đó là khoảng trắng không ngắt (nbNum trong js/quiz.js): trong #view không còn khoảng trắng thường giữa
@@ -3861,7 +3984,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK, l38OK, mod9oOK, ux7OK, ux8OK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK, l38OK, mod9oOK, s9sOK, ux7OK, ux8OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();

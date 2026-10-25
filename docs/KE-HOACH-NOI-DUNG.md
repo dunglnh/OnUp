@@ -25,7 +25,7 @@ Số đề, số câu lấy từ `node tests/kiem-tra-de.js` (25/10/2026: 76 đ�
 | Cuối kì I (lớp 6: 21/12–8/1; lớp 4: 28/12–8/1) | 6 môn (Toán 3 đề) | 8 môn |
 | Giữa kì II (15–26/3/2027) | Toán, Tiếng Việt | 8 môn |
 | Cuối năm (lớp 6: 26/4–14/5; lớp 4: 3–14/5/2027) | **chưa có** (N13–N17, N16b) | Toán (N18), Ngữ văn (N19); môn khác **chưa có** (N20–N22b) |
-| IOE | bài ôn `ioe-4` (cấp trường, xã, tỉnh); cấp quốc gia: N-IOE | bài ôn `ioe-6` (cấp xã, thành phố); cấp quốc gia: N-IOE |
+| IOE | bài ôn `ioe-4` (cấp trường, xã, tỉnh); cấp quốc gia: N-IOE | bài ôn `ioe-6` (cấp trường, xã, thành phố); cấp quốc gia: N-IOE |
 
 - Mỗi môn, mỗi kì đã có: 2 đề cố định 25 câu (trừ ghi khác) và một đề ngẫu nhiên rút theo ma trận từ kho 50–108 câu (mục 3.1). 8 môn của lớp 6: Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ; 6 môn cuối kì của lớp 4: Toán, Tiếng Việt, Tiếng Anh, Khoa học, Lịch sử và Địa lí, Tin học và Công nghệ.
 - Dạng câu cả kho: 1 530 trắc nghiệm, 287 điền khuyết, 194 đúng/sai, 234 đúng/sai 4 ý, 185 trả lời bằng số, 101 nối cột, 92 sắp xếp, 66 tự luận (kể cả 15 câu của đề thử nghiệm `thunghiem6-dang-cau-moi`).
@@ -533,7 +533,7 @@ Phạm vi theo phân phối chương trình và đề cương cuối học kì I
 
 Phiên này sửa bài ôn dạng trang trong `modules/` (ngoại lệ của dòng đầu Quy định chung), như Phiên 13 (PR #16) đã thêm IOE cấp tỉnh vào `modules/ioe-4`. Lời giao việc viết ngày 18/10/2026, chuyển từ mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md) vào hàng đợi ngày 22/10/2026.
 
-**Phiên N-IOE · IOE cấp quốc gia** (hạn 31/10/2026; thi 1–2/4/2027, dự kiến; Merge Phiên 9s trước: cùng sửa `modules/ioe-6/index.html`)
+**Phiên N-IOE · IOE cấp quốc gia** (hạn 31/10/2026; thi 1–2/4/2027, dự kiến)
 > Đọc CLAUDE.md, giữ nguyên ba chỗ nối của bài ôn với app và nút #endBtn khi đang làm một lượt. Trong modules/ioe-4/index.html và modules/ioe-6/index.html thêm lộ trình "National Level" (thêm vào cuối TRACK_ORDER; ioe-6 có School Level từ Phiên 9s): khó hơn cấp tỉnh, có câu nghe, bắt đầu sau IOE cấp tỉnh (6/3/2027), thi 1–2/4/2027 (dự kiến), cùng cách chia 7 đề mỗi tuần như các lộ trình đang có. Câu tự soạn. Gắn ioe-4, ioe-6 vào kì thi ioe-qg trong data/calendar-2026-2027.js. Chạy tests/e2e.js, chỉ tự rà soát một vòng, rồi mở Pull Request.
 > Xem cách Phiên 13 (PR #16) thêm lộ trình cấp tỉnh vào modules/ioe-4/index.html, rồi cập nhật data/modules.js, CLAUDE.md (“Hợp đồng giữa bài ôn và app”) và docs/TINH-NANG.md như phiên đó. Đề IOE 100% tiếng Anh như các lộ trình đang có. Câu nghe đọc bằng giọng máy của trình duyệt như bài ôn IOE đang làm. Chạy node tests/kiem-tra-de.js và node tests/e2e.js (bước bài ôn ioe-4 trong khung, chốt rời trang, “selected answer”).
 > Có số PR thì thêm một dòng ngắn (số PR, tiêu đề Pull Request) vào cuối bảng “Đã xong” ở mục 1, sửa ngày và số PR ở dòng trạng thái của docs/KE-HOACH-PHAT-TRIEN-ONUP.md, xóa dòng N-IOE ở mục 3 của file đó, xóa dòng N-IOE ở bảng “Hàng đợi” và khối lời giao việc này ở mục 7 của docs/KE-HOACH-NOI-DUNG.md.

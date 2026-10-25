@@ -79,7 +79,7 @@
     start: "2026-11-02", end: "2026-11-13", tentative: true, subjects: MON_THPT, scope: "Nửa đầu học kì I.", modules: [], banks: [] },
   { id: "ioe-truong", title: "IOE cấp trường", kind: "ioe", grades: [4, 6],
     start: "2026-11-26", end: "2026-11-28", tentative: false,
-    subjects: ["Tiếng Anh"], scope: "Lớp 4: Unit 1–6. Lớp 6: Unit 1–6.",
+    subjects: ["Tiếng Anh"], scope: "Lớp 4: Unit 1–6. Lớp 6: Unit 1–4.",
     modules: ["ioe-4", "ioe-6"], banks: [] },
   { id: "ck1-l9", title: "Kiểm tra cuối học kì I", kind: "dinh-ki", grades: [9],
     start: "2026-12-14", end: "2027-01-02", tentative: true, subjects: MON_THCS,
