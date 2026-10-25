@@ -3367,9 +3367,10 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       };
       const ftxt = (sel) => fr.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : null; }, sel);
       const check = async (label, only) => { (await fr.evaluate(audit, only)).forEach((x) => nq.problems.push(`n-ioe · ${M.m} · ${scheme} · ${label}: ${x}`)); (await p.evaluate(audit)).forEach((x) => nq.problems.push(`n-ioe · ${M.m} · ${scheme} · ${label} (trang app): ${x}`)); };
-      const snap = async (n) => {
+      const snap = async (n, at) => { // at: phần tử cuộn lên đầu khung trước khi chụp (trang đầu của ioe-4: mục IOE Mock Tests nằm dưới Practise by Unit)
         const h = await fr.evaluate(() => document.documentElement.scrollHeight), top = await p.$eval(".player iframe", (e) => Math.round(e.getBoundingClientRect().top));
         await p.setViewportSize({ width: 360, height: Math.min(1600, Math.max(740, top + h + 12)) }); await p.waitForTimeout(150);
+        if (at) { await fr.evaluate((s) => document.querySelector(s).scrollIntoView(), at); await p.waitForTimeout(100); }
         await p.evaluate(() => { const t = document.querySelector("#toast"); if (t) t.hidden = true; });
         await p.screenshot({ path: `${OUTNQ}${M.pre}-${n}-${scheme}.png` });
         await p.setViewportSize({ width: 360, height: 740 }); await p.waitForTimeout(100);
@@ -3400,7 +3401,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
           oldUnits: [...document.querySelectorAll(".unit")].filter((b) => !newU.includes(+b.dataset.u)).every((b) => !/National/.test(b.textContent)) };
       }, M.newU);
       nq.bank[M.m] = await fr.evaluate(() => ({ n: BANKS.N.length, say: BANKS.N.filter((q) => q.say).length, rd: BANKS.N.filter((q) => q.t === "rd").length }));
-      await check("trang đầu", "chữ"); await snap("trang-dau");
+      await check("trang đầu", "chữ"); await snap("trang-dau", ".hero");
       // đề National Level tiếp theo (nút Start Test của hero), có câu nghe, câu đọc; trả lời đúng hết rồi nộp
       await fakeVoice();
       const t = await fr.evaluate(() => { window.__reps = []; const o = window.ontapReport; window.ontapReport = (x) => { window.__reps.push(x); return o(x); }; const k = nextTest("N"); return { k, label: `${TRACKS.N.name} · Test ${k + 1}`, btn: document.querySelector("#heroBtn").textContent }; });
