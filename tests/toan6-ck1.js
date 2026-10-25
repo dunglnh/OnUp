@@ -110,7 +110,7 @@ const de1 = [
   { has: "ƯCLN(48, 72)", right: () => String(gcd(48, 72)), more: (q) => assert.ok(q.x.includes("48 = " + factor(48)) && q.x.includes("72 = " + factor(72))) },
   { has: "cứ 10 ngày một lần và bón phân cho chậu hoa hồng cứ 15 ngày", right: () => String(lcm(10, 15)), more: (q) => assert.ok(q.x.includes(`BCNN = ${factor(lcm(10, 15))} = ${lcm(10, 15)}`)) },
   { has: "Số đối của −12", right: () => fmt(-(-12)) },
-  { has: "−5 > −3", right: () => -5 > -3 },
+  { has: "−8 > −6", right: () => -8 > -6 },
   { has: "(−25) + 17 − (−8)", right: () => ev("(−25) + 17 − (−8)") },
   { has: "(135 − 49) − (135 + 51)", right: () => ev("(135 − 49) − (135 + 51)") },
   { has: "(−4) · 5 · (−3)", right: () => fmt(ev("(−4) · 5 · (−3)")) },
@@ -124,11 +124,11 @@ const de1 = [
   { has: "hai đáy dài 6 cm và 10 cm, chiều cao 4 cm", right: () => String(div((6 + 10) * 4, 2)) },
   { has: "Hình vuông có 4 trục đối xứng", right: () => truc([[0, 0], [4, 0], [4, 4], [0, 4]]).length === 4 },
   { has: "có tâm đối xứng nhưng không có trục đối xứng", right: (q) => { // chữ in hoa vẽ bằng các nét thẳng trong khung rộng 3, cao 4
-    const NET = { N: [[[0, 4], [0, 0]], [[0, 0], [3, 4]], [[3, 4], [3, 0]]], H: [[[0, 0], [0, 4]], [[3, 0], [3, 4]], [[0, 2], [3, 2]]], A: [[[0, 4], [1.5, 0]], [[1.5, 0], [3, 4]], [[0.75, 2], [2.25, 2]]], E: [[[0, 0], [0, 4]], [[0, 0], [3, 0]], [[0, 2], [2, 2]], [[0, 4], [3, 4]]] };
+    const NET = { Z: [[[0, 0], [3, 0]], [[3, 0], [0, 4]], [[0, 4], [3, 4]]], I: [[[0, 0], [3, 0]], [[1.5, 0], [1.5, 4]], [[0, 4], [3, 4]]], A: [[[0, 4], [1.5, 0]], [[1.5, 0], [3, 4]], [[0.75, 2], [2.25, 2]]], E: [[[0, 0], [0, 4]], [[0, 0], [3, 0]], [[0, 2], [2, 2]], [[0, 4], [3, 4]]] };
     const sym = (segs, T) => segs.every(([p, r]) => segs.some(([a, b]) => (dist(T(p), a) < 1e-9 && dist(T(r), b) < 1e-9) || (dist(T(p), b) < 1e-9 && dist(T(r), a) < 1e-9)));
     const c = [1.5, 2], axis = (segs) => range(0, 359).some((k) => { const u = [Math.cos(k * Math.PI / 360), Math.sin(k * Math.PI / 360)]; return sym(segs, (p) => doiXung([p], c, u)[0]); });
     const m = q.o.filter((ch) => sym(NET[ch], (p) => [2 * c[0] - p[0], 2 * c[1] - p[1]]) && !axis(NET[ch]));
-    assert.equal(m.length, 1); assert.ok(axis(NET.H) && axis(NET.A) && axis(NET.E) && sym(NET.H, (p) => [3 - p[0], 4 - p[1]]), "H có cả trục và tâm, A, E có trục");
+    assert.equal(m.length, 1); assert.ok(axis(NET.I) && axis(NET.A) && axis(NET.E) && sym(NET.I, (p) => [3 - p[0], 4 - p[1]]), "I có cả trục và tâm, A, E có trục");
     return m[0];
   } }
 ];
@@ -155,9 +155,9 @@ const de2 = [
   { has: "(−38) + (−62)", right: () => ev("(−38) + (−62)") },
   { has: "15 − (a − 7 + b)", right: (q) => { const t = [[1, 2], [5, -3], [-4, 10]], m = q.o.filter((o) => t.every(([a, b]) => ev(o, { a, b }) === ev("15 − (a − 7 + b)", { a, b }))); assert.equal(m.length, 1); return m[0]; } },
   { has: "(−7) · 4 − 6 · (−5)", right: () => ev("(−7) · 4 − 6 · (−5)") },
-  { has: "Tất cả các ước nguyên của 6", right: () => divisors(6).map((d) => -d).reverse().concat(divisors(6)).map(fmt).join("; ") },
+  { has: "Tất cả các ước của 14", right: () => divisors(14).map((d) => -d).reverse().concat(divisors(14)).map(fmt).join("; ") },
   { has: "Mỗi góc của hình lục giác đều", right: () => { const g = goc(range(0, 5).map((k) => [Math.cos(k * Math.PI / 3), Math.sin(k * Math.PI / 3)])); g.forEach((x) => assert.ok(close(x, 120, 1e-9))); return "120°"; } },
-  { has: "chiều dài 15 m, chiều rộng 8 m. Chu vi", right: () => String((15 + 8) * 2) },
+  { has: "chiều dài 14 m, chiều rộng 9 m. Chu vi", right: () => String((14 + 9) * 2) },
   { has: "cạnh đáy 12 cm, chiều cao tương ứng 5 cm", right: () => fmt(12 * 5) + " cm²" }
 ];
 // câu riêng của đề ngẫu nhiên
@@ -217,11 +217,11 @@ const own = [
   { has: "Sắp xếp các số nguyên sau theo thứ tự từ bé đến lớn", right: (q) => q.o.slice().sort((a, b) => val(a) - val(b)) },
   { has: "Mỗi phép tính sau đúng hay sai", right: (q) => q.o.map(eq), more: () => { assert.equal(ev("(−9) − 4"), -13); assert.equal(ev("(−6) − (−6)"), 0); } },
   { has: "kho đông lạnh là −18 °C", right: () => -18 + 3 * (12 - 8) },
-  { has: "tàu ngầm đang ở độ cao −150 m", right: () => -150 + 60 - 35 },
+  { has: "Tháng Một cửa hàng lỗ 150 triệu đồng", right: () => -150 + 60 - 35 },
   { has: "Tính một cách hợp lí: 2 026 − (318 + 2 026) + (318 − 45)", right: () => fmt(ev("2 026 − (318 + 2 026) + (318 − 45)")),
     more: (q) => { q.o.slice(1).forEach((o) => assert.notEqual(val(o), -45)); assert.equal(ev("2 026 − 318 + 2 026 + 318 − 45"), 4007); } },
   { has: "Nối mỗi phép tính ở cột trái với kết quả", right: (q) => q.l.map((e) => fmt(ev(e))), more: (q) => q.r.slice(q.l.length).forEach((x) => assert.ok(!q.l.some((e) => ev(e) === val(x)))) },
-  { has: "Tích của hai số nguyên âm là một số nguyên dương", right: () => range(1, 20).every((a) => range(1, 20).every((b) => -a * -b > 0)) },
+  { has: "Tích (−13) · (−6) là một số nguyên âm", right: () => ev("(−13) · (−6)") < 0, more: (q) => assert.ok(q.x.includes("= " + ev("(−13) · (−6)"))) },
   { has: "(−125) · 8 là", right: () => fmt(ev("(−125) · 8")) },
   { has: "Mỗi khẳng định sau về phép nhân, phép chia số nguyên", right: (q) => { const m = /^(−?\d+) là một bội của (\d+)$/.exec(q.o[2]); assert.ok(m && q.o[3] === "Mọi số nguyên khác 0 đều là ước của 0", "chữ các ý: " + q.o);
     return [eq(q.o[0]), eq(q.o[1]), val(m[1]) % +m[2] === 0, range(-20, 20).filter((a) => a).every((a) => 0 % a === 0)]; } },
@@ -292,9 +292,9 @@ const own = [
     assert.ok(m.every(Boolean) && q.o[3] === "Cạnh bên AD bằng cạnh bên BC.", "chữ các ý: " + q.o);
     return [AB === +m[0][1] && CD === +m[0][2], h === +m[1][1], S === +m[2][1], close(dist(p.A, p.D), dist(p.B, p.C))];
   } },
-  { has: "lát kín bằng các viên gạch hình vuông cạnh 40 cm", right: () => div(800, 40) * div(600, 40), more: () => assert.equal(800 * 600 / (40 * 40), 300) },
-  { has: "chiều dài 25 m, chiều rộng ngắn hơn chiều dài 7 m", right: () => fmt(((25 + (25 - 7)) * 2 - 2) * 15000) + " đồng",
-    more: (q) => assert.deepEqual(q.o.slice(1).map((o) => val(o.replace(" đồng", "")) / 15000), [86, 43, 82]) }, // nhiễu: quên trừ cửa, quên nhân 2, trừ cửa hai lần
+  { has: "ốp kín bằng các viên gạch men hình vuông cạnh 20 cm", right: () => div(600, 20) * div(300, 20), more: () => assert.equal(600 * 300 / (20 * 20), 450) },
+  { has: "chiều dài 34 m, chiều rộng ngắn hơn chiều dài 12 m", right: () => fmt(((34 + (34 - 12)) * 2 - 2) * 15000) + " đồng",
+    more: (q) => assert.deepEqual(q.o.slice(1).map((o) => val(o.replace(" đồng", "")) / 15000), [112, 56, 108]) }, // nhiễu: quên trừ cửa, quên nhân 2, trừ cửa hai lần
   { has: "Một mảnh đất có hình dạng và kích thước như hình vẽ", right: (q) => {
     const ps = polys(q.svg); assert.equal(ps.length, 1); const P = ps[0], E = P.map((p, i) => [p, P[(i + 1) % P.length]]);
     goc(P).forEach((g) => assert.ok(close(g, 90), "các góc đều vuông"));
@@ -304,9 +304,9 @@ const own = [
     assert.equal(chuVi(P) / s, 36); // nhiễu "36 m²" là chu vi (m)
     return div(dienTich(P), s * s) + " m²";
   } },
-  { has: "chiều dài 20 m, chiều rộng 15 m. Người ta làm một lối đi", essay: (q) => {
-    const S = 20 * 15, l = 20 * 2, rau = S - l, kg = rau * 3, rb = q.rubric.map((c) => c.c).join(" | ");
-    [`20 · 15 = ${S}`, `20 · 2 = ${l}`, `${S} − ${l} = ${rau}`, `${rau} · 3 = ${kg}`].forEach((s) => { assert.ok(rb.includes(s), "thang chấm thiếu " + s); assert.ok(q.x.includes(s), "gợi ý thiếu " + s); });
+  { has: "chiều dài 26 m, chiều rộng 18 m. Người ta làm một lối đi", essay: (q) => {
+    const S = 26 * 18, l = 26 * 3, rau = S - l, kg = rau * 3, rb = q.rubric.map((c) => c.c).join(" | ");
+    [`26 · 18 = ${S}`, `26 · 3 = ${l}`, `${S} − ${l} = ${rau}`, `${rau} · 3 = ${fmt(kg)}`].forEach((s) => { assert.ok(rb.includes(s), "thang chấm thiếu " + s); assert.ok(q.x.includes(s), "gợi ý thiếu " + s); });
   } },
   { has: "hình thang cân có đáy nhỏ 12 m, đáy lớn 20 m và chiều cao 10 m", essay: (q) => {
     const S = (12 + 20) * 10 / 2, V = 12 * 10, co = S - V, tien = co * 25000, rb = q.rubric.map((c) => c.c).join(" | ");
