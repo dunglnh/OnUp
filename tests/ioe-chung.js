@@ -146,7 +146,7 @@ const chay = (cfg) => {
       console.log(`  Unit ${u} (${now.UNITS[u]}): ${s} câu (${doc.filter((t) => c[t]).map((t) => `${t} ${c[t]}`).join(", ")}), ${l} câu nghe (${nghe.filter((t) => c[t]).map((t) => `${t} ${c[t]}`).join(", ")})`);
     }
     /* ---------- 5. lộ đáp án (in ra để xem) ---------- */
-    const CHUC_NANG = new Set("a an the at on in to of for from with by up into near under behind between next and or but so than is are am was were do does did don't doesn't isn't aren't be it i you he she we they me him her us them my your his our their this that these those there here not no yes".split(" "));
+    const CHUC_NANG = new Set("a an the at on in to of for from with by up into near under behind between next and or but so than is are am was were do does did don't doesn't isn't aren't be it i you he she we they me him her us them my your his our their this that these those there here not no yes will won't what when where who why how".split(" ").concat(["will not"]));
     let lo = 0, boQua = 0;
     for (const { r, at } of rows) {
       const t = r[0], ans = t === "f" ? r[3].split("|") : t === "hf" ? r[4].split("|") : t === "l" || t === "w" ? [r[2]] : [];
