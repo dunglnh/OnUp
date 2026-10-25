@@ -25,7 +25,7 @@ Số đề, số câu lấy từ `node tests/kiem-tra-de.js` (25/10/2026: 78 đ�
 | Cuối kì I (lớp 6: 21/12–8/1; lớp 4: 28/12–8/1) | 6 môn (Toán 3 đề) | 8 môn |
 | Giữa kì II (15–26/3/2027) | Toán, Tiếng Việt | 8 môn |
 | Cuối năm (lớp 6: 26/4–14/5; lớp 4: 3–14/5/2027) | **chưa có** (N13–N17, N16b) | Toán (N18), Ngữ văn (N19), Tiếng Anh (N20); môn khác **chưa có** (N21–N22b) |
-| IOE | bài ôn `ioe-4` (cấp trường, xã, tỉnh); cấp quốc gia: N-IOE | bài ôn `ioe-6` (cấp trường, xã, thành phố); cấp quốc gia: N-IOE |
+| IOE | bài ôn `ioe-4` (cấp trường, xã, tỉnh, quốc gia) | bài ôn `ioe-6` (cấp trường, xã, thành phố, quốc gia) |
 
 - Mỗi môn, mỗi kì đã có: 2 đề cố định 25 câu (trừ ghi khác) và một đề ngẫu nhiên rút theo ma trận từ kho 50–108 câu (mục 3.1). 8 môn của lớp 6: Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ; 6 môn cuối kì của lớp 4: Toán, Tiếng Việt, Tiếng Anh, Khoa học, Lịch sử và Địa lí, Tin học và Công nghệ.
 - Dạng câu cả kho: 1 530 trắc nghiệm, 287 điền khuyết, 194 đúng/sai, 234 đúng/sai 4 ý, 185 trả lời bằng số, 101 nối cột, 92 sắp xếp, 66 tự luận (kể cả 15 câu của đề thử nghiệm `thunghiem6-dang-cau-moi`).
