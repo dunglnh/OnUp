@@ -10,9 +10,9 @@
 
 > **Quy ước:** chỉ file này ghi trạng thái và lộ trình; CLAUDE.md, README và các tài liệu khác chỉ trỏ sang đây. Làm xong một phiên thì: thêm **một dòng ngắn** vào cuối bảng “Đã xong” ở mục 1 (số PR và tiêu đề Pull Request, không chép mô tả); sửa ngày và số PR ở dòng trạng thái; xóa dòng của phiên ở mục 3 và lời giao việc của phiên (ở mục 4 hoặc ở file đang giữ lời giao việc đó; phiên UX, UI thì xóa sau lượt kiểm thử thiết kế ở mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)). Không viết thêm vào “Tiếp theo”, trừ khi thứ tự lớn đổi. Chi tiết của phiên để ở mô tả Pull Request; lịch sử git giữ bản cũ. Đổi quyết định thì sửa đoạn “Đã chốt” trước.
 
-> **Tiếp theo (24/10/2026):**
-> - 9p, 9q đã xong (PR #137, #139).
-> - Hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md): cuối năm lớp 6 rồi lớp 4, N-IOE (trước 10/11), K5 (15/11); rồi lớp 9 (trước 30/11).
+> **Tiếp theo (25/10/2026):**
+> - Các phiên dò sách DS1–DS12c đã xong (PR #135–#176); kế hoạch nội dung viết gọn lại, mốc dự trù tính lại theo nhịp đo được (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)).
+> - Hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md): cuối năm lớp 6 rồi lớp 4, N-IOE (trước 31/10), K5 (5/11); rồi lớp 9 (trước 15/11), lớp 12 và 5 (10/12), lớp 7, 8 (31/12), lớp 10, 11 (20/1/2027).
 > - 9ob, UI2, UX7, UX8, UX7b đã kiểm thử thiết kế (24/10/2026, mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)).
 > - Mốc: đủ đề lớp 4–12, rà xong trong tháng 2/2027; dùng thử từ tháng 3/2027; mở bán từ tháng 6/2027 (đoạn “Đã chốt”).
 
@@ -199,6 +199,8 @@
 **Sách giáo khoa** (bộ Kết nối tri thức dùng thống nhất từ năm học 2026–2027; cách mở bản PDF và link từng cuốn: mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách”):
 
 10. Dò sách in năm 2026 là việc của các phiên DS (hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)), không phải của chủ app (chủ app yêu cầu 23/10/2026). Phiên làm đề không mở được sách thì ghi mã đề vào dòng “Đề chờ dò sách” ở mục 7, PO lập phiên DS. Từ 24/10/2026 chủ app tải file “SGK …” (mục “Phiên bản sách điện tử” của trang sách) của các cuốn ở bảng “Sách và link của từng phiên” chưa có trong repo riêng tư OnUp-Book, theo thứ tự hàng đợi, rồi gửi PO; PO đưa lên repo đó, các phiên đọc sách ở đó (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách đã tải sẵn”). Một phiên DS hai lần không mở được sách thì ghi một dòng ngay dưới đây (phiên, sách, lỗi, ngày) để chủ app tải cuốn đó trước.
+    - Ba cuốn lớp 4, 6 trong OnUp-Book còn thiếu nửa sau (25/10/2026): Ngữ văn 6 tập hai từ trang in 61 (cuối Bài 8, Bài 9; cho N19, phiên kế tiếp trong hàng đợi), Toán 4 tập hai từ trang in 62 (Bài 57–73; N13), Tiếng Anh 4 tập hai từ trang in 39 (Unit 16–20; N15). Chụp màn hình phần thiếu gửi PO trước khi các phiên đó chạy; chưa có thì phiên mở trang sách cho phần đó (lúc được lúc không).
+    - Sách lớp 9 (Toán, Ngữ văn, Tiếng Anh tập 1, 2; KHTN; Lịch sử và Địa lí; GDCD; Tin học; Công nghệ) trước khi PO viết lời giao việc lớp 9 (hàng đợi còn khoảng 3 ngày việc); rồi lớp 12, lớp 5 (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), nguyên tắc 6). File tải về thường chỉ có nửa đầu cuốn (12 trong 21 cuốn lớp 4, 6): xem số ảnh ngay khi tải, chụp phần thiếu.
 11. Theo dõi danh mục sách chỉnh sửa cho năm học 2027–2028 (lần trước Bộ công bố ngày 26/12/2025); có danh mục thì báo PO để lập các phiên rà đề (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách”). Phiên nào cần mục lục bản mới thì chủ app chép mục lục vào lời giao việc.
 
 **Quy định kiểm tra:**
@@ -213,19 +215,19 @@ Thứ tự các phiên:
 
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
-| 1 | 10/11/2026 (hạn theo kì thi: 5/4, 12/4/2027) | **N18–N22, N22b, N13–N17, N16b · Cuối năm lớp 6 và 4** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3, K4 | chạy theo thứ tự N18 → N19 → N20 → N21 → N22 → N22b (lớp 6 thi trước) → N13 → N14 → N15 → N16 → N16b → N17 |
-| 2 | 10/11/2026 (thi 1–2/4/2027, dự kiến) | **N-IOE · IOE cấp quốc gia** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7, hàng đợi) | | hiện chưa có bài ôn; lời giao việc chuyển vào hàng đợi ngày 22/10/2026 |
-| 3 | 15/11/2026 | **K5 · Đề tính điểm** cho đề thi thử vào 10 và tốt nghiệp THPT ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7, hàng đợi) | Lịch các khối mới (đã xong, PR #113) | trước các phiên đề thi thử lớp 9 |
-| 4 | 30/11/2026 | Lớp 9 (33 phiên, có 9 phiên đề thi thử vào 10); phiên rà soát lớp 9 | K5 | thứ tự khối, thứ tự kì trong mỗi khối và mốc kiểm tra: mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); các bước trước khi bật một khối: mục 7 (“Lớp 5, 7–12”) |
-| 5 | 31/12/2026 | Lớp 12 (53 phiên, có 25 phiên đề thi thử tốt nghiệp), lớp 5 (16); mỗi khối một phiên rà soát | | |
-| 8 | 31/1/2027 | Lớp 7, 8 (mỗi khối 24 phiên); mỗi khối một phiên rà soát | | |
-| 9 | 28/2/2027 | Lớp 10, 11 (mỗi khối 28 phiên); mỗi khối một phiên rà soát; sửa lỗi các phiên rà soát tìm ra | | xong là đủ đề lớp 4–12 và rà xong |
-| 10 | 28/2/2027 | **G0 · Chuẩn bị dùng thử** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** | | trước khi mở dùng thử (đầu tháng 3/2027); lời giao việc ở mục 4 |
-| 11 | 31/5/2027 | **B2 · Đề trả phí lên máy chủ** → B4 (bớt tải dữ liệu) → **G1 · Kích hoạt gói, màn hình Nâng cấp** | B1 | trong thời gian dùng thử, xong trước khi mở bán (tháng 6/2027); lời giao việc ở mục 4, B4 ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 5 |
-| 12 | 31/8/2027 | Rà đề theo sách chỉnh sửa năm 2027 (dự trù khoảng 15 phiên, theo danh mục Bộ công bố); Lịch 2027–2028 (khi Bộ, Sở công bố khung năm học); gộp bài ôn dạng trang vào ngân hàng | | trước năm học 2027–2028: khách mua từ tháng 6/2027 dùng đề cho năm học đó (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách”) |
+| 1 | 31/10/2026 (hạn theo kì thi: 5/4, 12/4/2027) | **N18–N22, N22b, N13–N17, N16b · Cuối năm lớp 6 và 4** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3, K4 | chạy theo thứ tự N18 → N19 → N20 → N21 → N22 → N22b (lớp 6 thi trước) → N13 → N14 → N15 → N16 → N16b → N17 |
+| 2 | 31/10/2026 (thi 1–2/4/2027, dự kiến) | **N-IOE · IOE cấp quốc gia** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7, hàng đợi) | | hiện chưa có bài ôn; lời giao việc chuyển vào hàng đợi ngày 22/10/2026 |
+| 3 | 5/11/2026 | **K5 · Đề tính điểm** cho đề thi thử vào 10 và tốt nghiệp THPT ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7, hàng đợi) | Lịch các khối mới (đã xong, PR #113) | trước các phiên đề thi thử lớp 9 |
+| 4 | 15/11/2026 | Lớp 9 (33 phiên, có 9 phiên đề thi thử vào 10); phiên rà soát lớp 9 | K5 | thứ tự khối, thứ tự kì trong mỗi khối và mốc kiểm tra: mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); các bước trước khi bật một khối: mục 7 (“Lớp 5, 7–12”) |
+| 5 | 10/12/2026 | Lớp 12 (53 phiên, có 25 phiên đề thi thử tốt nghiệp), lớp 5 (16); mỗi khối một phiên rà soát | | cuối kì I của lớp 12 (thi từ 14/12/2026, xong trước 23/11) rồi của lớp 5 (thi từ 28/12, xong trước 7/12) làm trước các kì khác |
+| 6 | 31/12/2026 | Lớp 7, 8 (mỗi khối 24 phiên); mỗi khối một phiên rà soát | | |
+| 7 | 20/1/2027 (dự phòng đến 28/2/2027) | Lớp 10, 11 (mỗi khối 28 phiên); mỗi khối một phiên rà soát; sửa lỗi các phiên rà soát tìm ra | | xong là đủ đề lớp 4–12 và rà xong; phần dự phòng cho sửa lỗi, rà đề, nghỉ Tết |
+| 8 | 28/2/2027 | **G0 · Chuẩn bị dùng thử** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** | | trước khi mở dùng thử (đầu tháng 3/2027); lời giao việc ở mục 4 |
+| 9 | 31/5/2027 | **B2 · Đề trả phí lên máy chủ** → B4 (bớt tải dữ liệu) → **G1 · Kích hoạt gói, màn hình Nâng cấp** | B1 | trong thời gian dùng thử, xong trước khi mở bán (tháng 6/2027); lời giao việc ở mục 4, B4 ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 5 |
+| 10 | 31/8/2027 | Rà đề theo sách chỉnh sửa năm 2027 (dự trù khoảng 15 phiên, theo danh mục Bộ công bố); Lịch 2027–2028 (khi Bộ, Sở công bố khung năm học); gộp bài ôn dạng trang vào ngân hàng | | trước năm học 2027–2028: khách mua từ tháng 6/2027 dùng đề cho năm học đó (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách”) |
 | — | khi có | **Sửa lỗi từ góp ý chạy thử**: QC ghi mã lỗi (tiếp theo L44) và lời giao việc phiên 9 + chữ cái ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) | | chen vào bất cứ lúc nào; gấp thì xếp vào bảng “Làm ngay” |
 
-Từ 22/10/2026 đến 28/2/2027 còn khoảng 273 phiên (232 phiên làm đề, N26, 29 phiên dò sách, N-IOE, 7 phiên rà soát, K5, G0, B1), cùng phiên sửa lỗi: cần khoảng 2 phiên mỗi ngày, mọi ngày; Tết nghỉ thì làm bù trước Tết. Cột Hạn là mốc theo nhịp (hạn theo kì thi trong ngoặc); chậm hơn mốc quá một tuần thì lùi theo mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Phiên rà soát của mỗi khối không bỏ khi chậm.
+Từ 25/10/2026 còn khoảng 234 phiên (218 phiên làm đề, N-IOE, K5, 7 phiên rà soát, Lịch 2027–2028, gộp bài ôn dạng trang, G0, B1, B2, B4, G1; mục 2 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)), cùng phiên sửa lỗi. Ngày 20–25/10/2026 xong khoảng 9 phiên của kế hoạch mỗi ngày (cả phiên dò sách); cột Hạn tính với 3 phiên mỗi ngày cho các khối mới, nên đủ đề lớp 4–12 khoảng giữa tháng 1/2027, sớm hơn mốc tháng 2/2027 khoảng 6 tuần (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)). Cột Hạn là mốc kiểm tra theo nhịp (hạn theo kì thi trong ngoặc); chậm hơn mốc quá một tuần thì PO báo chủ app và lùi theo mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Phiên rà soát của mỗi khối không bỏ khi chậm.
 
 Lưu ý: đến B1 (tháng 2/2027) repo vẫn công khai, ai cũng tải được trọn bộ đề (chủ app chấp nhận 18/10/2026); giữ đề thật sự cần B2, làm trước khi bán.
 
