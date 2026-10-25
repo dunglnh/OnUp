@@ -536,6 +536,22 @@ window.ONTAP_SEED_BANKS = [
       "Unit 10 · Our Houses in the Future": [2, 1, 1], "Unit 11 · Our Greener World": [2, 1, 1], "Unit 12 · Robots": [1, 1, 1],
       "Reading": [1, 1, 1] } } },
 
+  /* KHTN 6 · Kiểm tra cuối năm học (Kết nối tri thức, Bài 40–55: Chương VIII Lực trong đời sống, Chương IX Năng lượng, Chương X Trái Đất
+     và bầu trời; ôn Bài 34–39; Phiên N21). Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma
+     trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 12 chủ đề: lực 9 câu (Bài 40–45), năng lượng 7 (Bài 46–51), Trái Đất và bầu trời 4
+     (Bài 52–55), ôn thực vật, động vật, đa dạng sinh học 5 (chữ chủ đề như kho giữa kì II). Hai đề cố định và 25 câu riêng đều chia
+     đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp ba số câu ô đó rút và học sinh đã làm một đề cố định vẫn gặp toàn câu mới. Không
+     có câu tự luận. */
+  { id: "khtn6-ck2-de1", title: "KHTN 6 · Cuối năm · Đề 1", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js" },
+  { id: "khtn6-ck2-de2", title: "KHTN 6 · Cuối năm · Đề 2", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js" },
+  { id: "khtn6-ck2-ngau-nhien", title: "KHTN 6 · Cuối năm · Đề ngẫu nhiên", grade: 6, subject: "KHTN", minutes: 45, n: 25, file: "6-khtn.js",
+    pool: { from: ["khtn6-ck2-de1", "khtn6-ck2-de2"], matrix: {
+      "Lực và biểu diễn lực": [1, 1, 1], "Biến dạng của lò xo": [1, 0, 1], "Trọng lượng, lực hấp dẫn": [0, 1, 1],
+      "Lực ma sát, lực cản của nước": [1, 1, 0], "Năng lượng và các dạng năng lượng": [1, 1, 0],
+      "Chuyển hoá năng lượng, năng lượng hao phí": [1, 1, 1], "Năng lượng tái tạo, tiết kiệm năng lượng": [1, 1, 0],
+      "Mặt Trời, Mặt Trăng": [1, 0, 1], "Hệ Mặt Trời, Ngân Hà": [1, 1, 0], "Thực vật": [1, 0, 1], "Động vật": [1, 0, 1],
+      "Đa dạng sinh học": [0, 1, 0] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
