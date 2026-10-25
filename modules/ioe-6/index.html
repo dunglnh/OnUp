@@ -48,7 +48,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-vis
 .btn.danger{background:var(--bad-soft);color:var(--bad)}
 .btn:disabled{opacity:.45;cursor:default}
 .sec{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--sea-soft);border-radius:12px;padding:4px}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;background:var(--sea-soft);border-radius:12px;padding:4px}
 .seg button{border:0;background:transparent;border-radius:9px;padding:9px 8px;font-weight:700;color:var(--sea);line-height:1.2}
 .seg button small{display:block;font-weight:500;font-size:.75rem;opacity:.85}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(20,33,61,.15)}
@@ -174,8 +174,198 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background
    Written for the Global Success English 6 curriculum.
    m = multiple choice (correct answer first), o = odd one out, p = pronunciation, s = stress,
    e = find the mistake [part] x4 + wrong index + correction, f = fill in the blank (answers split by |),
-   l = missing letters (word, clue), r = reorder (chunks split by /).                         */
+   l = missing letters (word, clue), r = reorder (chunks split by /).
+   SCHOOL (Phiên 9s, L44): School Level, Units 1–4 (IOE cấp trường 26–28/11/2026), viết theo sách Tiếng Anh 6 Global Success tập 1 in năm 2026,
+   không có câu e; mã câu S0, S1… theo vị trí trong SCHOOL rồi SCHOOL_L. Không sửa chữ, không chèn câu vào giữa WARD, CITY, WARD_L, CITY_L:
+   mã câu W…, C… tính theo vị trí, "Review Mistakes" lưu theo mã câu, đề Ward Level, City Level đã làm phải giữ đúng câu.            */
 const UNITS={1:"My New School",2:"My House",3:"My Friends",4:"My Neighbourhood",5:"Natural Wonders of Viet Nam",6:"Our Tet Holiday",7:"Television",8:"Sports and Games",9:"Cities of the World"};
+
+const SCHOOL=[
+// Unit 1
+["m",1,"I keep my pens and pencils in my ___.","pencil case","calculator","uniform","bicycle"],
+["m",1,"I use a ___ when I make a mistake with my pencil.","rubber","ruler","school bag","calculator"],
+["m",1,"Students ___ new words in English lessons.","study","play","wear","ride"],
+["m",1,"Nam and Phong ___ badminton at break time.","play","do","have","study"],
+["m",1,"Mai ___ exercise every morning to stay healthy.","does","plays","has","studies"],
+["m",1,"My brother and I ___ breakfast at 6:30.","have","has","do","play"],
+["m",1,"My best friend ___ near the school.","lives","live","living","is live"],
+["m",1,"– ___ your sister like art? – Yes, she does.","Does","Do","Is","Are"],
+["m",1,"I ___ have a calculator, so I often use my friend's.","don't","doesn't","not","isn't"],
+["m",1,"Our English teacher ___ from Australia.","comes","come","coming","is come"],
+["m",1,"Which sentence is correct?","She always brings her lunch to school.","She always bring her lunch to school.","She brings always her lunch to school.","Always she bring her lunch to school."],
+["m",1,"Mai is ___ late for class. She gets up early every day.","never","always","usually","often"],
+["m",1,"– How often do you have English? – ___","Three times a week.","In Room 6.","With Mr Long.","Yes, I do."],
+["m",1,"– Bye, Lan! See you tomorrow. – ___","Bye. See you!","Nice to meet you.","I'm fine, thanks.","Yes, it is."],
+["m",1,"You want your friend Nam to meet your cousin Mai. What do you say to Nam?","Nam, this is my cousin, Mai.","Nam, how old are you?","Mai, what's your name?","Nam, where is Mai?"],
+["m",1,"– Does your school have a library? – ___","Yes, it does.","Yes, it has.","Yes, it is.","Yes, they do."],
+["m",1,"My cousin studies at ___ school. It has students and teachers from many countries.","an international","a boarding","a primary","a village"],
+["m",1,"Phong loves drawing, so he joins the ___ club.","art","football","maths","music"],
+["m",1,"I like ___ because I love numbers.","maths","history","music","art"],
+["m",1,"Mai often ___ her snacks with her friends at break time.","shares","helps","remembers","knocks"],
+["m",1,"Can you ___ me with this maths exercise, please?","help","tell","give","say"],
+["m",1,"Please ___ on the door before you come into the teachers' room.","knock","share","wear","bring"],
+["o",1,"science","ruler","school bag","pencil"],
+["o",1,"today","always","rarely","sometimes"],
+["o",1,"lesson","teacher","friend","student"],
+["p",1,"p<u>u</u>pil","st<u>u</u>dy","S<u>u</u>nday","f<u>u</u>n"],
+["p",1,"b<u>a</u>g","<u>a</u>rt","sm<u>a</u>rt","f<u>a</u>rm"],
+["p",1,"sh<u>o</u>p","M<u>o</u>nday","br<u>o</u>ther","l<u>o</u>ve"],
+["p",1,"w<u>ar</u>m","p<u>ar</u>k","c<u>ar</u>ton","st<u>ar</u>t"],
+["s",1,"repeat","morning","football","teacher"],
+["s",1,"classroom","enjoy","begin","explain"],
+["f",1,"My little brother ___ his teeth after breakfast every morning. (brush)","brushes"],
+["f",1,"Our school day ___ at 4:30 p.m. (finish)","finishes"],
+["f",1,"Vy ___ to school by bus. She walks with her friends. (not go)","doesn't go|does not go"],
+["f",1,"Phong draws a perfect circle with his ___.","compass|compasses|pair of compasses"],
+["f",1,"A ___ is a student in the same class as you.","classmate"],
+["f",1,"My uncle ___ his motorbike to work every day. (ride)","rides"],
+["l",1,"sharpener","a small tool: you turn your pencil in it to give it a new point"],
+["l",1,"playground","the open area at school where students run and have fun at break time"],
+["l",1,"notebook","you write your lessons and homework in it; it has many empty pages"],
+["l",1,"activity","something you do for fun or to learn, like a sport, a game or a club"],
+["r",1,"We / always / wear / our uniforms / to school."],
+["r",1,"My brother / never / eats / breakfast."],
+["r",1,"Which / school club / do you / want / to join?"],
+["r",1,"What time / does / your English lesson / start?"],
+// Unit 2
+["m",2,"Phong's house is in a small village. There are rice fields around it. It's a ___ house.","country","town","flat","city"],
+["m",2,"– What type of house do you live in? – ___","I live in a town house.","I live with my parents.","It's next to my school.","Yes, I do."],
+["m",2,"My family often watches TV together in the ___ in the evening.","living room","bathroom","hall","garden"],
+["m",2,"When guests come in, they leave their shoes in the ___ near the front door.","hall","kitchen","bathroom","bedroom"],
+["m",2,"I keep my socks and T-shirts in the ___ in my bedroom.","chest of drawers","sofa","fridge","dishwasher"],
+["m",2,"Which of these is NOT usually in a kitchen?","a wardrobe","a fridge","a cupboard","a table"],
+["m",2,"Nam has a lot of books. He puts them on a ___ next to his desk.","shelf","fridge","dishwasher","garden"],
+["m",2,"Mum keeps cups, bowls and plates in the ___ in the kitchen.","cupboard","wardrobe","bed","lamp"],
+["m",2,"We have a small ___ behind our house. There are flowers and a mango tree in it.","garden","kitchen","sofa","hall"],
+["m",2,"___ cat often sleeps on the sofa in the living room.","Lan's","Lan","Lan is","Lan are"],
+["m",2,"I brush my teeth and wash my face in the ___ every morning.","bathroom","living room","garden","hall"],
+["m",2,"The sofa is on the left of the TV, and the lamp is on the right. So the TV is ___ the sofa and the lamp.","between","under","behind","on"],
+["m",2,"Our car is ___ the house. When I open the front door, I can see it right there.","in front of","behind","under","between"],
+["m",2,"My cat likes to hide ___ the bed. It's dark down there.","under","on","next","between"],
+["m",2,"My desk is ___ the window, so I have a lot of light when I study.","next to","between","on","into"],
+["m",2,"– ___ there any chairs in the kitchen? – Yes, there are four.","Are","Is","Do","Does"],
+["m",2,"– My bedroom is too dark. – ___","How about turning on the lamp?","It's on the second floor.","I live in a flat.","There are two beds."],
+["m",2,"Let's ___ the living room this afternoon. It's very messy.","tidy","tidying","to tidy","tidies"],
+["m",2,"– Let's move the sofa next to the window. – ___","OK. I can help you.","Yes, it is.","No, I'm not.","It's in the kitchen."],
+["m",2,"This house has round windows and a big tree in the middle of the living room. It looks very ___.","strange","normal","boring","sad"],
+["m",2,"– Where's your bedroom? – ___","It's next to the bathroom.","It's big and bright.","Yes, it is.","There are two."],
+["m",2,"How do you start an email to your friend Tom?","Hi Tom,","Bye, Tom.","See you soon!","Love, Mai"],
+["o",2,"garden","bed","sofa","desk"],
+["o",2,"lamp","between","next to","under"],
+["o",2,"bedroom","cousin","sister","uncle"],
+["p",2,"cup<u>s</u>","bowl<u>s</u>","spoon<u>s</u>","chair<u>s</u>"],
+["p",2,"table<u>s</u>","map<u>s</u>","carpet<u>s</u>","cat<u>s</u>"],
+["p",2,"live<u>s</u>","like<u>s</u>","cook<u>s</u>","help<u>s</u>"],
+["p",2,"desk<u>s</u>","wall<u>s</u>","door<u>s</u>","window<u>s</u>"],
+["s",2,"between","cupboard","picture","garden"],
+["s",2,"poster","hotel","behind","today"],
+["f",2,"___ room is very tidy. Her clothes are always in the wardrobe. (Linh)","Linh's|Linh’s"],
+["f",2,"The guitar on the bed is my ___. He plays it every evening. (brother)","brother's|brother’s"],
+["f",2,"– How about ___ the walls of your bedroom blue? – Great idea! (paint)","painting"],
+["f",2,"My mother's sister lives next to us. She is my ___.","aunt|auntie|aunty"],
+["f",2,"There are two ___ in our living room: one on the table and one next to the TV. (lamp)","lamps"],
+["f",2,"A ___ store is a very big shop with many floors. You can buy clothes, toys and furniture there.","department"],
+["l",2,"shower","a thing in the bathroom; you stand under it to wash your body"],
+["l",2,"pillow","a soft thing on your bed; you put your head on it"],
+["l",2,"cooker","a machine in the kitchen; we make hot meals on it"],
+["l",2,"toilet","a thing in the bathroom; people sit on it"],
+["r",2,"The bathroom / is between / the kitchen / and the hall."],
+["r",2,"My cousin's / flat / is / near / a big market."],
+["r",2,"Let's / have lunch / in the garden."],
+["r",2,"There / isn't / a dishwasher / in our kitchen."],
+// Unit 3
+["m",3,"We wear shoes on our ___.","feet","hands","arms","cheeks"],
+["m",3,"I eat and speak with my ___.","mouth","ears","legs","arms"],
+["m",3,"My brother is tall and he has short black ___.","hair","eyes","arms","cheeks"],
+["m",3,"My uncle is tall ___ short brown hair.","with","has","of","in"],
+["m",3,"Tung studies for hours every evening. He's very ___.","hard-working","shy","funny","caring"],
+["m",3,"Lan believes in herself. She thinks she can win the English speaking contest. She's ___.","confident","shy","careful","caring"],
+["m",3,"My grandfather looks after his plants and pets every day. He's a ___ person.","caring","shy","funny","sporty"],
+["m",3,"Nga loves playing sports and running around. She is very ___.","active","careful","creative","kind"],
+["m",3,"Mi makes beautiful cards and toys from old paper. She is ___.","creative","funny","active","shy"],
+["m",3,"Phong always shares his umbrella with his friends on rainy days. He is ___.","kind","funny","sporty","shy"],
+["m",3,"Ha checks her test twice before she gives it to the teacher. She's ___.","careful","funny","active","shy"],
+["m",3,"Tam's face goes red when she has to speak in front of the class. She's ___.","shy","confident","active","funny"],
+["m",3,"Look! The cat ___ under the table.","is sleeping","sleeps","sleeping","are sleeping"],
+["m",3,"– What ___ Mai doing? – She's reading a comic book.","is","does","are","do"],
+["m",3,"My parents ___ dinner at the moment. They're in the kitchen.","are cooking","cook","cooks","is cooking"],
+["m",3,"My best friend ___ to the park every Sunday.","goes","is going","go","going"],
+["m",3,"Choose the correct sentence.","He's drawing a picture now.","He draws a picture now.","He drawing a picture now.","He is draw a picture now."],
+["m",3,"Ba is at the library. He ___ football at present.","isn't playing","doesn't playing","not playing","don't play"],
+["m",3,"– ___ – He's tall and he has a round face.","What does he look like?","What's he like?","What does he like?","How old is he?"],
+["m",3,"– Can I borrow your ruler, please? – ___","Sure. Here you are.","Yes, I am.","Nice to meet you.","No, I don't."],
+["m",3,"– Would you like some biscuits? – ___","Yes, please.","Yes, I would like.","No, I don't.","Here you are."],
+["m",3,"Children at the summer camp sing songs and play games ___ English.","in","on","at","with"],
+["o",3,"tall","clever","shy","caring"],
+["o",3,"eye","dance","draw","jump"],
+["o",3,"active","long","short","big"],
+["p",3,"clim<u>b</u>","<u>b</u>read","ta<u>b</u>le","<u>b</u>lue"],
+["p",3,"f<u>a</u>ce","h<u>a</u>nd","h<u>a</u>ppy","bl<u>a</u>ck"],
+["p",3,"<u>ph</u>one","<u>p</u>icnic","<u>p</u>encil","<u>p</u>urple"],
+["p",3,"k<u>i</u>nd","b<u>i</u>g","p<u>i</u>g","act<u>i</u>ve"],
+["s",3,"July","cookie","biscuit","yellow"],
+["s",3,"describe","caring","loving","person"],
+["f",3,"Look! The children ___ in the river. (swim)","are swimming"],
+["f",3,"Mai ___ to music at the moment. She is doing a puzzle. (not listen)","isn't listening|is not listening"],
+["f",3,"– ___ your friends playing basketball now? – Yes, they are.","Are"],
+["f",3,"We smell flowers with our ___.","nose|noses"],
+["f",3,"Khoa says hello to everyone at his new school. He's very ___. (friend)","friendly"],
+["f",3,"Nam ___ a photo of the sunset at the moment. (take)","is taking"],
+["l",3,"shoulder","the part of your body between your neck and the top of your arm"],
+["l",3,"glasses","you wear these in front of your eyes to see better"],
+["l",3,"slim","thin in a nice and healthy way"],
+["l",3,"magazine","a thin book with pictures and stories that comes out every week or month"],
+["r",3,"My cousin / has / a small mouth / and big eyes."],
+["r",3,"Look! / The children / are dancing / in the hall."],
+["r",3,"What / is / your new friend / like?"],
+["r",3,"Is / your cousin / reading a book / now?"],
+// Unit 4
+["m",4,"You can catch a train at the ___.","railway station","post office","bank","gym"],
+["m",4,"We go to the ___ to send letters and parcels.","post office","cathedral","café","gym"],
+["m",4,"My dad does exercise at the ___ near our house every evening.","gym","bank","bus stop","post office"],
+["m",4,"Many people go to the ___ on Sunday mornings. It is a big old church.","cathedral","market","railway station","cinema"],
+["m",4,"– Is there a ___ in your neighbourhood? – Yes. My mum keeps her money there.","bank","cinema","bus stop","café"],
+["m",4,"There are a lot of cars and motorbikes in my street. It's very ___.","noisy","quiet","peaceful","empty"],
+["m",4,"There are too many people at the market on Sundays. It's very ___.","crowded","quiet","empty","peaceful"],
+["m",4,"My village has many trees and green fields. It's quiet and ___.","peaceful","noisy","crowded","busy"],
+["m",4,"There is nothing to do in this small town. It's ___.","boring","exciting","interesting","fun"],
+["m",4,"The beach near my grandparents' house is ___. It has a lot of white sand.","sandy","heavy","hungry","tall"],
+["m",4,"A big city is ___ than a small village.","larger","large","more large","largeer"],
+["m",4,"The park in my town is ___ than the park in your town.","more beautiful","beautifuler","beautiful","more beautifuler"],
+["m",4,"A train is ___ than a bus.","faster","more fast","fast","fastter"],
+["m",4,"My school is older ___ my cousin's school.","than","then","that","to"],
+["m",4,"– ___ is the post office? – It's behind the cinema.","Where","What","Who","When"],
+["m",4,"Walk ___ the river and you can see a big market on your right.","along","under","between","behind"],
+["m",4,"___ the road at the traffic lights and the café is in front of you.","Cross","Turn","Look","Sit"],
+["m",4,"– Could you tell me how to get to the gym, please? – ___","Sure. Turn right and it's on your left.","Yes. I go there with my dad every day.","No. It's bigger than the old one.","Sure. I can swim very well."],
+["m",4,"– ___ go to the park this afternoon? – Good idea!","Shall we","Are we","Does we","Is we"],
+["m",4,"– Let's ___ to the night market. – OK. That sounds fun.","go","going","goes","to go"],
+["m",4,"I ___ my neighbourhood because the streets are dirty and there are no trees.","dislike","like","love","enjoy"],
+["m",4,"Go straight for two minutes. ___, turn right at the bus stop.","Then","Because","Than","Or"],
+["o",4,"cinema","quiet","peaceful","boring"],
+["o",4,"quiet","taller","smaller","longer"],
+["o",4,"sofa","café","gym","bank"],
+["p",4,"b<u>u</u>sy","s<u>ea</u>","t<u>ea</u>cher","b<u>ea</u>ch"],
+["p",4,"tr<u>ee</u>","sh<u>i</u>p","h<u>i</u>ll","m<u>i</u>lk"],
+["p",4,"r<u>i</u>ver","m<u>ee</u>t","sl<u>ee</u>p","k<u>ee</u>p"],
+["p",4,"pol<u>i</u>ce","v<u>i</u>llage","k<u>i</u>tchen","w<u>i</u>ndow"],
+["s",4,"dislike","noisy","modern","station"],
+["s",4,"along","crowded","boring","narrow"],
+["f",4,"Drinks at this small café are ___ than drinks at the big hotel. (cheap)","cheaper"],
+["f",4,"Football in the park is an ___ game, but table tennis in the sports hall is an indoor game.","outdoor"],
+["f",4,"The traffic in the city is ___ than the traffic in my village. (heavy)","heavier"],
+["f",4,"In summer, it is ___ on the beach than in the mountains. (hot)","hotter"],
+["f",4,"– Which ___ is the railway station, please? – Go straight and turn left at the bank.","way|direction"],
+["f",4,"The new railway station is ___ than the old one. (modern)","more modern"],
+["l",4,"temple","an old building where people go to pray"],
+["l",4,"square","a large open place in a town, with buildings around it"],
+["l",4,"suburb","an area outside the centre of a city where people live"],
+["l",4,"gallery","a place where you can look at paintings and other art"],
+["r",4,"Is there / a post office / near / your school?"],
+["r",4,"Is / your street / wider / than / Nam's street?"],
+["r",4,"How about / visiting / the museum / this afternoon?"],
+["r",4,"There are / many old houses / in / my neighbourhood."]
+];
 
 const WARD=[
 // Unit 1
@@ -562,6 +752,42 @@ const CITY=[
    h  = listen and choose: [spoken text, question, correct, wrong x3]
    hp = listen and choose the picture: [spoken text, correct picture, wrong x3]
    hf = listen and fill the missing word: [spoken text, sentence with ___, answers split by |] */
+const SCHOOL_L=[
+// Unit 1
+["h",1,"Hi, I'm Mai. My favourite subject is history because I love old stories.","Why does Mai like history?","She loves old stories.","She loves numbers.","She likes maps.","She likes dancing."],
+["h",1,"I get up at six o'clock, and I usually walk to school with my brother.","How does the speaker usually go to school?","on foot","by bus","by bike","by car"],
+["h",1,"Lan is my new friend. She is from Ha Noi, and she likes music.","Where is Lan from?","Ha Noi","Hue","Da Nang","Can Tho"],
+["h",1,"At my school, we have an art club on Tuesday and a football club on Friday.","When is the football club?","on Friday","on Tuesday","on Thursday","on Monday"],
+["h",1,"There are about eight hundred students at my school. It also has a big swimming pool.","How many students are there at the school?","about 800","about 80","about 1,800","about 8,000"],
+["hf",1,"Students can buy cakes and drinks in the school canteen.","Students can buy cakes and drinks in the school ___.","canteen"],
+["hf",1,"My sister plays the piano in the music club.","My sister plays the ___ in the music club.","piano"],
+["hf",1,"My friends and I often play chess in the classroom at break time.","My friends and I often play ___ in the classroom at break time.","chess"],
+// Unit 2
+["h",2,"My flat has two bedrooms, a living room and a small kitchen. It doesn't have a garden.","What does the speaker's flat NOT have?","a garden","a kitchen","a living room","bedrooms"],
+["h",2,"I live in a country house with my parents and my grandmother.","Who does the speaker live with?","parents and grandmother","parents and grandfather","parents and sister","parents and cousin"],
+["h",2,"My school bag is between the bed and the wardrobe.","Where is the school bag?","between the bed and the wardrobe","between the bed and the desk","between the desk and the wardrobe","between the sofa and the bed"],
+["h",2,"The kitchen is very dirty. How about washing the dishes now?","What does the speaker suggest?","washing the dishes","cooking dinner","cleaning the bathroom","buying a dishwasher"],
+["h",2,"Mai sleeps in the room next to the kitchen, and her sister sleeps in the room next to the hall.","Where is Mai's bedroom?","next to the kitchen","next to the hall","next to the bathroom","next to the living room"],
+["hf",2,"Please put the dirty bowls in the sink.","Please put the dirty bowls in the ___.","sink"],
+["hf",2,"There is a big clock in our kitchen. It's next to the fridge.","There is a big ___ in our kitchen. It's next to the fridge.","clock"],
+// Unit 3
+["h",3,"My new friend Tuan is short and he has big brown eyes.","What colour are Tuan's eyes?","brown","black","blue","green"],
+["h",3,"Phong is funny. He tells jokes all the time and we laugh a lot.","What is Phong like?","funny","shy","careful","hard-working"],
+["h",3,"Listen! Duy is playing the guitar in his bedroom.","Where is Duy now?","in his bedroom","in the kitchen","in the garden","at school"],
+["h",3,"My best friend Ngoc is clever. She can do difficult maths problems in five minutes.","What can Ngoc do in five minutes?","do difficult maths problems","read a long story","write an English email","draw a big picture"],
+["h",3,"At the summer camp, we are making paper boats at the moment.","What are the children doing now?","making paper boats","making paper hats","drawing pictures","playing football"],
+["hf",3,"My cousin Minh has curly hair and a round face.","My cousin Minh has ___ hair and a round face.","curly"],
+["hf",3,"Listen! Someone is singing in the living room.","Listen! Someone is ___ in the living room.","singing"],
+["hf",3,"The boy with blonde hair is my new friend Tom.","The boy with ___ hair is my new friend Tom.","blonde|blond"],
+// Unit 4
+["h",4,"Go straight and turn right at the park. The cinema is on your left, next to a café.","Where is the cinema?","on the left, next to a café","on the right, next to a café","on the left, next to the park","on the right, next to the park"],
+["h",4,"I live in a small town. There's a big market, a gym and two cafés, but there isn't a cinema.","What is NOT in the speaker's town?","a cinema","a market","a gym","a café"],
+["h",4,"I like my neighbourhood because the people are nice. But I don't like the dirty air.","What does the speaker dislike about the neighbourhood?","the dirty air","the people","the shops","the parks"],
+["h",4,"First, we go to the museum. After that, we visit the cathedral. Finally, we have lunch near the lake.","Where do they go after the museum?","the cathedral","the lake","the bank","the cinema"],
+["h",4,"My village is quieter than the town, but the town is more exciting.","Which place is more exciting?","the town","the village","the city","the school"],
+["hf",4,"The streets in my neighbourhood are wide and clean.","The streets in my neighbourhood are wide and ___.","clean"],
+["hf",4,"My town is bigger and noisier than my grandparents' village.","My town is bigger and ___ than my grandparents' village.","noisier"]
+];
 const WARD_L=[
 ["h",1,"We have Maths on Monday and Thursday.","Which days do they have Maths?","Monday and Thursday","Monday and Tuesday","Tuesday and Thursday","Wednesday and Friday"],
 ["h",1,"My favourite subject is Geography.","What is the speaker's favourite subject?","Geography","History","Science","Music"],
@@ -642,7 +868,7 @@ function toQ(row,lv,i){
   else if(t==="hf"){q.say=row[2];q.q=row[3];q.ans=row[4].split("|")}
   return q;
 }
-const BANKS={W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i)),C:CITY.concat(CITY_L).map((r,i)=>toQ(r,"C",i))};
+const BANKS={S:SCHOOL.concat(SCHOOL_L).map((r,i)=>toQ(r,"S",i)),W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i)),C:CITY.concat(CITY_L).map((r,i)=>toQ(r,"C",i))};
 
 /* ================= Test plan =================
    Every test is fixed: the same test number always gives the same questions.
@@ -650,9 +876,11 @@ const BANKS={W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i)),C:CITY.concat(CITY_L
    only comes back after the rest of its type has been used.                         */
 const DAY=864e5;
 const TRACKS={
+  S:{key:"S",name:"School Level",units:"Units 1–4",start:new Date(2026,9,12),weeks:7,exam:new Date(2026,10,26),examText:"26–28 Nov 2026",pools:[["S",30]],mins:20},
   W:{key:"W",name:"Ward Level",units:"Units 1–6",start:new Date(2026,9,12),weeks:13,exam:new Date(2027,0,7),examText:"7–9 Jan 2027",pools:[["W",30]],mins:20},
   C:{key:"C",name:"City Level",units:"Units 1–9",start:new Date(2027,0,11),weeks:8,exam:new Date(2027,2,4),examText:"4–6 Mar 2027",pools:[["C",24],["W",6]],mins:20}
 };
+const TRACK_ORDER=["S","W","C"];
 const PER_WEEK=7, TEST_LEN=30;
 
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
@@ -811,7 +1039,7 @@ const norm=s=>String(s).toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," 
 const chunks=s=>s.split("/").map(x=>x.trim()).filter(Boolean);
 const fmtTime=s=>{s=Math.max(0,Math.round(s));return String(s/60|0).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
 const fmtDate=d=>d.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
-const allQ=()=>BANKS.W.concat(BANKS.C,custom);
+const allQ=()=>BANKS.S.concat(BANKS.W,BANKS.C,custom);
 const byId=id=>allQ().find(q=>q.id===id);
 const LETTERS="ABCD";
 function strip(h){const d=document.createElement("div");d.innerHTML=h;return d.textContent}
@@ -843,7 +1071,10 @@ function nextTest(tk){
   for(let k=0;k<total;k++)if(!results[resKey(tk,k)])return k;
   return null;
 }
-function defaultTrack(){return today()<TRACKS.C.start?"W":"C"}
+// lộ trình mặc định (hero, khóa tab lần đầu): School Level đến hết 29/11/2026 (sau kì thi cấp trường, như ioe-4), Ward Level đến trước City Level.
+// Không lấy lộ trình bắt đầu muộn nhất như ioe-4, vì School Level và Ward Level cùng bắt đầu 12/10/2026.
+const SCHOOL_END=new Date(2026,10,30);
+function defaultTrack(){const d=today();return d<SCHOOL_END?"S":d<TRACKS.C.start?"W":"C"}
 
 /* ================= Session ================= */
 let S=null, tick=null;
@@ -1109,7 +1340,7 @@ function renderHome(note){
       <h2>Test Plan</h2>
       <p class="muted small" style="margin:0">7 tests a week. Each test mixes every question type from the units. A question comes back only after the rest of the bank has been used, so the tests stay fresh and the hard words get repeated.</p>
       <div class="seg" role="group" aria-label="Choose level">
-        ${["W","C"].map(k=>`<button data-tab="${k}" aria-pressed="${tab===k}">${TRACKS[k].name}<small>${TRACKS[k].units} · ${TRACKS[k].weeks*PER_WEEK} tests</small></button>`).join("")}
+        ${TRACK_ORDER.map(k=>`<button data-tab="${k}" aria-pressed="${tab===k}">${TRACKS[k].name}<small>${TRACKS[k].units} · ${TRACKS[k].weeks*PER_WEEK} tests</small></button>`).join("")}
       </div>
       <div class="legend"><span><i style="background:var(--ok)"></i>80% or more</span><span><i style="background:var(--sun)"></i>Below 80%</span><span><i style="background:var(--line)"></i>Not done yet</span></div>
       <div class="weeks" id="weeks"></div>

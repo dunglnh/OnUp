@@ -14,6 +14,6 @@ window.ONTAP_MODULES = [
     desc: "Luyện đề IOE cấp trường, cấp xã/phường và cấp tỉnh, có câu nghe. 7 đề mỗi tuần.",
     subjects: { ta: "Tiếng Anh" } },
   { id: "ioe-6", title: "IOE · Global Success 6", grade: 6, lang: "en", path: "modules/ioe-6/index.html",
-    desc: "Luyện đề IOE cấp xã/phường và cấp thành phố, có câu nghe. 7 đề mỗi tuần.",
+    desc: "Luyện đề IOE cấp trường, cấp xã/phường và cấp thành phố, có câu nghe. 7 đề mỗi tuần.",
     subjects: { ta: "Tiếng Anh" } }
 ];
