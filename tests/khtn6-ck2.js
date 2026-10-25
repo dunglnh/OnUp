@@ -152,9 +152,12 @@ const docHanhTinh = (svg) => {
 const HANH_TINH = ["Thuỷ tinh", "Kim tinh", "Trái Đất", "Hoả tinh", "Mộc tinh", "Thổ tinh", "Thiên Vương tinh", "Hải Vương tinh"];
 // bảng khoảng cách (AU) và chu kì quay quanh Mặt Trời (ngày) của sách KHTN 6, Bài 54 (trang 188–189)
 const BANG = { "Kim tinh": [0.72, 224.7], "Hoả tinh": [1.52, 687], "Mộc tinh": [5.2, 4343.5], "Thổ tinh": [9.54, 10767.5] };
+const CHU_KI = { "Thuỷ tinh": 88, "Kim tinh": 224.7, "Trái Đất": 365.2, "Hoả tinh": 687, "Mộc tinh": 4343.5, "Thổ tinh": 10767.5, "Thiên Vương tinh": 30587, "Hải Vương tinh": 60162 };
+const NAM = 365.25, tron1 = (x) => Math.round(x * 10) / 10, vn = (x) => String(x).replace(".", ","); // làm tròn một chữ số thập phân
 const VONG_TRONG = HANH_TINH.slice(0, 4);
 const PHA = ["Không nhìn thấy Mặt Trăng", "Thấy nửa bên phải của Mặt Trăng sáng", "Thấy cả mặt tròn của Mặt Trăng sáng", "Thấy nửa bên trái của Mặt Trăng sáng"];
-// nửa phải sáng (bán nguyệt đầu tháng) khoảng một tuần sau ngày không Trăng, nửa trái sáng khoảng ba tuần (Bài 53, Hình 53.2)
+// nửa phải sáng (bán nguyệt đầu tháng) khoảng một tuần sau ngày không Trăng, Trăng tròn khoảng hai tuần, nửa trái sáng khoảng ba
+// tuần (Bài 53, Hình 53.2: 8, 16, 23 ngày); PHA theo thứ tự đó, mỗi pha cách pha trước khoảng một tuần
 const TUAN = { phải: "Khoảng một tuần", trái: "Khoảng ba tuần" };
 
 /* ---------- các câu cần tính ----------
@@ -177,13 +180,14 @@ const CHECKS = [
     return "Mũi tên " + dung[0].nhan;
   } },
   { id: DE2, has: "Bạn Hà xách một xô nước", right: (q) => {
-    const [F, N] = so(q, /bằng lực (\d+) N .* 1 cm ứng với (\d+) N/);
-    const [L] = /Mũi tên dài (\d+) cm/.exec(q.o[1]).slice(1).map(Number), [N2, L2] = /1 cm ứng với (\d+) N thì mũi tên vẫn dài (\d+) cm/.exec(q.o[3]).slice(1).map(Number);
-    assert.ok(q.q.includes("chiều từ dưới lên") && q.o[2].includes("từ trên xuống"), "ý c nói ngược chiều lực xách");
-    return [q.o[0].includes("xô nước"), F / N === L, false, F / N2 === L2];
+    // câu Hiểu: không tính độ dài mũi tên (phép tính đó thuộc ô Vận dụng)
+    assert.ok(!/\d+ cm/.test(q.q + q.o.join(" ")), "câu Hiểu không cho tỉ xích bằng số");
+    assert.ok(q.q.includes("chiều từ dưới lên") && q.o[1].includes("từ trên xuống"), "ý b nói ngược chiều lực xách");
+    assert.ok(/lực lớn hơn .*mũi tên sẽ ngắn hơn/.test(q.o[3]), "ý d nói lực lớn hơn thì mũi tên ngắn hơn");
+    return [q.o[0].includes("xô nước"), false, /Độ dài của mũi tên cho biết độ lớn/.test(q.o[2]), false];
   } },
-  { id: DE1, has: "khi chưa treo vật. Treo vào lò xo một quả nặng 100 g", right: (q) => {
-    const [l0, m1, l1, m2] = so(q, /dài ([\d,]+) cm khi chưa treo vật\. Treo vào lò xo một quả nặng (\d+) g thì lò xo dài ([\d,]+) cm\. Nếu thay bằng quả nặng (\d+) g/);
+  { id: DE1, has: "Treo một gói bột", right: (q) => {
+    const [l0, m1, l1, m2] = so(q, /lò xo của cân dài ([\d,]+) cm; treo một túi đường (\d+) g thì lò xo dài ([\d,]+) cm\. Treo một gói bột (\d+) g/);
     const d1 = l1 - l0, d2 = (d1 * m2) / m1, l = Math.round((l0 + d2) * 1e6) / 1e6;
     assert.ok(q.x.includes(`${String(d1).replace(".", ",")} × ${m2 / m1} = ${String(d2).replace(".", ",")}`), "lời giải ghi độ dãn");
     return l;
@@ -202,11 +206,17 @@ const CHECKS = [
   { id: DE2, has: "bao xi măng", right: (q) => { const [n, m] = so(q, /chở (\d+) bao xi măng, mỗi bao có khối lượng (\d+) kg/); return n * m * 10; } },
   { id: POOL, has: "Một quả trứng gà có khối lượng khoảng", right: (q) => { const [m] = so(q, /khoảng (\d+) g\. Mười quả/); return Math.round(10 * m / 1000 * 10 * 1e6) / 1e6; } },
   { id: POOL, has: "Một cần cẩu kéo thùng hàng", right: (q) => { const [F, N] = so(q, /bằng lực ([\d ]+) N\. .*1 cm ứng với (\d+) N/); return F / N; } },
-  { id: DE2, has: "Năng lượng 2,5 kJ", right: (q) => so(q, /Năng lượng ([\d,]+) kJ/)[0] * 1000 },
-  { id: DE1, has: "Một bóng đèn được cung cấp 600 J", right: (q) => { const [a, b] = so(q, /cung cấp (\d+) J năng lượng điện thì phát ra (\d+) J/); return a - b; } },
-  { id: POOL, has: "Hai bóng đèn A và B", right: (q) => {
-    const [E, a, b] = so(q, /mỗi bóng được cung cấp (\d+) J .*Đèn A phát ra (\d+) J .*đèn B phát ra (\d+) J/);
-    return (E - a) - (E - b);
+  { id: DE2, has: "Năng lượng 3,6 kJ", right: (q) => so(q, /Năng lượng ([\d,]+) kJ/)[0] * 1000 },
+  { id: DE1, has: "Một chiếc máy khoan được cung cấp", right: (q) => {
+    const [E, u] = so(q, /cung cấp (\d+) J năng lượng điện thì có (\d+) J chuyển hoá thành động năng/);
+    assert.ok(q.x.includes(`${E} − ${u} = ${E - u}`), "lời giải ghi phép trừ");
+    return E - u;
+  } },
+  { id: POOL, has: "một chiếc máy mài nhận", right: (q) => {
+    const [E, u, t] = so(q, /Mỗi giây, một chiếc máy mài nhận (\d+) J năng lượng điện, trong đó (\d+) J chuyển hoá thành động năng.* Trong (\d+) giây/);
+    const kq = (E - u) * t;
+    assert.ok(q.x.includes(`${E} − ${u} = ${E - u}`) && q.x.includes(`${E - u} × ${t} = ${String(kq).replace(/\B(?=(\d{3})+$)/g, " ")}`), "lời giải ghi hai phép tính");
+    return kq;
   } },
   { id: DE2, has: "năng lượng của một máy xay sinh tố", right: (q) => {
     const { vao, ra } = docNangLuong(q.svg);
@@ -217,21 +227,32 @@ const CHECKS = [
     return kq;
   } },
   { id: DE1, has: "Hình bên là hình dạng Mặt Trăng", right: (q) => TUAN[docMatTrang(q.svg)] },
-  { id: DE2, has: "quan sát Mặt Trăng trong một tháng âm lịch", right: () => PHA },
-  { id: POOL, has: "vẽ Mặt Trời và tám hành tinh", right: (q) => {
+  { id: DE2, has: "Đêm rằm, bạn Mai thấy Mặt Trăng tròn", right: (q) => {
+    assert.ok(q.q.includes("khoảng 1 tuần, 2 tuần, 3 tuần và 4 tuần sau đêm rằm"), "đề hỏi các pha cách nhau một tuần, từ sau Trăng tròn");
+    const tron = PHA.indexOf("Thấy cả mặt tròn của Mặt Trăng sáng");
+    return [1, 2, 3, 4].map((k) => PHA[(tron + k) % PHA.length]);
+  } },
+  { id: POOL, has: "hành tinh nào có nhiệt độ cao hơn", right: (q) => {
     const thuTu = docHanhTinh(q.svg);
     assert.deepEqual(thuTu, [1, 2, 3, 4, 5, 6, 7, 8], "số ghi trên hành tinh tăng dần theo khoảng cách đến Mặt Trời");
-    const k = +/Hành tinh số (\d)/.exec(q.q)[1];
-    assert.ok(q.x.includes(HANH_TINH.map((h, i) => `${i + 1} ${h}`).join(", ")), "lời giải ghi đủ thứ tự");
-    return HANH_TINH[k - 1];
+    const [a, b] = so(q, /Hành tinh số (\d) và hành tinh số (\d)/), gan = Math.min(a, b), xa = Math.max(a, b);
+    // hành tinh gần Mặt Trời nóng hơn (Bài 54: vòng trong nhiệt độ cao, vòng ngoài nhiệt độ thấp)
+    assert.ok(VONG_TRONG.includes(HANH_TINH[gan - 1]) && !VONG_TRONG.includes(HANH_TINH[xa - 1]), "một hành tinh vòng trong, một hành tinh vòng ngoài");
+    assert.ok(q.x.includes(`số ${gan} (${HANH_TINH[gan - 1]}) là hành tinh vòng trong`) && q.x.includes(`số ${xa} (${HANH_TINH[xa - 1]}) là hành tinh vòng ngoài`), "lời giải gọi đúng tên hai hành tinh");
+    return `Hành tinh số ${gan}, vì ở gần Mặt Trời hơn nên nhận được nhiều nhiệt hơn`;
   } },
-  { id: DE2, has: "Sắp xếp các hành tinh sau theo khoảng cách", right: (q) => q.o.slice().sort((a, b) => HANH_TINH.indexOf(a) - HANH_TINH.indexOf(b)) },
-  { id: DE1, has: "Khoảng cách đến Mặt Trời và thời gian quay một vòng", right: (q) => {
+  { id: DE2, has: "Sắp xếp các hành tinh sau theo thời gian quay", right: (q) => {
+    // số trong lời giải: chu kì của bảng, ngày làm tròn đến đơn vị, năm làm tròn một chữ số thập phân (hoặc đến đơn vị khi trên 100 năm)
+    q.o.forEach((h) => { const d = CHU_KI[h], y = d / NAM; assert.ok(q.x.includes(h) && q.x.includes(d < 1000 ? `${Math.round(d)} ngày` : `${vn(y > 100 ? Math.round(y) : tron1(y))} năm`), "lời giải ghi đúng chu kì của " + h); });
+    return q.o.slice().sort((a, b) => CHU_KI[a] - CHU_KI[b]);
+  } },
+  { id: DE1, has: "thời gian quay một vòng quanh Mặt Trời (đã làm tròn)", right: (q) => {
     const B = {};
-    [...q.q.matchAll(/(\S+ tinh) ([\d,]+) AU, ([\d ,]+) ngày/g)].forEach((m) => (B[m[1]] = [val(m[2]), val(m[3])]));
-    assert.deepEqual(B, BANG, "số liệu đúng bảng của sách");
+    [...q.q.matchAll(/(\S+ tinh) ([\d,]+) AU, ([\d,]+) năm/g)].forEach((m) => (B[m[1]] = [val(m[2]), val(m[3])]));
+    assert.deepEqual(B, Object.fromEntries(Object.entries(BANG).map(([h, [au, d]]) => [h, [tron1(au), tron1(d / NAM)]])), "số liệu là bảng của sách, đổi ra năm, làm tròn");
     const ten = Object.keys(B).sort((a, b) => B[a][0] - B[b][0]);
-    return [ten.every((t, i) => !i || B[t][1] > B[ten[i - 1]][1]), B["Kim tinh"][1] < B["Hoả tinh"][1], B["Mộc tinh"][0] < B["Hoả tinh"][0], VONG_TRONG.includes("Thổ tinh")];
+    assert.ok(q.x.includes(`${vn(B["Mộc tinh"][1])} × 2 = ${vn(tron1(B["Mộc tinh"][1] * 2))}`), "lời giải ghi phép nhân");
+    return [B["Mộc tinh"][0] < B["Hoả tinh"][0], ten.every((t, i) => !i || B[t][1] > B[ten[i - 1]][1]), B["Thổ tinh"][1] > 2 * B["Mộc tinh"][1], VONG_TRONG.includes("Thổ tinh")];
   } }
 ];
 
@@ -331,19 +352,18 @@ const doLo = (qs, tenCau = (q) => ten.get(q)) => {
 };
 const { lo, chuLo } = doLo(kho);
 if (process.env.DO_LO) console.log("Đáp án bằng chữ có ở câu rút được cùng lúc (xem tay):\n" + chuLo.join("\n"));
-// đã xem (Phiên N21): “khoảng cách” là chữ chung của hai câu về khoảng cách từ các hành tinh đến Mặt Trời (không nói năm ánh sáng đo
-// gì); tên bốn ngành thực vật là lựa chọn của cả hai câu (câu này không nói ngành nào nhiều loài nhất, câu kia không nói cây có hoa,
-// quả thuộc ngành nào)
-const DA_XEM = ["de1#20 → own#19: Khoảng cách", "de2#20 → own#19: Khoảng cách", "de2#22 → de1#21: Ngành Hạt kín", "de1#21 → de2#22: Ngành Hạt kín"];
+// đã xem (Phiên N21): “khoảng cách” là chữ trong đề của câu về khoảng cách từ các hành tinh đến Mặt Trời (đo bằng AU); câu đó không
+// nói năm ánh sáng đo gì
+const DA_XEM = ["de1#20 → own#19: Khoảng cách"];
 assert.deepEqual(chuLo, DA_XEM, "đáp án bằng chữ có ở câu rút được cùng lúc đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 assert.deepEqual(lo, [], "lộ đáp án:\n" + lo.join("\n"));
 // bộ dò bắt được chỗ lộ cố ý viết sai: lời giải câu khác có “= 30 (N)”, “là 16,5 cm”, đủ thứ tự hành tinh, cả hai vế một cặp nối
 const tim = (has) => kho.find((q) => q.q.includes(has)), gia = (q, x) => Object.assign({}, q, { x: q.x + " " + x });
 const thuLo = (qs) => doLo(qs, (q) => q.q.slice(0, 12)).lo.map((s) => s.replace(/^.*: /, ""));
-const khac = tim("Năng lượng giúp em đi bộ");
+const khac = tim("Con trâu kéo cày");
 assert.deepEqual(thuLo([tim("Lực kéo F bằng bao nhiêu niutơn"), gia(khac, "Ví dụ F = 30 (N).")]), ["30"]);
-assert.deepEqual(thuLo([tim("Treo vào lò xo một quả nặng 100 g"), gia(khac, "Lò xo dài là 16,5 cm.")]), ["16.5"]);
+assert.deepEqual(thuLo([tim("Treo một gói bột"), gia(khac, "Lò xo dài là 16,5 cm.")]), ["16.5"]);
 assert.deepEqual(thuLo([tim("Sắp xếp các hành tinh sau"), gia(khac, "Kim tinh gần hơn Hoả tinh, rồi đến Thổ tinh, xa nhất là Hải Vương tinh.")]), ["thứ tự Kim tinh, Hoả tinh, Thổ tinh, Hải Vương tinh"]);
-assert.deepEqual(thuLo([tim("Nối mỗi động vật với lớp"), gia(khac, "Thằn lằn thuộc lớp Bò sát.")]), ["Thằn lằn → Bò sát"]);
+assert.deepEqual(thuLo([tim("Nối mỗi động vật với lớp"), gia(khac, "Tắc kè thuộc lớp Bò sát.")]), ["Tắc kè → Bò sát"]);
 console.log(n, "câu đã tính lại (câu có phép tính, có hình của 2 đề cố định và " + mine.length + " câu riêng của đề ngẫu nhiên); kho " + kho.length + " câu.");
 console.log("MATH OK");
