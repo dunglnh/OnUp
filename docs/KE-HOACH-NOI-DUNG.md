@@ -17,18 +17,18 @@ Phần dự trù chi phí và giá bán nằm ở tài liệu riêng của chủ
 
 ## 1. Hiện trạng (kiểm kê ngày 25/10/2026)
 
-Số đề, số câu lấy từ `node tests/kiem-tra-de.js` (25/10/2026: 72 đề cố định, 34 đề ngẫu nhiên, 2 589 câu); cần số mới thì chạy lại, không chép số ở đây.
+Số đề, số câu lấy từ `node tests/kiem-tra-de.js` (25/10/2026: 74 đề cố định, 35 đề ngẫu nhiên, 2 689 câu); cần số mới thì chạy lại, không chép số ở đây.
 
-| Kì thi (lịch 2026–2027) | Lớp 4 (900 câu) | Lớp 6 (1 674 câu) |
+| Kì thi (lịch 2026–2027) | Lớp 4 (900 câu) | Lớp 6 (1 774 câu) |
 |---|---|---|
 | Giữa kì I (2–13/11/2026) | Toán, Tiếng Việt; bài ôn `l4-giua-ki-1` | 8 môn (Toán thêm Đề 3, Đề 4 cho trường dạy song song số và hình); bài ôn `l6-giua-ki-1` |
 | Cuối kì I (lớp 6: 21/12–8/1; lớp 4: 28/12–8/1) | 6 môn (Toán 3 đề) | 8 môn |
 | Giữa kì II (15–26/3/2027) | Toán, Tiếng Việt | 8 môn |
-| Cuối năm (lớp 6: 26/4–14/5; lớp 4: 3–14/5/2027) | **chưa có** (N13–N17, N16b) | **chưa có** (N18–N22b) |
+| Cuối năm (lớp 6: 26/4–14/5; lớp 4: 3–14/5/2027) | **chưa có** (N13–N17, N16b) | Toán (N18); môn khác **chưa có** (N19–N22b) |
 | IOE | bài ôn `ioe-4` (cấp trường, xã, tỉnh); cấp quốc gia: N-IOE | bài ôn `ioe-6` (cấp xã, thành phố); cấp quốc gia: N-IOE |
 
 - Mỗi môn, mỗi kì đã có: 2 đề cố định 25 câu (trừ ghi khác) và một đề ngẫu nhiên rút theo ma trận từ kho 50–108 câu (mục 3.1). 8 môn của lớp 6: Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ; 6 môn cuối kì của lớp 4: Toán, Tiếng Việt, Tiếng Anh, Khoa học, Lịch sử và Địa lí, Tin học và Công nghệ.
-- Dạng câu cả kho: 1 479 trắc nghiệm, 284 điền khuyết, 191 đúng/sai, 222 đúng/sai 4 ý, 165 trả lời bằng số, 97 nối cột, 89 sắp xếp, 62 tự luận (kể cả 15 câu của đề thử nghiệm `thunghiem6-dang-cau-moi`).
+- Dạng câu cả kho: 1 530 trắc nghiệm, 287 điền khuyết, 194 đúng/sai, 234 đúng/sai 4 ý, 185 trả lời bằng số, 101 nối cột, 92 sắp xếp, 66 tự luận (kể cả 15 câu của đề thử nghiệm `thunghiem6-dang-cau-moi`).
 - Mọi đề có sẵn và hai bài ôn giữa kì I đã đối chiếu sách in năm 2026: lúc làm đề (phiên mở được bản PDF) hoặc ở các phiên dò sách DS1–DS12c (xong 25/10/2026, ghi chú ở mục 3.4). Bài ôn `ioe-4`, `ioe-6` chưa dò.
 - Môn và kì kiểm tra theo quy định đánh giá hiện hành: lớp 4–5 Toán, Tiếng Việt kiểm tra 4 lần (giữa kì I, cuối kì I, giữa kì II, cuối năm), Tiếng Anh, Khoa học, Lịch sử và Địa lí, Tin học và Công nghệ 2 lần (cuối kì I, cuối năm); THCS, THPT mọi môn đánh giá bằng điểm số có giữa kì và cuối kì mỗi học kì.
 
@@ -65,16 +65,16 @@ Số đề mục tiêu mỗi môn, mỗi kì (đề 25 câu; với đề ngẫu 
 |---|---|---|---|---|
 | 4 | 54 | 1 350 | 900 | 6 (N13–N17, N16b) |
 | 5 | 54 | 1 350 | 0 | 16 |
-| 6 | 84 | 2 100 | 1 674 | 6 (N18–N22b) |
+| 6 | 84 | 2 100 | 1 774 | 5 (N19–N22b) |
 | 7 | 84 | 2 100 | 0 | 24 |
 | 8 | 84 | 2 100 | 0 | 24 |
 | 9 | 110 | 2 750 | 0 | 33 (24 + 9 đề thi thử vào 10) |
 | 10 | 96 | 2 400 | 0 | 28 |
 | 11 | 96 | 2 400 | 0 | 28 |
 | 12 | 176 | 4 400 | 0 | 53 (28 + 25 đề thi thử tốt nghiệp) |
-| **Tổng** | **838** | **20 950** | **2 574** | **218** |
+| **Tổng** | **838** | **20 950** | **2 674** | **217** |
 
-Ngoài 218 phiên làm đề còn 16 phiên: N-IOE, K5 (đề tính điểm cho đề thi thử), 7 phiên rà soát trước khi bật lớp 5, 7–12, Lịch 2027–2028, gộp bài ôn dạng trang vào ngân hàng, và 5 phiên chuẩn bị dùng thử và bán (G0, B1, B2, B4, G1; mục 5). Tổng 234 phiên (từ 25/10/2026), thứ tự và mốc ở mục 4; dự trù thêm khoảng 15 phiên rà đề theo sách chỉnh sửa năm 2027 (mục 4, đoạn “Sách”). Đến 25/10/2026 đã xong 45 phiên của bảng mốc ở mục 4 (44 phiên của giai đoạn 3 và phiên Lịch các khối mới).
+Ngoài 217 phiên làm đề còn 16 phiên: N-IOE, K5 (đề tính điểm cho đề thi thử), 7 phiên rà soát trước khi bật lớp 5, 7–12, Lịch 2027–2028, gộp bài ôn dạng trang vào ngân hàng, và 5 phiên chuẩn bị dùng thử và bán (G0, B1, B2, B4, G1; mục 5). Tổng 233 phiên (từ 25/10/2026), thứ tự và mốc ở mục 4; dự trù thêm khoảng 15 phiên rà đề theo sách chỉnh sửa năm 2027 (mục 4, đoạn “Sách”). Đến 25/10/2026 đã xong 46 phiên của bảng mốc ở mục 4 (45 phiên của giai đoạn 3 và phiên Lịch các khối mới).
 
 ---
 
@@ -278,6 +278,8 @@ Các quy tắc dưới đây rút ra từ các phiên đã làm; chữ trong ngo
 
 Phiên rút ra điều mới cho các phiên sau thì ghi một dòng ở cuối mục này: “- Rút ra từ Phiên <mã> (<môn, kì>): …” (như các dòng của bản trước, mỗi dòng ngắn). PO gom các dòng này vào mục 3.1–3.4 khi viết lời giao việc mới và xóa ở đây.
 
+- Rút ra từ Phiên N18 (Toán 6 cuối năm, kho làm mới, 100 câu; OnUp-Book `lop-6/toan-6-tap-2`, chữ OCR, không mở ảnh trang): grep số liệu và bối cảnh định chọn trên `chu.txt` cả cuốn (cả Bài tập cuối chương và Bài tập ôn tập cuối năm) bắt được bốn câu gần bài tập của sách dù số đã khác (8.16 trung điểm cách mút 4,5 cm; 8.21 hai tia đối nhau, OM = 5 cm; 8.22 OA = 4 cm, OB = 6 cm, trung điểm của AB; bài 10 ôn tập cuối năm “tấm vải”), đã soạn lại bằng bối cảnh khác (con đường, thanh gỗ, điểm dừng xe buýt, bao gạo). Chữ OCR không đọc được phân số viết hai tầng, nên câu phân số so bằng bối cảnh và số nguyên đi kèm. Ngân hàng phân số có cùng một phân số ở nhiều đề bài, nên dò lộ đáp án (Rút ra N5, N8) chỉ xét đáp án ở vị trí kết quả (“= 3/8”, “là 35%”), còn đáp án bằng chữ in ra để xem tay (`DO_LO=1 node tests/toan6-ck2.js`, danh sách đã xem ghi trong script); với 100 câu vẫn còn khoảng 25 chỗ số kết quả trùng nhau giữa các câu rút được cùng lúc, sửa bằng cách đổi số liệu. Một vòng rà soát độc lập (bốn người rà theo chương, mỗi phát hiện hai người phản biện) bắt thêm bốn câu gần sách mà grep không thấy vì chỉ khác số hoặc khác câu hỏi (8.28 đếm góc từ các tia chung gốc, 8.29 góc đỉnh A khi có điểm trên BC, Luyện tập 2 Bài 32 ba điểm không thẳng hàng, hoạt động “hai con đường” của Bài 32), một câu ngoài sách (dùng xác suất thực nghiệm để ước lượng số sản phẩm lỗi của cả lô: Bài 43 chỉ tính k/n và so sánh) và hai lựa chọn sai bằng nhau về giá trị (−2/4 và −1/2; `tests/toan6-ck2.js` nay kiểm tra); mặt đồng hồ lúc 2, 6, 8, 9 giờ là bốn mặt của Vận dụng Bài 37, nên câu đồng hồ dùng giờ khác (riêng 6 giờ là giờ duy nhất có góc bẹt). Câu “Biểu đồ cột” nên có hình, không kể chiều cao cột bằng chữ.
+
 ---
 
 ## 4. Thứ tự làm và mốc
@@ -295,7 +297,7 @@ Nguyên tắc:
 | Giai đoạn | Việc | Số phiên | Đã xong 25/10/2026 | Cộng dồn từ 22/10/2026 | Xong trước (mốc kiểm tra) |
 |---|---|---|---|---|---|
 | 0–2 · Đã xong | N0a, N0b; kĩ thuật K1–K4; cuối kì I lớp 4 và 6 (N1–N6, N3b, N4b) | 14 | 14 | | xong 21/10/2026 |
-| 3 · Lớp 4 và 6 còn lại | giữa kì I (N23–N25b, N26), giữa kì II (N7–N12b), dò sách in năm 2026 (DS1–DS12c, 29 phiên); còn cuối năm (N18–N22b, N13–N17, N16b) và IOE quốc gia (N-IOE) | 57 | 44 | 57 | 31/10/2026 |
+| 3 · Lớp 4 và 6 còn lại | giữa kì I (N23–N25b, N26), giữa kì II (N7–N12b), dò sách in năm 2026 (DS1–DS12c, 29 phiên), Toán 6 cuối năm (N18); còn cuối năm (N19–N22b, N13–N17, N16b) và IOE quốc gia (N-IOE) | 57 | 45 | 57 | 31/10/2026 |
 | 4 · Lớp 9 | Lịch các khối mới (xong, PR #113); K5 (đề tính điểm); lớp 9 bốn kì và đề thi thử vào 10 (33); rà soát | 36 | 1 | 93 | 15/11/2026 |
 | 5 · Lớp 12, 5 | lớp 12 bốn kì và đề thi thử tốt nghiệp (53), lớp 5 (16); mỗi khối một phiên rà soát | 71 | | 164 | 10/12/2026 |
 | 6 · Lớp 7, 8 | lớp 7 (24), lớp 8 (24); mỗi khối một phiên rà soát | 50 | | 214 | 31/12/2026 |
@@ -305,7 +307,7 @@ Nguyên tắc:
 | 8b · Chuẩn bị bán | B2, B4, G1 (mục 5), trong thời gian dùng thử | 3 | | | 31/5/2027; mở bán tháng 6/2027 |
 | 9 · Năm học mới | rà đề theo sách chỉnh sửa năm 2027 (đoạn “Sách” bên dưới); Lịch 2027–2028 (khi Bộ, Sở công bố khung năm học); gộp bài ôn dạng trang vào ngân hàng | khoảng 15 và 2 | | | 31/8/2027 |
 
-**Nhịp đo được** (Pull Request đã gộp, giờ Việt Nam): 20–23/10/2026 xong 22 phiên làm đề, dò đề và kĩ thuật cho đề (ngày nhiều nhất 8), mỗi phiên làm đề thêm 50–110 câu; 24–25/10 xong 29 phiên dò sách (nhỏ hơn phiên làm đề) và N26; mỗi ngày còn 1–9 phiên sửa lỗi, giao diện, kiểm thử thiết kế và vài Pull Request tài liệu. Hàng ngày có lượt tự chạy (5 lượt mỗi ngày, mỗi lượt một phiên khi phiên trước đã Merge) và phiên chủ app tự mở. Mốc ở bảng tính với **3 phiên mỗi ngày** cho giai đoạn 4–7 (thấp hơn nhịp đo được, vì mỗi khối mới cần sách trong OnUp-Book và lời giao việc trước, còn phiên sửa lỗi, giao diện chen vào), khoảng 4 phiên mỗi ngày cho 13 phiên còn lại của giai đoạn 3: đủ đề lớp 4–12 khoảng giữa tháng 1/2027, sớm hơn mốc của chủ app khoảng 6 tuần; phần dư dành cho sửa lỗi các phiên rà soát tìm ra, cho bố mẹ, giáo viên rà đề và nghỉ Tết. Nhịp phụ thuộc giới hạn lượt dùng Claude (giới hạn tuần làm mới thứ Sáu) và thời gian chủ app xem, Merge Pull Request; chỉ còn 2 phiên mỗi ngày thì giai đoạn 7 xong khoảng cuối tháng 2/2027, đúng mốc của chủ app, không còn dự phòng.
+**Nhịp đo được** (Pull Request đã gộp, giờ Việt Nam): 20–23/10/2026 xong 22 phiên làm đề, dò đề và kĩ thuật cho đề (ngày nhiều nhất 8), mỗi phiên làm đề thêm 50–110 câu; 24–25/10 xong 29 phiên dò sách (nhỏ hơn phiên làm đề) và N26; mỗi ngày còn 1–9 phiên sửa lỗi, giao diện, kiểm thử thiết kế và vài Pull Request tài liệu. Hàng ngày có lượt tự chạy (5 lượt mỗi ngày, mỗi lượt một phiên khi phiên trước đã Merge) và phiên chủ app tự mở. Mốc ở bảng tính với **3 phiên mỗi ngày** cho giai đoạn 4–7 (thấp hơn nhịp đo được, vì mỗi khối mới cần sách trong OnUp-Book và lời giao việc trước, còn phiên sửa lỗi, giao diện chen vào), khoảng 4 phiên mỗi ngày cho 12 phiên còn lại của giai đoạn 3: đủ đề lớp 4–12 khoảng giữa tháng 1/2027, sớm hơn mốc của chủ app khoảng 6 tuần; phần dư dành cho sửa lỗi các phiên rà soát tìm ra, cho bố mẹ, giáo viên rà đề và nghỉ Tết. Nhịp phụ thuộc giới hạn lượt dùng Claude (giới hạn tuần làm mới thứ Sáu) và thời gian chủ app xem, Merge Pull Request; chỉ còn 2 phiên mỗi ngày thì giai đoạn 7 xong khoảng cuối tháng 2/2027, đúng mốc của chủ app, không còn dự phòng.
 
 **Mốc kiểm tra và cách lùi khi chậm.** Lượt PO kiểm tra hàng ngày (và cuối mỗi tháng) so bảng “Đã xong” (mục 1 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)) với hai cột cuối của bảng trên. Chậm hơn mốc kiểm tra quá một tuần thì PO báo chủ app và đề xuất cách lùi: còn dự phòng trước mốc tháng 2/2027 thì dời mốc kiểm tra theo nhịp thật (chủ app duyệt qua Pull Request); có nguy cơ trễ mốc tháng 2/2027 thì:
 1. Không bỏ phiên rà soát của khối nào: mốc tháng 2/2027 là đủ đề **và** rà xong.
@@ -333,7 +335,7 @@ Nguyên tắc:
 | Tin học 4 | `lop-4/tin-hoc-4` | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-tin-hoc-4.4698914396) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/tin-hoc-4-940020933.940020933) | N17 |
 | Công nghệ 4 | `lop-4/cong-nghe-4` | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-cong-nghe-4.4698906593) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/cong-nghe-4-940256332.940256332) | N17 |
 | Toán 6, tập một | `lop-6/toan-6-tap-1` | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-toan-6-tap-mot.4699854777) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/toan-6-tap-mot-940011379.940011379) | |
-| Toán 6, tập hai | `lop-6/toan-6-tap-2` | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-toan-6-tap-hai.4699864675) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/toan-6-tap-hai-939957508.939957508) | N18 |
+| Toán 6, tập hai | `lop-6/toan-6-tap-2` | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-toan-6-tap-hai.4699864675) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/toan-6-tap-hai-939957508.939957508) | |
 | Ngữ văn 6, tập một | `lop-6/ngu-van-6-tap-1` | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-ngu-van-6-tap-mot.4699839775) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/ngu-van-6-tap-mot-939788653.939788653) | |
 | Ngữ văn 6, tập hai | `lop-6/ngu-van-6-tap-2` (thiếu từ trang in 61: cuối Bài 8, Bài 9, 10) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-ngu-van-6-tap-hai.4699846798) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/ngu-van-6-tap-hai-940021114.940021114) | N19 |
 | Tiếng Anh 6 – Global Success, tập 1 | `lop-6/tieng-anh-6-tap-1` | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-tieng-anh-6-tap-1-global-success.4879705889) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/tieng-anh-6-tap-1-global-success-939897970.939897970) | |
@@ -382,8 +384,7 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 
 | Phiên | Hạn | Nội dung | Kho | Mã mới | Kiểm thử phải sửa |
 |---|---|---|---|---|---|
-| N18 | 10/11/2026 (muộn nhất 5/4/2027) | Toán 6 cuối năm | 50 + ~50 | `toan6-ck2-de1`, `-de2`, `-ngau-nhien`; `tests/toan6-ck2.js`; phạm vi của ck2-l6 | không |
-| N19 | 10/11/2026 (muộn nhất 5/4/2027) | Ngữ văn 6 cuối năm | 50 + ~25 | `van6-ck2-de1`, `-de2`, `-ngau-nhien` | không |
+| N19 | 31/10/2026 (muộn nhất 5/4/2027) | Ngữ văn 6 cuối năm | 50 + ~25 | `van6-ck2-de1`, `-de2`, `-ngau-nhien` | không |
 | N20 | 31/10/2026 (muộn nhất 5/4/2027) | Tiếng Anh 6 cuối năm | 50 + ~25 | `ta6-ck2-de1`, `-de2`, `-ngau-nhien` | không |
 | N21 | 31/10/2026 (muộn nhất 5/4/2027) | KHTN 6 cuối năm | 50 + ~25 | `khtn6-ck2-de1`, `-de2`, `-ngau-nhien`; `tests/khtn6-ck2.js` | không |
 | N22 | 31/10/2026 (muộn nhất 5/4/2027) | Lịch sử và Địa lí 6, GDCD 6 cuối năm | mỗi môn 50 | `lsdl6-ck2-*`, `gdcd6-ck2-*` | không |
@@ -425,19 +426,7 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 
 ### Trước 31/10/2026: cuối năm lớp 6, rồi lớp 4
 
-Phạm vi theo phân phối chương trình và đề cương cuối học kì II phổ biến của sách Kết nối tri thức (nguồn ở cuối mục này, tra ngày 21/10/2026): lớp 4 môn Toán ôn cả năm, nặng học kì II, các môn khác chủ yếu học kì II; lớp 6 kiểm tra học kì II, nặng phần sau giữa kì. Phiên đầu của mỗi khối (N13 lớp 4, N18 lớp 6) ghi phạm vi từng môn vào lịch thi, các phiên sau dùng đúng phạm vi đó. Mã đề cuối năm dùng `ck2` như mã kì thi (`ck2-l4`, `ck2-l6`); tên đề “<môn> <khối> · Cuối năm · Đề N” (`tests/kiem-tra-de.js` nhận tên kì “Cuối năm”, đề Tiếng Anh hiện “End-of-year”). Lớp 6 thi trước (từ 26/4/2027) nên làm trước: N18 → N19 → N20 → N21 → N22 → N22b → N13 → N14 → N15 → N16 → N16b → N17.
-
-**Phiên N18 · Toán 6 cuối năm**
-> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Toán 6 · Cuối năm" khoảng 100 câu, sách Kết nối tri thức, phạm vi học kì II, Bài 23–43: Chương VI Phân số (Bài 23–27), Chương VII Số thập phân (Bài 28–31), Chương VIII Những hình hình học cơ bản (Bài 32–37: điểm và đường thẳng; điểm nằm giữa hai điểm, tia; đoạn thẳng, độ dài đoạn thẳng; trung điểm của đoạn thẳng; góc; số đo góc), Chương IX Dữ liệu và xác suất thực nghiệm (Bài 38–43: dữ liệu và thu thập dữ liệu; bảng thống kê và biểu đồ tranh; biểu đồ cột; biểu đồ cột kép; kết quả có thể và sự kiện trong trò chơi, thí nghiệm; xác suất thực nghiệm). Có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
-> - Mã mới (data/banks/6-toan.js, 45 phút): toan6-ck2-de1, toan6-ck2-de2 "Toán 6 · Cuối năm · Đề 1", "… · Đề 2" (mỗi đề 25 câu, đủ chủ đề, 10 – 8 – 7) và toan6-ck2-ngau-nhien "Toán 6 · Cuối năm · Đề ngẫu nhiên" (pool, from = ["toan6-ck2-de1", "toan6-ck2-de2"], khoảng 50 câu riêng).
-> - Chủ đề khoảng 14–16 (mỗi chủ đề 1–3 câu mỗi lần rút): Bài 23–35 dùng đúng chữ chủ đề của ngân hàng Toán 6 giữa kì II (toan6-gk2, Phiên N8; chưa có thì theo ví dụ ở lời giao việc N8), thêm (ví dụ) "Góc, số đo góc", "Dữ liệu, biểu đồ tranh", "Biểu đồ cột, biểu đồ cột kép", "Xác suất thực nghiệm". Phân bố theo ma trận phổ biến của đề cuối kì II lớp 6: phân số khoảng 5 câu, số thập phân và tỉ số phần trăm 5, hình học 8–9, dữ liệu và xác suất 6–7.
-> - Dạng câu theo khung Công văn 7991 như ngân hàng Toán 6 cuối kì I (Phiên N4): trong kho khoảng 10 câu đúng/sai 4 ý, 16 câu trả lời bằng số, 4–5 câu tự luận chỉ ở hai ô Vận dụng rút 1 câu (mỗi lần rút nhiều nhất 2 câu tự luận; Rút ra N4), nối cột, sắp xếp, khoảng 12 câu có hình SVG (điểm, tia, đoạn thẳng, trung điểm; góc trên thước đo góc; biểu đồ tranh, biểu đồ cột, cột kép). Phân số, số thập phân, số âm, hỗn số theo mục 3, “Đã làm ở Phiên 9h” (câu có số âm dùng câu trả lời bằng số hoặc trắc nghiệm, không dùng câu điền: L33, tests/kiem-tra-de.js báo lỗi).
-> - Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu, 45 phút (như Phiên N1, không cần tra lại), mỗi ô có ít nhất gấp đôi số câu ô đó rút.
-> - Tính lại mọi đáp án bằng code: tests/toan6-ck2.js theo mẫu tests/toan6-ck1.js (phân số bằng số hữu tỉ chính xác; số thập phân, làm tròn, tỉ số phần trăm; câu có hình đọc toạ độ để kiểm tra thẳng hàng, điểm nằm giữa, trung điểm, độ dài, số đo góc; đọc số liệu biểu đồ; xác suất thực nghiệm), kiểm tra lv và rút thử 10 – 8 – 7; in MATH OK.
-> - Lịch thi: gắn 3 mã vào ck2-l6 trong data/calendar-2026-2027.js; thay scope "Toàn bộ chương trình lớp 6." bằng: "Học kì II. Toán: Bài 23–43. Ngữ văn: Bài 6–9, trọng tâm Bài 8–9. Tiếng Anh: Unit 7–12. KHTN: Bài 40–55, ôn Bài 34–39. Lịch sử và Địa lí: Lịch sử Bài 16–20, Địa lí Bài 23–29. GDCD: Bài 7–12. Tin học: Bài 9–17. Công nghệ: Bài 7–14." (máy và tài khoản đã có lịch giữ chữ cũ; ghi điều này trong Pull Request).
-> - Kiểm thử: không có số ghi cứng về cuối năm lớp 6 (bước K3 của tests/e2e.js dùng toan6-ck1-ngau-nhien và nhóm ck1-l6).
->
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+Phạm vi theo phân phối chương trình và đề cương cuối học kì II phổ biến của sách Kết nối tri thức (nguồn ở cuối mục này, tra ngày 21/10/2026): lớp 4 môn Toán ôn cả năm, nặng học kì II, các môn khác chủ yếu học kì II; lớp 6 kiểm tra học kì II, nặng phần sau giữa kì. Phiên đầu của mỗi khối ghi phạm vi từng môn vào lịch thi (lớp 6: N18 đã ghi vào `scope` của ck2-l6; lớp 4: N13), các phiên sau dùng đúng phạm vi đó. Mã đề cuối năm dùng `ck2` như mã kì thi (`ck2-l4`, `ck2-l6`); tên đề “<môn> <khối> · Cuối năm · Đề N” (`tests/kiem-tra-de.js` nhận tên kì “Cuối năm”, đề Tiếng Anh hiện “End-of-year”). Lớp 6 thi trước (từ 26/4/2027) nên làm trước: N18 (đã xong) → N19 → N20 → N21 → N22 → N22b → N13 → N14 → N15 → N16 → N16b → N17.
 
 **Phiên N19 · Ngữ văn 6 cuối năm**
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Ngữ văn 6 · Cuối năm" khoảng 75 câu, sách Kết nối tri thức, phạm vi Bài 6–9, trọng tâm Bài 8 Khác biệt và gần gũi (văn bản nghị luận Xem người ta kìa!, Hai loại khác biệt; văn bản Bài tập làm văn) và Bài 9 Trái Đất – ngôi nhà chung (văn bản thông tin: Trái Đất – cái nôi của sự sống, Các loài chung sống với nhau như thế nào?; thơ Trái Đất); ôn Bài 6 Chuyện kể về những người anh hùng, Bài 7 Thế giới cổ tích. Có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.

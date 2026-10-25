@@ -491,6 +491,22 @@ window.ONTAP_SEED_BANKS = [
       "Trạng ngữ chỉ thời gian, nơi chốn": [1, 1, 0], "Trạng ngữ chỉ nguyên nhân, mục đích": [0, 1, 1], "Mở rộng vốn từ": [1, 1, 1],
       "Chính tả": [1, 0, 0], "Viết": [0, 0, 1] } } },
 
+  /* Toán 6 · Kiểm tra cuối năm học (Kết nối tri thức, học kì II, Bài 23–43: Chương VI Phân số, Chương VII Số thập phân, Chương VIII
+     Những hình hình học cơ bản, Chương IX Dữ liệu và xác suất thực nghiệm; Phiên N18). Kho câu = 50 câu riêng trong file + 50 câu của
+     2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 15 chủ đề: phân số 5 câu (Bài 23–27),
+     số thập phân và tỉ số phần trăm 5 (Bài 28–31), hình học 8 (Bài 32–37), dữ liệu và xác suất 7 (Bài 38–43); chủ đề Bài 23–35 đúng
+     chữ của kho giữa kì II. Hai đề cố định chia đúng ma trận, câu riêng ở ô nào cũng gấp đôi số câu ô đó rút, nên ô (chủ đề, mức)
+     nào cũng có gấp bốn số câu ô đó rút và học sinh đã làm một đề cố định vẫn gặp câu mới. Bốn câu tự luận chỉ ở hai ô Vận dụng rút
+     1 câu (Hai bài toán về phân số; Đoạn thẳng, trung điểm): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "toan6-ck2-de1", title: "Toán 6 · Cuối năm · Đề 1", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js" },
+  { id: "toan6-ck2-de2", title: "Toán 6 · Cuối năm · Đề 2", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js" },
+  { id: "toan6-ck2-ngau-nhien", title: "Toán 6 · Cuối năm · Đề ngẫu nhiên", grade: 6, subject: "Toán", minutes: 45, n: 25, file: "6-toan.js",
+    pool: { from: ["toan6-ck2-de1", "toan6-ck2-de2"], matrix: {
+      "Phân số bằng nhau": [1, 0, 0], "So sánh phân số, hỗn số": [0, 1, 0], "Cộng, trừ phân số": [1, 0, 0], "Nhân, chia phân số": [0, 1, 0],
+      "Hai bài toán về phân số": [0, 0, 1], "Số thập phân": [1, 0, 0], "Tính toán với số thập phân": [0, 1, 0], "Làm tròn và ước lượng": [1, 0, 0],
+      "Tỉ số, tỉ số phần trăm": [0, 1, 1], "Điểm, đường thẳng, tia": [1, 1, 0], "Đoạn thẳng, trung điểm": [1, 0, 1], "Góc, số đo góc": [2, 1, 1],
+      "Dữ liệu, biểu đồ tranh": [1, 0, 1], "Biểu đồ cột, biểu đồ cột kép": [0, 1, 1], "Xác suất thực nghiệm": [1, 1, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
