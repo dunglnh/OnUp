@@ -74,7 +74,7 @@ Số đề mục tiêu mỗi môn, mỗi kì (đề 25 câu; với đề ngẫu 
 | 12 | 176 | 4 400 | 0 | 53 (28 + 25 đề thi thử tốt nghiệp) |
 | **Tổng** | **838** | **20 950** | **2 824** | **215** |
 
-Ngoài 215 phiên làm đề còn 16 phiên: N-IOE, K5 (đề tính điểm cho đề thi thử), 7 phiên rà soát trước khi bật lớp 5, 7–12, Lịch 2027–2028, gộp bài ôn dạng trang vào ngân hàng, và 5 phiên chuẩn bị dùng thử và bán (G0, B1, B2, B4, G1; mục 5). Tổng 232 phiên (từ 25/10/2026), thứ tự và mốc ở mục 4; dự trù thêm khoảng 15 phiên rà đề theo sách chỉnh sửa năm 2027 (mục 4, đoạn “Sách”). Đến 25/10/2026 đã xong 47 phiên của bảng mốc ở mục 4 (46 phiên của giai đoạn 3 và phiên Lịch các khối mới).
+Ngoài 215 phiên làm đề còn 15 phiên: K5 (đề tính điểm cho đề thi thử), 7 phiên rà soát trước khi bật lớp 5, 7–12, Lịch 2027–2028, gộp bài ôn dạng trang vào ngân hàng, và 5 phiên chuẩn bị dùng thử và bán (G0, B1, B2, B4, G1; mục 5). Tổng 232 phiên (từ 25/10/2026), thứ tự và mốc ở mục 4; dự trù thêm khoảng 15 phiên rà đề theo sách chỉnh sửa năm 2027 (mục 4, đoạn “Sách”). Đến 25/10/2026 đã xong 48 phiên của bảng mốc ở mục 4 (47 phiên của giai đoạn 3 và phiên Lịch các khối mới).
 
 ---
 
@@ -300,7 +300,7 @@ Nguyên tắc:
 | Giai đoạn | Việc | Số phiên | Đã xong 25/10/2026 | Cộng dồn từ 22/10/2026 | Xong trước (mốc kiểm tra) |
 |---|---|---|---|---|---|
 | 0–2 · Đã xong | N0a, N0b; kĩ thuật K1–K4; cuối kì I lớp 4 và 6 (N1–N6, N3b, N4b) | 14 | 14 | | xong 21/10/2026 |
-| 3 · Lớp 4 và 6 còn lại | giữa kì I (N23–N25b, N26), giữa kì II (N7–N12b), dò sách in năm 2026 (DS1–DS12c, 29 phiên), Toán 6, Ngữ văn 6, Tiếng Anh 6 cuối năm (N18–N20); còn cuối năm (N21–N22b, N13–N17, N16b) và IOE quốc gia (N-IOE) | 57 | 46 | 57 | 31/10/2026 |
+| 3 · Lớp 4 và 6 còn lại | giữa kì I (N23–N25b, N26), giữa kì II (N7–N12b), dò sách in năm 2026 (DS1–DS12c, 29 phiên), Toán 6, Ngữ văn 6, Tiếng Anh 6 cuối năm (N18–N20), IOE quốc gia (N-IOE); còn cuối năm (N21–N22b, N13–N17, N16b) | 57 | 47 | 57 | 31/10/2026 |
 | 4 · Lớp 9 | Lịch các khối mới (xong, PR #113); K5 (đề tính điểm); lớp 9 bốn kì và đề thi thử vào 10 (33); rà soát | 36 | 1 | 93 | 15/11/2026 |
 | 5 · Lớp 12, 5 | lớp 12 bốn kì và đề thi thử tốt nghiệp (53), lớp 5 (16); mỗi khối một phiên rà soát | 71 | | 164 | 10/12/2026 |
 | 6 · Lớp 7, 8 | lớp 7 (24), lớp 8 (24); mỗi khối một phiên rà soát | 50 | | 214 | 31/12/2026 |
@@ -396,7 +396,6 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 | N16 | 31/10/2026 (muộn nhất 12/4/2027) | Khoa học 4 cuối năm | 50 + ~25 | `khoahoc4-ck2-de1`, `-de2`, `-ngau-nhien` | không |
 | N16b | 31/10/2026 (muộn nhất 12/4/2027) | Lịch sử và Địa lí 4 cuối năm | 50 + ~25 | `lsdl4-ck2-de1`, `-de2`, `-ngau-nhien` | không |
 | N17 | 31/10/2026 (muộn nhất 12/4/2027) | Tin học và Công nghệ 4 cuối năm | 50 | `tincn4-ck2-de1`, `-de2`, `-ngau-nhien` | không |
-| N-IOE | 31/10/2026 (thi 1–2/4/2027) | IOE cấp quốc gia lớp 4, 6: lộ trình “National Level” trong bài ôn `ioe-4`, `ioe-6` (sửa `modules/`) | — | gắn `ioe-4`, `ioe-6` vào kì `ioe-qg` | bước bài ôn ioe-4 của `tests/e2e.js` nếu đổi trang đầu |
 | K5 | 5/11/2026 (trước đề thi thử lớp 9) | Đề tính điểm cho đề thi thử vào 10 và tốt nghiệp THPT (`pt`, `part`, `pts`, `Quiz.grade`) | — | — | bước K5 mới ở `tests/e2e.js`; `tests/kiem-tra-de.js` (tên kì thi thử, tổng điểm) |
 
 **Quy định chung của các phiên N** (mỗi lời giao việc bên dưới trỏ về đây; sửa ở đây là áp dụng cho mọi phiên):
@@ -520,15 +519,6 @@ Phạm vi theo phân phối chương trình và đề cương cuối học kì I
 > - Kiểm thử: không có số ghi cứng.
 >
 > Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
-
-### Trước 31/10/2026: IOE cấp quốc gia
-
-Phiên này sửa bài ôn dạng trang trong `modules/` (ngoại lệ của dòng đầu Quy định chung), như Phiên 13 (PR #16) đã thêm IOE cấp tỉnh vào `modules/ioe-4`. Lời giao việc viết ngày 18/10/2026, chuyển từ mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md) vào hàng đợi ngày 22/10/2026.
-
-**Phiên N-IOE · IOE cấp quốc gia** (hạn 31/10/2026; thi 1–2/4/2027, dự kiến)
-> Đọc CLAUDE.md, giữ nguyên ba chỗ nối của bài ôn với app và nút #endBtn khi đang làm một lượt. Trong modules/ioe-4/index.html và modules/ioe-6/index.html thêm lộ trình "National Level" (thêm vào cuối TRACK_ORDER; ioe-6 có School Level từ Phiên 9s): khó hơn cấp tỉnh, có câu nghe, bắt đầu sau IOE cấp tỉnh (6/3/2027), thi 1–2/4/2027 (dự kiến), cùng cách chia 7 đề mỗi tuần như các lộ trình đang có. Câu tự soạn. Gắn ioe-4, ioe-6 vào kì thi ioe-qg trong data/calendar-2026-2027.js. Chạy tests/e2e.js, chỉ tự rà soát một vòng, rồi mở Pull Request.
-> Xem cách Phiên 13 (PR #16) thêm lộ trình cấp tỉnh vào modules/ioe-4/index.html, rồi cập nhật data/modules.js, CLAUDE.md (“Hợp đồng giữa bài ôn và app”) và docs/TINH-NANG.md như phiên đó. Đề IOE 100% tiếng Anh như các lộ trình đang có. Câu nghe đọc bằng giọng máy của trình duyệt như bài ôn IOE đang làm. Chạy node tests/kiem-tra-de.js và node tests/e2e.js (bước bài ôn ioe-4 trong khung, chốt rời trang, “selected answer”).
-> Có số PR thì thêm một dòng ngắn (số PR, tiêu đề Pull Request) vào cuối bảng “Đã xong” ở mục 1, sửa ngày và số PR ở dòng trạng thái của docs/KE-HOACH-PHAT-TRIEN-ONUP.md, xóa dòng N-IOE ở mục 3 của file đó, xóa dòng N-IOE ở bảng “Hàng đợi” và khối lời giao việc này ở mục 7 của docs/KE-HOACH-NOI-DUNG.md.
 
 ### Trước 5/11/2026: K5
 
