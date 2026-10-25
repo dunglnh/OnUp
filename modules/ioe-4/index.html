@@ -51,7 +51,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,label.btn:focus-
 .btn.danger{background:var(--bad-soft);color:var(--bad)}
 .btn:disabled{opacity:.45;cursor:default}
 .sec{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;background:var(--sea-soft);border-radius:12px;padding:4px}
+.seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;background:var(--sea-soft);border-radius:12px;padding:4px}
 .seg button{border:0;background:transparent;border-radius:9px;padding:9px 8px;font-weight:700;color:var(--sea);line-height:1.2}
 .seg button small{display:block;font-weight:500;font-size:.75rem;opacity:.85}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(18,48,47,.15)}
@@ -182,8 +182,12 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background
    p = pronunciation, e = find the mistake [part] x4 + wrong index + correction,
    f = fill in the blank (answers split by |), l = missing letters (word, clue),
    w = put the letters in order (word, clue), r = reorder words (chunks split by /),
-   rd = read and choose (short text, question, correct answer, wrong x3).                        */
-const UNITS={1:"My Friends",2:"Time and Daily Routines",3:"My Week",4:"My Birthday Party",5:"Things We Can Do",6:"Our School Facilities",7:"Our Timetables",8:"My Favourite Subjects",9:"Our Sports Day",10:"Our Summer Holidays"};
+   rd = read and choose (short text, question, correct answer, wrong x3).
+   NATIONAL (Phiên N-IOE): National Level, Units 1–15 (IOE cấp quốc gia 1–2/4/2027, dự kiến), khó hơn PROVINCE; Unit 11–15 (tập hai) chỉ có ở
+   NATIONAL, NATIONAL_L. Viết theo sách Tiếng Anh 4 Global Success in năm 2026; mã câu N0, N1… theo vị trí trong NATIONAL rồi NATIONAL_L.
+   Không sửa chữ, không chèn câu vào giữa SCHOOL, WARD, PROVINCE và các bộ nghe: mã câu S…, W…, P… tính theo vị trí, "Review Mistakes" lưu
+   theo mã câu, đề đã làm phải giữ đúng câu. UNITS chỉ thêm Unit 11–15 ở cuối.                                                        */
+const UNITS={1:"My Friends",2:"Time and Daily Routines",3:"My Week",4:"My Birthday Party",5:"Things We Can Do",6:"Our School Facilities",7:"Our Timetables",8:"My Favourite Subjects",9:"Our Sports Day",10:"Our Summer Holidays",11:"My Home",12:"Jobs",13:"Appearance",14:"Daily Activities",15:"My Family's Weekends"};
 
 const SCHOOL=[
 // Unit 1
@@ -830,6 +834,203 @@ const PROVINCE=[
 ["w",10,"hotel","a building where you pay to stay on holiday"],
 ["r",10,"What / did / you / do / at the beach / last summer?"]
 ];
+const NATIONAL=[
+// Unit 1
+["m",1,"– Look! That's my new friend, Ali. – ___ – He's from Malaysia.","Where's he from?","Where are you from?","Where's she from?","Where is Malaysia?"],
+["m",1,"– Where are Lucy and Bill from? – ___ from Britain.","They're","Their","There","They"],
+["m",1,"– Nice to meet you, Kanya. Where are you from? – ___","I'm from Thailand. Nice to meet you, too.","I'm from Thailand. I'm fine, thank you.","He's from Thailand. Nice to meet you, too.","I'm Thailand. Nice to meet you, too."],
+["rd",1,"Hello! I'm Mai from Viet Nam. I have five new friends in my English class. Bill and Peter are from Britain, and Kenji is from Japan. Anna is from Australia. Daisy is from Britain, too.","How many of Mai's new friends are from Britain?","three","two","one","five"],
+["rd",1,"Hi! I'm Sam from America. I have some new friends. Nam is from Viet Nam, and Lily is from Singapore. Hiro isn't from Thailand. He's from Japan, and he's ten years old.","Which is NOT true?","Hiro is from Thailand.","Sam is from America.","Lily is from Singapore.","Hiro is ten years old."],
+["e",1,"[Where] [he is] [from]? – He's from [Singapore].",1,"is he"],
+["f",1,"– Where's your friend from? – ___ from America. Her name is Mary.","She's|She is"],
+["p",1,"Austr<u>a</u>lia","Jap<u>a</u>n","bl<u>a</u>ck","f<u>a</u>mily"],
+["r",1,"Where / are / your / two / new / friends / from?"],
+["o",1,"Britain","Japan","Thailand","Malaysia"],
+// Unit 2
+["m",2,"– Phong, what time do you go to bed? – At nine thirty. ___ – At ten o'clock.","And you?","How are you?","What's the time?","Where are you?"],
+["m",2,"– What time is it? – It's ten fifteen. – ___ Let's go out and play football.","Let's have a break.","Let's go to bed.","Let's have dinner.","Let's go into the classroom."],
+["m",2,"– What time do you ___ with your friends? – At four thirty. Then we play football.","chat","get up","go to bed","have breakfast"],
+["rd",2,"My name is Hung. I get up at six fifteen and go to school at six forty-five. I am at home at four thirty. Then I play football with my friends. I have dinner at seven o'clock. I watch TV with my family at eight o'clock, and I go to bed at nine thirty.","Which is the right order for Hung?","football, dinner, TV","dinner, football, TV","football, TV, dinner","TV, football, dinner"],
+["rd",2,"My mum and dad get up at five fifteen. My brother and I get up at six thirty. We all have breakfast at six forty-five. At seven fifteen, I go to school with my dad. My brother is three years old, and he isn't a pupil.","What time does the writer's brother get up?","at six thirty","at five fifteen","at six forty-five","at seven fifteen"],
+["e",2,"[What] time [do] you [have] lunch? – At [eleven forty-five o'clock].",3,"eleven forty-five"],
+["f",2,"We get a lot of ___ from our teacher, and I do it at home at eight o'clock.","homework|work"],
+["p",2,"cl<u>ea</u>n","br<u>ea</u>kfast","b<u>e</u>d","g<u>e</u>t"],
+["r",2,"I / have / dinner / with my family / at / seven fifteen."],
+["o",2,"o'clock","fifteen","thirty","forty-five"],
+// Unit 3
+["m",3,"– What day is it today? Is it Sunday? – No, it isn't, and it isn't a school day. It's ___.","Saturday","Friday","Monday","Sunday"],
+["m",3,"On Saturdays, I ___ TV, and on Sundays, I ___ a book.","watch / read","see / read","watch / look","look / see"],
+["m",3,"Find the sentence with no mistakes.","On Fridays, I chat with my friends at school.","In Fridays, I chat with my friends at school.","On Fridays, I chats with my friends at school.","On Fridays, I chat at my friends at school."],
+["rd",3,"I'm Trang. I study at school from Monday to Friday. On Tuesdays and Thursdays, I play football with my friends. On Saturdays, I go out with my parents. On Sundays, I stay at home with my grandparents.","How many days a week does Trang play football?","two","three","five","one"],
+["rd",3,"Hi, I'm Khoa. I study at school from Monday to Friday. I watch TV with my sister on Tuesdays and Fridays. On Saturdays, I clean my room with my mum. On Sundays, I go out and chat with my friends.","When does Khoa watch TV?","on Tuesdays and Fridays","on Saturdays","on Sundays","from Monday to Friday"],
+["e",3,"[What] [days] [is] it [today]? – It's Thursday.",1,"day"],
+["f",3,"On Fridays, I listen ___ music in my bedroom.","to"],
+["p",3,"m<u>u</u>sic","S<u>u</u>nday","st<u>u</u>dy","M<u>u</u>m"],
+["r",3,"My brother / and I / chat / with / our grandparents / on / Saturdays."],
+["o",3,"Sunday","Monday","Tuesday","Thursday"],
+// Unit 4
+["m",4,"– Do you want some water, Tom? – No, thank you. I want some ___. I like it very much.","lemonade","water","grapes","chips"],
+["m",4,"– When's your birthday, Mai? – It's in ___. – Oh, my birthday is in April, too!","April","March","February","Sunday"],
+["m",4,"It's my birthday on Sunday. I want to ___ a party at home.","have","make","go","eat"],
+["rd",4,"Dear Linh, my birthday party is on Saturday, 20 March, at my house. Please come! There are some grapes and chips, and there is some jam. There is some juice, too. The party is at three o'clock. Love, Daisy","Which is NOT true?","The party is on a Sunday.","The party is in March.","There is some juice at the party.","The party is at three o'clock."],
+["rd",4,"It's Nam's birthday party. Nam's friends are at his house. Mai wants some grapes and some juice. Tom wants some water, not juice, and some chips. Lucy wants some jam and some juice, too.","What does Tom want?","some water and some chips","some juice and some chips","some grapes and some juice","some jam and some water"],
+["e",4,"[What] [do] you [want eat]? – I [want] some chips.",2,"want to eat"],
+["f",4,"– What do you want to eat, Lan? – Some chips, please. – And what do you want to ___? – Some juice, please.","drink|have|get"],
+["p",4,"w<u>a</u>ter","h<u>a</u>t","h<u>a</u>ppy","j<u>a</u>m"],
+["r",4,"When / is / your / sister's / birthday / party?"],
+["l",4,"January","? – February – March"],
+// Unit 5
+["m",5,"– Can you swim, Nam? – ___ But I can roller skate.","No, I can't.","Yes, I can.","Yes, I do.","No, I don't."],
+["m",5,"– Can your sister ride a bike? – ___","No, she can't, but she can fly a kite.","Yes, she can't, but she can fly a kite.","No, she can, but she can't fly a kite.","No, she doesn't, but she can fly a kite."],
+["m",5,"Linh can swim, but she can't draw. Hoa can draw, but she can't swim. Nam can swim and draw. Who can't swim?","Hoa","Linh","Nam","Linh and Nam"],
+["rd",5,"My name is Quan. I can't sing, but I can play the guitar. Lan, my sister, can't play the guitar, but she can sing. My brother is five years old. He can't sing or play the guitar, but he can dance.","What can Quan do?","play the guitar","sing","dance","play the piano"],
+["rd",5,"In my class, many pupils can do sports. Nga can fly a kite and skip. Peter can roller skate, but he can't skip. Mai can skip, and she can roller skate, too. Phong can't skip or roller skate, but he can ride a horse.","How many pupils can skip?","two","three","one","four"],
+["e",5,"– [Can] your brother play the piano? – No, he [can], [but] he can play [the guitar].",1,"can't"],
+["f",5,"My dad can't ___, but my mum can. She makes chips for us at home.","cook"],
+["p",5,"h<u>o</u>rse","r<u>o</u>ller","pian<u>o</u>","n<u>o</u>"],
+["r",5,"What / can / you and / your friends / do / in the playground?"],
+["l",5,"badminton","a sport. You can play it in the gym or in the playground."],
+// Unit 6
+["m",6,"Which question is correct?","How many computer rooms are there at your school?","How many computer room are there at your school?","How many computer rooms is there at your school?","How much computer rooms are there at your school?"],
+["m",6,"My school isn't in a village, and it isn't in a city. It's in a small ___.","town","classroom","playground","computer room"],
+["m",6,"My school has a big building and a small building. There are ten classrooms in the big one and eight in the small one. How many classrooms are there?","eighteen","ten","eight","twenty"],
+["rd",6,"Hi, I'm Nga. My school is in a village, and it isn't big. There are eight classrooms and one computer room. There is a big playground, but there isn't a music room or a gym.","Which is NOT true?","There is a music room at Nga's school.","Nga's school is in a village.","There is a big playground at Nga's school.","There is one computer room at Nga's school."],
+["rd",6,"This is my school. It's in the town. There are three buildings: A, B and C. Building A has fifteen classrooms. Building B has a computer room and an art room. Building C has a music room and a gym. There is a garden, too.","Where is the computer room?","in Building B","in Building A","in Building C","in the garden"],
+["e",6,"There [is] twenty classrooms [in] my school, [but] there [isn't] a music room.",0,"are"],
+["f",6,"– How many art rooms are there at your school? – There ___ one. It's very big.","is"],
+["p",6,"c<u>ou</u>ntry","h<u>ou</u>se","playgr<u>ou</u>nd","t<u>ow</u>n"],
+["r",6,"My school / is / in / a small village / near the town."],
+["l",6,"mountains","very, very high places"],
+// Unit 7
+["m",7,"– Do we have music today, Mai? – No, we don't. ___","We have it on Thursdays.","We have it today.","Yes, we do.","We have them on Thursdays."],
+["m",7,"Which question can you answer with 'I have it on Mondays and Wednesdays'?","When do you have music?","What subjects do you have today?","What time do you have music?","What day is it today?"],
+["m",7,"Which list has three school subjects?","Vietnamese, music, science","Viet Nam, music, science","maths, art, building","English, Thursday, art"],
+["rd",7,"Hi, I'm Vy. I'm in Class 4B, and my brother Nam is in Class 5A. I have music on Mondays and Wednesdays. Nam has music on Wednesdays and Thursdays. We don't have music on Fridays, but we have art on Fridays.","Which is NOT true?","Nam has music on Mondays.","Vy has music on Wednesdays.","Nam has music on Thursdays.","Vy and Nam have art on Fridays."],
+["rd",7,"Today is Wednesday. I have four subjects today: Vietnamese, maths, English and music. I don't have science today. I have it on Mondays and Thursdays. I have art on Fridays.","When does the writer have science?","on Mondays and Thursdays","on Wednesdays","on Mondays and Fridays","on Fridays"],
+["e",7,"[What] subjects [do] you have [in] Wednesdays? – I have maths, music [and] English.",2,"on"],
+["f",7,"I go to school from Monday to Friday. I have art on ___ and Fridays, but I don't have it on Mondays, Wednesdays or Thursdays.","Tuesdays|Tuesday"],
+["p",7,"hi<u>s</u>tory","hi<u>s</u>","Vietname<u>s</u>e","Wedne<u>s</u>day"],
+["r",7,"Which subjects / do / you / have / on Mondays / and / Thursdays?"],
+["w",7,"geography","We have history and ___ on Wednesdays."],
+// Unit 8
+["m",8,"Which sentence about my brother is correct?","My brother likes maths because he wants to be a maths teacher.","My brother likes maths because he wants to be an maths teacher.","My brother likes maths because he want to be a maths teacher.","My brother likes maths why he wants to be a maths teacher."],
+["m",8,"– ___ – It's PE. I like running.","What's your favourite subject?","Why do you like PE?","When do you have PE?","Do you like PE?"],
+["m",8,"Which answer is NOT right for the question 'Why do you like art?'","Because it's Monday.","Because I like drawing.","Because I want to be an art teacher.","Because I like colours."],
+["rd",8,"In our class, Nam's favourite subject is art because he likes drawing. Music is Lan's favourite subject, and it is Hoa's favourite subject, too. Minh's favourite subject is PE because he likes running.","How many pupils have music as their favourite subject?","two","one","three","four"],
+["rd",8,"My name is Lan. My favourite subject is music because I want to be a singer. My brother Phong likes IT because he likes computers. My sister Nga's favourite subject is PE because she likes running.","Why does Phong like IT?","He likes computers.","He likes running.","He wants to be a singer.","He likes drawing."],
+["e",8,"– What's your favourite [subjects]? – [It's] music. – [Why] do you like it? – Because I [want] to be a singer.",0,"subject"],
+["f",8,"I like art because I'm good ___ drawing.","at"],
+["p",8,"sc<u>i</u>ence","Engl<u>i</u>sh","favour<u>i</u>te","s<u>i</u>nging"],
+["r",8,"Why / do / you / want / to be / a singer?"],
+["w",8,"painter","Art is my favourite subject because I want to be a ___."],
+// Unit 9
+["m",9,"– Is your sports day in November? – ___","Yes, it is. We play a lot of games.","Yes, it does. We play a lot of games.","Yes, it's. We play a lot of games.","Yes, it is. We play a lot of game."],
+["m",9,"– When's your sports day? Is it in August or December? – ___","It's in December.","Yes, it is.","No, it isn't.","It's on December."],
+["m",9,"– ___ – No, it isn't. It's in December.","Is your sports day in June?","When's your sports day?","Is your sports day in December?","What's that?"],
+["rd",9,"Hello! I'm Linh. We have our sports day in June every year, but this year it isn't in June. It's in July, and it's in the school playground. We play football and basketball. We like it very much!","When is Linh's sports day this year?","in July","in June","in August","in May"],
+["rd",9,"SPORTS DAY at Sao Mai Primary School! It's on Saturday, 14 November. Football is at seven thirty in the playground. Basketball is at eight thirty in the gym. Running is at nine thirty in the playground. Come and have fun!","Where do the pupils play basketball?","in the gym","in the playground","in the computer room","in the classroom"],
+["e",9,"Our sports day [is] in December, and the pupils [plays] [a lot of] games [in] the school playground.",1,"play"],
+["f",9,"Our sports day is on Saturday, 31 ___, and Sunday is 1 November.","October"],
+["p",9,"Jul<u>y</u>","Februar<u>y</u>","part<u>y</u>","man<u>y</u>"],
+["r",9,"When / is / sports day / at / your / new school?"],
+["w",9,"cycling","riding a bike"],
+// Unit 10
+["m",10,"– Was your holiday in Sa Pa good? – ___","Yes, it was. The food was good.","Yes, it is. The food was good.","Yes, it was. The food were good.","Yes, I was. The food was good."],
+["m",10,"Last summer, my family and I were in Hue. We liked the food there because it was ___.","excellent","busy","friendly","helpful"],
+["m",10,"My family and I were ___ the countryside last summer.","in","on","to","under"],
+["rd",10,"Hi, I'm Phong. Last summer, I was in Ha Noi with my grandparents. Then I was on the beach in Nha Trang with my parents. My sister was in Singapore with our aunt.","Where was Phong's sister last summer?","in Singapore","on the beach","in Ha Noi","in Nha Trang"],
+["rd",10,"Dear Linh, last summer, my family and I were in Da Lat. On Saturday, we were in the city, and it was very busy. On Sunday, we were in the countryside with my grandparents. The food there was very good. Love, Lan","Which is NOT true?","Lan's family was in the countryside on Saturday.","The city was very busy.","Lan's family was in Da Lat.","Lan's grandparents were in the countryside."],
+["e",10,"Last summer, my brother and I [was] [in] Hue [with] our [grandparents].",0,"were"],
+["f",10,"– Were you on the beach yesterday? – No, I ___. I was at home.","wasn't|was not"],
+["p",10,"wh<u>ere</u>","w<u>ere</u>","g<u>ir</u>l","b<u>ir</u>thday"],
+["r",10,"Where / were / your parents / at / ten o'clock / last Sunday?"],
+["w",10,"campsite","Last summer, my family and I were at a ___ near the beach."],
+// Unit 11
+["m",11,"– Where do you live, Minh? – I live ___ 36 Ly Thai To Street, ___ a big city.","at / in","in / at","at / at","on / on"],
+["m",11,"– Is your town big or small, Mary? – ___","It's small, but it's very busy.","Yes, it is.","No, it isn't.","It's in America."],
+["m",11,"In the morning, there are a lot of cars in our street, and it is very ___. In the evening, there aren't many cars, and it is ___.","busy / quiet","quiet / busy","big / small","small / big"],
+["m",11,"– Do you live in a quiet street, Nam? – ___ It's very busy.","No, I don't.","Yes, I do.","No, it isn't.","Yes, it is."],
+["m",11,"– ___ – It's a quiet street with a lot of trees. – And where's your house? – At number 25.","What's your street like?","Where do you live?","Where's your street?","What's your street?"],
+["rd",11,"Hi, I'm Lucy. I live in London with my parents. Our house is at 12 Park Street. It's a small house, but it's very nice. Park Street is quiet, but the street near it is very busy. There are a lot of shops and cars there.","Which is NOT true?","Lucy's street is very busy.","Lucy's house is small.","Lucy's house is at 12 Park Street.","There is a busy street near Lucy's house."],
+["rd",11,"Hi, I'm Minh. There are three streets near my school. Le Loi Street is big, and it's very busy. Hoa Mai Street is small and quiet. Kim Ma Street is small, but there are a lot of shops and cars there, and it's busy, too. I live in Hoa Mai Street.","How many streets near Minh's school are busy?","two streets","one street","three streets","no streets"],
+["e",11,"My parents and I [lives] [in] a small house. It's [in] a quiet street [near] my school.",0,"live"],
+["f",11,"My family doesn't live in a house. We live in a small ___ in a big building in the city.","flat|apartment"],
+["f",11,"My bedroom is very ___ because it is near a busy street. I can't read books there.","noisy|loud"],
+["p",11,"str<u>ee</u>t","b<u>u</u>sy","b<u>i</u>g","c<u>i</u>ty"],
+["o",11,"quiet","city","town","street"],
+["l",11,"beautiful","very, very nice to look at"],
+["w",11,"road","Cars and buses go on it."],
+["r",11,"Are / there / a lot of cars / in your street / in the evening?"],
+["r",11,"I / don't like / my street / because / it is / very busy."],
+// Unit 12
+["m",12,"– What does your sister do, and where does she work? – ___","She's a nurse, and she works at a hospital.","She's tall, and she works at a hospital.","She's a nurse, and she lives near a hospital.","She works at a hospital, and she's twenty."],
+["m",12,"– What ___ your parents do? – My mother ___ an office worker, and my father is a gardener.","do / is","does / is","do / are","does / does"],
+["m",12,"Which sentence about Minh's family is correct?","Minh's brother works on a farm, and his sister works at a hospital.","Minh's brother works in a farm, and his sister works on a hospital.","Minh's brother work on a farm, and his sister works at a hospital.","Minh's brother works on a farm, and his sister work at a hospital."],
+["m",12,"Mr Hung doesn't work on a farm or at a hospital. He goes to a big building in the city every day, and he works with a computer there. What does he do?","He's an office worker.","He's a farmer.","He's a nurse.","He's a pupil."],
+["m",12,"– What does your grandmother do? – She's a gardener. – ___ – At a big school in our town.","Where does she work?","What does she do?","Where does she works?","Where is she work?"],
+["rd",12,"My name is Lan. My family is big: my grandmother, my parents, my brother and me. My grandmother doesn't work. My father works on a farm in the countryside. My mother is a nurse at a hospital. My brother and I are pupils at a primary school.","Who works in Lan's family?","her father and her mother","her grandmother and her father","her father and her brother","her mother and her grandmother"],
+["rd",12,"Hi, I'm Peter. I live in Sydney with my mum, my dad and my sister. My mum is a nurse, and my dad is a doctor. They work at a big hospital in the city, but my mum works in the morning and my dad works in the evening. My sister and I are pupils.","Which is NOT true?","Peter's mum works in the evening.","Peter's parents work at a hospital.","Peter's dad is a doctor.","Peter is a pupil."],
+["e",12,"My grandparents [are] farmers. They [have] a big farm, and my grandmother [work] [on] it every day.",2,"works"],
+["f",12,"My father ___ a farmer now. He works in an office in the city.","isn't|is not"],
+["f",12,"Mr Long is a nurse. He helps old people at a nursing ___ near the hospital.","home"],
+["p",12,"f<u>ar</u>m","n<u>ur</u>se","w<u>or</u>ker","th<u>ir</u>ty"],
+["o",12,"pupil","farmer","nurse","office worker"],
+["l",12,"factory","Workers make things like toys and cars in this building."],
+["w",12,"actor","This person works in films and on TV."],
+["r",12,"Does / your father / work / on a farm / or / in an office?"],
+["r",12,"My sister / doesn't / work, / but / my brother / works / in the city."],
+// Unit 13
+["m",13,"– What does your father look like? – ___ But my mum is short and small.","He's tall and big.","He's short and small.","He's a farmer.","He's forty."],
+["m",13,"My dad is very tall, but my mum ___. She's short and slim.","isn't","doesn't","is","hasn't"],
+["m",13,"Which sentence about Mai's mum is correct?","Mai's mum has long hair.","Mai's mum has a long hair.","Mai's mum has long hairs.","Mai's mum is long hair."],
+["m",13,"Mai is tall, and she has short hair. Lan is short, and she has long hair. Hoa is tall, and she has long hair. Who is tall and has long hair?","Hoa","Mai","Lan","Mai and Hoa"],
+["m",13,"– What ___ your sister ___? – She likes drawing and singing.","does / like","does / look like","is / like","does / likes"],
+["rd",13,"Hi, I'm Linh. This is a photo of my family. My dad is tall and big, and he has short hair. My mum is short, and she has long black hair. My brother Phong is tall, and he has short hair, too. I'm short, and I have long hair.","Which is NOT true?","Linh's brother is short.","Linh's mum has long hair.","Linh's dad is big.","Linh has long hair."],
+["rd",13,"Hello, I'm Ben, and I live in Sydney. My sister Kate is seven. She is short, and she has long brown hair. I'm ten. I'm tall, and I have short black hair. Our dad is big and tall, and he has short brown hair, too.","Who has brown hair?","Kate and her dad","Ben and Kate","Ben and his dad","Kate and Ben's mum"],
+["e",13,"My two brothers [has] short hair, [but] my sister [has] [long] hair.",0,"have"],
+["f",13,"– What do your brothers look like? – ___ tall and big.","They're|They are"],
+["f",13,"Mai has long hair, and her ___ are big and black.","eyes"],
+["p",13,"ta<u>l</u>k","ta<u>l</u>l","<u>l</u>ong","<u>l</u>ook"],
+["o",13,"hand","ear","nose","mouth"],
+["l",13,"grandfather","your mum's father or your dad's father"],
+["w",13,"members","the people in a family or a team"],
+["r",13,"My grandmother / is / short, / but / she has / long hair."],
+["r",13,"What / does / your new teacher / look like, / Mai?"],
+// Unit 14
+["m",14,"– When do you watch TV, Nam? – ___ I don't watch it in the evening. I read books then.","At noon, after lunch.","In the evening, after dinner.","I watch it with my dad.","Yes, I do."],
+["m",14,"– ___ – I read books, and then I clean my room.","What do you do in the evening?","When do you read books?","What does your sister do in the evening?","Where do you read books?"],
+["m",14,"– When do you do housework, Nam? – At two o'clock. I clean my room and help my mum. – Oh, you do housework ___.","in the afternoon","in the morning","in the evening","at noon"],
+["m",14,"Which is NOT correct?","at the evening","in the evening","at noon","in the afternoon"],
+["m",14,"Mai cleans her room in the morning. Her brother cleans the floor at noon, and her mum cooks at noon, too. Who does housework at noon?","Mai's brother and her mum","Mai and her brother","Mai and her mum","only Mai's mum"],
+["rd",14,"Hi, I'm Hoa. From Monday to Friday, I go to school in the morning and in the afternoon. In the evening, I read books, and then I watch TV with my family. On Sundays, I do housework. I clean the house in the morning, and I cook lunch with my dad at noon.","Which is NOT true?","Hoa and her mum cook lunch on Sundays.","Hoa and her family watch TV in the evening.","Hoa cleans the house on Sundays.","Hoa reads books in the evening."],
+["rd",14,"Hello, I'm Quan. I watch TV in the morning, and then I go to school. My sister Ha doesn't watch TV in the morning. She reads books. In the evening, we help our mum, and our dad cleans the floor.","Who reads books in the morning?","Quan's sister","Quan","Quan and his sister","Quan's dad"],
+["e",14,"– [What] does your mother [do] in the morning? – She [clean] the floor [and] cooks breakfast.",2,"cleans"],
+["f",14,"My mum cooks dinner, and I help her ___ the cooking.","with|do"],
+["f",14,"– ___ do you clean your room, Lan? – On Sunday mornings. Then I go out with my friends.","When"],
+["p",14,"wa<u>sh</u>","wa<u>tch</u>","tea<u>ch</u>er","pic<u>t</u>ure"],
+["o",14,"morning","cooking","cleaning","washing"],
+["l",14,"clothes","On Sundays, I wash my ___, and then I clean the floor."],
+["w",14,"dishes","We wash these after dinner."],
+["r",14,"Do / you / watch TV / in the morning / or / in the evening?"],
+["r",14,"My sister / reads books / in the morning, / but / I / read books / in the evening."],
+// Unit 15
+["m",15,"– What does your father do on Sundays? – ___","He cooks lunch for us.","He's a farmer.","At the sports centre.","Yes, he does."],
+["m",15,"On Saturdays, my mum ___ housework, and my dad ___ tennis.","does / plays","plays / does","do / play","does / does"],
+["m",15,"Which sentence about Linh's grandmother is correct?","Linh's grandmother goes shopping on Saturdays.","Linh's grandmother goes to shopping on Saturdays.","Linh's grandmother go shopping on Saturdays.","Linh's grandmother goes shop on Saturdays."],
+["m",15,"My dad likes sport. Every Saturday, he plays tennis with his friends. Where does he go?","to the sports centre","to the shopping centre","to the hospital","to the library"],
+["m",15,"{🧘}– What does your mum do at the sports centre? – ___","She does yoga.","She plays yoga.","She does the yoga.","She is do yoga."],
+["rd",15,"Hello, I'm Mary. I live in America. My family is busy on Saturdays and Sundays. On Saturdays, my dad goes to the sports centre and plays basketball. My mum goes to the shopping centre, and my brother and I go with her. On Sundays, we have a big lunch at home.","Where does Mary go on Saturdays?","to the shopping centre","to the sports centre","to her school","to the library"],
+["rd",15,"My name is Nam. On Saturdays and Sundays, my family does a lot of things. On Saturday mornings, my dad plays tennis at the sports centre, and I go with him. My mum stays at home, and she cooks lunch for us. My sister goes to the library and reads books there. On Sundays, we all go shopping.","Which is NOT true?","Nam's mum is at the sports centre on Saturday mornings.","Nam goes to the sports centre with his dad.","Nam's sister reads books at the library.","Nam's family goes shopping on Sundays."],
+["e",15,"– What [does] your sister [do] on Sundays? – She [watches] films and [play] tennis.",3,"plays"],
+["f",15,"My brother can swim very well. Every Saturday, he goes to the swimming ___ near our house.","pool|club"],
+["f",15,"On Sundays, my mum, my dad and my two sisters go to the sports centre, but I stay at home. ___ people from my family go to the sports centre.","four|4"],
+["p",15,"televi<u>s</u>ion","<u>s</u>ports","<u>c</u>entre","<u>s</u>ister"],
+["o",15,"television","sports centre","shopping centre","library"],
+["l",15,"cinema","We go to this place to watch new films."],
+["w",15,"activities","things we do, like playing tennis, swimming or watching films"],
+["r",15,"On Saturdays, / my brother / goes / to the library, / and / I / watch / films."],
+["r",15,"My mum and my sister / go / to the shopping centre / on / Sunday mornings."]
+];
 const PROVINCE_L=[
 ["h",1,"Hello, I'm Somchai. I'm from Bangkok. My friend Lucy is from Sydney.","Where is Lucy from?","Sydney","Bangkok","Tokyo","London"],
 ["hf",1,"My best friend is Malaysian. Her name is Aisha.","My best friend is ___.","Malaysian"],
@@ -862,6 +1063,53 @@ const PROVINCE_L=[
 ["hp",10,"Last weekend, we went fishing on the river.","🎣","🏊","🚲","📷"],
 ["hf",10,"We took a lot of photos in Hoi An.","We took a lot of ___ in Hoi An.","photos|pictures"]
 ];
+const NATIONAL_L=[
+// Unit 1
+["h",1,"My name is Linh, and I'm from Viet Nam. My friend Bill is from Britain. His friend Akio is from Japan.","Who is from Japan?","Akio","Bill","Linh","Mary"],
+// Unit 2
+["hp",2,"At eight o'clock, I don't watch TV, and I don't play games. I read a book.","📖","📺","🎮","⚽"],
+// Unit 3
+["hf",3,"We study at school on weekdays. On Saturdays and Sundays, we stay at home.","We study at school on ___. On Saturdays and Sundays, we stay at home.","weekdays"],
+// Unit 4
+["h",4,"My friends want some juice and chips, but I don't. I want some jam and some water.","What does the speaker want?","jam and water","juice and chips","juice and jam","chips and water"],
+// Unit 5
+["hp",5,"My brother can't swim, and he can't ride a bike. But he can play the guitar.","🎸","🏊","🚲","🎹"],
+// Unit 6
+["hf",6,"There aren't three computer rooms at my school. There are two, and they are very big.","There aren't three computer rooms at my school. There are ___, and they are very big.","two|2"],
+// Unit 7
+["h",7,"Today is Friday. We have maths, English and science today. We don't have music or art.","What subjects do they have today?","maths, English and science","music and art","maths, music and art","English, science and art"],
+// Unit 8
+["hp",8,"I don't want to be a singer or an English teacher. I want to be a maths teacher.","🔢","🎤","🔤","⚽"],
+// Unit 9
+["hf",9,"My sports day is in September, and my brother's sports day is in December. We play football on our sports days.","My sports day is in ___, and my brother's sports day is in December. We play football on our sports days.","September"],
+// Unit 10
+["h",10,"Last summer, I was in Sydney with my parents, and my sister was in London. My brother was in Bangkok with our grandparents.","Where was the speaker's sister last summer?","in London","in Sydney","in Bangkok","in Tokyo"],
+// Unit 11
+["h",11,"My school is in a big, busy street. But my house is in a small, quiet street.","Which is true about the street where the speaker lives?","It's small and quiet.","It's big and busy.","It's big and quiet.","It's small and busy."],
+["h",11,"My house is at 63 Ba Trieu Street, and my school is at 36 Ba Trieu Street.","What is the number of the speaker's house?","63","36","66","33"],
+["hp",11,"We don't live in the countryside. We live in a big, busy city with a lot of cars and people.","🏙️","🏘️","🏖️","⛺"],
+["hf",11,"Mai lives in a village near the sea. It's quiet, and there are a lot of trees.","Mai lives in a ___ near the sea. It's quiet, and there are a lot of trees.","village"],
+// Unit 12
+["h",12,"My mum is a nurse, and my dad works on a farm. My brother is a doctor.","What does the speaker's brother do?","He's a doctor.","He's a farmer.","He's a nurse.","He's a teacher."],
+["h",12,"My mother is a doctor. She doesn't work at a hospital. She works at a school.","Where does the speaker's mother work?","at a school","at a hospital","on a farm","in an office"],
+["hp",12,"My dad doesn't work in an office. He's a farmer.","🚜","💻","🏥","🏫"],
+["hf",12,"My brother is a policeman, and my sister is a nurse.","My brother is a ___, and my sister is a nurse.","policeman"],
+// Unit 13
+["h",13,"My best friend Thu isn't tall. She has long black hair.","What does Thu look like?","She's short and has long hair.","She's tall and has long hair.","She's short and has short hair.","She's tall and has short hair."],
+["h",13,"In my family, my dad and my brother are tall. My mum and I are short.","Who is short?","the speaker and the mother","the father and the brother","the brother and the mother","the father and the mother"],
+["hp",13,"This isn't my mum. It's my grandmother. She's short, and she has white hair.","👵","👩","👴","👧"],
+["hf",13,"My brother has a round face and short hair.","My brother has a ___ face and short hair.","round"],
+// Unit 14
+["h",14,"I read books in the morning. I watch TV in the afternoon, and I do housework in the evening.","When does the speaker do housework?","in the evening","in the morning","in the afternoon","on Sundays"],
+["h",14,"My brother cleans the floor, and I cook lunch with my mum.","What does the speaker do?","cooks lunch","cleans the floor","reads books","watches TV"],
+["hp",14,"In the afternoon, I don't do housework. I watch TV with my grandmother.","📺","🧹","🍳","📚"],
+["hf",14,"My family and I have dinner together at seven o'clock.","My family and I have dinner ___ at seven o'clock.","together"],
+// Unit 15
+["h",15,"My dad doesn't stay at home on Sundays. He plays basketball at the sports centre.","Where does the speaker's dad go on Sundays?","to the sports centre","to the shopping centre","to the hospital","to the library"],
+["h",15,"My mum goes shopping on Saturdays. On Sundays, she plays tennis with my sister.","What does the speaker's mum do on Sundays?","She plays tennis.","She goes shopping.","She watches films.","She cooks lunch."],
+["hp",15,"My brother doesn't play tennis on Saturdays. He plays football with his friends.","⚽","🎾","🏊","📺"],
+["hf",15,"My grandmother cooks meals for us on Sundays.","My grandmother cooks ___ for us on Sundays.","meals"]
+];
 
 /* ================= Normalise ================= */
 const PROMPT={o:"Choose the odd one out.",p:"Choose the word whose underlined part is pronounced differently."};
@@ -879,8 +1127,8 @@ function toQ(row,lv,i){
   else if(t==="hf"){q.say=row[2];q.q=row[3];q.ans=row[4].split("|")}
   return q;
 }
-const BANKS={S:SCHOOL.concat(SCHOOL_L).map((r,i)=>toQ(r,"S",i)),W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i)),P:PROVINCE.concat(PROVINCE_L).map((r,i)=>toQ(r,"P",i))};
-const TWO_LETTER_LEVELS=["W","P"];
+const BANKS={S:SCHOOL.concat(SCHOOL_L).map((r,i)=>toQ(r,"S",i)),W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i)),P:PROVINCE.concat(PROVINCE_L).map((r,i)=>toQ(r,"P",i)),N:NATIONAL.concat(NATIONAL_L).map((r,i)=>toQ(r,"N",i))};
+const TWO_LETTER_LEVELS=["W","P","N"];
 
 /* ================= Test plan =================
    Every test is fixed: the same test number always gives the same questions.
@@ -890,9 +1138,11 @@ const DAY=864e5;
 const TRACKS={
   S:{key:"S",name:"School Level",units:"Units 1–6",start:new Date(2026,9,12),weeks:7,exam:new Date(2026,10,26),examText:"26–28 Nov 2026",pools:[["S",30]],mins:20},
   W:{key:"W",name:"Ward Level",units:"Units 1–10",start:new Date(2026,10,30),weeks:6,exam:new Date(2027,0,7),examText:"7–9 Jan 2027",pools:[["W",24],["S",6]],mins:20},
-  P:{key:"P",name:"Province Level",units:"Units 1–10",start:new Date(2027,0,11),weeks:8,exam:new Date(2027,2,4),examText:"4–6 Mar 2027",pools:[["P",24],["W",6]],mins:20}
+  P:{key:"P",name:"Province Level",units:"Units 1–10",start:new Date(2027,0,11),weeks:8,exam:new Date(2027,2,4),examText:"4–6 Mar 2027",pools:[["P",24],["W",6]],mins:20},
+  // Phiên N-IOE: bắt đầu thứ hai 8/3/2027, ngay sau IOE cấp tỉnh (4–6/3); thi cấp quốc gia 1–2/4/2027 (dự kiến), tuần thứ tư là tuần thi
+  N:{key:"N",name:"National Level",units:"Units 1–15",start:new Date(2027,2,8),weeks:4,exam:new Date(2027,3,1),examText:"1–2 Apr 2027 (expected)",pools:[["N",24],["P",6]],mins:20}
 };
-const TRACK_ORDER=["S","W","P"];
+const TRACK_ORDER=["S","W","P","N"];
 const PER_WEEK=7, TEST_LEN=30;
 
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
@@ -1056,7 +1306,7 @@ const safe=s=>esc(s).replace(/&lt;(\/?)u&gt;/g,"<$1u>");
 const norm=s=>String(s).toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," ").replace(/[.!?]+$/,"").trim();
 const fmtTime=s=>{s=Math.max(0,Math.round(s));return String(s/60|0).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
 const fmtDate=d=>d.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
-const allQ=()=>BANKS.S.concat(BANKS.W,BANKS.P,custom);
+const allQ=()=>BANKS.S.concat(BANKS.W,BANKS.P,BANKS.N,custom);
 const byId=id=>allQ().find(q=>q.id===id);
 const LETTERS="ABCD";
 function strip(h){const d=document.createElement("div");d.innerHTML=h;return d.textContent}
@@ -1350,7 +1600,7 @@ function renderHome(note){
     ${note?`<div class="fb bad">${esc(note)}</div>`:""}
     <section class="sec" style="margin-top:0"><h1 class="page-h">Practise by Unit</h1><p class="muted small" style="margin:0">Choose a unit to revise. No timer, and you see the answer after each question.</p>
       <div class="units">${Object.entries(UNITS).map(([u,t])=>{const n=allQ().filter(q=>q.u==u).length, ur=unitRes[u];
-        return `<button class="unit" data-u="${u}"><span class="n">Unit ${u}</span><span class="t">${t}</span><span class="small muted">${n} questions${u>6?" · Ward Level":""}</span>${ur?`<span class="last${ur.r/ur.t>=.8?"":" fair"}">Last score: ${ur.r}/${ur.t}</span>`:""}</button>`}).join("")}</div>
+        return `<button class="unit" data-u="${u}"><span class="n">Unit ${u}</span><span class="t">${t}</span><span class="small muted">${n} questions${u>10?" · National Level":u>6?" · Ward Level":""}</span>${ur?`<span class="last${ur.r/ur.t>=.8?"":" fair"}">Last score: ${ur.r}/${ur.t}</span>`:""}</button>`}).join("")}</div>
     </section>
 
     <section class="sec"><h2>Listening</h2><div class="panel" id="soundPanel"></div></section>

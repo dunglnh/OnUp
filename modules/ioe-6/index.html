@@ -48,7 +48,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-vis
 .btn.danger{background:var(--bad-soft);color:var(--bad)}
 .btn:disabled{opacity:.45;cursor:default}
 .sec{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;background:var(--sea-soft);border-radius:12px;padding:4px}
+.seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;background:var(--sea-soft);border-radius:12px;padding:4px}
 .seg button{border:0;background:transparent;border-radius:9px;padding:9px 8px;font-weight:700;color:var(--sea);line-height:1.2}
 .seg button small{display:block;font-weight:500;font-size:.75rem;opacity:.85}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(20,33,61,.15)}
@@ -128,6 +128,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background
 .opt.picopt{justify-content:center;align-items:center;font-size:2.4rem;line-height:1.1;padding:12px}
 .opt.picopt .k{font-size:1rem}
 .notice{background:var(--sun-soft);color:var(--ink);border-radius:12px;padding:10px 14px;font-size:.9rem}
+.read{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 14px;line-height:1.6;overflow-wrap:anywhere} /* đoạn đọc của câu rd (National Level, Phiên N-IOE), như ioe-4 */
 .heard{margin-top:8px;font-size:.9rem;color:var(--muted);font-weight:500}
 /* Phiên 9o (L38, L39): nút mở bảng số câu cạnh thanh tiến độ (X26: số câu rời thanh trên), bảng số câu, chú thích, màn "Xem lại bài làm";
    số đo chép từ .qz-* của css/app.css (Phiên 9n, 9nb); ô đã trả lời dùng --pick như ô đang chọn, không theo màu của môn */
@@ -174,11 +175,15 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background
    Written for the Global Success English 6 curriculum.
    m = multiple choice (correct answer first), o = odd one out, p = pronunciation, s = stress,
    e = find the mistake [part] x4 + wrong index + correction, f = fill in the blank (answers split by |),
-   l = missing letters (word, clue), r = reorder (chunks split by /).
+   l = missing letters (word, clue), r = reorder (chunks split by /),
+   rd = read and choose (short text, question, correct answer, wrong x3; Phiên N-IOE, chỉ ở NATIONAL).
    SCHOOL (Phiên 9s, L44): School Level, Units 1–4 (IOE cấp trường 26–28/11/2026), viết theo sách Tiếng Anh 6 Global Success tập 1 in năm 2026,
    không có câu e; mã câu S0, S1… theo vị trí trong SCHOOL rồi SCHOOL_L. Không sửa chữ, không chèn câu vào giữa WARD, CITY, WARD_L, CITY_L:
-   mã câu W…, C… tính theo vị trí, "Review Mistakes" lưu theo mã câu, đề Ward Level, City Level đã làm phải giữ đúng câu.            */
-const UNITS={1:"My New School",2:"My House",3:"My Friends",4:"My Neighbourhood",5:"Natural Wonders of Viet Nam",6:"Our Tet Holiday",7:"Television",8:"Sports and Games",9:"Cities of the World"};
+   mã câu W…, C… tính theo vị trí, "Review Mistakes" lưu theo mã câu, đề Ward Level, City Level đã làm phải giữ đúng câu.
+   NATIONAL (Phiên N-IOE): National Level, Units 1–10 (IOE cấp quốc gia 1–2/4/2027, dự kiến), khó hơn CITY, có câu đọc rd; Unit 10 (tập 2)
+   chỉ có ở NATIONAL, NATIONAL_L. Mã câu N0, N1… theo vị trí trong NATIONAL rồi NATIONAL_L. Không sửa chữ, không chèn câu vào giữa các bộ cũ
+   (SCHOOL, WARD, CITY và các bộ nghe); UNITS chỉ thêm Unit 10 ở cuối.                                                                  */
+const UNITS={1:"My New School",2:"My House",3:"My Friends",4:"My Neighbourhood",5:"Natural Wonders of Viet Nam",6:"Our Tet Holiday",7:"Television",8:"Sports and Games",9:"Cities of the World",10:"Our Houses in the Future"};
 
 const SCHOOL=[
 // Unit 1
@@ -747,6 +752,198 @@ const CITY=[
 ["r",9,"Sydney / is / famous for / its beautiful beaches / and / the Opera House."],
 ["o",9,"Australia","Tokyo","London","Bangkok"]
 ];
+const NATIONAL=[
+// Unit 1
+["m",1,"Every afternoon, Duy ___ his homework first, and then he ___ the guitar in the music club.","does / plays","plays / does","has / does","makes / does"],
+["m",1,"Which verb can go before ALL three: ___ lunch, ___ an English lesson, ___ a new friend?","have","make","do","study"],
+["m",1,"Phong walks to school four days a week. On Fridays, his dad takes him by motorbike. Phong ___ walks to school.","usually","always","never","rarely"],
+["m",1,"– ___ lunch at school? – No, she doesn't. She goes home for lunch.","Does your sister often eat","Does often your sister eat","Do your sister often eat","Is your sister often eat"],
+["m",1,"Phong wants to ___ our new art teacher. He has five questions to ask her about her life and her work.","interview","knock","share","remember"],
+["rd",1,"Hi, I'm Khoa. I study at a boarding school in the mountains. From Monday to Friday, I live there with my classmates. Our lessons are in the morning, and in the afternoon I play football or go to the art club. I go home on Saturday morning and come back to school on Sunday evening.","Where is Khoa on Saturday afternoon?","at home","at school","in the school canteen","in his classroom"],
+["e",1,"Mai and her brother [often] [goes] to school [by] bike, but they [sometimes] walk.",1,"go"],
+["e",1,"Our maths teacher [always] [checks] our homework, but she [gives rarely] us [difficult] exercises.",2,"rarely gives"],
+["f",1,"We ___ TV on school days because there is a lot of homework to do. (not / often / watch)","don't often watch|do not often watch|often don't watch|often do not watch"],
+["f",1,"In our art club, there are a lot of beautiful ___ on the walls. (paint)","paintings"],
+["p",1,"p<u>u</u>t","j<u>u</u>mp","cl<u>u</u>b","h<u>u</u>ngry"],
+["s",1,"advice","science","notebook","English"],
+["r",1,"How often / does / your best friend / help you / with / your science homework?"],
+["o",1,"classmate","classroom","library","playground"],
+// Unit 2
+["m",2,"– How many bathrooms ___ in your new flat? – Two. One of them is next to my bedroom.","are there","there are","is there","there is"],
+["m",2,"I can't see the TV when my little brother stands ___ it.","in front of","behind","next to","under"],
+["m",2,"In Nam's bedroom, the bed is between the wardrobe and the desk. There is a lamp on the desk. What is next to the bed?","the wardrobe and the desk","only the desk","only the wardrobe","the lamp and the window"],
+["m",2,"It's very hot in the living room. Which suggestion is correct?","Let's open the windows.","Let's opening the windows.","How about open the windows?","How about we opening the windows?"],
+["m",2,"In which sentence does 's NOT mean \"is\"?","This is Mi's lamp.","Mi's in the kitchen.","It's a big lamp.","She's my sister."],
+["rd",2,"Hi Lan, my family lives in a flat on the sixth floor of a tall building. There are five rooms: a living room, a kitchen, a bathroom and two bedrooms. My parents sleep in the bedroom next to the kitchen, and my sister and I sleep in the other one. I love our living room because I can see the river from the big window. Love, Mai","Which sentence is TRUE?","Mai doesn't have her own bedroom.","There are three bedrooms in the flat.","Mai can see the river from her bedroom.","Mai's parents sleep next to the bathroom."],
+["e",2,"[Mi's] brother keeps his new bike [in] the living room, [next to] his [grandfather] old bike.",3,"grandfather's"],
+["e",2,"In my bedroom, the bookshelf is [next] the door, and my desk [is] [under] the window, [between] the bed and the wardrobe.",0,"next to"],
+["f",2,"– My desk is too big for my bedroom. – How about ___ it to the living room? (move)","moving"],
+["f",2,"The new ___ of drawers in our bedroom has four drawers: two for me and two for my sister.","chest"],
+["p",2,"month<u>s</u>","pillow<u>s</u>","drawer<u>s</u>","picture<u>s</u>"],
+["s",2,"forget","wardrobe","bathroom","window"],
+["r",2,"Mi's / younger brother / usually / does / his homework / in / the living room."],
+["o",2,"lamp","sink","shower","toilet"],
+// Unit 3
+["m",3,"Duc loves telling funny stories in class, and everybody laughs. He also helps his classmates with their homework every day. He's ___.","funny and kind","funny and shy","shy and kind","quiet and kind"],
+["m",3,"Mai usually ___ her bike to school, but today she ___ with her mum. Look, there they are!","rides / is walking","is riding / walks","rides / walks","is riding / is walking"],
+["m",3,"Which sentence has NO mistakes?","My cousin is short and slim, with long curly hair.","My cousin has short and slim, with long curly hair.","My cousin is short and slim, has long curly hair.","My cousin is short and slim, with curly long hair."],
+["m",3,"– What ___ at the moment? – They're making a cake for their mum.","are your sisters doing","do your sisters do","are your sisters do","your sisters are doing"],
+["m",3,"Ngoc has a small ___ and big brown eyes, and when she feels shy, her ___ go red.","nose / cheeks","cheeks / nose","mouth / shoulders","hand / arms"],
+["rd",3,"Dear Diary, today is my third day at the English summer camp. Hoa has long curly hair, and she's very creative: she makes all the posters for our group. Khanh is quiet and shy, but he's really clever at maths. Right now, Hoa is drawing a poster, and Khanh is helping our teacher with the games.","What can we say about Khanh?","He doesn't talk much, but he's good at maths.","He makes the posters for the group.","He has long curly hair.","He is drawing a poster at the moment."],
+["e",3,"Look! Lan [is siting] [between] her two best friends, and they [are looking at] [the same] photo.",0,"is sitting"],
+["e",3,"Nam [doesn't] [usually] read comics, but look! He [reads] one [in] the library now.",2,"is reading"],
+["f",3,"Look! The school bus ___. Let's run! (come)","is coming"],
+["f",3,"Lan's ___ is very different from her sister's: Lan is tall with short hair, but her sister is short with long hair. (appear)","appearance"],
+["p",3,"cu<u>p</u>board","<u>p</u>arty","o<u>p</u>en","<u>p</u>arent"],
+["s",3,"surprise","friendly","pretty","comic"],
+["r",3,"Look! / The tall boy / with / short curly hair / is / running / to the school library."],
+["o",3,"shoulder","cheek","nose","mouth"],
+// Unit 4
+["m",4,"In the city, buildings are ___ and the air is ___ than in my village.","more modern / dirtier","moderner / dirtier","more modern / more dirty","more modern / dirtyer"],
+["m",4,"You are new in this town. Which question asks for directions?","How can I get to the railway station?","What is the railway station like?","When does the railway station open?","Why is the railway station so busy?"],
+["m",4,"My uncle has a small ___ near the market. He makes tables and chairs there.","workshop","square","temple","suburb"],
+["m",4,"My grandparents live in a ___ village. It takes us five hours by bus to get there.","faraway","near","narrow","outdoor"],
+["m",4,"– Is your new flat bigger than your old one? – ___","No, it isn't. It's smaller.","Yes, it is. It's smaller.","No, it isn't. It's bigger.","Yes, it does. It's bigger."],
+["rd",4,"Hi, I'm Tuan. My family lives in a suburb, but my school is in the city centre. Our street is wider and quieter than the streets near my school, and it has more trees. The market isn't near our house, so Mum goes there by motorbike. I take the bus to school, and the trip takes forty minutes.","Which sentence is TRUE?","Tuan's mum doesn't walk to the market.","Tuan's school is in a suburb.","There are more trees near Tuan's school.","Tuan goes to school by motorbike."],
+["e",4,"The streets in the city centre are [noisyer] [than] the streets in [the] suburbs, and they are [more crowded] too.",0,"noisier"],
+["e",4,"[Go] straight, take the [two] turning on the right, and the museum is [on] your left, [next to] the bank.",1,"second"],
+["f",4,"Tuan has six books in his school bag, but Mai has only two books in her bag. Tuan's bag is ___ than Mai's. (heavy)","heavier"],
+["f",4,"My little brother thinks the zoo is ___ than the museum because he loves animals. (interest)","more interesting"],
+["p",4,"p<u>i</u>zza","s<u>i</u>ster","d<u>i</u>nner","l<u>i</u>sten"],
+["s",4,"decide","suburb","sandy","traffic"],
+["r",4,"Shall we / visit / the art gallery / first, / or / go / to the temple?"],
+["l",4,"convenient","useful and easy, for example because it is near the shops, schools and bus stops you need"],
+// Unit 5
+["m",5,"We've got ___ apples for the picnic, but we don't have much bread.","a few","a little","much","any"],
+["m",5,"In the national park, you ___ stay on the paths, and you ___ pick the flowers.","must / mustn't","mustn't / must","must / must","mustn't / mustn't"],
+["m",5,"Our trip to the mountains is three days long, but we don't need ___ because we're staying at a hotel.","sleeping bags","warm coats","a map","suncream"],
+["m",5,"– Shall we go to the national park this Sunday? – ___ I have a piano lesson in the morning. – Then how about two o'clock in the afternoon?","Sorry, I'm busy on Sunday morning.","Sure. Sunday morning is fine for me.","Great! Let's meet at eight in the morning.","Yes, it's a big national park."],
+["m",5,"Our tour ___ tells us interesting things about the rocks in the cave.","guide","group","bus","visitor"],
+["rd",5,"Ban Gioc Waterfall is in Cao Bang. It looks amazing from August to October because there is a lot of rain then. Visitors can go near the waterfall by small boat, but they mustn't swim there. From December to March, there isn't much water, so the waterfall is smaller.","Why does the waterfall look smaller in January?","There isn't much water then.","Visitors mustn't swim there.","There is a lot of rain then.","Visitors can't go there by boat."],
+["e",5,"There [aren't] [much] [visitors] [at] the waterfall in winter, so it's very quiet there.",1,"many"],
+["e",5,"In the desert, you [don't must] [go] out in the afternoon because it's too hot, and you [must] [drink] a lot of water.",0,"mustn't"],
+["f",5,"Your bag is too heavy for the hiking trip. Take out the ___ things, like your toys and comic books. (necessary)","unnecessary"],
+["f",5,"Every year, many ___ from other countries come to see Ha Long Bay. (tour)","tourists"],
+["p",5,"We<u>d</u>nesday","<u>d</u>eep","col<u>d</u>","holi<u>d</u>ay"],
+["s",5,"explore","camping","travel","seafood"],
+["r",5,"We / must / bring / a map / because / it's easy / to get lost / in the mountains."],
+["l",5,"landscape","the view of a wide area of countryside, for example hills, rivers and fields"],
+// Unit 6
+["m",6,"It's not a rule, it's only advice: at Tet, children ___ red clothes because people think red brings good luck.","should wear","must wear","mustn't wear","shouldn't wear"],
+["m",6,"We don't have ___ banh chung, so Mum is buying ___ at the market now.","any / some","some / any","any / any","some / some"],
+["m",6,"On the first morning of Tet, Grandma asks us to close our eyes and ___ a wish for the new year.","make","do","take","give"],
+["m",6,"On New Year's Eve, my family waits until twelve o'clock to ___ the New Year together.","welcome","behave","decorate","wish"],
+["m",6,"– ___ help Mum clean the kitchen before Tet? – Yes, we should. She's very busy.","Should we","Do we should","Should we to","We should"],
+["rd",6,"Hi, I'm Hoa. Every year, my family celebrates Tet at my grandparents' house in Ninh Binh. Before Tet, my aunt and I go to the flower market to buy peach flowers. On New Year's Eve, we have a big dinner together, and then we wait until twelve o'clock to watch the fireworks. My little cousins usually fall asleep at about ten!","Who probably doesn't see the fireworks?","Hoa's little cousins","Hoa's grandfather","Hoa's aunt","Hoa"],
+["e",6,"[On] the first day of Tet, we visit our grandparents [in] the morning [and] our aunt [at] the afternoon.",3,"in"],
+["e",6,"My little brother [has] [very] bad teeth, so he [should] eat lots of sweets [at] Tet.",2,"shouldn't"],
+["f",6,"My aunt sings very ___, so we always ask her to sing for everybody at Tet. (beautiful)","beautifully"],
+["f",6,"Fighting with your brother on the first day of Tet is bad ___. (behave)","behaviour|behavior"],
+["p",6,"<u>s</u>ugar","<u>s</u>weets","<u>s</u>alt","<u>s</u>pring"],
+["s",6,"behave","lucky","shopping","temple"],
+["r",6,"What / special food / does / your grandmother / usually / cook / for Tet?"],
+["l",6,"envelope","a paper cover for a letter; at Tet, children often get lucky money in a red one"],
+// Unit 7
+["m",7,"– ___ your brother watch on TV last night? – A football match. Our team won 2–1!","What did","What does","Who did","When did"],
+["m",7,"– ___ time do you spend watching TV at the weekend? – About three hours a day.","How much","How many","How long","How often"],
+["m",7,"Which sentence has the same meaning as \"Phong watches the music programme every week because he loves singing.\"?","Phong loves singing, so he watches the music programme every week.","Phong loves singing, but he watches the music programme every week.","Phong watches the music programme every week, so he loves singing.","Phong loves singing because he watches the music programme every week."],
+["m",7,"My cousin loves ___ because she enjoys watching children sing and dance to win a prize.","talent shows","game shows","comedies","wildlife programmes"],
+["m",7,"This cartoon is very ___: children in more than fifty countries watch it every week.","popular","boring","short","noisy"],
+["m",7,"The football match on VTV3 is ___: we can see every goal at the moment it happens.","live","boring","cute","educational"],
+["m",7,"– Can I watch the talent show tonight, Mum? – ___ – OK. I'll do it now and watch TV later.","Yes, but finish your homework first.","Yes, it's on VTV3 at eight.","No, you can't. It's very educational.","Yes, I can."],
+["m",7,"The TV guide says: \"8.00 Big Race – ten cars from five countries compete in Singapore.\" What type of programme is Big Race?","a sports programme","a game show","a cartoon","a comedy"],
+["rd",7,"Saturday on Channel K: 7.00 Green World – clever birds in a forest in Viet Nam. 8.15 Laugh Time – a comedy about a funny cat and his best friend, a dog. 9.00 Little Stars – young singers from ten cities compete for a prize. 9.45 Our Rivers – a science programme about water.","Bao can only watch TV after 8.30, and he loves music. Which programme should he watch?","Little Stars","Our Rivers","Laugh Time","Green World"],
+["rd",7,"Everyone in Linh's family has a favourite programme. Her dad always watches football on Sunday nights. Her mum prefers comedies because she wants to laugh after work. Her little brother is five, so he can only watch cartoons for thirty minutes a day. Linh loves game shows, and she often gives the right answers before the players do!","What can we learn about Linh?","She often knows the answers in game shows.","She watches cartoons for thirty minutes a day.","She watches football with her dad on Sundays.","She watches comedies to laugh after work."],
+["e",7,"[How often] [does] your sister [watch] science programmes [on] TV? – Because she loves learning new things.",0,"Why"],
+["e",7,"This channel [has] lots of educational programmes, [but] my parents [want] me [to watch] it.",1,"so"],
+["e",7,"Comedies make people [laughing], [so] my grandma [often] watches them [after] dinner.",0,"laugh"],
+["f",7,"Children love this cartoon because it is very ___. There are lots of bright colours in it. (colour)","colourful|colorful"],
+["f",7,"My uncle isn't ___ in cartoons. He only watches sports programmes. (interest)","interested"],
+["f",7,"– ___ is Funny Mouse on? – At seven o'clock every evening.","When|What time"],
+["p",7,"bir<u>th</u>day","fa<u>th</u>er","toge<u>th</u>er","nei<u>th</u>er"],
+["s",7,"theatre","prefer","agree","connect"],
+["o",7,"cute","clip","comedy","channel"],
+["l",7,"character","someone in a story, a film or a cartoon, for example a clever fox or a funny mouse"],
+["r",7,"Which programme / does / your mother / like watching / when / she comes home / from work?"],
+["r",7,"My sister / loves / animals, / so / she often watches / wildlife programmes / with / our grandfather."],
+// Unit 8
+["m",8,"The match ___ at 3 p.m., but it ended after ten minutes because it started to rain.","began","begun","begins","beginned"],
+["m",8,"– Did you enjoy the sports day at school? – ___","Yes, I did. I was tired, but it was fun.","Yes, I enjoyed.","Yes, I was. It was fun.","No, I don't. It was boring."],
+["m",8,"My dad ___ any sport at school, but now he goes cycling every weekend.","didn't play","doesn't play","don't play","didn't played"],
+["m",8,"The PE teacher says: \"___ your sports shoes in the gym. Don't come in with your school shoes.\"","Wear","Don't wear","Wearing","You wearing"],
+["m",8,"– I'm really tired after the race, and it's very hot today. – ___","Sit down here and drink some water.","Let's run the race again!","Good luck in the race!","You're welcome."],
+["m",8,"The last game of the chess tournament ___ for five hours, so both players were very tired at the end.","lasted","took","spent","played"],
+["m",8,"Lan ___ two goals, and our team won the match 2–0.","scored","won","did","took"],
+["m",8,"– What ___ at the sports centre last Sunday? – I did karate and then went swimming.","did you do","you did","did you","do you did"],
+["rd",8,"Thu Ha comes from a small village. Her father was a farmer, but he loved table tennis, and he played it with her every evening when she was six. When she was eleven, she joined a sports school in Ha Noi. Seven years later, she won the national tournament. Now she practises five hours a day.","How old was Thu Ha when she won the national tournament?","18","11","6","17"],
+["rd",8,"Catch the Dragon's Tail is an old game for eight or more players. They stand in a line, and each player puts his or her hands on the shoulders of the person in front. The first player is the dragon's head, and the last player is the tail. The head runs and tries to catch the tail. The others must move together and must not break the line.","Which player tries NOT to be caught?","the last player in the line","the first player in the line","the player in the middle of the line","all the players in the line"],
+["e",8,"Last summer, my cousin [teached] me [to play] chess, and [yesterday] I [won] my first game.",0,"taught"],
+["e",8,"[There] [was] a lot of people [at] the marathon [yesterday].",1,"were"],
+["e",8,"The rain [stoped] [at] 4 p.m., [so] we [played] football again.",0,"stopped"],
+["f",8,"My aunt trained hard every day, and in 2020 she ___ a famous volleyball player. (become)","became"],
+["f",8,"Our class won the singing ___ at the school festival. (compete)","competition"],
+["f",8,"___ the ball with your hands! This is football, not volleyball. (not / touch)","Don't touch|Do not touch"],
+["p",8,"<u>a</u>ny","m<u>a</u>rathon","c<u>a</u>tch","f<u>a</u>ntastic"],
+["s",8,"career","racket","tennis","football"],
+["o",8,"karate","champion","winner","player"],
+["l",8,"equipment","all the things you need for a sport, like balls, rackets and goggles"],
+["r",8,"Don't / swim / in this river / because / the water is / very deep."],
+["r",8,"Where / did / you and your friends / go / after / the football match / last Saturday?"],
+// Unit 9
+["m",9,"– Are these your bikes? – No, they're ___. My cousins rode them here this morning.","theirs","ours","their","mine"],
+["m",9,"Hue is famous all over the world for ___ royal palace and old pagodas.","its","it","her","their"],
+["m",9,"You are in Tokyo in winter. It's very cold, and it's snowing. What do you say?","What cold weather!","What a cold weather!","What cold weathers!","What a weather cold!"],
+["m",9,"At a ___, people sell fruit and vegetables from their boats on the river.","floating market","night market","food stall","river bank"],
+["m",9,"Visitors to Da Lat say the local people are very ___. They always show you the way and answer your questions.","helpful","shy","careful","creative"],
+["m",9,"Our hotel has bikes for visitors, so we ___ two for the afternoon and went to the beach.","rented","sold","bought","wore"],
+["m",9,"Which sentence do people often write near the end of a holiday postcard?","Wish you were here!","Dear Grandma and Grandpa,","Nice to meet you!","How do you do?"],
+["m",9,"The poster says: \"Old Town Night Market – open 5 p.m. to 11 p.m., every Friday and Saturday.\" Who CAN go shopping at the market?","Lan, on Saturday at 9 p.m.","Nam, on Friday at 4 p.m.","Mai, on Sunday at 7 p.m.","Hoa, on Friday at 11.30 p.m."],
+["rd",9,"Dear Lan, Hello from Singapore! It's hot here, but it rains a little every afternoon. Yesterday we visited Merlion Park and took lots of photos. Today we're eating chicken rice at a small restaurant. It's cheap and very tasty! Tomorrow we're visiting the zoo. See you soon! Love, Hoa","When did Hoa visit Merlion Park?","the day before she wrote the postcard","on the day she wrote the postcard","the day after she wrote the postcard","on her last day in Singapore"],
+["rd",9,"Lucy lives in Sydney, and her friend Mai lives in Ha Noi. In July, Lucy wears a coat to school because it's winter in her city. At the same time, Mai is on her summer holiday, and she goes swimming every afternoon.","Which sentence is TRUE?","In July, it is winter in Sydney.","Mai goes to school in July.","Lucy goes swimming every afternoon.","It is hot in Sydney in July."],
+["e",9,"Mr Brown [lives] in Sydney. He loves [her] city, [and] he [often] takes photos of its beaches.",1,"his"],
+["e",9,"London and Paris are big cities, and [its] buildings [are] [very] old [and] beautiful.",0,"their"],
+["e",9,"Is this [hers] [city] map, [or] is it [her] brother's?",0,"her"],
+["f",9,"– My postcards are from Sydney. Where are ___ from, Nam? (you)","yours|your postcards"],
+["f",9,"Hue is often ___ in October and November, so take an umbrella with you. (rain)","rainy"],
+["f",9,"In Ha Noi, we tried some ___ food, like pho and bun cha. (tradition)","traditional"],
+["p",9,"fl<u>ow</u>er","kn<u>ow</u>","b<u>ow</u>l","sh<u>ow</u>"],
+["s",9,"Berlin","Sweden","Venice","Thailand"],
+["o",9,"their","mine","hers","ours"],
+["l",9,"delicious","very tasty and nice to eat"],
+["r",9,"The Old Town / is / my favourite place in the city / because / its / streets / are / quiet and clean."],
+["r",9,"Last summer, / my family / spent a week / in Bangkok, / and / we loved / its street food."],
+// Unit 10
+["m",10,"– Will people live on the Moon in 2030? – No, they won't. ___","It will be too expensive.","It won't be too expensive.","It might be not expensive.","It will is too expensive."],
+["m",10,"– Will your dream house have a garden? – ___","Yes, it will.","Yes, it'll.","Yes, it does.","Yes, it has."],
+["m",10,"Mum will be away for three days, so today she is cooking lots of food. She'll put it in the ___ to keep it fresh.","fridge","dishwasher","washing machine","electric fan"],
+["m",10,"My ___ helps me to get up at six every morning, and it also tells me the weather for the day.","smart clock","electric fan","dishwasher","washing machine"],
+["m",10,"My grandparents would like to live in a small ___ in the countryside, with a garden full of flowers.","cottage","palace","UFO","town house"],
+["m",10,"Many children think their future houses will be ___, far away from the Earth.","in space","in the space","on space","at space"],
+["m",10,"Which sentence means that we are NOT sure about the swimming pool?","Our new house might have a swimming pool.","Our new house will have a swimming pool.","Our new house won't have a swimming pool.","Our new house must have a swimming pool."],
+["m",10,"– Look! My grandpa is 80, and he sends emails on his smartphone every day. – ___","Wow! That's amazing!","Yes, he does.","Never mind.","You're welcome."],
+["m",10,"– What's the ___ of your dream house? – It's by the sea, near a small fishing village.","location","type","colour","price"],
+["m",10,"In the future, a smart robot might ___ our pets when we are on holiday.","look after","look at","look for","look like"],
+["rd",10,"Hoa's dream house will be high in the mountains, far from the noisy city. It will have only four rooms, but every room will have a big window with a mountain view. Hoa won't need an electric fan because the air there is always cool. She might buy a smart TV, but she won't watch it much because she loves reading books.","Which sentence about Hoa's dream house is TRUE?","Hoa isn't sure about having a smart TV there.","It will have a lot of rooms.","It will be in a busy city.","Hoa will need an electric fan in summer."],
+["rd",10,"All thirty students in Class 6A answered a survey about their future houses. Twenty think their future home will be a hi-tech flat in the city. Eight think they might live in the countryside, but they are not sure. Only two want a house on the Moon!","Which sentence is TRUE about Class 6A?","Most students think they will live in a city.","Most students want a house on the Moon.","Eight students are sure they will live in the countryside.","No students want to live in the countryside."],
+["rd",10,"Meet Max, the smart kitchen helper! Tell Max what you want for dinner, and it will choose the food and cook it for you. Max can't wash the dishes, so you will still need a dishwasher. Max will be in shops next June, and it might cost about 15 million dong.","Which sentence is TRUE about Max?","People can't buy it now.","It can wash the dishes.","It will cost 20 million dong.","It will choose your dinner without asking you."],
+["e",10,"In 2050, there [will have] a robot [in] every kitchen, [and] it [will] cook all our meals.",0,"will be"],
+["e",10,"My family [might] [moves] to a small house [in] the countryside [next] year.",1,"move"],
+["e",10,"[Will] your future house [has] a big garden [with] lots of [trees] in it?",1,"have"],
+["e",10,"My little brother [don't will] [go] [to] school [next] year because he is only three.",0,"won't"],
+["f",10,"In the future, people won't spend much time doing ___, like cooking and cleaning. (house)","housework|the housework"],
+["f",10,"With a ___ TV, you can move the TV to any room easily. (wire)","wireless"],
+["f",10,"– Will you live in a big city in the future? – No, I ___. I'll live in a quiet village by the sea.","won't|will not"],
+["f",10,"– ___ will you go to school in the future? – By flying car, I think!","How"],
+["p",10,"sw<u>i</u>mming","h<u>i</u>-tech","<u>i</u>sland","dr<u>i</u>ve"],
+["p",10,"ma<u>ch</u>ine","kit<u>ch</u>en","<u>ch</u>air","bea<u>ch</u>"],
+["s",10,"receive","palace","bedroom","future"],
+["s",10,"ocean","begin","become","arrive"],
+["o",10,"surf","cook","wash","clean"],
+["l",10,"appliance","a machine that helps you at home, for example a washing machine or an electric cooker"],
+["l",10,"helicopter","a flying machine that can go straight up into the sky and come down on a roof"],
+["r",10,"Will / your future house / be / in the city / or / in the countryside?"],
+["r",10,"We / might not / live / on the Moon, / but / our houses / will be / very hi-tech."]
+];
 
 /* ================= LISTENING =================
    h  = listen and choose: [spoken text, question, correct, wrong x3]
@@ -852,6 +1049,48 @@ const CITY_L=[
 ["h",5,"You mustn't take photos in the cave.","What mustn't you do in the cave?","take photos","eat food","walk alone","speak loudly"],
 ["h",6,"We should visit our teachers on the third day of Tet.","When should they visit their teachers?","on the third day of Tet","on the first day of Tet","on the second day of Tet","before Tet"]
 ];
+const NATIONAL_L=[
+// Unit 1
+["h",1,"My brother goes to the chess club on Tuesdays. I don't like chess, so I go to the art club on Thursdays. On Saturday mornings, we both play football in the park.","When does the speaker go to the art club?","on Thursdays","on Tuesdays","on Saturday mornings","on Sundays"],
+["hf",1,"In our maths tests, we can't use calculators. We always check our answers twice.","In our maths tests, we can't use ___. We always check our answers twice.","calculators"],
+// Unit 2
+["h",2,"This is my sister's bedroom. Her guitar is on the bed, and my brother's football is under her desk.","What is under the desk?","the brother's football","the sister's football","the sister's guitar","the brother's guitar"],
+["hf",2,"Let's put the old sofa in the hall. Then we can buy a new one for the living room.","Let's put the old sofa in the ___. Then we can buy a new one for the living room.","hall"],
+// Unit 3
+["h",3,"My best friend Linh is short and has long straight hair. Her sister Thu is tall with short curly hair. Right now, Linh is reading, and Thu is playing the piano.","What does Linh look like?","short, with long straight hair","tall, with short curly hair","short, with short curly hair","tall, with long straight hair"],
+["hf",3,"Tuan has short black hair. He wears glasses when he reads.","Tuan has short black hair. He wears ___ when he reads.","glasses"],
+// Unit 4
+["h",4,"In my village, the streets are narrower and quieter than in the town. But the shops are small, so we often go to the town to buy clothes and shoes.","Why do they often go to the town to buy clothes?","The shops in the village are small.","The streets in the village are narrower.","The village is quieter than the town.","The town is near the village."],
+["hf",4,"Cross the road and turn right. The cathedral is behind the big bookshop.","Cross the road and turn right. The ___ is behind the big bookshop.","cathedral"],
+// Unit 5
+["h",5,"On the trip to Phong Nha, you must bring a hat and some water. You mustn't take food into the cave, but you can have lunch by the river.","Where can visitors have lunch?","by the river","in the cave","on the bus","at the hotel"],
+["hf",5,"Please bring a map and a compass. The forest is very big, and there aren't many people there.","Please bring a map and a ___. The forest is very big, and there aren't many people there.","compass"],
+// Unit 6
+["h",6,"Before Tet, my mum buys some peach flowers, and my dad cleans the windows. My sister and I help Grandma cook banh chung.","What does the speaker do before Tet?","helps Grandma cook banh chung","buys peach flowers","cleans the windows","watches fireworks"],
+["hf",6,"My little brother loves the fireworks on New Year's Eve. He cheers and jumps every time he sees a big one.","My little brother loves the fireworks on New Year's Eve. He ___ and jumps every time he sees a big one.","cheers"],
+// Unit 7
+["h",7,"My brother watches sports programmes with Dad. My sister and I prefer cartoons, so we watch them with Mum in the living room.","Who watches cartoons with Mum?","the speaker and the sister","the brother and Dad","the brother and the sister","Dad and the speaker"],
+["h",7,"There are two English programmes for children on VTV7. Fun with English is on every Monday, and Happy English is on twice a week, on Wednesday and Friday.","How often is Happy English on?","twice a week","every Monday","once a week","every day"],
+["h",7,"The comedy was on at ten o'clock, so my little brother didn't watch it. He watched a cartoon at seven and went to bed at eight.","Why didn't the little brother watch the comedy?","It was on too late.","It wasn't funny.","He went to bed at seven.","He didn't like comedies."],
+["hf",7,"My cousin's favourite channel shows animated films all day. She watches it after school.","My cousin's favourite channel shows ___ films all day. She watches it after school.","animated"],
+// Unit 8
+["h",8,"Last Saturday, I went cycling with my dad in the morning. In the afternoon, I wanted to play badminton, but it rained, so I played chess with my sister.","What did the speaker do in the afternoon?","played chess","played badminton","went cycling","went swimming"],
+["h",8,"On sports day, Class 6A won the volleyball match, and Class 6B won the tug of war. My class, 6C, won the running race.","What did Class 6B win?","the tug of war","the volleyball match","the running race","the chess contest"],
+["h",8,"Don't ride your bikes to the sports centre tomorrow. Come by bus, and remember your sports shoes and some water.","How should people go to the sports centre tomorrow?","by bus","by bike","on foot","by car"],
+["hf",8,"You don't need a ball or a racket for aerobics. You only need comfortable clothes and some music.","You don't need a ball or a racket for ___. You only need comfortable clothes and some music.","aerobics"],
+// Unit 9
+["h",9,"My uncle lives in Tokyo. His flat is small, but it's near a beautiful park. He says the city is very clean, but it's crowded in the morning.","What does the uncle say about Tokyo?","It's clean but crowded.","It's small and quiet.","It's dirty and crowded.","It's clean and quiet."],
+["h",9,"We're at the night market now. On the left, people sell T-shirts, and on the right, they sell street food. Mum wants a new T-shirt, but Dad and I are hungry.","What do the speaker and Dad want?","something to eat","new T-shirts","some postcards","a city map"],
+["h",9,"Our hotel is on the river bank. In the daytime, we can see the boats from our room, and at night we can see the lights of the old bridge.","What can they see from their room at night?","the lights of the bridge","the boats on the river","the night market","the old palace"],
+["hf",9,"In Can Tho, you can buy cheap food at the stalls along the river bank. Many of them stay open until midnight.","In Can Tho, you can buy cheap food at the stalls along the river bank. Many of them stay open until ___.","midnight"],
+// Unit 10
+["h",10,"My future house will be by the sea. It won't be big, but it will have a garden with lots of flowers.","What will the speaker's house be like?","small, with a flower garden","big, with a flower garden","small, with a swimming pool","in the mountains, with a garden"],
+["h",10,"In the future, robots will drive buses, help doctors and clean the streets. But I don't think they will teach children at school.","Which job does the speaker think robots won't do?","teaching children","driving buses","helping doctors","cleaning the streets"],
+["h",10,"I'm not sure about my future home. I might live in Ha Noi, or I might live in a small town near the sea. But I won't live in the mountains – it's too cold there!","The speaker will NOT live ___.","in the mountains","in Ha Noi","in a small town","near the sea"],
+["h",10,"We might buy a dishwasher next year. Mum likes the idea because she's very busy, but Dad thinks it will be too noisy.","What does Dad think about the dishwasher?","It will be too noisy.","It will be too expensive.","It will help Mum a lot.","It will be too big for the kitchen."],
+["hf",10,"Our new house might have a smart door. It will open when it sees my face, so I won't need a key.","Our new house might have a smart door. It will open when it sees my ___, so I won't need a key.","face"],
+["hf",10,"Our future house will get all its energy from the sun. It will be clean and cheap.","Our future house will get all its ___ from the sun. It will be clean and cheap.","energy"]
+];
 
 /* ================= Normalise ================= */
 const PROMPT={o:"Choose the odd one out.",p:"Choose the word whose underlined part is pronounced differently.",s:"Choose the word with a different stress pattern."};
@@ -859,6 +1098,7 @@ function toQ(row,lv,i){
   const [t,u]=row, id=lv+i, q={id,lv,t,u};
   if(t==="m"){q.q=row[2];q.o=row.slice(3);q.a=0}
   else if(t==="o"||t==="p"||t==="s"){q.q=PROMPT[t];q.o=row.slice(2);q.a=0}
+  else if(t==="rd"){q.read=row[2];q.q=row[3];q.o=row.slice(4);q.a=0}
   else if(t==="e"){q.s=row[2];q.a=row[3];q.fix=row[4];q.parts=[...row[2].matchAll(/\[([^\]]+)\]/g)].map(m=>m[1])}
   else if(t==="f"){q.q=row[2];q.ans=row[3].split("|")}
   else if(t==="l"){q.w=row[2];q.h=row[3]}
@@ -868,7 +1108,7 @@ function toQ(row,lv,i){
   else if(t==="hf"){q.say=row[2];q.q=row[3];q.ans=row[4].split("|")}
   return q;
 }
-const BANKS={S:SCHOOL.concat(SCHOOL_L).map((r,i)=>toQ(r,"S",i)),W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i)),C:CITY.concat(CITY_L).map((r,i)=>toQ(r,"C",i))};
+const BANKS={S:SCHOOL.concat(SCHOOL_L).map((r,i)=>toQ(r,"S",i)),W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i)),C:CITY.concat(CITY_L).map((r,i)=>toQ(r,"C",i)),N:NATIONAL.concat(NATIONAL_L).map((r,i)=>toQ(r,"N",i))};
 
 /* ================= Test plan =================
    Every test is fixed: the same test number always gives the same questions.
@@ -878,9 +1118,11 @@ const DAY=864e5;
 const TRACKS={
   S:{key:"S",name:"School Level",units:"Units 1–4",start:new Date(2026,9,12),weeks:7,exam:new Date(2026,10,26),examText:"26–28 Nov 2026",pools:[["S",30]],mins:20},
   W:{key:"W",name:"Ward Level",units:"Units 1–6",start:new Date(2026,9,12),weeks:13,exam:new Date(2027,0,7),examText:"7–9 Jan 2027",pools:[["W",30]],mins:20},
-  C:{key:"C",name:"City Level",units:"Units 1–9",start:new Date(2027,0,11),weeks:8,exam:new Date(2027,2,4),examText:"4–6 Mar 2027",pools:[["C",24],["W",6]],mins:20}
+  C:{key:"C",name:"City Level",units:"Units 1–9",start:new Date(2027,0,11),weeks:8,exam:new Date(2027,2,4),examText:"4–6 Mar 2027",pools:[["C",24],["W",6]],mins:20},
+  // Phiên N-IOE: bắt đầu thứ hai 8/3/2027, ngay sau IOE cấp thành phố (4–6/3); thi cấp quốc gia 1–2/4/2027 (dự kiến), tuần thứ tư là tuần thi
+  N:{key:"N",name:"National Level",units:"Units 1–10",start:new Date(2027,2,8),weeks:4,exam:new Date(2027,3,1),examText:"1–2 Apr 2027 (expected)",pools:[["N",24],["C",6]],mins:20}
 };
-const TRACK_ORDER=["S","W","C"];
+const TRACK_ORDER=["S","W","C","N"];
 const PER_WEEK=7, TEST_LEN=30;
 
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
@@ -930,7 +1172,7 @@ function inst(q,seed){
   if(x.t==="r"){const c=chunks(x.s).map((c,i)=>({c,i}));let s=c;for(let n=0;n<6;n++){s=shuffleWith(c,r);if(s.some((t,i)=>t.i!==i))break}x.tiles=s}
   if(x.t==="l"){
     const idx=[...x.w].map((ch,i)=>/[a-z]/i.test(ch)?i:-1).filter(i=>i>=0);
-    const n=x.lv==="C"&&x.w.length>=7?2:1;
+    const n=(x.lv==="C"||x.lv==="N")&&x.w.length>=7?2:1;
     x.miss=shuffleWith(idx,r).slice(0,n).sort((a,b)=>a-b);
   }
   return x;
@@ -1039,7 +1281,7 @@ const norm=s=>String(s).toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," 
 const chunks=s=>s.split("/").map(x=>x.trim()).filter(Boolean);
 const fmtTime=s=>{s=Math.max(0,Math.round(s));return String(s/60|0).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
 const fmtDate=d=>d.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
-const allQ=()=>BANKS.S.concat(BANKS.W,BANKS.C,custom);
+const allQ=()=>BANKS.S.concat(BANKS.W,BANKS.C,BANKS.N,custom);
 const byId=id=>allQ().find(q=>q.id===id);
 const LETTERS="ABCD";
 function strip(h){const d=document.createElement("div");d.innerHTML=h;return d.textContent}
@@ -1053,6 +1295,7 @@ function correctText(q){
 }
 function stemText(q){
   if(q.say)return "Listening: “"+esc(q.say)+"”"+(q.t==="h"?" · "+esc(q.q):"");
+  if(q.t==="rd")return "Reading: “"+esc(q.read)+"” · "+safe(q.q);
   if(q.t==="r")return "Reorder: "+esc(chunks(q.s).join(" / "));
   if(q.t==="l")return "Missing letters: "+esc(q.w.split("").map((c,i)=>q.miss&&q.miss.includes(i)?"_":c).join(""))+" ("+esc(q.h)+")";
   if(q.t==="e")return "Find the mistake: "+esc(q.s.replace(/\[|\]/g,""));
@@ -1071,10 +1314,11 @@ function nextTest(tk){
   for(let k=0;k<total;k++)if(!results[resKey(tk,k)])return k;
   return null;
 }
-// lộ trình mặc định (hero, khóa tab lần đầu): School Level đến hết 29/11/2026 (sau kì thi cấp trường, như ioe-4), Ward Level đến trước City Level.
-// Không lấy lộ trình bắt đầu muộn nhất như ioe-4, vì School Level và Ward Level cùng bắt đầu 12/10/2026.
+// lộ trình mặc định (hero, khóa tab lần đầu): School Level đến hết 29/11/2026 (sau kì thi cấp trường, như ioe-4), rồi lộ trình bắt đầu muộn
+// nhất trong Ward Level, City Level, National Level (từ 8/3/2027, Phiên N-IOE). School Level và Ward Level cùng bắt đầu 12/10/2026, nên
+// School Level xét riêng theo ngày.
 const SCHOOL_END=new Date(2026,10,30);
-function defaultTrack(){const d=today();return d<SCHOOL_END?"S":d<TRACKS.C.start?"W":"C"}
+function defaultTrack(){const d=today();if(d<SCHOOL_END)return "S";let tk="W";for(const k of TRACK_ORDER)if(k!=="S"&&d>=TRACKS[k].start)tk=k;return tk}
 
 /* ================= Session ================= */
 let S=null, tick=null;
@@ -1147,7 +1391,7 @@ function renderQ(){
       body=`<div class="label">Listen and fill in the missing word</div>${listenBar}<div class="qtext">${parts[0]}<input class="blank" id="fillIn" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Your answer">${parts.slice(1).join("___")}</div>`;
     }
   }else if(q.o){
-    const label=q.t==="m"?`<div class="label">Choose the best answer</div>`:"";
+    const label=q.t==="m"?`<div class="label">Choose the best answer</div>`:q.t==="rd"?`<div class="label">Read and choose the best answer</div><div class="read">${esc(q.read)}</div>`:"";
     const longOpts=q.o.some(o=>strip(o).length>22);
     body=`${label}<div class="qtext">${safe(q.q)}</div><div class="opts${longOpts?" wide":""}">${q.order.map((oi,k)=>`<button class="opt${sel(oi)}" data-o="${oi}"><span class="k">${LETTERS[k]}</span><span>${safe(q.o[oi])}</span></button>`).join("")}</div>`;
   }else if(q.t==="e"){
@@ -1349,7 +1593,7 @@ function renderHome(note){
     <section class="sec"><h2>Listening</h2><div class="panel" id="soundPanel"></div></section>
 
     <section class="sec"><h2>Practise by Unit</h2><p class="muted small" style="margin:0">No timer. You see the answer after each question.</p>
-      <div class="units">${Object.entries(UNITS).map(([u,t])=>{const n=allQ().filter(q=>q.u==u).length;return `<button class="unit" data-u="${u}"><span class="n">Unit ${u}</span><span class="t">${t}</span><span class="small muted">${n} questions${u>6?" · City Level":""}</span></button>`}).join("")}</div>
+      <div class="units">${Object.entries(UNITS).map(([u,t])=>{const n=allQ().filter(q=>q.u==u).length;return `<button class="unit" data-u="${u}"><span class="n">Unit ${u}</span><span class="t">${t}</span><span class="small muted">${n} questions${u>9?" · National Level":u>6?" · City Level":""}</span></button>`}).join("")}</div>
     </section>
 
     <section class="sec"><h2>Review Mistakes</h2>
