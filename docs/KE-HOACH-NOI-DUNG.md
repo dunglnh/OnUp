@@ -17,14 +17,14 @@ Phần dự trù chi phí và giá bán nằm ở tài liệu riêng của chủ
 
 ## 1. Hiện trạng (kiểm kê ngày 25/10/2026)
 
-Số đề, số câu lấy từ `node tests/kiem-tra-de.js` (25/10/2026: 78 đề cố định, 37 đề ngẫu nhiên, 2 839 câu); cần số mới thì chạy lại, không chép số ở đây.
+Số đề, số câu lấy từ `node tests/kiem-tra-de.js` (25/10/2026: 80 đề cố định, 38 đề ngẫu nhiên, 2 914 câu); cần số mới thì chạy lại, không chép số ở đây.
 
-| Kì thi (lịch 2026–2027) | Lớp 4 (900 câu) | Lớp 6 (1 924 câu) |
+| Kì thi (lịch 2026–2027) | Lớp 4 (900 câu) | Lớp 6 (1 999 câu) |
 |---|---|---|
 | Giữa kì I (2–13/11/2026) | Toán, Tiếng Việt; bài ôn `l4-giua-ki-1` | 8 môn (Toán thêm Đề 3, Đề 4 cho trường dạy song song số và hình); bài ôn `l6-giua-ki-1` |
 | Cuối kì I (lớp 6: 21/12–8/1; lớp 4: 28/12–8/1) | 6 môn (Toán 3 đề) | 8 môn |
 | Giữa kì II (15–26/3/2027) | Toán, Tiếng Việt | 8 môn |
-| Cuối năm (lớp 6: 26/4–14/5; lớp 4: 3–14/5/2027) | **chưa có** (N13–N17, N16b) | Toán (N18), Ngữ văn (N19), Tiếng Anh (N20); môn khác **chưa có** (N21–N22b) |
+| Cuối năm (lớp 6: 26/4–14/5; lớp 4: 3–14/5/2027) | **chưa có** (N13–N17, N16b) | Toán (N18), Ngữ văn (N19), Tiếng Anh (N20), KHTN (N21); môn khác **chưa có** (N22, N22b) |
 | IOE | bài ôn `ioe-4` (cấp trường, xã, tỉnh, quốc gia) | bài ôn `ioe-6` (cấp trường, xã, thành phố, quốc gia) |
 
 - Mỗi môn, mỗi kì đã có: 2 đề cố định 25 câu (trừ ghi khác) và một đề ngẫu nhiên rút theo ma trận từ kho 50–108 câu (mục 3.1). 8 môn của lớp 6: Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ; 6 môn cuối kì của lớp 4: Toán, Tiếng Việt, Tiếng Anh, Khoa học, Lịch sử và Địa lí, Tin học và Công nghệ.
@@ -65,16 +65,16 @@ Số đề mục tiêu mỗi môn, mỗi kì (đề 25 câu; với đề ngẫu 
 |---|---|---|---|---|
 | 4 | 54 | 1 350 | 900 | 6 (N13–N17, N16b) |
 | 5 | 54 | 1 350 | 0 | 16 |
-| 6 | 84 | 2 100 | 1 924 | 3 (N21–N22b) |
+| 6 | 84 | 2 100 | 1 999 | 2 (N22, N22b) |
 | 7 | 84 | 2 100 | 0 | 24 |
 | 8 | 84 | 2 100 | 0 | 24 |
 | 9 | 110 | 2 750 | 0 | 33 (24 + 9 đề thi thử vào 10) |
 | 10 | 96 | 2 400 | 0 | 28 |
 | 11 | 96 | 2 400 | 0 | 28 |
 | 12 | 176 | 4 400 | 0 | 53 (28 + 25 đề thi thử tốt nghiệp) |
-| **Tổng** | **838** | **20 950** | **2 824** | **215** |
+| **Tổng** | **838** | **20 950** | **2 899** | **214** |
 
-Ngoài 215 phiên làm đề còn 15 phiên: K5 (đề tính điểm cho đề thi thử), 7 phiên rà soát trước khi bật lớp 5, 7–12, Lịch 2027–2028, gộp bài ôn dạng trang vào ngân hàng, và 5 phiên chuẩn bị dùng thử và bán (G0, B1, B2, B4, G1; mục 5). Tổng 232 phiên (từ 25/10/2026), thứ tự và mốc ở mục 4; dự trù thêm khoảng 15 phiên rà đề theo sách chỉnh sửa năm 2027 (mục 4, đoạn “Sách”). Đến 25/10/2026 đã xong 48 phiên của bảng mốc ở mục 4 (47 phiên của giai đoạn 3 và phiên Lịch các khối mới).
+Ngoài 214 phiên làm đề còn 15 phiên: K5 (đề tính điểm cho đề thi thử), 7 phiên rà soát trước khi bật lớp 5, 7–12, Lịch 2027–2028, gộp bài ôn dạng trang vào ngân hàng, và 5 phiên chuẩn bị dùng thử và bán (G0, B1, B2, B4, G1; mục 5). Tổng 232 phiên (từ 25/10/2026), thứ tự và mốc ở mục 4; dự trù thêm khoảng 15 phiên rà đề theo sách chỉnh sửa năm 2027 (mục 4, đoạn “Sách”). Đến 25/10/2026 đã xong 49 phiên của bảng mốc ở mục 4 (48 phiên của giai đoạn 3 và phiên Lịch các khối mới).
 
 ---
 
@@ -300,7 +300,7 @@ Nguyên tắc:
 | Giai đoạn | Việc | Số phiên | Đã xong 25/10/2026 | Cộng dồn từ 22/10/2026 | Xong trước (mốc kiểm tra) |
 |---|---|---|---|---|---|
 | 0–2 · Đã xong | N0a, N0b; kĩ thuật K1–K4; cuối kì I lớp 4 và 6 (N1–N6, N3b, N4b) | 14 | 14 | | xong 21/10/2026 |
-| 3 · Lớp 4 và 6 còn lại | giữa kì I (N23–N25b, N26), giữa kì II (N7–N12b), dò sách in năm 2026 (DS1–DS12c, 29 phiên), Toán 6, Ngữ văn 6, Tiếng Anh 6 cuối năm (N18–N20), IOE quốc gia (N-IOE); còn cuối năm (N21–N22b, N13–N17, N16b) | 57 | 47 | 57 | 31/10/2026 |
+| 3 · Lớp 4 và 6 còn lại | giữa kì I (N23–N25b, N26), giữa kì II (N7–N12b), dò sách in năm 2026 (DS1–DS12c, 29 phiên), Toán 6, Ngữ văn 6, Tiếng Anh 6, KHTN 6 cuối năm (N18–N21), IOE quốc gia (N-IOE); còn cuối năm (N22, N22b, N13–N17, N16b) | 57 | 48 | 57 | 31/10/2026 |
 | 4 · Lớp 9 | Lịch các khối mới (xong, PR #113); K5 (đề tính điểm); lớp 9 bốn kì và đề thi thử vào 10 (33); rà soát | 36 | 1 | 93 | 15/11/2026 |
 | 5 · Lớp 12, 5 | lớp 12 bốn kì và đề thi thử tốt nghiệp (53), lớp 5 (16); mỗi khối một phiên rà soát | 71 | | 164 | 10/12/2026 |
 | 6 · Lớp 7, 8 | lớp 7 (24), lớp 8 (24); mỗi khối một phiên rà soát | 50 | | 214 | 31/12/2026 |
@@ -387,7 +387,6 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 
 | Phiên | Hạn | Nội dung | Kho | Mã mới | Kiểm thử phải sửa |
 |---|---|---|---|---|---|
-| N21 | 31/10/2026 (muộn nhất 5/4/2027) | KHTN 6 cuối năm | 50 + ~25 | `khtn6-ck2-de1`, `-de2`, `-ngau-nhien`; `tests/khtn6-ck2.js` | không |
 | N22 | 31/10/2026 (muộn nhất 5/4/2027) | Lịch sử và Địa lí 6, GDCD 6 cuối năm | mỗi môn 50 | `lsdl6-ck2-*`, `gdcd6-ck2-*` | không |
 | N22b | 31/10/2026 (muộn nhất 5/4/2027) | Tin học 6, Công nghệ 6 cuối năm | mỗi môn 50 | `tin6-ck2-*`, `congnghe6-ck2-*` | không |
 | N13 | 31/10/2026 (muộn nhất 12/4/2027) | Toán 4 cuối năm | 50 + ~50 | `toan4-ck2-de1`, `-de2`, `-ngau-nhien`; `tests/toan4-ck2.js`; phạm vi của ck2-l4 | không |
@@ -426,17 +425,7 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 
 ### Trước 31/10/2026: cuối năm lớp 6, rồi lớp 4
 
-Phạm vi theo phân phối chương trình và đề cương cuối học kì II phổ biến của sách Kết nối tri thức (nguồn ở cuối mục này, tra ngày 21/10/2026): lớp 4 môn Toán ôn cả năm, nặng học kì II, các môn khác chủ yếu học kì II; lớp 6 kiểm tra học kì II, nặng phần sau giữa kì. Phiên đầu của mỗi khối ghi phạm vi từng môn vào lịch thi (lớp 6: N18 đã ghi vào `scope` của ck2-l6; lớp 4: N13), các phiên sau dùng đúng phạm vi đó. Mã đề cuối năm dùng `ck2` như mã kì thi (`ck2-l4`, `ck2-l6`); tên đề “<môn> <khối> · Cuối năm · Đề N” (`tests/kiem-tra-de.js` nhận tên kì “Cuối năm”, đề Tiếng Anh hiện “End-of-year”). Lớp 6 thi trước (từ 26/4/2027) nên làm trước: N18, N19, N20 (đã xong) → N21 → N22 → N22b → N13 → N14 → N15 → N16 → N16b → N17.
-
-**Phiên N21 · KHTN 6 cuối năm**
-> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "KHTN 6 · Cuối năm" khoảng 75 câu, sách Kết nối tri thức, phạm vi Bài 40–55: Chương VIII Lực trong đời sống (Bài 40 Lực là gì?; Bài 41 Biểu diễn lực; Bài 42 Biến dạng của lò xo; Bài 43 Trọng lượng, lực hấp dẫn; Bài 44 Lực ma sát; Bài 45 Lực cản của nước), Chương IX Năng lượng (Bài 46 Năng lượng và sự truyền năng lượng; Bài 47 Một số dạng năng lượng; Bài 48 Sự chuyển hoá năng lượng; Bài 49 Năng lượng hao phí; Bài 50 Năng lượng tái tạo; Bài 51 Tiết kiệm năng lượng), Chương X Trái Đất và bầu trời (Bài 52 Chuyển động nhìn thấy của Mặt Trời. Thiên thể; Bài 53 Mặt Trăng; Bài 54 Hệ Mặt Trời; Bài 55 Ngân Hà); ôn Bài 34–39 (thực vật, động vật, đa dạng sinh học) khoảng 5 câu. Note nhắc: trường dạy ba phân môn song song có thể đã kiểm tra một phần Lực ở học kì I, hoặc kiểm tra cuối năm cả phần sinh học của học kì II; phụ huynh đối chiếu đề cương. Có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
-> - Mã mới (data/banks/6-khtn.js, 45 phút): khtn6-ck2-de1, khtn6-ck2-de2 "KHTN 6 · Cuối năm · Đề 1", "… · Đề 2" (mỗi đề 25 câu, đủ chủ đề, 10 – 8 – 7) và khtn6-ck2-ngau-nhien "KHTN 6 · Cuối năm · Đề ngẫu nhiên" (pool, from = ["khtn6-ck2-de1", "khtn6-ck2-de2"], khoảng 25 câu riêng).
-> - Chủ đề theo nhóm bài (ví dụ "Lực và biểu diễn lực", "Biến dạng của lò xo", "Trọng lượng, lực hấp dẫn", "Lực ma sát, lực cản của nước", "Năng lượng và các dạng năng lượng", "Chuyển hoá năng lượng, năng lượng hao phí", "Năng lượng tái tạo, tiết kiệm năng lượng", "Mặt Trời, Mặt Trăng", "Hệ Mặt Trời, Ngân Hà"); phần ôn dùng đúng chữ chủ đề của ngân hàng KHTN 6 giữa kì II (Phiên N11, ví dụ "Thực vật", "Động vật", "Đa dạng sinh học").
-> - Dạng câu theo khung Công văn 7991 (nhiều lựa chọn, đúng/sai 4 ý, trả lời ngắn): đúng/sai 4 ý; trả lời bằng số (độ dãn của lò xo, trọng lượng P = 10m, năng lượng có ích và hao phí); nối cột (dạng năng lượng – ví dụ, lực – tác dụng, hành tinh – đặc điểm); sắp xếp (các hành tinh theo khoảng cách đến Mặt Trời, các pha của Mặt Trăng, chuỗi chuyển hoá năng lượng); khoảng 6 câu có hình SVG (mũi tên biểu diễn lực theo tỉ xích, lò xo treo vật, pha Mặt Trăng, sơ đồ hệ Mặt Trời; mũi tên vẽ bằng line và polygon, Quiz.svg không nhận marker).
-> - Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu, 45 phút (như Phiên N1, không cần tra lại), mỗi ô có ít nhất gấp đôi số câu ô đó rút. Tính lại câu có phép tính và đọc hình bằng code: tests/khtn6-ck2.js theo mẫu tests/khtn6-ck1.js (độ dài mũi tên lực theo tỉ xích, độ dãn lò xo, trọng lượng); in MATH OK. Gắn 3 mã vào ck2-l6.
-> - Kiểm thử: không có số ghi cứng.
->
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+Phạm vi theo phân phối chương trình và đề cương cuối học kì II phổ biến của sách Kết nối tri thức (nguồn ở cuối mục này, tra ngày 21/10/2026): lớp 4 môn Toán ôn cả năm, nặng học kì II, các môn khác chủ yếu học kì II; lớp 6 kiểm tra học kì II, nặng phần sau giữa kì. Phiên đầu của mỗi khối ghi phạm vi từng môn vào lịch thi (lớp 6: N18 đã ghi vào `scope` của ck2-l6; lớp 4: N13), các phiên sau dùng đúng phạm vi đó. Mã đề cuối năm dùng `ck2` như mã kì thi (`ck2-l4`, `ck2-l6`); tên đề “<môn> <khối> · Cuối năm · Đề N” (`tests/kiem-tra-de.js` nhận tên kì “Cuối năm”, đề Tiếng Anh hiện “End-of-year”). Lớp 6 thi trước (từ 26/4/2027) nên làm trước: N18, N19, N20, N21 (đã xong) → N22 → N22b → N13 → N14 → N15 → N16 → N16b → N17.
 
 **Phiên N22 · Lịch sử và Địa lí 6, GDCD 6 cuối năm**
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Lịch sử và Địa lí 6 · Cuối năm" và "GDCD 6 · Cuối năm", mỗi ngân hàng 50 câu, sách Kết nối tri thức, có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
