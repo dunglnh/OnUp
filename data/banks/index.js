@@ -507,6 +507,22 @@ window.ONTAP_SEED_BANKS = [
       "Tỉ số, tỉ số phần trăm": [0, 1, 1], "Điểm, đường thẳng, tia": [1, 1, 0], "Đoạn thẳng, trung điểm": [1, 0, 1], "Góc, số đo góc": [2, 1, 1],
       "Dữ liệu, biểu đồ tranh": [1, 0, 1], "Biểu đồ cột, biểu đồ cột kép": [0, 1, 1], "Xác suất thực nghiệm": [1, 1, 1] } } },
 
+  /* Ngữ văn 6 · Kiểm tra cuối năm học (Kết nối tri thức, Bài 6–9, trọng tâm Bài 8–9; Phiên N19). Kho câu = 25 câu riêng trong file
+     (4 đoạn đọc, 3 câu Viết) + 50 câu của 2 đề cố định (mỗi đề 4 đoạn đọc, 1 câu Viết), câu nào cũng có mức độ. Ma trận [Biết, Hiểu,
+     Vận dụng] 10 – 8 – 7 câu: Bài 6, Bài 7 mỗi bài [1, 1, 1] (đoạn 3 câu mức 1-2-3), Bài 8, Bài 9 mỗi bài [1, 1, 2] (đoạn 4 câu mức
+     1-2-3-3), nên lần rút nào cũng lấy trọn một đoạn mỗi bài, đúng mức; 10 câu Tiếng Việt chỉ mức Biết, Hiểu (trạng ngữ 3, từ mượn 2,
+     lựa chọn từ ngữ và cấu trúc câu 1, nghĩa của thành ngữ 1, văn bản và đoạn văn 1, ôn từ đơn và từ phức 1, cụm từ 1); 1 câu Viết tự
+     chấm. Hai đề cố định đúng ma trận, câu riêng thêm vào mọi chủ đề, nên ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút.
+     Câu tự luận chỉ ở ô Viết: mỗi lần rút đúng 1 câu. */
+  { id: "van6-ck2-de1", title: "Ngữ văn 6 · Cuối năm · Đề 1", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js" },
+  { id: "van6-ck2-de2", title: "Ngữ văn 6 · Cuối năm · Đề 2", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js" },
+  { id: "van6-ck2-ngau-nhien", title: "Ngữ văn 6 · Cuối năm · Đề ngẫu nhiên", grade: 6, subject: "Ngữ văn", minutes: 45, n: 25, file: "6-van.js",
+    pool: { from: ["van6-ck2-de1", "van6-ck2-de2"], matrix: {
+      "Chuyện kể về những người anh hùng": [1, 1, 1], "Thế giới cổ tích": [1, 1, 1], "Khác biệt và gần gũi": [1, 1, 2],
+      "Trái Đất – ngôi nhà chung": [1, 1, 2], "Trạng ngữ": [2, 1, 0], "Từ mượn": [1, 1, 0], "Lựa chọn từ ngữ và cấu trúc câu": [0, 1, 0],
+      "Nghĩa của từ": [0, 1, 0], "Văn bản và đoạn văn": [1, 0, 0], "Từ đơn và từ phức": [1, 0, 0],
+      "Cụm danh từ, cụm động từ, cụm tính từ": [1, 0, 0], "Viết": [0, 0, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
