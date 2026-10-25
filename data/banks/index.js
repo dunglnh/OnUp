@@ -214,8 +214,8 @@ window.ONTAP_SEED_BANKS = [
      2 câu, Bài 11, 12, 13 (lịch sử) mỗi bài 3 câu, một câu mỗi mức; ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút. */
   { id: "lsdl4-ck1-ngau-nhien", title: "Lịch sử và Địa lí 4 · Cuối kì I · Đề ngẫu nhiên", grade: 4, subject: "Lịch sử và Địa lí", minutes: 35, n: 25, file: "4-lsdl.js",
     pool: { from: ["lsdl4-ck1-de1", "lsdl4-ck1-de2"], matrix: {
-      "Phương tiện học tập": [1, 0, 1], "Thiên nhiên Trung du và miền núi Bắc Bộ": [1, 1, 0],
-      "Dân cư, sản xuất ở Trung du và miền núi Bắc Bộ": [1, 1, 0], "Văn hoá vùng Trung du và miền núi Bắc Bộ": [1, 0, 1],
+      "Phương tiện học tập": [1, 0, 1], "Thiên nhiên Trung du và miền núi phía Bắc": [1, 1, 0],
+      "Dân cư, sản xuất ở Trung du và miền núi phía Bắc": [1, 1, 0], "Văn hoá vùng Trung du và miền núi phía Bắc": [1, 0, 1],
       "Đền Hùng và lễ giỗ Tổ Hùng Vương": [1, 0, 1], "Thiên nhiên Đồng bằng Bắc Bộ": [1, 1, 0],
       "Dân cư, sản xuất ở Đồng bằng Bắc Bộ": [0, 1, 1], "Văn hoá vùng Đồng bằng Bắc Bộ": [1, 1, 0],
       "Sông Hồng và văn minh sông Hồng": [1, 1, 1], "Thăng Long – Hà Nội": [1, 1, 1], "Văn Miếu – Quốc Tử Giám": [1, 1, 1] } } },
