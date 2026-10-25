@@ -419,6 +419,20 @@ Phiên DS1 dò `modules/l4-giua-ki-1/index.html` (Toán Bài 1–19, Tiếng Vi�
   - `b17`: “Các ước nguyên của 4 là:” (tr. 74, Ví dụ 3); “(−36) : 9 bằng:” (tr. 73, Luyện tập 1: (−63) : 9).
 - Ghi nhớ lấy ví dụ trùng sách: `b1` ({x ∈ ℕ | x < 4} = {0; 1; 2; 3}, tr. 14), `b10` (60 = 2² · 3 · 5, đáp án của “?” tr. 40), `b17` (các ước của 6, tr. 74, Ví dụ 3).
 
+### Nhóm O · Kiểm thử định kì ngày 24/10 (Phiên 9r)
+
+QC chạy mọi bộ kiểm thử trên `main` commit `cc0c041`. Ở ngày thật tất cả in OK: `kiem-tra-de.js`, `so-bo-cham.js` (0, 0, 0), `admin-test.mjs`, `store-test.mjs`, `run.sh` (221 kiểm tra), `e2e.js` (khoảng 11 phút), `cloud-e2e.js` (khoảng 3,5 phút), và 2 527 câu chấm tự động của đề có sẵn đều được 1 điểm. Qua `tests/chay-theo-ngay.js` với `FAKE_NOW=2027-02-21T10:00:00Z` thì `cloud-e2e.js` in OK, còn `e2e.js` hỏng (hai lần chạy như nhau).
+
+**L43. `tests/chay-theo-ngay.js` không còn đúng với Playwright 1.63: `e2e.js` hỏng khi chạy như vào ngày khác.**
+- Hiện tượng: `FAKE_NOW=2027-02-21T10:00:00Z node tests/chay-theo-ngay.js tests/e2e.js` in `E2E FAILED: backupOK, pinLockOK, ta1OK`. Hai lần chạy cùng kết quả. Cùng commit, chạy thẳng `node tests/e2e.js` thì in `E2E OK`.
+  - Bước L2 (khóa PIN): tải lại trang ghi “Đợi 56 giây” thay vì 29–30 giây.
+  - Bước L14 (sao lưu): `lastBackupAt` là `07:00:00.477`, tức giờ trong trang gần như không đi từ lúc tạo context (chạy thường: `07:00:31`); bản sao lưu lùi 8 ngày chỉ hiện “Đã 7 ngày chưa sao lưu”.
+  - Bước TA1: đề `ta6-ck1-de1` không lưu kết quả (`lưu false`).
+  - Cả ba là giờ trong trang bị lùi lại sau khi tải lại trang.
+- Nguyên nhân: máy chạy kiểm thử đã lên Playwright 1.63.0 (cài ngày 23/10/2026; CLAUDE.md và Phiên 9g thử với 1.56). Từ bản này mã của Playwright gộp vào một file `playwright-core/lib/coreBundle.js`, không còn `lib/server/clock.js`. Script bọc nhận ra lời gọi `Date.now()` của đồng hồ Playwright bằng `/playwright-core[\\/]lib[\\/]server[\\/]clock/` trên stack, nên nay không nhận ra nữa: đồng hồ ghi vào nhật kí giờ đã lệch (`FAKE_NOW`), trang tải lại dựng giờ từ nhật kí đó bằng giờ thật, giờ trong trang bị lùi (chú thích đầu `tests/chay-theo-ngay.js` đã nói trước điều này). Lỗi ở script bọc, không ở app hay ở `e2e.js`. `cloud-e2e.js` vẫn qua vì các bước tải lại trang của nó không so giờ chặt như vậy.
+- QC thử bản sửa trong thư mục tạm: đổi biểu thức thành `/playwright-core[\\/]lib[\\/](server[\\/]clock|coreBundle)/` thì `e2e.js` qua script bọc với cùng `FAKE_NOW` in `E2E OK` (khóa PIN “Đợi 30 giây”, “Đã 8 ngày chưa sao lưu”, `lastBackupAt` `07:00:31`).
+- Hệ quả: kiểm tra L28 (kiểm thử không hỏng theo ngày chạy) của QC hằng ngày báo lỗi giả. Lần sau Playwright đổi cách đóng gói thì script bọc lại hỏng lặng lẽ như vậy, chỉ thấy qua vài kiểm tra về giờ.
+
 ---
 
 ## 2. Cách sửa gợi ý và điều kiện xong
@@ -1055,8 +1069,24 @@ Flow (chủ app yêu cầu 22/10/2026; Phiên 9o dùng lại cho bài ôn dạng
 - `tests/e2e.js` in `E2E OK` (bước “lesson pages l4, l6”: chữ không đè ở 360px, 720px; thêm kiểm tra Ghi nhớ `b2` không còn quy tắc trừ, Ghi nhớ `b5` có “0 ≤ r”).
 - CLAUDE.md, đoạn “Hợp đồng giữa bài ôn và app”: thêm một ý (Phiên 9q, L42) như ý của Phiên 9l, 9m. Pull Request ghi trang sách đã đọc cho từng chỗ sửa.
 
+### Phiên 9r
+
+**L43 · Script bọc `tests/chay-theo-ngay.js` với Playwright 1.63.** Chỉ sửa `tests/chay-theo-ngay.js` và tài liệu, không sửa app, không sửa `tests/e2e.js`, `tests/supabase/cloud-e2e.js`.
+- `pwClock`: nhận ra lời gọi từ đồng hồ của Playwright ở cả bản cũ và bản gộp một file, ví dụ `/playwright-core[\\/]lib[\\/](server[\\/]clock|coreBundle)/`. Với bản gộp, mọi lời gọi `Date.now()` trong mã của Playwright đều lấy giờ thật; như vậy không sao, vì giờ của Playwright chỉ dùng cho thời gian chờ và nhật kí đồng hồ. Muốn chặt hơn thì nhận theo tên hàm trên stack (lời gọi nằm trong các hàm `install`, `fastForward`, `pauseAt`, `resume`… của lớp đồng hồ, chỗ ghi `globalThis.__pwClock.controller.log(...)`), nhưng phải thử lại với bản đang cài.
+- Tự kiểm tra: khi có `FAKE_NOW`, sau lần `clock.install` đầu tiên của wrapper, nếu `pwClock` chưa khớp lần nào thì dừng ngay với lời báo rõ (ví dụ “Không nhận ra mã đồng hồ của Playwright <phiên bản>: sửa pwClock”), để lần sau Playwright đổi cách đóng gói thì thấy ngay, không ra lỗi giả ở các bước về giờ.
+- Sửa chú thích đầu file cho khớp (tên file của Playwright). CLAUDE.md, mục “Chạy và kiểm tra”: chỗ ghi “đồng hồ giả lập của Playwright (1.56)” thêm là đã thử lại với 1.63.
+
+**Xong khi:**
+- `FAKE_NOW=<hôm nay + 120 ngày>T10:00:00Z node tests/chay-theo-ngay.js tests/e2e.js` in `E2E OK`, cùng lệnh với `tests/supabase/cloud-e2e.js` in `CLOUD E2E OK`; thêm một ngày nữa, ví dụ `2026-11-14T10:00:00Z`.
+- Chạy thẳng hai script (không qua script bọc) vẫn in OK.
+- Thử tự kiểm tra: tạm đổi biểu thức thành chuỗi không khớp thì script bọc dừng với lời báo, không chạy tiếp (không đưa thay đổi thử này vào commit).
+- Pull Request ghi phiên bản Playwright đã thử và các ngày đã thử.
+
 ---
 
 ## 3. Các phiên Claude Code
 
-Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n, 9nb, 9o, 9ob, 9p, 9q đã xong (PR #119, #122, #123, #132, #137, #139). Chưa có phiên chờ làm. Lỗi mới thì QC ghi mã (tiếp theo L43) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n, 9nb, 9o, 9ob, 9p, 9q đã xong (PR #119, #122, #123, #132, #137, #139). Phiên chờ làm: 9r (L43). Lỗi mới thì QC ghi mã (tiếp theo L44) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+
+**Phiên 9r · Script bọc chạy kiểm thử như vào ngày khác, với Playwright 1.63 (L43)** (không gấp; chỉ sửa `tests/chay-theo-ngay.js` và tài liệu, không chung file với các phiên DS, N nên chạy xen được)
+> Đọc CLAUDE.md (mục "Chạy và kiểm tra", đoạn về `TODAY` và `tests/chay-theo-ngay.js`) và docs/SUA-LOI-CHAY-THU.md: L43 ở nhóm O của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9r". Máy chạy kiểm thử đã lên Playwright 1.63, mã của Playwright gộp vào `playwright-core/lib/coreBundle.js`, nên `pwClock` trong `tests/chay-theo-ngay.js` không còn nhận ra lời gọi `Date.now()` của đồng hồ Playwright: chạy `tests/e2e.js` qua script bọc với ngày giả lập thì hỏng `backupOK`, `pinLockOK`, `ta1OK` (giờ trong trang lùi sau khi tải lại), dù chạy thẳng vẫn OK. Sửa biểu thức cho khớp cả bản cũ và bản gộp, thêm bước tự kiểm tra dừng ngay khi không nhận ra mã đồng hồ, sửa chú thích. Không sửa app, không sửa `tests/e2e.js`, `tests/supabase/cloud-e2e.js`. Playwright ở `/opt/npm-tools/node_modules` thì chạy với `NODE_PATH=/opt/npm-tools/node_modules`; không chạy "playwright install". Trước khi mở Pull Request: chạy hai script thẳng và qua script bọc với hai ngày (hôm nay + 120 ngày, 14/11/2026), cả các lượt đều in OK. Làm xong thì cập nhật docs/KE-HOACH-PHAT-TRIEN-ONUP.md (bảng "Đã xong", bỏ dòng 9r ở mục 3) và xóa lời giao việc này.

@@ -214,7 +214,8 @@ Thứ tự các phiên:
 | 10 | 28/2/2027 | **G0 · Chuẩn bị dùng thử** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** | | trước khi mở dùng thử (đầu tháng 3/2027); lời giao việc ở mục 4 |
 | 11 | 31/5/2027 | **B2 · Đề trả phí lên máy chủ** → B4 (bớt tải dữ liệu) → **G1 · Kích hoạt gói, màn hình Nâng cấp** | B1 | trong thời gian dùng thử, xong trước khi mở bán (tháng 6/2027); lời giao việc ở mục 4, B4 ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 5 |
 | 12 | 31/8/2027 | Rà đề theo sách chỉnh sửa năm 2027 (dự trù khoảng 15 phiên, theo danh mục Bộ công bố); Lịch 2027–2028 (khi Bộ, Sở công bố khung năm học); gộp bài ôn dạng trang vào ngân hàng | | trước năm học 2027–2028: khách mua từ tháng 6/2027 dùng đề cho năm học đó (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách”) |
-| — | khi có | **Sửa lỗi từ góp ý chạy thử**: QC ghi mã lỗi (tiếp theo L43) và lời giao việc phiên 9 + chữ cái ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) | | chen vào bất cứ lúc nào; gấp thì xếp vào bảng “Làm ngay” |
+| — | khi có | **Phiên 9r · Script bọc `tests/chay-theo-ngay.js` với Playwright 1.63 (L43)**: lời giao việc ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) | | chỉ sửa `tests/chay-theo-ngay.js` và tài liệu, chạy xen được với các phiên DS, N; QC ghi ngày 24/10/2026 |
+| — | khi có | **Sửa lỗi từ góp ý chạy thử**: QC ghi mã lỗi (tiếp theo L44) và lời giao việc phiên 9 + chữ cái ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) | | chen vào bất cứ lúc nào; gấp thì xếp vào bảng “Làm ngay” |
 
 Từ 22/10/2026 đến 28/2/2027 còn khoảng 273 phiên (232 phiên làm đề, N26, 29 phiên dò sách, N-IOE, 7 phiên rà soát, K5, G0, B1), cùng phiên sửa lỗi: cần khoảng 2 phiên mỗi ngày, mọi ngày; Tết nghỉ thì làm bù trước Tết. Cột Hạn là mốc theo nhịp (hạn theo kì thi trong ngoặc); chậm hơn mốc quá một tuần thì lùi theo mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md). Phiên rà soát của mỗi khối không bỏ khi chậm.
 
