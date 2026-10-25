@@ -237,7 +237,7 @@ const de1 = [
     assert.deepEqual(q.o, ["Góc xOy là góc nhọn", "Góc pBq lớn hơn góc mAn", "Góc uCv là góc tù", "Góc mAn nhỏ hơn góc xOy"]);
     return [loaiGoc(g.xOy) === "Góc nhọn", g.pBq > g.mAn, loaiGoc(g.uCv) === "Góc tù", g.mAn < g.xOy];
   } },
-  { has: "Vẽ 6 tia chung gốc O", right: () => C2(6), more: (q) => assert.ok(q.x.includes("6 · 5 : 2 = 15")) },
+  { has: "quạt giấy khi mở ra có 6 nan quạt chung một đầu O", right: () => C2(6), more: (q) => assert.ok(q.x.includes("6 · 5 : 2 = 15")) },
   { has: "Dãy dữ liệu nào dưới đây là dãy số liệu", right: (q) => { const m = q.o.filter((o) => o.split(": ")[1].split("; ").every((v) => /^\d+$/.test(v))); assert.equal(m.length, 1); return m[0]; } },
   { has: "mỗi biểu tượng ứng với 10 học sinh. Hàng của khối 6 có 9 biểu tượng, hàng của khối 9 có 2", right: () => (9 - 2) * 10, more: (q) => assert.ok(q.x.includes("= 90") && q.x.includes("= 20")) },
   { has: "môn thể thao yêu thích nhất của các học sinh lớp 6A", right: (q) => { const d = cotDo(q.svg); assert.deepEqual(d.map((c) => c[0]), ["Bóng đá", "Cầu lông", "Bơi", "Cờ vua"]); return fmtInt(sum(d.map((c) => F(c[1])))) + " học sinh"; },
@@ -265,7 +265,7 @@ const de2 = [
   { has: "tỉ số của 1,5 m và 90 cm", right: () => fmtAns(div(mul(fr("1,5"), F(100)), F(90))), more: (q) => assert.ok(q.x.includes("1,5 m = 150 cm")) },
   { has: "36 học sinh đạt giải trong kì thi học sinh giỏi, chiếm 4,5%", right: () => toNum(div(F(36), div(fr("4,5"), F(100)))) },
   { has: "Hai tia Ox và Oy là", right: () => { const x = [-1, 0], O = [0, 0], y = [1, 0]; assert.ok(doiNhau(O, x, y)); return "Hai tia đối nhau"; } },
-  { has: "Cho ba điểm A, B, C không thẳng hàng. Kẻ các đường thẳng", right: () => String(C2(3)) },
+  { has: "bốn cây cột A, B, C, D; ba cột A, B, C đứng thẳng hàng, còn cột D không thẳng hàng", right: () => String(C2(4) - C2(3) + 1), more: (q) => assert.equal(q.o[1], String(C2(4)), "nhiễu: quên ba điểm thẳng hàng") },
   { has: "EF = 11 cm, EK = 4 cm. Độ dài đoạn thẳng KF", right: (q) => {
     const p = diem(q.svg, ["E", "K", "F"]); assert.ok(namGiua(p.K, p.E, p.F), "K nằm giữa E và F");
     const u = tiLe([{ px: dist(p.E, p.K), cm: 4 }, { px: dist(p.E, p.F), cm: 11 }]);
@@ -330,7 +330,7 @@ const own = [
   { has: "chiều dài 25 m, chiều rộng 16 m. Người ta dùng 15%", right: () => fmtInt(ev("25 · 16 · 15/100")) + " m²", more: (q) => assert.equal(q.o[3], fmtInt(ev("25 · 16")) + " m²", "nhiễu: cả diện tích") },
   { has: "Số học sinh thích bóng đá chiếm 40%", right: () => toNum(ev("45 · 40/100 · 1/3")), more: (q) => assert.ok(q.x.includes("= 18 (học sinh)")) },
   { has: "đóng hai chiếc đinh vào hai chỗ khác nhau", right: () => "Đúng một đường thẳng" },
-  { has: "Hai con đường thẳng tắp cắt nhau ở một ngã tư", right: () => "1" },
+  { has: "kéo dài mãi về cả hai phía thì hai vạch vẫn không gặp nhau", right: () => "Song song" }, // không có điểm chung: song song (cắt nhau: đúng một, trùng nhau: vô số)
   { has: "bốn điểm M, N, P, Q theo thứ tự đó. Tia nào dưới đây trùng với tia NQ", right: (q) => {
     const X = { M: 0, N: 1, P: 2, Q: 3 }, cung = (a, b, c, d) => a === c && Math.sign(X[b] - X[a]) === Math.sign(X[d] - X[c]);
     return theo(q, /^Tia (\w)(\w)$/, (k) => cung(k[1], k[2], "N", "Q"));
@@ -355,7 +355,7 @@ const own = [
   { has: "quãng đường thẳng AB dài 20 km có ba điểm dừng xe buýt: điểm C ở trung điểm của AB, điểm D ở trung điểm của đoạn CB, điểm E ở trung điểm của đoạn DB", right: () => fmtDec(sub(F(20), F(20, 8))) + " km" },
   { has: "Trong các số đo 45°; 90°; 125°; 180°", right: (q) => theo(q, /^(\d+)°$/, (k) => loaiGoc(+k[1]) === "Góc tù") },
   { has: "Thước đo góc cho biết góc mAn", right: (q) => thuocDo(q.svg, ["A", "m", "n"]) + "°" },
-  { has: "Lúc 2 giờ, kim giờ và kim phút", right: () => loaiGoc(kim(2)) === "Góc nhọn" },
+  { has: "Lúc 10 giờ, kim giờ và kim phút", right: () => loaiGoc(kim(10)) === "Góc nhọn" },
   { has: "Điểm nào nằm trong góc xOy", right: (q) => {
     const p = diem(q.svg, ["O", "M", "N", "P"]), u = tiaGoc(q.svg, p.O); assert.equal(u.length, 2);
     const ux = u.find((v) => dist(nhan(q.svg, "x"), [p.O[0] + v[0], p.O[1] + v[1]]) < 20), uy = u.find((v) => v !== ux);
@@ -369,12 +369,12 @@ const own = [
   { has: "đường thẳng xy đi qua điểm O và hai tia Oz, Ot", right: (q) => { const p = diem(q.svg, ["O"]), u = tiaGoc(q.svg, p.O); assert.equal(u.length, 4, "bốn tia chung gốc O");
     ["x", "y", "z", "t"].forEach((n) => assert.equal(u.filter((v) => dist(nhan(q.svg, n), [p.O[0] + v[0], p.O[1] + v[1]]) < 20).length, 1, "nhãn " + n + " ở đầu một tia"));
     return C2(u.length); } },
-  { has: "Trên cạnh BC lấy hai điểm D, E khác B và C", right: () => String(C2(2 + 2)) },
+  { has: "Ngọn hải đăng O chiếu ra bốn luồng sáng thẳng", right: () => String(C2(4)) },
   { has: "số học sinh vắng mặt của lớp 6C (lớp có 32 học sinh)", right: (q) => theo(q, /^(\d+)$/, (k) => +k[1] > 32) },
   { has: "số lượt mượn sách của thư viện trường trong bốn ngày", right: (q) => { const b = bang(q, /(thứ \S+) (\d+) lượt/g).sort((a, c) => c[1] - a[1]); return b[0][0][0].toUpperCase() + b[0][0].slice(1); } },
   { has: "mỗi biểu tượng ứng với 5 cây. Lan cần vẽ", right: () => String(bang({ q: "Tổ 1: 15 cây, Tổ 2: 20 cây, Tổ 3: 20 cây, Tổ 4: 10 cây" }, /(Tổ \d): (\d+) cây/g).reduce((s, c) => s + c[1] / 5, 0)),
     more: (q) => assert.ok(q.q.includes("Tổ 1: 15 cây, Tổ 2: 20 cây, Tổ 3: 20 cây, Tổ 4: 10 cây")) },
-  { has: "cách đến trường của học sinh lớp 6D", right: (q) => {
+  { has: "cách đến trường của các học sinh lớp 6D (mỗi bạn chỉ đến trường bằng một cách)", right: (q) => {
     const t = tranh(q.svg), d = Object.fromEntries(t.hang.map(([n, c]) => [n, c * t.k])); assert.equal(t.don, "bạn"); const ca = Object.values(d).reduce((s, v) => s + v, 0);
     assert.deepEqual(Object.keys(d), ["Đi bộ", "Xe đạp", "Xe buýt", "Bố mẹ đưa"]);
     return [ca === 40, d["Xe đạp"] === 2 * d["Đi bộ"], pct(F(d["Xe buýt"]), F(ca)) === "15%", d["Đi bộ"] - d["Bố mẹ đưa"] === 4];
@@ -382,11 +382,11 @@ const own = [
   { has: "Số sản phẩm thủ công bốn tổ", right: (q) => { const v = soLieu(q); return fmtDec(div(F(v.reduce((s, x) => s + x, 0)), F(v.length))) + " sản phẩm"; } },
   { has: "câu lạc bộ cờ vua của một trường trong bốn năm học", right: (q) => { const v = soLieu(q), d = v.slice(1).map((x, i) => x - v[i]); assert.equal(new Set(d).size, 1); assert.notEqual(v[3], 2 * v[0]);
     return `Số học sinh tăng đều, mỗi năm thêm ${d[0]} học sinh`; } },
-  { has: "Số sách một thư viện cho mượn trong năm tháng đầu năm", right: (q) => { const v = soLieu(q); const tang = v.slice(1).every((x, i) => x > v[i]);
+  { has: "Biểu đồ cột cho biết số sách một thư viện cho mượn trong năm tháng đầu năm", right: (q) => { const d = cotDo(q.svg), v = d.map((c) => c[1]); assert.deepEqual(d.map((c) => c[0]), ["1", "2", "3", "4", "5"]); assert.ok(texts(q.svg).some((t) => t.t === "(Tháng)"), "chú thích trục ngang"); const tang = v.slice(1).every((x, i) => x > v[i]);
     assert.deepEqual(q.o, ["Tháng 4 thư viện cho mượn nhiều sách nhất", "Số sách cho mượn tăng dần từ tháng 1 đến tháng 5", "Tổng số sách cho mượn trong năm tháng là 700 quyển", "Số sách cho mượn tháng 4 gấp đôi tháng 3"]);
     return [v.indexOf(Math.max(...v)) === 3, tang, v.reduce((s, x) => s + x, 0) === 700, v[3] === 2 * v[2]]; } },
-  { has: "ba trạm khí tượng A, B, C", right: (q) => { const t = [...q.q.matchAll(/trạm (\w) (\d+) °C và (\d+) °C/g)].map((m) => [m[1], m[2] - m[3]]).sort((a, b) => b[1] - a[1]);
-    assert.equal(t.length, 3); assert.ok(t[0][1] > t[1][1]); return "Trạm " + t[0][0]; } },
+  { has: "nhiệt độ cao nhất và nhiệt độ thấp nhất trong một ngày đo được ở ba trạm khí tượng A, B, C", right: (q) => { const d = cotDo(q.svg); assert.deepEqual(keys(q.svg), ["Cao nhất", "Thấp nhất"]);
+    const t = d.map(([n, [cao, thap]]) => [n, cao - thap]).sort((a, b) => b[1] - a[1]); assert.equal(t.length, 3); assert.ok(t[0][1] > t[1][1]); return t[0][0]; } },
   { has: "Khi tung một đồng xu, có hai kết quả có thể", right: () => true },
   { has: "bốn tấm thẻ ghi các số 2; 4; 6; 8", right: (q) => { const the = [2, 4, 6, 8], f = { "Rút được thẻ ghi số chẵn": (v) => v % 2 === 0, "Rút được thẻ ghi số 5": (v) => v === 5, "Rút được thẻ ghi số lớn hơn 5": (v) => v > 5 };
     return q.l.map((l) => { const k = the.filter(f[l]).length; return k === the.length ? "Chắc chắn xảy ra" : k === 0 ? "Không bao giờ xảy ra" : "Có thể xảy ra"; }); } },
@@ -398,7 +398,8 @@ const own = [
   } },
   { has: "theo dõi thời tiết trong 24 ngày và thấy có 15 ngày trời nắng", right: () => fmtAns(F(24 - 15, 24)) },
   { has: "Tâm làm như vậy 72 lần", right: () => toNum(ev("72 · 4/9")) },
-  { has: "Kiểm tra ngẫu nhiên 200 sản phẩm", right: () => fmtInt(ev("5 000 · 6/200")) + " sản phẩm", more: (q) => assert.ok(q.x.includes("6/200 = 3/100")) }
+  { has: "dây chuyền A có 6 sản phẩm bị lỗi trong 200 sản phẩm được kiểm tra, dây chuyền B có 5 sản phẩm bị lỗi trong 120", right: () => { const c = cmp(F(6, 200), F(5, 120)); return c < 0 ? "Dây chuyền B" : c > 0 ? "Dây chuyền A" : "Hai dây chuyền bằng nhau"; },
+    more: (q) => assert.ok(q.x.includes("= 18/600") && q.x.includes("= 25/600")) }
 ];
 
 let n = 0;
@@ -417,6 +418,9 @@ const run = (id, qs, checks) => {
     // so bằng JSON: câu hỏi nạp trong vm khác (tests/nap-de.js), mảng của nó không cùng nguyên mẫu với mảng ở đây
     assert.strictEqual(JSON.stringify(got()), JSON.stringify(want), at + ": đáp án " + JSON.stringify(got()) + ", tính được " + JSON.stringify(want));
     if (q.type === "mc") assert.ok(!q.o.slice(1).includes(want), at + ": nhiễu trùng đáp án đúng");
+    // các lựa chọn đều là số (phân số, số thập phân, kèm đơn vị) thì không có hai lựa chọn bằng nhau về giá trị (−2/4 và −1/2)
+    const soLC = q.type === "mc" ? q.o.map((o) => { try { return fr(o.replace(/ (?:[^\d\s]\S*)$/, "")); } catch (e) { return null; } }) : [];
+    if (soLC.length && soLC.every(Boolean)) soLC.forEach((a, k) => soLC.slice(k + 1).forEach((b) => assert.ok(!eq(a, b), at + ": hai lựa chọn bằng nhau về giá trị")));
     if (q.type === "tf4") assert.ok(want.includes(true) && want.includes(false), at + ": đúng/sai 4 ý nên có cả ý đúng và ý sai");
     if (c.more) c.more(q);
     n++;
@@ -462,7 +466,7 @@ mine.forEach((q, i) => assert.ok(M[q.topic] && M[q.topic][q.lv - 1] > 0, `${POOL
 const oTuLuan = [...new Set(pool.questions.filter((q) => q.type === "essay").map((q) => q.topic + "|" + q.lv))];
 assert.ok(oTuLuan.length <= 2 && oTuLuan.every((k) => { const [t, lv] = k.split("|"); return +lv === 3 && M[t][2] === 1 && pool.questions.some((q) => q.topic === t && q.lv === 3 && q.type !== "essay"); }), "câu tự luận: " + oTuLuan);
 const dem = (f) => pool.questions.filter(f).length;
-assert.deepEqual([dem((q) => q.type === "essay"), dem((q) => q.svg), dem((q) => q.type === "tf4"), dem((q) => q.type === "num")], [4, 14, 12, 20], "kho: 4 tự luận, 14 câu có hình, 12 đúng/sai 4 ý, 20 trả lời bằng số");
+assert.deepEqual([dem((q) => q.type === "essay"), dem((q) => q.svg), dem((q) => q.type === "tf4"), dem((q) => q.type === "num")], [4, 16, 12, 20], "kho: 4 tự luận, 16 câu có hình, 12 đúng/sai 4 ý, 20 trả lời bằng số");
 assert.ok(dem((q) => q.type === "match") >= 3 && dem((q) => q.type === "order") >= 3, "kho có nối cột, sắp xếp");
 const seen = new Set();
 let essays = 0;
@@ -517,11 +521,11 @@ const doLo = (qs) => {
 };
 const { lo, chuLo } = doLo(pool.questions);
 if (process.env.DO_LO) console.log("Đáp án bằng chữ có ở câu rút được cùng lúc (xem tay):\n" + chuLo.join("\n"));
-// đã xem (Phiên N18): chữ chung của hai câu về hai hình, hai bảng khác nhau (“điểm D” của điểm dừng xe buýt và của lưới ô vuông,
+// đã xem (Phiên N18): chữ chung của hai câu về hai hình, hai bảng khác nhau (“điểm D” của điểm dừng xe buýt, cột D và của lưới ô vuông,
 // “điểm M” của thanh gỗ và của góc, “thứ tư” của năm học, tháng), kiến thức chung (góc vuông, hai tia đối nhau), số đo là lựa chọn sai của câu khác
-const DA_XEM = ["own#28 → own#26: Điểm D", "own#36 → own#26: Điểm D", "own#23 → own#32: Điểm M", "own#27 → own#32: Điểm M", "de1#11 → own#32: Điểm M",
+const DA_XEM = ["own#28 → own#26: Điểm D", "de2#12 → own#26: Điểm D", "own#23 → own#32: Điểm M", "own#27 → own#32: Điểm M", "de1#11 → own#32: Điểm M",
   "de2#14 → own#32: Điểm M", "own#42 → own#38: Thứ Tư", "de2#20 → own#38: Thứ Tư", "de2#22 → own#38: Thứ Tư", "own#29 → de1#16: Góc vuông",
-  "own#31 → de1#16: Góc vuông", "own#34 → de1#16: Góc vuông", "de2#16 → de1#16: Góc vuông", "own#24 → de2#11: Hai tia đối nhau", "de1#15 → de2#17: 120°"];
+  "own#34 → de1#16: Góc vuông", "de2#16 → de1#16: Góc vuông", "own#24 → de2#11: Hai tia đối nhau", "de1#15 → de2#17: 120°"];
 const gon = (s) => s.replace(/toan6-ck2-ngau-nhien/g, "own").replace(/toan6-ck2-(de\d)/g, "$1").replace(/ lộ đáp án /, " → ");
 assert.deepEqual(chuLo.map(gon), DA_XEM, "đáp án bằng chữ có ở câu rút được cùng lúc đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 assert.deepEqual(lo, [], "lộ đáp án:\n" + lo.join("\n"));
