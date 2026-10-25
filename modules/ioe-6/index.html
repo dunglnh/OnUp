@@ -48,7 +48,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-vis
 .btn.danger{background:var(--bad-soft);color:var(--bad)}
 .btn:disabled{opacity:.45;cursor:default}
 .sec{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--sea-soft);border-radius:12px;padding:4px}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;background:var(--sea-soft);border-radius:12px;padding:4px}
 .seg button{border:0;background:transparent;border-radius:9px;padding:9px 8px;font-weight:700;color:var(--sea);line-height:1.2}
 .seg button small{display:block;font-weight:500;font-size:.75rem;opacity:.85}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(20,33,61,.15)}
@@ -174,8 +174,14 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em;background
    Written for the Global Success English 6 curriculum.
    m = multiple choice (correct answer first), o = odd one out, p = pronunciation, s = stress,
    e = find the mistake [part] x4 + wrong index + correction, f = fill in the blank (answers split by |),
-   l = missing letters (word, clue), r = reorder (chunks split by /).                         */
+   l = missing letters (word, clue), r = reorder (chunks split by /).
+   SCHOOL (Phiên 9s, L44): School Level, Units 1–4 (IOE cấp trường 26–28/11/2026), viết theo sách Tiếng Anh 6 Global Success tập 1 in năm 2026,
+   không có câu e; mã câu S0, S1… theo vị trí trong SCHOOL rồi SCHOOL_L. Không sửa chữ, không chèn câu vào giữa WARD, CITY, WARD_L, CITY_L:
+   mã câu W…, C… tính theo vị trí, "Review Mistakes" lưu theo mã câu, đề Ward Level, City Level đã làm phải giữ đúng câu.            */
 const UNITS={1:"My New School",2:"My House",3:"My Friends",4:"My Neighbourhood",5:"Natural Wonders of Viet Nam",6:"Our Tet Holiday",7:"Television",8:"Sports and Games",9:"Cities of the World"};
+
+const SCHOOL=[
+];
 
 const WARD=[
 // Unit 1
@@ -562,6 +568,8 @@ const CITY=[
    h  = listen and choose: [spoken text, question, correct, wrong x3]
    hp = listen and choose the picture: [spoken text, correct picture, wrong x3]
    hf = listen and fill the missing word: [spoken text, sentence with ___, answers split by |] */
+const SCHOOL_L=[
+];
 const WARD_L=[
 ["h",1,"We have Maths on Monday and Thursday.","Which days do they have Maths?","Monday and Thursday","Monday and Tuesday","Tuesday and Thursday","Wednesday and Friday"],
 ["h",1,"My favourite subject is Geography.","What is the speaker's favourite subject?","Geography","History","Science","Music"],
@@ -642,7 +650,7 @@ function toQ(row,lv,i){
   else if(t==="hf"){q.say=row[2];q.q=row[3];q.ans=row[4].split("|")}
   return q;
 }
-const BANKS={W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i)),C:CITY.concat(CITY_L).map((r,i)=>toQ(r,"C",i))};
+const BANKS={S:SCHOOL.concat(SCHOOL_L).map((r,i)=>toQ(r,"S",i)),W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i)),C:CITY.concat(CITY_L).map((r,i)=>toQ(r,"C",i))};
 
 /* ================= Test plan =================
    Every test is fixed: the same test number always gives the same questions.
@@ -650,9 +658,11 @@ const BANKS={W:WARD.concat(WARD_L).map((r,i)=>toQ(r,"W",i)),C:CITY.concat(CITY_L
    only comes back after the rest of its type has been used.                         */
 const DAY=864e5;
 const TRACKS={
+  S:{key:"S",name:"School Level",units:"Units 1–4",start:new Date(2026,9,12),weeks:7,exam:new Date(2026,10,26),examText:"26–28 Nov 2026",pools:[["S",30]],mins:20},
   W:{key:"W",name:"Ward Level",units:"Units 1–6",start:new Date(2026,9,12),weeks:13,exam:new Date(2027,0,7),examText:"7–9 Jan 2027",pools:[["W",30]],mins:20},
   C:{key:"C",name:"City Level",units:"Units 1–9",start:new Date(2027,0,11),weeks:8,exam:new Date(2027,2,4),examText:"4–6 Mar 2027",pools:[["C",24],["W",6]],mins:20}
 };
+const TRACK_ORDER=["S","W","C"];
 const PER_WEEK=7, TEST_LEN=30;
 
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
@@ -811,7 +821,7 @@ const norm=s=>String(s).toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," 
 const chunks=s=>s.split("/").map(x=>x.trim()).filter(Boolean);
 const fmtTime=s=>{s=Math.max(0,Math.round(s));return String(s/60|0).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
 const fmtDate=d=>d.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
-const allQ=()=>BANKS.W.concat(BANKS.C,custom);
+const allQ=()=>BANKS.S.concat(BANKS.W,BANKS.C,custom);
 const byId=id=>allQ().find(q=>q.id===id);
 const LETTERS="ABCD";
 function strip(h){const d=document.createElement("div");d.innerHTML=h;return d.textContent}
@@ -843,7 +853,10 @@ function nextTest(tk){
   for(let k=0;k<total;k++)if(!results[resKey(tk,k)])return k;
   return null;
 }
-function defaultTrack(){return today()<TRACKS.C.start?"W":"C"}
+// lộ trình mặc định (hero, khóa tab lần đầu): School Level đến hết 29/11/2026 (sau kì thi cấp trường, như ioe-4), Ward Level đến trước City Level.
+// Không lấy lộ trình bắt đầu muộn nhất như ioe-4, vì School Level và Ward Level cùng bắt đầu 12/10/2026.
+const SCHOOL_END=new Date(2026,10,30);
+function defaultTrack(){const d=today();return d<SCHOOL_END?"S":d<TRACKS.C.start?"W":"C"}
 
 /* ================= Session ================= */
 let S=null, tick=null;
@@ -1109,7 +1122,7 @@ function renderHome(note){
       <h2>Test Plan</h2>
       <p class="muted small" style="margin:0">7 tests a week. Each test mixes every question type from the units. A question comes back only after the rest of the bank has been used, so the tests stay fresh and the hard words get repeated.</p>
       <div class="seg" role="group" aria-label="Choose level">
-        ${["W","C"].map(k=>`<button data-tab="${k}" aria-pressed="${tab===k}">${TRACKS[k].name}<small>${TRACKS[k].units} · ${TRACKS[k].weeks*PER_WEEK} tests</small></button>`).join("")}
+        ${TRACK_ORDER.map(k=>`<button data-tab="${k}" aria-pressed="${tab===k}">${TRACKS[k].name}<small>${TRACKS[k].units} · ${TRACKS[k].weeks*PER_WEEK} tests</small></button>`).join("")}
       </div>
       <div class="legend"><span><i style="background:var(--ok)"></i>80% or more</span><span><i style="background:var(--sun)"></i>Below 80%</span><span><i style="background:var(--line)"></i>Not done yet</span></div>
       <div class="weeks" id="weeks"></div>

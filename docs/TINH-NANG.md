@@ -13,7 +13,7 @@ App được ghép từ 4 trang ôn tập đã làm trước đó:
 | Ôn giữa kì I · Lớp 4 | 4 | Toán (Bài 1–19), Tiếng Việt (tuần 1–8), sách Kết nối tri thức. Đề có giờ, ôn theo bài, ôn câu sai, câu Toán sinh ngẫu nhiên |
 | Ôn giữa kì I · Lớp 6 | 6 | Ngữ văn (Bài 1–3, có đọc hiểu văn bản mới), Toán (Chương I–III), KHTN |
 | IOE · Global Success 4 | 4 | Đề IOE cấp trường (Unit 1–6), cấp xã/phường (Unit 1–10) và cấp tỉnh (Unit 1–10, câu khó hơn, có bài đọc ngắn), có câu nghe, 7 đề mỗi tuần theo lộ trình |
-| IOE · Global Success 6 | 6 | Đề IOE cấp xã/phường (Unit 1–6) và cấp thành phố (Unit 1–9), có câu nghe |
+| IOE · Global Success 6 | 6 | Đề IOE cấp trường (Unit 1–4), cấp xã/phường (Unit 1–6) và cấp thành phố (Unit 1–9), có câu nghe, 7 đề mỗi tuần theo lộ trình |
 
 Phần mở rộng so với 4 trang gốc: **tài khoản người dùng**, **lịch thi cả năm**, **ngân hàng câu hỏi nhập được**, **theo dõi tiến độ và báo cáo tuần cho phụ huynh**, **bản đám mây** dùng chung trên nhiều máy (mục 5).
 
