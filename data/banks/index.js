@@ -523,6 +523,19 @@ window.ONTAP_SEED_BANKS = [
       "Nghĩa của từ": [0, 1, 0], "Văn bản và đoạn văn": [1, 0, 0], "Từ đơn và từ phức": [1, 0, 0],
       "Cụm danh từ, cụm động từ, cụm tính từ": [1, 0, 0], "Viết": [0, 0, 1] } } },
 
+  /* Tiếng Anh 6 · Kiểm tra cuối năm học (Global Success 6, Unit 7–12, Review 3, 4, trọng tâm Unit 10–12; Phiên N20). Kho câu = 25 câu
+     riêng trong file (2 đoạn đọc) + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu:
+     Pronunciation 2 (âm của Unit 7–9, trọng âm từ hai âm tiết của Unit 10), Unit 7, 8, 9 mỗi Unit 3, Unit 10, 11 mỗi Unit 4, Unit 12 3,
+     Reading 3 (một đoạn 3 câu mức 1-2-3). Hai đề cố định chia đúng ma trận nên ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô
+     đó rút; câu riêng chỉ ở ô có rút câu. Không có câu nghe, không có câu tự luận. */
+  { id: "ta6-ck2-de1", title: "Tiếng Anh 6 · Cuối năm · Đề 1", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js" },
+  { id: "ta6-ck2-de2", title: "Tiếng Anh 6 · Cuối năm · Đề 2", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js" },
+  { id: "ta6-ck2-ngau-nhien", title: "Tiếng Anh 6 · Cuối năm · Đề ngẫu nhiên", grade: 6, subject: "Tiếng Anh", minutes: 45, n: 25, file: "6-ta.js",
+    pool: { from: ["ta6-ck2-de1", "ta6-ck2-de2"], matrix: {
+      "Pronunciation": [1, 1, 0], "Unit 7 · Television": [1, 1, 1], "Unit 8 · Sports and Games": [1, 1, 1], "Unit 9 · Cities of the World": [1, 1, 1],
+      "Unit 10 · Our Houses in the Future": [2, 1, 1], "Unit 11 · Our Greener World": [2, 1, 1], "Unit 12 · Robots": [1, 1, 1],
+      "Reading": [1, 1, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
