@@ -3,9 +3,11 @@
 // mỗi đề cố định, một câu riêng. Câu có hình, có phép tính hoặc có chuỗi thức ăn được nhận ra bằng một đoạn chữ của đề (has, đúng
 // một câu trong kho, đúng đề ghi ở id) và tính lại đáp án bằng code: điền khuyết ans[0], trả lời bằng số ans, trắc nghiệm o[0], sắp
 // xếp o. Hình đọc lại từ chuỗi SVG: cây nấm mũ (số nào chỉ vào mũ, thân, chân nấm), tháp dinh dưỡng sáu tầng ghi chữ (tầng dưới cùng
-// rộng nhất), sơ đồ chuỗi thức ăn (ô có chữ, mũi tên là đoạn thẳng và đầu mũi tên tam giác; mũi tên chỉ từ thức ăn đến con vật ăn
-// nó), rồi đếm số chuỗi thức ăn của sơ đồ nhiều nhánh. Câu chuỗi thức ăn bằng chữ: đọc các quan hệ “A ăn B”, “A bắt B”, “A săn B”
-// trong đề, xếp thành chuỗi, so với đáp án; ý đúng/sai “A là thức ăn của B” tính lại theo chuỗi.
+// rộng nhất), sơ đồ chuỗi thức ăn (ô có chữ hoặc số, mũi tên là đoạn thẳng và đầu mũi tên tam giác; mũi tên chỉ từ thức ăn đến con
+// vật ăn nó), rồi đếm số chuỗi thức ăn của sơ đồ nhiều nhánh. Câu chuỗi thức ăn bằng chữ: đọc các quan hệ “A ăn B”, “A bắt B”, “A săn
+// B”, “A hút mật B” trong đề, xếp thành chuỗi, so với đáp án; ý đúng/sai (“A là thức ăn của B”, số chuỗi có một sinh vật, số sinh vật
+// của mỗi chuỗi) tính lại theo các quan hệ đó. Câu chọn chuỗi “đúng với thực tế”: chỉ lựa chọn đúng có mọi mắt xích nằm trong bảng
+// quan hệ thức ăn AN (ghi theo lời giải của câu).
 // Rồi kiểm tra mức độ, ma trận (10 Biết, 8 Hiểu, 7 Vận dụng), kiểu Đ/S của câu đúng/sai 4 ý không lặp quá một phần ba, đáp án đúng
 // không dài hơn hẳn lựa chọn sai, đề bài không trùng câu nào khác trong file, rút thử nhiều lần (đúng ma trận, gặp đủ 75 câu; đã làm
 // hết một đề cố định thì không rút lại câu của đề đó, đã làm hết cả hai đề thì rút đúng 25 câu riêng) và dò lộ đáp án giữa các câu
@@ -100,22 +102,32 @@ const chuoiTu = (canh) => { // các chuỗi thức ăn đi hết sơ đồ: bắ
   const di = (x, d) => { const tiep = canh.filter((c) => c[0] === x); if (!tiep.length) ra.push(d); tiep.forEach((c) => di(c[1], d.concat(c[1]))); };
   dau.forEach((x) => di(x, [x])); return ra;
 };
-/* Quan hệ thức ăn viết bằng chữ trong đề: “A ăn B”, “A bắt B”, “A săn B” (A là con vật ăn, B là thức ăn). */
-const quanHe = (s) => [...s.matchAll(/([A-ZĐÀ-Ỹa-zđà-ỹ][^,.;:]*?)(?<!thức) (?:ăn|bắt|săn|lặn xuống bắt) ([^,.;:]+?)(?: để ăn)?(?=[,.;:]|$)/gu)]
-  .map((m) => [m[2].trim().toLowerCase(), m[1].replace(/^(Ở [^:]+: |còn )/u, "").trim().toLowerCase()]);
+/* Quan hệ thức ăn viết bằng chữ trong đề: “A ăn B”, “A bắt B”, “A săn B”, “A hút mật B”, “A và C đều ăn B” (A là con vật ăn, B là
+   thức ăn). Trả về các cặp [thức ăn, con vật ăn nó]. */
+const quanHe = (s) => [...s.matchAll(/([A-ZĐÀ-Ỹa-zđà-ỹ][^,.;:]*?)(?<!thức) (?:đều )?(?:ăn|bắt|săn|hút mật|lặn xuống bắt) ([^,.;:]+?)(?: để ăn)?(?=[,.;:]|$)/gu)]
+  .flatMap((m) => m[1].replace(/^(Ở [^:]+: |còn )/u, "").split(" và ").map((a) => [m[2].trim().toLowerCase(), a.trim().toLowerCase()]));
 const xepChuoi = (canh) => { const c = chuoiTu(canh); assert.equal(c.length, 1, "các quan hệ tạo thành đúng một chuỗi"); return c[0]; };
 const laThucAn = (chuoi, a, b) => { const i = chuoi.indexOf(a.toLowerCase()), j = chuoi.indexOf(b.toLowerCase()); assert.ok(i >= 0 && j >= 0, `${a}, ${b} có trong chuỗi`); return j === i + 1; };
 const tachMuiTen = (s) => s.split("→").map((x) => x.trim().toLowerCase());
+const SO = ["", "một", "hai", "ba", "bốn", "năm", "sáu"];
+/* Con vật ăn gì, ghi theo lời giải của các câu chọn chuỗi “đúng với thực tế” (chỉ quan hệ có thật; không có trong bảng là không ăn). */
+const AN = { "tép": ["rong"], "cá rô": ["tép"], "cò": ["cá rô", "tép"], "khỉ": ["cây sung"], "trăn": ["khỉ"] };
+const thucTe = (q) => { // chỉ lựa chọn đầu có mọi mắt xích trong AN; lời giải nêu từng mắt xích của chuỗi đúng
+  const dung = (o) => { const c = tachMuiTen(o); return c.every((x, i) => !i || (AN[x] || []).includes(c[i - 1])); };
+  assert.deepEqual(q.o.map(dung), [true, false, false, false], "chỉ lựa chọn đầu đúng với bảng quan hệ thức ăn");
+  assert.ok(q.x.includes(q.o[0]), "lời giải ghi chuỗi đúng");
+  return q.o[0]; };
 
 const CHECKS = [
   { id: S.de1, has: "Bộ phận được đánh số 2 là", right: (q) => { const k = docNam(q.svg); assert.ok(["Mũ nấm", "Chân nấm"].every((b) => q.o.includes(b)), "lựa chọn sai gồm hai bộ phận kia"); return k[2]; } },
   { id: S.de2, has: "Nhóm ngũ cốc, khoai củ nằm ở tầng nào", right: (q) => { const t = docThap(q.svg); assert.deepEqual(t, ["A", "B", "C", "D", "E", "F"], "chữ A ở trên cùng đến F ở dưới cùng"); assert.ok(q.x.includes("tầng dưới cùng"), "lời giải nói tầng dưới cùng"); return "Tầng " + t[t.length - 1]; } },
-  { id: S.de1, has: "Theo sơ đồ, cá rô ăn sinh vật nào", right: (q) => { const c = docSoDo(q.svg), ch = xepChuoi(c); assert.deepEqual(ch, ["Rong", "Tép", "Cá rô", "Cò"]); return c.find((e) => e[1] === "Cá rô")[0]; } },
-  { id: S.de1, has: "Sinh vật ở ô có dấu ? trong sơ đồ", right: (q) => {
-    const c = docSoDo(q.svg), ch = xepChuoi(c); assert.equal(ch[ch.length - 1], "?", "ô có dấu ? ở cuối chuỗi");
-    const qh = quanHe(q.q.split(".")[0]), truoc = ch[ch.length - 2].toLowerCase(); // con vật ăn sinh vật đứng ngay trước ô ?
-    assert.deepEqual(xepChuoi(qh).slice(0, 2), ch.slice(0, 2).map((x) => x.toLowerCase()), "đề bài và sơ đồ cùng một chuỗi");
-    return qh.find((e) => e[0] === truoc)[1]; } },
+  { id: S.de1, has: "Chuỗi thức ăn nào dưới đây đúng với thực tế ở một cái ao", right: thucTe },
+  { id: S.de1, has: "sinh vật ở ô số 2 là", right: (q) => {
+    const ch = xepChuoi(docSoDo(q.svg)), qh = xepChuoi(quanHe(q.q.split(".")[0])); // sơ đồ: ô 1 → tên → ô 2; đề bài: chuỗi viết bằng chữ
+    assert.equal(ch.length, qh.length, "sơ đồ và đề bài cùng số sinh vật");
+    ch.forEach((x, i) => { if (!/^\d$/.test(x)) assert.equal(x.toLowerCase(), qh[i], "ô có tên đứng đúng chỗ trong chuỗi của đề bài"); });
+    assert.ok(q.x.includes("ô số 2 là " + qh[ch.indexOf("2")]), "lời giải nói ô số 2");
+    return qh[ch.indexOf("2")]; } },
   { id: S.de2, has: "viết được bao nhiêu chuỗi thức ăn bắt đầu từ cây dẻ", right: (q) => {
     const c = chuoiTu(docSoDo(q.svg)); assert.ok(c.every((x) => x[0] === "Cây dẻ"), "chuỗi nào cũng bắt đầu từ cây dẻ");
     c.forEach((x) => assert.ok(q.x.includes(x.join(" → ")), "lời giải liệt kê " + x.join(" → ")));
@@ -134,13 +146,13 @@ const CHECKS = [
   { id: S.de2, has: "Rong rêu → Ốc → Vịt, mũi tên từ ốc đến vịt", right: (q) => { const c = tachMuiTen(/: (.+?), mũi tên/.exec(q.q)[1]); assert.ok(laThucAn(c, "ốc", "vịt")); return "Ốc là thức ăn của vịt"; } },
   { id: S.pool, has: "Dế ăn lá cỏ, gà bắt dế để ăn", right: (q) => {
     const c = xepChuoi(quanHe(q.q.split(".")[0]).map(([a, b]) => [a.replace("lá cỏ", "cỏ"), b])); return c.map((x) => x[0].toUpperCase() + x.slice(1)).join(" → "); } },
-  { id: S.pool, has: "Sắp xếp các sinh vật thành một chuỗi thức ăn đúng", right: (q) => {
+  { id: S.pool, has: "Sắp xếp các sinh vật thành một chuỗi thức ăn", right: (q) => {
     const c = xepChuoi(quanHe(q.q.split(":")[1].split(". Sắp xếp")[0])); return c.map((x) => q.o.find((o) => o.toLowerCase() === x)); } },
   { id: S.de1, has: "Cây củ mài → ? → Hổ", right: (q) => { assert.ok(q.x.includes("Cây củ mài → Lợn rừng → Hổ")); return "Lợn rừng"; } },
-  { id: S.de2, has: "Cây sung → Khỉ → Trăn. Nhận xét nào đúng", right: (q) => {
-    const c = tachMuiTen(/: (.+?)\. Nhận xét/.exec(q.q)[1]).map((x) => x.replace("cây ", ""));
-    const dung = (o) => o.split(", ").every((v) => { const m = /^(.+?) ăn (.+)$/.exec(v.toLowerCase()); return laThucAn(c, m[2].replace("quả ", ""), m[1].replace("cây ", "")); });
-    assert.deepEqual(q.o.map(dung), [true, false, false, false], "chỉ lựa chọn đầu đúng với chuỗi"); return q.o[0]; } }
+  { id: S.de2, has: "Chuỗi thức ăn nào dưới đây đúng với thực tế ở một khu rừng", right: thucTe },
+  { id: S.de2, has: "Nếu các tổ kiến vàng trong vườn bị phá hết", right: (q) => { // mất con vật ăn thịt: con mồi tăng, thức ăn của con mồi bị hại
+    const ch = xepChuoi(docSoDo(q.svg)), i = ch.indexOf("Kiến vàng"); assert.ok(i >= 2, "kiến vàng ăn một con vật ăn lá cây");
+    return `${ch[i - 1]} tăng lên, ${ch[i - 2].toLowerCase()} bị hại nhiều hơn`; } }
 ];
 
 const p = bank(S.pool), d1 = bank(S.de1), d2 = bank(S.de2);
@@ -163,15 +175,19 @@ CHECKS.forEach((c) => {
   if (q.type === "mc") assert.ok(!q.o.slice(1).includes(want), at + ": nhiễu trùng đáp án đúng");
   checked.add(q); n++;
 });
-// ý đúng/sai 4 ý về một chuỗi thức ăn cho sẵn: “A là thức ăn của B.”, “Chuỗi thức ăn này có N sinh vật.”
-kho.filter((q) => q.type === "tf4" && /^Cho chuỗi thức ăn: /.test(q.q)).forEach((q) => {
-  const c = tachMuiTen(/: (.+?)\. Mỗi ý/.exec(q.q)[1]);
+// ý đúng/sai 4 ý về các quan hệ thức ăn trong đề: “A là thức ăn của B.”, “A có mặt trong N chuỗi thức ăn.”, “Mỗi chuỗi … đều có N
+// sinh vật.”; chuỗi là mọi đường đi từ sinh vật không ăn ai đến sinh vật không bị ai ăn
+kho.filter((q) => q.type === "tf4" && q.topic === "Chuỗi thức ăn").forEach((q) => {
+  const canh = quanHe(q.q.split(". Mỗi ý")[0]), cs = chuoiTu(canh);
+  assert.ok(canh.length >= 3 && cs.length >= 2, "đề bài có các quan hệ thức ăn tạo thành nhiều chuỗi");
   q.o.forEach((o, i) => {
     let m = /^(.+?) là thức ăn của (.+?)\.$/.exec(o), v;
-    if (m) v = laThucAn(c, m[1], m[2]);
-    else if ((m = /có (\p{L}+) sinh vật\.$/u.exec(o))) v = ["", "một", "hai", "ba", "bốn", "năm"].indexOf(m[1]) === c.length;
-    assert.ok(v !== undefined, "đọc được ý: " + o); assert.equal(q.a[i], v, `“${o}” với chuỗi ${c.join(" → ")}`); n++;
+    if (m) v = canh.some((c) => c[0] === m[1].toLowerCase() && c[1] === m[2].toLowerCase());
+    else if ((m = /^(.+?) có mặt trong (\p{L}+) chuỗi thức ăn\.$/u.exec(o))) v = cs.filter((c) => c.includes(m[1].toLowerCase())).length === SO.indexOf(m[2]);
+    else if ((m = /^Mỗi chuỗi thức ăn .* đều có (\p{L}+) sinh vật\.$/u.exec(o))) v = cs.every((c) => c.length === SO.indexOf(m[1]));
+    assert.ok(v !== undefined, "đọc được ý: " + o); assert.equal(q.a[i], v, `“${o}” với các chuỗi ${cs.map((c) => c.join(" → ")).join("; ")}`); n++;
   });
+  cs.forEach((c) => assert.ok(q.x.toLowerCase().includes(c.join(" → ").replace(/^hoa/, "cây hoa")), "lời giải ghi chuỗi " + c.join(" → ")));
   checked.add(q);
 });
 // câu trả lời bằng số, câu có hình, câu chuỗi thức ăn viết bằng mũi tên hay quan hệ ăn nào cũng phải có kiểm tra ở trên
@@ -257,25 +273,19 @@ const ten = new Map();
 [S.de1, S.de2, S.pool].forEach((id) => kho.filter((q) => q.src === id).forEach((q, i) => ten.set(q, id.replace("khoahoc4-ck2-", "") + "#" + (i + 1))));
 const r = doLo(kho, (q) => ten.get(q));
 if (process.env.DO_LO) console.log("Đáp án bằng chữ có ở câu rút được cùng lúc (xem tay):\n" + r.chuLo.join("\n"));
-// đã xem (Phiên N16): các câu kia chỉ nhắc tên thức ăn, tên chất, tên bệnh, tên con vật, không cho biết điều câu này hỏi. Thực đơn của
-// Mai có “đậu phụ sốt cà chua” (không nói nguồn gốc); câu nối nguyên nhân, câu dấu hiệu béo phì và các lựa chọn sai chỉ có tên bệnh
-// (câu của Na hỏi theo dấu hiệu thấp, nhẹ cân; câu của Khang hỏi theo thói quen ăn uống, vận động); “chất đạm” ở các câu nấm ăn, hạt
-// điều, canh ngao, nước ngọt, xúc xích, bữa trưa của Phương và lời giải câu nối nguyên nhân không nói vai trò giúp cơ thể lớn lên;
-// “tép” ở lời giải câu kích điện không nói cá rô ăn tép.
+// đã xem (Phiên N16): các câu kia chỉ nhắc tên chất, tên bệnh, không cho biết điều câu này hỏi. “Chất đạm” ở các câu nước ngọt, canh
+// ngao, xúc xích, hạt điều, bữa trưa của Phương không nói vai trò giúp cơ thể lớn lên, cao thêm; câu dấu hiệu béo phì và câu nối dấu
+// hiệu chỉ có tên bệnh, câu của Khang hỏi theo thói quen ăn uống, vận động.
 const DA_XEM = [
-  "de2#12 → ngau-nhien#11: Đậu phụ",
-  "ngau-nhien#15 → ngau-nhien#14: Suy dinh dưỡng thấp còi", "de1#15 → ngau-nhien#14: Suy dinh dưỡng thấp còi",
-  "ngau-nhien#3 → de1#8: Chất đạm", "ngau-nhien#9 → de1#8: Chất đạm", "ngau-nhien#10 → de1#8: Chất đạm", "ngau-nhien#12 → de1#8: Chất đạm",
-  "ngau-nhien#15 → de1#8: Chất đạm", "de2#9 → de1#8: Chất đạm", "de2#10 → de1#8: Chất đạm",
-  "ngau-nhien#14 → de1#15: Thừa cân béo phì", "de1#14 → de1#15: Thừa cân béo phì", "de2#14 → de1#15: Thừa cân béo phì",
-  "de1#25 → de1#21: Tép", "de2#25 → de1#21: Tép"
+  "ngau-nhien#9 → de1#8: Chất đạm", "ngau-nhien#10 → de1#8: Chất đạm", "ngau-nhien#12 → de1#8: Chất đạm", "de2#9 → de1#8: Chất đạm", "de2#10 → de1#8: Chất đạm",
+  "de1#14 → de1#15: Thừa cân béo phì", "de2#14 → de1#15: Thừa cân béo phì"
 ];
 assert.deepEqual(r.chuLo, DA_XEM, "đáp án bằng chữ có ở câu rút được cùng lúc đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 assert.deepEqual(r.lo, [], "lộ đáp án:\n" + r.lo.join("\n"));
 // bộ dò bắt được chỗ lộ cố ý viết sai: lời giải câu khác có “= 300”, cả hai vế một cặp nối, cả chuỗi của câu sắp xếp, lựa chọn đúng
 const tim = (has) => kho.find((q) => q.q.includes(has)), gia = (q, x) => Object.assign({}, q, { x: q.x + " " + x });
 const thu = (qs) => { const k = doLo(qs, (q) => q.q.slice(0, 12)); return k.lo.concat(k.chuLo).map((s) => s.replace(/^.*: /, "")); };
-const khac = tim("Trước khi xuống bể bơi");
+const khac = tim("Nơi nào dưới đây an toàn để tập bơi");
 assert.deepEqual(thu([tim("Lan cần uống thêm"), gia(khac, "Ví dụ: 1 300 − 1 000 = 300.")]), ["300"]);
 assert.deepEqual(thu([tim("Nối mỗi bệnh với dấu hiệu"), gia(khac, "Bạn suy dinh dưỡng thấp còi thường thấp và nhẹ cân hơn hẳn các bạn cùng tuổi.")]), ["Suy dinh dưỡng thấp còi → Thấp và nhẹ cân hơn hẳn các bạn cùng tuổi"]);
 assert.deepEqual(thu([tim("Sắp xếp các sinh vật thành"), gia(khac, "Ví dụ: Tảo → Cá mè → Cá quả → Chim cốc.")]), ["tảo → cá mè → cá quả → chim cốc"]);
