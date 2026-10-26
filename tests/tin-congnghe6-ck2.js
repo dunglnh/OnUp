@@ -9,7 +9,7 @@
 // mũi tên). chay() đi theo mũi tên: “Nhập …” lấy giá trị cho các tên biến một chữ cái, “x ← biểu thức” (×, :, −; nhiều phép gán
 // ngăn bằng dấu phẩy), hình thoi “a op b?” (<, >, ≤, ≥, =), “Thông báo x” hoặc “Thông báo “chữ””; quá 1 000 bước là lặp mãi. Chương
 // trình Scratch (docScratch): mỗi khối một hình chữ nhật bo góc tô theo nhóm lệnh, khối trong khối lặp, khối nếu thì lùi vào 18,
-// cuối khối đó có thanh đóng cao 10 không chữ, “còn không thì” cùng hàng lùi với “nếu”; chayScratch() chạy các khối đặt, hỏi, nói,
+// cuối khối đó có thanh đóng cao 10 không chữ, “còn không thì” cùng hàng lùi với “nếu”, thân chữ C (hình chữ nhật không viền rộng 17) nối thanh trên với thanh dưới; chayScratch() chạy các khối đặt, hỏi, nói,
 // di chuyển, lặp lại, nếu. Công nghệ: điện năng tiêu thụ = công suất × thời gian (đọc số trong đề), sơ đồ khối nguyên lí của bếp
 // hồng ngoại (docChuoi: các hình chữ nhật nối nhau bằng mũi tên thành một chuỗi), bảng công suất (docBang như
 // tests/tin-congnghe6-gk2.js). Câu trả lời bằng số và câu có hình nào trong hai kho cũng phải có kiểm tra ở đây; hình nào cũng phải
@@ -171,15 +171,24 @@ const NHOM = [[/^khi nhấn vào lá cờ xanh$/, "sun-soft"], [/^hỏi “.*”
   [/^di chuyển \d+ bước$/, "acc-soft"], [/^(lặp lại \d+ lần|nếu .+ thì|còn không thì)$/, "bad-soft"]];
 const docScratch = (svg) => {
   daDoc.add(svg);
-  const T = texts(svg);
-  const hang = tags(svg, "rect").map((r) => {
+  const T = texts(svg), R = tags(svg, "rect"), than = R.filter((r) => r.stroke === "none"); // than: thân chữ C, không viền
+  const hang = R.filter((r) => r.stroke !== "none").map((r) => {
     const x = num(r, "x"), y = num(r, "y"), w = num(r, "width"), h = num(r, "height"), chu = T.filter((t) => +t.x > x && +t.x < x + w && +t.y > y && +t.y < y + h);
     assert.ok(chu.length <= 1, "mỗi khối một dòng chữ");
     const t = chu.length ? chu[0].t : null;
     if (t) { const g = NHOM.find(([re]) => re.test(t)); assert.ok(g, "khối lạ: " + t); assert.equal(r.fill, g[1], "màu của khối “" + t + "”"); assert.ok(rongChu(t) + 10 <= w, `chữ “${t}” rộng quá khối`); assert.ok(x + w <= 316, "khối nằm trong khung"); }
     else { assert.ok(h <= 12 && r.fill === "bad-soft", "khối không chữ là thanh đóng"); }
-    return { x, y, t };
+    return { x, y, h, t };
   }).sort((a, b) => a.y - b.y);
+  // thân chữ C (như hình của sách): nối thanh của khối lặp, khối nếu hay “còn không thì” với thanh ngay dưới cùng cột
+  const coThan = hang.filter((h) => h.t && /^(lặp lại|nếu|còn không thì)/.test(h.t));
+  assert.equal(than.length, coThan.length, "mỗi khối lặp, khối nếu, “còn không thì” có một thân chữ C");
+  than.forEach((r) => {
+    const x = num(r, "x") - 1, y1 = num(r, "y") + 3, y2 = y1 + num(r, "height") - 6;
+    assert.ok(r.fill === "bad-soft" && num(r, "width") === 17, "thân chữ C cùng màu khối điều khiển, rộng 17");
+    assert.ok(coThan.some((h) => h.x === x && h.y + h.h === y1), "thân chữ C bắt đầu ngay dưới khối lặp, khối nếu");
+    assert.ok(hang.some((h) => h.x === x && h.y === y2 && (!h.t || h.t === "còn không thì")), "thân chữ C kết thúc ở thanh dưới cùng cột");
+  });
   assert.equal(T.length, hang.filter((h) => h.t).length, "chữ nào cũng nằm trong một khối");
   const x0 = Math.min(...hang.map((h) => h.x));
   hang.forEach((h) => { h.d = (h.x - x0) / 18; assert.ok(Number.isInteger(h.d), "khối lùi vào bội của 18"); });
@@ -281,11 +290,13 @@ const CHECKS = [
     const G = docSoDoKhoi(q.svg), r = chay(G, [9]); assert.equal(r.ra.length, 1);
     assert.ok(q.x.includes(`b ← 9 × 3 = ${r.env.b}`) && q.x.includes(`c ← ${r.env.b} − 4 = ${r.env.c}`), "lời giải ghi từng bước");
     return r.ra[0]; } },
-  { id: T.de1, has: "đổi một số đo thời gian từ giờ sang phút", right: (q) => {
+  { id: T.de1, has: "đổi số đo thời gian h giờ m phút ra phút", right: (q) => {
     // ghép các khối theo thứ tự thành sơ đồ thẳng rồi chạy thử
     const nut = q.o.map((t, i) => ({ chu: t, kind: i === 0 || i === q.o.length - 1 ? "se" : /^(Nhập|Thông báo) /.test(t) ? "io" : "p", ra: [] }));
     nut.slice(0, -1).forEach((n, i) => n.ra.push({ toi: nut[i + 1] }));
-    assert.deepEqual(chay({ batDau: nut[0], nut }, [3]).ra, [180], "3 giờ = 180 phút");
+    assert.deepEqual(chay({ batDau: nut[0], nut }, [2, 15]).ra, [135], "2 giờ 15 phút = 135 phút");
+    // đổi chỗ hai bước tính thì sai (p chưa có giá trị khi cộng m)
+    const sai = [2, 3].map((i) => nut[5 - i]); assert.throws(() => { const n2 = [nut[0], nut[1], sai[0], sai[1], nut[4], nut[5]].map((n) => ({ chu: n.chu, kind: n.kind, ra: [] })); n2.slice(0, -1).forEach((n, i) => n.ra.push({ toi: n2[i + 1] })); chay({ batDau: n2[0], nut: n2 }, [2, 15]); });
     return q.o; } },
   { id: T.de2, has: "ngay sau bước “Cho nước vào bình” là bước nào?", right: (q) => {
     const G = docSoDoKhoi(q.svg), n = nutChu(G, "Cho nước vào bình");
@@ -294,7 +305,7 @@ const CHECKS = [
   { id: T.de2, has: "đổi độ dài từ xăng-ti-mét sang mét", right: (q) => {
     const G = docSoDoKhoi(q.svg), nhap = G.nut.find((n) => /^Nhập/.test(n.chu)), xl = G.nut.filter((n) => n.kind === "p"), tb = G.nut.find((n) => /^Thông báo/.test(n.chu));
     const thuTu = []; for (let n = G.batDau; n; n = n.ra[0] && n.ra[0].toi) thuTu.push(n);
-    return [/^Nhập độ dài d \(cm\)$/.test(nhap.chu), xl.length === 2, close(chay(G, [250]).ra[0], 2.5), thuTu.indexOf(tb) < thuTu.indexOf(xl[0])]; } },
+    return [/^Nhập độ dài d \(cm\)$/.test(nhap.chu), xl.length === 2, tb.chu === "Thông báo m" && close(chay(G, [250]).ra[0], 2.5), thuTu.indexOf(tb) < thuTu.indexOf(xl[0])]; } },
   { id: T.de2, has: "tính vận tốc v của một xe đạp", right: (q) => {
     const G = docSoDoKhoi(q.svg), o = nutChu(G, "?");
     const kq = q.o.map((t) => { o.chu = t; try { return chay(G, [36, 3]).ra[0]; } catch (e) { return null; } finally { o.chu = "?"; } });
@@ -305,27 +316,31 @@ const CHECKS = [
     assert.equal(n.length, 1, "chỉ một số học sinh cho b = 18"); assert.equal(q.unit, "học sinh"); return n[0]; } },
   /* Tin học · Các cấu trúc điều khiển */
   { id: T.de1, has: "xét kết quả một bài kiểm tra", right: (q) => {
-    const G = docSoDoKhoi(q.svg), r7 = chay(G, [7]).ra, r5 = chay(G, [5]).ra, nhap = G.nut.find((n) => /^Nhập/.test(n.chu)), dk = G.nut.find((n) => n.kind === "d");
+    const so = (s) => +/^Nhập d = (\d+) thì/.exec(s)[1], G = docSoDoKhoi(q.svg), r7 = chay(G, [so(q.o[0])]).ra, r5 = chay(G, [so(q.o[1])]).ra, nhap = G.nut.find((n) => /^Nhập/.test(n.chu)), dk = G.nut.find((n) => n.kind === "d");
     const moi = [0, 3, 4.5, 5, 9.5, 10].every((d) => chay(G, [d]).ra.length === 1);
     return [r7[0] === "Đạt", r5[0] === "Chưa đạt", !moi, nhap.ra[0].toi === dk]; } },
-  { id: T.de1, has: "Sơ đồ khối ở hình mô tả cấu trúc nào?", right: (q) => {
+  { id: T.de1, has: "cùng bước “Bơm thêm một lần” tạo thành cấu trúc nào?", right: (q) => {
     const G = docSoDoKhoi(q.svg); assert.ok(coLap(G), "sơ đồ có vòng lặp"); assert.equal(G.nut.filter((n) => n.kind === "d").length, 1);
+    const dk = nutChu(G, "Bóng chưa đủ căng?"), bom = nutChu(G, "Bơm thêm một lần");
+    assert.ok(dk.ra.find((m) => m.nhan === "Đúng").toi === bom && bom.ra[0].toi === dk, "nhánh Đúng tới bước bơm, bước bơm quay về hình thoi");
     return "Cấu trúc lặp"; } },
   { id: T.de1, has: "tính tiền vé tham quan T (đồng)", right: (q) => {
     const G = docSoDoKhoi(q.svg); assert.equal(q.unit, "đồng");
     assert.deepEqual([9, 10].map((n) => chay(G, [n]).ra[0]), [9 * 50000, 10 * 40000], "nhóm từ 10 người giá 40 000 đồng một người");
     return chay(G, [+q.q.match(/nhập n = (\d+)/)[1]]).ra[0]; } },
   { id: T.de1, has: "viết chữ “A” đúng 10 lần", right: (q) => {
-    const lan = q.o.map((dk) => { let d = 0, k = 0; while (dung(dk, { d }) && k < 100) { k++; d++; } return k; });
+    const G = docSoDoKhoi(q.svg), dk = nutChu(G, "?"), viet = nutChu(G, "Viết chữ “A”");
+    const lan = q.o.map((o) => { dk.chu = o; const r = chay(G); assert.ok(!r.lapMai); return r.dem.get(viet) || 0; });
+    dk.chu = "?";
     assert.deepEqual(lan, [10, 0, 0, 11], "số lần viết theo từng điều kiện");
     return "d < 10?"; } },
-  { id: T.de2, has: "nếu hôm nay không có tiết Thể dục thì Nam", right: (q) => {
+  { id: T.de2, has: "nếu hôm nay có tiết Thể dục thì Nam", right: (q) => {
     const G = docSoDoKhoi(q.svg), dk = G.nut.find((n) => n.kind === "d"), toi = (nh) => dk.ra.find((m) => m.nhan === nh).toi.chu;
-    assert.equal(toi("Đúng"), q.o[1]); return toi("Sai"); } },
+    assert.equal(dk.chu, "Có tiết Thể dục?"); assert.equal(toi("Sai"), q.o[1]); return toi("Đúng"); } },
   { id: T.de2, has: "Thực hiện thuật toán ở hình. Mỗi ý sau đúng hay sai?", right: (q) => {
     const G = docSoDoKhoi(q.svg), r = chay(G), cong = nutChu(G, "S ← S + i");
     const boTang = chay(G, [], nutChu(G, "i ← i + 1"));
-    return [r.dem.get(cong) === 4, r.ra[0] === 10, !boTang.lapMai, r.env.i === 5 && r.dem.get(cong) === 5]; } },
+    return [r.dem.get(cong) === 4, nutChu(G, "i ← i + 1").ra[0].toi === nutChu(G, "i ≤ 4?"), !boTang.lapMai, r.env.i === 5 && r.dem.get(cong) === 5]; } },
   { id: T.de2, has: "Mỗi tuần Hà bỏ vào lợn đất 15 nghìn đồng", right: (q) => {
     const G = docSoDoKhoi(q.svg), r = chay(G); assert.equal(q.unit, "tuần"); assert.ok(r.env.T >= 100 && r.env.T - 15 < 100);
     return r.ra[0]; } },
@@ -337,7 +352,7 @@ const CHECKS = [
     return ten.find((t) => /^hỏi /.test(t)); } },
   { id: T.de1, has: "Chạy chương trình Scratch ở hình. Mỗi ý sau đúng hay sai?", right: (q) => {
     const P = docScratch(q.svg), r = chayScratch(P), dc = khoi(P, "di chuyển 30 bước"), xong = P.indexOf(khoi(P, "nói “Xong!” trong 2 giây")), lap = P.findIndex((b) => /^lặp lại/.test(b.t));
-    return [r.noi.filter((s) => s === "Bắt đầu!").length === 4, r.dem.get(dc) === 4, xong > lap && lap > 0, r.di === 34]; } },
+    return [r.noi.filter((s) => s === "Bắt đầu!").length === 4, r.dem.get(dc) === 4, xong > lap && lap > 0, r.dem.get(khoi(P, "nói “Tiếp nào!” trong 1 giây")) === 1]; } },
   { id: T.de1, has: "(a, b là hai biến). Nhân vật nói số nào?", right: (q) => { const r = chayScratch(docScratch(q.svg)); assert.equal(r.noi.length, 1); return r.noi[0]; } },
   { id: T.de1, has: "(s là một biến). Nhân vật nói số nào?", right: (q) => { const r = chayScratch(docScratch(q.svg)); assert.equal(r.noi.length, 1); return r.noi[0]; } },
   { id: T.de2, has: "sử dụng những cấu trúc điều khiển nào?", right: (q) => {
@@ -366,7 +381,7 @@ const CHECKS = [
     const lon = dd.reduce((a, d) => (d.p > a.p ? d : a));
     assert.ok(dd.every((d) => q.x.includes(`${d.p} × ${d.t} = ${d.p * d.t} (Wh)`)), "lời giải tính điện năng từng đồ dùng");
     return [lon.ten === "Máy bơm", A("Quạt điện") > A("Máy bơm"), A("Máy giặt") === 400, A("Đèn LED") === 17]; } },
-  { id: C.de1, has: "điện đi qua các bộ phận của bếp hồng ngoại", right: (q) => {
+  { id: C.de1, has: "cho thấy cách bếp hồng ngoại làm việc", right: (q) => {
     const c = docChuoi(q.svg), sach = ["Nguồn điện", "Bộ phận điều khiển", "Mâm nhiệt hồng ngoại", "Nồi nấu"]; // Hình 13.2 của sách
     assert.equal(c.length, sach.length); assert.equal(c.filter((t) => t === "?").length, 1);
     c.forEach((t, i) => t !== "?" && assert.equal(t, sach[i]));
@@ -378,8 +393,9 @@ const CHECKS = [
     const m = /ghi 220 V – ([\d ]+) W\. .* rút phích sớm (\d+) phút .* Mỗi tuần Mai là quần áo (\d+) lần/.exec(q.q); assert.ok(m && q.q.includes(DIEN)); assert.equal(q.unit, "Wh");
     return W(m[1]) * (+m[2] / 60) * +m[3]; } },
   { id: C.de2, has: "Chọn quạt nào là hợp lí?", right: (q) => {
-    const ok = q.o.map((o) => { const m = /ghi (\d+) V – (\d+) W/.exec(o); return +m[1] === 220 && +m[2] <= 60; });
-    assert.deepEqual(ok, [true, false, false, false], "chỉ lựa chọn đúng có 220 V và công suất nhỏ");
+    // mọi lựa chọn đều 220 V (đề không dạy điện áp ở câu này); chỉ lựa chọn đúng là quạt bàn công suất nhỏ
+    const ok = q.o.map((o) => { const m = /^Quạt (.+) ghi (\d+) V – (\d+) W$/.exec(o); assert.ok(m && +m[2] === 220, "lựa chọn ghi 220 V: " + o); return /^bàn /.test(m[1]) && +m[3] <= 60; });
+    assert.deepEqual(ok, [true, false, false, false], "chỉ lựa chọn đúng là quạt bàn công suất nhỏ");
     return q.o[0]; } }
 ];
 
@@ -505,10 +521,10 @@ assert.deepEqual(loAll, [], "lộ đáp án:\n" + loAll.join("\n"));
 // bộ dò bắt được chỗ lộ cố ý viết sai: lời giải câu khác có “= 23”, cả hai vế một cặp nối, hai ô sắp xếp liền nhau, lựa chọn đúng
 const tim = (has) => kho.find((q) => q.q.includes(has)), gia = (q, x) => Object.assign({}, q, { x: q.x + " " + x });
 const thu = (qs) => { const M = new Proxy({}, { get: () => [1, 1, 1] }), r = doLo(qs, M, (q) => q.q.slice(0, 12)); return r.lo.concat(r.chuLo).map((s) => s.replace(/^.*: /, "")); };
-const khac = tim("Ngôn ngữ nào dưới đây là ngôn ngữ lập trình?");
+const khac = tim("Tên nào dưới đây là tên một ngôn ngữ lập trình?");
 assert.deepEqual(thu([tim("với đầu vào a = 9"), gia(khac, "Ví dụ: c = 23.")]), ["23"]);
 assert.deepEqual(thu([tim("Nối mỗi cấu trúc điều khiển"), gia(khac, "Cấu trúc lặp: chạy quanh sân trường cho đến khi đủ 5 vòng.")]), ["Cấu trúc lặp → Chạy quanh sân trường cho đến khi đủ 5 vòng"]);
-assert.deepEqual(thu([tim("Mẹ nhờ Lan nấu cơm"), gia(khac, "Lau khô mặt ngoài nồi nấu, đặt khít vào thân nồi rồi đóng nắp, cắm phích điện, bật nút nấu.")]), ["Lau khô mặt ngoài nồi nấu, đặt khít vào thân nồi → Đóng nắp, cắm phích điện, bật nút nấu"]);
+assert.deepEqual(thu([tim("Mẹ nhờ Lan nấu cơm"), gia(khac, "Lau khô mặt ngoài nồi nấu chứa gạo vừa vo, đặt khít vào thân nồi rồi đóng nắp, cắm phích điện, bật nút nấu.")]), ["Lau khô mặt ngoài nồi nấu chứa gạo vừa vo, đặt khít vào thân nồi → Đóng nắp, cắm phích điện, bật nút nấu"]);
 assert.deepEqual(thu([tim("Cấu trúc rẽ nhánh còn được gọi là"), gia(khac, "Nó còn gọi là cấu trúc lựa chọn.")]), ["Cấu trúc lựa chọn"]);
 console.log(n, "câu đã tính lại hoặc đọc lại hình (hai ngân hàng); kho " + kho.length + " câu, 2 ma trận 10 – 8 – 7.");
 console.log("MATH OK");
