@@ -526,6 +526,21 @@ window.ONTAP_SEED_BANKS = [
       "Viết tên cơ quan, tổ chức": [0, 1, 0], "Lựa chọn từ ngữ": [0, 1, 1], "Dấu câu": [0, 0, 1], "Danh từ": [0, 1, 0],
       "Động từ": [1, 0, 0], "Tính từ": [0, 1, 0], "Chính tả": [1, 0, 0], "Viết": [0, 0, 1] } } },
 
+  /* Tiếng Anh 4 · Kiểm tra cuối năm học (Global Success 4 tập hai, Unit 11–20, Review 3, 4; Phiên N15). Kho câu = 24 câu riêng trong
+     file (1 đoạn đọc) + 50 câu của 2 đề cố định (mỗi đề 1 đoạn đọc), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo
+     Thông tư 27/2020: 10 – 8 – 7 câu, mỗi Unit 2–3 câu (Unit 18, 20 mỗi Unit 3), Reading 3 câu (một đoạn 3 câu mức 1-2-3, nên lần rút
+     nào cũng lấy trọn một đoạn, đúng mức). Câu phát âm (âm trong từ của Unit 11–15) và trọng âm (Unit 16–20) nằm ở ô Hiểu của Unit
+     đó. Hai đề cố định chia đúng ma trận, câu riêng chỉ ở ô có rút câu, nên ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó
+     rút. Không có câu nghe, không có câu tự luận. */
+  { id: "ta4-ck2-de1", title: "Tiếng Anh 4 · Cuối năm · Đề 1", grade: 4, subject: "Tiếng Anh", minutes: 35, n: 25, file: "4-ta.js" },
+  { id: "ta4-ck2-de2", title: "Tiếng Anh 4 · Cuối năm · Đề 2", grade: 4, subject: "Tiếng Anh", minutes: 35, n: 25, file: "4-ta.js" },
+  { id: "ta4-ck2-ngau-nhien", title: "Tiếng Anh 4 · Cuối năm · Đề ngẫu nhiên", grade: 4, subject: "Tiếng Anh", minutes: 35, n: 25, file: "4-ta.js",
+    pool: { from: ["ta4-ck2-de1", "ta4-ck2-de2"], matrix: {
+      "Unit 11 · My Home": [1, 1, 0], "Unit 12 · Jobs": [1, 1, 0], "Unit 13 · Appearance": [1, 0, 1],
+      "Unit 14 · Daily Activities": [1, 1, 0], "Unit 15 · My Family's Weekends": [1, 0, 1], "Unit 16 · Weather": [1, 1, 0],
+      "Unit 17 · In the City": [0, 1, 1], "Unit 18 · At the Shopping Centre": [1, 1, 1], "Unit 19 · The Animal World": [1, 0, 1],
+      "Unit 20 · At Summer Camp": [1, 1, 1], "Reading": [1, 1, 1] } } },
+
   /* Toán 6 · Kiểm tra cuối năm học (Kết nối tri thức, học kì II, Bài 23–43: Chương VI Phân số, Chương VII Số thập phân, Chương VIII
      Những hình hình học cơ bản, Chương IX Dữ liệu và xác suất thực nghiệm; Phiên N18). Kho câu = 50 câu riêng trong file + 50 câu của
      2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 15 chủ đề: phân số 5 câu (Bài 23–27),

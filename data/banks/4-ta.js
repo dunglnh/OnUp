@@ -129,5 +129,130 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
       { topic: "Reading", type: "tf", q: "Lucy was at Mai's birthday party in Ha Noi.", a: true, x: "True. Lucy visited Mai in Ha Noi and was at her birthday party.", lv: 2, p: "lucy" },
       { topic: "Reading", type: "mc", q: "When was Lucy in Ha Noi?", o: ["In August", "In May", "In July", "In March"], x: "Lucy was at Mai's birthday party in Ha Noi, and Mai's birthday is in August. So Lucy was in Ha Noi in August.", lv: 3, p: "lucy" }
     ]
+  },
+
+  /* ---------- Tiếng Anh 4 · Kiểm tra cuối năm học (Global Success 4 tập hai, Unit 11–20, Review 3, 4; Phiên N15) ----------
+     Dạng đề kiểm tra ở trường như cuối kì I: chọn đáp án, phát âm (âm trong từ của Unit 11–15), trọng âm từ hai âm tiết (Unit
+     16–20, lời dặn "Choose the word with a different stress pattern."), chọn từ khác loại, điền từ, sắp xếp câu, nối câu hỏi với câu
+     trả lời, đọc hiểu. Không có câu nghe, không có câu tự luận. Từ, mẫu câu theo Book map (trang in 4–5) và các trang của từng Unit
+     trong sách in năm 2026: ngôi thứ ba thêm -s, -es từ Unit 12; quá khứ chỉ có was, were (Unit 10) và "What was the weather
+     like…?" (Unit 16); thì hiện tại tiếp diễn ở Unit 20. Câu và đoạn văn tự soạn, khác câu, bài đọc, bài hát của sách và câu của bài
+     ôn IOE 4. Mỗi đề 25 câu, mỗi Unit 2–3 câu, Reading 3 câu một đoạn đọc (mức 1-2-3); 10 Biết, 8 Hiểu, 7 Vận dụng, chia đúng theo
+     ma trận của đề ngẫu nhiên. Hai đề cùng các câu riêng của "ta4-ck2-ngau-nhien" bên dưới là kho của đề ngẫu nhiên; mã đoạn đọc
+     không trùng nhau trong cả kho. */
+  "ta4-ck2-de1": {
+    note: "Global Success 4, Units 11–20: My Home, Jobs, Appearance, Daily Activities, My Family's Weekends, Weather, In the City, At the Shopping Centre, The Animal World, At Summer Camp. School test format: multiple choice, pronunciation and stress, odd one out, fill in the blank, word order, reading. 10 Know, 8 Understand and 7 Apply questions. No listening (practise listening in IOE 4). Every question has an explanation.",
+    passages: {
+      "vy": {
+        title: "Read the text. Then answer the questions.",
+        text: "Hi, I'm Vy. My home is in a town near Ha Noi. My father is a doctor. He works in the city. My mother works at my school. She is an English teacher. On Saturdays, my father does yoga, and my mother and I go to the bookshop. On Sundays, we visit my grandparents in the countryside."
+      }
+    },
+    questions: [
+      { topic: "Unit 11 · My Home", type: "mc", q: "– Where does your grandmother live? – She lives ___ Hang Bac Street.", o: ["in", "at", "to", "from"], x: "We use in with the name of a street: She lives in Hang Bac Street.", lv: 1 },
+      { topic: "Unit 11 · My Home", type: "mc", q: "Choose the odd one out.", o: ["noisy", "house", "city", "village"], x: "A house, a city and a village are places. Noisy tells us what a place is like.", lv: 2 },
+      { topic: "Unit 12 · Jobs", type: "mc", q: "– What does Thu's mother do? – ___", o: ["She's a nurse.", "She's very nice.", "She's at home.", "She's forty."], x: "What does she do? asks about a job. A nurse is a job: She's a nurse.", lv: 1 },
+      { topic: "Unit 12 · Jobs", type: "mc", q: "My father is ___ office worker, and my brother is ___ actor.", o: ["an / an", "a / an", "an / a", "a / a"], x: "Office and actor start with a vowel sound, so we use an: an office worker, an actor.", lv: 2 },
+      { topic: "Unit 13 · Appearance", type: "mc", q: "– What does your grandfather look like? – ___", o: ["He's short and slim.", "He's a farmer.", "He's at the zoo.", "He likes tennis."], x: "What does he look like? asks how a person looks. Short and slim tell us how he looks.", lv: 1 },
+      { topic: "Unit 13 · Appearance", type: "order", q: "Put the words in the correct order.", o: ["My mother", "has long hair,", "and", "my father", "has a round face."], x: "Start with My mother and what she has, then and my father and what he has: My mother has long hair, and my father has a round face.", lv: 3 },
+      { topic: "Unit 14 · Daily Activities", type: "mc", q: "– When do you have lunch? – ___ It's twelve o'clock.", o: ["At noon.", "In the morning.", "In the evening.", "At night."], x: "Twelve o'clock in the day is noon, so we say: At noon.", lv: 1 },
+      { topic: "Unit 14 · Daily Activities", type: "mc", q: "Which word has the letters ch pronounced differently from the others?", o: ["school", "beach", "teacher", "chicken"], x: "In school, ch sounds like k: /skuːl/. In beach, teacher and chicken, ch sounds like tch in watch: /tʃ/.", lv: 2 },
+      { topic: "Unit 15 · My Family's Weekends", type: "mc", q: "– Where does Hoa's mother go on Sundays? – She goes to the ___. She buys food and clothes there.", o: ["shopping centre", "swimming pool", "bookshop", "zoo"], x: "We can buy food and clothes at the shopping centre.", lv: 1 },
+      { topic: "Unit 15 · My Family's Weekends", type: "fill", q: "Fill in the blank with one word. On Saturdays, my brother ___ badminton at the sports centre.", ans: ["plays"], x: "We say play badminton. My brother = he, so play → plays: My brother plays badminton.", lv: 3 },
+      { topic: "Unit 16 · Weather", type: "mc", q: "– What was the weather like last weekend? – ___", o: ["It was sunny.", "It's Sunday.", "I was at home.", "Yes, it was."], x: "What was the weather like…? asks about the weather in the past, so we answer: It was sunny.", lv: 1 },
+      { topic: "Unit 16 · Weather", type: "mc", q: "Choose the word with a different stress pattern.", o: ["today", "cloudy", "windy", "weather"], x: "In today /təˈdeɪ/, the stress is on the second syllable. In cloudy, windy and weather, it is on the first syllable.", lv: 2 },
+      { topic: "Unit 17 · In the City", type: "mc", q: "– Excuse me. How can I get to the gift shop? – ___", o: ["Go straight and turn left.", "It's on Sunday morning.", "It's ten o'clock now.", "Yes, you can go there."], x: "How can I get to…? asks the way. We answer with go straight, turn left or turn right.", lv: 2 },
+      { topic: "Unit 17 · In the City", type: "fill", q: "Fill in the blank with one word. – What does the sign say? – It ___ 'stop'.", ans: ["says"], x: "What does it say? → It says…. It is one thing, so say → says: It says 'stop'.", lv: 3 },
+      { topic: "Unit 18 · At the Shopping Centre", type: "mc", q: "Seventy thousand dong is ___.", o: ["70 000 dong", "17 000 dong", "7 000 dong", "700 dong"], x: "Seventy is 70, and thousand is 1 000, so seventy thousand is 70 000.", lv: 1 },
+      { topic: "Unit 18 · At the Shopping Centre", type: "mc", q: "Look: toy shop, gift shop, food stall. – Where's the gift shop? – ___", o: ["It's between the toy shop and the food stall.", "It's behind the toy shop.", "It's opposite the food stall.", "It's between the zoo and the toy shop."], x: "The gift shop comes after the toy shop and before the food stall, so it's between the toy shop and the food stall.", lv: 2 },
+      { topic: "Unit 18 · At the Shopping Centre", type: "mc", q: "A pen is 10 000 dong, and a notebook is 15 000 dong. Mi wants to buy the pen and the notebook with 20 000 dong. Can she buy them?", o: ["No, she can't.", "Yes, she can.", "Yes, she does.", "No, she isn't."], x: "The pen and the notebook are 25 000 dong. That is more than 20 000 dong, so Mi can't buy them.", lv: 3 },
+      { topic: "Unit 19 · The Animal World", type: "mc", q: "– What are these animals? – ___", o: ["They're crocodiles.", "It's a crocodile.", "They're crocodile.", "This is crocodiles."], x: "These animals are more than one animal, so we say They're + crocodiles.", lv: 1 },
+      { topic: "Unit 19 · The Animal World", type: "fill", q: "Fill in the blank with one word. My father likes horses because they run ___.", ans: ["quickly", "fast"], x: "We use quickly to say how they run: They run quickly.", lv: 3 },
+      { topic: "Unit 20 · At Summer Camp", type: "mc", q: "– What's she doing? – She's ___ a tent.", o: ["putting up", "playing", "telling", "singing"], x: "We say put up a tent: She's putting up a tent.", lv: 1 },
+      { topic: "Unit 20 · At Summer Camp", type: "mc", q: "Choose the word with a different stress pattern.", o: ["guitar", "visit", "email", "photo"], x: "In guitar /ɡɪˈtɑː/, the stress is on the second syllable. In visit, email and photo, it is on the first syllable.", lv: 2 },
+      { topic: "Unit 20 · At Summer Camp", type: "order", q: "Put the words in the correct order.", o: ["Tuan and Long", "are", "playing", "tug of war", "now."], x: "Tuan and Long = they, so we use are + playing: Tuan and Long are playing tug of war now.", lv: 3 },
+      { topic: "Reading", type: "mc", q: "What does Vy's father do?", o: ["He's a doctor.", "He's a teacher.", "He's a farmer.", "He's a policeman."], x: "In the text: My father is a doctor. He works in the city.", lv: 1, p: "vy" },
+      { topic: "Reading", type: "tf4", q: "Read the text again. Is each sentence true or false?", o: ["Vy's home is in a big city.", "Vy's mother works in the city.", "Vy goes to the bookshop on Saturdays.", "Vy visits her grandparents on Sundays."], a: [false, false, true, true], x: "a) False: Vy's home is in a town near Ha Noi. b) False: Vy's mother works at Vy's school. c) True: on Saturdays, Vy and her mother go to the bookshop. d) True: on Sundays, Vy's family visits her grandparents in the countryside.", lv: 2, p: "vy" },
+      { topic: "Reading", type: "order", q: "Put the words in the correct order to answer the question: What does Vy's father do on Saturdays?", o: ["He", "does", "yoga", "on", "Saturdays."], x: "In the text: On Saturdays, my father does yoga. We talk about Vy's father with he: He does yoga on Saturdays.", lv: 3, p: "vy" }
+    ]
+  },
+
+  /* Đề 2 (Phiên N15): cùng phạm vi, cùng ma trận với đề 1, câu và đoạn đọc khác. */
+  "ta4-ck2-de2": {
+    note: "Global Success 4, Units 11–20: My Home, Jobs, Appearance, Daily Activities, My Family's Weekends, Weather, In the City, At the Shopping Centre, The Animal World, At Summer Camp. School test format: multiple choice, pronunciation and stress, odd one out, fill in the blank, word order, reading. 10 Know, 8 Understand and 7 Apply questions. No listening (practise listening in IOE 4). Every question has an explanation.",
+    passages: {
+      "tim": {
+        title: "Read the text. Then answer the questions.",
+        text: "Hello, I'm Tim. I'm from Australia. Now I'm at a summer camp in Viet Nam with my friends. It is eight o'clock at night. Our teacher is telling a story. Daisy and Sophie are dancing. Bao is playing the guitar. I'm writing an email to my mum."
+      }
+    },
+    questions: [
+      { topic: "Unit 11 · My Home", type: "mc", q: "Choose the correct question. – ___ – I live in Ba Trieu Street.", o: ["Where do you live?", "Where does he work?", "What's your street like?", "What do you do?"], x: "I live in… tells us where you live, so we ask: Where do you live?", lv: 1 },
+      { topic: "Unit 11 · My Home", type: "mc", q: "Which word has the letter i pronounced differently from the others?", o: ["nine", "big", "fish", "sister"], x: "In nine, the letter i is pronounced /aɪ/, like in five. In big, fish and sister, it is pronounced /ɪ/.", lv: 2 },
+      { topic: "Unit 12 · Jobs", type: "mc", q: "– Where does your sister work? – She works at a ___. She is a nurse.", o: ["hospital", "cinema", "bookshop", "zoo"], x: "A nurse works at a hospital.", lv: 1 },
+      { topic: "Unit 12 · Jobs", type: "mc", q: "Choose the odd one out.", o: ["factory", "farmer", "policeman", "actor"], x: "A farmer, a policeman and an actor are people with jobs. A factory is a place.", lv: 2 },
+      { topic: "Unit 13 · Appearance", type: "mc", q: "My brother is not short. He is ___.", o: ["tall", "long", "windy", "cloudy"], x: "A person can be tall or short. Not short means tall: He is tall.", lv: 1 },
+      { topic: "Unit 13 · Appearance", type: "fill", q: "Fill in the blank with one word. – What does your sister look like? – She ___ long hair.", ans: ["has"], x: "We use has with hair. My sister = she, so we say: She has long hair.", lv: 3 },
+      { topic: "Unit 14 · Daily Activities", type: "mc", q: "After dinner, I ___ the dishes with my dad.", o: ["wash", "draw", "play", "read"], x: "We wash the dishes after a meal.", lv: 1 },
+      { topic: "Unit 14 · Daily Activities", type: "mc", q: "– What do you do in the afternoon? – ___", o: ["I clean the floor.", "In the afternoon.", "At three o'clock.", "Yes, I do."], x: "What do you do…? asks about an activity, not a time. I clean the floor tells us an activity.", lv: 2 },
+      { topic: "Unit 15 · My Family's Weekends", type: "mc", q: "My dad ___ films on TV on Sunday evenings.", o: ["watches", "cooks", "goes", "stays"], x: "We watch films. My dad = he, so watch → watches: My dad watches films.", lv: 1 },
+      { topic: "Unit 15 · My Family's Weekends", type: "order", q: "Put the words in the correct order.", o: ["Where", "do", "your grandparents", "go", "at the weekend?"], x: "A question about a place starts with Where. Your grandparents = they, so we use do: Where do your grandparents go at the weekend?", lv: 3 },
+      { topic: "Unit 16 · Weather", type: "mc", q: "We can swim and have fun at the ___.", o: ["water park", "gift shop", "bookshop", "food stall"], x: "At a water park, we can swim and play in the water.", lv: 1 },
+      { topic: "Unit 16 · Weather", type: "mc", q: "– Do you want to go to the food stall with me? – ___ I'm reading a book.", o: ["Sorry, I can't.", "Great! Let's go.", "Yes, it is.", "They're at home."], x: "I'm reading a book, so I can't go now. We say: Sorry, I can't.", lv: 2 },
+      { topic: "Unit 17 · In the City", type: "mc", q: "Choose the word with a different stress pattern.", o: ["hotel", "bookshop", "campsite", "village"], x: "In hotel /həʊˈtel/, the stress is on the second syllable. In bookshop, campsite and village, it is on the first syllable.", lv: 2 },
+      { topic: "Unit 17 · In the City", type: "mc", q: "Hoa is on her bike. First, she sees a road sign. It says 'turn left'. Then there is a road sign. It says 'go straight'. What does Hoa do?", o: ["She turns left and then goes straight.", "She goes straight and then turns left.", "She turns right and then goes straight.", "She stops and goes home."], x: "The first sign says 'turn left', and the sign after it says 'go straight'. So Hoa turns left and then goes straight.", lv: 3 },
+      { topic: "Unit 18 · At the Shopping Centre", type: "mc", q: "We buy bread at the ___.", o: ["bakery", "bookshop", "gift shop", "zoo"], x: "We can buy bread and cakes at a bakery.", lv: 1 },
+      { topic: "Unit 18 · At the Shopping Centre", type: "mc", q: "– How much ___ the ball? – It's thirty thousand dong.", o: ["is", "are", "do", "does"], x: "The ball is one thing, so we ask: How much is the ball?", lv: 2 },
+      { topic: "Unit 18 · At the Shopping Centre", type: "order", q: "Put the words in the correct order.", o: ["My mum", "wants to buy", "a skirt", "at the", "clothes shop."], x: "Start with the person, then wants to buy and the thing, then the place: My mum wants to buy a skirt at the clothes shop.", lv: 3 },
+      { topic: "Unit 19 · The Animal World", type: "mc", q: "Lions ___ loudly.", o: ["roar", "dance", "swim", "read"], x: "We say lions roar loudly.", lv: 1 },
+      { topic: "Unit 19 · The Animal World", type: "order", q: "Put the words in the correct order.", o: ["These birds", "are", "singing merrily", "in the", "garden."], x: "These birds = they, so we use are + singing: These birds are singing merrily in the garden.", lv: 3 },
+      { topic: "Unit 20 · At Summer Camp", type: "mc", q: "At the campsite, we sing songs and dance around the ___.", o: ["campfire", "photo", "story", "email"], x: "At a summer camp, we dance around the campfire.", lv: 1 },
+      { topic: "Unit 20 · At Summer Camp", type: "mc", q: "– What are they doing? – ___", o: ["They're playing card games.", "They play card games.", "She's playing card games.", "They're at the campsite."], x: "What are they doing? asks about now, so we answer They're + V-ing: They're playing card games.", lv: 2 },
+      { topic: "Unit 20 · At Summer Camp", type: "fill", q: "Fill in the blank with one word. Look! My father is ___ a photo of us.", ans: ["taking"], x: "We say take a photo. He is + V-ing: My father is taking a photo of us.", lv: 3 },
+      { topic: "Reading", type: "mc", q: "Where is Tim now?", o: ["At a summer camp in Viet Nam.", "At home in Australia.", "At school in Viet Nam.", "At a bookshop in Australia."], x: "In the text: Now I'm at a summer camp in Viet Nam with my friends.", lv: 1, p: "tim" },
+      { topic: "Reading", type: "tf", q: "Bao is dancing.", a: false, x: "False. Daisy and Sophie are dancing. Bao is playing the guitar.", lv: 2, p: "tim" },
+      { topic: "Reading", type: "mc", q: "Who is NOT at the summer camp?", o: ["Tim's mum", "Tim's teacher", "Daisy and Sophie", "Bao"], x: "Tim is writing an email to his mum, so she is not at the camp. The teacher, Daisy, Sophie and Bao are at the camp with Tim.", lv: 3, p: "tim" }
+    ]
+  },
+
+  /* ---------- Tiếng Anh 4 · Đề ngẫu nhiên cuối năm: câu riêng của ngân hàng (Phiên N15) ----------
+     Kho câu của đề ngẫu nhiên = 24 câu dưới đây + 50 câu của hai đề cố định ở trên (mọi câu có lv). Ma trận trong
+     data/banks/index.js: mỗi lần rút 25 câu, 10 Biết, 8 Hiểu, 7 Vận dụng; mỗi Unit 2–3 câu, Reading 3 câu (một đoạn 3 câu mức
+     1-2-3); ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút. Câu riêng chỉ nằm ở ô ma trận có rút câu, cùng một đoạn
+     đọc 3 câu đủ ba mức. Câu và đoạn văn tự soạn. */
+  "ta4-ck2-ngau-nhien": {
+    note: "Global Success 4, Units 11–20. Each test has 2–3 questions for each unit and 3 reading questions: 10 Know, 8 Understand and 7 Apply. No listening (practise listening in IOE 4). Every question has an explanation.",
+    passages: {
+      "nga": {
+        title: "Read the text. Then answer the questions.",
+        text: "Today is Sunday. Nga and her dad are in Hang Gai Street. There are many shops here. The toy shop is near the gift shop, and the shoe shop is opposite the toy shop. Nga wants a doll. It is 60 000 dong. Her dad wants a T-shirt. It is 90 000 dong."
+      }
+    },
+    questions: [
+      { topic: "Unit 11 · My Home", type: "mc", q: "This street is very ___.", o: ["busy", "strong", "brave", "cloudy"], x: "We say a street is busy when many people and cars are in it.", lv: 1 },
+      { topic: "Unit 11 · My Home", type: "mc", q: "– What's your village like, Khoa? – ___", o: ["It's small and quiet.", "It's near Ha Long Bay.", "I'm from Viet Nam.", "Yes, it is."], x: "What's … like? asks what a place is like, so we answer: It's small and quiet.", lv: 2 },
+      { topic: "Unit 12 · Jobs", type: "mc", q: "– Where does your grandfather work? – He works ___ a big farm.", o: ["on", "to", "of", "with"], x: "We use on with a farm: on a farm.", lv: 1 },
+      { topic: "Unit 12 · Jobs", type: "match", q: "Match the questions with the answers.", l: ["What does Duc's sister do?", "Where does she work?", "Is she nice?"], r: ["She's an office worker.", "In an office.", "Yes, she is.", "Yes, it is."], x: "What does she do? asks about a job: She's an office worker. Where does she work? asks about a place: In an office. Is she…? → Yes, she is.", lv: 2 },
+      { topic: "Unit 12 · Jobs", type: "mc", q: "Which word has the sound /ɜː/, like ur in nurse?", o: ["girl", "car", "garden", "party"], x: "The letters ir in girl sound like ur in nurse: /ɜː/. Car, garden and party have the sound /ɑː/, like ar in farmer.", lv: 2 },
+      { topic: "Unit 13 · Appearance", type: "mc", q: "We see with our ___.", o: ["eyes", "hands", "legs", "hair"], x: "We see with our eyes.", lv: 1 },
+      { topic: "Unit 13 · Appearance", type: "fill", q: "Fill in the blank with one word. – What does Ha's father look like? – He's big, and he has a round ___.", ans: ["face"], x: "A face can be round or long: He has a round face.", lv: 3 },
+      { topic: "Unit 14 · Daily Activities", type: "mc", q: "– When do you wash the clothes? – ___", o: ["In the evening.", "At home.", "With my mum.", "Yes, I do."], x: "When asks about the time, so we answer with a time: In the evening.", lv: 1 },
+      { topic: "Unit 14 · Daily Activities", type: "mc", q: "Choose the odd one out.", o: ["afternoon", "clean the floor", "read books", "watch TV"], x: "Clean the floor, read books and watch TV are things we do. Afternoon is a time of the day.", lv: 2 },
+      { topic: "Unit 15 · My Family's Weekends", type: "mc", q: "– What does Quan's grandmother do on Saturdays? – ___", o: ["She cooks meals for us.", "She's ten years old.", "She's at home.", "Yes, she does."], x: "What does she do on Saturdays? asks about an activity: She cooks meals for us.", lv: 1 },
+      { topic: "Unit 15 · My Family's Weekends", type: "mc", q: "On Saturdays, Long goes to the sports centre, and his parents go to the cinema. His sister goes with Long. Where does his sister go on Saturdays?", o: ["To the sports centre.", "To the cinema.", "To the bookshop.", "To the zoo."], x: "His sister goes with Long, and Long goes to the sports centre. So she goes to the sports centre, too.", lv: 3 },
+      { topic: "Unit 16 · Weather", type: "mc", q: "– What's the weather like today? – ___ Let's go to the water park!", o: ["It's sunny.", "It was rainy.", "It's Monday.", "Yes, it is."], x: "Today is now, so we say It's. Sunny weather is good for the water park: It's sunny.", lv: 1 },
+      { topic: "Unit 16 · Weather", type: "mc", q: "Choose the odd one out.", o: ["supermarket", "windy", "rainy", "cloudy"], x: "Windy, rainy and cloudy tell us about the weather. A supermarket is a place.", lv: 2 },
+      { topic: "Unit 17 · In the City", type: "mc", q: "Choose the correct answer. – How can I get to the bookshop? – ___", o: ["Go straight and turn right.", "Go straight and turns right.", "Goes straight and turn right.", "Going straight and turn right."], x: "To tell the way, we use go and turn without -s and without -ing: Go straight and turn right.", lv: 2 },
+      { topic: "Unit 17 · In the City", type: "order", q: "Put the words in the correct order.", o: ["What", "does", "this road sign", "say?"], x: "We ask about a sign with What does … say?: What does this road sign say?", lv: 3 },
+      { topic: "Unit 18 · At the Shopping Centre", type: "mc", q: "Choose the word with a different stress pattern.", o: ["behind", "office", "hippo", "tennis"], x: "In behind /bɪˈhaɪnd/, the stress is on the second syllable. In office, hippo and tennis, it is on the first syllable.", lv: 2 },
+      { topic: "Unit 18 · At the Shopping Centre", type: "mc", q: "A pen is 8 000 dong, a ruler is 5 000 dong and a book is 25 000 dong. With 10 000 dong, what can Phong buy?", o: ["a ruler", "a book", "a pen and a ruler", "a book and a ruler"], x: "A ruler is 5 000 dong. A pen and a ruler are 13 000 dong, and a book is 25 000 dong. So with 10 000 dong, Phong can buy the ruler.", lv: 3 },
+      { topic: "Unit 19 · The Animal World", type: "mc", q: "– ___ – They're giraffes.", o: ["What are these animals?", "What is this animal?", "Why do you like giraffes?", "Where are the giraffes?"], x: "They're giraffes tells us what the animals are, so we ask: What are these animals?", lv: 1 },
+      { topic: "Unit 19 · The Animal World", type: "fill", q: "Fill in the blank with one word. Peacocks are beautiful. They dance ___.", ans: ["beautifully"], x: "We add -ly to beautiful to say how they dance: They dance beautifully.", lv: 3 },
+      { topic: "Unit 20 · At Summer Camp", type: "mc", q: "My brother is ___ a campfire with our teacher.", o: ["building", "telling", "singing", "playing"], x: "We say build a campfire: My brother is building a campfire.", lv: 1 },
+      { topic: "Unit 20 · At Summer Camp", type: "order", q: "Put the words in the correct order.", o: ["My sister", "is", "singing", "songs", "with her friends."], x: "My sister = she, so we use is + singing: My sister is singing songs with her friends.", lv: 3 },
+      { topic: "Reading", type: "mc", q: "What does Nga's dad want?", o: ["A T-shirt.", "A doll.", "A school bag.", "A book."], x: "In the text: Her dad wants a T-shirt.", lv: 1, p: "nga" },
+      { topic: "Reading", type: "tf", q: "The doll is ninety thousand dong.", a: false, x: "False. The doll is 60 000 dong. The T-shirt is 90 000 dong.", lv: 2, p: "nga" },
+      { topic: "Reading", type: "mc", q: "Who wants to go to the toy shop?", o: ["Nga", "Nga's dad", "Nga and her dad", "Nga's mum"], x: "Nga wants a doll, and a doll is a toy. Her dad wants a T-shirt, not a toy.", lv: 3, p: "nga" }
+    ]
   }
 });
