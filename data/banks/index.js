@@ -508,6 +508,24 @@ window.ONTAP_SEED_BANKS = [
       "Tìm phân số của một số": [0, 1, 1], "Dãy số liệu, biểu đồ cột": [1, 1, 0], "Số lần xuất hiện của sự kiện": [1, 0, 0],
       "Đơn vị đo": [1, 0, 1], "Đường thẳng vuông góc, song song": [1, 0, 0], "Hình bình hành, hình thoi": [0, 1, 1] } } },
 
+  /* Tiếng Việt 4 · Kiểm tra cuối năm học (Kết nối tri thức, tập 2, trọng tâm Bài 17–30; Phiên N14). Kho câu = 52 câu riêng trong
+     file (4 đoạn đọc, 4 câu Viết) + 50 câu của 2 đề cố định (mỗi đề 2 đoạn đọc, 1 câu Viết), câu nào cũng có mức độ. Ma trận [Biết,
+     Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, trong đó 7 câu Đọc hiểu (rút theo đoạn: đoạn 4 câu mức 1-1-2-3, đoạn 3
+     câu mức 1-2-3, nên lần nào cũng đúng mức), 1 câu Viết (tự chấm, nên cả ba đề 40 phút) và 17 câu Luyện từ và câu, Chính tả trên
+     14 chủ đề: các bài Luyện từ và câu của Bài 17–29 (trạng ngữ chỉ phương tiện 2, dấu ngoặc kép 2, dấu ngoặc đơn 1, viết tên cơ
+     quan, tổ chức 1, lựa chọn từ ngữ 2, dấu câu 1) và ôn tập (câu, chủ ngữ, vị ngữ, trạng ngữ, danh từ, động từ, tính từ, chính tả,
+     mỗi chủ đề 1). Hai đề cố định chia đúng theo ma trận; mỗi ô (chủ đề, mức) Luyện từ và câu, Chính tả rút 1 câu và có 4 câu (một
+     câu ở mỗi đề cố định, hai câu riêng), nên học sinh đã làm một đề cố định vẫn gặp câu mới. Câu tự luận chỉ ở ô Viết: mỗi lần rút
+     đúng 1 câu. */
+  { id: "tv4-ck2-de1", title: "Tiếng Việt 4 · Cuối năm · Đề 1", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js" },
+  { id: "tv4-ck2-de2", title: "Tiếng Việt 4 · Cuối năm · Đề 2", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js" },
+  { id: "tv4-ck2-ngau-nhien", title: "Tiếng Việt 4 · Cuối năm · Đề ngẫu nhiên", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js",
+    pool: { from: ["tv4-ck2-de1", "tv4-ck2-de2"], matrix: {
+      "Đọc hiểu": [3, 2, 2], "Câu": [1, 0, 0], "Chủ ngữ": [1, 0, 0], "Vị ngữ": [0, 1, 0], "Trạng ngữ": [0, 0, 1],
+      "Trạng ngữ chỉ phương tiện": [1, 0, 1], "Dấu ngoặc kép": [1, 1, 0], "Dấu ngoặc đơn": [1, 0, 0],
+      "Viết tên cơ quan, tổ chức": [0, 1, 0], "Lựa chọn từ ngữ": [0, 1, 1], "Dấu câu": [0, 0, 1], "Danh từ": [0, 1, 0],
+      "Động từ": [1, 0, 0], "Tính từ": [0, 1, 0], "Chính tả": [1, 0, 0], "Viết": [0, 0, 1] } } },
+
   /* Toán 6 · Kiểm tra cuối năm học (Kết nối tri thức, học kì II, Bài 23–43: Chương VI Phân số, Chương VII Số thập phân, Chương VIII
      Những hình hình học cơ bản, Chương IX Dữ liệu và xác suất thực nghiệm; Phiên N18). Kho câu = 50 câu riêng trong file + 50 câu của
      2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 15 chủ đề: phân số 5 câu (Bài 23–27),
