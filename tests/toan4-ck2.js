@@ -3,9 +3,10 @@
 // (has) rồi so đáp án với kết quả tính bằng code: trắc nghiệm o[0], điền khuyết ans[0], đúng/sai a, đúng/sai 4 ý a (4 ý), trả lời
 // bằng số ans, nối cột r[i] của từng ô l[i], sắp xếp thứ tự o; tự luận: các số trong thang chấm và đáp án gợi ý. Phân số tính bằng
 // số hữu tỉ chính xác; cộng, trừ hai phân số khác mẫu số chỉ khi một mẫu số chia hết cho mẫu số kia (như sách lớp 4); đáp án phân
-// số ở dạng tối giản; các lựa chọn phân số của một câu trắc nghiệm không bằng nhau (trừ câu rút gọn: phân số bằng mà chưa tối giản
+// số ở dạng tối giản, không có sẵn trong đề; các lựa chọn phân số của một câu trắc nghiệm không bằng nhau (trừ câu rút gọn: phân số bằng mà chưa tối giản
 // là lựa chọn sai). Câu có hình: đọc biểu đồ cột (trục số, số ở đỉnh cột, tên cột), băng chia phần tô màu (số phần, số phần tô màu),
-// toạ độ trên lưới ô vuông (cạnh song song, vuông góc, bằng nhau của tứ giác, hình thoi; đường thẳng qua hai điểm của lưới) rồi mới
+// toạ độ trên lưới ô vuông (cạnh song song, vuông góc, bằng nhau của tứ giác, hình sáu cạnh, hình thoi và hai đường chéo; nhãn ghi
+// theo thứ tự đỉnh; đường thẳng qua hai điểm của lưới) rồi mới
 // tính. Cuối cùng kiểm tra mức độ và ma trận (mỗi ô có 4 câu: một câu ở mỗi đề cố định, hai câu riêng; rút thử nhiều lần ra đúng
 // 10 Biết, 8 Hiểu, 7 Vận dụng, nhiều nhất 3 câu tự luận; đã làm hết một đề cố định thì không gặp lại câu của đề đó), đáp án đúng của
 // câu trắc nghiệm không dài hơn hẳn lựa chọn sai, đề bài không trùng câu nào khác trong data/banks/4-toan.js và dò lộ đáp án giữa các
@@ -120,14 +121,17 @@ const songSong = (u, v) => cross(u, v) === 0;
 const vuongGoc = (u, v) => dot(u, v) === 0;
 const nhan = (svg, name) => { const t = texts(svg).filter((x) => x.t === name); assert.equal(t.length, 1, "hình cần đúng một nhãn " + name); return [t[0].x, t[0].y]; };
 const gan = (pts, at) => pts.slice().sort((p, q) => Math.hypot(p[0] - at[0], p[1] - at[1]) - Math.hypot(q[0] - at[0], q[1] - at[1]))[0];
-// tứ giác trên lưới có nhãn → { A: [số ô ngang, số ô dọc], … }
-const tuGiac = (svg, names) => {
-  const ps = tags(svg, "polygon"); assert.equal(ps.length, 1, "hình cần đúng một tứ giác");
-  const p = nums(ps[0].points).reduce((o, v, i) => (i % 2 ? o[o.length - 1].push(v) : o.push([v]), o), []); assert.equal(p.length, 4);
+// đa giác trên lưới có nhãn → { A: [số ô ngang, số ô dọc], … }; các nhãn ghi theo đúng thứ tự đỉnh của đa giác
+const daGiac = (svg, names) => {
+  const ps = tags(svg, "polygon"); assert.equal(ps.length, 1, "hình cần đúng một đa giác");
+  const p = nums(ps[0].points).reduce((o, v, i) => (i % 2 ? o[o.length - 1].push(v) : o.push([v]), o), []); assert.equal(p.length, names.length, "số đỉnh");
   const o = {}, at = luoi(svg); names.forEach((n) => (o[n] = at(gan(p, nhan(svg, n)))));
-  assert.equal(new Set(Object.values(o).map(String)).size, 4, "mỗi nhãn một đỉnh");
+  assert.equal(new Set(Object.values(o).map(String)).size, names.length, "mỗi nhãn một đỉnh");
+  const k = names.map((n) => p.findIndex((q) => String(at(q)) === String(o[n])));
+  assert.ok(k.every((v, i) => i === 0 || v === (k[i - 1] + 1) % p.length) || k.every((v, i) => i === 0 || v === (k[i - 1] - 1 + p.length) % p.length), "nhãn theo thứ tự đỉnh");
   return o;
 };
+const tuGiac = (svg, names) => (assert.equal(names.length, 4), daGiac(svg, names));
 // các điểm (chấm tròn) có nhãn trên lưới → { A: [x, y], … } theo số ô
 const diem = (svg, names) => {
   const c = tags(svg, "circle").map((a) => [+a.cx, +a.cy]), at = luoi(svg), o = {};
@@ -157,20 +161,20 @@ const de1 = [
   { has: "Trung bình cộng của hai số là 75. Số lớn hơn số bé 16", right: () => div(75 * 2 + 16, 2), more: (q) => { assert.equal((83 + 67) / 2, 75); assert.equal(83 - 67, 16); assert.ok(q.x.includes("số bé là 150 − 83 = 67")); } },
   { has: "6 phút in được 270 trang", right: () => div(630, div(270, 6)) },
   { has: "thanh sô-cô-la", right: (q) => { const b = bang(q.svg); assert.deepEqual([b.n, b.k], [9, 4]); return (b.n - b.k) + "/" + b.n; }, more: (q) => assert.ok(q.o.includes("4/9"), "lựa chọn phần đã ăn") },
-  { has: "Rút gọn phân số 30/42", right: () => toi("30/42") },
-  { has: "ba phân số 2/3, 5/6 và 7/12", right: () => MOT(quyDong(["2/3", "5/6", "7/12"], 12).join(" và ")) },
+  { has: "Rút gọn từng bước: 30/42 = 15/21 = ___/7", right: () => { assert.equal(toi("30/42"), toi("15/21")); assert.equal(30 / 2 + "/" + 42 / 2, "15/21"); const t = toi("15/21"); assert.ok(t.endsWith("/7")); return t.split("/")[0]; } },
+  { has: "ba phân số 2/5, 5/6 và 11/30", right: () => MOT(quyDong(["2/5", "5/6", "11/30"], 30).join(" và ")), more: (q) => assert.ok(q.o.includes(MOT(["2/5", "5/6", "11/30"].map((f) => P(f).n + "/30").join(" và "))), "nhiễu: giữ nguyên tử số") },
   { has: "7/12 … 5/12", right: () => [">", "=", "<"][1 - cmp(P("7/12"), P("5/12"))] },
   { has: "5/14 + 2/7", right: () => str(ev2("5/14 + 2/7")) },
-  { has: "1/3 giờ để làm bài tập và 1/12 giờ", right: () => { const t = ev2("1/3 + 1/12"); return str(mul(t, F(60))) | 0; } },
-  { has: "3/8 × 5/7", right: () => str(ev2("3/8 × 5/7")) },
+  { has: "Nam dành 2/3 giờ để làm bài tập và 1/6 giờ để đọc truyện. Bình dành cho hai việc đó tất cả 11/12 giờ", right: () => { const nam = ev2("2/3 + 1/6"); lop4("11/12", str(nam)); return str(sub(P("11/12"), nam)); } },
+  { has: "3/8 × 7/10", right: () => str(ev2("3/8 × 7/10")) },
   { has: "chiều dài 3/4 m, chiều rộng 2/5 m", right: () => str(ev2("3/4 × 2/5")) + " m²", more: (q) => { assert.ok(q.o.includes((3 + 2) + "/" + (4 + 5) + " m²") && q.o.includes(str(ev2("3/4 : 2/5")) + " m²"), "nhiễu: cộng tử với tử, mẫu với mẫu; phép chia"); } },
-  { has: "đàn gà có 45 con", right: () => +str(mul(F(45), P("3/5"))) },
-  { has: "360 quyển vở", right: () => +str(sub(sub(F(360), mul(F(360), P("1/6"))), mul(F(360), P("3/8")))) },
+  { has: "đàn gà có 56 con, trong đó 3/8 số gà là gà trống", right: () => +str(mul(F(56), P("3/8"))) },
+  { has: "360 quyển vở. Tuần đầu cửa hàng bán được 1/8 số vở đó, tuần sau bán được 5/12", right: () => +str(mul(F(360), P("5/12"))) - +str(mul(F(360), P("1/8"))) },
   { has: "Tuần nào lớp 4A thu gom được nhiều chai nhựa nhất", right: (q) => argBy(chartOf(q, ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4"]), (a, b) => a > b) },
   { has: "Cả bốn tuần lớp 4A thu gom được bao nhiêu chai nhựa", right: (q) => sum(chartOf(q, ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4"]).map((c) => c[1])) },
   { has: "3 tấm thẻ: thẻ số 1, thẻ số 2 và thẻ số 3", right: () => (24 - 9 - 8) + " lần" },
   { has: "6 tấn 5 tạ", right: () => String(6 * 10 + 5) },
-  { has: "2 tấn 4 tạ khoai tây", right: () => { const kg = 2 * 1000 + 4 * 100; return kg - +str(mul(F(kg), P("5/8"))); } },
+  { has: "2 tấn 6 tạ khoai tây ra chợ. Buổi sáng người ta bán được 3/4 tấn", right: () => (2 * 1000 + 6 * 100) - +str(mul(F(1000), P("3/4"))) },
   { has: "Cạnh nào song song với cạnh EG", right: (q) => {
     const T = tuGiac(q.svg, ["E", "G", "H", "K"]), EG = vsub(T.G, T.E), canh = { "Cạnh KH": vsub(T.H, T.K), "Cạnh EK": vsub(T.K, T.E), "Cạnh GH": vsub(T.H, T.G) };
     const ss = Object.keys(canh).filter((k) => songSong(canh[k], EG)); assert.equal(ss.length, 1, "đúng một cạnh song song với EG");
@@ -189,29 +193,33 @@ const de2 = [
   { has: "6 xe tải như nhau", right: () => (400 - div(252, 6) * 9) + " thùng" },
   { has: "Trong phân số 5/12, mẫu số 12 cho biết", right: () => "Chiếc bánh được chia thành 12 phần bằng nhau" },
   { has: "rút gọn được thành phân số 2/5", right: (q) => { const m = q.o.filter((o) => toi(o) === "2/5"); assert.equal(m.length, 1); return m[0]; } },
-  { has: "hai phân số 15/25 và 7/50", right: () => MOT(quyDong([toi("15/25"), "7/50"], 50).join(" và ")) },
+  { has: "hai phân số 18/30 và 7/50", right: () => MOT(quyDong([toi("18/30"), "7/50"], 50).join(" và ")), more: () => assert.ok(50 % 30 !== 0 && 30 % 50 !== 0 && 50 % P(toi("18/30")).d === 0, "phải rút gọn trước mới quy đồng được (lớp 4: một mẫu số chia hết cho mẫu số kia)") },
   { has: "phân số nào lớn hơn 1", right: (q) => { const m = q.o.filter((o) => cmp(P(o), F(1)) > 0); assert.equal(m.length, 1); return m[0]; } },
-  { has: "8/11 − 3/11", right: () => str(ev2("8/11 − 3/11")) },
-  { has: "bình có 11/12 l nước", right: () => { lop4("11/12", "1/4"); return str(sub(sub(P("11/12"), P("1/4")), P("1/12"))) + " l"; } },
+  { has: "10/13 − 4/13", right: () => str(ev2("10/13 − 4/13")) },
+  { has: "xe chở 14/15 tấn gạo", right: () => { lop4("14/15", "2/5"); const con = sub(P("14/15"), P("2/5")); lop4(str(con), "1/3"); return str(sub(con, P("1/3"))) + " tấn"; }, more: (q) => assert.ok(q.o.includes(str(sub(P("14/15"), P("2/5"))) + " tấn") && q.o.includes(str(add(P("2/5"), P("1/3"))) + " tấn"), "nhiễu: số gạo còn sau cửa hàng thứ nhất; số gạo đã dỡ") },
   { has: "Phân số đảo ngược của phân số 7/4", right: () => { const p = P("7/4"); return p.d + "/" + p.n; } },
-  { has: "7/10 : 2", right: () => str(ev2("7/10 : 2")) },
+  { has: "Bác Hoa có 7/10 kg hạt giống, bác gieo đều vào 2 luống", right: () => str(ev2("7/10 : 2")) },
   { has: "cuốn truyện có 120 trang", right: () => str(mul(F(120), P("3/4"))) + " trang" },
-  { has: "vườn cây ăn quả có 36 cây", right: () => { const cam = +str(mul(F(36), P("4/9"))); return (36 - cam - cam) + " cây"; } },
+  { has: "vườn cây ăn quả có 45 cây", right: () => { const cam = +str(mul(F(45), P("4/9"))); return (45 - cam - cam) + " cây"; } },
   { has: "Số học sinh đi xe đạp là", right: (q) => String(chartOf(q, ["Đi bộ", "Xe đạp", "Xe máy", "Xe buýt"]).find((c) => c[0] === "Xe đạp")[1]) },
   { has: "đi xe máy nhiều hơn số học sinh đi bộ", right: (q) => { const d = Object.fromEntries(chartOf(q, ["Đi bộ", "Xe đạp", "Xe máy", "Xe buýt"])); return (d["Xe máy"] - d["Đi bộ"]) + " bạn"; } },
   { has: "mặt 7 chấm", right: () => false },
   { has: "1/4 giờ = ? phút", right: () => str(mul(F(60), P("1/4"))) + " phút" },
-  { has: "bao xi măng nặng 50 kg", right: () => div(4 * 1000, 50) + " bao" },
-  { has: "ô cửa sổ có dạng hình chữ nhật", right: () => "2 cặp" },
-  { has: "Cho hình thoi MNPQ và hai đường chéo MP, NQ", right: (q) => {
-    const T = tuGiac(q.svg, ["M", "N", "P", "Q"]), s = (a, b) => vsub(T[b], T[a]);
-    assert.ok(["MN", "NP", "PQ", "QM"].every((k) => len2(s(k[0], k[1])) === len2(s("M", "N"))), "bốn cạnh bằng nhau: hình thoi");
-    assert.ok(!vuongGoc(s("M", "N"), s("M", "Q")), "không phải hình vuông");
+  { has: "thang máy chở được nhiều nhất 1 tấn 3 tạ. Mỗi thùng sơn nặng 25 kg", right: () => div(1000 + 3 * 100, 25) + " thùng" },
+  { has: "Hình đó có mấy cạnh song song với cạnh HI", right: (q) => {
+    const D = daGiac(q.svg, ["E", "G", "H", "I", "K", "L"]), ten = ["EG", "GH", "HI", "IK", "KL", "LE"], v = (k) => vsub(D[k[1]], D[k[0]]);
+    assert.deepEqual([ten.filter((k) => v(k)[1] === 0), ten.filter((k) => v(k)[0] === 0)], [["EG", "HI", "KL"], ["GH", "IK", "LE"]], "lời giải: EG, HI, KL nằm ngang; GH, IK, LE thẳng đứng");
+    return ten.filter((k) => k !== "HI" && songSong(v(k), v("HI"))).length + " cạnh"; } },
+  { has: "Cho hình thoi RSTV và hai đường chéo RT, SV", right: (q) => {
+    const H = tuGiac(q.svg, ["R", "S", "T", "V"]), s = (a, b) => vsub(H[b], H[a]);
+    assert.ok(["RS", "ST", "TV", "VR"].every((k) => len2(s(k[0], k[1])) === len2(s("R", "S"))), "bốn cạnh bằng nhau: hình thoi");
+    assert.ok(!vuongGoc(s("R", "S"), s("R", "V")), "không phải hình vuông");
     // hai đường chéo vẽ nét đứt nối đúng hai cặp đỉnh đối nhau, nằm trên đường kẻ dọc, ngang của lưới (như lời giải)
     const at = luoi(q.svg), C = tags(q.svg, "line").filter((l) => l["stroke-dasharray"]).map((l) => [at([+l.x1, +l.y1]), at([+l.x2, +l.y2])].map(String).sort().join("|"));
-    assert.deepEqual(C.sort(), [[T.M, T.P].map(String).sort().join("|"), [T.N, T.Q].map(String).sort().join("|")].sort(), "hai đường chéo MP, NQ");
-    assert.ok(s("M", "P")[0] === 0 && s("N", "Q")[1] === 0, "MP thẳng đứng, NQ nằm ngang");
-    return [vuongGoc(s("M", "Q"), s("M", "N")), songSong(s("M", "N"), s("Q", "P")), vuongGoc(s("M", "P"), s("N", "Q")), len2(s("N", "P")) === len2(s("P", "Q"))]; } },
+    assert.deepEqual(C.sort(), [[H.R, H.T].map(String).sort().join("|"), [H.S, H.V].map(String).sort().join("|")].sort(), "hai đường chéo RT, SV");
+    assert.ok(s("R", "T")[0] === 0 && s("S", "V")[1] === 0, "RT thẳng đứng, SV nằm ngang");
+    assert.deepEqual([Math.abs(s("R", "T")[1]), Math.abs(s("S", "V")[0])], [6, 8], "lời giải: RT dài 6 ô, SV dài 8 ô");
+    return [vuongGoc(s("R", "V"), s("R", "S")), songSong(s("R", "V"), s("S", "T")), vuongGoc(s("R", "T"), s("S", "V")), len2(s("R", "T")) === len2(s("S", "V"))]; } },
   { has: "chu vi bằng chu vi của hình chữ nhật có chiều dài 9 cm", right: () => div((9 + 7) * 2, 4) + " cm" }
 ];
 const own = [
@@ -242,33 +250,33 @@ const own = [
     const kq = /kết quả: ([SN, ]+?) \(/.exec(q.q)[1].split(", "), S = kq.filter((c) => c === "S").length, N = kq.length - S;
     assert.equal(kq.length, 16); return [S === 10, N === 8, S > N, kq[1] === "N"]; } },
   { has: "3 lá thăm ghi chữ A, B, C", right: (q) => thamA(q)[0], more: (q) => { const [a, b, c] = thamA(q); assert.equal(+a + b + c, 12); assert.equal(b, c); assert.ok(q.x.includes("được " + a + " chữ A") && q.x.includes("mỗi lá xuất hiện " + b + " lần")); } },
-  { has: "7 m dây ruy băng", right: () => str(F(7, 9)) },
-  { has: "20 viên kẹo, trong đó có 9 viên vị dâu", right: () => [str(F(9, 20)) === "9/20", 20 - 9 === 11, str(F(20 - 9, 20)) === "11/9", cmp(F(9, 20), F(1)) < 0] },
-  { has: "Bạn Minh rút gọn một số phân số", right: () => [toi("15/35") === "3/7", isMin("14/21"), toi("48/60") === "4/5" && isMin("4/5"), isMin("10/15")] },
+  { has: "6 m dây ruy băng cắt thành 7 đoạn", right: () => str(F(6, 7)) },
+  { has: "20 viên kẹo, trong đó có 9 viên vị dâu", right: () => [str(F(9, 20)) === "9/20", 20 - 9 === 11, str(F(20 - 9, 20)) === "11/9", F(9, 20).d === 9] },
+  { has: "Bạn Minh rút gọn một số phân số", right: () => [toi("15/35") === "3/7", isMin("14/21"), toi("60/72") === "5/6" && isMin("5/6"), isMin("10/15")] },
   { has: "ném trúng 30 lần", right: () => toi("30/45") },
   { has: "có mẫu số là 24", right: (q) => quyDong(q.l, 24), more: (q) => assert.ok(!q.l.some((l) => cmp(P(l), P(q.r[4])) === 0), "ô thừa không bằng phân số nào") },
-  { has: "3/5 và 7/10 thành hai phân số có cùng mẫu số là 20", right: () => MOT(quyDong(["3/5", "7/10"], 20).join(" và ")) },
-  { has: "3/7 > 3/5", right: () => cmp(P("3/7"), P("3/5")) > 0 },
+  { has: "1/3 và 4/9 thành hai phân số có cùng mẫu số là 18", right: () => MOT(quyDong(["1/3", "4/9"], 18).join(" và ")) },
+  { has: "4/9 > 4/5", right: () => cmp(P("4/9"), P("4/5")) > 0 },
   { has: "theo thứ tự từ lớn đến bé", right: (q) => q.o.slice().sort((a, b) => cmp(P(b), P(a))) },
   { has: "4 − 9/5", right: () => str(ev2("4 − 9/5")) },
   { has: "Bạn Hà làm bốn phép tính với phân số", right: (q) => q.o.map((s) => { const [l, r] = s.split(" = "), m = /^(\S+) ([+−]) (\S+)$/.exec(l); lop4(m[1], m[3]); return dung(s); }) },
   { has: "tổ Một quét được 3/7 sân trường", right: () => { const hai = ev2("3/7 − 1/14"); return str(add(P("3/7"), hai)); } },
   { has: "hộp sữa 1 l", right: () => [cmp(P("1/3"), P("5/12")) < 0, str(ev2("1/3 + 5/12")) === "3/4", str(sub(F(1), ev2("1/3 + 5/12"))) === "1/4", str(ev2("5/12 − 1/3")) === "1/3"] },
   { has: "Tính rồi nối mỗi phép tính ở cột trái", right: (q) => q.l.map((e) => str(ev2(e))), more: (q) => assert.ok(!q.l.some((e) => str(ev2(e)) === q.r[4]), "ô thừa không là kết quả của phép tính nào") },
-  { has: "3/5 × 2 = 6/10", right: () => dung("3/5 × 2 = 6/10") },
-  { has: "gói bột giặt nặng 3/4 kg", right: () => +str(ev2("3/4 × 8")) },
+  { has: "4/9 × 3/4 = 1/3", right: () => dung("4/9 × 3/4 = 1/3") },
+  { has: "12 gói bột giặt như thế", right: () => +str(ev2("3/4 × 12")) },
   { has: "Xét các phép nhân, phép chia phân số", right: (q) => q.o.map(dung) },
   { has: "Nối mỗi ý ở cột trái với số thích hợp", right: (q) => q.l.map((s) => { const m = /^(\S+) của (\d+)$/.exec(s); return str(mul(F(+m[2]), P(m[1]))); }), more: (q) => assert.ok(!q.l.some((s) => { const m = /^(\S+) của (\d+)$/.exec(s); return str(mul(F(+m[2]), P(m[1]))) === q.r[4]; }), "ô thừa") },
-  { has: "2/7 của 1 tuần lễ", right: () => str(mul(F(7), P("2/7"))) },
-  { has: "480 chậu hoa", essay: (q) => {
-    const ban = +str(mul(F(480), P("3/8"))), r = rubricNums(q);
-    assert.deepEqual(r.slice(0, 2), [[480, 3, 8, ban], [480, ban, 480 - ban]]); essayOK(q, 3, 2); assert.ok(q.x.includes("Đáp số: " + (480 - ban) + " chậu hoa")); } },
-  { has: "chiều dài 24 cm, chiều rộng bằng 3/4 chiều dài", right: () => 24 * +str(mul(F(24), P("3/4"))) },
-  { has: "Đổi đơn vị đo: nối mỗi số đo", right: () => [(3 * 10 + 4) + " yến", str(mul(F(60), P("2/3"))) + " phút", (4 * 100 + 6) + " dm²", str(mul(F(60), P("3/4"))) + " giây"], more: (q) => assert.equal(q.r[4], "304 yến") },
+  { has: "cuộn dây dài 68 m. 3/4 cuộn dây", right: () => str(mul(F(68), P("3/4"))) },
+  { has: "480 chậu hoa. Cửa hàng đã bán được 2/5 số chậu hoa đó, mỗi chậu giá 35 000 đồng", essay: (q) => {
+    const ban = +str(mul(F(480), P("2/5"))), tien = ban * 35000, r = rubricNums(q);
+    assert.deepEqual(r.slice(0, 2), [[480, 2, 5, ban], [ban, 35000, tien]]); essayOK(q, 3, 2); assert.ok(q.x.includes("Đáp số: " + fmt(tien) + " đồng")); } },
+  { has: "chiều dài 28 cm, chiều rộng bằng 3/7 chiều dài", right: () => 28 * +str(mul(F(28), P("3/7"))) },
+  { has: "Mỗi số đo ở cột trái bằng số đo nào ở cột phải", right: () => [str(mul(F(100), P("1/5"))) + " kg", str(mul(F(60), P("2/3"))) + " phút", (5 * 100 + 7) + " dm²", str(mul(F(60), P("3/4"))) + " giây"], more: (q) => assert.equal(q.r[4], str(mul(F(1000), P("1/5"))) + " kg", "ô thừa: nhầm tạ với tấn") },
   { has: "2/5 thế kỉ = 40 năm", right: () => str(mul(F(100), P("2/5"))) === "40" },
-  { has: "tấm bìa hình vuông có cạnh 8 dm", right: () => div(8 * 10, 5) ** 2, more: () => assert.equal(div(80 * 80, 5 * 5), 256) },
+  { has: "tấm bìa hình chữ nhật dài 6 dm, rộng 4 dm", right: () => div(6 * 10, 2) * div(4 * 10, 2), more: () => assert.equal(div(60 * 40, 2 * 2), 600) },
   { has: "chạy nhanh 3 giây", right: () => { const g = 3 * 24; return Math.floor(g / 60) + " phút " + (g % 60) + " giây"; } },
-  { has: "Hình vuông ABCD có cạnh AB vuông góc", right: () => "Cạnh AD và cạnh BC" },
+  { has: "gợi nên hai đường thẳng vuông góc", right: () => "Hai nét của dấu cộng (+)" },
   { has: "đường thẳng MN và các điểm A, B, C, D, E", right: (q) => {
     const D = diem(q.svg, ["M", "N", "A", "B", "C", "D", "E"]), MN = vsub(D.N, D.M);
     const L = tags(q.svg, "line").filter((l) => l.stroke === "acc"); assert.equal(L.length, 1, "một đường thẳng MN");
@@ -279,8 +287,8 @@ const own = [
     assert.ok(vsub(D.C, D.A)[1] === 0 && vuongGoc(vsub(D.E, D.A), MN) && !vuongGoc(vsub(D.D, D.A), MN), "lời giải: AC nằm ngang, AE vuông góc với MN");
     assert.deepEqual(MN, [4, -4], "lời giải: từ M đến N sang phải 4 ô, lên trên 4 ô");
     return "Điểm " + ss[0]; } },
-  { has: "hai cạnh liền nhau dài 25 m và 18 m", right: () => (25 + 18) * 2 + " m" },
-  { has: "MN dài 9 cm, cạnh NP dài 5 cm", right: () => 9 },
+  { has: "hai cạnh liền nhau dài 25 cm và 18 cm", right: () => (25 + 18) * 2 + " cm" },
+  { has: "Hình bình hành PQRS có cạnh PQ dài 9 cm, cạnh QR ngắn hơn cạnh PQ 4 cm", right: () => 9 - 4 },
   { has: "khung cửa sổ hình thoi", right: () => 2 * 100 - 38 * 4 },
   { has: "chu vi 128 cm, cạnh dài hơn cạnh ngắn 6 cm", right: () => div(128 / 2 + 6, 2) }
 ];
@@ -296,7 +304,7 @@ const run = (id, qs, checks) => {
     const got = { fill: () => q.ans[0], tf: () => q.a, tf4: () => q.a, num: () => q.ans, match: () => q.r.slice(0, q.l.length), order: () => q.o }[q.type] || (() => q.o[0]);
     // so bằng JSON: câu hỏi nạp trong vm khác (tests/nap-de.js), mảng của nó không cùng nguyên mẫu với mảng ở đây
     assert.strictEqual(JSON.stringify(got()), JSON.stringify(typeof want === "string" && q.type === "num" && !want.includes("/") ? +want : want), at + ": đáp án " + JSON.stringify(got()) + ", tính được " + JSON.stringify(want));
-    if (q.type === "num" && typeof q.ans === "string") { assert.ok(/^\d+\/\d+$/.test(q.ans) && isMin(q.ans), at + ": đáp án phân số viết tối giản"); assert.ok(/Viết kết quả dưới dạng phân số\./.test(q.q), at + ": đề dặn viết kết quả dưới dạng phân số"); }
+    if (q.type === "num" && typeof q.ans === "string") { assert.ok(/^\d+\/\d+$/.test(q.ans) && isMin(q.ans), at + ": đáp án phân số viết tối giản"); assert.ok(/Viết kết quả dưới dạng phân số\./.test(q.q), at + ": đề dặn viết kết quả dưới dạng phân số"); assert.ok(!new RegExp("(^|[^\\d/])" + q.ans.replace("/", "\\/") + "(?![\\d/])").test(q.q), at + ": đáp án " + q.ans + " có sẵn trong đề"); }
     if (q.type === "mc") assert.ok(!q.o.slice(1).includes(q.o[0]), at + ": nhiễu trùng đáp án đúng");
     // lựa chọn phân số không bằng nhau về giá trị (câu rút gọn: phân số bằng mà chưa tối giản vẫn là lựa chọn sai)
     if (q.type === "mc" && q.o.every((o) => /^\d+\/\d+$/.test(o))) {
@@ -338,7 +346,7 @@ Object.entries(M).forEach(([t, v]) => v.forEach((k, i) => {
 const oTuLuan = [...new Set(pool.questions.filter((q) => q.type === "essay").map((q) => q.topic + "|" + q.lv))];
 assert.deepEqual(oTuLuan.sort(), ["Rút về đơn vị|3", "Số trung bình cộng|3", "Tìm phân số của một số|3"], "câu tự luận: " + oTuLuan);
 assert.ok(oTuLuan.every((k) => { const [t, lv] = k.split("|"); return M[t][2] === 1 && pool.questions.some((q) => q.topic === t && q.lv === +lv && q.type !== "essay"); }));
-assert.equal(pool.questions.filter((q) => q.svg).length, 8, "kho có 8 câu có hình");
+assert.equal(pool.questions.filter((q) => q.svg).length, 9, "kho có 9 câu có hình");
 const dem = (f) => pool.questions.filter(f).length;
 assert.ok(dem((q) => q.type === "tf4") >= 6 && dem((q) => q.type === "num") >= 10 && dem((q) => q.type === "match") >= 3 && dem((q) => q.type === "order") >= 2, "kho đủ dạng câu");
 const seen = new Set();
