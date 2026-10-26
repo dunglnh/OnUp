@@ -24,6 +24,11 @@ chay({
   file: "modules/ioe-6/index.html",
   ref: process.argv[2] || "origin/main",
   cu: ["UNITS", "SCHOOL", "WARD", "CITY", "NATIONAL", "SCHOOL_L", "WARD_L", "CITY_L", "NATIONAL_L"],
+  sua: require("./ioe-sua.js")["ioe-6"], // Phiên DS-IOE: câu cũ đổi chữ cho khớp sách in năm 2026
+  luatSua: { S: ["m", "o", "p", "s", "e", "f", "l", "r"], L: ["h", "hf"], units: [1, 9],
+    cam: ["attic", "talkative", "generous", "patient", "curious", "lazy", "torch", "judo", "stilt", "apartment", "villa", "newsreader", "weatherman",
+      "remote control", "documentary", "weather forecast", "news", "skiing", "boxing", "stadium", "gloves", "helmets", "although", "whose", "biggest",
+      "highest", "hottest", "tallest", "busiest", "longest", "largest", "most"].concat(CAM_DIA_DANH) },
   kiemTra: [
     { ten: "SCHOOL", tenL: "SCHOOL_L", label: "School Level",
       luat: { S: ["m", "o", "p", "s", "f", "l", "r"], L: ["h", "hf"], units: [1, 4], cam: ["attic", "talkative", "generous", "patient", "curious", "lazy"].concat(CAM_DIA_DANH) } },
