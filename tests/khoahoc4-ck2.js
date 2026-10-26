@@ -14,8 +14,8 @@
 // rút được cùng lúc (khác ô; bộ dò theo tests/lsdl-gdcd6-ck2.js): số ở vị trí kết quả, cặp nối có cả hai vế, chuỗi của câu sắp xếp;
 // đáp án bằng chữ có ở câu kia thì in ra với DO_LO=1 để xem tay, danh sách đã xem ở DA_XEM.
 // Có sách ở ../OnUp-Book/lop-4/khoa-hoc-4/chu.txt (repo riêng tư, mục 4 của docs/KE-HOACH-NOI-DUNG.md) thì so mọi trường chữ của
-// câu với chữ OCR của sách sau khi bỏ dấu, gộp nguyên âm (chữ OCR của cuốn này hay sai dấu, sai nguyên âm): không có chuỗi 8 từ liền nhau trùng sách; DO_SACH=1 in
-// cả chuỗi 6 từ để xem tay. Không có sách thì bỏ qua bước này.
+// câu với chữ OCR của sách sau khi bỏ dấu, gộp nguyên âm (chữ OCR của cuốn này hay sai dấu, sai nguyên âm): không có chuỗi 8 từ
+// liền nhau trùng sách; DO_SACH=1 in cả chuỗi 6 từ để xem tay. Không có sách thì bỏ qua bước này.
 // Chạy: node tests/khoahoc4-ck2.js → in MATH OK.
 "use strict";
 const assert = require("assert");
