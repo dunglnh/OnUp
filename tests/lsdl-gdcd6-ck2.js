@@ -4,7 +4,7 @@
 // ghi ở id); so đáp án với kết quả tính bằng code: điền khuyết ans[0], trả lời bằng số ans, trắc nghiệm o[0]. Lịch sử và Địa lí: số
 // năm (đọc các năm trong đề), thế kỉ của một năm trong ý đúng/sai, mật độ dân số (số dân : diện tích, đọc trong đề), điều kiện khí
 // hậu của rừng mưa nhiệt đới; câu có hình đọc lại hình: biểu đồ cột số dân (trục số bên trái, số ở đỉnh cột, năm dưới cột), sơ đồ năm
-// đới thiên nhiên (vĩ độ ghi bên trái, tên đường bên phải, số của đới), mặt cắt bãi cọc (thang độ cao, đầu cọc, hai mực nước) và
+// đới khí hậu (vĩ độ ghi bên trái, tên đường bên phải, số của đới), mặt cắt bãi cọc (thang độ cao, đầu cọc, hai mực nước) và
 // lược đồ mật độ dân số (vùng tô màu theo chú giải, tên vùng trong vùng). Câu trả lời bằng số, câu điền có đáp án là số và câu có hình
 // nào trong hai kho cũng phải có kiểm tra ở đây.
 // Rồi kiểm tra mức độ và ma trận như tests/lsdl-gdcd6-gk2.js: mọi câu có lv; ma trận 10 Biết, 8 Hiểu, 7 Vận dụng, chủ đề theo thứ tự
@@ -78,7 +78,7 @@ const docCot = (svg) => {
   return cot;
 };
 
-/* Sơ đồ năm đới thiên nhiên: một dải từ cực Bắc (trên) đến cực Nam (dưới); vĩ độ ghi bên trái (text-anchor="end"), tên đường ghi bên
+/* Sơ đồ năm đới khí hậu (mỗi đới khí hậu ứng với một đới thiên nhiên): một dải từ cực Bắc (trên) đến cực Nam (dưới); vĩ độ ghi bên trái (text-anchor="end"), tên đường ghi bên
    phải cùng hàng; ranh giới các đới là đường kẻ ngang nét ink trong dải (Xích đạo là nét đứt, không phải ranh giới); số của đới (chữ
    đậm) nằm giữa hai ranh giới. Trả về { đới: "nóng" | "ôn hoà" | "lạnh" } theo số. */
 const docDoi = (svg) => {
@@ -110,7 +110,7 @@ const docDoi = (svg) => {
   assert.deepEqual(Object.keys(out).sort(), ["1", "2", "3", "4", "5"], "năm đới đánh số 1–5");
   return out;
 };
-const DAC_DIEM = { "nóng": "Nóng quanh năm; thiên nhiên thay đổi chủ yếu theo lượng mưa", "ôn hoà": "Thiên nhiên thay đổi rõ rệt theo bốn mùa trong năm", "lạnh": "Khí hậu giá lạnh, băng tuyết bao phủ gần như quanh năm" };
+const DAC_DIEM = { "nóng": "Nóng quanh năm; mưa nhiều hay ít làm cảnh vật khác nhau", "ôn hoà": "Thời tiết đổi rõ theo bốn mùa xuân, hạ, thu, đông", "lạnh": "Giá lạnh, mặt đất phủ băng tuyết gần như cả năm" };
 
 /* Mặt cắt bãi cọc: thang độ cao bên trái (số nguyên, text-anchor="end", ngay cạnh vạch), cọc là đa giác tô ink (đầu cọc là điểm cao
    nhất), mực nước là đường kẻ ngang nét đứt màu acc với tên ghi ngay trên đường (cao hơn 6 đơn vị). Trả về độ cao (m). */
@@ -165,7 +165,7 @@ const CHECKS = [
     assert.ok(d.filter((x) => x !== hop[0]).every((x) => x.t <= 21 || x.r <= 1700 || x.mua !== "mưa nhiều quanh năm"));
     assert.ok(q.x.includes("trên 21 °C") && q.x.includes("trên 1 700 mm"), "lời giải nêu điều kiện của sách");
     return "Địa điểm " + hop[0].ten; } },
-  { id: L.de1, has: "Đới số 3 có đặc điểm nào", right: (q) => {
+  { id: L.de1, has: "đới số 3 có đặc điểm nào", right: (q) => {
     const doi = docDoi(q.svg);
     assert.deepEqual(Object.values(doi), ["lạnh", "ôn hoà", "nóng", "ôn hoà", "lạnh"], "năm đới từ Bắc xuống Nam");
     assert.ok(Object.values(DAC_DIEM).every((s) => q.o.includes(s)), "ba lựa chọn là đặc điểm của ba đới");
@@ -180,11 +180,17 @@ const CHECKS = [
     assert.ok(q.o.includes(`Số dân tăng liên tục; ${gd(tang.length - 1)} tăng nhiều nhất`) && tang.length - 1 !== i, "lựa chọn sai: giai đoạn cuối");
     assert.ok(q.x.includes(tang.join(", ")) && q.x.includes(`${c[i + 1].v} − ${c[i].v} = ${lon} triệu người`), "lời giải ghi đúng số tăng");
     return `Số dân tăng liên tục; ${gd(i)} tăng nhiều nhất`; } },
+  { id: L.de1, has: "Thành phố nào là siêu đô thị?", right: (q) => {
+    const tp = [...q.q.matchAll(/([A-D]) (\d+(?:,\d+)?) (triệu|nghìn) người/g)].map((m) => ({ ten: m[1], dan: val(m[2]) * (m[3] === "triệu" ? 1e6 : 1e3) }));
+    assert.deepEqual(tp.map((t) => t.ten), ["A", "B", "C", "D"], "đọc được số dân của bốn thành phố");
+    const sieu = tp.filter((t) => t.dan >= 1e7); assert.equal(sieu.length, 1, "đúng một siêu đô thị (từ 10 triệu người)");
+    assert.ok(q.x.includes("từ 10 triệu dân trở lên"), "lời giải nêu ngưỡng 10 triệu");
+    return "Thành phố " + sieu[0].ten; } },
   { id: L.de1, has: "Một xã có 18 000 người sinh sống trên diện tích 45 km²", right: (q) => {
     const [, d, s] = /có ([\d ]+) người sinh sống trên diện tích ([\d ]+) km²/.exec(q.q), v = val(d) / val(s);
     assert.ok(Number.isInteger(v) && q.unit === "người/km²" && q.x.includes(`${vn(val(d))} : ${vn(val(s))} = ${vn(v)}`)); return v; } },
   // Lịch sử và Địa lí: Đề 2
-  { id: L.de2, has: "Đầu năm 544, Lý Bí tự xưng là Lý Nam Đế", right: (q) => hieu(q, "năm") },
+  { id: L.de2, has: "Nước Vạn Xuân do Lý Bí dựng nên năm", right: (q) => hieu(q, "năm") },
   { id: L.de2, has: "Hình dưới mô phỏng mặt cắt một hàng cọc", right: (q) => {
     const h = docCoc(q.svg);
     assert.ok(h.cao > h.dau && h.dau > h.thap, "đầu cọc chìm lúc triều cao, nhô lên lúc triều thấp");
@@ -319,7 +325,7 @@ const loAll = [], chuAll = [];
 [L, G].forEach((s) => { const r = doLo(KHO[s.pool], bank(s.pool).pool.matrix, (q) => ten.get(q)); loAll.push(...r.lo); chuAll.push(...r.chuLo); });
 // câu 13 của gdcd6-ck1-de1 với các câu rút được cùng lúc trong kho cuối kì I
 const ck1 = bank("gdcd6-ck1-ngau-nhien"), c13 = bank("gdcd6-ck1-de1").questions[12];
-assert.ok(c13.topic === "Siêng năng, kiên trì" && c13.type === "mc" && c13.lv === 2 && c13.q.includes("chép lời giải trên mạng"), "câu 13 của gdcd6-ck1-de1 giữ chủ đề, mức, dạng câu");
+assert.ok(c13.topic === "Siêng năng, kiên trì" && c13.type === "mc" && c13.lv === 2 && c13.q.includes("học nghề sửa xe máy"), "câu 13 của gdcd6-ck1-de1 giữ chủ đề, mức, dạng câu");
 assert.ok(c13.o.every((o) => !/^(kiên trì|siêng năng)$/i.test(o.trim())) && !/kiên trì|siêng năng/i.test(c13.o.join(" ") + c13.q + c13.x), "câu 13: lựa chọn, đề bài, lời giải không nhắc chữ của nhãn chủ đề");
 const k13 = ck1.questions.find((q) => q.src === "gdcd6-ck1-de1" && q.q === c13.q);
 { const r = doLo(ck1.questions, ck1.pool.matrix, (q) => (q === k13 ? "ck1-de1#13" : q.src.replace("gdcd6-", "") + "#" + (bank(q.src).questions.findIndex((x) => x.q === q.q) + 1)));
@@ -336,6 +342,6 @@ const khac = tim("Phát triển bền vững là");
 assert.deepEqual(thu([tim("Năm 905, người Việt giành lại"), gia(khac, "Ví dụ: 938 − 905 = 33 (năm).")]), ["33"]);
 assert.deepEqual(thu([tim("Một xã có 18 000 người"), gia(khac, "Mật độ là 400 người/km².")]), ["400"]);
 assert.deepEqual(thu([tim("Nối mỗi cuộc khởi nghĩa"), gia(khac, "Khởi nghĩa Bà Triệu chống nhà Ngô.")]), ["Khởi nghĩa Bà Triệu → Nhà Ngô"]);
-assert.deepEqual(thu([tim("Tên gọi ban đầu của nước đó"), gia(khac, "Nước Lâm Ấp ra đời năm 192.")]), ["Lâm Ấp"]);
+assert.deepEqual(thu([tim("Lúc mới lập, nước đó có tên là gì?"), gia(khac, "Nước Lâm Ấp ra đời năm 192.")]), ["Lâm Ấp"]);
 console.log(n, "câu, ý đã tính lại hoặc đọc lại hình (hai ngân hàng); kho " + kho.length + " câu, 2 ma trận 10 – 8 – 7.");
 console.log("MATH OK");
