@@ -12,7 +12,7 @@
 // rút được cùng lúc (khác ô; bộ dò theo tests/lsdl-gdcd6-ck2.js): số ở vị trí kết quả, cặp nối có cả hai vế, chuỗi của câu sắp xếp;
 // đáp án bằng chữ có ở câu kia thì in ra với DO_LO=1 để xem tay, danh sách đã xem ở DA_XEM.
 // Có sách ở ../OnUp-Book/lop-4/khoa-hoc-4/chu.txt (repo riêng tư, mục 4 của docs/KE-HOACH-NOI-DUNG.md) thì so mọi trường chữ của
-// câu với chữ OCR của sách sau khi bỏ dấu (chữ OCR của cuốn này hay sai dấu): không có chuỗi 8 từ liền nhau trùng sách; DO_SACH=1 in
+// câu với chữ OCR của sách sau khi bỏ dấu, gộp nguyên âm (chữ OCR của cuốn này hay sai dấu, sai nguyên âm): không có chuỗi 8 từ liền nhau trùng sách; DO_SACH=1 in
 // cả chuỗi 6 từ để xem tay. Không có sách thì bỏ qua bước này.
 // Chạy: node tests/khoahoc4-ck2.js → in MATH OK.
 "use strict";
@@ -124,8 +124,8 @@ const CHECKS = [
   { id: S.de2, has: "Lan cần uống thêm ít nhất bao nhiêu", right: (q) => {
     const can = val(/ít nhất ([\d ]+) ml nước mỗi ngày/.exec(q.q)[1]), m = /đã uống (\d+) cốc nước, mỗi cốc (\d+) ml/.exec(q.q), da = m[1] * m[2];
     assert.ok(q.x.includes(`${m[1]} × ${m[2]} = ${vn(da)}`) && q.x.includes(`${vn(can)} − ${vn(da)} = ${vn(can - da)}`)); return can - da; } },
-  { id: S.pool, has: "An cần vận động thêm ít nhất bao nhiêu phút", right: (q) => {
-    const can = +/ít nhất (\d+) phút mỗi ngày/.exec(q.q)[1], a = +/hết tất cả (\d+) phút/.exec(q.q)[1], b = +/đá cầu (\d+) phút/.exec(q.q)[1];
+  { id: S.pool, has: "Bình cần hoạt động thêm ít nhất bao nhiêu phút", right: (q) => {
+    const can = +/thể lực (\d+) phút mỗi ngày/.exec(q.q)[1], a = +/tập võ (\d+) phút/.exec(q.q)[1], b = +/nhảy dây (\d+) phút/.exec(q.q)[1];
     assert.ok(q.x.includes(`${a} + ${b} = ${a + b}`) && q.x.includes(`${can} − ${a + b} = ${can - a - b}`)); return can - a - b; } },
   { id: S.de1, has: "Hộp sữa chua trong tủ lạnh ghi", right: (q) => {
     const [d, m] = /ngày (\d+)\/(\d+)/.exec(q.q).slice(1).map(Number), [hd, hm] = /Hạn sử dụng: (\d+)\/(\d+)/.exec(q.q).slice(1).map(Number);
@@ -283,7 +283,8 @@ assert.deepEqual(thu([tim("Nhóm nào dưới đây gồm toàn nấm ăn"), gia
 
 /* ---------- không chép sách: so với chữ OCR của Khoa học 4 (bỏ dấu), nếu có OnUp-Book ---------- */
 const SACH = path.join(__dirname, "../../OnUp-Book/lop-4/khoa-hoc-4/chu.txt");
-const khongDau = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+// bỏ dấu và gộp các nguyên âm (chữ OCR của cuốn này hay đọc nhầm nguyên âm: “chốt” thay cho “chất”)
+const khongDau = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
 if (fs.existsSync(SACH)) {
   const sach = " " + khongDau(fs.readFileSync(SACH, "utf8").replace(/=== page-\d+ · trang in \d+ ===/g, " ")) + " ";
   const trung = (s, k) => { const w = khongDau(s).split(" ").filter(Boolean), ra = []; for (let i = 0; i + k <= w.length; i++) { const c = w.slice(i, i + k).join(" "); if (sach.includes(" " + c + " ")) ra.push(c); } return ra; };
