@@ -142,6 +142,8 @@ const diem = (svg, names) => {
 const rubricNums = (q) => q.rubric.map((r) => [...r.c.matchAll(/\d[\d ]*\d|\d/g)].map((m) => val(m[0])));
 const essayOK = (q, lines, total) => { assert.equal(sum(q.rubric.map((r) => r.p)), total, "thang chấm phải đủ " + total + " điểm"); q.rubric.forEach((r) => assert.equal((r.p * 100) % 25, 0, "điểm mỗi ý chia hết cho 0,25")); assert.ok(q.x.split("\n").length >= lines, "đáp án gợi ý đủ các bước"); };
 const soTrongDe = (q) => /:\s*(.+?)\.\s*S/.exec(q.q)[1].split(/;\s*/).map(val);
+// lá thăm rút được, ghi lại theo thứ tự: trả về [số lần A (chữ), số lần B, số lần C]
+const thamA = (q) => { const k = /ghi được: ([ABC](?:, [ABC])*)\./.exec(q.q)[1].split(", "); const d = (c) => k.filter((x) => x === c).length; return [String(d("A")), d("B"), d("C")]; };
 const day = (q) => /dãy số liệu: ([\d, kg]+?)\.(?:\s|$)/.exec(q.q)[1].split(/,\s*/).map((s) => val(s.replace(" kg", "")));
 const quyDong = (fs, m) => fs.map((f) => { const p = P(f); return p.n * div(m, p.d) + "/" + m; });
 const MOT = (s) => { const t = s.split(" và "); return t.slice(0, -1).join(", ") + (t.length > 1 ? " và " : "") + t[t.length - 1]; };
@@ -152,7 +154,7 @@ const de1 = [
   { has: "2 708 × 34", right: () => fmt(2708 * 34), more: (q) => { assert.ok(q.x.includes(fmt(2708 * 4)) && q.x.includes(fmt(2708 * 3)) && q.x.includes(fmt(2708 * 30))); } },
   { has: "9 516 : 26", right: () => fmt(div(9516, 26)), more: () => { assert.equal(95 - 3 * 26, 17); assert.equal(171 - 6 * 26, 15); assert.equal(156, 6 * 26); } },
   { has: "4 × 39 × 25 + 61 × 100", right: () => 4 * 39 * 25 + 61 * 100, more: () => assert.equal((39 + 61) * 100, 10000) },
-  { has: "Trung bình cộng của hai số là 64. Số lớn hơn số bé 18", right: () => div(64 * 2 + 18, 2), more: () => assert.equal((73 + 55) / 2, 64) },
+  { has: "Trung bình cộng của hai số là 75. Số lớn hơn số bé 16", right: () => div(75 * 2 + 16, 2), more: (q) => { assert.equal((83 + 67) / 2, 75); assert.equal(83 - 67, 16); assert.ok(q.x.includes("số bé là 150 − 83 = 67")); } },
   { has: "6 phút in được 270 trang", right: () => div(630, div(270, 6)) },
   { has: "thanh sô-cô-la", right: (q) => { const b = bang(q.svg); assert.deepEqual([b.n, b.k], [9, 4]); return (b.n - b.k) + "/" + b.n; }, more: (q) => assert.ok(q.o.includes("4/9"), "lựa chọn phần đã ăn") },
   { has: "Rút gọn phân số 30/42", right: () => toi("30/42") },
@@ -164,8 +166,8 @@ const de1 = [
   { has: "chiều dài 3/4 m, chiều rộng 2/5 m", right: () => str(ev2("3/4 × 2/5")) + " m²", more: (q) => { assert.ok(q.o.includes((3 + 2) + "/" + (4 + 5) + " m²") && q.o.includes(str(ev2("3/4 : 2/5")) + " m²"), "nhiễu: cộng tử với tử, mẫu với mẫu; phép chia"); } },
   { has: "đàn gà có 45 con", right: () => +str(mul(F(45), P("3/5"))) },
   { has: "360 quyển vở", right: () => +str(sub(sub(F(360), mul(F(360), P("1/6"))), mul(F(360), P("3/8")))) },
-  { has: "Tuần nào cửa hàng bán được nhiều bó hoa nhất", right: (q) => argBy(chartOf(q, ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4"]), (a, b) => a > b) },
-  { has: "Cả bốn tuần cửa hàng bán được bao nhiêu bó hoa", right: (q) => sum(chartOf(q, ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4"]).map((c) => c[1])) },
+  { has: "Tuần nào lớp 4A thu gom được nhiều chai nhựa nhất", right: (q) => argBy(chartOf(q, ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4"]), (a, b) => a > b) },
+  { has: "Cả bốn tuần lớp 4A thu gom được bao nhiêu chai nhựa", right: (q) => sum(chartOf(q, ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4"]).map((c) => c[1])) },
   { has: "3 tấm thẻ: thẻ số 1, thẻ số 2 và thẻ số 3", right: () => (24 - 9 - 8) + " lần" },
   { has: "6 tấn 5 tạ", right: () => String(6 * 10 + 5) },
   { has: "2 tấn 4 tạ khoai tây", right: () => { const kg = 2 * 1000 + 4 * 100; return kg - +str(mul(F(kg), P("5/8"))); } },
@@ -222,15 +224,16 @@ const own = [
   { has: "Chia một số tự nhiên cho 34", right: () => 34 - 1, more: (q) => { assert.ok(q.x.includes("1 021 : 34 = 30 (dư 1)") && q.x.includes("1 053 : 34 = 30 (dư 33)")); assert.equal(34 * 30 + 1, 1021); assert.equal(34 * 30 + 33, 1053); } },
   { has: "4 368 : 52 có mấy chữ số", right: () => String(div(4368, 52)).length + " chữ số" },
   { has: "57 × 63 + 57 × 36 + 57", right: () => 57 * 63 + 57 * 36 + 57 },
-  { has: "4 hộp dây điện", right: () => 25 * 8 * 4 },
+  { has: "4 hộp dây điện, mỗi hộp có 7 cuộn", right: () => 25 * 7 * 4 },
   { has: "ngày thứ nhất bán 135 quyển", essay: (q) => {
-    const d2 = 135 + 27, d3 = d2 - 15, tb = div(135 + d2 + d3, 3), r = rubricNums(q);
-    assert.deepEqual(r.slice(0, 3), [[135, 27, d2], [d2, 15, d3], [135, d2, d3, 3, tb]]); essayOK(q, 4, 2); assert.ok(q.x.includes("Đáp số: " + tb + " quyển sách")); } },
+    const d2 = 135 + 27, d3 = d2 - 18, tb = div(135 + d2 + d3, 3), r = rubricNums(q);
+    assert.ok(q.q.includes("ít hơn ngày thứ hai 18 quyển"));
+    assert.deepEqual(r.slice(0, 3), [[135, 27, d2], [d2, 18, d3], [135, d2, d3, 3, tb]]); essayOK(q, 4, 2); assert.ok(q.x.includes("Đáp số: " + tb + " quyển sách")); } },
   { has: "Ba thùng dầu có trung bình 40 l", right: () => div(40 * 3 - 6, 3) + " l" },
   { has: "36 kg gạo trong 4 ngày", essay: (q) => {
     const ngay = div(36, 4), kg = 2 * 100 + 7, r = rubricNums(q);
     assert.deepEqual(r.slice(0, 2), [[1, 36, 4, ngay], [2, 7, kg, kg, ngay, div(kg, ngay)]]); essayOK(q, 4, 2); assert.ok(q.x.includes("Đáp số: " + div(kg, ngay) + " ngày")); } },
-  { has: "6 bạn cắt được 72 ngôi sao", right: () => div(72, 6) * 9 },
+  { has: "Nhóm của Hà có 6 bạn, trong một giờ cắt được 72 ngôi sao", right: () => div(72, 6) * (6 + 3), more: (q) => assert.ok(q.q.includes("thêm 3 bạn")) },
   { has: "ném vòng", right: (q) => day(q)[4] + " điểm" },
   { has: "quả dưa hấu", right: (q) => Math.max(...day(q)) === 6 },
   { has: "đi học muộn", right: (q) => { const d = day(q); return [d.length === 4, d[2] === 0, Math.min(...d) === d[0], sum(d) === 5]; } },
@@ -238,7 +241,7 @@ const own = [
   { has: "tung một đồng xu 16 lần", right: (q) => {
     const kq = /kết quả: ([SN, ]+?) \(/.exec(q.q)[1].split(", "), S = kq.filter((c) => c === "S").length, N = kq.length - S;
     assert.equal(kq.length, 16); return [S === 10, N === 8, S > N, kq[1] === "N"]; } },
-  { has: "thẻ màu tím và 1 tấm thẻ màu cam", right: () => String(20 - 12) },
+  { has: "3 lá thăm ghi chữ A, B, C", right: (q) => thamA(q)[0], more: (q) => { const [a, b, c] = thamA(q); assert.equal(+a + b + c, 12); assert.equal(b, c); assert.ok(q.x.includes("được " + a + " chữ A") && q.x.includes("mỗi lá xuất hiện " + b + " lần")); } },
   { has: "7 m dây ruy băng", right: () => str(F(7, 9)) },
   { has: "20 viên kẹo, trong đó có 9 viên vị dâu", right: () => [str(F(9, 20)) === "9/20", 20 - 9 === 11, str(F(20 - 9, 20)) === "11/9", cmp(F(9, 20), F(1)) < 0] },
   { has: "Bạn Minh rút gọn một số phân số", right: () => [toi("15/35") === "3/7", isMin("14/21"), toi("48/60") === "4/5" && isMin("4/5"), isMin("10/15")] },
@@ -406,7 +409,7 @@ assert.deepEqual(lo, [], "lộ đáp án:\n" + lo.join("\n"));
 const gia = (q, x) => Object.assign({}, q, { x: q.x + " " + x }), d1 = bank("toan4-ck2-de1").questions;
 const thuLo = (qs) => doLo(qs.map((q) => Object.assign({ src: "thử" }, q))).lo.map((s) => s.replace(/^.*: /, ""));
 assert.deepEqual(thuLo([d1[7], gia(d1[0], "Ví dụ: 1 − 4/9 = 5/9.")]), ["5/9"]);
-assert.deepEqual(thuLo([d1[18], gia(d1[0], "Tổng số bó hoa là 154 bó.")]), [154]);
+assert.deepEqual(thuLo([d1[18], gia(d1[0], "Tổng số chai nhựa là 154 chai.")]), [154]);
 assert.deepEqual(thuLo([mine[3], gia(d1[0], "Ví dụ: 3 062 145 có chữ số 3 với giá trị 3 000 000.")]), ["3 062 145 → 3 000 000"]);
 console.log(n, "câu đã tính lại (50 câu của 2 đề cố định, " + mine.length + " câu riêng của đề ngẫu nhiên); kho " + pool.questions.length + " câu; trung bình " + (essays / 400).toFixed(2) + " câu tự luận mỗi lần rút.");
 console.log("MATH OK");
