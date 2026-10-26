@@ -491,6 +491,23 @@ window.ONTAP_SEED_BANKS = [
       "Trạng ngữ chỉ thời gian, nơi chốn": [1, 1, 0], "Trạng ngữ chỉ nguyên nhân, mục đích": [0, 1, 1], "Mở rộng vốn từ": [1, 1, 1],
       "Chính tả": [1, 0, 0], "Viết": [0, 0, 1] } } },
 
+  /* Toán 4 · Kiểm tra cuối năm học (Kết nối tri thức, cả năm, trọng tâm học kì II Bài 38–73; Phiên N13). Kho câu = 50 câu riêng
+     trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7
+     câu trên 18 chủ đề: phân số 10 câu (Bài 53–66), số tự nhiên và phép tính 7 (Bài 38–48, ôn số có nhiều chữ số), thống kê và xác
+     suất 3 (Bài 49–52), hình học và đo lường 5 (ôn học kì I); chữ chủ đề như kho giữa kì II, cuối kì I, thêm “Cộng, trừ phân số”,
+     “Nhân, chia phân số”, “Tìm phân số của một số”. Mỗi ô (chủ đề, mức) rút 1 câu và có 4 câu: một câu ở mỗi đề cố định, hai câu
+     riêng, nên học sinh đã làm một đề cố định vẫn gặp câu mới. Ba câu tự luận chỉ ở ba ô Vận dụng (Số trung bình cộng, Rút về đơn
+     vị, Tìm phân số của một số): mỗi lần rút nhiều nhất 3 câu tự luận. */
+  { id: "toan4-ck2-de1", title: "Toán 4 · Cuối năm · Đề 1", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js" },
+  { id: "toan4-ck2-de2", title: "Toán 4 · Cuối năm · Đề 2", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js" },
+  { id: "toan4-ck2-ngau-nhien", title: "Toán 4 · Cuối năm · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
+    pool: { from: ["toan4-ck2-de1", "toan4-ck2-de2"], matrix: {
+      "Số có nhiều chữ số": [1, 1, 0], "Phép nhân": [1, 0, 0], "Phép chia": [0, 1, 0], "Tính chất phép nhân": [0, 0, 1],
+      "Số trung bình cộng": [0, 0, 1], "Rút về đơn vị": [0, 0, 1], "Phân số": [1, 0, 0], "Rút gọn phân số": [0, 1, 0],
+      "Quy đồng mẫu số": [0, 1, 0], "So sánh phân số": [1, 0, 0], "Cộng, trừ phân số": [1, 0, 1], "Nhân, chia phân số": [1, 1, 0],
+      "Tìm phân số của một số": [0, 1, 1], "Dãy số liệu, biểu đồ cột": [1, 1, 0], "Số lần xuất hiện của sự kiện": [1, 0, 0],
+      "Đơn vị đo": [1, 0, 1], "Đường thẳng vuông góc, song song": [1, 0, 0], "Hình bình hành, hình thoi": [0, 1, 1] } } },
+
   /* Toán 6 · Kiểm tra cuối năm học (Kết nối tri thức, học kì II, Bài 23–43: Chương VI Phân số, Chương VII Số thập phân, Chương VIII
      Những hình hình học cơ bản, Chương IX Dữ liệu và xác suất thực nghiệm; Phiên N18). Kho câu = 50 câu riêng trong file + 50 câu của
      2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 15 chủ đề: phân số 5 câu (Bài 23–27),
