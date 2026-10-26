@@ -3341,10 +3341,12 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      Level" và chỉ có câu National, unit cũ không ghi. Làm đề National Level tiếp theo (Start Test; giả lập máy đọc được tiếng như bước 9o, 9s):
      30 câu (24 câu N…, 6 câu P… hay C…), Unit trong phạm vi, có câu nghe, có câu đọc (rd: đoạn đọc .read hiện đúng chữ, trong khung); trả lời
      đúng hết theo dữ liệu, nộp: 30/30, ontapReport gọi đúng một lần với label "National Level · Test N", app lưu kết quả đó. Ở màu sáng còn
-     mở lần lượt mọi câu của NATIONAL, NATIONAL_L trong khung (lượt luyện tập dựng từ BANKS.N) và chạy audit chữ đè ở từng câu. Ảnh ở
-     tests/screenshots/n-ioe/ (bản ghép <tên>.jpg: ioe4-trang-dau, ioe4-cau-doc, ioe4-ket-qua, ioe6-…; chép sang docs/hinh-n-ioe/). */
+     mở lần lượt mọi câu của NATIONAL, NATIONAL_L trong khung (lượt luyện tập dựng từ BANKS.N) và chạy audit chữ đè ở từng câu; Phiên DS-IOE:
+     rồi mọi câu cũ đã đổi chữ cho khớp sách in năm 2026 (tests/ioe-sua.js, lượt luyện tập dựng từ mã câu S…, W…, P…, C… tính theo vị trí).
+     Ảnh ở tests/screenshots/n-ioe/ (bản ghép <tên>.jpg: ioe4-trang-dau, ioe4-cau-doc, ioe4-ket-qua, ioe6-…; chép sang docs/hinh-n-ioe/). */
   const OUTNQ = OUT + "n-ioe/"; fs.mkdirSync(OUTNQ, { recursive: true });
-  const nq = { problems: [], shots: [], runs: [], sweep: { "ioe-4": 0, "ioe-6": 0 }, bank: {} };
+  const nq = { problems: [], shots: [], runs: [], sweep: { "ioe-4": 0, "ioe-6": 0 }, sweepOld: { "ioe-4": 0, "ioe-6": 0 }, bank: {} };
+  const SUA = require("./ioe-sua.js"); // Phiên DS-IOE: chỉ số các câu cũ đã đổi chữ, theo ngân hàng
   const NQ = [
     { m: "ioe-4", who: "Bin", pin: PINS.Bin, tabKey: "ioe4v1", pre: "ioe4", units: "Units 1–15", newU: [11, 12, 13, 14, 15], u: [1, 15], other: "P",
       seg: "School LevelUnits 1–6 · 49 tests|Ward LevelUnits 1–10 · 42 tests|Province LevelUnits 1–10 · 56 tests|National LevelUnits 1–15 · 28 tests*" },
@@ -3441,6 +3443,23 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
         }
         r.sweep = (await fr.$("#recap")) !== null && nq.sweep[M.m] === n;
         await fr.evaluate(() => renderHome()); // bỏ lượt kiểm tra này (không nộp, không gửi điểm về app), để rời bài không bị hỏi
+        // Phiên DS-IOE: mọi câu cũ đã đổi chữ (mã câu theo vị trí; ngân hàng nghe nối sau ngân hàng đọc cùng cấp trong BANKS), audit chữ đè ở từng câu
+        await fr.waitForSelector("#heroBtn");
+        const old = await fr.evaluate((sua) => {
+          const B = { SCHOOL: typeof SCHOOL !== "undefined" ? SCHOOL : null, WARD: typeof WARD !== "undefined" ? WARD : null, PROVINCE: typeof PROVINCE !== "undefined" ? PROVINCE : null, CITY: typeof CITY !== "undefined" ? CITY : null };
+          const CAP = { SCHOOL: "S", WARD: "W", PROVINCE: "P", CITY: "C" };
+          const ids = Object.entries(sua).flatMap(([n, idx]) => { const d = n.replace(/_L$/, ""); return idx.map((i) => CAP[d] + ((n === d ? 0 : B[d].length) + i)); });
+          const qs = ids.map(byId).filter(Boolean);
+          startSession({ mode: "practice", qs: qs.map((q) => inst(q)), label: "DS-IOE check" });
+          return { want: ids.length, n: S.qs.length };
+        }, SUA[M.m]);
+        for (let i = 0; i < old.n; i++) {
+          await fr.waitForSelector("#skipBtn"); const id = await fr.evaluate(() => S.qs[S.i].id);
+          (await fr.evaluate(audit, "chữ")).forEach((x) => nq.problems.push(`n-ioe · ${M.m} · câu cũ đổi chữ ${id}: ${x}`)); nq.sweepOld[M.m]++;
+          await fr.click("#skipBtn");
+        }
+        r.sweepOld = old.n === old.want && nq.sweepOld[M.m] === old.want && (await fr.$("#recap")) !== null;
+        await fr.evaluate(() => renderHome());
       }
       console.log("n-ioe", scheme, M.m, JSON.stringify(r));
     }
@@ -3456,14 +3475,15 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     }
     await gp.close();
   }
-  console.log("n-ioe problems:", nq.problems.length, nq.problems.slice(0, 30), "bank:", JSON.stringify(nq.bank));
+  console.log("n-ioe problems:", nq.problems.length, nq.problems.slice(0, 30), "bank:", JSON.stringify(nq.bank), "câu cũ đổi chữ:", JSON.stringify(nq.sweepOld));
   const nIoeOK = !nq.problems.length && nq.runs.length === 4 && nq.runs.every((r) => { const M = NQ.find((x) => x.m === r.m);
       return r.hero.label === `Up next · National Level · ${M.units}` && r.hero.exam === "National Level exam: 1–2 Apr 2027 (expected) · 24 days to go"
         && r.seg.txt === M.seg && r.seg.grid && r.seg.fit && r.seg.h >= 44 && r.seg.weeks === 4 && r.seg.now === 0 && r.seg.tests === 28 && r.seg.units && r.seg.oldUnits
         && r.btn && r.test.n === 30 && r.test.nN === 24 && r.test.nO === 6 && r.test.units && r.test.say >= 1 && r.test.rd >= 1 && r.read.length === r.test.rd && r.read.every(Boolean)
         && r.test.label === r.test.head && r.test.label === r.label && /^National Level · Test \d+$/.test(r.label)
         && r.recap && r.result.score === "30/30" && r.result.reps.length === 1 && r.result.reps[0] === `${r.label}|exam|ta|30|30` && r.saved
-        && (r.scheme !== "light" || r.sweep); })
+        && (r.scheme !== "light" || (r.sweep && r.sweepOld)); })
+    && NQ.every((M) => nq.sweepOld[M.m] === Object.values(SUA[M.m]).flat().length)
     && NQ.every((M) => nq.bank[M.m] && nq.sweep[M.m] === nq.bank[M.m].n && nq.bank[M.m].n >= 200 && nq.bank[M.m].say >= 30 && nq.bank[M.m].rd >= 15)
     && NQ.every((M) => ["trang-dau", "cau-doc", "ket-qua"].every((n) => nq.shots.includes(`${M.pre}-${n}-light`) && nq.shots.includes(`${M.pre}-${n}-dark`)));
 

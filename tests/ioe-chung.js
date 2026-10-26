@@ -25,6 +25,7 @@ const nap = (src) => {
 const CHU_VIET = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/iu;
 const TU_CO_DAU = ["café", "cafés"];
 const SO_O = { m: 7, o: 6, p: 6, s: 6, e: 5, f: 4, l: 4, w: 4, r: 3, rd: 8, h: 8, hp: 7, hf: 5 };
+const CHUC_NANG = new Set("a an the at on in to of for from with by up into near under behind between next and or but so than is are am was were do does did don't doesn't isn't aren't be it i you he she we they me him her us them my your his our their this that these those there here not no yes will won't what when where who why how".split(" ").concat(["will not"]));
 const strip = (s) => String(s).replace(/<\/?u>/g, "");
 const key = (s) => strip(s).toLowerCase().replace(/[’‘]/g, "'").replace(/[^\p{L}\p{N}]+/gu, "");
 const norm = (s) => String(s).toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, " ").replace(/[.!?]+$/, "").trim();
@@ -98,11 +99,40 @@ const tuThu = (note) => {
   for (const [r, bank, what] of thu) if (!checkRow(r, bank, L4).length) note(`tự thử: câu sai (${what}) không bị báo: ${JSON.stringify(r)}`);
   for (const r of [["m", 4, "My street is ___ than yours.", "quieter", "quiet", "more quiet", "quietest"], ["m", 4, "Let's meet at the café.", "a", "b", "c", "d"], ["e", 3, "[She] [have] [long] [hair].", 1, "has"], ["hp", 2, "It's a cat.", "🐱", "🐶", "🐦", "🐟"]])
     if (checkRow(r, r[0] === "hp" ? "L" : "S", L4).length) note("tự thử: câu đúng bị báo: " + JSON.stringify(r) + " " + checkRow(r, r[0] === "hp" ? "L" : "S", L4).join("; "));
+  // so ngân hàng cũ (soCu): đổi chữ câu có trong danh sách thì được; đổi câu khác, đổi dạng, unit, số ô, chèn câu thì bị báo
+  const cu = { SCHOOL: [["m", 1, "a ___", "b", "c", "d", "e"], ["f", 2, "I ___ up.", "get"]] }, m0 = cu.SCHOOL[0], f1 = cu.SCHOOL[1];
+  const thuSo = [[[m0, f1], {}, false, "giống hệt"], [[["m", 1, "x ___", "b", "c", "d", "e"], f1], { SCHOOL: [0] }, false, "đổi chữ câu có trong danh sách"],
+    [[["m", 1, "x ___", "b", "c", "d", "e"], f1], { SCHOOL: [1] }, true, "đổi chữ câu không có trong danh sách"], [[["f", 1, "x ___", "b"], f1], { SCHOOL: [0] }, true, "đổi dạng"],
+    [[["m", 3, "a ___", "b", "c", "d", "e"], f1], { SCHOOL: [0] }, true, "đổi unit"], [[["m", 1, "a ___", "b", "c", "d"], f1], { SCHOOL: [0] }, true, "bớt ô"],
+    [[["f", 2, "We ___ up.", "get"], m0, f1], { SCHOOL: [0, 1] }, true, "chèn câu"], [[m0, f1], { WARD: [0] }, true, "ngân hàng không có"], [[m0, f1], { SCHOOL: [5] }, true, "chỉ số ngoài ngân hàng"]];
+  for (const [rows, sua, loi, what] of thuSo) if (soCu(cu, { SCHOOL: rows }, ["SCHOOL"], sua, "commit").out.length > 0 !== loi) note(`tự thử: so ngân hàng cũ (${what}) ${loi ? "không bị báo" : "bị báo"}`);
 };
 
-/* cfg: { file, ref, cu: tên ngân hàng phải giữ nguyên như commit (cả UNITS: chỉ các khóa cũ), kiemTra: [{ ten, tenL, lv, luat, label }] ngân hàng mới
-   kiểm tra từng câu, track: { [k]: lộ trình phải có như cfg (start, exam là Date) }, order: TRACK_ORDER mong đợi, ngay: [[ngày, lộ trình mặc định]],
-   rut: [{ tk, lv: các mã ngân hàng được phép, units: [từ, đến] }] lộ trình mới rút thử mọi đề, ok: chữ in khi đạt } */
+/* so ngân hàng cũ với commit (Phiên DS-IOE): giống hệt, trừ các câu có trong sua = { [ngân hàng]: [chỉ số] }, được đổi chữ nhưng giữ vị trí, dạng,
+   unit và số ô (mã câu S…, W…, P…, C… tính theo vị trí; "Review Mistakes" lưu theo mã câu). Trả về lỗi và các câu đã đổi chữ. */
+const soCu = (old, now, names, sua, ref) => {
+  const out = [], daSua = [];
+  for (const n of Object.keys(sua)) if (!names.includes(n) || !old[n]) out.push(`sua.${n}: không phải ngân hàng cũ của trang`);
+  for (const n of names) {
+    if (n === "UNITS" || !old[n]) continue; // UNITS so riêng; ngân hàng mới của phiên này chưa có ở commit
+    const cho = new Set(sua[n] || []);
+    for (const i of cho) if (!(Number.isInteger(i) && i >= 0 && i < old[n].length)) out.push(`sua.${n}: chỉ số ${i} ngoài ngân hàng`);
+    if (!now[n] || now[n].length !== old[n].length) { out.push(`${n}: ${now[n] ? now[n].length : 0} câu, ${ref} có ${old[n].length} (không chèn, không xóa câu của ngân hàng cũ)`); continue; }
+    now[n].forEach((r, i) => {
+      const o = old[n][i];
+      if (JSON.stringify(r) === JSON.stringify(o)) return;
+      if (!cho.has(i)) return out.push(`${n}[${i}] khác ${ref} mà không có trong danh sách câu được đổi chữ (sua.${n})`);
+      if (!Array.isArray(r) || r[0] !== o[0] || r[1] !== o[1] || r.length !== o.length) return out.push(`${n}[${i}]: phải giữ dạng ${o[0]}, Unit ${o[1]}, ${o.length} ô như ${ref}`);
+      daSua.push({ n, i, r, cu: o, at: `${n}[${i}]`, bank: n.endsWith("_L") ? "L" : "S" });
+    });
+  }
+  return { out, daSua };
+};
+
+/* cfg: { file, ref, cu: tên ngân hàng phải giữ nguyên như commit (cả UNITS: chỉ các khóa cũ), sua: { [ngân hàng cũ]: [chỉ số] } câu cũ được đổi chữ
+   (Phiên DS-IOE: giữ vị trí, dạng, unit, số ô), luatSua: luật kiểm tra từng câu đã đổi chữ (như luat bên dưới), kiemTra: [{ ten, tenL, lv, luat, label }]
+   ngân hàng mới kiểm tra từng câu, track: { [k]: lộ trình phải có như cfg (start, exam là Date) }, order: TRACK_ORDER mong đợi, ngay: [[ngày, lộ trình
+   mặc định]], rut: [{ tk, lv: các mã ngân hàng được phép, units: [từ, đến] }] lộ trình mới rút thử mọi đề, ok: chữ in khi đạt } */
 const chay = (cfg) => {
   const now = nap(fs.readFileSync(path.join(ROOT, cfg.file), "utf8"));
   const old = nap(execFileSync("git", ["show", `${cfg.ref}:${cfg.file}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 26 }));
@@ -110,13 +140,18 @@ const chay = (cfg) => {
   tuThu(note);
 
   /* ---------- 1. dữ liệu cũ, đề của các lộ trình cũ ---------- */
-  for (const n of cfg.cu) {
-    if (!old[n]) continue; // ngân hàng mới của phiên này: chưa có ở commit
-    if (n === "UNITS") { for (const k of Object.keys(old.UNITS)) if (now.UNITS[k] !== old.UNITS[k]) note(`UNITS[${k}] khác ${cfg.ref}`); if (Object.keys(now.UNITS).slice(0, Object.keys(old.UNITS).length).join() !== Object.keys(old.UNITS).join()) note("UNITS: unit mới phải thêm ở cuối"); continue; }
-    if (JSON.stringify(now[n]) !== JSON.stringify(old[n])) note(`${n} khác ${cfg.ref} (không sửa chữ, không chèn câu vào giữa ngân hàng cũ)`);
+  if (cfg.cu.includes("UNITS")) {
+    for (const k of Object.keys(old.UNITS)) if (now.UNITS[k] !== old.UNITS[k]) note(`UNITS[${k}] khác ${cfg.ref}`);
+    if (Object.keys(now.UNITS).slice(0, Object.keys(old.UNITS).length).join() !== Object.keys(old.UNITS).join()) note("UNITS: unit mới phải thêm ở cuối");
   }
+  const so = soCu(old, now, cfg.cu, cfg.sua || {}, cfg.ref);
+  so.out.forEach(note);
+  // mã câu đã đổi chữ: trong BANKS của trang, ngân hàng nghe nối sau ngân hàng đọc cùng cấp (SCHOOL_L[1] của ioe-4 là S181)
+  const CAP = { SCHOOL: "S", WARD: "W", PROVINCE: "P", CITY: "C", NATIONAL: "N" };
+  const maSua = new Set(so.daSua.map(({ n, i }) => { const d = n.replace(/_L$/, ""); return CAP[d] + (n === d ? i : old[d].length + i); }));
   const plainTrack = (T) => JSON.stringify({ ...T, start: +T.start, exam: +T.exam });
-  const sig = (q) => q.id + (q.order || []).join("") + (q.miss || []).join("") + (q.tiles || []).map((t) => t.i).join(",");
+  // câu đã đổi chữ: chỉ so mã câu (số mảnh, số chữ cái khác thì thứ tự ô, chữ ẩn khác); câu khác: cả thứ tự lựa chọn, chữ ẩn, thứ tự ô
+  const sig = (q) => maSua.has(q.id) ? q.id : q.id + (q.order || []).join("") + (q.miss || []).join("") + (q.tiles || []).map((t) => t.i).join(",");
   for (const tk of Object.keys(old.TRACKS)) {
     if (!now.TRACKS[tk] || plainTrack(now.TRACKS[tk]) !== plainTrack(old.TRACKS[tk])) { note(`TRACKS.${tk} khác ${cfg.ref}`); continue; }
     const T = now.TRACKS[tk], total = T.weeks * now.PER_WEEK;
@@ -125,9 +160,33 @@ const chay = (cfg) => {
     }
   }
 
-  /* ---------- 2, 3. ngân hàng kiểm tra từng câu ---------- */
   const noi = new Map(); // mã câu → mọi chỗ có mã đó trong mọi ngân hàng của trang (dò trùng với câu cũ và giữa các câu mới)
   for (const n of BANK_NAMES.filter((x) => x !== "UNITS" && now[x])) now[n].forEach((r, i) => { const k = qkey(r); noi.set(k, (noi.get(k) || []).concat(`${n}[${i}]`)); });
+
+  /* ---------- 1b. câu cũ đã đổi chữ: kiểm tra từng câu như câu mới, dò trùng; in chỗ đáp án gõ (f, l, w, hf) có trong câu khác cùng unit ---------- */
+  if (so.daSua.length) {
+    const dem = {};
+    for (const { n, r, at, bank } of so.daSua) {
+      dem[n] = (dem[n] || 0) + 1;
+      checkRow(r, bank, cfg.luatSua).forEach((m) => note(`${at} ${JSON.stringify(r).slice(0, 80)}: ${m}`));
+      const khac = noi.get(qkey(r)).filter((x) => x !== at);
+      if (khac.length) note(`${at} trùng câu ${khac.join(", ")}: ${JSON.stringify(r).slice(0, 80)}`);
+    }
+    console.log(`Câu cũ đổi chữ so với ${cfg.ref}: ${Object.entries(dem).map(([n, c]) => `${n} ${c}`).join(", ")} (${so.daSua.length} câu)`);
+    if (process.env.DO_LO) { // DO_LO=1: in chỗ đáp án gõ có trong câu khác cùng unit của cùng cấp (ngân hàng đọc và nghe), như mục 5
+      const cung = (n, u) => { const d = n.replace(/_L$/, ""); return [d, d + "_L"].filter((x) => now[x]).flatMap((x) => now[x].map((r, i) => ({ r, at: `${x}[${i}]` })).filter(({ r }) => r[1] === u)); };
+      for (const { n, r, at } of so.daSua) {
+        const t = r[0], ans = t === "f" ? r[3].split("|") : t === "hf" ? r[4].split("|") : t === "l" || t === "w" ? [r[2]] : [];
+        for (const a of ans) {
+          if (CHUC_NANG.has(a.toLowerCase())) continue;
+          const re = new RegExp("(^|[^\\p{L}'])" + a.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "($|[^\\p{L}'])", "iu");
+          for (const o of cung(n, r[1])) if (o.at !== at && re.test(strip((o.r[0] === "e" ? [o.r[2], o.r[4]] : o.r.slice(2)).join(" | ")))) console.log(`  lộ đáp án? ${at} "${a}" có ở ${o.at}: ${strip(o.r.slice(2).join(" | ")).slice(0, 90)}`);
+        }
+      }
+    }
+  }
+
+  /* ---------- 2, 3. ngân hàng kiểm tra từng câu ---------- */
   for (const b of cfg.kiemTra) {
     if (!now[b.ten] || !now[b.tenL]) { note(`trang không có ${b.ten}, ${b.tenL}`); continue; }
     if (!now[b.ten].length) { note(`${b.ten} chưa có câu nào`); continue; }
@@ -146,7 +205,6 @@ const chay = (cfg) => {
       console.log(`  Unit ${u} (${now.UNITS[u]}): ${s} câu (${doc.filter((t) => c[t]).map((t) => `${t} ${c[t]}`).join(", ")}), ${l} câu nghe (${nghe.filter((t) => c[t]).map((t) => `${t} ${c[t]}`).join(", ")})`);
     }
     /* ---------- 5. lộ đáp án (in ra để xem) ---------- */
-    const CHUC_NANG = new Set("a an the at on in to of for from with by up into near under behind between next and or but so than is are am was were do does did don't doesn't isn't aren't be it i you he she we they me him her us them my your his our their this that these those there here not no yes will won't what when where who why how".split(" ").concat(["will not"]));
     let lo = 0, boQua = 0;
     for (const { r, at } of rows) {
       const t = r[0], ans = t === "f" ? r[3].split("|") : t === "hf" ? r[4].split("|") : t === "l" || t === "w" ? [r[2]] : [];
@@ -190,4 +248,4 @@ const chay = (cfg) => {
   if (errs.length) { console.error(`${cfg.ok.replace(/ OK$/, "")} FAILED (${errs.length} lỗi)`); process.exitCode = 1; } else console.log(cfg.ok);
 };
 
-module.exports = { chay, nap, checkRow, qkey, key, norm, strip, chunks };
+module.exports = { chay, nap, checkRow, soCu, qkey, key, norm, strip, chunks };
