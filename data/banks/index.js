@@ -579,6 +579,33 @@ window.ONTAP_SEED_BANKS = [
       "Quyền và nghĩa vụ cơ bản của công dân": [2, 2, 2], "Quyền cơ bản của trẻ em": [3, 2, 1], "Thực hiện quyền trẻ em": [2, 2, 2],
       "Ứng phó với tình huống nguy hiểm": [1, 1, 1], "Tiết kiệm": [1, 0, 1], "Công dân nước Việt Nam": [1, 1, 0] } } },
 
+  /* Tin học 6 · Kiểm tra cuối năm học (Kết nối tri thức; Chủ đề 6 Giải quyết vấn đề với sự trợ giúp của máy tính, Bài 15–17; ôn Bài 9–13;
+     Phiên N22b). Kho câu = 50 câu của 2 đề cố định (không có câu riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng]
+     10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): Bài 15 Thuật toán 7 câu, Bài 16 Các cấu trúc
+     điều khiển 8 câu, Bài 17 Chương trình máy tính 5 câu; ôn Bài 9–13 mỗi bài 1 câu (chữ chủ đề như kho giữa kì II); Bài 14 thực
+     hành tổng hợp không ra câu. Hai đề cố định chia đúng theo ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "tin6-ck2-de1", title: "Tin học 6 · Cuối năm · Đề 1", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js" },
+  { id: "tin6-ck2-de2", title: "Tin học 6 · Cuối năm · Đề 2", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js" },
+  { id: "tin6-ck2-ngau-nhien", title: "Tin học 6 · Cuối năm · Đề ngẫu nhiên", grade: 6, subject: "Tin học", minutes: 35, n: 25, file: "6-tin.js",
+    pool: { from: ["tin6-ck2-de1", "tin6-ck2-de2"], matrix: {
+      "Thuật toán": [3, 2, 2], "Các cấu trúc điều khiển": [3, 3, 2], "Chương trình máy tính": [2, 1, 2],
+      "An toàn thông tin trên Internet": [0, 0, 1], "Sơ đồ tư duy": [0, 1, 0], "Định dạng văn bản": [1, 0, 0],
+      "Trình bày thông tin ở dạng bảng": [0, 1, 0], "Tìm kiếm và thay thế": [1, 0, 0] } } },
+
+  /* Công nghệ 6 · Kiểm tra cuối năm học (Kết nối tri thức; Chương IV Đồ dùng điện trong gia đình, Bài 10–14; ôn Chương III, Bài 7–9;
+     Phiên N22b). Kho câu = 50 câu của 2 đề cố định (không có câu riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng]
+     10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): Bài 10 5 câu, Bài 11 Đèn điện 5 câu, Bài 12
+     Nồi cơm điện 4 câu, Bài 13 Bếp hồng ngoại 4 câu, Bài 14 Dự án An toàn và tiết kiệm điện năng trong gia đình 4 câu (2 câu tính
+     điện năng tiêu thụ); ôn Bài 7, 8, 9 mỗi bài 1 câu (chữ chủ đề như kho giữa kì II). Hai đề cố định chia đúng theo ma trận, nên
+     ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "congnghe6-ck2-de1", title: "Công nghệ 6 · Cuối năm · Đề 1", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js" },
+  { id: "congnghe6-ck2-de2", title: "Công nghệ 6 · Cuối năm · Đề 2", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js" },
+  { id: "congnghe6-ck2-ngau-nhien", title: "Công nghệ 6 · Cuối năm · Đề ngẫu nhiên", grade: 6, subject: "Công nghệ", minutes: 35, n: 25, file: "6-congnghe.js",
+    pool: { from: ["congnghe6-ck2-de1", "congnghe6-ck2-de2"], matrix: {
+      "Đồ dùng điện trong gia đình": [2, 2, 1], "Đèn điện": [2, 1, 2], "Nồi cơm điện": [2, 1, 1], "Bếp hồng ngoại": [1, 2, 1],
+      "An toàn và tiết kiệm điện năng": [1, 1, 2], "Trang phục trong đời sống": [1, 0, 0], "Sử dụng và bảo quản trang phục": [0, 1, 0],
+      "Thời trang": [1, 0, 0] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
