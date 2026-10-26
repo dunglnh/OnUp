@@ -2,7 +2,7 @@
 
 > **Tìm nhanh:** phiên làm đề, dò sách, kĩ thuật cho đề: hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) (mở từ trên xuống) · phiên sửa lỗi: mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) · việc của chủ app: mục 2 · thứ tự các phiên: mục 3 · lời giao việc phiên giao diện, chuẩn bị bán: mục 4 · đã xong: mục 1.
 
-> **Trạng thái (25/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy bản đám mây từ 17/10/2026 (PR #27), chỉ dành cho gia đình được mời. Đã gộp tới PR #183; PR #184 (Phiên N21) chờ Merge (bảng “Đã xong” ở mục 1). Phiên xong chỉ sửa ngày và số PR ở dòng này.
+> **Trạng thái (26/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy bản đám mây từ 17/10/2026 (PR #27), chỉ dành cho gia đình được mời. Đã gộp tới PR #184; PR #185 (Phiên DS-IOE), #186 (Phiên N22) chờ Merge (bảng “Đã xong” ở mục 1). Phiên xong chỉ sửa ngày và số PR ở dòng này.
 
 > **Đã chốt 18/10/2026, đổi mốc 21/10/2026:** đủ đề lớp 4–12 và rà xong trong tháng 2/2027; từ đầu tháng 3/2027 mời khách tiềm năng dùng thử miễn phí đến hết các kì thi của năm học 2026–2027 (kì cuối là thi tốt nghiệp THPT, dự kiến 11–12/6/2027); mở bán chính thức từ tháng 6/2027 nếu không vướng thủ tục hành chính (thay mốc “bán khi đủ đề lớp 4–12, khoảng cuối năm học 2028–2029” của ngày 18/10; nhịp cần, mốc kiểm tra và cách lùi khi chậm ở mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)); trong thời gian dùng thử và đến lúc bán, gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng `plans` không đổi), hạn mức hai gói lúc bán chốt sau (giữa tháng 5/2027); các phiên chuẩn bị G0, B1 làm trước khi mở dùng thử, B2, B4, G1 trước khi bán (mục 3); Supabase giữ gói Free đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần); trang công khai chỉ dành cho gia đình được mời, gia đình dùng thử cũng do chủ app tạo tài khoản (màn đăng nhập có dòng “Chưa có tài khoản?”, Phiên S1; muốn mở tự đăng kí thì đổi quyết định này trước, việc 9 ở mục 2); câu sai báo bằng nút trong app (Phiên R1), GitHub Issues chỉ còn cho chủ app; không ghi giá bán, chi phí hay so sánh đối thủ vào repo. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 
@@ -165,6 +165,7 @@
 | #182 | Phiên N20: ngân hàng Tiếng Anh 6 cuối năm (Unit 7–12), 75 câu |
 | #183 | Phiên N-IOE: lộ trình National Level (IOE cấp quốc gia) cho bài ôn ioe-4, ioe-6 |
 | #184 | Phiên N21: ngân hàng KHTN 6 cuối năm (Bài 40–55), 75 câu; tests/khtn6-ck2.js |
+| #186 | Phiên N22: ngân hàng Lịch sử và Địa lí 6, GDCD 6 cuối năm, 100 câu; tests/lsdl-gdcd6-ck2.js |
 
 </details>
 
@@ -221,7 +222,7 @@ Thứ tự các phiên:
 
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
-| 1 | 31/10/2026 (hạn theo kì thi: 5/4, 12/4/2027) | **N22, N22b, N13–N17, N16b · Cuối năm lớp 6 và 4** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3, K4 | N18, N19, N20, N21 đã xong (PR #178, #181, #182, #184); chạy theo thứ tự N22 → N22b (lớp 6 thi trước) → N13 → N14 → N15 → N16 → N16b → N17 |
+| 1 | 31/10/2026 (hạn theo kì thi: 5/4, 12/4/2027) | **N22b, N13–N17, N16b · Cuối năm lớp 6 và 4** ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7) | K3, K4 | N18, N19, N20, N21, N22 đã xong (PR #178, #181, #182, #184, #186); chạy theo thứ tự N22b (lớp 6 thi trước) → N13 → N14 → N15 → N16 → N16b → N17 |
 | 2 | 5/11/2026 | **K5 · Đề tính điểm** cho đề thi thử vào 10 và tốt nghiệp THPT ([KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 7, hàng đợi) | Lịch các khối mới (đã xong, PR #113) | trước các phiên đề thi thử lớp 9 |
 | 3 | 15/11/2026 | Lớp 9 (33 phiên, có 9 phiên đề thi thử vào 10); phiên rà soát lớp 9 | K5 | thứ tự khối, thứ tự kì trong mỗi khối và mốc kiểm tra: mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); các bước trước khi bật một khối: mục 7 (“Lớp 5, 7–12”) |
 | 4 | 10/12/2026 | Lớp 12 (53 phiên, có 25 phiên đề thi thử tốt nghiệp), lớp 5 (16); mỗi khối một phiên rà soát | | cuối kì I của lớp 12 (thi từ 14/12/2026, xong trước 23/11) rồi của lớp 5 (thi từ 28/12, xong trước 7/12) làm trước các kì khác |
