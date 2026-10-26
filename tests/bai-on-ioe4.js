@@ -21,6 +21,11 @@ chay({
   file: "modules/ioe-4/index.html",
   ref: process.argv[2] || "origin/main",
   cu: ["UNITS", "SCHOOL", "WARD", "PROVINCE", "NATIONAL", "SCHOOL_L", "WARD_L", "PROVINCE_L", "NATIONAL_L"],
+  sua: require("./ioe-sua.js")["ioe-4"], // Phiên DS-IOE: câu cũ đổi chữ cho khớp sách in năm 2026
+  luatSua: { S: ["m", "o", "p", "e", "f", "l", "w", "r", "rd"], L: ["h", "hp", "hf"], units: [1, 10],
+    cam: ["nationality", "Japanese", "American", "Australian", "Malaysian", "Thai", "British", "Singaporean", "Canada", "Kuala Lumpur",
+      "artist", "scientist", "engineer", "programmer", "athlete", "writer", "footballer", "floor", "stairs", "swimming pool", "sandwich", "sandwiches",
+      "Bac Giang", "Nam Dinh", "Phu Yen", "Quang Binh", "District 1", "Ha Tay"] },
   kiemTra: [
     { ten: "NATIONAL", tenL: "NATIONAL_L", label: "National Level",
       luat: { S: ["m", "o", "p", "e", "f", "l", "w", "r", "rd"], L: ["h", "hp", "hf"], units: [1, 15], cam: ["Bac Giang", "Nam Dinh", "Phu Yen", "Quang Binh", "District 1", "Ha Tay"] } },
