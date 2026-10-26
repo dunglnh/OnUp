@@ -552,6 +552,33 @@ window.ONTAP_SEED_BANKS = [
       "Mặt Trời, Mặt Trăng": [1, 0, 1], "Hệ Mặt Trời, Ngân Hà": [1, 1, 0], "Thực vật": [1, 0, 1], "Động vật": [1, 0, 1],
       "Đa dạng sinh học": [0, 1, 0] } } },
 
+  /* Lịch sử và Địa lí 6 · Kiểm tra cuối năm học (Kết nối tri thức, bản chỉnh sửa năm 2026; Lịch sử Bài 16–20, Địa lí Bài 23–29;
+     Phiên N22). Kho câu = 50 câu của 2 đề cố định (không có câu riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng]
+     10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì lớp 6 (Công văn 7991): 12 câu Lịch sử (Bài 16, 18 mỗi bài 3 câu;
+     Bài 17, 19, 20 mỗi bài 2 câu), 13 câu Địa lí (Bài 27 3 câu; Bài 23, 24, 25, 28, 29 mỗi bài 2 câu; Bài 26, 30 là bài thực hành).
+     Hai đề cố định chia đúng theo ma trận, nên ô (chủ đề, mức) nào cũng có đúng 2 câu, gấp đôi số câu ô đó rút. */
+  { id: "lsdl6-ck2-de1", title: "Lịch sử và Địa lí 6 · Cuối năm · Đề 1", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js" },
+  { id: "lsdl6-ck2-de2", title: "Lịch sử và Địa lí 6 · Cuối năm · Đề 2", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js" },
+  { id: "lsdl6-ck2-ngau-nhien", title: "Lịch sử và Địa lí 6 · Cuối năm · Đề ngẫu nhiên", grade: 6, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "6-lsdl.js",
+    pool: { from: ["lsdl6-ck2-de1", "lsdl6-ck2-de2"], matrix: {
+      "Khởi nghĩa giành độc lập trước thế kỉ X": [1, 1, 1], "Bảo tồn và phát triển văn hoá dân tộc": [1, 1, 0],
+      "Bước ngoặt lịch sử đầu thế kỉ X": [1, 1, 1], "Vương quốc Chăm-pa": [1, 0, 1], "Vương quốc Phù Nam": [1, 1, 0],
+      "Sự sống trên Trái Đất": [1, 1, 0], "Rừng nhiệt đới": [1, 0, 1], "Các đới thiên nhiên trên Trái Đất": [1, 1, 0],
+      "Dân số và phân bố dân cư": [1, 1, 1], "Con người và thiên nhiên": [0, 1, 1],
+      "Bảo vệ tự nhiên, khai thác thông minh tài nguyên": [1, 0, 1] } } },
+
+  /* GDCD 6 · Kiểm tra cuối năm học (Kết nối tri thức; Bài 10–12, ôn Bài 7–9; Phiên N22). Kho câu = 50 câu của 2 đề cố định (không
+     có câu riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu (40% – 32% – 28%), theo khung đề định kì
+     lớp 6 (Công văn 7991): Bài 10 Quyền và nghĩa vụ cơ bản của công dân 6 câu, Bài 11 Quyền cơ bản của trẻ em 6 câu, Bài 12 Thực
+     hiện quyền trẻ em 6 câu; ôn Bài 7 3 câu, Bài 8 2 câu, Bài 9 2 câu (chữ chủ đề như kho giữa kì II). Hai đề cố định chia đúng theo
+     ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "gdcd6-ck2-de1", title: "GDCD 6 · Cuối năm · Đề 1", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js" },
+  { id: "gdcd6-ck2-de2", title: "GDCD 6 · Cuối năm · Đề 2", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js" },
+  { id: "gdcd6-ck2-ngau-nhien", title: "GDCD 6 · Cuối năm · Đề ngẫu nhiên", grade: 6, subject: "GDCD", minutes: 35, n: 25, file: "6-gdcd.js",
+    pool: { from: ["gdcd6-ck2-de1", "gdcd6-ck2-de2"], matrix: {
+      "Quyền và nghĩa vụ cơ bản của công dân": [2, 2, 2], "Quyền cơ bản của trẻ em": [3, 2, 1], "Thực hiện quyền trẻ em": [2, 2, 2],
+      "Ứng phó với tình huống nguy hiểm": [1, 1, 1], "Tiết kiệm": [1, 0, 1], "Công dân nước Việt Nam": [1, 1, 0] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
