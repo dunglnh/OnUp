@@ -746,6 +746,19 @@ window.ONTAP_SEED_BANKS = [
       "Chữ Nôm và chữ quốc ngữ": [1, 0, 0], "Cách dẫn trực tiếp và cách dẫn gián tiếp": [0, 0, 1], "Tham khảo, trích dẫn tài liệu": [1, 0, 0],
       "Câu rút gọn": [1, 0, 0], "Câu đặc biệt": [0, 1, 0], "Viết": [0, 0, 1] } } },
 
+  /* Tiếng Anh 9 · Kiểm tra cuối học kì I (Global Success 9, Units 1–6, Review 1, 2; Phiên N9-ck1-ta). Khối 9 chưa bật nên đề chưa hiện
+     với gia đình. Kho câu = 25 câu riêng trong file (1 đoạn đọc) + 50 câu của 2 đề cố định (mỗi đề 1 đoạn đọc), câu nào cũng có mức
+     độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu: Pronunciation 2 (nguyên âm của Unit 1, 2, âm /h/ của Unit 3, /j/ của Unit 5),
+     Unit 1, 2, 3, 6 mỗi Unit 3, Unit 4, 5 mỗi Unit 4, Reading 3 (một đoạn 3 câu mức 1-2-3). Hai đề cố định và câu riêng đều chia đúng
+     ma trận nên ô (chủ đề, mức) nào cũng có gấp ba số câu ô đó rút. Không có câu nghe, không có câu tự luận. */
+  { id: "ta9-ck1-de1", title: "Tiếng Anh 9 · Cuối kì I · Đề 1", grade: 9, subject: "Tiếng Anh", minutes: 45, n: 25, file: "9-ta.js" },
+  { id: "ta9-ck1-de2", title: "Tiếng Anh 9 · Cuối kì I · Đề 2", grade: 9, subject: "Tiếng Anh", minutes: 45, n: 25, file: "9-ta.js" },
+  { id: "ta9-ck1-ngau-nhien", title: "Tiếng Anh 9 · Cuối kì I · Đề ngẫu nhiên", grade: 9, subject: "Tiếng Anh", minutes: 45, n: 25, file: "9-ta.js",
+    pool: { from: ["ta9-ck1-de1", "ta9-ck1-de2"], matrix: {
+      "Pronunciation": [1, 1, 0], "Unit 1 · Local Community": [1, 1, 1], "Unit 2 · City Life": [1, 1, 1],
+      "Unit 3 · Healthy Living for Teens": [1, 1, 1], "Unit 4 · Remembering the Past": [2, 1, 1], "Unit 5 · Our Experiences": [2, 1, 1],
+      "Unit 6 · Vietnamese Lifestyle: Then and Now": [1, 1, 1], "Reading": [1, 1, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
