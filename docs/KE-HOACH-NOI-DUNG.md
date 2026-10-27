@@ -74,7 +74,7 @@ Số đề mục tiêu mỗi môn, mỗi kì (đề 25 câu; với đề ngẫu 
 | 12 | 176 | 4 400 | 0 | 53 (28 + 25 đề thi thử tốt nghiệp) |
 | **Tổng** | **838** | **20 950** | **3 575** | **206** |
 
-Ngoài 206 phiên làm đề còn 15 phiên: K5 (đề tính điểm cho đề thi thử), 7 phiên rà soát trước khi bật lớp 5, 7–12, Lịch 2027–2028, gộp bài ôn dạng trang vào ngân hàng, và 5 phiên chuẩn bị dùng thử và bán (G0, B1, B2, B4, G1; mục 5). Tổng 232 phiên (từ 25/10/2026), thứ tự và mốc ở mục 4; dự trù thêm khoảng 15 phiên rà đề theo sách chỉnh sửa năm 2027 (mục 4, đoạn “Sách”). Đến 27/10/2026 đã xong 58 phiên của bảng mốc ở mục 4 (57 phiên của giai đoạn 3 và phiên Lịch các khối mới).
+Ngoài 206 phiên làm đề còn 15 phiên: K5 (đề tính điểm cho đề thi thử), 7 phiên rà soát trước khi bật lớp 5, 7–12, Lịch 2027–2028, gộp bài ôn dạng trang vào ngân hàng, và 5 phiên chuẩn bị dùng thử và bán (G0, B1, B2, B4, G1; mục 5). Tổng 232 phiên (từ 25/10/2026), thứ tự và mốc ở mục 4; dự trù thêm khoảng 15 phiên rà đề theo sách chỉnh sửa năm 2027 (mục 4, đoạn “Sách”). Đến 27/10/2026 đã xong 59 phiên của bảng mốc ở mục 4 (57 phiên của giai đoạn 3, phiên Lịch các khối mới và K5).
 
 ---
 
@@ -321,7 +321,7 @@ Nguyên tắc:
 |---|---|---|---|---|---|
 | 0–2 · Đã xong | N0a, N0b; kĩ thuật K1–K4; cuối kì I lớp 4 và 6 (N1–N6, N3b, N4b) | 14 | 14 | | xong 21/10/2026 |
 | 3 · Lớp 4 và 6 còn lại | giữa kì I (N23–N25b, N26), giữa kì II (N7–N12b), dò sách in năm 2026 (DS1–DS12c, 29 phiên; câu cũ của bài ôn IOE, DS-IOE), lớp 6 cuối năm (N18–N22, N22b), Toán 4 cuối năm (N13), Tiếng Việt 4 cuối năm (N14), Tiếng Anh 4 cuối năm (N15), Khoa học 4 cuối năm (N16), Lịch sử và Địa lí 4 cuối năm (N16b), Tin học và Công nghệ 4 cuối năm (N17), IOE quốc gia (N-IOE) | 58 | 58 | 58 | xong 27/10/2026 |
-| 4 · Lớp 9 | Lịch các khối mới (xong, PR #113); K5 (đề tính điểm); lớp 9 bốn kì và đề thi thử vào 10 (33); rà soát | 36 | 1 | 94 | 15/11/2026 |
+| 4 · Lớp 9 | Lịch các khối mới (xong, PR #113); K5 (đề tính điểm; xong, PR #198); lớp 9 bốn kì và đề thi thử vào 10 (33); rà soát | 36 | 2 | 94 | 15/11/2026 |
 | 5 · Lớp 12, 5 | lớp 12 bốn kì và đề thi thử tốt nghiệp (53), lớp 5 (16); mỗi khối một phiên rà soát | 71 | | 165 | 10/12/2026 |
 | 6 · Lớp 7, 8 | lớp 7 (24), lớp 8 (24); mỗi khối một phiên rà soát | 50 | | 215 | 31/12/2026 |
 | 7 · Lớp 10, 11 | lớp 10 (28), lớp 11 (28); mỗi khối một phiên rà soát | 58 | | 273 | 20/1/2027 |
@@ -468,7 +468,7 @@ Phạm vi theo phân phối chương trình và đề cương cuối học kì I
 
 ### Chung của các phiên đề thi thử vào 10, tốt nghiệp THPT
 
-Đề thi thử là đề tính điểm (Phiên K5 đã xong; cách viết ở mục 3.1, đoạn “Đề tính điểm”). Kì thi của lớp 9, 12 đã có trong `data/calendar-2026-2027.js` (Phiên Lịch các khối mới, PR #113; cách gắn đề ở CLAUDE.md, mục “Lịch mặc định đến máy đã có dữ liệu”). Nguồn tra ngày 21/10/2026: [Quyết định 2308/QĐ-BGDĐT ngày 6/8/2026](https://moet.gov.vn/tin-tuc/ban-hanh-khung-ke-hoach-thoi-gian-nam-hoc-toan-quoc-tu-nam-hoc-2026-20273.html) (khung năm học: học kì I xong trước 18/1/2027, năm học xong trước 31/5/2027, thi tốt nghiệp THPT dự kiến 11–12/6), lịch thi vào 10 năm 2026 ([Hà Nội 30–31/5](https://daibieunhandan.vn/ha-noi-cong-bo-thoi-gian-thi-vao-lop-10-nam-hoc-2026-2027-10409601.html), [TP.HCM 1–2/6](https://tuoitre.vn/tp-hcm-chot-ngay-thi-lop-10-la-1-va-2-6-2026-20260319142525166.htm)) và cấu trúc đề ở mục 2.
+Đề thi thử là đề tính điểm (Phiên K5 đã xong, PR #198; cách viết ở mục 3.1, đoạn “Đề tính điểm”). Kì thi của lớp 9, 12 đã có trong `data/calendar-2026-2027.js` (Phiên Lịch các khối mới, PR #113; cách gắn đề ở CLAUDE.md, mục “Lịch mặc định đến máy đã có dữ liệu”). Nguồn tra ngày 21/10/2026: [Quyết định 2308/QĐ-BGDĐT ngày 6/8/2026](https://moet.gov.vn/tin-tuc/ban-hanh-khung-ke-hoach-thoi-gian-nam-hoc-toan-quoc-tu-nam-hoc-2026-20273.html) (khung năm học: học kì I xong trước 18/1/2027, năm học xong trước 31/5/2027, thi tốt nghiệp THPT dự kiến 11–12/6), lịch thi vào 10 năm 2026 ([Hà Nội 30–31/5](https://daibieunhandan.vn/ha-noi-cong-bo-thoi-gian-thi-vao-lop-10-nam-hoc-2026-2027-10409601.html), [TP.HCM 1–2/6](https://tuoitre.vn/tp-hcm-chot-ngay-thi-lop-10-la-1-va-2-6-2026-20260319142525166.htm)) và cấu trúc đề ở mục 2.
 
 Mặc định PO chọn, chủ app đổi trước khi mở phiên nếu muốn:
 - IOE chưa thêm khối mới, vì chưa có bài ôn IOE cho các khối đó.
