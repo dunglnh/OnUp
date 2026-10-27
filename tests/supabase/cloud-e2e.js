@@ -316,7 +316,7 @@ async function run(browser, scheme) {
   await shot(p, "c5-cai-dat");
   await p.click("#banksBox a[href='#/admin/banks']"); await p.waitForSelector("#seedBanks");
   c.ux2.banks = await p.evaluate(() => ({ tabs: document.querySelector('.tabs [aria-pressed="true"]').textContent, back: document.querySelector("#view .linkbtn[data-go]").textContent, h2: [...document.querySelectorAll("#view h2")].map((h) => h.textContent).join(), mine: document.querySelector("#myBanks").textContent.trim(),
-    seedOpen: document.querySelectorAll("#seedBanks details[open]").length, seedN: document.querySelectorAll("#seedBanks .item").length, seedAll: Store.banks().filter((b) => b.seed).length, add: (document.querySelector("a[href='#/admin/bank/new']") || {}).textContent }));
+    seedOpen: document.querySelectorAll("#seedBanks details[open]").length, seedN: document.querySelectorAll("#seedBanks .item").length, seedAll: Store.banks().filter((b) => b.seed && window.ONTAP_GRADES.some((g) => g.active && g.grade === +b.grade)).length /* danh sách chỉ có tab của khối đang bật: đề lớp 9 chưa hiện */, add: (document.querySelector("a[href='#/admin/bank/new']") || {}).textContent }));
   await shot(p, "c5b-de-tu-soan");
   await p.click("a[href='#/admin/bank/new']"); await p.waitForSelector("#bForm");
   c.ux2.bankForm = (await text(p, "#view h2")) + " | " + (await text(p, "#view .linkbtn[data-go]")) + " | " + (await text(p, "#bForm [type=submit]"));

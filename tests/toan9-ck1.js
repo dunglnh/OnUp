@@ -289,11 +289,13 @@ const CHECKS = [
   { has: "Hệ thức nào dưới đây là phương trình bậc nhất hai ẩn?", right: (q) => { const m = q.o.filter(laPtHai); assert.equal(m.length, 1); return m[0]; } },
   { has: "một nghiệm của phương trình 3x − 2y = 8?", right: (q) => theo(q, /^(\(.+\))$/, (k) => laNghiem(cap(k[1]), "3x − 2y = 8")) },
   { has: "Cho hệ phương trình {x + 2y = 6; 3x − y = 11}", right: (q) => q.o.map((s) => { const m = /^Cặp số (\(.+?\)) là một nghiệm của (hệ|phương trình (.+))$/.exec(s); assert.ok(m, s); const p = cap(m[1]); return m[2] === "hệ" ? laNghiem(p, "x + 2y = 6") && laNghiem(p, "3x − y = 11") : laNghiem(p, m[3]); }) },
-  { has: "Phương trình bậc nhất hai ẩn 4x − y = 9 có các hệ số a, b, c", right: () => { const e = ptHai("4x − y = 9"); return [e.a, e.b, e.c].map(fmtF).join("; "); } },
+  { has: "Viết phương trình 4x − y = 9 dưới dạng ax + by = c", right: () => { const e = ptHai("4x − y = 9"); return [e.a, e.b, e.c].map(fmtF).join("; "); } },
   /* ----- Bài 2 ----- */
   { has: "Khi giải hệ phương trình {2x + y = 9; 3x − y = 11} bằng phương pháp cộng đại số", right: (q) => { const m = /\{(.+?); (.+?)\}/.exec(q.q), p = ptHai(m[1]), r = ptHai(m[2]); const a = add(p.a, r.a), b = add(p.b, r.b), c = add(p.c, r.c); assert.equal(toNum(b), 0, "cộng từng vế phải khử y"); return fmtF(a) + "x = " + fmtF(c); } },
-  { has: "từ phương trình x − 4y = 5 ta biểu diễn x theo y được", right: (q) => theo(q, /^x = (.+)$/, (k) => [0, 1, 2, 5].every((y) => laNghiem({ x: ev(k[1], { y: F(y) }), y: F(y) }, "x − 4y = 5"))) },
-  { has: "Hệ phương trình {x + 2y = 4; 2x + 4y = 3} có bao nhiêu nghiệm?", right: (q) => { const g = giaiHe(q.q); assert.equal(g, "vô nghiệm"); return "Hệ vô nghiệm"; } },
+  { has: "từ phương trình x − 4y = 5, biểu diễn x theo y ta được", right: (q) => theo(q, /^x = (.+)$/, (k) => [0, 1, 2, 5].every((y) => laNghiem({ x: ev(k[1], { y: F(y) }), y: F(y) }, "x − 4y = 5"))) },
+  { has: "Hệ phương trình nào dưới đây vô nghiệm?", right: (q) => theo(q, /^(\{.+\})$/, (k) => giaiHe(k[1]) === "vô nghiệm"),
+    // lời giải ghi đúng số nghiệm của ba hệ còn lại
+    more: (q) => q.o.slice(1).forEach((o) => { const g = giaiHe(o); assert.ok(q.x.includes(o + (typeof g === "string" ? " có " + g : " có nghiệm " + capSo(g))), "lời giải về hệ " + o); }) },
   { has: "Dùng máy tính cầm tay, tìm nghiệm (x; y) của hệ phương trình {7x + 3y = 9; 2x − 5y = 26}", right: (q) => giaiHe(q.q).y },
   { has: "Nghiệm của hệ phương trình {3x + 2y = 8; x − y = 6} là", right: (q) => capSo(giaiHe(q.q)), more: (q) => q.o.slice(1).forEach((o) => { const p = cap(o); assert.ok(!(laNghiem(p, "3x + 2y = 8") && laNghiem(p, "x − y = 6")), "nhiễu " + o); }) },
   { has: "Giải hệ phương trình {2x − 3y = 4; x + 2y = 9} bằng phương pháp thế", right: (q) => {
@@ -318,12 +320,15 @@ const CHECKS = [
     const D = sub(mul(p.a, r.b), mul(r.a, p.b)), s = div(sub(mul(p.c, r.b), mul(r.c, p.b)), D); assert.ok(q.x.includes("{s − 50t = 50; s − 60t = −30}")); return s; } },
   { has: "Một phòng học có một số bàn", right: (q) => { const g = giaiHe("{x = 2(y + 4); x = 3(y − 4)}"); assert.ok(q.x.includes("{x − 2y = 8; x − 3y = −12}")); return g.x; } },
   /* ----- Bài 4 ----- */
-  { has: "Tìm nghiệm của phương trình x/(x − 1) − 2/(x + 1) = 1.", right: () => { const r = nghiem("x/(x − 1) − 2/(x + 1) = 1"); assert.equal(r.length, 1); return r[0]; } },
-  { has: "Các nghiệm của phương trình x³ − 9x = 0 là", right: (q) => { const r = nghiem("x³ − 9x = 0").map(fmtF).sort().join(); return theo(q, /^(.+)$/, (k) => [...k[1].matchAll(/x = (−?\d+)/g)].map((m) => m[1]).sort().join() === r); } },
+  { has: "Tìm nghiệm của phương trình (x + 1)/(x − 3) + (x + 3)/(x − 1) = 2.", right: () => { const s = "(x + 1)/(x − 3) + (x + 3)/(x − 1) = 2", r = nghiem(s);
+    assert.deepEqual(loaiTru(s).map(fmtF), ["1", "3"]); assert.equal(r.length, 1); return r[0]; } },
+  { has: "Các nghiệm của phương trình x² − 6x + 9 = 4x − 12 là", right: (q) => { const r = nghiem("x² − 6x + 9 = 4x − 12").map(fmtF).sort().join(); return theo(q, /^(.+)$/, (k) => [...k[1].matchAll(/x = (−?\d+)/g)].map((m) => m[1]).sort().join() === r); } },
   { has: "Một phân số có tử số nhỏ hơn mẫu số 5 đơn vị", right: () => { const r = nghiem("(x + 4)/(x + 9) = 7/8"); assert.equal(r.length, 1); return r[0]; } },
-  { has: "Cho phương trình (2x − 1)/(x − 3) = 5/(x − 3).", right: () => { const s = "(2x − 1)/(x − 3) = 5/(x − 3)", lt = loaiTru(s), r = nghiem(s);
-    const khu = [0, 1, 2, 5].every((x) => eq(mul(sub(ev("(2x − 1)/(x − 3)", { x: F(x) }), ev("5/(x − 3)", { x: F(x) })), F(x - 3)), sub(ev("2x − 1", { x: F(x) }), F(5))));
-    return [lt.length === 1 && eq(lt[0], F(3)), khu, r.some((v) => eq(v, F(3))), r.length === 0]; } },
+  { has: "Cho phương trình (x + 1)/(x − 1) − (x − 1)/(x + 1) = 4/(x² − 1).", right: (q) => { const s = "(x + 1)/(x − 1) − (x − 1)/(x + 1) = 4/(x² − 1)", [L, R] = s.split(" = "), lt = loaiTru(s), r = nghiem(s);
+    // ý b: (vế trái − vế phải) nhân mẫu chung x² − 1 bằng (vế trái − vế phải) của phương trình đã khử mẫu, ở mọi x thoả mãn ĐKXĐ
+    const [kL, kR] = /ta được (.+)$/.exec(q.o[1])[1].split(" = ");
+    const khu = [0, 2, 3, 5, -4].every((x) => { const v = { x: F(x) }; return eq(mul(sub(ev(L, v), ev(R, v)), ev("x² − 1", v)), sub(ev(kL, v), ev(kR, v))); });
+    return [lt.map(fmtF).join() === "−1,1" && q.o[0].endsWith("x ≠ 1 và x ≠ −1"), khu, r.some((v) => eq(v, F(1))), r.length === 0]; } },
   /* ----- Bài 5 ----- */
   { has: "Cho a < b. Khẳng định nào dưới đây đúng?", right: (q) => theo(q, /^(.+)$/, (k) => [[1, 4], [-3, 2], [-7, -5]].every(([a, b]) => stmt(k[1], { a: F(a), b: F(b) }))) },
   { has: "Mỗi khẳng định sau về bất đẳng thức đúng hay sai?", right: (q) => { assert.equal(q.o[2], "Nếu m > 2,5 và 2,5 > n thì m > n");
@@ -336,13 +341,18 @@ const CHECKS = [
   { has: "Cho bất phương trình −4x + 6 ≤ 2x − 12.", right: (q) => { const g = giaiBpt("−4x + 6 ≤ 2x − 12"), thoa = (x) => stmt("−4x + 6 ≤ 2x − 12", { x: F(x) });
     const cong = [0, 1, 3].every((x) => eq(add(ev("−4x + 6", { x: F(x) }), ev("−2x − 6", { x: F(x) })), ev("−6x", { x: F(x) })) && eq(add(ev("2x − 12", { x: F(x) }), ev("−2x − 6", { x: F(x) })), F(-18)));
     return [cong && q.o[0].endsWith("−6x ≤ −18"), q.o[1].endsWith(g), thoa(4), thoa(0)]; } },
-  { has: "Bất phương trình nào dưới đây có nghiệm là x < −2?", right: (q) => theo(q, /^(.+)$/, (k) => giaiBpt(k[1]) === "x < −2") },
-  { has: "Một bể đang chứa 200 lít nước", right: () => { const g = giaiBpt("200 + 15x ≤ 1 000"); assert.ok(g.startsWith("x ≤ ")); return Math.floor(toNum(fr(g.slice(4)))); } },
+  { has: "Bất phương trình nào dưới đây có nghiệm là x < −4?", right: (q) => theo(q, /^(.+)$/, (k) => giaiBpt(k[1]) === "x < −4"),
+    more: (q) => q.o.slice(1).forEach((o) => assert.ok(q.x.includes(o + " có nghiệm " + giaiBpt(o)), "lời giải về " + o)) },
+  { has: "Một bể đang chứa 320 lít nước", right: () => { const g = giaiBpt("320 + 17x ≤ 1 200"); assert.ok(g.startsWith("x ≤ ")); return Math.floor(toNum(fr(g.slice(4)))); } },
   { has: "Câu lạc bộ bơi A thu phí 240 000 đồng mỗi tháng", right: () => { const g = giaiBpt("240 000 + 15 000x < 35 000x"); assert.equal(g, "x > 12"); return 13; } },
   { has: "Tìm số nguyên x nhỏ nhất thoả mãn bất phương trình (x + 7)/2 − (x − 1)/3 > 1.", right: () => { const g = giaiBpt("(x + 7)/2 − (x − 1)/3 > 1"); assert.ok(g.startsWith("x > ")); return Math.floor(toNum(fr(g.slice(4)))) + 1; } },
   { has: "Một hình chữ nhật có chiều dài 12 cm và chiều rộng x cm", right: () => { const g = giaiBpt("2(12 + x) ≤ 40"); assert.ok(g.startsWith("x ≤ ")); return "0 < " + g; } },
   /* ----- Bài 7 ----- */
-  { has: "Các căn bậc hai của 0,36 là", right: () => { const r = fmtDec(sqrt(fr("0,36"))); return r + " và −" + r; } },
+  { has: "Khẳng định nào dưới đây về căn bậc hai của 0,36 là đúng?", right: (q) => theo(q, /^(.+)$/, (k) => { const t = k[1]; let m;
+    if ((m = /^(−?\d+(?:,\d+)?) là một căn bậc hai của (\d+(?:,\d+)?)$/.exec(t))) return eq(mul(fr(m[1]), fr(m[1])), fr(m[2]));
+    if ((m = /^Căn bậc hai số học của (\d+(?:,\d+)?) là (−?\d+(?:,\d+)?)$/.exec(t))) return eq(sqrt(fr(m[1])), fr(m[2]));
+    if ((m = /^Số (\d+(?:,\d+)?) chỉ có một căn bậc hai là /.exec(t))) return toNum(fr(m[1])) === 0;
+    assert.fail("khẳng định lạ: " + t); }) },
   { has: "Căn thức √(12 − 3x) xác định khi", right: () => giaiBpt("12 − 3x ≥ 0") },
   { has: "Mỗi khẳng định sau về căn bậc hai đúng hay sai?", right: (q) => [stmt(q.o[0]), stmt(q.o[1]), toNum(fr(/^Số (\S+) không/.exec(q.o[2])[1])) < 0, stmt(q.o[3])] },
   { has: "Với x < 0, biểu thức √(x²) bằng", right: (q) => theo(q, /^(.+)$/, (k) => [-3, -0.5, -12].every((x) => { try { return eq(ev(k[1], { x: fr(String(x).replace(".", ",")) }), ev("√(x²)", { x: fr(String(x).replace(".", ",")) })); } catch (e) { return false; } })) },
@@ -353,23 +363,23 @@ const CHECKS = [
   { has: "Tính √0,5 · √18.", right: () => ev("√0,5 · √18") },
   /* ----- Bài 9 ----- */
   { has: "Đưa thừa số ra ngoài dấu căn, √98 viết được thành", right: (q) => bang(q, ev("√98")), more: (q) => assert.ok(/^\d+√\d+$/.test(q.o[0]) && isqrt(+q.o[0].split("√")[1]) === null) },
-  { has: "Trục căn thức ở mẫu của biểu thức 6/√3", right: (q) => bang(q, ev("6/√3")), more: (q) => assert.ok(!/\/√/.test(q.o[0])) },
+  { has: "Trục căn thức ở mẫu của biểu thức 10/√5", right: (q) => bang(q, ev("10/√5")), more: (q) => assert.ok(!/\/√/.test(q.o[0])) },
   { has: "Mỗi đẳng thức, bất đẳng thức sau đúng hay sai?", right: (q) => q.o.map((s) => stmt(s)) },
   { has: "Không dùng máy tính, sắp xếp các số sau theo thứ tự tăng dần.", right: (q) => q.o.slice().sort((a, b) => toNum(ev(a)) - toNum(ev(b))) },
-  { has: "Hai miếng gỗ hình vuông có diện tích lần lượt là 72 cm² và 32 cm²", right: () => div(add(mul(F(4), ev("√72")), mul(F(4), ev("√32"))), ev("√2")) },
-  { has: "Cho biểu thức P = (√x + 3)/(√x − 1) − 4/(x − √x)", essay: (q) => {
-    [4, 9, 2, 0.25, 7].forEach((x) => { const v = { x: fr(String(x).replace(".", ",")) }; assert.ok(eq(ev("(√x + 3)/(√x − 1) − 4/(x − √x)", v), ev("(√x + 4)/√x", v)), "rút gọn sai ở x = " + x); });
-    const p16 = ev("(√x + 4)/√x", { x: F(16) });
-    essayCheck(q, ["x − √x = √x(√x − 1)", "x + 3√x − 4 = (√x + 4)(√x − 1)", "P = (√x + 4)/√x", `P = (4 + 4)/4 = ${fmtF(p16)}`], [`Đáp số: a) P = (√x + 4)/√x; b) P = ${fmtF(p16)}`]); } },
+  { has: "Hai miếng gỗ hình vuông có diện tích lần lượt là 180 cm² và 245 cm²", right: () => div(add(mul(F(4), ev("√180")), mul(F(4), ev("√245"))), ev("√5")) },
+  { has: "Cho biểu thức P = √x/(√x − 4) − 8√x/(x − 16)", essay: (q) => {
+    [0, 1, 4, 9, 25, 0.25, 7].forEach((x) => { const v = { x: fr(String(x).replace(".", ",")) }; assert.ok(eq(ev("√x/(√x − 4) − 8√x/(x − 16)", v), ev("√x/(√x + 4)", v)), "rút gọn sai ở x = " + x); });
+    const [x] = soTrongDe(q, /khi x = (\d+)\.$/), r = fmtF(sqrt(x)), p = fmtF(ev("√x/(√x + 4)", { x }));
+    essayCheck(q, ["x − 16 = (√x − 4)(√x + 4)", "x − 4√x = √x(√x − 4)", "P = √x/(√x + 4)", `Thay √${fmtF(x)} = ${r}, tính đúng P = ${r}/(${r} + 4) = ${p}`], [`Đáp số: a) P = √x/(√x + 4); b) P = ${p}`]); } },
   { has: "Tính giá trị của biểu thức A = 6/(3 − √3) − √3.", right: () => ev("6/(3 − √3) − √3") },
-  { has: "Với x ≥ 0, x ≠ 4, biểu thức (x − 4)/(√x − 2) − √x bằng", right: (q) => theo(q, /^(.+)$/, (k) => [9, 25, 2.25, 0].every((x) => { const v = { x: fr(String(x).replace(".", ",")) }; return eq(ev(k[1], v), ev("(x − 4)/(√x − 2) − √x", v)); })) },
+  { has: "Với x > 0, x ≠ 4, biểu thức (x − 4)/(√x − 2) − (x − 2√x)/√x bằng", right: (q) => theo(q, /^(.+)$/, (k) => [9, 25, 2.25, 1, 0.25].every((x) => { const v = { x: fr(String(x).replace(".", ",")) }; return eq(ev(k[1], v), ev("(x − 4)/(√x − 2) − (x − 2√x)/√x", v)); })) },
   /* ----- Bài 10 ----- */
   { has: "∛(−0,027) bằng", right: (q) => bang(q, cbrt(fr("−0,027"))) },
-  { has: "Dùng máy tính cầm tay, tính ∛50", right: () => lamTron(cbrt(F(50)), 2) },
+  { has: "Dùng máy tính cầm tay, tính ∛70", right: () => lamTron(cbrt(F(70)), 2) },
   { has: "Mỗi khẳng định sau về căn bậc ba đúng hay sai?", right: () => [eq(cbrt(F(-8)), F(-2)), [-3, 3].filter((x) => x ** 3 === 27).length === 2, stmt("(∛5)³ = 5"), [-2, 3].every((x) => eq(cbrt(F(x ** 3)), F(Math.abs(x))))] },
   { has: "Một hộp quà hình lập phương có thể tích 6 859 cm³", right: () => cbrt(F(6859)) },
   /* ----- Bài 11 ----- */
-  { has: "Cho tam giác DEF vuông tại D (hình vẽ). Tỉ số DE/EF", right: (q) => { tamGiacVuong(q, "D", "DEF"); return tenTiSo("D", "F", "E", "DE", "EF"); } },
+  { has: "Cho tam giác DEF vuông tại D (hình vẽ). Tỉ số DF/EF", right: (q) => { tamGiacVuong(q, "D", "DEF"); return tenTiSo("D", "F", "E", "DF", "EF"); } },
   { has: "Hai góc 18° và 72° là hai góc phụ nhau", right: (q) => theo(q, /^(.+)$/, (k) => stmt(k[1])) },
   { has: "Nối mỗi tỉ số lượng giác ở cột trái với giá trị của nó ở cột phải.", right: (q) => q.l.map((l) => { const m = q.r.filter((r) => eq(ev(l), ev(r))); assert.equal(m.length, 1, "ô " + l); return m[0]; }) },
   { has: "Dùng máy tính cầm tay, tính cot 50°", right: () => lamTron(ev("cot 50°"), 2) },
@@ -384,14 +394,14 @@ const CHECKS = [
   { has: "Tính giá trị của biểu thức A = 6 sin 30° · cos 60° − 2 tan 45°.", right: () => ev("6 sin 30° · cos 60° − 2 tan 45°") },
   { has: "Cho góc nhọn α có sin α = 0,6. Giá trị của cos α là", right: (q) => { const h = F(5), doi = mul(fr("0,6"), h), ke = sqrt(sub(mul(h, h), mul(doi, doi))); return theo(q, /^(.+)$/, (k) => eq(fr(k[1]), div(ke, h))); } },
   /* ----- Bài 12 ----- */
-  { has: "Cho tam giác KLM vuông tại K có LM = 12 cm, góc L = 38° (hình vẽ)", right: (q) => { tamGiacVuong(q, "K", "KLM"); const ds = doDai(q.svg, "KLM"), g = gocGhi(q.svg, "KLM");
-    assert.deepEqual(ds.map((d) => cs(d.P + d.Q) + "=" + d.v), ["LM=12"]); assert.deepEqual(g.map((x) => x.O + x.v), ["L38"]);
-    return lamTron(12 * Math.sin(38 * RAD), 1); } },
+  { has: "Cho tam giác KLM vuông tại K có LM = 12 cm, góc M = 52° (hình vẽ)", right: (q) => { tamGiacVuong(q, "K", "KLM"); const ds = doDai(q.svg, "KLM"), g = gocGhi(q.svg, "KLM");
+    assert.deepEqual(ds.map((d) => cs(d.P + d.Q) + "=" + d.v), ["LM=12"]); assert.deepEqual(g.map((x) => x.O + cs(x.A + x.B) + x.v), ["MKL52"]);
+    return lamTron(12 * Math.cos(52 * RAD), 1); } },
   { has: "Cho tam giác EFG vuông tại E có FG = 10 cm, góc F = 56°. Độ dài cạnh EF bằng", right: (q) => theo(q, /^(.+)$/, (k) => eq(giaTri(k[1]), 10 * Math.cos(56 * RAD))) },
   { has: "Cho tam giác RST vuông tại R có RS = 6 cm, RT = 11 cm. Tính số đo góc S", right: () => lamTron(doDo(Math.atan(11 / 6)), 0) },
   { has: "Cho tam giác UVW vuông tại U có VW = 20 cm, góc V = 36°", right: () => { const uw = 20 * Math.sin(36 * RAD), uv = 20 * Math.cos(36 * RAD); return [90 - 36 === 54, lamTron(uw, 1) === 11.8, lamTron(uv, 1) === 14.5, uw < uv]; } },
   { has: "Một con diều bay ở cuối sợi dây dài 60 m", right: () => lamTron(60 * Math.sin(47 * RAD), 0) },
-  { has: "Một thang cuốn dài 16 m", right: () => lamTron(doDo(Math.asin(6 / 16)), 0) },
+  { has: "Một thang cuốn dài 11 m", right: () => lamTron(doDo(Math.asin(6 / 11)), 0) },
   { has: "Máng trượt của một cầu trượt nghiêng 32°", right: () => lamTron(2.4 / Math.sin(32 * RAD), 1) },
   { has: "Một cột cờ được giữ bằng một sợi dây néo", right: () => lamTron(8 / Math.cos(63 * RAD), 1) },
   /* ----- Bài 13 ----- */
@@ -408,25 +418,27 @@ const CHECKS = [
     return [50 === 50, 80 === 100, 360 - 50 === 310, 50 + 80 === 150]; } },
   { has: "Trên đường tròn (O; R) lấy hai điểm A, B sao cho dây AB = R", right: () => lamTron(2 * doDo(Math.asin(0.5)), 6) },
   /* ----- Bài 15 ----- */
-  { has: "Tính độ dài cung 75° của đường tròn bán kính 6 cm", right: () => lamTron(Math.PI * 6 * 75 / 180, 1) },
+  { has: "Một đường tròn có đường kính 12 cm. Tính độ dài cung 75°", right: () => lamTron(Math.PI * (12 / 2) * 75 / 180, 1) },
   { has: "Một hình quạt tròn có bán kính 10 cm, góc ở tâm 54°", right: (q) => { const ds = doDai(q.svg, "quạt"), g = gocGhi(q.svg, "quạt"), D = diem(q.svg);
     assert.deepEqual(ds.map((d) => cs(d.P + d.Q) + "=" + d.v), ["AO=10"]); assert.deepEqual(g.map((x) => x.O + x.v), ["O54"]); assert.ok(Math.abs(dist(D.O, D.A) - dist(D.O, D.B)) < 0.6, "OA = OB");
     const r = +/A (\d+(?:\.\d+)?) /.exec(q.svg)[1]; assert.ok(Math.abs(r - dist(D.O, D.A)) < 0.6, "cung tròn có bán kính OA"); return lamTron(Math.PI * 100 * 54 / 360, 1); } },
-  { has: "Hình vành khuyên nằm giữa hai đường tròn cùng tâm O, bán kính 7 cm và 4 cm", right: (q) => theo(q, /^(.+)$/, (k) => eq(giaTri(k[1]), Math.PI * (49 - 16))) },
+  { has: "Hình vành khuyên nằm giữa hai đường tròn cùng tâm O, có đường kính 14 cm và 8 cm", right: (q) => theo(q, /^(.+)$/, (k) => eq(giaTri(k[1]), Math.PI * ((14 / 2) ** 2 - (8 / 2) ** 2))) },
   { has: "Một đường tròn có chu vi 42 cm. Tính độ dài cung 120°", right: () => mul(F(42), F(120, 360)) },
-  { has: "Cần gạt nước của một ô tô", right: () => lamTron(120 / 360 * Math.PI * (50 * 50 - 15 * 15), 0) },
+  { has: "Lưỡi gạt nước của một ô tô", right: () => lamTron(120 / 360 * Math.PI * (50 * 50 - 15 * 15), 0) },
   { has: "Một vườn hoa có dạng hình quạt tròn bán kính 6 m, góc ở tâm 110°", right: () => lamTron(12 + Math.PI * 6 * 110 / 180, 1) },
   { has: "Một con lắc có dây dài 80 cm", right: () => lamTron(Math.PI * 80 * 30 / 180, 1) },
   { has: "Một bồn hoa có dạng hình vành khuyên", right: () => lamTron(Math.PI * (4 * 4 - 3 * 3) * 0.4, 1) },
   /* ----- Bài 16 ----- */
   { has: "Cho đường tròn (O; 6 cm) và đường thẳng a cách O một khoảng 5,5 cm", right: () => (5.5 < 6 ? "2" : 5.5 === 6 ? "1" : "0") },
   { has: "Cho đường tròn (O; 4 cm) và đường thẳng a cách O một khoảng 6 cm", right: () => (6 < 4 ? "Cắt nhau" : 6 === 4 ? "Tiếp xúc nhau" : "Không giao nhau") },
-  { has: "Cho đường tròn (O; 5 cm) và ba đường thẳng a, b, c", right: () => [3 < 5, 5 === 5, 7 === 5, 3 > 5] },
+  { has: "Cho đường tròn (O; 5 cm) và ba đường thẳng m, n, p", right: (q) => { const [m, n, p] = soTrongDe(q, /cách O một khoảng (\d+) cm, (\d+) cm, (\d+) cm/).map(toNum), R = 5; return [m < R, n === R, p === R, m > R]; } },
   { has: "Đường tròn (O; R) và đường thẳng a có đúng hai điểm chung", right: () => "d < R" },
   { has: "Cho đường tròn (O; 3 cm) và điểm M sao cho OM = 5 cm", essay: (q) => { const ma = sqrt(F(25 - 9)); essayCheck(q, ["ΔOAM = ΔOBM (c.c.c)", "MA² = OM² − OA² = 25 − 9 = 16, MA = " + fmtF(ma) + " cm"], ["Đáp số: b) MA = " + fmtF(ma) + " cm"]); } },
-  { has: "Từ một điểm M nằm ngoài đường tròn (O; 9 cm)", right: () => add(F(18), mul(F(2), sqrt(F(15 * 15 - 9 * 9)))) },
-  { has: "góc AMB = 70° (hình vẽ). Tính số đo góc AOB.", right: (q) => { trenDT(q.svg, ["A", "B"]); assert.deepEqual(gocVuong(q.svg).sort(), ["A", "B"]); const g = gocGhi(q.svg, "tiếp tuyến");
-    assert.deepEqual(g.map((x) => x.O + cs(x.A + x.B) + x.v), ["MAB70"]); return 360 - 90 - 90 - g[0].v; } },
+  { has: "Từ một điểm M nằm ngoài đường tròn (O), kẻ hai tiếp tuyến MA, MB", right: (q) => { const [om, ma] = soTrongDe(q, /OM = (\d+) cm, MA = (\d+) cm/), oa = sqrt(sub(mul(om, om), mul(ma, ma))); return add(mul(F(2), oa), mul(F(2), ma)); } },
+  { has: "góc AMB = 70° (hình vẽ). Tính độ dài đoạn thẳng MA", right: (q) => { const C = trenDT(q.svg, ["A", "B"]), D = diem(q.svg); assert.deepEqual(gocVuong(q.svg).sort(), ["A", "B"]); const g = gocGhi(q.svg, "tiếp tuyến");
+    assert.deepEqual(g.map((x) => x.O + cs(x.A + x.B) + x.v), ["MAB70"]); const ds = doDai(q.svg, "tiếp tuyến"); assert.deepEqual(ds.map((d) => cs(d.P + d.Q) + "=" + d.v), ["AO=5"]);
+    const k = C.r / 5, ma = 5 / Math.tan(g[0].v / 2 * RAD); assert.ok(Math.abs(dist(D.M, D.A) / k - ma) < 0.05 && Math.abs(dist(D.M, D.B) / k - ma) < 0.05, "MA, MB vẽ đúng tỉ lệ");
+    return lamTron(ma, 1); } },
   { has: "Coi mặt cắt của Trái Đất qua tâm là một đường tròn bán kính 6 400 km", right: () => lamTron(Math.sqrt(6400.1 ** 2 - 6400 ** 2), 0) },
   /* ----- Bài 17 ----- */
   { has: "Cho hai đường tròn (O; 7 cm) và (O′; 3 cm) có OO′ = 10 cm", right: (q) => theo(q, /^(.+)$/, (k) => gonVT(k[1]) === viTri(7, 3, 10)) },
@@ -492,7 +504,7 @@ assert.equal(tenTiSo("A", "B", "C", "AC", "BC"), "sin B"); assert.equal(tenTiSo(
 { const h = bank("toan9-ck1-de1").questions.find((q) => q.svg && /PQR/.test(q.q)).svg;
   assert.throws(() => tiLe(doDai(h.replace(">24 cm<", ">20 cm<"), "thử"), "thử"), /không đúng tỉ lệ/);
   const k = bank("toan9-ck1-de1").questions.find((q) => q.svg && /KLM/.test(q.q)).svg;
-  assert.throws(() => gocGhi(k.replace(">38°<", ">45°<"), "thử"), /ghi 45° mà vẽ/); }
+  assert.throws(() => gocGhi(k.replace(">52°<", ">45°<"), "thử"), /ghi 45° mà vẽ/); }
 
 /* ---------- mức độ và ma trận ---------- */
 assert.ok(pool.questions.every((q) => [1, 2, 3].includes(q.lv)), "câu nào trong kho cũng cần lv");
@@ -587,11 +599,11 @@ assert.deepEqual(lo, [], "lộ đáp án:\n" + lo.join("\n"));
 { const tim = (has) => pool.questions.find((q) => q.q.includes(has)), gia = (q, x) => Object.assign({}, q, { x: q.x + " " + x });
   const khac = tim("Đường tròn có bao nhiêu trục đối xứng?"), thuLo = (qs) => { const r = doLo(qs, (q) => q.q.slice(0, 10)); return r.lo.concat(r.chuLo).map((s) => s.replace(/^.*: /, "")); };
   assert.deepEqual(thuLo([tim("Tính độ dài cạnh KM"), gia(khac, "Ví dụ KM ≈ 7,4 cm.")]), ["7,4"]);
-  assert.deepEqual(thuLo([tim("Trục căn thức ở mẫu của biểu thức 6/√3"), gia(khac, "Ví dụ 6/√3 = 2√3.")]), ["2√3"]);
+  assert.deepEqual(thuLo([tim("Trục căn thức ở mẫu của biểu thức 10/√5"), gia(khac, "Ví dụ 10/√5 = 2√5.")]), ["2√5"]);
   assert.deepEqual(thuLo([tim("Tính số đo cung lớn AB"), gia(khac, "Số đo cung lớn là 296°.")]), []);
   assert.deepEqual(thuLo([tim("Tính số đo cung lớn AB"), gia(khac, "Kết quả là 296.")]), [296]);
   assert.deepEqual(thuLo([tim("Nối mỗi hệ phương trình ở cột trái"), gia(khac, "Hệ {x + y = 5; x − y = 1} có nghiệm (3; 2).")]), ["{x + y = 5; x − y = 1} → (3; 2)"]);
-  assert.deepEqual(thuLo([tim("Hai miếng gỗ hình vuông"), gia(khac, "Ví dụ l = 40π/3, S = 40x, P = 40(x + 1).")]), []);
+  assert.deepEqual(thuLo([tim("Hai miếng gỗ hình vuông"), gia(khac, "Ví dụ l = 52π/3, S = 52x, P = 52(x + 1).")]), []);
   assert.deepEqual(thuLo([tim("Nghiệm của hệ phương trình {3x + 2y = 8; x − y = 6} là"), gia(khac, "Cặp số (4; −2).")]), ["(4; −2)"]); }
 
 /* ---------- không chép sách: so với chữ OCR của Toán 9 tập một (bỏ dấu, gộp nguyên âm), nếu có OnUp-Book ----------
@@ -604,7 +616,8 @@ const khongDau = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "
 const TU_CHUNG = ["giải bài toán bằng cách lập hệ phương trình", "hệ hai phương trình bậc nhất hai ẩn", "phương trình bậc nhất hai ẩn", "giải hệ phương trình bằng phương pháp thế",
   "phương pháp cộng đại số", "vị trí tương đối của hai đường tròn", "vị trí tương đối của đường thẳng và đường tròn", "bất phương trình bậc nhất một ẩn",
   "làm tròn đến chữ số thập phân thứ nhất", "làm tròn đến chữ số thập phân thứ hai", "làm tròn đến hàng phần mười", "điều kiện xác định của phương trình",
-  "hai đường tròn", "đường thẳng và đường tròn", "mỗi ý sau đúng hay sai", "theo thứ tự tăng dần"].map((p) => " " + p.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim() + " ").sort((a, b) => b.length - a.length);
+  "hai đường tròn", "đường thẳng và đường tròn", "mỗi ý sau đúng hay sai", "theo thứ tự tăng dần",
+  "đưa thừa số ra ngoài dấu căn", "đưa thừa số vào trong dấu căn", "tính chất của hai tiếp tuyến cắt nhau"].map((p) => " " + p.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim() + " ").sort((a, b) => b.length - a.length);
 const chuoi = (s, k) => { let t = " " + khongDau(s) + " "; TU_CHUNG.forEach((p) => { while (t.includes(p)) t = t.replace(p, " | "); });
   const w = t.split(" ").filter(Boolean), ra = []; for (let i = 0; i + k <= w.length; i++) { const c = w.slice(i, i + k); if (!c.includes("|") && c.filter((x) => /[a-z]{2}/.test(x)).length >= 5) ra.push(c.join(" ")); } return ra; };
 const kho = pool.questions;
