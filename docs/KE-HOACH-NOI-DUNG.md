@@ -17,14 +17,14 @@ Phần dự trù chi phí và giá bán nằm ở tài liệu riêng của chủ
 
 ## 1. Hiện trạng (kiểm kê ngày 25/10/2026)
 
-Số đề, số câu lấy từ `node tests/kiem-tra-de.js` (26/10/2026: 96 đề cố định, 46 đề ngẫu nhiên, 3 465 câu); cần số mới thì chạy lại, không chép số ở đây.
+Số đề, số câu lấy từ `node tests/kiem-tra-de.js` (27/10/2026: 98 đề cố định, 47 đề ngẫu nhiên, 3 540 câu); cần số mới thì chạy lại, không chép số ở đây.
 
-| Kì thi (lịch 2026–2027) | Lớp 4 (1 251 câu) | Lớp 6 (2 199 câu) |
+| Kì thi (lịch 2026–2027) | Lớp 4 (1 326 câu) | Lớp 6 (2 199 câu) |
 |---|---|---|
 | Giữa kì I (2–13/11/2026) | Toán, Tiếng Việt; bài ôn `l4-giua-ki-1` | 8 môn (Toán thêm Đề 3, Đề 4 cho trường dạy song song số và hình); bài ôn `l6-giua-ki-1` |
 | Cuối kì I (lớp 6: 21/12–8/1; lớp 4: 28/12–8/1) | 6 môn (Toán 3 đề) | 8 môn |
 | Giữa kì II (15–26/3/2027) | Toán, Tiếng Việt | 8 môn |
-| Cuối năm (lớp 6: 26/4–14/5; lớp 4: 3–14/5/2027) | Toán (N13), Tiếng Việt (N14), Tiếng Anh (N15), Khoa học (N16); 2 môn còn lại **chưa có** (N16b, N17) | 8 môn (N18–N22, N22b) |
+| Cuối năm (lớp 6: 26/4–14/5; lớp 4: 3–14/5/2027) | Toán (N13), Tiếng Việt (N14), Tiếng Anh (N15), Khoa học (N16), Lịch sử và Địa lí (N16b); Tin học và Công nghệ **chưa có** (N17) | 8 môn (N18–N22, N22b) |
 | IOE | bài ôn `ioe-4` (cấp trường, xã, tỉnh, quốc gia) | bài ôn `ioe-6` (cấp trường, xã, thành phố, quốc gia) |
 
 - Mỗi môn, mỗi kì đã có: 2 đề cố định 25 câu (trừ ghi khác) và một đề ngẫu nhiên rút theo ma trận từ kho 50–108 câu (mục 3.1). 8 môn của lớp 6: Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ; 6 môn cuối kì của lớp 4: Toán, Tiếng Việt, Tiếng Anh, Khoa học, Lịch sử và Địa lí, Tin học và Công nghệ.
@@ -63,7 +63,7 @@ Số đề mục tiêu mỗi môn, mỗi kì (đề 25 câu; với đề ngẫu 
 
 | Lớp | Đề mục tiêu | Câu | Câu đã có | Phiên còn |
 |---|---|---|---|---|
-| 4 | 54 | 1 350 | 1 251 | 2 (N16b, N17) |
+| 4 | 54 | 1 350 | 1 326 | 1 (N17) |
 | 5 | 54 | 1 350 | 0 | 16 |
 | 6 | 84 | 2 100 | 2 199 | 0 |
 | 7 | 84 | 2 100 | 0 | 24 |
@@ -72,9 +72,9 @@ Số đề mục tiêu mỗi môn, mỗi kì (đề 25 câu; với đề ngẫu 
 | 10 | 96 | 2 400 | 0 | 28 |
 | 11 | 96 | 2 400 | 0 | 28 |
 | 12 | 176 | 4 400 | 0 | 53 (28 + 25 đề thi thử tốt nghiệp) |
-| **Tổng** | **838** | **20 950** | **3 450** | **208** |
+| **Tổng** | **838** | **20 950** | **3 525** | **207** |
 
-Ngoài 208 phiên làm đề còn 15 phiên: K5 (đề tính điểm cho đề thi thử), 7 phiên rà soát trước khi bật lớp 5, 7–12, Lịch 2027–2028, gộp bài ôn dạng trang vào ngân hàng, và 5 phiên chuẩn bị dùng thử và bán (G0, B1, B2, B4, G1; mục 5). Tổng 232 phiên (từ 25/10/2026), thứ tự và mốc ở mục 4; dự trù thêm khoảng 15 phiên rà đề theo sách chỉnh sửa năm 2027 (mục 4, đoạn “Sách”). Đến 26/10/2026 đã xong 57 phiên của bảng mốc ở mục 4 (56 phiên của giai đoạn 3 và phiên Lịch các khối mới).
+Ngoài 207 phiên làm đề còn 15 phiên: K5 (đề tính điểm cho đề thi thử), 7 phiên rà soát trước khi bật lớp 5, 7–12, Lịch 2027–2028, gộp bài ôn dạng trang vào ngân hàng, và 5 phiên chuẩn bị dùng thử và bán (G0, B1, B2, B4, G1; mục 5). Tổng 232 phiên (từ 25/10/2026), thứ tự và mốc ở mục 4; dự trù thêm khoảng 15 phiên rà đề theo sách chỉnh sửa năm 2027 (mục 4, đoạn “Sách”). Đến 27/10/2026 đã xong 58 phiên của bảng mốc ở mục 4 (57 phiên của giai đoạn 3 và phiên Lịch các khối mới).
 
 ---
 
@@ -308,10 +308,10 @@ Nguyên tắc:
 5. Bật một khối (`active: true` trong `data/grades.js`) khi khối đó đã đủ đề các kì còn thi trong năm học 2026–2027 và đã qua phiên rà soát độc lập (mục 7, “Lớp 5, 7–12”); bật xong thì chủ app mời vài gia đình có con học khối đó dùng thử ngay, trước khi mở dùng thử rộng.
 6. Trước phiên đầu của mỗi khối mới: sách của khối có trong OnUp-Book (chủ app tải, PO đưa lên; việc 10 ở mục 2 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)) và lời giao việc các phiên của khối đã có trong hàng đợi (PO viết, mục 7).
 
-| Giai đoạn | Việc | Số phiên | Đã xong 26/10/2026 | Cộng dồn từ 22/10/2026 | Xong trước (mốc kiểm tra) |
+| Giai đoạn | Việc | Số phiên | Đã xong 27/10/2026 | Cộng dồn từ 22/10/2026 | Xong trước (mốc kiểm tra) |
 |---|---|---|---|---|---|
 | 0–2 · Đã xong | N0a, N0b; kĩ thuật K1–K4; cuối kì I lớp 4 và 6 (N1–N6, N3b, N4b) | 14 | 14 | | xong 21/10/2026 |
-| 3 · Lớp 4 và 6 còn lại | giữa kì I (N23–N25b, N26), giữa kì II (N7–N12b), dò sách in năm 2026 (DS1–DS12c, 29 phiên; câu cũ của bài ôn IOE, DS-IOE), lớp 6 cuối năm (N18–N22, N22b), Toán 4 cuối năm (N13), Tiếng Việt 4 cuối năm (N14), Tiếng Anh 4 cuối năm (N15), Khoa học 4 cuối năm (N16), IOE quốc gia (N-IOE); còn cuối năm lớp 4 (N16b, N17) | 58 | 56 | 58 | 31/10/2026 |
+| 3 · Lớp 4 và 6 còn lại | giữa kì I (N23–N25b, N26), giữa kì II (N7–N12b), dò sách in năm 2026 (DS1–DS12c, 29 phiên; câu cũ của bài ôn IOE, DS-IOE), lớp 6 cuối năm (N18–N22, N22b), Toán 4 cuối năm (N13), Tiếng Việt 4 cuối năm (N14), Tiếng Anh 4 cuối năm (N15), Khoa học 4 cuối năm (N16), Lịch sử và Địa lí 4 cuối năm (N16b), IOE quốc gia (N-IOE); còn cuối năm lớp 4 (N17) | 58 | 57 | 58 | 31/10/2026 |
 | 4 · Lớp 9 | Lịch các khối mới (xong, PR #113); K5 (đề tính điểm); lớp 9 bốn kì và đề thi thử vào 10 (33); rà soát | 36 | 1 | 94 | 15/11/2026 |
 | 5 · Lớp 12, 5 | lớp 12 bốn kì và đề thi thử tốt nghiệp (53), lớp 5 (16); mỗi khối một phiên rà soát | 71 | | 165 | 10/12/2026 |
 | 6 · Lớp 7, 8 | lớp 7 (24), lớp 8 (24); mỗi khối một phiên rà soát | 50 | | 215 | 31/12/2026 |
@@ -345,7 +345,7 @@ Nguyên tắc:
 | Tiếng Anh 4 – Global Success, tập một | `lop-4/tieng-anh-4-tap-1` | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-tieng-anh-4-global-success-tap-mot.4914111660) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/tieng-anh-4-global-success-tap-mot-939702978.939702978) | |
 | Tiếng Anh 4 – Global Success, tập hai | `lop-4/tieng-anh-4-tap-2` | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-tieng-anh-4-global-success-tap-hai.4914832178) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/tieng-anh-4-global-success-tap-hai-939706466.939706466) | |
 | Khoa học 4 | `lop-4/khoa-hoc-4` | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-khoa-hoc-4.4698873264) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/khoa-hoc-4-939727300.939727300) | |
-| Lịch sử và Địa lí 4 (bản chỉnh sửa năm 2026) | `lop-4/lich-su-dia-li-4` | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-lich-su-va-dia-li-4.4756030172) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/lich-su-va-dia-li-4-939734868.939734868) | N16b |
+| Lịch sử và Địa lí 4 (bản chỉnh sửa năm 2026) | `lop-4/lich-su-dia-li-4` | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-lich-su-va-dia-li-4.4756030172) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/lich-su-va-dia-li-4-939734868.939734868) | |
 | Tin học 4 | `lop-4/tin-hoc-4` | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-tin-hoc-4.4698914396) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/tin-hoc-4-940020933.940020933) | N17 |
 | Công nghệ 4 | `lop-4/cong-nghe-4` | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-cong-nghe-4.4698906593) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/cong-nghe-4-940256332.940256332) | N17 |
 | Toán 6, tập một | `lop-6/toan-6-tap-1` | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-toan-6-tap-mot.4699854777) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/toan-6-tap-mot-940011379.940011379) | |
@@ -414,7 +414,6 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 
 | Phiên | Hạn | Nội dung | Kho | Mã mới | Kiểm thử phải sửa |
 |---|---|---|---|---|---|
-| N16b | 31/10/2026 (muộn nhất 12/4/2027) | Lịch sử và Địa lí 4 cuối năm | 50 + ~25 | `lsdl4-ck2-de1`, `-de2`, `-ngau-nhien` | không |
 | N17 | 31/10/2026 (muộn nhất 12/4/2027) | Tin học và Công nghệ 4 cuối năm | 50 | `tincn4-ck2-de1`, `-de2`, `-ngau-nhien` | không |
 | K5 | 5/11/2026 (trước đề thi thử lớp 9) | Đề tính điểm cho đề thi thử vào 10 và tốt nghiệp THPT (`pt`, `part`, `pts`, `Quiz.grade`) | — | — | bước K5 mới ở `tests/e2e.js`; `tests/kiem-tra-de.js` (tên kì thi thử, tổng điểm) |
 | N9-ck1-toan | 8/11/2026 (muộn nhất 23/11/2026) | Toán 9 cuối kì I (Bài 1–17); phiên đầu của lớp 9 | 50 + ~50 | `toan9-ck1-de1`, `-de2`, `-ngau-nhien`; file mới `data/banks/9-toan.js`; `tests/toan9-ck1.js`; phạm vi của ck1-l9 | bước nào hỏng vì có đề của khối chưa bật (xem khối) |
@@ -458,18 +457,7 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 
 ### Trước 31/10/2026: cuối năm lớp 6, rồi lớp 4
 
-Phạm vi theo phân phối chương trình và đề cương cuối học kì II phổ biến của sách Kết nối tri thức (nguồn ở cuối mục này, tra ngày 21/10/2026): lớp 4 môn Toán ôn cả năm, nặng học kì II, các môn khác chủ yếu học kì II; lớp 6 kiểm tra học kì II, nặng phần sau giữa kì. Phiên đầu của mỗi khối ghi phạm vi từng môn vào lịch thi (lớp 6: N18 đã ghi vào `scope` của ck2-l6; lớp 4: N13 đã ghi vào `scope` của ck2-l4), các phiên sau dùng đúng phạm vi đó. Mã đề cuối năm dùng `ck2` như mã kì thi (`ck2-l4`, `ck2-l6`); tên đề “<môn> <khối> · Cuối năm · Đề N” (`tests/kiem-tra-de.js` nhận tên kì “Cuối năm”, đề Tiếng Anh hiện “End-of-year”). Lớp 6 thi trước (từ 26/4/2027) nên làm trước: N18–N22, N22b, N13, N14, N15, N16 (đã xong) → N16b → N17.
-
-**Phiên N16b · Lịch sử và Địa lí 4 cuối năm** (tách từ N16 ngày 21/10/2026: cuối năm chưa có đề nào, hai môn là 150 câu mới; phạm vi viết lại ngày 25/10/2026 theo sách chỉnh sửa năm 2026)
-> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Lịch sử và Địa lí 4 · Cuối năm" khoảng 75 câu, sách Kết nối tri thức bản chỉnh sửa năm 2026 (OnUp-Book `lop-4/lich-su-dia-li-4`; điều đã dò ở mục 3.4), phạm vi Bài 15–26: Chủ đề 4 Bắc Trung Bộ và Nam Trung Bộ (Bài 15 Thiên nhiên vùng Bắc Trung Bộ và Nam Trung Bộ; Bài 16 Dân cư và hoạt động sản xuất; Bài 17 Một số nét văn hoá; Bài 18 Truyền thống yêu nước, cách mạng của đồng bào Bắc Trung Bộ và Nam Trung Bộ; Bài 19 Cố đô Huế; Bài 20 Phố cổ Hội An; Bài 21 Lễ hội Cồng chiêng Tây Nguyên), Chủ đề 5 Nam Bộ (Bài 22 Thiên nhiên vùng Nam Bộ; Bài 23 Dân cư và hoạt động sản xuất; Bài 24 Một số nét văn hoá và truyền thống yêu nước, cách mạng của đồng bào Nam Bộ; Bài 25 Thành phố Hồ Chí Minh; Bài 26 Địa đạo Củ Chi); Bài 27 Ôn tập không ra câu riêng. Có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
-> - Mã mới (data/banks/4-lsdl.js, 35 phút): lsdl4-ck2-de1, lsdl4-ck2-de2 "Lịch sử và Địa lí 4 · Cuối năm · Đề 1", "… · Đề 2" (mỗi đề 25 câu, đủ chủ đề, 10 – 8 – 7) và lsdl4-ck2-ngau-nhien "Lịch sử và Địa lí 4 · Cuối năm · Đề ngẫu nhiên" (pool, from = ["lsdl4-ck2-de1", "lsdl4-ck2-de2"], khoảng 25 câu riêng).
-> - Chủ đề theo tên bài rút gọn như lsdl4-ck1 (ví dụ "Thiên nhiên Bắc Trung Bộ và Nam Trung Bộ", "Dân cư, sản xuất ở Bắc Trung Bộ và Nam Trung Bộ", "Văn hoá vùng Bắc Trung Bộ và Nam Trung Bộ", "Truyền thống yêu nước, cách mạng ở Bắc Trung Bộ và Nam Trung Bộ", "Cố đô Huế", "Phố cổ Hội An", "Lễ hội Cồng chiêng Tây Nguyên", "Thiên nhiên Nam Bộ", …, "Thành phố Hồ Chí Minh", "Địa đạo Củ Chi"), mỗi chủ đề 1–2 câu. Tên vùng đúng như sách: không dùng “Duyên hải miền Trung”, “Tây Nguyên”, “Đông Nam Bộ” làm tên vùng (Tây Nguyên chỉ có trong tên lễ hội, tên các cao nguyên).
-> - Tên tỉnh, thành phố (Rút ra N3): sách chỉnh sửa năm 2026 đã chia vùng theo đơn vị hành chính mới, vẫn tra lại tên tỉnh trước khi viết; nơi đã sáp nhập năm 2025 (ví dụ Quảng Nam, Kon Tum, Bình Định, Phú Yên, Ninh Thuận, Bình Thuận, Đắk Nông, Bình Dương, Bà Rịa – Vũng Tàu, Long An, Tiền Giang, Bến Tre, Kiên Giang) thì hỏi theo tên di tích, địa danh (Phố cổ Hội An, Thánh địa Mỹ Sơn, Địa đạo Củ Chi…), không hỏi “thuộc tỉnh nào”. Lược đồ SVG (vị trí hai vùng, dãy Trường Sơn, các cao nguyên, sông Mê Công) không vẽ ranh giới, không ghi tên tỉnh.
-> - Dạng câu như ngân hàng Lịch sử và Địa lí 4 cuối kì I (Phiên N3): đúng/sai 4 ý, nối cột (vùng – đặc điểm, di tích – vùng, lễ hội – vùng), sắp xếp (các địa danh từ bắc vào nam, sự kiện theo thời gian), điền, 3–4 lược đồ. Câu nối “sự kiện – năm” chỉ để năm ở cột phải, câu không ghi sẵn năm mà câu khác hỏi (Rút ra N3); câu tính số năm, thế kỉ (nếu có) tính lại bằng một script node nhỏ trong tests/ (in MATH OK).
-> - Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, 25 câu, 35 phút (Thông tư 27/2020, như Phiên N1, không cần tra lại), mỗi ô có ít nhất gấp đôi số câu ô đó rút. Gắn 3 mã vào ck2-l4.
-> - Kiểm thử: không có số ghi cứng.
->
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+Phạm vi theo phân phối chương trình và đề cương cuối học kì II phổ biến của sách Kết nối tri thức (nguồn ở cuối mục này, tra ngày 21/10/2026): lớp 4 môn Toán ôn cả năm, nặng học kì II, các môn khác chủ yếu học kì II; lớp 6 kiểm tra học kì II, nặng phần sau giữa kì. Phiên đầu của mỗi khối ghi phạm vi từng môn vào lịch thi (lớp 6: N18 đã ghi vào `scope` của ck2-l6; lớp 4: N13 đã ghi vào `scope` của ck2-l4), các phiên sau dùng đúng phạm vi đó. Mã đề cuối năm dùng `ck2` như mã kì thi (`ck2-l4`, `ck2-l6`); tên đề “<môn> <khối> · Cuối năm · Đề N” (`tests/kiem-tra-de.js` nhận tên kì “Cuối năm”, đề Tiếng Anh hiện “End-of-year”). Lớp 6 thi trước (từ 26/4/2027) nên làm trước: N18–N22, N22b, N13, N14, N15, N16, N16b (đã xong) → N17.
 
 **Phiên N17 · Tin học và Công nghệ 4 cuối năm**
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7). Tạo ngân hàng câu "Tin học và Công nghệ 4 · Cuối năm" 50 câu, sách Kết nối tri thức: Tin học Bài 10–16 (phần mềm soạn thảo văn bản; chỉnh sửa văn bản; thực hành đa phương tiện hoặc phần mềm luyện gõ bàn phím; chơi với máy tính; khám phá môi trường lập trình trực quan; tạo chương trình máy tính để diễn tả ý tưởng; chương trình của em; Bài 9 hiệu ứng chuyển trang đã ở đề cuối kì I), Công nghệ Bài 7–12 (giới thiệu bộ lắp ghép mô hình kĩ thuật; lắp ghép mô hình bập bênh; lắp ghép mô hình rô-bốt; đồ chơi dân gian; làm đèn lồng; làm chuồn chuồn thăng bằng). Có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.

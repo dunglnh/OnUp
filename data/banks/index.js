@@ -555,6 +555,21 @@ window.ONTAP_SEED_BANKS = [
       "Bệnh liên quan đến dinh dưỡng": [1, 1, 0], "Thực phẩm an toàn": [1, 0, 1], "Phòng tránh đuối nước": [1, 0, 1],
       "Chuỗi thức ăn": [1, 1, 1], "Vai trò của thực vật trong chuỗi thức ăn": [1, 1, 1] } } },
 
+  /* Lịch sử và Địa lí 4 · Kiểm tra cuối năm học (Kết nối tri thức bản chỉnh sửa năm 2026, Bài 15–26; Phiên N16b). Kho câu = 25 câu
+     riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7
+     câu trên 13 chủ đề theo tên bài (Bài 24 tách hai chủ đề): Bắc Trung Bộ và Nam Trung Bộ 14 câu (Bài 15–21), Nam Bộ 11 câu (Bài 22–26);
+     mỗi chủ đề 2 câu, riêng “Văn hoá vùng Nam Bộ” 1 câu. Mỗi ô (chủ đề, mức) rút 1 câu và có 3 câu: một câu ở mỗi đề cố định, một câu
+     riêng; hai đề cố định chia đúng ma trận, nên học sinh đã làm một đề cố định vẫn gặp câu mới. Không có câu tự luận. */
+  { id: "lsdl4-ck2-de1", title: "Lịch sử và Địa lí 4 · Cuối năm · Đề 1", grade: 4, subject: "Lịch sử và Địa lí", minutes: 35, n: 25, file: "4-lsdl.js" },
+  { id: "lsdl4-ck2-de2", title: "Lịch sử và Địa lí 4 · Cuối năm · Đề 2", grade: 4, subject: "Lịch sử và Địa lí", minutes: 35, n: 25, file: "4-lsdl.js" },
+  { id: "lsdl4-ck2-ngau-nhien", title: "Lịch sử và Địa lí 4 · Cuối năm · Đề ngẫu nhiên", grade: 4, subject: "Lịch sử và Địa lí", minutes: 35, n: 25, file: "4-lsdl.js",
+    pool: { from: ["lsdl4-ck2-de1", "lsdl4-ck2-de2"], matrix: {
+      "Thiên nhiên Bắc Trung Bộ và Nam Trung Bộ": [1, 0, 1], "Dân cư, sản xuất ở Bắc Trung Bộ và Nam Trung Bộ": [1, 1, 0],
+      "Văn hoá vùng Bắc Trung Bộ và Nam Trung Bộ": [1, 1, 0], "Truyền thống yêu nước, cách mạng ở Bắc Trung Bộ và Nam Trung Bộ": [1, 0, 1],
+      "Cố đô Huế": [1, 0, 1], "Phố cổ Hội An": [1, 1, 0], "Lễ hội Cồng chiêng Tây Nguyên": [0, 1, 1], "Thiên nhiên Nam Bộ": [1, 1, 0],
+      "Dân cư, sản xuất ở Nam Bộ": [0, 1, 1], "Văn hoá vùng Nam Bộ": [1, 0, 0], "Truyền thống yêu nước, cách mạng ở Nam Bộ": [0, 1, 1],
+      "Thành phố Hồ Chí Minh": [1, 1, 0], "Địa đạo Củ Chi": [1, 0, 1] } } },
+
   /* Toán 6 · Kiểm tra cuối năm học (Kết nối tri thức, học kì II, Bài 23–43: Chương VI Phân số, Chương VII Số thập phân, Chương VIII
      Những hình hình học cơ bản, Chương IX Dữ liệu và xác suất thực nghiệm; Phiên N18). Kho câu = 50 câu riêng trong file + 50 câu của
      2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 15 chủ đề: phân số 5 câu (Bài 23–27),
