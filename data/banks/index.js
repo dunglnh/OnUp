@@ -708,6 +708,27 @@ window.ONTAP_SEED_BANKS = [
       "An toàn và tiết kiệm điện năng": [1, 1, 2], "Trang phục trong đời sống": [1, 0, 0], "Sử dụng và bảo quản trang phục": [0, 1, 0],
       "Thời trang": [1, 0, 0] } } },
 
+  /* Toán 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Toán 9 tập một, Bài 1–17: Chương I Phương trình và hệ hai phương trình bậc
+     nhất hai ẩn, Chương II Phương trình và bất phương trình bậc nhất một ẩn, Chương III Căn bậc hai và căn bậc ba, Chương IV Hệ thức
+     lượng trong tam giác vuông, Chương V Đường tròn; Phiên N9-ck1-toan). Khối 9 chưa bật (data/grades.js) nên đề chưa hiện với gia
+     đình. Kho câu = 50 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng]
+     10 – 8 – 7 câu trên 17 chủ đề theo bài (chữ chủ đề theo tên bài của sách, vài tên rút gọn): đại số (Chương I–III) 14 câu, hình
+     học (Chương IV–V) 11 câu, gần khung đề cuối kì I theo Công văn 7991. Hai đề cố định chia đúng ma trận, câu riêng ở ô nào cũng
+     gấp đôi số câu ô đó rút, nên ô (chủ đề, mức) nào cũng có gấp bốn số câu ô đó rút và học sinh đã làm một đề cố định vẫn gặp câu
+     mới. Ba câu tự luận chỉ ở ba ô Vận dụng rút 1 câu (Giải bài toán bằng cách lập hệ phương trình; Biến đổi, rút gọn biểu thức
+     chứa căn; Vị trí tương đối của đường thẳng và đường tròn): mỗi lần rút nhiều nhất 3 câu tự luận. */
+  { id: "toan9-ck1-de1", title: "Toán 9 · Cuối kì I · Đề 1", grade: 9, subject: "Toán", minutes: 45, n: 25, file: "9-toan.js" },
+  { id: "toan9-ck1-de2", title: "Toán 9 · Cuối kì I · Đề 2", grade: 9, subject: "Toán", minutes: 45, n: 25, file: "9-toan.js" },
+  { id: "toan9-ck1-ngau-nhien", title: "Toán 9 · Cuối kì I · Đề ngẫu nhiên", grade: 9, subject: "Toán", minutes: 45, n: 25, file: "9-toan.js",
+    pool: { from: ["toan9-ck1-de1", "toan9-ck1-de2"], matrix: {
+      "Phương trình và hệ hai phương trình bậc nhất hai ẩn": [1, 0, 0], "Giải hệ hai phương trình bậc nhất hai ẩn": [1, 1, 0],
+      "Giải bài toán bằng cách lập hệ phương trình": [0, 1, 1], "Phương trình quy về phương trình bậc nhất một ẩn": [0, 0, 1],
+      "Bất đẳng thức và tính chất": [1, 0, 0], "Bất phương trình bậc nhất một ẩn": [0, 1, 1], "Căn bậc hai và căn thức bậc hai": [1, 0, 0],
+      "Khai căn bậc hai với phép nhân và phép chia": [1, 0, 0], "Biến đổi, rút gọn biểu thức chứa căn": [0, 1, 1],
+      "Căn bậc ba và căn thức bậc ba": [1, 0, 0], "Tỉ số lượng giác của góc nhọn": [1, 1, 0], "Hệ thức giữa cạnh và góc trong tam giác vuông": [0, 1, 1],
+      "Mở đầu về đường tròn": [1, 0, 0], "Cung và dây của một đường tròn": [0, 1, 0], "Độ dài cung tròn, diện tích hình quạt tròn": [0, 1, 1],
+      "Vị trí tương đối của đường thẳng và đường tròn": [1, 0, 1], "Vị trí tương đối của hai đường tròn": [1, 0, 0] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
