@@ -2879,7 +2879,9 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       }
       r.exRecap = { p: await txt("#qzRecap p"), end: await p.$eval("#qzEnd", (b) => b.textContent + "|" + b.className).catch(() => null), more: await has("#qzMore"), timer: await txt("#qzTimer"), board: await board(), gone: await p.evaluate(() => ["#qzExit", "#qzProg", "#qzSubmit", ".bar", "#qzReview"].filter((s) => document.querySelector(s))) };
       await check("Xem lại bài làm, đã làm hết"); await snap("xem-lai-da-lam-het");
-      await p.waitForTimeout(1200); r.exRecap.ticks = (await txt("#qzTimer")) !== r.exRecap.timer; // đồng hồ vẫn chạy
+      // đồng hồ vẫn chạy: chờ chữ của chip đổi, tối đa 5 giây. Đồng hồ giả lập của Playwright có lúc gọi lượt đếm giờ 500 ms của trang trễ
+      // gần 2 giây (giờ trong trang vẫn đúng), nên chờ cố định 1,2 giây có lúc chưa thấy đổi, cả trên main (Phiên N9-ck1-khtn)
+      r.exRecap.ticks = await p.waitForFunction((t) => { const e = document.querySelector("#qzTimer"); return !!e && e.textContent.replace(/\s+/g, " ").trim() !== t; }, r.exRecap.timer, { timeout: 5000 }).then(() => true, () => false);
       // mở lại từng câu: đúng câu trả lời cũ; "Trả lời" về lại màn này; sửa câu sai thành đúng
       r.exReopen = []; let shotSua = false;
       for (let i = 0; i < Q.length; i++) {
