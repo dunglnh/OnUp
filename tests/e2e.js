@@ -50,6 +50,24 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   const endRecap = async (pg) => { if (await pg.$("#qzRecap")) { await pg.click("#qzEnd"); if (await pg.$("#qzYes")) await pg.click("#qzYes"); } };
   // bài ôn dạng trang (Phiên 9o): màn "Xem lại bài làm" #recap trong khung, #endBtn là nút nộp của màn đó (hỏi lại bằng #yesEnd khi còn câu trống)
   const endRecapMod = async (fr) => { if (await fr.$("#recap")) { await fr.click("#endBtn"); if (await fr.$("#yesEnd")) await fr.click("#yesEnd"); } };
+  /* Câu điền chữ cái (dạng l) của bài ôn IOE (L46): mỗi lần vẽ câu, wireQ của trang đặt con trỏ vào ô đầu sau 50 ms, một lần (câu ôn luyện mở
+     lại thì không). fill đặt con trỏ vào ô rồi mới gõ chữ; lần đặt con trỏ đó mà chạy chen vào giữa ở ô sau thì chữ vào ô đầu (đã có chữ,
+     maxlength 1) và mất, câu bị coi là chưa trả lời. fillLetters gõ các ô của câu đang hiện trong khung fr, ô data-m=j nhận vals[j]: đợi con trỏ
+     ở ô đầu (tối đa khoảng 1 giây), gõ từng ô bằng fill, đọc lại mọi ô; sai thì gõ lại một lần; vẫn sai thì ghi vào problems (danh sách lỗi của
+     bước, đầu dòng là pre, kèm bài, mã câu) và trả false. Dùng ở bước L27, 9o, 9s, N-IOE. */
+  const fillLetters = async (fr, vals, problems, pre) => {
+    const atFirst = () => fr.evaluate(() => { const a = document.querySelector('input.letter[data-m="0"]'); return !!a && document.activeElement === a; });
+    for (let k = 0; k < 40 && !(await atFirst()); k++) await fr.waitForTimeout(25);
+    const read = () => fr.$$eval("input.letter", (ins) => ins.map((i) => i.value));
+    let got = [];
+    for (let k = 0; k < 2; k++) {
+      for (let j = 0; j < vals.length; j++) await fr.fill(`input.letter[data-m="${j}"]`, vals[j]);
+      if ((got = await read()).join("|") === vals.join("|")) return true;
+    }
+    const at = await fr.evaluate(() => `${location.pathname.split("/").slice(-2, -1)[0]} · câu ${S.qs[S.i].id} (${S.i + 1}/${S.qs.length})`).catch(() => "?");
+    problems.push(`${pre} · ${at}: ô chữ cái ghi "${got.join("|")}", cần "${vals.join("|")}" (đã gõ lại một lần)`);
+    return false;
+  };
   const nowIn = (pg) => pg.evaluate(() => Date.now()); // giờ trong trang (đồng hồ giả lập): node so giờ với giờ này, không với Date.now() của node (L28)
   /* Nút xem mật khẩu, mã PIN (U1). revealTry: ô (đã có chữ) có nút ngay sau nó; bấm thì hiện chữ (type="text",
      aria-pressed="true", aria-label "Ẩn …"), bấm lại thì ẩn; giá trị, focus, vị trí con trỏ, inputmode, autocomplete giữ nguyên.
@@ -1826,7 +1844,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       const q = await fr.evaluate(() => { const q = S.qs[S.i]; return { o: !!q.o, a: q.a, t: q.t, ans: q.ans, w: q.w, miss: q.miss, tiles: q.tiles, say: !!q.say }; });
       if (q.o || q.t === "e") await fr.click(`.opt[data-o="${q.a}"]`);
       else if (q.ans) await fr.fill("#fillIn", q.ans[0]);
-      else if (q.t === "l") for (let j = 0; j < q.miss.length; j++) await fr.fill(`input.letter[data-m="${j}"]`, q.w[q.miss[j]]);
+      else if (q.t === "l") await fillLetters(fr, q.miss.map((x) => q.w[x]), l27.problems, `L27 · ${scheme}`); // L46: đọc lại, gõ lại một lần
       else for (let i = 0; i < q.tiles.length; i++) await fr.click(`#pool .tile[data-k="${q.tiles.findIndex((t) => t.i === i)}"]`); // xếp từ, xếp chữ: bấm theo thứ tự gốc
       return q.t + (q.say ? "+say" : "");
     };
@@ -3036,7 +3054,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     const answerI = async (q, right) => {
       if (q.o || q.t === "e") await fr.click(right ? `.opt[data-o="${q.a}"]` : `.opt:not([data-o="${q.a}"]) >> nth=0`);
       else if (q.ans) await fr.fill("#fillIn", right ? q.ans[0] : "zzz");
-      else if (q.t === "l") for (let j = 0; j < q.miss.length; j++) await fr.fill(`input.letter[data-m="${j}"]`, right ? q.w[q.miss[j]] : "z");
+      else if (q.t === "l") await fillLetters(fr, q.miss.map((x) => (right ? q.w[x] : "z")), mo.problems, `9o · ${scheme}`); // L46: đọc lại, gõ lại một lần
       else { // xếp từ, xếp chữ: câu mở lại đã có ô trong khung trả lời thì bỏ hết ra trước (chạm ô trong khung), rồi chạm theo thứ tự gốc (sai: ngược lại)
         for (let k = 0; k < 30; k++) { const t = fr.locator("#slot .tile").first(); if (!(await t.count())) break; await t.click(); }
         const ord = q.tiles.map((t, k) => [t.i, k]).sort((a, b) => a[0] - b[0]).map((x) => x[1]); if (!right) ord.reverse(); for (const k of ord) await fr.click(`#pool .tile[data-k="${k}"]`); }
@@ -3249,7 +3267,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       const q = await fr.evaluate(() => { const q = S.qs[S.i]; return { o: !!q.o, a: q.a, t: q.t, ans: q.ans, w: q.w, miss: q.miss, tiles: q.tiles }; });
       if (q.o) await fr.click(`.opt[data-o="${q.a}"]`);
       else if (q.ans) await fr.fill("#fillIn", q.ans[0]);
-      else if (q.t === "l") for (let j = 0; j < q.miss.length; j++) await fr.fill(`input.letter[data-m="${j}"]`, q.w[q.miss[j]]);
+      else if (q.t === "l") await fillLetters(fr, q.miss.map((x) => q.w[x]), s9.problems, `9s · ${scheme}`); // L46: đọc lại, gõ lại một lần
       else for (const k of q.tiles.map((t, k) => [t.i, k]).sort((a, b) => a[0] - b[0]).map((x) => x[1])) await fr.click(`#pool .tile[data-k="${k}"]`);
     };
 
@@ -3388,7 +3406,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
         const q = await fr.evaluate(() => { const q = S.qs[S.i]; return { o: !!q.o, a: q.a, t: q.t, ans: q.ans, w: q.w, miss: q.miss, tiles: q.tiles }; });
         if (q.o || q.t === "e") await fr.click(`.opt[data-o="${q.a}"]`);
         else if (q.ans) await fr.fill("#fillIn", q.ans[0]);
-        else if (q.t === "l") for (let j = 0; j < q.miss.length; j++) await fr.fill(`input.letter[data-m="${j}"]`, q.w[q.miss[j]]);
+        else if (q.t === "l") await fillLetters(fr, q.miss.map((x) => q.w[x]), nq.problems, `n-ioe · ${scheme}`); // L46: đọc lại, gõ lại một lần
         else for (const k of q.tiles.map((t, k) => [t.i, k]).sort((a, b) => a[0] - b[0]).map((x) => x[1])) await fr.click(`#pool .tile[data-k="${k}"]`);
       };
 
@@ -3427,7 +3445,17 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
         await answerRight(); await fr.click("#goBtn");
       }
       r.recap = (await ftxt("#recap p")) === `You have answered all ${r.test.n} questions. Review or finish the test.`;
-      await fr.click("#endBtn"); await fr.waitForSelector("#resBtns");
+      await fr.click("#endBtn");
+      /* L46: không ra màn kết quả (còn câu chưa ghi thì #endBtn chỉ mở lời hỏi lại) thì ghi vào nq.problems câu đang hiện và chữ của #endArea,
+         không để TimeoutError dừng cả script; rồi nộp bằng #yesEnd để bước chạy tiếp (điểm không đủ 30/30, nIoeOK sai). Vẫn không có thì bỏ
+         lượt này (renderHome: rời bài không bị hỏi), sang bài sau. */
+      let res = await fr.waitForSelector("#resBtns", { timeout: 15000 }).catch(() => null);
+      if (!res) {
+        const at = await fr.evaluate(() => (document.querySelector("#recap") ? "màn Review your answers" : `câu ${S.i + 1}/${S.qs.length} (${S.qs[S.i].id}, dạng ${S.qs[S.i].t})`) + `, ${S.ans.filter(Boolean).length} câu đã ghi`).catch(() => "?");
+        nq.problems.push(`n-ioe · ${M.m} · ${scheme}: không ra màn kết quả; trang ở ${at}; #endArea: "${await ftxt("#endArea")}"`);
+        if (await fr.$("#yesEnd")) { await fr.click("#yesEnd"); res = await fr.waitForSelector("#resBtns", { timeout: 15000 }).catch(() => null); }
+      }
+      if (!res) { await fr.evaluate(() => renderHome()).catch(() => {}); console.log("n-ioe", scheme, M.m, JSON.stringify(r)); continue; }
       r.result = await fr.evaluate(() => ({ score: document.querySelector(".score").textContent, reps: window.__reps.map((x) => [x.label, x.mode, x.subject, x.r, x.t].join("|")) }));
       r.saved = await p.evaluate(([id, m, label]) => { const rs = JSON.parse(localStorage.getItem("ontap_db_v1")).results.filter((x) => x.userId === id && x.refId === m); const z = rs[rs.length - 1]; return !!z && z.label === label && z.r === 30 && z.t === 30 && z.source === "module"; }, [ids[M.who], M.m, t.label]);
       r.label = t.label;
