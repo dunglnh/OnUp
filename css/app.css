@@ -353,6 +353,13 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .score{font-family:var(--display);font-size:3.2rem;font-weight:700;color:var(--acc);line-height:1}
 .score-sub{font-size:1.4rem;color:var(--muted)}
 .praise{font-size:1.3rem} /* lời khen theo điểm ở màn kết quả (UX1) */
+/* đề tính điểm (Phiên K5): bảng theo phần ở màn kết quả (#qzParts): tên phần, điểm, thanh, dòng phần tự luận */
+.qz-parts{display:flex;flex-direction:column;gap:10px}
+.qz-part{display:flex;flex-direction:column;gap:4px;min-width:0}
+.qz-part>.row{flex-wrap:nowrap;align-items:baseline}
+.qz-part b{overflow-wrap:anywhere;min-width:0}
+.qz-part .qz-pv{flex:none;white-space:nowrap}
+.qz-part+.qz-part{border-top:1px solid var(--line);padding-top:10px}
 /* Câu cần xem lại thu gọn (UX1): dòng summary là câu hỏi và câu trả lời sai, bấm mới mở đáp án, lời giải, link báo câu sai. */
 .review{display:flex;flex-direction:column;gap:12px}
 .rv{border-left:4px solid var(--bad);padding:0 0 0 12px;display:block;overflow-wrap:anywhere}

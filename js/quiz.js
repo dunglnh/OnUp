@@ -16,6 +16,11 @@
      Nút đi tiếp sau Kiểm tra ghi tên màn sẽ tới (X25). Cách chấm, cách lưu không đổi; answered() tính cả lựa chọn đã đủ đang chờ ghi.
      "Làm lại" dùng tiếp đối tượng này, nên app luôn dừng hoặc nộp đúng lượt đang làm. opts.redraw() → {questions} (đề
      ngẫu nhiên): nút thành "Làm đề khác", lượt sau dùng bộ câu mới.
+   Đề tính điểm (Phiên K5; dữ liệu ở đầu data/banks/index.js): bank.pts là thang điểm (đề thi thử: 10), mỗi câu có pt (điểm tối đa) và
+     part (tên phần). Không xáo thứ tự câu (Phần I → II → III), vẫn xáo phương án. Màn kết quả ghi điểm của đề "6,35/10" (Quiz.grade),
+     bảng theo phần (#qzParts), so với lần trước theo điểm; đề có tự luận thì thêm dòng tổng tạm tính gồm phần tự chấm (#qzTotal), tính
+     lại khi chọn mức tự chấm. Lượt ôn lại câu sai chấm như đề thường (không lưu). Chữ "được 0,5/1 điểm" của câu đúng/sai 4 ý, nối cột
+     theo pt của câu.
    Màn kết quả (Phiên UX1): lời khen theo điểm (opts.name: tên học sinh, để trống thì không xưng tên); opts.previous() → {r, t} của
      lần trước cùng đề (app đọc từ kết quả đã lưu, gọi trước khi lưu lượt này) thì có nhãn "Hơn/Kém/Bằng lần trước"; nút "Ôn lại N câu sai"
      mở một lượt ôn luyện chỉ gồm các câu sai (retry = true trong lúc đó), không gọi onFinish, không lưu điểm; "Làm lại cả đề" về đề đầy đủ
@@ -29,7 +34,8 @@
      trong khoảng giữa hai lần gọi.
    onFinish(res) được gọi cho hai loại kết quả:
      - phần chấm tự động: {r, t, s, mode, wrongTopics}. t: số câu, r: số câu đúng, có thể lẻ đến 0,01 vì câu đúng/sai 4 ý
-       và nối cột chấm theo từng ý (score); câu tự luận không tính vào r, t;
+       và nối cột chấm theo từng ý (score); câu tự luận không tính vào r, t. Đề tính điểm (bank.pts, Phiên K5): r là điểm phần
+       chấm tự động của cả đề (Quiz.grade, câu chưa làm 0 điểm), t là bank.pts (10);
      - điểm tự chấm phần tự luận: {mode: "self", r, t, s: 0}, r và t tính bằng phần tư điểm (số nguyên), không cộng vào
        điểm trung bình (app ghi riêng). Ôn luyện: lưu lúc nộp; làm như thi: lưu khi bấm "Lưu điểm tự chấm" ở trang kết quả.
    Lịch sử câu (đề ngẫu nhiên): opts.onMarks(marks, late) khi một lượt làm xong (không gọi ở lượt ôn lại câu sai), marks:
@@ -48,6 +54,7 @@
      đọc (p: số thứ tự đoạn; dropped khi thiếu “Hết đoạn”, đoạn không được tạo).
    Quiz.preview(q): HTML xem trước một câu ở màn nhập đề (câu hỏi, hình, đáp án được chấm đúng, lời giải; Phiên UX7, X13).
    Quiz.svg(src) → {svg, problems}: hình đã lọc (chuỗi rỗng nếu không đọc được) và các chỗ bị bỏ.
+   Quiz.grade(questions, answers) → {parts, got, max, auto}: điểm của đề tính điểm (xem grade).
    Quiz.draw(bank, hist) → {questions, notes}: rút đề ngẫu nhiên theo ma trận của đề có pool (Phiên K3; câu dùng chung đoạn đọc
      rút theo đoạn từ Phiên K4, xem draw).
    Quiz.key(q): mã ổn định của một câu (băm nội dung), dùng để ghi nhớ câu đã làm; opts.onMarks nhận [[mã câu, điểm]].
@@ -104,9 +111,9 @@
       timeLeft: (t) => `Còn ${t}`, timeAria: "Thời gian còn lại", progress: (i, n) => `Câu ${i}/${n}`,
       exit: "← Thoát", submit: "Nộp bài", skip: "Bỏ qua", answer: "Trả lời", seeGuide: "Xem gợi ý", check: "Kiểm tra", next: "Câu tiếp", seeResults: "Xem kết quả",
       guide: "Gợi ý:", noGuide: "Chưa có gợi ý.", right: "Đúng rồi!", wrong: "Chưa đúng.", ansLabel: "Đáp án:", ordRight: "Thứ tự đúng:",
-      tf4All: "Đúng cả 4 ý!", tf4Part: (k, p) => `Đúng ${k}/4 ý · được ${p}/1 điểm.`,
+      tf4All: "Đúng cả 4 ý!", tf4Part: (k, p, m = "1") => `Đúng ${k}/4 ý · được ${p}/${m} điểm.`,
       mtNone: "Chưa nối", mtItem: (i) => "Ô " + i, mtDone: "Đã nối đủ. Chạm một ô bên trái để đổi.", mtPick: (i) => `Chọn ô nối với ô ${i}`,
-      mtWrong: (g) => `Bạn nối: ${g} · Đúng: `, mtAll: "Nối đúng hết!", mtPart: (k, n, p) => `Nối đúng ${k}/${n} cặp · được ${p}/1 điểm.`,
+      mtWrong: (g) => `Bạn nối: ${g} · Đúng: `, mtAll: "Nối đúng hết!", mtPart: (k, n, p, m = "1") => `Nối đúng ${k}/${n} cặp · được ${p}/${m} điểm.`,
       ordRemove: (i, s) => `Bỏ ô ${i}: ${s}`, ordTap: (i) => `Chạm ô thứ ${i}`, ordDone: "Đã xếp đủ. Chạm một ô ở trên để bỏ ra.",
       // hộp hỏi khi bấm "← Thoát" (ôn luyện) hoặc "Nộp bài" (làm như thi, X6) trong màn làm bài
       exNone: ["Thoát đề? Bạn chưa làm câu nào nên không lưu điểm.", "Thoát"], exExam: ["Nộp bài ngay?", "Nộp bài"],
@@ -131,7 +138,12 @@
       selfNeed: "Chọn mức cho từng ý của ít nhất một câu rồi bấm Lưu nhé.",
       scoreLine: (r, t) => `${r}/${t} câu đúng`, time: "Thời gian: ", partNote: "Câu đúng/sai 4 ý và nối cột tính điểm theo từng ý.",
       onlyEssay: "Lượt này chỉ có câu tự luận.", byTopic: "Theo chủ đề", byLv: "Theo mức độ", review: (n) => `Câu cần xem lại (${n})`,
-      yourAns: "Bạn trả lời: ", gotPts: (p) => ` (được ${p}/1 điểm)`, ansIn: " · Đáp án: ", emptyBank: "Ngân hàng này chưa có câu hỏi.",
+      yourAns: "Bạn trả lời: ", gotPts: (p, m = "1") => ` (được ${p}/${m} điểm)`, ansIn: " · Đáp án: ", emptyBank: "Ngân hàng này chưa có câu hỏi.",
+      // đề tính điểm (Phiên K5): điểm hai chữ số lẻ "6,35/10", bảng theo phần, so với lần trước theo điểm, tổng tạm tính gồm phần tự luận tự chấm
+      scoredHow: "Chấm theo điểm từng câu, từng phần như đề thi.", byPart: "Theo phần", partNone: "Câu không ghi phần",
+      partSelf: "gồm phần tự luận tự chấm", partWait: "phần tự luận chưa tự chấm",
+      totalTmp: (s, m) => `Tổng tạm tính, gồm phần tự luận tự chấm: ${s}/${m} điểm.`, totalWait: (s, m) => `Tổng tạm tính: ${s}/${m} điểm, còn phần tự luận chưa tự chấm.`,
+      cmpMorePts: (d, p) => `Hơn lần trước ${d} điểm (${p})`, cmpLessPts: (d, p) => `Kém lần trước ${d} điểm (${p})`,
       // js/app.js: màn mở đề, màn tải đề, hộp rời trang, thông báo lưu điểm, khung bài ôn (renderQuiz, loadQuiz, renderPlay)
       appHome: "Trang chính", appGrade: (g) => `Lớp ${g}`, english: "Tiếng Anh", appRandom: "Đề ngẫu nhiên",
       appPoolIntro: (n, all, src) => `Mỗi lần làm là một đề khác: ${n} câu rút từ kho ${all} câu${src ? ` (${src} đề)` : ""} theo ma trận đề, ưu tiên câu bạn chưa làm hoặc hay sai`,
@@ -141,7 +153,8 @@
       appSent: "Đã lưu và gửi cho bố mẹ.", appPending: "Đã lưu trên máy này. Sẽ gửi cho bố mẹ khi có mạng.", appModScore: (r, t) => `${r}/${t} câu đúng.`,
       // màn mở đề (UX5, X9): thẻ "Lần trước" (số câu đúng; lúc làm · cách làm · thời gian), hai thẻ chọn cách làm có một dòng giải thích.
       // appWhen: lúc làm (diff: số ngày trước hôm nay, hm: giờ:phút, d/m: ngày, tháng), cũng là chữ "Hôm nay 12:43" của ago() trong js/app.js
-      appPrev: (r, t) => `Lần trước: ${r}/${t} câu đúng`, appPrevMode: { exam: "làm như thi", practice: "ôn luyện" },
+      appPrev: (r, t) => `Lần trước: ${r}/${t} câu đúng`, appPrevPts: (r, t) => `Lần trước: ${r}/${t} điểm`, appPrevMode: { exam: "làm như thi", practice: "ôn luyện" },
+      appScored: (m) => `Chấm như đề thi thật: điểm từng câu, từng phần, thang ${m} điểm.`,
       appWhen: (diff, hm, d, m) => (diff <= 0 ? "Hôm nay " + hm : diff === 1 ? "Hôm qua " + hm : `${d}/${m} ${hm}`),
       appDur: (s) => (s < 60 ? `${s} giây` : `${Math.round(s / 60)} phút`),
       appChoose: "Chọn cách làm", appPractice: "Ôn luyện", appPracticeNote: "Xem đáp án và lời giải ngay sau mỗi câu. Không tính giờ.",
@@ -178,9 +191,9 @@
       timeLeft: (t) => `${t} left`, timeAria: "Time left", progress: (i, n) => `${i} of ${n}`,
       exit: "← Exit", submit: "Finish test", skip: "Skip", answer: "Answer", seeGuide: "See the guide", check: "Check", next: "Next question", seeResults: "See results",
       guide: "Guide:", noGuide: "No guide yet.", right: "Correct!", wrong: "Not quite.", ansLabel: "Answer:", ordRight: "Correct order:",
-      tf4All: "All 4 correct!", tf4Part: (k, p) => `${k}/4 correct · ${p}/1 point.`,
+      tf4All: "All 4 correct!", tf4Part: (k, p, m = "1") => `${k}/4 correct · ${p}/${m} ${m === "1" ? "point" : "points"}.`,
       mtNone: "Not matched yet", mtItem: (i) => "Item " + i, mtDone: "All matched. Tap an item on the left to change it.", mtPick: (i) => `Choose a match for item ${i}`,
-      mtWrong: (g) => `You matched: ${g} · Correct: `, mtAll: "All matched!", mtPart: (k, n, p) => `${k}/${n} matched · ${p}/1 point.`,
+      mtWrong: (g) => `You matched: ${g} · Correct: `, mtAll: "All matched!", mtPart: (k, n, p, m = "1") => `${k}/${n} matched · ${p}/${m} ${m === "1" ? "point" : "points"}.`,
       ordRemove: (i, s) => `Remove item ${i}: ${s}`, ordTap: (i) => `Tap item ${i}`, ordDone: "All placed. Tap an item above to remove it.",
       exNone: ["Exit the test? You haven't answered any questions, so no score is saved.", "Exit"], exExam: ["Finish test now?", "Finish test"],
       exPractice: ["End practice and see your results?", "End practice"], exRetry: ["Stop reviewing your mistakes? This round is not scored.", "Stop"], keepGoing: "Keep going",
@@ -201,13 +214,18 @@
       selfNeed: "Choose a level for each part of at least one question, then tap Save.",
       scoreLine: (r, t) => `${r}/${t} correct`, time: "Time: ", partNote: "True/false and matching questions are scored by part.",
       onlyEssay: "This round had only writing questions.", byTopic: "By topic", byLv: "By level", review: (n) => `Review mistakes (${n})`,
-      yourAns: "Your answer: ", gotPts: (p) => ` (${p}/1 point)`, ansIn: " · Answer: ", emptyBank: "This bank has no questions yet.",
+      yourAns: "Your answer: ", gotPts: (p, m = "1") => ` (${p}/${m} ${m === "1" ? "point" : "points"})`, ansIn: " · Answer: ", emptyBank: "This bank has no questions yet.",
+      scoredHow: "Scored by points for each question and part, like the real exam.", byPart: "By part", partNone: "Questions with no part",
+      partSelf: "includes your self-checked writing", partWait: "writing not self-checked yet",
+      totalTmp: (s, m) => `Provisional total, including your self-checked writing: ${s}/${m} points.`, totalWait: (s, m) => `Provisional total: ${s}/${m} points. Your writing is not self-checked yet.`,
+      cmpMorePts: (d, p) => `${d} ${d === "1" ? "point" : "points"} higher than last time (${p})`, cmpLessPts: (d, p) => `${d} ${d === "1" ? "point" : "points"} lower than last time (${p})`,
       appHome: "Home", appGrade: (g) => `Grade ${g}`, english: "English", appRandom: "Random test",
       appPoolIntro: (n, all, src) => `A new test every time: ${n} questions from a bank of ${all}${src ? ` (${src} tests)` : ""}, more of the ones you haven't done or often get wrong`,
       appCount: (n) => `${n} questions`, appEssayN: (n) => ` (${n} self-check writing ${n === 1 ? "question" : "questions"})`, appNotes: (s) => `Not enough questions in the bank this time: ${s}.`, appNotesToast: (s) => "Not enough questions in the bank: " + s,
       appSaved: "Result saved", appSavedSelf: "Self-check score saved",
       appSent: "Saved and sent to your parents.", appPending: "Saved on this device. It will be sent to your parents when you're online.", appModScore: (r, t) => `${r}/${t} correct.`,
-      appPrev: (r, t) => `Last time: ${r}/${t} correct`, appPrevMode: { exam: "test mode", practice: "practice" },
+      appPrev: (r, t) => `Last time: ${r}/${t} correct`, appPrevPts: (r, t) => `Last time: ${r}/${t} points`, appPrevMode: { exam: "test mode", practice: "practice" },
+      appScored: (m) => `Scored like the real exam: points for each question and part, out of ${m}.`,
       appWhen: (diff, hm, d, m) => (diff <= 0 ? "Today " + hm : diff === 1 ? "Yesterday " + hm : `${d} ${MONTHS[m - 1]} ${hm}`),
       appDur: (s) => (s < 60 ? `${s} ${s === 1 ? "second" : "seconds"}` : `${Math.round(s / 60)} ${Math.round(s / 60) === 1 ? "minute" : "minutes"}`),
       appChoose: "Choose a mode", appPractice: "Practice", appPracticeNote: "See the answer and guide right after each question. No timer.",
@@ -231,11 +249,14 @@
   const langOf = (bank) => (bank && (bank.lang === "en" || EN_SUBJECTS.includes(foldS(bank.subject))) ? "en" : "vi");
   /* Tên đề bằng tiếng Anh, dựng từ tên chuẩn "<môn> <khối> · <kì> · Đề N" (CLAUDE.md): "Tiếng Anh 4 · Cuối kì I · Đề 1" →
      "English 4 · End-of-term 1 · Test 1", "· Đề ngẫu nhiên" → "· Random test". Tên tự đặt (ngân hàng tự nhập) giữ nguyên. */
-  const TERMS = { "Giữa kì I": "Mid-term 1", "Cuối kì I": "End-of-term 1", "Giữa kì II": "Mid-term 2", "Cuối năm": "End-of-year" };
+  // Phiên K5: hai kì của đề thi thử (lớp 9: "Thi thử vào 10", lớp 12: "Thi thử tốt nghiệp")
+  const TERMS = { "Giữa kì I": "Mid-term 1", "Cuối kì I": "End-of-term 1", "Giữa kì II": "Mid-term 2", "Cuối năm": "End-of-year",
+    "Thi thử vào 10": "Mock Entrance Exam", "Thi thử tốt nghiệp": "Mock Graduation Exam" };
+  const TITLE_RE = new RegExp(`^(.+?) (\\d{1,2}) · (${Object.keys(TERMS).join("|")}) · (?:Đề (\\d+)|Đề ngẫu nhiên)$`, "u");
   function title(bank, lg) {
     const t = String((bank && bank.title) || "");
     if ((lg || langOf(bank)) !== "en") return t;
-    const m = /^(.+?) (\d{1,2}) · (Giữa kì I|Cuối kì I|Giữa kì II|Cuối năm) · (?:Đề (\d+)|Đề ngẫu nhiên)$/u.exec(t.normalize("NFC").replace(/\s+/g, " ").trim());
+    const m = TITLE_RE.exec(t.normalize("NFC").replace(/\s+/g, " ").trim());
     if (!m) return t;
     return `${EN_SUBJECTS.includes(foldS(m[1])) ? "English" : m[1]} ${m[2]} · ${TERMS[m[3]]} · ${m[4] ? "Test " + m[4] : "Random test"}`;
   }
@@ -535,6 +556,27 @@
     }
   }
   const isRight = (q, g) => score(q, g) === 1;
+  /* Đề tính điểm (Phiên K5): đề có bank.pts (thang điểm, đề thi thử: 10), mỗi câu có pt (điểm tối đa, bội của 0,25; đúng/sai 4 ý
+     pt 1, vẫn chấm 0,1/0,25/0,5/1 theo TF4_PTS) và part (tên phần). grade(questions, answers) → { parts, got, max, auto }: điểm từng
+     phần theo thứ tự gặp trong đề ({ part, got, max, n, essay }: essay là điểm tối đa của câu tự luận trong phần), got là tổng
+     score × pt của câu chấm tự động, max là tổng pt, auto là tổng pt của câu chấm tự động. Câu tự luận chỉ góp vào max (tự chấm
+     riêng). answers[i] là câu trả lời của câu i như score nhận (câu gốc trong dữ liệu: trắc nghiệm là số thứ tự lựa chọn, đáp án
+     đúng là 0; đúng/sai là true, false). Hàm thuần, thử được bằng node (tests/kiem-tra-de.js). */
+  const ptOf = (q) => (typeof q.pt === "number" && q.pt > 0 ? q.pt : 0);
+  function grade(questions, answers) {
+    const parts = [], byName = {};
+    let got = 0, max = 0, auto = 0;
+    (questions || []).forEach((q, i) => {
+      const name = q.part || "", p = ptOf(q), essay = q.type === "essay";
+      const x = byName[name] || (byName[name] = parts[parts.push({ part: name, got: 0, max: 0, n: 0, essay: 0 }) - 1]);
+      const a = q.type === "mc" && q.a == null ? Object.assign({}, q, { a: 0 }) : q; // câu trắc nghiệm gốc: đáp án đúng đứng đầu
+      const s = essay ? 0 : r2(score(a, answers ? answers[i] : null) * p);
+      x.got = r2(x.got + s); x.max = r2(x.max + p); x.n++;
+      if (essay) x.essay = r2(x.essay + p); else auto = r2(auto + p);
+      got = r2(got + s); max = r2(max + p);
+    });
+    return { parts, got, max, auto };
+  }
   // Chữ đáp án theo bảng chữ L (mặc định tiếng Việt: Quiz.text dùng cho bản chụp câu bị báo).
   const yn = (v, L) => (v == null ? "?" : v ? (L || TXT.vi).tfYes : (L || TXT.vi).tfNo);
   function correctText(q, L) {
@@ -621,12 +663,16 @@
     const subj = bank.subject ? (lang === "en" && EN_SUBJECTS.includes(foldS(bank.subject)) ? L.english : bank.subject) : ttl;
     const INSTR = { tf4: L.tf4Label, match: L.matchLabel, order: L.orderLabel, essay: L.essayLabel };
     const passages = bank.passages || {};
-    // Câu dùng chung một đoạn đọc đứng liền nhau, giữ thứ tự trong đề; các nhóm và câu lẻ thì xáo.
+    // Câu dùng chung một đoạn đọc đứng liền nhau, giữ thứ tự trong đề; các nhóm và câu lẻ thì xáo. Đề tính điểm (bank.pts, Phiên K5)
+    // không xáo thứ tự câu (Phần I → II → III, như đề thi), vẫn xáo phương án; màn kết quả chấm theo điểm (grade), trừ lượt ôn lại câu sai.
+    const PTS = bank.pts > 0 ? bank.pts : 0, scored = !!PTS && !retry;
+    // điểm của câu theo thang của đề (đề tính điểm: pt của câu; đề thường: 1), cho chữ "được 0,5/1 điểm"
+    const ptsOf = (q, pts) => (scored ? [N(r2(pts * ptOf(q))), N(ptOf(q))] : [N(pts), "1"]);
     const units = [], seenP = {};
     (bank.questions || []).forEach((q) => {
       if (q.p && passages[q.p]) { if (!seenP[q.p]) units.push((seenP[q.p] = [])); seenP[q.p].push(q); } else units.push([q]);
     });
-    const qs = shuffle(units).flat().map((q) => prep(q, L));
+    const qs = (PTS ? units : shuffle(units)).flat().map((q) => prep(q, L));
     /* Đi giữa các câu (Phiên 9n, L38, L39): from = "seq" (lượt đầu: đi tiếp theo số câu), "round" (vòng làm tiếp: S.round là danh sách
        câu còn trống lúc bấm "Làm tiếp", đi tiếp tới câu kế tiếp trong danh sách còn trống), "recap" (câu mở từ màn "Xem lại bài làm":
        xong câu đó thì về lại màn đó). recap: đang ở màn "Xem lại bài làm" (#qzRecap). */
@@ -900,7 +946,7 @@
         if (q.type === "tf4") {
           $$(".tf4 .opt").forEach((b) => { const i = +b.dataset.i, v = b.dataset.v === "1"; if (v === q.a[i]) b.classList.add("right"); else if (g[i] === v) b.classList.add("wrong"); b.disabled = true; });
           const k = q.a.filter((a, i) => g[i] === a).length;
-          msg = k === 4 ? L.tf4All : L.tf4Part(k, N(pts));
+          msg = k === 4 ? L.tf4All : L.tf4Part(k, ...ptsOf(q, pts));
         }
         if (q.type === "match") {
           paintMatch();
@@ -909,7 +955,7 @@
           $$(".mt-ri").forEach((b) => (b.disabled = true));
           $("#qzHint").textContent = "";
           const k = q.l.filter((_, i) => g[i] === i).length;
-          msg = k === q.l.length ? L.mtAll : L.mtPart(k, q.l.length, N(pts));
+          msg = k === q.l.length ? L.mtAll : L.mtPart(k, q.l.length, ...ptsOf(q, pts));
         }
         if (q.type === "order") {
           paintOrder();
@@ -1025,20 +1071,37 @@
       // Lần trước cùng đề (UX1): đọc trước khi lưu lượt này. Lượt ôn lại câu sai không so, không lưu.
       const prev = !h.retry && typeof opts.previous === "function" ? opts.previous() : null;
       const saved = !exam && !h.retry ? saveSelf(essays) : null; // ôn luyện: chấm ngay sau từng câu, lưu luôn
-      if (total && !h.retry && opts.onFinish) opts.onFinish({ r: right, t: total, s: Math.round(secs), mode: exam ? "exam" : "practice", wrongTopics: wrong.map((a) => a.q.topic || "Chung") });
+      // Đề tính điểm (Phiên K5): điểm của cả đề theo grade (câu chưa làm 0 điểm); lưu r = điểm phần chấm tự động, t = thang điểm của đề
+      const G = scored ? grade(qs, qs.map((_, i) => (S.ans[i] ? S.ans[i].g : null))) : null;
+      if (total && !h.retry && opts.onFinish) opts.onFinish({ r: G ? G.got : right, t: G ? PTS : total, s: Math.round(secs), mode: exam ? "exam" : "practice", wrongTopics: wrong.map((a) => a.q.topic || "Chung") });
       // lịch sử câu: câu chấm tự động và câu tự luận đã làm (ôn luyện: đã xem gợi ý; làm như thi: đã trả lời), kể cả lượt chỉ có câu
       // tự luận (không có phần chấm tự động để lưu)
       if (!h.retry && opts.onMarks) opts.onMarks(auto.map((a) => [a.q.key, a.pts || 0]).concat(essays.filter((i) => S.ans[i].done).map((i) => [qs[i].key, essayMark(i)])));
-      const d10n = total ? Math.round((right / total) * 40) / 4 : 0, d10 = N(d10n);
+      const d10n = G ? (G.got / PTS) * 10 : total ? Math.round((right / total) * 40) / 4 : 0, d10 = N(d10n);
       const bars = (o, name) => `<div class="ubreak">${Object.entries(o).map(([k, [r, t]]) => `<span>${nbNum(esc(name(k)))}</span><div class="bar"><i style="width:${(r / t) * 100}%"></i></div><span>${N(r)}/${t}</span>`).join("")}</div>`;
       const part = auto.some((a) => a.pts > 0 && a.pts < 1);
       // lời khen theo điểm (opts.name: tên học sinh; xem thử thì không có tên) và so với lần trước
       const praise = total ? L.praise(d10n, opts.name ? ", " + esc(opts.name) : "") : "";
       let cmp = "";
       if (prev && prev.t > 0 && total) {
-        const ps = `${N(prev.r)}/${prev.t}`, d = r2(right - prev.r);
-        cmp = prev.t !== total ? `<span class="tag">${L.cmpPrev(ps)}</span>` : d > 0 ? `<span class="tag ioe">${L.cmpMore(N(d), ps)}</span>` : d < 0 ? `<span class="tag warn">${L.cmpLess(N(-d), ps)}</span>` : `<span class="tag">${L.cmpSame(ps)}</span>`;
+        // đề tính điểm: so theo điểm ("Hơn lần trước 1,25 điểm (5,1/10)"); đề thường: theo số câu đúng
+        const ps = `${N(prev.r)}/${N(prev.t)}`, d = r2((G ? G.got : right) - prev.r), more = G ? L.cmpMorePts : L.cmpMore, less = G ? L.cmpLessPts : L.cmpLess;
+        cmp = prev.t !== (G ? PTS : total) ? `<span class="tag">${L.cmpPrev(ps)}</span>` : d > 0 ? `<span class="tag ioe">${more(N(d), ps)}</span>` : d < 0 ? `<span class="tag warn">${less(N(-d), ps)}</span>` : `<span class="tag">${L.cmpSame(ps)}</span>`;
       }
+      /* Đề tính điểm: bảng theo phần (#qzParts: điểm từng phần, phần có câu tự luận cộng điểm tự chấm khi đã chấm đủ các câu của phần)
+         và dòng tổng tạm tính (#qzTotal) khi đề có tự luận. Điểm tự chấm quy về pt của câu: được 1,5/2 ý thang chấm, câu pt 3 thì 2,25. */
+      const essAll = G ? range(qs.length).filter((i) => qs[i].type === "essay") : [];
+      const selfPt = (i) => { const s = selfSum(i); return s && s.max ? (s.got / s.max) * ptOf(qs[i]) : null; };
+      const selfIn = (list) => { const v = list.map(selfPt); return v.every((x) => x != null) ? r2(v.reduce((a, x) => a + x, 0)) : null; };
+      const partsHtml = () => G.parts.map((p) => {
+        const ess = essAll.filter((i) => (qs[i].part || "") === p.part), self = selfIn(ess), got = r2(p.got + (self || 0));
+        return `<div class="qz-part"><div class="row between"><b>${nbNum(esc(p.part || L.partNone))}</b><b class="qz-pv">${N(got)}/${N(p.max)}</b></div>
+          <div class="bar"><i style="width:${p.max ? (got / p.max) * 100 : 0}%"></i></div>${ess.length ? `<span class="small muted">${self == null ? L.partWait : L.partSelf}</span>` : ""}</div>`;
+      }).join("");
+      const totalTxt = () => { const s = selfIn(essAll), part2 = r2(essAll.reduce((a, i) => a + (selfPt(i) || 0), 0)); return s == null ? L.totalWait(N(r2(G.got + part2)), N(PTS)) : L.totalTmp(N(r2(G.got + s)), N(PTS)); };
+      // đề toàn tự luận (Toán vào 10: 7 câu tự luận) không có điểm chấm tự động, vẫn có dòng tổng tạm tính
+      const totalLine = essAll.length ? `<p class="small" id="qzTotal">${totalTxt()}</p>` : "";
+      const partsPanel = !G ? "" : `<section class="panel" id="qzParts"><div class="label">${L.byPart}</div><div class="qz-parts">${partsHtml()}</div></section>`;
       // theo chủ đề: chỉ hiện chủ đề cần ôn thêm, cả bảng thu gọn trong "Xem cả N chủ đề"
       const topicName = (k) => (k === "Chung" ? L.topicGeneral : k), topics = Object.entries(byTopic), need = topics.filter(([, [r, t]]) => r < t), full = topics.length - need.length;
       const topicPanel = topics.length < 2 ? "" : `<section class="panel" id="qzTopics"><div class="label">${L.byTopic}</div>
@@ -1046,7 +1109,7 @@
           ${need.length ? bars(Object.fromEntries(need), topicName) : ""}
           ${full ? `<details class="small"><summary>${L.topicsShow(topics.length)}</summary>${bars(byTopic, topicName)}</details>` : ""}</section>`;
       // câu cần xem lại, thu gọn: bấm mới xem đáp án và lời giải
-      const reviewPanel = !wrong.length ? "" : `<section class="panel" id="qzReview"><div class="label">${L.review(wrong.length)}</div><div class="review">${wrong.map((a) => `<details class="rv"><summary><span class="grow"><span><span class="rv-n">${L.qN(a.n)}</span> · ${nbNum(esc(a.q.q)).replace("___", "…")}${LV[a.q.lv] ? ` <span class="tag">${L.lv[a.q.lv]}</span>` : ""}</span><span class="small">${L.yourAns}<s>${nbNum(esc(givenText(a.q, a.g, L)))}</s>${a.pts > 0 ? L.gotPts(N(a.pts)) : ""} · ${L.rvTap}</span></span></summary>
+      const reviewPanel = !wrong.length ? "" : `<section class="panel" id="qzReview"><div class="label">${L.review(wrong.length)}</div><div class="review">${wrong.map((a) => `<details class="rv"><summary><span class="grow"><span><span class="rv-n">${L.qN(a.n)}</span> · ${nbNum(esc(a.q.q)).replace("___", "…")}${LV[a.q.lv] ? ` <span class="tag">${L.lv[a.q.lv]}</span>` : ""}</span><span class="small">${L.yourAns}<s>${nbNum(esc(givenText(a.q, a.g, L)))}</s>${a.pts > 0 ? L.gotPts(...ptsOf(a.q, a.pts)) : ""} · ${L.rvTap}</span></span></summary>
           <div class="rv-body"><div class="small">${L.ansLabel} <b>${nbNum(esc(correctText(a.q, L)))}</b></div>${a.q.x ? `<div class="expl">${nbNum(esc(a.q.x))}</div>` : ""}${reportHtml(a.q)}</div></details>`).join("")}</div></section>`;
       const againAllTxt = h.opts0.redraw ? L.newTest : L.againAll;
       // chỗ trống để app ghi bài đã gửi cho bố mẹ chưa (bản đám mây, UX6); lượt không lưu điểm (ôn lại câu sai, xem thử) để trống
@@ -1063,14 +1126,16 @@
         <section class="panel" id="qzScore">
           <div class="label">${nb(nbNum(`${esc(ttl)} · ${h.retry ? L.retryHead : exam ? L.modeExam : L.modePractice}`))}</div>
           ${total ? `<h2 class="praise">${praise}</h2>
-          <div class="row" style="gap:18px;align-items:flex-end"><div class="score">${d10}<span class="score-sub">/10</span></div>
-          <div class="stack tight"><b>${L.scoreLine(N(right), total)}</b><span class="muted small">${L.time}${fmtTime(secs)}</span></div></div>
+          <div class="row" style="gap:18px;align-items:flex-end"><div class="score">${G ? N(G.got) : d10}<span class="score-sub">/${G ? N(PTS) : 10}</span></div>
+          <div class="stack tight"><b>${G ? L.scoredHow : L.scoreLine(N(right), total)}</b><span class="muted small">${L.time}${fmtTime(secs)}</span></div></div>
           ${cmp ? `<div class="tags" id="qzCmp">${cmp}</div>` : ""}
+          ${totalLine}
           ${saved0}
           ${h.retry ? `<p class="small muted">${L.retryNote}</p>` : ""}
-          ${part ? `<p class="small muted">${L.partNote}</p>` : ""}` : `<p>${L.onlyEssay} ${L.time}${fmtTime(secs)}</p>${saved0}`}
+          ${part ? `<p class="small muted">${L.partNote}</p>` : ""}` : `<p>${L.onlyEssay} ${L.time}${fmtTime(secs)}</p>${totalLine}${saved0}`}
         </section>
         <div class="row">${wrong.length ? `<button class="btn main" id="qzRetry">${L.retry(wrong.length)}</button>` : ""}<button class="btn ${wrong.length ? "ghost" : "main"}" id="qzAgain">${wrong.length || h.retry ? againAllTxt : againTxt}</button></div>
+        ${partsPanel}
         ${reviewPanel}
         ${topicPanel}
         ${Object.keys(byLv).length ? `<section class="panel" id="qzLv"><div class="label">${L.byLv}</div>${bars(byLv, (k) => L.lv[k])}</section>` : ""}
@@ -1083,7 +1148,8 @@
       wireReport(el);
       const save = el.querySelector("#qzSelfSave");
       if (save) {
-        wireRubric(el, () => (el.querySelector("#qzSelfMsg").innerHTML = ""));
+        // đề tính điểm: chọn mức tự chấm thì bảng theo phần và tổng tạm tính tính lại ngay
+        wireRubric(el, () => { el.querySelector("#qzSelfMsg").innerHTML = ""; if (G) { el.querySelector("#qzParts .qz-parts").innerHTML = partsHtml(); el.querySelector("#qzTotal").textContent = totalTxt(); } });
         save.onclick = () => {
           const s = saveSelf(essays);
           if (!s) { el.querySelector("#qzSelfMsg").innerHTML = `<div class="fb bad">${L.selfNeed}</div>`; return; }
@@ -1253,5 +1319,5 @@
     return { questions, passages, errors, issues };
   }
 
-  window.Quiz = { run, parse, preview, isRight, score, svg, draw, key, text, REASONS, LV, fmtN, nbNum, TXT, lang: langOf, title };
+  window.Quiz = { run, parse, preview, isRight, score, grade, svg, draw, key, text, REASONS, LV, fmtN, nbNum, TXT, lang: langOf, title };
 })();
