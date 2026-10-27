@@ -1,8 +1,11 @@
 /* Kiểm tra phần Toán của bài ôn modules/l6-giua-ki-1 (Phiên 9q, L42: Chương I–III theo sách Toán 6 tập một in năm 2026).
    Chạy: node tests/bai-on-l6.js [commit] (mặc định origin/main). In "BAI ON L6 OK" khi đạt.
    1. So với commit: Ngữ văn, KHTN giữ nguyên; Toán cùng bài (id, thứ tự), cùng số câu, mỗi câu cùng bài (l), cùng dạng câu (trắc nghiệm cùng
-      số lựa chọn, đúng/sai, điền, câu sinh ngẫu nhiên); chỉ câu sinh ngẫu nhiên thứ hai của Bài 13 đổi opp → intcmp, câu thứ ba của Bài 14
-      đổi intadd → opp (số đối sang Bài 14). Kết quả theo bài (lres) lưu theo id bài, “Ôn câu sai” theo số thứ tự câu.
+      số lựa chọn, đúng/sai, điền, câu sinh ngẫu nhiên). Hàm sinh câu (g) của từng câu có hai trường hợp (L45):
+      - commit trước Phiên 9q (Bài 13 của commit đó còn câu sinh ngẫu nhiên opp, ví dụ 39186fd^1): chỉ câu sinh ngẫu nhiên thứ hai của
+        Bài 13 đổi opp → intcmp và câu thứ ba của Bài 14 đổi intadd → opp (số đối sang Bài 14), mọi câu khác giữ hàm;
+      - commit từ PR #139 (Phiên 9q) trở đi (origin/main, HEAD…): hàm sinh câu của mọi câu phải giống hệt commit đó.
+      Kết quả theo bài (lres) lưu theo id bài, “Ôn câu sai” theo số thứ tự câu.
       CHI_TIET=1 in thêm các câu, Ghi nhớ khác với commit.
    2. Tính lại đáp án các câu cố định; mọi phép tính “… = …” trong đề và lời giải (câu cố định và 3 000 lần mỗi hàm sinh câu Toán) tính đúng;
       roman: số La Mã ghép đúng từ các thành phần I, V, X, IV, IX, lời giải không có quy tắc trừ.
@@ -35,7 +38,8 @@ for (const sb of now.APP.subjects) {
   if (sb.items.length !== ob.items.length) note(`toan: ${sb.items.length} câu, ${ref} có ${ob.items.length}`);
   sb.items.forEach((it, i) => { const o = ob.items[i]; if (o && (it.l !== o.l || kind(it) !== kind(o))) note(`toan câu ${i}: ${it.l} ${kind(it)}, ${ref}: ${o.l} ${kind(o)}`); });
   const gens = (x) => x.items.map((it) => it.g || "").join();
-  if (old.APP.gen.opp && gens(ob).includes("opp,")) { // lần so với commit trước Phiên 9q: chỉ hai câu sinh ngẫu nhiên đổi hàm
+  // commit trước Phiên 9q nhận ra bằng câu opp ở Bài 13, không bằng gens(ob): từ PR #139 câu thứ ba của Bài 14 cũng là opp (L45)
+  if (ob.items.some((it) => it.l === "b13" && it.g === "opp")) { // so với commit trước Phiên 9q: chỉ hai câu sinh ngẫu nhiên đổi hàm
     const d = sb.items.map((it, i) => (it.g !== ob.items[i].g ? `${it.l}:${ob.items[i].g}→${it.g}` : "")).filter(Boolean).join(" ");
     if (d !== "b13:opp→intcmp b14:intadd→opp") note("toan: hàm sinh câu đổi khác dự kiến: " + d);
   } else if (gens(sb) !== gens(ob)) note("toan: hàm sinh câu khác " + ref);
