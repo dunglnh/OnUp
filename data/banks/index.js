@@ -570,6 +570,22 @@ window.ONTAP_SEED_BANKS = [
       "Dân cư, sản xuất ở Nam Bộ": [0, 1, 1], "Văn hoá vùng Nam Bộ": [1, 0, 0], "Truyền thống yêu nước, cách mạng ở Nam Bộ": [0, 1, 1],
       "Thành phố Hồ Chí Minh": [1, 1, 0], "Địa đạo Củ Chi": [1, 0, 1] } } },
 
+  /* Tin học và Công nghệ 4 · Kiểm tra cuối năm học (Kết nối tri thức, Tin học Bài 10–16, Công nghệ Bài 7–12; Phiên N17). Kho câu =
+     50 câu của 2 đề cố định (không có câu riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020:
+     10 – 8 – 7 câu, 13 câu Tin học (6 chủ đề) và 12 câu Công nghệ (mỗi bài 2 câu) như đề cố định. Hai đề cố định chia đúng ma trận,
+     mỗi ô (chủ đề, mức) rút 1 câu và có đúng 2 câu, một ở mỗi đề, nên học sinh đã làm một đề cố định thì đề ngẫu nhiên ra toàn câu
+     của đề kia (Rút ra N12). Không có câu tự luận. */
+  { id: "tincn4-ck2-de1", title: "Tin học và Công nghệ 4 · Cuối năm · Đề 1", grade: 4, subject: "Tin học và Công nghệ", minutes: 35, n: 25, file: "4-tincn.js" },
+  { id: "tincn4-ck2-de2", title: "Tin học và Công nghệ 4 · Cuối năm · Đề 2", grade: 4, subject: "Tin học và Công nghệ", minutes: 35, n: 25, file: "4-tincn.js" },
+  { id: "tincn4-ck2-ngau-nhien", title: "Tin học và Công nghệ 4 · Cuối năm · Đề ngẫu nhiên", grade: 4, subject: "Tin học và Công nghệ", minutes: 35, n: 25, file: "4-tincn.js",
+    pool: { from: ["tincn4-ck2-de1", "tincn4-ck2-de2"], matrix: {
+      "Tin học · Soạn thảo văn bản": [1, 1, 0], "Tin học · Chỉnh sửa văn bản": [1, 1, 1],
+      "Tin học · Đa phương tiện và luyện gõ phím": [1, 0, 1], "Tin học · Chương trình máy tính": [1, 0, 0],
+      "Tin học · Lập trình trực quan": [1, 1, 1], "Tin học · Chương trình diễn tả ý tưởng": [0, 1, 1],
+      "Công nghệ · Bộ lắp ghép mô hình kĩ thuật": [1, 1, 0], "Công nghệ · Lắp ghép mô hình bập bênh": [0, 1, 1],
+      "Công nghệ · Lắp ghép mô hình rô-bốt": [1, 0, 1], "Công nghệ · Đồ chơi dân gian": [1, 1, 0],
+      "Công nghệ · Làm đèn lồng": [1, 0, 1], "Công nghệ · Làm chuồn chuồn thăng bằng": [1, 1, 0] } } },
+
   /* Toán 6 · Kiểm tra cuối năm học (Kết nối tri thức, học kì II, Bài 23–43: Chương VI Phân số, Chương VII Số thập phân, Chương VIII
      Những hình hình học cơ bản, Chương IX Dữ liệu và xác suất thực nghiệm; Phiên N18). Kho câu = 50 câu riêng trong file + 50 câu của
      2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 15 chủ đề: phân số 5 câu (Bài 23–27),
