@@ -3730,6 +3730,157 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.saved && r.wrong === "Chưa đúng. Đáp án: 2/3" && r.review.includes("Đáp án: 2/3") && r.review.includes("Đáp án: -3/4"))
     && L29_SHOTS.every((n) => l29.shots.includes(n + "-light") && l29.shots.includes(n + "-dark"));
 
+  step("scored exams: points per question and part (K5)");
+  /* Đề tính điểm (Phiên K5): đề có pts trong danh mục, câu có pt (điểm tối đa) và part (tên phần); app không xáo thứ tự câu, vẫn xáo
+     phương án; màn kết quả ghi điểm của đề (Quiz.grade), bảng theo phần, so với lần trước theo điểm; lưu r = điểm phần chấm tự động,
+     t = 10. Hai đề thử thêm vào danh mục lúc chạy (addInitScript: mỗi lần tải trang data/banks/index.js gán ONTAP_SEED_BANKS thì
+     thêm hai đề), Na lớp 6 ở 360px sáng và tối:
+     - Toán (cấu trúc đề Toán tốt nghiệp: Phần I 12 câu nhiều lựa chọn 0,25 điểm, Phần II 4 câu đúng/sai 4 ý 1 điểm, Phần III 6 câu trả
+       lời ngắn 0,5 điểm), làm như thi: câu hiện đúng thứ tự trong dữ liệu (Phần I → II → III), phương án trắc nghiệm được xáo; đúng
+       10/12 câu, 4 câu đúng/sai đúng 4, 3, 2, 1 ý, 4/6 câu trả lời ngắn → "6,35/10" (cách chấm theo số câu cho 7,25), bảng theo phần
+       2,5/3, 1,85/4, 2/3; câu cần xem lại ghi "được 0,5/1 điểm"; kết quả lưu 6,35/10. "Làm lại cả đề": sai một câu → "9,75/10",
+       "Hơn lần trước 3,4 điểm (6,35/10)". Mở lại đề: thẻ "Lần trước: 9,75/10 điểm", dòng giới thiệu ghi cách chấm; tab Kết quả ghi
+       "9,75/10 điểm", "6,35/10 điểm".
+     - Tiếng Anh (tên chuẩn "Tiếng Anh 6 · Thi thử vào 10 · Đề 1" để màn làm đề dịch được tên kì thi thử: Part I 12 câu 0,5 điểm,
+       Part II 2 câu đúng/sai 4 ý, Part III một câu tự luận 2 điểm), làm như thi: "6.35/10", bảng theo phần, dòng tổng tạm tính chưa
+       gồm phần tự luận; tự chấm đủ hai ý thì Part III thành 2/2 và tổng tạm tính 8.35/10; lưu 6,35/10; thẻ "Last time: 6.35/10
+       points"; mọi chữ trong #view, #toast không có chữ cái tiếng Việt.
+     - Báo cáo tuần của Na (Bố Minh xem): mục Điểm theo môn ghi "2 đề tính điểm: 16,1/20 điểm" (Toán), "1 đề tính điểm: 6,35/10 điểm"
+       (Tiếng Anh), danh sách bài ghi "điểm", dòng cuối nói đề tính điểm lấy điểm của đề.
+     Mỗi màn hình kiểm tra 360px (audit). Ảnh sáng/tối ở tests/screenshots/k5/ (bản ghép <tên>.jpg): ket-qua, lam-lai, mo-de,
+     tieng-anh, bao-cao. */
+  const OUTK5 = OUT + "k5/"; fs.mkdirSync(OUTK5, { recursive: true });
+  const K5_P = ["Phần I. Trắc nghiệm nhiều lựa chọn", "Phần II. Trắc nghiệm đúng sai", "Phần III. Trả lời ngắn"];
+  const K5_TF = (i, P) => ({ type: "tf4", o: [`${10 * i} chia hết cho 2`, `${10 * i} là số lẻ`, `${10 * i} chia hết cho 5`, `${10 * i} nhỏ hơn 5`], a: [true, false, true, false], pt: 1, part: P });
+  const K5_BANK = { id: "thu-de-tinh-diem", title: "Toán 6 · Thử đề tính điểm", grade: 6, subject: "Toán", minutes: 90, n: 22, file: "6-toan.js", pts: 10, note: "",
+    questions: [...Array(12)].map((_, i) => ({ topic: "Số tự nhiên", type: "mc", q: `Phần I, câu ${i + 1}: ${i + 1} + ${i + 1} = ?`, o: [0, 1, 2, 3].map((k) => String(2 * (i + 1) + k)), x: `${i + 1} + ${i + 1} = ${2 * (i + 1)}.`, pt: 0.25, part: K5_P[0] }))
+      .concat([...Array(4)].map((_, i) => Object.assign({ topic: "Chia hết", q: `Phần II, câu ${i + 1}: Cho số ${10 * (i + 1)}. Mỗi ý sau đúng hay sai?`, x: `${10 * (i + 1)} có chữ số tận cùng là 0 nên chia hết cho 2 và 5.` }, K5_TF(i + 1, K5_P[1]))),
+        [...Array(6)].map((_, i) => ({ topic: "Phép nhân", type: "num", q: `Phần III, câu ${i + 1}: ${i + 1} × 7 = ?`, ans: 7 * (i + 1), x: `${i + 1} × 7 = ${7 * (i + 1)}.`, pt: 0.5, part: K5_P[2] }))) };
+  const K5_PE = ["Part I. Multiple choice", "Part II. True or false", "Part III. Writing"];
+  const K5_EN = { id: "thu-ta6-tinh-diem", title: "Tiếng Anh 6 · Thi thử vào 10 · Đề 1", grade: 6, subject: "Tiếng Anh", minutes: 30, n: 15, file: "6-ta.js", pts: 10, note: "",
+    questions: [...Array(12)].map((_, i) => ({ topic: "Vocabulary", type: "mc", q: `Part I, question ${i + 1}: Choose the word for number ${i + 1}.`, o: ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen"].slice(i, i + 4), x: `Number ${i + 1} is written as it is in the first option.`, pt: 0.5, part: K5_PE[0] }))
+      .concat([1, 2].map((i) => ({ topic: "Reading", type: "tf4", q: `Part II, question ${i}: Mai is in class ${i + 5}A. She walks to school. Are these statements true or false?`, o: [`Mai is in class ${i + 5}A.`, "Mai goes to school by bus.", "Mai walks to school.", `Mai is in class ${i + 6}B.`], a: [true, false, true, false], x: "Read the text again.", pt: 1, part: K5_PE[1] })),
+        [{ topic: "Writing", type: "essay", q: "Part III: Write three sentences about your school.", rubric: [{ c: "Writes three sentences about the school", p: 1 }, { c: "Uses correct spelling and grammar", p: 1 }], x: "My school is big. It has a library. I love my school.", pt: 2, part: K5_PE[2] }]) };
+  const K5_SHOTS = ["ket-qua", "lam-lai", "mo-de", "tieng-anh", "bao-cao"];
+  const k5 = { problems: [], shots: [], runs: [] };
+  for (const scheme of ["light", "dark"]) {
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    await c.addInitScript((banks) => {
+      let v; Object.defineProperty(window, "ONTAP_SEED_BANKS", { configurable: true, get: () => v, set: (x) => { v = x; if (Array.isArray(x)) x.push(...banks); } });
+    }, [K5_BANK, K5_EN]);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror K5: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console K5: " + m.text()); });
+    const check = async (label) => (await p.evaluate(audit)).forEach((x) => k5.problems.push(`K5 · ${scheme} · ${label}: ${x}`));
+    const snap = async (n) => { await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await p.screenshot({ path: `${OUTK5}${n}-${scheme}.png`, fullPage: true }); k5.shots.push(`${n}-${scheme}`); };
+    const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, sel);
+    const parts = () => p.$$eval("#qzParts .qz-part", (xs) => xs.map((x) => [...x.querySelectorAll("b, .small")].map((e) => e.textContent.replace(/\s+/g, " ").trim())));
+    const saved = (id) => p.evaluate((id) => Store.resultsFor(Store.sessionUser().id).filter((y) => y.refId === id).map((y) => [y.r, y.t, y.mode]), id);
+    const viet = () => p.evaluate((re) => { const r = new RegExp(re, "iu"); return ["#view", "#toast"].map((s) => document.querySelector(s)).filter((e) => e && !e.hidden).map((e) => e.innerText).join("\n").split("\n").filter((l) => r.test(l)); }, CHU_VIET.source);
+    /* Làm như thi một lượt đề tính điểm: plan(i, q) → true (đúng), false (sai), số k (câu đúng/sai 4 ý: đúng k ý đầu). Ghi thứ tự câu
+       đúng như dữ liệu và trắc nghiệm có phương án được xáo. */
+    const play = async (bank, plan, tag) => {
+      const out = { order: true, shuffled: false };
+      await p.click("#qExam"); await p.waitForSelector(".qcard");
+      for (let i = 0; i < bank.questions.length; i++) {
+        const q = bank.questions[i], t = await p.$eval(".qcard .qtext", (e) => e.textContent);
+        if (flatQ(t) !== flatQ(q.q)) { out.order = false; k5.problems.push(`K5 · ${scheme} · ${tag}: câu ${i + 1} là “${t.slice(0, 40)}”, cần “${q.q.slice(0, 40)}”`); break; }
+        if (i === 0) await check(`${tag}, câu 1`);
+        const want = plan(i, q);
+        if (q.type === "mc") { const o = await p.$$eval(".opts .opt", (bs) => bs.map((b) => b.lastElementChild.textContent)); if (o.join("|") !== q.o.join("|")) out.shuffled = true; }
+        if (q.type === "tf4") {
+          if (i === 12 || i === bank.questions.length - 3) await check(`${tag}, câu đúng/sai 4 ý`);
+          for (let k = 0; k < 4; k++) await p.click(`.tf4 .opt[data-i="${k}"][data-v="${(k < want) === q.a[k] ? 1 : 0}"]`);
+          await p.click("#qzGo");
+        } else if (q.type === "essay") { await p.fill("#qzEssay", "My school is big. It has a library. I love my school."); await p.click("#qzGo"); }
+        else if (!(await answerOn(p, q, want))) { k5.problems.push(`K5 · ${scheme} · ${tag}: không trả lời được câu ${i + 1}`); break; }
+      }
+      await endRecap(p); await p.waitForSelector(".score");
+      return out;
+    };
+    const r = { scheme };
+    await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids.Na}"]`); await p.fill("#pinIn", "4444"); await p.waitForSelector("#today");
+    // Toán, lượt 1: 6,35/10
+    await p.goto(BASE + "/#/quiz/" + K5_BANK.id); await p.waitForSelector("#qExam");
+    r.prev0 = !(await p.$("#qPrev"));
+    r.p1 = await play(K5_BANK, (i) => (i < 12 ? i < 10 : i < 16 ? 4 - (i - 12) : i < 20), "Toán lượt 1");
+    r.score1 = await txt(".score"); r.how = await txt("#qzScore .stack b"); r.parts1 = await parts(); r.total1 = !!(await p.$("#qzTotal"));
+    r.gotPts = await p.$$eval("#qzReview summary", (xs) => xs.map((x) => x.textContent.replace(/\s+/g, " ")).filter((s) => /được [\d,]+\/1 điểm/.test(s)).length);
+    await check("Toán, kết quả lượt 1"); await snap("ket-qua");
+    r.saved1 = JSON.stringify(await saved(K5_BANK.id));
+    // lượt 2 ("Làm lại cả đề"): sai câu 12 → 9,75/10, hơn lần trước 3,4 điểm
+    await p.click("#qzAgain"); await p.waitForSelector(".qcard");
+    {
+      const out = { order: true };
+      for (let i = 0; i < K5_BANK.questions.length; i++) {
+        const q = K5_BANK.questions[i], t = await p.$eval(".qcard .qtext", (e) => e.textContent);
+        if (flatQ(t) !== flatQ(q.q)) { out.order = false; k5.problems.push(`K5 · ${scheme} · Toán lượt 2: câu ${i + 1} sai thứ tự`); break; }
+        if (q.type === "tf4") { for (let k = 0; k < 4; k++) await p.click(`.tf4 .opt[data-i="${k}"][data-v="${q.a[k] ? 1 : 0}"]`); await p.click("#qzGo"); }
+        else await answerOn(p, q, i !== 11);
+      }
+      await endRecap(p); await p.waitForSelector(".score"); r.p2 = out;
+    }
+    r.score2 = await txt(".score"); r.cmp2 = await txt("#qzCmp");
+    await check("Toán, kết quả lượt 2"); await snap("lam-lai");
+    r.saved2 = JSON.stringify(await saved(K5_BANK.id));
+    // tab Kết quả ghi "điểm"; mở lại đề (từ tab đó: địa chỉ của đề vẫn là địa chỉ của màn kết quả vừa xong): thẻ "Lần trước" theo
+    // điểm, dòng giới thiệu ghi cách chấm
+    await p.goto(BASE + "/#/results"); await p.waitForSelector("#view .list");
+    r.list = await p.$$eval("#view .list .item", (xs, t) => xs.filter((x) => x.querySelector("b").textContent.replace(/\s+/g, " ") === t).map((x) => x.lastElementChild.textContent.trim()), K5_BANK.title);
+    await p.goto(BASE + "/#/quiz/" + K5_BANK.id); await p.waitForSelector("#qExam");
+    r.prev = await txt("#qPrev b"); r.intro = await txt(".hero p");
+    await check("Toán, mở lại đề"); await snap("mo-de");
+    // Tiếng Anh: 6.35/10, tổng tạm tính có phần tự luận tự chấm
+    await p.goto(BASE + "/#/quiz/" + K5_EN.id); await p.waitForSelector("#qExam");
+    r.p3 = await play(K5_EN, (i) => (i < 12 ? true : i === 12 ? 2 : 1), "Tiếng Anh");
+    r.score3 = await txt(".score"); r.parts3 = await parts(); r.total3 = await txt("#qzTotal");
+    await check("Tiếng Anh, kết quả");
+    await p.click('.rubric .opt[data-j="0"][data-v="1"]'); await p.click('.rubric .opt[data-j="1"][data-v="1"]');
+    r.parts3b = await parts(); r.total3b = await txt("#qzTotal");
+    await p.click("#qzSelfSave"); await p.waitForTimeout(200);
+    r.viet = await viet();
+    await check("Tiếng Anh, đã tự chấm"); await snap("tieng-anh");
+    r.saved3 = JSON.stringify(await saved(K5_EN.id));
+    await p.goto(BASE + "/#/home"); await p.waitForSelector("#today");
+    await p.goto(BASE + "/#/quiz/" + K5_EN.id); await p.waitForSelector("#qExam");
+    r.prevEn = await txt("#qPrev b"); r.introEn = await txt(".hero p"); r.h1En = await txt(".hero h1"); r.viet2 = await viet();
+    // báo cáo tuần của Na (Bố Minh xem)
+    await p.goto(BASE + "/#/account"); await p.waitForTimeout(200); if (await p.$("#switchWho, #logout")) { await p.click("#switchWho, #logout"); await p.waitForTimeout(200); }
+    await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids["Bố Minh"]}"]`); await p.fill("#pinIn", PINS["Bố Minh"]); await p.waitForTimeout(400);
+    await p.goto(BASE + "/#/report/" + ids.Na); await p.waitForSelector("#rpSubjects");
+    r.subs = await p.$$eval("#rpSubjects .rp-sub", (xs) => xs.map((x) => [x.querySelector("b").textContent.trim(), x.querySelector(":scope > .small").textContent.replace(/\s+/g, " ").trim()]));
+    r.week = await p.$$eval("#view .sec .list .item", (xs) => xs.map((x) => x.lastElementChild.textContent.trim()));
+    r.foot = await p.evaluate(() => [...document.querySelectorAll("#view p.small.muted")].map((e) => e.textContent).find((t) => /^Lập ngày/.test(t)) || "");
+    await check("báo cáo tuần của Na"); await snap("bao-cao");
+    k5.runs.push(r);
+    await c.close();
+  }
+  { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/k5/<tên>.jpg)
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of K5_SHOTS) {
+      if (!k5.shots.includes(n + "-light") || !k5.shots.includes(n + "-dark")) continue;
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTK5}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTK5}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("K5:", JSON.stringify(k5.runs), "problems:", k5.problems);
+  const K5_SUB = (r, name, s) => { const x = r.subs.find((y) => y[0] === name); return !!x && x[1].includes(s); };
+  const k5OK = !k5.problems.length && k5.runs.length === 2 && k5.runs.every((r) => r.prev0 && r.p1.order && r.p1.shuffled && r.p2.order && r.p3.order && r.p3.shuffled
+      && r.score1 === "6,35/10" && r.how === "Chấm theo điểm từng câu, từng phần như đề thi." && !r.total1 && r.gotPts >= 1
+      && JSON.stringify(r.parts1) === JSON.stringify([[K5_P[0], "2,5/3"], [K5_P[1], "1,85/4"], [K5_P[2], "2/3"]])
+      && r.saved1 === JSON.stringify([[6.35, 10, "exam"]]) && r.score2 === "9,75/10" && r.cmp2 === "Hơn lần trước 3,4 điểm (6,35/10)"
+      && r.saved2 === JSON.stringify([[9.75, 10, "exam"], [6.35, 10, "exam"]]) && r.prev === "Lần trước: 9,75/10 điểm"
+      && r.intro.includes("Chấm như đề thi thật: điểm từng câu, từng phần, thang 10 điểm.") && r.list.join("|") === "9,75/10 điểm|6,35/10 điểm"
+      && r.score3 === "6.35/10" && JSON.stringify(r.parts3) === JSON.stringify([[K5_PE[0], "6/6"], [K5_PE[1], "0.35/2"], [K5_PE[2], "0/2", "writing not self-checked yet"]])
+      && r.total3 === "Provisional total: 6.35/10 points. Your writing is not self-checked yet."
+      && JSON.stringify(r.parts3b[2]) === JSON.stringify([K5_PE[2], "2/2", "includes your self-checked writing"]) && r.total3b === "Provisional total, including your self-checked writing: 8.35/10 points."
+      && r.saved3 === JSON.stringify([[8, 8, "self"], [6.35, 10, "exam"]]) && r.prevEn === "Last time: 6.35/10 points" && r.h1En === "English 6 · Mock Entrance Exam · Test 1"
+      && r.introEn.includes("Scored like the real exam: points for each question and part, out of 10.") && !r.viet.length && !r.viet2.length
+      && r.week.includes("9,75/10 điểm") && r.week.includes("6,35/10 điểm") && r.foot.includes("đề tính điểm (đề thi thử) lấy điểm của đề")
+      && K5_SUB(r, "Toán", "2 đề tính điểm: 16,1/20 điểm") && K5_SUB(r, "Tiếng Anh", "1 đề tính điểm: 6,35/10 điểm"))
+    && K5_SHOTS.every((n) => k5.shots.includes(n + "-light") && k5.shots.includes(n + "-dark"));
+
   step("bank management: exam picker, bank list, import preview (UX7, X11–X13)");
   /* Phiên UX7 (docs/CAI-TIEN-UX-2X.md, mục 3): quản trị bản lưu trên máy (Bố Minh) ở 360px sáng/tối; mỗi lượt một context mới từ state
      (đề, kì thi lưu ở đây không sang các bước khác). Ảnh ở tests/screenshots/ux7/ (bản ghép <tên>.jpg; chép sang docs/hinh-ux7/).
@@ -4170,7 +4321,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, k5OK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();

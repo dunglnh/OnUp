@@ -35,6 +35,12 @@
    - bộ rút đề (Quiz.draw) với kho giả: đúng ma trận, ưu tiên câu chưa làm và câu hay sai (cả câu tự luận), lấy bù và ghi chú khi thiếu;
      mã câu (Quiz.key) không đổi khi sửa lời giải, chủ đề; kho giả có đoạn đọc (K4): lấy cả đoạn, không quá ⌈k/3⌉ đoạn, đoạn chưa làm
      trước đoạn đã làm, đoạn hay sai trước, lấy một phần theo mức, ghi chú khi mức lệch quá 1 câu, câu Viết đi cùng đoạn đã rút;
+   - đề tính điểm (mục có pts, Phiên K5; tên kì "Thi thử vào 10", "Thi thử tốt nghiệp"): pts là số dương, bội của 0,25, không đi với
+     pool; số câu, số phút theo GIOI_HAN_DIEM (ít câu, câu tự luận dài); câu có thêm pt, part (chỉ ở đề tính điểm): mọi câu có pt
+     (lớn hơn 0, bội của 0,25), đúng/sai 4 ý pt 1, tự luận pt bằng tổng thang chấm, tổng pt bằng pts; part có ở mọi câu hoặc không
+     câu nào; câu cùng phần, câu cùng đoạn đọc đứng liền nhau (app không xáo thứ tự câu), câu cùng đoạn cùng phần (soatDiem); tự thử
+     Quiz.grade với đề Toán tốt nghiệp ra 6,35/10 (cách chấm theo số câu cho 7,25), câu tự luận, Quiz.title của hai kì thi thử và
+     soatDiem với đề cố ý viết sai;
    - lịch thi mặc định (data/calendar-2026-2027.js): đề và bài ôn gắn vào kì thi có thật, đúng khối của kì thi;
    - bộ lọc hình (Quiz.svg) bỏ được mã chạy và link ngoài trong vài hình mẫu cố ý viết sai (SVG_THU).
    - đề Tiếng Anh 100% tiếng Anh (Phiên TA1): đề có môn Tiếng Anh (mọi khối) và câu có topic bắt đầu bằng "English" trong đề
@@ -49,8 +55,10 @@ const vm = require("vm");
 
 const ROOT = path.join(__dirname, "..");
 const GIOI_HAN = { cau: [10, 60], phut: [10, 120], giayMoiCau: [30, 300] };
-const TRUONG_DE = ["id", "title", "grade", "subject", "minutes", "n", "file"]; // đề ngẫu nhiên có thêm pool ở cuối
-const KI = ["Giữa kì I", "Cuối kì I", "Giữa kì II", "Cuối năm"]; // tên kì trong tên đề
+// đề tính điểm (Phiên K5): ít câu, câu tự luận dài (Toán vào 10: 7 câu tự luận, 120 phút; Ngữ văn 120 phút)
+const GIOI_HAN_DIEM = { cau: [1, 60], phut: [10, 150], giayMoiCau: [30, 7200] };
+const TRUONG_DE = ["id", "title", "grade", "subject", "minutes", "n", "file"]; // đề ngẫu nhiên có thêm pool ở cuối, đề tính điểm có thêm pts
+const KI = ["Giữa kì I", "Cuối kì I", "Giữa kì II", "Cuối năm", "Thi thử vào 10", "Thi thử tốt nghiệp"]; // tên kì trong tên đề (thi thử: Phiên K5)
 const MON_THU = "Thử nghiệm"; // đề thử nghiệm các dạng câu: tên không theo quy ước
 const TRUONG_CAU = { mc: ["topic", "type", "q", "o", "x"], fill: ["topic", "type", "q", "ans", "x"], tf: ["topic", "type", "q", "a", "x"],
   tf4: ["topic", "type", "q", "o", "a", "x"], num: ["topic", "type", "q", "ans", "x"], match: ["topic", "type", "q", "l", "r", "x"],
@@ -105,6 +113,33 @@ const soatSo = (q) => {
 const SO = /^[-−–]?\s*\d[\d\s.,]*$/, SO_AM = /^\(?\s*[-−–]\s*\d/, SO_AM_TRONG_DE = /(^|[\s([])[-−]\d/;
 const soatSoAm = (q) => (q.ans.some((a) => SO_AM.test(String(a).trim())) || (q.ans.every((a) => SO.test(String(a).trim())) && SO_AM_TRONG_DE.test(q.q))
   ? "câu về số âm dùng câu trả lời bằng số hoặc trắc nghiệm (L33)" : "");
+/* Đề tính điểm (Phiên K5, mục danh mục có pts): mọi câu có pt (điểm tối đa, lớn hơn 0, bội của 0,25), câu đúng/sai 4 ý pt 1 (chấm
+   0,1/0,25/0,5/1 theo TF4_PTS), câu tự luận pt bằng tổng thang chấm, tổng pt bằng pts; part là tên phần (chữ), có ở mọi câu hoặc
+   không câu nào; câu cùng phần đứng liền nhau, câu cùng đoạn đọc đứng liền nhau và cùng phần (app không xáo thứ tự câu của đề tính
+   điểm). Trả về danh sách lời báo lỗi. */
+const soatDiem = (b, qs) => {
+  const out = [], r2 = (x) => Math.round(x * 100) / 100, at = (i) => `câu ${i + 1}: `;
+  qs.forEach((q, i) => {
+    if (!(typeof q.pt === "number" && q.pt > 0 && Number.isInteger(q.pt * 4))) out.push(at(i) + `pt (điểm tối đa của câu) = ${JSON.stringify(q.pt)}, cần số lớn hơn 0, bội của 0,25`);
+    else if (q.type === "tf4" && q.pt !== 1) out.push(at(i) + `câu đúng/sai 4 ý có pt 1 (đang ${q.pt})`);
+    else if (q.type === "essay" && Array.isArray(q.rubric) && r2(q.rubric.reduce((a, c) => a + ((c && +c.p) || 0), 0)) !== q.pt) out.push(at(i) + `câu tự luận có pt ${q.pt} nhưng thang chấm tổng ${r2(q.rubric.reduce((a, c) => a + ((c && +c.p) || 0), 0))} điểm`);
+    if ("part" in q && !text(q.part)) out.push(at(i) + "part (tên phần) phải là chữ");
+  });
+  const sum = r2(qs.reduce((a, q) => a + (typeof q.pt === "number" ? q.pt : 0), 0));
+  if (sum !== b.pts) out.push(`tổng pt của các câu là ${sum}, cần bằng pts = ${b.pts}`);
+  const withPart = qs.filter((q) => "part" in q).length;
+  if (withPart && withPart !== qs.length) out.push(`${withPart}/${qs.length} câu có part: ghi part cho mọi câu hoặc không câu nào`);
+  [["part", "phần"], ["p", "đoạn đọc"]].forEach(([k, what]) => {
+    const done = new Set();
+    qs.forEach((q, i) => {
+      if (!(k in q)) return;
+      if (done.has(q[k]) && qs[i - 1][k] !== q[k]) out.push(at(i) + `câu cùng ${what} "${q[k]}" phải đứng liền nhau`);
+      done.add(q[k]);
+      if (k === "p" && i && qs[i - 1].p === q.p && qs[i - 1].part !== q.part) out.push(at(i) + `câu cùng đoạn đọc "${q.p}" phải cùng phần`);
+    });
+  });
+  return out;
+};
 
 /* ---------- danh mục ---------- */
 const catalog = load(["data/banks/index.js"]).window.ONTAP_SEED_BANKS || [];
@@ -115,7 +150,8 @@ if (!retired || JSON.stringify(retired) !== JSON.stringify(retiredCloud)) err("R
 if (!catalog.length) err("data/banks/index.js", "danh mục trống");
 catalog.forEach((b, i) => {
   const at = "danh mục #" + (i + 1) + " " + (b.id || "");
-  const keys = Object.keys(b), want = "pool" in b ? TRUONG_DE.concat("pool") : TRUONG_DE;
+  const keys = Object.keys(b), want = "pool" in b ? TRUONG_DE.concat("pool") : "pts" in b ? TRUONG_DE.concat("pts") : TRUONG_DE;
+  if ("pts" in b && !(typeof b.pts === "number" && b.pts > 0 && b.pts <= 100 && Number.isInteger(b.pts * 4))) err(at, "pts (thang điểm của đề tính điểm) phải là số dương, bội của 0,25, ví dụ 10");
   if (keys.join() !== want.join()) err(at, "cần đúng các trường " + want.join(", ") + " (đang có " + keys.join(", ") + ")");
   if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(b.id || "")) err(at, "mã đề chỉ gồm chữ thường không dấu, số, dấu gạch ngang");
   if (ids.indexOf(b.id) !== i) err(at, "trùng mã đề");
@@ -123,7 +159,7 @@ catalog.forEach((b, i) => {
   if (!grades.includes(b.grade)) err(at, "khối " + b.grade + " không có trong data/grades.js");
   if (!text(b.title) || !text(b.subject)) err(at, "thiếu tên đề hoặc môn");
   else { const m = soatTen(b); if (m) err(at, m); }
-  const [c0, c1] = GIOI_HAN.cau, [p0, p1] = GIOI_HAN.phut, [s0, s1] = GIOI_HAN.giayMoiCau;
+  const gh = "pts" in b ? GIOI_HAN_DIEM : GIOI_HAN, [c0, c1] = gh.cau, [p0, p1] = gh.phut, [s0, s1] = gh.giayMoiCau;
   if (!(Number.isInteger(b.n) && b.n >= c0 && b.n <= c1)) err(at, `số câu n = ${b.n}, cần từ ${c0} đến ${c1}`);
   if (!(Number.isInteger(b.minutes) && b.minutes >= p0 && b.minutes <= p1)) err(at, `số phút = ${b.minutes}, cần từ ${p0} đến ${p1}`);
   else if (b.n > 0 && (b.minutes * 60 / b.n < s0 || b.minutes * 60 / b.n > s1)) err(at, `${b.minutes} phút cho ${b.n} câu: cần ${s0}–${s1} giây mỗi câu`);
@@ -201,7 +237,7 @@ catalog.forEach((b) => {
     const want = TRUONG_CAU[q.type];
     if (!want) { err(at, `dạng câu "${q.type}" không có (${Object.keys(TRUONG_CAU).join(", ")})`); return; }
     count[q.type]++;
-    const may = want.concat(TRUONG_THEM[q.type] || [], ["lv", "p", "svg"]);
+    const may = want.concat(TRUONG_THEM[q.type] || [], ["lv", "p", "svg"], "pts" in b ? ["pt", "part"] : []); // pt, part: chỉ ở đề tính điểm
     const extra = Object.keys(q).filter((k) => !may.includes(k)), miss = want.filter((k) => !(k in q));
     if (extra.length) err(at, "trường lạ: " + extra.join(", "));
     if (miss.length) err(at, "thiếu: " + miss.join(", "));
@@ -260,6 +296,7 @@ catalog.forEach((b) => {
     if (seen.has(key)) err(at, "trùng với " + seen.get(key));
     else seen.set(key, at);
   });
+  if ("pts" in b) soatDiem(b, qs.filter((q) => q && typeof q === "object")).forEach((m) => err(b.id, m));
 });
 
 /* ---------- đề ngẫu nhiên (pool) ---------- */
@@ -528,6 +565,43 @@ catalog.forEach((b) => {
   sai.forEach((b, i) => { if (!soatTen(b)) err(at, `tên sai mẫu ${i + 1} không bị báo: "${b.title}"`); });
   [mk("Tin học và Công nghệ 4 · Cuối kì I · Đề 1"), mk("Tin học và Công nghệ 4 · Giữa kì II · Đề 12"), mk("Tin học và Công nghệ 4 · Cuối năm · Đề ngẫu nhiên", true),
     { title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: MON_THU }].forEach((b, i) => { const m = soatTen(b); if (m) err(at, `tên đúng mẫu ${i + 1} bị báo: ${m}`); });
+}
+
+// tự thử đề tính điểm (Phiên K5): Quiz.grade với đề Toán tốt nghiệp (12 câu nhiều lựa chọn 0,25 điểm, 4 câu đúng/sai 4 ý 1 điểm,
+// 6 câu trả lời ngắn 0,5 điểm): đúng 10/12 câu, 4 câu đúng/sai đúng 4, 3, 2, 1 ý, 4/6 câu trả lời ngắn → 6,35 điểm (cách chấm theo
+// số câu cho 7,25); câu tự luận chỉ góp vào điểm tối đa; tên kì thi thử; soatDiem bắt được đề viết sai
+{
+  const at = "kiểm tra đề tính điểm", P1 = "Phần I. Trắc nghiệm nhiều lựa chọn", P2 = "Phần II. Trắc nghiệm đúng sai", P3 = "Phần III. Trả lời ngắn";
+  const mc = (i) => ({ topic: "Hàm số", type: "mc", q: "Câu " + i, o: ["A", "B", "C", "D"], x: "Lời giải", pt: 0.25, part: P1 });
+  const tf = (i) => ({ topic: "Đạo hàm", type: "tf4", q: "Câu " + i, o: ["a", "b", "c", "d"], a: [true, false, true, false], x: "Lời giải", pt: 1, part: P2 });
+  const nm = (i) => ({ topic: "Xác suất", type: "num", q: "Câu " + i, ans: i, x: "Lời giải", pt: 0.5, part: P3 });
+  const qs = [...Array(12)].map((_, i) => mc(i + 1)).concat([...Array(4)].map((_, i) => tf(i + 13)), [...Array(6)].map((_, i) => nm(i + 17)));
+  const flip = (k) => [true, false, true, false].map((v, j) => (j < k ? v : !v)); // đúng k ý đầu
+  const ans = qs.map((q, i) => (i < 12 ? (i < 10 ? 0 : 1) : i < 16 ? flip(4 - (i - 12)) : i < 20 ? String(q.ans) : String(q.ans + 1)));
+  const G = Quiz.grade(qs, ans), parts = G.parts.map((p) => [p.part, p.got, p.max, p.n]);
+  if (G.got !== 6.35 || G.max !== 10 || G.auto !== 10 || JSON.stringify(parts) !== JSON.stringify([[P1, 2.5, 3, 12], [P2, 1.85, 4, 4], [P3, 2, 3, 6]])) err(at, "Quiz.grade chưa ra 6,35/10 (2,5 + 1,85 + 2): " + JSON.stringify(G));
+  const old = qs.reduce((a, q, i) => a + Quiz.score(q.type === "mc" ? Object.assign({}, q, { a: 0 }) : q, ans[i]), 0);
+  if (Math.round((old / qs.length) * 40) / 4 !== 7.25) err(at, `ví dụ 6,35 phải cho 7,25 theo cách chấm số câu (đang ${old}/${qs.length})`);
+  const ess = { topic: "Viết", type: "essay", q: "Viết đoạn văn", rubric: [{ c: "Ý 1", p: 1.5 }, { c: "Ý 2", p: 0.5 }], x: "Gợi ý", pt: 2, part: "Phần II. Viết" };
+  const G2 = Quiz.grade([mc(1), ess], [0, "bài viết"]);
+  if (G2.got !== 0.25 || G2.max !== 2.25 || G2.auto !== 0.25 || G2.parts[1].essay !== 2 || G2.parts[1].got !== 0) err(at, "Quiz.grade tính sai câu tự luận: " + JSON.stringify(G2));
+  if (Quiz.grade(qs, []).got !== 0) err(at, "Quiz.grade: câu chưa làm phải được 0 điểm");
+  const de = { id: "toan12-tn-de1", title: "Toán 12 · Thi thử tốt nghiệp · Đề 1", grade: 12, subject: "Toán", minutes: 90, n: 22, file: "12-toan.js", pts: 10 };
+  const dung = soatDiem(de, qs); if (dung.length) err(at, "đề đúng bị báo: " + dung.join("; "));
+  [de, { title: "Ngữ văn 9 · Thi thử vào 10 · Đề 2", grade: 9, subject: "Ngữ văn" }].forEach((b) => { const m = soatTen(b); if (m) err(at, `tên "${b.title}" bị báo: ${m}`); });
+  if (!soatTen({ title: "Toán 12 · Thi thử THPT · Đề 1", grade: 12, subject: "Toán" })) err(at, "tên kì lạ “Thi thử THPT” không bị báo");
+  if (Quiz.title({ title: "Tiếng Anh 9 · Thi thử vào 10 · Đề 1", subject: "Tiếng Anh" }) !== "English 9 · Mock Entrance Exam · Test 1" || Quiz.title({ title: "Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 2", subject: "Tiếng Anh" }) !== "English 12 · Mock Graduation Exam · Test 2") err(at, "Quiz.title chưa dịch hai kì thi thử");
+  const sai = [
+    ["thiếu pt", qs.map((q, i) => (i ? q : Object.assign({}, q, { pt: undefined })))],
+    ["pt không bội 0,25", qs.map((q, i) => (i ? q : Object.assign({}, q, { pt: 0.3 })))],
+    ["đúng/sai 4 ý pt khác 1", qs.map((q, i) => (i === 12 ? Object.assign({}, q, { pt: 0.5 }) : q))],
+    ["tổng khác pts", qs.slice(0, 21)],
+    ["phần không liền nhau", [qs[12]].concat(qs.slice(0, 12), qs.slice(13))],
+    ["thiếu part ở một câu", qs.map((q, i) => (i ? q : (({ part, ...r }) => r)(q)))],
+    ["tự luận pt khác thang chấm", qs.slice(0, 20).concat([Object.assign({}, ess, { pt: 1, part: P3 })])],
+    ["đoạn đọc tách đôi", qs.map((q, i) => (i === 0 || i === 2 ? Object.assign({}, q, { p: "d1" }) : q))],
+  ];
+  sai.forEach(([ten, list]) => { if (!soatDiem(de, list).length) err(at, `đề sai (${ten}) không bị báo`); });
 }
 
 // tự thử câu trả lời bằng số (L29): phân số "2/3", "-3/4" và số qua; đáp án viết sai bị báo; Quiz.parse đọc "Đáp số: 3/4" thành phân số

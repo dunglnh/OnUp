@@ -258,6 +258,10 @@
      trung bình, số bài, độ sẵn sàng: các màn hình lọc bằng graded() rồi mới tính; báo cáo tuần ghi riêng. */
   const isSelf = (r) => r.mode === "self";
   const graded = (list) => list.filter((r) => !isSelf(r));
+  /* Đề tính điểm (Phiên K5): đề có pts trong danh mục (đề thi thử, thang 10) chấm theo điểm từng câu, từng phần (Quiz.grade);
+     kết quả lưu r = điểm phần chấm tự động, t = pts, nên điểm trung bình vẫn là Σr/Σt. Chỗ ghi số câu đúng thì ghi “điểm”. */
+  const scoredBank = (b) => !!(b && b.pts > 0 && !b.pool);
+  const scoredRes = (r) => !!r && r.source === "bank" && !isSelf(r) && scoredBank(Store.bank(r.refId));
   function within(results, days) { const lim = Date.now() - days * DAY; return results.filter((r) => new Date(r.at).getTime() >= lim); }
   function sumRT(list) { return list.reduce((a, r) => [a[0] + r.r, a[1] + r.t], [0, 0]); }
   function streak(results) {
@@ -927,7 +931,7 @@
   }
   function resultsList(list) {
     if (!list.length) return `<div class="panel muted">Chưa có kết quả. Làm một bài ôn để bắt đầu.</div>`;
-    return `<div class="list">${list.map((r) => `<div class="item"><div class="grow"><b>${nb(esc(r.label || "Bài ôn"))}</b><span class="small muted">${esc(ago(r.at))}${r.subject ? " · " + esc(r.subject) : ""}${r.mode === "exam" ? " · làm như thi" : isSelf(r) ? " · tự luận tự chấm" : ""}</span></div><b style="font-variant-numeric:tabular-nums">${isSelf(r) ? nf(r.r / 4) + "/" + nf(r.t / 4) + " điểm" : nf(r.r) + "/" + r.t}</b></div>`).join("")}</div>`;
+    return `<div class="list">${list.map((r) => `<div class="item"><div class="grow"><b>${nb(esc(r.label || "Bài ôn"))}</b><span class="small muted">${esc(ago(r.at))}${r.subject ? " · " + esc(r.subject) : ""}${r.mode === "exam" ? " · làm như thi" : isSelf(r) ? " · tự luận tự chấm" : ""}</span></div><b style="font-variant-numeric:tabular-nums">${isSelf(r) ? nf(r.r / 4) + "/" + nf(r.t / 4) + " điểm" : scoredRes(r) ? nf(r.r) + "/" + nf(r.t) + " điểm" : nf(r.r) + "/" + r.t}</b></div>`).join("")}</div>`;
   }
 
   /* ================= BÁO CÁO TUẦN = HỒ SƠ CỦA CON =================
@@ -1014,6 +1018,11 @@
     try { await navigator.share({ title, text }); }
     catch (e) { if (!e || (e.name !== "AbortError" && e.name !== "InvalidStateError")) await copyMsg(text, box); } // InvalidStateError: bảng chia sẻ đang mở (bấm hai lần)
   }
+  /* Dòng dưới mỗi môn ở mục Điểm theo môn: “3 bài · 18/25 câu đúng”; đề tính điểm ghi riêng theo điểm (“1 đề tính điểm: 6,35/10 điểm”). */
+  function subLine(name, week) {
+    const mine = week.filter((r) => (r.subject || "Khác") === name), sc = mine.filter(scoredRes), [r, t] = sumRT(mine.filter((x) => !scoredRes(x))), [pr, pt] = sumRT(sc);
+    return [`${mine.length} bài`, t ? `${nf(r)}/${t} câu đúng` : "", sc.length ? `${sc.length} đề tính điểm: ${nf(pr)}/${nf(pt)} điểm` : ""].filter(Boolean).join(" · ");
+  }
   function renderReport(s, viewer) {
     const mine = Store.resultsFor(s.id), all = graded(mine), t0 = today0(), from = addDays(t0, -6);
     const span = (a, b, list) => (list || all).filter((r) => { const d = new Date(r.at); return d >= a && d < b; });
@@ -1049,7 +1058,7 @@
         return `<div class="rp-day${n ? " on" : ""}"><span>${WD[d.getDay()]}</span><b>${n || "–"}</b><small>${d.getDate()}/${d.getMonth() + 1}</small></div>`;
       }).join("")}</div></section>
       ${st.n ? `<section class="panel" id="rpSubjects"><div class="label">Điểm theo môn</div>${subs.map((x) => `<div class="rp-sub"><div class="row between"><b>${esc(x.name)}</b><b>${d10(x.r, x.t)}<span class="small muted">/10</span></b></div>
-          <div class="bar ${pct(x.r, x.t) >= 80 ? "good" : ""}"><i style="width:${pct(x.r, x.t)}%"></i></div><span class="small muted">${x.n} bài · ${nf(x.r)}/${x.t} câu đúng</span></div>`).join("")}</section>
+          <div class="bar ${pct(x.r, x.t) >= 80 ? "good" : ""}"><i style="width:${pct(x.r, x.t)}%"></i></div><span class="small muted">${subLine(x.name, week)}</span></div>`).join("")}</section>
         <section class="panel" id="rpTopics"><div class="label">Chủ đề hay sai</div>${topics.length ? `<div class="list">${topics.map(([t, n]) => `<div class="item"><span class="grow">${esc(t)}</span><b class="small">${n} câu sai</b></div>`).join("")}</div>`
           : `<p class="small muted">Không có câu sai nào được ghi theo chủ đề. Bài ôn IOE và ôn giữa kì I chỉ gửi về điểm tổng.</p>`}</section>`
         : `<div class="panel muted">Chưa có bài làm nào trong 7 ngày qua.</div>`}
@@ -1060,7 +1069,7 @@
         <a class="linkbtn noprint" id="rpPractice" href="#/child/${esc(s.id)}/practice">Bài ôn của ${esc(s.name)} →</a></section>
       ${st.n ? `<section class="sec"><h2>Bài đã làm trong tuần</h2>${resultsList(week)}</section>` : ""}
       ${olderN ? `<details class="grp noprint" id="rpOlder"><summary><span class="grow"><b>Bài làm trước tuần này</b><span class="small muted">${olderN} bài${olderN > 30 ? " · hiện 30 bài gần nhất" : ""}</span></span></summary>${resultsList(older.slice(0, 30))}</details>` : ""}
-      <p class="small muted">Lập ngày ${dmy(b)}. Điểm quy về thang 10 theo số câu đúng.</p>
+      <p class="small muted">Lập ngày ${dmy(b)}. Điểm quy về thang 10 theo số câu đúng${week.some(scoredRes) ? "; đề tính điểm (đề thi thử) lấy điểm của đề" : ""}.</p>
     </div>`;
     wireGo(); wireEvents(view, s.grade, s);
     $("#rpPrint").onclick = () => window.print();
@@ -1357,11 +1366,11 @@
        chọn cách làm, mỗi thẻ có biểu tượng và một dòng giải thích. Đề không có số phút thì chỉ có thẻ Ôn luyện. */
     const pr = last();
     const prevCard = !pr ? "" : `<section class="panel prev" id="qPrev">${ICO('<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>')}<span class="grow">
-        <b>${L.appPrev(Quiz.fmtN(pr.r, lang), pr.t)}</b><span class="small muted">${nb(esc([ago(pr.at, L), L.appPrevMode[pr.mode], pr.s > 0 ? L.appDur(pr.s) : ""].filter(Boolean).join(" · ")))}</span></span></section>`;
+        <b>${scoredBank(b) ? L.appPrevPts(Quiz.fmtN(pr.r, lang), Quiz.fmtN(pr.t, lang)) : L.appPrev(Quiz.fmtN(pr.r, lang), pr.t)}</b><span class="small muted">${nb(esc([ago(pr.at, L), L.appPrevMode[pr.mode], pr.s > 0 ? L.appDur(pr.s) : ""].filter(Boolean).join(" · ")))}</span></span></section>`;
     const modeCard = (id, ic, head, note, main) => `<button class="mode${main ? " main" : ""}" id="${id}">${ICO(ic)}<span class="grow"><b>${head}</b><span class="small muted">${note}</span></span>${ICO('<path d="m9 6 6 6-6 6"/>')}</button>`;
     view.innerHTML = `<div class="stack"${en ? ' lang="en"' : ""}>${back("#/home", L.appHome)}
       <section class="hero"><span class="label">${nb(`${L.appGrade(b.grade)} · ${en ? L.english : esc(b.subject)}${b.pool ? " · " + L.appRandom : ""}`)}</span><h1>${nb(esc(Quiz.title(b, lang)))}</h1>
-        <p>${b.pool ? L.appPoolIntro(qs.length, b.questions.length, nSrc) : L.appCount(qs.length)}${essayN(qs) ? L.appEssayN(essayN(qs)) : ""}.${b.note ? " " + esc(b.note) : ""}</p>
+        <p>${b.pool ? L.appPoolIntro(qs.length, b.questions.length, nSrc) : L.appCount(qs.length)}${essayN(qs) ? L.appEssayN(essayN(qs)) : ""}.${scoredBank(b) ? " " + L.appScored(Quiz.fmtN(b.pts, lang)) : ""}${b.note ? " " + esc(b.note) : ""}</p>
         ${drawn && drawn.notes.length ? `<p class="small" id="qNotes">${L.appNotes(esc(drawn.notes.join("; ")))}</p>` : ""}</section>
       ${prevCard}
       <div class="label" id="qModes">${L.appChoose}</div>
