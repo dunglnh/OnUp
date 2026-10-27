@@ -746,6 +746,25 @@ window.ONTAP_SEED_BANKS = [
       "Chữ Nôm và chữ quốc ngữ": [1, 0, 0], "Cách dẫn trực tiếp và cách dẫn gián tiếp": [0, 0, 1], "Tham khảo, trích dẫn tài liệu": [1, 0, 0],
       "Câu rút gọn": [1, 0, 0], "Câu đặc biệt": [0, 1, 0], "Viết": [0, 0, 1] } } },
 
+  /* KHTN 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Khoa học tự nhiên 9; Phiên N9-ck1-khtn). Khối 9 chưa bật nên đề chưa hiện
+     với gia đình. Phạm vi theo phân phối chương trình dạy song song ba phân môn (nguồn ghi ở Pull Request của phiên): Vật lí Bài 2–10
+     (Chương I Năng lượng cơ học, Chương II Ánh sáng) 9 câu, Hoá học Bài 22–32 (Chương VII–IX) 10 câu, Sinh học Bài 36–41 (Chương XI)
+     6 câu; số câu mỗi phân môn theo số tiết của phạm vi. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có
+     mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 24 chủ đề theo tên bài của sách (Bài 8, 9 chung chủ đề “Thấu kính”;
+     Bài 29, 30 chung chủ đề “Carbohydrate”), ô nào cũng rút 1 câu. Hai đề cố định và 25 câu riêng đều chia đúng ma trận, nên ô
+     (chủ đề, mức) nào cũng có gấp ba số câu ô đó rút. Không có câu tự luận. */
+  { id: "khtn9-ck1-de1", title: "KHTN 9 · Cuối kì I · Đề 1", grade: 9, subject: "KHTN", minutes: 45, n: 25, file: "9-khtn.js" },
+  { id: "khtn9-ck1-de2", title: "KHTN 9 · Cuối kì I · Đề 2", grade: 9, subject: "KHTN", minutes: 45, n: 25, file: "9-khtn.js" },
+  { id: "khtn9-ck1-ngau-nhien", title: "KHTN 9 · Cuối kì I · Đề ngẫu nhiên", grade: 9, subject: "KHTN", minutes: 45, n: 25, file: "9-khtn.js",
+    pool: { from: ["khtn9-ck1-de1", "khtn9-ck1-de2"], matrix: {
+      "Động năng. Thế năng": [1, 0, 1], "Cơ năng": [0, 1, 0], "Công và công suất": [0, 1, 0], "Khúc xạ ánh sáng": [0, 1, 0],
+      "Phản xạ toàn phần": [1, 0, 0], "Lăng kính": [1, 0, 0], "Thấu kính": [1, 0, 0], "Kính lúp. Bài tập thấu kính": [0, 0, 1],
+      "Giới thiệu về hợp chất hữu cơ": [1, 0, 0], "Alkane": [0, 0, 1], "Alkene": [0, 1, 0], "Nguồn nhiên liệu": [1, 0, 0],
+      "Ethylic alcohol": [0, 0, 1], "Acetic acid": [0, 0, 1], "Lipid": [1, 0, 0], "Carbohydrate": [0, 1, 0], "Protein": [1, 0, 0],
+      "Polymer": [0, 1, 0], "Khái quát về di truyền học": [1, 0, 0], "Các quy luật di truyền của Mendel": [0, 0, 1],
+      "Nucleic acid và gene": [0, 1, 0], "Tái bản DNA và phiên mã tạo RNA": [0, 0, 1],
+      "Dịch mã và mối quan hệ từ gene đến tính trạng": [0, 1, 0], "Đột biến gene": [1, 0, 0] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
