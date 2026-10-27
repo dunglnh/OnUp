@@ -1,5 +1,7 @@
 # Cải tiến giao diện và trải nghiệm (bản 2.x, 18/10/2026)
 
+**Bản 3.x:** đề xuất ngày 27/10/2026 ở [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md) (mã X38–X48, phiên UX9–UX14).
+
 Kết quả rà lại các luồng của app trên bản vẽ Figma và đối chiếu với [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). Trạng thái và thứ tự các phiên ghi ở mục 3 của file đó; lời giao việc ở mục 4. File này giữ phần mô tả: vấn đề, đề xuất, ảnh, điều kiện xong, và kết quả kiểm thử thiết kế sau khi mỗi phiên gộp (mục 5).
 
 **Figma:** file [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2):
