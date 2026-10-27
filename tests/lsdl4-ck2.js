@@ -7,12 +7,14 @@
 // bằng phẳng, sát biển là đồng bằng ven biển), ba vòng thành lồng nhau của Kinh thành Huế (số 3 trong cùng là Tử Cấm thành, sông ở
 // phía nam), lược đồ Huế (chùa Thiên Mụ ở phía tây Kinh thành theo mũi tên chỉ hướng bắc; chùa, Kinh thành ở bờ bắc, núi Ngự Bình ở bờ
 // nam sông Hương), lược đồ sông Mê Công (nhánh gần số 1 ở phía bắc là sông Tiền). Câu tính số năm: hiệu của năm lớn nhất và năm nhỏ
-// nhất ghi trong đề, lời giải ghi đúng phép trừ đó. Câu sắp xếp, nối cột về năm, vị trí: so với bảng NAM, VI_DO ghi trong script.
+// nhất ghi trong đề, lời giải ghi đúng phép trừ đó. Câu sắp xếp về năm, vị trí và câu đúng/sai 4 ý về thứ tự thời gian (“A trước khi B”,
+// “A và B cách nhau N năm”): so với bảng NAM, VI_DO ghi trong script.
 // Rồi kiểm tra mức độ, ma trận (10 Biết, 8 Hiểu, 7 Vận dụng), kiểu Đ/S của câu đúng/sai 4 ý không lặp quá một phần ba, đáp án đúng
 // không dài hơn hẳn lựa chọn sai, tên vùng như sách chỉnh sửa năm 2026 (không “Duyên hải miền Trung”, “Tây Nguyên” chỉ trong tên lễ
 // hội, “Đông Nam Bộ” chỉ là khu vực, không hỏi “thuộc tỉnh nào”), đề bài không trùng câu nào khác trong file, rút thử nhiều lần (đúng
 // ma trận, gặp đủ 75 câu; đã làm hết một đề cố định thì không rút lại câu của đề đó) và dò lộ đáp án giữa các câu rút được cùng lúc
-// (khác ô; bộ dò theo tests/khoahoc4-ck2.js): số ở vị trí kết quả, năm của câu nối, cặp nối có cả hai vế, chuỗi của câu sắp xếp;
+// (khác ô; bộ dò theo tests/khoahoc4-ck2.js): số ở vị trí kết quả, năm của các sự kiện trong câu đúng/sai về thứ tự thời gian, cặp
+// nối có cả hai vế, chuỗi của câu sắp xếp;
 // đáp án bằng chữ có ở câu kia thì in ra với DO_LO=1 để xem tay, danh sách đã xem ở DA_XEM.
 // Có sách ở ../OnUp-Book/lop-4/lich-su-dia-li-4/chu.txt (repo riêng tư, mục 4 của docs/KE-HOACH-NOI-DUNG.md) thì so mọi trường chữ
 // của câu với chữ OCR của sách sau khi bỏ dấu, gộp nguyên âm và gộp các tên riêng nhiều chữ (tên vùng, tên di sản) thành một từ:
@@ -177,8 +179,20 @@ const docMeCong = (svg) => {
 
 /* ---------- bảng tra (theo sách Kết nối tri thức bản chỉnh sửa năm 2026, Bài 15–26) ---------- */
 // năm của các sự kiện trong câu nối, câu sắp xếp (Kinh thành Huế xây dựng đầu thế kỉ XIX, thời nhà Nguyễn)
-const NAM = { "Nguyễn Tất Thành ra đi tìm đường cứu nước": 1911, "Chiến dịch Hồ Chí Minh toàn thắng": 1975, "Thành phố được mang tên Thành phố Hồ Chí Minh": 1976,
-  "Kinh thành Huế được xây dựng": 1805, "Tôn Thất Thuyết chỉ huy cuộc phản công quân Pháp ở Kinh thành Huế": 1885, "Vua Bảo Đại thoái vị, trao ấn kiếm cho chính quyền cách mạng": 1945 };
+const NAM = { "Kinh thành Huế được xây dựng": 1805, "Tôn Thất Thuyết chỉ huy cuộc phản công quân Pháp ở Kinh thành Huế": 1885, "Vua Bảo Đại thoái vị trước cổng Ngọ Môn": 1945 };
+// sự kiện gắn với Thành phố Hồ Chí Minh, nhận ra bằng một cụm chữ trong ý của câu đúng/sai 4 ý (sách trang 112–113)
+const SU_KIEN = [["Nguyễn Tất Thành ra đi", 1911], ["Chiến dịch Hồ Chí Minh", 1975], ["mang tên Thành phố Hồ Chí Minh", 1976], ["đổi tên", 1976]];
+const namTrong = (s) => SU_KIEN.filter(([c]) => s.includes(c)).map(([, y]) => y);
+// một ý “A trước khi B” hoặc “A và B cách nhau N năm” → đúng hay sai, theo năm của từng sự kiện
+const yThuTu = (s) => {
+  let m = /^(.+) trước khi (.+)\.$/.exec(s);
+  if (m) { const a = namTrong(m[1]), b = namTrong(m[2]); assert.ok(a.length === 1 && b.length === 1, "nhận ra hai sự kiện: " + s); return a[0] < b[0]; }
+  m = /^(.+) cách nhau (\d+) năm\.$/.exec(s);
+  assert.ok(m, "ý chưa đọc được: " + s);
+  const ys = namTrong(m[1]); assert.equal(ys.length, 2, "nhận ra hai sự kiện: " + s);
+  return Math.abs(ys[0] - ys[1]) === +m[2];
+};
+const namCua = new Map(); // câu đúng/sai 4 ý về thứ tự thời gian → năm của các sự kiện (dò lộ đáp án)
 // vĩ độ gần đúng (độ bắc) của các cao nguyên, theo bản đồ địa hình Bài 15
 const VI_DO = { "Cao nguyên Kon Tum": 14.4, "Cao nguyên Pleiku": 13.9, "Cao nguyên Đắk Lắk": 12.7, "Cao nguyên Mơ Nông": 12.3, "Cao nguyên Lâm Viên": 12.0, "Cao nguyên Di Linh": 11.6 };
 const theoNam = (o) => o.slice().sort((a, b) => NAM[a] - NAM[b]);
@@ -193,16 +207,17 @@ const CHECKS = [
   { id: S.pool, has: "mô phỏng địa hình từ tây sang đông", right: (q) => docMatCat(q.svg)[/số (\d)/.exec(q.q)[1]] },
   { id: S.de2, has: "ba vòng thành của Kinh thành Huế", right: (q) => docKinhThanh(q.svg)[/số (\d)/.exec(q.q)[1]] },
   { id: S.pool, has: "Chùa Thiên Mụ nằm ở phía nào", right: (q) => docLuocDoHue(q.svg) },
-  { id: S.de2, has: "Sông Mê Công chảy vào nước ta chia thành hai nhánh", right: (q) => docMeCong(q.svg)[/số (\d)/.exec(q.q)[1]] },
+  { id: S.de2, has: "vẽ sông Mê Công chia thành hai nhánh", right: (q) => {
+    const k = /Nhánh số (\d), ở phía bắc/.exec(q.q)[1], m = docMeCong(q.svg);
+    assert.equal(m[k], "Sông Tiền", "nhánh số " + k + " nằm ở phía bắc trên lược đồ"); return m[k]; } },
   { id: S.de2, has: "Sắp xếp các cao nguyên sau", right: (q) => q.o.slice().sort((a, b) => VI_DO[b] - VI_DO[a]) },
   { id: S.de2, has: "Sắp xếp các sự kiện sau ở Cố đô Huế", right: (q) => theoNam(q.o) },
-  { id: S.de2, has: "Sắp xếp các việc của người làm muối", right: (q) => { // đưa nước biển vào ruộng → nước bay hơi → gom muối
-    const BUOC = ["nước biển", "bay hơi", "gom"], k = (o) => BUOC.findIndex((b) => o.includes(b));
+  { id: S.de2, has: "Sắp xếp các việc của người làm muối", right: (q) => { // cho nước biển vào ô ruộng → phơi nắng gió → cào muối
+    const BUOC = ["nước biển", "nắng gió", "cào"], k = (o) => BUOC.findIndex((b) => o.toLowerCase().includes(b));
     assert.ok(q.o.every((o) => k(o) >= 0) && new Set(q.o.map(k)).size === q.o.length, "mỗi bước làm muối nhận ra được");
     return q.o.slice().sort((a, b) => k(a) - k(b)); } },
-  { id: S.de2, has: "Nối mỗi sự kiện ở Sài Gòn", right: (q) => {
-    const r = q.l.map((l) => "Năm " + NAM[l]); assert.ok(!r.includes(q.r[q.r.length - 1]), "ô thừa không phải năm của sự kiện nào");
-    return { l: q.l, r }; } }
+  { id: S.de2, has: "về các sự kiện gắn với Thành phố Hồ Chí Minh", right: (q) => {
+    namCua.set(q, [...new Set(q.o.flatMap(namTrong))]); return q.o.map(yThuTu); } }
 ];
 
 const p = bank(S.pool), d1 = bank(S.de1), d2 = bank(S.de2);
@@ -220,7 +235,7 @@ CHECKS.forEach((c) => {
   const q = m[0], at = c.id + ": " + c.has;
   assert.equal(q.src, c.id, at + ": câu nằm ở đề " + q.src);
   const want = c.right(q);
-  if (q.type === "match") { assert.deepEqual(q.l, want.l); assert.deepEqual(q.r.slice(0, q.l.length), want.r, at + ": cặp nối"); }
+  if (q.type === "tf4") assert.deepEqual(q.a, want, at + ": ý đúng, ý sai");
   else if (q.type === "order") assert.deepEqual(q.o, want, at + ": thứ tự " + JSON.stringify(q.o) + ", xếp được " + JSON.stringify(want));
   else { assert.equal(q.o[0], want, at + ": đáp án " + JSON.stringify(q.o[0]) + ", đọc được " + JSON.stringify(want)); assert.ok(!q.o.slice(1).includes(want), at + ": nhiễu trùng đáp án đúng"); }
   checked.add(q); n++;
@@ -233,7 +248,7 @@ kho.filter((q) => q.type === "num").forEach((q) => {
   assert.ok(q.x.includes(`${a} − ${b} = ${a - b}`), "lời giải ghi phép trừ " + `${a} − ${b}`);
   checked.add(q); n++;
 });
-kho.filter((q) => q.svg || q.type === "num" || q.type === "order" || /\bnăm \d{4}\b/i.test(q.r ? q.r.join(" ") : "")).forEach((q) => assert.ok(checked.has(q), "chưa có kiểm tra cho câu: " + q.q.slice(0, 60)));
+kho.filter((q) => q.svg || q.type === "num" || q.type === "order" || (q.type === "tf4" && /trước khi|cách nhau/.test(q.o.join(" ")))).forEach((q) => assert.ok(checked.has(q), "chưa có kiểm tra cho câu: " + q.q.slice(0, 60)));
 kho.filter((q) => q.svg).forEach((q) => assert.ok(daDoc.has(q.svg), "hình chưa được đọc lại: " + q.q.slice(0, 60)));
 assert.equal(kho.filter((q) => q.svg).length, 5, "năm câu có hình (bảng lượng mưa, mặt cắt địa hình, Kinh thành Huế, lược đồ Huế, sông Mê Công)");
 
@@ -301,7 +316,7 @@ const goc = (s) => String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N
 
 /* ---------- dò lộ đáp án (Rút ra N5) giữa hai câu rút được cùng lúc: khác ô (chủ đề, mức); mọi ô của kho này rút 1 câu, và mỗi đề
    cố định có một câu mỗi ô, nên hai câu cùng ô không bao giờ cùng một đề. Số (từ hai chữ số) chỉ tìm ở vị trí kết quả của câu kia;
-   câu nối sự kiện – năm: năm của sự kiện không có ở câu kia; cặp nối: câu kia có cả hai vế; câu sắp xếp: câu kia có cả chuỗi
+   câu đúng/sai về thứ tự thời gian: năm của các sự kiện không có ở câu kia; cặp nối: câu kia có cả hai vế; câu sắp xếp: câu kia có cả chuỗi
    (“A → B → C”). Lựa chọn đúng, đáp án điền có ở câu kia thì in ra với DO_LO=1, danh sách đã xem ở DA_XEM. ---------- */
 const soKQ = (s) => [...String(s).matchAll(/(?:=|(?:^|[\s(])(?:là|bằng|được))\s+(\d{1,3}(?: \d{3})*(?:,\d+)?)(?![\d,]| \d)/gu)].map((m) => val(m[1]));
 const coCum = (t, s) => { for (let i = t.indexOf(s); i >= 0; i = t.indexOf(s, i + 1)) if (!/[\p{L}\p{N}]/u.test(t[i - 1] || " ") && !/[\p{L}\p{N}]/u.test(t[i + s.length] || " ")) return true; return false; };
@@ -310,7 +325,7 @@ const doLo = (qs, tenCau) => {
   qs.forEach((q, i) => {
     const so = q.type === "num" && q.ans >= 10 ? [q.ans] : [];
     const cum = q.type === "mc" ? [q.o[0]] : q.type === "fill" ? q.ans : [], cap = q.type === "match" ? q.l.map((l, k) => [l, q.r[k]]) : [];
-    const nam = cap.map(([, r]) => /^Năm (\d{4})$/.exec(r)).filter(Boolean).map((m) => m[1]);
+    const nam = (namCua.get(q) || []).map(String);
     const xep = q.type === "order" ? [q.o.join(" → ").toLowerCase()] : [];
     qs.forEach((p2, j) => {
       if (j === i || (p2.topic === q.topic && p2.lv === q.lv)) return;
@@ -329,11 +344,13 @@ const ten = new Map();
 const r = doLo(kho, (q) => ten.get(q));
 if (process.env.DO_LO) console.log("Đáp án bằng chữ có ở câu rút được cùng lúc (xem tay):\n" + r.chuLo.join("\n"));
 // đã xem (Phiên N16b): “cao nguyên” ở các câu kia là tên vùng, tên cao nguyên (vùng cao nguyên, cao nguyên Mơ Nông…), không cho biết
-// phần nào của mặt cắt là cao nguyên; “phía tây” ở các câu kia nói về địa hình của vùng, không nói chùa Thiên Mụ ở phía nào Kinh thành.
+// phần nào của mặt cắt là cao nguyên; “phía tây” ở các câu kia nói về địa hình, vị trí của cả vùng, không nói chùa Thiên Mụ ở phía nào
+// Kinh thành; “Đinh Núp” ở de1#7 chỉ là một lựa chọn sai (tên người), không cho biết ông là người dân tộc nào.
 const DA_XEM = [
-  "ngau-nhien#6 → ngau-nhien#1: Cao nguyên", "de1#7 → ngau-nhien#1: Cao nguyên", "de1#13 → ngau-nhien#1: Cao nguyên", "de1#14 → ngau-nhien#1: Cao nguyên",
-  "de2#12 → ngau-nhien#1: Cao nguyên", "de2#17 → ngau-nhien#1: Cao nguyên",
-  "ngau-nhien#1 → ngau-nhien#10: Phía tây", "de1#1 → ngau-nhien#10: Phía tây", "de2#1 → ngau-nhien#10: Phía tây"
+  "de1#7 → ngau-nhien#1: Cao nguyên", "de1#13 → ngau-nhien#1: Cao nguyên", "de1#14 → ngau-nhien#1: Cao nguyên", "de2#8 → ngau-nhien#1: Cao nguyên",
+  "de2#17 → ngau-nhien#1: Cao nguyên",
+  "ngau-nhien#1 → ngau-nhien#10: Phía tây", "de1#1 → ngau-nhien#10: Phía tây", "de2#1 → ngau-nhien#10: Phía tây", "de2#13 → ngau-nhien#10: Phía tây",
+  "de1#7 → de2#8: Đinh Núp"
 ];
 assert.deepEqual(r.chuLo, DA_XEM, "đáp án bằng chữ có ở câu rút được cùng lúc đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 assert.deepEqual(r.lo, [], "lộ đáp án:\n" + r.lo.join("\n"));
@@ -343,10 +360,13 @@ const tim = (has) => kho.find((q) => q.q.includes(has)), gia = (q, x) => Object.
 const thu = (qs) => { const k = doLo(qs, (q) => q.q.slice(0, 12)); return k.lo.concat(k.chuLo).map((s) => s.replace(/^.*: /, "")); };
 const khac = tim("Đỉnh núi cao nhất vùng Nam Bộ");
 assert.deepEqual(thu([tim("Anh hùng Núp nhận danh hiệu"), gia(khac, "Ví dụ: 2027 − 1955 = 72.")]), ["72"]);
-assert.deepEqual(thu([tim("Nối mỗi sự kiện ở Sài Gòn"), gia(khac, "Năm 1911 là năm đáng nhớ.")]), ["năm 1911"]);
+assert.deepEqual(thu([tim("về các sự kiện gắn với Thành phố Hồ Chí Minh"), gia(khac, "Năm 1911 là năm đáng nhớ.")]), ["năm 1911"]);
 assert.deepEqual(thu([tim("Nối mỗi lễ hội ở vùng Bắc Trung Bộ"), gia(khac, "Lễ hội Ka-tê của đồng bào Chăm rất vui.")]), ["Lễ hội Ka-tê → Đồng bào Chăm"]);
 assert.deepEqual(thu([tim("Sắp xếp các cao nguyên sau"), gia(khac, "Thứ tự: Cao nguyên Kon Tum → Cao nguyên Pleiku → Cao nguyên Đắk Lắk → Cao nguyên Di Linh.")]), ["cao nguyên kon tum → cao nguyên pleiku → cao nguyên đắk lắk → cao nguyên di linh"]);
-assert.deepEqual(thu([tim("Theo tương truyền, Chùa Cầu"), gia(khac, "Thương nhân Nhật Bản từng buôn bán ở đây.")]), ["Thương nhân Nhật Bản"]);
+assert.deepEqual(thu([tim("ai đã dựng nên Chùa Cầu"), gia(khac, "Thương nhân Nhật Bản từng buôn bán ở đây.")]), ["Thương nhân Nhật Bản"]);
+// bộ đọc ý về thứ tự thời gian: đổi một ý thì kết quả đổi theo
+assert.equal(yThuTu("Chiến dịch Hồ Chí Minh toàn thắng và việc thành phố đổi tên cách nhau 1 năm."), true);
+assert.equal(yThuTu("Thành phố đã mang tên Thành phố Hồ Chí Minh trước khi có Chiến dịch Hồ Chí Minh."), false);
 
 /* ---------- không chép sách, không trùng kho khác: so chuỗi từ sau khi bỏ dấu, gộp nguyên âm, gộp tên riêng nhiều chữ ---------- */
 const GOP = [["thanh pho ho chi minh", "tphcm"], ["bac trung bo va nam trung bo", "btbntb"], ["trung du va mien nui phia bac", "tdmnpb"], ["dong bang song cuu long", "dbscl"],
