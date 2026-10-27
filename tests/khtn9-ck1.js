@@ -6,8 +6,8 @@
 // ảnh qua thấu kính hội tụ (tam giác đồng dạng như sách, không dùng công thức thấu kính); tính theo phương trình hoá học (khối lượng
 // mol từ nguyên tử khối đề cho, hệ số đọc từ phương trình trong lời giải), độ cồn; sơ đồ lai, đếm nucleotide, mạch bổ sung, phiên mã,
 // dịch mã (bảng mã di truyền chuẩn). Hình đọc lại: đường truyền tia sáng khi khúc xạ (đúng một tia đúng định luật khúc xạ với chiết
-// suất của nước), qua lăng kính (chiết suất tính ở hai mặt bên khớp nhau, tia ló lệch về đáy, tia lệch nhiều hơn là tia tím), kí hiệu
-// thấu kính (đầu mũi tên hướng ra hay hướng vào), vật trước thấu kính hội tụ trên lưới ô vuông (đếm ô ra d, f, h; ảnh nằm trong lưới),
+// suất của nước), qua lăng kính (chiết suất tính ở hai mặt bên khớp nhau, tia ló lệch về đáy, tia lệch nhiều hơn là tia tím), vật trước
+// thấu kính hội tụ trên lưới ô vuông (kí hiệu thấu kính hội tụ; đếm ô ra d, f, h; ảnh nằm trong lưới),
 // công thức cấu tạo (hoá trị từng nguyên tử, công thức phân tử), khung tổ hợp giao tử (ô nào cũng đúng tổ hợp). Mọi phương trình hoá
 // học trong câu Hoá học phải cân bằng. Câu trả lời bằng số và câu có hình nào cũng phải có kiểm tra ở đây.
 // Rồi: chữ (công thức hoá học viết bằng chữ số dưới dòng, tên chất như sách, không có tên chất kiểu cũ, dấu thanh kiểu cũ như sách “hoá”,
@@ -123,22 +123,6 @@ const docLangKinh = (svg) => {
   assert.equal(new Set(ra.map((t) => t.so)).size, ra.length, "mỗi tia ló ghi một số riêng");
   return ra;
 };
-/* Kí hiệu thấu kính: đoạn thẳng đứng màu ink nét 2,5, hai đầu là hai tam giác màu ink (điểm đầu tiên là đỉnh); tên “(a)”, “(b)” ghi
-   ngay dưới. Đỉnh xa tâm đoạn hơn đáy tam giác: mũi tên hướng ra ngoài (thấu kính hội tụ), ngược lại: hướng vào trong (phân kì). */
-const docKiHieu = (svg) => {
-  const dau = tags(svg, "polygon").filter((p) => p.fill === "ink").map((p) => pts(p.points)), T = texts(svg).filter((t) => /^\([a-z]\)$/.test(t.t));
-  const tk = tags(svg, "line").filter((l) => l.stroke === "ink" && l["stroke-width"] === "2.5" && l.x1 === l.x2).map(ends);
-  assert.equal(dau.length, 2 * tk.length, "mỗi thấu kính hai đầu mũi tên");
-  return tk.map(([a, b]) => {
-    const x = a[0], giua = (a[1] + b[1]) / 2, cua = dau.filter((d) => close(d[0][0], x, 1e-6));
-    assert.equal(cua.length, 2, "mỗi thấu kính hai đầu mũi tên");
-    const ra = cua.map(([ngon, b1, b2]) => Math.abs(ngon[1] - giua) > Math.abs((b1[1] + b2[1]) / 2 - giua));
-    assert.ok(ra[0] === ra[1], "hai đầu mũi tên cùng hướng ra hoặc cùng hướng vào");
-    const ten = T.filter((t) => close(+t.x, x, 1e-6));
-    assert.equal(ten.length, 1, "mỗi thấu kính một tên");
-    return { ten: ten[0].t, loai: ra[0] ? "hội tụ" : "phân kì" };
-  });
-};
 /* Lưới ô vuông: đường lưới màu line cách đều; trục chính màu ink nét 1,5 nằm trên một đường lưới; thấu kính là đoạn thẳng đứng màu ink
    nét 2,5 có hai đầu mũi tên; F là chấm tròn màu ink trên trục chính (chữ F ngay dưới); vật AB là đoạn thẳng đứng màu acc từ trục
    chính lên, B là đỉnh mũi tên màu acc. Trả về số ô: d (từ vật đến thấu kính), f (OF), h (AB), và số ô từ thấu kính đến mép lưới phía
@@ -186,7 +170,8 @@ const docCongThuc = (svg) => {
   return ["C", "H", ...Object.keys(dem).filter((e) => e !== "C" && e !== "H").sort()].filter((e) => dem[e]).map((e) => e + chiSo(dem[e])).join("");
 };
 /* Khung tổ hợp giao tử: giao tử là chữ trong hình tròn, ở hàng trên (của một cây) và cột trái (của cây kia); ô tổ hợp là hình chữ nhật
-   tô bg, chữ trong ô phải đúng tổ hợp của giao tử ở cột và hàng của ô (allele trội viết trước). */
+   tô bg, để trống (học sinh tự điền) hoặc ghi đúng tổ hợp của giao tử ở cột và hàng của ô (allele trội viết trước). Trả về các tổ hợp và
+   số ô để trống. */
 const ghep = (a, b) => [...a, ...b].sort((x, y) => (x.toLowerCase() === y.toLowerCase() ? (x < y ? -1 : 1) : x.toLowerCase() < y.toLowerCase() ? -1 : 1)).join("");
 const docKhung = (svg) => {
   const T = texts(svg), gt = tags(svg, "circle").map((c) => { const p = [num(c, "cx"), num(c, "cy")], t = T.filter((t) => close(+t.x, p[0]) && close(+t.y - 5, p[1]));
@@ -199,12 +184,12 @@ const docKhung = (svg) => {
   const con = o.map((r) => {
     const x0 = num(r, "x"), y0 = num(r, "y"), x1 = x0 + num(r, "width"), y1 = y0 + num(r, "height");
     const cot = tren.filter((g) => g.p[0] > x0 && g.p[0] < x1), hang = trai.filter((g) => g.p[1] > y0 && g.p[1] < y1), t = T.filter((t) => +t.x > x0 && +t.x < x1 && +t.y > y0 && +t.y < y1);
-    assert.ok(cot.length === 1 && hang.length === 1 && t.length === 1, "mỗi ô ở đúng một cột, một hàng, ghi một tổ hợp");
-    assert.equal(t[0].t, ghep(cot[0].g, hang[0].g), "ô ghi đúng tổ hợp của giao tử ở cột và hàng của ô");
-    return t[0].t;
+    assert.ok(cot.length === 1 && hang.length === 1 && t.length <= 1, "mỗi ô ở đúng một cột, một hàng, ghi nhiều nhất một tổ hợp");
+    if (t.length) assert.equal(t[0].t, ghep(cot[0].g, hang[0].g), "ô ghi đúng tổ hợp của giao tử ở cột và hàng của ô");
+    return { k: ghep(cot[0].g, hang[0].g), trong: !t.length };
   });
   const tieuDe = /<title>([^<]*)<\/title>/.exec(svg);
-  return { tren: tren.map((g) => g.g), trai: trai.map((g) => g.g), con, tieuDe: tieuDe ? tieuDe[1] : "" };
+  return { tren: tren.map((g) => g.g), trai: trai.map((g) => g.g), con: con.map((c) => c.k), trong: con.filter((c) => c.trong).length, tieuDe: tieuDe ? tieuDe[1] : "" };
 };
 
 /* ---------- hoá học: công thức (chữ số dưới dòng), khối lượng mol, phương trình ---------- */
@@ -255,11 +240,12 @@ const so = (q, re) => { const m = re.exec(q.q); assert.ok(m, "đề thiếu số
 const coX = (q, ...cum) => cum.forEach((c) => assert.ok(q.x.includes(c), "lời giải cần có “" + c + "”"));
 const CHECKS = [
   /* ----- Vật lí ----- */
-  { id: "de1", has: "Động năng của xe máy và người", right: (q) => {
-    const [m, v] = so(q, /tổng khối lượng (\d+) kg đang chạy với tốc độ (\d+) km\/h/), vs = (v * 1000) / 3600, W = 0.5 * m * vs * vs;
+  { id: "de1", has: "Động năng của xe và người", right: (q) => {
+    const [m, v] = so(q, /khối lượng của cả xe và người là (\d+) kg\. Xe đang chạy với tốc độ (\d+) km\/h/), vs = (v * 1000) / 3600, W = 0.5 * m * vs * vs;
     coX(q, `${v} km/h = ${vn(v * 1000)} m : ${vn(3600)} s = ${vn(vs)} m/s`, `½ · ${m} · ${vn(vs)}² = ${vn(W)} (J)`); return W; } },
-  { id: "de2", has: "bơm 30 kg nước lên bể chứa", right: (q) => {
-    const [m, h] = so(q, /bơm (\d+) kg nước lên bể chứa trên đỉnh một tháp nước cao (\d+) m/), P = 10 * m;
+  { id: "de2", has: "Một máy bơm đưa 600 lít nước", right: (q) => {
+    // 1 lít nước có khối lượng 1 kg (đề cho)
+    const [m, h] = so(q, /đưa (\d+) lít nước lên bể chứa đặt ở độ cao (\d+) m so với mặt đất \(1 lít nước có khối lượng 1 kg\)/), P = 10 * m;
     coX(q, `P = 10m = 10 · ${m} = ${vn(P)} (N)`, `Wt = Ph = ${vn(P)} · ${h} = ${vn(P * h)} (J)`); return P * h; } },
   { id: "own", has: "Tốc độ chạy của vận động viên", right: (q) => {
     const [m, W] = so(q, /khối lượng (\d+) kg đang chạy với động năng ([\d ]+) J/), v = Math.sqrt((2 * W) / m);
@@ -290,21 +276,17 @@ const CHECKS = [
     const [i, r] = so(q, /với góc tới (\d+)° thì góc khúc xạ là (\d+)°/), n = Math.sin(i * RAD) / Math.sin(r * RAD);
     assert.ok(q.q.includes("Làm tròn kết quả đến chữ số thập phân thứ hai") && q.tol && Math.abs(q.ans - n) <= q.tol, "làm tròn hai chữ số, sai số tol");
     coX(q, `sin ${i}° : sin ${r}° ≈ ${vn(Math.sin(i * RAD).toFixed(3))} : ${Math.sin(r * RAD).toFixed(3).replace(".", ",")} ≈ ${vn(tron(n))}`); return tron(n); } },
-  { id: "de2", has: "tia 1 và tia 2 là hai tia ở hai mép của dải màu", right: (q) => {
+  { id: "de2", has: "hình chỉ vẽ tia 1 và tia 2 ở hai mép của dải màu", right: (q) => {
     const ra = docLangKinh(q.svg).sort((a, b) => a.n - b.n), [d, t] = [ra[0], ra[ra.length - 1]];
     assert.ok(ra.length === 2 && d.D < t.D, "tia có chiết suất lớn hơn lệch nhiều hơn");
     coX(q, `tia ${t.so} lệch về phía đáy nhiều hơn tia ${d.so}`); return `Tia ${d.so} màu đỏ, tia ${t.so} màu tím`; } },
-  { id: "de1", has: "Kí hiệu của thấu kính hội tụ là hình nào", right: (q) => {
-    const k = docKiHieu(q.svg), ht = k.filter((x) => x.loai === "hội tụ");
-    assert.ok(k.length === 2 && ht.length === 1, "một kí hiệu thấu kính hội tụ, một kí hiệu thấu kính phân kì");
-    coX(q, `như hình ${ht[0].ten}`); return "Hình " + ht[0].ten; } },
   { id: "de1", has: "Ảnh A'B' của vật AB cách thấu kính bao nhiêu", right: (q) => {
     const L = docLuoi(q.svg), [c] = so(q, /Mỗi ô vuông có cạnh (\d+) cm/), a = anh(L.d * c, L.f * c, L.h * c);
     assert.ok(a.that && a.da / c <= L.ben && a.ha / c <= L.duoi, "ảnh thật nằm trong lưới");
     coX(q, `OA = ${L.d} ô = ${L.d * c} cm`, `AB = ${L.h} ô = ${L.h * c} cm`, `OF = ${L.f} ô = ${L.f * c} cm`, `OA' = ${vn(a.da)} cm`); return a.da; } },
   { id: "de2", has: "Ảnh của con kiến qua kính lúp dài bao nhiêu", right: (q) => {
     const [h, f, d] = so(q, /con kiến dài (\d+) mm .* tiêu cự (\d+) cm, cách kính (\d+) cm/), a = anh(d, f, h);
-    assert.ok(!a.that, "vật trong khoảng tiêu cự của kính lúp: ảnh ảo"); coX(q, `OA' = ${vn(a.da)} cm`, `A'B' = ${h} · ${vn(a.da)} : ${d} = ${vn(a.ha)} (mm)`); return a.ha; } },
+    assert.ok(!a.that && a.da >= 25, "vật trong khoảng tiêu cự của kính lúp: ảnh ảo, cách kính từ 25 cm trở ra (khoảng nhìn rõ của mắt, Bài 10)"); coX(q, `OA' = ${vn(a.da)} cm`, `A'B' = ${h} · ${vn(a.da)} : ${d} = ${vn(a.ha)} (mm)`); return a.ha; } },
   { id: "own", has: "Ảnh A'B' của vật AB cao bao nhiêu", right: (q) => {
     const L = docLuoi(q.svg), [c] = so(q, /Mỗi ô vuông có cạnh (\d+) cm/), a = anh(L.d * c, L.f * c, L.h * c);
     assert.ok(a.that && a.da / c <= L.ben && a.ha / c <= L.duoi, "ảnh thật nằm trong lưới");
@@ -352,7 +334,8 @@ const CHECKS = [
     return [q.o[0] === "Mọi cây F₁ đều có quả đỏ, lá nguyên." && kh("AaBb") === "quả đỏ, lá nguyên", /bốn loại giao tử, mỗi loại chiếm 1\/4/.test(q.o[1]) && g1.length === 4,
       nhan(q.o[2]) === loaiKH, close(c, (N * F2.filter((k) => kh(k) === "quả vàng, lá nguyên").length) / F2.length)]; } },
   { id: "de2", has: "Hình bên là khung tổ hợp giao tử", right: (q) => {
-    const K = docKhung(q.svg), [N] = so(q, /thu được (\d+) hạt ở đời con/), [, D, tim, d, vang] = /(\w) quy định hạt (\S+) trội hoàn toàn so với (\w) quy định hạt (\S+)\./.exec(q.q);
+    const K = docKhung(q.svg), [N] = so(q, /thu được (\d+) hạt ở đời con/), [, D, tim, d, vang] = /allele (\w) quy định hạt (\S+) trội hoàn toàn so với allele (\w) quy định hạt (\S+)\./.exec(q.q);
+    assert.ok(q.q.includes("(các ô chưa điền)") === (K.trong === K.con.length) && K.trong === K.con.length, "các ô của khung để trống, học sinh tự điền");
     const kh = (k) => (k.includes(D) ? tim : vang), kg = (g) => ghep(g[0], g[1]);
     assert.ok(new RegExp(`hàng trên là .* của cây hạt ${kh(kg(K.tren))}, cột trái là .* của cây hạt ${kh(kg(K.trai))}`).test(K.tieuDe) && kh(kg(K.tren)) !== kh(kg(K.trai)), "một cây hạt tím, một cây hạt vàng");
     assert.ok(d === D.toLowerCase(), "hai allele của một gene");
@@ -361,10 +344,15 @@ const CHECKS = [
   { id: "own", has: "Theo lí thuyết, F₂ có khoảng bao nhiêu cây quả dài", right: (q) => {
     const [N] = so(q, /F₂ gồm ([\d ]+) cây/), F2 = ["A", "a"].flatMap((x) => ["A", "a"].map((y) => ghep(x, y)));
     return (N * F2.filter((k) => !k.includes("A")).length) / F2.length; } },
-  { id: "own", has: "Đoạn mạch bổ sung với nó có trình tự", right: (q) => {
-    const [, s] = /có trình tự (–[ATGC–]+–)\./.exec(q.q); return "–" + chuoiNu(s).map((x) => BO_SUNG[x]).join("–") + "–"; } },
-  { id: "de1", has: "Đoạn mRNA được phiên mã từ đoạn mạch này", right: (q) => {
-    const [, s] = /mạch khuôn của gene có trình tự 3'–([ATGC–]+)–5'/.exec(q.q); return "5'–" + chuoiNu(s).map((x) => PHIEN_MA[x]).join("–") + "–3'"; } },
+  { id: "own", has: "Mạch bổ sung với nó (viết thẳng hàng bên dưới) là", right: (q) => {
+    // hai mạch ngược chiều: mạch bổ sung viết thẳng hàng bên dưới đi theo chiều 3' → 5'
+    const [, s] = /có trình tự 5'–([ATGC–]+)–3'\. Mạch bổ sung với nó \(viết thẳng hàng bên dưới\)/.exec(q.q) || [];
+    assert.ok(s, "đề cho mạch theo chiều 5' → 3'"); return "3'–" + chuoiNu(s).map((x) => BO_SUNG[x]).join("–") + "–5'"; } },
+  { id: "de1", has: "Đoạn mRNA tạo thành có trình tự", right: (q) => {
+    // mạch 2 bổ sung với mạch 1 (ngược chiều, viết thẳng hàng 3' → 5'); mRNA bổ sung với mạch khuôn là mạch 2 nên đọc 5' → 3'
+    const [, s] = /có mạch 1 là 5'–([ATGC–]+)–3'; mạch 2 bổ sung với mạch 1 và được dùng làm khuôn/.exec(q.q) || [];
+    assert.ok(s, "đề cho mạch 1 theo chiều 5' → 3', mạch 2 làm khuôn");
+    const m2 = chuoiNu(s).map((x) => BO_SUNG[x]); return "5'–" + m2.map((x) => PHIEN_MA[x]).join("–") + "–3'"; } },
   { id: "de2", has: "tái bản một lần, môi trường tế bào cần cung cấp", right: (q) => {
     const [A, G] = so(q, /có (\d+) nucleotide loại A và (\d+) nucleotide loại G/); coX(q, `2 · ${A} + 2 · ${G} = ${vn(2 * A + 2 * G)}`); return 2 * A + 2 * G; } },
   { id: "own", has: "Mạch 2 được dùng làm khuôn để phiên mã", right: (q) => {
@@ -376,15 +364,16 @@ const CHECKS = [
   { id: "de1", has: "Cho biết một số codon và amino acid tương ứng", right: (q) => {
     const bang = {}; [...q.q.matchAll(/([AUGC]{3}) – (\p{L}+) \((\w+)\)/gu)].forEach((m) => { bang[m[1]] = m[3]; assert.deepEqual(TEN_AA[MA[m[1]]], [m[2], m[3]], "bảng mã đề cho đúng mã chuẩn: " + m[1]); });
     const ket = [...q.q.matchAll(/([AUGC]{3}) là codon kết thúc/g)].map((m) => m[1]); ket.forEach((c) => assert.equal(MA[c], "*", c + " là codon kết thúc"));
-    const [, mRNA] = /5'-([AUGC ]+)-3'/.exec(q.q), out = [];
-    for (const c of mRNA.split(" ")) { if (ket.includes(c)) break; assert.ok(bang[c], "codon " + c + " có trong bảng đề cho"); out.push(bang[c]); }
+    const [, mRNA] = /5'–([AUGC–]+)–3'/.exec(q.q), out = [];
+    for (const c of mRNA.split("–")) { if (ket.includes(c)) break; assert.ok(bang[c], "codon " + c + " có trong bảng đề cho"); out.push(bang[c]); }
     return out.join(" – "); } },
   { id: "own", has: "Mỗi ý sau nói về mã di truyền và về dịch mã", right: (q) => {
     const [a, b, c, d] = q.o, soCodon = {}; Object.values(MA).forEach((x) => (soCodon[x] = (soCodon[x] || 0) + 1));
-    assert.ok(/ba nucleotide/.test(a) && /^Phân tử mRNA trực tiếp vận chuyển amino acid/.test(d), "thứ tự các ý");
+    const [, nu, cd] = /gồm (\d+) nucleotide liền nhau, đọc từ nucleotide đầu tiên, chứa (\d+) codon/.exec(a) || [];
+    assert.ok(nu && /^Phân tử mRNA trực tiếp vận chuyển amino acid/.test(d), "thứ tự các ý"); coX(q, `${nu} : 3 = ${cd} codon`);
     const [, cb] = /^Codon ([AUGC]{3}) quy định một loại amino acid/.exec(b) || [];
     const ala = Object.keys(MA).filter((k) => MA[k] === "A"); coX(q, ala.join(", ") + " đều quy định alanine");
-    return [Object.keys(MA).every((k) => k.length === 3), MA[cb] !== "*", Object.values(soCodon).every((k) => k === 1), false]; } }
+    return [Object.keys(MA).every((k) => k.length === 3) && nu % 3 === 0 && nu / 3 === +cd, MA[cb] !== "*", Object.values(soCodon).every((k) => k === 1), false]; } }
 ];
 
 let n = 0;
@@ -524,21 +513,21 @@ const { lo, chuLo } = doLo(kho);
 if (process.env.DO_LO) console.log("Đáp án bằng chữ có ở câu rút được cùng lúc (xem tay):\n" + chuLo.join("\n"));
 // đã xem (Phiên N9-ck1-khtn): chữ chung, câu kia không nói tới điều câu này hỏi. “suất lớn hơn”: “chiết suất lớn hơn” của câu phản xạ
 // toàn phần (câu này so công suất hai máy bơm); “cách thấu kính”: câu lưới ô vuông hỏi ảnh cách thấu kính bao xa (câu này hỏi vị trí vật,
-// ảnh khi đo tiêu cự bằng phương pháp Silbermann); “a c g”: ba chữ cái cuối của mạch 1 trong câu đúng/sai về phiên mã; “tia 1”: tên tia
-// trong hình lăng kính; “tan trong nước”, “không tan trong”: nói về ethane, ethylene và về đường (câu này hỏi về chất béo); “khi đun
-// nóng”: phản ứng tráng bạc; “có màu đỏ”: quả cà chua, ngọn lửa đèn dầu (câu này hỏi màu hoa khi gene hỏng).
+// ảnh khi đo tiêu cự bằng phương pháp Silbermann); “a c g”, “c a g”: ba chữ cái liền nhau trong trình tự của câu khác (câu kia không viết
+// mạch bổ sung hay mRNA của trình tự câu này); “tia 1”: tên tia trong hình lăng kính; “tan trong nước”: nói về ethane, ethylene (câu này
+// hỏi về chất béo); “khi đun nóng”: phản ứng tráng bạc; “không có enzyme”: cơ thể người không tiêu hoá được cellulose (câu này hỏi màu hoa
+// khi gene hỏng).
 const DA_XEM = [
-  "de1#6 → own#4: suất lớn hơn", "de2#6 → own#4: suất lớn hơn", "de1#9 → own#8: cách thấu kính", "own#23 → own#22: a c g", "de2#7 → de1#5: tia 1",
-  "de2#12 → de2#16: tan trong nước", "de2#17 → de2#16: không tan trong", "de2#17 → de2#16: tan trong nước", "own#17 → de2#18: khi đun nóng",
-  "own#7 → de2#24: có màu đỏ", "de2#11 → de2#24: có màu đỏ"
+  "de1#6 → own#4: suất lớn hơn", "de2#6 → own#4: suất lớn hơn", "de1#9 → own#8: cách thấu kính", "own#23 → own#22: a c g", "de1#23 → own#22: a c g",
+  "de2#7 → de1#5: tia 1", "own#22 → de1#23: c a g", "de2#12 → de2#16: tan trong nước", "own#17 → de2#18: khi đun nóng", "de2#17 → de2#24: không có enzyme"
 ];
 assert.deepEqual(chuLo, DA_XEM, "đáp án bằng chữ có ở câu rút được cùng lúc đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 assert.deepEqual(lo, [], "lộ đáp án:\n" + lo.join("\n"));
-// bộ dò bắt được chỗ lộ cố ý viết sai: lời giải câu khác có “= 7 500”, “là 1,6”, cụm của đáp án bằng chữ
+// bộ dò bắt được chỗ lộ cố ý viết sai: lời giải câu khác có “= 18 000”, “là 1,6”, cụm của đáp án bằng chữ
 {
   const tim = (has) => kho.find((q) => q.q.includes(has)), gia = (q, x) => Object.assign({}, q, { x: q.x + " " + x }), khac = tim("Trường hợp nào sau đây là đột biến gene");
   const thuLo = (qs) => { const r = doLo(qs, (q) => q.q.slice(0, 12)); return r.lo.concat(r.chuLo).map((s) => s.replace(/^.*: /, "")); };
-  assert.deepEqual(thuLo([tim("Động năng của xe máy và người"), gia(khac, "Ví dụ Wđ = 7 500 J.")]), ["7500"]);
+  assert.deepEqual(thuLo([tim("Động năng của xe và người"), gia(khac, "Ví dụ Wđ = 18 000 J.")]), ["18000"]);
   assert.deepEqual(thuLo([tim("Chiết suất của loại nhựa này"), gia(khac, "Chiết suất là 1,6.")]), ["1.6"]);
   assert.deepEqual(thuLo([tim("Khi khoan vào một mỏ dầu"), gia(khac, "Lớp trên cùng là khí mỏ dầu.")]), ["khí mỏ dầu"]);
 }
