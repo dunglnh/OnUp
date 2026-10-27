@@ -441,10 +441,10 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 | N9-ck2-khtn | 15/11/2026 (muộn nhất 29/3/2027) | KHTN 9 cuối năm | 50 + ~25 | `khtn9-ck2-de1`, `-de2`, `-ngau-nhien`; `tests/khtn9-ck2.js` | không |
 | N9-ck2-lsdl-gdcd | 15/11/2026 (muộn nhất 29/3/2027) | Lịch sử và Địa lí 9, GDCD 9 cuối năm | mỗi môn 50 | `lsdl9-ck2-*`, `gdcd9-ck2-*`; `tests/lsdl-gdcd9-ck2.js` | không |
 | N9-ck2-tin-congnghe | 15/11/2026 (muộn nhất 29/3/2027) | Tin học 9, Công nghệ 9 cuối năm | mỗi môn 50 | `tin9-ck2-*`, `congnghe9-ck2-*`; `tests/tin-congnghe9-ck2.js` | không |
-| N9-vao10-toan | 15/11/2026 (muộn nhất 11/5/2027) | Toán thi thử vào 10, Đề 1–4 (khung TP.HCM, đề tính điểm); Merge K5 trước | 4 đề | `toan9-vao10-de1`…`-de4`; `tests/toan9-vao10.js` | không |
+| N9-vao10-toan | 15/11/2026 (muộn nhất 11/5/2027) | Toán thi thử vào 10, Đề 1–4 (khung TP.HCM, đề tính điểm) | 4 đề | `toan9-vao10-de1`…`-de4`; `tests/toan9-vao10.js` | không |
 | N9-vao10-toan-b | 15/11/2026 (muộn nhất 11/5/2027) | Toán thi thử vào 10, Đề 5–7 | 3 đề | `toan9-vao10-de5`…`-de7` | không |
 | N9-vao10-toan-c | 15/11/2026 (muộn nhất 11/5/2027) | Toán thi thử vào 10, Đề 8–10 | 3 đề | `toan9-vao10-de8`…`-de10` | không |
-| N9-vao10-van | 15/11/2026 (muộn nhất 11/5/2027) | Ngữ văn thi thử vào 10, Đề 1–2 (khung TP.HCM, đề tính điểm); Merge K5 trước | 2 đề | `van9-vao10-de1`, `-de2` | không |
+| N9-vao10-van | 15/11/2026 (muộn nhất 11/5/2027) | Ngữ văn thi thử vào 10, Đề 1–2 (khung TP.HCM, đề tính điểm) | 2 đề | `van9-vao10-de1`, `-de2` | không |
 | N9-vao10-van-b | 15/11/2026 (muộn nhất 11/5/2027) | Ngữ văn thi thử vào 10, Đề 3–4 | 2 đề | `van9-vao10-de3`, `-de4` | không |
 | N9-vao10-van-c | 15/11/2026 (muộn nhất 11/5/2027) | Ngữ văn thi thử vào 10, Đề 5–6 | 2 đề | `van9-vao10-de5`, `-de6` | không |
 
@@ -473,10 +473,6 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 >   3. Chỉ mở ảnh (mỗi lần một trang) khi cần hình, lược đồ, bảng, công thức, hoặc chữ OCR sai, thiếu.
 >   4. Mỗi phiên mở tối đa khoảng 40 ảnh trang. Đến ngưỡng mà chưa dò hết: dò xong bài đang dò rồi dừng, mở Pull Request phần đã dò (tiêu đề ghi “phần 1”), sửa dòng và khối của phiên ở bảng “Hàng đợi” thành phần chưa dò với mã mới `<mã>-2`. Phải dừng trước khi hết lượt dùng: hết lượt giữa chừng thì phiên đứng yên, không tự mở Pull Request được, và các lượt tự chạy sau đều nghỉ vì nhánh chưa có Pull Request.
 > - Pull Request “Phiên <mã>: dò … với sách in năm 2026”: từng câu đã sửa (mã đề, số câu, lí do, trang sách), chỗ sách khác `note`, chủ đề, `scope`, câu trả lời cho các chỗ nhờ dò lại, chỗ còn chưa chắc, số ảnh trang đã mở và có dùng chữ OCR không. Xong khi node tests/kiem-tra-de.js in DE OK và không thêm dòng “Nhắc:” về các đề đã dò, các script ghi trong lời giao việc in MATH OK, node tests/e2e.js in E2E OK. Có số PR thì làm như dòng cuối của Quy định chung của các phiên N.
-
-### Trước 31/10/2026: cuối năm lớp 6, rồi lớp 4
-
-Phạm vi theo phân phối chương trình và đề cương cuối học kì II phổ biến của sách Kết nối tri thức (nguồn ở cuối mục này, tra ngày 21/10/2026): lớp 4 môn Toán ôn cả năm, nặng học kì II, các môn khác chủ yếu học kì II; lớp 6 kiểm tra học kì II, nặng phần sau giữa kì. Phiên đầu của mỗi khối ghi phạm vi từng môn vào lịch thi (lớp 6: N18 đã ghi vào `scope` của ck2-l6; lớp 4: N13 đã ghi vào `scope` của ck2-l4), các phiên sau dùng đúng phạm vi đó. Mã đề cuối năm dùng `ck2` như mã kì thi (`ck2-l4`, `ck2-l6`); tên đề “<môn> <khối> · Cuối năm · Đề N” (`tests/kiem-tra-de.js` nhận tên kì “Cuối năm”, đề Tiếng Anh hiện “End-of-year”). Lớp 6 thi trước (từ 26/4/2027) nên làm trước: N18–N22, N22b, N13, N14, N15, N16, N16b, N17 (đã xong).
 
 ### Chung của các phiên đề thi thử vào 10, tốt nghiệp THPT
 
@@ -644,7 +640,7 @@ Sau nhóm giữa kì II (mốc kiểm tra lớp 9: 15/11/2026, mục 4). Cuối 
 
 ### Trước 11/5/2027: lớp 9, đề thi thử vào 10
 
-Thi vào 10 dự kiến 1–2/6/2027 (`vao10-2027`; nguồn và mặc định PO chọn cho kì thi ở nhóm “Chung của các phiên đề thi thử vào 10, tốt nghiệp THPT”, mục 7). Đề thi thử là đề tính điểm của Phiên K5 (mục 3.1, đoạn “Đề tính điểm”): Merge K5 trước (PR #198). Mục tiêu ở mục 2: Toán 10 đề, Ngữ văn 6 đề, Tiếng Anh 10 đề; lượt này viết Toán, Ngữ văn (hai môn bắt buộc), Tiếng Anh lượt PO sau viết. Khung đề theo đề minh họa tuyển sinh lớp 10 TP.HCM năm 2026 (chủ app chốt 21/10/2026; nguồn ở mục “Nguồn phạm vi bài lớp 9 cuối năm, thi thử vào 10 (tra ngày 27/10/2026)”); ngày 27/10/2026 chưa có đề minh họa năm 2027: Sở công bố đề minh họa mới thì phiên chưa chạy theo đề mới, ghi trong Pull Request. Đoạn này và hai đoạn khung đề dưới đây PO xóa khi sáu phiên đã xong. Chung của các phiên dưới đây:
+Thi vào 10 dự kiến 1–2/6/2027 (`vao10-2027`; nguồn và mặc định PO chọn cho kì thi ở nhóm “Chung của các phiên đề thi thử vào 10, tốt nghiệp THPT”, mục 7). Đề thi thử là đề tính điểm của Phiên K5 (mục 3.1, đoạn “Đề tính điểm”): K5 đã xong (PR #198). Mục tiêu ở mục 2: Toán 10 đề, Ngữ văn 6 đề, Tiếng Anh 10 đề; lượt này viết Toán, Ngữ văn (hai môn bắt buộc), Tiếng Anh lượt PO sau viết. Khung đề theo đề minh họa tuyển sinh lớp 10 TP.HCM năm 2026 (chủ app chốt 21/10/2026; nguồn ở mục “Nguồn phạm vi bài lớp 9 cuối năm, thi thử vào 10 (tra ngày 27/10/2026)”); ngày 27/10/2026 chưa có đề minh họa năm 2027: Sở công bố đề minh họa mới thì phiên chưa chạy theo đề mới, ghi trong Pull Request. Đoạn này và hai đoạn khung đề dưới đây PO xóa khi sáu phiên đã xong. Chung của các phiên dưới đây:
 - Đề cố định, không có đề ngẫu nhiên (`pts` không đi với `pool`). Mục danh mục: tên "<môn> 9 · Thi thử vào 10 · Đề N", mã `<mã môn>9-vao10-de<N>`, `grade: 9`, 120 phút, `pts: 10`, file `data/banks/9-<mã môn>.js`. Gắn mã vào `banks` của `vao10-2027`. Khối 9 chưa bật, không đổi `active`.
 - Phạm vi: chương trình THCS, trọng tâm lớp 9 (scope của `vao10-2027`); sách Toán 9, Ngữ văn 9 ở OnUp-Book chỉ để biết phạm vi kiến thức. Không chép bài tập, ví dụ, văn bản của sách hay đề thi của Sở (đề minh họa, đề chính thức các năm); tự soạn đề tương tự về dạng, độ khó.
 - Note của đề: “Đề thi thử theo cấu trúc đề tuyển sinh lớp 10 của TP.HCM năm 2026. Tỉnh, thành khác có thể ra đề khác: xem thông báo của Sở.” và cách chấm của app (phần nào chấm tự động, phần nào tự chấm).
@@ -660,7 +656,7 @@ Thi vào 10 dự kiến 1–2/6/2027 (`vao10-2027`; nguồn và mặc định PO
 - `part` = “Phần I. Đọc hiểu và viết đoạn văn”, “Phần II. Đọc hiểu và viết bài văn”; hai văn bản ở `passages`, câu của một văn bản liền nhau, cùng phần.
 - Ngữ liệu ngoài sách giáo khoa lớp 6–9: tác phẩm của tác giả đã mất trên 50 năm (phạm vi công cộng; ghi tên tác phẩm, tác giả) hoặc văn bản tự viết (văn bản nghị luận, thông tin tự viết là chính); không dùng văn bản còn bản quyền, văn bản của đề thi các năm. Sáu đề phủ truyện, thơ, kí ở Phần I và cả văn bản nghị luận, thông tin ở Phần II; không lặp vấn đề nghị luận xã hội.
 
-**Phiên N9-vao10-toan · Toán thi thử vào 10, Đề 1–4** (Merge K5 trước; sau các phiên N9-ck2-*)
+**Phiên N9-vao10-toan · Toán thi thử vào 10, Đề 1–4** (sau các phiên N9-ck2-*; K5 đã xong, PR #198)
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, đoạn “Thi vào 10”; mục 3.1, đoạn “Tự luận và chủ đề Viết”, “Đề tính điểm”; mục 7: nhóm “Trước 11/5/2027” cả đoạn đầu và “Khung đề Toán”, nhóm “Chung của các phiên đề thi thử vào 10, tốt nghiệp THPT”). Tạo 4 đề "Toán 9 · Thi thử vào 10 · Đề 1" … "Đề 4" (mã toan9-vao10-de1 … -de4, data/banks/9-toan.js, 120 phút, `pts: 10`) theo “Khung đề Toán”; tạo tests/toan9-vao10.js. Gắn 4 mã vào vao10-2027. Kiểm thử: không có số ghi cứng; tests/kiem-tra-de.js kiểm tra `pts`, `pt`, `part`.
 >
 > Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
@@ -675,7 +671,7 @@ Thi vào 10 dự kiến 1–2/6/2027 (`vao10-2027`; nguồn và mặc định PO
 >
 > Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
-**Phiên N9-vao10-van · Ngữ văn thi thử vào 10, Đề 1–2** (Merge K5 trước; sau các phiên N9-ck2-*)
+**Phiên N9-vao10-van · Ngữ văn thi thử vào 10, Đề 1–2** (sau các phiên N9-ck2-*; K5 đã xong, PR #198)
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, đoạn “Thi vào 10”; mục 3.1, đoạn “Tự luận và chủ đề Viết”, “Đoạn đọc”, “Đề tính điểm”; mục 7: nhóm “Trước 11/5/2027” cả đoạn đầu và “Khung đề Ngữ văn”, nhóm “Chung của các phiên đề thi thử vào 10, tốt nghiệp THPT”). Tạo 2 đề "Ngữ văn 9 · Thi thử vào 10 · Đề 1", "… · Đề 2" (mã van9-vao10-de1, -de2, data/banks/9-van.js, 120 phút, `pts: 10`) theo “Khung đề Ngữ văn”; Phần I của hai đề khác thể loại (ví dụ một truyện, một bài thơ). Gắn 2 mã vào vao10-2027. Kiểm thử: không có số ghi cứng; tests/kiem-tra-de.js kiểm tra `pts`, `pt`, `part`, đoạn đọc.
 >
 > Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
