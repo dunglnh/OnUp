@@ -367,16 +367,16 @@ Nguyên tắc:
 | Sách | OnUp-Book | Đọc sách | Trang sách | Phiên còn dùng |
 |---|---|---|---|---|
 | Toán 9, tập một | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-toan-9-tap-mot.4714692201) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/toan-9-tap-mot-939944841.939944841) | N9-ck1-toan |
-| Toán 9, tập hai | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/shs-toan-9-tap-hai.4537022917) | tìm ở [trang lớp 9](https://taphuan.nxbgd.vn/tap-huan?grade=9) | N9-gk2-toan |
+| Toán 9, tập hai | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/shs-toan-9-tap-hai.4537022917) | tìm ở [trang lớp 9](https://taphuan.nxbgd.vn/tap-huan?grade=9) | N9-gk2-toan, N9-ck2-toan, N9-vao10-toan* |
 | Ngữ văn 9, tập một | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-ngu-van-9-tap-mot.4700220434) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/ngu-van-9-tap-mot-939874782.939874782) | N9-ck1-van |
-| Ngữ văn 9, tập hai | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-ngu-van-9-tap-hai.4714685580) | tìm ở [trang lớp 9](https://taphuan.nxbgd.vn/tap-huan?grade=9) | N9-gk2-van |
-| Tiếng Anh 9 – Global Success | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-tieng-anh-9-global-success.4879734378) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/tieng-anh-9-global-success-940174594.940174594) | N9-ck1-ta, N9-gk2-ta |
-| Khoa học tự nhiên 9 | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-khoa-hoc-tu-nhien-9.4700446949) | tìm ở [trang lớp 9](https://taphuan.nxbgd.vn/tap-huan?grade=9) | N9-ck1-khtn, N9-gk2-khtn |
-| Lịch sử và Địa lí 9 (bản chỉnh sửa năm 2026) | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-lich-su-va-dia-li-9.4844021301) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/lich-su-va-dia-li-9-940191609.940191609) | N9-ck1-lsdl-gdcd, N9-gk2-lsdl-gdcd |
-| Giáo dục công dân 9 | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-giao-duc-cong-dan-9.4714947143) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/giao-duc-cong-dan-9-940038151.940038151) | N9-ck1-lsdl-gdcd, N9-gk2-lsdl-gdcd |
-| Tin học 9 | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-tin-hoc-9.4700233123) | tìm ở [trang lớp 9](https://taphuan.nxbgd.vn/tap-huan?grade=9) | N9-ck1-tin-congnghe, N9-gk2-tin-congnghe |
+| Ngữ văn 9, tập hai | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-ngu-van-9-tap-hai.4714685580) | tìm ở [trang lớp 9](https://taphuan.nxbgd.vn/tap-huan?grade=9) | N9-gk2-van, N9-ck2-van, N9-vao10-van* |
+| Tiếng Anh 9 – Global Success | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-tieng-anh-9-global-success.4879734378) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/tieng-anh-9-global-success-940174594.940174594) | N9-ck1-ta, N9-gk2-ta, N9-ck2-ta |
+| Khoa học tự nhiên 9 | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-khoa-hoc-tu-nhien-9.4700446949) | tìm ở [trang lớp 9](https://taphuan.nxbgd.vn/tap-huan?grade=9) | N9-ck1-khtn, N9-gk2-khtn, N9-ck2-khtn |
+| Lịch sử và Địa lí 9 (bản chỉnh sửa năm 2026) | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-lich-su-va-dia-li-9.4844021301) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/lich-su-va-dia-li-9-940191609.940191609) | N9-ck1-lsdl-gdcd, N9-gk2-lsdl-gdcd, N9-ck2-lsdl-gdcd |
+| Giáo dục công dân 9 | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-giao-duc-cong-dan-9.4714947143) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/giao-duc-cong-dan-9-940038151.940038151) | N9-ck1-lsdl-gdcd, N9-gk2-lsdl-gdcd, N9-ck2-lsdl-gdcd |
+| Tin học 9 | `lop-9/…` (xem README) | [đọc](https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-tin-hoc-9.4700233123) | tìm ở [trang lớp 9](https://taphuan.nxbgd.vn/tap-huan?grade=9) | N9-ck1-tin-congnghe, N9-gk2-tin-congnghe, N9-ck2-tin-congnghe |
 | Công nghệ 9 – Định hướng nghề nghiệp | `lop-9/…` (xem README) | tìm ở [trang lớp 9](https://taphuan.nxbgd.vn/tap-huan?grade=9) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/cong-nghe-9-dinh-huong-nghe-nghiep-940004971.940004971) | N9-ck1-tin-congnghe |
-| Công nghệ 9 – Trải nghiệm nghề nghiệp, mô đun Lắp đặt mạng điện trong nhà | `lop-9/…` (xem README) | tìm ở [trang lớp 9](https://taphuan.nxbgd.vn/tap-huan?grade=9) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/cong-nghe-9-trai-nghiem-nghe-nghiep-mo-dun-lap-dat-mang-dien-trong-nha-939896858.939896858) | N9-gk2-tin-congnghe |
+| Công nghệ 9 – Trải nghiệm nghề nghiệp, mô đun Lắp đặt mạng điện trong nhà | `lop-9/…` (xem README) | tìm ở [trang lớp 9](https://taphuan.nxbgd.vn/tap-huan?grade=9) | [trang sách](https://taphuan.nxbgd.vn/tap-huan/chi-tiet-sach/cong-nghe-9-trai-nghiem-nghe-nghiep-mo-dun-lap-dat-mang-dien-trong-nha-939896858.939896858) | N9-gk2-tin-congnghe, N9-ck2-tin-congnghe |
 
 **Việc của bố mẹ (không tốn lượt Claude), quan trọng nhất:** rà đề. Mỗi đề mới, cho con làm thử một lần; câu sai đáp án thì báo bằng nút “Báo câu này sai” trong app (Phiên R1). Có thể nhờ giáo viên quen rà các môn mình không chắc. Lớp 5, 7–12 trong nhà không có con học: ngoài phiên rà soát độc lập, mời vài gia đình có con học khối đó dùng thử ngay khi khối được bật (nguyên tắc 5). Chất lượng đề là thứ quyết định phụ huynh có trả tiền hay không.
 
@@ -429,6 +429,18 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 | N9-gk2-khtn | 12/11/2026 (muộn nhất 15/2/2027) | KHTN 9 giữa kì II | 50 + ~25 | `khtn9-gk2-de1`, `-de2`, `-ngau-nhien`; `tests/khtn9-gk2.js` | không |
 | N9-gk2-lsdl-gdcd | 12/11/2026 (muộn nhất 15/2/2027) | Lịch sử và Địa lí 9, GDCD 9 giữa kì II | mỗi môn 50 | `lsdl9-gk2-*`, `gdcd9-gk2-*` | không |
 | N9-gk2-tin-congnghe | 12/11/2026 (muộn nhất 15/2/2027) | Tin học 9, Công nghệ 9 giữa kì II | mỗi môn 50 | `tin9-gk2-*`, `congnghe9-gk2-*` | không |
+| N9-ck2-toan | 15/11/2026 (muộn nhất 29/3/2027) | Toán 9 cuối năm (Bài 18–32); phiên đầu của ck2-l9 | 50 + ~50 | `toan9-ck2-de1`, `-de2`, `-ngau-nhien`; `tests/toan9-ck2.js`; phạm vi của ck2-l9 | không |
+| N9-ck2-van | 15/11/2026 (muộn nhất 29/3/2027) | Ngữ văn 9 cuối năm (học kì II, trọng tâm sau giữa kì) | 50 + ~25 | `van9-ck2-de1`, `-de2`, `-ngau-nhien` | không |
+| N9-ck2-ta | 15/11/2026 (muộn nhất 29/3/2027) | Tiếng Anh 9 cuối năm (Units 7–12) | 50 + ~25 | `ta9-ck2-de1`, `-de2`, `-ngau-nhien` | không |
+| N9-ck2-khtn | 15/11/2026 (muộn nhất 29/3/2027) | KHTN 9 cuối năm | 50 + ~25 | `khtn9-ck2-de1`, `-de2`, `-ngau-nhien`; `tests/khtn9-ck2.js` | không |
+| N9-ck2-lsdl-gdcd | 15/11/2026 (muộn nhất 29/3/2027) | Lịch sử và Địa lí 9, GDCD 9 cuối năm | mỗi môn 50 | `lsdl9-ck2-*`, `gdcd9-ck2-*`; `tests/lsdl-gdcd9-ck2.js` | không |
+| N9-ck2-tin-congnghe | 15/11/2026 (muộn nhất 29/3/2027) | Tin học 9, Công nghệ 9 cuối năm | mỗi môn 50 | `tin9-ck2-*`, `congnghe9-ck2-*`; `tests/tin-congnghe9-ck2.js` | không |
+| N9-vao10-toan | 15/11/2026 (muộn nhất 11/5/2027) | Toán thi thử vào 10, Đề 1–4 (khung TP.HCM, đề tính điểm); Merge K5 trước | 4 đề | `toan9-vao10-de1`…`-de4`; `tests/toan9-vao10.js` | không |
+| N9-vao10-toan-b | 15/11/2026 (muộn nhất 11/5/2027) | Toán thi thử vào 10, Đề 5–7 | 3 đề | `toan9-vao10-de5`…`-de7` | không |
+| N9-vao10-toan-c | 15/11/2026 (muộn nhất 11/5/2027) | Toán thi thử vào 10, Đề 8–10 | 3 đề | `toan9-vao10-de8`…`-de10` | không |
+| N9-vao10-van | 15/11/2026 (muộn nhất 11/5/2027) | Ngữ văn thi thử vào 10, Đề 1–2 (khung TP.HCM, đề tính điểm); Merge K5 trước | 2 đề | `van9-vao10-de1`, `-de2` | không |
+| N9-vao10-van-b | 15/11/2026 (muộn nhất 11/5/2027) | Ngữ văn thi thử vào 10, Đề 3–4 | 2 đề | `van9-vao10-de3`, `-de4` | không |
+| N9-vao10-van-c | 15/11/2026 (muộn nhất 11/5/2027) | Ngữ văn thi thử vào 10, Đề 5–6 | 2 đề | `van9-vao10-de5`, `-de6` | không |
 
 **Quy định chung của các phiên N** (mỗi lời giao việc bên dưới trỏ về đây; sửa ở đây là áp dụng cho mọi phiên):
 > - Chỉ sửa data/banks/, data/calendar-2026-2027.js, script và kiểm thử trong tests/, tài liệu; không sửa js/, css/, modules/ (thấy lỗi app thì ghi vào Pull Request).
@@ -585,6 +597,103 @@ Sau nhóm cuối kì I (mốc kiểm tra lớp 9: 15/11/2026, mục 4). Dùng đ
 >
 > Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
+### Trước 29/3/2027: lớp 9, cuối năm
+
+Sau nhóm giữa kì II (mốc kiểm tra lớp 9: 15/11/2026, mục 4). Cuối năm lớp 9 thi từ 19/4/2027 (`ck2-l9`, Sở ra đề chung một số môn, Thông tư 89/2026). Dùng đoạn “Chung của các phiên lớp 9” ở nhóm cuối kì I; đề cuối năm cũng theo ý 5 của “Cách viết lời giao việc mới” (note thêm câu về đề chung của Sở như đề cuối kì I). Phạm vi dưới đây là mặc định PO chọn: các đề cương cuối kì II lớp 9 tra được ngày 27/10/2026 phần lớn bị khóa (nguồn ở mục “Nguồn phạm vi bài lớp 9 cuối năm, thi thử vào 10 (tra ngày 27/10/2026)”), lượt PO không đọc được mục lục ở OnUp-Book, nên số bài, tên bài chưa đối chiếu sách: phiên đối chiếu với mục lục trong README của cuốn ở OnUp-Book, khác thì theo mục lục và ghi trong Pull Request. Kho cuối năm chủ yếu học kì II, trọng tâm phần sau giữa kì II (như kho lớp 6 cuối năm); câu của phần trước giữa kì II không trùng câu của kho giữa kì II cùng môn (dò bằng code). Đề thi thử vào 10 Tiếng Anh, đề giữa kì I lớp 9 và phiên rà soát RS9: lượt PO sau viết.
+
+**Phiên N9-ck2-toan · Toán 9 cuối năm** (Merge các phiên N9-gk2-* trước)
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7; đoạn “Chung của các phiên lớp 9”, nhóm “Trước 29/3/2027”). Tạo ngân hàng câu "Toán 9 · Cuối năm" khoảng 100 câu, sách Kết nối tri thức, Toán 9 tập hai: Chương VI Hàm số y = ax² (a ≠ 0). Phương trình bậc hai một ẩn (Bài 18–21), Chương VII Tần số và tần số tương đối (Bài 22–23), Chương VIII Xác suất của biến cố trong một số mô hình xác suất đơn giản (Bài 24–26), Chương IX Đường tròn ngoại tiếp và đường tròn nội tiếp (Bài 27–30), Chương X Một số hình khối trong thực tiễn (Bài 31–32: hình trụ, hình nón, hình cầu); số bài, tên bài theo mục lục (nhóm “Trước 29/3/2027”). Mặc định PO chọn: trọng tâm Chương VII, VIII, X (sau giữa kì II), khoảng 8 câu ôn Chương VI, IX; không có câu ôn học kì I. Có chủ đề, mức độ, lời giải, câu tự soạn, không chép sách hay đề có bản quyền.
+> - Mã mới (data/banks/9-toan.js, 45 phút): toan9-ck2-de1, toan9-ck2-de2 "Toán 9 · Cuối năm · Đề 1", "… · Đề 2" và toan9-ck2-ngau-nhien (pool, from = hai đề, khoảng 50 câu riêng), như kho Toán 6 cuối năm (`toan6-ck2`).
+> - Dạng câu như Phiên N9-ck1-toan; hình SVG: bảng, biểu đồ tần số, tần số tương đối (cột, quạt tròn), hình trụ, hình nón, hình cầu có số đo, đường tròn ngoại tiếp, nội tiếp; 2–3 câu tự luận (bài toán thực tế về thể tích, xác suất; chứng minh tứ giác nội tiếp). Xác suất ghi phân số tối giản (`ans: "a/b"`); số π: đề dặn làm tròn hay để π, dùng `tol` khi làm tròn.
+> - Tính lại mọi đáp án: tests/toan9-ck2.js theo mẫu tests/toan6-ck2.js (số hữu tỉ chính xác; tần số, tần số tương đối tính từ bảng, biểu đồ trong hình; xác suất đếm lại không gian mẫu; diện tích, thể tích hình trụ, nón, cầu; đọc số đo ghi trong hình; đề bài không trùng câu của kho giữa kì II; dò lộ đáp án giữa các câu rút được cùng lúc), in MATH OK.
+> - Lịch thi: gắn 3 mã vào ck2-l9; thay scope “Toàn bộ chương trình lớp 9.” của ck2-l9 bằng phạm vi từng môn theo các khối Phiên N9-ck2-* (mục lục sách khác thì sửa theo mục lục; ghi trong Pull Request). Kiểm thử: không có số ghi cứng.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N9-ck2-van · Ngữ văn 9 cuối năm**
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7; đoạn “Chung của các phiên lớp 9”, nhóm “Trước 29/3/2027”). Tạo ngân hàng câu "Ngữ văn 9 · Cuối năm" khoảng 75 câu, Ngữ văn 9 tập hai, các bài học kì II theo mục lục (Bài 6 Giải mã những bí mật, Bài 7 Hồn thơ muôn điệu, Bài 8 Tiếng nói của lương tri và các bài sau theo mục lục), trọng tâm các bài sau giữa kì II (sau Bài 7), như kho Ngữ văn 6 cuối năm (“Bài 6–9, trọng tâm Bài 8–9”). Bài cuối sách là bài ôn tập hay đọc mở rộng thì không ra chủ đề riêng.
+> - Mã mới (data/banks/9-van.js, 45 phút): van9-ck2-de1, van9-ck2-de2 "Ngữ văn 9 · Cuối năm · Đề 1", "… · Đề 2" và van9-ck2-ngau-nhien (pool, from = hai đề, khoảng 25 câu riêng), cấu trúc như Phiên N9-ck1-van (mỗi chủ đề đọc hiểu một đoạn mỗi đề, ngữ liệu ngoài sách lớp 9, phạm vi công cộng hoặc tự viết; Thực hành tiếng Việt và Viết của các bài trong phạm vi; chủ đề "Viết" chỉ gồm câu tự luận).
+> - Gắn 3 mã vào ck2-l9. Kiểm thử: không có số ghi cứng.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N9-ck2-ta · Tiếng Anh 9 cuối năm**
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7; đoạn “Chung của các phiên lớp 9”, nhóm “Trước 29/3/2027”). Tạo ngân hàng câu "Tiếng Anh 9 · Cuối năm" khoảng 75 câu, Global Success 9, đề 100% tiếng Anh, Units 7–12 (Natural wonders of the world; Tourism; World Englishes; Planet Earth; Electronic devices; Career choices; Review 3, 4; tên Unit theo Book map), trọng tâm Units 10–12; cách làm như Phiên N9-ck1-ta (không có câu nghe).
+> - Mã mới (data/banks/9-ta.js, 45 phút): ta9-ck2-de1, ta9-ck2-de2 "Tiếng Anh 9 · Cuối năm · Đề 1", "… · Đề 2" và ta9-ck2-ngau-nhien (pool, khoảng 25 câu riêng, 1–2 đoạn đọc), cấu trúc như kho Tiếng Anh 6 cuối năm (`ta6-ck2`). Gắn 3 mã vào ck2-l9. Kiểm thử: không có số ghi cứng; tests/kiem-tra-de.js kiểm tra đề không có chữ cái tiếng Việt.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N9-ck2-khtn · KHTN 9 cuối năm**
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7; đoạn “Chung của các phiên lớp 9”, nhóm “Trước 29/3/2027”). Tạo ngân hàng câu "KHTN 9 · Cuối năm" khoảng 75 câu, Khoa học tự nhiên 9, học kì II: phạm vi của kho giữa kì II (đọc note của khtn9-gk2-de1) và phần còn lại của sách sau phạm vi đó theo phân phối chương trình dạy song song (hoatieu, nguồn ở mục “Nguồn phạm vi bài lớp 9 (tra ngày 26/10/2026)”), trọng tâm phần sau giữa kì II. Mặc định PO chọn (chưa đủ hai nguồn, cần tra lại): Vật lí đến hết phần năng lượng (năng lượng của Trái Đất, năng lượng hóa thạch, năng lượng tái tạo), Hóa học phần khai thác tài nguyên từ vỏ Trái Đất, Sinh học từ sau phạm vi giữa kì II đến hết sách (di truyền học với con người, ứng dụng công nghệ di truyền, tiến hóa). Tra ít nhất hai đề cương, đề cuối kì II KHTN 9 Kết nối tri thức trước khi viết; theo nguồn đa số, ghi trong Pull Request và note (nhắc phụ huynh đối chiếu đề cương của trường).
+> - Mã mới (data/banks/9-khtn.js, 45 phút): khtn9-ck2-de1, khtn9-ck2-de2 và khtn9-ck2-ngau-nhien (pool, khoảng 25 câu riêng), như Phiên N9-ck1-khtn. Câu có phép tính (điện năng, công suất, hiệu suất, tính theo phương trình hóa học, tỉ lệ) tính lại bằng code: tests/khtn9-ck2.js theo mẫu tests/khtn6-ck2.js (đọc cả hình; đề bài không trùng câu của kho giữa kì II), in MATH OK.
+> - Gắn 3 mã vào ck2-l9. Kiểm thử: không có số ghi cứng.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N9-ck2-lsdl-gdcd · Lịch sử và Địa lí 9, GDCD 9 cuối năm**
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7; đoạn “Chung của các phiên lớp 9”, nhóm “Trước 29/3/2027”). Tạo ngân hàng câu "Lịch sử và Địa lí 9 · Cuối năm" và "GDCD 9 · Cuối năm", mỗi ngân hàng 50 câu.
+> - **Lịch sử và Địa lí 9** (data/banks/9-lsdl.js, 45 phút; bản chỉnh sửa năm 2026, đọc kĩ như Phiên N9-ck1-lsdl-gdcd): Lịch sử học kì II đến hết sách (mặc định Bài 13–21, trọng tâm sau phạm vi giữa kì II: thế giới, châu Á, Việt Nam từ năm 1991 đến nay), Địa lí các vùng và phần biển đảo từ phạm vi giữa kì II đến hết sách, trọng tâm phần sau giữa kì; số bài, tên bài, tên vùng theo mục lục sách in năm 2026. Không viết câu dựa vào đơn vị hành chính, số liệu cũ (63 tỉnh, cấp huyện).
+> - **GDCD 9** (data/banks/9-gdcd.js, 35 phút): Bài 7–10 (Thích ứng với thay đổi; Tiêu dùng thông minh; Vi phạm pháp luật và trách nhiệm pháp lí; Quyền tự do kinh doanh và nghĩa vụ đóng thuế; theo mục lục), trọng tâm Bài 9–10. Câu tình huống là chính; câu về pháp luật theo đúng chữ của sách.
+> - Mỗi môn: hai đề cố định "<môn> 9 · Cuối năm · Đề 1", "… · Đề 2" và đề ngẫu nhiên (pool, from = hai đề, không câu riêng). Mã: lsdl9-ck2-de1, -de2, -ngau-nhien; gdcd9-ck2-de1, -de2, -ngau-nhien. Script tests/lsdl-gdcd9-ck2.js như tests/lsdl-gdcd9-ck1.js (đề bài không trùng câu của kho giữa kì II), in MATH OK. Gắn 6 mã vào ck2-l9. Kiểm thử: không có số ghi cứng.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N9-ck2-tin-congnghe · Tin học 9, Công nghệ 9 cuối năm**
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7; đoạn “Chung của các phiên lớp 9”, nhóm “Trước 29/3/2027”). Tạo ngân hàng câu "Tin học 9 · Cuối năm" và "Công nghệ 9 · Cuối năm", mỗi ngân hàng 50 câu.
+> - **Tin học 9** (data/banks/9-tin.js, 35 phút): lựa chọn 4A Bảng tính điện tử nâng cao như Phiên N9-gk2-tin-congnghe (khoảng 15 câu ôn) và các bài sau theo mục lục: giải quyết vấn đề với sự trợ giúp của máy tính (thuật toán, mô tả bằng liệt kê bước, sơ đồ khối), tin học và nghề nghiệp (trọng tâm). Đề cương cuối kì II tra được (hoatieu) có hai mảng thuật toán và bảng tính (COUNTIF, SUMIF, IF, xác thực dữ liệu). Sơ đồ khối và bảng tính vẽ bằng SVG, chạy thử thuật toán và tính lại công thức bằng code. Note nhắc như đề giữa kì II (lựa chọn 4B thì đề không hợp).
+> - **Công nghệ 9** (data/banks/9-congnghe.js, 35 phút): cả mô đun Trải nghiệm nghề nghiệp “Lắp đặt mạng điện trong nhà” (mặc định như Phiên N9-gk2-tin-congnghe), trọng tâm nửa sau mô đun theo mục lục (lắp đặt, kiểm tra mạng điện, an toàn); khoảng 4 câu ôn Định hướng nghề nghiệp. Note nhắc: trường học mô đun khác, hoặc học Định hướng nghề nghiệp ở học kì II (một đề cương cuối kì II tra được theo mô đun này), thì đối chiếu đề cương.
+> - Mỗi môn: hai đề cố định "<môn> 9 · Cuối năm · Đề 1", "… · Đề 2" và đề ngẫu nhiên (pool, from = hai đề, không câu riêng). Mã: tin9-ck2-de1, -de2, -ngau-nhien; congnghe9-ck2-de1, -de2, -ngau-nhien. Script tests/tin-congnghe9-ck2.js theo mẫu tests/tin-congnghe6-ck2.js (đọc sơ đồ khối, chạy thử, sơ đồ mạch điện; đề bài không trùng câu của kho giữa kì II), in MATH OK. Gắn 6 mã vào ck2-l9. Kiểm thử: không có số ghi cứng.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+### Trước 11/5/2027: lớp 9, đề thi thử vào 10
+
+Thi vào 10 dự kiến 1–2/6/2027 (`vao10-2027`; nguồn và mặc định PO chọn cho kì thi ở nhóm “Chung của các phiên đề thi thử vào 10, tốt nghiệp THPT”, mục 7). Đề thi thử là đề tính điểm của Phiên K5 (mục 3.1, đoạn “Đề tính điểm”): Merge K5 trước (PR #198). Mục tiêu ở mục 2: Toán 10 đề, Ngữ văn 6 đề, Tiếng Anh 10 đề; lượt này viết Toán, Ngữ văn (hai môn bắt buộc), Tiếng Anh lượt PO sau viết. Khung đề theo đề minh họa tuyển sinh lớp 10 TP.HCM năm 2026 (chủ app chốt 21/10/2026; nguồn ở mục “Nguồn phạm vi bài lớp 9 cuối năm, thi thử vào 10 (tra ngày 27/10/2026)”); ngày 27/10/2026 chưa có đề minh họa năm 2027: Sở công bố đề minh họa mới thì phiên chưa chạy theo đề mới, ghi trong Pull Request. Đoạn này và hai đoạn khung đề dưới đây PO xóa khi sáu phiên đã xong. Chung của các phiên dưới đây:
+- Đề cố định, không có đề ngẫu nhiên (`pts` không đi với `pool`). Mục danh mục: tên "<môn> 9 · Thi thử vào 10 · Đề N", mã `<mã môn>9-vao10-de<N>`, `grade: 9`, 120 phút, `pts: 10`, file `data/banks/9-<mã môn>.js`. Gắn mã vào `banks` của `vao10-2027`. Khối 9 chưa bật, không đổi `active`.
+- Phạm vi: chương trình THCS, trọng tâm lớp 9 (scope của `vao10-2027`); sách Toán 9, Ngữ văn 9 ở OnUp-Book chỉ để biết phạm vi kiến thức. Không chép bài tập, ví dụ, văn bản của sách hay đề thi của Sở (đề minh họa, đề chính thức các năm); tự soạn đề tương tự về dạng, độ khó.
+- Note của đề: “Đề thi thử theo cấu trúc đề tuyển sinh lớp 10 của TP.HCM năm 2026. Tỉnh, thành khác có thể ra đề khác: xem thông báo của Sở.” và cách chấm của app (phần nào chấm tự động, phần nào tự chấm).
+- Các đề cùng môn khác nhau về bối cảnh, số liệu, văn bản: dò bằng code để đề mới không trùng ý với các đề đã có của môn đó (cả các kho lớp 9) và không lộ đáp án giữa các câu cùng đề.
+
+**Khung đề Toán** (ba phiên N9-vao10-toan, -b, -c): 7 bài, tổng 10 điểm. Bài 1 (1,5 điểm) hàm số y = ax²: vẽ đồ thị, tìm điểm thuộc (P) thỏa điều kiện; Bài 2 (1 điểm) phương trình bậc hai: điều kiện có nghiệm, định lí Viète tính biểu thức của nghiệm; Bài 3 (1,5 điểm) bài toán thực tế thống kê, xác suất; Bài 4 (1 điểm) viết biểu thức theo một đại lượng trong bài toán thực tế, tìm giá trị thỏa điều kiện; Bài 5 (1 điểm) bài toán thực tế hình học, đo lường (chu vi, diện tích, cung, hình quạt, hình vành khăn, hình trụ, nón, cầu); Bài 6 (1 điểm) bài toán thực tế dẫn đến phương trình, bất phương trình hoặc hệ hai phương trình bậc nhất hai ẩn; Bài 7 (3 điểm) hình học phẳng về đường tròn, ba ý: a) bốn điểm cùng thuộc một đường tròn, song song, vuông góc; b) hệ thức, thẳng hàng, đồng quy; c) tính độ dài, diện tích, số đo góc.
+- Mỗi ý (a, b, c) là một câu tự luận riêng: `pt` = điểm của ý, thang tự chấm chia theo các bước giải (tổng thang bằng `pt`), `x` là lời giải gợi ý đủ bước; `part` = tên bài (“Bài 1. Hàm số y = ax²”…), câu của một bài liền nhau theo thứ tự đề; chủ đề, mức độ như kho Toán 9. Mặc định PO chọn: mọi ý là tự luận tự chấm như đề thật (chấm theo bài làm có trình bày), nên đề chỉ có điểm tự chấm (mục 3.1, “Đề tính điểm”); chủ app muốn có phần chấm tự động thì đổi trước khi phiên chạy: ý chỉ hỏi một kết quả số (toạ độ, giá trị biểu thức) thành câu trả lời bằng số.
+- Hình SVG theo mục 3.2: parabol trên lưới toạ độ, hình của bài thực tế, hình Bài 7 đúng tỉ lệ, đủ tên điểm; đồ thị đáp án của Bài 1a ở lời giải.
+- Tính lại mọi đáp án bằng code: `tests/toan9-vao10.js` (phiên đầu tạo, hai phiên sau mở rộng; số hữu tỉ chính xác, căn so theo giá trị; giải lại phương trình, hệ, bất phương trình; Viète; xác suất đếm lại; diện tích, thể tích; độ dài, góc của Bài 7 tính lại từ toạ độ các điểm trong hình; điểm từng bài đúng như trên), in MATH OK.
+
+**Khung đề Ngữ văn** (ba phiên N9-vao10-van, -b, -c): tích hợp đọc hiểu và viết, kiến thức chủ yếu lớp 8, 9, tổng 10 điểm. Phần I (5 điểm): một văn bản văn học (truyện, thơ, kí; thể loại đã học ở lớp 8, 9), đọc hiểu 3 điểm, viết đoạn văn nghị luận văn học về văn bản đó khoảng 200 chữ 2 điểm. Phần II (5 điểm): một văn bản nghị luận hoặc văn bản thông tin, đọc hiểu 1 điểm, viết bài văn nghị luận xã hội về vấn đề gợi từ văn bản 4 điểm (đề minh họa không ghi số chữ; mặc định khoảng 500–600 chữ).
+- Mặc định PO chọn (đề thật đọc hiểu là tự luận): đọc hiểu viết thành câu chấm tự động (nhiều lựa chọn, đúng/sai 4 ý, câu điền ngắn; `pt` 0,25–1 điểm; tổng đọc hiểu đúng 3 và 1 điểm), mỗi phần nhiều nhất một câu tự luận ngắn (nêu cảm nhận, ý kiến; 0,5–1 điểm); hai câu viết là tự luận tự chấm, thang theo tiêu chí của đáp án thi (bố cục, luận điểm, dẫn chứng, diễn đạt, sáng tạo), `x` là dàn ý gợi ý. Note ghi đề thật đọc hiểu là câu tự luận.
+- `part` = “Phần I. Đọc hiểu và viết đoạn văn”, “Phần II. Đọc hiểu và viết bài văn”; hai văn bản ở `passages`, câu của một văn bản liền nhau, cùng phần.
+- Ngữ liệu ngoài sách giáo khoa lớp 6–9: tác phẩm của tác giả đã mất trên 50 năm (phạm vi công cộng; ghi tên tác phẩm, tác giả) hoặc văn bản tự viết (văn bản nghị luận, thông tin tự viết là chính); không dùng văn bản còn bản quyền, văn bản của đề thi các năm. Sáu đề phủ truyện, thơ, kí ở Phần I và cả văn bản nghị luận, thông tin ở Phần II; không lặp vấn đề nghị luận xã hội.
+
+**Phiên N9-vao10-toan · Toán thi thử vào 10, Đề 1–4** (Merge K5 trước; sau các phiên N9-ck2-*)
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, đoạn “Thi vào 10”; mục 3.1, đoạn “Tự luận và chủ đề Viết”, “Đề tính điểm”; mục 7: nhóm “Trước 11/5/2027” cả đoạn đầu và “Khung đề Toán”, nhóm “Chung của các phiên đề thi thử vào 10, tốt nghiệp THPT”). Tạo 4 đề "Toán 9 · Thi thử vào 10 · Đề 1" … "Đề 4" (mã toan9-vao10-de1 … -de4, data/banks/9-toan.js, 120 phút, `pts: 10`) theo “Khung đề Toán”; tạo tests/toan9-vao10.js. Gắn 4 mã vào vao10-2027. Kiểm thử: không có số ghi cứng; tests/kiem-tra-de.js kiểm tra `pts`, `pt`, `part`.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N9-vao10-toan-b · Toán thi thử vào 10, Đề 5–7** (Merge N9-vao10-toan trước)
+> Đọc như Phiên N9-vao10-toan (cùng các đoạn). Tạo 3 đề "Toán 9 · Thi thử vào 10 · Đề 5" … "Đề 7" (mã toan9-vao10-de5 … -de7) theo “Khung đề Toán”; bối cảnh, số liệu, hình khác Đề 1–4 (dò bằng code); Bài 3, Bài 5 dùng mạch chưa dùng ở Đề 1–4 (ví dụ tần số tương đối ghép nhóm, hình nón, hình cầu). Mở rộng tests/toan9-vao10.js. Gắn 3 mã vào vao10-2027. Kiểm thử: không có số ghi cứng.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N9-vao10-toan-c · Toán thi thử vào 10, Đề 8–10** (Merge N9-vao10-toan-b trước)
+> Đọc như Phiên N9-vao10-toan. Tạo 3 đề "Toán 9 · Thi thử vào 10 · Đề 8" … "Đề 10" (mã toan9-vao10-de8 … -de10) theo “Khung đề Toán”; bối cảnh, số liệu, hình khác Đề 1–7 (dò bằng code); Đề 10 khó hơn một chút (Bài 6 hai bước, Bài 7c) làm đề chạy nước rút, ghi trong note. Mở rộng tests/toan9-vao10.js. Gắn 3 mã vào vao10-2027. Kiểm thử: không có số ghi cứng.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N9-vao10-van · Ngữ văn thi thử vào 10, Đề 1–2** (Merge K5 trước; sau các phiên N9-ck2-*)
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, đoạn “Thi vào 10”; mục 3.1, đoạn “Tự luận và chủ đề Viết”, “Đoạn đọc”, “Đề tính điểm”; mục 7: nhóm “Trước 11/5/2027” cả đoạn đầu và “Khung đề Ngữ văn”, nhóm “Chung của các phiên đề thi thử vào 10, tốt nghiệp THPT”). Tạo 2 đề "Ngữ văn 9 · Thi thử vào 10 · Đề 1", "… · Đề 2" (mã van9-vao10-de1, -de2, data/banks/9-van.js, 120 phút, `pts: 10`) theo “Khung đề Ngữ văn”; Phần I của hai đề khác thể loại (ví dụ một truyện, một bài thơ). Gắn 2 mã vào vao10-2027. Kiểm thử: không có số ghi cứng; tests/kiem-tra-de.js kiểm tra `pts`, `pt`, `part`, đoạn đọc.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N9-vao10-van-b · Ngữ văn thi thử vào 10, Đề 3–4** (Merge N9-vao10-van trước)
+> Đọc như Phiên N9-vao10-van. Tạo 2 đề "Ngữ văn 9 · Thi thử vào 10 · Đề 3", "… · Đề 4" (mã van9-vao10-de3, -de4) theo “Khung đề Ngữ văn”; văn bản, thể loại, vấn đề nghị luận xã hội khác Đề 1–2 (dò bằng code); Phần II một đề văn bản nghị luận, một đề văn bản thông tin. Gắn 2 mã vào vao10-2027. Kiểm thử: không có số ghi cứng.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N9-vao10-van-c · Ngữ văn thi thử vào 10, Đề 5–6** (Merge N9-vao10-van-b trước)
+> Đọc như Phiên N9-vao10-van. Tạo 2 đề "Ngữ văn 9 · Thi thử vào 10 · Đề 5", "… · Đề 6" (mã van9-vao10-de5, -de6) theo “Khung đề Ngữ văn”; văn bản, thể loại, vấn đề nghị luận xã hội khác Đề 1–4 (dò bằng code), để sáu đề phủ đủ thể loại như khung ghi. Gắn 2 mã vào vao10-2027. Kiểm thử: không có số ghi cứng.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
 ### Cách viết lời giao việc mới
 
 **Mẫu lời giao việc** (thay phần trong ngoặc vuông):
@@ -642,6 +751,19 @@ Nhiều trang chỉ cho xem một phần; phạm vi chưa đủ hai nguồn ghi 
 - Tin học 9: [phân phối chương trình](https://hoatieu.vn/phan-phoi-chuong-trinh-tin-hoc-9-ket-noi-tri-thuc-225493), [đề học kì 1](https://hoatieu.vn/de-thi-hoc-ki-1-tin-hoc-9-ket-noi-tri-thuc-226828), [đề giữa kì 2](https://hoatieu.vn/de-thi-giua-ki-2-tin-hoc-9-ket-noi-tri-thuc-230003)
 - Công nghệ 9: [đề học kì 1](https://hoatieu.vn/de-thi-hoc-ki-1-cong-nghe-9-ket-noi-tri-thuc-227705), [Định hướng nghề nghiệp](https://hoatieu.vn/giao-an-cong-nghe-9-dinh-huong-nghe-nghiep-ket-noi-tri-thuc-227043), [đề cương cuối kì 2](https://hoatieu.vn/de-cuong-on-tap-cuoi-ki-2-cong-nghe-9-ket-noi-tri-thuc-230996)
 - Đề chung của Sở (Thông tư 89/2026): chưa Sở Hà Nội, TP.HCM nào công bố môn, cấu trúc đề chung cuối kì I lớp 9 ([Báo Lào Cai](https://baolaocai.vn/so-giao-duc-va-dao-tao-xay-dung-de-kiem-tra-dinh-ky-chung-voi-lop-5-lop-9-va-lop-12-post912490.html), [hoatieu](https://hoatieu.vn/phap-luat/hoc-sinh-lop-5-9-12-kiem-tra-cuoi-ky-theo-de-chung-cua-so-gddt-o-mot-so-mon-261515)).
+
+### Nguồn phạm vi bài lớp 9 cuối năm, thi thử vào 10 (tra ngày 27/10/2026)
+
+Lượt PO ngày 27/10/2026 không đọc được OnUp-Book (phiên PO không có quyền vào repo riêng tư), và các đề cương cuối kì II dưới đây phần lớn chỉ cho xem tiêu đề, nên phạm vi các phiên N9-ck2-* là mặc định PO chọn, chưa đối chiếu mục lục: phiên đối chiếu với mục lục ở OnUp-Book.
+- Toán 9 tập hai: [đề cương cuối kì 2](https://hoatieu.vn/de-cuong-on-tap-cuoi-ki-2-toan-9-ket-noi-tri-thuc-231131), [đề cuối kì 2 CV 7991](https://hoatieu.vn/de-thi-cuoi-ki-2-toan-9-ket-noi-tri-thuc-230580) (nội dung bị khóa); Chương X Một số hình khối trong thực tiễn: [hình trụ, hình nón](https://loigiaihay.com/ly-thuyet-hinh-tru-va-hinh-non-toan-9-ket-noi-tri-thuc-a174026.html), [2048.vn](https://2048.vn/mot-so-hinh-khoi-trong-thuc-tien-t25423).
+- Ngữ văn 9: [đề cương học kì 2](https://hoatieu.vn/de-cuong-on-tap-hoc-ki-2-mon-ngu-van-9-sach-ket-noi-tri-thuc-230866) (bị khóa), [Bài 8 Tiếng nói của lương tri](https://2048.vn/tieng-noi-cua-luong-tri-t25846), [soạn văn 9](https://vietjack.com/soan-van-lop-9-kn/index.jsp).
+- Tiếng Anh 9: [đề cương cuối kì 2](https://hoatieu.vn/de-cuong-on-thi-cuoi-ki-2-tieng-anh-9-global-success-231102) (Unit 7–11: Natural wonders of the world, Tourism, World Englishes, Planet Earth, Electronic devices), [phân phối chương trình](https://hoatieu.vn/phan-phoi-chuong-trinh-anh-9-global-success-225704).
+- KHTN 9: [phân phối chương trình dạy song song](https://hoatieu.vn/phan-phoi-chuong-trinh-khoa-hoc-tu-nhien-lop-9-ket-noi-tri-thuc-225328), [đề cuối kì 2](https://hoatieu.vn/de-thi-cuoi-ki-2-khoa-hoc-tu-nhien-9-sach-ket-noi-tri-thuc-230835) (bị khóa).
+- Lịch sử và Địa lí 9: [Lịch sử Bài 20 Châu Á từ năm 1991 đến nay](https://hoatieu.vn/powerpoint-lich-su-9-bai-20-244735), [Bài 21 Việt Nam từ năm 1991 đến nay](https://hoatieu.vn/powerpoint-lich-su-9-bai-21-244736), [kế hoạch dạy học](https://hoatieu.vn/tai-lieu/ke-hoach-day-hoc-lich-su-dia-li-9-ket-noi-tri-thuc-225384).
+- GDCD 9: [kế hoạch dạy học](https://hoatieu.vn/ke-hoach-day-hoc-giao-duc-cong-dan-9-ket-noi-tri-thuc-225470) (10 bài, 35 tiết: Bài 7 Thích ứng với thay đổi, Bài 8 Tiêu dùng thông minh, Bài 9 Vi phạm pháp luật và trách nhiệm pháp lí, Bài 10 Quyền tự do kinh doanh và nghĩa vụ đóng thuế; bảng không chia học kì).
+- Tin học 9: [đề cương cuối kì 2](https://hoatieu.vn/de-cuong-on-tap-cuoi-ki-2-tin-hoc-9-ket-noi-tri-thuc-230954) (thuật toán, sơ đồ khối; bảng tính: xác thực dữ liệu, COUNTIF, SUMIF, IF).
+- Công nghệ 9: [đề cương cuối kì 2](https://hoatieu.vn/de-cuong-on-tap-cuoi-ki-2-cong-nghe-9-ket-noi-tri-thuc-230996) (theo mô đun Định hướng nghề nghiệp; trường khác học mô đun tự chọn ở học kì II, nên mặc định giữ như giữa kì II).
+- Thi vào 10 TP.HCM: [đề minh họa năm 2026, Báo Đại biểu Nhân dân 22/10/2025](https://daibieunhandan.vn/tp-ho-chi-minh-cong-bo-de-minh-hoa-tuyen-sinh-lop-10-nam-2026-10392343.html) (Toán 7 bài; Ngữ văn hai phần 5 + 5 điểm; Tiếng Anh 40 câu), [HOCMAI 24/10/2025](https://huongnghiep.hocmai.vn/thi-vao-10-de-minh-hoa-thi-lop-10-tp-hcm-nam-2026-so-cau-truc-xac-dinh-chuan-muc-tieu-chon-truong) (thời gian: Toán, Ngữ văn 120 phút, Tiếng Anh 90 phút).
 
 ### Lớp 5, 7–12
 
