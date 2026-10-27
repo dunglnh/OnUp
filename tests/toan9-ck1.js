@@ -612,7 +612,7 @@ assert.deepEqual(lo, [], "lộ đáp án:\n" + lo.join("\n"));
 const BOOK = path.join(__dirname, "../../OnUp-Book");
 const SACH = ["lop-9/toan-9-tap-1"].map((c) => path.join(BOOK, c, "chu.txt")).filter((f) => fs.existsSync(f));
 const khongDau = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
-// cụm từ chung của môn (tên bài, tên phương pháp, thuật ngữ, lời dặn làm tròn) thay bằng dấu ngăn trước khi so; chuỗi so phải có ít nhất 5 từ có chữ
+// cụm từ chung của môn (tên bài, tên phương pháp, tên tính chất, thuật ngữ, lời dặn làm tròn) thay bằng dấu ngăn trước khi so; chuỗi so phải có ít nhất 5 từ có chữ
 const TU_CHUNG = ["giải bài toán bằng cách lập hệ phương trình", "hệ hai phương trình bậc nhất hai ẩn", "phương trình bậc nhất hai ẩn", "giải hệ phương trình bằng phương pháp thế",
   "phương pháp cộng đại số", "vị trí tương đối của hai đường tròn", "vị trí tương đối của đường thẳng và đường tròn", "bất phương trình bậc nhất một ẩn",
   "làm tròn đến chữ số thập phân thứ nhất", "làm tròn đến chữ số thập phân thứ hai", "làm tròn đến hàng phần mười", "điều kiện xác định của phương trình",
