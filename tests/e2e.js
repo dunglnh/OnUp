@@ -3956,7 +3956,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     r.find = { eb: await shown("eb"), want: await de2([4]), em: await shown("em"), n: await txt("#ePickN") };
     await check7("sửa kì thi, tìm"); await snap7("sua-ki-thi-tim");
     await p.click("#eAll");
-    r.find.all = { eb: await shown("eb"), want: await de2([4, 6]), link: await txt("#eAll"), scope: await txt("#ePickScope") };
+    // “Hiện cả đề của khối khác” hiện đề của mọi khối có trong danh mục, kể cả khối chưa bật (đề lớp 9 từ Phiên N9-ck1-toan): tính từ danh mục
+    r.find.all = { eb: await shown("eb"), want: await de2(await p.evaluate(() => [...new Set(Store.banks().map((b) => b.grade))])), link: await txt("#eAll"), scope: await txt("#ePickScope") };
     await p.click("#eAll"); await p.fill("#eFind", "");
     r.find.back = (await shown("eb")).split(",").length;
     await p.uncheck('input[name=eg][value="4"]'); r.find.none = await scopeLine(); // bỏ ô Lớp 4: dòng nhắc chọn khối

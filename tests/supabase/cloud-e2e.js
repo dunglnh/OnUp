@@ -344,7 +344,8 @@ async function run(browser, scheme) {
   await p.fill("#eFind", "toan de 2");
   c.ux7.find = (await ebShown()) === (await de2([4])) && (await de2([4])).split(",").length >= 2;
   await p.click("#eAll");
-  c.ux7.findAll = (await ebShown()) === (await de2([4, 6])) && (await de2([6])).includes(toan6);
+  // “Hiện cả đề của khối khác” hiện đề của mọi khối có trong danh mục, kể cả khối chưa bật (đề lớp 9 từ Phiên N9-ck1-toan): tính từ danh mục
+  c.ux7.findAll = (await ebShown()) === (await de2(await p.evaluate(() => [...new Set(Store.banks().map((b) => +b.grade))]))) && (await de2([6])).includes(toan6);
   c.ux7.scope.push(await scopeLine());
   await shot(p, "c5d-sua-ki-thi-tim");
   await p.click(`#ePick input[value="${toan6}"]`); await p.click("#eAll"); await p.fill("#eFind", "");
