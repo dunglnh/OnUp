@@ -38,6 +38,13 @@
    { type: "order", q: "Sắp xếp…", o: ["thứ 1", "thứ 2", "thứ 3"], x: "..." }   // viết theo thứ tự đúng (ít nhất 3 ô), app tự xáo
    { type: "essay", q: "Đề bài", rubric: [{ c: "ý cần có", p: 0.5 }, …], x: "đáp án gợi ý" }
                    // tự luận: học sinh, phụ huynh tự chấm theo thang (điểm mỗi ý chia hết cho 0,25); không tính vào điểm trung bình
+   Đề tính điểm (Phiên K5; đề thi thử vào 10, thi thử tốt nghiệp THPT): mục danh mục có thêm pts: 10 (thang điểm, ghi sau file) để
+     app biết trước khi tải file câu hỏi; mọi câu của đề có pt (điểm tối đa của câu, bội của 0,25; câu đúng/sai 4 ý pt: 1, vẫn chấm
+     0,1/0,25/0,5/1 theo số ý đúng; tự luận: pt bằng tổng điểm thang chấm) và part (tên phần, ví dụ "Phần I. Trắc nghiệm nhiều lựa
+     chọn"); tổng pt bằng pts, câu cùng part đứng liền nhau, câu cùng đoạn đọc liền nhau. App không xáo thứ tự câu của đề này (vẫn xáo
+     phương án), chấm theo điểm (Quiz.grade): kết quả "6,35/10", bảng theo phần; lưu r = điểm phần chấm tự động, t = pts. Phần tự
+     luận tự chấm vẫn lưu riêng. Tên đề "<môn> <khối> · Thi thử vào 10 · Đề N", "<môn> <khối> · Thi thử tốt nghiệp · Đề N"; mã
+     "<mã môn><khối>-vao10-de<N>", "<mã môn><khối>-tn-de<N>". Chưa có đề ngẫu nhiên cho đề tính điểm (pts không đi cùng pool).
    topic: tên chủ đề để thống kê câu sai theo chủ đề. Trường chung không bắt buộc:
    lv: mức độ 1 (Biết), 2 (Hiểu), 3 (Vận dụng);
    p: mã đoạn đọc trong passages: { "<mã>": { title?, text?, svg? } } (các câu cùng đoạn đứng liền nhau khi làm bài);
