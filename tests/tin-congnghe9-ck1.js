@@ -3,9 +3,10 @@
 // nhiên không có câu riêng; mã đề, số câu lấy từ danh mục (không ghi cứng); ma trận 10 – 8 – 7 như mọi kho lớp 9.
 // Câu có phép tính hoặc có hình được nhận ra bằng một đoạn chữ của đề (has: đúng một câu trong hai kho, đúng đề ghi ở id); đáp án
 // tính bằng code (so với ans, o[0], cặp nối hoặc thứ tự sắp xếp). Tin học: tiền thừa của máy bán nước (lời giải), tỉ lệ vàng của
-// ngôi sao năm cánh, bảng chi phí (số lượng × đơn giá), bảng các bài viết tìm được (chỉ một bài vừa của nguồn chính thức vừa đăng
-// trong năm hỏi). Công nghệ: tuổi vào lớp 10 (số lớp của tiểu học, trung học cơ sở như sách), biểu đồ cột số chỗ làm (số ở đỉnh
-// cột khớp chiều cao theo trục), mức độ phù hợp theo thang điểm của Bài 5, bảng đánh giá (đếm dấu × ở cột Khớp) và hai sơ đồ khung
+// ngôi sao năm cánh (tỉ số tính từ một lần đo, đề không ghi sẵn), bảng các bài viết tìm được (chỉ một bài vừa của nguồn chính thức
+// vừa đăng trong năm hỏi; lựa chọn chỉ ghi số bài). Công nghệ: tuổi học xong cao đẳng (số lớp của ba cấp phổ thông, thời gian học
+// cao đẳng ngắn nhất như sách), biểu đồ cột số chỗ làm (số ở đỉnh cột khớp chiều cao theo trục), mức độ phù hợp theo thang điểm của
+// Bài 5 và bảng đánh giá (đếm dấu × ở cột Khớp; đề không ghi sẵn cách tính điểm, thang xếp loại), hai sơ đồ khung
 // cơ cấu hệ thống giáo dục quốc dân: ô có tên, số hoặc “?” (ô bị che), màu ô theo chú thích (phần của hệ thống), mũi tên chỉ hướng
 // học tiếp (đoạn thẳng đi từ cạnh ô nguồn, đỉnh mũi tên chạm cạnh ô đích, không cắt ô khác); thử mọi cách điền tên vào các ô có số
 // hoặc bị che: chỉ một cách khớp màu và mọi mũi tên khớp hướng học tiếp theo khung (GD, như Bài 2 của sách), và cách đó đúng bằng
@@ -71,7 +72,7 @@ const close = (x, y, e = 1e-9) => Math.abs(x - y) < e;
 const sum = (a) => a.reduce((s, v) => s + v, 0);
 const val = (s) => +String(s).replace(/\s/g, "").replace(/−/g, "-").replace(",", "."); // "35 000" → 35000, "1,62" → 1.62
 const tron = (x, k) => Math.round(x * 10 ** k) / 10 ** k;
-const vn = (x) => { const [a, b] = String(tron(x, 6)).split("."); return a.replace(/\B(?=(\d{3})+$)/g, " ") + (b ? "," + b : ""); }; // 136000 → "136 000"
+const vn = (x) => { const [a, b] = String(tron(x, 6)).split("."); return a.replace(/\B(?=(\d{3})+$)/g, " ") + (b ? "," + b : ""); }; // 136000 → "136 000", 14.58 → "14,58"
 const hoan = (a) => (a.length <= 1 ? [a] : a.flatMap((x, i) => hoan(a.slice(0, i).concat(a.slice(i + 1))).map((r) => [x].concat(r)))); // mọi hoán vị
 
 /* ---------- hình ---------- */
@@ -113,7 +114,9 @@ const docBang = (svg) => {
 /* Khung cơ cấu hệ thống giáo dục quốc dân như Bài 2 của Công nghệ 9: phần của hệ thống và các cấp học, trình độ học tiếp được
    (trung cấp dành cho người tốt nghiệp trung học cơ sở; cao đẳng cho người tốt nghiệp trung học phổ thông, hoặc trung cấp và có bằng
    tốt nghiệp trung học phổ thông; đại học cho người tốt nghiệp trung học phổ thông, trung cấp (đủ văn hoá trung học phổ thông), cao
-   đẳng; thạc sĩ sau đại học; tiến sĩ sau thạc sĩ hoặc đại học). Tiểu học 5 lớp, trung học cơ sở 4 lớp. Màu của ô theo chú thích. */
+   đẳng; thạc sĩ sau đại học; tiến sĩ sau thạc sĩ hoặc đại học). Tiểu học 5 lớp, trung học cơ sở 4 lớp, trung học phổ thông 3 lớp;
+   cao đẳng cho người tốt nghiệp trung học phổ thông học từ 2 đến 3 năm. Màu của ô theo chú thích. Thang xếp loại của bảng đánh giá
+   Bài 5: mỗi dấu “x” ở cột trùng khớp được 1 điểm, cột không trùng khớp hoặc để trống 0 điểm; tổng 1–3, 4–6, 7–10 điểm. */
 const GD = {
   "Tiểu học": ["Giáo dục phổ thông", ["Trung học cơ sở"]],
   "Trung học cơ sở": ["Giáo dục phổ thông", ["Trung học phổ thông", "Trung cấp"]],
@@ -124,7 +127,9 @@ const GD = {
   "Thạc sĩ": ["Giáo dục đại học", ["Tiến sĩ"]],
   "Tiến sĩ": ["Giáo dục đại học", []]
 };
-const SO_LOP = { "tiểu học": 5, "trung học cơ sở": 4 };
+const SO_LOP = { "tiểu học": 5, "trung học cơ sở": 4, "trung học phổ thông": 3 };
+const CAO_DANG = [2, 3]; // số năm học cao đẳng của người tốt nghiệp trung học phổ thông (ít nhất, nhiều nhất)
+const THANG_BAI5 = [[1, 3, "không phù hợp"], [4, 6, "phù hợp một phần"], [7, 10, "phù hợp hoàn toàn"]];
 const MAU = { "sun-soft": "Giáo dục phổ thông", "ok-soft": "Giáo dục nghề nghiệp", "acc-soft": "Giáo dục đại học" };
 const hoc = (a, b) => GD[a][1].includes(b);
 
@@ -203,19 +208,13 @@ const CHECKS = [
     const tinh = q.o.filter((o) => /trừ/.test(o));
     assert.equal(tinh.length, 1, "chỉ một lựa chọn là việc tính toán"); return tinh[0]; } },
   { id: T.de1, has: "ngôi sao năm cánh đều", right: (q) => {
-    const r = val(q.q.match(/xấp xỉ (\d+,\d+)/)[1]), ab = val(q.q.match(/AB dài (\d+(?:,\d+)?) cm/)[1]), phi = (1 + Math.sqrt(5)) / 2;
-    assert.ok(close(r, tron(phi, 2)) && /Làm tròn kết quả đến hàng phần mười/.test(q.q) && q.unit === "cm" && q.tol === 0.1, "tỉ lệ vàng 1,62; dặn làm tròn đến hàng phần mười");
-    assert.equal(tron(phi * ab, 1), tron(r * ab, 1), "tính bằng tỉ lệ vàng chính xác cũng ra cùng kết quả");
-    assert.ok(q.x.includes(`${vn(r)} × ${vn(ab)} = ${vn(r * ab)} ≈ ${vn(tron(r * ab, 1))}`), "lời giải ghi phép tính");
-    return tron(r * ab, 1); } },
-  { id: T.de1, has: "lập bảng tính chi phí cho gian trưng bày", right: (q) => {
-    const b = docBang(q.svg);
-    assert.deepEqual(b.o[0], ["Khoản chi", "Số lượng", "Đơn giá"], "hàng đầu là tiêu đề");
-    const hang = b.o.slice(1).map(([ten, sl, dg]) => ({ ten, sl: val(sl), dg: val(dg) }));
-    hang.forEach((h) => assert.ok(h.ten && h.sl > 0 && h.dg > 0 && q.x.includes(`${h.sl} × ${vn(h.dg)} = ${vn(h.sl * h.dg)}`), "lời giải tính từng khoản: " + h.ten));
-    const tong = sum(hang.map((h) => h.sl * h.dg));
-    assert.ok(q.unit === "đồng" && q.x.includes(`= ${vn(tong)} đồng`), "lời giải ghi tổng chi phí");
-    return tong; } },
+    // đề cho một lần đo (AB, AC) rồi độ dài AB mới, không ghi sẵn tỉ số: học sinh dùng điều Bài 6 cho thấy (tỉ số không đổi khi phóng to, thu nhỏ)
+    const [, ab, ac] = q.q.match(/AB = (\d+(?:,\d+)?) cm, AC = (\d+(?:,\d+)?) cm/).map(val), ab2 = val(q.q.match(/AB dài (\d+(?:,\d+)?) cm/)[1]), r = ac / ab, phi = (1 + Math.sqrt(5)) / 2;
+    assert.ok(!/tỉ số|tỉ lệ|xấp xỉ/.test(q.q), "đề không ghi sẵn tỉ số");
+    assert.ok(close(r, tron(phi, 2)) && /Làm tròn kết quả đến hàng phần mười/.test(q.q) && q.unit === "cm" && q.tol === 0.1, "lần đo cho tỉ lệ vàng 1,62; dặn làm tròn đến hàng phần mười");
+    assert.equal(tron(phi * ab2, 1), tron(r * ab2, 1), "tính bằng tỉ lệ vàng chính xác cũng ra cùng kết quả");
+    assert.ok(q.x.includes(`${vn(ac)} : ${vn(ab)} = ${vn(r)}`) && q.x.includes(`${vn(r)} × ${vn(ab2)} = ${vn(r * ab2)} ≈ ${vn(tron(r * ab2, 1))}`), "lời giải ghi tỉ số và phép tính");
+    return tron(r * ab2, 1); } },
   { id: T.de2, has: "lịch học và học phí lớp bơi", right: (q) => {
     const b = docBang(q.svg);
     assert.deepEqual(b.o[0], ["Bài", "Nguồn", "Ngày đăng"], "hàng đầu là tiêu đề");
@@ -223,13 +222,12 @@ const CHECKS = [
     const hang = b.o.slice(1).map(([bai, nguon, ngay]) => { const [d, m, y] = ngay.split("/").map(Number); return { bai, nguon, t: y * 400 + m * 31 + d, y, m }; });
     const chinhThuc = (h) => h.nguon === "Trang " + noi, dung = hang.filter((h) => chinhThuc(h) && h.y === +nam && h.m <= +thang);
     assert.equal(dung.length, 1, "chỉ một bài vừa của nguồn chính thức vừa đăng trong năm hỏi, trước tháng hỏi");
-    const chon = (h) => { const o = q.o.filter((o) => o.startsWith(`Bài ${h.bai}:`)); assert.equal(o.length, 1, "mỗi bài một lựa chọn"); return o[0]; };
-    assert.deepEqual(q.o.map((o) => o.match(/^Bài (\d+):/)[1]).sort(), hang.map((h) => h.bai).sort(), "bốn lựa chọn là bốn bài của bảng");
+    // lựa chọn chỉ ghi số bài: phải đọc bảng mới chọn được
+    assert.deepEqual(q.o.slice().sort(), hang.map((h) => "Bài viết " + h.bai).sort(), "bốn lựa chọn là “Bài viết N” của bốn dòng trong bảng");
     const muon = hang.reduce((a, h) => (h.t > a.t ? h : a));
-    assert.ok(muon !== dung[0] && !chinhThuc(muon) && /muộn nhất/.test(chon(muon)), "lựa chọn “đăng muộn nhất” nói về bài đăng muộn nhất, không phải nguồn chính thức");
-    hang.filter((h) => chinhThuc(h) && h !== dung[0]).forEach((h) => assert.ok(h.y < +nam && /chính thức/.test(chon(h)), "bài cũ của nguồn chính thức"));
-    hang.filter((h) => /quảng cáo/.test(h.nguon)).forEach((h) => assert.ok(/bán đồ bơi/.test(chon(h)), "lựa chọn về trang quảng cáo"));
-    return chon(dung[0]); } },
+    assert.ok(muon !== dung[0] && !chinhThuc(muon), "bài đăng muộn nhất không phải của nguồn chính thức");
+    assert.ok(hang.some((h) => chinhThuc(h) && h.y < +nam) && hang.some((h) => /quảng cáo/.test(h.nguon)), "có bài cũ của nguồn chính thức và bài của trang quảng cáo");
+    return "Bài viết " + dung[0].bai; } },
   { id: T.de2, has: "theo ba tiêu chí, xếp theo thứ tự ưu tiên", right: (q) => {
     // các tiêu chí theo thứ tự ưu tiên; mỗi trường đạt hoặc không đạt từng tiêu chí (viết đúng chữ của tiêu chí là đạt)
     const tc = [...q.q.matchAll(/\((\d)\) ([^;.]+)[;.]/g)].map((m, k) => (assert.equal(+m[1], k + 1), m[2]));
@@ -255,10 +253,11 @@ const CHECKS = [
     assert.equal(hop.length, 1, "chỉ một cách điền tên vào các ô có số khớp màu và mũi tên");
     return q.l.map((l, k) => [l, hop[0][k]]); } },
   { id: C.de1, has: "vào lớp 1 năm", right: (q) => {
-    const tuoi = +q.q.match(/vào lớp 1 năm (\d+) tuổi/)[1], nam = SO_LOP["tiểu học"] + SO_LOP["trung học cơ sở"];
-    assert.ok(/số lớp của giáo dục tiểu học và giáo dục trung học cơ sở/.test(q.q) && q.unit === "tuổi", "đề nói tính theo số lớp của hai cấp học");
-    assert.ok(q.x.includes(`${SO_LOP["tiểu học"]} lớp`) && q.x.includes(`${SO_LOP["trung học cơ sở"]} lớp`) && q.x.includes(`${SO_LOP["tiểu học"]} + ${SO_LOP["trung học cơ sở"]} = ${nam}`) && q.x.includes(`${tuoi} + ${nam} = ${tuoi + nam}`), "lời giải ghi số lớp và phép tính");
-    return tuoi + nam; } },
+    // tuổi học xong cao đẳng: số lớp của ba cấp phổ thông và thời gian ngắn nhất của cao đẳng (người tốt nghiệp trung học phổ thông)
+    const tuoi = +q.q.match(/vào lớp 1 năm (\d+) tuổi/)[1], P = SO_LOP, lop = P["tiểu học"] + P["trung học cơ sở"] + P["trung học phổ thông"], cd = CAO_DANG[0];
+    assert.ok(/Học xong trung học phổ thông, \S+ vào học cao đẳng ngay/.test(q.q) && /thời gian ngắn nhất/.test(q.q) && q.unit === "tuổi", "đề nói học cao đẳng ngay sau trung học phổ thông, trong thời gian ngắn nhất");
+    assert.ok(q.x.includes(`${P["tiểu học"]} + ${P["trung học cơ sở"]} + ${P["trung học phổ thông"]} = ${lop}`) && q.x.includes(`từ ${CAO_DANG[0]} đến ${CAO_DANG[1]} năm`) && q.x.includes(`${tuoi} + ${lop} + ${cd} = ${tuoi + lop + cd}`), "lời giải ghi số lớp, thời gian học cao đẳng và phép tính");
+    return tuoi + lop + cd; } },
   { id: C.de1, has: "số chỗ làm cần tuyển của bốn nhóm ngành", right: (q) => {
     const c = docCot(q.svg), gt = c.map((x) => x.gt), max = c.find((x) => x.gt === Math.max(...gt)), min = c.find((x) => x.gt === Math.min(...gt));
     assert.ok(gt.filter((v) => v === max.gt).length === 1 && gt.filter((v) => v === min.gt).length === 1, "một nhóm nhiều nhất, một nhóm ít nhất");
@@ -267,11 +266,10 @@ const CHECKS = [
   { id: C.de1, has: "Bảng đánh giá của Nam có", right: (q) => {
     const so = (re) => +q.q.match(re)[1], tong = so(/có (\d+) mục/), khop = so(/“trùng khớp” ở (\d+) mục/), khong = so(/“không trùng khớp” ở (\d+) mục/), trong = so(/bỏ trống (\d+) mục/);
     assert.equal(khop + khong + trong, tong, "số mục cộng lại bằng số mục của bảng");
-    assert.ok(/mỗi mục trùng khớp được 1 điểm, mục không trùng khớp hoặc bỏ trống được 0 điểm/.test(q.q), "cách tính điểm như sách");
-    const thang = [...q.q.matchAll(/(\d+)–(\d+) điểm: ([^,.]+)/g)].map((m) => [+m[1], +m[2], m[3]]);
-    assert.deepEqual(thang, [[1, 3, "không phù hợp"], [4, 6, "phù hợp một phần"], [7, 10, "phù hợp hoàn toàn"]], "thang xếp loại của Bài 5");
-    const muc = thang.find(([a, b]) => khop >= a && khop <= b)[2];
-    assert.ok(q.x.includes(`${khop} điểm`), "lời giải ghi số điểm");
+    // câu Vận dụng của Bài 5: đề không ghi sẵn cách tính điểm, thang xếp loại (học sinh dùng điều đã học); lời giải ghi như sách
+    assert.ok(!/điểm/.test(q.q.replace("cách tính điểm", "")), "đề không ghi sẵn cách tính điểm, thang xếp loại");
+    const muc = THANG_BAI5.find(([a, b]) => khop >= a && khop <= b)[2];
+    assert.ok(q.x.includes(`Nam được ${khop} điểm`) && q.x.includes(THANG_BAI5.map(([a, b, t]) => `${a}–${b} điểm: ${t}`).join("; ")), "lời giải ghi số điểm và thang xếp loại của Bài 5");
     return muc[0].toUpperCase() + muc.slice(1); } },
   { id: C.de2, has: "con đường chị đã đi", right: (q) => {
     const s = docKhung(q.svg);
@@ -296,6 +294,7 @@ const CHECKS = [
     const hang = b.o.slice(1);
     hang.forEach((h) => assert.ok(h[0] && ["", "×"].includes(h[1]) && ["", "×"].includes(h[2]) && !(h[1] && h[2]), "mỗi dòng nhiều nhất một dấu ×: " + h[0]));
     assert.ok(hang.some((h) => !h[1] && !h[2]) && hang.some((h) => h[2]), "có dòng chưa đánh giá và dòng không trùng khớp");
+    assert.ok(!/được \d+ điểm/.test(q.q) && q.x.includes("Mỗi dấu × ở cột Khớp được 1 điểm"), "đề không ghi sẵn cách tính điểm, lời giải ghi như sách");
     const khop = hang.filter((h) => h[1]);
     assert.ok(q.unit === "điểm" && q.x.includes(`Cột Khớp có ${khop.length} dấu × (${khop.map((h) => h[0][0].toLowerCase() + h[0].slice(1)).join(", ")})`), "lời giải kể các dòng trùng khớp");
     return khop.length; } }
@@ -455,24 +454,32 @@ const loAll = [], chuAll = [];
 MON.forEach((S) => { const r = doLo(S.kho, bank(S.pool).pool.matrix); loAll.push(...r.lo); chuAll.push(...r.chuLo); });
 if (process.env.DO_LO) console.log("Đáp án bằng chữ có ở câu rút được cùng lúc (xem tay):\n" + chuAll.join("\n"));
 // đã xem (Phiên N9-ck1-tin-congnghe): chữ chung, câu kia không cho biết điều câu này hỏi. Tin học: “chính xác” (đáp án câu điền tên
-// tiêu chí) chỉ là tính từ thường ở câu khác (tính toán chính xác, tài liệu chính xác…), không câu nào nói thông tin sai địa chỉ thiếu
+// tiêu chí) chỉ là tính từ thường ở câu khác (tính toán chính xác, tài liệu chính xác…), không câu nào nói thông tin sai tên phố thiếu
 // tiêu chí gì; “chia sẻ để”, “sẻ để các”: câu “KHÔNG phải là cách” kể cách chia sẻ để xem và để cùng sửa một lúc, không kể cách chia sẻ
-// để các thành viên chủ động cập nhật; “có chất lượng”: câu về thông tin có chất lượng (câu kia hỏi chọn phần mềm mô phỏng); “thiết
-// bị số”, “trên phần mềm”, “theo thứ tự”, “lượng dữ liệu” (chất lượng dữ liệu), “của người khác”, “gây hại cho”, “phần mềm có”,
-// “các phần mềm”: cụm từ thường. Công nghệ: “quy trình lựa chọn nghề nghiệp” là tên Bài 4 (nhãn chủ đề), câu kia không
-// nói dự án Bài 5 làm theo quy trình đó; “nhóm nghiệp vụ”: câu kia chỉ nêu tên nhóm (lựa chọn, ô thừa, sáu tên nhóm), không tả nét
-// tính cách của nhóm; “điều kiện kinh tế”: câu đúng/sai 4 ý của Bài 5 nói điều kiện kinh tế thuộc bối cảnh gia đình, không nói đó là
-// yếu tố khách quan; “của gia đình”: câu Vân nói truyền thống gia đình đáng tham khảo, không phân loại yếu tố; “làm việc nhóm”: một
-// dòng của bảng đánh giá, chính đề câu Long đã tả việc Long ít trao đổi với bạn; “học nghề điện”, “không hợp với”, “hợp với mình”,
-// “cơ sở đào tạo”, “ngành kĩ thuật”: cụm từ thường.
+// để các thành viên chủ động cập nhật; “sơ đồ dòng thời gian”: ý đúng của câu đúng/sai 4 ý nói sơ đồ này tạo được từ mẫu có sẵn, không
+// nói nó dùng để trình bày tiến trình (câu kia hỏi điều đó, và chính tên công cụ đã nói lên điều đó); “mỗi bạn làm”, “bạn làm một”: câu
+// kia tả nhóm chia nhau mỗi bạn một trang, không nói làm riêng rồi chọn một bài có phải là cách hợp tác hay không; “mô phỏng giúp”:
+// câu kia hỏi phần mềm mô phỏng giúp gì nói chung; “có chất lượng”: câu về thông tin có chất lượng (câu kia hỏi chọn phần mềm mô
+// phỏng); “thiết bị số”, “phần mềm có”, “so sánh các”, “theo thứ tự”, “lượng dữ liệu” (chất lượng dữ liệu), “của người khác”: cụm từ
+// thường. Công nghệ: “quy trình lựa chọn nghề nghiệp” là tên Bài 4 (nhãn chủ đề), câu kia không nói dự án Bài 5 làm theo quy trình
+// đó; “nhóm nghiệp vụ”: câu kia chỉ nêu tên nhóm (ô thừa của câu nối), không tả nét tính cách của nhóm; “môi trường làm việc”: câu
+// kia hỏi môi trường làm việc của nghề kĩ thuật, công nghệ, không nói gì về lí thuyết Holland; “của gia đình”: câu Vân nói truyền
+// thống gia đình đáng tham khảo, không phân loại yếu tố; “làm việc nhóm”: một dòng của bảng đánh giá, chính đề câu Long đã tả việc
+// Long ít trao đổi với bạn; “bản thân và”, “làm công nhân”, “nghề hợp với”, “trao đổi với”, “hợp với mình”, “ngành kĩ thuật”: cụm từ
+// thường.
 const DA_XEM = [
   "tin-de1#21 → tin-de1#2: lượng dữ liệu",
   "tin-de2#12 → tin-de1#12: của người khác",
-  "tin-de2#11 → tin-de1#17: gây hại cho",
-  "tin-de1#17 → tin-de1#18: trên phần mềm",
-  "tin-de2#17 → tin-de1#18: trên phần mềm",
+  "tin-de1#15 → tin-de1#18: mô phỏng giúp",
+  "tin-de2#15 → tin-de1#18: mô phỏng giúp",
+  "tin-de2#24 → tin-de1#20: mỗi bạn làm",
+  "tin-de2#24 → tin-de1#20: bạn làm một",
+  "tin-de2#25 → tin-de1#20: mỗi bạn làm",
   "tin-de1#20 → tin-de1#22: chia sẻ để",
   "tin-de1#20 → tin-de1#22: sẻ để các",
+  "tin-de2#23 → tin-de1#24: sơ đồ dòng",
+  "tin-de2#23 → tin-de1#24: đồ dòng thời",
+  "tin-de2#23 → tin-de1#24: dòng thời gian",
   "tin-de1#2 → tin-de2#7: chính xác",
   "tin-de1#3 → tin-de2#7: chính xác",
   "tin-de2#17 → tin-de2#7: chính xác",
@@ -481,36 +488,36 @@ const DA_XEM = [
   "tin-de2#2 → tin-de2#11: thiết bị số",
   "tin-de2#5 → tin-de2#16: có chất lượng",
   "tin-de2#17 → tin-de2#16: phần mềm có",
-  "tin-de2#20 → tin-de2#16: các phần mềm",
+  "tin-de2#6 → tin-de2#17: so sánh các",
   "tin-de1#8 → tin-de2#21: theo thứ tự",
   "tin-de2#8 → tin-de2#21: theo thứ tự",
-  "congnghe-de1#5 → congnghe-de1#10: học nghề điện",
+  "congnghe-de2#4 → congnghe-de1#2: bản thân và",
+  "congnghe-de2#4 → congnghe-de1#11: làm công nhân",
+  "congnghe-de1#3 → congnghe-de1#16: môi trường làm",
+  "congnghe-de1#3 → congnghe-de1#16: trường làm việc",
   "congnghe-de1#20 → congnghe-de1#18: của gia đình",
-  "congnghe-de2#24 → congnghe-de1#18: điều kiện kinh",
-  "congnghe-de2#24 → congnghe-de1#18: kiện kinh tế",
-  "congnghe-de1#6 → congnghe-de1#20: không hợp với",
+  "congnghe-de1#5 → congnghe-de1#20: nghề hợp với",
+  "congnghe-de2#4 → congnghe-de1#20: nghề hợp với",
+  "congnghe-de2#6 → congnghe-de1#20: trao đổi với",
   "congnghe-de1#21 → congnghe-de1#23: quy trình lựa",
   "congnghe-de1#21 → congnghe-de1#23: trình lựa chọn",
   "congnghe-de1#21 → congnghe-de1#23: lựa chọn nghề",
   "congnghe-de1#21 → congnghe-de1#23: chọn nghề nghiệp",
   "congnghe-de1#21 → congnghe-de1#24: hợp với mình",
   "congnghe-de2#25 → congnghe-de2#6: làm việc nhóm",
-  "congnghe-de1#10 → congnghe-de2#14: cơ sở đào",
-  "congnghe-de1#10 → congnghe-de2#14: sở đào tạo",
-  "congnghe-de1#16 → congnghe-de2#19: nhóm nghiệp vụ",
   "congnghe-de1#19 → congnghe-de2#19: nhóm nghiệp vụ",
   "congnghe-de1#10 → congnghe-de2#21: học ngành kĩ",
   "congnghe-de1#10 → congnghe-de2#21: ngành kĩ thuật"
 ];
 assert.deepEqual(chuAll, DA_XEM, "đáp án bằng chữ có ở câu rút được cùng lúc đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 assert.deepEqual(loAll, [], "lộ đáp án:\n" + loAll.join("\n"));
-// bộ dò bắt được chỗ lộ cố ý viết sai: lời giải câu khác có “= 136 000”, cả hai vế một cặp nối, hai ô sắp xếp liền nhau, cụm của đáp án
+// bộ dò bắt được chỗ lộ cố ý viết sai: lời giải câu khác có “= 14,6”, cả hai vế một cặp nối, hai ô sắp xếp liền nhau, cụm của đáp án
 // trắc nghiệm, đáp án câu điền
 {
   const tim = (has) => kho.find((q) => q.q.includes(has)), gia = (q, x) => Object.assign({}, q, { x: q.x + " " + x }), khac = tim("mẫu giáo dành cho trẻ em");
   const thuLo = (qs) => { const M = new Proxy({}, { get: () => [1, 1, 1] }), r = doLo(qs, M, (q) => q.q.slice(0, 12)); return r.lo.concat(r.chuLo).map((s) => s.replace(/^.*: /, "")); };
-  assert.deepEqual(thuLo([tim("lập bảng tính chi phí cho gian trưng bày"), khac]), [], "câu không sửa thì không báo");
-  assert.ok(thuLo([tim("lập bảng tính chi phí cho gian trưng bày"), gia(khac, "Ví dụ tổng chi phí = 136 000 đồng.")]).includes("136000"));
+  assert.deepEqual(thuLo([tim("ngôi sao năm cánh đều"), khac]), [], "câu không sửa thì không báo");
+  assert.ok(thuLo([tim("ngôi sao năm cánh đều"), gia(khac, "Ví dụ AC = 14,6 cm.")]).includes("14.6"));
   assert.ok(thuLo([tim("Nối mỗi bạn với nhóm tính cách"), gia(khac, "Quý giàu tưởng tượng, thích vẽ tranh, chơi đàn, sáng tác: nhóm nghệ thuật.")]).includes("Quý giàu tưởng tượng, thích vẽ tranh, chơi đàn, sáng tác → Nhóm nghệ thuật"));
   const sx = tim("Sắp xếp các việc Đông làm");
   assert.ok(thuLo([sx, gia(khac, sx.o[0] + ". Sau đó: " + sx.o[1] + ".")]).includes(sx.o[0] + " → " + sx.o[1]));
