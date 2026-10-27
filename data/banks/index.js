@@ -729,6 +729,23 @@ window.ONTAP_SEED_BANKS = [
       "Mở đầu về đường tròn": [1, 0, 0], "Cung và dây của một đường tròn": [0, 1, 0], "Độ dài cung tròn, diện tích hình quạt tròn": [0, 1, 1],
       "Vị trí tương đối của đường thẳng và đường tròn": [1, 0, 1], "Vị trí tương đối của hai đường tròn": [1, 0, 0] } } },
 
+  /* Ngữ văn 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Ngữ văn 9 tập một, Bài 1–5; Phiên N9-ck1-van). Khối 9 chưa bật nên đề chưa
+     hiện với gia đình. Kho câu = 25 câu riêng trong file (5 đoạn đọc, 3 câu Viết) + 50 câu của 2 đề cố định (mỗi đề 5 đoạn đọc, 1 câu
+     Viết), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu: năm chủ đề đọc hiểu theo tên Bài 1–5, mỗi chủ đề
+     [1, 1, 1] (đoạn 3 câu mức 1-2-3), nên lần rút nào cũng lấy trọn một đoạn mỗi bài, đúng mức; 9 câu Tiếng Việt theo chín chủ đề
+     của mười mục Thực hành tiếng Việt Bài 1–5 (Biết 5, Hiểu 3, Vận dụng 1: chuyển cách dẫn); 1 câu Viết tự chấm. Hai đề cố định đúng ma trận, câu
+     riêng thêm vào năm chủ đề đọc hiểu, bảy chủ đề Tiếng Việt và Viết, nên ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút.
+     Câu tự luận chỉ ở ô Viết: mỗi lần rút đúng 1 câu. */
+  { id: "van9-ck1-de1", title: "Ngữ văn 9 · Cuối kì I · Đề 1", grade: 9, subject: "Ngữ văn", minutes: 45, n: 25, file: "9-van.js" },
+  { id: "van9-ck1-de2", title: "Ngữ văn 9 · Cuối kì I · Đề 2", grade: 9, subject: "Ngữ văn", minutes: 45, n: 25, file: "9-van.js" },
+  { id: "van9-ck1-ngau-nhien", title: "Ngữ văn 9 · Cuối kì I · Đề ngẫu nhiên", grade: 9, subject: "Ngữ văn", minutes: 45, n: 25, file: "9-van.js",
+    pool: { from: ["van9-ck1-de1", "van9-ck1-de2"], matrix: {
+      "Thế giới kì ảo": [1, 1, 1], "Những cung bậc tâm trạng": [1, 1, 1], "Hồn nước nằm trong tiếng mẹ cha": [1, 1, 1],
+      "Khám phá vẻ đẹp văn chương": [1, 1, 1], "Đối diện với nỗi đau": [1, 1, 1], "Điển tích, điển cố": [1, 0, 0],
+      "Một số yếu tố Hán Việt dễ nhầm lẫn": [0, 1, 0], "Biện pháp tu từ chơi chữ": [1, 0, 0], "Điệp thanh, điệp vần": [0, 1, 0],
+      "Chữ Nôm và chữ quốc ngữ": [1, 0, 0], "Cách dẫn trực tiếp và cách dẫn gián tiếp": [0, 0, 1], "Tham khảo, trích dẫn tài liệu": [1, 0, 0],
+      "Câu rút gọn": [1, 0, 0], "Câu đặc biệt": [0, 1, 0], "Viết": [0, 0, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
