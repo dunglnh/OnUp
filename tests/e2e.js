@@ -1007,7 +1007,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   await lp.goto(BASE + "/#/practice"); await lp.waitForSelector("#allPractice"); // UX1: mọi bài ôn ở tab Bài ôn
   await lp.evaluate(() => document.querySelectorAll("details.grp").forEach((d) => (d.open = true)));
   const l18 = await lp.evaluate(() => {
-    const row = (g, sub) => { const r = g && [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === sub); return r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent) : []; };
+    const row = (g, sub) => { const r = g && [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === sub); return r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent.replace(/^✓/, "")) : []; }; // ✓: đề đã làm (UX9)
     const grps = [...document.querySelectorAll("#allPractice details.grp")], other = grps.find((g) => !g.dataset.grp), ck2 = grps.find((g) => g.dataset.grp === "ck2-l4");
     const btns = [...document.querySelectorAll("#allPractice .des a")];
     return { today: new Date().toLocaleDateString("vi"), toan: row(other, "Toán"), tv: row(other, "Tiếng Việt"), ck2: row(ck2, "Toán"),
@@ -1058,7 +1058,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   const rowOf = (id, sub) => np.evaluate(([id, sub]) => {
     const g = document.querySelector(id ? `#allPractice details.grp[data-grp="${id}"]` : "#allPractice details.grp:not([data-grp])");
     const r = g && [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === sub);
-    return r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent) : [];
+    return r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent.replace(/^✓/, "")) : []; // ✓: đề đã làm (UX9)
   }, [id, sub]);
   const f9e = {};
   await asStudent("Bin", PINS.Bin);
@@ -1085,7 +1085,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   await nc.close();
   console.log("9e:", JSON.stringify(f9e));
   const fix9eOK = f9e.l4.today === "21/12/2026" && f9e.l4.tincn.join() === "Đề ngẫu nhiên,Đề 1,Đề 2"
-    && /\|14 bài ôn\|/.test("|" + f9e.l4.homeTags + "|") && / · 14 bài ôn$/.test(f9e.l4.grpHead) && /\|14 bài ôn\|/.test("|" + f9e.l4.calTags + "|") && f9e.l4.hero === "Tất cả bài ôn cho kì này · 14 bài ôn →"
+    && /\|14 bài ôn\|/.test("|" + f9e.l4.homeTags + "|") && / · 14 bài ôn$/.test(f9e.l4.grpHead) && /\|14 bài ôn\|/.test("|" + f9e.l4.calTags + "|") && /^(Tất cả bài ôn cho kì này · 14 bài ôn|Bài ôn cho kì này · đã làm [1-9]\d*\/14) →$/.test(f9e.l4.hero)
     && f9e.l6.taOther.join() === "Giữa kì I · Đề ngẫu nhiên,Giữa kì I · Đề 1,Giữa kì I · Đề 2" && f9e.l6.taCk1.join() === "Đề ngẫu nhiên,Đề 1,Đề 2" && f9e.l6.thu.join() === "Đề thử nghiệm · Các dạng câu mới"
     && f9e.l6.aria.includes("Tiếng Anh 6 · Giữa kì I · Đề 1") && !f9e.l6.aria.some((x) => /·.*·.*·/.test(x))
     && Object.values(f9e.nb).every((s) => /·/.test(s) && !/[^\u00a0]·/.test(s)) && f9e.nb.h1 === "Toán 6\u00a0· Cuối kì I\u00a0· Đề ngẫu nhiên";
@@ -1168,12 +1168,14 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   k3.heroWant = await kp.evaluate(() => {
     const e = window.ONTAP_SEED_EVENTS.find((x) => x.id === "gk1-l6"), mods = e.modules.filter((id) => (window.ONTAP_MODULES.find((m) => m.id === id) || {}).grade === 6);
     const bks = e.banks.filter((id) => { const b = window.ONTAP_SEED_BANKS.find((x) => x.id === id); return b && b.grade === 6 && !b.pool; });
-    return `Tất cả bài ôn cho kì này · ${mods.length + bks.length} bài ôn →`;
+    // UX9 (X38): đã làm bài nào của kì thì link ghi "Bài ôn cho kì này · đã làm d/N" (d: bài có kết quả, mọi lần)
+    const res = Store.resultsFor(Store.sessionUser().id), d = mods.concat(bks).filter((id) => res.some((r) => r.refId === id)).length, n = mods.length + bks.length;
+    return d ? `Bài ôn cho kì này · đã làm ${d}/${n} →` : `Tất cả bài ôn cho kì này · ${n} bài ôn →`;
   });
   await kp.goto(BASE + "/#/practice"); await kp.waitForSelector("#allPractice");
   k3.row = await kp.evaluate((id) => {
     const g = document.querySelector('#allPractice details.grp[data-grp="ck1-l6"]'), row = [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === "Toán"), a = [...row.querySelectorAll(".des a")];
-    return { labels: a.map((x) => x.textContent).join(), first: a[0].getAttribute("href") === "#/quiz/" + id && a[0].classList.contains("rnd"), aria: a[0].getAttribute("aria-label"), info: row.querySelector(".small").textContent };
+    return { labels: a.map((x) => x.textContent.replace(/^✓/, "")).join(), first: a[0].getAttribute("href") === "#/quiz/" + id && a[0].classList.contains("rnd"), aria: a[0].getAttribute("aria-label"), info: row.querySelector(".small").textContent };
   }, POOL);
   await kcheck("tab Bài ôn có nút Đề ngẫu nhiên");
   // Đề 1: làm đúng hết (có câu trả lời bằng số)
@@ -2251,10 +2253,11 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   step("today page, tabs, badges, result screen (UX1)");
   /* Trang chủ học sinh là trang "Hôm nay" với thanh tab dưới (Hôm nay · Bài ôn · Lịch thi · Kết quả); thanh trên không còn nút Lịch thi.
      Ngày giả lập thứ tư 21/10/2026; Bin có 3 ngày ôn liền (Toán 4 Đề 1 21/25 sai "Góc và đo góc" hôm kia, bài ôn giữa kì I 18/20 hôm qua,
-     Tiếng Anh 4 Đề 1 hôm nay). Thẻ "Hôm nay ôn gì?": bài chính là bài ôn của kì giữa kì I (kì gần nhất có bài ôn; đã làm tốt nên "làm lại"),
-     nút Bắt đầu ≥ 44px, link "Tất cả bài ôn cho kì này · 1 bài ôn"; bài phụ: đề có nhiều câu sai ở chủ đề hay sai. Chuỗi 3 ngày, tuần này
-     3/5 ngày (T2–T4), huy hiệu "Chuỗi 3 ngày" và "Hết đề · Kiểm tra giữa học kì I" mới nhận (dòng chúc mừng chỉ một lần), gợi ý huy hiệu
-     tiếp theo. Sang 1/12: kì cuối kì I có đề, bài phụ là đề của môn chưa làm trong 7 ngày. Tab Bài ôn (?ki= mở sẵn nhóm), Lịch thi (chỉ kì
+     Tiếng Anh 4 Đề 1 hôm nay). Hôm nay đã có bài nên thẻ đầu là "Bạn đã ôn rồi. Giỏi lắm!" (UX9, X40), nút "Làm thêm một bài" tới bài chính
+     (bài ôn của kì giữa kì I, kì gần nhất có bài ôn), link "Bài ôn cho kì này · đã làm 1/1" (X38); bài phụ: đề có nhiều câu sai ở chủ đề hay
+     sai. Chuỗi 3 ngày, tuần này 3/5 ngày (T2–T4), huy hiệu "Chuỗi 3 ngày" và "Hết đề · Kiểm tra giữa học kì I" mới nhận (dòng chúc mừng chỉ
+     một lần, hàng "Đã có"), mục tiêu kế tiếp "Chuỗi 7 ngày" (X39). Sang 1/12: chưa làm bài hôm nay nên thẻ "Hôm nay ôn gì?" với nút Bắt đầu
+     ≥ 44px rộng hết thẻ; kì cuối kì I có đề, bài phụ là đề của môn chưa làm trong 7 ngày. Tab Bài ôn (?ki= mở sẵn nhóm), Lịch thi (chỉ kì
      thi, "Còn N ngày"), Kết quả ("Điểm trung bình tháng"); thanh tab không có ở màn đề, tài khoản. Màn kết quả: lời khen theo điểm, "Hơn lần
      trước 2 câu (21/25)", nút "Ôn lại 2 câu sai" (lượt chỉ có 2 câu, hộp rời trang riêng, không lưu điểm, "Làm lại cả đề" về đủ 25 câu),
      câu sai thu gọn (bấm mới thấy đáp án, lời giải), chủ đề chỉ hiện chỗ cần ôn thêm. Trên câu chỉ một dòng nhãn "Toán · chủ đề"; câu điền
@@ -2278,7 +2281,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       const d = JSON.parse(localStorage.getItem("ontap_db_v1")), bin = d.users.find((u) => u.name === "Bin");
       /* Kịch bản của bước là kì giữa kì I lớp 4 chỉ có bài ôn l4-giua-ki-1 (Bin đã làm đúng 90%). Lịch mặc định gắn thêm đề Toán 4
          giữa kì I (Phiên N23) vào gk1-l4, nên bỏ các đề gắn vào kì đó ở đây, để bài chính, “1 bài ôn”, huy hiệu “Hết đề · Kiểm tra
-         giữa học kì I”, “Đã làm đúng 90% bài ôn của kì này”, bài phụ theo chủ đề hay sai và hồ sơ của con vẫn như kịch bản. Tải lại
+         giữa học kì I”, “Đã làm hết 1 bài · đúng 90%”, bài phụ theo chủ đề hay sai và hồ sơ của con vẫn như kịch bản. Tải lại
          không gắn lại: các mã đề đó đã có trong seedBanksSeen. */
       d.events.find((e) => e.id === "gk1-l4").banks = [];
       const at = (days, h) => { const x = new Date(); x.setDate(x.getDate() - days); x.setHours(h, 10, 0, 0); return x.toISOString(); };
@@ -2316,7 +2319,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     // sang 1/12: kì cuối kì I lớp 4 có đề; bài phụ là đề của môn chưa làm trong 7 ngày (Toán: đề chưa làm)
     await p.clock.setSystemTime(new Date("2026-12-01T08:00:00"));
     await p.goto(BASE + "/#/home"); await p.reload(); await p.waitForSelector("#today");
-    r.dec = { title: await txt("#today h1"), why: await txt("#today p"), more: await txt("#todayMore"), moreHref: await p.$eval("#todayMore a", (a) => a.getAttribute("href")), streak: await txt("#streak") };
+    r.dec = { title: await txt("#today h1"), why: await txt("#today p"), more: await txt("#todayMore"), moreHref: await p.$eval("#todayMore a", (a) => a.getAttribute("href")), streak: await txt("#streak"),
+      go: await p.$eval("#todayGo", (a) => a.textContent + ":" + a.classList.contains("main") + ":" + (a.getBoundingClientRect().height >= 44) + ":" + (a.getBoundingClientRect().width >= 280)) }; // nút Bắt đầu rộng hết thẻ (360 − 2×16 lề − 2×20 đệm thẻ = 288px)
     await ucheck("Hôm nay, kì có nhiều đề"); await usnap("hom-nay-thang-12");
     // màn làm bài và màn kết quả: Toán 4 Đề 1, ôn luyện, hai câu đầu cố ý sai (lần trước 21/25)
     await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await p.waitForSelector("#qPractice"); r.tabQuiz = await tabbar();
@@ -2368,7 +2372,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     const used = await p.evaluate(() => Store.users().map((u) => u.avatar));
     const picked = async (role) => { await p.goto(BASE + "/#/admin/user/new?role=" + role); await p.waitForSelector("#uForm"); return p.$eval('[data-emo][aria-pressed="true"]', (b) => b.dataset.emo); };
     r.avatar = { student: await picked("student"), parent: await picked("parent"), used: used.join("") };
-    // hồ sơ của con là báo cáo tuần (UX2): quản trị bản lưu trên máy về "Danh sách học sinh"; thẻ kì thi vẫn có nhãn "Đã làm đúng x%"
+    // hồ sơ của con là báo cáo tuần (UX2): quản trị bản lưu trên máy về "Danh sách học sinh"; thẻ kì thi có dòng tiến độ của kì (UX9, X38)
     await p.goto(BASE + "/#/child/" + ids.Bin); await p.waitForSelector(".report");
     r.child = await p.evaluate(() => ({ report: !!document.querySelector("#rpCount"), back: document.querySelector("#view .linkbtn[data-go]").textContent, ready: (document.querySelector(".ev .ready") || {}).textContent || "", links: document.querySelectorAll("#rpCal, #rpPractice").length, edit: !!document.querySelector(`a[href="#/admin/user/${Store.users("student").find((u) => u.name === "Bin").id}"]`) }));
     await ucheck("hồ sơ của con");
@@ -2388,16 +2392,16 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("UX1:", JSON.stringify(ux1.light), "dark:", JSON.stringify(ux1.dark), "problems:", ux1.problems);
   const ux1OK = !ux1.problems.length && ["light", "dark"].every((sc) => { const r = ux1[sc];
     return r.date === "21/10/2026" && /^Chào Bin! .*Thứ tư 21\/10 · Lớp 4 · 4A$/.test(r.head)
-      && r.today.title === "Ôn giữa kì I · Lớp 4" && /^Kiểm tra giữa học kì I còn 12 ngày\. Bạn đã làm tốt cả kì này\./.test(r.today.why) && r.today.go === "#/play/l4-giua-ki-1" && r.today.goH >= 44 && r.today.goW >= 280 // nút Bắt đầu rộng hết thẻ (360 − 2×16 lề − 2×20 đệm thẻ = 288px)
-      && r.today.link === "Tất cả bài ôn cho kì này · 1 bài ôn →" && /^📖 ?Toán 4 · Cuối kì I · Đề 1 ?Ôn lại chủ đề “Góc và đo góc” · 2 câu sai gần đây ?Làm$/.test(r.today.more) && r.today.moreHref === "#/quiz/toan4-ck1-de1"
+      && r.today.title === "Bạn đã ôn rồi. Giỏi lắm!" && r.today.why === "Hôm nay: 1 bài · 15 phút · đúng 22/25 câu. Nghỉ một chút, hoặc làm thêm một bài nếu muốn." && r.today.go === "#/play/l4-giua-ki-1" && r.today.goH >= 44
+      && r.today.link === "Bài ôn cho kì này · đã làm 1/1 →" && /^📖 ?Toán 4 · Cuối kì I · Đề 1 ?Ôn lại chủ đề “Góc và đo góc” · 2 câu sai gần đây ?Làm$/.test(r.today.more) && r.today.moreHref === "#/quiz/toan4-ck1-de1"
       && /3 ngày liền/.test(r.streak) && /Mục tiêu 5 ngày\/tuần/.test(r.streak) && /Tuần này bạn ôn 3\/5 ngày\.$/.test(r.streak) && r.week === "on|on|on now|later|later|later|later"
-      && r.newBadge === "🎉 Bạn vừa nhận huy hiệu “Chuỗi 3 ngày”, “Hết đề · Kiểm tra giữa học kì I”!" && r.badgeOn === "🏅 Chuỗi 3 ngày|🎯 Hết đề · Kiểm tra giữa học kì I" && /Ôn 4 ngày liền nữa là có huy hiệu “Chuỗi 7 ngày”\.$/.test(r.badges) && !r.newBadgeAgain
-      && r.recentN === 3 && r.next === "Đã làm đúng 90% bài ôn của kì này" && r.tabHome.tabs === "Hôm nay*,Bài ôn,Lịch thi,Kết quả" && r.tabHome.tabbed && !r.tabHome.cal
+      && r.newBadge === "🎉 Bạn vừa nhận huy hiệu “Chuỗi 3 ngày”, “Hết đề · Kiểm tra giữa học kì I”!" && r.badgeOn === "🏅 Chuỗi 3 ngày|🎯 Hết đề · Kiểm tra giữa học kì I" && /Chuỗi 7 ngày ?3\/7 ngày ?Đã có:.*Ôn 4 ngày liền nữa là có “Chuỗi 7 ngày”\.$/.test(r.badges) && !r.newBadgeAgain
+      && r.recentN === 3 && r.next === "Đã làm hết 1 bài · đúng 90%" && r.tabHome.tabs === "Hôm nay*,Bài ôn,Lịch thi,Kết quả" && r.tabHome.tabbed && !r.tabHome.cal
       && r.practice.tabs === "#/practice" && r.practice.open === "gk1-l4,ck1-l4" && r.practice.n > 2
       && r.calendar.h1 === "Lịch thi lớp 4" && r.calendar.n >= 7 && !r.calendar.moc && !r.calendar.past && r.calendar.days && !r.calendar.back && r.calendar.tab === "#/calendar"
       && r.results.stats === "3 bài trong 7 ngày|8,75 Điểm trung bình tháng|3 ngày ôn liên tiếp" && r.results.subj && r.results.weak === "Góc và đo góc · 2 câu" && r.results.n === 3 && r.results.tab === "#/results"
       && r.tabAccount.tabs === "" && !r.tabAccount.tabbed && r.tabQuiz.tabs === "" && !r.tabQuiz.tabbed && r.tabRun.tabs === "" && !r.tabRun.cal
-      && r.dec.title === "IOE · Global Success 4" && /^Kiểm tra cuối học kì I còn 27 ngày\. Bài này bạn chưa làm\./.test(r.dec.why) && /^📖 ?Toán 4 · Cuối kì I · Đề 2 ?Môn chưa làm trong 7 ngày qua · 25 câu ?Làm$/.test(r.dec.more) && r.dec.moreHref === "#/quiz/toan4-ck1-de2" && /0 ngày liền/.test(r.dec.streak)
+      && r.dec.title === "IOE · Global Success 4" && /^Kiểm tra cuối học kì I còn 27 ngày\. Bài này bạn chưa làm\./.test(r.dec.why) && r.dec.go === "Bắt đầu:true:true:true" && /^📖 ?Toán 4 · Cuối kì I · Đề 2 ?Môn chưa làm trong 7 ngày qua · 25 câu ?Làm$/.test(r.dec.more) && r.dec.moreHref === "#/quiz/toan4-ck1-de2" && /0 ngày liền/.test(r.dec.streak)
       && r.labels.length === 1 && /^Toán · \S/.test(r.labels[0])
       && r.result.label === "Toán 4 · Cuối kì I · Đề 1 · Ôn luyện" && r.result.praise === "Xuất sắc, Bin!" && r.result.score === "9,25/10" && r.result.cmp === "Hơn lần trước 2 câu (21/25)" && r.result.retry === "Ôn lại 2 câu sai" && r.result.again === "Làm lại cả đề" && r.result.home === "Về trang chính"
       && /^closed:(4[4-9]|[5-9]\d|\d{3}):hidden\|closed:(4[4-9]|[5-9]\d|\d{3}):hidden$/.test(r.result.rv) && /^Câu [12] · .+Bạn trả lời: .+ · bấm để xem đáp án, lời giải$/.test(r.result.rvHead) && !/Đáp án:/.test(r.result.rvHead)
@@ -2406,7 +2410,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.retry.btns === "|Làm lại cả đề" && r.retry.saved === 1 && r.retry.full === "Câu 1/25 ← Thoát"
       && r.numeric === "decimal,null" && r.tabAdmin.tabs === "" && !r.tabAdmin.cal
       && !r.avatar.used.includes(r.avatar.student) && !r.avatar.used.includes(r.avatar.parent) && r.avatar.student === "🐼" && r.avatar.parent === "🐼" // 🐣 (Bin), 🦊 (Na, form đã chọn sẵn), 🌻, 🧭 đã có người dùng
-      && r.child.report && r.child.back === "← Danh sách học sinh" && r.child.ready === "Đã làm đúng 90% bài ôn của kì này" && r.child.links === 2 && r.child.edit; });
+      && r.child.report && r.child.back === "← Danh sách học sinh" && r.child.ready === "Đã làm hết 1 bài · đúng 90%" && r.child.links === 2 && r.child.edit; });
 
   step("parent area: child cards, report first (UX2)");
   /* Phụ huynh bản lưu trên máy (Mẹ Bin, có hai con): trang chủ là mục "Các con", mỗi con một thẻ (số bài hôm nay; điểm hôm nay, chưa làm
@@ -4194,6 +4198,186 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.print.msg === "none" && r.print.send === 0 && r.print.printBtn === 0 && r.print.label !== "none"
       && /^Báo cáo tuần của Na \(15\/10 – 21\/10\/2026\)\n• Chưa làm bài nào trong 7 ngày qua\.\n• Sắp tới: Kiểm tra giữa học kì I, \d+\/\d+ – \d+\/\d+\/2026 \(dự kiến, còn \d+ ngày\)\.\n• Gợi ý: Tuần sau bắt đầu lại nhẹ nhàng: mỗi ngày một đề ngắn 20–30 phút\.\nGửi từ OnUp\.$/.test(r.empty); });
 
+  step("progress of an exam, done buttons, badge goals, done today, empty pages (UX9, X38–X40)");
+  /* Phiên UX9 (docs/CAI-TIEN-UX-3X.md, mục 4): ngày giả lập thứ ba 27/10/2026 17:30, 360px sáng/tối. Bin (lớp 4) làm 4 bài của kì giữa kì I
+     (gk1-l4: bài ôn l4-giua-ki-1, Toán 4, Tiếng Việt 4 giữa kì I Đề 1, Đề 2, hai đề ngẫu nhiên): Toán Đề 1 (20/25, 5 ngày trước), Đề 2
+     (19/25, 3 ngày trước), Toán đề ngẫu nhiên (21/25, hôm qua), Tiếng Việt Đề 1 (23/25, hôm nay 16:10, 21 phút). Mong đợi:
+     - X38: tiến độ của kì (progressOf) là 3/5 bài (đề ngẫu nhiên không tính), đúng 83% (lần gần nhất của mỗi bài, cả đề ngẫu nhiên:
+       (20 + 19 + 21 + 23)/100); nhóm kì thi ở tab Bài ôn (.grp-prog: chữ, thanh có aria-label), thẻ kì thi ở Hôm nay và Lịch thi (.ready)
+       cùng chữ "Đã làm 3/5 bài · đúng 83%"; link ở Hôm nay "Bài ôn cho kì này · đã làm 3/5 →". Nút đề đã làm là btn sm done có .done-ic,
+       cao đúng 44px, aria-label ghi đã làm và tỉ lệ đúng lần gần nhất; đề chưa làm, đề ngẫu nhiên vẫn btn main; hàng Toán (Đề ngẫu nhiên,
+       ✓ Đề 1, ✓ Đề 2) một hàng; dòng môn "Đã làm 2/2 đề · 25 câu mỗi đề". Trang "Bài ôn của Bin" (Mẹ Bin) cũng có ✓ và dòng tiến độ.
+     - X39: hai mục tiêu "Hết đề · Kiểm tra giữa học kì I" 3/5 bài, "Chuỗi 3 ngày" 2/3 ngày, chưa có hàng "Đã có"; gợi ý ghi cả hai.
+       Làm thêm Tiếng Việt Đề 2 (4/5), rồi bài ôn giữa kì I (5/5): "Hết đề" sang hàng "Đã có" (dòng chúc mừng), còn một mục tiêu; nhóm kì
+       thi, thẻ kì thi "Đã làm hết 5 bài · đúng …%" (thanh, chữ màu ok); nút "Vào ôn" có ✓, dòng bài ôn ghi " · đã ôn 1 lần".
+     - X40: hôm nay có bài thì #today.done (hải cẩu tung bóng 64px, "Bạn đã ôn rồi. Giỏi lắm!", "Hôm nay: 1 bài · 21 phút · đúng 23/25 câu.",
+       nút viền "Làm thêm một bài" tới bài chính); sang hôm sau thì về thẻ "Hôm nay ôn gì?" với nút Bắt đầu. Na (lớp 6, chưa có bài):
+       tab Kết quả chỉ có .empty (hải cẩu đeo kính, nút "Làm bài đầu tiên" tới bài chính của Hôm nay), không có .stats. 20/6/2027: Lịch thi
+       của Bin không còn kì thi (.empty). Khối chưa có đề (danh mục đề, bài ôn dạng trang để trống bằng route; không có đề tự nhập): Hôm nay
+       và Bài ôn của Bin, "Bài ôn của Bin" của Mẹ Bin có .empty "Nhờ thầy cô nhập đề trong mục Quản trị.", Bố Minh (quản trị) có nút tới
+       #/admin/banks; không còn chữ "Quản trị viên".
+     audit ở mọi màn. Ảnh 360px sáng/tối ở tests/screenshots/ux9/ (bản ghép <tên>.jpg; chép sang docs/hinh-ux9/). */
+  const OUTUX9 = OUT + "ux9/"; fs.mkdirSync(OUTUX9, { recursive: true });
+  const ux9 = { problems: [], shots: [] };
+  for (const scheme of ["light", "dark"]) {
+    // không dùng service worker: phần "khối chưa có đề" thay danh mục đề bằng route (bản trong đệm không được trộn vào)
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme, serviceWorkers: "block" });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror UX9: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console UX9: " + m.text()); });
+    const r = (ux9[scheme] = {});
+    const check9 = async (label) => (await p.evaluate(audit)).forEach((x) => ux9.problems.push(`UX9 · ${scheme} · ${label}: ${x}`));
+    const snap9 = async (n) => { await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await pinTabs(p, true); await p.screenshot({ path: `${OUTUX9}${n}-${scheme}.png`, fullPage: true }); await pinTabs(p, false); ux9.shots.push(`${n}-${scheme}`); };
+    const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, sel);
+    const login = async (name, pin, wait) => { await p.evaluate(() => Store.setSession(null)); await p.goto(BASE + "/"); await p.reload(); await p.click(`.tile[data-u="${ids[name]}"]`); await p.fill("#pinIn", pin); await p.waitForSelector(wait || "#view .stack"); await p.waitForTimeout(200); };
+    const addRes = (list) => p.evaluate((list) => {
+      const d = JSON.parse(localStorage.getItem("ontap_db_v1")), bin = d.users.find((u) => u.name === "Bin");
+      const at = (days, h) => { const x = new Date(); x.setDate(x.getDate() - days); x.setHours(h, 10, 0, 0); return x.toISOString(); };
+      list.forEach((o) => d.results.push(Object.assign({ id: "ux9" + Math.random().toString(36).slice(2), userId: bin.id, s: 1260, mode: "practice" }, o, { at: at(o.d, o.h) })));
+      localStorage.setItem("ontap_db_v1", JSON.stringify(d));
+    }, list);
+    // tiến độ của kì gk1-l4 trên tab Bài ôn: chữ, thanh; hàng nút của một môn; dòng bài ôn dạng trang
+    const practiceOf = () => p.evaluate(() => {
+      const g = document.querySelector('#allPractice details.grp[data-grp="gk1-l4"]'), f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : "");
+      const bar = g.querySelector(".grp-prog .bar"), row = (sub) => { const it = [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === sub);
+        return { info: f(it.querySelector(".small")), btns: [...it.querySelectorAll(".des a")].map((a) => { const b = a.getBoundingClientRect();
+          return { t: f(a), cls: [...a.classList].sort().join(" "), ic: !!a.querySelector(".done-ic[aria-hidden=true]"), aria: a.getAttribute("aria-label"), h: Math.round(b.height * 10) / 10, top: Math.round(b.top) }; }) }; };
+      const mod = [...g.querySelectorAll(".item")].find((x) => x.querySelector('a[href="#/play/l4-giua-ki-1"]'));
+      return { prog: f(g.querySelector(".grp-prog .prog-txt")), bold: f(g.querySelector(".grp-prog .prog-txt b")), aria: bar && bar.getAttribute("role") + ":" + bar.getAttribute("aria-label"),
+        barH: bar && Math.round(bar.getBoundingClientRect().height), fill: bar && Math.round((bar.firstElementChild.getBoundingClientRect().width / bar.getBoundingClientRect().width) * 100), good: !!bar && bar.classList.contains("good"),
+        toan: row("Toán"), tv: row("Tiếng Việt"), mod: { desc: f(mod.querySelector(".small")), cls: [...mod.querySelector("a").classList].sort().join(" "), t: f(mod.querySelector("a")), aria: mod.querySelector("a").getAttribute("aria-label") } };
+    });
+    const badgesOf = () => p.evaluate(() => { const f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : "");
+      return { goals: [...document.querySelectorAll("#badges .bdg-list .bdg")].map((b) => f(b.querySelector(".bdg-top b")) + "|" + f(b.querySelector(".bdg-n")) + "|" + (b.querySelector(".bar") ? b.querySelector(".bar").getAttribute("aria-label") : "")),
+        got: [...document.querySelectorAll("#badges .bdg-got .badge.on")].map(f), gotHead: f(document.querySelector("#badges .bdg-got > span")), hint: f(document.querySelector("#badgeHint")), fresh: f(document.querySelector("#newBadge")), chips: document.querySelectorAll("#badges .badge:not(.on)").length }; });
+    await p.clock.install({ time: new Date("2026-10-27T17:30:00") });
+    await p.goto(BASE + "/");
+    await p.evaluate(() => {
+      const d = JSON.parse(localStorage.getItem("ontap_db_v1")), bin = d.users.find((u) => u.name === "Bin"), na = d.users.find((u) => u.name === "Na");
+      const seed = window.ONTAP_SEED_EVENTS.find((e) => e.id === "gk1-l4"), ev = d.events.find((e) => e.id === "gk1-l4");
+      ev.banks = seed.banks.slice(); ev.modules = seed.modules.slice(); // lịch mặc định của kì (các bước trước có thể đã bỏ gắn)
+      na.parentIds = [d.users.find((u) => u.name === "Mẹ Bin").id];
+      d.results = d.results.filter((x) => x.userId !== bin.id && x.userId !== na.id);
+      localStorage.setItem("ontap_db_v1", JSON.stringify(d)); localStorage.removeItem("ontap_badges_v1");
+    });
+    await addRes([
+      { source: "bank", refId: "toan4-gk1-de1", subject: "Toán", label: "Toán 4 · Giữa kì I · Đề 1", r: 20, t: 25, d: 5, h: 19, wrongTopics: ["Góc và đo góc", "Góc và đo góc"] },
+      { source: "bank", refId: "toan4-gk1-de2", subject: "Toán", label: "Toán 4 · Giữa kì I · Đề 2", r: 19, t: 25, d: 3, h: 19 },
+      { source: "bank", refId: "toan4-gk1-ngau-nhien", subject: "Toán", label: "Toán 4 · Giữa kì I · Đề ngẫu nhiên", r: 21, t: 25, d: 1, h: 19 },
+      { source: "bank", refId: "tv4-gk1-de1", subject: "Tiếng Việt", label: "Tiếng Việt 4 · Giữa kì I · Đề 1", r: 23, t: 25, d: 0, h: 16 }]);
+    // Hôm nay: thẻ đã ôn, link, thẻ kì thi, huy hiệu
+    await login("Bin", PINS.Bin, "#today");
+    r.today = await p.evaluate(() => { const m = document.querySelector("#today"), go = document.querySelector("#todayGo"), img = m.querySelector(".done-head img"), f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : "");
+      return { done: m.classList.contains("done"), label: f(m.querySelector(".label")), h1: f(m.querySelector("h1")), line: f(m.querySelector("#todayDone")), tip: f(m.querySelector(".done-tip")),
+        img: img && img.getAttribute("src") + ":" + img.getAttribute("alt") + ":" + Math.round(img.getBoundingClientRect().width), go: go && [...go.classList].sort().join(" ") + ":" + f(go) + ":" + go.getAttribute("href"), goH: go && go.getBoundingClientRect().height,
+        bg: getComputedStyle(m).backgroundColor, okSoft: (() => { const t = document.createElement("i"); t.style.color = "var(--ok-soft)"; document.body.append(t); const c = getComputedStyle(t).color; t.remove(); return c; })(),
+        link: f(document.querySelector("#toBanks")), linkHref: document.querySelector("#toBanks").getAttribute("href"), ready: f(document.querySelector('#nextEvent .ev[data-ev="gk1-l4"] .ready')), more: !!document.querySelector("#todayMore") }; });
+    r.badges = await badgesOf();
+    await check9("Hôm nay đã ôn"); await snap9("hom-nay");
+    // tab Bài ôn: tiến độ của nhóm kì thi, nút đề đã làm
+    await p.goto(BASE + "/#/practice"); await p.waitForSelector("#allPractice .grp-prog");
+    r.practice = await practiceOf();
+    await check9("tab Bài ôn"); await snap9("bai-on");
+    await p.goto(BASE + "/#/calendar"); await p.waitForSelector(".timeline");
+    r.calReady = await txt('.ev[data-ev="gk1-l4"] .ready');
+    await p.click('.ev[data-ev="gk1-l4"]'); await p.waitForSelector("#evDetail");
+    r.evDone = await p.$$eval("#evDetail .btn.done", (a) => a.map((x) => x.textContent.replace(/\s+/g, " ").trim()).join("|")); // chi tiết kì thi của con: có ✓
+    await check9("Lịch thi, chi tiết kì thi");
+    // làm thêm Tiếng Việt Đề 2 (4/5), rồi bài ôn giữa kì I (5/5): "Hết đề" sang hàng "Đã có"
+    await addRes([{ source: "bank", refId: "tv4-gk1-de2", subject: "Tiếng Việt", label: "Tiếng Việt 4 · Giữa kì I · Đề 2", r: 22, t: 25, d: 0, h: 17 }]);
+    await p.goto(BASE + "/#/home"); await p.reload(); await p.waitForSelector("#today");
+    r.four = { badges: await badgesOf(), link: await txt("#toBanks"), line: await txt("#todayDone") };
+    await addRes([{ source: "module", refId: "l4-giua-ki-1", subject: "Tiếng Việt", label: "Tiếng Việt · Ôn tập", mode: "practice", r: 9, t: 10, s: 300, d: 0, h: 17 }]);
+    await p.reload(); await p.waitForSelector("#today");
+    r.five = { badges: await badgesOf(), link: await txt("#toBanks"), ready: await txt('#nextEvent .ev[data-ev="gk1-l4"] .ready'), readyGood: await p.$eval('#nextEvent .ev[data-ev="gk1-l4"] .ready', (x) => x.classList.contains("good")), line: await txt("#todayDone") };
+    await check9("Hôm nay, hết đề"); await snap9("hom-nay-het-de");
+    await p.reload(); await p.waitForSelector("#today"); r.five.freshAgain = !!(await p.$("#newBadge"));
+    await p.goto(BASE + "/#/practice"); await p.waitForSelector("#allPractice .grp-prog");
+    r.five.practice = await practiceOf();
+    await check9("tab Bài ôn, hết đề");
+    // Mẹ Bin xem "Bài ôn của Bin": có ✓ và dòng tiến độ, nút vẫn ghi "Xem thử"
+    await login("Mẹ Bin", PINS["Mẹ Bin"], "#kids");
+    await p.goto(BASE + "/#/child/" + ids.Bin + "/practice"); await p.waitForSelector("#allPractice");
+    r.parent = await p.evaluate(() => ({ prog: (document.querySelector('#allPractice details.grp[data-grp="gk1-l4"] .prog-txt') || {}).textContent || "",
+      done: [...document.querySelectorAll("#allPractice .btn.done")].map((a) => a.textContent.replace(/\s+/g, " ").trim()).join("|"), main: document.querySelectorAll("#allPractice .btn.main").length }));
+    await check9("Bài ôn của Bin (Mẹ Bin)"); await snap9("bo-me-bai-on");
+    // sang hôm sau: thẻ "Hôm nay ôn gì?" như cũ
+    await p.clock.setSystemTime(new Date("2026-10-28T08:00:00"));
+    await login("Bin", PINS.Bin, "#today");
+    r.next = await p.evaluate(() => { const m = document.querySelector("#today"), go = document.querySelector("#todayGo"); return { done: m.classList.contains("done"), label: m.querySelector(".label").textContent, go: [...go.classList].sort().join(" ") + ":" + go.textContent }; });
+    // Na chưa có bài: tab Kết quả là trang rỗng
+    await login("Na", "4444", "#today");
+    r.naGo = await p.$eval("#todayGo", (a) => a.getAttribute("href"));
+    await p.goto(BASE + "/#/results"); await p.waitForSelector("#view .empty");
+    r.na = await p.evaluate(() => { const e = document.querySelector("#view .empty"), img = e.querySelector("img"), b = e.querySelectorAll(".btn"), f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : "");
+      return { id: e.id, img: img.getAttribute("src") + ":" + img.getAttribute("alt") + ":" + Math.round(img.getBoundingClientRect().width), h: f(e.querySelector("h3")), line: f(e.querySelector("p")),
+        btn: b.length + ":" + (b[0] ? [...b[0].classList].sort().join(" ") + ":" + f(b[0]) + ":" + b[0].getAttribute("href") : ""), stats: !!document.querySelector(".stats"), sub: !!document.querySelector("#view h2 + .muted"), all: !!document.querySelector("#allResults") }; });
+    await check9("Kết quả chưa có bài"); await snap9("ket-qua-rong");
+    // 20/6/2027: không còn kì thi của lớp 4
+    await p.clock.setSystemTime(new Date("2027-06-20T08:00:00"));
+    await login("Bin", PINS.Bin, "#today");
+    await p.goto(BASE + "/#/calendar"); await p.waitForSelector("#view h1");
+    r.noEv = await p.evaluate(() => { const e = document.querySelector("#noEvents.empty"); return e ? e.querySelector("h3").textContent + "|" + e.querySelector("p").textContent + "|" + e.querySelectorAll(".btn").length : ""; });
+    await check9("Lịch thi không còn kì thi"); await snap9("lich-thi-rong");
+    // khối chưa có đề: danh mục đề, bài ôn dạng trang để trống; bỏ đề tự nhập
+    await c.route("**/data/banks/index.js", (x) => x.fulfill({ contentType: "text/javascript", body: "window.ONTAP_SEED_BANKS = [];" }));
+    await c.route("**/data/modules.js", (x) => x.fulfill({ contentType: "text/javascript", body: "window.ONTAP_MODULES = [];" }));
+    await p.clock.setSystemTime(new Date("2027-06-21T08:00:00"));
+    await p.evaluate(() => { const d = JSON.parse(localStorage.getItem("ontap_db_v1")); d.banks = []; localStorage.setItem("ontap_db_v1", JSON.stringify(d)); });
+    const emptyOf = (sel) => p.evaluate((sel) => { const e = document.querySelector(sel); if (!e || !e.classList.contains("empty")) return ""; const b = e.querySelector(".btn");
+      return e.querySelector("h3").textContent + "|" + e.querySelector("p").textContent + "|" + (b ? b.textContent + ":" + b.getAttribute("href") : "") + (/Quản trị viên/.test(document.querySelector("#view").textContent) ? "|có chữ Quản trị viên" : ""); }, sel);
+    await login("Bin", PINS.Bin, "#today");
+    r.noBank = { today: await emptyOf("#today") };
+    await check9("Hôm nay, khối chưa có đề"); await snap9("chua-co-de");
+    await p.goto(BASE + "/#/practice"); await p.waitForSelector("#allPractice"); r.noBank.practice = await emptyOf("#noBanks");
+    await check9("Bài ôn, khối chưa có đề");
+    await login("Mẹ Bin", PINS["Mẹ Bin"], "#kids");
+    await p.goto(BASE + "/#/child/" + ids.Bin + "/practice"); await p.waitForSelector("#allPractice"); r.noBank.parent = await emptyOf("#noBanks");
+    await login("Bố Minh", PINS["Bố Minh"]);
+    await p.goto(BASE + "/#/child/" + ids.Bin + "/practice"); await p.waitForSelector("#allPractice"); r.noBank.admin = await emptyOf("#noBanks");
+    await check9("Bài ôn của Bin (quản trị), khối chưa có đề");
+    await c.close();
+  }
+  // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/ux9/<tên>.jpg)
+  {
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of [...new Set(ux9.shots.map((x) => x.replace(/-(light|dark)$/, "")))]) {
+      if (!ux9.shots.includes(n + "-light") || !ux9.shots.includes(n + "-dark")) continue;
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTUX9}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTUX9}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("UX9:", JSON.stringify(ux9.light), "dark:", JSON.stringify(ux9.dark), "problems:", ux9.problems);
+  const ux9OK = !ux9.problems.length && ["light", "dark"].every((sc) => { const r = ux9[sc], P = "Đã làm 3/5 bài · đúng 83%", pr = r.practice, t = r.today, x = r.five.practice;
+    const doneBtn = (b, lb) => b.t === "✓" + lb && b.cls === "btn done sm" && b.ic && b.h === 44 && /, đã làm, lần gần nhất đúng \d+%$/.test(b.aria);
+    const mainBtn = (b, lb, rnd) => b.t === lb && b.cls === (rnd ? "btn main rnd sm" : "btn main sm") && !b.ic && !/đã làm/.test(b.aria);
+    return t.done && t.label === "Hôm nay" && t.h1 === "Bạn đã ôn rồi. Giỏi lắm!" && t.line === "Hôm nay: 1 bài · 21 phút · đúng 23/25 câu. Nghỉ một chút, hoặc làm thêm một bài nếu muốn."
+      && t.tip === "Gợi ý nếu làm thêm: Ôn giữa kì I · Lớp 4 (bạn chưa làm)." && t.img === "icons/avatars/hai-cau-bong.svg::64" && t.go === "btn ghost:Làm thêm một bài:#/play/l4-giua-ki-1" && t.goH >= 44 && t.bg === t.okSoft
+      && t.link === "Bài ôn cho kì này · đã làm 3/5 →" && t.linkHref === "#/practice?ki=gk1-l4" && t.ready === P && t.more
+      && r.badges.goals.join("/") === "Hết đề · Kiểm tra giữa học kì I|3/5 bài|Đã làm 3 trên 5 bài/Chuỗi 3 ngày|2/3 ngày|Đã ôn 2 trên 3 ngày liền" && !r.badges.got.length && !r.badges.gotHead && !r.badges.chips && !r.badges.fresh
+      && r.badges.hint === "Ôn thêm ngày mai là có “Chuỗi 3 ngày”. Làm thêm 2 bài của kì này là có “Hết đề”."
+      && pr.prog === P && pr.bold === "3/5" && pr.aria === "img:Đã làm 3 trên 5 bài" && pr.barH === 6 && pr.fill === 60 && !pr.good && r.calReady === P
+      && pr.toan.info === "Đã làm 2/2 đề · 25 câu mỗi đề" && pr.toan.btns.length === 3 && mainBtn(pr.toan.btns[0], "Đề ngẫu nhiên", true) && doneBtn(pr.toan.btns[1], "Đề 1") && doneBtn(pr.toan.btns[2], "Đề 2")
+      && pr.toan.btns[1].aria === "Toán 4 · Giữa kì I · Đề 1, đã làm, lần gần nhất đúng 80%" && new Set(pr.toan.btns.map((b) => b.top)).size === 1
+      && pr.tv.info === "Đã làm 1/2 đề · 25 câu mỗi đề" && mainBtn(pr.tv.btns[0], "Đề ngẫu nhiên", true) && doneBtn(pr.tv.btns[1], "Đề 1") && mainBtn(pr.tv.btns[2], "Đề 2") && new Set(pr.tv.btns.map((b) => b.top)).size === 1
+      && pr.mod.cls === "btn main sm" && pr.mod.t === "Vào ôn" && !/đã ôn/.test(pr.mod.desc)
+      && r.evDone === "✓Đề 1|✓Đề 2|✓Đề 1"
+      && r.four.badges.goals[0] === "Hết đề · Kiểm tra giữa học kì I|4/5 bài|Đã làm 4 trên 5 bài" && /Làm thêm 1 bài của kì này là có “Hết đề”\.$/.test(r.four.badges.hint) && r.four.link === "Bài ôn cho kì này · đã làm 4/5 →"
+      && r.four.line === "Hôm nay: 2 bài · 42 phút · đúng 45/50 câu. Nghỉ một chút, hoặc làm thêm một bài nếu muốn."
+      && r.five.badges.goals.join("/") === "Chuỗi 3 ngày|2/3 ngày|Đã ôn 2 trên 3 ngày liền" && r.five.badges.gotHead === "Đã có:" && r.five.badges.got.join("|") === "🎯 Hết đề · Kiểm tra giữa học kì I"
+      && r.five.badges.hint === "Ôn thêm ngày mai là có “Chuỗi 3 ngày”." && r.five.badges.fresh === "🎉 Bạn vừa nhận huy hiệu “Hết đề · Kiểm tra giữa học kì I”!" && !r.five.freshAgain
+      && r.five.link === "Bài ôn cho kì này · đã làm 5/5 →" && r.five.ready === "Đã làm hết 5 bài · đúng 84%" && r.five.readyGood // lần gần nhất của mỗi bài, cả đề ngẫu nhiên: (20 + 19 + 21 + 23 + 22 + 9)/(5 × 25 + 10) = 84%
+      && x.prog === r.five.ready && x.good && x.fill === 100 && x.mod.cls === "btn done sm" && x.mod.t === "✓Vào ôn" && / · đã ôn 1 lần$/.test(x.mod.desc) && x.mod.aria === "Vào ôn, đã làm, lần gần nhất đúng 90%"
+      && x.tv.btns.map((b) => b.cls).join() === "btn main rnd sm,btn done sm,btn done sm"
+      && r.parent.prog === r.five.ready && r.parent.done === "✓Xem thử|✓Đề 1|✓Đề 2|✓Đề 1|✓Đề 2" && !r.parent.main
+      && !r.next.done && r.next.label === "Hôm nay ôn gì?" && r.next.go === "btn lg main:Bắt đầu"
+      && r.na.id === "noResults" && r.na.img === "icons/avatars/hai-cau-kinh.svg::96" && r.na.h === "Chưa có bài nào" && r.na.line === "Làm bài đầu tiên nhé. Điểm, môn và chủ đề hay sai sẽ hiện ở đây."
+      && r.na.btn === `1:btn main:Làm bài đầu tiên:${r.naGo}` && !r.na.stats && !r.na.sub && !r.na.all
+      && r.noEv === "Không còn kì thi nào|Năm học này đã hết các kì thi. Bạn vẫn ôn lại được ở tab Bài ôn.|0"
+      && r.noBank.today === "Chưa có bài ôn cho lớp 4|Nhờ thầy cô nhập đề trong mục Quản trị.|" && r.noBank.practice === r.noBank.today && r.noBank.parent === r.noBank.today
+      && r.noBank.admin === "Chưa có bài ôn cho lớp 4|Bạn có thể nhập đề ở tab Ngân hàng đề.|Mở Ngân hàng đề:#/admin/banks"; });
+
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
      Đề có sẵn: chỉ danh mục data/banks/index.js nằm trong FILES; file câu hỏi vào đệm khi mở đề. */
@@ -4324,7 +4508,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, k5OK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, k5OK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK, ux9OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
