@@ -839,13 +839,14 @@
         hay sai 30 ngày qua. Không trùng bài chính.
      results: mọi kết quả của con (bài có kết quả tự chấm cũng là bài đã làm, như progressOf; tỉ lệ đúng chỉ tính kết quả chấm tự động).
      prog: tiến độ của kì đó (progressOf, link #toBanks ở thẻ Hôm nay, Phiên UX9). */
+  // kì thi gần nhất (chưa qua) có bài ôn của khối: bài chính của Hôm nay, link #toBanks, mục tiêu "Hết đề" của huy hiệu (X39)
+  const practiceEvent = (s) => Store.events(s.grade).filter((e) => e.kind !== "moc" && status(e) !== "past").find((e) => { const p = practiceFor(e, s.grade); return p.mods.length + p.bks.length; }) || null;
   function todayPicks(s, results) {
     const did = (x) => results.filter((r) => r.refId === x.id);
     const pctOf = (x) => { const [r, t] = sumRT(graded(did(x))); return t ? pct(r, t) : null; };
     const byTitle = (a, b) => a.title.localeCompare(b.title, "vi", { numeric: true });
     const item = (x, why) => ({ id: x.id, href: (x.path ? "#/play/" : "#/quiz/") + x.id, title: x.title, why, n: x.path ? 0 : qCount(x), subject: x.subject || "" });
-    const withPr = (e) => { const p = practiceFor(e, s.grade); return p.mods.length + p.bks.length ? p : null; };
-    const ev = Store.events(s.grade).filter((e) => e.kind !== "moc" && status(e) !== "past").find(withPr) || null;
+    const ev = practiceEvent(s);
     const { mods, bks } = ev ? practiceFor(ev, s.grade) : { mods: MODULES.filter((m) => m.grade === +s.grade), bks: Store.banks(s.grade) };
     const sorted = bks.slice().sort(byTitle), fixed = sorted.filter((b) => !b.pool), pools = sorted.filter((b) => b.pool), main = mods.concat(fixed);
     const evTxt = ev ? `${ev.title} ${status(ev) === "now" ? "đang diễn ra" : "còn " + daysTo(ev) + " ngày"}. ` : "";
@@ -878,14 +879,14 @@
   }
   /* Huy hiệu (phần thưởng nhẹ, không có bảng xếp hạng): chuỗi 3, 7, 14 ngày ôn (chuỗi dài nhất từ trước đến nay, tính từ kết quả
      đã lưu, nên không mất khi chuỗi đứt) và "Hết đề" của một kì thi (mọi bài ôn dạng trang và đề cố định của kì đó, của khối học
-     sinh, đã làm ít nhất một lần). Huy hiệu chưa ghi ở localStorage ontap_badges_v1 (theo mã học sinh) thì hiện dòng chúc mừng một lần. */
+     sinh, đã làm ít nhất một lần: progressOf). Huy hiệu chưa ghi ở localStorage ontap_badges_v1 (theo mã học sinh) thì hiện dòng chúc
+     mừng một lần. all: mọi kết quả của con (chuỗi ngày chỉ tính kết quả chấm tự động, như thẻ chuỗi ngày ôn). */
   const STREAKS = [3, 7, 14];
-  function badges(s, results) {
-    const best = bestStreak(results);
-    const out = STREAKS.map((n) => ({ id: "streak" + n, name: `Chuỗi ${n} ngày`, icon: n >= 14 ? "🏆" : "🏅", got: best >= n }));
+  function badges(s, all) {
+    const best = bestStreak(graded(all));
+    const out = STREAKS.map((n) => ({ id: "streak" + n, name: `Chuỗi ${n} ngày`, icon: n >= 14 ? "🏆" : "🏅", got: best >= n, n }));
     Store.events(s.grade).filter((e) => e.kind !== "moc").forEach((e) => {
-      const { mods, bks } = practiceFor(e, s.grade), items = mods.concat(bks.filter((b) => !b.pool));
-      if (items.length && items.every((x) => results.some((r) => r.refId === x.id))) out.push({ id: "exam:" + e.id, name: `Hết đề · ${e.title}`, icon: "🎯", got: true });
+      if (allDone(progressOf(e, s, all))) out.push({ id: "exam:" + e.id, name: `Hết đề · ${e.title}`, icon: "🎯", got: true });
     });
     return out;
   }
@@ -908,16 +909,30 @@
       <div class="week" role="list" aria-label="Các ngày trong tuần">${wk.map((d) => `<span class="wd${d.on ? " on" : ""}${d.today ? " now" : ""}${d.future ? " later" : ""}" role="listitem" aria-label="${d.name}: ${d.on ? "có ôn" : d.future ? "chưa tới" : "chưa ôn"}">${d.name}</span>`).join("")}</div>
       <p class="small" id="goalTxt">${goalTxt}</p></section>`;
   }
-  function badgePanel(s, results) {
-    const list = badges(s, results), cur = streak(results), today = weekRow(results).some((d) => d.today && d.on);
+  /* Thẻ Huy hiệu (Phiên UX9, X39): tối đa hai mục tiêu kế tiếp (.bdg-list, mỗi mục .bdg: biểu tượng, tên, số, thanh 6px):
+     1. "Hết đề · <kì thi gần nhất có bài ôn>" · "3/5 bài" (progressOf, cùng số với tab Bài ôn), khi kì đó chưa làm hết;
+     2. huy hiệu chuỗi đầu tiên chưa có · "2/3 ngày" (chuỗi hiện tại trên số ngày của huy hiệu).
+     Huy hiệu đã có ở hàng "Đã có:" (.bdg-got, span.badge.on); #badgeHint ghi cách đạt cả hai mục tiêu. */
+  function badgePanel(s, all) {
+    const results = graded(all), list = badges(s, all), cur = streak(results), today = weekRow(results).some((d) => d.today && d.on);
     const got = list.filter((b) => b.got), seen = Badges.seen(s.id), fresh = got.filter((b) => !seen.has(b.id));
     Badges.mark(s.id, got.map((b) => b.id));
-    const nextS = STREAKS.find((n) => n > cur), left = nextS ? nextS - cur : 0;
-    const hint = !nextS ? "" : left === 1 ? `Ôn ${today ? "thêm ngày mai" : "hôm nay"} là có huy hiệu “Chuỗi ${nextS} ngày”.` : `Ôn ${left} ngày liền nữa là có huy hiệu “Chuỗi ${nextS} ngày”.`;
+    const goals = [], hints = [], ev = practiceEvent(s), pr = ev ? progressOf(ev, s, all) : null;
+    if (pr && pr.total && !allDone(pr)) {
+      goals.push({ icon: "🎯", name: `Hết đề · ${ev.title}`, n: `${pr.done}/${pr.total} bài`, bar: progBar(pr.done, pr.total, `Đã làm ${pr.done} trên ${pr.total} bài`) });
+      hints.push(`Làm thêm ${pr.total - pr.done} bài của kì này là có “Hết đề”.`);
+    }
+    const nx = list.find((b) => b.n && !b.got);
+    if (nx) {
+      const left = nx.n - cur;
+      goals.push({ icon: nx.icon, name: nx.name, n: `${cur}/${nx.n} ngày`, bar: progBar(cur, nx.n, `Đã ôn ${cur} trên ${nx.n} ngày liền`) });
+      hints.unshift(left === 1 ? `Ôn ${today ? "thêm ngày mai" : "hôm nay"} là có “${nx.name}”.` : `Ôn ${left} ngày liền nữa là có “${nx.name}”.`);
+    }
     return `<section class="panel" id="badges"><div class="label">Huy hiệu</div>
       ${fresh.length ? `<div class="fb ok" id="newBadge">🎉 Bạn vừa nhận huy hiệu ${fresh.map((b) => `“${esc(b.name)}”`).join(", ")}!</div>` : ""}
-      <div class="tags">${list.map((b) => `<span class="badge${b.got ? " on" : ""}" aria-label="${esc(b.name)}: ${b.got ? "đã đạt" : "chưa đạt"}"><span aria-hidden="true">${b.icon}</span> ${nb(esc(b.name))}</span>`).join("")}</div>
-      ${hint ? `<p class="small muted" id="badgeHint">${hint}</p>` : ""}</section>`;
+      ${goals.length ? `<div class="bdg-list">${goals.map((g) => `<div class="bdg"><span class="bdg-ic" aria-hidden="true">${g.icon}</span><span class="grow"><span class="bdg-top"><b>${nb(esc(g.name))}</b><span class="bdg-n">${g.n}</span></span>${g.bar}</span></div>`).join("")}</div>` : ""}
+      ${got.length ? `<div class="bdg-got"><span class="small muted">Đã có:</span>${got.map((b) => `<span class="badge on" aria-label="${esc(b.name)}: đã đạt"><span aria-hidden="true">${b.icon}</span> ${nb(esc(b.name))}</span>`).join("")}</div>` : ""}
+      ${hints.length ? `<p class="small muted" id="badgeHint">${hints.join(" ")}</p>` : ""}</section>`;
   }
   function renderToday(s) {
     const all = Store.resultsFor(s.id), results = graded(all), t = today0();
@@ -934,7 +949,7 @@
       ${card}
       ${more ? `<div class="panel pick" id="todayMore"><span class="pick-ic" aria-hidden="true">📖</span><span class="grow"><b>${nb(esc(more.title))}</b><span class="small muted">${nb(esc(more.why))}</span></span><a class="btn sm" href="${more.href}" aria-label="Làm ${esc(more.title)}">Làm</a></div>` : ""}
       ${streakPanel(results)}
-      ${badgePanel(s, results)}
+      ${badgePanel(s, all)}
       <section class="sec" id="recent"><div class="row between"><h2>Kết quả gần đây</h2><a class="linkbtn" href="#/results">Xem tất cả →</a></div>${resultsList(all.slice(0, 3))}</section>
       ${next ? `<section class="sec" id="nextEvent"><h2>Kì thi tiếp theo</h2><div class="timeline">${eventRow(next, { grade: s.grade, student: s, results: all })}</div></section>` : ""}
     </div>`;

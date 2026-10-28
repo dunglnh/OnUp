@@ -126,6 +126,16 @@ body.tabbed{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .wd.later{border-style:dashed}
 .badge{display:inline-flex;align-items:center;gap:4px;font-size:.8125rem;border-radius:999px;padding:3px 10px;background:var(--sun-soft);color:var(--ink);font-weight:600;border:1px solid transparent}
 .badge:not(.on){background:transparent;border-color:var(--line);color:var(--muted)}
+/* huy hiệu có tiến độ (badgePanel, Phiên UX9, X39): tối đa hai mục tiêu kế tiếp, mỗi mục biểu tượng, tên đậm 15px, số 14px, thanh 6px;
+   huy hiệu đã có ở một hàng "Đã có:" */
+.bdg-list{display:flex;flex-direction:column;gap:14px}
+.bdg{display:flex;gap:12px;align-items:center}
+.bdg-ic{font-size:1.6rem;line-height:1;flex:none}
+.bdg .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.bdg-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.bdg-top b{font-size:.9375rem;min-width:0;overflow-wrap:anywhere}
+.bdg-n{font-size:.875rem;color:var(--muted);flex:none}
+.bdg-got{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .ready{color:var(--ink);font-weight:600} .ready.good{color:var(--ok)} /* "Đã làm 3/5 bài · đúng 82%" trên thẻ kì thi (progTxt, X38); làm hết thì màu ok */
 
 /* khu phụ huynh (Phiên UX2): thẻ của từng con ở mục "Các con" (kidCard, cả thẻ là link mở báo cáo), dòng kì thi gần nhất (.kid-ev);
