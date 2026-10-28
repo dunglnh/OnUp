@@ -59,6 +59,9 @@
    Quiz.grade(questions, answers) → {parts, got, max, auto}: điểm của đề tính điểm (xem grade).
    Quiz.draw(bank, hist) → {questions, notes}: rút đề ngẫu nhiên theo ma trận của đề có pool (Phiên K3; câu dùng chung đoạn đọc
      rút theo đoạn từ Phiên K4, xem draw).
+   Quiz.topicBank(srcs, topic, meta): đề "Ôn chủ đề" (Phiên UX14, X48), kho câu của một chủ đề trong các đề có sẵn của một khối, một
+     môn, rút Quiz.TOPIC_N (10) câu bằng Quiz.draw (xem topicBank). opts.topicHref(chủ đề) → địa chỉ đề đó: chủ đề cần ôn thêm ở màn kết
+     quả (#qzTopics) có nút "Ôn 10 câu: <chủ đề>".
    Quiz.key(q): mã ổn định của một câu (băm nội dung), dùng để ghi nhớ câu đã làm; opts.onMarks nhận [[mã câu, điểm]].
    Báo câu sai (Phiên R1): có opts.onReport thì dưới lời giải khi ôn luyện (sau khi Kiểm tra, cả câu tự luận sau khi Xem gợi ý)
      và dưới từng câu ở màn kết quả (câu cần xem lại, câu tự luận tự chấm) có link nhỏ "Báo câu này sai"; bấm thì mở hộp
@@ -138,6 +141,7 @@
       sheet: "Bảng câu", sheetAria: "Bảng câu của lượt này", sheetTap: "Chạm vào số câu để xem lại câu đó.", peekClose: "Đóng",
       sheetSt: { ok: "đúng", bad: "chưa đúng", done: "tự chấm", blank: "chưa làm" }, sheetKey: { ok: "Đúng", bad: "Chưa đúng", done: "Tự chấm", blank: "Chưa làm" },
       topicsAll: (m) => `Đúng hết cả ${m} chủ đề!`, topicsOk: (k, m) => `Đúng hết ${k}/${m} chủ đề. Cần ôn thêm:`, topicsShow: (m) => `Xem cả ${m} chủ đề`,
+      topicGo: (t) => `Ôn 10 câu: ${t}`, // link ở chủ đề cần ôn thêm (Phiên UX14, X48): đề "Ôn chủ đề" của chủ đề đó
       essayHead: (n) => `Tự luận · tự chấm (${n} câu)`, essayExamNote: "Không tính vào điểm trung bình. Đọc gợi ý, chọn mức cho từng ý rồi bấm Lưu.",
       saveSelf: "Lưu điểm tự chấm", notMarked: "chưa chấm", selfSaved: (g, m) => `Đã lưu điểm tự chấm: ${g}/${m} điểm.`, selfNoAvg: "Không tính vào điểm trung bình.",
       selfNeed: "Chọn mức cho từng ý của ít nhất một câu rồi bấm Lưu nhé.",
@@ -153,6 +157,9 @@
       appHome: "Trang chính", appGrade: (g) => `Lớp ${g}`, english: "Tiếng Anh", appRandom: "Đề ngẫu nhiên",
       appPoolIntro: (n, all, src) => `Mỗi lần làm là một đề khác: ${n} câu rút từ kho ${all} câu${src ? ` (${src} đề)` : ""} theo ma trận đề, ưu tiên câu bạn chưa làm hoặc hay sai`,
       appCount: (n) => `${n} câu`, appEssayN: (n) => ` (${n} câu tự luận tự chấm)`, appNotes: (s) => `Kho còn thiếu câu, lần này: ${s}.`, appNotesToast: (s) => "Kho còn thiếu câu: " + s,
+      // đề "Ôn chủ đề" (Phiên UX14, X48): nhãn và dòng giới thiệu ở màn mở đề; chủ đề chưa có câu trong đề có sẵn (t đã esc)
+      appTopic: "Ôn chủ đề", appTopicIntro: (n, all, g) => (n < all ? `${n} câu của chủ đề này, rút từ ${all} câu trong các đề lớp ${g}, câu bạn chưa làm hoặc hay sai đứng trước` : `Cả ${n} câu của chủ đề này trong các đề lớp ${g}`),
+      appTopicEmpty: "Chưa có câu để ôn", appTopicNone: (t, g) => `Chủ đề “${t}” chưa có câu nào trong các đề có sẵn của lớp ${g}.`,
       appSaved: "Đã lưu kết quả", appSavedSelf: "Đã lưu điểm tự chấm",
       // bản đám mây (UX6, X10): dòng #qzSaved ở màn kết quả và thông báo lưu điểm ghi bài đã tới bố mẹ chưa; bài ôn trong khung: "18/20 câu đúng. Đã lưu và gửi…"
       appSent: "Đã lưu và gửi cho bố mẹ.", appPending: "Đã lưu trên máy này. Sẽ gửi cho bố mẹ khi có mạng.", appModScore: (r, t) => `${r}/${t} câu đúng.`,
@@ -216,6 +223,7 @@
       sheet: "Answers", sheetAria: "Answers for this round", sheetTap: "Tap a number to review that question.", peekClose: "Close",
       sheetSt: { ok: "correct", bad: "not correct", done: "self-marked", blank: "not done" }, sheetKey: { ok: "Correct", bad: "Not correct", done: "Self-marked", blank: "Not done" },
       topicsAll: (m) => `All ${m} topics correct!`, topicsOk: (k, m) => `${k}/${m} topics fully correct. Needs more practice:`, topicsShow: (m) => `Show all ${m} topics`,
+      topicGo: (t) => `Practise 10 questions: ${t}`,
       essayHead: (n) => `Writing · self-check (${n} ${n === 1 ? "question" : "questions"})`, essayExamNote: "Not counted in your average score. Read the guide, choose a level for each part, then tap Save.",
       saveSelf: "Save my score", notMarked: "not marked", selfSaved: (g, m, n) => `Self-check score saved: ${g}/${m} ${n === 1 ? "point" : "points"}.`, selfNoAvg: "Not counted in your average score.",
       selfNeed: "Choose a level for each part of at least one question, then tap Save.",
@@ -229,6 +237,8 @@
       appHome: "Home", appGrade: (g) => `Grade ${g}`, english: "English", appRandom: "Random test",
       appPoolIntro: (n, all, src) => `A new test every time: ${n} questions from a bank of ${all}${src ? ` (${src} tests)` : ""}, more of the ones you haven't done or often get wrong`,
       appCount: (n) => `${n} questions`, appEssayN: (n) => ` (${n} self-check writing ${n === 1 ? "question" : "questions"})`, appNotes: (s) => `Not enough questions in the bank this time: ${s}.`, appNotesToast: (s) => "Not enough questions in the bank: " + s,
+      appTopic: "Topic practice", appTopicIntro: (n, all, g) => (n < all ? `${n} questions on this topic from ${all} in the Grade ${g} tests, more of the ones you haven't done or often get wrong` : n === 1 ? `The only question on this topic in the Grade ${g} tests` : `All ${n} questions on this topic in the Grade ${g} tests`),
+      appTopicEmpty: "No questions to practise yet", appTopicNone: (t, g) => `There are no questions on “${t}” in the Grade ${g} tests yet.`,
       appSaved: "Result saved", appSavedSelf: "Self-check score saved",
       appSent: "Saved and sent to your parents.", appPending: "Saved on this device. It will be sent to your parents when you're online.", appModScore: (r, t) => `${r}/${t} correct.`,
       appPrev: (r, t) => `Last time: ${r}/${t} correct`, appPrevPts: (r, t) => `Last time: ${r}/${t} points`, appPrevMode: { exam: "test mode", practice: "practice" },
@@ -260,12 +270,16 @@
   const TERMS = { "Giữa kì I": "Mid-term 1", "Cuối kì I": "End-of-term 1", "Giữa kì II": "Mid-term 2", "Cuối năm": "End-of-year",
     "Thi thử vào 10": "Mock Entrance Exam", "Thi thử tốt nghiệp": "Mock Graduation Exam" };
   const TITLE_RE = new RegExp(`^(.+?) (\\d{1,2}) · (${Object.keys(TERMS).join("|")}) · (?:Đề (\\d+)|Đề ngẫu nhiên)$`, "u");
+  // đề "Ôn chủ đề" (Phiên UX14, X48): "Tiếng Anh 4 · Ôn chủ đề · <chủ đề>" → "English 4 · Topic practice · <chủ đề>" (chủ đề có thể có "·")
+  const TOPIC_RE = /^(.+?) (\d{1,2}) · Ôn chủ đề · (.+)$/u;
   function title(bank, lg) {
     const t = String((bank && bank.title) || "");
     if ((lg || langOf(bank)) !== "en") return t;
-    const m = TITLE_RE.exec(t.normalize("NFC").replace(/\s+/g, " ").trim());
+    const s = t.normalize("NFC").replace(/\s+/g, " ").trim(), m = TITLE_RE.exec(s), tp = !m && TOPIC_RE.exec(s);
+    const subj = (x) => (EN_SUBJECTS.includes(foldS(x)) ? "English" : x);
+    if (tp) return `${subj(tp[1])} ${tp[2]} · Topic practice · ${tp[3]}`;
     if (!m) return t;
-    return `${EN_SUBJECTS.includes(foldS(m[1])) ? "English" : m[1]} ${m[2]} · ${TERMS[m[3]]} · ${m[4] ? "Test " + m[4] : "Random test"}`;
+    return `${subj(m[1])} ${m[2]} · ${TERMS[m[3]]} · ${m[4] ? "Test " + m[4] : "Random test"}`;
   }
   const TF4_PTS = [0, 0.1, 0.25, 0.5, 1]; // đúng 0/1/2/3/4 ý, như đề thi tốt nghiệp THPT
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -382,6 +396,7 @@
      key(q): băm dạng câu, câu hỏi và các ô (bỏ dấu câu, khoảng trắng, chữ hoa) thành chuỗi ngắn; sửa lời giải hay chủ đề
      không đổi mã, sửa câu hỏi thì thành câu mới. */
   const flat = (x) => String(x == null ? "" : x).normalize("NFC").replace(/[\p{P}\s]+/gu, "").toLowerCase();
+  const topicOf = (t) => String(t == null ? "" : t).normalize("NFC").replace(/\s+/g, " ").trim(); // chủ đề so sau khi gộp khoảng trắng
   function key(q) {
     const text = [q.type, q.q].concat(q.o || [], q.l || [], q.r || []).map(flat).join("|");
     let h = 2166136261;
@@ -398,7 +413,8 @@
        chủ đề khác trong lần này đứng trước (câu Viết về bài thơ đi cùng bài thơ), rồi đoạn nhiều câu trước, rồi ngẫu nhiên. Mỗi
        lượt lấy cả đoạn: trong nhóm đoạn bằng điểm chọn đoạn lớn nhất còn vừa số câu cần; không đoạn nào vừa thì lấy phần vừa đủ của
        đoạn hợp mức ma trận nhất, chọn câu theo mức còn thiếu. Câu lẻ (không đoạn) của chủ đề chỉ được rút khi ưu tiên hơn mọi đoạn
-       còn lại (câu lẻ chưa làm, đoạn đã làm) hoặc khi đã đủ số đoạn: phần còn lại rút theo ô như bên dưới. Số câu từng mức theo
+       còn lại (câu lẻ chưa làm, đoạn đã làm) hoặc khi đã đủ số đoạn: phần còn lại rút theo ô như bên dưới; chủ đề ghi số câu, không
+       theo mức (đề "Ôn chủ đề", Phiên UX14) thì câu lẻ đó được lấy rồi xét tiếp các đoạn, nên đoạn vẫn rút cả đoạn. Số câu từng mức theo
        đoạn có thể lệch ma trận: lệch quá 1 câu ở một mức thì ghi notes (L.drawPsg). Câu cùng đoạn đứng liền nhau trong questions,
        theo thứ tự trong kho (Quiz.run giữ nhóm đó, chủ đề sau đứng sau).
      - Câu không có đoạn đọc (và đề không có passages) rút theo từng ô (chủ đề, mức) như Phiên K3: ô lấy câu đúng chủ đề (đúng mức
@@ -408,7 +424,6 @@
        đủ câu thì trả về đúng tổng của ma trận. */
   function draw(bank, hist, lg) {
     const m = (bank.pool && bank.pool.matrix) || {}, notes = [], L = TXT[lg] || TXT[langOf(bank)];
-    const topicOf = (t) => String(t == null ? "" : t).normalize("NFC").replace(/\s+/g, " ").trim();
     const weight = (q) => { const h = hist ? hist(q) : null; return h ? (+h.done || 0) - 2 * (+h.wrong || 0) : 0; };
     const psg = bank.passages && typeof bank.passages === "object" && !Array.isArray(bank.passages) ? bank.passages : {};
     const pOf = (q) => (q && q.p != null && Object.prototype.hasOwnProperty.call(psg, q.p) ? String(q.p) : "");
@@ -437,7 +452,9 @@
         units.forEach((u) => (u.rnd = Math.random()));
         units.sort((a, b) => a.mean - b.mean || b.inUse - a.inUse || b.size - a.size || a.rnd - b.rnd);
         const top = units[0];
-        if (!top.p) break; // câu lẻ ưu tiên hơn mọi đoạn còn lại: phần còn lại rút theo ô
+        if (!top.p && need) break; // câu lẻ ưu tiên hơn mọi đoạn còn lại: phần còn lại rút theo ô
+        // ma trận ghi số câu, không theo mức (đề "Ôn chủ đề", UX14): lấy câu lẻ đó rồi xét tiếp, để các đoạn vẫn rút cả đoạn
+        if (!top.p) { used.add(top.g[0]); got.push(top.g[0]); r--; continue; }
         const group = units.filter((u) => u.p && u.mean === top.mean && u.inUse === top.inUse);
         const fitOf = (u) => (need ? [1, 2, 3].reduce((a, lv) => a + Math.min(need[lv - 1], u.g.filter((x) => x.q.lv === lv).length), 0) : 0);
         const pick = group.find((u) => u.size <= r) || group.slice().sort((a, b) => fitOf(b) - fitOf(a) || a.rnd - b.rnd)[0];
@@ -480,6 +497,32 @@
       out.push(...got.map((x) => x.q));
     });
     return { questions: out, notes };
+  }
+  /* topicBank(srcs, topic, meta) → đề "Ôn chủ đề" (Phiên UX14, X48), rút bằng draw như đề ngẫu nhiên: kho câu là các câu có chủ đề
+     topic (so sau khi gộp khoảng trắng) trong các đề có sẵn srcs của một khối, một môn (đã tải câu hỏi; thứ tự: kì gần nhất trước), mỗi
+     câu kèm src là mã đề gốc. Đề ngẫu nhiên trong srcs chỉ góp câu riêng của nó (câu của đề cố định trong from lấy ở chính đề đó); bỏ câu
+     tự luận (ôn nhanh câu chấm tự động) và câu trùng (cùng key). Mã đoạn đọc thành "<mã đề gốc>/<mã đoạn>", vì hai đề có thể dùng cùng
+     mã đoạn. meta: { id, title, grade, subject }. Trả về meta cộng topic, questions, passages?, n = min(TOPIC_N, số câu) và
+     pool.matrix một chủ đề { topic: n }; câu cùng đoạn đọc rút cả đoạn (K4). tests/kiem-tra-de.js thử mọi chủ đề có ít nhất 10 câu. */
+  const TOPIC_N = 10;
+  function topicBank(srcs, topic, meta) {
+    const t = topicOf(topic), seen = new Set(), questions = [], passages = {};
+    (srcs || []).forEach((b) => {
+      const ps = b.passages && typeof b.passages === "object" && !Array.isArray(b.passages) ? b.passages : {};
+      (b.questions || []).forEach((q) => {
+        const src = q && (q.src || b.id);
+        if (!q || (b.pool && src !== b.id) || q.type === "essay" || topicOf(q.topic) !== t) return;
+        const k = key(q);
+        if (seen.has(k)) return;
+        seen.add(k);
+        const x = Object.assign({}, q, { src });
+        if (q.p != null && Object.prototype.hasOwnProperty.call(ps, q.p)) { x.p = src + "/" + q.p; passages[x.p] = ps[q.p]; } else delete x.p;
+        questions.push(x);
+      });
+    });
+    const n = Math.min(TOPIC_N, questions.length), out = Object.assign({}, meta, { topic: t, questions, n, pool: { matrix: { [t]: n } } });
+    if (Object.keys(passages).length) out.passages = passages;
+    return out;
   }
 
   /* ---------------- chấm ---------------- */
@@ -1113,9 +1156,14 @@
       const partsPanel = !G ? "" : `<section class="panel" id="qzParts"><div class="label">${L.byPart}</div><div class="qz-parts">${partsHtml()}</div></section>`;
       // theo chủ đề: chỉ hiện chủ đề cần ôn thêm, cả bảng thu gọn trong "Xem cả N chủ đề"
       const topicName = (k) => (k === "Chung" ? L.topicGeneral : k), topics = Object.entries(byTopic), need = topics.filter(([, [r, t]]) => r < t), full = topics.length - need.length;
+      // chủ đề cần ôn thêm có nút "Ôn 10 câu: <chủ đề>" (Phiên UX14, X48): opts.topicHref(chủ đề) → địa chỉ đề "Ôn chủ đề" ("" thì không có
+      // nút: đề tự soạn, xem thử); tối đa 3 nút, chủ đề sai nhiều câu nhất trước
+      const goes = typeof opts.topicHref !== "function" ? [] : need.slice().sort((a, b) => (b[1][1] - b[1][0]) - (a[1][1] - a[1][0]))
+        .map(([k]) => [k, k === "Chung" ? "" : opts.topicHref(k)]).filter(([, href]) => href).slice(0, 3);
       const topicPanel = topics.length < 2 ? "" : `<section class="panel" id="qzTopics"><div class="label">${L.byTopic}</div>
           ${full ? `<p class="small">${need.length ? L.topicsOk(full, topics.length) : L.topicsAll(topics.length)}</p>` : ""}
           ${need.length ? bars(Object.fromEntries(need), topicName) : ""}
+          ${goes.length ? `<div class="qz-go">${goes.map(([k, href]) => `<a class="btn sm" href="${esc(href)}">${nbNum(esc(L.topicGo(topicName(k))))}</a>`).join("")}</div>` : ""}
           ${full ? `<details class="small"><summary>${L.topicsShow(topics.length)}</summary>${bars(byTopic, topicName)}</details>` : ""}</section>`;
       // câu cần xem lại, thu gọn: bấm mới xem đáp án và lời giải
       const reviewPanel = !wrong.length ? "" : `<section class="panel" id="qzReview"><div class="label">${L.review(wrong.length)}</div><div class="review">${wrong.map((a) => `<details class="rv" id="qzRv${a.n}"><summary><span class="grow"><span><span class="rv-n">${L.qN(a.n)}</span> · ${nbNum(esc(a.q.q)).replace("___", "…")}${LV[a.q.lv] ? ` <span class="tag">${L.lv[a.q.lv]}</span>` : ""}</span><span class="small">${L.yourAns}<s>${nbNum(esc(givenText(a.q, a.g, L)))}</s>${a.pts > 0 ? L.gotPts(...ptsOf(a.q, a.pts)) : ""} · ${L.rvTap}</span></span></summary>
@@ -1368,5 +1416,5 @@
     return { questions, passages, errors, issues };
   }
 
-  window.Quiz = { run, parse, preview, isRight, score, grade, svg, draw, key, text, REASONS, LV, fmtN, nbNum, TXT, lang: langOf, title };
+  window.Quiz = { run, parse, preview, isRight, score, grade, svg, draw, topicBank, TOPIC_N, key, text, REASONS, LV, fmtN, nbNum, TXT, lang: langOf, title };
 })();
