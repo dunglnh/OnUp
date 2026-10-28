@@ -4111,7 +4111,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
        sau ngăn tên chủ đề bằng “; ”, giống dòng “Chủ đề hay sai” của tin nhắn.
      Ảnh 360px sáng/tối ở tests/screenshots/ux8/ (bản ghép <tên>.jpg; chép sang docs/hinh-ux8/): bao-cao-tin-nhan, da-chep, ban-in.
      Phiên UX12 (X43–X45) chạy trong bước này, cùng dữ liệu (thêm một bài 3 tuần trước): chọn tuần, thẻ "0 bài", hai nút cạnh nhau cao
-     bằng nhau; ảnh ở tests/screenshots/ux12/ (chép sang docs/hinh-ux12/): tuan-truoc, hai-nut-390, hop-hoi-lai, the-cua-con. */
+     bằng nhau; ảnh ở tests/screenshots/ux12/ (chép sang docs/hinh-ux12/): tuan-truoc, hai-nut-390, hop-hoi-lai, roi-bai-on, the-cua-con. */
   const OUTUX8 = OUT + "ux8/"; fs.mkdirSync(OUTUX8, { recursive: true });
   const ux8 = { problems: [], shots: [] };
   const OUTUX12 = OUT + "ux12/"; fs.mkdirSync(OUTUX12, { recursive: true });
@@ -4199,7 +4199,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
        trước:" là tuần ngay trước tuần đang chọn; kì thi sắp tới và gợi ý vẫn theo hôm nay; tuần không có bài ghi "trong tuần này"; ‹ tắt
        ở tuần có kết quả đầu tiên, › tắt ở tuần này; #rpOlder chỉ ở tuần này; ?tuan=1 mở thẳng tuần trước, ?tuan=9 về tuần có kết quả
        đầu tiên, ?tuan=abc là tuần này; bản in in tuần đang chọn (không có nút ‹ ›). X44: thẻ của Na (chưa làm bài hôm nay) ghi "0 bài",
-       một dòng như ô của Bin. X45: "Gửi báo cáo" và "Chép tin nhắn" cạnh nhau ở 390px, #qzYes và #qzNo của hộp hỏi lại của đề cao bằng nhau. */
+       một dòng như ô của Bin. X45: "Gửi báo cáo" và "Chép tin nhắn" cạnh nhau ở 390px, #qzYes và #qzNo của hộp hỏi lại của đề, #leaveYes
+       và #leaveNo của hộp hỏi khi rời bài ôn đang làm (cuối bước, Bin) cao bằng nhau. */
     const u12 = (ux12[scheme] = {});
     const check12 = async (label) => (await p.evaluate(audit)).forEach((x) => ux12.problems.push(`UX12 · ${scheme} · ${label}: ${x}`));
     const snap12 = async (n, sel) => {
@@ -4258,6 +4259,15 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     // con chưa làm bài nào trong tuần
     await p.goto(BASE + "/#/child/" + ids.Na); await p.waitForFunction(() => /của Na/.test((document.querySelector("#rpMsgText") || {}).textContent || ""));
     r.empty = await p.evaluate(() => document.querySelector("#rpMsgText").textContent);
+    // UX12, X45: hộp hỏi lại khi rời bài ôn đang làm (#leaveBox: "Rời bài" | "Ở lại"); Bin bắt đầu một đề của bài ôn l4-giua-ki-1
+    await p.evaluate(() => Store.setSession(null)); await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids.Bin}"]`); await p.fill("#pinIn", PINS.Bin); await p.waitForSelector("#today");
+    await p.goto(BASE + "/#/play/l4-giua-ki-1"); await p.waitForSelector(".player iframe");
+    let fl = null; for (let i = 0; i < 60 && !fl; i++) { const f = p.frames().find((x) => /modules\/l4-giua-ki-1/.test(x.url())); if (f && (await f.$(".tb").catch(() => null))) fl = f; else await p.waitForTimeout(100); }
+    await fl.click(".tb >> nth=0"); await fl.waitForSelector("#endBtn");
+    await p.click(".player [data-go]"); await p.waitForSelector("#leaveBox");
+    u12.leave = await pair("#leaveYes", "#leaveNo"); u12.leaveTxt = await p.evaluate(() => document.querySelector("#leaveYes").textContent + "|" + document.querySelector("#leaveNo").textContent);
+    await snap12("roi-bai-on", "#leaveBox .confirm");
+    await p.click("#leaveYes"); await p.waitForFunction(() => location.hash === "#/home");
     await c.close();
   }
   { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/ux8/<tên>.jpg)
@@ -4327,6 +4337,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.print.prev === "none" && r.print.next === "none" && r.print.txt !== "none" && r.print.week === "Báo cáo 8/10 – 14/10/2026" && r.print.title === w1.title
       // X45: nút chính và nút viền cạnh nhau cùng hàng, cao bằng nhau, cùng viền 1px
       && r.send.row && same(r.send.h) && r.send.border === "1px|1px" && r.confirm.row && same(r.confirm.h) && r.confirm.border === "1px|1px" && r.confirmTxt === "Thoát|Làm tiếp"
+      && r.leave.row && same(r.leave.h) && r.leave.border === "1px|1px" && r.leaveTxt === "Rời bài|Ở lại"
       // X44: Na chưa làm bài hôm nay: "0 bài", một dòng, ô cao như ô bên cạnh
       && kid("Na").first === "0 bài hôm nay" && kid("Na").lines === 1 && !/,/.test(kid("Na").hs) && kid("Bin").first === "2 bài hôm nay" && kid("Bin").lines === 1; });
 
