@@ -792,6 +792,19 @@ window.ONTAP_SEED_BANKS = [
       "Unit 3 · Healthy Living for Teens": [1, 1, 1], "Unit 4 · Remembering the Past": [2, 1, 1], "Unit 5 · Our Experiences": [2, 1, 1],
       "Unit 6 · Vietnamese Lifestyle: Then and Now": [1, 1, 1], "Reading": [1, 1, 1] } } },
 
+  /* Tiếng Anh 9 · Kiểm tra giữa học kì II (Global Success 9, Units 7–9, Review 3; Phiên N9-gk2-ta). Khối 9 chưa bật nên đề chưa hiện
+     với gia đình. Kho câu = 25 câu riêng trong file (1 đoạn đọc) + 50 câu của 2 đề cố định (mỗi đề 1 đoạn đọc), câu nào cũng có mức
+     độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu: Pronunciation 3 (âm /sl/, /sn/ của Unit 7, trọng âm từ tận cùng -ic, -ious của
+     Unit 8, -ion, -ity của Unit 9), Unit 7, 8 mỗi Unit 6, Unit 9 5, Review of Units 1–6 2 (ngữ pháp của học kì I), Reading 3 (một đoạn
+     3 câu mức 1-2-3). Hai đề cố định và câu riêng đều chia đúng ma trận nên ô (chủ đề, mức) nào cũng có gấp ba số câu ô đó rút. Không
+     có câu nghe, không có câu tự luận. */
+  { id: "ta9-gk2-de1", title: "Tiếng Anh 9 · Giữa kì II · Đề 1", grade: 9, subject: "Tiếng Anh", minutes: 45, n: 25, file: "9-ta.js" },
+  { id: "ta9-gk2-de2", title: "Tiếng Anh 9 · Giữa kì II · Đề 2", grade: 9, subject: "Tiếng Anh", minutes: 45, n: 25, file: "9-ta.js" },
+  { id: "ta9-gk2-ngau-nhien", title: "Tiếng Anh 9 · Giữa kì II · Đề ngẫu nhiên", grade: 9, subject: "Tiếng Anh", minutes: 45, n: 25, file: "9-ta.js",
+    pool: { from: ["ta9-gk2-de1", "ta9-gk2-de2"], matrix: {
+      "Pronunciation": [2, 1, 0], "Unit 7 · Natural Wonders of the World": [2, 2, 2], "Unit 8 · Tourism": [3, 2, 1],
+      "Unit 9 · World Englishes": [2, 1, 2], "Review of Units 1–6": [0, 1, 1], "Reading": [1, 1, 1] } } },
+
   /* KHTN 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Khoa học tự nhiên 9; Phiên N9-ck1-khtn). Khối 9 chưa bật nên đề chưa hiện
      với gia đình. Phạm vi theo phân phối chương trình dạy song song ba phân môn (nguồn ghi ở Pull Request của phiên): Vật lí Bài 2–10
      (Chương I Năng lượng cơ học, Chương II Ánh sáng) 9 câu, Hoá học Bài 22–32 (Chương VII–IX) 10 câu, Sinh học Bài 36–41 (Chương XI)
