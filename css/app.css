@@ -112,6 +112,19 @@ body.tabbed{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .today h1{font-size:1.5rem}
 .btn.lg{padding:14px 24px;font-size:1.1rem;width:100%;min-height:52px} /* nút Bắt đầu (Hôm nay), "Cho con học" (thẻ Bắt đầu của khu phụ huynh, UX3) */
 .hero .linkbtn{color:inherit;text-decoration:underline;font-weight:600;align-self:flex-start}
+/* hôm nay đã ôn (Phiên UX9, X40): thẻ đầu trang nền ok-soft, hải cẩu tung bóng 64px, nút viền "Làm thêm một bài" nền surface */
+.hero.done{background:var(--ok-soft);color:var(--ink)}
+.hero.done .label{color:var(--ok);opacity:1}
+.done-head{display:flex;gap:14px;align-items:center}
+.done-head img{width:64px;height:64px;flex:none}
+.done-tip{color:var(--muted)}
+.hero.done .btn.ghost{background:var(--surface);border-color:var(--line);color:var(--ink);align-self:flex-start}
+.hero.done .linkbtn{color:var(--acc)}
+/* trang rỗng (emptyBox, X40): hình hải cẩu 96px, tên đậm 18px, một dòng nhạt, không quá một nút; căn giữa */
+.empty{align-items:center;text-align:center;padding:24px 16px}
+.empty img{width:96px;height:96px}
+.empty h3{font-size:1.125rem}
+.empty .btn{margin-top:4px}
 .pick{flex-direction:row;align-items:center;gap:12px;padding:12px 14px}
 .pick .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .pick .grow b{overflow-wrap:anywhere}
