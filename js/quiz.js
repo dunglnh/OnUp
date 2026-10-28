@@ -25,6 +25,8 @@
      lần trước cùng đề (app đọc từ kết quả đã lưu, gọi trước khi lưu lượt này) thì có nhãn "Hơn/Kém/Bằng lần trước"; nút "Ôn lại N câu sai"
      mở một lượt ôn luyện chỉ gồm các câu sai (retry = true trong lúc đó), không gọi onFinish, không lưu điểm; "Làm lại cả đề" về đề đầy đủ
      cùng cách làm; câu cần xem lại thu gọn (<details class="rv">, bấm mới xem đáp án, lời giải); theo chủ đề chỉ hiện chủ đề cần ôn thêm.
+     Bảng câu (Phiên UX11, X42): ngay sau hàng nút đó, #qzSheet có một ô ✓ ✗ cho mỗi câu của lượt; chạm ô câu sai thì mở câu đó ở
+     "Câu cần xem lại", chạm ô khác thì hộp #qzPeek ngay dưới lưới ghi câu hỏi, đáp án, lời giải (xem finish()).
      Trên câu chỉ một dòng nhãn "môn · chủ đề" (dạng đúng/sai 4 ý, nối cột, sắp xếp, tự luận ghi thêm cách làm); câu điền mà mọi đáp án
      là số thì ô nhập có inputmode="decimal" (bàn phím số), trừ khi có đáp án âm (L30: bàn phím thường, dòng nhắc số âm dưới câu).
    Bài đã gửi cho bố mẹ chưa (Phiên UX6, X10): màn kết quả có chỗ trống <p class="saved" id="qzSaved" hidden> trong #qzScore;
