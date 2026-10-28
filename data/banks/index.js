@@ -778,6 +778,35 @@ window.ONTAP_SEED_BANKS = [
       "Nucleic acid và gene": [0, 1, 0], "Tái bản DNA và phiên mã tạo RNA": [0, 0, 1],
       "Dịch mã và mối quan hệ từ gene đến tính trạng": [0, 1, 0], "Đột biến gene": [1, 0, 0] } } },
 
+  /* Lịch sử và Địa lí 9 · Kiểm tra cuối học kì I (Kết nối tri thức, bản chỉnh sửa năm 2026; Lịch sử Bài 1–12, Địa lí Bài 1–13; Phiên
+     N9-ck1-lsdl-gdcd). Khối 9 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (không có câu riêng), câu nào
+     cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu, theo khung đề định kì (Công văn 7991): 12 câu Lịch sử (mỗi bài 1
+     câu; chữ chủ đề theo tên bài của sách, rút gọn), 13 câu Địa lí (Bài 1, 2, 3, 6, 10 mỗi bài 1 câu; Nông nghiệp, Công nghiệp, Vùng
+     Trung du và miền núi phía Bắc, Vùng Đồng bằng sông Hồng mỗi chủ đề 2 câu; Bài 4, 7, 9, 11 là bài thực hành, không ra câu riêng).
+     Hai đề cố định chia đúng theo ma trận, nên ô (chủ đề, mức) nào cũng có đúng 2 câu, gấp đôi số câu ô đó rút. */
+  { id: "lsdl9-ck1-de1", title: "Lịch sử và Địa lí 9 · Cuối kì I · Đề 1", grade: 9, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "9-lsdl.js" },
+  { id: "lsdl9-ck1-de2", title: "Lịch sử và Địa lí 9 · Cuối kì I · Đề 2", grade: 9, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "9-lsdl.js" },
+  { id: "lsdl9-ck1-ngau-nhien", title: "Lịch sử và Địa lí 9 · Cuối kì I · Đề ngẫu nhiên", grade: 9, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "9-lsdl.js",
+    pool: { from: ["lsdl9-ck1-de1", "lsdl9-ck1-de2"], matrix: {
+      "Nước Nga và Liên Xô (1918 – 1945)": [1, 0, 0], "Châu Âu và nước Mỹ (1918 – 1945)": [0, 1, 0], "Châu Á (1918 – 1945)": [1, 0, 0],
+      "Chiến tranh thế giới thứ hai": [0, 0, 1], "Phong trào dân tộc dân chủ (1918 – 1930)": [1, 0, 0],
+      "Nguyễn Ái Quốc và sự thành lập Đảng": [0, 1, 0], "Phong trào cách mạng (1930 – 1939)": [0, 1, 0], "Cách mạng tháng Tám năm 1945": [0, 0, 1],
+      "Chiến tranh lạnh": [1, 0, 0], "Liên Xô và Đông Âu (1945 – 1991)": [0, 1, 0], "Nước Mỹ và Tây Âu (1945 – 1991)": [1, 0, 0],
+      "Mỹ La-tinh và châu Á (1945 – 1991)": [0, 0, 1], "Dân tộc và dân số": [0, 0, 1], "Phân bố dân cư và quần cư": [0, 0, 1],
+      "Lao động và việc làm": [0, 1, 0], "Nông nghiệp": [1, 0, 1], "Lâm nghiệp và thuỷ sản": [1, 0, 0], "Công nghiệp": [1, 1, 0],
+      "Dịch vụ": [1, 0, 0], "Vùng Trung du và miền núi phía Bắc": [1, 1, 0], "Vùng Đồng bằng sông Hồng": [0, 1, 1] } } },
+
+  /* GDCD 9 · Kiểm tra cuối học kì I (Kết nối tri thức; Bài 1–6; Phiên N9-ck1-lsdl-gdcd). Khối 9 chưa bật nên đề chưa hiện với gia
+     đình. Kho câu = 50 câu của 2 đề cố định (không có câu riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7
+     câu, theo khung đề định kì (Công văn 7991): Bài 1–5 mỗi bài 4 câu, Bài 6 Quản lí thời gian hiệu quả 5 câu, bài nào cũng có câu
+     xử lí tình huống. Hai đề cố định chia đúng theo ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "gdcd9-ck1-de1", title: "GDCD 9 · Cuối kì I · Đề 1", grade: 9, subject: "GDCD", minutes: 35, n: 25, file: "9-gdcd.js" },
+  { id: "gdcd9-ck1-de2", title: "GDCD 9 · Cuối kì I · Đề 2", grade: 9, subject: "GDCD", minutes: 35, n: 25, file: "9-gdcd.js" },
+  { id: "gdcd9-ck1-ngau-nhien", title: "GDCD 9 · Cuối kì I · Đề ngẫu nhiên", grade: 9, subject: "GDCD", minutes: 35, n: 25, file: "9-gdcd.js",
+    pool: { from: ["gdcd9-ck1-de1", "gdcd9-ck1-de2"], matrix: {
+      "Sống có lí tưởng": [2, 1, 1], "Khoan dung": [2, 1, 1], "Hoạt động cộng đồng": [2, 1, 1],
+      "Khách quan và công bằng": [1, 2, 1], "Bảo vệ hoà bình": [2, 1, 1], "Quản lí thời gian hiệu quả": [1, 2, 2] } } },
+
   /* Tin học 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Tin học 9, Bài 1–8; Phiên N9-ck1-tin-congnghe). Khối 9 chưa bật nên đề chưa
      hiện với gia đình. Năm chủ đề theo năm bài lí thuyết (Bài 1, 2, 4, 5, 7; ba bài thực hành 3, 6, 8 hỏi qua tình huống ở chủ đề của
      bài đi trước), số câu mỗi chủ đề theo số tiết. Kho câu = 50 câu của 2 đề cố định, không có câu riêng; ma trận [Biết, Hiểu, Vận
