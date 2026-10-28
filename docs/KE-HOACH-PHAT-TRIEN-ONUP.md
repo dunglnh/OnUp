@@ -207,7 +207,6 @@
 **Thường xuyên:**
 
 6. Rà đề mới: cho con làm thử; câu sai thì bấm “Báo câu này sai” ngay trong app (Phiên R1). Chủ app xem và xử lí ở trang admin → tab Câu bị báo (bản lưu trên máy: Quản trị → Dữ liệu → Chép để gửi). GitHub Issues chỉ còn cho chủ app.
-   - Trước khi Merge PR #214 (Phiên UX10, trước 14/12/2026): thử file lịch trên iPhone (Safari, app trên Màn hình chính) và Android; các bước ở mô tả PR.
    - Nếu chưa thử: L27 trên máy đang dùng (làm lại một đề đúng hết thì “Ôn câu sai” không còn câu của đề đó, PR #57); L29–L31 trên iPhone thật (PR #74; các bước ở mục 2 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), Phiên 9h).
 7. Trường báo lịch chính thức thì sửa ngày trong Khu phụ huynh → Lịch thi.
 8. Trước khi mở dùng thử (cuối tháng 2/2027, sau B1): bật CAPTCHA (bước 8 của `docs/HUONG-DAN-SUPABASE.md`; Hostnames là tên miền mới).
@@ -246,7 +245,7 @@ Thứ tự các phiên:
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
 | 1 | 15/11/2026 | Lớp 9 (33 phiên, có 9 phiên đề thi thử vào 10); phiên rà soát lớp 9. Cuối kì I, giữa kì II (12 phiên N9-ck1-*, N9-gk2-*) đã vào hàng đợi (26/10/2026) | K5 (đã xong, PR #198; chỉ trước đề thi thử vào 10) | thứ tự khối, thứ tự kì trong mỗi khối và mốc kiểm tra: mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); các bước trước khi bật một khối: mục 7 (“Lớp 5, 7–12”) |
-| song song | UX12 13/12 · UX14 20/12/2026 | **UX12 → UX14 · Giao diện 3.x** (chủ app chọn 27/10/2026; vấn đề, cách làm, ảnh ở [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md)) | UX14 sau UX9 (PR #210), UX11 (PR #212) | phiên mở tay, chạy xen với phiên làm đề; không chạy cùng lúc hai phiên sửa `js/app.js` hay `js/quiz.js`; UX10 (PR #214) chờ chủ app thử file lịch trên iPhone, Android rồi Merge, trước kì cuối kì I (lớp 6 từ 21/12); UX13 không làm; lời giao việc ở mục 4; phiên xong thì bỏ tên mình khỏi dòng này, phiên cuối xóa cả dòng |
+| song song | UX14 20/12/2026 | **UX14 · Giao diện 3.x** (chủ app chọn 27/10/2026; vấn đề, cách làm, ảnh ở [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md)) | UX14 sau UX9 (PR #210), UX11 (PR #212) | phiên mở tay, chạy xen với phiên làm đề; không chạy cùng lúc hai phiên sửa `js/app.js` hay `js/quiz.js`; UX13 không làm; lời giao việc ở mục 4; phiên xong thì bỏ tên mình khỏi dòng này, phiên cuối xóa cả dòng |
 | 2 | 10/12/2026 | Lớp 12 (53 phiên, có 25 phiên đề thi thử tốt nghiệp), lớp 5 (16); mỗi khối một phiên rà soát | | cuối kì I của lớp 12 (thi từ 14/12/2026, xong trước 23/11) rồi của lớp 5 (thi từ 28/12, xong trước 7/12) làm trước các kì khác |
 | 3 | 31/12/2026 | Lớp 7, 8 (mỗi khối 24 phiên); mỗi khối một phiên rà soát | | |
 | 4 | 20/1/2027 (dự phòng đến 28/2/2027) | Lớp 10, 11 (mỗi khối 28 phiên); mỗi khối một phiên rà soát; sửa lỗi các phiên rà soát tìm ra | | xong là đủ đề lớp 4–12 và rà xong; phần dự phòng cho sửa lỗi, rà đề, nghỉ Tết |
