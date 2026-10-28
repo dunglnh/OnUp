@@ -132,6 +132,9 @@
       cmpMore: (n, p) => `Hơn lần trước ${n} câu (${p})`, cmpLess: (n, p) => `Kém lần trước ${n} câu (${p})`, cmpSame: (p) => `Bằng lần trước (${p})`, cmpPrev: (p) => `Lần trước: ${p}`,
       retry: (n) => `Ôn lại ${n} câu sai`, againAll: "Làm lại cả đề", retryHead: "Ôn lại câu sai", retryNote: "Lượt ôn lại câu sai không lưu điểm.",
       qN: (n) => `Câu ${n}`, rvTap: "bấm để xem đáp án, lời giải",
+      // bảng câu (Phiên UX11, X42): ô ✓ ✗ của mọi câu trong lượt, chạm để xem lại câu đó
+      sheet: "Bảng câu", sheetAria: "Bảng câu của lượt này", sheetTap: "Chạm vào số câu để xem lại câu đó.", peekClose: "Đóng",
+      sheetSt: { ok: "đúng", bad: "chưa đúng", done: "tự chấm", blank: "chưa làm" }, sheetKey: { ok: "Đúng", bad: "Chưa đúng", done: "Tự chấm", blank: "Chưa làm" },
       topicsAll: (m) => `Đúng hết cả ${m} chủ đề!`, topicsOk: (k, m) => `Đúng hết ${k}/${m} chủ đề. Cần ôn thêm:`, topicsShow: (m) => `Xem cả ${m} chủ đề`,
       essayHead: (n) => `Tự luận · tự chấm (${n} câu)`, essayExamNote: "Không tính vào điểm trung bình. Đọc gợi ý, chọn mức cho từng ý rồi bấm Lưu.",
       saveSelf: "Lưu điểm tự chấm", notMarked: "chưa chấm", selfSaved: (g, m) => `Đã lưu điểm tự chấm: ${g}/${m} điểm.`, selfNoAvg: "Không tính vào điểm trung bình.",
@@ -208,6 +211,8 @@
       cmpMore: (n, p) => `${n} more than last time (${p})`, cmpLess: (n, p) => `${n} fewer than last time (${p})`, cmpSame: (p) => `Same as last time (${p})`, cmpPrev: (p) => `Last time: ${p}`,
       retry: (n) => `Review ${n} ${n === 1 ? "mistake" : "mistakes"}`, againAll: "Try the whole test again", retryHead: "Reviewing mistakes", retryNote: "Reviewing your mistakes is not scored.",
       qN: (n) => `Question ${n}`, rvTap: "tap to see the answer and guide",
+      sheet: "Answers", sheetAria: "Answers for this round", sheetTap: "Tap a number to review that question.", peekClose: "Close",
+      sheetSt: { ok: "correct", bad: "not correct", done: "self-marked", blank: "not done" }, sheetKey: { ok: "Correct", bad: "Not correct", done: "Self-marked", blank: "Not done" },
       topicsAll: (m) => `All ${m} topics correct!`, topicsOk: (k, m) => `${k}/${m} topics fully correct. Needs more practice:`, topicsShow: (m) => `Show all ${m} topics`,
       essayHead: (n) => `Writing · self-check (${n} ${n === 1 ? "question" : "questions"})`, essayExamNote: "Not counted in your average score. Read the guide, choose a level for each part, then tap Save.",
       saveSelf: "Save my score", notMarked: "not marked", selfSaved: (g, m, n) => `Self-check score saved: ${g}/${m} ${n === 1 ? "point" : "points"}.`, selfNoAvg: "Not counted in your average score.",
@@ -795,6 +800,8 @@
             h.reported.add(q.key);
             area.innerHTML = `<div class="fb ok rp-done">${L.rpThanks}</div>`;
             btn.disabled = true; btn.setAttribute("aria-expanded", "false"); btn.querySelector("span").textContent = L.rpDone;
+            // câu tự luận ở màn kết quả có link ở cả hộp #qzPeek (UX11) và mục tự chấm: báo xong thì tắt cả hai
+            el.querySelectorAll(".rp-link").forEach((x) => { if (x !== btn && x.dataset.k === q.key) { x.disabled = true; x.querySelector("span").textContent = L.rpDone; } });
           } catch (e) {
             if (!form.isConnected) return;
             // đề Tiếng Anh: lỗi do kho trả về là tiếng Việt, thay bằng một câu chung tiếng Anh
@@ -1109,8 +1116,28 @@
           ${need.length ? bars(Object.fromEntries(need), topicName) : ""}
           ${full ? `<details class="small"><summary>${L.topicsShow(topics.length)}</summary>${bars(byTopic, topicName)}</details>` : ""}</section>`;
       // câu cần xem lại, thu gọn: bấm mới xem đáp án và lời giải
-      const reviewPanel = !wrong.length ? "" : `<section class="panel" id="qzReview"><div class="label">${L.review(wrong.length)}</div><div class="review">${wrong.map((a) => `<details class="rv"><summary><span class="grow"><span><span class="rv-n">${L.qN(a.n)}</span> · ${nbNum(esc(a.q.q)).replace("___", "…")}${LV[a.q.lv] ? ` <span class="tag">${L.lv[a.q.lv]}</span>` : ""}</span><span class="small">${L.yourAns}<s>${nbNum(esc(givenText(a.q, a.g, L)))}</s>${a.pts > 0 ? L.gotPts(...ptsOf(a.q, a.pts)) : ""} · ${L.rvTap}</span></span></summary>
+      const reviewPanel = !wrong.length ? "" : `<section class="panel" id="qzReview"><div class="label">${L.review(wrong.length)}</div><div class="review">${wrong.map((a) => `<details class="rv" id="qzRv${a.n}"><summary><span class="grow"><span><span class="rv-n">${L.qN(a.n)}</span> · ${nbNum(esc(a.q.q)).replace("___", "…")}${LV[a.q.lv] ? ` <span class="tag">${L.lv[a.q.lv]}</span>` : ""}</span><span class="small">${L.yourAns}<s>${nbNum(esc(givenText(a.q, a.g, L)))}</s>${a.pts > 0 ? L.gotPts(...ptsOf(a.q, a.pts)) : ""} · ${L.rvTap}</span></span></summary>
           <div class="rv-body"><div class="small">${L.ansLabel} <b>${nbNum(esc(correctText(a.q, L)))}</b></div>${a.q.x ? `<div class="expl">${nbNum(esc(a.q.x))}</div>` : ""}${reportHtml(a.q)}</div></details>`).join("")}</div></section>`;
+      /* Bảng câu (Phiên UX11, X42): mỗi câu của lượt một ô như bảng số câu (9n; lượt "Ôn lại câu sai": các câu của lượt đó). Câu chấm tự
+         động đúng hết điểm ✓ (st-ok), còn lại ✗ (st-bad: cả câu chưa làm của bài làm như thi, câu đúng/sai 4 ý đúng một phần), câu tự luận
+         st-done (không dấu), câu ôn luyện chưa tới (bấm "← Thoát" giữa chừng) st-blank. Chú thích chỉ ghi mục có câu. Chạm ô câu sai thì mở
+         câu đó ở "Câu cần xem lại" (#qzRv<N>), cuộn tới, đặt focus vào dòng tóm tắt; chạm ô khác thì hộp #qzPeek mở ngay dưới lưới (câu
+         hỏi, hình, đáp án, lời giải, link báo câu sai); chạm ô khác thì thay nội dung, chạm lại ô đó hoặc "Đóng" thì đóng. */
+      const sts = qs.map((q, i) => (!S.ans[i] ? "blank" : q.type === "essay" ? "done" : (S.ans[i].pts || 0) >= 1 ? "ok" : "bad")), stN = {};
+      sts.forEach((st) => (stN[st] = (stN[st] || 0) + 1));
+      const sheetPanel = `<section class="panel qz-sheet" id="qzSheet"><div class="label">${L.sheet}</div>
+          <div class="qz-cells" role="group" aria-label="${L.sheetAria}">${sts.map((st, i) => `<button type="button" class="qz-cell st-${st}" data-i="${i}" aria-label="${L.cellAria(i + 1, L.sheetSt[st])}"${st === "bad" ? "" : ' aria-expanded="false" aria-controls="qzPeek"'}><b>${i + 1}</b><i aria-hidden="true">${MARK[st] || ""}</i></button>`).join("")}</div>
+          <div class="report-box qz-peek" id="qzPeek" aria-live="polite" hidden></div>
+          <p class="qz-key small muted">${["ok", "bad", "done", "blank"].filter((st) => stN[st]).map((st) => `<span><i class="qz-cell st-${st}" aria-hidden="true"><i>${MARK[st] || ""}</i></i>${L.sheetKey[st]} (${stN[st]})</span>`).join("")}</p>
+          <p class="small muted">${L.sheetTap}</p></section>`;
+      const peekHtml = (i) => {
+        const q = qs[i], g = S.ans[i] && S.ans[i].g;
+        return `<div class="row between"><b>${nb(`${L.qN(i + 1)} · ${L.sheetKey[sts[i]]}`)}</b><button type="button" class="btn ghost sm" id="qzPeekClose">${L.peekClose}</button></div>
+          <div>${nbNum(esc(q.q)).replace("___", "…")}</div>${fig(q.svg)}
+          ${q.type === "essay" ? `${g ? `<div class="essay-done">${nbNum(esc(g))}</div>` : ""}<div class="expl pre"><b>${L.guide}</b> ${nbNum(esc(q.x || L.noGuide))}</div>`
+            : `<div class="small">${L.ansLabel} <b class="ans">${nbNum(esc(correctText(q, L)))}</b></div>${q.x ? `<div class="expl">${nbNum(esc(q.x))}</div>` : ""}`}
+          ${reportHtml(q)}`;
+      };
       const againAllTxt = h.opts0.redraw ? L.newTest : L.againAll;
       // chỗ trống để app ghi bài đã gửi cho bố mẹ chưa (bản đám mây, UX6); lượt không lưu điểm (ôn lại câu sai, xem thử) để trống
       const saved0 = `<p class="saved" id="qzSaved" hidden></p>`;
@@ -1135,6 +1162,7 @@
           ${part ? `<p class="small muted">${L.partNote}</p>` : ""}` : `<p>${L.onlyEssay} ${L.time}${fmtTime(secs)}</p>${totalLine}${saved0}`}
         </section>
         <div class="row">${wrong.length ? `<button class="btn main" id="qzRetry">${L.retry(wrong.length)}</button>` : ""}<button class="btn ${wrong.length ? "ghost" : "main"}" id="qzAgain">${wrong.length || h.retry ? againAllTxt : againTxt}</button></div>
+        ${sheetPanel}
         ${partsPanel}
         ${reviewPanel}
         ${topicPanel}
@@ -1146,6 +1174,25 @@
       if (wrong.length) el.querySelector("#qzRetry").onclick = retryWith(wrong);
       el.querySelector("#qzHome").onclick = () => opts.onExit && opts.onExit();
       wireReport(el);
+      // bảng câu (X42): ô câu sai mở câu đó ở "Câu cần xem lại", ô khác mở hộp #qzPeek ngay dưới lưới
+      const peek = el.querySelector("#qzPeek"), cellOf = (i) => el.querySelector(`#qzSheet .qz-cell[data-i="${i}"]`);
+      let peekI = -1;
+      const closePeek = (focus) => { const b = peekI >= 0 ? cellOf(peekI) : null; peek.hidden = true; peek.innerHTML = ""; peekI = -1; if (b) { b.setAttribute("aria-expanded", "false"); if (focus) b.focus(); } };
+      el.querySelectorAll("#qzSheet .qz-cell[data-i]").forEach((b) => (b.onclick = () => {
+        const i = +b.dataset.i;
+        if (sts[i] === "bad") {
+          closePeek();
+          const d = el.querySelector("#qzRv" + (i + 1));
+          if (d) { d.open = true; d.scrollIntoView({ block: "start" }); d.querySelector("summary").focus({ preventScroll: true }); }
+          return;
+        }
+        if (peekI === i) { closePeek(); return; }
+        closePeek(); peekI = i;
+        peek.innerHTML = peekHtml(i); peek.hidden = false; b.setAttribute("aria-expanded", "true");
+        peek.querySelector("#qzPeekClose").onclick = () => closePeek(true);
+        wireReport(peek);
+        peek.scrollIntoView({ block: "nearest" });
+      }));
       const save = el.querySelector("#qzSelfSave");
       if (save) {
         // đề tính điểm: chọn mức tự chấm thì bảng theo phần và tổng tạm tính tính lại ngay
