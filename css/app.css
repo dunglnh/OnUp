@@ -350,6 +350,13 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .qz-key .qz-cell{width:18px;height:18px;min-height:18px;border-radius:5px;box-shadow:none}
 .qz-key .qz-cell i{font-size:13px;min-height:0}
 .qz-key .qz-cell.cur{box-shadow:0 0 0 1px var(--surface),0 0 0 2px var(--ink)}
+/* bảng câu ở màn kết quả (#qzSheet, Phiên UX11, X42): lưới như bảng số câu; ô đang mở hộp #qzPeek có vòng ngoài như ô đang làm;
+   hộp #qzPeek kiểu .report-box ngay dưới lưới (câu hỏi, đáp án màu ok, lời giải, link báo câu sai) */
+.qz-sheet .qz-cell[aria-expanded="true"]{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--ink)}
+.qz-peek{margin-top:0;overflow-wrap:anywhere}
+.qz-peek>.row{flex-wrap:nowrap}
+.qz-peek>.row>b{min-width:0}
+.qz-peek b.ans{color:var(--ok)}
 .qz-recap h2{font-size:1.25rem;margin:0}
 .qz-recap p{margin:0}
 .qz-left{align-self:flex-start} /* nhãn "Câu còn trống 2/3" đầu thẻ câu trong vòng làm tiếp */
@@ -393,7 +400,7 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .qz-part+.qz-part{border-top:1px solid var(--line);padding-top:10px}
 /* Câu cần xem lại thu gọn (UX1): dòng summary là câu hỏi và câu trả lời sai, bấm mới mở đáp án, lời giải, link báo câu sai. */
 .review{display:flex;flex-direction:column;gap:12px}
-.rv{border-left:4px solid var(--bad);padding:0 0 0 12px;display:block;overflow-wrap:anywhere}
+.rv{border-left:4px solid var(--bad);padding:0 0 0 12px;display:block;overflow-wrap:anywhere;scroll-margin-top:96px} /* bảng câu (X42) cuộn tới câu: không nằm dưới thanh trên dính */
 .rv>summary{display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 0;cursor:pointer;list-style:none}
 .rv>summary::-webkit-details-marker{display:none}
 .rv>summary .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}

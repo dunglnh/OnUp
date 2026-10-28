@@ -1141,6 +1141,18 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     return ok;
   };
   const answer = (q, right) => answerOn(kp, q, right);
+  /* Bảng câu ở màn kết quả (#qzSheet, Phiên UX11, X42): nhãn; trạng thái từng ô (o: đúng, x: chưa đúng, d: tự luận, -: chưa làm); số ô
+     mỗi hàng; chiều cao các ô; chú thích (bỏ dấu ✓ ✗); dòng nhắc; số câu ở "Câu cần xem lại"; bảng đứng ngay sau hàng nút "Ôn lại…" /
+     "Làm lại…" (after). */
+  const sheetOf = (pg) => pg.evaluate(() => {
+    const s = document.querySelector("#qzSheet"); if (!s) return null;
+    const f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : ""), cells = [...s.querySelectorAll(".qz-cells .qz-cell")], rows = {};
+    cells.forEach((c) => { const t = Math.round(c.getBoundingClientRect().top); rows[t] = (rows[t] || 0) + 1; });
+    const code = { ok: "o", bad: "x", done: "d", blank: "-" };
+    return { label: f(s.querySelector(".label")), st: cells.map((c) => code[(c.className.match(/st-(\w+)/) || [])[1]] || "?").join(""), rows: Object.keys(rows).sort((a, b) => a - b).map((k) => rows[k]).join(),
+      h: [...new Set(cells.map((c) => Math.round(c.getBoundingClientRect().height)))].join(), key: f(s.querySelector(".qz-key")).replace(/[✓✗]/g, ""), tap: f(s.querySelector(".qz-key + p")),
+      review: document.querySelectorAll("#qzReview details.rv").length, after: !!(s.previousElementSibling && s.previousElementSibling.querySelector("#qzAgain")), peek: !!s.querySelector("#qzPeek[hidden]") };
+  });
   /* Làm hết một lượt ôn luyện. wrong: câu chấm tự động đầu tiên (không lấy câu của Đề 1) trả lời sai, còn lại đúng; snap: chụp màn
      hình câu sai sau khi Kiểm tra; audit: kiểm tra 360px từng câu sau khi Kiểm tra. Ghi chỗ chấm khác dữ liệu. Trả về các câu đã gặp. */
   const playAll = async (qs, wrong, snap, audit360) => {
@@ -1678,6 +1690,16 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
         && (await p.$$eval("details.rv", (d) => d.length === 2 && d.every((x) => !x.open)));
       r.saved = await p.evaluate((id) => { const x = Store.resultsFor(Store.sessionUser().id)[0]; return !!x && x.refId === id && x.subject === "Tiếng Anh" && x.label === Store.bank(id).title && x.t === 25 && x.mode === "practice"; }, id);
       if (!snapped("ket-qua")) await snap("ket-qua", true);
+      // bảng câu (UX11, X42) bằng tiếng Anh: nhãn, chú thích, dòng nhắc; chạm ô câu đúng đầu tiên mở hộp "Question N · Correct", "Close" đóng hộp
+      { const sh = await sheetOf(p), i = sh ? sh.st.indexOf("o") : -1;
+        r.sheet = !!sh && sh.label === "Answers" && sh.st.length === 25 && sh.st.split("x").length - 1 === wrongN && sh.review === wrongN && sh.key === `Correct (${25 - wrongN})Not correct (${wrongN})` && sh.tap === "Tap a number to review that question." && sh.after;
+        if (i >= 0) {
+          await p.click(`#qzSheet .qz-cell[data-i="${i}"]`); await p.waitForSelector("#qzPeek:not([hidden])");
+          await check("bảng câu, xem câu đúng"); if (!snapped("bang-cau")) await snap("bang-cau");
+          r.peek = new RegExp(`^Question ${i + 1} · Correct ?Close`).test(await txt("#qzPeek")) && /Answer: /.test(await txt("#qzPeek")) && (await p.$eval(`#qzSheet .qz-cell[data-i="${i}"]`, (b) => b.getAttribute("aria-label"))) === `Question ${i + 1}, correct`;
+          await p.click("#qzPeekClose"); r.peek = r.peek && !!(await p.$("#qzPeek[hidden]"));
+        }
+      }
       // ôn lại câu sai (UX1) bằng tiếng Anh: lượt chỉ có 2 câu, dừng giữa chừng hỏi "Stop reviewing…", kết quả ghi "Reviewing mistakes", không lưu thêm kết quả
       const nSaved = await p.evaluate(() => Store.resultsFor(Store.sessionUser().id).length);
       await p.click("#qzRetry"); await p.waitForSelector(".qcard");
@@ -1747,9 +1769,9 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await gp.close();
   }
   console.log("TA2:", ta2.runs, { ioe: [ta2["ioe-light"], ta2["ioe-dark"]], parent: [ta2["parent-light"], ta2["parent-dark"]], toan: [ta2["toan-light"], ta2["toan-dark"]] }, "chữ Việt:", ta2.vi, "problems:", ta2.problems);
-  const TA2_SHOTS = ["mo-de", "roi-trang-chua-lam", "thoat-de", "mc", "mc-kiem-tra", "fill", "fill-kiem-tra", "tf", "tf-kiem-tra", "doc-hieu", "doc-hieu-kiem-tra", "bao-cau-sai", "bao-cau-sai-xong", "roi-trang-da-lam", "dung-on", "ket-qua", "on-lai-cau-sai", "ket-qua-on-lai", "nop-bai", "ioe-roi-bai", "xem-thu"];
+  const TA2_SHOTS = ["mo-de", "roi-trang-chua-lam", "thoat-de", "mc", "mc-kiem-tra", "fill", "fill-kiem-tra", "tf", "tf-kiem-tra", "doc-hieu", "doc-hieu-kiem-tra", "bao-cau-sai", "bao-cau-sai-xong", "roi-trang-da-lam", "dung-on", "ket-qua", "bang-cau", "on-lai-cau-sai", "ket-qua-on-lai", "nop-bai", "ioe-roi-bai", "xem-thu"];
   const ta2OK = !ta2.problems.length && !ta2.vi.length && ta2.runs.length === 4
-    && ta2.runs.every((r) => r.open && r.leave0 && r.exit0 && r.exit0Home && r.n === 25 && r.wrongN === 2 && r.mcWrong && r.fillWrong && r.rightFb && r.rpBox && r.rpNeed && r.rpDone && r.leave1 && r.exit1 && r.stay && r.result && r.saved && r.retryN && r.retryExit && r.retryResult && r.examBtn && r.prevEn && r.examTop && r.leaveExam && r.exitExam && r.examResult)
+    && ta2.runs.every((r) => r.sheet && r.peek && r.open && r.leave0 && r.exit0 && r.exit0Home && r.n === 25 && r.wrongN === 2 && r.mcWrong && r.fillWrong && r.rightFb && r.rpBox && r.rpNeed && r.rpDone && r.leave1 && r.exit1 && r.stay && r.result && r.saved && r.retryN && r.retryExit && r.retryResult && r.examBtn && r.prevEn && r.examTop && r.leaveExam && r.exitExam && r.examResult)
     && ["light", "dark"].every((sc) => { const io = ta2["ioe-" + sc], pa = ta2["parent-" + sc], to = ta2["toan-" + sc];
       return io.note === "Score saved" && io.back === "← Home" && io.lang === "en" && io.title === "Your score is saved to your profile each time you finish." && io.leave === "Leave this practice?Your unfinished work won't be saved. LeaveStay" && io.toast === "Result saved: 24/30 correct" && io.left === "#/home"
         && pa.notice === "Chế độ xem thử: điểm không được lưu." && pa.lang === "vi" && pa.h1 === "English 4 · End-of-term 1 · Test 1" && pa.btn === "Practice"
@@ -2405,7 +2427,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.labels.length === 1 && /^Toán · \S/.test(r.labels[0])
       && r.result.label === "Toán 4 · Cuối kì I · Đề 1 · Ôn luyện" && r.result.praise === "Xuất sắc, Bin!" && r.result.score === "9,25/10" && r.result.cmp === "Hơn lần trước 2 câu (21/25)" && r.result.retry === "Ôn lại 2 câu sai" && r.result.again === "Làm lại cả đề" && r.result.home === "Về trang chính"
       && /^closed:(4[4-9]|[5-9]\d|\d{3}):hidden\|closed:(4[4-9]|[5-9]\d|\d{3}):hidden$/.test(r.result.rv) && /^Câu [12] · .+Bạn trả lời: .+ · bấm để xem đáp án, lời giải$/.test(r.result.rvHead) && !/Đáp án:/.test(r.result.rvHead)
-      && /^Theo chủ đề Đúng hết \d+\/\d+ chủ đề\. Cần ôn thêm: .+Xem cả \d+ chủ đề/.test(r.result.topics) && /^qzScore,row,qzReview,qzTopics,(qzLv,)?row$/.test(r.result.order) && r.rvOpen
+      && /^Theo chủ đề Đúng hết \d+\/\d+ chủ đề\. Cần ôn thêm: .+Xem cả \d+ chủ đề/.test(r.result.topics) && /^qzScore,row,qzSheet,qzReview,qzTopics,(qzLv,)?row$/.test(r.result.order) && r.rvOpen
       && r.retry.chip === "Câu 1/2" && r.retry.leave === "Dừng ôn lại và rời trang?Lượt ôn lại câu sai không lưu điểm. DừngÔn tiếp" && /^Toán 4 · Cuối kì I · Đề 1 · Ôn lại câu sai Xuất sắc, Bin! 10\/10 2\/2 câu đúng.*Lượt ôn lại câu sai không lưu điểm\.$/.test(r.retry.result)
       && r.retry.btns === "|Làm lại cả đề" && r.retry.saved === 1 && r.retry.full === "Câu 1/25 ← Thoát"
       && r.numeric === "decimal,null" && r.tabAdmin.tabs === "" && !r.tabAdmin.cal
@@ -3810,6 +3832,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     r.prev0 = !(await p.$("#qPrev"));
     r.p1 = await play(K5_BANK, (i) => (i < 12 ? i < 10 : i < 16 ? 4 - (i - 12) : i < 20), "Toán lượt 1");
     r.score1 = await txt(".score"); r.how = await txt("#qzScore .stack b"); r.parts1 = await parts(); r.total1 = !!(await p.$("#qzTotal"));
+    r.sheet1 = await sheetOf(p); // bảng câu (UX11, X42)
     r.gotPts = await p.$$eval("#qzReview summary", (xs) => xs.map((x) => x.textContent.replace(/\s+/g, " ")).filter((s) => /được [\d,]+\/1 điểm/.test(s)).length);
     await check("Toán, kết quả lượt 1"); await snap("ket-qua");
     r.saved1 = JSON.stringify(await saved(K5_BANK.id));
@@ -3838,7 +3861,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     // Tiếng Anh: 6.35/10, tổng tạm tính có phần tự luận tự chấm
     await p.goto(BASE + "/#/quiz/" + K5_EN.id); await p.waitForSelector("#qExam");
     r.p3 = await play(K5_EN, (i) => (i < 12 ? true : i === 12 ? 2 : 1), "Tiếng Anh");
-    r.score3 = await txt(".score"); r.parts3 = await parts(); r.total3 = await txt("#qzTotal");
+    r.score3 = await txt(".score"); r.parts3 = await parts(); r.total3 = await txt("#qzTotal"); r.sheet3 = await sheetOf(p);
     await check("Tiếng Anh, kết quả");
     await p.click('.rubric .opt[data-j="0"][data-v="1"]'); await p.click('.rubric .opt[data-j="1"][data-v="1"]');
     r.parts3b = await parts(); r.total3b = await txt("#qzTotal");
@@ -3872,7 +3895,10 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   }
   console.log("K5:", JSON.stringify(k5.runs), "problems:", k5.problems);
   const K5_SUB = (r, name, s) => { const x = r.subs.find((y) => y[0] === name); return !!x && x[1].includes(s); };
-  const k5OK = !k5.problems.length && k5.runs.length === 2 && k5.runs.every((r) => r.prev0 && r.p1.order && r.p1.shuffled && r.p2.order && r.p3.order && r.p3.shuffled
+  const k5Sheet = (sh, n, lab) => !!sh && sh.label === lab && sh.st.length === n && sh.st.split("x").length - 1 === sh.review && sh.after; // bảng câu (UX11, X42)
+  const k5OK = !k5.problems.length && k5.runs.length === 2 && k5.runs.every((r) => k5Sheet(r.sheet1, K5_BANK.questions.length, "Bảng câu") && !r.sheet1.st.includes("d")
+      && k5Sheet(r.sheet3, K5_EN.questions.length, "Answers") && r.sheet3.st.split("d").length - 1 === 1 && r.sheet3.key.includes("Self-marked (1)")
+      && r.prev0 && r.p1.order && r.p1.shuffled && r.p2.order && r.p3.order && r.p3.shuffled
       && r.score1 === "6,35/10" && r.how === "Chấm theo điểm từng câu, từng phần như đề thi." && !r.total1 && r.gotPts >= 1
       && JSON.stringify(r.parts1) === JSON.stringify([[K5_P[0], "2,5/3"], [K5_P[1], "1,85/4"], [K5_P[2], "2/3"]])
       && r.saved1 === JSON.stringify([[6.35, 10, "exam"]]) && r.score2 === "9,75/10" && r.cmp2 === "Hơn lần trước 3,4 điểm (6,35/10)"
@@ -4378,6 +4404,95 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.noBank.today === "Chưa có bài ôn cho lớp 4|Nhờ thầy cô nhập đề trong mục Quản trị.|" && r.noBank.practice === r.noBank.today && r.noBank.parent === r.noBank.today
       && r.noBank.admin === "Chưa có bài ôn cho lớp 4|Bạn có thể nhập đề ở tab Ngân hàng đề.|Mở Ngân hàng đề:#/admin/banks"; });
 
+  step("answer sheet on the result screen (UX11, X42)");
+  /* Phiên UX11 (docs/CAI-TIEN-UX-3X.md, mục 4): ngày giả lập 27/10/2026 18:00, 360px sáng/tối. Bin ôn luyện Toán 4 · Cuối kì I · Đề 3
+     (25 câu), trả lời sai câu thứ 5, 10, 18, 23 của lượt, còn lại đúng. Màn kết quả: ngay sau hàng nút "Ôn lại 4 câu sai" / "Làm lại cả đề"
+     là bảng câu #qzSheet "Bảng câu": 25 ô 48px, 5 hàng × 5 ô, ✗ ở đúng 4 câu sai (bằng số câu ở "Câu cần xem lại"), ✓ ở câu khác, chú thích
+     "Đúng (21) · Chưa đúng (4)", dòng "Chạm vào số câu để xem lại câu đó.". Chạm ô câu sai thì câu đó ở "Câu cần xem lại" mở, nằm trong
+     khung nhìn (dưới thanh trên dính), focus ở dòng tóm tắt. Chạm ô câu đúng thì hộp #qzPeek ngay dưới lưới ghi "Câu 7 · Đúng", câu hỏi
+     của câu 7, đáp án, link báo câu sai; chạm ô khác thì thay nội dung; chạm lại ô đó thì đóng; "Đóng" thì đóng và focus về ô. Lượt "Ôn lại
+     câu sai" (đúng cả 4) chỉ có 4 ô ✓. Làm như thi: trả lời 2 câu rồi nộp, 23 câu chưa làm là ✗ (bằng số câu cần xem lại). Đề tính điểm (K5),
+     đề Tiếng Anh (TA2) kiểm tra ở bước của chúng. audit ở mọi màn. Ảnh 360px sáng/tối ở tests/screenshots/ux11/ (bản ghép <tên>.jpg; chép
+     sang docs/hinh-ux11/): bang-cau, xem-cau-dung, mo-cau-sai, on-lai, lam-nhu-thi. */
+  const OUTUX11 = OUT + "ux11/"; fs.mkdirSync(OUTUX11, { recursive: true });
+  const ux11 = { problems: [], shots: [] }, BAD11 = [5, 10, 18, 23];
+  for (const scheme of ["light", "dark"]) {
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror UX11: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console UX11: " + m.text()); });
+    const r = (ux11[scheme] = {});
+    const check11 = async (label) => (await p.evaluate(audit)).forEach((x) => ux11.problems.push(`UX11 · ${scheme} · ${label}: ${x}`));
+    const snap11 = async (n, here) => { await p.evaluate((here) => { if (!here) scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }, here); await p.screenshot({ path: `${OUTUX11}${n}-${scheme}.png`, fullPage: !here }); ux11.shots.push(`${n}-${scheme}`); };
+    const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, sel);
+    const cell = (n) => `#qzSheet .qz-cell[data-i="${n - 1}"]`;
+    const peekOf = () => p.evaluate(() => { const b = document.querySelector("#qzPeek"), f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : "");
+      return { shown: !b.hidden, head: f(b.querySelector(".row b")), close: f(b.querySelector("#qzPeekClose")), q: f(b.querySelector(".row + div")), ans: f(b.querySelector(".small")), rp: !!b.querySelector(".rp-link"),
+        open: [...document.querySelectorAll('#qzSheet .qz-cell[aria-expanded="true"]')].map((x) => +x.dataset.i + 1).join() }; });
+    await p.clock.install({ time: new Date("2026-10-27T18:00:00") });
+    await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids.Bin}"]`); await p.fill("#pinIn", PINS.Bin); await p.waitForSelector("#today");
+    await p.goto(BASE + "/#/quiz/toan4-ck1-de3"); await p.waitForSelector("#qPractice");
+    const Q = await p.evaluate(() => Store.bank("toan4-ck1-de3").questions), seen = [];
+    await p.click("#qPractice");
+    for (let i = 0; i < 30 && !(await p.$(".score")); i++) {
+      const q = await currentOn(p, Q); if (!q) { ux11.problems.push(`UX11 · ${scheme}: không nhận ra câu ${i + 1}`); break; }
+      seen.push(q);
+      if (!(await answerOn(p, q, !BAD11.includes(i + 1)))) { ux11.problems.push(`UX11 · ${scheme}: không trả lời được câu ${i + 1}`); break; }
+      await p.click("#qzGo");
+    }
+    await endRecap(p); await p.waitForSelector(".score");
+    r.sheet = await sheetOf(p);
+    r.aria = await p.evaluate(() => [1, 5].map((n) => { const b = document.querySelector(`#qzSheet .qz-cell[data-i="${n - 1}"]`); return b.getAttribute("aria-label") + "|" + b.getAttribute("aria-expanded"); }).join("/"));
+    r.retryBtn = await txt("#qzRetry");
+    await check11("màn kết quả, bảng câu"); await snap11("bang-cau");
+    // chạm ô câu sai: câu đó ở "Câu cần xem lại" mở, trong khung nhìn, focus ở dòng tóm tắt
+    await p.click(cell(18)); await p.waitForTimeout(150);
+    r.bad = await p.evaluate(() => { const d = document.querySelector("#qzRv18"), s = d && d.querySelector("summary"), rc = s && s.getBoundingClientRect(), top = document.querySelector(".top").getBoundingClientRect().bottom;
+      return { open: !!d && d.open, inView: !!rc && rc.top >= top - 1 && rc.bottom <= innerHeight, focus: document.activeElement === s, head: s ? s.textContent.replace(/\s+/g, " ").trim().slice(0, 10) : "", others: document.querySelectorAll("#qzReview details.rv[open]").length }; });
+    await check11("chạm ô câu sai"); await snap11("mo-cau-sai", true);
+    // chạm ô câu đúng: hộp #qzPeek ghi số câu, câu hỏi của câu đó; ô khác thay nội dung; chạm lại thì đóng; "Đóng" đóng và focus về ô
+    await p.click(cell(7)); await p.waitForSelector("#qzPeek:not([hidden])");
+    r.peek7 = await peekOf(); r.q7 = flatQ(r.peek7.q) === flatQ(String(seen[6].q).replace(/___/g, "…"));
+    await check11("hộp xem câu đúng"); await p.evaluate(() => document.querySelector("#qzSheet").scrollIntoView({ block: "start" })); await snap11("xem-cau-dung", true);
+    await p.click(`#qzPeek .rp-link`); r.rpBox = !!(await p.$("#qzPeek .rp-area .report-box")); await p.click("#qzPeek .rp-no");
+    await p.click(cell(8)); r.peek8 = await peekOf(); r.q8 = flatQ(r.peek8.q) === flatQ(String(seen[7].q).replace(/___/g, "…"));
+    await p.click(cell(8)); r.again8 = await peekOf();
+    await p.click(cell(9)); await p.click("#qzPeekClose"); r.close9 = await peekOf(); r.focus9 = await p.evaluate(() => document.activeElement && document.activeElement.dataset.i === "8");
+    // ôn lại câu sai: lượt 4 câu, đúng hết, bảng chỉ có 4 ô ✓
+    await p.click("#qzRetry"); await p.waitForSelector(".qcard");
+    for (let i = 0; i < 6 && !(await p.$(".score")); i++) { const q = await currentOn(p, Q); if (!q) break; await answerOn(p, q, true); await p.click("#qzGo"); }
+    await endRecap(p); await p.waitForSelector(".score");
+    r.retry = await sheetOf(p); r.retryLabel = await txt("#qzScore .label");
+    await check11("ôn lại câu sai"); await snap11("on-lai");
+    // làm như thi: 2 câu rồi nộp, 23 câu chưa làm là ✗
+    await p.goto(BASE + "/#/home"); await p.goto(BASE + "/#/quiz/toan4-ck1-de3"); await p.waitForSelector("#qExam"); await p.click("#qExam");
+    for (let i = 0; i < 2; i++) { const q = await currentOn(p, Q); if (q) await answerOn(p, q, true); }
+    await p.click("#qzSubmit"); await p.click("#qzYes"); await p.waitForSelector(".score");
+    r.exam = await sheetOf(p);
+    await check11("làm như thi, nộp sớm"); await snap11("lam-nhu-thi");
+    await c.close();
+  }
+  // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/ux11/<tên>.jpg)
+  {
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of [...new Set(ux11.shots.map((x) => x.replace(/-(light|dark)$/, "")))]) {
+      if (!ux11.shots.includes(n + "-light") || !ux11.shots.includes(n + "-dark")) continue;
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTUX11}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTUX11}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("UX11:", JSON.stringify(ux11.light), "dark:", JSON.stringify(ux11.dark), "problems:", ux11.problems);
+  const ST11 = Array.from({ length: 25 }, (_, i) => (BAD11.includes(i + 1) ? "x" : "o")).join("");
+  const ux11OK = !ux11.problems.length && ["light", "dark"].every((sc) => { const r = ux11[sc], sh = r.sheet;
+    return sh && sh.label === "Bảng câu" && sh.st === ST11 && sh.rows === "5,5,5,5,5" && sh.h === "48" && sh.review === 4 && sh.key === "Đúng (21)Chưa đúng (4)" && sh.tap === "Chạm vào số câu để xem lại câu đó." && sh.after && sh.peek
+      && r.aria === "Câu 1, đúng|false/Câu 5, chưa đúng|null" && r.retryBtn === "Ôn lại 4 câu sai"
+      && r.bad.open && r.bad.inView && r.bad.focus && r.bad.head.startsWith("Câu 18 · ") && r.bad.others === 1
+      && r.peek7.shown && r.peek7.head === "Câu 7 · Đúng" && r.peek7.close === "Đóng" && r.q7 && /^Đáp án: \S/.test(r.peek7.ans) && r.peek7.rp && r.peek7.open === "7" && r.rpBox
+      && r.peek8.shown && r.peek8.head === "Câu 8 · Đúng" && r.q8 && r.peek8.open === "8" && !r.again8.shown && r.again8.open === "" && !r.close9.shown && r.focus9
+      && r.retry && r.retry.st === "oooo" && r.retry.review === 0 && r.retry.key === "Đúng (4)" && / · Ôn lại câu sai$/.test(r.retryLabel)
+      && r.exam && r.exam.st === "oo" + "x".repeat(23) && r.exam.review === 23 && r.exam.key === "Đúng (2)Chưa đúng (23)"; });
+
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
      Đề có sẵn: chỉ danh mục data/banks/index.js nằm trong FILES; file câu hỏi vào đệm khi mở đề. */
@@ -4508,7 +4623,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, k5OK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK, ux9OK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, k5OK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK, ux9OK, ux11OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
