@@ -13,12 +13,13 @@
 // câu Hoá học phải cân bằng. Câu trả lời bằng số và câu có hình nào cũng phải có kiểm tra ở đây.
 // Rồi: chữ (công thức hoá học viết bằng chữ số dưới dòng, tên chất như sách, không có tên chất kiểu cũ, dấu thanh kiểu cũ như sách “hoá”,
 // “thuỷ”; số ngăn hàng nghìn bằng khoảng trắng, dấu phẩy thập phân), mức độ và ma trận (12 chủ đề theo thứ tự bài của sách; hai đề cố
-// định và câu riêng chia đúng ma trận), dạng câu theo khung Công văn 7991 (đúng/sai 4 ý không lặp kiểu Đ/S, trả lời ngắn bằng số), đáp
-// án đúng không dài hơn hẳn lựa chọn sai và không là lựa chọn duy nhất có chữ của nhãn chủ đề, rút thử nhiều lần (đúng ma trận, gặp đủ
-// câu riêng; đã làm hết một đề cố định thì không rút lại câu của đề đó), đề bài không trùng, dò lộ đáp án giữa các câu rút được cùng lúc
-// (số ở vị trí kết quả: không được có; chuỗi 3 từ của đáp án bằng chữ in ra với DO_LO=1 để xem tay, đã xem ghi ở DA_XEM). Có sách ở
-// ../OnUp-Book (repo riêng tư) thì so mọi trường chữ với chữ OCR của mọi cuốn sau khi bỏ dấu, gộp nguyên âm (không chuỗi 8 từ nào trùng;
-// DO_SACH=1 in chuỗi 6 từ) và với câu của mọi kho khác (không chuỗi 8 từ nào trùng; DO_KHO=1 in chuỗi 5 từ).
+// định và câu riêng chia đúng ma trận), dạng câu theo khung Công văn 7991 (mỗi phần 4 câu đúng/sai 4 ý không lặp kiểu Đ/S, 6 câu trả
+// lời ngắn bằng số), đáp án đúng không dài hơn hẳn lựa chọn sai, là lựa chọn dài nhất hay ngắn nhất ở không quá một phần ba số câu nhiều
+// lựa chọn và không là lựa chọn duy nhất có chữ của nhãn chủ đề, rút thử nhiều lần (đúng ma trận, gặp đủ câu riêng; đã làm hết một đề
+// cố định thì không rút lại câu của đề đó), đề bài không trùng, dò lộ đáp án giữa các câu rút được cùng lúc (số ở vị trí kết quả: không
+// được có; chuỗi 3 từ của đáp án bằng chữ in ra với DO_LO=1 để xem tay, đã xem ghi ở DA_XEM). Có sách ở ../OnUp-Book (repo riêng tư)
+// thì so mọi trường chữ với chữ OCR của mọi cuốn sau khi bỏ dấu, gộp nguyên âm (không chuỗi 8 từ nào trùng; DO_SACH=1 in chuỗi 6 từ) và
+// với câu của mọi kho khác, cả câu riêng của các đề ngẫu nhiên khác (không chuỗi 8 từ nào trùng; DO_KHO=1 in chuỗi 5 từ).
 // Chạy: node tests/khtn9-gk2.js → in MATH OK.
 "use strict";
 const assert = require("assert");
@@ -227,7 +228,7 @@ const ptCua = (q, x, y) => ptTrong(q.x, x, y);
 // nguyên tử khối đề cho: “(Cho Al = 27; …)”; phải đúng bảng nguyên tử khối
 const ntDe = (q) => { const m = /\(Cho ([^)]*)\)/.exec(q.q); assert.ok(m, "đề cho nguyên tử khối"); const nt = {};
   [...m[1].matchAll(/([A-Z][a-z]?) = ([\d,]+)/g)].forEach((k) => { nt[k[1]] = val(k[2]); assert.equal(nt[k[1]], NTK[k[1]], "nguyên tử khối của " + k[1]); }); return nt; };
-const V0 = (q) => { const [v] = so(q, /1 mol khí có thể tích ([\d,]+) L/); assert.equal(v, 24.79, "thể tích 1 mol khí ở điều kiện chuẩn"); return v; };
+const V0 = (q) => { const [v] = so(q, /thể tích của 1 mol khí ở điều kiện chuẩn là ([\d,]+) L/); assert.equal(v, 24.79, "thể tích 1 mol khí ở điều kiện chuẩn"); return v; };
 /* Dãy hoạt động hoá học (Bài 19): kim loại đứng trước mạnh hơn; kim loại đứng trước H đẩy được hydrogen ra khỏi dung dịch HCl,
    H₂SO₄ loãng; kim loại mạnh hơn (trừ K, Na, Ca tác dụng với nước) đẩy được kim loại yếu hơn ra khỏi dung dịch muối. */
 const DAY = ["K", "Na", "Ca", "Mg", "Al", "Zn", "Fe", "Pb", "H", "Cu", "Ag", "Au"];
@@ -239,7 +240,7 @@ const klMuoi = (f) => { const m = /^[A-Z][a-z]?/.exec(f); assert.ok(m && DAY.inc
 const phanUng = (M, X) => (X === "HCl" ? manhHon(M, "H") : !["K", "Na", "Ca"].includes(M) && manhHon(M, klMuoi(X)));
 
 /* ---------- sinh học: bộ NST lưỡng bội của các loài dùng trong đề (đối chiếu sách, tài liệu sinh học phổ thông) ---------- */
-const BO_NST = { "người": 46, "mèo": 38, "cây hành": 16, "thỏ": 44, "đậu tương": 40, "ếch": 26, "cà rốt": 18, "bò": 60, "ngựa": 64 };
+const BO_NST = { "người": 46, "mèo": 38, "thỏ": 44, "đậu tương": 40, "ếch": 26, "cà rốt": 18, "bò": 60, "ngựa": 64 };
 
 /* ---------- các câu cần tính ----------
    id: đề chứa câu (de1, de2, own); has: đoạn chữ của đề; right(q): đáp án tính bằng code. */
@@ -419,7 +420,7 @@ assert.equal(dangDotBien("ABC•DE", "ABBC•DE"), "Lặp đoạn"); assert.equa
   assert.throws(() => docMach(q.svg.replace('x2="138" y2="100"', 'x2="130" y2="100"')), /có dây nối|bỏ lửng/, "dây nối hở thì báo");
 }
 // bộ NST của các loài trong đề đúng như bảng
-kho.forEach((q) => chu(q).forEach((s) => [...s.matchAll(/(người|mèo|cây hành|thỏ|đậu tương|ếch|cà rốt|bò|ngựa)(?: bình thường)? (?:\(2n = (\d+)\)|có 2n = (\d+))/g)].forEach((m) => assert.equal(+(m[2] || m[3]), BO_NST[m[1]], "bộ NST của " + m[1]))));
+kho.forEach((q) => chu(q).forEach((s) => [...s.matchAll(/(người|mèo|thỏ|đậu tương|ếch|cà rốt|bò|ngựa)(?: bình thường)? (?:\(2n = (\d+)\)|có 2n = (\d+))/g)].forEach((m) => assert.equal(+(m[2] || m[3]), BO_NST[m[1]], "bộ NST của " + m[1]))));
 
 /* ---------- chữ ---------- */
 function chu(q) { return [q.q, q.x].concat(q.o || [], q.unit || []).map(String); }
@@ -510,6 +511,12 @@ kho.filter((q) => q.type === "mc").forEach((q) => {
   const dau = q.o.map((o) => o.split(" ")[0]);
   assert.ok(!(q.o.length === 4 && dau.slice(1).every((d) => d === dau[1]) && dau[0] !== dau[1] && dau[1].length > 1), "ba lựa chọn sai cùng mở đầu bằng “" + dau[1] + "”: " + q.q.slice(0, 50));
 });
+
+// đáp án đúng là lựa chọn dài nhất hay ngắn nhất ở không quá một phần ba số câu nhiều lựa chọn (Rút ra N9-gk2-van)
+{
+  const mc4 = kho.filter((q) => q.type === "mc" && q.o.length === 4), le = mc4.filter((q) => { const L = q.o.map((o) => o.length); return L[0] > Math.max(...L.slice(1)) || L[0] < Math.min(...L.slice(1)); });
+  assert.ok(le.length * 3 <= mc4.length, `đáp án đúng dài nhất hoặc ngắn nhất ở ${le.length}/${mc4.length} câu`);
+}
 
 /* ---------- rút thử ---------- */
 const thu = (hist) => {
@@ -602,7 +609,8 @@ if (SACH.length) {
 } else console.log("Không có ../OnUp-Book: bỏ qua bước so với chữ của sách.");
 /* ---------- trùng ý với các kho khác (Rút ra N21): chuỗi từ liền nhau trùng câu của kho khác ---------- */
 {
-  const khac = BANKS.filter((b) => !b.pool && !/^khtn9-gk2-/.test(b.id)).flatMap((b) => b.questions.map((q) => ({ id: b.id, s: " " + chu(q).concat(q.p && b.passages && b.passages[q.p] ? [b.passages[q.p].text || ""] : []).map(khongDau).join(" | ") + " " })));
+  // mọi câu của các kho khác: đề cố định và câu riêng của đề ngẫu nhiên (câu riêng ghi src là mã đề ngẫu nhiên)
+  const khac = BANKS.filter((b) => !/^khtn9-gk2-/.test(b.id)).flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id).map((q) => ({ id: b.id, s: " " + chu(q).concat(q.p && b.passages && b.passages[q.p] ? [b.passages[q.p].text || ""] : []).map(khongDau).join(" | ") + " " })));
   const bao = (k) => kho.flatMap((q) => [...new Set(chu(q).flatMap((s) => chuoi(s, k)))].flatMap((c) => khac.filter((o) => o.s.includes(" " + c + " ")).map((o) => `${ten.get(q)} ~ ${o.id}: ${c}`)));
   if (process.env.DO_KHO) console.log("Chuỗi 5 từ trùng câu của kho khác (xem tay):\n" + [...new Set(bao(5))].join("\n"));
   assert.deepEqual([...new Set(bao(8))], [], "chuỗi 8 từ trùng câu của kho khác");
