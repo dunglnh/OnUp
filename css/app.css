@@ -112,6 +112,19 @@ body.tabbed{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .today h1{font-size:1.5rem}
 .btn.lg{padding:14px 24px;font-size:1.1rem;width:100%;min-height:52px} /* nút Bắt đầu (Hôm nay), "Cho con học" (thẻ Bắt đầu của khu phụ huynh, UX3) */
 .hero .linkbtn{color:inherit;text-decoration:underline;font-weight:600;align-self:flex-start}
+/* hôm nay đã ôn (Phiên UX9, X40): thẻ đầu trang nền ok-soft, hải cẩu tung bóng 64px, nút viền "Làm thêm một bài" nền surface */
+.hero.done{background:var(--ok-soft);color:var(--ink)}
+.hero.done .label{color:var(--ok);opacity:1}
+.done-head{display:flex;gap:14px;align-items:center}
+.done-head img{width:64px;height:64px;flex:none}
+.done-tip{color:var(--muted)}
+.hero.done .btn.ghost{background:var(--surface);border-color:var(--line);color:var(--ink);align-self:flex-start}
+.hero.done .linkbtn{color:var(--acc)}
+/* trang rỗng (emptyBox, X40): hình hải cẩu 96px, tên đậm 18px, một dòng nhạt, không quá một nút; căn giữa */
+.empty{align-items:center;text-align:center;padding:24px 16px}
+.empty img{width:96px;height:96px}
+.empty h3{font-size:1.125rem}
+.empty .btn{margin-top:4px}
 .pick{flex-direction:row;align-items:center;gap:12px;padding:12px 14px}
 .pick .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .pick .grow b{overflow-wrap:anywhere}
@@ -126,7 +139,17 @@ body.tabbed{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .wd.later{border-style:dashed}
 .badge{display:inline-flex;align-items:center;gap:4px;font-size:.8125rem;border-radius:999px;padding:3px 10px;background:var(--sun-soft);color:var(--ink);font-weight:600;border:1px solid transparent}
 .badge:not(.on){background:transparent;border-color:var(--line);color:var(--muted)}
-.ready{color:var(--ink);font-weight:600} .ready.good{color:var(--ok)} /* "Đã làm đúng x% bài ôn của kì này" trên thẻ kì thi */
+/* huy hiệu có tiến độ (badgePanel, Phiên UX9, X39): tối đa hai mục tiêu kế tiếp, mỗi mục biểu tượng, tên đậm 15px, số 14px, thanh 6px;
+   huy hiệu đã có ở một hàng "Đã có:" */
+.bdg-list{display:flex;flex-direction:column;gap:14px}
+.bdg{display:flex;gap:12px;align-items:center}
+.bdg-ic{font-size:1.6rem;line-height:1;flex:none}
+.bdg .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.bdg-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.bdg-top b{font-size:.9375rem;min-width:0;overflow-wrap:anywhere}
+.bdg-n{font-size:.875rem;color:var(--muted);flex:none}
+.bdg-got{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ready{color:var(--ink);font-weight:600} .ready.good{color:var(--ok)} /* "Đã làm 3/5 bài · đúng 82%" trên thẻ kì thi (progTxt, X38); làm hết thì màu ok */
 
 /* khu phụ huynh (Phiên UX2): thẻ của từng con ở mục "Các con" (kidCard, cả thẻ là link mở báo cáo), dòng kì thi gần nhất (.kid-ev);
    tab Lịch thi: hàng nút dưới thẻ kì thi (.ev-act: "Trường đã báo lịch? Sửa ngày") và hộp sửa ngày tại chỗ (#fixBox) */
@@ -237,6 +260,14 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .subj{flex-wrap:wrap}
 .subj .grow{flex-basis:7em}
 .des{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+/* tiến độ của một kì thi (Phiên UX9, X38; progressOf trong js/app.js): dưới dòng ngày của nhóm kì thi, chữ "Đã làm 3/5 bài · đúng 82%"
+   và thanh 6px; nút đề, bài ôn đã làm là nút viền có dấu ✓ (đề chưa làm, đề ngẫu nhiên vẫn vàng). Không dùng lớp .ck (dòng ô đánh dấu). */
+.grp-prog{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.prog-txt{font-size:.875rem;color:var(--muted)}
+.prog-txt b{color:var(--ink)}
+.grp-prog .bar,.bdg .bar{height:6px}
+.btn.done{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:600;padding:7px 10px;gap:4px}
+.done-ic{color:var(--ok);font-weight:700}
 
 /* lịch thi */
 .timeline{display:flex;flex-direction:column;gap:6px}
