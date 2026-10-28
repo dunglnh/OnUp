@@ -134,7 +134,7 @@
   { id: "gk2-l9", title: "Kiểm tra giữa học kì II", kind: "dinh-ki", grades: [9],
     start: "2027-03-08", end: "2027-03-19", tentative: true, subjects: MON_THCS,
     scope: "Toán: Bài 18–21, Bài 27–30. Ngữ văn: Bài 6–7. Tiếng Anh: Units 7–9. KHTN: Vật lí Bài 11–15, Hoá học Bài 18–21, Sinh học Bài 42–46 (trường dạy theo thứ tự khác thì xem đề cương của trường). Lịch sử và Địa lí: Lịch sử Bài 13–17, Địa lí Bài 14–17. GDCD: Bài 7–8. Tin học: Bài 9a–13a (trường học Bài 9b–13b thì xem đề cương của trường). Công nghệ: Lắp đặt mạng điện trong nhà, Bài 1–4 (trường học mô đun khác thì xem đề cương của trường).",
-    modules: [], banks: ["toan9-gk2-de1", "toan9-gk2-de2", "toan9-gk2-ngau-nhien"] },
+    modules: [], banks: ["toan9-gk2-de1", "toan9-gk2-de2", "toan9-gk2-ngau-nhien", "van9-gk2-de1", "van9-gk2-de2", "van9-gk2-ngau-nhien"] },
   { id: "gk2-l12", title: "Kiểm tra giữa học kì II", kind: "dinh-ki", grades: [12],
     start: "2027-03-08", end: "2027-03-19", tentative: true, subjects: MON_THPT, scope: "Nửa đầu học kì II.", modules: [], banks: [] },
   { id: "gk2-l4", title: "Kiểm tra giữa học kì II", kind: "dinh-ki", grades: [4],
