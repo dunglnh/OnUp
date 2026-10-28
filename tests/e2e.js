@@ -4493,6 +4493,149 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.retry && r.retry.st === "oooo" && r.retry.review === 0 && r.retry.key === "Đúng (4)" && / · Ôn lại câu sai$/.test(r.retryLabel)
       && r.exam && r.exam.st === "oo" + "x".repeat(23) && r.exam.review === 23 && r.exam.key === "Đúng (2)Chưa đúng (23)"; });
 
+  step("phone calendar: exam file, study reminder (UX10, X41)");
+  /* Phiên UX10 (docs/CAI-TIEN-UX-3X.md, mục 4): ngày giả lập 28/10/2026 18:00 (thứ tư), 360px sáng/tối, bản lưu trên máy.
+     - Mẹ Bin: trang chủ có thẻ "Nhắc con ôn bài" #studyRemind ngay dưới mục Các con: 7 nút T2–CN một hàng (cao ≥ 44px, aria-pressed,
+       mặc định T2–T6), giờ 19:30, nút chính có biểu tượng. Bỏ T6, chọn T7, giờ 20:15, bấm nút: tải về onup-nhac-on-bai.ics (toast "Mở file
+       vừa tải…"): UTF-8, CRLF, dòng ≤ 75 byte, VTIMEZONE Asia/Ho_Chi_Minh +0700, DTSTART hôm nay 20:15 (thứ tư có trong ngày đã chọn), 20 phút,
+       RRULE BYDAY=MO,TU,WE,TH,SA, nhắc đúng giờ. Chỉ chọn CN: DTSTART là chủ nhật 1/11. Không chọn ngày nào: toast, không tải. Tải lại trang:
+       giữ lựa chọn gần nhất.
+     - Lịch thi, tab Lớp 4, chi tiết Kiểm tra giữa học kì I: #evIcs ngay sau dòng ngày, một nút "Thêm vào lịch điện thoại", dòng nhắc 19:00
+       và dòng ngày dự kiến; file onup-gk1-l4.ics: sự kiện cả ngày từ ngày đầu đến ngày cuối cộng 1, UID gk1-l4-l4@onup, tên "… · Lớp 4 (dự
+       kiến)", môn, phạm vi, địa chỉ app, hai lời nhắc -P6DT5H, -PT5H. Tab "Cả hai khối", IOE cấp trường: hai nút "· Lớp 4", "· Lớp 6"; nút lớp 6
+       cho UID ioe-truong-l6@onup, chữ mỗi nút một dòng; tab Lớp 6 thì một nút. Mốc năm học: không có nút.
+     - Máy chia sẻ được file (giả lập navigator.canShare, navigator.share, (any-pointer: coarse)): mở bảng chia sẻ với file .ics, không tải;
+       hủy thì thôi (không tải, không báo); lỗi khác thì tải.
+     - Bin: chi tiết kì thi ở Hôm nay cũng có nút (mọi vai trò).
+     Ảnh 360px sáng/tối ở tests/screenshots/ux10/ (bản ghép <tên>.jpg; chép sang docs/hinh-ux10/): nhac-on-bai, ki-thi, ki-thi-hai-khoi. */
+  const OUTUX10 = OUT + "ux10/"; fs.mkdirSync(OUTUX10, { recursive: true });
+  const ux10 = { problems: [], shots: [] };
+  const ICS_STUB = () => {
+    window.__share = { mode: "off", calls: [] };
+    const mm = window.matchMedia.bind(window);
+    window.matchMedia = (q) => (q === "(any-pointer: coarse)" && __share.mode !== "off" ? { matches: true, media: q, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} } : mm(q));
+    Object.defineProperty(navigator, "canShare", { configurable: true, value: (d) => __share.mode !== "off" && !!(d && d.files && d.files.length) });
+    Object.defineProperty(navigator, "share", { configurable: true, value: (d) => {
+      __share.calls.push({ files: (d.files || []).map((f) => f.name + "|" + f.type).join(), title: d.title });
+      if (__share.mode === "abort") return Promise.reject(new DOMException("Share canceled", "AbortError"));
+      if (__share.mode === "fail") return Promise.reject(new DOMException("Not allowed", "NotAllowedError"));
+      return Promise.resolve();
+    } });
+  };
+  /* Đọc file lịch: chữ UTF-8 (byte của "ô" là c3 b4), mọi dòng kết thúc bằng CRLF, dòng ≤ 75 byte; trả các dòng đã mở gập. */
+  const icsRead = (buf) => {
+    const raw = buf.toString("utf8"), lines = raw.split("\r\n");
+    return { utf8: buf.includes(Buffer.from("ô", "utf8")) && !raw.includes("�"), crlf: raw.endsWith("\r\n") && !/[^\r]\n/.test(raw) && !/\r[^\n]/.test(raw),
+      short: lines.every((l) => Buffer.byteLength(l, "utf8") <= 75), lines: raw.replace(/\r\n[ \t]/g, "").split("\r\n").filter(Boolean) };
+  };
+  const icsVal = (f, key) => { const l = f.lines.find((x) => x.startsWith(key + ":")); return l == null ? null : l.slice(key.length + 1); };
+  const icsPlain = (v) => (v == null ? null : v.replace(/\\n/g, "\n").replace(/\\([;,\\])/g, "$1"));
+  for (const scheme of ["light", "dark"]) {
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror UX10: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console UX10: " + m.text()); });
+    let dls = 0; p.on("download", () => dls++);
+    await p.addInitScript(ICS_STUB);
+    const r = (ux10[scheme] = {});
+    const check10 = async (label) => (await p.evaluate(audit)).forEach((x) => ux10.problems.push(`UX10 · ${scheme} · ${label}: ${x}`));
+    const snap10 = async (n, sel) => {
+      await p.evaluate((sel) => { const t = document.querySelector("#toast"); if (t) t.hidden = true; if (!sel) return scrollTo(0, 0); document.querySelector(sel).scrollIntoView({ block: "start" }); scrollBy(0, -72); }, sel);
+      await p.screenshot({ path: `${OUTUX10}${n}-${scheme}.png`, fullPage: !sel }); ux10.shots.push(`${n}-${scheme}`);
+    };
+    const toastNow = () => p.evaluate(() => { const t = document.querySelector("#toast"); return t && !t.hidden ? t.textContent : ""; });
+    const hush = () => p.evaluate(() => { const t = document.querySelector("#toast"); if (t) t.hidden = true; });
+    const fetchIcs = async (sel) => { await hush(); const [dl] = await Promise.all([p.waitForEvent("download", { timeout: 5000 }), p.click(sel)]);
+      return Object.assign(icsRead(fs.readFileSync(await dl.path())), { name: dl.suggestedFilename(), toast: await toastNow() }); };
+    const card = () => p.evaluate(() => { const b = document.querySelector("#studyRemind"), t = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : "");
+      const days = [...b.querySelectorAll(".day-pick button")], add = b.querySelector("#rmAdd");
+      return { after: b.previousElementSibling && b.previousElementSibling.id, h3: t(b.querySelector("h3")), notes: [...b.querySelectorAll("p.small.muted")].map(t),
+        labels: [...b.querySelectorAll(".field > span")].map(t), days: days.map((x) => x.textContent).join(), pressed: days.map((x) => (x.getAttribute("aria-pressed") === "true" ? 1 : 0)).join(""),
+        aria: days.map((x) => x.getAttribute("aria-label")).join(), h: Math.min(...days.map((x) => x.getBoundingClientRect().height)), row: new Set(days.map((x) => Math.round(x.getBoundingClientRect().top))).size,
+        time: b.querySelector("#rmTime").value, type: b.querySelector("#rmTime").type, add: t(add), main: add.classList.contains("main"), icon: !!add.querySelector("svg"), addH: add.getBoundingClientRect().height }; });
+    await p.clock.install({ time: new Date("2026-10-28T18:00:00") });
+    await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids["Mẹ Bin"]}"]`); await p.fill("#pinIn", PINS["Mẹ Bin"]); await p.waitForSelector("#kids");
+    await p.evaluate(() => { try { localStorage.removeItem("ontap_remind_v1"); } catch (e) { /* bỏ qua */ } }); await p.reload(); await p.waitForSelector("#studyRemind");
+    r.card = await card();
+    await check10("trang chủ phụ huynh, thẻ nhắc ôn bài"); await snap10("nhac-on-bai");
+    // bỏ T6, chọn T7, giờ 20:15: file lặp theo tuần
+    await p.click('#studyRemind [data-day="4"]'); await p.click('#studyRemind [data-day="5"]'); await p.fill("#rmTime", "20:15");
+    const f1 = await fetchIcs("#rmAdd");
+    r.study = { name: f1.name, toast: f1.toast, utf8: f1.utf8, crlf: f1.crlf, short: f1.short, tz: icsVal(f1, "TZID"), off: icsVal(f1, "TZOFFSETTO"), start: icsVal(f1, "DTSTART;TZID=Asia/Ho_Chi_Minh"),
+      dur: icsVal(f1, "DURATION"), rule: icsVal(f1, "RRULE"), sum: icsPlain(icsVal(f1, "SUMMARY")), desc: icsPlain(icsVal(f1, "DESCRIPTION")), trig: icsVal(f1, "TRIGGER"), act: icsVal(f1, "ACTION"),
+      tzBlock: f1.lines.indexOf("BEGIN:VTIMEZONE") > 0 && f1.lines.indexOf("BEGIN:VTIMEZONE") < f1.lines.indexOf("BEGIN:VEVENT") };
+    // chỉ chủ nhật: bắt đầu chủ nhật 1/11
+    for (const d of [0, 1, 2, 3, 5]) await p.click(`#studyRemind [data-day="${d}"]`);
+    await p.click('#studyRemind [data-day="6"]');
+    const f2 = await fetchIcs("#rmAdd"); r.sunday = icsVal(f2, "DTSTART;TZID=Asia/Ho_Chi_Minh") + " " + icsVal(f2, "RRULE");
+    // không chọn ngày nào: không tải
+    await p.click('#studyRemind [data-day="6"]'); await hush(); const n0 = dls; await p.click("#rmAdd"); await p.waitForTimeout(400);
+    r.none = { toast: await toastNow(), dl: dls - n0 };
+    await p.click('#studyRemind [data-day="6"]');
+    await p.reload(); await p.waitForSelector("#studyRemind"); r.kept = await card();
+    // chi tiết kì thi: tab Lớp 4, Kiểm tra giữa học kì I
+    await p.goto(BASE + "/#/calendar"); await p.waitForSelector(".timeline"); await p.click('.tabs [data-g="4"]'); await p.click('[data-ev="gk1-l4"]'); await p.waitForSelector("#evDetail #evIcs");
+    r.ev = await p.evaluate(() => { const box = document.querySelector("#evIcs"), prev = box.previousElementSibling, btns = [...box.querySelectorAll("button")], t = (x) => x.textContent.replace(/\s+/g, " ").trim();
+      const pr = box.closest(".panel").getBoundingClientRect(), b0 = btns[0].getBoundingClientRect();
+      return { prev: prev && prev.tagName + ":" + t(prev), btns: btns.map(t), main: btns.some((b) => b.classList.contains("main")), icon: !!btns[0].querySelector("svg"), h: b0.height, wide: b0.width >= pr.width - 34, note: t(box.querySelector("p")), ev: Store.event("gk1-l4") }; });
+    await check10("chi tiết kì thi"); await snap10("ki-thi", "#evDetail");
+    const f3 = await fetchIcs("#evIcs [data-ics]");
+    const end1 = (() => { const d = new Date(r.ev.ev.end + "T00:00:00"); d.setDate(d.getDate() + 1); return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`; })();
+    r.exam = { name: f3.name, toast: f3.toast, utf8: f3.utf8, crlf: f3.crlf, short: f3.short, uid: icsVal(f3, "UID"), start: icsVal(f3, "DTSTART;VALUE=DATE"), end: icsVal(f3, "DTEND;VALUE=DATE"), endOK: icsVal(f3, "DTEND;VALUE=DATE") === end1,
+      startOK: icsVal(f3, "DTSTART;VALUE=DATE") === r.ev.ev.start.replace(/-/g, ""), sum: icsPlain(icsVal(f3, "SUMMARY")), descRaw: icsVal(f3, "DESCRIPTION"), desc: icsPlain(icsVal(f3, "DESCRIPTION")),
+      trig: f3.lines.filter((l) => l.startsWith("TRIGGER:")).join(), acts: f3.lines.filter((l) => l === "ACTION:DISPLAY").length, alarms: f3.lines.filter((l) => l === "BEGIN:VALARM").length, events: f3.lines.filter((l) => l === "BEGIN:VEVENT").length };
+    // máy chia sẻ được file: bảng chia sẻ, hủy thì thôi, lỗi khác thì tải
+    await p.evaluate(() => (__share.mode = "ok")); await hush(); let n1 = dls; await p.click("#evIcs [data-ics]"); await p.waitForTimeout(400);
+    r.share = { calls: await p.evaluate(() => JSON.stringify(__share.calls)), dl: dls - n1, toast: await toastNow() };
+    await p.evaluate(() => (__share.mode = "abort")); n1 = dls; await p.click("#evIcs [data-ics]"); await p.waitForTimeout(400);
+    r.abort = { calls: await p.evaluate(() => __share.calls.length), dl: dls - n1, toast: await toastNow() };
+    await p.evaluate(() => (__share.mode = "fail"));
+    const f4 = await fetchIcs("#evIcs [data-ics]"); r.fail = { calls: await p.evaluate(() => __share.calls.length), name: f4.name, toast: f4.toast };
+    await p.evaluate(() => (__share.mode = "off"));
+    // kì thi hai khối ở tab "Cả hai khối": mỗi khối một nút; tab Lớp 6: một nút
+    await p.click('.tabs [data-g="0"]'); await p.click('[data-ev="ioe-truong"]'); await p.waitForSelector("#evDetail #evIcs");
+    r.ioe = await p.$$eval("#evIcs [data-ics]", (b) => b.map((x) => x.dataset.ics + "=" + x.textContent.replace(/\s+/g, " ").trim()).join("|"));
+    r.ioeLines = await p.$$eval("#evIcs [data-ics]", (b) => Math.max(...b.map((x) => { const tops = new Set(); [...x.childNodes].filter((n) => n.nodeType === 3 && n.textContent.trim()).forEach((n) => { const t = document.createRange(); t.selectNodeContents(n); [...t.getClientRects()].forEach((q) => tops.add(Math.round(q.top))); }); return tops.size; })));
+    await check10("kì thi hai khối"); await snap10("ki-thi-hai-khoi", "#evDetail");
+    const f5 = await fetchIcs('#evIcs [data-ics="6"]'); r.ioeFile = icsVal(f5, "UID") + " | " + icsPlain(icsVal(f5, "SUMMARY"));
+    await p.click('.tabs [data-g="6"]'); await p.click('[data-ev="ioe-truong"]'); await p.waitForSelector("#evDetail");
+    r.ioe6 = await p.$$eval("#evIcs [data-ics]", (b) => b.map((x) => x.dataset.ics).join());
+    await p.click('.tabs [data-g="4"]'); await p.click('[data-ev="het-hk1"]'); await p.waitForSelector("#evDetail");
+    r.moc = !!(await p.$("#evIcs"));
+    // Bin: chi tiết kì thi ở Hôm nay
+    await p.evaluate(() => Store.setSession(null)); await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids.Bin}"]`); await p.fill("#pinIn", PINS.Bin); await p.waitForSelector("#today");
+    await p.click("#nextEvent [data-ev]"); await p.waitForSelector("#evDetail");
+    r.student = await p.$$eval("#evIcs [data-ics]", (b) => b.map((x) => x.dataset.ics).join());
+    await c.close();
+  }
+  // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/ux10/<tên>.jpg)
+  {
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of [...new Set(ux10.shots.map((x) => x.replace(/-(light|dark)$/, "")))]) {
+      if (!ux10.shots.includes(n + "-light") || !ux10.shots.includes(n + "-dark")) continue;
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTUX10}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTUX10}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("UX10:", JSON.stringify(ux10.light), "dark:", JSON.stringify(ux10.dark), "problems:", ux10.problems);
+  const APP = BASE + "/";
+  const ux10OK = !ux10.problems.length && ["light", "dark"].every((sc) => { const r = ux10[sc], k = r.card, s = r.study, x = r.exam;
+    return k.after === "kids" && k.h3 === "Nhắc con ôn bài" && k.notes.join("|") === "Thêm lời nhắc vào lịch điện thoại. Máy nhắc vào giờ đã chọn, kể cả khi không mở app.|Muốn đổi giờ: xóa lời nhắc cũ trong ứng dụng Lịch rồi thêm lại."
+      && k.labels.join() === "Ngày nhắc,Giờ nhắc" && k.days === "T2,T3,T4,T5,T6,T7,CN" && k.pressed === "1111100" && k.aria === "Thứ hai,Thứ ba,Thứ tư,Thứ năm,Thứ sáu,Thứ bảy,Chủ nhật" && k.h >= 44 && k.row === 1
+      && k.time === "19:30" && k.type === "time" && k.add === "Thêm vào lịch điện thoại" && k.main && k.icon && k.addH >= 44
+      && s.name === "onup-nhac-on-bai.ics" && s.toast === "Mở file vừa tải để thêm vào Lịch." && s.utf8 && s.crlf && s.short && s.tz === "Asia/Ho_Chi_Minh" && s.off === "+0700" && s.tzBlock
+      && s.start === "20261028T201500" && s.dur === "PT20M" && s.rule === "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,SA" && s.sum === "OnUp: ôn bài 20 phút" && s.desc === "Mở OnUp để ôn bài: " + APP && s.trig === "PT0M" && s.act === "DISPLAY"
+      && r.sunday === "20261101T201500 FREQ=WEEKLY;BYDAY=SU" && r.none.toast === "Chọn ít nhất một ngày nhắc." && r.none.dl === 0 && r.kept.pressed === "0000001" && r.kept.time === "20:15"
+      && /^P:.*2\/11 – 13\/11\/2026/.test(r.ev.prev) && r.ev.btns.join() === "Thêm vào lịch điện thoại" && !r.ev.main && r.ev.icon && r.ev.h >= 44 && r.ev.wide
+      && r.ev.note === "Máy nhắc trước 7 ngày và 1 ngày, lúc 19:00. Ngày còn dự kiến: trường báo lịch thì sửa ngày, rồi thêm lại."
+      && x.name === "onup-gk1-l4.ics" && x.toast === "Mở file vừa tải để thêm vào Lịch." && x.utf8 && x.crlf && x.short && x.uid === "gk1-l4-l4@onup" && x.start === "20261102" && x.end === "20261114" && x.startOK && x.endOK
+      && x.sum === "Kiểm tra giữa học kì I · Lớp 4 (dự kiến)" && x.descRaw.includes("Môn: Toán\\, Tiếng Việt") && x.desc === `Môn: Toán, Tiếng Việt\nPhạm vi: ${r.ev.ev.scope}\nÔn bài trên OnUp: ${APP}`
+      && x.trig === "TRIGGER:-P6DT5H,TRIGGER:-PT5H" && x.acts === 2 && x.alarms === 2 && x.events === 1
+      && r.share.calls === '[{"files":"onup-gk1-l4.ics|text/calendar","title":"Thêm vào Lịch"}]' && r.share.dl === 0 && r.share.toast === ""
+      && r.abort.calls === 2 && r.abort.dl === 0 && r.abort.toast === "" && r.fail.calls === 3 && r.fail.name === "onup-gk1-l4.ics" && r.fail.toast === "Mở file vừa tải để thêm vào Lịch."
+      && r.ioe === "4=Thêm vào lịch · Lớp 4|6=Thêm vào lịch · Lớp 6" && r.ioeLines === 1 && r.ioeFile === "ioe-truong-l6@onup | IOE cấp trường · Lớp 6" && r.ioe6 === "6" && !r.moc && r.student === "4"; });
+
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
      Đề có sẵn: chỉ danh mục data/banks/index.js nằm trong FILES; file câu hỏi vào đệm khi mở đề. */
@@ -4623,7 +4766,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, k5OK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK, ux9OK, ux11OK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, k5OK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK, ux9OK, ux11OK, ux10OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();

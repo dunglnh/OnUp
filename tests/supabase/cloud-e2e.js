@@ -314,6 +314,15 @@ async function run(browser, scheme) {
   c.ux2.settings = await p.evaluate(() => ({ tabs: [...document.querySelectorAll(".tabs button")].map((b) => b.textContent + (b.getAttribute("aria-pressed") === "true" ? "*" : "")).join(), h3: [...document.querySelectorAll("#view h3")].map((h) => h.textContent).join(),
     kids: document.querySelectorAll("#kidsBox .item").length, links: [...document.querySelectorAll("#banksBox a, #moreBox a")].map((a) => (a.querySelector("b") || a).textContent.trim() + "=" + a.getAttribute("href")).join(), info: !!document.querySelector("#dSchool") }));
   await shot(p, "c5-cai-dat");
+  // UX10 (X41): thẻ "Nhắc con ôn bài" ngay sau Hồ sơ con; bấm nút thì tải file nhắc ôn (mặc định T2–T6, 19:30)
+  c.ux10 = await p.evaluate(() => { const b = document.querySelector("#studyRemind"); return b ? { after: b.previousElementSibling && b.previousElementSibling.id, h3: b.querySelector("h3").textContent,
+    pressed: [...b.querySelectorAll(".day-pick button")].map((x) => (x.getAttribute("aria-pressed") === "true" ? 1 : 0)).join(""), time: b.querySelector("#rmTime").value } : null; });
+  if (c.ux10) {
+    const [dl] = await Promise.all([p.waitForEvent("download", { timeout: 5000 }), p.click("#rmAdd")]);
+    const raw = fs.readFileSync(await dl.path(), "utf8"), un = raw.replace(/\r\n[ \t]/g, ""), get = (re) => (un.match(re) || [])[1];
+    c.ux10.file = { name: dl.suggestedFilename(), crlf: raw.endsWith("\r\n") && !/[^\r]\n/.test(raw), rule: get(/^RRULE:([^\r\n]*)/m), at: get(/^DTSTART;TZID=Asia\/Ho_Chi_Minh:\d{8}T(\d{6})/m), dur: get(/^DURATION:([^\r\n]*)/m),
+      sum: get(/^SUMMARY:([^\r\n]*)/m), toast: await p.evaluate(() => { const t = document.querySelector("#toast"); return t && !t.hidden ? t.textContent : ""; }) };
+  }
   await p.click("#banksBox a[href='#/admin/banks']"); await p.waitForSelector("#seedBanks");
   c.ux2.banks = await p.evaluate(() => ({ tabs: document.querySelector('.tabs [aria-pressed="true"]').textContent, back: document.querySelector("#view .linkbtn[data-go]").textContent, h2: [...document.querySelectorAll("#view h2")].map((h) => h.textContent).join(), mine: document.querySelector("#myBanks").textContent.trim(),
     seedOpen: document.querySelectorAll("#seedBanks details[open]").length, seedN: document.querySelectorAll("#seedBanks .item").length, seedAll: Store.banks().filter((b) => b.seed && window.ONTAP_GRADES.some((g) => g.active && g.grade === +b.grade)).length /* danh sách chỉ có tab của khối đang bật: đề lớp 9 chưa hiện */, add: (document.querySelector("a[href='#/admin/bank/new']") || {}).textContent }));
@@ -1165,8 +1174,11 @@ async function run(browser, scheme) {
       c.ux7.prev === "pv1,pv2!,pv3! | Chưa lưu được | Mức độ “Rất khó” chưa đúng (Biết, Hiểu hoặc Vận dụng)" && c.ux7.ask === "1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Vẫn lưu?"
       && c.ux7.saved.toast === "Đã lưu đề, gắn vào “Kiểm tra cuối năm học”." && /^Ôn tổng hợp · tuần 7 ?Lớp 4 · Toán · 2 câu · gắn vào Kiểm tra cuối năm học/.test(c.ux7.saved.row) && c.ux7.saved.server
       && c.ux7.linked === "Đang gắn vào: Kiểm tra cuối năm học. Bỏ gắn ở Lịch thi → Sửa kì thi." && c.ux7.removed,
-    "UX2: Cài đặt: Hồ sơ con (2/5), Đề tự soạn, Thông tin chung, rồi Chuyển dữ liệu và sao lưu, Tài khoản; #/admin/users về đây; trang Đề tự soạn (đề có sẵn theo khối, các nhóm môn thu gọn; UX7), nhập đề, Dữ liệu, Tài khoản về Cài đặt":
-      c.ux2.settings.tabs === "Các con,Lịch thi,Cài đặt*" && c.ux2.settings.h3 === "Hồ sơ con (2/5),Đề tự soạn,Thông tin chung" && c.ux2.settings.kids === 2 && c.ux2.settings.info
+    "UX10 (X41): Cài đặt có thẻ “Nhắc con ôn bài” ngay sau Hồ sơ con (mặc định T2–T6, 19:30); bấm nút thì tải file nhắc ôn lặp theo tuần (CRLF, 19:30, 20 phút), toast “Mở file vừa tải…”":
+      !!c.ux10 && c.ux10.after === "kidsBox" && c.ux10.h3 === "Nhắc con ôn bài" && c.ux10.pressed === "1111100" && c.ux10.time === "19:30" && !!c.ux10.file && c.ux10.file.name === "onup-nhac-on-bai.ics" && c.ux10.file.crlf
+      && c.ux10.file.rule === "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR" && c.ux10.file.at === "193000" && c.ux10.file.dur === "PT20M" && c.ux10.file.sum === "OnUp: ôn bài 20 phút" && c.ux10.file.toast === "Mở file vừa tải để thêm vào Lịch.",
+    "UX2: Cài đặt: Hồ sơ con (2/5), Nhắc con ôn bài (UX10), Đề tự soạn, Thông tin chung, rồi Chuyển dữ liệu và sao lưu, Tài khoản; #/admin/users về đây; trang Đề tự soạn (đề có sẵn theo khối, các nhóm môn thu gọn; UX7), nhập đề, Dữ liệu, Tài khoản về Cài đặt":
+      c.ux2.settings.tabs === "Các con,Lịch thi,Cài đặt*" && c.ux2.settings.h3 === "Hồ sơ con (2/5),Nhắc con ôn bài,Đề tự soạn,Thông tin chung" && c.ux2.settings.kids === 2 && c.ux2.settings.info
       && c.ux2.settings.links === "Xem đề tự soạn=#/admin/banks,+ Nhập đề=#/admin/bank/new,Chuyển dữ liệu và sao lưu=#/admin/data,Tài khoản=#/account"
       && c.ux2.banks.tabs === "Cài đặt" && c.ux2.banks.back === "← Cài đặt" && c.ux2.banks.h2 === "Khu phụ huynh,Đề tự soạn,Đề có sẵn của app" && /^Chưa có đề tự soạn/.test(c.ux2.banks.mine) && !c.ux2.banks.seedOpen && c.ux2.banks.seedN === c.ux2.banks.seedAll && c.ux2.banks.seedN > 20 && c.ux2.banks.add === "+ Nhập đề"
       && c.ux2.bankForm === "Nhập đề | ← Đề tự soạn | Lưu đề" && c.ux2.data === "← Cài đặt | Chuyển dữ liệu và sao lưu | Các con,Lịch thi,Cài đặt* | true | true" && c.ux2.accountBack === "← Cài đặt",
