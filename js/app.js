@@ -90,9 +90,9 @@
   function wireEmoji(root, cb) {
     $$("[data-emo]", root).forEach((b) => (b.onclick = () => { $$("[data-emo]", root).forEach((x) => x.setAttribute("aria-pressed", x === b)); cb(b.dataset.emo); }));
   }
-  function download(name, text) {
+  function download(name, text, type) {
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+    a.href = URL.createObjectURL(new Blob([text], { type: type || "application/json" }));
     a.download = name; document.body.append(a); a.click();
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
@@ -1212,10 +1212,117 @@
       ${backupCard()}
       <section class="sec" id="kids"><div class="row between"><h2>Các con</h2><button class="btn sm" id="addKid">+ Thêm con</button></div>
         ${kids.length ? kids.map(kidCard).join("") + kidsHint : `<div class="panel muted">Chưa có tài khoản con. Bấm “Thêm con” để tạo, hoặc nhờ quản trị viên gắn tài khoản của con vào.</div>`}</section>
+      ${kids.length ? studyRemindCard() : ""}
       <a class="linkbtn" id="calLink" href="#/calendar">Lịch thi cả năm →</a>
     </div>`;
     $("#addKid").onclick = () => go("#/admin/user/new?role=student");
-    wireBackupCard();
+    wireBackupCard(); wireStudyRemind();
+  }
+
+  /* ================= LỊCH CỦA ĐIỆN THOẠI (Phiên UX10, X41) =================
+     File lịch (.ics) tạo ngay trên máy, không gửi gì lên mạng: chữ UTF-8, xuống dòng CRLF, dòng dài quá 75 byte gập lại (RFC 5545).
+     - Kì thi (openEvent, #evIcs): một sự kiện cả ngày từ ngày đầu đến hết ngày cuối (DTEND là ngày cuối cộng 1), UID cố định theo kì thi
+       và khối (thêm lại thì ứng dụng Lịch có thể cập nhật sự kiện cũ), hai lời nhắc lúc 19:00 trước 7 ngày và trước 1 ngày (tính từ 0:00
+       của ngày đầu: -P6DT5H, -PT5H).
+     - Nhắc con ôn bài (#studyRemind): lặp theo tuần vào các ngày đã chọn, đúng giờ đã chọn theo giờ Việt Nam, 20 phút, nhắc đúng giờ. UID
+       theo ngày và giờ đã chọn: thêm lại đúng lựa chọn cũ thì không thành hai lời nhắc ở ứng dụng Lịch nào nhận ra UID.
+     giveIcs đưa file cho máy như backupNow: máy cảm ứng chia sẻ được file thì mở bảng chia sẻ, còn lại tải về; hủy chia sẻ thì thôi. */
+  const CAL_ADD = ICO('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/>');
+  const ICS_FAIL = "Chưa tạo được lời nhắc. Thử lại nhé.";
+  const icsText = (s) => String(s).replace(/[;,\\]/g, (c) => "\\" + c).replace(/\r?\n/g, "\\n");
+  function icsFold(line) {
+    const enc = new TextEncoder(), parts = [];
+    let cur = "", n = 0, max = 75;
+    for (const ch of line) {
+      const b = enc.encode(ch).length;
+      if (n + b > max) { parts.push(cur); cur = ""; n = 0; max = 74; } // dòng gập bắt đầu bằng một dấu cách
+      cur += ch; n += b;
+    }
+    return parts.concat(cur).join("\r\n ");
+  }
+  const icsDoc = (lines) => ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//OnUp//On Luyen Moi Ngay//VI", "CALSCALE:GREGORIAN", "METHOD:PUBLISH"]
+    .concat(lines, "END:VCALENDAR").map(icsFold).join("\r\n") + "\r\n";
+  const icsDay = (s) => s.replace(/-/g, "");
+  const icsStamp = () => new Date().toISOString().replace(/[-:]|\.\d+/g, "");
+  const appUrl = () => location.origin + location.pathname;
+  const icsAlarm = (trigger, text) => ["BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + icsText(text), "TRIGGER:" + trigger, "END:VALARM"];
+  function examIcs(e, g) {
+    const end = pd(e.end || e.start); end.setDate(end.getDate() + 1);
+    const title = `${e.title} · Lớp ${g}${e.tentative ? " (dự kiến)" : ""}`;
+    const desc = [e.subjects && e.subjects.length ? "Môn: " + e.subjects.join(", ") : "", e.scope ? "Phạm vi: " + e.scope : "", "Ôn bài trên OnUp: " + appUrl()].filter(Boolean).join("\n");
+    return icsDoc(["BEGIN:VEVENT", `UID:${e.id}-l${g}@onup`, "DTSTAMP:" + icsStamp(), "DTSTART;VALUE=DATE:" + icsDay(e.start), "DTEND;VALUE=DATE:" + icsDay(isoDay(end)),
+      "SUMMARY:" + icsText(title), "DESCRIPTION:" + icsText(desc), "TRANSP:TRANSPARENT"]
+      .concat(icsAlarm("-P6DT5H", title + ": còn 7 ngày"), icsAlarm("-PT5H", title + ": bắt đầu từ ngày mai"), "END:VEVENT"));
+  }
+  /* Khối của file lịch: khối đang xem (tab khối ở lịch thi, khối của con) nếu kì thi có khối đó; không thì mỗi khối đang hiện của
+     kì thi một nút "Thêm vào lịch · Lớp N" (kì IOE của lớp 4 và 6 ở tab "Cả hai khối"; chữ ngắn để nút vừa một dòng ở 360px). */
+  function icsGrades(e, g) {
+    const eg = (e.grades || []).map(Number);
+    if (g && eg.includes(+g)) return [+g];
+    const s = shownGrades(), v = eg.filter((x) => s.includes(x));
+    return v.length ? v : eg;
+  }
+  function giveIcs(name, text) {
+    if (sharing) return Promise.resolve(false);
+    const save = () => { download(name, text, "text/calendar;charset=utf-8"); toast("Mở file vừa tải để thêm vào Lịch.", 4000); return "download"; };
+    let file = null;
+    try {
+      const f = new File([text], name, { type: "text/calendar" });
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [f] }) && matchMedia("(any-pointer: coarse)").matches) file = f;
+    } catch (e) { /* trình duyệt cũ: tải file như thường */ }
+    if (!file) return Promise.resolve(save());
+    sharing = true;
+    return navigator.share({ files: [file], title: "Thêm vào Lịch" })
+      .then(() => "share", (e) => (e && (e.name === "AbortError" || e.name === "InvalidStateError") ? false : save()))
+      .finally(() => (sharing = false));
+  }
+  /* Gọi ngay trong sự kiện bấm: trình duyệt chỉ cho chia sẻ khi người dùng đang bấm. */
+  const icsClick = (name, make) => () => { try { giveIcs(name, make()).catch(() => toast(ICS_FAIL)); } catch (e) { toast(ICS_FAIL); } };
+  function icsBox(e, g) {
+    if (e.kind === "moc" || !e.start || status(e) === "past") return "";
+    const gs = icsGrades(e, g); if (!gs.length) return "";
+    return `<div class="cal-add" id="evIcs">${gs.map((x) => `<button class="btn" data-ics="${x}">${CAL_ADD}${gs.length > 1 ? nb("Thêm vào lịch · Lớp " + x) : "Thêm vào lịch điện thoại"}</button>`).join("")}
+      <p class="small muted">Máy nhắc trước 7 ngày và 1 ngày, lúc 19:00.${e.tentative ? " Ngày còn dự kiến: trường báo lịch thì sửa ngày, rồi thêm lại." : ""}</p></div>`;
+  }
+  const REMIND_KEY = "ontap_remind_v1";
+  const REMIND_DAYS = [["T2", "MO", "Thứ hai"], ["T3", "TU", "Thứ ba"], ["T4", "WE", "Thứ tư"], ["T5", "TH", "Thứ năm"], ["T6", "FR", "Thứ sáu"], ["T7", "SA", "Thứ bảy"], ["CN", "SU", "Chủ nhật"]];
+  /* Lựa chọn gần nhất của thẻ "Nhắc con ôn bài" (chỉ trên máy này): { days: [0–6, T2 = 0], time: "19:30" }; mặc định T2–T6, 19:30. */
+  function remindPrefs() {
+    let v = null;
+    try { v = JSON.parse(localStorage.getItem(REMIND_KEY) || "null"); } catch (e) { /* bỏ qua */ }
+    const days = v && Array.isArray(v.days) ? v.days.filter((i) => Number.isInteger(i) && i >= 0 && i < 7) : [];
+    return { days: days.length ? days : [0, 1, 2, 3, 4], time: v && /^\d\d:\d\d$/.test(v.time) ? v.time : "19:30" };
+  }
+  function studyIcs(days, time) {
+    const d = new Date(), by = days.slice().sort().map((i) => REMIND_DAYS[i][1]).join(","), hm = time.replace(":", "");
+    while (!days.includes((d.getDay() + 6) % 7)) d.setDate(d.getDate() + 1); // ngày đầu tiên đã chọn, kể từ hôm nay
+    return icsDoc(["BEGIN:VTIMEZONE", "TZID:Asia/Ho_Chi_Minh", "BEGIN:STANDARD", "DTSTART:19700101T000000", "TZOFFSETFROM:+0700", "TZOFFSETTO:+0700", "TZNAME:+07", "END:STANDARD", "END:VTIMEZONE",
+      "BEGIN:VEVENT", `UID:nhac-on-bai-${by.replace(/,/g, "")}-${hm}@onup`, "DTSTAMP:" + icsStamp(), `DTSTART;TZID=Asia/Ho_Chi_Minh:${icsDay(isoDay(d))}T${hm}00`, "DURATION:PT20M",
+      "RRULE:FREQ=WEEKLY;BYDAY=" + by, "SUMMARY:" + icsText("OnUp: ôn bài 20 phút"), "DESCRIPTION:" + icsText("Mở OnUp để ôn bài: " + appUrl())]
+      .concat(icsAlarm("PT0M", "OnUp: ôn bài 20 phút"), "END:VEVENT"));
+  }
+  function studyRemindCard() {
+    const p = remindPrefs();
+    return `<section class="panel" id="studyRemind"><h3>Nhắc con ôn bài</h3>
+      <p class="small muted">Thêm lời nhắc vào lịch điện thoại. Máy nhắc vào giờ đã chọn, kể cả khi không mở app.</p>
+      <div class="field"><span id="rmDaysL">Ngày nhắc</span><div class="day-pick" role="group" aria-labelledby="rmDaysL">${REMIND_DAYS.map(([t, , name], i) => `<button type="button" data-day="${i}" aria-pressed="${p.days.includes(i)}" aria-label="${name}">${t}</button>`).join("")}</div></div>
+      <label class="field"><span>Giờ nhắc</span><input type="time" id="rmTime" value="${p.time}"></label>
+      <button class="btn main" id="rmAdd">${CAL_ADD}Thêm vào lịch điện thoại</button>
+      <p class="small muted">Muốn đổi giờ: xóa lời nhắc cũ trong ứng dụng Lịch rồi thêm lại.</p></section>`;
+  }
+  function wireStudyRemind() {
+    const box = $("#studyRemind"); if (!box) return;
+    const days = () => $$("[data-day]", box).filter((b) => b.getAttribute("aria-pressed") === "true").map((b) => +b.dataset.day);
+    const time = () => ($("#rmTime").value || "").slice(0, 5);
+    const save = () => { try { localStorage.setItem(REMIND_KEY, JSON.stringify({ days: days(), time: time() })); } catch (e) { /* bỏ qua */ } };
+    $$("[data-day]", box).forEach((b) => (b.onclick = () => { b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") !== "true"); save(); }));
+    $("#rmTime").onchange = save;
+    const add = icsClick("onup-nhac-on-bai.ics", () => studyIcs(days(), time()));
+    $("#rmAdd").onclick = () => {
+      if (!days().length) { toast("Chọn ít nhất một ngày nhắc."); return; }
+      if (!/^\d\d:\d\d$/.test(time())) { toast("Chọn giờ nhắc."); $("#rmTime").focus(); return; }
+      save(); add();
+    };
   }
 
   /* ================= CHI TIẾT KÌ THI ================= */
@@ -1230,6 +1337,7 @@
     box.innerHTML = `<div class="row between"><span class="label">${esc(KIND[e.kind] || "")}${e.tentative && e.start ? " · Dự kiến" : ""}</span><button class="linkbtn" id="evClose">Đóng ✕</button></div>
       <h2>${nb(esc(e.title))}</h2>
       <p>${nb(`<b>${esc(range(e))}</b> · Lớp ${esc(gradesTxt(e))}`)}</p>
+      ${icsBox(e, g)}
       ${e.subjects && e.subjects.length ? `<p>Môn: ${esc(e.subjects.join(", "))}</p>` : ""}
       ${e.scope ? `<p class="small">Phạm vi: ${esc(e.scope)}</p>` : ""}
       ${e.note ? `<p class="small muted">${esc(e.note)}</p>` : ""}
@@ -1240,6 +1348,7 @@
     if (anchor && anchor.nextElementSibling && anchor.nextElementSibling.classList.contains("ev-act")) anchor = anchor.nextElementSibling; // tab Lịch thi của khu phụ huynh: hàng nút dưới thẻ
     if (anchor) anchor.after(box); else view.prepend(box);
     $("#evClose").onclick = () => box.remove();
+    $$("[data-ics]", box).forEach((b) => (b.onclick = icsClick(`onup-${e.id}.ics`, () => examIcs(e, +b.dataset.ics))));
     box.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
@@ -1617,6 +1726,7 @@
           ${us.length ? `<div class="list">${us.map(kidRow).join("")}</div>` : `<p class="small muted">Chưa có hồ sơ con.</p>`}
           ${full ? `<p class="small muted">${esc(fullMsg())} Xóa bớt hồ sơ không dùng nữa để thêm hồ sơ mới.</p>` : ""}
           <p class="small muted">Mã PIN 4 số giúp anh em không vào nhầm hồ sơ của nhau. Đây không phải mật khẩu: muốn giữ dữ liệu an toàn thì giữ kín mật khẩu của bố mẹ.</p></section>
+        ${us.length ? studyRemindCard() : ""}
         <section class="panel" id="banksBox"><h3>Đề tự soạn</h3>
           <p class="small">${mine.length ? `Bạn đã nhập ${mine.length} đề.` : "Bạn chưa nhập đề nào."} Dán câu hỏi từ Word, Zalo, sách bài tập; app tự nhận dạng các dạng câu. Đề có sẵn của app xem ở cùng chỗ.</p>
           <div class="row"><a class="btn sm" href="#/admin/banks">Xem đề tự soạn</a><a class="btn main sm" href="#/admin/bank/new">+ Nhập đề</a></div></section>
@@ -1677,7 +1787,7 @@
     }
     view.innerHTML = `<div class="stack"><div class="row between"><div><h2>${cloud ? "Khu phụ huynh" : "Quản trị"}</h2><span class="muted">${esc(Store.settings().schoolName || "")}</span></div>${cloud ? `<button class="btn ghost sm" id="switchWho">Chọn hồ sơ khác</button>` : ""}</div>${adminTabs(tab)}${body}</div>`;
     wireGo();
-    wireBackupCard();
+    wireBackupCard(); wireStudyRemind(); // thẻ "Nhắc con ôn bài" ở Cài đặt (UX10)
     $$("button[data-child]").forEach((b) => (b.onclick = () => go("#/child/" + b.dataset.child))); // dòng học sinh của quản trị bản lưu trên máy (thẻ của con là link)
     wireEvents(view, tab === "events" && cloud ? calGrade || null : null, null); // tab Lịch thi của khu phụ huynh: chi tiết kì thi theo khối đang chọn
     if ($("#switchWho")) $("#switchWho").onclick = switchWho;
