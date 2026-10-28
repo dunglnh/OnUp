@@ -72,8 +72,8 @@ a{color:var(--acc)}
 .hero p{opacity:.95}
 .count{font-weight:700;font-size:2.6rem;line-height:1}
 
-/* nút */
-.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:700;background:var(--acc-soft);color:var(--acc);text-decoration:none;display:inline-flex;align-items:center;gap:6px;justify-content:center}
+/* nút: mọi .btn có viền 1px (trong suốt, .btn.ghost tô màu line) để nút chính và nút viền đứng cạnh nhau cao bằng nhau (Phiên UX12, X45) */
+.btn{border:1px solid transparent;border-radius:12px;padding:12px 18px;font-weight:700;background:var(--acc-soft);color:var(--acc);text-decoration:none;display:inline-flex;align-items:center;gap:6px;justify-content:center}
 .btn.main{background:var(--sun);color:var(--sun-ink)}
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
 .btn.danger{background:var(--bad-soft);color:var(--bad)}
@@ -307,7 +307,15 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 
 /* báo cáo tuần */
 .rp-who{display:flex;gap:12px;align-items:center}
-.rp-who>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px} /* tên, dòng lớp, dòng ngày luôn đứng cạnh hình */
+.rp-who>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px} /* tên, dòng lớp luôn đứng cạnh hình */
+/* thanh chọn tuần (#rpWeek, Phiên UX12, X43): nút ‹ › 44×44 hai bên, ở giữa khoảng ngày (không tách ra hai dòng) và dòng
+   "7 ngày gần nhất" / "Tuần trước"; khi in chỉ còn chữ (nút có .noprint). Đệm 4px, cách 6px: ở 360px chỗ giữa còn 218px, vừa
+   "Báo cáo 25/12 – 31/12/2026" (212px) trên một dòng */
+.wk-nav{display:flex;align-items:center;gap:6px;padding:4px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.wk-nav .btn{flex:none;width:44px;height:44px;padding:0}
+.wk-nav .btn svg{width:22px;height:22px;flex:none}
+.wk-txt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:1px}
+.wk-txt .d{white-space:nowrap}
 .stat small{font-size:.8125rem;line-height:1.35;color:var(--muted)}
 .stats.four{grid-template-columns:repeat(4,minmax(0,1fr))}
 .rp-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}

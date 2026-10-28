@@ -2,7 +2,7 @@
 
 > **Tìm nhanh:** phiên làm đề, dò sách, kĩ thuật cho đề: hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) (mở từ trên xuống) · phiên sửa lỗi: mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) · việc của chủ app: mục 2 · thứ tự các phiên: mục 3 · lời giao việc phiên giao diện, chuẩn bị bán: mục 4 · đã xong: mục 1.
 
-> **Trạng thái (28/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy bản đám mây từ 17/10/2026 (PR #27), chỉ dành cho gia đình được mời. Đã gộp tới PR #212; PR #214 (Phiên UX10) chờ chủ app thử trên điện thoại rồi Merge (bảng “Đã xong” ở mục 1). Phiên xong chỉ sửa ngày và số PR ở dòng này.
+> **Trạng thái (28/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy bản đám mây từ 17/10/2026 (PR #27), chỉ dành cho gia đình được mời. Đã gộp tới PR #214; PR #215 (Phiên UX12) chờ Merge (bảng “Đã xong” ở mục 1). Phiên xong chỉ sửa ngày và số PR ở dòng này.
 
 > **Đã chốt 18/10/2026, đổi mốc 21/10/2026:** đủ đề lớp 4–12 và rà xong trong tháng 2/2027; từ đầu tháng 3/2027 mời khách tiềm năng dùng thử miễn phí đến hết các kì thi của năm học 2026–2027 (kì cuối là thi tốt nghiệp THPT, dự kiến 11–12/6/2027); mở bán chính thức từ tháng 6/2027 nếu không vướng thủ tục hành chính (thay mốc “bán khi đủ đề lớp 4–12, khoảng cuối năm học 2028–2029” của ngày 18/10; nhịp cần, mốc kiểm tra và cách lùi khi chậm ở mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)); trong thời gian dùng thử và đến lúc bán, gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng `plans` không đổi), hạn mức hai gói lúc bán chốt sau (giữa tháng 5/2027); các phiên chuẩn bị G0, B1 làm trước khi mở dùng thử, B2, B4, G1 trước khi bán (mục 3); Supabase giữ gói Free đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần); trang công khai chỉ dành cho gia đình được mời, gia đình dùng thử cũng do chủ app tạo tài khoản (màn đăng nhập có dòng “Chưa có tài khoản?”, Phiên S1; muốn mở tự đăng kí thì đổi quyết định này trước, việc 9 ở mục 2); câu sai báo bằng nút trong app (Phiên R1), GitHub Issues chỉ còn cho chủ app; không ghi giá bán, chi phí hay so sánh đối thủ vào repo. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 
@@ -188,6 +188,7 @@
 | #211 | Phiên N9-gk2-van: ngân hàng Ngữ văn 9 giữa kì II, 77 câu; tests/van9-gk2.js |
 | #212 | Phiên UX11 · Bảng câu ở màn kết quả (X42) |
 | #214 | Phiên UX10 · Nhắc lịch thi và giờ ôn bằng lịch của điện thoại (X41) |
+| #215 | Phiên UX12 · Báo cáo các tuần trước, sửa nhỏ (X43–X45) |
 
 </details>
 
@@ -207,7 +208,6 @@
 **Thường xuyên:**
 
 6. Rà đề mới: cho con làm thử; câu sai thì bấm “Báo câu này sai” ngay trong app (Phiên R1). Chủ app xem và xử lí ở trang admin → tab Câu bị báo (bản lưu trên máy: Quản trị → Dữ liệu → Chép để gửi). GitHub Issues chỉ còn cho chủ app.
-   - Trước khi Merge PR #214 (Phiên UX10, trước 14/12/2026): thử file lịch trên iPhone (Safari, app trên Màn hình chính) và Android; các bước ở mô tả PR.
    - Nếu chưa thử: L27 trên máy đang dùng (làm lại một đề đúng hết thì “Ôn câu sai” không còn câu của đề đó, PR #57); L29–L31 trên iPhone thật (PR #74; các bước ở mục 2 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), Phiên 9h).
 7. Trường báo lịch chính thức thì sửa ngày trong Khu phụ huynh → Lịch thi.
 8. Trước khi mở dùng thử (cuối tháng 2/2027, sau B1): bật CAPTCHA (bước 8 của `docs/HUONG-DAN-SUPABASE.md`; Hostnames là tên miền mới).
@@ -246,7 +246,7 @@ Thứ tự các phiên:
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
 | 1 | 15/11/2026 | Lớp 9 (33 phiên, có 9 phiên đề thi thử vào 10); phiên rà soát lớp 9. Cuối kì I, giữa kì II (12 phiên N9-ck1-*, N9-gk2-*) đã vào hàng đợi (26/10/2026) | K5 (đã xong, PR #198; chỉ trước đề thi thử vào 10) | thứ tự khối, thứ tự kì trong mỗi khối và mốc kiểm tra: mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); các bước trước khi bật một khối: mục 7 (“Lớp 5, 7–12”) |
-| song song | UX12 13/12 · UX14 20/12/2026 | **UX12 → UX14 · Giao diện 3.x** (chủ app chọn 27/10/2026; vấn đề, cách làm, ảnh ở [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md)) | UX14 sau UX9 (PR #210), UX11 (PR #212) | phiên mở tay, chạy xen với phiên làm đề; không chạy cùng lúc hai phiên sửa `js/app.js` hay `js/quiz.js`; UX10 (PR #214) chờ chủ app thử file lịch trên iPhone, Android rồi Merge, trước kì cuối kì I (lớp 6 từ 21/12); UX13 không làm; lời giao việc ở mục 4; phiên xong thì bỏ tên mình khỏi dòng này, phiên cuối xóa cả dòng |
+| song song | UX14 20/12/2026 | **UX14 · Giao diện 3.x** (chủ app chọn 27/10/2026; vấn đề, cách làm, ảnh ở [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md)) | UX14 sau UX9 (PR #210), UX11 (PR #212) | phiên mở tay, chạy xen với phiên làm đề; không chạy cùng lúc hai phiên sửa `js/app.js` hay `js/quiz.js`; UX13 không làm; lời giao việc ở mục 4; phiên xong thì bỏ tên mình khỏi dòng này, phiên cuối xóa cả dòng |
 | 2 | 10/12/2026 | Lớp 12 (53 phiên, có 25 phiên đề thi thử tốt nghiệp), lớp 5 (16); mỗi khối một phiên rà soát | | cuối kì I của lớp 12 (thi từ 14/12/2026, xong trước 23/11) rồi của lớp 5 (thi từ 28/12, xong trước 7/12) làm trước các kì khác |
 | 3 | 31/12/2026 | Lớp 7, 8 (mỗi khối 24 phiên); mỗi khối một phiên rà soát | | |
 | 4 | 20/1/2027 (dự phòng đến 28/2/2027) | Lớp 10, 11 (mỗi khối 28 phiên); mỗi khối một phiên rà soát; sửa lỗi các phiên rà soát tìm ra | | xong là đủ đề lớp 4–12 và rà xong; phần dự phòng cho sửa lỗi, rà đề, nghỉ Tết |
