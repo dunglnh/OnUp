@@ -5,9 +5,16 @@ Bản 2.x (UX1–UX8, UI1, UI2, 9n, 9o và các phiên “b”) đã làm xong v
 - bố mẹ làm được gì ngoài đọc báo cáo;
 - app có nhắc được con ôn, nhắc bố mẹ ngày thi không.
 
-**Figma:** trang [🚧 Master 3.x · Đề xuất UX/UI](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-2), mỗi phiên một section (ghi chú, rồi khung 3.x). Đã vẽ K1, tab Bài ôn có tiến độ của [UX9](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-12), sáng và tối, bằng component và biến màu của design system. Khung của các phiên khác vẽ khi chủ app chọn phiên, trước khi phiên chạy. Phiên Claude Code không mở được Figma, nên lời giao việc trỏ vào ảnh ở [hinh-ux-3x/](hinh-ux-3x/).
+**Figma:** trang [🚧 Master 3.x · Đề xuất UX/UI](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-2). Mỗi phiên một section, xếp theo thứ tự làm. Trong section là ghi chú rồi các khung 3.x, phần lớn khung có thêm bản tối:
+- [UX9](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-12): K1–K3;
+- [UX11](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-59): M1, M2;
+- [UX10](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-36): L1, L2;
+- [UX12](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-81): N1, N2;
+- [UX14](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-126): P1–P3.
 
-File này giữ vấn đề, đề xuất, ảnh và điều kiện xong. Chủ app chọn phiên nào làm thì người làm thiết kế viết lời giao việc vào mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md) và thêm dòng vào mục 3 của file đó; trạng thái chỉ ghi ở đó. Mã vấn đề nối tiếp bản 2.x: X38–X48.
+Khung vẽ bằng component và biến màu của design system. Thành phần mới (icon/target, icon/calendar-plus, `.bdg`, `.day-pick button`, `.wk-nav`, `.btn icon`, `.empty`) nằm ở section [3.x · Thành phần đề xuất](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=342-238). Phiên Claude Code không mở được Figma, nên lời giao việc trỏ vào ảnh ở [hinh-ux-3x/](hinh-ux-3x/).
+
+File này giữ vấn đề, đề xuất, ảnh và điều kiện xong. Chủ app đã chọn phiên ngày 27/10/2026 (mục 3). Thứ tự, hạn và lời giao việc ở mục 3, 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); trạng thái chỉ ghi ở đó. Mã vấn đề nối tiếp bản 2.x: X38–X48.
 
 **Cách rà:**
 - Chạy `main` (`a739293`) bản lưu trên máy, ngày giả lập 27/10/2026 17:30, 360px sáng và tối. Dữ liệu mẫu: Bin lớp 4 làm 4 bài trong 6 ngày (Toán 4 · Giữa kì I · Đề 1, Đề 2, Đề ngẫu nhiên; Tiếng Việt 4 · Giữa kì I · Đề 1); Na lớp 6 chưa làm bài nào; Mẹ Bin là phụ huynh của hai con.
@@ -25,32 +32,39 @@ File này giữ vấn đề, đề xuất, ảnh và điều kiện xong. Chủ 
 | **UX10** · Nhắc bằng lịch của điện thoại | X41 | Thêm kì thi vào lịch điện thoại; lời nhắc ôn bài lặp lại theo ngày, giờ | Không (file lịch tạo trên máy) | `js/app.js`, `css/app.css` | [ux10-lich-dien-thoai](hinh-ux-3x/ux10-lich-dien-thoai.jpg) |
 | **UX11** · Bảng câu ở màn kết quả | X42 | Ô ✓ ✗ của mọi câu, chạm để xem lại câu đó | Không | `js/quiz.js`, `css/app.css` | [ux11-bang-cau](hinh-ux-3x/ux11-bang-cau.jpg) |
 | **UX12** · Báo cáo các tuần trước, sửa nhỏ | X43–X45 | Chọn tuần ở báo cáo của con; ô “0 bài”; nút chính và nút viền cao bằng nhau | Không | `js/app.js`, `css/app.css` | [ux12-bao-cao-tuan](hinh-ux-3x/ux12-bao-cao-tuan.jpg) |
-| **UX13** · Bố mẹ giao bài, khen bài | X46, X47 | Bố mẹ giao đề cho con, có hạn và lời dặn; khen bài làm bằng một chạm | **Có:** bảng `assignments`, cột `results.cheer` (hai kho, máy chủ) | `js/app.js`, `js/store.js`, `js/store-supabase.js`, `supabase/`, `css/app.css` | [ux13-bo-me-giao](hinh-ux-3x/ux13-bo-me-giao.jpg) |
 | **UX14** · Ôn 10 câu theo chủ đề | X48 | “Ôn 10 câu” từ chủ đề hay sai, rút từ các đề có sẵn của khối | Không (kết quả lưu như đề) | `js/app.js`, `js/quiz.js` | [ux14-on-chu-de](hinh-ux-3x/ux14-on-chu-de.jpg) |
 
-**Thứ tự đề xuất:** UX9 → UX11 → UX10 (trước kì cuối kì I, từ 28/12/2026) → UX12 → UX13 (tháng 1–2/2027, trước khi mời dùng thử) → UX14 (cùng “Ôn theo bài từ ngân hàng” năm 2027, hoặc sớm hơn nếu chủ app muốn). Mỗi phiên một Pull Request. Không chạy cùng lúc hai phiên sửa `js/app.js` hay `js/quiz.js`; chạy xen với phiên làm đề được (phiên làm đề chỉ sửa `data/banks/`).
+UX13 (bố mẹ giao bài, khen bài; X46, X47) chủ app quyết không làm, ngày 27/10/2026. Đề xuất của UX13 giữ ở mục 5.
+
+**Thứ tự (chủ app chọn 27/10/2026):** UX9 → UX11 → UX10 → UX12 → UX14.
+- UX10 xong trước kì kiểm tra cuối kì I. Lớp 6 thi từ 21/12/2026, nên lời nhắc trước 7 ngày phải có từ 14/12.
+- UX14 làm sau UX12, để con ôn chủ đề hay sai trước kì cuối kì I.
+- Hạn từng phiên: mục 3 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md).
+- Mỗi phiên một Pull Request. Không chạy cùng lúc hai phiên sửa `js/app.js` hay `js/quiz.js`. Phiên làm đề chỉ sửa `data/banks/`, nên chạy xen được.
 
 ## 2. Nguyên tắc giữ nguyên
 
 - Không bảng xếp hạng, không so với bạn khác (có từ UX1).
-- Điều hướng giữ như bây giờ: con có 4 tab, bố mẹ có 3 mục. Không thêm menu, không chuông thông báo có chấm đỏ. Tin mới (bài bố mẹ giao, lời khen) hiện thành thẻ ở đầu trang Hôm nay.
+- Điều hướng giữ như bây giờ: con có 4 tab, bố mẹ có 3 mục. Không thêm menu, không chuông thông báo có chấm đỏ. Tin mới cho con (sau này, như bài bố mẹ giao) hiện thành thẻ ở đầu trang Hôm nay.
 - Mỗi màn chỉ một nút chính màu vàng cho việc nên làm tiếp.
 - Danh sách xếp dọc. Ở 360px không dùng băng chuyền ngang, không cắt chữ bằng “…”, không có nút nổi đè lên nội dung.
 - Trang chính không có quảng cáo, khuyến mãi; không có con số không giúp con ôn (lượt xem, số người học).
 - Bài quá hạn không tô đỏ, không đếm ngược: chữ nhạt, lời nhẹ.
 - Đề là bài làm ngay trong app, không phải file để xem.
-- Thu thập tối thiểu (CLAUDE.md): không hỏi thêm gì về con. Phần mới của UX13 là lời của bố mẹ gửi con.
+- Thu thập tối thiểu (CLAUDE.md): không hỏi thêm gì về con.
 
-## 3. Chủ app cần quyết
+## 3. Chủ app đã quyết (27/10/2026)
 
-1. **UX13 có làm không, và khi nào.** Phiên này thêm một bảng trên máy chủ (bài giao) và một cột (lời khen), làm ở cả hai kho, theo quy tắc grant ở CLAUDE.md, kèm file `supabase/cap-nhat-ux13.sql` để chủ app chạy một lần. Đề xuất: tháng 1–2/2027, trước khi mời dùng thử. Đây là việc bố mẹ làm được ngay trong gói Miễn phí.
-2. **Lời dặn khi giao bài.** Chỉ chọn câu có sẵn (“Cố lên con!”, “Làm cẩn thận nhé.”) hay cho tự viết, tối đa 60 kí tự. Đề xuất: cho tự viết. Đây là lời của bố mẹ gửi con trong nhà, lưu cùng bài giao, xóa sau 14 ngày. Trang Quyền riêng tư (Phiên G0) ghi thêm một dòng.
-3. **UX14 làm lúc nào.** Làm sớm (tháng 12/2026, sau UX9–UX12) hay cùng “Ôn theo bài từ ngân hàng” trong đợt rà sách 2027 (đoạn “Bài ôn dạng trang” ở đầu [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)).
-4. **UX10 cần thử trên máy thật.** File lịch (.ics) phải mở được trên iPhone, cả trong Safari lẫn khi app đã thêm vào Màn hình chính, và trên Android. Chủ app thử trước khi Merge.
+1. **Làm UX9, UX11, UX10, UX12, UX14, không làm UX13.** UX13 cần thêm bảng trên máy chủ (bài giao) và một cột (lời khen) ở cả hai kho. Đề xuất của UX13 giữ ở mục 5 để xem lại sau khi mời dùng thử.
+2. **Lời dặn khi giao bài:** không cần quyết nữa, vì chỉ UX13 có lời dặn.
+3. **UX14 làm trong đợt này,** sau UX12, không đợi “Ôn theo bài từ ngân hàng” của đợt rà sách 2027.
+4. **UX10 vẫn cần thử trên máy thật.** File lịch (.ics) phải mở được trên iPhone, cả trong Safari lẫn khi app đã thêm vào Màn hình chính, và trên Android. Chủ app thử trước khi Merge.
 
 ## 4. Vấn đề và đề xuất theo phiên
 
 ### Phiên UX9 · Con biết mình đã ôn đến đâu
+
+Khung Figma ([section UX9](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-12)): K1 là tab Bài ôn, K2 là Hôm nay đã ôn, K3 là tab Kết quả chưa có bài. Cả ba khung có bản tối.
 
 ![Tab Bài ôn: hiện tại và đề xuất](hinh-ux-3x/ux9-bai-on.jpg)
 
@@ -138,6 +152,8 @@ File này giữ vấn đề, đề xuất, ảnh và điều kiện xong. Chủ 
 
 ### Phiên UX10 · Nhắc lịch thi và giờ ôn bằng lịch của điện thoại
 
+Khung Figma ([section UX10](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-36)): L1 là lịch thi của bố mẹ, có chi tiết kì thi đang mở. L2 là Cài đặt có thẻ “Nhắc con ôn bài”, sáng và tối.
+
 ![Thêm kì thi vào lịch điện thoại, nhắc con ôn bài](hinh-ux-3x/ux10-lich-dien-thoai.jpg)
 
 **X41. App không nhắc gì.**
@@ -187,11 +203,14 @@ File này giữ vấn đề, đề xuất, ảnh và điều kiện xong. Chủ 
 
 **Xong khi:**
 - `tests/e2e.js` bắt file tải về (`page.waitForEvent("download")`) và đọc nội dung. File kì thi đúng ngày đầu, ngày cuối cộng 1, hai lời nhắc, `UID`, chữ tiếng Việt UTF-8, CRLF. File nhắc ôn đúng `RRULE` theo ngày chọn, đúng giờ, `TZID`.
+- `tests/supabase/cloud-e2e.js` thấy thẻ “Nhắc con ôn bài” ở Cài đặt của Khu phụ huynh, tải được file nhắc ôn, và vẫn in OK.
 - Không có request nào ra ngoài máy chủ của app (bước kiểm tra sẵn có của `tests/e2e.js`).
 - Có ảnh 360px sáng/tối.
 - Chủ app đã thử: iPhone (Safari, app trên Màn hình chính) mở được và thêm vào Lịch; Android (Google Lịch hoặc Lịch của máy) cũng vậy.
 
 ### Phiên UX11 · Bảng câu ở màn kết quả
+
+Khung Figma ([section UX11](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-59)): M1 là bảng câu, sáng và tối. M2 là lúc chạm ô của một câu đúng: hộp `#qzPeek` mở ngay dưới lưới.
 
 ![Màn kết quả đề: hiện tại và đề xuất](hinh-ux-3x/ux11-bang-cau.jpg)
 
@@ -226,6 +245,8 @@ File này giữ vấn đề, đề xuất, ảnh và điều kiện xong. Chủ 
 
 ### Phiên UX12 · Báo cáo các tuần trước, sửa nhỏ
 
+Khung Figma ([section UX12](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-81)): N1 là báo cáo có chọn tuần, sáng và tối. N2 là thẻ của con có ô “0 bài”. X45 không có khung: component `.btn` sửa ở lượt kiểm thử thiết kế, sau khi gộp.
+
 ![Báo cáo của con có chọn tuần; ô “0 bài” ở thẻ của con](hinh-ux-3x/ux12-bao-cao-tuan.jpg)
 
 **X43. Báo cáo của con chỉ xem được 7 ngày gần nhất.** Tuần trước chỉ còn trong danh sách thu gọn “Bài làm trước tuần này”. Bố mẹ không so được hai tuần, không gửi lại được báo cáo tuần trước.
@@ -257,9 +278,55 @@ File này giữ vấn đề, đề xuất, ảnh và điều kiện xong. Chủ 
   - hai nút cùng cỡ đứng cạnh nhau cao bằng nhau (đo `getBoundingClientRect`).
 - `cloud-e2e.js` vẫn in OK. Có ảnh 360px sáng/tối.
 
-### Phiên UX13 · Bố mẹ giao bài, khen bài
+### Phiên UX14 · Ôn 10 câu theo chủ đề hay sai
 
-Cần chủ app quyết trước (mục 3).
+Khung Figma ([section UX14](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-126)):
+- P1: tab Kết quả, sáng và tối;
+- P2: Hôm nay có bài phụ “Ôn 10 câu” (vẽ sau UX9, nên link có “đã làm 3/5”);
+- P3: màn mở đề “Ôn chủ đề”, chỉ có Ôn luyện.
+
+![Chủ đề hay sai có nút ôn nhanh](hinh-ux-3x/ux14-on-chu-de.jpg)
+
+**X48. Chủ đề hay sai chỉ để xem.**
+- Tab Kết quả và báo cáo tuần liệt kê chủ đề hay sai nhưng không làm gì được với chúng.
+- Bài phụ ở Hôm nay ghi “Ôn lại chủ đề “Góc và đo góc”” nhưng mở cả đề 25 câu; trong đề đó chỉ 3 câu thuộc chủ đề này.
+
+**Cách làm:**
+- **Kết quả.** `#weakTopics` thành danh sách:
+  - mỗi chủ đề một `.item.topic-row`: tên đậm, dòng “Toán · 4 câu sai”, nút `btn sm` “Ôn 10 câu”;
+  - tối đa 3 dòng; các chủ đề còn lại ghi tên ở một dòng `muted` bên dưới.
+
+  Thêm hai chỗ:
+  - Bài phụ theo chủ đề hay sai ở Hôm nay thành “Ôn 10 câu: <chủ đề>” · “<môn> · 4 câu sai gần đây · khoảng 10 phút”.
+  - Màn kết quả đề (`#qzTopics`): chủ đề cần ôn thêm có link “Ôn 10 câu”. Chữ thêm ở cả hai cột `TXT`.
+- **Đề “Ôn chủ đề”** (`#/chu-de/<khối>/<mã môn>/<chủ đề>`, chủ đề mã hóa bằng `encodeURIComponent`):
+  - kho câu: các câu có `topic` đó trong đề có sẵn của khối, môn (`Store.loadBank` các file cần), kì gần nhất trước;
+  - rút 10 câu bằng `Quiz.draw` với ma trận một chủ đề, ưu tiên câu chưa làm, hay sai (`PoolHist`); có dưới 10 câu thì lấy hết;
+  - câu dùng chung đoạn đọc thì rút cả đoạn như K4;
+  - tên “<môn> <khối> · Ôn chủ đề · <chủ đề>”, đề Tiếng Anh thì `Quiz.title` ra “English 4 · Topic practice · <chủ đề>”;
+  - chỉ có Ôn luyện.
+- **Lưu kết quả.**
+  - `source: "bank"`, `refId: "chu-de:<khối>:<mã môn>:<chủ đề>"`, `wrongTopics` như đề. Cột `ref_id` là chữ, nên không đổi bảng.
+  - Báo cáo tuần, chủ đề hay sai tính như đề thường. `progressOf` (X38) và `weekTips` không tính đề này vào bài ôn của kì.
+  - Ôn chủ đề mà đúng từ 80% thì chủ đề đó có nhãn “Đã ôn lại ✓” trong 7 ngày.
+- Chỉ dùng đề có sẵn; đề tự soạn không rút.
+
+**Xong khi:**
+- `tests/e2e.js` kiểm tra:
+  - Bin bấm “Ôn 10 câu” ở “Góc và đo góc” thì có 10 câu, đều của chủ đề đó, của lớp 4;
+  - làm xong thì kết quả có `refId` đúng;
+  - tab Kết quả có nhãn “Đã ôn lại ✓”;
+  - đề Tiếng Anh có tên tiếng Anh (bước TA2).
+- `tests/kiem-tra-de.js` thử rút theo chủ đề cho mọi chủ đề có ít nhất 10 câu.
+- Có ảnh 360px sáng/tối.
+
+## 5. Để sau
+
+- **Phiên UX13 · Bố mẹ giao bài, khen bài (X46, X47):** chủ app quyết không làm, ngày 27/10/2026. Phiên này cần thêm bảng trên máy chủ (bài giao) và một cột (lời khen). Đề xuất giữ nguyên dưới đây để xem lại sau khi mời dùng thử. Nếu làm thì chủ app quyết lời dặn: chọn câu có sẵn hay cho tự viết (tối đa 60 kí tự, xóa sau 14 ngày, trang Quyền riêng tư của Phiên G0 ghi thêm một dòng).
+
+<details><summary>Đề xuất của Phiên UX13 (giữ để xem lại)</summary>
+
+#### Phiên UX13 · Bố mẹ giao bài, khen bài (không làm)
 
 ![Bố mẹ giao bài và khen bài](hinh-ux-3x/ux13-bo-me-giao.jpg)
 
@@ -279,7 +346,7 @@ Cần chủ app quyết trước (mục 3).
   - tiêu đề “Giao cho <tên>: <tên đề>”;
   - `.field` “Hạn làm”: `.choices` gồm Hôm nay · Ngày mai · Chủ nhật <ngày> (chủ nhật gần nhất) · Chọn ngày (mở ô `date`);
   - `.field` “Cách làm” (chỉ đề ngân hàng): `.choices.two`, hai ô một hàng: Ôn luyện · Làm như thi · N phút;
-  - `.field` “Lời dặn · không bắt buộc”: Cố lên con! · Làm cẩn thận nhé. · Tự viết… (ô chữ tối đa 60 kí tự, theo quyết định ở mục 3);
+  - `.field` “Lời dặn · không bắt buộc”: Cố lên con! · Làm cẩn thận nhé. · Tự viết… (ô chữ tối đa 60 kí tự, nếu chủ app cho tự viết);
   - nút “Giao bài”, “Thôi”;
   - dòng `small muted` “<tên> thấy bài này ở đầu trang Hôm nay, hạn ngày mai 28/10. Thẻ của <tên> ghi đã làm chưa.”
 
@@ -330,49 +397,12 @@ Cần chủ app quyết trước (mục 3).
 - `store-test.mjs`, `admin-test.mjs` in OK; `run.sh` in RLS OK, có kiểm tra bảng mới (máy không có PostgreSQL thì ghi rõ trong Pull Request).
 - Có ảnh 360px sáng/tối.
 
-### Phiên UX14 · Ôn 10 câu theo chủ đề hay sai
-
-![Chủ đề hay sai có nút ôn nhanh](hinh-ux-3x/ux14-on-chu-de.jpg)
-
-**X48. Chủ đề hay sai chỉ để xem.**
-- Tab Kết quả và báo cáo tuần liệt kê chủ đề hay sai nhưng không làm gì được với chúng.
-- Bài phụ ở Hôm nay ghi “Ôn lại chủ đề “Góc và đo góc”” nhưng mở cả đề 25 câu; trong đề đó chỉ 3 câu thuộc chủ đề này.
-
-**Cách làm:**
-- **Kết quả.** `#weakTopics` thành danh sách:
-  - mỗi chủ đề một `.item.topic-row`: tên đậm, dòng “Toán · 4 câu sai”, nút `btn sm` “Ôn 10 câu”;
-  - tối đa 3 dòng; các chủ đề còn lại ghi tên ở một dòng `muted` bên dưới.
-
-  Thêm hai chỗ:
-  - Bài phụ theo chủ đề hay sai ở Hôm nay thành “Ôn 10 câu: <chủ đề>” · “<môn> · 4 câu sai gần đây · khoảng 10 phút”.
-  - Màn kết quả đề (`#qzTopics`): chủ đề cần ôn thêm có link “Ôn 10 câu”. Chữ thêm ở cả hai cột `TXT`.
-- **Đề “Ôn chủ đề”** (`#/chu-de/<khối>/<mã môn>/<chủ đề>`, chủ đề mã hóa bằng `encodeURIComponent`):
-  - kho câu: các câu có `topic` đó trong đề có sẵn của khối, môn (`Store.loadBank` các file cần), kì gần nhất trước;
-  - rút 10 câu bằng `Quiz.draw` với ma trận một chủ đề, ưu tiên câu chưa làm, hay sai (`PoolHist`); có dưới 10 câu thì lấy hết;
-  - câu dùng chung đoạn đọc thì rút cả đoạn như K4;
-  - tên “<môn> <khối> · Ôn chủ đề · <chủ đề>”, đề Tiếng Anh thì `Quiz.title` ra “English 4 · Topic practice · <topic>”;
-  - chỉ có Ôn luyện.
-- **Lưu kết quả.**
-  - `source: "bank"`, `refId: "chu-de:<khối>:<mã môn>:<chủ đề>"`, `wrongTopics` như đề. Cột `ref_id` là chữ, nên không đổi bảng.
-  - Báo cáo tuần, chủ đề hay sai tính như đề thường. `progressOf` (X38) và `weekTips` không tính đề này vào bài ôn của kì.
-  - Ôn chủ đề mà đúng từ 80% thì chủ đề đó có nhãn “Đã ôn lại ✓” trong 7 ngày.
-- Chỉ dùng đề có sẵn; đề tự soạn không rút.
-
-**Xong khi:**
-- `tests/e2e.js` kiểm tra:
-  - Bin bấm “Ôn 10 câu” ở “Góc và đo góc” thì có 10 câu, đều của chủ đề đó, của lớp 4;
-  - làm xong thì kết quả có `refId` đúng;
-  - tab Kết quả có nhãn “Đã ôn lại ✓”;
-  - đề Tiếng Anh có tên tiếng Anh (bước TA2).
-- `tests/kiem-tra-de.js` thử rút theo chủ đề cho mọi chủ đề có ít nhất 10 câu.
-- Có ảnh 360px sáng/tối.
-
-## 5. Để sau
+</details>
 
 - **Đánh dấu câu để xem lại trên bảng số câu; bố mẹ chấm tự luận thay con:** giữ ở mục 4 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md).
 - **Thông báo của trang web:** cần máy chủ gửi; trên iPhone chỉ chạy khi app đã thêm vào Màn hình chính. Xem lại sau UX10, nếu lời nhắc bằng lịch chưa đủ.
 - **Biểu đồ số bài từng ngày ở tab Kết quả của con:** báo cáo tuần đã có “Số bài từng ngày” cho bố mẹ; trang Hôm nay đã có hàng T2–CN. Làm khi con cần xem lại nhiều tuần.
-- **Bố mẹ giao bài tự soạn câu:** đã có Đề tự soạn; giao được cả đề tự soạn khi UX13 chạy ổn.
+- **Bố mẹ giao bài tự soạn câu:** đã có Đề tự soạn; giao được cả đề tự soạn nếu sau này làm UX13.
 - **Màn hình máy tính bảng hai cột:** app đang là một cột rộng tối đa của `.app`; xem lại khi có ghi chép bố mẹ, con dùng iPad.
 
 ## 6. Kiểm thử thiết kế sau khi gộp

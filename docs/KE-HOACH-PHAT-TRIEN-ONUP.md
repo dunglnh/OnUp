@@ -8,7 +8,7 @@
 
 > **Bài ôn dạng trang (24/10/2026, chủ app giao PO quyết):** giữ bốn bài ôn `modules/`; tính năng giao diện mới mặc định chỉ làm ở đề ngân hàng (`js/quiz.js`), bài ôn chỉ sửa nội dung, lỗi (làm cả hai khi chủ app yêu cầu rõ, như L38, L39); “Ôn theo bài” từ ngân hàng và gộp bài ôn vào ngân hàng làm cùng đợt rà sách 2027.
 
-> **Quy ước:** chỉ file này ghi trạng thái và lộ trình; CLAUDE.md, README và các tài liệu khác chỉ trỏ sang đây. Làm xong một phiên thì: thêm **một dòng ngắn** vào cuối bảng “Đã xong” ở mục 1 (số PR và tiêu đề Pull Request, không chép mô tả); sửa ngày và số PR ở dòng trạng thái; xóa dòng của phiên ở mục 3 và lời giao việc của phiên (ở mục 4 hoặc ở file đang giữ lời giao việc đó; phiên UX, UI thì xóa sau lượt kiểm thử thiết kế ở mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)). Không viết thêm vào “Tiếp theo”, trừ khi thứ tự lớn đổi. Chi tiết của phiên để ở mô tả Pull Request; lịch sử git giữ bản cũ. Đổi quyết định thì sửa đoạn “Đã chốt” trước.
+> **Quy ước:** chỉ file này ghi trạng thái và lộ trình; CLAUDE.md, README và các tài liệu khác chỉ trỏ sang đây. Làm xong một phiên thì: thêm **một dòng ngắn** vào cuối bảng “Đã xong” ở mục 1 (số PR và tiêu đề Pull Request, không chép mô tả); sửa ngày và số PR ở dòng trạng thái; xóa dòng của phiên ở mục 3 và lời giao việc của phiên (ở mục 4 hoặc ở file đang giữ lời giao việc đó; phiên UX, UI thì xóa sau lượt kiểm thử thiết kế ở mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md), bản 3.x ở mục 6 của [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md)). Không viết thêm vào “Tiếp theo”, trừ khi thứ tự lớn đổi. Chi tiết của phiên để ở mô tả Pull Request; lịch sử git giữ bản cũ. Đổi quyết định thì sửa đoạn “Đã chốt” trước.
 
 > **Tiếp theo (25/10/2026):**
 > - Các phiên dò sách DS1–DS12c đã xong (PR #135–#176); kế hoạch nội dung viết gọn lại, mốc dự trù tính lại theo nhịp đo được (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)).
@@ -232,13 +232,14 @@
 
 ## 3. Lộ trình khi làm tiếp
 
-Mỗi dòng là **một phiên Claude Code riêng** (mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge). Lời giao việc chỉ giữ cho phiên chưa làm: **phiên làm đề, dò sách, kĩ thuật cho đề ở hàng đợi, mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md): mở từ trên xuống**; phiên sửa lỗi ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); phiên khác ở mục 4 dưới đây. Phiên giao diện (UX, UI) có lượt kiểm thử thiết kế ở mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md); chỗ lệch thành phiên sửa ngắn “b” (như UX3b, 9nb, 9ob). Thiết kế ở file Figma [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2).
+Mỗi dòng là **một phiên Claude Code riêng** (mở claude.ai/code, chọn repo `dunglnh/OnUp`, dán lời giao việc, xem Pull Request rồi Merge). Lời giao việc chỉ giữ cho phiên chưa làm: **phiên làm đề, dò sách, kĩ thuật cho đề ở hàng đợi, mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md): mở từ trên xuống**; phiên sửa lỗi ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md); phiên khác ở mục 4 dưới đây. Phiên giao diện (UX, UI) có lượt kiểm thử thiết kế ở mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md) (bản 3.x: mục 6 của [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md)); chỗ lệch thành phiên sửa ngắn “b” (như UX3b, 9nb, 9ob). Thiết kế ở file Figma [OnUp](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=70-2) (bản 3.x: trang [Master 3.x](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-2)).
 
 Thứ tự các phiên:
 
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
 | 1 | 15/11/2026 | Lớp 9 (33 phiên, có 9 phiên đề thi thử vào 10); phiên rà soát lớp 9. Cuối kì I, giữa kì II (12 phiên N9-ck1-*, N9-gk2-*) đã vào hàng đợi (26/10/2026) | K5 (đã xong, PR #198; chỉ trước đề thi thử vào 10) | thứ tự khối, thứ tự kì trong mỗi khối và mốc kiểm tra: mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); các bước trước khi bật một khối: mục 7 (“Lớp 5, 7–12”) |
+| song song | UX9 15/11 · UX11 22/11 · UX10 6/12 · UX12 13/12 · UX14 20/12/2026 | **UX9 → UX11 → UX10 → UX12 → UX14 · Giao diện 3.x** (chủ app chọn 27/10/2026; vấn đề, cách làm, ảnh ở [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md)) | UX14 sau UX9, UX11 | phiên mở tay, chạy xen với phiên làm đề; không chạy cùng lúc hai phiên sửa `js/app.js` hay `js/quiz.js`; UX10 xong trước kì cuối kì I (lớp 6 từ 21/12), chủ app thử file lịch trên iPhone, Android trước khi Merge; UX13 không làm; lời giao việc ở mục 4; phiên xong thì bỏ tên mình khỏi dòng này, phiên cuối xóa cả dòng |
 | 2 | 10/12/2026 | Lớp 12 (53 phiên, có 25 phiên đề thi thử tốt nghiệp), lớp 5 (16); mỗi khối một phiên rà soát | | cuối kì I của lớp 12 (thi từ 14/12/2026, xong trước 23/11) rồi của lớp 5 (thi từ 28/12, xong trước 7/12) làm trước các kì khác |
 | 3 | 31/12/2026 | Lớp 7, 8 (mỗi khối 24 phiên); mỗi khối một phiên rà soát | | |
 | 4 | 20/1/2027 (dự phòng đến 28/2/2027) | Lớp 10, 11 (mỗi khối 28 phiên); mỗi khối một phiên rà soát; sửa lỗi các phiên rà soát tìm ra | | xong là đủ đề lớp 4–12 và rà xong; phần dự phòng cho sửa lỗi, rà đề, nghỉ Tết |
@@ -266,7 +267,92 @@ Không chạy cùng lúc hai phiên cùng sửa `js/app.js` hoặc `js/quiz.js`;
 
 ## 4. Lời giao việc (dán nguyên vào phiên mới)
 
-Chỉ giữ lời giao việc của phiên chưa làm (phiên UX, UI đã xong thì giữ đến khi kiểm thử thiết kế xong, mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)). Phiên làm đề: mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); phiên sửa lỗi: mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md). Các phiên dưới đây theo thứ tự ở mục 3; bấm tên phiên để mở lời giao việc.
+Chỉ giữ lời giao việc của phiên chưa làm (phiên UX, UI đã xong thì giữ đến khi kiểm thử thiết kế xong, mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md), bản 3.x mục 6 của [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md)). Phiên làm đề: mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); phiên sửa lỗi: mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md). Các phiên dưới đây theo thứ tự ở mục 3; bấm tên phiên để mở lời giao việc.
+
+<details><summary>Phiên UX9 · Con biết mình đã ôn đến đâu (X38–X40; hạn 15/11/2026)</summary>
+
+**Phiên UX9 · Con biết mình đã ôn đến đâu** (X38–X40; hạn 15/11/2026; sửa `js/app.js`, `css/app.css`)
+> Đọc CLAUDE.md và docs/CAI-TIEN-UX-3X.md (mục 2, nguyên tắc giữ nguyên; mục 4, Phiên UX9: X38–X40, cách làm, “Xong khi”; ảnh docs/hinh-ux-3x/ux9-bai-on.jpg, ux9-hom-nay.jpg, ux9-trang-rong.jpg). Sửa trong js/app.js, css/app.css, cho cả hai bản; không đổi dữ liệu:
+> - X38: một hàm tiến độ dùng chung cho mỗi kì thi trả số bài đã làm trên tổng số bài ôn dạng trang và đề cố định của kì, cùng tỉ lệ đúng của lần làm gần nhất. Bốn chỗ dùng hàm này phải cùng chữ, cùng số:
+>   - tóm tắt nhóm kì thi ở tab Bài ôn: dòng “Đã làm 3/5 bài · đúng 82%” và thanh 6px;
+>   - thẻ kì thi (`.ready`);
+>   - link ở thẻ Hôm nay;
+>   - huy hiệu “Hết đề”.
+>
+>   Nút đề đã làm thành nút viền có dấu ✓ (`btn sm done`; không dùng tên lớp `.ck`). Đề chưa làm và đề ngẫu nhiên vẫn vàng. Trang “Bài ôn của <tên>” của bố mẹ cũng có ✓.
+> - X39: huy hiệu có tiến độ: tối đa hai mục tiêu kế tiếp (`.bdg-list`), huy hiệu đã có ở hàng “Đã có:”, dòng gợi ý ghi cả hai mục tiêu.
+> - X40: hôm nay con đã có kết quả thì thẻ đầu trang Hôm nay thành “Bạn đã ôn rồi. Giỏi lắm!” (nền `ok-soft`, hải cẩu tung bóng 64px, nút viền “Làm thêm một bài”). Trang rỗng có hình hải cẩu, một câu, một nút (`.empty`): tab Kết quả; Hôm nay và Bài ôn khi khối chưa có đề; Lịch thi khi không còn kì thi. Chữ theo vai: con và bố mẹ bản đám mây không còn thấy “Quản trị viên… mục Quản trị”.
+>
+> Mỗi vấn đề một commit ghi mã. Thêm các bước ở mục “Xong khi” vào tests/e2e.js, chạy tests/e2e.js và tests/supabase/cloud-e2e.js đến khi in OK. Ghi phần mô tả code vào CLAUDE.md, một mục như “Gửi báo cáo tuần (Phiên UX8)”. Chụp ảnh 360px sáng/tối, chép sang docs/hinh-ux9/, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
+
+</details>
+
+<details><summary>Phiên UX11 · Bảng câu ở màn kết quả (X42; hạn 22/11/2026)</summary>
+
+**Phiên UX11 · Bảng câu ở màn kết quả** (X42; hạn 22/11/2026; sửa `js/quiz.js`, `css/app.css`)
+> Đọc CLAUDE.md và docs/CAI-TIEN-UX-3X.md (mục 2; mục 4, Phiên UX11: X42, cách làm, “Xong khi”; ảnh docs/hinh-ux-3x/ux11-bang-cau.jpg). Sửa màn kết quả của Quiz.run (js/quiz.js, css/app.css), dùng chung cho cả hai bản; chữ mới thêm ở cả hai cột `vi`, `en` của `TXT`:
+> - Ngay dưới hàng nút “Ôn lại N câu sai” / “Làm lại cả đề” có bảng câu `section.panel#qzSheet`:
+>   - lưới `.qz-cells` như bảng số câu của Phiên 9n, mỗi câu một `button.qz-cell`: `st-ok` có ✓; `st-bad` có ✗, kể cả câu chưa làm của bài làm như thi; câu tự luận là `st-done`;
+>   - chú thích `.qz-key` chỉ ghi mục có câu;
+>   - dòng “Chạm vào số câu để xem lại câu đó.”
+> - Chạm ô câu sai thì mở `details.rv` của câu đó trong `#qzReview`, cuộn tới và đặt focus. Chạm ô câu đúng hoặc câu tự luận thì hộp `#qzPeek` (kiểu `.report-box`) mở ngay dưới lưới: “Câu 7 · Đúng”, nút “Đóng”, câu hỏi, đáp án, lời giải, link báo câu sai. Chạm lại ô đó hoặc bấm “Đóng” thì hộp đóng.
+> - Đề tính điểm (K5) cũng có bảng. Lượt “Ôn lại câu sai” chỉ có các câu của lượt đó. Đề Tiếng Anh dùng chữ tiếng Anh.
+>
+> Không đổi cách chấm, cách lưu. Thêm các bước ở mục “Xong khi” vào tests/e2e.js (cả bước TA2). Chạy tests/e2e.js, tests/supabase/cloud-e2e.js và node tests/kiem-tra-de.js đến khi in OK. Ghi phần mô tả code vào CLAUDE.md, mục “Làm bài tập trung”. Chụp ảnh 360px sáng/tối, chép sang docs/hinh-ux11/, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
+
+</details>
+
+<details><summary>Phiên UX10 · Nhắc lịch thi và giờ ôn bằng lịch của điện thoại (X41; hạn 6/12/2026)</summary>
+
+**Phiên UX10 · Nhắc lịch thi và giờ ôn bằng lịch của điện thoại** (X41; hạn 6/12/2026, trước kì cuối kì I; sửa `js/app.js`, `css/app.css`)
+> Đọc CLAUDE.md và docs/CAI-TIEN-UX-3X.md (mục 2; mục 4, Phiên UX10: X41, cách làm, “Xong khi”; ảnh docs/hinh-ux-3x/ux10-lich-dien-thoai.jpg). Sửa trong js/app.js, css/app.css, cho cả hai bản. Không đổi dữ liệu, không gửi gì lên mạng, không đổi sw.js:
+> - Chi tiết kì thi có ngày (openEvent, mọi vai trò) có khối `div.cal-add#evIcs` ngay sau dòng ngày. Nút “Thêm vào lịch điện thoại” tạo file `onup-<mã kì thi>.ics`: sự kiện cả ngày, hai lời nhắc lúc 19:00 trước 7 ngày và trước 1 ngày, `UID` cố định. Kì dự kiến có thêm dòng nhắc sửa ngày rồi thêm lại.
+> - Thẻ “Nhắc con ôn bài” `section.panel#studyRemind` nằm ở Cài đặt của Khu phụ huynh (bản đám mây, sau Hồ sơ con) và ở trang chủ phụ huynh bản lưu trên máy (dưới thẻ các con). Trong thẻ:
+>   - chọn ngày bằng `.day-pick`, mặc định T2–T6;
+>   - chọn giờ, mặc định 19:30;
+>   - nút tạo file `onup-nhac-on-bai.ics` lặp theo tuần (`VTIMEZONE` Asia/Ho_Chi_Minh, `RRULE` theo ngày đã chọn, 20 phút).
+>
+>   Lựa chọn gần nhất nhớ ở localStorage (bọc try/catch).
+> - Đưa file cho máy như `backupNow`: máy chia sẻ được file thì `navigator.share`, không thì tải về. Người dùng hủy thì thôi. Tải xong hoặc lỗi thì có toast.
+>
+> Thêm các bước ở mục “Xong khi” vào tests/e2e.js (đọc nội dung hai file tải về) và một kiểm tra thẻ ở Cài đặt vào tests/supabase/cloud-e2e.js. Chạy hai bộ đến khi in OK. Ghi phần mô tả code vào CLAUDE.md. Chụp ảnh 360px sáng/tối, chép sang docs/hinh-ux10/, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh. Mô tả Pull Request ghi các bước chủ app thử trên iPhone (Safari, và app trên Màn hình chính) và Android trước khi Merge.
+
+</details>
+
+<details><summary>Phiên UX12 · Báo cáo các tuần trước, sửa nhỏ (X43–X45; hạn 13/12/2026)</summary>
+
+**Phiên UX12 · Báo cáo các tuần trước, sửa nhỏ** (X43–X45; hạn 13/12/2026; sửa `js/app.js`, `css/app.css`)
+> Đọc CLAUDE.md và docs/CAI-TIEN-UX-3X.md (mục 2; mục 4, Phiên UX12: X43–X45, cách làm, “Xong khi”; ảnh docs/hinh-ux-3x/ux12-bao-cao-tuan.jpg). Sửa trong js/app.js, css/app.css, cho cả hai bản:
+> - X43: báo cáo của con (renderReport) có `nav.wk-nav#rpWeek` ngay dưới `#rpHead`, thay dòng “Báo cáo …”.
+>   - Nút ‹ “Tuần trước” và › “Tuần sau” cỡ 44×44px. › tắt ở tuần này, ‹ tắt ở tuần có kết quả đầu tiên. Ở giữa là khoảng ngày và dòng “7 ngày gần nhất”, “Tuần trước” hoặc “3 tuần trước”.
+>   - Hash `#/child/<mã>?tuan=<n>`.
+>   - Theo tuần đang chọn: tin nhắn, ô số liệu, số bài từng ngày, điểm theo môn, chủ đề hay sai, bài đã làm. Theo hôm nay: kì thi sắp tới, gợi ý.
+>   - `#rpOlder` chỉ có ở tuần này. Bản in in tuần đang chọn.
+> - X44: thẻ của con chưa làm bài hôm nay ghi “0 bài” · “hôm nay”, không ghi “Chưa ôn”.
+> - X45: `.btn` có viền 1px trong suốt, để nút chính và nút viền đứng cạnh nhau cao bằng nhau. Soát các chỗ `.btn` có viền riêng, chụp lại các màn có hai nút cạnh nhau.
+>
+> Mỗi vấn đề một commit ghi mã. Thêm các bước ở mục “Xong khi” vào tests/e2e.js (bước UX2 hoặc UX8), chạy tests/e2e.js và tests/supabase/cloud-e2e.js đến khi in OK. Ghi phần mô tả code vào CLAUDE.md, mục “Gửi báo cáo tuần” và “Khu phụ huynh gọn lại”. Chụp ảnh 360px sáng/tối, chép sang docs/hinh-ux12/, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
+
+</details>
+
+<details><summary>Phiên UX14 · Ôn 10 câu theo chủ đề hay sai (X48; sau UX9, UX11; hạn 20/12/2026)</summary>
+
+**Phiên UX14 · Ôn 10 câu theo chủ đề hay sai** (X48; sau UX9, UX11; hạn 20/12/2026; sửa `js/app.js`, `js/quiz.js`, `css/app.css`)
+> Đọc CLAUDE.md và docs/CAI-TIEN-UX-3X.md (mục 2; mục 4, Phiên UX14: X48, cách làm, “Xong khi”; ảnh docs/hinh-ux-3x/ux14-on-chu-de.jpg). Sửa trong js/app.js, js/quiz.js, css/app.css, cho cả hai bản; không đổi bảng, không đổi kho:
+> - Tab Kết quả: `#weakTopics` thành danh sách tối đa 3 chủ đề. Mỗi dòng có tên, “<môn> · N câu sai” và nút “Ôn 10 câu”; các chủ đề còn lại ghi tên ở một dòng bên dưới.
+> - Thêm lối vào ở hai chỗ:
+>   - bài phụ theo chủ đề hay sai ở Hôm nay thành “Ôn 10 câu: <chủ đề>”;
+>   - màn kết quả đề (`#qzTopics`) có link “Ôn 10 câu” ở chủ đề cần ôn thêm, chữ ở cả hai cột `TXT`.
+> - Đề “Ôn chủ đề” ở `#/chu-de/<khối>/<mã môn>/<chủ đề>`:
+>   - kho câu là các câu có `topic` đó trong đề có sẵn của khối, môn (`Store.loadBank` các file cần); chỉ dùng đề có sẵn;
+>   - rút 10 câu bằng `Quiz.draw` với ma trận một chủ đề, ưu tiên câu chưa làm, câu hay sai; câu cùng đoạn đọc rút cả đoạn như K4;
+>   - tên “<môn> <khối> · Ôn chủ đề · <chủ đề>”, đề Tiếng Anh thì `Quiz.title` ra “English 4 · Topic practice · <chủ đề>”;
+>   - chỉ có Ôn luyện.
+> - Lưu như đề: `source: "bank"`, `refId: "chu-de:<khối>:<mã môn>:<chủ đề>"`. Báo cáo tuần và chủ đề hay sai tính như đề thường. Tiến độ kì thi (X38) và `weekTips` không tính đề này. Ôn chủ đề đúng từ 80% thì chủ đề đó có nhãn “Đã ôn lại ✓” trong 7 ngày.
+>
+> Thêm các bước ở mục “Xong khi” vào tests/e2e.js (cả bước TA2) và phần thử rút theo chủ đề vào tests/kiem-tra-de.js. Chạy tests/e2e.js, tests/supabase/cloud-e2e.js và node tests/kiem-tra-de.js đến khi in OK. Ghi phần mô tả code vào CLAUDE.md. Chụp ảnh 360px sáng/tối, chép sang docs/hinh-ux14/, chỉ tự rà soát một vòng, rồi mở Pull Request kèm ảnh.
+
+</details>
 
 <details><summary>Phiên G0 · Chuẩn bị dùng thử: Điều khoản, Quyền riêng tư, dòng dùng thử (tháng 2/2027, trước B1; xong trước khi mở dùng thử)</summary>
 
