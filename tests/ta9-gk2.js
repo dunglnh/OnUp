@@ -279,7 +279,7 @@ const loiPhu = (q) => {
 // động từ + to-infinitive (Unit 6); cụm động từ của Unit 2 (A Closer Look 2)
 const V_TO = ["promise", "hope", "decide", "agree", "want", "plan", "learn"];
 const PV2 = ["get around", "carry out", "come down with", "hang out with", "cut down on", "throw away"];
-const KHUYET = { must: "bắt buộc", might: "có thể xảy ra", "can't": "không thể", "needn't": "không cần" };
+const KHUYET = { must: "bắt buộc", might: "có thể xảy ra", "can't": "không thể", "shouldn't": "khuyên không nên" };
 const TU_HOI = { when: /\b\d+ (a|p)\.m\.|\bo'clock\b|\btime\b/, what: /: a \w+ or a \w+/, who: /\b(ask|invite)\b/, where: /\b(put|leave|go)\b/, which: /\bwhich one\b/ };
 const PP = { eat: "eaten", see: "seen", visit: "visited", try: "tried" };
 const CHECKS = [
@@ -297,9 +297,9 @@ const CHECKS = [
     assert.equal(d.length, 1); q.o.forEach((o) => assert.ok(o === d[0] ? dungTuongThuat(o) : !dungTuongThuat(o) || /\bif I\b/.test(o), "luật tường thuật xét lựa chọn “" + o + "”")); return d[0];
   } },
   { has: "Is each sentence grammatically correct?", right: (q) => q.o.map(dungTuongThuat) },
-  { has: "", order: "My sister", right: (q) => { assert.ok(dungTuongThuat(q.o.join(" ")), "câu sắp xếp đúng luật tường thuật"); return null; } },
+  { has: "", order: "The guide", right: (q) => { assert.ok(dungTuongThuat(q.o.join(" ")), "câu sắp xếp đúng luật tường thuật"); return null; } },
   // Unit 8: who, which, whose
-  ...["The driver ___ took us", "take the bus ___ stops", "a village ___ people make"].map((has) => ({ has, right: (q) => {
+  ...["The driver ___ took us", "take the bus ___ stops", "I have a friend ___ mother"].map((has) => ({ has, right: (q) => {
     assert.deepEqual(q.o.slice().sort(), ["what", "which", "who", "whose"].sort(), "lựa chọn: who, which, whose, what");
     const d = daiTuQH(q); assert.ok(q.x.includes(d)); return d;
   } })),
@@ -317,17 +317,17 @@ const CHECKS = [
     q.o.slice(1).forEach((o) => assert.ok(loiMenhDe(o).length || o.indexOf("which") > o.indexOf("year"), "lựa chọn sai phải sai luật hay sai chỗ: " + o));
     assert.deepEqual(loiMenhDe(d), []); return d;
   } },
-  ...["The song which we sang it", "People live near the airport"].map((has) => ({ has, right: (q) => {
+  ...["The song which we sang it", "I met a tourist speaks"].map((has) => ({ has, right: (q) => {
     const { sua, ch } = loiPhu(q);
     assert.deepEqual(loiMenhDe(sua), [], "câu sửa đúng luật: " + sua);
     assert.ok(loiMenhDe(cauNgoac(q)).length || !/\b(who|which)\b/.test(cauNgoac(q)), "câu gốc sai");
-    if (/^People live/.test(cauNgoac(q))) assert.ok(/^People who live/.test(sua) && !lamTanNgu(sua), "đại từ quan hệ làm chủ ngữ không bỏ được");
+    if (/a tourist speaks/.test(cauNgoac(q))) assert.ok(/a tourist who speaks/.test(sua) && !lamTanNgu(sua), "đại từ quan hệ làm chủ ngữ không bỏ được");
     assert.equal(ch.length, 1, "đúng một lựa chọn phủ chỗ sai"); return ch[0];
   } })),
   { has: "", order: "The cake", right: (q) => { const c = q.o.join(" "); assert.ok(/^The cake my grandmother made was\b/.test(c) && q.x.includes("object"), "bỏ đại từ quan hệ làm tân ngữ"); return null; } },
   // ôn Units 1–6
   { has: "hasn't told us ___ to arrive", right: (q) => { assert.ok(q.q.includes("___ to ") && q.o.every((o) => TU_HOI[o])); const d = q.o.filter((o) => TU_HOI[o].test(q.q)); assert.equal(d.length, 1, "đúng một từ để hỏi hợp tín hiệu"); return d[0]; } },
-  { has: "", order: "My parents", right: (q) => { const c = q.o.join(" "); assert.ok(coCum(c, "promised to take") && V_TO.includes("promise"), "promise + to-infinitive"); return null; } },
+  { has: "", order: "My aunt", right: (q) => { const c = q.o.join(" "); assert.ok(coCum(c, "promised to send") && V_TO.includes("promise"), "promise + to-infinitive"); return null; } },
   { has: "borrow books from our school library", right: (q) => { assert.ok(/It's the rule\.$/.test(q.q)); q.o.forEach((o) => assert.ok(KHUYET[o])); const d = q.o.filter((o) => KHUYET[o] === "bắt buộc"); assert.equal(d.length, 1); return d[0]; } },
   { has: "hangs out his best friend", right: (q) => { const { sua, ch } = loiPhu(q); assert.ok(PV2.includes("hang out with") && coCum(sua, "hangs out with"), "cụm động từ hang out with"); assert.equal(ch.length, 1); return ch[0]; } },
   { has: "This is the best pho I ___", right: (q) => { assert.ok(/\bthe best\b/.test(q.q), "so sánh nhất"); const d = q.o.filter((o) => o === "have ever " + PP.eat); assert.equal(d.length, 1); return d[0]; } },
@@ -351,10 +351,10 @@ CHECKS.forEach((c) => {
   const coWhose = kho.filter((q) => /\bwhose\b/i.test([q.q, q.x].concat(q.type === "mc" ? [q.o[0]] : q.o || [], q.ans || []).join(" ")));
   assert.equal(coWhose.length, 1, "whose chỉ có ở một câu của kho: " + coWhose.map((q) => ten.get(q)).join(", "));
 }
-// dạng của từ: từ trong ngoặc → đáp án theo bảng họ từ; chỗ trống cần đúng từ loại (danh từ sau the, my, with; tính từ sau must be;
-// trạng từ sau went; danh từ chỉ người sau travel, young)
+// dạng của từ: từ trong ngoặc → đáp án theo bảng họ từ; chỗ trống cần đúng từ loại (danh từ sau the, my, with, all the; tính từ sau
+// must be; trạng từ sau went; danh từ chỉ người sau young)
 const HO_TU = { discover: { u: 7, ans: "discovery", cho: /\bThe ___ \(/ }, sustain: { u: 7, ans: "sustainable", cho: /\bmust be ___ \(/ },
-  admire: { u: 7, ans: "admiration", cho: /\bwith ___ \(/ }, agency: { u: 8, ans: "agent", cho: /\bas a travel ___ \(/ },
+  admire: { u: 7, ans: "admiration", cho: /\bwith ___ \(/ }, arrange: { u: 8, ans: "arrangements", cho: /\ball the ___ \(/ },
   smooth: { u: 8, ans: "smoothly", cho: /\bwent ___ \(/ }, travel: { u: 8, ans: "travellers", cho: /\byoung ___ \(/ },
   translate: { u: 9, ans: "translation", cho: /\bmy ___ \(/ } };
 fills.forEach((q) => {
