@@ -501,7 +501,7 @@ async function run(browser, scheme) {
   await p.goto(BASE + "/#/practice"); await p.waitForSelector("#allPractice");
   c.l18 = await p.evaluate(() => Object.fromEntries([...document.querySelectorAll("#allPractice details.grp")].map((g) => {
     const r = [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === "Toán");
-    return [g.querySelector("summary b").textContent, r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent).join() : ""];
+    return [g.querySelector("summary b").textContent, r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent.replace(/^✓/, "")).join() : ""]; // ✓: đề đã làm (UX9)
   }).filter(([, v]) => v)));
   // K3: con làm đề ngẫu nhiên (kho gộp từ 3 đề Toán 4 cuối kì I và 31 câu riêng của ngân hàng, Phiên N1; rút 25 câu theo ma trận):
   // kết quả lên máy chủ với ref_id là mã pool. Kho có đủ các dạng câu: mỗi câu trả lời đại cho đủ để bấm Kiểm tra; câu tự luận

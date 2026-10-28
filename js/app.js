@@ -285,12 +285,30 @@
     const done = new Set(results.map((r) => isoDay(new Date(r.at))));
     return Array.from({ length: 7 }, (_, i) => { const d = addDays(mon, i), k = isoDay(d); return { name: WD[d.getDay()], on: done.has(k), today: k === isoDay(t), future: d > t }; });
   }
-  function readiness(e, student, results) {
-    const mods = (e.modules || []).filter((id) => { const m = modById(id); return m && m.grade === student.grade; });
-    const rel = within(results, 28).filter((r) => (r.source === "module" && mods.includes(r.refId)) || (r.source === "bank" && (e.banks || []).includes(r.refId)));
-    const [r, t] = sumRT(rel);
-    return { n: rel.length, p: t ? pct(r, t) : null };
+  /* Bài đã làm của một học sinh (Phiên UX9, X38). Khóa "m:<mã bài ôn dạng trang>" hay "b:<mã đề>" (itemKey của bài, resKey của kết quả);
+     n[khóa]: số kết quả, mọi lần, cả kết quả tự chấm (đề toàn tự luận chỉ có kết quả tự chấm); last[khóa]: kết quả chấm tự động gần nhất. */
+  const itemKey = (x) => (x.path ? "m:" : "b:") + x.id, resKey = (r) => (r.source === "module" ? "m:" : "b:") + r.refId;
+  function doneMap(results) {
+    const n = {}, last = {};
+    (results || []).forEach((r) => { const k = resKey(r); n[k] = (n[k] || 0) + 1; if (!isSelf(r) && (!last[k] || new Date(r.at) > new Date(last[k].at))) last[k] = r; });
+    return { n, last };
   }
+  /* Tiến độ của một kì thi với một học sinh (X38): { done, total, p }. total: bài ôn dạng trang và đề cố định của kì cho khối của con
+     (như practiceCount, đề ngẫu nhiên không tính); done: số bài trong đó đã có kết quả (doneMap.n); p: tỉ lệ câu đúng của lần làm gần nhất
+     của mỗi bài đã làm, cả đề ngẫu nhiên, chỉ kết quả chấm tự động; chưa có thì null. results: mọi kết quả của con (Store.resultsFor,
+     chưa lọc graded). Một hàm cho bốn chỗ, nên cùng chữ, cùng số: tóm tắt nhóm kì thi ở tab Bài ôn (progBox), thẻ kì thi (.ready),
+     link #toBanks ở thẻ Hôm nay và huy hiệu "Hết đề" (badges, badgePanel). */
+  function progressOf(e, s, results) {
+    const { mods, bks } = practiceFor(e, s.grade), items = mods.concat(bks.filter((b) => !b.pool)), dn = doneMap(results);
+    const [r, t] = sumRT(mods.concat(bks).map((x) => dn.last[itemKey(x)]).filter(Boolean));
+    return { done: items.filter((x) => dn.n[itemKey(x)]).length, total: items.length, p: t ? pct(r, t) : null };
+  }
+  const allDone = (pr) => pr.total > 0 && pr.done >= pr.total;
+  // "Đã làm 3/5 bài · đúng 82%", làm hết: "Đã làm hết 5 bài · đúng 85%" (HTML, số in đậm)
+  const progTxt = (pr) => (allDone(pr) ? `Đã làm hết <b>${pr.total}</b> bài` : `Đã làm <b>${pr.done}/${pr.total}</b> bài`) + (pr.p != null ? ` · đúng ${pr.p}%` : "");
+  const progBar = (done, total, label) => `<span class="bar${total && done >= total ? " good" : ""}" role="img" aria-label="${label}"><i style="width:${pct(Math.min(done, total), total)}%"></i></span>`;
+  // dưới dòng ngày của nhóm kì thi (tab Bài ôn, Bài ôn của con): dòng tiến độ và thanh 6px; chưa làm bài nào thì không có
+  const progBox = (pr) => (pr.done ? `<span class="grp-prog"><span class="prog-txt">${progTxt(pr)}</span>${progBar(pr.done, pr.total, `Đã làm ${pr.done} trên ${pr.total} bài`)}</span>` : "");
   function practiceFor(e, grade) {
     const mods = (e.modules || []).map(modById).filter((m) => m && (grade == null || m.grade === +grade));
     const bks = (e.banks || []).map((id) => Store.bank(id)).filter((b) => b && (grade == null || +b.grade === +grade));
@@ -708,7 +726,7 @@
   function eventRow(e, opts) {
     const st = status(e), g = opts && opts.grade;
     const { mods, bks } = practiceFor(e, g), nPr = practiceCount({ mods, bks });
-    const extra = opts && opts.student ? readiness(e, opts.student, opts.results) : null;
+    const extra = opts && opts.student && e.kind !== "moc" ? progressOf(e, opts.student, opts.results || []) : null; // opts.results: mọi kết quả của con (cả tự chấm)
     const dd = !e.start ? `<span class="d">?<small>chưa có</small></span>` : `<span class="d">${dm(e.start)}<small>${e.end && e.end !== e.start ? "đến " + dm(e.end) : WD[pd(e.start).getDay()]}</small></span>`;
     return `<button class="ev ${esc(e.kind)} ${st}" data-ev="${esc(e.id)}">
       ${dd}
@@ -717,7 +735,7 @@
           ${e.tentative && e.start ? `<span class="tag warn">Dự kiến</span>` : ""}
           ${st === "now" ? `<span class="tag warn">Đang diễn ra</span>` : st === "future" && e.kind !== "moc" ? `<span class="tag">Còn ${daysTo(e)} ngày</span>` : ""}
           ${nPr ? `<span class="tag">${nPr} bài ôn</span>` : ""}</span>
-        ${extra && extra.p != null ? `<span class="small ready${extra.p >= 80 ? " good" : ""}">Đã làm đúng ${extra.p}% bài ôn của kì này</span>` : ""}
+        ${extra && extra.done ? `<span class="small ready${allDone(extra) ? " good" : ""}">${progTxt(extra)}</span>` : ""}
         ${e.subjects && e.subjects.length ? `<span class="small muted">${esc(e.subjects.join(", "))}</span>` : ""}</span>
     </button>`;
   }
@@ -745,39 +763,60 @@
     if (!full && info.every((x) => x.rest && x.term === info[0].term) && uniq(short)) return short;
     return uniq(long) ? long : info.map((x) => x.title);
   }
+  /* Trang rỗng (Phiên UX9, X40): một thẻ căn giữa, hình hải cẩu 96px (icons/avatars/<art>.svg), tên, một dòng, không quá một nút. Dùng ở
+     tab Kết quả chưa có bài, Hôm nay và Bài ôn khi khối chưa có đề, Lịch thi của con khi không còn kì thi. title, line là HTML đã esc. */
+  const emptyBox = (id, art, title, line, btn) => `<section class="panel empty"${id ? ` id="${id}"` : ""}><img src="icons/avatars/${art}.svg" alt="" width="96" height="96"><h3>${title}</h3><p class="small muted">${line}</p>${btn || ""}</section>`;
+  /* Khối chưa có đề: lời theo vai (X40). Con và phụ huynh bản lưu trên máy nhờ thầy cô (mục Quản trị); con bản đám mây nhờ bố mẹ (Khu phụ
+     huynh); Phụ huynh bản đám mây tự nhập ở Cài đặt → Đề tự soạn, quản trị bản lưu trên máy ở tab Ngân hàng đề (kèm nút tới đó). */
+  function noBanks() {
+    const u = Store.sessionUser() || {};
+    if (u.role === "admin") return Store.cloud ? { t: "Bạn có thể nhập đề ở Cài đặt → Đề tự soạn.", btn: `<a class="btn main" id="toMyBanks" href="#/admin/banks">Mở Đề tự soạn</a>` }
+      : { t: "Bạn có thể nhập đề ở tab Ngân hàng đề.", btn: `<a class="btn main" id="toMyBanks" href="#/admin/banks">Mở Ngân hàng đề</a>` };
+    return { t: Store.cloud && u.role === "student" ? "Bố mẹ có thể nhập đề trong Khu phụ huynh." : "Nhờ thầy cô nhập đề trong mục Quản trị." };
+  }
+  const noBanksBox = (id, grade) => { const x = noBanks(); return emptyBox(id, "hai-cau-xam", `Chưa có bài ôn cho lớp ${+grade}`, esc(x.t), x.btn); };
   /* Mỗi bài ôn dạng trang một dòng; đề ngân hàng gom theo môn thành một dòng có các nút "Đề ngẫu nhiên · Đề 1 · Đề 2 · …"
      (đề ngẫu nhiên đứng trước, đề cố định xếp theo tên; chữ trên nút theo bankLabels, full = luôn ghi kèm tên kì;
-     aria-label là tên đề đầy đủ). */
-  function practiceList(mods, bks, canPlay, full) {
-    if (!mods.length && !bks.length) return `<div class="panel muted">Chưa có bài ôn cho mục này. Quản trị viên có thể nhập ngân hàng câu hỏi trong mục Quản trị.</div>`;
-    const subs = new Map(), act = canPlay ? "main" : "";
+     aria-label là tên đề đầy đủ). res: mọi kết quả của một học sinh (tab Bài ôn của con, "Bài ôn của <tên>" bố mẹ xem; Phiên UX9, X38):
+     đề cố định, bài ôn dạng trang đã làm (doneMap) thành nút viền có dấu ✓ (btn sm done, span.done-ic), aria-label thêm ", đã làm, lần
+     gần nhất đúng 76%"; đề ngẫu nhiên luôn là nút vàng (mỗi lần một đề khác). Dòng môn đã làm ít nhất một đề ghi "Đã làm 2/2 đề · 25 câu
+     mỗi đề"; dòng bài ôn dạng trang đã làm thêm " · đã ôn 3 lần". */
+  function practiceList(mods, bks, canPlay, full, res) {
+    if (!mods.length && !bks.length) return `<div class="panel muted">Chưa có bài ôn cho mục này. ${esc(noBanks().t)}</div>`; // chi tiết kì thi chưa gắn bài ôn
+    const subs = new Map(), act = canPlay ? "main" : "", dn = doneMap(res);
+    const ck = `<span class="done-ic" aria-hidden="true">✓</span>`;
+    const doneAria = (x) => { const l = dn.last[itemKey(x)]; return ", đã làm" + (l && l.t ? `, lần gần nhất đúng ${pct(l.r, l.t)}%` : ""); };
     bks.forEach((b) => { const k = b.subject || "Khác"; subs.set(k, (subs.get(k) || []).concat(b)); });
-    return `<div class="list">${mods.map((m) => `<div class="item"><span class="grow"><b>${esc(m.title)}</b><span class="small muted">${esc(m.desc)}</span></span><a class="btn ${act} sm" href="#/play/${esc(m.id)}">${canPlay ? "Vào ôn" : "Xem thử"}</a></div>`).join("")}
+    return `<div class="list">${mods.map((m) => { const n = dn.n[itemKey(m)] || 0, go = canPlay ? "Vào ôn" : "Xem thử";
+      return `<div class="item"><span class="grow"><b>${esc(m.title)}</b><span class="small muted">${esc(m.desc)}${n ? ` · đã ôn ${n} lần` : ""}</span></span>${n
+        ? `<a class="btn sm done" href="#/play/${esc(m.id)}" aria-label="${go}${doneAria(m)}">${ck}${go}</a>` : `<a class="btn ${act} sm" href="#/play/${esc(m.id)}">${go}</a>`}</div>`; }).join("")}
       ${[...subs].map(([sub, all]) => {
         const byTitle = (a, b) => a.title.localeCompare(b.title, "vi", { numeric: true });
         const pools = all.filter((b) => b.pool).sort(byTitle), fixed = all.filter((b) => !b.pool).sort(byTitle), list = pools.concat(fixed);
-        const nq = fixed.length ? qCount(fixed[0]) : 0, same = fixed.every((b) => qCount(b) === nq);
+        const nq = fixed.length ? qCount(fixed[0]) : 0, same = fixed.every((b) => qCount(b) === nq), nDone = fixed.filter((b) => dn.n[itemKey(b)]).length;
         const np = pools.length ? qCount(pools[0]) : 0, sameP = pools.every((b) => qCount(b) === np);
-        const info = [fixed.length ? `${fixed.length} đề${same ? ` · ${nq} câu${fixed.length > 1 ? " mỗi đề" : ""}` : ""}` : "",
+        const each = same ? ` · ${nq} câu${fixed.length > 1 ? " mỗi đề" : ""}` : "";
+        const info = nDone ? `Đã làm ${nDone}/${fixed.length} đề${each}` : [fixed.length ? `${fixed.length} đề${each}` : "",
           pools.length ? `${pools.length > 1 ? pools.length + " " : ""}đề ngẫu nhiên${sameP ? ` ${np} câu` : ""}` : ""].filter(Boolean).join(" · ");
         return `<div class="item subj"><span class="grow"><b>${esc(sub)}</b><span class="small muted">${info}</span></span>
-          <span class="des">${bankLabels(list, full).map((lb, i) => { const b = list[i]; return `<a class="btn ${act} sm${b.pool ? " rnd" : ""}" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(b.title.includes(lb) ? b.title : lb + " · " + b.title)}">${esc(lb)}</a>`; }).join("")}</span></div>`;
+          <span class="des">${bankLabels(list, full).map((lb, i) => { const b = list[i], done = !b.pool && dn.n[itemKey(b)];
+            return `<a class="btn ${done ? "done" : act} sm${b.pool ? " rnd" : ""}" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(b.title.includes(lb) ? b.title : lb + " · " + b.title)}${done ? doneAria(b) : ""}">${done ? ck : ""}${esc(lb)}</a>`; }).join("")}</span></div>`;
       }).join("")}</div>`;
   }
   /* "Tất cả bài ôn" của một khối, gom theo kì thi chưa qua: kì gần nhất mở sẵn, các kì sau thu gọn.
      Bài không thuộc kì nào trong số đó (kì đã qua, ngân hàng chưa gắn) nằm ở nhóm cuối "Bài ôn khác", nên không sót bài nào;
-     nút đề ở nhóm này luôn ghi kèm tên kì ("Giữa kì I · Đề 1", L24). */
-  function practiceGroups(grade, canPlay) {
+     nút đề ở nhóm này luôn ghi kèm tên kì ("Giữa kì I · Đề 1", L24). res: mọi kết quả của học sinh (dấu ✓, tiến độ của nhóm kì thi, X38). */
+  function practiceGroups(grade, canPlay, res) {
     const seen = new Set(), key = (x) => (x.path ? "m:" : "b:") + x.id;
     const groups = Store.events(grade).filter((e) => e.kind !== "moc" && status(e) !== "past").map((e) => Object.assign({ e }, practiceFor(e, grade)))
       .filter((g) => g.mods.length + g.bks.length);
     groups.forEach((g) => g.mods.concat(g.bks).forEach((x) => seen.add(key(x))));
     const rest = { mods: MODULES.filter((m) => m.grade === +grade && !seen.has(key(m))), bks: Store.banks(grade).filter((b) => !seen.has(key(b))) };
     if (rest.mods.length + rest.bks.length) groups.push(rest);
-    if (!groups.length) return practiceList([], [], canPlay);
+    if (!groups.length) return noBanksBox("noBanks", grade);
     return groups.map((g, i) => `<details class="grp"${g.e ? ` data-grp="${esc(g.e.id)}"` : ""}${i ? "" : " open"}>
-      <summary><span class="grow"><b>${g.e ? nb(esc(g.e.title)) : "Bài ôn khác"}</b><span class="small muted">${nb((g.e ? esc(range(g.e)) + " · " : "") + practiceCount(g) + " bài ôn")}</span></span></summary>
-      ${practiceList(g.mods, g.bks, canPlay, !g.e)}</details>`).join("");
+      <summary><span class="grow"><b>${g.e ? nb(esc(g.e.title)) : "Bài ôn khác"}</b><span class="small muted">${nb((g.e ? esc(range(g.e)) + " · " : "") + practiceCount(g) + " bài ôn")}</span>${g.e && res ? progBox(progressOf(g.e, { grade }, res)) : ""}</span></summary>
+      ${practiceList(g.mods, g.bks, canPlay, !g.e, res)}</details>`).join("");
   }
 
   /* Ba ô số liệu của một học sinh (tab Kết quả; hồ sơ của con ở khu phụ huynh). */
@@ -797,7 +836,7 @@
   function renderChildPractice(s, viewer) {
     view.innerHTML = `<div class="stack">${back("#/child/" + esc(s.id), "Báo cáo của " + s.name)}
       <div><h2>Bài ôn lớp ${s.grade} của ${esc(s.name)}</h2><span class="muted">Gom theo kì thi. ${viewer.role === "student" ? "" : "Bạn xem thử được mọi bài, điểm không được lưu."}</span></div>
-      <section class="sec" id="allPractice">${practiceGroups(s.grade, false)}</section></div>`;
+      <section class="sec" id="allPractice">${practiceGroups(s.grade, false, Store.resultsFor(s.id))}</section></div>`;
     wireGo();
   }
 
@@ -809,24 +848,28 @@
      1. Bài chính: kì thi gần nhất (chưa qua) có bài ôn của khối; không có kì nào thì lấy mọi bài ôn của khối. Trong đó: bài chưa làm
         (bài ôn dạng trang trước, rồi đề cố định theo tên), rồi bài có tỉ lệ đúng thấp nhất (dưới 90%), rồi đề ngẫu nhiên, rồi bài đầu.
      2. Bài phụ: một đề của môn chưa làm trong 7 ngày (môn theo thứ tự môn thi của kì); không có thì đề có nhiều câu sai nhất ở chủ đề
-        hay sai 30 ngày qua. Không trùng bài chính. */
+        hay sai 30 ngày qua. Không trùng bài chính.
+     results: mọi kết quả của con (bài có kết quả tự chấm cũng là bài đã làm, như progressOf; tỉ lệ đúng chỉ tính kết quả chấm tự động).
+     prog: tiến độ của kì đó (progressOf, link #toBanks ở thẻ Hôm nay, Phiên UX9). */
+  // kì thi gần nhất (chưa qua) có bài ôn của khối: bài chính của Hôm nay, link #toBanks, mục tiêu "Hết đề" của huy hiệu (X39)
+  const practiceEvent = (s) => Store.events(s.grade).filter((e) => e.kind !== "moc" && status(e) !== "past").find((e) => { const p = practiceFor(e, s.grade); return p.mods.length + p.bks.length; }) || null;
   function todayPicks(s, results) {
     const did = (x) => results.filter((r) => r.refId === x.id);
-    const pctOf = (x) => { const [r, t] = sumRT(did(x)); return t ? pct(r, t) : null; };
+    const pctOf = (x) => { const [r, t] = sumRT(graded(did(x))); return t ? pct(r, t) : null; };
     const byTitle = (a, b) => a.title.localeCompare(b.title, "vi", { numeric: true });
-    const item = (x, why) => ({ id: x.id, href: (x.path ? "#/play/" : "#/quiz/") + x.id, title: x.title, why, n: x.path ? 0 : qCount(x), subject: x.subject || "" });
-    const withPr = (e) => { const p = practiceFor(e, s.grade); return p.mods.length + p.bks.length ? p : null; };
-    const ev = Store.events(s.grade).filter((e) => e.kind !== "moc" && status(e) !== "past").find(withPr) || null;
+    // tip: ghi chú ngắn của bài chính ở thẻ "Hôm nay đã ôn" ("Gợi ý nếu làm thêm: … (bạn chưa làm).", X40)
+    const item = (x, why, tip) => ({ id: x.id, href: (x.path ? "#/play/" : "#/quiz/") + x.id, title: x.title, why, tip: tip || "", n: x.path ? 0 : qCount(x), subject: x.subject || "" });
+    const ev = practiceEvent(s);
     const { mods, bks } = ev ? practiceFor(ev, s.grade) : { mods: MODULES.filter((m) => m.grade === +s.grade), bks: Store.banks(s.grade) };
     const sorted = bks.slice().sort(byTitle), fixed = sorted.filter((b) => !b.pool), pools = sorted.filter((b) => b.pool), main = mods.concat(fixed);
     const evTxt = ev ? `${ev.title} ${status(ev) === "now" ? "đang diễn ra" : "còn " + daysTo(ev) + " ngày"}. ` : "";
     const picks = [];
     const undone = main.find((x) => !did(x).length);
-    if (undone) picks.push(item(undone, evTxt + "Bài này bạn chưa làm. Làm khoảng 20 phút, xem đáp án sau mỗi câu."));
+    if (undone) picks.push(item(undone, evTxt + "Bài này bạn chưa làm. Làm khoảng 20 phút, xem đáp án sau mỗi câu.", "bạn chưa làm"));
     else if (main.length || pools.length) {
       const low = main.map((x) => [x, pctOf(x)]).filter(([, p]) => p != null).sort((a, b) => a[1] - b[1])[0];
-      if (low && low[1] < 90) picks.push(item(low[0], `${evTxt}Lần trước bạn đúng ${low[1]}%. Làm lại để lên điểm nhé.`));
-      else if (pools.length) picks.push(item(pools[0], evTxt + "Mỗi lần một đề khác, ưu tiên câu bạn chưa làm hoặc hay sai."));
+      if (low && low[1] < 90) picks.push(item(low[0], `${evTxt}Lần trước bạn đúng ${low[1]}%. Làm lại để lên điểm nhé.`, `lần trước đúng ${low[1]}%`));
+      else if (pools.length) picks.push(item(pools[0], evTxt + "Mỗi lần một đề khác, ưu tiên câu bạn chưa làm hoặc hay sai.", "mỗi lần một đề khác"));
       else picks.push(item(main[0], evTxt + "Bạn đã làm tốt cả kì này. Làm lại một đề để nhớ lâu hơn."));
     }
     // bài phụ: môn chưa làm trong 7 ngày
@@ -845,18 +888,18 @@
         if (id) picks.push(item(Store.bank(id), `Ôn lại chủ đề “${weak[0]}” · ${cnt[id]} câu sai gần đây`));
       }
     }
-    return { ev, picks, count: ev ? practiceCount({ mods, bks }) : 0 };
+    return { ev, picks, count: ev ? practiceCount({ mods, bks }) : 0, prog: ev ? progressOf(ev, s, results) : null };
   }
   /* Huy hiệu (phần thưởng nhẹ, không có bảng xếp hạng): chuỗi 3, 7, 14 ngày ôn (chuỗi dài nhất từ trước đến nay, tính từ kết quả
      đã lưu, nên không mất khi chuỗi đứt) và "Hết đề" của một kì thi (mọi bài ôn dạng trang và đề cố định của kì đó, của khối học
-     sinh, đã làm ít nhất một lần). Huy hiệu chưa ghi ở localStorage ontap_badges_v1 (theo mã học sinh) thì hiện dòng chúc mừng một lần. */
+     sinh, đã làm ít nhất một lần: progressOf). Huy hiệu chưa ghi ở localStorage ontap_badges_v1 (theo mã học sinh) thì hiện dòng chúc
+     mừng một lần. all: mọi kết quả của con (chuỗi ngày chỉ tính kết quả chấm tự động, như thẻ chuỗi ngày ôn). */
   const STREAKS = [3, 7, 14];
-  function badges(s, results) {
-    const best = bestStreak(results);
-    const out = STREAKS.map((n) => ({ id: "streak" + n, name: `Chuỗi ${n} ngày`, icon: n >= 14 ? "🏆" : "🏅", got: best >= n }));
+  function badges(s, all) {
+    const best = bestStreak(graded(all));
+    const out = STREAKS.map((n) => ({ id: "streak" + n, name: `Chuỗi ${n} ngày`, icon: n >= 14 ? "🏆" : "🏅", got: best >= n, n }));
     Store.events(s.grade).filter((e) => e.kind !== "moc").forEach((e) => {
-      const { mods, bks } = practiceFor(e, s.grade), items = mods.concat(bks.filter((b) => !b.pool));
-      if (items.length && items.every((x) => results.some((r) => r.refId === x.id))) out.push({ id: "exam:" + e.id, name: `Hết đề · ${e.title}`, icon: "🎯", got: true });
+      if (allDone(progressOf(e, s, all))) out.push({ id: "exam:" + e.id, name: `Hết đề · ${e.title}`, icon: "🎯", got: true });
     });
     return out;
   }
@@ -879,25 +922,49 @@
       <div class="week" role="list" aria-label="Các ngày trong tuần">${wk.map((d) => `<span class="wd${d.on ? " on" : ""}${d.today ? " now" : ""}${d.future ? " later" : ""}" role="listitem" aria-label="${d.name}: ${d.on ? "có ôn" : d.future ? "chưa tới" : "chưa ôn"}">${d.name}</span>`).join("")}</div>
       <p class="small" id="goalTxt">${goalTxt}</p></section>`;
   }
-  function badgePanel(s, results) {
-    const list = badges(s, results), cur = streak(results), today = weekRow(results).some((d) => d.today && d.on);
+  /* Thẻ Huy hiệu (Phiên UX9, X39): tối đa hai mục tiêu kế tiếp (.bdg-list, mỗi mục .bdg: biểu tượng, tên, số, thanh 6px):
+     1. "Hết đề · <kì thi gần nhất có bài ôn>" · "3/5 bài" (progressOf, cùng số với tab Bài ôn), khi kì đó chưa làm hết;
+     2. huy hiệu chuỗi đầu tiên chưa có · "2/3 ngày" (chuỗi hiện tại trên số ngày của huy hiệu).
+     Huy hiệu đã có ở hàng "Đã có:" (.bdg-got, span.badge.on); #badgeHint ghi cách đạt cả hai mục tiêu. */
+  function badgePanel(s, all) {
+    const results = graded(all), list = badges(s, all), cur = streak(results), today = weekRow(results).some((d) => d.today && d.on);
     const got = list.filter((b) => b.got), seen = Badges.seen(s.id), fresh = got.filter((b) => !seen.has(b.id));
     Badges.mark(s.id, got.map((b) => b.id));
-    const nextS = STREAKS.find((n) => n > cur), left = nextS ? nextS - cur : 0;
-    const hint = !nextS ? "" : left === 1 ? `Ôn ${today ? "thêm ngày mai" : "hôm nay"} là có huy hiệu “Chuỗi ${nextS} ngày”.` : `Ôn ${left} ngày liền nữa là có huy hiệu “Chuỗi ${nextS} ngày”.`;
+    const goals = [], hints = [], ev = practiceEvent(s), pr = ev ? progressOf(ev, s, all) : null;
+    if (pr && pr.total && !allDone(pr)) {
+      goals.push({ icon: "🎯", name: `Hết đề · ${ev.title}`, n: `${pr.done}/${pr.total} bài`, bar: progBar(pr.done, pr.total, `Đã làm ${pr.done} trên ${pr.total} bài`) });
+      hints.push(`Làm thêm ${pr.total - pr.done} bài của kì này là có “Hết đề”.`);
+    }
+    const nx = list.find((b) => b.n && !b.got);
+    if (nx) {
+      const left = nx.n - cur;
+      goals.push({ icon: nx.icon, name: nx.name, n: `${cur}/${nx.n} ngày`, bar: progBar(cur, nx.n, `Đã ôn ${cur} trên ${nx.n} ngày liền`) });
+      hints.unshift(left === 1 ? `Ôn ${today ? "thêm ngày mai" : "hôm nay"} là có “${nx.name}”.` : `Ôn ${left} ngày liền nữa là có “${nx.name}”.`);
+    }
     return `<section class="panel" id="badges"><div class="label">Huy hiệu</div>
       ${fresh.length ? `<div class="fb ok" id="newBadge">🎉 Bạn vừa nhận huy hiệu ${fresh.map((b) => `“${esc(b.name)}”`).join(", ")}!</div>` : ""}
-      <div class="tags">${list.map((b) => `<span class="badge${b.got ? " on" : ""}" aria-label="${esc(b.name)}: ${b.got ? "đã đạt" : "chưa đạt"}"><span aria-hidden="true">${b.icon}</span> ${nb(esc(b.name))}</span>`).join("")}</div>
-      ${hint ? `<p class="small muted" id="badgeHint">${hint}</p>` : ""}</section>`;
+      ${goals.length ? `<div class="bdg-list">${goals.map((g) => `<div class="bdg"><span class="bdg-ic" aria-hidden="true">${g.icon}</span><span class="grow"><span class="bdg-top"><b>${nb(esc(g.name))}</b><span class="bdg-n">${g.n}</span></span>${g.bar}</span></div>`).join("")}</div>` : ""}
+      ${got.length ? `<div class="bdg-got"><span class="small muted">Đã có:</span>${got.map((b) => `<span class="badge on" aria-label="${esc(b.name)}: đã đạt"><span aria-hidden="true">${b.icon}</span> ${nb(esc(b.name))}</span>`).join("")}</div>` : ""}
+      ${hints.length ? `<p class="small muted" id="badgeHint">${hints.join(" ")}</p>` : ""}</section>`;
   }
+  /* Hôm nay con đã có kết quả (từ 0:00, cả kết quả tự chấm; Phiên UX9, X40) thì thẻ đầu trang là "Bạn đã ôn rồi. Giỏi lắm!" (#today.done:
+     nền ok-soft, hải cẩu tung bóng 64px): số bài, số phút (như báo cáo tuần, MAX_SECS), số câu đúng hôm nay; gợi ý bài chính nếu làm thêm,
+     nút viền "Làm thêm một bài" (#todayGo). Khối chưa có đề thì thẻ đầu là trang rỗng (noBanksBox). */
   function renderToday(s) {
     const all = Store.resultsFor(s.id), results = graded(all), t = today0();
-    const { ev, picks, count } = todayPicks(s, results), main = picks[0], more = picks[1], next = nextEvent(s.grade);
-    const card = main ? `<section class="hero today" id="today"><span class="label">Hôm nay ôn gì?</span>
+    const { ev, picks, count, prog } = todayPicks(s, all), main = picks[0], more = picks[1], next = nextEvent(s.grade);
+    const toBanks = ev ? `<a class="linkbtn" id="toBanks" href="#/practice?ki=${encodeURIComponent(ev.id)}">${nb(prog.done ? `Bài ôn cho kì này · đã làm ${prog.done}/${prog.total}` : `Tất cả bài ôn cho kì này · ${count} bài ôn`)} →</a>` : "";
+    const todayAll = all.filter((r) => new Date(r.at) >= t), todayG = graded(todayAll), st = weekStats(todayG.length ? todayG : todayAll);
+    const score = todayG.length && st.t ? (todayG.some(scoredRes) ? ` · đúng ${pct(st.r, st.t)}%` : ` · đúng ${nf(st.r)}/${nf(st.t)} câu`) : "";
+    const card = !main ? noBanksBox("today", s.grade)
+      : todayAll.length ? `<section class="hero today done" id="today">
+        <div class="done-head"><img src="icons/avatars/hai-cau-bong.svg" alt="" width="64" height="64"><div class="stack tight"><span class="label">Hôm nay</span><h1>Bạn đã ôn rồi. Giỏi lắm!</h1></div></div>
+        <p id="todayDone">Hôm nay: ${st.n} bài${st.mins ? ` · ${st.mins} phút` : ""}${score}. Nghỉ một chút, hoặc làm thêm một bài nếu muốn.</p>
+        <p class="small done-tip">${nb(`Gợi ý nếu làm thêm: ${esc(main.title)}${main.tip ? ` (${main.tip})` : ""}.`)}</p>
+        <a class="btn ghost" id="todayGo" href="${main.href}">Làm thêm một bài</a>${toBanks}</section>`
+      : `<section class="hero today" id="today"><span class="label">Hôm nay ôn gì?</span>
         <h1>${nb(esc(main.title))}</h1><p>${esc(main.why)}</p>
-        <a class="btn main lg" id="todayGo" href="${main.href}">Bắt đầu</a>
-        ${ev ? `<a class="linkbtn" id="toBanks" href="#/practice?ki=${encodeURIComponent(ev.id)}">${nb(`Tất cả bài ôn cho kì này · ${count} bài ôn`)} →</a>` : ""}</section>`
-      : `<section class="hero today" id="today"><span class="label">Hôm nay ôn gì?</span><h1>Chưa có bài ôn cho lớp ${s.grade}</h1><p>Quản trị viên có thể nhập thêm đề trong mục Quản trị.</p></section>`;
+        <a class="btn main lg" id="todayGo" href="${main.href}">Bắt đầu</a>${toBanks}</section>`;
     view.innerHTML = `<div class="stack">
       <div><h2>Chào ${esc(s.name)}! ${avIn(s.avatar)}</h2><span class="muted">${WDL[t.getDay()]} ${dm(isoDay(t))} · ${esc(gradeTxt(s))}</span></div>
       ${unsentBar(s.id)}
@@ -905,24 +972,31 @@
       ${card}
       ${more ? `<div class="panel pick" id="todayMore"><span class="pick-ic" aria-hidden="true">📖</span><span class="grow"><b>${nb(esc(more.title))}</b><span class="small muted">${nb(esc(more.why))}</span></span><a class="btn sm" href="${more.href}" aria-label="Làm ${esc(more.title)}">Làm</a></div>` : ""}
       ${streakPanel(results)}
-      ${badgePanel(s, results)}
+      ${badgePanel(s, all)}
       <section class="sec" id="recent"><div class="row between"><h2>Kết quả gần đây</h2><a class="linkbtn" href="#/results">Xem tất cả →</a></div>${resultsList(all.slice(0, 3))}</section>
-      ${next ? `<section class="sec" id="nextEvent"><h2>Kì thi tiếp theo</h2><div class="timeline">${eventRow(next, { grade: s.grade, student: s, results })}</div></section>` : ""}
+      ${next ? `<section class="sec" id="nextEvent"><h2>Kì thi tiếp theo</h2><div class="timeline">${eventRow(next, { grade: s.grade, student: s, results: all })}</div></section>` : ""}
     </div>`;
     wireEvents(view, s.grade, s); wireGo(); wireUnsent(s.id);
   }
   /* Tab Bài ôn: mọi bài ôn của khối, gom theo kì thi (practiceGroups). ?ki=<mã kì thi>: mở sẵn và cuộn tới nhóm đó. */
   function renderPractice(s, query) {
     view.innerHTML = `<div class="stack"><div><h2>Bài ôn lớp ${s.grade}</h2><span class="muted">Gom theo kì thi. Bấm tên kì để mở hoặc thu gọn.</span></div>
-      <section class="sec" id="allPractice">${practiceGroups(s.grade, true)}</section></div>`;
+      <section class="sec" id="allPractice">${practiceGroups(s.grade, true, Store.resultsFor(s.id))}</section></div>`;
     wireGo();
     const g = query && query.ki ? $(`#allPractice [data-grp="${CSS.escape(query.ki)}"]`) : null;
     if (g) { g.open = true; g.scrollIntoView({ behavior: "smooth", block: "start" }); }
   }
-  /* Tab Kết quả: ba ô số liệu, theo môn, chủ đề hay sai, 30 bài gần nhất. */
+  /* Tab Kết quả: ba ô số liệu, theo môn, chủ đề hay sai, 30 bài gần nhất. Chưa có bài nào thì chỉ có trang rỗng (X40) với nút
+     "Làm bài đầu tiên" tới bài chính của Hôm nay (khối chưa có đề thì không có nút). */
   function renderResults(s) {
     const all = Store.resultsFor(s.id), results = graded(all);
-    view.innerHTML = `<div class="stack"><div><h2>Kết quả của bạn</h2><span class="muted">${all.length ? `${all.length} bài đã làm` : "Chưa có bài nào"}</span></div>
+    if (!all.length) {
+      const main = todayPicks(s, all).picks[0];
+      view.innerHTML = `<div class="stack"><div><h2>Kết quả của bạn</h2></div>
+        ${emptyBox("noResults", "hai-cau-kinh", "Chưa có bài nào", "Làm bài đầu tiên nhé. Điểm, môn và chủ đề hay sai sẽ hiện ở đây.", main ? `<a class="btn main" id="firstGo" href="${main.href}">Làm bài đầu tiên</a>` : "")}</div>`;
+      return;
+    }
+    view.innerHTML = `<div class="stack"><div><h2>Kết quả của bạn</h2><span class="muted">${all.length} bài đã làm</span></div>
       ${statsRow(results)}
       ${subjectPanel(results)}
       ${weakPanel(results)}
@@ -1064,7 +1138,7 @@
         : `<div class="panel muted">Chưa có bài làm nào trong 7 ngày qua.</div>`}
       ${selfWeek.length ? `<section class="panel" id="rpSelf"><div class="label">Tự luận tự chấm</div>
         <p class="small muted">Điểm tự chấm theo thang gợi ý của đề, không tính vào điểm trung bình ở trên.</p>${resultsList(selfWeek)}</section>` : ""}
-      <section class="sec" id="rpEvents"><div class="row between"><h2>Kì thi sắp tới</h2><a class="linkbtn noprint" id="rpCal" href="${calHref(viewer)}?g=${s.grade}">Xem cả năm →</a></div>${evs.length ? `<div class="timeline">${evs.map((e) => eventRow(e, { grade: s.grade, student: s, results: all })).join("")}</div>` : `<div class="panel muted">Không còn kì thi nào có lịch trong năm học.</div>`}</section>
+      <section class="sec" id="rpEvents"><div class="row between"><h2>Kì thi sắp tới</h2><a class="linkbtn noprint" id="rpCal" href="${calHref(viewer)}?g=${s.grade}">Xem cả năm →</a></div>${evs.length ? `<div class="timeline">${evs.map((e) => eventRow(e, { grade: s.grade, student: s, results: mine })).join("")}</div>` : `<div class="panel muted">Không còn kì thi nào có lịch trong năm học.</div>`}</section>
       <section class="panel" id="rpTips"><h2>Gợi ý ôn tuần sau</h2><ol class="tips">${tips.map((x) => `<li>${esc(x.t)}</li>`).join("")}</ol>
         <a class="linkbtn noprint" id="rpPractice" href="#/child/${esc(s.id)}/practice">Bài ôn của ${esc(s.name)} →</a></section>
       ${st.n ? `<section class="sec"><h2>Bài đã làm trong tuần</h2>${resultsList(week)}</section>` : ""}
@@ -1159,7 +1233,7 @@
       ${e.subjects && e.subjects.length ? `<p>Môn: ${esc(e.subjects.join(", "))}</p>` : ""}
       ${e.scope ? `<p class="small">Phạm vi: ${esc(e.scope)}</p>` : ""}
       ${e.note ? `<p class="small muted">${esc(e.note)}</p>` : ""}
-      ${e.kind !== "moc" ? `<div class="label">Bài ôn cho kì này</div>${practiceList(mods, bks, canPlay)}` : ""}
+      ${e.kind !== "moc" ? `<div class="label">Bài ôn cho kì này</div>${practiceList(mods, bks, canPlay, false, student ? Store.resultsFor(student.id) : null)}` : ""}
       ${u.role === "admin" ? `<div class="row"><a class="btn sm" href="#/admin/event/${esc(e.id)}">Sửa kì thi</a></div>` : ""}`;
     const old = $("#evDetail"); if (old) old.remove();
     let anchor = $(`[data-ev="${CSS.escape(id)}"]`);
@@ -1190,7 +1264,7 @@
     // Tab "Mọi khối": chỉ kì thi của các khối đang hiện (gl), không có kì thi của khối chưa bật.
     const evs = (calGrade ? Store.events(calGrade) : shownEvents(Store.events(), gl)).filter((e) => !fixed || (e.kind !== "moc" && status(e) !== "past"));
     const { months, undated } = byMonth(evs);
-    const student = u.role === "student" ? u : null, results = student ? graded(Store.resultsFor(u.id)) : [];
+    const student = u.role === "student" ? u : null, results = student ? Store.resultsFor(u.id) : []; // mọi kết quả, cả tự chấm (progressOf)
     const year = esc(Store.settings().schoolYear || "2026–2027");
     view.innerHTML = `<div class="stack">
       ${fixed ? "" : `<div class="row between">${back("#/home", "Trang chính")}${u.role === "admin" ? `<a class="btn sm" href="#/admin/event/new">+ Thêm kì thi</a>` : ""}</div>`}
@@ -1200,7 +1274,7 @@
       <div class="timeline">
         ${monthsHTML(months, (e) => eventRow(e, { grade: calGrade || null, student, results }))}
         ${undated.length ? `<div class="month">Chưa có lịch</div>${undated.map((e) => eventRow(e, { grade: calGrade || null })).join("")}` : ""}
-        ${fixed && !evs.length ? `<div class="panel muted">Không còn kì thi nào trong năm học.</div>` : ""}
+        ${fixed && !evs.length ? emptyBox("noEvents", "hai-cau-mu", "Không còn kì thi nào", "Năm học này đã hết các kì thi. Bạn vẫn ôn lại được ở tab Bài ôn.") : ""}
       </div></div>`;
     $$("[data-g]").forEach((b) => (b.onclick = () => { calGrade = +b.dataset.g; renderCalendar(u); }));
     wireEvents(view, calGrade || null, student); wireGo();
