@@ -185,7 +185,7 @@
 | #208 | Phiên N9-ck1-lsdl-gdcd: ngân hàng Lịch sử và Địa lí 9, GDCD 9 cuối kì I, mỗi môn 50 câu; tests/lsdl-gdcd9-ck1.js |
 | #209 | Phiên N9-gk2-toan: ngân hàng Toán 9 giữa kì II, 100 câu; tests/toan9-gk2.js |
 | #210 | Phiên UX9 · Con biết mình đã ôn đến đâu (X38–X40) |
-| #211 | Phiên N9-gk2-van: ngân hàng Ngữ văn 9 giữa kì II, 75 câu; tests/van9-gk2.js |
+| #211 | Phiên N9-gk2-van: ngân hàng Ngữ văn 9 giữa kì II, 77 câu; tests/van9-gk2.js |
 
 </details>
 

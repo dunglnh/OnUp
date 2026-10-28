@@ -90,7 +90,7 @@ const THE = { 6: "Thơ sáu chữ", 7: "Thơ bảy chữ", 8: "Thơ tám chữ" 
 // khổ thơ viết trong một lựa chọn: các dòng ngăn bằng " / "
 const khoLuaChon = (o) => o.split(" / ").map((l) => l.trim());
 const CHECKS = [
-  { id: S.de1, has: "tiếng «chào» ở cuối dòng thứ hai", right: (q) => {
+  { id: S.de1, has: "tiếng «chào» hiệp vần với tiếng", right: (q) => {
     const k = khoTho(PSG["cho-som"])[1]; assert.equal(cuoi(k[1]), "chào"); assert.ok(hiepVan(cuoi(k[1]), cuoi(k[3])), "chào hiệp vần với tiếng cuối dòng thứ tư");
     return cuoi(k[3]);
   } },
@@ -109,7 +109,10 @@ const CHECKS = [
   } },
   { id: S.pool, has: "«Phố cũ vào thu» gieo vần theo cách nào", right: (q) => {
     const k = khoTho(PSG["pho-thu"]).map(kieuVan); assert.ok(k.every((x) => x === k[0]), "mọi khổ cùng một kiểu vần");
-    const dung = q.o.filter((o) => (k[0] === "lien" ? /^Vần chân, vần liền/ : /^Vần chân, vần cách/).test(o)); assert.equal(dung.length, 1); return dung[0];
+    const dung = q.o.filter((o) => (k[0] === "lien" ? /^Vần chân, vần liền/ : /^Vần chân, vần cách/).test(o)); assert.equal(dung.length, 1);
+    // lựa chọn «dòng một, hai, bốn cùng một vần» sai ở mọi khổ
+    assert.ok(q.o.some((o) => /dòng một, hai, bốn/.test(o)) && khoTho(PSG["pho-thu"]).every((kh) => { const c = kh.map(cuoi); return !(hiepVan(c[0], c[1]) && hiepVan(c[1], c[3])); }), "không khổ nào vần dòng một, hai, bốn");
+    return dung[0];
   } },
   { id: S.de2, has: "Nếu viết thêm một khổ thơ nữa cho bài thơ", right: (q) => {
     const [so, kieu] = THO["dem-mua"], dung = q.o.filter((o) => { const k = khoLuaChon(o); return k.length === 4 && k.every((l) => tieng(l).length === so) && kieuVan(k) === kieu; });
@@ -119,7 +122,7 @@ const CHECKS = [
   { id: S.de2, has: "Lời kể của ai có chỗ vô lí", right: (q) => {
     const t = PSG["ao-ca"].text, m = /Tờ lịch hôm nay ghi: mùng (\d+) tháng/.exec(t); assert.ok(m, "truyện ghi ngày âm lịch hôm nay");
     assert.equal(+m[1] - 1, 1, "đêm qua là đêm mùng một: không có trăng"); assert.ok(/Trăng sáng như ban ngày/.test(t) && /Tối như mực/.test(t));
-    assert.ok(/mùng một/.test(q.o[0]) && /^Hoà/.test(q.o[0])); return q.o[0];
+    assert.ok(/^Hoà/.test(q.o[0]) && /trăng sáng/.test(q.o[0])); return q.o[0];
   } }
 ];
 // đề bài (chữ thường) có chữ “lời kể của ai” viết hoa ở đầu câu
@@ -152,14 +155,16 @@ CHECKS.forEach((c) => {
 {
   const t = PSG["hieu-sach"].text, gio = (re) => { const m = re.exec(t); assert.ok(m, String(re)); return +m[1] * 60 + +m[2]; };
   const mua = gio(/(\d+) giờ (\d+), trời đổ mưa/), tu = gio(/trú mưa lúc (\d+) giờ (\d+)/), khai = gio(/đi bộ từ nhà tới, đến lúc (\d+) giờ (\d+)/);
+  const phat = gio(/vừa đến lấy hàng lúc (\d+) giờ (\d+)/);
   assert.ok(mua < tu && mua < khai && /ướt sũng/.test(t) && /khô ráo/.test(t), "ông Khải nói đến sau khi mưa mà giày khô: nói dối");
+  assert.ok(mua < phat && phat === khai && /áo mưa còn nhỏ nước/.test(t), "anh Phát đến cùng giờ ông Khải nói, áo mưa còn ướt: lúc ấy trời vẫn mưa");
   n++;
 }
 // bài thơ mẫu trong lời giải câu tập làm thơ tám chữ: mỗi dòng tám tiếng, mỗi khổ bốn dòng vần liền
 {
   const q = kho.find((x) => x.topic === "Viết" && /^Tập làm một bài thơ tám chữ/.test(x.q)); assert.ok(q, "có câu tập làm thơ tám chữ");
-  const tho = q.x.split("(người soạn viết):\n")[1].split("\n").filter(Boolean);
-  assert.equal(tho.length % 4, 0, "bài thơ mẫu chia khổ bốn dòng");
+  const kho4 = q.x.split("(người soạn viết):\n")[1].split("\n\n").map((k) => k.split("\n")), tho = kho4.flat();
+  assert.ok(/ít nhất hai khổ, mỗi khổ bốn dòng/.test(q.q) && kho4.length >= 2 && kho4.every((k) => k.length === 4), "bài thơ mẫu chia khổ bốn dòng như đề yêu cầu");
   tho.forEach((l) => assert.equal(tieng(l).length, 8, "bài thơ mẫu: «" + l + "» có tám tiếng"));
   for (let i = 0; i < tho.length; i += 4) assert.equal(kieuVan(tho.slice(i, i + 4)), "lien", "bài thơ mẫu: khổ " + (i / 4 + 1) + " vần liền");
   n++;
@@ -179,6 +184,8 @@ assert.equal(TOPICS[TOPICS.length - 1], "Viết", "chủ đề Viết đứng cu
 Object.entries(M).forEach(([t, v]) => [1, 2, 3].forEach((l) => {
   const o = dem(kho, t, l);
   assert.ok(v[l - 1] ? o >= 2 * v[l - 1] : o === 0, `ô (${t}, mức ${l}) rút ${v[l - 1]} câu, kho có ${o}`);
+  // câu riêng thêm vào mọi ô có rút (chú thích ở data/banks/index.js): đã làm hết hai đề cố định vẫn có câu mới ở ô đó
+  if (v[l - 1]) assert.ok(dem(rieng, t, l) >= 1, `ô (${t}, mức ${l}) chưa có câu riêng`);
 }));
 // hai chủ đề đọc hiểu (Bài 6, Bài 7): mỗi đề cố định và phần câu riêng có đúng hai đoạn mỗi chủ đề, đúng mức như lời giao việc
 const docHieu = TOPICS.filter((t) => t !== "Viết" && kho.some((q) => q.topic === t && q.p));
@@ -324,7 +331,7 @@ if (process.env.DO_LO) console.log("Đáp án có ở câu rút được cùng l
 // nhận ra tiếng hiệp vần); “bao” ở câu khác là «bao gạo», «bao nhiêu», «biết bao» trong lời trích bài thơ ấy, không nói gì về vần.
 // “vần chân vần”, “chân vần liền”: đề câu tập làm thơ tám chữ dặn «gieo vần chân (vần liền hoặc vần cách)», nêu cả hai cách gieo
 // vần, không cho biết bài «Phố cũ vào thu» gieo theo cách nào.
-const DA_XEM = ["ngau-nhien#23 → ngau-nhien#12: vần chân vần", "ngau-nhien#23 → ngau-nhien#12: chân vần liền", "ngau-nhien#5 → de1#8: bao",
+const DA_XEM = ["ngau-nhien#25 → ngau-nhien#12: vần chân vần", "ngau-nhien#25 → ngau-nhien#12: chân vần liền", "ngau-nhien#5 → de1#8: bao",
   "ngau-nhien#6 → de1#8: bao", "ngau-nhien#7 → de1#8: bao", "de1#9 → de1#8: bao", "de1#17 → de1#8: bao"];
 assert.deepEqual(lo, DA_XEM, "đáp án có ở câu rút được cùng lúc đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 // bộ dò bắt được chỗ lộ cố ý viết sai

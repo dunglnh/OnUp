@@ -764,7 +764,7 @@ window.ONTAP_SEED_BANKS = [
       "Câu rút gọn": [1, 0, 0], "Câu đặc biệt": [0, 1, 0], "Viết": [0, 0, 1] } } },
 
   /* Ngữ văn 9 · Kiểm tra giữa học kì II (Kết nối tri thức, Ngữ văn 9 tập hai, Bài 6–7; Phiên N9-gk2-van). Khối 9 chưa bật nên đề
-     chưa hiện với gia đình. Kho câu = 25 câu riêng trong file (4 đoạn đọc, 3 câu Viết) + 50 câu của 2 đề cố định (mỗi đề 4 đoạn
+     chưa hiện với gia đình. Kho câu = 27 câu riêng trong file (4 đoạn đọc, 3 câu Viết) + 50 câu của 2 đề cố định (mỗi đề 4 đoạn
      đọc, 1 câu Viết), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu, như kho Ngữ văn 6 giữa kì II: hai bài
      đọc (Bài 6, 7) mỗi bài 7 câu, rút theo đoạn (truyện trinh thám [2, 2, 3]: đoạn 4 câu mức 1-2-3-3 và đoạn 3 câu mức 1-2-3; thơ
      [3, 2, 2]: đoạn 3 câu mức 1-2-3 và đoạn 4 câu mức 1-1-2-3), nên lần nào cũng lấy hai đoạn mỗi bài, đúng mức; 10 câu Tiếng Việt
