@@ -72,8 +72,8 @@ a{color:var(--acc)}
 .hero p{opacity:.95}
 .count{font-weight:700;font-size:2.6rem;line-height:1}
 
-/* nút */
-.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:700;background:var(--acc-soft);color:var(--acc);text-decoration:none;display:inline-flex;align-items:center;gap:6px;justify-content:center}
+/* nút: mọi .btn có viền 1px (trong suốt, .btn.ghost tô màu line) để nút chính và nút viền đứng cạnh nhau cao bằng nhau (Phiên UX12, X45) */
+.btn{border:1px solid transparent;border-radius:12px;padding:12px 18px;font-weight:700;background:var(--acc-soft);color:var(--acc);text-decoration:none;display:inline-flex;align-items:center;gap:6px;justify-content:center}
 .btn.main{background:var(--sun);color:var(--sun-ink)}
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
 .btn.danger{background:var(--bad-soft);color:var(--bad)}
