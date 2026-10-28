@@ -247,7 +247,6 @@ Thứ tự các phiên:
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
 | 1 | 15/11/2026 | Lớp 9 (33 phiên, có 9 phiên đề thi thử vào 10); phiên rà soát lớp 9. Cuối kì I, giữa kì II (12 phiên N9-ck1-*, N9-gk2-*) đã vào hàng đợi (26/10/2026) | K5 (đã xong, PR #198; chỉ trước đề thi thử vào 10) | thứ tự khối, thứ tự kì trong mỗi khối và mốc kiểm tra: mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); các bước trước khi bật một khối: mục 7 (“Lớp 5, 7–12”) |
-| song song | UX14 20/12/2026 | **UX14 · Giao diện 3.x** (chủ app chọn 27/10/2026; vấn đề, cách làm, ảnh ở [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md)) | UX14 sau UX9 (PR #210), UX11 (PR #212) | phiên mở tay, chạy xen với phiên làm đề; không chạy cùng lúc hai phiên sửa `js/app.js` hay `js/quiz.js`; UX13 không làm; lời giao việc ở mục 4; phiên xong thì bỏ tên mình khỏi dòng này, phiên cuối xóa cả dòng |
 | 2 | 10/12/2026 | Lớp 12 (53 phiên, có 25 phiên đề thi thử tốt nghiệp), lớp 5 (16); mỗi khối một phiên rà soát | | cuối kì I của lớp 12 (thi từ 14/12/2026, xong trước 23/11) rồi của lớp 5 (thi từ 28/12, xong trước 7/12) làm trước các kì khác |
 | 3 | 31/12/2026 | Lớp 7, 8 (mỗi khối 24 phiên); mỗi khối một phiên rà soát | | |
 | 4 | 20/1/2027 (dự phòng đến 28/2/2027) | Lớp 10, 11 (mỗi khối 28 phiên); mỗi khối một phiên rà soát; sửa lỗi các phiên rà soát tìm ra | | xong là đủ đề lớp 4–12 và rà xong; phần dự phòng cho sửa lỗi, rà đề, nghỉ Tết |
