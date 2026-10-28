@@ -1184,7 +1184,8 @@
       ${nx ? `<span class="small">Sắp tới: ${esc(nx.title)} · ${esc(range(nx))}</span>` : ""}</span><span aria-hidden="true">›</span></button>`;
   }
   /* Thẻ của một con ở mục "Các con" (trang chủ phụ huynh bản lưu trên máy, tab Các con của khu phụ huynh; Phiên UX2):
-     ba ô (số bài hôm nay; điểm hôm nay, chưa làm hôm nay thì điểm trung bình tuần; chuỗi ngày ôn) và dòng kì thi gần nhất của khối con
+     ba ô (số bài hôm nay, chưa làm thì "0 bài" như ô của con khác, không đặt chữ vào chỗ của số: Phiên UX12, X44; điểm hôm nay, chưa
+     làm hôm nay thì điểm trung bình tuần; chuỗi ngày ôn) và dòng kì thi gần nhất của khối con
      ("còn N ngày") kèm môn chưa ôn trong 7 ngày (môn của bài ôn gắn với kì đó, như weekTips). Bấm cả thẻ thì mở báo cáo (#/child/<mã>). */
   const CAL_ICO = ICO('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>');
   function kidCard(c) {
@@ -1203,7 +1204,7 @@
     return `<a class="panel kid" href="#/child/${esc(c.id)}" data-child="${esc(c.id)}" aria-label="Báo cáo của ${esc(c.name)}">
       <span class="row between"><span class="row" style="gap:10px">${avatar(c)}<span class="stack tight"><b>${esc(c.name)}</b><span class="small muted">${esc(gradeTxt(c))}${esc(lockTag(c))}</span></span></span><span class="chev" aria-hidden="true">›</span></span>
       <span class="stats">
-        <span class="stat"><b>${todayL.length ? todayL.length + " bài" : "Chưa ôn"}</b><span>hôm nay</span></span>
+        <span class="stat"><b>${todayL.length} bài</b><span>hôm nay</span></span>
         <span class="stat"><b>${tT ? d10(rT, tT) : tW ? d10(rW, tW) : "–"}</b><span>${tT ? "điểm hôm nay" : "điểm TB tuần"}</span></span>
         <span class="stat"><b>${streak(res)}</b><span>chuỗi ngày</span></span>
       </span>${ev}</a>`;
