@@ -824,6 +824,21 @@ window.ONTAP_SEED_BANKS = [
       "Nucleic acid và gene": [0, 1, 0], "Tái bản DNA và phiên mã tạo RNA": [0, 0, 1],
       "Dịch mã và mối quan hệ từ gene đến tính trạng": [0, 1, 0], "Đột biến gene": [1, 0, 0] } } },
 
+  /* KHTN 9 · Kiểm tra giữa học kì II (Kết nối tri thức, Khoa học tự nhiên 9; Phiên N9-gk2-khtn). Khối 9 chưa bật nên đề chưa hiện
+     với gia đình. Phạm vi theo phân phối chương trình dạy song song ba phân môn, tiếp sau kho cuối kì I (nguồn ghi ở Pull Request của
+     phiên): Vật lí Bài 11–13 (Chương III Điện) 7 câu, Hoá học Bài 18–21 (Chương VI) 11 câu, Sinh học Bài 42–46 (Chương XII) 7 câu;
+     số câu mỗi phân môn theo số tiết của phạm vi. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức
+     độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 12 chủ đề theo tên bài của sách, ô nào cũng rút nhiều nhất 1 câu. Hai đề
+     cố định và 25 câu riêng đều chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp ba số câu ô đó rút. Không có câu tự luận. */
+  { id: "khtn9-gk2-de1", title: "KHTN 9 · Giữa kì II · Đề 1", grade: 9, subject: "KHTN", minutes: 45, n: 25, file: "9-khtn.js" },
+  { id: "khtn9-gk2-de2", title: "KHTN 9 · Giữa kì II · Đề 2", grade: 9, subject: "KHTN", minutes: 45, n: 25, file: "9-khtn.js" },
+  { id: "khtn9-gk2-ngau-nhien", title: "KHTN 9 · Giữa kì II · Đề ngẫu nhiên", grade: 9, subject: "KHTN", minutes: 45, n: 25, file: "9-khtn.js",
+    pool: { from: ["khtn9-gk2-de1", "khtn9-gk2-de2"], matrix: {
+      "Điện trở. Định luật Ohm": [1, 1, 1], "Đoạn mạch nối tiếp, song song": [0, 1, 1], "Năng lượng của dòng điện và công suất điện": [1, 0, 1],
+      "Tính chất chung của kim loại": [1, 1, 1], "Dãy hoạt động hoá học": [1, 1, 1], "Tách kim loại và việc sử dụng hợp kim": [1, 1, 1],
+      "Sự khác nhau cơ bản giữa phi kim và kim loại": [1, 1, 0], "Nhiễm sắc thể và bộ nhiễm sắc thể": [1, 1, 0], "Nguyên phân và giảm phân": [1, 0, 1],
+      "Nhiễm sắc thể giới tính và cơ chế xác định giới tính": [1, 0, 0], "Di truyền liên kết": [0, 1, 0], "Đột biến nhiễm sắc thể": [1, 0, 0] } } },
+
   /* Lịch sử và Địa lí 9 · Kiểm tra cuối học kì I (Kết nối tri thức, bản chỉnh sửa năm 2026; Lịch sử Bài 1–12, Địa lí Bài 1–13; Phiên
      N9-ck1-lsdl-gdcd). Khối 9 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (không có câu riêng), câu nào
      cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu, theo khung đề định kì (Công văn 7991): 12 câu Lịch sử (mỗi bài 1
