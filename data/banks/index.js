@@ -729,6 +729,23 @@ window.ONTAP_SEED_BANKS = [
       "Mở đầu về đường tròn": [1, 0, 0], "Cung và dây của một đường tròn": [0, 1, 0], "Độ dài cung tròn, diện tích hình quạt tròn": [0, 1, 1],
       "Vị trí tương đối của đường thẳng và đường tròn": [1, 0, 1], "Vị trí tương đối của hai đường tròn": [1, 0, 0] } } },
 
+  /* Toán 9 · Kiểm tra giữa học kì II (Kết nối tri thức, Toán 9 tập hai: Chương VI Hàm số y = ax² (a ≠ 0). Phương trình bậc hai một ẩn,
+     Bài 18–21; Chương IX Đường tròn ngoại tiếp và đường tròn nội tiếp, Bài 27–30; Phiên N9-gk2-toan). Phạm vi theo các đề giữa kì II
+     tra ngày 28/10/2026 (ma trận theo Công văn 7991 trên hoatieu.vn, hai đề trên 2048.vn: đều gồm Chương VI và Chương IX, không có
+     Chương VII); trường dạy Chương VII, VIII trước Chương IX thì xem đề cương của trường (note của đề có ghi). Khối 9 chưa bật
+     (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức
+     độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 8 chủ đề theo tên Bài 18–21, 27–30 của sách: đại số 14 câu, hình học 11
+     câu. Hai đề cố định chia đúng ma trận, câu riêng ở ô nào cũng gấp đôi số câu ô đó rút, nên ô (chủ đề, mức) nào cũng có gấp bốn
+     số câu ô đó rút và học sinh đã làm một đề cố định vẫn gặp câu mới. Ba câu tự luận chỉ ở ba ô Vận dụng rút 1 câu (Định lí Viète
+     và ứng dụng; Giải bài toán bằng cách lập phương trình; Tứ giác nội tiếp): mỗi lần rút nhiều nhất 3 câu tự luận. */
+  { id: "toan9-gk2-de1", title: "Toán 9 · Giữa kì II · Đề 1", grade: 9, subject: "Toán", minutes: 45, n: 25, file: "9-toan.js" },
+  { id: "toan9-gk2-de2", title: "Toán 9 · Giữa kì II · Đề 2", grade: 9, subject: "Toán", minutes: 45, n: 25, file: "9-toan.js" },
+  { id: "toan9-gk2-ngau-nhien", title: "Toán 9 · Giữa kì II · Đề ngẫu nhiên", grade: 9, subject: "Toán", minutes: 45, n: 25, file: "9-toan.js",
+    pool: { from: ["toan9-gk2-de1", "toan9-gk2-de2"], matrix: {
+      "Hàm số y = ax² (a ≠ 0)": [2, 1, 1], "Phương trình bậc hai một ẩn": [2, 1, 1], "Định lí Viète và ứng dụng": [2, 1, 1],
+      "Giải bài toán bằng cách lập phương trình": [0, 1, 1], "Góc nội tiếp": [1, 1, 1],
+      "Đường tròn ngoại tiếp và đường tròn nội tiếp của một tam giác": [1, 1, 1], "Tứ giác nội tiếp": [1, 1, 1], "Đa giác đều": [1, 1, 0] } } },
+
   /* Ngữ văn 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Ngữ văn 9 tập một, Bài 1–5; Phiên N9-ck1-van). Khối 9 chưa bật nên đề chưa
      hiện với gia đình. Kho câu = 25 câu riêng trong file (5 đoạn đọc, 3 câu Viết) + 50 câu của 2 đề cố định (mỗi đề 5 đoạn đọc, 1 câu
      Viết), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu: năm chủ đề đọc hiểu theo tên Bài 1–5, mỗi chủ đề
