@@ -763,6 +763,22 @@ window.ONTAP_SEED_BANKS = [
       "Chữ Nôm và chữ quốc ngữ": [1, 0, 0], "Cách dẫn trực tiếp và cách dẫn gián tiếp": [0, 0, 1], "Tham khảo, trích dẫn tài liệu": [1, 0, 0],
       "Câu rút gọn": [1, 0, 0], "Câu đặc biệt": [0, 1, 0], "Viết": [0, 0, 1] } } },
 
+  /* Ngữ văn 9 · Kiểm tra giữa học kì II (Kết nối tri thức, Ngữ văn 9 tập hai, Bài 6–7; Phiên N9-gk2-van). Khối 9 chưa bật nên đề
+     chưa hiện với gia đình. Kho câu = 27 câu riêng trong file (4 đoạn đọc, 3 câu Viết) + 50 câu của 2 đề cố định (mỗi đề 4 đoạn
+     đọc, 1 câu Viết), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu, như kho Ngữ văn 6 giữa kì II: hai bài
+     đọc (Bài 6, 7) mỗi bài 7 câu, rút theo đoạn (truyện trinh thám [2, 2, 3]: đoạn 4 câu mức 1-2-3-3 và đoạn 3 câu mức 1-2-3; thơ
+     [3, 2, 2]: đoạn 3 câu mức 1-2-3 và đoạn 4 câu mức 1-1-2-3), nên lần nào cũng lấy hai đoạn mỗi bài, đúng mức; 10 câu Tiếng Việt
+     theo năm mục Thực hành tiếng Việt của Bài 6–7 (Biết 5, Hiểu 4, Vận dụng 1); 1 câu Viết tự chấm. Hai đề cố định đúng ma trận,
+     câu riêng thêm vào mọi ô có rút, nên ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút. Câu tự luận chỉ ở ô Viết:
+     mỗi lần rút đúng 1 câu; câu Viết về bài thơ tám chữ đi cùng bài thơ ấy khi bài thơ được rút. */
+  { id: "van9-gk2-de1", title: "Ngữ văn 9 · Giữa kì II · Đề 1", grade: 9, subject: "Ngữ văn", minutes: 45, n: 25, file: "9-van.js" },
+  { id: "van9-gk2-de2", title: "Ngữ văn 9 · Giữa kì II · Đề 2", grade: 9, subject: "Ngữ văn", minutes: 45, n: 25, file: "9-van.js" },
+  { id: "van9-gk2-ngau-nhien", title: "Ngữ văn 9 · Giữa kì II · Đề ngẫu nhiên", grade: 9, subject: "Ngữ văn", minutes: 45, n: 25, file: "9-van.js",
+    pool: { from: ["van9-gk2-de1", "van9-gk2-de2"], matrix: {
+      "Giải mã những bí mật": [2, 2, 3], "Hồn thơ muôn điệu": [3, 2, 2], "Các kiểu câu ghép": [1, 1, 0],
+      "Phương tiện nối các vế câu ghép": [1, 0, 0], "Lựa chọn câu đơn hoặc câu ghép": [0, 1, 1], "Nghĩa của từ ngữ": [1, 1, 0], "Sự phát triển của từ vựng": [1, 1, 0],
+      "Biện pháp tu từ": [1, 0, 0], "Viết": [0, 0, 1] } } },
+
   /* Tiếng Anh 9 · Kiểm tra cuối học kì I (Global Success 9, Units 1–6, Review 1, 2; Phiên N9-ck1-ta). Khối 9 chưa bật nên đề chưa hiện
      với gia đình. Kho câu = 25 câu riêng trong file (1 đoạn đọc) + 50 câu của 2 đề cố định (mỗi đề 1 đoạn đọc), câu nào cũng có mức
      độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu: Pronunciation 2 (nguyên âm của Unit 1, 2, âm /h/ của Unit 3, /j/ của Unit 5),
