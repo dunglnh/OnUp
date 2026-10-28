@@ -414,6 +414,9 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .qz-part b{overflow-wrap:anywhere;min-width:0}
 .qz-part .qz-pv{flex:none;white-space:nowrap}
 .qz-part+.qz-part{border-top:1px solid var(--line);padding-top:10px}
+/* nút "Ôn 10 câu: <chủ đề>" ở chủ đề cần ôn thêm của màn kết quả (#qzTopics, Phiên UX14, X48): xuống dòng khi hẹp, chữ dài thì xuống dòng trong nút */
+.qz-go{display:flex;flex-wrap:wrap;gap:8px}
+.qz-go .btn{text-align:left;justify-content:flex-start;max-width:100%;overflow-wrap:anywhere}
 /* Câu cần xem lại thu gọn (UX1): dòng summary là câu hỏi và câu trả lời sai, bấm mới mở đáp án, lời giải, link báo câu sai. */
 .review{display:flex;flex-direction:column;gap:12px}
 .rv{border-left:4px solid var(--bad);padding:0 0 0 12px;display:block;overflow-wrap:anywhere;scroll-margin-top:96px} /* bảng câu (X42) cuộn tới câu: không nằm dưới thanh trên dính */
@@ -500,6 +503,10 @@ textarea.report-note{font:inherit;min-height:72px;background:var(--surface)}
 .pv-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:4px 8px}
 .pv-head .label{min-width:0;overflow-wrap:anywhere}
 .tag.bad{background:var(--bad-soft);color:var(--bad)}
+.tag.ok{background:var(--ok-soft);color:var(--ok)} /* "Đã ôn lại ✓" ở chủ đề hay sai (Phiên UX14, X48) */
+/* chủ đề hay sai ở tab Kết quả (#weakTopics, Phiên UX14, X48): tên đậm, "<môn> · N câu sai", nhãn "Đã ôn lại ✓", nút "Ôn 10 câu" bên phải */
+.topic-row .tag{align-self:flex-start;margin-top:2px}
+.topic-row .btn{flex:none}
 .pv-q{font-weight:600;overflow-wrap:anywhere}
 .pv-blank{display:inline-block;min-width:3em;border-bottom:3px solid var(--acc);background:var(--acc-soft);color:var(--acc);border-radius:6px 6px 0 0;padding:0 6px;text-align:center}
 .pv-opts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}

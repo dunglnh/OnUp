@@ -328,6 +328,36 @@
     list.forEach((x) => (x.wrongTopics || []).forEach((t) => (m[t] = (m[t] || 0) + 1)));
     return Object.entries(m).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "vi"));
   }
+  /* Đề "Ôn chủ đề" (Phiên UX14, X48; renderTopic): địa chỉ #/chu-de/<khối>/<mã môn>/<chủ đề>, mã đề (refId của kết quả)
+     "chu-de:<khối>:<mã môn>:<chủ đề>", cắt ở 80 kí tự như cột ref_id của bản đám mây, để hai kho giữ cùng một mã. Mã môn là phần
+     giữa tên file câu hỏi data/banks/<khối>-<mã môn>.js. */
+  const fileCode = (file) => String(file || "").replace(/^\d+-/, "").replace(/\.js$/, "");
+  const topicKey = (t) => String(t == null ? "" : t).normalize("NFC").replace(/\s+/g, " ").trim();
+  const topicRef = (g, code, t) => ("chu-de:" + +g + ":" + code + ":" + topicKey(t)).slice(0, 80);
+  const topicHref = (g, code, t) => `#/chu-de/${+g}/${code}/${encodeURIComponent(topicKey(t))}`;
+  // khối và mã môn của đề có sẵn mà một kết quả đến từ (đề cố định, đề ngẫu nhiên, đề "Ôn chủ đề"); đề tự soạn: null
+  const topicSrc = (r) => {
+    const m = /^chu-de:(\d+):([a-z]+):/.exec(r.refId || "");
+    if (m) return { g: +m[1], code: m[2] };
+    const b = r.source === "bank" ? Store.bank(r.refId) : null;
+    return b && b.seed ? { g: +b.grade, code: fileCode(b.file) } : null;
+  };
+  /* Chủ đề hay sai có lối ôn nhanh (X48): [{ topic, subject, n, href, ref, redone }], nhiều câu sai nhất trước, gom theo (môn, chủ đề)
+     từ wrongTopics của list (kết quả đã lọc theo thời gian). Chủ đề ôn được khi một kết quả của đề có sẵn cùng khối con ghi sai chủ đề đó
+     (href: địa chỉ đề "Ôn chủ đề", ref: mã đề đó); chỉ có ở đề tự soạn thì href, ref rỗng. redone: 7 ngày qua đã ôn chủ đề đó đúng từ 80%
+     (nhãn "Đã ôn lại ✓"). all: mọi kết quả của con. */
+  function weakTopicsOf(s, list, all) {
+    const m = {};
+    list.forEach((r) => (r.wrongTopics || []).forEach((t0) => {
+      const t = topicKey(t0), k = (r.subject || "") + "\n" + t, o = (m[k] = m[k] || { topic: t, subject: r.subject || "", n: 0, href: "", ref: "" });
+      o.n++;
+      const src = o.href ? null : topicSrc(r);
+      if (src && src.g === +s.grade) { o.href = topicHref(src.g, src.code, t); o.ref = topicRef(src.g, src.code, t); }
+    }));
+    const week = graded(within(all, 7));
+    return Object.values(m).map((o) => Object.assign(o, { redone: !!o.ref && week.some((r) => r.refId === o.ref && r.t > 0 && r.r / r.t >= 0.8) }))
+      .sort((a, b) => b.n - a.n || a.topic.localeCompare(b.topic, "vi"));
+  }
 
   /* ---------------- thanh người dùng ---------------- */
   /* Thanh trên chỉ có chữ OnUp và nút tài khoản (hình đại diện). Lịch thi có một lối vào cố định ở mỗi vai trò: tab Lịch thi ở thanh
@@ -829,7 +859,19 @@
       </div>`;
   }
   const subjectPanel = (results) => { const subs = bySubject(within(results, 30)); return subs.length ? `<section class="panel" id="bySubject"><div class="label">Theo môn · 30 ngày</div><div class="ubreak">${subs.map(({ name, r, t }) => `<span>${esc(name)}</span><div class="bar ${pct(r, t) >= 80 ? "good" : ""}"><i style="width:${pct(r, t)}%"></i></div><span>${pct(r, t)}%</span>`).join("")}</div></section>` : ""; };
-  const weakPanel = (results) => { const weakList = wrongTopics(within(results, 30)).slice(0, 5); return weakList.length ? `<section class="panel" id="weakTopics"><div class="label">Chủ đề hay sai</div><div class="tags">${weakList.map(([t, n]) => `<span class="tag warn">${esc(t)} · ${n} câu</span>`).join("")}</div></section>` : ""; };
+  /* Chủ đề hay sai · 30 ngày (tab Kết quả; Phiên UX14, X48): tối đa 3 dòng .topic-row (tên đậm, "<môn> · N câu sai", nhãn "Đã ôn lại ✓",
+     nút "Ôn 10 câu" khi chủ đề có trong đề có sẵn), các chủ đề còn lại ghi tên ở dòng cuối ("Thêm: …", tối đa 5 tên, ngăn bằng "; " vì
+     tên chủ đề có thể có dấu phẩy). results: kết quả chấm tự động; all: mọi kết quả (nhãn "Đã ôn lại"). */
+  const weakPanel = (s, results, all) => {
+    const list = weakTopicsOf(s, within(results, 30), all);
+    if (!list.length) return "";
+    const top = list.slice(0, 3), rest = list.slice(3), more = rest.slice(0, 5).map((x) => x.topic);
+    const tail = [top.some((x) => x.href) ? `Mỗi lần 10 câu của chủ đề đó, lấy từ các đề lớp ${s.grade}, câu bạn hay sai đứng trước.` : "",
+      more.length ? `Thêm: ${more.join("; ")}${rest.length > more.length ? ` và ${rest.length - more.length} chủ đề khác` : ""}.` : ""].filter(Boolean).join(" ");
+    return `<section class="panel" id="weakTopics"><div class="label">Chủ đề hay sai · 30 ngày</div>
+      <div class="list">${top.map((x) => `<div class="item topic-row"><span class="grow"><b>${esc(x.topic)}</b><span class="small muted">${nb(esc(`${x.subject} · ${x.n} câu sai`))}</span>${x.redone ? `<span class="tag ok">Đã ôn lại ✓</span>` : ""}</span>${x.href ? `<a class="btn sm" href="${esc(x.href)}" aria-label="Ôn 10 câu: ${esc(x.topic)}">Ôn 10 câu</a>` : ""}</div>`).join("")}</div>
+      ${tail ? `<p class="small muted" id="weakMore">${esc(tail)}</p>` : ""}</section>`;
+  };
 
   /* Hồ sơ của con (#/child/<mã>, phụ huynh và quản trị mở từ thẻ của con) là báo cáo tuần (renderReport, Phiên UX2); danh sách bài ôn
      của con để xem thử ở #/child/<mã>/practice (renderChildPractice). Trang chủ của chính học sinh là renderToday (Phiên UX1). */
@@ -847,8 +889,9 @@
   /* Gợi ý bài ôn hôm nay. Trả về tối đa 2 mục {href, title, why, n}.
      1. Bài chính: kì thi gần nhất (chưa qua) có bài ôn của khối; không có kì nào thì lấy mọi bài ôn của khối. Trong đó: bài chưa làm
         (bài ôn dạng trang trước, rồi đề cố định theo tên), rồi bài có tỉ lệ đúng thấp nhất (dưới 90%), rồi đề ngẫu nhiên, rồi bài đầu.
-     2. Bài phụ: một đề của môn chưa làm trong 7 ngày (môn theo thứ tự môn thi của kì); không có thì đề có nhiều câu sai nhất ở chủ đề
-        hay sai 30 ngày qua. Không trùng bài chính.
+     2. Bài phụ: một đề của môn chưa làm trong 7 ngày (môn theo thứ tự môn thi của kì); không có thì "Ôn 10 câu: <chủ đề>" của chủ đề
+        hay sai 30 ngày qua (đề "Ôn chủ đề", Phiên UX14; chủ đề chỉ có ở đề tự soạn: đề có nhiều câu sai nhất ở chủ đề đó). Không trùng
+        bài chính. Mục có icon thì #todayMore dùng icon đó (🎯), không thì 📖.
      results: mọi kết quả của con (bài có kết quả tự chấm cũng là bài đã làm, như progressOf; tỉ lệ đúng chỉ tính kết quả chấm tự động).
      prog: tiến độ của kì đó (progressOf, link #toBanks ở thẻ Hôm nay, Phiên UX9). */
   // kì thi gần nhất (chưa qua) có bài ôn của khối: bài chính của Hôm nay, link #toBanks, mục tiêu "Hết đề" của huy hiệu (X39)
@@ -880,12 +923,15 @@
       const b = of.find((x) => !x.pool && !did(x).length) || of.find((x) => x.pool) || of[0];
       picks.push(item(b, `Môn chưa làm trong 7 ngày qua · ${qCount(b)} câu`));
     } else {
-      const weak = wrongTopics(within(results, 30))[0];
-      if (weak) {
+      // chủ đề hay sai 30 ngày qua (Phiên UX14, X48): "Ôn 10 câu: <chủ đề>" (đề "Ôn chủ đề"), bỏ qua chủ đề vừa ôn lại đúng từ 80%;
+      // chủ đề chỉ có ở đề tự soạn thì gợi ý đề có nhiều câu sai nhất ở chủ đề đó, như trước
+      const ws = weakTopicsOf(s, within(graded(results), 30), results).filter((x) => !x.redone), tp = ws.find((x) => x.href), weak = !tp && ws[0];
+      if (tp) picks.push({ id: tp.ref, href: tp.href, title: "Ôn 10 câu: " + tp.topic, why: `${tp.subject} · ${tp.n} câu sai gần đây · khoảng 10 phút`, tip: "", n: Quiz.TOPIC_N, subject: tp.subject, icon: "🎯" });
+      else if (weak) {
         const cnt = {};
-        within(results, 30).forEach((r) => { if (r.source === "bank" && (r.wrongTopics || []).includes(weak[0])) cnt[r.refId] = (cnt[r.refId] || 0) + r.wrongTopics.filter((t) => t === weak[0]).length; });
+        within(results, 30).forEach((r) => { if (r.source === "bank" && (r.wrongTopics || []).some((t) => topicKey(t) === weak.topic)) cnt[r.refId] = (cnt[r.refId] || 0) + r.wrongTopics.filter((t) => topicKey(t) === weak.topic).length; });
         const id = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]).find((x) => Store.bank(x) && +Store.bank(x).grade === +s.grade && (!picks[0] || x !== picks[0].id));
-        if (id) picks.push(item(Store.bank(id), `Ôn lại chủ đề “${weak[0]}” · ${cnt[id]} câu sai gần đây`));
+        if (id) picks.push(item(Store.bank(id), `Ôn lại chủ đề “${weak.topic}” · ${cnt[id]} câu sai gần đây`));
       }
     }
     return { ev, picks, count: ev ? practiceCount({ mods, bks }) : 0, prog: ev ? progressOf(ev, s, results) : null };
@@ -970,7 +1016,7 @@
       ${unsentBar(s.id)}
       ${s.locked ? `<div class="notice">Hồ sơ này đang khóa vì tài khoản có nhiều hồ sơ con hơn gói hiện tại cho phép. Vẫn xem được kết quả cũ, bài làm mới chưa được lưu.</div>` : ""}
       ${card}
-      ${more ? `<div class="panel pick" id="todayMore"><span class="pick-ic" aria-hidden="true">📖</span><span class="grow"><b>${nb(esc(more.title))}</b><span class="small muted">${nb(esc(more.why))}</span></span><a class="btn sm" href="${more.href}" aria-label="Làm ${esc(more.title)}">Làm</a></div>` : ""}
+      ${more ? `<div class="panel pick" id="todayMore"><span class="pick-ic" aria-hidden="true">${more.icon || "📖"}</span><span class="grow"><b>${nb(esc(more.title))}</b><span class="small muted">${nb(esc(more.why))}</span></span><a class="btn sm" href="${more.href}" aria-label="Làm ${esc(more.title)}">Làm</a></div>` : ""}
       ${streakPanel(results)}
       ${badgePanel(s, all)}
       <section class="sec" id="recent"><div class="row between"><h2>Kết quả gần đây</h2><a class="linkbtn" href="#/results">Xem tất cả →</a></div>${resultsList(all.slice(0, 3))}</section>
@@ -999,7 +1045,7 @@
     view.innerHTML = `<div class="stack"><div><h2>Kết quả của bạn</h2><span class="muted">${all.length} bài đã làm</span></div>
       ${statsRow(results)}
       ${subjectPanel(results)}
-      ${weakPanel(results)}
+      ${weakPanel(s, results, all)}
       <section class="sec" id="allResults"><h2>Bài đã làm</h2>${resultsList(all.slice(0, 30))}${all.length > 30 ? `<p class="small muted">Chỉ hiện 30 bài gần nhất.</p>` : ""}</section></div>`;
     wireGo();
   }
@@ -1558,12 +1604,17 @@
     const b = Store.bank(id);
     if (!b) { renderMissing("Không tìm thấy đề", "Đề này không có trong app, hoặc đã được bỏ đi."); return; }
     if (wrongGrade(u, b.grade)) return;
-    if (!b.questions) { loadQuiz(u, b); return; }
+    if (!b.questions) { loadQuiz(u, b, () => Store.loadBank(b.id).then((x) => !!(x && x.questions)), () => renderQuiz(u, id)); return; }
+    quizScreen(u, b);
+  }
+  /* Màn mở đề và các lượt làm của một đề đã có câu hỏi: đề trong kho (renderQuiz) hoặc đề "Ôn chủ đề" dựng trên máy (renderTopic,
+     Phiên UX14: b.topic; rút như đề ngẫu nhiên, chỉ có Ôn luyện vì không có số phút). */
+  function quizScreen(u, b) {
     // Đề Tiếng Anh (TA2): mọi chữ quanh đề bằng tiếng Anh, lấy từ bảng chữ của js/quiz.js (Quiz.lang, Quiz.TXT, Quiz.title);
     // dòng chỉ phụ huynh thấy ("Chế độ xem thử") giữ tiếng Việt. Tên đề trong kết quả (label) vẫn là tên trong danh mục.
     const lang = Quiz.lang(b), L = Quiz.TXT[lang], en = lang === "en";
     // hist đọc lại mỗi lần rút: "Làm đề khác" tính cả lượt vừa làm xong
-    const hist = () => (b.pool && u.role === "student" ? poolHist(u, b) : null);
+    const hist = () => (b.topic != null ? topicHist(u, b) : b.pool && u.role === "student" ? poolHist(u, b) : null);
     let drawn = b.pool ? Quiz.draw(b, hist(), lang) : null;
     const qs = drawn ? drawn.questions : b.questions, nSrc = b.pool ? (b.pool.from || []).length : 0;
     // Lần trước cùng đề: kết quả gần nhất của học sinh với đề này, lọc bằng graded() (kết quả tự chấm cùng refId tính bằng phần tư điểm).
@@ -1577,8 +1628,8 @@
         <b>${scoredBank(b) ? L.appPrevPts(Quiz.fmtN(pr.r, lang), Quiz.fmtN(pr.t, lang)) : L.appPrev(Quiz.fmtN(pr.r, lang), pr.t)}</b><span class="small muted">${nb(esc([ago(pr.at, L), L.appPrevMode[pr.mode], pr.s > 0 ? L.appDur(pr.s) : ""].filter(Boolean).join(" · ")))}</span></span></section>`;
     const modeCard = (id, ic, head, note, main) => `<button class="mode${main ? " main" : ""}" id="${id}">${ICO(ic)}<span class="grow"><b>${head}</b><span class="small muted">${note}</span></span>${ICO('<path d="m9 6 6 6-6 6"/>')}</button>`;
     view.innerHTML = `<div class="stack"${en ? ' lang="en"' : ""}>${back("#/home", L.appHome)}
-      <section class="hero"><span class="label">${nb(`${L.appGrade(b.grade)} · ${en ? L.english : esc(b.subject)}${b.pool ? " · " + L.appRandom : ""}`)}</span><h1>${nb(esc(Quiz.title(b, lang)))}</h1>
-        <p>${b.pool ? L.appPoolIntro(qs.length, b.questions.length, nSrc) : L.appCount(qs.length)}${essayN(qs) ? L.appEssayN(essayN(qs)) : ""}.${scoredBank(b) ? " " + L.appScored(Quiz.fmtN(b.pts, lang)) : ""}${b.note ? " " + esc(b.note) : ""}</p>
+      <section class="hero"><span class="label">${nb(`${L.appGrade(b.grade)} · ${en ? L.english : esc(b.subject)}${b.topic != null ? " · " + L.appTopic : b.pool ? " · " + L.appRandom : ""}`)}</span><h1>${nb(esc(Quiz.title(b, lang)))}</h1>
+        <p>${b.topic != null ? L.appTopicIntro(qs.length, b.questions.length, b.grade) : b.pool ? L.appPoolIntro(qs.length, b.questions.length, nSrc) : L.appCount(qs.length)}${essayN(qs) ? L.appEssayN(essayN(qs)) : ""}.${scoredBank(b) ? " " + L.appScored(Quiz.fmtN(b.pts, lang)) : ""}${b.note ? " " + esc(b.note) : ""}</p>
         ${drawn && drawn.notes.length ? `<p class="small" id="qNotes">${L.appNotes(esc(drawn.notes.join("; ")))}</p>` : ""}</section>
       ${prevCard}
       <div class="label" id="qModes">${L.appChoose}</div>
@@ -1594,10 +1645,12 @@
         // Chế độ tập trung (UX5, X5): trong lúc làm một lượt (cả "Làm lại", "Ôn lại câu sai"), thanh trên chỉ còn chữ OnUp
         onStart: () => focusMode(true), onEnd: () => focusMode(false),
         name: u.role === "student" ? u.name : "", previous: u.role === "student" ? previous : undefined,
-        // "Làm đề khác" ở trang kết quả: rút bộ câu mới (đã tính cả lượt vừa làm)
-        redraw: b.pool ? () => { drawn = Quiz.draw(b, hist(), lang); if (drawn.notes.length) toast(L.appNotesToast(drawn.notes.join("; "))); return { questions: drawn.questions }; } : undefined,
-        // lịch sử câu của đề ngẫu nhiên, chỉ của học sinh (xem PoolHist)
+        // "Làm đề khác" ở trang kết quả: rút bộ câu mới (đã tính cả lượt vừa làm); kho chỉ có từng ấy câu thì là "Làm lại"
+        redraw: b.pool && b.questions.length > qs.length ? () => { drawn = Quiz.draw(b, hist(), lang); if (drawn.notes.length) toast(L.appNotesToast(drawn.notes.join("; "))); return { questions: drawn.questions }; } : undefined,
+        // lịch sử câu của đề ngẫu nhiên (cả đề "Ôn chủ đề"), chỉ của học sinh (xem PoolHist)
         onMarks: b.pool && u.role === "student" ? (marks, late) => PoolHist.mark(u.id, b.id, marks, late) : undefined,
+        // chủ đề cần ôn thêm ở màn kết quả có nút "Ôn 10 câu" (UX14, X48): chỉ đề có sẵn, của học sinh; đề "Ôn chủ đề" không có nút
+        topicHref: u.role === "student" && b.seed ? (t) => topicHref(b.grade, fileCode(b.file), t) : undefined,
         reported: (q) => Store.reports().some((r) => r.userId === u.id && r.bankId === bankOf(q) && r.qKey === q.key),
         onReport: (q, { reason, note }) => Store.addReport({ userId: u.id, bankId: bankOf(q), qKey: q.key, qText: Quiz.text(q), reason, note }),
         onFinish: (res) => {
@@ -1624,8 +1677,9 @@
     if ($("#qExam")) $("#qExam").onclick = () => start("exam");
   }
   /* Câu hỏi của đề có sẵn chỉ tải khi mở đề (Store.loadBank). Tải xong mà đã sang màn hình khác thì thôi. Mất mạng mà
-     chưa mở đề nào của môn này lần nào (chưa có trong đệm của sw.js) thì báo và cho thử lại. */
-  function loadQuiz(u, b) {
+     chưa mở đề nào của môn này lần nào (chưa có trong đệm của sw.js) thì báo và cho thử lại. load() → Promise<true khi đã có câu hỏi>;
+     again(): vẽ lại màn hình của đề (tải xong, bấm Thử lại). Đề "Ôn chủ đề" (UX14) tải mọi file câu hỏi của khối, môn. */
+  function loadQuiz(u, b, load, again) {
     const lang = Quiz.lang(b), L = Quiz.TXT[lang]; // đề Tiếng Anh: màn tải đề cũng bằng tiếng Anh (TA2)
     view.innerHTML = `<div class="stack"${lang === "en" ? ' lang="en"' : ""}>${back("#/home", L.appHome)}
       <section class="panel" id="qLoad"><p class="muted">${L.appLoading}</p></section></div>`;
@@ -1636,9 +1690,65 @@
       box.innerHTML = `<h1>${nb(esc(Quiz.title(b, lang)))}</h1><p>${L.appLoadFail}</p>
         <p class="small muted">${L.appLoadTip}</p>
         <div class="row"><button class="btn main" id="qRetry">${L.appRetry}</button></div>`;
-      $("#qRetry").onclick = () => renderQuiz(u, b.id);
+      $("#qRetry").onclick = again;
     };
-    Store.loadBank(b.id).then((x) => { if (box.isConnected) { if (x && x.questions) renderQuiz(u, b.id); else failed(); } }, failed);
+    load().then((ok) => { if (box.isConnected) { if (ok) again(); else failed(); } }, failed);
+  }
+
+  /* ================= ÔN CHỦ ĐỀ (Phiên UX14, X48) =================
+     #/chu-de/<khối>/<mã môn>/<chủ đề> (chủ đề mã hóa bằng encodeURIComponent; lối vào: tab Kết quả, bài phụ ở Hôm nay, nút ở #qzTopics
+     của màn kết quả): 10 câu của một chủ đề, rút từ mọi đề có sẵn của khối, môn (Quiz.topicBank; đề tự soạn không rút) bằng Quiz.draw với
+     ma trận một chủ đề, câu cùng đoạn đọc rút cả đoạn như K4. Ưu tiên câu chưa làm, hay sai (topicHist), bằng điểm thì câu của kì gần
+     nhất trước (termRank). Chạy ở quizScreen như đề ngẫu nhiên: chỉ có Ôn luyện, "Làm đề khác" khi kho có hơn 10 câu, lịch sử câu ở
+     PoolHist theo mã đề. Lưu như đề: source "bank", refId topicRef(…) = "chu-de:<khối>:<mã môn>:<chủ đề>", label "<môn> <khối> · Ôn
+     chủ đề · <chủ đề>", wrongTopics như đề, nên báo cáo tuần, chủ đề hay sai tính như đề thường; không phải bài ôn của kì thi nào nên
+     tiến độ kì thi (progressOf) và gợi ý bài ôn chưa làm (weekTips) không tính. */
+  const seedOf = (g, code) => Store.banks(+g).filter((x) => x.seed && fileCode(x.file) === code);
+  // thứ tự kì của đề nguồn: kì thi sắp tới (hoặc đang diễn ra) gần nhất, rồi các kì đã qua (gần nhất trước), rồi các kì sau; đề không gắn kì nào cuối
+  function termRank(grade) {
+    const evs = Store.events(grade).filter((e) => e.kind !== "moc" && e.start), k = evs.findIndex((e) => status(e) !== "past");
+    const order = k < 0 ? evs.slice().reverse() : [evs[k]].concat(evs.slice(0, k).reverse(), evs.slice(k + 1)), rank = {};
+    order.forEach((e, i) => (e.banks || []).forEach((id) => { if (!(id in rank)) rank[id] = i; }));
+    return (id) => (id in rank ? rank[id] : order.length);
+  }
+  /* Lịch sử câu của đề "Ôn chủ đề": PoolHist của chính đề này và của các đề ngẫu nhiên cùng khối, môn (cùng mã câu Quiz.key), cộng kết
+     quả đã lưu của đề cố định gốc (như poolHist: đã làm đề đó thì câu tính là đã làm, chủ đề nằm trong wrongTopics thì tính là sai).
+     Cộng thêm b.rank[mã đề gốc] / 1000 vào số lần làm: chỉ phân thứ tự các câu bằng điểm (kì gần nhất trước), kể cả khi xem thử. */
+  function topicHist(u, b) {
+    const me = u.role === "student", locals = me ? [b.id].concat(b.pools || []).map((pid) => PoolHist.get(u.id, pid)) : [], byRef = {};
+    if (me) graded(Store.resultsFor(u.id)).filter((r) => r.source === "bank").forEach((r) => (byRef[r.refId] = byRef[r.refId] || []).push(r));
+    const fixed = (id) => { const x = Store.bank(id); return x && !x.pool ? byRef[id] || [] : []; };
+    const wrongIn = (list) => list.filter((r) => (r.wrongTopics || []).some((t) => topicKey(t) === b.topic)).length;
+    return (q) => {
+      const k = Quiz.key(q), h = locals.reduce((a, l) => (l[k] ? [a[0] + l[k][0], a[1] + l[k][1]] : a), [0, 0]), f = fixed(q.src);
+      return { done: h[0] + f.length + ((b.rank && b.rank[q.src]) || 0) / 1000, wrong: h[1] + wrongIn(f) };
+    };
+  }
+  function renderTopic(u, g, code, enc) {
+    let topic = "";
+    try { topic = decodeURIComponent(enc || ""); } catch (e) { topic = enc || ""; }
+    topic = topicKey(topic);
+    const srcs = seedOf(g, code);
+    if (!topic || !srcs.length) return notFound();
+    if (wrongGrade(u, g)) return;
+    const subject = srcs[0].subject, meta = { id: topicRef(g, code, topic), title: `${subject} ${+g} · Ôn chủ đề · ${topic}`, grade: +g, subject };
+    // đã tải mọi file câu hỏi của khối, môn: đề nào cũng có câu hỏi (đề ngẫu nhiên thiếu đề gốc thì thôi, khi file của nó đã tải)
+    const ready = () => { const l = seedOf(g, code); return l.every((x) => x.questions || (x.pool && l.some((y) => y.file === x.file && y.questions))); };
+    const again = () => renderTopic(u, g, code, enc);
+    if (!ready()) {
+      const files = [...new Set(srcs.filter((x) => !x.questions).map((x) => x.file))];
+      loadQuiz(u, meta, () => Promise.all(files.map((f) => Store.loadBank(srcs.find((x) => x.file === f).id))).then(ready), again);
+      return;
+    }
+    const rank = termRank(+g), sorted = srcs.slice().sort((a, b) => rank(a.id) - rank(b.id));
+    const b = Object.assign(Quiz.topicBank(sorted, topic, meta), { rank: Object.fromEntries(sorted.map((x) => [x.id, rank(x.id)])), pools: sorted.filter((x) => x.pool).map((x) => x.id) });
+    if (!b.questions.length) {
+      const lang = Quiz.lang(b), L = Quiz.TXT[lang];
+      view.innerHTML = `<div class="stack"${lang === "en" ? ' lang="en"' : ""}>${back("#/home", L.appHome)}${emptyBox("noTopic", "hai-cau-xam", esc(L.appTopicEmpty), L.appTopicNone(esc(topic), +g), "")}</div>`;
+      wireGo();
+      return;
+    }
+    quizScreen(u, b);
   }
 
   /* ---------------- câu bị báo sai (Phiên R1) ----------------
@@ -2484,6 +2594,7 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
       case "results": if (u.role !== "student") { go("#/home"); return; } return renderResults(u);
       case "play": return renderPlay(u, a);
       case "quiz": return renderQuiz(u, a);
+      case "chu-de": return renderTopic(u, a, b, parts.slice(3).join("/")); // đề "Ôn chủ đề" (UX14, X48): #/chu-de/<khối>/<mã môn>/<chủ đề>
       case "account": return renderAccount(u);
       case "vao": location.replace("#/home"); return; // đã đăng nhập mà còn ở bước nhập PIN (UX4): về trang chính
       case "child":
@@ -2522,7 +2633,7 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
   });
   if (Store.cloud) {
     // Đang nhập liệu thì không vẽ lại màn hình khi dữ liệu trên máy chủ thay đổi.
-    const calm = () => !/^\/(play|quiz|account|vao)|^\/admin\/(user|event|bank|data|settings)/.test((location.hash || "#/").slice(1)) && !$("#fixBox"); // #fixBox: đang sửa ngày thi tại chỗ (UX2); /vao: đang nhập PIN (UX4)
+    const calm = () => !/^\/(play|quiz|chu-de|account|vao)|^\/admin\/(user|event|bank|data|settings)/.test((location.hash || "#/").slice(1)) && !$("#fixBox"); // #fixBox: đang sửa ngày thi tại chỗ (UX2); /vao: đang nhập PIN (UX4); /chu-de: đề "Ôn chủ đề" (UX14)
     Store.onError = toast;
     Store.onChange = () => { if (booted && calm()) route(); };
     view.innerHTML = `<div class="panel muted" role="status">Đang tải dữ liệu…</div>`;

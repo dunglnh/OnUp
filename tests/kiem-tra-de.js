@@ -47,6 +47,10 @@
      khác (kèm đoạn đọc câu đó dùng): mọi trường chữ (note, tên và chữ đoạn đọc, topic, q, o, ans, l, r, x, rubric[].c, unit)
      không có chữ cái tiếng Việt (nguyên âm có dấu, ă, â, ê, ô, ơ, ư, đ); vài từ tiếng Anh có dấu được phép (TU_CO_DAU);
      lỗi ghi mã đề, số câu, trường và chữ tiếng Việt; script tự thử với một câu cố ý viết sai.
+   - đề "Ôn chủ đề" (Phiên UX14): mọi chủ đề có ít nhất 10 câu (không tính tự luận) trong các đề có sẵn của một khối, một môn rút thử như
+     app (Quiz.topicBank, Quiz.draw; lịch sử trống và 20 lịch sử ngẫu nhiên): đúng 10 câu, không trùng, đúng chủ đề, của các đề cùng khối,
+     cùng file, không ghi chú (lỗi); lấy một phần ở hơn một đoạn đọc, quá ⌈10/3⌉ đoạn, mã đề quá 80 kí tự thì nhắc; hai chủ đề trùng 80 kí
+     tự đầu của mã đề là lỗi; tự thử topicBank với kho giả và Quiz.title của đề Tiếng Anh.
    Thêm dạng câu mới thì thêm kiểm tra cho dạng đó ở đây. */
 "use strict";
 const fs = require("fs");
@@ -489,6 +493,64 @@ pools.forEach((b) => {
   if (!Object.keys(Quiz.TXT.vi).every((k) => k in Quiz.TXT.en) || typeof Quiz.TXT.en.drawPsg !== "function") err(at, "bảng chữ tiếng Anh thiếu khóa");
 }
 
+/* ---------- đề "Ôn chủ đề" (Phiên UX14, X48) ----------
+   Như app (renderTopic trong js/app.js): kho của một chủ đề là Quiz.topicBank của mọi đề có sẵn cùng khối, cùng file (nạp như
+   Store.loadBank, tests/nap-de.js; đề ngẫu nhiên chỉ góp câu riêng), rút Quiz.TOPIC_N câu bằng Quiz.draw. Thử mọi chủ đề có ít nhất
+   10 câu (không tính tự luận) với lịch sử trống và 20 lịch sử ngẫu nhiên (ép qua hist): đúng 10 câu, không trùng, đều đúng chủ đề, của
+   các đề cùng khối, cùng file, không ghi chú (lỗi); lấy một phần ở hơn một đoạn đọc, hoặc quá ⌈10/3⌉ đoạn, thì nhắc. Mã đề (refId
+   "chu-de:<khối>:<mã môn>:<chủ đề>") quá 80 kí tự thì app cắt còn 80 (cột ref_id của bản đám mây): nhắc; hai chủ đề trùng 80 kí tự đầu
+   thì lẫn kết quả của nhau: lỗi. Tự thử topicBank với kho giả (bỏ câu tự luận, câu trùng, câu đề cố định chép trong đề ngẫu nhiên; mã
+   đoạn đọc kèm mã đề gốc) và Quiz.title của đề Tiếng Anh. */
+const soOnCD = { chuDe: 0, rut: 0 };
+{
+  let loaded = [];
+  try { loaded = require("./nap-de.js").napDe(); } catch (e) { err("đề Ôn chủ đề", "không nạp được đề: " + e.message); }
+  const refs = new Map(), cap = Math.ceil(Quiz.TOPIC_N / 3);
+  [...new Set(loaded.map((b) => b.grade + "|" + b.file))].forEach((gf) => {
+    const [g, file] = gf.split("|"), srcs = loaded.filter((b) => String(b.grade) === g && b.file === file), code = file.replace(/^\d+-|\.js$/g, "");
+    const ids0 = new Set(srcs.map((b) => b.id)), head = `chu-de:${g}:${code}:`;
+    [...new Set(srcs.flatMap((b) => (b.questions || []).map((q) => topicOf(q && q.topic))))].filter(Boolean).forEach((t) => {
+      const at = `đề "Ôn chủ đề" lớp ${g}, ${file}, chủ đề "${t}"`, ref = head + t, cut = ref.slice(0, 80);
+      if (ref.length > 80) warn.push(`${at}: mã đề dài ${ref.length} kí tự, app cắt còn 80`);
+      if (refs.has(cut) && refs.get(cut) !== ref) err(at, `trùng 80 kí tự đầu của mã đề với chủ đề "${refs.get(cut).slice(head.length)}"`);
+      refs.set(cut, ref);
+      const b = Quiz.topicBank(srcs, t, { id: cut, title: `${srcs[0].subject} ${g} · Ôn chủ đề · ${t}`, grade: +g, subject: srcs[0].subject });
+      if (b.questions.length < Quiz.TOPIC_N) return;
+      soOnCD.chuDe++;
+      const inP = {}, hits = new Set();
+      b.questions.forEach((q) => { if (q.p) inP[q.p] = (inP[q.p] || 0) + 1; });
+      for (let k = 0; k <= 20; k++) {
+        const h = new Map(b.questions.map((q) => [q, { done: Math.floor(Math.random() * 3), wrong: Math.random() < 0.3 ? 1 : 0 }]));
+        const d = Quiz.draw(b, k ? (q) => h.get(q) : null), qs = d.questions, keys = qs.map(Quiz.key), tag = `${at} (${b.questions.length} câu), lần rút ${k + 1}`;
+        soOnCD.rut++;
+        if (qs.length !== Quiz.TOPIC_N) err(tag, `rút được ${qs.length} câu, cần ${Quiz.TOPIC_N}`);
+        if (new Set(keys).size !== keys.length) err(tag, "có câu trùng");
+        if (qs.some((q) => topicOf(q.topic) !== t)) err(tag, "có câu của chủ đề khác");
+        if (qs.some((q) => !ids0.has(q.src))) err(tag, "có câu không thuộc đề nào của khối, môn này");
+        if (d.notes.length) err(tag, "app ghi chú cho học sinh: " + d.notes.join("; "));
+        const got = {}; qs.forEach((q) => { if (q.p) got[q.p] = (got[q.p] || 0) + 1; });
+        const part = Object.keys(got).filter((p) => got[p] < inP[p]);
+        if (part.length > 1) hits.add(`lấy một phần ở ${part.length} đoạn đọc`);
+        if (Object.keys(got).length > cap) hits.add(`lấy ${Object.keys(got).length} đoạn đọc, quá ⌈${Quiz.TOPIC_N}/3⌉ = ${cap} (mỗi đoạn nên có ít nhất 3 câu của chủ đề)`);
+      }
+      hits.forEach((msg) => warn.push(`${at}: có lần rút ${msg}`));
+    });
+  });
+  // kho giả: f1, đề ngẫu nhiên pool (from f1, một câu riêng), f2 (trùng một câu của f1, cùng mã đoạn đọc p1 với f1)
+  const at = "Quiz.topicBank (kho giả)", mc = (topic, q, x) => Object.assign({ type: "mc", topic, q, o: ["1", "2"], x: "." }, x || {});
+  const F1 = { id: "f1", questions: [mc("T", "a"), { type: "essay", topic: "T", q: "e", rubric: [{ c: "ý", p: 1 }], x: "." }, mc("U", "b"), mc(" T ", "c", { p: "p1" })], passages: { p1: { text: "x" } } };
+  const P = { id: "pool", pool: { from: ["f1"] }, questions: [mc("T", "own", { src: "pool" }), mc("T", "a", { src: "f1" })], passages: { p1: { text: "x" } } };
+  const F2 = { id: "f2", questions: [mc("T", "a"), mc("T", "d", { p: "p1" })], passages: { p1: { text: "y" } } };
+  const tb = Quiz.topicBank([F1, P, F2], "T", { id: "chu-de:4:toan:T", title: "Toán 4 · Ôn chủ đề · T", grade: 4, subject: "Toán" });
+  const sig = tb.questions.map((q) => q.q + "@" + q.src + (q.p ? "#" + q.p : "")).join();
+  if (sig !== "a@f1,c@f1#f1/p1,own@pool,d@f2#f2/p1") err(at, "kho câu sai: " + sig);
+  if (!tb.passages || Object.keys(tb.passages).join() !== "f1/p1,f2/p1" || tb.passages["f2/p1"].text !== "y") err(at, "đoạn đọc sai: " + JSON.stringify(tb.passages));
+  if (tb.n !== 4 || JSON.stringify(tb.pool.matrix) !== '{"T":4}' || tb.topic !== "T" || tb.id !== "chu-de:4:toan:T") err(at, "ma trận, mã đề sai: " + JSON.stringify({ n: tb.n, m: tb.pool.matrix, id: tb.id }));
+  if (Quiz.draw(tb).questions.length !== 4) err(at, "kho dưới 10 câu thì rút hết");
+  if (Quiz.title({ title: "Tiếng Anh 4 · Ôn chủ đề · Unit 1 · My Friends", subject: "Tiếng Anh" }) !== "English 4 · Topic practice · Unit 1 · My Friends"
+    || Quiz.title({ title: "Tiếng Anh 4 · Ôn chủ đề · Unit 1 · My Friends", subject: "Tiếng Anh" }, "vi") !== "Tiếng Anh 4 · Ôn chủ đề · Unit 1 · My Friends") err(at, "Quiz.title chưa dịch đề Ôn chủ đề");
+}
+
 /* ---------- bộ lọc hình ----------
    Hình cố ý viết sai: bộ lọc phải bỏ mã chạy, link ngoài, style, màu tự đặt; hình hỏng cấu trúc thì bỏ cả hình. */
 const SVG_THU = [
@@ -711,6 +773,7 @@ const loose = ids.filter((id) => !linked.has(id));
 const total = Object.values(count).reduce((a, n) => a + n, 0);
 console.log(`${catalog.length - pools.length} đề, ${files.length} file câu hỏi, ${total} câu (${Object.entries(count).filter(([, n]) => n).map(([t, n]) => n + " " + TEN_DANG[t]).join(", ")}); ${pools.length} đề ngẫu nhiên.`);
 console.log(`Đề Tiếng Anh 100% tiếng Anh: ${soTA.de} đề, ${soTA.cau} câu; ${soTA.cauKhac} câu Tiếng Anh trong đề khác.`);
+console.log(`Đề "Ôn chủ đề": ${soOnCD.chuDe} chủ đề có ít nhất ${Quiz.TOPIC_N} câu, rút thử ${soOnCD.rut} lần.`);
 if (warn.length) console.log("Nhắc:\n" + warn.join("\n"));
 if (loose.length) console.log("Đề chưa gắn kì thi nào (vẫn hiện ở nhóm “Bài ôn khác”): " + loose.join(", "));
 if (bad.length) { console.error(bad.join("\n")); console.error(`DE FAILED: ${bad.length} lỗi`); process.exitCode = 1; } else console.log("DE OK");
