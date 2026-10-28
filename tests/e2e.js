@@ -311,6 +311,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   const rep = await page.evaluate(() => ({
     links: [...document.querySelectorAll("#rpCal, #rpPractice")].map((a) => a.getAttribute("href")).join(), oldLinks: !!document.querySelector("#rpLinks"),
     head: [...document.querySelectorAll("#rpHead h1, #rpHead .rp-who .muted")].map((x) => x.textContent.replace(/\s+/g, " ").trim()).join(" | "), headAll: document.querySelector("#rpHead").innerText,
+    week: document.querySelector("#rpWeekTxt").textContent.replace(/\s+/g, " ").trim(), // thanh chọn tuần (UX12, X43)
     side: (() => { const a = document.querySelector("#rpHead .av").getBoundingClientRect(), h = document.querySelector("#rpHead h1").getBoundingClientRect(); return h.left >= a.right && h.top < a.bottom; })(), // tên đứng cạnh hình
     label: getComputedStyle(document.querySelector("#rpHead .onlyprint")).display,
     printMain: document.querySelector("#rpPrint").classList.contains("main"), topCal: !!document.querySelector(".who a"),
@@ -333,7 +334,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   const otherKid = await page.evaluate(() => location.hash); // Na không phải con của Mẹ Bin: về trang chính
   const reportOK = rep.count === "5" && rep.subjects.join() === "Toán,Tiếng Anh" && rep.topics > 0 && rep.tips >= 2 && rep.days === 1
     && /Bin/.test(rep.title) && rep.wide <= 390 && printHidden && otherKid === "#/home" && /^#\/calendar\?g=4,#\/child\/[^,]+\/practice$/.test(rep.links)
-    && !rep.oldLinks && /^Bin \| Lớp 4 · 4A \| Báo cáo \d+\/\d+ – \d+\/\d+\/\d{4}$/.test(rep.head) && !/OnUp/.test(rep.headAll) && rep.side && rep.label === "none" && !rep.printMain && !rep.topCal;
+    && !rep.oldLinks && rep.head === "Bin | Lớp 4 · 4A" && /^Báo cáo \d+\/\d+ – \d+\/\d+\/\d{4} 7 ngày gần nhất$/.test(rep.week) && !/OnUp/.test(rep.headAll) && rep.side && rep.label === "none" && !rep.printMain && !rep.topCal;
   console.log("report print:", printHidden, "other kid:", otherKid);
 
   step("pin lock per user survives reload (L2); waiting disables the keypad (UX4 X3)");
@@ -2477,7 +2478,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await check2("trang chủ phụ huynh"); await snap2("phu-huynh");
     await p.click(`a.kid[href="#/child/${ids.Bin}"]`); await p.waitForSelector(".report");
     r.report = await p.evaluate((id) => ({ hash: location.hash, back: document.querySelector("#view .linkbtn[data-go]").textContent, edit: !!document.querySelector(`a[href="#/admin/user/${id}"]`), print: !!document.querySelector("#rpPrint"),
-      links: [...document.querySelectorAll("#rpCal, #rpPractice")].map((a) => a.textContent + "=" + a.getAttribute("href")).join(), head: [...document.querySelectorAll("#rpHead h1, #rpHead .rp-who .muted")].map((x) => x.textContent.replace(/\s+/g, " ").trim()).join(" | "), count: document.querySelector("#rpCount").textContent, topics: document.querySelectorAll("#rpTopics .item").length,
+      links: [...document.querySelectorAll("#rpCal, #rpPractice")].map((a) => a.textContent + "=" + a.getAttribute("href")).join(), head: [...document.querySelectorAll("#rpHead h1, #rpHead .rp-who .muted")].map((x) => x.textContent.replace(/\s+/g, " ").trim()).join(" | "), wk: document.querySelector("#rpWeekTxt").textContent.replace(/\s+/g, " ").trim(), count: document.querySelector("#rpCount").textContent, topics: document.querySelectorAll("#rpTopics .item").length,
       week: document.querySelectorAll(".report > .sec .item").length, older: { open: document.querySelector("#rpOlder").open, head: document.querySelector("#rpOlder summary").textContent.replace(/\s+/g, " ").trim(), n: document.querySelectorAll("#rpOlder .item").length } }), ids.Bin);
     await check2("báo cáo của con"); await snap2("bao-cao-con");
     await p.evaluate(() => (document.querySelector("#rpOlder").open = true)); await check2("báo cáo của con, mở bài trước");
@@ -2510,9 +2511,9 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("UX2:", JSON.stringify(ux2.light), "dark:", JSON.stringify(ux2.dark), "problems:", ux2.problems);
   const ux2OK = !ux2.problems.length && ["light", "dark"].every((sc) => { const r = ux2[sc], bin = r.home.cards[0], na = r.home.cards[1];
     return r.home.cards.length === 2 && bin.href === "#/child/" + ids.Bin && bin.h >= 44 && bin.stats === "2 bài hôm nay|8,5 điểm hôm nay|3 chuỗi ngày" && bin.ev.replace(/\s+/g, " ").trim() === "Kiểm tra giữa học kì I còn 12 ngày · chưa ôn Tiếng Việt"
-      && na.href === "#/child/" + ids.Na && na.stats === "Chưa ôn hôm nay|6 điểm TB tuần|0 chuỗi ngày" && na.ev.replace(/\s+/g, " ").trim() === "Kiểm tra giữa học kì I còn 12 ngày · chưa ôn Ngữ văn, KHTN, Tiếng Anh và 4 môn khác"
+      && na.href === "#/child/" + ids.Na && na.stats === "0 bài hôm nay|6 điểm TB tuần|0 chuỗi ngày" && na.ev.replace(/\s+/g, " ").trim() === "Kiểm tra giữa học kì I còn 12 ngày · chưa ôn Ngữ văn, KHTN, Tiếng Anh và 4 môn khác"
       && !r.home.extraStats && r.home.h2 === "Chào Mẹ Bin,Các con" && /^Bấm vào thẻ của con để xem báo cáo tuần/.test(r.home.hint) && !r.home.topCal && r.home.calLink === "Lịch thi cả năm →=#/calendar" && !r.home.tabbar
-      && r.report.hash === "#/child/" + ids.Bin && r.report.back === "← Các con" && r.report.edit && r.report.print && r.report.links === `Xem cả năm →=#/calendar?g=4,Bài ôn của Bin →=#/child/${ids.Bin}/practice` && r.report.head === "Bin | Lớp 4 · 4A | Báo cáo 15/10 – 21/10/2026"
+      && r.report.hash === "#/child/" + ids.Bin && r.report.back === "← Các con" && r.report.edit && r.report.print && r.report.links === `Xem cả năm →=#/calendar?g=4,Bài ôn của Bin →=#/child/${ids.Bin}/practice` && r.report.head === "Bin | Lớp 4 · 4A" && r.report.wk === "Báo cáo 15/10 – 21/10/2026 7 ngày gần nhất"
       && r.report.count === "4" && r.report.topics === 2 && r.report.week === 4 && !r.report.older.open && /^Bài làm trước tuần này ?1 bài$/.test(r.report.older.head) && r.report.older.n === 1
       && r.practice.hash === `#/child/${ids.Bin}/practice` && r.practice.back === "← Báo cáo của Bin" && r.practice.h2 === "Bài ôn lớp 4 của Bin" && r.practice.groups >= 3 && r.practice.preview
       && r.cal.hash === "#/calendar?g=4" && r.cal.tab === "Lớp 4" && /^Lịch thi năm học/.test(r.cal.h1)
@@ -4108,9 +4109,13 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
        gần nhất, gợi ý bắt đầu lại; không có dòng điểm, chủ đề.
      - X37 (Phiên UX7b): Bin có chủ đề hay sai có dấu phẩy (“Phép cộng, phép trừ”): gợi ý “Ôn lại chủ đề hay sai: …” ở mục Gợi ý ôn tuần
        sau ngăn tên chủ đề bằng “; ”, giống dòng “Chủ đề hay sai” của tin nhắn.
-     Ảnh 360px sáng/tối ở tests/screenshots/ux8/ (bản ghép <tên>.jpg; chép sang docs/hinh-ux8/): bao-cao-tin-nhan, da-chep, ban-in. */
+     Ảnh 360px sáng/tối ở tests/screenshots/ux8/ (bản ghép <tên>.jpg; chép sang docs/hinh-ux8/): bao-cao-tin-nhan, da-chep, ban-in.
+     Phiên UX12 (X43–X45) chạy trong bước này, cùng dữ liệu (thêm một bài 3 tuần trước): chọn tuần, thẻ "0 bài", hai nút cạnh nhau cao
+     bằng nhau; ảnh ở tests/screenshots/ux12/ (chép sang docs/hinh-ux12/): tuan-truoc, hai-nut-390, hop-hoi-lai, roi-bai-on, the-cua-con. */
   const OUTUX8 = OUT + "ux8/"; fs.mkdirSync(OUTUX8, { recursive: true });
   const ux8 = { problems: [], shots: [] };
+  const OUTUX12 = OUT + "ux12/"; fs.mkdirSync(OUTUX12, { recursive: true });
+  const ux12 = { problems: [], shots: [] }; // Phiên UX12 (X43–X45) chạy trong bước này, cùng dữ liệu
   const SHARE_STUB = () => {
     window.__share = { mode: "ok", calls: [] };
     Object.defineProperty(navigator, "share", { configurable: true, value: (d) => {
@@ -4141,6 +4146,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       const at = (days, h) => { const x = new Date(); x.setDate(x.getDate() - days); x.setHours(h, 10, 0, 0); return x.toISOString(); };
       const mk = (o) => Object.assign({ id: "ux8" + Math.random().toString(36).slice(2), userId: bin.id, s: 900 }, o);
       d.results = [
+        mk({ source: "bank", refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 1", mode: "practice", r: 15, t: 25, at: at(24, 19), wrongTopics: ["Đơn vị đo"] }), // 3 tuần trước (UX12)
         mk({ source: "bank", refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 1", mode: "practice", r: 19, t: 25, at: at(10, 9), wrongTopics: ["Góc và đo góc"] }), // tuần trước
         mk({ source: "bank", refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 1", mode: "practice", r: 21, t: 25, at: at(2, 9), wrongTopics: ["Góc và đo góc", "Góc và đo góc", "Đơn vị đo", "Phép cộng, phép trừ"] }), // X37: chủ đề có dấu phẩy
         mk({ source: "module", refId: "l4-giua-ki-1", subject: "Toán", label: "Toán · Đề 1", mode: "exam", r: 18, t: 20, at: at(1, 20) }),
@@ -4154,7 +4160,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       const t = (s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, box = (s) => document.querySelector(s).getBoundingClientRect();
       let next = document.querySelector("#rpHead").nextElementSibling; while (next && next.classList.contains("notice")) next = next.nextElementSibling;
       const btn = (s) => ({ text: t(s), main: document.querySelector(s).classList.contains("main"), icon: !!document.querySelector(s + " svg"), w: Math.round(box(s).width), h: Math.round(box(s).height) });
-      return { msg: document.querySelector("#rpMsgText").textContent, label: t("#rpMsg .label"), pre: getComputedStyle(document.querySelector("#rpMsgText")).whiteSpace, after: next && next.id,
+      let next2 = document.querySelector("#rpWeek").nextElementSibling; while (next2 && next2.classList.contains("notice")) next2 = next2.nextElementSibling;
+      return { msg: document.querySelector("#rpMsgText").textContent, label: t("#rpMsg .label"), pre: getComputedStyle(document.querySelector("#rpMsgText")).whiteSpace, after: next && next.id, afterWeek: next2 && next2.id,
         beforeStats: !!(document.querySelector("#rpMsg").compareDocumentPosition(document.querySelector(".stats.four")) & Node.DOCUMENT_POSITION_FOLLOWING),
         count: t("#rpCount"), days: t("#rpDays"), mins: t("#rpMins"), avg: t("#rpAvg"), pvAvg: t("#rpAvg + span + small"),
         topics: [...document.querySelectorAll("#rpTopics .item .grow")].map((x) => x.textContent.trim()), tips: [...document.querySelectorAll("#rpTips li")].map((x) => x.textContent.trim()),
@@ -4186,9 +4193,81 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     r.print = await p.evaluate(() => ({ msg: getComputedStyle(document.querySelector("#rpMsg")).display, send: document.querySelector("#rpSend").getBoundingClientRect().height, printBtn: document.querySelector("#rpPrint").getBoundingClientRect().height, label: getComputedStyle(document.querySelector("#rpHead .onlyprint")).display }));
     await snap8("ban-in");
     await p.emulateMedia({ media: "screen" });
+    /* Phiên UX12 (docs/CAI-TIEN-UX-3X.md, mục 4), cùng dữ liệu: Bin có bài ở tuần này (4), tuần trước (1: 11/10), 3 tuần trước (1: 27/9).
+       X43: thanh chọn tuần #rpWeek ngay dưới đầu trang: ‹ lùi từng tuần (thay địa chỉ ?tuan=n, focus ở lại nút vừa bấm, nút đó tắt thì
+       sang nút kia), mỗi tuần số bài, số ngày, tin nhắn, số bài từng ngày, điểm theo môn, chủ đề hay sai, bài đã làm đúng tuần đó; "Tuần
+       trước:" là tuần ngay trước tuần đang chọn; kì thi sắp tới và gợi ý vẫn theo hôm nay; tuần không có bài ghi "trong tuần này"; ‹ tắt
+       ở tuần có kết quả đầu tiên, › tắt ở tuần này; #rpOlder chỉ ở tuần này; ?tuan=1 mở thẳng tuần trước, ?tuan=9 về tuần có kết quả
+       đầu tiên, ?tuan=abc là tuần này; bản in in tuần đang chọn (không có nút ‹ ›). X44: thẻ của Na (chưa làm bài hôm nay) ghi "0 bài",
+       một dòng như ô của Bin. X45: "Gửi báo cáo" và "Chép tin nhắn" cạnh nhau ở 390px, #qzYes và #qzNo của hộp hỏi lại của đề, #leaveYes
+       và #leaveNo của hộp hỏi khi rời bài ôn đang làm (cuối bước, Bin) cao bằng nhau. */
+    const u12 = (ux12[scheme] = {});
+    const check12 = async (label) => (await p.evaluate(audit)).forEach((x) => ux12.problems.push(`UX12 · ${scheme} · ${label}: ${x}`));
+    const snap12 = async (n, sel) => {
+      await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; });
+      if (sel) await p.locator(sel).screenshot({ path: `${OUTUX12}${n}-${scheme}.png` }); else await p.screenshot({ path: `${OUTUX12}${n}-${scheme}.png`, fullPage: true });
+      ux12.shots.push(`${n}-${scheme}`);
+    };
+    const weekOf = () => p.evaluate(() => {
+      const t = (s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, b = (s) => document.querySelector(s);
+      const sec = [...document.querySelectorAll(".report > .sec")].find((x) => (x.querySelector("h2") || {}).textContent === "Bài đã làm trong tuần");
+      const btn = (s) => { const e = b(s), r = e.getBoundingClientRect(); return (e.disabled ? "off" : "on") + "|" + e.getAttribute("aria-label") + "|" + Math.round(r.width) + "x" + Math.round(r.height); };
+      const lines = (e) => { const tops = new Set(), walk = document.createTreeWalker(e, NodeFilter.SHOW_TEXT); let x; // số dòng của chữ
+        while ((x = walk.nextNode())) { if (!x.textContent.trim()) continue; const g = document.createRange(); g.selectNodeContents(x); [...g.getClientRects()].forEach((q) => tops.add(Math.round(q.top))); } return tops.size; };
+      return { hash: location.hash, txt: t("#rpWeekTxt b"), lines: lines(b("#rpWeekTxt b")), ago: t("#rpWeekTxt .muted"), nav: b("#rpWeek").getAttribute("aria-label"), prev: btn("#rpPrev"), next: btn("#rpNext"),
+        focus: document.activeElement && document.activeElement.id, after: b("#rpHead").nextElementSibling.id + ">" + b("#rpWeek").nextElementSibling.id,
+        msg: b("#rpMsgText").textContent, count: t("#rpCount"), days: t("#rpDays"), mins: t("#rpMins"), avg: t("#rpAvg"), pv: [...document.querySelectorAll(".stats.four small")].map((x) => x.textContent.replace(/^Tuần trước: /, "")).join("|"),
+        on: [...document.querySelectorAll(".rp-day.on small")].map((x) => x.textContent).join(), subjects: [...document.querySelectorAll("#rpSubjects .rp-sub b:first-child")].map((x) => x.textContent).join(),
+        topics: [...document.querySelectorAll("#rpTopics .item .grow")].map((x) => x.textContent.trim()).join("|"), done: sec ? sec.querySelectorAll(".item").length : 0, older: !!b("#rpOlder"),
+        empty: t(".report > .panel.muted"), tips: [...document.querySelectorAll("#rpTips li")].map((x) => x.textContent.trim()).join("|"), ev: t("#rpEvents .ev b"), title: document.title, wide: document.documentElement.scrollWidth };
+    });
+    const flip = async (sel, want) => { // bấm ‹ hoặc ›, chờ trang vẽ lại (thanh cũ có dấu data-old)
+      await p.evaluate(() => (document.querySelector("#rpWeek").dataset.old = "1")); await p.click(sel);
+      await p.waitForFunction((w) => location.hash.endsWith(w) && !!document.querySelector("#rpWeek:not([data-old])"), want); return weekOf(); };
+    const openRp = async (q) => { await p.goto(BASE + "/#/home"); await p.waitForSelector("#kids"); await p.goto(BASE + "/#/child/" + ids.Bin + q); await p.waitForSelector("#rpWeekTxt"); return weekOf(); };
+    u12.w0 = await openRp("");
+    u12.w1 = await flip("#rpPrev", "?tuan=1");
+    await check12("báo cáo tuần trước"); await snap12("tuan-truoc");
+    u12.w2 = await flip("#rpPrev", "?tuan=2");
+    await check12("báo cáo 2 tuần trước, không có bài");
+    u12.w3 = await flip("#rpPrev", "?tuan=3");
+    await check12("báo cáo 3 tuần trước");
+    u12.b2 = await flip("#rpNext", "?tuan=2"); u12.b1 = await flip("#rpNext", "?tuan=1"); u12.b0 = await flip("#rpNext", "/child/" + ids.Bin);
+    u12.direct = await openRp("?tuan=1"); u12.clamp = await openRp("?tuan=9"); u12.bad = await openRp("?tuan=abc");
+    // bản in tuần đang chọn: chỉ còn chữ của thanh chọn tuần
+    await openRp("?tuan=1"); await p.emulateMedia({ media: "print" });
+    u12.print = await p.evaluate(() => ({ prev: getComputedStyle(document.querySelector("#rpPrev")).display, next: getComputedStyle(document.querySelector("#rpNext")).display, txt: getComputedStyle(document.querySelector("#rpWeekTxt")).display,
+      week: document.querySelector("#rpWeekTxt b").textContent.replace(/\s+/g, " "), title: document.title }));
+    await p.emulateMedia({ media: "screen" });
+    // X45: nút chính và nút viền cạnh nhau cao bằng nhau
+    const pair = (a, b) => p.evaluate(([a, b]) => { const x = document.querySelector(a).getBoundingClientRect(), y = document.querySelector(b).getBoundingClientRect();
+      return { row: Math.round(x.top) === Math.round(y.top), h: [x.height, y.height].map((v) => Math.round(v * 10) / 10).join("|"), border: [a, b].map((s) => getComputedStyle(document.querySelector(s)).borderTopWidth).join("|") }; }, [a, b]);
+    await p.setViewportSize({ width: 390, height: 740 }); await openRp("");
+    u12.send = await pair("#rpSend", "#rpCopy");
+    await check12("báo cáo tuần 390px"); await snap12("hai-nut-390", "#rpMsg");
+    await p.setViewportSize({ width: 360, height: 740 });
+    await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await p.waitForSelector("#qExam"); await p.click("#qExam"); await p.waitForSelector("#qzSubmit"); await p.click("#qzSubmit"); await p.waitForSelector("#qzYes");
+    u12.confirm = await pair("#qzYes", "#qzNo"); u12.confirmTxt = await p.evaluate(() => document.querySelector("#qzYes").textContent + "|" + document.querySelector("#qzNo").textContent);
+    await check12("hộp hỏi lại của đề"); await snap12("hop-hoi-lai", "#qzFb");
+    await p.click("#qzNo");
+    // X44: thẻ của con chưa làm bài hôm nay ghi "0 bài", một dòng như thẻ có bài
+    await p.goto(BASE + "/#/home"); await p.waitForSelector("#kids a.kid");
+    u12.kids = await p.evaluate(() => [...document.querySelectorAll("#kids a.kid")].map((k) => { const s = k.querySelector(".stat"), bb = s.querySelector("b");
+      return { name: k.querySelector(".row b").textContent, first: bb.textContent + " " + s.querySelector("span").textContent, lines: Math.round(bb.getBoundingClientRect().height / parseFloat(getComputedStyle(bb).lineHeight)),
+        hs: [...new Set([...k.querySelectorAll(".stat b")].map((x) => Math.round(x.getBoundingClientRect().height)))].join() }; }));
+    await check12("thẻ của con"); await snap12("the-cua-con", "#kids");
     // con chưa làm bài nào trong tuần
     await p.goto(BASE + "/#/child/" + ids.Na); await p.waitForFunction(() => /của Na/.test((document.querySelector("#rpMsgText") || {}).textContent || ""));
     r.empty = await p.evaluate(() => document.querySelector("#rpMsgText").textContent);
+    // UX12, X45: hộp hỏi lại khi rời bài ôn đang làm (#leaveBox: "Rời bài" | "Ở lại"); Bin bắt đầu một đề của bài ôn l4-giua-ki-1
+    await p.evaluate(() => Store.setSession(null)); await p.goto(BASE + "/"); await p.click(`.tile[data-u="${ids.Bin}"]`); await p.fill("#pinIn", PINS.Bin); await p.waitForSelector("#today");
+    await p.goto(BASE + "/#/play/l4-giua-ki-1"); await p.waitForSelector(".player iframe");
+    let fl = null; for (let i = 0; i < 60 && !fl; i++) { const f = p.frames().find((x) => /modules\/l4-giua-ki-1/.test(x.url())); if (f && (await f.$(".tb").catch(() => null))) fl = f; else await p.waitForTimeout(100); }
+    await fl.click(".tb >> nth=0"); await fl.waitForSelector("#endBtn");
+    await p.click(".player [data-go]"); await p.waitForSelector("#leaveBox");
+    u12.leave = await pair("#leaveYes", "#leaveNo"); u12.leaveTxt = await p.evaluate(() => document.querySelector("#leaveYes").textContent + "|" + document.querySelector("#leaveNo").textContent);
+    await snap12("roi-bai-on", "#leaveBox .confirm");
+    await p.click("#leaveYes"); await p.waitForFunction(() => location.hash === "#/home");
     await c.close();
   }
   { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/ux8/<tên>.jpg)
@@ -4197,6 +4276,16 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTUX8}${n}-${sc}.png`).toString("base64");
       await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
       await gp.screenshot({ path: `${OUTUX8}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  { // ghép ảnh sáng/tối của UX12 cạnh nhau, mỗi ảnh đúng bề rộng đã chụp (tests/screenshots/ux12/<tên>.jpg)
+    const gp = await browser.newPage({ viewport: { width: 820, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of [...new Set(ux12.shots.map((x) => x.replace(/-(light|dark)$/, "")))]) {
+      if (!ux12.shots.includes(n + "-light") || !ux12.shots.includes(n + "-dark")) continue;
+      const f = (sc) => fs.readFileSync(`${OUTUX12}${n}-${sc}.png`), img = (sc) => `<img src="data:image/png;base64,${f(sc).toString("base64")}" width="${f(sc).readUInt32BE(16) / 2}">`;
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start;width:max-content">${img("light")}${img("dark")}</body>`);
+      await gp.screenshot({ path: `${OUTUX12}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
     }
     await gp.close();
   }
@@ -4214,7 +4303,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && tipL.join("|") === "• Gợi ý: Tuần sau cố gắng ôn ít nhất 5 ngày, mỗi ngày 20–30 phút, thay vì làm dồn một buổi.|• Gợi ý: Tuần này chưa ôn Tiếng Việt cho kì thi sắp tới."
       && tipL.every((x) => g.tips.some((li) => li.includes(x.slice("• Gợi ý: ".length))) && !x.includes(g.ev.title) && !/còn \d+ ngày|chủ đề hay sai/i.test(x)) && g.tips.length === 4
       && L[L.length - 1] === "Gửi từ OnUp." && g.msg.length <= 600 && g.school === "Nhà Bin" && !g.msg.includes(g.school) && !/https?:|#\/|www\./.test(g.msg)
-      && g.label === "Tin nhắn sẽ gửi" && g.pre === "pre-line" && g.after === "rpMsg" && g.beforeStats
+      && g.label === "Tin nhắn sẽ gửi" && g.pre === "pre-line" && g.after === "rpWeek" && g.afterWeek === "rpMsg" && g.beforeStats
       && g.send.text === "Gửi báo cáo" && g.send.main && g.send.icon && g.send.h >= 44 && g.copy.text === "Chép tin nhắn" && !g.copy.main && g.copy.h >= 44
       && g.print.text === "In" && !g.print.main && g.print.w >= 44 && g.print.h >= 44 && g.print.top
       && r.share.calls.length === 1 && r.share.calls[0].keys === "text,title" && r.share.calls[0].title === "Báo cáo tuần của Bin" && r.share.calls[0].text === g.msg && r.share.clip === "trước" && r.share.toast === ""
@@ -4223,6 +4312,34 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.noCopy.inBox && flat(r.noCopy.sel) === flat(g.msg) && r.noCopy.toast === "Chưa chép được. Tin nhắn đã được chọn sẵn, bấm giữ để chép."
       && r.print.msg === "none" && r.print.send === 0 && r.print.printBtn === 0 && r.print.label !== "none"
       && /^Báo cáo tuần của Na \(15\/10 – 21\/10\/2026\)\n• Chưa làm bài nào trong 7 ngày qua\.\n• Sắp tới: Kiểm tra giữa học kì I, \d+\/\d+ – \d+\/\d+\/2026 \(dự kiến, còn \d+ ngày\)\.\n• Gợi ý: Tuần sau bắt đầu lại nhẹ nhàng: mỗi ngày một đề ngắn 20–30 phút\.\nGửi từ OnUp\.$/.test(r.empty); });
+
+  const brief12 = (r) => r && JSON.stringify(r, (k, v) => (k === "msg" ? v.split("\n").length + " dòng" : v));
+  console.log("UX12:", brief12(ux12.light), "dark:", brief12(ux12.dark), "problems:", ux12.problems);
+  const ux12OK = !ux12.problems.length && ["light", "dark"].every((sc) => { const r = ux12[sc], { w0, w1, w2, w3 } = r, B = "#/child/" + ids.Bin, L0 = w0.msg.split("\n"), L1 = w1.msg.split("\n"), L2 = w2.msg.split("\n");
+    const nav = (x, txt, ago, prev, next) => x.txt === txt && x.lines === 1 && x.ago === ago && x.prev === prev + "|Tuần trước|44x44" && x.next === next + "|Tuần sau|44x44" && x.nav === "Chọn tuần" && x.after === "rpWeek>rpMsg" && x.wide <= 360;
+    const tail = (L) => L.slice(L.findIndex((x) => /^• Sắp tới: /.test(x))).join("\n"), same = (h) => h.split("|")[0] === h.split("|")[1], kid = (n) => r.kids.find((k) => k.name === n) || {};
+    return nav(w0, "Báo cáo 15/10 – 21/10/2026", "7 ngày gần nhất", "on", "off") && w0.hash === B && w0.older && w0.count === "4" && w0.pv === "1|1/7|7,5|15"
+      // X43, tuần trước: số đúng bằng ô "Tuần trước:" của tuần này; kì thi, gợi ý theo hôm nay; focus ở lại ‹
+      && nav(w1, "Báo cáo 8/10 – 14/10/2026", "Tuần trước", "on", "on") && w1.hash === B + "?tuan=1" && w1.focus === "rpPrev"
+      && [w1.count, w1.days, w1.avg, w1.mins].join("|") === w0.pv && w1.pv === "0|0/7|–|0"
+      && L1[0] === "Báo cáo tuần của Bin (8/10 – 14/10/2026)" && L1[1] === "• Làm 1 bài, ôn 1/7 ngày, 15 phút." && L1[2] === "• Điểm trung bình 7,5/10 (tuần trước chưa làm bài)." && L1[3] === "• Chủ đề hay sai: Góc và đo góc."
+      && tail(L1) === tail(L0) && w1.tips === w0.tips && w1.ev === w0.ev && w1.on === "11/10" && w1.subjects === "Toán" && w1.topics === "Góc và đo góc" && w1.done === 1 && !w1.older
+      && w1.title === "Báo cáo tuần · Bin · 8/10–14/10/2026"
+      // 2 tuần trước: không có bài
+      && nav(w2, "Báo cáo 1/10 – 7/10/2026", "2 tuần trước", "on", "on") && w2.count === "0" && w2.days === "0/7" && w2.empty === "Chưa có bài làm nào trong tuần này." && w2.done === 0 && w2.pv.split("|")[0] === "1"
+      && L2[0] === "Báo cáo tuần của Bin (1/10 – 7/10/2026)" && L2[1] === "• Chưa làm bài nào trong tuần này." && /^• Sắp tới: /.test(L2[2]) && tail(L2) === tail(L0)
+      // 3 tuần trước: tuần có kết quả đầu tiên, ‹ tắt, focus sang ›
+      && nav(w3, "Báo cáo 24/9 – 30/9/2026", "3 tuần trước", "off", "on") && w3.focus === "rpNext" && w3.count === "1" && w3.avg === "6" && w3.on === "27/9" && w3.topics === "Đơn vị đo"
+      // tiến lại tới tuần này: › tắt, focus sang ‹, có #rpOlder, tin nhắn như lúc đầu; mở thẳng ?tuan=1, ?tuan=9 (về tuần đầu), ?tuan=abc
+      && r.b2.txt === w2.txt && r.b2.focus === "rpNext" && r.b1.txt === w1.txt && nav(r.b0, w0.txt, "7 ngày gần nhất", "on", "off") && r.b0.hash === B && r.b0.focus === "rpPrev" && r.b0.older && r.b0.msg === w0.msg
+      && r.direct.txt === w1.txt && r.direct.ago === "Tuần trước" && r.direct.msg === w1.msg && r.clamp.txt === w3.txt && r.clamp.prev.startsWith("off|") && r.bad.txt === w0.txt && r.bad.next.startsWith("off|")
+      // bản in in tuần đang chọn, không có nút ‹ ›
+      && r.print.prev === "none" && r.print.next === "none" && r.print.txt !== "none" && r.print.week === "Báo cáo 8/10 – 14/10/2026" && r.print.title === w1.title
+      // X45: nút chính và nút viền cạnh nhau cùng hàng, cao bằng nhau, cùng viền 1px
+      && r.send.row && same(r.send.h) && r.send.border === "1px|1px" && r.confirm.row && same(r.confirm.h) && r.confirm.border === "1px|1px" && r.confirmTxt === "Thoát|Làm tiếp"
+      && r.leave.row && same(r.leave.h) && r.leave.border === "1px|1px" && r.leaveTxt === "Rời bài|Ở lại"
+      // X44: Na chưa làm bài hôm nay: "0 bài", một dòng, ô cao như ô bên cạnh
+      && kid("Na").first === "0 bài hôm nay" && kid("Na").lines === 1 && !/,/.test(kid("Na").hs) && kid("Bin").first === "2 bài hôm nay" && kid("Bin").lines === 1; });
 
   step("progress of an exam, done buttons, badge goals, done today, empty pages (UX9, X38–X40)");
   /* Phiên UX9 (docs/CAI-TIEN-UX-3X.md, mục 4): ngày giả lập thứ ba 27/10/2026 17:30, 360px sáng/tối. Bin (lớp 4) làm 4 bài của kì giữa kì I
@@ -4766,7 +4883,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, k5OK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK, ux9OK, ux11OK, ux10OK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, k5OK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK, ux9OK, ux11OK, ux10OK, ux12OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
