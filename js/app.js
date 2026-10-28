@@ -1165,10 +1165,11 @@
       <p class="small muted">Lập ngày ${dmy(isoDay(t0))}. Điểm quy về thang 10 theo số câu đúng${week.some(scoredRes) ? "; đề tính điểm (đề thi thử) lấy điểm của đề" : ""}.</p>
     </div>`;
     wireGo(); wireEvents(view, s.grade, s);
-    const toWeek = (n, id) => { weekFocus = id; location.replace("#" + (location.hash || "#/").slice(1).split("?")[0] + (n ? "?tuan=" + n : "")); };
+    const toWeek = (n, id) => { const h = "#" + (location.hash || "#/").slice(1).split("?")[0] + (n ? "?tuan=" + n : ""); weekFocus = { id, h }; location.replace(h); };
     $("#rpPrev").onclick = () => toWeek(w + 1, "rpPrev");
     $("#rpNext").onclick = () => toWeek(w - 1, "rpNext");
-    if (weekFocus) { const f = $("#" + weekFocus), o = $(weekFocus === "rpPrev" ? "#rpNext" : "#rpPrev"); weekFocus = null; (f.disabled ? o : f).focus({ preventScroll: true }); }
+    if (weekFocus && weekFocus.h === location.hash) { const f = $("#" + weekFocus.id), o = $(weekFocus.id === "rpPrev" ? "#rpNext" : "#rpPrev"); (f.disabled ? o : f).focus({ preventScroll: true }); }
+    weekFocus = null;
     $("#rpPrint").onclick = () => window.print();
     $("#rpSend").onclick = () => sendMsg(`Báo cáo tuần của ${s.name}`, msg, $("#rpMsgText"));
     $("#rpCopy").onclick = () => copyMsg(msg, $("#rpMsgText"));

@@ -309,8 +309,9 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .rp-who{display:flex;gap:12px;align-items:center}
 .rp-who>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px} /* tên, dòng lớp luôn đứng cạnh hình */
 /* thanh chọn tuần (#rpWeek, Phiên UX12, X43): nút ‹ › 44×44 hai bên, ở giữa khoảng ngày (không tách ra hai dòng) và dòng
-   "7 ngày gần nhất" / "Tuần trước"; khi in chỉ còn chữ (nút có .noprint) */
-.wk-nav{display:flex;align-items:center;gap:8px;padding:6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+   "7 ngày gần nhất" / "Tuần trước"; khi in chỉ còn chữ (nút có .noprint). Đệm 4px, cách 6px: ở 360px chỗ giữa còn 218px, vừa
+   "Báo cáo 25/12 – 31/12/2026" (212px) trên một dòng */
+.wk-nav{display:flex;align-items:center;gap:6px;padding:4px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
 .wk-nav .btn{flex:none;width:44px;height:44px;padding:0}
 .wk-nav .btn svg{width:22px;height:22px;flex:none}
 .wk-txt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:1px}
