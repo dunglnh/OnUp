@@ -778,6 +778,31 @@ window.ONTAP_SEED_BANKS = [
       "Nucleic acid và gene": [0, 1, 0], "Tái bản DNA và phiên mã tạo RNA": [0, 0, 1],
       "Dịch mã và mối quan hệ từ gene đến tính trạng": [0, 1, 0], "Đột biến gene": [1, 0, 0] } } },
 
+  /* Tin học 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Tin học 9, Bài 1–8; Phiên N9-ck1-tin-congnghe). Khối 9 chưa bật nên đề chưa
+     hiện với gia đình. Năm chủ đề theo năm bài lí thuyết (Bài 1, 2, 4, 5, 7; ba bài thực hành 3, 6, 8 hỏi qua tình huống ở chủ đề của
+     bài đi trước), số câu mỗi chủ đề theo số tiết. Kho câu = 50 câu của 2 đề cố định, không có câu riêng; ma trận [Biết, Hiểu, Vận
+     dụng] 10 – 8 – 7, hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Ô Hiểu của Bài 2
+     chỉ rút 1 câu: hai câu ở ô đó (nối tình huống với tiêu chí đánh giá chất lượng thông tin; điền tên tiêu chí) không cùng một đề. */
+  { id: "tin9-ck1-de1", title: "Tin học 9 · Cuối kì I · Đề 1", grade: 9, subject: "Tin học", minutes: 35, n: 25, file: "9-tin.js" },
+  { id: "tin9-ck1-de2", title: "Tin học 9 · Cuối kì I · Đề 2", grade: 9, subject: "Tin học", minutes: 35, n: 25, file: "9-tin.js" },
+  { id: "tin9-ck1-ngau-nhien", title: "Tin học 9 · Cuối kì I · Đề ngẫu nhiên", grade: 9, subject: "Tin học", minutes: 35, n: 25, file: "9-tin.js",
+    pool: { from: ["tin9-ck1-de1", "tin9-ck1-de2"], matrix: {
+      "Thế giới kĩ thuật số": [2, 1, 1], "Thông tin trong giải quyết vấn đề": [2, 1, 3], "Một số vấn đề pháp lí về sử dụng dịch vụ Internet": [2, 1, 1],
+      "Phần mềm mô phỏng": [2, 2, 1], "Trình bày thông tin trong trao đổi và hợp tác": [2, 3, 1] } } },
+
+  /* Công nghệ 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Công nghệ 9 – Định hướng nghề nghiệp, mô đun bắt buộc, Bài 1–5; Phiên
+     N9-ck1-tin-congnghe). Khối 9 chưa bật nên đề chưa hiện với gia đình. Trường dạy mô đun tự chọn ở học kì I thì đối chiếu đề cương
+     (lời dặn của đề). Kho câu = 50 câu của 2 đề cố định, không có câu riêng; ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 trên năm chủ đề
+     theo tên bài (vài tên rút gọn), số câu mỗi chủ đề theo số tiết; hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có
+     gấp đôi số câu ô đó rút. */
+  { id: "congnghe9-ck1-de1", title: "Công nghệ 9 · Cuối kì I · Đề 1", grade: 9, subject: "Công nghệ", minutes: 35, n: 25, file: "9-congnghe.js" },
+  { id: "congnghe9-ck1-de2", title: "Công nghệ 9 · Cuối kì I · Đề 2", grade: 9, subject: "Công nghệ", minutes: 35, n: 25, file: "9-congnghe.js" },
+  { id: "congnghe9-ck1-ngau-nhien", title: "Công nghệ 9 · Cuối kì I · Đề ngẫu nhiên", grade: 9, subject: "Công nghệ", minutes: 35, n: 25, file: "9-congnghe.js",
+    pool: { from: ["congnghe9-ck1-de1", "congnghe9-ck1-de2"], matrix: {
+      "Nghề nghiệp trong lĩnh vực kĩ thuật và công nghệ": [3, 2, 1], "Cơ cấu hệ thống giáo dục quốc dân": [1, 1, 2],
+      "Thị trường lao động kĩ thuật, công nghệ": [2, 2, 1], "Quy trình lựa chọn nghề nghiệp": [3, 2, 2],
+      "Tự đánh giá mức độ phù hợp với nghề": [1, 1, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
