@@ -1010,10 +1010,12 @@
 
   /* ================= BÁO CÁO TUẦN = HỒ SƠ CỦA CON =================
      Phụ huynh, quản trị mở từ thẻ của con (#/child/<mã>; #/report/<mã> là cùng trang, Phiên UX2). Tóm tắt 7 ngày gần nhất
-     (hôm nay và 6 ngày trước), in được (@media print trong css/app.css). Đầu trang chỉ có hình, bên cạnh là tên con, dòng lớp và dòng
-     "Báo cáo <ngày> – <ngày>" (.rp-who; nhãn "OnUp · Báo cáo tuần · <tên gia đình>" chỉ hiện khi in). Lịch thi của khối con là link "Xem cả năm" ở mục
+     (hôm nay và 6 ngày trước), in được (@media print trong css/app.css). Đầu trang chỉ có hình, bên cạnh là tên con và dòng lớp
+     (.rp-who; nhãn "OnUp · Báo cáo tuần · <tên gia đình>" chỉ hiện khi in). Ngay dưới là thanh chọn tuần (#rpWeek, Phiên UX12, X43):
+     nút ‹ "Tuần trước", › "Tuần sau", ở giữa "Báo cáo <ngày> – <ngày>" và "7 ngày gần nhất" / "Tuần trước" / "3 tuần trước"; khi in
+     chỉ còn chữ. Lịch thi của khối con là link "Xem cả năm" ở mục
      Kì thi sắp tới (#rpCal), danh sách bài ôn của con là link cuối mục Gợi ý ôn tuần sau (#rpPractice); bài làm trước tuần này thu
-     gọn ở cuối (#rpOlder, không in). Ngay dưới đầu trang là khối "Tin nhắn sẽ gửi" (#rpMsg, không in; Phiên UX8): xem trước tin nhắn
+     gọn ở cuối (#rpOlder, không in; chỉ ở tuần này). Rồi khối "Tin nhắn sẽ gửi" (#rpMsg, không in; Phiên UX8): xem trước tin nhắn
      chữ thuần (reportMsg), nút chính "Gửi báo cáo" (#rpSend) và "Chép tin nhắn" (#rpCopy); nút phụ "In" (#rpPrint) ở hàng trên cùng.
      Chỉ đọc qua Store nên chạy như nhau ở bản trên máy và bản đám mây. */
   const MAX_SECS = 5400; // một lần làm quá 90 phút thường là quên đóng bài: chỉ tính 90 phút
@@ -1061,9 +1063,10 @@
      hai dòng trên), gợi ý thứ hai chỉ thêm khi tin nhắn chưa quá MSG_MAX; dòng cuối "Gửi từ OnUp.". Không có tên đăng nhập, tên gia
      đình hay đường dẫn nào. */
   const MSG_MAX = 600;
-  function reportMsg(s, span, week, st, pv, tips) {
+  /* past: tuần đã chọn ở thanh chọn tuần không phải 7 ngày gần nhất (X43): span, week, st, pv của tuần đó; kì thi, gợi ý vẫn theo hôm nay. */
+  function reportMsg(s, span, week, st, pv, tips, past) {
     const out = [`Báo cáo tuần của ${s.name} (${span})`], end = "Gửi từ OnUp.";
-    out.push(st.n ? `• Làm ${st.n} bài, ôn ${st.days}/7 ngày, ${st.mins} phút.` : "• Chưa làm bài nào trong 7 ngày qua.");
+    out.push(st.n ? `• Làm ${st.n} bài, ôn ${st.days}/7 ngày, ${st.mins} phút.` : `• Chưa làm bài nào trong ${past ? "tuần này" : "7 ngày qua"}.`);
     if (st.t) out.push(`• Điểm trung bình ${d10(st.r, st.t)}/10 (tuần trước ${pv.t ? d10(pv.r, pv.t) : "chưa làm bài"}).`);
     const tp = wrongTopics(week).slice(0, 3).map(([t]) => t);
     if (tp.length) out.push(`• Chủ đề hay sai: ${tp.join("; ")}.`); // "; ": tên chủ đề có thể có dấu phẩy ("Phép cộng, phép trừ")
@@ -1097,25 +1100,41 @@
     const mine = week.filter((r) => (r.subject || "Khác") === name), sc = mine.filter(scoredRes), [r, t] = sumRT(mine.filter((x) => !scoredRes(x))), [pr, pt] = sumRT(sc);
     return [`${mine.length} bài`, t ? `${nf(r)}/${t} câu đúng` : "", sc.length ? `${sc.length} đề tính điểm: ${nf(pr)}/${nf(pt)} điểm` : ""].filter(Boolean).join(" · ");
   }
-  function renderReport(s, viewer) {
-    const mine = Store.resultsFor(s.id), all = graded(mine), t0 = today0(), from = addDays(t0, -6);
+  /* Chọn tuần (X43): ?tuan=<n> lùi n tuần, mỗi tuần 7 ngày tính như tuần này. Theo tuần đang chọn: tin nhắn, bốn ô số liệu ("Tuần
+     trước:" là tuần ngay trước tuần đang chọn), số bài từng ngày, điểm theo môn, chủ đề hay sai, tự luận tự chấm, bài đã làm, tên file
+     khi in. Theo hôm nay: kì thi sắp tới, gợi ý (cả hai dòng đó trong tin nhắn). Không lùi quá tuần có kết quả đầu tiên (n lớn hơn thì
+     về tuần đó); ‹ tắt ở tuần đó, › tắt ở tuần này. Bấm ‹ › thì thay địa chỉ (location.replace: nút Back của điện thoại vẫn về trang
+     trước báo cáo) rồi đưa focus về nút vừa bấm, nút đó tắt thì sang nút kia. */
+  let weekFocus = null;
+  function renderReport(s, viewer, query) {
+    const mine = Store.resultsFor(s.id), all = graded(mine), t0 = today0(), from0 = addDays(t0, -6);
+    const first = mine.reduce((m, r) => Math.min(m, new Date(r.at).getTime()), Infinity);
+    const fd = isFinite(first) ? new Date(first) : null, back0 = fd ? Math.round((from0 - new Date(fd.getFullYear(), fd.getMonth(), fd.getDate())) / DAY) : 0;
+    const maxW = back0 > 0 ? Math.ceil(back0 / 7) : 0, w = Math.max(0, Math.min(maxW, parseInt(query && query.tuan, 10) || 0));
+    const from = addDays(from0, -7 * w), to = addDays(from, 7);
     const span = (a, b, list) => (list || all).filter((r) => { const d = new Date(r.at); return d >= a && d < b; });
-    const week = span(from, addDays(t0, 1)), st = weekStats(week), pv = weekStats(span(addDays(from, -7), from));
-    const selfWeek = span(from, addDays(t0, 1), mine.filter(isSelf));
-    const older = mine.filter((r) => new Date(r.at) < from), olderN = older.length;
+    const week = span(from, to), st = weekStats(week), pv = weekStats(span(addDays(from, -7), from));
+    const now7 = w ? span(from0, addDays(t0, 1)) : week; // 7 ngày gần nhất: gợi ý tính theo hôm nay
+    const selfWeek = span(from, to, mine.filter(isSelf));
+    const older = w ? [] : mine.filter((r) => new Date(r.at) < from), olderN = older.length;
     const perDay = {}; week.forEach((r) => { const k = isoDay(new Date(r.at)); perDay[k] = (perDay[k] || 0) + 1; });
     const subs = bySubject(week), topics = wrongTopics(week).slice(0, 6), school = Store.settings().schoolName;
     const evs = Store.events(s.grade).filter((e) => e.kind !== "moc" && e.start && status(e) !== "past").slice(0, 3);
-    const a = isoDay(from), b = isoDay(t0), tips = weekTips(s, week, all), msg = reportMsg(s, `${dm(a)} – ${dmy(b)}`, week, st, pv, tips);
+    const a = isoDay(from), b = isoDay(addDays(to, -1)), tips = weekTips(s, now7, all), msg = reportMsg(s, `${dm(a)} – ${dmy(b)}`, week, st, pv, tips, w > 0);
     const teacher = viewer.role === "admin" && !Store.cloud; // quản trị bản lưu trên máy: về danh sách học sinh ở tab Tổng quan
-    document.title = `Báo cáo tuần · ${s.name} · ${dm(a)}–${dmy(b)}`; // tên file gợi ý khi lưu PDF
+    const none = w ? "tuần này" : "7 ngày qua", wkAgo = !w ? "7 ngày gần nhất" : w === 1 ? "Tuần trước" : w + " tuần trước";
+    document.title = `Báo cáo tuần · ${s.name} · ${dm(a)}–${dmy(b)}`; // tên file gợi ý khi lưu PDF: tuần đang chọn
     view.innerHTML = `<div class="stack report">
       <div class="row between noprint">${back(teacher ? "#/admin/overview" : "#/home", teacher ? "Danh sách học sinh" : "Các con")}
         <span class="row">${viewer.role === "student" ? "" : `<a class="btn ghost sm" href="#/admin/user/${esc(s.id)}">Sửa hồ sơ</a>`}<button class="btn ghost sm rp-print" id="rpPrint" aria-label="In báo cáo">In</button></span></div>
       <header class="stack tight" id="rpHead">
         <span class="label onlyprint">${nb("OnUp · Báo cáo tuần" + (school ? " · " + esc(school) : ""))}</span>
-        <div class="rp-who">${avatar(s, true)}<div><h1>${esc(s.name)}</h1><span class="muted">${nb(esc(gradeTxt(s)) + esc(lockTag(s)))}</span><span class="muted">Báo cáo ${dm(a)} – ${dmy(b)}</span></div></div>
+        <div class="rp-who">${avatar(s, true)}<div><h1>${esc(s.name)}</h1><span class="muted">${nb(esc(gradeTxt(s)) + esc(lockTag(s)))}</span></div></div>
       </header>
+      <nav class="wk-nav" id="rpWeek" aria-label="Chọn tuần">
+        <button class="btn ghost noprint" id="rpPrev" aria-label="Tuần trước" aria-describedby="rpWeekTxt"${w >= maxW ? " disabled" : ""}>${ICO('<path d="m15 6-6 6 6 6"/>')}</button>
+        <span class="wk-txt" id="rpWeekTxt"><b>Báo cáo <span class="d">${dm(a)} – ${dmy(b)}</span></b> <span class="small muted">${wkAgo}</span></span>
+        <button class="btn ghost noprint" id="rpNext" aria-label="Tuần sau" aria-describedby="rpWeekTxt"${w ? "" : " disabled"}>${ICO('<path d="m9 6 6 6-6 6"/>')}</button></nav>
       ${s.locked ? `<div class="notice">Hồ sơ này đang khóa vì tài khoản có nhiều hồ sơ con hơn gói hiện tại cho phép. Vẫn xem được kết quả cũ, bài làm mới chưa được lưu.</div>` : ""}
       <section class="panel rp-msg noprint" id="rpMsg" aria-labelledby="rpMsgH"><div class="label" id="rpMsgH">Tin nhắn sẽ gửi</div>
         <div class="share-msg" id="rpMsgText">${esc(msg)}</div>
@@ -1135,7 +1154,7 @@
           <div class="bar ${pct(x.r, x.t) >= 80 ? "good" : ""}"><i style="width:${pct(x.r, x.t)}%"></i></div><span class="small muted">${subLine(x.name, week)}</span></div>`).join("")}</section>
         <section class="panel" id="rpTopics"><div class="label">Chủ đề hay sai</div>${topics.length ? `<div class="list">${topics.map(([t, n]) => `<div class="item"><span class="grow">${esc(t)}</span><b class="small">${n} câu sai</b></div>`).join("")}</div>`
           : `<p class="small muted">Không có câu sai nào được ghi theo chủ đề. Bài ôn IOE và ôn giữa kì I chỉ gửi về điểm tổng.</p>`}</section>`
-        : `<div class="panel muted">Chưa có bài làm nào trong 7 ngày qua.</div>`}
+        : `<div class="panel muted">Chưa có bài làm nào trong ${none}.</div>`}
       ${selfWeek.length ? `<section class="panel" id="rpSelf"><div class="label">Tự luận tự chấm</div>
         <p class="small muted">Điểm tự chấm theo thang gợi ý của đề, không tính vào điểm trung bình ở trên.</p>${resultsList(selfWeek)}</section>` : ""}
       <section class="sec" id="rpEvents"><div class="row between"><h2>Kì thi sắp tới</h2><a class="linkbtn noprint" id="rpCal" href="${calHref(viewer)}?g=${s.grade}">Xem cả năm →</a></div>${evs.length ? `<div class="timeline">${evs.map((e) => eventRow(e, { grade: s.grade, student: s, results: mine })).join("")}</div>` : `<div class="panel muted">Không còn kì thi nào có lịch trong năm học.</div>`}</section>
@@ -1143,9 +1162,13 @@
         <a class="linkbtn noprint" id="rpPractice" href="#/child/${esc(s.id)}/practice">Bài ôn của ${esc(s.name)} →</a></section>
       ${st.n ? `<section class="sec"><h2>Bài đã làm trong tuần</h2>${resultsList(week)}</section>` : ""}
       ${olderN ? `<details class="grp noprint" id="rpOlder"><summary><span class="grow"><b>Bài làm trước tuần này</b><span class="small muted">${olderN} bài${olderN > 30 ? " · hiện 30 bài gần nhất" : ""}</span></span></summary>${resultsList(older.slice(0, 30))}</details>` : ""}
-      <p class="small muted">Lập ngày ${dmy(b)}. Điểm quy về thang 10 theo số câu đúng${week.some(scoredRes) ? "; đề tính điểm (đề thi thử) lấy điểm của đề" : ""}.</p>
+      <p class="small muted">Lập ngày ${dmy(isoDay(t0))}. Điểm quy về thang 10 theo số câu đúng${week.some(scoredRes) ? "; đề tính điểm (đề thi thử) lấy điểm của đề" : ""}.</p>
     </div>`;
     wireGo(); wireEvents(view, s.grade, s);
+    const toWeek = (n, id) => { weekFocus = id; location.replace("#" + (location.hash || "#/").slice(1).split("?")[0] + (n ? "?tuan=" + n : "")); };
+    $("#rpPrev").onclick = () => toWeek(w + 1, "rpPrev");
+    $("#rpNext").onclick = () => toWeek(w - 1, "rpNext");
+    if (weekFocus) { const f = $("#" + weekFocus), o = $(weekFocus === "rpPrev" ? "#rpNext" : "#rpPrev"); weekFocus = null; (f.disabled ? o : f).focus({ preventScroll: true }); }
     $("#rpPrint").onclick = () => window.print();
     $("#rpSend").onclick = () => sendMsg(`Báo cáo tuần của ${s.name}`, msg, $("#rpMsgText"));
     $("#rpCopy").onclick = () => copyMsg(msg, $("#rpMsgText"));
@@ -2468,7 +2491,7 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
         if (!allowed) { go("#/home"); return; }
         if (b === "practice") return renderChildPractice(c, u);
         if (b) return notFound();
-        return renderReport(c, u); // hồ sơ của con = báo cáo tuần (UX2)
+        return renderReport(c, u, query); // hồ sơ của con = báo cáo tuần (UX2); ?tuan=<n>: tuần đã qua (UX12, X43)
       }
       case "admin":
         if (a === "user") return renderUserForm(u, b || "new", query);
