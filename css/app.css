@@ -126,7 +126,7 @@ body.tabbed{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .wd.later{border-style:dashed}
 .badge{display:inline-flex;align-items:center;gap:4px;font-size:.8125rem;border-radius:999px;padding:3px 10px;background:var(--sun-soft);color:var(--ink);font-weight:600;border:1px solid transparent}
 .badge:not(.on){background:transparent;border-color:var(--line);color:var(--muted)}
-.ready{color:var(--ink);font-weight:600} .ready.good{color:var(--ok)} /* "Đã làm đúng x% bài ôn của kì này" trên thẻ kì thi */
+.ready{color:var(--ink);font-weight:600} .ready.good{color:var(--ok)} /* "Đã làm 3/5 bài · đúng 82%" trên thẻ kì thi (progTxt, X38); làm hết thì màu ok */
 
 /* khu phụ huynh (Phiên UX2): thẻ của từng con ở mục "Các con" (kidCard, cả thẻ là link mở báo cáo), dòng kì thi gần nhất (.kid-ev);
    tab Lịch thi: hàng nút dưới thẻ kì thi (.ev-act: "Trường đã báo lịch? Sửa ngày") và hộp sửa ngày tại chỗ (#fixBox) */
@@ -237,6 +237,14 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .subj{flex-wrap:wrap}
 .subj .grow{flex-basis:7em}
 .des{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+/* tiến độ của một kì thi (Phiên UX9, X38; progressOf trong js/app.js): dưới dòng ngày của nhóm kì thi, chữ "Đã làm 3/5 bài · đúng 82%"
+   và thanh 6px; nút đề, bài ôn đã làm là nút viền có dấu ✓ (đề chưa làm, đề ngẫu nhiên vẫn vàng). Không dùng lớp .ck (dòng ô đánh dấu). */
+.grp-prog{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.prog-txt{font-size:.875rem;color:var(--muted)}
+.prog-txt b{color:var(--ink)}
+.grp-prog .bar,.bdg .bar{height:6px}
+.btn.done{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:600;padding:7px 10px;gap:4px}
+.done-ic{color:var(--ok);font-weight:700}
 
 /* lịch thi */
 .timeline{display:flex;flex-direction:column;gap:6px}
