@@ -920,6 +920,30 @@ window.ONTAP_SEED_BANKS = [
       "Thị trường lao động kĩ thuật, công nghệ": [2, 2, 1], "Quy trình lựa chọn nghề nghiệp": [3, 2, 2],
       "Tự đánh giá mức độ phù hợp với nghề": [1, 1, 1] } } },
 
+  /* Tin học 9 · Kiểm tra giữa học kì II (Kết nối tri thức, Tin học 9, Chủ đề 4 phần a. Sử dụng bảng tính điện tử nâng cao, Bài 9a–13a;
+     Phiên N9-gk2-tin-congnghe). Khối 9 chưa bật nên đề chưa hiện với gia đình. Trường học phần b. Làm quen với phần mềm làm video thì
+     đề không hợp (lời dặn của đề). Kho câu = 50 câu của 2 đề cố định, không có câu riêng; ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 trên
+     năm chủ đề theo tên bài, mỗi bài 5 câu; hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút.
+     Ô Hiểu của Hàm COUNTIF chỉ rút 1 câu: hai câu ở ô đó (công thức sau khi sao chép, vì sao vùng có dấu $) không cùng một đề. */
+  { id: "tin9-gk2-de1", title: "Tin học 9 · Giữa kì II · Đề 1", grade: 9, subject: "Tin học", minutes: 35, n: 25, file: "9-tin.js" },
+  { id: "tin9-gk2-de2", title: "Tin học 9 · Giữa kì II · Đề 2", grade: 9, subject: "Tin học", minutes: 35, n: 25, file: "9-tin.js" },
+  { id: "tin9-gk2-ngau-nhien", title: "Tin học 9 · Giữa kì II · Đề ngẫu nhiên", grade: 9, subject: "Tin học", minutes: 35, n: 25, file: "9-tin.js",
+    pool: { from: ["tin9-gk2-de1", "tin9-gk2-de2"], matrix: {
+      "Công cụ xác thực dữ liệu": [2, 2, 1], "Hàm COUNTIF": [2, 1, 2], "Hàm SUMIF": [2, 1, 2], "Hàm IF": [2, 2, 1],
+      "Hoàn thiện bảng tính quản lí tài chính gia đình": [2, 2, 1] } } },
+
+  /* Công nghệ 9 · Kiểm tra giữa học kì II (Kết nối tri thức, Công nghệ 9 – Trải nghiệm nghề nghiệp, mô đun Lắp đặt mạng điện trong nhà,
+     Bài 1–4; Phiên N9-gk2-tin-congnghe). Khối 9 chưa bật nên đề chưa hiện với gia đình. Trường học mô đun khác hoặc học Định hướng nghề
+     nghiệp ở học kì II thì đối chiếu đề cương (lời dặn của đề). Kho câu = 50 câu của 2 đề cố định, không có câu riêng; ma trận [Biết,
+     Hiểu, Vận dụng] 10 – 8 – 7 trên bốn chủ đề theo tên bài (Bài 4 rút gọn), mỗi đề 5, 5, 7, 8 câu; hai đề cố định chia đúng ma trận,
+     nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "congnghe9-gk2-de1", title: "Công nghệ 9 · Giữa kì II · Đề 1", grade: 9, subject: "Công nghệ", minutes: 35, n: 25, file: "9-congnghe.js" },
+  { id: "congnghe9-gk2-de2", title: "Công nghệ 9 · Giữa kì II · Đề 2", grade: 9, subject: "Công nghệ", minutes: 35, n: 25, file: "9-congnghe.js" },
+  { id: "congnghe9-gk2-ngau-nhien", title: "Công nghệ 9 · Giữa kì II · Đề ngẫu nhiên", grade: 9, subject: "Công nghệ", minutes: 35, n: 25, file: "9-congnghe.js",
+    pool: { from: ["congnghe9-gk2-de1", "congnghe9-gk2-de2"], matrix: {
+      "Thiết bị đóng cắt và lấy điện trong gia đình": [3, 1, 1], "Dụng cụ đo điện cơ bản": [2, 2, 1],
+      "Thiết kế mạng điện trong nhà": [2, 3, 2], "Vật liệu, thiết bị và dụng cụ lắp đặt mạng điện": [3, 2, 3] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
