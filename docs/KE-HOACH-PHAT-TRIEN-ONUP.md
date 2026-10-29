@@ -2,7 +2,7 @@
 
 > **Tìm nhanh:** phiên làm đề, dò sách, kĩ thuật cho đề: hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) (mở từ trên xuống) · phiên sửa lỗi: mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) · việc của chủ app: mục 2 · thứ tự các phiên: mục 3 · lời giao việc phiên giao diện, chuẩn bị bán: mục 4 · đã xong: mục 1.
 
-> **Trạng thái (29/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy bản đám mây từ 17/10/2026 (PR #27), chỉ dành cho gia đình được mời. Đã gộp tới PR #219; PR #220 (kiểm thử thiết kế UX9, UX11, UX10, UX12, UX14) chờ Merge (bảng “Đã xong” ở mục 1). Phiên xong chỉ sửa ngày và số PR ở dòng này.
+> **Trạng thái (29/10/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy bản đám mây từ 17/10/2026 (PR #27), chỉ dành cho gia đình được mời. Đã gộp tới PR #220; PR #221 (Phiên UX9b) chờ Merge (bảng “Đã xong” ở mục 1). Phiên xong chỉ sửa ngày và số PR ở dòng này.
 
 > **Đã chốt 18/10/2026, đổi mốc 21/10/2026:** đủ đề lớp 4–12 và rà xong trong tháng 2/2027; từ đầu tháng 3/2027 mời khách tiềm năng dùng thử miễn phí đến hết các kì thi của năm học 2026–2027 (kì cuối là thi tốt nghiệp THPT, dự kiến 11–12/6/2027); mở bán chính thức từ tháng 6/2027 nếu không vướng thủ tục hành chính (thay mốc “bán khi đủ đề lớp 4–12, khoảng cuối năm học 2028–2029” của ngày 18/10; nhịp cần, mốc kiểm tra và cách lùi khi chậm ở mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)); trong thời gian dùng thử và đến lúc bán, gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng `plans` không đổi), hạn mức hai gói lúc bán chốt sau (giữa tháng 5/2027); các phiên chuẩn bị G0, B1 làm trước khi mở dùng thử, B2, B4, G1 trước khi bán (mục 3); Supabase giữ gói Free đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần); trang công khai chỉ dành cho gia đình được mời, gia đình dùng thử cũng do chủ app tạo tài khoản (màn đăng nhập có dòng “Chưa có tài khoản?”, Phiên S1; muốn mở tự đăng kí thì đổi quyết định này trước, việc 9 ở mục 2); câu sai báo bằng nút trong app (Phiên R1), GitHub Issues chỉ còn cho chủ app; không ghi giá bán, chi phí hay so sánh đối thủ vào repo. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 
@@ -13,7 +13,7 @@
 > **Tiếp theo (25/10/2026):**
 > - Các phiên dò sách DS1–DS12c đã xong (PR #135–#176); kế hoạch nội dung viết gọn lại, mốc dự trù tính lại theo nhịp đo được (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)).
 > - Hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md): cuối năm lớp 6 rồi lớp 4; rồi lớp 9 (trước 15/11), lớp 12 và 5 (10/12), lớp 7, 8 (31/12), lớp 10, 11 (20/1/2027).
-> - 9ob, UI2, UX7, UX8, UX7b đã kiểm thử thiết kế (24/10/2026, mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)); UX9, UX11, UX10, UX12, UX14 cũng vậy (29/10/2026, mục 6 của [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md)), còn phiên sửa ngắn UX9b (X49).
+> - 9ob, UI2, UX7, UX8, UX7b đã kiểm thử thiết kế (24/10/2026, mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)); UX9, UX11, UX10, UX12, UX14 cũng vậy (29/10/2026, mục 6 của [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md)); phiên sửa ngắn UX9b (X49) đã làm ở PR #221, chờ kiểm thử thiết kế.
 > - Mốc: đủ đề lớp 4–12, rà xong trong tháng 2/2027; dùng thử từ tháng 3/2027; mở bán từ tháng 6/2027 (đoạn “Đã chốt”).
 
 ## 1. Tình hình hiện tại
@@ -193,6 +193,7 @@
 | #217 | Phiên N9-gk2-khtn: ngân hàng KHTN 9 giữa kì II, 75 câu; tests/khtn9-gk2.js |
 | #218 | Phiên UX14 · Ôn 10 câu theo chủ đề hay sai (X48) |
 | #219 | Phiên N9-gk2-lsdl-gdcd: ngân hàng Lịch sử và Địa lí 9, GDCD 9 giữa kì II, mỗi môn 50 câu; tests/lsdl-gdcd9-gk2.js |
+| #221 | Phiên UX9b · Sửa sau kiểm thử UX9 (X49) |
 
 </details>
 
