@@ -842,6 +842,20 @@ window.ONTAP_SEED_BANKS = [
       "Pronunciation": [2, 1, 0], "Unit 7 · Natural Wonders of the World": [2, 2, 2], "Unit 8 · Tourism": [3, 2, 1],
       "Unit 9 · World Englishes": [2, 1, 2], "Review of Units 1–6": [0, 1, 1], "Reading": [1, 1, 1] } } },
 
+  /* Tiếng Anh 9 · Kiểm tra cuối năm học (Global Success 9, Units 7–12, Review 3, 4, trọng tâm Units 10–12; Phiên N9-ck2-ta). Khối 9
+     chưa bật nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong file (1 đoạn đọc) + 50 câu của 2 đề cố định (mỗi đề 1 đoạn
+     đọc), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu: Pronunciation 2 (âm /sl/, /sn/ của Unit 7, trọng âm
+     từ tận cùng -ic, -ious, -ion, -ity của Unit 8, 9; Unit 10–12 dạy ngữ điệu, không hỏi được bằng chữ), Unit 7, 8, 9, 11 mỗi Unit 3,
+     Unit 10, 12 mỗi Unit 4, Reading 3 (một đoạn 3 câu mức 1-2-3, bài đọc theo chủ đề Unit 10–12). Hai đề cố định và câu riêng đều
+     chia đúng ma trận nên ô (chủ đề, mức) nào cũng có gấp ba số câu ô đó rút. Không có câu nghe, không có câu tự luận. */
+  { id: "ta9-ck2-de1", title: "Tiếng Anh 9 · Cuối năm · Đề 1", grade: 9, subject: "Tiếng Anh", minutes: 45, n: 25, file: "9-ta.js" },
+  { id: "ta9-ck2-de2", title: "Tiếng Anh 9 · Cuối năm · Đề 2", grade: 9, subject: "Tiếng Anh", minutes: 45, n: 25, file: "9-ta.js" },
+  { id: "ta9-ck2-ngau-nhien", title: "Tiếng Anh 9 · Cuối năm · Đề ngẫu nhiên", grade: 9, subject: "Tiếng Anh", minutes: 45, n: 25, file: "9-ta.js",
+    pool: { from: ["ta9-ck2-de1", "ta9-ck2-de2"], matrix: {
+      "Pronunciation": [1, 1, 0], "Unit 7 · Natural Wonders of the World": [1, 1, 1], "Unit 8 · Tourism": [1, 1, 1],
+      "Unit 9 · World Englishes": [1, 1, 1], "Unit 10 · Planet Earth": [2, 1, 1], "Unit 11 · Electronic Devices": [1, 1, 1],
+      "Unit 12 · Career Choices": [2, 1, 1], "Reading": [1, 1, 1] } } },
+
   /* KHTN 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Khoa học tự nhiên 9; Phiên N9-ck1-khtn). Khối 9 chưa bật nên đề chưa hiện
      với gia đình. Phạm vi theo phân phối chương trình dạy song song ba phân môn (nguồn ghi ở Pull Request của phiên): Vật lí Bài 2–10
      (Chương I Năng lượng cơ học, Chương II Ánh sáng) 9 câu, Hoá học Bài 22–32 (Chương VII–IX) 10 câu, Sinh học Bài 36–41 (Chương XI)

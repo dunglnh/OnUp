@@ -478,7 +478,10 @@ const chuoi = (s, k) => { const w = khongDau(s).split(" ").filter(Boolean), ra =
 // lời dặn chuẩn của đề Tiếng Anh (mục 3.2 của docs/KE-HOACH-NOI-DUNG.md) và lời dặn của câu phát âm, câu dạng từ, giống lời dặn của sách: không so
 const LOI_DAN = ["Write the correct form of the word in brackets.", "Put the words in the correct order.", "Read the text. Then answer the questions.",
   "Read the text again. Is each sentence true or false?", "Which part of the sentence is wrong?", "Choose the sentence closest in meaning:",
-  "Is each sentence grammatically correct?", "Choose the word with a different stress pattern.", "In which sentence can we leave out the relative pronoun?"];
+  "Is each sentence grammatically correct?", "Choose the word with a different stress pattern.", "In which sentence can we leave out the relative pronoun?",
+  // lời dặn câu phát âm, kho cuối năm (tests/ta9-ck2.js) dùng lại
+  "In which word are the letters sl NOT pronounced /sl/?", "In which word are the letters sn NOT pronounced /sn/?",
+  "Which word is stressed on the first syllable?", "Which word is stressed on the second syllable?", "Which word is stressed on the third syllable?"];
 const boLoiDan = (s) => LOI_DAN.reduce((a, l) => a.split(l).join(" "), String(s));
 const truong = (q) => [boLoiDan(q.q), q.x].concat(q.o || [], q.ans || [], q.p && q === kho.find((x) => x.p === q.p) ? [PSG[q.p].text] : []);
 if (SACH.length) {
