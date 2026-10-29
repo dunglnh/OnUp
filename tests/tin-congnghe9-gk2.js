@@ -237,7 +237,7 @@ const congThuc = (s) => {
 };
 
 /* Thiết lập của công cụ xác thực dữ liệu ghi như “Allow: Whole number; Data: between; Minimum: 1; Maximum: 6”: giá trị v có được nhận không. */
-const thietLap = (s) => { const g = (k) => { const m = s.match(new RegExp(k + ": ([^;]+)")); return m && m[1].trim(); }; return { allow: g("Allow"), data: g("Data"), min: g("Minimum"), max: g("Maximum") }; };
+const thietLap = (s) => { const g = (k) => { const m = s.match(new RegExp(k + ": (.+?)(?=;|\\.(?:\\s|$)|$)")); return m && m[1].trim(); }; return { allow: g("Allow"), data: g("Data"), min: g("Minimum"), max: g("Maximum") }; };
 const nhanGiaTri = (tl, v) => {
   if (typeof v !== "number") return tl.allow === "Any value" || !tl.allow;
   if (tl.allow === "Whole number" && !Number.isInteger(v)) return false;
@@ -263,7 +263,7 @@ const docSoDo = (svg) => {
   assert.ok(svgRong(svg) <= 320, "sơ đồ rộng không quá 320");
   const LN = tags(svg, "line"), CI = tags(svg, "circle"), RE = tags(svg, "rect"), TX = texts(svg);
   TX.forEach(coChu);
-  const tb = [], trongTron = (p, c) => dist(p, c) <= 12 + 1e-6;
+  const tb = [], trongTron = (p, c) => dist(p, c) <= 12 + 0.05;
   CI.filter((c) => c.r === "12").forEach((c) => {
     assert.ok(c.fill === "surface" && c.stroke === "ink" && c["stroke-width"] === "2", "vòng tròn thiết bị tô surface, viền ink nét 2");
     const tam = [+c.cx, +c.cy], nho = CI.filter((d) => d !== c && dist([+d.cx, +d.cy], tam) < 10);
@@ -349,7 +349,7 @@ const docSoDo = (svg) => {
     assert.equal(d.length, 1, "điểm " + t[0].t + " nằm trên một dây");
     diem[t[0].t] = f(keyP(d[0][0]));
   });
-  return { tb, A: f(keyP(nguon.A)), O: f(keyP(nguon.O)), diem, nguon, day };
+  return { tb, A: f(keyP(nguon.A)), O: f(keyP(nguon.O)), diem, nguon, day, nutCua: (p) => f(keyP(p)) };
 };
 const thietBi = (sd, so) => { const t = sd.tb.find((x) => x.so === so); assert.ok(t, "sơ đồ không có thiết bị số " + so); return t; };
 // các thiết bị tiêu thụ (đèn, ổ lấy điện, thêm cả thiết bị nối thêm) có điện khi đóng các công tắc dong, cầu chì dut bị đứt
@@ -389,3 +389,577 @@ const docKiHieu = (svg) => {
     return [+t.t, loai];
   });
 };
+const dieuKhien = (sd, sw) => { const all = congTacCua(sd), a = coDien(sd, { dong: all }), b = coDien(sd, { dong: all.filter((x) => x !== sw) }); return new Set([...a].filter((x) => !b.has(x))); };
+
+/* ---------- các câu cần tính ----------
+   id: đề chứa câu; has: đoạn chữ của đề; right(q): đáp án tính bằng code (so với ans, o[0], a của câu đúng/sai 4 ý, cặp nối l[i] → r[i]). */
+const so = (re, s) => { const m = s.match(re); assert.ok(m, "không đọc được “" + re + "” trong: " + s.slice(0, 80)); return m.slice(1).map(val); };
+const SO_CHU = { "một": 1, "hai": 2, "ba": 3, "bốn": 4, "năm": 5, "sáu": 6, "bảy": 7 };
+const soLuong = (s) => (/^\d+$/.test(s) ? +s : SO_CHU[s]);
+const ham = (f) => { // các tham số ở ngoài cùng của =TÊN(…)
+  const ra = []; let d = 0, q = false, cur = "";
+  for (const ch of f.slice(f.indexOf("(") + 1, -1)) { if (ch === '"') q = !q; if (!q && ch === "(") d++; if (!q && ch === ")") d--; if (!q && !d && ch === ",") { ra.push(cur); cur = ""; } else cur += ch; }
+  return ra.concat([cur]);
+};
+const oKhop = (r, dk, o) => vung(r).filter((c) => khop(o[c] === undefined ? "" : o[c], dk));
+const coLoiGiai = (q, ...ds) => ds.forEach((d) => assert.ok(q.x.includes(d), `lời giải thiếu “${d}”: ${q.q.slice(0, 50)}`));
+// thang đo điện áp ghi như “V− 2 V, 20 V, 200 V, 1 000 V; V~ 200 V, 750 V”; chọn thang cùng loại, lớn hơn nhưng gần giá trị cần đo nhất
+const thangDo = (q) => {
+  const ds = {}; q.q.match(/thang đo điện áp: ([^.]+)\./)[1].split("; ").forEach((p) => { const [, k, r] = p.match(/^(V[−~]) (.+)$/); ds[k] = r.split(", ").map((x) => val(x.replace(/ V$/, ""))); });
+  const [v] = so(new RegExp(`khoảng ${SO} V, (?:xoay chiều|một chiều)`), q.q), k = /khoảng [\d ]+ V, xoay chiều/.test(q.q) ? "V~" : "V−";
+  const chon = Math.min(...ds[k].filter((x) => x > v));
+  assert.ok(ds[k].some((x) => x < v), "có thang nhỏ hơn giá trị cần đo để thử");
+  coLoiGiai(q, `nên chọn thang ${k}`, `gần ${vn(v)} V nhất là ${vn(chon)} V`);
+  return `${k} ${vn(chon)} V`;
+};
+// đồ dùng điện ghi trong đề: “6 bóng đèn LED, mỗi bóng 220 V – 22 W”, “một ti vi 220 V – 154 W” → [[số lượng, tên, công suất]]
+const doDung = (s) => [...s.matchAll(/(\d+|một|hai|ba|bốn|năm|sáu) ([^,–()\d]+?)(?:, mỗi [^,–()\d]+?)? 220 V – (\d{1,3}(?: \d{3})*) W/g)].map((m) => [soLuong(m[1]), m[2], val(m[3])]);
+const chonLoai = (ds, can) => Math.min(...ds.filter((a) => a >= can - 1e-9)); // loại lớn hơn và gần nhất
+
+const CHECKS = [
+  /* Tin học, Đề 1 */
+  { id: T.de1, has: "Maximum: 40", right: (q) => {
+    const tl = thietLap(q.q); assert.ok(tl.allow === "Whole number" && tl.data === "between", "đọc được thiết lập");
+    return q.o.map((y) => { const m = y.match(/^Giá trị (\S+) được nhận vào ô\.$/); assert.ok(m, "ý: " + y); return nhanGiaTri(tl, /^-?\d+(,\d+)?$/.test(m[1]) ? val(m[1]) : m[1]); }); } },
+  { id: T.de1, has: "=COUNTIF(B2:B30,\"Bánh*\")", right: (q) => {
+    const o = {}; ["Bánh mì", "Xôi bánh", "Bánh", "Phở bò", "Bánh cuốn", "bánh bao"].forEach((m, i) => (o["B" + (i + 2)] = m));
+    assert.deepEqual(oKhop("B2:B7", "Bánh*", o), ["B2", "B4", "B6", "B7"], "“Bánh*”: bắt đầu bằng Bánh, không đếm ô kết thúc bằng Bánh");
+    assert.equal(tinh(congThuc(q.q)[0], o), 4); assert.ok(/bắt đầu bằng chữ Bánh/.test(q.o[0]) && q.o.slice(1).every((x) => !/bắt đầu/.test(x)), "chỉ đáp án đúng nói “bắt đầu”");
+    return q.o[0]; } },
+  { id: T.de1, has: "Sao chép công thức ở G2 sang ô G3", right: (q) => chep(congThuc(q.q)[0], 1, 0) },
+  { id: T.de1, has: "=COUNTIF(C2:C9,\"Cầu lông\")", right: (q) => {
+    const b = docTrang(q.svg), f = congThuc(q.q)[0], ds = oKhop(ham(f)[0], ham(f)[1].slice(1, -1), b.o);
+    coLoiGiai(q, ds.join(", ")); return tinh(f, b.o); } },
+  { id: T.de1, has: "số phút đọc sách", right: (q) => {
+    const b = docTrang(q.svg), f = congThuc(q.q)[0], ds = oKhop(ham(f)[0], ham(f)[1].slice(1, -1), b.o);
+    coLoiGiai(q, ds.map((c) => vn(b.o[c])).join(", ") + " (ở " + ds.join(", ") + ")"); return tinh(f, b.o); } },
+  { id: T.de1, has: "Phần nào của công thức là tham số sum_range", right: (q) => { const t = ham(congThuc(q.q)[0]); assert.equal(t.length, 3); return t[2]; } },
+  { id: T.de1, has: "số túi rác", right: (q) => {
+    const b = docTrang(q.svg), f = congThuc(q.q)[0], [r, dk, s] = ham(f), ds = oKhop(r, dk.slice(1, -1), b.o), tien = ds.map((c) => b.o["C" + c.slice(1)]);
+    coLoiGiai(q, ds.join(", "), tien.join(" + ") + " = " + vn(sum(tien))); assert.equal(s, "C2:C9"); return tinh(f, b.o); } },
+  { id: T.de1, has: "gian hàng hội chợ", right: (q) => {
+    const b = docTrang(q.svg), f = congThuc(q.q)[0], [r, dk] = ham(f), ds = oKhop(r, dk.slice(1, -1), b.o), tien = ds.map((c) => b.o["C" + c.slice(1)]);
+    coLoiGiai(q, tien.join(" + ") + " = " + vn(sum(tien))); ds.forEach((c) => coLoiGiai(q, `${b.o["A" + c.slice(1)]} (${b.o[c]})`)); return tinh(f, b.o); } },
+  { id: T.de1, has: "điểm thi đua của bốn tổ", right: (q) => {
+    const b = docTrang(q.svg), f = congThuc(q.q)[0], kq = {};
+    for (let r = 2; b.o["A" + r] !== undefined; r++) kq["C" + r] = tinh(chep(f, r - 2, 0), b.o);
+    assert.equal(Object.keys(kq).length, 4, "bốn tổ");
+    return q.o.map((y) => { let m;
+      if ((m = y.match(/^Ô (C\d) hiển thị “(.+)”\.$/))) return kq[m[1]] === m[2];
+      if ((m = y.match(/^Có (\S+) tổ được xếp “(.+)”\.$/))) return Object.values(kq).filter((v) => v === m[2]).length === soLuong(m[1]);
+      return assert.fail("ý chưa đọc được: " + y); }); } },
+  { id: T.de1, has: "Muốn ô C2 ghi “Cần giảm”", right: (q) => {
+    const yc = (h) => (h > 2 ? "Cần giảm" : "Hợp lí"), dung = q.o.filter((f) => [0, 1, 2, 2.5, 3, 5].every((h) => tinh(f, { B2: h }) === yc(h)));
+    assert.equal(dung.length, 1, "chỉ một công thức đúng yêu cầu"); return dung[0]; } },
+  { id: T.de1, has: "phí giao hàng", right: (q) => {
+    const b = docTrang(q.svg), f = congThuc(q.q)[0], phi = [];
+    for (let r = 2; b.o["B" + r] !== undefined; r++) phi.push(tinh(chep(f, r - 2, 0), b.o));
+    const tra = phi.filter((v) => v > 0); coLoiGiai(q, `${vn(tra[0])} × ${tra.length} = ${vn(sum(phi))}`); return sum(phi); } },
+  { id: T.de1, has: "Công thức nào ở ô E8", right: (q) => {
+    const dung = q.o.filter((f) => [0, 1, 2].every((k) => { const o = {}; let t = 0; for (let r = 2; r <= 7; r++) { o["E" + r] = 10 * r + 37 * k + 3; t += o["E" + r]; } return close(tinh(f, o), t); }));
+    assert.equal(dung.length, 1, "chỉ một công thức cho tổng số tiền"); return dung[0]; } },
+  { id: T.de1, has: "quản lí tiền tiêu vặt", right: (q) => {
+    const b = docTrang(q.svg), chi = Object.keys(b.o).filter((k) => /^B\d+$/.test(k) && k !== "B1").map((k) => b.o[k]), [thu] = so(new RegExp(`tổng thu tháng 3 \\(${SO} nghìn đồng\\)`), q.q);
+    coLoiGiai(q, chi.join(" + ") + " = " + vn(sum(chi)), `${vn(thu)} − ${vn(sum(chi))} = ${vn(thu - sum(chi))}`);
+    return tinh(congThuc(q.q).find((f) => f === "=C4-C5"), { C4: thu, C5: sum(chi) }); } },
+  /* Tin học, Đề 2 */
+  { id: T.de2, has: "Mỗi bàn có từ 1 đến 6 khách", right: (q) => {
+    const yc = (v) => Number.isInteger(v) && v >= 1 && v <= 6, dung = q.o.filter((o) => [-1, 0, 0.5, 1, 2.5, 3, 6, 6.5, 7, 10].every((v) => nhanGiaTri(thietLap(o), v) === yc(v)));
+    assert.equal(dung.length, 1, "chỉ một thiết lập khớp yêu cầu"); return dung[0]; } },
+  { id: T.de2, has: "=COUNTIF(B2:B40,E2)", right: (q) => {
+    const o = { E2: "Bảo tàng", B2: "Bảo tàng", B3: "Công viên", B4: "bảo tàng", B5: "Vườn thú", B6: "Bảo tàng cổ" };
+    assert.equal(tinh(congThuc(q.q)[0], o), 2, "điều kiện là ô E2: đếm ô giống giá trị ở E2"); assert.ok(/giống giá trị ở ô E2/.test(q.o[0]));
+    return q.o[0]; } },
+  { id: T.de2, has: "điểm bài kiểm tra của 10 bạn", right: (q) => {
+    const b = docTrang(q.svg), f = congThuc(q.q)[0], ds = oKhop(ham(f)[0], ham(f)[1].slice(1, -1), b.o);
+    coLoiGiai(q, ds.map((c) => vn(b.o[c])).join(", ") + " (ở " + ds.join(", ") + ")"); return tinh(f, b.o); } },
+  { id: T.de2, has: "đồ uống yêu thích", right: (q) => { const b = docTrang(q.svg);
+    return q.o.map((y) => { const m = y.match(/^(=COUNTIF\(.*\)) cho kết quả (\d+)\.$/); assert.ok(m, "ý: " + y); return tinh(m[1], b.o) === +m[2]; }); } },
+  { id: T.de2, has: "chuyến dã ngoại", right: (q) => {
+    const b = docTrang(q.svg), [f2, f3] = congThuc(q.q), [a, c] = [tinh(f2, b.o), tinh(f3, b.o)];
+    coLoiGiai(q, `F2 = ${oKhop("B2:B9", "Ăn uống", b.o).map((x) => b.o["C" + x.slice(1)]).join(" + ")} = ${vn(a)}`, `F3 = ${oKhop("B2:B9", "Đi lại", b.o).map((x) => b.o["C" + x.slice(1)]).join(" + ")} = ${vn(c)}`, `${vn(a)} − ${vn(c)} = ${vn(a - c)}`);
+    return a - c; } },
+  { id: T.de2, has: "ngày hội trồng cây", right: (q) => { const b = docTrang(q.svg);
+    return q.o.map((y) => { let m;
+      if ((m = y.match(/^(=SUMIF\(.*\)) cho kết quả (\d+)\.$/))) return tinh(m[1], b.o) === +m[2];
+      if ((m = y.match(/^Khối (\d+) trồng được nhiều cây hơn khối (\d+)\.$/))) return tinh(`=SUMIF(B2:B9,${m[1]},C2:C9)`, b.o) > tinh(`=SUMIF(B2:B9,${m[2]},C2:C9)`, b.o);
+      return assert.fail("ý chưa đọc được: " + y); }); } },
+  { id: T.de2, has: "tổng số giờ tình nguyện của Tổ 2", right: (q) => {
+    const dung = q.o.filter((f) => [0, 1, 2].every((k) => { const o = {}; let t = 0; for (let r = 2; r <= 13; r++) { o["B" + r] = "Tổ " + (1 + ((r + k) % 3)); o["D" + r] = 2 + ((r * 7 + k) % 9); if (o["B" + r] === "Tổ 2") t += o["D" + r]; } return close(tinh(f, o), t); }));
+    assert.equal(dung.length, 1, "chỉ một công thức cho tổng số giờ của Tổ 2"); return dung[0]; } },
+  { id: T.de2, has: "=IF(D2>=80", right: (q) => { const [d] = so(/Ô D2 chứa số (\d+)/, q.q); return tinh(congThuc(q.q)[0], { D2: d }); } },
+  { id: T.de2, has: "phần trăm pin còn lại", right: (q) => { const f = congThuc(q.q)[0];
+    return q.o.map((y) => { let m;
+      if ((m = y.match(/^Nếu B2 là (\d+)% thì C2 hiển thị “(.+)”\.$/))) return tinh(f, { B2: +m[1] / 100 }) === m[2];
+      if ((m = y.match(/^Đổi điều kiện thành (B2[<>=]+\d+%) thì với B2 là (\d+)%, C2 vẫn hiển thị “(.+)”\.$/))) return tinh(f.replace(/B2[<>=]+\d+%/, m[1]), { B2: +m[2] / 100 }) === m[3];
+      return assert.fail("ý chưa đọc được: " + y); }); } },
+  { id: T.de2, has: "Câu lạc bộ đọc sách", right: (q) => {
+    const b = docTrang(q.svg), f = congThuc(q.q)[0], d = [];
+    for (let r = 2; b.o["B" + r] !== undefined; r++) d.push(tinh(chep(f, r - 2, 0), b.o));
+    const [a, c] = [d.filter((v) => v === 10).length, d.filter((v) => v === 3).length];
+    assert.equal(a + c, d.length); coLoiGiai(q, `10 × ${a} + 3 × ${c} = ${vn(sum(d))}`); return sum(d); } },
+  { id: T.de2, has: "bốn tháng đầu năm", right: (q) => {
+    const c = docCot2(q.svg), hieu = c.nhom.map((t, i) => c.day.Thu[i] - c.day.Chi[i]), k = hieu.indexOf(Math.max(...hieu));
+    assert.equal(hieu.filter((v) => v === hieu[k]).length, 1, "một tháng thu hơn chi nhiều nhất");
+    c.nhom.forEach((t, i) => coLoiGiai(q, `${t.toLowerCase()}: ${vn(c.day.Thu[i])} − ${vn(c.day.Chi[i])} = ${hieu[i] < 0 ? "−" + vn(-hieu[i]) : vn(hieu[i])}`));
+    return c.nhom[k]; } },
+  { id: T.de2, has: "ba tháng của một gia đình", right: (q) => {
+    const b = docTrang(q.svg), f = congThuc(q.q)[0], H = [2, 3, 4], D = H.map((r) => tinh(chep(f, r - 2, 0), b.o));
+    const thu = sum(H.map((r) => b.o["B" + r])), chi = sum(H.map((r) => b.o["C" + r]));
+    return q.o.map((y) => { let m;
+      if ((m = y.match(/^Ô D(\d) có giá trị âm\.$/))) return D[+m[1] - 2] < 0;
+      if ((m = y.match(/^Tổng thu ba tháng lớn hơn tổng chi ba tháng (\d+) triệu đồng\.$/))) return thu - chi === +m[1];
+      if ((m = y.match(/^(Tháng \d+) có chênh lệch thu, chi lớn nhất trong ba tháng\.$/))) return D[H.findIndex((r) => b.o["A" + r] === m[1])] === Math.max(...D);
+      if ((m = y.match(/^Nếu (tháng \d+) bớt (\d+) triệu đồng tiền chi thì D(\d) bằng (-?\d+)\.$/))) {
+        const r = +m[3]; assert.equal(b.o["A" + r].toLowerCase(), m[1]);
+        return tinh(chep(f, r - 2, 0), Object.assign({}, b.o, { ["C" + r]: b.o["C" + r] - +m[2] })) === +m[4]; }
+      return assert.fail("ý chưa đọc được: " + y); }); } },
+  { id: T.de2, has: "hiển thị −300", right: (q) => {
+    const [v] = so(/hiển thị (−\d+) \(nghìn đồng\)/, q.q), [c4, c5] = ["C4", "C5"].map((k) => (q.q.includes(`ô ${k} là tổng thu`) && k === "C4") || (q.q.includes(`ô ${k} là tổng chi`) && k === "C5"));
+    assert.ok(v < 0 && c4 && c5 && congThuc(q.q).includes("=C4-C5"), "C6 = tổng thu − tổng chi, âm");
+    return `Tháng 10 gia đình chi nhiều hơn thu ${vn(-v)} nghìn đồng`; } },
+  /* Công nghệ, Đề 1 */
+  { id: C.de1, has: "Giang cần đo điện áp của ổ cắm", right: thangDo },
+  { id: C.de1, has: "ba kí hiệu dùng trong sơ đồ", right: (q) => { const k = docKiHieu(q.svg); assert.equal(k.length, q.l.length);
+    return q.l.map((l) => { const n = +l.match(/^Kí hiệu (\d)$/)[1]; return [l, k.find((x) => x[0] === n)[1]]; }); } },
+  { id: C.de1, has: "Phúc đóng công tắc số 4", right: (q) => {
+    const sd = docSoDo(q.svg), [dong] = so(/đóng công tắc số (\d+)/, q.q), [ngat] = so(/công tắc số (\d+) vẫn ngắt/, q.q);
+    assert.deepEqual(congTacCua(sd).sort(), [dong, ngat].sort(), "đề nói trạng thái của mọi công tắc");
+    const co = coDien(sd, { dong: [dong] }), loai = { "Ổ lấy điện": "oCam", "bóng đèn": "den", "Bóng đèn": "den" };
+    const dung = q.o.filter((o) => { const ds = [...o.matchAll(/(Ổ lấy điện|bóng đèn|Bóng đèn) số (\d+)/g)];
+      ds.forEach((m) => assert.equal(thietBi(sd, +m[2]).loai, loai[m[1]], "lựa chọn gọi đúng tên thiết bị số " + m[2]));
+      return ds.length === co.size && ds.every((m) => co.has(+m[2])); });
+    assert.equal(dung.length, 1, "chỉ một lựa chọn khớp"); return dung[0]; } },
+  { id: C.de1, has: "Bạn Thảo vẽ sơ đồ nguyên lí", right: (q) => {
+    // lưu ý khi vẽ của Bài 3: mạch nguồn thường đặt ngang; thiết bị đóng cắt, bảo vệ, lấy điện ở bên trái thiết bị điện; công tắc vẽ ở
+    // trạng thái ngắt (docSoDo đã kiểm tra). Ba lựa chọn sai là điều hình vẽ đúng: mạch nguồn có đoạn dài nằm ngang, bóng đèn là vòng tròn
+    // có dấu nhân (docSoDo nhận ra), hai dây nguồn ghi A, O; chỉ chỗ đặt cầu chì, công tắc là chưa đúng.
+    const sd = docSoDo(q.svg), den = sd.tb.filter((t) => t.loai === "den"), kia = sd.tb.filter((t) => t.loai !== "den");
+    assert.ok(den.length === 1 && kia.length === 2 && kia.every((t) => close(t.tam[1], den[0].tam[1]) && t.tam[0] > den[0].tam[0]), "cầu chì và công tắc cùng nhánh, ở bên phải bóng đèn");
+    assert.deepEqual(kia.map((t) => t.loai).sort(), ["cauChi", "congTac"]);
+    assert.ok(sd.day.some(([a, b]) => a[1] === b[1] && Math.abs(a[0] - b[0]) > 150 && [sd.A, sd.O].includes(sd.nutCua(a))), "mạch nguồn có đoạn dài nằm ngang");
+    assert.ok(sd.nguon.A && sd.nguon.O, "hai dây nguồn ghi A, O");
+    const ct = kia.find((t) => t.loai === "congTac").so;
+    assert.ok(coDien(sd, { dong: [ct] }).has(den[0].so) && !coDien(sd).has(den[0].so), "đóng công tắc thì đèn sáng, ngắt thì tắt");
+    assert.ok(/^Mạch nguồn được vẽ nằm ngang$/.test(q.o[1]) && /^Bóng đèn được vẽ bằng vòng tròn có dấu nhân$/.test(q.o[2]) && /^Hai dây nguồn được ghi kí hiệu A và O$/.test(q.o[3]), "ba lựa chọn sai là ba điều vừa kiểm tra");
+    assert.ok(/bên phải bóng đèn/.test(q.o[0]), "đáp án đúng là chỗ vẽ bên phải");
+    return q.o[0]; } },
+  { id: C.de1, has: "có hai cầu chì", right: (q) => { const sd = docSoDo(q.svg), tat = congTacCua(sd);
+    assert.equal(sd.tb.filter((t) => t.loai === "cauChi").length, 2);
+    return q.o.map((y) => { let m;
+      if ((m = y.match(/^Cầu chì số (\d+) đứt thì cả hai bóng đèn và ổ lấy điện số (\d+) đều mất điện\.$/))) return sd.tb.filter((t) => t.loai === "den").length === 2 && thietBi(sd, +m[2]).loai === "oCam" && coDien(sd, { dong: tat, dut: [+m[1]] }).size === 0;
+      if ((m = y.match(/^Cầu chì số (\d+) đứt thì bóng đèn số (\d+) không sáng được\.$/))) return !coDien(sd, { dong: tat, dut: [+m[1]] }).has(+m[2]);
+      if ((m = y.match(/^Cầu chì số (\d+) được mắc nối tiếp với ổ lấy điện số (\d+)\.$/))) return noiTiep(sd, thietBi(sd, +m[1]), thietBi(sd, +m[2]));
+      if ((m = y.match(/^Cầu chì số (\d+) được mắc trên dây ([AO])\.$/))) return thietBi(sd, +m[1]).nut.includes(sd[m[2]]);
+      return assert.fail("ý chưa đọc được: " + y); }); } },
+  { id: C.de1, has: "lò vi sóng 1 100 W", right: (q) => {
+    const P = [...q.q.matchAll(new RegExp(SO + " W", "g"))].map((m) => val(m[1])), I = sum(P) / 220, can = 1.3 * I;
+    const loai = q.q.match(/aptomat loại ([^.]+)\./)[1].split(", ").map((x) => val(x.replace(/ A$/, ""))), chon = chonLoai(loai, can);
+    coLoiGiai(q, `(${P.map(vn).join(" + ")}) : 220 = ${vn(I)} (A)`, `${vn(can)} A`, `gần nhất: ${vn(chon)} A`); return vn(chon) + " A"; } },
+  { id: C.de1, has: "Bình nóng lạnh ghi 220 V – 2 500 W", right: (q) => { const [U, P] = so(new RegExp(`ghi ${SO} V – ${SO} W`), q.q), can = 1.3 * P / U;
+    coLoiGiai(q, `${vn(P)} : ${vn(U)} ≈ ${vn(tron(P / U, 1))} (A)`, `khoảng ${vn(tron(can, 1))} A`);
+    return q.o.map((y) => { const [a, v] = so(new RegExp(`^Công tắc ${SO} A – ${SO} V dùng được\\.$`), y); return a >= can && v >= 220; }); } },
+  { id: C.de1, has: "6 bóng đèn LED", right: (q) => { const d = doDung(q.q), P = sum(d.map(([n, , p]) => n * p));
+    assert.equal(d.length, 2); coLoiGiai(q, d.map(([n, , p]) => `${n} × ${p}`).join(" + ") + ` = ${d.map(([n, , p]) => vn(n * p)).join(" + ")} = ${vn(P)} (W)`, `${vn(P)} : 220 = ${vn(P / 220)} (A)`);
+    return P / 220; } },
+  /* Công nghệ, Đề 2 */
+  { id: C.de2, has: "bình ắc quy xe máy", right: thangDo },
+  { id: C.de2, has: "hai bóng đèn số 3, số 4", right: (q) => {
+    const sd = docSoDo(q.svg), ct = congTacCua(sd), [d3, d4] = [3, 4].map((n) => thietBi(sd, n));
+    assert.ok(d3.loai === "den" && d4.loai === "den" && songSong(sd, d3, d4), "hai bóng đèn 3, 4 mắc song song");
+    return q.o.map((y) => { let m;
+      if ((m = y.match(/^Công tắc số (\d+) điều khiển cả bóng đèn số (\d+) và bóng đèn số (\d+)\.$/))) { const ds = dieuKhien(sd, +m[1]); return ds.size === 2 && ds.has(+m[2]) && ds.has(+m[3]); }
+      if ((m = y.match(/^Hai bóng đèn số (\d+) và số (\d+) được mắc nối tiếp với nhau\.$/))) return noiTiep(sd, thietBi(sd, +m[1]), thietBi(sd, +m[2]));
+      if ((m = y.match(/^Có thể bật bóng đèn số (\d+) mà không bật bóng đèn số (\d+)\.$/))) return moiCach(ct).some((dong) => { const c = coDien(sd, { dong }); return c.has(+m[1]) && !c.has(+m[2]); });
+      if ((m = y.match(/^Khi công tắc số (\d+) ngắt \(như hình\), cả hai bóng đèn đều không sáng\.$/))) return moiCach(ct.filter((x) => x !== +m[1])).every((dong) => { const c = coDien(sd, { dong }); return !c.has(3) && !c.has(4); });
+      return assert.fail("ý chưa đọc được: " + y); }); } },
+  { id: C.de2, has: "Ngọc lập bản danh sách", right: (q) => {
+    const sd = docSoDo(q.svg), dem = (l) => sd.tb.filter((t) => t.loai === l).length, ct = congTacCua(sd);
+    ct.forEach((s) => assert.equal(dieuKhien(sd, s).size, 1, "mỗi công tắc điều khiển một bóng đèn"));
+    sd.tb.filter((t) => t.loai === "oCam").forEach((t) => assert.ok(coDien(sd).has(t.so), "ổ lấy điện luôn có điện"));
+    sd.tb.forEach((t) => coLoiGiai(q, String(t.so)));
+    return `${dem("cauChi")} cầu chì, ${dem("congTac")} công tắc, ${dem("den")} bóng đèn, ${dem("oCam")} ổ lấy điện`; } },
+  { id: C.de2, has: "Cần lắp thêm vào sơ đồ ở hình một ổ lấy điện", right: (q) => {
+    const sd = docSoDo(q.svg), ct = congTacCua(sd), cc = sd.tb.filter((t) => t.loai === "cauChi").map((t) => t.so);
+    assert.deepEqual(cc, [1], "một cầu chì số 1");
+    const hop = (o) => { const m = o.match(/^([A-Z]) và ([A-Z])$/), x = { so: "X", nut: [sd.diem[m[1]], sd.diem[m[2]]] };
+      if (x.nut[0] === x.nut[1]) return false;
+      return moiCach(ct).every((dong) => coDien(sd, { dong, them: [x] }).has("X") && !coDien(sd, { dong, dut: cc, them: [x] }).has("X")); };
+    const dung = q.o.filter(hop); assert.equal(dung.length, 1, "chỉ một cách nối: ổ luôn có điện và được cầu chì bảo vệ"); return dung[0]; } },
+  { id: C.de2, has: "Máy giặt ghi 220 V – 1 540 W", right: (q) => {
+    const [U, P] = so(new RegExp(`ghi ${SO} V – ${SO} W`), q.q), I = P / U, can = 1.3 * I, loai = q.q.match(/trong các loại (.+?), nên/)[1].split(", ").map((x) => val(x.replace(/ A$/, "")));
+    coLoiGiai(q, `${vn(P)} : ${vn(U)} = ${vn(I)} (A)`, `${vn(I)} × 1,3 = ${vn(can)} (A)`); return vn(chonLoai(loai, can)) + " A"; } },
+  { id: C.de2, has: "Phòng ngủ của Uyên", right: (q) => {
+    const d = doDung(q.q), I = sum(d.map(([n, , p]) => n * p)) / 220, P = (ten) => d.find(([, t]) => t.includes(ten))[2];
+    assert.equal(d.length, 3);
+    return q.o.map((y) => { let m;
+      if ((m = y.match(new RegExp(`^Khi tắt (\\S+), dòng điện tính toán của mạch giảm còn ${SO} A\\.$`)))) return close(I - P(m[1]) / 220, val(m[2]));
+      if ((m = y.match(new RegExp(`^Dòng điện tính toán của mạch là ${SO} A\\.$`)))) return close(I, val(m[1]));
+      if ((m = y.match(/^Dòng điện qua quạt khi chạy lớn hơn dòng điện qua ổ sạc máy tính\.$/))) return P("quạt") > P("ổ cắm sạc");
+      if ((m = y.match(new RegExp(`^Aptomat cho mạch cần dòng điện định mức ít nhất khoảng ${SO} A\\.$`)))) return close(1.3 * I, val(m[1]));
+      return assert.fail("ý chưa đọc được: " + y); }); } },
+  { id: C.de2, has: "ti vi 220 V – 154 W", right: (q) => { const d = doDung(q.q), P = sum(d.map(([n, , p]) => n * p)), I = P / 220;
+    assert.equal(d.length, 3); coLoiGiai(q, `= ${vn(P)} (W)`, `${vn(P)} : 220 = ${vn(I)} (A)`, `${vn(I)} × 130% = ${vn(1.3 * I)} (A)`); return 1.3 * I; } }
+];
+const giaTri = (q) => (q.type === "num" ? (typeof q.ans === "string" ? q.ans : q.ans) : q.type === "match" ? q.l.map((l, k) => [l, q.r[k]]) : q.type === "order" ? q.o : q.type === "fill" ? q.ans[0] : q.type === "tf4" ? q.a : q.o[0]);
+const daKiem = new Set();
+CHECKS.forEach((c) => {
+  const hits = kho.filter((q) => q.q.includes(c.has));
+  assert.equal(hits.length, 1, "đoạn chữ phải ứng với đúng một câu: " + c.has);
+  const q = hits[0];
+  assert.equal(q.src, c.id, "câu ở đúng đề: " + c.has);
+  const r = c.right(q), got = giaTri(q);
+  if (typeof r === "number") assert.ok(close(got, r), `đáp án ${got} khác kết quả tính ${r}: ${q.q.slice(0, 70)}`);
+  else assert.deepEqual(got, r, `đáp án “${got}” khác kết quả tính “${r}”: ${q.q.slice(0, 70)}`);
+  daKiem.add(q);
+});
+kho.filter((q) => q.svg || q.type === "num").forEach((q) => assert.ok(daKiem.has(q), "chưa có kiểm tra cho câu: " + q.q.slice(0, 60)));
+kho.filter((q) => q.svg).forEach((q) => assert.ok(daDoc.has(q.svg), "hình chưa được đọc lại: " + q.q.slice(0, 60)));
+// mọi công thức ghi trong câu Tin học đọc được, số trong công thức nhỏ hơn 1 000
+T.kho.forEach((q) => [q.q, q.x].concat(q.o || []).forEach((s) => congThuc(s).forEach((f) => {
+  if (/\b(range|criteria|sum_range|logical_test|value_if_true|value_if_false)\b/.test(f)) return; // cú pháp của hàm, không phải công thức
+  if (!f.includes("!")) { const o = {}; assert.doesNotThrow(() => tinh(f, o), "công thức không đọc được: " + f); }
+  ngoaiNgoac(f, (p) => p.replace(/\$?[A-Z]+\$?\d+/g, "")).replace(/"[^"]*"/g, "").match(/\d+/g)?.forEach((n) => assert.ok(+n < 1000, "số trong công thức từ 1 000 trở lên: " + f));
+})));
+// sơ đồ đưa ra làm mẫu (mọi sơ đồ trừ câu tìm chỗ vẽ chưa đúng) theo lưu ý khi vẽ của Bài 3: công tắc, cầu chì ở bên trái bóng đèn, ổ lấy
+// điện cùng nhánh
+C.kho.filter((q) => q.svg && q.type !== "match" && !q.q.includes("Bạn Thảo vẽ")).forEach((q) => {
+  const sd = docSoDo(q.svg);
+  sd.tb.filter((t) => ["den", "oCam"].includes(t.loai)).forEach((t) => sd.tb.filter((x) => ["congTac", "cauChi"].includes(x.loai) && close(x.tam[1], t.tam[1]))
+    .forEach((x) => assert.ok(x.tam[0] < t.tam[0], `thiết bị số ${x.so} vẽ bên phải thiết bị số ${t.so}: ${q.q.slice(0, 50)}`)));
+});
+
+/* ---------- chữ, lời dặn ---------- */
+const chu = (q) => [q.q, q.x].concat(q.o || [], q.l || [], q.r || [], q.type === "fill" ? q.ans : [], q.unit || []).map(String);
+kho.forEach((q) => chu(q).forEach((s) => {
+  const at = q.src + ": " + q.q.slice(0, 50) + " → ";
+  // dấu thanh kiểu cũ, “kĩ”, “lí” như hai cuốn sách
+  assert.ok(!/(?<![\p{L}])(?:hóa|hòa|khỏe|tùy|thỏa|thủy|tỏa|hủy|họa|lũy|xóa|kỹ|lý)(?![\p{L}])/iu.test(s), at + "viết như sách (hoá, hoà, khoẻ, tuỳ, thoả, kĩ, lí): " + s);
+  // số ngăn hàng nghìn bằng khoảng trắng (năm viết liền), dấu phẩy thập phân
+  assert.ok(!/\d{5,}|\d\.\d/.test(s) && [...s.matchAll(/(?<!\d)\d{4}(?!\d)/g)].every((m) => /^(19|20)\d\d$/.test(m[0])), at + "số viết sai cách: " + s);
+  // lời giải không nói “ý thứ hai”, “phương án A”: app xáo phương án
+  assert.ok(!/(ý|phương án|lựa chọn) (thứ|số) (nhất|hai|ba|tư|\d)|phương án [A-D]\b/.test(s), at + "nhắc vị trí của phương án: " + s);
+  // nhân vật của sách Tin học 9 (An, Minh, Khoa) không dùng làm tên trong đề
+  assert.ok(!/(?<![\p{L}])(?:An|Minh|Khoa)(?![\p{L}])(?! học)/u.test(s), at + "tên nhân vật của sách: " + s);
+  // dấu trừ của số âm là “−” (U+2212) như các kho khác; công thức giữ dấu “-” như phần mềm bảng tính
+  assert.ok(!/(?<![A-Z\d)])-\d/.test(s.replace(/=[^ ]*/g, "")), at + "số âm viết bằng dấu “−”: " + s);
+}));
+MON.forEach((S) => {
+  const nt = bank(S.de1).note;
+  assert.equal(bank(S.de2).note, nt, S.m + ": hai đề cùng lời dặn");
+  assert.ok(nt.startsWith(`Sách Kết nối tri thức, ${S.ten} 9`) && nt.endsWith("Có lời giải từng câu."), S.m + ": lời dặn ghi sách, cuối lời dặn là “Có lời giải từng câu.”");
+  S.chuDe.forEach(([, n, ten]) => assert.ok(nt.includes(`Bài ${n} ${ten}`), S.m + ": lời dặn ghi Bài " + n + " " + ten));
+  assert.ok(!/Sở GD|Sở Giáo dục|đề chung/.test(nt), S.m + ": đề giữa kì không có câu về đề chung của Sở");
+  assert.ok(/đối chiếu đề cương của trường/.test(nt), S.m + ": lời dặn nhắc đối chiếu đề cương của trường");
+});
+assert.ok(/Chủ đề 4 phần a\. Sử dụng bảng tính điện tử nâng cao/.test(bank(T.de1).note) && /phần b\. Làm quen với phần mềm làm video \(Bài 9b–13b\)/.test(bank(T.de1).note) && /không có phần thực hành trên máy/.test(bank(T.de1).note), "Tin học: lời dặn ghi phần a, nhắc phần b, hỏi qua tình huống");
+assert.ok(/mô đun Lắp đặt mạng điện trong nhà/.test(bank(C.de1).note) && /mô đun khác/.test(bank(C.de1).note) && /Định hướng nghề nghiệp ở học kì II/.test(bank(C.de1).note), "Công nghệ: lời dặn ghi mô đun, nhắc mô đun khác và Định hướng nghề nghiệp");
+
+/* ---------- dạng câu, mức độ, ma trận, rút thử ---------- */
+const dem = (qs, t, lv) => qs.filter((q) => q.topic === t && q.lv === lv).length;
+const chuThuong = (s) => String(s).normalize("NFC").toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean); // các chữ, giữ dấu
+MON.forEach((S) => {
+  const p = bank(S.pool), M = p.pool.matrix, cells = Object.values(M), K = S.kho, d1 = bank(S.de1).questions, d2 = bank(S.de2).questions;
+  assert.ok(K.every((q) => ["mc", "tf4", "num", "fill", "match", "order"].includes(q.type)), S.pool + ": chỉ dùng nhiều lựa chọn, đúng/sai 4 ý, trả lời ngắn, nối cột, sắp xếp; không có tự luận");
+  assert.ok(K.every((q) => [1, 2, 3].includes(q.lv)), S.pool + ": câu nào trong kho cũng cần lv");
+  assert.ok(cells.every(Array.isArray), S.pool + ": ma trận ghi theo [Biết, Hiểu, Vận dụng]");
+  assert.deepEqual([0, 1, 2].map((k) => sum(cells.map((v) => v[k]))), [10, 8, 7], S.pool + ": ma trận 10 Biết, 8 Hiểu, 7 Vận dụng");
+  assert.equal(sum(cells.map(sum)), p.n, S.pool + ": tổng ma trận bằng n");
+  assert.deepEqual(Object.keys(M), S.chuDe.map((c) => c[0]), S.pool + ": chủ đề theo thứ tự bài của sách");
+  [d1, d2].forEach((d, i) => {
+    assert.deepEqual([...new Set(d.map((q) => q.topic))], Object.keys(M), `${S.pool}: Đề ${i + 1} đủ chủ đề, theo thứ tự của ma trận`);
+    Object.entries(M).forEach(([t, v]) => assert.deepEqual([1, 2, 3].map((l) => dem(d, t, l)), v, `Đề ${i + 1} của ${S.pool} đúng ma trận ở chủ đề ${t}`));
+    assert.ok(d.filter((q) => q.type === "tf4").length >= 2 && d.some((q) => ["num", "fill"].includes(q.type)), `Đề ${i + 1} của ${S.pool}: có câu đúng/sai 4 ý và câu trả lời ngắn như khung Công văn 7991`);
+  });
+  const tf4 = K.filter((q) => q.type === "tf4"), kieu = {};
+  assert.ok(tf4.length >= 4, S.pool + ": mỗi kho ít nhất 4 câu đúng/sai 4 ý");
+  tf4.forEach((q) => { const k = q.a.map((a) => (a ? "Đ" : "S")).join(""); kieu[k] = (kieu[k] || 0) + 1; assert.ok(q.o.length === 4 && /Đ/.test(k) && /S/.test(k), "câu đúng/sai 4 ý có cả ý đúng và ý sai"); });
+  assert.equal(Math.max(...Object.values(kieu)), 1, S.pool + ": kiểu Đ/S của các câu đúng/sai 4 ý lặp: " + JSON.stringify(kieu));
+  K.filter((q) => q.type === "match").forEach((q) => assert.ok(q.r.length > q.l.length && new Set(q.r).size === q.r.length, "câu nối có ô thừa, các ô không trùng nhau: " + q.q.slice(0, 50)));
+  K.filter((q) => q.type === "order").forEach((q) => assert.ok(q.o.length >= 3 && new Set(q.o).size === q.o.length, "câu sắp xếp có ít nhất 3 ô khác nhau: " + q.q.slice(0, 50)));
+  const mc = K.filter((q) => q.type === "mc");
+  mc.forEach((q) => {
+    // đáp án đúng không dài hơn hẳn các lựa chọn sai (Rút ra N2), không phải lựa chọn duy nhất có chữ của nhãn chủ đề (Rút ra N6)
+    const m = Math.max(...q.o.slice(1).map((o) => o.length));
+    assert.ok(q.o[0].length <= Math.max(1.2 * m, m + 8), "đáp án đúng dài hơn hẳn các lựa chọn sai: " + q.q.slice(0, 60));
+    assert.equal(new Set(q.o).size, q.o.length, "lựa chọn trùng nhau: " + q.q.slice(0, 60));
+    const c = chuThuong(q.topic), tu = c.slice(1).map((w, k) => c[k] + " " + w).filter((w) => !/(^| )(trong|của|các|và|ở|về|với|số|cho)( |$)/u.test(w)); // từ hai âm tiết của nhãn
+    tu.forEach((w) => { const co = q.o.map((o) => (" " + chuThuong(o).join(" ") + " ").includes(" " + w + " ")); assert.ok(!(co[0] && !co.slice(1).some(Boolean)), `chỉ đáp án đúng có chữ “${w}” của nhãn chủ đề: ${q.q.slice(0, 60)}`); });
+    // ba lựa chọn sai không cùng mở đầu bằng một chữ mà đáp án đúng không có (Rút ra N22)
+    const dau = q.o.map((o) => o.split(" ")[0]);
+    assert.ok(!(q.o.length === 4 && dau.slice(1).every((d) => d === dau[1]) && dau[0] !== dau[1] && dau[1].length > 1), "ba lựa chọn sai cùng mở đầu bằng “" + dau[1] + "”: " + q.q.slice(0, 50));
+  });
+  // đáp án đúng không hay là lựa chọn dài nhất hay ngắn nhất (Rút ra N9-ck1-tin-congnghe): mỗi kiểu không quá một phần ba số câu nhiều lựa chọn
+  const hon = (q, f) => q.o.slice(1).every((o) => f(q.o[0].length, o.length));
+  assert.ok(mc.filter((q) => hon(q, (a, b) => a > b)).length <= mc.length / 3, S.pool + ": đáp án đúng là lựa chọn dài nhất ở quá một phần ba số câu nhiều lựa chọn");
+  assert.ok(mc.filter((q) => hon(q, (a, b) => a < b)).length <= mc.length / 3, S.pool + ": đáp án đúng là lựa chọn ngắn nhất ở quá một phần ba số câu nhiều lựa chọn");
+  const seen = new Set();
+  for (let k = 0; k < 300; k++) {
+    const d = Quiz.draw(p);
+    assert.equal(d.notes.length, 0, S.pool + ": rút thử có ghi chú: " + d.notes.join("; "));
+    assert.equal(d.questions.length, p.n);
+    Object.entries(M).forEach(([t, v]) => assert.deepEqual([1, 2, 3].map((l) => dem(d.questions, t, l)), v, `${S.pool}: rút đúng ma trận ở chủ đề ${t}`));
+    d.questions.forEach((q) => seen.add(Quiz.key(q)));
+  }
+  assert.equal(seen.size, K.length, S.pool + ": 300 lần rút thử phải gặp đủ câu của kho");
+  // học sinh đã làm hết một đề cố định (đúng cả) thì đề ngẫu nhiên rút toàn câu của đề kia
+  [[S.de1, S.de2], [S.de2, S.de1]].forEach(([lam, con]) => {
+    const hist = (q) => (q.src === lam ? { done: 1, wrong: 0 } : null);
+    for (let k = 0; k < 30; k++) {
+      const d = Quiz.draw(p, hist);
+      assert.ok(d.notes.length === 0 && d.questions.length === p.n && d.questions.every((q) => q.src === con), `${S.pool}: đã làm hết ${lam} thì rút toàn câu của ${con}`);
+    }
+  });
+});
+// đáp án đúng là lựa chọn duy nhất có cặp từ của đề bài (Rút ra N9-ck1-khtn): in ra để xem tay
+if (process.env.DO_DE) {
+  const cap = (s) => { const w = chuThuong(s); return new Set(w.slice(1).map((x, k) => w[k] + " " + x)); };
+  kho.filter((q) => q.type === "mc").forEach((q) => {
+    const de = cap(q.q), co = q.o.map((o) => [...cap(o)].filter((c) => de.has(c)));
+    if (co[0].length && co.slice(1).every((c) => !c.length)) console.log(`${q.src}: “${q.o[0]}” lặp “${co[0].join("”, “")}” của đề`);
+  });
+}
+
+/* ---------- đề bài không trùng câu nào khác trong file (Rút ra N8), so sau khi bỏ dấu câu, khoảng trắng; không gần trùng câu
+   của các kho cũ cùng môn (Rút ra N25), cả kho cuối kì I lớp 9: đề bài cùng các lựa chọn, ô nối, ô sắp xếp có từ một nửa số cặp hai âm
+   tiết liền nhau (tính trên câu ít cặp hơn, bỏ các cặp có ở mọi câu như “nào dưới đây” và cặp của nhãn chủ đề) chung với một câu cũ thì
+   báo ---------- */
+const goc = (s) => String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+const CHUNG = new Set(["nào dưới", "dưới đây", "đây là", "là một", "mỗi ý", "ý sau", "sau đúng", "đúng hay", "hay sai", "ở hình", "nào sau", "sau đây"]);
+const cap2 = (s) => { const w = String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/).filter(Boolean); return w.slice(1).map((x, k) => w[k] + " " + x); };
+const capAm = (q) => { const nhan = new Set(cap2(q.topic)); return new Set(cap2([q.q].concat(q.o || [], q.l || [], q.r || []).join(" | ")).filter((c) => !CHUNG.has(c) && !nhan.has(c))); };
+const ten = new Map();
+MON.forEach((S) => [S.de1, S.de2].forEach((id) => bank(id).questions.forEach((q, i) => ten.set(S.kho.find((k) => k.src === id && k.q === q.q), id.replace(/9-gk2-/, "-") + "#" + (i + 1)))));
+assert.equal(ten.size, kho.length, "mỗi câu của kho có một tên");
+MON.forEach((S) => {
+  const cua = new Set([S.de1, S.de2]);
+  const file = BANKS.filter((b) => b.file === S.file).flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id).map((q) => goc(q.q)));
+  S.kho.forEach((q) => assert.equal(file.filter((k) => k === goc(q.q)).length, 1, "đề bài trùng câu khác trong file: " + q.q.slice(0, 50)));
+  const cu = BANKS.filter((b) => !cua.has(b.id) && (b.subject === S.ten || /^tincn/.test(b.id)))
+    .flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id).map((q, i) => ({ at: b.id + "#" + (i + 1), c: capAm(q) })));
+  assert.ok(cu.length > 0, S.m + ": có kho cũ cùng môn để so");
+  S.kho.forEach((q) => { const c = capAm(q); cu.forEach((e) => {
+    const chung = [...c].filter((x) => e.c.has(x)).length;
+    assert.ok(chung / Math.min(c.size, e.c.size) < 0.5, `gần trùng câu của kho cũ ${e.at}: ${ten.get(q)} “${q.q.slice(0, 50)}”`);
+  }); });
+});
+
+/* ---------- dò lộ đáp án (Rút ra N5, N19) giữa hai câu rút được cùng lúc: khác ô (chủ đề, mức), hoặc cùng một ô rút từ 2 câu.
+   Đáp án là số (từ hai chữ số, hoặc số thập phân) chỉ tìm ở vị trí kết quả của câu kia (ngay sau “=”, “là”, “bằng”, “được”); cặp nối:
+   câu kia có cả hai vế; ô sắp xếp: câu kia có cả hai ô liền nhau theo đúng thứ tự. Đáp án bằng chữ (lựa chọn đúng, đáp án câu điền)
+   tách thành các chuỗi 3 từ liền nhau (đáp án từ 3 từ trở xuống thì lấy cả đáp án); chuỗi có trong đề bài, lựa chọn, ô nối, lời giải
+   của câu kia thì in ra với DO_LO=1 để xem tay, danh sách đã xem ở DA_XEM. ---------- */
+const soKQ = (s) => [...String(s).matchAll(/(?:=|(?:^|[\s(])(?:là|bằng|được))\s+(\d{1,3}(?: \d{3})*(?:,\d+)?)(?![\d,])/gu)].map((m) => val(m[1]));
+const tu = (s) => String(s).normalize("NFC").toLowerCase().replace(/[«»“”"(),.;:!?…–—\-/]/g, " ").split(/\s+/).filter(Boolean);
+const cum = (s) => { const w = tu(s); if (w.length <= 3) return w.length ? [w.join(" ")] : []; const r = []; for (let i = 0; i + 3 <= w.length; i++) r.push(w.slice(i, i + 3).join(" ")); return r; };
+const coCum = (t, s) => (" " + tu(t).join(" ") + " ").includes(" " + tu(s).join(" ") + " ");
+const doLo = (qs, M, tenCau = (q) => ten.get(q)) => {
+  const cungLuc = (p, q) => p !== q && (p.topic !== q.topic || p.lv !== q.lv || M[p.topic][p.lv - 1] >= 2);
+  const lo = [], chuLo = [];
+  qs.forEach((q) => {
+    const so = q.type === "num" && (q.ans >= 10 || !Number.isInteger(q.ans)) ? [q.ans] : [];
+    const C3 = q.type === "mc" ? [...new Set(cum(q.o[0]))] : q.type === "fill" ? [...new Set(cum(q.ans[0]))] : [];
+    const cap = q.type === "match" ? q.l.map((l, k) => [l, q.r[k]]) : [], lien = q.type === "order" ? q.o.slice(1).map((o, k) => [q.o[k], o]) : [];
+    qs.forEach((p) => {
+      if (!cungLuc(p, q)) return;
+      const Cp = chu(p), at = `${tenCau(p)} → ${tenCau(q)}: `, Tp = " " + Cp.map((s) => tu(s).join(" ")).join(" | ") + " ";
+      so.filter((x) => Cp.flatMap(soKQ).some((y) => close(x, y))).forEach((x) => lo.push(at + x));
+      cap.filter(([l, r]) => Cp.some((t) => coCum(t, l) && coCum(t, r))).forEach(([l, r]) => lo.push(at + l + " → " + r));
+      lien.filter(([a, b]) => Cp.some((t) => { const x = t.toLowerCase().indexOf(a.toLowerCase()), y = t.toLowerCase().indexOf(b.toLowerCase()); return x >= 0 && y > x; })).forEach(([a, b]) => lo.push(at + a + " → " + b));
+      C3.filter((c) => Tp.includes(" " + c + " ")).forEach((c) => chuLo.push(at + c));
+    });
+  });
+  return { lo, chuLo: [...new Set(chuLo)] };
+};
+const loAll = [], chuAll = [];
+MON.forEach((S) => { const r = doLo(S.kho, bank(S.pool).pool.matrix); loAll.push(...r.lo); chuAll.push(...r.chuLo); });
+if (process.env.DO_LO) console.log("Đáp án bằng chữ có ở câu rút được cùng lúc (xem tay):\n" + chuAll.join("\n"));
+// đã xem (Phiên N9-gk2-tin-congnghe): chữ chung, câu kia không cho biết điều câu này hỏi. Tin học: “cần kiểm tra”, “các ô trong”,
+// “thoả mãn điều kiện”, “có giá trị”, “tất cả các”, “tổng chi của”, “gia đình chi”, “gõ vào ô”, “allow whole number” (lựa chọn sai của
+// câu chọn List): cụm từ thường; “tiết kiệm”, “mong muốn cá nhân”, “cho nhu cầu”: tên ba mục của quy tắc 50-30-20 có ở cả hai câu về
+// quy tắc này, câu kia không cho biết phần 20% dành cho mục nào hay vé xem phim thuộc mục nào; “được nhận vào”, “nhận vào ô”: ý của câu
+// đúng/sai 4 ý về giá trị nào được nhận, không nói ô hiện thông báo lỗi (ba lựa chọn sai của câu kia cũng là giá trị không được nhận);
+// “tháng 3”: tháng của câu tiền tiêu vặt, không phải tháng trên biểu đồ. Công nghệ: “aptomat”: tên thiết bị có ở nhiều câu, không câu
+// nào nói aptomat tự động cắt mạch khi ngắn mạch, quá tải; “đồng” (đồng hồ vạn năng, dây đồng): không câu nào nói cực nối điện làm bằng
+// đồng; “công tơ điện”: câu nối kí hiệu và lựa chọn sai của câu cầu dao không nói công tơ điện 1 pha; “sơ đồ lắp”, “đồ lắp đặt”: câu kia
+// hỏi các bước thiết kế sơ đồ lắp đặt, không nói sơ đồ nào dùng để dự trù vật liệu; “16 a”, “10 a”: loại thiết bị của câu khác (cổng đo
+// 10 A, công tắc của bình nóng lạnh, danh sách aptomat, ổ cắm để chọn), không phải kết quả tính cho mạch câu này hỏi; “ổ lấy điện”, “bóng
+// đèn số”, “lấy điện số”, “và bóng đèn”, “số 2 và”, “nối với nhau”, “các thiết bị”, “đồ dùng điện”, “chọn thang đo”, “đo màu đen”, “điện
+// tiêu thụ”, “phích cắm điện”, “rồi mới chuyển”, “được vẽ ở”, “công tắc được vẽ”, “dây dẫn nối”, “dùng an toàn”, “cần kiểm tra”: cụm từ
+// thường.
+const DA_XEM = [
+  "tin-de2#4 → tin-de1#2: gõ vào ô",
+  "tin-de1#17 → tin-de1#6: cần kiểm tra",
+  "tin-de1#24 → tin-de1#11: các ô trong",
+  "tin-de2#4 → tin-de1#11: thoả mãn điều",
+  "tin-de2#4 → tin-de1#11: mãn điều kiện",
+  "tin-de2#12 → tin-de1#11: thoả mãn điều",
+  "tin-de2#12 → tin-de1#11: mãn điều kiện",
+  "tin-de2#16 → tin-de1#16: tiết kiệm",
+  "tin-de1#5 → tin-de2#4: được nhận vào",
+  "tin-de1#5 → tin-de2#4: nhận vào ô",
+  "tin-de1#3 → tin-de2#5: allow whole number",
+  "tin-de1#12 → tin-de2#6: có giá trị",
+  "tin-de2#25 → tin-de2#6: có giá trị",
+  "tin-de1#16 → tin-de2#11: cho nhu cầu",
+  "tin-de1#16 → tin-de2#16: mong muốn cá",
+  "tin-de1#16 → tin-de2#16: muốn cá nhân",
+  "tin-de1#11 → tin-de2#17: tất cả các",
+  "tin-de2#23 → tin-de2#17: tổng chi của",
+  "tin-de2#7 → tin-de2#23: gia đình chi",
+  "tin-de2#7 → tin-de2#23: đình chi nhiều",
+  "tin-de1#25 → tin-de2#24: tháng 3",
+  "congnghe-de1#21 → congnghe-de1#1: aptomat",
+  "congnghe-de1#23 → congnghe-de1#1: aptomat",
+  "congnghe-de2#3 → congnghe-de1#1: aptomat",
+  "congnghe-de2#19 → congnghe-de1#1: aptomat",
+  "congnghe-de2#21 → congnghe-de1#1: aptomat",
+  "congnghe-de2#24 → congnghe-de1#1: aptomat",
+  "congnghe-de2#25 → congnghe-de1#1: aptomat",
+  "congnghe-de1#6 → congnghe-de1#2: đồng",
+  "congnghe-de1#7 → congnghe-de1#2: đồng",
+  "congnghe-de1#8 → congnghe-de1#2: đồng",
+  "congnghe-de1#10 → congnghe-de1#2: đồng",
+  "congnghe-de2#6 → congnghe-de1#2: đồng",
+  "congnghe-de2#7 → congnghe-de1#2: đồng",
+  "congnghe-de2#8 → congnghe-de1#2: đồng",
+  "congnghe-de2#9 → congnghe-de1#2: đồng",
+  "congnghe-de2#10 → congnghe-de1#2: đồng",
+  "congnghe-de2#22 → congnghe-de1#2: đồng",
+  "congnghe-de1#12 → congnghe-de1#7: công tơ điện",
+  "congnghe-de2#1 → congnghe-de1#7: công tơ điện",
+  "congnghe-de1#10 → congnghe-de1#8: chọn thang đo",
+  "congnghe-de2#10 → congnghe-de1#8: chọn thang đo",
+  "congnghe-de1#3 → congnghe-de1#11: dây dẫn nối",
+  "congnghe-de2#11 → congnghe-de1#11: nối với nhau",
+  "congnghe-de2#13 → congnghe-de1#13: sơ đồ lắp",
+  "congnghe-de2#13 → congnghe-de1#13: đồ lắp đặt",
+  "congnghe-de1#16 → congnghe-de1#15: ổ lấy điện",
+  "congnghe-de1#17 → congnghe-de1#15: ổ lấy điện",
+  "congnghe-de1#17 → congnghe-de1#15: lấy điện số",
+  "congnghe-de1#17 → congnghe-de1#15: bóng đèn số",
+  "congnghe-de2#14 → congnghe-de1#15: và bóng đèn",
+  "congnghe-de2#14 → congnghe-de1#15: bóng đèn số",
+  "congnghe-de2#16 → congnghe-de1#15: ổ lấy điện",
+  "congnghe-de2#17 → congnghe-de1#15: ổ lấy điện",
+  "congnghe-de2#17 → congnghe-de1#15: số 2 và",
+  "congnghe-de2#12 → congnghe-de1#16: công tắc được",
+  "congnghe-de2#12 → congnghe-de1#16: tắc được vẽ",
+  "congnghe-de2#12 → congnghe-de1#16: được vẽ ở",
+  "congnghe-de1#21 → congnghe-de1#18: điện tiêu thụ",
+  "congnghe-de1#1 → congnghe-de1#21: đồ dùng điện",
+  "congnghe-de1#14 → congnghe-de1#21: đồ dùng điện",
+  "congnghe-de1#16 → congnghe-de1#21: đồ dùng điện",
+  "congnghe-de2#3 → congnghe-de1#21: đồ dùng điện",
+  "congnghe-de2#13 → congnghe-de1#21: đồ dùng điện",
+  "congnghe-de2#16 → congnghe-de1#21: đồ dùng điện",
+  "congnghe-de2#19 → congnghe-de1#21: đồ dùng điện",
+  "congnghe-de1#4 → congnghe-de1#22: dùng an toàn",
+  "congnghe-de1#24 → congnghe-de1#23: 16 a",
+  "congnghe-de2#23 → congnghe-de1#23: 16 a",
+  "congnghe-de1#22 → congnghe-de2#1: cần kiểm tra",
+  "congnghe-de2#19 → congnghe-de2#3: phích cắm điện",
+  "congnghe-de1#8 → congnghe-de2#7: rồi mới chuyển",
+  "congnghe-de1#6 → congnghe-de2#9: đo màu đen",
+  "congnghe-de2#7 → congnghe-de2#9: đo màu đen",
+  "congnghe-de1#11 → congnghe-de2#11: nối với nhau",
+  "congnghe-de1#14 → congnghe-de2#11: các thiết bị",
+  "congnghe-de2#3 → congnghe-de2#11: các thiết bị",
+  "congnghe-de1#15 → congnghe-de2#16: ổ lấy điện",
+  "congnghe-de1#16 → congnghe-de2#16: ổ lấy điện",
+  "congnghe-de1#17 → congnghe-de2#16: ổ lấy điện",
+  "congnghe-de2#17 → congnghe-de2#16: ổ lấy điện",
+  "congnghe-de1#6 → congnghe-de2#23: 10 a",
+  "congnghe-de1#23 → congnghe-de2#23: 10 a",
+  "congnghe-de1#24 → congnghe-de2#23: 10 a"
+];
+assert.deepEqual(chuAll, DA_XEM, "đáp án bằng chữ có ở câu rút được cùng lúc đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
+assert.deepEqual(loAll, [], "lộ đáp án:\n" + loAll.join("\n"));
+const tim = (has) => { const r = kho.filter((q) => q.q.includes(has)); assert.equal(r.length, 1, has); return r[0]; };
+// bộ dò bắt được chỗ lộ cố ý viết sai: lời giải câu khác có “= 33”, cả hai vế một cặp nối, hai ô sắp xếp liền nhau, cụm của đáp án
+// trắc nghiệm
+{
+  const gia = (q, x) => Object.assign({}, q, { x: q.x + " " + x }), khac = tim("Lệnh Data Validation");
+  const thuLo = (qs) => { const M = new Proxy({}, { get: () => [1, 1, 1] }), r = doLo(qs, M, (q) => q.q.slice(0, 12)); return r.lo.concat(r.chuLo).map((s) => s.replace(/^.*: /, "")); };
+  assert.deepEqual(thuLo([tim("số túi rác"), khac]), [], "câu không sửa thì không báo");
+  assert.ok(thuLo([tim("số túi rác"), gia(khac, "Ví dụ ô H2 = 33.")]).includes("33"));
+  assert.ok(thuLo([tim("ba kí hiệu dùng trong sơ đồ"), gia(khac, "Kí hiệu 1 là quạt trần.")]).includes("Kí hiệu 1 → Quạt trần"));
+  const sx = tim("Sắp xếp các việc Phúc làm");
+  assert.ok(thuLo([sx, gia(khac, sx.o[0] + ". Sau đó: " + sx.o[1] + ".")]).includes(sx.o[0] + " → " + sx.o[1]));
+  assert.ok(thuLo([tim("que đo màu đen luôn được nối"), gia(khac, "Que màu đen cắm vào cổng chung COM.")]).includes("cổng chung com"));
+}
+
+/* ---------- bộ đọc hình, bộ tính công thức tự thử với hình, công thức cố ý viết sai ---------- */
+{
+  const loi = (f, re) => assert.throws(f, re);
+  const doi = (s, a, b) => { assert.ok(s.includes(a), "chuỗi để sửa: " + a); return s.replace(a, b); };
+  // bộ tính công thức, sao chép công thức, xác thực dữ liệu
+  const o = { A1: 1, A2: 2, A3: 3, B1: "Bánh mì", B2: "Xôi", B3: "bánh bao", C1: 10, C2: 20, C3: 30 };
+  assert.equal(tinh('=COUNTIF(A1:A3,">=2")', o), 2);
+  assert.equal(tinh('=COUNTIF(B1:B3,"Bánh*")', o), 2, "không phân biệt chữ hoa, chữ thường");
+  assert.equal(tinh('=COUNTIF(B1:B3,"Xôi")', o), 1);
+  assert.equal(tinh('=SUMIF(A1:A3,">1",C1:C3)', o), 50);
+  assert.equal(tinh('=SUMIF(A1:A3,"<3")', o), 3);
+  assert.equal(tinh('=IF(A2>=2,"Đạt","Chưa đạt")', o), "Đạt");
+  assert.equal(tinh('=IF(A1>=2,"Giỏi",IF(A1>=1,"Khá","Yếu"))', o), "Khá");
+  assert.equal(tinh("=SUM(C1:C3)-A3", o), 57);
+  assert.equal(tinh("=IF(A1>50%,1,0)", o), 1);
+  assert.equal(chep("=COUNTIF($B$2:$B$31,F2)", 1, 0), "=COUNTIF($B$2:$B$31,F3)");
+  assert.equal(chep("=$B2+C$3", 2, 1), "=$B4+D$3");
+  assert.equal(chep('=IF(B2>=50,"B2","C")', 1, 0), '=IF(B3>=50,"B2","C")', "chữ trong ngoặc kép giữ nguyên khi sao chép");
+  loi(() => tinh("=SUMIF(A1:A3,1,C1:C2)", o), /range và sum_range cùng số ô/);
+  loi(() => tinh("=COUNTIF(A1:A3", o), /công thức thiếu “\)”/);
+  const tl = thietLap("Allow: Decimal; Data: greater than; Minimum: 0.");
+  assert.deepEqual([0, 0.5, 7].map((v) => nhanGiaTri(tl, v)), [false, true, true]);
+  assert.deepEqual([2, 6, 2.5].map((v) => nhanGiaTri(thietLap("Allow: Whole number; Data: less than; Maximum: 6"), v)), [true, false, false]);
+  // trang tính (hình sửa xong mới đưa vào bộ đọc; bộ đọc phải báo đúng chỗ sai)
+  const hong = (doc, goc, sai, re) => { assert.notEqual(sai, goc, "hình chưa bị sửa"); assert.throws(() => doc(sai), re); };
+  const bang = tim("điểm bài kiểm tra của 10 bạn").svg;
+  assert.doesNotThrow(() => docTrang(bang));
+  hong(docTrang, bang, bang.replace(/ text-anchor="end"/, ""), /ô chữ căn trái, ô số căn phải/);
+  hong(docTrang, bang, doi(bang, 'fill="muted">B</text>', 'fill="muted">D</text>'), /tên cột B/);
+  hong(docTrang, bang, doi(bang, ">Giang</text>", ">Giang Thị Hồng Nhung</text>"), /chữ vừa ô/);
+  // biểu đồ cột
+  const cot = tim("bốn tháng đầu năm").svg;
+  hong(docCot2, cot, doi(cot, ">16</text>", ">17</text>"), /số ở đỉnh cột khớp chiều cao/);
+  // sơ đồ nguyên lí
+  const sd = tim("Phúc đóng công tắc số 4").svg;
+  hong(docSoDo, sd, doi(sd, '<circle cx="40" cy="148" r="3" fill="ink" stroke="none"/>', ""), /chấm tròn đậm đúng ở chỗ nối/);
+  hong(docSoDo, sd, doi(sd, "</svg>", '<circle cx="160" cy="148" r="3" fill="ink" stroke="none"/></svg>'), /chấm tròn đậm ở đầu dây/);
+  hong(docSoDo, sd, doi(sd, 'x2="115" y2="142"', 'x2="116" y2="151"'), /trạng thái ngắt/);
+  hong(docSoDo, sd, doi(sd, '<line x1="40" y1="148" x2="98" y2="148" stroke="ink" stroke-width="2"/>', ""), /hai đầu nối/);
+  hong(docSoDo, sd, doi(sd, "</svg>", '<line x1="160" y1="60" x2="160" y2="180" stroke="ink" stroke-width="2"/></svg>'), /hai dây chéo nhau/);
+  // hình kí hiệu
+  const kh = tim("ba kí hiệu dùng trong sơ đồ").svg;
+  hong(docKiHieu, kh, doi(kh, ">kWh</text>", ">Wh</text>"), /chưa rõ là thiết bị nào/);
+  assert.deepEqual(docKiHieu(doi(kh, ">W</text>", ">V</text>"))[2], [3, "Vôn kế"], "đọc chữ trong vòng tròn của đồng hồ đo");
+}
+
+/* ---------- không chép sách: so với chữ OCR (bỏ dấu, gộp nguyên âm), nếu có OnUp-Book; trùng ý với các kho khác (Rút ra N21) ----------
+   Cụm từ chung của môn (tên bài, tên mô đun, cú pháp hàm IF như sách) thay bằng dấu ngăn trước khi so; chuỗi so phải có ít nhất 5 từ có chữ. */
+const khongDau = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
+const TU_CHUNG = ["Hoàn thiện bảng tính quản lí tài chính gia đình", "bảng tính quản lí tài chính gia đình", "Sử dụng công cụ xác thực dữ liệu",
+  "Thiết bị đóng cắt và lấy điện trong gia đình", "Vật liệu, thiết bị và dụng cụ dùng cho lắp đặt mạng điện trong nhà", "Lắp đặt mạng điện trong nhà",
+  "=IF(logical_test, [value_if_true], [value_if_false])"]
+  .map((p) => " " + khongDau(p) + " ").sort((a, b) => b.length - a.length);
+const chuoi = (s, k) => { let t = " " + khongDau(s) + " "; TU_CHUNG.forEach((p) => { while (t.includes(p)) t = t.replace(p, " | "); });
+  const w = t.split(" ").filter(Boolean), ra = []; for (let i = 0; i + k <= w.length; i++) { const c = w.slice(i, i + k); if (!c.includes("|") && c.filter((x) => /[a-z]{2}/.test(x)).length >= 5) ra.push(c.join(" ")); } return ra; };
+const boChuoi = (ds, k) => { const out = new Map(); ds.forEach(([id, s]) => { const w = khongDau(s).split(" ").filter(Boolean); for (let i = 0; i + k <= w.length; i++) { const c = w.slice(i, i + k).join(" "); if (!out.has(c)) out.set(c, new Set()); out.get(c).add(id); } }); return out; };
+const bao = (bo, k) => [...new Set(kho.flatMap((q) => [...new Set(chu(q).flatMap((s) => chuoi(s, k)))].filter((c) => bo.has(c)).map((c) => `${ten.get(q)} ~ ${[...bo.get(c)].join(", ")}: ${c}`)))];
+const BOOK = path.join(__dirname, "../../OnUp-Book");
+const SACH = fs.existsSync(BOOK) ? fs.readdirSync(BOOK).filter((l) => /^lop-\d+$/.test(l)).flatMap((l) => fs.readdirSync(path.join(BOOK, l)).map((c) => path.join(BOOK, l, c, "chu.txt"))).filter((f) => fs.existsSync(f)) : [];
+if (SACH.length) {
+  assert.ok(["tin-hoc-9", "cong-nghe-9-lap-dat-mang-dien-trong-nha"].every((c) => SACH.some((f) => f.includes(path.join("lop-9", c)))), "OnUp-Book có Tin học 9, Công nghệ 9 – Lắp đặt mạng điện trong nhà");
+  const ds = SACH.map((f) => [path.basename(path.dirname(f)), fs.readFileSync(f, "utf8").replace(/=== page-\d+ · [^=]+ ===/g, " ")]);
+  if (process.env.DO_SACH) console.log("Chuỗi 6 từ trùng chữ OCR của sách (xem tay):\n" + bao(boChuoi(ds, 6), 6).join("\n"));
+  assert.deepEqual(bao(boChuoi(ds, 8), 8), [], "chuỗi 8 từ trùng chữ của sách");
+  console.log("Đã so với chữ OCR của " + SACH.length + " cuốn sách (OnUp-Book).");
+} else console.log("Không có ../OnUp-Book: bỏ qua bước so với chữ của sách.");
+{
+  const cua = new Set(MON.flatMap((S) => [S.de1, S.de2, S.pool]));
+  const ds = BANKS.filter((b) => !cua.has(b.id)).flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id).map((q) => [b.id, chu(q).concat(q.p && b.passages && b.passages[q.p] ? [b.passages[q.p].text || ""] : []).join(" | ")]));
+  if (process.env.DO_KHO) console.log("Chuỗi 5 từ trùng câu của kho khác (xem tay):\n" + bao(boChuoi(ds, 5), 5).join("\n"));
+  assert.deepEqual(bao(boChuoi(ds, 8), 8), [], "chuỗi 8 từ trùng câu của kho khác");
+}
+console.log(CHECKS.length + " câu đã tính lại hoặc đọc lại hình; " + MON.map((S) => `${S.ten}: kho ${S.kho.length} câu, ma trận 10 – 8 – 7 trên ${S.chuDe.length} chủ đề`).join("; ") + ".");
+console.log("MATH OK");
