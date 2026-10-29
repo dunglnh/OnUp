@@ -252,7 +252,7 @@ Thứ tự các phiên:
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
 | 1 | 15/11/2026 | Lớp 9 (33 phiên, có 9 phiên đề thi thử vào 10); phiên rà soát lớp 9. Cuối kì I, giữa kì II (12 phiên N9-ck1-*, N9-gk2-*) đã vào hàng đợi (26/10/2026) | K5 (đã xong, PR #198; chỉ trước đề thi thử vào 10) | thứ tự khối, thứ tự kì trong mỗi khối và mốc kiểm tra: mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); các bước trước khi bật một khối: mục 7 (“Lớp 5, 7–12”) |
-| 2 | 10/12/2026 | Lớp 12 (53 phiên, có 25 phiên đề thi thử tốt nghiệp), lớp 5 (16); mỗi khối một phiên rà soát | | cuối kì I của lớp 12 (thi từ 14/12/2026, xong trước 23/11) rồi của lớp 5 (thi từ 28/12, xong trước 7/12) làm trước các kì khác |
+| 2 | 10/12/2026 | Lớp 12 (53 phiên, có 25 phiên đề thi thử tốt nghiệp), lớp 5 (16); mỗi khối một phiên rà soát. Cuối kì I lớp 12 (7 phiên N12-ck1-*) đã vào hàng đợi (29/10/2026) | | cuối kì I của lớp 12 (thi từ 14/12/2026, xong trước 23/11) rồi của lớp 5 (thi từ 28/12, xong trước 7/12) làm trước các kì khác |
 | 3 | 31/12/2026 | Lớp 7, 8 (mỗi khối 24 phiên); mỗi khối một phiên rà soát | | |
 | 4 | 20/1/2027 (dự phòng đến 28/2/2027) | Lớp 10, 11 (mỗi khối 28 phiên); mỗi khối một phiên rà soát; sửa lỗi các phiên rà soát tìm ra | | xong là đủ đề lớp 4–12 và rà xong; phần dự phòng cho sửa lỗi, rà đề, nghỉ Tết |
 | 5 | 28/2/2027 | **G0 · Chuẩn bị dùng thử** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** | | trước khi mở dùng thử (đầu tháng 3/2027); lời giao việc ở mục 4 |
