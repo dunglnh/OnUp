@@ -551,7 +551,7 @@ const CHECKS = [
   { has: "Tìm nghiệm dương của phương trình x(x + 1) = 3x + 15.", right: () => { const n = nghiem2(bac2("x(x + 1) = 3x + 15")).filter((x) => toNum(x) > 0); assert.equal(n.length, 1); return n[0]; },
     more: (q) => assert.ok(q.x.includes("x² − 2x − 15 = 0") && eq(deltaPhay(bac2("x² − 2x − 15 = 0")), F(16))) },
   { has: "Phương trình x² − 2x − 1 = 0 có nghiệm lớn hơn là", right: (q) => bang(q, Math.max(...nghiem2(bac2("x² − 2x − 1 = 0")).map(toNum))) },
-  { has: "Cho phương trình 3x² + mx − 7 = 0 (m là một số cho trước). Với mọi giá trị của m, phương trình này", right: (q) => {
+  { has: "Cho phương trình 3x² + mx − 7 = 0 (m là một số cho trước). Phương trình này", right: (q) => {
     const ms = []; for (let t = -40; t <= 40; t++) ms.push(F(t, 4)); const D = (m) => delta(bac2("3x² + mx − 7 = 0".replace("m", "(" + fmtF(m) + ")")));
     const dung = { "luôn có hai nghiệm phân biệt": ms.every((m) => toNum(D(m)) > 0), "vô nghiệm khi m = 0": toNum(D(F(0))) < 0,
       "có nghiệm kép khi m = 0": toNum(D(F(0))) === 0, "chỉ có nghiệm khi m > 0": ms.every((m) => (toNum(D(m)) >= 0) === (toNum(m) > 0)) };
