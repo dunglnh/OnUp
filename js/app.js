@@ -805,12 +805,15 @@
     return { t: Store.cloud && u.role === "student" ? "Bố mẹ có thể nhập đề trong Khu phụ huynh." : "Nhờ thầy cô nhập đề trong mục Quản trị." };
   }
   const noBanksBox = (id, grade) => { const x = noBanks(); return emptyBox(id, "hai-cau-xam", `Chưa có bài ôn cho lớp ${+grade}`, esc(x.t), x.btn); };
+  // Câu s đứng sau đoạn chữ t: t chưa kết thúc bằng dấu chấm (hay ? ! …) thì thêm dấu chấm trước s; t trống thì chỉ có s (Phiên UX9b, X49).
+  const addSentence = (t, s) => { t = String(t == null ? "" : t).trim(); return t ? t + (/[.?!…]$/.test(t) ? " " : ". ") + s : s; };
   /* Mỗi bài ôn dạng trang một dòng; đề ngân hàng gom theo môn thành một dòng có các nút "Đề ngẫu nhiên · Đề 1 · Đề 2 · …"
      (đề ngẫu nhiên đứng trước, đề cố định xếp theo tên; chữ trên nút theo bankLabels, full = luôn ghi kèm tên kì;
      aria-label là tên đề đầy đủ). res: mọi kết quả của một học sinh (tab Bài ôn của con, "Bài ôn của <tên>" bố mẹ xem; Phiên UX9, X38):
      đề cố định, bài ôn dạng trang đã làm (doneMap) thành nút viền có dấu ✓ (btn sm done, span.done-ic), aria-label thêm ", đã làm, lần
      gần nhất đúng 76%"; đề ngẫu nhiên luôn là nút vàng (mỗi lần một đề khác). Dòng môn đã làm ít nhất một đề ghi "Đã làm 2/2 đề · 25 câu
-     mỗi đề"; dòng bài ôn dạng trang đã làm thêm " · đã ôn 3 lần". */
+     mỗi đề"; dòng bài ôn dạng trang đã làm có thêm câu "Đã ôn 3 lần." sau mô tả ("… ôn câu sai. Đã ôn 3 lần.", addSentence; Phiên
+     UX9b, X49). */
   function practiceList(mods, bks, canPlay, full, res) {
     if (!mods.length && !bks.length) return `<div class="panel muted">Chưa có bài ôn cho mục này. ${esc(noBanks().t)}</div>`; // chi tiết kì thi chưa gắn bài ôn
     const subs = new Map(), act = canPlay ? "main" : "", dn = doneMap(res);
@@ -818,7 +821,7 @@
     const doneAria = (x) => { const l = dn.last[itemKey(x)]; return ", đã làm" + (l && l.t ? `, lần gần nhất đúng ${pct(l.r, l.t)}%` : ""); };
     bks.forEach((b) => { const k = b.subject || "Khác"; subs.set(k, (subs.get(k) || []).concat(b)); });
     return `<div class="list">${mods.map((m) => { const n = dn.n[itemKey(m)] || 0, go = canPlay ? "Vào ôn" : "Xem thử";
-      return `<div class="item"><span class="grow"><b>${esc(m.title)}</b><span class="small muted">${esc(m.desc)}${n ? ` · đã ôn ${n} lần` : ""}</span></span>${n
+      return `<div class="item"><span class="grow"><b>${esc(m.title)}</b><span class="small muted">${esc(n ? addSentence(m.desc, `Đã ôn ${n} lần.`) : m.desc)}</span></span>${n
         ? `<a class="btn sm done" href="#/play/${esc(m.id)}" aria-label="${go}${doneAria(m)}">${ck}${go}</a>` : `<a class="btn ${act} sm" href="#/play/${esc(m.id)}">${go}</a>`}</div>`; }).join("")}
       ${[...subs].map(([sub, all]) => {
         const byTitle = (a, b) => a.title.localeCompare(b.title, "vi", { numeric: true });

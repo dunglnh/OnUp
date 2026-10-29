@@ -4383,7 +4383,9 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
        ✓ Đề 1, ✓ Đề 2) một hàng; dòng môn "Đã làm 2/2 đề · 25 câu mỗi đề". Trang "Bài ôn của Bin" (Mẹ Bin) cũng có ✓ và dòng tiến độ.
      - X39: hai mục tiêu "Hết đề · Kiểm tra giữa học kì I" 3/5 bài, "Chuỗi 3 ngày" 2/3 ngày, chưa có hàng "Đã có"; gợi ý ghi cả hai.
        Làm thêm Tiếng Việt Đề 2 (4/5), rồi bài ôn giữa kì I (5/5): "Hết đề" sang hàng "Đã có" (dòng chúc mừng), còn một mục tiêu; nhóm kì
-       thi, thẻ kì thi "Đã làm hết 5 bài · đúng …%" (thanh, chữ màu ok); nút "Vào ôn" có ✓, dòng bài ôn ghi " · đã ôn 1 lần".
+       thi, thẻ kì thi "Đã làm hết 5 bài · đúng …%" (thanh, chữ màu ok); nút "Vào ôn" có ✓, dòng bài ôn là mô tả của bài rồi câu "Đã ôn 1
+       lần." ("… ôn câu sai. Đã ôn 1 lần.", Phiên UX9b, X49) ở tab Bài ôn, chi tiết kì thi của Bin và "Bài ôn của Bin" của Mẹ Bin; mô tả
+       không có dấu chấm cuối (sửa tạm trong trang) thì "… ôn câu sai. Đã ôn 1 lần."; không màn nào của bước có dấu chấm liền dấu "·".
      - X40: hôm nay có bài thì #today.done (hải cẩu tung bóng 64px, "Bạn đã ôn rồi. Giỏi lắm!", "Hôm nay: 1 bài · 21 phút · đúng 23/25 câu.",
        nút viền "Làm thêm một bài" tới bài chính); sang hôm sau thì về thẻ "Hôm nay ôn gì?" với nút Bắt đầu. Na (lớp 6, chưa có bài):
        tab Kết quả chỉ có .empty (hải cẩu đeo kính, nút "Làm bài đầu tiên" tới bài chính của Hôm nay), không có .stats. 20/6/2027: Lịch thi
@@ -4399,7 +4401,14 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await localConfig(c); watchOut(c);
     const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror UX9: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console UX9: " + m.text()); });
     const r = (ux9[scheme] = {});
-    const check9 = async (label) => (await p.evaluate(audit)).forEach((x) => ux9.problems.push(`UX9 · ${scheme} · ${label}: ${x}`));
+    const check9 = async (label) => {
+      (await p.evaluate(audit)).forEach((x) => ux9.problems.push(`UX9 · ${scheme} · ${label}: ${x}`));
+      // X49 (Phiên UX9b): không chỗ nào có dấu chấm liền dấu "·" ("… ôn câu sai. · đã ôn 1 lần")
+      (await p.evaluate(() => document.body.textContent.replace(/\s+/g, " ").match(/.{0,40}\. ?·.{0,16}/g) || [])).forEach((x) => ux9.problems.push(`UX9 · ${scheme} · ${label}: có ". ·": "${x}"`));
+    };
+    // dòng mô tả của bài ôn l4-giua-ki-1 trong vùng sel (tab Bài ôn, chi tiết kì thi, "Bài ôn của Bin"); desc: mô tả trong data/modules.js
+    const modOf = (sel) => p.evaluate((sel) => { const a = document.querySelector(`${sel} a[href="#/play/l4-giua-ki-1"]`), it = a && a.closest(".item");
+      return { t: it ? it.querySelector(".small").textContent.replace(/\s+/g, " ").trim() : "", desc: window.ONTAP_MODULES.find((m) => m.id === "l4-giua-ki-1").desc }; }, sel);
     const snap9 = async (n) => { await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await pinTabs(p, true); await p.screenshot({ path: `${OUTUX9}${n}-${scheme}.png`, fullPage: true }); await pinTabs(p, false); ux9.shots.push(`${n}-${scheme}`); };
     const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, sel);
     const login = async (name, pin, wait) => { await p.evaluate(() => Store.setSession(null)); await p.goto(BASE + "/"); await p.reload(); await p.click(`.tile[data-u="${ids[name]}"]`); await p.fill("#pinIn", pin); await p.waitForSelector(wait || "#view .stack"); await p.waitForTimeout(200); };
@@ -4466,14 +4475,26 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await check9("Hôm nay, hết đề"); await snap9("hom-nay-het-de");
     await p.reload(); await p.waitForSelector("#today"); r.five.freshAgain = !!(await p.$("#newBadge"));
     await p.goto(BASE + "/#/practice"); await p.waitForSelector("#allPractice .grp-prog");
-    r.five.practice = await practiceOf();
-    await check9("tab Bài ôn, hết đề");
+    r.five.practice = await practiceOf(); r.five.mod = await modOf("#allPractice");
+    await check9("tab Bài ôn, hết đề"); await snap9("bai-on-het-de");
+    await p.goto(BASE + "/#/calendar"); await p.waitForSelector(".timeline");
+    await p.click('.ev[data-ev="gk1-l4"]'); await p.waitForSelector("#evDetail");
+    r.five.evMod = await modOf("#evDetail");
+    await check9("Lịch thi, chi tiết kì thi, hết đề");
     // Mẹ Bin xem "Bài ôn của Bin": có ✓ và dòng tiến độ, nút vẫn ghi "Xem thử"
     await login("Mẹ Bin", PINS["Mẹ Bin"], "#kids");
     await p.goto(BASE + "/#/child/" + ids.Bin + "/practice"); await p.waitForSelector("#allPractice");
     r.parent = await p.evaluate(() => ({ prog: (document.querySelector('#allPractice details.grp[data-grp="gk1-l4"] .prog-txt') || {}).textContent || "",
       done: [...document.querySelectorAll("#allPractice .btn.done")].map((a) => a.textContent.replace(/\s+/g, " ").trim()).join("|"), main: document.querySelectorAll("#allPractice .btn.main").length }));
+    r.parent.mod = await modOf("#allPractice");
     await check9("Bài ôn của Bin (Mẹ Bin)"); await snap9("bo-me-bai-on");
+    // mô tả không kết thúc bằng dấu chấm (bài ôn thêm sau này): thêm dấu chấm trước "Đã ôn 1 lần." (sửa tạm trong trang, tải lại là hết)
+    await p.evaluate(() => { const m = window.ONTAP_MODULES.find((x) => x.id === "l4-giua-ki-1"); m.desc = m.desc.replace(/\.$/, ""); location.hash = "#/home"; });
+    await p.waitForSelector("#kids");
+    await p.evaluate((id) => { location.hash = "#/child/" + id + "/practice"; }, ids.Bin); await p.waitForSelector("#allPractice");
+    r.parent.noDot = await modOf("#allPractice");
+    await check9("Bài ôn của Bin (Mẹ Bin), mô tả không có dấu chấm cuối");
+    await p.reload(); await p.waitForSelector("#allPractice");
     // sang hôm sau: thẻ "Hôm nay ôn gì?" như cũ
     await p.clock.setSystemTime(new Date("2026-10-28T08:00:00"));
     await login("Bin", PINS.Bin, "#today");
@@ -4542,7 +4563,10 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.five.badges.goals.join("/") === "Chuỗi 3 ngày|2/3 ngày|Đã ôn 2 trên 3 ngày liền" && r.five.badges.gotHead === "Đã có:" && r.five.badges.got.join("|") === "🎯 Hết đề · Kiểm tra giữa học kì I"
       && r.five.badges.hint === "Ôn thêm ngày mai là có “Chuỗi 3 ngày”." && r.five.badges.fresh === "🎉 Bạn vừa nhận huy hiệu “Hết đề · Kiểm tra giữa học kì I”!" && !r.five.freshAgain
       && r.five.link === "Bài ôn cho kì này · đã làm 5/5 →" && r.five.ready === "Đã làm hết 5 bài · đúng 84%" && r.five.readyGood // lần gần nhất của mỗi bài, cả đề ngẫu nhiên: (20 + 19 + 21 + 23 + 22 + 9)/(5 × 25 + 10) = 84%
-      && x.prog === r.five.ready && x.good && x.fill === 100 && x.mod.cls === "btn done sm" && x.mod.t === "✓Vào ôn" && / · đã ôn 1 lần$/.test(x.mod.desc) && x.mod.aria === "Vào ôn, đã làm, lần gần nhất đúng 90%"
+      && x.prog === r.five.ready && x.good && x.fill === 100 && x.mod.cls === "btn done sm" && x.mod.t === "✓Vào ôn" && x.mod.aria === "Vào ôn, đã làm, lần gần nhất đúng 90%"
+      // X49 (Phiên UX9b): "… ôn câu sai. Đã ôn 1 lần." ở tab Bài ôn, chi tiết kì thi của Bin, "Bài ôn của Bin"; mô tả không có dấu chấm cuối thì thêm dấu chấm
+      && /ôn câu sai\.$/.test(r.five.mod.desc) && [x.mod.desc, r.five.mod.t, r.five.evMod.t, r.parent.mod.t].every((t) => t === r.five.mod.desc + " Đã ôn 1 lần.")
+      && r.parent.noDot.desc === r.five.mod.desc.slice(0, -1) && r.parent.noDot.t === r.five.mod.desc + " Đã ôn 1 lần."
       && x.tv.btns.map((b) => b.cls).join() === "btn main rnd sm,btn done sm,btn done sm"
       && r.parent.prog === r.five.ready && r.parent.done === "✓Xem thử|✓Đề 1|✓Đề 2|✓Đề 1|✓Đề 2" && !r.parent.main
       && !r.next.done && r.next.label === "Hôm nay ôn gì?" && r.next.go === "btn lg main:Bắt đầu"
