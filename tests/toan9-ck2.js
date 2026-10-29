@@ -9,8 +9,9 @@
 // Xác suất: liệt kê lại không gian mẫu (tích các tập, lấy lần lượt không trả lại, chọn không kể thứ tự) rồi đếm kết quả thuận lợi; tấm
 // bìa quay đọc số trong từng hình quạt bằng nhau. Hình khối: diện tích xung quanh, thể tích hình trụ, hình nón, hình cầu, làm tròn theo
 // quy tắc của sách (tol bằng nửa đơn vị làm tròn); hình trụ, hình nón đọc số đo ghi trong hình, đúng tỉ lệ với hình vẽ. Hình ôn tập:
-// bốn parabol trên lưới ô vuông, lục giác đều (chiều các đỉnh, phép quay), lát gạch bằng đa giác đều, góc nội tiếp, tứ giác nội tiếp,
-// hai đường cao (góc ghi trong hình bằng góc vẽ, góc hỏi đo lại trên hình). Chữ trong hình từ cỡ 13 và nằm trọn trong khung hình.
+// bốn parabol trên lưới ô vuông (số ghi trên trục không bị đường cong đè), lục giác đều (chiều các đỉnh, phép quay), lát gạch
+// bằng đa giác đều, góc nội tiếp, tứ giác nội tiếp, hai đường cao (góc ghi trong hình bằng góc vẽ, góc hỏi đo lại trên hình). Chữ
+// trong hình từ cỡ 13 và nằm trọn trong khung hình.
 // Cuối cùng kiểm tra mức độ và ma trận (mỗi ô có ít nhất gấp đôi số câu ô đó rút, ngoài mỗi đề cố định vẫn đủ; chủ đề ôn đúng chữ của
 // kho giữa kì II; rút thử nhiều lần ra đúng 10 Biết, 8 Hiểu, 7 Vận dụng; đã làm hết một đề cố định thì không gặp lại câu của đề đó),
 // đáp án đúng của câu trắc nghiệm không dài hơn hẳn lựa chọn sai và không hay là lựa chọn dài nhất, ngắn nhất, câu đúng/sai 4 ý không
@@ -437,9 +438,14 @@ const docParabol = (svg, ten) => {
   gy.forEach((y, i) => i && assert.ok(Math.abs(y - gy[i - 1] - u) < 0.15, ten + ": lưới không phải ô vuông"));
   assert.ok(gx.some((x) => Math.abs(x - ox) < 0.15) && gy.some((y) => Math.abs(y - oy) < 0.15), ten + ": trục không nằm trên đường lưới");
   const so = texts2(svg).filter((t) => /^−?\d+$/.test(t.t)).map((t) => ({ at: t.at, v: +t.t.replace("−", "-") }));
-  const tx = so.filter((t) => Math.abs(t.at[0] - (ox + t.v * u - (t.v < 0 ? 3 : 0))) < 0.6 && Math.abs(t.at[1] - (oy + 16)) < 0.6), ty = so.filter((t) => Math.abs(t.at[1] - (oy - t.v * u + 4.5)) < 0.6);
+  // số trên trục hoành ghi dưới trục, chỗ đường cong đi qua thì ghi trên trục (oy − 6)
+  const tx = so.filter((t) => Math.abs(t.at[0] - (ox + t.v * u - (t.v < 0 ? 3 : 0))) < 0.6 && [oy + 16, oy - 6].some((y) => Math.abs(t.at[1] - y) < 0.6)), ty = so.filter((t) => Math.abs(t.at[1] - (oy - t.v * u + 4.5)) < 0.6);
   assert.ok(tx.length >= 4 && tx.length + ty.length === so.length, ten + ": số ghi trên trục không khớp lưới");
   const nhan = texts2(svg).filter((t) => t.b && t.fill === "acc"), cong = polylines(svg).filter((p) => p.stroke === "acc"), out = {};
+  const diemCong = cong.flatMap((pl) => { const r = []; for (let i = 2; i < pl.p.length; i += 2) for (let k = 0; k <= 10; k++) r.push([pl.p[i - 2] + ((pl.p[i] - pl.p[i - 2]) * k) / 10, pl.p[i - 1] + ((pl.p[i + 1] - pl.p[i - 1]) * k) / 10]); return r; });
+  const neo = new Map(texts2(svg).map((x) => [x.at.join(","), x.anchor]));
+  so.forEach((t) => { const s = String(t.v).replace("-", "−"), w = s.length * 7.5 + 4, x0 = neo.get(t.at.join(",")) === "end" ? t.at[0] - w : t.at[0] - w / 2;
+    assert.ok(!diemCong.some((q) => q[0] >= x0 && q[0] <= x0 + w && q[1] >= t.at[1] - 12 && q[1] <= t.at[1] + 3), ten + ": đường cong đi qua số " + s + " ghi trên trục"); });
   const dau = (pl) => [pl.p.slice(0, 2), pl.p.slice(-2)];
   cong.forEach((pl) => {
     const pts = []; for (let i = 0; i < pl.p.length; i += 2) pts.push([(pl.p[i] - ox) / u, (oy - pl.p[i + 1]) / u]);
@@ -893,6 +899,8 @@ assert.equal(dung.size, CHECKS.length, "có mục kiểm tra không khớp câu 
   assert.throws(() => docBang(bang.replace(/x1="(\d+)" y1="6"/, 'x1="$1" y1="7"'), "thử"), /hết|ngang, dọc|trùng/);
   const par = tim("Bốn đường cong (P₁)");
   assert.throws(() => docParabol(par.replace(/(<polyline points=")([\d.]+),([\d.]+)/, (m, a, x, y) => a + x + "," + (+y + 9)), "thử"), /không phải parabol/);
+  // số 2 trên trục hoành ghi trên trục vì (P₄) đi qua chỗ dưới trục; chuyển xuống dưới trục thì bị đường cong đè
+  assert.throws(() => docParabol(par.replace(/(<text x="[\d.]+" y=")([\d.]+)(" text-anchor="middle" font-size="13">2<)/, (m, a, y, c) => a + (+y + 22) + c), "thử"), /đường cong đi qua số 2/);
   assert.throws(() => chuTrongKhung('<svg viewBox="0 0 320 100" width="320"><text x="300" y="50" font-size="15">Chữ dài tràn ra</text></svg>', "thử"), /tràn khỏi khung/);
 }
 
