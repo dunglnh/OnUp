@@ -89,8 +89,8 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
      "congnghe9-gk2-ngau-nhien" (không có câu riêng nên không ghi vào file này); mỗi đề chia đúng ma trận 10 Biết, 8 Hiểu, 7 Vận dụng
      (ma trận ở data/banks/index.js), nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Câu ở hai ô khác nhau có thể cùng được
      rút vào một đề, nên đề bài, lựa chọn, lời giải không ghi sẵn đáp án của câu khác (ví dụ: câu kí hiệu chỉ hỏi quạt trần, công tơ
-     điện, oát kế, không có ở sơ đồ nào khác; câu về ampe kìm không nói ampe kìm đo đại lượng gì; lời giải câu chọn thang đo không nhắc
-     cổng của que đo). Dòng điện tính toán bằng công suất chia cho điện áp (gợi ý của sách); dòng điện định mức chọn khoảng 130% dòng điện
+     điện, oát kế, không có ở sơ đồ nào khác; lựa chọn sai của câu chọn dụng cụ không là đáp án của câu khác; lời giải câu chọn thang
+     đo không nhắc cổng của que đo). Dòng điện tính toán bằng công suất chia cho điện áp (gợi ý của sách); dòng điện định mức chọn khoảng 130% dòng điện
      tính toán, không có loại đúng số thì chọn loại lớn hơn và gần nhất. 7 câu có hình (sáu sơ đồ nguyên lí, một hình kí hiệu);
      tests/tin-congnghe9-gk2.js đọc lại sơ đồ (dây, chấm nối, nguồn A và O, cầu chì, công tắc, ổ lấy điện, bóng đèn, điểm đánh dấu),
      xét thiết bị nào có điện khi đóng, ngắt công tắc, khi cầu chì đứt, khi nối thêm ổ cắm, và tính lại câu có số.
