@@ -746,6 +746,26 @@ window.ONTAP_SEED_BANKS = [
       "Giải bài toán bằng cách lập phương trình": [0, 1, 1], "Góc nội tiếp": [1, 1, 1],
       "Đường tròn ngoại tiếp và đường tròn nội tiếp của một tam giác": [1, 1, 1], "Tứ giác nội tiếp": [1, 1, 1], "Đa giác đều": [1, 1, 0] } } },
 
+  /* Toán 9 · Kiểm tra cuối năm học (Kết nối tri thức, Toán 9 tập hai, Bài 18–32; Phiên N9-ck2-toan). Trọng tâm phần sau giữa kì II:
+     Chương VII Tần số và tần số tương đối (Bài 22–24), Chương VIII Xác suất của biến cố trong một số mô hình xác suất đơn giản (Bài
+     25–26), Chương X Một số hình khối trong thực tiễn (Bài 31–32); ôn Chương VI, IX (phạm vi kho giữa kì II toan9-gk2-*), không có câu
+     ôn học kì I. Khối 9 chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu riêng trong file + 50 câu của 2 đề
+     cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 15 chủ đề theo tên bài của sách: 17 câu
+     Chương VII, VIII, X (thống kê 7, xác suất 5, hình khối 5) và 8 câu ôn (Chương VI 4, Chương IX 4; chữ chủ đề như kho giữa kì II).
+     Hai đề cố định chia đúng ma trận, câu riêng ở ô nào cũng gấp đôi số câu ô đó rút, nên ô (chủ đề, mức) nào cũng có gấp bốn số câu
+     ô đó rút và học sinh đã làm một đề cố định vẫn gặp câu mới. Ba câu tự luận chỉ ở ba ô Vận dụng rút 1 câu (Xác suất của biến cố
+     liên quan tới phép thử; Tứ giác nội tiếp; Hình trụ và hình nón): mỗi lần rút nhiều nhất 3 câu tự luận. */
+  { id: "toan9-ck2-de1", title: "Toán 9 · Cuối năm · Đề 1", grade: 9, subject: "Toán", minutes: 45, n: 25, file: "9-toan.js" },
+  { id: "toan9-ck2-de2", title: "Toán 9 · Cuối năm · Đề 2", grade: 9, subject: "Toán", minutes: 45, n: 25, file: "9-toan.js" },
+  { id: "toan9-ck2-ngau-nhien", title: "Toán 9 · Cuối năm · Đề ngẫu nhiên", grade: 9, subject: "Toán", minutes: 45, n: 25, file: "9-toan.js",
+    pool: { from: ["toan9-ck2-de1", "toan9-ck2-de2"], matrix: {
+      "Hàm số y = ax² (a ≠ 0)": [1, 0, 0], "Phương trình bậc hai một ẩn": [0, 1, 0], "Định lí Viète và ứng dụng": [0, 1, 0],
+      "Giải bài toán bằng cách lập phương trình": [0, 0, 1], "Bảng tần số và biểu đồ tần số": [1, 1, 0],
+      "Bảng tần số tương đối và biểu đồ tần số tương đối": [1, 1, 1], "Bảng tần số, tần số tương đối ghép nhóm và biểu đồ": [1, 0, 1],
+      "Phép thử ngẫu nhiên và không gian mẫu": [1, 1, 0], "Xác suất của biến cố liên quan tới phép thử": [1, 1, 1], "Góc nội tiếp": [0, 1, 0],
+      "Đường tròn ngoại tiếp và đường tròn nội tiếp của một tam giác": [1, 0, 0], "Tứ giác nội tiếp": [0, 0, 1], "Đa giác đều": [1, 0, 0],
+      "Hình trụ và hình nón": [1, 1, 1], "Hình cầu": [1, 0, 1] } } },
+
   /* Ngữ văn 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Ngữ văn 9 tập một, Bài 1–5; Phiên N9-ck1-van). Khối 9 chưa bật nên đề chưa
      hiện với gia đình. Kho câu = 25 câu riêng trong file (5 đoạn đọc, 3 câu Viết) + 50 câu của 2 đề cố định (mỗi đề 5 đoạn đọc, 1 câu
      Viết), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu: năm chủ đề đọc hiểu theo tên Bài 1–5, mỗi chủ đề
