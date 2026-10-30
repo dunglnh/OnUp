@@ -924,6 +924,23 @@ window.ONTAP_SEED_BANKS = [
       "Vùng Đồng bằng sông Hồng": [1, 0, 0], "Vùng Bắc Trung Bộ": [2, 1, 1], "Vùng Duyên hải Nam Trung Bộ và Tây Nguyên": [1, 1, 2],
       "Vùng Đông Nam Bộ": [1, 2, 1] } } },
 
+  /* Lịch sử và Địa lí 9 · Kiểm tra cuối năm học (Kết nối tri thức, bản chỉnh sửa năm 2026; Lịch sử Bài 13–21, Địa lí Bài 14–21,
+     trọng tâm Bài 18–21 của mỗi phân môn; Phiên N9-ck2-lsdl-gdcd). Khối 9 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu
+     của 2 đề cố định (không có câu riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu, theo khung đề định
+     kì (Công văn 7991): 12 câu Lịch sử (câu ôn kháng chiến chống Pháp, chống Mỹ với chữ chủ đề như kho giữa kì II; Bài 18, 19, 21
+     mỗi bài 2 câu; Bài 20 4 câu chia hai chủ đề), 13 câu Địa lí (câu ôn Bắc Trung Bộ, Duyên hải Nam Trung Bộ và Tây Nguyên; Đông Nam
+     Bộ 2 câu, gồm bài thực hành Bài 18; Đồng bằng sông Cửu Long 5 câu, gồm bài thực hành Bài 20; biển, đảo 4 câu). Ba Chủ đề chung
+     cuối sách không có câu riêng. Hai đề cố định chia đúng theo ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "lsdl9-ck2-de1", title: "Lịch sử và Địa lí 9 · Cuối năm · Đề 1", grade: 9, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "9-lsdl.js" },
+  { id: "lsdl9-ck2-de2", title: "Lịch sử và Địa lí 9 · Cuối năm · Đề 2", grade: 9, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "9-lsdl.js" },
+  { id: "lsdl9-ck2-ngau-nhien", title: "Lịch sử và Địa lí 9 · Cuối năm · Đề ngẫu nhiên", grade: 9, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "9-lsdl.js",
+    pool: { from: ["lsdl9-ck2-de1", "lsdl9-ck2-de2"], matrix: {
+      "Kháng chiến chống Pháp (1951 – 1954)": [0, 1, 0], "Kháng chiến chống Mỹ (1965 – 1975)": [1, 0, 0],
+      "Trật tự thế giới, Nga và Mỹ (1991 – nay)": [1, 1, 0], "Châu Á (1991 – nay)": [1, 0, 1], "Thống nhất đất nước, bảo vệ Tổ quốc": [1, 0, 1],
+      "Công cuộc Đổi mới (1986 – nay)": [0, 1, 1], "Cách mạng khoa học – kĩ thuật và toàn cầu hoá": [1, 1, 0],
+      "Vùng Bắc Trung Bộ": [0, 1, 0], "Vùng Duyên hải Nam Trung Bộ và Tây Nguyên": [1, 0, 0], "Vùng Đông Nam Bộ": [1, 1, 0],
+      "Vùng Đồng bằng sông Cửu Long": [2, 1, 2], "Biển, đảo Việt Nam": [1, 1, 2] } } },
+
   /* GDCD 9 · Kiểm tra cuối học kì I (Kết nối tri thức; Bài 1–6; Phiên N9-ck1-lsdl-gdcd). Khối 9 chưa bật nên đề chưa hiện với gia
      đình. Kho câu = 50 câu của 2 đề cố định (không có câu riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7
      câu, theo khung đề định kì (Công văn 7991): Bài 1–5 mỗi bài 4 câu, Bài 6 Quản lí thời gian hiệu quả 5 câu, bài nào cũng có câu
@@ -945,6 +962,18 @@ window.ONTAP_SEED_BANKS = [
   { id: "gdcd9-gk2-ngau-nhien", title: "GDCD 9 · Giữa kì II · Đề ngẫu nhiên", grade: 9, subject: "GDCD", minutes: 35, n: 25, file: "9-gdcd.js",
     pool: { from: ["gdcd9-gk2-de1", "gdcd9-gk2-de2"], matrix: {
       "Quản lí thời gian hiệu quả": [1, 1, 1], "Thích ứng với thay đổi": [4, 4, 3], "Tiêu dùng thông minh": [5, 3, 3] } } },
+
+  /* GDCD 9 · Kiểm tra cuối năm học (Kết nối tri thức; Bài 7–10, trọng tâm Bài 9 Vi phạm pháp luật và trách nhiệm pháp lí, Bài 10
+     Quyền tự do kinh doanh và nghĩa vụ nộp thuế; Phiên N9-ck2-lsdl-gdcd). Khối 9 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50
+     câu của 2 đề cố định (không có câu riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu, theo khung đề
+     định kì (Công văn 7991): Bài 7 3 câu, Bài 8 4 câu, Bài 9, Bài 10 mỗi bài 9 câu, câu tình huống là chính. Hai đề cố định chia đúng
+     theo ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "gdcd9-ck2-de1", title: "GDCD 9 · Cuối năm · Đề 1", grade: 9, subject: "GDCD", minutes: 35, n: 25, file: "9-gdcd.js" },
+  { id: "gdcd9-ck2-de2", title: "GDCD 9 · Cuối năm · Đề 2", grade: 9, subject: "GDCD", minutes: 35, n: 25, file: "9-gdcd.js" },
+  { id: "gdcd9-ck2-ngau-nhien", title: "GDCD 9 · Cuối năm · Đề ngẫu nhiên", grade: 9, subject: "GDCD", minutes: 35, n: 25, file: "9-gdcd.js",
+    pool: { from: ["gdcd9-ck2-de1", "gdcd9-ck2-de2"], matrix: {
+      "Thích ứng với thay đổi": [1, 1, 1], "Tiêu dùng thông minh": [2, 1, 1], "Vi phạm pháp luật và trách nhiệm pháp lí": [4, 3, 2],
+      "Quyền tự do kinh doanh và nghĩa vụ nộp thuế": [3, 3, 3] } } },
 
   /* Tin học 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Tin học 9, Bài 1–8; Phiên N9-ck1-tin-congnghe). Khối 9 chưa bật nên đề chưa
      hiện với gia đình. Năm chủ đề theo năm bài lí thuyết (Bài 1, 2, 4, 5, 7; ba bài thực hành 3, 6, 8 hỏi qua tình huống ở chủ đề của
