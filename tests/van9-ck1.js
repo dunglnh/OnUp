@@ -11,8 +11,8 @@
 // giữa các câu rút được cùng lúc (Rút ra N19: chuỗi 3 từ liền nhau của đáp án; đáp án ngắn thì cả đáp án) ở đề bài, lựa chọn, lời
 // giải, đáp án, đoạn đọc của câu kia; DO_LO=1 in ra để xem tay, danh sách đã xem ở DA_XEM.
 // Có sách ở ../OnUp-Book (repo riêng tư) thì so mọi trường chữ (cả đoạn đọc, thang chấm) với chữ OCR của mọi cuốn sau khi bỏ dấu, gộp
-// nguyên âm: không có chuỗi 8 từ liền nhau trùng sách; DO_SACH=1 in cả chuỗi 6 từ. So thêm với mọi câu của các kho khác: không có
-// chuỗi 8 từ trùng; DO_KHO=1 in chuỗi 5 từ.
+// nguyên âm: không có chuỗi 8 từ liền nhau trùng sách (câu thơ của tác phẩm cổ trích nguyên văn ở TRICH không tính); DO_SACH=1 in cả
+// chuỗi 6 từ. So thêm với mọi câu của các kho khác: không có chuỗi 8 từ trùng; DO_KHO=1 in chuỗi 5 từ.
 // Chạy: node tests/van9-ck1.js → in VAN9 OK.
 "use strict";
 const assert = require("assert");
@@ -241,11 +241,15 @@ assert.deepEqual(lo, DA_XEM, "đáp án có ở câu rút được cùng lúc đ
 /* ---------- không chép sách: so với chữ OCR (bỏ dấu, gộp nguyên âm), nếu có OnUp-Book ---------- */
 const BOOK = path.join(__dirname, "../../OnUp-Book");
 const SACH = fs.existsSync(BOOK) ? fs.readdirSync(BOOK).filter((l) => /^lop-\d+$/.test(l)).flatMap((l) => fs.readdirSync(path.join(BOOK, l)).map((c) => path.join(BOOK, l, c, "chu.txt"))).filter((f) => fs.existsSync(f)) : [];
-const khongDau = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
+// câu thơ trích nguyên văn của tác phẩm cổ (sách cũng dẫn) không tính là chép sách: «Cỏ non xanh tận chân trời…» (Truyện Kiều,
+// Nguyễn Du) ở đoạn đọc canh-ngay-xuan và câu 9 của đề ngẫu nhiên, Ngữ văn 10 tập một dẫn làm ví dụ đảo ngữ
+const TRICH = ["Cỏ non xanh tận chân trời", "Cành lê trắng điểm một vài bông hoa"];
+const khongDau = (s) => TRICH.reduce((x, c) => x.split(c).join(" "), String(s).normalize("NFC")).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
 const chuoi = (s, k) => { const w = khongDau(s).split(" ").filter(Boolean), ra = []; for (let i = 0; i + k <= w.length; i++) ra.push(w.slice(i, i + k).join(" ")); return ra; };
 const truong = (q) => chu(q).concat(q.p && q === kho.find((x) => x.p === q.p) ? [PSG[q.p].title, PSG[q.p].text] : []);
 if (SACH.length) {
   assert.ok(SACH.some((f) => /ngu-van-9-tap-1/.test(f)), "OnUp-Book có Ngữ văn 9 tập một");
+  assert.ok(TRICH.every((c) => kho.some((q) => truong(q).some((s) => s.normalize("NFC").includes(c)))), "câu trích ở TRICH phải có trong kho");
   const sach = " " + SACH.map((f) => khongDau(fs.readFileSync(f, "utf8").replace(/=== page-\d+ · trang in \d+ ===/g, " "))).join(" | ") + " ";
   const bao = (k) => kho.flatMap((q) => truong(q).flatMap((s) => chuoi(s, k).filter((c) => sach.includes(" " + c + " ")).map((c) => `${ten.get(q)}: ${c}`)));
   if (process.env.DO_SACH) console.log("Chuỗi 6 từ trùng chữ OCR của sách (xem tay):\n" + [...new Set(bao(6))].join("\n"));
