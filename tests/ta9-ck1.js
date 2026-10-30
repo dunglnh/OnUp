@@ -19,7 +19,8 @@
 // xem tay, danh sách đã xem ở DA_XEM.
 // Có sách ở ../OnUp-Book (repo riêng tư): từ của đáp án câu từ vựng, cụm động từ có trong trang của đúng Unit đó (theo trang bắt đầu ở
 // Contents, cộng mục Unit đó của Glossary; cụm động từ Unit 1 tính cả Review 1); mọi trường chữ (cả đoạn đọc; trừ lời dặn chuẩn của
-// mục 3.2, sách cũng dùng) không có chuỗi 8 từ liền nhau trùng chữ OCR của mọi cuốn (bỏ dấu, gộp nguyên âm; DO_SACH=1 in chuỗi 6 từ).
+// mục 3.2 và câu hỏi chung của bài đọc, sách cũng dùng) không có chuỗi 8 từ liền nhau trùng chữ OCR của mọi cuốn (bỏ dấu, gộp nguyên
+// âm; DO_SACH=1 in chuỗi 6 từ).
 // So thêm với mọi câu của các kho khác: không có chuỗi 8 từ trùng; DO_KHO=1 in chuỗi 5 từ.
 // Chạy: node tests/ta9-ck1.js → in TA9 OK.
 "use strict";
@@ -354,9 +355,11 @@ const BOOK = path.join(__dirname, "../../OnUp-Book");
 const SACH = fs.existsSync(BOOK) ? fs.readdirSync(BOOK).filter((l) => /^lop-\d+$/.test(l)).flatMap((l) => fs.readdirSync(path.join(BOOK, l)).map((c) => path.join(BOOK, l, c, "chu.txt"))).filter((f) => fs.existsSync(f)) : [];
 const khongDau = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
 const chuoi = (s, k) => { const w = khongDau(s).split(" ").filter(Boolean), ra = []; for (let i = 0; i + k <= w.length; i++) ra.push(w.slice(i, i + k).join(" ")); return ra; };
-// lời dặn chuẩn của đề Tiếng Anh (mục 3.2 của docs/KE-HOACH-NOI-DUNG.md) giống lời dặn của sách: không so
+// lời dặn chuẩn của đề Tiếng Anh (mục 3.2 của docs/KE-HOACH-NOI-DUNG.md) giống lời dặn của sách: không so; cả câu hỏi chung của bài đọc
+// (sách Tiếng Anh 10 hỏi đúng câu này, tr. 123)
 const LOI_DAN = ["Write the correct form of the verb in brackets.", "Put the words in the correct order.", "Read the text. Then answer the questions.",
-  "Read the text again. Is each sentence true or false?", "Which part of the sentence is wrong?", "Choose the sentence closest in meaning:", "Is each sentence grammatically correct?"];
+  "Read the text again. Is each sentence true or false?", "Which part of the sentence is wrong?", "Choose the sentence closest in meaning:", "Is each sentence grammatically correct?",
+  "What is the main idea of the text?"];
 const boLoiDan = (s) => LOI_DAN.reduce((a, l) => a.split(l).join(" "), String(s));
 const truong = (q) => [boLoiDan(q.q), q.x].concat(q.o || [], q.ans || [], q.p && q === kho.find((x) => x.p === q.p) ? [PSG[q.p].text] : []);
 if (SACH.length) {
