@@ -890,6 +890,27 @@ window.ONTAP_SEED_BANKS = [
       "Sự khác nhau cơ bản giữa phi kim và kim loại": [1, 1, 0], "Nhiễm sắc thể và bộ nhiễm sắc thể": [1, 1, 0], "Nguyên phân và giảm phân": [1, 0, 1],
       "Nhiễm sắc thể giới tính và cơ chế xác định giới tính": [1, 0, 0], "Di truyền liên kết": [0, 1, 0], "Đột biến nhiễm sắc thể": [1, 0, 0] } } },
 
+  /* KHTN 9 · Kiểm tra cuối năm học (Kết nối tri thức, Khoa học tự nhiên 9; Phiên N9-ck2-khtn). Khối 9 chưa bật nên đề chưa hiện với
+     gia đình. Phạm vi cả học kì II theo phân phối chương trình dạy song song ba phân môn, trọng tâm phần sau giữa kì II (nguồn ghi ở
+     Pull Request của phiên): Vật lí Bài 11–17 (trọng tâm Bài 14–17) 8 câu, Hoá học Bài 18–21 và Bài 33–35 (trọng tâm Bài 33–35) 10
+     câu, Sinh học Bài 42–51 (trọng tâm Bài 47–51) 7 câu; số câu mỗi phân môn theo số tiết (Hoá học 2 tiết mỗi tuần, Vật lí, Sinh học
+     mỗi môn 1 tiết). Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận
+     dụng] 10 – 8 – 7 câu trên 18 chủ đề theo tên bài của sách: 19 câu của 12 bài phần sau giữa kì II và 6 câu ôn (Bài 13, 19, 20, 21,
+     43, 46; chữ chủ đề như kho giữa kì II); chủ đề Bài 33, 35 rút gọn tên bài. Ô nào cũng rút nhiều nhất 1 câu; hai đề cố định và 25
+     câu riêng đều chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp ba số câu ô đó rút. Không có câu tự luận. */
+  { id: "khtn9-ck2-de1", title: "KHTN 9 · Cuối năm · Đề 1", grade: 9, subject: "KHTN", minutes: 45, n: 25, file: "9-khtn.js" },
+  { id: "khtn9-ck2-de2", title: "KHTN 9 · Cuối năm · Đề 2", grade: 9, subject: "KHTN", minutes: 45, n: 25, file: "9-khtn.js" },
+  { id: "khtn9-ck2-ngau-nhien", title: "KHTN 9 · Cuối năm · Đề ngẫu nhiên", grade: 9, subject: "KHTN", minutes: 45, n: 25, file: "9-khtn.js",
+    pool: { from: ["khtn9-ck2-de1", "khtn9-ck2-de2"], matrix: {
+      "Năng lượng của dòng điện và công suất điện": [0, 1, 0], "Cảm ứng điện từ. Nguyên tắc tạo ra dòng điện xoay chiều": [1, 1, 1],
+      "Tác dụng của dòng điện xoay chiều": [1, 0, 0], "Vòng năng lượng trên Trái Đất. Năng lượng hoá thạch": [1, 0, 0],
+      "Một số dạng năng lượng tái tạo": [1, 0, 1], "Dãy hoạt động hoá học": [0, 0, 1], "Tách kim loại và việc sử dụng hợp kim": [0, 1, 0],
+      "Sự khác nhau cơ bản giữa phi kim và kim loại": [0, 1, 0], "Hoá học vỏ Trái Đất và khai thác tài nguyên từ vỏ Trái Đất": [1, 1, 0],
+      "Khai thác đá vôi. Công nghiệp silicate": [1, 1, 1], "Nhiên liệu hoá thạch. Chu trình carbon và sự ấm lên toàn cầu": [1, 1, 0],
+      "Nguyên phân và giảm phân": [0, 0, 1], "Đột biến nhiễm sắc thể": [0, 1, 0], "Di truyền học với con người": [1, 0, 0],
+      "Ứng dụng công nghệ di truyền vào đời sống": [0, 0, 1], "Khái niệm tiến hoá và các hình thức chọn lọc": [1, 0, 0],
+      "Cơ chế tiến hoá": [0, 0, 1], "Sự phát sinh và phát triển sự sống trên Trái Đất": [1, 0, 0] } } },
+
   /* Lịch sử và Địa lí 9 · Kiểm tra cuối học kì I (Kết nối tri thức, bản chỉnh sửa năm 2026; Lịch sử Bài 1–12, Địa lí Bài 1–13; Phiên
      N9-ck1-lsdl-gdcd). Khối 9 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (không có câu riêng), câu nào
      cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu, theo khung đề định kì (Công văn 7991): 12 câu Lịch sử (mỗi bài 1
