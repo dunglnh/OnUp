@@ -72,7 +72,7 @@
   { id: "gk1-l9", title: "Kiểm tra giữa học kì I", kind: "dinh-ki", grades: [9],
     start: "2026-11-02", end: "2026-11-13", tentative: true, subjects: MON_THCS,
     scope: "Toán: Bài 1–6, Bài 11–12 (trường dạy theo thứ tự sách, Chương I–III, thì xem đề cương của trường). Ngữ văn: Bài 1–3. Tiếng Anh: Units 1–3. KHTN: Bài 1, Vật lí Bài 2–5, Hoá học Bài 22–25, Sinh học Bài 36–38 (trường dạy theo thứ tự khác thì xem đề cương của trường). Lịch sử và Địa lí: Lịch sử Bài 1–8, Địa lí Bài 1–8. GDCD: Bài 1–3. Tin học: Bài 1–4. Công nghệ: Định hướng nghề nghiệp, Bài 1–3.",
-    modules: [], banks: ["toan9-gk1-de1", "toan9-gk1-de2", "toan9-gk1-ngau-nhien"] },
+    modules: [], banks: ["toan9-gk1-de1", "toan9-gk1-de2", "toan9-gk1-ngau-nhien", "van9-gk1-de1", "van9-gk1-de2", "van9-gk1-ngau-nhien"] },
   { id: "gk1-l10", title: "Kiểm tra giữa học kì I", kind: "dinh-ki", grades: [10],
     start: "2026-11-02", end: "2026-11-13", tentative: true, subjects: MON_THPT, scope: "Nửa đầu học kì I.", modules: [], banks: [] },
   { id: "gk1-l11", title: "Kiểm tra giữa học kì I", kind: "dinh-ki", grades: [11],
