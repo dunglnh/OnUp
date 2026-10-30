@@ -786,6 +786,22 @@ window.ONTAP_SEED_BANKS = [
       "Đường tròn ngoại tiếp và đường tròn nội tiếp của một tam giác": [1, 0, 0], "Tứ giác nội tiếp": [0, 0, 1], "Đa giác đều": [1, 0, 0],
       "Hình trụ và hình nón": [1, 1, 1], "Hình cầu": [1, 0, 1] } } },
 
+  /* Ngữ văn 9 · Kiểm tra giữa học kì I (Kết nối tri thức, Ngữ văn 9 tập một, Bài 1–3; Phiên N9-gk1-van). Phạm vi là mặc định PO
+     chọn (đề giữa kì I tra được ghi “tuần 1 đến tuần 9”, mỗi bài khoảng 3 tuần); note nhắc trường thi đến Bài 2 hoặc Bài 4 đối
+     chiếu đề cương. Khối 9 chưa bật nên đề chưa hiện với gia đình. Kho câu = 24 câu riêng trong file (3 đoạn đọc, 3 câu Viết) +
+     50 câu của 2 đề cố định (mỗi đề 3 đoạn đọc, 1 câu Viết), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7
+     câu, như kho Ngữ văn 6 giữa kì I: ba chủ đề đọc hiểu theo tên Bài 1–3, mỗi chủ đề [1, 1, 2] (đoạn 4 câu mức 1-2-3-3), nên lần
+     rút nào cũng lấy trọn một đoạn mỗi bài, đúng mức; 12 câu Tiếng Việt chỉ mức Biết, Hiểu theo năm chủ đề của sáu mục Thực hành
+     tiếng Việt Bài 1–3 (chữ chủ đề như kho cuối kì I); 1 câu Viết tự chấm. Hai đề cố định đúng ma trận, câu riêng thêm vào mọi ô
+     có rút, nên ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút. Câu tự luận chỉ ở ô Viết: mỗi lần rút đúng 1 câu. */
+  { id: "van9-gk1-de1", title: "Ngữ văn 9 · Giữa kì I · Đề 1", grade: 9, subject: "Ngữ văn", minutes: 45, n: 25, file: "9-van.js" },
+  { id: "van9-gk1-de2", title: "Ngữ văn 9 · Giữa kì I · Đề 2", grade: 9, subject: "Ngữ văn", minutes: 45, n: 25, file: "9-van.js" },
+  { id: "van9-gk1-ngau-nhien", title: "Ngữ văn 9 · Giữa kì I · Đề ngẫu nhiên", grade: 9, subject: "Ngữ văn", minutes: 45, n: 25, file: "9-van.js",
+    pool: { from: ["van9-gk1-de1", "van9-gk1-de2"], matrix: {
+      "Thế giới kì ảo": [1, 1, 2], "Những cung bậc tâm trạng": [1, 1, 2], "Hồn nước nằm trong tiếng mẹ cha": [1, 1, 2],
+      "Điển tích, điển cố": [2, 1, 0], "Một số yếu tố Hán Việt dễ nhầm lẫn": [1, 2, 0], "Biện pháp tu từ chơi chữ": [2, 1, 0],
+      "Điệp thanh, điệp vần": [1, 1, 0], "Chữ Nôm và chữ quốc ngữ": [1, 0, 0], "Viết": [0, 0, 1] } } },
+
   /* Ngữ văn 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Ngữ văn 9 tập một, Bài 1–5; Phiên N9-ck1-van). Khối 9 chưa bật nên đề chưa
      hiện với gia đình. Kho câu = 25 câu riêng trong file (5 đoạn đọc, 3 câu Viết) + 50 câu của 2 đề cố định (mỗi đề 5 đoạn đọc, 1 câu
      Viết), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu: năm chủ đề đọc hiểu theo tên Bài 1–5, mỗi chủ đề
