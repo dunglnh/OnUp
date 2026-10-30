@@ -1081,6 +1081,34 @@ window.ONTAP_SEED_BANKS = [
       "Thiết bị đóng cắt và lấy điện trong gia đình": [3, 1, 1], "Dụng cụ đo điện cơ bản": [2, 2, 1],
       "Thiết kế mạng điện trong nhà": [2, 3, 2], "Vật liệu, thiết bị và dụng cụ lắp đặt mạng điện": [3, 2, 3] } } },
 
+  /* Tin học 9 · Kiểm tra cuối năm học (Kết nối tri thức, Tin học 9: ôn Chủ đề 4 phần a, Bài 9a–13a; trọng tâm Bài 14–17; Phiên
+     N9-ck2-tin-congnghe). Khối 9 chưa bật nên đề chưa hiện với gia đình. Trường học phần b. Làm quen với phần mềm làm video thì phần
+     bảng tính của đề không hợp (lời dặn của đề). Kho câu = 50 câu của 2 đề cố định, không có câu riêng; ma trận [Biết, Hiểu, Vận dụng]
+     10 – 8 – 7: mỗi đề 7 câu ôn Bài 9a–13a (chữ chủ đề như kho giữa kì II) và 18 câu Bài 14–17; hai đề cố định chia đúng ma trận, nên
+     ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "tin9-ck2-de1", title: "Tin học 9 · Cuối năm · Đề 1", grade: 9, subject: "Tin học", minutes: 35, n: 25, file: "9-tin.js" },
+  { id: "tin9-ck2-de2", title: "Tin học 9 · Cuối năm · Đề 2", grade: 9, subject: "Tin học", minutes: 35, n: 25, file: "9-tin.js" },
+  { id: "tin9-ck2-ngau-nhien", title: "Tin học 9 · Cuối năm · Đề ngẫu nhiên", grade: 9, subject: "Tin học", minutes: 35, n: 25, file: "9-tin.js",
+    pool: { from: ["tin9-ck2-de1", "tin9-ck2-de2"], matrix: {
+      "Công cụ xác thực dữ liệu": [1, 1, 0], "Hàm COUNTIF": [1, 0, 0], "Hàm SUMIF": [0, 1, 0], "Hàm IF": [1, 0, 1],
+      "Hoàn thiện bảng tính quản lí tài chính gia đình": [0, 1, 0], "Giải quyết vấn đề": [2, 1, 1], "Bài toán tin học": [2, 2, 2],
+      "Lập chương trình máy tính": [1, 1, 2], "Tin học và thế giới nghề nghiệp": [2, 1, 1] } } },
+
+  /* Công nghệ 9 · Kiểm tra cuối năm học (Kết nối tri thức, Công nghệ 9 – Trải nghiệm nghề nghiệp, mô đun Lắp đặt mạng điện trong nhà,
+     Bài 1–7, trọng tâm Bài 5–7; 2 câu ôn Định hướng nghề nghiệp; Phiên N9-ck2-tin-congnghe). Khối 9 chưa bật nên đề chưa hiện với gia
+     đình. Trường học mô đun khác hoặc học Định hướng nghề nghiệp ở học kì II thì đối chiếu đề cương (lời dặn của đề). Kho câu = 50 câu
+     của 2 đề cố định, không có câu riêng; ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7: mỗi đề 6 câu ôn Bài 1–4, 17 câu Bài 5–7 và 2 câu
+     ôn Định hướng nghề nghiệp (chữ chủ đề như kho giữa kì II, cuối kì I); hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào
+     cũng có gấp đôi số câu ô đó rút. */
+  { id: "congnghe9-ck2-de1", title: "Công nghệ 9 · Cuối năm · Đề 1", grade: 9, subject: "Công nghệ", minutes: 35, n: 25, file: "9-congnghe.js" },
+  { id: "congnghe9-ck2-de2", title: "Công nghệ 9 · Cuối năm · Đề 2", grade: 9, subject: "Công nghệ", minutes: 35, n: 25, file: "9-congnghe.js" },
+  { id: "congnghe9-ck2-ngau-nhien", title: "Công nghệ 9 · Cuối năm · Đề ngẫu nhiên", grade: 9, subject: "Công nghệ", minutes: 35, n: 25, file: "9-congnghe.js",
+    pool: { from: ["congnghe9-ck2-de1", "congnghe9-ck2-de2"], matrix: {
+      "Thiết bị đóng cắt và lấy điện trong gia đình": [1, 1, 0], "Dụng cụ đo điện cơ bản": [1, 0, 1], "Thiết kế mạng điện trong nhà": [0, 0, 1],
+      "Vật liệu, thiết bị và dụng cụ lắp đặt mạng điện": [0, 1, 0], "Tính toán chi phí mạng điện trong nhà": [2, 2, 2],
+      "Lắp đặt mạng điện trong nhà": [3, 2, 2], "Ngành nghề liên quan đến lắp đặt mạng điện": [2, 1, 1],
+      "Thị trường lao động kĩ thuật, công nghệ": [1, 0, 0], "Quy trình lựa chọn nghề nghiệp": [0, 1, 0] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
