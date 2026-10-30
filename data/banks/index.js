@@ -708,6 +708,26 @@ window.ONTAP_SEED_BANKS = [
       "An toàn và tiết kiệm điện năng": [1, 1, 2], "Trang phục trong đời sống": [1, 0, 0], "Sử dụng và bảo quản trang phục": [0, 1, 0],
       "Thời trang": [1, 0, 0] } } },
 
+  /* Toán 9 · Kiểm tra giữa học kì I (Kết nối tri thức, Toán 9 tập một: Chương I Phương trình và hệ hai phương trình bậc nhất hai ẩn,
+     Bài 1–3; Chương II Phương trình và bất phương trình bậc nhất một ẩn, Bài 4–6; Chương IV Hệ thức lượng trong tam giác vuông, Bài
+     11–12; Phiên N9-gk1-toan). Phạm vi theo phân phối chương trình dạy song song đại số, hình học (tuần 1–8) và ma trận đề giữa kì I
+     trên hoatieu.vn (nguồn ở mục 7 của docs/KE-HOACH-NOI-DUNG.md; đọc ngày 30/10/2026: Chương I 30%, Chương II 35%, Chương IV 35%,
+     không có Chương III); trường dạy theo thứ tự sách (Chương I–III) thì xem đề cương của trường (note của đề có ghi). Khối 9 chưa bật (data/grades.js) nên đề chưa hiện với gia đình.
+     Kho câu = 50 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu
+     trên 8 chủ đề theo tên bài (chữ chủ đề như kho cuối kì I): đại số 17 câu (Chương I 8, Chương II 9), hình học 8 câu. Hai đề cố
+     định chia đúng ma trận, câu riêng ở ô nào cũng gấp đôi số câu ô đó rút, nên ô (chủ đề, mức) nào cũng có gấp bốn số câu ô đó rút
+     và học sinh đã làm một đề cố định vẫn gặp câu mới. Ba câu tự luận: hai câu ở ô Vận dụng của Giải bài toán bằng cách lập hệ phương
+     trình (ô rút 1 câu), một câu ở ô Vận dụng của Hệ thức giữa cạnh và góc trong tam giác vuông (ô rút 2 câu, chỉ có một câu tự luận):
+     mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "toan9-gk1-de1", title: "Toán 9 · Giữa kì I · Đề 1", grade: 9, subject: "Toán", minutes: 45, n: 25, file: "9-toan.js" },
+  { id: "toan9-gk1-de2", title: "Toán 9 · Giữa kì I · Đề 2", grade: 9, subject: "Toán", minutes: 45, n: 25, file: "9-toan.js" },
+  { id: "toan9-gk1-ngau-nhien", title: "Toán 9 · Giữa kì I · Đề ngẫu nhiên", grade: 9, subject: "Toán", minutes: 45, n: 25, file: "9-toan.js",
+    pool: { from: ["toan9-gk1-de1", "toan9-gk1-de2"], matrix: {
+      "Phương trình và hệ hai phương trình bậc nhất hai ẩn": [2, 1, 0], "Giải hệ hai phương trình bậc nhất hai ẩn": [1, 1, 1],
+      "Giải bài toán bằng cách lập hệ phương trình": [0, 1, 1], "Phương trình quy về phương trình bậc nhất một ẩn": [1, 1, 1],
+      "Bất đẳng thức và tính chất": [2, 1, 0], "Bất phương trình bậc nhất một ẩn": [1, 1, 1], "Tỉ số lượng giác của góc nhọn": [2, 1, 1],
+      "Hệ thức giữa cạnh và góc trong tam giác vuông": [1, 1, 2] } } },
+
   /* Toán 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Toán 9 tập một, Bài 1–17: Chương I Phương trình và hệ hai phương trình bậc
      nhất hai ẩn, Chương II Phương trình và bất phương trình bậc nhất một ẩn, Chương III Căn bậc hai và căn bậc ba, Chương IV Hệ thức
      lượng trong tam giác vuông, Chương V Đường tròn; Phiên N9-ck1-toan). Khối 9 chưa bật (data/grades.js) nên đề chưa hiện với gia
