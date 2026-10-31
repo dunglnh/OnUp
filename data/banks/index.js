@@ -853,6 +853,19 @@ window.ONTAP_SEED_BANKS = [
       "Biến đổi cấu trúc câu": [1, 1, 0], "Mở rộng cấu trúc câu": [1, 1, 0], "Sự phát triển của từ vựng": [1, 0, 0], "Biện pháp tu từ": [1, 0, 0],
       "Viết": [0, 0, 1] } } },
 
+  /* Tiếng Anh 9 · Kiểm tra giữa học kì I (Global Success 9, Units 1–3, Review 1; Phiên N9-gk1-ta). Phạm vi theo đề, đề cương giữa kì I
+     tra được (nguồn ở mục 7 của docs/KE-HOACH-NOI-DUNG.md). Khối 9 chưa bật nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong
+     file (1 đoạn đọc) + 50 câu của 2 đề cố định (mỗi đề 1 đoạn đọc), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7
+     câu: Pronunciation 3 (nguyên âm của Unit 1, nguyên âm đôi của Unit 2, /h/, /r/ của Unit 3), Unit 1, 2, 3 mỗi Unit 6, Reading 4 (một
+     đoạn 4 câu mức 1-1-2-3). Chữ chủ đề như kho cuối kì I (đề “Ôn chủ đề” rút chung câu của hai kho). Hai đề cố định và câu riêng đều
+     chia đúng ma trận nên ô (chủ đề, mức) nào cũng có gấp ba số câu ô đó rút. Không có câu nghe, không có câu tự luận. */
+  { id: "ta9-gk1-de1", title: "Tiếng Anh 9 · Giữa kì I · Đề 1", grade: 9, subject: "Tiếng Anh", minutes: 45, n: 25, file: "9-ta.js" },
+  { id: "ta9-gk1-de2", title: "Tiếng Anh 9 · Giữa kì I · Đề 2", grade: 9, subject: "Tiếng Anh", minutes: 45, n: 25, file: "9-ta.js" },
+  { id: "ta9-gk1-ngau-nhien", title: "Tiếng Anh 9 · Giữa kì I · Đề ngẫu nhiên", grade: 9, subject: "Tiếng Anh", minutes: 45, n: 25, file: "9-ta.js",
+    pool: { from: ["ta9-gk1-de1", "ta9-gk1-de2"], matrix: {
+      "Pronunciation": [2, 1, 0], "Unit 1 · Local Community": [2, 2, 2], "Unit 2 · City Life": [2, 2, 2],
+      "Unit 3 · Healthy Living for Teens": [2, 2, 2], "Reading": [2, 1, 1] } } },
+
   /* Tiếng Anh 9 · Kiểm tra cuối học kì I (Global Success 9, Units 1–6, Review 1, 2; Phiên N9-ck1-ta). Khối 9 chưa bật nên đề chưa hiện
      với gia đình. Kho câu = 25 câu riêng trong file (1 đoạn đọc) + 50 câu của 2 đề cố định (mỗi đề 1 đoạn đọc), câu nào cũng có mức
      độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu: Pronunciation 2 (nguyên âm của Unit 1, 2, âm /h/ của Unit 3, /j/ của Unit 5),
