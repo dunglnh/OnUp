@@ -359,7 +359,9 @@ const chuoi = (s, k) => { const w = khongDau(s).split(" ").filter(Boolean), ra =
 // (sách Tiếng Anh 10 hỏi đúng câu này, tr. 123)
 const LOI_DAN = ["Write the correct form of the verb in brackets.", "Put the words in the correct order.", "Read the text. Then answer the questions.",
   "Read the text again. Is each sentence true or false?", "Which part of the sentence is wrong?", "Choose the sentence closest in meaning:", "Is each sentence grammatically correct?",
-  "What is the main idea of the text?"];
+  "What is the main idea of the text?",
+  // lời dặn câu phát âm, kho giữa kì I (tests/ta9-gk1.js) dùng lại
+  "In which word is the letter h NOT pronounced?"];
 const boLoiDan = (s) => LOI_DAN.reduce((a, l) => a.split(l).join(" "), String(s));
 const truong = (q) => [boLoiDan(q.q), q.x].concat(q.o || [], q.ans || [], q.p && q === kho.find((x) => x.p === q.p) ? [PSG[q.p].text] : []);
 if (SACH.length) {
