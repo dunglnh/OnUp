@@ -21,7 +21,8 @@
        của ô (tests/kiem-tra-de.js thử mọi thứ tự đoạn và nhắc khi app sẽ ghi chú). Câu không có đoạn vẫn rút theo ô như trên.
      Kho phải đủ câu cho từng chủ đề (tests/kiem-tra-de.js báo lỗi); thiếu ở một mức thì chỉ nhắc.
    Mã môn: toan, tv (Tiếng Việt), van (Ngữ văn), ta (Tiếng Anh), khoahoc, lsdl (Lịch sử và Địa lí), khtn, gdcd, tin,
-   congnghe, tincn (Tin học và Công nghệ), thunghiem (đề thử nghiệm). Môn mới thì đặt mã mới, viết thường không dấu.
+   congnghe, tincn (Tin học và Công nghệ), vatli (Vật lí), hoahoc (Hoá học), thunghiem (đề thử nghiệm). Môn mới thì đặt mã mới,
+   viết thường không dấu.
 
    File câu hỏi ghi vào window.ONTAP_SEED_QUESTIONS: "<mã đề>": { note, passages?, questions }. Dạng câu hỏi (js/quiz.js):
    { type: "mc",   q: "...", o: ["đáp án đúng", "sai", "sai", "sai"], x: "giải thích" }   // đáp án đúng luôn đứng đầu, app tự xáo
@@ -1155,6 +1156,39 @@ window.ONTAP_SEED_BANKS = [
       "Pronunciation": [1, 1, 0], "Unit 1 · Life Stories We Admire": [1, 1, 1], "Unit 2 · A Multicultural World": [1, 1, 1],
       "Unit 3 · Green Living": [1, 1, 1], "Unit 4 · Urbanisation": [2, 1, 1], "Unit 5 · The World of Work": [2, 1, 1],
       "Cloze": [1, 1, 1], "Reading": [1, 1, 1] } } },
+
+  /* Vật lí 12 · Kiểm tra cuối học kì I (Kết nối tri thức, Vật lí 12, Bài 1–13: Chương I Vật lí nhiệt, Chương II Khí lí tưởng, trọng
+     tâm Chương II; Phiên N12-ck1-vatli-hoahoc). Khối 12 chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Trường đã học thêm
+     Bài 14–15 (Từ trường) trước khi kiểm tra thì đối chiếu đề cương (lời dặn của đề). Kho câu = 50 câu của 2 đề cố định, không có câu
+     riêng. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 11 chủ đề theo tên Bài 1–6, 8–12 (tên Bài 12 rút gọn; Bài 7, 13 là bài
+     tập nên không ra chủ đề riêng): Chương I 11 câu, Chương II 14 câu. Hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có
+     gấp đôi số câu ô đó rút. Hai câu tự luận ở hai ô Vận dụng rút 1 câu (Nhiệt hoá hơi riêng; Phương trình trạng thái của khí lí
+     tưởng): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "vatli12-ck1-de1", title: "Vật lí 12 · Cuối kì I · Đề 1", grade: 12, subject: "Vật lí", minutes: 45, n: 25, file: "12-vatli.js" },
+  { id: "vatli12-ck1-de2", title: "Vật lí 12 · Cuối kì I · Đề 2", grade: 12, subject: "Vật lí", minutes: 45, n: 25, file: "12-vatli.js" },
+  { id: "vatli12-ck1-ngau-nhien", title: "Vật lí 12 · Cuối kì I · Đề ngẫu nhiên", grade: 12, subject: "Vật lí", minutes: 45, n: 25, file: "12-vatli.js",
+    pool: { from: ["vatli12-ck1-de1", "vatli12-ck1-de2"], matrix: {
+      "Cấu trúc của chất. Sự chuyển thể": [1, 1, 0], "Nội năng. Định luật I của nhiệt động lực học": [1, 1, 1],
+      "Nhiệt độ. Thang nhiệt độ – nhiệt kế": [1, 1, 0], "Nhiệt dung riêng": [1, 0, 1], "Nhiệt nóng chảy riêng": [0, 1, 0],
+      "Nhiệt hoá hơi riêng": [0, 0, 1], "Mô hình động học phân tử chất khí": [2, 1, 0], "Định luật Boyle": [1, 1, 1],
+      "Định luật Charles": [1, 1, 1], "Phương trình trạng thái của khí lí tưởng": [1, 0, 1],
+      "Áp suất khí. Động năng phân tử và nhiệt độ": [1, 1, 1] } } },
+
+  /* Hoá học 12 · Kiểm tra cuối học kì I (Kết nối tri thức, Hoá học 12, Bài 1–15: Chương 1–4 và Bài 15 Thế điện cực và nguồn điện hoá
+     học của Chương 5, trọng tâm Chương 3–5; Phiên N12-ck1-vatli-hoahoc). Phạm vi theo nguồn đa số (đề cương, đề học kì I dừng ở Bài 15);
+     Bài 16 Điện phân để sang kho giữa kì II, trường đã học Bài 16 thì đối chiếu đề cương (lời dặn của đề). Khối 12 chưa bật nên đề chưa
+     hiện với gia đình. Kho câu = 50 câu của 2 đề cố định, không có câu riêng. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 11 chủ
+     đề theo tên bài (các bài ôn tập chương không ra chủ đề riêng): Chương 1–2 9 câu, Chương 3–4 12 câu, Bài 15 4 câu. Hai đề cố định
+     chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Hai câu tự luận ở hai ô Vận dụng rút 1 câu (Ester –
+     Lipid; Tinh bột và cellulose): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "hoahoc12-ck1-de1", title: "Hóa học 12 · Cuối kì I · Đề 1", grade: 12, subject: "Hóa học", minutes: 45, n: 25, file: "12-hoahoc.js" },
+  { id: "hoahoc12-ck1-de2", title: "Hóa học 12 · Cuối kì I · Đề 2", grade: 12, subject: "Hóa học", minutes: 45, n: 25, file: "12-hoahoc.js" },
+  { id: "hoahoc12-ck1-ngau-nhien", title: "Hóa học 12 · Cuối kì I · Đề ngẫu nhiên", grade: 12, subject: "Hóa học", minutes: 45, n: 25, file: "12-hoahoc.js",
+    pool: { from: ["hoahoc12-ck1-de1", "hoahoc12-ck1-de2"], matrix: {
+      "Ester – Lipid": [1, 1, 1], "Xà phòng và chất giặt rửa": [1, 0, 0], "Giới thiệu về carbohydrate. Glucose và fructose": [1, 0, 1],
+      "Saccharose và maltose": [0, 1, 0], "Tinh bột và cellulose": [1, 0, 1], "Amine": [1, 1, 1], "Amino acid và peptide": [1, 1, 1],
+      "Protein và enzyme": [1, 1, 0], "Đại cương về polymer": [1, 1, 0], "Vật liệu polymer": [1, 1, 0],
+      "Thế điện cực và nguồn điện hoá học": [1, 1, 2] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
