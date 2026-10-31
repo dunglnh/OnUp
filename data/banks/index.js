@@ -1109,6 +1109,23 @@ window.ONTAP_SEED_BANKS = [
       "Lắp đặt mạng điện trong nhà": [3, 2, 2], "Ngành nghề liên quan đến lắp đặt mạng điện": [2, 1, 1],
       "Thị trường lao động kĩ thuật, công nghệ": [1, 0, 0], "Quy trình lựa chọn nghề nghiệp": [0, 1, 0] } } },
 
+  /* Toán 12 · Kiểm tra cuối học kì I (Kết nối tri thức, Toán 12 tập một, Bài 1–10: Chương I Ứng dụng đạo hàm để khảo sát và vẽ đồ
+     thị hàm số, Chương II Vectơ và hệ trục toạ độ trong không gian, Chương III Các số đặc trưng đo mức độ phân tán của mẫu số liệu ghép
+     nhóm; không có chủ đề riêng cho Hoạt động thực hành trải nghiệm; Phiên N12-ck1-toan). Khối 12 chưa bật (data/grades.js) nên đề chưa
+     hiện với gia đình. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận
+     dụng] 10 – 8 – 7 câu trên 10 chủ đề theo tên Bài 1–10 (tên Bài 5 rút gọn): Chương I 13 câu, Chương II 7 câu, Chương III 5 câu,
+     gần thời lượng của ba chương. Hai đề cố định và phần câu riêng đều chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp ba số câu
+     ô đó rút và học sinh đã làm một đề cố định vẫn gặp câu mới. Hai câu tự luận chỉ ở hai ô Vận dụng rút 1 câu (Ứng dụng đạo hàm để giải
+     quyết vấn đề thực tiễn; Biểu thức toạ độ của các phép toán vectơ): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "toan12-ck1-de1", title: "Toán 12 · Cuối kì I · Đề 1", grade: 12, subject: "Toán", minutes: 45, n: 25, file: "12-toan.js" },
+  { id: "toan12-ck1-de2", title: "Toán 12 · Cuối kì I · Đề 2", grade: 12, subject: "Toán", minutes: 45, n: 25, file: "12-toan.js" },
+  { id: "toan12-ck1-ngau-nhien", title: "Toán 12 · Cuối kì I · Đề ngẫu nhiên", grade: 12, subject: "Toán", minutes: 45, n: 25, file: "12-toan.js",
+    pool: { from: ["toan12-ck1-de1", "toan12-ck1-de2"], matrix: {
+      "Tính đơn điệu và cực trị của hàm số": [2, 1, 1], "Giá trị lớn nhất và giá trị nhỏ nhất của hàm số": [1, 1, 1],
+      "Đường tiệm cận của đồ thị hàm số": [1, 1, 0], "Khảo sát sự biến thiên và vẽ đồ thị của hàm số": [1, 0, 1],
+      "Ứng dụng đạo hàm để giải quyết vấn đề thực tiễn": [0, 1, 1], "Vectơ trong không gian": [1, 1, 1], "Hệ trục toạ độ trong không gian": [1, 1, 0],
+      "Biểu thức toạ độ của các phép toán vectơ": [1, 0, 1], "Khoảng biến thiên và khoảng tứ phân vị": [1, 1, 0], "Phương sai và độ lệch chuẩn": [1, 1, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
