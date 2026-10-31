@@ -22,7 +22,7 @@
      Kho phải đủ câu cho từng chủ đề (tests/kiem-tra-de.js báo lỗi); thiếu ở một mức thì chỉ nhắc.
    Mã môn: toan, tv (Tiếng Việt), van (Ngữ văn), ta (Tiếng Anh), khoahoc, lsdl (Lịch sử và Địa lí), khtn, gdcd, tin,
    congnghe, tincn (Tin học và Công nghệ), vatli (Vật lí), hoahoc (Hoá học), sinhhoc (Sinh học), ktpl (Giáo dục kinh tế và pháp
-   luật), thunghiem (đề thử nghiệm). Môn mới thì đặt mã mới,
+   luật), lichsu (Lịch sử), diali (Địa lí), thunghiem (đề thử nghiệm). Môn mới thì đặt mã mới,
    viết thường không dấu.
 
    File câu hỏi ghi vào window.ONTAP_SEED_QUESTIONS: "<mã đề>": { note, passages?, questions }. Dạng câu hỏi (js/quiz.js):
@@ -1251,6 +1251,40 @@ window.ONTAP_SEED_BANKS = [
     pool: { from: ["ktpl12-ck1-de1", "ktpl12-ck1-de2"], matrix: {
       "Tăng trưởng và phát triển kinh tế": [1, 1, 1], "Hội nhập kinh tế quốc tế": [1, 1, 1], "Bảo hiểm": [1, 1, 1], "An sinh xã hội": [2, 1, 1],
       "Lập kế hoạch kinh doanh": [2, 1, 1], "Trách nhiệm xã hội của doanh nghiệp": [2, 1, 1], "Quản lí thu, chi trong gia đình": [1, 2, 1] } } },
+
+  /* Lịch sử 12 · Kiểm tra cuối học kì I (Kết nối tri thức, Lịch sử 12, Bài 1–8: Chủ đề 1 Thế giới trong và sau Chiến tranh lạnh, Chủ đề 2
+     ASEAN: những chặng đường lịch sử, Chủ đề 3 đến hết Bài 8, trọng tâm Bài 6–8; Phiên N12-ck1-lichsu-diali). Phạm vi theo ma trận cuối kì I
+     và đề học kì I năm học 2025–2026 tra được; lời dặn của đề nhắc phụ huynh đối chiếu đề cương của trường (có đề cương gồm Bài 6–11).
+     Khối 12 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định, không có câu riêng. Ma trận [Biết, Hiểu, Vận dụng]
+     10 – 8 – 7 câu trên 8 chủ đề theo tên bài (tên Bài 4 rút gọn): Bài 1–5 mỗi bài 2 câu, Bài 6–8 mỗi bài 5 câu. Hai đề cố định chia đúng
+     ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Hai câu tự luận ở hai ô Vận dụng rút 1 câu (Trật tự thế giới sau
+     Chiến tranh lạnh; kháng chiến chống thực dân Pháp): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "lichsu12-ck1-de1", title: "Lịch sử 12 · Cuối kì I · Đề 1", grade: 12, subject: "Lịch sử", minutes: 45, n: 25, file: "12-lichsu.js" },
+  { id: "lichsu12-ck1-de2", title: "Lịch sử 12 · Cuối kì I · Đề 2", grade: 12, subject: "Lịch sử", minutes: 45, n: 25, file: "12-lichsu.js" },
+  { id: "lichsu12-ck1-ngau-nhien", title: "Lịch sử 12 · Cuối kì I · Đề ngẫu nhiên", grade: 12, subject: "Lịch sử", minutes: 45, n: 25, file: "12-lichsu.js",
+    pool: { from: ["lichsu12-ck1-de1", "lichsu12-ck1-de2"], matrix: {
+      "Liên hợp quốc": [1, 1, 0], "Trật tự thế giới trong Chiến tranh lạnh": [1, 1, 0], "Trật tự thế giới sau Chiến tranh lạnh": [1, 0, 1],
+      "Sự ra đời và phát triển của Hiệp hội các quốc gia Đông Nam Á": [1, 1, 0], "Cộng đồng ASEAN: Từ ý tưởng đến hiện thực": [0, 1, 1],
+      "Cách mạng tháng Tám năm 1945": [2, 1, 2], "Cuộc kháng chiến chống thực dân Pháp (1945 – 1954)": [2, 2, 1],
+      "Cuộc kháng chiến chống Mỹ, cứu nước (1954 – 1975)": [2, 1, 2] } } },
+
+  /* Địa lí 12 · Kiểm tra cuối học kì I (Kết nối tri thức, Địa lí 12 bản chỉnh sửa năm 2026, Bài 1–19: Phần 1 Địa lí tự nhiên, Phần 2 Địa lí
+     dân cư, Phần 3 đến hết công nghiệp, trọng tâm Bài 11–19; Phiên N12-ck1-lichsu-diali). Phạm vi theo hai ma trận cuối kì I tra được; lời
+     dặn của đề nhắc phụ huynh đối chiếu đề cương của trường (một kế hoạch dạy học dừng học kì I ở dân cư). Khối 12 chưa bật nên đề chưa
+     hiện với gia đình. Kho câu = 50 câu của 2 đề cố định, không có câu riêng. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 14 chủ đề
+     theo tên bài (bài thực hành không ra chủ đề riêng; tên Bài 5 rút gọn): Phần 1 4 câu, Phần 2 3 câu, Phần 3 18 câu. Hai đề cố định chia
+     đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Hai câu tự luận ở hai ô Vận dụng rút 1 câu (lâm nghiệp và thuỷ
+     sản; Một số ngành công nghiệp): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "diali12-ck1-de1", title: "Địa lí 12 · Cuối kì I · Đề 1", grade: 12, subject: "Địa lí", minutes: 45, n: 25, file: "12-diali.js" },
+  { id: "diali12-ck1-de2", title: "Địa lí 12 · Cuối kì I · Đề 2", grade: 12, subject: "Địa lí", minutes: 45, n: 25, file: "12-diali.js" },
+  { id: "diali12-ck1-ngau-nhien", title: "Địa lí 12 · Cuối kì I · Đề ngẫu nhiên", grade: 12, subject: "Địa lí", minutes: 45, n: 25, file: "12-diali.js",
+    pool: { from: ["diali12-ck1-de1", "diali12-ck1-de2"], matrix: {
+      "Vị trí địa lí và phạm vi lãnh thổ": [1, 0, 0], "Thiên nhiên nhiệt đới ẩm gió mùa": [0, 1, 0], "Sự phân hoá đa dạng của thiên nhiên": [1, 0, 0],
+      "Sử dụng hợp lí tài nguyên thiên nhiên và bảo vệ môi trường": [0, 1, 0], "Dân số Việt Nam": [0, 0, 1], "Lao động và việc làm": [1, 0, 0],
+      "Đô thị hoá": [0, 1, 0], "Chuyển dịch cơ cấu kinh tế": [1, 1, 1], "Vấn đề phát triển ngành nông nghiệp": [1, 1, 1],
+      "Vấn đề phát triển ngành lâm nghiệp và thuỷ sản": [1, 0, 1], "Tổ chức lãnh thổ nông nghiệp": [1, 1, 0],
+      "Chuyển dịch cơ cấu ngành công nghiệp": [1, 1, 1], "Một số ngành công nghiệp": [1, 1, 1],
+      "Một số hình thức tổ chức lãnh thổ công nghiệp": [1, 0, 1] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
