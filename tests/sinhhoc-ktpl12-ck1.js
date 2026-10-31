@@ -396,8 +396,8 @@ const CHECKS = [
     const [, b, c] = q.o;
     return [n1 < n0 && c1 > c0 && d1 > d0, n0 - n1 === +y(b, /giảm (\d+) điểm phần trăm\.$/)[1],
       (([u, v]) => u === c0 + d0 && v === c1 + d1)(so(c, "tăng từ #% lên #%")), null]; } },
-  { id: "kt2", has: "vợ chồng anh Dũng thống nhất mỗi tháng dành", right: (q) => {
-    const [a, b, c] = so(q.q, "dành #% thu nhập cho chi thiết yếu, #% cho chi không thiết yếu và #% cho tiết kiệm"); assert.equal(a + b + c, 100);
+  { id: "kt2", has: "Vợ chồng anh Dũng chia thu nhập hằng tháng", right: (q) => {
+    const [a, b, c] = so(q.q, "như sau: #% cho chi thiết yếu, #% cho chi không thiết yếu, #% cho tiết kiệm"); assert.equal(a + b + c, 100);
     const [thu, tk] = so(q.o[2], "là # triệu đồng thì khoản tiết kiệm, dự phòng là # triệu đồng"); return [null, null, gan((c / 100) * thu, tk), null]; } },
   { id: "kt2", has: "Gia đình chị Mến có thu nhập 24 triệu đồng", right: (q) => {
     const [thu] = so(q.q, "có thu nhập # triệu đồng"), [a, b] = so(q.q, "dành #% thu nhập cho chi thiết yếu, #% cho chi không thiết yếu"), [can] = so(q.q, "Để có # triệu đồng");
@@ -480,7 +480,7 @@ KT.kho.forEach((q) => chu(q).forEach((s) => {
   assert.ok(!/HDI[^.]*GDP\/người|thu nhập \(tính bằng GDP/.test(s), ten.get(q) + ": chỉ số thu nhập trong HDI tính bằng GNI/người: " + s);
 }));
 // GDKT&PL: câu tình huống là chính: đề bài kể việc của một người (anh K, chị Lan, bạn Tú, của Hưng…), một doanh nghiệp, địa phương,
-// quốc gia có tên (Công ty chế biến hải sản H, tỉnh K, quốc gia M…), hoặc việc của hai nước có tên
+// quốc gia có tên (Công ty dệt nhuộm H, tỉnh K, quốc gia M…), hoặc việc của hai nước có tên
 const TINH_HUONG = [/(?:^|[\s(])(?:[Aa]nh|[Cc]hị|[Ôô]ng|[Bb]à|[Bb]ạn|[Cc]ụ) \p{Lu}/u, /(?:[Cc]ông ty|[Dd]oanh nghiệp|[Qq]uốc gia|[Tt]ỉnh|[Xx]ã|[Nn]ước)(?: \p{Ll}+)* [A-Z](?![\p{L}])/u,
   /(?:của|Nhóm) \p{Lu}\p{Ll}+/u, /Việt Nam và \p{Lu}/u, /^Gia đình (?:anh|chị|ông|bà) \p{Lu}/u, /^(?:Lan|Tú|Hưng|Minh) /u, /xã ven biển|vùng cao/u];
 const soTH = KT.kho.filter((q) => TINH_HUONG.some((r) => r.test(q.q))).length;
