@@ -93,7 +93,7 @@
   { id: "ck1-l12", title: "Kiểm tra cuối học kì I", kind: "dinh-ki", grades: [12],
     start: "2026-12-14", end: "2027-01-02", tentative: true, subjects: MON_THPT,
     scope: "Toán: Bài 1–10. Ngữ văn: Bài 1–5. Tiếng Anh: Units 1–5. Lịch sử: Bài 1–8. Vật lí: Bài 1–13 (vật lí nhiệt, khí lí tưởng). Hóa học: Bài 1–17 (trường dừng ở Bài 15 thì xem đề cương của trường). Sinh học: Bài 1–18. Địa lí: Bài 1–19. GDKT&PL: Bài 1–7. Tin học: Bài 1–12. Công nghệ: Công nghệ điện – điện tử Bài 1–12 (Lâm nghiệp – Thuỷ sản: Bài 1–11).",
-    note: SO, modules: [], banks: ["toan12-ck1-de1", "toan12-ck1-de2", "toan12-ck1-ngau-nhien"] },
+    note: SO, modules: [], banks: ["toan12-ck1-de1", "toan12-ck1-de2", "toan12-ck1-ngau-nhien", "van12-ck1-de1", "van12-ck1-de2", "van12-ck1-ngau-nhien"] },
   { id: "ck1-l6", title: "Kiểm tra cuối học kì I", kind: "dinh-ki", grades: [6],
     start: "2026-12-21", end: "2027-01-08", tentative: true,
     subjects: MON_THCS,

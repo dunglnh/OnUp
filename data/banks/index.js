@@ -1126,6 +1126,21 @@ window.ONTAP_SEED_BANKS = [
       "Ứng dụng đạo hàm để giải quyết vấn đề thực tiễn": [0, 1, 1], "Vectơ trong không gian": [1, 1, 1], "Hệ trục toạ độ trong không gian": [1, 1, 0],
       "Biểu thức toạ độ của các phép toán vectơ": [1, 0, 1], "Khoảng biến thiên và khoảng tứ phân vị": [1, 1, 0], "Phương sai và độ lệch chuẩn": [1, 1, 1] } } },
 
+  /* Ngữ văn 12 · Kiểm tra cuối học kì I (Kết nối tri thức, Ngữ văn 12 tập một, Bài 1–5; Phiên N12-ck1-van). Khối 12 chưa bật
+     (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (mỗi đề 5 đoạn đọc, 1 câu Viết) + 3 câu Viết
+     riêng trong file, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu như kho Ngữ văn 9 cuối kì I: năm chủ đề đọc
+     hiểu theo tên Bài 1–5, mỗi chủ đề [1, 1, 1] (đoạn 3 câu mức 1-2-3), nên lần rút nào cũng lấy trọn một đoạn mỗi bài, đúng mức; 9 câu
+     Tiếng Việt theo sáu chủ đề của bốn mục Thực hành tiếng Việt Bài 1–4 (Bài 5 không có mục này; Biết 5, Hiểu 3, Vận dụng 1: sửa câu mơ
+     hồ), Bài 3, 4 sáu câu; 1 câu Viết tự chấm. Hai đề cố định đúng ma trận nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút;
+     câu Viết riêng giúp chủ đề Viết đủ năm kiểu bài Viết của Bài 1–5. Câu tự luận chỉ ở ô Viết: mỗi lần rút đúng 1 câu. */
+  { id: "van12-ck1-de1", title: "Ngữ văn 12 · Cuối kì I · Đề 1", grade: 12, subject: "Ngữ văn", minutes: 45, n: 25, file: "12-van.js" },
+  { id: "van12-ck1-de2", title: "Ngữ văn 12 · Cuối kì I · Đề 2", grade: 12, subject: "Ngữ văn", minutes: 45, n: 25, file: "12-van.js" },
+  { id: "van12-ck1-ngau-nhien", title: "Ngữ văn 12 · Cuối kì I · Đề ngẫu nhiên", grade: 12, subject: "Ngữ văn", minutes: 45, n: 25, file: "12-van.js",
+    pool: { from: ["van12-ck1-de1", "van12-ck1-de2"], matrix: {
+      "Khả năng lớn lao của tiểu thuyết": [1, 1, 1], "Những thế giới thơ": [1, 1, 1], "Lập luận trong văn bản nghị luận": [1, 1, 1],
+      "Yếu tố kì ảo trong truyện kể": [1, 1, 1], "Tiếng cười của hài kịch": [1, 1, 1], "Nói mỉa": [1, 0, 0], "Nghịch ngữ": [1, 0, 0],
+      "Biện pháp tu từ trong thơ": [0, 1, 0], "Lỗi logic": [1, 1, 0], "Lỗi câu mơ hồ": [1, 0, 1], "Điển cố": [1, 1, 0], "Viết": [0, 0, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
