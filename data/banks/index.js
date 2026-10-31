@@ -21,7 +21,8 @@
        của ô (tests/kiem-tra-de.js thử mọi thứ tự đoạn và nhắc khi app sẽ ghi chú). Câu không có đoạn vẫn rút theo ô như trên.
      Kho phải đủ câu cho từng chủ đề (tests/kiem-tra-de.js báo lỗi); thiếu ở một mức thì chỉ nhắc.
    Mã môn: toan, tv (Tiếng Việt), van (Ngữ văn), ta (Tiếng Anh), khoahoc, lsdl (Lịch sử và Địa lí), khtn, gdcd, tin,
-   congnghe, tincn (Tin học và Công nghệ), vatli (Vật lí), hoahoc (Hoá học), thunghiem (đề thử nghiệm). Môn mới thì đặt mã mới,
+   congnghe, tincn (Tin học và Công nghệ), vatli (Vật lí), hoahoc (Hoá học), sinhhoc (Sinh học), ktpl (Giáo dục kinh tế và pháp
+   luật), thunghiem (đề thử nghiệm). Môn mới thì đặt mã mới,
    viết thường không dấu.
 
    File câu hỏi ghi vào window.ONTAP_SEED_QUESTIONS: "<mã đề>": { note, passages?, questions }. Dạng câu hỏi (js/quiz.js):
@@ -1202,6 +1203,38 @@ window.ONTAP_SEED_BANKS = [
       "Saccharose và maltose": [0, 1, 0], "Tinh bột và cellulose": [1, 0, 1], "Amine": [1, 1, 1], "Amino acid và peptide": [1, 1, 1],
       "Protein và enzyme": [1, 1, 0], "Đại cương về polymer": [1, 1, 0], "Vật liệu polymer": [1, 1, 0],
       "Thế điện cực và nguồn điện hoá học": [1, 1, 2] } } },
+
+  /* Sinh học 12 · Kiểm tra cuối học kì I (Kết nối tri thức, Sinh học 12, Phần bốn Di truyền học, Bài 1–18: Chương 1 Di truyền phân tử,
+     Chương 2 Di truyền nhiễm sắc thể, Chương 3 Mở rộng học thuyết di truyền nhiễm sắc thể, Chương 4 Di truyền quần thể, trọng tâm Bài 7–18;
+     Phiên N12-ck1-sinhhoc-ktpl). Phạm vi theo ma trận cuối kì I tra được; lời dặn của đề nhắc phụ huynh đối chiếu đề cương của trường.
+     Khối 12 chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định, không có câu riêng. Ma trận
+     [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 15 chủ đề theo tên bài (Bài 6, 14, 17 là bài thực hành nên không ra chủ đề riêng):
+     Chương 1 7 câu, Chương 2 14 câu, Chương 3 2 câu, Chương 4 2 câu. Hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có
+     gấp đôi số câu ô đó rút. Hai câu tự luận ở hai ô Vận dụng rút 1 câu (Học thuyết di truyền Mendel; Di truyền học quần thể): mỗi lần
+     rút nhiều nhất 2 câu tự luận. */
+  { id: "sinhhoc12-ck1-de1", title: "Sinh học 12 · Cuối kì I · Đề 1", grade: 12, subject: "Sinh học", minutes: 45, n: 25, file: "12-sinhhoc.js" },
+  { id: "sinhhoc12-ck1-de2", title: "Sinh học 12 · Cuối kì I · Đề 2", grade: 12, subject: "Sinh học", minutes: 45, n: 25, file: "12-sinhhoc.js" },
+  { id: "sinhhoc12-ck1-ngau-nhien", title: "Sinh học 12 · Cuối kì I · Đề ngẫu nhiên", grade: 12, subject: "Sinh học", minutes: 45, n: 25, file: "12-sinhhoc.js",
+    pool: { from: ["sinhhoc12-ck1-de1", "sinhhoc12-ck1-de2"], matrix: {
+      "DNA và cơ chế tái bản DNA": [1, 0, 0], "Gene, hệ gene và quá trình truyền đạt thông tin di truyền": [1, 1, 1],
+      "Điều hoà biểu hiện gene": [0, 1, 0], "Đột biến gene": [1, 0, 0], "Công nghệ gene": [1, 0, 0],
+      "Cấu trúc và chức năng của nhiễm sắc thể": [1, 0, 0], "Học thuyết di truyền Mendel": [1, 1, 1], "Mở rộng học thuyết Mendel": [0, 1, 1],
+      "Di truyền giới tính và di truyền liên kết với giới tính": [1, 0, 1], "Liên kết gene và hoán vị gene": [0, 1, 1],
+      "Đột biến nhiễm sắc thể": [1, 0, 1], "Di truyền học người và di truyền y học": [1, 1, 0], "Di truyền gene ngoài nhân": [1, 0, 0],
+      "Tương tác giữa kiểu gene với môi trường, thành tựu chọn giống": [0, 1, 0], "Di truyền học quần thể": [0, 1, 1] } } },
+
+  /* GDKT&PL 12 · Kiểm tra cuối học kì I (Kết nối tri thức, Giáo dục kinh tế và pháp luật 12, Phần một Giáo dục kinh tế, Bài 1–7, trọng
+     tâm Bài 4–7; Phiên N12-ck1-sinhhoc-ktpl). Phạm vi theo đề cương học kì I tra được; lời dặn của đề nhắc phụ huynh đối chiếu đề cương
+     của trường. Khối 12 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định, không có câu riêng; câu tình huống là
+     chính. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 7 chủ đề theo tên bài: Bài 1–3 mỗi bài 3 câu, Bài 4–7 mỗi bài 4 câu. Hai
+     đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Một câu tự luận (Đề 1) ở ô Vận dụng rút 1
+     câu của “Quản lí thu, chi trong gia đình”: mỗi lần rút nhiều nhất 1 câu tự luận. */
+  { id: "ktpl12-ck1-de1", title: "GDKT&PL 12 · Cuối kì I · Đề 1", grade: 12, subject: "GDKT&PL", minutes: 45, n: 25, file: "12-ktpl.js" },
+  { id: "ktpl12-ck1-de2", title: "GDKT&PL 12 · Cuối kì I · Đề 2", grade: 12, subject: "GDKT&PL", minutes: 45, n: 25, file: "12-ktpl.js" },
+  { id: "ktpl12-ck1-ngau-nhien", title: "GDKT&PL 12 · Cuối kì I · Đề ngẫu nhiên", grade: 12, subject: "GDKT&PL", minutes: 45, n: 25, file: "12-ktpl.js",
+    pool: { from: ["ktpl12-ck1-de1", "ktpl12-ck1-de2"], matrix: {
+      "Tăng trưởng và phát triển kinh tế": [1, 1, 1], "Hội nhập kinh tế quốc tế": [1, 1, 1], "Bảo hiểm": [1, 1, 1], "An sinh xã hội": [2, 1, 1],
+      "Lập kế hoạch kinh doanh": [2, 1, 1], "Trách nhiệm xã hội của doanh nghiệp": [2, 1, 1], "Quản lí thu, chi trong gia đình": [1, 2, 1] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
