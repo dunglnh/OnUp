@@ -906,6 +906,22 @@ window.ONTAP_SEED_BANKS = [
       "Unit 9 · World Englishes": [1, 1, 1], "Unit 10 · Planet Earth": [2, 1, 1], "Unit 11 · Electronic Devices": [1, 1, 1],
       "Unit 12 · Career Choices": [2, 1, 1], "Reading": [1, 1, 1] } } },
 
+  /* KHTN 9 · Kiểm tra giữa học kì I (Kết nối tri thức, Khoa học tự nhiên 9; Phiên N9-gk1-khtn). Khối 9 chưa bật nên đề chưa hiện với
+     gia đình. Phạm vi mặc định PO chọn, phần chung của ma trận đề giữa kì I và phân phối chương trình dạy song song ba phân môn (nguồn ở
+     mục 7 của docs/KE-HOACH-NOI-DUNG.md): Bài 1 (dụng cụ, hoá chất) 2 câu, Vật lí Bài 2–5 8 câu, Hoá học Bài 22–25 8 câu, Sinh học
+     Bài 36–38 7 câu; trường dạy theo thứ tự khác thì xem đề cương của trường (note của đề có ghi). Kho câu = 25 câu riêng trong file +
+     50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 12 chủ đề theo tên bài của sách
+     (11 chủ đề đúng chữ của kho cuối kì I; chủ đề Bài 1 rút gọn tên bài): ô Biết của Bài 1 rút 2 câu, các ô khác rút nhiều nhất 1 câu.
+     Hai đề cố định và 25 câu riêng đều chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp ba số câu ô đó rút. Không có câu tự luận. */
+  { id: "khtn9-gk1-de1", title: "KHTN 9 · Giữa kì I · Đề 1", grade: 9, subject: "KHTN", minutes: 45, n: 25, file: "9-khtn.js" },
+  { id: "khtn9-gk1-de2", title: "KHTN 9 · Giữa kì I · Đề 2", grade: 9, subject: "KHTN", minutes: 45, n: 25, file: "9-khtn.js" },
+  { id: "khtn9-gk1-ngau-nhien", title: "KHTN 9 · Giữa kì I · Đề ngẫu nhiên", grade: 9, subject: "KHTN", minutes: 45, n: 25, file: "9-khtn.js",
+    pool: { from: ["khtn9-gk1-de1", "khtn9-gk1-de2"], matrix: {
+      "Nhận biết một số dụng cụ, hoá chất": [2, 0, 0], "Động năng. Thế năng": [0, 1, 1], "Cơ năng": [0, 1, 1],
+      "Công và công suất": [1, 0, 1], "Khúc xạ ánh sáng": [1, 1, 0], "Giới thiệu về hợp chất hữu cơ": [1, 1, 0], "Alkane": [1, 0, 1],
+      "Alkene": [0, 1, 1], "Nguồn nhiên liệu": [1, 1, 0], "Khái quát về di truyền học": [1, 1, 0],
+      "Các quy luật di truyền của Mendel": [1, 1, 1], "Nucleic acid và gene": [1, 0, 1] } } },
+
   /* KHTN 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Khoa học tự nhiên 9; Phiên N9-ck1-khtn). Khối 9 chưa bật nên đề chưa hiện
      với gia đình. Phạm vi theo phân phối chương trình dạy song song ba phân môn (nguồn ghi ở Pull Request của phiên): Vật lí Bài 2–10
      (Chương I Năng lượng cơ học, Chương II Ánh sáng) 9 câu, Hoá học Bài 22–32 (Chương VII–IX) 10 câu, Sinh học Bài 36–41 (Chương XI)
