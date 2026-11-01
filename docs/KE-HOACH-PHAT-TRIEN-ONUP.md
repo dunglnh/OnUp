@@ -2,7 +2,7 @@
 
 > **Tìm nhanh:** phiên làm đề, dò sách, kĩ thuật cho đề: hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) (mở từ trên xuống) · phiên sửa lỗi: mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) · việc của chủ app: mục 2 · thứ tự các phiên: mục 3 · lời giao việc phiên giao diện, chuẩn bị bán: mục 4 · đã xong: mục 1.
 
-> **Trạng thái (1/11/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy bản đám mây từ 17/10/2026 (PR #27), chỉ dành cho gia đình được mời. Đã gộp tới PR #247 (bảng “Đã xong” ở mục 1). Phiên xong chỉ sửa ngày và số PR ở dòng này.
+> **Trạng thái (1/11/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy bản đám mây từ 17/10/2026 (PR #27), chỉ dành cho gia đình được mời. Đã gộp tới PR #248; PR #249 (sửa chuỗi 8 từ trùng sách lớp 11) chờ Merge (bảng “Đã xong” ở mục 1). Phiên xong chỉ sửa ngày và số PR ở dòng này.
 
 > **Đã chốt 18/10/2026, đổi mốc 21/10/2026:** đủ đề lớp 4–12 và rà xong trong tháng 2/2027; từ đầu tháng 3/2027 mời khách tiềm năng dùng thử miễn phí đến hết các kì thi của năm học 2026–2027 (kì cuối là thi tốt nghiệp THPT, dự kiến 11–12/6/2027); mở bán chính thức từ tháng 6/2027 nếu không vướng thủ tục hành chính (thay mốc “bán khi đủ đề lớp 4–12, khoảng cuối năm học 2028–2029” của ngày 18/10; nhịp cần, mốc kiểm tra và cách lùi khi chậm ở mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)); trong thời gian dùng thử và đến lúc bán, gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng `plans` không đổi), hạn mức hai gói lúc bán chốt sau (giữa tháng 5/2027); các phiên chuẩn bị G0, B1 làm trước khi mở dùng thử, B2, B4, G1 trước khi bán (mục 3); Supabase giữ gói Free đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần); trang công khai chỉ dành cho gia đình được mời, gia đình dùng thử cũng do chủ app tạo tài khoản (màn đăng nhập có dòng “Chưa có tài khoản?”, Phiên S1; muốn mở tự đăng kí thì đổi quyết định này trước, việc 9 ở mục 2); câu sai báo bằng nút trong app (Phiên R1), GitHub Issues chỉ còn cho chủ app; không ghi giá bán, chi phí hay so sánh đối thủ vào repo. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 
@@ -215,6 +215,7 @@
 | #242 | Phiên N12-ck1-tin-congnghe: ngân hàng Tin học 12, Công nghệ 12 cuối kì I, 100 câu; tests/tin-congnghe12-ck1.js |
 | #244 | Phiên N9-vao10-van: Ngữ văn thi thử vào 10, Đề 1–2 (đề tính điểm); tests/van9-vao10.js |
 | #247 | Phiên N9-vao10-toan: Toán thi thử vào 10, Đề 1–4 (đề tính điểm); tests/toan9-vao10.js |
+| #249 | Sửa chuỗi 8 từ trùng sách lớp 11: 15 script kiểm tra đề lớp 9, 12 xanh lại |
 
 </details>
 
@@ -256,7 +257,7 @@
 
 10. Dò sách in năm 2026 là việc của các phiên DS (hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)), không phải của chủ app (chủ app yêu cầu 23/10/2026). Phiên làm đề không mở được sách thì ghi mã đề vào dòng “Đề chờ dò sách” ở mục 7, PO lập phiên DS. Từ 24/10/2026 chủ app tải file “SGK …” (mục “Phiên bản sách điện tử” của trang sách) của các cuốn ở bảng “Sách và link của từng phiên” chưa có trong repo riêng tư OnUp-Book, theo thứ tự hàng đợi, rồi gửi PO; PO đưa lên repo đó, các phiên đọc sách ở đó (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách đã tải sẵn”). Một phiên DS hai lần không mở được sách thì ghi một dòng ngay dưới đây (phiên, sách, lỗi, ngày) để chủ app tải cuốn đó trước.
     - Ba cuốn lớp 4, 6 thiếu nửa sau đã đủ (25–26/10/2026).
-    - Sách lớp 9 đã có (26/10/2026; PO đã viết lời giao việc cuối kì I, giữa kì II lớp 9). Việc định kì “OnUp-Book · Lấy sách lớp 7, 8, 10–12” đã lấy lớp 12, 7, 8, 10 (26–29/10/2026); đến 1/11/2026 còn lớp 11 (cần trước phiên đầu của lớp 11, mốc 20/1/2027) và việc này đang tắt từ sáng 1/11/2026 (PO chưa rõ lí do): chủ app bật lại khi cần lấy lớp 11. Lớp 5 đã có.
+    - Sách lớp 9 đã có (26/10/2026; PO đã viết lời giao việc cuối kì I, giữa kì II lớp 9). Việc định kì “OnUp-Book · Lấy sách lớp 7, 8, 10–12” đã lấy lớp 12, 7, 8, 10 (26–29/10/2026) và đủ 15 cuốn lớp 11 (1/11/2026, README của OnUp-Book). Lớp 5 đã có.
 11. Theo dõi danh mục sách chỉnh sửa cho năm học 2027–2028 (lần trước Bộ công bố ngày 26/12/2025); có danh mục thì báo PO để lập các phiên rà đề (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách”). Phiên nào cần mục lục bản mới thì chủ app chép mục lục vào lời giao việc.
 
 **Quy định kiểm tra:**
