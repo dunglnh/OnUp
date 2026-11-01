@@ -646,7 +646,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     && cal.ui.tabs === [ALL_TAB].concat(ON.map((g) => "Lớp " + g)).join() && cal.ui.n === cal.ui.shown && cal.ui.all > cal.ui.shown && cal.ui.onlyOn && !cal.ui.hidden
     && cal.ui.kg === "Khai giảng năm học 2026–2027 · Lớp " + ON.join(", ") && cal.ui.tet === "Tết Nguyên đán Đinh Mùi (mùng 1) · Lớp " + ON.filter((g) => g !== 6).join(", ")
     && cal.ui.detail.endsWith("· Lớp " + ON.join(", "))
-    && cal.ui.adminList.n === cal.ui.shown && !cal.ui.adminList.hidden && cal.ui.form === ON.map((g) => g + "*").join() && cal.ui.formSaved === cal.first.kg
+    && cal.ui.adminList.n === cal.ui.shown && !cal.ui.adminList.hidden && cal.ui.form === ON.map((g) => g + "*").join()
+    && cal.ui.formSaved.split(",").map(Number).sort((a, b) => a - b).join() === cal.first.kg.split(",").map(Number).sort((a, b) => a - b).join() // cùng tập khối (lưu form xếp khối đang hiện trước khối ẩn)
     && cal.ui.form4 === ON.map((g) => g + (g === 4 ? "*" : "")).join();
 
   step("360px light + dark (L4–L11)");
@@ -3976,7 +3977,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      lớp 4 Toán, Tiếng Việt, Tiếng Anh, Lịch sử và Địa lí, Khoa học, Tin học và Công nghệ; lớp 6 Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và
      Địa lí, GDCD, Tin học, Công nghệ; môn không có trong lịch (Thử nghiệm) cuối. */
   const TERMS7 = ["Giữa kì I", "Cuối kì I", "Giữa kì II", "Cuối năm"], SUBJ4 = "Toán,Tiếng Việt,Tiếng Anh,Lịch sử và Địa lí,Khoa học,Tin học và Công nghệ";
-  const orderKey = (t) => { const p = t.split(" · "); return /· tự soạn$/.test(t) ? [1, 0, 0, 0] : [0, TERMS7.findIndex((m) => p.includes(m)), /· Đề ngẫu nhiên$/.test(t) ? 0 : 1, +((/· Đề (\d+)$/.exec(t) || [])[1] || 0)]; };
+  // kì không có trong TERMS7 (đề thi thử vào 10 của lớp 9) đứng sau Cuối năm, như bankKey của js/app.js
+  const orderKey = (t) => { const p = t.split(" · "), k = TERMS7.findIndex((m) => p.includes(m)); return /· tự soạn$/.test(t) ? [1, 0, 0, 0] : [0, k < 0 ? TERMS7.length : k, /· Đề ngẫu nhiên$/.test(t) ? 0 : 1, +((/· Đề (\d+)$/.exec(t) || [])[1] || 0)]; };
   const inOrder = (titles) => titles.length > 0 && titles.every((t, i) => { if (!i) return true; const a = orderKey(titles[i - 1]), b = orderKey(t), j = a.findIndex((v, k) => v !== b[k]); return j < 0 || a[j] < b[j]; });
   const UX7_SRC = "# Phép cộng\n345 678 + 254 322 = ?\n* 600 000\n- 590 000\n- 599 990\n> Cộng từ phải sang trái, nhớ sang hàng bên trái.\n\n1 000 000 − 456 789 = [543211|543 211]\nMức: Rất khó\n\n"
     + "# Đo lường\nMột sợi dây dài 2 m, cắt đi 0,75 m. Đoạn còn lại dài bao nhiêu mét?\nĐáp số: một phẩy hai lăm m\n\n"
