@@ -680,7 +680,7 @@ const CHECKS = [
     return theo(q, /^vectơ (.+)$/, (k) => vEq(vecTen(P, k[1]), t)); } },
   { has: "Cho hình lập phương ABCD.A′B′C′D′ có cạnh bằng 2 (hình vẽ). Mỗi ý sau đúng hay sai?", right: (q) => {
     doc(q, kiemHop, ["A", "B", "C", "D", "A′", "B′", "C′", "D′"], "D", "hình lập phương"); const P = HOP(fr(/cạnh bằng (\d+)/.exec(q.q)[1])); return tfTheo(q, (s) => menhDeVec(s, P)); } },
-  { has: "Cho tứ diện đều ABCD có cạnh bằng 4.", right: (q) => {
+  { has: "Tứ diện đều ABCD có mỗi cạnh bằng 4.", right: (q) => {
     const a = toNum(fr(/cạnh bằng (\d+)/.exec(q.q)[1])), P = { A: [0, 0, 0], B: [a, 0, 0], C: [a / 2, (a * Math.sqrt(3)) / 2, 0], D: [a / 2, (a * Math.sqrt(3)) / 6, a * Math.sqrt(2 / 3)] };
     Object.keys(P).forEach((u) => Object.keys(P).forEach((v) => u < v && assert.ok(Math.abs(Math.hypot(...P[u].map((x, i) => x - P[v][i])) - a) < 1e-9)));
     const [u, v] = /tích vô hướng vectơ (\S+) · vectơ (\S+)\./.exec(q.q).slice(1).map((s) => { const [p, r] = ten2(s); return P[r].map((x, i) => x - P[p][i]); });
@@ -689,7 +689,7 @@ const CHECKS = [
     const [ab, ad, aa] = /AB = (\d+), AD = (\d+) và AA′ = (\d+)/.exec(q.q).slice(1).map(fr), P = { A: [F(0), F(0), F(0)], B: [ab, F(0), F(0)], D: [F(0), ad, F(0)], "A′": [F(0), F(0), aa] };
     const t = vAdd(vAdd(vecTen(P, "AB"), vecTen(P, "AD")), vecTen(P, "AA′")); return theo(q, /^(.+)$/, (k) => eq(ev(k[1]), vLen(t))); } },
   { has: "Ba lực có độ lớn lần lượt", right: (q) => { const f = /lần lượt (\d+) N, (\d+) N và (\d+) N/.exec(q.q).slice(1).map(fr); return vLen(f); } },
-  { has: "Cho tứ diện OABC có OA, OB, OC đôi một vuông góc", right: (q) => {
+  { has: "Ba cạnh OA, OB, OC của tứ diện OABC đôi một vuông góc", right: (q) => {
     const a = fr(/= (\d+)\. Gọi M/.exec(q.q)[1]), P = { O: [F(0), F(0), F(0)], A: [a, F(0), F(0)], B: [F(0), a, F(0)], C: [F(0), F(0), a] }; P.M = vScale(vAdd(P.B, P.C), F(1, 2));
     return vDot(vecTen(P, "OA"), vecTen(P, "AM")); } },
   { has: "Tính tích vô hướng vectơ AB′ · vectơ BC′.", right: (q) => { const P = HOP(fr(/cạnh bằng (\d+)/.exec(q.q)[1])); return vDot(vecTen(P, "AB′"), vecTen(P, "BC′")); } },
