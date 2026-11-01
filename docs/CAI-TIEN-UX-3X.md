@@ -39,10 +39,8 @@ File này giữ vấn đề, đề xuất, ảnh và điều kiện xong. Chủ 
 
 UX13 (bố mẹ giao bài, khen bài; X46, X47) chủ app quyết không làm, ngày 27/10/2026. Đề xuất của UX13 giữ ở mục 5.
 
-**Thứ tự (chủ app chọn 27/10/2026):** UX9 → UX11 → UX10 → UX12 → UX14.
-- UX10 xong trước kì kiểm tra cuối kì I. Lớp 6 thi từ 21/12/2026, nên lời nhắc trước 7 ngày phải có từ 14/12.
-- UX14 làm sau UX12, để con ôn chủ đề hay sai trước kì cuối kì I.
-- Hạn từng phiên: mục 3 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md).
+**Thứ tự (chủ app chọn 27/10/2026):** UX9 → UX11 → UX10 → UX12 → UX14: cả năm phiên đã xong 28/10/2026 (PR #210, #212, #214, #215, #218), kiểm thử thiết kế 29/10 (PR #220, mục 6). UX9b đã xong 29/10 (PR #221), kiểm thử thiết kế 1/11 (PR #246). UX15 (X50, X51) chưa làm.
+- Hạn của phiên chưa làm: mục 3 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md) (UX15: 25/11/2026).
 - Mỗi phiên một Pull Request. Không chạy cùng lúc hai phiên sửa `js/app.js` hay `js/quiz.js`. Phiên làm đề chỉ sửa `data/banks/`, nên chạy xen được.
 
 ## 2. Nguyên tắc giữ nguyên
