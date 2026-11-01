@@ -10,11 +10,12 @@ Bản 2.x (UX1–UX8, UI1, UI2, 9n, 9o và các phiên “b”) đã làm xong v
 - [UX11](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-59): M1, M2;
 - [UX10](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-36): L1, L2;
 - [UX12](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-81): N1, N2;
-- [UX14](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-126): P1–P3.
+- [UX14](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-126): P1–P3;
+- [UX15](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=373-2108): Q1, Q2 (đề xuất, từ kiểm thử của PO 1/11/2026).
 
 Khung vẽ bằng component và biến màu của design system. Thành phần mới (icon/target, icon/calendar-plus, `.bdg`, `.day-pick button`, `.wk-nav`, `.btn icon`, `.empty`) nằm ở section [3.x · Thành phần đề xuất](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=342-238). Phiên Claude Code không mở được Figma, nên lời giao việc trỏ vào ảnh ở [hinh-ux-3x/](hinh-ux-3x/).
 
-File này giữ vấn đề, đề xuất, ảnh và điều kiện xong. Chủ app đã chọn phiên ngày 27/10/2026 (mục 3). Thứ tự, hạn và lời giao việc ở mục 3, 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); trạng thái chỉ ghi ở đó. Mã vấn đề nối tiếp bản 2.x: X38–X48; lượt kiểm thử thiết kế ngày 29/10/2026 thêm X49 (mục 6, Phiên UX9b); kiểm thử của PO ngày 1/11/2026 thêm X50, X51 (cuối mục 4, chờ PD xem xét lên phiên).
+File này giữ vấn đề, đề xuất, ảnh và điều kiện xong. Chủ app đã chọn phiên ngày 27/10/2026 (mục 3). Thứ tự, hạn và lời giao việc ở mục 3, 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); trạng thái chỉ ghi ở đó. Mã vấn đề nối tiếp bản 2.x: X38–X48; lượt kiểm thử thiết kế ngày 29/10/2026 thêm X49 (mục 6, Phiên UX9b); kiểm thử của PO ngày 1/11/2026 thêm X50, X51 (mục 4, Phiên UX15: PD chọn cách và lên phiên ngày 1/11/2026).
 
 **Cách rà:**
 - Chạy `main` (`a739293`) bản lưu trên máy, ngày giả lập 27/10/2026 17:30, 360px sáng và tối. Dữ liệu mẫu: Bin lớp 4 làm 4 bài trong 6 ngày (Toán 4 · Giữa kì I · Đề 1, Đề 2, Đề ngẫu nhiên; Tiếng Việt 4 · Giữa kì I · Đề 1); Na lớp 6 chưa làm bài nào; Mẹ Bin là phụ huynh của hai con.
@@ -34,6 +35,7 @@ File này giữ vấn đề, đề xuất, ảnh và điều kiện xong. Chủ 
 | **UX12** · Báo cáo các tuần trước, sửa nhỏ | X43–X45 | Chọn tuần ở báo cáo của con; ô “0 bài”; nút chính và nút viền cao bằng nhau | Không | `js/app.js`, `css/app.css` | [ux12-bao-cao-tuan](hinh-ux-3x/ux12-bao-cao-tuan.jpg) |
 | **UX14** · Ôn 10 câu theo chủ đề | X48 | “Ôn 10 câu” từ chủ đề hay sai, rút từ các đề có sẵn của khối | Không (kết quả lưu như đề) | `js/app.js`, `js/quiz.js` | [ux14-on-chu-de](hinh-ux-3x/ux14-on-chu-de.jpg) |
 | **UX9b** · Sửa sau kiểm thử UX9 | X49 | Dòng mô tả của bài ôn dạng trang đã làm không còn “. ·” | Không | `js/app.js` | [kt-ux9-bai-on](hinh-ux-3x/kt-ux9-bai-on.jpg) |
+| **UX15** · Bài chính theo môn thi, dòng IOE cuối nhóm, thứ tự môn | X50, X51 | Hôm nay không gợi ý IOE khi kì gần nhất là kiểm tra định kì; lời giới thiệu theo loại bài; trong nhóm kì thi môn theo ô Môn thi, dòng IOE cuối | Không (thêm `intro` vào danh mục bài ôn) | `js/app.js`, `data/modules.js` | [ux15-hom-nay](hinh-ux-3x/ux15-hom-nay.jpg), [ux15-nhom-ki-thi](hinh-ux-3x/ux15-nhom-ki-thi.jpg) |
 
 UX13 (bố mẹ giao bài, khen bài; X46, X47) chủ app quyết không làm, ngày 27/10/2026. Đề xuất của UX13 giữ ở mục 5.
 
@@ -335,9 +337,15 @@ Tìm thấy ở lượt kiểm thử thiết kế ngày 29/10/2026 (mục 6, “
 - Bước UX9 của `tests/e2e.js` đọc “… ôn câu sai. Đã ôn 1 lần.” ở tab Bài ôn của con và ở “Bài ôn của Bin”; không chỗ nào có “. ·”.
 - `tests/supabase/cloud-e2e.js` vẫn in OK. Có ảnh 360px sáng/tối của dòng đó, trước và sau.
 
-### Đề xuất từ kiểm thử của PO (1/11/2026) · chờ PD xem xét
+### Phiên UX15 · Bài chính theo môn thi, dòng IOE cuối nhóm, thứ tự môn
 
-PO chạy `main` (`ee1da8d`, sau PR #241) bản lưu trên máy ở 360px sáng và tối, ngày giả lập 1/11/2026 (một ngày trước kì giữa kì I), rồi 3/11, 14/11, 20/12/2026. Dữ liệu mẫu: Bin lớp 4 làm 7 bài trong 9 ngày, Na lớp 6 làm 2 bài, Bố Minh là phụ huynh của hai con. Đi các màn: Hôm nay, Bài ôn, Lịch thi, chi tiết kì thi (nút “Thêm vào lịch điện thoại”), Kết quả; đề “Ôn chủ đề” (UX14) đến hết màn kết quả (bảng câu UX11, chạm ô đúng, ô sai); một đề thường đến màn kết quả (nút “Ôn 10 câu” theo chủ đề); bài ôn IOE 6 và Ôn giữa kì I lớp 6 trong khung; Các con, báo cáo tuần và tuần trước (UX12), “Bài ôn của <tên>”, Tài khoản. Không thấy cuộn ngang, nút dưới 44px, chữ dưới 13px, chữ đè; không lỗi JavaScript. Hai chỗ nên sửa, PD xem xét rồi lên phiên (mã nối tiếp X49):
+Từ kiểm thử của PO ngày 1/11/2026 (X50, X51). PD tái hiện, chọn cách và lên phiên cùng ngày; lời giao việc ở mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). Figma: khung [Q1, Q2](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=373-2108).
+
+![Hôm nay: bài chính theo môn thi; lời giới thiệu của IOE](hinh-ux-3x/ux15-hom-nay.jpg)
+
+![Nhóm kì thi: môn theo ô Môn thi, dòng IOE cuối nhóm](hinh-ux-3x/ux15-nhom-ki-thi.jpg)
+
+**Ghi nhận của PO.** PO chạy `main` (`ee1da8d`, sau PR #241) bản lưu trên máy ở 360px sáng và tối, ngày giả lập 1/11/2026 (một ngày trước kì giữa kì I), rồi 3/11, 14/11, 20/12/2026. Dữ liệu mẫu: Bin lớp 4 làm 7 bài trong 9 ngày, Na lớp 6 làm 2 bài, Bố Minh là phụ huynh của hai con. Đi các màn: Hôm nay, Bài ôn, Lịch thi, chi tiết kì thi (nút “Thêm vào lịch điện thoại”), Kết quả; đề “Ôn chủ đề” (UX14) đến hết màn kết quả (bảng câu UX11, chạm ô đúng, ô sai); một đề thường đến màn kết quả (nút “Ôn 10 câu” theo chủ đề); bài ôn IOE 6 và Ôn giữa kì I lớp 6 trong khung; Các con, báo cáo tuần và tuần trước (UX12), “Bài ôn của <tên>”, Tài khoản. Không thấy cuộn ngang, nút dưới 44px, chữ dưới 13px, chữ đè; không lỗi JavaScript. Hai chỗ nên sửa (mã nối tiếp X49):
 
 **X50. Bài chính ở Hôm nay là bài ôn IOE khi kì gần nhất là kiểm tra định kì; lời giới thiệu không đúng với IOE.**
 - Na (lớp 6), ngày 1/11 và 3/11/2026: thẻ “Hôm nay ôn gì?” ghi “IOE · Global Success 6 — Kiểm tra giữa học kì I còn 1 ngày. Bài này bạn chưa làm. Làm khoảng 20 phút, xem đáp án sau mỗi câu.” Ngày 20/12/2026 cả Bin và Na đều được giao IOE · Global Success 4, 6 với “Kiểm tra cuối học kì I còn 8 ngày” (Bin), “còn 1 ngày” (Na); đề Toán cuối kì I chỉ là bài phụ (“Môn chưa làm trong 7 ngày qua”).
@@ -352,6 +360,21 @@ PO chạy `main` (`ee1da8d`, sau PR #241) bản lưu trên máy ở 360px sáng 
 - Tab Bài ôn, chi tiết kì thi và “Bài ôn của <tên>” nhóm đề theo môn theo thứ tự đề gặp lần đầu trong `banks` của kì (`practiceList`, `js/app.js`). Giữa kì I lớp 6 ra: Tiếng Anh, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ, Toán, Ngữ văn, KHTN; cuối kì I lớp 6: Toán, Ngữ văn, KHTN, Lịch sử và Địa lí, Tiếng Anh, GDCD, Tin học, Công nghệ. Ô “Môn thi” của kì ghi Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ. Đề mới gắn vào đầu `banks` (`linkSeedBanks`), nên thứ tự còn đổi mỗi khi thêm đề.
 - Đề xuất: xếp môn theo `e.subjects` của kì rồi `subjOrder` (như Sửa kì thi, X34 của bản 2.x), môn không có trong lịch đứng cuối; bài ôn dạng trang vẫn đứng đầu (trừ IOE, X50). Áp cho cả ba chỗ.
 - Xong khi: `tests/e2e.js` đọc thứ tự môn của nhóm cuối kì I lớp 6 đúng thứ tự ô “Môn thi” của kì; `tests/supabase/cloud-e2e.js` vẫn in OK.
+
+**PD tái hiện (1/11/2026, `main` `4993196`, bản lưu trên máy, 360px sáng và tối; Na lớp 6 làm 2 đề giữa kì I, Bin lớp 4 làm 7 bài):** đúng như PO ghi. Na 20/12/2026: bài chính “IOE · Global Success 6 — Kiểm tra cuối học kì I còn 1 ngày…”, Toán 6 · Cuối kì I · Đề 1 chỉ là bài phụ; Bin 20/12: IOE · Global Success 4 dù Toán 4 · Cuối kì I · Đề 1 đã làm; 14/11 (IOE cấp trường còn 12 ngày): bài chính IOE với lời “xem đáp án sau mỗi câu”. Ngày 1/11, khi Na chưa làm bài ôn Ôn giữa kì I · Lớp 6, bài chính là bài ôn đó (bài ôn thường đứng trước IOE trong `modules` của kì), nên ở giữa kì I lỗi chỉ hiện sau khi con đã làm bài ôn đó. Nhóm cuối kì I lớp 6 ở tab Bài ôn, chi tiết kì thi và “Bài ôn của Na” cùng một thứ tự sai (dòng IOE đầu; Toán, Ngữ văn, KHTN, Lịch sử và Địa lí, Tiếng Anh, GDCD, Tin học, Công nghệ).
+
+**Cách làm (PD chọn; `js/app.js`, `data/modules.js`, cho cả hai bản; không đổi kết quả, cách chấm, kho):**
+- **Một danh sách có thứ tự cho mỗi kì thi.** Hàm `examItems(e, grade)` (cạnh `practiceFor`) trả `{ mods, bks, ioe }`: bài ôn dạng trang thường theo thứ tự trong `modules` của kì; đề (cố định và ngẫu nhiên) gom theo môn, môn theo `bySubj(subjOrder(e.subjects || [], [grade]))` (ô Môn thi của kì, rồi lịch thi của khối; X34), trong môn theo `bankOrder` (đề ngẫu nhiên trước Đề 1, Đề 2… như nay); rồi bài ôn IOE. Bài ôn IOE là bài ôn dạng trang gắn vào một kì thi `kind: "ioe"` của khối trong `Store.events(grade)`, hoặc có `lang: "en"` trong `data/modules.js`; ở kì thi `kind: "ioe"` mọi bài ôn là bài ôn thường (không xếp cuối). `practiceFor` giữ cho chỗ chỉ đếm (`progressOf`, `practiceCount`).
+- **Bài chính ở Hôm nay (X50)** (`todayPicks`): bài chưa làm đầu tiên theo danh sách đó, tức bài ôn thường → đề theo môn thi → IOE; IOE chỉ làm bài chính khi kì gần nhất là kì IOE hoặc khi mọi bài khác của kì đã làm. Các bước sau (bài đúng dưới 90%, đề ngẫu nhiên, bài đầu) giữ nguyên. Gợi ý ở thẻ “Bạn đã ôn rồi” (X40) và nút “Làm bài đầu tiên” (X40) theo cùng bài chính.
+- **Lời giới thiệu theo loại bài (X50):** “<kì> còn N ngày. Bài này bạn chưa làm. ” + câu theo loại: đề ngân hàng giữ “Làm khoảng 20 phút, xem đáp án sau mỗi câu.”; bài ôn dạng trang lấy `intro` mới trong `data/modules.js` (l4-giua-ki-1, l6-giua-ki-1: “Ôn theo bài rồi làm đề có giờ, có ôn câu sai.”; ioe-4, ioe-6: “Mỗi đề 30 câu có câu nghe, 20 phút, đáp án hiện sau khi nộp.”); bài không có `intro` dùng câu của đề ngân hàng. Câu “Lần trước bạn đúng x%. Làm lại để lên điểm nhé.” giữ nguyên.
+- **Nhóm kì thi (X50, X51)** (`practiceList` nhận thứ tự từ `examItems`; `practiceGroups` truyền kì của nhóm, `openEvent` truyền kì đang mở): dòng bài ôn thường, các dòng môn theo thứ tự trên, dòng bài ôn IOE cuối `.list`. Nhóm “Bài ôn khác” (không có kì): môn theo `subjOrder([], [grade])`, bài ôn IOE vẫn cuối. Không thêm nhãn, không đổi chữ của dòng.
+- **Cùng danh sách:** `weekTips` (“Bài ôn chưa làm: …”, chữ không đổi, thứ tự theo môn thi) và `kidCard` (“chưa ôn <môn>”, môn theo thứ tự môn thi).
+- Sửa chú thích trong `js/app.js`, dòng tương ứng ở các mục “Trang "Hôm nay" và thanh tab của học sinh” (`todayPicks`) và “Con biết mình đã ôn đến đâu” (`practiceList`) của CLAUDE.md, chú thích `intro` ở đầu `data/modules.js`.
+
+**Xong khi:**
+- Bước mới của `tests/e2e.js` (hoặc thêm vào bước UX9), ngày giả lập theo từng ý, 360px sáng và tối: Na lớp 6 đã làm Ôn giữa kì I · Lớp 6, ngày 1/11/2026: bài chính là “Toán 6 · Giữa kì I · Đề 1” (đề chưa làm đầu tiên theo môn thi), không phải IOE; Na và Bin ngày 20/12/2026: bài chính là đề Toán cuối kì I chưa làm (Bin: Đề 2 khi Đề 1 đã làm), lời “Làm khoảng 20 phút, xem đáp án sau mỗi câu.”; ngày 14/11/2026: bài chính “IOE · Global Success 6” với “IOE cấp trường còn 12 ngày. Bài này bạn chưa làm. Mỗi đề 30 câu có câu nghe, 20 phút, đáp án hiện sau khi nộp.”; Na đã làm mọi đề cố định của cuối kì I lớp 6 thì bài chính là IOE; bài ôn Ôn giữa kì I · Lớp 6 chưa làm thì bài chính là bài ôn đó với lời “Ôn theo bài rồi làm đề có giờ, có ôn câu sai.”.
+- Nhóm Cuối kì I lớp 6 ở tab Bài ôn của Na, chi tiết kì thi ở Lịch thi của Na và “Bài ôn của Na” (bố mẹ xem): dòng Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ rồi “IOE · Global Success 6” cuối; nhóm Giữa kì I lớp 6: Ôn giữa kì I · Lớp 6 đầu, IOE cuối; nhóm “Bài ôn khác” vẫn đủ bài. Bước UX1 (Bin ngày 1/12/2026, kì cuối kì I lớp 4) đọc bài chính mới “Toán 4 · Cuối kì I · Đề 2” và bài phụ theo đó.
+- `tests/supabase/cloud-e2e.js` vẫn in OK. Có ảnh 360px sáng/tối trước và sau của Hôm nay (Na 20/12, 14/11) và nhóm cuối kì I lớp 6.
 
 Ghi nhận khác, chưa cần phiên:
 - Điểm to ở màn kết quả là điểm thang 10 làm tròn đến 0,25: 2/25 câu đúng hiện “0,75/10” (0,8 làm tròn xuống), 2/10 câu hiện “2/10”. Nếu ghi chép dùng thử cho thấy con thắc mắc, PD xem có nên làm tròn đến 0,1 (`d10n` trong `Quiz.run`, `js/quiz.js`).
@@ -607,6 +630,24 @@ Cả năm phiên kiểm thử ngày 29/10/2026 trên `main` `87e2327` (sau PR #2
 - P2: 3 kết quả gần đây, “Xem tất cả →”, mục Kì thi tiếp theo (“Đã làm 3/5 bài · đúng 79%”) và dòng chú thích cuối trang.
 - P3: “← Trang chính”, nhãn và câu giới thiệu như code, bỏ dòng chú thích dưới thẻ.
 - Bản tối của P1 dựng lại.
+
+### UX9b · Sửa sau kiểm thử UX9 · PR #221 · kiểm thử 1/11/2026
+
+**Kết luận:** đạt. Dòng mô tả của bài ôn dạng trang đã làm là “Toán và Tiếng Việt, sách Kết nối tri thức, đến tuần 9. Đề có giờ, ôn theo bài, ôn câu sai. Đã ôn 1 lần.” ở tab Bài ôn của con, “Bài ôn của Bin” (bố mẹ xem) và chi tiết kì thi, cả sáng và tối; không còn chỗ nào có “. ·”.
+
+**Cách kiểm:** chạy `main` `4993196` (sau PR #221): bước UX9 của `tests/e2e.js` (Bin 5/5 bài, ảnh `tests/screenshots/ux9/bai-on-het-de`, `bo-me-bai-on`; bước dò “. ·” ở 13 màn × 2 kiểu màu); đọc lại code (`addSentence`, `practiceList`).
+
+![UX9b: dòng mô tả bài ôn đã làm](hinh-ux-3x/kt-ux9b-bai-on.jpg)
+
+| Yêu cầu (mục 4, “Phiên UX9b”) | Kết quả | Ghi chú |
+|---|---|---|
+| Sau mô tả là câu riêng “Đã ôn 1 lần.”; mô tả không có dấu chấm cuối thì thêm dấu chấm | Khớp | `addSentence` xét cả “?”, “!”, “…”; e2e thử mô tả sửa tạm không có dấu chấm. |
+| Không chỗ nào có “. ·” | Khớp | e2e dò `textContent` cả trang, cả nhóm thu gọn. |
+| 360px sáng/tối, không đổi dữ liệu | Khớp | Dòng chưa ôn lần nào giữ nguyên mô tả; ở 360px câu mới có khi xuống dòng riêng. |
+
+**Figma:** K1 vẽ bài ôn chưa làm (nút “Vào ôn” vàng) nên không có dòng này; không đổi khung. Ghi chú của section UX9 ghi kết quả ở dòng X49.
+
+**Kiểm thử tự động trên `main` `4993196`** (1/11/2026): `tests/e2e.js` E2E OK (59 bước), `tests/supabase/cloud-e2e.js` CLOUD E2E OK (174 mục), `node tests/kiem-tra-de.js` DE OK.
 
 ### Chung cho năm phiên
 
