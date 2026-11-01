@@ -276,7 +276,7 @@ const CHECKS = [
   { id: "sh1", has: "gồm 1 503 nucleotide", right: (q) => {
     const [n] = so(q.q, "gồm # nucleotide"), [r] = so(q.q, "Có # ribosome"); assert.equal(n % 3, 0);
     const aa = n / 3 - 1; coX(q, vn(n / 3), vn(aa), vn(aa - 1), vn((aa - 1) * r)); return (aa - 1) * r; } },
-  { id: "sh1", has: "allele A quy định quả tròn", right: (q) => {
+  { id: "sh1", has: "A (quả tròn), B (hoa vàng) lần lượt trội hoàn toàn", right: (q) => {
     const m = lai("AaBb", "AaBb"), [a, b, c, d] = q.o;
     const soKG = +y(a, /có (\d+) loại kiểu gene\.$/)[1], tl1 = y(b, /chiếm tỉ lệ (\d+\/\d+)\.$/)[1], tl2 = y(c, /chiếm tỉ lệ (\d+\/\d+)\.$/)[1], kg = +y(d, /có (\d+) loại kiểu gene\.$/)[1];
     assert.ok(/quả dài, hoa vàng/.test(b) && /dị hợp về cả hai cặp gene/.test(c) && /quả tròn, hoa trắng/.test(d), "thứ tự các ý");

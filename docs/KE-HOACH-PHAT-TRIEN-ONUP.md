@@ -212,6 +212,7 @@
 | #239 | Phiên N9-gk1-khtn: ngân hàng KHTN 9 giữa kì I, 75 câu; tests/khtn9-gk1.js |
 | #240 | Phiên N12-ck1-sinhhoc-ktpl: ngân hàng Sinh học 12, GDKT&PL 12 cuối kì I, 100 câu; tests/sinhhoc-ktpl12-ck1.js |
 | #241 | Phiên N12-ck1-lichsu-diali: ngân hàng Lịch sử 12, Địa lí 12 cuối kì I, 100 câu; tests/lichsu-diali12-ck1.js |
+| #242 | Phiên N12-ck1-tin-congnghe: ngân hàng Tin học 12, Công nghệ 12 cuối kì I, 100 câu; tests/tin-congnghe12-ck1.js |
 
 </details>
 
