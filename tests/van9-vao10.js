@@ -1,5 +1,5 @@
-// Kiểm tra các đề Ngữ văn thi thử vào 10 (data/banks/9-van.js, van9-vao10-de<N>; Phiên N9-vao10-van: Đề 1–2, N9-vao10-van-b: Đề 3–4;
-// phiên N9-vao10-van-c thêm đề rồi mở rộng script này). Đề tính điểm (Phiên K5), khung theo đề minh hoạ tuyển sinh lớp 10 của TP.HCM năm 2026
+// Kiểm tra các đề Ngữ văn thi thử vào 10 (data/banks/9-van.js, van9-vao10-de<N>; Phiên N9-vao10-van: Đề 1–2, N9-vao10-van-b: Đề 3–4,
+// N9-vao10-van-c: Đề 5–6; phiên thêm đề thì mở rộng script này). Đề tính điểm (Phiên K5), khung theo đề minh hoạ tuyển sinh lớp 10 của TP.HCM năm 2026
 // (docs/KE-HOACH-NOI-DUNG.md, mục 7, “Khung đề Ngữ văn”). Số đề, số câu lấy từ danh mục (không ghi cứng).
 // Kiểm tra từng đề: danh mục (tên, khối, môn, file, 120 phút, pts 10, gắn vào vao10-2027); hai phần đúng tên, đúng thứ tự, mỗi phần
 // một đoạn đọc dùng cho mọi câu của phần; Phần I: đọc hiểu 3 điểm (câu chấm tự động pt 0,25–1, nhiều nhất một câu tự luận ngắn
@@ -53,13 +53,15 @@ const VAN_DE = {
   "van9-vao10-de1": ["so sánh bản thân với người khác", "so sánh bản thân"],
   "van9-vao10-de2": ["gìn giữ các loại hình nghệ thuật truyền thống", "nghệ thuật truyền thống"],
   "van9-vao10-de3": ["lòng dũng cảm nhận lỗi", "nhận lỗi"],
-  "van9-vao10-de4": ["sẻ chia của người trẻ với người khuyết tật", "khuyết tật"]
+  "van9-vao10-de4": ["sẻ chia của người trẻ với người khuyết tật", "khuyết tật"],
+  "van9-vao10-de5": ["giữ lời hứa của người trẻ", "giữ lời hứa"],
+  "van9-vao10-de6": ["thói quen thức khuya của học sinh", "thức khuya"]
 };
 // bài thơ người soạn viết: mã đoạn → [số tiếng mỗi dòng, kiểu vần chân của mọi khổ bốn dòng]; thơ tự do: [0, "tu-do"]
 const THO = { "cuoc-goi": [8, "lien"], "ve-phia-lua": [0, "tu-do"] };
 const THE = { 6: "Thơ sáu chữ", 7: "Thơ bảy chữ", 8: "Thơ tám chữ" };
 // thể loại cụ thể của văn bản truyện, kí ở Phần I (thể thơ thì tính từ THO): các đề không lặp thể loại cụ thể
-const LOAI = { "binh-nuoc": "truyện ngắn", "tau-ra-hue": "du kí" };
+const LOAI = { "binh-nuoc": "truyện ngắn", "tau-ra-hue": "du kí", "mua-dau": "truyện khoa học viễn tưởng", "hoa-sua": "tuỳ bút" };
 const LOAI_CUA = { truyện: /^truyện /, kí: /^(du kí|hồi kí|bút kí|tuỳ bút|tản văn)$/ };
 
 const DE = BANKS.filter((b) => /^van9-vao10-de\d+$/.test(b.id)).sort((a, b) => so(a) - so(b));
@@ -230,6 +232,13 @@ const chuyenTau = (t) => {
 };
 // từ ngữ địa phương Huế trong lời của nhân vật (Ngữ văn 8, Bài 1: từ ngữ địa phương)
 const PHUONG_NGU = { răng: "sao", rứa: "thế", chừ: "bây giờ" };
+// Sao Hoả (truyện khoa học viễn tưởng của Đề 5): tín hiệu đi một chiều giữa Sao Hoả và Trái Đất mất khoảng 3–22 phút tuỳ vị trí của
+// hai hành tinh; trọng lực ở bề mặt Sao Hoả khoảng 0,38 lần trọng lực ở Trái Đất (chưa bằng một nửa).
+const SAO_HOA = { tre: [3, 22], trongLuc: 0.38 };
+// số giờ ngủ nên có của lứa tuổi 13–18 (văn bản thông tin của Đề 6): 8–10 giờ mỗi ngày đêm, theo khuyến nghị của Viện Hàn lâm Y học
+// Giấc ngủ Hoa Kỳ (AASM, 2016)
+const NGU_TEEN = [13, 18, 8, 10];
+const docSo = (w) => { for (let n = 0; n < 100; n++) if (soChu(n) === w.toLowerCase()) return n; return NaN; };
 const CHECKS = [
   { has: "«Bình nước đầu hẻm» do ai kể lại và kể theo ngôi nào", right: (q) => {
     const n = (chuDoan(q).match(/(^|[^\p{L}])[Tt]ôi(?![\p{L}])/gu) || []).length;
@@ -324,7 +333,67 @@ const CHECKS = [
     const sinh = /sinh ngày (\d+) tháng (\d+) năm (\d{4})/.exec(t), xong = /Năm (\d{4}), khi mới (\d+) tuổi/.exec(t), le = /ngày (\d+) tháng (\d+), ngày sinh của/.exec(t);
     assert.equal(+xong[1] - +sinh[3], +xong[2], "tuổi khi hoàn thành chữ nổi khớp năm sinh");
     assert.deepEqual([le[1], le[2]], [sinh[1], sinh[2]], "Ngày Chữ nổi thế giới là ngày sinh của Lu-i Brai");
-    return q.o.find((o) => /^Theo các mốc thời gian/.test(o)); } }
+    return q.o.find((o) => /^Theo các mốc thời gian/.test(o)); } },
+  // Đề 5: truyện khoa học viễn tưởng «Cơn mưa đầu tiên của Mây», văn bản nghị luận «Sức nặng của lời hứa»
+  { has: "là truyện khoa học viễn tưởng?", right: (q) => {
+    const t = chuDoan(q), nam = +/^Năm (\d{4}),/.exec(t)[1];
+    assert.ok(nam >= 2050 && co(q, "trạm định cư Hy Vọng trên Sao Hoả"), "truyện đặt ở tương lai xa, ngoài Trái Đất: năm " + nam);
+    const di = docSo(/phải bay (\p{L}+(?: \p{L}+)?) phút qua khoảng không/u.exec(t)[1]), toi = docSo(/\n(\p{L}+(?: \p{L}+)?) phút sau, tin nhắn mới tới Sao Hoả/u.exec(t)[1]);
+    assert.ok(di === toi && di >= SAO_HOA.tre[0] && di <= SAO_HOA.tre[1], `thời gian tín hiệu đi giữa hai hành tinh (${di}, ${toi} phút) khớp nhau và khớp khoa học`);
+    assert.ok(co(q, "trọng lực ở Sao Hoả chưa bằng một nửa trọng lực ở Trái Đất") && SAO_HOA.trongLuc < 0.5, "trọng lực của Sao Hoả chưa bằng một nửa của Trái Đất");
+    const ok = q.o.filter((o) => /tương lai/.test(o) && /khoa học/.test(o));
+    assert.equal(ok.length, 1, "đúng một lựa chọn nói tới tương lai và khoa học");
+    return ok[0]; } },
+  { has: "Mây phải tập suốt ba tháng trong phòng ___", right: (q) => /trong phòng ([\p{L} ]+?), vì trọng lực/u.exec(chuDoan(q))[1] },
+  { has: "«Bà ơi, mái vòm bị thủng rồi!» Chi tiết ấy", right: (q) => {
+    const t = chuDoan(q), sam = t.indexOf("Một tiếng sấm"), keu = t.indexOf("\n– Bà ơi, mái vòm bị thủng rồi!\n");
+    assert.ok(sam >= 0 && keu > sam, "Mây kêu lên ngay sau tiếng sấm, bằng lời thoại");
+    assert.ok(t.indexOf("mái vòm kín") >= 0 && t.indexOf("mái vòm kín") < t.indexOf("Bà nội của Mây") && co(q, "Làm gì có mái vòm nào"), "mái vòm là của trạm trên Sao Hoả, nhà bà không có mái vòm");
+    assert.ok(co(q, "Mây xem đi xem lại") && khongCo(q, "nhút nhát"), "Mây đã xem những đoạn phim bà quay cảnh mưa; truyện không nói Mây nhút nhát");
+    return q.o.find((o) => /^Nỗi lo quen thuộc/.test(o)); } },
+  { has: "Mỗi nhận định sau về truyện «Cơn mưa đầu tiên của Mây»", right: (q) => { const t = chuDoan(q); return tf(q, [
+    [/nghe bà đáp ngay câu ấy/, !/phải bay \p{L}+( \p{L}+)? phút qua khoảng không/u.test(t)],
+    [/Không gian trong truyện gồm cả/, co(q, "trạm định cư Hy Vọng trên Sao Hoả") && co(q, "Bà nội của Mây sống ở Trái Đất, trong một ngôi nhà nhỏ bên dòng sông quê")],
+    [/Dấu chấm lửng trong câu «Rồi hạt thứ hai, hạt thứ ba…»/, co(q, "Rồi hạt thứ hai, hạt thứ ba…")],
+    [/Mây sợ hãi chạy vào nhà/, t.indexOf("chạy vào nhà, tìm chỗ nấp") > t.indexOf("Hạt mưa đầu tiên rơi")]]); } },
+  { has: "trước khi hứa với ai điều gì, ta nên làm gì", right: (q) => co(q, "Trước khi hứa, hãy tự hỏi: mình có làm được không?") && q.o.find((o) => /^Tự hỏi xem mình có làm được/.test(o)) },
+  { has: "giải thích rõ lí do và tìm cách ___", right: (q) => /giải thích rõ lí do và tìm cách (\p{L}+ \p{L}+)\./u.exec(chuDoan(q))[1] },
+  { has: "ví một lời hứa với «một khoản vay»", right: (q) => {
+    assert.ok(co(q, "Một lời hứa giống như một khoản vay.") && co(q, "Khi hứa, ta nhận về sự tin tưởng của người nghe") && co(q, "Giữ lời là trả lại khoản vay ấy"), "đoạn văn giải thích hình ảnh khoản vay: hứa là nhận sự tin tưởng, giữ lời là trả lại");
+    assert.ok(khongCo(q, "tiền bạc") && khongCo(q, "món tiền"), "văn bản không nói chuyện vay tiền thật");
+    return q.o.find((o) => /^Hứa là nhận lấy sự tin tưởng/.test(o)); } },
+  // Đề 6: bài tuỳ bút «Mùa hoa sữa», văn bản thông tin «Giấc ngủ của tuổi mới lớn»
+  { has: "vào thể tuỳ bút?", right: (q) => {
+    const t = chuDoan(q), toi = (t.match(/(^|[^\p{L}])[Tt]ôi(?![\p{L}])/gu) || []).length;
+    assert.ok(toi >= 8 && !/\n– /.test(t) && co(q, "Hà Nội của tôi") && co(q, "phố Nguyễn Du"), "người viết xưng «tôi», ghi về Hà Nội có thực, không có lời thoại nhân vật như truyện");
+    const ok = q.o.filter((o) => /người viết bày tỏ/.test(o));
+    assert.equal(ok.length, 1, "đúng một lựa chọn nói tới cảm xúc, suy ngẫm của người viết");
+    return ok[0]; } },
+  { has: "đi học bằng chiếc ___ cũ", right: (q) => /chở tôi đi học bằng chiếc ([\p{L} ]+?) cũ/u.exec(chuDoan(q))[1] },
+  { has: "«Có những thứ ta chỉ biết mình yêu khi đã rời xa.»", right: (q) => {
+    const d = chuDoan(q).split("\n");
+    assert.ok(d[d.length - 1].startsWith("Có những thứ ta chỉ biết mình yêu khi đã rời xa."), "câu đúc kết mở đầu đoạn cuối");
+    assert.ok(/vào phương Nam học/.test(d[d.length - 2]) && /cây hoa sữa đứng lẻ loi/.test(d[d.length - 2]), "đoạn ngay trước kể chuyện đi xa, gặp lại cây hoa sữa");
+    assert.ok(khongCo(q, "hối hận"), "người viết không nói hối hận");
+    return q.o.find((o) => /^Phải sống xa nơi chốn thân thuộc/.test(o)); } },
+  { has: "Các ý sau nói về bài tuỳ bút «Mùa hoa sữa»", right: (q) => {
+    const cau = /«([^»]+)» dùng biện pháp nhân hoá/.exec(q.o[yOf(q, /dùng biện pháp nhân hoá/)])[1];
+    return tf(q, [
+      [/dùng biện pháp nhân hoá/, co(q, cau) && /chẳng chịu/.test(cau) && !/(^|[^\p{L}])(như|tựa|giống)(?![\p{L}])/u.test(cau)],
+      [/được tất cả mọi người yêu thích/, !co(q, "Không phải ai cũng yêu hoa sữa")],
+      [/trồng khắp các con phố/, !co(q, "một cây hoa sữa đứng lẻ loi")],
+      [/mặc thêm áo vì hoa sữa nở/, co(q, "«Hoa sữa nở là sắp sang đông, con nhớ mặc thêm áo.»")]]); } },
+  { has: "chưa thấy buồn ngủ vào giờ mà trước đây đã ngáp dài", right: (q) => {
+    assert.ok(co(q, "melatonin, một hormone báo cho cơ thể biết đã đến lúc nghỉ ngơi") && co(q, "melatonin bắt đầu được tiết ra muộn hơn so với hồi còn nhỏ") && co(q, "Thật ra, phần lớn nguyên nhân"), "nguyên nhân: hormone báo giờ nghỉ được tiết ra muộn hơn, không phải do lười");
+    return q.o.find((o) => /^Hormone báo hiệu giờ nghỉ ngơi/.test(o)); } },
+  { has: "cơ thể người có một «đồng hồ ___»", right: (q) => /có một «đồng hồ ([\p{L} ]+?)»/u.exec(chuDoan(q))[1] },
+  { has: "chủ yếu triển khai nội dung theo cách nào", right: (q) => {
+    const t = chuDoan(q), d = t.split("\n"), dm = ["Chiếc đồng hồ bên trong cơ thể.", "Ánh sáng từ màn hình.", "Ngủ ít thì sao?", "Làm gì để ngủ đủ?"];
+    assert.deepEqual(d.slice(1, 5).map((x) => dm.find((h) => x.startsWith(h + " ")) || ""), dm, "bốn đoạn giữa mở đầu bằng đề mục: hai nguyên nhân, tác hại, lời khuyên");
+    assert.ok(/^Nhiều bạn/.test(d[0]) && /Thật ra, phần lớn nguyên nhân/.test(d[0]), "đoạn đầu nêu hiện tượng");
+    const m = /lứa tuổi từ (\d+) đến (\d+) nên ngủ từ (\d+) đến (\d+) giờ mỗi đêm/.exec(t);
+    assert.deepEqual(m && m.slice(1).map(Number), NGU_TEEN, "số giờ ngủ nên có của lứa tuổi 13–18 đúng khuyến nghị");
+    return q.o.find((o) => /^Nêu hiện tượng, giải thích nguyên nhân/.test(o)); } }
 ];
 let nCheck = 0;
 CHECKS.forEach((c) => {
