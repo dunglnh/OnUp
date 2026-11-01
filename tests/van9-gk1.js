@@ -390,9 +390,8 @@ assert.deepEqual(loCD, DA_XEM_CHU_DE, "đáp án có ở câu cùng chủ đề 
 /* ---------- không chép sách: so với chữ OCR (bỏ dấu, gộp nguyên âm), nếu có OnUp-Book ---------- */
 const BOOK = path.join(__dirname, "../../OnUp-Book");
 const SACH = fs.existsSync(BOOK) ? fs.readdirSync(BOOK).filter((l) => /^lop-\d+$/.test(l)).flatMap((l) => fs.readdirSync(path.join(BOOK, l)).map((c) => path.join(BOOK, l, c, "chu.txt"))).filter((f) => fs.existsSync(f)) : [];
-// câu thơ trích nguyên văn của tác phẩm cổ (sách cũng dẫn) không tính là chép sách: «Trải qua một cuộc bể dâu, / Những điều trông thấy mà
-// đau đớn lòng» (Truyện Kiều, Nguyễn Du) ở đoạn đọc mo-dau-kieu (câu 9 của van9-gk1-de1), Ngữ văn 11 tập hai dẫn ở bài về Nguyễn Du (dòng
-// sau còn là tên Bài 6 của Ngữ văn 11)
+// câu thơ trích nguyên văn của tác phẩm cổ (sách cũng dẫn) không tính là chép sách: «Trải qua một cuộc bể dâu, / Những điều trông
+// thấy mà đau đớn lòng» (Truyện Kiều, Nguyễn Du) ở đoạn đọc mo-dau-kieu của Đề 1, Ngữ văn 11 tập hai cũng dẫn
 const TRICH = ["Trải qua một cuộc bể dâu", "Những điều trông thấy mà đau đớn lòng"];
 const khongDau = (s) => TRICH.reduce((x, c) => x.split(c).join(" "), String(s).normalize("NFC")).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
 const tuKD = (s) => khongDau(s).split(" ").filter(Boolean);

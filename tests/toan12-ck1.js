@@ -689,8 +689,8 @@ const CHECKS = [
     const [ab, ad, aa] = /AB = (\d+), AD = (\d+) và AA′ = (\d+)/.exec(q.q).slice(1).map(fr), P = { A: [F(0), F(0), F(0)], B: [ab, F(0), F(0)], D: [F(0), ad, F(0)], "A′": [F(0), F(0), aa] };
     const t = vAdd(vAdd(vecTen(P, "AB"), vecTen(P, "AD")), vecTen(P, "AA′")); return theo(q, /^(.+)$/, (k) => eq(ev(k[1]), vLen(t))); } },
   { has: "Ba lực có độ lớn lần lượt", right: (q) => { const f = /lần lượt (\d+) N, (\d+) N và (\d+) N/.exec(q.q).slice(1).map(fr); return vLen(f); } },
-  { has: "Cho tứ diện OABC, trong đó OA, OB, OC đôi một vuông góc", right: (q) => {
-    const a = fr(/cùng có độ dài bằng (\d+)\. Gọi M/.exec(q.q)[1]), P = { O: [F(0), F(0), F(0)], A: [a, F(0), F(0)], B: [F(0), a, F(0)], C: [F(0), F(0), a] }; P.M = vScale(vAdd(P.B, P.C), F(1, 2));
+  { has: "Ba cạnh OA, OB, OC của tứ diện OABC đôi một vuông góc", right: (q) => {
+    const a = fr(/= (\d+)\. Gọi M/.exec(q.q)[1]), P = { O: [F(0), F(0), F(0)], A: [a, F(0), F(0)], B: [F(0), a, F(0)], C: [F(0), F(0), a] }; P.M = vScale(vAdd(P.B, P.C), F(1, 2));
     return vDot(vecTen(P, "OA"), vecTen(P, "AM")); } },
   { has: "Tính tích vô hướng vectơ AB′ · vectơ BC′.", right: (q) => { const P = HOP(fr(/cạnh bằng (\d+)/.exec(q.q)[1])); return vDot(vecTen(P, "AB′"), vecTen(P, "BC′")); } },
   // Bài 7. Hệ trục toạ độ trong không gian

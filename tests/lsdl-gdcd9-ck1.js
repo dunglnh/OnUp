@@ -195,7 +195,7 @@ const CHECKS = [
       [/^Năm (\d{4}), tỉnh Y có cơ cấu dân số vàng\.$/, (m) => Y[m[1]].l >= 2 * (Y[m[1]].c + Y[m[1]].g)],
       [/^Năm (\d{4}), dân số tỉnh Y đã bước vào giai đoạn già hoá\.$/, (m) => Y[m[1]].g >= 7],
       [/^Năm (\d{4}), tỉnh Y đã có dân số già\.$/, (m) => Y[m[1]].g >= 14 && Y[m[1]].g < 21],
-      [/^Từ năm (\d{4}) đến năm (\d{4}), tỉ lệ nhóm từ 65 tuổi trở lên của tỉnh Y tăng gấp đôi\.$/, (m) => Y[m[2]].g === 2 * Y[m[1]].g]
+      [/^Từ năm (\d{4}) đến năm (\d{4}), tỉ lệ của nhóm từ 65 tuổi trở lên ở tỉnh Y tăng gấp đôi\.$/, (m) => Y[m[2]].g === 2 * Y[m[1]].g]
     ];
     assert.ok(q.x.includes(`${c2}% + ${g2}% = ${c2 + g2}%`) && q.x.includes(`2 × ${c2 + g2}% = ${2 * (c2 + g2)}%`), "lời giải ghi phép tính");
     return q.o.map((o) => { const l = LUAT.map(([re, f]) => [re.exec(o), f]).filter(([m]) => m); assert.equal(l.length, 1, "ý nào cũng có luật: " + o); return l[0][1](l[0][0]); }); } },

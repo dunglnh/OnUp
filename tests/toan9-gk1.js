@@ -717,11 +717,11 @@ if (SACH.length) {
   assert.deepEqual([...new Set(bao(8))], [], "chuỗi 8 từ trùng câu của kho khác");
   // gần trùng (Rút ra N25; như tests/tin-congnghe9-gk2.js): đề bài cùng lựa chọn, ô nối, ô sắp xếp có từ 4 cặp hai âm tiết liền nhau chung với
   // một câu của kho cuối kì I và số cặp chung từ một nửa số cặp của câu ít cặp hơn thì báo. Không tính tên phương pháp, cụm chung của đề Toán
-  // (CUM), cặp có số hay chữ đơn (biến, tên điểm), cặp của nhãn chủ đề và cặp có ở từ 3% số câu của data/banks/9-toan.js (không tính đề tính
-  // điểm: ý tự luận của đề thi thử vào 10 làm loãng tần số, như “là một” từ 13/400 câu thành 13/460 câu sau PR #247).
+  // (CUM), cặp có số hay chữ đơn (biến, tên điểm), cặp của nhãn chủ đề và cặp có ở từ 3% số câu của data/banks/9-toan.js.
   const CUM = ["phương pháp cộng đại số", "phương pháp thế", "máy tính cầm tay", "cột trái", "cột phải", "tính giá trị của biểu thức", "mỗi ý sau đúng hay sai"];
   const cap2 = (s) => { let t = String(s).normalize("NFC").toLowerCase(); CUM.forEach((c) => { t = t.split(c).join(" | "); });
     const w = t.replace(/[^\p{L}\p{N}\s|]/gu, " ").split(/\s+/).filter(Boolean); return w.slice(1).map((x, k) => w[k] + " " + x).filter((c) => c.split(" ").every((x) => /\p{L}{2}/u.test(x))); };
+  // không tính đề tính điểm (thi thử vào 10: các ý tự luận, so riêng ở tests/toan9-vao10.js), để ngưỡng 3% vẫn theo đề bài của các kho thường
   const deToan9 = BANKS.filter((b) => b.file === "9-toan.js" && !b.pts).flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id)), df = {};
   deToan9.forEach((q) => new Set(cap2(q.q)).forEach((c) => (df[c] = (df[c] || 0) + 1)));
   const capAm = (q) => { const nhan = new Set(cap2(q.topic)); return new Set(cap2([q.q].concat(q.o || [], q.l || [], q.r || []).join(" | ")).filter((c) => !nhan.has(c) && df[c] < 0.03 * deToan9.length)); };
