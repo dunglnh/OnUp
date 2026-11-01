@@ -498,7 +498,6 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 | N9-vao10-toan | 15/11/2026 (muộn nhất 11/5/2027) | Toán thi thử vào 10, Đề 1–4 (khung TP.HCM, đề tính điểm) | 4 đề | `toan9-vao10-de1`…`-de4`; `tests/toan9-vao10.js` | không |
 | N9-vao10-toan-b | 15/11/2026 (muộn nhất 11/5/2027) | Toán thi thử vào 10, Đề 5–7 | 3 đề | `toan9-vao10-de5`…`-de7` | không |
 | N9-vao10-toan-c | 15/11/2026 (muộn nhất 11/5/2027) | Toán thi thử vào 10, Đề 8–10 | 3 đề | `toan9-vao10-de8`…`-de10` | không |
-| N9-vao10-van | 15/11/2026 (muộn nhất 11/5/2027) | Ngữ văn thi thử vào 10, Đề 1–2 (khung TP.HCM, đề tính điểm) | 2 đề | `van9-vao10-de1`, `-de2` | không |
 | N9-vao10-van-b | 15/11/2026 (muộn nhất 11/5/2027) | Ngữ văn thi thử vào 10, Đề 3–4 | 2 đề | `van9-vao10-de3`, `-de4` | không |
 | N9-vao10-van-c | 15/11/2026 (muộn nhất 11/5/2027) | Ngữ văn thi thử vào 10, Đề 5–6 | 2 đề | `van9-vao10-de5`, `-de6` | không |
 | RS9 | 15/11/2026 (muộn nhất 15/2/2027) | Rà soát độc lập đề lớp 9 các kì còn thi; bật khối 9 | — | `active: true` của lớp 9 trong `data/grades.js` | có: các bước đếm khối, tab khối, chữ “Cả hai khối” |
@@ -596,18 +595,13 @@ Thi vào 10 dự kiến 1–2/6/2027 (`vao10-2027`; nguồn và mặc định PO
 >
 > Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
-**Phiên N9-vao10-van · Ngữ văn thi thử vào 10, Đề 1–2** (sau các phiên N9-ck2-*; K5 đã xong, PR #198)
-> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, đoạn “Thi vào 10”; mục 3.1, đoạn “Tự luận và chủ đề Viết”, “Đoạn đọc”, “Đề tính điểm”; mục 7: nhóm “Trước 11/5/2027” cả đoạn đầu và “Khung đề Ngữ văn”, nhóm “Chung của các phiên đề thi thử vào 10, tốt nghiệp THPT”). Tạo 2 đề "Ngữ văn 9 · Thi thử vào 10 · Đề 1", "… · Đề 2" (mã van9-vao10-de1, -de2, data/banks/9-van.js, 120 phút, `pts: 10`) theo “Khung đề Ngữ văn”; Phần I của hai đề khác thể loại (ví dụ một truyện, một bài thơ). Gắn 2 mã vào vao10-2027. Kiểm thử: không có số ghi cứng; tests/kiem-tra-de.js kiểm tra `pts`, `pt`, `part`, đoạn đọc.
->
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
-
 **Phiên N9-vao10-van-b · Ngữ văn thi thử vào 10, Đề 3–4** (Merge N9-vao10-van trước)
-> Đọc như Phiên N9-vao10-van. Tạo 2 đề "Ngữ văn 9 · Thi thử vào 10 · Đề 3", "… · Đề 4" (mã van9-vao10-de3, -de4) theo “Khung đề Ngữ văn”; văn bản, thể loại, vấn đề nghị luận xã hội khác Đề 1–2 (dò bằng code); Phần II một đề văn bản nghị luận, một đề văn bản thông tin. Gắn 2 mã vào vao10-2027. Kiểm thử: không có số ghi cứng.
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, đoạn “Thi vào 10”; mục 3.1, đoạn “Tự luận và chủ đề Viết”, “Đoạn đọc”, “Đề tính điểm”; mục 3.5, dòng “Rút ra từ Phiên N9-vao10-van”; mục 7: nhóm “Trước 11/5/2027” cả đoạn đầu và “Khung đề Ngữ văn”, nhóm “Chung của các phiên đề thi thử vào 10, tốt nghiệp THPT”). Tạo 2 đề "Ngữ văn 9 · Thi thử vào 10 · Đề 3", "… · Đề 4" (mã van9-vao10-de3, -de4, data/banks/9-van.js, 120 phút, `pts: 10`) theo “Khung đề Ngữ văn”; văn bản, thể loại, vấn đề nghị luận xã hội khác Đề 1–2 (dò bằng code); Phần II một đề văn bản nghị luận, một đề văn bản thông tin. Gắn 2 mã vào vao10-2027. Mở rộng tests/van9-vao10.js (Phiên N9-vao10-van, PR #244: thêm vấn đề vào `VAN_DE`, bài thơ vào `THO`, đáp án tính được vào `CHECKS`), in VAN9 VAO10 OK. Kiểm thử: không có số ghi cứng.
 >
 > Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 **Phiên N9-vao10-van-c · Ngữ văn thi thử vào 10, Đề 5–6** (Merge N9-vao10-van-b trước)
-> Đọc như Phiên N9-vao10-van. Tạo 2 đề "Ngữ văn 9 · Thi thử vào 10 · Đề 5", "… · Đề 6" (mã van9-vao10-de5, -de6) theo “Khung đề Ngữ văn”; văn bản, thể loại, vấn đề nghị luận xã hội khác Đề 1–4 (dò bằng code), để sáu đề phủ đủ thể loại như khung ghi. Gắn 2 mã vào vao10-2027. Kiểm thử: không có số ghi cứng.
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, đoạn “Thi vào 10”; mục 3.1, đoạn “Tự luận và chủ đề Viết”, “Đoạn đọc”, “Đề tính điểm”; mục 3.5, dòng “Rút ra từ Phiên N9-vao10-van”; mục 7: nhóm “Trước 11/5/2027” cả đoạn đầu và “Khung đề Ngữ văn”, nhóm “Chung của các phiên đề thi thử vào 10, tốt nghiệp THPT”). Tạo 2 đề "Ngữ văn 9 · Thi thử vào 10 · Đề 5", "… · Đề 6" (mã van9-vao10-de5, -de6, data/banks/9-van.js, 120 phút, `pts: 10`) theo “Khung đề Ngữ văn”; văn bản, thể loại, vấn đề nghị luận xã hội khác Đề 1–4 (dò bằng code), để sáu đề phủ đủ thể loại như khung ghi. Gắn 2 mã vào vao10-2027. Mở rộng tests/van9-vao10.js (Phiên N9-vao10-van, PR #244: thêm vấn đề vào `VAN_DE`, bài thơ vào `THO`, đáp án tính được vào `CHECKS`), in VAN9 VAO10 OK. Kiểm thử: không có số ghi cứng.
 >
 > Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
