@@ -1,12 +1,12 @@
-# CLAUDE.md — OnUp - Ôn Luyện Mỗi Ngày (lớp 4 và 6)
+# CLAUDE.md — OnUp - Ôn Luyện Mỗi Ngày (lớp 4, 6 và 9)
 
 Hướng dẫn cho Claude (và người) khi làm việc trong repo này. Đọc hết file này trước khi sửa code.
 
 ## App này là gì
 
-Web app ôn thi **cả năm học** cho học sinh **lớp 4 và lớp 6** (sách Kết nối tri thức, Tiếng Anh Global Success) và **phụ huynh** theo dõi con. Có ba vai trò: học sinh, phụ huynh, quản trị (thầy cô hoặc bố mẹ quản lý). Bản mô tả tính năng đầy đủ: `docs/TINH-NANG.md`.
+Web app ôn thi **cả năm học** cho học sinh **lớp 4, lớp 6 và lớp 9** (lớp 9 bật từ Phiên RS9, 2/11/2026; sách Kết nối tri thức, Tiếng Anh Global Success) và **phụ huynh** theo dõi con. Có ba vai trò: học sinh, phụ huynh, quản trị (thầy cô hoặc bố mẹ quản lý). Bản mô tả tính năng đầy đủ: `docs/TINH-NANG.md`.
 
-Người dùng là trẻ 9–12 tuổi và phụ huynh, nên:
+Người dùng là trẻ 9–15 tuổi và phụ huynh, nên:
 - Giao diện tiếng Việt, câu ngắn. Gọi người đang dùng app là "bạn" (cả học sinh, phụ huynh, quản trị); chỉ dùng "con" khi nói với phụ huynh về con của họ ("hồ sơ của con"). Không thuật ngữ kỹ thuật trên màn hình.
 - Ưu tiên điện thoại (rộng 360–420px), không cuộn ngang, vùng bấm cao ≥ 44px (nút, link dạng nút, dòng `summary` của `<details>`), chữ ≥ 13px, chữ không đè lên nhau và không tràn khỏi ô chứa nó (chủ app yêu cầu 22/10/2026: không đặt chữ dài vào cột rộng cố định có `white-space:nowrap`; cột chứa chữ thì cho xuống dòng hoặc rộng theo chữ). `tests/e2e.js` kiểm tra ở 360px (`audit`; chữ đè cả trong khung bài ôn ở 360px, 720px).
 - Thu thập dữ liệu tối thiểu: tên hiển thị, khối, lớp. **Không** hỏi ngày sinh, số điện thoại, email, ảnh của trẻ.
@@ -28,7 +28,7 @@ js/store-supabase.js    SupabaseStore: cùng các hàm với LocalStore, chỉ b
 js/app.js               định tuyến hash + tất cả màn hình (đăng nhập, trang chủ theo vai trò, báo cáo tuần, lịch, quản trị)
 js/quiz.js              bộ làm bài chung cho ngân hàng câu hỏi (mọi dạng câu, đoạn đọc chung, bộ lọc hình SVG Quiz.svg, opts.onStart/onEnd của một lượt cho chế độ tập trung, bảng số câu và màn “Xem lại bài làm” của Phiên 9n) + bộ đọc cú pháp nhập câu hỏi (Quiz.parse; lỗi gắn với câu, đoạn đọc ở issues, Phiên UX7) + xem trước một câu ở màn nhập đề (Quiz.preview) + bộ rút đề theo ma trận (Quiz.draw, mã câu Quiz.key, lịch sử câu opts.onMarks) + chấm đề tính điểm (Quiz.grade, Phiên K5) + kho câu của đề “Ôn chủ đề” (Quiz.topicBank, Phiên UX14) + bảng chữ hai ngôn ngữ của màn làm đề (Quiz.TXT, Quiz.lang, Quiz.title: đề Tiếng Anh hiện tiếng Anh, Phiên TA2)
 js/bridge.js            nạp bên trong mỗi bài ôn: tách dữ liệu theo học sinh, gửi điểm về app
-data/grades.js          danh sách khối lớp 1–12 (window.ONTAP_GRADES), chỉ lớp 4 và 6 `active`. Không viết cứng [4, 6] ở đâu khác
+data/grades.js          danh sách khối lớp 1–12 (window.ONTAP_GRADES), chỉ lớp 4, 6 và 9 `active`. Không viết cứng danh sách khối ở đâu khác (kiểm thử: hằng `ON`)
 data/calendar-2026-2027.js  lịch thi mặc định (window.ONTAP_SEED_EVENTS): kì thi của khối 4–12, mốc năm học cho mọi khối; máy đã có dữ liệu nhận kì thi mới qua seedEventsSeen (xem "Lịch mặc định đến máy đã có dữ liệu")
 data/modules.js         danh mục bài ôn dạng trang riêng (window.ONTAP_MODULES; `lang: "en"` ở bài IOE: phần app bọc ngoài bài hiện tiếng Anh)
 data/banks/index.js     danh mục đề có sẵn (window.ONTAP_SEED_BANKS: mã, tên, khối, môn, số phút, số câu, file; đề ngẫu nhiên có thêm `pool`), nạp lúc mở app. Bỏ một bộ thì thêm mã vào RETIRED_SEED_BANKS ở cả hai kho
@@ -217,7 +217,7 @@ App còn **đọc** (không ghi) DOM của khung để biết học sinh đang l
 - `seedBanksSeen`: mã các ngân hàng có sẵn (danh mục data/banks/index.js) máy này đã xét. Khi thêm bộ mới vào danh mục và gắn vào `banks` của một kì thi trong lịch mặc định, `load()` tự gắn bộ đó vào kì thi trên máy đã có dữ liệu; bộ quản trị viên đã bỏ gắn thì không gắn lại; bộ gắn vào kì thi máy chưa có thì chưa ghi là đã xét (`linkSeedBanks`).
 - `seedEventsSeen`: khóa `"<mã kì thi>:<khối>"` của lịch mặc định máy này đã xét; `load()` chép kì thi chưa xét và thêm khối mới vào kì dùng chung, giữ ngày đã sửa (xem “Lịch mặc định đến máy đã có dữ liệu”). Dữ liệu cũ chưa có thì coi như đã xét lịch khối 4, 6 ban đầu.
 
-Khối lớp: `data/grades.js` là chỗ duy nhất. Hồ sơ học sinh mới chỉ chọn được khối `active` (sửa hồ sơ thì giữ được khối đang có); form kì thi, ngân hàng đề, tab khối ở Lịch thi, “Kì thi tiếp theo” ở trang quản trị đọc danh sách này (`gradeList()` trong js/app.js). Lịch mặc định đã có kì thi của mọi khối 4–12, nhưng kì thi của khối chưa bật không hiện ở đâu (`shownGrades()`: khối đang bật + khối đang có học sinh). Thêm lớp mới: thêm nội dung rồi đổi `active` thành `true`.
+Khối lớp: `data/grades.js` là chỗ duy nhất. Hồ sơ học sinh mới chỉ chọn được khối `active` (sửa hồ sơ thì giữ được khối đang có); form kì thi, ngân hàng đề, tab khối ở Lịch thi, “Kì thi tiếp theo” ở trang quản trị đọc danh sách này (`gradeList()` trong js/app.js). Hôm nay lớp 4, 6 và 9 `active` (lớp 9 bật ở Phiên RS9, 2/11/2026). Lịch mặc định đã có kì thi của mọi khối 4–12, nhưng kì thi của khối chưa bật không hiện ở đâu (`shownGrades()`: khối đang bật + khối đang có học sinh). Thêm lớp mới: thêm nội dung, qua phiên rà soát, rồi đổi `active` thành `true` và thêm khối vào hằng `ON` ở đầu `tests/e2e.js` và `tests/supabase/cloud-e2e.js` (các bước về ô chọn khối, tab khối, lịch thi “Cả hai khối”/“Mọi khối”, chữ “Lớp …” tính chữ mong đợi từ `ON`), sửa câu báo lỗi khối trong `tests/supabase/store-test.mjs`.
 
 `Store.can(feature)` (cả hai kho): chỗ duy nhất hỏi quyền theo gói (`"addChild"`, `"bank:<mã>"`…). Bản lưu trên máy luôn trả `true`; bản đám mây hôm nay chỉ giới hạn `"addChild"` theo `max_children` của gói. Sau này bật gói trả phí chỉ sửa hàm này và bảng `plans`.
 

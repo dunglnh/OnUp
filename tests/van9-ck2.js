@@ -174,7 +174,7 @@ const CHECKS = [
   { id: S.pool, has: "các đền tháp ở Mỹ Sơn được xây dựng trong khoảng thời gian nào", right: () => {
     const t = PSG["my-son"].text, m = /Từ thế kỉ ([IVXL]+) đến thế kỉ ([IVXL]+),/.exec(t); assert.ok(m);
     const so = LA_MA(m[2]) - LA_MA(m[1]) + 1; assert.ok(so > 9 && so <= 10 && /gần mười thế kỉ/.test(t), "từ thế kỉ IV đến XIII là gần mười thế kỉ");
-    assert.ok(kho.some((q) => q.o && q.o[0] === "Mỹ Sơn – gần mười thế kỉ gạch đỏ Chăm Pa"), "dòng chữ áp phích khớp số thế kỉ");
+    assert.ok(kho.some((q) => q.o && q.o[0] === "Mỹ Sơn – gần mười thế kỉ gạch đỏ Chăm-pa"), "dòng chữ áp phích khớp số thế kỉ");
     return `Từ thế kỉ ${m[1]} đến thế kỉ ${m[2]}`;
   } },
   /* ---- tiếng Việt ---- */

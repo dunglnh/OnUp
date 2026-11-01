@@ -392,8 +392,8 @@ CHECKS.forEach((c) => {
 // tính từ trước danh từ; trạng từ sau speak English)
 const HO_TU = { locate: { u: 7, ans: "location", cho: /\bThe ___ \(/ }, permit: { u: 7, ans: "permission", cho: /\bwritten ___ \(/ },
   explore: { u: 7, ans: "explorers", cho: /\bMany ___ \(/ }, culture: { u: 8, ans: "cultural", cho: /'s ___ \(culture\) festival\b/ },
-  forget: { u: 8, ans: "unforgettable", cho: /\ban ___ \(forget\) experience\b/ }, luxury: { u: 8, ans: "luxurious", cho: /\ba ___ \(luxury\) hotel\b/ },
-  fluent: { u: 9, ans: "fluently", cho: /\bspeak English ___ \(/ }, communicate: { u: 9, ans: "communication", cho: /\bkind of ___ \(/ },
+  forget: { u: 8, ans: "unforgettable", cho: /\ban ___ \(forget\) experience\b/ }, luxury: { u: 8, ans: "luxurious", cho: /\bwas very ___ \(luxury\)/ },
+  clear: { u: 9, ans: "clearly", cho: /\bspeak English ___ \(/ }, communicate: { u: 9, ans: "communication", cho: /\bkind of ___ \(/ },
   confident: { u: 9, ans: "confidence", cho: /\ba lot of ___ \(/ } };
 fills.forEach((q) => {
   const goc = /___ \(([a-z]+)\)/.exec(q.q)[1], h = HO_TU[goc];

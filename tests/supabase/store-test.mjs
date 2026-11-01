@@ -147,7 +147,7 @@ let bin, na;
 {
   const S = A.Store;
   await throwsMsg(() => S.createUser({ role: "parent", name: "Bà" }), /chỉ thêm hồ sơ con/, "bản đám mây không thêm tài khoản người lớn");
-  await throwsMsg(() => S.createUser({ role: "student", name: "Bin", grade: 5 }), /^Chọn khối lớp 4 hoặc 6\.$/, "khối chưa có nội dung (lớp 5) bị từ chối");
+  await throwsMsg(() => S.createUser({ role: "student", name: "Bin", grade: 5 }), /^Chọn khối lớp 4, 6 hoặc 9\.$/, "khối chưa có nội dung (lớp 5) bị từ chối");
   await throwsMsg(() => S.createUser({ role: "student", name: "Bin", grade: 4, pin: "12345" }), /4 chữ số/, "PIN không đúng 4 số bị từ chối");
   await throwsMsg(() => S.createUser({ role: "student", name: "  ", grade: 4 }), /Cần nhập tên/, "thiếu tên");
   bin = await S.createUser({ role: "student", name: "Bin", grade: 4, className: "4A", avatar: "🦊", pin: "1357" });

@@ -233,7 +233,7 @@ const docKhung = (svg) => {
    (Bài 1 Tin học 9: thiết bị tiếp nhận, xử lí thông tin). */
 const GD_NAM = { "đại học": [3, 5], "thạc sĩ": [1, 2], "tiến sĩ": [3, 4] };
 const KHUNG_TD = { bac: 8, trinhDo: 6 };
-const KT_CN = ["công nghệ thông tin", "cơ khí, chế tạo", "điện, điện tử"], KHAC = ["bán hàng", "du lịch, nhà hàng"];
+const KT_CN = ["công nghệ thông tin", "cơ khí, chế tạo", "xây dựng công trình", "điện, điện tử"], KHAC = ["bán hàng", "du lịch, nhà hàng"];
 const XU_LI = { "nồi cơm điện tử nấu theo giờ hẹn": true, "đèn pin bật tắt bằng công tắc trượt": false, "máy giặt tự chọn mức nước theo lượng quần áo": true,
   "phích nước giữ nhiệt": false, "điện thoại thông minh": true, "máy xay sinh tố loại thường ấn nút là quay": false };
 // mỗi ý đúng/sai 4 ý được xét bằng một luật (biểu thức chính quy của ý → giá trị tính được); ý nào cũng phải có đúng một luật
@@ -606,8 +606,8 @@ const DA_XEM = [
   "congnghe-de2#8 → congnghe-de1#9: 3 đến 5", "congnghe-de2#8 → congnghe-de1#9: đến 5 năm", "congnghe-de2#13 → congnghe-de1#9: từ 3 đến",
   "congnghe-de1#17 → congnghe-de1#13: trường đào tạo", "congnghe-de1#25 → congnghe-de1#17: các doanh nghiệp", "congnghe-de1#22 → congnghe-de2#1: nghề đang cần",
   "congnghe-de1#13 → congnghe-de2#6: học nghề sửa", "congnghe-de2#6 → congnghe-de2#7: sửa chữa máy", "congnghe-de1#9 → congnghe-de2#8: từ 2 đến",
-  "congnghe-de1#9 → congnghe-de2#8: 2 đến 3", "congnghe-de1#9 → congnghe-de2#8: đến 3 năm", "congnghe-de2#14 → congnghe-de2#10: công nghệ kĩ",
-  "congnghe-de2#14 → congnghe-de2#10: nghệ kĩ thuật", "congnghe-de1#9 → congnghe-de2#12: đại học", "congnghe-de1#10 → congnghe-de2#12: đại học",
+  "congnghe-de1#9 → congnghe-de2#8: 2 đến 3", "congnghe-de1#9 → congnghe-de2#8: đến 3 năm",
+  "congnghe-de1#9 → congnghe-de2#12: đại học", "congnghe-de1#10 → congnghe-de2#12: đại học",
   "congnghe-de1#11 → congnghe-de2#12: đại học", "congnghe-de1#12 → congnghe-de2#12: đại học", "congnghe-de1#13 → congnghe-de2#12: đại học",
   "congnghe-de1#14 → congnghe-de2#12: đại học", "congnghe-de2#1 → congnghe-de2#12: đại học", "congnghe-de1#23 → congnghe-de2#21: đang thiếu người",
   "congnghe-de1#24 → congnghe-de2#21: đang thiếu người", "congnghe-de1#18 → congnghe-de2#25: nhu cầu thợ", "congnghe-de2#5 → congnghe-ck1-de2#3: trình làm việc",

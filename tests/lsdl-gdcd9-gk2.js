@@ -173,7 +173,7 @@ const SU_KIEN = [
   ["phố Hàng Bún", "1946-12-17", "17/12/1946"], ["Lời kêu gọi toàn quốc kháng chiến", "1946-12-19", "19/12/1946"],
   ["Kháng chiến nhất định thắng lợi", "1947-09", "9/1947"], ["Hội nghị Văn hoá toàn quốc lần thứ hai", "1948", "1948"],
   ["đặt quan hệ ngoại giao", "1950-01", "đầu năm 1950"],
-  ["hoàn thành cải cách ruộng đất", "1956", "năm 1956"], ["cải tạo quan hệ sản xuất", "1958", "1958 – 1960"],
+  ["hoàn thành cải cách ruộng đất", "1956", "năm 1956"], ["khôi phục kinh tế sau chiến tranh", "1955", "1955 – 1957"], ["cải tạo quan hệ sản xuất", "1958", "1958 – 1960"],
   ["Hội nghị Trung ương 15", "1959-01", "năm 1959"], ["Đoàn 559", "1959-05-19", "19/5/1959"], ["Mỏ Cày", "1960-01-17", "17/1/1960"],
   ["Đại hội đại biểu toàn quốc lần thứ III", "1960-09", "9/1960"], ["kế hoạch 5 năm lần thứ nhất", "1961", "1961"],
   ["Ấp Bắc", "1963-01-02", "2/1/1963"], ["An Lão, Ba Gia, Đồng Xoài", "1964", "1964 – 1965"],

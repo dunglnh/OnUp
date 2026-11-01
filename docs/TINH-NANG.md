@@ -4,7 +4,7 @@ Phiên bản 1.1 · 18/10/2026 · Năm học 2026–2027. File này mô tả nh�
 
 ## 1. Mục tiêu
 
-Một nơi duy nhất để học sinh lớp 4 và lớp 6 ôn **mọi kì thi trong năm học**: kiểm tra định kì (giữa kì, cuối kì) và các cuộc thi như IOE. Phụ huynh xem con đã ôn gì, điểm ra sao, còn bao lâu đến kì thi tiếp theo.
+Một nơi duy nhất để học sinh lớp 4, lớp 6 và lớp 9 ôn **mọi kì thi trong năm học**: kiểm tra định kì (giữa kì, cuối kì) và các cuộc thi như IOE. Phụ huynh xem con đã ôn gì, điểm ra sao, còn bao lâu đến kì thi tiếp theo.
 
 App được ghép từ 4 trang ôn tập đã làm trước đó:
 
@@ -37,7 +37,7 @@ Bảng trên là **bản lưu trên máy** (một máy dùng chung cho cả nhà
 
 ## 3. Lịch thi cả năm
 
-Lịch năm học 2026–2027 có sẵn cho mọi khối 4–12 (mốc năm học cho mọi khối), chia theo tháng. App chỉ hiện kì thi của khối đang mở (hôm nay lớp 4, 6) và khối đang có học sinh; kì thi của các khối khác đã nằm sẵn trong dữ liệu, bật khối nào là thấy ngay.
+Lịch năm học 2026–2027 có sẵn cho mọi khối 4–12 (mốc năm học cho mọi khối), chia theo tháng. App chỉ hiện kì thi của khối đang mở (hôm nay lớp 4, 6, 9) và khối đang có học sinh; kì thi của các khối khác đã nằm sẵn trong dữ liệu, bật khối nào là thấy ngay.
 
 | Thời gian | Kì thi | Khối | Trạng thái |
 |---|---|---|---|

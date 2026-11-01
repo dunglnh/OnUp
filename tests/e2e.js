@@ -8,6 +8,10 @@ const fs = require("fs");
 const OUT = __dirname + "/screenshots/"; fs.mkdirSync(OUT, { recursive: true });
 const ROOT = __dirname + "/../";
 const BASE = process.env.BASE_URL || "http://localhost:8000";
+/* Khối đang bật (active: true trong data/grades.js; lớp 9 bật ở Phiên RS9). Bật thêm khối thì thêm vào đây cùng lúc: bước "grades from
+   data/grades.js" so danh sách này với data/grades.js; các bước về ô chọn khối, tab khối, lịch thi "Mọi khối" tính chữ mong đợi từ đây. */
+const ON = [4, 6, 9];
+const ALL_TAB = ON.length === 2 ? "Cả hai khối" : "Mọi khối"; // tab đầu của lịch thi (renderCalendar)
 /* Đây là kiểm thử bản lưu trên máy. js/config.js thật có thể đã điền Supabase (trang đang chạy bản đám mây), nên trả về
    bản để trống hai giá trị đó cho mọi request tới js/config.js. Bản đám mây kiểm thử riêng ở tests/supabase/. */
 const LOCAL_CONFIG = fs.readFileSync(ROOT + "js/config.js", "utf8").replace(/(supabaseUrl|supabaseAnonKey):\s*"[^"]*"/g, '$1: ""');
@@ -129,7 +133,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   await page.click("button[type=submit]"); await page.waitForTimeout(300);
   await shot("02-admin-users");
   step("grades from data/grades.js");
-  // Khối lớp lấy từ data/grades.js: hôm nay chỉ lớp 4 và 6 active, hiện ở form học sinh, kì thi, ngân hàng đề, lịch thi.
+  // Khối lớp lấy từ data/grades.js: chỉ các khối active (ON: lớp 4, 6, 9) hiện ở form học sinh, kì thi, ngân hàng đề, lịch thi.
   const opts = (sel) => page.$$eval(sel, (o) => o.map((x) => x.value + (x.tagName === "OPTION" ? ":" + x.textContent : x.checked ? "*" : "")).join());
   const gradeUI = {};
   await page.goto(BASE + "/#/admin/user/new?role=student"); await page.waitForTimeout(150); gradeUI.student = await opts("#uGrade option");
@@ -139,11 +143,14 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   gradeUI.store = await page.evaluate(async () => {
     let msg = "";
     try { await Store.createUser({ role: "student", name: "Lớp năm", pin: "1234", grade: 5 }); } catch (e) { msg = e.message; }
-    return { msg, can: Store.can("addChild") && Store.can("bank:toan4-ck1-de1"), n: Store.users("student").length, all: window.ONTAP_GRADES.length };
+    return { msg, can: Store.can("addChild") && Store.can("bank:toan4-ck1-de1"), n: Store.users("student").length, all: window.ONTAP_GRADES.length,
+      on: window.ONTAP_GRADES.filter((g) => g.active).map((g) => g.grade).join() };
   });
   console.log("grades:", gradeUI);
-  const gradesOK = gradeUI.student === "4:Lớp 4,6:Lớp 6" && gradeUI.event === "4*,6" && gradeUI.bank === "4:Lớp 4,6:Lớp 6" && gradeUI.cal === "Cả hai khối,Lớp 4,Lớp 6"
-    && gradeUI.store.msg === "Chọn khối lớp 4 hoặc 6." && gradeUI.store.can && gradeUI.store.n === 2 && gradeUI.store.all === 12;
+  const gOpts = ON.map((g) => `${g}:Lớp ${g}`).join();
+  const gradesOK = gradeUI.store.on === ON.join() && gradeUI.student === gOpts && gradeUI.event === ON.map((g, i) => g + (i ? "" : "*")).join() && gradeUI.bank === gOpts
+    && gradeUI.cal === [ALL_TAB].concat(ON.map((g) => "Lớp " + g)).join()
+    && gradeUI.store.msg === `Chọn khối lớp ${ON.slice(0, -1).join(", ")} hoặc ${ON[ON.length - 1]}.` && gradeUI.store.can && gradeUI.store.n === 2 && gradeUI.store.all === 12;
   await page.goto(BASE + "/#/admin/events"); await page.waitForTimeout(200); await shot("03-admin-events");
 
   step("account page: show PIN (U1)");
@@ -564,7 +571,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   /* Máy đã có lịch cũ (16 kì thi của khối 4, 6, chưa có seedEventsSeen; bố mẹ đã sửa ngày gk1-l4, xóa ioe-qg, bỏ khối 6 khỏi tet-2027, het-hk1
      còn ngày cũ 17/1 của lịch mặc định) mở bản mới: có thêm mọi kì thi của khối 5, 7–12 (kể cả thi vào 10, thi tốt nghiệp THPT), mốc năm học
      được thêm khối (tet-2027 không thêm lại khối 6), gk1-l4 giữ ngày đã sửa, ioe-qg không quay lại, het-hk1 sang 18/1; mở lại không chép lần hai;
-     kì thi mới bố mẹ xóa không quay lại. Khối chưa bật (data/grades.js) không hiện: lịch thi "Cả hai khối", chi tiết kì thi, danh sách kì thi của
+     kì thi mới bố mẹ xóa không quay lại. Khối chưa bật (data/grades.js) không hiện: lịch thi "Mọi khối" (ALL_TAB), chi tiết kì thi, danh sách kì thi của
      quản trị, form kì thi (khối ẩn giữ nguyên khi lưu). Đề mới chỉ ghi là đã xét khi đã gắn được: thử hai hàm thuần (Store._linkSeedBanks,
      Store._mergeSeedEvents) với kì thi giả gắn đề giả thêm tạm vào lịch và danh mục. Chạy trong context riêng (bản sao dữ liệu), không đụng
      dữ liệu của các bước sau. */
@@ -613,10 +620,11 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   await cp.goto(BASE + "/#/"); await cp.waitForSelector(".tile");
   await cp.click(`.tile[data-u="${await cp.evaluate(() => Store.users("admin")[0].id)}"]`); await cp.fill("#pinIn", "1234"); await cp.waitForTimeout(400);
   await cp.goto(BASE + "/#/calendar"); await cp.waitForSelector(".tabs [data-g]"); await cp.click('.tabs [data-g="0"]'); await cp.waitForTimeout(200);
-  const HIDDEN_GRADE = /Lớp (1|2|3|5|7|8|9|10|11|12)(,|$)/;
-  cal.ui = await cp.evaluate((re) => { const evs = [...document.querySelectorAll("[data-ev]")], lbl = (id) => ((document.querySelector(`[data-ev="${id}"] .t b`) || {}).textContent || "").replace(/\s+/g, " ");
-    return { tabs: [...document.querySelectorAll(".tabs button")].map((b) => b.textContent).join(), n: evs.length, shown: Store.events().filter((e) => e.grades.some((g) => g === 4 || g === 6)).length, all: Store.events().length,
-      only46: evs.every((b) => Store.event(b.dataset.ev).grades.some((g) => g === 4 || g === 6)), kg: lbl("khai-giang"), tet: lbl("tet-2027"), hidden: evs.some((b) => new RegExp(re).test(b.querySelector(".t b").textContent)) }; }, HIDDEN_GRADE.source);
+  // "Lớp …" của khối chưa bật trên thẻ kì thi (ON: khối đang bật)
+  const HIDDEN_GRADE = new RegExp(`Lớp (${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].filter((g) => !ON.includes(g)).join("|")})(,|$)`);
+  cal.ui = await cp.evaluate(([re, ON]) => { const evs = [...document.querySelectorAll("[data-ev]")], lbl = (id) => ((document.querySelector(`[data-ev="${id}"] .t b`) || {}).textContent || "").replace(/\s+/g, " ");
+    return { tabs: [...document.querySelectorAll(".tabs button")].map((b) => b.textContent).join(), n: evs.length, shown: Store.events().filter((e) => e.grades.some((g) => ON.includes(g))).length, all: Store.events().length,
+      onlyOn: evs.every((b) => Store.event(b.dataset.ev).grades.some((g) => ON.includes(g))), kg: lbl("khai-giang"), tet: lbl("tet-2027"), hidden: evs.some((b) => new RegExp(re).test(b.querySelector(".t b").textContent)) }; }, [HIDDEN_GRADE.source, ON]);
   await cp.click('[data-ev="khai-giang"]'); await cp.waitForSelector("#evDetail");
   cal.ui.detail = (await cp.textContent("#evDetail p")).replace(/\s+/g, " ").trim();
   await cp.goto(BASE + "/#/admin/events"); await cp.waitForSelector("#calLink");
@@ -635,9 +643,12 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     && cal.second.n === cal.first.n && cal.second.seen === cal.first.keys && cal.second.ids === cal.first.ids && cal.second.hk1 === cal.first.hk1 && cal.second.bseen === cal.first.bseen
     && cal.removed.n === cal.first.n - 1 && !cal.removed.vao10 && cal.removed.seen === cal.first.keys
     && cal.link.a && cal.link.b && cal.link.m && cal.link.c
-    && cal.ui.tabs === "Cả hai khối,Lớp 4,Lớp 6" && cal.ui.n === cal.ui.shown && cal.ui.all > cal.ui.shown && cal.ui.only46 && !cal.ui.hidden
-    && cal.ui.kg === "Khai giảng năm học 2026–2027 · Lớp 4, 6" && cal.ui.tet === "Tết Nguyên đán Đinh Mùi (mùng 1) · Lớp 4" && /· Lớp 4, 6$/.test(cal.ui.detail)
-    && cal.ui.adminList.n === cal.ui.shown && !cal.ui.adminList.hidden && cal.ui.form === "4*,6*" && cal.ui.formSaved === cal.first.kg && cal.ui.form4 === "4*,6";
+    && cal.ui.tabs === [ALL_TAB].concat(ON.map((g) => "Lớp " + g)).join() && cal.ui.n === cal.ui.shown && cal.ui.all > cal.ui.shown && cal.ui.onlyOn && !cal.ui.hidden
+    && cal.ui.kg === "Khai giảng năm học 2026–2027 · Lớp " + ON.join(", ") && cal.ui.tet === "Tết Nguyên đán Đinh Mùi (mùng 1) · Lớp " + ON.filter((g) => g !== 6).join(", ")
+    && cal.ui.detail.endsWith("· Lớp " + ON.join(", "))
+    && cal.ui.adminList.n === cal.ui.shown && !cal.ui.adminList.hidden && cal.ui.form === ON.map((g) => g + "*").join()
+    && cal.ui.formSaved.split(",").map(Number).sort((a, b) => a - b).join() === cal.first.kg.split(",").map(Number).sort((a, b) => a - b).join() // cùng tập khối (lưu form xếp khối đang hiện trước khối ẩn)
+    && cal.ui.form4 === ON.map((g) => g + (g === 4 ? "*" : "")).join();
 
   step("360px light + dark (L4–L11)");
   /* Ở 360px: không tràn ngang; mọi button, a.btn, .linkbtn, summary (dòng mở/đóng của <details>, L23) đang hiện cao ≥ 44px; không chữ nào nhỏ hơn 13px.
@@ -3966,7 +3977,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      lớp 4 Toán, Tiếng Việt, Tiếng Anh, Lịch sử và Địa lí, Khoa học, Tin học và Công nghệ; lớp 6 Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và
      Địa lí, GDCD, Tin học, Công nghệ; môn không có trong lịch (Thử nghiệm) cuối. */
   const TERMS7 = ["Giữa kì I", "Cuối kì I", "Giữa kì II", "Cuối năm"], SUBJ4 = "Toán,Tiếng Việt,Tiếng Anh,Lịch sử và Địa lí,Khoa học,Tin học và Công nghệ";
-  const orderKey = (t) => { const p = t.split(" · "); return /· tự soạn$/.test(t) ? [1, 0, 0, 0] : [0, TERMS7.findIndex((m) => p.includes(m)), /· Đề ngẫu nhiên$/.test(t) ? 0 : 1, +((/· Đề (\d+)$/.exec(t) || [])[1] || 0)]; };
+  // kì không có trong TERMS7 (đề thi thử vào 10 của lớp 9) đứng sau Cuối năm, như bankKey của js/app.js
+  const orderKey = (t) => { const p = t.split(" · "), k = TERMS7.findIndex((m) => p.includes(m)); return /· tự soạn$/.test(t) ? [1, 0, 0, 0] : [0, k < 0 ? TERMS7.length : k, /· Đề ngẫu nhiên$/.test(t) ? 0 : 1, +((/· Đề (\d+)$/.exec(t) || [])[1] || 0)]; };
   const inOrder = (titles) => titles.length > 0 && titles.every((t, i) => { if (!i) return true; const a = orderKey(titles[i - 1]), b = orderKey(t), j = a.findIndex((v, k) => v !== b[k]); return j < 0 || a[j] < b[j]; });
   const UX7_SRC = "# Phép cộng\n345 678 + 254 322 = ?\n* 600 000\n- 590 000\n- 599 990\n> Cộng từ phải sang trái, nhớ sang hàng bên trái.\n\n1 000 000 − 456 789 = [543211|543 211]\nMức: Rất khó\n\n"
     + "# Đo lường\nMột sợi dây dài 2 m, cắt đi 0,75 m. Đoạn còn lại dài bao nhiêu mét?\nĐáp số: một phẩy hai lăm m\n\n"
@@ -4114,7 +4126,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.only4.rows6.slice(1).every(([, t, g]) => { const k = g.includes(6) ? g.indexOf(6) : g.length; return g.slice(0, k).every((x) => x === 4) && g.slice(k).every((x) => x === 6) && (!k || inOrder(t.slice(0, k))) && (k === g.length || inOrder(t.slice(k))); })
       && r.only4.rows6.some(([, , g]) => g.includes(4) && g.includes(6))
       && r.keep.gaps === "10" && r.list.gaps === "10,10,10,10,10" // X35: thẻ môn của danh sách đề có sẵn cách nhau 10px như ở Sửa kì thi
-      && r.list.find4.got === r.list.find4.want && r.list.find4.want.split(",").length >= 2 && /^Lớp 4 · \d+ đề,Lớp 6 · \d+ đề$/.test(r.list.find4.tabs) && r.list.find4.open === "Toán+" && r.list.find6.got === r.list.find6.want && r.list.find6.want.split(",").length >= 2
+      && r.list.find4.got === r.list.find4.want && r.list.find4.want.split(",").length >= 2 && new RegExp("^" + ON.map((g) => `Lớp ${g} · \\d+ đề`).join(",") + "$").test(r.list.find4.tabs) && r.list.find4.open === "Toán+" && r.list.find6.got === r.list.find6.want && r.list.find6.want.split(",").length >= 2
       && r.evOpts.first === "" && r.evOpts.n > 3 && r.evOpts.ok && r.evOpts.gk1 && /^Kiểm tra giữa học kì I \(\d+\/\d+\)$/.test(r.evOpts.label)
       && r.prev.res === "Nhận được 3 câu: 2 trắc nghiệm, 1 điền khuyết; 1 đoạn đọc. Cần sửa: 1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Xem các thẻ viền đỏ bên dưới." // X36: không ghi dạng 0 câu
       && r.prev.cards === "pv1,pv2!,pv3!,pvd1,pv4" && r.prev.filter === "Tất cả · 5Cần sửa · 2" && r.prev.pv2 === "Mức độ “Rất khó” chưa đúng (Biết, Hiểu hoặc Vận dụng)"
