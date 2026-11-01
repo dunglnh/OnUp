@@ -10,9 +10,12 @@
 // đồ thị, điểm thuộc (P) thoả điều kiện đọc từ đề (thử mọi hoành độ hữu tỉ mẫu nhỏ), đáp án không có sẵn trong bảng giá trị của ý a;
 // Bài 2 Δ, Δ′ hoặc a · c, giá trị biểu thức của hai nghiệm (thay hai nghiệm thật vào biểu thức đọc từ đề), điều kiện của tham số m (thử
 // nhiều giá trị của m); Bài 3 bảng tần số đọc lại từ hình (bảng, biểu đồ cột, biểu đồ hình quạt tròn) hoặc dãy số liệu trong đề, tần số
-// tương đối, số đo cung, nhóm [a; b), xác suất đếm lại trên không gian mẫu liệt kê bằng code (cả danh sách Ω ghi trong lời giải);
+// tương đối, số đo cung, nhóm [a; b), xác suất đếm lại trên không gian mẫu liệt kê bằng code (cả danh sách Ω ghi trong lời giải); Đề 5–7
+// (Phiên N9-vao10-toan-b) thêm biểu đồ tần số dạng đoạn thẳng, biểu đồ tần số tương đối ghép nhóm dạng cột và dạng đoạn thẳng (giá trị
+// đại diện), gieo hai con xúc xắc, chọn hai trong năm bạn (không kể thứ tự), gieo đồng xu ba lần;
 // Bài 4 công thức đọc từ đề rồi giải lại phương trình, bất phương trình; Bài 5 thể tích, diện tích, độ dài cung, hình đọc lại đúng tỉ lệ
-// với số đo trong đề; Bài 6 giải lại hệ, phương trình có ẩn ở mẫu, bất phương trình (số liệu đọc từ đề); Bài 7 điểm có nhãn, đường tròn,
+// với số đo trong đề (cả hình vành khuyên, hình cầu, vật ghép từ hình trụ và nửa hình cầu); Bài 6 giải lại hệ, phương trình có ẩn ở mẫu,
+// phương trình bậc hai, bất phương trình (số liệu đọc từ đề); Bài 7 điểm có nhãn, đường tròn,
 // đoạn thẳng đọc từ hình: điều kiện của đề (tiếp tuyến, trung điểm, vuông góc, thẳng hàng, điểm trên cung), các điều phải chứng minh
 // (bốn điểm cùng thuộc một đường tròn, vuông góc, hệ thức) kiểm lại trên toạ độ, độ dài, góc, diện tích của ý c tính lại từ toạ độ
 // (theo tỉ lệ của số liệu trong đề) và từ công thức. Chữ trong hình từ cỡ 13, nằm trọn trong khung hình. Không dùng điều sách Toán 9 in
@@ -265,6 +268,64 @@ const docQuat = (svg, ten) => {
   assert.deepEqual(out.map((o) => o[0]).sort(), chuGiai.map((c) => c.ten).sort(), ten + ": mỗi phần một ô chú giải");
   return out;
 };
+// trục đứng của biểu đồ (như docCot): số ghi bên trái (căn phải, có hoặc cùng không có dấu %) cách đều từ 0, đường lưới ở mỗi vạch khác 0
+const trucDung = (svg, ten) => {
+  const vach = texts(svg).filter((t) => t.anchor === "end" && !t.b && /^\d+%?$/.test(t.t)).map((t) => ({ v: +t.t.replace("%", ""), y: t.at[1] - 5, pct: t.t.endsWith("%") })).sort((a, b) => a.v - b.v);
+  assert.ok(vach.length >= 3 && vach[0].v === 0, ten + ": trục đứng bắt đầu từ 0, ít nhất 3 vạch");
+  assert.equal(new Set(vach.map((s) => s.pct)).size, 1, ten + ": các vạch cùng ghi hoặc cùng không ghi %");
+  const bot = vach[0].y, per = (bot - vach[vach.length - 1].y) / vach[vach.length - 1].v;
+  vach.forEach((s) => assert.ok(Math.abs(bot - s.v * per - s.y) < 0.6, ten + ": vạch " + s.v + " không cách đều"));
+  const luoi = lines(svg).filter((l) => l.stroke === "line" && l.a[1] === l.b[1]).map((l) => l.a[1]);
+  vach.slice(1).forEach((s) => assert.ok(luoi.some((y) => Math.abs(y - s.y) < 0.6), ten + ": thiếu đường lưới ở vạch " + s.v));
+  return { bot, per, pct: vach[0].pct };
+};
+// tâm khung chữ (để tìm chữ gần một điểm)
+const tamChu = (t) => { const w = rong(t); return [t.anchor === "middle" ? t.at[0] : t.anchor === "end" ? t.at[0] - w / 2 : t.at[0] + w / 2, t.at[1] - 0.25 * t.fs]; };
+// biểu đồ dạng đoạn thẳng (biểu đồ tần số dạng đoạn thẳng; biểu đồ tần số tương đối ghép nhóm dạng đoạn thẳng, Bài 22, 24 của Toán 9):
+// một đường gấp khúc màu acc, mỗi đỉnh có chấm tròn; số ghi cạnh đỉnh (chữ đậm gần đỉnh nhất, mỗi đỉnh một số) bằng tung độ của đỉnh
+// đọc theo trục đứng; giá trị (hoặc giá trị đại diện của nhóm) ghi dưới trục ngang, thẳng đỉnh → [[giá trị, số], …]
+const docDuong = (svg, ten) => {
+  const { bot, per, pct } = trucDung(svg, ten), T = texts(svg);
+  const pl = [...svg.matchAll(/<polyline points="([^"]+)" fill="none" stroke="acc"[^>]*>/g)]; assert.equal(pl.length, 1, ten + ": một đường gấp khúc");
+  const dinh = pl[0][1].trim().split(/\s+/).map((p) => p.split(",").map(Number));
+  assert.ok(dinh.length >= 3 && dinh.every((p, i) => !i || p[0] > dinh[i - 1][0]), ten + ": các đỉnh xếp từ trái sang phải");
+  const cham = circles(svg).filter((c) => c.r <= 4), dam = T.filter((t) => t.b), dung = new Set();
+  return dinh.map((p) => {
+    assert.ok(cham.some((c) => dist(c.c, p) < 0.15), ten + ": đỉnh nào cũng có chấm tròn");
+    const so = dam.slice().sort((u, v) => dist(tamChu(u), p) - dist(tamChu(v), p))[0];
+    assert.ok(so && dist(tamChu(so), p) < 30 && !dung.has(so), ten + ": mỗi đỉnh một số ghi ngay cạnh"); dung.add(so);
+    assert.ok(new RegExp(pct ? "^\\d+%$" : "^\\d+$").test(so.t), ten + ": số ghi ở đỉnh cùng đơn vị với trục đứng");
+    assert.ok(Math.abs(bot - +so.t.replace("%", "") * per - p[1]) < 0.15, ten + ": số ghi ở đỉnh " + so.t + " khác tung độ của đỉnh");
+    const duoi = T.filter((t) => !t.b && t.anchor === "middle" && Math.abs(t.at[0] - p[0]) < 0.6 && t.at[1] > bot && t.at[1] < bot + 30);
+    assert.equal(duoi.length, 1, ten + ": mỗi đỉnh một giá trị ghi dưới trục ngang");
+    return [duoi[0].t, +so.t.replace("%", "")];
+  });
+};
+// biểu đồ tần số tương đối ghép nhóm dạng cột (Bài 24): trục đứng phần trăm; các cột acc-soft liền nhau, cùng bề rộng, đứng trên trục
+// ngang; số phần trăm ở đỉnh cột (chữ đậm) bằng chiều cao cột; đầu mút các nhóm ghi dưới trục, thẳng cạnh cột → [[a, b, phần trăm], …]
+const docHist = (svg, ten) => {
+  const { bot, per, pct } = trucDung(svg, ten), T = texts(svg);
+  assert.ok(pct, ten + ": trục đứng ghi tần số tương đối (%)");
+  const cot = rects(svg).filter((r) => r.fill === "acc-soft").sort((a, b) => a.x - b.x);
+  assert.ok(cot.length >= 3, ten + ": ít nhất ba cột");
+  const ds = cot.map((r, i) => {
+    assert.ok(Math.abs(r.y + r.h - bot) < 0.6, ten + ": cột đứng trên trục ngang");
+    if (i) assert.ok(Math.abs(r.x - cot[i - 1].x - cot[i - 1].w) < 0.15 && Math.abs(r.w - cot[0].w) < 0.15, ten + ": các cột liền nhau, cùng bề rộng");
+    const dinh = T.filter((t) => t.b && Math.abs(t.at[0] - (r.x + r.w / 2)) < 0.6 && t.at[1] < r.y && t.at[1] > r.y - 16);
+    assert.ok(dinh.length === 1 && /^\d+%$/.test(dinh[0].t), ten + ": mỗi cột một số phần trăm ghi ngay trên");
+    const p = +dinh[0].t.replace("%", "");
+    assert.ok(Math.abs(bot - p * per - r.y) < 0.15, ten + ": số ở đỉnh cột " + dinh[0].t + " khác chiều cao cột");
+    return p;
+  });
+  const mut = [cot[0].x].concat(cot.map((r) => r.x + r.w)).map((x) => {
+    const t = T.filter((t) => !t.b && t.anchor === "middle" && Math.abs(t.at[0] - x) < 0.6 && t.at[1] > bot && t.at[1] < bot + 30);
+    assert.ok(t.length === 1 && /^\d+$/.test(t[0].t), ten + ": mỗi cạnh cột một đầu mút ghi dưới trục"); return +t[0].t;
+  });
+  assert.ok(mut.every((v, i) => !i || v - mut[i - 1] === mut[1] - mut[0]) && mut[1] > mut[0], ten + ": các nhóm cùng độ dài, nối tiếp nhau");
+  return ds.map((p, i) => [mut[i], mut[i + 1], p]);
+};
+// diện tích đa giác theo toạ độ (công thức dây giày)
+const dtDaGiac = (...P) => Math.abs(P.reduce((s, p, i) => s + cross(p, P[(i + 1) % P.length]), 0)) / 2;
 
 /* ---------- khung đề (docs/KE-HOACH-NOI-DUNG.md, mục 7, “Khung đề Toán”) ---------- */
 const BAI = [["Bài 1. Hàm số y = ax²", 1.5], ["Bài 2. Phương trình bậc hai", 1], ["Bài 3. Thống kê và xác suất", 1.5], ["Bài 4. Lập biểu thức", 1],
@@ -374,10 +435,13 @@ const DIEU_KIEN = [
   [/cách trục hoành (\d+) đơn vị/, (m) => (x, y) => eq(toNum(y) < 0 ? neg(y) : y, F(+m[1]))],
   [/cách trục tung (\d+) đơn vị/, (m) => (x) => eq(toNum(x) < 0 ? neg(x) : x, F(+m[1]))],
   [/có tung độ bằng (−?\d+)/, (m) => (x, y) => eq(y, fr(m[1]))],
-  [/có tổng hoành độ và tung độ bằng (−?\d+)/, (m) => (x, y) => eq(add(x, y), fr(m[1]))]
+  [/có tổng hoành độ và tung độ bằng (−?\d+)/, (m) => (x, y) => eq(add(x, y), fr(m[1]))],
+  [/có tung độ lớn hơn hoành độ (\d+) đơn vị/, (m) => (x, y) => eq(y, add(x, F(+m[1])))],
+  [/giao điểm của \(P\) và đường thẳng \(d\): y = (.+?) bằng phép tính/, (m) => (x, y) => eq(y, ev(m[1], { x }))]
 ];
 const bai1 = (b) => {
-  const m = docDoan(b, 1, /^Cho hàm số y = (−?\d+(?:,\d+)?)x² có đồ thị là parabol \(P\)\.$/), a = fr(m[1]), qa = cau(b, 1, 0), qb = cau(b, 1, 1);
+  // hệ số a ghi trước x² (“y = x²”, “y = −x²” là a = 1, a = −1)
+  const m = docDoan(b, 1, /^Cho hàm số y = (−?(?:\d+(?:,\d+)?)?)x² có đồ thị là parabol \(P\)\.$/), aChu = { "": "1", "−": "−1" }[m[1]] || m[1], a = fr(aChu), qa = cau(b, 1, 0), qb = cau(b, 1, 1);
   assert.ok(qa.q.includes(`y = ${m[1]}x²`), ten.get(qa) + ": ý a nhắc lại hàm số");
   // bảng giá trị: “x = …; …; … thì y = …” ở thang chấm, “x: …” và “y = …x²: …” ở lời giải
   const r = /x = ((?:−?\d+; )+−?\d+) thì y = ((?:−?\d+(?:,\d+)?; )+−?\d+(?:,\d+)?)/.exec(thangChu(qa)); assert.ok(r, ten.get(qa) + ": thang chấm ghi bảng giá trị");
@@ -387,7 +451,7 @@ const bai1 = (b) => {
   coGiai(qa, "x: " + r[1], `y = ${m[1]}x²: ` + r[2], ...xs.map((x, i) => (eq(x, F(0)) ? "O(0; 0)" : `(${fmtF(x)}; ${fmt(ys[i])})`)));
   const tren = toNum(a) > 0;
   coThang(qa, tren ? "nằm phía trên trục hoành" : "nằm phía dưới trục hoành", "đỉnh O", "trục đối xứng");
-  coGiai(qa, tren ? "nằm phía trên trục hoành" : "nằm phía dưới trục hoành", tren ? "điểm thấp nhất" : "điểm cao nhất", `a = ${m[1]} ${tren ? ">" : "<"} 0`);
+  coGiai(qa, tren ? "nằm phía trên trục hoành" : "nằm phía dưới trục hoành", tren ? "điểm thấp nhất" : "điểm cao nhất", `a = ${aChu} ${tren ? ">" : "<"} 0`);
   // ý b: thử mọi hoành độ hữu tỉ p/q, |p| ≤ 400, q ≤ 4
   const dk = DIEU_KIEN.filter(([re]) => re.test(qb.q)); assert.equal(dk.length, 1, ten.get(qb) + ": cần đúng một điều kiện đọc được");
   const f = dk[0][1](dk[0][0].exec(qb.q)), khacO = /khác gốc toạ độ O/.test(qb.q), dung = [];
@@ -650,6 +714,197 @@ const RIENG = {
     const AI2 = OA * OA - (R7 * R7 - BC * BC / 4), can = canGon(AI2); assert.ok(Number.isInteger(AI2), b.id + ": AI² là số nguyên");
     co(q7c, `√(${OA}² − ${R7 * R7 - BC * BC / 4}) = √${AI2} = ${can} (cm)`, `${can} − ${BC / 2} ≈ ${tron(AB, 2)}`);
     co(cau(b, 7, 0), "góc AMO = 90°", "góc AIO = 90°", "đường tròn đường kính AO"); co(cau(b, 7, 1), "AB · AC = (AI − IB)(AI + IB) = AI² − IB²");
+  },
+  "toan9-vao10-de5": (b) => {
+    /* Bài 3: biểu đồ tần số dạng đoạn thẳng đọc từ hình; tần số tương đối, cỡ bán chạy; gieo hai con xúc xắc */
+    const ds = docDuong(hinh(b, 3), b.id + " Bài 3"), n = ds.reduce((s, r) => s + r[1], 0), qa = cau(b, 3, 0), qb = cau(b, 3, 1), qc = cau(b, 3, 2);
+    assert.ok(ds.every(([c], i) => /^\d+$/.test(c) && (!i || +c === +ds[i - 1][0] + 1)), b.id + " Bài 3: các cỡ giày liên tiếp");
+    co(qa, `${ds.map((r) => r[1]).join(" + ")} = ${n} (đôi)`, "Cỡ giày: " + ds.map((r) => r[0]).join("; "), "Số đôi giày (tần số): " + ds.map((r) => r[1]).join("; "));
+    coThang(qa, ds.map(([c, f]) => `cỡ ${c}: ${f}`).join("; "));
+    const tl = ds.map(([c, f]) => [c, F(f, n)]);
+    coThang(qb, tl.map(([c, p]) => `cỡ ${c}: ${phanTram(p)}`).join("; ")); coGiai(qb, ...ds.map(([c, f]) => `cỡ ${c}: ${f}/${n} = ${phanTram(F(f, n))}`), "Tần số tương đối: " + tl.map((r) => phanTram(r[1])).join("; "));
+    const ng = +docPhai(qb, /từ (\d+)% trở lên/)[1], chay = tl.filter(([, p]) => toNum(p) * 100 >= ng), tong = chay.reduce((s, r) => add(s, r[1]), F(0));
+    assert.equal(dapSo(qb), `${chay.map(([c]) => "cỡ " + c).join(" và ")}, chiếm ${chay.map((r) => phanTram(r[1])).join(" + ")} = ${phanTram(tong)} số đôi giày đã bán`, ten.get(qb) + ": đáp số");
+    // gieo hai con xúc xắc: hai số chấm hơn kém nhau đúng h; lời giải liệt kê đủ, đúng các kết quả thuận lợi
+    const hk = +docPhai(qc, /gieo cùng lúc hai con xúc xắc đều cân đối và đồng chất; nếu số chấm của hai con xúc xắc hơn kém nhau đúng (\d+) thì/)[1];
+    const om = [1, 2, 3, 4, 5, 6].flatMap((i) => [1, 2, 3, 4, 5, 6].map((j) => [i, j])), hon = ([i, j]) => Math.abs(i - j) === hk;
+    const fav = xacSuat(qc, om, hon), ghi = new RegExp(`hơn kém nhau đúng ${hk} trong các kết quả: ((?:\\(\\d; \\d\\)(?:, )?)+), gồm (\\d+) kết quả`).exec(qc.x);
+    assert.ok(ghi && +ghi[2] === fav && cungCap([...ghi[1].matchAll(/\((\d); (\d)\)/g)].map((m) => m[1] + "," + m[2]), om.filter(hon).map(String)), ten.get(qc) + ": lời giải liệt kê đủ, đúng các kết quả thuận lợi");
+    /* Bài 4: áp suất theo độ sâu */
+    const g = docDoan(b, 4, /áp suất là (\d+) atm; cứ xuống sâu thêm (\d+) m thì áp suất tăng thêm (\d+) atm/), p0 = F(+g[1]), k4 = F(+g[3], +g[2]), q4a = cau(b, 4, 0), q4b = cau(b, 4, 1);
+    coThang(q4a, `p = ${fmt(p0)} + ${fmt(k4)}d (d ≥ 0)`);
+    const chi = fr(docPhai(q4b, /chỉ (\d+(?:,\d+)?) atm/)[1]), d4 = div(sub(chi, p0), k4);
+    assert.ok(isInt(d4) && toNum(d4) > 0 && dapSo(q4b) === `thợ lặn đang ở độ sâu ${fmt(d4)} m`, ten.get(q4b) + ": đáp số " + dapSo(q4b) + ", tính được " + fmtF(d4));
+    coThang(q4b, `${fmt(p0)} + ${fmt(k4)}d = ${fmt(chi)}`); co(q4b, `${fmt(p0)} + ${fmt(k4)} · ${fmt(d4)} = ${fmt(chi)} (atm)`);
+    /* Bài 5: lối đi hình vành khuyên quanh đài phun nước: hình đúng tỉ lệ; diện tích, chi phí */
+    const s5 = hinh(b, 5), d5 = docDoan(b, 5, /bán kính (\d+(?:,\d+)?) m\. Người ta làm một lối đi rộng (\d+(?:,\d+)?) m/), r5 = fr(d5[1]), w5 = fr(d5[2]), R5 = add(r5, w5);
+    const C5 = duongTron(s5).sort((u, v) => v.r - u.r), O5 = diem(s5).O; assert.equal(C5.length, 2, b.id + " Bài 5: hai đường tròn");
+    assert.ok(C5.every((c) => dist(c.c, O5) < 0.15) && Math.abs(C5[1].r / C5[0].r - toNum(div(r5, R5))) < 0.005, b.id + " Bài 5: hai đường tròn cùng tâm O, tỉ lệ bán kính đúng");
+    assert.ok(C5[0].fill === "sun-soft" && C5[1].fill === "acc-soft", b.id + " Bài 5: lối đi và đài phun nước tô hai màu");
+    const L5 = lines(s5), bk = L5.find((l) => dist(l.a, O5) < 0.6 && Math.abs(dist(l.b, O5) - C5[1].r) < 0.6), br = L5.find((l) => Math.abs(dist(l.a, O5) - C5[1].r) < 0.6 && Math.abs(dist(l.b, O5) - C5[0].r) < 0.6);
+    assert.ok(bk && br && thang(O5, br.b, bk.b) && thang(O5, br.b, br.a), b.id + " Bài 5: đoạn bán kính trong và đoạn bề rộng lối đi trên cùng một tia");
+    [`${fmt(r5)} m`, `${fmt(w5)} m`].forEach((t) => assert.ok(texts(s5).some((x) => x.t === t), b.id + " Bài 5: hình ghi " + t));
+    const viTri = (t) => dist(tamChu(texts(s5).find((x) => x.t === t)), O5);
+    assert.ok(viTri("Đài phun nước") < C5[1].r && viTri("Lối đi") > C5[1].r && viTri("Lối đi") < C5[0].r, b.id + " Bài 5: chữ “Lối đi”, “Đài phun nước” đúng chỗ");
+    const kS = sub(mul(R5, R5), mul(r5, r5)), S5 = toNum(kS) * Math.PI, q5a = cau(b, 5, 0), q5b = cau(b, 5, 1);
+    co(q5a, `${fmt(r5)} + ${fmt(w5)} = ${fmt(R5)} (m)`, `π(${fmt(R5)}² − ${fmt(r5)}²) = π(${fmt(mul(R5, R5))} − ${fmt(mul(r5, r5))}) = ${fmt(kS)}π ≈ ${tron(S5, 2)} (m²)`);
+    assert.equal(dapSo(q5a), `khoảng ${tron(S5, 2)} m²`, ten.get(q5a) + ": đáp số");
+    const gia = fr(docPhai(q5b, /chi phí ([\d ]+) đồng cho mỗi mét vuông/)[1]), tien = S5 * toNum(gia), nghin = toNum(fr(lamTron(tien / 1000, 0))) * 1000;
+    co(q5b, `${fmt(kS)}π · ${fmt(gia)} = ${fmt(mul(kS, gia))}π ≈ ${lamTron(tien, 0)} (đồng)`, `${tron(S5, 2)} m² thì được ${fmt(mul(fr(tron(S5, 2)), gia))} đồng`);
+    assert.equal(dapSo(q5b), `khoảng ${fmt(F(nghin))} đồng`, ten.get(q5b) + ": đáp số");
+    /* Bài 6: pha dung dịch nước muối: hệ phương trình */
+    const q6 = cau(b, 6), s6 = docPhai(q6, /loại I có nồng độ muối (\d+)%, loại II có nồng độ muối (\d+)% .* pha được (\d+) g dung dịch nước muối có nồng độ (\d+)%/);
+    const [c1, c2, m6, c6] = s6.slice(1).map(Number), y6 = div(F((c6 - c1) * m6), F(c2 - c1)), x6 = sub(F(m6), y6);
+    assert.ok(isInt(x6) && isInt(y6) && x6.n > 0 && y6.n > 0, ten.get(q6) + ": nghiệm là số dương");
+    assert.equal(dapSo(q6), `cần ${fmt(x6)} g dung dịch loại I và ${fmt(y6)} g dung dịch loại II`, ten.get(q6) + ": đáp số");
+    coThang(q6, `{x + y = ${m6}; ${fmt(F(c1, 100))}x + ${fmt(F(c2, 100))}y = ${fmt(F(c6 * m6, 100))}}`, `x = ${fmt(x6)}, y = ${fmt(y6)}`);
+    co(q6, `${c6}% · ${m6} = ${fmt(F(c6 * m6, 100))} (g)`);
+    /* Bài 7: tam giác nhọn ABC nội tiếp (O), đường kính AD, đường cao AH, E là hình chiếu của B trên AD */
+    const s7 = hinh(b, 7), D = diem(s7), C7 = duongTron(s7); assert.equal(C7.length, 1, b.id + " Bài 7: một đường tròn");
+    const Ct = C7[0]; assert.ok(dist(D.O, Ct.c) < 0.6 && ["A", "B", "C", "D"].every((k) => tren(Ct, D[k])) && dist(mid(D.A, D.D), D.O) < 0.6, b.id + " Bài 7: A, B, C, D trên đường tròn tâm O, AD là đường kính");
+    assert.ok([goc(D.A, D.B, D.C), goc(D.B, D.A, D.C), goc(D.C, D.A, D.B)].every((x) => x < 89.5) && dist(D.A, D.B) < dist(D.A, D.C), b.id + " Bài 7: tam giác ABC nhọn, AB < AC");
+    assert.ok(giua(D.B, D.C, D.H) && vuong(subv(D.A, D.H), subv(D.C, D.B)), b.id + " Bài 7: AH là đường cao, H thuộc BC");
+    assert.ok(giua(D.A, D.D, D.E) && vuong(subv(D.B, D.E), subv(D.D, D.A)), b.id + " Bài 7: E là chân đường vuông góc kẻ từ B đến AD");
+    ["AB", "BC", "CA", "AD", "AH", "BE", "CD"].forEach((s) => assert.ok(coDoan(s7, D[s[0]], D[s[1]]), b.id + " Bài 7: hình có đoạn " + s));
+    assert.ok(cungTron(D.A, D.B, D.H, D.E), b.id + " Bài 7a: A, B, H, E cùng thuộc một đường tròn");
+    assert.ok(Math.abs(dist(D.A, D.B) * dist(D.A, D.C) - dist(D.A, D.H) * dist(D.A, D.D)) < 0.01 * dist(D.A, D.B) * dist(D.A, D.C), b.id + " Bài 7b: AB · AC = AH · AD");
+    const q7c = cau(b, 7, 2), c7 = docPhai(q7c, /Cho AB = (\d+) cm, AC = (\d+) cm và AH = (\d+) cm/), [AB, AC, AH] = c7.slice(1).map(Number), k = dist(D.A, D.B) / AB;
+    assert.ok(Math.abs(dist(D.A, D.C) / k - AC) < 0.02 && Math.abs(dist(D.A, D.H) / k - AH) < 0.02, b.id + " Bài 7: hình đúng tỉ lệ AB : AC : AH");
+    const AD = F(AB * AC, AH), R = div(AD, F(2)), BH = sqrt(F(AB * AB - AH * AH)), HC = sqrt(F(AC * AC - AH * AH)), S = mul(F(AH, 2), add(BH, HC));
+    assert.ok(isInt(BH) && isInt(HC) && isInt(S), b.id + " Bài 7c: BH, HC, diện tích là số nguyên");
+    assert.ok(Math.abs(Ct.r / k - toNum(R)) < 0.02 && Math.abs(dtDaGiac(D.A, D.B, D.C) / (k * k) - toNum(S)) < 0.05, b.id + " Bài 7c: R, diện tích đo trên hình khớp tính toán");
+    assert.equal(dapSo(q7c), `R = ${fmt(R)} cm; diện tích tam giác ABC là ${fmt(S)} cm²`, ten.get(q7c) + ": đáp số");
+    co(q7c, `AD = AB · AC : AH = ${AB} · ${AC} : ${AH} = ${AB * AC} : ${AH} = ${fmt(AD)} (cm)`, `R = ${fmt(AD)} : 2 = ${fmt(R)} (cm)`, `= √${fmt(mul(BH, BH))} = ${fmt(BH)} (cm)`, `= √${fmt(mul(HC, HC))} = ${fmt(HC)} (cm)`, `= ${fmt(S)} (cm²)`);
+    co(cau(b, 7, 0), "góc AHB = 90°", "góc AEB = 90°", "đường tròn đường kính AB"); co(cau(b, 7, 1), "góc ACD = 90°", "cùng chắn cung AC", "AB/AD = AH/AC");
+  },
+  "toan9-vao10-de6": (b) => {
+    /* Bài 3: biểu đồ tần số tương đối ghép nhóm dạng cột; tần số ghép nhóm; chọn hai trong năm bạn */
+    const hs = docHist(hinh(b, 3), b.id + " Bài 3"), qa = cau(b, 3, 0), qb = cau(b, 3, 1), qc = cau(b, 3, 2);
+    assert.equal(hs.reduce((s, h) => s + h[2], 0), 100, b.id + " Bài 3: các tần số tương đối cộng lại 100%");
+    coThang(qa, hs.map(([a, c]) => `[${a}; ${c})`).join(", "), hs.map((h) => h[2] + "%").join("; "));
+    coGiai(qa, "Thời gian (phút): " + hs.map(([a, c]) => `[${a}; ${c})`).join("; "), "Tần số tương đối: " + hs.map((h) => h[2] + "%").join("; "));
+    const n = +docPhai(qb, /Biết có (\d+) học sinh được hỏi/)[1], ts = hs.map((h) => (n * h[2]) / 100);
+    assert.ok(ts.every(Number.isInteger), b.id + " Bài 3: tần số các nhóm là số nguyên");
+    coThang(qb, hs.map((h, i) => `${h[2]}% · ${n} = ${ts[i]}`).join("; ")); coGiai(qb, "Số học sinh: " + ts.join("; "));
+    const ng = +docPhai(qb, /mất từ (\d+) phút trở lên/)[1], chon = hs.map((h, i) => [h, ts[i]]).filter(([h]) => h[0] >= ng);
+    assert.ok(hs.some((h) => h[0] === ng) && chon.length, ten.get(qb) + ": ngưỡng là đầu mút của một nhóm");
+    const tong = chon.reduce((s, x) => s + x[1], 0); assert.equal(dapSo(qb), `${tong} bạn`, ten.get(qb) + ": đáp số");
+    co(qb, `${chon.map((x) => x[1]).join(" + ")} = ${tong}`);
+    // chọn ngẫu nhiên hai trong năm bạn (không kể thứ tự): hai lớp có số thứ tự liền nhau
+    const L = ["L₁", "L₂", "L₃", "L₄", "L₅"], om = L.flatMap((u, i) => L.slice(i + 1).map((v) => [u, v]));
+    assert.ok(/chọn ngẫu nhiên hai bạn trong năm bạn/.test(qc.q) && /số thứ tự liền nhau/.test(qc.q), ten.get(qc) + ": chọn hai trong năm bạn, hai lớp liền nhau");
+    assert.ok(cungCap(omGhi(qc).map((p) => p.join()), om.map((p) => p.join())), ten.get(qc) + ": Ω liệt kê đủ, đúng (không kể thứ tự)");
+    const lien = ([u, v]) => Math.abs(L.indexOf(u) - L.indexOf(v)) === 1; xacSuat(qc, om, lien);
+    coGiai(qc, `Các kết quả thuận lợi cho E: ${om.filter(lien).map((p) => `(${p.join(", ")})`).join("; ")}, gồm ${om.filter(lien).length} kết quả.`);
+    /* Bài 4: khí CO₂ của xe máy; số cây xanh cần trồng (bất phương trình) */
+    const g = docDoan(b, 4, /khoảng (\d+) g khí CO₂ cho mỗi ki-lô-mét .* tổng cộng (\d+) km/), gk = +g[1], km = +g[2], ngay = F(gk * km, 1000), q4a = cau(b, 4, 0), q4b = cau(b, 4, 1);
+    coThang(q4a, `${gk} · ${km} = ${fmt(F(gk * km))} (g) = ${fmt(ngay)} (kg)`, `y = ${fmt(ngay)}x`);
+    const nd = +docPhai(q4b, /đi làm (\d+) ngày/)[1], hap = +docPhai(q4b, /hấp thụ khoảng (\d+) kg/)[1], nam = mul(ngay, F(nd)), cay = Math.ceil(toNum(nam) / hap);
+    assert.ok(isInt(nam) && toNum(nam) % hap !== 0 && dapSo(q4b) === `ít nhất ${cay} cây xanh`, ten.get(q4b) + ": đáp số " + dapSo(q4b) + ", tính được " + cay);
+    co(q4b, `${fmt(ngay)} · ${nd} = ${fmt(nam)} (kg)`, `${hap}n ≥ ${fmt(nam)}`, `n ≥ ${fmt(nam)}/${hap} = ${fmtF(F(nam.n, hap))} ≈ ${tron(toNum(nam) / hap, 1)}`, `${cay - 1} cây chỉ hấp thụ khoảng ${(cay - 1) * hap} kg`);
+    /* Bài 5: bồn nước hình cầu: hình; thể tích, thời gian bơm */
+    const s5 = hinh(b, 5), d5 = +docDoan(b, 5, /đường kính (\d+) m/)[1], C5 = duongTron(s5); assert.equal(C5.length, 1, b.id + " Bài 5: một hình cầu");
+    const c5 = C5[0], dk = lines(s5).filter((l) => l.dash && l.a[1] === l.b[1] && Math.abs(l.a[1] - c5.c[1]) < 0.15 && Math.abs(Math.abs(l.b[0] - l.a[0]) - 2 * c5.r) < 0.6);
+    assert.equal(dk.length, 1, b.id + " Bài 5: đường kính vẽ qua tâm");
+    const kt = lines(s5).filter((l) => !l.dash && l.w === 1 && l.a[1] === l.b[1] && l.a[1] < c5.c[1] - c5.r && Math.abs(Math.abs(l.b[0] - l.a[0]) - 2 * c5.r) < 0.6);
+    const nhan5 = texts(s5).find((t) => t.t === `${d5} m`); assert.ok(kt.length === 1 && nhan5 && nhan5.at[1] < kt[0].a[1] && Math.abs(nhan5.at[0] - c5.c[0]) < 0.6, b.id + " Bài 5: đường ghi kích thước đường kính và chữ “" + d5 + " m”");
+    const R5 = F(d5, 2), kV = mul(F(4, 3), pw(R5, 3)), V5 = toNum(kV) * Math.PI, q5a = cau(b, 5, 0), q5b = cau(b, 5, 1);
+    co(q5a, `R = ${d5} : 2 = ${fmt(R5)} (m)`, `= ${fmt(kV)}π ≈ ${tron(V5, 2)} (m³)`); assert.equal(dapSo(q5a), `khoảng ${tron(V5, 2)} m³`, ten.get(q5a) + ": đáp số");
+    const luu = +docPhai(q5b, /mỗi giờ bơm được (\d+) m³/)[1], kGio = div(kV, F(luu)), kPhut = mul(kGio, F(60)), phut = toNum(fr(lamTron(toNum(kPhut) * Math.PI, 0)));
+    co(q5b, `${fmt(kV)}π : ${luu} = ${fmt(kGio)}π (giờ)`, `${fmt(kGio)}π · 60 = ${fmt(kPhut)}π ≈ ${phut} (phút)`);
+    assert.equal(dapSo(q5b), `khoảng ${Math.floor(phut / 60)} giờ ${phut % 60} phút`, ten.get(q5b) + ": đáp số");
+    /* Bài 6: gửi tiết kiệm hai năm: phương trình bậc hai */
+    const q6 = cau(b, 6), s6 = docPhai(q6, /gửi tiết kiệm ([\d ]+) đồng .* nhận được tổng cộng ([\d ]+) đồng/), A0 = fr(s6[1]), A2 = fr(s6[2]), tiSo = div(A2, A0), can = sqrt(tiSo);
+    assert.ok(isR(can), ten.get(q6) + ": (1 + x)² có căn bậc hai là số hữu tỉ");
+    const x6 = sub(can, F(1)); assert.ok(toNum(x6) > 0, ten.get(q6) + ": lãi suất dương");
+    assert.equal(dapSo(q6), `lãi suất ${fmt(mul(x6, F(100)))}% mỗi năm`, ten.get(q6) + ": đáp số");
+    coThang(q6, `${fmt(A0)}(1 + x)² = ${fmt(A2)}`, `(1 + x)² = ${fmt(tiSo)}`, `1 + x = ${fmt(can)}`, `x = ${fmt(x6)}`);
+    const e6 = bac2(`x² + 2x − ${fmt(sub(tiSo, F(1)))} = 0`), ng6 = nghiemThuc(e6);
+    assert.ok(Math.abs(ng6[1] - toNum(x6)) < 1e-9, ten.get(q6) + ": phương trình khai triển có nghiệm dương đúng");
+    co(q6, `x² + 2x − ${fmt(sub(tiSo, F(1)))} = 0`, `x = ${fmt(x6)} hoặc x = ${fmt(F(Math.round(ng6[0] * 100), 100))}`, `${fmt(A0)} · ${fmt(can)} = ${fmt(mul(A0, can))}; ${fmt(mul(A0, can))} · ${fmt(can)} = ${fmt(A2)}`);
+    /* Bài 7: đường kính AB, tiếp tuyến Ax, By, tiếp tuyến tại M cắt Ax, By tại C, D */
+    const s7 = hinh(b, 7), D = diem(s7), C7 = duongTron(s7); assert.equal(C7.length, 1, b.id + " Bài 7: một đường tròn");
+    const Ct = C7[0]; assert.ok(dist(D.O, Ct.c) < 0.6 && tren(Ct, D.A) && tren(Ct, D.B) && tren(Ct, D.M) && dist(mid(D.A, D.B), D.O) < 0.6, b.id + " Bài 7: AB là đường kính, M trên đường tròn");
+    assert.ok(vuong(subv(D.C, D.A), subv(D.B, D.A)) && vuong(subv(D.D, D.B), subv(D.A, D.B)), b.id + " Bài 7: Ax, By là tiếp tuyến (vuông góc với AB tại A, B)");
+    const phia = (P) => Math.sign(cross(subv(D.B, D.A), subv(P, D.A)));
+    assert.ok(phia(D.C) === phia(D.D) && phia(D.D) === phia(D.M) && phia(D.M) !== 0, b.id + " Bài 7: C, D, M cùng một nửa mặt phẳng bờ AB");
+    assert.ok(giua(D.C, D.D, D.M) && vuong(subv(D.M, D.O), subv(D.D, D.C)), b.id + " Bài 7: CD là tiếp tuyến tại M, M nằm giữa C và D");
+    ["AB", "OC", "OD", "OM", "CD", "AC", "BD"].forEach((s) => assert.ok(coDoan(s7, D[s[0]], D[s[1]]), b.id + " Bài 7: hình có đoạn " + s));
+    ["x", "y"].forEach((t) => assert.ok(texts(s7).some((x) => x.t === t), b.id + " Bài 7: hình ghi tên tia " + t));
+    assert.ok(cungTron(D.A, D.C, D.M, D.O), b.id + " Bài 7a: A, C, M, O cùng thuộc một đường tròn");
+    assert.ok(vuong(subv(D.C, D.O), subv(D.D, D.O)) && Math.abs(dist(D.A, D.C) * dist(D.B, D.D) - Ct.r * Ct.r) < 0.01 * Ct.r * Ct.r, b.id + " Bài 7b: góc COD = 90°, AC · BD = R²");
+    const q7c = cau(b, 7, 2), c7 = docPhai(q7c, /Cho R = (\d+) cm và AC = (\d+) cm/), R7 = +c7[1], AC = +c7[2], k = Ct.r / R7, BD = F(R7 * R7, AC), S7 = mul(div(add(F(AC), BD), F(2)), F(2 * R7));
+    assert.ok(Math.abs(dist(D.A, D.C) / k - AC) < 0.02 && Math.abs(dist(D.B, D.D) / k - toNum(BD)) < 0.02, b.id + " Bài 7: hình đúng tỉ lệ AC, BD theo R");
+    assert.ok(isInt(BD) && isInt(S7) && Math.abs(dtDaGiac(D.A, D.B, D.D, D.C) / (k * k) - toNum(S7)) < 0.05, b.id + " Bài 7c: BD, diện tích đo trên hình khớp tính toán");
+    assert.equal(dapSo(q7c), `BD = ${fmt(BD)} cm; diện tích tứ giác ABDC là ${fmt(S7)} cm²`, ten.get(q7c) + ": đáp số");
+    co(q7c, `BD = R² : AC = ${R7}² : ${AC} = ${fmt(BD)} (cm)`, `AB = 2R = ${2 * R7} cm`, `(${AC} + ${fmt(BD)}) · ${2 * R7} : 2 = ${fmt(S7)} (cm²)`);
+    co(cau(b, 7, 0), "góc CAO = 90°", "góc CMO = 90°", "đường tròn đường kính OC"); co(cau(b, 7, 1), "tia phân giác của góc AOM", "góc COD = 90°", "MC · MD = MO² = R²");
+  },
+  "toan9-vao10-de7": (b) => {
+    /* Bài 3: biểu đồ tần số tương đối ghép nhóm dạng đoạn thẳng (giá trị đại diện); trứng to; gieo đồng xu ba lần */
+    const nhom = [...doanDe(b, 3).text.matchAll(/\[(\d+); (\d+)\)/g)].map((m) => [+m[1], +m[2]]), qa = cau(b, 3, 0), qb = cau(b, 3, 1), qc = cau(b, 3, 2);
+    assert.ok(nhom.length >= 3 && nhom.every((g, i) => !i || (g[0] === nhom[i - 1][1] && g[1] - g[0] === nhom[0][1] - nhom[0][0])), b.id + " Bài 3: các nhóm nối tiếp nhau, cùng độ dài");
+    const ds = docDuong(hinh(b, 3), b.id + " Bài 3"), dd = nhom.map(([a, c]) => F(a + c, 2));
+    assert.ok(ds.length === nhom.length && ds.every(([t], i) => eq(fr(t), dd[i])), b.id + " Bài 3: điểm trên trục ngang là giá trị đại diện của từng nhóm");
+    assert.equal(ds.reduce((s, r) => s + r[1], 0), 100, b.id + " Bài 3: các tần số tương đối cộng lại 100%");
+    coThang(qa, dd.map((v) => fmt(v)).join("; "), nhom.map(([a, c], i) => `[${a}; ${c}) ${ds[i][1]}%`).join("; "));
+    coGiai(qa, nhom.map(([a, c], i) => `[${a}; ${c}): ${fmt(dd[i])}`).join("; "), "Tần số tương đối: " + ds.map((r) => r[1] + "%").join("; "));
+    const ng = +docPhai(qb, /từ (\d+) g trở lên/)[1], N = fr(docPhai(qb, /có ([\d ]+) quả trứng gà/)[1]), chon = nhom.map((g, i) => [g, ds[i][1]]).filter(([g]) => g[0] >= ng);
+    assert.ok(nhom.some((g) => g[0] === ng) && chon.length, ten.get(qb) + ": ngưỡng là đầu mút của một nhóm");
+    const tlTo = chon.reduce((s, x) => s + x[1], 0), uoc = mul(N, F(tlTo, 100));
+    assert.ok(isInt(uoc) && dapSo(qb) === `khoảng ${fmt(uoc)} quả trứng to`, ten.get(qb) + ": đáp số");
+    co(qb, `${chon.map((x) => x[1] + "%").join(" + ")} = ${tlTo}%`, `${tlTo}% · ${fmt(N)} = ${fmt(uoc)} (quả)`);
+    // gieo đồng xu ba lần: mặt ngửa xuất hiện đúng hai lần
+    assert.ok(/gieo một đồng xu cân đối ba lần liên tiếp/.test(qc.q) && /mặt ngửa xuất hiện đúng hai lần/.test(qc.q), ten.get(qc) + ": gieo đồng xu ba lần, đúng hai lần mặt ngửa");
+    const om = ["S", "N"].flatMap((u) => ["S", "N"].flatMap((v) => ["S", "N"].map((w) => u + v + w))), ghi = /Ω = \{([SN; ]+)\}/.exec(qc.x);
+    assert.ok(ghi && cungCap(ghi[1].split("; "), om), ten.get(qc) + ": Ω liệt kê đủ, đúng");
+    const hai = (s) => [...s].filter((c) => c === "N").length === 2, fav = xacSuat(qc, om, hai), thuan = /đúng hai lần ở các kết quả ([SN; ]+), gồm (\d+) kết quả/.exec(qc.x);
+    assert.ok(thuan && +thuan[2] === fav && cungCap(thuan[1].split("; "), om.filter(hai)), ten.get(qc) + ": lời giải liệt kê đủ, đúng các kết quả thuận lợi");
+    /* Bài 4: giá trung bình một chiếc áo (phương trình chứa ẩn ở mẫu) */
+    const g = docDoan(b, 4, /phí làm khuôn in ([\d ]+) đồng .* và ([\d ]+) đồng cho mỗi chiếc áo/), K = fr(g[1]), a4 = fr(g[2]), q4a = cau(b, 4, 0), q4b = cau(b, 4, 1);
+    coThang(q4a, `T = (${fmt(K)} + ${fmt(a4)}x)/x = ${fmt(a4)} + ${fmt(K)}/x`);
+    const Tb = fr(docPhai(q4b, /giá trung bình của một chiếc áo là ([\d ]+) đồng/)[1]), x4 = div(K, sub(Tb, a4));
+    assert.ok(isInt(x4) && x4.n > 0 && dapSo(q4b) === `${fmt(x4)} chiếc áo`, ten.get(q4b) + ": đáp số " + dapSo(q4b) + ", tính được " + fmtF(x4));
+    assert.ok(eq(div(add(K, mul(a4, x4)), x4), Tb), ten.get(q4b) + ": thử lại đúng");
+    coThang(q4b, `${fmt(a4)} + ${fmt(K)}/x = ${fmt(Tb)}`, `${fmt(K)}/x = ${fmt(sub(Tb, a4))}`, `x = ${fmt(x4)}`);
+    co(q4b, `(${fmt(K)} + ${fmt(a4)} · ${fmt(x4)}) : ${fmt(x4)} = ${fmt(add(K, mul(a4, x4)))} : ${fmt(x4)} = ${fmt(Tb)} (đồng)`);
+    /* Bài 5: kho chứa thóc: thân hình trụ, mái nửa hình cầu: hình đúng tỉ lệ; thể tích, diện tích cần sơn */
+    const s5 = hinh(b, 5), d5 = docDoan(b, 5, /đường kính đáy (\d+) m, chiều cao (\d+) m và phần mái dạng nửa hình cầu có đường kính (\d+) m/).slice(1).map(Number);
+    assert.equal(d5[0], d5[2], b.id + " Bài 5: mái và thân cùng đường kính");
+    const mai = /<path d="M ([\d.]+) ([\d.]+) A ([\d.]+) ([\d.]+) 0 0 1 ([\d.]+) ([\d.]+)" fill="acc-soft"/.exec(s5); assert.ok(mai, b.id + " Bài 5: mái là một nửa đường tròn tô màu");
+    const [mx0, my0, mrx, mry, mx1, my1] = mai.slice(1).map(Number);
+    assert.ok(mrx === mry && my0 === my1 && Math.abs(mx1 - mx0 - 2 * mrx) < 0.15, b.id + " Bài 5: mái là nửa hình tròn có đường kính bằng bề ngang của thân");
+    const than = lines(s5).filter((l) => l.w >= 2 && !l.dash && l.a[0] === l.b[0]).sort((u, v) => u.a[0] - v.a[0]);
+    assert.ok(than.length === 2 && Math.abs(than[0].a[0] - mx0) < 0.15 && Math.abs(than[1].a[0] - mx1) < 0.15 && than.every((l) => Math.min(l.a[1], l.b[1]) === my0), b.id + " Bài 5: hai đường sinh của thân nối tiếp hai đầu của mái");
+    const cao = Math.abs(than[0].b[1] - than[0].a[1]); assert.ok(Math.abs(cao / (2 * mrx) - d5[1] / d5[0]) < 0.01, b.id + " Bài 5: chiều cao và đường kính đúng tỉ lệ");
+    [`${d5[0]} m`, `${d5[1]} m`].forEach((t) => assert.ok(texts(s5).some((x) => x.t === t), b.id + " Bài 5: hình ghi " + t));
+    const r5 = d5[0] / 2, h5 = d5[1], q5a = cau(b, 5, 0), q5b = cau(b, 5, 1), kVt = r5 * r5 * h5, kVc = F(2 * r5 ** 3, 3), kV = add(F(kVt), kVc), V5 = toNum(kV) * Math.PI;
+    co(q5a, `π · ${r5}² · ${h5} = ${kVt}π (m³)`, `(2/3) · π · ${r5}³ = ${kVc.n}π/${kVc.d} (m³)`, `${kVt}π + ${kVc.n}π/${kVc.d} = ${kV.n}π/${kV.d} ≈ ${tron(V5, 2)} (m³)`);
+    assert.equal(dapSo(q5a), `khoảng ${tron(V5, 2)} m³`, ten.get(q5a) + ": đáp số");
+    const kXq = 2 * r5 * h5, kMai = 2 * r5 * r5, S5 = (kXq + kMai) * Math.PI;
+    co(q5b, `2 · π · ${r5} · ${h5} = ${kXq}π (m²)`, `2 · π · ${r5}² = ${kMai}π (m²)`, `${kXq}π + ${kMai}π = ${kXq + kMai}π ≈ ${tron(S5, 2)} (m²)`);
+    assert.equal(dapSo(q5b), `khoảng ${tron(S5, 2)} m²`, ten.get(q5b) + ": đáp số");
+    /* Bài 6: bể cá cảnh: thể tích nước (đổi ra lít), bất phương trình */
+    const q6 = cau(b, 6), s6 = docPhai(q6, /lòng bể dài (\d+) cm, rộng (\d+) cm, cao (\d+) cm\. .* mặt nước cách miệng bể (\d+) cm\. .* cần ít nhất (\d+) lít nước/);
+    const [bDai, bRong, bCao, bCach, lit] = s6.slice(1).map(Number), cm3 = bDai * bRong * (bCao - bCach), nuoc = F(cm3, 1000), x6 = Math.floor(toNum(nuoc) / lit);
+    assert.ok(isInt(nuoc) && toNum(nuoc) % lit !== 0 && dapSo(q6) === `nhiều nhất ${x6} con cá`, ten.get(q6) + ": đáp số " + dapSo(q6) + ", tính được " + x6);
+    coThang(q6, `${bDai} · ${bRong} · (${bCao} − ${bCach}) = ${fmt(F(cm3))} (cm³) = ${fmt(nuoc)} (lít)`, `${lit}x ≤ ${fmt(nuoc)}`, `x ≤ ${fmt(nuoc)}/${lit} ≈ ${tron(toNum(nuoc) / lit, 2)}`, `nhiều nhất ${x6} con cá`);
+    co(q6, `${x6} con cần ít nhất ${x6 * lit} lít`, `${x6 + 1} con cần ít nhất ${(x6 + 1) * lit} lít`);
+    /* Bài 7: tam giác ABC vuông tại A, đường tròn đường kính AC cắt BC tại D, tiếp tuyến tại D cắt AB tại E */
+    const s7 = hinh(b, 7), D = diem(s7), C7 = duongTron(s7); assert.equal(C7.length, 1, b.id + " Bài 7: một đường tròn");
+    const Ct = C7[0]; assert.ok(dist(D.O, Ct.c) < 0.6 && dist(mid(D.A, D.C), D.O) < 0.6 && tren(Ct, D.A) && tren(Ct, D.C) && tren(Ct, D.D), b.id + " Bài 7: đường tròn tâm O đường kính AC đi qua D");
+    assert.ok(vuong(subv(D.B, D.A), subv(D.C, D.A)) && giua(D.B, D.C, D.D) && giua(D.A, D.B, D.E), b.id + " Bài 7: tam giác vuông tại A, D thuộc cạnh BC, E thuộc cạnh AB");
+    assert.ok(vuong(subv(D.E, D.D), subv(D.O, D.D)), b.id + " Bài 7: ED là tiếp tuyến tại D");
+    ["AB", "AC", "BC", "AD", "OD", "ED"].forEach((s) => assert.ok(coDoan(s7, D[s[0]], D[s[1]]), b.id + " Bài 7: hình có đoạn " + s));
+    assert.ok(vuong(subv(D.D, D.A), subv(D.C, D.B)) && cungTron(D.A, D.E, D.D, D.O), b.id + " Bài 7a: AD ⊥ BC; A, E, D, O cùng thuộc một đường tròn");
+    assert.ok(Math.abs(dist(D.E, D.A) - dist(D.E, D.B)) < 0.6 && Math.abs(dist(D.B, D.D) * dist(D.B, D.C) - 4 * dist(D.E, D.D) ** 2) < 0.01 * dist(D.B, D.D) * dist(D.B, D.C), b.id + " Bài 7b: E là trung điểm của AB, BD · BC = 4ED²");
+    const q7c = cau(b, 7, 2), c7 = docPhai(q7c, /Cho AB = (\d+) cm và AC = (\d+) cm/), AB = +c7[1], AC = +c7[2], k = dist(D.A, D.C) / AC;
+    assert.ok(Math.abs(dist(D.A, D.B) / k - AB) < 0.02, b.id + " Bài 7: hình đúng tỉ lệ AB : AC");
+    const BC = sqrt(F(AB * AB + AC * AC)), AD = div(F(AB * AC), BC), S7 = F(AB * AC, 4);
+    assert.ok(isInt(BC) && Math.abs(dist(D.A, D.D) / k - toNum(AD)) < 0.02 && Math.abs(dtDaGiac(D.A, D.E, D.D, D.O) / (k * k) - toNum(S7)) < 0.05, b.id + " Bài 7c: AD, diện tích đo trên hình khớp tính toán");
+    assert.equal(dapSo(q7c), `AD = ${fmt(AD)} cm; diện tích tứ giác AEDO là ${fmt(S7)} cm²`, ten.get(q7c) + ": đáp số");
+    co(q7c, `√(${AB}² + ${AC}²) = √${AB * AB + AC * AC} = ${fmt(BC)} (cm)`, `AD = AB · AC : BC = ${AB} · ${AC} : ${fmt(BC)} = ${fmt(AD)} (cm)`, `AE = AB : 2 = ${fmt(F(AB, 2))} (cm)`, `AO = AC : 2 = ${fmt(F(AC, 2))} (cm)`, `= ${fmt(S7)} (cm²)`);
+    co(cau(b, 7, 0), "góc ADC = 90°", "góc EAO = 90°", "góc EDO = 90°", "đường tròn đường kính OE"); co(cau(b, 7, 1), "EA = ED", "EB = ED", "BD · BC = AB²");
   }
 };
 // căn bậc hai rút gọn của số nguyên dương n: "2√5" (n = 20), "√5", "4" (n = 16)
@@ -778,6 +1033,19 @@ const soHinh = hinhDaDoc.size;
   assert.throws(() => chay(sua(d4, 3, (s) => s.replace(">20%<", ">25%<"))), /không khớp|100%/);
   // chữ tràn khỏi khung hình
   assert.throws(() => chuTrongKhung('<svg viewBox="0 0 320 100" width="320"><text x="300" y="50" font-size="15">Chữ dài tràn ra</text></svg>', "thử"), /tràn khỏi khung/);
+  // Đề 5–7 (Phiên N9-vao10-toan-b): biểu đồ đoạn thẳng, biểu đồ cột ghép nhóm, hình vành khuyên, hình Bài 7 cố ý vẽ sai
+  const d5 = DE.find((b) => b.id === "toan9-vao10-de5"), d6 = DE.find((b) => b.id === "toan9-vao10-de6"), d7 = DE.find((b) => b.id === "toan9-vao10-de7");
+  assert.throws(() => chay(sua(d5, 3, (s) => s.replace('fill="acc">12<', 'fill="acc">13<'))), /khác tung độ/);
+  assert.throws(() => chay(sua(d7, 3, (s) => s.replace(">57,5<", ">57<"))), /giá trị đại diện/);
+  assert.throws(() => chay(sua(d6, 3, (s) => s.replace('fill="acc">35%<', 'fill="acc">30%<'))), /khác chiều cao cột/);
+  assert.throws(() => chay(sua(d6, 3, (s) => s.replace(/(<rect x="112" y="[\d.]+" width=")46/, "$150"))), /liền nhau/);
+  assert.throws(() => chay(sua(d5, 5, (s) => s.replace('r="61.6" fill="acc-soft"', 'r="66" fill="acc-soft"'))), /tỉ lệ bán kính|bán kính trong/);
+  assert.throws(() => chay(sua(d7, 5, (s) => s.replace(/(<line x1="116" y1="96" x2="116" y2=")206/, "$1196"))), /đường sinh|tỉ lệ/);
+  assert.throws(() => chay(sua(d7, 7, (s) => s.replace('cx="115.12" cy="77.84"', 'cx="119.12" cy="77.84"'))), /đi qua D|tiếp tuyến|vuông/);
+  assert.throws(() => chay(sua(d6, 7, (s) => s.replace('cx="232" cy="84"', 'cx="232" cy="90"'))), /tiếp tuyến|tỉ lệ|R²/);
+  const qb6 = d6.questions[1], hong6 = Object.assign({}, d6, { questions: d6.questions.map((q) => (q === qb6 ? Object.assign({}, q, { x: q.x.replace(/Đáp số: .*$/, "Đáp số: hai giao điểm (3; −9) và (−4; 16).") }) : q)) });
+  hong6.questions.forEach((q, i) => ten.set(q, "thử6#" + (i + 1)));
+  assert.throws(() => bai1(hong6), /đáp số/);
   // Bài 1: đáp số sai thì báo
   const qb = d1.questions[1], hong = Object.assign({}, d1, { questions: d1.questions.map((q) => (q === qb ? Object.assign({}, q, { x: q.x.replace(/Đáp số: .*$/, "Đáp số: M(8; 15).") }) : q)) });
   hong.questions.forEach((q, i) => ten.set(q, "thử#" + (i + 1)));
