@@ -788,6 +788,17 @@ window.ONTAP_SEED_BANKS = [
       "Đường tròn ngoại tiếp và đường tròn nội tiếp của một tam giác": [1, 0, 0], "Tứ giác nội tiếp": [0, 0, 1], "Đa giác đều": [1, 0, 0],
       "Hình trụ và hình nón": [1, 1, 1], "Hình cầu": [1, 0, 1] } } },
 
+  /* Toán 9 · Thi thử vào 10 (đề tính điểm, Phiên K5; Phiên N9-vao10-toan). Khung đề theo đề minh hoạ tuyển sinh lớp 10 của TP.HCM
+     năm 2026: 120 phút, 10 điểm, 7 bài tự luận (Bài 1 hàm số y = ax², Bài 2 phương trình bậc hai và định lí Viète, Bài 3 thống kê,
+     xác suất, Bài 4 lập biểu thức, Bài 5 đo lường thực tế, Bài 6 bài toán thực tế dẫn đến phương trình, bất phương trình hoặc hệ,
+     Bài 7 hình học phẳng về đường tròn 3 điểm). Mỗi ý là một câu tự luận tự chấm (15 ý mỗi đề), nên đề chỉ có điểm tự chấm, không có
+     kết quả vào điểm trung bình. Đề cố định, không có đề ngẫu nhiên (pts không đi với pool); cách viết ở đầu phần đề này trong
+     data/banks/9-toan.js. Khối 9 chưa bật nên đề chưa hiện với gia đình. */
+  { id: "toan9-vao10-de1", title: "Toán 9 · Thi thử vào 10 · Đề 1", grade: 9, subject: "Toán", minutes: 120, n: 15, file: "9-toan.js", pts: 10 },
+  { id: "toan9-vao10-de2", title: "Toán 9 · Thi thử vào 10 · Đề 2", grade: 9, subject: "Toán", minutes: 120, n: 15, file: "9-toan.js", pts: 10 },
+  { id: "toan9-vao10-de3", title: "Toán 9 · Thi thử vào 10 · Đề 3", grade: 9, subject: "Toán", minutes: 120, n: 15, file: "9-toan.js", pts: 10 },
+  { id: "toan9-vao10-de4", title: "Toán 9 · Thi thử vào 10 · Đề 4", grade: 9, subject: "Toán", minutes: 120, n: 15, file: "9-toan.js", pts: 10 },
+
   /* Ngữ văn 9 · Kiểm tra giữa học kì I (Kết nối tri thức, Ngữ văn 9 tập một, Bài 1–3; Phiên N9-gk1-van). Phạm vi là mặc định PO
      chọn (đề giữa kì I tra được ghi “tuần 1 đến tuần 9”, mỗi bài khoảng 3 tuần); note nhắc trường thi đến Bài 2 hoặc Bài 4 đối
      chiếu đề cương. Khối 9 chưa bật nên đề chưa hiện với gia đình. Kho câu = 24 câu riêng trong file (3 đoạn đọc, 3 câu Viết) +
