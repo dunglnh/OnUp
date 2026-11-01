@@ -376,7 +376,7 @@ const CHECKS = [
     coX(q, `từ ${c[a][C]}% lên ${c[b][C]}%`, `từ ${c[a][D]}% lên ${c[b][D]}%`, `từ ${c[a][N]}% xuống ${c[b][N]}%`);
     return dungMot(q, LUAT); } },
   { id: "dl1", has: "tổng sản phẩm trên địa bàn tỉnh H là", right: (q) => tiTrong(q, "tỉnh H là # nghìn tỉ đồng, trong đó khu vực công nghiệp và xây dựng đạt # nghìn tỉ đồng") },
-  { id: "dl1", has: "cơ cấu giá trị sản xuất nông nghiệp của tỉnh Y", right: (q) => {
+  { id: "dl1", has: "cơ cấu giá trị sản xuất nông nghiệp ở tỉnh Y", right: (q) => {
     const c = docMien(q.svg), nam = Object.keys(c["Trồng trọt"]).sort(), dau = nam[0], cuoi = nam[nam.length - 1];
     const tang = (k) => nam.every((n, i) => !i || c[k][n] > c[k][nam[i - 1]]), giam = (k) => nam.every((n, i) => !i || c[k][n] < c[k][nam[i - 1]]);
     const LUAT = [
@@ -389,7 +389,7 @@ const CHECKS = [
     return dungMot(q, LUAT); } },
   { id: "dl1", has: "tỉnh L có 560 nghìn ha cây lương thực có hạt", right: (q) => { const [t] = so(q.q, "có # nghìn ha cây lương thực có hạt"), [l] = so(q.q, "diện tích lúa là # nghìn ha"), v = (l / t) * 100;
     assert.equal(q.unit, "%"); coX(q, `${vn(l)} : ${vn(t)} × 100 = ${vn(v)}`); return v; } },
-  { id: "dl1", has: "sản lượng thuỷ sản khai thác và nuôi trồng của tỉnh Z", right: (q) => {
+  { id: "dl1", has: "sản lượng thuỷ sản khai thác, nuôi trồng của tỉnh Z", right: (q) => {
     const c = docCot(q.svg, "Nghìn tấn"), [n] = y(q.q, /Năm (\d{4}), sản lượng thuỷ sản nuôi trồng chiếm bao nhiêu phần trăm/).slice(1), k = c[n]["Khai thác"], u = c[n]["Nuôi trồng"];
     assert.equal(q.unit, "%"); coX(q, `${vn(k)} + ${vn(u)} = ${vn(k + u)}`, `${vn(u)} : ${vn(k + u)} × 100 = ${vn((u / (k + u)) * 100)}`);
     return (u / (k + u)) * 100; } },
@@ -809,11 +809,11 @@ if (SACH.length) {
   assert.throws(() => docTron(doi(tron, vn(v1) + "%", vn(v1 + 4) + "%")));
   const cot = hinh("sản lượng điện phát ra của các nhà máy"), v2 = docCot(cot, "Tỉ kWh")[1].v;
   assert.throws(() => docCot(doi(cot, vn(v2), vn(v2 + 2)), "Tỉ kWh"));
-  const cot2 = hinh("sản lượng thuỷ sản khai thác và nuôi trồng của tỉnh Z"), v3 = Object.values(Object.values(docCot(cot2, "Nghìn tấn"))[0])[0];
+  const cot2 = hinh("sản lượng thuỷ sản khai thác, nuôi trồng của tỉnh Z"), v3 = Object.values(Object.values(docCot(cot2, "Nghìn tấn"))[0])[0];
   assert.throws(() => docCot(doi(cot2, vn(v3), vn(v3 + 30)), "Nghìn tấn"));
   const duong = hinh("tốc độ tăng trưởng giá trị sản xuất của hai ngành"), d = docDuong(duong, "%")["Khai khoáng"], v4 = d[d.length - 1].v;
   assert.throws(() => docDuong(doi(duong, vn(v4), vn(v4 + 20)), "%"));
-  const mien = hinh("cơ cấu giá trị sản xuất nông nghiệp của tỉnh Y"), v5 = Object.values(docMien(mien)["Chăn nuôi"])[0];
+  const mien = hinh("cơ cấu giá trị sản xuất nông nghiệp ở tỉnh Y"), v5 = Object.values(docMien(mien)["Chăn nuôi"])[0];
   assert.throws(() => docMien(doi(mien, vn(v5), vn(v5 + 5))));
   const kh = hinh("diện tích và sản lượng cà phê của tỉnh M"), v6 = docKetHop(kh).cot.v[0].v;
   assert.throws(() => docKetHop(doi(kh, vn(v6), vn(v6 + 40))));
