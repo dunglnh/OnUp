@@ -1090,7 +1090,7 @@ async function run(browser, scheme) {
     "sai mật khẩu: báo rõ": /Tên đăng nhập hoặc mật khẩu chưa đúng/.test(c.wrong),
     "mật khẩu tạm: bắt đặt mật khẩu mới (hai ô phải khớp), máy chủ bỏ cờ": /chưa khớp/.test(c.mismatch) && c.changed,
     "ghi nhớ trên máy này: phiên giữ trong localStorage": c.remembered,
-    "chưa có hồ sơ con: vào thẳng khu phụ huynh; form chỉ có khối 4 và 6 (data/grades.js)": c.grades === "4,6",
+    "chưa có hồ sơ con: vào thẳng khu phụ huynh; form chỉ có các khối đang bật (data/grades.js, ON)": c.grades === ON.join(),
     "thêm hai hồ sơ con, PIN 4 số băm trên máy, hồ sơ không PIN": c.profiles,
     "“Ai đang học?”: các con và Phụ huynh": c.tiles === "Bin,Na,Phụ huynh",
     "con nhập PIN: sai thì báo, đúng 4 số là vào": /chưa đúng/.test(c.wrongPin),

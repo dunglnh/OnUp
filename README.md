@@ -1,5 +1,5 @@
 # OnUp
-Daily Drill for your kids — web app ôn thi cả năm học cho học sinh lớp 4, lớp 6 và phụ huynh.
+Daily Drill for your kids — web app ôn thi cả năm học cho học sinh lớp 4, lớp 6, lớp 9 và phụ huynh.
 
 Có lịch thi năm học 2026–2027, đề luyện giữa kì, cuối kì và IOE, ngân hàng câu hỏi nhập được, báo cáo tuần cho phụ huynh.
 
