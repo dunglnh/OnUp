@@ -14,7 +14,7 @@ Bản 2.x (UX1–UX8, UI1, UI2, 9n, 9o và các phiên “b”) đã làm xong v
 
 Khung vẽ bằng component và biến màu của design system. Thành phần mới (icon/target, icon/calendar-plus, `.bdg`, `.day-pick button`, `.wk-nav`, `.btn icon`, `.empty`) nằm ở section [3.x · Thành phần đề xuất](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=342-238). Phiên Claude Code không mở được Figma, nên lời giao việc trỏ vào ảnh ở [hinh-ux-3x/](hinh-ux-3x/).
 
-File này giữ vấn đề, đề xuất, ảnh và điều kiện xong. Chủ app đã chọn phiên ngày 27/10/2026 (mục 3). Thứ tự, hạn và lời giao việc ở mục 3, 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); trạng thái chỉ ghi ở đó. Mã vấn đề nối tiếp bản 2.x: X38–X48; lượt kiểm thử thiết kế ngày 29/10/2026 thêm X49 (mục 6, Phiên UX9b).
+File này giữ vấn đề, đề xuất, ảnh và điều kiện xong. Chủ app đã chọn phiên ngày 27/10/2026 (mục 3). Thứ tự, hạn và lời giao việc ở mục 3, 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); trạng thái chỉ ghi ở đó. Mã vấn đề nối tiếp bản 2.x: X38–X48; lượt kiểm thử thiết kế ngày 29/10/2026 thêm X49 (mục 6, Phiên UX9b); kiểm thử của PO ngày 1/11/2026 thêm X50, X51 (cuối mục 4, chờ PD xem xét lên phiên).
 
 **Cách rà:**
 - Chạy `main` (`a739293`) bản lưu trên máy, ngày giả lập 27/10/2026 17:30, 360px sáng và tối. Dữ liệu mẫu: Bin lớp 4 làm 4 bài trong 6 ngày (Toán 4 · Giữa kì I · Đề 1, Đề 2, Đề ngẫu nhiên; Tiếng Việt 4 · Giữa kì I · Đề 1); Na lớp 6 chưa làm bài nào; Mẹ Bin là phụ huynh của hai con.
@@ -334,6 +334,28 @@ Tìm thấy ở lượt kiểm thử thiết kế ngày 29/10/2026 (mục 6, “
 **Xong khi:**
 - Bước UX9 của `tests/e2e.js` đọc “… ôn câu sai. Đã ôn 1 lần.” ở tab Bài ôn của con và ở “Bài ôn của Bin”; không chỗ nào có “. ·”.
 - `tests/supabase/cloud-e2e.js` vẫn in OK. Có ảnh 360px sáng/tối của dòng đó, trước và sau.
+
+### Đề xuất từ kiểm thử của PO (1/11/2026) · chờ PD xem xét
+
+PO chạy `main` (`ee1da8d`, sau PR #241) bản lưu trên máy ở 360px sáng và tối, ngày giả lập 1/11/2026 (một ngày trước kì giữa kì I), rồi 3/11, 14/11, 20/12/2026. Dữ liệu mẫu: Bin lớp 4 làm 7 bài trong 9 ngày, Na lớp 6 làm 2 bài, Bố Minh là phụ huynh của hai con. Đi các màn: Hôm nay, Bài ôn, Lịch thi, chi tiết kì thi (nút “Thêm vào lịch điện thoại”), Kết quả; đề “Ôn chủ đề” (UX14) đến hết màn kết quả (bảng câu UX11, chạm ô đúng, ô sai); một đề thường đến màn kết quả (nút “Ôn 10 câu” theo chủ đề); bài ôn IOE 6 và Ôn giữa kì I lớp 6 trong khung; Các con, báo cáo tuần và tuần trước (UX12), “Bài ôn của <tên>”, Tài khoản. Không thấy cuộn ngang, nút dưới 44px, chữ dưới 13px, chữ đè; không lỗi JavaScript. Hai chỗ nên sửa, PD xem xét rồi lên phiên (mã nối tiếp X49):
+
+**X50. Bài chính ở Hôm nay là bài ôn IOE khi kì gần nhất là kiểm tra định kì; lời giới thiệu không đúng với IOE.**
+- Na (lớp 6), ngày 1/11 và 3/11/2026: thẻ “Hôm nay ôn gì?” ghi “IOE · Global Success 6 — Kiểm tra giữa học kì I còn 1 ngày. Bài này bạn chưa làm. Làm khoảng 20 phút, xem đáp án sau mỗi câu.” Ngày 20/12/2026 cả Bin và Na đều được giao IOE · Global Success 4, 6 với “Kiểm tra cuối học kì I còn 8 ngày” (Bin), “còn 1 ngày” (Na); đề Toán cuối kì I chỉ là bài phụ (“Môn chưa làm trong 7 ngày qua”).
+- Vì sao: `todayPicks` (`js/app.js`) lấy bài chưa làm đầu tiên của `mods.concat(fixed)`, bài ôn dạng trang đứng trước đề; `gk1-l6` gắn `l6-giua-ki-1` và `ioe-6`, `ck1-l4` gắn `ioe-4`, `ck1-l6` gắn `ioe-6` (`data/calendar-2026-2027.js`). Lời giới thiệu dùng chung cho mọi bài (“xem đáp án sau mỗi câu”), còn đề IOE là 30 câu, 20 phút, đáp án hiện sau khi nộp (trang đầu bài ôn ghi “Answers appear after you finish”).
+- Cùng gốc: ở tab Bài ôn và chi tiết kì thi, nhóm “Kiểm tra cuối học kì I” của Na mở đầu bằng dòng “IOE · Global Success 6 · Luyện đề IOE cấp trường, cấp xã/phường…”, trước tám môn thi.
+- Đề xuất (PD chọn cách):
+  1. Kì kiểm tra định kì: bài chính lấy trong bài ôn, đề của chính kì đó theo thứ tự môn thi (`e.subjects`); bài ôn của kì khác (IOE: `lang: "en"` trong `data/modules.js`) chỉ làm bài chính khi kì gần nhất là kì IOE, hoặc khi mọi bài khác của kì đã làm. Trong nhóm kì thi, dòng bài ôn IOE đứng sau các môn thi. (Chỉ gắn IOE vào kì IOE trong lịch mặc định thì máy đã có dữ liệu vẫn giữ bài ôn đã gắn, nên vẫn cần quy tắc ở app.)
+  2. Lời giới thiệu theo loại bài: bài ôn dạng trang lấy ý từ `desc` (“Đề có giờ, ôn theo bài, ôn câu sai.”); IOE: “Đề 30 câu có câu nghe, 20 phút, đáp án hiện sau khi nộp.”; đề ngân hàng giữ “Làm khoảng 20 phút, xem đáp án sau mỗi câu.”
+- Xong khi: `tests/e2e.js` (bước UX1 hoặc UX9) kiểm tra Na ngày 1/11/2026 có bài chính là bài ôn hoặc đề của `gk1-l6`, không phải IOE; Bin, Na ngày 20/12/2026 bài chính không phải IOE; ngày 14/11/2026 (IOE cấp trường còn 12 ngày) bài chính là IOE với lời giới thiệu của IOE; dòng IOE đứng sau các môn trong nhóm kì thi; `tests/supabase/cloud-e2e.js` vẫn in OK.
+
+**X51. Thứ tự môn trong nhóm kì thi theo thứ tự gắn đề, không theo môn thi.**
+- Tab Bài ôn, chi tiết kì thi và “Bài ôn của <tên>” nhóm đề theo môn theo thứ tự đề gặp lần đầu trong `banks` của kì (`practiceList`, `js/app.js`). Giữa kì I lớp 6 ra: Tiếng Anh, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ, Toán, Ngữ văn, KHTN; cuối kì I lớp 6: Toán, Ngữ văn, KHTN, Lịch sử và Địa lí, Tiếng Anh, GDCD, Tin học, Công nghệ. Ô “Môn thi” của kì ghi Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ. Đề mới gắn vào đầu `banks` (`linkSeedBanks`), nên thứ tự còn đổi mỗi khi thêm đề.
+- Đề xuất: xếp môn theo `e.subjects` của kì rồi `subjOrder` (như Sửa kì thi, X34 của bản 2.x), môn không có trong lịch đứng cuối; bài ôn dạng trang vẫn đứng đầu (trừ IOE, X50). Áp cho cả ba chỗ.
+- Xong khi: `tests/e2e.js` đọc thứ tự môn của nhóm cuối kì I lớp 6 đúng thứ tự ô “Môn thi” của kì; `tests/supabase/cloud-e2e.js` vẫn in OK.
+
+Ghi nhận khác, chưa cần phiên:
+- Điểm to ở màn kết quả là điểm thang 10 làm tròn đến 0,25: 2/25 câu đúng hiện “0,75/10” (0,8 làm tròn xuống), 2/10 câu hiện “2/10”. Nếu ghi chép dùng thử cho thấy con thắc mắc, PD xem có nên làm tròn đến 0,1 (`d10n` trong `Quiz.run`, `js/quiz.js`).
+- Báo cáo tuần trước (UX12) vẫn ghi “Sắp tới: … còn 1 ngày” theo hôm nay, đúng như thiết kế X43.
 
 ## 5. Để sau
 
