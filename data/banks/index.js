@@ -998,6 +998,22 @@ window.ONTAP_SEED_BANKS = [
       "Ứng dụng công nghệ di truyền vào đời sống": [0, 0, 1], "Khái niệm tiến hoá và các hình thức chọn lọc": [1, 0, 0],
       "Cơ chế tiến hoá": [0, 0, 1], "Sự phát sinh và phát triển sự sống trên Trái Đất": [1, 0, 0] } } },
 
+  /* Lịch sử và Địa lí 9 · Kiểm tra giữa học kì I (Kết nối tri thức, bản chỉnh sửa năm 2026; Lịch sử Bài 1–8, Địa lí Bài 1–8; Phiên
+     N9-gk1-lsdl-gdcd). Khối 9 chưa bật nên đề chưa hiện với gia đình. Phạm vi theo ma trận đề giữa kì I tra được. Kho câu = 50 câu của 2
+     đề cố định (không có câu riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu, theo khung đề định kì (Công
+     văn 7991): 12 câu Lịch sử (Bài 4, 5, 7, 8 mỗi bài 2 câu, các bài khác 1 câu; chữ chủ đề như kho cuối kì I), 13 câu Địa lí (Nông
+     nghiệp 3 câu, gồm bài thực hành Bài 7; Lao động và việc làm gồm bài thực hành Bài 4; các chủ đề khác mỗi chủ đề 2 câu). Hai đề cố
+     định chia đúng theo ma trận, nên ô (chủ đề, mức) nào cũng có đúng 2 câu, gấp đôi số câu ô đó rút. */
+  { id: "lsdl9-gk1-de1", title: "Lịch sử và Địa lí 9 · Giữa kì I · Đề 1", grade: 9, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "9-lsdl.js" },
+  { id: "lsdl9-gk1-de2", title: "Lịch sử và Địa lí 9 · Giữa kì I · Đề 2", grade: 9, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "9-lsdl.js" },
+  { id: "lsdl9-gk1-ngau-nhien", title: "Lịch sử và Địa lí 9 · Giữa kì I · Đề ngẫu nhiên", grade: 9, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "9-lsdl.js",
+    pool: { from: ["lsdl9-gk1-de1", "lsdl9-gk1-de2"], matrix: {
+      "Nước Nga và Liên Xô (1918 – 1945)": [1, 0, 0], "Châu Âu và nước Mỹ (1918 – 1945)": [0, 1, 0], "Châu Á (1918 – 1945)": [1, 0, 0],
+      "Chiến tranh thế giới thứ hai": [1, 0, 1], "Phong trào dân tộc dân chủ (1918 – 1930)": [1, 1, 0],
+      "Nguyễn Ái Quốc và sự thành lập Đảng": [0, 1, 0], "Phong trào cách mạng (1930 – 1939)": [1, 0, 1], "Cách mạng tháng Tám năm 1945": [0, 1, 1],
+      "Dân tộc và dân số": [1, 0, 1], "Phân bố dân cư và quần cư": [1, 1, 0], "Lao động và việc làm": [0, 1, 1], "Nông nghiệp": [1, 1, 1],
+      "Lâm nghiệp và thuỷ sản": [1, 0, 1], "Công nghiệp": [1, 1, 0] } } },
+
   /* Lịch sử và Địa lí 9 · Kiểm tra cuối học kì I (Kết nối tri thức, bản chỉnh sửa năm 2026; Lịch sử Bài 1–12, Địa lí Bài 1–13; Phiên
      N9-ck1-lsdl-gdcd). Khối 9 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (không có câu riêng), câu nào
      cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu, theo khung đề định kì (Công văn 7991): 12 câu Lịch sử (mỗi bài 1
@@ -1048,6 +1064,17 @@ window.ONTAP_SEED_BANKS = [
       "Công cuộc Đổi mới (1986 – nay)": [0, 1, 1], "Cách mạng khoa học – kĩ thuật và toàn cầu hoá": [1, 1, 0],
       "Vùng Bắc Trung Bộ": [0, 1, 0], "Vùng Duyên hải Nam Trung Bộ và Tây Nguyên": [1, 0, 0], "Vùng Đông Nam Bộ": [1, 1, 0],
       "Vùng Đồng bằng sông Cửu Long": [2, 1, 2], "Biển, đảo Việt Nam": [1, 1, 2] } } },
+
+  /* GDCD 9 · Kiểm tra giữa học kì I (Kết nối tri thức; Bài 1–3; Phiên N9-gk1-lsdl-gdcd). Khối 9 chưa bật nên đề chưa hiện với gia
+     đình. Kho câu = 50 câu của 2 đề cố định (không có câu riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu,
+     theo khung đề định kì (Công văn 7991): Sống có lí tưởng, Khoan dung mỗi bài 8 câu, Tích cực tham gia các hoạt động cộng đồng 9 câu
+     (chữ chủ đề như kho cuối kì I), câu tình huống là chính. Hai đề cố định chia đúng theo ma trận, nên ô (chủ đề, mức) nào cũng có gấp
+     đôi số câu ô đó rút. */
+  { id: "gdcd9-gk1-de1", title: "GDCD 9 · Giữa kì I · Đề 1", grade: 9, subject: "GDCD", minutes: 35, n: 25, file: "9-gdcd.js" },
+  { id: "gdcd9-gk1-de2", title: "GDCD 9 · Giữa kì I · Đề 2", grade: 9, subject: "GDCD", minutes: 35, n: 25, file: "9-gdcd.js" },
+  { id: "gdcd9-gk1-ngau-nhien", title: "GDCD 9 · Giữa kì I · Đề ngẫu nhiên", grade: 9, subject: "GDCD", minutes: 35, n: 25, file: "9-gdcd.js",
+    pool: { from: ["gdcd9-gk1-de1", "gdcd9-gk1-de2"], matrix: {
+      "Sống có lí tưởng": [3, 3, 2], "Khoan dung": [3, 3, 2], "Hoạt động cộng đồng": [4, 2, 3] } } },
 
   /* GDCD 9 · Kiểm tra cuối học kì I (Kết nối tri thức; Bài 1–6; Phiên N9-ck1-lsdl-gdcd). Khối 9 chưa bật nên đề chưa hiện với gia
      đình. Kho câu = 50 câu của 2 đề cố định (không có câu riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7
