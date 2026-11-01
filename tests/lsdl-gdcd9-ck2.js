@@ -230,7 +230,7 @@ const CHECKS = [
     const g = /^Năm (\d{4}), diện tích lúa bị ảnh hưởng gấp (\d+) lần năm (\d{4})\./.exec(dung[0]);
     if (g) assert.ok(q.x.includes(`${v(g[1])} : ${v(g[3])} = ${g[2]}`), "lời giải ghi phép chia");
     return dung[0]; } },
-  { id: L.de2, has: "sản lượng thuỷ sản khai thác và nuôi trồng của tỉnh X", right: (q) => {
+  { id: L.de2, has: "sản lượng thuỷ sản của tỉnh X ở vùng Đồng bằng sông Cửu Long, chia theo khai thác và nuôi trồng", right: (q) => {
     const c = docCot(q.svg, "Nghìn tấn"), [y] = nam(q.q), d = c[y]; assert.ok(d, "biểu đồ có năm " + y);
     const kt = d["Khai thác"], nt = d["Nuôi trồng"], tong = kt + nt, v = (nt / tong) * 100;
     assert.ok(Number.isInteger(v) && q.unit === "%" && q.x.includes(`${kt} + ${nt} = ${tong}`) && q.x.includes(`${nt} : ${tong} × 100 = ${v}`), "lời giải ghi phép tính");
@@ -429,7 +429,7 @@ assert.deepEqual(loAll, [], "lộ đáp án:\n" + loAll.join("\n"));
   const tim = (has) => kho.find((q) => q.q.includes(has)), gia = (q, x) => Object.assign({}, q, { x: q.x + " " + x });
   const thu = (qs) => { const M = new Proxy({}, { get: () => [1, 1, 1] }), r = doLo(qs, M, (q) => q.q.slice(0, 12)); return r.lo.concat(r.chuLo).map((s) => s.replace(/^.*: /, "")); };
   const khac = tim("dầu mỏ và khí tự nhiên tập trung chủ yếu ở đâu"), khac2 = tim("Ví dụ nào dưới đây là một thay đổi về môi trường sống");
-  assert.deepEqual(thu([tim("sản lượng thuỷ sản khai thác và nuôi trồng của tỉnh X"), gia(khac, "Ví dụ: 440 : 550 × 100 = 80.")]), ["80"]);
+  assert.deepEqual(thu([tim("sản lượng thuỷ sản của tỉnh X ở vùng Đồng bằng sông Cửu Long, chia theo khai thác và nuôi trồng"), gia(khac, "Ví dụ: 440 : 550 × 100 = 80.")]), ["80"]);
   assert.deepEqual(thu([tim("trình tự thời gian của những sự kiện trong các năm 1975 – 1980"), gia(khac, "Ngày 17/2/1979, chiến sự nổ ra.")]), ["ngày 17/2/1979"]);
   assert.deepEqual(thu([tim("Hai cảng hàng không quốc tế của vùng Đông Nam Bộ"), gia(khac, "Hàng về qua Tân Sơn Nhất và Long Thành.")]), ["Tân Sơn Nhất và Long Thành"]);
   assert.deepEqual(thu([tim("Nối mỗi hành vi ở cột trái"), gia(khac2, "Ông Quý đổ trộm phế thải xây dựng ra lòng đường là vi phạm hành chính.")]), ["Ông Quý đổ trộm phế thải xây dựng ra lòng đường → Vi phạm hành chính"]);

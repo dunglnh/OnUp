@@ -702,7 +702,7 @@ assert.ok(mine.every((q) => seen.has(Quiz.key(q))), "400 lần rút thử phải
 pool.pool.from.forEach((id) => { const done = new Set(bank(id).questions.map(Quiz.key)); for (let k = 0; k < 20; k++) thu((q) => ({ done: done.has(Quiz.key(q)) ? 1 : 0, wrong: 0 })).questions.forEach((q) => assert.ok(!done.has(Quiz.key(q)), "đã làm hết " + id + " mà vẫn gặp lại câu của đề đó")); });
 
 /* ---------- đề bài không trùng câu nào khác trong data/banks/9-toan.js (Rút ra N8), so sau khi bỏ dấu câu, khoảng trắng ---------- */
-const goc9 = (s) => String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+const goc9 = (s) => String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}−]+/gu, ""); // giữ dấu trừ như tests/toan9-vao10.js: “y = 0,25x²” khác “y = −0,25x²”
 const deBai = BANKS.filter((b) => b.file === "9-toan.js").flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id).map((q, i) => ({ at: b.id + "#" + (i + 1), k: goc9(q.q) })));
 deBai.forEach((d) => { const cung = deBai.filter((e) => e.k === d.k).map((e) => e.at); assert.deepEqual(cung, [d.at], "đề bài trùng: " + cung.join(", ")); });
 
