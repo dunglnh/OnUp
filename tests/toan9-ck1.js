@@ -408,7 +408,7 @@ const CHECKS = [
   { has: "Cho đường tròn (O; 2,5 cm) và bốn điểm M, N, P, Q", right: (q) => { const R = 2.5, d = [...q.q.matchAll(/O([MNPQ]) = (\d+(?:,\d+)?) cm/g)].map((m) => [m[1], so(m[2])]); assert.equal(d.length, 4);
     const ngoai = d.filter((x) => x[1] > R); assert.equal(ngoai.length, 1); return "Điểm " + ngoai[0][0]; } },
   { has: "Đường tròn có bao nhiêu trục đối xứng?", right: () => "Vô số" },
-  { has: "Cho đường tròn (O; 3 cm). Mỗi ý sau đúng hay sai?", right: () => [3 === 3, 3.5 < 3, true, false] },
+  { has: "Cho đường tròn (O; 3 cm). Mỗi ý sau đúng hay sai?", right: () => [3 === 3, 3.5 < 3, true, 2.5 > 3] },
   { has: "Cho đoạn thẳng EF = 15 cm. Tính bán kính", right: () => F(15, 2) },
   /* ----- Bài 14 ----- */
   { has: "Cho hai điểm A, B trên đường tròn (O) sao cho góc AOB = 64° (hình vẽ)", right: (q) => { trenDT(q.svg, ["A", "B"]); const g = gocGhi(q.svg, "cung 64°"); assert.deepEqual(g.map((x) => x.O + cs(x.A + x.B) + x.v), ["OAB64"]); return 360 - g[0].v; } },

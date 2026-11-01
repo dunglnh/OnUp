@@ -523,7 +523,7 @@ const CHECKS = [
   { id: C.de1, has: "ba kí hiệu dùng trong sơ đồ", right: (q) => { const k = docKiHieu(q.svg); assert.equal(k.length, q.l.length);
     return q.l.map((l) => { const n = +l.match(/^Kí hiệu (\d)$/)[1]; return [l, k.find((x) => x[0] === n)[1]]; }); } },
   { id: C.de1, has: "Phúc đóng công tắc số 4", right: (q) => {
-    const sd = docSoDo(q.svg), [dong] = so(/đóng công tắc số (\d+)/, q.q), [ngat] = so(/công tắc số (\d+) vẫn ngắt/, q.q);
+    const sd = docSoDo(q.svg), [dong] = so(/đóng công tắc số (\d+)/, q.q), [ngat] = so(/để công tắc số (\d+) ngắt/, q.q);
     assert.deepEqual(congTacCua(sd).sort(), [dong, ngat].sort(), "đề nói trạng thái của mọi công tắc");
     const co = coDien(sd, { dong: [dong] }), loai = { "Ổ lấy điện": "oCam", "bóng đèn": "den", "Bóng đèn": "den" };
     const dung = q.o.filter((o) => { const ds = [...o.matchAll(/(Ổ lấy điện|bóng đèn|Bóng đèn) số (\d+)/g)];
@@ -571,7 +571,7 @@ const CHECKS = [
       if ((m = y.match(/^Công tắc số (\d+) điều khiển cả bóng đèn số (\d+) và bóng đèn số (\d+)\.$/))) { const ds = dieuKhien(sd, +m[1]); return ds.size === 2 && ds.has(+m[2]) && ds.has(+m[3]); }
       if ((m = y.match(/^Hai bóng đèn số (\d+) và số (\d+) được mắc nối tiếp với nhau\.$/))) return noiTiep(sd, thietBi(sd, +m[1]), thietBi(sd, +m[2]));
       if ((m = y.match(/^Có thể bật bóng đèn số (\d+) mà không bật bóng đèn số (\d+)\.$/))) return moiCach(ct).some((dong) => { const c = coDien(sd, { dong }); return c.has(+m[1]) && !c.has(+m[2]); });
-      if ((m = y.match(/^Khi công tắc số (\d+) ngắt \(như hình\), cả hai bóng đèn đều không sáng\.$/))) return moiCach(ct.filter((x) => x !== +m[1])).every((dong) => { const c = coDien(sd, { dong }); return !c.has(3) && !c.has(4); });
+      if ((m = y.match(/^Khi công tắc số (\d+) ngắt, cả hai bóng đèn đều không sáng\.$/))) return moiCach(ct.filter((x) => x !== +m[1])).every((dong) => { const c = coDien(sd, { dong }); return !c.has(3) && !c.has(4); });
       return assert.fail("ý chưa đọc được: " + y); }); } },
   { id: C.de2, has: "Ngọc lập bản danh sách", right: (q) => {
     const sd = docSoDo(q.svg), dem = (l) => sd.tb.filter((t) => t.loai === l).length, ct = congTacCua(sd);

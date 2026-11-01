@@ -805,7 +805,7 @@ const CHECKS = [
     assert.ok(doi);
     const tat = thu.filter(([a, b]) => !denCauThang(a, b)), sang = thu.filter(([a, b]) => denCauThang(a, b)), moi = (ds, f) => ds.every(f);
     assert.ok(/^Đèn đang tắt, gạt công tắc ở chân cầu thang thì đèn sáng\.$/.test(q.o[0]) && /^Đèn đang sáng, gạt công tắc ở đầu cầu thang thì đèn tắt\.$/.test(q.o[1])
-      && /^Muốn đèn sáng thì phải gạt cả hai công tắc\.$/.test(q.o[2]) && /^Đèn đang sáng, gạt lần lượt mỗi công tắc một lần thì đèn vẫn sáng\.$/.test(q.o[3]));
+      && /^Muốn đèn sáng thì phải gạt cả hai công tắc\.$/.test(q.o[2]) && /^Đèn đang sáng, gạt lần lượt mỗi công tắc một lần thì sau lần gạt thứ hai, đèn sáng trở lại\.$/.test(q.o[3]));
     return [moi(tat, ([a, b]) => denCauThang(1 - a, b)), moi(sang, ([a, b]) => !denCauThang(a, 1 - b)),
       moi(tat, ([a, b]) => !denCauThang(1 - a, b) && !denCauThang(a, 1 - b)), moi(sang, ([a, b]) => denCauThang(1 - a, 1 - b))]; } },
   { id: C.de2, has: "Tuấn tự đánh giá theo bảng tiêu chí", right: (q) => { const d = diem71(q.q), k = XEP_71(d);

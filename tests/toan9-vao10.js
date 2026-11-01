@@ -876,7 +876,7 @@ const RIENG = {
     const lien = ([u, v]) => Math.abs(L.indexOf(u) - L.indexOf(v)) === 1; xacSuat(qc, om, lien);
     coGiai(qc, `Các kết quả thuận lợi cho E: ${om.filter(lien).map((p) => `(${p.join(", ")})`).join("; ")}, gồm ${om.filter(lien).length} kết quả.`);
     /* Bài 4: khí CO₂ của xe máy; số cây xanh cần trồng (bất phương trình) */
-    const g = docDoan(b, 4, /khoảng (\d+) g khí CO₂ cho mỗi ki-lô-mét .* tổng cộng (\d+) km/), gk = +g[1], km = +g[2], ngay = F(gk * km, 1000), q4a = cau(b, 4, 0), q4b = cau(b, 4, 1);
+    const g = docDoan(b, 4, /khoảng (\d+) g khí CO₂ cho mỗi kilômét .* tổng cộng (\d+) km/), gk = +g[1], km = +g[2], ngay = F(gk * km, 1000), q4a = cau(b, 4, 0), q4b = cau(b, 4, 1);
     coThang(q4a, `${gk} · ${km} = ${fmt(F(gk * km))} (g) = ${fmt(ngay)} (kg)`, `y = ${fmt(ngay)}x`);
     const nd = +docPhai(q4b, /đi làm (\d+) ngày/)[1], hap = +docPhai(q4b, /hấp thụ khoảng (\d+) kg/)[1], nam = mul(ngay, F(nd)), cay = Math.ceil(toNum(nam) / hap);
     assert.ok(isInt(nam) && toNum(nam) % hap !== 0 && dapSo(q4b) === `ít nhất ${cay} cây xanh`, ten.get(q4b) + ": đáp số " + dapSo(q4b) + ", tính được " + cay);

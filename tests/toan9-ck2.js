@@ -577,8 +577,10 @@ const CHECKS = [
   /* ----- ôn Bài 21. Giải bài toán bằng cách lập phương trình ----- */
   { has: "Một bể cạn sẽ đầy nước sau 4 giờ nếu mở đồng thời hai vòi", right: () => { const n = nghiem("1/x + 1/(x + 6) = 1/4").filter((x) => toNum(x) > 4); assert.equal(n.length, 1); return n[0]; },
     more: (q) => assert.ok(q.x.includes("x² − 2x − 24 = 0") && cungTap(nghiem2(bac2("x² − 2x − 24 = 0")), [F(6), F(-4)]) && q.q.includes("nhanh hơn vòi thứ hai 6 giờ")) },
-  { has: "Từ một tấm bìa hình vuông, người ta cắt bỏ ở bốn góc bốn hình vuông nhỏ cạnh 4 cm", right: (q) => {
-    assert.ok(q.q.includes("cạnh 4 cm") && q.q.includes("thể tích 400 cm³")); const n = nghiem("4(x − 8)² = 400").filter((x) => toNum(x) > 8); assert.equal(n.length, 1); return n[0]; } },
+  // Phiên RS9: thay câu tấm bìa gấp hộp (quá gần bài 6.21 của sách, tập hai tr. 20) bằng câu tam giác vuông
+  { has: "Một tấm bìa hình tam giác vuông có cạnh huyền dài 30 cm, hai cạnh góc vuông hơn kém nhau 6 cm", right: () => {
+    const n = nghiem("x² + (x + 6)² = 900").filter((x) => toNum(x) > 0); assert.equal(n.length, 1); return n[0]; },
+    more: (q) => assert.ok(cungTap(nghiem2(bac2("x² + 6x − 432 = 0")), [F(18), F(-24)]) && q.x.includes("x² + 6x − 432 = 0") && q.x.includes("18² + 24² = 900 = 30²")) },
   { has: "Một bức tranh hình chữ nhật kích thước 30 cm × 20 cm được lồng trong một khung gỗ", right: (q) => {
     assert.ok(q.q.includes("là 1 064 cm²")); const n = nghiem("(30 + 2x)(20 + 2x) = 1 064").filter((x) => toNum(x) > 0); assert.equal(n.length, 1); return n[0]; },
     more: (q) => assert.ok(cungTap(nghiem2(bac2("x² + 25x − 116 = 0")), [F(4), F(-29)]) && q.x.includes("x² + 25x − 116 = 0")) },

@@ -253,7 +253,7 @@ const CHECKS = [
     return `Tăng, vì cứ ${tan} g sắt tan ra thì có ${bam} g đồng bám lên đinh`; } },
   { id: "de1", has: "Đồng thau là hợp kim của đồng và kẽm", right: (q) => { const [p] = so(q, new RegExp(`có ${SO}% khối lượng là đồng`)), [m] = so(q, new RegExp(`luyện được ${SO} kg`)); return (m * (100 - p)) / 100; } },
   { id: "de1", has: "Nung 1 tấn đá vôi chứa", right: (q) => {
-    const nt = ntDe(q), [p] = so(q, new RegExp(`chứa ${SO}% calcium carbonate`)), pt = ptTrong(q.q, "CaCO₃", "CaO"), m = (1000 * p) / 100;
+    const nt = ntDe(q), [p] = so(q, new RegExp(`chứa ${SO}% calcium carbonate`)), pt = ptTrong(q.x, "CaCO₃", "CaO"), m = (1000 * p) / 100; // Phiên RS9: phương trình ở lời giải (ghi ở đề thì lộ đáp án ý b câu 15 kho riêng)
     coX(q, `= ${vn(m)} (kg)`); return molTheoPT(pt, "CaCO₃", m / KL("CaCO₃", nt), "CaO") * KL("CaO", nt); } },
   { id: "de2", has: "Nhúng một sợi dây đồng vào dung dịch chứa", right: (q) => {
     const nt = ntDe(q), [m] = so(q, new RegExp(`chứa ${SO} g silver nitrate`)), pt = ptTrong(q.x, "Cu", "AgNO₃"), n = m / KL("AgNO₃", nt);

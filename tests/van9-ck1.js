@@ -6,7 +6,8 @@
 // tiếng 5 T, tiếng 7 B; lục tiếng 2 B, 4 T, 6 B; bát tiếng 2 B, 4 T, 6 B, 8 B; vần lưng ở tiếng 5 của thất 2, tiếng 6 của bát; vần
 // chân), rồi tính lại đáp án các câu hỏi về luật thơ, thanh, vần (CHECKS: nhận ra câu bằng một đoạn chữ của đề, đúng một câu trong kho).
 // Rồi kiểm tra ma trận, đoạn đọc (mỗi chủ đề đọc hiểu một đoạn mỗi đề, đoạn 3 câu mức 1-2-3), câu Viết (chỉ tự luận, 4–6 ý chấm),
-// dạng câu (đúng/sai 4 ý không lặp kiểu Đ/S, có câu trả lời ngắn), đáp án đúng không dài hơn hẳn lựa chọn sai, đề bài không trùng,
+// dạng câu (đúng/sai 4 ý không lặp kiểu Đ/S, có câu trả lời ngắn), đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa chọn dài nhất
+// hay ngắn nhất ở không quá một phần ba số câu nhiều lựa chọn (Phiên RS9), đề bài không trùng,
 // rút thử nhiều lần (đúng ma trận, trọn đoạn, gặp đủ kho; đã làm hết một đề cố định thì không rút lại câu của đề đó) và dò lộ đáp án
 // giữa các câu rút được cùng lúc (Rút ra N19: chuỗi 3 từ liền nhau của đáp án; đáp án ngắn thì cả đáp án) ở đề bài, lựa chọn, lời
 // giải, đáp án, đoạn đọc của câu kia; DO_LO=1 in ra để xem tay, danh sách đã xem ở DA_XEM.
@@ -158,6 +159,8 @@ tf4.forEach((q) => { const k = q.a.map((a) => (a ? "Đ" : "S")).join(""); kieu[k
 assert.ok(Math.max(...Object.values(kieu)) === 1, "kiểu Đ/S của các câu đúng/sai 4 ý lặp: " + JSON.stringify(kieu));
 assert.ok(kho.some((q) => q.type === "fill"), "có câu trả lời ngắn (điền)");
 assert.ok(kho.every((q) => ["mc", "tf4", "fill", "essay"].includes(q.type)), "chỉ dùng dạng câu của khung Công văn 7991 và tự luận");
+// gọi người làm bài là «bạn», lời giải nêu ý kiến xưng «tôi» như các kho Ngữ văn 9 sau (Phiên RS9)
+kho.forEach((q) => assert.ok(!/(của em|(?<![Cc]ác )em hãy|Em hãy|theo em|Theo em|em chọn)\b/.test([q.q, q.x].concat(q.o || [], (q.rubric || []).map((r) => r.c)).join(" ").replace(/«[^»]*»|“[^”]*”/g, "")), "gọi người làm bài là «bạn» (trừ lời dẫn trong ngoặc kép): " + ten.get(q)));
 // lời giải không nói “ý thứ hai”, “phương án A”: app xáo ý, phương án
 kho.forEach((q) => assert.ok(!/(ý|phương án|lựa chọn) (thứ|số) (nhất|hai|ba|tư|\d)|phương án [A-D]\b/.test(q.x), "lời giải nhắc vị trí của ý: " + ten.get(q)));
 // đáp án đúng không dài hơn hẳn các lựa chọn sai (Rút ra N2; ngưỡng như tests/tincn4-ck2.js); các lựa chọn không trùng nhau
@@ -166,6 +169,15 @@ kho.filter((q) => q.type === "mc").forEach((q) => {
   assert.ok(q.o[0].length <= Math.max(1.2 * m, m + 8), "đáp án đúng dài hơn hẳn các lựa chọn sai: " + ten.get(q));
   assert.equal(new Set(q.o).size, q.o.length, "lựa chọn trùng nhau: " + ten.get(q));
 });
+// đáp án đúng là lựa chọn dài nhất hay ngắn nhất (kể cả bằng nhau) ở không quá một phần ba số câu nhiều lựa chọn, như tests/van9-gk2.js
+// (Phiên RS9: kho này soạn trước khi có luật, 35/58 câu đáp án dài nhất; đã kéo dài một lựa chọn sai ở 21 câu)
+{
+  const mc = kho.filter((q) => q.type === "mc");
+  const dai = mc.filter((q) => q.o[0].length >= Math.max(...q.o.slice(1).map((o) => o.length))).length;
+  const ngan = mc.filter((q) => q.o[0].length <= Math.min(...q.o.slice(1).map((o) => o.length))).length;
+  assert.ok(3 * dai <= mc.length, `đáp án là lựa chọn dài nhất ở ${dai}/${mc.length} câu nhiều lựa chọn`);
+  assert.ok(3 * ngan <= mc.length, `đáp án là lựa chọn ngắn nhất ở ${ngan}/${mc.length} câu nhiều lựa chọn`);
+}
 
 /* ---------- đề bài không trùng câu nào khác trong file (Rút ra N8) ---------- */
 const goc = (s) => String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");

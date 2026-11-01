@@ -213,8 +213,8 @@ const CHECKS = [
     Object.entries(v).forEach(([k, ten]) => assert.ok(q.x.includes(`Vùng ${k}`) && q.x.toLowerCase().includes(ten.toLowerCase()), "lời giải nêu vùng " + k));
     assert.ok(q.x.includes("12 hải lí") && q.x.includes("200 hải lí"), "lời giải ghi số hải lí");
     return `${v["(2)"]}; ${thuong(v["(3)"])}`; } },
-  { id: L.de1, has: "ranh giới ngoài của vùng đặc quyền kinh tế cách đường cơ sở bao nhiêu ki-lô-mét", right: (q) => {
-    const [hl] = so(/rộng (\d+) hải lí tính từ đường cơ sở/, q.q), [m] = so(/1 hải lí = ([\d ]+) m/, q.q), v = (hl * m) / 1000;
+  { id: L.de1, has: "ranh giới ngoài của vùng đặc quyền kinh tế cách đường cơ sở 200 hải lí", right: (q) => {
+    const [hl] = so(/cách đường cơ sở (\d+) hải lí/, q.q), [m] = so(/1 hải lí = ([\d ]+) m/, q.q), v = (hl * m) / 1000;
     assert.ok(q.unit === "km" && q.x.includes(`${hl} hải lí = ${hl} × ${vn(m)} = ${vn(hl * m)} (m) = ${vn(v)} (km)`), "lời giải ghi phép đổi"); return v; } },
   // Lịch sử và Địa lí: Đề 2
   { id: L.de2, has: "theo dõi diện tích lúa bị ảnh hưởng do xâm nhập mặn", right: (q) => {
