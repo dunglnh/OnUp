@@ -602,7 +602,7 @@ assert.ok(mine.every((q) => seen.has(Quiz.key(q))), "400 lần rút thử phải
 pool.pool.from.forEach((id) => { const done = new Set(bank(id).questions.map(Quiz.key)); for (let k = 0; k < 20; k++) thu((q) => ({ done: done.has(Quiz.key(q)) ? 1 : 0, wrong: 0 })).questions.forEach((q) => assert.ok(!done.has(Quiz.key(q)), "đã làm hết " + id + " mà vẫn gặp lại câu của đề đó")); });
 
 /* ---------- đề bài không trùng câu nào khác trong data/banks/9-toan.js (Rút ra N8), so sau khi bỏ dấu câu, khoảng trắng ---------- */
-const goc9 = (s) => String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+const goc9 = (s) => String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}−]+/gu, ""); // giữ dấu trừ như tests/toan9-vao10.js: “y = 0,25x²” khác “y = −0,25x²”
 const deBai = BANKS.filter((b) => b.file === "9-toan.js").flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id).map((q, i) => ({ at: b.id + "#" + (i + 1), k: goc9(q.q) })));
 deBai.forEach((d) => { const cung = deBai.filter((e) => e.k === d.k).map((e) => e.at); assert.deepEqual(cung, [d.at], "đề bài trùng: " + cung.join(", ")); });
 
@@ -721,7 +721,8 @@ if (SACH.length) {
   const CUM = ["phương pháp cộng đại số", "phương pháp thế", "máy tính cầm tay", "cột trái", "cột phải", "tính giá trị của biểu thức", "mỗi ý sau đúng hay sai"];
   const cap2 = (s) => { let t = String(s).normalize("NFC").toLowerCase(); CUM.forEach((c) => { t = t.split(c).join(" | "); });
     const w = t.replace(/[^\p{L}\p{N}\s|]/gu, " ").split(/\s+/).filter(Boolean); return w.slice(1).map((x, k) => w[k] + " " + x).filter((c) => c.split(" ").every((x) => /\p{L}{2}/u.test(x))); };
-  const deToan9 = BANKS.filter((b) => b.file === "9-toan.js").flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id)), df = {};
+  // không tính đề tính điểm (thi thử vào 10: các ý tự luận, so riêng ở tests/toan9-vao10.js), để ngưỡng 3% vẫn theo đề bài của các kho thường
+  const deToan9 = BANKS.filter((b) => b.file === "9-toan.js" && !b.pts).flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id)), df = {};
   deToan9.forEach((q) => new Set(cap2(q.q)).forEach((c) => (df[c] = (df[c] || 0) + 1)));
   const capAm = (q) => { const nhan = new Set(cap2(q.topic)); return new Set(cap2([q.q].concat(q.o || [], q.l || [], q.r || []).join(" | ")).filter((c) => !nhan.has(c) && df[c] < 0.03 * deToan9.length)); };
   const gan = kho.flatMap((q) => { const c = capAm(q); return kho1.map((p) => { const d = capAm(p), chung = [...c].filter((x) => d.has(x)); return chung.length >= 4 && chung.length >= 0.5 * Math.min(c.size, d.size) ? `${ten.get(q.q)} ~ ${ten.get(p.q)}: ${chung.join(", ")}` : null; }).filter(Boolean); });
