@@ -1116,6 +1116,17 @@ window.ONTAP_SEED_BANKS = [
       "Thích ứng với thay đổi": [1, 1, 1], "Tiêu dùng thông minh": [2, 1, 1], "Vi phạm pháp luật và trách nhiệm pháp lí": [4, 3, 2],
       "Quyền tự do kinh doanh và nghĩa vụ nộp thuế": [3, 3, 3] } } },
 
+  /* Tin học 9 · Kiểm tra giữa học kì I (Kết nối tri thức, Tin học 9, Bài 1–4; Phiên N9-gk1-tin-congnghe). Khối 9 chưa bật nên đề
+     chưa hiện với gia đình. Phạm vi theo đề giữa kì I tra được (Bài 1, 2, 4; Bài 3 là bài thực hành của Bài 2, hỏi qua tình huống ở
+     chủ đề của Bài 2); chữ chủ đề như kho cuối kì I (đề “Ôn chủ đề” rút chung câu hai kho). Kho câu = 50 câu của 2 đề cố định, không
+     có câu riêng; ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7: Bài 1, Bài 4 mỗi bài 8 câu, Bài 2 (cả Bài 3) 9 câu; hai đề cố định chia
+     đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "tin9-gk1-de1", title: "Tin học 9 · Giữa kì I · Đề 1", grade: 9, subject: "Tin học", minutes: 35, n: 25, file: "9-tin.js" },
+  { id: "tin9-gk1-de2", title: "Tin học 9 · Giữa kì I · Đề 2", grade: 9, subject: "Tin học", minutes: 35, n: 25, file: "9-tin.js" },
+  { id: "tin9-gk1-ngau-nhien", title: "Tin học 9 · Giữa kì I · Đề ngẫu nhiên", grade: 9, subject: "Tin học", minutes: 35, n: 25, file: "9-tin.js",
+    pool: { from: ["tin9-gk1-de1", "tin9-gk1-de2"], matrix: {
+      "Thế giới kĩ thuật số": [4, 2, 2], "Thông tin trong giải quyết vấn đề": [3, 3, 3], "Một số vấn đề pháp lí về sử dụng dịch vụ Internet": [3, 3, 2] } } },
+
   /* Tin học 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Tin học 9, Bài 1–8; Phiên N9-ck1-tin-congnghe). Khối 9 chưa bật nên đề chưa
      hiện với gia đình. Năm chủ đề theo năm bài lí thuyết (Bài 1, 2, 4, 5, 7; ba bài thực hành 3, 6, 8 hỏi qua tình huống ở chủ đề của
      bài đi trước), số câu mỗi chủ đề theo số tiết. Kho câu = 50 câu của 2 đề cố định, không có câu riêng; ma trận [Biết, Hiểu, Vận
@@ -1127,6 +1138,18 @@ window.ONTAP_SEED_BANKS = [
     pool: { from: ["tin9-ck1-de1", "tin9-ck1-de2"], matrix: {
       "Thế giới kĩ thuật số": [2, 1, 1], "Thông tin trong giải quyết vấn đề": [2, 1, 3], "Một số vấn đề pháp lí về sử dụng dịch vụ Internet": [2, 1, 1],
       "Phần mềm mô phỏng": [2, 2, 1], "Trình bày thông tin trong trao đổi và hợp tác": [2, 3, 1] } } },
+
+  /* Công nghệ 9 · Kiểm tra giữa học kì I (Kết nối tri thức, Công nghệ 9 – Định hướng nghề nghiệp, mô đun bắt buộc, Bài 1–3; Phiên
+     N9-gk1-tin-congnghe). Khối 9 chưa bật nên đề chưa hiện với gia đình. Phạm vi theo đề giữa kì I tra được; chữ chủ đề như kho cuối
+     kì I (đề “Ôn chủ đề” rút chung câu các kho). Kho câu = 50 câu của 2 đề cố định, không có câu riêng; ma trận [Biết, Hiểu, Vận dụng]
+     10 – 8 – 7: Bài 1, Bài 2 mỗi bài 7 câu, Bài 3 11 câu (có phần tìm thông tin, đọc số liệu thị trường lao động); hai đề cố định chia
+     đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "congnghe9-gk1-de1", title: "Công nghệ 9 · Giữa kì I · Đề 1", grade: 9, subject: "Công nghệ", minutes: 35, n: 25, file: "9-congnghe.js" },
+  { id: "congnghe9-gk1-de2", title: "Công nghệ 9 · Giữa kì I · Đề 2", grade: 9, subject: "Công nghệ", minutes: 35, n: 25, file: "9-congnghe.js" },
+  { id: "congnghe9-gk1-ngau-nhien", title: "Công nghệ 9 · Giữa kì I · Đề ngẫu nhiên", grade: 9, subject: "Công nghệ", minutes: 35, n: 25, file: "9-congnghe.js",
+    pool: { from: ["congnghe9-gk1-de1", "congnghe9-gk1-de2"], matrix: {
+      "Nghề nghiệp trong lĩnh vực kĩ thuật và công nghệ": [4, 2, 1], "Cơ cấu hệ thống giáo dục quốc dân": [3, 2, 2],
+      "Thị trường lao động kĩ thuật, công nghệ": [3, 4, 4] } } },
 
   /* Công nghệ 9 · Kiểm tra cuối học kì I (Kết nối tri thức, Công nghệ 9 – Định hướng nghề nghiệp, mô đun bắt buộc, Bài 1–5; Phiên
      N9-ck1-tin-congnghe). Khối 9 chưa bật nên đề chưa hiện với gia đình. Trường dạy mô đun tự chọn ở học kì I thì đối chiếu đề cương
