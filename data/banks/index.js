@@ -1286,6 +1286,37 @@ window.ONTAP_SEED_BANKS = [
       "Chuyển dịch cơ cấu ngành công nghiệp": [1, 1, 1], "Một số ngành công nghiệp": [1, 1, 1],
       "Một số hình thức tổ chức lãnh thổ công nghiệp": [1, 0, 1] } } },
 
+  /* Tin học 12 · Kiểm tra cuối học kì I (Kết nối tri thức, Tin học 12, phần chung của hai sách Định hướng Tin học ứng dụng và Định hướng
+     Khoa học máy tính, Bài 1–12: Chủ đề 1 Trí tuệ nhân tạo, Chủ đề 2 Mạng máy tính và Internet, Chủ đề 3 Bài 6, Chủ đề 4 HTML Bài 7–12,
+     trọng tâm Bài 7–12; Phiên N12-ck1-tin-congnghe). Phạm vi theo ma trận cuối kì I tra được; lời dặn của đề nhắc phụ huynh đối chiếu đề
+     cương của trường (có đề học kì I hỏi cả CSS, Bài 13–17). Khối 12 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố
+     định, không có câu riêng. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 12 chủ đề theo tên bài: Bài 1–6 11 câu (bài thực hành
+     Bài 5 một câu tình huống), Bài 7–12 14 câu. Hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút.
+     Câu tự luận ở ô Vận dụng rút 1 câu: mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "tin12-ck1-de1", title: "Tin học 12 · Cuối kì I · Đề 1", grade: 12, subject: "Tin học", minutes: 45, n: 25, file: "12-tin.js" },
+  { id: "tin12-ck1-de2", title: "Tin học 12 · Cuối kì I · Đề 2", grade: 12, subject: "Tin học", minutes: 45, n: 25, file: "12-tin.js" },
+  { id: "tin12-ck1-ngau-nhien", title: "Tin học 12 · Cuối kì I · Đề ngẫu nhiên", grade: 12, subject: "Tin học", minutes: 45, n: 25, file: "12-tin.js",
+    pool: { from: ["tin12-ck1-de1", "tin12-ck1-de2"], matrix: {
+      "Làm quen với Trí tuệ nhân tạo": [1, 1, 0], "Trí tuệ nhân tạo trong khoa học và đời sống": [0, 1, 1], "Một số thiết bị mạng thông dụng": [1, 1, 0],
+      "Giao thức mạng": [1, 1, 0], "Thực hành chia sẻ tài nguyên trên mạng": [0, 0, 1], "Giao tiếp và ứng xử trong không gian mạng": [1, 0, 1],
+      "HTML và cấu trúc trang web": [1, 1, 0], "Định dạng văn bản": [1, 1, 1], "Tạo danh sách, bảng": [1, 1, 1], "Tạo liên kết": [1, 0, 1],
+      "Chèn tệp tin đa phương tiện và khung nội tuyến vào trang web": [1, 1, 0], "Tạo biểu mẫu": [1, 0, 1] } } },
+
+  /* Công nghệ 12 · Kiểm tra cuối học kì I (Kết nối tri thức, Công nghệ 12 – Công nghệ điện – điện tử, Phần một Công nghệ điện, Chương I–IV,
+     Bài 1–12, trọng tâm Chương II–IV; Phiên N12-ck1-tin-congnghe). Phạm vi theo ma trận cuối kì I tra được (hai nguồn khác cùng Bài 1–12);
+     trường học sách Lâm nghiệp – Thuỷ sản hay đã học sang Phần hai thì đối chiếu đề cương (lời dặn của đề). Khối 12 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu
+     của 2 đề cố định, không có câu riêng. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 12 chủ đề theo tên bài: Chương I 4 câu,
+     Chương II 11 câu, Chương III 6 câu, Chương IV 4 câu. Hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô
+     đó rút. Câu tự luận ở ô Vận dụng rút 1 câu: mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "congnghe12-ck1-de1", title: "Công nghệ 12 · Cuối kì I · Đề 1", grade: 12, subject: "Công nghệ", minutes: 45, n: 25, file: "12-congnghe.js" },
+  { id: "congnghe12-ck1-de2", title: "Công nghệ 12 · Cuối kì I · Đề 2", grade: 12, subject: "Công nghệ", minutes: 45, n: 25, file: "12-congnghe.js" },
+  { id: "congnghe12-ck1-ngau-nhien", title: "Công nghệ 12 · Cuối kì I · Đề ngẫu nhiên", grade: 12, subject: "Công nghệ", minutes: 45, n: 25, file: "12-congnghe.js",
+    pool: { from: ["congnghe12-ck1-de1", "congnghe12-ck1-de2"], matrix: {
+      "Giới thiệu tổng quan về kĩ thuật điện": [1, 1, 0], "Ngành nghề trong lĩnh vực kĩ thuật điện": [1, 0, 1], "Mạch điện xoay chiều ba pha": [1, 1, 1],
+      "Hệ thống điện quốc gia": [1, 1, 0], "Sản xuất điện năng": [1, 1, 0], "Mạng điện sản xuất quy mô nhỏ": [1, 0, 1],
+      "Mạng điện hạ áp dùng trong sinh hoạt": [0, 1, 1], "Hệ thống điện trong gia đình": [1, 1, 0], "Thiết bị điện trong hệ thống điện gia đình": [1, 0, 1],
+      "Thiết kế và lắp đặt mạch điện điều khiển trong gia đình": [0, 1, 1], "An toàn điện": [1, 1, 0], "Tiết kiệm điện năng": [1, 0, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
