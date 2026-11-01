@@ -2,7 +2,7 @@
 
 > **Tìm nhanh:** phiên làm đề, dò sách, kĩ thuật cho đề: hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) (mở từ trên xuống) · phiên sửa lỗi: mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) · việc của chủ app: mục 2 · thứ tự các phiên: mục 3 · lời giao việc phiên giao diện, chuẩn bị bán: mục 4 · đã xong: mục 1.
 
-> **Trạng thái (1/11/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy bản đám mây từ 17/10/2026 (PR #27), chỉ dành cho gia đình được mời. Đã gộp tới PR #253; PR #254 (sửa chuỗi 8 từ trùng của Toán 9 giữa kì II, cuối năm) chờ Merge (bảng “Đã xong” ở mục 1). Phiên xong chỉ sửa ngày và số PR ở dòng này.
+> **Trạng thái (1/11/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy bản đám mây từ 17/10/2026 (PR #27), chỉ dành cho gia đình được mời. Đã gộp tới PR #255 (bảng “Đã xong” ở mục 1). Phiên xong chỉ sửa ngày và số PR ở dòng này.
 
 > **Đã chốt 18/10/2026, đổi mốc 21/10/2026:** đủ đề lớp 4–12 và rà xong trong tháng 2/2027; từ đầu tháng 3/2027 mời khách tiềm năng dùng thử miễn phí đến hết các kì thi của năm học 2026–2027 (kì cuối là thi tốt nghiệp THPT, dự kiến 11–12/6/2027); mở bán chính thức từ tháng 6/2027 nếu không vướng thủ tục hành chính (thay mốc “bán khi đủ đề lớp 4–12, khoảng cuối năm học 2028–2029” của ngày 18/10; nhịp cần, mốc kiểm tra và cách lùi khi chậm ở mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)); trong thời gian dùng thử và đến lúc bán, gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng `plans` không đổi), hạn mức hai gói lúc bán chốt sau (giữa tháng 5/2027); các phiên chuẩn bị G0, B1 làm trước khi mở dùng thử, B2, B4, G1 trước khi bán (mục 3); Supabase giữ gói Free đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần); trang công khai chỉ dành cho gia đình được mời, gia đình dùng thử cũng do chủ app tạo tài khoản (màn đăng nhập có dòng “Chưa có tài khoản?”, Phiên S1; muốn mở tự đăng kí thì đổi quyết định này trước, việc 9 ở mục 2); câu sai báo bằng nút trong app (Phiên R1), GitHub Issues chỉ còn cho chủ app; không ghi giá bán, chi phí hay so sánh đối thủ vào repo. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 
@@ -221,6 +221,7 @@
 | #252 | Phiên N9-vao10-toan-b: Toán thi thử vào 10, Đề 5–7 (đề tính điểm); tests/toan9-vao10.js |
 | #253 | Phiên N9-gk1-tin-congnghe: ngân hàng Tin học 9, Công nghệ 9 giữa kì I, mỗi môn 50 câu; tests/tin-congnghe9-gk1.js |
 | #254 | Toán 9 giữa kì II, cuối năm: viết lại hai lời giải trùng 8 từ với đề thi thử vào 10; toan9-gk2.js, toan9-ck2.js xanh lại |
+| #255 | Phiên N9-vao10-van-b: Ngữ văn thi thử vào 10, Đề 3–4 (đề tính điểm); tests/van9-vao10.js |
 
 </details>
 
@@ -277,7 +278,7 @@ Thứ tự các phiên:
 
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
-| 1 | 15/11/2026 | Lớp 9 (33 phiên, có 9 phiên đề thi thử vào 10); phiên rà soát lớp 9. Đã xong 27 phiên: cuối kì I (28/10/2026), giữa kì II (29/10), cuối năm (31/10), giữa kì I (1/11), đề thi thử vào 10 Toán Đề 1–7, Ngữ văn Đề 1–2 (1/11). Còn trong hàng đợi: đề thi thử vào 10 (3 phiên), RS9; đề thi thử vào 10 Tiếng Anh hoãn (3 phiên) | K5 (đã xong 27/10/2026, PR #198) | thứ tự khối, thứ tự kì trong mỗi khối và mốc kiểm tra: mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); các bước trước khi bật một khối: mục 7 (“Lớp 5, 7–12”) |
+| 1 | 15/11/2026 | Lớp 9 (33 phiên, có 9 phiên đề thi thử vào 10); phiên rà soát lớp 9. Đã xong 28 phiên: cuối kì I (28/10/2026), giữa kì II (29/10), cuối năm (31/10), giữa kì I (1/11), đề thi thử vào 10 Toán Đề 1–7, Ngữ văn Đề 1–4 (1/11). Còn trong hàng đợi: đề thi thử vào 10 (2 phiên), RS9; đề thi thử vào 10 Tiếng Anh hoãn (3 phiên) | K5 (đã xong 27/10/2026, PR #198) | thứ tự khối, thứ tự kì trong mỗi khối và mốc kiểm tra: mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); các bước trước khi bật một khối: mục 7 (“Lớp 5, 7–12”) |
 | 2 | 10/12/2026 | Lớp 12 (53 phiên, có 25 phiên đề thi thử tốt nghiệp), lớp 5 (16); mỗi khối một phiên rà soát. Đã xong: cuối kì I lớp 12 (7 phiên, 1/11/2026). Trong hàng đợi: cuối kì I lớp 5 (6 phiên N5-ck1-*), giữa kì II lớp 12 (7 phiên N12-gk2-*) | | cuối kì I lớp 12 đã xong 1/11/2026, trước hạn 23/11 (thi từ 14/12); cuối kì I lớp 5 (thi từ 28/12) xong trước 7/12, làm trước các kì khác của lớp 5 và giữa kì II lớp 12 |
 | 3 | 31/12/2026 | Lớp 7, 8 (mỗi khối 24 phiên); mỗi khối một phiên rà soát | | |
 | 4 | 20/1/2027 (dự phòng đến 28/2/2027) | Lớp 10, 11 (mỗi khối 28 phiên); mỗi khối một phiên rà soát; sửa lỗi các phiên rà soát tìm ra | | xong là đủ đề lớp 4–12 và rà xong; phần dự phòng cho sửa lỗi, rà đề, nghỉ Tết |
