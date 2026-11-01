@@ -854,6 +854,15 @@ window.ONTAP_SEED_BANKS = [
       "Biến đổi cấu trúc câu": [1, 1, 0], "Mở rộng cấu trúc câu": [1, 1, 0], "Sự phát triển của từ vựng": [1, 0, 0], "Biện pháp tu từ": [1, 0, 0],
       "Viết": [0, 0, 1] } } },
 
+  /* Ngữ văn 9 · Thi thử vào 10 (đề tính điểm, Phiên K5; Phiên N9-vao10-van). Khung đề theo đề minh hoạ tuyển sinh lớp 10 của TP.HCM
+     năm 2026: 120 phút, 10 điểm; Phần I một văn bản văn học (đọc hiểu 3 điểm, đoạn văn nghị luận văn học khoảng 200 chữ 2 điểm),
+     Phần II một văn bản nghị luận hoặc thông tin (đọc hiểu 1 điểm, bài văn nghị luận xã hội 4 điểm). Đề cố định, không có đề ngẫu
+     nhiên (pts không đi với pool). Câu đọc hiểu phần lớn chấm tự động, câu viết và câu nêu ý kiến tự chấm; cách viết ở đầu phần đề
+     này trong data/banks/9-van.js. Khối 9 chưa bật nên đề chưa hiện với gia đình. Đề 1: truyện ngắn, văn bản nghị luận; Đề 2: thơ tám
+     chữ, văn bản thông tin. */
+  { id: "van9-vao10-de1", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 1", grade: 9, subject: "Ngữ văn", minutes: 120, n: 10, file: "9-van.js", pts: 10 },
+  { id: "van9-vao10-de2", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 2", grade: 9, subject: "Ngữ văn", minutes: 120, n: 9, file: "9-van.js", pts: 10 },
+
   /* Tiếng Anh 9 · Kiểm tra giữa học kì I (Global Success 9, Units 1–3, Review 1; Phiên N9-gk1-ta). Phạm vi theo đề, đề cương giữa kì I
      tra được (nguồn ở mục 7 của docs/KE-HOACH-NOI-DUNG.md). Khối 9 chưa bật nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong
      file (1 đoạn đọc) + 50 câu của 2 đề cố định (mỗi đề 1 đoạn đọc), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7

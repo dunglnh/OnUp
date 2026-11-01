@@ -1,0 +1,341 @@
+// Kiểm tra các đề Ngữ văn thi thử vào 10 (data/banks/9-van.js, van9-vao10-de<N>; Phiên N9-vao10-van, các phiên N9-vao10-van-b,
+// -c thêm đề rồi mở rộng script này). Đề tính điểm (Phiên K5), khung theo đề minh hoạ tuyển sinh lớp 10 của TP.HCM năm 2026
+// (docs/KE-HOACH-NOI-DUNG.md, mục 7, “Khung đề Ngữ văn”). Số đề, số câu lấy từ danh mục (không ghi cứng).
+// Kiểm tra từng đề: danh mục (tên, khối, môn, file, 120 phút, pts 10, gắn vào vao10-2027); hai phần đúng tên, đúng thứ tự, mỗi phần
+// một đoạn đọc dùng cho mọi câu của phần; Phần I: đọc hiểu 3 điểm (câu chấm tự động pt 0,25–1, nhiều nhất một câu tự luận ngắn
+// 0,5–1 điểm) rồi câu viết đoạn văn nghị luận văn học khoảng 200 chữ 2 điểm; Phần II: đọc hiểu 1 điểm rồi câu viết bài văn nghị
+// luận xã hội khoảng 500–600 chữ 4 điểm; chủ đề theo kĩ năng, khớp thể loại ghi ở tên đoạn đọc; thang chấm (ý 0,25 hoặc bội của
+// 0,5 để chấm được “Một phần”, câu viết 5–7 ý, câu nêu ý kiến 2–3 ý; x của câu viết là dàn ý); note (câu chung về khung TP.HCM, đề
+// thật đọc hiểu là tự luận, số điểm chấm tự động và số câu, số điểm tự chấm tính từ dữ liệu); Quiz.grade (điểm từng phần).
+// Giữa các đề: mỗi cặp đề (1–2, 3–4, 5–6) Phần I khác thể loại, Phần II một văn bản nghị luận và một văn bản thông tin; vấn đề nghị
+// luận xã hội của mỗi đề ghi ở VAN_DE, không lặp; đúng/sai 4 ý không lặp kiểu Đ/S.
+// Đọc lại bằng code: bài thơ người soạn viết (THO: số tiếng mỗi dòng, khổ bốn dòng, kiểu vần chân; cặp tiếng hiệp vần cùng vần,
+// cùng thanh bằng hoặc trắc), đáp án các câu tính được từ chữ của đoạn đọc (CHECKS: nhận ra câu bằng một đoạn chữ của đề, đúng một
+// câu), mọi câu trích trong «» ở đề bài, lựa chọn và lời giải câu chấm tự động có trong đoạn đọc.
+// Rồi: đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa chọn dài nhất hay ngắn nhất ở không quá một phần ba số câu nhiều lựa
+// chọn, không là lựa chọn duy nhất có chữ của nhãn chủ đề; đề “Ôn chủ đề” lấy hết câu của chủ đề; dò lộ đáp án (Rút ra N19: chuỗi 3
+// từ liền nhau của đáp án; đáp án ngắn thì cả đáp án) giữa mọi cặp câu của một đề (đề cố định: mọi câu cùng ra), ở đề bài, lựa
+// chọn, lời giải, thang chấm, note và đoạn đọc phần kia, và giữa các câu cùng chủ đề của các đề khác nhau (đề “Ôn chủ đề” rút
+// chung); DO_LO=1 in ra để xem tay, danh sách đã xem ở DA_XEM. Có sách ở ../OnUp-Book (repo riêng tư) thì so mọi trường chữ (cả đoạn
+// đọc, note, thang chấm) với chữ OCR của mọi cuốn sau khi bỏ dấu, gộp nguyên âm: không chuỗi 8 từ nào trùng (DO_SACH=1 in chuỗi 6
+// từ); tên văn bản không có trong sách Ngữ văn 6–9. So với mọi câu, đoạn đọc của các kho khác (không chuỗi 8 từ nào trùng; DO_KHO=1
+// in chuỗi 5 từ) và giữa các đề thi thử với nhau (đoạn đọc, đề bài, lựa chọn, lời giải; thang chấm và khung đề bài câu viết được
+// dùng chung).
+// Chạy: node tests/van9-vao10.js → in VAN9 VAO10 OK.
+"use strict";
+const assert = require("assert");
+const fs = require("fs");
+const path = require("path");
+const vm = require("vm");
+const BANKS = require("./nap-de.js").napDe();
+const ctx = vm.createContext({ window: {} });
+vm.runInContext(fs.readFileSync(path.join(__dirname, "../js/quiz.js"), "utf8"), ctx);
+vm.runInContext(fs.readFileSync(path.join(__dirname, "../data/calendar-2026-2027.js"), "utf8"), ctx);
+const Quiz = ctx.window.Quiz, EVENTS = ctx.window.ONTAP_SEED_EVENTS;
+const sum = (a) => a.reduce((s, v) => s + v, 0);
+const r2 = (x) => Math.round(x * 100) / 100;
+const so = (b) => +/de(\d+)$/.exec(b.id)[1];
+
+/* ---------- khung đề (docs/KE-HOACH-NOI-DUNG.md, mục 7, “Khung đề Ngữ văn”) ---------- */
+const P1 = "Phần I. Đọc hiểu và viết đoạn văn", P2 = "Phần II. Đọc hiểu và viết bài văn";
+const DOC1 = { truyện: "Đọc hiểu truyện", thơ: "Đọc hiểu thơ", kí: "Đọc hiểu kí" }; // thể loại ghi ở tên đoạn đọc → chủ đề
+const DOC2 = ["Đọc hiểu văn bản nghị luận", "Đọc hiểu văn bản thông tin"];
+const VIET1 = "Viết đoạn văn nghị luận văn học", VIET2 = "Viết bài văn nghị luận xã hội";
+const NOTE0 = "Đề thi thử theo cấu trúc đề tuyển sinh lớp 10 của TP.HCM năm 2026. Tỉnh, thành khác có thể ra đề khác: xem thông báo của Sở.";
+// vấn đề nghị luận xã hội của từng đề (chữ phải có trong đề bài câu viết bài văn); sáu đề không lặp vấn đề. Đề mới thì thêm vào đây
+// sau khi so với các câu Viết của mọi kho Ngữ văn (grep "type: \"essay\"" data/banks/*-van.js) và với các đề đã có.
+const VAN_DE = {
+  "van9-vao10-de1": "so sánh bản thân với người khác",
+  "van9-vao10-de2": "gìn giữ các loại hình nghệ thuật truyền thống"
+};
+// bài thơ người soạn viết: mã đoạn → [số tiếng mỗi dòng, kiểu vần chân của mọi khổ bốn dòng]
+const THO = { "cuoc-goi": [8, "lien"] };
+const THE = { 6: "Thơ sáu chữ", 7: "Thơ bảy chữ", 8: "Thơ tám chữ" };
+
+const DE = BANKS.filter((b) => /^van9-vao10-de\d+$/.test(b.id)).sort((a, b) => so(a) - so(b));
+assert.ok(DE.length >= 2, "có ít nhất hai đề Ngữ văn thi thử vào 10");
+DE.forEach((b, i) => assert.equal(so(b), i + 1, "số đề liền nhau từ Đề 1: " + b.id));
+const ev = EVENTS.find((e) => e.id === "vao10-2027");
+assert.ok(ev && ev.grades.join() === "9" && ev.subjects.includes("Ngữ văn"), "kì thi vao10-2027 của khối 9 có môn Ngữ văn");
+const ten = new Map(), deOf = new Map();
+DE.forEach((b) => b.questions.forEach((q, i) => { ten.set(q, "de" + so(b) + "#" + (i + 1)); deOf.set(q, b); }));
+const ALL = DE.flatMap((b) => b.questions);
+const doan = (b, p) => { assert.ok(b.passages && b.passages[p], `${b.id}: không có đoạn ${p}`); return b.passages[p]; };
+const theLoai = (ps) => { const m = /\((truyện|thơ|kí|văn bản) người soạn viết\)$/.exec(ps.title); return m && m[1]; };
+const tenVanBan = (ps) => ps.title.replace(/\s*\([^()]*\)$/, "");
+
+/* ---------- tiếng, thanh, vần (như tests/van9-gk2.js) ---------- */
+const TRAC = /[̣́̉̃]/; // sắc, hỏi, ngã, nặng
+const tieng = (s) => String(s).normalize("NFC").replace(/[«»“”"(),.;:!?…–—]/g, " ").split(/\s+/).filter(Boolean);
+const thanh = (t) => (TRAC.test(t.normalize("NFD")) ? "T" : "B");
+const van = (t) => t.normalize("NFD").replace(/[̣̀́̉̃]/g, "").normalize("NFC").toLowerCase()
+  .replace(/^(ngh|ng|gh|gi|kh|ph|th|tr|ch|nh|qu|b|c|d|đ|g|h|k|l|m|n|p|r|s|t|v|x)(?=[aăâeêioôơuưy])/, "");
+const hiepVan = (a, b) => van(a) === van(b) && thanh(a) === thanh(b);
+const khoTho = (p) => p.text.split(/\n\s*\n/).map((k) => k.split("\n").map((l) => l.trim()).filter(Boolean)).filter((k) => k.length);
+const cuoi = (l) => { const w = tieng(l); return w[w.length - 1]; };
+const kieuVan = (k) => {
+  const c = k.map(cuoi), v = (i, j) => hiepVan(c[i], c[j]);
+  if (v(0, 1) && v(2, 3) && !v(1, 2)) return "lien";
+  if (v(1, 3) && !v(0, 1) && !v(2, 3)) return "cach";
+  return "khac";
+};
+
+/* ---------- từng đề: danh mục, phần, điểm, chủ đề, thang chấm, note ---------- */
+const SOCHU = ["không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín", "mười"];
+const diem = (x) => String(r2(x)).replace(".", ",");
+DE.forEach((b) => {
+  const at = b.id, qs = b.questions;
+  assert.equal(b.title, `Ngữ văn 9 · Thi thử vào 10 · Đề ${so(b)}`, at + ": tên đề");
+  assert.equal(b.grade, 9); assert.equal(b.subject, "Ngữ văn"); assert.equal(b.file, "9-van.js");
+  assert.equal(b.minutes, 120, at + ": 120 phút"); assert.equal(b.pts, 10, at + ": thang 10 điểm");
+  assert.ok(!b.pool, at + ": đề cố định");
+  assert.equal(qs.length, b.n, at + ": n bằng số câu trong file");
+  assert.ok(ev.banks.includes(b.id), at + ": gắn vào vao10-2027");
+  assert.deepEqual([...new Set(qs.map((q) => q.part))], [P1, P2], at + ": hai phần, đúng tên, đúng thứ tự");
+  assert.ok(qs.every((q) => ["mc", "tf4", "fill", "essay"].includes(q.type)), at + ": chỉ dùng trắc nghiệm, đúng/sai 4 ý, điền, tự luận");
+  assert.ok(qs.every((q) => [1, 2, 3].includes(q.lv)), at + ": câu nào cũng có lv");
+  assert.equal(Object.keys(b.passages || {}).length, 2, at + ": hai văn bản (đoạn đọc)");
+  [P1, P2].forEach((P, k) => {
+    const pq = qs.filter((q) => q.part === P), ps = [...new Set(pq.map((q) => q.p))];
+    assert.equal(ps.length, 1, `${at}, ${P}: mọi câu dùng một đoạn đọc`);
+    assert.ok(ps[0], `${at}, ${P}: câu có đoạn đọc`);
+    const psg = doan(b, ps[0]), viet = pq[pq.length - 1], doc = pq.slice(0, -1);
+    assert.ok(/người soạn viết\)$/.test(psg.title), `${at}, ${P}: văn bản người soạn viết (ngữ liệu ngoài sách giáo khoa)`);
+    assert.equal(viet.type, "essay", `${at}, ${P}: câu cuối của phần là câu viết`);
+    assert.equal(viet.topic, k ? VIET2 : VIET1, `${at}, ${P}: chủ đề câu viết`);
+    assert.equal(viet.pt, k ? 4 : 2, `${at}, ${P}: điểm câu viết`);
+    assert.ok(k ? /khoảng 500–600 chữ/.test(viet.q) : /khoảng 200 chữ/.test(viet.q), `${at}, ${P}: dung lượng câu viết`);
+    assert.ok(k ? /^Từ văn bản|Từ văn bản/.test(viet.q) : viet.q.includes("«" + tenVanBan(psg) + "»"), `${at}, ${P}: câu viết gắn với văn bản của phần`);
+    assert.ok(/^Dàn ý gợi ý:\n/.test(viet.x) && viet.x.length > 600, `${at}, ${P}: câu viết có dàn ý gợi ý`);
+    assert.ok(viet.rubric.length >= 5 && viet.rubric.length <= 7, `${at}, ${P}: câu viết có 5–7 ý chấm`);
+    assert.equal(r2(sum(doc.map((q) => q.pt))), k ? 1 : 3, `${at}, ${P}: điểm đọc hiểu`);
+    const tp = [...new Set(doc.map((q) => q.topic))];
+    assert.equal(tp.length, 1, `${at}, ${P}: các câu đọc hiểu cùng một chủ đề`);
+    if (k) assert.ok(DOC2.includes(tp[0]) && theLoai(psg) === "văn bản", `${at}: Phần II là văn bản nghị luận hoặc văn bản thông tin`);
+    else assert.equal(tp[0], DOC1[theLoai(psg)], `${at}: chủ đề Phần I khớp thể loại ghi ở tên đoạn đọc`);
+    const ngan = doc.filter((q) => q.type === "essay"), tu = doc.filter((q) => q.type !== "essay");
+    assert.ok(ngan.length <= 1, `${at}, ${P}: nhiều nhất một câu tự luận ngắn`);
+    ngan.forEach((q) => {
+      assert.ok(q.pt >= 0.5 && q.pt <= 1 && q.lv === 3, `${at}, ${P}: câu tự luận ngắn 0,5–1 điểm, mức Vận dụng`);
+      // app tự ghi “Gợi ý:” trước x, nên x của câu tự luận ngắn không mở đầu bằng chữ đó
+      assert.ok(/khoảng 3–5 câu/.test(q.q) && !/^(Dàn ý )?[Gg]ợi ý:/.test(q.x) && q.x.length > 150 && q.rubric.length >= 2 && q.rubric.length <= 3, `${at}, ${P}: câu tự luận ngắn (3–5 câu, 2–3 ý chấm, có gợi ý)`);
+    });
+    assert.ok(tu.length >= 2 && tu.every((q) => q.pt >= 0.25 && q.pt <= 1), `${at}, ${P}: câu chấm tự động 0,25–1 điểm`);
+    assert.ok(tu.some((q) => q.lv === 1) && tu.some((q) => q.lv === 2), `${at}, ${P}: đọc hiểu có câu Biết và câu Hiểu`);
+  });
+  qs.filter((q) => q.type === "essay").forEach((q) => {
+    assert.equal(q.lv, 3, at + ": câu tự luận mức Vận dụng");
+    q.rubric.forEach((r) => assert.ok(r.p === 0.25 || Number.isInteger(r.p * 2), `${at}: ý chấm ${r.p} điểm (0,25 hoặc bội của 0,5 để chấm được «Một phần»): ${r.c.slice(0, 50)}`));
+  });
+  // note: câu chung, đề thật đọc hiểu là tự luận, điểm chấm tự động và câu tự luận tính từ dữ liệu, thể loại hai văn bản
+  const G = Quiz.grade(qs, []), ess = qs.filter((q) => q.type === "essay");
+  assert.ok(b.note.startsWith(NOTE0), at + ": note mở đầu bằng câu chung về khung đề TP.HCM");
+  assert.ok(/Ở đề thật, câu đọc hiểu là câu tự luận/.test(b.note), at + ": note ghi đề thật đọc hiểu là câu tự luận");
+  const m = /app chấm tự động [^(]*\(([\d,]+) điểm\), còn (\S+) câu tự luận \(([\d,]+) điểm\)/.exec(b.note);
+  assert.ok(m, at + ": note ghi phần chấm tự động và phần tự chấm");
+  assert.deepEqual([m[1], m[2], m[3]], [diem(G.auto), SOCHU[ess.length], diem(sum(ess.map((q) => q.pt)))], at + ": số điểm, số câu trong note khớp dữ liệu");
+  const t1 = qs.find((q) => q.part === P1).topic, t2 = qs.find((q) => q.part === P2).topic;
+  assert.ok(b.note.includes(t1 === DOC1.thơ ? "đọc hiểu một bài thơ" : t1 === DOC1.truyện ? "đọc hiểu một truyện" : "đọc hiểu một bài kí"), at + ": note ghi thể loại văn bản Phần I");
+  assert.ok(b.note.includes(t2 === DOC2[0] ? "đọc hiểu một văn bản nghị luận" : "đọc hiểu một văn bản thông tin"), at + ": note ghi loại văn bản Phần II");
+  // chấm như đề thi (Quiz.grade): làm đúng hết câu chấm tự động thì được đủ phần chấm tự động; từng phần 5 điểm
+  const dung = qs.map((q) => (q.type === "mc" ? 0 : q.type === "fill" ? q.ans[0] : q.type === "tf4" ? q.a.slice() : null));
+  const H = Quiz.grade(qs, dung);
+  assert.equal(H.max, 10); assert.equal(H.got, H.auto); assert.equal(G.got, 0);
+  assert.deepEqual(H.parts.map((x) => [x.part, x.max]), [[P1, 5], [P2, 5]], at + ": mỗi phần 5 điểm");
+  // vấn đề nghị luận xã hội
+  assert.ok(VAN_DE[b.id] && qs[qs.length - 1].q.includes(VAN_DE[b.id]), at + ": vấn đề nghị luận xã hội ghi ở VAN_DE và có trong đề bài");
+});
+assert.equal(new Set(Object.values(VAN_DE)).size, Object.keys(VAN_DE).length, "các đề không lặp vấn đề nghị luận xã hội");
+assert.deepEqual(Object.keys(VAN_DE).sort(), DE.map((b) => b.id).sort(), "VAN_DE ghi đủ các đề");
+// từng cặp đề (1–2, 3–4, 5–6): Phần I khác thể loại; Phần II một văn bản nghị luận, một văn bản thông tin
+for (let i = 0; i + 1 < DE.length; i += 2) {
+  const tp = (b, P) => b.questions.find((q) => q.part === P).topic, a = DE[i], c = DE[i + 1];
+  assert.notEqual(tp(a, P1), tp(c, P1), `${a.id}, ${c.id}: Phần I khác thể loại`);
+  assert.notEqual(tp(a, P2), tp(c, P2), `${a.id}, ${c.id}: Phần II một văn bản nghị luận, một văn bản thông tin`);
+}
+
+/* ---------- thơ: số tiếng, khổ, vần ---------- */
+DE.forEach((b) => Object.entries(b.passages).forEach(([id, ps]) => {
+  if (theLoai(ps) !== "thơ") return;
+  assert.ok(THO[id], "bài thơ chưa có trong THO: " + id);
+  const [n, kieu] = THO[id], K = khoTho(ps);
+  assert.ok(K.length >= 3, id + ": ít nhất ba khổ");
+  K.forEach((k, i) => {
+    assert.equal(k.length, 4, `${id}, khổ ${i + 1}: bốn dòng`);
+    k.forEach((l, j) => assert.equal(tieng(l).length, n, `${id}, khổ ${i + 1}, dòng ${j + 1}: ${n} tiếng («${l}»)`));
+    assert.equal(kieuVan(k), kieu, `${id}, khổ ${i + 1}: vần ${kieu}`);
+  });
+}));
+
+/* ---------- đáp án tính lại từ chữ của đoạn đọc ---------- */
+const motCau = (has) => { const m = ALL.filter((q) => q.q.includes(has)); assert.equal(m.length, 1, `“${has}”: cần đúng một câu, có ${m.length}`); return m[0]; };
+const chuDoan = (q) => doan(deOf.get(q), q.p).text;
+const co = (q, s) => { assert.ok(chuDoan(q).includes(s), `${ten.get(q)}: đoạn đọc phải có «${s}»`); return true; };
+const khongCo = (q, s) => !chuDoan(q).includes(s);
+const yOf = (q, re) => { const k = q.o.findIndex((o) => re.test(o)); assert.ok(k >= 0, `${ten.get(q)}: không thấy ý ${re}`); return k; };
+const tf = (q, rules) => { const a = q.a.slice(); rules.forEach(([re, v]) => { a[yOf(q, re)] = v; }); return a; };
+const CHECKS = [
+  { has: "«Bình nước đầu hẻm» do ai kể lại và kể theo ngôi nào", right: (q) => {
+    const n = (chuDoan(q).match(/(^|[^\p{L}])[Tt]ôi(?![\p{L}])/gu) || []).length;
+    assert.ok(n >= 10, "truyện kể bằng lời nhân vật xưng «tôi»");
+    const ok = q.o.filter((o) => /^Ngôi thứ nhất; người kể xưng «tôi»/.test(o));
+    assert.equal(ok.length, 1, "đúng một lựa chọn: ngôi thứ nhất, người kể xưng «tôi»");
+    return ok[0]; } },
+  { has: "Tấm bìa ba dán trên thân bình nước ghi", right: (q) => /«Nước uống ([^.»]+)\. Mời bà con\.»/.exec(chuDoan(q))[1] },
+  { has: "Đọc lại truyện «Bình nước đầu hẻm»", right: (q) => tf(q, [
+    [/ông cụ gọi nhân vật «tôi» ra/, !(co(q, "Ông không nói gì, chỉ lặng lẽ ngồi xuống") && co(q, "Tôi bấm máy gọi"))],
+    [/«ôi» là thán từ/, co(q, "Ôi, trưa nay nắng dữ quá!") && /\n– [^\n]*Ôi, /.test(chuDoan(q))],
+    [/gấp cẩn thận mảnh giấy cảm ơn/, co(q, "Ba đọc đi đọc lại mảnh giấy rồi gấp cẩn thận, bỏ vào túi áo")]]) },
+  { has: "Vấn đề chính (luận đề) mà văn bản «Đường chạy của riêng mình»", right: (q) => co(q, "Theo tôi, so sánh tự nó không có lỗi; điều đáng bàn là ta so sánh với ai và để làm gì.") && q.o.find((o) => /so sánh mình với ai/.test(o) && /để làm gì/.test(o)) },
+  { has: "Người viết đưa câu «Nhiều nghiên cứu tâm lí học", right: (q) => {
+    const c = chuDoan(q).split(/(?<=[.?!])\s+/).find((s) => s.startsWith("Nhiều nghiên cứu tâm lí học đã ghi nhận rằng"));
+    assert.ok(c && !/(^|[^\p{L}])(tôi|chúng ta|ta|thích|ghét)(?![\p{L}])|thú vị|đáng ghi nhận/iu.test(c), "câu dẫn kết quả nghiên cứu là thông tin khách quan, không có dấu hiệu ý kiến chủ quan");
+    return q.o.find((o) => /^Đưa thông tin khách quan làm bằng chứng/.test(o)); } },
+  { has: "«Cuộc gọi lúc mười giờ đêm» được viết theo thể thơ nào", right: (q) => { const n = [...new Set(khoTho(doan(deOf.get(q), q.p)).flat().map((l) => tieng(l).length))]; assert.equal(n.length, 1); return THE[n[0]]; } },
+  { has: "hiệp vần với tiếng «phắc» kết thúc dòng thơ ngay trên", right: (q) => { const k = khoTho(doan(deOf.get(q), q.p))[2]; assert.equal(cuoi(k[0]), "phắc"); assert.ok(hiepVan(cuoi(k[0]), cuoi(k[1])) && !hiepVan(cuoi(k[1]), cuoi(k[2]))); return cuoi(k[1]); } },
+  { has: "Dòng thơ «Nghìn đường kim nối dài theo tháng ngày»", right: (q) => { assert.ok(khoTho(doan(deOf.get(q), q.p)).flat().includes("Nghìn đường kim nối dài theo tháng ngày."), "là một dòng của bài thơ"); return q.o[0]; } },
+  { has: "Mỗi ý sau nói về bài thơ «Cuộc gọi lúc mười giờ đêm»", right: (q) => { const K = khoTho(doan(deOf.get(q), q.p)), kh = (i) => K[i].join("\n"); return tf(q, [
+    [/khổ thơ đầu, mẹ gọi về khi vừa tan ca/, /vừa tan ca/.test(kh(0)) && /chưa kịp thay ra/.test(kh(0))],
+    [/khổ thơ thứ hai, người con kể hết/, !/giấu thật kín/.test(kh(1))],
+    [/khổ thơ cuối, người con chủ động nhắn/, /con nhắn mẹ: «Ngủ ngon»/.test(kh(K.length - 1))],
+    [/dùng biện pháp tu từ so sánh/, /(^|[^\p{L}])(như|tựa|giống|bằng|là)(?![\p{L}])/u.test(K[K.length - 1].find((l) => /Tết đã gõ bên thềm/.test(l)))]]); } },
+  { has: "phân tích khổ thơ thứ tư của bài thơ", right: (q) => { const want = khoTho(doan(deOf.get(q), q.p))[3].join(" / "); assert.ok(q.q.includes("«" + want + "»"), "đề bài chép đúng khổ thơ thứ tư"); return null; } },
+  { has: "chữ «tài tử» trong tên gọi", right: (q) => co(q, "Chữ «tài tử» ở đây chỉ những người chơi nhạc không chuyên") && q.o.find((o) => /không chuyên/.test(o)) },
+  { has: "Các đề mục đặt ở đầu đoạn", right: (q) => {
+    const dm = [...q.q.matchAll(/«([^»]+)»/g)].map((m) => m[1]), doanVan = chuDoan(q).split("\n");
+    assert.ok(dm.length >= 3 && dm.every((h) => doanVan.some((d) => d.startsWith(h + ". "))), "mỗi đề mục mở đầu một đoạn của văn bản");
+    return q.o[0]; } }
+];
+let nCheck = 0;
+CHECKS.forEach((c) => {
+  const q = motCau(c.has), want = c.right(q);
+  if (want === null) { nCheck++; return; }
+  const got = q.type === "fill" ? q.ans[0] : q.type === "tf4" ? q.a : q.o[0];
+  if (Array.isArray(want)) assert.deepEqual(got, want, `${ten.get(q)}: đáp án ${JSON.stringify(got)}, tính được ${JSON.stringify(want)}`);
+  else assert.equal(got, want, `${ten.get(q)}: đáp án ${JSON.stringify(got)}, tính được ${JSON.stringify(want)}`);
+  nCheck++;
+});
+// câu trích trong «» (từ ba tiếng) ở đề bài, lựa chọn và lời giải câu chấm tự động có trong đoạn đọc (bỏ “/” ngăn dòng, tiếng)
+const gon = (s) => String(s).normalize("NFC").replace(/\s*\/\s*/g, " ").replace(/\s+/g, " ").trim().toLowerCase();
+let nTrich = 0;
+ALL.forEach((q) => {
+  const ps = doan(deOf.get(q), q.p), text = gon(ps.text);
+  [q.q].concat(q.o || [], q.type === "essay" ? [] : [q.x]).forEach((s) => [...s.matchAll(/«([^»]+)»/g)].forEach((m) => {
+    m[1].split("…").map((x) => x.trim()).filter((x) => tieng(x.replace(/_+/g, " ")).length >= 3 && gon(x) !== gon(tenVanBan(ps))).forEach((x) => {
+      // chỗ trống của câu điền (___) khớp với bất kì chữ nào
+      const re = new RegExp(gon(x).replace(/[.!?]$/, "").split(/_{3,}/).map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join(".+?"));
+      assert.ok(re.test(text), `${ten.get(q)}: câu trích «${x}» không có trong đoạn đọc`);
+      nTrich++;
+    });
+  }));
+});
+
+/* ---------- dạng câu, độ dài lựa chọn, nhãn chủ đề ---------- */
+const tf4 = ALL.filter((q) => q.type === "tf4"), kieu = {};
+tf4.forEach((q) => { const k = q.a.map((a) => (a ? "Đ" : "S")).join(""); kieu[k] = (kieu[k] || 0) + 1; assert.ok(/Đ/.test(k) && /S/.test(k), ten.get(q) + ": câu đúng/sai 4 ý có cả ý đúng và ý sai"); });
+assert.ok(Math.max(...Object.values(kieu)) === 1, "kiểu Đ/S của các câu đúng/sai 4 ý lặp: " + JSON.stringify(kieu));
+ALL.forEach((q) => assert.ok(!/(ý|phương án|lựa chọn) (thứ|số) (nhất|hai|ba|tư|\d)|phương án [A-D]\b/.test(q.x), "lời giải nhắc vị trí của ý: " + ten.get(q)));
+const mc = ALL.filter((q) => q.type === "mc");
+mc.forEach((q) => {
+  const m = Math.max(...q.o.slice(1).map((o) => o.length));
+  assert.ok(q.o[0].length <= Math.max(1.2 * m, m + 8), "đáp án đúng dài hơn hẳn các lựa chọn sai: " + ten.get(q));
+  assert.ok(!q.o.some((o) => /^(Tất cả|Cả hai|Cả ba|Cả A)/.test(o)), "lựa chọn kiểu «Tất cả…» không hợp khi app xáo lựa chọn: " + ten.get(q));
+});
+const dai = mc.filter((q) => q.o[0].length >= Math.max(...q.o.slice(1).map((o) => o.length))).length;
+const ngan = mc.filter((q) => q.o[0].length <= Math.min(...q.o.slice(1).map((o) => o.length))).length;
+assert.ok(3 * dai <= mc.length, `đáp án là lựa chọn dài nhất ở ${dai}/${mc.length} câu nhiều lựa chọn`);
+assert.ok(3 * ngan <= mc.length, `đáp án là lựa chọn ngắn nhất ở ${ngan}/${mc.length} câu nhiều lựa chọn`);
+const khongDau0 = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[đĐ]/g, "d").toLowerCase();
+mc.forEach((q) => {
+  const w = khongDau0(q.topic).split(/[^a-z0-9]+/).filter((x) => x.length > 1), cap = [];
+  for (let i = 0; i + 1 < w.length; i++) cap.push(w[i] + " " + w[i + 1]);
+  cap.forEach((c) => { const hit = q.o.map((o) => khongDau0(o).replace(/[^a-z0-9]+/g, " ").includes(c)); assert.ok(!(hit[0] && hit.filter(Boolean).length === 1), `chỉ đáp án có chữ «${c}» của nhãn chủ đề: ${ten.get(q)}`); });
+});
+// đơn vị hành chính cũ (CLAUDE.md, “Nội dung câu hỏi”)
+const moiChu = (b) => [b.note].concat(...Object.values(b.passages).map((ps) => [ps.title, ps.text]), ...b.questions.map((q) => [q.q, q.x].concat(q.o || [], q.ans || [], (q.rubric || []).map((r) => r.c))));
+DE.forEach((b) => moiChu(b).forEach((s) => assert.ok(!/(^|[^\p{L}])(huyện|thị xã|thị trấn|63 tỉnh)(?![\p{L}])/iu.test(s), `${b.id}: không dùng đơn vị hành chính cũ: ${s.slice(0, 60)}`)));
+
+/* ---------- đề “Ôn chủ đề” (Phiên UX14): lấy hết câu chấm tự động của chủ đề trong các đề thi thử ---------- */
+[...new Set(ALL.filter((q) => q.type !== "essay").map((q) => q.topic))].forEach((t) => {
+  const tb = Quiz.topicBank(DE, t, { id: "chu-de", title: t }), cau = ALL.filter((q) => q.topic === t && q.type !== "essay").length;
+  assert.equal(tb.questions.length, cau, `Ôn chủ đề «${t}»: kho có đủ ${cau} câu`);
+  if (cau < Quiz.TOPIC_N) { const d = Quiz.draw(tb); assert.equal(d.notes.length, 0, `Ôn chủ đề «${t}»: rút có ghi chú`); assert.equal(d.questions.length, cau); }
+});
+
+/* ---------- dò lộ đáp án ----------
+   Đề cố định: mọi câu của một đề cùng ra, đề bài, lựa chọn của mọi câu xem được qua bảng số câu, lời giải hiện ngay sau mỗi câu
+   khi ôn luyện; note hiện ở màn mở đề. Đáp án (lựa chọn đúng, đáp án điền) tách thành các chuỗi 3 từ liền nhau (đáp án từ 3 từ trở
+   xuống thì lấy cả đáp án); chuỗi có ở đề bài, lựa chọn, lời giải, thang chấm của câu khác cùng đề, ở note, ở đoạn đọc phần kia, thì
+   in ra với DO_LO=1 để xem tay. Đề “Ôn chủ đề” rút chung câu cùng chủ đề của các đề khác nhau (kèm đoạn đọc của chúng): so cả các
+   cặp đó. */
+const tu = (s) => String(s).normalize("NFC").toLowerCase().replace(/[«»“”"(),.;:!?…–—\-/]/g, " ").split(/\s+/).filter(Boolean);
+const cum = (s) => { const w = tu(s); if (w.length <= 3) return w.length ? [w.join(" ")] : []; const r = []; for (let i = 0; i + 3 <= w.length; i++) r.push(w.slice(i, i + 3).join(" ")); return r; };
+const chu = (q) => [q.q, q.x].concat(q.o || [], q.ans || [], (q.rubric || []).map((r) => r.c)).map(String);
+const dapAn = (q) => (q.type === "mc" ? [q.o[0]] : q.type === "fill" ? [q.ans[0]] : []);
+const doLo = (pairs, tenCau) => {
+  const ra = [];
+  pairs.forEach(([q, k, them]) => {
+    const C = [...new Set(dapAn(q).flatMap(cum))];
+    if (!C.length) return;
+    const T = " " + (k ? chu(k) : []).concat(them || []).map((s) => tu(s).join(" ")).join(" | ") + " ";
+    C.filter((c) => T.includes(" " + c + " ")).forEach((c) => ra.push(`${k ? tenCau(k) : "note"} → ${tenCau(q)}: ${c}`));
+  });
+  return [...new Set(ra)];
+};
+const capDo = [];
+DE.forEach((b) => b.questions.forEach((q) => {
+  capDo.push([q, null, [b.note]]);
+  b.questions.forEach((k) => { if (k !== q) capDo.push([q, k, k.p !== q.p ? [b.passages[k.p].text] : []]); });
+}));
+ALL.forEach((q) => ALL.forEach((k) => { if (deOf.get(q) !== deOf.get(k) && q.topic === k.topic && q.type !== "essay" && k.type !== "essay") capDo.push([q, k, [doan(deOf.get(k), k.p).text]]); }));
+const lo = doLo(capDo, (q) => ten.get(q));
+if (process.env.DO_LO) console.log("Đáp án có ở câu rút được cùng lúc (xem tay):\n" + lo.join("\n"));
+// đã xem (Phiên N9-vao10-van): chữ chung, không làm lộ đáp án.
+const DA_XEM = [];
+assert.deepEqual(lo, DA_XEM, "đáp án có ở câu rút được cùng lúc đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
+{ // bộ dò bắt được chỗ lộ cố ý viết sai
+  const a = motCau("Tấm bìa ba dán trên thân bình nước ghi"), b = motCau("Câu nói của ông cụ «Cả con đường này");
+  const gia = Object.assign({}, b, { x: b.x + " Bình nước ba để ở đầu hẻm là nước miễn phí." });
+  assert.ok(doLo([[a, gia, []]], (q) => ten.get(q) || "giả").some((s) => / miễn phí$/.test(s)), "bộ dò phải bắt được đáp án nằm trong lời giải câu khác");
+}
+
+/* ---------- không chép sách: so với chữ OCR (bỏ dấu, gộp nguyên âm), nếu có OnUp-Book ---------- */
+const BOOK = path.join(__dirname, "../../OnUp-Book");
+const SACH = fs.existsSync(BOOK) ? fs.readdirSync(BOOK).filter((l) => /^lop-\d+$/.test(l)).flatMap((l) => fs.readdirSync(path.join(BOOK, l)).map((c) => path.join(BOOK, l, c, "chu.txt"))).filter((f) => fs.existsSync(f)) : [];
+const khongDau = (s) => String(s).normalize("NFC").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
+// tên di sản, tên danh sách của UNESCO viết đúng như tên gọi chính thức: tính là một từ (tên riêng, không phải câu chép của sách)
+const TEN_RIENG = ["Nghệ thuật Đờn ca tài tử Nam Bộ", "Danh sách di sản văn hoá phi vật thể đại diện của nhân loại"].map(khongDau).sort((a, b) => b.length - a.length);
+const tuKD = (s) => { let k = " " + khongDau(s) + " "; TEN_RIENG.forEach((r) => { k = k.split(" " + r + " ").join(" " + r.replace(/ /g, "") + " "); }); return k.split(" ").filter(Boolean); };
+const chuoi = (s, k) => { const w = tuKD(s), ra = []; for (let i = 0; i + k <= w.length; i++) ra.push(w.slice(i, i + k).join(" ")); return ra; };
+const boChuoi = (texts, k) => { const set = new Set(); texts.forEach((t) => chuoi(t, k).forEach((c) => set.add(c))); return set; };
+// mọi trường chữ của một đề, theo từng câu (đoạn đọc, note tính vào câu đầu dùng chúng)
+const truongDe = (b) => b.questions.map((q, i) => ({ q, s: chu(q).concat(i ? [] : [b.note], b.questions.findIndex((x) => x.p === q.p) === i ? [b.passages[q.p].title, b.passages[q.p].text] : []) }));
+if (SACH.length) {
+  assert.ok(SACH.some((f) => /ngu-van-9-tap-2/.test(f)), "OnUp-Book có Ngữ văn 9 tập hai");
+  const texts = SACH.map((f) => fs.readFileSync(f, "utf8").replace(/=== page-\d+ · [^=]* ===/g, " "));
+  const bao = (k) => { const set = boChuoi(texts, k); return DE.flatMap((b) => truongDe(b).flatMap(({ q, s }) => s.flatMap((x) => chuoi(x, k).filter((c) => set.has(c)).map((c) => `${ten.get(q)}: ${c}`)))); };
+  if (process.env.DO_SACH) console.log("Chuỗi 6 từ trùng chữ OCR của sách (xem tay):\n" + [...new Set(bao(6))].join("\n"));
+  assert.deepEqual([...new Set(bao(8))], [], "chuỗi 8 từ trùng chữ của sách");
+  // ngữ liệu ngoài sách giáo khoa lớp 6–9: tên văn bản không có trong sách Ngữ văn 6–9
+  const van69 = SACH.filter((f) => /lop-[6-9]\/ngu-van-/.test(f)).map((f) => " " + khongDau(fs.readFileSync(f, "utf8")) + " ");
+  DE.forEach((b) => Object.values(b.passages).forEach((ps) => assert.ok(!van69.some((t) => t.includes(" " + khongDau(tenVanBan(ps)) + " ")), `${b.id}: «${tenVanBan(ps)}» có trong sách Ngữ văn 6–9`)));
+  console.log("Đã so với chữ OCR của " + SACH.length + " cuốn sách (OnUp-Book).");
+} else console.log("Không có ../OnUp-Book: bỏ qua bước so với chữ của sách.");
+
+/* ---------- trùng ý với các kho khác (Rút ra N21), giữa các đề thi thử với nhau ---------- */
+{
+  const khac = BANKS.filter((b) => !/^van9-vao10-/.test(b.id)).flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id)
+    .map((q) => chu(q).concat(q.p && b.passages && b.passages[q.p] ? [b.passages[q.p].text || ""] : []).join(" | ")));
+  const bao = (k) => { const set = boChuoi(khac, k); return DE.flatMap((b) => truongDe(b).flatMap(({ q, s }) => [...new Set(s.flatMap((x) => chuoi(x, k)))].filter((c) => set.has(c)).map((c) => `${ten.get(q)}: ${c}`))); };
+  if (process.env.DO_KHO) console.log("Chuỗi 5 từ trùng câu của kho khác (xem tay):\n" + [...new Set(bao(5))].join("\n"));
+  assert.deepEqual([...new Set(bao(8))], [], "chuỗi 8 từ trùng câu của kho khác");
+  // giữa các đề thi thử: đoạn đọc, đề bài, lựa chọn, lời giải không dùng lại của đề khác (thang chấm, note, khung đề bài câu viết dùng chung)
+  const boKhung = (s) => s.replace(/^(Dàn ý gợi ý|Gợi ý):\s*/, "").replace(/(^|\n)– [^:\n]{1,40}: /g, "\n"); // nhãn của dàn ý: Mở bài, Kết đoạn…
+  const rieng = (b) => Object.values(b.passages).map((ps) => ps.text).concat(...b.questions.map((q) => [boKhung(q.x)].concat(q.type === "essay" ? [] : [q.q], q.o || [])));
+  DE.forEach((b) => {
+    const set = boChuoi(DE.filter((c) => c !== b).flatMap(rieng), 8);
+    rieng(b).forEach((s) => chuoi(s, 8).forEach((c) => assert.ok(!set.has(c), `${b.id} dùng lại chữ của đề thi thử khác: ${c}`)));
+  });
+}
+console.log(DE.length + " đề, " + ALL.length + " câu (" + ALL.filter((q) => q.type !== "essay").length + " câu chấm tự động, " + ALL.filter((q) => q.type === "essay").length + " câu tự luận); " + nCheck + " câu tính lại đáp án, " + nTrich + " câu trích đối chiếu đoạn đọc; đáp án là lựa chọn dài nhất ở " + dai + "/" + mc.length + ", ngắn nhất ở " + ngan + "/" + mc.length + " câu nhiều lựa chọn.");
+console.log("VAN9 VAO10 OK");
