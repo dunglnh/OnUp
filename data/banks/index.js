@@ -876,9 +876,11 @@ window.ONTAP_SEED_BANKS = [
      Phần II một văn bản nghị luận hoặc thông tin (đọc hiểu 1 điểm, bài văn nghị luận xã hội 4 điểm). Đề cố định, không có đề ngẫu
      nhiên (pts không đi với pool). Câu đọc hiểu phần lớn chấm tự động, câu viết và câu nêu ý kiến tự chấm; cách viết ở đầu phần đề
      này trong data/banks/9-van.js. Khối 9 chưa bật nên đề chưa hiện với gia đình. Đề 1: truyện ngắn, văn bản nghị luận; Đề 2: thơ tám
-     chữ, văn bản thông tin. */
+     chữ, văn bản thông tin; Đề 3 (Phiên N9-vao10-van-b): du kí, văn bản nghị luận; Đề 4: thơ tự do, văn bản thông tin. */
   { id: "van9-vao10-de1", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 1", grade: 9, subject: "Ngữ văn", minutes: 120, n: 10, file: "9-van.js", pts: 10 },
   { id: "van9-vao10-de2", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 2", grade: 9, subject: "Ngữ văn", minutes: 120, n: 9, file: "9-van.js", pts: 10 },
+  { id: "van9-vao10-de3", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 3", grade: 9, subject: "Ngữ văn", minutes: 120, n: 10, file: "9-van.js", pts: 10 },
+  { id: "van9-vao10-de4", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 4", grade: 9, subject: "Ngữ văn", minutes: 120, n: 10, file: "9-van.js", pts: 10 },
 
   /* Tiếng Anh 9 · Kiểm tra giữa học kì I (Global Success 9, Units 1–3, Review 1; Phiên N9-gk1-ta). Phạm vi theo đề, đề cương giữa kì I
      tra được (nguồn ở mục 7 của docs/KE-HOACH-NOI-DUNG.md). Khối 9 chưa bật nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong

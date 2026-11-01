@@ -224,7 +224,7 @@
     start: "2027-06-01", end: "2027-06-02", tentative: true,
     subjects: ["Toán", "Ngữ văn", "Tiếng Anh"], scope: "Chương trình THCS, trọng tâm lớp 9. Toán, Ngữ văn 120 phút; môn thứ ba theo đề của Sở.",
     note: "Mỗi tỉnh, thành phố một lịch thi (năm 2026: TP.HCM 1–2/6, Hà Nội 30–31/5). Môn thứ ba do Sở GD&ĐT chọn và công bố trước 31/3/2027; ở đây ghi Tiếng Anh đến khi Sở công bố. Bố mẹ sửa ngày theo thông báo của Sở.",
-    modules: [], banks: ["toan9-vao10-de1", "toan9-vao10-de2", "toan9-vao10-de3", "toan9-vao10-de4", "toan9-vao10-de5", "toan9-vao10-de6", "toan9-vao10-de7", "toan9-vao10-de8", "toan9-vao10-de9", "toan9-vao10-de10", "van9-vao10-de1", "van9-vao10-de2"] },
+    modules: [], banks: ["toan9-vao10-de1", "toan9-vao10-de2", "toan9-vao10-de3", "toan9-vao10-de4", "toan9-vao10-de5", "toan9-vao10-de6", "toan9-vao10-de7", "toan9-vao10-de8", "toan9-vao10-de9", "toan9-vao10-de10", "van9-vao10-de1", "van9-vao10-de2", "van9-vao10-de3", "van9-vao10-de4"] },
   { id: "tn-thpt-2027", title: "Thi tốt nghiệp THPT", kind: "thi-khac", grades: [12],
     start: "2027-06-11", end: "2027-06-12", tentative: true,
     subjects: ["Toán", "Ngữ văn", "Tiếng Anh", "Vật lí", "Hóa học", "Sinh học", "Lịch sử", "Địa lí", "GDKT&PL", "Tin học", "Công nghệ"],
