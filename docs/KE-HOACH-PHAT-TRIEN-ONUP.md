@@ -12,7 +12,7 @@
 
 > **Tiếp theo (2/11/2026):**
 > - Đã xong: dò sách DS1–DS12c (25/10/2026, PR #135–#176); lớp 4, 6 đủ đề cả năm (cuối năm xong 27/10); lớp 9 cuối kì I (28/10), giữa kì II (29/10), cuối năm (31/10), giữa kì I (1/11), đề thi thử vào 10 Toán, Ngữ văn (1–2/11), rà soát RS9 và bật khối 9 (2/11, PR #258); lớp 12 cuối kì I (1/11).
-> - Hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md): lớp 5 cuối kì I (7/12); lớp 12 giữa kì II, cuối năm (10/12); rồi phần còn lại của lớp 12, 5, lớp 7, 8 (31/12), lớp 10, 11 (20/1/2027); đề thi thử vào 10 Tiếng Anh hoãn.
+> - Hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md): lớp 5 cuối kì I (7/12); lớp 12 giữa kì II (10/12); rồi phần còn lại của lớp 12, 5, lớp 7, 8 (31/12), lớp 10, 11 (20/1/2027); đề thi thử vào 10 Tiếng Anh hoãn.
 > - 9ob, UI2, UX7, UX8, UX7b đã kiểm thử thiết kế (24/10/2026, mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)); UX9, UX11, UX10, UX12, UX14 cũng vậy (29/10/2026, mục 6 của [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md)); UX9b (X49, PR #221) đã kiểm thử thiết kế 1/11/2026. Đề xuất X50, X51 của PO (1/11/2026) đã thành Phiên UX15 (mục 3, 4; mục 4 của CAI-TIEN-UX-3X.md).
 > - Mốc: đủ đề lớp 4–12, rà xong trong tháng 2/2027; dùng thử từ tháng 3/2027; mở bán từ tháng 6/2027 (đoạn “Đã chốt”).
 
@@ -283,7 +283,7 @@ Thứ tự các phiên:
 | Thứ tự | Hạn | Phiên | Cần trước | Ghi chú |
 |---|---|---|---|---|
 | 1 | 15/11/2026 | Lớp 9 (33 phiên, có 9 phiên đề thi thử vào 10); phiên rà soát lớp 9. Đã xong 30 phiên: cuối kì I (28/10/2026), giữa kì II (29/10), cuối năm (31/10), giữa kì I (1/11), đề thi thử vào 10 Toán Đề 1–10, Ngữ văn Đề 1–6 (1–2/11); rà soát RS9 xong, khối 9 bật 2/11/2026 (PR #258). Còn: đề thi thử vào 10 Tiếng Anh hoãn (3 phiên) | K5 (đã xong 27/10/2026, PR #198) | thứ tự khối, thứ tự kì trong mỗi khối và mốc kiểm tra: mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); các bước trước khi bật một khối: mục 7 (“Lớp 5, 7–12”) |
-| 2 | 10/12/2026 | Lớp 12 (53 phiên, có 25 phiên đề thi thử tốt nghiệp), lớp 5 (16); mỗi khối một phiên rà soát. Đã xong: cuối kì I lớp 12 (7 phiên, 1/11/2026). Đã xong Toán 5 cuối kì I (PR #259). Trong hàng đợi: cuối kì I lớp 5 (5 phiên N5-ck1-*), giữa kì II lớp 12 (7 phiên N12-gk2-*), cuối năm lớp 12 (7 phiên N12-ck2-*, lượt PO 2/11/2026); đề thi thử tốt nghiệp, RS12, giữa kì I lớp 12 và các kì khác của lớp 5: lượt PO sau | | cuối kì I lớp 12 đã xong 1/11/2026, trước hạn 23/11 (thi từ 14/12); cuối kì I lớp 5 (thi từ 28/12) xong trước 7/12, làm trước các kì khác của lớp 5 và giữa kì II lớp 12 |
+| 2 | 10/12/2026 | Lớp 12 (53 phiên, có 25 phiên đề thi thử tốt nghiệp), lớp 5 (16); mỗi khối một phiên rà soát. Đã xong: cuối kì I lớp 12 (7 phiên, 1/11/2026). Trong hàng đợi: cuối kì I lớp 5 (6 phiên N5-ck1-*), giữa kì II lớp 12 (7 phiên N12-gk2-*) | | cuối kì I lớp 12 đã xong 1/11/2026, trước hạn 23/11 (thi từ 14/12); cuối kì I lớp 5 (thi từ 28/12) xong trước 7/12, làm trước các kì khác của lớp 5 và giữa kì II lớp 12 |
 | 3 | 31/12/2026 | Lớp 7, 8 (mỗi khối 24 phiên); mỗi khối một phiên rà soát | | |
 | 4 | 20/1/2027 (dự phòng đến 28/2/2027) | Lớp 10, 11 (mỗi khối 28 phiên); mỗi khối một phiên rà soát; sửa lỗi các phiên rà soát tìm ra | | xong là đủ đề lớp 4–12 và rà xong; phần dự phòng cho sửa lỗi, rà đề, nghỉ Tết |
 | 5 | 28/2/2027 | **G0 · Chuẩn bị dùng thử** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** | | trước khi mở dùng thử (đầu tháng 3/2027); lời giao việc ở mục 4 |
