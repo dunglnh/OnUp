@@ -1398,6 +1398,22 @@ window.ONTAP_SEED_BANKS = [
       "Mạng điện hạ áp dùng trong sinh hoạt": [0, 1, 1], "Hệ thống điện trong gia đình": [1, 1, 0], "Thiết bị điện trong hệ thống điện gia đình": [1, 0, 1],
       "Thiết kế và lắp đặt mạch điện điều khiển trong gia đình": [0, 1, 1], "An toàn điện": [1, 1, 0], "Tiết kiệm điện năng": [1, 0, 1] } } },
 
+  /* Toán 5 · Kiểm tra cuối học kì I (Kết nối tri thức, Toán 5 tập một, Bài 1–35; Phiên N5-ck1-toan). Khối 5 chưa bật (data/grades.js)
+     nên đề chưa hiện với gia đình. Kho câu = 50 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết,
+     Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu trên 15 chủ đề, trọng tâm Chủ đề 2, 4, 5 của sách: ôn tập và bổ sung (phân số
+     thập phân, hỗn số, cộng, trừ phân số) 4 câu, số thập phân 6, đơn vị đo diện tích 2, các phép tính với số thập phân 6, hình phẳng 7.
+     Mỗi ô (chủ đề, mức) rút 1 câu và có 4 câu: một câu ở mỗi đề cố định, hai câu riêng, nên học sinh đã làm một đề cố định vẫn gặp câu
+     mới. Không có câu tự luận. */
+  { id: "toan5-ck1-de1", title: "Toán 5 · Cuối kì I · Đề 1", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js" },
+  { id: "toan5-ck1-de2", title: "Toán 5 · Cuối kì I · Đề 2", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js" },
+  { id: "toan5-ck1-ngau-nhien", title: "Toán 5 · Cuối kì I · Đề ngẫu nhiên", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js",
+    pool: { from: ["toan5-ck1-de1", "toan5-ck1-de2"], matrix: {
+      "Phân số thập phân": [1, 0, 0], "Hỗn số": [1, 1, 0], "Cộng, trừ phân số": [0, 0, 1], "Số thập phân": [1, 1, 0],
+      "So sánh số thập phân": [1, 0, 1], "Viết số đo dưới dạng số thập phân": [0, 1, 0], "Làm tròn số thập phân": [1, 0, 0],
+      "Đơn vị đo diện tích": [1, 1, 0], "Cộng, trừ số thập phân": [1, 0, 1], "Nhân số thập phân": [0, 1, 0], "Chia số thập phân": [0, 1, 1],
+      "Nhân, chia với 10; 100; 1 000; 0,1; 0,01; 0,001": [1, 0, 0], "Hình tam giác": [1, 0, 1], "Hình thang": [0, 1, 1],
+      "Hình tròn": [1, 1, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
