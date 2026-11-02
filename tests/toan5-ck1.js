@@ -373,7 +373,7 @@ const CHECKS = [
     return div(mul(F(eg - mg), F(dh)), F(2)); } },
   { has: "Một lá cờ đuôi nheo hình tam giác có diện tích 13,5 dm², cạnh đáy dài 4,5 dm", right: () => { const h = ev("13,5 × 2 : 4,5"); assert.ok(eq(div(mul(fr("4,5"), h), F(2)), fr("13,5"))); return h; } },
   { has: "Một mảnh đất hình tam giác có độ dài đáy là 24,5 m, chiều cao bằng 4/7 độ dài đáy", right: () => { const a = fr("24,5"), h = mul(a, fr("4/7")); return div(mul(a, h), F(2)); } },
-  { has: "hai cạnh góc vuông dài 15 cm và 12 cm, rồi dán giấy màu kín cả hai mặt", right: () => mul(ev("15 × 12 : 2"), F(2)) },
+  { has: "hai cạnh góc vuông dài 15 cm và 12 cm. Nam dán giấy màu kín cả hai mặt", right: () => mul(ev("15 × 12 : 2"), F(2)) },
   /* Hình thang */
   { has: "Tính diện tích hình thang ABCD (như hình vẽ).", right: (q) => {
     const svg = doc(q), P = diem(svg, ["A", "B", "C", "D", "K"]); daGiac(svg, P, ["A", "B", "C", "D"], "none");
