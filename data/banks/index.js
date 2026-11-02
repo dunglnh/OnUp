@@ -1414,6 +1414,20 @@ window.ONTAP_SEED_BANKS = [
       "Nhân, chia với 10; 100; 1 000; 0,1; 0,01; 0,001": [1, 0, 0], "Hình tam giác": [1, 0, 1], "Hình thang": [0, 1, 1],
       "Hình tròn": [1, 1, 1] } } },
 
+  /* Tiếng Việt 5 · Kiểm tra cuối học kì I (Kết nối tri thức, Tiếng Việt 5 tập một, tuần 1–18, Bài 1–32; Phiên N5-ck1-tv). Khối 5 chưa
+     bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 53 câu riêng trong file (4 đoạn đọc, 5 câu Viết) + 50 câu của 2 đề cố
+     định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, trong đó 7 câu Đọc hiểu (đoạn 4
+     câu mức 1-1-2-3 và đoạn 3 câu mức 1-2-3), 17 câu Luyện từ và câu chia theo số bài Luyện từ và câu của sách (danh từ, động từ, tính
+     từ 2; đại từ 3; từ đồng nghĩa, từ đa nghĩa, sử dụng từ điển, dấu gạch ngang, điệp từ và điệp ngữ, kết từ mỗi chủ đề 2), 1 câu Viết
+     tự chấm (nên cả ba đề 40 phút). Hai đề cố định chia đúng ma trận; mỗi ô có rút có 4 câu Luyện từ và câu (một câu ở mỗi đề cố định,
+     hai câu riêng), nên học sinh đã làm một đề cố định vẫn gặp câu mới. */
+  { id: "tv5-ck1-de1", title: "Tiếng Việt 5 · Cuối kì I · Đề 1", grade: 5, subject: "Tiếng Việt", minutes: 40, n: 25, file: "5-tv.js" },
+  { id: "tv5-ck1-de2", title: "Tiếng Việt 5 · Cuối kì I · Đề 2", grade: 5, subject: "Tiếng Việt", minutes: 40, n: 25, file: "5-tv.js" },
+  { id: "tv5-ck1-ngau-nhien", title: "Tiếng Việt 5 · Cuối kì I · Đề ngẫu nhiên", grade: 5, subject: "Tiếng Việt", minutes: 40, n: 25, file: "5-tv.js",
+    pool: { from: ["tv5-ck1-de1", "tv5-ck1-de2"], matrix: {
+      "Đọc hiểu": [3, 2, 2], "Danh từ, động từ, tính từ": [1, 1, 0], "Đại từ": [1, 1, 1], "Từ đồng nghĩa": [1, 0, 1], "Từ đa nghĩa": [1, 1, 0],
+      "Sử dụng từ điển": [1, 1, 0], "Dấu gạch ngang": [1, 1, 0], "Biện pháp điệp từ, điệp ngữ": [0, 1, 1], "Kết từ": [1, 0, 1], "Viết": [0, 0, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
