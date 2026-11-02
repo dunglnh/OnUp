@@ -1473,6 +1473,22 @@ window.ONTAP_SEED_BANKS = [
       "Vương quốc Phù Nam": [1, 1, 0], "Vương quốc Chăm-pa": [1, 1, 0], "Đấu tranh giành độc lập thời kì Bắc thuộc": [1, 1, 1],
       "Triều Lý và việc định đô ở Thăng Long": [1, 0, 1], "Triều Trần xây dựng đất nước, kháng chiến chống Mông – Nguyên": [1, 1, 1] } } },
 
+  /* Tin học và Công nghệ 5 · Kiểm tra cuối học kì I (Kết nối tri thức; Tin học 5 Bài 1–7 và Chủ đề 5 phần A, Bài 8A, 9A; Công nghệ 5 Bài 1–6;
+     Phiên N5-ck1-tincn). Khối 5 chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (không có câu
+     riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, 13 câu Tin học (8 chủ đề) và 12 câu
+     Công nghệ (6 chủ đề) như kho Tin học và Công nghệ 4 cuối kì I; mỗi ô (chủ đề, mức) rút 1 câu và có 2 câu, một ở mỗi đề cố định. Không có
+     câu tự luận. */
+  { id: "tincn5-ck1-de1", title: "Tin học và Công nghệ 5 · Cuối kì I · Đề 1", grade: 5, subject: "Tin học và Công nghệ", minutes: 35, n: 25, file: "5-tincn.js" },
+  { id: "tincn5-ck1-de2", title: "Tin học và Công nghệ 5 · Cuối kì I · Đề 2", grade: 5, subject: "Tin học và Công nghệ", minutes: 35, n: 25, file: "5-tincn.js" },
+  { id: "tincn5-ck1-ngau-nhien", title: "Tin học và Công nghệ 5 · Cuối kì I · Đề ngẫu nhiên", grade: 5, subject: "Tin học và Công nghệ", minutes: 35, n: 25, file: "5-tincn.js",
+    pool: { from: ["tincn5-ck1-de1", "tincn5-ck1-de2"], matrix: {
+      "Tin học · Làm được gì với máy tính": [1, 0, 0], "Tin học · Tìm kiếm thông tin trên website": [1, 0, 1],
+      "Tin học · Tìm kiếm thông tin trong giải quyết vấn đề": [1, 1, 0], "Tin học · Cây thư mục": [0, 1, 1],
+      "Tin học · Bản quyền nội dung thông tin": [1, 1, 0], "Tin học · Định dạng kí tự và bố trí hình ảnh": [0, 1, 0],
+      "Tin học · Thực hành soạn thảo văn bản": [0, 0, 1], "Tin học · Phần mềm đồ hoạ": [1, 0, 1],
+      "Công nghệ · Vai trò của công nghệ": [1, 1, 0], "Công nghệ · Nhà sáng chế": [1, 1, 0], "Công nghệ · Tìm hiểu thiết kế": [1, 1, 0],
+      "Công nghệ · Thiết kế sản phẩm": [0, 0, 1], "Công nghệ · Sử dụng điện thoại": [1, 1, 1], "Công nghệ · Sử dụng tủ lạnh": [1, 0, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
