@@ -1442,6 +1442,22 @@ window.ONTAP_SEED_BANKS = [
       "Unit 7 · Our Favourite School Activities": [0, 1, 1], "Unit 8 · In Our Classroom": [1, 1, 0], "Unit 9 · Our Outdoor Activities": [1, 1, 1],
       "Unit 10 · Our School Trip": [1, 0, 1], "Reading": [1, 1, 1] } } },
 
+  /* Khoa học 5 · Kiểm tra cuối học kì I (Kết nối tri thức, Khoa học 5, Bài 1–17; Phiên N5-ck1-khoahoc). Khối 5 chưa bật (data/grades.js)
+     nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết,
+     Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu trên 14 chủ đề theo tên bài (Bài 6, 12, 17 là ôn tập, không có chủ đề riêng):
+     Chất 9 câu (Bài 1–5), Năng lượng 9 câu (Bài 7–11), Thực vật và động vật 7 câu (Bài 13–16). Mỗi ô (chủ đề, mức) rút 1 câu và có 3 câu:
+     một câu ở mỗi đề cố định, một câu riêng; hai đề cố định chia đúng ma trận, nên học sinh đã làm một đề cố định vẫn gặp câu mới. Không
+     có câu tự luận. */
+  { id: "khoahoc5-ck1-de1", title: "Khoa học 5 · Cuối kì I · Đề 1", grade: 5, subject: "Khoa học", minutes: 35, n: 25, file: "5-khoahoc.js" },
+  { id: "khoahoc5-ck1-de2", title: "Khoa học 5 · Cuối kì I · Đề 2", grade: 5, subject: "Khoa học", minutes: 35, n: 25, file: "5-khoahoc.js" },
+  { id: "khoahoc5-ck1-ngau-nhien", title: "Khoa học 5 · Cuối kì I · Đề ngẫu nhiên", grade: 5, subject: "Khoa học", minutes: 35, n: 25, file: "5-khoahoc.js",
+    pool: { from: ["khoahoc5-ck1-de1", "khoahoc5-ck1-de2"], matrix: {
+      "Thành phần và vai trò của đất": [1, 1, 0], "Ô nhiễm, xói mòn đất": [1, 0, 1], "Hỗn hợp và dung dịch": [1, 1, 0],
+      "Chất ở trạng thái rắn, lỏng, khí": [1, 0, 1], "Sự biến đổi hoá học": [0, 1, 0], "Vai trò của năng lượng": [1, 0, 0],
+      "Sử dụng năng lượng điện": [0, 1, 1], "Mạch điện, vật dẫn điện và vật cách điện": [1, 1, 1], "Năng lượng chất đốt": [1, 0, 1],
+      "Năng lượng mặt trời, gió, nước chảy": [0, 1, 0], "Sinh sản của thực vật có hoa": [1, 1, 0], "Sự phát triển của cây con": [1, 0, 1],
+      "Sinh sản của động vật": [1, 0, 0], "Vòng đời của động vật": [0, 1, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
