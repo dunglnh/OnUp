@@ -1458,6 +1458,21 @@ window.ONTAP_SEED_BANKS = [
       "Năng lượng mặt trời, gió, nước chảy": [0, 1, 0], "Sinh sản của thực vật có hoa": [1, 1, 0], "Sự phát triển của cây con": [1, 0, 1],
       "Sinh sản của động vật": [1, 0, 0], "Vòng đời của động vật": [0, 1, 1] } } },
 
+  /* Lịch sử và Địa lí 5 · Kiểm tra cuối học kì I (Kết nối tri thức, bản chỉnh sửa năm 2026, Bài 1–11; Phiên N5-ck1-lsdl). Khối 5 chưa bật
+     (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ.
+     Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu trên 10 chủ đề theo tên Bài 1–10 (Bài 11 là ôn tập): Địa lí 11
+     câu (Bài 1–4), Lịch sử 14 câu (Bài 5–10); Bài 1, 2, 4, 8, 10 mỗi bài 3 câu (một câu mỗi mức), các bài khác 2 câu. Mỗi ô (chủ đề, mức)
+     rút 1 câu và có 3 câu: một câu ở mỗi đề cố định, một câu riêng; hai đề cố định chia đúng ma trận, nên học sinh đã làm một đề cố định
+     vẫn gặp câu mới. Không có câu tự luận. */
+  { id: "lsdl5-ck1-de1", title: "Lịch sử và Địa lí 5 · Cuối kì I · Đề 1", grade: 5, subject: "Lịch sử và Địa lí", minutes: 35, n: 25, file: "5-lsdl.js" },
+  { id: "lsdl5-ck1-de2", title: "Lịch sử và Địa lí 5 · Cuối kì I · Đề 2", grade: 5, subject: "Lịch sử và Địa lí", minutes: 35, n: 25, file: "5-lsdl.js" },
+  { id: "lsdl5-ck1-ngau-nhien", title: "Lịch sử và Địa lí 5 · Cuối kì I · Đề ngẫu nhiên", grade: 5, subject: "Lịch sử và Địa lí", minutes: 35, n: 25, file: "5-lsdl.js",
+    pool: { from: ["lsdl5-ck1-de1", "lsdl5-ck1-de2"], matrix: {
+      "Vị trí, lãnh thổ, đơn vị hành chính, Quốc kì, Quốc huy, Quốc ca": [1, 1, 1], "Thiên nhiên Việt Nam": [1, 1, 1],
+      "Biển, đảo Việt Nam": [1, 0, 1], "Dân cư và dân tộc ở Việt Nam": [1, 1, 1], "Nhà nước Văn Lang, Nhà nước Âu Lạc": [1, 1, 0],
+      "Vương quốc Phù Nam": [1, 1, 0], "Vương quốc Chăm-pa": [1, 1, 0], "Đấu tranh giành độc lập thời kì Bắc thuộc": [1, 1, 1],
+      "Triều Lý và việc định đô ở Thăng Long": [1, 0, 1], "Triều Trần xây dựng đất nước, kháng chiến chống Mông – Nguyên": [1, 1, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
