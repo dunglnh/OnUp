@@ -155,11 +155,12 @@ const SO = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", 
   "seventeen", "eighteen", "nineteen"], CHUC = { 2: "twenty", 3: "thirty", 4: "forty", 5: "fifty", 6: "sixty", 7: "seventy", 8: "eighty", 9: "ninety" };
 const docSo = (n) => n >= 100 ? SO[Math.floor(n / 100)] + " hundred" + (n % 100 ? " and " + docSo(n % 100) : "") : n < 20 ? SO[n] : CHUC[Math.floor(n / 10)] + (n % 10 ? "-" + SO[n % 10] : "");
 const soTuChu = (s) => { for (let n = 1; n < 1000; n++) if (docSo(n) === s.toLowerCase()) return n; return null; };
-assert.equal(docSo(116), "one hundred and sixteen"); assert.equal(docSo(93), "ninety-three"); assert.equal(docSo(38), "thirty-eight");
-const PAST = { go: "went", plant: "planted", listen: "listened", play: "played", paint: "painted", watch: "watched", visit: "visited", have: "had", walk: "walked", dance: "danced" };
+assert.equal(docSo(23), "twenty-three"); assert.equal(docSo(93), "ninety-three"); assert.equal(docSo(38), "thirty-eight");
+const PAST = { go: "went", plant: "planted", listen: "listened", play: "played", paint: "painted", watch: "watched", visit: "visited", have: "had", walk: "walked", dance: "danced", help: "helped" };
 const ING = { cook: "cooking", take: "taking", do: "doing", read: "reading", play: "playing", solve: "solving", surf: "surfing" };
 // nghề và việc làm (Unit 5, Book map; lớp 3, 4: teacher, singer, farmer, doctor, nurse)
-const NGHE = { firefighter: "help people when there is a fire", reporter: "report the news", writer: "write stories", teacher: "teach children",
+// (đề bài tả việc làm bằng lời không có gốc của tên nghề: report → reporter, garden → gardener là lộ đáp án)
+const NGHE = { dentist: "take care of people's teeth", reporter: "tell people the news", writer: "write stories", teacher: "teach children",
   gardener: "grows flowers and trees" };
 // tính cách (Unit 3) theo việc người đó làm
 const TINH_CACH = { active: /plays football, runs and swims/, clever: /learns new words very quickly/, helpful: /helps/, friendly: /makes friends/ };
@@ -184,13 +185,13 @@ const CHECKS = [
   // Unit 2
   { has: "– Do you live in this flat? – ___ I live in that house.", right: () => "No, I don't." },
   { order: "Does your", right: (q) => (/^Does your \w+( \w+)? live (near|in) [a-z ]+\?$/.test(q.o.join(" ")) ? q.o[0] : null) },
-  { has: "One hundred and sixteen is ___.", right: (q) => String(soTuChu(q.q.replace(" is ___.", ""))).replace(/\B(?=(\d{3})+$)/g, " ") },
+  { has: "Twenty-three is ___.", right: (q) => String(soTuChu(q.q.replace(" is ___.", ""))) },
   { has: "Look at the home survey", right: (q) => {
     const bang = {}; q.q.replace(/(\w+) – (flat|house) – (near|far from) the school/g, (_, ai, nha, xa) => (bang[ai] = { nha, xa }));
     return motDung(q, (o) => { const m = /^(\w+)(?: and (\w+))? lives? in (?:a )?(flat|house)s? (near|far from) the school\.$/.exec(o); return !!m && [m[1], m[2]].filter(Boolean).every((ai) => bang[ai] && bang[ai].nha === m[3] && bang[ai].xa === m[4]); });
   } },
-  { has: "It's 23 Hai Ba Trung Street", right: () => "address" },
-  { has: "at number 93", right: (q) => motDung(q, (o) => o === `Mai lives at ${docSo(93)} Le Loi Street.`) },
+  { has: "It's 15 Hai Ba Trung Street", right: () => "address" },
+  { has: "at number 93", right: (q) => motDung(q, (o) => o === `Hanh lives at ${docSo(93)} Le Loi Street.`) },
   // Unit 3
   { has: "Akio is from Japan. He's ___.", right: () => NAT.Japan },
   { has: "He's from Malaysia. He's ___.", right: () => NAT.Malaysia },
@@ -206,19 +207,19 @@ const CHECKS = [
   { has: "My mother likes ___ (cook)", right: () => ING.cook },
   { has: "What does your brother like doing on Sundays?", right: (q) => motDung(q, (o) => /^He likes \w+ing [a-z ]+\.$/.test(o) && Object.values(ING).includes(o.split(" ")[2])) },
   { has: "Choose the correct sentence.", unit: 4, exact: true, right: (q) => motDung(q, (o) => /^I (always|usually|often|sometimes|never) play [a-z ]+\.$/.test(o)) },
-  { has: "Look at Mai's week", right: (q) => {
+  { has: "Look at Ngoc's week", right: (q) => {
     const viec = q.q.replace(/^.*?: /, "").replace(/\. Is each.*$/, "").split("; ");
     const ngay = (v) => soNgay(viec.find((s) => s.includes(v)));
-    return q.o.map((o) => { const m = /^Mai (always|never) (reads books|plays the piano|goes swimming)\.$/.exec(o); assert.ok(m, ten.get(q) + ": đọc được ý “" + o + "”");
+    return q.o.map((o) => { const m = /^Ngoc (always|never) (reads books|plays the piano|goes swimming)\.$/.exec(o); assert.ok(m, ten.get(q) + ": đọc được ý “" + o + "”");
       return tanSuat(ngay({ "reads books": "reads books", "plays the piano": "plays the piano", "goes swimming": "go swimming" }[m[2]])) === m[1]; });
   } },
   { has: "Tuan plays the guitar on Mondays and Fridays", right: (q) => motDung(q, (o) => { const m = /^Tuan (always|never) plays (football|the guitar)\.$/.exec(o);
     const cau = q.q.split(". ").find((s) => s.includes(m[2])); return tanSuat(soNgay(cau)) === m[1]; }) },
   { order: "My father", right: (q) => (/^(always|usually|often|sometimes|never)$/.test(q.o[1]) && /^go(es)? /.test(q.o[2]) ? q.o[0] : null) },
   // Unit 5
-  { has: "I'd like to help people when there is a fire", right: (q) => motDung(q, (o) => !!NGHE[o] && q.q.includes(NGHE[o])) },
-  { has: "– Because I'd like to report the news.", right: (q) => motDung(q, (o) => !!NGHE[o] && q.q.includes(NGHE[o])) },
-  { has: "He grows flowers and trees in a big garden", right: (q) => Object.keys(NGHE).find((n) => q.q.includes(NGHE[n])) },
+  { has: "I'd like to take care of people's teeth", right: (q) => motDung(q, (o) => !!NGHE[o] && q.q.includes(NGHE[o])) },
+  { has: "– Because I'd like to tell people the news.", right: (q) => motDung(q, (o) => !!NGHE[o] && q.q.includes(NGHE[o])) },
+  { has: "He grows flowers and trees in the park", right: (q) => Object.keys(NGHE).find((n) => q.q.includes(NGHE[n])) },
   { has: "– Why would you like to be a writer? – ___", right: () => "Because I'd like to " + NGHE.writer + "." },
   { match: "Why would you like to be a teacher?", right: (q) => (q.r[0] === "Because I'd like to " + NGHE.teacher + "." && /^Yes, I would\./.test(q.r[1]) && /^No, she isn't\. She's a (\w+)\.$/.exec(q.r[2]) && !q.l[2].includes(/She's a (\w+)/.exec(q.r[2])[1]) && /^Because I'd like to /.test(q.r[3]) && !q.r[3].includes(NGHE.teacher) ? q.r[0] : null) },
   { has: "What would your brother like to be", right: (q) => motDung(q, (o) => /^He'd like to be an? \w+\.$/.test(o)) },
@@ -227,25 +228,33 @@ const CHECKS = [
   { has: "– Excuse me. Where's the computer room? – Go ___ the corridor", right: () => "along" },
   { has: "We go ___ to get from the third floor to the first floor.", right: () => diTang(3, 1) },
   { has: "The library is between them.", right: () => `It's on the ${TANG[(TANG.indexOf("first") + TANG.indexOf("third")) / 2]} floor.` },
-  { has: "Mai is in the art room. She wants to go to the computer room.", right: (q) => { const b = bangTang(q.q); return `She goes ${diTang(b["art room"], b["computer room"])} to the ${TANG[b["computer room"]]} floor.`; } },
+  { has: "Yen is in the art room. She wants to go to the computer room.", right: (q) => { const b = bangTang(q.q); return `She goes ${diTang(b["art room"], b["computer room"])} to the ${TANG[b["computer room"]]} floor.`; } },
   { has: "Linh is in the gym. She wants to read some books.", right: (q) => { const b = bangTang(q.q); return `She goes ${diTang(b.gym, b.library)} to the ${TANG[b.library]} floor.`; } },
   // Unit 7
   { has: "What school activity does Nga like?", right: () => "She likes " + ING.do + " projects." },
-  { has: "– Does your brother like reading books? – ___ He likes playing games.", right: () => "No, he doesn't." },
-  { odd: "interesting", nhom: { activity: ["read books", "play games", "solve maths problems", "do projects"], think: ["interesting", "fun", "useful", "good for group work"] } },
+  { has: "– Does Tung like solving maths problems? – ___ He thinks maths problems aren't fun.", right: (q) => (/aren't fun|doesn't like/.test(q.q) ? "No, he doesn't." : "Yes, he does.") },
+  { odd: "interesting", nhom: { activity: ["reading", "singing", "dancing", "drawing", "read books", "play games", "solve maths problems", "do projects"], think: ["interesting", "fun", "useful", "good for group work"] } },
   { has: "he can learn a lot of new things", right: (q) => motDung(q, (o) => /useful/.test(o)) },
-  { has: "he and his friends can talk and do the project together", right: (q) => motDung(q, (o) => /group work/.test(o)) },
-  { has: "Read: “Nam likes solving maths problems.", right: (q) => {
-    const t = q.q, co = (ai, viec) => new RegExp(`${ai} likes ${viec}|^${ai === "Lan" ? "She" : "He"} likes ${viec}`, "m").test(t.replace(/\. /g, ".\n")) && !new RegExp(`${ai} doesn't like ${viec}`).test(t);
+  { has: "Duc and his three friends play games together at break time", right: (q) => motDung(q, (o) => /group work/.test(o)) },
+  { has: "Read: “Phuc likes reading books.", right: (q) => {
+    // đọc đoạn thành sự kiện: ai thích, không thích việc gì; nghĩ việc đó thế nào (He, She chỉ người được nhắc gần nhất)
+    const thich = {}, nghi = {}, gioi = { He: "Phuc", She: "Tra" };
+    let ai = null, viec = null;
+    /“([^”]+)”/.exec(q.q)[1].split(/\. ?/).filter(Boolean).forEach((cau) => { let m;
+      if ((m = /^(?:His sister )?(\w+) (likes|doesn't like) ([a-z ]+?)(?: because (?:she|he) thinks they aren't (\w+))?$/.exec(cau))) {
+        ai = gioi[m[1]] || m[1]; viec = m[3]; (thich[ai] = thich[ai] || {})[viec] = m[2] === "likes";
+        if (m[4]) (nghi[ai] = nghi[ai] || {})[viec] = "not " + m[4];
+      } else if ((m = /^(He|She) thinks it's (\w+)$/.exec(cau))) (nghi[ai] = nghi[ai] || {})[viec] = m[2];
+      else assert.fail(ten.get(q) + ": chưa đọc được câu “" + cau + "”");
+    });
     return q.o.map((o) => { let m;
-      if ((m = /^(\w+) likes ([a-z ]+)\.$/.exec(o))) return co(m[1], m[2]) || (m[1] === "Lan" && /She likes reading books/.test(t) && m[2] === "reading books");
-      if ((m = /^Nam thinks (.+) is fun\.$/.exec(o))) return /Nam likes solving maths problems\. He thinks it's fun\./.test(t) && m[1] === "solving maths problems";
-      if ((m = /^Lan thinks playing games is useful\.$/.exec(o))) return !/they aren't useful/.test(t);
+      if ((m = /^(\w+) likes ([a-z ]+)\.$/.exec(o))) return !!(thich[m[1]] && thich[m[1]][m[2]]);
+      if ((m = /^(\w+) thinks ([a-z ]+) is (\w+)\.$/.exec(o))) return !!(nghi[m[1]] && nghi[m[1]][m[2]] === m[3]);
       assert.fail(ten.get(q) + ": chưa đọc được ý “" + o + "”"); });
   } },
   // Unit 8
   { has: "They're ___ the clock, on the left of it.", right: () => "beside" },
-  { has: "The ball is ___ the chair. The chair is over the ball.", right: () => "under" },
+  { has: "The ball is ___ the chair. The chair is above the ball.", right: () => "under" },
   { has: "It's ___. Look, her name is on it.", right: (q) => motDung(q, (o) => /^[A-Z][a-z]+'s$/.test(o)) },
   { has: "pencil sharpener is this? – It's Duc's.", right: () => "Whose" },
   { has: "– Where are my crayons? – ___", right: (q) => motDung(q, (o) => /^They're (in|on|under|above|beside|in front of) /.test(o)) },
@@ -255,9 +264,9 @@ const CHECKS = [
   { has: "to music at home yesterday", right: () => PAST.listen },
   { has: "(paint) pictures", right: () => PAST.paint },
   { has: "What did you do in the park yesterday?", right: () => "We " + PAST.play + " chess." },
+  { has: "– What did you do at home yesterday? – ___", right: () => "We " + PAST.help + " our mum." },
   { has: "– Were you at the funfair yesterday? – No, we ___.", right: () => "weren't" },
-  { has: "– Were you at the bakery last Saturday? – ___ We had some cakes there.", right: () => "Yes, we were." },
-  { has: "Were you at the theatre in the morning, Hai?", right: (q) => { const sang = /was at the (\w+) in the morning/.exec(q.q)[1]; return sang === "theatre" ? "Yes, I was. I was at the theatre." : `No, I wasn't. I was at the ${sang}.`; } },
+    { has: "Were you at the theatre last Sunday morning, Hai?", right: (q) => { const sang = /was at the (\w+) in the morning/.exec(q.q)[1]; return sang === "theatre" ? "Yes, I was. I was at the theatre." : `No, I wasn't. I was at the ${sang}.`; } },
   { has: "Look at Nga's Sunday", right: (q) => {
     const lich = {}; q.q.replace(/(morning|afternoon|evening) – ([^;.]+)/g, (_, buoi, viec) => (lich[buoi] = viec));
     return q.o.map((o) => { let m;
@@ -267,30 +276,36 @@ const CHECKS = [
   } },
   { order: "My friends", right: (q) => (q.o[1] === PAST.dance + " around" ? q.o[0] : null) },
   // Unit 10
-  { has: "our class ___ to Hoan Kiem Lake", right: () => PAST.go },
-  { has: "trees with the farmers on their school trip", right: () => PAST.plant },
-  { has: "– How was your school trip", right: () => "It was great!" },
+  { has: "our class ___ to the zoo", right: () => PAST.go },
+  { has: "ten small trees in the park", right: () => PAST.plant },
+  { has: "– How was your school trip", right: () => "It was very good!" },
   { has: "Did Class 5B go to Bai Dinh Pagoda?", right: (q) => { const di = /Class 5B – ([^.]+)\./.exec(q.q)[1]; return di === "Bai Dinh Pagoda" ? "Yes, they did." : "No, they didn't."; } },
-  { has: "we played games in the morning. After lunch, we sang songs together", right: (q) => motDung(q, (o) => o === "They sang songs in the afternoon.") },
-  { has: "Look at Class 5A's school trip to Ba Na Hills", right: (q) => {
+  { has: "at nine o'clock, we played games; at three o'clock, we sang songs", right: (q) => {
+    // giờ của chuyến đi trong ngày học: 7–11 giờ là buổi sáng, 12–5 giờ là buổi chiều
+    const gio = {}; q.q.replace(/at (\w+) o'clock, we ([a-z ]+?)[;.”]/g, (_, h, viec) => (gio[viec] = SO.indexOf(h)));
+    const buoi = (h) => (h >= 7 && h <= 11 ? "morning" : "afternoon");
+    return motDung(q, (o) => { const m = /^We (played games|sang songs) in the (morning|afternoon)\.$/.exec(o); return !!m && buoi(gio[m[1]]) === m[2]; });
+  } },
+  { has: "Look at Class 5E's school trip to Bai Dinh Pagoda", right: (q) => {
     const gio = {}; q.q.replace(/(\d+) (a|p)\.m\. – ([a-z ]+)/g, (_, h, ap, viec) => (gio[viec] = (+h % 12) + (ap === "p" ? 12 : 0)));
     const buoi = (h) => (h < 12 ? "morning" : h < 18 ? "afternoon" : "evening");
     return q.o.map((o) => { let m;
       if ((m = /^They visited the old buildings in the (\w+)\.$/.exec(o))) return buoi(gio["visit the old buildings"]) === m[1];
       if ((m = /^They played games in the (\w+)\.$/.exec(o))) return buoi(gio["play games"]) === m[1];
       if ((m = /^They had lunch at (\w+) o'clock\.$/.exec(o))) return gio["have lunch"] % 12 === SO.indexOf(m[1]);
-      if (/^They had lunch before they played games\.$/.test(o)) return gio["have lunch"] < gio["play games"];
+      if (/^They played games after lunch\.$/.test(o)) return gio["play games"] > gio["have lunch"];
       assert.fail(ten.get(q) + ": chưa đọc được ý “" + o + "”"); });
   } },
   // Reading: đáp án lấy từ chữ của đoạn đọc
   { has: "Where does Khoa's family live?", right: (q) => (PSG.khoa.text.includes("lives " + q.o[0].replace(/^In/, "in").replace(/\.$/, "")) ? q.o[0] : null) },
   { has: "Jack is from Australia.", right: () => new RegExp("he's " + NAT.Australia).test(PSG.khoa.text) },
   { has: "Choose the correct sentence.", unit: "khoa", right: (q) => { const lop = /I study in Class (5[A-E])/.exec(PSG.khoa.text)[1]; assert.ok(/Jack and I are in the same class/.test(PSG.khoa.text)); return `Jack is in Class ${lop}.`; } },
-  { has: "When did Class 5C have the school trip?", right: (q) => (PSG.lop5c.text.startsWith(q.o[0].replace(/\.$/, ",")) ? q.o[0] : null) },
+  { has: "When did Class 5C visit Hoan Kiem Lake?", right: (q) => (PSG.lop5c.text.includes(q.o[0].replace(/\.$/, ",") + " our class visited Hoan Kiem Lake") ? q.o[0] : null) },
   { has: "Read the text again. Is each sentence true or false?", unit: "lop5c", right: (q) => q.o.map((o) => ({
-    "They had lunch on the bus.": /they had lunch on the bus/.test(PSG.lop5c.text), "The pupils walked around the lake in the morning.": /In the morning, the pupils walked around the lake/.test(PSG.lop5c.text),
-    "They sang songs at the lake.": /sang songs at the lake/.test(PSG.lop5c.text), "Ms Lan is the pupils' teacher.": /Their teacher, Ms Lan/.test(PSG.lop5c.text) })[o]) },
-  { has: "What did the pupils do in the afternoon?", right: (q) => (new RegExp("After lunch, t" + q.o[0].slice(1).replace(/\.$/, "")).test(PSG.lop5c.text) ? q.o[0] : null) },
+    "It was sunny on the day of the trip.": /It was sunny/.test(PSG.lop5c.text), "The pupils looked at the old buildings near the lake.": /walked around the lake and looked at the old buildings near it/.test(PSG.lop5c.text),
+    "Ms Lan played the piano on the bus.": /Ms Lan, played the piano/.test(PSG.lop5c.text), "The pupils sang songs on the bus.": /On the bus, [^.]*we sang songs/.test(PSG.lop5c.text) })[o]) },
+  { has: "Choose the correct sentence.", unit: "lop5c", right: (q) => { const t = PSG.lop5c.text, an = t.indexOf("we had lunch"), xem = t.indexOf("we watched a cartoon");
+    assert.ok(an > 0 && xem > an && /After lunch, we watched a cartoon/.test(t)); return "They had lunch, and then they watched a cartoon."; } },
   { has: "Where's the big map?", right: (q) => (PSG.vy.text.includes("big map " + q.o[0].replace(/^It's /, "").replace(/\.$/, "")) ? q.o[0] : null) },
   { has: "Vy's favourite school activity is solving maths problems.", right: () => /My favourite school activity is solving maths problems/.test(PSG.vy.text) },
   { has: "Bao wants some crayons.", right: (q) => (/crayons and glue sticks are on a small table near Ms Hoa's desk/.test(PSG.vy.text) ? "To the table near Ms Hoa's desk." : null) }
@@ -412,7 +427,7 @@ assert.deepEqual(lo, DA_XEM, "đáp án có ở câu rút được cùng lúc đ
   assert.ok(doLo([c, Object.assign({}, e, { q: "– Whose crayons are these? – They're Lam's." })], (q) => q.topic).some((s) => /: whos$/.test(s)), "bộ dò phải bắt được từ ngữ pháp ở câu cùng Unit");
   const f = cauCua("(cook) in her free time"), g = cauCua("I ___ the flowers in my garden");
   assert.ok(doLo([f, Object.assign({}, g, { o: g.o.concat(["cooking"]) })], (q) => q.topic).some((s) => /: cook$/.test(s)), "bộ dò phải bắt được đáp án câu điền ở lựa chọn sai của câu khác");
-  const h = cauCua("our class ___ to Hoan Kiem Lake");
+  const h = cauCua("our class ___ to the zoo");
   assert.ok(doLo([h, Object.assign({}, cauCua("Look at Nga's Sunday"), { q: "Nga went to the funfair." })], (q) => q.topic).some((s) => /: went$/.test(s)), "bộ dò phải bắt được dạng quá khứ là đáp án");
 }
 
@@ -445,7 +460,7 @@ if (SACH.length) {
   const trangDen = (tu0, den) => { let s = ""; for (let t = tu0; t < den; t++) s += " " + (trang[t] || ""); return s; };
   // Book map (tr. 4–5) của từng Unit: từ vựng, mẫu câu; chữ OCR của Book map lẫn các Unit, nên chép lại ở đây và kiểm tra có trong chữ OCR
   const BOOK_MAP = { 1: "city class countryside dolphin pink sandwich table tennis yourself favourite",
-    2: "building flat house tower address twenty-three thirty-eight ninety-three one hundred and sixteen fifteen sixteen",
+    2: "building flat house tower address twenty-three thirty-eight ninety-three fifteen sixteen",
     3: "nationality American Australian Japanese Malaysian active clever friendly helpful",
     4: "go for a walk play the violin surf the Internet water the flowers always often sometimes usually free time weekend",
     5: "firefighter gardener reporter writer grow flowers report the news teach children write stories teacher dentist future",
@@ -456,14 +471,14 @@ if (SACH.length) {
     10: "Ba Na Hills Bai Dinh Pagoda Hoan Kiem Lake Suoi Tien Theme Park plant trees play games visit the old buildings walk around the lake November December" };
   // chữ OCR của Book map đọc sai vài từ (đã xem ảnh trang, page-006, page-007); số viết bằng chữ ở đây, Book map ghi bằng chữ số
   // (null: chữ OCR bỏ sót cột Word stress của Unit 7, 9, đã đọc ở ảnh trang)
-  const OCR_BM = { December: "Detember", "twenty-three": "23", "thirty-eight": "38", "ninety-three": "93", hundred: "116", one: "116", and: "116",
+  const OCR_BM = { December: "Detember", "twenty-three": "23", "thirty-eight": "38", "ninety-three": "93",
     solving: null, reading: null, cinema: null, bakery: null };
   const ocrBM = " " + khongDau(trang[4] + trang[5]) + " ";
   const thieuBM = Object.entries(BOOK_MAP).flatMap(([u, s]) => s.split(" ").filter((w) => OCR_BM[w] !== null && !ocrBM.includes(" " + khongDau(OCR_BM[w] || w) + " ")).map((w) => `Unit ${u}: ${w}`));
   assert.deepEqual(thieuBM, [], "từ chép ở BOOK_MAP phải có trong chữ OCR của Book map (tr. 4–5)");
   // từ vựng là đáp án (bảng TU): có trong trang của đúng Unit (cộng Wordlist, Book map của Unit đó)
   const TU = { 1: ["animal", "sport", "countryside", "sandwich"], 2: ["address"], 3: ["Japanese", "Malaysian", "nationality", "active", "clever"], 4: ["surfing", "violin", "water"],
-    5: ["firefighter", "reporter", "gardener"], 6: ["please", "along", "downstairs"], 7: ["interesting"], 8: ["beside", "under", "Whose"], 9: ["aquarium"], 10: ["It was great!"] };
+    5: ["dentist", "reporter", "gardener"], 6: ["please", "along", "downstairs"], 7: ["interesting"], 8: ["beside", "under", "Whose"], 9: ["aquarium"] };
   const chuUnit = (u) => (trangDen(BAT_DAU[u - 1], BAT_DAU[u]) + " " + WORDLIST + " " + BOOK_MAP[u]).toLowerCase().replace(/[’]/g, "'").replace(/\s+/g, " ");
   Object.entries(TU).forEach(([u, ws]) => { const c = chuUnit(+u); ws.forEach((t) => assert.ok(c.includes(t.toLowerCase().replace(/ing$/, "").replace(/!$/, "")), `từ “${t}” không có trong trang của Unit ${u}`)); });
   kho.filter((q) => unitOf(q) && (q.type === "mc" || q.type === "fill")).forEach((q) => {
@@ -476,7 +491,7 @@ if (SACH.length) {
   const LOP3 = "cat dog bird rabbit fish goldfish parrot elephant tiger monkey ruler pencil pen eraser book books notebook bag desk chair table lamp window door bed kitchen bedroom bathroom living room yard gate pond tree toy toys doll kite car ball robot teddy bear ship train plane bus bike rice bread milk water juice chicken meat egg eggs mother father mum dad brother sister grandmother grandfather grandma grandpa family friend friends cook cooking driver doctor nurse worker farmer singer teacher red blue green yellow pink orange black white brown purple colour head face eyes ears nose mouth hand hands arm leg legs hair swim swimming sing singing dance dancing draw drawing paint painting run running walk walking read reading write writing skate skating cycling chess football basketball volleyball badminton music room art room gym playground library classroom school hello hi goodbye bye thank thanks yes no please sorry fine name old years how many sit stand open close".split(" ");
   // chữ dùng trong lời giải để gọi tên phần của câu (sách dùng ở lời dặn: “Read and answer”, “Make a sentence”, “Look and write”)
   const META = "v ing ed text word words thing things person means say says tells asks answer answers question questions sentence add use past job country reason more than one becomes".split(" ");
-  const NAMES = "khoa hoa sen star tran phu jack thu ivan akio sofia ali nga tuan lan mai linh duc thuy hai lam bao vy quan ha tam le loi trung hoan kiem bai dinh ba na hills suoi tien theme park pagoda lake noi nam hoa ms".split(" ");
+  const NAMES = "khoa hoa sen star tran phu jack thu ivan akio sofia ali nga tuan lan linh duc thuy hai lam bao vy quan ha tam le loi trung hoan kiem bai dinh ba na hills suoi tien theme park pagoda lake hoa ms thao ngoc tung phuc tra yen kim hanh hung".split(" ");
   const tuSach = (s) => new Set(s.toLowerCase().replace(/[’]/g, "'").replace(/[^a-z' -]+/g, " ").split(/[\s-]+/).map((w) => w.replace(/^'+|'+$/g, "")).filter(Boolean));
   const L4 = tuSach(f4.map((f) => fs.readFileSync(f, "utf8")).join(" "));
   const hocDen = (u) => { const s = tuSach(trangDen(7, u ? BAT_DAU[u] : 81) + " " + Object.entries(BOOK_MAP).filter(([k]) => !u || +k <= u).map(([, v]) => v).join(" ") + " " + (u ? "" : WORDLIST));
