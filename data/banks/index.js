@@ -1428,6 +1428,20 @@ window.ONTAP_SEED_BANKS = [
       "Đọc hiểu": [3, 2, 2], "Danh từ, động từ, tính từ": [1, 1, 0], "Đại từ": [1, 1, 1], "Từ đồng nghĩa": [1, 0, 1], "Từ đa nghĩa": [1, 1, 0],
       "Sử dụng từ điển": [1, 1, 0], "Dấu gạch ngang": [1, 1, 0], "Biện pháp điệp từ, điệp ngữ": [0, 1, 1], "Kết từ": [1, 0, 1], "Viết": [0, 0, 1] } } },
 
+  /* Tiếng Anh 5 · Kiểm tra cuối học kì I (Global Success 5 tập một, Units 1–10, Review 1–2; Phiên N5-ck1-ta). Khối 5 chưa bật
+     (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức
+     độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, mỗi Unit 2–3 câu (Unit 4, 9 ba câu), Reading 3 câu một
+     đoạn đọc (mức 1-2-3). Hai đề cố định và phần câu riêng đều chia đúng ma trận: mỗi ô rút 1 câu và có 3 câu (một câu ở mỗi đề cố
+     định, một câu riêng), nên học sinh đã làm một đề cố định vẫn gặp câu mới. Không có câu nghe, câu phát âm. */
+  { id: "ta5-ck1-de1", title: "Tiếng Anh 5 · Cuối kì I · Đề 1", grade: 5, subject: "Tiếng Anh", minutes: 35, n: 25, file: "5-ta.js" },
+  { id: "ta5-ck1-de2", title: "Tiếng Anh 5 · Cuối kì I · Đề 2", grade: 5, subject: "Tiếng Anh", minutes: 35, n: 25, file: "5-ta.js" },
+  { id: "ta5-ck1-ngau-nhien", title: "Tiếng Anh 5 · Cuối kì I · Đề ngẫu nhiên", grade: 5, subject: "Tiếng Anh", minutes: 35, n: 25, file: "5-ta.js",
+    pool: { from: ["ta5-ck1-de1", "ta5-ck1-de2"], matrix: {
+      "Unit 1 · All About Me!": [1, 1, 0], "Unit 2 · Our Homes": [1, 0, 1], "Unit 3 · My Foreign Friends": [1, 1, 0],
+      "Unit 4 · Our Free-Time Activities": [1, 1, 1], "Unit 5 · My Future Job": [1, 1, 0], "Unit 6 · Our School Rooms": [1, 0, 1],
+      "Unit 7 · Our Favourite School Activities": [0, 1, 1], "Unit 8 · In Our Classroom": [1, 1, 0], "Unit 9 · Our Outdoor Activities": [1, 1, 1],
+      "Unit 10 · Our School Trip": [1, 0, 1], "Reading": [1, 1, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
