@@ -14,7 +14,7 @@
 // - đọc hiểu: đáp án lấy từ chữ của đoạn đọc (câu Vận dụng ghép hai ý của đoạn).
 // Câu từ vựng (đáp án là từ, cụm từ của Unit): từ có trong trang của đúng Unit (theo trang bắt đầu ở Book map, cộng Wordlist, cộng
 // Book map của Unit đó) và đúng nhóm nghĩa của bảng TU.
-// Rồi kiểm tra ma trận (hai đề cố định và câu riêng đều chia đúng ma trận, theo thứ tự chủ đề), tên chủ đề theo Book map, Reading (mỗi
+// Rồi kiểm tra không có chữ cái tiếng Việt, ma trận (hai đề cố định và câu riêng đều chia đúng ma trận, theo thứ tự chủ đề), tên chủ đề theo Book map, Reading (mỗi
 // đề và phần câu riêng một đoạn 3 câu mức 1-2-3), dạng câu (ít nhất 2 câu đúng/sai 4 ý, kiểu Đ/S không lặp), đáp án đúng không dài hơn
 // hẳn lựa chọn sai và là lựa chọn dài nhất hay ngắn nhất (kể cả bằng nhau) ở không quá một phần ba số câu nhiều lựa chọn, không lặp
 // chữ của nhãn chủ đề, note nói về đề chung của Sở, đề bài không trùng, rút thử (đúng ma trận, trọn đoạn, gặp đủ kho; đã làm hết một đề
@@ -88,6 +88,15 @@ Object.entries(PSG).forEach(([id, ps]) => {
   const w = ps.text.split(/\s+/).length;
   assert.ok(w >= 60 && w <= 110, `đoạn ${id}: ${w} từ (bài đọc của sách lớp 5: khoảng 80–110 từ)`);
 });
+
+/* ---------- 100% tiếng Anh: không có chữ cái tiếng Việt ở mọi trường chữ (như tests/kiem-tra-de.js; cả note, đoạn đọc) ---------- */
+{
+  const VIET = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+  const chu = [[S.de1, d1.note], [S.de2, d2.note], [S.pool, p.note]].concat(Object.entries(PSG).map(([id, ps]) => ["đoạn " + id, ps.title + " " + ps.text]),
+    kho.map((q) => [ten.get(q), [q.topic, q.q, q.x].concat(q.o || [], q.ans || [], q.l || [], q.r || []).join(" | ")]));
+  assert.deepEqual(chu.filter(([, t]) => VIET.test(t)).map(([at, t]) => at + ": " + t.match(VIET)[0]), [], "có chữ cái tiếng Việt");
+  assert.ok(VIET.test("Hà Nội") && !VIET.test("Ha Noi · Viet Nam – 2026–2027"), "bộ dò chữ cái tiếng Việt");
+}
 
 /* ---------- dạng câu, lời dặn ---------- */
 assert.ok(kho.every((q) => ["mc", "fill", "order", "match", "tf", "tf4"].includes(q.type)), "dạng câu: nhiều lựa chọn, điền, sắp xếp, nối cột, đúng/sai");
