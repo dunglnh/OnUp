@@ -1489,6 +1489,19 @@ window.ONTAP_SEED_BANKS = [
       "Công nghệ · Vai trò của công nghệ": [1, 1, 0], "Công nghệ · Nhà sáng chế": [1, 1, 0], "Công nghệ · Tìm hiểu thiết kế": [1, 1, 0],
       "Công nghệ · Thiết kế sản phẩm": [0, 0, 1], "Công nghệ · Sử dụng điện thoại": [1, 1, 1], "Công nghệ · Sử dụng tủ lạnh": [1, 0, 1] } } },
 
+  /* Toán 12 · Kiểm tra giữa học kì II (Kết nối tri thức, Toán 12 tập hai, Bài 11–15: Chương IV Nguyên hàm và tích phân, Chương V Phương
+     pháp toạ độ trong không gian đến Bài 15; trọng tâm Chương IV; không có chủ đề riêng cho Hoạt động thực hành trải nghiệm; Phiên
+     N12-gk2-toan). Khối 12 chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề
+     cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 5 chủ đề theo tên Bài 11–15: Chương IV 15 câu,
+     Chương V 10 câu. Hai đề cố định và phần câu riêng đều chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp ba số câu ô đó rút. Hai
+     câu tự luận chỉ ở hai ô Vận dụng rút 1 câu (Tích phân; Phương trình đường thẳng trong không gian): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "toan12-gk2-de1", title: "Toán 12 · Giữa kì II · Đề 1", grade: 12, subject: "Toán", minutes: 45, n: 25, file: "12-toan.js" },
+  { id: "toan12-gk2-de2", title: "Toán 12 · Giữa kì II · Đề 2", grade: 12, subject: "Toán", minutes: 45, n: 25, file: "12-toan.js" },
+  { id: "toan12-gk2-ngau-nhien", title: "Toán 12 · Giữa kì II · Đề ngẫu nhiên", grade: 12, subject: "Toán", minutes: 45, n: 25, file: "12-toan.js",
+    pool: { from: ["toan12-gk2-de1", "toan12-gk2-de2"], matrix: {
+      "Nguyên hàm": [2, 2, 1], "Tích phân": [2, 2, 1], "Ứng dụng hình học của tích phân": [2, 1, 2], "Phương trình mặt phẳng": [2, 2, 2],
+      "Phương trình đường thẳng trong không gian": [2, 1, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
