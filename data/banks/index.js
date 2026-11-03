@@ -1590,6 +1590,36 @@ window.ONTAP_SEED_BANKS = [
       "Quyền và nghĩa vụ về sở hữu tài sản, tôn trọng tài sản người khác": [2, 2, 2],
       "Quyền và nghĩa vụ của công dân trong hôn nhân và gia đình": [3, 2, 2], "Quyền và nghĩa vụ của công dân trong học tập": [2, 2, 1] } } },
 
+  /* Lịch sử 12 · Kiểm tra giữa học kì II (Kết nối tri thức, Lịch sử 12, Bài 10–13: Chủ đề 4 Công cuộc Đổi mới ở Việt Nam từ năm 1986 đến
+     nay, Chủ đề 5 đến hết Bài 13; Phiên N12-gk2-lichsu-diali). Phạm vi theo nguồn đa số tra được (ma trận giữa học kì II của một trường,
+     đề cương giữa kì II đều bắt đầu từ Bài 10, khung kế hoạch dạy học đặt học kì II từ Bài 10), khác mặc định ban đầu Bài 9–13; lời dặn của đề nhắc phụ huynh
+     đối chiếu đề cương khi trường kiểm tra cả Bài 9 hoặc Bài 14. Khối 12 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề
+     cố định, không có câu riêng. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 4 chủ đề theo tên bài (tên Bài 11–13 rút gọn): Bài 10
+     5 câu, Bài 11 8 câu, Bài 12 6 câu, Bài 13 6 câu. Hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó
+     rút. Hai câu tự luận ở hai ô Vận dụng rút 1 câu (Bài 10; Bài 13): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "lichsu12-gk2-de1", title: "Lịch sử 12 · Giữa kì II · Đề 1", grade: 12, subject: "Lịch sử", minutes: 45, n: 25, file: "12-lichsu.js" },
+  { id: "lichsu12-gk2-de2", title: "Lịch sử 12 · Giữa kì II · Đề 2", grade: 12, subject: "Lịch sử", minutes: 45, n: 25, file: "12-lichsu.js" },
+  { id: "lichsu12-gk2-ngau-nhien", title: "Lịch sử 12 · Giữa kì II · Đề ngẫu nhiên", grade: 12, subject: "Lịch sử", minutes: 45, n: 25, file: "12-lichsu.js",
+    pool: { from: ["lichsu12-gk2-de1", "lichsu12-gk2-de2"], matrix: {
+      "Khái quát về công cuộc Đổi mới từ năm 1986 đến nay": [2, 2, 1], "Thành tựu cơ bản và bài học của công cuộc Đổi mới": [3, 2, 3],
+      "Hoạt động đối ngoại trong đấu tranh giành độc lập dân tộc": [2, 2, 2],
+      "Hoạt động đối ngoại trong kháng chiến chống Pháp và chống Mỹ": [3, 2, 1] } } },
+
+  /* Địa lí 12 · Kiểm tra giữa học kì II (Kết nối tri thức, Địa lí 12 bản chỉnh sửa năm 2026, Bài 20–27: Phần 3 các ngành dịch vụ, Phần 4
+     Trung du và miền núi phía Bắc, Đồng bằng sông Hồng, Bắc Trung Bộ; Phiên N12-gk2-lichsu-diali). Phạm vi theo ma trận giữa học kì II và
+     đề giữa kì II tra được; lời dặn của đề nhắc phụ huynh đối chiếu đề cương khi trường kiểm tra cả Bài 28. Khối 12 chưa bật nên đề chưa
+     hiện với gia đình. Kho câu = 50 câu của 2 đề cố định, không có câu riêng. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 6 chủ đề
+     theo tên bài (bài thực hành Bài 23, 26 không ra chủ đề riêng; tên Bài 20 rút gọn): phần dịch vụ 13 câu, phần vùng 12 câu. Hai đề cố
+     định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Hai câu tự luận ở hai ô Vận dụng rút 1 câu (Thương
+     mại và du lịch; Đồng bằng sông Hồng): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "diali12-gk2-de1", title: "Địa lí 12 · Giữa kì II · Đề 1", grade: 12, subject: "Địa lí", minutes: 45, n: 25, file: "12-diali.js" },
+  { id: "diali12-gk2-de2", title: "Địa lí 12 · Giữa kì II · Đề 2", grade: 12, subject: "Địa lí", minutes: 45, n: 25, file: "12-diali.js" },
+  { id: "diali12-gk2-ngau-nhien", title: "Địa lí 12 · Giữa kì II · Đề ngẫu nhiên", grade: 12, subject: "Địa lí", minutes: 45, n: 25, file: "12-diali.js",
+    pool: { from: ["diali12-gk2-de1", "diali12-gk2-de2"], matrix: {
+      "Vai trò, các nhân tố ảnh hưởng đến các ngành dịch vụ": [1, 1, 1], "Giao thông vận tải và bưu chính viễn thông": [2, 1, 2],
+      "Thương mại và du lịch": [2, 2, 1], "Khai thác thế mạnh ở Trung du và miền núi phía Bắc": [2, 1, 1],
+      "Phát triển kinh tế – xã hội ở Đồng bằng sông Hồng": [2, 1, 1], "Phát triển kinh tế – xã hội ở Bắc Trung Bộ": [1, 2, 1] } } },
+
   /* Ngữ văn 12 · Kiểm tra cuối năm học (Kết nối tri thức, Ngữ văn 12 tập hai, Bài 6–9, trọng tâm Bài 8–9; Phiên N12-ck2-van). Khối 12
      chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (mỗi đề 4 đoạn đọc, 1 câu Viết) + 2 câu
      Viết riêng trong file, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu như kho Ngữ văn 9 cuối năm: bốn chủ
