@@ -1148,7 +1148,7 @@ async function run(browser, scheme) {
     "UX2: khu phụ huynh có ba mục Các con · Lịch thi · Cài đặt; thanh trên không có nút Lịch thi, #/calendar về tab Lịch thi; thêm hồ sơ xong về Các con": c.ux2.tabs === "Các con*,Lịch thi,Cài đặt" && !c.ux2.topCal
       && /^Bắt đầu trong 3 bước/.test(c.ux2.empty) && c.ux2.afterAdd === "#/admin/overview" && c.ux2.calRedirect === "#/admin/events",
     "UX2: tab Các con: mỗi con một thẻ (chưa có bài: 0 bài · – · 0 (UX12, X44); kì thi gần nhất còn N ngày · chưa ôn …), không có ô số liệu trùng ý; thẻ có bài hôm nay ghi số bài, điểm hôm nay":
-      /^#\/child\/\S+ 0 bài hôm nay\|– điểm TB tuần\|0 chuỗi ngày Kiểm tra giữa học kì I còn \d+ ngày · chưa ôn Toán, Tiếng Việt; #\/child\/\S+ 0 bài hôm nay\|– điểm TB tuần\|0 chuỗi ngày Kiểm tra giữa học kì I còn \d+ ngày · chưa ôn Ngữ văn, Toán, KHTN và 5 môn khác$/.test(c.ux2.kids.cards)
+      /^#\/child\/\S+ 0 bài hôm nay\|– điểm TB tuần\|0 chuỗi ngày Kiểm tra giữa học kì I còn \d+ ngày · chưa ôn Toán, Tiếng Việt; #\/child\/\S+ 0 bài hôm nay\|– điểm TB tuần\|0 chuỗi ngày Kiểm tra giữa học kì I còn \d+ ngày · chưa ôn Toán, Ngữ văn, Tiếng Anh và 5 môn khác$/.test(c.ux2.kids.cards)
       && !c.ux2.kids.extraStats && c.ux2.kids.h2 === "Khu phụ huynh" && c.ux2.kids.count === "2/5 hồ sơ" && c.ux2.kids.add && /^Bấm vào thẻ của con/.test(c.ux2.kids.hint)
       && /^2 bài hôm nay\|\d+(,\d+)? điểm hôm nay\|1 chuỗi ngày Kiểm tra giữa học kì I còn \d+ ngày · chưa ôn Tiếng Việt$/.test(c.ux2.binCard),
     "UX2: tab Lịch thi: khối của các con (Lớp 4 · Bin, Lớp 6 · Na), gom theo tháng; kì thi dự kiến có nút “Trường đã báo lịch? Sửa ngày” (≥ 44px), kì khác có “Sửa ngày, bài ôn”":
