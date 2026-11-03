@@ -1502,6 +1502,21 @@ window.ONTAP_SEED_BANKS = [
       "Nguyên hàm": [2, 2, 1], "Tích phân": [2, 2, 1], "Ứng dụng hình học của tích phân": [2, 1, 2], "Phương trình mặt phẳng": [2, 2, 2],
       "Phương trình đường thẳng trong không gian": [2, 1, 1] } } },
 
+  /* Ngữ văn 12 · Kiểm tra giữa học kì II (Kết nối tri thức, Ngữ văn 12 tập hai, Bài 6–7; Phiên N12-gk2-van). Khối 12 chưa bật
+     (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (mỗi đề 4 đoạn đọc, 1 câu Viết), không có câu
+     riêng, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu: hai chủ đề đọc hiểu theo tên Bài 6, 7, mỗi chủ đề
+     [2, 2, 2] (mỗi đề hai đoạn 3 câu mức 1-2-3 mỗi bài: Bài 6 một bài thơ chữ Hán của Hồ Chí Minh và một văn bản nghị luận, Bài 7
+     một bài viết theo lối phóng sự và một đoạn hồi kí), nên lần rút nào cũng lấy trọn hai đoạn mỗi bài, đúng mức; 12 câu tiếng Việt
+     theo hai mục Thực hành tiếng Việt của Bài 6, 7 (ba chủ đề); 1 câu Viết tự chấm (hai đề: hai kiểu bài Viết của Bài 6, 7). Hai đề
+     cố định đúng ma trận nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Câu tự luận chỉ ở ô Viết: mỗi lần rút đúng 1 câu. */
+  { id: "van12-gk2-de1", title: "Ngữ văn 12 · Giữa kì II · Đề 1", grade: 12, subject: "Ngữ văn", minutes: 45, n: 25, file: "12-van.js" },
+  { id: "van12-gk2-de2", title: "Ngữ văn 12 · Giữa kì II · Đề 2", grade: 12, subject: "Ngữ văn", minutes: 45, n: 25, file: "12-van.js" },
+  { id: "van12-gk2-ngau-nhien", title: "Ngữ văn 12 · Giữa kì II · Đề ngẫu nhiên", grade: 12, subject: "Ngữ văn", minutes: 45, n: 25, file: "12-van.js",
+    pool: { from: ["van12-gk2-de1", "van12-gk2-de2"], matrix: {
+      "Hồ Chí Minh – “Văn hoá phải soi đường cho quốc dân đi”": [2, 2, 2], "Sự thật trong tác phẩm kí": [2, 2, 2],
+      "Biện pháp làm tăng tính khẳng định": [2, 1, 1], "Biện pháp làm tăng tính phủ định": [2, 1, 0],
+      "Ngôn ngữ trang trọng và ngôn ngữ thân mật": [2, 2, 1], "Viết": [0, 0, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
