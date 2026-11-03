@@ -1561,6 +1561,35 @@ window.ONTAP_SEED_BANKS = [
       "Kim loại trong tự nhiên và phương pháp tách kim loại": [2, 1, 1], "Hợp kim": [1, 0, 1], "Sự ăn mòn kim loại": [1, 1, 1],
       "Nguyên tố nhóm IA": [2, 1, 1] } } },
 
+  /* Sinh học 12 · Kiểm tra giữa học kì II (Kết nối tri thức, Sinh học 12, Bài 19–24: Chương 5 Bằng chứng và các học thuyết tiến hoá,
+     Chương 6 Môi trường và sinh thái học quần thể; Phiên N12-gk2-sinhhoc-ktpl). Phạm vi theo ma trận giữa kì II tra được; lời dặn của
+     đề nhắc phụ huynh đối chiếu đề cương của trường. Khối 12 chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu
+     của 2 đề cố định, không có câu riêng. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 6 chủ đề theo tên Bài 19–24 (Bài 25 là
+     bài thực hành nên không ra chủ đề riêng): Chương 5 16 câu, Chương 6 9 câu. Hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức)
+     nào cũng có gấp đôi số câu ô đó rút. Hai câu tự luận ở hai ô Vận dụng rút 1 câu (Môi trường và các nhân tố sinh thái; Sinh thái
+     học quần thể): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "sinhhoc12-gk2-de1", title: "Sinh học 12 · Giữa kì II · Đề 1", grade: 12, subject: "Sinh học", minutes: 45, n: 25, file: "12-sinhhoc.js" },
+  { id: "sinhhoc12-gk2-de2", title: "Sinh học 12 · Giữa kì II · Đề 2", grade: 12, subject: "Sinh học", minutes: 45, n: 25, file: "12-sinhhoc.js" },
+  { id: "sinhhoc12-gk2-ngau-nhien", title: "Sinh học 12 · Giữa kì II · Đề ngẫu nhiên", grade: 12, subject: "Sinh học", minutes: 45, n: 25, file: "12-sinhhoc.js",
+    pool: { from: ["sinhhoc12-gk2-de1", "sinhhoc12-gk2-de2"], matrix: {
+      "Các bằng chứng tiến hoá": [1, 1, 1], "Quan niệm của Darwin về chọn lọc tự nhiên và hình thành loài": [1, 1, 1],
+      "Học thuyết tiến hoá tổng hợp hiện đại": [2, 2, 2], "Tiến hoá lớn và quá trình phát sinh chủng loại": [2, 1, 1],
+      "Môi trường và các nhân tố sinh thái": [2, 1, 1], "Sinh thái học quần thể": [2, 2, 1] } } },
+
+  /* GDKT&PL 12 · Kiểm tra giữa học kì II (Kết nối tri thức, Giáo dục kinh tế và pháp luật 12, Phần hai Giáo dục pháp luật, Bài 8–11;
+     Phiên N12-gk2-sinhhoc-ktpl). Phạm vi theo đề cương, ma trận giữa kì II tra được; lời dặn của đề nhắc phụ huynh đối chiếu đề cương
+     của trường. Khối 12 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định, không có câu riêng; câu tình huống là
+     chính. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 4 chủ đề theo tên bài (tên Bài 9 rút gọn): Bài 8 7 câu, Bài 9 6 câu,
+     Bài 10 7 câu, Bài 11 5 câu. Hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Một câu tự
+     luận (Đề 1) ở ô Vận dụng rút 1 câu của “Quyền và nghĩa vụ của công dân trong học tập”: mỗi lần rút nhiều nhất 1 câu tự luận. */
+  { id: "ktpl12-gk2-de1", title: "GDKT&PL 12 · Giữa kì II · Đề 1", grade: 12, subject: "GDKT&PL", minutes: 45, n: 25, file: "12-ktpl.js" },
+  { id: "ktpl12-gk2-de2", title: "GDKT&PL 12 · Giữa kì II · Đề 2", grade: 12, subject: "GDKT&PL", minutes: 45, n: 25, file: "12-ktpl.js" },
+  { id: "ktpl12-gk2-ngau-nhien", title: "GDKT&PL 12 · Giữa kì II · Đề ngẫu nhiên", grade: 12, subject: "GDKT&PL", minutes: 45, n: 25, file: "12-ktpl.js",
+    pool: { from: ["ktpl12-gk2-de1", "ktpl12-gk2-de2"], matrix: {
+      "Quyền và nghĩa vụ của công dân về kinh doanh và nộp thuế": [3, 2, 2],
+      "Quyền và nghĩa vụ về sở hữu tài sản, tôn trọng tài sản người khác": [2, 2, 2],
+      "Quyền và nghĩa vụ của công dân trong hôn nhân và gia đình": [3, 2, 2], "Quyền và nghĩa vụ của công dân trong học tập": [2, 2, 1] } } },
+
   /* Ngữ văn 12 · Kiểm tra cuối năm học (Kết nối tri thức, Ngữ văn 12 tập hai, Bài 6–9, trọng tâm Bài 8–9; Phiên N12-ck2-van). Khối 12
      chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (mỗi đề 4 đoạn đọc, 1 câu Viết) + 2 câu
      Viết riêng trong file, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu như kho Ngữ văn 9 cuối năm: bốn chủ
