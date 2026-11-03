@@ -1517,6 +1517,21 @@ window.ONTAP_SEED_BANKS = [
       "Biện pháp làm tăng tính khẳng định": [2, 1, 1], "Biện pháp làm tăng tính phủ định": [2, 1, 0],
       "Ngôn ngữ trang trọng và ngôn ngữ thân mật": [2, 2, 1], "Viết": [0, 0, 1] } } },
 
+  /* Tiếng Anh 12 · Kiểm tra giữa học kì II (Global Success 12, Units 6–7 và ôn Units 1–5; Phiên N12-gk2-ta). Khối 12 chưa bật
+     (data/grades.js) nên đề chưa hiện với gia đình. Phạm vi theo đề cương giữa kì II (Units 6–7); trường đã học Unit 8 thì đối chiếu đề
+     cương của trường (lời dặn của đề). Kho câu = 25 câu riêng trong file (1 đoạn điền, 1 bài đọc) + 50 câu của 2 đề cố định (mỗi đề 1
+     đoạn điền, 1 bài đọc), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu: Pronunciation 2 (từ đồng âm của
+     Unit 6, âm /r/ nối của Unit 7), Unit 6 8, Unit 7 7 (ô Hiểu, Vận dụng của mỗi Unit rút 2 câu: một câu ngữ pháp, một câu khác),
+     Review of Units 1–5 2 (ngữ pháp của học kì I, như kho Tiếng Anh 9 giữa kì II), Cloze 3 (một đoạn điền 3 chỗ trống mức 1-2-3),
+     Reading 3 (một bài đọc 3 câu mức 1-2-3). Hai đề cố định và câu riêng đều chia đúng ma trận nên ô (chủ đề, mức) nào cũng có gấp ba
+     số câu ô đó rút. Không có câu nghe, không có câu tự luận. */
+  { id: "ta12-gk2-de1", title: "Tiếng Anh 12 · Giữa kì II · Đề 1", grade: 12, subject: "Tiếng Anh", minutes: 45, n: 25, file: "12-ta.js" },
+  { id: "ta12-gk2-de2", title: "Tiếng Anh 12 · Giữa kì II · Đề 2", grade: 12, subject: "Tiếng Anh", minutes: 45, n: 25, file: "12-ta.js" },
+  { id: "ta12-gk2-ngau-nhien", title: "Tiếng Anh 12 · Giữa kì II · Đề ngẫu nhiên", grade: 12, subject: "Tiếng Anh", minutes: 45, n: 25, file: "12-ta.js",
+    pool: { from: ["ta12-gk2-de1", "ta12-gk2-de2"], matrix: {
+      "Pronunciation": [1, 1, 0], "Unit 6 · Artificial Intelligence": [4, 2, 2], "Unit 7 · The World of Mass Media": [3, 2, 2],
+      "Review of Units 1–5": [0, 1, 1], "Cloze": [1, 1, 1], "Reading": [1, 1, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
