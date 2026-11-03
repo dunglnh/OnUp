@@ -1532,6 +1532,24 @@ window.ONTAP_SEED_BANKS = [
       "Pronunciation": [1, 1, 0], "Unit 6 · Artificial Intelligence": [4, 2, 2], "Unit 7 · The World of Mass Media": [3, 2, 2],
       "Review of Units 1–5": [0, 1, 1], "Cloze": [1, 1, 1], "Reading": [1, 1, 1] } } },
 
+  /* Ngữ văn 12 · Kiểm tra cuối năm học (Kết nối tri thức, Ngữ văn 12 tập hai, Bài 6–9, trọng tâm Bài 8–9; Phiên N12-ck2-van). Khối 12
+     chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (mỗi đề 4 đoạn đọc, 1 câu Viết) + 2 câu
+     Viết riêng trong file, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu như kho Ngữ văn 9 cuối năm: bốn chủ
+     đề đọc hiểu theo tên Bài 6–9, Bài 6, 7 mỗi chủ đề [1, 1, 1] (đoạn 3 câu mức 1-2-3), Bài 8, 9 mỗi chủ đề [1, 1, 2] (đoạn 4 câu mức
+     1-2-3-3), nên lần rút nào cũng lấy trọn một đoạn mỗi bài, đúng mức; 10 câu tiếng Việt theo bốn mục Thực hành tiếng Việt Bài 6–9:
+     3 câu ôn Bài 6, 7 (đúng chữ chủ đề của kho giữa kì II), 7 câu Bài 8, 9; 1 câu Viết tự chấm. Hai đề cố định đúng ma trận nên ô
+     (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút; câu Viết riêng giúp chủ đề Viết đủ bốn kiểu bài Viết của Bài 6–9. Câu tự luận
+     chỉ ở ô Viết: mỗi lần rút đúng 1 câu. */
+  { id: "van12-ck2-de1", title: "Ngữ văn 12 · Cuối năm · Đề 1", grade: 12, subject: "Ngữ văn", minutes: 45, n: 25, file: "12-van.js" },
+  { id: "van12-ck2-de2", title: "Ngữ văn 12 · Cuối năm · Đề 2", grade: 12, subject: "Ngữ văn", minutes: 45, n: 25, file: "12-van.js" },
+  { id: "van12-ck2-ngau-nhien", title: "Ngữ văn 12 · Cuối năm · Đề ngẫu nhiên", grade: 12, subject: "Ngữ văn", minutes: 45, n: 25, file: "12-van.js",
+    pool: { from: ["van12-ck2-de1", "van12-ck2-de2"], matrix: {
+      "Hồ Chí Minh – “Văn hoá phải soi đường cho quốc dân đi”": [1, 1, 1], "Sự thật trong tác phẩm kí": [1, 1, 1],
+      "Dữ liệu trong văn bản thông tin": [1, 1, 2], "Văn học và cuộc đời": [1, 1, 2],
+      "Biện pháp làm tăng tính khẳng định": [1, 0, 0], "Biện pháp làm tăng tính phủ định": [0, 1, 0],
+      "Ngôn ngữ trang trọng và ngôn ngữ thân mật": [1, 0, 0], "Tôn trọng và bảo vệ quyền sở hữu trí tuệ": [2, 1, 0],
+      "Giữ gìn và phát triển tiếng Việt": [2, 2, 0], "Viết": [0, 0, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];

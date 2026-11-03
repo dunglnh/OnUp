@@ -189,7 +189,7 @@
     modules: ["ioe-4", "ioe-6"], banks: [] },
   { id: "ck2-l12", title: "Kiểm tra cuối năm học", kind: "dinh-ki", grades: [12],
     start: "2027-04-12", end: "2027-05-14", tentative: true, subjects: MON_THPT,
-    scope: "Toàn bộ chương trình lớp 12.", note: SO, modules: [], banks: [] },
+    scope: "Toàn bộ chương trình lớp 12.", note: SO, modules: [], banks: ["van12-ck2-de1", "van12-ck2-de2", "van12-ck2-ngau-nhien"] },
   { id: "ck2-l9", title: "Kiểm tra cuối năm học", kind: "dinh-ki", grades: [9],
     start: "2027-04-19", end: "2027-05-14", tentative: true, subjects: MON_THCS,
     scope: "Học kì II. Toán: Bài 18–32, trọng tâm Bài 22–26, 31–32. Ngữ văn: Bài 6–9, trọng tâm Bài 8–9. Tiếng Anh: Units 7–12, trọng tâm Units 10–12. KHTN: Vật lí Bài 11–17, Hoá học Bài 18–21 và Bài 33–35, Sinh học Bài 42–51 (trường dạy theo thứ tự khác thì xem đề cương của trường). Lịch sử và Địa lí: Lịch sử Bài 13–21, Địa lí Bài 14–21, trọng tâm Bài 18–21. GDCD: Bài 7–10, trọng tâm Bài 9–10. Tin học: Bài 9a–13a và Bài 14–17, trọng tâm Bài 14–17 (trường học Bài 9b–13b thì xem đề cương của trường). Công nghệ: Lắp đặt mạng điện trong nhà, Bài 1–7, trọng tâm Bài 5–7, và ôn Định hướng nghề nghiệp (trường học mô đun khác thì xem đề cương của trường).",
