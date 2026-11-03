@@ -1532,6 +1532,35 @@ window.ONTAP_SEED_BANKS = [
       "Pronunciation": [1, 1, 0], "Unit 6 · Artificial Intelligence": [4, 2, 2], "Unit 7 · The World of Mass Media": [3, 2, 2],
       "Review of Units 1–5": [0, 1, 1], "Cloze": [1, 1, 1], "Reading": [1, 1, 1] } } },
 
+  /* Vật lí 12 · Kiểm tra giữa học kì II (Kết nối tri thức, Vật lí 12, Chương III Từ trường, Bài 14–20, trọng tâm Bài 16–19; Phiên
+     N12-gk2-vatli-hoahoc). Khối 12 chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Trường đã học sang Chương IV (Vật lí hạt
+     nhân) trước khi kiểm tra thì đối chiếu đề cương (lời dặn của đề). Kho câu = 50 câu của 2 đề cố định, không có câu riêng. Ma trận
+     [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 6 chủ đề theo tên Bài 14–19 (Bài 20 là bài tập nên không ra chủ đề riêng): Bài 14–15 8
+     câu, Bài 16–19 17 câu. Hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Hai câu tự luận
+     ở hai ô Vận dụng rút 1 câu (Máy phát điện xoay chiều; Ứng dụng hiện tượng cảm ứng điện từ): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "vatli12-gk2-de1", title: "Vật lí 12 · Giữa kì II · Đề 1", grade: 12, subject: "Vật lí", minutes: 45, n: 25, file: "12-vatli.js" },
+  { id: "vatli12-gk2-de2", title: "Vật lí 12 · Giữa kì II · Đề 2", grade: 12, subject: "Vật lí", minutes: 45, n: 25, file: "12-vatli.js" },
+  { id: "vatli12-gk2-ngau-nhien", title: "Vật lí 12 · Giữa kì II · Đề ngẫu nhiên", grade: 12, subject: "Vật lí", minutes: 45, n: 25, file: "12-vatli.js",
+    pool: { from: ["vatli12-gk2-de1", "vatli12-gk2-de2"], matrix: {
+      "Từ trường": [2, 1, 1], "Lực từ tác dụng lên dây dẫn mang dòng điện. Cảm ứng từ": [1, 1, 2],
+      "Từ thông. Hiện tượng cảm ứng điện từ": [2, 2, 2], "Máy phát điện xoay chiều": [2, 2, 1], "Ứng dụng hiện tượng cảm ứng điện từ": [1, 1, 1],
+      "Điện từ trường. Mô hình sóng điện từ": [2, 1, 0] } } },
+
+  /* Hoá học 12 · Kiểm tra giữa học kì II (Kết nối tri thức, Hoá học 12, Bài 16, Chương 6 Đại cương về kim loại Bài 18–23, Bài 24 Nguyên tố
+     nhóm IA; trọng tâm Chương 6; Phiên N12-gk2-vatli-hoahoc). Phạm vi theo nguồn đa số (hai nguồn giữa kì II đều không có Bài 25, nên
+     Bài 25 để sang kho cuối năm); trường đã kiểm tra Bài 16 ở cuối kì I, trường mới học hết Chương 6 hay đã học Bài 25 thì xem lời dặn
+     của đề. Khối 12 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định, không có câu riêng. Ma trận [Biết, Hiểu,
+     Vận dụng] 10 – 8 – 7 câu trên 7 chủ đề theo tên bài (Bài 23 ôn tập chương không ra chủ đề riêng): Bài 16 4 câu, Chương 6 17 câu,
+     Bài 24 4 câu. Hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Hai câu tự luận ở hai ô
+     Vận dụng rút 1 câu (Kim loại trong tự nhiên và phương pháp tách kim loại; Nguyên tố nhóm IA): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "hoahoc12-gk2-de1", title: "Hóa học 12 · Giữa kì II · Đề 1", grade: 12, subject: "Hóa học", minutes: 45, n: 25, file: "12-hoahoc.js" },
+  { id: "hoahoc12-gk2-de2", title: "Hóa học 12 · Giữa kì II · Đề 2", grade: 12, subject: "Hóa học", minutes: 45, n: 25, file: "12-hoahoc.js" },
+  { id: "hoahoc12-gk2-ngau-nhien", title: "Hóa học 12 · Giữa kì II · Đề ngẫu nhiên", grade: 12, subject: "Hóa học", minutes: 45, n: 25, file: "12-hoahoc.js",
+    pool: { from: ["hoahoc12-gk2-de1", "hoahoc12-gk2-de2"], matrix: {
+      "Điện phân": [1, 2, 1], "Cấu tạo và liên kết trong tinh thể kim loại": [1, 1, 0], "Tính chất vật lí và tính chất hoá học của kim loại": [2, 2, 2],
+      "Kim loại trong tự nhiên và phương pháp tách kim loại": [2, 1, 1], "Hợp kim": [1, 0, 1], "Sự ăn mòn kim loại": [1, 1, 1],
+      "Nguyên tố nhóm IA": [2, 1, 1] } } },
+
   /* Ngữ văn 12 · Kiểm tra cuối năm học (Kết nối tri thức, Ngữ văn 12 tập hai, Bài 6–9, trọng tâm Bài 8–9; Phiên N12-ck2-van). Khối 12
      chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (mỗi đề 4 đoạn đọc, 1 câu Viết) + 2 câu
      Viết riêng trong file, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu như kho Ngữ văn 9 cuối năm: bốn chủ
