@@ -620,8 +620,10 @@ fills.filter((q) => !canDo(q).nguPhap).forEach((q) => { const a = noi(q.ans[0]);
    Đề “Ôn chủ đề” (Phiên UX14) rút 10 câu của một chủ đề từ mọi đề Tiếng Anh 12 có sẵn, có lời giải sau mỗi câu: Unit 6, 7 và phần ôn chỉ
    có ở kho này (mọi cặp câu cùng chủ đề có thể ra cùng lúc); Pronunciation, Cloze, Reading chung với kho cuối kì I (đoạn nào cũng có thể
    rút cùng nhau). Đáp án không trùng đáp án câu cùng chủ đề của kho cuối kì I; dò lộ như trên giữa mọi cặp câu cùng chủ đề có ít nhất
-   một câu của kho này (cả câu của các đoạn khác nhau; đáp án là từ ngữ pháp chỉ dò trong cùng đoạn); chỗ đã xem ghi ở DA_XEM_CHU_DE. */
-const khoKhac = BANKS.filter((b) => b.file === "12-ta.js" && !/^ta12-gk2-/.test(b.id)).flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id).map((q) => ({ q, b })));
+   một câu của kho này (cả câu của các đoạn khác nhau; đáp án là từ ngữ pháp chỉ dò trong cùng đoạn); chỗ đã xem ghi ở DA_XEM_CHU_DE.
+   Kho cuối năm (ta12-ck2-*, Unit 6, 7 chung chủ đề với kho này) làm sau: tests/ta12-ck2.js so các cặp câu của hai kho, nên ở đây chỉ so với
+   kho cuối kì I. */
+const khoKhac = BANKS.filter((b) => b.file === "12-ta.js" && /^ta12-ck1-/.test(b.id)).flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id).map((q) => ({ q, b })));
 const ten1 = new Map(), PSG_KHAC = new Map();
 khoKhac.forEach(({ q, b }) => { ten1.set(q, b.id.replace("ta12-", "") + "#" + (b.questions.filter((x) => !b.pool || x.src === b.id).indexOf(q) + 1)); if (q.p) PSG_KHAC.set(q, b.passages[q.p]); });
 const cungCD = khoKhac.map((x) => x.q).filter((q) => TOPICS.includes(q.topic));

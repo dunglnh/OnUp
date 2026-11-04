@@ -1684,6 +1684,21 @@ window.ONTAP_SEED_BANKS = [
       "Ngôn ngữ trang trọng và ngôn ngữ thân mật": [1, 0, 0], "Tôn trọng và bảo vệ quyền sở hữu trí tuệ": [2, 1, 0],
       "Giữ gìn và phát triển tiếng Việt": [2, 2, 0], "Viết": [0, 0, 1] } } },
 
+  /* Tiếng Anh 12 · Kiểm tra cuối năm học (Global Success 12, Units 6–10, Review 3, 4, trọng tâm Units 8–10; Phiên N12-ck2-ta). Khối 12
+     chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong file (1 đoạn điền, 1 bài đọc) + 50 câu của 2
+     đề cố định (mỗi đề 1 đoạn điền, 1 bài đọc), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu như kho Tiếng Anh
+     12 cuối kì I: Pronunciation 2 (ngữ điệu câu hỏi của Unit 10; đồng hóa âm của Unit 8, trọng âm câu của Unit 9), Unit 6, 7, 10 mỗi
+     Unit 3, Unit 8, 9 mỗi Unit 4 (trọng tâm Units 8–10: 11 câu, ôn Units 6–7: 6 câu, chữ chủ đề như kho giữa kì II), Cloze 3 (một đoạn
+     điền 3 chỗ trống mức 1-2-3), Reading 3 (một bài đọc 3 câu mức 1-2-3). Hai đề cố định và câu riêng đều chia đúng ma trận nên ô (chủ
+     đề, mức) nào cũng có gấp ba số câu ô đó rút. Không có câu nghe, không có câu tự luận. */
+  { id: "ta12-ck2-de1", title: "Tiếng Anh 12 · Cuối năm · Đề 1", grade: 12, subject: "Tiếng Anh", minutes: 45, n: 25, file: "12-ta.js" },
+  { id: "ta12-ck2-de2", title: "Tiếng Anh 12 · Cuối năm · Đề 2", grade: 12, subject: "Tiếng Anh", minutes: 45, n: 25, file: "12-ta.js" },
+  { id: "ta12-ck2-ngau-nhien", title: "Tiếng Anh 12 · Cuối năm · Đề ngẫu nhiên", grade: 12, subject: "Tiếng Anh", minutes: 45, n: 25, file: "12-ta.js",
+    pool: { from: ["ta12-ck2-de1", "ta12-ck2-de2"], matrix: {
+      "Pronunciation": [1, 1, 0], "Unit 6 · Artificial Intelligence": [1, 1, 1], "Unit 7 · The World of Mass Media": [1, 1, 1],
+      "Unit 8 · Wildlife Conservation": [2, 1, 1], "Unit 9 · Career Paths": [2, 1, 1], "Unit 10 · Lifelong Learning": [1, 1, 1],
+      "Cloze": [1, 1, 1], "Reading": [1, 1, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
