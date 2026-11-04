@@ -1731,6 +1731,39 @@ window.ONTAP_SEED_BANKS = [
       "Nguyên tố nhóm IA": [1, 0, 0], "Nguyên tố nhóm IIA": [2, 1, 2], "Đại cương về kim loại chuyển tiếp dãy thứ nhất": [2, 2, 1],
       "Sơ lược về phức chất": [1, 1, 1], "Một số tính chất và ứng dụng của phức chất": [1, 1, 2] } } },
 
+  /* Sinh học 12 · Kiểm tra cuối năm học (Kết nối tri thức, Sinh học 12, Phần sáu Sinh thái học và môi trường, Bài 23–35; Phiên
+     N12-ck2-sinhhoc-ktpl). Phạm vi theo ma trận cuối kì II tra được, trọng tâm Chương 7–8; lời dặn của đề nhắc trường kiểm tra cả Tiến
+     hoá (Bài 19–22) ôn thêm các đề giữa kì II. Khối 12 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định, không
+     có câu riêng. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 9 chủ đề theo tên bài (Bài 25, 27, 32 thực hành, Bài 35 dự án
+     không ra chủ đề riêng): ôn Bài 23–24 5 câu (chữ chủ đề như kho giữa kì II), Chương 7 16 câu, Chương 8 4 câu. Hai đề cố định chia
+     đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Hai câu tự luận ở hai ô Vận dụng rút 1 câu (Quần xã sinh
+     vật; Sinh quyển, khu sinh học và chu trình sinh – địa – hoá): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "sinhhoc12-ck2-de1", title: "Sinh học 12 · Cuối năm · Đề 1", grade: 12, subject: "Sinh học", minutes: 45, n: 25, file: "12-sinhhoc.js" },
+  { id: "sinhhoc12-ck2-de2", title: "Sinh học 12 · Cuối năm · Đề 2", grade: 12, subject: "Sinh học", minutes: 45, n: 25, file: "12-sinhhoc.js" },
+  { id: "sinhhoc12-ck2-ngau-nhien", title: "Sinh học 12 · Cuối năm · Đề ngẫu nhiên", grade: 12, subject: "Sinh học", minutes: 45, n: 25, file: "12-sinhhoc.js",
+    pool: { from: ["sinhhoc12-ck2-de1", "sinhhoc12-ck2-de2"], matrix: {
+      "Môi trường và các nhân tố sinh thái": [1, 1, 0], "Sinh thái học quần thể": [1, 1, 1], "Quần xã sinh vật": [2, 1, 1], "Hệ sinh thái": [1, 1, 0],
+      "Trao đổi vật chất và chuyển hoá năng lượng trong hệ sinh thái": [1, 1, 2], "Diễn thế sinh thái": [1, 1, 1],
+      "Sinh quyển, khu sinh học và chu trình sinh – địa – hoá": [1, 1, 1], "Sinh thái học phục hồi và bảo tồn đa dạng sinh vật": [1, 0, 1],
+      "Phát triển bền vững": [1, 1, 0] } } },
+
+  /* GDKT&PL 12 · Kiểm tra cuối năm học (Kết nối tri thức, Giáo dục kinh tế và pháp luật 12, Phần hai Giáo dục pháp luật, Bài 10–16;
+     Phiên N12-ck2-sinhhoc-ktpl). Phạm vi theo đề cương ôn tập, đề kiểm tra học kì II tra được, trọng tâm Bài 12–16; lời dặn của đề nhắc
+     trường kiểm tra cả Bài 8–9 ôn thêm các đề giữa kì II. Khối 12 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố
+     định, không có câu riêng; câu tình huống là chính. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 7 chủ đề theo tên bài (tên Bài
+     12, 13, 16 rút gọn): ôn Bài 10–11 6 câu (chữ chủ đề như kho giữa kì II), Bài 12–13 8 câu, Bài 14–16 11 câu. Hai đề cố định chia
+     đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Một câu tự luận (Đề 2) ở ô Vận dụng rút 1 câu của “Quyền và
+     nghĩa vụ về di sản văn hoá, môi trường, tài nguyên”: mỗi lần rút nhiều nhất 1 câu tự luận. */
+  { id: "ktpl12-ck2-de1", title: "GDKT&PL 12 · Cuối năm · Đề 1", grade: 12, subject: "GDKT&PL", minutes: 45, n: 25, file: "12-ktpl.js" },
+  { id: "ktpl12-ck2-de2", title: "GDKT&PL 12 · Cuối năm · Đề 2", grade: 12, subject: "GDKT&PL", minutes: 45, n: 25, file: "12-ktpl.js" },
+  { id: "ktpl12-ck2-ngau-nhien", title: "GDKT&PL 12 · Cuối năm · Đề ngẫu nhiên", grade: 12, subject: "GDKT&PL", minutes: 45, n: 25, file: "12-ktpl.js",
+    pool: { from: ["ktpl12-ck2-de1", "ktpl12-ck2-de2"], matrix: {
+      "Quyền và nghĩa vụ của công dân trong hôn nhân và gia đình": [1, 1, 1], "Quyền và nghĩa vụ của công dân trong học tập": [1, 1, 1],
+      "Quyền và nghĩa vụ về chăm sóc sức khoẻ, bảo đảm an sinh xã hội": [2, 1, 1],
+      "Quyền và nghĩa vụ về di sản văn hoá, môi trường, tài nguyên": [2, 1, 1], "Một số vấn đề chung về pháp luật quốc tế": [2, 1, 1],
+      "Công pháp quốc tế về dân cư, lãnh thổ và chủ quyền quốc gia": [1, 2, 1],
+      "Nguyên tắc cơ bản của WTO và hợp đồng thương mại quốc tế": [1, 1, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
