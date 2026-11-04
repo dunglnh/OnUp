@@ -1764,6 +1764,42 @@ window.ONTAP_SEED_BANKS = [
       "Công pháp quốc tế về dân cư, lãnh thổ và chủ quyền quốc gia": [1, 2, 1],
       "Nguyên tắc cơ bản của WTO và hợp đồng thương mại quốc tế": [1, 1, 1] } } },
 
+  /* Lịch sử 12 · Kiểm tra cuối năm học (Kết nối tri thức, Lịch sử 12, Bài 10–17: Chủ đề 4, 5 và Chủ đề 6 Hồ Chí Minh trong lịch sử Việt
+     Nam; Phiên N12-ck2-lichsu-diali). Phạm vi theo nguồn đa số tra được, trọng tâm Bài 14–17; Bài 10–13 là phần ôn (chữ chủ đề như kho
+     giữa kì II); lời dặn của đề nhắc trường chỉ kiểm tra Chủ đề 6 hoặc kiểm tra cả Bài 9 đối chiếu đề cương. Khối 12 chưa bật nên đề chưa
+     hiện với gia đình. Kho câu = 50 câu của 2 đề cố định, không có câu riêng. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 8 chủ
+     đề theo tên bài (tên Bài 11–13 rút gọn như kho giữa kì II): ôn Bài 10–13 4 câu, Bài 14 5 câu, Bài 15–17 16 câu. Hai đề cố định chia
+     đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Hai câu tự luận ở hai ô Vận dụng rút 1 câu (Bài 14; Bài 17):
+     mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "lichsu12-ck2-de1", title: "Lịch sử 12 · Cuối năm · Đề 1", grade: 12, subject: "Lịch sử", minutes: 45, n: 25, file: "12-lichsu.js" },
+  { id: "lichsu12-ck2-de2", title: "Lịch sử 12 · Cuối năm · Đề 2", grade: 12, subject: "Lịch sử", minutes: 45, n: 25, file: "12-lichsu.js" },
+  { id: "lichsu12-ck2-ngau-nhien", title: "Lịch sử 12 · Cuối năm · Đề ngẫu nhiên", grade: 12, subject: "Lịch sử", minutes: 45, n: 25, file: "12-lichsu.js",
+    pool: { from: ["lichsu12-ck2-de1", "lichsu12-ck2-de2"], matrix: {
+      "Khái quát về công cuộc Đổi mới từ năm 1986 đến nay": [1, 0, 0], "Thành tựu cơ bản và bài học của công cuộc Đổi mới": [0, 0, 1],
+      "Hoạt động đối ngoại trong đấu tranh giành độc lập dân tộc": [1, 0, 0],
+      "Hoạt động đối ngoại trong kháng chiến chống Pháp và chống Mỹ": [0, 1, 0],
+      "Hoạt động đối ngoại của Việt Nam từ năm 1975 đến nay": [2, 2, 1], "Khái quát cuộc đời và sự nghiệp của Hồ Chí Minh": [2, 1, 2],
+      "Hồ Chí Minh – Anh hùng giải phóng dân tộc": [3, 3, 2], "Dấu ấn Hồ Chí Minh trong lòng nhân dân thế giới và Việt Nam": [1, 1, 1] } } },
+
+  /* Địa lí 12 · Kiểm tra cuối năm học (Kết nối tri thức, Địa lí 12 bản chỉnh sửa năm 2026, Bài 20–35: ôn Phần 3 các ngành dịch vụ và
+     Bài 24–27, trọng tâm Bài 28–33 Duyên hải Nam Trung Bộ và Tây Nguyên, Đông Nam Bộ, Đồng bằng sông Cửu Long, Biển Đông và các đảo,
+     quần đảo; Phiên N12-ck2-lichsu-diali). Phạm vi theo nguồn đa số tra được; lời dặn của đề nhắc trường chỉ kiểm tra Bài 28–33 bỏ qua
+     câu ôn. Khối 12 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định, không có câu riêng. Ma trận [Biết, Hiểu,
+     Vận dụng] 10 – 8 – 7 câu trên 10 chủ đề theo tên bài (bài thực hành Bài 23, 26, 29, 32, 34, 35 không ra chủ đề riêng; tên Bài 20
+     rút gọn như kho giữa kì II, tên Bài 28, 31, 33 rút gọn): ôn Bài 20–27 6 câu (chữ chủ đề như kho giữa kì II), Bài 28–33 19 câu.
+     Hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Hai câu tự luận ở hai ô Vận dụng rút 1
+     câu (Đồng bằng sông Cửu Long; Biển Đông): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "diali12-ck2-de1", title: "Địa lí 12 · Cuối năm · Đề 1", grade: 12, subject: "Địa lí", minutes: 45, n: 25, file: "12-diali.js" },
+  { id: "diali12-ck2-de2", title: "Địa lí 12 · Cuối năm · Đề 2", grade: 12, subject: "Địa lí", minutes: 45, n: 25, file: "12-diali.js" },
+  { id: "diali12-ck2-ngau-nhien", title: "Địa lí 12 · Cuối năm · Đề ngẫu nhiên", grade: 12, subject: "Địa lí", minutes: 45, n: 25, file: "12-diali.js",
+    pool: { from: ["diali12-ck2-de1", "diali12-ck2-de2"], matrix: {
+      "Vai trò, các nhân tố ảnh hưởng đến các ngành dịch vụ": [1, 0, 0], "Giao thông vận tải và bưu chính viễn thông": [0, 0, 1],
+      "Thương mại và du lịch": [0, 1, 0], "Khai thác thế mạnh ở Trung du và miền núi phía Bắc": [1, 0, 0],
+      "Phát triển kinh tế – xã hội ở Đồng bằng sông Hồng": [0, 1, 0], "Phát triển kinh tế – xã hội ở Bắc Trung Bộ": [0, 0, 1],
+      "Phát triển kinh tế – xã hội ở Nam Trung Bộ": [2, 2, 1], "Phát triển kinh tế – xã hội ở Đông Nam Bộ": [2, 1, 2],
+      "Sử dụng hợp lí tự nhiên ở Đồng bằng sông Cửu Long": [2, 2, 1],
+      "Phát triển kinh tế và đảm bảo quốc phòng, an ninh ở Biển Đông": [2, 1, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
