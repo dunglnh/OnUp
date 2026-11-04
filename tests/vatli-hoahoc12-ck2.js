@@ -522,6 +522,8 @@ const CHECKS = [
   { id: "hh2", has: "Nhỏ dung dịch KOH vào dung dịch Fe₂(SO₄)₃", right: (q) => { const p = sanPham(ptCua(q, "Fe₂(SO₄)₃", "KOH")).filter((t) => t in MAU_KT); assert.equal(p.length, 1); return MAU_KT[p[0]]; } },
   { id: "hh2", has: "So sánh manganese (Mn, kim loại chuyển tiếp dãy thứ nhất) với sodium", right: (q) => {
     const [tMn, tNa] = so(q.x, "Mn nóng chảy ở khoảng # °C), còn Na nóng chảy ở khoảng # °C"), [dMn, dNa] = so(q.x, "Mn là kim loại nặng (khoảng # g/cm³), Na rất nhẹ (khoảng # g/cm³)");
+    // số liệu như sách: Bảng 27.2 (Mn nóng chảy ở 1 244 °C, 7,21 g/cm³), Bảng 24.2 (Na nóng chảy ở 97,8 °C, 0,968 g/cm³)
+    assert.ok(Math.abs(tMn - 1244) < 0.5 && Math.abs(tNa - 97.8) < 0.5 && Math.abs(dMn - 7.21) < 0.05 && Math.abs(dNa - 0.968) < 0.005, "số liệu của Mn, Na như Bảng 27.2, 24.2 của sách");
     assert.ok(/^Nhiệt độ nóng chảy của Mn cao hơn nhiều so với của Na\.$/.test(q.o[0]) && /^Khối lượng riêng của Mn nhỏ hơn của Na\.$/.test(q.o[1]) && /phân lớp 4s và phân lớp 3d\.$/.test(q.o[3]));
     const c = docCH(CH.Mn); coX(q, "cấu hình electron của Mn là " + CH.Mn);
     return [tMn > 5 * tNa, dMn < dNa, null, c.d > 0 && c.s > 0]; } },
