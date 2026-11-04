@@ -1699,6 +1699,38 @@ window.ONTAP_SEED_BANKS = [
       "Unit 8 · Wildlife Conservation": [2, 1, 1], "Unit 9 · Career Paths": [2, 1, 1], "Unit 10 · Lifelong Learning": [1, 1, 1],
       "Cloze": [1, 1, 1], "Reading": [1, 1, 1] } } },
 
+  /* Vật lí 12 · Kiểm tra cuối năm học (Kết nối tri thức, Vật lí 12, Chương III Từ trường Bài 14–20 và Chương IV Vật lí hạt nhân Bài
+     21–25, trọng tâm Chương IV; Phiên N12-ck2-vatli-hoahoc). Khối 12 chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Trường
+     chỉ kiểm tra Chương IV hay kiểm tra cả học kì I thì xem lời dặn của đề. Kho câu = 50 câu của 2 đề cố định, không có câu riêng. Ma
+     trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 10 chủ đề theo tên bài (Bài 20, 25 là bài tập nên không ra chủ đề riêng): ôn Bài
+     14–19 8 câu (chữ chủ đề như kho giữa kì II), Bài 21–24 17 câu. Hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có
+     gấp đôi số câu ô đó rút. Hai câu tự luận ở hai ô Vận dụng rút 1 câu (Cấu trúc hạt nhân; Hiện tượng phóng xạ): mỗi lần rút nhiều
+     nhất 2 câu tự luận. */
+  { id: "vatli12-ck2-de1", title: "Vật lí 12 · Cuối năm · Đề 1", grade: 12, subject: "Vật lí", minutes: 45, n: 25, file: "12-vatli.js" },
+  { id: "vatli12-ck2-de2", title: "Vật lí 12 · Cuối năm · Đề 2", grade: 12, subject: "Vật lí", minutes: 45, n: 25, file: "12-vatli.js" },
+  { id: "vatli12-ck2-ngau-nhien", title: "Vật lí 12 · Cuối năm · Đề ngẫu nhiên", grade: 12, subject: "Vật lí", minutes: 45, n: 25, file: "12-vatli.js",
+    pool: { from: ["vatli12-ck2-de1", "vatli12-ck2-de2"], matrix: {
+      "Từ trường": [1, 0, 0], "Lực từ tác dụng lên dây dẫn mang dòng điện. Cảm ứng từ": [0, 1, 1],
+      "Từ thông. Hiện tượng cảm ứng điện từ": [0, 1, 1], "Máy phát điện xoay chiều": [0, 0, 1], "Ứng dụng hiện tượng cảm ứng điện từ": [0, 1, 0],
+      "Điện từ trường. Mô hình sóng điện từ": [1, 0, 0], "Cấu trúc hạt nhân": [2, 1, 1], "Phản ứng hạt nhân và năng lượng liên kết": [2, 2, 1],
+      "Hiện tượng phóng xạ": [3, 1, 1], "Công nghiệp hạt nhân": [1, 1, 1] } } },
+
+  /* Hoá học 12 · Kiểm tra cuối năm học (Kết nối tri thức, Hoá học 12, Chương 6 Đại cương về kim loại, Chương 7 Nguyên tố nhóm IA và nhóm
+     IIA, Chương 8 Sơ lược về dãy kim loại chuyển tiếp thứ nhất và phức chất, Bài 18–30, trọng tâm Chương 8; Phiên N12-ck2-vatli-hoahoc).
+     Khối 12 chưa bật nên đề chưa hiện với gia đình. Trường kiểm tra cả Bài 15–16 thì xem lời dặn của đề. Kho câu = 50 câu của 2 đề cố
+     định, không có câu riêng. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 10 chủ đề theo tên bài (Bài 23, 26, 30 ôn tập chương
+     không ra chủ đề riêng): ôn Bài 18–22, 24 8 câu (chữ chủ đề như kho giữa kì II), Bài 25 5 câu, Bài 27–29 12 câu. Hai đề cố định chia
+     đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Hai câu tự luận ở hai ô Vận dụng rút 1 câu (Đại cương về kim
+     loại chuyển tiếp dãy thứ nhất; Sơ lược về phức chất): mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "hoahoc12-ck2-de1", title: "Hóa học 12 · Cuối năm · Đề 1", grade: 12, subject: "Hóa học", minutes: 45, n: 25, file: "12-hoahoc.js" },
+  { id: "hoahoc12-ck2-de2", title: "Hóa học 12 · Cuối năm · Đề 2", grade: 12, subject: "Hóa học", minutes: 45, n: 25, file: "12-hoahoc.js" },
+  { id: "hoahoc12-ck2-ngau-nhien", title: "Hóa học 12 · Cuối năm · Đề ngẫu nhiên", grade: 12, subject: "Hóa học", minutes: 45, n: 25, file: "12-hoahoc.js",
+    pool: { from: ["hoahoc12-ck2-de1", "hoahoc12-ck2-de2"], matrix: {
+      "Cấu tạo và liên kết trong tinh thể kim loại": [1, 0, 0], "Tính chất vật lí và tính chất hoá học của kim loại": [1, 1, 0],
+      "Kim loại trong tự nhiên và phương pháp tách kim loại": [0, 1, 1], "Hợp kim": [1, 0, 0], "Sự ăn mòn kim loại": [0, 1, 0],
+      "Nguyên tố nhóm IA": [1, 0, 0], "Nguyên tố nhóm IIA": [2, 1, 2], "Đại cương về kim loại chuyển tiếp dãy thứ nhất": [2, 2, 1],
+      "Sơ lược về phức chất": [1, 1, 1], "Một số tính chất và ứng dụng của phức chất": [1, 1, 2] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
