@@ -392,8 +392,8 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
      tests/sinhhoc-ktpl12-ck2.js tính lại mọi câu có phép tính (mật độ thả, tỉ lệ sống; năng lượng qua các bậc theo hiệu suất sinh thái;
      lượng khai thác tối đa; độ phong phú; lượng phân bón; diện tích rừng hấp thụ CO₂) và đọc lại ba hình. Câu tự soạn, đối chiếu với sách
      in năm 2026; không dùng ví dụ, bài tập, hình của sách làm bối cảnh (sư tử, ngựa vằn, đước, sú, vẹt, ốc bươu vàng, trinh nữ móc,
-     kiến đen và rệp, đảo Krakatau, cháy rừng U Minh Thượng, lưới thức ăn đồng cỏ của Hình 29.3, quần xã ruộng lúa của bài Luyện tập, cây
-     họ Đậu cải tạo đồi trọc, voọc chà vá chân nâu, gấu ở Tam Đảo) và không hỏi lại ý của các câu Bài 23–24 trong kho giữa kì II.
+     kiến đen và rệp, đảo Krakatau, cháy rừng U Minh Thượng, các loài trong Hình 29.2, 29.3, cây họ Đậu cải tạo đồi núi trọc,
+     voọc chà vá chân nâu, gấu ở Tam Đảo) và không hỏi lại ý của các câu Bài 23–24 trong kho giữa kì II.
      Cách xếp mức: nhận biết khái niệm, loại, ví dụ là Biết; giải thích, phân biệt, đọc hình một bước là Hiểu; đọc lưới thức ăn, tính
      nhiều bước, chọn biện pháp cho một tình huống là Vận dụng. */
   "sinhhoc12-ck2-de1": {

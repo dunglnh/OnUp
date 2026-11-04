@@ -378,10 +378,10 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
      (6 câu Bài 10–11, 19 câu Bài 12–16), chia đúng ma trận 10 Biết, 8 Hiểu, 7 Vận dụng trên 7 chủ đề theo tên bài của sách (tên Bài 12, 13,
      16 rút gọn cho vừa mã đề "Ôn chủ đề"; ma trận ở data/banks/index.js). Hai đề là kho của đề ngẫu nhiên "ktpl12-ck2-ngau-nhien" (không có
      câu riêng nên không ghi vào file này). Dạng câu theo khung Công văn 7991: nhiều lựa chọn, đúng/sai 4 ý (Đề 1 bốn câu, Đề 2 ba câu, kiểu
-     Đ/S không lặp), 1 câu tự luận tự chấm ở ô Vận dụng của Bài 13 (Đề 2). Phần lớn là câu tình huống (tên người, tên công ty, quốc gia đặt
-     bằng chữ cái, không dùng tên trong ví dụ của sách). Chữ theo sách in năm 2026 (Luật Bảo hiểm y tế sửa đổi năm 2024, Luật Di sản văn hoá
-     năm 2024 nên dùng “di sản văn hoá”, “di tích đã được xếp hạng”; vùng biển như kho Lịch sử và Địa lí 9 cuối năm: lãnh hải, vùng tiếp giáp
-     lãnh hải, vùng đặc quyền kinh tế 200 hải lí tính từ đường cơ sở); không ghi số điều luật, mức phạt, tên cơ quan cũ, đơn vị hành chính cũ.
+     Đ/S không lặp), 1 câu tự luận tự chấm ở ô Vận dụng của Bài 13 (Đề 2). Phần lớn là câu tình huống (công ty, quốc gia đặt tên bằng chữ cái).
+     Chữ theo sách in năm 2026 (các luật sửa đổi năm 2024 như Luật Bảo hiểm y tế, Luật Di sản văn hoá; câu không ghi tên luật; vùng biển như
+     kho Lịch sử và Địa lí 9 cuối năm: lãnh hải, vùng tiếp giáp lãnh hải, vùng đặc quyền kinh tế 200 hải lí tính từ đường cơ sở); không ghi
+     số điều luật, mức phạt, tên cơ quan cũ, đơn vị hành chính cũ.
      tests/sinhhoc-ktpl12-ck2.js kiểm tra tuổi kết hôn, câu tự luận có thang chấm đủ ý. Câu tự soạn, đối chiếu với sách in năm 2026; không
      dùng tình huống, tên nhân vật, công ty trong các bài của sách làm bối cảnh và không hỏi lại ý của các câu Bài 10–11 trong kho giữa kì II.
      Cách xếp mức: nhận biết quyền, nghĩa vụ, nguyên tắc, bộ phận là Biết; nhận xét một tình huống, phân biệt là Hiểu; chọn cách ứng xử, xét
@@ -399,7 +399,7 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
         o: ["Bố mẹ chị Lụa có hành vi cưỡng ép kết hôn, bị pháp luật nghiêm cấm.", "Chị Lụa chưa có quyền từ chối vì con cái phải nghe theo cha mẹ trong việc kết hôn.", "Chị Lụa có quyền từ chối và có thể nhờ hội phụ nữ ở nơi mình sống giúp đỡ.", "Nếu cuộc hôn nhân giúp gia đình trả được nợ thì việc ép kết hôn không vi phạm pháp luật."],
         a: [true, false, true, false],
         x: "a) Đúng: ép người khác kết hôn khi họ không muốn là cưỡng ép kết hôn, một hành vi bị cấm. b) Sai: chị Lụa đã thành niên, đủ tuổi kết hôn; kết hôn phải theo ý muốn của chính chị, cha mẹ không thể bắt buộc. c) Đúng: chị được quyền không đồng ý kết hôn và nhờ tổ chức, người có trách nhiệm ở địa phương can thiệp. d) Sai: lí do trả nợ không làm cho việc ép kết hôn trở thành hợp pháp.", lv: 3 },
-      { topic: "Quyền và nghĩa vụ của công dân trong học tập", type: "mc", q: "Việc làm nào sau đây của học sinh là thiếu tôn trọng nhà giáo?",
+      { topic: "Quyền và nghĩa vụ của công dân trong học tập", type: "mc", q: "Trong các việc dưới đây của học sinh, việc nào thể hiện sự thiếu tôn trọng nhà giáo?",
         o: ["Cắt ghép ảnh cô giáo kèm lời chế giễu rồi lan truyền trên mạng", "Hỏi lại thầy giáo phần bài chưa hiểu sau giờ học trên lớp", "Góp ý với giáo viên chủ nhiệm về cách tổ chức buổi sinh hoạt lớp", "Gửi lời chúc mừng thầy cô nhân ngày Nhà giáo Việt Nam"],
         x: "Người học phải tôn trọng thầy cô và các cán bộ, nhân viên của trường. Cắt ghép ảnh, chế giễu cô giáo rồi lan truyền là xúc phạm, bôi nhọ cô, vi phạm nghĩa vụ này. Hỏi bài, góp ý đúng mực, chúc mừng thầy cô đều là việc làm phù hợp.", lv: 1 },
       { topic: "Quyền và nghĩa vụ của công dân trong học tập", type: "mc", q: "Ngay trước cổng một trường trung học phổ thông có cửa hàng bán thuốc lá điện tử, thường lôi kéo học sinh vào hút thử. Nhà trường đề nghị chính quyền xã kiểm tra, xử lí cửa hàng này. Việc làm của nhà trường nhằm bảo đảm quyền nào của học sinh?",
