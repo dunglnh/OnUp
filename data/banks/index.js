@@ -1620,6 +1620,35 @@ window.ONTAP_SEED_BANKS = [
       "Thương mại và du lịch": [2, 2, 1], "Khai thác thế mạnh ở Trung du và miền núi phía Bắc": [2, 1, 1],
       "Phát triển kinh tế – xã hội ở Đồng bằng sông Hồng": [2, 1, 1], "Phát triển kinh tế – xã hội ở Bắc Trung Bộ": [1, 2, 1] } } },
 
+  /* Tin học 12 · Kiểm tra giữa học kì II (Kết nối tri thức, Tin học 12, phần chung của hai sách Định hướng Tin học ứng dụng và Định hướng
+     Khoa học máy tính, Chủ đề 4 phần CSS Bài 13–17 và Chủ đề 5 Bài 19–20; Bài 18, 21 không ra chủ đề riêng; Phiên N12-gk2-tin-congnghe).
+     Phạm vi theo nguồn đa số tra được (đề cương giữa kì II của một trường: Bài 16–21; một đề giữa kì II: CSS và nghề sửa chữa, bảo trì,
+     quản trị), khác mặc định ban đầu Bài 13–18; lời dặn của đề nhắc phụ huynh đối chiếu đề cương khi trường chỉ kiểm tra phần CSS hay kiểm
+     tra cả Bài 21. Khối 12 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định, không có câu riêng. Ma trận [Biết,
+     Hiểu, Vận dụng] 10 – 8 – 7 câu trên 7 chủ đề theo tên bài: CSS 19 câu, hướng nghiệp 6 câu. Hai đề cố định chia đúng ma trận, nên ô (chủ
+     đề, mức) nào cũng có gấp đôi số câu ô đó rút. Câu tự luận ở ô Vận dụng rút 1 câu: mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "tin12-gk2-de1", title: "Tin học 12 · Giữa kì II · Đề 1", grade: 12, subject: "Tin học", minutes: 45, n: 25, file: "12-tin.js" },
+  { id: "tin12-gk2-de2", title: "Tin học 12 · Giữa kì II · Đề 2", grade: 12, subject: "Tin học", minutes: 45, n: 25, file: "12-tin.js" },
+  { id: "tin12-gk2-ngau-nhien", title: "Tin học 12 · Giữa kì II · Đề ngẫu nhiên", grade: 12, subject: "Tin học", minutes: 45, n: 25, file: "12-tin.js",
+    pool: { from: ["tin12-gk2-de1", "tin12-gk2-de2"], matrix: {
+      "Khái niệm, vai trò của CSS": [1, 1, 1], "Định dạng văn bản bằng CSS": [2, 1, 1], "Tạo màu cho chữ và nền": [1, 2, 1], "Định dạng khung": [1, 1, 2],
+      "Các mức ưu tiên của bộ chọn": [1, 2, 1], "Dịch vụ sửa chữa và bảo trì máy tính": [2, 0, 1],
+      "Nhóm nghề quản trị trong ngành Công nghệ thông tin": [2, 1, 0] } } },
+
+  /* Công nghệ 12 · Kiểm tra giữa học kì II (Kết nối tri thức, Công nghệ 12 – Công nghệ điện – điện tử, Phần hai Công nghệ điện tử,
+     Chương V–VII: Bài 13–16, 18–19, trọng tâm Chương VI; Bài 17, 20 thực hành không ra chủ đề riêng; Phiên N12-gk2-tin-congnghe). Phạm vi
+     theo đề cương, đề giữa kì II tra được (một đề cương dừng ở Chương VI, một đề có cả Chương VII), giữ mặc định; lời dặn của đề nhắc phụ
+     huynh đối chiếu đề cương khi trường học sách Lâm nghiệp – Thuỷ sản hay chỉ kiểm tra đến Chương VI. Khối 12 chưa bật nên đề chưa hiện
+     với gia đình. Kho câu = 50 câu của 2 đề cố định, không có câu riêng. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 6 chủ đề theo
+     tên bài: Chương V 6 câu, Chương VI 13 câu, Chương VII 6 câu. Hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi
+     số câu ô đó rút. Câu tự luận ở ô Vận dụng rút 1 câu: mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "congnghe12-gk2-de1", title: "Công nghệ 12 · Giữa kì II · Đề 1", grade: 12, subject: "Công nghệ", minutes: 45, n: 25, file: "12-congnghe.js" },
+  { id: "congnghe12-gk2-de2", title: "Công nghệ 12 · Giữa kì II · Đề 2", grade: 12, subject: "Công nghệ", minutes: 45, n: 25, file: "12-congnghe.js" },
+  { id: "congnghe12-gk2-ngau-nhien", title: "Công nghệ 12 · Giữa kì II · Đề ngẫu nhiên", grade: 12, subject: "Công nghệ", minutes: 45, n: 25, file: "12-congnghe.js",
+    pool: { from: ["congnghe12-gk2-de1", "congnghe12-gk2-de2"], matrix: {
+      "Khái quát về kĩ thuật điện tử": [2, 1, 0], "Ngành nghề và dịch vụ trong lĩnh vực kĩ thuật điện tử": [2, 0, 1], "Điện trở, tụ điện và cuộn cảm": [2, 2, 3],
+      "Diode, transistor và mạch tích hợp IC": [2, 2, 2], "Giới thiệu về điện tử tương tự": [1, 2, 0], "Khuếch đại thuật toán": [1, 1, 1] } } },
+
   /* Ngữ văn 12 · Kiểm tra cuối năm học (Kết nối tri thức, Ngữ văn 12 tập hai, Bài 6–9, trọng tâm Bài 8–9; Phiên N12-ck2-van). Khối 12
      chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (mỗi đề 4 đoạn đọc, 1 câu Viết) + 2 câu
      Viết riêng trong file, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu như kho Ngữ văn 9 cuối năm: bốn chủ
