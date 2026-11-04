@@ -1649,6 +1649,23 @@ window.ONTAP_SEED_BANKS = [
       "Khái quát về kĩ thuật điện tử": [2, 1, 0], "Ngành nghề và dịch vụ trong lĩnh vực kĩ thuật điện tử": [2, 0, 1], "Điện trở, tụ điện và cuộn cảm": [2, 2, 3],
       "Diode, transistor và mạch tích hợp IC": [2, 2, 2], "Giới thiệu về điện tử tương tự": [1, 2, 0], "Khuếch đại thuật toán": [1, 1, 1] } } },
 
+  /* Toán 12 · Kiểm tra cuối năm học (Kết nối tri thức, Toán 12 tập hai, Bài 11–19; Phiên N12-ck2-toan). Trọng tâm phần sau giữa kì II:
+     Bài 16 Công thức tính góc trong không gian, Bài 17 Phương trình mặt cầu (Chương V), Bài 18 Xác suất có điều kiện, Bài 19 Công thức
+     xác suất toàn phần và công thức Bayes (Chương VI); ôn Bài 11–15 (phạm vi kho giữa kì II toan12-gk2-*), không có câu ôn học kì I,
+     không có chủ đề riêng cho Hoạt động thực hành trải nghiệm, Bài tập ôn tập cuối năm. Khối 12 chưa bật (data/grades.js) nên đề chưa
+     hiện với gia đình. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận
+     dụng] 10 – 8 – 7 câu trên 9 chủ đề theo tên bài của sách: 17 câu Bài 16–19 (góc, mặt cầu 9; xác suất 8) và 8 câu ôn Bài 11–15 (chữ
+     chủ đề như kho giữa kì II). Hai đề cố định và phần câu riêng đều chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp ba số câu ô
+     đó rút. Hai câu tự luận chỉ ở hai ô Vận dụng rút 1 câu (Công thức tính góc trong không gian; Xác suất có điều kiện): mỗi lần rút
+     nhiều nhất 2 câu tự luận. */
+  { id: "toan12-ck2-de1", title: "Toán 12 · Cuối năm · Đề 1", grade: 12, subject: "Toán", minutes: 45, n: 25, file: "12-toan.js" },
+  { id: "toan12-ck2-de2", title: "Toán 12 · Cuối năm · Đề 2", grade: 12, subject: "Toán", minutes: 45, n: 25, file: "12-toan.js" },
+  { id: "toan12-ck2-ngau-nhien", title: "Toán 12 · Cuối năm · Đề ngẫu nhiên", grade: 12, subject: "Toán", minutes: 45, n: 25, file: "12-toan.js",
+    pool: { from: ["toan12-ck2-de1", "toan12-ck2-de2"], matrix: {
+      "Nguyên hàm": [1, 0, 0], "Tích phân": [1, 1, 0], "Ứng dụng hình học của tích phân": [0, 1, 1], "Phương trình mặt phẳng": [1, 0, 1],
+      "Phương trình đường thẳng trong không gian": [1, 0, 0], "Công thức tính góc trong không gian": [2, 1, 1], "Phương trình mặt cầu": [2, 2, 1],
+      "Xác suất có điều kiện": [1, 2, 1], "Công thức xác suất toàn phần và công thức Bayes": [1, 1, 2] } } },
+
   /* Ngữ văn 12 · Kiểm tra cuối năm học (Kết nối tri thức, Ngữ văn 12 tập hai, Bài 6–9, trọng tâm Bài 8–9; Phiên N12-ck2-van). Khối 12
      chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (mỗi đề 4 đoạn đọc, 1 câu Viết) + 2 câu
      Viết riêng trong file, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu như kho Ngữ văn 9 cuối năm: bốn chủ
