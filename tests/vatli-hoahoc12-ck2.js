@@ -282,7 +282,8 @@ const ntDe = (q) => { const m = /\(Cho ([^)]*)\.\)/.exec(q.q); assert.ok(m, "đ�
   [...m[1].matchAll(/([A-Z][a-z]?) = (\d+(?:,\d+)?)/g)].forEach((k) => { nt[k[1]] = val(k[2]); assert.equal(nt[k[1]], NTK[k[1]], "nguyên tử khối của " + k[1]); }); return nt; };
 // thể tích mol khí ở điều kiện chuẩn đề cho (24,79 L/mol)
 const VM = 24.79;
-const vmDe = (q) => { const m = new RegExp("thể tích mol khí (?:ở điều kiện chuẩn là )?(" + NUM + ") L\\/mol", "u").exec(q.q); assert.ok(m && val(m[1]) === VM, "thể tích mol khí ở điều kiện chuẩn"); return VM; };
+const vmDe = (q) => { const m = new RegExp("(?:thể tích mol khí (?:ở điều kiện chuẩn là )?(" + NUM + ") L\\/mol|ở điều kiện chuẩn, mỗi mol khí chiếm thể tích (" + NUM + ") L)", "u").exec(q.q);
+  assert.ok(m && val(m[1] || m[2]) === VM, "thể tích mol khí ở điều kiện chuẩn"); return VM; };
 // thế điện cực chuẩn (V) theo Bảng 15.1 của sách, nếu câu nào ghi
 const E0_SACH = { Li: -3.04, K: -2.924, Ca: -2.84, Na: -2.713, Mg: -2.356, Al: -1.676, Zn: -0.762, Fe: -0.44, Ni: -0.257, Sn: -0.137, Pb: -0.126, H: 0, Cu: 0.34, Ag: 0.799, Hg: 0.853 };
 const e0De = (s) => [...s.matchAll(new RegExp("E°\\(([A-Z][a-z]?)[²³]?⁺\\/([A-Z][a-z]?)\\) = ([−+]?\\d+,\\d+) V", "gu"))].forEach((m) => {
