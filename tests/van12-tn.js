@@ -1,11 +1,14 @@
-// Kiểm tra các đề Ngữ văn thi thử tốt nghiệp THPT (data/banks/12-van.js, van12-tn-de<N>; Phiên N12-tn-van: Đề 1–2; phiên thêm đề thì
-// mở rộng script này). Đề tính điểm (Phiên K5), khung đề tốt nghiệp THPT từ năm 2025 (Quyết định 764/QĐ-BGDĐT; docs/KE-HOACH-NOI-DUNG.md,
+// Kiểm tra các đề Ngữ văn thi thử tốt nghiệp THPT (data/banks/12-van.js, van12-tn-de<N>; Phiên N12-tn-van: Đề 1–2; Phiên N12-tn-van-b:
+// Đề 3–4; phiên thêm đề thì mở rộng script này). Đề tính điểm (Phiên K5), khung đề tốt nghiệp THPT từ năm 2025 (Quyết định 764/QĐ-BGDĐT; docs/KE-HOACH-NOI-DUNG.md,
 // mục 2 và mục 7, nhóm “Trước 10/12/2026: lớp 12, đề thi thử tốt nghiệp”). Số đề, số câu lấy từ danh mục (không ghi cứng).
 // Kiểm tra từng đề: danh mục (tên, khối, môn, file, 120 phút, pts 10, gắn vào tn-thpt-2027); hai phần đúng tên, đúng thứ tự; Phần I đọc
-// hiểu 4 điểm, mọi câu dùng một đoạn đọc (văn bản người soạn viết, khoảng 350–1 100 tiếng): câu chấm tự động pt 0,25–1, nhiều nhất hai câu
+// hiểu 4 điểm, mọi câu dùng một đoạn đọc (văn bản người soạn viết, khoảng 350–1 100 tiếng; bài thơ 120–450 tiếng): câu chấm tự động pt
+// 0,25–1, nhiều nhất hai câu
 // tự luận ngắn 0,5–1 điểm, điểm theo mức như đề thật năm 2025, 2026 (Biết 1, Hiểu 2, Vận dụng 1); chủ đề theo kĩ năng khớp thể loại ghi ở
 // tên đoạn đọc (văn bản nghị luận, thông tin: LOAI); Phần II hai câu viết không gắn đoạn đọc, ghi tên văn bản đọc hiểu: đoạn văn nghị
-// luận khoảng 200 chữ 2 điểm, bài văn nghị luận xã hội khoảng 600 chữ 4 điểm, thang chấm sáu tiêu chí của đáp án thi (DOAN, BAI; ý 0,25
+// luận khoảng 200 chữ 2 điểm (từ Đề 3, ít nhất một đề là đoạn văn so sánh, đánh giá: kiểu bài Viết của Ngữ văn 12, Bài 1, 2; văn bản
+// đem so sánh người soạn viết, chép trong đề bài, ghi ở NGOAI), bài văn nghị luận xã hội khoảng 600 chữ 4 điểm, thang chấm sáu tiêu chí
+// của đáp án thi (DOAN, BAI; ý 0,25
 // hoặc bội của 0,5 để chấm được “Một phần”), x là dàn ý; note (câu chung về khung đề, đề thật đọc hiểu là 5 câu tự luận, số điểm chấm tự
 // động, số câu, số điểm tự chấm tính từ dữ liệu, thể loại văn bản); Quiz.grade (Phần I 4 điểm, Phần II 6 điểm); gọi người làm bài là
 // “bạn”.
@@ -15,7 +18,8 @@
 // của các kho Ngữ văn 12, đề thi thử vào 10 và câu tự luận nghị luận, nêu ý kiến nào của các kho Ngữ văn, Tiếng Việt khác; đúng/sai 4 ý
 // không lặp kiểu Đ/S.
 // Đọc lại bằng code: bài thơ người soạn viết (THO, như tests/van9-vao10.js: số tiếng mỗi dòng, khổ bốn dòng, kiểu vần chân; thơ tự do),
-// đáp án các câu tính được từ chữ của đoạn đọc (CHECKS: nhận ra câu bằng một đoạn chữ của đề, đúng một câu), mọi câu trích trong «» ở đề
+// đáp án các câu tính được từ chữ của đoạn đọc (CHECKS: nhận ra câu bằng một đoạn chữ của đề, đúng một câu; bảng số liệu của văn bản
+// thông tin đọc lại từng dòng, cộng lại bằng dòng tổng cộng; phép chia “a/b ≈ c%” trong lời giải tính lại), mọi câu trích trong «» ở đề
 // bài, lựa chọn và lời giải câu chấm tự động có trong văn bản đọc hiểu của đề (trừ câu trích ngoài văn bản ghi ở NGOAI).
 // Rồi: đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa chọn dài nhất hay ngắn nhất ở không quá một phần ba số câu nhiều lựa chọn,
 // không là lựa chọn duy nhất có chữ của nhãn chủ đề; đề “Ôn chủ đề” lấy hết câu của chủ đề; dò lộ đáp án (chuỗi 3 từ liền nhau của đáp
@@ -57,16 +61,19 @@ const NOTE0 = "Đề thi thử theo cấu trúc đề thi tốt nghiệp THPT t�
 // mới chọn vấn đề chưa có rồi thêm vào đây).
 const VAN_DE = {
   "van12-tn-de1": ["sự kiên nhẫn của người trẻ", "kiên nhẫn"],
-  "van12-tn-de2": ["văn hoá ứng xử trên mạng xã hội của người trẻ", "ứng xử trên mạng"]
+  "van12-tn-de2": ["văn hoá ứng xử trên mạng xã hội của người trẻ", "ứng xử trên mạng"],
+  "van12-tn-de3": ["tinh thần học tập suốt đời", "học tập suốt đời"],
+  "van12-tn-de4": ["thói quen «dùng rồi bỏ» của người trẻ", "dùng rồi bỏ"]
 };
 // bài thơ người soạn viết: mã đoạn → [số tiếng mỗi dòng, kiểu vần chân của mọi khổ bốn dòng]; thơ tự do: [0, "tu-do"]
-const THO = {};
+const THO = { "hoc-tro": [8, "lien"] };
 const THE = { 5: "Thơ năm chữ", 6: "Thơ sáu chữ", 7: "Thơ bảy chữ", 8: "Thơ tám chữ" };
 // thể loại cụ thể của văn bản Phần I (thể thơ thì tính từ THO): các đề không lặp thể loại cụ thể
-const LOAI = { "lua-nguoi": "truyện ngắn", "dau-chan": "văn bản nghị luận xã hội" };
+const LOAI = { "lua-nguoi": "truyện ngắn", "dau-chan": "văn bản nghị luận xã hội", "sua-do": "văn bản thông tin" };
 const LOAI_CUA = { truyện: /^truyện /, kí: /^(du kí|hồi kí|bút kí|tuỳ bút|tản văn|phóng sự)$/, kịch: /^(bi kịch|hài kịch|chính kịch)$/, "văn bản": /^văn bản (nghị luận|thông tin)( |$)/ };
-// câu trích trong «» ở đề bài không lấy từ văn bản đọc hiểu (thành ngữ đem so sánh ở câu Vận dụng)
-const NGOAI = ["dục tốc bất đạt"];
+// câu trích trong «» ở đề bài không lấy từ văn bản đọc hiểu (thành ngữ đem so sánh ở câu Vận dụng; đoạn thơ người soạn viết đem so sánh
+// ở câu viết đoạn văn so sánh, đánh giá của Đề 3, các dòng ngăn bằng “/”)
+const NGOAI = ["dục tốc bất đạt", "Tóc đã bạc, ông mới tập nhắn tin, / Ngón tay to lần từng phím chữ nhỏ. / Gõ mấy chữ nhớ thương mất cả buổi chiều, / Bấm gửi rồi, ông ngồi canh màn hình sáng."];
 
 const DE = BANKS.filter((b) => /^van12-tn-de\d+$/.test(b.id)).sort((a, b) => so(a) - so(b));
 assert.ok(DE.length >= 2, "có ít nhất hai đề Ngữ văn thi thử tốt nghiệp");
@@ -78,7 +85,8 @@ DE.forEach((b) => b.questions.forEach((q, i) => { ten.set(q, "de" + so(b) + "#" 
 const ALL = DE.flatMap((b) => b.questions);
 const doan = (b, p) => { assert.ok(b.passages && b.passages[p], `${b.id}: không có đoạn ${p}`); return b.passages[p]; };
 const maDoc = (b) => b.questions.find((q) => q.part === P1).p; // văn bản đọc hiểu của đề
-const theLoai = (ps) => { const m = /\((truyện|thơ|kí|kịch|văn bản) người soạn viết\)$/.exec(ps.title); return m && m[1]; };
+// tên đoạn đọc ghi thể loại và «người soạn viết», có thể thêm ghi chú sau dấu chấm phẩy («nhân vật, số liệu là hư cấu»)
+const theLoai = (ps) => { const m = /\((truyện|thơ|kí|kịch|văn bản) người soạn viết(; [^()]+)?\)$/.exec(ps.title); return m && m[1]; };
 const tenVanBan = (ps) => ps.title.replace(/\s*\([^()]*\)$/, "");
 // văn bản đọc hiểu của câu: câu Phần II không gắn đoạn đọc nhưng viết về văn bản của Phần I
 const vanBanCua = (q) => doan(deOf.get(q), q.p || maDoc(deOf.get(q)));
@@ -124,8 +132,8 @@ DE.forEach((b) => {
   assert.ok(ps[0], at + ": câu Phần I có đoạn đọc");
   const psg = doan(b, ps[0]), tl = theLoai(psg);
   assert.ok(tl, `${at}: tên đoạn đọc ghi thể loại và «người soạn viết» (ngữ liệu ngoài sách giáo khoa): ${psg.title}`);
-  const dai = tieng(psg.text).length;
-  assert.ok(dai >= 350 && dai <= 1100, `${at}: văn bản đọc hiểu khoảng 350–1 100 tiếng (đang ${dai})`);
+  const dai = tieng(psg.text).length, [it, nhieu] = tl === "thơ" ? [120, 450] : [350, 1100]; // bài thơ ngắn hơn văn xuôi
+  assert.ok(dai >= it && dai <= nhieu, `${at}: văn bản đọc hiểu khoảng ${it}–${nhieu} tiếng (đang ${dai})`);
   assert.equal(r2(sum(doc.map((q) => q.pt))), 4, at + ": Phần I 4 điểm");
   const tp = [...new Set(doc.map((q) => q.topic))];
   assert.equal(tp.length, 1, at + ": các câu đọc hiểu cùng một chủ đề");
@@ -183,6 +191,14 @@ DE.forEach((b) => {
 });
 assert.equal(new Set(Object.values(VAN_DE).map((v) => v[0])).size, Object.keys(VAN_DE).length, "các đề không lặp vấn đề nghị luận xã hội");
 assert.deepEqual(Object.keys(VAN_DE).sort(), DE.map((b) => b.id).sort(), "VAN_DE ghi đủ các đề");
+// câu 1 Phần II: từ Đề 3, ít nhất một đề là đoạn văn so sánh, đánh giá (kiểu bài Viết của Ngữ văn 12, Bài 1, 2: so sánh, đánh giá hai tác
+// phẩm truyện, thơ); văn bản đem so sánh người soạn viết, chép trong đề bài (ghi ở NGOAI)
+const soSanh = DE.filter((b) => /^Viết đoạn văn nghị luận \(khoảng 200 chữ\) so sánh, đánh giá /.test(b.questions.find((q) => q.topic === VIET1).q));
+if (DE.length >= 3) assert.ok(soSanh.length >= 1, "câu 1 Phần II: ít nhất một đề là đoạn văn so sánh, đánh giá");
+soSanh.forEach((b) => {
+  const q = b.questions.find((x) => x.topic === VIET1), m = /\(người soạn viết\): «([^»]+)»$/.exec(q.q);
+  assert.ok(m && NGOAI.includes(m[1]), b.id + ": văn bản đem so sánh người soạn viết, chép trong đề bài, ghi ở NGOAI");
+});
 // từng cặp đề (1–2, 3–4): một văn bản văn học, một văn bản nghị luận hoặc thông tin
 for (let i = 0; i + 1 < DE.length; i += 2) {
   const vb = [DE[i], DE[i + 1]].map((b) => /^văn bản /.test(loaiVanBan(b)));
@@ -244,6 +260,15 @@ const yOf = (q, re) => { const k = q.o.findIndex((o) => re.test(o)); assert.ok(k
 const tf = (q, rules) => { const a = q.a.slice(); rules.forEach(([re, v]) => { a[yOf(q, re)] = v; }); return a; };
 const motLuaChon = (q, re) => { const ok = q.o.filter((o) => re.test(o)); assert.equal(ok.length, 1, `${ten.get(q)}: đúng một lựa chọn khớp ${re}`); return ok[0]; };
 const doanVan = (q) => chuDoan(q).split("\n");
+// bảng số liệu của văn bản thông tin: dòng “– <loại>: <a> món mang tới; <b> món sửa được”, dòng cuối là tổng cộng
+const bangSua = (q) => {
+  const R = doanVan(q).map((d) => /^– (.+?)(?: \([^()]*\))?: (\d+) món mang tới; (\d+) món sửa được$/u.exec(d)).filter(Boolean).map((m) => ({ ten: m[1], toi: +m[2], sua: +m[3] }));
+  const tong = R.pop();
+  assert.ok(R.length >= 3 && tong.ten === "Tổng cộng", "bảng có ít nhất ba loại đồ và dòng tổng cộng");
+  assert.deepEqual([sum(R.map((r) => r.toi)), sum(R.map((r) => r.sua))], [tong.toi, tong.sua], "dòng tổng cộng bằng tổng các loại");
+  R.forEach((r) => assert.ok(r.sua <= r.toi, r.ten + ": số món sửa được không quá số món mang tới"));
+  return { R, tong };
+};
 // lời kể (không phải lời thoại: dòng mở đầu bằng “– ”)
 const loiKe = (q) => doanVan(q).filter((d) => !/^– /.test(d)).join("\n");
 const CHECKS = [
@@ -304,7 +329,71 @@ const CHECKS = [
     assert.deepEqual(d.map((x, i) => x.startsWith(dau[i])), dau.map(() => true), "bảy đoạn: câu chuyện, luận đề, hai lí do, bàn về ý kiến khác, cách làm, kết");
     return motLuaChon(q, /^Lần lượt nêu lí do ủng hộ luận đề/); } },
   { has: "Ngoài ba câu người viết gợi ý", right: (q) => { co(q, "ta có thể tự hỏi ba câu"); return null; } },
-  { has: "đánh giá sức thuyết phục của văn bản", right: (q) => { co(q, "Có người cho rằng"); return null; } }
+  { has: "đánh giá sức thuyết phục của văn bản", right: (q) => { co(q, "Có người cho rằng"); return null; } },
+  // Đề 3: bài thơ «Học trò bảy mươi» (thơ tám chữ, vần liền)
+  { has: "«Học trò bảy mươi» được viết theo thể thơ nào", right: (q) => {
+    const n = [...new Set(khoTho(vanBanCua(q)).flat().map((l) => tieng(l).length))];
+    assert.equal(n.length, 1, "mọi dòng thơ cùng số tiếng");
+    return motLuaChon(q, new RegExp("^" + THE[n[0]] + "$")); } },
+  { has: "bàn tay của bà cả đời quen ___", right: (q) => {
+    const m = [...chuDoan(q).matchAll(/Bàn tay ấy cả đời quen ([\p{L} ]+?),/gu)];
+    assert.equal(m.length, 1, "bài thơ nói một lần về bàn tay của bà");
+    return m[0][1]; } },
+  { has: "«Nét chữ run như mạ non trước gió»", right: (q) => {
+    const cau = /«([^»]+)»/.exec(q.q)[1];
+    assert.ok(co(q, cau) && /(^|[^\p{L}])như(?![\p{L}])/u.test(cau), "câu trích có trong bài thơ, có từ so sánh «như»");
+    assert.ok(co(q, "Tối ấy bên ngọn đèn") && khongCo(q, "ngoài đồng") && co(q, "quen cấy lúa"), "bà học buổi tối bên ngọn đèn, không phải ngoài đồng; bàn tay quen việc ruộng");
+    return motLuaChon(q, /^Gợi nét chữ non, chưa vững của bà/); } },
+  { has: "Bốn ý dưới đây bàn về chủ thể trữ tình, vần và kết cấu", right: (q) => {
+    const t = chuDoan(q), K = khoTho(vanBanCua(q)), dau = K[0].join("\n"), het = K[K.length - 1].join("\n");
+    return tf(q, [
+      [/Chủ thể trữ tình là người cháu nay đã lớn/, !/(^|[^\p{L}])[Tt]ôi(?![\p{L}])/u.test(t) && (t.match(/cháu/g) || []).length >= 6 && co(q, "Mười năm sau") && co(q, "cất giữ đến giờ")],
+      [/gieo vần cách/, K.every((k) => kieuVan(k) === "cach")],
+      [/năm tám mươi tuổi/, !(co(q, "Năm cháu vào lớp Một, bà bảy mươi") && khongCo(q, "tám mươi"))],
+      [/Khổ cuối nhắc lại hình ảnh ngọn đèn và cuốn vở/, ["ngọn đèn", "vở"].every((x) => dau.includes(x) && het.includes(x))]]); } },
+  { has: "Vì sao chữ đầu tiên bà viết là tên cháu", right: (q) => {
+    assert.ok(co(q, "Chữ đầu tiên bà viết là tên cháu,\nBà nâng niu như cầm vật quý báu.") && co(q, "Tên của mình, bà để viết sau cùng"), "tên cháu viết trước, được nâng niu; tên bà viết sau cùng");
+    assert.ok(khongCo(q, "cô giáo") && khongCo(q, "quên") && co(q, "Thư của bà gửi"), "bài thơ không có cô giáo, không nói bà quên tên; về sau bà viết thư cho cháu");
+    return motLuaChon(q, /^Với bà, đứa cháu quý hơn cả bản thân/); } },
+  { has: "Bà bảo con chữ «cũng như hạt thóc»", right: (q) => { co(q, "Bà bảo con chữ cũng như hạt thóc,\nPhải gieo đủ mùa, mầm mới chịu mọc."); return null; } },
+  { has: "so sánh, đánh giá hình ảnh người bà trong bài thơ", right: (q) => { co(q, "Bà xin làm học trò"); return null; } },
+  { has: "hãy bàn về tinh thần học tập suốt đời", right: (q) => { co(q, "bà bảy mươi"); return null; } },
+  // Đề 4: văn bản thông tin «Sửa thay vì vứt» (bảng số liệu đọc lại bằng bangSua)
+  { has: "Xét theo cách thu thập, dữ liệu trong bảng", right: (q) => {
+    assert.ok(co(q, "Sau mỗi buổi, nhóm ghi vào sổ từng món đồ") && co(q, "Bảng dưới đây tổng hợp từ cuốn sổ ấy."), "bảng tổng hợp từ cuốn sổ nhóm tự ghi");
+    assert.ok(["khảo sát", "chuyên gia", "phỏng vấn", "của phường"].every((x) => khongCo(q, x)), "văn bản không lấy số liệu từ khảo sát, chuyên gia, phường");
+    return motLuaChon(q, /^Sơ cấp, vì chính nhóm ghi chép/); } },
+  { has: "phần lớn những món đồ chưa sửa được là do thiếu ___ thay thế", right: (q) => {
+    const m = [...chuDoan(q).matchAll(/Trong (\d+) món chưa sửa được, (\d+) món thiếu ([\p{L} ]+?) thay thế[^;]*; (\d+) món hỏng quá nặng/gu)], { tong } = bangSua(q);
+    assert.equal(m.length, 1, "văn bản nói một lần về lí do chưa sửa được");
+    const [a, b, c] = [+m[0][1], +m[0][2], +m[0][4]];
+    assert.ok(a === tong.toi - tong.sua && a === b + c && b > c, "số món chưa sửa được khớp bảng; thiếu thứ thay thế là phần lớn");
+    return m[0][3]; } },
+  { has: "loại đồ nào có tỉ lệ sửa được thấp nhất", right: (q) => {
+    const { R } = bangSua(q), tl = R.map((r) => r.sua / r.toi), k = tl.indexOf(Math.min(...tl));
+    assert.equal(tl.filter((x) => x === tl[k]).length, 1, "một loại có tỉ lệ sửa được thấp nhất");
+    const nhieu = R.reduce((a, r) => (r.toi - r.sua > a.toi - a.sua ? r : a));
+    assert.ok(nhieu.ten !== R[k].ten && q.o.slice(1).includes(nhieu.ten), "loại có nhiều món chưa sửa được nhất khác loại có tỉ lệ thấp nhất, là một lựa chọn sai");
+    return motLuaChon(q, new RegExp("^" + R[k].ten + "$")); } },
+  { has: "Đối chiếu với bảng và các đoạn của văn bản", right: (q) => {
+    const { R, tong } = bangSua(q), max = Math.max(...R.map((r) => r.toi)), nhat = R.filter((r) => r.toi === max);
+    assert.ok(co(q, tong.sua + " món đã sửa xong sẽ thành khoảng 1,5 tấn rác"), "1,5 tấn là ước tính cho số món đã sửa xong trong bảng");
+    return tf(q, [
+      [/Đồ điện gia dụng là loại đồ được mang tới nhiều nhất/, nhat.length === 1 && nhat[0].ten === "Đồ điện gia dụng"],
+      [/Hơn ba phần tư số đồ mang tới/, 4 * tong.sua > 3 * tong.toi],
+      [/khẳng định cả khu phố mỗi năm bỏ đi/, !co(q, "nên không cho biết cả khu phố mỗi năm bỏ đi bao nhiêu món còn sửa được")],
+      [/không có nhân vật nào/, !(co(q, "bà Tư ôm tới") && co(q, "Bác Hùng, thợ điện") && co(q, "Bà Tư cười: «Tôi cứ tưởng phải mua quạt mới.»"))]]); } },
+  { has: "Câu chuyện chiếc quạt của bà Tư có tác dụng gì", right: (q) => {
+    const t = chuDoan(q), { R } = bangSua(q), dien = R.find((r) => r.ten === "Đồ điện gia dụng"), k = t.indexOf("bà Tư ôm tới chiếc quạt");
+    assert.ok(k >= 0 && k < t.indexOf("Bảng."), "câu chuyện đứng trước bảng số liệu");
+    assert.ok(dien.sua < dien.toi && khongCo(q, "quảng cáo"), "không phải mọi món đồ điện đều sửa được; văn bản không quảng cáo");
+    return motLuaChon(q, /^Dẫn người đọc vào vấn đề qua một trường hợp cụ thể/); } },
+  { has: "nhóm định «gọi điện hỏi lại chủ đồ sau một tháng»", right: (q) => { co(q, "mà sổ không theo dõi được"); return null; } },
+  { has: "đánh giá cách người viết sử dụng dữ liệu", right: (q) => {
+    const t = chuDoan(q), { tong } = bangSua(q), m = /(\d+) lần chủ đồ tự tay/.exec(t), b = /nhóm mở (\d+) buổi/.exec(t);
+    assert.ok(m && +m[1] <= tong.sua && b && +b[1] <= 52, "số lần chủ đồ tự sửa không quá số món sửa được; số buổi không quá số Chủ nhật trong một năm");
+    return null; } },
+  { has: "hãy bàn về thói quen «dùng rồi bỏ»", right: (q) => { co(q, "thói quen «dùng rồi bỏ»"); return null; } }
 ];
 let nCheck = 0;
 CHECKS.forEach((c) => {
@@ -315,6 +404,9 @@ CHECKS.forEach((c) => {
   else assert.equal(got, want, `${ten.get(q)}: đáp án ${JSON.stringify(got)}, tính được ${JSON.stringify(want)}`);
   nCheck++;
 });
+// phép chia “a/b ≈ c%” trong lời giải tính lại (làm tròn đến hàng đơn vị)
+let nTile = 0;
+ALL.forEach((q) => [...String(q.x).matchAll(/(\d+)\/(\d+) ≈ (\d+)%/g)].forEach((m) => { assert.equal(Math.round((100 * m[1]) / m[2]), +m[3], `${ten.get(q)}: ${m[0]}`); nTile++; }));
 // câu nào có đáp án tính được (trắc nghiệm, điền, đúng/sai) cũng có mục trong CHECKS
 ALL.filter((q) => q.type !== "essay").forEach((q) => assert.ok(CHECKS.some((c) => q.q.includes(c.has)), `${ten.get(q)}: chưa có mục kiểm tra đáp án trong CHECKS`));
 // câu trích trong «» (từ ba tiếng) ở đề bài, lựa chọn và lời giải câu chấm tự động có trong văn bản đọc hiểu (bỏ “/” ngăn dòng)
@@ -442,5 +534,5 @@ if (SACH.length) {
   });
 }
 console.log(nKhoa + " từ khoá vấn đề nghị luận xã hội dò ở " + deBaiTuLuan.length + " đề bài câu Viết, câu tự luận nghị luận; loại văn bản đọc hiểu: " + loaiCuThe.join(", ") + ".");
-console.log(DE.length + " đề, " + ALL.length + " câu (" + ALL.filter((q) => q.type !== "essay").length + " câu chấm tự động, " + ALL.filter((q) => q.type === "essay").length + " câu tự luận); " + nCheck + " câu tính lại đáp án, " + nTrich + " câu trích đối chiếu văn bản; đáp án là lựa chọn dài nhất ở " + daiNhat + "/" + mc.length + ", ngắn nhất ở " + nganNhat + "/" + mc.length + " câu nhiều lựa chọn.");
+console.log(DE.length + " đề, " + ALL.length + " câu (" + ALL.filter((q) => q.type !== "essay").length + " câu chấm tự động, " + ALL.filter((q) => q.type === "essay").length + " câu tự luận); " + nCheck + " câu tính lại đáp án, " + nTile + " tỉ lệ tính lại, " + nTrich + " câu trích đối chiếu văn bản; đáp án là lựa chọn dài nhất ở " + daiNhat + "/" + mc.length + ", ngắn nhất ở " + nganNhat + "/" + mc.length + " câu nhiều lựa chọn.");
 console.log("VAN12 TN OK");
