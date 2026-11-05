@@ -561,6 +561,18 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 | N12-tn-vatli-b | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Vật lí thi thử tốt nghiệp, Đề 5–8 | 4 đề | `vatli12-tn-de5` … `-de8` | không |
 | N12-tn-hoahoc | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Hoá học thi thử tốt nghiệp, Đề 1–4 (28 câu) | 4 đề | `hoahoc12-tn-de1` … `-de4`; `tests/hoahoc12-tn.js` | không |
 | N12-tn-hoahoc-b | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Hoá học thi thử tốt nghiệp, Đề 5–8 | 4 đề | `hoahoc12-tn-de5` … `-de8` | không |
+| N12-tn-ta-c | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Tiếng Anh thi thử tốt nghiệp, Đề 5–6 | 2 đề | `ta12-tn-de5`, `-de6` | không |
+| N12-tn-ta-d | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Tiếng Anh thi thử tốt nghiệp, Đề 7–8 | 2 đề | `ta12-tn-de7`, `-de8` | không |
+| N12-tn-ta-e | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Tiếng Anh thi thử tốt nghiệp, Đề 9–10 | 2 đề | `ta12-tn-de9`, `-de10` | không |
+| N12-tn-sinhhoc | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Sinh học thi thử tốt nghiệp, Đề 1–4 (28 câu) | 4 đề | `sinhhoc12-tn-de1` … `-de4`; `tests/sinhhoc12-tn.js` | không |
+| N12-tn-sinhhoc-b | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Sinh học thi thử tốt nghiệp, Đề 5–8 | 4 đề | `sinhhoc12-tn-de5` … `-de8` | không |
+| N12-tn-lichsu | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Lịch sử thi thử tốt nghiệp, Đề 1–4 (28 câu) | 4 đề | `lichsu12-tn-de1` … `-de4`; `tests/lichsu12-tn.js` | không |
+| N12-tn-lichsu-b | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Lịch sử thi thử tốt nghiệp, Đề 5–8 | 4 đề | `lichsu12-tn-de5` … `-de8` | không |
+| N12-tn-diali | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Địa lí thi thử tốt nghiệp, Đề 1–4 (28 câu) | 4 đề | `diali12-tn-de1` … `-de4`; `tests/diali12-tn.js` | không |
+| N12-tn-diali-b | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Địa lí thi thử tốt nghiệp, Đề 5–8 | 4 đề | `diali12-tn-de5` … `-de8` | không |
+| N12-tn-ktpl | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | GDKT&PL thi thử tốt nghiệp, Đề 1–3 (28 câu) | 3 đề | `ktpl12-tn-de1` … `-de3`; `tests/ktpl12-tn.js` | không |
+| N12-tn-ktpl-b | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | GDKT&PL thi thử tốt nghiệp, Đề 4–5 | 2 đề | `ktpl12-tn-de4`, `-de5` | không |
+| N12-tn-tin | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Tin học thi thử tốt nghiệp, Đề 1–3 (28 câu) | 3 đề | `tin12-tn-de1` … `-de3`; `tests/tin12-tn.js` | không |
 
 **Quy định chung của các phiên N** (mỗi lời giao việc bên dưới trỏ về đây; sửa ở đây là áp dụng cho mọi phiên):
 > - Chỉ sửa data/banks/, data/calendar-2026-2027.js, script và kiểm thử trong tests/, tài liệu; không sửa js/, css/, modules/ (thấy lỗi app thì ghi vào Pull Request).
@@ -651,7 +663,7 @@ Chung của các phiên lớp 12 cuối năm: theo đoạn “Chung của các p
 
 ### Trước 10/12/2026: lớp 12, đề thi thử tốt nghiệp
 
-Lượt PO ngày 3/11/2026 viết. Thi tốt nghiệp THPT dự kiến 11–12/6/2027 (`tn-thpt-2027`; muộn nhất 21/5/2027), mốc kiểm tra theo nhịp là 10/12/2026 (giai đoạn 5, mục 4); mười hai phiên xếp sau bảy phiên N12-ck2-* (cùng hạn), vì đề thi thử phủ cả năm lớp 12 và so với các kho lớp 12 cùng môn. Mục tiêu ở mục 2: Toán, Tiếng Anh 10 đề; Vật lí, Hoá học, Sinh học, Lịch sử, Địa lí 8 đề; GDKT&PL, Tin học, Công nghệ 5 đề; Ngữ văn 5 đề (khoảng 25 phiên). Lượt này viết Toán Đề 1–10, Ngữ văn Đề 1–5, Tiếng Anh Đề 1–4, Vật lí Đề 1–8, Hoá học Đề 1–8; Tiếng Anh Đề 5–10, Sinh học, Lịch sử, Địa lí, GDKT&PL, Tin học, Công nghệ, RS12 và giữa kì I lớp 12: lượt PO sau. Nguồn ở mục “Nguồn đề thi thử tốt nghiệp THPT (tra ngày 3/11/2026)”.
+Lượt PO ngày 3/11/2026 viết. Thi tốt nghiệp THPT dự kiến 11–12/6/2027 (`tn-thpt-2027`; muộn nhất 21/5/2027), mốc kiểm tra theo nhịp là 10/12/2026 (giai đoạn 5, mục 4); mười hai phiên xếp sau bảy phiên N12-ck2-* (cùng hạn), vì đề thi thử phủ cả năm lớp 12 và so với các kho lớp 12 cùng môn. Mục tiêu ở mục 2: Toán, Tiếng Anh 10 đề; Vật lí, Hoá học, Sinh học, Lịch sử, Địa lí 8 đề; GDKT&PL, Tin học, Công nghệ 5 đề; Ngữ văn 5 đề (khoảng 25 phiên). Lượt này viết Toán Đề 1–10, Ngữ văn Đề 1–5, Tiếng Anh Đề 1–4, Vật lí Đề 1–8, Hoá học Đề 1–8; Tiếng Anh Đề 5–10, Sinh học, Lịch sử, Địa lí, GDKT&PL, Tin học, Công nghệ, RS12 và giữa kì I lớp 12: lượt PO sau. Lượt PO ngày 5/11/2026 viết thêm Tiếng Anh Đề 5–10, Sinh học, Lịch sử, Địa lí Đề 1–8, GDKT&PL Đề 1–5, Tin học Đề 1–3 (mười hai phiên, xếp sau Hoá học); Tin học Đề 4–5, Công nghệ Đề 1–5, RS12, giữa kì I lớp 12 và lớp 5 giữa kì II, cuối năm: lượt PO sau. Nguồn của lượt này ở mục “Nguồn đề thi thử tốt nghiệp THPT, các môn còn lại (tra ngày 5/11/2026)”. Nguồn ở mục “Nguồn đề thi thử tốt nghiệp THPT (tra ngày 3/11/2026)”.
 
 Chung của các phiên đề thi thử tốt nghiệp (mỗi khối dưới đây trỏ về đây; dùng cùng đoạn “Chung của các phiên đề thi thử vào 10, tốt nghiệp THPT” ở đầu nhóm lớp 9 và mục 3.1, đoạn “Đề tính điểm”):
 - Đề cố định, không có đề ngẫu nhiên (`pts` không đi với `pool`). Mục danh mục: tên “<môn> 12 · Thi thử tốt nghiệp · Đề N”, mã `<mã môn>12-tn-de<N>`, `grade: 12`, `pts: 10`, file `data/banks/12-<mã môn>.js` (đã có từ phiên cuối kì I của môn), `subject` đúng chữ trong `MON_THPT` của `data/calendar-2026-2027.js`; số phút như đề thật: Toán 90, Ngữ văn 120, các môn khác 50. Gắn mã vào `banks` của `tn-thpt-2027`. Khối 12 chưa bật (đến RS12), nên đề chưa hiện với gia đình; không đổi `active`.
@@ -733,6 +745,77 @@ Chung của các phiên đề thi thử tốt nghiệp (mỗi khối dưới đ�
 
 **Phiên N12-tn-hoahoc-b · Hoá học thi thử tốt nghiệp, Đề 5–8** (Merge Phiên N12-tn-hoahoc trước)
 > Như Phiên N12-tn-hoahoc, viết 4 đề "Hóa học 12 · Thi thử tốt nghiệp · Đề 5" … "Đề 8" (hoahoc12-tn-de5 … -de8), cùng khung; chất, phản ứng, số liệu khác Đề 1–4. Mở rộng tests/hoahoc12-tn.js, in MATH OK. Gắn 4 mã vào tn-thpt-2027.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N12-tn-ta-c · Tiếng Anh thi thử tốt nghiệp, Đề 5–6** (Merge Phiên N12-tn-ta-b trước)
+> Như Phiên N12-tn-ta, viết 2 đề "Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 5", "Đề 6" (ta12-tn-de5, -de6), cùng khung 6 – 6 – 5 – 5 – 8 – 10; chủ điểm, loại văn bản (thông báo, quảng cáo, tờ rơi, thư, bài báo) khác Đề 1–4, đọc lại Đề 1–4 trước khi viết. Mở rộng tests/ta12-tn.js (hàm riêng từng đề ở `RIENG`), in OK. Gắn 2 mã vào tn-thpt-2027.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N12-tn-ta-d · Tiếng Anh thi thử tốt nghiệp, Đề 7–8** (Merge Phiên N12-tn-ta-c trước)
+> Như Phiên N12-tn-ta, viết 2 đề "Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 7", "Đề 8" (ta12-tn-de7, -de8), cùng khung; chủ điểm, loại văn bản khác Đề 1–6; hai bài đọc hiểu dài lấy chủ điểm của sách lớp 10, 11 (Global Success 10, 11 ở OnUp-Book) mà Đề 1–6 chưa dùng. Mở rộng tests/ta12-tn.js, in OK. Gắn 2 mã vào tn-thpt-2027.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N12-tn-ta-e · Tiếng Anh thi thử tốt nghiệp, Đề 9–10** (Merge Phiên N12-tn-ta-d trước)
+> Như Phiên N12-tn-ta, viết 2 đề "Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 9", "Đề 10" (ta12-tn-de9, -de10), cùng khung; chủ điểm, loại văn bản khác Đề 1–8. Phiên cuối của môn: rà lại cả mười đề bằng tests/ta12-tn.js (không hai đề cùng chủ điểm ở cùng nhóm câu; đáp án đúng là lựa chọn dài nhất ở không quá một phần ba số câu của cả mười đề), sửa lỗi nhỏ tìm được ở Đề 1–8 (ghi trong Pull Request), in OK. Gắn 2 mã vào tn-thpt-2027.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N12-tn-sinhhoc · Sinh học thi thử tốt nghiệp, Đề 1–4** (Merge Phiên N12-ck2-sinhhoc-ktpl trước)
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7; đoạn đầu nhóm “Trước 10/12/2026: lớp 12, đề thi thử tốt nghiệp”, đoạn “Chung của các phiên đề thi thử tốt nghiệp”). Viết 4 đề "Sinh học 12 · Thi thử tốt nghiệp · Đề 1" … "Đề 4" (sinhhoc12-tn-de1 … -de4, data/banks/12-sinhhoc.js, 50 phút, pts 10), mỗi đề 28 câu: Phần I 18 câu nhiều lựa chọn, Phần II 4 câu đúng/sai 4 ý, Phần III 6 câu trả lời ngắn (4,5 + 4 + 1,5 điểm; Phần III `pt: 0.25`).
+> - Phạm vi (mặc định PO chọn, phiên tra lại như đoạn Chung): Sinh học 12 cả năm theo mục lục trong README của `lop-12/sinh-hoc-12` (Phần bốn Di truyền học, Chương 1–4, Bài 1–18; Phần năm Tiến hoá, Bài 19–22, 25; Phần sáu Sinh thái học và môi trường, Chương 6–8, Bài 23–35; bỏ bài thực hành, dự án) chiếm khoảng bốn phần năm; phần còn lại Sinh học 10 (tế bào, chuyển hoá, phân bào) và Sinh học 11 (trao đổi chất, cảm ứng, sinh trưởng, sinh sản) theo tên chương của sách đó. Phần II có tình huống thí nghiệm, bảng số liệu, sơ đồ lai, phả hệ như đề thật; Phần III là bài tập tính (tỉ lệ kiểu gene, kiểu hình, tần số allele, số NST, năng lượng qua bậc dinh dưỡng), đáp án tối đa 4 kí tự.
+> - Script tests/sinhhoc12-tn.js (dùng lại bộ tính phép lai, Hardy – Weinberg, bảng mã di truyền, bộ đọc phả hệ, lưới thức ăn, tháp năng lượng của tests/sinhhoc-ktpl12-ck1.js, -gk2.js, -ck2.js; phân số chính xác), kiểm tra khung 18 – 4 – 6, điểm 4,5 – 4 – 1,5, thuật ngữ như sách in năm 2026 (gene, allele, nitrogen…), in MATH OK. Gắn 4 mã vào tn-thpt-2027.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N12-tn-sinhhoc-b · Sinh học thi thử tốt nghiệp, Đề 5–8** (Merge Phiên N12-tn-sinhhoc trước)
+> Như Phiên N12-tn-sinhhoc, viết 4 đề "Sinh học 12 · Thi thử tốt nghiệp · Đề 5" … "Đề 8" (sinhhoc12-tn-de5 … -de8), cùng khung; loài, phép lai, tình huống, số liệu khác Đề 1–4. Mở rộng tests/sinhhoc12-tn.js, in MATH OK. Gắn 4 mã vào tn-thpt-2027.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N12-tn-lichsu · Lịch sử thi thử tốt nghiệp, Đề 1–4** (Merge Phiên N12-ck2-lichsu-diali trước)
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7; đoạn đầu nhóm “Trước 10/12/2026: lớp 12, đề thi thử tốt nghiệp”, đoạn “Chung của các phiên đề thi thử tốt nghiệp”). Viết 4 đề "Lịch sử 12 · Thi thử tốt nghiệp · Đề 1" … "Đề 4" (lichsu12-tn-de1 … -de4, data/banks/12-lichsu.js, 50 phút, pts 10), mỗi đề 28 câu: Phần I 24 câu nhiều lựa chọn, Phần II 4 câu đúng/sai 4 ý (6 + 4 điểm; không có Phần III).
+> - Phạm vi (mặc định PO chọn, phiên tra lại như đoạn Chung): Lịch sử 12 cả năm theo mục lục trong README của `lop-12/lich-su-12` (Chủ đề 1–6, Bài 1–17) chiếm khoảng ba phần tư; phần còn lại Lịch sử 11 (cách mạng tư sản và chủ nghĩa tư bản, chủ nghĩa xã hội, quá trình giành độc lập ở Đông Nam Á, chiến tranh bảo vệ Tổ quốc, cải cách trong lịch sử Việt Nam, lịch sử bảo vệ chủ quyền ở Biển Đông) và Lịch sử 10 (bản chỉnh sửa năm 2026: văn minh Đại Việt, cộng đồng các dân tộc Việt Nam) theo tên chủ đề của sách đó. Phần II mỗi câu một đoạn tư liệu (tự viết hoặc trích văn kiện đã công bố, ghi nguồn; không trích sách giáo khoa) như đề thật, `passages`.
+> - Chữ như kho Lịch sử 12 (ngày tháng viết như sách, tên tỉnh theo 34 đơn vị hành chính, dấu thanh kiểu cũ). Script tests/lichsu12-tn.js (bảng ngày tháng theo sách của tests/lichsu-diali12-ck1.js, -gk2.js, -ck2.js mở rộng sang lớp 10, 11; tính lại số năm, trình tự sự kiện; tên riêng nhiều chữ tính là một từ khi so OCR), kiểm tra khung 24 – 4, điểm 6 – 4, in OK. Gắn 4 mã vào tn-thpt-2027.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N12-tn-lichsu-b · Lịch sử thi thử tốt nghiệp, Đề 5–8** (Merge Phiên N12-tn-lichsu trước)
+> Như Phiên N12-tn-lichsu, viết 4 đề "Lịch sử 12 · Thi thử tốt nghiệp · Đề 5" … "Đề 8" (lichsu12-tn-de5 … -de8), cùng khung; sự kiện được hỏi, đoạn tư liệu khác Đề 1–4. Mở rộng tests/lichsu12-tn.js, in OK. Gắn 4 mã vào tn-thpt-2027.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N12-tn-diali · Địa lí thi thử tốt nghiệp, Đề 1–4** (Merge Phiên N12-ck2-lichsu-diali trước)
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7; đoạn đầu nhóm “Trước 10/12/2026: lớp 12, đề thi thử tốt nghiệp”, đoạn “Chung của các phiên đề thi thử tốt nghiệp”). Viết 4 đề "Địa lí 12 · Thi thử tốt nghiệp · Đề 1" … "Đề 4" (diali12-tn-de1 … -de4, data/banks/12-diali.js, 50 phút, pts 10), mỗi đề 28 câu: Phần I 18 câu nhiều lựa chọn, Phần II 4 câu đúng/sai 4 ý, Phần III 6 câu trả lời ngắn (4,5 + 4 + 1,5 điểm; Phần III `pt: 0.25`).
+> - Phạm vi (mặc định PO chọn, phiên tra lại như đoạn Chung): Địa lí 12 (bản chỉnh sửa năm 2026) cả năm theo mục lục trong README của `lop-12/dia-li-12` (Phần 1–4, Bài 1–33; bỏ bài thực hành và Phần 5 Địa lí địa phương) gần như toàn bộ; Địa lí 10, 11 chỉ ở kĩ năng (bảng số liệu, biểu đồ) khi nguồn đa số cho thấy đề thật có. Từ năm 2025 thí sinh không được dùng Atlat: câu không dựa vào Atlat. Phần II có bảng số liệu, biểu đồ, đoạn thông tin như đề thật; Phần III là câu tính (tỉ trọng, tốc độ tăng trưởng, mật độ dân số, năng suất, cán cân), đề bài dặn làm tròn, đáp án tối đa 4 kí tự.
+> - Chữ như kho Địa lí 12 (34 tỉnh, thành phố; 6 vùng kinh tế – xã hội; số liệu theo sách in năm 2026; số ngăn hàng nghìn bằng khoảng trắng). Script tests/diali12-tn.js (bộ đọc năm loại biểu đồ, phần số của tests/lichsu-diali12-ck1.js, -gk2.js, -ck2.js), kiểm tra khung 18 – 4 – 6, điểm 4,5 – 4 – 1,5, in OK. Gắn 4 mã vào tn-thpt-2027.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N12-tn-diali-b · Địa lí thi thử tốt nghiệp, Đề 5–8** (Merge Phiên N12-tn-diali trước)
+> Như Phiên N12-tn-diali, viết 4 đề "Địa lí 12 · Thi thử tốt nghiệp · Đề 5" … "Đề 8" (diali12-tn-de5 … -de8), cùng khung; bảng số liệu, loại biểu đồ, vùng được hỏi khác Đề 1–4. Mở rộng tests/diali12-tn.js, in OK. Gắn 4 mã vào tn-thpt-2027.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N12-tn-ktpl · GDKT&PL thi thử tốt nghiệp, Đề 1–3** (Merge Phiên N12-ck2-sinhhoc-ktpl trước)
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7; đoạn đầu nhóm “Trước 10/12/2026: lớp 12, đề thi thử tốt nghiệp”, đoạn “Chung của các phiên đề thi thử tốt nghiệp”). Viết 3 đề "GDKT&PL 12 · Thi thử tốt nghiệp · Đề 1" … "Đề 3" (ktpl12-tn-de1 … -de3, data/banks/12-ktpl.js, 50 phút, pts 10; môn "GDKT&PL"), mỗi đề 28 câu: Phần I 24 câu nhiều lựa chọn, Phần II 4 câu đúng/sai 4 ý (6 + 4 điểm; không có Phần III).
+> - Phạm vi (mặc định PO chọn, phiên tra lại như đoạn Chung): GDKT&PL 12 cả năm theo mục lục trong README của `lop-12/giao-duc-kinh-te-va-phap-luat-12` (Chủ đề 1–9, Bài 1–16) chiếm phần lớn; phần còn lại GDKT&PL 10 (bản chỉnh sửa năm 2026) và 11 theo tên chủ đề của sách đó. Phần lớn câu là tình huống; Phần II mỗi câu một đoạn thông tin hoặc tình huống, `passages`.
+> - Tên luật như sách in năm 2026 (như kho GDKT&PL 12), không số điều luật, mức phạt, tên cơ quan cũ. Script tests/ktpl12-tn.js (bảng tuổi, số liệu, tên luật của tests/sinhhoc-ktpl12-ck1.js, -gk2.js, -ck2.js; tính lại tốc độ tăng trưởng, GNI bình quân, ngân sách gia đình), kiểm tra khung 24 – 4, điểm 6 – 4, in OK. Gắn 3 mã vào tn-thpt-2027.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N12-tn-ktpl-b · GDKT&PL thi thử tốt nghiệp, Đề 4–5** (Merge Phiên N12-tn-ktpl trước)
+> Như Phiên N12-tn-ktpl, viết 2 đề "GDKT&PL 12 · Thi thử tốt nghiệp · Đề 4", "Đề 5" (ktpl12-tn-de4, -de5), cùng khung; tình huống, số liệu khác Đề 1–3. Mở rộng tests/ktpl12-tn.js, in OK. Gắn 2 mã vào tn-thpt-2027.
+>
+> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
+
+**Phiên N12-tn-tin · Tin học thi thử tốt nghiệp, Đề 1–3** (Merge Phiên N12-ck2-tin-congnghe trước)
+> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7; đoạn đầu nhóm “Trước 10/12/2026: lớp 12, đề thi thử tốt nghiệp”, đoạn “Chung của các phiên đề thi thử tốt nghiệp”). Viết 3 đề "Tin học 12 · Thi thử tốt nghiệp · Đề 1" … "Đề 3" (tin12-tn-de1 … -de3, data/banks/12-tin.js, 50 phút, pts 10), mỗi đề 28 câu: Phần I 24 câu nhiều lựa chọn, Phần II 4 câu đúng/sai 4 ý (6 + 4 điểm; không có Phần III).
+> - Khung (mặc định PO chọn theo đề tham khảo năm 2025, phiên đối chiếu đề chính thức năm 2026 ở hai nguồn, khác thì theo đề 2026 và ghi trong Pull Request): đề thật có phần chung và phần riêng theo định hướng (Khoa học máy tính, Tin học ứng dụng), thí sinh làm phần riêng của một định hướng; mặc định Phần I 24 câu gồm 16 câu chung và 8 câu riêng, Phần II 4 câu gồm 2 câu chung và 2 câu riêng. App chưa cho chọn phần trong một đề, nên mỗi đề có sẵn phần riêng của một định hướng: Đề 1, Đề 3 theo Tin học ứng dụng, Đề 2 theo Khoa học máy tính; note ghi định hướng của đề và nhắc làm đề của định hướng mình học. `part` như đoạn Chung; chủ đề phần riêng bắt đầu bằng “Tin học ứng dụng · ” hoặc “Khoa học máy tính · ”.
+> - Phạm vi (mặc định PO chọn): phần chung Tin học 12 (Chủ đề 1–5, Bài 1–21 của cả hai sách) chiếm phần lớn, phần chung Tin học 10, 11 phần nhỏ; phần riêng theo sách của định hướng (`lop-12/tin-hoc-12-tin-hoc-ung-dung` Bài 22–28, `lop-12/tin-hoc-12-khoa-hoc-may-tinh` Bài 22–30; lớp 11: `lop-11/tin-hoc-11-tin-hoc-ung-dung`, `lop-11/tin-hoc-11-khoa-hoc-may-tinh`). Câu mã HTML, CSS, Python đúng cú pháp; kết quả tính lại bằng code.
+> - Script tests/tin12-tn.js (bộ đọc HTML, CSS, bộ áp mẫu định dạng của tests/tin-congnghe12-ck1.js, -gk2.js, -ck2.js; chạy thử đoạn mã Python bằng python3 nếu có), kiểm tra khung 24 – 4 (16 + 8, 2 + 2), điểm 6 – 4, in OK. Gắn 3 mã vào tn-thpt-2027. Đề 4–5 (định hướng thứ hai cho cân) và Công nghệ: lượt PO sau.
 >
 > Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
@@ -881,6 +964,10 @@ Toán, Tiếng Việt, Tiếng Anh lấy phạm vi theo tập một của sách 
 ### Nguồn đề thi thử tốt nghiệp THPT (tra ngày 3/11/2026)
 
 Cấu trúc đề giữ như mục 2 (Quyết định 764/QĐ-BGDĐT, [SGGP](https://www.sggp.org.vn/bo-gd-dt-ban-hanh-cau-truc-dinh-dang-de-thi-tot-nghiep-thpt-tu-nam-2025-post729940.html), [Đại biểu Nhân dân](https://daibieunhandan.vn/chi-tiet-cau-truc-dinh-dang-de-thi-tot-nghiep-thpt-tu-nam-2025-10332424.html)). Năm 2027 Bộ giữ ổn định kì thi, dự kiến thi trên máy tính ở nơi đủ điều kiện, đề như thi giấy ([Thanh Niên](https://thanhnien.vn/nam-2027-du-kien-thi-tot-nghiep-thpt-tren-may-tinh-o-noi-du-dieu-kien-185260728175041365.htm), [VTC News](https://vtcnews.vn/bo-gd-dt-giu-on-dinh-ky-thi-tot-nghiep-thpt-trinh-phuong-an-thi-tren-may-tinh-ar1040758.html)). Ma trận đề tham khảo năm 2025 các môn ([Tuyển Sinh Số](https://tuyensinhso.vn/ban-tin/ma-tran-de-thi-tham-khao-tot-nghiep-thpt-2025-tat-ca-cac-mon-c345401.html)) và đề chính thức năm 2026 ([Tiền Phong, đề Toán](https://tienphong.vn/dap-an-de-thi-toan-thpt-2026-post1850604.tpo), [Báo Lào Cai](https://baolaocai.vn/cap-nhat-de-thi-dap-an-mon-toan-tot-nghiep-thpt-2026-nhanh-moi-nhat-post901450.html)): PO chưa đọc được toàn văn, nên tỉ lệ lớp 10, 11, 12 và mức độ từng phần trong các khối ở nhóm “Trước 10/12/2026: lớp 12, đề thi thử tốt nghiệp” là mặc định PO chọn (chủ yếu lớp 12, như `scope` của `tn-thpt-2027`); mỗi phiên tra lại ở ít nhất hai nguồn. Khung đề Tiếng Anh 40 câu theo đề tham khảo năm 2025 của Bộ (sáu nhóm câu), phiên đối chiếu đề chính thức năm 2026.
+
+### Nguồn đề thi thử tốt nghiệp THPT, các môn còn lại (tra ngày 5/11/2026)
+
+Khung 24 – 4 (Lịch sử, GDKT&PL, Tin học) và 18 – 4 – 6 (Sinh học, Địa lí) theo mục 2 (Quyết định 764/QĐ-BGDĐT). Nhận định đề tham khảo năm 2025: [Lịch sử, HOCMAI](https://huongnghiep.hocmai.vn/tot-nghiep-thpt-2025-nhan-dinh-de-thi-tham-khao-mon-lich-su/), [Địa lí, HOCMAI](https://huongnghiep.hocmai.vn/tot-nghiep-thpt-2025-nhan-dinh-de-thi-tham-khao-mon-dia-li/), [đánh giá đề tham khảo các môn, Tuyển Sinh Số](https://tuyensinhso.vn/ban-tin/danh-gia-de-tham-khao-tat-ca-cac-mon-thi-tot-nghiep-thpt-2025-cua-bo-gddt-c345183.html), [đề minh họa Sinh học, Thư viện Pháp luật](https://thuvienphapluat.vn/hoi-dap-phap-luat/de-minh-hoa-thi-tot-nghiep-thpt-nam-2025-mon-sinh-138016536.html); Tin học có phần chung và phần riêng theo định hướng: [đề tham khảo Tin học, Hoatieu](https://hoatieu.vn/de-tham-khao-thi-tot-nghiep-thpt-mon-tin-hoc-229991), [đề thi thử Tin học, Thư viện Pháp luật](https://thuvienphapluat.vn/hoi-dap-phap-luat/de-thi-thu-tot-nghiep-nam-2025-mon-tin-hoc-138047287.html). PO chưa đọc được toàn văn ma trận: tỉ lệ lớp 10, 11, 12 và số câu chung, riêng của Tin học trong các khối là mặc định PO chọn; mỗi phiên tra lại ở ít nhất hai nguồn. Số bài, tên bài, chủ đề theo mục lục trong README của từng cuốn lớp 12 ở OnUp-Book (đối chiếu ngày 5/11/2026).
 
 ### Lớp 5, 7–12
 
