@@ -1800,6 +1800,37 @@ window.ONTAP_SEED_BANKS = [
       "Sử dụng hợp lí tự nhiên ở Đồng bằng sông Cửu Long": [2, 2, 1],
       "Phát triển kinh tế và đảm bảo quốc phòng, an ninh ở Biển Đông": [2, 1, 1] } } },
 
+  /* Tin học 12 · Kiểm tra cuối năm học (Kết nối tri thức, Tin học 12, phần chung của hai sách Định hướng Tin học ứng dụng và Định hướng
+     Khoa học máy tính: Chủ đề 4 phần CSS Bài 13–17, Chủ đề 5 Bài 19–20, trọng tâm Bài 17, 19–20; Bài 18, 21 không ra chủ đề riêng;
+     Phiên N12-ck2-tin-congnghe). Phạm vi mặc định của PO (chưa xem được nguồn); phần riêng của hai định hướng không vào kho, lời dặn của
+     đề nhắc trường kiểm tra phần riêng thì đối chiếu đề cương. Khối 12 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề
+     cố định, không có câu riêng. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 7 chủ đề, cùng chữ chủ đề với kho giữa kì II: Bài 13–16
+     10 câu, Bài 17, 19–20 15 câu. Hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. Câu tự luận
+     ở ô Vận dụng rút 1 câu: mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "tin12-ck2-de1", title: "Tin học 12 · Cuối năm · Đề 1", grade: 12, subject: "Tin học", minutes: 45, n: 25, file: "12-tin.js" },
+  { id: "tin12-ck2-de2", title: "Tin học 12 · Cuối năm · Đề 2", grade: 12, subject: "Tin học", minutes: 45, n: 25, file: "12-tin.js" },
+  { id: "tin12-ck2-ngau-nhien", title: "Tin học 12 · Cuối năm · Đề ngẫu nhiên", grade: 12, subject: "Tin học", minutes: 45, n: 25, file: "12-tin.js",
+    pool: { from: ["tin12-ck2-de1", "tin12-ck2-de2"], matrix: {
+      "Khái niệm, vai trò của CSS": [1, 1, 0], "Định dạng văn bản bằng CSS": [1, 0, 1], "Tạo màu cho chữ và nền": [1, 1, 1],
+      "Định dạng khung": [1, 1, 1], "Các mức ưu tiên của bộ chọn": [3, 3, 3], "Dịch vụ sửa chữa và bảo trì máy tính": [1, 1, 1],
+      "Nhóm nghề quản trị trong ngành Công nghệ thông tin": [2, 1, 0] } } },
+
+  /* Công nghệ 12 · Kiểm tra cuối năm học (Kết nối tri thức, Công nghệ 12 – Công nghệ điện – điện tử, Phần hai Công nghệ điện tử,
+     Chương V–IX: Bài 13–16, 18–19, 21–22, 24–25, trọng tâm Chương VIII–IX; bài thực hành Bài 17, 20, 23, 26 không ra chủ đề riêng; Phiên
+     N12-ck2-tin-congnghe). Phạm vi mặc định của PO (chưa xem được nguồn); lời dặn của đề nhắc trường chỉ kiểm tra Chương VIII–IX bỏ qua
+     câu ôn, trường học sách Lâm nghiệp – Thuỷ sản đối chiếu đề cương. Khối 12 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu
+     của 2 đề cố định, không có câu riêng. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 10 chủ đề theo tên bài: ôn Chương V–VII
+     9 câu (chữ chủ đề như kho giữa kì II), Chương VIII–IX 16 câu. Hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp
+     đôi số câu ô đó rút. Câu tự luận ở ô Vận dụng rút 1 câu: mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "congnghe12-ck2-de1", title: "Công nghệ 12 · Cuối năm · Đề 1", grade: 12, subject: "Công nghệ", minutes: 45, n: 25, file: "12-congnghe.js" },
+  { id: "congnghe12-ck2-de2", title: "Công nghệ 12 · Cuối năm · Đề 2", grade: 12, subject: "Công nghệ", minutes: 45, n: 25, file: "12-congnghe.js" },
+  { id: "congnghe12-ck2-ngau-nhien", title: "Công nghệ 12 · Cuối năm · Đề ngẫu nhiên", grade: 12, subject: "Công nghệ", minutes: 45, n: 25, file: "12-congnghe.js",
+    pool: { from: ["congnghe12-ck2-de1", "congnghe12-ck2-de2"], matrix: {
+      "Khái quát về kĩ thuật điện tử": [1, 0, 0], "Ngành nghề và dịch vụ trong lĩnh vực kĩ thuật điện tử": [1, 0, 0],
+      "Điện trở, tụ điện và cuộn cảm": [1, 1, 0], "Diode, transistor và mạch tích hợp IC": [0, 1, 1], "Giới thiệu về điện tử tương tự": [0, 1, 0],
+      "Khuếch đại thuật toán": [1, 0, 1], "Tín hiệu số và các cổng logic cơ bản": [2, 2, 1],
+      "Một số mạch xử lí tín hiệu trong điện tử số": [2, 1, 1], "Khái quát về vi điều khiển": [1, 1, 2], "Bo mạch lập trình vi điều khiển": [1, 1, 1] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
