@@ -1678,6 +1678,9 @@ window.ONTAP_SEED_BANKS = [
   { id: "toan12-tn-de5", title: "Toán 12 · Thi thử tốt nghiệp · Đề 5", grade: 12, subject: "Toán", minutes: 90, n: 22, file: "12-toan.js", pts: 10 },
   { id: "toan12-tn-de6", title: "Toán 12 · Thi thử tốt nghiệp · Đề 6", grade: 12, subject: "Toán", minutes: 90, n: 22, file: "12-toan.js", pts: 10 },
   { id: "toan12-tn-de7", title: "Toán 12 · Thi thử tốt nghiệp · Đề 7", grade: 12, subject: "Toán", minutes: 90, n: 22, file: "12-toan.js", pts: 10 },
+  { id: "toan12-tn-de8", title: "Toán 12 · Thi thử tốt nghiệp · Đề 8", grade: 12, subject: "Toán", minutes: 90, n: 22, file: "12-toan.js", pts: 10 },
+  { id: "toan12-tn-de9", title: "Toán 12 · Thi thử tốt nghiệp · Đề 9", grade: 12, subject: "Toán", minutes: 90, n: 22, file: "12-toan.js", pts: 10 },
+  { id: "toan12-tn-de10", title: "Toán 12 · Thi thử tốt nghiệp · Đề 10", grade: 12, subject: "Toán", minutes: 90, n: 22, file: "12-toan.js", pts: 10 },
 
   /* Ngữ văn 12 · Kiểm tra cuối năm học (Kết nối tri thức, Ngữ văn 12 tập hai, Bài 6–9, trọng tâm Bài 8–9; Phiên N12-ck2-van). Khối 12
      chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (mỗi đề 4 đoạn đọc, 1 câu Viết) + 2 câu

@@ -1,4 +1,4 @@
-// Kiểm tra các đề Toán thi thử tốt nghiệp THPT (data/banks/12-toan.js, toan12-tn-de<N>; Phiên N12-tn-toan: Đề 1–4, N12-tn-toan-b: Đề 5–7;
+// Kiểm tra các đề Toán thi thử tốt nghiệp THPT (data/banks/12-toan.js, toan12-tn-de<N>; Phiên N12-tn-toan: Đề 1–4, N12-tn-toan-b: Đề 5–7, N12-tn-toan-c: Đề 8–10;
 // phiên sau thêm đề rồi mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG). Đề tính điểm (Phiên K5), khung đề tốt nghiệp THPT từ năm 2025
 // (Quyết định 764/QĐ-BGDĐT). Số đề, số câu lấy từ danh mục (không ghi cứng).
 // Khung: danh mục (tên, khối 12, môn Toán, file, 90 phút, pts 10, gắn vào tn-thpt-2027); Phần I 12 câu nhiều lựa chọn pt 0,25, Phần II 4 câu
@@ -11,11 +11,11 @@
 // một lựa chọn đúng), đúng/sai 4 ý a (từng ý tính lại), trả lời ngắn ans. Bộ đọc chép từ tests/toan12-ck2.js (số hữu tỉ, hàm số, tích phân, toạ
 // độ, mặt phẳng, đường thẳng, mặt cầu, xác suất, mặt cầu trong hệ trục Oxyz, sơ đồ hình cây) và tests/toan12-ck1.js (đa thức, phân thức: đạo
 // hàm, cực trị, giá trị lớn nhất, nhỏ nhất, tiệm cận; bảng biến thiên, đồ thị trên lưới ô vuông, bảng tần số ghép nhóm, tứ phân vị, phương sai;
-// bộ đọc phân thức đổi tên hs → rf). Thêm: họ nghiệm của phương trình lượng giác so với nghiệm tìm bằng số trên [−20; 20], tập nghiệm, tập xác
+// bộ đọc phân thức đổi tên hs → rf). Thêm: họ nghiệm của phương trình lượng giác (cả họ x = a + kπ/n) so với nghiệm tìm bằng số trên [−20; 20], tập nghiệm, tập xác
 // định ghi bằng khoảng, đoạn, hợp so trên lưới điểm dày, chỉnh hợp, tổ hợp, đếm trên không gian mẫu liệt kê, hình không gian không có trục (điểm
 // có nhãn khớp một phép chiếu song song của toạ độ cho trước; cạnh khuất nét đứt đúng là các cạnh mà hai mặt chứa nó cùng quay lưng về người
 // xem; đường cao, đường chéo đáy nét đứt), góc, khoảng cách tính bằng toạ độ, giá trị lớn nhất, nhỏ nhất của bài toán thực tế tìm bằng số.
-// Rồi: kiểu Đ/S không lặp trong một đề, mỗi kiểu nhiều nhất hai lần trong các đề thi thử; đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa
+// Rồi: kiểu Đ/S không lặp trong một đề, mỗi kiểu nhiều nhất ba lần trong các đề thi thử (từ Phiên N12-tn-toan-c); đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa
 // chọn dài nhất hay ngắn nhất ở không quá một phần ba số câu nhiều lựa chọn của đề, không lặp chữ của nhãn chủ đề; đề bài không trùng, không gần
 // trùng (chuỗi 6 từ) câu của các kho Toán 12 và của đề thi thử khác, đáp án không trùng câu cùng chủ đề; dò lộ đáp án giữa mọi câu của một đề,
 // với lời dặn, và giữa câu cùng chủ đề của các đề thi thử và các kho Toán 12 (đề “Ôn chủ đề” rút chung); có ../OnUp-Book thì so mọi trường chữ
@@ -870,7 +870,7 @@ const tapKhoang = (s) => { const ps = s.split(" ∪ ").map((p) => { const m = /^
 const khopTap = (A, B) => { const xs = []; for (let k = -1200; k <= 1200; k++) xs.push(k / 40, k / 40 + 1e-7, k / 40 - 1e-7); return xs.every((x) => A(x) === B(x)); };
 // họ nghiệm của phương trình lượng giác: "x = ±2π/3 + k2π (k ∈ ℤ)", "x = π/4 + k2π hoặc x = 3π/4 + k2π (k ∈ ℤ)" → các nghiệm trên [a; b]
 const hoNghiem = (s, a = -20, b = 20) => { const t = s.replace(/ \(k ∈ ℤ\)$/, "");
-  return t.split(" hoặc ").flatMap((p) => { const m = /^x = (±)?(.+?) \+ k(\d*)π$/.exec(p); assert.ok(m, "họ nghiệm lạ: " + p); const g0 = hang(m[2]), chu = (m[3] ? +m[3] : 1) * Math.PI, r = [];
+  return t.split(" hoặc ").flatMap((p) => { const m = /^x = (±)?(.+?) \+ k(\d*)π(?:\/(\d+))?$/.exec(p); assert.ok(m, "họ nghiệm lạ: " + p); const g0 = hang(m[2]), chu = ((m[3] ? +m[3] : 1) * Math.PI) / (m[4] ? +m[4] : 1), r = [];
     for (const g of m[1] ? [g0, -g0] : [g0]) for (let k = Math.ceil((a - g) / chu); g + k * chu <= b; k++) r.push(g + k * chu); return r; })
     .sort((x, y) => x - y).filter((x, i, A) => !i || Math.abs(x - A[i - 1]) > 1e-9); };
 const cungTap = (A, B) => A.length === B.length && A.every((x, i) => Math.abs(x - B[i]) < 1e-6);
@@ -1309,6 +1309,180 @@ const RIENG = {
     { has: "Ở một vùng trồng cam", right: (q) => { const p = [...q.q.matchAll(/(\d+)%/g)].map((m) => +m[1] / 100); assert.equal(p.length, 3); return (p[0] * p[1]) / (p[0] * p[1] + (1 - p[0]) * p[2]); } },
     { has: "Một quả bóng được ném thẳng đứng lên trên", right: (q) => { const h = hs(/h\(t\) = (.+) \(m\)/.exec(q.q)[1]), z = nghiem(h, 0, 100); assert.equal(z.length, 1); return Math.abs(daoHamSo(h, z[0])); } },
   ],
+  "toan12-tn-de8": [
+    { has: "Tiệm cận ngang của đồ thị hàm số y = (5x − 2)/(1 − 2x) là đường thẳng", right: (q) => { const t = tiemCan(rf(/hàm số y = (.+) là đường thẳng$/.exec(q.q)[1])); assert.ok(t.ngang && t.dung.length === 1, "phân thức có một tiệm cận đứng, một tiệm cận ngang");
+      return theo(q, /^([xy]) = (.+)$/, (k) => k[1] === "y" && eq(fr(k[2]), t.ngang)); } },
+    { has: "Giá trị nhỏ nhất của hàm số y = x² − 4ln x trên đoạn [1; e] bằng", right: (q) => { const f = hamDe(q, /hàm số y = (.+) trên đoạn/), m = /trên đoạn \[(.+); (.+)\] bằng$/.exec(q.q), a = hang(m[1]), b = hang(m[2]);
+      const xs = [a, b, ...nghiem((x) => daoHamSo(f, x), a, b)]; return theoSo(q, Math.min(...xs.map(f))); } },
+    { has: "∫(4x³ − 3/cos² x)dx bằng", right: (q) => { const f = hamDe(q, /^∫\((.+)\)dx bằng$/); return theo(q, /^(.+) \+ C$/, (k) => laNH(hs(k[1]), f, GIUA)); } },
+    { has: "với F(1) = −1 và F(5) = 6. Tích phân ∫₁⁵ [2f(x) − 3]dx bằng", right: (q) => { const m = /F\((\d+)\) = (−?\d+) và F\((\d+)\) = (−?\d+)\. Tích phân ∫([₀-₉]+)([⁰¹²³⁴⁵⁶⁷⁸⁹]+) \[(\d+)f\(x\) − (\d+)\]dx bằng$/.exec(q.q);
+      const [a, Fa, b, Fb] = [m[1], m[2], m[3], m[4]].map((s) => toNum(fr(s))); assert.ok(chiSo(m[5]) === a && +can(m[6], SUPD) === b, "cận của tích phân khớp F(a), F(b)");
+      return theoSo(q, +m[7] * (Fb - Fa) - +m[8] * (b - a)); } },
+    { has: "mặt cầu (S): x² + y² + z² − 4x + 2y − 6z + 5 = 0 có bán kính bằng", right: (q) => { const c = cau(/\(S\): (.+) có bán kính bằng$/.exec(q.q)[1]); assert.ok(c, "không phải phương trình mặt cầu");
+      return theo(q, /^(.+)$/, (k) => gan(hang(k[1]) ** 2, toNum(c.R2))); } },
+    { has: "Khối lượng (kg) của 40 quả dưa hấu", right: (q) => { const M = mauBang(doc(q, docBang, "bảng Đề 8"), 1); assert.equal(coMau(M), so(q, /của (\d+) quả dưa hấu/));
+      const v = tuPhanVi(M, 1).Q; return theo(q, /^(.+)$/, (k) => eq(fr(k[1]), v)); } },
+    { has: "hàm số nào nghịch biến trên ℝ?", right: (q) => theo(q, /^y = (.+)$/, (k) => { const f = hs(k[1]); for (let x = -10; x < 10; x += 0.25) if (!(f(x + 0.25) < f(x))) return false; return true; }) },
+    { has: "Hàm số y = sin(x/2) tuần hoàn với chu kì", right: (q) => { const f = hamDe(q, /Hàm số y = (.+) tuần hoàn/), xs = [-5.3, -2.1, -0.7, 0.4, 1.9, 3.6, 6.2];
+      const tuan = (T) => xs.every((x) => Math.abs(f(x + T) - f(x)) < 1e-9);
+      return theo(q, /^(.+)$/, (k) => { const T = hang(k[1]); return T > 0 && tuan(T) && [2, 3, 4, 5, 6, 8].every((d) => !tuan(T / d)); }); } },
+    { has: "Dãy số (uₙ) nào dưới đây là một cấp số nhân?", right: (q) => theo(q, /^uₙ = (.+)$/, (k) => { const u = hs(k[1].replace(/ⁿ/g, "ˣ").replace(/n/g, "x")), r = u(2) / u(1);
+      for (let n = 1; n <= 10; n++) if (Math.abs(u(n + 1) - r * u(n)) > 1e-9 * Math.abs(u(n + 1))) return false; return true; }) },
+    { has: "Thể tích của khối chóp S.ABC bằng", right: (q) => { const [h] = nhom(q, /SA = (\d+)/), [a] = nhom(q, /AB = (\d+)/), P = R3({ S: [0, 0, h], A: [0, 0, 0], B: [a, 0, 0], C: [a, a, 0] });
+      doc(q, kiemKhoi, P, [["A", "B", "C"], ["S", "A", "B"], ["S", "B", "C"], ["S", "C", "A"]], [["A", "B"], ["B", "C"], ["C", "A"], ["S", "A"], ["S", "B"], ["S", "C"]], [], "hình chóp Đề 8");
+      const BA = vSub(P.A, P.B), BC = vSub(P.C, P.B); assert.ok(eq(vDot(BA, BC), F(0)) && eq(vDot(BA, BA), vDot(BC, BC)), "tam giác ABC vuông cân tại B");
+      return theoSo(q, Math.abs(toNum(vDot(vCross(vSub(P.B, P.A), vSub(P.C, P.A)), vSub(P.S, P.A)))) / 6); } },
+    { has: "Đạo hàm của hàm số y = sin² x là", right: (q) => { const f = hamDe(q, /y = (.+) là$/), xs = [-1.3, -0.4, 0.2, 0.9, 1.7, 2.6];
+      return theo(q, /^y′ = (.+)$/, (k) => { const g = hs(k[1]); return xs.every((x) => Math.abs(daoHamSo(f, x) - g(x)) < 1e-6 * Math.max(1, Math.abs(g(x)))); }); } },
+    { has: "Số tin nhắn bạn An nhận được trong 8 ngày", right: (q) => { const v = /lần lượt là (.+)\. Trung vị/.exec(q.q)[1].split("; ").map((s) => toNum(fr(s))).sort((a, b) => a - b), n = v.length;
+      assert.equal(n, so(q, /trong (\d+) ngày/)); return theoSo(q, n % 2 ? v[(n - 1) / 2] : (v[n / 2 - 1] + v[n / 2]) / 2); } },
+    { has: "Cho hàm số f(x) = (x − 3)eˣ. Mỗi ý sau đúng hay sai?", right: (q) => { const f = hamDe(q, /f\(x\) = (.+)\. Mỗi ý/), fp = (x) => daoHamSo(f, x), tr = nghiem(fp, -30, 30), xs = [-3.7, -1.2, 0.4, 1.6, 2.5, 3.3, 4.1];
+      return q.o.map((s) => { let m;
+        if ((m = /^Đạo hàm của hàm số là f′\(x\) = (.+)$/.exec(s))) { const g = hs(m[1]); return xs.every((x) => Math.abs(fp(x) - g(x)) < 1e-6 * Math.max(1, Math.abs(g(x)))); }
+        if ((m = /^Hàm số (đồng|nghịch) biến trên khoảng \((.+); (.+)\)$/.exec(s))) { const a = m[2] === "−∞" ? -30 : hang(m[2]), b = m[3] === "+∞" ? 30 : hang(m[3]), d = m[1] === "đồng" ? 1 : -1;
+          for (let k = 1; k < 200; k++) if (Math.sign(fp(a + ((b - a) * k) / 200)) !== d) return false; return true; }
+        if ((m = /^Giá trị cực tiểu của hàm số bằng (.+)$/.exec(s))) { const ct = tr.filter((x) => fp(x - 1e-3) < 0 && fp(x + 1e-3) > 0); assert.equal(ct.length, 1, "đúng một điểm cực tiểu"); return gan(f(ct[0]), hang(m[1])); }
+        if ((m = /^Trên đoạn \[(.+); (.+)\], giá trị (lớn|nhỏ) nhất của hàm số bằng (.+)$/.exec(s))) { const a = hang(m[1]), b = hang(m[2]), v = [a, b, ...tr.filter((x) => x > a && x < b)].map(f);
+          return gan(m[3] === "lớn" ? Math.max(...v) : Math.min(...v), hang(m[4])); }
+        throw new Error("mệnh đề lạ: " + s); }); } },
+    { has: "Một cabin cáp treo chuyển động thẳng từ ga dưới", right: (q) => { const A = ptDe(q, "A"), B = ptDe(q, "B"), AB = vSub(B, A), L = toNum(vLen(AB));
+      return q.o.map((s) => { let m;
+        if ((m = /^Vectơ u = (\(.+\)) là một vectơ chỉ phương của đường thẳng AB$/.exec(s))) return cungPhuong(bo3(m[1]), AB);
+        if ((m = /^Quãng đường cabin đi từ ga dưới đến ga trên dài (\d+) m$/.exec(s))) return gan(L, +m[1]);
+        if ((m = /^Góc giữa đường thẳng AB và mặt đất (nhỏ hơn|lớn hơn) (\d+)°$/.exec(s))) { const g = gocGiua({ u: AB }, { n: [F(0), F(0), F(1)] }); assert.ok(Math.abs(g - +m[2]) > 0.5, "góc sát ngưỡng"); return m[1] === "nhỏ hơn" ? g < +m[2] : g > +m[2]; }
+        if ((m = /^Khi cabin ở độ cao (\d+) m so với mặt đất thì cabin cách ga dưới (\d+) m$/.exec(s))) { const t = (+m[1] - toNum(A[2])) / toNum(AB[2]); assert.ok(t > 0 && t < 1, "điểm nằm trên đường cáp"); return gan(t * L, +m[2]); }
+        throw new Error("mệnh đề lạ: " + s); }); } },
+    { has: "Một hãng hàng không có 70% số chuyến bay khởi hành vào ban ngày", right: (q) => { const [ngay, dem] = nhom(q, /có (\d+)% số chuyến bay khởi hành vào ban ngày và (\d+)% số chuyến bay khởi hành vào ban đêm/), [pn, pd] = nhom(q, /các chuyến ban ngày là (\d+)%, của các chuyến ban đêm là (\d+)%/);
+      assert.equal(ngay + dem, 100); const mo = moHinh({ A: F(dem, 100), BA: F(pd, 100), BAc: F(pn, 100) });
+      return q.o.map((s) => { const m = /^Biết chuyến bay đã chọn không bị chậm giờ, xác suất chuyến bay đó khởi hành vào ban ngày (lớn hơn|nhỏ hơn) (.+)$/.exec(s);
+        if (!m) return menhDeP(mo)(s); const p = toNum(xacSuat(mo, AN + " | " + BN)), v = toNum(fr(m[2])); assert.ok(Math.abs(p - v) > 0.01, "sát ngưỡng"); return m[1] === "lớn hơn" ? p > v : p < v; }); } },
+    { has: "Trong tứ diện OABC, ba góc AOB, BOC, COA đều là góc vuông", right: (q) => { const [a, b, c] = nhom(q, /OA = (\d+), OB = (\d+) và OC = (\d+)\./), P = R3({ O: [0, 0, 0], A: [a, 0, 0], B: [0, b, 0], C: [0, 0, c] });
+      return q.o.map((s) => { let m;
+        if ((m = /^Góc giữa đường thẳng ([A-Z])([A-Z]) và mặt phẳng \(([A-Z])([A-Z])([A-Z])\) bằng (\d+)°$/.exec(s))) return Math.abs(gocDTMP(vn(vSub(P[m[2]], P[m[1]])), vn(nPhang(P, m[3], m[4], m[5]))) - +m[6]) < 1e-9;
+        if ((m = /^Đường thẳng ([A-Z])([A-Z]) vuông góc với ([A-Z])([A-Z])$/.exec(s))) return eq(vDot(vSub(P[m[2]], P[m[1]]), vSub(P[m[4]], P[m[3]])), F(0));
+        if ((m = /^Đỉnh ([A-Z]) cách mặt phẳng \(([A-Z])([A-Z])([A-Z])\) một khoảng bằng (.+)$/.exec(s))) return gan(kcDiemMP(P[m[1]], P, m[2], m[3], m[4]), hang(m[5]));
+        throw new Error("mệnh đề lạ: " + s); }); } },
+    { has: "Tính khoảng cách giữa hai đường thẳng AA′ và BC′", right: (q) => { const [a] = nhom(q, /đáy là tam giác đều cạnh (\d+)/), [h] = nhom(q, /cạnh bên AA′ = (\d+)/);
+      const A = [0, 0, 0], B = [a, 0, 0], C = [a / 2, (a * Math.sqrt(3)) / 2, 0]; return kcCheo(A, [0, 0, h], B, [C[0] - B[0], C[1] - B[1], h]); } },
+    { has: "Một giàn khoan dầu ở điểm P ngoài biển", right: (q) => { const [d] = nhom(q, /cách bờ biển \(coi là một đường thẳng\) (\d+) km/), [L] = nhom(q, /cách H (\d+) km/), [c1] = nhom(q, /dưới nước là (\d+) tỉ đồng/), [c2] = nhom(q, /trên bờ là (\d+) tỉ đồng/);
+      const C = (x) => c1 * Math.sqrt(x * x + d * d) + c2 * (L - x); return Math.min(...[0, L, ...nghiem((x) => daoHamSo(C, x), 0, L)].map(C)); } },
+    { has: "Một đoàn tàu bắt đầu rời ga", right: (q) => { const a = hamDe(q, /gia tốc a\(t\) = (.+) \(m\/s²\)/), [T] = nhom(q, /0 ≤ t ≤ (\d+)\./), v = (t) => tp(a, 0, t);
+      for (let t = 0; t <= T; t += T / 50) assert.ok(v(t) >= 0, "tàu không chạy lùi"); return tp(v, 0, T); } },
+    { has: "một kiện hàng được kéo thẳng từ điểm A", right: (q) => gocVec(vn(vecTrongChu(q.q, "F")), vn(vSub(ptDe(q, "B"), ptDe(q, "A")))) },
+    { has: "Một cầu thủ bóng rổ thực hiện hai lần ném phạt", right: (q) => { const m = /ở lần thứ nhất là (0,\d+)\. Nếu lần thứ nhất ném trúng thì xác suất lần thứ hai ném trúng là (0,\d+); nếu lần thứ nhất ném trượt thì xác suất lần thứ hai ném trúng là (0,\d+)\./.exec(q.q);
+      const mo = moHinh({ A: fr(m[1]), BA: fr(m[2]), BAc: fr(m[3]) }); return toNum(div(xacSuat(mo, "AB"), sub(F(1), xacSuat(mo, AN + BN)))); } },
+    { has: "Tính lim uₙ", right: (q) => { const [d] = nhom(q, /chứa (\d+) mg hoạt chất/), [con] = nhom(q, /chỉ còn lại (\d+)%/); let u = d; for (let n = 1; n < 400; n++) u = (con / 100) * u + d;
+      const L = d / (1 - con / 100); assert.ok(Math.abs(u - L) < 1e-9, "dãy hội tụ về " + L); return L; } },
+  ],
+  "toan12-tn-de9": [
+    { has: "Trong bốn công thức sau, công thức nào xác định hàm số f?", right: (q) => { const g = doc(q, docDoThi, "đồ thị Đề 9"), r = theo(q, /^f\(x\) = (.+)$/, (k) => khopDoThi(g, rf(k[1]))), f = rf(r.slice(7));
+      khopTiemCan(g, f, "đồ thị Đề 9"); g.dots.forEach(([x, y]) => assert.ok(Math.abs(rfEvalF(f, x) - y) < 0.02, "chấm tròn không nằm trên đồ thị")); return r; } },
+    { has: "Trên khoảng (1; +∞), hàm số y = x + 9/(x − 1) có giá trị nhỏ nhất bằng", right: (q) => { const f = rf(/hàm số y = (.+) có giá trị nhỏ nhất/.exec(q.q)[1]), [a] = nhom(q, /khoảng \((\d+); \+∞\)/), c = cucTri(f).filter((c) => c.loai === "CT" && cmp(c.x, F(a)) > 0);
+      assert.equal(c.length, 1); assert.ok(donDieuTren(f, F(a), c[0].x, -1) && donDieuTren(f, c[0].x, Infinity, 1), "giảm rồi tăng trên khoảng"); return theo(q, /^(.+)$/, (k) => eq(fr(k[1]), c[0].y)); } },
+    { has: "Biết ∫f(x)dx = x² + sin x + C. Hàm số f(x) là", right: (q) => { const G = hamDe(q, /∫f\(x\)dx = (.+) \+ C\./); return theo(q, /^f\(x\) = (.+)$/, (k) => laNH(G, hs(k[1]))); } },
+    { has: "quay hình phẳng giới hạn bởi đồ thị hàm số y = 2sin x", right: (q) => { const m = /đồ thị hàm số y = (.+), trục hoành và hai đường thẳng x = (.+), x = (.+) quanh trục Ox bằng$/.exec(q.q), f = hs(m[1]);
+      return theoSo(q, Math.PI * tp((x) => f(x) ** 2, hang(m[2]), hang(m[3]))); } },
+    { has: "Phương trình tham số của đường thẳng AB là", right: (q) => { const A = ptDe(q, "A"), B = ptDe(q, "B"); return theo(q, /^(\{.+\})$/, (k) => { const d = dt(k[1]); return thuocDT(d, A) && thuocDT(d, B); }); } },
+    { has: "Xác suất có điều kiện P(A | B) bằng", right: (q) => { const r = docP(q.q); return theo(q, /^(.+)$/, (k) => eq(fr(k[1]), div(r.AB, r.B))); } },
+    { has: "Tập nghiệm của phương trình 4ˣ − 5 · 2ˣ + 4 = 0 là", right: (q) => { const g = hamDe(q, /phương trình (.+) = 0 là$/), r = nghiem(g, -20, 20);
+      return theo(q, /^\{(.+)\}$/, (k) => cungTap(k[1].split("; ").map((t) => toNum(fr(t))).sort((a, b) => a - b), r)); } },
+    { has: "Phương trình cos(2x − π/3) = 0 có các nghiệm là", right: (q) => { const r = nghiemLG(hamDe(q, /Phương trình (.+) = 0 có/)); return theo(q, /^(.+)$/, (k) => cungTap(hoNghiem(k[1]), r)); } },
+    { has: "Tổng của 20 số hạng đầu tiên của cấp số cộng đó bằng", right: (q) => { const [u1, d, n] = /u₁ = (−?\d+) và công sai d = (−?\d+)\. Tổng của (\d+) số hạng/.exec(q.q).slice(1).map((s) => toNum(fr(s)));
+      let S = 0; for (let k = 0; k < n; k++) S += u1 + k * d; return theo(q, /^(\d+)$/, (k) => +k[1] === S); } },
+    { has: "Khoảng cách từ điểm B đến mặt phẳng (ACC′A′) bằng", right: (q) => { const [a] = nhom(q, /AB = (\d+)/), [b] = nhom(q, /AD = (\d+)/), [h] = nhom(q, /AA′ = (\d+)/);
+      const P = R3({ A: [0, 0, 0], B: [a, 0, 0], C: [a, b, 0], D: [0, b, 0], "A′": [0, 0, h], "B′": [a, 0, h], "C′": [a, b, h], "D′": [0, b, h] });
+      doc(q, kiemKhoi, P, HOP8.f, HOP8.e, [], "hình hộp Đề 9"); return theoSo(q, kcDiemMP(P.B, P, "A", "C", "C′")); } },
+    { has: "khi x dần tới 2 bằng", right: (q) => { const m = /f\(x\) = \((.+)\)\/\((.+)\) khi x dần tới (\d+) bằng$/.exec(q.q), x0 = F(+m[3]), P = rf(m[1]), Q = rf(m[2]);
+      assert.ok(eq(rfEval(P, x0), F(0)) && eq(rfEval(Q, x0), F(0)), "giới hạn dạng 0/0"); const f = rfDiv(P, Q), v = rfEval(f, x0);
+      assert.ok(Math.abs((toNum(rfEval(P, add(x0, F(1, 1e6)))) / toNum(rfEval(Q, add(x0, F(1, 1e6))))) - toNum(v)) < 1e-4); return theo(q, /^(.+)$/, (k) => eq(fr(k[1]), v)); } },
+    { has: "Hệ số của x³ trong đa thức đó là", right: (q) => { const p = rf(/^Khai triển (.+) theo công thức nhị thức Newton/.exec(q.q)[1]).P; return theo(q, /^(\d+)$/, (k) => eq(F(+k[1]), p[3])); } },
+    { has: "Cho hàm số bậc ba y = f(x) có bảng biến thiên như hình vẽ. Mỗi ý sau đúng hay sai?", right: (q) => { const b = doc(q, docBBT, "BBT Đề 9"), f = rf("−x³ + 3x² + 1"); khopBBT(b, f, "BBT Đề 9");
+      return q.o.map((s) => { const m = /^Đường thẳng y = (.+) cắt đồ thị hàm số y = f\(x\) tại ba điểm phân biệt$/.exec(s); return m ? demNghiem(rfSub(f, RF([fr(m[1])])).P) === 3 : menhDeHam(s, f); }); } },
+    { has: "chạy hết quãng đường 3 km của 40 thành viên", right: (q) => { const M = mauBang(doc(q, docBang, "bảng Đề 9"), 1); assert.equal(coMau(M), so(q, /của (\d+) thành viên/)); return q.o.map((s) => menhDeMau(s, M)); } },
+    { has: "Một con xúc xắc cân đối được gieo hai lần", right: (q) => { const [t] = nhom(q, /hai lần gieo bằng (\d+)”/), om = []; for (let i = 1; i <= 6; i++) for (let j = 1; j <= 6; j++) om.push([i, j]);
+      const A = (p) => p[0] + p[1] === t, [nho] = nhom(q, /số chấm nhỏ hơn (\d+)”/), B = (p) => p[0] < nho, dem = (f) => F(om.filter(f).length, om.length);
+      const mo = hopLe({ "11": dem((p) => A(p) && B(p)), "10": dem((p) => A(p) && !B(p)), "01": dem((p) => !A(p) && B(p)), "00": dem((p) => !A(p) && !B(p)) }); return q.o.map(menhDeP(mo)); } },
+    { has: "Cho a = log₃ 2 và b = log₃ 5", right: (q) => { const m = /^Cho a = log([₀-₉]+) (\d+) và b = log([₀-₉]+) (\d+)\. Mỗi ý sau đúng hay sai\?$/.exec(q.q);
+      assert.ok(m, "đề lạ: " + q.q); const co = (t) => +[...t].map((c) => "₀₁₂₃₄₅₆₇₈₉".indexOf(c)).join(""), lg = (c, x) => Math.log(x) / Math.log(c);
+      const a = lg(co(m[1]), +m[2]), b = lg(co(m[3]), +m[4]);
+      // vế phải chỉ gồm a, b, số nguyên, +, −, ·, /, ngoặc; "2a" là 2 · a
+      const ve = (t) => { const e = t.replace(/·/g, "*").replace(/−/g, "-").replace(/(\d)([ab])/g, "$1*$2"); assert.ok(/^[\dab+\-*/ ()]+$/.test(e), "vế phải lạ: " + t); return Function("a", "b", "return " + e)(a, b); };
+      return q.o.map((s) => { const k = /^log([₀-₉]+) ?(\d+|\(\d+\/\d+\)) = (.+)$/.exec(s); assert.ok(k, "mệnh đề lạ: " + s);
+        const v = lg(co(k[1]), Function("return " + k[2])()), w = ve(k[3]); assert.ok(Math.abs(v - w) < 1e-9 || Math.abs(v - w) > 0.05, "hai vế sát nhau: " + s); return Math.abs(v - w) < 1e-9; }); } },
+    { has: "Một chậu trồng cây có dạng khối chóp cụt tứ giác đều", right: (q) => { const [a] = nhom(q, /cạnh đáy lớn (\d+) cm/), [b] = nhom(q, /cạnh đáy nhỏ (\d+) cm/), [h] = nhom(q, /chậu cao (\d+) cm/);
+      const V = (h / 3) * (a * a + a * b + b * b); assert.ok(Math.abs(tp((z) => (b + ((a - b) * z) / h) ** 2, 0, h) - V) < 1e-6, "khớp tích phân thiết diện"); return V / 1000; } },
+    { has: "Hai cột cờ thẳng đứng cao", right: (q) => { const [h1, h2] = nhom(q, /cao (\d+) m và (\d+) m/), [d] = nhom(q, /cách nhau (\d+) m/);
+      const L = (x) => Math.sqrt(x * x + h1 * h1) + Math.sqrt((d - x) ** 2 + h2 * h2); return Math.min(...[0, d, ...nghiem((x) => daoHamSo(L, x), 0, d)].map(L)); } },
+    { has: "Một chiếc xe đồ chơi chạy trên một đường ray thẳng", right: (q) => { const v = hamDe(q, /vận tốc của xe là v\(t\) = (.+) \((?:m|cm)\/s\)/), [T] = nhom(q, /trong (\d+) giây đầu tiên/); return tpAbs(v, 0, T); } },
+    { has: "Một chiếc camera đặt tại điểm A(4; 1; 0)", right: (q) => { const d = dt(/d: (\{.+?\})\./.exec(q.q)[1]), w = vCross(vSub(ptDe(q, "A"), d.P), d.u); return Math.sqrt(toNum(div(vDot(w, w), vDot(d.u, d.u)))); } },
+    { has: "Một đội bóng đá thi đấu 40% số trận trên sân nhà", right: (q) => { const [nha, khach] = nhom(q, /thi đấu (\d+)% số trận trên sân nhà và (\d+)% số trận trên sân khách/), m = /chiến thắng là (0,\d+) với một trận trên sân nhà và là (0,\d+) với một trận trên sân khách/.exec(q.q);
+      assert.equal(nha + khach, 100); const mo = moHinh({ A: F(nha, 100), BA: fr(m[1]), BAc: fr(m[2]) }); return toNum(xacSuat(mo, "A | B")); } },
+    { has: "Một quả bóng bay hình cầu đang được bơm khí", right: (q) => { const r = hamDe(q, /r\(t\) = (.+) \(cm\)/), [t0] = nhom(q, /tại thời điểm t = (\d+)/), V = (t) => (4 / 3) * Math.PI * r(t) ** 3; return daoHamSo(V, t0); } },
+  ],
+  "toan12-tn-de10": [
+    { has: "Hàm số nào dưới đây không có điểm cực trị?", right: (q) => theo(q, /^y = (.+)$/, (k) => cucTri(rf(k[1])).length === 0) },
+    { has: "Tổng số đường tiệm cận đứng và tiệm cận ngang của đồ thị hàm số đã cho là", right: (q) => { const b = doc(q, docBBT, "BBT Đề 10"), f = rf("x/(x² − 1)"); khopBBT(b, f, "BBT Đề 10");
+      const dung = b.mark.filter((m, i) => m === "‖" && b.val[i].some((t) => /∞/.test(t))).length, ngang = new Set([b.val[0][0], b.val[b.val.length - 1][1]].filter((t) => !/∞/.test(t))).size, t = tiemCan(f);
+      assert.equal(dung + ngang, t.dung.length + (t.ngang ? 1 : 0), "đếm từ bảng khớp hàm số"); return theo(q, /^(\d+)$/, (k) => +k[1] === dung + ngang); } },
+    { has: "Biết F(x) là một nguyên hàm của hàm số f(x) = 2/x trên khoảng (0; +∞) và F(1) = 3", right: (q) => { const f = hamDe(q, /f\(x\) = (.+) trên khoảng/), m = /F\((\d+)\) = (\d+)\. Giá trị của F\((.+)\) bằng$/.exec(q.q);
+      return theoSo(q, +m[2] + tp(f, +m[1], hang(m[3]))); } },
+    { has: "Tích phân từ π/2 đến π của hàm số f(x) = 2x + sin x bằng", right: (q) => theoSo(q, tpChu(q)) },
+    { has: "điểm đối xứng với điểm M(4; −3; 1) qua mặt phẳng (Oxz)", right: (q) => { const M = ptDe(q, "M"), [, mp_] = /qua mặt phẳng \((O[xyz]{2})\)/.exec(q.q), i = ["x", "y", "z"].findIndex((c) => !mp_.includes(c));
+      const N = M.map((v, j) => (j === i ? neg(v) : v)); assert.ok(eq(vDot(vSub(N, M), [0, 1, 2].map((j) => F(j === i ? 0 : 1))), F(0)), "MM′ vuông góc với mặt phẳng"); return theo(q, /^(\(.+\))$/, (k) => vEq(bo3(k[1]), N)); } },
+    { has: "Thời gian sạc đầy pin (phút) của 40 chiếc điện thoại", right: (q) => { const M = mauBang(doc(q, docBang, "bảng Đề 10"), 1); assert.equal(coMau(M), so(q, /của (\d+) chiếc điện thoại/));
+      const sd = Math.sqrt(toNum(phuongSai(M))); return theo(q, /^(.+)$/, (k) => lamTron(sd, 2) === toNum(fr(k[1]))); } },
+    { has: "Nghiệm của phương trình log₃(x + 2) + log₃(x − 4) = 3 là", right: (q) => { const m = /phương trình (.+) = (\d+) là$/.exec(q.q), g0 = hs(m[1].replace(/log₃\(([^()]+)\)/g, "(ln($1)/ln 3)")), c = +m[2];
+      const r = nghiem((x) => g0(x) - c, 0, 60); return theo(q, /^x = (.+)$/, (k) => cungTap([hang(k[1])], r)); } },
+    { has: "Hàm số y = cos x đồng biến trên khoảng nào dưới đây?", right: (q) => { const f = hamDe(q, /Hàm số y = (.+) đồng biến/);
+      return theo(q, /^\((.+); (.+)\)$/, (k) => { const a = hang(k[1]), b = hang(k[2]); for (let i = 1; i < 400; i++) if (!(daoHamSo(f, a + ((b - a) * i) / 400) > 0)) return false; return true; }); } },
+    { has: "Người ta xếp các khúc gỗ thành một chồng", right: (q) => { const [n1] = nhom(q, /hàng dưới cùng có (\d+) khúc/), [d] = nhom(q, /ít hơn hàng ngay dưới nó (\d+) khúc/), [n2] = nhom(q, /hàng trên cùng có (\d+) khúc/);
+      let S = 0; for (let k = n1; k >= n2; k -= d) S += k; return theo(q, /^(\d+)$/, (m) => +m[1] === S); } },
+    { has: "Hỏi MN song song với mặt phẳng nào trong bốn mặt phẳng sau?", right: (q) => { const P = R3({ S: [4, 2, 5], A: [0, 0, 0], B: [6, 0, 0], C: [8, 4, 0], D: [2, 4, 0] }); assert.ok(vEq(vSub(P.B, P.A), vSub(P.C, P.D)), "ABCD là hình bình hành");
+      const [k1, k2] = nhom(q, /SM = (\d+)MA, SN = (\d+)NB/), M = vAdd(P.S, vScale(vSub(P.A, P.S), F(k1, k1 + 1))), N = vAdd(P.S, vScale(vSub(P.B, P.S), F(k2, k2 + 1))), MN = vSub(N, M);
+      return theo(q, /^\(([A-Z])([A-Z])([A-Z])\)$/, (k) => { const n = nPhang(P, k[1], k[2], k[3]); return eq(vDot(MN, n), F(0)) && !eq(vDot(vSub(M, P[k[1]]), n), F(0)); }); } },
+    { has: "Đạo hàm của hàm số y = √(4x + 1) là", right: (q) => { const f = hamDe(q, /y = (.+) là$/), xs = [0.2, 0.9, 1.7, 2.6, 3.3];
+      return theo(q, /^y′ = (.+)$/, (k) => { const g = hs(k[1]); return xs.every((x) => Math.abs(daoHamSo(f, x) - g(x)) < 1e-6 * Math.max(1, Math.abs(g(x)))); }); } },
+    { has: "elip (E): x²/25 + y²/9 = 1 có tiêu cự bằng", right: (q) => { const [a2, b2] = nhom(q, /x²\/(\d+) \+ y²\/(\d+) = 1/); assert.ok(a2 > b2); return theoSo(q, 2 * Math.sqrt(a2 - b2)); } },
+    { has: "đồ thị của hàm số y = f′(x) là đường parabol trong hình vẽ", right: (q) => { const g = doc(q, docDoThi, "đồ thị f′ Đề 10"), fp = rf("−x² + 2x + 3"), f = rf("−x³/3 + x² + 3x");
+      assert.ok(khopDoThi(g, fp), "đồ thị f′ không khớp hàm số"); assert.ok(rfEq(rfDer(f), fp)); g.dots.forEach(([x, y]) => assert.ok(Math.abs(rfEvalF(fp, x) - y) < 0.02, "chấm tròn không nằm trên đồ thị"));
+      return q.o.map((s) => { let m;
+        if ((m = /^Hàm số f (đồng|nghịch) biến trên khoảng (\(.+\))$/.exec(s))) { const [a, b] = khoang(m[2]); return donDieuTren(f, a, b, m[1] === "đồng" ? 1 : -1); }
+        if ((m = /^f đạt cực (tiểu|đại) tại x = (.+)$/.exec(s))) return cucTri(f).some((c) => c.loai === (m[1] === "tiểu" ? "CT" : "CĐ") && eq(c.x, fr(m[2])));
+        if ((m = /^Trên đoạn \[(.+); (.+)\], hàm số f đạt giá trị (lớn|nhỏ) nhất tại x = (.+)$/.exec(s))) { const gt = gtTrenDoan(f, fr(m[1]), fr(m[2])); return eq(rfEval(f, fr(m[4])), m[3] === "lớn" ? gt.max : gt.min); }
+        if ((m = /^f\((.+)\) (<|>) f\((.+)\)$/.exec(s))) { const d = cmp(rfEval(f, fr(m[1])), rfEval(f, fr(m[3]))); return m[2] === "<" ? d < 0 : d > 0; }
+        throw new Error("mệnh đề lạ: " + s); }); } },
+    { has: "Một bộ phát wifi gắn trên trần tại điểm I", right: (q) => { const I = ptDe(q, "I"), [R] = nhom(q, /bán kính (\d+) m;/), c = { I, R2: F(R * R) };
+      return q.o.map((s) => { const m = /^Phần sàn phòng nhận được sóng ổn định là một hình tròn có bán kính (\d+) m$/.exec(s); if (!m) return menhDeCau(c)(s);
+        const d2 = mul(I[2], I[2]); assert.ok(cmp(d2, c.R2) < 0, "mặt cầu cắt sàn"); return eq(sub(c.R2, d2), F(+m[1] * +m[1])); }); } },
+    { has: "Một khảo sát chọn ngẫu nhiên các gia đình có đúng hai con", right: (q) => { const om = [["trai", "trai"], ["trai", "gái"], ["gái", "trai"], ["gái", "gái"]];
+      const SK = { "đúng một con trai": (p) => p.filter((x) => x === "trai").length === 1, "ít nhất một con trai": (p) => p.includes("trai"), "hai con trai": (p) => p[0] === "trai" && p[1] === "trai", "con đầu là con trai": (p) => p[0] === "trai", "hai con cùng giới tính": (p) => p[0] === p[1] };
+      const sk = (t) => { const f = SK[t.replace(/^gia đình có /, "").replace(/^./, (c) => c.toLowerCase())]; assert.ok(f, "biến cố lạ: " + t); return f; };
+      const P = (f) => F(om.filter(f).length, om.length), Pdk = (f, g) => F(om.filter((p) => f(p) && g(p)).length, om.filter(g).length);
+      return q.o.map((s) => { let m;
+        if ((m = /^Xác suất gia đình có (.+) bằng (.+)$/.exec(s))) return eq(P(sk(m[1])), fr(m[2]));
+        if ((m = /^Biết (.+), xác suất gia đình có (.+) bằng (.+)$/.exec(s))) return eq(Pdk(sk(m[2]), sk(m[1])), fr(m[3]));
+        if ((m = /^Biến cố “(.+)” và biến cố “(.+)” (không )?độc lập$/.exec(s))) { const f = sk(m[1]), g = sk(m[2]), dl = eq(P((p) => f(p) && g(p)), mul(P(f), P(g))); return m[3] ? !dl : dl; }
+        throw new Error("mệnh đề lạ: " + s); }); } },
+    { has: "Một hệ thống chiếu sáng gồm hai bóng đèn mắc song song", right: (q) => { const [p1, p2] = nhom(q, /bóng thứ nhất bị hỏng là (0,\d+), xác suất bóng thứ hai bị hỏng là (0,\d+)/);
+      const V = { "Xác suất cả hai bóng đều bị hỏng sau một năm là": p1 * p2, "Xác suất hệ thống còn sáng sau một năm là": 1 - p1 * p2, "Xác suất có đúng một bóng bị hỏng sau một năm là": p1 * (1 - p2) + (1 - p1) * p2 }, noiTiep = (1 - p1) * (1 - p2);
+      return q.o.map((s) => { let m;
+        if ((m = /^(.+ là) (0,\d+)$/.exec(s)) && V[m[1]] !== undefined) return gan(V[m[1]], toNum(fr(m[2])));
+        if ((m = /^Nếu mắc nối tiếp hai bóng \(hệ thống chỉ sáng khi cả hai bóng sáng\) thì xác suất hệ thống còn sáng sau một năm (lớn hơn|nhỏ hơn) (.+)$/.exec(s))) { const v = toNum(fr(m[2])); assert.ok(Math.abs(noiTiep - v) > 0.01, "sát ngưỡng"); return m[1] === "lớn hơn" ? noiTiep > v : noiTiep < v; }
+        throw new Error("mệnh đề lạ: " + s); }); } },
+    { has: "Tính góc giữa đường thẳng A′B và mặt phẳng (ACC′A′)", right: (q) => { const [b] = nhom(q, /AB = (\d+)/), [c] = nhom(q, /AC = (\d+)/), [h] = nhom(q, /AA′ = (\d+)/);
+      const P = R3({ A: [0, 0, 0], B: [b, 0, 0], C: [0, c, 0], "A′": [0, 0, h], "C′": [0, c, h] }); return gocDTMP(vn(vSub(P.B, P["A′"])), vn(nPhang(P, "A", "C", "C′"))); } },
+    { has: "Độ sâu của nước tại một cầu cảng", right: (q) => { const h = hamDe(q, /h\(t\) = (.+) \(m\), 0 ≤ t/), [T] = nhom(q, /0 ≤ t ≤ (\d+)\./), [c] = nhom(q, /không nhỏ hơn (\d+(?:,\d+)?) m/);
+      const z = [0, ...nghiem((t) => h(t) - c, 0, T), T]; let s = 0; for (let i = 1; i < z.length; i++) if (h((z[i - 1] + z[i]) / 2) >= c) s += z[i] - z[i - 1]; return s; } },
+    { has: "Một màn hình quảng cáo treo thẳng đứng trên tường", right: (q) => { const [a] = nhom(q, /mép dưới cao hơn tầm mắt của người xem (\d+(?:,\d+)?) m/), [b] = nhom(q, /mép trên cao hơn tầm mắt người xem (\d+(?:,\d+)?) m/);
+      const r = cucSo((x) => Math.atan(b / x) - Math.atan(a / x), 0.01, 50); assert.ok(Math.abs(r.x - Math.sqrt(a * b)) < 1e-6, "khớp x = √(ab)"); return r.x; } },
+    { has: "Ở một trung tâm ngoại ngữ, 30% học viên học trực tuyến", right: (q) => { const [a] = nhom(q, /trung tâm ngoại ngữ, (\d+)% học viên học trực tuyến/), [p1, p2] = nhom(q, /học trực tuyến là (\d+)%, của học viên học trực tiếp là (\d+)%/);
+      const mo = moHinh({ A: F(a, 100), BA: F(100 - p1, 100), BAc: F(100 - p2, 100) }); return toNum(xacSuat(mo, "A | B")); } },
+    { has: "Một khúc gỗ có dạng khối trụ với bán kính đáy 3 dm", right: (q) => { const [R] = nhom(q, /bán kính đáy (\d+) dm/), [H] = nhom(q, /chiều cao (\d+) dm/), [g] = nhom(q, /một góc (\d+)°/), k = Math.tan((g * Math.PI) / 180);
+      assert.ok(R * k < H, "mặt phẳng cắt không chạm mặt trên của khối trụ"); const V = tp((x) => ((R * R - x * x) * k) / 2, -R, R); assert.ok(Math.abs(V - (2 / 3) * R ** 3 * k) < 1e-9); return V; } },
+    { has: "đường ống cấp nước chính nằm trên đường thẳng d", right: (q) => { const d = dt(/d: (\{.+?\})\./.exec(q.q)[1]), A = vn(ptDe(q, "A")), B = vn(ptDe(q, "B")), P0 = vn(d.P), u = vn(d.u);
+      const M = (t) => P0.map((x, i) => x + t * u[i]), L = (t) => lenR(M(t).map((x, i) => x - A[i])) + lenR(M(t).map((x, i) => x - B[i])), r = cucSo(L, -20, 20, false);
+      assert.ok(r.x > -19 && r.x < 19, "điểm nhỏ nhất nằm trong đoạn xét"); return r.v; } },
+  ],
 };
 
 /* ---------- đề và danh mục: số đề, số câu lấy từ danh mục ---------- */
@@ -1410,8 +1584,8 @@ DE.forEach((b) => {
   // lời giải không nói “phương án A”, “ý thứ hai”: app xáo phương án
   qs.forEach((q) => assert.ok(!/(ý|phương án|lựa chọn) (thứ|số) (nhất|hai|ba|tư|\d)|phương án [A-D]\b/.test(q.x), at + ": lời giải nhắc vị trí của phương án: " + q.q.slice(0, 50)));
 });
-// kiểu Đ/S của cả các đề thi thử: mỗi kiểu nhiều nhất hai lần
-assert.ok(Object.values(KIEU).every((c) => c <= 2), "một kiểu Đ/S dùng quá hai lần trong các đề thi thử: " + JSON.stringify(KIEU));
+// kiểu Đ/S của cả các đề thi thử: mỗi kiểu nhiều nhất ba lần (Phiên N12-tn-toan-c: mười đề có 40 câu đúng/sai, 14 kiểu trừ ĐĐĐĐ, SSSS)
+assert.ok(Object.values(KIEU).every((c) => c <= 3), "một kiểu Đ/S dùng quá ba lần trong các đề thi thử: " + JSON.stringify(KIEU));
 // đáp án không lặp chữ của nhãn chủ đề (trừ khi mọi lựa chọn cùng có chữ đó)
 { const phanNhan = (t) => t.replace(/^Lớp 1[01] · /, "").replace(/\s*\([^)]*\)$/, "").split(/ và |, |\. /).map((s) => s.trim().toLowerCase()).filter((s) => s.includes(" ") || s.length >= 6);
   DE.forEach((b) => b.questions.forEach((q, i) => { if (q.type !== "mc") return; phanNhan(q.topic).forEach((c) => { if (q.o[0].toLowerCase().includes(c)) assert.ok(q.o.every((o) => o.toLowerCase().includes(c)), `${b.id}#${i + 1}: đáp án “${q.o[0]}” lặp chữ “${c}” của nhãn chủ đề`); }); })); }
