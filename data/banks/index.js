@@ -1666,6 +1666,16 @@ window.ONTAP_SEED_BANKS = [
       "Phương trình đường thẳng trong không gian": [1, 0, 0], "Công thức tính góc trong không gian": [2, 1, 1], "Phương trình mặt cầu": [2, 2, 1],
       "Xác suất có điều kiện": [1, 2, 1], "Công thức xác suất toàn phần và công thức Bayes": [1, 1, 2] } } },
 
+  /* Toán 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên K5; Phiên N12-tn-toan). Khung đề tốt nghiệp THPT từ năm 2025 (Quyết định 764/QĐ-BGDĐT): 90
+     phút, 10 điểm, 22 câu: Phần I 12 câu nhiều lựa chọn (3 điểm), Phần II 4 câu đúng/sai 4 ý (4 điểm), Phần III 6 câu trả lời ngắn (3
+     điểm). App chấm tự động cả ba phần như đề thật. Phạm vi chủ yếu Toán 12 cả năm, phần còn lại Toán 11 và một câu Toán 10 (ma trận đề
+     tham khảo năm 2025). Đề cố định, không có đề ngẫu nhiên (pts không đi với pool); cách viết ở đầu phần đề này trong
+     data/banks/12-toan.js. Khối 12 chưa bật nên đề chưa hiện với gia đình. */
+  { id: "toan12-tn-de1", title: "Toán 12 · Thi thử tốt nghiệp · Đề 1", grade: 12, subject: "Toán", minutes: 90, n: 22, file: "12-toan.js", pts: 10 },
+  { id: "toan12-tn-de2", title: "Toán 12 · Thi thử tốt nghiệp · Đề 2", grade: 12, subject: "Toán", minutes: 90, n: 22, file: "12-toan.js", pts: 10 },
+  { id: "toan12-tn-de3", title: "Toán 12 · Thi thử tốt nghiệp · Đề 3", grade: 12, subject: "Toán", minutes: 90, n: 22, file: "12-toan.js", pts: 10 },
+  { id: "toan12-tn-de4", title: "Toán 12 · Thi thử tốt nghiệp · Đề 4", grade: 12, subject: "Toán", minutes: 90, n: 22, file: "12-toan.js", pts: 10 },
+
   /* Ngữ văn 12 · Kiểm tra cuối năm học (Kết nối tri thức, Ngữ văn 12 tập hai, Bài 6–9, trọng tâm Bài 8–9; Phiên N12-ck2-van). Khối 12
      chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (mỗi đề 4 đoạn đọc, 1 câu Viết) + 2 câu
      Viết riêng trong file, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu như kho Ngữ văn 9 cuối năm: bốn chủ
