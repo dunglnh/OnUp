@@ -3372,7 +3372,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     r.recap = (await ftxt("#recap p")) === `You have answered all ${r.test.n} questions. Review or finish the test.`;
     await fr.click("#endBtn"); await fr.waitForSelector("#resBtns");
     r.result = await fr.evaluate(() => ({ score: document.querySelector(".score").textContent, reps: window.__reps.map((x) => [x.label, x.mode, x.subject, x.r, x.t].join("|")) }));
-    r.saved = await p.evaluate(([id, label]) => { const rs = JSON.parse(localStorage.getItem("ontap_db_v1")).results.filter((x) => x.userId === id && x.refId === "ioe-6"); const z = rs[rs.length - 1]; return !!z && z.label === label && z.r === 30 && z.t === 30 && z.source === "module"; }, [ids.Na, t.label]);
+    // app lưu điểm khi nhận tin nhắn của khung (postMessage), có lúc sau khi #resBtns đã hiện: chờ tối đa 5 giây, không đọc ngay (Phiên N12-tn-toan-b)
+    r.saved = await p.waitForFunction(([id, label]) => { const rs = JSON.parse(localStorage.getItem("ontap_db_v1")).results.filter((x) => x.userId === id && x.refId === "ioe-6"); const z = rs[rs.length - 1]; return !!z && z.label === label && z.r === 30 && z.t === 30 && z.source === "module"; }, [ids.Na, t.label], { timeout: 5000 }).then(() => true, () => false);
     await check("kết quả"); await snap("ket-qua");
     // đề sau: tiếng lỗi thì mọi câu nghe còn trống thành câu đọc của School Level (X27)
     await fr.click("#resBtns .btn.main"); await fr.waitForSelector("#endBtn", { timeout: 15000 });
@@ -3529,7 +3530,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       }
       if (!res) { await fr.evaluate(() => renderHome()).catch(() => {}); console.log("n-ioe", scheme, M.m, JSON.stringify(r)); continue; }
       r.result = await fr.evaluate(() => ({ score: document.querySelector(".score").textContent, reps: window.__reps.map((x) => [x.label, x.mode, x.subject, x.r, x.t].join("|")) }));
-      r.saved = await p.evaluate(([id, m, label]) => { const rs = JSON.parse(localStorage.getItem("ontap_db_v1")).results.filter((x) => x.userId === id && x.refId === m); const z = rs[rs.length - 1]; return !!z && z.label === label && z.r === 30 && z.t === 30 && z.source === "module"; }, [ids[M.who], M.m, t.label]);
+      // như bước 9s: chờ app lưu điểm từ tin nhắn của khung, tối đa 5 giây
+      r.saved = await p.waitForFunction(([id, m, label]) => { const rs = JSON.parse(localStorage.getItem("ontap_db_v1")).results.filter((x) => x.userId === id && x.refId === m); const z = rs[rs.length - 1]; return !!z && z.label === label && z.r === 30 && z.t === 30 && z.source === "module"; }, [ids[M.who], M.m, t.label], { timeout: 5000 }).then(() => true, () => false);
       r.label = t.label;
       await check("kết quả"); await snap("ket-qua");
       // màu sáng: mở lần lượt mọi câu của NATIONAL, NATIONAL_L (lượt luyện tập dựng từ BANKS.N, Skip từng câu), audit chữ đè ở từng câu
