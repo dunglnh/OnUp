@@ -1730,13 +1730,15 @@ window.ONTAP_SEED_BANKS = [
       "Unit 8 · Wildlife Conservation": [2, 1, 1], "Unit 9 · Career Paths": [2, 1, 1], "Unit 10 · Lifelong Learning": [1, 1, 1],
       "Cloze": [1, 1, 1], "Reading": [1, 1, 1] } } },
 
-  /* Tiếng Anh 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên K5; Phiên N12-tn-ta: Đề 1–2). Khung đề tốt nghiệp THPT từ năm 2025
+  /* Tiếng Anh 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên K5; Phiên N12-tn-ta: Đề 1–2; Phiên N12-tn-ta-b: Đề 3–4). Khung đề tốt nghiệp THPT từ năm 2025
      (Quyết định 764/QĐ-BGDĐT), đề năm 2026 giữ nguyên: 40 câu nhiều lựa chọn, 50 phút, 10 điểm, mỗi câu 0,25 điểm; Part I câu 1–12
-     (điền vào quảng cáo, tờ rơi), Part II câu 13–17 (sắp xếp), Part III câu 18–22 (điền câu vào đoạn văn), Part IV câu 23–40 (hai bài
+     (điền vào quảng cáo hoặc thông báo, tờ rơi), Part II câu 13–17 (sắp xếp), Part III câu 18–22 (điền câu vào đoạn văn), Part IV câu 23–40 (hai bài
      đọc). App chấm tự động cả đề. Phạm vi Global Success 10–12, chủ yếu lớp 12. Đề cố định, không có đề ngẫu nhiên (pts không đi với
      pool); cách viết ở đầu phần đề này trong data/banks/12-ta.js. Khối 12 chưa bật nên đề chưa hiện với gia đình. */
   { id: "ta12-tn-de1", title: "Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 1", grade: 12, subject: "Tiếng Anh", minutes: 50, n: 40, file: "12-ta.js", pts: 10 },
   { id: "ta12-tn-de2", title: "Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 2", grade: 12, subject: "Tiếng Anh", minutes: 50, n: 40, file: "12-ta.js", pts: 10 },
+  { id: "ta12-tn-de3", title: "Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 3", grade: 12, subject: "Tiếng Anh", minutes: 50, n: 40, file: "12-ta.js", pts: 10 },
+  { id: "ta12-tn-de4", title: "Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 4", grade: 12, subject: "Tiếng Anh", minutes: 50, n: 40, file: "12-ta.js", pts: 10 },
 
   /* Vật lí 12 · Kiểm tra cuối năm học (Kết nối tri thức, Vật lí 12, Chương III Từ trường Bài 14–20 và Chương IV Vật lí hạt nhân Bài
      21–25, trọng tâm Chương IV; Phiên N12-ck2-vatli-hoahoc). Khối 12 chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Trường
