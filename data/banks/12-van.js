@@ -861,7 +861,7 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
     },
     questions: [
       { part: "Phần I. Đọc hiểu", topic: "Đọc hiểu kí", type: "fill", p: "rua-bat", q: "Theo văn bản, tối hôm người viết xin đi làm, mẹ lấy trong tủ ra chiếc ___ bạc màu, khâu lại sợi dây buộc đã sờn.",
-        ans: ["tạp dề"], x: "Văn bản kể: «Tối hôm ấy, mẹ lấy trong tủ ra chiếc tạp dề bạc màu, khâu lại sợi dây buộc đã sờn, rồi gấp vuông vức đặt ở đầu giường tôi.» Mẹ không nói một lời, nhưng việc làm lặng lẽ ấy là cách mẹ ủng hộ, chuẩn bị cho con trước buổi đi làm đầu tiên.", lv: 1, pt: 0.5 },
+        ans: ["tạp dề"], x: "Văn bản kể: «Tối hôm ấy, mẹ lấy trong tủ ra chiếc tạp dề bạc màu, khâu lại sợi dây buộc đã sờn, rồi gấp vuông vức đặt ở đầu giường tôi.» Chiếc tạp dề được mẹ chuẩn bị sẵn cho buổi đi làm đầu tiên của con.", lv: 1, pt: 0.5 },
       { part: "Phần I. Đọc hiểu", topic: "Đọc hiểu kí", type: "mc", p: "rua-bat", q: "Theo văn bản, khi người viết đánh vỡ chồng bát, việc đầu tiên cô Thoa làm là gì?",
         o: ["Cầm hai bàn tay người viết lên xem có chỗ nào bị đứt", "Nhặt từng mảnh vỡ, đếm xem đã vỡ mất bao nhiêu chiếc bát", "Gọi mẹ người viết tới quán để bàn chuyện đền tiền bát", "Bảo người viết về nhà nghỉ, hôm sau hẵng đi làm"],
         x: "Văn bản kể: «Việc đầu tiên cô làm là cầm lấy hai bàn tay tôi, lật đi lật lại xem có chỗ nào bị đứt không.» Trước đống mảnh sứ, điều cô Thoa lo đầu tiên là đứa trẻ làm cho quán mình có bị thương không; mười hai chiếc bát là chuyện để sau.", lv: 1, pt: 0.5 },
