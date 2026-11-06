@@ -1,5 +1,5 @@
 // Kiểm tra các đề Ngữ văn thi thử tốt nghiệp THPT (data/banks/12-van.js, van12-tn-de<N>; Phiên N12-tn-van: Đề 1–2; Phiên N12-tn-van-b:
-// Đề 3–4; phiên thêm đề thì mở rộng script này). Đề tính điểm (Phiên K5), khung đề tốt nghiệp THPT từ năm 2025 (Quyết định 764/QĐ-BGDĐT; docs/KE-HOACH-NOI-DUNG.md,
+// Đề 3–4; Phiên N12-tn-van-c: Đề 5; phiên thêm đề thì mở rộng script này). Đề tính điểm (Phiên K5), khung đề tốt nghiệp THPT từ năm 2025 (Quyết định 764/QĐ-BGDĐT; docs/KE-HOACH-NOI-DUNG.md,
 // mục 2 và mục 7, nhóm “Trước 10/12/2026: lớp 12, đề thi thử tốt nghiệp”). Số đề, số câu lấy từ danh mục (không ghi cứng).
 // Kiểm tra từng đề: danh mục (tên, khối, môn, file, 120 phút, pts 10, gắn vào tn-thpt-2027); hai phần đúng tên, đúng thứ tự; Phần I đọc
 // hiểu 4 điểm, mọi câu dùng một đoạn đọc (văn bản người soạn viết, khoảng 350–1 100 tiếng; bài thơ 120–450 tiếng): câu chấm tự động pt
@@ -19,8 +19,9 @@
 // không lặp kiểu Đ/S.
 // Đọc lại bằng code: bài thơ người soạn viết (THO, như tests/van9-vao10.js: số tiếng mỗi dòng, khổ bốn dòng, kiểu vần chân; thơ tự do),
 // đáp án các câu tính được từ chữ của đoạn đọc (CHECKS: nhận ra câu bằng một đoạn chữ của đề, đúng một câu; bảng số liệu của văn bản
-// thông tin đọc lại từng dòng, cộng lại bằng dòng tổng cộng; phép chia “a/b ≈ c%” trong lời giải tính lại), mọi câu trích trong «» ở đề
-// bài, lựa chọn và lời giải câu chấm tự động có trong văn bản đọc hiểu của đề (trừ câu trích ngoài văn bản ghi ở NGOAI).
+// thông tin đọc lại từng dòng, cộng lại bằng dòng tổng cộng; phép chia “a/b ≈ c%” trong lời giải tính lại; bài kí: người viết xưng «tôi»,
+// kể điều chính mình trải qua), mọi câu trích trong «» ở đề bài, lựa chọn và lời giải câu chấm tự động có trong văn bản đọc hiểu của đề
+// (trừ câu trích ngoài văn bản ghi ở NGOAI).
 // Rồi: đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa chọn dài nhất hay ngắn nhất ở không quá một phần ba số câu nhiều lựa chọn,
 // không là lựa chọn duy nhất có chữ của nhãn chủ đề; đề “Ôn chủ đề” lấy hết câu của chủ đề; dò lộ đáp án (chuỗi 3 từ liền nhau của đáp
 // án; đáp án ngắn thì cả đáp án) giữa mọi cặp câu của một đề, với note, và giữa các câu cùng chủ đề của các đề khác nhau (đề “Ôn chủ đề”
@@ -63,13 +64,14 @@ const VAN_DE = {
   "van12-tn-de1": ["sự kiên nhẫn của người trẻ", "kiên nhẫn"],
   "van12-tn-de2": ["văn hoá ứng xử trên mạng xã hội của người trẻ", "ứng xử trên mạng"],
   "van12-tn-de3": ["tinh thần học tập suốt đời", "học tập suốt đời"],
-  "van12-tn-de4": ["thói quen «dùng rồi bỏ» của người trẻ", "dùng rồi bỏ"]
+  "van12-tn-de4": ["thói quen «dùng rồi bỏ» của người trẻ", "dùng rồi bỏ"],
+  "van12-tn-de5": ["việc người trẻ đi làm thêm khi còn đang đi học", "làm thêm"]
 };
 // bài thơ người soạn viết: mã đoạn → [số tiếng mỗi dòng, kiểu vần chân của mọi khổ bốn dòng]; thơ tự do: [0, "tu-do"]
 const THO = { "hoc-tro": [8, "lien"] };
 const THE = { 5: "Thơ năm chữ", 6: "Thơ sáu chữ", 7: "Thơ bảy chữ", 8: "Thơ tám chữ" };
 // thể loại cụ thể của văn bản Phần I (thể thơ thì tính từ THO): các đề không lặp thể loại cụ thể
-const LOAI = { "lua-nguoi": "truyện ngắn", "dau-chan": "văn bản nghị luận xã hội", "sua-do": "văn bản thông tin" };
+const LOAI = { "lua-nguoi": "truyện ngắn", "dau-chan": "văn bản nghị luận xã hội", "sua-do": "văn bản thông tin", "rua-bat": "tản văn" };
 const LOAI_CUA = { truyện: /^truyện /, kí: /^(du kí|hồi kí|bút kí|tuỳ bút|tản văn|phóng sự)$/, kịch: /^(bi kịch|hài kịch|chính kịch)$/, "văn bản": /^văn bản (nghị luận|thông tin)( |$)/ };
 // câu trích trong «» ở đề bài không lấy từ văn bản đọc hiểu (thành ngữ đem so sánh ở câu Vận dụng; đoạn thơ người soạn viết đem so sánh
 // ở câu viết đoạn văn so sánh, đánh giá của Đề 3, các dòng ngăn bằng “/”)
@@ -141,6 +143,8 @@ DE.forEach((b) => {
     assert.ok(LOAI[ps[0]] && LOAI_CUA["văn bản"].test(LOAI[ps[0]]), `${at}: loại văn bản «${tenVanBan(psg)}» ghi ở LOAI`);
     assert.equal(tp[0], DOC_VB[loaiVanBan(b)], `${at}: chủ đề Phần I khớp loại văn bản ở LOAI`);
   } else assert.equal(tp[0], DOC[tl], `${at}: chủ đề Phần I khớp thể loại ghi ở tên đoạn đọc`);
+  // bài kí (Ngữ văn 11, Bài 7; Ngữ văn 12, Bài 7): người viết xưng «tôi», kể điều chính mình trải qua, chứng kiến
+  if (tl === "kí") assert.ok((psg.text.match(/(^|[^\p{L}])[Tt]ôi(?![\p{L}])/gu) || []).length >= 10, `${at}: bài kí, người viết xưng «tôi»`);
   const ngan = doc.filter((q) => q.type === "essay"), tu = doc.filter((q) => q.type !== "essay");
   assert.ok(ngan.length <= 2, at + ": nhiều nhất hai câu tự luận ngắn ở Phần I");
   ngan.forEach((q) => {
@@ -393,7 +397,44 @@ const CHECKS = [
     const t = chuDoan(q), { tong } = bangSua(q), m = /(\d+) lần chủ đồ tự tay/.exec(t), b = /nhóm mở (\d+) buổi/.exec(t);
     assert.ok(m && +m[1] <= tong.sua && b && +b[1] <= 52, "số lần chủ đồ tự sửa không quá số món sửa được; số buổi không quá số Chủ nhật trong một năm");
     return null; } },
-  { has: "hãy bàn về thói quen «dùng rồi bỏ»", right: (q) => { co(q, "thói quen «dùng rồi bỏ»"); return null; } }
+  { has: "hãy bàn về thói quen «dùng rồi bỏ»", right: (q) => { co(q, "thói quen «dùng rồi bỏ»"); return null; } },
+  // Đề 5: bài kí (tản văn) «Mùa hè rửa bát»
+  { has: "mẹ lấy trong tủ ra chiếc ___ bạc màu", right: (q) => {
+    const m = [...chuDoan(q).matchAll(/mẹ lấy trong tủ ra chiếc ([\p{L} ]+?) bạc màu/gu)];
+    assert.equal(m.length, 1, "văn bản nói một lần về thứ mẹ lấy trong tủ ra");
+    assert.ok(co(q, "tôi xin vào làm ở quán phở") && co(q, "Mẹ không nói gì. Tối hôm ấy, mẹ lấy"), "tối hôm người viết xin đi làm, mẹ không nói gì mà lặng lẽ chuẩn bị");
+    return m[0][1]; } },
+  { has: "việc đầu tiên cô Thoa làm là gì", right: (q) => {
+    const t = chuDoan(q), vo = t.indexOf("Mười hai chiếc bát vỡ"), dau = t.indexOf("Việc đầu tiên cô làm là cầm lấy hai bàn tay tôi, lật đi lật lại xem có chỗ nào bị đứt không.");
+    assert.ok(vo >= 0 && dau > vo && t.indexOf("Cô Thoa chạy ra.") < dau, "việc đầu tiên cô Thoa làm sau khi bát vỡ: xem hai bàn tay người viết");
+    assert.ok(["đếm", "đền", "nghỉ", "hẵng"].every((x) => khongCo(q, x)), "văn bản không kể cô đếm bát, bắt đền, cho về nghỉ");
+    return motLuaChon(q, /^Cầm hai bàn tay người viết/); } },
+  { has: "Về việc người viết dùng đồng lương đầu tiên", right: (q) => {
+    const t = chuDoan(q), gat = co(q, "«Con mua làm gì, dép mẹ còn đi được.»");
+    return tf(q, [
+      [/mẹ đã dặn trước/, !(gat && khongCo(q, "dặn"))],
+      [/vốn định dành số tiền ấy/, co(q, "Tôi vốn định dành số tiền ấy mua chiếc tai nghe mình ao ước")],
+      [/vẫn còn tốt/, !co(q, "Đôi dép mẹ đang đi đã mòn vẹt gót, quai đã khâu lại hai lần.")],
+      [/mẹ vui hơn những gì mẹ nói ra/, gat && co(q, "sáng hôm sau, tôi thấy mẹ đi đôi dép mới ra chợ, bước chân như nhẹ hơn mọi ngày") && t.indexOf("Con mua làm gì") < t.indexOf("sáng hôm sau, tôi thấy mẹ")]]); } },
+  { has: "Đối chiếu với đoạn «Hai tháng ấy…»", right: (q) => {
+    const d = doanVan(q).find((x) => x.startsWith("Hai tháng ấy"));
+    assert.ok(d, "có đoạn mở đầu bằng «Hai tháng ấy»");
+    return tf(q, [
+      [/giàu lên trông thấy/, !d.includes("không làm tôi giàu lên được bao nhiêu")],
+      [/học được cách nấu/, !(d.includes("Nhưng nó cho tôi một cách nhìn khác.") && khongCo(q, "nấu"))],
+      [/công sức của những người thức dậy/, d.includes("sau mỗi bát phở nóng là những đôi tay đã thức dậy từ khi người khác còn ngủ")],
+      [/một lời cảm ơn hay một cái cau mày/, d.includes("một lời cảm ơn của khách có thể làm người bưng bát vui cả buổi sáng") && d.includes("một cái cau mày vì phở ra chậm có thể khiến người ta buồn đến tận trưa")]]); } },
+  { has: "Ông cụ trong văn bản chỉ nói một câu", right: (q) => {
+    const t = chuDoan(q), cau = t.indexOf("«Cho cháu đỡ một việc», ông bảo.");
+    assert.ok(cau >= 0 && t.indexOf("«", cau + 1) === t.indexOf("«Bát vỡ thì mua bát khác."), "ông cụ chỉ nói một câu; lời nói kế tiếp trong văn bản là của cô Thoa");
+    assert.ok(co(q, "tôi vẫn xếp đũa thìa gọn vào trong bát như ông cụ năm nào") && t.indexOf("Bây giờ tôi đã đi xa") > cau, "nhiều năm sau người viết vẫn làm như ông cụ (đoạn kết)");
+    return null; } },
+  { has: "phân tích việc kết hợp tự sự với trữ tình", right: (q) => {
+    const d = doanVan(q).find((x) => x.startsWith("Hai tháng ấy"));
+    assert.ok(d && (d.match(/Tôi biết/g) || []).length >= 3, "đoạn suy ngẫm có những câu «Tôi biết…» (dàn ý dẫn ra)");
+    assert.ok(co(q, "mặt nóng bừng") && co(q, "lòng mình dịu xuống"), "dàn ý dẫn những chữ có trong văn bản");
+    return null; } },
+  { has: "hãy bàn về việc người trẻ đi làm thêm", right: (q) => { co(q, "tôi xin vào làm ở quán phở"); return null; } }
 ];
 let nCheck = 0;
 CHECKS.forEach((c) => {
