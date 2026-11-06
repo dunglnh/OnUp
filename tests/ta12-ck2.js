@@ -723,8 +723,9 @@ fills.filter((q) => !canDo(q).nguPhap).forEach((q) => { const a = noi(q.ans[0]);
    này (mọi cặp câu cùng chủ đề có thể ra cùng lúc); Unit 6, 7 chung với kho giữa kì II; Pronunciation, Cloze, Reading chung với kho cuối
    kì I, giữa kì II (đoạn nào cũng có thể rút cùng nhau). Đáp án không trùng đáp án câu cùng chủ đề của hai kho đó; dò lộ như trên giữa mọi
    cặp câu cùng chủ đề có ít nhất một câu của kho này (cả câu của các đoạn khác nhau; đáp án là từ ngữ pháp chỉ dò trong cùng đoạn); chỗ đã
-   xem ghi ở DA_XEM_CHU_DE. */
-const khoKhac = BANKS.filter((b) => b.file === "12-ta.js" && !/^ta12-ck2-/.test(b.id)).flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id).map((q) => ({ q, b })));
+   xem ghi ở DA_XEM_CHU_DE. Các đề thi thử tốt nghiệp (ta12-tn-*, chung chủ đề Cloze, Reading) làm sau: tests/ta12-tn.js so các cặp câu
+   của các đề đó với kho này, nên ở đây chỉ so với kho cuối kì I, giữa kì II. */
+const khoKhac = BANKS.filter((b) => b.file === "12-ta.js" && /^ta12-(ck1|gk2)-/.test(b.id)).flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id).map((q) => ({ q, b })));
 const ten1 = new Map(), PSG_KHAC = new Map();
 khoKhac.forEach(({ q, b }) => { ten1.set(q, b.id.replace("ta12-", "") + "#" + (b.questions.filter((x) => !b.pool || x.src === b.id).indexOf(q) + 1)); if (q.p) PSG_KHAC.set(q, b.passages[q.p]); });
 const cungCD = khoKhac.map((x) => x.q).filter((q) => TOPICS.includes(q.topic));
