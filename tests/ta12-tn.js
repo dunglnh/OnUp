@@ -1,23 +1,24 @@
-// Kiểm tra các đề Tiếng Anh thi thử tốt nghiệp THPT (data/banks/12-ta.js, ta12-tn-de<N>; Phiên N12-tn-ta: Đề 1–2; phiên thêm đề thì
+// Kiểm tra các đề Tiếng Anh thi thử tốt nghiệp THPT (data/banks/12-ta.js, ta12-tn-de<N>; Phiên N12-tn-ta: Đề 1–2; Phiên N12-tn-ta-b:
+// Đề 3–4, câu 1–6 điền vào một thông báo thay cho quảng cáo; phiên thêm đề thì
 // mở rộng script này: thêm khoá của đề vào RIENG). Đề tính điểm (Phiên K5), khung đề tốt nghiệp THPT từ năm 2025 (Quyết định
 // 764/QĐ-BGDĐT; đề chính thức năm 2026 giữ nguyên; docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7, khối “Phiên N12-tn-ta”). Số đề, số câu lấy
 // từ danh mục (không ghi cứng).
 // Kiểm tra từng đề: danh mục (tên, khối, môn, file, 50 phút, pts 10, gắn vào tn-thpt-2027; tên tiếng Anh do Quiz.title dựng); 40 câu
 // nhiều lựa chọn, mỗi câu 4 lựa chọn, pt 0,25; sáu nhóm câu 6 – 6 – 5 – 5 – 8 – 10, mỗi nhóm một đoạn ở passages, câu liền nhau, đúng
 // part (Part I. Cloze texts 1–12, Part II. Arrangement 13–17, Part III. Text completion 18–22, Part IV. Reading comprehension 23–40),
-// đúng chủ đề (Cloze, Arrangement, Text completion, Reading), đúng lời dặn của đoạn; chỗ trống (1)–(6), (7)–(12), (18)–(22) theo thứ
+// đúng chủ đề (Cloze, Arrangement, Text completion, Reading), đúng lời dặn của đoạn (câu 1–6: quảng cáo hoặc thông báo); chỗ trống (1)–(6), (7)–(12), (18)–(22) theo thứ
 // tự, mỗi câu hỏi đúng chỗ trống của nó; năm bộ (13)–(17): hai lời thoại (bộ 13 ba dòng a–c, bộ 14 năm dòng, hai người nói), một thư
 // (lời chào Dear …, lời kết và tên), hai đoạn văn (mỗi dòng một câu); bài đọc 1 khoảng 300 từ, bài đọc 2 khoảng 400 từ có đủ [I]–[IV]
 // trong đoạn mà câu chọn vị trí hỏi; các dạng câu đọc hiểu như đề tham khảo năm 2025 (DANG_DOC); mức độ 9 Biết, 15 Hiểu, 16 Vận dụng,
 // phần nào cũng đủ ba mức; Quiz.grade (đúng hết: 3 – 1,25 – 1,25 – 4,5, tổng 10; sai hết: 0); note (khung đề, số câu, số phút, điểm
 // mỗi câu, các phần với số câu tính từ dữ liệu, không câu nghe, phát âm, viết, app chấm cả đề).
 // Tính lại đáp án bằng code (RIENG: mỗi câu một mục kiểm tra): thứ tự tính từ (ADJ), dạng của từ (HO_TU, từ loại chỗ trống cần), rút gọn
-// mệnh đề quan hệ (PHAN_TU), cụm từ cố định (CUM, từ đứng sau chỗ trống), động từ + to-infinitive hay -ing (MAU), từ hạn định với danh
+// mệnh đề quan hệ (PHAN_TU; to-infinitive sau the first, the last, the only), đại từ quan hệ theo danh từ trước chỗ trống (DT_QH), cụm từ cố định (CUM, từ đứng sau chỗ trống), động từ + to-infinitive hay -ing (MAU), từ hạn định với danh
 // từ đếm được số ít, số nhiều, không đếm được (DANH, LUONG), cụm động từ theo nghĩa (PV, tín hiệu trong đoạn), từ nối theo quan hệ ý và
 // loại từ (QH: trạng từ trước dấu phẩy, giới từ trước danh từ, liên từ trước mệnh đề), nghĩa của từ (NGHIA), từ bổ nghĩa cho so sánh hơn,
 // đại từ quan hệ sở hữu; câu sắp xếp: thử mọi thứ tự, chỉ một thứ tự hợp các ràng buộc (người nói lần lượt; câu có từ nối, từ chỉ lại
 // đứng sau câu nó chỉ tới) và đó là đáp án; câu điền câu, mệnh đề: bộ phân loại nhỏ (mệnh đề đầy đủ có động từ chia, mệnh đề quan hệ,
-// phân từ, cụm sau before) và chỗ trống cần loại nào, chỉ đáp án hợp; câu đọc hiểu đối chiếu chữ của đoạn đọc (từ trái nghĩa, gần nghĩa
+// phân từ, cụm sau before, mệnh đề quan hệ who, mệnh đề sau until, if, while) và chỗ trống cần loại nào, chỉ đáp án hợp; câu đọc hiểu đối chiếu chữ của đoạn đọc (từ trái nghĩa, gần nghĩa
 // theo TRAI, GAN; đại từ chỉ lại chủ ngữ của câu trước; ý không được nhắc; ý đúng; câu tóm tắt, diễn đạt lại, suy luận theo ý có trong
 // đoạn và lỗi của từng lựa chọn sai; đoạn có ý được hỏi; vị trí [I]–[IV] duy nhất hợp từ chỉ lại của câu cần chèn).
 // Rồi: đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa chọn dài nhất hay ngắn nhất (kể cả bằng nhau) ở từ một phần sáu đến một
@@ -50,6 +51,7 @@ const soTu = (s) => String(s).replace(/\[I+V?\]|\[IV\]/g, " ").split(/\s+/).filt
 const P = ["Part I. Cloze texts", "Part II. Arrangement", "Part III. Text completion", "Part IV. Reading comprehension"];
 const LD = {
   qc: "Read the advertisement. Choose the best option for each numbered blank.",
+  tb: "Read the announcement. Choose the best option for each numbered blank.",
   tr: "Read the leaflet. Choose the best option for each numbered blank.",
   sx: "Read the sets of lines and sentences (13)–(17). Then answer the questions.",
   dien: "Read the text. Choose the best option to complete each numbered blank.",
@@ -57,7 +59,7 @@ const LD = {
 };
 // sáu nhóm câu như đề tham khảo năm 2025: số câu, phần, chủ đề, lời dặn của đoạn, số từ của đoạn
 const NHOM = [
-  { n: 6, part: 0, topic: "Cloze", ld: LD.qc, tu: [70, 160] },
+  { n: 6, part: 0, topic: "Cloze", ld: [LD.qc, LD.tb], tu: [70, 160] },
   { n: 6, part: 0, topic: "Cloze", ld: LD.tr, tu: [80, 200] },
   { n: 5, part: 1, topic: "Arrangement", ld: LD.sx, tu: [150, 450] },
   { n: 5, part: 2, topic: "Text completion", ld: LD.dien, tu: [120, 260] },
@@ -116,7 +118,7 @@ DE.forEach((b) => {
   assert.equal(new Set(ps).size, 6, at + ": sáu nhóm, sáu đoạn khác nhau"); assert.equal(Object.keys(b.passages).length, 6, at + ": sáu đoạn ở passages");
   NHOM.forEach((x, i) => {
     const ps1 = b.passages[ps[i]], w = soTu(ps1.text);
-    assert.equal(ps1.title, x.ld, `${at}: lời dặn của đoạn ${ps[i]}`);
+    assert.ok([].concat(x.ld).includes(ps1.title), `${at}: lời dặn của đoạn ${ps[i]}`);
     assert.ok(w >= x.tu[0] && w <= x.tu[1], `${at}: đoạn ${ps[i]} ${w} từ (${x.tu.join("–")})`);
   });
   // chỗ trống (k) ___ theo thứ tự; câu k hỏi đúng chỗ trống k
@@ -166,7 +168,7 @@ DE.forEach((b) => {
   const nt = b.note, phan = (i) => { const k = NHOM.map((x, j) => (x.part === i ? j : -1)).filter((j) => j >= 0); return `questions ${dauNhom(k[0])}–${dauNhom(k[k.length - 1]) + NHOM[k[k.length - 1]].n - 1}`; };
   ["the national high school graduation exam used since 2025", "Decision 764 of the Ministry of Education and Training", "In 2027, some places will pilot the exam on computers; the questions are the same as on paper.",
     "Global Success 10–12", "mainly Grade 12", "All texts are new and are not taken from the textbooks.", `${qs.length} multiple-choice questions`, `takes ${b.minutes} minutes`,
-    "each question is worth 0.25 points", `Part I, cloze texts: an advertisement and a leaflet (${phan(0)})`, `Part II, arrangement (${phan(1)})`, `Part III, text completion (${phan(2)})`,
+    "each question is worth 0.25 points", `Part I, cloze texts: ${b.passages[ps[0]].title === LD.tb ? "an announcement" : "an advertisement"} and a leaflet (${phan(0)})`, `Part II, arrangement (${phan(1)})`, `Part III, text completion (${phan(2)})`,
     `Part IV, reading comprehension: two texts (${phan(3)})`, "no listening, no pronunciation and no writing", "The app marks every question"].forEach((c) => assert.ok(nt.includes(c), `${at}: note có “${c}”`));
 });
 
@@ -185,40 +187,50 @@ function boSapXep(t) {
 
 /* ---------- bảng để tính lại đáp án ---------- */
 // thứ tự tính từ trước danh từ: ý kiến 1, kích cỡ 2, tuổi 3, hình dạng 4, màu 5, nguồn gốc 6, chất liệu 7, mục đích 8
-const ADJ = { lovely: 1, friendly: 1, old: 3, young: 3, British: 6, wooden: 7 };
+const ADJ = { lovely: 1, friendly: 1, large: 2, old: 3, young: 3, new: 3, British: 6, wooden: 7 };
 // từ loại (dạng của từ)
-const HO_TU = { professional: "adj", professionally: "adv", unprofessionally: "adv", professionalism: "noun", confidently: "adv", confident: "adj", confidence: "noun", confide: "verb" };
+const HO_TU = { professional: "adj", professionally: "adv", unprofessionally: "adv", professionalism: "noun", confidently: "adv", confident: "adj", confidence: "noun", confide: "verb",
+  creativity: "noun", creative: "adj", creatively: "adv", create: "verb", essential: "adj", essence: "noun", essentially: "adv", essentials: "noun",
+  environmentally: "adv", environmental: "adj", environment: "noun", environmentalist: "noun" };
 // dạng của động từ trong mệnh đề quan hệ rút gọn: pp quá khứ phân từ (bị động), ing (chủ động), past động từ chia (không rút gọn được)
-const PHAN_TU = { grown: "pp", growing: "ing", living: "ing" };
+const PHAN_TU = { grown: "pp", growing: "ing", living: "ing", collected: "pp", collecting: "ing", arriving: "ing", arrived: "pp" };
 // cụm từ cố định: từ đứng sau chỗ trống → động từ đi cùng
-const CUM = { attention: "pay", conversation: "have" };
+const CUM = { attention: "pay", conversation: "have", best: "do", awareness: "raise" };
 // động từ + to-infinitive hay -ing (remember: việc phải làm sau này → to-infinitive)
-const MAU = { remember: "to", avoid: "ing", allows: "to" };
+const MAU = { remember: "to", avoid: "ing", allows: "to", suggest: "ing", encourage: "to", forget: "to" };
 // danh từ sau chỗ trống: sg đếm được số ít, pl số nhiều; từ hạn định đi được với loại nào
-const DANH = { donation: "sg", glasses: "pl", responsibilities: "pl" };
-const LUONG = { each: ["sg"], every: ["sg"], many: ["pl"], all: ["pl", "unc"], "a few": ["pl"], both: ["pl"], several: ["pl"], much: ["unc"], "a little": ["unc"], "a large amount of": ["unc"], "a number of": ["pl"], "a great deal of": ["unc"] };
+const DANH = { donation: "sg", glasses: "pl", responsibilities: "pl", information: "unc", visitor: "sg", interviews: "pl" };
+const LUONG = { each: ["sg"], every: ["sg"], many: ["pl"], all: ["pl", "unc"], "a few": ["pl"], both: ["pl"], several: ["pl"], much: ["unc"], "a little": ["unc"], "a large amount of": ["unc"], "a number of": ["pl"], "a great deal of": ["unc"], "plenty of": ["pl", "unc"], most: ["pl", "unc"] };
 // cụm động từ: nghĩa
-const PV = { "stay away from": "avoid", "put up with": "tolerate", "run out of": "have none left", "look forward to": "wait happily for", "cut down on": "reduce" };
+const PV = { "stay away from": "avoid", "put up with": "tolerate", "run out of": "have none left", "look forward to": "wait happily for", "cut down on": "reduce",
+  "put off": "delay", "take off": "remove", "turn off": "stop a machine", "give off": "send out", "find out": "discover", "give out": "hand out", "carry out": "do a task", "point out": "show" };
 // từ nối: [quan hệ, loại]; adv trước dấu phẩy, prep trước danh từ, conj trước mệnh đề
 const QH = {
   moreover: ["addition", "adv"], however: ["contrast", "adv"], therefore: ["result", "adv"], thus: ["result", "adv"], "because of": ["cause", "prep"], otherwise: ["condition", "adv"], "as a result": ["result", "adv"],
   "for instance": ["example", "adv"], instead: ["replacement", "adv"], "apart from": ["addition", "prep"], "instead of": ["replacement", "prep"],
-  "in spite of": ["concession", "prep"], despite: ["concession", "prep"], "due to": ["cause", "prep"], "even if": ["concession", "conj"], unless: ["condition", "conj"]
+  "in spite of": ["concession", "prep"], despite: ["concession", "prep"], "due to": ["cause", "prep"], "even if": ["concession", "conj"], unless: ["condition", "conj"],
+  besides: ["addition", "adv"], "as long as": ["condition", "conj"], although: ["concession", "conj"], because: ["cause", "conj"], furthermore: ["addition", "adv"], nevertheless: ["contrast", "adv"], "as well as": ["addition", "prep"], "except for": ["exception", "prep"]
 };
 // nghĩa của từ trong ngữ cảnh
-const NGHIA = { tested: "check", spent: "use up", sold: "give for money", lent: "give for a time", reveal: "let others know", hide: "keep out of sight", keep: "hold on to", store: "put away" };
+const NGHIA = { tested: "check", spent: "use up", sold: "give for money", lent: "give for a time", reveal: "let others know", hide: "keep out of sight", keep: "hold on to", store: "put away",
+  reduce: "make smaller", double: "make twice as big", increase: "make bigger", share: "use together",
+  impression: "the picture others form of you", expression: "the look on a face", explanation: "the reasons you give", attention: "careful notice" };
 // từ bổ nghĩa đứng trước so sánh hơn
 const SO_SANH = ["much", "far", "a lot", "even", "slightly"];
 // từ trái nghĩa, gần nghĩa trong ngữ cảnh của đoạn đọc
-const TRAI = { conflict: "agreement", crowded: "empty", common: "unusual", recover: "get worse" };
-const GAN = { valuable: "useful", "cope with": "deal with", "give up": "stop trying", approaches: "methods" };
-const NOI = ["however", "then", "these", "this", "their", "thanks to this", "because of this", "today", "ten years later", "sadly", "with this", "in the water", "worried that"];
+const TRAI = { conflict: "agreement", crowded: "empty", common: "unusual", recover: "get worse", slow: "quick", traditional: "modern", disappointed: "pleased", certain: "uncertain" };
+const GAN = { valuable: "useful", "cope with": "deal with", "give up": "stop trying", approaches: "methods", recognise: "identify", curious: "interested", respected: "admired", routine: "repetitive" };
+const NOI = ["however", "then", "these", "this", "their", "thanks to this", "because of this", "today", "ten years later", "sadly", "with this", "in the water", "worried that",
+  "twelve years later", "membership of these", "at first", "now", "the chart", "since that day", "thanks to your kindness"];
+// danh từ trước chỗ trống của câu chọn đại từ quan hệ: người → who, vật → which, nơi chốn → where
+const DT_QH = { person: "nguoi" };
 
 /* ---------- câu điền câu, mệnh đề: bộ phân loại nhỏ ---------- */
-const SUB = ["because", "although", "when", "if", "once", "since", "while", "before", "after", "unless"];
+const SUB = ["because", "although", "when", "if", "once", "since", "while", "before", "after", "unless", "until"];
 const REL = ["which", "who", "that", "whose", "where"];
 const PP = ["asked", "published", "held", "made", "grown"];
-const FIN = new Set(["absorbs", "makes", "hold", "holds", "helps", "need", "must", "is", "are", "was", "spreads", "means", "affect"]);
+const FIN = new Set(["absorbs", "makes", "hold", "holds", "helps", "need", "must", "is", "are", "was", "spreads", "means", "affect", "welcome", "will", "have", "understands", "rely", "worked", "save"]);
+const NHIEU_V = new Set(["feel"]); // động từ chia ở số nhiều sau who (danh từ số nhiều đứng trước)
 const tuCua = (s) => String(s).toLowerCase().replace(/[^a-z' -]+/g, " ").split(/\s+/).filter(Boolean);
 const loaiCau = (o) => {
   const w = tuCua(o), loi = /\bto \w+ing\b/.test(o.toLowerCase());
@@ -247,6 +259,11 @@ const hopCho = (cho, o) => {
     case "pp": return c.loai === "pp";
     case "ing": return c.loai === "ing";
     case "truoc-ing": return c.w[0] === "before" && /ing$/.test(c.w[1]);
+    case "who-nhieu": return c.loai === "rel" && c.w[0] === "who" && NHIEU_V.has(c.w[1]);
+    case "who": return c.loai === "rel" && c.w[0] === "who" && c.w.slice(1).some((x) => FIN.has(x));
+    case "until": return c.w[0] === "until" && c.w.slice(1).some((x) => FIN.has(x));
+    case "sub-dau": return c.loai === "sub" && c.w[1] !== "of" && c.w.slice(1).some((x) => FIN.has(x));
+    case "rg-ing": return c.loai === "ing";
     default: throw new Error("chỗ trống không rõ loại: " + cho);
   }
 };
@@ -300,6 +317,52 @@ const RIENG = {
     38: { k: "y", bang: ["Coral gardens can protect important areas and buy time, but only large cuts in greenhouse gas emissions can save reefs in the long term."], co: [/short-term help/, /only if emissions fall/], sai: [/are enough to save reefs/, /less important than building/, /no need to reduce/] },
     39: { k: "gan", tu: "approaches", doan: 5 },
     40: { k: "y", bang: ["home to about a quarter of all known marine species", "The main threat is rising sea temperatures.", "have begun to grow corals by hand", "only large cuts in greenhouse gas emissions can save reefs"], co: [/valuable/, /under threat/, /replanting helps/, /cutting emissions is essential/], sai: [/are safe because/, /main reason/, /matter much less/] }
+  },
+  3: {
+    1: { k: "tl", can: "noun", truocRe: / your $/ }, 2: { k: "md" }, 3: { k: "rgto" }, 4: { k: "cum" }, 5: { k: "hd" }, 6: { k: "lt", qh: "condition", tin: "cannot be included in the programme" },
+    7: { k: "tl", can: "adj", truocRe: / is $/ }, 8: { k: "pv", y: "delay", tin: "keeps dripping", sau: " off" }, 9: { k: "md" }, 10: { k: "nghia", y: "make smaller", tin: "water-saving shower head" },
+    11: { k: "rg", can: "pp" }, 12: { k: "lt", qh: "condition", loai: "conj", tin: "your water bill will fall" },
+    13: { k: "sx", rb: ["a<b"] }, 14: { k: "sx", rb: ["^c", "b$", "e<a"] }, 15: { k: "sx", rb: ["^c", "d$", "a<e", "e-b"] },
+    16: { k: "sx", rb: ["^b", "b-d", "d-a", "a-e", "c$"] }, 17: { k: "sx", rb: ["^d", "d-c", "c-a", "a<e", "b$"] },
+    18: { k: "cau", cho: "cau" }, 19: { k: "cau", cho: "who-nhieu", truoc: "Students" }, 20: { k: "cau", cho: "until" }, 21: { k: "cau", cho: "sub-dau" }, 22: { k: "cau", cho: "cau" },
+    23: { k: "chi", cum: "who ran it", chu: "The page" },
+    24: { k: "khong", doan: 2, co: ["tips on online safety", "messages of support", "block and report harmful accounts"], vang: /\bpolice\b/i },
+    25: { k: "trai", tu: "slow", doan: 3 }, 26: { k: "gan", tu: "recognise", doan: 3 },
+    27: { k: "y", bang: ["Now they understand that the person behind the screen is real."], co: [/hurt a real person/], sai: [/face to face/, /accounts are fake/, /do no harm/] },
+    28: { k: "dung", bang: "the cruel page has disappeared", sai: [/on her own/, /at once/, /more than fifty/], nguoc: [/With two friends, she started a club/, /teachers were slow to react/, /Safe Screens has thirty members/] },
+    29: { k: "doan", bang: "the signs of online bullying" }, 30: { k: "doan", bang: "without giving their names" },
+    31: { k: "chen", tro: "this problem", truoc: "hard to find" }, 32: { k: "gan", tu: "curious", doan: 1 },
+    33: { k: "khong", doan: 3, co: ["kimbap", "sushi", "pho"], vang: /curry/i },
+    34: { k: "chi", cum: "The key, they argue", chu: "Most food writers" },
+    35: { k: "y", bang: ["Sometimes a dish changes as it travels."], co: [/change a great deal/, /new country/], sai: [/invented by American cooks/, /most popular sandwich/, /to sell to Italian immigrants/] },
+    36: { k: "trai", tu: "traditional", doan: 4 },
+    37: { k: "dung", bang: "a cheap meal for poor families in Naples", sai: [/less cheese/, /bakers in France/, /Most chefs/], nguoc: [/added more cheese/, /local bakers began filling French-style bread/, null], vang: [null, null, /most chefs/i] },
+    38: { k: "y", bang: ["Sharing a meal is one of the easiest ways to learn about another culture, and it often leads to friendships that no textbook can create."], co: [/teaches people about other cultures/, /builds friendships/], sai: [/still the best way/, /only with family members/, /much harder than/] },
+    39: { k: "y", bang: ["A dish that is cooked for a family festival in one country, for example, may be sold as cheap fast food in another."], co: [/lose its meaning/], sai: [/always respect/, /should be changed/, /disappearing/] },
+    40: { k: "y", bang: ["Food has always travelled with people.", "Sometimes a dish changes as it travels.", "see the exchange as positive"], co: [/travels and changes/, /bring cultures closer/], sai: [/should never be changed/, /main reason/, /the only dishes/] }
+  },
+  4: {
+    1: { k: "cum" }, 2: { k: "tl", can: "adv", sauRe: /^ friendly\b/ }, 3: { k: "rg", can: "ing" }, 4: { k: "tt" }, 5: { k: "hd" }, 6: { k: "lt", qh: "cause", tin: "will take a different route" },
+    7: { k: "hd" }, 8: { k: "pv", y: "discover", tin: "about the company and the job", sau: " out" }, 9: { k: "nghia", y: "the picture others form of you", tin: "Being late" },
+    10: { k: "qhdt", dt: "person" }, 11: { k: "lt", qh: "concession", tin: "try to smile" }, 12: { k: "md" },
+    13: { k: "sx", rb: ["b<a"] }, 14: { k: "sx", rb: ["^d", "b$", "c<e"] }, 15: { k: "sx", rb: ["^d", "b$", "d-e", "e-c"] },
+    16: { k: "sx", rb: ["^b", "b-e", "e-a", "a-d", "c$"] }, 17: { k: "sx", rb: ["^c", "c-e", "e<a", "a-d", "b$"] },
+    18: { k: "cau", cho: "cau" }, 19: { k: "cau", cho: "rg-ing", truoc: "people" }, 20: { k: "cau", cho: "who", truoc: "Nguyen Van Toan," }, 21: { k: "cau", cho: "sub-dau" }, 22: { k: "cau", cho: "cau" },
+    23: { k: "trai", tu: "disappointed", doan: 3 },
+    24: { k: "khong", doan: 2, co: ["repair an X-ray scanner", "how heart monitors worked", "biomedical engineering"], vang: /\boperations?\b/i },
+    25: { k: "chi", cum: "asking them how heart monitors worked", chu: "technicians", ve: "technicians" }, 26: { k: "gan", tu: "respected", doan: 3 },
+    27: { k: "y", bang: ["Two weeks in a real workplace taught me more about myself than two years of thinking about it."], co: [/two weeks of real work/i, /years of thinking/], sai: [/which kind of workplace/, /too short/, /at school than/] },
+    28: { k: "dung", bang: "everyone in her family hoped that she would one day become a doctor", sai: [/from the very beginning/, /a whole month/, /studying medicine/], nguoc: [/she was disappointed at first/, /two weeks of her summer holiday/, /first year at a technical university/] },
+    29: { k: "doan", bang: "were surprised by her decision" }, 30: { k: "doan", bang: "every student should try a job before choosing a career" },
+    31: { k: "chen", tro: "these programs", truoc: "Computer programs can now" }, 32: { k: "gan", tu: "routine", doan: 2 },
+    33: { k: "chi", cum: "threatened to replace them", chu: "textile workers", ve: "textile workers" },
+    34: { k: "khong", doan: 2, co: ["entering data", "sorting emails", "answering simple customer questions"], vang: /design|building/i },
+    35: { k: "y", bang: ["History suggests, however, that technology also creates work.", "AI is already producing new jobs"], co: [/create new kinds of work/], sai: [/caused most bank clerks/, /closed many of their branches/, /earn much more money/] },
+    36: { k: "trai", tu: "certain", doan: 5 },
+    37: { k: "dung", bang: "replaced call-centre staff with chatbots", sai: [/grow quickly/, /spent less time/, /know exactly/], nguoc: [/millions of office jobs will disappear/, /spent more time helping customers/, /No one knows exactly/] },
+    38: { k: "y", bang: ["No one knows exactly what the job market will look like in 2040, but one thing seems certain: people who are willing to learn will be in a much stronger position."], co: [/unclear/, /keep learning/], sai: [/most jobs will disappear/, /all the best jobs/, /Nobody will need/] },
+    39: { k: "y", bang: ["Skills that machines struggle with, such as creativity, teamwork and understanding other people's feelings, are likely to become more valuable."], co: [/people skills/, /safer/], sai: [/better than people at teamwork/, /the same tools/, /less useful/] },
+    40: { k: "y", bang: ["Today, the same fear has returned with artificial intelligence.", "technology also creates work", "What will matter most in the future is the ability to adapt."], co: [/change many jobs/, /adapt and keep learning/], sai: [/pointless/, /the first technology/, /stop the development/] }
   }
 };
 
@@ -335,13 +398,28 @@ DE.forEach((b) => {
       }
       case "tl": { // dạng của từ: chỗ trống cần từ loại c.can (trước cụm danh từ: tính từ; sau động từ + tân ngữ: trạng từ)
         const s = sau();
-        if (c.can === "adj") assert.ok(/^ [a-z]+ [a-z]+s\b/.test(s), at + ": sau chỗ trống là cụm danh từ");
-        if (c.can === "adv") assert.ok(/speak English more $/.test(truocCho(q)), at + ": chỗ trống bổ nghĩa cho động từ speak");
+        if (c.truocRe) assert.ok(c.truocRe.test(truocCho(q)), at + ": trước chỗ trống hợp từ loại " + c.can); // your → danh từ; is → tính từ
+        if (c.sauRe) assert.ok(c.sauRe.test(s), at + ": sau chỗ trống hợp từ loại " + c.can); // trước tính từ friendly → trạng từ
+        if (!c.truocRe && !c.sauRe && c.can === "adj") assert.ok(/^ [a-z]+ [a-z]+s\b/.test(s), at + ": sau chỗ trống là cụm danh từ");
+        if (!c.truocRe && !c.sauRe && c.can === "adv") assert.ok(/speak English more $/.test(truocCho(q)), at + ": chỗ trống bổ nghĩa cho động từ speak");
         motDung(q, (o) => { assert.ok(HO_TU[o], at + ": thêm “" + o + "” vào HO_TU"); return HO_TU[o] === c.can; }, "đúng từ loại " + c.can);
         break;
       }
       case "rg": { // rút gọn mệnh đề quan hệ: bị động → quá khứ phân từ; chủ động → -ing; không có đại từ quan hệ, be
         motDung(q, (o) => { const w = o.split(" "); if (w.length > 1) return false; assert.ok(PHAN_TU[o], at + ": thêm “" + o + "” vào PHAN_TU"); return PHAN_TU[o] === c.can; }, "đúng dạng " + c.can);
+        break;
+      }
+      case "rgto": { // sau the first, the last, the only (+ danh từ), mệnh đề quan hệ rút gọn thành to-infinitive
+        assert.ok(/\bthe (first|last|only)( \w+){0,2} $/i.test(truocCho(q)), at + ": trước chỗ trống là the first, the last hay the only + danh từ");
+        motDung(q, (o) => /^to (?!be )\w+$/.test(o), "to-infinitive sau the first");
+        break;
+      }
+      case "qhdt": { // đại từ quan hệ: danh từ trước chỗ trống (DT_QH), chỗ trống làm chủ ngữ (sau chỗ trống là động từ chia)
+        const loai = DT_QH[c.dt];
+        assert.ok(loai, at + ": thêm “" + c.dt + "” vào DT_QH");
+        assert.ok(truocCho(q).endsWith(" " + c.dt + " "), at + ": trước chỗ trống là “" + c.dt + "”");
+        assert.ok(/^ [a-z]+s\b/.test(sau()), at + ": sau chỗ trống là động từ chia (chỗ trống làm chủ ngữ)");
+        motDung(q, (o) => o === { nguoi: "who", vat: "which", noi: "where" }[loai], "đại từ quan hệ cho " + loai);
         break;
       }
       case "cum": { const k = Object.keys(CUM).filter((x) => new RegExp("^ (\\w+ ){0,2}" + x + "\\b").test(sau())); assert.equal(k.length, 1, at + ": từ sau chỗ trống có trong CUM"); motDung(q, (o) => o === CUM[k[0]], "cụm từ cố định"); break; }
@@ -360,11 +438,11 @@ DE.forEach((b) => {
       case "pv": { // cụm động từ có nghĩa c.y (tín hiệu trong đoạn)
         assert.ok(doanCua(q).text.includes(c.tin), at + ": tín hiệu “" + c.tin + "” có trong đoạn");
         if (c.sau) assert.ok(sau().startsWith(c.sau), at + ": sau chỗ trống là “" + c.sau + "”");
-        motDung(q, (o) => PV[o + (c.sau || "")] === c.y, "cụm động từ nghĩa " + c.y);
+        motDung(q, (o) => PV[(o + (c.sau || "")).toLowerCase()] === c.y, "cụm động từ nghĩa " + c.y);
         break;
       }
       case "lt": { // từ nối: quan hệ ý (tín hiệu trong đoạn) và loại từ (sau chỗ trống)
-        const s = sau(), loai = /^,/.test(s) ? "adv" : /^ (you|we|they|he|she|it|i) /.test(s) ? "conj" : "prep";
+        const s = sau(), loai = c.loai || (/^,/.test(s) ? "adv" : /^ (you|we|they|he|she|it|i) /.test(s) ? "conj" : "prep"); // c.loai: chủ ngữ là cụm danh từ
         assert.ok(doanCua(q).text.includes(c.tin), at + ": tín hiệu “" + c.tin + "” có trong đoạn");
         motDung(q, (o) => { const x = QH[lo(o)]; assert.ok(x, at + ": thêm “" + o + "” vào QH"); return x[0] === c.qh && x[1] === loai; }, `từ nối ${c.qh}, ${loai}`);
         break;
@@ -387,7 +465,8 @@ DE.forEach((b) => {
         if (c.truoc) assert.ok(truocCho(q).endsWith(c.truoc + " "), at + ": trước chỗ trống là “" + c.truoc + "”");
         if (c.ai) assert.ok(sau().startsWith(", " + c.ai), at + ": chủ ngữ sau dấu phẩy là “" + c.ai + "”");
         if (c.sau) assert.ok(sau().startsWith(c.sau), at + ": sau chỗ trống là “" + c.sau + "”");
-        if (c.cho === "which" || c.cho === "ing") assert.ok(truocCho(q).endsWith(", "), at + ": chỗ trống đứng sau dấu phẩy");
+        if (["which", "ing", "until", "who"].includes(c.cho)) assert.ok(truocCho(q).endsWith(", "), at + ": chỗ trống đứng sau dấu phẩy");
+        if (c.cho === "sub-dau") assert.ok(/(^|[.!?]\s)$/.test(truocCho(q).replace(/\n/g, " ")) && /^,/.test(sau()), at + ": chỗ trống là mệnh đề đứng đầu câu, trước dấu phẩy");
         if (c.cho === "cau") assert.ok(/(^|[.!?]\s)$/.test(truocCho(q).replace(/\n/g, " ")) && /^[.,]/.test(sau()), at + ": chỗ trống là cả một câu");
         motDung(q, (o) => hopCho(c.cho, o), "chỗ trống loại " + c.cho);
         break;
@@ -517,9 +596,10 @@ const loCD = ["Cloze", "Arrangement", "Text completion", "Reading"].flatMap((t) 
 if (process.env.DO_LO) console.log("Đáp án có ở câu khác cùng đề, cùng chủ đề (xem tay):\n" + lo.concat(loCD).join("\n"));
 // đã xem: từ của đáp án có ở đoạn của kho khác cùng chủ đề nhưng khác nghĩa, không gợi đáp án (pay: tiền lương, trả tiền, đáp án là pay
 // attention to; useful trong lời một nhân vật nói về ứng dụng, câu hỏi là từ gần nghĩa của valuable; empty tả mái nhà trống, câu hỏi là từ
-// trái nghĩa của crowded)
+// trái nghĩa của crowded; put trong “Put your rubbish in the bins” của đoạn điền kho cuối kì I là đặt, để, đáp án tn-de3#8 là put off: hoãn)
 const DA_XEM = [
   "ck1-de2#20 → tn-de1#4: pay", "ck1-de2#21 → tn-de1#4: pay", "ck1-de2#22 → tn-de1#4: pay", "gk2-de1#20 → tn-de1#4: pay",
+  "ck1-ngau-nhien#20 → tn-de3#8: put", "ck1-ngau-nhien#21 → tn-de3#8: put", "ck1-ngau-nhien#22 → tn-de3#8: put",
   "gk2-de1#23 → tn-de1#26: useful", "gk2-de1#24 → tn-de1#26: useful", "gk2-de1#25 → tn-de1#26: useful",
   "ck1-de1#23 → tn-de1#36: empty", "ck1-de1#24 → tn-de1#36: empty", "ck1-de1#25 → tn-de1#36: empty"
 ];
@@ -576,7 +656,8 @@ if (SACH.length) {
   const S = " " + ta.map((f) => fs.readFileSync(f, "utf8").replace(/-\n/g, "").replace(/\s+/g, " ").toLowerCase()).join(" | ") + " ";
   const coTrong = (w) => [w, w.replace(/es$/, ""), w.replace(/s$/, "")].some((x) => S.includes(" " + x.toLowerCase())); // từ số nhiều: tìm cả dạng số ít
   const tuHoi = [].concat(Object.keys(TRAI), Object.values(TRAI).filter((w) => !/^get /.test(w)), Object.keys(GAN), Object.values(GAN).filter((w) => !/^stop /.test(w)), Object.keys(CUM).map((k) => CUM[k] + " "),
-    ["professional", "confident", "stay away from", "run out of", "tested", "reveal", "several", "a number of", "whose", "moreover", "as a result", "apart from", "even if", "pay attention to", /\bhave (a |an )?(\w+ )?conversations?\b/, "turn off"]);
+    ["professional", "confident", "stay away from", "run out of", "tested", "reveal", "several", "a number of", "whose", "moreover", "as a result", "apart from", "even if", "pay attention to", /\bhave (a |an )?(\w+ )?conversations?\b/, "turn off",
+      "creativity", "essential", "put off", "plenty of", "otherwise", "as long as", "reduce", /\bdo (your|their|his|her|our) best\b/, "environmentally friendly", /\braise (\w+ )?awareness\b/, "due to", "find out", "impression", "although"]);
   tuHoi.forEach((w) => assert.ok(w instanceof RegExp ? w.test(S) : coTrong(w), `“${w}” không có trong sách Tiếng Anh 6–12`)); // cụm động từ + danh từ: sách viết “have similar conversations”
   const sach = " " + SACH.map((f) => khongDau(fs.readFileSync(f, "utf8").replace(/=== page-\d+ · [^=]+ ===/g, " "))).join(" | ") + " ";
   const bao = (k) => ALL.flatMap((q) => TRUONG.get(q).flatMap((s) => chuoi(s, k).filter((c) => sach.includes(" " + c + " ")).map((c) => `${ten.get(q)}: ${c}`)));
