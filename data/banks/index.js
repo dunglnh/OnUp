@@ -1700,18 +1700,20 @@ window.ONTAP_SEED_BANKS = [
       "Ngôn ngữ trang trọng và ngôn ngữ thân mật": [1, 0, 0], "Tôn trọng và bảo vệ quyền sở hữu trí tuệ": [2, 1, 0],
       "Giữ gìn và phát triển tiếng Việt": [2, 2, 0], "Viết": [0, 0, 1] } } },
 
-  /* Ngữ văn 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên K5; Phiên N12-tn-van: Đề 1–2; Phiên N12-tn-van-b: Đề 3–4). Khung đề tốt
-     nghiệp THPT từ năm 2025
+  /* Ngữ văn 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên K5; Phiên N12-tn-van: Đề 1–2; Phiên N12-tn-van-b: Đề 3–4; Phiên
+     N12-tn-van-c: Đề 5). Khung đề tốt nghiệp THPT từ năm 2025
      (Quyết định 764/QĐ-BGDĐT): tự luận 120 phút, 10 điểm; Phần I đọc hiểu một văn bản ngoài sách giáo khoa (4 điểm; đề thật năm 2025,
      2026 có 5 câu: hai câu Biết, hai câu Hiểu, một câu Vận dụng), Phần II viết đoạn văn nghị luận khoảng 200 chữ (2 điểm) và bài văn
      nghị luận khoảng 600 chữ (4 điểm). Đề cố định, không có đề ngẫu nhiên (pts không đi với pool). Câu đọc hiểu phần lớn chấm tự
      động (3 điểm), câu Vận dụng và hai câu viết tự chấm; cách viết ở đầu phần đề này trong data/banks/12-van.js. Khối 12 chưa bật nên
      đề chưa hiện với gia đình. Đề 1: truyện ngắn, Đề 2: văn bản nghị luận, Đề 3: bài thơ tám chữ (câu 1 Phần II so sánh, đánh giá
-     hai đoạn thơ), Đề 4: văn bản thông tin có bảng số liệu. */
+     hai đoạn thơ), Đề 4: văn bản thông tin có bảng số liệu, Đề 5: bài kí (tản văn; phần đọc hiểu 5 câu, điểm từng câu như đề thật,
+     nên đề có 7 câu). */
   { id: "van12-tn-de1", title: "Ngữ văn 12 · Thi thử tốt nghiệp · Đề 1", grade: 12, subject: "Ngữ văn", minutes: 120, n: 8, file: "12-van.js", pts: 10 },
   { id: "van12-tn-de2", title: "Ngữ văn 12 · Thi thử tốt nghiệp · Đề 2", grade: 12, subject: "Ngữ văn", minutes: 120, n: 8, file: "12-van.js", pts: 10 },
   { id: "van12-tn-de3", title: "Ngữ văn 12 · Thi thử tốt nghiệp · Đề 3", grade: 12, subject: "Ngữ văn", minutes: 120, n: 8, file: "12-van.js", pts: 10 },
   { id: "van12-tn-de4", title: "Ngữ văn 12 · Thi thử tốt nghiệp · Đề 4", grade: 12, subject: "Ngữ văn", minutes: 120, n: 8, file: "12-van.js", pts: 10 },
+  { id: "van12-tn-de5", title: "Ngữ văn 12 · Thi thử tốt nghiệp · Đề 5", grade: 12, subject: "Ngữ văn", minutes: 120, n: 7, file: "12-van.js", pts: 10 },
 
   /* Tiếng Anh 12 · Kiểm tra cuối năm học (Global Success 12, Units 6–10, Review 3, 4, trọng tâm Units 8–10; Phiên N12-ck2-ta). Khối 12
      chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong file (1 đoạn điền, 1 bài đọc) + 50 câu của 2
