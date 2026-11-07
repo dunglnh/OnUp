@@ -811,7 +811,7 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
       { part: "Phần I. Trắc nghiệm nhiều lựa chọn", topic: "Nguyên tố nhóm IA", type: "mc", q: "Ion Na⁺ có cấu hình electron giống với nguyên tử của khí hiếm nào sau đây?", o: ["Neon (Ne)", "Argon (Ar)", "Helium (He)", "Krypton (Kr)"],
         x: "Nguyên tử sodium (Z = 11) nhường electron lớp ngoài cùng tạo ion Na⁺ có 10 electron, cấu hình 1s²2s²2p⁶, giống nguyên tử neon (Z = 10).", lv: 1, pt: 0.25 },
       { part: "Phần I. Trắc nghiệm nhiều lựa chọn", topic: "Nguyên tố nhóm IIA", type: "mc", q: "Nguyên tử của mỗi kim loại magnesium, calcium, barium có bao nhiêu electron ở lớp ngoài cùng?", o: ["2", "1", "3", "4"],
-        x: "Magnesium, calcium, barium thuộc nhóm IIA; nguyên tử các nguyên tố nhóm IIA có cấu hình electron lớp ngoài cùng ns², tức 2 electron.", lv: 1, pt: 0.25 },
+        x: "Magnesium, calcium, barium đều thuộc nhóm IIA, nên lớp ngoài cùng của nguyên tử mỗi kim loại này có 2 electron, ở phân lớp ns (dạng ns²).", lv: 1, pt: 0.25 },
       { part: "Phần I. Trắc nghiệm nhiều lựa chọn", topic: "Đại cương về kim loại chuyển tiếp dãy thứ nhất", type: "mc", q: "Cho vài giọt dung dịch NaOH vào dung dịch CuSO₄ loãng đựng trong ống nghiệm. Chất rắn tạo thành có màu", o: ["xanh lam", "đỏ gạch", "trắng", "đen"],
         x: "CuSO₄ + 2NaOH → Cu(OH)₂ + Na₂SO₄; copper(II) hydroxide là chất rắn màu xanh lam.", lv: 1, pt: 0.25 },
       { part: "Phần I. Trắc nghiệm nhiều lựa chọn", topic: "Sơ lược về phức chất", type: "mc", q: "Phức chất [CrCl₂(H₂O)₄]⁺ được tạo thành từ các phối tử Cl⁻, H₂O và một ion kim loại. Ion kim loại đó là", o: ["Cr³⁺", "Cr²⁺", "Cr⁺", "Cr⁶⁺"],
