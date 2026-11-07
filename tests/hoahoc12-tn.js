@@ -327,7 +327,7 @@ const RIENG = {
     { has: "một trong các sản phẩm thu được là methanol", right: (q) => { coX(q, "CH₃COOCH₃ + H₂O ⇌ CH₃COOH + CH₃OH"); return motCai(q, (o) => ruouEster(o) === "CH₃OH"); } },
     { has: "Xà phòng hoá hoàn toàn 0,1 mol ester X", right: (q) => { const nt = ntDe(q), [nX] = so(q.q, "hoàn toàn # mol ester X"), [m] = so(q.q, "thu được # g muối khan"), ct = congThuc(/phân tử ([A-Z][A-Za-z₀-₉]+)/.exec(q.q)[1]);
       q.o.forEach((o) => assert.deepEqual(congThuc(o), ct, "lựa chọn đúng công thức phân tử: " + o)); return motCai(q, (o) => gan(KL(muoiEster(o), nt), m / nX)); } },
-    { has: "Thuốc thử nào sau đây phân biệt được hai dung dịch đó?", right: (q) => tra(q, BAI_HOC.gluFru, true) },
+    { has: "Để biết lọ nào chứa glucose, có thể dùng thuốc thử nào sau đây?", right: (q) => tra(q, BAI_HOC.gluFru, true) },
     { has: "tinh bột được tạo ra từ khí carbon dioxide và nước", right: () => BAI_HOC.taoTinhBot },
     { has: "Cho ethylamine tác dụng với nitrous acid", right: (q) => { const pt = ptCua(q, "C₂H₅NH₂", "HONO"), sp = tach(pt)[1].map((s) => s.ten); assert.ok(sp.includes("N₂"), "có khí nitrogen");
       return motCai(q, (o) => o === "C₂H₅NH₂".replace("NH₂", "OH") && sp.includes(o)); } },
@@ -447,7 +447,7 @@ const RIENG = {
     { has: "có bao nhiêu phân tử đóng vai trò chất khử?", right: (q) => { const pt = boTrangThai(q.q).match(PT)[0]; assert.ok(canBang(pt)); assert.equal(heSo(pt, "HCl"), 16);
       assert.ok(soOxh("HCl", "Cl") === -1 && soOxh("Cl₂", "Cl") === 0 && soOxh("KCl", "Cl") === -1); return heSo(pt, "Cl₂") * congThuc("Cl₂").Cl; } },
     { has: "Trùng hợp 4,2 tấn propylene", right: (q) => { const [m] = so(q.q, "Trùng hợp # tấn propylene"), [h] = so(q.q, "hiệu suất #%"); return (m * h) / 100; } },
-    { has: "Một pin Galvani gồm hai điện cực chuẩn", right: (q) => { const e = e0De(q.q); return e.Ag - e.Zn; } },
+    { has: "Một pin Galvani gồm hai điện cực chuẩn", right: (q) => { const e = e0De(q.q); return e.Ag - e.Fe; } },
     { has: "Nhúng một lá sắt nặng 10 g vào dung dịch CuSO₄", right: (q) => { const nt = ntDe(q), [m1] = so(q.q, "lá sắt nặng # g"), [m2] = so(q.q, "thấy nặng # g"), pt = ptCua(q, "Fe", "Cu");
       assert.equal(heSo(pt, "Fe"), heSo(pt, "Cu")); return ((m2 - m1) / (nt.Cu - nt.Fe)) * nt.Cu; } },
     { has: "Nung 1 tấn đá vôi", right: (q) => { const nt = ntDe(q), [m0] = so(q.q, "Nung # tấn đá vôi"), [p] = so(q.q, "chứa #% CaCO₃"), [m1] = so(q.q, "thu được # tấn chất rắn"), pt = ptCua(q, "CaCO₃", "CO₂");
@@ -682,7 +682,8 @@ const doLo = (qs, them, cap) => {
   const lo = [], chuLo = [];
   qs.forEach((q) => {
     let soDa = [], C = [];
-    if (q.type === "num") soDa = [{ v: q.ans, u: q.unit || "" }];
+    // câu trả lời ngắn có tol: số ở câu khác nằm trong khoảng sai số (như 1,561 với đáp án 1,56) cũng là lộ đáp án
+    if (q.type === "num") soDa = [{ v: q.ans, u: q.unit || "", t: q.tol || 0 }];
     else if (q.type === "mc") { const x = soDV.exec(q.o[0]); if (x) soDa = [{ v: val(x[1]), u: x[2] || "" }]; else { const c3 = cum3(q.o[0]), sai = q.o.slice(1).map((o) => " " + tuCua(o).join(" ") + " ");
       // chuỗi có ở từ hai lựa chọn sai thì không chỉ ra được lựa chọn đúng
       C = [...new Set(c3.length > 1 ? c3.filter((c) => !CUM_CHUNG.has(c)) : c3)].filter((c) => sai.filter((o) => o.includes(" " + c + " ")).length < 2); } }
@@ -690,7 +691,7 @@ const doLo = (qs, them, cap) => {
     qs.concat(them).forEach((p) => {
       if (p === q || !cap(p, q)) return;
       const at = `${ten.get(p)} → ${ten.get(q)}: `, T = " " + chuP(p).map((s) => tuCua(s).join(" ")).join(" | ") + " ";
-      soDa.filter((d) => chuP(p).flatMap(kqSo).some((y) => gan(y.v, d.v) && (!y.u || !d.u || y.u === d.u))).forEach((d) => lo.push(at + vn(d.v) + " " + d.u));
+      soDa.filter((d) => chuP(p).flatMap(kqSo).some((y) => (gan(y.v, d.v) || (d.t && Math.abs(y.v - d.v) <= d.t + 1e-12)) && (!y.u || !d.u || y.u === d.u))).forEach((d) => lo.push(at + vn(d.v) + " " + d.u));
       C.filter((c) => T.includes(" " + c + " ")).forEach((c) => chuLo.push(at + c));
     });
   });
@@ -793,6 +794,10 @@ if (SACH.length) {
   assert.deepEqual(thu([qNa, ghi(khac, "Thể tích cần là 200 mL.")]), ["200 mL"]);
   assert.deepEqual(thu([qNa, ghi(khac, "(Cho Na = 200.) Z = 200.")]), []);
   assert.ok(thu([qAn, ghi(khac, "Khi đó xuất hiện kết tủa màu nâu đỏ.")]).length > 0);
+  // đáp án có tol: số chưa làm tròn ở câu khác (1,239 với đáp án 1,24) cũng là lộ đáp án; số ngoài khoảng sai số thì không
+  const qPin = tim("Một pin Galvani gồm hai điện cực chuẩn"); ten.set(qPin, "thử");
+  assert.deepEqual(thu([qPin, ghi(khac, "Pin này có E°pin = 1,239 (V).")]), ["1,24 V"]);
+  assert.deepEqual(thu([qPin, ghi(khac, "Pin này có E°pin = 1,25 (V).")]), []);
 }
 DE.forEach((b) => console.log(`${b.id}: ${b.questions.length} câu (${b.questions.filter((q) => q.type === "mc").length} nhiều lựa chọn, ${b.questions.filter((q) => q.type === "tf4").length} đúng/sai 4 ý, ${b.questions.filter((q) => q.type === "num").length} trả lời ngắn), ` +
   `${Object.keys(b.passages || {}).length} đoạn thông tin; đáp án đúng dài nhất hoặc ngắn nhất ở ${b._le}/18 câu nhiều lựa chọn.`));
