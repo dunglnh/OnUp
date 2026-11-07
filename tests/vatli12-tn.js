@@ -830,8 +830,10 @@ const TNQ = DE.flatMap((b) => b.questions.map((q) => Object.assign(q, { _de: b.i
   TNQ.forEach((q) => assert.deepEqual(ds.filter((e) => e.k === gocChu(q.q)).map((e) => ten.get(e.q)), [ten.get(q)], "đề bài trùng câu khác trong 12-vatli.js"));
   // cặp hai âm tiết liền nhau (như tests/vatli-hoahoc12-ck2.js): đề bài cùng các lựa chọn có từ 4 cặp chung với một câu của ba kho và số cặp chung
   // từ một nửa số cặp của câu ít cặp hơn thì báo; không tính cặp có số hay chữ đơn, cặp của nhãn chủ đề, cụm chung và cặp có ở từ 3% số câu của
-  // file. Giữa các đề thi thử (cùng cách hỏi của đề tốt nghiệp) chỉ so chuỗi 6 từ.
-  const CUM = ["mỗi ý sau đúng hay sai", "làm tròn kết quả đến hàng phần trăm", "làm tròn kết quả đến hàng phần mười", "làm tròn kết quả đến hàng đơn vị"];
+  // file. Giữa các đề thi thử (cùng cách hỏi của đề tốt nghiệp) chỉ so chuỗi 6 từ. “năng lượng toả ra” là cách hỏi chuẩn của câu tính năng
+  // lượng phản ứng (Phiên N12-tn-vatli-b: thêm Đề 5–8 thì 3% số câu lớn hơn, cặp “toả ra” của câu đó ở Đề 1, Đề 4 bắt đầu bị tính).
+  const CUM = ["mỗi ý sau đúng hay sai", "làm tròn kết quả đến hàng phần trăm", "làm tròn kết quả đến hàng phần mười", "làm tròn kết quả đến hàng đơn vị",
+    "năng lượng toả ra"];
   const cap2 = (s) => { let t = String(s).normalize("NFC").toLowerCase(); CUM.forEach((c) => { t = t.split(c).join(" | "); });
     const w = t.replace(/[^\p{L}\p{N}\s|]/gu, " ").split(/\s+/).filter(Boolean); return w.slice(1).map((x, k) => w[k] + " " + x).filter((c) => c.split(" ").every((x) => /\p{L}{2}/u.test(x))); };
   const ca = KHO_Q.concat(TNQ), df = {};
@@ -913,8 +915,9 @@ const DA_XEM = [
   "gk2-de1#11 → tn-de1#10: vòng dây đứng", "gk2-de1#11 → tn-de1#10: dây đứng yên",
   "ck2-de2#13 → tn-de1#16: khối lượng nghỉ", "ck2-de2#16 → tn-de1#16: khối lượng nghỉ", "ck2-de2#16 → tn-de1#16: lượng nghỉ của", "ck2-de2#17 → tn-de1#16: tổng khối lượng",
   "ck2-de1#8 → tn-de3#14: tia hồng ngoại", "ck2-de2#8 → tn-de3#14: tia hồng ngoại", "ck2-de2#8 → tn-de4#14: ánh sáng nhìn", "ck2-de2#8 → tn-de4#14: sáng nhìn thấy",
-  "tn-de3#1 → ck1-de1#1: thể rắn", "tn-de2#13 → ck2-de1#7: cuộn thứ cấp", "tn-de4#21 → ck2-de1#7: cuộn thứ cấp", "tn-de5#13 → ck2-de1#7: cuộn thứ cấp",
-  "tn-de2#22 → ck2-de1#16: ⁴₂he", "tn-de3#16 → ck2-de1#16: ⁴₂he", "tn-de4#27 → ck2-de1#16: ⁴₂he", "tn-de4#28 → ck2-de1#16: ⁴₂he"
+  "tn-de3#1 → ck1-de1#1: thể rắn", "tn-de2#13 → ck2-de1#7: cuộn thứ cấp", "tn-de4#21 → ck2-de1#7: cuộn thứ cấp", "tn-de5#13 → ck2-de1#7: cuộn thứ cấp", "tn-de6#13 → ck2-de1#7: cuộn thứ cấp",
+  "tn-de2#22 → ck2-de1#16: ⁴₂he", "tn-de3#16 → ck2-de1#16: ⁴₂he", "tn-de4#27 → ck2-de1#16: ⁴₂he", "tn-de4#28 → ck2-de1#16: ⁴₂he",
+  "tn-de6#22 → ck2-de1#16: ⁴₂he"
 ];
 assert.deepEqual([...r1.chuLo, ...r2.chuLo], DA_XEM, "đáp án bằng chữ có ở câu khác đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 assert.deepEqual([...r1.lo, ...r2.lo], [], "lộ đáp án:\n" + [...r1.lo, ...r2.lo].join("\n"));
