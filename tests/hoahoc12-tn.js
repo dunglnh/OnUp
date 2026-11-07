@@ -1,4 +1,4 @@
-// Kiểm tra các đề Hoá học thi thử tốt nghiệp THPT (data/banks/12-hoahoc.js, hoahoc12-tn-de<N>; Phiên N12-tn-hoahoc: Đề 1–4; phiên sau
+// Kiểm tra các đề Hoá học thi thử tốt nghiệp THPT (data/banks/12-hoahoc.js, hoahoc12-tn-de<N>; Phiên N12-tn-hoahoc: Đề 1–4, Phiên N12-tn-hoahoc-b: Đề 5–8; phiên sau
 // thêm đề thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG). Đề tính điểm theo khung đề tốt nghiệp THPT từ năm 2025
 // (Quyết định 764/QĐ-BGDĐT; docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7, khối “Phiên N12-tn-hoahoc”). Số đề, số câu lấy từ danh mục.
 // Khung: danh mục (tên, khối 12, môn Hóa học, file, 50 phút, pts 10, gắn vào tn-thpt-2027); Phần I 18 câu nhiều lựa chọn pt 0,25, Phần II
@@ -143,9 +143,9 @@ const ionCH = (ch, k) => { const c = docCH(ch), bot = Math.min(k, c.s); return v
 Object.entries(CH).forEach(([k, s]) => { const c = docCH(s); assert.equal(18 + c.d + c.s, Z_NT[k], "cấu hình electron của " + k + " đủ số electron"); });
 // phức chất: nguyên tử trung tâm, các phối tử, số lượng phối tử, điện tích, điện tích của nguyên tử trung tâm (điện tích phối tử theo bảng)
 const DIEN_PT = { CN: -1, Cl: -1, F: -1, OH: -1, "NH₃": 0, "H₂O": 0, CO: 0 };
-const PHUC_RE = new RegExp(PHUC + "[²³]?[⁺⁻]?", "gu");
+const PHUC_RE = new RegExp(PHUC + "[²³⁴]?[⁺⁻]?", "gu");
 const docPhuc = (t) => {
-  const m = /^\[([A-Z][a-z]?)((?:[A-Z][a-z]?[₀-₉]*|\([A-Za-z₀-₉]+\)[₀-₉]*)+)\]([²³]?)([⁺⁻]?)$/u.exec(t); assert.ok(m, "không đọc được phức chất " + t);
+  const m = /^\[([A-Z][a-z]?)((?:[A-Z][a-z]?[₀-₉]*|\([A-Za-z₀-₉]+\)[₀-₉]*)+)\]([²³⁴]?)([⁺⁻]?)$/u.exec(t); assert.ok(m, "không đọc được phức chất " + t);
   const L = [...m[2].matchAll(/\(([A-Za-z₀-₉]+)\)([₀-₉]*)|([A-Z][a-z]?)([₀-₉]*)/gu)].map((x) => ({ f: x[1] || x[3], k: x[2] || x[4] ? subV(x[2] || x[4]) : 1 }));
   L.forEach((l) => assert.ok(l.f in DIEN_PT, "chưa có điện tích của phối tử " + l.f));
   const q = m[4] ? (m[4] === "⁺" ? 1 : -1) * (m[3] ? SUP.indexOf(m[3]) : 1) : 0;
@@ -235,6 +235,60 @@ const BAI_HOC = {
   cryolite: "hạ nhiệt độ nóng chảy của hỗn hợp, tiết kiệm năng lượng", soda: "làm mềm nước cứng", voiTrong: "có kết tủa trắng, rồi kết tủa tan dần đến hết", cungNhat: "Chromium (Cr)",
   // Bài 1: omega-3 là acid béo không no, vitamin A, D, E, K tan trong chất béo, chất béo cho nhiều năng lượng hơn tinh bột, cộng hydrogen vào dầu thực vật
   chatBeo4: [false, true, false, true],
+  // Phiên N12-tn-hoahoc-b, Đề 5
+  // Bài 2: xà phòng sản xuất bằng cách đun chất béo với dung dịch kiềm (NaOH, KOH)
+  nauKiem: "dung dịch NaOH hoặc KOH",
+  // Bài 4: trong môi trường kiềm, glucose và fructose chuyển hoá qua lại; Bài 5: saccharose gồm một gốc α-glucose và một gốc β-fructose;
+  // Bài 6: enzyme amylase trong nước bọt thuỷ phân tinh bột
+  fruTollens: "trong môi trường kiềm, fructose chuyển hoá một phần thành glucose", saccharose: "một gốc α-glucose và một gốc β-fructose",
+  amylase: "enzyme amylase trong nước bọt thuỷ phân một phần tinh bột",
+  // Bài 8: aniline tác dụng với nước bromine tạo kết tủa trắng 2,4,6-tribromoaniline
+  anilineBr: "có kết tủa trắng",
+  // Hoá học 11, Bài 15: LPG chứa propane và butane; Hoá học 11, Bài 24: formic acid có trong nọc kiến
+  lpg: "propane và butane", nocKien: "formic acid",
+  // Bài 16: tinh chế đồng bằng điện phân với anode bằng đồng thô (anode tan)
+  anodeTan: "Cu của anode bị oxi hoá, anode mòn dần",
+  // Bài 6: thuỷ phân hoàn toàn cellulose chỉ thu được glucose; cellulose không tan trong nước, kể cả khi đun nóng
+  celluloseGlucose: true, celluloseTan: false,
+  // Bài 12, 13: nylon-6,6 tổng hợp bằng phản ứng trùng ngưng hexamethylenediamine với adipic acid, có tách nước; monomer trùng ngưng cần hai
+  // nhóm chức có khả năng phản ứng (liên kết đôi C=C là điều kiện của trùng hợp); polymer có phân tử khối trung bình
+  nylon66: [true, true, false, false],
+  // Bài 25: nhiệt phân CaCO₃ là phản ứng thu nhiệt
+  nungDaVoiToaNhiet: false,
+  // Phiên N12-tn-hoahoc-b, Đề 6
+  // Bài 2: ion Ca²⁺, Mg²⁺ của nước cứng tạo với anion của acid béo muối khó tan, xà phòng mất tác dụng; Bài 6: cellulose làm giấy lấy từ gỗ, tre, nứa
+  nuocCungXP: "Ca²⁺, Mg²⁺ kết hợp với anion acid béo thành muối khó tan", giay: "gỗ, tre, nứa",
+  // Bài 12, 13: capron (nylon-6) có mắt xích –NH–(CH₂)₅–CO–; cao su tự nhiên lấy từ mủ cây cao su
+  capron: "capron", muCaoSu: "mủ cây cao su",
+  // Hoá học 11, Bài 20: phenol tác dụng với nước bromine tạo kết tủa trắng 2,4,6-tribromophenol
+  phenolBr: "có kết tủa trắng",
+  // Bài 24: từ Li đến Cs, bán kính nguyên tử tăng, tính khử tăng; Bài 21: hợp kim thường cứng hơn kim loại thành phần (ví dụ hợp kim Au – Cu)
+  kNa: "potassium nhường electron dễ hơn sodium", hopKimCung: true,
+  // Phiên N12-tn-hoahoc-b, Đề 7
+  // Bài 4: glucose và fructose là đồng phân; Bài 6: cơ thể người không có enzyme thuỷ phân cellulose; Bài 13: nhựa vá săm là dung dịch
+  // cao su trong dung môi hữu cơ
+  dongPhan: "đồng phân của nhau", khongEnzyme: "người không có enzyme thuỷ phân cellulose",
+  vaSam: "dung dịch cao su trong dung môi hữu cơ",
+  // Bài 12: poly(vinyl acetate) tác dụng với dung dịch NaOH (phản ứng giữ nguyên mạch) tạo poly(vinyl alcohol) và CH₃COONa
+  pvaNaOH: "CH₃COONa",
+  // Hoá học 11, Bài 4: liên kết ba trong phân tử N₂ rất bền; Bài 16: điện phân dung dịch muối của kim loại mạnh với gốc oxoacid thực chất là
+  // điện phân nước; Bài 27: Cu(OH)₂ màu xanh lam
+  n2: "liên kết ba trong phân tử N₂ rất bền", dienPhanNuoc: "chỉ có nước bị điện phân", cuOH2: "xanh lam",
+  // Bài 1: chất béo (triester) với methanol tạo ba methyl ester và glycerol (alcohol đa chức); Bài 13: chất dẻo, ô nhiễm, tái chế
+  biodiesel: [false, true, false, true], chatDeo: [false, false, true, true],
+  // Phiên N12-tn-hoahoc-b, Đề 8
+  // Bài 1: lipid gồm chất béo, sáp, steroid, phospholipid; Bài 2: nước quả bồ kết, bồ hòn có tác dụng giặt rửa; Bài 4: đun nóng glucose
+  // với Cu(OH)₂ trong môi trường kiềm tạo Cu₂O màu đỏ gạch; Bài 8: ở 0 – 5 °C aniline tác dụng với nitrous acid tạo muối diazonium;
+  // Bài 10: protein đông tụ bởi nhiệt, acid, kiềm, muối
+  boKet: "tẩy rửa được các vết bẩn bám trên tóc, vải", cu2o: "đỏ gạch", diazonium: "muối diazonium",
+  dongTuAcid: "protein bị đông tụ do acid trong nước chanh",
+  // Bài 13: keo dán poly(urea-formaldehyde) là chất kết dính trong gỗ ván ép; Hoá học 11, Bài 16: đèn xì oxygen – acetylene dùng để hàn, cắt kim loại
+  keoUF: "dán các tấm gỗ mỏng thành ván ép", denXi: "Acetylene",
+  // Bài 21: hợp kim có nhiều tính chất hoá học tương tự kim loại thành phần, tính chất vật lí thường khác nhiều; Bài 25: Be, Mg có cấu trúc lục
+  // phương, Ca, Sr lập phương tâm mặt, Ba lập phương tâm khối; Bài 29: chlorophyll (chất diệp lục) là phức chất của Mg²⁺
+  hopKimSoSanh: "có tính chất hoá học tương tự, còn tính chất vật lí có thể khác nhiều", iiaCauTruc: "chúng có kiểu cấu trúc tinh thể khác nhau", chlorophyll: "Mg²⁺",
+  // Hoá học 11, Bài 24 và Hoá học 12, Bài 1: phản ứng ester hoá cần H₂SO₄ đặc (xúc tác, hút nước), là phản ứng thuận nghịch; NaOH thuỷ phân ester
+  esterHoa: [false, true, true, true],
 };
 // môi trường của một số chất dùng trong nhà (giấm chứa acetic acid; nước vôi, nước xà phòng có môi trường base)
 const TINH_ACID = { "Giấm ăn": "acid", "Đường kính": "trung tính", "Nước vôi": "base", "Nước xà phòng": "base" };
@@ -269,6 +323,25 @@ const soOxh = (f, el) => (Object.keys(congThuc(f)).length === 1 ? 0 : oxh(f, el)
 const docCHe = (s) => { const pl = [...s.matchAll(/(\d)([spdf])([⁰¹²³⁴⁵⁶⁷⁸⁹]+)/g)].map((m) => ({ n: +m[1], l: m[2], e: supV(m[3]) }));
   const n = Math.max(...pl.map((p) => p.n)); return { e: sum(pl.map((p) => p.e)), chuKi: n, ngoai: sum(pl.filter((p) => p.n === n).map((p) => p.e)), cuoi: pl[pl.length - 1].l }; };
 const LA_MA = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
+// tên ester RCOOR′: tên gốc R′ (của alcohol) rồi tên gốc acid; công thức viết phần gốc acid trước
+const GOC_ACID = { formate: "HCOO", acetate: "CH₃COO", propanoate: "C₂H₅COO", butanoate: "C₃H₇COO", benzoate: "C₆H₅COO" };
+const GOC_R = { methyl: "CH₃", ethyl: "C₂H₅", propyl: "CH₂CH₂CH₃", butyl: "CH₂CH₂CH₂CH₃", benzyl: "CH₂C₆H₅", phenyl: "C₆H₅" };
+const congThucEster = (ten) => { const [r, a] = ten.toLowerCase().split(" "); assert.ok(GOC_R[r] && GOC_ACID[a], "chưa đọc được tên ester " + ten); return GOC_ACID[a] + GOC_R[r]; };
+// nguồn gốc của một số loại sợi (Bài 13): sợi lấy trực tiếp từ thiên nhiên, chế biến hoá học từ polymer thiên nhiên, tổng hợp
+const NGUON_SOI = { "Sợi bông": "thiên nhiên", "Sợi visco": "bán tổng hợp", "Sợi nylon-6,6": "tổng hợp", "Sợi nitron": "tổng hợp" };
+// mạch polymer (Bài 12): amylopectin mạch phân nhánh; cao su tổng hợp từ các diene (Bài 13)
+const MACH = { Amylopectin: "phân nhánh", Amylose: "không phân nhánh", "Poly(methyl methacrylate)": "không phân nhánh", Polypropylene: "không phân nhánh" };
+const CAO_SU = { "CH₂=CCl–CH=CH₂": "cao su chloroprene", "CH₂=CH–CH=CH₂": "cao su buna", "CH₂=C(CH₃)–CH=CH₂": "cao su isoprene", "CH₂=CHCl": "PVC" };
+// muối sodium của acid béo trong chất béo (Bài 1): tên chất béo là “tri” + phần sau của tên
+const MUOI_BEO = { palmitin: "C₁₅H₃₁COONa", stearin: "C₁₇H₃₅COONa", olein: "C₁₇H₃₃COONa", linolein: "C₁₇H₃₁COONa" };
+// kí hiệu nhận dạng sáu polymer nhiệt dẻo tái chế được (Bài 12, Hình 12.1)
+const TAI_CHE = { 1: "Poly(ethylene terephthalate)", 2: "HDPE", 3: "Poly(vinyl chloride)", 4: "LDPE", 5: "Polypropylene", 6: "Polystyrene" };
+// một số quặng kim loại thông dụng (Bài 20, Bảng 20.1)
+const QUANG_CT = { bauxite: "Al₂O₃·2H₂O", hematite: "Fe₂O₃", pyrite: "FeS₂", chalcopyrite: "CuFeS₂", "zinc blende": "ZnS" };
+// nhiệt độ nóng chảy (°C) của kim loại nhóm IIA, Be → Ba (Bài 25, Bảng 25.2)
+const NC_IIA = { Be: 1287, Mg: 650, Ca: 842, Sr: 777, Ba: 727 };
+// kim loại tác dụng với nước ở nhiệt độ thường (Bài 19, 24, 25)
+const TAC_NUOC = { Li: true, Na: true, K: true, Ca: true, Sr: true, Ba: true, Be: false, Mg: false, Al: false, Zn: false, Fe: false, Ni: false, Cu: false, Ag: false, Au: false, Pt: false };
 
 /* ---------- các mục kiểm tra của từng đề (RIENG; phiên thêm đề thì thêm một khoá mới) ----------
    has: đoạn chữ của đề bài; right(q, d): đáp án tính bằng code, d là chữ của đoạn thông tin dùng chung (rỗng nếu câu không có): câu nhiều
@@ -454,6 +527,189 @@ const RIENG = {
     { has: "Nung 1 tấn đá vôi", right: (q) => { const nt = ntDe(q), [m0] = so(q.q, "Nung # tấn đá vôi"), [p] = so(q.q, "chứa #% CaCO₃"), [m1] = so(q.q, "thu được # tấn chất rắn"), pt = ptCua(q, "CaCO₃", "CO₂");
       const caco3 = molTheoPT(pt, "CO₂", (m0 - m1) / KL("CO₂", nt), "CaCO₃") * KL("CaCO₃", nt); return (caco3 / ((m0 * p) / 100)) * 100; } },
   ],
+  "hoahoc12-tn-de5": [
+    { has: "Công thức cấu tạo thu gọn của benzyl acetate là", right: (q) => { const ten_ = /của (\p{L}+ \p{L}+) là$/u.exec(q.q)[1]; return motCai(q, (o) => o === congThucEster(ten_)); } },
+    { has: "oxygen chiếm 27,59% về khối lượng", right: (q) => { const nt = ntDe(q), [p] = so(q.q, "oxygen chiếm #% về khối lượng");
+      return motCai(q, (o) => { const c = congThuc(o); assert.ok(c.O === 2 && c.H === 2 * c.C, "ester no, đơn chức, mạch hở: " + o); return Math.abs((100 * c.O * nt.O) / KL(o, nt) - p) < 0.005; }); } },
+    { has: "nguyên liệu chính để nấu xà phòng là chất béo và", right: (q) => { const p = "(C₁₇H₃₅COO)₃C₃H₅ + 3NaOH → 3C₁₇H₃₅COONa + C₃H₅(OH)₃"; coX(q, p); assert.ok(canBang(p)); return BAI_HOC.nauKiem; } },
+    { has: "Phân tử fructose không có nhóm –CHO", right: () => BAI_HOC.fruTollens },
+    { has: "Phân tử saccharose (đường mía) được tạo thành từ", right: () => BAI_HOC.saccharose },
+    { has: "Nhai kĩ một miếng cơm trắng", right: () => BAI_HOC.amylase },
+    { has: "dung dịch aniline (C₆H₅NH₂) trong một ống nghiệm", right: (q) => { const p = "C₆H₅NH₂ + 3Br₂ → C₆H₂Br₃NH₂ + 3HBr"; coX(q, p); assert.ok(canBang(p)); return BAI_HOC.anilineBr; } },
+    { has: "Nhúng mẩu giấy quỳ tím vào dung dịch glutamic acid", right: (q) => { const [nh, co] = AA["Glutamic acid"];
+      assert.ok(co === 2 && /hai nhóm carboxyl/.test(q.q) && nh === 1 && /một nhóm amino/.test(q.q), "đề ghi đúng số nhóm của glutamic acid"); return nh > co ? "hoá xanh" : nh < co ? "hoá hồng" : "không đổi màu"; } },
+    { has: "polymer có mạch phân nhánh là", right: (q) => tra(q, MACH, "phân nhánh") },
+    { has: "Cao su chloroprene có độ bền cao", right: (q) => tra(q, CAO_SU, "cao su chloroprene") },
+    { has: "Hạt nhân của nguyên tử này có bao nhiêu neutron?", right: (q) => { const [A] = so(q.q, "có số khối #"), [Z] = so(q.q, "Z = #"); assert.equal(Z, Z_NT.Na); return String(A - Z); } },
+    { has: "Khí dầu mỏ hoá lỏng (LPG)", right: () => BAI_HOC.lpg },
+    { has: "có trong nọc kiến", right: () => BAI_HOC.nocKien },
+    { has: "pin có sức điện động chuẩn 0,780 V", right: (q) => { const e = e0De(q.q), [E] = so(q.q, "sức điện động chuẩn # V");
+      q.o.forEach((o) => assert.ok(e[kiHieu(o)] < e.Cu, "đề cho E° của kim loại ở lựa chọn, nhỏ hơn E° của đồng: " + o)); return motCai(q, (o) => gan(e[kiHieu(o)], e.Cu - E, 1e-6)); } },
+    { has: "Để có đồng rất tinh khiết làm dây dẫn điện", right: (q) => { ["Cu → Cu²⁺ + 2e", "Cu²⁺ + 2e → Cu"].forEach((p) => { coX(q, p); assert.ok(canBang(p)); }); return BAI_HOC.anodeTan; } },
+    { has: "Không cần đun nóng, kim loại nào sau đây tác dụng được với nước", right: (q) => { coX(q, "Ca + 2H₂O → Ca(OH)₂ + H₂"); return tra(q, Object.fromEntries(q.o.map((o) => [o, TAC_NUOC[kiHieu(o)]])), true); } },
+    { has: "cung cấp nguyên tố potassium cho cây trồng", right: (q) => motCai(q, (o) => !!congThuc(o).K) },
+    { has: "Phức chất X được tạo thành từ ion Co³⁺", right: (q) => { const nCl = soChu(q.q, "trung tâm),", "phối tử Cl⁻"), nN = soChu(q.q, "và", "phối tử NH₃");
+      return motCai(q, (o) => { const p = docPhuc(o), k = (f) => (p.L.find((l) => l.f === f) || { k: 0 }).k; return p.M === "Co" && p.tam === 3 && k("Cl") === nCl && k("NH₃") === nN; }); } },
+    { has: "Ethanol nhiên liệu có thể được làm từ mùn cưa", right: (q) => { const nt = ntDe(q), [p] = so(q.q, "chứa #% cellulose"), [m] = so(q.o[2], "Từ # tấn mùn cưa"), [h] = so(q.o[2], "hiệu suất #%"), [kq] = so(q.o[2], "khoảng # kg");
+      const pt = "C₆H₁₂O₆ → 2C₂H₅OH + 2CO₂"; coX(q, pt); assert.ok(canBang(pt));
+      const et = ((m * 1000 * p) / 100 / KL("C₆H₁₀O₅", nt)) * heSo(pt, "C₂H₅OH") * KL("C₂H₅OH", nt) * h / 100;
+      return [BAI_HOC.celluloseGlucose, tach(pt)[1].some((s) => s.ten === "CO₂"), Math.abs(et - kq) < 0.5, BAI_HOC.celluloseTan]; } },
+    { has: "Nylon-6,6 là polymer được dùng để dệt vải", right: () => BAI_HOC.nylon66 },
+    { has: "điện phân dung dịch CuSO₄ với hai điện cực bằng than chì", right: (q) => { const [ca, an] = dienPhanDD("CuSO₄"), pt = "2CuSO₄ + 2H₂O → 2Cu + O₂ + 2H₂SO₄"; coX(q, pt); assert.ok(canBang(pt));
+      return [ca === "Cu", an === "khí Cl₂", tach(pt)[1].some((s) => s.ten === "H₂SO₄"), ca !== "Cu"]; } },
+    { has: "Nung 10 g CaCO₃ đến khối lượng không đổi", right: (q) => { const nt = ntDe(q), vm = vmDe(q), [m] = so(q.q, "Nung # g CaCO₃"), n0 = m / KL("CaCO₃", nt), [mX] = so(q.o[1], "khối lượng # g"), [V] = so(q.o[2], "chiếm thể tích # L"), [mKT] = so(q.o[3], "thu được # g kết tủa");
+      ["CaCO₃ → CaO + CO₂", "Ca(OH)₂ + CO₂ → CaCO₃ + H₂O"].forEach((p) => { coX(q, p); assert.ok(canBang(p)); });
+      return [BAI_HOC.nungDaVoiToaNhiet, gan(mX, n0 * KL("CaO", nt)), gan(V, n0 * vm), gan(mKT, n0 * KL("CaCO₃", nt))]; } },
+    { has: "Có thể thu được tối đa bao nhiêu triester (chất béo) khác nhau", right: (q) => { const k = new Set(q.q.match(/(?:palmitic|stearic|oleic|linoleic) acid/g)).size; return (k * k * (k + 1)) / 2; } },
+    { has: "thì tốc độ phản ứng tăng gấp đôi", right: (q) => { const [d] = so(q.q, "tăng nhiệt độ thêm # °C"), [t1, t2] = so(q.q, "từ # °C lên # °C"); return 2 ** ((t2 - t1) / d); } },
+    { has: "Có bao nhiêu amine bậc một có cùng công thức phân tử", right: (q) => { const f = /công thức phân tử ([A-Z][A-Za-z₀-₉]+)\?/.exec(q.q)[1], c = congThuc(f);
+      assert.ok(c.N === 1 && c.H === 2 * c.C + 3, "amine no, đơn chức, mạch hở"); return ALKYL[c.C]; } },
+    { has: "có bao nhiêu kim loại tan được trong dung dịch HCl loãng", right: (q) => { const ds = /Trong các kim loại (.+?), có bao nhiêu/.exec(q.q)[1].split(", ");
+      ds.forEach((k) => assert.ok(k in E0_SACH, "chưa có E° của " + k)); return ds.filter((k) => E0_SACH[k] < 0).length; } },
+    { has: "Cho 8 g bột hợp kim của đồng với kẽm", right: (q) => { const nt = ntDe(q), vm = vmDe(q), [m] = so(q.q, "Cho # g bột hợp kim"), [V] = so(q.q, "thu được # L khí H₂"), pt = ptCua(q, "Zn", "H₂");
+      return (molTheoPT(pt, "H₂", V / vm, "Zn") * nt.Zn) / m * 100; } },
+    { has: "Cho 2,74 g barium vào nước dư", right: (q) => { const nt = ntDe(q), [m] = so(q.q, "Cho # g barium"), [C] = so(q.q, "dung dịch HCl # M"), p1 = ptCua(q, "Ba", "Ba(OH)₂"), p2 = ptCua(q, "Ba(OH)₂", "HCl");
+      return (molTheoPT(p2, "Ba(OH)₂", molTheoPT(p1, "Ba", m / nt.Ba, "Ba(OH)₂"), "HCl") / C) * 1000; } },
+  ],
+  "hoahoc12-tn-de6": [
+    { has: "Ester có công thức cấu tạo CH₃COOCH₂CH₂CH₃ có tên gọi là", right: (q) => { const f = /công thức cấu tạo ([A-Z][A-Za-z₀-₉]+) có tên/.exec(q.q)[1]; return motCai(q, (o) => congThucEster(o) === f); } },
+    { has: "Dùng xà phòng giặt quần áo bằng nước giếng khoan", right: (q) => { const p = "2C₁₇H₃₅COO⁻ + Ca²⁺ → (C₁₇H₃₅COO)₂Ca"; coX(q, p); assert.ok(canBang(p)); return BAI_HOC.nuocCungXP; } },
+    { has: "Cellulose dùng để làm giấy viết", right: () => BAI_HOC.giay },
+    { has: "Điện phân nóng chảy hoàn toàn 11,7 g NaCl", right: (q) => { const nt = ntDe(q), vm = vmDe(q), [m] = so(q.q, "hoàn toàn # g NaCl"), pt = ptCua(q, "NaCl", "Cl₂");
+      const V = molTheoPT(pt, "NaCl", m / KL("NaCl", nt), "Cl₂") * vm; return motCai(q, (o) => gan(so(o, "# L")[0], V, 1e-3)); } },
+    { has: "Đun 17,1 g saccharose với dung dịch acid loãng", right: (q) => { const nt = ntDe(q), [m] = so(q.q, "Đun # g saccharose"), pt = "C₁₂H₂₂O₁₁ + H₂O → 2C₆H₁₂O₆"; coX(q, pt); assert.ok(canBang(pt));
+      const mAg = molTheoPT(pt, "C₁₂H₂₂O₁₁", m / KL("C₁₂H₂₂O₁₁", nt), "C₆H₁₂O₆") * 2 * nt.Ag; return motCai(q, (o) => gan(so(o, "# g")[0], mAg)); } },
+    { has: "Cho 5,9 g một amine bậc một X", right: (q) => { const nt = ntDe(q), [m] = so(q.q, "Cho # g một amine"), [V] = so(q.q, "với # mL"), [C] = so(q.q, "HCl # M"), M = m / ((V / 1000) * C);
+      coX(q, "C₃H₇NH₂ + HCl → C₃H₇NH₃Cl"); return motCai(q, (o) => gan(KL(o, nt), M, 1e-6)); } },
+    { has: "có bao nhiêu liên kết peptide?", right: (q) => { const p = /pentapeptide ((?:Gly|Ala|Val)(?:-(?:Gly|Ala|Val))+)/.exec(q.q)[1].split("-"); assert.equal(p.length, 5); return String(p.length - 1); } },
+    { has: "Polymer X có mạch được tạo thành từ các mắt xích –NH–(CH₂)₅–CO–", right: () => { assert.equal(congThuc("NH(CH₂)₅CO").C, 6); return BAI_HOC.capron; } },
+    { has: "Cao su tự nhiên, dùng làm lốp xe", right: () => BAI_HOC.muCaoSu },
+    { has: "liên kết giữa các nguyên tử không bị phân cực?", right: (q) => motCai(q, (o) => Object.keys(congThuc(o)).length === 1) },
+    { has: "Trong lò nung vôi xảy ra cân bằng", right: (q) => { const pt = boTrangThai(q.q).match(PT)[0], thu = /ΔrH°298 > 0/.test(q.q); assert.ok(canBang(pt));
+      const khi = tach(pt)[1].some((s) => s.ten === "CO₂"), huong = (o) => (/^Nâng nhiệt độ/.test(o) ? (thu ? 1 : -1) : /^Hạ nhiệt độ/.test(o) ? (thu ? -1 : 1) : /giữ khí CO₂/.test(o) ? (khi ? -1 : 1) : /^Nghiền nhỏ/.test(o) ? 0 : NaN);
+      q.o.forEach((o) => assert.ok(!isNaN(huong(o)), "chưa đọc được thay đổi: " + o)); return motCai(q, (o) => huong(o) === 1); } },
+    { has: "Nhỏ nước bromine vào dung dịch phenol", right: (q) => { const p = "C₆H₅OH + 3Br₂ → C₆H₂Br₃OH + 3HBr"; coX(q, p); assert.ok(canBang(p)); return BAI_HOC.phenolBr; } },
+    { has: "kim loại dễ nhường electron nhất là", right: (q) => { const e = e0De(q.q), mn = Math.min(...Object.values(e)); assert.equal(Object.keys(e).length, 4); return motCai(q, (o) => gan(e[kiHieu(o)], mn)); } },
+    { has: "Cho hỗn hợp bột Zn và Cu vào lượng dư dung dịch AgNO₃", right: (q) => { ["Zn + 2Ag⁺ → Zn²⁺ + 2Ag", "Cu + 2Ag⁺ → Cu²⁺ + 2Ag"].forEach((p) => { coX(q, p); assert.ok(canBang(p)); });
+      const ran = new Set(["Zn", "Cu"].filter((k) => E0_SACH[k] > E0_SACH.Ag).concat(["Ag"]));
+      return motCai(q, (o) => { const s = o.replace(/^chỉ có /, "").split(/, | và /); return s.length === ran.size && s.every((x) => ran.has(x)); }); } },
+    { has: "Mẩu potassium phản ứng mãnh liệt hơn", right: (q) => { assert.ok(E0_SACH.K < E0_SACH.Na); coX(q, "2K + 2H₂O → 2KOH + H₂"); return BAI_HOC.kNa; } },
+    { has: "Để pháo hoa có màu đỏ son", right: (q) => motCai(q, (o) => MAU_LUA[kiHieu(o)] === "đỏ son") },
+    { has: "Sắt tạo được hai muối chloride là FeCl₂ và FeCl₃", right: () => "+" + oxh("FeCl₂", "Fe") + " và +" + oxh("FeCl₃", "Fe") },
+    { has: "Có bao nhiêu phức chất mà nguyên tử trung tâm có điện tích +2?", right: (q) => { const ds = phucTrong(q.q); assert.equal(ds.length, 5); return String(ds.filter((p) => docPhuc(p).tam === 2).length); } },
+    { has: "Tripeptide X có trình tự Val-Gly-Val", right: (q) => { const TEN = { Gly: "Glycine", Ala: "Alanine", Val: "Valine" }, p = /trình tự ((?:Gly|Ala|Val)(?:-(?:Gly|Ala|Val))+)/.exec(q.q)[1].split("-");
+      const dem = (a) => p.filter((x) => x === a).length, trungTinh = p.every((a) => AA[TEN[a]][0] === AA[TEN[a]][1]);
+      return [new Set(p).size === 2, dem("Val") === 2 && dem("Gly") === 1, !trungTinh, p[1] === "Gly"]; } },
+    { has: "Một pin Galvani được lắp từ điện cực chì chuẩn", right: (q) => { const e = e0De(q.q), [v] = so(q.o[2], "khoảng # V"); coX(q, "Pb → Pb²⁺ + 2e"); assert.ok(canBang("Pb → Pb²⁺ + 2e") && canBang("Cu²⁺ + 2e → Cu"));
+      return [e.Pb > e.Cu, e.Cu > e.Pb && /Cu²⁺ \+ 2e → Cu/.test(q.o[1]), Math.abs(e.Cu - e.Pb - v) < 0.005, e.Cu < e.Pb]; } },
+    { has: "Đồ trang sức bằng “vàng 18K”", right: (q) => { const [p] = so(q.q, "vàng chiếm #%"), [m, mv] = so(q.o[2], "nặng # g chứa khoảng # g vàng");
+      return [BAI_HOC.hopKimCung, true, Math.abs((m * p) / 100 - mv) < 0.005, E0_SACH.Cu < 0]; } },
+    { has: "cho một mẩu calcium vào cốc (1) và một mẩu magnesium vào cốc (2)", right: (q) => { const nt = ntDe(q), vm = vmDe(q), [m, V] = so(q.o[3], "nặng # g và phản ứng hết thì thu được # L"), p = "Ca + 2H₂O → Ca(OH)₂ + H₂";
+      coX(q, p); assert.ok(canBang(p)); return [TAC_NUOC.Mg, TAC_NUOC.Ca, TAC_NUOC.Ca, gan(V, molTheoPT(p, "Ca", m / nt.Ca, "H₂") * vm)]; } },
+    { has: "Từ 1 tấn mỡ động vật chứa 89% tristearin", right: (q) => { const nt = ntDe(q), [m] = so(q.q, "Từ # tấn mỡ"), [p] = so(q.q, "chứa #% tristearin"), [k] = so(q.q, "chứa #% sodium stearate");
+      const f = "(C₁₇H₃₅COO)₃C₃H₅", s = "C₁₇H₃₅COONa", pt = ptCua(q, f, s); return (molTheoPT(pt, f, (m * p) / 100 / KL(f, nt), s) * KL(s, nt)) / (k / 100); } },
+    { has: "Cho năng lượng liên kết (kJ/mol): C–H 418", right: (q) => { const [a] = so(q.q, "C–H #"), [b] = so(q.q, "Cl–Cl #"), [c] = so(q.q, "C–Cl #"), [d] = so(q.q, "H–Cl #"), pt = boTrangThai(q.q).match(PT)[0];
+      assert.ok(canBang(pt) && pt === "CH₄ + Cl₂ → CH₃Cl + HCl"); return a + b - (c + d); } },
+    { has: "Trong tế bào, glucose bị oxi hoá hoàn toàn", right: (q) => { const nt = ntDe(q), vm = vmDe(q), [m] = so(q.q, "hoàn toàn # g glucose"), pt = ptCua(q, "C₆H₁₂O₆", "O₂");
+      return molTheoPT(pt, "C₆H₁₂O₆", m / KL("C₆H₁₂O₆", nt), "O₂") * vm; } },
+    { has: "Một lò luyện gang dùng 10 tấn quặng sắt", right: (q) => { const nt = ntDe(q), [m] = so(q.q, "dùng # tấn quặng"), [p] = so(q.q, "có #% khối lượng là Fe₂O₃"), [h] = so(q.q, "đạt hiệu suất #%"), pt = ptCua(q, "Fe₂O₃", "Fe");
+      return (molTheoPT(pt, "Fe₂O₃", (m * p) / 100 / KL("Fe₂O₃", nt), "Fe") * nt.Fe * h) / 100; } },
+    { has: "Hoà tan hoàn toàn 6,2 g Na₂O vào nước", right: (q) => { const nt = ntDe(q), [m] = so(q.q, "hoàn toàn # g Na₂O"), [V] = so(q.q, "thu được # mL"), pt = ptCua(q, "Na₂O", "NaOH");
+      return molTheoPT(pt, "Na₂O", m / KL("Na₂O", nt), "NaOH") / (V / 1000); } },
+    { has: "nguyên tử manganese có số oxi hoá", right: () => oxh("MnO₂", "Mn") },
+  ],
+  "hoahoc12-tn-de7": [
+    { has: "acid nào có gốc hydrocarbon no?", right: (q) => motCai(q, (o) => { const m = /^C([₀-₉]+)H([₀-₉]+)COOH$/.exec(o); assert.ok(m, "acid béo: " + o); return subV(m[2]) === 2 * subV(m[1]) + 1; }) },
+    { has: "cần vừa đủ 0,35 mol O₂", right: (q) => { const [n] = so(q.q, "hoàn toàn # mol ester"), [o2] = so(q.q, "vừa đủ # mol O₂");
+      return motCai(q, (o) => { const c = congThuc(o); assert.ok(c.O === 2 && c.H === 2 * c.C, "ester no, đơn chức, mạch hở: " + o); return gan((n * (2 * c.C + c.H / 2 - c.O)) / 2, o2); }); } },
+    { has: "Glucose và fructose đều có công thức phân tử C₆H₁₂O₆", right: () => BAI_HOC.dongPhan },
+    { has: "Trâu, bò tiêu hoá được cellulose", right: () => BAI_HOC.khongEnzyme },
+    { has: "chất có nguyên tử nitrogen liên kết với ba gốc hydrocarbon", right: (q) => motCai(q, (o) => !/NH/.test(o)) },
+    { has: "Thuỷ phân hoàn toàn dipeptide Ala-Val", right: (q) => { const TEN = { Gly: "glycine", Ala: "alanine", Val: "valine" }, p = /dipeptide ((?:Gly|Ala|Val)-(?:Gly|Ala|Val))/.exec(q.q)[1].split("-"); return TEN[p[0]] + " và " + TEN[p[1]]; } },
+    { has: "Đun nóng poly(vinyl acetate) với dung dịch NaOH dư", right: () => { const mx = congThuc("C₄H₆O₂"), sp = [congThuc("C₂H₄O"), congThuc("C₂H₃O₂Na")];
+      // mắt xích –CH₂–CH(OCOCH₃)– cộng NaOH bằng mắt xích –CH₂–CH(OH)– cộng muối
+      ["C", "H", "O", "Na"].forEach((e) => assert.equal((mx[e] || 0) + (e === "Na" || e === "O" ? 1 : 0) + (e === "H" ? 1 : 0), sp.reduce((a, c) => a + (c[e] || 0), 0), "bảo toàn " + e));
+      return BAI_HOC.pvaNaOH; } },
+    { has: "Nhựa vá săm", right: () => BAI_HOC.vaSam },
+    { has: "Đơn chất halogen nào sau đây có khả năng oxi hoá lớn nhất?", right: (q) => { const z = (o) => Z_NT[/\(([A-Z][a-z]?)₂\)$/.exec(o)[1]]; q.o.forEach((o) => assert.ok(z(o), "halogen: " + o)); return motCai(q, (o) => z(o) === Math.min(...q.o.map(z))); } },
+    { has: "Nitrogen chiếm khoảng 78% thể tích không khí", right: () => BAI_HOC.n2 },
+    { has: "có công thức đơn giản nhất là CH₂O", right: (q) => { const [M] = so(q.q, "phân tử khối bằng #"), k = M / KL("CH₂O"); return motCai(q, (o) => { const c = congThuc(o); return c.C === k && c.H === 2 * k && c.O === k; }); } },
+    { has: "Ghép điện cực nhôm chuẩn với điện cực bạc chuẩn", right: (q) => { const e = e0De(q.q); return motCai(q, (o) => gan(so(o, "# V")[0], e.Ag - e.Al, 1e-9)); } },
+    { has: "Điện phân dung dịch Na₂SO₄ với hai điện cực trơ", right: (q) => { const [ca, an] = dienPhanDD("Na₂SO₄"); assert.ok(ca === "khí H₂" && an === "khí O₂"); coX(q, "2H₂O → 2H₂ + O₂"); return BAI_HOC.dienPhanNuoc; } },
+    { has: "magnesium dạng bột vào cốc chứa 100 mL dung dịch AgNO₃", right: (q) => { const nt = ntDe(q), [m] = so(q.q, "Thả # g magnesium"), [V] = so(q.q, "chứa # mL"), [C] = so(q.q, "AgNO₃ # M"), pt = ptCua(q, "Mg", "Ag");
+      const nMg = m / nt.Mg, pu = Math.min(nMg, ((V / 1000) * C) / heSo(pt, "AgNO₃")), mR = pu * heSo(pt, "Ag") * nt.Ag + (nMg - pu) * nt.Mg; return motCai(q, (o) => gan(so(o, "# g")[0], mR, 1e-9)); } },
+    { has: "Ion Na⁺ có cấu hình electron giống với nguyên tử của khí hiếm", right: (q) => motCai(q, (o) => Z_NT[kiHieu(o)] === Z_NT.Na - 1) },
+    { has: "có bao nhiêu electron ở lớp ngoài cùng?", right: () => { ["Mg", "Ca", "Ba"].forEach((k) => assert.equal(NHOM[k], "IIA")); return String(LA_MA.indexOf("II")); } },
+    { has: "Chất rắn tạo thành có màu", right: (q) => { coX(q, "CuSO₄ + 2NaOH → Cu(OH)₂ + Na₂SO₄"); return BAI_HOC.cuOH2; } },
+    { has: "Phức chất [CrCl₂(H₂O)₄]⁺ được tạo thành từ các phối tử", right: (q) => { const p = docPhuc(/\[CrCl₂\(H₂O\)₄\]⁺/.exec(q.q)[0]); return ionTen(p.M, p.tam); } },
+    { has: "chế biến thành nhiên liệu biodiesel", right: () => { assert.equal(congThuc("C₃H₅(OH)₃").O, 3); return BAI_HOC.biodiesel; } },
+    { has: "Chất dẻo như PE, PP, PVC được dùng rất rộng rãi", right: () => BAI_HOC.chatDeo },
+    { has: "dẫn luồng khí H₂ dư đi qua ống sứ đựng 8 g bột CuO", right: (q) => { const nt = ntDe(q), [m] = so(q.q, "đựng # g bột CuO"), [d] = so(q.o[2], "giảm # g"), pt = "CuO + H₂ → Cu + H₂O";
+      coX(q, pt); assert.ok(canBang(pt)); return [true, false, gan((m / KL("CuO", nt)) * nt.O, d), tach(pt)[1].some((s) => s.ten === "CO₂")]; } },
+    { has: "Hoà tan 10,6 g Na₂CO₃ vào nước, thu được 400 mL dung dịch X", right: (q) => { const nt = ntDe(q), [m] = so(q.q, "Hoà tan # g Na₂CO₃"), [V] = so(q.q, "thu được # mL"), [C] = so(q.o[1], "là # M"), pt = "Na₂CO₃ + 2HCl → 2NaCl + CO₂ + H₂O";
+      coX(q, pt); assert.ok(canBang(pt) && canBang("Na₂CO₃ → Na₂O + CO₂")); return [false, gan(C, m / KL("Na₂CO₃", nt) / (V / 1000)), tach(pt)[1].some((s) => s.ten === "CO₂"), false]; } },
+    { has: "Đun nóng 10,2 g ethyl propanoate", right: (q) => { const nt = ntDe(q), f = /\(([A-Z][A-Za-z₀-₉]+)\)/.exec(q.q)[1], [m] = so(q.q, "Đun nóng # g"), pt = ptCua(q, f, "NaOH");
+      return molTheoPT(pt, f, m / KL(f, nt), muoiEster(f)) * KL(muoiEster(f), nt); } },
+    { has: "tổng số hạt proton, neutron và electron là 82", right: (q) => { const [T] = so(q.q, "electron là #,"), [d] = so(q.q, "hơn số neutron # hạt"), Z = (T + d) / 4, N = (T - d) / 2; return Z + N; } },
+    { has: "Lên men m gam glucose với hiệu suất 75%", right: (q) => { const nt = ntDe(q), [h] = so(q.q, "hiệu suất #%"), [mk] = so(q.q, "thu được # g kết tủa"), p1 = ptCua(q, "C₆H₁₂O₆", "CO₂"), p2 = ptCua(q, "CO₂", "CaCO₃");
+      return (molTheoPT(p1, "CO₂", molTheoPT(p2, "CaCO₃", mk / KL("CaCO₃", nt), "CO₂"), "C₆H₁₂O₆") / (h / 100)) * KL("C₆H₁₂O₆", nt); } },
+    { has: "Một loại thép không gỉ chứa 18% chromium", right: (q) => { const [p] = so(q.q, "chứa #% chromium"), [m] = so(q.q, "nặng # kg"); return (m * 1000 * p) / 100; } },
+    { has: "hỗn hợp gồm Mg và MgO", right: (q) => { const nt = ntDe(q), vm = vmDe(q), [m] = so(q.q, "Hoà tan # g hỗn hợp"), [V] = so(q.q, "có # L khí H₂"), pt = ptCua(q, "Mg", "H₂");
+      coX(q, "MgO + 2HCl → MgCl₂ + H₂O"); return ((molTheoPT(pt, "H₂", V / vm, "Mg") * nt.Mg) / m) * 100; } },
+    { has: "Trong 15,2 g Cr₂O₃ có bao nhiêu gam chromium?", right: (q) => { const nt = ntDe(q), [m] = so(q.q, "Trong # g Cr₂O₃"); return (m * congThuc("Cr₂O₃").Cr * nt.Cr) / KL("Cr₂O₃", nt); } },
+  ],
+  "hoahoc12-tn-de8": [
+    { has: "Chất nào sau đây không thuộc loại lipid?", right: (q) => { const LIPID = { "Chất béo": true, "Sáp ong": true, Phospholipid: true, Steroid: true, Saccharose: false };
+      q.o.forEach((o) => assert.ok(o in LIPID, "chưa biết " + o)); return motCai(q, (o) => !LIPID[o]); } },
+    { has: "thu được glycerol và 83,4 g muối sodium", right: (q) => { const nt = ntDe(q), [n] = so(q.q, "Đun # mol chất béo"), [m] = so(q.q, "và # g muối"), M = m / (3 * n);
+      const ten = Object.keys(MUOI_BEO).filter((k) => gan(KL(MUOI_BEO[k], nt), M)); assert.equal(ten.length, 1, "muối của acid béo có M = " + M); return "tri" + ten[0]; } },
+    { has: "nước quả bồ kết, quả bồ hòn", right: () => BAI_HOC.boKet },
+    { has: "Cho dung dịch glucose vào Cu(OH)₂ mới điều chế", right: () => BAI_HOC.cu2o },
+    { has: "aniline phản ứng với nitrous acid (HONO) tạo thành", right: (q) => { coX(q, "C₆H₅NH₂ + HONO + HCl → C₆H₅N₂Cl + 2H₂O"); return BAI_HOC.diazonium; } },
+    { has: "Vắt nước chanh vào cốc sữa đậu nành", right: () => BAI_HOC.dongTuAcid },
+    { has: "kí hiệu tái chế số 1 kèm chữ PET", right: (q) => { const [k] = so(q.q, "tái chế số # kèm"); return TAI_CHE[k]; } },
+    { has: "Keo dán poly(urea-formaldehyde)", right: () => BAI_HOC.keoUF },
+    // carbon hoá trị IV liên kết với hai nguyên tử oxygen hoá trị II: mỗi liên kết C–O dùng chung 4 : 2 = 2 cặp electron
+    { has: "Trong phân tử CO₂, nguyên tử carbon liên kết với mỗi nguyên tử oxygen", right: () => { const HT = { C: 4, O: 2 }; assert.equal(HT.C / 2, HT.O); return ["", "một liên kết đơn", "một liên kết đôi", "một liên kết ba"][HT.C / 2]; } },
+    // biểu thức hằng số cân bằng: bỏ chất rắn, chất lỏng; số mũ bằng hệ số trong phương trình
+    { has: "được biểu diễn bằng biểu thức nào sau đây?", right: (q) => { const MU = { 2: "²", 3: "³", 4: "⁴" }, pt = /cân bằng hoá học: ([^.]+)\. /.exec(q.q)[1];
+      const [tr, sp] = pt.split(" ⇌ ").map((v) => v.split(" + ").map((s) => /^(\d*)(.+)\((s|l|g|aq)\)$/.exec(s)).filter((m) => m[3] === "g" || m[3] === "aq"));
+      const ve = (ds) => ds.map((m) => "[" + m[2] + "]" + (m[1] ? MU[m[1]] : "")).join(" · "); assert.ok(canBang(pt.replace(/\((s|l|g|aq)\)/g, "")));
+      return "KC = " + ve(sp) + " / " + (tr.length > 1 ? "(" + ve(tr) + ")" : ve(tr)); } },
+    { has: "đèn xì để hàn, cắt kim loại", right: () => BAI_HOC.denXi },
+    { has: "ứng với cặp oxi hoá – khử được kí hiệu là", right: (q) => { const m = /Quá trình (\S+) \+ \d*e ⇌ (\S+) /.exec(q.q); assert.ok(canBang(m[0].replace("Quá trình ", "").trim())); return m[1] + "/" + m[2]; } },
+    { has: "khử được ion H⁺ trong dung dịch HCl thành khí H₂", right: (q) => { const e = e0De(q.q); return motCai(q, (o) => e[kiHieu(o)] < 0); } },
+    { has: "Quặng chalcopyrite", right: (q) => { const f = QUANG_CT[/Quặng (\w+)/.exec(q.q)[1]]; assert.ok(congThuc(f).Cu === 1, "quặng chứa đồng"); return f; } },
+    { has: "so với các kim loại thành phần, hợp kim", right: () => BAI_HOC.hopKimSoSanh },
+    { has: "các kim loại thuộc nhóm IIA có nhiệt độ nóng chảy", right: () => { const t = Object.values(NC_IIA), tang = t.every((v, i) => !i || v > t[i - 1]), giam = t.every((v, i) => !i || v < t[i - 1]);
+      assert.ok(!tang && !giam, "nhiệt độ nóng chảy biến đổi không đều"); ["Be", "Mg", "Ca", "Sr", "Ba"].forEach((k) => assert.equal(NHOM[k], "IIA")); return BAI_HOC.iiaCauTruc; } },
+    // ion Mⁿ⁺ của kim loại chuyển tiếp dãy thứ nhất: nguyên tử nhường electron 4s trước, Z = 18 + số electron 3d + n
+    { has: "Ion M²⁺ ứng với cấu hình [Ar]3d²", right: (q) => { const m = /Ion M([²³⁴]?)⁺ ứng với cấu hình \[Ar\]3d([¹²³⁴⁵⁶⁷⁸⁹]+)/.exec(q.q), Z = 18 + supV(m[2]) + (m[1] ? supV(m[1]) : 1);
+      assert.ok(Z >= 21 && Z <= 29, "dãy kim loại chuyển tiếp thứ nhất"); return motCai(q, (o) => +o === Z); } },
+    { has: "chất diệp lục (chlorophyll)", right: () => BAI_HOC.chlorophyll },
+    { has: "khoảng 2 mL ethanol, 2 mL acetic acid và vài giọt H₂SO₄ đặc", right: () => BAI_HOC.esterHoa },
+    { has: "điện phân dung dịch NaCl bão hoà trong cốc với hai điện cực than chì", right: (q) => { const [ca, an] = dienPhanDD("NaCl");
+      coX(q, "2H₂O + 2e → H₂ + 2OH⁻", "2Cl⁻ → Cl₂ + 2e", "Cl₂ + 2NaOH → NaCl + NaClO + H₂O"); return [ca === "khí H₂", an === "khí O₂", false, true]; } },
+    { has: "trộn bột nhôm với bột lưu huỳnh", right: (q) => { const nt = ntDe(q), pt = "2Al + 3S → Al₂S₃", tiLe = /khối lượng lưu huỳnh gấp đôi khối lượng nhôm/.test(q.q) ? 2 : NaN;
+      coX(q, pt, "Al → Al³⁺ + 3e", "S + 2e → S²⁻"); const canS = (molTheoPT(pt, "Al", 1 / nt.Al, "S") * nt.S);
+      return [false, tach(pt)[1].some((s) => s.ten === "Al₂S₃") && q.o[1].includes("Al₂S₃"), canS > tiLe, false]; } },
+    { has: "Cho 2,3 g sodium vào 100 mL dung dịch CuSO₄", right: (q) => { const nt = ntDe(q), vm = vmDe(q), [m] = so(q.q, "Cho # g sodium"), [V] = so(q.q, "vào # mL"), [C] = so(q.q, "CuSO₄ # M"), [vh] = so(q.o[1], "là # L"), [mk] = so(q.o[2], "là # g");
+      const p1 = "2Na + 2H₂O → 2NaOH + H₂", p2 = "CuSO₄ + 2NaOH → Cu(OH)₂ + Na₂SO₄"; coX(q, p1, p2);
+      const nNa = m / nt.Na, nOH = molTheoPT(p1, "Na", nNa, "NaOH"), pu = Math.min((V / 1000) * C, nOH / heSo(p2, "NaOH"));
+      return [false, gan(vh, molTheoPT(p1, "Na", nNa, "H₂") * vm), gan(mk, pu * KL("Cu(OH)₂", nt)), nOH - pu * heSo(p2, "NaOH") > 1e-9]; } },
+    { has: "Tetrapeptide Ala-Val-Gly-Gly", right: (q) => { const M = { Gly: so(q.q, "glycine #")[0], Ala: so(q.q, "alanine #")[0], Val: so(q.q, "valine #")[0] }, [nuoc] = so(q.q, "nước #"), seq = /Tetrapeptide ((?:\w+-)+\w+)/.exec(q.q)[1].split("-");
+      assert.equal(seq.length, 4); return seq.reduce((s, a) => s + M[a], 0) - (seq.length - 1) * nuoc; } },
+    // mắt xích nylon-6,6 = adipic acid + hexamethylenediamine − 2 phân tử nước
+    { has: "Trùng ngưng adipic acid", right: (q) => { const nt = ntDe(q), [m] = so(q.q, "Dùng # kg adipic acid"), [h] = so(q.q, "chỉ #% lượng adipic acid");
+      const mx = KL("C₆H₁₀O₄", nt) + KL("C₆H₁₆N₂", nt) - 2 * KL("H₂O", nt); assert.ok(gan(mx, KL("C₁₂H₂₂N₂O₂", nt))); return (m / KL("C₆H₁₀O₄", nt)) * mx * (h / 100); } },
+    { has: "Đốt cháy hoàn toàn 1 mol methane toả ra", right: (q) => { const nt = ntDe(q), [Q] = so(q.q, "toả ra # kJ"), [mn] = so(q.q, "đun # kg nước"), [t1, t2] = so(q.q, "từ # °C đến # °C"), [h] = so(q.q, "chỉ #% nhiệt"), [c] = so(q.q, "cần # J");
+      return ((mn * 1000 * c * (t2 - t1)) / 1000 / (h / 100) / Q) * KL("CH₄", nt); } },
+    { has: "bột đồng trong không khí đến khi đồng phản ứng hết", right: (q) => { const nt = ntDe(q), [m] = so(q.q, "Nung nóng # g bột đồng"), pt = ptCua(q, "Cu", "CuO"); return molTheoPT(pt, "Cu", m / nt.Cu, "CuO") * KL("CuO", nt); } },
+    { has: "Vỏ trứng gà có thành phần chính là calcium carbonate", right: (q) => { const nt = ntDe(q), vm = vmDe(q), [m] = so(q.q, "Cho # g bột vỏ trứng"), [V] = so(q.q, "thu được # L khí CO₂"), pt = ptCua(q, "CaCO₃", "CO₂");
+      return (molTheoPT(pt, "CO₂", V / vm, "CaCO₃") * KL("CaCO₃", nt) * 100) / m; } },
+    { has: "Một mẫu nước giếng nhiễm sắt chứa ion Fe³⁺", right: (q) => { const nt = ntDe(q), [C] = so(q.q, "nồng độ # mol/L"), [V] = so(q.q, "Xử lí # L nước"), pt = ptCua(q, "Fe³⁺", "Fe(OH)₃");
+      return molTheoPT(pt, "Fe³⁺", C * V, "Fe(OH)₃") * KL("Fe(OH)₃", nt); } },
+  ],
 };
 
 /* ---------- đề và danh mục: số đề, số câu lấy từ danh mục ---------- */
@@ -608,7 +864,8 @@ let soPT = 0;
       (t.match(PT) || []).forEach((pt) => { kt(canBang(pt), at + ": phương trình chưa cân bằng: " + pt); soPT++; });
       kt(!/→|⇌/.test(t.replace(PT, "")), at + ": mũi tên ngoài phương trình: " + s.slice(0, 120));
       e0De(s);
-      phucTrong(s).forEach((p) => { const x = docPhuc(p); kt(x.tam >= 0 && x.tam <= 4, at + ": điện tích của nguyên tử trung tâm trong " + p); });
+      // biểu thức hằng số cân bằng (như KC = [CO]² / [CO₂]) ghi nồng độ trong ngoặc vuông, không phải phức chất
+      phucTrong(s.replace(/KC = [^.;]*/gu, "")).forEach((p) => { const x = docPhuc(p); kt(x.tam >= 0 && x.tam <= 4, at + ": điện tích của nguyên tử trung tâm trong " + p); });
     }));
   });
   assert.deepEqual(loi, [], "chữ viết khác quy ước");
@@ -731,7 +988,24 @@ const DA_XEM = [
   // hoá của chromium (kho) và là lựa chọn sai ở câu dây dẫn điện (Đề 3), không nói chromium cứng nhất; câu dây nhôm nối dây đồng dùng thuật
   // ngữ ăn mòn điện hoá của bài, không nói đồng sinh ra bám vào viên kẽm trong dung dịch HCl có CuSO₄.
   "tn-de4#16 → tn-de1#17: ca oh ₂", "tn-de3#18 → tn-de4#17: chromium cr", "ck2-de1#15 → tn-de4#17: chromium cr",
-  "tn-de4#20 → ck2-de2#7: bị ăn mòn", "tn-de4#20 → ck2-de2#7: ăn mòn điện", "tn-de4#20 → ck2-de2#7: mòn điện hoá"];
+  "tn-de4#20 → ck2-de2#7: bị ăn mòn", "tn-de4#20 → ck2-de2#7: ăn mòn điện", "tn-de4#20 → ck2-de2#7: mòn điện hoá",
+  // Đã xem tay (Phiên N12-tn-hoahoc-b). Đề 5: câu fructose với thuốc thử Tollens không nói fructose có bị thuỷ phân hay không; “Ca(OH)₂” ở câu nung
+  // CaCO₃ chỉ là dung dịch hấp thụ khí CO₂, không nói vôi sống kết hợp với hơi nước; câu aniline với nước bromine không nói quỳ tím.
+  "tn-de5#4 → tn-de1#3: fructose", "tn-de5#22 → tn-de1#17: ca oh ₂", "tn-de5#7 → ck1-de2#10: aniline",
+  // Đề 6: “Ca(OH)₂” ở câu calcium tác dụng với nước không nói vôi sống kết hợp với hơi nước; câu so tính khử của bốn kim loại có lựa chọn
+  // “Sắt (Fe)”, câu 14 Đề 5 tự cho thế điện cực chuẩn của bốn kim loại; câu thí nghiệm nấu xà phòng (Đề 1) nói muối của acid béo tách ra
+  // khi thêm NaCl bão hoà, không nói ion Ca²⁺, Mg²⁺; “+2 và +3” là lựa chọn sai của câu số oxi hoá của chromium; “Fe₂O₃” ở câu luyện gang
+  // không nói quặng hematite.
+  "tn-de6#22 → tn-de1#17: ca oh ₂", "tn-de6#12 → tn-de5#14: sắt fe", "tn-de1#19 → tn-de6#2: acid béo thành", "ck2-de1#15 → tn-de6#17: +2 và +3",
+  "tn-de6#26 → gk2-de2#14: fe₂o₃",
+  // Đề 7: câu glucose và fructose là đồng phân không nói fructose có bị thuỷ phân hay không; câu cao su lưu hoá (Đề 4) nói cao su lưu hoá
+  // khó tan trong dung môi hơn, không nói nhựa vá săm làm bằng gì; “xanh lam” là lựa chọn sai của câu màu kết tủa Fe(OH)₃ ở kho, không nói
+  // màu của Cu(OH)₂; “ion Cr³⁺” là lựa chọn sai của câu [Cr(CO)₆] ở kho, không cho biết điện tích của ion trung tâm trong [CrCl₂(H₂O)₄]⁺.
+  "tn-de7#3 → tn-de1#3: fructose", "tn-de4#9 → tn-de7#8: trong dung môi", "ck2-de2#16 → tn-de7#17: xanh lam", "ck2-de2#19 → tn-de7#18: cr³⁺",
+  // Đề 8: câu lòng trắng trứng (Đề 2) nói protein đông tụ khi đun nóng, không nói protein đông tụ bởi acid của nước chanh; “acetylene và
+  // hydrogen” là lựa chọn sai của câu thành phần khí LPG (Đề 5), không nói acetylene dùng trong đèn xì; câu aniline với nitrous acid không nói
+  // aniline có làm quỳ tím đổi màu hay không.
+  "tn-de2#20 → tn-de8#6: bị đông tụ", "tn-de5#12 → tn-de8#11: acetylene", "tn-de8#5 → ck1-de2#10: aniline"];
 assert.deepEqual([...r1.chuLo, ...r2.chuLo].sort(), [...DA_XEM].sort(), "đáp án bằng chữ có ở câu khác đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 assert.deepEqual([...r1.lo, ...r2.lo], [], "lộ đáp án:\n" + [...r1.lo, ...r2.lo].join("\n"));
 
@@ -781,7 +1055,7 @@ if (SACH.length) {
   assert.deepEqual(boTrangThai("2H₂(g) + O₂(g) → 2H₂O(l) và CaCO₃(s)").match(PT), ["2H₂ + O₂ → 2H₂O"]);
   assert.ok(canBang("[Co(NH₃)₆]Cl₃ → [Co(NH₃)₆]³⁺ + 3Cl⁻") && !canBang("[Co(NH₃)₆]Cl₃ → [Co(NH₃)₆]³⁺ + Cl⁻"));
   assert.equal(KL("C₆H₇O₂(ONO₂)₃"), 297); assert.equal(KL("C₆H₁₀O₅"), 162); assert.equal(KL("NaHCO₃"), 84);
-  const p = docPhuc("[CoCl(NH₃)₅]²⁺"); assert.ok(p.M === "Co" && p.n === 6 && p.tam === 3);
+  const p = docPhuc("[CoCl(NH₃)₅]²⁺"); assert.ok(p.M === "Co" && p.n === 6 && p.tam === 3); assert.equal(docPhuc("[Fe(CN)₆]⁴⁻").tam, 2); assert.deepEqual(phucTrong("ion [Fe(CN)₆]⁴⁻."), ["[Fe(CN)₆]⁴⁻"]);
   assert.throws(() => docPhuc("[Co(XY₃)₆]³⁺"), /phối tử/); assert.equal(muoiEster("CH₃COOC₂H₅"), "CH₃COONa"); assert.throws(() => muoiEster("C₂H₅OH"));
   assert.throws(() => e0De("E°(Zn²⁺/Zn) = −0,76 V"), /đúng bảng/);
   assert.equal(ionCH(CH.Fe, 3), "[Ar]3d⁵"); assert.equal(oxh("K₂Cr₂O₇", "Cr"), 6); assert.equal(oxh("MnO₄", "Mn", -1), 7);
