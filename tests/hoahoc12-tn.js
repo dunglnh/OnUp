@@ -268,18 +268,18 @@ const BAI_HOC = {
   // Bài 4: glucose và fructose là đồng phân; Bài 6: cơ thể người không có enzyme thuỷ phân cellulose; Bài 13: nhựa vá săm là dung dịch
   // cao su trong dung môi hữu cơ
   dongPhan: "đồng phân của nhau", khongEnzyme: "người không có enzyme thuỷ phân cellulose",
+  vaSam: "dung dịch cao su trong dung môi hữu cơ",
   // Bài 12: poly(vinyl acetate) tác dụng với dung dịch NaOH (phản ứng giữ nguyên mạch) tạo poly(vinyl alcohol) và CH₃COONa
   pvaNaOH: "CH₃COONa",
-  vaSam: "dung dịch cao su trong dung môi hữu cơ",
   // Hoá học 11, Bài 4: liên kết ba trong phân tử N₂ rất bền; Bài 16: điện phân dung dịch muối của kim loại mạnh với gốc oxoacid thực chất là
   // điện phân nước; Bài 27: Cu(OH)₂ màu xanh lam
   n2: "liên kết ba trong phân tử N₂ rất bền", dienPhanNuoc: "chỉ có nước bị điện phân", cuOH2: "xanh lam",
   // Bài 1: chất béo (triester) với methanol tạo ba methyl ester và glycerol (alcohol đa chức); Bài 13: chất dẻo, ô nhiễm, tái chế
   biodiesel: [false, true, false, true], chatDeo: [false, false, true, true],
   // Phiên N12-tn-hoahoc-b, Đề 8
-  // Bài 1: lipid gồm chất béo, sáp, steroid, phospholipid; Bài 2: nước quả bồ kết,
-  // bồ hòn có tác dụng giặt rửa; Bài 4: đun nóng glucose với Cu(OH)₂ trong môi trường kiềm tạo Cu₂O màu đỏ gạch; Bài 8: ở 0 – 5 °C aniline
-  // tác dụng với nitrous acid tạo muối diazonium; Bài 10: protein đông tụ bởi nhiệt, acid, kiềm, muối
+  // Bài 1: lipid gồm chất béo, sáp, steroid, phospholipid; Bài 2: nước quả bồ kết, bồ hòn có tác dụng giặt rửa; Bài 4: đun nóng glucose
+  // với Cu(OH)₂ trong môi trường kiềm tạo Cu₂O màu đỏ gạch; Bài 8: ở 0 – 5 °C aniline tác dụng với nitrous acid tạo muối diazonium;
+  // Bài 10: protein đông tụ bởi nhiệt, acid, kiềm, muối
   boKet: "tẩy rửa được các vết bẩn bám trên tóc, vải", cu2o: "đỏ gạch", diazonium: "muối diazonium",
   dongTuAcid: "protein bị đông tụ do acid trong nước chanh",
   // Bài 13: keo dán poly(urea-formaldehyde) là chất kết dính trong gỗ ván ép; Hoá học 11, Bài 16: đèn xì oxygen – acetylene dùng để hàn, cắt kim loại
@@ -332,7 +332,6 @@ const NGUON_SOI = { "Sợi bông": "thiên nhiên", "Sợi visco": "bán tổng 
 // mạch polymer (Bài 12): amylopectin mạch phân nhánh; cao su tổng hợp từ các diene (Bài 13)
 const MACH = { Amylopectin: "phân nhánh", Amylose: "không phân nhánh", "Poly(methyl methacrylate)": "không phân nhánh", Polypropylene: "không phân nhánh" };
 const CAO_SU = { "CH₂=CCl–CH=CH₂": "cao su chloroprene", "CH₂=CH–CH=CH₂": "cao su buna", "CH₂=C(CH₃)–CH=CH₂": "cao su isoprene", "CH₂=CHCl": "PVC" };
-// kim loại tác dụng với nước ở nhiệt độ thường (Bài 19, 24, 25)
 // muối sodium của acid béo trong chất béo (Bài 1): tên chất béo là “tri” + phần sau của tên
 const MUOI_BEO = { palmitin: "C₁₅H₃₁COONa", stearin: "C₁₇H₃₅COONa", olein: "C₁₇H₃₃COONa", linolein: "C₁₇H₃₁COONa" };
 // kí hiệu nhận dạng sáu polymer nhiệt dẻo tái chế được (Bài 12, Hình 12.1)
@@ -341,6 +340,7 @@ const TAI_CHE = { 1: "Poly(ethylene terephthalate)", 2: "HDPE", 3: "Poly(vinyl c
 const QUANG_CT = { bauxite: "Al₂O₃·2H₂O", hematite: "Fe₂O₃", pyrite: "FeS₂", chalcopyrite: "CuFeS₂", "zinc blende": "ZnS" };
 // nhiệt độ nóng chảy (°C) của kim loại nhóm IIA, Be → Ba (Bài 25, Bảng 25.2)
 const NC_IIA = { Be: 1287, Mg: 650, Ca: 842, Sr: 777, Ba: 727 };
+// kim loại tác dụng với nước ở nhiệt độ thường (Bài 19, 24, 25)
 const TAC_NUOC = { Li: true, Na: true, K: true, Ca: true, Sr: true, Ba: true, Be: false, Mg: false, Al: false, Zn: false, Fe: false, Ni: false, Cu: false, Ag: false, Au: false, Pt: false };
 
 /* ---------- các mục kiểm tra của từng đề (RIENG; phiên thêm đề thì thêm một khoá mới) ----------
