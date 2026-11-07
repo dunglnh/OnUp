@@ -1768,6 +1768,7 @@ window.ONTAP_SEED_BANKS = [
   { id: "vatli12-tn-de5", title: "Vật lí 12 · Thi thử tốt nghiệp · Đề 5", grade: 12, subject: "Vật lí", minutes: 50, n: 28, file: "12-vatli.js", pts: 10 },
   { id: "vatli12-tn-de6", title: "Vật lí 12 · Thi thử tốt nghiệp · Đề 6", grade: 12, subject: "Vật lí", minutes: 50, n: 28, file: "12-vatli.js", pts: 10 },
   { id: "vatli12-tn-de7", title: "Vật lí 12 · Thi thử tốt nghiệp · Đề 7", grade: 12, subject: "Vật lí", minutes: 50, n: 28, file: "12-vatli.js", pts: 10 },
+  { id: "vatli12-tn-de8", title: "Vật lí 12 · Thi thử tốt nghiệp · Đề 8", grade: 12, subject: "Vật lí", minutes: 50, n: 28, file: "12-vatli.js", pts: 10 },
 
   /* Hoá học 12 · Kiểm tra cuối năm học (Kết nối tri thức, Hoá học 12, Chương 6 Đại cương về kim loại, Chương 7 Nguyên tố nhóm IA và nhóm
      IIA, Chương 8 Sơ lược về dãy kim loại chuyển tiếp thứ nhất và phức chất, Bài 18–30, trọng tâm Chương 8; Phiên N12-ck2-vatli-hoahoc).
