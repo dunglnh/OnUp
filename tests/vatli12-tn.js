@@ -1,5 +1,5 @@
-// Kiểm tra các đề Vật lí thi thử tốt nghiệp THPT (data/banks/12-vatli.js, vatli12-tn-de<N>; Phiên N12-tn-vatli: Đề 1–4; phiên sau thêm đề
-// thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG). Đề tính điểm (Phiên K5), khung đề tốt nghiệp THPT từ năm 2025 (Quyết
+// Kiểm tra các đề Vật lí thi thử tốt nghiệp THPT (data/banks/12-vatli.js, vatli12-tn-de<N>; Phiên N12-tn-vatli: Đề 1–4; Phiên N12-tn-vatli-b:
+// Đề 5–8; phiên sau thêm đề thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG). Đề tính điểm (Phiên K5), khung đề tốt nghiệp THPT từ năm 2025 (Quyết
 // định 764/QĐ-BGDĐT; docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7, khối “Phiên N12-tn-vatli”). Số đề, số câu lấy từ danh mục (không ghi cứng).
 // Khung: danh mục (tên, khối 12, môn Vật lí, file, 50 phút, pts 10, gắn vào tn-thpt-2027); Phần I 18 câu nhiều lựa chọn pt 0,25, Phần II 4
 // câu đúng/sai 4 ý pt 1, Phần III 6 câu trả lời ngắn pt 0,25 (đúng tên part, đúng thứ tự), Quiz.grade điểm tối đa 4,5 – 4 – 1,5; đáp án Phần
@@ -19,10 +19,16 @@
 // proton của nguyên tố, số neutron, bán kính R = 1,2 · 10⁻¹⁵ · ∛A, độ hụt khối, năng lượng liên kết, năng lượng liên kết riêng, năng lượng
 // toả ra của phản ứng, động năng các hạt sinh ra; mọi phản ứng hạt nhân bảo toàn số khối và điện tích, cả hệ số như “3¹₀n”; phân loại phân
 // hạch, tổng hợp, phóng xạ α), định luật phóng xạ (số hạt nhân, khối lượng còn lại, độ phóng xạ, hằng số phóng xạ, H = λN, tuổi theo ¹⁴C),
-// lò phản ứng (số phân hạch mỗi giây, khối lượng ²³⁵U tiêu thụ); câu khái niệm so với bảng ghi trong script (theo sách in năm 2026).
+// lò phản ứng (số phân hạch mỗi giây, khối lượng ²³⁵U tiêu thụ); Phiên N12-tn-vatli-b thêm: động cơ nhiệt (A = Q₁ − Q₂ sau một chu trình,
+// hiệu suất, công suất), nhiệt lượng làm nước nóng lên rồi hoá hơi và hiệu suất bộ phận đun, thể tích hơi nước pV = nRT, bình khí nén của thợ
+// lặn (khí chỉ ra khỏi bình khi áp suất trong bình còn lớn hơn áp suất của nước), mật độ phân tử khí trong 1 cm³ (p = μkT), khối lượng riêng
+// theo phương trình trạng thái, từ trường đổi chiều (|ΔΦ| = (B₁ + B₂)S), máy biến áp quấn thêm vòng (mỗi vòng ứng với U₁/N₁), thanh treo
+// bằng hai lò xo (BIL = mg, 2kΔl = 2mg), đinamô (ω = v/r, E₀ = NΦ₀ω), điện tích hạt nhân Ze, đồng vị (số neutron, bán kính tỉ lệ với ∛A),
+// khối lượng Mặt Trời mất mỗi giây E = mc², số chuỗi phản ứng nhiệt hạch mỗi giây; câu khái niệm so với bảng ghi trong script (theo sách in năm 2026).
 // Đọc lại đồ thị trên lưới (như tests/vatli-hoahoc12-gk2.js: gốc O, lưới đều, số ở trục đúng vạch, cả phần âm của trục đứng, tên trục ở đầu
 // trục): đồ thị thể tích theo nhiệt độ tuyệt đối (đường thẳng qua gốc toạ độ, đoạn gần gốc nét đứt), từ thông theo thời gian, nhiệt độ của
-// nước đá được đun theo thời gian, số hạt nhân chưa phân rã theo thời gian (đường giảm theo hàm mũ); chữ trong hình từ cỡ 13, nằm trọn trong khung, không đè nhau.
+// nước đá được đun theo thời gian, số hạt nhân chưa phân rã theo thời gian (đường giảm theo hàm mũ), nhiệt độ của băng phiến để nguội theo
+// thời gian (đoạn nằm ngang duy nhất là lúc đông đặc, các đoạn khác nhiệt độ giảm); chữ trong hình từ cỡ 13, nằm trọn trong khung, không đè nhau.
 // Rồi: chữ (số ngăn hàng nghìn bằng khoảng trắng, dấu phẩy thập phân, chữ số dưới dòng, dấu thanh kiểu sách “hoá”, “thuỷ”, tên hạt như
 // sách; mũi tên chỉ ở phương trình phản ứng hạt nhân); kiểu Đ/S không lặp trong một đề, mỗi kiểu nhiều nhất ba lần trong các đề thi thử;
 // đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa chọn dài nhất hay ngắn nhất ở không quá một phần ba và không dưới một phần sáu số câu
@@ -148,8 +154,8 @@ const tai = (net, t) => { for (let i = 1; i < net.length; i++) { const [a, b] = 
 const luc = (net, y) => { for (let i = 1; i < net.length; i++) { const [a, b] = [net[i - 1], net[i]]; if ((y - a[1]) * (y - b[1]) <= 0 && a[1] !== b[1]) return a[0] + ((b[0] - a[0]) * (y - a[1])) / (b[1] - a[1]); } assert.fail("đường biểu diễn không có giá trị " + y); };
 
 /* ---------- hạt nhân: kí hiệu ᴬ_ZX (số khối viết chữ số trên dòng, số proton viết chữ số dưới dòng), phản ứng hạt nhân (hệ số như “3¹₀n”) ---------- */
-const Z_NT = { n: 0, H: 1, He: 2, Li: 3, B: 5, C: 6, N: 7, O: 8, F: 9, Ne: 10, Na: 11, Mg: 12, Al: 13, P: 15, Fe: 26, Co: 27, Cu: 29, Sr: 38, Y: 39, I: 53, Cs: 55,
-  Pb: 82, Po: 84, At: 85, Rn: 86, Ra: 88, U: 92, Pu: 94 };
+const Z_NT = { n: 0, H: 1, He: 2, Li: 3, B: 5, C: 6, N: 7, O: 8, F: 9, Ne: 10, Na: 11, Mg: 12, Al: 13, P: 15, Fe: 26, Co: 27, Ni: 28, Cu: 29, Kr: 36, Rb: 37, Sr: 38, Y: 39, Zr: 40, I: 53, Xe: 54,
+  Cs: 55, Ba: 56, Au: 79, Pb: 82, Bi: 83, Po: 84, At: 85, Rn: 86, Ra: 88, Th: 90, U: 92, Pu: 94, Am: 95 };
 const HN = "[⁰¹²³⁴⁵⁶⁷⁸⁹]+[₀₁₂₃₄₅₆₇₈₉]*(?:[A-Z][a-z]?|n)(?![\\p{L}])";
 const hatNhan = (t) => {
   const m = /^([⁰¹²³⁴⁵⁶⁷⁸⁹]+)([₀₁₂₃₄₅₆₇₈₉]*)([A-Z][a-z]?|n)$/u.exec(t); assert.ok(m, "không đọc được hạt nhân " + t);
@@ -226,7 +232,40 @@ const BAI_HOC = {
   // Bài 6: nhiệt hoá hơi riêng tăng khi nhiệt độ giảm
   hoaHoi: "lớn hơn",
   // Bài 24: nước trong lò phản ứng làm chậm neutron và tải nhiệt; năng lượng phân hạch chủ yếu là động năng của các mảnh
-  nuocLo: "giảm tốc độ neutron, vừa mang nhiệt ra khỏi vùng hoạt động của lò", manh: true
+  nuocLo: "giảm tốc độ neutron, vừa mang nhiệt ra khỏi vùng hoạt động của lò", manh: true,
+  // Phiên N12-tn-vatli-b (Đề 5–8)
+  // Bài 8: phân tử khí là chất điểm, chỉ tương tác lúc va chạm, nên giữa hai lần va chạm chuyển động thẳng đều (câu hỏi ở Bài 12, tr. 48)
+  thangDeu: "thẳng đều",
+  // Bài 14: các cực cùng tên đẩy nhau, khác tên hút nhau
+  khacTen: "hút nhau", cungTen: "đẩy nhau",
+  // Bài 16: từ thông có đơn vị là vêbe (Wb)
+  wb: "vêbe (Wb)",
+  // Bài 23: đơn vị độ phóng xạ là becơren (Bq); Bài 24: tia phóng xạ gây đột biến gene để tạo giống cây trồng mới
+  bq: "becơren (Bq)", dotBien: "gây đột biến gene để chọn ra giống cây mới",
+  // Bài 1 (Em có biết): ở nhiệt độ hàng triệu độ, chất ở thể plasma (dạng các ion); Bài 1, 8: nhiệt độ càng cao, phân tử chuyển động càng nhanh
+  plasma: "plasma", nhanhHon: "chuyển động càng nhanh",
+  // Bài 14: các đường sức từ là những đường cong khép kín, không cắt nhau, vẽ dày hơn ở nơi từ trường mạnh hơn
+  khepKin: "đều là đường cong khép kín",
+  // Bài 1: khi bay hơi, các phân tử có động năng đủ lớn thoát ra khỏi mặt thoáng, nhiệt độ của chất lỏng còn lại giảm (tr. 8)
+  bayHoi: "những phân tử có động năng lớn thoát ra khỏi mặt thoáng",
+  // Bài 6: hơi nước ngưng tụ toả ra nhiệt lượng bằng nhiệt lượng đã nhận khi hoá hơi (Q = Lm)
+  bong: "hơi nước ngưng tụ trên da, toả thêm nhiều nhiệt lượng",
+  // Bài 8: kích thước các phân tử khí rất nhỏ so với khoảng cách giữa chúng
+  deNen: "các phân tử khí chỉ chiếm một phần rất nhỏ thể tích bình chứa",
+  // Bài 14: chiều của từ trường tại một điểm là chiều từ cực Nam sang cực Bắc của kim nam châm nhỏ nằm cân bằng ở đó
+  chieuB: "hướng từ cực Nam sang cực Bắc",
+  // Bài 19: tại mỗi điểm, E và B biến thiên điều hoà và luôn đồng pha
+  dongPha: "đồng pha với nhau",
+  // Bài 23: phóng xạ γ: hạt nhân chuyển từ trạng thái kích thích về trạng thái năng lượng thấp hơn, phát ra bức xạ điện từ (A, Z không đổi)
+  gamma: "có số proton và số neutron không đổi",
+  // Bài 24: đo bề dày bằng tia phóng xạ: vật càng mỏng, tia bị hấp thụ càng ít, số đếm càng lớn
+  doDay: "mỏng đi",
+  // Bài 1 (Em có biết): kim loại là chất rắn kết tinh, có nhiệt độ nóng chảy xác định; nhựa đường, các chất dẻo là chất rắn vô định hình
+  ketTinh: { "Thiếc": true, "Nhựa đường": false, "Nhựa thông": false, "Chất dẻo PVC": false },
+  // Bài 14: từ trường của thanh nam châm mạnh nhất ở gần hai cực (đường sức từ dày nhất)
+  cucManh: "gần hai cực của thanh nam châm",
+  // Bài 24: chất thải hạt nhân phải cất giữ hàng trăm năm vì chu kì bán rã của một số đồng vị trong thanh nhiên liệu đã dùng rất lớn
+  chatThai: "nhiều chất trong đó có chu kì bán rã rất lớn"
 };
 // biến đổi số khối, số proton của hạt nhân con so với hạt nhân mẹ, đọc từ lựa chọn (“cùng số khối, số proton nhiều hơn 1”)
 const bienDoi = (o) => { const f = (ten) => { const m = new RegExp("(cùng số " + ten + ")|số " + ten + " (nhiều|ít) hơn (\\d)").exec(o); assert.ok(m, "không đọc được “" + o + "”"); return m[1] ? 0 : (m[2] === "nhiều" ? 1 : -1) * +m[3]; };
@@ -498,6 +537,272 @@ const RIENG = {
       return (khoi(d, "¹₁H") + khoi(d, "⁷₃Li") - 2 * khoi(d, "⁴₂He")) * MEV; } },
     { has: "Động năng của mỗi hạt ⁴₂He bằng bao nhiêu MeV", right: (q, d) => {
       const [K] = so(d, "động năng # MeV"), E = (khoi(d, "¹₁H") + khoi(d, "⁷₃Li") - 2 * khoi(d, "⁴₂He")) * MEV; return (K + E) / 2; } }
+  ],
+  // ---------- Phiên N12-tn-vatli-b: Đề 5–8 ----------
+  "vatli12-tn-de5": [
+    { has: "bề mặt Sao Hoả có thể xuống tới khoảng", right: (q) => vn(so(q.q, "khoảng # K")[0] - 273) + " °C" },
+    { has: "Một thỏi đồng khối lượng", right: (q) => { const [m] = so(q.q, "khối lượng # kg"), [dt] = so(q.q, "nóng thêm # °C"), [c] = so(q.q, "của đồng là # J/kg.K"); return vn(m * c * dt) + " J"; } },
+    { has: "kg mồ hôi bay hơi khỏi da", right: (q) => { const [L] = so(q.q, "nước khoảng # J/kg"), [m] = so(q.q, "có # kg mồ hôi"); return vn((L * m) / 1000) + " kJ"; } },
+    { has: "giữa hai lần va chạm kế tiếp nhau, một phân tử khí bất kì", right: () => BAI_HOC.thangDeu },
+    { has: "Bịt kín đầu kim của một ống tiêm", right: (q) => {
+      const [V1] = so(q.q, "chứa # mL"), [V2] = so(q.q, "tăng lên # mL"), k = V2 / V1; // pV không đổi: p tỉ lệ nghịch với V
+      return (k > 1 ? "giảm " : "tăng ") + vn(k > 1 ? k : 1 / k) + " lần"; } },
+    { has: "Một quả bóng bay chứa", right: (q) => { const [V1, t1] = so(q.q, "chứa # L không khí ở # °C"), [t2] = so(q.q, "có nhiệt độ # °C"); return vnf((V1 * (t2 + 273)) / (t1 + 273), 2) + " L"; } },
+    { has: "hỗn hợp khí hydrogen và khí oxygen ở cùng một nhiệt độ", right: (q) => { const [k] = so(q.q, "gấp # lần khối lượng"); return "lớn gấp " + vn(Math.sqrt(k)) + " lần"; } },
+    { has: "lại gần cực Bắc của thanh nam châm được treo", right: (q) => { const c = /Đưa cực (Nam|Bắc) của một thanh nam châm khác lại gần cực (Nam|Bắc)/.exec(q.q); return c[1] === c[2] ? BAI_HOC.cungTen : BAI_HOC.khacTen; } },
+    { has: "Trong một loa điện động", right: (q) => {
+      const [N] = so(q.q, "gồm # vòng"), [L] = so(q.q, "mỗi vòng dài # cm"), [B] = so(q.q, "có độ lớn # T"), [I] = so(q.q, "cường độ # A"); return vnf(N * B * I * (L / 100), 2) + " N"; } },
+    { has: "cảm ứng từ của từ trường Trái Đất gần như vuông góc với mặt đất", right: (q) => {
+      assert.ok(/hướng vào trong lòng đất/.test(q.q)); const B = HUONG["xuống dưới"], I = HUONG[/dẫn dòng điện hướng về phía (Đông|Tây|Nam|Bắc)/.exec(q.q)[1]];
+      return { Đông: "nằm ngang, về phía Đông", Tây: "nằm ngang, về phía Tây", Nam: "nằm ngang, về phía Nam", Bắc: "nằm ngang, về phía Bắc", "lên trên": "thẳng đứng lên trên", "xuống dưới": "thẳng đứng xuống dưới" }[tenHuong(cross(I, B))]; } },
+    { has: "Trong hệ SI, từ thông có đơn vị là", right: () => BAI_HOC.wb },
+    { has: "e = 12cos(80πt)", right: (q) => { const [w] = so(q.q, "cos(#πt)"); return vn(1 / w) + " s"; } }, // T = 2π/ω = 2/w, nửa chu kì 1/w
+    { has: "Ở một xưởng thực hành, cuộn sơ cấp gồm", right: (q) => { const [N1, U1] = so(q.q, "gồm # vòng của một máy biến áp lí tưởng được nối với nguồn điện xoay chiều có điện áp hiệu dụng # V"), [U2] = so(q.q, "để hở là # V"); return vn((N1 * U2) / U1) + " vòng"; } },
+    { has: "Một vệ tinh của hệ thống định vị GPS", right: (q) => { const [h] = so(q.q, "cách mặt đất khoảng # km"), [c] = so(q.q, "với tốc độ # m/s"), t = (h * 1000) / c; return motCai(q, (o) => khoang(val(o.replace(" s", "")), t)); } },
+    { has: "Hai hạt nhân ³₁H và ³₂He có cùng", right: (q) => {
+      const [a, b] = [...q.q.matchAll(new RegExp(HN, "gu"))].map((m) => hatNhan(m[0])), f = { "số nucleon": (h) => h.A, "số proton": (h) => h.Z, "số neutron": (h) => h.A - h.Z, "điện tích": (h) => h.Z };
+      return motCai(q, (o) => f[o](a) === f[o](b)); } },
+    { has: "hấp thụ một neutron rồi vỡ thành hạt nhân ¹⁴⁴₅₆Ba", right: (q) => {
+      const pt = q.q.match(PTHN); assert.equal(pt.length, 1); const X = phanUng(pt[0]); return motCai(q, (o) => { const h = hatNhan(o); return h.A === X.A && h.Z === X.Z; }); } },
+    { has: "Độ phóng xạ được đo bằng đơn vị nào sau đây?", right: () => BAI_HOC.bq },
+    { has: "chiếu tia phóng xạ với liều thích hợp vào hạt giống", right: () => BAI_HOC.dotBien },
+    { has: "Để xác định nhiệt dung riêng của một kim loại", right: (q) => {
+      const [mk] = so(q.q, "khối lượng # kg trong nồi"), [ts] = so(q.q, "đang sôi (# °C)"), [mn, t1] = so(q.q, "vào # kg nước ở # °C"), [t] = so(q.q, "Nước nóng dần lên tới # °C"), [cn] = so(q.q, "của nước là # J/kg.K");
+      const Q = mn * cn * (t - t1), c = Q / (mk * (ts - t)), [Qa] = so(q.o[0], "nhiệt lượng # kJ"), [cb] = so(q.o[1], "là # J/kg.K"), [cd] = so(q.o[3], "nhỏ hơn # J/kg.K");
+      assert.ok(/khối kim loại vẫn nóng hơn nước/.test(q.o[2]) && gan(cd, cb));
+      // cân bằng nhiệt: cùng nhiệt độ; tính cả phần bình thu vào thì kim loại toả nhiều hơn Q, nhiệt dung riêng tính được lớn hơn
+      return [gan(Qa * 1000, Q), gan(cb, c), false, false]; } },
+    { has: "áp suất của khí trong lốp một chiếc xe máy", right: (q) => {
+      const [t1, p1] = so(q.q, "lúc nhiệt độ là # °C, áp suất của khí trong lốp một chiếc xe máy là # Pa"), [t2] = so(q.q, "có nhiệt độ # °C"), r = (t2 + 273) / (t1 + 273);
+      const [ka] = so(q.o[0], "khoảng # lần"), [pb] = so(q.o[1], "khoảng # Pa"), [kd] = so(q.o[3], "khoảng #%");
+      assert.ok(/Số phân tử khí trong mỗi xentimét khối của lốp lúc trưa bằng lúc sáng/.test(q.o[2]));
+      // thể tích, số phân tử không đổi: mật độ phân tử không đổi; động năng tịnh tiến trung bình tỉ lệ thuận với T
+      return [khoang(ka, r), khoang(pb, p1 * r), true, khoang(kd, (r - 1) * 100)]; } },
+    { has: "Hai thanh ray dẫn điện nằm ngang, song song", right: (q) => {
+      const [L] = so(q.q, "cách nhau # m"), [R_] = so(q.q, "điện trở # Ω"), [B] = so(q.q, "có độ lớn # T"), [v] = so(q.q, "tốc độ # m/s");
+      const [dt, dS] = so(q.o[0], "Trong mỗi # s, diện tích của mạch kín tăng thêm # m²"), [eb] = so(q.o[1], "độ lớn # V"), [ic] = so(q.o[2], "cường độ # A");
+      assert.ok(/cùng chiều với chiều chuyển động của thanh/.test(q.o[3]));
+      // |e| = BΔS/Δt = BLv; định luật Lenz: lực từ cản trở chuyển động của thanh
+      return [gan(dS, L * v * dt, 1e-6), gan(eb, B * L * v, 1e-6), gan(ic, (B * L * v) / R_, 1e-6), false]; } },
+    { has: "phân rã qua một chuỗi gồm nhiều lần phóng xạ α và phóng xạ β⁻", right: (q) => {
+      const [me, con] = [...q.q.matchAll(new RegExp(HN, "gu"))].map((m) => hatNhan(m[0])), na = (me.A - con.A) / 4, nb = 2 * na - (me.Z - con.Z);
+      assert.ok(Number.isInteger(na) && nb >= 0, "chuỗi phân rã hợp lí");
+      const [kb] = so(q.o[1], "có # lần phóng xạ α"), [kc] = so(q.o[2], "có # lần phóng xạ β⁻"), [kd] = so(q.o[3], "Th # neutron");
+      assert.ok(/Mỗi lần phóng xạ β⁻, số khối của hạt nhân giảm đi 1/.test(q.o[0]));
+      return [PHONG_XA["β⁻"][0] === -1, kb === na, kc === nb, kd === me.A - me.Z - (con.A - con.Z)]; } },
+    { has: "Khối lượng không khí trong phòng bằng bao nhiêu kilôgam", right: (q, d) => {
+      const [a, b, c] = so(d, "dài # m, rộng # m, cao # m"), [t, p] = so(d, "nhiệt độ # °C, áp suất # Pa"), [M] = so(d, "khối lượng mol # g/mol"), [Rk] = so(d, "R = # J/mol.K");
+      return (p * a * b * c * (M / 1000)) / (Rk * (t + 273)); } },
+    { has: "Bật máy sưởi để nhiệt độ của không khí trong phòng tăng", right: (q, d) => {
+      const [a, b, c] = so(d, "dài # m, rộng # m, cao # m"), [t, p] = so(d, "nhiệt độ # °C, áp suất # Pa"), [M] = so(d, "khối lượng mol # g/mol"), [Rk] = so(d, "R = # J/mol.K");
+      const [t1, t2] = so(q.q, "tăng từ # °C lên # °C"), [ck] = so(q.q, "không khí là # J/kg.K"), [H] = so(q.q, "chỉ #%"), m = (p * a * b * c * (M / 1000)) / (Rk * (t + 273));
+      assert.equal(t1, t); return (m * ck * (t2 - t1)) / (H / 100) / 1e6; } },
+    { has: "Cảm ứng từ ở chỗ đặt cuộn dây trước khi ngắt dòng điện", right: (q, d) => {
+      const [N, S] = so(d, "gồm # vòng, diện tích mỗi vòng # cm²"), [dt, e] = so(d, "trong # s và trong thời gian đó vôn kế chỉ # V"); return (e * dt) / (N * S * 1e-4); } },
+    { has: "dòng điện cảm ứng qua điện kế có cường độ", right: (q, d) => { const [e] = so(d, "vôn kế chỉ # V"), [R_] = so(q.q, "là # Ω"); return e / R_; } },
+    { has: "Sau 30 năm, công suất toả nhiệt của pin bằng bao nhiêu phần trăm", right: (q, d) => { const [T] = so(d, "là # năm"), [t] = so(q.q, "Sau # năm"); return 100 * 2 ** (-t / T); } },
+    { has: "Công suất toả nhiệt lúc đầu của 1,0 kg", right: (q, d) => {
+      const [T] = so(d, "là # năm"), [E] = so(d, "năng lượng # MeV"), [ngay] = so(d, "1 năm = # ngày"), [ln2] = so(d, "ln 2 ≈ #"), [NA] = so(d, "bằng # mol⁻¹"), [mev] = so(d, "1 MeV = # J"), [M] = so(d, "là # g/mol"), [m] = so(q.q, "của # kg");
+      return (ln2 / (T * ngay * 86400)) * ((m * 1000) / M) * NA * E * mev; } }
+  ],
+  "vatli12-tn-de6": [
+    { has: "Trong lòng Mặt Trời, nhiệt độ lên tới hàng triệu kenvin", right: () => BAI_HOC.plasma },
+    { has: "các cánh khuấy quay trong một thùng nước", right: (q) => { const [A] = so(q.q, "một công # kJ"), [Q] = so(q.q, "nhiệt lượng # kJ"), dU = A - Q; return (dU > 0 ? "tăng " : "giảm ") + vnf(Math.abs(dU), 1) + " kJ"; } },
+    { has: "kg nhôm vụn đã được nung tới nhiệt độ nóng chảy", right: (q) => { const [m] = so(q.q, "cơ sở tái chế, # kg"), [lam] = so(q.q, "của nhôm là # J/kg"); return sci(lam * m, 1) + " J"; } },
+    { has: "nhiệt độ của một khối khí càng cao thì các phân tử của nó", right: () => BAI_HOC.nhanhHon },
+    { has: "Nén chậm một lượng khí xác định ở nhiệt độ không đổi để áp suất", right: (q) => {
+      const [p1, p2] = so(q.q, "tăng từ # Pa lên # Pa"); return "tăng " + vn(p2 / p1) + " lần"; } }, // pV không đổi: V giảm, ρ = m/V tăng cùng tỉ lệ với p
+    { has: "Kéo dài đường thẳng này về phía nhiệt độ thấp", right: () => vn(-273) + " °C" }, // V tỉ lệ thuận với T = t + 273
+    { has: "Trong động cơ diesel, không khí trong xi lanh", right: (q) => {
+      const [V1, p1, t1] = so(q.q, "từ thể tích # L (lúc này khí có áp suất # Pa và nhiệt độ # °C)"), [V2] = so(q.q, "xuống thể tích # L"), [p2] = so(q.q, "áp suất của nó là # Pa");
+      return vn(Math.round(((t1 + 273) * p2 * V2) / (p1 * V1) - 273)) + " °C"; } },
+    { has: "Đặc điểm nào sau đây là đặc điểm của các đường sức từ?", right: () => BAI_HOC.khepKin },
+    { has: "Trong mô hình súng điện từ", right: (q) => { const [L, I] = so(q.q, "dài # cm mang dòng điện # A"), [B] = so(q.q, "cảm ứng từ # T"); return vn(B * I * (L / 100)) + " N"; } },
+    { has: "Một khung dây phẳng hình chữ nhật kích thước", right: (q) => {
+      const [a, b] = so(q.q, "kích thước # cm × # cm"), [B] = so(q.q, "cảm ứng từ # T"), [al] = so(q.q, "cảm ứng từ bằng #°"); return sci(B * (a / 100) * (b / 100) * Math.cos((al * Math.PI) / 180), 1) + " Wb"; } },
+    { has: "Hai lần di chuyển một thanh nam châm từ xa tới sát một cuộn dây kín", right: (q) => {
+      assert.ok(/lần thứ hai mất thời gian bằng một nửa lần thứ nhất/.test(q.q)); const k = 2; // cùng ΔΦ, |e| tỉ lệ nghịch với Δt
+      return { 2: "lớn gấp đôi", 0.5: "nhỏ bằng một nửa", 1: "bằng nhau", 4: "lớn gấp bốn lần" }[k]; } },
+    { has: "Mạng điện xoay chiều trong một gia đình có điện áp hiệu dụng", right: (q) => { const [U] = so(q.q, "hiệu dụng # V"); return motCai(q, (o) => khoang(val(o.replace(" V", "")), U * Math.SQRT2, 0.005)); } },
+    { has: "Bộ phận phát vi sóng của một lò vi sóng", right: (q) => { const [U2] = so(q.q, "khoảng # V"), [U1] = so(q.q, "mạng điện # V"); return vn(U2 / U1); } },
+    { has: "Đèn diệt khuẩn trong một tủ sấy bát đĩa", right: (q) => { const [f] = so(q.q, "tần số khoảng # Hz"), [c] = so(q.q, "bằng # m/s"), l = (c / f) * 1e9; return motCai(q, (o) => khoang(val(o.replace(" nm", "")), l)); } },
+    { has: "số neutron nhiều hơn số proton là", right: (q) => { const h = hatNhan(new RegExp("hạt nhân (" + HN + ")", "u").exec(q.q)[1]); return String(h.A - 2 * h.Z); } },
+    { has: "Cho năng lượng liên kết của bốn hạt nhân", right: (q) => {
+      const W = Object.fromEntries([...q.q.matchAll(new RegExp("(" + HN + ") là (" + NUM + ") MeV", "gu"))].map((m) => [m[1], val(m[2]) / hatNhan(m[1]).A]));
+      assert.equal(Object.keys(W).length, 4); q.o.forEach((o) => assert.ok(o in W, "lựa chọn " + o)); const max = Math.max(...Object.values(W)); return motCai(q, (o) => W[o] === max); } },
+    { has: "Hạt nhân X tạo thành sau mỗi phân rã của", right: (q, d) => {
+      const me = hatNhan(new RegExp("Hạt nhân (" + HN + ") phân rã β⁻", "u").exec(d)[1]), [dA, dZ] = PHONG_XA["β⁻"];
+      return motCai(q, (o) => { const h = hatNhan(o); return h.A === me.A + dA && h.Z === me.Z + dZ; }); } },
+    { has: "Sau 58 năm, tỉ số giữa số hạt nhân", right: (q, d) => {
+      const [t] = so(q.q, "Sau # năm"), [T] = so(d, "là # năm"), con = 2 ** (-t / T), r = (1 - con) / con;
+      return motCai(q, (o) => gan(o.includes("/") ? +o.split("/")[0] / +o.split("/")[1] : +o, r, 1e-9)); } },
+    { has: "Cho 0,15 kg nước đá ở 0 °C vào một cốc cách nhiệt", right: (q) => {
+      const [mi] = so(q.q, "Cho # kg nước đá"), [mj, tj] = so(q.q, "đựng # kg nước chanh ở # °C"), [c] = so(q.q, "như nước, # J/kg.K"), [lam] = so(q.q, "nước đá là # J/kg");
+      const Qt = mi * lam, Qc = mj * c * tj, t = (Qc - Qt) / ((mi + mj) * c);
+      const [qa] = so(q.o[0], "nước đá là # kJ"), [tb, qb] = so(q.o[1], "nguội tới # °C thì nó toả ra nhiệt lượng # kJ"), [td] = so(q.o[3], "khoảng # °C");
+      assert.ok(/vẫn còn một phần nước đá chưa tan/.test(q.o[2]) && tb === 0 && /lớn hơn nhiệt lượng cần để làm tan hết/.test(q.o[1]));
+      // nước chanh nguội tới 0 °C toả ra nhiều hơn nhiệt lượng làm tan hết nước đá: nước đá tan hết, nhiệt độ cuối trên 0 °C
+      return [gan(qa * 1000, Qt), gan(qb * 1000, Qc) && Qc > Qt, Qc < Qt, khoang(td, t)]; } },
+    { has: "Một bóng đèn sợi đốt chứa khí argon", right: (q) => {
+      const [M, t1] = so(q.q, "khối lượng mol # g/mol) ở # °C"), [t2] = so(q.q, "nóng lên tới # °C"), [k] = so(q.q, "k = # J/K"), [NA] = so(q.q, "Avogadro bằng # mol⁻¹");
+      const T1 = t1 + 273, T2 = t2 + 273, m = M / 1000 / NA, [Ea] = so(q.o[0], "khoảng # J"), [vb] = so(q.o[1], "khoảng # m/s"), [kc] = so(q.o[2], "gấp # lần"), [kd] = so(q.o[3], "gấp # lần");
+      // thể tích không đổi: p tỉ lệ thuận với T; tốc độ căn quân phương tỉ lệ với √T
+      return [khoang(Ea, 1.5 * k * T1, 0.01), khoang(vb, Math.sqrt((3 * k * T1) / m)), gan(kc, T2 / T1, 1e-9), gan(kd, Math.sqrt(T2 / T1), 1e-3)]; } },
+    { has: "Một khung dây dẫn hình chữ nhật ABCD gồm", right: (q) => {
+      const [N] = so(q.q, "gồm # vòng"), [AB] = so(q.q, "AB = CD = # cm"), [B] = so(q.q, "cảm ứng từ # T"), [I] = so(q.q, "cường độ # A"), [Fb] = so(q.o[1], "độ lớn # N");
+      assert.ok(/các cạnh AB, CD vuông góc với các đường sức từ, còn các cạnh BC, DA nằm dọc theo các đường sức từ/.test(q.q));
+      assert.ok(/cạnh BC có độ lớn bằng lực từ/.test(q.o[0]) && /ngược chiều nhau/.test(q.o[2]) && /lớn gấp bốn lần/.test(q.o[3]));
+      // cạnh song song với đường sức từ: lực từ bằng 0; dòng điện ở AB, CD ngược chiều nên hai lực ngược chiều; F tỉ lệ thuận với I
+      return [false, gan(Fb, N * B * I * (AB / 100), 1e-9), true, false]; } },
+    { has: "Năm 1919, Rutherford bắn hạt α vào hạt nhân", right: (q) => {
+      const pt = q.q.match(PTHN); assert.equal(pt.length, 1); const X = phanUng(pt[0]);
+      const truoc = khoi(q.q, "⁴₂He") + khoi(q.q, "¹⁴₇N"), sau = khoi(q.q, "¹⁷₈O") + khoi(q.q, "¹₁H"), E = (truoc - sau) * MEV, [Ec] = so(q.o[2], "khoảng # MeV");
+      assert.ok(/^Hạt X là proton\.$/.test(q.o[0]) && /thu năng lượng/.test(q.o[2]) && /không nhỏ hơn năng lượng mà phản ứng thu vào/.test(q.o[3]));
+      // tổng khối lượng tăng: phản ứng thu năng lượng, lấy từ động năng của hạt α
+      return [X.A === 1 && X.Z === 1, truoc > sau, E < 0 && khoang(Ec, -E), E < 0]; } },
+    { has: "Công suất làm nóng không khí", right: (q, d) => { const [m, t1] = so(d, "hút vào # g không khí ở # °C"), [t2] = so(d, "thổi ra ở # °C"), [c] = so(d, "nhiệt dung riêng # J/kg.K"); return (m / 1000) * c * (t2 - t1); } },
+    { has: "Thể tích không khí mà máy hút vào trong mỗi giây là", right: (q, d) => { const [t1] = so(d, "không khí ở # °C"), [t2] = so(d, "thổi ra ở # °C"), [V1] = so(q.q, "mỗi giây là # lít"); return (V1 * (t2 + 273)) / (t1 + 273); } },
+    { has: "Trong quá trình máy hoạt động, suất điện động lớn nhất", right: (q, d) => {
+      const [N, S] = so(d, "gồm # vòng, diện tích mỗi vòng # cm²"), [n] = so(d, "tốc độ # vòng/phút"), [B] = so(d, "cảm ứng từ # T"); return N * B * S * 1e-4 * 2 * Math.PI * (n / 60); } },
+    { has: "Khi t = 0,025 s, suất điện động có độ lớn", right: (q, d) => {
+      const [N, S] = so(d, "gồm # vòng, diện tích mỗi vòng # cm²"), [n] = so(d, "tốc độ # vòng/phút"), [B] = so(d, "cảm ứng từ # T"), [t] = so(q.q, "Khi t = # s"), w = 2 * Math.PI * (n / 60);
+      assert.ok(/t = 0 lúc mặt phẳng khung vuông góc với các đường sức từ/.test(d)); // Φ = NBScos(ωt), e = NBSω · sin(ωt)
+      return Math.abs(N * B * S * 1e-4 * w * Math.sin(w * t)); } },
+    { has: "Sau 7,5 giờ, độ phóng xạ của toàn bộ lượng", right: (q, d) => { const [H0] = so(d, "độ phóng xạ # Bq"), [T] = so(d, "là # giờ"), [t] = so(q.q, "Sau # giờ"); return (H0 * 2 ** (-t / T)) / 1e4; } },
+    { has: "Thể tích máu của người này bằng bao nhiêu lít", right: (q, d) => {
+      const [H0] = so(d, "độ phóng xạ # Bq"), [T] = so(d, "là # giờ"), [t] = so(d, "Sau # giờ"), [Vm, a] = so(d, "lấy # cm³ máu của người đó và đo được độ phóng xạ # Bq");
+      return (((H0 * 2 ** (-t / T)) / a) * Vm) / 1000; } }
+  ],
+  "vatli12-tn-de7": [
+    { has: "Nước đựng trong chum, vại bằng đất nung", right: () => BAI_HOC.bayHoi },
+    { has: "Nung nóng một lượng khí từ", right: (q) => { const [t1, t2] = so(q.q, "từ # °C lên # °C"); return "gấp " + vn((t2 + 273) / (t1 + 273)) + " lần"; } },
+    { has: "hơi nước ở 100 °C phả vào da gây bỏng nặng hơn", right: () => BAI_HOC.bong },
+    { has: "Chất khí dễ bị nén hơn nhiều so với chất lỏng", right: () => BAI_HOC.deNen },
+    { has: "được nối thông với một bình khác dung tích", right: (q) => {
+      const [V1, p1] = so(q.q, "chứa # L không khí ở áp suất # Pa"), [V2] = so(q.q, "dung tích # L đã được hút hết"); return sci((p1 * V1) / (V1 + V2), 1) + " Pa"; } }, // pV không đổi
+    { has: "Khi nướng bánh mì, các bọt khí", right: (q) => {
+      const [V1, t1] = so(q.q, "thể tích # cm³ ở # °C"), [t2] = so(q.q, "nóng lên tới # °C"); return vnf((V1 * (t2 + 273)) / (t1 + 273), 2) + " cm³"; } },
+    { has: "nơi các máy bay chở khách thường bay", right: (q) => {
+      const [p] = so(q.q, "áp suất khoảng # Pa"), [t] = so(q.q, "nhiệt độ khoảng # °C"), [k] = so(q.q, "k = # J/K"), mu = (p / (k * (t + 273))) * 1e-6; // p = μkT; 1 cm³ = 10⁻⁶ m³
+      return motCai(q, (o) => khoang(val(o.replace(" phân tử", "")), mu)); } },
+    { has: "Đặt một kim nam châm nhỏ, quay tự do được", right: () => BAI_HOC.chieuB },
+    { has: "Nếu cường độ dòng điện giảm một nửa và chiều dài phần dây", right: (q) => {
+      const [F] = so(q.q, "dây chịu lực từ # N"); assert.ok(/giảm một nửa và chiều dài phần dây nằm trong từ trường tăng gấp ba/.test(q.q));
+      return vnf(F * (1 / 2) * 3, 2) + " N"; } }, // F = BIL tỉ lệ thuận với I và L
+    { has: "Cảm ứng từ đổi chiều trong", right: (q) => {
+      const [N, S] = so(q.q, "gồm # vòng, diện tích mỗi vòng # cm²"), [dt] = so(q.q, "đổi chiều trong # s"), [B1, B2] = so(q.q, "từ # T về 0 rồi tăng đều lên # T");
+      return vnf((N * (B1 + B2) * S * 1e-4) / dt, 1) + " V"; } }, // từ trường đổi chiều: |ΔΦ| = (B₁ + B₂)S
+    { has: "Nếu tốc độ quay của khung tăng lên gấp đôi", right: (q) => {
+      assert.ok(/suất điện động do khung tạo ra có tần số và giá trị cực đại/.test(q.q)); return { 2: "cùng tăng gấp đôi" }[2]; } }, // f = ω/(2π), E₀ = NBSω đều tỉ lệ thuận với ω
+    { has: "Quấn thêm 20 vòng dây vào cuộn thứ cấp", right: (q) => {
+      const [U1] = so(q.q, "mạng điện # V"), [n] = so(q.q, "Quấn thêm # vòng"), [dU] = so(q.q, "tăng thêm # V"); return vn((U1 * n) / dU) + " vòng"; } }, // mỗi vòng ứng với U₁/N₁
+    { has: "do một bộ phát Wi-Fi phát ra", right: (q) => { const [f] = so(q.q, "tần số # GHz"), [c] = so(q.q, "c = # m/s"); return vnf((c / (f * 1e9)) * 100, 1) + " cm"; } },
+    { has: "dao động của điện trường và dao động của từ trường", right: () => BAI_HOC.dongPha },
+    { has: "có điện tích bằng", right: (q) => {
+      const [e] = so(q.q, "e = # C"), h = hatNhan(new RegExp("Hạt nhân (" + HN + ") có điện tích", "u").exec(q.q)[1]); return sci(h.Z * e, 2) + " C"; } },
+    { has: "mô tả một phản ứng nhiệt hạch?", right: (q) => motCai(q, (o) => { assert.equal(o.match(PTHN)[0], o); return loaiPhanUng(o) === "tổng hợp"; }) }, // nhiệt hạch: tổng hợp hạt nhân
+    { has: "Sau khi phóng xạ γ, so với lúc trước", right: () => BAI_HOC.gamma },
+    { has: "nguồn phóng xạ β⁻ ở một bên băng giấy", right: () => BAI_HOC.doDay },
+    { has: "đun cho băng phiến nóng chảy hết rồi để nguội", right: (q) => {
+      const g = docLuoi(q.svg, "đồ thị nhiệt độ – thời gian"); assert.ok(g.x === "τ (phút)" && g.y === "t (°C)");
+      // đoạn nằm ngang duy nhất: băng phiến đông đặc ở nhiệt độ không đổi; các đoạn khác nhiệt độ giảm
+      const n = g.net, k = n.findIndex((p, i) => i > 0 && gan(p[1], n[i - 1][1], 1e-6)); assert.ok(k > 0 && n.slice(1).every((p, i) => i + 1 === k || p[1] < n[i][1]));
+      const [t1, t2, T] = [n[k - 1][0], n[k][0], n[k][1]], [ta] = so(q.o[0], "đông đặc ở phút thứ #"), [Tb] = so(q.o[1], "là # °C"), [tc] = so(q.o[2], "Ở phút thứ #"), [td] = so(q.o[3], "Trong # phút đông đặc");
+      assert.ok(/bắt đầu đông đặc/.test(q.o[0]) && /đã đông đặc hoàn toàn/.test(q.o[2]) && /vẫn toả nhiệt ra môi trường/.test(q.o[3]));
+      // sau đoạn nằm ngang, chất đã đông đặc hết; trong khi đông đặc, chất vẫn toả nhiệt mà nhiệt độ không đổi
+      return [gan(ta, t1), gan(Tb, T), tc > t2, gan(td, t2 - t1)]; } },
+    { has: "Một thợ lặn mang bình khí nén dung tích", right: (q) => {
+      const [V, pb] = so(q.q, "dung tích # L, khí trong bình có áp suất # Pa"), [h] = so(q.q, "độ sâu # m dưới"), [p0] = so(q.q, "khí quyển bằng # Pa"), [rho] = so(q.q, "của nước bằng # kg/m³"), [g] = so(q.q, "g = # m/s²");
+      // khí ra khỏi bình cho tới khi áp suất trong bình bằng áp suất của nước: phần dùng được V(p_b − p)/p (định luật Boyle)
+      const p = (sau) => p0 + rho * g * sau, dung = (V * (pb - p(h))) / p(h);
+      const [pa] = so(q.o[0], "là # Pa"), [Vb] = so(q.o[1], "thể tích # L"), [Vc, tc] = so(q.o[2], "hít vào # L không khí (đo ở áp suất đó) thì bình khí đủ dùng trong khoảng # phút"), [h2] = so(q.o[3], "Ở độ sâu # m");
+      assert.ok(/nhận được số phân tử khí bằng ở độ sâu/.test(q.o[3])); // cùng thể tích, cùng nhiệt độ: số phân tử tỉ lệ thuận với áp suất
+      return [gan(pa, p(h)), gan(Vb, dung, 1e-6), khoang(tc, dung / Vc), gan(p(h2), p(h))]; } },
+    { has: "Một thanh nam châm được thả rơi từ phía trên xuống", right: (q) => {
+      assert.ok(/đang lại gần vòng dây, lực từ do dòng điện cảm ứng gây ra cho nam châm/.test(q.o[0]) && /đang rời xa vòng dây, lực từ đó/.test(q.o[1]) && /gia tốc bằng gia tốc rơi tự do/.test(q.o[2]) && /cắt hở vòng dây/.test(q.o[3]));
+      // dòng điện cảm ứng chống lại sự biến thiên của từ thông: lại gần thì đẩy, rời xa thì hút; lực lên nam châm luôn hướng lên (ngược chiều rơi),
+      // nên gia tốc nhỏ hơn g; vòng dây hở không có dòng điện cảm ứng
+      const huong = "lên"; return [/chiều hướng lên\.$/.test(q.o[0]) === (huong === "lên"), /chiều hướng xuống\.$/.test(q.o[1]) === (huong === "xuống"), false, /không có dòng điện cảm ứng\.$/.test(q.o[3])]; } },
+    { has: "Uranium tự nhiên gồm chủ yếu hai đồng vị", right: (q) => {
+      const [k5] = so(q.q, "²³⁵₉₂U (chiếm khoảng #% khối lượng)"), U8 = hatNhan("²³⁸₉₂U"), U5 = hatNhan("²³⁵₉₂U"), N8 = U8.A - U8.Z, N5 = U5.A - U5.Z;
+      const [db] = so(q.o[1], "nhiều hơn hạt nhân ²³⁵₉₂U # neutron"), [mt, mc] = so(q.o[2], "Trong # kg uranium tự nhiên có khoảng # g"), [rd] = so(q.o[3], "khoảng #%");
+      assert.ok(/có cùng số neutron/.test(q.o[0]) && /bán kính của hạt nhân tỉ lệ với ∛A/.test(q.q));
+      return [N8 === N5, N8 - N5 === db, gan(mc, (mt * 1000 * k5) / 100, 1e-6), khoang(rd / 100, Math.cbrt(U8.A / U5.A) - 1)]; } },
+    { has: "Hiệu suất của bộ phận đun", right: (q, d) => {
+      const [P] = so(d, "công suất # W"), [m, t1] = so(d, "biến # g nước ở # °C"), [t2] = so(d, "thành hơi nước ở # °C"), [c] = so(d, "nhiệt dung riêng của nước là # J/kg.K"), [L] = so(d, "ở 100 °C là # J/kg");
+      assert.equal(t2, 100); return (((m / 1000) * (c * (t2 - t1) + L)) / (P * 60)) * 100; } }, // Q = mcΔt + Lm trong 1 phút
+    { has: "Thể tích hơi nước mà cây là tạo ra", right: (q, d) => {
+      const [m] = so(d, "biến # g nước"), [t] = so(d, "thành hơi nước ở # °C"), [p] = so(d, "áp suất # Pa"), [M] = so(d, "khối lượng mol của nước là # g/mol"), [R] = so(d, "R = # J/mol.K");
+      return (((m / M) * R * (t + 273)) / p) * 1000; } }, // pV = nRT
+    { has: "thì hai lò xo trở về độ dài tự nhiên", right: (q, d) => { const [L, m] = so(d, "dài # cm, khối lượng # g"), [B] = so(d, "cảm ứng từ # T"), [g] = so(d, "g = # m/s²"); return ((m / 1000) * g) / (B * (L / 100)); } }, // BIL = mg
+    { has: "mỗi lò xo dãn bao nhiêu xentimét", right: (q, d) => {
+      const [m] = so(d, "khối lượng # g"), [k] = so(d, "độ cứng # N/m"), [g] = so(d, "g = # m/s²"); return ((2 * (m / 1000) * g) / (2 * k)) * 100; } }, // lực từ (bằng mg) hướng xuống: 2kΔl = 2mg
+    { has: "ngày kể từ lúc lấy mẫu, độ phóng xạ", right: (q, d) => { const [T] = so(d, "chu kì bán rã # ngày"), [H0] = so(d, "của mẫu khí là # Bq"), [t] = so(q.q, "Sau # ngày"); return H0 * 2 ** (-t / T); } },
+    { has: "Lúc lấy mẫu, trong bình có x · 10⁸ hạt nhân", right: (q, d) => {
+      const [T] = so(d, "chu kì bán rã # ngày"), [H0] = so(d, "của mẫu khí là # Bq"), [ln2] = so(q.q, "ln 2 ≈ #"); return H0 / (ln2 / (T * 86400)) / 1e8; } } // H = λN
+  ],
+  "vatli12-tn-de8": [
+    { has: "chất nào sau đây nóng chảy ở một nhiệt độ xác định?", right: (q) => tra(q, BAI_HOC.ketTinh, true) },
+    { has: "Một nồi nhôm khối lượng", right: (q) => {
+      const [m1, m2, t1] = so(q.q, "khối lượng # kg chứa # kg nước ở # °C"), [c1] = so(q.q, "của nhôm # J/kg.K"), [c2] = so(q.q, "của nước # J/kg.K"), [t2] = so(q.q, "tới # °C");
+      return vn(((m1 * c1 + m2 * c2) * (t2 - t1)) / 1000) + " kJ"; } },
+    { has: "Nhiệt nóng chảy riêng của chì là", right: (q) => {
+      const [L] = so(q.q, "của chì là # J/kg"); return "1 kg chì ở nhiệt độ nóng chảy cần nhận " + sci(L, 1) + " J để nóng chảy hoàn toàn"; } }, // định nghĩa, Q = λm
+    { has: "Bình A chứa khí helium ở", right: (q) => { const [tA] = so(q.q, "helium ở # °C"), [tB] = so(q.q, "argon ở # °C"); return vn((tB + 273) / (tA + 273)); } }, // Ēđ = (3/2)kT, không phụ thuộc khối lượng phân tử
+    { has: "Một chai nhựa rỗng đã vặn chặt nắp", right: (q) => { const [V1, p1] = so(q.q, "chứa # mL không khí, áp suất # Pa"), [V2] = so(q.q, "còn # mL"); return sci((p1 * V1) / V2, 2) + " Pa"; } },
+    { has: "cứ mỗi khi nhiệt độ của khí tăng thêm", right: (q) => {
+      const [V0] = so(q.q, "chiếm thể tích # cm³"), [dt] = so(q.q, "tăng thêm # °C"); assert.ok(/Ở 0 °C, một lượng khí/.test(q.q)); return vnf((V0 * dt) / 273, 1) + " cm³"; } }, // V = V₀(273 + t)/273
+    { has: "Không khí nén trong bình chứa của một máy nén khí", right: (q) => {
+      const [t1, p1, r1] = so(q.q, "Ở # °C và áp suất # Pa, không khí có khối lượng riêng # kg/m³"), [t2, p2] = so(q.q, "có nhiệt độ # °C và áp suất # Pa");
+      return vnf((r1 * (p2 / p1) * (t1 + 273)) / (t2 + 273), 2) + " kg/m³"; } }, // pV/T không đổi, V = m/ρ
+    { has: "từ trường mạnh nhất ở vùng", right: () => BAI_HOC.cucManh },
+    { has: "Đoạn dây chịu lực từ", right: (q) => {
+      const [L, I] = so(q.q, "dài # cm mang dòng điện # A"), [al] = so(q.q, "một góc #° so với vectơ"), [F] = so(q.q, "chịu lực từ # N"); return vnf(F / (I * (L / 100) * Math.sin((al * Math.PI) / 180)), 2) + " T"; } },
+    { has: "Khung dây ABCD hình chữ nhật có AB =", right: (q) => {
+      const [a, b] = so(q.q, "AB = # cm, BC = # cm"), [B] = so(q.q, "cảm ứng từ # T"); assert.ok(/mặt phẳng khung vuông góc với các đường sức từ/.test(q.q)); return sci(B * a * b * 1e-4, 1) + " Wb"; } }, // Φ = BScos 0
+    { has: "Bếp toả nhiệt với công suất trung bình bằng", right: (q) => { const [I0] = so(q.q, "cường độ cực đại # A"), [R] = so(q.q, "điện trở # Ω"); return vn((I0 ** 2 / 2) * R) + " W"; } }, // I = I₀/√2, P = I²R
+    { has: "Tần số của dòng điện xoay chiều mà máy phát ra", right: (q) => { const [n] = so(q.q, "tốc độ # vòng/phút"); return vnf(n / 60, 1) + " Hz"; } }, // mỗi vòng quay một chu kì
+    { has: "Một vôn kế xoay chiều mắc vào cuộn", right: (q) => {
+      const [N1, N2] = so(q.q, "hai cuộn dây # vòng và # vòng"), [n1] = so(q.q, "Cuộn # vòng được cắm vào mạng điện"), [U1] = so(q.q, "mạng điện # V"); assert.equal(n1, N1);
+      return vnf((U1 * N2) / N1, 1) + " V"; } }, // U₂/U₁ = N₂/N₁
+    { has: "Tia X dùng trong chụp X-quang", right: (q) => { const [l] = so(q.q, "bước sóng khoảng # m"), [c] = so(q.q, "truyền với tốc độ # m/s"); return sci(c / l, 1) + " Hz"; } },
+    { has: "có số neutron bằng số proton?", right: (q) => motCai(q, (o) => { const h = hatNhan(o); return h.A - h.Z === h.Z; }) },
+    { has: "Để tách một hạt nhân ¹²₆C thành các proton và neutron riêng lẻ", right: (q) => {
+      const [m, mp, mn] = so(q.q, "¹²₆C có khối lượng # amu; mỗi proton có khối lượng # amu, mỗi neutron có khối lượng # amu"), h = hatNhan("¹²₆C");
+      return vnf((h.Z * mp + (h.A - h.Z) * mn - m) * MEV, 1) + " MeV"; } }, // năng lượng liên kết: Δm · c²
+    { has: "Chu kì bán rã của ¹⁹⁸Au là", right: (q) => { const [T] = so(q.q, "¹⁹⁸Au là # ngày"), [t] = so(q.q, "Sau # ngày"); return vnf((1 - 2 ** (-t / T)) * 100, 1) + "%"; } },
+    { has: "Thanh nhiên liệu đã qua sử dụng của lò phản ứng", right: () => BAI_HOC.chatThai },
+    { has: "tác nhân của một động cơ nhiệt nhận từ nguồn nóng", right: (q) => {
+      const [Q1] = so(q.q, "nhận từ nguồn nóng nhiệt lượng # kJ"), [Q2] = so(q.q, "truyền cho nguồn lạnh nhiệt lượng # kJ"), [n] = so(q.q, "Mỗi giây động cơ thực hiện # chu trình"), A = Q1 - Q2; // sau một chu trình ΔU = 0
+      const [Aa] = so(q.o[0], "công cơ học # kJ"), [Hc] = so(q.o[2], "là #%"), [Pd] = so(q.o[3], "là # kW");
+      assert.ok(/nội năng của tác nhân trở về giá trị ban đầu/.test(q.o[1]));
+      return [gan(Aa, A), true, gan(Hc, (A / Q1) * 100, 1e-6), gan(Pd, A * n, 1e-6)]; } },
+    { has: "Một lượng khí được nung nóng đẳng áp. Trong hình bên", right: (q) => {
+      const g = docLuoi(q.svg, "đồ thị V–T"); assert.ok(g.x === "T (K)" && g.y === "V (L)");
+      const k = g.net[0][1] / g.net[0][0]; g.net.forEach((p) => assert.ok(gan(p[1], k * p[0], 1e-6), "đồ thị V–T là đường thẳng qua gốc toạ độ"));
+      const [tb, Vb] = so(q.o[1], "Ở # °C, thể tích của khí là # L"), [td, Vd] = so(q.o[3], "Ở # °C, thể tích của khí là # L");
+      assert.ok(/tỉ lệ thuận với nhiệt độ t tính theo thang Celsius/.test(q.o[0]) && /tăng gấp đôi thì thể tích của khí tăng gấp bốn/.test(q.o[2]));
+      // V = kT: tỉ lệ thuận với nhiệt độ tuyệt đối (ở 0 °C, V = 273k khác 0); T tăng gấp đôi thì V tăng gấp đôi
+      return [gan(k * 273, 0), gan(Vb, k * (tb + 273), 1e-6), gan((k * 2) / k, 4), gan(Vd, k * (td + 273), 1e-6)]; } },
+    { has: "Một tàu thăm dò trên Sao Hoả gửi tín hiệu vô tuyến", right: (q) => {
+      const [f] = so(q.q, "tần số # GHz"), [s] = so(q.q, "Trái Đất là # m"), [c] = so(q.q, "chân không với tốc độ # m/s"), [tb] = so(q.o[1], "mất # phút"), [lc] = so(q.o[2], "khoảng # cm");
+      assert.ok(/không truyền được qua khoảng chân không/.test(q.o[0]) && /lệch pha nhau π\/2/.test(q.o[3])); // sóng điện từ truyền được trong chân không; E và B đồng pha
+      return [false, gan(tb, s / c / 60, 1e-6), khoang(lc, (c / (f * 1e9)) * 100), false]; } },
+    { has: "Trong một máy xạ trị, nguồn ⁶⁰₂₇Co phát tia γ", right: (q) => {
+      const me = hatNhan(new RegExp("Hạt nhân (" + HN + ") phân rã β⁻", "u").exec(q.q)[1]), con = hatNhan(new RegExp("là (" + HN + ")\\.$", "u").exec(q.o[0])[1]), [dA, dZ] = PHONG_XA["β⁻"];
+      const [T] = so(q.q, "chu kì bán rã khoảng # năm"), [tb, pb] = so(q.o[1], "Sau # năm, độ phóng xạ của nguồn còn #%"), [tc] = so(q.o[2], "sau # năm");
+      assert.ok(/thời gian của mỗi lần chiếu phải tăng gấp đôi/.test(q.o[2]) && /tia γ đi xuyên qua được/.test(q.o[3]));
+      // cùng liều: số tia γ phát ra trong thời gian chiếu như cũ, nên thời gian chiếu tỉ lệ nghịch với độ phóng xạ
+      return [con.A === me.A + dA && con.Z === me.Z + dZ, gan(pb, 100 * 2 ** (-tb / T), 1e-6), gan(1 / 2 ** (-tc / T), 2, 1e-6), BAI_HOC.tiaGamma["Khả năng đâm xuyên mạnh"]]; } },
+    { has: "Nhiệt độ 50 °C ghi trên vỏ bình ứng với bao nhiêu kelvin?", right: (q, d) => { const [t] = so(d, "nhiệt độ trên # °C"); return t + 273; } },
+    { has: "Nếu bình bị nung nóng, đến nhiệt độ bao nhiêu độ C", right: (q, d) => {
+      const [t1, p1] = so(d, "Ở # °C, khí trong bình có áp suất # Pa"), [p2] = so(d, "áp suất lớn nhất là # Pa"); return ((t1 + 273) * p2) / p1 - 273; } }, // thể tích không đổi: p/T không đổi
+    { has: "có tần số là bao nhiêu héc", right: (q, d) => { const [r] = so(d, "bán kính # cm"), [v] = so(q.q, "tốc độ # km/h"); return v / 3.6 / (r / 100) / (2 * Math.PI); } }, // lăn không trượt: ω = v/r
+    { has: "giá trị hiệu dụng của suất điện động do đinamô", right: (q, d) => {
+      const [r] = so(d, "bán kính # cm"), [N] = so(d, "cuộn dây cố định gồm # vòng"), [phi] = so(d, "mỗi vòng dây là # Wb"), [v] = so(q.q, "tốc độ # km/h"), w = v / 3.6 / (r / 100);
+      return (N * phi * w) / Math.SQRT2; } }, // E₀ = NΦ₀ω, E = E₀/√2
+    { has: "khối lượng của Mặt Trời giảm x · 10⁹ kg", right: (q, d) => { const [P] = so(d, "công suất khoảng # W"), [c] = so(d, "c = # m/s"); return P / c ** 2 / 1e9; } }, // E = mc²
+    { has: "Mặt Trời tạo ra x · 10³⁷ hạt nhân", right: (q, d) => { const [P] = so(d, "công suất khoảng # W"), [E] = so(d, "toả ra năng lượng # MeV"), [J] = so(d, "1 MeV = # J"); return P / (E * J) / 1e37; } }
   ]
 };
 
@@ -658,7 +963,7 @@ const khongDau = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "
 const TU_CHUNG = [...CD12, ...CHUONG.map((c) => c[0]), "mỗi ý sau đúng hay sai", "làm tròn kết quả đến hàng phần trăm", "làm tròn kết quả đến hàng phần mười", "làm tròn kết quả đến hàng đơn vị",
   "vuông góc với các đường sức từ", "song song với các đường sức từ", "hợp với các đường sức từ một góc", "các đường sức của một từ trường đều", "từ trường đều có cảm ứng từ",
   "số avogadro bằng", "khối lượng mol của", "lấy ln 2", "có độ lớn bằng bao nhiêu", "suất điện động cảm ứng", "mỗi vòng có diện tích", "diện tích mỗi vòng",
-  "năng lượng liên kết riêng", "chu kì bán rã", "phản ứng phân hạch dây chuyền", "tốc độ ánh sáng trong chân không", "đơn vị khối lượng nguyên tử", "định luật i của nhiệt động lực học",
+  "năng lượng liên kết riêng", "chu kì bán rã", "mô hình động học phân tử", "phản ứng phân hạch dây chuyền", "tốc độ ánh sáng trong chân không", "đơn vị khối lượng nguyên tử", "định luật i của nhiệt động lực học",
   "nhiệt dung riêng của nước", "nhiệt nóng chảy riêng của nước đá", "nhiệt hoá hơi riêng của nước", "coi tốc độ của sóng điện từ trong không khí là", "mặt phẳng khung vuông góc với các đường sức từ",
   "động năng tịnh tiến trung bình của phân tử khí", "tốc độ căn quân phương", 
   "điện áp hiệu dụng giữa hai đầu cuộn thứ cấp", "cuộn sơ cấp", "cuộn thứ cấp", "máy biến áp lí tưởng", "dòng điện foucault",
@@ -682,8 +987,10 @@ const TNQ = DE.flatMap((b) => b.questions.map((q) => Object.assign(q, { _de: b.i
   TNQ.forEach((q) => assert.deepEqual(ds.filter((e) => e.k === gocChu(q.q)).map((e) => ten.get(e.q)), [ten.get(q)], "đề bài trùng câu khác trong 12-vatli.js"));
   // cặp hai âm tiết liền nhau (như tests/vatli-hoahoc12-ck2.js): đề bài cùng các lựa chọn có từ 4 cặp chung với một câu của ba kho và số cặp chung
   // từ một nửa số cặp của câu ít cặp hơn thì báo; không tính cặp có số hay chữ đơn, cặp của nhãn chủ đề, cụm chung và cặp có ở từ 3% số câu của
-  // file. Giữa các đề thi thử (cùng cách hỏi của đề tốt nghiệp) chỉ so chuỗi 6 từ.
-  const CUM = ["mỗi ý sau đúng hay sai", "làm tròn kết quả đến hàng phần trăm", "làm tròn kết quả đến hàng phần mười", "làm tròn kết quả đến hàng đơn vị"];
+  // file. Giữa các đề thi thử (cùng cách hỏi của đề tốt nghiệp) chỉ so chuỗi 6 từ. “năng lượng toả ra” là cách hỏi chuẩn của câu tính năng
+  // lượng phản ứng (Phiên N12-tn-vatli-b: thêm Đề 5–8 thì 3% số câu lớn hơn, cặp “toả ra” của câu đó ở Đề 1, Đề 4 bắt đầu bị tính).
+  const CUM = ["mỗi ý sau đúng hay sai", "làm tròn kết quả đến hàng phần trăm", "làm tròn kết quả đến hàng phần mười", "làm tròn kết quả đến hàng đơn vị",
+    "năng lượng toả ra"];
   const cap2 = (s) => { let t = String(s).normalize("NFC").toLowerCase(); CUM.forEach((c) => { t = t.split(c).join(" | "); });
     const w = t.replace(/[^\p{L}\p{N}\s|]/gu, " ").split(/\s+/).filter(Boolean); return w.slice(1).map((x, k) => w[k] + " " + x).filter((c) => c.split(" ").every((x) => /\p{L}{2}/u.test(x))); };
   const ca = KHO_Q.concat(TNQ), df = {};
@@ -765,8 +1072,10 @@ const DA_XEM = [
   "gk2-de1#11 → tn-de1#10: vòng dây đứng", "gk2-de1#11 → tn-de1#10: dây đứng yên",
   "ck2-de2#13 → tn-de1#16: khối lượng nghỉ", "ck2-de2#16 → tn-de1#16: khối lượng nghỉ", "ck2-de2#16 → tn-de1#16: lượng nghỉ của", "ck2-de2#17 → tn-de1#16: tổng khối lượng",
   "ck2-de1#8 → tn-de3#14: tia hồng ngoại", "ck2-de2#8 → tn-de3#14: tia hồng ngoại", "ck2-de2#8 → tn-de4#14: ánh sáng nhìn", "ck2-de2#8 → tn-de4#14: sáng nhìn thấy",
-  "tn-de3#1 → ck1-de1#1: thể rắn", "tn-de2#13 → ck2-de1#7: cuộn thứ cấp", "tn-de4#21 → ck2-de1#7: cuộn thứ cấp",
-  "tn-de2#22 → ck2-de1#16: ⁴₂he", "tn-de3#16 → ck2-de1#16: ⁴₂he", "tn-de4#27 → ck2-de1#16: ⁴₂he", "tn-de4#28 → ck2-de1#16: ⁴₂he"
+  "tn-de3#1 → ck1-de1#1: thể rắn", "tn-de2#13 → ck2-de1#7: cuộn thứ cấp", "tn-de4#21 → ck2-de1#7: cuộn thứ cấp", "tn-de5#13 → ck2-de1#7: cuộn thứ cấp", "tn-de6#13 → ck2-de1#7: cuộn thứ cấp", "tn-de7#12 → ck2-de1#7: cuộn thứ cấp",
+  "tn-de2#22 → ck2-de1#16: ⁴₂he", "tn-de3#16 → ck2-de1#16: ⁴₂he", "tn-de4#27 → ck2-de1#16: ⁴₂he", "tn-de4#28 → ck2-de1#16: ⁴₂he",
+  "tn-de6#22 → ck2-de1#16: ⁴₂he", "tn-de7#16 → ck2-de1#16: ⁴₂he", "tn-de8#27 → ck2-de1#16: ⁴₂he",
+  "tn-de8#28 → ck2-de1#16: ⁴₂he"
 ];
 assert.deepEqual([...r1.chuLo, ...r2.chuLo], DA_XEM, "đáp án bằng chữ có ở câu khác đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 assert.deepEqual([...r1.lo, ...r2.lo], [], "lộ đáp án:\n" + [...r1.lo, ...r2.lo].join("\n"));
