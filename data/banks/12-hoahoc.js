@@ -398,7 +398,7 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
         x: "M([PtCl₂(NH₃)₂]) = 195 + 2 · 35,5 + 2 · 17 = 300 (g/mol). Khối lượng Pt trong 30 mg cisplatin: 30 · 195/300 = 19,5 (mg).", lv: 3 }
     ]
   },
-  /* ---------- Hoá học 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên N12-tn-hoahoc: Đề 1–4) ----------
+  /* ---------- Hoá học 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên N12-tn-hoahoc: Đề 1–4, Phiên N12-tn-hoahoc-b: Đề 5–8) ----------
      Khung đề tốt nghiệp THPT từ năm 2025 (Quyết định 764/QĐ-BGDĐT): 28 câu, 50 phút, 10 điểm; Phần I 18 câu nhiều lựa chọn (pt 0,25),
      Phần II 4 câu đúng/sai 4 ý (pt 1), Phần III 6 câu trả lời ngắn (pt 0,25; đáp án không quá 4 kí tự). Như đề tham khảo năm 2025 (đề
      chính thức năm 2026 giữ cấu trúc và tỉ lệ các mức; nguồn ghi ở Pull Request của phiên): mỗi đề 2 câu thuộc Hoá học 10 (một câu ở Phần

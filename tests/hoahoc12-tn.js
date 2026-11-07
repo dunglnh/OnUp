@@ -1,4 +1,4 @@
-// Kiểm tra các đề Hoá học thi thử tốt nghiệp THPT (data/banks/12-hoahoc.js, hoahoc12-tn-de<N>; Phiên N12-tn-hoahoc: Đề 1–4; phiên sau
+// Kiểm tra các đề Hoá học thi thử tốt nghiệp THPT (data/banks/12-hoahoc.js, hoahoc12-tn-de<N>; Phiên N12-tn-hoahoc: Đề 1–4, Phiên N12-tn-hoahoc-b: Đề 5–8; phiên sau
 // thêm đề thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG). Đề tính điểm theo khung đề tốt nghiệp THPT từ năm 2025
 // (Quyết định 764/QĐ-BGDĐT; docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7, khối “Phiên N12-tn-hoahoc”). Số đề, số câu lấy từ danh mục.
 // Khung: danh mục (tên, khối 12, môn Hóa học, file, 50 phút, pts 10, gắn vào tn-thpt-2027); Phần I 18 câu nhiều lựa chọn pt 0,25, Phần II
