@@ -1756,7 +1756,7 @@ window.ONTAP_SEED_BANKS = [
       "Điện từ trường. Mô hình sóng điện từ": [1, 0, 0], "Cấu trúc hạt nhân": [2, 1, 1], "Phản ứng hạt nhân và năng lượng liên kết": [2, 2, 1],
       "Hiện tượng phóng xạ": [3, 1, 1], "Công nghiệp hạt nhân": [1, 1, 1] } } },
 
-  /* Vật lí 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên K5; Phiên N12-tn-vatli: Đề 1–4). Khung đề tốt nghiệp THPT từ năm 2025 (Quyết định
+  /* Vật lí 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên K5; Phiên N12-tn-vatli: Đề 1–4; Phiên N12-tn-vatli-b: Đề 5–8). Khung đề tốt nghiệp THPT từ năm 2025 (Quyết định
      764/QĐ-BGDĐT): 50 phút, 10 điểm, 28 câu: Phần I 18 câu nhiều lựa chọn (4,5 điểm), Phần II 4 câu đúng/sai 4 ý (4 điểm), Phần III 6 câu
      trả lời ngắn (1,5 điểm). App chấm tự động cả ba phần như đề thật. Phạm vi Vật lí 12 cả năm, như đề tham khảo năm 2025 và đề chính thức
      năm 2026. Đề cố định, không có đề ngẫu nhiên (pts không đi với pool); cách viết ở đầu phần đề này trong data/banks/12-vatli.js. Khối 12

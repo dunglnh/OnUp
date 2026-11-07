@@ -1,5 +1,5 @@
-// Kiểm tra các đề Vật lí thi thử tốt nghiệp THPT (data/banks/12-vatli.js, vatli12-tn-de<N>; Phiên N12-tn-vatli: Đề 1–4; phiên sau thêm đề
-// thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG). Đề tính điểm (Phiên K5), khung đề tốt nghiệp THPT từ năm 2025 (Quyết
+// Kiểm tra các đề Vật lí thi thử tốt nghiệp THPT (data/banks/12-vatli.js, vatli12-tn-de<N>; Phiên N12-tn-vatli: Đề 1–4; Phiên N12-tn-vatli-b:
+// Đề 5–8; phiên sau thêm đề thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG). Đề tính điểm (Phiên K5), khung đề tốt nghiệp THPT từ năm 2025 (Quyết
 // định 764/QĐ-BGDĐT; docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7, khối “Phiên N12-tn-vatli”). Số đề, số câu lấy từ danh mục (không ghi cứng).
 // Khung: danh mục (tên, khối 12, môn Vật lí, file, 50 phút, pts 10, gắn vào tn-thpt-2027); Phần I 18 câu nhiều lựa chọn pt 0,25, Phần II 4
 // câu đúng/sai 4 ý pt 1, Phần III 6 câu trả lời ngắn pt 0,25 (đúng tên part, đúng thứ tự), Quiz.grade điểm tối đa 4,5 – 4 – 1,5; đáp án Phần
@@ -19,10 +19,16 @@
 // proton của nguyên tố, số neutron, bán kính R = 1,2 · 10⁻¹⁵ · ∛A, độ hụt khối, năng lượng liên kết, năng lượng liên kết riêng, năng lượng
 // toả ra của phản ứng, động năng các hạt sinh ra; mọi phản ứng hạt nhân bảo toàn số khối và điện tích, cả hệ số như “3¹₀n”; phân loại phân
 // hạch, tổng hợp, phóng xạ α), định luật phóng xạ (số hạt nhân, khối lượng còn lại, độ phóng xạ, hằng số phóng xạ, H = λN, tuổi theo ¹⁴C),
-// lò phản ứng (số phân hạch mỗi giây, khối lượng ²³⁵U tiêu thụ); câu khái niệm so với bảng ghi trong script (theo sách in năm 2026).
+// lò phản ứng (số phân hạch mỗi giây, khối lượng ²³⁵U tiêu thụ); Phiên N12-tn-vatli-b thêm: động cơ nhiệt (A = Q₁ − Q₂ sau một chu trình,
+// hiệu suất, công suất), nhiệt lượng làm nước nóng lên rồi hoá hơi và hiệu suất bộ phận đun, thể tích hơi nước pV = nRT, bình khí nén của thợ
+// lặn (khí chỉ ra khỏi bình khi áp suất trong bình còn lớn hơn áp suất của nước), mật độ phân tử khí trong 1 cm³ (p = μkT), khối lượng riêng
+// theo phương trình trạng thái, từ trường đổi chiều (|ΔΦ| = (B₁ + B₂)S), máy biến áp quấn thêm vòng (mỗi vòng ứng với U₁/N₁), thanh treo
+// bằng hai lò xo (BIL = mg, 2kΔl = 2mg), đinamô (ω = v/r, E₀ = NΦ₀ω), điện tích hạt nhân Ze, đồng vị (số neutron, bán kính tỉ lệ với ∛A),
+// khối lượng Mặt Trời mất mỗi giây E = mc², số chuỗi phản ứng nhiệt hạch mỗi giây; câu khái niệm so với bảng ghi trong script (theo sách in năm 2026).
 // Đọc lại đồ thị trên lưới (như tests/vatli-hoahoc12-gk2.js: gốc O, lưới đều, số ở trục đúng vạch, cả phần âm của trục đứng, tên trục ở đầu
 // trục): đồ thị thể tích theo nhiệt độ tuyệt đối (đường thẳng qua gốc toạ độ, đoạn gần gốc nét đứt), từ thông theo thời gian, nhiệt độ của
-// nước đá được đun theo thời gian, số hạt nhân chưa phân rã theo thời gian (đường giảm theo hàm mũ); chữ trong hình từ cỡ 13, nằm trọn trong khung, không đè nhau.
+// nước đá được đun theo thời gian, số hạt nhân chưa phân rã theo thời gian (đường giảm theo hàm mũ), nhiệt độ của băng phiến để nguội theo
+// thời gian (đoạn nằm ngang duy nhất là lúc đông đặc, các đoạn khác nhiệt độ giảm); chữ trong hình từ cỡ 13, nằm trọn trong khung, không đè nhau.
 // Rồi: chữ (số ngăn hàng nghìn bằng khoảng trắng, dấu phẩy thập phân, chữ số dưới dòng, dấu thanh kiểu sách “hoá”, “thuỷ”, tên hạt như
 // sách; mũi tên chỉ ở phương trình phản ứng hạt nhân); kiểu Đ/S không lặp trong một đề, mỗi kiểu nhiều nhất ba lần trong các đề thi thử;
 // đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa chọn dài nhất hay ngắn nhất ở không quá một phần ba và không dưới một phần sáu số câu
@@ -258,8 +264,8 @@ const BAI_HOC = {
   ketTinh: { "Thiếc": true, "Nhựa đường": false, "Nhựa thông": false, "Chất dẻo PVC": false },
   // Bài 14: từ trường của thanh nam châm mạnh nhất ở gần hai cực (đường sức từ dày nhất)
   cucManh: "gần hai cực của thanh nam châm",
-  // Bài 24: nhà máy điện hạt nhân cần nhiều nước làm mát (câu hỏi “Vì sao … cạnh hồ, sông và bờ biển?”)
-  lamMat: "nhà máy cần một lượng nước rất lớn để làm mát"
+  // Bài 24: chất thải hạt nhân phải cất giữ hàng trăm năm vì chu kì bán rã của một số đồng vị trong thanh nhiên liệu đã dùng rất lớn
+  chatThai: "nhiều chất trong đó có chu kì bán rã rất lớn"
 };
 // biến đổi số khối, số proton của hạt nhân con so với hạt nhân mẹ, đọc từ lựa chọn (“cùng số khối, số proton nhiều hơn 1”)
 const bienDoi = (o) => { const f = (ten) => { const m = new RegExp("(cùng số " + ten + ")|số " + ten + " (nhiều|ít) hơn (\\d)").exec(o); assert.ok(m, "không đọc được “" + o + "”"); return m[1] ? 0 : (m[2] === "nhiều" ? 1 : -1) * +m[3]; };
@@ -765,7 +771,7 @@ const RIENG = {
       const [m, mp, mn] = so(q.q, "¹²₆C có khối lượng # amu; mỗi proton có khối lượng # amu, mỗi neutron có khối lượng # amu"), h = hatNhan("¹²₆C");
       return vnf((h.Z * mp + (h.A - h.Z) * mn - m) * MEV, 1) + " MeV"; } }, // năng lượng liên kết: Δm · c²
     { has: "Chu kì bán rã của ¹⁹⁸Au là", right: (q) => { const [T] = so(q.q, "¹⁹⁸Au là # ngày"), [t] = so(q.q, "Sau # ngày"); return vnf((1 - 2 ** (-t / T)) * 100, 1) + "%"; } },
-    { has: "Nhà máy điện hạt nhân thường đặt ở gần sông", right: () => BAI_HOC.lamMat },
+    { has: "Thanh nhiên liệu đã qua sử dụng của lò phản ứng", right: () => BAI_HOC.chatThai },
     { has: "tác nhân của một động cơ nhiệt nhận từ nguồn nóng", right: (q) => {
       const [Q1] = so(q.q, "nhận từ nguồn nóng nhiệt lượng # kJ"), [Q2] = so(q.q, "truyền cho nguồn lạnh nhiệt lượng # kJ"), [n] = so(q.q, "Mỗi giây động cơ thực hiện # chu trình"), A = Q1 - Q2; // sau một chu trình ΔU = 0
       const [Aa] = so(q.o[0], "công cơ học # kJ"), [Hc] = so(q.o[2], "là #%"), [Pd] = so(q.o[3], "là # kW");
