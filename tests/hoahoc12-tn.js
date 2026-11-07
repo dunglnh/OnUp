@@ -704,7 +704,7 @@ const RIENG = {
       const mx = KL("C₆H₁₀O₄", nt) + KL("C₆H₁₆N₂", nt) - 2 * KL("H₂O", nt); assert.ok(gan(mx, KL("C₁₂H₂₂N₂O₂", nt))); return (m / KL("C₆H₁₀O₄", nt)) * mx * (h / 100); } },
     { has: "Đốt cháy hoàn toàn 1 mol methane toả ra", right: (q) => { const nt = ntDe(q), [Q] = so(q.q, "toả ra # kJ"), [mn] = so(q.q, "đun # kg nước"), [t1, t2] = so(q.q, "từ # °C đến # °C"), [h] = so(q.q, "chỉ #% nhiệt"), [c] = so(q.q, "cần # J");
       return ((mn * 1000 * c * (t2 - t1)) / 1000 / (h / 100) / Q) * KL("CH₄", nt); } },
-    { has: "dây magnesium trong không khí, thu được magnesium oxide", right: (q) => { const nt = ntDe(q), [m] = so(q.q, "hoàn toàn # g dây"), pt = ptCua(q, "Mg", "MgO"); return molTheoPT(pt, "Mg", m / nt.Mg, "MgO") * KL("MgO", nt); } },
+    { has: "bột đồng trong không khí đến khi đồng phản ứng hết", right: (q) => { const nt = ntDe(q), [m] = so(q.q, "Nung nóng # g bột đồng"), pt = ptCua(q, "Cu", "CuO"); return molTheoPT(pt, "Cu", m / nt.Cu, "CuO") * KL("CuO", nt); } },
     { has: "Vỏ trứng gà có thành phần chính là calcium carbonate", right: (q) => { const nt = ntDe(q), vm = vmDe(q), [m] = so(q.q, "Cho # g bột vỏ trứng"), [V] = so(q.q, "thu được # L khí CO₂"), pt = ptCua(q, "CaCO₃", "CO₂");
       return (molTheoPT(pt, "CO₂", V / vm, "CaCO₃") * KL("CaCO₃", nt) * 100) / m; } },
     { has: "Một mẫu nước giếng nhiễm sắt chứa ion Fe³⁺", right: (q) => { const nt = ntDe(q), [C] = so(q.q, "nồng độ # mol/L"), [V] = so(q.q, "Xử lí # L nước"), pt = ptCua(q, "Fe³⁺", "Fe(OH)₃");
