@@ -118,8 +118,8 @@ const ntDe = (q) => { const m = /\(Cho ([^;)]*)[;.]/.exec(q.q); assert.ok(m, "đ
   [...m[1].matchAll(/([A-Z][a-z]?) = (\d+(?:,\d+)?)/g)].forEach((k) => { nt[k[1]] = val(k[2]); assert.equal(nt[k[1]], NTK[k[1]], "nguyên tử khối của " + k[1]); }); return nt; };
 // thể tích mol khí ở điều kiện chuẩn đề cho (24,79 L/mol)
 const VM = 24.79;
-const vmDe = (q) => { const m = new RegExp("(?:thể tích mol khí (?:ở điều kiện chuẩn là )?(" + NUM + ") L\\/mol|ở điều kiện chuẩn, mỗi mol khí chiếm thể tích (" + NUM + ") L)", "u").exec(q.q);
-  assert.ok(m && val(m[1] || m[2]) === VM, "thể tích mol khí ở điều kiện chuẩn"); return VM; };
+const vmDe = (q) => { const m = new RegExp("(?:thể tích mol khí (?:ở điều kiện chuẩn là )?(" + NUM + ") L\\/mol|một mol khí chiếm (" + NUM + ") L|thể tích của một mol khí là (" + NUM + ") L)", "u").exec(q.q);
+  assert.ok(m && val(m[1] || m[2] || m[3]) === VM && /điều kiện chuẩn/.test(q.q), "thể tích mol khí ở điều kiện chuẩn"); return VM; };
 // thế điện cực chuẩn (V) theo Bảng 15.1 của sách; đề, đoạn thông tin ghi E° nào cũng phải đúng bảng
 const E0_SACH = { Li: -3.04, K: -2.924, Ca: -2.84, Na: -2.713, Mg: -2.356, Al: -1.676, Zn: -0.762, Fe: -0.44, Ni: -0.257, Sn: -0.137, Pb: -0.126, H: 0, Cu: 0.34, Ag: 0.799, Hg: 0.853, Au: 1.52 };
 const E0_RE = new RegExp("E°\\(([A-Z][a-z]?)[²³]?⁺\\/([A-Z][a-z]?)\\) = ([−+]?\\d+,\\d+) V", "gu");
@@ -620,7 +620,7 @@ const gocChu = (s) => String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\
 const khongDau = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
 const TU_CHUNG = [...CD12, ...CHUONG.map((c) => c[0]), ...CHUONG_10, ...CHUONG_11, "mỗi ý sau đúng hay sai", "làm tròn kết quả đến hàng phần trăm", "làm tròn kết quả đến hàng phần mười",
   "làm tròn kết quả đến hàng đơn vị", "hiện tượng quan sát được là", "bằng bao nhiêu", "là bao nhiêu", "nào sau đây", "sau khi các phản ứng xảy ra hoàn toàn", "sau khi phản ứng xảy ra hoàn toàn", "cho thế điện cực chuẩn", "thế điện cực chuẩn của",
-  "thể tích mol khí ở điều kiện chuẩn", "ở điều kiện chuẩn, mỗi mol khí chiếm thể tích", "ở điều kiện chuẩn", "nguyên tử khối", "có bao nhiêu", "đề thi thử theo cấu trúc đề thi tốt nghiệp thpt từ năm 2025",
+  "thể tích mol khí ở điều kiện chuẩn", "một mol khí chiếm", "thể tích của một mol khí là", "ở điều kiện chuẩn", "nguyên tử khối", "có bao nhiêu", "đề thi thử theo cấu trúc đề thi tốt nghiệp thpt từ năm 2025",
   "năm 2027 thí điểm thi trên máy tính ở nơi đủ điều kiện, đề như thi giấy"]
   .map((p) => " " + khongDau(p) + " ").sort((a, b) => b.length - a.length);
 // công thức hoá học (từ có chữ số dưới dòng như “C₅H₁₀O₂”, “CH₃CH₂–”) không phải câu chữ: tách chuỗi ở đó (chữ OCR đọc công thức thành “ch ch ch”)
@@ -638,7 +638,7 @@ const TNQ = DE.flatMap((b) => b.questions.map((q) => Object.assign(q, { _de: b.i
   // nửa số cặp của câu ít cặp hơn thì báo; không tính cặp có số hay chữ đơn, cặp của nhãn chủ đề, cụm chung và cặp có ở từ 3% số câu của file.
   // Giữa các đề thi thử (cùng cách hỏi của đề tốt nghiệp) chỉ so chuỗi 6 từ.
   const CUM = ["mỗi ý sau đúng hay sai", "làm tròn kết quả đến hàng phần trăm", "làm tròn kết quả đến hàng phần mười", "làm tròn kết quả đến hàng đơn vị",
-    "ở điều kiện chuẩn, mỗi mol khí chiếm thể tích"];
+    "một mol khí chiếm", "thể tích của một mol khí là"];
   const cap2 = (s) => { let t = String(s).normalize("NFC").toLowerCase(); CUM.forEach((c) => { t = t.split(c).join(" | "); });
     const w = t.replace(/[^\p{L}\p{N}\s|]/gu, " ").split(/\s+/).filter(Boolean); return w.slice(1).map((x, k) => w[k] + " " + x).filter((c) => c.split(" ").every((x) => /\p{L}{2}/u.test(x))); };
   const ca = KHO_Q.concat(TNQ), df = {};
