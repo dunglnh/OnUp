@@ -21,7 +21,8 @@
 // có chữ của nhãn chủ đề, ba lựa chọn sai không cùng mở đầu bằng một chữ mà đáp án đúng không có; lời giải không nhắc vị trí của phương án.
 // So với ba kho Hoá học 12 và giữa các đề thi thử: đề bài không trùng câu nào trong file, không gần trùng (chuỗi 6 từ; cặp hai âm tiết
 // chung), đáp án không trùng câu cùng chủ đề. Dò lộ đáp án giữa mọi câu của một đề (đoạn thông tin cùng hiện) và với lời dặn, giữa câu cùng
-// chủ đề của các đề thi thử và ba kho Hoá học 12 (đề “Ôn chủ đề” rút chung; đáp án bằng chữ đã xem ghi ở DA_XEM). Có ../OnUp-Book thì so mọi
+// chủ đề của các đề thi thử và ba kho Hoá học 12 (đề “Ôn chủ đề” rút chung; số trong khoảng tol của đáp án cũng tính; đáp án bằng chữ
+// đã xem ghi ở DA_XEM; câu đúng/sai 4 ý không dò được bằng code, phiên tự đọc). Có ../OnUp-Book thì so mọi
 // trường chữ (cả đoạn thông tin, lời dặn) với chữ OCR của mọi cuốn (không chuỗi 8 từ nào trùng) và với câu của mọi kho khác, cả giữa các đề
 // thi thử với nhau. Bộ đọc phương trình, phức chất, bộ dò lộ tự thử với phương trình, câu cố ý viết sai.
 // Chạy: node tests/hoahoc12-tn.js → in MATH OK. DO_LO=1: in đáp án bằng chữ có ở câu khác; DO_SACH=1: in chuỗi 6 từ trùng chữ của sách;
