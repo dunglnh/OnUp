@@ -1756,6 +1756,16 @@ window.ONTAP_SEED_BANKS = [
       "Điện từ trường. Mô hình sóng điện từ": [1, 0, 0], "Cấu trúc hạt nhân": [2, 1, 1], "Phản ứng hạt nhân và năng lượng liên kết": [2, 2, 1],
       "Hiện tượng phóng xạ": [3, 1, 1], "Công nghiệp hạt nhân": [1, 1, 1] } } },
 
+  /* Vật lí 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên K5; Phiên N12-tn-vatli: Đề 1–4). Khung đề tốt nghiệp THPT từ năm 2025 (Quyết định
+     764/QĐ-BGDĐT): 50 phút, 10 điểm, 28 câu: Phần I 18 câu nhiều lựa chọn (4,5 điểm), Phần II 4 câu đúng/sai 4 ý (4 điểm), Phần III 6 câu
+     trả lời ngắn (1,5 điểm). App chấm tự động cả ba phần như đề thật. Phạm vi Vật lí 12 cả năm, như đề tham khảo năm 2025 và đề chính thức
+     năm 2026. Đề cố định, không có đề ngẫu nhiên (pts không đi với pool); cách viết ở đầu phần đề này trong data/banks/12-vatli.js. Khối 12
+     chưa bật nên đề chưa hiện với gia đình. */
+  { id: "vatli12-tn-de1", title: "Vật lí 12 · Thi thử tốt nghiệp · Đề 1", grade: 12, subject: "Vật lí", minutes: 50, n: 28, file: "12-vatli.js", pts: 10 },
+  { id: "vatli12-tn-de2", title: "Vật lí 12 · Thi thử tốt nghiệp · Đề 2", grade: 12, subject: "Vật lí", minutes: 50, n: 28, file: "12-vatli.js", pts: 10 },
+  { id: "vatli12-tn-de3", title: "Vật lí 12 · Thi thử tốt nghiệp · Đề 3", grade: 12, subject: "Vật lí", minutes: 50, n: 28, file: "12-vatli.js", pts: 10 },
+  { id: "vatli12-tn-de4", title: "Vật lí 12 · Thi thử tốt nghiệp · Đề 4", grade: 12, subject: "Vật lí", minutes: 50, n: 28, file: "12-vatli.js", pts: 10 },
+
   /* Hoá học 12 · Kiểm tra cuối năm học (Kết nối tri thức, Hoá học 12, Chương 6 Đại cương về kim loại, Chương 7 Nguyên tố nhóm IA và nhóm
      IIA, Chương 8 Sơ lược về dãy kim loại chuyển tiếp thứ nhất và phức chất, Bài 18–30, trọng tâm Chương 8; Phiên N12-ck2-vatli-hoahoc).
      Khối 12 chưa bật nên đề chưa hiện với gia đình. Trường kiểm tra cả Bài 15–16 thì xem lời dặn của đề. Kho câu = 50 câu của 2 đề cố
