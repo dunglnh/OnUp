@@ -619,7 +619,7 @@ const RIENG = {
     { has: "Đặc điểm nào sau đây là đặc điểm của các đường sức từ?", right: () => BAI_HOC.khepKin },
     { has: "Trong mô hình súng điện từ", right: (q) => { const [L, I] = so(q.q, "dài # cm mang dòng điện # A"), [B] = so(q.q, "cảm ứng từ # T"); return vn(B * I * (L / 100)) + " N"; } },
     { has: "Một khung dây phẳng hình chữ nhật kích thước", right: (q) => {
-      const [a, b] = so(q.q, "kích thước # cm × # cm"), [B] = so(q.q, "cảm ứng từ # T"), [al] = so(q.q, "một góc #°"); return sci(B * (a / 100) * (b / 100) * Math.cos((al * Math.PI) / 180), 1) + " Wb"; } },
+      const [a, b] = so(q.q, "kích thước # cm × # cm"), [B] = so(q.q, "cảm ứng từ # T"), [al] = so(q.q, "cảm ứng từ bằng #°"); return sci(B * (a / 100) * (b / 100) * Math.cos((al * Math.PI) / 180), 1) + " Wb"; } },
     { has: "Hai lần di chuyển một thanh nam châm từ xa tới sát một cuộn dây kín", right: (q) => {
       assert.ok(/lần thứ hai mất thời gian bằng một nửa lần thứ nhất/.test(q.q)); const k = 2; // cùng ΔΦ, |e| tỉ lệ nghịch với Δt
       return { 2: "lớn gấp đôi", 0.5: "nhỏ bằng một nửa", 1: "bằng nhau", 4: "lớn gấp bốn lần" }[k]; } },
@@ -650,7 +650,7 @@ const RIENG = {
       return [khoang(Ea, 1.5 * k * T1, 0.01), khoang(vb, Math.sqrt((3 * k * T1) / m)), gan(kc, T2 / T1, 1e-9), gan(kd, Math.sqrt(T2 / T1), 1e-3)]; } },
     { has: "Một khung dây dẫn hình chữ nhật ABCD gồm", right: (q) => {
       const [N] = so(q.q, "gồm # vòng"), [AB] = so(q.q, "AB = CD = # cm"), [B] = so(q.q, "cảm ứng từ # T"), [I] = so(q.q, "cường độ # A"), [Fb] = so(q.o[1], "độ lớn # N");
-      assert.ok(/các cạnh AB, CD vuông góc với các đường sức từ, còn các cạnh BC, DA song song với các đường sức từ/.test(q.q));
+      assert.ok(/các cạnh AB, CD vuông góc với các đường sức từ, còn các cạnh BC, DA nằm dọc theo các đường sức từ/.test(q.q));
       assert.ok(/cạnh BC có độ lớn bằng lực từ/.test(q.o[0]) && /ngược chiều nhau/.test(q.o[2]) && /lớn gấp bốn lần/.test(q.o[3]));
       // cạnh song song với đường sức từ: lực từ bằng 0; dòng điện ở AB, CD ngược chiều nên hai lực ngược chiều; F tỉ lệ thuận với I
       return [false, gan(Fb, N * B * I * (AB / 100), 1e-9), true, false]; } },
@@ -757,7 +757,7 @@ const RIENG = {
       return vnf((r1 * (p2 / p1) * (t1 + 273)) / (t2 + 273), 2) + " kg/m³"; } }, // pV/T không đổi, V = m/ρ
     { has: "từ trường mạnh nhất ở vùng", right: () => BAI_HOC.cucManh },
     { has: "Đoạn dây chịu lực từ", right: (q) => {
-      const [L, I] = so(q.q, "dài # cm mang dòng điện # A"), [al] = so(q.q, "một góc #°"), [F] = so(q.q, "chịu lực từ # N"); return vnf(F / (I * (L / 100) * Math.sin((al * Math.PI) / 180)), 2) + " T"; } },
+      const [L, I] = so(q.q, "dài # cm mang dòng điện # A"), [al] = so(q.q, "một góc #° so với vectơ"), [F] = so(q.q, "chịu lực từ # N"); return vnf(F / (I * (L / 100) * Math.sin((al * Math.PI) / 180)), 2) + " T"; } },
     { has: "Khung dây ABCD hình chữ nhật có AB =", right: (q) => {
       const [a, b] = so(q.q, "AB = # cm, BC = # cm"), [B] = so(q.q, "cảm ứng từ # T"); assert.ok(/mặt phẳng khung vuông góc với các đường sức từ/.test(q.q)); return sci(B * a * b * 1e-4, 1) + " Wb"; } }, // Φ = BScos 0
     { has: "Bếp toả nhiệt với công suất trung bình bằng", right: (q) => { const [I0] = so(q.q, "cường độ cực đại # A"), [R] = so(q.q, "điện trở # Ω"); return vn((I0 ** 2 / 2) * R) + " W"; } }, // I = I₀/√2, P = I²R
