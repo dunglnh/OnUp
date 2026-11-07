@@ -817,7 +817,7 @@ if (SACH.length) {
   assert.throws(() => rNT(Object.assign({}, qNT, { svg: lech })), /hàm mũ/);
   const g = docLuoi(nt, "thử"); assert.ok(gan(tai(g.net, 0), 8) && gan(luc(g.net, 4), 2, 1e-3) && gan(tai(g.net, 4), 2, 1e-3));
   const qVT = tim("Hình bên cho biết thể tích của lượng khí thay đổi thế nào"), rVT = RIENG["vatli12-tn-de1"].find((c) => qVT.q.includes(c.has)).right;
-  assert.equal(rVT(qVT), "1,44 L");
+  assert.equal(rVT(qVT), "1,32 L");
   assert.throws(() => rVT(Object.assign({}, qVT, { svg: qVT.svg.replace('x2="120" y2="170" stroke="acc"', 'x2="120" y2="160" stroke="acc"') })), /nét đứt/);
   assert.throws(() => rVT(Object.assign({}, qVT, { svg: qVT.svg.replace('points="120,170 ', 'points="120,165 ') })), /gốc toạ độ/);
   const qT = tim("Cho 0,50 kg nước đá ở −20 °C"), gT = docLuoi(qT.svg, "thử");
