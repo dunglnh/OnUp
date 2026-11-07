@@ -136,7 +136,7 @@ const docLuoi = (svg, at) => {
   soX.forEach((t) => assert.ok(gan(val(t.t), kx * (t.at[0] - O[0]), 1e-6), at + ": số ở trục ngang tỉ lệ với khoảng cách tới gốc"));
   soY.forEach((t) => assert.ok(gan(val(t.t), ky * (O[1] - (t.at[1] - 5)), 1e-6), at + ": số ở trục đứng tỉ lệ với khoảng cách tới gốc"));
   const V = (p) => [(p[0] - O[0]) * kx, (O[1] - p[1]) * ky];
-  const tenTruc = T.filter((t) => /^[ΦτtNVTpiIF] \((?:mWb|s|ms|°C|K|L|kPa|A|mN|phút|giờ|ngày|10[⁰¹²³⁴⁵⁶⁷⁸⁹]+)\)$/u.test(t.t));
+  const tenTruc = T.filter((t) => /^[ΦτtNVT] \((?:mWb|s|°C|K|L|phút|giờ|ngày|10[⁰¹²³⁴⁵⁶⁷⁸⁹]+)\)$/u.test(t.t));
   assert.equal(tenTruc.length, 2, at + ": tên hai trục");
   const tenX = tenTruc.filter((t) => Math.abs(t.at[0] - X2) < 30 && t.at[1] > day_ + 20 && t.at[1] < day_ + 46), tenY = tenTruc.filter((t) => dist(t.at, [O[0], Y2]) < 30);
   assert.ok(tenX.length === 1 && tenY.length === 1 && tenX[0] !== tenY[0], at + ": tên trục ở đầu mỗi trục");
@@ -765,7 +765,7 @@ const RIENG = {
     { has: "Một vôn kế xoay chiều mắc vào cuộn", right: (q) => {
       const [N1, N2] = so(q.q, "hai cuộn dây # vòng và # vòng"), [n1] = so(q.q, "Cuộn # vòng được cắm vào mạng điện"), [U1] = so(q.q, "mạng điện # V"); assert.equal(n1, N1);
       return vnf((U1 * N2) / N1, 1) + " V"; } }, // U₂/U₁ = N₂/N₁
-    { has: "Tia X dùng trong chụp X-quang", right: (q) => { const [l] = so(q.q, "bước sóng khoảng # m"), [c] = so(q.q, "chân không là # m/s"); return sci(c / l, 1) + " Hz"; } },
+    { has: "Tia X dùng trong chụp X-quang", right: (q) => { const [l] = so(q.q, "bước sóng khoảng # m"), [c] = so(q.q, "truyền với tốc độ # m/s"); return sci(c / l, 1) + " Hz"; } },
     { has: "có số neutron bằng số proton?", right: (q) => motCai(q, (o) => { const h = hatNhan(o); return h.A - h.Z === h.Z; }) },
     { has: "Để tách một hạt nhân ¹²₆C thành các proton và neutron riêng lẻ", right: (q) => {
       const [m, mp, mn] = so(q.q, "¹²₆C có khối lượng # amu; mỗi proton có khối lượng # amu, mỗi neutron có khối lượng # amu"), h = hatNhan("¹²₆C");
@@ -785,7 +785,7 @@ const RIENG = {
       // V = kT: tỉ lệ thuận với nhiệt độ tuyệt đối (ở 0 °C, V = 273k khác 0); T tăng gấp đôi thì V tăng gấp đôi
       return [gan(k * 273, 0), gan(Vb, k * (tb + 273), 1e-6), gan((k * 2) / k, 4), gan(Vd, k * (td + 273), 1e-6)]; } },
     { has: "Một tàu thăm dò trên Sao Hoả gửi tín hiệu vô tuyến", right: (q) => {
-      const [f] = so(q.q, "tần số # GHz"), [s] = so(q.q, "Trái Đất là # m"), [c] = so(q.q, "chân không là # m/s"), [tb] = so(q.o[1], "mất # phút"), [lc] = so(q.o[2], "khoảng # cm");
+      const [f] = so(q.q, "tần số # GHz"), [s] = so(q.q, "Trái Đất là # m"), [c] = so(q.q, "chân không với tốc độ # m/s"), [tb] = so(q.o[1], "mất # phút"), [lc] = so(q.o[2], "khoảng # cm");
       assert.ok(/không truyền được qua khoảng chân không/.test(q.o[0]) && /lệch pha nhau π\/2/.test(q.o[3])); // sóng điện từ truyền được trong chân không; E và B đồng pha
       return [false, gan(tb, s / c / 60, 1e-6), khoang(lc, (c / (f * 1e9)) * 100), false]; } },
     { has: "Trong một máy xạ trị, nguồn ⁶⁰₂₇Co phát tia γ", right: (q) => {
