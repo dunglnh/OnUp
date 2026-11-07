@@ -181,7 +181,7 @@ const loaiPhanUng = (pt) => {
 };
 const MEV = 931.5;
 const khoi = (s, hn) => { const m = new RegExp(escRe(hn) + "(?: là)? (" + NUM + ") amu", "u").exec(s); assert.ok(m, "không thấy khối lượng của " + hn); return val(m[1]); };
-const khoiN = (s, ten) => { const m = new RegExp("(?:khối lượng|của) " + ten + " là (" + NUM + ") amu", "u").exec(s); assert.ok(m, "không thấy khối lượng " + ten); return val(m[1]); };
+const khoiN = (s, ten) => { const m = new RegExp("(?:^|[\\s,;:(])" + ten + "(?: là)? (" + NUM + ") amu", "u").exec(s); assert.ok(m, "không thấy khối lượng " + ten); return val(m[1]); };
 
 /* ---------- bảng ghi trong script (theo sách Vật lí 12 Kết nối tri thức in năm 2026; câu khái niệm so với bảng) ---------- */
 const BAI_HOC = {
@@ -287,7 +287,7 @@ const RIENG = {
       assert.ok(/lực từ mà đoạn dây tác dụng lên nam châm hướng lên trên/.test(q.o[0]));
       // số chỉ tăng: nam châm bị đẩy xuống (lực do đoạn dây tác dụng lên nam châm hướng xuống)
       return [m1 < m0, khoang(Fd, F), khoang(Bd, B), gan(m0 + ((m1 - m0) * I2) / I, m2)]; } },
-    { has: "dược chất chứa đồng vị phóng xạ ¹⁸F", right: (q) => {
+    { has: "một liều dược chất có ¹⁸F", right: (q) => {
       const [T] = so(q.q, "chu kì bán rã # phút"), [H0] = so(q.q, "là # MBq"), [ln2] = so(q.q, "ln 2 ≈ #"), luc_ = (o) => { const m = new RegExp("Lúc (\\d+) giờ (\\d+) phút cùng ngày, độ phóng xạ của liều dược chất còn (" + NUM + ") MBq", "u").exec(o); assert.ok(m); return [(+m[1] - 8) * 60 + +m[2], val(m[3])]; };
       const H = (t) => H0 / 2 ** (t / T), lam = ln2 / (T * 60), [ta, Ha] = luc_(q.o[0]), [tb, Hb] = luc_(q.o[1]), [ld] = so(q.o[2], "khoảng # s⁻¹"), [Nd] = so(q.o[3], "khoảng # hạt nhân");
       return [gan(H(ta), Ha), gan(H(tb), Hb), khoang(ld, lam, 0.01), khoang(Nd, (H0 * 1e6) / lam)]; } },
@@ -334,7 +334,7 @@ const RIENG = {
     { has: "hạ điện áp hiệu dụng của lưới điện từ 220 V xuống 11 V", right: (q) => { const [U1, U2] = so(q.q, "từ # V xuống # V"), [N1] = so(q.q, "có # vòng"); return vn((N1 * U2) / U1) + " vòng"; } },
     { has: "Lò vi sóng làm nóng thức ăn", right: (q) => { const [f] = so(q.q, "tần số # GHz"), [c] = so(q.q, "tốc độ # m/s"); return vn(Math.round((c / (f * 1e9)) * 100)) + " cm"; } },
     { has: "Đồng vị của hạt nhân ¹²₆C là hạt nhân nào sau đây?", right: (q) => { const me = hatNhan("¹²₆C"); return motCai(q, (o) => { const h = hatNhan(o); return h.Z === me.Z && h.A !== me.A; }); } },
-    { has: "Năng lượng liên kết của hạt nhân ¹⁶₈O là", right: (q) => { const h = hatNhan("¹⁶₈O"), [W] = so(q.q, "¹⁶₈O là # MeV"); return vnf(lamTron(W / h.A, 2), 2) + " MeV/nucleon"; } },
+    { has: "Năng lượng liên kết của ¹⁶₈O là", right: (q) => { const h = hatNhan("¹⁶₈O"), [W] = so(q.q, "¹⁶₈O là # MeV"); return vnf(lamTron(W / h.A, 2), 2) + " MeV/nucleon"; } },
     { has: "Hạt nhân bền tạo thành sau mỗi lần phân rã", right: (q, d) => {
       const me = new RegExp("Mỗi hạt nhân (" + HN + ") phóng ra một hạt α", "u").exec(d)[1], X = phanUng(me + " → ⁴₂He + X");
       return motCai(q, (o) => { const h = hatNhan(o); return h.A === X.A && h.Z === X.Z; }); } },
@@ -356,10 +356,10 @@ const RIENG = {
       const e = (a, b) => (N * Math.abs(tai(g.net, b) - tai(g.net, a)) * 1e-3) / (b - a), doan = (o) => { const m = new RegExp("Từ (" + NUM + ")(?: s)? đến (" + NUM + ") s", "u").exec(o); return [val(m[1]), val(m[2])]; };
       const [a1, b1] = doan(q.o[0]), [ea] = so(q.o[0], "độ lớn # V"), [a2, b2] = doan(q.o[1]), [a3, b3] = doan(q.o[2]), [ec] = so(q.o[2], "độ lớn # V");
       const doc = (a, b) => tai(g.net, b) - tai(g.net, a), m4 = [...q.o[3].matchAll(new RegExp("từ (" + NUM + ")(?: s)? đến (" + NUM + ") s", "gu"))].map((m) => [val(m[1]), val(m[2])]);
-      assert.ok(/không có dòng điện cảm ứng/.test(q.o[1]) && /có cùng chiều/.test(q.o[3]) && m4.length === 2);
+      assert.ok(/dòng điện cảm ứng trong cuộn dây bằng 0/.test(q.o[1]) && /có cùng chiều/.test(q.o[3]) && m4.length === 2);
       return [gan(e(a1, b1), ea), Math.abs(doc(a2, b2)) < 1e-9, gan(e(a3, b3), ec), Math.sign(doc(...m4[0])) === Math.sign(doc(...m4[1]))]; } },
     { has: "Hạt nhân ⁴₂He được tạo thành từ các nucleon riêng lẻ", right: (q) => {
-      const h = hatNhan("⁴₂He"), m = khoi(q.q, "hạt nhân ⁴₂He là"), mp = khoiN(q.q, "proton"), mn = khoiN(q.q, "neutron"), [NA] = so(q.q, "Avogadro bằng # mol⁻¹");
+      const h = hatNhan("⁴₂He"), m = khoi(q.q, "hạt nhân ⁴₂He"), mp = khoiN(q.q, "proton"), mn = khoiN(q.q, "neutron"), [NA] = so(q.q, "Avogadro bằng # mol⁻¹");
       const dm = h.Z * mp + (h.A - h.Z) * mn - m, W = dm * MEV, [p_, n_] = so(q.o[0], "gồm # proton và # neutron"), [d2] = so(q.o[1], "là # amu"), [w3] = so(q.o[2], "khoảng # MeV/nucleon"), [e4] = so(q.o[3], "khoảng # MeV");
       return [p_ === h.Z && n_ === h.A - h.Z, gan(dm, d2, 1e-6), Math.abs(W / h.A - w3) < 0.05, khoang(e4, NA * W)]; } },
     { has: "Nhiệt độ tuyệt đối của khí trong bình lúc sau", right: (q, d) => so(d, "khí trong bình có nhiệt độ # °C")[0] + 273 },
@@ -395,7 +395,7 @@ const RIENG = {
     { has: "Nhiệt kế điện tử đo thân nhiệt từ xa", right: () => BAI_HOC.hongNgoai },
     { has: "Hạt nhân ⁶⁴₂₉Cu có bán kính khoảng", right: (q) => { const [r0] = so(q.q, "R ≈ # · ∛A"), h = hatNhan("⁶⁴₂₉Cu"); return sci(r0 * Math.cbrt(h.A), 1) + " m"; } },
     { has: "Phản ứng hạt nhân nào sau đây là phản ứng phân hạch?", right: (q) => motCai(q, (o) => { assert.equal(o.match(PTHN)[0], o); return loaiPhanUng(o) === "phân hạch"; }) },
-    { has: "Năng lượng liên kết của hạt nhân ⁷₃Li khoảng", right: (q) => {
+    { has: "Hạt nhân ⁷₃Li có năng lượng liên kết khoảng", right: (q) => {
       const h = hatNhan("⁷₃Li"), [m] = so(q.q, "⁷₃Li có khối lượng # amu"), [mp, mn] = so(q.q, "proton và neutron lần lượt là # amu và # amu"); return vnf((h.Z * mp + (h.A - h.Z) * mn - m) * MEV, 1) + " MeV"; } },
     { has: "KHÔNG phải là một ứng dụng của tia phóng xạ?", right: (q) => tra(q, BAI_HOC.ungDung, false) },
     { has: "Cho 0,50 kg nước đá ở −20 °C vào một cốc", right: (q) => {
@@ -420,7 +420,7 @@ const RIENG = {
       // E₀ = NBSω và f = ω/(2π) đều tỉ lệ với tốc độ quay
       return [gan(E0 / Math.SQRT2, Ea), gan((2 * Math.PI) / (w * Math.PI), Tb), gan(E0 * Math.cos(phi), ec * Math.SQRT2), true]; } },
     { has: "Một lò phản ứng hạt nhân dùng cho nghiên cứu", right: (q) => {
-      const [P] = so(q.q, "công suất toả nhiệt # kW"), [E] = so(q.q, "trung bình # MeV"), [mev] = so(q.q, "1 MeV = # J"), [NA] = so(q.q, "Avogadro bằng # mol⁻¹"), [M] = so(q.q, "²³⁵U là # g/mol");
+      const [P] = so(q.q, "công suất toả nhiệt # kW"), [E] = so(q.q, "giải phóng # MeV"), [mev] = so(q.q, "1 MeV = # J"), [NA] = so(q.q, "Avogadro bằng # mol⁻¹"), [M] = so(q.q, "²³⁵U là # g/mol");
       const e1 = E * mev, r = (P * 1e3) / e1, [a] = so(q.o[0], "năng lượng # J"), [b] = so(q.o[1], "khoảng # phân hạch"), [ngay, mc] = so(q.o[2], "trong # ngày, lò tiêu thụ khoảng # kg");
       assert.ok(/chủ yếu dưới dạng động năng của các mảnh hạt nhân/.test(q.o[3]));
       return [gan(a, e1), khoang(b, r, 0.05), khoang(mc * 1000, ((r * ngay * 86400) / NA) * M, 0.05), BAI_HOC.manh]; } },
@@ -478,7 +478,7 @@ const RIENG = {
       assert.ok(/^Đây là máy tăng áp\.$/.test(q.o[0]));
       // máy biến áp không làm thay đổi tần số
       return [N2 > N1, gan((U1 * N2) / N1, Ub), gan(f, fc), gan((U1 * N2d) / N1, Ud)]; } },
-    { has: "Một phòng thí nghiệm theo dõi một mẫu chất phóng xạ", right: (q) => {
+    { has: "Một phòng thí nghiệm đếm số hạt nhân N chưa phân rã", right: (q) => {
       const g = docLuoi(q.svg, "đồ thị N–t"); assert.ok(g.x === "t (giờ)" && g.y === "N (10¹⁸)"); const N0 = tai(g.net, 0), T = luc(g.net, N0 / 2), [ln2] = so(q.q, "ln 2 ≈ #");
       // đường biểu diễn là đường giảm theo hàm mũ N = N₀ · 2^(−t/T) ở mọi điểm (toạ độ ghi đến 0,1); chu kì bán rã đọc được ở vạch lưới
       g.net.forEach(([t, N]) => assert.ok(Math.abs(N - N0 * 2 ** (-t / T)) < 0.02, "đường biểu diễn là đường giảm theo hàm mũ"));
@@ -660,12 +660,12 @@ const TU_CHUNG = [...CD12, ...CHUONG.map((c) => c[0]), "mỗi ý sau đúng hay 
   "số avogadro bằng", "khối lượng mol của", "lấy ln 2", "có độ lớn bằng bao nhiêu", "suất điện động cảm ứng", "mỗi vòng có diện tích", "diện tích mỗi vòng",
   "năng lượng liên kết riêng", "chu kì bán rã", "phản ứng phân hạch dây chuyền", "tốc độ ánh sáng trong chân không", "đơn vị khối lượng nguyên tử", "định luật i của nhiệt động lực học",
   "nhiệt dung riêng của nước", "nhiệt nóng chảy riêng của nước đá", "nhiệt hoá hơi riêng của nước", "coi tốc độ của sóng điện từ trong không khí là", "mặt phẳng khung vuông góc với các đường sức từ",
-  "động năng tịnh tiến trung bình của phân tử khí", "tốc độ căn quân phương", "khối lượng hạt nhân", "khối lượng proton là", "khối lượng neutron là", "1 amu = 931,5 mev/c²",
-  "điện áp hiệu dụng giữa hai đầu cuộn thứ cấp", "cuộn sơ cấp", "cuộn thứ cấp", "máy biến áp lí tưởng", "dòng điện foucault", "dòng điện cảm ứng", "phóng xạ", "phân hạch",
+  "động năng tịnh tiến trung bình của phân tử khí", "tốc độ căn quân phương", 
+  "điện áp hiệu dụng giữa hai đầu cuộn thứ cấp", "cuộn sơ cấp", "cuộn thứ cấp", "máy biến áp lí tưởng", "dòng điện foucault",
   "đề thi thử theo cấu trúc đề thi tốt nghiệp thpt từ năm 2025", "năm 2027 thí điểm thi trên máy tính ở nơi đủ điều kiện, đề như thi giấy",
   // cách hỏi, cách cho số liệu chung của đề Vật lí (không phải nội dung riêng của một câu)
   "giá trị của x là bao nhiêu", "lực từ tác dụng lên", "vuông góc với các đường sức", "hiện tượng cảm ứng điện từ", "thiết bị nào sau đây hoạt động", "một ấm điện có công suất",
-  "năng lượng toả ra của mỗi phản ứng", "năng lượng liên kết của hạt nhân", "nhiệt độ tuyệt đối của khí", "áp suất của khí trong bình", "nhiệt độ của nước trong cốc",
+  "năng lượng toả ra của mỗi phản ứng", "nhiệt độ tuyệt đối của khí", "áp suất của khí trong bình", "nhiệt độ của nước trong cốc",
   "bỏ qua sự trao đổi nhiệt với", "đặt một kim nam châm nhỏ", "theo thang nhiệt độ kelvin", "một lượng khí xác định", "nào sau đây không phải là",
   "hình bên là đồ thị biểu diễn", "động năng tịnh tiến trung bình", "một đoạn dây dẫn thẳng dài",
   // cách phát biểu chuẩn của định luật Charles
@@ -809,7 +809,7 @@ if (SACH.length) {
 {
   const tim = (has) => TNQ.find((q) => q.q.includes(has));
   // đồ thị: số ở trục sai, vạch lưới lệch, tên trục sai, đường biểu diễn lệch khỏi hàm mũ
-  const qNT = tim("Một phòng thí nghiệm theo dõi một mẫu chất phóng xạ"), nt = qNT.svg, rNT = RIENG["vatli12-tn-de4"].find((c) => qNT.q.includes(c.has)).right;
+  const qNT = tim("Một phòng thí nghiệm đếm số hạt nhân N chưa phân rã"), nt = qNT.svg, rNT = RIENG["vatli12-tn-de4"].find((c) => qNT.q.includes(c.has)).right;
   assert.throws(() => docLuoi(nt.replace(">4<", ">5<"), "thử"), /tỉ lệ/);
   assert.throws(() => docLuoi(nt.replace(/(<line x1=")106(" y1="40" x2=")106(" y2="200")/, "$1108$2108$3"), "thử"), /lưới đều/);
   assert.throws(() => docLuoi(nt.replace(">t (giờ)<", ">t (giây)<"), "thử"), /tên hai trục/);
