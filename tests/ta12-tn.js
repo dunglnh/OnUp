@@ -1,6 +1,6 @@
 // Kiểm tra các đề Tiếng Anh thi thử tốt nghiệp THPT (data/banks/12-ta.js, ta12-tn-de<N>; Phiên N12-tn-ta: Đề 1–2; Phiên N12-tn-ta-b:
-// Đề 3–4, câu 1–6 điền vào một thông báo thay cho quảng cáo; phiên thêm đề thì
-// mở rộng script này: thêm khoá của đề vào RIENG). Đề tính điểm (Phiên K5), khung đề tốt nghiệp THPT từ năm 2025 (Quyết định
+// Đề 3–4, câu 1–6 điền vào một thông báo thay cho quảng cáo; Phiên N12-tn-ta-c: Đề 5 quảng cáo, Đề 6 thông báo, câu chọn where sau
+// danh từ chỉ nơi chốn; phiên thêm đề thì mở rộng script này: thêm khoá của đề vào RIENG). Đề tính điểm (Phiên K5), khung đề tốt nghiệp THPT từ năm 2025 (Quyết định
 // 764/QĐ-BGDĐT; đề chính thức năm 2026 giữ nguyên; docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7, khối “Phiên N12-tn-ta”). Số đề, số câu lấy
 // từ danh mục (không ghi cứng).
 // Kiểm tra từng đề: danh mục (tên, khối, môn, file, 50 phút, pts 10, gắn vào tn-thpt-2027; tên tiếng Anh do Quiz.title dựng); 40 câu
@@ -13,7 +13,7 @@
 // phần nào cũng đủ ba mức; Quiz.grade (đúng hết: 3 – 1,25 – 1,25 – 4,5, tổng 10; sai hết: 0); note (khung đề, số câu, số phút, điểm
 // mỗi câu, các phần với số câu tính từ dữ liệu, không câu nghe, phát âm, viết, app chấm cả đề).
 // Tính lại đáp án bằng code (RIENG: mỗi câu một mục kiểm tra): thứ tự tính từ (ADJ), dạng của từ (HO_TU, từ loại chỗ trống cần), rút gọn
-// mệnh đề quan hệ (PHAN_TU; to-infinitive sau the first, the last, the only), đại từ quan hệ theo danh từ trước chỗ trống (DT_QH), cụm từ cố định (CUM, từ đứng sau chỗ trống), động từ + to-infinitive hay -ing (MAU), từ hạn định với danh
+// mệnh đề quan hệ (PHAN_TU; to-infinitive sau the first, the last, the only), đại từ quan hệ theo danh từ trước chỗ trống (DT_QH; nơi chốn: where, sau chỗ trống là mệnh đề đủ chủ ngữ, động từ), cụm từ cố định (CUM, từ đứng sau chỗ trống), động từ + to-infinitive hay -ing (MAU), từ hạn định với danh
 // từ đếm được số ít, số nhiều, không đếm được (DANH, LUONG), cụm động từ theo nghĩa (PV, tín hiệu trong đoạn), từ nối theo quan hệ ý và
 // loại từ (QH: trạng từ trước dấu phẩy, giới từ trước danh từ, liên từ trước mệnh đề), nghĩa của từ (NGHIA), từ bổ nghĩa cho so sánh hơn,
 // đại từ quan hệ sở hữu; câu sắp xếp: thử mọi thứ tự, chỉ một thứ tự hợp các ràng buộc (người nói lần lượt; câu có từ nối, từ chỉ lại
@@ -187,50 +187,56 @@ function boSapXep(t) {
 
 /* ---------- bảng để tính lại đáp án ---------- */
 // thứ tự tính từ trước danh từ: ý kiến 1, kích cỡ 2, tuổi 3, hình dạng 4, màu 5, nguồn gốc 6, chất liệu 7, mục đích 8
-const ADJ = { lovely: 1, friendly: 1, large: 2, old: 3, young: 3, new: 3, British: 6, wooden: 7 };
+const ADJ = { lovely: 1, friendly: 1, large: 2, old: 3, young: 3, new: 3, blue: 5, British: 6, wooden: 7, cotton: 7, comfortable: 1, leather: 7 };
 // từ loại (dạng của từ)
 const HO_TU = { professional: "adj", professionally: "adv", unprofessionally: "adv", professionalism: "noun", confidently: "adv", confident: "adj", confidence: "noun", confide: "verb",
   creativity: "noun", creative: "adj", creatively: "adv", create: "verb", essential: "adj", essence: "noun", essentially: "adv", essentials: "noun",
-  environmentally: "adv", environmental: "adj", environment: "noun", environmentalist: "noun" };
+  environmentally: "adv", environmental: "adj", environment: "noun", environmentalist: "noun",
+  strength: "noun", strong: "adj", strongly: "adv", strengthen: "verb", accessible: "adj", access: "noun", accessibly: "adv", accessibility: "noun",
+  useful: "adj", use: "noun", usefully: "adv", usefulness: "noun" };
 // dạng của động từ trong mệnh đề quan hệ rút gọn: pp quá khứ phân từ (bị động), ing (chủ động), past động từ chia (không rút gọn được)
-const PHAN_TU = { grown: "pp", growing: "ing", living: "ing", collected: "pp", collecting: "ing", arriving: "ing", arrived: "pp" };
+const PHAN_TU = { grown: "pp", growing: "ing", living: "ing", collected: "pp", collecting: "ing", arriving: "ing", arrived: "pp", designed: "pp", designing: "ing", borrowed: "pp", borrowing: "ing" };
 // cụm từ cố định: từ đứng sau chỗ trống → động từ đi cùng
-const CUM = { attention: "pay", conversation: "have", best: "do", awareness: "raise" };
+const CUM = { attention: "pay", conversation: "have", best: "do", awareness: "raise", weight: "lose" };
 // động từ + to-infinitive hay -ing (remember: việc phải làm sau này → to-infinitive)
-const MAU = { remember: "to", avoid: "ing", allows: "to", suggest: "ing", encourage: "to", forget: "to" };
+const MAU = { remember: "to", avoid: "ing", allows: "to", suggest: "ing", encourage: "to", forget: "to", learn: "to", hope: "to" };
 // danh từ sau chỗ trống: sg đếm được số ít, pl số nhiều; từ hạn định đi được với loại nào
-const DANH = { donation: "sg", glasses: "pl", responsibilities: "pl", information: "unc", visitor: "sg", interviews: "pl" };
+const DANH = { donation: "sg", glasses: "pl", responsibilities: "pl", information: "unc", visitor: "sg", interviews: "pl", money: "unc", water: "unc" };
 const LUONG = { each: ["sg"], every: ["sg"], many: ["pl"], all: ["pl", "unc"], "a few": ["pl"], both: ["pl"], several: ["pl"], much: ["unc"], "a little": ["unc"], "a large amount of": ["unc"], "a number of": ["pl"], "a great deal of": ["unc"], "plenty of": ["pl", "unc"], most: ["pl", "unc"] };
 // cụm động từ: nghĩa
 const PV = { "stay away from": "avoid", "put up with": "tolerate", "run out of": "have none left", "look forward to": "wait happily for", "cut down on": "reduce",
-  "put off": "delay", "take off": "remove", "turn off": "stop a machine", "give off": "send out", "find out": "discover", "give out": "hand out", "carry out": "do a task", "point out": "show" };
+  "put off": "delay", "take off": "remove", "keep up with": "stay informed about", "look down on": "think you are better than", "turn off": "stop a machine", "give off": "send out", "find out": "discover", "give out": "hand out", "carry out": "do a task", "point out": "show" };
 // từ nối: [quan hệ, loại]; adv trước dấu phẩy, prep trước danh từ, conj trước mệnh đề
 const QH = {
   moreover: ["addition", "adv"], however: ["contrast", "adv"], therefore: ["result", "adv"], thus: ["result", "adv"], "because of": ["cause", "prep"], otherwise: ["condition", "adv"], "as a result": ["result", "adv"],
   "for instance": ["example", "adv"], instead: ["replacement", "adv"], "apart from": ["addition", "prep"], "instead of": ["replacement", "prep"],
   "in spite of": ["concession", "prep"], despite: ["concession", "prep"], "due to": ["cause", "prep"], "even if": ["concession", "conj"], unless: ["condition", "conj"],
-  besides: ["addition", "adv"], "as long as": ["condition", "conj"], although: ["concession", "conj"], because: ["cause", "conj"], furthermore: ["addition", "adv"], nevertheless: ["contrast", "adv"], "as well as": ["addition", "prep"], "except for": ["exception", "prep"]
+  besides: ["addition", "adv"], "as long as": ["condition", "conj"], "as soon as": ["time", "conj"], once: ["time", "conj"], "even though": ["concession", "conj"], "in case": ["precaution", "conj"], although: ["concession", "conj"], because: ["cause", "conj"], furthermore: ["addition", "adv"], nevertheless: ["contrast", "adv"], "as well as": ["addition", "prep"], "except for": ["exception", "prep"]
 };
 // nghĩa của từ trong ngữ cảnh
 const NGHIA = { tested: "check", spent: "use up", sold: "give for money", lent: "give for a time", reveal: "let others know", hide: "keep out of sight", keep: "hold on to", store: "put away",
   reduce: "make smaller", double: "make twice as big", increase: "make bigger", share: "use together",
-  impression: "the picture others form of you", expression: "the look on a face", explanation: "the reasons you give", attention: "careful notice" };
+  impression: "the picture others form of you", expression: "the look on a face", explanation: "the reasons you give", attention: "careful notice",
+  damage: "harm", repair: "fix", decorate: "make beautiful", protect: "keep safe",
+  warnings: "messages about danger", awards: "prizes", invitations: "requests to come", complaints: "statements that you are unhappy" };
 // từ bổ nghĩa đứng trước so sánh hơn
 const SO_SANH = ["much", "far", "a lot", "even", "slightly"];
 // từ trái nghĩa, gần nghĩa trong ngữ cảnh của đoạn đọc
-const TRAI = { conflict: "agreement", crowded: "empty", common: "unusual", recover: "get worse", slow: "quick", traditional: "modern", disappointed: "pleased", certain: "uncertain" };
-const GAN = { valuable: "useful", "cope with": "deal with", "give up": "stop trying", approaches: "methods", recognise: "identify", curious: "interested", respected: "admired", routine: "repetitive" };
+const TRAI = { conflict: "agreement", crowded: "empty", common: "unusual", recover: "get worse", slow: "quick", traditional: "modern", disappointed: "pleased", certain: "uncertain",
+  simple: "complicated", natural: "man-made", former: "current", rapid: "gradual" };
+const GAN = { valuable: "useful", "cope with": "deal with", "give up": "stop trying", approaches: "methods", recognise: "identify", curious: "interested", respected: "admired", routine: "repetitive",
+  embarrassed: "ashamed", ancient: "very old", prize: "award", enormous: "huge" };
 const NOI = ["however", "then", "these", "this", "their", "thanks to this", "because of this", "today", "ten years later", "sadly", "with this", "in the water", "worried that",
-  "twelve years later", "membership of these", "at first", "now", "the chart", "since that day", "thanks to your kindness"];
+  "twelve years later", "membership of these", "at first", "now", "the chart", "since that day", "thanks to your kindness", "luckily", "since then", "after that", "finally", "first", "second", "for all these reasons"];
 // danh từ trước chỗ trống của câu chọn đại từ quan hệ: người → who, vật → which, nơi chốn → where
-const DT_QH = { person: "nguoi" };
+const DT_QH = { person: "nguoi", rooms: "noi" };
 
 /* ---------- câu điền câu, mệnh đề: bộ phân loại nhỏ ---------- */
 const SUB = ["because", "although", "when", "if", "once", "since", "while", "before", "after", "unless", "until"];
 const REL = ["which", "who", "that", "whose", "where"];
-const PP = ["asked", "published", "held", "made", "grown"];
+const PP = ["asked", "published", "held", "made", "grown", "carried"];
 const FIN = new Set(["absorbs", "makes", "hold", "holds", "helps", "need", "must", "is", "are", "was", "spreads", "means", "affect", "welcome", "will", "have", "understands", "rely", "worked", "save"]);
-const NHIEU_V = new Set(["feel"]); // động từ chia ở số nhiều sau who (danh từ số nhiều đứng trước)
+const NHIEU_V = new Set(["feel", "care"]); // động từ chia ở số nhiều sau who (danh từ số nhiều đứng trước)
 const tuCua = (s) => String(s).toLowerCase().replace(/[^a-z' -]+/g, " ").split(/\s+/).filter(Boolean);
 const loaiCau = (o) => {
   const w = tuCua(o), loi = /\bto \w+ing\b/.test(o.toLowerCase());
@@ -363,6 +369,52 @@ const RIENG = {
     38: { k: "y", bang: ["No one knows exactly what the job market will look like in 2040, but one thing seems certain: people who are willing to learn will be in a much stronger position."], co: [/unclear/, /keep learning/], sai: [/most jobs will disappear/, /all the best jobs/, /Nobody will need/] },
     39: { k: "y", bang: ["Skills that machines struggle with, such as creativity, teamwork and understanding other people's feelings, are likely to become more valuable."], co: [/people skills/, /safer/], sai: [/better than people at teamwork/, /the same tools/, /less useful/] },
     40: { k: "y", bang: ["Today, the same fear has returned with artificial intelligence.", "technology also creates work", "What will matter most in the future is the ability to adapt."], co: [/change many jobs/, /adapt and keep learning/], sai: [/pointless/, /the first technology/, /stop the development/] }
+  },
+  5: {
+    1: { k: "tl", can: "noun", truocRe: / your $/ }, 2: { k: "tt" }, 3: { k: "rg", can: "pp" }, 4: { k: "md" }, 5: { k: "cum" }, 6: { k: "lt", qh: "result", tin: "Places are limited" },
+    7: { k: "hd" }, 8: { k: "pv", y: "remove", tin: "before you enter the main hall" }, 9: { k: "nghia", y: "harm", tin: "turn off your flash" },
+    10: { k: "qhdt", dt: "rooms" }, 11: { k: "lt", qh: "time", tin: "return your audio guide" }, 12: { k: "md" },
+    13: { k: "sx", rb: ["^c"] }, 14: { k: "sx", rb: ["^d", "c$", "b<a"] }, 15: { k: "sx", rb: ["^b", "c$", "e-d", "d-a"] },
+    16: { k: "sx", rb: ["^c", "c-a", "a-e", "e-b", "d$"] }, 17: { k: "sx", rb: ["^d", "d-a", "a-e", "e-c", "b$"] },
+    18: { k: "cau", cho: "cau" }, 19: { k: "cau", cho: "which" }, 20: { k: "cau", cho: "pp", truoc: "A study" }, 21: { k: "cau", cho: "sub-dau" }, 22: { k: "cau", cho: "cau" },
+    23: { k: "gan", tu: "embarrassed", doan: 2 },
+    24: { k: "khong", doan: 2, co: ["free evening class", "small cards", "at the market"], vang: /\bfilms?\b/i },
+    25: { k: "chi", cum: "he told them stories", chu: "The young students" }, 26: { k: "trai", tu: "simple", doan: 4 },
+    27: { k: "y", bang: ["For a few months, that is exactly what he did.", "spend his days resting and playing with his grandchildren"], co: [/relaxing/, /grandchildren/], sai: [/driving buses/, /granddaughter asked/, /did not know/] },
+    28: { k: "dung", bang: "helping older people who want to start learning", sai: [/about his age/, /university/, /after one year/], nguoc: [/young enough to be his grandchildren/, null, null], vang: [null, /university/i, /one year/i] },
+    29: { k: "doan", bang: "he felt embarrassed whenever he made a mistake" }, 30: { k: "doan", bang: "he could not understand a single word" },
+    31: { k: "chen", tro: "these threats", truoc: "human activities" }, 32: { k: "gan", tu: "ancient", doan: 5 },
+    33: { k: "chi", cum: "confuse them", chu: "Baby turtles" },
+    34: { k: "khong", doan: 3, co: ["Lights from hotels", "plastic bags", "fishing nets"], vang: /\bboats?\b/i },
+    35: { k: "y", bang: ["people dig up the eggs", "dogs and crabs eat many of the rest", "warmer sand produces more female turtles"], co: [/people/, /animals/, /sand/], sai: [/always lay/, /Only dogs and crabs/, /Cooler sand/] },
+    36: { k: "trai", tu: "natural", doan: 3 },
+    37: { k: "dung", bang: "They dig holes in the sand at night", sai: [/after the dinosaurs/, /every year/, /favourite food of/], nguoc: [/survived the disaster that wiped out the dinosaurs/, /Every few years/, /which look like jellyfish, one of their favourite foods/] },
+    38: { k: "y", bang: ["Some coastal towns now turn off or cover their lights during the nesting season."], co: [/turned off or covered/], sai: [/all year round/, /more lights/, /must close/] },
+    39: { k: "y", bang: ["move newly laid eggs to fenced areas, where they are guarded until they hatch"], co: [/Protecting eggs/, /survive/], sai: [/no longer need/, /only in Viet Nam/, /illegal/] },
+    40: { k: "y", bang: ["for more than 100 million years", "mainly because of human activities", "people around the world are working to protect these animals"], co: [/Ancient/, /in danger because of people/, /can still be saved/], sai: [/cannot be saved/, /main threat/, /much older than dinosaurs/] }
+  },
+  6: {
+    1: { k: "rg", can: "pp" }, 2: { k: "tt" }, 3: { k: "tl", can: "adj", truocRe: / fully $/ }, 4: { k: "lt", qh: "addition", tin: "a café, a children's corner" }, 5: { k: "ss" }, 6: { k: "md" },
+    7: { k: "hd" }, 8: { k: "pv", y: "stay informed about", tin: "the latest weather forecasts" }, 9: { k: "nghia", y: "messages about danger", tin: "If you are told to leave your home" },
+    10: { k: "md" }, 11: { k: "tl", can: "adj" }, 12: { k: "lt", qh: "time", loai: "conj", tin: "check that your neighbours" },
+    13: { k: "sx", rb: ["^b"] }, 14: { k: "sx", rb: ["^c", "e$", "b<d"] }, 15: { k: "sx", rb: ["^d", "c$", "b<e", "e-a"] },
+    16: { k: "sx", rb: ["^b", "b-c", "c-a", "a-e", "d$"] }, 17: { k: "sx", rb: ["^a", "a-c", "c-e", "e-b", "d$"] },
+    18: { k: "cau", cho: "cau" }, 19: { k: "cau", cho: "who-nhieu", truoc: "young shoppers" }, 20: { k: "cau", cho: "ing" }, 21: { k: "cau", cho: "who", truoc: "online fashion bloggers," }, 22: { k: "cau", cho: "cau" },
+    23: { k: "trai", tu: "former", doan: 4 },
+    24: { k: "khong", doan: 2, co: ["doors banging", "talked over each other", "forgot half of the questions"], vang: /\bmusic\b/i },
+    25: { k: "chi", cum: "He lent us two microphones", chu: "our IT teacher" }, 26: { k: "gan", tu: "prize", doan: 4 },
+    27: { k: "y", bang: ["When we played it back, we were so embarrassed that we almost gave up."], co: [/so unhappy/, /nearly quit/], sai: [/proud/, /gave up because/, /nobody wanted/] },
+    28: { k: "dung", bang: "We started recording in the school library after classes, when it was completely quiet", sai: [/Most students/, /bought/, /first prize/], nguoc: [/only three of us raised our hands/, /He lent us two microphones/, /won second prize/] },
+    29: { k: "doan", bang: "we wrote a plan for every episode" }, 30: { k: "doan", bang: "the project has taught us" },
+    31: { k: "chen", tro: "this pressure", truoc: "puts enormous pressure" }, 32: { k: "gan", tu: "enormous", doan: 1 },
+    33: { k: "chi", cum: "when they are full", chu: "rubbish bins" },
+    34: { k: "khong", doan: 2, co: ["traffic lights change automatically", "messages about accidents", "smart car parks"], vang: /\btickets?\b/i },
+    35: { k: "y", bang: ["become brighter only when someone walks past", "rubbish bins send a message", "can find leaks"], co: [/waste less energy, water and time/], sai: [/stay bright all night/, /every bin/, /never have any leaks/] },
+    36: { k: "trai", tu: "rapid", doan: 1 },
+    37: { k: "dung", bang: "Street lights with sensors become brighter only when someone walks past", sai: [/already live in cities/, /cheap enough/, /alone can make/], nguoc: [/are expected to live in cities/, /The technology is also expensive/, /technology alone cannot make a city a good place to live/] },
+    38: { k: "y", bang: ["The smartest cities of the future may be those that use technology to serve people, rather than the other way round."], co: [/work for people/, /not people for technology/], sai: [/as much technology as/, /work for the technology companies/, /not need any technology/] },
+    39: { k: "y", bang: ["raises serious questions about privacy", "their data could be stolen or misused"], co: [/not want/, /movements/], sai: [/benefit most/, /completely safe/, /cheaper than/] },
+    40: { k: "y", bang: ["make urban life run more smoothly", "smart cities have their critics", "technology alone cannot make a city a good place to live"], co: [/easier/, /problems/, /not enough alone/], sai: [/solved all the problems/, /most important part/, /should not be used/] }
   }
 };
 
@@ -414,11 +466,12 @@ DE.forEach((b) => {
         motDung(q, (o) => /^to (?!be )\w+$/.test(o), "to-infinitive sau the first");
         break;
       }
-      case "qhdt": { // đại từ quan hệ: danh từ trước chỗ trống (DT_QH), chỗ trống làm chủ ngữ (sau chỗ trống là động từ chia)
+      case "qhdt": { // đại từ quan hệ: danh từ trước chỗ trống (DT_QH), chỗ trống làm chủ ngữ (sau chỗ trống là động từ chia); nơi chốn: sau chỗ trống là mệnh đề đủ
         const loai = DT_QH[c.dt];
         assert.ok(loai, at + ": thêm “" + c.dt + "” vào DT_QH");
         assert.ok(truocCho(q).endsWith(" " + c.dt + " "), at + ": trước chỗ trống là “" + c.dt + "”");
-        assert.ok(/^ [a-z]+s\b/.test(sau()), at + ": sau chỗ trống là động từ chia (chỗ trống làm chủ ngữ)");
+        if (loai === "noi") assert.ok(/^ (the |our |their |a |an )?[a-z]+ (is|are|was|were|can|will|have|has)\b/.test(sau()), at + ": sau chỗ trống là một mệnh đề đủ chủ ngữ, động từ (chỗ trống chỉ nơi chốn)");
+        else assert.ok(/^ [a-z]+s\b/.test(sau()), at + ": sau chỗ trống là động từ chia (chỗ trống làm chủ ngữ)");
         motDung(q, (o) => o === { nguoi: "who", vat: "which", noi: "where" }[loai], "đại từ quan hệ cho " + loai);
         break;
       }
@@ -657,7 +710,9 @@ if (SACH.length) {
   const coTrong = (w) => [w, w.replace(/es$/, ""), w.replace(/s$/, "")].some((x) => S.includes(" " + x.toLowerCase())); // từ số nhiều: tìm cả dạng số ít
   const tuHoi = [].concat(Object.keys(TRAI), Object.values(TRAI).filter((w) => !/^get /.test(w)), Object.keys(GAN), Object.values(GAN).filter((w) => !/^stop /.test(w)), Object.keys(CUM).map((k) => CUM[k] + " "),
     ["professional", "confident", "stay away from", "run out of", "tested", "reveal", "several", "a number of", "whose", "moreover", "as a result", "apart from", "even if", "pay attention to", /\bhave (a |an )?(\w+ )?conversations?\b/, "turn off",
-      "creativity", "essential", "put off", "plenty of", "otherwise", "as long as", "reduce", /\bdo (your|their|his|her|our) best\b/, "environmentally friendly", /\braise (\w+ )?awareness\b/, "due to", "find out", "impression", "although"]);
+      "creativity", "essential", "put off", "plenty of", "otherwise", "as long as", "reduce", /\bdo (your|their|his|her|our) best\b/, "environmentally friendly", /\braise (\w+ )?awareness\b/, "due to", "find out", "impression", "although",
+      "strength", "lose weight", "a large amount of", "take off", "damage", "as soon as", "therefore",
+      "borrowed", "accessible", "furthermore", "slightly", "a little", "keep up with", "warnings", "useful", "once"]);
   tuHoi.forEach((w) => assert.ok(w instanceof RegExp ? w.test(S) : coTrong(w), `“${w}” không có trong sách Tiếng Anh 6–12`)); // cụm động từ + danh từ: sách viết “have similar conversations”
   const sach = " " + SACH.map((f) => khongDau(fs.readFileSync(f, "utf8").replace(/=== page-\d+ · [^=]+ ===/g, " "))).join(" | ") + " ";
   const bao = (k) => ALL.flatMap((q) => TRUONG.get(q).flatMap((s) => chuoi(s, k).filter((c) => sach.includes(" " + c + " ")).map((c) => `${ten.get(q)}: ${c}`)));

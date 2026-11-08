@@ -1739,6 +1739,8 @@ window.ONTAP_SEED_BANKS = [
   { id: "ta12-tn-de2", title: "Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 2", grade: 12, subject: "Tiếng Anh", minutes: 50, n: 40, file: "12-ta.js", pts: 10 },
   { id: "ta12-tn-de3", title: "Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 3", grade: 12, subject: "Tiếng Anh", minutes: 50, n: 40, file: "12-ta.js", pts: 10 },
   { id: "ta12-tn-de4", title: "Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 4", grade: 12, subject: "Tiếng Anh", minutes: 50, n: 40, file: "12-ta.js", pts: 10 },
+  { id: "ta12-tn-de5", title: "Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 5", grade: 12, subject: "Tiếng Anh", minutes: 50, n: 40, file: "12-ta.js", pts: 10 },
+  { id: "ta12-tn-de6", title: "Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 6", grade: 12, subject: "Tiếng Anh", minutes: 50, n: 40, file: "12-ta.js", pts: 10 },
 
   /* Vật lí 12 · Kiểm tra cuối năm học (Kết nối tri thức, Vật lí 12, Chương III Từ trường Bài 14–20 và Chương IV Vật lí hạt nhân Bài
      21–25, trọng tâm Chương IV; Phiên N12-ck2-vatli-hoahoc). Khối 12 chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Trường
