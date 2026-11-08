@@ -205,7 +205,7 @@ const DANH = { donation: "sg", glasses: "pl", responsibilities: "pl", informatio
 const LUONG = { each: ["sg"], every: ["sg"], many: ["pl"], all: ["pl", "unc"], "a few": ["pl"], both: ["pl"], several: ["pl"], much: ["unc"], "a little": ["unc"], "a large amount of": ["unc"], "a number of": ["pl"], "a great deal of": ["unc"], "plenty of": ["pl", "unc"], most: ["pl", "unc"] };
 // cụm động từ: nghĩa
 const PV = { "stay away from": "avoid", "put up with": "tolerate", "run out of": "have none left", "look forward to": "wait happily for", "cut down on": "reduce",
-  "put off": "delay", "take off": "remove", "put on": "wear", "keep up with": "stay informed about", "look down on": "think you are better than", "turn off": "stop a machine", "give off": "send out", "find out": "discover", "give out": "hand out", "carry out": "do a task", "point out": "show" };
+  "put off": "delay", "take off": "remove", "keep up with": "stay informed about", "look down on": "think you are better than", "turn off": "stop a machine", "give off": "send out", "find out": "discover", "give out": "hand out", "carry out": "do a task", "point out": "show" };
 // từ nối: [quan hệ, loại]; adv trước dấu phẩy, prep trước danh từ, conj trước mệnh đề
 const QH = {
   moreover: ["addition", "adv"], however: ["contrast", "adv"], therefore: ["result", "adv"], thus: ["result", "adv"], "because of": ["cause", "prep"], otherwise: ["condition", "adv"], "as a result": ["result", "adv"],
