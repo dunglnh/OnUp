@@ -13,7 +13,7 @@
 > **Tiếp theo (3/11/2026):**
 > - Đã xong: dò sách DS1–DS12c (25/10/2026, PR #135–#176); lớp 4, 6 đủ đề cả năm (cuối năm xong 27/10); lớp 9 cuối kì I (28/10), giữa kì II (29/10), cuối năm (31/10), giữa kì I (1/11), đề thi thử vào 10 Toán, Ngữ văn (1–2/11), rà soát RS9 và bật khối 9 (2/11, PR #258); lớp 12 cuối kì I (1/11).
 > - Hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md): lớp 12 giữa kì II, cuối năm, đề thi thử tốt nghiệp (10/12; lớp 5 cuối kì I đã xong 3/11); rồi phần còn lại của lớp 12, 5, lớp 7, 8 (31/12), lớp 10, 11 (20/1/2027); đề thi thử vào 10 Tiếng Anh hoãn.
-> - 9ob, UI2, UX7, UX8, UX7b đã kiểm thử thiết kế (24/10/2026, mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)); UX9, UX11, UX10, UX12, UX14 cũng vậy (29/10/2026, mục 6 của [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md)); UX9b (X49, PR #221) đã kiểm thử thiết kế 1/11/2026. Đề xuất X50, X51 của PO (1/11/2026) đã làm ở Phiên UX15 (PR #273, 3/11/2026), chờ kiểm thử thiết kế (lời giao việc còn ở mục 4 đến lúc đó).
+> - 9ob, UI2, UX7, UX8, UX7b đã kiểm thử thiết kế (24/10/2026, mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md)); UX9, UX11, UX10, UX12, UX14 cũng vậy (29/10/2026, mục 6 của [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md)); UX9b (X49, PR #221) đã kiểm thử thiết kế 1/11/2026. Đề xuất X50, X51 của PO (1/11/2026) đã làm ở Phiên UX15 (PR #273, 3/11/2026), kiểm thử thiết kế 11/11/2026. Đợt UAT định kì ngày 11/11/2026 theo persona ba cấp ([PERSONA.md](PERSONA.md)): đề xuất 4.x (X52–X61, phiên ứng viên UX16–UX21) ở [CAI-TIEN-UX-4X.md](CAI-TIEN-UX-4X.md), chờ chủ app chọn; UX20 (môn học của con khối 10–12) nên quyết trước khi bật khối 12.
 > - Mốc: đủ đề lớp 4–12, rà xong trong tháng 2/2027; dùng thử từ tháng 3/2027; mở bán từ tháng 6/2027 (đoạn “Đã chốt”).
 
 ## 1. Tình hình hiện tại
@@ -345,19 +345,7 @@ Không chạy cùng lúc hai phiên cùng sửa `js/app.js` hoặc `js/quiz.js`;
 
 ## 4. Lời giao việc (dán nguyên vào phiên mới)
 
-Chỉ giữ lời giao việc của phiên chưa làm (phiên UX, UI đã xong thì giữ đến khi kiểm thử thiết kế xong, mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md), bản 3.x mục 6 của [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md)). Phiên làm đề: mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); phiên sửa lỗi: mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md). Các phiên dưới đây theo thứ tự ở mục 3; bấm tên phiên để mở lời giao việc.
-
-<details><summary>Phiên UX15 · Bài chính theo môn thi, dòng IOE cuối nhóm, thứ tự môn (X50, X51; ngắn; trước 25/11/2026)</summary>
-
-**Phiên UX15 · Bài chính theo môn thi, dòng IOE cuối nhóm, thứ tự môn** (X50, X51; ngắn; trước 25/11/2026; sửa `js/app.js`, `data/modules.js`; không chạy cùng lúc với phiên khác sửa `js/app.js`)
-> Đọc CLAUDE.md (mục “Trang "Hôm nay" và thanh tab của học sinh”, “Con biết mình đã ôn đến đâu”, “Quản lí đề” đoạn thứ tự môn X34) và docs/CAI-TIEN-UX-3X.md (mục 4, Phiên UX15: ghi nhận của PO, tái hiện của PD, cách làm, “Xong khi”; ảnh docs/hinh-ux-3x/ux15-hom-nay.jpg, ux15-nhom-ki-thi.jpg). Làm cho cả hai bản; không đổi kết quả, cách chấm, kho:
-> - Thêm examItems(e, grade) trong js/app.js: bài ôn dạng trang thường, rồi đề gom theo môn theo ô Môn thi của kì (bySubj(subjOrder(e.subjects, [grade])), trong môn theo bankOrder), rồi bài ôn IOE (bài ôn gắn vào một kì thi kind "ioe" của khối, hoặc có lang: "en"); ở kì IOE mọi bài ôn là bài ôn thường.
-> - X50: todayPicks lấy bài chưa làm đầu tiên theo danh sách đó (IOE chỉ khi kì gần nhất là kì IOE hoặc mọi bài khác đã làm); lời giới thiệu theo loại bài: đề ngân hàng giữ câu cũ, bài ôn dạng trang lấy intro mới trong data/modules.js (hai bài l4, l6: “Ôn theo bài rồi làm đề có giờ, có ôn câu sai.”; hai bài IOE: “Mỗi đề 30 câu có câu nghe, 20 phút, đáp án hiện sau khi nộp.”).
-> - X50, X51: practiceList nhận thứ tự từ examItems (practiceGroups, openEvent truyền kì): dòng bài ôn thường, các môn theo thứ tự trên, dòng IOE cuối nhóm; nhóm “Bài ôn khác” theo subjOrder([], [grade]). weekTips và kidCard dùng cùng danh sách. Sửa chú thích trong js/app.js, hai mục của CLAUDE.md và chú thích intro ở data/modules.js.
->
-> Kiểm thử theo “Xong khi” của mục 4 (bước mới hoặc bước UX9 của tests/e2e.js: Na 1/11, 20/12, 14/11/2026; Bin 20/12; thứ tự nhóm cuối kì I lớp 6 ở ba chỗ; bước UX1 đọc bài chính mới của Bin ngày 1/12/2026), chạy tests/e2e.js và tests/supabase/cloud-e2e.js đến khi in OK. Chụp ảnh 360px sáng/tối trước và sau của Hôm nay và nhóm cuối kì I lớp 6, chỉ tự rà soát một vòng, rồi mở Pull Request.
-
-</details>
+Chỉ giữ lời giao việc của phiên chưa làm (phiên UX, UI đã xong thì giữ đến khi kiểm thử thiết kế xong, mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md), bản 3.x mục 6 của [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md), bản 4.x mục 6 của [CAI-TIEN-UX-4X.md](CAI-TIEN-UX-4X.md)). Phiên làm đề: mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); phiên sửa lỗi: mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md). Các phiên dưới đây theo thứ tự ở mục 3; bấm tên phiên để mở lời giao việc.
 
 <details><summary>Phiên G0 · Chuẩn bị dùng thử: Điều khoản, Quyền riêng tư, dòng dùng thử (tháng 2/2027, trước B1; xong trước khi mở dùng thử)</summary>
 
