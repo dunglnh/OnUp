@@ -1,5 +1,5 @@
-// Kiểm tra các đề Sinh học thi thử tốt nghiệp THPT (data/banks/12-sinhhoc.js, sinhhoc12-tn-de<N>; Phiên N12-tn-sinhhoc: Đề 1–4; phiên sau
-// thêm đề thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG). Đề tính điểm theo khung đề tốt nghiệp THPT từ năm 2025
+// Kiểm tra các đề Sinh học thi thử tốt nghiệp THPT (data/banks/12-sinhhoc.js, sinhhoc12-tn-de<N>; Phiên N12-tn-sinhhoc: Đề 1–4; Phiên
+// N12-tn-sinhhoc-b: Đề 5–8; phiên sau thêm đề thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG). Đề tính điểm theo khung đề tốt nghiệp THPT từ năm 2025
 // (Quyết định 764/QĐ-BGDĐT; docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7, khối “Phiên N12-tn-sinhhoc”). Số đề, số câu lấy từ danh mục.
 // Khung: danh mục (tên, khối 12, môn Sinh học, file, 50 phút, pts 10, gắn vào tn-thpt-2027); Phần I 18 câu nhiều lựa chọn pt 0,25, Phần II
 // 4 câu đúng/sai 4 ý pt 1, Phần III 6 câu trả lời ngắn pt 0,25 (đúng tên part, đúng thứ tự), Quiz.grade điểm tối đa 4,5 – 4 – 1,5; đáp án
@@ -302,7 +302,21 @@ const BAI_HOC_2 = {
   darwinChua: "Nguyên nhân phát sinh biến dị và cơ chế di truyền biến dị", lenCan: "Đại Paleozoic (Cổ sinh)", chieuNgang: "sự phân bố theo chiều ngang",
   dienTheNhanh: "đất còn mùn, còn hạt và mầm của cây cũ", rungMua: "Rừng nhiệt đới", sachDo: "Xác định những loài cần ưu tiên bảo vệ và mức độ nguy cấp của chúng",
   taiTao: "Lắp tấm pin mặt trời trên mái nhà để lấy điện", huongSang: "auxin tập trung nhiều ở phía khuất sáng, tế bào phía đó dãn dài nhanh hơn",
-  than: { "Thận lọc máu tạo nước tiểu": true, "Nước tiểu được tạo thành ở gan": false, "lượng nước tiểu thải ra tăng lên": false, "thường chứa nhiều glucose": false }
+  than: { "Thận lọc máu tạo nước tiểu": true, "Nước tiểu được tạo thành ở gan": false, "lượng nước tiểu thải ra tăng lên": false, "thường chứa nhiều glucose": false },
+  // Đề 8. Bài 1: tái bản theo nguyên tắc bổ sung cho hai DNA con giống nhau; Bài 3: mất operator thì operon lac luôn hoạt động; Bài 4: đột biến tự
+  // phát do sai sót khi tái bản; Bài 8: cơ sở tế bào học của quy luật phân li; Bài 10: phân biệt giới tính tằm qua màu trứng; Bài 11: chỉ thị
+  // phân tử liên kết chặt với gene; Bài 12: hậu quả của mất đoạn lớn; Bài 13: ung thư thường không di truyền; Bài 16: giống lúa ST25 do lai tạo kết hợp chọn lọc; Bài 20: Darwin, chọn lọc
+  // tác động lên từng cá thể; Bài 22: loài người hiện đại phát sinh ở châu Phi; Bài 23: thích nghi của cây vùng khô nóng; Bài 26: quần xã nhiều
+  // loài ổn định hơn; Bài 31: savanna; Bài 33: điểm nóng về đa dạng sinh vật; Sinh học 11: trinh sinh (Bài 21), vai trò của
+  // thoát hơi nước (Bài 3), sinh trưởng sơ cấp và thứ cấp (Bài 20)
+  dnaGiong: "có trình tự nucleotide giống hệt DNA mẹ", operator: "luôn hoạt động, kể cả lúc thiếu lactose", tuPhat: "những lỗi ngẫu nhiên khi DNA tái bản",
+  coSoPhanLi: "sự phân li của cặp NST tương đồng trong giảm phân", tam: "chỉ nuôi tằm đực vì tằm đực cho nhiều tơ hơn", chiThi: "hầu như luôn được truyền cùng nhau",
+  matDoan: "làm mất nhiều gene, gây mất cân bằng hệ gene", ungThu: "chỉ có ở tế bào sinh dưỡng", st25: "Lai tạo nhiều năm kết hợp với chọn lọc",
+  caThe: "từng cá thể", chauPhi: "Châu Phi", saMac: "lá nhỏ hoặc biến thành gai, có lớp cutin dày",
+  onDinh: "khi một loài bị giảm sút, những loài khác có thể đảm nhận phần việc của nó", savanna: "Savanna", diemNong: "tập trung nguồn lực vào vùng giàu loài quý hiếm đang suy giảm",
+  trinhSinh: "trinh sinh", thoatHoi: "làm mát lá và tạo lực kéo nước từ rễ lên lá",
+  ruoiThucAn: { "hoàn toàn không thể giao phối": false, "Mỗi loại thức ăn đã chọn lọc": true, "Nuôi ở hai lồng riêng": true, "bước đầu dẫn tới hình thành loài mới": true },
+  sinhTruongTV: { "Cây một lá mầm như lúa, ngô có sinh trưởng thứ cấp": false, "Sinh trưởng sơ cấp làm thân cây to ra": false, "Mô phân sinh đỉnh giúp thân, rễ dài ra": true, "vòng gỗ hằng năm": false }
 };
 // vai trò trong hệ sinh thái (Bài 27) và kiểu phát triển của động vật (Sinh học 11, Bài 20) của Đề 7
 const VAI_HST = { "châu chấu": "tiêu thụ", "ếch đồng": "tiêu thụ", "rắn ráo": "tiêu thụ", "chuột đồng": "tiêu thụ", "cây lúa": "sản xuất", "cỏ gấu": "sản xuất", "nấm mốc": "phân giải", "vi khuẩn hoại sinh": "phân giải" };
@@ -705,11 +719,59 @@ const RIENG = {
     { has: "bao nhiêu phân tử không còn ¹⁵N", right: (q) => { const [k] = so(q.q, "phân đôi liên tiếp # lần"); return 2 ** k - 2; } },
     { has: "Ở phép lai AaBbDdEe × AaBbDdEe", right: (q) => { assert.ok(/số loại kiểu gene nhiều nhất ở đời con/.test(q.q)); return lai("AaBbDdEe", "AaBbDdEe").size; } },
     { has: "thể không (2n − 2)", right: (q) => so(q.q, "2n = #")[0] - 2 },
-    { has: "thành phần kiểu gene 0,5 AA", right: (q) => { const [x, y, z] = so(q.q, "thành phần kiểu gene # AA : # Aa : # aa"), [N] = so(q.q, "F1 gồm # cây");
+    { has: "có cấu trúc di truyền 0,5 AA", right: (q) => { const [x, y, z] = so(q.q, "cấu trúc di truyền # AA : # Aa : # aa"), [N] = so(q.q, "F1 gồm # cây");
       assert.ok(gan(x + y + z, 1)); const p = x + y / 2; return 2 * p * (1 - p) * N; } },
     { has: "Một đàn cò có", right: (q) => { const [N] = so(q.q, "Một đàn cò có # con"), [s] = so(q.q, "tỉ lệ sinh là #%"), [m] = so(q.q, "tỉ lệ tử vong là #%"), [n] = so(q.q, "sau # năm");
       return N * (1 + (s - m) / 100) ** n; } },
     { has: "Năng lượng tích luỹ ở đại bàng chỉ bằng mấy phần trăm", right: (q) => { const e = so(q.q, "lần lượt là # kcal, # kcal, # kcal và # kcal"); return (e[3] / e[0]) * 100; } }
+  ],
+  "sinhhoc12-tn-de8": [
+    { has: "Nhờ nguyên tắc bổ sung trong quá trình tái bản", right: () => BAI_HOC_2.dnaGiong },
+    { has: "đoạn operator của operon lac bị mất", right: () => BAI_HOC_2.operator },
+    { has: "Nguyên nhân chủ yếu của các đột biến tự phát này", right: () => BAI_HOC_2.tuPhat },
+    { has: "mỗi giao tử chỉ nhận một trong hai allele của một gene", right: () => BAI_HOC_2.coSoPhanLi },
+    { has: "Ở tằm, màu sắc của trứng", right: () => BAI_HOC_2.tam },
+    { has: "(chỉ thị phân tử)", right: () => BAI_HOC_2.chiThi },
+    { has: "Đột biến mất một đoạn lớn của NST", right: () => BAI_HOC_2.matDoan },
+    { has: "Phần lớn các trường hợp ung thư ở người không truyền sang đời con", right: () => BAI_HOC_2.ungThu },
+    { has: "Giống lúa ST25", right: () => BAI_HOC_2.st25 },
+    { has: "số nam bị bệnh", right: (q) => { const [m] = so(q.q, "#% số nam bị bệnh"), qa = m / 100;
+      assert.ok(/cân bằng di truyền/.test(q.q) && /allele lặn trên NST X/.test(q.q)); return motCai(q, (o) => gan(phanTram(o), qa * qa * 100)); } },
+    { has: "đơn vị bị chọn lọc tự nhiên giữ lại hoặc đào thải", right: () => BAI_HOC_2.caThe },
+    { has: "loài người hiện đại (Homo sapiens) xuất hiện đầu tiên ở đâu", right: () => BAI_HOC_2.chauPhi },
+    { has: "Cây sống ở vùng sa mạc nóng, khô", right: () => BAI_HOC_2.saMac },
+    { has: "thường ổn định hơn quần xã có ít loài", right: () => BAI_HOC_2.onDinh },
+    { has: "nhiều loài thú ăn cỏ lớn như ngựa vằn, linh dương", right: () => BAI_HOC_2.savanna },
+    { has: "khoanh vùng những “điểm nóng” đa dạng sinh vật", right: () => BAI_HOC_2.diemNong },
+    { has: "trứng không được thụ tinh vẫn phát triển thành ong đực", right: () => BAI_HOC_2.trinhSinh },
+    { has: "Vai trò chủ yếu của thoát hơi nước", right: () => BAI_HOC_2.thoatHoi },
+    { has: "có kiểu gene dị hợp hai cặp được đem lai phân tích", right: (q) => {
+      const [xd, dc, xc, dd] = so(q.q, "thu được: # con thân xám, cánh dài; # con thân đen, cánh cụt; # con thân xám, cánh cụt; # con thân đen, cánh dài"), n = xd + dc + xc + dd, y = q.o;
+      // lai phân tích: tỉ lệ kiểu hình bằng tỉ lệ giao tử của ruồi cái; hai loại nhiều hơn là giao tử liên kết
+      const lk = xd + dc > xc + dd ? "AB/ab" : "Ab/aB", f = Math.min(xd + dc, xc + dd) / n, gt = giaoTu(lk, f);
+      assert.ok(f < 0.5 && Math.abs(xd - dc) <= 0.05 * n && Math.abs(xc - dd) <= 0.05 * n, "bốn lớp kiểu hình như lai phân tích hai gene liên kết");
+      const [kg] = /kiểu gene (\w+\/\w+)\./.exec(y[1]).slice(1), [fy] = so(y[2], "Tần số hoán vị gene là #%");
+      assert.ok(/đực không xảy ra hoán vị gene/.test(y[3]) && /thân đen, cánh cụt chiếm/.test(y[3]));
+      return [f > 0 && f < 0.5, kg === lk, gan(fy / 100, f), gan(phanTram(y[3]) / 100, gt.ab * 0.5)]; } },
+    { has: "nhóm 1 ăn thức ăn chứa tinh bột", right: (q) => traY(q, BAI_HOC_2.ruoiThucAn) },
+    { has: "đếm số cá thể của một loài voọc", right: (q) => {
+      const R = [...q.q.matchAll(/năm (\d{4}): (\d+) con/g)].map((m) => ({ nam: +m[1], so: +m[2] })), y = q.o, lay = (k) => R.find((r) => r.nam === k).so;
+      assert.equal(R.length, 4, "bốn lần đếm"); const tang = R.slice(1).map((r, i) => r.so - R[i].so);
+      const [a0, a1] = /^Từ năm (\d{4}) đến năm (\d{4})/.exec(y[0]).slice(1).map(Number), [k] = so(y[0], "gấp hơn # lần");
+      const [p1, p2, p3, p4] = /^Giai đoạn từ năm (\d{4}) đến năm (\d{4}), số voọc tăng nhanh hơn giai đoạn từ năm (\d{4}) đến năm (\d{4})/.exec(y[2]).slice(1).map(Number);
+      const tl = (u, v) => (lay(v) - lay(u)) / lay(u);
+      assert.ok(/^Trong mỗi giai đoạn 3 năm, số voọc tăng thêm cùng một số con\.$/.test(y[1]) && /^Cấm săn bắt và bảo vệ nơi sống/.test(y[3]));
+      return [lay(a1) / lay(a0) > k, new Set(tang).size === 1, tl(p1, p2) > tl(p3, p4), true]; } },
+    { has: "Xét sinh trưởng ở thực vật có hoa.", right: (q) => traY(q, BAI_HOC_2.sinhTruongTV) },
+    { has: "Khi dịch mã đoạn này", right: (q) => { const [n] = so(q.q, "dài # nucleotide"); assert.ok(n % 3 === 0); return n / 3 - 1; } },
+    { has: "đang ở kì sau của nguyên phân có bao nhiêu NST đơn", right: (q) => 2 * so(q.q, "2n = #")[0] },
+    { has: "người con đều không mắc bệnh là bao nhiêu", right: (q) => { assert.ok(/đều khoẻ mạnh nhưng cùng mang allele a/.test(q.q));
+      const k = SO_CHU[/sinh (\S+) người con/.exec(q.q)[1]], lanh = fSo(tiLe(lai("Aa", "Aa"), (g) => troi(g, "a"))); return lanh ** k; } },
+    { has: "Tổng độ rộng của các khoảng ức chế", right: (q) => { const [a, b] = so(q.q, "sống được trong khoảng # °C – # °C (giới hạn sinh thái)"), [c, e] = so(q.q, "tốt nhất trong khoảng # °C – # °C (khoảng thuận lợi)");
+      assert.ok(a < c && c < e && e < b, "khoảng thuận lợi nằm trong giới hạn sinh thái"); return c - a + (b - e); } },
+    { has: "Người ta thả thêm", right: (q) => { const [S] = so(q.q, "rộng # ha"), [N] = so(q.q, "có # con cá trắm cỏ"), [M] = so(q.q, "thả thêm # con"); return (N + M) / S; } },
+    { has: "Năng lượng tích luỹ ở bầy sói mỗi năm", right: (q) => { const [E] = so(q.q, "cỏ tích luỹ được # kcal"), [a] = so(q.q, "ăn được #% lượng cỏ"), [b] = so(q.q, "cơ thể #% năng lượng đã ăn"),
+      [c] = so(q.q, "tích luỹ được #% năng lượng tích luỹ ở đàn dê"); return (((E * a) / 100) * b * c) / 10000; } }
   ]
 };
 
@@ -988,7 +1050,8 @@ const DA_XEM = [
   "tn-de5#20 → ck1-de1#21: nằm trên nst", "tn-de5#20 → ck1-de1#21: trên nst thường", "tn-de5#12 → gk2-de1#7: chọn lọc tự", "tn-de5#12 → gk2-de1#7: lọc tự nhiên",
   "ck1-de2#20 → tn-de6#9: tư vấn di", "ck1-de2#20 → tn-de6#9: vấn di truyền",
   "gk2-de1#14 → tn-de7#10: đại paleozoic cổ", "gk2-de1#14 → tn-de7#10: paleozoic cổ sinh", "tn-de7#10 → gk2-de1#14: đại mesozoic trung", "tn-de7#10 → gk2-de1#14: mesozoic trung sinh",
-  "tn-de7#20 → ck1-de1#21: nằm trên nst", "tn-de7#20 → ck1-de1#21: trên nst thường"];
+  "tn-de7#20 → ck1-de1#21: nằm trên nst", "tn-de7#20 → ck1-de1#21: trên nst thường",
+  "tn-de8#20 → gk2-de1#7: chọn lọc tự", "tn-de8#20 → gk2-de1#7: lọc tự nhiên", "ck2-de1#19 → tn-de8#15: savanna"];
 assert.deepEqual([...r1.chuLo, ...r2.chuLo].sort(), [...DA_XEM].sort(), "đáp án bằng chữ có ở câu khác đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 assert.deepEqual([...r1.lo, ...r2.lo], [], "lộ đáp án:\n" + [...r1.lo, ...r2.lo].join("\n"));
 
