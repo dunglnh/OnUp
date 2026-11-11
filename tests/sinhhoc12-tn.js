@@ -639,7 +639,7 @@ const RIENG = {
     { has: "Một quần thể sẽ có kiểu phân bố ngẫu nhiên khi", right: () => BAI_HOC_2.ngauNhien },
     { has: "sống nhờ phân giải xác sinh vật", right: () => BAI_HOC_2.phanGiai },
     { has: "Nguyên nhân bên trong gây ra diễn thế sinh thái", right: () => BAI_HOC_2.dienTheTrong },
-    { has: "Việc làm nào sau đây của học sinh góp phần vào phát triển bền vững", right: () => BAI_HOC_2.rac },
+    { has: "học sinh góp phần vào phát triển bền vững bằng việc làm nào", right: () => BAI_HOC_2.rac },
     { has: "lá cây xấu hổ (trinh nữ)", right: () => BAI_HOC_2.trinhNu },
     { has: "Nuôi cấy mô tế bào thực vật được dùng nhiều", right: () => BAI_HOC_2.nuoiCayMo },
     { has: "màu lông hình thành qua một con đường chuyển hoá", right: (q) => {
@@ -695,7 +695,7 @@ const RIENG = {
     { has: "ngọn cây cong về phía cửa sổ", right: () => BAI_HOC_2.huongSang },
     { has: "kiểu gene AA cho hoa đỏ, Aa cho hoa hồng, aa cho hoa trắng", right: (q) => {
       // A, a trội không hoàn toàn (đỏ, hồng, trắng); B trội hoàn toàn
-      assert.ok(/allele B \(thân cao\) trội hoàn toàn so với allele b \(thân thấp\)/.test(q.q) && /giao phấn hai cây có cùng kiểu gene AaBb/.test(q.q));
+      assert.ok(/thân cao \(allele B\) trội hoàn toàn so với thân thấp \(allele b\)/.test(q.q) && /giao phấn hai cây có cùng kiểu gene AaBb/.test(q.q));
       const F1 = lai("AaBb", "AaBb"), mau = (g) => ({ AA: "đỏ", Aa: "hồng", aa: "trắng" })[g.slice(0, 2)], cao = (g) => troi(g, "b"), y = q.o;
       const [nKH] = so(y[0], "F1 có # loại kiểu hình"), kh = new Set([...F1.keys()].map((g) => mau(g) + cao(g)));
       return [nKH === kh.size, fBang(psTrong(y[1]), tiLe(F1, (g) => mau(g) === "đỏ" && cao(g))), fBang(psTrong(y[2]), tiLe(F1, (g) => mau(g) === "hồng" && !cao(g))),
@@ -937,7 +937,7 @@ const gocChu = (s) => String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\
 const khongDau = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
 const TU_CHUNG = [...CD12, ...CHUONG.map((c) => c[0]), ...CHUONG_11, "mỗi ý sau đúng hay sai", "làm tròn kết quả đến hàng phần trăm", "làm tròn kết quả đến hàng phần mười",
   "làm tròn kết quả đến hàng đơn vị", "theo lí thuyết", "thuyết tiến hoá tổng hợp hiện đại", "ở một loài thực vật", "ở một loài cây", "do một gene có hai allele quy định",
-  "bộ nst lưỡng bội 2n", "trội hoàn toàn so với allele", "nằm trên hai cặp nst khác nhau", "nằm trên vùng không tương đồng của nst giới tính x",
+  "bộ nst lưỡng bội 2n", "trội hoàn toàn so với allele", "trội hoàn toàn so với", "nằm trên hai cặp nst khác nhau", "thuộc hai cặp nst khác nhau", "nằm trên vùng không tương đồng của nst giới tính x",
   "nằm trên vùng không tương đồng của nst x", "đang ở trạng thái cân bằng di truyền", "là bao nhiêu", "bằng bao nhiêu", "nào sau đây", "có bao nhiêu", "chiếm tỉ lệ bao nhiêu",
   "đề thi thử theo cấu trúc đề thi tốt nghiệp thpt từ năm 2025",
   "hình bên là phả hệ của một gia đình có người mắc bệnh", "kí hiệu: nam là hình vuông, nữ là hình tròn, người mắc bệnh tô màu đậm", "biết không phát sinh đột biến mới",
