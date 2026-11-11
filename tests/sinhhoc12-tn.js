@@ -578,7 +578,7 @@ const RIENG = {
       return motCai(q, (o) => gan(val(o), pd * (1 - pc) + (1 - pd) * pc)); } },
     { has: "có cùng chức năng nhưng khác nguồn gốc (cơ quan tương tự)", right: (q) => motCai(q, (o) => { assert.ok(o in CO_QUAN, "chưa có " + o); return CO_QUAN[o] === "tương tự"; }) },
     { has: "chọn lọc tự nhiên chống lại kiểu hình do allele trội quy định", right: () => BAI_HOC_2.alleleLanAn },
-    { has: "nhân tố nào sau đây là nhân tố vô sinh", right: (q) => motCai(q, (o) => { assert.ok(o in VO_SINH, "chưa có " + o); return VO_SINH[o]; }) },
+    { has: "vô sinh tác động lên cá rô phi là", right: (q) => motCai(q, (o) => { assert.ok(o in VO_SINH, "chưa có " + o); return VO_SINH[o]; }) },
     { has: "(đường cong tăng trưởng hình chữ J)", right: () => BAI_HOC_2.chuJ },
     { has: "các loài cây xếp thành nhiều tầng", right: () => BAI_HOC_2.phanTang },
     { has: "khai thác nguồn cá tự nhiên ở một hồ lớn", right: () => BAI_HOC_2.khaiThacCa },
