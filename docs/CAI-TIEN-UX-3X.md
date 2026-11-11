@@ -1,5 +1,7 @@
 # Đề xuất giao diện 3.x (27/10/2026)
 
+**Bản 4.x:** đợt UAT định kì ngày 11/11/2026 theo persona ba cấp ([PERSONA.md](PERSONA.md)), đề xuất ở [CAI-TIEN-UX-4X.md](CAI-TIEN-UX-4X.md) (mã X52–X61, phiên ứng viên UX16–UX21).
+
 Bản 2.x (UX1–UX8, UI1, UI2, 9n, 9o và các phiên “b”) đã làm xong và đã kiểm thử thiết kế ([CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md), mục 5). Bản 3.x rà lại app để trả lời ba câu hỏi:
 - con có biết mình đã ôn đến đâu không;
 - bố mẹ làm được gì ngoài đọc báo cáo;
@@ -11,7 +13,7 @@ Bản 2.x (UX1–UX8, UI1, UI2, 9n, 9o và các phiên “b”) đã làm xong v
 - [UX10](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-36): L1, L2;
 - [UX12](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-81): N1, N2;
 - [UX14](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=329-126): P1–P3;
-- [UX15](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=373-2108): Q1, Q2 (đề xuất, từ kiểm thử của PO 1/11/2026).
+- [UX15](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=373-2108): Q1, Q2 (từ kiểm thử của PO 1/11/2026; PR #273, kiểm thử thiết kế 11/11/2026).
 
 Khung vẽ bằng component và biến màu của design system. Thành phần mới (icon/target, icon/calendar-plus, `.bdg`, `.day-pick button`, `.wk-nav`, `.btn icon`, `.empty`) nằm ở section [3.x · Thành phần đề xuất](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=342-238). Phiên Claude Code không mở được Figma, nên lời giao việc trỏ vào ảnh ở [hinh-ux-3x/](hinh-ux-3x/).
 
@@ -39,7 +41,7 @@ File này giữ vấn đề, đề xuất, ảnh và điều kiện xong. Chủ 
 
 UX13 (bố mẹ giao bài, khen bài; X46, X47) chủ app quyết không làm, ngày 27/10/2026. Đề xuất của UX13 giữ ở mục 5.
 
-**Thứ tự (chủ app chọn 27/10/2026):** UX9 → UX11 → UX10 → UX12 → UX14: cả năm phiên đã xong 28/10/2026 (PR #210, #212, #214, #215, #218), kiểm thử thiết kế 29/10 (PR #220, mục 6). UX9b đã xong 29/10 (PR #221), kiểm thử thiết kế 1/11 (PR #246). UX15 (X50, X51) đã xong 3/11/2026 (PR #273), chờ kiểm thử thiết kế (mục 6); ảnh trước/sau ở [hinh-ux15/](hinh-ux15/).
+**Thứ tự (chủ app chọn 27/10/2026):** UX9 → UX11 → UX10 → UX12 → UX14: cả năm phiên đã xong 28/10/2026 (PR #210, #212, #214, #215, #218), kiểm thử thiết kế 29/10 (PR #220, mục 6). UX9b đã xong 29/10 (PR #221), kiểm thử thiết kế 1/11 (PR #246). UX15 (X50, X51) đã xong 3/11/2026 (PR #273), kiểm thử thiết kế 11/11/2026 (mục 6); ảnh trước/sau ở [hinh-ux15/](hinh-ux15/).
 - Mỗi phiên một Pull Request. Không chạy cùng lúc hai phiên sửa `js/app.js` hay `js/quiz.js`. Phiên làm đề chỉ sửa `data/banks/`, nên chạy xen được.
 
 ## 2. Nguyên tắc giữ nguyên
@@ -645,6 +647,32 @@ Cả năm phiên kiểm thử ngày 29/10/2026 trên `main` `87e2327` (sau PR #2
 **Figma:** K1 vẽ bài ôn chưa làm (nút “Vào ôn” vàng) nên không có dòng này; không đổi khung. Ghi chú của section UX9 ghi kết quả ở dòng X49.
 
 **Kiểm thử tự động trên `main` `4993196`** (1/11/2026): `tests/e2e.js` E2E OK (59 bước), `tests/supabase/cloud-e2e.js` CLOUD E2E OK (174 mục), `node tests/kiem-tra-de.js` DE OK.
+
+### UX15 · Bài chính theo môn thi, dòng IOE cuối nhóm, thứ tự môn · PR #273 · kiểm thử 11/11/2026
+
+**Kết luận:** đạt. Bài chính ở Hôm nay theo môn thi của kì gần nhất. Bài ôn IOE chỉ là bài chính khi kì gần nhất là kì IOE, và khi đó lời giới thiệu là lời của IOE. Nhóm kì thi xếp môn theo ô Môn thi, dòng IOE đứng cuối, như nhau ở cả ba chỗ.
+
+**Cách kiểm:**
+- Chạy `main` `f49a98a` (sau PR #273 và các PR đề đến #297), bản lưu trên máy, 360px sáng và tối.
+- Dữ liệu như lần tái hiện ở mục 4: Na lớp 6 làm 2 đề giữa kì I; Bin lớp 4 đã làm Toán 4 · Cuối kì I · Đề 1. Ngày giả lập 14/11 và 20/12/2026.
+- Chạy bước UX15 của `tests/e2e.js` và script của đợt UAT 11/11/2026 (mục 3 của [CAI-TIEN-UX-4X.md](CAI-TIEN-UX-4X.md)).
+
+![UX15: Hôm nay của Na ngày 20/12 và 14/11, nhóm cuối kì I lớp 6](hinh-ux-3x/kt-ux15.jpg)
+
+| Yêu cầu (mục 4, “Phiên UX15”) | Kết quả | Ghi chú |
+|---|---|---|
+| Na ngày 20/12/2026: bài chính là đề chưa làm đầu tiên theo môn thi, không phải IOE | Khớp | “Toán 6 · Cuối kì I · Đề 1”, lời “Kiểm tra cuối học kì I còn 1 ngày. Bài này bạn chưa làm. Làm khoảng 20 phút, xem đáp án sau mỗi câu.” |
+| Bin ngày 20/12/2026: Đề 2 khi Đề 1 đã làm | Khớp | “Toán 4 · Cuối kì I · Đề 2”, còn 8 ngày; bài phụ là đề Tiếng Việt cuối kì I chưa làm đầu tiên (Q1 vẽ Đề 1 theo dữ liệu của PO). |
+| Ngày 14/11/2026: bài chính IOE với lời của IOE | Khớp | “IOE cấp trường còn 12 ngày. Bài này bạn chưa làm. Mỗi đề 30 câu có câu nghe, 20 phút, đáp án hiện sau khi nộp.” |
+| Nhóm Cuối kì I lớp 6 ở tab Bài ôn, chi tiết kì thi, “Bài ôn của Na”: môn theo ô Môn thi, IOE cuối | Khớp | Cả ba chỗ: Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ, rồi IOE · Global Success 6 (Q2). |
+| Bài phụ khác môn của bài chính | Khớp | Na: “Ngữ văn 6 · Cuối kì I · Đề 1”. |
+| 360px sáng/tối: không cuộn ngang, nút ≥ 44px, chữ ≥ 13px, chữ không đè | Khớp | Đo trong trang; `audit` của e2e. |
+
+**Ghi nhận:** lời giới thiệu của đề ngân hàng vẫn là “Làm khoảng 20 phút, xem đáp án sau mỗi câu.” cho mọi đề. Điều này đúng phạm vi của UX15, vì X50 chỉ đổi lời của bài ôn dạng trang. Nhưng số phút sai với đề 25 câu (đề thật 40–45 phút) và với đề thi thử (90–120 phút), nên đã ghi thành X53 (Phiên UX16 ứng viên, [CAI-TIEN-UX-4X.md](CAI-TIEN-UX-4X.md)).
+
+**Figma:** Q1, Q2 ghi PR #273 ở chú thích, thay chữ “(đề xuất)”. Tag ghi chú của section đổi thành “Đã làm · PR #273 · Phiên UX15”. Thêm bản tối của Q1, Q2.
+
+**Kiểm thử tự động trên `main` `f49a98a`** (11/11/2026): `tests/e2e.js` E2E OK (60 bước, có bước UX15), `tests/supabase/cloud-e2e.js` CLOUD E2E OK (174 mục), `node tests/kiem-tra-de.js` DE OK.
 
 ### Chung cho năm phiên
 

@@ -481,6 +481,40 @@ Ngoài các bộ trên, QC dò tay bằng script Playwright tạm (không vào r
 - Hệ quả: con làm tốt mà app và tin nhắn gửi bố mẹ nói ngược lại (đúng 30%, xem lại câu sai không có). Điểm trung bình của con lớp 9 bị kéo xuống mỗi lần làm đề Ngữ văn thi thử.
 - QC thử bản sửa trong thư mục tạm (không đẩy lên): thêm `auto` (điểm phần app chấm, tổng `pt` của câu không phải tự luận) vào 11 mục danh mục đó; trong `js/app.js` quy phần app chấm về thang của đề khi cộng (`r × pts / auto`, `t` giữ nguyên) ở `sumRT`, `bySubject`; lời khen theo `G.got / G.auto`. Cùng kịch bản: Hôm nay, tab Bài ôn, Lịch thi ghi “đúng 100%”, điểm trung bình 10, thẻ của con 10, không còn gợi ý “mới đúng 30%”, lời khen “Xuất sắc, An!”. Nhưng dòng “1 đề tính điểm” của báo cáo tuần thành “10/10 điểm”, trong khi tab Kết quả, thẻ “Lần trước”, điểm to vẫn ghi “3/10”. Vậy chỗ ghi điểm của một lần làm phải ghi rõ phần app chấm (mục 2, Phiên 9u).
 
+### Nhóm S · Kiểm thử định kì ngày 11/11 (Phiên 9v)
+
+QC chạy mọi bộ kiểm thử trên `main` commit `f49a98a` (sau PR #297), Playwright 1.63.0. Tất cả in OK: `kiem-tra-de.js` (297 đề cố định, 119 đề ngẫu nhiên, 9 212 câu), `so-bo-cham.js` (0, 0, 0), `admin-test.mjs`, `store-test.mjs`, `run.sh` (221 kiểm tra), `e2e.js` (khoảng 14 phút), `cloud-e2e.js` (khoảng 3,5 phút); qua `tests/chay-theo-ngay.js` với `FAKE_NOW=2027-03-11T10:00:00Z` hai script đó cũng in OK. 8 848 câu chấm tự động của đề có sẵn đều được 1 điểm. Không có Pull Request nào đang mở. L47 (Phiên 9u) vẫn chờ phiên sửa.
+
+Ngoài các bộ trên, QC dò thêm bằng script Playwright tạm (không vào repo), bản lưu trên máy, 360px:
+- Quản trị xem thử, ôn luyện mọi đề cố định (297 đề, 7 276 câu) và câu riêng của 60 đề ngẫu nhiên (1 936 câu, dựng thành đề tạm như bước L29 của `tests/e2e.js`), trả lời đúng theo dữ liệu, chạy `audit` của `tests/e2e.js` sau mỗi câu đã Kiểm tra và ở màn kết quả. Câu nào cũng được chấm đúng, không có lỗi trang. `audit` báo chữ đè ở ba câu: hai câu của L48 và câu 15/25 của `diali12-ck2-de2` (biểu đồ tròn, “8%” và “10%”). Câu 15 chỉ có hộp dòng chạm nhau, nét chữ cách nhau, nên không tính.
+- Học sinh lớp 4, 6, 9 và phụ huynh ở ngày thật (11/11/2026, giữa kì kiểm tra giữa học kì I): Hôm nay, Bài ôn (mở mọi nhóm), Lịch thi, Kết quả, một đề của lớp 9, báo cáo tuần. `audit` không báo gì.
+- Mọi hình SVG của đề có sẵn (534 hình) vẽ qua `Quiz.svg` với font của app, đo phần nét của từng kí tự (cách đo ở ý cuối của L48): chỉ hai hình của L48 có chữ đè.
+
+**L48. Hai hình của đề có sẵn có chữ đè lên nhau; không kiểm thử nào xem hết hình của các đề.**
+- Hiện tượng (bản lưu trên máy, 360px, sáng và tối như nhau):
+  - `diali12-gk2-de2` (Địa lí 12 · Giữa kì II · Đề 2), câu 20/25, đúng/sai 4 ý, chủ đề “Phát triển kinh tế – xã hội ở Đồng bằng sông Hồng” (`data/banks/12-diali.js` dòng 330). Hình là biểu đồ kết hợp: cột là giá trị sản xuất công nghiệp của tỉnh B, đường là tỉ trọng của tỉnh trong vùng.
+    - Năm 2024, nhãn cột “450” (toạ độ vẽ x 241, y 50) và nhãn điểm của đường “18” (x 241, y 48) trùng chỗ, đọc thành “4[18]0”. Lí do: 450/500 và 18/20 cùng là 90% chiều cao của hai trục.
+    - Năm 2021, chấm tròn của đường (187; 72) nằm trên chữ số “6” của nhãn cột “360”; đường cũng đi qua nhãn này.
+    - Bốn ý cần đúng các số đó (450 : 180, 12% → 18%, 450 : 18 × 100, mức tăng 80, 100, 90).
+    - Khối 12 chưa bật nên gia đình chưa gặp. Câu còn được rút ở `diali12-gk2-ngau-nhien` và đề “Ôn chủ đề”.
+  - Câu riêng 1/50 của `toan9-ck2-ngau-nhien` (Toán 9 · Cuối năm · Đề ngẫu nhiên), trắc nghiệm mức 1, chủ đề “Hàm số y = ax² (a ≠ 0)” (`data/banks/9-toan.js` dòng 808). Hình có bốn parabol.
+    - Chữ “y” của trục tung (172; 18, chữ nghiêng) và nhãn “(P₁)” (180; 30, chữ đậm) chạm nhau: đuôi chữ y đè lên dấu “(” và chữ “P” (phần nét chồng khoảng 5 × 3 đơn vị vẽ).
+    - Vẫn đọc được, nhưng trái quy định chữ không đè lên nhau.
+    - Khối 9 đang bật. Ô (chủ đề này, mức 1) của đề ngẫu nhiên rút 1 trong 4 câu, nên học sinh lớp 9 gặp hình này khoảng một lần trong bốn lần làm. Đề “Ôn chủ đề” của chủ đề này cũng rút câu này.
+- Cách tái hiện:
+  - Quản trị bản lưu trên máy mở `#/quiz/diali12-gk2-de2`, Ôn luyện, đi tới câu có biểu đồ tỉnh B (đề không tính điểm nên thứ tự câu được xáo). `audit` của `tests/e2e.js` ở 360px báo `chữ đè lên nhau: "450" và "18"`.
+  - Mở `#/quiz/toan9-ck2-ngau-nhien`, bấm “Làm đề khác” đến khi rút được câu “Bốn đường cong (P₁), (P₂), (P₃), (P₄)…”. `audit` báo `chữ đè lên nhau: "y" và "(P₁)"`.
+- Nguyên nhân:
+  - Hình do phiên làm đề tự vẽ: biểu đồ của PR #274 (Phiên N12-gk2-lichsu-diali, commit `61a5c1a`), hình parabol của PR #224 (Phiên N9-ck2-toan, commit `0d380d0`).
+  - Script kiểm tra đề của từng môn đọc lại hình theo luật vị trí, không đo chữ chồng nhau. Bộ đọc biểu đồ kết hợp (`docKetHop` của `tests/lichsu-diali12-gk2.js`; cùng bộ ở `-ck1.js`, `-ck2.js`) chỉ đòi số của cột ngay trên đỉnh cột (y − 6) và số của đường ngay trên chấm tròn (y − 8); hai số trùng chỗ thì không bắt. `docParabol` của `tests/toan9-ck2.js` chỉ xét số ghi trên trục không bị đường cong đè. Trên `main`, hai script in `MATH OK`.
+  - `audit` của `tests/e2e.js` bắt được, nhưng `e2e.js` chỉ mở vài đề, không đi qua hình của mọi đề.
+- Hệ quả: học sinh không đọc được số cần để làm bài (Địa lí 12), hoặc thấy chữ đè nhau (Toán 9). Các phiên làm đề vẫn vẽ thêm biểu đồ, đồ thị, sơ đồ có nhãn mỗi ngày, nên lỗi này có thể lặp lại mà không ai thấy.
+- QC thử cách kiểm tra (script tạm, không đẩy lên):
+  - Vẽ mọi hình SVG của đề có sẵn qua `Quiz.svg` trong ô `.qfig` của trang app, sau khi `document.fonts.ready`.
+  - Mỗi kí tự của mỗi thẻ `<text>` lấy một hộp nét chữ: điểm bắt đầu `getStartPositionOfChar(i)`, cộng phần nét `actualBoundingBoxLeft`, `Right`, `Ascent`, `Descent` của `measureText` trên canvas, với đúng font đã tính của thẻ đó. Hình hiện nay không có `<tspan>`, `<g>`, `transform`, nên toạ độ của thẻ là toạ độ của hình.
+  - Báo khi hai kí tự của hai thẻ khác nhau có hộp nét chồng nhau quá 0,5 đơn vị vẽ theo cả hai chiều, hoặc khi một chấm tròn (bán kính ≤ 6) cách hộp nét của một kí tự chưa tới bán kính trừ 0,5.
+  - Trên 534 hình hiện có, cách này chỉ báo đúng hai hình trên, chạy khoảng 2 giây. Đo theo hộp của cả chuỗi chữ thì báo nhầm thêm câu 8 của `diali12-gk2-de2`: đuôi chữ g của “Nghìn thuê bao” nằm xa số “980”, chữ “thuê” không chạm số đó. Vì vậy phải đo theo từng kí tự.
+
 ---
 
 ## 2. Cách sửa gợi ý và điều kiện xong
@@ -1188,11 +1222,37 @@ Hai kiểm thử báo lỗi giả. Chỉ sửa `tests/bai-on-l6.js`, `tests/e2e.
 - CLAUDE.md, đoạn “Đề tính điểm” (K5): trường `auto`, cách tính điểm trung bình, chữ “phần app chấm”. Ý “Điểm lưu …” ở đoạn “Đề tính điểm” của mục 3.1 `docs/KE-HOACH-NOI-DUNG.md` sửa theo cách mới. `docs/TINH-NANG.md`, dòng Đề tính điểm: một câu cho phụ huynh.
 - Pull Request ghi ảnh trước, sau của màn kết quả và báo cáo tuần, các lệnh đã chạy.
 
+### Phiên 9v
+
+**L48 · Chữ đè lên nhau trong hình của đề có sẵn.** Chỉ sửa hai hình trong `data/banks/12-diali.js`, `data/banks/9-toan.js` (không đổi số liệu, đáp án, lời giải, câu hỏi), `tests/e2e.js`, bộ đọc hình của `tests/lichsu-diali12-gk2.js` và `tests/toan9-ck2.js` khi chỗ đặt nhãn mới cần, CLAUDE.md và tài liệu. Không sửa `js/`, `css/`, `modules/`.
+- **Biểu đồ kết hợp** của `diali12-gk2-de2` câu 20: số của đường và số của cột không chồng nhau; chấm tròn và đường không đè lên số của cột. Ví dụ: ghi số của đường ở bên phải chấm tròn hoặc ngay dưới đường, hoặc ghi số của cột trong lòng cột. Giữ trục, số liệu, chú giải.
+  - Sửa `docKetHop` của `tests/lichsu-diali12-gk2.js` cho nhận chỗ đặt mới: vẫn mỗi cột một số, mỗi điểm một số, đọc lại khớp trục.
+  - Thêm luật vào bộ đọc đó: hộp chữ ước theo cỡ 15 của số cột và số của đường không chồng nhau, chấm tròn không nằm trên số cột.
+  - `tests/lichsu-diali12-ck1.js`, `-ck2.js` có cùng bộ đọc: thêm cùng luật nếu gọn (hình của hai kho đó hiện không đè).
+- **Hình bốn parabol** (câu riêng 1 của `toan9-ck2-ngau-nhien`): dời nhãn “(P₁)” hoặc chữ “y” của trục để hai chữ cách nhau. `docParabol` của `tests/toan9-ck2.js` đòi mỗi nhãn cách một đầu của đường cong của nó không quá 30 đơn vị vẽ và gần đầu đó hơn mọi đầu của đường khác: chỗ đặt mới phải giữ luật này.
+- **Bước mới của `tests/e2e.js`** (ví dụ “figures: no overlapping labels (L48)”):
+  - Đọc mọi đề có sẵn bằng `tests/nap-de.js`, cả hình của đoạn đọc và câu riêng của đề ngẫu nhiên.
+  - Vẽ từng hình qua `Quiz.svg` trong `.qfig` của trang app ở 360px, đo như QC ở ý cuối của L48: từng kí tự; hai thẻ `<text>` khác nhau chồng nhau quá 0,5 đơn vị vẽ theo cả hai chiều; chấm tròn bán kính ≤ 6 đè lên kí tự.
+  - Báo mã đề, số câu (hoặc mã đoạn đọc) và chữ của hai nhãn.
+  - Tự thử với hai hình cũ (chép chuỗi SVG hiện nay vào bước) và một hình cố ý vẽ sai, để chắc bước vẫn bắt được.
+  - Hình sau này có `<tspan>`, `<g>`, `transform` thì đổi toạ độ theo `getCTM()` hoặc báo là chưa đo được, không bỏ qua lặng lẽ.
+- **CLAUDE.md:** ghi bước mới ở mục “Chạy và kiểm tra”, và ở bước 4 của “Thêm đề có sẵn” (hình mới của mọi môn được đo chữ đè khi chạy `tests/e2e.js`), để phiên làm đề sau biết.
+
+**Xong khi:**
+- Bước mới chạy trên `main` trước khi sửa thì báo đúng hai hình (ghi kết quả trong Pull Request); sau khi sửa không báo gì; phần tự thử vẫn bắt được hình cố ý vẽ sai.
+- `node tests/e2e.js` in `E2E OK`; `node tests/kiem-tra-de.js` in `DE OK`.
+- `node tests/lichsu-diali12-gk2.js` và `node tests/toan9-ck2.js` in `MATH OK`; sửa bộ đọc chung thì chạy cả `tests/lichsu-diali12-ck1.js`, `tests/lichsu-diali12-ck2.js`.
+- Ảnh trước, sau của hai hình (360px, sáng và tối) chép sang `docs/hinh-9v/`.
+- Pull Request ghi các lệnh đã chạy và kết quả.
+
 ---
 
 ## 3. Các phiên Claude Code
 
-Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n, 9nb, 9o, 9ob, 9p, 9q, 9r, 9s, 9t đã xong (PR #119, #122, #123, #132, #137, #139, #174, #180, #195). Phiên chờ làm: 9u (L47), lời giao việc bên dưới. Lỗi mới thì QC ghi mã (tiếp theo L48) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n, 9nb, 9o, 9ob, 9p, 9q, 9r, 9s, 9t đã xong (PR #119, #122, #123, #132, #137, #139, #174, #180, #195). Phiên chờ làm: 9u (L47), 9v (L48), lời giao việc bên dưới. Lỗi mới thì QC ghi mã (tiếp theo L49) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
 
 **Phiên 9u · Điểm của đề tính điểm có câu tự luận (L47)** (nên làm sớm: khối 9 đang bật, gia đình có con lớp 9 gặp ở đề Ngữ văn thi thử vào 10; phải xong trước khi bật khối 12. Sửa `js/app.js`, `js/quiz.js`, nên không chạy cùng lúc với phiên khác sửa hai file đó; các phiên N chỉ sửa file đề nên chạy xen được)
-> Đọc CLAUDE.md (đoạn “Đề tính điểm” ở mục “Đề có sẵn”; mục “Chạy và kiểm tra”) và docs/SUA-LOI-CHAY-THU.md: L47 ở nhóm R của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9u". L47: đề tính điểm có cả câu chấm tự động và câu tự luận (6 đề Ngữ văn thi thử vào 10, 5 đề Ngữ văn thi thử tốt nghiệp) lưu phần app chấm với thang 10 (`t` = `pts`, Phiên K5). Vì vậy làm đúng hết phần app chấm (3/3 điểm) vẫn thành “đúng 30%” ở Hôm nay, tiến độ kì thi, tab Kết quả, thẻ của con, báo cáo tuần và tin nhắn gửi bố mẹ (kèm gợi ý “Ngữ văn mới đúng 30%: xem lại lời giải các câu sai”), và màn kết quả khen “Chưa sao… Xem lại lời giải”. Thêm trường `auto` (điểm phần app chấm) vào mục danh mục của các đề đó, kiểm tra ở `tests/kiem-tra-de.js`; khi cộng điểm, quy phần app chấm về thang của đề bằng một hàm dùng chung thay cho các chỗ cộng `r`, `t`; chỗ ghi điểm của một lần làm ghi rõ phần app chấm (“3/3 điểm phần app chấm”); màn kết quả khen theo phần app chấm. Không đổi dữ liệu đã lưu, bảng và SQL của máy chủ (cột `t` là số nguyên). Playwright có sẵn trong máy (`require("playwright")`); không chạy "playwright install". Chạy python3 -m http.server 8000 ở thư mục repo, rồi làm đủ "Xong khi": node tests/kiem-tra-de.js, node tests/e2e.js, node tests/supabase/cloud-e2e.js, node tests/supabase/store-test.mjs. Mở Pull Request, ghi các lệnh đã chạy và ảnh trước, sau. Làm xong thì cập nhật docs/KE-HOACH-PHAT-TRIEN-ONUP.md (bảng "Đã xong", bỏ dòng 9u ở mục 3); ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và câu "Phiên chờ làm: 9u (L47)…".
+> Đọc CLAUDE.md (đoạn “Đề tính điểm” ở mục “Đề có sẵn”; mục “Chạy và kiểm tra”) và docs/SUA-LOI-CHAY-THU.md: L47 ở nhóm R của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9u". L47: đề tính điểm có cả câu chấm tự động và câu tự luận (6 đề Ngữ văn thi thử vào 10, 5 đề Ngữ văn thi thử tốt nghiệp) lưu phần app chấm với thang 10 (`t` = `pts`, Phiên K5). Vì vậy làm đúng hết phần app chấm (3/3 điểm) vẫn thành “đúng 30%” ở Hôm nay, tiến độ kì thi, tab Kết quả, thẻ của con, báo cáo tuần và tin nhắn gửi bố mẹ (kèm gợi ý “Ngữ văn mới đúng 30%: xem lại lời giải các câu sai”), và màn kết quả khen “Chưa sao… Xem lại lời giải”. Thêm trường `auto` (điểm phần app chấm) vào mục danh mục của các đề đó, kiểm tra ở `tests/kiem-tra-de.js`; khi cộng điểm, quy phần app chấm về thang của đề bằng một hàm dùng chung thay cho các chỗ cộng `r`, `t`; chỗ ghi điểm của một lần làm ghi rõ phần app chấm (“3/3 điểm phần app chấm”); màn kết quả khen theo phần app chấm. Không đổi dữ liệu đã lưu, bảng và SQL của máy chủ (cột `t` là số nguyên). Playwright có sẵn trong máy (`require("playwright")`); không chạy "playwright install". Chạy python3 -m http.server 8000 ở thư mục repo, rồi làm đủ "Xong khi": node tests/kiem-tra-de.js, node tests/e2e.js, node tests/supabase/cloud-e2e.js, node tests/supabase/store-test.mjs. Mở Pull Request, ghi các lệnh đã chạy và ảnh trước, sau. Làm xong thì cập nhật docs/KE-HOACH-PHAT-TRIEN-ONUP.md (bảng "Đã xong", bỏ dòng 9u ở mục 3); ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và tên 9u ở câu "Phiên chờ làm…".
+
+**Phiên 9v · Chữ đè lên nhau trong hình của đề có sẵn (L48)** (không gấp: một hình thuộc khối 12 chưa bật, hình kia của khối 9 vẫn đọc được; nên xong trước phiên rà soát lớp 12. Sửa hai file đề và `tests/e2e.js`, nên không chạy cùng lúc với phiên khác đang sửa `data/banks/12-diali.js`, `data/banks/9-toan.js` hay `tests/e2e.js`, kể cả Phiên 9u; chạy xen được với các phiên N khác)
+> Đọc CLAUDE.md (mục “Chạy và kiểm tra”; bước 4 của “Thêm đề có sẵn”) và docs/SUA-LOI-CHAY-THU.md: L48 ở nhóm S của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9v". L48: hai hình của đề có sẵn có chữ đè lên nhau ở 360px. Một là biểu đồ kết hợp của `diali12-gk2-de2` câu 20: nhãn cột “450” và nhãn đường “18” trùng chỗ, chấm tròn của đường che chữ số “6” của “360”. Hai là hình bốn parabol, câu riêng 1 của `toan9-ck2-ngau-nhien`: chữ “y” của trục chạm “(P₁)”. Script kiểm tra đề của từng môn không đo chữ chồng nhau, còn `audit` của e2e.js không đi qua mọi hình. Sửa hai hình (không đổi số liệu, đáp án), sửa bộ đọc hình của script môn nếu cần, và thêm vào tests/e2e.js một bước vẽ mọi hình của đề có sẵn qua Quiz.svg, đo nét từng kí tự, báo chữ đè chữ, chấm tròn đè chữ. Playwright có sẵn trong máy (`require("playwright")`); không chạy "playwright install". Chạy python3 -m http.server 8000 ở thư mục repo, rồi làm đủ "Xong khi": node tests/e2e.js, node tests/kiem-tra-de.js, node tests/lichsu-diali12-gk2.js, node tests/toan9-ck2.js. Mở Pull Request, ghi các lệnh đã chạy và ảnh trước, sau. Làm xong thì cập nhật docs/KE-HOACH-PHAT-TRIEN-ONUP.md (bảng "Đã xong", bỏ dòng 9v ở mục 3); ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và tên 9v ở câu "Phiên chờ làm…".

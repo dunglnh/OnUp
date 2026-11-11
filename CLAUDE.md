@@ -6,7 +6,7 @@ Hướng dẫn cho Claude (và người) khi làm việc trong repo này. Đọc
 
 Web app ôn thi **cả năm học** cho học sinh **lớp 4, lớp 6 và lớp 9** (lớp 9 bật từ Phiên RS9, 2/11/2026; sách Kết nối tri thức, Tiếng Anh Global Success) và **phụ huynh** theo dõi con. Có ba vai trò: học sinh, phụ huynh, quản trị (thầy cô hoặc bố mẹ quản lý). Bản mô tả tính năng đầy đủ: `docs/TINH-NANG.md`.
 
-Người dùng là trẻ 9–15 tuổi và phụ huynh, nên:
+Người dùng là trẻ 9–15 tuổi và phụ huynh (khi bật lớp 10–12: đến 17 tuổi; persona theo cấp và nguyên tắc cân đối ba cấp ở `docs/PERSONA.md`), nên:
 - Giao diện tiếng Việt, câu ngắn. Gọi người đang dùng app là "bạn" (cả học sinh, phụ huynh, quản trị); chỉ dùng "con" khi nói với phụ huynh về con của họ ("hồ sơ của con"). Không thuật ngữ kỹ thuật trên màn hình.
 - Ưu tiên điện thoại (rộng 360–420px), không cuộn ngang, vùng bấm cao ≥ 44px (nút, link dạng nút, dòng `summary` của `<details>`), chữ ≥ 13px, chữ không đè lên nhau và không tràn khỏi ô chứa nó (chủ app yêu cầu 22/10/2026: không đặt chữ dài vào cột rộng cố định có `white-space:nowrap`; cột chứa chữ thì cho xuống dòng hoặc rộng theo chữ). `tests/e2e.js` kiểm tra ở 360px (`audit`; chữ đè cả trong khung bài ôn ở 360px, 720px).
 - Thu thập dữ liệu tối thiểu: tên hiển thị, khối, lớp. **Không** hỏi ngày sinh, số điện thoại, email, ảnh của trẻ.
