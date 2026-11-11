@@ -521,7 +521,7 @@ const RIENG = {
     35: { k: "y", bang: ["Staff had to finish just as much work as before", "meetings were cut from an hour to thirty minutes"], co: [/finish their work faster/, /four days/], sai: [/less work than before/, /became much longer/, /refused/] },
     36: { k: "trai", tu: "strict", doan: 2 },
     37: { k: "dung", bang: "For six months", sai: [/earned less/, /left the company/, /closed completely/], nguoc: [/for the same salary/, /nobody left the company/, /keeps a small team on duty that day/] },
-    38: { k: "y", bang: ["Experts warn that a four-day week may not suit every kind of business."], co: [/will not work for some/], sai: [/every kind of business should/, /lose money/, /already failed/] },
+    38: { k: "y", bang: ["Experts warn that a four-day week may not suit every kind of business."], co: [/may not work for some/], sai: [/every kind of business should/, /lose money/, /already failed/] },
     39: { k: "y", bang: ["Some customers complained", "so the company now keeps a small team on duty"], co: [/created problems/, /had to be solved/], sai: [/were happy with the new system/, /given up/, /prefer to work on Fridays/] },
     40: { k: "y", bang: ["For six months, its sixty employees worked only four days a week", "may not suit every kind of business"], co: [/mostly worked/, /cannot suit every company/], sai: [/salaries/, /Experts agree/, /disliked working/] }
   }
