@@ -224,8 +224,21 @@ const BAI_HOC = {
   chietGhep: "giữ được các đặc tính tốt của cây mẹ và sớm cho quả",
   // câu đúng/sai 4 ý về khái niệm: chữ của ý → đúng/sai
   quangHop: { "hấp thụ mạnh nhất ánh sáng màu xanh lục": false, "Pha sáng diễn ra trên màng thylakoid": true, "Chu trình Calvin cố định CO₂": true, "Thực vật CAM mở khí khổng vào ban ngày": false },
-  phanXa: { "phản xạ không điều kiện, có từ khi sinh ra": true, "Cơ ở cánh tay là bộ phận đáp ứng": true, "Dây thần kinh vận động dẫn xung thần kinh từ thụ thể": false, "khi dây thần kinh cảm giác ở cánh tay bị tổn thương": false }
+  phanXa: { "phản xạ không điều kiện, có từ khi sinh ra": true, "Cơ ở cánh tay là bộ phận đáp ứng": true, "Dây thần kinh vận động dẫn xung thần kinh từ thụ thể": false, "khi dây thần kinh cảm giác ở cánh tay bị tổn thương": false },
+  // Đề 3. Bài 1: ligase nối các đoạn Okazaki; Bài 2: promoter ở vùng điều hoà; Bài 10: gene trên Y (di truyền thẳng); Bài 12: colchicine ngăn tạo
+  // thoi phân bào; Bài 13: bệnh phenylketonuria giảm nhẹ bằng chế độ ăn; Bài 15: gene ti thể di truyền theo mẹ; Bài 16: ưu thế lai; Bài 20: Darwin
+  // (hươu cao cổ); Bài 32: chu trình nước; Bài 33: phục hồi hệ sinh thái; Bài 35: sử dụng bền vững nguồn nước; Sinh học 11: mao mạch (Bài 10),
+  // thụ tinh kép (Bài 25), hormone thực vật (Bài 20)
+  ligase: "ligase", vungDieuHoa: "vùng điều hoà", nstY: "chỉ có ở nam, truyền từ bố cho mọi con trai", colchicine: "làm thoi phân bào không hình thành được",
+  pku: "cho trẻ ăn theo chế độ kiêng phù hợp từ nhỏ", tiThe: "đều mắc bệnh, cả con trai và con gái", uuTheLai: "có năng suất, sức sống vượt trội các dòng bố mẹ",
+  darwinHuou: "những con có cổ dài sẵn có trong đàn được chọn lọc giữ lại qua nhiều đời", bocHoi: "bốc hơi",
+  phucHoi: "Trồng lại cây ngập mặn ở bãi bồi ven biển từng bị phá", nhoGiot: "Tưới nhỏ giọt vào vùng rễ của từng cây", maoMach: "mao mạch",
+  thuTinhKep: "nhân tam bội (3n), về sau phát triển thành nội nhũ",
+  hormone: { "Cytokinin ức chế sự phân chia tế bào": false, "Ethylene làm chậm quá trình chín": false, "Gibberellin kích thích thân, lóng kéo dài": true, "Auxin được tổng hợp nhiều ở đỉnh chồi": true }
 };
+// sinh vật đẳng nhiệt (chim, thú) và biến nhiệt (cá, lưỡng cư, bò sát) theo Bài 23; sinh vật sản xuất trong hệ sinh thái nước ngọt (Bài 27)
+const NHIET = { "chim bồ câu": "đẳng nhiệt", "cá chép": "biến nhiệt", "ếch đồng": "biến nhiệt", "thằn lằn bóng": "biến nhiệt" };
+const SAN_XUAT = { "tảo lục": true, "rong đuôi chó": true, "cá mè trắng": false, "tôm càng": false, "vi khuẩn": false, "nấm sống trên xác": false, "ốc vặn": false, "ấu trùng chuồn chuồn": false };
 
 /* ---------- các mục kiểm tra của từng đề (RIENG; phiên thêm đề thì thêm một khoá mới) ----------
    has: đoạn chữ của đề bài; right(q, d): đáp án tính bằng code, d là chữ của đoạn thông tin dùng chung (rỗng nếu câu không có): câu nhiều
@@ -346,6 +359,66 @@ const RIENG = {
     { has: "mật độ của quần thể hươu", right: (q) => { const [s, n] = so(q.q, "rộng # ha có # con hươu"); return n / s; } },
     { has: "ếch tích luỹ được bao nhiêu kcal", right: (q) => { const [e1] = so(q.q, "cỏ tích luỹ được # kcal"), [h21] = so(q.q, "Châu chấu ăn cỏ tích luỹ được #% năng lượng đó"), [h32] = so(q.q, "ếch ăn châu chấu tích luỹ được #% năng lượng");
       return (e1 * h21 * h32) / 10000; } }
+  ],
+  "sinhhoc12-tn-de3": [
+    { has: "Enzyme nối các đoạn ngắn này thành mạch liền", right: () => BAI_HOC.ligase },
+    { has: "trình tự promoter", right: () => BAI_HOC.vungDieuHoa },
+    { has: "Gene đột biến dài bằng gene ban đầu", right: (q) => {
+      // mỗi lựa chọn đổi chiều dài (số cặp) và số liên kết hydrogen bao nhiêu: A – T 2 liên kết, G – C 3 liên kết
+      const [dH] = so(q.q, "có nhiều hơn # liên kết hydrogen"), H = { "A – T": LK_H.A, "G – C": LK_H.G };
+      const tac = (o) => { let m = /^cặp (A – T|G – C) được thay bằng cặp (A – T|G – C)$/.exec(o); if (m) return [0, H[m[2]] - H[m[1]]];
+        m = /^(thêm|mất) một cặp (A – T|G – C)$/.exec(o); assert.ok(m, "lựa chọn lạ: " + o); return m[1] === "thêm" ? [1, H[m[2]]] : [-1, -H[m[2]]]; };
+      assert.ok(/dài bằng gene ban đầu/.test(q.q)); return motCai(q, (o) => { const [dl, dh] = tac(o); return dl === 0 && dh === dH; }); } },
+    { has: "có bao nhiêu cặp NST thường", right: (q) => { const [n2] = so(q.q, "2n = #"); return n2 / 2 - 1 + " cặp"; } },
+    { has: "do gene trên NST Y chi phối", right: () => BAI_HOC.nstY },
+    { has: "bằng colchicine", right: () => BAI_HOC.colchicine },
+    { has: "Phenylketonuria", right: () => BAI_HOC.pku },
+    { has: "do gene đột biến trong ti thể", right: () => BAI_HOC.tiThe },
+    { has: "được gọi là có ưu thế lai", right: () => BAI_HOC.uuTheLai },
+    { has: "có 4% số cây mang kiểu gene aa", right: (q) => { const [t] = so(q.q, "có #% số cây mang kiểu gene aa"); return motCai(q, (o) => gan(val(o), 1 - Math.sqrt(t / 100), 1e-12)); } },
+    { has: "hươu cao cổ có cổ dài", right: () => BAI_HOC.darwinHuou },
+    { has: "nhiệt độ cơ thể của loài nào sau đây gần như không đổi", right: (q) => motCai(q, (o) => { const k = o.toLowerCase(); assert.ok(k in NHIET, "chưa có " + o); return NHIET[k] === "đẳng nhiệt"; }) },
+    { has: "gồm toàn sinh vật sản xuất", right: (q) => motCai(q, (o) => o.split(" và ").every((x) => { const k = x.toLowerCase(); assert.ok(k in SAN_XUAT, "chưa có " + x); return SAN_XUAT[k]; })) },
+    { has: "Trong chu trình nước", right: () => BAI_HOC.bocHoi },
+    { has: "góp phần phục hồi một hệ sinh thái", right: () => BAI_HOC.phucHoi },
+    { has: "cách tưới nào sau đây", right: () => BAI_HOC.nhoGiot },
+    { has: "máu và các tế bào trong cơ thể trao đổi chất", right: () => BAI_HOC.maoMach },
+    { has: "Trong thụ tinh kép ở thực vật hạt kín", right: () => BAI_HOC.thuTinhKep },
+    { has: "phả hệ của một gia đình có người mắc bệnh N", right: (q) => {
+      // đề cho kiểu di truyền (gene lặn trên X); phả hệ phải khớp kiểu đó
+      const ph = docPhaHe(q.svg, "phả hệ bệnh N"); assert.ok(/allele lặn nằm trên vùng không tương đồng của NST X/.test(q.q) && kieuDiTruyen(ph).includes("lặn, NST X"), "phả hệ khớp gene lặn trên X");
+      const G = ganPhaHe(ph, "lặn, NST X"), G2 = ganPhaHe(ph, "lặn, NST X", (g) => F(g.join("") === "AA" ? 3 : 1)), y = q.o;
+      const mang = (H, k) => xs(H, (g) => g.get(k).includes("a"));
+      // con gái mắc bệnh: con là nữ (1/2) nhận Xᵃ từ cả bố và mẹ; a là mẹ, b là bố
+      const gaiBenh = (H, a, b) => H.ra.reduce((s, x) => fCong(s, fNhan(x.p, fNhan(F(1, 2), pCon("X", ["a", "a"], x.g.get(b), x.g.get(a), "nữ")))), F(0));
+      const [k1] = /^Người số (\d+) chắc chắn mang allele gây bệnh\.$/.exec(y[0]).slice(1).map(Number), [k2] = /người số (\d+) mang allele/.exec(y[1]).slice(1).map(Number);
+      const [m3, b3] = /^Cặp vợ chồng (\d+) – (\d+) sinh con đầu lòng là con gái mắc bệnh/.exec(y[3]).slice(1).map(Number);
+      assert.ok(ph.so(m3).gioi === "nữ" && ph.so(b3).gioi === "nam", "vợ trước, chồng sau");
+      [[mang(G, k1), mang(G2, k1)], [mang(G, k2), mang(G2, k2)], [gaiBenh(G, m3, b3), gaiBenh(G2, m3, b3)]].forEach(([u, v]) => assert.ok(fBang(u, v), "kết quả không phụ thuộc tiên nghiệm"));
+      return [fBang(mang(G, k1), F(1)), fBang(psTrong(y[1]), mang(G, k2)), +/có (\d+) người đã biết chắc kiểu gene/.exec(y[2])[1] === chacChan(G, ph), fBang(psTrong(y[3]), gaiBenh(G, m3, b3))]; } },
+    { has: "Thế hệ P của một quần thể cây trồng gồm", right: (q) => {
+      const [AA, Aa, aa] = so(q.q, "gồm #% cây AA, #% cây Aa và #% cây aa").map((x) => x / 100), p = AA + Aa / 2, y = q.o;
+      assert.ok(gan(AA + Aa + aa, 1) && /trạng thái cân bằng di truyền/.test(y[1]) && /giao phấn ngẫu nhiên/.test(y[2]) && /tự thụ phấn/.test(y[3]));
+      return [gan(so(y[0], "là #")[0], p), gan(AA, p * p) && gan(Aa, 2 * p * (1 - p)), gan(phanTram(y[2]) / 100, 2 * p * (1 - p)), gan(phanTram(y[3]) / 100, Aa / 2)]; } },
+    { has: "Một bãi bồi mới nổi giữa sông", right: (q) => {
+      const R = [...q.q.matchAll(/năm thứ (\d+), [^;]*?có (\d+) loài, sinh khối ([\d,]+) tấn\/ha/g)].map((m) => ({ nam: +m[1], loai: +m[2], sk: val(m[3]) }));
+      assert.equal(R.length, 4, "bốn lần khảo sát"); const y = q.o, lay = (k) => R.find((r) => r.nam === k);
+      const toc = (a, b, k) => (lay(b)[k] - lay(a)[k]) / (b - a);
+      const mb = /Từ năm thứ (\d+) đến năm thứ (\d+), số loài thực vật tăng gấp (\d+) lần/.exec(y[1]).slice(1).map(Number);
+      const mc = /từ năm thứ (\d+) đến năm thứ (\d+) so với giai đoạn từ năm thứ (\d+) đến năm thứ (\d+)/.exec(y[2]).slice(1).map(Number);
+      const md = /sinh khối tăng nhiều nhất ở giai đoạn từ năm thứ (\d+) đến năm thứ (\d+)/.exec(y[3]).slice(1).map(Number);
+      const gd = R.slice(1).map((r, i) => [R[i].nam, r.nam]), max = gd.reduce((m, g) => (toc(...g, "sk") > toc(...m, "sk") ? g : m));
+      return [/lúc đầu chưa có sinh vật/.test(q.q) && /^Đây là diễn thế nguyên sinh\.$/.test(y[0]), gan(lay(mb[1]).loai / lay(mb[0]).loai, mb[2]),
+        /số loài tăng nhanh hơn/.test(y[2]) && toc(mc[0], mc[1], "loai") > toc(mc[2], mc[3], "loai"), max[0] === md[0] && max[1] === md[1]]; } },
+    { has: "Mỗi ý sau về hormone thực vật đúng hay sai?", right: (q) => traY(q, BAI_HOC.hormone) },
+    { has: "tái bản liên tiếp", right: (q) => { const [N] = so(q.q, "có # nucleotide"), [k] = so(q.q, "liên tiếp # lần"); return N * (2 ** k - 1); } },
+    { has: "Bảng mã di truyền gồm 64 bộ ba", right: () => Object.values(MA).filter((a) => a !== "*").length },
+    { has: "AaBbDd × AaBbdd", right: (q) => { const [, a, b] = /phép lai (\w+) × (\w+),/.exec(q.q); return lai(a, b).size; } },
+    { has: "(thể ba kép, 2n + 1 + 1)", right: (q) => so(q.q, "2n = #")[0] + 2 },
+    { has: "quần thể chim sẻ trên một hòn đảo", right: (q) => { const [N0] = so(q.q, "có # con. Trong năm"), [B] = so(q.q, "có # con non được sinh ra"), [D] = so(q.q, "# con bị chết"), [E] = so(q.q, "# con di cư khỏi đảo");
+      assert.ok(/không có con nào nhập cư/.test(q.q)); return N0 + B - D - E; } },
+    { has: "quần thể ốc ở một ao", right: (q) => { const [E] = so(q.q, "thu nhận # kcal"), [h, f] = so(q.q, "#% mất qua hô hấp, #% thải ra ngoài theo phân"), [c] = so(q.q, "tích luỹ được #% năng lượng tích luỹ ở ốc");
+      return ((E * (100 - h - f)) / 100) * (c / 100); } }
   ]
 };
 
@@ -513,7 +586,9 @@ const TU_CHUNG = [...CD12, ...CHUONG.map((c) => c[0]), ...CHUONG_11, "mỗi ý s
   "làm tròn kết quả đến hàng đơn vị", "theo lí thuyết", "thuyết tiến hoá tổng hợp hiện đại", "ở một loài thực vật", "ở một loài cây", "do một gene có hai allele quy định",
   "bộ nst lưỡng bội 2n", "trội hoàn toàn so với allele", "nằm trên hai cặp nst khác nhau", "nằm trên vùng không tương đồng của nst giới tính x",
   "nằm trên vùng không tương đồng của nst x", "đang ở trạng thái cân bằng di truyền", "là bao nhiêu", "bằng bao nhiêu", "nào sau đây", "có bao nhiêu", "chiếm tỉ lệ bao nhiêu",
-  "đề thi thử theo cấu trúc đề thi tốt nghiệp thpt từ năm 2025", "năm 2027 thí điểm thi trên máy tính ở nơi đủ điều kiện, đề như thi giấy"]
+  "đề thi thử theo cấu trúc đề thi tốt nghiệp thpt từ năm 2025",
+  "hình bên là phả hệ của một gia đình có người mắc bệnh", "kí hiệu: nam là hình vuông, nữ là hình tròn, người mắc bệnh tô màu đậm", "biết không phát sinh đột biến mới",
+  "một phân tử dna mạch kép", "năm 2027 thí điểm thi trên máy tính ở nơi đủ điều kiện, đề như thi giấy"]
   .map((p) => " " + khongDau(p) + " ").sort((a, b) => b.length - a.length);
 const chuoi = (s, k) => { let t = " " + khongDau(s) + " "; TU_CHUNG.forEach((p) => { while (t.includes(p)) t = t.replace(p, " | "); });
   const w = t.split(" ").filter(Boolean), ra = []; for (let i = 0; i + k <= w.length; i++) { const c = w.slice(i, i + k); if (!c.includes("|") && c.filter((x) => /[a-z]{2}/.test(x)).length >= 5) ra.push(c.join(" ")); } return ra; };
@@ -565,7 +640,7 @@ const kqSo = (s) => [...String(s).matchAll(KQ)].map((x) => ({ v: valDA(x[1]), u:
 const tuCua = (s) => String(s).normalize("NFC").toLowerCase().replace(/[«»“”"(),.;:!?…–—\-/]/g, " ").split(/\s+/).filter(Boolean);
 const cum3 = (s) => { const w = tuCua(s); if (w.length <= 3) return w.length ? [w.join(" ")] : []; const r = []; for (let i = 0; i + 3 <= w.length; i++) r.push(w.slice(i, i + 3).join(" ")); return r; };
 // chuỗi 3 từ chung của môn (thuật ngữ, cách nói của bài học) không làm lộ đáp án nào: bỏ qua khi là một phần của đáp án dài hơn
-const CUM_CHUNG = new Set(["tần số allele", "của quần thể", "thành phần kiểu", "phần kiểu gene", "kiểu gene của", "nst giới tính", "của môi trường", "nguồn sống của", "sống của môi",
+const CUM_CHUNG = new Set(["tần số allele", "của quần thể", "thành phần kiểu", "phần kiểu gene", "kiểu gene của", "nst giới tính", "của môi trường", "nguồn sống của", "sống của môi", "những con có", "được thay bằng",
   "của con người", "trong quần thể", "của sinh vật", "của thực vật", "nst tương đồng", "môi trường sống", "với môi trường", "sinh thái của", "kiểu hình của", "chất hữu cơ",
   "phù hợp với", "quần thể có", "giới tính x", "nhân tố sinh", "tố sinh thái", "cho quần thể", "để quần thể", "và môi trường"]);
 const chuP = (p) => (p.type === "note" ? [p.x] : chu(p).concat(p._d ? [p._d] : []));
@@ -605,7 +680,9 @@ if (process.env.DO_LO) console.log("Đáp án bằng chữ có ở câu khác (x
 // nói thí nghiệm Miller – Urey ủng hộ điều gì; “có thể tạo” trùng chữ tình cờ; “chọn lọc tự nhiên” ở đề bài câu chọn lọc tác động lên kiểu
 // hình không nói học thuyết tổng hợp kết nối những gì; lựa chọn sai “số cá thể ít nhất mà quần thể cần có…” (kích thước tối thiểu) không
 // nói vì sao quần thể dưới kích thước đó dễ suy vong.
+// Đề 3: “mất một cặp”, “một cặp nucleotide” ở lựa chọn sai, lời giải câu liên kết hydrogen không nói dạng đột biến nào làm lệch khung đọc.
 const DA_XEM = [
+  "tn-de3#3 → ck1-de1#6: mất một cặp", "tn-de3#3 → ck1-de1#6: một cặp nucleotide",
   "ck1-de1#18 → tn-de1#7: lặp đoạn", "ck1-de2#18 → tn-de1#7: lặp đoạn", "tn-de1#7 → ck1-de1#18: đảo đoạn", "tn-de1#3 → ck1-de1#6: một cặp nucleotide",
   "ck2-de2#8 → tn-de1#15: ổ sinh thái",
   "tn-de1#14 → gk2-de1#22: phân bố theo", "tn-de1#14 → gk2-de1#22: bố theo nhóm", "tn-de1#14 → gk2-de2#21: hỗ trợ nhau",
