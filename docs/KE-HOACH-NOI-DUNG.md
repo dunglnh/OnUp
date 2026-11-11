@@ -564,7 +564,6 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 
 | Phiên | Hạn | Nội dung | Kho | Mã mới | Kiểm thử phải sửa |
 |---|---|---|---|---|---|
-| N12-tn-ta-e | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Tiếng Anh thi thử tốt nghiệp, Đề 9–10 | 2 đề | `ta12-tn-de9`, `-de10` | không |
 | N12-tn-sinhhoc | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Sinh học thi thử tốt nghiệp, Đề 1–4 (28 câu) | 4 đề | `sinhhoc12-tn-de1` … `-de4`; `tests/sinhhoc12-tn.js` | không |
 | N12-tn-sinhhoc-b | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Sinh học thi thử tốt nghiệp, Đề 5–8 | 4 đề | `sinhhoc12-tn-de5` … `-de8` | không |
 | N12-tn-lichsu | 10/12/2026 (muộn nhất 21/5/2027; thi 11–12/6/2027) | Lịch sử thi thử tốt nghiệp, Đề 1–4 (28 câu) | 4 đề | `lichsu12-tn-de1` … `-de4`; `tests/lichsu12-tn.js` | không |
@@ -687,11 +686,6 @@ Chung của các phiên đề thi thử tốt nghiệp (mỗi khối dưới đ�
 - Không chép đề tham khảo, đề chính thức, đề thi thử của Sở, trường hay bài tập, ví dụ của sách; tự soạn đề tương tự về dạng, độ khó. Các đề cùng môn khác nhau về bối cảnh, số liệu, văn bản: dò bằng code để đề mới không trùng ý với các đề đã có của môn đó và với các kho lớp 12 cùng môn (đề bài không gần trùng; đáp án không trùng câu cùng chủ đề), không lộ đáp án giữa các câu cùng đề, và giữa câu cùng chủ đề của đề này với các kho lớp 12 cùng môn (đề “Ôn chủ đề” rút chung).
 - Script `tests/<mã môn>12-tn.js` theo mẫu `tests/toan9-vao10.js`, `tests/van9-vao10.js` (phiên đầu của môn tạo, phiên sau mở rộng; hàm kiểm tra riêng từng đề ở `RIENG`): kiểm tra khung (số câu, số câu và `pt` mỗi phần, tên `part`, số phút, `pts`, gắn vào `tn-thpt-2027`), tính lại mọi đáp án bằng code, đọc lại hình, đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa chọn dài nhất hay ngắn nhất ở không quá một phần ba số câu nhiều lựa chọn, không là lựa chọn duy nhất có chữ của nhãn chủ đề, đúng/sai 4 ý không lặp kiểu Đ/S, dò lộ đáp án như trên, so mọi trường chữ với chữ OCR của mọi cuốn ở OnUp-Book (không chuỗi 8 từ nào trùng) và với câu của mọi kho khác, cả giữa các đề thi thử với nhau; số đề, số câu lấy từ danh mục. Xong khi `tests/kiem-tra-de.js` in DE OK không còn dòng “Nhắc:” về đề của phiên (cả đề “Ôn chủ đề”).
 - Phiên “-b”, “-c” của một môn Merge phiên trước của môn đó trước, đọc lại các đề đã có để đổi bối cảnh, dạng câu, và theo đúng ghi chú ở danh mục, script mà phiên trước để lại.
-
-**Phiên N12-tn-ta-e · Tiếng Anh thi thử tốt nghiệp, Đề 9–10** (Merge Phiên N12-tn-ta-d trước)
-> Như Phiên N12-tn-ta, viết 2 đề "Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 9", "Đề 10" (ta12-tn-de9, -de10), cùng khung; chủ điểm, loại văn bản khác Đề 1–8. Phiên cuối của môn: rà lại cả mười đề bằng tests/ta12-tn.js (không hai đề cùng chủ điểm ở cùng nhóm câu; đáp án đúng là lựa chọn dài nhất ở không quá một phần ba số câu của cả mười đề), sửa lỗi nhỏ tìm được ở Đề 1–8 (ghi trong Pull Request), in OK. Gắn 2 mã vào tn-thpt-2027.
->
-> Còn lại theo Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 **Phiên N12-tn-sinhhoc · Sinh học thi thử tốt nghiệp, Đề 1–4** (Merge Phiên N12-ck2-sinhhoc-ktpl trước)
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 2, 3, 7; đoạn đầu nhóm “Trước 10/12/2026: lớp 12, đề thi thử tốt nghiệp”, đoạn “Chung của các phiên đề thi thử tốt nghiệp”). Viết 4 đề "Sinh học 12 · Thi thử tốt nghiệp · Đề 1" … "Đề 4" (sinhhoc12-tn-de1 … -de4, data/banks/12-sinhhoc.js, 50 phút, pts 10), mỗi đề 28 câu: Phần I 18 câu nhiều lựa chọn, Phần II 4 câu đúng/sai 4 ý, Phần III 6 câu trả lời ngắn (4,5 + 4 + 1,5 điểm; Phần III `pt: 0.25`).
