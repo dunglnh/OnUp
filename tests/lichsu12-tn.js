@@ -76,7 +76,6 @@ const SU_KIEN = [
   ["phan châu trinh sang pháp", "1911", "năm 1911", "LS12 tr. 76"],
   ["lập hội liên hiệp thuộc địa", "1921", "năm 1921", "LS12 tr. 77"],
   ["nguyễn ái quốc đến liên xô", "1923-06", "6 – 1923", "LS12 tr. 77"],
-  /*__SU_KIEN__*/
 ];
 const suKien = (s) => { const m = SU_KIEN.filter(([k]) => s.toLowerCase().includes(k.toLowerCase())); assert.equal(m.length, 1, "không nhận ra đúng một sự kiện: " + s); return m[0]; };
 const namCua = (sk) => +sk[1].slice(0, 4);
@@ -246,7 +245,6 @@ const RIENG = {
       "sức người, sức của": d.includes("sức người, vũ khí, lương thực từ hậu phương lớn"), "tự lập đền thờ cho thấy": d.includes("nhân dân còn tự lập đền thờ"),
       "không chỉ ở Thủ đô": +/đã có (\d+) chi nhánh ở nhiều địa phương/.exec(d)[1] > 1 }) }
   ],
-  /*__RIENG__*/
 };
 
 /* ---------- đề và danh mục: số đề, số câu lấy từ danh mục ---------- */
@@ -450,8 +448,7 @@ const TU_CHUNG = [...BAI, ...Object.values(RUT_GON), ...Object.keys(CHU_DE_11), 
   "mỗi ý sau đúng hay sai", "sắp xếp các sự kiện sau theo trình tự thời gian", "đọc đoạn tư liệu", "tư liệu người soạn viết", "nào sau đây",
   "đề thi thử theo cấu trúc đề thi tốt nghiệp thpt từ năm 2025", "năm 2027 thí điểm thi trên máy tính ở nơi đủ điều kiện, đề như thi giấy",
   "cuối thế kỉ XIX – đầu thế kỉ XX", "từ thế kỉ XVII đến đầu thế kỉ XIX", "đầu những năm 70 của thế kỉ XX", "nửa đầu thế kỉ XIX",
-  "cuộc cải cách của Lê Thánh Tông (thế kỉ XV)", "cuộc cải cách của Minh Mạng (nửa đầu thế kỉ XIX)", "cuộc cải cách của Hồ Quý Ly và Triều Hồ", "chính trị – an ninh, kinh tế, văn hoá – xã hội", "đa phương hoá, đa dạng hoá quan hệ đối ngoại", "kết hợp sức mạnh dân tộc với sức mạnh thời đại", "những năm 80 của thế kỉ XX", "học tập và làm theo tư tưởng, đạo đức, phong cách Hồ Chí Minh",
-  /*__TU_CHUNG__*/];
+  "cuộc cải cách của Lê Thánh Tông (thế kỉ XV)", "cuộc cải cách của Minh Mạng (nửa đầu thế kỉ XIX)", "cuộc cải cách của Hồ Quý Ly và Triều Hồ", "chính trị – an ninh, kinh tế, văn hoá – xã hội", "đa phương hoá, đa dạng hoá quan hệ đối ngoại", "kết hợp sức mạnh dân tộc với sức mạnh thời đại", "những năm 80 của thế kỉ XX", "học tập và làm theo tư tưởng, đạo đức, phong cách Hồ Chí Minh",];
 const boDau = (s) => String(s).normalize("NFC").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const GOP_ = GOP.map(boDau).sort((a, b) => b.length - a.length), TU_CHUNG_ = TU_CHUNG.map((p) => " " + boDau(p) + " ").sort((a, b) => b.length - a.length);
 const khongDau = (s) => {
@@ -501,7 +498,7 @@ const kqSo = (s) => [...String(s).matchAll(KQ)].map((x) => val(x[1]));
 const tuCua = (s) => String(s).normalize("NFC").toLowerCase().replace(/[«»“”"(),.;:!?…–—\-/]/g, " ").split(/\s+/).filter(Boolean);
 const cum3 = (s) => { const w = tuCua(s); if (w.length <= 3) return w.length ? [w.join(" ")] : []; const r = []; for (let i = 0; i + 3 <= w.length; i++) r.push(w.slice(i, i + 3).join(" ")); return r; };
 // chuỗi 3 từ chung của môn (thuật ngữ, cách nói của bài học) không làm lộ đáp án nào: bỏ qua khi là một phần của đáp án dài hơn
-const CUM_CHUNG = new Set(["liên hợp quốc", "chiến tranh lạnh", "đông nam á", "cộng đồng asean", "việt nam dân", "nam dân chủ", "dân chủ cộng", "chủ cộng hoà", "xã hội chủ", "hội chủ nghĩa", "chủ tịch hồ", "tịch hồ chí", "hồ chí minh", "nguyễn ái quốc", "công nghiệp hoá", "nghiệp hoá hiện", "hoá hiện đại", "hiện đại hoá", /*__CUM_CHUNG__*/]);
+const CUM_CHUNG = new Set(["liên hợp quốc", "chiến tranh lạnh", "đông nam á", "cộng đồng asean", "việt nam dân", "nam dân chủ", "dân chủ cộng", "chủ cộng hoà", "xã hội chủ", "hội chủ nghĩa", "chủ tịch hồ", "tịch hồ chí", "hồ chí minh", "nguyễn ái quốc", "công nghiệp hoá", "nghiệp hoá hiện", "hoá hiện đại", "hiện đại hoá"]);
 const chuP = (p) => (p.type === "note" ? [p.x] : chu(p).concat(p._d ? [p._d] : []));
 const NOTES = DE.map((b) => { const o = { q: b.id + "-note", x: [b.note].join(" | "), topic: "note", type: "note", _de: b.id }; ten.set(o, b.id.replace("lichsu12-", "") + "-note"); return o; });
 const ngayCua = (q) => [...new Set((q.type === "mc" && /1\. .+; 2\. /.test(q.q) ? dsSuKien(q) : q.type === "tf4" ? q.o.flatMap((o) => { const m = /^(.+) diễn ra trước (.+)\.$/.exec(o) || /^(.+) và (.+) cách nhau \d+ năm\.$/.exec(o); return m ? [m[1], m[2]] : []; }) : []).map((d) => suKien(d)[2]))];
@@ -547,8 +544,7 @@ const DA_XEM = [
   // tn-de4#3 (các nước tuyên bố độc lập năm 1945): câu kia chỉ nhắc In-đô-nê-xi-a khi nói Hà Lan xâm nhập từ cuối thế kỉ XVI
   "tn-de1#3 → tn-de4#3: in đô nê", "tn-de1#3 → tn-de4#3: đô nê xi", "tn-de1#3 → tn-de4#3: nê xi a",
   // tn-de4#19 (Đông Á đồng minh, 1908): “Đông Á Đồng minh hội” là lựa chọn sai của câu kia (tổ chức Việt Minh cử người tham gia)
-  "gk2-de2#15 → tn-de4#19: đông á đồng", "gk2-de2#15 → tn-de4#19: á đồng minh",
-  /*__DA_XEM__*/];
+  "gk2-de2#15 → tn-de4#19: đông á đồng", "gk2-de2#15 → tn-de4#19: á đồng minh",];
 assert.deepEqual([...r1.chuLo, ...r2.chuLo].sort(), [...DA_XEM].sort(), "đáp án bằng chữ có ở câu khác đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 assert.deepEqual([...r1.lo, ...r2.lo], [], "lộ đáp án:\n" + [...r1.lo, ...r2.lo].join("\n"));
 
