@@ -32,7 +32,7 @@ const assert = require("assert");
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
-const BANKS = require("./nap-de.js").napDe();
+const BANKS = require("./nap-de.js").napDe().filter((b) => b.questions || !process.env.TAM);
 const ctx = vm.createContext({ window: {} });
 vm.runInContext(fs.readFileSync(path.join(__dirname, "../js/quiz.js"), "utf8"), ctx);
 vm.runInContext(fs.readFileSync(path.join(__dirname, "../data/calendar-2026-2027.js"), "utf8"), ctx);
@@ -54,7 +54,30 @@ const traY = (q, bang) => { const r = q.o.map(() => undefined); Object.entries(b
 /* ---------- trình tự thời gian (bảng ngày tháng theo sách Lịch sử 11, 12 Kết nối tri thức in năm 2026) ----------
    Mỗi sự kiện: [chữ nhận ra trong đề bài, ý, lựa chọn; ngày dạng YYYY-MM-DD, YYYY-MM hay YYYY để so; cách ghi ngày như sách (ghi trong lời
    giải); sách và trang in]. Năm trước Công nguyên ghi số âm (“-0040” là năm 40 trước Công nguyên không dùng; năm Công nguyên ghi 4 chữ số). */
-const SU_KIEN = [];
+const SU_KIEN = [
+  // Lịch sử 12, Bài 9 (tr. 55–57)
+  ["đánh vào vùng biên giới thuộc tỉnh an giang", "1977-04-30", "30 – 4 – 1977", "LS12 tr. 55"],
+  ["tuyên bố về lãnh hải và các vùng biển", "1977-05-12", "12 – 5 – 1977", "LS12 tr. 57"],
+  ["phnôm pênh (cam-pu-chia) được giải phóng", "1979-01-07", "7 – 1 – 1979", "LS12 tr. 55"],
+  ["đánh vào sáu tỉnh biên giới phía bắc", "1979-02-17", "17 – 2 – 1979", "LS12 tr. 56"],
+  // các ý về thời gian của kho Lịch sử 12 cùng chủ đề (dò lộ ở đề “Ôn chủ đề”): ngày ghi như lời giải của kho
+  ["khởi nghĩa ở huế", "1945-08-23", "23 – 8", "LS12 tr. 33"],
+  ["khởi nghĩa ở sài gòn", "1945-08-25", "25 – 8", "LS12 tr. 33"],
+  ["khởi nghĩa ở hà nội", "1945-08-19", "19 – 8", "LS12 tr. 33"],
+  ["đồng nai thượng và hà tiên giành chính quyền", "1945-08-28", "28 – 8", "LS12 tr. 33"],
+  ["lễ đọc tuyên ngôn độc lập", "1945-09-02", "2 – 9 – 1945", "LS12 tr. 34"],
+  ["chiến dịch điện biên phủ", "1954-03-13", "13 – 3 – 1954", "LS12 tr. 44"],
+  ["kế hoạch na-va", "1953-07", "7 – 1953", "LS12 tr. 43"],
+  ["chiến dịch tây bắc", "1952-10", "thu – đông năm 1952", "LS12 tr. 42"],
+  ["chiến dịch hoà bình", "1951-12", "đông – xuân 1951 – 1952", "LS12 tr. 42"],
+  ["chiến dịch huế – đà nẵng", "1975-03", "3 – 1975", "LS12 tr. 50"],
+  ["chiến dịch hồ chí minh", "1975-04", "4 – 1975", "LS12 tr. 51"],
+  ["lập việt nam quang phục hội", "1912", "năm 1912", "LS12 tr. 76"],
+  ["phan châu trinh sang pháp", "1911", "năm 1911", "LS12 tr. 76"],
+  ["lập hội liên hiệp thuộc địa", "1921", "năm 1921", "LS12 tr. 77"],
+  ["nguyễn ái quốc đến liên xô", "1923-06", "6 – 1923", "LS12 tr. 77"],
+  /*__SU_KIEN__*/
+];
 const suKien = (s) => { const m = SU_KIEN.filter(([k]) => s.toLowerCase().includes(k.toLowerCase())); assert.equal(m.length, 1, "không nhận ra đúng một sự kiện: " + s); return m[0]; };
 const namCua = (sk) => +sk[1].slice(0, 4);
 // câu sắp xếp trình tự thời gian dạng nhiều lựa chọn: đề bài “… 1. A; 2. B; 3. C; 4. D.”, lựa chọn là thứ tự “2, 1, 4, 3”
@@ -82,7 +105,43 @@ const yThoiGian = (q, o) => {
 /* ---------- các mục kiểm tra của từng đề (RIENG; phiên thêm đề thì thêm một khoá mới) ----------
    has: đoạn chữ của đề bài; right(q, d): đáp án tính bằng code hay so với bảng, d là chữ của đoạn tư liệu (rỗng nếu câu không có): câu nhiều
    lựa chọn trả về lựa chọn đúng, câu đúng/sai 4 ý trả về mảng 4 ý. */
-const RIENG = {};
+const RIENG = {
+  "lichsu12-tn-de1": [
+    { has: "thuộc trào lưu nào", right: (q) => chon(q, "Ánh sáng") },
+    { has: "được giải quyết triệt để hơn", right: (q) => chon(q, "dân nghèo thành thị") },
+    { has: "diễn ra năm 1511", right: (q) => chon(q, "Ma-lắc-ca") },
+    { has: "Từ trường hợp của Xiêm", right: (q) => chon(q, "ngoại giao mềm dẻo") },
+    { has: "thường chọn đi qua Biển Đông", right: (q) => chon(q, "ngắn nhất") },
+    { has: "thời Minh Mạng, triều đình cử thuỷ quân", right: (q) => chon(q, "liên tục") },
+    { has: "thông qua năm 1948", right: (q) => chon(q, "Nhân quyền") },
+    { has: "nhiều cơ chế hợp tác khu vực ra đời", right: (q) => chon(q, "đối thoại") },
+    { has: "Năm 1994, ASEAN lập ra diễn đàn", right: (q) => chon(q, "ARF") },
+    { has: "thông qua năm 2003", right: (q) => chon(q, "Ba-li II") },
+    { has: "xuất phát từ bên ngoài", right: (q) => chon(q, "cường quốc") },
+    { has: "Đại hội Quốc dân họp ở Tân Trào", right: (q) => chon(q, "10 chính sách") },
+    { has: "kí ngày 28 – 2 – 1946", right: (q) => chon(q, "Hoa – Pháp") },
+    { has: "thắng lợi ở Ấp Bắc", right: (q) => chon(q, "Trực thăng vận") },
+    { has: "Trung Quốc đưa quân đánh vào sáu tỉnh", right: (q) => thuTu(q) },
+    { has: "việc đổi mới về chính trị", right: (q) => chon(q, "vững chắc") },
+    { has: "mô hình quản lí kinh tế", right: (q) => chon(q, "định hướng xã hội chủ nghĩa", "Từ tập trung") },
+    { has: "thành tựu đối ngoại của công cuộc Đổi mới", right: (q) => chon(q, "quan hệ ngoại giao") },
+    { has: "do Phan Bội Châu khởi xướng", right: (q) => chon(q, "Đông du") },
+    { has: "kết hợp đấu tranh quân sự với đấu tranh ngoại giao", right: (q) => chon(q, "Vừa đánh") },
+    { has: "Hiệp ước biên giới trên đất liền", right: (q) => chon(q, "thương lượng") },
+    { has: "Ngày 5 – 6 – 1911", right: (q) => chon(q, "Nhà Rồng") },
+    { has: "Tháng 8 – 1942", right: (q) => chon(q, "Đồng minh") },
+    { has: "kỉ niệm ngày sinh Chủ tịch Hồ Chí Minh", right: (q) => chon(q, "di tích") },
+    { has: "các mục tiêu phát triển của Liên hợp quốc", right: (q) => traY(q, { "không chỉ trong lĩnh vực chính trị": true, "được thông qua trước Tuyên bố": false,
+      "điều phối hợp tác quốc tế": true, "chỉ những nước nghèo": false }) },
+    { has: "khởi nghĩa giành chính quyền ở Hà Nội", right: (q, d) => traY(q, { "trong một ngày": d.includes("từ sáng sớm") && d.includes("Đến tối"), "do đối phương tổ chức": d.includes("ủng hộ chính phủ thân Nhật"),
+      "chủ yếu bằng lực lượng chính trị": d.includes("có tự vệ đi cùng"), "không ảnh hưởng gì": false }) },
+    { has: "ba chặng đường Đổi mới", right: (q, d) => traY(q, { "giai đoạn khởi đầu": d.includes("Giai đoạn đầu (1986 – 1995)"), "ngay từ giai đoạn đầu": /Giai đoạn đầu[^.]*tri thức/.test(d),
+      "đóng cửa": false, "phạm vi hội nhập ngày càng mở rộng": true }) },
+    { has: "cuộc thương lượng ở Pa-ri", right: (q, d) => traY(q, { "bốn bên tham gia ngay": !d.includes("Từ ngày 25 – 1 – 1969, hội nghị có bốn bên"), "vị thế quốc tế": true,
+      "gắn chặt với thắng lợi trên chiến trường": d.includes("Mỹ phải trở lại thương lượng"), "nhanh chóng đi đến thoả thuận": !d.includes("gần năm năm") }) }
+  ],
+  /*__RIENG__*/
+};
 
 /* ---------- đề và danh mục: số đề, số câu lấy từ danh mục ---------- */
 const soDe = (id) => +/de(\d+)$/.exec(id)[1];
@@ -237,7 +296,7 @@ assert.ok(Object.values(KIEU).every((c) => c <= 3), "một kiểu Đ/S dùng qu�
     const dau = q.o.map((o) => o.split(" ")[0]);
     if (dau.slice(1).every((d) => d === dau[1]) && dau[0] !== dau[1] && dau[1].length > 1) loi.push(at + ": ba lựa chọn sai cùng mở đầu bằng “" + dau[1] + "”");
   }));
-  assert.deepEqual(loi, [], "câu nhiều lựa chọn có gợi ý từ chữ của lựa chọn");
+  assert.deepEqual(loi, [], "câu nhiều lựa chọn có gợi ý từ chữ của lựa chọn:\n" + loi.join("\n"));
 }
 
 /* ---------- chữ ---------- */
@@ -267,7 +326,7 @@ const TINH_CU = ["Hà Giang", "Yên Bái", "Bắc Kạn", "Vĩnh Phúc", "Hoà B
       kt(!/(?<!\d)\d{1,2}\/\d{1,2}(?!\d)(?:\/\d{4})?|\b\d{1,2}-\d{1,2}-\d{4}\b|\d – \d{1,2}\/|tháng \d{1,2}\/\d{4}/.test(s), at + ": ngày tháng viết như sách (“6 – 3 – 1946”): " + s.slice(0, 120));
     }));
   });
-  assert.deepEqual(loi, [], "chữ viết khác quy ước");
+  assert.deepEqual(loi, [], "chữ viết khác quy ước:\n" + loi.join("\n"));
 }
 
 /* ---------- so với ba kho Lịch sử 12 và giữa các đề thi thử: đề bài không trùng, không gần trùng; đáp án không trùng câu cùng chủ đề ---------- */
@@ -284,6 +343,7 @@ const GOP = ["Trật tự thế giới hai cực I-an-ta", "Hiến chương Liê
 const TU_CHUNG = [...BAI, ...Object.values(RUT_GON), ...Object.keys(CHU_DE_11), ...Object.values(CHU_DE_11), ...CHU_DE_12.map((c) => c[0]),
   "mỗi ý sau đúng hay sai", "sắp xếp các sự kiện sau theo trình tự thời gian", "đọc đoạn tư liệu", "tư liệu người soạn viết", "nào sau đây",
   "đề thi thử theo cấu trúc đề thi tốt nghiệp thpt từ năm 2025", "năm 2027 thí điểm thi trên máy tính ở nơi đủ điều kiện, đề như thi giấy",
+  "cuối thế kỉ XIX – đầu thế kỉ XX", "từ thế kỉ XVII đến đầu thế kỉ XIX",
   /*__TU_CHUNG__*/];
 const boDau = (s) => String(s).normalize("NFC").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const GOP_ = GOP.map(boDau).sort((a, b) => b.length - a.length), TU_CHUNG_ = TU_CHUNG.map((p) => " " + boDau(p) + " ").sort((a, b) => b.length - a.length);
@@ -317,9 +377,9 @@ const chuoi = (s, k) => { const w = khongDau(s).split(" ").filter(Boolean), ra =
       if (q.type === "mc" && p.type === "mc" && gocChu(q.o[0]) === gocChu(p.o[0])) trung.push(ten.get(q) + " ~ " + ten.get(p) + ": đáp án trùng câu cùng chủ đề");
     });
   });
-  assert.deepEqual([...new Set(gan_)], [], "đề bài gần trùng (cặp hai âm tiết) câu khác");
-  assert.deepEqual([...new Set(gan6)], [], "đề bài gần trùng (chuỗi 6 từ) câu khác");
-  assert.deepEqual(trung, [], "đáp án trùng câu cùng chủ đề");
+  assert.deepEqual([...new Set(gan_)], [], "đề bài gần trùng (cặp hai âm tiết) câu khác:\n" + [...new Set(gan_)].join("\n"));
+  assert.deepEqual([...new Set(gan6)], [], "đề bài gần trùng (chuỗi 6 từ) câu khác:\n" + [...new Set(gan6)].join("\n"));
+  assert.deepEqual(trung, [], "đáp án trùng câu cùng chủ đề:\n" + trung.join("\n"));
 }
 
 /* ---------- dò lộ đáp án (như tests/sinhhoc12-tn.js, tests/lichsu-diali12-ck2.js) ----------
@@ -334,7 +394,7 @@ const kqSo = (s) => [...String(s).matchAll(KQ)].map((x) => val(x[1]));
 const tuCua = (s) => String(s).normalize("NFC").toLowerCase().replace(/[«»“”"(),.;:!?…–—\-/]/g, " ").split(/\s+/).filter(Boolean);
 const cum3 = (s) => { const w = tuCua(s); if (w.length <= 3) return w.length ? [w.join(" ")] : []; const r = []; for (let i = 0; i + 3 <= w.length; i++) r.push(w.slice(i, i + 3).join(" ")); return r; };
 // chuỗi 3 từ chung của môn (thuật ngữ, cách nói của bài học) không làm lộ đáp án nào: bỏ qua khi là một phần của đáp án dài hơn
-const CUM_CHUNG = new Set([/*__CUM_CHUNG__*/]);
+const CUM_CHUNG = new Set(["liên hợp quốc", "chiến tranh lạnh", "đông nam á", "cộng đồng asean", "việt nam dân", "nam dân chủ", "dân chủ cộng", "chủ cộng hoà", "xã hội chủ", "hội chủ nghĩa", "chủ tịch hồ", "tịch hồ chí", "hồ chí minh", "nguyễn ái quốc", "công nghiệp hoá", "nghiệp hoá hiện", "hoá hiện đại", "hiện đại hoá", /*__CUM_CHUNG__*/]);
 const chuP = (p) => (p.type === "note" ? [p.x] : chu(p).concat(p._d ? [p._d] : []));
 const NOTES = DE.map((b) => { const o = { q: b.id + "-note", x: [b.note].join(" | "), topic: "note", type: "note", _de: b.id }; ten.set(o, b.id.replace("lichsu12-", "") + "-note"); return o; });
 const ngayCua = (q) => [...new Set((q.type === "mc" && /1\. .+; 2\. /.test(q.q) ? dsSuKien(q) : q.type === "tf4" ? q.o.flatMap((o) => { const m = /^(.+) diễn ra trước (.+)\.$/.exec(o) || /^(.+) và (.+) cách nhau \d+ năm\.$/.exec(o); return m ? [m[1], m[2]] : []; }) : []).map((d) => suKien(d)[2]))];
@@ -363,7 +423,11 @@ const onCD = TNQ.concat(KHO_Q.filter((q) => q.type !== "essay" && TNQ.some((t) =
 const r2 = doLo(onCD, [], (p, q) => p.topic === q.topic && p._de !== q._de && (/^lichsu12-tn-/.test(p._de) || /^lichsu12-tn-/.test(q._de)));
 if (process.env.DO_LO) console.log("Đáp án bằng chữ có ở câu khác (xem tay):\n" + [...r1.chuLo, ...r2.chuLo].join("\n"));
 // Đã xem tay (Phiên N12-tn-lichsu): chữ của đáp án có ở câu khác nhưng không chỉ ra đáp án.
-const DA_XEM = [/*__DA_XEM__*/];
+const DA_XEM = [
+  // tn-de1#18 (tập san về thành tựu đối ngoại): câu kia chỉ nói chung về quan hệ ngoại giao, không cho biết tư liệu nào hợp với tập san
+  "ck2-de1#2 → tn-de1#18: các nước có", "gk2-de2#13 → tn-de1#18: có quan hệ", "gk2-de2#6 → tn-de1#18: có quan hệ", "gk2-de2#6 → tn-de1#18: hệ ngoại giao",
+  "gk2-de2#6 → tn-de1#18: ngoại giao với", "gk2-de2#6 → tn-de1#18: quan hệ ngoại",
+  /*__DA_XEM__*/];
 assert.deepEqual([...r1.chuLo, ...r2.chuLo].sort(), [...DA_XEM].sort(), "đáp án bằng chữ có ở câu khác đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 assert.deepEqual([...r1.lo, ...r2.lo], [], "lộ đáp án:\n" + [...r1.lo, ...r2.lo].join("\n"));
 
@@ -393,7 +457,7 @@ if (SACH.length) {
   const sach = SACH.map((f) => ({ id: f, t: khongDau(fs.readFileSync(f, "utf8").replace(/=== page-\d+ · [^=]+ ===/g, " ")) }));
   const bao = (k) => { const ds = chuoiDe(k, true), gap = timChuoi(sach, k, ds); return [...gap.keys()].flatMap((c) => ds.get(c).map((q) => `${ten.get(q)}: ${c}`)); };
   if (process.env.DO_SACH) console.log("Chuỗi 6 từ trùng chữ OCR của sách (xem tay):\n" + [...new Set(bao(6))].join("\n"));
-  assert.deepEqual([...new Set(bao(8))], [], "chuỗi 8 từ trùng chữ của sách");
+  assert.deepEqual([...new Set(bao(8))], [], "chuỗi 8 từ trùng chữ của sách:\n" + [...new Set(bao(8))].join("\n"));
   console.log("Đã so với chữ OCR của " + SACH.length + " cuốn sách (OnUp-Book).");
 } else console.log("Không có ../OnUp-Book: bỏ qua bước so với chữ của sách và mục lục.");
 /* ---------- trùng ý với các kho khác (Rút ra N21): chuỗi 8 từ liền nhau trùng câu của kho khác, cả ba kho Lịch sử 12 và giữa các đề thi thử ---------- */
@@ -403,7 +467,7 @@ if (SACH.length) {
   const bao = (k) => { const ds = chuoiDe(k, true), gap = timChuoi(khac, k, ds);
     return [...gap.keys()].flatMap((c) => ds.get(c).flatMap((q) => [...gap.get(c)].filter((id) => id !== q._de).map((id) => `${ten.get(q)} ~ ${id}: ${c}`))); };
   if (process.env.DO_KHO) console.log("Chuỗi 6 từ trùng câu của kho khác (xem tay):\n" + [...new Set(bao(6))].join("\n"));
-  assert.deepEqual([...new Set(bao(8))], [], "chuỗi 8 từ trùng câu của kho khác");
+  assert.deepEqual([...new Set(bao(8))], [], "chuỗi 8 từ trùng câu của kho khác:\n" + [...new Set(bao(8))].join("\n"));
 }
 
 /* ---------- tự thử các bộ tính với câu cố ý viết sai ---------- */
