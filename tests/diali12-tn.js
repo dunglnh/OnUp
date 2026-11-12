@@ -780,12 +780,14 @@ const gocChu = (s) => String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\
 const boDau = (s) => String(s).normalize("NFC").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const GOP_ = GOP.map(boDau).sort((a, b) => b.length - a.length), TU_CHUNG_ = TU_CHUNG.map((p) => " " + boDau(p) + " ").sort((a, b) => b.length - a.length);
 // bỏ dấu, thay cụm chung bằng dấu ngăn, gộp tên riêng nhiều chữ thành một từ, gộp nguyên âm (chữ OCR hay đọc sai dấu, nguyên âm)
-const khongDau = (s) => {
+// nhớ kết quả của khongDau: mỗi chuỗi chỉ chuẩn hoá một lần (các vòng lặp lồng nhau gọi lại trên cùng chữ; kết quả như cũ)
+const nhoChuoi = (f) => { const m = new Map(); return (s) => { const k = String(s); let v = m.get(k); if (v === undefined) { v = f(k); if (typeof v === "string") m.set(k, v); } return v; }; };
+const khongDau = nhoChuoi((s) => {
   let t = " " + boDau(String(s).normalize("NFC")) + " ";
   TU_CHUNG_.forEach((p) => { while (t.includes(p)) t = t.replace(p, " | "); });
   GOP_.forEach((g) => { t = t.split(" " + g + " ").join(" " + g.replace(/ /g, "") + " "); });
   return t.replace(/[aeiouy]+/g, "a").replace(/\s+/g, " ").trim();
-};
+});
 const chuoi = (s, k) => { const w = khongDau(s).split(" ").filter(Boolean), ra = []; for (let i = 0; i + k <= w.length; i++) { const c = w.slice(i, i + k); if (!c.includes("|") && c.filter((x) => /[a-z]{2}/.test(x)).length >= 5) ra.push(c.join(" ")); } return ra; };
 const ten = new Map();
 DE.forEach((b) => b.questions.forEach((q, i) => ten.set(q, b.id.replace("diali12-", "") + "#" + (i + 1))));

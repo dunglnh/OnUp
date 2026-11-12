@@ -874,7 +874,9 @@ assert.ok(soPT > 0, "có phương trình hoá học");
 
 /* ---------- so với ba kho Hoá học 12 và giữa các đề thi thử: đề bài không trùng, không gần trùng; đáp án không trùng câu cùng chủ đề ---------- */
 const gocChu = (s) => String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
-const khongDau = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
+// nhớ kết quả của khongDau: mỗi chuỗi chỉ chuẩn hoá một lần (các vòng lặp lồng nhau gọi lại trên cùng chữ; kết quả như cũ)
+const nhoChuoi = (f) => { const m = new Map(); return (s) => { const k = String(s); let v = m.get(k); if (v === undefined) { v = f(k); if (typeof v === "string") m.set(k, v); } return v; }; };
+const khongDau = nhoChuoi((s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim());
 const TU_CHUNG = [...CD12, ...CHUONG.map((c) => c[0]), ...CHUONG_10, ...CHUONG_11, "mỗi ý sau đúng hay sai", "làm tròn kết quả đến hàng phần trăm", "làm tròn kết quả đến hàng phần mười",
   "làm tròn kết quả đến hàng đơn vị", "hiện tượng quan sát được là", "bằng bao nhiêu", "là bao nhiêu", "nào sau đây", "sau khi các phản ứng xảy ra hoàn toàn", "sau khi phản ứng xảy ra hoàn toàn", "cho thế điện cực chuẩn", "thế điện cực chuẩn của",
   "thể tích mol khí ở điều kiện chuẩn", "một mol khí chiếm", "thể tích của một mol khí là", "ở điều kiện chuẩn", "nguyên tử khối", "có bao nhiêu", "đề thi thử theo cấu trúc đề thi tốt nghiệp thpt từ năm 2025",

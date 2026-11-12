@@ -466,8 +466,10 @@ const GOP = ["thanh pho ho chi minh", "trung du va mien nui phia bac", "duyen ha
 const TRICH = ["đánh nhanh, thắng nhanh", "đánh chắc, tiến chắc", "sống bám đá, chết hoá đá, thành bất tử", "thống nhất trong đa dạng", "Điện Biên Phủ trên không",
   "Hiệp định Pa-ri về chấm dứt chiến tranh, lập lại hoà bình ở Việt Nam", "Hiến pháp năm 2013 (sửa đổi, bổ sung năm 2025)",
   "Bộ luật Hình sự năm 2015 (sửa đổi, bổ sung năm 2017, 2025)"];
-const khongDau = (s) => { let t = " " + TRICH.reduce((x, c) => x.split(c).join(" "), String(s).normalize("NFC")).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() + " ";
-  GOP.forEach((g) => { t = t.split(" " + g + " ").join(" " + g.replace(/ /g, "") + " "); }); return t.replace(/[aeiouy]+/g, "a").trim(); };
+// nhớ kết quả của khongDau: mỗi chuỗi chỉ chuẩn hoá một lần (các vòng lặp lồng nhau gọi lại trên cùng chữ; kết quả như cũ)
+const nhoChuoi = (f) => { const m = new Map(); return (s) => { const k = String(s); let v = m.get(k); if (v === undefined) { v = f(k); if (typeof v === "string") m.set(k, v); } return v; }; };
+const khongDau = nhoChuoi((s) => { let t = " " + TRICH.reduce((x, c) => x.split(c).join(" "), String(s).normalize("NFC")).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() + " ";
+  GOP.forEach((g) => { t = t.split(" " + g + " ").join(" " + g.replace(/ /g, "") + " "); }); return t.replace(/[aeiouy]+/g, "a").trim(); });
 const tuCua = (s) => khongDau(s).split(" ").filter(Boolean);
 const chuoi = (s, k) => { const w = tuCua(s), ra = []; for (let i = 0; i + k <= w.length; i++) ra.push(w.slice(i, i + k).join(" ")); return ra; };
 const truong = (q) => [q.q, q.x].concat(q.o || [], q.ans || [], q.l || [], q.r || []);
