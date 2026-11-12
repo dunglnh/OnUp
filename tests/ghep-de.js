@@ -237,7 +237,11 @@ try {
     const qs = (b.pool ? b.questions.filter((q) => q.src === b.id).map((q) => { const c = Object.assign({}, q); delete c.src; return c; }) : b.questions);
     if (JSON.stringify(sap(qs)) !== JSON.stringify(sap(d.de.questions))) sai.push(d.muc.id + ": câu hỏi nạp lại khác nháp");
     if ((b.note || null) !== (d.de.note == null ? null : d.de.note)) sai.push(d.muc.id + ": lời dặn nạp lại khác nháp");
-    if (JSON.stringify(sap(b.passages || {})) !== JSON.stringify(sap(d.de.passages || {}))) sai.push(d.muc.id + ": đoạn đọc nạp lại khác nháp");
+    // đề ngẫu nhiên: app gộp đoạn đọc của các đề trong from vào đoạn đọc của đề (Store.loadBank), nên chỉ so đoạn đọc riêng của đề
+    // (mã trùng mã đoạn của đề trong from thì vẫn so: đoạn riêng đó bị đoạn của đề kia che mất)
+    const tuFrom = new Set(b.pool ? kho.filter((x) => (b.pool.from || []).includes(x.id)).flatMap((x) => Object.keys(x.passages || {})) : []);
+    const psg = Object.fromEntries(Object.entries(b.passages || {}).filter(([k]) => !tuFrom.has(k) || (d.de.passages && k in d.de.passages)));
+    if (JSON.stringify(sap(psg)) !== JSON.stringify(sap(d.de.passages || {}))) sai.push(d.muc.id + ": đoạn đọc nạp lại khác nháp");
     ["title", "grade", "subject", "minutes", "n", "file", "pts"].forEach((k) => { if (JSON.stringify(b[k]) !== JSON.stringify(d.muc[k])) sai.push(`${d.muc.id}: ${k} trong danh mục là ${JSON.stringify(b[k])}, nháp ${JSON.stringify(d.muc[k])}`); });
     d.ki.forEach((k) => { const e = lich.find((x) => x.id === k); if (!e || !(e.banks || []).includes(d.muc.id)) sai.push(`${d.muc.id}: chưa gắn vào kì thi ${k}`); });
   });

@@ -113,7 +113,7 @@
   { id: "ck1-l7", title: "Kiểm tra cuối học kì I", kind: "dinh-ki", grades: [7],
     start: "2026-12-21", end: "2027-01-08", tentative: true, subjects: MON_THCS,
     scope: "Toán: Bài 1–19. Ngữ văn: Bài 1–5. Tiếng Anh: Units 1–6. KHTN: Bài 1–17 (trường dạy song song ba phân môn thì xem đề cương của trường). Lịch sử và Địa lí: Lịch sử Bài 1–10, Địa lí Bài 1–12. GDCD: Bài 1–6. Tin học: Bài 1–8. Công nghệ: Bài 1–8.",
-    modules: [], banks: ["toan7-ck1-de1", "toan7-ck1-de2", "toan7-ck1-ngau-nhien"] },
+    modules: [], banks: ["toan7-ck1-de1", "toan7-ck1-de2", "toan7-ck1-ngau-nhien", "van7-ck1-de1", "van7-ck1-de2", "van7-ck1-ngau-nhien"] },
   { id: "ck1-l8", title: "Kiểm tra cuối học kì I", kind: "dinh-ki", grades: [8],
     start: "2026-12-21", end: "2027-01-08", tentative: true, subjects: MON_THCS, scope: "Toàn bộ chương trình học kì I.", modules: [], banks: [] },
   { id: "ck1-l10", title: "Kiểm tra cuối học kì I", kind: "dinh-ki", grades: [10],

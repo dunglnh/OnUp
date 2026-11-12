@@ -1969,6 +1969,21 @@ window.ONTAP_SEED_BANKS = [
       "Trường hợp bằng nhau thứ hai và thứ ba của tam giác": [0, 1, 1], "Các trường hợp bằng nhau của tam giác vuông": [0, 0, 1],
       "Tam giác cân. Đường trung trực của đoạn thẳng": [1, 1, 0], "Thu thập và phân loại dữ liệu": [1, 0, 0],
       "Biểu đồ hình quạt tròn": [0, 0, 1], "Biểu đồ đoạn thẳng": [0, 1, 0] } } },
+  /* Ngữ văn 7 · Kiểm tra cuối học kì I (Kết nối tri thức, Ngữ văn 7 tập một, Bài 1–5; Phiên N7-ck1-van). Khối 7 chưa bật nên đề chưa
+     hiện với gia đình. Kho câu = 50 câu riêng trong file (5 đoạn đọc, 4 câu Viết) + 50 câu của 2 đề cố định (mỗi đề 5 đoạn đọc, 1 câu
+     Viết), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu: năm chủ đề đọc hiểu theo tên Bài 1–5, mỗi chủ đề
+     [1, 1, 1] (đoạn 3 câu mức 1-2-3), nên lần rút nào cũng lấy trọn một đoạn mỗi bài, đúng mức; 9 câu Tiếng Việt theo chín chủ đề
+     gom từ các mục Thực hành tiếng Việt Bài 1–5 (Biết 5, Hiểu 3, Vận dụng 1: mở rộng thành phần câu); 1 câu Viết tự chấm. Hai đề cố
+     định đúng ma trận, câu riêng thêm vào năm chủ đề đọc hiểu, chín chủ đề Tiếng Việt và Viết, nên ô (chủ đề, mức) nào cũng có ít nhất
+     gấp đôi số câu ô đó rút. Câu tự luận chỉ ở ô Viết, không gắn đoạn đọc: mỗi lần rút đúng 1 câu, đủ sáu kiểu bài Viết của Bài 1–5. */
+  { id: "van7-ck1-de1", title: "Ngữ văn 7 · Cuối kì I · Đề 1", grade: 7, subject: "Ngữ văn", minutes: 45, n: 25, file: "7-van.js" },
+  { id: "van7-ck1-de2", title: "Ngữ văn 7 · Cuối kì I · Đề 2", grade: 7, subject: "Ngữ văn", minutes: 45, n: 25, file: "7-van.js" },
+  { id: "van7-ck1-ngau-nhien", title: "Ngữ văn 7 · Cuối kì I · Đề ngẫu nhiên", grade: 7, subject: "Ngữ văn", minutes: 45, n: 25, file: "7-van.js",
+    pool: { from: ["van7-ck1-de1", "van7-ck1-de2"], matrix: {
+      "Bầu trời tuổi thơ": [1, 1, 1], "Khúc nhạc tâm hồn": [1, 1, 1], "Cội nguồn yêu thương": [1, 1, 1], "Giai điệu đất nước": [1, 1, 1],
+      "Màu sắc trăm miền": [1, 1, 1], "Mở rộng thành phần câu bằng cụm từ": [0, 0, 1], "Từ láy": [1, 0, 0], "Nói giảm nói tránh": [1, 0, 0],
+      "Nghĩa của từ ngữ trong ngữ cảnh": [0, 1, 0], "Biện pháp tu từ": [0, 1, 0], "Số từ": [1, 0, 0], "Phó từ": [1, 0, 0], "Dấu câu": [0, 1, 0],
+      "Từ ngữ địa phương": [1, 0, 0], "Viết": [0, 0, 1] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
