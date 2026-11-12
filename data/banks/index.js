@@ -1834,6 +1834,7 @@ window.ONTAP_SEED_BANKS = [
   { id: "lichsu12-tn-de4", title: "Lịch sử 12 · Thi thử tốt nghiệp · Đề 4", grade: 12, subject: "Lịch sử", minutes: 50, n: 28, file: "12-lichsu.js", pts: 10 },
   { id: "lichsu12-tn-de5", title: "Lịch sử 12 · Thi thử tốt nghiệp · Đề 5", grade: 12, subject: "Lịch sử", minutes: 50, n: 28, file: "12-lichsu.js", pts: 10 },
   { id: "lichsu12-tn-de6", title: "Lịch sử 12 · Thi thử tốt nghiệp · Đề 6", grade: 12, subject: "Lịch sử", minutes: 50, n: 28, file: "12-lichsu.js", pts: 10 },
+  { id: "lichsu12-tn-de7", title: "Lịch sử 12 · Thi thử tốt nghiệp · Đề 7", grade: 12, subject: "Lịch sử", minutes: 50, n: 28, file: "12-lichsu.js", pts: 10 },
 
   /* Sinh học 12 · Kiểm tra cuối năm học (Kết nối tri thức, Sinh học 12, Phần sáu Sinh thái học và môi trường, Bài 23–35; Phiên
      N12-ck2-sinhhoc-ktpl). Phạm vi theo ma trận cuối kì II tra được, trọng tâm Chương 7–8; lời dặn của đề nhắc trường kiểm tra cả Tiến
