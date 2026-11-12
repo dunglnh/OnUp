@@ -343,9 +343,9 @@ function nguonKho(tu, ds) {
 }
 
 /* ---------- 3b. script của môn khác sẽ báo ----------
-   Mỗi script kiểm tra đề (61 script) so câu của kho mình với câu của mọi kho khác, bằng GOP, TU_CHUNG của chính script đó; câu mới có chuỗi 8 từ
-   chung với câu của kho kia làm script kia báo lỗi dù script của môn mình không báo (tên riêng, cụm chung mỗi script gộp một khác; Rút ra
-   N12-tn-lichsu-b ở mục 3.5 của docs/KE-HOACH-NOI-DUNG.md). Tìm cặp (trường nháp, câu kho) có chuỗi 8 từ chung theo cách chuẩn hoá trơn (bỏ dấu,
+   Mỗi script kiểm tra đề có bước “chuỗi 8 từ trùng câu của kho khác” so câu của kho mình với câu của mọi kho khác, bằng GOP, TU_CHUNG của
+   chính script đó; câu mới có chuỗi 8 từ chung với câu của kho kia làm script kia báo lỗi dù script của môn mình không báo (tên riêng, cụm
+   chung mỗi script gộp một khác; Rút ra từ việc làm công cụ làm đề ở mục 3.5 của docs/KE-HOACH-NOI-DUNG.md). Tìm cặp (trường nháp, câu kho) có chuỗi 8 từ chung theo cách chuẩn hoá trơn (bỏ dấu,
    gộp nguyên âm, không gộp tên), rồi xét lại cặp đó bằng danh sách của từng script giữ kho kia (theo tên script: lsdl-gdcd9-ck1.js giữ
    lsdl9-ck1-…, gdcd9-ck1-…; không đoán được theo tên thì script có ghi tiền tố mã đề đó). */
 let soScript = 0;
