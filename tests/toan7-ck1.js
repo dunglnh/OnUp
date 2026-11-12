@@ -17,9 +17,10 @@
 // dài nhất hay ngắn nhất ở không quá một phần ba số câu nhiều lựa chọn, không lặp chữ của nhãn chủ đề, đúng/sai 4 ý không lặp kiểu Đ/S,
 // đề bài không trùng câu nào trong data/banks/7-toan.js, không gần trùng câu của data/banks/6-toan.js (cặp từ liền nhau chung), dò lộ
 // đáp án giữa mọi cặp câu của kho và lời dặn (đề “Ôn chủ đề” rút chung mọi câu của một chủ đề, đề ngẫu nhiên rút chung câu của mọi chủ
-// đề khác) (Rút ra N5, N24, N8, RS9) và, nếu có ../OnUp-Book, so mọi trường chữ, cả chữ trong hình, với chữ OCR của mọi cuốn (không chuỗi
+// đề khác) (Rút ra N5, N24, N8, RS9) và, nếu có ../OnUp-Book, so mọi trường chữ, cả chữ trong hình và lời dặn, với chữ OCR của mọi cuốn (không chuỗi
 // 8 từ nào trùng), so số liệu của từng câu với từng trang Toán 7 tập một (không trang nào có từ ba số hiếm của một câu), so với câu
 // của mọi kho khác (không chuỗi 8 từ nào trùng). Số đề, số câu lấy từ danh mục.
+// DA_XEM ghi cả dòng dò lộ của tests/soat-nhap.js đã xem tay (số nhỏ trùng ngẫu nhiên). Mô tả script: tests/README.md, mục 3, “Lớp 7”.
 // Chạy: node tests/toan7-ck1.js → in MATH OK. DO_LO=1 in đáp án bằng chữ có ở câu khác; DO_SACH=1 in chuỗi 6 từ trùng sách và các
 // trang có số liệu chung; DO_KHO=1 in chuỗi 6 từ trùng kho khác, câu gần trùng kho Toán 6 (để người làm xem).
 "use strict";
@@ -392,21 +393,21 @@ function hinhMau(th) {
 const TRUONG_HOP = { "c.c.c": "cạnh – cạnh – cạnh", "c.g.c": "cạnh – góc – cạnh", "g.c.g": "góc – cạnh – góc" };
 // phát biểu dạng “Nếu … thì …” của câu chọn định lí: đúng hay sai (thử bằng số hoặc phản ví dụ)
 const DINH_LI = {
-  "Nếu một góc là góc tù thì góc kề bù với nó là góc nhọn": () => { for (let a = 91; a < 180; a++) if (!(180 - a < 90)) return false; return true; },
+  "Nếu một góc là góc tù thì góc bù với nó là góc nhọn": () => { for (let a = 91; a < 180; a++) if (!(180 - a < 90)) return false; return true; },
   "Nếu hai góc bằng nhau thì hai góc đó đối đỉnh": () => false, // phản ví dụ: hai góc 30° vẽ ở hai đỉnh khác nhau
   "Nếu hai góc có chung một đỉnh thì hai góc đó kề nhau": () => false, // phản ví dụ: góc xOy và góc x′Oy′ đối đỉnh, chung đỉnh mà không chung cạnh
   "Nếu hai góc nhọn có tổng bằng 90° thì hai góc đó kề bù": () => 90 === 180,
 };
 // loại dữ liệu (Bài 17): "số" (dữ liệu định lượng), "có thứ tự" / "không thứ tự" (dữ liệu không là số)
 const BANG_DL = {
-  "Chiều cao (cm) của các bạn trong lớp 7A": "số", "Môn thể thao mà mỗi bạn lớp 7A thích nhất": "không thứ tự", "Màu áo các bạn lớp 7A mặc hôm nay": "không thứ tự",
+  "Chiều cao (cm) của từng bạn lớp 7A": "số", "Môn thể thao mà mỗi bạn lớp 7A thích nhất": "không thứ tự", "Màu áo các bạn lớp 7A mặc hôm nay": "không thứ tự",
   "Tên các loài cây trồng trong sân trường": "không thứ tự", "Mức độ yêu thích môn Toán: rất thích, thích, không thích": "có thứ tự",
   "Tên các tỉnh, thành phố mà các bạn trong lớp đã đến tham quan": "không thứ tự", "Số bạn nữ của mỗi tổ trong lớp": "số", "Cân nặng (kg) của các bạn trong tổ": "số",
   "số giờ ngủ mỗi đêm": "số", "môn học yêu thích": "không thứ tự", "kết quả rèn luyện: Tốt, Khá, Đạt, Chưa đạt": "có thứ tự", "số anh chị em ruột": "số",
 };
 const loaiDL = (s) => { assert.ok(s in BANG_DL, "chưa có trong bảng loại dữ liệu: " + s); return BANG_DL[s]; };
 // nhóm học sinh được hỏi có đại diện cho học sinh cả trường không (Bài 17: chọn ngẫu nhiên trong toàn bộ đối tượng)
-const DAI_DIEN = { "Vài bạn chọn ngẫu nhiên ở mỗi lớp": true, "Các bạn trong đội bóng đá của trường": false, "Các bạn cùng tổ với Hoa": false, "Các bạn nữ của khối 7": false };
+const DAI_DIEN = { "Mỗi lớp vài bạn ngẫu nhiên": true, "Các bạn trong đội bóng đá": false, "Các bạn cùng tổ với Hoa": false, "Những bạn nữ của khối 7": false };
 // kiểm tra định lí của câu tự luận bằng số trên nhiều hình ngẫu nhiên (toạ độ thường, trục y hướng lên): f trả sai lệch hoặc null (bỏ hình)
 const rnd = (a, b) => a + (b - a) * Math.random();
 function thuDinhLi(ten, f) { let n_ = 0; for (let i = 0; i < 400 && n_ < 200; i++) { const e = f(); if (e === null) continue; n_++; assert.ok(e < 1e-6, ten + ": điều phải chứng minh sai trên một hình (" + e + ")"); } assert.ok(n_ >= 100, ten + ": thử được quá ít hình"); }
@@ -509,7 +510,7 @@ const CHECKS = [
     const khop = q.o.filter((o) => chuSo(fr(o), k) === dai);
     assert.deepEqual(khop, [q.o[0]], "chỉ một cách viết gọn cho đúng các chữ số đã viết"); return thapPhan(fr(q.o[0])); } },
   { has: "Chu kì của số thập phân vô hạn tuần hoàn −4,0(72) là", right: () => { const s = thapPhan(fr("−4,0(72)")); assert.equal(s, "−4,0(72)", "viết gọn đúng"); return chuKi(s); } },
-  { has: "Làm tròn số 7,2(36) với độ chính xác 0,05 ta được", right: (q) => fmtDec(lamTron(fr("7,2(36)"), DO_CHINH_XAC["0,05"]), DO_CHINH_XAC["0,05"]) },
+  { has: "Làm tròn số 3,4(18) với độ chính xác 0,05 ta được", right: (q) => fmtDec(lamTron(fr(xs(q, /Làm tròn số (\S+) với/)[0]), DO_CHINH_XAC["0,05"]), DO_CHINH_XAC["0,05"]) },
   { has: "Kết quả của phép chia 5 : 11 viết dưới dạng số thập phân là", right: () => thapPhan(F(5, 11)) },
   /* Số vô tỉ. Căn bậc hai số học */
   { has: "Trong các số √49; 0,(6); −3/8; √5, số nào là số vô tỉ?", right: (q) => motLuaChon(q, (o) => !isR(ev(o))) },
@@ -578,7 +579,7 @@ const CHECKS = [
     const k = S["N?"]; assert.ok(k && G.length === 1 && G[0].O === "M");
     const v = theoSongSong(G[0], G[0].v, k);
     assert.ok(Math.abs(k.h - v) < 0.5, "góc ? vẽ bằng góc tính được"); return doLC(q, v); } },
-  { has: "Trong hình vẽ, a // b và đường thẳng c cắt a, b lần lượt tại A và B. Mỗi ý sau đúng hay sai?", right: (q) => {
+  { has: "Trong hình vẽ, a // b; đường thẳng c cắt a tại A, cắt b tại B. Mỗi ý sau đúng hay sai?", right: (q) => {
     const svg = doc(q), H = docHinh(svg, "a // b, 53°"), S = gocSo(svg, H, "a // b, 53°"), G = gocGhi(svg, H, "a // b, 53°"); coSongSong(svg, H, "a // b, 53°"); soThuTu(H, S, "a // b, 53°");
     assert.equal(G.length, 1); S.A4 = G[0]; S.A4.h = G[0].v; soThuTu(H, S, "a // b, 53°");
     const do_ = (k) => Math.round(S[k].h), ten = (s) => { const m = /^góc ([A-Z])([₁₂₃₄])$/.exec(s); assert.ok(m, "góc lạ: " + s); return m[1] + SUB[m[2]]; };
@@ -598,7 +599,7 @@ const CHECKS = [
     const kl = /thì hai góc trong cùng phía (A₁) và (B₄) có tổng bằng 180°/.exec(q.q); assert.ok(kl);
     const thu = ["Vì a // b", "Mà", "Thay"]; return thu.map((t) => { const o = q.o.filter((s) => s.startsWith(t)); assert.equal(o.length, 1, "bước bắt đầu bằng " + t); return o[0]; }).map((s, i, a) => { if (i === 2) assert.ok(s.endsWith("góc A₁ + góc B₄ = 180°")); return s; }); } },
   { has: "Phát biểu nào dưới đây là một định lí (một khẳng định đúng)?", right: (q) => motLuaChon(q, (o) => { assert.ok(o in DINH_LI, "chưa có trong bảng: " + o); return DINH_LI[o](); }) },
-  { has: "Cho định lí: “Nếu hai góc của một tam giác có tổng bằng 90° thì góc còn lại của tam giác đó là góc vuông”.", right: (q) => {
+  { has: "Xét định lí: “Nếu hai góc của một tam giác có tổng bằng 90° thì góc còn lại của tam giác đó là góc vuông”.", right: (q) => {
     const [gt, kl] = xs(q, /“Nếu (.+?) thì (.+?)”/);
     // định lí đúng: hai góc có tổng 90° thì góc còn lại bằng 180° − 90° = 90°
     for (let a = 1; a < 90; a++) assert.equal(180 - a - (90 - a), 90);
@@ -625,13 +626,13 @@ const CHECKS = [
     const V = { "góc ACB": 180 - A - B, "góc ACx": A + B, "góc BAC": A, "góc ABC": B };
     Object.keys(V).forEach((k) => assert.ok(Math.abs(H.gocTen(k.slice(4)) - V[k]) < 0.5, k + " vẽ đúng"));
     return q.o.map((s) => { let m = /^(góc \w+) = (\d+)°$/.exec(s); if (m) return V[m[1]] === +m[2]; m = /^(góc \w+) = (góc \w+) \+ (góc \w+)$/.exec(s); assert.ok(m, "ý lạ: " + s); return V[m[1]] === V[m[2]] + V[m[3]]; }); } },
-  { has: "tam giác ABC vuông tại A và AH vuông góc với BC tại H. Tính số đo góc được đánh dấu “?”.", right: (q) => {
+  { has: "ΔABC vuông tại A và AH ⊥ BC tại H. Tính số đo góc được đánh dấu “?”.", right: (q) => {
     const svg = doc(q), H = docHinh(svg, "đường vuông góc AH"), G = gocGhi(svg, H, "đường vuông góc AH"), S = gocSo(svg, H, "đường vuông góc AH");
     assert.ok(coVuong(svg, H.o.A, H.o.B, H.o.C) && coVuong(svg, H.o.H, H.o.A, H.o.C), "kí hiệu góc vuông ở A và H");
     const B = G.find((x) => x.O === "B").v, v = 90 - (90 - B); assert.ok(S["A?"] && Math.abs(S["A?"].h - v) < 0.5 && Math.abs(H.gocTen("HAC") - v) < 0.5, "góc HAC vẽ bằng góc tính được"); return F(v); } },
   /* Hai tam giác bằng nhau. Trường hợp bằng nhau thứ nhất */
   { has: "Cho ΔABC = ΔMNP. Cạnh tương ứng với cạnh AC là", right: (q) => { const [t1, t2] = xs(q, /Δ(\w+) = Δ(\w+)/); return motLuaChon(q, (o) => o === t2[t1.indexOf("A")] + t2[t1.indexOf("C")]); } },
-  { has: "Cho ΔDEF = ΔRST và góc E = 72°.", right: (q) => { const [t1, t2] = xs(q, /Δ(\w+) = Δ(\w+)/); return motLuaChon(q, (o) => o === "góc " + t2[t1.indexOf("E")]); } },
+  { has: "Cho ΔDEF = ΔRST và góc E = 64°.", right: (q) => { const [t1, t2] = xs(q, /Δ(\w+) = Δ(\w+)/); return motLuaChon(q, (o) => o === "góc " + t2[t1.indexOf("E")]); } },
   { has: "các cạnh bằng nhau của hai tam giác được đánh dấu bằng cùng một kí hiệu. Cách viết nào dưới đây đúng?", right: (q) => {
     const svg = doc(q), H = docHinh(svg, "c.c.c"), K = haiTamGiac(svg, H, "ABC", "DEF", "c.c.c"); assert.equal(K.length, 1, "đúng một cách đặt tương ứng khớp kí hiệu"); assert.equal(K[0].cg, "c.c.c");
     return motLuaChon(q, (o) => o === "ΔABC = Δ" + K[0].ten2); } },
@@ -648,12 +649,13 @@ const CHECKS = [
   { has: "Hai tam giác MNP và HIK trong hình vẽ bằng nhau theo trường hợp nào?", right: (q) => {
     const svg = doc(q), H = docHinh(svg, "g.c.g"), K = haiTamGiac(svg, H, "MNP", "HIK", "g.c.g"); assert.equal(K.length, 1); assert.equal(K[0].ten2, "HIK");
     return motLuaChon(q, (o) => o === TRUONG_HOP[K[0].cg]); } },
-  { has: "Cho tam giác MNP và tam giác HIK có MN = HI, góc N = góc I, NP = IK.", right: (q) => {
+  { has: "Hai tam giác ABC và KLM có AB = KL, góc B = góc L, BC = LM.", right: (q) => {
+    const [t1, t2] = xs(q, /Hai tam giác (\w+) và (\w+) có/);
     const c = [...q.q.matchAll(/(\w)(\w) = (\w)(\w)/g)].map((m) => m.slice(1)), g_ = /góc (\w) = góc (\w)/.exec(q.q).slice(1), map = {};
     c.concat([[g_[0], "", g_[1], ""]]).forEach(([a, b, x, y]) => { [[a, x], [b, y]].forEach(([u, v]) => { if (u) { assert.ok(!map[u] || map[u] === v, "tương ứng mâu thuẫn"); map[u] = v; } }); });
-    const thieu = [..."MNP"].find((k) => !map[k]); if (thieu) map[thieu] = [..."HIK"].find((k) => !Object.values(map).includes(k));
+    const thieu = [...t1].find((k) => !map[k]); if (thieu) map[thieu] = [...t2].find((k) => !Object.values(map).includes(k));
     assert.ok(c.every(([a, b]) => a === g_[0] || b === g_[0]), "góc bằng nhau xen giữa hai cạnh bằng nhau: c.g.c");
-    return motLuaChon(q, (o) => o === "ΔMNP = Δ" + [..."MNP"].map((k) => map[k]).join("") + " (c.g.c)"); } },
+    return motLuaChon(q, (o) => o === "Δ" + t1 + " = Δ" + [...t1].map((k) => map[k]).join("") + " (c.g.c)"); } },
   { has: "Trong hình vẽ, MN = QP và góc MNP = góc QPN. Mỗi ý sau đúng hay sai?", right: (q) => {
     const svg = doc(q), H = docHinh(svg, "MNPQ"), K = haiTamGiac(svg, H, "MNP", "QPN", "MNPQ"); assert.equal(K.length, 1); const ten2 = K[0].ten2, cg = K[0].cg; assert.equal(cg, "c.g.c");
     const tu = (s) => [...s].map((k) => ten2["MNP".indexOf(k)]).join("");
@@ -678,7 +680,7 @@ const CHECKS = [
     essayCheck(q, ["MB = MC (M là trung điểm của BC), góc BME = góc CMF (hai góc đối đỉnh)", "ΔMBE = ΔMCF (cạnh huyền – góc nhọn)", "BE = CF (hai cạnh tương ứng)"], ["ΔMBE = ΔMCF (cạnh huyền – góc nhọn)", "BE = CF"]); } },
   { has: "Qua A kẻ đường thẳng vuông góc với Ox, qua B kẻ đường thẳng vuông góc với Oy; hai đường thẳng đó gặp nhau tại I.", essay: (q) => { thuDinhLi("cạnh huyền – cạnh góc vuông", () => { const a = (10 + 75 * Math.random()) * RAD, r = 1 + 5 * Math.random(), O = [0, 0], A = [r, 0], B = [r * Math.cos(a), r * Math.sin(a)], I = catDuong(A, [0, 1], B, [-Math.sin(a), Math.cos(a)]); return Math.abs(goc(O, A, I) - goc(O, I, B)); });
     essayCheck(q, ["OI là cạnh huyền chung, OA = OB", "ΔOAI = ΔOBI (cạnh huyền – cạnh góc vuông)", "góc AOI = góc BOI", "OI là tia phân giác của góc xOy"], ["ΔOAI = ΔOBI (cạnh huyền – cạnh góc vuông)", "OI là tia phân giác của góc xOy"]); } },
-  { has: "Tam giác ABC có góc A = 90°, tam giác A′B′C′ có góc A′ = 90°; BC = B′C′ = 7 cm và góc B = góc B′.", right: (q) => {
+  { has: "Cho ΔABC vuông tại A và ΔA′B′C′ vuông tại A′ có BC = B′C′ = 7 cm và góc B = góc B′.", right: (q) => {
     const [bc, ab, ac] = xs(q, /BC = B′C′ = ([\d,]+) cm.*AB = ([\d,]+) cm và AC = ([\d,]+) cm/).map(fr);
     assert.ok(eq(add(mul(ab, ab), mul(ac, ac)), mul(bc, bc)), "số đo ba cạnh của tam giác vuông khớp nhau (để hình có thật)"); return add(add(ab, ac), bc); } },
   /* Tam giác cân. Đường trung trực của đoạn thẳng */
@@ -690,7 +692,7 @@ const CHECKS = [
     const nh = texts(svg).filter((t) => /cm$/.test(t.t)); assert.equal(nh.length, 1); const c = tamChu(nh[0]); assert.ok(dDoan(c, P.M, P.A) < 30 && dDoan(c, P.M, P.A) < dDoan(c, P.M, P.B), "số đo ghi cạnh MA");
     return motLuaChon(q, (o) => o === nh[0].t); } },
   { has: "Tam giác MNP có MN = NP = PM = 4 cm. Số đo góc MNP bằng", right: () => F(180, 3) },
-  { has: "Điểm K nằm trên đường trung trực của đoạn thẳng CD. Khẳng định nào dưới đây đúng?", right: (q) => {
+  { has: "Điểm K thuộc đường trung trực của đoạn thẳng CD. Khẳng định nào dưới đây đúng?", right: (q) => {
     // thử với nhiều điểm K trên đường trung trực của CD: chỉ khẳng định đúng với mọi K
     const thu = (o) => { for (let i = 0; i < 50; i++) { const C = [0, 0], D = [4, 0], K = [2, -10 + 20 * Math.random()], L = { KC: dist(K, C), KD: dist(K, D), CD: 4 }; const m = /^(\w\w) = (\w\w)$/.exec(o), m2 = /^(\w\w) \+ (\w\w) = (\w\w)$/.exec(o);
       const ok = m ? Math.abs(L[m[1]] - L[m[2]]) < 1e-9 : Math.abs(L[m2[1]] + L[m2[2]] - L[m2[3]]) < 1e-9; if (!ok) return false; } return true; };
@@ -698,16 +700,16 @@ const CHECKS = [
   { has: "Tam giác ABC cân tại A có góc A = 28°. Tính số đo góc B.", right: (q) => F(180 - +xs(q, /góc A = (\d+)°/)[0], 2) },
   { has: "Tam giác DEF cân tại D có góc E = 50°. Tia phân giác của góc D cắt cạnh EF tại I. Số đo góc EDI là", right: (q) => doLC(q, (180 - 2 * +xs(q, /góc E = (\d+)°/)[0]) / 2) },
   { has: "Một tam giác cân có một góc bằng 116°.", right: (q) => { const a = +xs(q, /bằng (\d+)°/)[0]; assert.ok(a > 90, "góc tù nên là góc ở đỉnh"); return F(180 - a, 2); } },
-  { has: "Điểm C nằm trên đường trung trực của đoạn thẳng AB và góc CAB = 35°.", right: (q) => doLC(q, 180 - 2 * +xs(q, /góc CAB = (\d+)°/)[0]) },
+  { has: "Điểm C thuộc đường trung trực của đoạn thẳng AB và góc CAB = 35°.", right: (q) => doLC(q, 180 - 2 * +xs(q, /góc CAB = (\d+)°/)[0]) },
   /* Thu thập và phân loại dữ liệu */
   { has: "Dữ liệu nào dưới đây là dữ liệu định lượng (dữ liệu là số)?", right: (q) => motLuaChon(q, (o) => loaiDL(o) === "số") },
-  { has: "Dữ liệu nào dưới đây là dữ liệu không là số và có thể sắp thứ tự?", right: (q) => motLuaChon(q, (o) => loaiDL(o) === "có thứ tự") },
+  { has: "Loại dữ liệu nào dưới đây không là số nhưng có thể sắp thứ tự?", right: (q) => motLuaChon(q, (o) => loaiDL(o) === "có thứ tự") },
   { has: "Bạn Hà ghi lại bốn loại dữ liệu về các bạn trong lớp", right: (q) => {
     const D = {}; [...q.q.matchAll(/\((\d)\) ([^;]+?)(?:;|\. Mỗi)/g)].forEach((m) => { D[m[1]] = loaiDL(m[2]); });
     return q.o.map((s) => { const m = /^Dữ liệu \((\d)\) là (.+)$/.exec(s); assert.ok(m, "ý lạ: " + s); const k = { "dữ liệu định lượng": ["số"], "dữ liệu định tính, sắp được theo thứ tự": ["có thứ tự"], "dữ liệu không là số": ["có thứ tự", "không thứ tự"] }[m[2]]; assert.ok(k, "loại lạ: " + m[2]); return k.includes(D[m[1]]); }); } },
   { has: "bạn Hoa nên hỏi nhóm học sinh nào dưới đây để dữ liệu thu được có tính đại diện?", right: (q) => motLuaChon(q, (o) => { assert.ok(o in DAI_DIEN, "chưa có trong bảng: " + o); return DAI_DIEN[o]; }) },
   /* Biểu đồ hình quạt tròn */
-  { has: "Lớp 7B có 50 học sinh. Có bao nhiêu bạn tham gia câu lạc bộ Robot?", right: (q) => mul(fr(xs(q, /Lớp 7B có (\d+) học sinh/)[0]), F(phanTram(docQuat(doc(q), "câu lạc bộ"), "Robot"), 100)) },
+  { has: "Có bao nhiêu bạn tham gia câu lạc bộ Robot?", right: (q) => mul(fr(xs(q, /Lớp 7B có (\d+) học sinh/)[0]), F(phanTram(docQuat(doc(q), "câu lạc bộ"), "Robot"), 100)) },
   { has: "Mỗi ngày có khoảng bao nhiêu ki-lô-gam rác giấy?", right: (q) => { const Q = docQuat(doc(q), "rác"), mo = Q.find((x) => x.p === null); assert.equal(mo.ten, "Giấy", "phần bị mờ là giấy"); const p = 100 - Q.filter((x) => x.p !== null).reduce((t, x) => t + x.p, 0);
     return motLuaChon(q, (o) => o === fmtDec(mul(fr(xs(q, /khoảng (\d+) kg rác/)[0]), F(p, 100))) + " kg"); } },
   { has: "Vườn trường có 300 cây. Mỗi ý sau đúng hay sai?", right: (q) => {
@@ -919,8 +921,19 @@ const { lo: loDA, chuLo } = doLo(kho, tenCau, LOI_DAN);
 if (process.env.DO_LO) console.log("Đáp án bằng chữ có ở câu khác của kho (xem tay):\n" + chuLo.join("\n"));
 const DA_XEM = [
   "de2#18 lộ đáp án de1#17: MP", // MP là đường chéo của hình thang MNPQ ở câu kia; các lựa chọn MN, NP của câu này cũng có ở đó, không lộ cách đặt tương ứng của ΔABC = ΔMNP
+  // dòng của tests/soat-nhap.js (dò lộ chặt hơn: cả số dưới 10): số trong phép tính, số đo của câu khác, không lộ đáp án
+  "toan7-ck1-ngau-nhien#1 → toan7-ck1-ngau-nhien#3: 5", // “là 5/8”: tử số, không phải số các số nguyên
+  "toan7-ck1-ngau-nhien#6 → toan7-ck1-ngau-nhien#3: 5", // 1,25 = 5/4
+  "toan7-ck1-ngau-nhien#38 → toan7-ck1-ngau-nhien#3: 5", // OA = OB = 5 cm
+  "toan7-ck1-de2#1 → toan7-ck1-ngau-nhien#3: 5", // điểm −5/3 trên trục số
+  "toan7-ck1-ngau-nhien#9 → toan7-ck1-ngau-nhien#11: 4", // (−2)² = 4 trong một phép tính khác
+  "toan7-ck1-ngau-nhien#41 → toan7-ck1-ngau-nhien#11: 4", // cạnh tam giác đều 4 cm
+  "toan7-ck1-ngau-nhien#50 → toan7-ck1-ngau-nhien#11: 4", // “40 không bằng 4 lần 12”
+  "toan7-ck1-de1#6 → toan7-ck1-ngau-nhien#11: 4", // = 4/10 = 2/5
+  "toan7-ck1-ngau-nhien#9 → toan7-ck1-ngau-nhien#18: 9", // 1/9 · 81 = 9 trong một phép tính khác
+  "toan7-ck1-de2#9 → toan7-ck1-ngau-nhien#18: 9", // √81 = 9
 ];
-assert.deepEqual(chuLo, DA_XEM, "đáp án bằng chữ có ở câu khác của kho đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
+assert.deepEqual(chuLo.filter((s_) => !DA_XEM.includes(s_)), [], "đáp án bằng chữ có ở câu khác của kho đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 assert.deepEqual(loDA, [], "lộ đáp án:\n" + loDA.join("\n"));
 // bộ dò bắt được chỗ lộ cố ý viết sai: lời giải câu khác có “= 52°”, “là 14”, “= 1/12”, cả hai vế một cặp nối
 { const tim = (has) => kho.find((q) => q.q.includes(has)), gia = (q, x) => Object.assign({}, q, { x: q.x + " " + x });
@@ -966,7 +979,8 @@ assert.deepEqual(loDA, [], "lộ đáp án:\n" + loDA.join("\n"));
 const BOOK = path.join(__dirname, "../../OnUp-Book");
 const SACH = fs.existsSync(BOOK) ? fs.readdirSync(BOOK).filter((l) => /^lop-\d+$/.test(l)).flatMap((l) => fs.readdirSync(path.join(BOOK, l)).map((c) => path.join(BOOK, l, c, "chu.txt"))).filter((f) => fs.existsSync(f)) : [];
 const khongDau = (s_) => String(s_).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
-const TU_CHUNG = [...TEN_BAI, ...CHU_DE, "mỗi ý sau đúng hay sai", "viết kết quả dưới dạng phân số", "trình bày lời giải", "hai góc đối đỉnh", "hai góc kề bù", "hai góc so le trong", "hai góc đồng vị",
+const TU_CHUNG = [...TEN_BAI, ...CHU_DE, "mỗi ý sau đúng hay sai", "viết kết quả dưới dạng phân số", "trình bày lời giải", "khẳng định nào dưới đây đúng",
+  "theo thứ tự từ bé đến lớn", "số đo góc được đánh dấu", "trong hình vẽ", "hai góc đối đỉnh", "hai góc kề bù", "hai góc so le trong", "hai góc đồng vị",
   "dấu hiệu nhận biết hai đường thẳng song song", "hai cạnh tương ứng", "hai góc tương ứng", "cạnh huyền – góc nhọn", "cạnh huyền – cạnh góc vuông", "hai cạnh góc vuông",
   "cạnh – góc – cạnh", "góc – cạnh – góc", "cạnh – cạnh – cạnh", "vẽ hình, ghi giả thiết, kết luận", "tia phân giác của góc", "đường trung trực của đoạn thẳng",
   "trong tam giác cân, hai góc ở đáy bằng nhau", "tổng ba góc của một tam giác bằng 180°", "biểu đồ hình quạt tròn trong hình vẽ cho biết", "biểu đồ đoạn thẳng trong hình vẽ cho biết",
@@ -980,7 +994,9 @@ const chuCau = (q) => chu(q).concat(q.svg ? [texts(q.svg).map((t) => t.t).join("
 if (SACH.length) {
   assert.ok(SACH.some((f) => /toan-7-tap-1/.test(f)), "OnUp-Book có Toán 7 tập một");
   const sach = " " + SACH.map((f) => khongDau(fs.readFileSync(f, "utf8").replace(/=== page-\d+ · [^=]+ ===/g, " "))).join(" | ") + " ";
-  const bao = (k) => kho.flatMap((q) => chuCau(q).flatMap((s_) => chuoi(s_, k).filter((c) => sach.includes(" " + c + " ")).map((c) => `${ten.get(q.q)}: ${c}`)));
+  // mọi trường chữ của câu, cả chữ trong hình, và lời dặn của đề
+  const bao = (k) => kho.flatMap((q) => chuCau(q).flatMap((s_) => chuoi(s_, k).filter((c) => sach.includes(" " + c + " ")).map((c) => `${ten.get(q.q)}: ${c}`)))
+    .concat(LOI_DAN.flatMap((n) => chuoi(n.q, k).filter((c) => sach.includes(" " + c + " ")).map((c) => `${n.ten}: ${c}`)));
   if (process.env.DO_SACH) console.log("Chuỗi 6 từ trùng chữ OCR của sách (xem tay):\n" + [...new Set(bao(6))].join("\n"));
   assert.deepEqual([...new Set(bao(8))], [], "chuỗi 8 từ trùng chữ của sách");
   // số liệu riêng của từng câu so với từng trang của Toán 7 tập một
