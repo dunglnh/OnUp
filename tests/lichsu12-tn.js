@@ -319,8 +319,8 @@ const RIENG = {
     { has: "Mục tiêu phát triển Thiên niên kỉ. Mỗi ý", right: (q, d) => traY(q, { "đã hoàn thành mọi Mục tiêu": !d.includes("vẫn đòi hỏi nhiều nỗ lực"),
       "chỉ được đặt ra cho riêng Việt Nam": !d.includes("cùng các nước thành viên"), "thành tựu về đời sống xã hội": true,
       "chỉ lo các mục tiêu về kinh tế": !["giáo dục", "sức khoẻ"].every((x) => d.includes(x)) }) },
-    { has: "Bác Hồ ở chiến khu Việt Bắc", right: (q, d) => traY(q, { "lãnh đạo kháng chiến ở chiến khu Việt Bắc": d.includes("Đầu năm 1947") && d.includes("lên chiến khu Việt Bắc"),
-      "sâu sát với chiến trường": d.includes("trực tiếp ra mặt trận"), "vừa vạch đường lối": true,
+    { has: "Bác Hồ ở chiến khu Việt Bắc", right: (q, d) => traY(q, { "lãnh đạo kháng chiến ở chiến khu Việt Bắc": d.includes("Năm 1947, Chủ tịch Hồ Chí Minh") && d.includes("lên chiến khu Việt Bắc"),
+      "sâu sát với chiến trường": d.includes("trực tiếp ra mặt trận"), "vừa lãnh đạo chung": d.includes("lãnh đạo cuộc kháng chiến"),
       "họp sau khi cuộc kháng chiến chống Pháp kết thúc": +/Tháng 2 – (\d{4}), ở Tuyên Quang, Đại hội/.exec(d)[1] > 1954 }) }
   ],
   "lichsu12-tn-de7": [
