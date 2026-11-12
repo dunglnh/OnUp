@@ -294,10 +294,34 @@ assert.deepEqual(thu([tim("Nhóm nào dưới đây gồm toàn nấm ăn"), gia
 /* ---------- không chép sách: so với chữ OCR của Khoa học 4 (bỏ dấu), nếu có OnUp-Book ---------- */
 const SACH = path.join(__dirname, "../../OnUp-Book/lop-4/khoa-hoc-4/chu.txt");
 // bỏ dấu và gộp các nguyên âm (chữ OCR của cuốn này hay đọc nhầm nguyên âm: “chốt” thay cho “chất”)
-const khongDau = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
+// nhớ kết quả của khongDau: mỗi chuỗi chỉ chuẩn hoá một lần (các vòng lặp lồng nhau gọi lại trên cùng chữ; kết quả như cũ)
+const nhoChuoi = (f) => { const m = new Map(); return (s) => { const k = String(s); let v = m.get(k); if (v === undefined) { v = f(k); if (typeof v === "string") m.set(k, v); } return v; }; };
+// tra nhanh chuỗi k từ: băm mọi chuỗi k từ của chữ đã chuẩn hoá (một lần cho mỗi chữ, mỗi k), chỉ so thật (includes) khi băm có;
+// kết quả như sach.includes(" " + c + " "), ds.filter((o) => o.s.includes(" " + c + " ")) mà không quét lại cả chữ cho mỗi chuỗi
+const traChu = (() => {
+  const bam = (w, k) => {
+    const A = new Uint32Array(w.length), B = new Uint32Array(w.length), n = Math.max(0, w.length - k + 1), H = new Float64Array(n);
+    for (let i = 0; i < w.length; i++) { let a = 0x811c9dc5, b = 0x1b873593; const t = w[i]; for (let j = 0; j < t.length; j++) { const x = t.charCodeAt(j); a = Math.imul(a ^ x, 0x01000193); b = Math.imul(b ^ x, 0x5bd1e995); } A[i] = a; B[i] = b; }
+    for (let i = 0; i < n; i++) { let a = 0x9e3779b9, b = 0x85ebca6b; for (let j = i; j < i + k; j++) { a = Math.imul(a ^ A[j], 0x01000193); b = Math.imul(b ^ B[j], 0x5bd1e995); } H[i] = (a >>> 0) * 2097152 + (b >>> 11); }
+    return H;
+  };
+  const co = (H, h) => { let l = 0, r = H.length - 1; while (l <= r) { const m = (l + r) >> 1; if (H[m] === h) return true; if (H[m] < h) l = m + 1; else r = m - 1; } return false; };
+  const chuMot = new Map(), chuDs = new WeakMap();
+  const bang = (m, k, tao) => { if (!m.has(k)) m.set(k, tao().sort()); return m.get(k); };
+  return {
+    co: (s, c) => { const w = c.split(" "); if (!chuMot.has(s)) chuMot.set(s, new Map()); return co(bang(chuMot.get(s), w.length, () => bam(s.split(" "), w.length)), bam(w, w.length)[0]) && s.includes(" " + c + " "); },
+    loc: (ds, c) => {
+      const w = c.split(" "), k = w.length;
+      if (!chuDs.has(ds)) chuDs.set(ds, new Map());
+      const H = bang(chuDs.get(ds), k, () => { const hs = ds.map((o) => bam(o.s.split(" "), k)), ra = new Float64Array(hs.reduce((a, h) => a + h.length, 0)); let i = 0; hs.forEach((h) => { ra.set(h, i); i += h.length; }); return ra; });
+      return co(H, bam(w, k)[0]) ? ds.filter((o) => o.s.includes(" " + c + " ")) : [];
+    },
+  };
+})();
+const khongDau = nhoChuoi((s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim());
 if (fs.existsSync(SACH)) {
   const sach = " " + khongDau(fs.readFileSync(SACH, "utf8").replace(/=== page-\d+ · trang in \d+ ===/g, " ")) + " ";
-  const trung = (s, k) => { const w = khongDau(s).split(" ").filter(Boolean), ra = []; for (let i = 0; i + k <= w.length; i++) { const c = w.slice(i, i + k).join(" "); if (sach.includes(" " + c + " ")) ra.push(c); } return ra; };
+  const trung = (s, k) => { const w = khongDau(s).split(" ").filter(Boolean), ra = []; for (let i = 0; i + k <= w.length; i++) { const c = w.slice(i, i + k).join(" "); if (traChu.co(sach, c)) ra.push(c); } return ra; };
   const bao = (k) => kho.flatMap((q) => chu(q).flatMap((s) => trung(s, k).map((c) => `${ten.get(q)}: ${c}`)));
   if (process.env.DO_SACH) console.log("Chuỗi 6 từ trùng chữ OCR của sách (xem tay):\n" + [...new Set(bao(6))].join("\n"));
   assert.deepEqual([...new Set(bao(8))], [], "chuỗi 8 từ trùng chữ của sách");

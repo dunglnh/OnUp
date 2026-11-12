@@ -491,7 +491,9 @@ assert.deepEqual(lo, DA_XEM, "đáp án có ở câu rút được cùng lúc đ
 /* ---------- không chép sách: so với chữ OCR (bỏ dấu, gộp nguyên âm), nếu có OnUp-Book ---------- */
 const BOOK = path.join(__dirname, "../../OnUp-Book");
 const SACH = fs.existsSync(BOOK) ? fs.readdirSync(BOOK).filter((l) => /^lop-\d+$/.test(l)).flatMap((l) => fs.readdirSync(path.join(BOOK, l)).map((c) => path.join(BOOK, l, c, "chu.txt"))).filter((f) => fs.existsSync(f)) : [];
-const khongDau = (s) => String(s).normalize("NFC").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
+// nhớ kết quả của khongDau: mỗi chuỗi chỉ chuẩn hoá một lần (các vòng lặp lồng nhau gọi lại trên cùng chữ; kết quả như cũ)
+const nhoChuoi = (f) => { const m = new Map(); return (s) => { const k = String(s); let v = m.get(k); if (v === undefined) { v = f(k); if (typeof v === "string") m.set(k, v); } return v; }; };
+const khongDau = nhoChuoi((s) => String(s).normalize("NFC").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim());
 // tên di sản, tên danh sách của UNESCO viết đúng như tên gọi chính thức: tính là một từ (tên riêng, không phải câu chép của sách)
 const TEN_RIENG = ["Nghệ thuật Đờn ca tài tử Nam Bộ", "Danh sách di sản văn hoá phi vật thể đại diện của nhân loại"].map(khongDau).sort((a, b) => b.length - a.length);
 const tuKD = (s) => { let k = " " + khongDau(s) + " "; TEN_RIENG.forEach((r) => { k = k.split(" " + r + " ").join(" " + r.replace(/ /g, "") + " "); }); return k.split(" ").filter(Boolean); };

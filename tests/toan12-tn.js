@@ -1592,7 +1592,31 @@ assert.ok(Object.values(KIEU).every((c) => c <= 3), "một kiểu Đ/S dùng qu�
 
 /* ---------- so với các kho Toán 12 và giữa các đề thi thử: đề bài không trùng, không gần trùng; đáp án không trùng câu cùng chủ đề ---------- */
 const gocChu = (s) => String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
-const khongDau = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
+// nhớ kết quả của khongDau: mỗi chuỗi chỉ chuẩn hoá một lần (các vòng lặp lồng nhau gọi lại trên cùng chữ; kết quả như cũ)
+const nhoChuoi = (f) => { const m = new Map(); return (s) => { const k = String(s); let v = m.get(k); if (v === undefined) { v = f(k); if (typeof v === "string") m.set(k, v); } return v; }; };
+// tra nhanh chuỗi k từ: băm mọi chuỗi k từ của chữ đã chuẩn hoá (một lần cho mỗi chữ, mỗi k), chỉ so thật (includes) khi băm có;
+// kết quả như sach.includes(" " + c + " "), ds.filter((o) => o.s.includes(" " + c + " ")) mà không quét lại cả chữ cho mỗi chuỗi
+const traChu = (() => {
+  const bam = (w, k) => {
+    const A = new Uint32Array(w.length), B = new Uint32Array(w.length), n = Math.max(0, w.length - k + 1), H = new Float64Array(n);
+    for (let i = 0; i < w.length; i++) { let a = 0x811c9dc5, b = 0x1b873593; const t = w[i]; for (let j = 0; j < t.length; j++) { const x = t.charCodeAt(j); a = Math.imul(a ^ x, 0x01000193); b = Math.imul(b ^ x, 0x5bd1e995); } A[i] = a; B[i] = b; }
+    for (let i = 0; i < n; i++) { let a = 0x9e3779b9, b = 0x85ebca6b; for (let j = i; j < i + k; j++) { a = Math.imul(a ^ A[j], 0x01000193); b = Math.imul(b ^ B[j], 0x5bd1e995); } H[i] = (a >>> 0) * 2097152 + (b >>> 11); }
+    return H;
+  };
+  const co = (H, h) => { let l = 0, r = H.length - 1; while (l <= r) { const m = (l + r) >> 1; if (H[m] === h) return true; if (H[m] < h) l = m + 1; else r = m - 1; } return false; };
+  const chuMot = new Map(), chuDs = new WeakMap();
+  const bang = (m, k, tao) => { if (!m.has(k)) m.set(k, tao().sort()); return m.get(k); };
+  return {
+    co: (s, c) => { const w = c.split(" "); if (!chuMot.has(s)) chuMot.set(s, new Map()); return co(bang(chuMot.get(s), w.length, () => bam(s.split(" "), w.length)), bam(w, w.length)[0]) && s.includes(" " + c + " "); },
+    loc: (ds, c) => {
+      const w = c.split(" "), k = w.length;
+      if (!chuDs.has(ds)) chuDs.set(ds, new Map());
+      const H = bang(chuDs.get(ds), k, () => { const hs = ds.map((o) => bam(o.s.split(" "), k)), ra = new Float64Array(hs.reduce((a, h) => a + h.length, 0)); let i = 0; hs.forEach((h) => { ra.set(h, i); i += h.length; }); return ra; });
+      return co(H, bam(w, k)[0]) ? ds.filter((o) => o.s.includes(" " + c + " ")) : [];
+    },
+  };
+})();
+const khongDau = nhoChuoi((s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim());
 const TU_CHUNG = [...CD12, ...[...CHUONG].map((t) => t.replace(/^Lớp 1[01] · /, "")), "mỗi ý sau đúng hay sai", "trong không gian oxyz", "trong mặt phẳng toạ độ oxy",
   "làm tròn kết quả đến hàng phần trăm", "làm tròn kết quả đến hàng phần mười", "làm tròn kết quả đến hàng đơn vị", "đơn vị trên các trục", "trên khoảng nào dưới đây",
   "đồ thị của hàm số", "đồ thị hàm số", "bảng biến thiên như hình vẽ", "có bảng biến thiên", "cho hàm số y", "vectơ pháp tuyến", "vectơ chỉ phương", "phương trình tham số", "mặt phẳng toạ độ",
@@ -1678,7 +1702,7 @@ const kho = TNQ.concat(NOTES);
 if (SACH.length) {
   assert.ok(SACH.some((f) => /toan-12-tap-2/.test(f)) && SACH.some((f) => /toan-11-tap-2/.test(f)), "OnUp-Book có Toán 11, Toán 12");
   const sach = " " + SACH.map((f) => khongDau(fs.readFileSync(f, "utf8").replace(/=== page-\d+ · [^=]+ ===/g, " "))).join(" | ") + " ";
-  const bao = (k) => kho.flatMap((q) => chu(q).flatMap((s) => chuoi(s, k).filter((c) => sach.includes(" " + c + " ")).map((c) => `${ten.get(q)}: ${c}`)));
+  const bao = (k) => kho.flatMap((q) => chu(q).flatMap((s) => chuoi(s, k).filter((c) => traChu.co(sach, c)).map((c) => `${ten.get(q)}: ${c}`)));
   if (process.env.DO_SACH) console.log("Chuỗi 6 từ trùng chữ OCR của sách (xem tay):\n" + [...new Set(bao(6))].join("\n"));
   const tr8 = [...new Set(bao(8))];
   assert.deepEqual(tr8, [], "chuỗi 8 từ trùng chữ của sách");
@@ -1695,7 +1719,7 @@ if (SACH.length) {
 {
   const khac = BANKS.filter((b) => !b.pool).flatMap((b) => b.questions.map((q) => ({ id: b.id, s: " " + chu(q).map(khongDau).join(" | ") + " " })))
     .concat(BANKS.filter((b) => b.pool).flatMap((b) => b.questions.filter((q) => q.src === b.id).map((q) => ({ id: b.id, s: " " + chu(q).map(khongDau).join(" | ") + " " }))));
-  const tr8 = [...new Set(TNQ.flatMap((q) => [...new Set(chu(q).flatMap((s) => chuoi(s, 8)))].flatMap((c) => khac.filter((o) => o.id !== q._de && o.s.includes(" " + c + " ")).map((o) => `${ten.get(q)} ~ ${o.id}: ${c}`))))];
+  const tr8 = [...new Set(TNQ.flatMap((q) => [...new Set(chu(q).flatMap((s) => chuoi(s, 8)))].flatMap((c) => traChu.loc(khac, c).filter((o) => o.id !== q._de).map((o) => `${ten.get(q)} ~ ${o.id}: ${c}`))))];
   if (process.env.DO_KHO) console.log("Chuỗi 8 từ trùng câu của kho khác:\n" + tr8.join("\n"));
   assert.deepEqual(tr8, [], "chuỗi 8 từ trùng câu của kho khác");
 }
