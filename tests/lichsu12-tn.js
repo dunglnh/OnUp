@@ -1,6 +1,7 @@
-// Kiểm tra các đề Lịch sử thi thử tốt nghiệp THPT (data/banks/12-lichsu.js, lichsu12-tn-de<N>; Phiên N12-tn-lichsu: Đề 1–4; phiên sau thêm đề
-// thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG, thêm sự kiện mới vào SU_KIEN). Đề tính điểm theo khung đề tốt nghiệp THPT
-// từ năm 2025 (Quyết định 764/QĐ-BGDĐT; docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7, khối “Phiên N12-tn-lichsu”). Số đề, số câu lấy từ danh mục.
+// Kiểm tra các đề Lịch sử thi thử tốt nghiệp THPT (data/banks/12-lichsu.js, lichsu12-tn-de<N>; Phiên N12-tn-lichsu: Đề 1–4; Phiên
+// N12-tn-lichsu-b: Đề 5–8; phiên sau thêm đề thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG, thêm sự kiện mới vào
+// SU_KIEN). Đề tính điểm theo khung đề tốt nghiệp THPT từ năm 2025 (Quyết định 764/QĐ-BGDĐT; docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7).
+// Số đề, số câu lấy từ danh mục.
 // Khung: danh mục (tên, khối 12, môn Lịch sử, file, 50 phút, pts 10, gắn vào tn-thpt-2027); Phần I 24 câu nhiều lựa chọn pt 0,25, Phần II
 // 4 câu đúng/sai 4 ý pt 1 (đúng tên part, đúng thứ tự; không có Phần III), Quiz.grade điểm tối đa 6 – 4; mức độ và phạm vi như ma trận đề
 // tham khảo năm 2025 (40 lệnh hỏi: Phần I 12 Biết, 8 Hiểu, 4 Vận dụng; Phần II mỗi câu 1 ý Biết, 1 ý Hiểu, 2 ý Vận dụng nên bốn câu ghi mức

@@ -536,7 +536,7 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
         x: "Gợi ý: Học sinh có thể chăm chỉ học tập, tự giác rèn luyện, trung thực trong thi cử; sống giản dị, tiết kiệm, đoàn kết, giúp đỡ bạn bè và tham gia các hoạt động vì cộng đồng. Việc học tập, làm theo Người vẫn cần thiết vì những phẩm chất của Người như yêu nước, thương dân, cần, kiệm, liêm, chính, giản dị, khiêm tốn luôn có giá trị lâu dài; làm theo Người giúp mỗi người hoàn thiện bản thân và đóng góp cho đất nước.", lv: 3 }
     ]
   },
-  /* ---------- Lịch sử 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên N12-tn-lichsu: Đề 1–4) ----------
+  /* ---------- Lịch sử 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên N12-tn-lichsu: Đề 1–4; Phiên N12-tn-lichsu-b: Đề 5–8) ----------
      Khung đề tốt nghiệp THPT từ năm 2025 (Quyết định 764/QĐ-BGDĐT): 28 câu, 50 phút, 10 điểm; Phần I 24 câu nhiều lựa chọn (pt 0,25), Phần
      II 4 câu đúng/sai 4 ý (pt 1); môn Lịch sử không có Phần III. Như ma trận đề tham khảo năm 2025 (đề chính thức năm 2026 giữ cấu trúc; nguồn
      ghi ở Pull Request của phiên): 40 lệnh hỏi, Phần I 12 Biết, 8 Hiểu, 4 Vận dụng; Phần II mỗi câu 1 ý Biết, 1 ý Hiểu, 2 ý Vận dụng (bốn
@@ -545,7 +545,7 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
      6 (thay câu chuyên đề học tập của đề tham khảo), mỗi câu có một đoạn tư liệu người soạn viết. Câu lớp 12 mang đúng chữ chủ đề của ba
      kho Lịch sử 12 (đề “Ôn chủ đề” rút chung câu của các kho đó), riêng Bài 9 (chưa có ở kho nào) mang tên bài rút gọn; trong mỗi phần theo
      thứ tự bài của sách; câu lớp 11 ghi “Lớp 11 · ” và tên chủ đề của sách (rút gọn). Câu tự soạn, không chép câu chữ của sách; ngày
-     tháng, trình tự sự kiện tính lại bằng tests/lichsu12-tn.js. */
+     tháng, trình tự sự kiện tính lại bằng tests/lichsu12-tn.js. Đề 5–8 cùng khung, hỏi sự kiện khác và dùng đoạn tư liệu khác Đề 1–4. */
   "lichsu12-tn-de1": {
     note: "Đề thi thử theo cấu trúc đề thi tốt nghiệp THPT từ năm 2025 (Quyết định 764/QĐ-BGDĐT). Năm 2027 thí điểm thi trên máy tính ở nơi đủ điều kiện, đề như thi giấy. Phạm vi: chương trình THPT, chủ yếu Lịch sử 12 (sách Kết nối tri thức, cả năm học). Như ma trận đề tham khảo năm 2025 và đề chính thức năm 2026 (khoảng 85% số lệnh hỏi thuộc lớp 12, 15% thuộc lớp 11, không có câu lớp 10), đề có 22 câu Lịch sử 12 và 6 câu Lịch sử 11 (6 trong 40 lệnh hỏi), câu lớp 11 đều ở Phần I. Đề có 28 câu, làm trong 50 phút: Phần I gồm 24 câu nhiều lựa chọn (6 điểm, mỗi câu 0,25 điểm), Phần II gồm 4 câu đúng/sai, mỗi câu 4 ý (4 điểm); đề Lịch sử không có Phần III. Mỗi câu Phần II đi kèm một đoạn tư liệu do người soạn đề viết. App chấm tự động cả hai phần như đề thật: ở Phần II, đúng 1, 2, 3 hay cả 4 ý của một câu thì câu đó được 0,1; 0,25; 0,5 hay 1 điểm. Đề không có câu tự chấm, nên điểm lưu ở mục Kết quả là điểm của cả đề.",
     passages: {
