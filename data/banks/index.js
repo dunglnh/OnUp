@@ -1984,6 +1984,13 @@ window.ONTAP_SEED_BANKS = [
       "Màu sắc trăm miền": [1, 1, 1], "Mở rộng thành phần câu bằng cụm từ": [0, 0, 1], "Từ láy": [1, 0, 0], "Nói giảm nói tránh": [1, 0, 0],
       "Nghĩa của từ ngữ trong ngữ cảnh": [0, 1, 0], "Biện pháp tu từ": [0, 1, 0], "Số từ": [1, 0, 0], "Phó từ": [1, 0, 0], "Dấu câu": [0, 1, 0],
       "Từ ngữ địa phương": [1, 0, 0], "Viết": [0, 0, 1] } } },
+  /* Tiếng Anh 7 · Kiểm tra cuối học kì I (Global Success 7, Units 1–6, Review 1, 2; Phiên N7-ck1-ta). Khối 7 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu riêng trong file (2 đoạn đọc) + 50 câu của 2 đề cố định (mỗi đề 1 đoạn đọc), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu: Pronunciation 2 (âm của Book map Units 1–6), Unit 1, 5 mỗi Unit 4 (hai câu từ vựng Biết), Unit 2, 3, 4, 6 mỗi Unit 3, Reading 3 (một đoạn 3 câu mức 1-2-3). Hai đề cố định đúng ma trận, câu riêng gấp đôi ma trận, nên ô (chủ đề, mức) nào cũng có gấp bốn số câu ô đó rút. Không có câu nghe, không có câu tự luận. */
+  { id: "ta7-ck1-de1", title: "Tiếng Anh 7 · Cuối kì I · Đề 1", grade: 7, subject: "Tiếng Anh", minutes: 45, n: 25, file: "7-ta.js" },
+  { id: "ta7-ck1-de2", title: "Tiếng Anh 7 · Cuối kì I · Đề 2", grade: 7, subject: "Tiếng Anh", minutes: 45, n: 25, file: "7-ta.js" },
+  { id: "ta7-ck1-ngau-nhien", title: "Tiếng Anh 7 · Cuối kì I · Đề ngẫu nhiên", grade: 7, subject: "Tiếng Anh", minutes: 45, n: 25, file: "7-ta.js",
+    pool: { from: ["ta7-ck1-de1", "ta7-ck1-de2"], matrix: {
+      "Pronunciation": [1, 1, 0], "Unit 1 · Hobbies": [2, 1, 1], "Unit 2 · Healthy Living": [1, 1, 1], "Unit 3 · Community Service": [1, 1, 1],
+      "Unit 4 · Music and Arts": [1, 1, 1], "Unit 5 · Food and Drink": [2, 1, 1], "Unit 6 · A Visit to a School": [1, 1, 1], "Reading": [1, 1, 1] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
