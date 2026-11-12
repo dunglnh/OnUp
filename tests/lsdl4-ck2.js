@@ -381,8 +381,10 @@ const GOP = [["thanh pho ho chi minh", "tphcm"], ["bac trung bo va nam trung bo"
   ["phong trao xo viet nghe tinh", "ptxvnt"], ["dem pho co", "dpc"], ["le hoi den long", "lhdl"], ["sai gon", "sg"], ["cho lon", "cl"], ["gia dinh", "gd"]];
 // câu nói được trích nguyên văn (có ghi người nói) không tính là chép sách
 const TRICH = ["Bao giờ người Tây nhổ hết cỏ nước Nam thì mới hết người Nam đánh Tây"];
-const khongDau = (s) => { let t = TRICH.reduce((a, c) => a.split(c).join(" "), String(s)).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-  GOP.forEach(([a, b]) => { t = t.split(a).join(b); }); return t.replace(/[aeiouy]+/g, "a"); };
+// nhớ kết quả của khongDau: mỗi chuỗi chỉ chuẩn hoá một lần (các vòng lặp lồng nhau gọi lại trên cùng chữ; kết quả như cũ)
+const nhoChuoi = (f) => { const m = new Map(); return (s) => { const k = String(s); let v = m.get(k); if (v === undefined) { v = f(k); if (typeof v === "string") m.set(k, v); } return v; }; };
+const khongDau = nhoChuoi((s) => { let t = TRICH.reduce((a, c) => a.split(c).join(" "), String(s)).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  GOP.forEach(([a, b]) => { t = t.split(a).join(b); }); return t.replace(/[aeiouy]+/g, "a"); });
 const trungVoi = (nguon) => { const v = " " + nguon + " "; return (s, k) => { const w = khongDau(s).split(" ").filter(Boolean), ra = []; for (let i = 0; i + k <= w.length; i++) { const c = w.slice(i, i + k).join(" "); if (v.includes(" " + c + " ")) ra.push(c); } return ra; }; };
 const SACH = path.join(__dirname, "../../OnUp-Book/lop-4/lich-su-dia-li-4/chu.txt");
 if (fs.existsSync(SACH)) {

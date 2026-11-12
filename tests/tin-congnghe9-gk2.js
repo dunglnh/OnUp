@@ -937,7 +937,9 @@ const tim = (has) => { const r = kho.filter((q) => q.q.includes(has)); assert.eq
 
 /* ---------- không chép sách: so với chữ OCR (bỏ dấu, gộp nguyên âm), nếu có OnUp-Book; trùng ý với các kho khác (Rút ra N21) ----------
    Cụm từ chung của môn (tên bài, tên mô đun, cú pháp hàm IF như sách) thay bằng dấu ngăn trước khi so; chuỗi so phải có ít nhất 5 từ có chữ. */
-const khongDau = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
+// nhớ kết quả của khongDau: mỗi chuỗi chỉ chuẩn hoá một lần (các vòng lặp lồng nhau gọi lại trên cùng chữ; kết quả như cũ)
+const nhoChuoi = (f) => { const m = new Map(); return (s) => { const k = String(s); let v = m.get(k); if (v === undefined) { v = f(k); if (typeof v === "string") m.set(k, v); } return v; }; };
+const khongDau = nhoChuoi((s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim());
 const TU_CHUNG = ["Hoàn thiện bảng tính quản lí tài chính gia đình", "bảng tính quản lí tài chính gia đình", "Sử dụng công cụ xác thực dữ liệu",
   "Thiết bị đóng cắt và lấy điện trong gia đình", "Vật liệu, thiết bị và dụng cụ dùng cho lắp đặt mạng điện trong nhà", "Lắp đặt mạng điện trong nhà",
   "=IF(logical_test, [value_if_true], [value_if_false])"]

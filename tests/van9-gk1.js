@@ -393,7 +393,9 @@ const SACH = fs.existsSync(BOOK) ? fs.readdirSync(BOOK).filter((l) => /^lop-\d+$
 // câu thơ trích nguyên văn của tác phẩm cổ (sách cũng dẫn) không tính là chép sách: «Trải qua một cuộc bể dâu, / Những điều trông
 // thấy mà đau đớn lòng» (Truyện Kiều, Nguyễn Du) ở đoạn đọc mo-dau-kieu của Đề 1, Ngữ văn 11 tập hai cũng dẫn
 const TRICH = ["Trải qua một cuộc bể dâu", "Những điều trông thấy mà đau đớn lòng"];
-const khongDau = (s) => TRICH.reduce((x, c) => x.split(c).join(" "), String(s).normalize("NFC")).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
+// nhớ kết quả của khongDau: mỗi chuỗi chỉ chuẩn hoá một lần (các vòng lặp lồng nhau gọi lại trên cùng chữ; kết quả như cũ)
+const nhoChuoi = (f) => { const m = new Map(); return (s) => { const k = String(s); let v = m.get(k); if (v === undefined) { v = f(k); if (typeof v === "string") m.set(k, v); } return v; }; };
+const khongDau = nhoChuoi((s) => TRICH.reduce((x, c) => x.split(c).join(" "), String(s).normalize("NFC")).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim());
 const tuKD = (s) => khongDau(s).split(" ").filter(Boolean);
 const chuoi = (s, k) => { const w = tuKD(s), ra = []; for (let i = 0; i + k <= w.length; i++) ra.push(w.slice(i, i + k).join(" ")); return ra; };
 const truong = (q) => chu(q).concat(q.p && q === kho.find((x) => x.p === q.p) ? [PSG[q.p].title, PSG[q.p].text] : []);

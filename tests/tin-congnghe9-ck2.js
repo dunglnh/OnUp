@@ -1316,7 +1316,9 @@ assert.deepEqual(loCD, DA_XEM_CHU_DE, "đáp án có ở câu cùng chủ đề 
 /* ---------- không chép sách: so với chữ OCR (bỏ dấu, gộp nguyên âm), nếu có OnUp-Book; trùng ý với các kho khác (Rút ra N21) ----------
    Cụm từ chung của môn (tên bài, tên chủ đề, tên nhóm nghề và các nghề của Hình 17.1, tên ba yếu tố chọn nghề, tên sơ đồ, cú pháp hàm IF
    và cú pháp thiết lập xác thực dữ liệu như sách, lời dặn chuẩn của câu đúng/sai 4 ý) thay bằng dấu ngăn trước khi so; chuỗi so phải có ít nhất 5 từ có chữ. */
-const khongDau = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
+// nhớ kết quả của khongDau: mỗi chuỗi chỉ chuẩn hoá một lần (các vòng lặp lồng nhau gọi lại trên cùng chữ; kết quả như cũ)
+const nhoChuoi = (f) => { const m = new Map(); return (s) => { const k = String(s); let v = m.get(k); if (v === undefined) { v = f(k); if (typeof v === "string") m.set(k, v); } return v; }; };
+const khongDau = nhoChuoi((s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim());
 const TU_CHUNG = MON.flatMap((S) => S.chuDe.map((c) => c[2])).concat(["Hoàn thiện bảng tính quản lí tài chính gia đình", "Giải quyết vấn đề với sự trợ giúp của máy tính",
   "Hướng nghiệp với tin học", "Lắp đặt mạng điện trong nhà", "Thiết bị đóng cắt và lấy điện trong gia đình", "Tôi thích – Tôi có thể – Tôi cần làm",
   "=IF(logical_test, [value_if_true], [value_if_false])", "sơ đồ nguyên lí", "sơ đồ lắp đặt", "nghiên cứu sơ đồ lắp đặt mạng điện",

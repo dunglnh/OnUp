@@ -28,6 +28,7 @@ Có lịch thi năm học 2026–2027, đề luyện giữa kì, cuối kì và 
 python3 -m http.server 8000 &
 npm i -D playwright && node tests/e2e.js     # bản lưu trên máy (script tự để trống js/config.js khi chạy), phải in E2E OK
 node tests/kiem-tra-de.js                    # đề có sẵn trong data/banks/, không cần trình duyệt, phải in DE OK
+node tests/chay-mon.js                       # mọi script kiểm tra đề theo môn (khoảng 4 phút); công cụ làm đề: tests/README.md
 node tests/supabase/admin-test.mjs           # Edge Function admin trên máy chủ giả, không cần mạng
 node tests/supabase/store-test.mjs           # SupabaseStore: đăng nhập, hồ sơ con, kết quả… trên máy chủ giả
 node tests/supabase/cloud-e2e.js             # giao diện bản đám mây và trang admin trong Chromium, máy chủ giả

@@ -637,7 +637,9 @@ assert.deepEqual(loAll, [], "lộ đáp án:\n" + loAll.join("\n"));
 /* ---------- không chép sách: so với chữ OCR (bỏ dấu, gộp nguyên âm), nếu có OnUp-Book; trùng ý với các kho khác (Rút ra N21) ----------
    Cụm từ chung của môn (tên bài, tên chủ đề, tên chương, tên cơ quan, tên ngành, tên trình độ như sách) thay bằng dấu ngăn trước khi so;
    chuỗi so phải có ít nhất 5 từ có chữ. */
-const khongDau = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
+// nhớ kết quả của khongDau: mỗi chuỗi chỉ chuẩn hoá một lần (các vòng lặp lồng nhau gọi lại trên cùng chữ; kết quả như cũ)
+const nhoChuoi = (f) => { const m = new Map(); return (s) => { const k = String(s); let v = m.get(k); if (v === undefined) { v = f(k); if (typeof v === "string") m.set(k, v); } return v; }; };
+const khongDau = nhoChuoi((s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim());
 const TU_CHUNG = MON.flatMap((S) => S.chuDe.flatMap((c) => [c[0], c[2]])).concat(["Máy tính và cộng đồng", "Tổ chức lưu trữ, tìm kiếm và trao đổi thông tin",
   "Đạo đức, pháp luật và văn hoá trong môi trường số", "Thực hành: Đánh giá chất lượng thông tin", "Sở Giáo dục và Đào tạo", "lĩnh vực kĩ thuật, công nghệ",
   "lĩnh vực kĩ thuật và công nghệ", "khung cơ cấu hệ thống giáo dục quốc dân", "cơ quan quản lí lao động và việc làm", "cơ quan quản lí giáo dục nghề nghiệp",

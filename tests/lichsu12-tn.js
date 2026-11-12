@@ -198,7 +198,7 @@ const RIENG = {
     { has: "ưu tiên hợp tác về kinh tế, quốc phòng – an ninh", right: (q) => chon(q, "phát triển đất nước") },
     { has: "Tháng 6 – 1945, theo chỉ thị", right: (q) => chon(q, "Khu Giải phóng") },
     { has: "chọn Cao Bằng", right: (q) => chon(q, "hiểm trở") },
-    { has: "Việc làm nào sau đây của học sinh thể hiện điều đó", right: (q) => chon(q, "Tiết kiệm") },
+    { has: "học sinh thể hiện điều đó bằng việc làm nào sau đây", right: (q) => chon(q, "Tiết kiệm") },
     { has: "những trung tâm kinh tế mới", right: (q, d) => { const m = /gấp khoảng (\d+) lần Trung Quốc vào năm 2000, đến năm 2021 chỉ còn hơn (\d+),(\d+) lần/.exec(d);
       return traY(q, { "thu hẹp từ năm 2000": +m[1] > +(m[2] + "." + m[3]), "trật tự thế giới đơn cực": false, "nhiều trung tâm kinh tế": true, "tự mình giải quyết": !d.includes("không quốc gia nào có thể tự mình giải quyết") }); } },
     { has: "cuộc tiến công năm 1972", right: (q, d) => traY(q, { "mở đầu ở Quảng Trị": d.includes("mở cuộc tiến công lớn vào Quảng Trị, rồi phát triển"), "đánh phá miền Bắc trở lại": d.includes("Để cứu vãn tình thế"),
@@ -607,12 +607,14 @@ const TU_CHUNG = [...BAI, ...Object.values(RUT_GON), ...Object.keys(CHU_DE_11), 
   "cuộc cải cách của Lê Thánh Tông (thế kỉ XV)", "cuộc cải cách của Minh Mạng (nửa đầu thế kỉ XIX)", "cuộc cải cách của Hồ Quý Ly và Triều Hồ", "chính trị – an ninh, kinh tế, văn hoá – xã hội", "đa phương hoá, đa dạng hoá quan hệ đối ngoại", "kết hợp sức mạnh dân tộc với sức mạnh thời đại", "những năm 80 của thế kỉ XX", "học tập và làm theo tư tưởng, đạo đức, phong cách Hồ Chí Minh",];
 const boDau = (s) => String(s).normalize("NFC").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const GOP_ = GOP.map(boDau).sort((a, b) => b.length - a.length), TU_CHUNG_ = TU_CHUNG.map((p) => " " + boDau(p) + " ").sort((a, b) => b.length - a.length);
-const khongDau = (s) => {
+// nhớ kết quả của khongDau: mỗi chuỗi chỉ chuẩn hoá một lần (các vòng lặp lồng nhau gọi lại trên cùng chữ; kết quả như cũ)
+const nhoChuoi = (f) => { const m = new Map(); return (s) => { const k = String(s); let v = m.get(k); if (v === undefined) { v = f(k); if (typeof v === "string") m.set(k, v); } return v; }; };
+const khongDau = nhoChuoi((s) => {
   let t = " " + boDau(s) + " ";
   TU_CHUNG_.forEach((p) => { while (t.includes(p)) t = t.replace(p, " | "); });
   GOP_.forEach((g) => { t = t.split(" " + g + " ").join(" " + g.replace(/ /g, "") + " "); });
   return t.replace(/[aeiouy]+/g, "a").replace(/\s+/g, " ").trim();
-};
+});
 const chuoi = (s, k) => { const w = khongDau(s).split(" ").filter(Boolean), ra = []; for (let i = 0; i + k <= w.length; i++) { const c = w.slice(i, i + k); if (!c.includes("|") && c.filter((x) => /[a-z]{2}/.test(x)).length >= 5) ra.push(c.join(" ")); } return ra; };
 {
   const ds = BANKS.filter((b) => b.file === "12-lichsu.js" && !b.pool).flatMap((b) => b.questions.map((q) => ({ q, k: gocChu(q.q) })));

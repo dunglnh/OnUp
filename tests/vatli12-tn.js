@@ -959,7 +959,9 @@ assert.ok(soPTHN > 0, "có phương trình phản ứng hạt nhân");
 
 /* ---------- so với ba kho Vật lí 12 và giữa các đề thi thử: đề bài không trùng, không gần trùng; đáp án không trùng câu cùng chủ đề ---------- */
 const gocChu = (s) => String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
-const khongDau = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim();
+// nhớ kết quả của khongDau: mỗi chuỗi chỉ chuẩn hoá một lần (các vòng lặp lồng nhau gọi lại trên cùng chữ; kết quả như cũ)
+const nhoChuoi = (f) => { const m = new Map(); return (s) => { const k = String(s); let v = m.get(k); if (v === undefined) { v = f(k); if (typeof v === "string") m.set(k, v); } return v; }; };
+const khongDau = nhoChuoi((s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim());
 const TU_CHUNG = [...CD12, ...CHUONG.map((c) => c[0]), "mỗi ý sau đúng hay sai", "làm tròn kết quả đến hàng phần trăm", "làm tròn kết quả đến hàng phần mười", "làm tròn kết quả đến hàng đơn vị",
   "vuông góc với các đường sức từ", "song song với các đường sức từ", "hợp với các đường sức từ một góc", "các đường sức của một từ trường đều", "từ trường đều có cảm ứng từ",
   "số avogadro bằng", "khối lượng mol của", "lấy ln 2", "có độ lớn bằng bao nhiêu", "suất điện động cảm ứng", "mỗi vòng có diện tích", "diện tích mỗi vòng",
