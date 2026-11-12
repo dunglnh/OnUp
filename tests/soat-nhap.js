@@ -16,8 +16,8 @@
       mọi đề, đề tính điểm (pt, part), câu điền về số âm, đề Tiếng Anh không có chữ cái tiếng Việt; khung (phần, dạng, mức) so với đề cùng kì.
    2. Lựa chọn: đáp án đúng dài hơn hẳn lựa chọn sai, là lựa chọn dài nhất hay ngắn nhất ở quá một phần ba (Xem: dưới một phần sáu) số
       câu, là lựa chọn duy nhất có chữ của nhãn chủ đề, ba lựa chọn sai cùng mở đầu một chữ, nhắc vị trí phương án, kiểu Đ/S lặp.
-   3. Trùng kho: đáp án trùng câu cùng chủ đề, chuỗi 6 từ của đề bài trùng câu cùng file, cặp hai âm tiết chung với câu của kì khác cùng
-      file, chuỗi 8 từ trùng câu của mọi kho.
+   3. Trùng kho: đáp án trùng câu cùng chủ đề, chuỗi 6 từ của đề bài trùng câu cùng file, chuỗi 8 từ trùng câu của mọi kho; Xem: cặp hai
+      âm tiết chung với câu của kì khác cùng file.
    4. Kho khác: chuỗi 8 từ chung với câu của kho khác theo cách chuẩn hoá của script giữ kho đó (script đó sẽ báo lỗi).
    5. Dò lộ đáp án: đáp án (chuỗi 3 từ, số) của mỗi câu có ở câu khác cùng đề (cả đoạn đọc, lời dặn) và ở câu cùng chủ đề trong cùng file
       (đề “Ôn chủ đề” rút chung), cả chiều ngược lại.
@@ -235,7 +235,7 @@ function cachCuaScript(file) {
 }
 const MON_CACH = opt.mon ? cachCuaScript(opt.mon) : null;
 const GOP = [...new Set(NHAP.flatMap((d) => d.gop).concat(MON_CACH ? MON_CACH.gop : []))];
-const CUM_HOI = [...D.docMang(opt.mon, "CUM"), "mỗi ý sau đúng hay sai", "nào sau đây", "sắp xếp các sự kiện sau theo trình tự thời gian", "đọc đoạn tư liệu",
+const CUM_HOI = ["mỗi ý sau đúng hay sai", "nào sau đây", "sắp xếp các sự kiện sau theo trình tự thời gian", "đọc đoạn tư liệu",
   "đọc đoạn thông tin", "đọc đoạn văn", "đọc đoạn trích", "đọc văn bản", "tư liệu người soạn viết", "người soạn viết", "theo đoạn tư liệu", "theo đoạn văn",
   "chọn đáp án đúng", "choose the correct answer", "read the passage", "according to the passage"];
 const tenChuDe = (files) => CA.filter((e) => files.has(e.b.file)).map((e) => String(e.q.topic).replace(/^Lớp \d+ · /, ""));
@@ -316,8 +316,10 @@ function nguonKho(tu, ds) {
   gomDoan(D.timChuoi(nguon6, 6, can6), can6, 6, (r, x) => ma2de.get(x) === r.id)
     .forEach((g) => loi(g.r.id, "trùng kho", `${g.r.ma}: đề bài có chuỗi 6 từ trùng đề bài ${dsNguon(g.nguon)}: “${cat(g.doan, 110)}”`));
   // cặp hai âm tiết liền nhau chung với câu của kì khác cùng file (như các script môn: từ 4 cặp và từ một nửa số cặp của câu ít cặp hơn;
-  // không tính cặp có số, chữ đơn, cặp của nhãn chủ đề, cụm hỏi chung và cặp có ở từ 3% số câu của file)
-  const cap2 = (s) => { let t = String(s).normalize("NFC").toLowerCase(); CUM_HOI.forEach((c) => { t = t.split(c).join(" | "); });
+  // không tính cặp có số, chữ đơn, cặp của nhãn chủ đề, cụm hỏi chung (CUM của script môn nếu có) và cặp có ở từ 3% số câu của file).
+  // Mỗi script tính hơi khác (câu nào đem so, cụm nào bỏ), nên chỉ ghi vào mục Xem: script của môn báo thì sửa.
+  const cumMon = D.docMang(opt.mon, "CUM"), CUM2 = cumMon.coDinhNghia ? cumMon : CUM_HOI;
+  const cap2 = (s) => { let t = String(s).normalize("NFC").toLowerCase(); CUM2.forEach((c) => { t = t.split(c).join(" | "); });
     const w = t.replace(/[^\p{L}\p{N}\s|]/gu, " ").split(/\s+/).filter(Boolean);
     return w.slice(1).map((x, k) => w[k] + " " + x).filter((c) => c.split(" ").every((x) => /\p{L}{2}/u.test(x))); };
   FILES.forEach((f) => {
@@ -330,7 +332,7 @@ function nguonKho(tu, ds) {
       const c = capCua(e);
       ca.filter((x) => D.kiCua(x.b.id) !== D.kiCua(e.b.id)).forEach((x) => {
         const d = capCua(x), chung = [...c].filter((y) => d.has(y));
-        if (chung.length >= 4 && chung.length >= 0.5 * Math.min(c.size, d.size)) loi(e.b.id, "trùng kho", `${e.ma} gần trùng ${x.ma} (cặp hai âm tiết chung): ${chung.join(", ")}`);
+        if (chung.length >= 4 && chung.length >= 0.5 * Math.min(c.size, d.size)) xem(e.b.id, "trùng kho", `${e.ma} gần trùng ${x.ma} (cặp hai âm tiết chung): ${chung.join(", ")}`);
       });
     });
   });
