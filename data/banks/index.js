@@ -1949,6 +1949,27 @@ window.ONTAP_SEED_BANKS = [
       "Khuếch đại thuật toán": [1, 0, 1], "Tín hiệu số và các cổng logic cơ bản": [2, 2, 1],
       "Một số mạch xử lí tín hiệu trong điện tử số": [2, 1, 1], "Khái quát về vi điều khiển": [1, 1, 2], "Bo mạch lập trình vi điều khiển": [1, 1, 1] } } },
 
+  /* Toán 7 · Kiểm tra cuối học kì I (Kết nối tri thức, Toán 7 tập một, Bài 1–19: Chương I Số hữu tỉ, Chương II Số thực, Chương III Góc
+     và đường thẳng song song, Chương IV Tam giác bằng nhau, Chương V Thu thập và biểu diễn dữ liệu; Phiên N7-ck1-toan). Khối 7 chưa bật
+     (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ.
+     Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 19 chủ đề theo tên bài (Bài 5 “Làm quen với số thập phân vô hạn tuần hoàn”, Bài 13
+     “Hai tam giác bằng nhau. Trường hợp bằng nhau thứ nhất của tam giác” ghi gọn): Chương I 6 câu, Chương II 4, Chương III 4, Chương IV 8,
+     Chương V 3. Mỗi ô (chủ đề, mức) rút 1 câu và có 4 câu: một câu ở mỗi đề cố định, hai câu riêng, nên học sinh đã làm một đề cố định
+     vẫn gặp câu mới. Câu tự luận (chứng minh hai tam giác bằng nhau) chỉ ở hai ô Vận dụng của Bài 14, Bài 15: mỗi lần rút nhiều nhất
+     2 câu tự luận. */
+  { id: "toan7-ck1-de1", title: "Toán 7 · Cuối kì I · Đề 1", grade: 7, subject: "Toán", minutes: 45, n: 25, file: "7-toan.js" },
+  { id: "toan7-ck1-de2", title: "Toán 7 · Cuối kì I · Đề 2", grade: 7, subject: "Toán", minutes: 45, n: 25, file: "7-toan.js" },
+  { id: "toan7-ck1-ngau-nhien", title: "Toán 7 · Cuối kì I · Đề ngẫu nhiên", grade: 7, subject: "Toán", minutes: 45, n: 25, file: "7-toan.js",
+    pool: { from: ["toan7-ck1-de1", "toan7-ck1-de2"], matrix: {
+      "Tập hợp các số hữu tỉ": [1, 1, 0], "Cộng, trừ, nhân, chia số hữu tỉ": [1, 0, 1], "Luỹ thừa với số mũ tự nhiên của một số hữu tỉ": [0, 1, 0],
+      "Thứ tự thực hiện các phép tính. Quy tắc chuyển vế": [0, 0, 1], "Số thập phân vô hạn tuần hoàn": [1, 0, 0],
+      "Số vô tỉ. Căn bậc hai số học": [1, 1, 0], "Tập hợp các số thực": [0, 0, 1], "Góc ở vị trí đặc biệt. Tia phân giác của một góc": [1, 0, 0],
+      "Hai đường thẳng song song và dấu hiệu nhận biết": [1, 0, 0], "Tiên đề Euclid. Tính chất của hai đường thẳng song song": [0, 0, 1],
+      "Định lí và chứng minh định lí": [0, 1, 0], "Tổng các góc trong một tam giác": [1, 1, 0], "Hai tam giác bằng nhau. Trường hợp bằng nhau thứ nhất": [1, 0, 0],
+      "Trường hợp bằng nhau thứ hai và thứ ba của tam giác": [0, 1, 1], "Các trường hợp bằng nhau của tam giác vuông": [0, 0, 1],
+      "Tam giác cân. Đường trung trực của đoạn thẳng": [1, 1, 0], "Thu thập và phân loại dữ liệu": [1, 0, 0],
+      "Biểu đồ hình quạt tròn": [0, 0, 1], "Biểu đồ đoạn thẳng": [0, 1, 0] } } },
+
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
