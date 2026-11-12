@@ -1822,7 +1822,7 @@ window.ONTAP_SEED_BANKS = [
   { id: "sinhhoc12-tn-de7", title: "Sinh học 12 · Thi thử tốt nghiệp · Đề 7", grade: 12, subject: "Sinh học", minutes: 50, n: 28, file: "12-sinhhoc.js", pts: 10 },
   { id: "sinhhoc12-tn-de8", title: "Sinh học 12 · Thi thử tốt nghiệp · Đề 8", grade: 12, subject: "Sinh học", minutes: 50, n: 28, file: "12-sinhhoc.js", pts: 10 },
 
-  /* Lịch sử 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên N12-tn-lichsu: Đề 1–4). Khung đề tốt nghiệp THPT từ năm 2025 (Quyết định
+  /* Lịch sử 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên N12-tn-lichsu: Đề 1–4; Phiên N12-tn-lichsu-b: Đề 5–8). Khung đề tốt nghiệp THPT từ năm 2025 (Quyết định
      764/QĐ-BGDĐT): 50 phút, 10 điểm, 28 câu: Phần I 24 câu nhiều lựa chọn (6 điểm), Phần II 4 câu đúng/sai 4 ý (4 điểm), không có Phần III.
      App chấm tự động cả hai phần như đề thật. Phạm vi chương trình THPT, chủ yếu Lịch sử 12 cả năm; như ma trận đề tham khảo năm 2025 (đề
      chính thức năm 2026 giữ cấu trúc), mỗi đề 6 câu Lịch sử 11 ở Phần I (6 trong 40 lệnh hỏi), không có câu Lịch sử 10, mỗi câu Phần II có
@@ -1832,6 +1832,10 @@ window.ONTAP_SEED_BANKS = [
   { id: "lichsu12-tn-de2", title: "Lịch sử 12 · Thi thử tốt nghiệp · Đề 2", grade: 12, subject: "Lịch sử", minutes: 50, n: 28, file: "12-lichsu.js", pts: 10 },
   { id: "lichsu12-tn-de3", title: "Lịch sử 12 · Thi thử tốt nghiệp · Đề 3", grade: 12, subject: "Lịch sử", minutes: 50, n: 28, file: "12-lichsu.js", pts: 10 },
   { id: "lichsu12-tn-de4", title: "Lịch sử 12 · Thi thử tốt nghiệp · Đề 4", grade: 12, subject: "Lịch sử", minutes: 50, n: 28, file: "12-lichsu.js", pts: 10 },
+  { id: "lichsu12-tn-de5", title: "Lịch sử 12 · Thi thử tốt nghiệp · Đề 5", grade: 12, subject: "Lịch sử", minutes: 50, n: 28, file: "12-lichsu.js", pts: 10 },
+  { id: "lichsu12-tn-de6", title: "Lịch sử 12 · Thi thử tốt nghiệp · Đề 6", grade: 12, subject: "Lịch sử", minutes: 50, n: 28, file: "12-lichsu.js", pts: 10 },
+  { id: "lichsu12-tn-de7", title: "Lịch sử 12 · Thi thử tốt nghiệp · Đề 7", grade: 12, subject: "Lịch sử", minutes: 50, n: 28, file: "12-lichsu.js", pts: 10 },
+  { id: "lichsu12-tn-de8", title: "Lịch sử 12 · Thi thử tốt nghiệp · Đề 8", grade: 12, subject: "Lịch sử", minutes: 50, n: 28, file: "12-lichsu.js", pts: 10 },
 
   /* Sinh học 12 · Kiểm tra cuối năm học (Kết nối tri thức, Sinh học 12, Phần sáu Sinh thái học và môi trường, Bài 23–35; Phiên
      N12-ck2-sinhhoc-ktpl). Phạm vi theo ma trận cuối kì II tra được, trọng tâm Chương 7–8; lời dặn của đề nhắc trường kiểm tra cả Tiến
