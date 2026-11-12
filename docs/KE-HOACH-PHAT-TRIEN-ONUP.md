@@ -266,6 +266,7 @@
 | #304 | Phiên N12-tn-lichsu: 4 đề Lịch sử thi thử tốt nghiệp (đề tính điểm, 28 câu); tests/lichsu12-tn.js |
 | #306 | Phiên N12-tn-lichsu-b: 4 đề Lịch sử thi thử tốt nghiệp, Đề 5–8 (đề tính điểm, 28 câu) |
 | #307 | Phiên N12-tn-diali: 4 đề Địa lí thi thử tốt nghiệp (đề tính điểm, 28 câu); tests/diali12-tn.js |
+| #308 | Công cụ làm đề: xem kho, soát và ghép nháp trong vài giây; script kiểm tra nhanh hơn; sửa 4 script lỗi trên main |
 
 </details>
 
