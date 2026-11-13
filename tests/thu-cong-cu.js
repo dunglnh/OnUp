@@ -2,7 +2,9 @@
    - xem-chu-de.js, tim.js, phu-sach.js chạy được và tìm đúng chỗ đã biết;
    - ghep-de.js --xuat một đề có sẵn ra nháp; soat-nhap.js với nháp đó không báo lỗi; ghep-de.js --thu với nháp đó: đề, dòng danh mục không đổi;
    - cài lỗi vào nháp (lộ đáp án, đáp án dài hơn hẳn, điểm sai, kiểu Đ/S lặp, câu trùng kho, nhắc vị trí phương án, mức sai, cách hỏi chung
-     trùng câu của kho môn khác, câu chép sách) rồi soát lại: mỗi lỗi phải được báo đúng nhóm.
+     trùng câu của kho môn khác, câu chép sách) rồi soát lại: mỗi lỗi phải được báo đúng nhóm;
+   - kho Tiếng Anh 7 (hai đề cố định và đề ngẫu nhiên có đoạn đọc) xuất ra nháp rồi soát: lời dặn chuẩn và tên đoạn đọc không làm mục “kho
+     khác” báo nhầm (Phiên N7-ck1-khtn), ghép thử không đổi; câu chép câu của kho Tiếng Anh 9 (phần sau lời dặn) thì vẫn báo.
    Đề dùng để thử: Lịch sử 12 · Thi thử tốt nghiệp · Đề 8 (đã qua tests/lichsu12-tn.js và mọi script khác); không ghi gì vào repo. */
 "use strict";
 const assert = require("assert");
@@ -83,6 +85,28 @@ try {
   ].concat(sach ? [[/\[sách\] lichsu12-tn-de8 đoạn [^:]+: chuỗi 8 từ trùng [^\n]*lop-12\/lich-su-12 trang in/, "chép sách"]] : []);
   const thieu = can.filter(([re]) => !re.test(r.ra)).map(([, t]) => t);
   assert.deepEqual(thieu, [], "soat-nhap.js không báo: " + thieu.join("; ") + "\n" + r.ra);
+
+  // kho Tiếng Anh 7: các script Tiếng Anh 5, 9, 12 bỏ lời dặn chuẩn khỏi đề bài (boLoiDan: “Write the correct form of the verb in brackets.”,
+  // “Read the text again. Is each sentence true or false?”, “Which part of the sentence is wrong?”) và không so tên đoạn đọc (“Read the text.
+  // Then answer the questions.”), nên các chỗ đó không được báo “kho khác”; đề ngẫu nhiên xuất ra chỉ có đoạn đọc câu riêng dùng
+  const TA = ["ta7-ck1-de1", "ta7-ck1-de2", "ta7-ck1-ngau-nhien"], MON_TA = "tests/ta7-ck1.js";
+  r = chay("ghep-de.js", ["--xuat"].concat(TA));
+  assert.equal(r.ma, 0, r.ra);
+  const ta = path.join(tam, "ta.js");
+  fs.writeFileSync(ta, r.ra);
+  r = chay("soat-nhap.js", [ta, "--mon", MON_TA]);
+  assert.equal(r.ma, 0, "soat-nhap.js báo lỗi ở kho Tiếng Anh 7 đã qua mọi script:\n" + r.ra);
+  assert.ok(!/\[kho khác\]/.test(r.ra), "lời dặn chuẩn, tên đoạn đọc bị báo “kho khác”:\n" + r.ra);
+  r = chay("ghep-de.js", [ta, "--thu"]);
+  assert.equal(r.ma, 0, r.ra);
+  TA.forEach((id) => assert.ok(r.ra.includes(id + ": đề trong data/banks/7-ta.js không đổi"), "ghep-de.js --thu với kho Tiếng Anh 7 xuất ra: " + id + " không đổi\n" + r.ra));
+  // câu chép câu của kho Tiếng Anh 9 (cùng lời dặn, cả câu sau lời dặn) thì script Tiếng Anh 9 vẫn báo
+  const c9 = cau.find((e) => /^ta9-ck1-/.test(e.b.id) && /^Write the correct form of the verb in brackets\. \S+( \S+){9}/.test(e.q.q)), dt = JSON.parse(JSON.stringify(require(ta)));
+  dt[0].questions[0].q = c9.q.q;
+  const taHong = path.join(tam, "ta-hong.js");
+  fs.writeFileSync(taHong, "module.exports = " + JSON.stringify(dt) + ";\n");
+  r = chay("soat-nhap.js", [taHong, "--mon", MON_TA]);
+  assert.ok(/\[kho khác\] ta7-ck1-de1#1 q: tests\/ta9-ck1\.js sẽ báo/.test(r.ra), "câu chép câu Tiếng Anh 9 phải được báo “kho khác”:\n" + r.ra);
 } finally {
   fs.rmSync(tam, { recursive: true, force: true });
 }

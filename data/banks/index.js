@@ -1991,6 +1991,22 @@ window.ONTAP_SEED_BANKS = [
     pool: { from: ["ta7-ck1-de1", "ta7-ck1-de2"], matrix: {
       "Pronunciation": [1, 1, 0], "Unit 1 · Hobbies": [2, 1, 1], "Unit 2 · Healthy Living": [1, 1, 1], "Unit 3 · Community Service": [1, 1, 1],
       "Unit 4 · Music and Arts": [1, 1, 1], "Unit 5 · Food and Drink": [2, 1, 1], "Unit 6 · A Visit to a School": [1, 1, 1], "Reading": [1, 1, 1] } } },
+  /* KHTN 7 · Kiểm tra cuối học kì I (Kết nối tri thức, Khoa học tự nhiên 7; Phiên N7-ck1-khtn). Khối 7 chưa bật nên đề chưa hiện
+     với gia đình. Phạm vi mặc định PO chọn theo đề học kì 1 của Loigiaihay, đối chiếu đề cương học kì 1 của Loigiaihay, VietJack
+     (nguồn ở mục 7 của docs/KE-HOACH-NOI-DUNG.md): Bài 1 2 câu, Chương I, II (Bài 2–7) 10 câu, Chương III–V (Bài 8–17) 13 câu; trường dạy song song ba phân môn thì xem đề cương của
+     trường (note của đề có ghi). Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết,
+     Hiểu, Vận dụng] 10 – 8 – 7 câu trên 17 chủ đề theo tên bài của sách (Bài 11 ghi gọn), ô nào cũng rút 1 câu. Hai đề cố định và 25
+     câu riêng đều chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp ba số câu ô đó rút. Không có câu tự luận. */
+  { id: "khtn7-ck1-de1", title: "KHTN 7 · Cuối kì I · Đề 1", grade: 7, subject: "KHTN", minutes: 45, n: 25, file: "7-khtn.js" },
+  { id: "khtn7-ck1-de2", title: "KHTN 7 · Cuối kì I · Đề 2", grade: 7, subject: "KHTN", minutes: 45, n: 25, file: "7-khtn.js" },
+  { id: "khtn7-ck1-ngau-nhien", title: "KHTN 7 · Cuối kì I · Đề ngẫu nhiên", grade: 7, subject: "KHTN", minutes: 45, n: 25, file: "7-khtn.js",
+    pool: { from: ["khtn7-ck1-de1", "khtn7-ck1-de2"], matrix: {
+      "Phương pháp và kĩ năng học tập môn Khoa học tự nhiên": [1, 1, 0], "Nguyên tử": [1, 0, 1], "Nguyên tố hoá học": [1, 0, 0],
+      "Sơ lược về bảng tuần hoàn các nguyên tố hoá học": [0, 1, 1], "Phân tử – Đơn chất – Hợp chất": [1, 0, 1],
+      "Giới thiệu về liên kết hoá học": [0, 1, 0], "Hoá trị và công thức hoá học": [0, 1, 1], "Tốc độ chuyển động": [1, 0, 1], "Đo tốc độ": [1, 0, 0],
+      "Đồ thị quãng đường – thời gian": [0, 1, 1], "Ảnh hưởng của tốc độ trong an toàn giao thông": [0, 1, 0], "Sóng âm": [1, 0, 0],
+      "Độ to và độ cao của âm": [1, 1, 0], "Phản xạ âm, chống ô nhiễm tiếng ồn": [1, 0, 0], "Năng lượng ánh sáng. Tia sáng, vùng tối": [1, 0, 0],
+      "Sự phản xạ ánh sáng": [0, 1, 0], "Ảnh của vật qua gương phẳng": [0, 0, 1] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
