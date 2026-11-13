@@ -225,13 +225,16 @@ function baiCua(ml, trang) {
   return ra;
 }
 // đọc các chuỗi ghi thẳng trong định nghĩa `const <ten> = …;` của script kiểm tra của môn (GOP: tên riêng nhiều chữ; TU_CHUNG: cụm chữ
-// chung; CUM_CHUNG: chuỗi 3 từ chung khi dò lộ; DA_XEM: dòng dò lộ đã xem; TRICH: câu trích nguyên văn): mọi chuỗi trong câu lệnh đó, kể
+// chung; CUM_CHUNG: chuỗi 3 từ chung khi dò lộ; DA_XEM: dòng dò lộ đã xem; TRICH: câu trích nguyên văn; boLoiDan: lời dặn chuẩn): mọi chuỗi trong câu lệnh đó, kể
 // cả trong .concat([…]), bỏ chú thích. Kết quả có thêm coDinhNghia (script có định nghĩa đó) và coBieuThuc (câu lệnh có phần dựng bằng
 // biểu thức, như [...BAI, …], Object.values(…): phần đó không đọc được). Không có file, không có định nghĩa: [].
 function docMang(file, ten) {
   const ra = []; ra.coBieuThuc = false; ra.coDinhNghia = false; ra.thamChieu = [];
   if (!file || !fs.existsSync(file)) return ra;
-  const t = fs.readFileSync(file, "utf8"), m = new RegExp("(?:^|\\n)\\s*const " + ten + "\\s*=\\s*(?:new Set\\(\\s*)?").exec(t);
+  // `const TEN = …` ở đầu dòng; không có thì `const A = …, TEN = …` (hằng khai báo sau dấu phẩy trong cùng câu lệnh, như LD_READ của
+  // tests/ta12-ck1.js)
+  const t = fs.readFileSync(file, "utf8"), m = new RegExp("(?:^|\\n)\\s*const " + ten + "\\s*=\\s*(?:new Set\\(\\s*)?").exec(t)
+    || new RegExp("(?:^|\\n)\\s*const [^;\\n]*?,\\s*" + ten + "\\s*=\\s*").exec(t);
   if (!m) return ra;
   ra.coDinhNghia = true;
   let i = m.index + m[0].length, sau = 0;

@@ -3,7 +3,8 @@
    node tests/soat-nhap.js <nháp.js> [<nháp khác.js> …] [--mon tests/<script của môn>.js] [--sach <phần đường dẫn cuốn>]… [--khong-sach]
                            [--giu-nguyen-am] [--sach6] [--in-da-xem] [--het]
      --mon: so chữ như script của môn: đọc tên riêng gộp thành một từ (GOP, TEN_RIENG), cụm bỏ qua (TU_CHUNG, TRICH; chỉ khi script dùng
-            chúng lúc chuẩn hoá; danh sách dựng từ hằng khác như ...BAI thì đọc cả hằng đó), có gộp nguyên âm hay không, chuỗi 3 từ chung khi
+            chúng lúc chuẩn hoá; danh sách dựng từ hằng khác như ...BAI thì đọc cả hằng đó; lời dặn chuẩn script bỏ khỏi đề bài bằng hàm
+            boLoiDan: LOI_DAN của các script Tiếng Anh), có gộp nguyên âm hay không, chuỗi 3 từ chung khi
             dò lộ (CUM_CHUNG), dòng dò lộ đã xem (DA_XEM, DA_XEM_CHU_DE); thiếu gì thì ghi vào gop, boQua, daXem của nháp. Không ghi --mon:
             gộp nguyên âm, bỏ cụm hỏi chung và tên các chủ đề của file;
      --sach: chỉ so với các cuốn có chữ đó trong đường dẫn (mặc định mọi cuốn, như script của môn); --khong-sach: không so với sách;
@@ -18,7 +19,8 @@
       câu, là lựa chọn duy nhất có chữ của nhãn chủ đề, ba lựa chọn sai cùng mở đầu một chữ, nhắc vị trí phương án, kiểu Đ/S lặp.
    3. Trùng kho: đáp án trùng câu cùng chủ đề, chuỗi 6 từ của đề bài trùng câu cùng file, chuỗi 8 từ trùng câu của mọi kho; Xem: cặp hai
       âm tiết chung với câu của kì khác cùng file.
-   4. Kho khác: chuỗi 8 từ chung với câu của kho khác theo cách chuẩn hoá của script giữ kho đó (script đó sẽ báo lỗi).
+   4. Kho khác: chuỗi 8 từ chung với câu của kho khác theo cách chuẩn hoá của script giữ kho đó (script đó sẽ báo lỗi; cụm bỏ qua và lời dặn
+      chuẩn của script đó không tính, tên đoạn đọc và chữ của đoạn là hai trường).
    5. Dò lộ đáp án: đáp án (chuỗi 3 từ, số) của mỗi câu có ở câu khác cùng đề (cả đoạn đọc, lời dặn) và ở câu cùng chủ đề trong cùng file
       (đề “Ôn chủ đề” rút chung), cả chiều ngược lại.
    6. Sách: chuỗi 8 từ trùng chữ OCR của sách ở ../OnUp-Book.
@@ -224,12 +226,16 @@ Object.keys(KIEU_ANH).forEach((ki) => {
 /* ---------- chuẩn hoá để so chuỗi từ (như khongDau của các script môn) ---------- */
 const fs = require("fs"), path = require("path");
 // cách chuẩn hoá của một script môn, như hàm khongDau của script đó: tên riêng gộp thành một từ (GOP, TEN_RIENG), cụm bỏ qua (TU_CHUNG,
-// TRICH; chỉ khi script dùng chúng lúc chuẩn hoá), có gộp nguyên âm hay không; danh sách dựng từ hằng khác (...BAI) đọc cả hằng đó
+// TRICH; chỉ khi script dùng chúng lúc chuẩn hoá), có gộp nguyên âm hay không; danh sách dựng từ hằng khác (...BAI) đọc cả hằng đó.
+// Lời dặn chuẩn script bỏ khỏi đề bài trước khi so (hàm boLoiDan của các script Tiếng Anh 5, 9, 12: LOI_DAN, LD_READ…, cụm thêm trong
+// hàm) cũng là cụm bỏ qua: chỉ lấy chuỗi có từ hai từ (bỏ dấu ngăn “ | ”, cờ “gi” của biểu thức chính quy). Script dùng tên LOI_DAN cho lời
+// dặn (note) của đề (tests/toan7-ck1.js…) không có boLoiDan nên không đọc.
+const LOI_DAN_SCRIPT = (file, src) => (/\bconst boLoiDan\s*=/.test(src) ? D.docMangSau(file, "boLoiDan").filter((x) => D.boDau(x).split(" ").length >= 2) : []);
 function cachCuaScript(file) {
   const src = fs.readFileSync(file, "utf8"), doc = (ten) => D.docMangSau(file, ten);
   return {
     gop: [].concat(/\bGOP_?\.forEach\(/.test(src) ? doc("GOP") : [], /\bTEN_RIENG\.forEach\(/.test(src) ? doc("TEN_RIENG") : []),
-    bo: [].concat(/\bTU_CHUNG_?\.forEach\(/.test(src) ? doc("TU_CHUNG") : [], /\bTRICH\.(reduce|forEach)\(/.test(src) ? doc("TRICH") : []),
+    bo: [].concat(/\bTU_CHUNG_?\.forEach\(/.test(src) ? doc("TU_CHUNG") : [], /\bTRICH\.(reduce|forEach)\(/.test(src) ? doc("TRICH") : [], LOI_DAN_SCRIPT(file, src)),
     nguyenAm: /\[aeiouy\]\+/.test(src),
   };
 }
@@ -250,7 +256,12 @@ function truongNhap(deBai, coNote) {
   const ra = [];
   if (!deBai) DE_NHAP.forEach((b) => {
     if (coNote && b.note) ra.push({ id: b.id, ma: b.id, tr: "lời dặn", s: b.note });
-    Object.entries(b.passages || {}).forEach(([p, d]) => ra.push({ id: b.id, ma: b.id, tr: "đoạn " + p, s: (d.title || "") + " " + (d.text || "") }));
+    // tên đoạn và chữ của đoạn là hai trường: chuỗi so không đi qua chỗ nối (tên đoạn Tiếng Anh là lời dặn chuẩn “Read the text. Then answer
+    // the questions.”, script Tiếng Anh không so tên đoạn; script Ngữ văn so tên và chữ của đoạn như hai trường)
+    Object.entries(b.passages || {}).forEach(([p, d]) => {
+      if (d.title) ra.push({ id: b.id, ma: b.id, tr: "tên đoạn " + p, s: d.title });
+      ra.push({ id: b.id, ma: b.id, tr: "đoạn " + p, s: d.text || "" });
+    });
   });
   CAU_NHAP.forEach((e) => (deBai ? [["q", e.q.q]] : D.truongCau(e.q)).forEach(([tr, s]) => ra.push({ id: e.b.id, ma: e.ma, tr, s })));
   return ra;
@@ -298,7 +309,7 @@ function nguonKho(tu, ds) {
   (ds || CA).forEach((e) => {
     ra.push({ id: e.ma, de: e.b.id, w: D.truongCau(e.q).flatMap(([, v]) => tu(v).concat("|")) });
     const d = D.doanCua(e.b, e.q), k = e.b.id + " đoạn " + e.q.p;
-    if (d && !doan.has(k)) { doan.add(k); ra.push({ id: k, de: e.b.id, w: tu((d.title || "") + " " + (d.text || "")) }); }
+    if (d && !doan.has(k)) { doan.add(k); ra.push({ id: k, de: e.b.id, w: doanTu(d, tu) }); }
   });
   return ra;
 }
@@ -386,7 +397,7 @@ let soScript = 0;
     chuScript(n.de).forEach((s) => {
       if (s.boFile && KHO.find((b) => b.id === n.de).file === DE_NHAP.find((b) => b.id === r.id).file) return;
       const { tu } = cachScript(s);
-      const a = new Set(D.chuoiTu(tu(r.s), 8)), b = D.chuoiTu(n.id.includes(" đoạn ") ? tu(nguonGoc(n.id)) : D.truongCau(cauCua(n.id)).flatMap(([, v]) => tu(v).concat("|")), 8);
+      const a = new Set(D.chuoiTu(tu(r.s), 8)), b = D.chuoiTu(n.id.includes(" đoạn ") ? doanTu(nguonGoc(n.id), tu) : D.truongCau(cauCua(n.id)).flatMap(([, v]) => tu(v).concat("|")), 8);
       const chung = b.filter((c) => a.has(c));
       if (!chung.length) return;
       const k = r.id + "|" + r.ma + "|" + r.tr + "|" + s.f;
@@ -397,7 +408,9 @@ let soScript = 0;
   bao.forEach(({ r, s, ds, c }) => loi(r.id, "kho khác", `${r.ma} ${r.tr}: tests/${s.f} sẽ báo chuỗi 8 từ trùng ${dsNguon([...ds])}: “${c}” (theo cách chuẩn hoá của script đó)`));
 }
 function cauCua(ma) { return CA.find((e) => e.ma === ma).q; }
-function nguonGoc(id) { const [de, p] = id.split(" đoạn "), b = KHO.find((x) => x.id === de), d = b.passages[p]; return (d.title || "") + " " + (d.text || ""); }
+function nguonGoc(id) { const [de, p] = id.split(" đoạn "), b = KHO.find((x) => x.id === de); return b.passages[p]; }
+// từ của một đoạn đọc: tên đoạn, dấu ngăn, chữ của đoạn (như truongNhap)
+function doanTu(d, tu) { return tu(d.title || "").concat("|", tu(d.text || "")); }
 
 /* ---------- 4. dò lộ đáp án (như doLo của tests/lichsu12-tn.js, tests/sinhhoc12-tn.js) ----------
    Đáp án của câu A (lựa chọn đúng của câu nhiều lựa chọn, cách viết của câu điền) tách thành chuỗi 3 từ (đáp án từ 3 từ trở xuống thì lấy

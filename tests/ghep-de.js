@@ -6,7 +6,8 @@
      của môn mới: xem CLAUDE.md, “Thêm đề có sẵn”). Ghi xong nạp lại như app (tests/nap-de.js) và so từng câu với nháp; khác thì trả lại các
      file như cũ. --thu: chỉ in việc sẽ làm, không ghi file.
    node tests/ghep-de.js --xuat <mã đề> [<mã đề> …] > <nháp.js>
-     In đề có sẵn dưới dạng nháp (kèm kì thi đang gắn) để sửa, soát (tests/soat-nhap.js) rồi ghép lại.
+     In đề có sẵn dưới dạng nháp (kèm kì thi đang gắn) để sửa, soát (tests/soat-nhap.js) rồi ghép lại. Đề ngẫu nhiên: câu riêng và đoạn đọc
+     câu riêng dùng (không có đoạn đọc app gộp từ các đề trong from).
    Không sửa chữ của câu: nháp viết thế nào thì ghi vậy (mỗi câu một khối, như các đề đang có). Chú thích trước đề, trước dòng danh mục:
    chuThich, chuThichMuc của nháp (chỉ ghi khi thêm đề mới). Ghép xong chạy: node tests/kiem-tra-de.js, script kiểm tra của môn, e2e. */
 "use strict";
@@ -130,7 +131,9 @@ if (opt.xuat) {
     if (b.pts != null) d.pts = b.pts;
     const ki = lich.filter((e) => (e.banks || []).includes(b.id)).map((e) => e.id);
     const dong = Object.entries(d).map(([k, v]) => "  " + k + ": " + js(v)).concat(["  ki: " + js(ki)]);
-    const de = deJs("_", { note: b.note, passages: b.passages, questions: qs }, "").replace(/^"_": \{\n/, "").replace(/\n\}$/, "");
+    // đề ngẫu nhiên: app gộp đoạn đọc của các đề trong from vào đề này, nên chỉ xuất đoạn đọc câu riêng dùng (như phần ghép chỉ so đoạn riêng)
+    const ps = b.pool && b.passages ? Object.fromEntries(Object.entries(b.passages).filter(([k]) => qs.some((q) => q.p === k))) : b.passages;
+    const de = deJs("_", Object.assign({ note: b.note }, ps && Object.keys(ps).length ? { passages: ps } : {}, { questions: qs }), "").replace(/^"_": \{\n/, "").replace(/\n\}$/, "");
     return "{\n" + dong.join(",\n") + ",\n" + de + "\n}";
   });
   console.log(`/* Nháp xuất từ data/banks/ ngày ${PHIEN} (node tests/ghep-de.js --xuat ${ds.join(" ")}). Sửa, soát bằng tests/soat-nhap.js, ghép lại bằng
