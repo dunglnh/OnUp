@@ -69,7 +69,7 @@ Script của môn vẫn là bước kiểm tra cuối: tính lại đáp án, đ
 
 ### `tests/thu-cong-cu.js`: tự thử các công cụ
 
-`node tests/thu-cong-cu.js` (khoảng 25 giây) in `CONG CU OK`: các công cụ xem, tìm chạy được và tìm đúng chỗ đã biết; xuất Đề 8 Lịch sử thi thử ra nháp, soát không lỗi, ghép thử không đổi; cài 10 lỗi vào nháp (lộ đáp án, đáp án dài hơn hẳn, điểm, tổng điểm, kiểu Đ/S lặp, câu trùng kho, nhắc vị trí phương án, mức độ, cách hỏi chung trùng câu của kho GDCD 9, chép sách) thì `soat-nhap.js` báo đủ; xuất kho Tiếng Anh 7 (hai đề cố định, đề ngẫu nhiên có đoạn đọc) ra nháp, soát không lỗi (lời dặn chuẩn, tên đoạn đọc không bị báo “kho khác”), ghép thử không đổi, câu chép câu của kho Tiếng Anh 9 thì vẫn báo “kho khác”. Sửa `tests/de-chung.js`, `soat-nhap.js`, `ghep-de.js` thì chạy lại.
+`node tests/thu-cong-cu.js` (khoảng 20 giây) in `CONG CU OK`: các công cụ xem, tìm chạy được và tìm đúng chỗ đã biết; xuất Đề 8 Lịch sử thi thử ra nháp, soát không lỗi, ghép thử không đổi; cài 10 lỗi vào nháp (lộ đáp án, đáp án dài hơn hẳn, điểm, tổng điểm, kiểu Đ/S lặp, câu trùng kho, nhắc vị trí phương án, mức độ, cách hỏi chung trùng câu của kho GDCD 9, chép sách) thì `soat-nhap.js` báo đủ; xuất kho Tiếng Anh 7 (hai đề cố định, đề ngẫu nhiên có đoạn đọc) ra nháp, soát không lỗi (lời dặn chuẩn, tên đoạn đọc không bị báo “kho khác”), ghép thử không đổi, câu chép câu của kho Tiếng Anh 9 thì vẫn báo “kho khác”. Sửa `tests/de-chung.js`, `soat-nhap.js`, `ghep-de.js` thì chạy lại.
 
 ### `tests/de-chung.js`: phần dùng chung
 
