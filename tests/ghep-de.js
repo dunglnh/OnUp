@@ -4,7 +4,8 @@
      Mã đề đã có: thay đề đó tại chỗ (dòng danh mục cũng vậy). Mã mới: đứng sau đề ghi ở sau (trong file câu hỏi, danh mục, banks của kì thi),
      không ghi sau thì cuối file câu hỏi, sau dòng danh mục cuối cùng của cùng file, cuối banks. File câu hỏi chưa có thì tạo file mới (thêm đề
      của môn mới: xem CLAUDE.md, “Thêm đề có sẵn”). Ghi xong nạp lại như app (tests/nap-de.js) và so từng câu với nháp; khác thì trả lại các
-     file như cũ. --thu: chỉ in việc sẽ làm, không ghi file.
+     file như cũ. --thu: chỉ in việc sẽ làm, không ghi file. Đề ngẫu nhiên không có câu riêng (kho chỉ gồm các đề cố định trong from,
+     nháp không ghi note, passages) chỉ ghi dòng danh mục và kì thi, không ghi mục rỗng vào file câu hỏi (Phiên N7-ck1-lsdl-gdcd).
    node tests/ghep-de.js --xuat <mã đề> [<mã đề> …] > <nháp.js>
      In đề có sẵn dưới dạng nháp (kèm kì thi đang gắn) để sửa, soát (tests/soat-nhap.js) rồi ghép lại. Đề ngẫu nhiên: câu riêng và đoạn đọc
      câu riêng dùng (không có đoạn đọc app gộp từ các đề trong from).
@@ -151,7 +152,12 @@ const viec = [];
 NHAP.forEach((d) => {
   const id = d.muc.id, fq = path.join(D.ROOT, "data/banks", d.muc.file);
   if (!/^\d+-[a-z0-9]+\.js$/.test(d.muc.file || "")) { console.error(id + ": file “" + d.muc.file + "” không đúng dạng <khối>-<mã môn>.js"); process.exit(1); }
-  // file câu hỏi
+  // file câu hỏi; đề ngẫu nhiên không có câu riêng, lời dặn, đoạn đọc (kho chỉ gồm các đề cố định trong from) thì không ghi vào file,
+  // như các kho hai đề cố định đang có (9-lsdl.js, 9-tin.js); dòng danh mục, kì thi vẫn ghi
+  if (d.muc.pool && !d.de.questions.length && d.de.note == null && !d.de.passages) {
+    if (timDe(doc(fq) || "", id)) viec.push(`${id}: (đề ngẫu nhiên không có câu riêng mà data/banks/${d.muc.file} có mục của đề này: giữ nguyên, xoá tay nếu thừa)`);
+    else viec.push(`${id}: đề ngẫu nhiên không có câu riêng, không ghi vào data/banks/${d.muc.file}`);
+  } else {
   let t = doc(fq);
   const entry = deJs(id, d.de, "  ");
   if (t == null) {
@@ -185,6 +191,7 @@ ${d.chuThich ? chuThich(d.chuThich, "  ") : ""}${entry}
     }
   }
   moi.set(fq, t);
+  }
   // danh mục
   let ti = doc(IDX);
   const row = mucJs(d.muc), co = timMuc(ti, id);
