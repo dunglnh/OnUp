@@ -1852,6 +1852,15 @@ window.ONTAP_SEED_BANKS = [
   { id: "diali12-tn-de6", title: "Địa lí 12 · Thi thử tốt nghiệp · Đề 6", grade: 12, subject: "Địa lí", minutes: 50, n: 28, file: "12-diali.js", pts: 10 },
   { id: "diali12-tn-de7", title: "Địa lí 12 · Thi thử tốt nghiệp · Đề 7", grade: 12, subject: "Địa lí", minutes: 50, n: 28, file: "12-diali.js", pts: 10 },
   { id: "diali12-tn-de8", title: "Địa lí 12 · Thi thử tốt nghiệp · Đề 8", grade: 12, subject: "Địa lí", minutes: 50, n: 28, file: "12-diali.js", pts: 10 },
+  /* GDKT&PL 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên N12-tn-ktpl: Đề 1–3). Khung đề tốt nghiệp THPT từ năm 2025 (Quyết định
+     764/QĐ-BGDĐT): 50 phút, 10 điểm, 28 câu: Phần I 24 câu nhiều lựa chọn (6 điểm), Phần II 4 câu đúng/sai 4 ý (4 điểm), không có Phần III.
+     App chấm tự động cả hai phần như đề thật. Phạm vi chương trình THPT, chủ yếu GDKT&PL 12 cả năm; như ma trận đề tham khảo năm 2025 (đề
+     chính thức năm 2026 giữ cấu trúc), mỗi đề có 16 câu GDKT&PL 12 (mỗi bài một câu), 8 câu GDKT&PL 11 và 4 câu GDKT&PL 10, câu lớp 10, 11
+     đều ở Phần I (12 trong 40 lệnh hỏi). Đề cố định, không có đề ngẫu nhiên (pts không đi với pool); cách viết ở đầu phần đề này trong
+     data/banks/12-ktpl.js. Khối 12 chưa bật nên đề chưa hiện với gia đình. */
+  { id: "ktpl12-tn-de1", title: "GDKT&PL 12 · Thi thử tốt nghiệp · Đề 1", grade: 12, subject: "GDKT&PL", minutes: 50, n: 28, file: "12-ktpl.js", pts: 10 },
+  { id: "ktpl12-tn-de2", title: "GDKT&PL 12 · Thi thử tốt nghiệp · Đề 2", grade: 12, subject: "GDKT&PL", minutes: 50, n: 28, file: "12-ktpl.js", pts: 10 },
+  { id: "ktpl12-tn-de3", title: "GDKT&PL 12 · Thi thử tốt nghiệp · Đề 3", grade: 12, subject: "GDKT&PL", minutes: 50, n: 28, file: "12-ktpl.js", pts: 10 },
 
   /* Sinh học 12 · Kiểm tra cuối năm học (Kết nối tri thức, Sinh học 12, Phần sáu Sinh thái học và môi trường, Bài 23–35; Phiên
      N12-ck2-sinhhoc-ktpl). Phạm vi theo ma trận cuối kì II tra được, trọng tâm Chương 7–8; lời dặn của đề nhắc trường kiểm tra cả Tiến
