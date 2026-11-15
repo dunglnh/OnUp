@@ -2007,6 +2007,32 @@ window.ONTAP_SEED_BANKS = [
       "Đồ thị quãng đường – thời gian": [0, 1, 1], "Ảnh hưởng của tốc độ trong an toàn giao thông": [0, 1, 0], "Sóng âm": [1, 0, 0],
       "Độ to và độ cao của âm": [1, 1, 0], "Phản xạ âm, chống ô nhiễm tiếng ồn": [1, 0, 0], "Năng lượng ánh sáng. Tia sáng, vùng tối": [1, 0, 0],
       "Sự phản xạ ánh sáng": [0, 1, 0], "Ảnh của vật qua gương phẳng": [0, 0, 1] } } },
+  /* Lịch sử và Địa lí 7 · Kiểm tra cuối học kì I (Kết nối tri thức, bản chỉnh sửa năm 2026; Lịch sử Bài 1–10, Địa lí Bài 1–12; Phiên
+     N7-ck1-lsdl-gdcd). Khối 7 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (không có câu riêng), câu nào cũng có
+     mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu, theo khung đề định kì (Công văn 7991): 12 câu Lịch sử (Bài 9, 10 mỗi bài 2 câu, các
+     bài khác 1 câu; chữ chủ đề theo tên bài của sách, rút gọn), 13 câu Địa lí (Bài 5, 7, 9 mỗi bài 2 câu, các bài khác 1 câu; Bài 8, 12 là bài
+     thực hành, không ra câu riêng). Hai đề cố định chia đúng theo ma trận, nên ô (chủ đề, mức) nào cũng có đúng 2 câu, gấp đôi số câu ô đó rút. */
+  { id: "lsdl7-ck1-de1", title: "Lịch sử và Địa lí 7 · Cuối kì I · Đề 1", grade: 7, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "7-lsdl.js" },
+  { id: "lsdl7-ck1-de2", title: "Lịch sử và Địa lí 7 · Cuối kì I · Đề 2", grade: 7, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "7-lsdl.js" },
+  { id: "lsdl7-ck1-ngau-nhien", title: "Lịch sử và Địa lí 7 · Cuối kì I · Đề ngẫu nhiên", grade: 7, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "7-lsdl.js",
+    pool: { from: ["lsdl7-ck1-de1", "lsdl7-ck1-de2"], matrix: {
+      "Chế độ phong kiến ở Tây Âu": [1, 0, 0], "Các cuộc phát kiến địa lí": [0, 0, 1], "Văn hoá Phục hưng và Cải cách tôn giáo": [0, 1, 0],
+      "Trung Quốc thời trung đại": [1, 0, 0], "Ấn Độ thời trung đại": [0, 1, 0], "Các vương quốc phong kiến Đông Nam Á": [1, 0, 0],
+      "Vương quốc Lào": [0, 1, 0], "Vương quốc Cam-pu-chia": [0, 0, 1], "Đất nước buổi đầu độc lập (939 – 967)": [1, 1, 0],
+      "Đại Cồ Việt thời Đinh và Tiền Lê (968 – 1009)": [1, 0, 1], "Vị trí địa lí, tự nhiên châu Âu": [1, 0, 0], "Dân cư, xã hội châu Âu": [0, 0, 1],
+      "Bảo vệ thiên nhiên ở châu Âu": [0, 1, 0], "Liên minh châu Âu": [1, 0, 0], "Vị trí địa lí, tự nhiên châu Á": [1, 1, 0],
+      "Dân cư, xã hội châu Á": [0, 0, 1], "Các khu vực của châu Á": [1, 0, 1], "Vị trí địa lí, tự nhiên châu Phi": [1, 1, 0],
+      "Dân cư, xã hội châu Phi": [0, 1, 0], "Con người khai thác thiên nhiên châu Phi": [0, 0, 1] } } },
+  /* GDCD 7 · Kiểm tra cuối học kì I (Kết nối tri thức; Bài 1–6; Phiên N7-ck1-lsdl-gdcd). Khối 7 chưa bật nên đề chưa hiện với gia đình.
+     Kho câu = 50 câu của 2 đề cố định (không có câu riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu, theo khung
+     đề định kì (Công văn 7991): Bài 1, 2 mỗi bài 3 câu, Bài 3 Học tập tự giác, tích cực 4 câu, Bài 4–6 mỗi bài 5 câu, bài nào cũng có câu xử lí
+     tình huống. Hai đề cố định chia đúng theo ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "gdcd7-ck1-de1", title: "GDCD 7 · Cuối kì I · Đề 1", grade: 7, subject: "GDCD", minutes: 35, n: 25, file: "7-gdcd.js" },
+  { id: "gdcd7-ck1-de2", title: "GDCD 7 · Cuối kì I · Đề 2", grade: 7, subject: "GDCD", minutes: 35, n: 25, file: "7-gdcd.js" },
+  { id: "gdcd7-ck1-ngau-nhien", title: "GDCD 7 · Cuối kì I · Đề ngẫu nhiên", grade: 7, subject: "GDCD", minutes: 35, n: 25, file: "7-gdcd.js",
+    pool: { from: ["gdcd7-ck1-de1", "gdcd7-ck1-de2"], matrix: {
+      "Tự hào về truyền thống quê hương": [1, 1, 1], "Quan tâm, cảm thông và chia sẻ": [1, 1, 1], "Học tập tự giác, tích cực": [2, 1, 1],
+      "Giữ chữ tín": [2, 2, 1], "Bảo tồn di sản văn hoá": [2, 2, 1], "Ứng phó với tâm lí căng thẳng": [2, 1, 2] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
