@@ -2033,6 +2033,28 @@ window.ONTAP_SEED_BANKS = [
     pool: { from: ["gdcd7-ck1-de1", "gdcd7-ck1-de2"], matrix: {
       "Tự hào về truyền thống quê hương": [1, 1, 1], "Quan tâm, cảm thông và chia sẻ": [1, 1, 1], "Học tập tự giác, tích cực": [2, 1, 1],
       "Giữ chữ tín": [2, 2, 1], "Bảo tồn di sản văn hoá": [2, 2, 1], "Ứng phó với tâm lí căng thẳng": [2, 1, 2] } } },
+  /* Tin học 7 · Kiểm tra cuối học kì I (Kết nối tri thức, Tin học 7, Bài 1–8; Phiên N7-ck1-tin-congnghe). Khối 7 chưa bật nên đề chưa hiện với
+     gia đình. Tám chủ đề theo tên bài (Bài 4 rút gọn), mỗi đề 2 – 2 – 3 – 2 – 3 – 4 – 4 – 5 câu (phần bảng tính, học sau giữa kì, nhiều câu hơn).
+     Kho câu = 50 câu của 2 đề cố định, không có câu riêng; ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, hai đề cố định chia đúng ma trận, nên ô
+     (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "tin7-ck1-de1", title: "Tin học 7 · Cuối kì I · Đề 1", grade: 7, subject: "Tin học", minutes: 35, n: 25, file: "7-tin.js" },
+  { id: "tin7-ck1-de2", title: "Tin học 7 · Cuối kì I · Đề 2", grade: 7, subject: "Tin học", minutes: 35, n: 25, file: "7-tin.js" },
+  { id: "tin7-ck1-ngau-nhien", title: "Tin học 7 · Cuối kì I · Đề ngẫu nhiên", grade: 7, subject: "Tin học", minutes: 35, n: 25, file: "7-tin.js",
+    pool: { from: ["tin7-ck1-de1", "tin7-ck1-de2"], matrix: {
+      "Thiết bị vào – ra": [1, 0, 1], "Phần mềm máy tính": [1, 1, 0], "Quản lí dữ liệu trong máy tính": [1, 1, 1],
+      "Mạng xã hội và kênh trao đổi thông tin": [1, 1, 0], "Ứng xử trên mạng": [1, 1, 1], "Làm quen với phần mềm bảng tính": [2, 1, 1],
+      "Tính toán tự động trên bảng tính": [1, 2, 1], "Công cụ hỗ trợ tính toán": [2, 1, 2] } } },
+  /* Công nghệ 7 · Kiểm tra cuối học kì I (Kết nối tri thức, Công nghệ 7, Chương I Trồng trọt Bài 1–6, Chương II Lâm nghiệp Bài 7–8; Phiên
+     N7-ck1-tin-congnghe). Khối 7 chưa bật nên đề chưa hiện với gia đình. Bảy chủ đề theo tên bài (Bài 3 rút gọn; Bài 6 dự án và ôn tập chương không
+     có chủ đề riêng), mỗi đề 4 – 3 – 4 – 3 – 4 – 3 – 4 câu. Kho câu = 50 câu của 2 đề cố định, không có câu riêng; ma trận [Biết, Hiểu, Vận dụng]
+     10 – 8 – 7, hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "congnghe7-ck1-de1", title: "Công nghệ 7 · Cuối kì I · Đề 1", grade: 7, subject: "Công nghệ", minutes: 35, n: 25, file: "7-congnghe.js" },
+  { id: "congnghe7-ck1-de2", title: "Công nghệ 7 · Cuối kì I · Đề 2", grade: 7, subject: "Công nghệ", minutes: 35, n: 25, file: "7-congnghe.js" },
+  { id: "congnghe7-ck1-ngau-nhien", title: "Công nghệ 7 · Cuối kì I · Đề ngẫu nhiên", grade: 7, subject: "Công nghệ", minutes: 35, n: 25, file: "7-congnghe.js",
+    pool: { from: ["congnghe7-ck1-de1", "congnghe7-ck1-de2"], matrix: {
+      "Giới thiệu về trồng trọt": [2, 1, 1], "Làm đất trồng cây": [1, 1, 1], "Gieo trồng, chăm sóc và phòng trừ sâu, bệnh": [2, 1, 1],
+      "Thu hoạch sản phẩm trồng trọt": [1, 1, 1], "Nhân giống vô tính cây trồng": [1, 2, 1], "Giới thiệu về rừng": [1, 1, 1],
+      "Trồng, chăm sóc và bảo vệ rừng": [2, 1, 1] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
