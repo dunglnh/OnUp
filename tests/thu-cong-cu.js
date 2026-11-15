@@ -114,7 +114,7 @@ try {
   // sau dòng cuối cùng không phải đề thử nghiệm, theo thứ tự của nháp, đề thử nghiệm vẫn là dòng cuối danh mục (Phiên N7-ck1-tin-congnghe)
   const ban = path.join(tam, "ban");
   ["tests", "js", "data"].forEach((d) => fs.cpSync(path.join(ROOT, d), path.join(ban, d), { recursive: true }));
-  const moi = [1, 2].map((k) => Object.assign(JSON.parse(JSON.stringify(require(goc)[0])), { id: "thu12-tn-de" + k, title: "Lịch sử 12 · Thi thử tốt nghiệp · Đề " + (90 + k), file: "12-thu.js", ki: [] }));
+  const moi = [1, 2].map((k) => Object.assign(JSON.parse(JSON.stringify(require(goc))), { id: "thu12-tn-de" + k, title: "Lịch sử 12 · Thi thử tốt nghiệp · Đề " + (90 + k), file: "12-thu.js", ki: [] }));
   const nhapMoi = path.join(tam, "file-moi.js");
   fs.writeFileSync(nhapMoi, "module.exports = " + JSON.stringify(moi) + ";\n");
   const g = spawnSync(process.execPath, [path.join(ban, "tests/ghep-de.js"), nhapMoi], { cwd: ban, encoding: "utf8", maxBuffer: 64 << 20 });
