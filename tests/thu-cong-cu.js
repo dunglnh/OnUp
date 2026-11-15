@@ -4,7 +4,9 @@
    - cài lỗi vào nháp (lộ đáp án, đáp án dài hơn hẳn, điểm sai, kiểu Đ/S lặp, câu trùng kho, nhắc vị trí phương án, mức sai, cách hỏi chung
      trùng câu của kho môn khác, câu chép sách) rồi soát lại: mỗi lỗi phải được báo đúng nhóm;
    - kho Tiếng Anh 7 (hai đề cố định và đề ngẫu nhiên có đoạn đọc) xuất ra nháp rồi soát: lời dặn chuẩn và tên đoạn đọc không làm mục “kho
-     khác” báo nhầm (Phiên N7-ck1-khtn), ghép thử không đổi; câu chép câu của kho Tiếng Anh 9 (phần sau lời dặn) thì vẫn báo.
+     khác” báo nhầm (Phiên N7-ck1-khtn), ghép thử không đổi; câu chép câu của kho Tiếng Anh 9 (phần sau lời dặn) thì vẫn báo;
+   - ghep-de.js với đề của một file câu hỏi mới (ghép vào bản chép của repo ở thư mục tạm): dòng danh mục đứng sau dòng cuối cùng không phải đề
+     thử nghiệm, giữ thứ tự của nháp, đề thử nghiệm vẫn là dòng cuối danh mục (Phiên N7-ck1-tin-congnghe).
    Đề dùng để thử: Lịch sử 12 · Thi thử tốt nghiệp · Đề 8 (đã qua tests/lichsu12-tn.js và mọi script khác); không ghi gì vào repo. */
 "use strict";
 const assert = require("assert");
@@ -107,6 +109,21 @@ try {
   fs.writeFileSync(taHong, "module.exports = " + JSON.stringify(dt) + ";\n");
   r = chay("soat-nhap.js", [taHong, "--mon", MON_TA]);
   assert.ok(/\[kho khác\] ta7-ck1-de1#1 q: tests\/ta9-ck1\.js sẽ báo/.test(r.ra), "câu chép câu Tiếng Anh 9 phải được báo “kho khác”:\n" + r.ra);
+
+  // file câu hỏi mới: ghép hai đề (chép từ nháp của đề Lịch sử 12, đổi mã, tên, file) vào bản chép của repo ở thư mục tạm; dòng danh mục đứng
+  // sau dòng cuối cùng không phải đề thử nghiệm, theo thứ tự của nháp, đề thử nghiệm vẫn là dòng cuối danh mục (Phiên N7-ck1-tin-congnghe)
+  const ban = path.join(tam, "ban");
+  ["tests", "js", "data"].forEach((d) => fs.cpSync(path.join(ROOT, d), path.join(ban, d), { recursive: true }));
+  const moi = [1, 2].map((k) => Object.assign(JSON.parse(JSON.stringify(require(goc))), { id: "thu12-tn-de" + k, title: "Lịch sử 12 · Thi thử tốt nghiệp · Đề " + (90 + k), file: "12-thu.js", ki: [] }));
+  const nhapMoi = path.join(tam, "file-moi.js");
+  fs.writeFileSync(nhapMoi, "module.exports = " + JSON.stringify(moi) + ";\n");
+  const g = spawnSync(process.execPath, [path.join(ban, "tests/ghep-de.js"), nhapMoi], { cwd: ban, encoding: "utf8", maxBuffer: 64 << 20 });
+  assert.equal(g.status, 0, "ghep-de.js với file câu hỏi mới:\n" + (g.stdout || "") + (g.stderr || ""));
+  const ti = fs.readFileSync(path.join(ban, "data/banks/index.js"), "utf8"), vt = (id) => ti.lastIndexOf('{ id: "' + id + '",');
+  const thuNghiem = D.kho().filter((b) => b.subject === "Thử nghiệm").map((b) => b.id), cuoi = D.kho().filter((b) => b.subject !== "Thử nghiệm").pop().id;
+  const thuTu = [cuoi, "thu12-tn-de1", "thu12-tn-de2"].concat(thuNghiem).map(vt);
+  assert.ok(thuNghiem.length && thuTu.every((x, i) => x >= 0 && (!i || x > thuTu[i - 1])), "file câu hỏi mới: dòng danh mục phải đứng sau " + cuoi + ", trước đề thử nghiệm: " + thuTu.join(", "));
+  assert.ok(!/\{ id: "/.test(ti.slice(vt(thuNghiem[thuNghiem.length - 1]) + 1)), "đề thử nghiệm phải là dòng cuối danh mục");
 } finally {
   fs.rmSync(tam, { recursive: true, force: true });
 }
