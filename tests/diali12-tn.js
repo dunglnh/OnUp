@@ -1,5 +1,5 @@
-// Kiểm tra các đề Địa lí thi thử tốt nghiệp THPT (data/banks/12-diali.js, diali12-tn-de<N>; Phiên N12-tn-diali: Đề 1–4; phiên sau thêm đề
-// thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG). Đề tính điểm theo khung đề tốt nghiệp THPT từ năm 2025 (Quyết định
+// Kiểm tra các đề Địa lí thi thử tốt nghiệp THPT (data/banks/12-diali.js, diali12-tn-de<N>; Phiên N12-tn-diali: Đề 1–4; Phiên
+// N12-tn-diali-b: Đề 5–8; phiên sau thêm đề thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG). Đề tính điểm theo khung đề tốt nghiệp THPT từ năm 2025 (Quyết định
 // 764/QĐ-BGDĐT; docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7, khối “Phiên N12-tn-diali”). Số đề, số câu lấy từ danh mục.
 // Khung: danh mục (tên, khối 12, môn Địa lí, file, 50 phút, pts 10, gắn vào tn-thpt-2027); Phần I 18 câu nhiều lựa chọn pt 0,25, Phần II
 // 4 câu đúng/sai 4 ý pt 1, Phần III 6 câu trả lời ngắn pt 0,25 (đúng tên part, đúng thứ tự), Quiz.grade điểm tối đa 4,5 – 4 – 1,5; đáp án
@@ -305,8 +305,9 @@ const RUT_GON = {
   "Phát triển kinh tế và đảm bảo quốc phòng, an ninh ở Biển Đông": "Phát triển kinh tế và đảm bảo quốc phòng, an ninh ở Biển Đông và các đảo, quần đảo"
 };
 // tên phần, khu vực của Địa lí 11 và tên chương của Địa lí 10 dùng làm chủ đề câu lớp 10, 11
-const CHUONG_11 = ["Một số vấn đề về kinh tế – xã hội thế giới", "Khu vực Mỹ La tinh", "Liên minh châu Âu (EU)", "Khu vực Đông Nam Á", "Khu vực Tây Nam Á"];
-const CHUONG_10 = ["Khí quyển", "Địa lí dân cư", "Địa lí ngành dịch vụ"];
+const CHUONG_11 = ["Một số vấn đề về kinh tế – xã hội thế giới", "Khu vực Mỹ La tinh", "Liên minh châu Âu (EU)", "Khu vực Đông Nam Á", "Khu vực Tây Nam Á",
+  "Hợp chúng quốc Hoa Kỳ (Hoa Kỳ)", "Liên bang Nga", "Nhật Bản", "Cộng hoà nhân dân Trung Hoa (Trung Quốc)", "Ô-xtrây-li-a", "Cộng hoà Nam Phi"];
+const CHUONG_10 = ["Khí quyển", "Thuỷ quyển", "Địa lí dân cư", "Địa lí ngành công nghiệp", "Địa lí ngành dịch vụ"];
 // Bảng 16.2 (tr. 73): cơ cấu giá trị sản xuất công nghiệp phân theo vùng năm 2010 và năm 2024 (%)
 const BANG_16_2 = { "Trung du và miền núi phía Bắc": [5.2, 10.9], "Đồng bằng sông Hồng": [22.5, 36.5], "Bắc Trung Bộ": [2.4, 5.0],
   "Duyên hải Nam Trung Bộ và Tây Nguyên": [8.0, 6.4], "Đông Nam Bộ": [53.3, 34.9], "Đồng bằng sông Cửu Long": [8.6, 6.3] };
@@ -330,6 +331,22 @@ const DAT_2024 = [33.1, 84.5, 12.0, 3.5];
 const KHI_HAU = { nang: [1400, 3000], mua: [1500, 2000], muaMax: [3500, 4000], am: [80, 85] };
 // Bài 8 (tr. 39–40): năm 2024, số dân (triệu người), lực lượng lao động, lao động ở nông thôn (triệu người), tỉ lệ đã qua đào tạo (%)
 const LAO_DONG_2024 = [101.3, 52.9, 32.5, 28.4];
+// Bảng 5 (tr. 29): diện tích rừng (triệu ha): tổng, rừng tự nhiên, rừng trồng; tr. 59, 60: năm 2024 có 14 874,3 nghìn ha rừng, rừng tự nhiên 68,1%, lâm nghiệp 3,0% giá trị sản xuất
+const BANG_5 = { 1943: [14.3, 14.3, 0], 2010: [13.4, 10.3, 3.1], 2015: [14.1, 10.2, 3.9], 2024: [14.9, 10.1, 4.8] }, RUNG_2024 = { tong: 14874.3, tuNhien: 68.1, lamNghiep: 3.0 };
+// Bảng 8.2 (tr. 41): cơ cấu lao động có việc làm theo ngành (%): nông nghiệp, lâm nghiệp và thuỷ sản; công nghiệp và xây dựng; dịch vụ
+const BANG_8_2 = { 2010: [49.5, 20.9, 29.6], 2015: [43.6, 23.0, 33.4], 2020: [33.1, 30.8, 36.1], 2024: [26.4, 33.4, 40.2] };
+// Bảng 13.2 (tr. 65): sản lượng thuỷ sản (nghìn tấn): tổng, khai thác, nuôi trồng
+const BANG_13_2 = { 2010: [5204.5, 2472.2, 2732.3], 2015: [6727.2, 3176.5, 3550.7], 2020: [8635.7, 3896.5, 4739.2], 2024: [9656.3, 3838.7, 5817.6] };
+// Bảng 14 (tr. 66): số trang trại: tổng, trồng trọt, chăn nuôi, nuôi trồng thuỷ sản
+const BANG_14 = { 2011: [20078, 8635, 6267, 4440], 2024: [26111, 8035, 14256, 2979] };
+// Hình 16.1 (tr. 71): cơ cấu giá trị sản xuất công nghiệp theo thành phần kinh tế (%): Nhà nước, ngoài Nhà nước, có vốn đầu tư nước ngoài
+const HINH_16_1 = { 2010: [20.9, 27.7, 51.4], 2024: [7.4, 34.1, 58.5] };
+// Bảng 17.1 (tr. 74): sản lượng than sạch khai thác (triệu tấn) các năm 2010, 2015, 2020, 2024
+const BANG_17_1 = [44.8, 41.7, 44.6, 45.3];
+// Bảng 22.2 (tr. 98): khách du lịch do các cơ sở lữ hành phục vụ (triệu lượt), doanh thu (nghìn tỉ đồng)
+const BANG_22_2 = { 2010: [7.8, 15.5], 2015: [12.1, 30.4], 2019: [17.5, 44.7], 2020: [8.3, 16.5], 2024: [33.6, 79.0] };
+// Bảng 24 (tr. 108): số lượng trâu, bò của Trung du và miền núi phía Bắc (nghìn con) và tỉ lệ so với cả nước (%)
+const BANG_24 = { "Trâu": { 2010: [1601.3, 54.9], 2015: [1430.2, 55.5], 2024: [1130.1, 55.6] }, "Bò": { 2010: [1025.1, 17.4], 2015: [958.2, 16.7], 2024: [1195.1, 19.2] } };
 
 // các hàm dùng chung cho câu đọc biểu đồ, bảng
 const lamTron = lam;
@@ -513,11 +530,11 @@ const RIENG = {
         [/^Năm 2024, diện tích nuôi tôm nước lợ tăng thêm (\d+) nghìn ha so với năm 2015/, (m) => v("Tôm nước lợ", 2024) - v("Tôm nước lợ", 2015) === +m[1]],
         [/^Năm 2024, diện tích nuôi tôm nước lợ gấp hơn (.+) lần năm 2015/, (m) => v("Tôm nước lợ", 2024) / v("Tôm nước lợ", 2015) > val(m[1])],
         [/^Mùa khô sâu sắc làm vùng thiếu nước ngọt/, () => true]]); } }, // tr. 154
-    { has: "Tính tỉ lệ dân thành thị của tỉnh H", right: tinh("có # triệu dân, trong đó # triệu người sống ở thành thị", (d, t) => (t / d) * 100) },
+    { has: "Số dân sống ở thành thị chiếm bao nhiêu phần trăm dân số của tỉnh H", right: tinh("có # triệu dân, trong đó # triệu người sống ở thành thị", (d, t) => (t / d) * 100) },
     { has: "tổng sản lượng thuỷ sản đạt", right: tinh("có số dân # triệu người, tổng sản lượng thuỷ sản đạt # triệu tấn", (d, s) => (s * 1000) / d) },
     { has: "nhà máy điện gió với tổng công suất", right: tinh("có # nhà máy điện gió với tổng công suất # MW", (n, p) => p / n) },
     { has: "sản lượng điện thoại di động của tỉnh B", right: tinh("đạt # triệu chiếc, chiếm #% sản lượng", (s, p) => (s / p) * 100) },
-    { has: "Sản lượng dầu thô khai thác của một doanh nghiệp", right: tinh("năm 2015 là # triệu tấn, năm 2024 là # triệu tấn", (a, b) => ((a - b) / a) * 100) },
+    { has: "Sản lượng dầu thô mà một doanh nghiệp dầu khí khai thác", right: tinh("năm 2015 là # triệu tấn, năm 2024 là # triệu tấn", (a, b) => ((a - b) / a) * 100) },
     { has: "khu vực dịch vụ đóng góp", right: tinh("có GDP là # tỉ USD, trong đó khu vực dịch vụ đóng góp # tỉ USD", (g, d) => (d / g) * 100) }
   ],
   "diali12-tn-de4": [
@@ -569,10 +586,261 @@ const RIENG = {
         [/^Năm 2024, diện tích cây ăn quả gấp hơn hai lần năm 2015/, () => aq(2024) / aq(2015) > 2], [/^Năm 2021, diện tích trồng ngô vẫn lớn hơn diện tích cây ăn quả/, () => ngo(2021) > aq(2021)]]); } },
     { has: "khu nông nghiệp công nghệ cao X rộng", right: tinh("rộng # ha, trong đó # ha trồng rau, hoa", (a, b) => (b / a) * 100) },
     { has: "khu công nghệ cao X thu hút", right: tinh("thu hút # dự án với tổng vốn đầu tư # tỉ USD", (n, v) => (v * 1000) / n) },
-    { has: "khu vực dịch vụ của tỉnh Q tạo ra", right: tinh("tạo ra # nghìn tỉ đồng, trong khi tổng sản phẩm trên địa bàn (GRDP) của tỉnh là # nghìn tỉ đồng", (d, g) => (d / g) * 100) },
+    { has: "khu vực dịch vụ của tỉnh Q tạo ra", right: tinh("tạo ra # nghìn tỉ đồng, GRDP của tỉnh là # nghìn tỉ đồng", (d, g) => (d / g) * 100) },
     { has: "đàn bò của tỉnh H ở Bắc Trung Bộ", right: tinh("có # nghìn con, tăng #% so với năm 2020", (s, p) => s / (1 + p / 100)) },
     { has: "các nhà máy điện gió của tỉnh B", right: tinh("có tổng công suất # MW, chiếm #% tổng công suất", (p, s) => (p / s) * 100) },
     { has: "triệu thùng dầu thô mỗi ngày", right: tinh("khai thác trung bình # triệu thùng dầu thô mỗi ngày và xuất khẩu # triệu thùng", (k, x) => (x / k) * 100) }
+  ],
+  "diali12-tn-de5": [
+    { has: "nhiều điểm giống nhau về lịch sử, văn hoá, xã hội", right: sach("tr. 9", "hợp tác, cùng phát triển trong hoà bình") },
+    { has: "có mùa đông lạnh rõ rệt nhất", right: sach("tr. 20–21", "Miền Bắc và Đông Bắc Bắc Bộ") },
+    { has: "rác thải sinh hoạt của các gia đình", right: sach("tr. 32", "phân loại để tái chế") },
+    { has: "cứ 100 bé gái", right: sach("tr. 35", "111,4 bé trai") },
+    { has: "năng suất lao động xã hội", right: sach("tr. 44", "kéo lao động nông nghiệp sang công nghiệp, dịch vụ") },
+    { has: "kinh tế ngoài Nhà nước được khuyến khích", right: sach("tr. 49", "mọi ngành, lĩnh vực pháp luật không cấm") },
+    { has: "số lượng gia cầm của nước ta tăng nhanh", right: sach("tr. 57", "công nghiệp chế biến thức ăn lớn mạnh") },
+    { has: "các vùng chuyên canh ở nước ta chú trọng mô hình", right: sach("tr. 68", "Nông nghiệp hữu cơ, chăn nuôi tập trung an toàn") },
+    { has: "Khu công nghiệp được thành lập đầu tiên", right: sach("tr. 83", "khu chế xuất Tân Thuận") },
+    { has: "kí kết, thực thi nhiều hiệp định thương mại với các đối tác lớn", right: sach("tr. 88–89", "tham gia sâu vào thị trường quốc tế") },
+    { has: "tốc độ tăng trưởng của thương mại điện tử", right: sach("tr. 97", "In-đô-nê-xi-a và Phi-líp-pin") },
+    { has: "đương quy, đỗ trọng, tam thất", right: sach("tr. 108", "Dưới tán rừng ở vùng núi cao") },
+    { has: "mùa khô kéo dài tạo thuận lợi", right: sach("tr. 130", "Du lịch biển, phơi sấy và bảo quản nông sản") },
+    { has: "tập trung đầu tư vào vùng chuyên canh lúa", right: sach("tr. 159", "chất lượng cao và phát thải thấp") },
+    { has: "bao nhiêu đặc khu", right: sach("tr. 164", "13 đặc khu") },
+    { has: "ngoại thương hàng hoá của Hoa Kỳ", right: (q) => {
+      const [x1, n1, x2, n2] = so(q.q, "Năm 2015: xuất khẩu #, nhập khẩu #. Năm 2023: xuất khẩu #, nhập khẩu #");
+      return dungMot(q, [[/^Hoa Kỳ nhập siêu ở cả hai năm$/, () => n1 > x1 && n2 > x2], [/^Xuất khẩu tăng nhanh hơn nhập khẩu$/, () => x2 / x1 > n2 / n1],
+        [/^Năm 2023, nhập khẩu gấp hơn hai lần xuất khẩu$/, () => n2 / x2 > 2], [/^Năm 2023, Hoa Kỳ xuất siêu$/, () => x2 > n2]]); } },
+    { has: "tỉ lệ nhóm 0 – 14 tuổi và nhóm từ 65 tuổi trở lên trong dân số Nhật Bản", right: (q) => {
+      const d = docDuong(q.svg, "%"), tre = theoNam(d["0 – 14 tuổi"]), gia = theoNam(d["Từ 65 tuổi trở lên"]), N = nam(gia), [a, b] = dauCuoi(N);
+      return dungMot(q, [[/^Tỉ lệ nhóm từ 65 tuổi trở lên tăng liên tục$/, () => tangLT(N.map((n) => gia[n]))],
+        [/^Năm (\d{4}), tỉ lệ nhóm 0 – 14 tuổi cao hơn nhóm từ 65 tuổi trở lên$/, (m) => tre[m[1]] > gia[m[1]]],
+        [/^Tỉ lệ nhóm 0 – 14 tuổi năm (\d{4}) giảm (\d+) điểm phần trăm so với năm (\d{4})$/, (m) => gan(tre[m[3]] - tre[m[1]], +m[2])],
+        [/^Năm (\d{4}), nhóm từ 65 tuổi trở lên chiếm hơn một phần ba dân số$/, (m) => gia[m[1]] > 100 / 3]]); } },
+    { has: "lưu lượng nước trung bình các tháng của sông X", right: (q) => {
+      const v = so(q.q, "từ tháng 1 đến tháng 12: " + Array(12).fill("#").join("; ")), tb = sum(v) / 12;
+      coX(q, vn(tb)); return v.filter((x) => x > tb).length + " tháng"; } },
+    { has: "rừng tự nhiên chiếm 68,1%", right: (q) => {
+      const [r, tn] = so(q.q, "nước ta có # nghìn ha rừng; rừng tự nhiên chiếm #%"), [ln] = so(q.q, "Ngành lâm nghiệp đóng góp #%");
+      assert.deepEqual([r, tn, ln], [RUNG_2024.tong, RUNG_2024.tuNhien, RUNG_2024.lamNghiep], "số liệu như sách (tr. 59, 60)");
+      const tnHa = (r * tn) / 100, trHa = r - tnHa;
+      return yTung(q, [[/^Năm 2024, diện tích rừng trồng của nước ta lớn hơn diện tích rừng tự nhiên\.$/, () => trHa > tnHa],
+        [/^Năm 2024, diện tích rừng tự nhiên của nước ta khoảng (.+) triệu ha\.$/, (m) => gan(lam(tnHa / 1000, 1), val(m[1]))],
+        [/^Lâm nghiệp đóng góp phần lớn giá trị sản xuất/, () => ln > 50], [/^Năm 2024, diện tích rừng tự nhiên gấp hơn hai lần diện tích rừng trồng\.$/, () => tnHa / trHa > 2]]); } },
+    { has: "kinh tế Nhà nước 20,9%", right: (q) => {
+      const a = so(q.q, "kinh tế Nhà nước #%, kinh tế ngoài Nhà nước #%, khu vực FDI (có vốn đầu tư nước ngoài) #%"), b = so(q.q, "các tỉ lệ này lần lượt là #%; #% và #%");
+      assert.deepEqual([a, b], [HINH_16_1[2010], HINH_16_1[2024]], "số liệu như Hình 16.1 (tr. 71)");
+      return yTung(q, [[/^Năm 2024, khu vực FDI tạo ra hơn một nửa/, () => b[2] > 50], [/^Tỉ trọng của kinh tế Nhà nước năm 2024 chưa bằng một nửa năm 2010/, () => b[0] < a[0] / 2],
+        [/^Năm 2024, tỉ trọng của kinh tế ngoài Nhà nước gấp hơn bốn lần kinh tế Nhà nước/, () => b[1] / b[0] > 4], [/^Tỉ trọng của kinh tế ngoài Nhà nước năm 2024 thấp hơn năm 2010/, () => b[1] < a[1]]]); } },
+    { has: "hoạt động thuỷ sản của tỉnh X ở Đồng bằng sông Hồng", right: (q) => {
+      const N = [2015, 2020, 2024], t = bangNam(q, N, ["diện tích nuôi trồng", "sản lượng nuôi trồng", "sản lượng khai thác"]), ns = (n) => t[n][1] / t[n][0]; // nghìn tấn / nghìn ha = tấn/ha
+      return yTung(q, [[/^Năm 2024, năng suất nuôi trồng thuỷ sản của tỉnh X đạt trên (\d+) tấn\/ha/, (m) => ns(2024) > +m[1]],
+        [/^Sản lượng khai thác của tỉnh X tăng nhanh hơn sản lượng nuôi trồng/, () => t[2024][2] / t[2015][2] > t[2024][1] / t[2015][1]],
+        [/^Năm 2024, sản lượng nuôi trồng chiếm hơn (\d+)% tổng sản lượng/, (m) => (t[2024][1] / (t[2024][1] + t[2024][2])) * 100 > +m[1]],
+        [/^Diện tích nuôi trồng tăng chậm hơn sản lượng nuôi trồng/, () => t[2024][0] / t[2015][0] < t[2024][1] / t[2015][1]]]); } },
+    { has: "diện tích rừng trồng mới (cột) và sản lượng gỗ khai thác (đường)", right: (q) => {
+      const d = docKetHop(q.svg); assert.deepEqual([d.cot.ten, d.duong.ten], ["Rừng trồng mới", "Sản lượng gỗ"]);
+      const c = d.cot.v.map((p) => p.v), g = d.duong.v.map((p) => p.v), [c0, c1] = dauCuoi(c), [g0, g1] = dauCuoi(g);
+      return yTung(q, [[/^Diện tích rừng trồng mới hằng năm của tỉnh X tăng qua các năm/, () => tangLT(c)], [/^Lượng gỗ khai thác được năm 2024 gấp hơn hai lần năm 2015/, () => g1 / g0 > 2],
+        [/^Sản lượng gỗ khai thác tăng nhanh hơn diện tích rừng trồng mới/, () => g1 / g0 > c1 / c0], [/^Gỗ khai thác từ rừng trồng là nguồn nguyên liệu cho chế biến gỗ, sản xuất giấy/, () => true]]); } }, // tr. 60–61
+    { has: "Một trạm khí tượng ở nước ta có tổng lượng mưa năm", right: tinh("tổng lượng mưa năm là # mm, trong đó lượng mưa các tháng mùa mưa (từ tháng 5 đến tháng 10) là # mm", (t, m) => (m / t) * 100) },
+    { has: "khu vực công nghiệp và xây dựng của tỉnh H tạo ra giá trị", right: tinh("tạo ra giá trị # nghìn tỉ đồng với # triệu lao động", (g, l) => g / l) },
+    { has: "tỉ kWh điện, số dân là", right: tinh("sản xuất được # tỉ kWh điện, số dân là # triệu người", (e, d) => { assert.equal(d, LAO_DONG_2024[0], "số dân như sách (tr. 34)"); return (e * 1000) / d; }) },
+    { has: "Mật độ đường ô tô của tỉnh X", right: tinh("Tỉnh X có diện tích # km². Tổng chiều dài mạng lưới đường ô tô của tỉnh là # km năm 2015 và # km năm 2024", (s, a, b) => (b - a) / s) },
+    { has: "số lượng lợn của Đông Nam Bộ chiếm", right: tinh("chiếm #% số lượng lợn cả nước; riêng tỉnh có số lượng lợn lớn nhất vùng chiếm #%", (a, b) => {
+      assert.deepEqual([a, b], [20.5, 65.9], "số liệu như sách (tr. 150)"); return (a * b) / 100; }) },
+    { has: "GDP của Trung Quốc đạt", right: tinh("đạt # tỉ USD; khu vực công nghiệp và xây dựng đóng góp # tỉ USD", (g, c) => (c / g) * 100) }
+  ],
+  "diali12-tn-de6": [
+    { has: "khai thác những tiềm năng của biển", right: sach("tr. 9", "Là hướng chiến lược để phát triển và bảo vệ đất nước") },
+    { has: "sông dài trên 10 km", right: sach("tr. 14", "2 360 sông") },
+    { has: "Thiên nhiên mỗi vùng, miền ở nước ta khác nhau", right: sach("tr. 26", "liên kết chặt chẽ với nhau") },
+    { has: "Theo Bộ luật Lao động năm 2019", right: sach("tr. 39", "Đủ 15 tuổi") },
+    { has: "Đô thị hoá nông thôn ở nước ta đem lại", right: sach("tr. 45", "Cảnh quan làng quê đổi mới, hiện đại hơn") },
+    { has: "việc tăng cường chuyển đổi số", right: sach("tr. 48", "Thương mại điện tử, ngân hàng, logistics") },
+    { has: "về lượng thuỷ sản đánh bắt", right: sach("tr. 65", "Duyên hải Nam Trung Bộ và Tây Nguyên") },
+    { has: "ngành công nghiệp (cấp 1) có 4 nhóm", right: (q) => sach("tr. 70", vn(5 + 24 + 1 + 4) + " ngành")() }, // 5 ngành khai khoáng, 24 chế biến, chế tạo, 1 điện, khí, 4 cấp nước, xử lí rác
+    { has: "Mỏ dầu nào sau đây đang được khai thác", right: sach("tr. 76", "Bạch Hổ") },
+    { has: "Sông ngòi, kênh rạch dày đặc ở Đồng bằng sông Cửu Long", right: sach("tr. 89", "Giao thông đường thuỷ, du lịch trên sông") },
+    { has: "công nghiệp chế biến khoáng sản có những sản phẩm nổi bật", right: sach("tr. 105", "Xi măng, phân bón") },
+    { has: "Cát Linh – Hà Đông, Nhổn – ga Hà Nội", right: sach("tr. 116", "giảm ùn tắc giao thông ở Thủ đô") },
+    { has: "được trồng chủ yếu trong các khu rừng trồng", right: sach("tr. 125", "Bạch đàn, keo lá tràm, keo tai tượng") },
+    { has: "nghề làm muối truyền thống", right: sach("tr. 136", "Sa Huỳnh, Cà Ná") },
+    { has: "Vùng Đông Nam Bộ có nhà máy thuỷ điện nào sau đây", right: sach("tr. 77, 146", "Trị An") },
+    { has: "sản lượng dầu thô (triệu tấn) và khí tự nhiên (tỉ m³) của Liên bang Nga", right: (q) => {
+      const [d1, k1, d2, k2] = so(q.q, "Năm 2010: dầu thô #, khí tự nhiên #. Năm 2023: dầu thô #, khí tự nhiên #"), xu = (a, b) => (b > a ? "tăng" : "giảm");
+      return dungMot(q, [[/^Dầu thô (tăng|giảm), khí tự nhiên (tăng|giảm)$/, (m) => m[1] === xu(d1, d2) && m[2] === xu(k1, k2)],
+        [/^Dầu thô và khí tự nhiên cùng (tăng|giảm)$/, (m) => xu(d1, d2) === m[1] && xu(k1, k2) === m[1]]]); } },
+    { has: "cơ cấu giá trị hàng hoá xuất khẩu của Ô-xtrây-li-a", right: (q) => {
+      const d = docTron(q.svg), a = d["2010"], b = d["2023"], QK = "Quặng và kim loại", NL = "Nhiên liệu", NS = "Nông sản, thực phẩm", K = "Hàng khác";
+      return dungMot(q, [[/^Năm 2023, quặng, kim loại và nhiên liệu chiếm (\d+)%$/, (m) => b[QK] + b[NL] === +m[1]], [/^Tỉ trọng nông sản, thực phẩm tăng$/, () => b[NS] > a[NS]],
+        [/^Năm 2010, hàng khác có tỉ trọng lớn nhất trong bốn nhóm hàng$/, () => lonNhat(a) === K], [/^Tỉ trọng nhiên liệu giảm$/, () => b[NL] < a[NL]]]); } },
+    { has: "sản xuất được 310 tỉ kWh điện", right: (q) => { const [e, d] = so(q.q, "sản xuất được # tỉ kWh điện và có số dân # triệu người"); return vn((e * 1000) / d) + " kWh/người"; } },
+    { has: "nước ta có 20 078 trang trại", right: (q) => {
+      const a = so(q.q, "Năm 2011, nước ta có # trang trại, trong đó # trang trại trồng trọt, # trang trại chăn nuôi, # trang trại nuôi trồng thuỷ sản"),
+        b = so(q.q, "Năm 2024, cả nước có # trang trại, trong đó # trang trại trồng trọt, # trang trại chăn nuôi, # trang trại nuôi trồng thuỷ sản");
+      assert.deepEqual([a, b], [BANG_14[2011], BANG_14[2024]], "số liệu như Bảng 14 (tr. 66)");
+      coX(q, "≈ " + vnf(b[2] / a[2], 2), "≈ " + vnf((b[2] / b[0]) * 100, 1) + "%");
+      return yTung(q, [[/^Số trang trại chăn nuôi năm 2024 gấp hơn hai lần năm 2011\.$/, () => b[2] / a[2] > 2], [/^Năm 2024, trang trại chăn nuôi chiếm hơn một nửa tổng số trang trại\.$/, () => b[2] / b[0] > 0.5],
+        [/^Số trang trại nuôi trồng thuỷ sản tăng trong giai đoạn 2011 – 2024\.$/, () => b[3] > a[3]], [/^Năm 2024, trang trại trồng trọt vẫn có số lượng nhiều nhất\.$/, () => b[1] > Math.max(b[2], b[3])]]); } },
+    { has: "các khu công nghiệp đang hoạt động của tỉnh X", right: (q) => {
+      const N = [2015, 2020, 2024], t = bangNam(q, N, ["số khu công nghiệp", "số lao động", "giá trị xuất khẩu"]), bq = (n) => t[n][2] / t[n][1];
+      return yTung(q, [[/^Năm 2024, bình quân mỗi khu công nghiệp có hơn (\d+) nghìn lao động\.$/, (m) => t[2024][1] / t[2024][0] > +m[1]],
+        [/^Giá trị xuất khẩu của các khu công nghiệp tăng chậm hơn số lao động\.$/, () => t[2024][2] / t[2015][2] < t[2024][1] / t[2015][1]],
+        [/^Giá trị xuất khẩu bình quân của mỗi lao động năm 2024 cao hơn năm 2015\.$/, () => bq(2024) > bq(2015)],
+        [/^Số khu công nghiệp đang hoạt động năm 2024 gấp hơn (.+) lần năm 2015\.$/, (m) => t[2024][0] / t[2015][0] > val(m[1])]]); } },
+    { has: "hệ thống cảng biển nước ta gồm 34 cảng", right: (q) => {
+      const [cb, ben] = so(q.q, "gồm # cảng với # bến"), [hk, qt] = so(q.q, "cả nước có # cảng hàng không, # trong số đó");
+      assert.deepEqual([cb, ben, hk, qt], [34, 296, 23, 12], "số liệu như sách (tr. 93)");
+      return yTung(q, [[/^Các tuyến đường biển nội địa của nước ta chủ yếu theo hướng đông – tây\.$/, () => false], // tr. 93: hướng bắc – nam
+        [/^Vận tải hàng không của nước ta chỉ phục vụ việc chở hành khách\.$/, () => false], // tr. 94: tăng vận tải hàng hoá
+        [/^Số cảng hàng không quốc tế chiếm hơn một nửa tổng số cảng hàng không\.$/, () => qt / hk > 0.5],
+        [/^Bình quân mỗi cảng biển của nước ta có gần (\d+) bến cảng\.$/, (m) => ben / cb < +m[1] && ben / cb > +m[1] - 0.5]]); } },
+    { has: "sản lượng hải sản khai thác xa bờ và ven bờ của tỉnh X", right: (q) => {
+      const d = docCot(q.svg, "Nghìn tấn"), N = Object.keys(d).sort(), xb = (n) => d[n]["Xa bờ"], vb = (n) => d[n]["Ven bờ"];
+      return yTung(q, [[/^Sản lượng khai thác xa bờ của tỉnh X tăng liên tục\.$/, () => tangLT(N.map(xb))], [/^Năm (\d{4}), sản lượng khai thác ven bờ lớn hơn xa bờ\.$/, (m) => vb(m[1]) > xb(m[1])],
+        [/^Năm (\d{4}), sản lượng khai thác xa bờ gấp hơn (.+) lần ven bờ\.$/, (m) => xb(m[1]) / vb(m[1]) > val(m[2])],
+        [/^Tổng sản lượng hải sản khai thác năm (\d{4}) tăng hơn (\d+)% so với năm (\d{4})\.$/, (m) => (xb(m[1]) + vb(m[1])) / (xb(m[3]) + vb(m[3])) > 1 + m[2] / 100]]); } },
+    { has: "rừng trồng là 4,8 triệu ha", right: tinh("nước ta có # triệu ha rừng, trong đó rừng trồng là # triệu ha", (t, r) => {
+      assert.deepEqual([t, r], [BANG_5[2024][0], BANG_5[2024][2]], "số liệu như Bảng 5 (tr. 29)"); return (r / t) * 100; }) },
+    { has: "người cao tuổi (65 tuổi trở lên) chiếm 9,3%", right: tinh("Dân số nước ta năm 2024 là # triệu người, người cao tuổi (65 tuổi trở lên) chiếm #%", (d, p) => {
+      assert.deepEqual([d, p], [LAO_DONG_2024[0], 9.3], "số liệu như sách (tr. 34, Bảng 7 tr. 35)"); return (d * p) / 100; }) },
+    { has: "đất trồng lúa; diện tích gieo trồng lúa cả năm", right: tinh("có # nghìn ha đất trồng lúa; diện tích gieo trồng lúa cả năm đạt # nghìn ha", (d, g) => g / d) },
+    { has: "các cơ sở lữ hành ở nước ta phục vụ", right: tinh("phục vụ # triệu lượt khách du lịch, doanh thu đạt # nghìn tỉ đồng", (k, d) => {
+      assert.deepEqual([k, d], BANG_22_2[2024], "số liệu như Bảng 22.2 (tr. 98)"); return d / k; }) }, // nghìn tỉ đồng : triệu lượt = triệu đồng mỗi lượt
+    { has: "cả nước khai thác được 3 838,7 nghìn tấn thuỷ sản", right: tinh("cả nước khai thác được # nghìn tấn thuỷ sản, trong đó Đồng bằng sông Cửu Long chiếm #%. Phần thuỷ sản đánh bắt của vùng chỉ bằng #%", (c, a, b) => {
+      assert.deepEqual([c, a, b], [BANG_13_2[2024][1], 34.1, 24.5], "số liệu như Bảng 13.2 (tr. 65) và tr. 159"); return (c * a) / b; }) },
+    { has: "Cộng hoà Nam Phi xuất khẩu 109,5 tỉ USD", right: tinh("xuất khẩu # tỉ USD hàng hoá, trong đó khoáng sản (vàng, bạch kim, than…) đạt # tỉ USD", (x, k) => (k / x) * 100) }
+  ],
+  "diali12-tn-de7": [
+    { has: "sạt lở đất thường xảy ra trên các sườn núi", right: sach("tr. 14", "Xâm thực mạnh") },
+    { has: "các hệ sinh thái rừng còn lại ở nước ta", right: sach("tr. 29", "rừng thứ sinh") },
+    { has: "tỉ trọng của từng khu vực biến đổi ra sao", right: sach("tr. 41", "Khu vực có vốn đầu tư nước ngoài tăng dần tỉ trọng") },
+    { has: "sự chuyển dịch cơ cấu kinh tế theo lãnh thổ", right: sach("tr. 50", "Hình thành các hành lang kinh tế ở nhiều địa phương") },
+    { has: "lực lượng nào giữ vai trò chủ thể", right: sach("tr. 58", "Nông dân") },
+    { has: "vùng chuyên canh nho và thanh long", right: sach("tr. 68", "Lâm Đồng") },
+    { has: "nhà máy sản xuất điện thoại, linh kiện điện tử, máy tính", right: sach("tr. 78", "Có lợi thế về lao động, hạ tầng và thu hút vốn nước ngoài") },
+    { has: "bao nhiêu khu công nghiệp đang hoạt động", right: sach("tr. 83", "304 khu") },
+    { has: "Kho số viễn thông, tài nguyên Internet được coi là", right: sach("tr. 88", "không có sẵn trong tự nhiên mà do con người tạo ra") },
+    { has: "cảng thuỷ nội địa quan trọng", right: sach("tr. 91", "Khuyến Lương") },
+    { has: "du lịch ở nước ta được xác định là", right: sach("tr. 98", "một ngành kinh tế mũi nhọn") },
+    { has: "các khu kinh tế cửa khẩu mang lại tác dụng", right: sach("tr. 109", "Tăng giao lưu, hợp tác kinh tế, củng cố quốc phòng, an ninh") },
+    { has: "khu dự trữ sinh quyển thế giới nào", right: sach("tr. 125", "Miền Tây Nghệ An") },
+    { has: "các đối tượng thuỷ sản nuôi trồng chủ yếu là", right: sach("tr. 160", "tôm, cá da trơn, cua") },
+    { has: "tiềm năng về băng cháy", right: sach("tr. 165", "Vùng biển quanh Hoàng Sa, Trường Sa và bể Phú Khánh") },
+    { has: "số dân (triệu người) và tỉ lệ dân thành thị (%) của Trung Quốc", right: (q) => {
+      const [d1, t1] = so(q.q, "Năm 2000: số dân #; tỉ lệ dân thành thị #"), [d2, t2] = so(q.q, "Năm 2023: số dân #; tỉ lệ dân thành thị #"), tt = (d, t) => (d * t) / 100;
+      coX(q, "≈ " + vnf(tt(d1, t1), 1), "≈ " + vnf(tt(d2, t2), 1));
+      return dungMot(q, [[/^Dân ở đô thị năm 2023 đông gấp hơn hai lần năm 2000$/, () => tt(d2, t2) / tt(d1, t1) > 2], [/^Số dân nông thôn năm 2023 nhiều hơn năm 2000$/, () => d2 - tt(d2, t2) > d1 - tt(d1, t1)],
+        [/^Năm 2023, dân nông thôn vẫn chiếm hơn một nửa số dân$/, () => 100 - t2 > 50], [/^Tỉ lệ dân thành thị tăng thêm hơn (\d+) điểm phần trăm$/, (m) => t2 - t1 > +m[1]]]); } },
+    { has: "sản lượng vàng khai thác của Cộng hoà Nam Phi", right: (q) => {
+      const d = docCot(q.svg, "Tấn"), v = theoNam(d);
+      return dungMot(q, [[/^Sản lượng năm 2023 chưa bằng một phần tư năm 2000$/, () => v[2023] < v[2000] / 4], [/^Sản lượng vàng tăng liên tục trong cả giai đoạn$/, () => tangLT(d.map((p) => p.v))],
+        [/^Năm (\d{4}) có sản lượng vàng cao nhất giai đoạn$/, (m) => d.every((p) => p.v <= v[m[1]])], [/^Sản lượng năm 2023 vẫn thấp hơn sản lượng năm 2020$/, () => v[2023] < v[2020]]]); } },
+    { has: "vượt qua một dãy núi cao", right: (q) => {
+      const [t0] = so(q.q, "có nhiệt độ #°C ở chân sườn đón gió"), [h] = so(q.q, "dãy núi cao # m"), [a] = so(q.q, "nhiệt độ của khối khí giảm #°C khi lên cao 100 m"), [b] = so(q.q, "nhiệt độ tăng #°C khi xuống thấp 100 m");
+      const dinh = t0 - (a * h) / 100; coX(q, "= " + vn(dinh) + "°C"); return vn(dinh + (b * h) / 100) + "°C"; } }, // Địa lí 10, Bài 9: gió phơn
+    { has: "đai cận nhiệt trên núi nằm trong khoảng độ cao", right: (q) => yTung(q, [[/^Mùa hạ ở đai cận nhiệt trên núi rất nóng/, () => false], // tr. 20: mùa hạ mát, dưới 25°C
+      [/^Đất feralit có mùn hình thành do chất hữu cơ phân huỷ chậm khi nhiệt độ thấp\.$/, () => true], [/^Ở miền Nam, đai cận nhiệt trên núi bắt đầu ở độ cao thấp hơn miền Bắc\.$/, () => false], // tr. 20: 900 – 1 000 m so với 600 – 700 m
+      [/^Trong đai cận nhiệt trên núi có các loài chim, thú cận nhiệt như gấu, sóc\.$/, () => true]]) },
+    { has: "trên mỗi ki-lô-mét vuông lãnh thổ nước ta có bình quân", right: (q) => {
+      const [ca, gap] = so(q.q, "có bình quân # người, gấp khoảng # lần thế giới"), [h, t] = so(q.q, "con số này là # người/km², còn ở Trung du và miền núi phía Bắc chỉ là # người/km²"), [nt] = so(q.q, "Khoảng #% dân số");
+      assert.deepEqual([ca, h, t, nt], [306, 1034, 136, 61.5], "số liệu như sách (tr. 37)");
+      return yTung(q, [[/^Dân cư nước ta phân bố đều giữa các vùng\.$/, () => false], [/^Năm 2024, phần lớn người dân nước ta cư trú ở thành thị\.$/, () => nt < 50],
+        [/^Mật độ dân số của Đồng bằng sông Hồng gấp hơn (\d+) lần Trung du và miền núi phía Bắc\.$/, (m) => h / t > +m[1]],
+        [/^Mật độ dân số trung bình của thế giới năm 2024 vào khoảng (\d+) người\/km²\.$/, (m) => Math.abs(ca / gap - +m[1]) < 5]]); } },
+    { has: "số dân thành thị (cột) và tỉ lệ dân thành thị (đường) của tỉnh X", right: (q) => {
+      const d = docKetHop(q.svg); assert.deepEqual([d.cot.ten, d.duong.ten], ["Số dân thành thị", "Tỉ lệ dân thành thị"]);
+      const s = theoNam(d.cot.v), r = theoNam(d.duong.v), N = nam(s);
+      return yTung(q, [[/^Số dân thành thị của tỉnh X tăng liên tục\.$/, () => tangLT(N.map((n) => s[n]))],
+        [/^Năm (\d{4}), tỉ lệ dân thành thị của tỉnh X tăng (\d+) điểm phần trăm so với năm (\d{4})\.$/, (m) => r[m[1]] - r[m[3]] === +m[2]],
+        [/^Năm (\d{4}), số dân thành thị của tỉnh X gấp hơn (.+) lần năm (\d{4})\.$/, (m) => s[m[1]] / s[m[3]] > val(m[2])],
+        [/^Tổng số dân của tỉnh X năm (\d{4}) ít hơn năm (\d{4})\.$/, (m) => s[m[1]] / r[m[1]] < s[m[2]] / r[m[2]]]]); } },
+    { has: "số lượng vật nuôi của tỉnh X ở Đông Nam Bộ", right: (q) => {
+      const N = [2015, 2020, 2024], t = bangNam(q, N, ["lợn", "bò", "gia cầm"]);
+      return yTung(q, [[/^Số lượng cả ba loại vật nuôi của tỉnh X đều tăng liên tục\.$/, () => [0, 1, 2].every((k) => tangLT(N.map((n) => t[n][k])))],
+        [/^Năm 2024, đàn lợn của tỉnh X gấp hơn (\d+) lần năm 2015\.$/, (m) => t[2024][0] / t[2015][0] > +m[1]],
+        [/^Giai đoạn 2015 – 2024, đàn gia cầm tăng nhanh hơn đàn lợn\.$/, () => t[2024][2] / t[2015][2] > t[2024][0] / t[2015][0]],
+        [/^Ở Đông Nam Bộ, bò được nuôi tập trung chủ yếu ở Tây Ninh\.$/, () => true]]); } }, // tr. 150
+    { has: "lãnh thổ nước ta trải từ vĩ độ", right: (q) => {
+      const m = /từ vĩ độ (\d+)°(\d+)'B \(điểm cực Nam\) đến vĩ độ (\d+)°(\d+)'B/.exec(q.q); assert.ok(m, "đọc được hai vĩ độ");
+      const [a, b, c, d] = m.slice(1).map(Number); assert.deepEqual([a, b, c, d], [8, 34, 23, 23], "toạ độ như sách (tr. 5)");
+      coX(q, "14°49'"); return c + d / 60 - (a + b / 60); } },
+    { has: "sản lượng thuỷ sản của nước ta đạt 9 656,3", right: tinh("sản lượng thuỷ sản của nước ta đạt # nghìn tấn; riêng thuỷ sản nuôi trồng là # nghìn tấn", (t, n) => {
+      assert.deepEqual([t, n], [BANG_13_2[2024][0], BANG_13_2[2024][2]], "số liệu như Bảng 13.2 (tr. 65)"); return (n / t) * 100; }) },
+    { has: "giá trị sản xuất công nghiệp khai khoáng của tỉnh X", right: tinh("là # nghìn tỉ đồng, chiếm #% giá trị sản xuất công nghiệp của tỉnh. Năm 2024, giá trị này là # nghìn tỉ đồng, chỉ chiếm #%", (a, p, b, r) => b / r / (a / p)) },
+    { has: "Đồng bằng sông Hồng rộng khoảng 23,94 nghìn km²", right: tinh("rộng khoảng # nghìn km² và có # nghìn ha rừng", (s, r) => {
+      assert.deepEqual([s, r], [23.94, 560.7], "số liệu như sách (tr. 110, 111)"); return (r / (s * 100)) * 100; }) }, // 1 km² = 100 ha
+    { has: "khai thác được 1 011,7 nghìn tấn cá biển", right: tinh("khai thác được # nghìn tấn cá biển, chiếm #%", (k, p) => {
+      assert.deepEqual([k, p], [1011.7, 35.9], "số liệu như Bảng 28.1 và tr. 133"); return (k / p) * 100; }) },
+    { has: "Hoa Kỳ có GDP khoảng 27 360 tỉ USD", right: tinh("có GDP khoảng # tỉ USD, số dân khoảng # triệu người", (g, d) => g / d) }
+  ],
+  "diali12-tn-de8": [
+    { has: "quần đảo Hoàng Sa thuộc địa phương nào", right: sach("tr. 7", "Đà Nẵng") },
+    { has: "địa hình các-xtơ với nhiều hang động, thung khô", right: sach("tr. 14", "nhiệt ẩm cao, đá vôi bị nước hoà tan mạnh") },
+    { has: "Ở phía nam dãy Bạch Mã, khí hậu", right: sach("tr. 17", "Nóng quanh năm, biên độ nhiệt năm nhỏ") },
+    { has: "quản lí tài nguyên nước ở nước ta phải thống nhất theo lưu vực sông", right: sach("tr. 31", "Nhiều sông chảy qua nhiều tỉnh và bắt nguồn từ nước ngoài") },
+    { has: "mức sinh thay thế cần duy trì vững chắc", right: sach("tr. 37", "2,1 con") },
+    { has: "ngoài chức năng hành chính, các đô thị", right: sach("tr. 44", "trung tâm kinh tế, văn hoá và đổi mới sáng tạo") },
+    { has: "Hạn chế nào sau đây đúng với ngành lâm nghiệp", right: sach("tr. 60", "Người trồng rừng và doanh nghiệp chế biến liên kết còn yếu") },
+    { has: "vùng chuyên canh mía nằm trong phạm vi", right: sach("tr. 68", "Đồng bằng sông Cửu Long") },
+    { has: "số lượng nhà máy điện gió và điện mặt trời tăng nhanh", right: sach("tr. 71", "Tăng tỉ trọng năng lượng tái tạo") },
+    { has: "nhờ đặc điểm tự nhiên nào mà nước ta có các điểm du lịch", right: sach("tr. 89", "Địa hình đa dạng, cảnh quan đẹp") },
+    { has: "chạy theo hướng đông – tây", right: sach("tr. 91", "Quốc lộ 9") },
+    { has: "Phát triển du lịch bền vững ở nước ta cần đáp ứng", right: sach("tr. 101", "Hài hoà lợi ích các bên, không làm hại nhu cầu sau này") },
+    { has: "Trong các cảng hàng không sau, cảng nào thuộc vùng Đồng bằng sông Hồng", right: sach("tr. 116", "Cát Bi") },
+    { has: "Việc chú trọng nuôi tôm hùm, trai lấy ngọc, rong biển", right: sach("tr. 133", "Đa dạng hoá loài nuôi, chú trọng loài giá trị cao") },
+    { has: "ở vùng biển nước ta có tên trong danh sách Di sản thiên nhiên thế giới", right: sach("tr. 111, 165", "Vịnh Hạ Long – quần đảo Cát Bà") },
+    { has: "tốc độ tăng GDP của Nhật Bản", right: (q) => {
+      const N = [2010, 2015, 2019, 2020, 2023], v = so(q.q, N.map((n) => "Năm " + n + ": #.").join(" ")), t = Object.fromEntries(N.map((n, i) => [n, v[i]]));
+      return dungMot(q, [[/^Năm (\d{4}), GDP của nước này giảm mạnh nhất$/, (m) => t[m[1]] === Math.min(...v) && t[m[1]] < 0], [/^Tốc độ tăng GDP luôn đạt giá trị dương$/, () => v.every((x) => x > 0)],
+        [/^Năm (\d{4}) có tốc độ tăng GDP cao nhất$/, (m) => t[m[1]] === Math.max(...v)], [/^Tốc độ tăng GDP năm (\d{4}) thấp hơn năm (\d{4})$/, (m) => t[m[1]] < t[m[2]]]]); } },
+    { has: "cơ cấu GDP phân theo khu vực kinh tế của Liên bang Nga", right: (q) => {
+      const d = docMien(q.svg), N = Object.keys(d[DV]).sort();
+      return dungMot(q, [[/^Năm (\d{4}), tỉ trọng dịch vụ gần gấp đôi công nghiệp và xây dựng$/, (m) => { const r = d[DV][m[1]] / d[CN][m[1]]; return r >= 1.8 && r < 2; }],
+        [/^Tỉ trọng công nghiệp và xây dựng tăng liên tục$/, () => tangLT(N.map((n) => d[CN][n]))], [/^Năm (\d{4}), nông nghiệp có tỉ trọng lớn hơn công nghiệp và xây dựng$/, (m) => d[NN][m[1]] > d[CN][m[1]]],
+        [/^Tỉ trọng dịch vụ giảm liên tục qua các năm$/, () => giamLT(N.map((n) => d[DV][n]))]]); } },
+    { has: "lượng hàng hoá các loại hình vận tải của quốc gia K", right: (q) => {
+      const [bo, sat, thuy, hk] = so(q.q, "đường bộ #; đường sắt #; đường thuỷ #; đường hàng không #"), tong = bo + sat + thuy + hk, pt = (x) => (x / tong) * 100;
+      coX(q, vn(tong), "≈ " + vnf(pt(bo), 1) + "%");
+      return dungMot(q, [[/^Đường bộ chiếm hơn ba phần tư lượng hàng chuyên chở$/, () => pt(bo) > 75], [/^Đường thuỷ chiếm hơn một phần tư lượng hàng chuyên chở$/, () => pt(thuy) > 25],
+        [/^Đường sắt chiếm hơn (\d+)% lượng hàng chuyên chở$/, (m) => pt(sat) > +m[1]], [/^Hàng không chở nhiều hàng hơn đường sắt$/, () => hk > sat]]); } },
+    { has: "trong cơ cấu lao động theo ngành của nước ta", right: (q) => {
+      const a = so(q.q, "khu vực nông nghiệp, lâm nghiệp và thuỷ sản chiếm #%, công nghiệp và xây dựng chiếm #%, dịch vụ chiếm #%"),
+        b = so(q.q, "Năm 2024, khu vực nông nghiệp, lâm nghiệp và thuỷ sản còn #%; công nghiệp và xây dựng tăng lên #%; dịch vụ tăng lên #%");
+      assert.deepEqual([a, b], [BANG_8_2[2010], BANG_8_2[2024]], "số liệu như Bảng 8.2 (tr. 41)");
+      return yTung(q, [[/^Năm 2024, khu vực nông nghiệp, lâm nghiệp và thuỷ sản vẫn có tỉ lệ lao động cao nhất\.$/, () => b[0] > Math.max(b[1], b[2])],
+        [/^Tỉ lệ lao động trong công nghiệp và xây dựng năm 2024 tăng (.+) điểm phần trăm so với năm 2010\.$/, (m) => gan(b[1] - a[1], val(m[1]))],
+        [/^Năm 2024, dịch vụ chiếm tỉ lệ lao động cao nhất trong ba khu vực\.$/, () => b[2] > Math.max(b[0], b[1])],
+        [/^Lao động đang chuyển dần từ nông nghiệp sang những ngành có năng suất cao hơn\.$/, () => b[0] < a[0] && b[1] > a[1] && b[2] > a[2]]]); } }, // tr. 44: công nghiệp, dịch vụ năng suất cao hơn
+    { has: "tỉ lệ diện tích các nhóm cây trồng ở tỉnh X", right: (q) => {
+      const d = docTron(q.svg), a = d["2015"], b = d["2024"], LT = "Cây lương thực có hạt", tang = Object.fromEntries(Object.keys(a).map((k) => [k, b[k] - a[k]]));
+      return yTung(q, [[/^Tỉ lệ diện tích cây lương thực có hạt giảm (\d+) điểm phần trăm\.$/, (m) => a[LT] - b[LT] === +m[1]],
+        [/^Năm 2024, cây lương thực có hạt vẫn chiếm hơn một nửa diện tích cây trồng\.$/, () => b[LT] > 50],
+        [/^Trong bốn nhóm cây, cây ăn quả có mức tăng tỉ lệ diện tích cao nhất\.$/, () => lonNhat(tang) === "Cây ăn quả"],
+        [/^Năm 2024, cây công nghiệp đứng thứ hai về diện tích\.$/, () => Object.values(b).sort((x, z) => z - x)[1] === b["Cây công nghiệp"]]]); } },
+    { has: "Than trên phần đất liền nước ta phân bố ở 6 bể than", right: (q) => {
+      const [db, sh] = so(q.q, "bể than Đông Bắc có trữ lượng khoảng # tỉ tấn, bể than Sông Hồng khoảng # tỉ tấn"),
+        v = so(q.q, "là # triệu tấn (năm 2010), # triệu tấn (năm 2015), # triệu tấn (năm 2020) và # triệu tấn (năm 2024)");
+      assert.deepEqual([db, sh], [5.1, 41.9], "trữ lượng như sách (tr. 74)"); assert.deepEqual(v, BANG_17_1, "số liệu như Bảng 17.1 (tr. 74)");
+      return yTung(q, [[/^Trữ lượng than của bể Sông Hồng gấp hơn (\d+) lần bể Đông Bắc\.$/, (m) => sh / db > +m[1]], [/^Lượng than sạch khai thác tăng liên tục/, () => tangLT(v)],
+        [/^Từ năm 2010 đến năm 2024, lượng than sạch khai thác tăng hơn (.+) lần\.$/, (m) => v[3] / v[0] > val(m[1])],
+        [/^Than khai thác được dùng nhiều cho sản xuất điện và xuất khẩu\.$/, () => true]]); } }, // tr. 74
+    { has: "diện tích một số cây trồng của tỉnh X ở Đồng bằng sông Cửu Long", right: (q) => {
+      const N = [2015, 2020, 2024], t = bangNam(q, N, ["lúa", "rau", "cây ăn quả"]);
+      return yTung(q, [[/^Diện tích cả ba loại cây của tỉnh X đều tăng liên tục\.$/, () => [0, 1, 2].every((k) => tangLT(N.map((n) => t[n][k])))],
+        [/^Năm 2024, diện tích rau của tỉnh X tăng (\d+) nghìn ha so với năm 2015\.$/, (m) => t[2024][1] - t[2015][1] === +m[1]],
+        [/^Giai đoạn 2015 – 2024, diện tích cây ăn quả tăng nhanh hơn diện tích rau\.$/, () => t[2024][2] / t[2015][2] > t[2024][1] / t[2015][1]],
+        [/^Năm 2024, diện tích lúa của tỉnh X giảm (\d+) nghìn ha so với năm 2015\.$/, (m) => t[2015][0] - t[2024][0] === +m[1]]]); } },
+    { has: "các ngành dịch vụ đóng góp 36% GRDP", right: tinh("các ngành dịch vụ đóng góp #% GRDP năm 2015 và #% GRDP năm 2024; GRDP năm 2024 bằng # lần năm 2015", (a, b, k) => (b * k) / a) },
+    { has: "khu công nghiệp X có 64 doanh nghiệp", right: tinh("có # doanh nghiệp đang hoạt động, sử dụng # lao động", (n, l) => l / n) },
+    { has: "nghìn con bò, bằng 19,2% đàn bò cả nước", right: tinh("có # nghìn con bò, bằng #% đàn bò cả nước", (b, p) => {
+      assert.deepEqual([b, p], BANG_24["Bò"][2024], "số liệu như Bảng 24 (tr. 108)"); return (b / p) * 100; }) },
+    { has: "diện tích rừng của Bắc Trung Bộ chiếm 21,3%", right: tinh("cả nước có # triệu ha rừng; diện tích rừng của Bắc Trung Bộ chiếm #%", (t, p) => {
+      assert.deepEqual([t, p], [BANG_5[2024][0], 21.3], "số liệu như Bảng 5 (tr. 29) và tr. 125"); return (t * p) / 100; }) },
+    { has: "lượng cá biển đánh bắt được là 305,1", right: tinh("lượng cá biển đánh bắt được là # nghìn tấn (năm 2020) và # nghìn tấn (năm 2024)", (a, b) => {
+      assert.deepEqual([a, b], [305.1, 248.2], "số liệu như Hình 30.3 (tr. 151)"); return ((a - b) / a) * 100; }) },
+    { has: "một quốc gia ở khu vực Mỹ La tinh có 48,0 triệu dân", right: tinh("có # triệu dân, tỉ lệ dân thành thị #%; năm 2023 có # triệu dân, tỉ lệ dân thành thị #%", (d1, t1, d2, t2) => (d2 * t2) / 100 - (d1 * t1) / 100) }
   ]
 };
 
@@ -715,6 +983,12 @@ const GOP = [
   "In-đô-nê-xi-a", "Phi-líp-pin", "Mi-an-ma", "Thái Lan", "Trường Sơn", "Bạch Mã", "Hoàng Liên Sơn", "Mê Công", "sông Tiền", "sông Hậu", "Sê San", "Srêpôk", "Ialy",
   "Đồng Tháp Mười", "Tứ giác Long Xuyên", "Cà Mau", "Củ Chi", "Hoà Lạc", "Cổ Loa", "Cồn Cỏ", "Vân Đồn", "Phả Lại", "Thành nhà Hồ", "Hành lang kinh tế Đông – Tây",
   "Nghị quyết số 202/2025/QH15", "Quyết định 764/QĐ-BGDĐT", "Quần thể di tích Cố đô Huế", "Phố cổ Hội An", "Thánh địa Mỹ Sơn", "Hoàng thành Thăng Long",
+  // tên riêng của Đề 5–8 (Phiên N12-tn-diali-b)
+  "Tân Thuận", "Hiệp Phước", "Hoà Khánh", "Trà Nóc", "Ma-lai-xi-a", "Xin-ga-po", "Bru-nây", "Bạch Hổ", "Rạng Đông", "Hồng Ngọc", "Nông Sơn", "An Châu",
+  "Cẩm Phả", "Trị An", "Thác Mơ", "Thác Bà", "Cần Đơn", "Vân Phong", "Hòn Gốm", "Côn Sơn", "Côn Đảo", "Bảy Cạnh", "Nha Trang", "Hòn Tre", "Đại Ninh", "Cát Linh", "Hà Đông", "Sa Huỳnh", "Cà Ná", "Sầm Sơn", "Cửa Lò", "Đồ Sơn", "Trà Cổ", "Bãi Cháy",
+  "Tuần Châu", "Cộng hoà Nam Phi", "Ô-xtrây-li-a", "Khuyến Lương", "Ninh Phúc", "Tân Châu", "Cái Mép", "Thị Vải", "Cái Lân", "Chân Mây", "Miền Tây Nghệ An",
+  "Cù Lao Chàm", "Hội An", "Cần Giờ", "Cát Bà", "Phú Khánh", "Hoàng Sa", "Trường Sa", "Nội Bài", "Cát Bi", "Phú Bài", "Đồng Hới", "Chu Lai", "Thọ Xuân",
+  "Đông Bắc", "Sông Hồng", "Hạ Long", "Phong Nha", "Kẻ Bàng", "Tràng An", "Cúc Phương",
   // tên khu vực kinh tế, thành phần kinh tế như sách
   "nông nghiệp, lâm nghiệp và thuỷ sản", "công nghiệp và xây dựng", "kinh tế ngoài Nhà nước", "kinh tế Nhà nước", "khu vực có vốn đầu tư nước ngoài"
 ];
@@ -728,7 +1002,8 @@ const TU_CHUNG = [...BAI, ...Object.values(RUT_GON), ...CHUONG_11, ...CHUONG_10,
   "phát triển tổng hợp kinh tế biển", "tỉ suất tăng tự nhiên", "lao động đã qua đào tạo", "tỉ lệ dân thành thị", "bình quân đầu người",
   "phân theo khu vực kinh tế", "nền kinh tế", "chiếm bao nhiêu phần trăm", "gấp bao nhiêu lần", "là bao nhiêu", "chiếm tỉ trọng lớn nhất", "vùng nào có",
   "giải pháp nào sau đây", "đặc điểm nào sau đây đúng với", "có nguồn gốc cận nhiệt và ôn đới", "trình độ chuyên môn kĩ thuật", "có điều kiện thuận lợi",
-  "tỉ lệ tăng tự nhiên của dân số", "thuế sản phẩm trừ trợ cấp sản phẩm", "dệt và sản xuất trang phục", "cơ cấu dân số theo nhóm tuổi"];
+  "tỉ lệ tăng tự nhiên của dân số", "thuế sản phẩm trừ trợ cấp sản phẩm", "dệt và sản xuất trang phục", "cơ cấu dân số theo nhóm tuổi",
+  "hiệp định thương mại tự do thế hệ mới"];
 // chuỗi 3 từ chung của môn (thuật ngữ, tên riêng hay gặp): không làm lộ đáp án nào
 const CUM_CHUNG = new Set(["nhất cả nước", "của cả nước", "tăng liên tục", "đồng bằng sông", "bằng sông cửu", "sông cửu long", "nam trung bộ", "đông nam bộ", "và tây nguyên",
   "duyên hải nam", "hải nam trung", "trung bộ và", "bộ và tây", "thành phố hồ", "phố hồ chí", "hồ chí minh", "tỉ trọng của", "có tỉ trọng", "tăng nhanh hơn", "quốc gia b", "qua các năm"]);
@@ -899,7 +1174,14 @@ const DA_XEM = [
   "tn-de4#17 → tn-de1#17: dịch vụ tăng",
   "tn-de4#17 → tn-de4#6: thuỷ sản giảm",
   "tn-de4#18 → tn-de4#16: giá xuất khẩu",
-  "tn-de4#18 → tn-de4#16: trị giá xuất"
+  "tn-de4#18 → tn-de4#16: trị giá xuất",
+  // Phiên N12-tn-diali-b. ck2-de1#22 chỉ nói vịnh Hạ Long là vịnh nhỏ ven bờ, không nói đó là di sản thiên nhiên thế giới (tn-de8#15);
+  // tn-de5#20 gọi tên khu vực FDI, tên này đã có trong đề bài của ck1-de2#19; tn-de6#19 (số trang trại theo năm) không nói đặc điểm của
+  // trang trại mà ck1-de2#17 hỏi; tn-de8#22 (bảng diện tích cây ăn quả) không nói vì sao Đồng bằng sông Cửu Long có du lịch miệt vườn (ck2-de2#20)
+  "ck2-de1#22 → tn-de8#15: vịnh hạ long",
+  "tn-de5#20 → ck1-de2#19: tư nước ngoài", "tn-de5#20 → ck1-de2#19: vốn đầu tư", "tn-de5#20 → ck1-de2#19: đầu tư nước",
+  "tn-de6#19 → ck1-de2#17: trang trại",
+  "tn-de8#22 → ck2-de2#20: cây ăn quả"
 ];
 assert.deepEqual([...r1.chuLo, ...r2.chuLo].sort(), [...DA_XEM].sort(), "đáp án bằng chữ có ở câu khác đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 assert.deepEqual([...r1.lo, ...r2.lo], [], "lộ đáp án:\n" + [...r1.lo, ...r2.lo].join("\n"));
