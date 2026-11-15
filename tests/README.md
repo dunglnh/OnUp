@@ -55,7 +55,7 @@ Script của môn vẫn là bước kiểm tra cuối: tính lại đáp án, đ
 
 ### `tests/ghep-de.js`: ghép nháp, xuất đề ra nháp
 
-- Ghi đề vào `data/banks/<file>`, dòng danh mục vào `data/banks/index.js` (`n` tính từ số câu, đề ngẫu nhiên từ ma trận), mã đề vào `banks` của các kì thi trong `data/calendar-2026-2027.js`. Mã mới đứng sau đề ghi ở `sau` (trong cả ba file), không ghi thì cuối file câu hỏi, sau dòng danh mục cuối cùng của cùng file và cùng loại, cuối `banks`. File câu hỏi chưa có thì tạo file mới với lời đầu như các file đang có.
+- Ghi đề vào `data/banks/<file>`, dòng danh mục vào `data/banks/index.js` (`n` tính từ số câu, đề ngẫu nhiên từ ma trận), mã đề vào `banks` của các kì thi trong `data/calendar-2026-2027.js`. Mã mới đứng sau đề ghi ở `sau` (trong cả ba file), không ghi thì cuối file câu hỏi, sau dòng danh mục cuối cùng của cùng file và cùng loại (file câu hỏi mới: sau dòng danh mục cuối cùng không phải đề thử nghiệm, nên đề thử nghiệm luôn đứng cuối danh mục), cuối `banks`. File câu hỏi chưa có thì tạo file mới với lời đầu như các file đang có.
 - Mã đã có thì thay tại chỗ; câu, đoạn đọc, dòng danh mục không đổi giữ nguyên chữ cũ, nên diff chỉ có chỗ sửa.
 - Đề ngẫu nhiên không có câu riêng (kho chỉ gồm hai đề cố định trong `from`; nháp ghi `questions: []`, không ghi `note`, `passages`): chỉ ghi dòng danh mục và kì thi, không ghi mục rỗng vào file câu hỏi, như `9-lsdl.js`, `9-tin.js` (từ Phiên N7-ck1-lsdl-gdcd).
 - Ghi xong nạp lại như app (`tests/nap-de.js`) và so từng câu, lời dặn, đoạn đọc, dòng danh mục, kì thi với nháp; khác thì trả lại các file như cũ. Đề ngẫu nhiên: chỉ so đoạn đọc riêng của đề (app gộp đoạn đọc của các đề trong `from` vào đề ngẫu nhiên; sửa ở Phiên N7-ck1-van).

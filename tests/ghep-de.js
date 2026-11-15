@@ -206,6 +206,9 @@ ${d.chuThich ? chuThich(d.chuThich, "  ") : ""}${entry}
       const cung = D.kho().filter((b) => b.file === d.muc.file && !NHAP.some((x) => x.muc.id === b.id)), loai = cung.filter((b) => !!b.pool === !!d.muc.pool);
       (loai.length ? loai : cung).forEach((b) => { const x = timMuc(ti, b.id); if (x && (!sau || x.dau > sau.dau)) sau = x; });
     }
+    // file câu hỏi mới (chưa có đề nào của file trong danh mục): sau dòng cuối cùng không phải đề thử nghiệm (môn “Thử nghiệm” luôn đứng cuối
+    // danh mục); đề của nháp đã ghép trước trong lượt này cũng tính, nên các đề mới giữ thứ tự của nháp
+    if (!sau) D.kho().concat(NHAP.map((x) => x.muc)).filter((b) => b.subject !== "Thử nghiệm").forEach((b) => { const x = timMuc(ti, b.id); if (x && (!sau || x.dau > sau.dau)) sau = x; });
     const ct = d.chuThichMuc ? "\n" + chuThich(d.chuThichMuc, "  ").replace(/\n$/, "") : "";
     if (!sau) { const k = ti.lastIndexOf("\n];"); ti = ti.slice(0, k) + "," + ct + "\n" + row + ti.slice(k); }
     else {
