@@ -1,6 +1,6 @@
-// Kiểm tra các đề GDKT&PL thi thử tốt nghiệp THPT (data/banks/12-ktpl.js, ktpl12-tn-de<N>; Phiên N12-tn-ktpl: Đề 1–3; phiên sau thêm đề
-// thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG). Đề tính điểm theo khung đề tốt nghiệp THPT từ năm 2025 (Quyết định
-// 764/QĐ-BGDĐT; docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7). Số đề, số câu lấy từ danh mục.
+// Kiểm tra các đề GDKT&PL thi thử tốt nghiệp THPT (data/banks/12-ktpl.js, ktpl12-tn-de<N>; Phiên N12-tn-ktpl: Đề 1–3; Phiên N12-tn-ktpl-b:
+// Đề 4–5; phiên sau thêm đề thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG). Đề tính điểm theo khung đề tốt nghiệp
+// THPT từ năm 2025 (Quyết định 764/QĐ-BGDĐT; docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7). Số đề, số câu lấy từ danh mục.
 // Khung: danh mục (tên, khối 12, môn GDKT&PL, file, 50 phút, pts 10, gắn vào tn-thpt-2027); Phần I 24 câu nhiều lựa chọn pt 0,25, Phần II
 // 4 câu đúng/sai 4 ý pt 1 (đúng tên part, đúng thứ tự; không có Phần III), Quiz.grade điểm tối đa 6 – 4; phạm vi và mức độ như ma trận đề
 // tham khảo năm 2025 (40 lệnh hỏi; đề chính thức năm 2026 giữ cấu trúc): 4 câu GDKT&PL 10 (Phần I, 3 Biết 1 Hiểu), 8 câu GDKT&PL 11 (Phần
@@ -9,14 +9,15 @@
 // GDKT&PL 12, mỗi bài một câu, chủ đề đúng chữ của ba kho GDKT&PL 12 (cuối kì I, giữa kì II, cuối năm); Phần II hai câu Phần một (Bài 1–7)
 // và hai câu Phần hai (Bài 8–16); câu lớp 10, 11 ghi “Lớp 10 · ”, “Lớp 11 · ” và tên chủ đề của sách (rút gọn cho vừa mã đề “Ôn chủ đề”),
 // đối chiếu mục lục trong README của cuốn ở OnUp-Book; trong Phần I câu lớp 10, rồi lớp 11 theo thứ tự chủ đề, rồi lớp 12 theo thứ tự bài;
-// Đề 1–3 phủ đủ 9 chủ đề của GDKT&PL 10 và 9 chủ đề của GDKT&PL 11, không bài nào ở Phần II hai lần; mỗi câu Phần II một đoạn thông tin
-// hoặc tình huống riêng (người soạn đề viết, 60–170 chữ); từ hai phần ba số câu mỗi đề là câu tình huống; lời dặn ghi số câu, số điểm, số câu
-// mỗi lớp tính từ dữ liệu.
+// Đề 1–3 phủ đủ 9 chủ đề của GDKT&PL 10 và 9 chủ đề của GDKT&PL 11, không bài nào ở Phần II hai lần; Đề 1–5 phủ đủ 16 bài của GDKT&PL 12
+// ở Phần II, mỗi bài nhiều nhất hai lần; mỗi câu Phần II một đoạn thông tin hoặc tình huống riêng (người soạn đề viết, 60–170 chữ); từ hai
+// phần ba số câu mỗi đề là câu tình huống; lời dặn ghi số câu, số điểm, số câu mỗi lớp tính từ dữ liệu.
 // Mỗi câu khớp đúng một mục kiểm tra của đề đó (theo chữ has trong đề bài): câu nhiều lựa chọn so với chữ khoá của đáp án (đúng một lựa chọn
 // có chữ đó) hoặc tính lại bằng code (để dành theo tỉ lệ của tổng thu nhập và loại mục tiêu tài chính theo thời gian, khoản để dành mỗi
 // tháng của kế hoạch tài chính cá nhân, tỉ lệ lạm phát từ chỉ số giá tiêu dùng và loại lạm phát, tốc độ tăng trưởng GDP, GNI bình quân đầu
-// người, mức giảm thu nhập, tuổi bầu cử, ứng cử, kết hôn, thành niên theo bảng LUAT); ý của câu đúng/sai 4 ý so với bảng ý → đúng/sai ghi
-// trong script, ý có số tính lại từ số liệu của đoạn thông tin (loại mục tiêu kinh doanh theo thời gian, nơi khoan ngoài lãnh hải 12 hải lí).
+// người, mức giảm thu nhập, tuổi bầu cử, ứng cử, kết hôn, thành niên theo bảng LUAT, loại kế hoạch tài chính cá nhân của học sinh theo số
+// tháng); ý của câu đúng/sai 4 ý so với bảng ý → đúng/sai ghi trong script, ý có số tính lại từ số liệu của đoạn thông tin (loại mục tiêu
+// kinh doanh, mục tiêu tài chính theo thời gian, nơi khoan ngoài lãnh hải 12 hải lí, mức tăng GDP bình quân đầu người, khoản tiết kiệm mỗi tháng).
 // Rồi: chữ (số ngăn hàng nghìn bằng khoảng trắng, dấu phẩy thập phân; dấu thanh kiểu sách “hoá”, “thuỷ”; tên luật như sách in năm 2026, không
 // số điều luật, mức phạt, tên cơ quan cũ; tên tỉnh theo 34 đơn vị hành chính; không “huyện”, “63 tỉnh”); kiểu Đ/S không lặp trong một đề,
 // mỗi kiểu nhiều nhất ba lần trong các đề thi thử; đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa chọn dài nhất hay ngắn nhất ở không
@@ -62,10 +63,13 @@ const viet = (x) => { const r = Math.round(x * 100) / 100; const [n, d] = String
    (GDKT&PL 12, Bài 7: ngắn hạn 6 tháng đến 1 năm, trung hạn 2–5 năm, dài hạn từ 5 năm trở lên; Bài 5, mục tiêu kinh doanh: ngắn hạn từ một
    tháng đến một năm, trung hạn 2–5 năm, dài hạn từ 5 năm trở lên; đề không dùng đúng mốc 1–2 năm, 5 năm).
    LAM_PHAT: loại lạm phát theo tỉ lệ (GDKT&PL 11, Bài 3: vừa phải dưới 10%, phi mã 10% đến 1 000%, siêu lạm phát trên 1 000%; tỉ lệ lạm
-   phát = (CPI kì này − CPI kì trước) : CPI kì trước × 100%). */
+   phát = (CPI kì này − CPI kì trước) : CPI kì trước × 100%).
+   keHoach10: kế hoạch tài chính cá nhân của học sinh theo số tháng (GDKT&PL 10, bài Lập kế hoạch tài chính cá nhân: ngắn hạn dưới 3 tháng,
+   trung hạn từ 3 đến 6 tháng, dài hạn từ 6 tháng trở lên; đề không dùng đúng mốc 3 tháng, 6 tháng). */
 const LUAT = { bauCu: 18, ungCu: 21, tuoiKetHon: { nam: 20, nu: 18 }, thanhNien: 18 };
 const mucTieu = (nam) => { assert.ok(!(nam > 1 && nam < 2) && nam !== 5, "thời gian " + nam + " năm nằm ở mốc giáp ranh của sách"); return nam <= 1 ? "ngắn hạn" : nam < 5 ? "trung hạn" : "dài hạn"; };
 const lamPhat = (p) => (p < 10 ? "lạm phát vừa phải" : p <= 1000 ? "lạm phát phi mã" : "siêu lạm phát");
+const keHoach10 = (thang) => { assert.ok(thang !== 3 && thang !== 6, "thời gian " + thang + " tháng nằm ở mốc giáp ranh của sách"); return thang < 3 ? "ngắn hạn" : thang < 6 ? "trung hạn" : "dài hạn"; };
 
 /* ---------- các mục kiểm tra của từng đề (RIENG; phiên thêm đề thì thêm một khoá mới) ----------
    has: đoạn chữ của đề bài; right(q, d): đáp án tính bằng code hay so với bảng, d là chữ của đoạn thông tin (rỗng nếu câu không có): câu nhiều
@@ -187,6 +191,83 @@ const RIENG = {
       return traY(q, { "chỉ vì Hà là con gái": true, "trái pháp luật": false, "danh dự, nhân phẩm": true, "có thể báo với thầy cô": true }); } },
     { has: "vùng biển của quốc gia H", right: (q, d) => { const hl = so(d, "cách đường cơ sở # hải lí"); assert.ok(hl > 12 && hl <= 200, "nơi khoan ngoài lãnh hải (12 hải lí), trong 200 hải lí");
       return traY(q, { "chỉ cần thông báo": false, "thuộc nội thuỷ": d.includes("phía trong đường cơ sở"), "không được ngăn cản": true, "không cần H cho phép": false }); } },
+  ],
+  "ktpl12-tn-de4": [
+    { has: "khoảng cách giàu nghèo giữa các hộ", right: (q) => chon(q, "nhược điểm") },
+    { has: "trong số tiền chị trả đã có một khoản thuế", right: (q) => chon(q, "gián thu") },
+    { has: "nồi cơm điện bị lỗi", right: (q) => chon(q, "quyền lợi chính đáng") },
+    { has: "Hội đồng nhân dân tỉnh Gia Lai", right: (q) => chon(q, "quyền lực") },
+    { has: "dự báo sắp có đợt rét đậm", right: (q) => chon(q, "Dự đoán") },
+    { has: "được coi là việc làm", right: (q) => chon(q, "xe ôm công nghệ") },
+    { has: "bộ bàn ghế khách đặt bị nứt", right: (q) => chon(q, "Trung thực") },
+    { has: "nhãn tiết kiệm năng lượng", right: (q) => chon(q, "xanh") },
+    { has: "một ngôi chùa và một nhà thờ", right: (q) => chon(q, "như nhau") },
+    { has: "cầm thẻ cử tri của vợ", right: (q) => chon(q, "làm đúng") },
+    { has: "bịa chuyện chị Lan ăn cắp tiền", right: (q) => chon(q, "danh dự") },
+    { has: "căng-tin của trường bán", right: (q) => chon(q, "hộp thư góp ý") },
+    { has: "hiện đại hoá lực lượng bảo vệ biên giới", right: (q) => chon(q, "quốc phòng") },
+    { has: "Công ty bảo hiểm Hưng Thịnh", right: (q) => chon(q, "tạo việc làm") },
+    { has: "trang trại dâu tây", right: (q) => chon(q, "tóm tắt") },
+    { has: "Công ty may Bắc Hà", right: (q) => chon(q, "công bằng") },
+    { has: "cố gắng để dành thật nhiều tiền", right: (q) => chon(q, "cụ thể") },
+    { has: "phân bón giả nhãn mác", right: (q) => chon(q, "tố cáo") },
+    { has: "phá khoá cửa, vào ngắt cầu dao", right: (q) => chon(q, "khẩn cấp") },
+    { has: "vào lớp 1 muộn hai năm", right: (q) => { const tuoi = so(q.q, "Nay Páo # tuổi");
+      assert.equal(tuoi, 6 + 11 + 2, "vào lớp 1 lúc 6 tuổi thì học lớp 12 lúc 17 tuổi; muộn hai năm là 19 tuổi"); return chon(q, "tuổi đã cao hơn"); } },
+    { has: "trang thông tin của Trạm y tế xã", right: (q) => chon(q, "tiếp cận") },
+    { has: "làn điệu hát then", right: (q) => chon(q, "sưu tầm") },
+    { has: "Tàu cá của nước X", right: (q) => chon(q, "căn cứ chung") },
+    { has: "300 tấn thanh long", right: (q) => chon(q, "miễn trách nhiệm") },
+    { has: "Đọc thông tin về tỉnh V", right: (q, d) => traY(q, { "giúp tỉnh V thu ngoại tệ": d.includes("ngoại tệ"), "đầu tư trực tiếp từ nước ngoài": d.includes("tập đoàn của Hàn Quốc bỏ vốn"),
+      "hình thức đầu tư quốc tế": d.includes("chuyển vốn sang nước láng giềng"), "chỉ vì không may": false }) },
+    { has: "Đọc tình huống ở xã K", right: (q, d) => traY(q, { "tương thân tương ái": d.includes("góp gạo, góp ngày công"), "việc làm chính đáng": false, "sự ban ơn": false, "lãng phí": false }) },
+    { has: "Đọc tình huống về gia đình anh Toàn", right: (q, d) => traY(q, { "chỉ cần ghi tên anh Toàn": !d.includes("tiền chung"), "nghỉ phép ở lại chăm con ốm": d.includes("xin nghỉ phép ở lại chăm con"),
+      "chuyện riêng của anh Thắng": false, "không làm tròn bổn phận": false }) },
+    { has: "biên giới giữa quốc gia M và quốc gia N", right: (q, d) => traY(q, { "dựa trên hiệp ước": d.includes("hiệp ước hoạch định biên giới"), "chỉ là chuyện đất đai": false,
+      "không có ai sinh sống": !d.includes("lòng đất nằm thẳng dưới đường biên giới"), "toàn quyền chấp thuận": true }) },
+  ],
+  "ktpl12-tn-de5": [
+    { has: "kinh doanh dưới một tên chung", right: (q) => chon(q, "hợp danh") },
+    { has: "thanh toán tiền mua tủ lạnh", right: (q) => chon(q, "Thẻ tín dụng") },
+    { has: "sách luyện thi tiếng Anh", right: (q) => { const tien = so(q.q, "để dành # nghìn đồng"), thang = so(q.q, "trong # tháng"), moi = so(q.q, "mỗi tháng bớt # nghìn đồng");
+      assert.ok(gan(moi * thang, tien), "số tiền mỗi tháng nhân số tháng bằng số tiền cần để dành"); coX(q, viet(moi) + " × " + viet(thang) + " = " + viet(tien) + " nghìn đồng");
+      return chon(q, keHoach10(thang)); } },
+    { has: "phát triển khoa học và công nghệ ở nước ta", right: (q) => chon(q, "quốc sách hàng đầu") },
+    { has: "ngân hàng trung ương nâng lãi suất", right: (q) => chon(q, "kiềm chế") },
+    { has: "phiên giao dịch việc làm", right: (q) => chon(q, "kết nối") },
+    { has: "áo in một câu nói", right: (q) => chon(q, "bền vững") },
+    { has: "cửa hàng gạo của bà Năm", right: (q) => chon(q, "niềm tin") },
+    { has: "Khơ Mú ở tỉnh Điện Biên", right: (q) => chon(q, "tham gia quản lí") },
+    { has: "tố cáo sai sự thật rằng ông Lộ", right: (q) => chon(q, "vu khống") },
+    { has: "danh sách cử tri được niêm yết", right: (q) => { assert.ok(so(q.q, "đủ # tuổi") >= LUAT.bauCu, "anh Duy đủ tuổi bầu cử"); return chon(q, "khiếu nại"); } },
+    { has: "theo một “đạo” mới", right: (q) => chon(q, "không tin theo") },
+    { has: "sửa đổi nhiều luật về đầu tư", right: (q) => chon(q, "thể chế") },
+    { has: "bảo hiểm nhân thọ có thời hạn 15 năm", right: (q) => chon(q, "thói quen tiết kiệm") },
+    { has: "người dân xã T ngày càng tin tưởng", right: (q) => chon(q, "gắn bó") },
+    { has: "cửa hàng rau sạch", right: (q) => chon(q, "điều chỉnh") },
+    { has: "Công ty điện tử Quang Minh", right: (q) => chon(q, "nhân lực") },
+    { has: "giấy uỷ quyền cho một đại lí thuế", right: (q) => chon(q, "được phép nhờ") },
+    { has: "bị bệnh tâm thần", right: (q) => chon(q, "người thân thích") },
+    { has: "tốt nghiệp đại học loại giỏi", right: (q) => chon(q, "khuyến khích") },
+    { has: "xưởng tái chế nhựa", right: (q) => chon(q, "trong lành") },
+    { has: "vũ khí hạt nhân", right: (q) => chon(q, "hoà bình") },
+    { has: "thuộc công dân nước nào", right: (q) => chon(q, "Quốc tịch") },
+    { has: "50 tấn cà phê", right: (q) => chon(q, "thương lượng lại") },
+    { has: "Đọc thông tin về quốc gia H", right: (q, d) => { const g1 = so(d, "tăng từ # USD"), g2 = so(d, "lên # USD"), p = (g2 - g1) / g1 * 100;
+      coX(q, "(" + viet(g2) + " − " + viet(g1) + ") : " + viet(g1) + " × 100% = " + viet(p) + "%");
+      return traY(q, { "chắc chắn đã giảm": !d.includes("giá trị sản xuất của từng ngành vẫn tăng"), "đã bảo đảm phát triển bền vững": !d.includes("ô nhiễm"),
+        "bình quân đầu người": (o) => gan(so(o, "tăng #%"), p), "đình chỉ": true }); } },
+    { has: "kế hoạch thu, chi của gia đình chị Thu", right: (q, d) => { const luong = so(d, "có # triệu đồng tiền lương"), thue = so(d, "và # triệu đồng tiền cho thuê"),
+      ty = so(d, "dành # triệu đồng cho các khoản chi thiết yếu"), kty = so(d, ", # triệu đồng cho các khoản chi không thiết yếu"), tong = luong + thue, tk = tong - ty - kty;
+      const thang = so(d, "trong # tháng tới"), nam = so(d, "sau # năm nữa");
+      coX(q, viet(luong) + " + " + viet(thue) + " = " + viet(tong), viet(tong) + " − " + viet(ty) + " − " + viet(kty) + " = " + viet(tk) + " triệu đồng");
+      assert.equal(mucTieu(nam), "dài hạn", "mục tiêu xây nhà là dài hạn như lời giải");
+      return traY(q, { "tiết kiệm được": (o) => gan(so(o, "được # triệu"), tk), "máy giặt": mucTieu(thang / 12) === "dài hạn", "điện thoại cũ": true,
+        "thu nhập thụ động": d.includes("tiền cho thuê") }); } },
+    { has: "tài sản của gia đình ông Lâm", right: (q, d) => traY(q, { "đục tường": !d.includes("không được tự ý sửa chữa"), "quyền của người chủ tài sản": true, "cầm cố": false,
+      "khôi phục lại bức tường": d.includes("tự ý đục bỏ") }) },
+    { has: "Đọc tình huống ở phường Tân An", right: (q, d) => traY(q, { "từ chối phun thuốc": false, "chum vại đọng nước": false,
+      "tự nguyện tham gia bảo hiểm xã hội": d.includes("phụ hồ theo ngày") && d.includes("chưa tham gia bảo hiểm xã hội"), "Chỉ người làm việc ở cơ quan nhà nước": false }) },
   ],
 };
 
@@ -337,6 +418,12 @@ if (DE.length >= 3) {
   const p2 = DE.slice(0, 3).flatMap((b) => b.questions.slice(24, 28).map((q) => q.topic));
   assert.equal(new Set(p2).size, p2.length, "Đề 1–3: một bài ở Phần II hai lần");
 }
+// Đề 1–5 (Phiên N12-tn-ktpl-b): Phần II phủ đủ 16 bài của GDKT&PL 12, mỗi bài nhiều nhất hai lần
+if (DE.length >= 5) {
+  const p2 = DE.slice(0, 5).flatMap((b) => b.questions.slice(24, 28).map((q) => q.topic));
+  assert.deepEqual([...new Set(p2)].sort(), [...BAI].sort(), "Đề 1–5 phủ đủ 16 bài ở Phần II");
+  BAI.forEach((t) => assert.ok(p2.filter((x) => x === t).length <= 2, "Đề 1–5: bài “" + t + "” ở Phần II quá hai lần"));
+}
 // câu nhiều lựa chọn: đáp án đúng không là lựa chọn duy nhất có chữ của nhãn chủ đề; ba lựa chọn sai không cùng mở đầu bằng một chữ mà đáp án đúng không có
 {
   const chuThuong = (s) => String(s).normalize("NFC").toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean), loi = [];
@@ -416,7 +503,8 @@ const TU_CHUNG = [...BAI, ...Object.values(RUT_GON), ...T10, ...Object.values(CH
   "Không can thiệp vào công việc nội bộ của các quốc gia khác", "Cấm dùng vũ lực hay đe doạ dùng vũ lực trong quan hệ quốc tế", "Giải quyết các tranh chấp quốc tế bằng biện pháp hoà bình",
   "Quyền bình đẳng và tự quyết của các dân tộc", "Tận tâm, thiện chí thực hiện các cam kết quốc tế", "Bình đẳng về chủ quyền giữa các quốc gia", "Cấm dùng vũ lực hay đe doạ dùng vũ lực",
   "quyền bất khả xâm phạm về thân thể", "kinh tế có vốn đầu tư nước ngoài", "chức năng điều tiết, kích thích hoặc hạn chế",
-  "quyền tham gia quản lí nhà nước và xã hội", "an ninh, trật tự, an toàn xã hội"];
+  "quyền tham gia quản lí nhà nước và xã hội", "an ninh, trật tự, an toàn xã hội",
+  "chung sống như vợ chồng", "chế độ hôn nhân một vợ một chồng", "quyền được sống trong môi trường trong lành"];
 const boDau = (s) => String(s).normalize("NFC").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const GOP_ = GOP.map(boDau).sort((a, b) => b.length - a.length), TU_CHUNG_ = TU_CHUNG.map((p) => " " + boDau(p) + " ").sort((a, b) => b.length - a.length);
 // nhớ kết quả của khongDau: mỗi chuỗi chỉ chuẩn hoá một lần
@@ -585,6 +673,7 @@ if (SACH.length) {
   assert.throws(() => mD.right(Object.assign({}, qD, { q: qD.q.replace(/và \d+ triệu đồng tiền cho thuê/, "và 9 triệu đồng tiền cho thuê") })), "bộ tính bắt được số liệu đổi");
   assert.equal(mucTieu(4), "trung hạn"); assert.equal(mucTieu(0.5), "ngắn hạn"); assert.equal(mucTieu(8), "dài hạn"); assert.throws(() => mucTieu(5));
   assert.equal(lamPhat(4.5), "lạm phát vừa phải"); assert.equal(lamPhat(10), "lạm phát phi mã"); assert.equal(lamPhat(1500), "siêu lạm phát");
+  assert.equal(keHoach10(2), "ngắn hạn"); assert.equal(keHoach10(4), "trung hạn"); assert.equal(keHoach10(9), "dài hạn"); assert.throws(() => keHoach10(6));
   // bộ dò lộ bắt được câu cố ý viết sai: đáp án của câu này chép vào lời giải câu khác
   const thu = (qs) => { const r = doLo(qs, [], () => true); return r.lo.concat(r.chuLo); };
   const ghi = (q, x) => { const o = Object.assign({}, q, { x: q.x + " " + x }); ten.set(o, "thử-giả"); return o; };
