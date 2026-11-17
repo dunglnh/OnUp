@@ -20,7 +20,9 @@
      part (tên phần). Không xáo thứ tự câu (Phần I → II → III), vẫn xáo phương án. Màn kết quả ghi điểm của đề "6,35/10" (Quiz.grade),
      bảng theo phần (#qzParts), so với lần trước theo điểm; đề có tự luận thì thêm dòng tổng tạm tính gồm phần tự chấm (#qzTotal), tính
      lại khi chọn mức tự chấm. Lượt ôn lại câu sai chấm như đề thường (không lưu). Chữ "được 0,5/1 điểm" của câu đúng/sai 4 ý, nối cột
-     theo pt của câu.
+     theo pt của câu. Đề có cả câu chấm tự động và câu tự luận (Phiên 9u, L47; Ngữ văn thi thử, auto trong danh mục): điểm to "3/3" kèm
+     "Điểm phần app chấm…" (L.scoredAuto), lời khen và so với lần trước theo phần app chấm (G.got trên G.auto), tổng tạm tính theo
+     thang của đề; điểm lưu vẫn r = G.got, t = bank.pts.
    Màn kết quả (Phiên UX1): lời khen theo điểm (opts.name: tên học sinh, để trống thì không xưng tên); opts.previous() → {r, t} của
      lần trước cùng đề (app đọc từ kết quả đã lưu, gọi trước khi lưu lượt này) thì có nhãn "Hơn/Kém/Bằng lần trước"; nút "Ôn lại N câu sai"
      mở một lượt ôn luyện chỉ gồm các câu sai (retry = true trong lúc đó), không gọi onFinish, không lưu điểm; "Làm lại cả đề" về đề đầy đủ
@@ -153,6 +155,9 @@
       partSelf: "gồm phần tự luận tự chấm", partWait: "phần tự luận chưa tự chấm",
       totalTmp: (s, m) => `Tổng tạm tính, gồm phần tự luận tự chấm: ${s}/${m} điểm.`, totalWait: (s, m) => `Tổng tạm tính: ${s}/${m} điểm, còn phần tự luận chưa tự chấm.`,
       cmpMorePts: (d, p) => `Hơn lần trước ${d} điểm (${p})`, cmpLessPts: (d, p) => `Kém lần trước ${d} điểm (${p})`,
+      // đề tính điểm có cả câu chấm tự động và câu tự luận (Phiên 9u, L47): điểm to, so với lần trước, thẻ "Lần trước" theo phần app chấm ("3/3")
+      scoredAuto: "Điểm phần app chấm, theo điểm từng câu như đề thi.",
+      cmpMoreAuto: (d, p) => `Hơn lần trước ${d} điểm phần app chấm (${p})`, cmpLessAuto: (d, p) => `Kém lần trước ${d} điểm phần app chấm (${p})`,
       // js/app.js: màn mở đề, màn tải đề, hộp rời trang, thông báo lưu điểm, khung bài ôn (renderQuiz, loadQuiz, renderPlay)
       appHome: "Trang chính", appGrade: (g) => `Lớp ${g}`, english: "Tiếng Anh", appRandom: "Đề ngẫu nhiên",
       appPoolIntro: (n, all, src) => `Mỗi lần làm là một đề khác: ${n} câu rút từ kho ${all} câu${src ? ` (${src} đề)` : ""} theo ma trận đề, ưu tiên câu bạn chưa làm hoặc hay sai`,
@@ -165,7 +170,7 @@
       appSent: "Đã lưu và gửi cho bố mẹ.", appPending: "Đã lưu trên máy này. Sẽ gửi cho bố mẹ khi có mạng.", appModScore: (r, t) => `${r}/${t} câu đúng.`,
       // màn mở đề (UX5, X9): thẻ "Lần trước" (số câu đúng; lúc làm · cách làm · thời gian), hai thẻ chọn cách làm có một dòng giải thích.
       // appWhen: lúc làm (diff: số ngày trước hôm nay, hm: giờ:phút, d/m: ngày, tháng), cũng là chữ "Hôm nay 12:43" của ago() trong js/app.js
-      appPrev: (r, t) => `Lần trước: ${r}/${t} câu đúng`, appPrevPts: (r, t) => `Lần trước: ${r}/${t} điểm`, appPrevMode: { exam: "làm như thi", practice: "ôn luyện" },
+      appPrev: (r, t) => `Lần trước: ${r}/${t} câu đúng`, appPrevPts: (r, t) => `Lần trước: ${r}/${t} điểm`, appPrevAuto: (r, t) => `Lần trước: ${r}/${t} điểm phần app chấm`, appPrevMode: { exam: "làm như thi", practice: "ôn luyện" },
       appScored: (m) => `Chấm như đề thi thật: điểm từng câu, từng phần, thang ${m} điểm.`,
       appWhen: (diff, hm, d, m) => (diff <= 0 ? "Hôm nay " + hm : diff === 1 ? "Hôm qua " + hm : `${d}/${m} ${hm}`),
       appDur: (s) => (s < 60 ? `${s} giây` : `${Math.round(s / 60)} phút`),
@@ -234,6 +239,8 @@
       partSelf: "includes your self-checked writing", partWait: "writing not self-checked yet",
       totalTmp: (s, m) => `Provisional total, including your self-checked writing: ${s}/${m} points.`, totalWait: (s, m) => `Provisional total: ${s}/${m} points. Your writing is not self-checked yet.`,
       cmpMorePts: (d, p) => `${d} ${d === "1" ? "point" : "points"} higher than last time (${p})`, cmpLessPts: (d, p) => `${d} ${d === "1" ? "point" : "points"} lower than last time (${p})`,
+      scoredAuto: "Points on the auto-marked part, scored like the real exam.",
+      cmpMoreAuto: (d, p) => `${d} ${d === "1" ? "point" : "points"} higher on the auto-marked part than last time (${p})`, cmpLessAuto: (d, p) => `${d} ${d === "1" ? "point" : "points"} lower on the auto-marked part than last time (${p})`,
       appHome: "Home", appGrade: (g) => `Grade ${g}`, english: "English", appRandom: "Random test",
       appPoolIntro: (n, all, src) => `A new test every time: ${n} questions from a bank of ${all}${src ? ` (${src} tests)` : ""}, more of the ones you haven't done or often get wrong`,
       appCount: (n) => `${n} questions`, appEssayN: (n) => ` (${n} self-check writing ${n === 1 ? "question" : "questions"})`, appNotes: (s) => `Not enough questions in the bank this time: ${s}.`, appNotesToast: (s) => "Not enough questions in the bank: " + s,
@@ -241,7 +248,7 @@
       appTopicEmpty: "No questions to practise yet", appTopicNone: (t, g) => `There are no questions on “${t}” in the Grade ${g} tests yet.`,
       appSaved: "Result saved", appSavedSelf: "Self-check score saved",
       appSent: "Saved and sent to your parents.", appPending: "Saved on this device. It will be sent to your parents when you're online.", appModScore: (r, t) => `${r}/${t} correct.`,
-      appPrev: (r, t) => `Last time: ${r}/${t} correct`, appPrevPts: (r, t) => `Last time: ${r}/${t} points`, appPrevMode: { exam: "test mode", practice: "practice" },
+      appPrev: (r, t) => `Last time: ${r}/${t} correct`, appPrevPts: (r, t) => `Last time: ${r}/${t} points`, appPrevAuto: (r, t) => `Last time: ${r}/${t} points on the auto-marked part`, appPrevMode: { exam: "test mode", practice: "practice" },
       appScored: (m) => `Scored like the real exam: points for each question and part, out of ${m}.`,
       appWhen: (diff, hm, d, m) => (diff <= 0 ? "Today " + hm : diff === 1 ? "Yesterday " + hm : `${d} ${MONTHS[m - 1]} ${hm}`),
       appDur: (s) => (s < 60 ? `${s} ${s === 1 ? "second" : "seconds"}` : `${Math.round(s / 60)} ${Math.round(s / 60) === 1 ? "minute" : "minutes"}`),
@@ -1125,20 +1132,26 @@
       const saved = !exam && !h.retry ? saveSelf(essays) : null; // ôn luyện: chấm ngay sau từng câu, lưu luôn
       // Đề tính điểm (Phiên K5): điểm của cả đề theo grade (câu chưa làm 0 điểm); lưu r = điểm phần chấm tự động, t = thang điểm của đề
       const G = scored ? grade(qs, qs.map((_, i) => (S.ans[i] ? S.ans[i].g : null))) : null;
+      /* Đề có cả câu chấm tự động và câu tự luận (Phiên 9u, L47; Ngữ văn thi thử: app chấm 3 trong 10 điểm): điểm to, lời khen và so với
+         lần trước theo phần app chấm (G.got trên G.auto: "3/3", đúng hết thì "Xuất sắc"), không theo thang của đề; dòng tổng tạm tính vẫn
+         theo thang của đề. Điểm lưu không đổi (K5): r = G.got, t = PTS; app quy phần app chấm về thang của đề khi tính điểm trung bình. */
+      const AUTO = G && G.auto > 0 && G.auto < G.max ? G.auto : 0, SC = AUTO || PTS;
       if (total && !h.retry && opts.onFinish) opts.onFinish({ r: G ? G.got : right, t: G ? PTS : total, s: Math.round(secs), mode: exam ? "exam" : "practice", wrongTopics: wrong.map((a) => a.q.topic || "Chung") });
       // lịch sử câu: câu chấm tự động và câu tự luận đã làm (ôn luyện: đã xem gợi ý; làm như thi: đã trả lời), kể cả lượt chỉ có câu
       // tự luận (không có phần chấm tự động để lưu)
       if (!h.retry && opts.onMarks) opts.onMarks(auto.map((a) => [a.q.key, a.pts || 0]).concat(essays.filter((i) => S.ans[i].done).map((i) => [qs[i].key, essayMark(i)])));
-      const d10n = G ? (G.got / PTS) * 10 : total ? Math.round((right / total) * 40) / 4 : 0, d10 = N(d10n);
+      const d10n = G ? (G.got / SC) * 10 : total ? Math.round((right / total) * 40) / 4 : 0, d10 = N(d10n);
       const bars = (o, name) => `<div class="ubreak">${Object.entries(o).map(([k, [r, t]]) => `<span>${nbNum(esc(name(k)))}</span><div class="bar"><i style="width:${(r / t) * 100}%"></i></div><span>${N(r)}/${t}</span>`).join("")}</div>`;
       const part = auto.some((a) => a.pts > 0 && a.pts < 1);
       // lời khen theo điểm (opts.name: tên học sinh; xem thử thì không có tên) và so với lần trước
       const praise = total ? L.praise(d10n, opts.name ? ", " + esc(opts.name) : "") : "";
       let cmp = "";
       if (prev && prev.t > 0 && total) {
-        // đề tính điểm: so theo điểm ("Hơn lần trước 1,25 điểm (5,1/10)"); đề thường: theo số câu đúng
-        const ps = `${N(prev.r)}/${N(prev.t)}`, d = r2((G ? G.got : right) - prev.r), more = G ? L.cmpMorePts : L.cmpMore, less = G ? L.cmpLessPts : L.cmpLess;
-        cmp = prev.t !== (G ? PTS : total) ? `<span class="tag">${L.cmpPrev(ps)}</span>` : d > 0 ? `<span class="tag ioe">${more(N(d), ps)}</span>` : d < 0 ? `<span class="tag warn">${less(N(-d), ps)}</span>` : `<span class="tag">${L.cmpSame(ps)}</span>`;
+        // đề tính điểm: so theo điểm ("Hơn lần trước 1,25 điểm (5,1/10)"); đề có tự luận: theo phần app chấm ("Kém lần trước 0,5 điểm phần
+        // app chấm (3/3)": lần trước lưu r trên thang t = PTS, r là điểm phần app chấm); đề thường: theo số câu đúng
+        const same = prev.t === (G ? PTS : total), ps = `${N(prev.r)}/${N(AUTO && same ? AUTO : prev.t)}`, d = r2((G ? G.got : right) - prev.r);
+        const more = AUTO ? L.cmpMoreAuto : G ? L.cmpMorePts : L.cmpMore, less = AUTO ? L.cmpLessAuto : G ? L.cmpLessPts : L.cmpLess;
+        cmp = !same ? `<span class="tag">${L.cmpPrev(ps)}</span>` : d > 0 ? `<span class="tag ioe">${more(N(d), ps)}</span>` : d < 0 ? `<span class="tag warn">${less(N(-d), ps)}</span>` : `<span class="tag">${L.cmpSame(ps)}</span>`;
       }
       /* Đề tính điểm: bảng theo phần (#qzParts: điểm từng phần, phần có câu tự luận cộng điểm tự chấm khi đã chấm đủ các câu của phần)
          và dòng tổng tạm tính (#qzTotal) khi đề có tự luận. Điểm tự chấm quy về pt của câu: được 1,5/2 ý thang chấm, câu pt 3 thì 2,25. */
@@ -1203,8 +1216,8 @@
         <section class="panel" id="qzScore">
           <div class="label">${nb(nbNum(`${esc(ttl)} · ${h.retry ? L.retryHead : exam ? L.modeExam : L.modePractice}`))}</div>
           ${total ? `<h2 class="praise">${praise}</h2>
-          <div class="row" style="gap:18px;align-items:flex-end"><div class="score">${G ? N(G.got) : d10}<span class="score-sub">/${G ? N(PTS) : 10}</span></div>
-          <div class="stack tight"><b>${G ? L.scoredHow : L.scoreLine(N(right), total)}</b><span class="muted small">${L.time}${fmtTime(secs)}</span></div></div>
+          <div class="row" style="gap:18px;align-items:flex-end"><div class="score">${G ? N(G.got) : d10}<span class="score-sub">/${G ? N(SC) : 10}</span></div>
+          <div class="stack tight"><b>${G ? (AUTO ? L.scoredAuto : L.scoredHow) : L.scoreLine(N(right), total)}</b><span class="muted small">${L.time}${fmtTime(secs)}</span></div></div>
           ${cmp ? `<div class="tags" id="qzCmp">${cmp}</div>` : ""}
           ${totalLine}
           ${saved0}

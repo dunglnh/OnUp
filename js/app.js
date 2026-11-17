@@ -259,11 +259,28 @@
   const isSelf = (r) => r.mode === "self";
   const graded = (list) => list.filter((r) => !isSelf(r));
   /* Đề tính điểm (Phiên K5): đề có pts trong danh mục (đề thi thử, thang 10) chấm theo điểm từng câu, từng phần (Quiz.grade);
-     kết quả lưu r = điểm phần chấm tự động, t = pts, nên điểm trung bình vẫn là Σr/Σt. Chỗ ghi số câu đúng thì ghi “điểm”. */
+     kết quả lưu r = điểm phần chấm tự động, t = pts. Chỗ ghi số câu đúng thì ghi “điểm”.
+     Đề có cả câu chấm tự động và câu tự luận (Phiên 9u, L47; Ngữ văn thi thử) ghi thêm auto trong danh mục: điểm tối đa của phần app chấm
+     (3 hoặc 3,5 của 10 điểm). Kết quả của đề đó vẫn lưu r = điểm phần app chấm, t = pts (cột t của máy chủ là số nguyên), nên:
+     - khi cộng (điểm trung bình, tỉ lệ đúng, gợi ý): rtOf quy phần app chấm về thang của đề, r × t / auto (3/3 → 10/10), t giữ nguyên
+       (một đề thi thử vẫn nặng như 10 câu, như K5);
+     - chỗ ghi điểm của một lần làm (dòng bài ptsTxt, thẻ “Lần trước”, dòng “… đề tính điểm” của báo cáo tuần) ghi phần app chấm trên thang
+       của phần đó và nói rõ: “3/3 điểm phần app chấm”, không ghi “3/10 điểm”. */
   const scoredBank = (b) => !!(b && b.pts > 0 && !b.pool);
-  const scoredRes = (r) => !!r && r.source === "bank" && !isSelf(r) && scoredBank(Store.bank(r.refId));
+  const autoOf = (b) => (scoredBank(b) && b.auto > 0 && b.auto < b.pts ? +b.auto : 0);
+  // [pts, auto] của đề tính điểm theo mã đề, null với đề khác; nhớ theo mã (danh mục đề có sẵn không đổi khi app chạy, đề tự soạn không có
+  // pts), để các chỗ cộng điểm không dựng lại cả danh mục (Store.bank) cho từng kết quả
+  const SCALE = new Map();
+  const scaleOf = (id) => { if (!SCALE.has(id)) { const b = Store.bank(id); SCALE.set(id, scoredBank(b) ? [+b.pts, autoOf(b)] : null); } return SCALE.get(id); };
+  const scoredRes = (r) => !!r && r.source === "bank" && !isSelf(r) && !!scaleOf(r.refId);
+  const autoRes = (r) => (scoredRes(r) ? scaleOf(r.refId)[1] : 0); // phần app chấm của kết quả đề có tự luận, 0 với kết quả khác
+  // điểm để cộng của một kết quả: [điểm, thang]; mọi chỗ cộng r, t đi qua đây (sumRT, bySubject…)
+  const rtOf = (r) => { const a = autoRes(r); return a ? [Math.min(r.r / a, 1) * r.t, r.t] : [r.r, r.t]; };
   function within(results, days) { const lim = Date.now() - days * DAY; return results.filter((r) => new Date(r.at).getTime() >= lim); }
-  function sumRT(list) { return list.reduce((a, r) => [a[0] + r.r, a[1] + r.t], [0, 0]); }
+  function sumRT(list) { return list.reduce((a, r) => { const [x, y] = rtOf(r); return [a[0] + x, a[1] + y]; }, [0, 0]); }
+  /* Điểm của một lần làm (dòng bài ở tab Kết quả, Hôm nay, báo cáo tuần): tự chấm "7/7 điểm" (phần tư điểm), đề có tự luận "3/3 điểm"
+     (phần app chấm; dòng dưới tên ghi "phần app chấm", resultsList), đề tính điểm "6,35/10 điểm", đề thường "21/25". */
+  const ptsTxt = (r) => (isSelf(r) ? nf(r.r / 4) + "/" + nf(r.t / 4) + " điểm" : autoRes(r) ? nf(r.r) + "/" + nf(autoRes(r)) + " điểm" : scoredRes(r) ? nf(r.r) + "/" + nf(r.t) + " điểm" : nf(r.r) + "/" + r.t);
   function streak(results) {
     const days = new Set(results.map((r) => { const d = new Date(r.at); return d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate(); }));
     let n = 0; const d = today0();
@@ -347,7 +364,7 @@
   }
   function bySubject(list) {
     const m = {};
-    list.forEach((x) => { const k = x.subject || "Khác", o = (m[k] = m[k] || { name: k, n: 0, r: 0, t: 0 }); o.n++; o.r += x.r; o.t += x.t; });
+    list.forEach((x) => { const k = x.subject || "Khác", o = (m[k] = m[k] || { name: k, n: 0, r: 0, t: 0 }), [r, t] = rtOf(x); o.n++; o.r += r; o.t += t; });
     return Object.values(m).sort((a, b) => b.n - a.n || a.name.localeCompare(b.name, "vi"));
   }
   /* [chủ đề, số câu sai], nhiều nhất trước. Chỉ ngân hàng câu hỏi ghi chủ đề; bài ôn dạng trang chỉ gửi điểm tổng. */
@@ -383,7 +400,7 @@
       if (src && src.g === +s.grade) { o.href = topicHref(src.g, src.code, t); o.ref = topicRef(src.g, src.code, t); }
     }));
     const week = graded(within(all, 7));
-    return Object.values(m).map((o) => Object.assign(o, { redone: !!o.ref && week.some((r) => r.refId === o.ref && r.t > 0 && r.r / r.t >= 0.8) }))
+    return Object.values(m).map((o) => Object.assign(o, { redone: !!o.ref && week.some((r) => { const [x, y] = rtOf(r); return r.refId === o.ref && y > 0 && x / y >= 0.8; }) }))
       .sort((a, b) => b.n - a.n || a.topic.localeCompare(b.topic, "vi"));
   }
 
@@ -848,7 +865,7 @@
     if (!mods.length && !bks.length && !ioe.length) return `<div class="panel muted">Chưa có bài ôn cho mục này. ${esc(noBanks().t)}</div>`; // chi tiết kì thi chưa gắn bài ôn
     const subs = new Map(), act = canPlay ? "main" : "", dn = doneMap(res);
     const ck = `<span class="done-ic" aria-hidden="true">✓</span>`;
-    const doneAria = (x) => { const l = dn.last[itemKey(x)]; return ", đã làm" + (l && l.t ? `, lần gần nhất đúng ${pct(l.r, l.t)}%` : ""); };
+    const doneAria = (x) => { const l = dn.last[itemKey(x)]; return ", đã làm" + (l && l.t ? `, lần gần nhất đúng ${pct(...rtOf(l))}%` : ""); };
     bks.forEach((b) => { const k = subjOf(b); subs.set(k, (subs.get(k) || []).concat(b)); });
     const modRow = (m) => { const n = dn.n[itemKey(m)] || 0, go = canPlay ? "Vào ôn" : "Xem thử";
       return `<div class="item"><span class="grow"><b>${esc(m.title)}</b><span class="small muted">${esc(n ? addSentence(m.desc, `Đã ôn ${n} lần.`) : m.desc)}</span></span>${n
@@ -1088,7 +1105,8 @@
   }
   function resultsList(list) {
     if (!list.length) return `<div class="panel muted">Chưa có kết quả. Làm một bài ôn để bắt đầu.</div>`;
-    return `<div class="list">${list.map((r) => `<div class="item"><div class="grow"><b>${nb(esc(r.label || "Bài ôn"))}</b><span class="small muted">${esc(ago(r.at))}${r.subject ? " · " + esc(r.subject) : ""}${r.mode === "exam" ? " · làm như thi" : isSelf(r) ? " · tự luận tự chấm" : ""}</span></div><b style="font-variant-numeric:tabular-nums">${isSelf(r) ? nf(r.r / 4) + "/" + nf(r.t / 4) + " điểm" : scoredRes(r) ? nf(r.r) + "/" + nf(r.t) + " điểm" : nf(r.r) + "/" + r.t}</b></div>`).join("")}</div>`;
+    // đề có tự luận (Phiên 9u, L47): dòng dưới tên ghi "phần app chấm", điểm "3/3 điểm", như phần tự chấm ghi "tự luận tự chấm", "7/7 điểm"
+    return `<div class="list">${list.map((r) => `<div class="item"><div class="grow"><b>${nb(esc(r.label || "Bài ôn"))}</b><span class="small muted">${esc(ago(r.at))}${r.subject ? " · " + esc(r.subject) : ""}${r.mode === "exam" ? " · làm như thi" : ""}${isSelf(r) ? " · tự luận tự chấm" : autoRes(r) ? " · phần app chấm" : ""}</span></div><b style="font-variant-numeric:tabular-nums">${ptsTxt(r)}</b></div>`).join("")}</div>`;
   }
 
   /* ================= BÁO CÁO TUẦN = HỒ SƠ CỦA CON =================
@@ -1177,10 +1195,14 @@
     try { await navigator.share({ title, text }); }
     catch (e) { if (!e || (e.name !== "AbortError" && e.name !== "InvalidStateError")) await copyMsg(text, box); } // InvalidStateError: bảng chia sẻ đang mở (bấm hai lần)
   }
-  /* Dòng dưới mỗi môn ở mục Điểm theo môn: “3 bài · 18/25 câu đúng”; đề tính điểm ghi riêng theo điểm (“1 đề tính điểm: 6,35/10 điểm”). */
+  /* Dòng dưới mỗi môn ở mục Điểm theo môn: “3 bài · 18/25 câu đúng”; đề tính điểm ghi riêng theo điểm (“1 đề tính điểm: 6,35/10 điểm”);
+     đề có tự luận (Phiên 9u, L47) ghi phần app chấm trên thang của phần đó, không cộng điểm đã quy đổi (“1 đề tính điểm: 3/3 điểm phần app
+     chấm”). */
   function subLine(name, week) {
-    const mine = week.filter((r) => (r.subject || "Khác") === name), sc = mine.filter(scoredRes), [r, t] = sumRT(mine.filter((x) => !scoredRes(x))), [pr, pt] = sumRT(sc);
-    return [`${mine.length} bài`, t ? `${nf(r)}/${t} câu đúng` : "", sc.length ? `${sc.length} đề tính điểm: ${nf(pr)}/${nf(pt)} điểm` : ""].filter(Boolean).join(" · ");
+    const mine = week.filter((r) => (r.subject || "Khác") === name), sc = mine.filter((x) => scoredRes(x) && !autoRes(x)), au = mine.filter(autoRes);
+    const [r, t] = sumRT(mine.filter((x) => !scoredRes(x))), add = (list, f) => list.reduce((a, x) => a + f(x), 0);
+    return [`${mine.length} bài`, t ? `${nf(r)}/${t} câu đúng` : "", sc.length ? `${sc.length} đề tính điểm: ${nf(add(sc, (x) => x.r))}/${nf(add(sc, (x) => x.t))} điểm` : "",
+      au.length ? `${au.length} đề tính điểm: ${nf(add(au, (x) => x.r))}/${nf(add(au, autoRes))} điểm phần app chấm` : ""].filter(Boolean).join(" · ");
   }
   /* Chọn tuần (X43): ?tuan=<n> lùi n tuần, mỗi tuần 7 ngày tính như tuần này. Theo tuần đang chọn: tin nhắn, bốn ô số liệu ("Tuần
      trước:" là tuần ngay trước tuần đang chọn), số bài từng ngày, điểm theo môn, chủ đề hay sai, tự luận tự chấm, bài đã làm, tên file
@@ -1244,7 +1266,7 @@
         <a class="linkbtn noprint" id="rpPractice" href="#/child/${esc(s.id)}/practice">Bài ôn của ${esc(s.name)} →</a></section>
       ${st.n ? `<section class="sec"><h2>Bài đã làm trong tuần</h2>${resultsList(week)}</section>` : ""}
       ${olderN ? `<details class="grp noprint" id="rpOlder"><summary><span class="grow"><b>Bài làm trước tuần này</b><span class="small muted">${olderN} bài${olderN > 30 ? " · hiện 30 bài gần nhất" : ""}</span></span></summary>${resultsList(older.slice(0, 30))}</details>` : ""}
-      <p class="small muted">Lập ngày ${dmy(isoDay(t0))}. Điểm quy về thang 10 theo số câu đúng${week.some(scoredRes) ? "; đề tính điểm (đề thi thử) lấy điểm của đề" : ""}.</p>
+      <p class="small muted">Lập ngày ${dmy(isoDay(t0))}. Điểm quy về thang 10 theo số câu đúng${week.some(scoredRes) ? "; đề tính điểm (đề thi thử) lấy điểm của đề" : ""}${week.some(autoRes) ? "; đề có tự luận chỉ tính phần app chấm, đúng hết phần đó là 10 điểm" : ""}.</p>
     </div>`;
     wireGo(); wireEvents(view, s.grade, s);
     const toWeek = (n, id) => { const h = "#" + (location.hash || "#/").slice(1).split("?")[0] + (n ? "?tuan=" + n : ""); weekFocus = { id, h }; location.replace(h); };
@@ -1659,7 +1681,7 @@
        chọn cách làm, mỗi thẻ có biểu tượng và một dòng giải thích. Đề không có số phút thì chỉ có thẻ Ôn luyện. */
     const pr = last();
     const prevCard = !pr ? "" : `<section class="panel prev" id="qPrev">${ICO('<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>')}<span class="grow">
-        <b>${scoredBank(b) ? L.appPrevPts(Quiz.fmtN(pr.r, lang), Quiz.fmtN(pr.t, lang)) : L.appPrev(Quiz.fmtN(pr.r, lang), pr.t)}</b><span class="small muted">${nb(esc([ago(pr.at, L), L.appPrevMode[pr.mode], pr.s > 0 ? L.appDur(pr.s) : ""].filter(Boolean).join(" · ")))}</span></span></section>`;
+        <b>${autoRes(pr) ? L.appPrevAuto(Quiz.fmtN(pr.r, lang), Quiz.fmtN(autoRes(pr), lang)) : scoredBank(b) ? L.appPrevPts(Quiz.fmtN(pr.r, lang), Quiz.fmtN(pr.t, lang)) : L.appPrev(Quiz.fmtN(pr.r, lang), pr.t)}</b><span class="small muted">${nb(esc([ago(pr.at, L), L.appPrevMode[pr.mode], pr.s > 0 ? L.appDur(pr.s) : ""].filter(Boolean).join(" · ")))}</span></span></section>`;
     const modeCard = (id, ic, head, note, main) => `<button class="mode${main ? " main" : ""}" id="${id}">${ICO(ic)}<span class="grow"><b>${head}</b><span class="small muted">${note}</span></span>${ICO('<path d="m9 6 6 6-6 6"/>')}</button>`;
     view.innerHTML = `<div class="stack"${en ? ' lang="en"' : ""}>${back("#/home", L.appHome)}
       <section class="hero"><span class="label">${nb(`${L.appGrade(b.grade)} · ${en ? L.english : esc(b.subject)}${b.topic != null ? " · " + L.appTopic : b.pool ? " · " + L.appRandom : ""}`)}</span><h1>${nb(esc(Quiz.title(b, lang)))}</h1>

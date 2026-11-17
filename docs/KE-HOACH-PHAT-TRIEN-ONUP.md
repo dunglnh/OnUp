@@ -2,7 +2,7 @@
 
 > **Tìm nhanh:** phiên làm đề, dò sách, kĩ thuật cho đề: hàng đợi ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) (mở từ trên xuống) · phiên sửa lỗi: mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) · việc của chủ app: mục 2 · thứ tự các phiên: mục 3 · lời giao việc phiên giao diện, chuẩn bị bán: mục 4 · đã xong: mục 1.
 
-> **Trạng thái (15/11/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy bản đám mây từ 17/10/2026 (PR #27), chỉ dành cho gia đình được mời. Đã gộp tới PR #317 (bảng “Đã xong” ở mục 1). Phiên xong chỉ sửa ngày và số PR ở dòng này.
+> **Trạng thái (17/11/2026):** trang thật https://dunglnh.github.io/OnUp/ chạy bản đám mây từ 17/10/2026 (PR #27), chỉ dành cho gia đình được mời. Đã gộp tới PR #319 (bảng “Đã xong” ở mục 1). Phiên xong chỉ sửa ngày và số PR ở dòng này.
 
 > **Đã chốt 18/10/2026, đổi mốc 21/10/2026:** đủ đề lớp 4–12 và rà xong trong tháng 2/2027; từ đầu tháng 3/2027 mời khách tiềm năng dùng thử miễn phí đến hết các kì thi của năm học 2026–2027 (kì cuối là thi tốt nghiệp THPT, dự kiến 11–12/6/2027); mở bán chính thức từ tháng 6/2027 nếu không vướng thủ tục hành chính (thay mốc “bán khi đủ đề lớp 4–12, khoảng cuối năm học 2028–2029” của ngày 18/10; nhịp cần, mốc kiểm tra và cách lùi khi chậm ở mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)); trong thời gian dùng thử và đến lúc bán, gói Miễn phí giữ như hiện nay (5 hồ sơ, mọi đề; bảng `plans` không đổi), hạn mức hai gói lúc bán chốt sau (giữa tháng 5/2027); các phiên chuẩn bị G0, B1 làm trước khi mở dùng thử, B2, B4, G1 trước khi bán (mục 3); Supabase giữ gói Free đến khi bắt đầu thu tiền (chủ app xuất CSV hằng tuần, mở app mỗi tuần); trang công khai chỉ dành cho gia đình được mời, gia đình dùng thử cũng do chủ app tạo tài khoản (màn đăng nhập có dòng “Chưa có tài khoản?”, Phiên S1; muốn mở tự đăng kí thì đổi quyết định này trước, việc 9 ở mục 2); câu sai báo bằng nút trong app (Phiên R1), GitHub Issues chỉ còn cho chủ app; không ghi giá bán, chi phí hay so sánh đối thủ vào repo. Thiết kế gói: mục 9 của [THIET-KE-TAI-KHOAN.md](THIET-KE-TAI-KHOAN.md).
 
@@ -276,6 +276,7 @@
 | #315 | Phiên N12-tn-diali-b: 4 đề Địa lí thi thử tốt nghiệp, Đề 5–8 (đề tính điểm, 28 câu) |
 | #316 | Phiên N12-tn-ktpl: 3 đề GDKT&PL thi thử tốt nghiệp, Đề 1–3 (đề tính điểm, 28 câu) |
 | #317 | Phiên N12-tn-ktpl-b: 2 đề GDKT&PL thi thử tốt nghiệp, Đề 4–5 (đề tính điểm, 28 câu) |
+| #319 | Phiên 9u: điểm của đề tính điểm có câu tự luận theo phần app chấm (L47) |
 
 </details>
 
@@ -339,7 +340,6 @@ Thứ tự các phiên:
 | 5 | 28/2/2027 | **G0 · Chuẩn bị dùng thử** → **B1 · Chuyển hosting sang Cloudflare Pages, repo riêng tư** | | trước khi mở dùng thử (đầu tháng 3/2027); lời giao việc ở mục 4 |
 | 6 | 31/5/2027 | **B2 · Đề trả phí lên máy chủ** → B4 (bớt tải dữ liệu) → **G1 · Kích hoạt gói, màn hình Nâng cấp** | B1 | trong thời gian dùng thử, xong trước khi mở bán (tháng 6/2027); lời giao việc ở mục 4, B4 ở [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md) mục 5 |
 | 7 | 31/8/2027 | Rà đề theo sách chỉnh sửa năm 2027 (dự trù khoảng 15 phiên, theo danh mục Bộ công bố); Lịch 2027–2028 (khi Bộ, Sở công bố khung năm học); gộp bài ôn dạng trang vào ngân hàng | | trước năm học 2027–2028: khách mua từ tháng 6/2027 dùng đề cho năm học đó (mục 4 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md), đoạn “Sách”) |
-| — | khi có | **Phiên 9u · Điểm của đề tính điểm có câu tự luận (L47)**: đúng hết phần app chấm của đề Ngữ văn thi thử vẫn bị ghi “đúng 30%”, báo cáo tuần bảo xem lại câu sai; lời giao việc ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) | | nên làm sớm (khối 9 đang bật), xong trước khi bật khối 12; sửa `js/app.js`, `js/quiz.js`: không chạy cùng lúc với phiên khác sửa hai file đó, chạy xen được với các phiên N; QC ghi ngày 6/11/2026 |
 | — | khi có | **Phiên 9v · Chữ đè lên nhau trong hình của đề có sẵn (L48)**: biểu đồ kết hợp của Địa lí 12 giữa kì II Đề 2 ghi “450” và “18” trùng chỗ, chữ “y” chạm “(P₁)” ở câu riêng của đề ngẫu nhiên Toán 9 cuối năm; thêm vào `tests/e2e.js` bước đo chữ đè trong mọi hình của đề có sẵn; lời giao việc ở mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) | | không gấp, xong trước phiên rà soát lớp 12; sửa `data/banks/12-diali.js`, `data/banks/9-toan.js`, `tests/e2e.js`: không chạy cùng lúc với phiên khác sửa các file đó; QC ghi ngày 11/11/2026 |
 | — | khi có | **Sửa lỗi từ góp ý chạy thử**: QC ghi mã lỗi (tiếp theo L49) và lời giao việc phiên 9 + chữ cái ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md) | | chen vào bất cứ lúc nào; gấp thì xếp vào bảng “Làm ngay” |
 

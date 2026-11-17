@@ -47,6 +47,11 @@
      phương án), chấm theo điểm (Quiz.grade): kết quả "6,35/10", bảng theo phần; lưu r = điểm phần chấm tự động, t = pts. Phần tự
      luận tự chấm vẫn lưu riêng. Tên đề "<môn> <khối> · Thi thử vào 10 · Đề N", "<môn> <khối> · Thi thử tốt nghiệp · Đề N"; mã
      "<mã môn><khối>-vao10-de<N>", "<mã môn><khối>-tn-de<N>". Chưa có đề ngẫu nhiên cho đề tính điểm (pts không đi cùng pool).
+     Đề có cả câu chấm tự động và câu tự luận (Phiên 9u, L47; Ngữ văn thi thử) ghi thêm auto sau pts: điểm tối đa của phần app chấm
+     (tổng pt của các câu không phải tự luận, ví dụ pts: 10, auto: 3), để app biết trước khi tải file câu hỏi: màn kết quả, thẻ "Lần
+     trước", dòng bài ghi "3/3 điểm phần app chấm"; điểm trung bình, tỉ lệ đúng quy phần app chấm về thang của đề (r × pts / auto).
+     Đề toàn tự luận (Toán thi thử vào 10) và đề không có tự luận không ghi auto. tests/kiem-tra-de.js kiểm tra: có auto khi và chỉ khi
+     0 < tổng đó < pts, và auto bằng tổng đó; tests/ghep-de.js tự ghi auto từ câu của đề nháp.
    topic: tên chủ đề để thống kê câu sai theo chủ đề. Trường chung không bắt buộc:
    lv: mức độ 1 (Biết), 2 (Hiểu), 3 (Vận dụng);
    p: mã đoạn đọc trong passages: { "<mã>": { title?, text?, svg? } } (các câu cùng đoạn đứng liền nhau khi làm bài);
@@ -878,12 +883,12 @@ window.ONTAP_SEED_BANKS = [
      này trong data/banks/9-van.js. Khối 9 chưa bật nên đề chưa hiện với gia đình. Đề 1: truyện ngắn, văn bản nghị luận; Đề 2: thơ tám
      chữ, văn bản thông tin; Đề 3 (Phiên N9-vao10-van-b): du kí, văn bản nghị luận; Đề 4: thơ tự do, văn bản thông tin; Đề 5 (Phiên
      N9-vao10-van-c): truyện khoa học viễn tưởng, văn bản nghị luận; Đề 6: tuỳ bút, văn bản thông tin. */
-  { id: "van9-vao10-de1", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 1", grade: 9, subject: "Ngữ văn", minutes: 120, n: 10, file: "9-van.js", pts: 10 },
-  { id: "van9-vao10-de2", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 2", grade: 9, subject: "Ngữ văn", minutes: 120, n: 9, file: "9-van.js", pts: 10 },
-  { id: "van9-vao10-de3", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 3", grade: 9, subject: "Ngữ văn", minutes: 120, n: 10, file: "9-van.js", pts: 10 },
-  { id: "van9-vao10-de4", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 4", grade: 9, subject: "Ngữ văn", minutes: 120, n: 10, file: "9-van.js", pts: 10 },
-  { id: "van9-vao10-de5", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 5", grade: 9, subject: "Ngữ văn", minutes: 120, n: 10, file: "9-van.js", pts: 10 },
-  { id: "van9-vao10-de6", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 6", grade: 9, subject: "Ngữ văn", minutes: 120, n: 10, file: "9-van.js", pts: 10 },
+  { id: "van9-vao10-de1", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 1", grade: 9, subject: "Ngữ văn", minutes: 120, n: 10, file: "9-van.js", pts: 10, auto: 3 },
+  { id: "van9-vao10-de2", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 2", grade: 9, subject: "Ngữ văn", minutes: 120, n: 9, file: "9-van.js", pts: 10, auto: 3.5 },
+  { id: "van9-vao10-de3", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 3", grade: 9, subject: "Ngữ văn", minutes: 120, n: 10, file: "9-van.js", pts: 10, auto: 3.5 },
+  { id: "van9-vao10-de4", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 4", grade: 9, subject: "Ngữ văn", minutes: 120, n: 10, file: "9-van.js", pts: 10, auto: 3.5 },
+  { id: "van9-vao10-de5", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 5", grade: 9, subject: "Ngữ văn", minutes: 120, n: 10, file: "9-van.js", pts: 10, auto: 3.5 },
+  { id: "van9-vao10-de6", title: "Ngữ văn 9 · Thi thử vào 10 · Đề 6", grade: 9, subject: "Ngữ văn", minutes: 120, n: 10, file: "9-van.js", pts: 10, auto: 3.5 },
 
   /* Tiếng Anh 9 · Kiểm tra giữa học kì I (Global Success 9, Units 1–3, Review 1; Phiên N9-gk1-ta). Phạm vi theo đề, đề cương giữa kì I
      tra được (nguồn ở mục 7 của docs/KE-HOACH-NOI-DUNG.md). Khối 9 chưa bật nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong
@@ -1709,11 +1714,11 @@ window.ONTAP_SEED_BANKS = [
      đề chưa hiện với gia đình. Đề 1: truyện ngắn, Đề 2: văn bản nghị luận, Đề 3: bài thơ tám chữ (câu 1 Phần II so sánh, đánh giá
      hai đoạn thơ), Đề 4: văn bản thông tin có bảng số liệu, Đề 5: bài kí (tản văn; phần đọc hiểu 5 câu, điểm từng câu như đề thật,
      nên đề có 7 câu). */
-  { id: "van12-tn-de1", title: "Ngữ văn 12 · Thi thử tốt nghiệp · Đề 1", grade: 12, subject: "Ngữ văn", minutes: 120, n: 8, file: "12-van.js", pts: 10 },
-  { id: "van12-tn-de2", title: "Ngữ văn 12 · Thi thử tốt nghiệp · Đề 2", grade: 12, subject: "Ngữ văn", minutes: 120, n: 8, file: "12-van.js", pts: 10 },
-  { id: "van12-tn-de3", title: "Ngữ văn 12 · Thi thử tốt nghiệp · Đề 3", grade: 12, subject: "Ngữ văn", minutes: 120, n: 8, file: "12-van.js", pts: 10 },
-  { id: "van12-tn-de4", title: "Ngữ văn 12 · Thi thử tốt nghiệp · Đề 4", grade: 12, subject: "Ngữ văn", minutes: 120, n: 8, file: "12-van.js", pts: 10 },
-  { id: "van12-tn-de5", title: "Ngữ văn 12 · Thi thử tốt nghiệp · Đề 5", grade: 12, subject: "Ngữ văn", minutes: 120, n: 7, file: "12-van.js", pts: 10 },
+  { id: "van12-tn-de1", title: "Ngữ văn 12 · Thi thử tốt nghiệp · Đề 1", grade: 12, subject: "Ngữ văn", minutes: 120, n: 8, file: "12-van.js", pts: 10, auto: 3 },
+  { id: "van12-tn-de2", title: "Ngữ văn 12 · Thi thử tốt nghiệp · Đề 2", grade: 12, subject: "Ngữ văn", minutes: 120, n: 8, file: "12-van.js", pts: 10, auto: 3 },
+  { id: "van12-tn-de3", title: "Ngữ văn 12 · Thi thử tốt nghiệp · Đề 3", grade: 12, subject: "Ngữ văn", minutes: 120, n: 8, file: "12-van.js", pts: 10, auto: 3 },
+  { id: "van12-tn-de4", title: "Ngữ văn 12 · Thi thử tốt nghiệp · Đề 4", grade: 12, subject: "Ngữ văn", minutes: 120, n: 8, file: "12-van.js", pts: 10, auto: 3 },
+  { id: "van12-tn-de5", title: "Ngữ văn 12 · Thi thử tốt nghiệp · Đề 5", grade: 12, subject: "Ngữ văn", minutes: 120, n: 7, file: "12-van.js", pts: 10, auto: 3 },
 
   /* Tiếng Anh 12 · Kiểm tra cuối năm học (Global Success 12, Units 6–10, Review 3, 4, trọng tâm Units 8–10; Phiên N12-ck2-ta). Khối 12
      chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong file (1 đoạn điền, 1 bài đọc) + 50 câu của 2
