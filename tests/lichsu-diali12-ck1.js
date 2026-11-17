@@ -278,26 +278,35 @@ const docKetHop = (svg) => {
   const nd = namDuoi(svg, day), hcn = tags(svg, "rect"), cot = hcn.filter((r) => num(r, "y") <= day), lg = hcn.filter((r) => num(r, "y") > day);
   assert.ok(cot.length >= 3 && lg.length === 1 && cot.every((r) => r.fill === lg[0].fill), "các cột cùng màu với ô chú giải");
   const tenCot = chuGiaiCua(svg, lg)[0].ten;
+  const pl = tags(svg, "polyline"); assert.equal(pl.length, 1, "một đường");
+  const ci = tags(svg, "circle"), p = pts(pl[0].points), soDuong = (t) => p.some(([x, y]) => Math.abs(+t.x - x) < 0.051 && Math.abs(+t.y - (y - 8)) < 0.051);
+  // số của cột ngay trên đỉnh (y − 6), hoặc trong lòng cột (đường chân chữ cách đỉnh cột từ 14, cách đường đáy từ 4; Phiên 9v, L48: số của
+  // đường ngay trên đỉnh cột thì ghi số của cột trong lòng cột)
   const vCot = cot.map((r) => {
     assert.ok(close(num(r, "y") + num(r, "height"), day), "cột đứng trên đường đáy");
-    const cx = num(r, "x") + num(r, "width") / 2, d = tx.filter((t) => t["text-anchor"] === "middle" && Math.abs(+t.x - cx) < 0.051 && Math.abs(+t.y - (num(r, "y") - 6)) < 0.051);
-    assert.equal(d.length, 1, "mỗi cột một số ngay trên đỉnh"); const v = val(d[0].t); khop(gtL, num(r, "y"), v, "cột");
+    const cx = num(r, "x") + num(r, "width") / 2, top = num(r, "y");
+    const d = tx.filter((t) => so(t) && !soDuong(t) && t["text-anchor"] === "middle" && Math.abs(+t.x - cx) < 0.051 && (Math.abs(+t.y - (top - 6)) < 0.051 || (+t.y >= top + 14 && +t.y <= day - 4)));
+    assert.equal(d.length, 1, "mỗi cột một số ngay trên đỉnh hoặc trong lòng cột"); const v = val(d[0].t); khop(gtL, top, v, "cột");
     const n = nd.filter((t) => Math.abs(+t.x - cx) < 0.051); assert.equal(n.length, 1, "cột nào cũng có năm ở dưới");
-    return { nam: +n[0].t, v, cx };
+    return { nam: +n[0].t, v, cx, nhan: d[0] };
   }).sort((a, b) => a.nam - b.nam);
-  const pl = tags(svg, "polyline"); assert.equal(pl.length, 1, "một đường");
   const lgL = tags(svg, "line").filter((l) => l.stroke === pl[0].stroke && ngang(l) && num(l, "y1") > day); assert.equal(lgL.length, 1, "đường có chú giải");
   const tenDuong = tx.filter((t) => close(+t.y, num(lgL[0], "y1") + 5) && Math.abs(+t.x - (num(lgL[0], "x2") + 6)) < 0.051); assert.equal(tenDuong.length, 1);
-  const ci = tags(svg, "circle"), p = pts(pl[0].points);
   assert.equal(p.length, vCot.length, "mỗi năm một điểm của đường");
   const vDuong = p.map(([x, y], i) => {
     assert.ok(Math.abs(x - vCot[i].cx) < 0.051, "điểm của đường ở giữa cột cùng năm");
     assert.equal(ci.filter((c) => Math.abs(+c.cx - x) < 0.051 && Math.abs(+c.cy - y) < 0.051 && c.fill === pl[0].stroke).length, 1, "chấm tròn ở mỗi điểm");
     const d = tx.filter((t) => t["text-anchor"] === "middle" && Math.abs(+t.x - x) < 0.051 && Math.abs(+t.y - (y - 8)) < 0.051);
     assert.equal(d.length, 1, "mỗi điểm một số ngay trên"); const v = val(d[0].t); khop(gtR, y, v, "điểm của đường");
-    return { nam: vCot[i].nam, v };
+    return { nam: vCot[i].nam, v, nhan: d[0] };
   });
-  return { cot: { ten: tenCot, donVi: dvL[0].t, v: vCot.map(({ nam, v }) => ({ nam, v })) }, duong: { ten: tenDuong[0].t, donVi: dvR[0].t, v: vDuong } };
+  /* Phiên 9v (L48): số của cột và số của đường không chồng nhau, chấm tròn của đường không nằm trên số của cột. Hộp chữ ước theo cỡ 15: chữ
+     số rộng 8,6, dấu phẩy, khoảng trắng 4,3; từ đường chân chữ lên 11, xuống 3 (đo nét từng kí tự ở bước L48 của tests/e2e.js). */
+  const hop = (t) => { const w = [...t.t].reduce((a, ch) => a + (/\d/.test(ch) ? 8.6 : 4.3), 0); return { l: +t.x - w / 2, r: +t.x + w / 2, t: +t.y - 11, b: +t.y + 3 }; };
+  vCot.forEach(({ nhan: a }) => { const A = hop(a);
+    vDuong.forEach(({ nhan: b }) => { const B = hop(b); assert.ok(Math.min(A.r, B.r) <= Math.max(A.l, B.l) || Math.min(A.b, B.b) <= Math.max(A.t, B.t), `số của cột “${a.t}” và số của đường “${b.t}” chồng nhau`); });
+    ci.filter((c) => c.fill === pl[0].stroke).forEach((c) => assert.ok(Math.hypot(Math.max(A.l - +c.cx, 0, +c.cx - A.r), Math.max(A.t - +c.cy, 0, +c.cy - A.b)) >= +c.r, `chấm tròn (${c.cx}; ${c.cy}) của đường nằm trên số của cột “${a.t}”`)); });
+  return { cot: { ten: tenCot, donVi: dvL[0].t, v: vCot.map(({ nam, v }) => ({ nam, v })) }, duong: { ten: tenDuong[0].t, donVi: dvR[0].t, v: vDuong.map(({ nam, v }) => ({ nam, v })) } };
 };
 // câu nhiều lựa chọn xét từng lựa chọn bằng luật (biểu thức chữ → hàm tính trên số liệu): lựa chọn nào cũng khớp đúng một luật, đúng một
 // lựa chọn đúng; trả về lựa chọn đúng (so với o[0])
