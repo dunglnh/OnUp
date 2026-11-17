@@ -38,9 +38,10 @@
    - đề tính điểm (mục có pts, Phiên K5; tên kì "Thi thử vào 10", "Thi thử tốt nghiệp"): pts là số dương, bội của 0,25, không đi với
      pool; số câu, số phút theo GIOI_HAN_DIEM (ít câu, câu tự luận dài); câu có thêm pt, part (chỉ ở đề tính điểm): mọi câu có pt
      (lớn hơn 0, bội của 0,25), đúng/sai 4 ý pt 1, tự luận pt bằng tổng thang chấm, tổng pt bằng pts; part có ở mọi câu hoặc không
-     câu nào; câu cùng phần, câu cùng đoạn đọc đứng liền nhau (app không xáo thứ tự câu), câu cùng đoạn cùng phần (soatDiem); tự thử
-     Quiz.grade với đề Toán tốt nghiệp ra 6,35/10 (cách chấm theo số câu cho 7,25), câu tự luận, Quiz.title của hai kì thi thử và
-     soatDiem với đề cố ý viết sai;
+     câu nào; câu cùng phần, câu cùng đoạn đọc đứng liền nhau (app không xáo thứ tự câu), câu cùng đoạn cùng phần (soatDiem); đề có cả
+     câu chấm tự động và câu tự luận ghi auto (Phiên 9u, L47) sau pts: có auto khi và chỉ khi 0 < tổng pt của các câu không phải tự luận
+     < pts, và auto bằng tổng đó; tự thử Quiz.grade với đề Toán tốt nghiệp ra 6,35/10 (cách chấm theo số câu cho 7,25), câu tự luận,
+     Quiz.title của hai kì thi thử và soatDiem với đề cố ý viết sai (cả đề có tự luận thiếu auto, auto sai);
    - lịch thi mặc định (data/calendar-2026-2027.js): đề và bài ôn gắn vào kì thi có thật, đúng khối của kì thi;
    - bộ lọc hình (Quiz.svg) bỏ được mã chạy và link ngoài trong vài hình mẫu cố ý viết sai (SVG_THU).
    - đề Tiếng Anh 100% tiếng Anh (Phiên TA1): đề có môn Tiếng Anh (mọi khối) và câu có topic bắt đầu bằng "English" trong đề
@@ -61,7 +62,7 @@ const ROOT = path.join(__dirname, "..");
 const GIOI_HAN = { cau: [10, 60], phut: [10, 120], giayMoiCau: [30, 300] };
 // đề tính điểm (Phiên K5): ít câu, câu tự luận dài (Toán vào 10: 7 câu tự luận, 120 phút; Ngữ văn 120 phút)
 const GIOI_HAN_DIEM = { cau: [1, 60], phut: [10, 150], giayMoiCau: [30, 7200] };
-const TRUONG_DE = ["id", "title", "grade", "subject", "minutes", "n", "file"]; // đề ngẫu nhiên có thêm pool ở cuối, đề tính điểm có thêm pts
+const TRUONG_DE = ["id", "title", "grade", "subject", "minutes", "n", "file"]; // đề ngẫu nhiên có thêm pool ở cuối, đề tính điểm có thêm pts (có tự luận: pts, auto)
 const KI = ["Giữa kì I", "Cuối kì I", "Giữa kì II", "Cuối năm", "Thi thử vào 10", "Thi thử tốt nghiệp"]; // tên kì trong tên đề (thi thử: Phiên K5)
 const MON_THU = "Thử nghiệm"; // đề thử nghiệm các dạng câu: tên không theo quy ước
 const TRUONG_CAU = { mc: ["topic", "type", "q", "o", "x"], fill: ["topic", "type", "q", "ans", "x"], tf: ["topic", "type", "q", "a", "x"],
@@ -131,6 +132,11 @@ const soatDiem = (b, qs) => {
   });
   const sum = r2(qs.reduce((a, q) => a + (typeof q.pt === "number" ? q.pt : 0), 0));
   if (sum !== b.pts) out.push(`tổng pt của các câu là ${sum}, cần bằng pts = ${b.pts}`);
+  // Phiên 9u (L47): đề có cả câu chấm tự động và câu tự luận ghi auto = tổng pt của các câu không phải tự luận (điểm tối đa của phần app
+  // chấm), để app ghi "3/3 điểm phần app chấm" và quy phần đó về thang của đề khi tính điểm trung bình; đề khác không ghi auto
+  const auto = r2(qs.reduce((a, q) => a + (q.type !== "essay" && typeof q.pt === "number" ? q.pt : 0), 0));
+  if (auto > 0 && auto < b.pts) { if (b.auto !== auto) out.push(`đề có cả câu chấm tự động và câu tự luận: danh mục cần auto: ${auto} (tổng pt của các câu không phải tự luận), đang ${"auto" in b ? JSON.stringify(b.auto) : "không có"}`); }
+  else if ("auto" in b) out.push(`auto chỉ ghi ở đề có cả câu chấm tự động và câu tự luận (phần chấm tự động của đề này: ${auto}/${b.pts} điểm)`);
   const withPart = qs.filter((q) => "part" in q).length;
   if (withPart && withPart !== qs.length) out.push(`${withPart}/${qs.length} câu có part: ghi part cho mọi câu hoặc không câu nào`);
   [["part", "phần"], ["p", "đoạn đọc"]].forEach(([k, what]) => {
@@ -154,7 +160,7 @@ if (!retired || JSON.stringify(retired) !== JSON.stringify(retiredCloud)) err("R
 if (!catalog.length) err("data/banks/index.js", "danh mục trống");
 catalog.forEach((b, i) => {
   const at = "danh mục #" + (i + 1) + " " + (b.id || "");
-  const keys = Object.keys(b), want = "pool" in b ? TRUONG_DE.concat("pool") : "pts" in b ? TRUONG_DE.concat("pts") : TRUONG_DE;
+  const keys = Object.keys(b), want = "pool" in b ? TRUONG_DE.concat("pool") : "pts" in b ? TRUONG_DE.concat("pts", "auto" in b ? ["auto"] : []) : TRUONG_DE;
   if ("pts" in b && !(typeof b.pts === "number" && b.pts > 0 && b.pts <= 100 && Number.isInteger(b.pts * 4))) err(at, "pts (thang điểm của đề tính điểm) phải là số dương, bội của 0,25, ví dụ 10");
   if (keys.join() !== want.join()) err(at, "cần đúng các trường " + want.join(", ") + " (đang có " + keys.join(", ") + ")");
   if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(b.id || "")) err(at, "mã đề chỉ gồm chữ thường không dấu, số, dấu gạch ngang");
@@ -664,6 +670,14 @@ catalog.forEach((b) => {
     ["đoạn đọc tách đôi", qs.map((q, i) => (i === 0 || i === 2 ? Object.assign({}, q, { p: "d1" }) : q))],
   ];
   sai.forEach(([ten, list]) => { if (!soatDiem(de, list).length) err(at, `đề sai (${ten}) không bị báo`); });
+  // Phiên 9u (L47): đề có cả câu chấm tự động (9 điểm) và câu tự luận (1 điểm) phải ghi auto: 9; thiếu auto, auto sai, auto ở đề không có
+  // tự luận hay ở đề toàn tự luận đều bị báo
+  const ess1 = Object.assign({}, ess, { rubric: [{ c: "Ý 1", p: 0.5 }, { c: "Ý 2", p: 0.5 }], pt: 1, part: P3 }), mix = qs.slice(0, 20).concat([ess1]);
+  const mixOK = soatDiem(Object.assign({}, de, { auto: 9 }), mix); if (mixOK.length) err(at, "đề có tự luận ghi đúng auto bị báo: " + mixOK.join("; "));
+  const essOnly = [Object.assign({}, ess1, { pt: 10, rubric: [{ c: "Ý 1", p: 5 }, { c: "Ý 2", p: 5 }] })];
+  [["đề có tự luận thiếu auto", de, mix], ["auto sai", Object.assign({}, de, { auto: 8.5 }), mix], ["auto ở đề không có tự luận", Object.assign({}, de, { auto: 10 }), qs],
+    ["auto ở đề toàn tự luận", Object.assign({}, de, { auto: 0 }), essOnly]].forEach(([ten, b, list]) => { if (!soatDiem(b, list).some((m) => /auto/.test(m))) err(at, `đề sai (${ten}) không bị báo`); });
+  if (soatDiem(de, essOnly).length) err(at, "đề toàn tự luận không ghi auto bị báo: " + soatDiem(de, essOnly).join("; "));
 }
 
 // tự thử câu trả lời bằng số (L29): phân số "2/3", "-3/4" và số qua; đáp án viết sai bị báo; Quiz.parse đọc "Đáp số: 3/4" thành phân số

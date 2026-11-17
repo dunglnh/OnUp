@@ -299,7 +299,7 @@ Sửa `js/quiz.js`, `css/app.css`.
 
 - **Máy riêng của con lớn** (An, Linh): mỗi lần mở app phải chọn lại hồ sơ ở “Ai đang học?”, vì hồ sơ đang dùng giữ trong sessionStorage. Lựa chọn “Máy này của Linh” có thể bớt 1–5 chạm mỗi lần. Chờ ghi chép dùng thử.
 - **Tab Kết quả với con lớp 4:** “Điểm trung bình tháng”, “Theo môn · 30 ngày” trừu tượng với con 9 tuổi, nhưng Bin thường xem cùng mẹ. Chờ ghi chép dùng thử.
-- **L47** (Phiên 9u, mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)) đã ghi điểm của đề tính điểm có câu tự luận. UX18, UX19 làm sau 9u.
+- **L47** (Phiên 9u; cách sửa ở mục 2 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md), đoạn “Phiên 9u”) đã ghi điểm của đề tính điểm có câu tự luận. UX18, UX19 làm sau 9u.
 - Lịch thi của phụ huynh bản lưu trên máy có tab “Mọi khối” dài 7,9 màn khi nhà có 4 con ở 4 khối. Bản đám mây (UX2) đã chia tab theo con, nên không cần sửa.
 
 ## 6. Kiểm thử thiết kế sau khi gộp

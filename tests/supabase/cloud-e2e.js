@@ -714,6 +714,22 @@ async function run(browser, scheme) {
   be.T.results = be.T.results.filter((r) => r.id !== x37.id);
   await p2.reload(); await p2.waitForSelector("#rpTips");
   c.x37.gone = await p2.evaluate(() => !/Phép cộng, phép trừ; Số chẵn, số lẻ/.test(document.querySelector("#rpMsgText").textContent));
+  /* L47 (Phiên 9u): đề tính điểm có tự luận (Ngữ văn 9 · Thi thử vào 10 · Đề 1, auto: 3 trong danh mục) lưu 3/10 như K5; báo cáo tuần quy
+     phần app chấm về thang của đề (Ngữ văn 10/10, không có gợi ý “Ngữ văn mới đúng”), dòng bài, dòng môn ghi theo phần app chấm. Thêm thẳng vào máy
+     chủ giả một kết quả hôm nay của Bin (đúng hết phần app chấm), tải lại, đọc, rồi bỏ đi. Đủ các màn: bước L47 của tests/e2e.js. */
+  const l47 = { id: "l47-" + Date.now(), profile_id: binId, family_id: acc.id, source: "bank", ref_id: "van9-vao10-de1", subject: "Ngữ văn", label: "Ngữ văn 9 · Thi thử vào 10 · Đề 1", mode: "practice",
+    r: 3, t: 10, s: 1800, wrong_topics: [], at: new Date(Date.now() + be.clock).toISOString(), import_key: null };
+  be.T.results.push(l47);
+  await p2.reload(); await p2.waitForSelector("#rpSubjects");
+  c.l47 = await p2.evaluate(() => {
+    const f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : "");
+    const sub = [...document.querySelectorAll("#rpSubjects .rp-sub")].find((x) => f(x.querySelector("b")) === "Ngữ văn");
+    const row = [...document.querySelectorAll("#view .sec .list .item")].find((x) => /^Ngữ văn 9 · Thi thử vào 10/.test(f(x.querySelector("b"))));
+    return { sub: sub ? f(sub.querySelector(".row b:last-child")) + " | " + f(sub.querySelector(":scope > .small")) : "", row: row ? f(row.querySelector(".muted")).replace(/^[^·]*·\s*/, "") + " = " + f(row.lastElementChild) : "",
+      weak: /Ngữ văn mới đúng/.test(f(document.querySelector("#rpTips")) + f(document.querySelector("#rpMsgText"))) }; // Bin còn môn khác dưới 70%
+  });
+  be.T.results = be.T.results.filter((r) => r.id !== l47.id);
+  await p2.reload(); await p2.waitForSelector("#rpTips");
   await p2.click("#rpPractice"); await p2.waitForSelector("#allPractice");
   c.ux2.practice = (await text(p2, "#view h2")) + " | " + (await text(p2, "#view .linkbtn[data-go]")) + " | " + (await p2.$$eval("#allPractice a.btn", (a) => a.length));
   await p2.click("#view .linkbtn[data-go]"); await p2.waitForSelector(".report");
@@ -1172,6 +1188,8 @@ async function run(browser, scheme) {
       c.ux7.res === "Nhận được 2 câu: 1 trắc nghiệm, 1 điền khuyết. Cần sửa: 1 câu sẽ không được lưu, 1 câu thiếu phần bị lỗi. Xem các thẻ viền đỏ bên dưới.",
     "UX7b (X37): báo cáo tuần có chủ đề hay sai có dấu phẩy: gợi ý “Ôn lại chủ đề hay sai: …” ngăn bằng “; ”, giống dòng “Chủ đề hay sai” của tin nhắn":
       /^Ôn lại chủ đề hay sai: Phép cộng, phép trừ; Số chẵn, số lẻ; [^;]+\.$/.test(c.x37.tip) && c.x37.tip === "Ôn lại chủ đề hay sai: " + c.x37.line.slice("• Chủ đề hay sai: ".length) && c.x37.gone,
+    "L47 (Phiên 9u): đề tính điểm có tự luận, đúng hết phần app chấm (lưu 3/10): báo cáo tuần ghi Ngữ văn 10/10, “1 đề tính điểm: 3/3 điểm phần app chấm”, dòng bài “phần app chấm” · “3/3 điểm”, không có gợi ý “Ngữ văn mới đúng”":
+      c.l47.sub === "10/10 | 1 bài · 1 đề tính điểm: 3/3 điểm phần app chấm" && c.l47.row === "Ngữ văn · phần app chấm = 3/3 điểm" && !c.l47.weak,
     "UX7 (X12): Đề tự soạn đứng trước đề có sẵn; đề có sẵn theo tab khối (Lớp 4 · N đề chọn sẵn, Lớp 6 · N đề), tìm “toan de 2” còn đúng đề Toán 4 có “Đề 2”":
       c.ux7.list.first && c.ux7.list.tabs === c.ux7.list.want && c.ux7.list.find,
     "UX7 (X13): nhập đề có một câu bị bỏ, một câu thiếu phần: thẻ hai câu đó viền đỏ, lỗi trong thẻ; Lưu thì hỏi lại; gắn vào kì thi thì đề lên máy chủ, đứng đầu danh sách đề của kì thi; form sửa đề ghi kì thi đã gắn; xóa đề thì kì thi bỏ đề theo":

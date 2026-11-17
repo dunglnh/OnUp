@@ -96,7 +96,7 @@ Mẫu nháp (các trường như dòng danh mục và đề trong file câu hỏ
 const L11 = "Lớp 11 · Cách mạng tư sản và sự phát triển của chủ nghĩa tư bản";
 module.exports = {
   id: "lichsu12-tn-de9", title: "Lịch sử 12 · Thi thử tốt nghiệp · Đề 9", grade: 12, subject: "Lịch sử", minutes: 50,
-  file: "12-lichsu.js", pts: 10,
+  file: "12-lichsu.js", pts: 10,      // đề có cả câu chấm tự động và câu tự luận: không ghi auto, ghep-de.js tự ghi vào danh mục (Phiên 9u)
   ki: ["tn-thpt-2027"],             // kì thi gắn đề
   sau: "lichsu12-tn-de8",           // đứng sau đề này (file câu hỏi, danh mục, banks của kì thi)
   noteTu: "lichsu12-tn-de8",        // chép lời dặn của đề này; hoặc note: "…"

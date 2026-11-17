@@ -80,7 +80,7 @@ function tachDe(E) {
 // dòng danh mục: một dòng; đề ngẫu nhiên thêm dòng pool như các mục đang có
 function mucJs(m) {
   const dau = ["id", "title", "grade", "subject", "minutes", "n", "file"].filter((k) => m[k] != null).map((k) => k + ": " + js(m[k])).join(", ");
-  if (!m.pool) return "  { " + dau + (m.pts != null ? ", pts: " + js(m.pts) : "") + " }";
+  if (!m.pool) return "  { " + dau + (m.pts != null ? ", pts: " + js(m.pts) : "") + (m.auto != null ? ", auto: " + js(m.auto) : "") + " }"; // auto: Phiên 9u (L47)
   const o = Object.entries(m.pool.matrix || {}).map(([k, v]) => JSON.stringify(k) + ": " + js(v)), dong = [];
   let cur = "      ";
   o.forEach((x, i) => { const s = x + (i < o.length - 1 ? "," : ""); if (cur.trim() && (cur + " " + s).length > 150) { dong.push(cur); cur = "      " + s; } else cur += (cur.trim() ? " " : "") + s; });
@@ -255,7 +255,7 @@ try {
     const tuFrom = new Set(b.pool ? kho.filter((x) => (b.pool.from || []).includes(x.id)).flatMap((x) => Object.keys(x.passages || {})) : []);
     const psg = Object.fromEntries(Object.entries(b.passages || {}).filter(([k]) => !tuFrom.has(k) || (d.de.passages && k in d.de.passages)));
     if (JSON.stringify(sap(psg)) !== JSON.stringify(sap(d.de.passages || {}))) sai.push(d.muc.id + ": đoạn đọc nạp lại khác nháp");
-    ["title", "grade", "subject", "minutes", "n", "file", "pts"].forEach((k) => { if (JSON.stringify(b[k]) !== JSON.stringify(d.muc[k])) sai.push(`${d.muc.id}: ${k} trong danh mục là ${JSON.stringify(b[k])}, nháp ${JSON.stringify(d.muc[k])}`); });
+    ["title", "grade", "subject", "minutes", "n", "file", "pts", "auto"].forEach((k) => { if (JSON.stringify(b[k]) !== JSON.stringify(d.muc[k])) sai.push(`${d.muc.id}: ${k} trong danh mục là ${JSON.stringify(b[k])}, nháp ${JSON.stringify(d.muc[k])}`); });
     d.ki.forEach((k) => { const e = lich.find((x) => x.id === k); if (!e || !(e.banks || []).includes(d.muc.id)) sai.push(`${d.muc.id}: chưa gắn vào kì thi ${k}`); });
   });
 } catch (e) { sai.push("nạp lại lỗi: " + e.message); }

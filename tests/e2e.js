@@ -3816,11 +3816,14 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
        "Hơn lần trước 3,4 điểm (6,35/10)". Mở lại đề: thẻ "Lần trước: 9,75/10 điểm", dòng giới thiệu ghi cách chấm; tab Kết quả ghi
        "9,75/10 điểm", "6,35/10 điểm".
      - Tiếng Anh (tên chuẩn "Tiếng Anh 6 · Thi thử vào 10 · Đề 1" để màn làm đề dịch được tên kì thi thử: Part I 12 câu 0,5 điểm,
-       Part II 2 câu đúng/sai 4 ý, Part III một câu tự luận 2 điểm), làm như thi: "6.35/10", bảng theo phần, dòng tổng tạm tính chưa
-       gồm phần tự luận; tự chấm đủ hai ý thì Part III thành 2/2 và tổng tạm tính 8.35/10; lưu 6,35/10; thẻ "Last time: 6.35/10
-       points"; mọi chữ trong #view, #toast không có chữ cái tiếng Việt.
-     - Báo cáo tuần của Na (Bố Minh xem): mục Điểm theo môn ghi "2 đề tính điểm: 16,1/20 điểm" (Toán), "1 đề tính điểm: 6,35/10 điểm"
-       (Tiếng Anh), danh sách bài ghi "điểm", dòng cuối nói đề tính điểm lấy điểm của đề.
+       Part II 2 câu đúng/sai 4 ý, Part III một câu tự luận 2 điểm; đề có tự luận nên danh mục ghi auto: 8, Phiên 9u, L47), làm như thi:
+       điểm phần app chấm "6.35/8" kèm "Points on the auto-marked part…", lời khen theo 6,35/8 ("Good work, Na! Keep it up."), bảng theo
+       phần, dòng tổng tạm tính chưa gồm phần tự luận ("Provisional total: 6.35/10 points…"); tự chấm đủ hai ý thì Part III thành 2/2 và
+       tổng tạm tính 8.35/10; lưu 6,35/10 (không đổi); thẻ "Last time: 6.35/8 points on the auto-marked part"; mọi chữ trong #view,
+       #toast không có chữ cái tiếng Việt.
+     - Báo cáo tuần của Na (Bố Minh xem): mục Điểm theo môn ghi "2 đề tính điểm: 16,1/20 điểm" (Toán), "1 đề tính điểm: 6,35/8 điểm phần
+       app chấm" (Tiếng Anh, L47), danh sách bài ghi "điểm" ("6,35/8 điểm" với dòng "phần app chấm"), dòng cuối nói đề tính điểm lấy điểm
+       của đề, đề có tự luận chỉ tính phần app chấm. Bước L47 ngay sau bước này kiểm tra đề Ngữ văn thi thử có thật.
      Mỗi màn hình kiểm tra 360px (audit). Ảnh sáng/tối ở tests/screenshots/k5/ (bản ghép <tên>.jpg): ket-qua, lam-lai, mo-de,
      tieng-anh, bao-cao. */
   const OUTK5 = OUT + "k5/"; fs.mkdirSync(OUTK5, { recursive: true });
@@ -3831,7 +3834,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       .concat([...Array(4)].map((_, i) => Object.assign({ topic: "Chia hết", q: `Phần II, câu ${i + 1}: Cho số ${10 * (i + 1)}. Mỗi ý sau đúng hay sai?`, x: `${10 * (i + 1)} có chữ số tận cùng là 0 nên chia hết cho 2 và 5.` }, K5_TF(i + 1, K5_P[1]))),
         [...Array(6)].map((_, i) => ({ topic: "Phép nhân", type: "num", q: `Phần III, câu ${i + 1}: ${i + 1} × 7 = ?`, ans: 7 * (i + 1), x: `${i + 1} × 7 = ${7 * (i + 1)}.`, pt: 0.5, part: K5_P[2] }))) };
   const K5_PE = ["Part I. Multiple choice", "Part II. True or false", "Part III. Writing"];
-  const K5_EN = { id: "thu-ta6-tinh-diem", title: "Tiếng Anh 6 · Thi thử vào 10 · Đề 1", grade: 6, subject: "Tiếng Anh", minutes: 30, n: 15, file: "6-ta.js", pts: 10, note: "",
+  const K5_EN = { id: "thu-ta6-tinh-diem", title: "Tiếng Anh 6 · Thi thử vào 10 · Đề 1", grade: 6, subject: "Tiếng Anh", minutes: 30, n: 15, file: "6-ta.js", pts: 10, auto: 8, note: "",
     questions: [...Array(12)].map((_, i) => ({ topic: "Vocabulary", type: "mc", q: `Part I, question ${i + 1}: Choose the word for number ${i + 1}.`, o: ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen"].slice(i, i + 4), x: `Number ${i + 1} is written as it is in the first option.`, pt: 0.5, part: K5_PE[0] }))
       .concat([1, 2].map((i) => ({ topic: "Reading", type: "tf4", q: `Part II, question ${i}: Mai is in class ${i + 5}A. She walks to school. Are these statements true or false?`, o: [`Mai is in class ${i + 5}A.`, "Mai goes to school by bus.", "Mai walks to school.", `Mai is in class ${i + 6}B.`], a: [true, false, true, false], x: "Read the text again.", pt: 1, part: K5_PE[1] })),
         [{ topic: "Writing", type: "essay", q: "Part III: Write three sentences about your school.", rubric: [{ c: "Writes three sentences about the school", p: 1 }, { c: "Uses correct spelling and grammar", p: 1 }], x: "My school is big. It has a library. I love my school.", pt: 2, part: K5_PE[2] }]) };
@@ -3908,6 +3911,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await p.goto(BASE + "/#/quiz/" + K5_EN.id); await p.waitForSelector("#qExam");
     r.p3 = await play(K5_EN, (i) => (i < 12 ? true : i === 12 ? 2 : 1), "Tiếng Anh");
     r.score3 = await txt(".score"); r.parts3 = await parts(); r.total3 = await txt("#qzTotal"); r.sheet3 = await sheetOf(p);
+    r.how3 = await txt("#qzScore .stack b"); r.praise3 = await txt(".praise"); // L47: điểm phần app chấm, lời khen theo phần đó
     await check("Tiếng Anh, kết quả");
     await p.click('.rubric .opt[data-j="0"][data-v="1"]'); await p.click('.rubric .opt[data-j="1"][data-v="1"]');
     r.parts3b = await parts(); r.total3b = await txt("#qzTotal");
@@ -3924,6 +3928,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await p.goto(BASE + "/#/report/" + ids.Na); await p.waitForSelector("#rpSubjects");
     r.subs = await p.$$eval("#rpSubjects .rp-sub", (xs) => xs.map((x) => [x.querySelector("b").textContent.trim(), x.querySelector(":scope > .small").textContent.replace(/\s+/g, " ").trim()]));
     r.week = await p.$$eval("#view .sec .list .item", (xs) => xs.map((x) => x.lastElementChild.textContent.trim()));
+    r.weekEn = await p.$$eval("#view .sec .list .item", (xs) => xs.filter((x) => /phần app chấm/.test(x.textContent)).map((x) => x.lastElementChild.textContent.trim())); // L47
     r.foot = await p.evaluate(() => [...document.querySelectorAll("#view p.small.muted")].map((e) => e.textContent).find((t) => /^Lập ngày/.test(t)) || "");
     await check("báo cáo tuần của Na"); await snap("bao-cao");
     k5.runs.push(r);
@@ -3950,14 +3955,143 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.saved1 === JSON.stringify([[6.35, 10, "exam"]]) && r.score2 === "9,75/10" && r.cmp2 === "Hơn lần trước 3,4 điểm (6,35/10)"
       && r.saved2 === JSON.stringify([[9.75, 10, "exam"], [6.35, 10, "exam"]]) && r.prev === "Lần trước: 9,75/10 điểm"
       && r.intro.includes("Chấm như đề thi thật: điểm từng câu, từng phần, thang 10 điểm.") && r.list.join("|") === "9,75/10 điểm|6,35/10 điểm"
-      && r.score3 === "6.35/10" && JSON.stringify(r.parts3) === JSON.stringify([[K5_PE[0], "6/6"], [K5_PE[1], "0.35/2"], [K5_PE[2], "0/2", "writing not self-checked yet"]])
+      && r.score3 === "6.35/8" && r.how3 === "Points on the auto-marked part, scored like the real exam." && r.praise3 === "Good work, Na! Keep it up."
+      && JSON.stringify(r.parts3) === JSON.stringify([[K5_PE[0], "6/6"], [K5_PE[1], "0.35/2"], [K5_PE[2], "0/2", "writing not self-checked yet"]])
       && r.total3 === "Provisional total: 6.35/10 points. Your writing is not self-checked yet."
       && JSON.stringify(r.parts3b[2]) === JSON.stringify([K5_PE[2], "2/2", "includes your self-checked writing"]) && r.total3b === "Provisional total, including your self-checked writing: 8.35/10 points."
-      && r.saved3 === JSON.stringify([[8, 8, "self"], [6.35, 10, "exam"]]) && r.prevEn === "Last time: 6.35/10 points" && r.h1En === "English 6 · Mock Entrance Exam · Test 1"
+      && r.saved3 === JSON.stringify([[8, 8, "self"], [6.35, 10, "exam"]]) && r.prevEn === "Last time: 6.35/8 points on the auto-marked part" && r.h1En === "English 6 · Mock Entrance Exam · Test 1"
       && r.introEn.includes("Scored like the real exam: points for each question and part, out of 10.") && !r.viet.length && !r.viet2.length
       && r.week.includes("9,75/10 điểm") && r.week.includes("6,35/10 điểm") && r.foot.includes("đề tính điểm (đề thi thử) lấy điểm của đề")
-      && K5_SUB(r, "Toán", "2 đề tính điểm: 16,1/20 điểm") && K5_SUB(r, "Tiếng Anh", "1 đề tính điểm: 6,35/10 điểm"))
+      && r.weekEn.join("|") === "6,35/8 điểm" && r.foot.includes("đề có tự luận chỉ tính phần app chấm")
+      && K5_SUB(r, "Toán", "2 đề tính điểm: 16,1/20 điểm") && K5_SUB(r, "Tiếng Anh", "1 đề tính điểm: 6,35/8 điểm phần app chấm"))
     && K5_SHOTS.every((n) => k5.shots.includes(n + "-light") && k5.shots.includes(n + "-dark"));
+
+  step("scored exams with writing: app-marked part (L47)");
+  /* Phiên 9u (L47; docs/SUA-LOI-CHAY-THU.md, mục 2): đề tính điểm có cả câu chấm tự động và câu tự luận (auto trong danh mục) lưu r = điểm
+     phần app chấm, t = 10 như K5; app quy phần app chấm về thang của đề khi cộng (r × 10 / auto) và ghi điểm của một lần làm là "3/3 điểm
+     phần app chấm". Đề thật "Ngữ văn 9 · Thi thử vào 10 · Đề 1" (app chấm 6 câu, 3 điểm; 4 câu tự luận, 7 điểm). Học sinh lớp 9 An thêm vào
+     kho trong bước (con của Mẹ Bin, PIN 9999), bản lưu trên máy, 360px sáng và tối:
+     - 6/11/2026 18:00 (ngày giả lập), ôn luyện, đúng hết câu chấm tự động, tự chấm "Đủ" mọi ý: lời khen "Xuất sắc, An!" (không là mức thấp
+       nhất "Chưa sao…"), điểm to "3/3", dòng "Điểm phần app chấm, …", tổng tạm tính 10/10; kết quả lưu 3/10 (như K5) và 28/28 (tự chấm,
+       phần tư điểm). Hôm nay "đúng 100%"; nhóm "Thi tuyển sinh vào lớp 10" ở tab Bài ôn và thẻ kì thi đó ở Lịch thi "Đã làm 1/N bài · đúng
+       100%"; tab Kết quả: điểm trung bình tháng 10, Ngữ văn 100%, dòng bài "Ngữ văn · phần app chấm" · "3/3 điểm" (phần tự chấm "7/7 điểm");
+       mở lại đề: "Lần trước: 3/3 điểm phần app chấm". Mẹ Bin: thẻ của An "10" điểm hôm nay; báo cáo tuần: điểm TB 10, Ngữ văn 10/10 và "1 bài
+       · 1 đề tính điểm: 3/3 điểm phần app chấm", gợi ý và tin nhắn không có "mới đúng", tin nhắn có "Điểm trung bình 10/10", dòng bài
+       "3/3 điểm", dòng cuối nói đề có tự luận chỉ tính phần app chấm.
+     - 7/11/2026 18:00, làm lại (ôn luyện), sai câu 1 (trắc nghiệm, 0,5 điểm), tự chấm đủ: "Giỏi lắm, An!", "2,5/3", "Kém lần trước 0,5 điểm
+       phần app chấm (3/3)", tổng tạm tính 9,5/10; Hôm nay "đúng 83%"; nhóm, thẻ kì thi "đúng 83%" (lần làm gần nhất); "Lần trước: 2,5/3 điểm
+       phần app chấm"; tab Kết quả điểm trung bình tháng 9,25 ((10 + 8,33)/2), Ngữ văn 92%; thẻ của An "8,25" điểm hôm nay; báo cáo tuần điểm
+       TB 9,25, "2 bài · 2 đề tính điểm: 5,5/6 điểm phần app chấm", tin nhắn "Điểm trung bình 9,25/10".
+     audit ở mọi màn. Ảnh sáng/tối ở tests/screenshots/l47/ (bản ghép <tên>.jpg): ket-qua, hom-nay, ket-qua-tab, bao-cao, lam-lai; ảnh trước,
+     sau ở docs/hinh-9u/. */
+  const OUTL47 = OUT + "l47/"; fs.mkdirSync(OUTL47, { recursive: true });
+  const L47_ID = "van9-vao10-de1", L47_SHOTS = ["ket-qua", "hom-nay", "ket-qua-tab", "bao-cao", "lam-lai"];
+  const l47 = { problems: [], shots: [], runs: [] };
+  for (const scheme of ["light", "dark"]) {
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror L47: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console L47: " + m.text()); });
+    const check = async (label) => (await p.evaluate(audit)).forEach((x) => l47.problems.push(`L47 · ${scheme} · ${label}: ${x}`));
+    const snap = async (n) => { await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; }); await pinTabs(p, true); await p.screenshot({ path: `${OUTL47}${n}-${scheme}.png`, fullPage: true }); await pinTabs(p, false); l47.shots.push(`${n}-${scheme}`); };
+    const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, sel);
+    // dòng bài của một danh sách kết quả: "<dòng nhạt bỏ lúc làm> = <điểm>" ("Ngữ văn · phần app chấm = 3/3 điểm"), xếp theo chữ
+    const rows = (sel) => p.$$eval(sel, (xs) => xs.map((x) => x.querySelector(".muted").textContent.replace(/\s+/g, " ").trim().replace(/^[^·]*·\s*/, "") + " = " + x.lastElementChild.textContent.trim()).sort());
+    const r = { scheme };
+    await p.clock.install({ time: new Date("2026-11-06T18:00:00") });
+    await p.goto(BASE + "/");
+    const an = await p.evaluate(async (mom) => (await Store.createUser({ role: "student", name: "An", pin: "9999", grade: 9, className: "9A", parentIds: [mom] })).id, ids["Mẹ Bin"]);
+    const signIn = async (id, pin, sel) => { await p.evaluate(() => Store.setSession(null)); await p.goto(BASE + "/"); await p.reload(); await p.click(`.tile[data-u="${id}"]`); await p.fill("#pinIn", pin); await p.waitForSelector(sel); };
+    await signIn(an, "9999", "#today");
+    const Q = await p.evaluate(async (id) => { await Store.loadBank(id); return Store.bank(id).questions; }, L47_ID);
+    r.auto = Q.filter((q) => q.type !== "essay").reduce((a, q) => a + q.pt, 0);
+    // một lượt ôn luyện cả đề, câu theo thứ tự của đề (đề tính điểm không xáo câu): câu chấm tự động trả lời theo dữ liệu (bad(i) → true:
+    // cố ý sai), câu tự luận viết thử, "Xem gợi ý" rồi chọn "Đủ" ở mọi ý của thang chấm
+    const play = async (bad, tag) => {
+      await p.goto(BASE + "/#/quiz/" + L47_ID); await p.waitForSelector("#qPractice");
+      await p.click("#qPractice"); await p.waitForSelector(".qcard");
+      for (let i = 0; i < Q.length; i++) {
+        const q = Q[i], t = await p.$eval(".qcard .qtext", (e) => e.textContent);
+        if (flatQ(t) !== flatQ(q.q)) { l47.problems.push(`L47 · ${scheme} · ${tag}: câu ${i + 1} là “${t.slice(0, 40)}”, cần “${q.q.slice(0, 40)}”`); break; }
+        if (!(await answerOn(p, q, !bad(i)))) { l47.problems.push(`L47 · ${scheme} · ${tag}: không trả lời được câu ${i + 1}`); break; }
+        if (q.type === "essay") await p.$$eval("#qzFb .rb-b", (gs) => gs.forEach((g) => g.lastElementChild.click()));
+        await p.click("#qzGo");
+      }
+      await endRecap(p); await p.waitForSelector(".score");
+    };
+    // các màn sau một lượt: Hôm nay, tab Bài ôn (nhóm thi vào 10), Lịch thi, tab Kết quả, mở lại đề; rồi Mẹ Bin: thẻ của An, báo cáo tuần
+    const after = async (k, shots) => {
+      const o = (r["l" + k] = {});
+      await p.goto(BASE + "/#/home"); await p.waitForSelector("#today");
+      o.today = await txt("#todayDone");
+      await check(`Hôm nay, lượt ${k}`); if (shots) await snap("hom-nay");
+      await p.goto(BASE + "/#/practice?ki=vao10-2027"); await p.waitForSelector('[data-grp="vao10-2027"]');
+      o.grp = await txt('[data-grp="vao10-2027"] .prog-txt');
+      await check(`tab Bài ôn, lượt ${k}`);
+      await p.goto(BASE + "/#/calendar"); await p.waitForSelector('[data-ev="vao10-2027"]');
+      o.cal = await txt('[data-ev="vao10-2027"] .ready');
+      await check(`Lịch thi, lượt ${k}`);
+      await p.goto(BASE + "/#/results"); await p.waitForSelector("#allResults");
+      o.avg = await txt("#view .stats .stat:nth-child(2) b"); o.rows = await rows("#allResults .list .item");
+      o.subj = await p.$$eval("#bySubject .ubreak > span", (xs) => xs.map((x) => x.textContent.trim()).join(" ")); // "Ngữ văn 100%"
+      await check(`tab Kết quả, lượt ${k}`); if (shots) await snap("ket-qua-tab");
+      await p.goto(BASE + "/#/quiz/" + L47_ID); await p.waitForSelector("#qPractice");
+      o.prev = await txt("#qPrev b");
+      await check(`mở lại đề, lượt ${k}`);
+      await signIn(ids["Mẹ Bin"], PINS["Mẹ Bin"], "#kids");
+      o.kid = await p.$eval(`#kids a.kid[data-child="${an}"] .stats .stat:nth-child(2)`, (x) => [...x.children].map((e) => e.textContent.trim()).join(" ")); // "10 điểm hôm nay"
+      await check(`Các con, lượt ${k}`);
+      await p.goto(BASE + "/#/report/" + an); await p.waitForSelector("#rpMsg");
+      o.rpAvg = await txt("#rpAvg"); o.msg = await p.$eval("#rpMsgText", (e) => e.textContent); o.tips = await txt("#rpTips ol");
+      o.subs = await p.$$eval("#rpSubjects .rp-sub", (xs) => xs.map((x) => [x.querySelector("b").textContent.trim(), x.querySelector(".row b:last-child").textContent.replace(/\s+/g, " ").trim(), x.querySelector(":scope > .small").textContent.replace(/\s+/g, " ").trim()]));
+      o.week = await rows("#view .sec .list .item");
+      o.foot = await p.evaluate(() => [...document.querySelectorAll("#view p.small.muted")].map((e) => e.textContent.replace(/\s+/g, " ")).find((t) => /^Lập ngày/.test(t)) || "");
+      await check(`báo cáo tuần, lượt ${k}`); if (shots) await snap("bao-cao");
+    };
+    // lượt 1 (6/11): đúng hết phần app chấm, tự chấm đủ
+    await play(() => false, "lượt 1");
+    r.praise1 = await txt(".praise"); r.score1 = await txt(".score"); r.how1 = await txt("#qzScore .stack b"); r.total1 = await txt("#qzTotal");
+    r.saved1 = JSON.stringify(await p.evaluate((id) => Store.resultsFor(Store.sessionUser().id).filter((y) => y.refId === id).map((y) => [y.r, y.t, y.mode]).sort(), L47_ID));
+    await check("kết quả lượt 1"); await snap("ket-qua");
+    await after(1, true);
+    // lượt 2 (7/11): làm lại, sai câu 1 (0,5 điểm)
+    await p.clock.setSystemTime(new Date("2026-11-07T18:00:00"));
+    await signIn(an, "9999", "#today");
+    await play((i) => i === 0, "lượt 2");
+    r.praise2 = await txt(".praise"); r.score2 = await txt(".score"); r.cmp2 = await txt("#qzCmp"); r.total2 = await txt("#qzTotal");
+    await check("kết quả lượt 2"); await snap("lam-lai");
+    await after(2, false);
+    l47.runs.push(r);
+    await c.close();
+  }
+  { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/l47/<tên>.jpg)
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of L47_SHOTS) {
+      if (!l47.shots.includes(n + "-light") || !l47.shots.includes(n + "-dark")) continue;
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTL47}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTL47}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("L47:", JSON.stringify(l47.runs), "problems:", l47.problems);
+  const L47_ROWS = (o, want) => JSON.stringify(o.rows) === JSON.stringify(want.slice().sort());
+  const l47OK = !l47.problems.length && l47.runs.length === 2 && l47.runs.every((r) => r.auto === 3
+      && r.praise1 === "Xuất sắc, An!" && r.score1 === "3/3" && r.how1 === "Điểm phần app chấm, theo điểm từng câu như đề thi."
+      && r.total1 === "Tổng tạm tính, gồm phần tự luận tự chấm: 10/10 điểm." && r.saved1 === JSON.stringify([[28, 28, "self"], [3, 10, "practice"]])
+      && /· đúng 100%\./.test(r.l1.today) && /^Đã làm 1\/\d+ bài · đúng 100%$/.test(r.l1.grp) && /^Đã làm 1\/\d+ bài · đúng 100%$/.test(r.l1.cal)
+      && r.l1.avg === "10" && r.l1.subj === "Ngữ văn 100%" && L47_ROWS(r.l1, ["Ngữ văn · phần app chấm = 3/3 điểm", "Ngữ văn · tự luận tự chấm = 7/7 điểm"])
+      && r.l1.prev === "Lần trước: 3/3 điểm phần app chấm" && r.l1.kid === "10 điểm hôm nay" && r.l1.rpAvg === "10"
+      && r.l1.msg.includes("• Điểm trung bình 10/10 (tuần trước chưa làm bài).") && !/mới đúng/.test(r.l1.msg + r.l1.tips)
+      && JSON.stringify(r.l1.subs) === JSON.stringify([["Ngữ văn", "10/10", "1 bài · 1 đề tính điểm: 3/3 điểm phần app chấm"]])
+      && JSON.stringify(r.l1.week) === JSON.stringify(["Ngữ văn · phần app chấm = 3/3 điểm"]) && r.l1.foot.includes("đề có tự luận chỉ tính phần app chấm, đúng hết phần đó là 10 điểm")
+      && r.praise2 === "Giỏi lắm, An!" && r.score2 === "2,5/3" && r.cmp2 === "Kém lần trước 0,5 điểm phần app chấm (3/3)" && r.total2 === "Tổng tạm tính, gồm phần tự luận tự chấm: 9,5/10 điểm."
+      && /· đúng 83%\./.test(r.l2.today) && /^Đã làm 1\/\d+ bài · đúng 83%$/.test(r.l2.grp) && /^Đã làm 1\/\d+ bài · đúng 83%$/.test(r.l2.cal)
+      && r.l2.avg === "9,25" && r.l2.subj === "Ngữ văn 92%" && r.l2.prev === "Lần trước: 2,5/3 điểm phần app chấm" && r.l2.kid === "8,25 điểm hôm nay"
+      && L47_ROWS(r.l2, ["Ngữ văn · phần app chấm = 2,5/3 điểm", "Ngữ văn · tự luận tự chấm = 7/7 điểm", "Ngữ văn · phần app chấm = 3/3 điểm", "Ngữ văn · tự luận tự chấm = 7/7 điểm"])
+      && r.l2.rpAvg === "9,25" && r.l2.msg.includes("• Điểm trung bình 9,25/10 (tuần trước chưa làm bài).") && !/mới đúng/.test(r.l2.msg + r.l2.tips)
+      && JSON.stringify(r.l2.subs) === JSON.stringify([["Ngữ văn", "9,25/10", "2 bài · 2 đề tính điểm: 5,5/6 điểm phần app chấm"]])
+      && JSON.stringify(r.l2.week) === JSON.stringify(["Ngữ văn · phần app chấm = 2,5/3 điểm", "Ngữ văn · phần app chấm = 3/3 điểm"]))
+    && L47_SHOTS.every((n) => l47.shots.includes(n + "-light") && l47.shots.includes(n + "-dark"));
 
   step("bank management: exam picker, bank list, import preview (UX7, X11–X13)");
   /* Phiên UX7 (docs/CAI-TIEN-UX-2X.md, mục 3): quản trị bản lưu trên máy (Bố Minh) ở 360px sáng/tối; mỗi lượt một context mới từ state
@@ -5252,7 +5386,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, k5OK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK, ux9OK, ux11OK, ux10OK, ux12OK, ux14OK, ux15OK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, k5OK, l47OK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK, ux9OK, ux11OK, ux10OK, ux12OK, ux14OK, ux15OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();

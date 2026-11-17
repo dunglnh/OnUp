@@ -291,6 +291,7 @@ const kiCua = (id) => String(id).replace(/-(de\d+|ngau-nhien)$/, "");
 /* ---------- đề nháp (tests/soat-nhap.js, tests/ghep-de.js; cách viết ở tests/README.md, mục 2) ----------
    File nháp ghi module.exports = một đề hoặc mảng đề:
      { id, title, grade, subject, minutes, file, pts?, pool?, ki?: [mã kì thi], sau?: mã đề đứng trước,
+       (đề tính điểm có cả câu chấm tự động và câu tự luận: dòng danh mục tự có auto, tính từ pt của câu; nháp không ghi auto)
        note | noteTu: mã đề có sẵn để chép lời dặn, passages?, questions,
        theoDang?: { <dạng câu>: { trường mặc định } }, chuThich?, chuThichMuc?, gop?, boQua?, daXem? }
    docNhap → [{ nhap: đường dẫn, muc: dòng danh mục, ki, sau, de: { note, passages, questions }, chuThich, chuThichMuc, gop, boQua, daXem }] */
@@ -312,6 +313,9 @@ function docNhap(file) {
     const muc = { id: d.id, title: d.title, grade: d.grade, subject: d.subject, minutes: d.minutes, n: d.pool ? tongMaTran(d.pool.matrix) : qs.length, file: d.file };
     if (d.pool) muc.pool = d.pool;
     if (d.pts != null) muc.pts = d.pts;
+    // đề tính điểm có cả câu chấm tự động và câu tự luận (Phiên 9u, L47): auto = tổng pt của các câu không phải tự luận (phần app chấm)
+    const auto = Math.round(qs.reduce((a, q) => a + (q && q.type !== "essay" && typeof q.pt === "number" ? q.pt : 0), 0) * 100) / 100;
+    if (d.pts != null && auto > 0 && auto < d.pts) muc.auto = auto;
     const de = {};
     if (note != null) de.note = note;
     if (d.passages && Object.keys(d.passages).length) de.passages = d.passages;
