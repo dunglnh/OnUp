@@ -2075,6 +2075,23 @@ window.ONTAP_SEED_BANKS = [
       "Giới thiệu về trồng trọt": [2, 1, 1], "Làm đất trồng cây": [1, 1, 1], "Gieo trồng, chăm sóc và phòng trừ sâu, bệnh": [2, 1, 1],
       "Thu hoạch sản phẩm trồng trọt": [1, 1, 1], "Nhân giống vô tính cây trồng": [1, 2, 1], "Giới thiệu về rừng": [1, 1, 1],
       "Trồng, chăm sóc và bảo vệ rừng": [2, 1, 1] } } },
+  /* Toán 8 · Kiểm tra cuối học kì I (Kết nối tri thức, Toán 8 tập một, Bài 1–20; Phiên N8-ck1-toan). Khối 8 chưa bật nên đề chưa
+     hiện với gia đình. Kho câu = 50 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ.
+     Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu trên 20 chủ đề theo tên Bài 1–20 như mục lục của sách: Chương I 6 câu, Chương II 6,
+     Chương III 6, Chương IV 4, Chương V 3. Mỗi ô (chủ đề, mức) rút 1 câu và có 4 câu: một câu ở mỗi đề cố định, hai câu riêng, nên học
+     sinh đã làm một đề cố định vẫn gặp câu mới. Câu tự luận chỉ ở hai ô Vận dụng: phân tích đa thức thành nhân tử (Bài 9), chứng minh
+     tứ giác là hình bình hành (Bài 12); mỗi lần rút nhiều nhất 2 câu tự luận. */
+  { id: "toan8-ck1-de1", title: "Toán 8 · Cuối kì I · Đề 1", grade: 8, subject: "Toán", minutes: 45, n: 25, file: "8-toan.js" },
+  { id: "toan8-ck1-de2", title: "Toán 8 · Cuối kì I · Đề 2", grade: 8, subject: "Toán", minutes: 45, n: 25, file: "8-toan.js" },
+  { id: "toan8-ck1-ngau-nhien", title: "Toán 8 · Cuối kì I · Đề ngẫu nhiên", grade: 8, subject: "Toán", minutes: 45, n: 25, file: "8-toan.js",
+    pool: { from: ["toan8-ck1-de1", "toan8-ck1-de2"], matrix: {
+      "Đơn thức": [1, 0, 0], "Đa thức": [0, 1, 0], "Phép cộng và phép trừ đa thức": [1, 0, 0], "Phép nhân đa thức": [1, 0, 1],
+      "Phép chia đa thức cho đơn thức": [0, 1, 0], "Hiệu hai bình phương. Bình phương của một tổng hay một hiệu": [1, 1, 0],
+      "Lập phương của một tổng. Lập phương của một hiệu": [1, 0, 0], "Tổng và hiệu hai lập phương": [0, 1, 0],
+      "Phân tích đa thức thành nhân tử": [0, 1, 1], "Tứ giác": [1, 0, 0], "Hình thang cân": [1, 0, 0], "Hình bình hành": [1, 0, 1],
+      "Hình chữ nhật": [0, 1, 0], "Hình thoi và hình vuông": [0, 0, 1], "Định lí Thalès trong tam giác": [1, 0, 1],
+      "Đường trung bình của tam giác": [0, 1, 0], "Tính chất đường phân giác của tam giác": [0, 0, 1], "Thu thập và phân loại dữ liệu": [1, 0, 0],
+      "Biểu diễn dữ liệu bằng bảng, biểu đồ": [0, 1, 0], "Phân tích số liệu thống kê dựa vào biểu đồ": [0, 0, 1] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
