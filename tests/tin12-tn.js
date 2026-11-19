@@ -1,7 +1,7 @@
-// Kiểm tra các đề Tin học thi thử tốt nghiệp THPT (data/banks/12-tin.js, tin12-tn-de<N>; Phiên N12-tn-tin: Đề 1–3; phiên sau thêm đề thì mở
-// rộng script này: thêm các mục kiểm tra của đề mới vào RIENG, định hướng của phần riêng vào DINH_HUONG). Đề tính điểm theo khung đề tốt
-// nghiệp THPT từ năm 2025 (Quyết định 764/QĐ-BGDĐT) và đề chính thức năm 2025, 2026 (docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7). Số đề, số
-// câu lấy từ danh mục.
+// Kiểm tra các đề Tin học thi thử tốt nghiệp THPT (data/banks/12-tin.js, tin12-tn-de<N>; Phiên N12-tn-tin: Đề 1–3; Phiên N12-tn-tin-b:
+// Đề 4–5; phiên sau thêm đề thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG, định hướng của phần riêng vào DINH_HUONG).
+// Đề tính điểm theo khung đề tốt nghiệp THPT từ năm 2025 (Quyết định 764/QĐ-BGDĐT) và đề chính thức năm 2025, 2026
+// (docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7). Số đề, số câu lấy từ danh mục.
 // Khung: danh mục (tên, khối 12, môn Tin học, file, 50 phút, pts 10, gắn vào tn-thpt-2027); Phần I 24 câu nhiều lựa chọn pt 0,25, Phần II
 // 4 câu đúng/sai 4 ý pt 1 (không có Phần III), Quiz.grade điểm tối đa 6 – 4. Như đề chính thức năm 2025, 2026, cả 24 câu Phần I là phần
 // chung (lời giao việc mặc định 16 câu chung, 8 câu riêng theo đề tham khảo); Phần II câu 1, 2 phần chung Tin học 12, câu 3, 4 phần riêng
@@ -16,12 +16,15 @@
 // số câu, số điểm, số câu mỗi lớp tính từ dữ liệu.
 // Mỗi câu khớp đúng một mục kiểm tra của đề đó (theo chữ has trong đề bài): câu nhiều lựa chọn so với chữ khoá của đáp án (đúng một lựa chọn
 // có chữ đó) hoặc tính lại bằng code: mã Python (trong khung mã hay trong đề bài) chạy bằng python3: in ra gì, sửa dòng nào cho đúng yêu
-// cầu, điều kiện nào đúng với đúng các số nguyên tố, tên biến hợp lệ, lệnh nhập số, kết quả từng lượt của sắp xếp nổi bọt; câu SQL chạy trên
-// SQLite (mô-đun sqlite3 của python3); mã HTML, CSS đọc bằng bộ đọc của tests/tin-congnghe12-ck2.js (cú pháp như sách, chỉ thẻ, thuộc tính
-// sách dạy) rồi tính: vị trí ô của bảng có rowspan, colspan, kí hiệu đầu dòng của danh sách lồng nhau, đường dẫn tương đối, liên kết tới
-// phần có id ở trang khác, khung nội tuyến và target, biểu mẫu, kế thừa căn lề, kích thước khung; phép tính: cộng số nhị phân, mã màu hex,
-// dung lượng âm thanh, bảng chân trị của phép XOR, thời gian các khung hình của ảnh động GIF làm bằng GIMP; ý của câu đúng/sai 4 ý so với
-// bảng ý → đúng/sai ghi trong script hoặc tính bằng code. Mọi đoạn mã HTML, CSS trong chữ của đề đọc lại được; mọi khung mã được đọc lại.
+// cầu, điều kiện nào đúng với đúng các số nguyên tố, tên biến hợp lệ, lệnh nhập số, kết quả từng lượt của sắp xếp nổi bọt, câu lệnh nào
+// tính đúng tổng các chữ số, điều kiện nào đếm đúng, số lượt lặp nhiều nhất của tìm kiếm nhị phân, hàm tìm số lớn nhất trước và sau khi sửa;
+// câu SQL chạy trên SQLite (mô-đun sqlite3 của python3); mã HTML, CSS đọc bằng bộ đọc của tests/tin-congnghe12-ck2.js (cú pháp như sách, chỉ
+// thẻ, thuộc tính sách dạy) rồi tính: vị trí ô của bảng có rowspan, colspan, kí hiệu đầu dòng của danh sách lồng nhau, đường dẫn tương đối,
+// liên kết tới phần có id ở trang khác, khung nội tuyến và target, biểu mẫu, kế thừa căn lề, kích thước khung, màu chữ (kế thừa, bộ chọn con
+// cháu), cỡ chữ; phép tính: cộng số nhị phân, số nguyên lưu bằng một byte, phép AND từng bit, địa chỉ IPv4 viết ở dạng nhị phân, bảng định
+// tuyến có cổng mặc định, mã màu hex, dung lượng âm thanh, bảng chân trị của phép XOR, thời gian các khung hình của ảnh động GIF làm bằng
+// GIMP; ý của câu đúng/sai 4 ý so với bảng ý → đúng/sai ghi trong script hoặc tính bằng code. Mọi đoạn mã HTML, CSS trong chữ của đề đọc lại
+// được; mọi khung mã được đọc lại.
 // Rồi: chữ (số ngăn hàng nghìn bằng khoảng trắng, dấu phẩy thập phân, trừ đoạn mã, câu có mã Python, số nhị phân, mã màu; dấu thanh kiểu
 // sách “hoá”, “thuỷ”; không “huyện”, “63 tỉnh”); kiểu Đ/S không lặp trong một đề, mỗi kiểu nhiều nhất ba lần trong các đề thi thử; đáp án
 // đúng không dài hơn hẳn lựa chọn sai và là lựa chọn dài nhất hay ngắn nhất ở không quá một phần ba và không dưới một phần sáu số câu nhiều
@@ -593,6 +596,136 @@ const RIENG = {
       return traY(q, { "bảng chọn Trang ở khung bên phải": true, "tự gõ lại tên đó": false, "là trang con trực tiếp của": (s) => cha[/“(.+?)”/.exec(s)[1]] === /trực tiếp của (.+?)\.$/.exec(s)[1], "gắn liên kết cho chữ “Xem thêm”": true }); } },
     { has: "phiếu hỏi ý kiến", right: (q) => traY(q, { "ứng dụng Forms của Google": true, "bật Bắt buộc": true, "tự hiện ngay trên trang web": false, "chỉ xem được số phiếu": false }) },
   ],
+  "tin12-tn-de4": [
+    { has: "Cách mạng công nghiệp lần thứ tư", right: (q) => chon(q, "công nghệ số", "Internet vạn vật") },
+    { has: "Một bộ đếm lưu số lượt khách", right: (q) => { const [b] = so(q.q, "bằng # byte"), [v] = so(q.q, "ghi số #"), nhi = v.toString(2);
+      coX(q, v + " = " + [...nhi].map((c, k) => (c === "1" ? 2 ** (nhi.length - 1 - k) : 0)).filter(Boolean).join(" + "), "viết là " + nhi);
+      return laDung(q, nhi.padStart(8 * b, "0")); } },
+    { has: "sâu máy tính (worm)", right: (q) => chon(q, "không cần bám vào tệp khác") },
+    { has: "trái quy định về bản quyền", right: (q) => chon(q, "bẻ khoá") },
+    { has: "lệnh range(4, 9)", right: (q) => laDung(q, inRa("print(*" + /lệnh (range\(\d+, \d+\))/.exec(q.q)[1] + ", sep=', ')")) },
+    { has: "gọi hàm them", right: (q) => laDung(q, inRa(docKhungPy(q.svg))) },
+    { has: "tổng các chữ số của n", right: (q) => { const [, vd, kq] = /ví dụ n = (\d+) thì s = (\d+)/.exec(q.q), tong = (x) => sum([...String(x)].map(Number));
+      assert.equal(tong(vd), +kq, "ví dụ trong đề tính đúng"); const thu = [1, 7, 10, 19, 100, 909, +vd, 12345, 99999];
+      // chạy câu lệnh của từng lựa chọn với nhiều giá trị của n, so với tổng các chữ số
+      return motLuaChon(q, (o) => inRa("import json\nr = []\nfor n in " + JSON.stringify(thu) + ":\n    s = 0\n    " + o + "\n    r.append(s)\nprint(json.dumps(r))") === JSON.stringify(thu.map(tong)).replace(/,/g, ", ")); } },
+    { has: "nối máy tính xách tay với ti vi", right: (q) => { assert.ok(q.q.includes("có cả hình ảnh và tiếng"), "đề cần cả hình và tiếng"); return laDung(q, "Cổng HDMI"); } },
+    { has: "ghi được ý kiến góp ý vào tệp", right: (q) => laDung(q, "Người nhận xét") },
+    { has: "bảng ThanhVien với khoá chính MaTV", right: (q) => laDung(q, "Khoá ngoài") },
+    { has: "UPDATE muon_sach", right: (q) => { const cau = /“(UPDATE [^”]+)”/.exec(q.q)[1], cot = /có các cột ([\w, ]+)\./.exec(q.q)[1].split(", "), [, gt, ma] = /SET so_ngay = (\d+) WHERE ma_the = '(\w+)';$/.exec(cau);
+      const dong = [[ma, "Toan 12", 7], ["T02", "Ngu van 12", 7], [ma, "Tin hoc 12", 10], ["T15", "Dia li 12", 21]];
+      assert.deepEqual(chaySql({ muon_sach: cot }, { muon_sach: dong }, cau, "muon_sach"), dong.map((d) => (d[0] === ma ? [d[0], d[1], +gt] : d)), "câu UPDATE chỉ đổi các dòng có mã thẻ " + ma);
+      return chon(q, "thành " + gt + " cho mỗi dòng mang mã thẻ " + ma); } },
+    { has: "Camera ở cổng trường", right: (q) => chon(q, "Nhận thức") },
+    { has: "Một kho hàng lớn", right: (q) => chon(q, "thất nghiệp") },
+    { has: "thư mục “Bai-tap”", right: (q) => chon(q, "File Explorer", "Network", /tên (MT-[\w-]+), đã chia sẻ/.exec(q.q)[1]) },
+    { has: "Ngọc vừa trượt kì thi", right: (q) => chon(q, "Thấu hiểu") },
+    { has: "rao bán quần áo", right: (q) => chon(q, "Không đăng quảng cáo") },
+    { has: "đội bóng rổ", right: (q) => motLuaChon(q, (o) => /\.html?$/.test(o)) },
+    { has: "CO₂", right: (q) => { assert.ok(q.q.includes("nhỏ và nằm thấp hơn dòng chữ"), "đề hỏi chỉ số dưới"); return laDung(q, "<sub> và </sub>"); } },
+    { has: "ô dữ liệu thông thường", right: (q) => laDung(q, "<td>") },
+    { has: "Xem tổng kết", right: (q) => { const id = /id="([\w-]+)"/.exec(q.q)[1], thu = /nằm trong thư mục “([\w-]+)” của thư mục gốc/.exec(q.q)[1], chu_ = /nháy vào chữ “(.+?)”/.exec(q.q)[1];
+      assert.ok(q.q.includes("tệp index.html ở thư mục gốc"), "index.html ở thư mục gốc");
+      return motLuaChon(q, (o) => { const a = tim(docMa(o), "a"); if (a.length !== 1 || chuCua(a[0]) !== chu_) return false; const [tep, phan] = a[0].at.href.split("#");
+        return phan === id && !!tep && diDuong(thu, tep) === "index.html"; }); } },
+    { has: "chèn âm thanh", right: (q) => laDung(q, "<audio>") },
+    { has: "Trang web của thư viện", right: (q) => laDung(q, "<form> và </form>") },
+    { has: "tiêu đề h3 có cỡ", right: (q) => { const px = so(q.q, "có cỡ # pixel")[0];
+      return motLuaChon(q, (o) => { const g = trang(o, "<h3>Tin tức</h3>"); return apCss(g).kieu(tim(g, "h3")[0], "font-size") === px + "px"; }); } },
+    { has: "Mẫu “.canh-bao", right: (q) => { const g = trang(maTrong(q.q)[0], '<p class="canh-bao">Trời mưa to</p>'), ap = apCss(g), p = tim(g, "p")[0];
+      return laDung(q, "Chữ " + tenMau(ap.kieu(p, "color")).toLowerCase() + ", nền " + tenMau(ap.kieu(p, "background-color")).toLowerCase()); } },
+    { has: "Nhà bác Tư", right: (q) => traY(q, { "Modem 4G chuyển tín hiệu": true, "phải chọn một trong nhiều cổng WAN": false, "qua sóng Wi-Fi do router phát ra": true,
+      "Khi tháo modem 4G ra": () => q.q.includes("hai máy tính để bàn nối vào cổng LAN của router") }) },
+    { has: "địa chỉ IPv4 mà dạng nhị phân", right: (q) => { const bit = /nhị phân là ((?:[01]{8} ){3}[01]{8})\./.exec(q.q)[1].split(" "), so4 = bit.map((b) => parseInt(b, 2)), ip = so4.join(".");
+      coX(q, so4.join(", "), ip);
+      return theoMau(q, [
+        [/^Viết thành bốn số thập phân ngăn cách bằng dấu chấm, địa chỉ này là ([\d.]+)\.$/, (m) => m[1] === ip],
+        [/^Dạng nhị phân của địa chỉ này có đúng (\d+) chữ số 0 và 1\.$/, (m) => +m[1] === bit.join("").length],
+        [/^Khi Hoa mở một trang web có máy chủ ở nước ngoài, gói tin từ máy Hoa được chuyển tới router của mạng nhà mình trước\.$/, () => true],
+        [/^Điện thoại của Hoa khi vào cùng mạng Wi-Fi đó để truy cập Internet cũng cần được gán một địa chỉ IP\.$/, () => true]]); } },
+    { has: "hàm tim tìm vị trí của x", right: (q) => { const ma = docKhungPy(q.svg), out = inRa(ma), than = ma.replace(/\nD = [^\n]*\nprint\(tim\(D, \d+\)\)$/, "");
+      assert.ok(than !== ma && /\n {4}while trai <= phai:\n {8}dem = dem \+ 1\n {8}giua = \(trai \+ phai\) \/\/ 2\n/.test(ma), "hàm tìm kiếm nhị phân, đếm số lượt lặp");
+      const goi = (x) => inRa(ma.replace(/print\(tim\(D, \d+\)\)$/, "print(tim(D, " + x + "))"));
+      // số lượt lặp nhiều nhất khi tìm trong danh sách n số khác nhau đã xếp tăng dần: thử mọi giá trị có và không có trong danh sách
+      const toiDa = (k) => +inRa(than + "\nA = list(range(0, " + 2 * k + ", 2))\nprint(max(tim(A, x)[1] for x in range(-1, " + (2 * k + 1) + ")))");
+      return theoMau(q, [
+        [/^Hàm tim dùng cách tìm kiếm nhị phân, nên danh sách A cần được sắp xếp tăng dần trước khi gọi hàm\.$/, () =>
+          inRa(than + "\nA = list(range(0, 40, 2))\nprint(all(tim(A, x)[0] == (x // 2 if x % 2 == 0 and 0 <= x < 40 else -1) for x in range(-3, 45)))") === "True" &&
+          inRa(than + "\nB = [8, 30, 3, 21]\nprint(tim(B, 3)[0], B.index(3))") === "-1 2"],
+        [/^Chương trình in ra (\(.+?\))\.$/, (m) => m[1] === out],
+        [/^Nếu thay tim\(D, (\d+)\) bằng tim\(D, (\d+)\) thì hàm trả về (\(.+?\))\.$/, (m) => ma.includes("print(tim(D, " + m[1] + "))") && goi(m[2]) === m[3]],
+        [/^Với một danh sách (.+?) số đã sắp xếp tăng dần, mỗi lần gọi hàm tim thì vòng lặp chạy không quá (\d+) lượt\.$/, (m) => toiDa(val(m[1])) <= +m[2]]]); } },
+    // sách (Tin học 12 định hướng Khoa học máy tính, Bài 23): cáp xoắn truyền tốt trong khoảng 100 m; bluetooth kết nối trong khoảng 10 m
+    { has: "Một khu nghỉ dưỡng", right: (q) => { const xa = so(q.q, "cách nhau khoảng # m")[0]; coX(q, "khoảng 100 m", "khoảng 10 m");
+      return traY(q, { "sợi cáp xoắn dài": (s) => { const [d] = so(s, "dài # m"); assert.equal(d, xa, "ý về cáp xoắn nói đúng khoảng cách của đề"); return d <= 100; },
+        "bộ chuyển đổi giữa tín hiệu quang và tín hiệu điện": true, "ít bị nhiễu điện từ hơn cáp đồng": true, "Tai nghe bluetooth": (s) => so(s, "cách đó khoảng # m")[0] <= 10 }); } },
+  ],
+  "tin12-tn-de5": [
+    { has: "ảnh logo của câu lạc bộ", right: (q) => { assert.ok(q.q.includes("không bị giảm chất lượng") && q.q.includes("nền trong suốt"), "ảnh nén không mất chất lượng, có nền trong suốt"); return laDung(q, ".png"); } },
+    { has: "phép AND trên từng cặp bit", right: (q) => { const [, a, b] = /nhị phân ([01]+) và ([01]+)/.exec(q.q), phep = (f) => [...a].map((c, k) => (f(c === "1", b[k] === "1") ? "1" : "0")).join("");
+      assert.equal(a.length, b.length, "hai dãy bit dài bằng nhau");
+      coX(q, "kết quả là " + phep((u, v) => u && v), phep((u, v) => u || v) + " là kết quả của phép OR", phep((u, v) => u !== v) + " là của phép XOR");
+      return laDung(q, phep((u, v) => u && v)); } },
+    { has: "nhắn tin lăng mạ", right: (q) => chon(q, "giữ tin nhắn làm bằng chứng") },
+    { has: "Trong Inkscape, Mai vẽ", right: (q) => { const [, truoc, sau] = /vẽ một hình (\S+), sau đó vẽ một hình (\S+) đè lên/.exec(q.q); assert.notEqual(truoc, sau, "hai hình khác nhau");
+      return chon(q, "Hình " + sau, "vẽ sau nên ở lớp trên"); } },
+    { has: "print(len(s))", right: (q) => laDung(q, inRa(/với (s = "[^"]*")/.exec(q.q)[1] + "\nprint(len(s))")) },
+    { has: "lớn hơn phần tử đứng ngay trước nó", right: (q) => laDung(q, inRa(docKhungPy(q.svg))) },
+    { has: "Hàm dem_so trong hình", right: (q) => { const ma = docKhungPy(q.svg), [, vd, kq] = /ví dụ dem_so\((\[[\d, ]+\])\) bằng (\d+)/.exec(q.q);
+      assert.ok(/\n {8}if dieu_kien:\n/.test(ma), "khung mã có chỗ dieu_kien");
+      const can = (A) => A.filter((x) => x % 3 === 0 && x % 2 === 1).length, thu = [JSON.parse(vd), [1, 3, 6, 9, 21, 30, 33], [2, 4, 5, 12, 18], [15, 27, 45, 7, 0]];
+      assert.equal(can(thu[0]), +kq, "ví dụ trong đề tính đúng");
+      return motLuaChon(q, (o) => JSON.stringify(JSON.parse(inRa(ma.replace("dieu_kien", o) + "\nimport json\nprint(json.dumps([dem_so(A) for A in " + JSON.stringify(thu) + "]))"))) === JSON.stringify(thu.map(can))); } },
+    { has: "ngay trên trình duyệt web", right: (q) => laDung(q, "Phần mềm chạy trên Internet") },
+    { has: "nhiễm virus nghiêm trọng", right: (q) => chon(q, "Không gọi, không trả phí") },
+    { has: "Phần mềm nào sau đây là một hệ quản trị cơ sở dữ liệu", right: (q) => {
+      assert.deepEqual(q.o.slice(1).sort(), ["Google Chrome", "Inkscape", "Microsoft Word"], "ba lựa chọn sai không phải hệ quản trị cơ sở dữ liệu"); return laDung(q, "MySQL"); } },
+    { has: "SELECT ho_ten FROM hoc_sinh", right: (q) => { const cau = /“(SELECT [^”]+)”/.exec(q.q)[1], cot = /có các cột ([\w, ]+)\./.exec(q.q)[1].split(", ");
+      const [, d0, t0] = /WHERE diem_tb >= (\d+) AND to_hoc = (\d+);$/.exec(cau), dong = [["Le An", 2, 8.5], ["Tran Binh", 2, 7.5], ["Ngo Chi", 1, 9], ["Vu Dung", 2, 8], ["Ha Giang", 3, 6.5]];
+      assert.deepEqual(chaySql({ hoc_sinh: cot }, { hoc_sinh: dong }, cau).sort(), dong.filter((d) => d[1] === +t0 && d[2] >= +d0).map((d) => [d[0]]).sort(), "câu truy vấn lấy họ tên học sinh của tổ có điểm trung bình đủ mức");
+      return chon(q, "Họ tên các học sinh tổ " + t0 + " có điểm trung bình từ " + d0 + " trở lên"); } },
+    { has: "phiếu trả lời mà học sinh viết tay", right: (q) => laDung(q, "Nhận dạng chữ viết tay") },
+    { has: "Gọi cho con gái", right: (q) => laDung(q, "Trợ lí ảo") },
+    { has: "mực nước sông", right: (q) => laDung(q, "Giám sát môi trường tự nhiên") },
+    { has: "tìm lỗi động cơ ô tô", right: (q) => chon(q, "Tự rút thêm luật") },
+    { has: "gõ lệnh ping", right: (q) => chon(q, "kết nối được tới thiết bị đó") },
+    // bảng định tuyến: địa chỉ khớp một nhóm (* là số bất kì) thì gửi qua cổng của nhóm đó, không khớp nhóm nào thì gửi qua cổng mặc định
+    { has: "Bảng định tuyến của router R", right: (q) => { const nhom = [...q.q.matchAll(/“([\d*.]+)” gửi qua cổng (\d+)/g)].map((m) => [m[1], +m[2]]), mac = so(q.q, "cổng mặc định là cổng #")[0];
+      const dich = /gửi tới địa chỉ “([\d.]+)”/.exec(q.q)[1], khopIp = (mau, ip) => { const a = mau.split("."), b = ip.split("."); return a.length === 4 && b.length === 4 && a.every((p, k) => p === "*" || p === b[k]); };
+      assert.equal(nhom.length, 2, "đọc được hai nhóm địa chỉ của bảng định tuyến");
+      const k = nhom.filter(([m]) => khopIp(m, dich)); assert.ok(k.length <= 1, "địa chỉ khớp nhiều nhóm");
+      return laDung(q, "Cổng " + (k.length ? k[0][1] : mac)); } },
+    { has: "Tài khoản mạng xã hội của Thảo", right: (q) => chon(q, "rủi ro về bảo mật") },
+    { has: "khen một bộ phim", right: (q) => chon(q, "lời lẽ lịch sự") },
+    { has: "phần tử nào là gốc", right: (q) => { const g = docHtml("<html><head><title>Lớp 12A</title></head><body><p>Chào</p></body></html>"), goc = g.kids.filter((k) => k.tag);
+      assert.equal(goc.length, 1, "trang có một phần tử gốc"); q.o.slice(1).forEach((o) => assert.ok(tim(goc[0], o.slice(1, -1)).length, o + " nằm trong phần tử gốc"));
+      return laDung(q, "<" + goc[0].tag + ">"); } },
+    { has: "Thuộc tính của một thẻ HTML", right: (q) => chon(q, "Trong thẻ bắt đầu") },
+    { has: "tự động đánh số thứ tự", right: (q) => laDung(q, "<ol>") },
+    { has: "ô nhập ngày sinh", right: (q) => laDung(q, "date") },
+    // Bài 16: lề (margin) là khoảng trống bên ngoài đường viền; vùng đệm (padding) nằm giữa nội dung và đường viền
+    { has: "Ba ô thẻ sản phẩm", right: (q) => { const r = docCss(maTrong(q.q)[0]);
+      assert.ok(r.length === 1 && r[0].kb.some((k) => k[0] === "border") && !r[0].kb.some((k) => k[0] === "margin"), "mẫu đang có đường viền, chưa có lề");
+      return motLuaChon(q, (o) => { const k = docKhaiBao(o, "quy định"); return k.length === 1 && k[0][0] === "margin" && docPx(k[0][1]) > 0; }); } },
+    { has: "chia sẻ thư mục “Bao-cao”", right: (q) => traY(q, { "sửa rồi lưu lại": () => q.q.includes("quyền Read/Write"), "máy của chị Hoa đã tắt": true, "không phải chép tệp bằng thẻ nhớ": true, "chế độ Public": false }) },
+    { has: "đặt màu chữ cho một trang thông báo", right: (q) => { const g = trangMa(docKhung(q.svg)), ap = apCss(g), mau = (el) => docMau(ap.kieu(el, "color")).join();
+      const la = (t, tenM) => { assert.ok(MAU_VIET[tenM], "chưa có tên màu “" + tenM + "”"); return mau(theoChu(g, t)) === docMau(MAU_VIET[tenM]).join(); };
+      const sau = (t) => { const el = theoChu(g, t), i = el.kids.findIndex((x) => x.text !== undefined && x.text.includes(t)), k = el.kids.slice(i + 1).find((x) => x.tag); assert.ok(k, "có chữ đứng ngay sau “" + t + "”"); return k; };
+      return theoMau(q, [
+        [/^Chữ “(.+?)” có màu ([^,]+)\.$/, (m) => la(m[1], m[2])],
+        [/^Tiêu đề “(.+?)” có chữ màu (.+?)\.$/, (m) => /^h[1-6]$/.test(theoChu(g, m[1]).tag) && la(m[1], m[2])],
+        [/^Chữ “(.+?)” có màu ([^,]+), giống chữ đứng ngay sau nó\.$/, (m) => la(m[1], m[2]) && mau(theoChu(g, m[1])) === mau(sau(m[1]))]]); } },
+    { has: "hàm lon_nhat trong hình", right: (q) => { const ma = docKhungPy(q.svg), dong = inRa(ma).split("\n"), ham = ma.replace(/(\nprint\(lon_nhat\(\[[-\d, ]+\]\)\))+$/, "");
+      assert.ok(ham !== ma, "khung mã có hàm và các lệnh in"); const goi = (A) => inRa(ham + "\nprint(lon_nhat(" + A + "))");
+      return theoMau(q, [
+        [/^Với bộ dữ liệu (\[[-\d, ]+\]), hàm trả về (-?\d+)\.$/, (m) => ma.includes("print(lon_nhat(" + m[1] + "))") && goi(m[1]) === m[2]],
+        [/^Dòng in đầu tiên của chương trình là (-?\d+)\.$/, (m) => dong[0] === m[1]],
+        // O(n²) cần hai vòng lặp lồng nhau; hàm chỉ có một vòng lặp
+        [/^Độ phức tạp thời gian của hàm lon_nhat là O\(n²\), vì lệnh if nằm trong vòng lặp for\.$/, () => (ham.match(/^ *(?:for|while) /gm) || []).length >= 2],
+        [/^Sửa dòng “(.+?)” thành “(.+?)” thì hàm trả về đúng số lớn nhất với mọi danh sách khác rỗng\.$/, (m) => { assert.ok(ham.includes("\n    " + m[1] + "\n"), "khung mã có dòng cần sửa");
+          return inRa(ham.replace("\n    " + m[1] + "\n", "\n    " + m[2] + "\n") + "\nimport random\nrandom.seed(12)\nprint(all(lon_nhat(A) == max(A) for A in ([random.randint(-60, 60) for _ in range(random.randint(1, 9))] for _ in range(3000))))") === "True"; }]]); } },
+    { has: "Công ty xe buýt", right: (q) => traY(q, { "đặc trưng của dữ liệu lớn": true, "trực quan hoá dữ liệu": true, "Chỉ cần giỏi lập trình": false, "máy đọc thẻ bị hỏng": true }) },
+  ],
 };
 
 /* ---------- đề và danh mục: số đề, số câu lấy từ danh mục ---------- */
@@ -604,7 +737,7 @@ const TN = EVENTS.find((e) => e.id === "tn-thpt-2027");
 const P1 = "Phần I. Trắc nghiệm nhiều lựa chọn", P2 = "Phần II. Trắc nghiệm đúng sai";
 const KHUNG = [[P1, "mc", 24, 0.25], [P2, "tf4", 4, 1]];
 // định hướng của phần riêng (câu 3, 4 của Phần II) từng đề; phiên sau thêm đề thì thêm vào đây
-const DINH_HUONG = { 1: "Tin học ứng dụng", 2: "Khoa học máy tính", 3: "Tin học ứng dụng" };
+const DINH_HUONG = { 1: "Tin học ứng dụng", 2: "Khoa học máy tính", 3: "Tin học ứng dụng", 4: "Khoa học máy tính", 5: "Khoa học máy tính" };
 const KHAC = { "Tin học ứng dụng": "Khoa học máy tính", "Khoa học máy tính": "Tin học ứng dụng" };
 // tên chủ đề, tên bài theo mục lục của sách (README của từng cuốn ở OnUp-Book; so ở bước sách)
 const CHU_DE_10 = ["Máy tính và xã hội tri thức", "Mạng máy tính và Internet", "Đạo đức, pháp luật và văn hoá trong môi trường số", "Ứng dụng tin học",
@@ -707,7 +840,8 @@ DE.forEach((b) => {
     `câu 3, 4 thuộc phần riêng của định hướng ${dh}`, `Đề có ${qs.length} câu, làm trong ${b.minutes} phút`,
     "Phần I gồm 24 câu nhiều lựa chọn (6 điểm, mỗi câu 0,25 điểm)", "Phần II gồm 4 câu đúng/sai, mỗi câu 4 ý (4 điểm)", "đề Tin học không có Phần III",
     "Đề không có câu tự chấm"].forEach((s) => assert.ok(b.note.includes(s), at + ": lời dặn thiếu “" + s + "”"));
-  const chi = [...b.note.matchAll(/(?:thì làm|hoặc) Đề (\d+)/g)].map((m) => +m[1]);
+  // đề của định hướng kia: “thì làm Đề 1 hoặc Đề 3”, “thì làm Đề 2, Đề 4 hoặc Đề 5”
+  const chi = [...b.note.matchAll(/(?:thì làm|hoặc|,) Đề (\d+)/g)].map((m) => +m[1]);
   assert.ok(chi.length && chi.every((x) => DINH_HUONG[x] === KHAC[dh] && DE.some((d) => soDe(d.id) === x)), at + ": lời dặn chỉ sang đề có phần riêng của định hướng kia: " + chi);
   assert.deepEqual(chi.sort(), DE.map((d) => soDe(d.id)).filter((x) => DINH_HUONG[x] === KHAC[dh]), at + ": lời dặn chỉ sang mọi đề của định hướng kia");
   p2.slice(2).forEach((q) => { const t = q.topic.replace(/^(?:Tin học ứng dụng|Khoa học máy tính) · /, "");
@@ -786,7 +920,8 @@ const TU_CHUNG = [...BAI_12, ...CHU_DE_10, ...CHU_DE_11, ...Object.values(RIENG_
   "khoá chính", "câu truy vấn", "lớp giả", "bộ chọn", "vùng mô tả", "mẫu định dạng", "phần tử cha", "thẻ đơn", "tệp css ngoài",
   "network discovery", "file and printer sharing", "password protected sharing", "advanced sharing settings", "share this folder", "public networks",
   "open as layers", "loop forever", "delay between frames where unspecified", "as animation", "thêm trang con", "bảng chọn chèn",
-  "quản trị và bảo trì hệ thống", "bảo mật hệ thống thông tin", "quản trị mạng", "sửa chữa và bảo trì máy tính", "nghề phát triển phần mềm", "nghề thiết kế đồ hoạ máy tính"];
+  "quản trị và bảo trì hệ thống", "bảo mật hệ thống thông tin", "quản trị mạng", "sửa chữa và bảo trì máy tính", "nghề phát triển phần mềm", "nghề thiết kế đồ hoạ máy tính",
+  "cách mạng công nghiệp lần thứ tư"];
 const boDau = (s) => String(s).normalize("NFC").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const GOP_ = GOP.map(boDau).sort((a, b) => b.length - a.length), TU_CHUNG_ = TU_CHUNG.map((p) => " " + boDau(p) + " ").sort((a, b) => b.length - a.length);
 // nhớ kết quả của khongDau: mỗi chuỗi chỉ chuẩn hoá một lần
@@ -864,10 +999,12 @@ const r1 = doLo(TNQ, NOTES, (p, q) => p._de === q._de);
 const onCD = TNQ.concat(KHO_Q.filter((q) => q.type !== "essay" && TNQ.some((t) => t.topic === q.topic)));
 const r2 = doLo(onCD, [], (p, q) => p.topic === q.topic && p._de !== q._de && (/^tin12-tn-/.test(p._de) || /^tin12-tn-/.test(q._de)));
 if (process.env.DO_LO) console.log("Đáp án bằng chữ có ở câu khác (xem tay):\n" + [...r1.chuLo, ...r2.chuLo].join("\n"));
-// Đã xem tay (Phiên N12-tn-tin): chữ của đáp án có ở câu khác nhưng không chỉ ra đáp án.
+// Đã xem tay (Phiên N12-tn-tin, N12-tn-tin-b): chữ của đáp án có ở câu khác nhưng không chỉ ra đáp án.
 const DA_XEM = [
-  // lựa chọn sai của câu kho là đáp án của câu thi thử; câu kho không nói thẻ, giá trị đó làm gì
+  // lựa chọn sai của câu kho là đáp án của câu thi thử; câu kho không nói thẻ, giá trị, ứng dụng, nguy cơ đó là gì
   "ck1-de1#14 → tn-de2#18: <h1>", "gk2-de1#7 → tn-de2#23: font weight normal",
+  "ck1-de1#17 → tn-de4#19: <td>", "ck1-de1#22 → tn-de4#21: <audio>", "ck1-de1#4 → tn-de4#13: áp lực thất", "ck1-de1#4 → tn-de4#13: lực thất nghiệp",
+  "ck1-de2#2 → tn-de5#13: trợ lí ảo",
 ];
 assert.deepEqual([...r1.chuLo, ...r2.chuLo].sort(), [...DA_XEM].sort(), "đáp án bằng chữ có ở câu khác đã đổi: chạy DO_LO=1, xem tay rồi sửa DA_XEM");
 assert.deepEqual([...r1.lo, ...r2.lo], [], "lộ đáp án:\n" + [...r1.lo, ...r2.lo].join("\n"));
@@ -940,6 +1077,16 @@ if (SACH.length) {
   assert.equal(diDuong("a/b", "../../x.html"), "x.html", "tự thử: đường dẫn tương đối"); hong(() => diDuong("a", "../../x.html"), "đường dẫn ra ngoài thư mục gốc");
   const A = anhDong("Bảng Layers ghi các lớp từ trên xuống: “C (100ms)”, “B”, “A”. Đặt Delay between frames where unspecified là 50 mili-giây và chọn Loop forever.");
   assert.ok(A.khung[0].ten === "A" && A.tong === 200 && A.lap === true, "tự thử: ảnh động");
+  // Đề 4–5: đổi số liệu của đề thì đáp án tính được đổi theo hay lời giải không còn khớp
+  const doi = (m, a, b) => Object.assign({}, m.q, { q: m.q.q.replace(a, b) });
+  const tuyen = muc("tin12-tn-de5", "Bảng định tuyến");
+  assert.equal(tuyen.c.right(doi(tuyen, "“203.113.45.9”", "“10.8.45.9”")), "Cổng 3", "tự thử: bảng định tuyến, địa chỉ khớp nhóm");
+  const ip = muc("tin12-tn-de4", "địa chỉ IPv4"); hong(() => ip.c.right(doi(ip, "00010010.", "01010001.")), "đổi địa chỉ IPv4 của đề");
+  const tcs = muc("tin12-tn-de4", "tổng các chữ số"); hong(() => tcs.c.right(doi(tcs, "thì s = 11", "thì s = 12")), "ví dụ tổng chữ số tính sai");
+  const ds3 = muc("tin12-tn-de5", "Hàm dem_so"); hong(() => ds3.c.right(doi(ds3, "bằng 2)", "bằng 3)")), "ví dụ đếm số tính sai");
+  const ma4 = muc("tin12-tn-de5", "phép AND"); hong(() => ma4.c.right(doi(ma4, "1101 và 1011", "1101 và 1001")), "đổi hai dãy bit của phép AND");
+  const tk = muc("tin12-tn-de4", "hàm tim tìm vị trí");
+  hong(() => tk.c.right(Object.assign({}, tk.q, { svg: tk.q.svg.replace(">trai = giua + 1<", ">trai = giua<") })), "tìm kiếm nhị phân viết sai thì ý về số lượt lặp đổi");
   // bộ dò lộ bắt được câu cố ý viết sai: đáp án của câu này chép vào lời giải câu khác
   const thu = (qs) => { const r = doLo(qs, [], () => true); return r.lo.concat(r.chuLo); };
   const ghi = (q, x) => { const o = Object.assign({}, q, { x: q.x + " " + x }); ten.set(o, "thử-giả"); return o; };
