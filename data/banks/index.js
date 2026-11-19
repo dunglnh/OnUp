@@ -2129,6 +2129,34 @@ window.ONTAP_SEED_BANKS = [
       "Oxide": [0, 1, 0], "Muối": [0, 0, 1], "Phân bón hoá học": [1, 0, 0], "Khối lượng riêng": [1, 0, 1], "Áp suất trên một bề mặt": [0, 1, 0],
       "Áp suất chất lỏng. Áp suất khí quyển": [1, 0, 1], "Lực đẩy Archimedes": [0, 1, 0], "Tác dụng làm quay của lực. Moment lực": [1, 0, 0],
       "Đòn bẩy và ứng dụng": [0, 1, 1] } } },
+  /* Lịch sử và Địa lí 8 · Kiểm tra cuối học kì I (Kết nối tri thức, bản chỉnh sửa năm 2026; Lịch sử Bài 1–11, Địa lí Bài 1–8; Phiên
+     N8-ck1-lsdl-gdcd). Khối 8 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (không có câu riêng), câu nào cũng có
+     mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu, theo khung đề định kì (Công văn 7991): 13 câu Lịch sử (Bài 8, 11 mỗi bài 2 câu, các
+     bài khác 1 câu; chữ chủ đề theo tên bài của sách, rút gọn), 12 câu Địa lí (Bài 4 3 câu, Bài 1, 2, 6 mỗi bài 2 câu, Bài 3, 7, 8 mỗi bài 1 câu;
+     Bài 5 là bài thực hành, không ra câu riêng). Hai đề cố định chia đúng theo ma trận, nên ô (chủ đề, mức) nào cũng có đúng 2 câu, gấp đôi số câu
+     ô đó rút. */
+  { id: "lsdl8-ck1-de1", title: "Lịch sử và Địa lí 8 · Cuối kì I · Đề 1", grade: 8, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "8-lsdl.js" },
+  { id: "lsdl8-ck1-de2", title: "Lịch sử và Địa lí 8 · Cuối kì I · Đề 2", grade: 8, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "8-lsdl.js" },
+  { id: "lsdl8-ck1-ngau-nhien", title: "Lịch sử và Địa lí 8 · Cuối kì I · Đề ngẫu nhiên", grade: 8, subject: "Lịch sử và Địa lí", minutes: 45, n: 25, file: "8-lsdl.js",
+    pool: { from: ["lsdl8-ck1-de1", "lsdl8-ck1-de2"], matrix: {
+      "Cách mạng tư sản Anh và Chiến tranh giành độc lập ở Bắc Mỹ": [1, 0, 0], "Cách mạng tư sản Pháp cuối thế kỉ XVIII": [0, 1, 0],
+      "Cách mạng công nghiệp": [0, 0, 1], "Đông Nam Á từ nửa sau thế kỉ XVI đến giữa thế kỉ XIX": [1, 0, 0],
+      "Xung đột Nam – Bắc triều và Trịnh – Nguyễn": [0, 1, 0], "Khai phá vùng đất phía Nam (thế kỉ XVI – XVIII)": [1, 0, 0],
+      "Khởi nghĩa nông dân ở Đàng Ngoài thế kỉ XVIII": [0, 1, 0], "Phong trào Tây Sơn": [1, 0, 1],
+      "Kinh tế, văn hoá, tôn giáo thế kỉ XVI – XVIII": [1, 0, 0], "Sự hình thành chủ nghĩa đế quốc": [0, 1, 0],
+      "Phong trào công nhân và chủ nghĩa xã hội khoa học": [1, 0, 1], "Vị trí địa lí và phạm vi lãnh thổ Việt Nam": [1, 0, 1],
+      "Địa hình Việt Nam": [1, 1, 0], "Khoáng sản Việt Nam": [1, 0, 0], "Khí hậu Việt Nam": [1, 1, 1], "Thuỷ văn Việt Nam": [0, 1, 1],
+      "Vai trò của tài nguyên khí hậu và tài nguyên nước": [0, 1, 0], "Tác động của biến đổi khí hậu": [0, 0, 1] } } },
+  /* GDCD 8 · Kiểm tra cuối học kì I (Kết nối tri thức; Bài 1–6; Phiên N8-ck1-lsdl-gdcd). Khối 8 chưa bật nên đề chưa hiện với gia đình.
+     Kho câu = 50 câu của 2 đề cố định (không có câu riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu, theo khung
+     đề định kì (Công văn 7991): Bài 1, 2 mỗi bài 3 câu, Bài 3 Lao động cần cù, sáng tạo 4 câu, Bài 4–6 mỗi bài 5 câu, bài nào cũng có câu xử lí
+     tình huống. Hai đề cố định chia đúng theo ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "gdcd8-ck1-de1", title: "GDCD 8 · Cuối kì I · Đề 1", grade: 8, subject: "GDCD", minutes: 35, n: 25, file: "8-gdcd.js" },
+  { id: "gdcd8-ck1-de2", title: "GDCD 8 · Cuối kì I · Đề 2", grade: 8, subject: "GDCD", minutes: 35, n: 25, file: "8-gdcd.js" },
+  { id: "gdcd8-ck1-ngau-nhien", title: "GDCD 8 · Cuối kì I · Đề ngẫu nhiên", grade: 8, subject: "GDCD", minutes: 35, n: 25, file: "8-gdcd.js",
+    pool: { from: ["gdcd8-ck1-de1", "gdcd8-ck1-de2"], matrix: {
+      "Tự hào về truyền thống dân tộc Việt Nam": [1, 1, 1], "Tôn trọng sự đa dạng của các dân tộc": [1, 1, 1], "Lao động cần cù, sáng tạo": [2, 1, 1],
+      "Bảo vệ lẽ phải": [2, 2, 1], "Bảo vệ môi trường và tài nguyên thiên nhiên": [2, 2, 1], "Xác định mục tiêu cá nhân": [2, 1, 2] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }

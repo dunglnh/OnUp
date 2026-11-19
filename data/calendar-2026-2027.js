@@ -117,7 +117,7 @@
   { id: "ck1-l8", title: "Kiểm tra cuối học kì I", kind: "dinh-ki", grades: [8],
     start: "2026-12-21", end: "2027-01-08", tentative: true, subjects: MON_THCS,
     scope: "Toán: Bài 1–20. Ngữ văn: Bài 1–5. Tiếng Anh: Units 1–6. KHTN: Bài 1–19 (trường dạy song song ba phân môn thì xem đề cương của trường). Lịch sử và Địa lí: Lịch sử Bài 1–11, Địa lí Bài 1–8. GDCD: Bài 1–6. Tin học: Bài 1–7. Công nghệ: Bài 1–9.",
-    modules: [], banks: ["toan8-ck1-de1", "toan8-ck1-de2", "toan8-ck1-ngau-nhien", "van8-ck1-de1", "van8-ck1-de2", "van8-ck1-ngau-nhien", "ta8-ck1-de1", "ta8-ck1-de2", "ta8-ck1-ngau-nhien", "khtn8-ck1-de1", "khtn8-ck1-de2", "khtn8-ck1-ngau-nhien"] },
+    modules: [], banks: ["toan8-ck1-de1", "toan8-ck1-de2", "toan8-ck1-ngau-nhien", "van8-ck1-de1", "van8-ck1-de2", "van8-ck1-ngau-nhien", "ta8-ck1-de1", "ta8-ck1-de2", "ta8-ck1-ngau-nhien", "khtn8-ck1-de1", "khtn8-ck1-de2", "khtn8-ck1-ngau-nhien", "lsdl8-ck1-de1", "lsdl8-ck1-de2", "lsdl8-ck1-ngau-nhien", "gdcd8-ck1-de1", "gdcd8-ck1-de2", "gdcd8-ck1-ngau-nhien"] },
   { id: "ck1-l10", title: "Kiểm tra cuối học kì I", kind: "dinh-ki", grades: [10],
     start: "2026-12-21", end: "2027-01-08", tentative: true, subjects: MON_THPT, scope: "Toàn bộ chương trình học kì I.", modules: [], banks: [] },
   { id: "ck1-l11", title: "Kiểm tra cuối học kì I", kind: "dinh-ki", grades: [11],
