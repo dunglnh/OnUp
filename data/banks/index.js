@@ -2157,6 +2157,28 @@ window.ONTAP_SEED_BANKS = [
     pool: { from: ["gdcd8-ck1-de1", "gdcd8-ck1-de2"], matrix: {
       "Tự hào về truyền thống dân tộc Việt Nam": [1, 1, 1], "Tôn trọng sự đa dạng của các dân tộc": [1, 1, 1], "Lao động cần cù, sáng tạo": [2, 1, 1],
       "Bảo vệ lẽ phải": [2, 2, 1], "Bảo vệ môi trường và tài nguyên thiên nhiên": [2, 2, 1], "Xác định mục tiêu cá nhân": [2, 1, 2] } } },
+  /* Tin học 8 · Kiểm tra cuối học kì I (Kết nối tri thức, Tin học 8, Bài 1–7; Phiên N8-ck1-tin-congnghe). Khối 8 chưa bật nên đề chưa hiện với
+     gia đình. Sáu chủ đề theo tên bài (Bài 3 thực hành không có chủ đề riêng), mỗi đề 4 – 4 – 4 – 5 – 4 – 4 câu (13 câu bảng tính, Bài 5–7).
+     Kho câu = 50 câu của 2 đề cố định, không có câu riêng; ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7, hai đề cố định chia đúng ma trận, nên ô
+     (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "tin8-ck1-de1", title: "Tin học 8 · Cuối kì I · Đề 1", grade: 8, subject: "Tin học", minutes: 35, n: 25, file: "8-tin.js" },
+  { id: "tin8-ck1-de2", title: "Tin học 8 · Cuối kì I · Đề 2", grade: 8, subject: "Tin học", minutes: 35, n: 25, file: "8-tin.js" },
+  { id: "tin8-ck1-ngau-nhien", title: "Tin học 8 · Cuối kì I · Đề ngẫu nhiên", grade: 8, subject: "Tin học", minutes: 35, n: 25, file: "8-tin.js",
+    pool: { from: ["tin8-ck1-de1", "tin8-ck1-de2"], matrix: {
+      "Lược sử công cụ tính toán": [2, 2, 0], "Thông tin trong môi trường số": [2, 1, 1],
+      "Đạo đức và văn hoá trong sử dụng công nghệ kĩ thuật số": [1, 1, 2], "Sử dụng bảng tính giải quyết bài toán thực tế": [1, 2, 2],
+      "Sắp xếp và lọc dữ liệu": [2, 1, 1], "Trình bày dữ liệu bằng biểu đồ": [2, 1, 1] } } },
+  /* Công nghệ 8 · Kiểm tra cuối học kì I (Kết nối tri thức, Công nghệ 8, Chương I Bài 1–5, Chương II Bài 6–9; Phiên N8-ck1-tin-congnghe). Khối 8
+     chưa bật nên đề chưa hiện với gia đình. Chín chủ đề theo tên bài (Bài 1 rút gọn; Bài 10 dự án không có chủ đề riêng), mỗi đề
+     3 – 4 – 3 – 2 – 3 câu cho Chương I và 3 – 4 – 2 – 1 câu cho Chương II. Kho câu = 50 câu của 2 đề cố định, không có câu riêng; ma trận [Biết,
+     Hiểu, Vận dụng] 10 – 8 – 7, hai đề cố định chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có gấp đôi số câu ô đó rút. */
+  { id: "congnghe8-ck1-de1", title: "Công nghệ 8 · Cuối kì I · Đề 1", grade: 8, subject: "Công nghệ", minutes: 35, n: 25, file: "8-congnghe.js" },
+  { id: "congnghe8-ck1-de2", title: "Công nghệ 8 · Cuối kì I · Đề 2", grade: 8, subject: "Công nghệ", minutes: 35, n: 25, file: "8-congnghe.js" },
+  { id: "congnghe8-ck1-ngau-nhien", title: "Công nghệ 8 · Cuối kì I · Đề ngẫu nhiên", grade: 8, subject: "Công nghệ", minutes: 35, n: 25, file: "8-congnghe.js",
+    pool: { from: ["congnghe8-ck1-de1", "congnghe8-ck1-de2"], matrix: {
+      "Tiêu chuẩn trình bày bản vẽ kĩ thuật": [1, 1, 1], "Hình chiếu vuông góc": [2, 1, 1], "Bản vẽ chi tiết": [1, 1, 1], "Bản vẽ lắp": [1, 1, 0],
+      "Bản vẽ nhà": [1, 1, 1], "Vật liệu cơ khí": [1, 1, 1], "Truyền và biến đổi chuyển động": [1, 1, 2], "Gia công cơ khí bằng tay": [1, 1, 0],
+      "Ngành nghề trong lĩnh vực cơ khí": [1, 0, 0] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
