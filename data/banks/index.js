@@ -1878,6 +1878,15 @@ window.ONTAP_SEED_BANKS = [
   { id: "tin12-tn-de3", title: "Tin học 12 · Thi thử tốt nghiệp · Đề 3", grade: 12, subject: "Tin học", minutes: 50, n: 28, file: "12-tin.js", pts: 10 },
   { id: "tin12-tn-de4", title: "Tin học 12 · Thi thử tốt nghiệp · Đề 4", grade: 12, subject: "Tin học", minutes: 50, n: 28, file: "12-tin.js", pts: 10 },
   { id: "tin12-tn-de5", title: "Tin học 12 · Thi thử tốt nghiệp · Đề 5", grade: 12, subject: "Tin học", minutes: 50, n: 28, file: "12-tin.js", pts: 10 },
+  /* Công nghệ 12 · Thi thử tốt nghiệp THPT, định hướng Công nghiệp (đề tính điểm, Phiên N12-tn-congnghe: Đề 1–3). Khung đề tốt nghiệp
+     THPT từ năm 2025 (Quyết định 764/QĐ-BGDĐT): 50 phút, 10 điểm, 28 câu: Phần I 24 câu nhiều lựa chọn (6 điểm), Phần II 4 câu đúng/sai 4
+     ý (4 điểm), không có Phần III. Môn Công nghệ thi hai đề riêng theo định hướng; các đề này là đề định hướng Công nghiệp (Công nghệ 10 –
+     Thiết kế và công nghệ, Công nghệ 11 – Công nghệ cơ khí, Công nghệ 12 – Công nghệ điện – điện tử). App chấm tự động cả hai phần như đề
+     thật. Đề cố định, không có đề ngẫu nhiên (pts không đi với pool); cách viết ở đầu phần đề này trong data/banks/12-congnghe.js. Khối 12
+     chưa bật nên đề chưa hiện với gia đình. */
+  { id: "congnghe12-tn-de1", title: "Công nghệ 12 · Thi thử tốt nghiệp · Đề 1", grade: 12, subject: "Công nghệ", minutes: 50, n: 28, file: "12-congnghe.js", pts: 10 },
+  { id: "congnghe12-tn-de2", title: "Công nghệ 12 · Thi thử tốt nghiệp · Đề 2", grade: 12, subject: "Công nghệ", minutes: 50, n: 28, file: "12-congnghe.js", pts: 10 },
+  { id: "congnghe12-tn-de3", title: "Công nghệ 12 · Thi thử tốt nghiệp · Đề 3", grade: 12, subject: "Công nghệ", minutes: 50, n: 28, file: "12-congnghe.js", pts: 10 },
 
   /* Sinh học 12 · Kiểm tra cuối năm học (Kết nối tri thức, Sinh học 12, Phần sáu Sinh thái học và môi trường, Bài 23–35; Phiên
      N12-ck2-sinhhoc-ktpl). Phạm vi theo ma trận cuối kì II tra được, trọng tâm Chương 7–8; lời dặn của đề nhắc trường kiểm tra cả Tiến
