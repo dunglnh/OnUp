@@ -2115,6 +2115,20 @@ window.ONTAP_SEED_BANKS = [
       "Pronunciation": [1, 1, 0], "Unit 1 · Leisure Time": [2, 1, 1], "Unit 2 · Life in the Countryside": [1, 1, 1], "Unit 3 · Teenagers": [1, 1, 1],
       "Unit 4 · Ethnic Groups of Viet Nam": [2, 1, 1], "Unit 5 · Our Customs and Traditions": [1, 1, 1], "Unit 6 · Lifestyles": [1, 1, 1],
       "Reading": [1, 1, 1] } } },
+  /* KHTN 8 · Kiểm tra cuối học kì I (Kết nối tri thức, Khoa học tự nhiên 8, Bài 1–19; Phiên N8-ck1-khtn). Khối 8 chưa bật nên đề chưa
+     hiện với gia đình. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng]
+     10 – 8 – 7 câu trên 18 chủ đề theo tên bài (Bài 14 thực hành không có chủ đề riêng): Bài 1 2 câu, Chương I 9 câu, Chương II 5 câu,
+     Chương III, IV 9 câu. Hai đề cố định và câu riêng đều chia đúng ma trận, nên ô (chủ đề, mức) nào cũng có 3 câu, gấp ba số câu ô đó rút. */
+  { id: "khtn8-ck1-de1", title: "KHTN 8 · Cuối kì I · Đề 1", grade: 8, subject: "KHTN", minutes: 45, n: 25, file: "8-khtn.js" },
+  { id: "khtn8-ck1-de2", title: "KHTN 8 · Cuối kì I · Đề 2", grade: 8, subject: "KHTN", minutes: 45, n: 25, file: "8-khtn.js" },
+  { id: "khtn8-ck1-ngau-nhien", title: "KHTN 8 · Cuối kì I · Đề ngẫu nhiên", grade: 8, subject: "KHTN", minutes: 45, n: 25, file: "8-khtn.js",
+    pool: { from: ["khtn8-ck1-de1", "khtn8-ck1-de2"], matrix: {
+      "Sử dụng một số hoá chất, thiết bị cơ bản trong phòng thí nghiệm": [1, 1, 0], "Phản ứng hoá học": [1, 1, 0],
+      "Mol và tỉ khối chất khí": [0, 1, 1], "Dung dịch và nồng độ": [1, 0, 1], "Định luật bảo toàn khối lượng và phương trình hoá học": [0, 1, 0],
+      "Tính theo phương trình hoá học": [0, 0, 1], "Tốc độ phản ứng và chất xúc tác": [1, 0, 0], "Acid": [1, 0, 0], "Base. Thang pH": [1, 0, 0],
+      "Oxide": [0, 1, 0], "Muối": [0, 0, 1], "Phân bón hoá học": [1, 0, 0], "Khối lượng riêng": [1, 0, 1], "Áp suất trên một bề mặt": [0, 1, 0],
+      "Áp suất chất lỏng. Áp suất khí quyển": [1, 0, 1], "Lực đẩy Archimedes": [0, 1, 0], "Tác dụng làm quay của lực. Moment lực": [1, 0, 0],
+      "Đòn bẩy và ứng dụng": [0, 1, 1] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
