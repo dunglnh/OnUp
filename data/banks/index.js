@@ -1868,6 +1868,14 @@ window.ONTAP_SEED_BANKS = [
   { id: "ktpl12-tn-de3", title: "GDKT&PL 12 · Thi thử tốt nghiệp · Đề 3", grade: 12, subject: "GDKT&PL", minutes: 50, n: 28, file: "12-ktpl.js", pts: 10 },
   { id: "ktpl12-tn-de4", title: "GDKT&PL 12 · Thi thử tốt nghiệp · Đề 4", grade: 12, subject: "GDKT&PL", minutes: 50, n: 28, file: "12-ktpl.js", pts: 10 },
   { id: "ktpl12-tn-de5", title: "GDKT&PL 12 · Thi thử tốt nghiệp · Đề 5", grade: 12, subject: "GDKT&PL", minutes: 50, n: 28, file: "12-ktpl.js", pts: 10 },
+  /* Tin học 12 · Thi thử tốt nghiệp THPT (đề tính điểm, Phiên N12-tn-tin: Đề 1–3). Khung đề tốt nghiệp THPT từ năm 2025 (Quyết định
+     764/QĐ-BGDĐT): 50 phút, 10 điểm, 28 câu: Phần I 24 câu nhiều lựa chọn (6 điểm), Phần II 4 câu đúng/sai 4 ý (4 điểm), không có Phần III.
+     Như đề chính thức năm 2025, 2026, cả 24 câu Phần I là phần chung; Phần II 2 câu chung và 2 câu riêng của một định hướng (Đề 1, Đề 3 Tin
+     học ứng dụng, Đề 2 Khoa học máy tính). App chấm tự động cả hai phần như đề thật. Đề cố định, không có đề ngẫu nhiên (pts không đi với
+     pool); cách viết ở đầu phần đề này trong data/banks/12-tin.js. Khối 12 chưa bật nên đề chưa hiện với gia đình. */
+  { id: "tin12-tn-de1", title: "Tin học 12 · Thi thử tốt nghiệp · Đề 1", grade: 12, subject: "Tin học", minutes: 50, n: 28, file: "12-tin.js", pts: 10 },
+  { id: "tin12-tn-de2", title: "Tin học 12 · Thi thử tốt nghiệp · Đề 2", grade: 12, subject: "Tin học", minutes: 50, n: 28, file: "12-tin.js", pts: 10 },
+  { id: "tin12-tn-de3", title: "Tin học 12 · Thi thử tốt nghiệp · Đề 3", grade: 12, subject: "Tin học", minutes: 50, n: 28, file: "12-tin.js", pts: 10 },
 
   /* Sinh học 12 · Kiểm tra cuối năm học (Kết nối tri thức, Sinh học 12, Phần sáu Sinh thái học và môi trường, Bài 23–35; Phiên
      N12-ck2-sinhhoc-ktpl). Phạm vi theo ma trận cuối kì II tra được, trọng tâm Chương 7–8; lời dặn của đề nhắc trường kiểm tra cả Tiến
