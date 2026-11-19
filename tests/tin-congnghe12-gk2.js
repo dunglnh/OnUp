@@ -1014,7 +1014,8 @@ if (SACH.length) {
     const w = t.replace(/[^\p{L}\p{N}\s|]/gu, " ").split(/\s+/).filter(Boolean); return w.slice(1).map((x, k) => w[k] + " " + x).filter((c) => c.split(" ").every((x) => /\p{L}{2}/u.test(x))); };
   const gan_ = [];
   MON.forEach((m) => {
-    const ca = BANKS.filter((b) => b.file === m.file).flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id)), df = {};
+    // cặp phổ biến tính trên các kho kiểm tra định kì của file, không tính đề thi thử tốt nghiệp (tin12-tn-…, Phiên N12-tn-tin)
+    const ca = BANKS.filter((b) => b.file === m.file && !/-tn-de\d+$/.test(b.id)).flatMap((b) => b.questions.filter((q) => !b.pool || q.src === b.id)), df = {};
     ca.forEach((q) => new Set(cap2(q.q)).forEach((c) => (df[c] = (df[c] || 0) + 1)));
     const capAm = (q) => { const nhan = new Set(cap2(q.topic)); return new Set(cap2([q.q].concat(q.o || []).join(" | ")).filter((c) => !nhan.has(c) && df[c] < 0.03 * ca.length)); };
     m.kho.forEach((q) => { const c = capAm(q); m.ck1.forEach((p) => { const d = capAm(p), chung = [...c].filter((x) => d.has(x)); if (chung.length >= 4 && chung.length >= 0.5 * Math.min(c.size, d.size)) gan_.push(`${ten.get(q)} ~ ${ten.get(p)}: ${chung.join(", ")}`); }); });
