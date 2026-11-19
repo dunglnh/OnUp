@@ -2107,6 +2107,14 @@ window.ONTAP_SEED_BANKS = [
       "Những câu chuyện hài": [1, 1, 1], "Biệt ngữ xã hội": [1, 0, 0], "Từ ngữ địa phương": [1, 0, 0], "Từ tượng hình, từ tượng thanh": [1, 0, 0],
       "Đảo ngữ": [0, 1, 0], "Đoạn văn diễn dịch, quy nạp, song song, phối hợp": [0, 1, 0], "Từ, thành ngữ Hán Việt": [1, 0, 0],
       "Sắc thái nghĩa của từ ngữ": [0, 0, 1], "Câu hỏi tu từ": [1, 0, 0], "Nghĩa tường minh và nghĩa hàm ẩn": [0, 1, 0], "Viết": [0, 0, 1] } } },
+  /* Tiếng Anh 8 · Kiểm tra cuối học kì I (Global Success 8, Units 1–6, Review 1, 2; Phiên N8-ck1-ta). Khối 8 chưa bật nên đề chưa hiện với gia đình. Kho câu = 50 câu riêng trong file (2 đoạn đọc) + 50 câu của 2 đề cố định (mỗi đề 1 đoạn đọc), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] 10 – 8 – 7 câu: Pronunciation 2 (âm của Book map Units 1–5), Unit 1, 4 mỗi Unit 4 (hai câu từ vựng Biết), Unit 2, 3, 5, 6 mỗi Unit 3, Reading 3 (một đoạn 3 câu mức 1-2-3). Hai đề cố định đúng ma trận, câu riêng gấp đôi ma trận, nên ô (chủ đề, mức) nào cũng có gấp bốn số câu ô đó rút. Không có câu nghe, không có câu tự luận. */
+  { id: "ta8-ck1-de1", title: "Tiếng Anh 8 · Cuối kì I · Đề 1", grade: 8, subject: "Tiếng Anh", minutes: 45, n: 25, file: "8-ta.js" },
+  { id: "ta8-ck1-de2", title: "Tiếng Anh 8 · Cuối kì I · Đề 2", grade: 8, subject: "Tiếng Anh", minutes: 45, n: 25, file: "8-ta.js" },
+  { id: "ta8-ck1-ngau-nhien", title: "Tiếng Anh 8 · Cuối kì I · Đề ngẫu nhiên", grade: 8, subject: "Tiếng Anh", minutes: 45, n: 25, file: "8-ta.js",
+    pool: { from: ["ta8-ck1-de1", "ta8-ck1-de2"], matrix: {
+      "Pronunciation": [1, 1, 0], "Unit 1 · Leisure Time": [2, 1, 1], "Unit 2 · Life in the Countryside": [1, 1, 1], "Unit 3 · Teenagers": [1, 1, 1],
+      "Unit 4 · Ethnic Groups of Viet Nam": [2, 1, 1], "Unit 5 · Our Customs and Traditions": [1, 1, 1], "Unit 6 · Lifestyles": [1, 1, 1],
+      "Reading": [1, 1, 1] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
