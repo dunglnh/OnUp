@@ -1,18 +1,25 @@
-// Kiểm tra các đề Công nghệ thi thử tốt nghiệp THPT, định hướng Công nghiệp (data/banks/12-congnghe.js, congnghe12-tn-de<N>; Phiên
-// N12-tn-congnghe: Đề 1–3; phiên sau thêm đề thì mở rộng script này: thêm các mục kiểm tra của đề mới vào RIENG; đề định hướng Nông nghiệp
-// (Công nghệ 12 – Lâm nghiệp – Thuỷ sản) là đề riêng, cần khung, chủ đề riêng).
-// Đề tính điểm theo khung đề tốt nghiệp THPT từ năm 2025 (Quyết định 764/QĐ-BGDĐT), ma trận của đề tham khảo môn Công nghệ năm 2025 (chưa
-// đối chiếu được đề chính thức năm 2026; docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7). Số đề, số câu lấy từ danh mục.
+// Kiểm tra các đề Công nghệ thi thử tốt nghiệp THPT (data/banks/12-congnghe.js, congnghe12-tn-de<N>): Đề 1–3 định hướng Công nghiệp (Phiên
+// N12-tn-congnghe), Đề 4–5 định hướng Nông nghiệp (Phiên N12-tn-congnghe-b). Phiên sau thêm đề thì mở rộng script này: thêm các mục kiểm tra
+// của đề mới vào RIENG, định hướng của đề vào DINH_HUONG.
+// Đề tính điểm theo khung đề tốt nghiệp THPT từ năm 2025 (Quyết định 764/QĐ-BGDĐT), ma trận của đề tham khảo môn Công nghệ năm 2025 (định
+// hướng Công nghiệp: theo hai nguồn phân tích đề; định hướng Nông nghiệp: đọc cả đề tham khảo của Bộ, đối chiếu đề chính thức năm 2026;
+// docs/KE-HOACH-NOI-DUNG.md, mục 2 và mục 7). Số đề, số câu lấy từ danh mục.
 // Khung: danh mục (tên, khối 12, môn Công nghệ, file, 50 phút, pts 10, gắn vào tn-thpt-2027); Phần I 24 câu nhiều lựa chọn pt 0,25, Phần II
-// 4 câu đúng/sai 4 ý pt 1 (không có Phần III), Quiz.grade điểm tối đa 6 – 4. Phần I: câu 1–12 Biết, 13–20 Hiểu, 21–24 Vận dụng; 4 câu
-// Công nghệ 10 (2 Biết, 1 Hiểu, 1 Vận dụng), 4 câu Công nghệ 11 (2, 1, 1), 8 câu phần Công nghệ điện của Công nghệ 12 (Bài 1–12; 4, 3, 1),
-// 8 câu phần Công nghệ điện tử (Bài 13–25; 4, 3, 1); trong mỗi mức theo thứ tự lớp 10, lớp 11, phần điện, phần điện tử, rồi chương, bài.
-// Phần II: câu 1, 2 phần Công nghệ điện, câu 3, 4 phần Công nghệ điện tử, mỗi phần theo thứ tự bài; bốn câu ghi mức 1, 2, 3, 3. Mỗi bài
-// Công nghệ 12, mỗi chương lớp 10, 11 nhiều nhất hai câu một đề. Chủ đề: câu Công nghệ 12 đúng chữ chủ đề của ba kho Công nghệ 12 (tên bài
-// của sách); câu lớp 10, 11 ghi “Lớp 10 · ”, “Lớp 11 · ” và tên chương của sách Công nghệ 10 – Thiết kế và công nghệ, Công nghệ 11 – Công
-// nghệ cơ khí; đối chiếu mục lục trong README của các cuốn ở OnUp-Book. Đề 1–3 phủ đủ 3 chương lớp 10, 7 chương lớp 11 và mọi bài của ba
-// kho Công nghệ 12. Lời dặn ghi định hướng Công nghiệp, đề của định hướng Nông nghiệp là đề khác, số câu, số điểm, số câu mỗi lớp, mỗi phần
-// tính từ dữ liệu.
+// 4 câu đúng/sai 4 ý pt 1 (không có Phần III), Quiz.grade điểm tối đa 6 – 4. Phần I: câu 1–12 Biết, 13–20 Hiểu, 21–24 Vận dụng; trong mỗi
+// mức theo thứ tự nhóm (lớp 10, lớp 11, rồi hai phần của Công nghệ 12), rồi chương, bài. Phần II: bốn câu ghi mức 1, 2, 3, 3; mỗi phần theo
+// thứ tự bài. Mỗi bài Công nghệ 12, mỗi chương lớp 10, 11 nhiều nhất hai câu một đề.
+// - Định hướng Công nghiệp: Phần I 4 câu Công nghệ 10 (2 Biết, 1 Hiểu, 1 Vận dụng), 4 câu Công nghệ 11 (2, 1, 1), 8 câu phần Công nghệ điện
+//   của Công nghệ 12 (Bài 1–12; 4, 3, 1), 8 câu phần Công nghệ điện tử (Bài 13–25; 4, 3, 1); Phần II câu 1, 2 phần Công nghệ điện, câu 3, 4
+//   phần Công nghệ điện tử. Chủ đề: câu Công nghệ 12 đúng chữ chủ đề của ba kho Công nghệ 12 (tên bài của sách); câu lớp 10, 11 ghi
+//   “Lớp 10 · ”, “Lớp 11 · ” và tên chương của sách Công nghệ 10 – Thiết kế và công nghệ, Công nghệ 11 – Công nghệ cơ khí. Đề 1–3 phủ đủ
+//   3 chương lớp 10, 7 chương lớp 11 và mọi bài của ba kho Công nghệ 12.
+// - Định hướng Nông nghiệp: Phần I 4 câu Công nghệ 10 (3 Biết, 1 Hiểu), 4 câu Công nghệ 11 (2, 2), 6 câu phần Lâm nghiệp của Công nghệ 12 –
+//   Lâm nghiệp – Thuỷ sản (Bài 1–7; 2, 2, 2), 10 câu phần Thuỷ sản (Bài 8–27; 5, 3, 2); Phần II câu 1 phần Lâm nghiệp, câu 2–4 phần Thuỷ sản.
+//   Chủ đề: câu Công nghệ 12 là “Lâm nghiệp – Thuỷ sản · <tên bài>” (app chưa có kho Lâm nghiệp – Thuỷ sản; tên bài rút gọn cho vừa mã đề
+//   “Ôn chủ đề”, bảng BAI_12N); câu lớp 10, 11 ghi “Lớp 10 · ”, “Lớp 11 · ” và tên chương của sách Công nghệ 10 – Công nghệ trồng trọt, Công
+//   nghệ 11 – Công nghệ chăn nuôi. Đề 4–5 phủ đủ 8 chương lớp 10, 6 chương lớp 11 và 27 bài của Công nghệ 12.
+// Đối chiếu mục lục trong README của các cuốn ở OnUp-Book. Lời dặn ghi định hướng của đề, chỉ sang mọi đề của định hướng kia, số câu, số
+// điểm, số câu mỗi lớp, mỗi phần tính từ dữ liệu.
 // Mỗi câu khớp đúng một mục kiểm tra của đề đó (theo chữ has trong đề bài): câu nhiều lựa chọn so với chữ khoá của đáp án (đúng một lựa chọn
 // có chữ đó) hoặc tính lại bằng code theo công thức, bảng của sách: tỉ lệ bản vẽ (số kích thước là số đo thật), hình chiếu trục đo xiên góc
 // cân (q = 0,5), tỉ số nén, thể tích công tác của động cơ nhiều xi lanh, cách nối tải ba pha (sao, tam giác), dòng điện dây, tổng trở một
@@ -20,7 +27,8 @@
 // số của công tơ theo cấp chính xác, điện năng tiêu thụ, vạch màu của điện trở (bảng Hình 15.3), cảm kháng, mạch cộng đảo, cộng không đảo,
 // trừ dùng khuếch đại thuật toán (công thức 19.5, 19.6, 19.7), hàm logic viết bằng chữ so với bảng chân lí, mạch logic trong hình
 // đọc bằng bộ đọc của tests/tin-congnghe12-ck2.js (kí hiệu cổng như sách, dây nối, lối vào, lối ra), cổng logic theo yêu cầu, tần số ở lối
-// ra của bộ đếm nhị phân, thời gian chạy câu lệnh theo xung nhịp; ý của câu đúng/sai 4 ý so với bảng ý → đúng/sai ghi trong script hoặc
+// ra của bộ đếm nhị phân, thời gian chạy câu lệnh theo xung nhịp; định hướng Nông nghiệp: số cây, mật độ trồng, tỉ lệ sống, tỉ lệ, lượng
+// thức ăn, khối lượng, số liệu của bảng thí nghiệm tính bằng code; ý của câu đúng/sai 4 ý so với bảng ý → đúng/sai ghi trong script hoặc
 // tính bằng code. Mọi hình được đọc lại.
 // Rồi: chữ (số ngăn hàng nghìn bằng khoảng trắng, dấu phẩy thập phân; dấu thanh kiểu sách “hoá”, “thuỷ”; không “huyện”, “63 tỉnh”); kiểu
 // Đ/S không lặp trong một đề, mỗi kiểu nhiều nhất ba lần trong các đề thi thử; đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa chọn dài
@@ -32,7 +40,7 @@
 // trường chữ (cả lời dặn) với chữ OCR của mọi cuốn (không chuỗi 8 từ nào trùng; DO_SACH=1 in chuỗi 6 từ) và với câu của mọi kho khác, cả
 // giữa các đề thi thử (không chuỗi 8 từ nào trùng; DO_KHO=1 in chuỗi 6 từ). Các bộ tính, bộ đọc hình, bộ dò lộ tự thử với câu cố ý viết sai.
 // Chạy: node tests/congnghe12-tn.js → in MATH OK.
-"use strict";
+
 const assert = require("assert");
 const fs = require("fs");
 const path = require("path");
@@ -235,6 +243,28 @@ const traY = (q, bang) => { const r = q.o.map(() => undefined); Object.entries(b
 
 /* ---------- các mục kiểm tra của từng đề (RIENG; phiên thêm đề thì thêm một khoá mới) ----------
    has: đoạn chữ của đề bài; right(q): câu nhiều lựa chọn trả về lựa chọn đúng, câu đúng/sai 4 ý trả về mảng 4 ý. */
+// định hướng Nông nghiệp (Đề 4–5): bảng, quy tắc của sách in năm 2026 dùng ở RIENG
+const hoaDau = (s) => s[0].toUpperCase() + s.slice(1);
+const NONG_NGHIEP = {
+  // Bài 2: năm hoạt động lâm nghiệp cơ bản; việc làm trong đề → hoạt động (null: không phải hoạt động lâm nghiệp, là nguyên nhân suy thoái rừng)
+  VIEC_LN: { "giao rừng": "quản lí rừng", "trồng lại rừng": "phát triển rừng", "du lịch sinh thái": "sử dụng rừng", "phòng, trừ sâu hại": "bảo vệ rừng",
+    "đốt rừng làm nương rẫy": null, "phá rừng tự nhiên": null },
+  demViec: (q) => { const ds = [...q.q.matchAll(/\((\d+)\) ([^;]+?)(?=; \(|\. )/g)].map((m) => m[2]); assert.ok(ds.length >= 4, "đọc được các việc làm (1), (2)…");
+    return ds.filter((v) => { const k = Object.keys(NONG_NGHIEP.VIEC_LN).filter((t) => v.includes(t)); assert.equal(k.length, 1, "việc làm “" + v + "” khớp đúng một mục của VIEC_LN");
+      const hd = NONG_NGHIEP.VIEC_LN[k[0]]; if (hd) assert.ok(q.x.toLowerCase().includes(k[0] + " ") && q.x.includes(hd), "lời giải ghi “" + k[0] + "” thuộc " + hd); return hd; }).length; },
+  // Bài 5: tỉ lệ sống sau trồng 20–30 ngày dưới 85% thì trồng dặm, trên 85% chỉ dặm chỗ cây chết tập trung
+  trongDam: (tl) => { assert.ok(Math.abs(tl - 85) > 1e-9, "tỉ lệ sống khác đúng 85%"); return tl < 85 ? "phải trồng dặm đều khắp cả lô rừng" : "chỉ trồng bổ sung ở chỗ cây chết thành đám"; },
+  // Bài 5, Bảng 5.1: thời vụ trồng rừng
+  THOI_VU: { "miền Bắc": "Tháng 2 – tháng 7", "miền Trung": "Tháng 9 – tháng 12", "miền Nam": "Tháng 5 – tháng 11" },
+  // Bài 10, Bảng 10.2: khoảng độ mặn thích hợp (‰)
+  DO_MAN: { "cá rô phi": [0, 5], "cá trắm đen": [0, 3], "cá song": [20, 30], "tôm thẻ chân trắng": [10, 25] },
+  // Bài 12, Hình 12.2: bốn bước xử lí nước trước khi nuôi
+  XU_LI_NUOC: ["lắng lọc", "diệt tạp, khử khuẩn", "khử hoá chất", "bón phân gây màu"],
+  // Bài 14: tuổi thành thục sinh dục (tháng)
+  THANH_THUC: { "Tôm sú": 8, "Tôm thẻ chân trắng": 10 },
+  // Công nghệ 10, Bài 13: các bước nuôi cấy mô tế bào
+  NUOI_CAY_MO: ["chọn vật liệu (phần non, sạch bệnh của cây)", "khử trùng mẫu", "tạo chồi", "ra rễ, tạo cây hoàn chỉnh", "đưa cây ra vườn ươm"],
+};
 // tỉ lệ a : b của bản vẽ (Công nghệ 10, Bài 8): a < b thu nhỏ, a > b phóng to, a = b nguyên hình
 const loaiTiLe = (a, b) => (a < b ? "Tỉ lệ thu nhỏ" : a > b ? "Tỉ lệ phóng to" : "Tỉ lệ nguyên hình");
 const RIENG = {
@@ -391,6 +421,112 @@ const RIENG = {
       return traY(q, { "bộ nhớ RAM thực hiện": false, "tăng tần số xung nhịp": true, "Mỗi câu lệnh chạy trong": (o) => gan(so(o, "trong # µs")[0], t),
         "câu lệnh như vậy chạy xong": (o) => { const [n_, ms] = so(o, "gồm # câu lệnh như vậy chạy xong trong # ms"); return gan(n_ * t / 1000, ms); } }); } },
   ],
+  // Đề 4, Đề 5: định hướng Nông nghiệp (Phiên N12-tn-congnghe-b). Kiến thức theo Công nghệ 10 – Công nghệ trồng trọt, Công nghệ 11 – Công nghệ
+  // chăn nuôi, Công nghệ 12 – Lâm nghiệp – Thuỷ sản (sách in năm 2026); câu tính dùng các bảng, quy tắc ở NONG_NGHIEP.
+  "congnghe12-tn-de4": [
+    // nhóm cây theo nguồn gốc: á nhiệt đới cần một thời gian lạnh mới ra hoa (bơ, cherry; Công nghệ 10, Bài 2)
+    { has: "Bơ, cherry", right: (q) => laDung(q, "Cây á nhiệt đới") },
+    // phân ammonium nitrate, potassium nitrate, calcium nitrate gặp nóng có thể nổ (Công nghệ 10, Bài 8)
+    { has: "ammonium nitrate, potassium nitrate", right: (q) => chon(q, "nhiệt độ cao", "nổ") },
+    // sâu nhiễm virus NPV: xác mềm, treo ngược; nấm Beauveria: xác cứng (Công nghệ 10, Bài 18)
+    { has: "treo ngược trên cành lá", right: (q) => laDung(q, "Virus NPV") },
+    { has: "chăn nuôi công nghiệp có đặc điểm", right: (q) => chon(q, "tập trung", "khép kín") },
+    // giao phối hai giống, con lai chỉ nuôi lấy sản phẩm: lai kinh tế đơn giản (Công nghệ 11, Bài 5)
+    { has: "lợn đực Landrace", right: (q) => laDung(q, "Lai kinh tế") },
+    { has: "hái nấm", right: (q) => laDung(q, "Tính thời vụ cao") },
+    { has: "giai đoạn non", right: (q) => chon(q, "Lớn nhanh", "kém") },
+    { has: "tỉ lệ sản lượng nuôi trồng", right: (q) => chon(q, "nuôi trồng tăng dần", "khai thác giảm dần") },
+    { has: "nghêu, sò huyết", right: (q) => laDung(q, "Thân mềm") },
+    { has: "giống cá rô phi đã được chọn lọc", right: (q) => chon(q, "năng suất") },
+    { has: "tảo còn tươi", right: (q) => laDung(q, "Thức ăn tươi sống") },
+    { has: "nano UFB", right: (q) => chon(q, "Giảm oxygen", "hiếu khí") },
+    { has: "thuỷ canh tĩnh", right: (q) => chon(q, "thiếu oxygen") },
+    { has: "Newcastle", right: (q) => chon(q, "virus", "đặc hiệu") },
+    { has: "để trống chuồng ít nhất 7 ngày", right: (q) => chon(q, "khử trùng", "mầm bệnh") },
+    { has: "tỉa bỏ các cành già", right: (q) => chon(q, "quang hợp kém") },
+    { has: "khai thác trắng ở những khu rừng", right: (q) => chon(q, "xói mòn") },
+    { has: "xanh rêu đậm", right: (q) => chon(q, "Tảo lam") },
+    { has: "cá bột chưa cần ăn", right: (q) => chon(q, "noãn hoàng") },
+    { has: "ghi sổ nhật kí", right: (q) => chon(q, "nguồn gốc") },
+    // đếm việc làm thuộc năm hoạt động lâm nghiệp cơ bản (Bài 2): bảng VIEC_LN
+    { has: "Có bao nhiêu việc làm thuộc các hoạt động lâm nghiệp cơ bản", right: (q) => laDung(q, String(NONG_NGHIEP.demViec(q))) },
+    // tỉ lệ sống sau 20–30 ngày: dưới 85% trồng dặm cả lô, trên 85% chỉ dặm chỗ cây chết tập trung (Bài 5)
+    { has: "Kiểm tra sau khi trồng", right: (q) => { const [n_] = so(q.q, "được trồng # cây"), [s_] = so(q.q, "đếm được # cây sống"), [ngay] = so(q.q, "sau khi trồng # ngày");
+      assert.ok(ngay >= 20 && ngay <= 30, "kiểm tra tỉ lệ sống sau khi trồng 20–30 ngày"); const tl = s_ / n_ * 100; coX(q, "= " + vn(lam(tl, 1)) + "%");
+      return laDung(q, "Tỉ lệ sống đạt " + vn(lam(tl, 1)) + "%, " + NONG_NGHIEP.trongDam(tl)); } },
+    { has: "ba ba giống mới tập ăn", right: (q) => chon(q, "Xay nhuyễn") },
+    // số cá thả lồng = thể tích lồng × mật độ; cỡ 8–10 cm thả 30–40 con/m³ (Bài 19, Bảng 19.2)
+    { has: "lồng nuôi cá rô phi trên sông", right: (q) => { const [a, b, c] = so(q.q, "kích thước # m × # m × # m"), [md] = so(q.q, "mật độ # con/m³"), V = a * b * c;
+      assert.ok(md >= 30 && md <= 40 && q.q.includes("cỡ 8–10 cm"), "mật độ thả cá rô phi cỡ 8–10 cm là 30–40 con/m³"); coX(q, "= " + vn(V) + " (m³)");
+      return laDung(q, vn(V * md) + " con"); } },
+    // diện tích rừng trồng năm 2007, 2022 (Bài 6, Hình 6.2): tổng = sản xuất + phòng hộ + đặc dụng
+    { has: "Diện tích rừng trồng của nước ta năm 2007 và năm 2022", right: (q) => { const [T1, T2] = so(q.q, "tổng diện tích # và #"), [SX1, SX2] = so(q.q, "rừng sản xuất # và #"),
+      [PH1, PH2] = so(q.q, "rừng phòng hộ # và #"), [DD1, DD2] = so(q.q, "rừng đặc dụng # và #");
+      assert.ok(gan(T1, SX1 + PH1 + DD1, 1e-6) && gan(T2, SX2 + PH2 + DD2, 1e-6), "tổng diện tích bằng tổng ba loại rừng");
+      return traY(q, { "rừng trồng tăng thêm": (o) => { const [t] = so(o, "tăng thêm # triệu ha"); return gan(t, T2 - T1, 1e-6) && gan(SX2 - SX1, T2 - T1, 1e-6); },
+        "chiếm hơn một phần ba": PH2 + DD2 > T2 / 3, "gấp hơn ba lần": SX2 / SX1 > 3, "cần đẩy mạnh trồng rừng phòng hộ": PH2 + DD2 <= PH1 + DD1 + 1e-9 }); } },
+    // oxygen hoà tan, NH3 so với ngưỡng ghi trong đề (Bài 10, 11)
+    { has: "anh Tuấn thấy cá trong ao nổi đầu", right: (q) => { const [DO] = so(q.q, "oxygen hoà tan # mg/L"), [nh3] = so(q.q, "NH3 # mg/L"), [cMin] = so(q.q, "khoảng #–# mg/L"), [nMax] = so(q.q, "cho phép dưới # mg/L");
+      return traY(q, { "dấu hiệu nước ao thiếu oxygen": DO < cMin, "bật máy quạt nước": DO < cMin, "đã vượt mức cho phép": nh3 >= nMax, "đo định kì": true }); } },
+    // bệnh lồi mắt ở cá rô phi do Streptococcus agalactiae (vi khuẩn Gram dương), trị bằng chất diệt khuẩn trộn thức ăn 5–7 ngày (Bài 24)
+    { has: "lồng nuôi cá rô phi thả quá dày", right: (q) => traY(q, { "do virus gây ra": false, "Streptococcus agalactiae": true, "mùa nóng": true, "vitamin C": true }) },
+    { has: "giữ gìn nguồn lợi thuỷ sản", right: (q) => traY(q, { "xung điện": false, "lưới mắt nhỏ": false, "chừa lối đi cho cá di cư": true, "loài quý hiếm": true }) },
+  ],
+  "congnghe12-tn-de5": [
+    { has: "giá thể trơ cứng", right: (q) => laDung(q, "Perlite") },
+    // nuôi cấy mô tế bào: chọn vật liệu → khử trùng mẫu → tạo chồi → ra rễ, tạo cây hoàn chỉnh → ra vườn ươm (Công nghệ 10, Bài 13)
+    { has: "nuôi cấy mô tế bào", right: (q) => { const QT = NONG_NGHIEP.NUOI_CAY_MO; coX(q, QT.join(" → "));
+      q.o.forEach((o) => assert.ok(QT.slice(1).includes(o.toLowerCase()), "lựa chọn là một bước của quy trình: " + o));
+      return laDung(q, hoaDau(QT[QT.indexOf("chọn vật liệu (phần non, sạch bệnh của cây)") + 1])); } },
+    { has: "Kho silo", right: (q) => chon(q, "Hạt khô") },
+    { has: "thức ăn chăn nuôi nào sau đây giàu protein", right: (q) => chon(q, "Đậu tương", "bột cá") },
+    { has: "hầm biogas", right: (q) => laDung(q, "Lên men kị khí") },
+    { has: "nguyên nhân chủ yếu khiến rừng tự nhiên bị suy thoái", right: (q) => chon(q, "Khai thác gỗ") },
+    // thời vụ trồng rừng theo miền (Bài 5, Bảng 5.1)
+    { has: "thời vụ trồng rừng chính", right: (q) => { const r = Object.keys(NONG_NGHIEP.THOI_VU).find((m) => q.q.includes(m)); return motLuaChon(q, (o) => o.startsWith(NONG_NGHIEP.THOI_VU[r])); } },
+    // bốn bước xử lí nước trước khi nuôi (Bài 12, Hình 12.2)
+    { has: "Bốn bước cơ bản xử lí nước", right: (q) => { const B = NONG_NGHIEP.XU_LI_NUOC;
+      return motLuaChon(q, (o) => { const t = o.toLowerCase().split(" → "); assert.deepEqual([...t].sort(), [...B].sort(), "lựa chọn là một cách xếp bốn bước: " + o); return t.join("|") === B.join("|"); }); } },
+    { has: "kích dục tố", right: (q) => chon(q, "trứng, tinh trùng chín") },
+    { has: "thuỷ phân bằng enzyme", right: (q) => chon(q, "lysine") },
+    // bệnh lây từ thuỷ sản sang người: sán lá gan, sán lá ruột nhỏ qua cá; sán lá phổi qua cua (Bài 23)
+    { has: "Ăn cua chưa nấu chín", right: (q) => laDung(q, "Sán lá phổi") },
+    { has: "Nghề lưới rê", right: (q) => chon(q, "chặn ngang") },
+    { has: "thu gom rơm rạ", right: (q) => chon(q, "phân hữu cơ") },
+    { has: "cấy truyền phôi", right: (q) => chon(q, "mang thai thay") },
+    { has: "tụ huyết trùng lợn", right: (q) => chon(q, "Vi khuẩn có sẵn") },
+    { has: "Để sớm có thu nhập", right: (q) => chon(q, "Trồng xen") },
+    { has: "cây rừng ưa sáng", right: (q) => chon(q, "thành thục sớm") },
+    { has: "lấy giống tự nhiên theo con nước", right: (q) => chon(q, "Ít vốn") },
+    { has: "bể lọc sinh học", right: (q) => chon(q, "Vi khuẩn chuyển") },
+    { has: "kit chẩn đoán nhanh", right: (q) => chon(q, "15 phút") },
+    // tỉ lệ diện tích rừng bị chặt phá trong diện tích bị thiệt hại (Bài 6)
+    { has: "rừng nước ta bị thiệt hại", right: (q) => { const [T] = so(q.q, "thiệt hại khoảng # ha"), [C] = so(q.q, "khoảng # ha bị cháy"); coX(q, "= " + vn(T - C) + " (ha)");
+      return laDung(q, "Khoảng " + Math.round((T - C) / T * 100) + "%"); } },
+    { has: "rừng phòng hộ đầu nguồn trên sườn núi dốc", right: (q) => chon(q, "giữ cây non") },
+    // loài có khoảng độ mặn thích hợp chứa trọn khoảng độ mặn của vùng nuôi (Bài 10, Bảng 10.2)
+    { has: "Một vùng nuôi ven biển có độ mặn ổn định", right: (q) => { const [lo, hi] = so(q.q, "khoảng #–#‰");
+      const loai = [...q.q.matchAll(new RegExp("(cá rô phi|cá trắm đen|cá song|tôm thẻ chân trắng) (" + NUM + ")–(" + NUM + ")‰", "gu"))].map((m) => [m[1], val(m[2]), val(m[3])]);
+      assert.equal(loai.length, 4, "bốn loài có khoảng độ mặn"); loai.forEach(([t, a, b]) => assert.ok(gan(a, NONG_NGHIEP.DO_MAN[t][0]) && gan(b, NONG_NGHIEP.DO_MAN[t][1]), "khoảng độ mặn của " + t + " như Bảng 10.2"));
+      const hop = loai.filter(([, a, b]) => a <= lo && hi <= b); assert.equal(hop.length, 1, "đúng một loài hợp độ mặn của vùng nuôi"); return laDung(q, hoaDau(hop[0][0])); } },
+    // sản lượng = diện tích × mật độ × tỉ lệ sống : cỡ thu (con/kg); giai đoạn 3 thả 100–150 con/m², thu 30–50 con/kg (Bài 19)
+    { has: "ao nuôi tôm thẻ chân trắng giai đoạn 3", right: (q) => { const [S] = so(q.q, "rộng # m²"), [md] = so(q.q, "mật độ # con/m²"), [tl] = so(q.q, "Lúc thu hoạch, #% số tôm"), [co] = so(q.q, "cỡ # con/kg");
+      assert.ok(md >= 100 && md <= 150 && co >= 30 && co <= 50, "mật độ, cỡ thu của tôm thẻ chân trắng giai đoạn 3 như sách"); const kg = S * md * tl / 100 / co;
+      coX(q, "= " + vn(S * md) + " (con)"); coX(q, "= " + vn(kg) + " (kg)"); return laDung(q, vn(kg) + " kg"); } },
+    { has: "trồng rừng phi lao trên bãi cát", right: (q) => traY(q, { "chắn gió, ngăn cát bay": true, "giảm sức sóng": true, "trồng dặm để cây có tỉ lệ sống cao": true, "đều là rừng sản xuất": false }) },
+    // tuổi thành thục: tôm sú khoảng 8 tháng, tôm thẻ chân trắng khoảng 10 tháng; tôm càng xanh ôm trứng ở chân bụng (Bài 14)
+    { has: "sinh sản của tôm nuôi", right: (q) => traY(q, { "ôm trứng ở các đôi chân bụng": false, "túi chứa tinh": true,
+      "thành thục sinh dục vào khoảng": (o) => so(o, "khoảng # tháng tuổi")[0] === NONG_NGHIEP.THANH_THUC[o.split(" đạt")[0]], "Nauplius, Zoea, Mysis": true }) },
+    // thí nghiệm thức ăn: khối lượng tăng thêm, lượng thức ăn cho mỗi kg tăng thêm của ba bể (số liệu giả định)
+    { has: "ba bể giống nhau", right: (q) => { const P = so(q.q, "bể A #%, bể B #%, bể C #%"), [w0] = so(q.q, "nặng trung bình # g/con"), W = so(q.q, "bể A # g/con, bể B # g/con, bể C # g/con"),
+      F = so(q.q, "bể A # kg, bể B # kg, bể C # kg"), B_ = ["A", "B", "C"], tang = W.map((w) => w - w0), be = (o) => B_.indexOf(/bể ([ABC])/.exec(o)[1]);
+      const lon = (v) => v.indexOf(Math.max(...v)), nho = (v) => v.indexOf(Math.min(...v)), thu = B_.map((_, k) => k).sort((a, b) => P[a] - P[b]);
+      return traY(q, { "tăng khối lượng nhiều nhất": (o) => be(o) === lon(tang),
+        "làm khối lượng tăng thêm của cá tăng hơn": (o) => { const [p1, p2, pt] = so(o, "từ #% lên #% làm khối lượng tăng thêm của cá tăng hơn #%"); return tang[P.indexOf(p2)] / tang[P.indexOf(p1)] - 1 > pt / 100; },
+        "càng nhiều protein": thu.every((k, i) => i === 0 || F[k] < F[thu[i - 1]]), "dùng thức ăn hiệu quả nhất": (o) => be(o) === nho(F) }); } },
+    // bệnh gan thận mủ ở cá tra do Edwardsiella ictaluri (vi khuẩn Gram âm); thuốc khử trùng tốn oxygen, không dùng ngày âm u (Bài 24)
+    { has: "ao nuôi cá tra khoảng 4 tháng tuổi", right: (q) => traY(q, { "do virus": false, "ngày âm u": false, "Edwardsiella ictaluri": true, "allicin": true }) },
+  ],
 };
 
 /* ---------- đề và danh mục: số đề, số câu lấy từ danh mục ---------- */
@@ -398,6 +534,11 @@ const soDe = (id) => +/de(\d+)$/.exec(id)[1];
 const DE = BANKS.filter((b) => /^congnghe12-tn-de\d+$/.test(b.id)).sort((a, b) => soDe(a.id) - soDe(b.id));
 assert.ok(DE.length >= 1, "chưa có đề Công nghệ thi thử tốt nghiệp nào trong danh mục");
 DE.forEach((b, i) => assert.equal(b.id, "congnghe12-tn-de" + (i + 1), "mã đề phải liên tiếp từ congnghe12-tn-de1"));
+// định hướng của từng đề: Đề 1–3 Công nghiệp (Phiên N12-tn-congnghe), Đề 4–5 Nông nghiệp (Phiên N12-tn-congnghe-b); phiên thêm đề thì ghi thêm
+const DINH_HUONG = { 1: "Công nghiệp", 2: "Công nghiệp", 3: "Công nghiệp", 4: "Nông nghiệp", 5: "Nông nghiệp" };
+const KHAC = { "Công nghiệp": "Nông nghiệp", "Nông nghiệp": "Công nghiệp" };
+DE.forEach((b) => assert.ok(DINH_HUONG[soDe(b.id)], b.id + ": chưa ghi định hướng của đề ở DINH_HUONG"));
+const dhDe = (b) => DINH_HUONG[soDe(b.id)], deDH = (dh) => DE.filter((b) => dhDe(b) === dh);
 const TN = EVENTS.find((e) => e.id === "tn-thpt-2027");
 const P1 = "Phần I. Trắc nghiệm nhiều lựa chọn", P2 = "Phần II. Trắc nghiệm đúng sai";
 const KHUNG = [[P1, "mc", 24, 0.25], [P2, "tf4", 4, 1]];
@@ -428,15 +569,77 @@ const BAI_12 = [["Giới thiệu tổng quan về kĩ thuật điện", 1], ["Ng
   ["Diode, transistor và mạch tích hợp IC", 16], ["Giới thiệu về điện tử tương tự", 18], ["Khuếch đại thuật toán", 19], ["Tín hiệu số và các cổng logic cơ bản", 21],
   ["Một số mạch xử lí tín hiệu trong điện tử số", 22], ["Khái quát về vi điều khiển", 24], ["Bo mạch lập trình vi điều khiển", 25]];
 const THUC_HANH_12 = [17, 20, 23, 26];
-// chủ đề Công nghệ 12: đúng chữ chủ đề của ba kho Công nghệ 12 (tên bài của sách)
+// Định hướng Nông nghiệp (Phiên N12-tn-congnghe-b): tên chương của Công nghệ 10 – Công nghệ trồng trọt, Công nghệ 11 – Công nghệ chăn nuôi;
+// tên bài của ba cuốn (mục lục ở README của từng cuốn trong OnUp-Book; so ở bước sách). Bài 6, 10, 14, 28 của Công nghệ 10, Bài 10 của Công
+// nghệ 11 là bài thực hành, Bài 22 của Công nghệ 10 là bài dự án.
+const CHUONG_10N = ["Giới thiệu chung về trồng trọt", "Đất trồng", "Phân bón", "Công nghệ giống cây trồng", "Phòng trừ sâu, bệnh hại cây trồng",
+  "Kĩ thuật trồng trọt", "Trồng trọt công nghệ cao", "Bảo vệ môi trường trong trồng trọt"];
+const CHUONG_11N = ["Giới thiệu chung về chăn nuôi", "Công nghệ giống vật nuôi", "Công nghệ thức ăn chăn nuôi", "Phòng, trị bệnh cho vật nuôi",
+  "Công nghệ chăn nuôi", "Bảo vệ môi trường trong chăn nuôi"];
+const BAI_10N = ["Giới thiệu về trồng trọt", "Cây trồng và các yếu tố chính trong trồng trọt", "Giới thiệu về đất trồng", "Sử dụng, cải tạo và bảo vệ đất trồng",
+  "Giá thể trồng cây", "Thực hành: Xác định độ chua và độ mặn của đất", "Giới thiệu về phân bón", "Sử dụng và bảo quản phân bón",
+  "Ứng dụng công nghệ vi sinh trong sản xuất phân bón", "Thực hành: Nhận biết một số loại phân bón hoá học", "Khái niệm và vai trò của giống cây trồng",
+  "Một số phương pháp chọn, tạo giống cây trồng", "Nhân giống cây trồng", "Thực hành: Nhân giống cây ăn quả bằng phương pháp ghép",
+  "Sâu, bệnh hại cây trồng và ý nghĩa của việc phòng trừ", "Một số sâu hại cây trồng thường gặp và biện pháp phòng trừ",
+  "Một số bệnh hại cây trồng thường gặp và biện pháp phòng trừ", "Ứng dụng công nghệ vi sinh trong phòng trừ sâu, bệnh hại cây trồng",
+  "Quy trình trồng trọt và cơ giới hoá trong trồng trọt", "Công nghệ cao trong thu hoạch và bảo quản sản phẩm trồng trọt", "Chế biến sản phẩm trồng trọt",
+  "Dự án trồng hoa trong chậu", "Giới thiệu về trồng trọt công nghệ cao", "Một số công nghệ cao trong trồng trọt", "Công nghệ trồng cây không dùng đất",
+  "Sự cần thiết phải bảo vệ môi trường trong trồng trọt", "Ứng dụng công nghệ vi sinh trong bảo vệ môi trường và xử lí chất thải trồng trọt",
+  "Thực hành: Sử dụng rơm, rạ để trồng nấm rơm"];
+const BAI_11N = ["Vai trò và triển vọng của chăn nuôi", "Vật nuôi và phương thức chăn nuôi", "Khái niệm, vai trò của giống trong chăn nuôi", "Chọn giống vật nuôi",
+  "Nhân giống vật nuôi", "Ứng dụng công nghệ sinh học trong chọn và nhân giống vật nuôi", "Thức ăn và nhu cầu dinh dưỡng của vật nuôi",
+  "Sản xuất và chế biến thức ăn chăn nuôi", "Bảo quản thức ăn chăn nuôi", "Thực hành: Chế biến, bảo quản thức ăn cho vật nuôi",
+  "Vai trò của phòng, trị bệnh trong chăn nuôi", "Một số bệnh phổ biến ở lợn và biện pháp phòng, trị", "Một số bệnh phổ biến ở gia cầm và biện pháp phòng, trị",
+  "Một số bệnh phổ biến ở trâu, bò và biện pháp phòng, trị", "Ứng dụng công nghệ sinh học trong phòng, trị bệnh cho vật nuôi",
+  "Chuồng nuôi và biện pháp vệ sinh trong chăn nuôi", "Nuôi dưỡng và chăm sóc vật nuôi", "Chăn nuôi theo tiêu chuẩn VietGAP", "Chăn nuôi công nghệ cao",
+  "Bảo quản và chế biến sản phẩm chăn nuôi", "Sự cần thiết phải bảo vệ môi trường trong chăn nuôi", "Xử lí chất thải chăn nuôi"];
+// Công nghệ 12 – Lâm nghiệp – Thuỷ sản: [tên bài theo mục lục, tên bài trong chữ chủ đề, số bài]; Bài 1–7 phần Lâm nghiệp, Bài 8–27 phần Thuỷ
+// sản; sách không có bài thực hành. App chưa có kho Lâm nghiệp – Thuỷ sản, nên chủ đề là “Lâm nghiệp – Thuỷ sản · <tên bài>”; tên bài dài rút
+// gọn để mã đề “Ôn chủ đề” (chu-de:12:congnghe:<chủ đề>) không quá 80 kí tự.
+const LNTS = "Lâm nghiệp – Thuỷ sản · ";
+const BAI_12N = [["Vai trò và triển vọng của lâm nghiệp", "Vai trò và triển vọng của lâm nghiệp", 1],
+  ["Các hoạt động lâm nghiệp cơ bản và nguyên nhân chủ yếu làm suy thoái tài nguyên rừng", "Hoạt động lâm nghiệp, suy thoái rừng", 2],
+  ["Vai trò, nhiệm vụ của trồng và chăm sóc rừng", "Vai trò, nhiệm vụ của trồng rừng", 3],
+  ["Quy luật sinh trưởng và phát triển của cây rừng", "Sinh trưởng, phát triển của cây rừng", 4],
+  ["Kĩ thuật trồng và chăm sóc rừng", "Kĩ thuật trồng và chăm sóc rừng", 5],
+  ["Ý nghĩa, nhiệm vụ, thực trạng của việc bảo vệ và khai thác rừng", "Thực trạng bảo vệ và khai thác rừng", 6],
+  ["Biện pháp bảo vệ và khai thác tài nguyên rừng", "Biện pháp bảo vệ, khai thác rừng", 7],
+  ["Vai trò và triển vọng của thuỷ sản", "Vai trò và triển vọng của thuỷ sản", 8],
+  ["Các nhóm thuỷ sản và một số phương thức nuôi phổ biến", "Các nhóm thuỷ sản, phương thức nuôi", 9],
+  ["Giới thiệu về môi trường nuôi thuỷ sản", "Giới thiệu môi trường nuôi thuỷ sản", 10],
+  ["Quản lí môi trường nuôi thuỷ sản", "Quản lí môi trường nuôi thuỷ sản", 11],
+  ["Biện pháp xử lí môi trường nuôi thuỷ sản", "Xử lí môi trường nuôi thuỷ sản", 12],
+  ["Vai trò của giống thuỷ sản", "Vai trò của giống thuỷ sản", 13],
+  ["Sinh sản của cá và tôm", "Sinh sản của cá và tôm", 14],
+  ["Ứng dụng công nghệ sinh học trong chọn và nhân giống thuỷ sản", "Giống thuỷ sản: công nghệ sinh học", 15],
+  ["Thức ăn thuỷ sản", "Thức ăn thuỷ sản", 16],
+  ["Phương pháp bảo quản và chế biến thức ăn thuỷ sản", "Bảo quản, chế biến thức ăn thuỷ sản", 17],
+  ["Ứng dụng công nghệ sinh học trong bảo quản, chế biến thức ăn thuỷ sản", "Thức ăn thuỷ sản: công nghệ sinh học", 18],
+  ["Công nghệ nuôi một số loài thuỷ sản phổ biến ở Việt Nam", "Công nghệ nuôi một số loài thuỷ sản", 19],
+  ["Nuôi thuỷ sản theo tiêu chuẩn VietGAP", "Nuôi thuỷ sản theo tiêu chuẩn VietGAP", 20],
+  ["Một số ứng dụng công nghệ cao trong nuôi thuỷ sản", "Công nghệ cao trong nuôi thuỷ sản", 21],
+  ["Bảo quản và chế biến sản phẩm thuỷ sản", "Bảo quản, chế biến sản phẩm thuỷ sản", 22],
+  ["Vai trò của phòng, trị bệnh thuỷ sản", "Vai trò của phòng, trị bệnh thuỷ sản", 23],
+  ["Một số bệnh thuỷ sản phổ biến và biện pháp phòng, trị", "Một số bệnh thuỷ sản phổ biến", 24],
+  ["Ứng dụng công nghệ sinh học trong phòng, trị bệnh thuỷ sản", "Bệnh thuỷ sản: công nghệ sinh học", 25],
+  ["Bảo vệ nguồn lợi thuỷ sản", "Bảo vệ nguồn lợi thuỷ sản", 26],
+  ["Khai thác nguồn lợi thuỷ sản", "Khai thác nguồn lợi thuỷ sản", 27]];
+const CD_N = new Map(BAI_12N.map(([, t, so_]) => [LNTS + t, so_]));
+assert.equal(new Set(CD_N.keys()).size, 27, "27 chủ đề Lâm nghiệp – Thuỷ sản khác nhau");
+// chủ đề Công nghệ 12 (định hướng Công nghiệp): đúng chữ chủ đề của ba kho Công nghệ 12 (tên bài của sách)
 const KHO = BANKS.filter((b) => b.file === "12-congnghe.js" && b.pool), CD_KHO = new Set(KHO.flatMap((b) => Object.keys(b.pool.matrix)));
 assert.deepEqual([...CD_KHO].sort(), BAI_12.map((b) => b[0]).sort(), "chủ đề của ba kho Công nghệ 12 là mọi bài (trừ bài thực hành) của sách");
 const soBai = (t) => (BAI_12.find((b) => b[0] === t) || [])[1];
-// nhóm của câu: "10", "11", "điện" (Bài 1–12), "điện tử" (Bài 13–25)
-const NHOM = ["10", "11", "điện", "điện tử"];
-const nhom = (t) => (/^Lớp 10 · /.test(t) && CHUONG_10.includes(t.slice(9)) ? "10" : /^Lớp 11 · /.test(t) && CHUONG_11.includes(t.slice(9)) ? "11" :
-  CD_KHO.has(t) ? (soBai(t) <= 12 ? "điện" : "điện tử") : null);
-const thuTuCD = (t) => (nhom(t) === "10" ? CHUONG_10.indexOf(t.slice(9)) : nhom(t) === "11" ? CHUONG_11.indexOf(t.slice(9)) : soBai(t));
+// nhóm của câu: "10", "11" (chương của sách lớp 10, 11 của định hướng), "điện" (Bài 1–12), "điện tử" (Bài 13–25) của Công nghệ 12 – Công nghệ
+// điện – điện tử, "lâm nghiệp" (Bài 1–7), "thuỷ sản" (Bài 8–27) của Công nghệ 12 – Lâm nghiệp – Thuỷ sản; dhCD: định hướng của chủ đề
+const NHOM = { "Công nghiệp": ["10", "11", "điện", "điện tử"], "Nông nghiệp": ["10", "11", "lâm nghiệp", "thuỷ sản"] };
+const CHUONG = { "Công nghiệp": { 10: CHUONG_10, 11: CHUONG_11 }, "Nông nghiệp": { 10: CHUONG_10N, 11: CHUONG_11N } };
+const dhCD = (t) => { const m = /^Lớp (10|11) · (.+)$/.exec(t);
+  if (m) return Object.keys(CHUONG).find((dh) => CHUONG[dh][m[1]].includes(m[2])) || null;
+  return CD_KHO.has(t) ? "Công nghiệp" : CD_N.has(t) ? "Nông nghiệp" : null; };
+const nhom = (t) => { const dh = dhCD(t); if (!dh) return null; const m = /^Lớp (10|11) · /.exec(t); if (m) return m[1];
+  return dh === "Công nghiệp" ? (soBai(t) <= 12 ? "điện" : "điện tử") : (CD_N.get(t) <= 7 ? "lâm nghiệp" : "thuỷ sản"); };
+const thuTuCD = (t) => { const g = nhom(t); return g === "10" || g === "11" ? CHUONG[dhCD(t)][g].indexOf(t.slice(9)) : CD_KHO.has(t) ? soBai(t) : CD_N.get(t); };
 DE.flatMap((b) => b.questions).forEach((q) => assert.ok(("chu-de:12:congnghe:" + q.topic).length <= 80, "mã đề “Ôn chủ đề” quá 80 kí tự: " + q.topic));
 
 /* ---------- chạy kiểm tra từng câu ---------- */
@@ -472,10 +675,18 @@ const chu = (q) => [q.q, q.x].concat(q.o || []).map(String);
 
 /* ---------- khung đề (Quyết định 764/QĐ-BGDĐT; ma trận đề tham khảo năm 2025): danh mục, phần, điểm, mức độ, phạm vi, lời dặn ---------- */
 const KIEU = {};
-// số câu mỗi mức (Biết, Hiểu, Vận dụng) của từng nhóm ở Phần I
-const MUC_NHOM = { "10": [2, 1, 1], "11": [2, 1, 1], "điện": [4, 3, 1], "điện tử": [4, 3, 1] };
+// số câu mỗi mức (Biết, Hiểu, Vận dụng) của từng nhóm ở Phần I. Định hướng Nông nghiệp: như đề tham khảo môn Công nghệ – nông nghiệp năm 2025
+// của Bộ (đọc cả đề: câu 1–12 Biết, 13–20 Hiểu, 21–24 Vận dụng; 4 câu trồng trọt, 4 câu chăn nuôi, 6 câu lâm nghiệp, 10 câu thuỷ sản; Phần II
+// 1 câu lâm nghiệp, 3 câu thuỷ sản; câu Vận dụng đều thuộc Công nghệ 12)
+const MUC_NHOM = { "Công nghiệp": { "10": [2, 1, 1], "11": [2, 1, 1], "điện": [4, 3, 1], "điện tử": [4, 3, 1] },
+  "Nông nghiệp": { "10": [3, 1, 0], "11": [2, 2, 0], "lâm nghiệp": [2, 2, 2], "thuỷ sản": [5, 3, 2] } };
+// nhóm của bốn câu Phần II
+const P2_NHOM = { "Công nghiệp": ["điện", "điện", "điện tử", "điện tử"], "Nông nghiệp": ["lâm nghiệp", "thuỷ sản", "thuỷ sản", "thuỷ sản"] };
+const TEN_PHAN = { "điện": "phần Công nghệ điện", "điện tử": "phần Công nghệ điện tử", "lâm nghiệp": "phần Lâm nghiệp", "thuỷ sản": "phần Thuỷ sản" };
+const SACH_DH = { "Công nghiệp": "Công nghệ 10 – Thiết kế và công nghệ, Công nghệ 11 – Công nghệ cơ khí, Công nghệ 12 – Công nghệ điện – điện tử",
+  "Nông nghiệp": "Công nghệ 10 – Công nghệ trồng trọt, Công nghệ 11 – Công nghệ chăn nuôi, Công nghệ 12 – Lâm nghiệp – Thuỷ sản" };
 DE.forEach((b) => {
-  const at = b.id, qs = b.questions, so_ = soDe(b.id);
+  const at = b.id, qs = b.questions, so_ = soDe(b.id), dh = dhDe(b), [, , g3, g4] = NHOM[dh];
   assert.deepEqual([b.title, b.grade, b.subject, b.minutes, b.pts, b.file, !!b.pool, b.auto], ["Công nghệ 12 · Thi thử tốt nghiệp · Đề " + so_, 12, "Công nghệ", 50, 10, "12-congnghe.js", false, undefined], at + ": danh mục");
   assert.ok(TN && TN.banks.includes(b.id) && TN.grades.includes(12) && TN.subjects.includes("Công nghệ"), at + ": phải gắn vào tn-thpt-2027");
   let k = 0;
@@ -485,29 +696,32 @@ DE.forEach((b) => {
   const G = Quiz.grade(qs, qs.map(() => null));
   assert.ok(G.max === 10 && G.got === 0, at + ": Quiz.grade: tối đa 10 điểm");
   assert.deepEqual(G.parts.map((p) => [p.part, p.max]), [[P1, 6], [P2, 4]], at + ": điểm tối đa từng phần 6 – 4");
-  qs.forEach((q, i) => assert.ok(nhom(q.topic), at + "#" + (i + 1) + ": chủ đề lạ “" + q.topic + "”"));
+  qs.forEach((q, i) => assert.ok(nhom(q.topic) && dhCD(q.topic) === dh, at + "#" + (i + 1) + ": chủ đề lạ hay không thuộc định hướng " + dh + " của đề: “" + q.topic + "”"));
   const p1 = qs.slice(0, 24), p2 = qs.slice(24);
   const muc = (ds, g) => [1, 2, 3].map((v) => ds.filter((q) => q.lv === v && (!g || nhom(q.topic) === g)).length);
   assert.deepEqual(p1.map((q) => q.lv), [...Array(12).fill(1), ...Array(8).fill(2), ...Array(4).fill(3)], at + ": Phần I câu 1–12 Biết, 13–20 Hiểu, 21–24 Vận dụng");
-  NHOM.forEach((g) => assert.deepEqual(muc(p1, g), MUC_NHOM[g], at + ": số câu mỗi mức của nhóm " + g + " ở Phần I"));
-  // Phần II: câu 1, 2 phần Công nghệ điện, câu 3, 4 phần Công nghệ điện tử, mỗi phần theo thứ tự bài; mức 1, 2, 3, 3
-  assert.deepEqual(p2.map((q) => nhom(q.topic)), ["điện", "điện", "điện tử", "điện tử"], at + ": Phần II hai câu phần Công nghệ điện rồi hai câu phần Công nghệ điện tử");
-  assert.ok(soBai(p2[0].topic) < soBai(p2[1].topic) && soBai(p2[2].topic) < soBai(p2[3].topic), at + ": Phần II theo thứ tự bài");
+  NHOM[dh].forEach((g) => assert.deepEqual(muc(p1, g), MUC_NHOM[dh][g], at + ": số câu mỗi mức của nhóm " + g + " ở Phần I"));
+  // Phần II: Công nghiệp câu 1, 2 phần Công nghệ điện, câu 3, 4 phần Công nghệ điện tử; Nông nghiệp câu 1 phần Lâm nghiệp, câu 2–4 phần Thuỷ
+  // sản; mỗi phần theo thứ tự bài; mức 1, 2, 3, 3
+  assert.deepEqual(p2.map((q) => nhom(q.topic)), P2_NHOM[dh], at + ": nhóm của các câu Phần II: " + P2_NHOM[dh].join(", "));
+  [g3, g4].forEach((g) => p2.filter((q) => nhom(q.topic) === g).map((q) => thuTuCD(q.topic)).forEach((x, i, v) => i && assert.ok(x > v[i - 1], at + ": Phần II theo thứ tự bài")));
   assert.deepEqual(p2.map((q) => q.lv).sort(), [1, 2, 3, 3], at + ": Phần II bốn câu ghi mức 1, 2, 3, 3");
   // mỗi bài Công nghệ 12, mỗi chương lớp 10, 11 nhiều nhất hai câu
   [...new Set(qs.map((q) => q.topic))].forEach((t) => assert.ok(qs.filter((q) => q.topic === t).length <= 2, at + ": chủ đề “" + t + "” quá hai câu"));
   // thứ tự Phần I: theo mức, trong mỗi mức lớp 10, lớp 11, phần điện, phần điện tử, rồi chương, bài
-  const kh = (q) => q.lv * 10000 + NHOM.indexOf(nhom(q.topic)) * 100 + thuTuCD(q.topic);
+  const kh = (q) => q.lv * 10000 + NHOM[dh].indexOf(nhom(q.topic)) * 100 + thuTuCD(q.topic);
   p1.map(kh).forEach((x, i, v) => i && assert.ok(x >= v[i - 1], at + ": thứ tự câu trong Phần I (câu " + (i + 1) + ")"));
-  // lời dặn: định hướng, số câu mỗi lớp, mỗi phần tính từ dữ liệu
+  // lời dặn: định hướng của đề, đề của định hướng kia, số câu mỗi lớp, mỗi phần tính từ dữ liệu
   const c = (ds, g) => ds.filter((q) => nhom(q.topic) === g).length;
   ["Quyết định 764/QĐ-BGDĐT", "thí điểm thi trên máy tính", "Môn Công nghệ có hai đề thi riêng: đề định hướng Công nghiệp và đề định hướng Nông nghiệp",
-    "Đây là đề định hướng Công nghiệp (Công nghệ 10 – Thiết kế và công nghệ, Công nghệ 11 – Công nghệ cơ khí, Công nghệ 12 – Công nghệ điện – điện tử)",
-    "học định hướng Nông nghiệp (Công nghệ 12 – Lâm nghiệp – Thuỷ sản) thì không làm đề này",
-    `ở đề này Phần I có ${c(p1, "10")} câu Công nghệ 10, ${c(p1, "11")} câu Công nghệ 11 và ${c(p1, "điện") + c(p1, "điện tử")} câu Công nghệ 12 (${c(p1, "điện")} câu phần Công nghệ điện, ${c(p1, "điện tử")} câu phần Công nghệ điện tử)`,
-    `${p2.length} câu của Phần II đều thuộc Công nghệ 12 (${c(p2, "điện")} câu phần Công nghệ điện, ${c(p2, "điện tử")} câu phần Công nghệ điện tử)`,
+    `Đây là đề định hướng ${dh} (${SACH_DH[dh]}); học định hướng ${KHAC[dh]} thì làm Đề `,
+    `ở đề này Phần I có ${c(p1, "10")} câu Công nghệ 10, ${c(p1, "11")} câu Công nghệ 11 và ${c(p1, g3) + c(p1, g4)} câu Công nghệ 12 (${c(p1, g3)} câu ${TEN_PHAN[g3]}, ${c(p1, g4)} câu ${TEN_PHAN[g4]})`,
+    `${p2.length} câu của Phần II đều thuộc Công nghệ 12 (${c(p2, g3)} câu ${TEN_PHAN[g3]}, ${c(p2, g4)} câu ${TEN_PHAN[g4]})`,
     `Đề có ${qs.length} câu, làm trong ${b.minutes} phút`, "Phần I gồm 24 câu nhiều lựa chọn (6 điểm, mỗi câu 0,25 điểm)", "Phần II gồm 4 câu đúng/sai, mỗi câu 4 ý (4 điểm)",
     "đề Công nghệ không có Phần III", "Đề không có câu tự chấm"].forEach((s) => assert.ok(b.note.includes(s), at + ": lời dặn thiếu “" + s + "”"));
+  // đề của định hướng kia: “thì làm Đề 4 hoặc Đề 5”, “thì làm Đề 1, Đề 2 hoặc Đề 3”: mọi đề của định hướng kia có trong danh mục
+  const chi = [...b.note.matchAll(/(?:thì làm|hoặc|,) Đề (\d+)/g)].map((m) => +m[1]);
+  assert.deepEqual(chi.sort((x, y) => x - y), DE.map((d) => soDe(d.id)).filter((x) => DINH_HUONG[x] === KHAC[dh]), at + ": lời dặn chỉ sang mọi đề của định hướng " + KHAC[dh]);
   // đúng/sai 4 ý: trong một đề không lặp kiểu Đ/S
   const kieu = qs.filter((q) => q.type === "tf4").map((q) => q.a.map((a) => (a ? "Đ" : "S")).join(""));
   assert.equal(new Set(kieu).size, kieu.length, at + ": kiểu Đ/S của các câu đúng/sai 4 ý lặp: " + kieu.join(", "));
@@ -520,11 +734,19 @@ DE.forEach((b) => {
 });
 assert.ok(Object.values(KIEU).every((c) => c <= 3), "một kiểu Đ/S dùng quá ba lần trong các đề thi thử: " + JSON.stringify(KIEU));
 // Đề 1–3 (Phiên N12-tn-congnghe): phủ đủ 3 chương Công nghệ 10, 7 chương Công nghệ 11 và mọi bài của ba kho Công nghệ 12
-if (DE.length >= 3) {
-  const ba = DE.slice(0, 3).flatMap((b) => b.questions);
+if (deDH("Công nghiệp").length >= 3) {
+  const ba = deDH("Công nghiệp").slice(0, 3).flatMap((b) => b.questions);
   assert.deepEqual([...new Set(ba.filter((q) => nhom(q.topic) === "10").map((q) => q.topic.slice(9)))].sort(), [...CHUONG_10].sort(), "Đề 1–3 phủ đủ 3 chương Công nghệ 10");
   assert.deepEqual([...new Set(ba.filter((q) => nhom(q.topic) === "11").map((q) => q.topic.slice(9)))].sort(), [...CHUONG_11].sort(), "Đề 1–3 phủ đủ 7 chương Công nghệ 11");
   assert.deepEqual([...CD_KHO].filter((t) => !ba.some((q) => q.topic === t)), [], "Đề 1–3 phủ đủ các bài Công nghệ 12 của ba kho");
+}
+// Đề 4–5 (Phiên N12-tn-congnghe-b): phủ đủ 8 chương Công nghệ 10 – Công nghệ trồng trọt, 6 chương Công nghệ 11 – Công nghệ chăn nuôi và 27 bài
+// của Công nghệ 12 – Lâm nghiệp – Thuỷ sản
+if (deDH("Nông nghiệp").length >= 2) {
+  const hai = deDH("Nông nghiệp").slice(0, 2).flatMap((b) => b.questions);
+  assert.deepEqual([...new Set(hai.filter((q) => nhom(q.topic) === "10").map((q) => q.topic.slice(9)))].sort(), [...CHUONG_10N].sort(), "Đề 4–5 phủ đủ 8 chương Công nghệ 10 – Công nghệ trồng trọt");
+  assert.deepEqual([...new Set(hai.filter((q) => nhom(q.topic) === "11").map((q) => q.topic.slice(9)))].sort(), [...CHUONG_11N].sort(), "Đề 4–5 phủ đủ 6 chương Công nghệ 11 – Công nghệ chăn nuôi");
+  assert.deepEqual([...CD_N.keys()].filter((t) => !hai.some((q) => q.topic === t)), [], "Đề 4–5 phủ đủ 27 bài của Công nghệ 12 – Lâm nghiệp – Thuỷ sản");
 }
 // câu nhiều lựa chọn: đáp án đúng không là lựa chọn duy nhất có chữ của nhãn chủ đề; ba lựa chọn sai không cùng mở đầu bằng một chữ mà đáp án đúng không có
 {
@@ -565,6 +787,7 @@ const TNQ = DE.flatMap((b) => b.questions.map((q) => Object.assign(q, { _de: b.i
 const GOP = ["Michael Faraday", "John Ambrose Fleming", "George Boole", "Arduino Uno", "Việt Nam", "Bắc – Nam"];
 // cụm từ chung của môn: tên sách, tên chương, tên bài, thuật ngữ, cách nói chung của đề (thay bằng dấu ngăn trước khi so)
 const TU_CHUNG = [...CHUONG_10, ...CHUONG_11, ...BAI_10, ...BAI_11, ...BAI_12.map((b) => b[0]),
+  ...CHUONG_10N, ...CHUONG_11N, ...BAI_10N, ...BAI_11N, ...BAI_12N.flatMap((b) => [b[0], b[1]]),
   "mỗi ý sau đúng hay sai", "nào sau đây", "nào dưới đây", "trong hình",
   "đề thi thử theo cấu trúc đề thi tốt nghiệp thpt từ năm 2025", "năm 2027 thí điểm thi trên máy tính ở nơi đủ điều kiện, đề như thi giấy",
   "phần i gồm 24 câu nhiều lựa chọn (6 điểm, mỗi câu 0,25 điểm)", "phần ii gồm 4 câu đúng/sai, mỗi câu 4 ý (4 điểm)",
@@ -573,6 +796,7 @@ const TU_CHUNG = [...CHUONG_10, ...CHUONG_11, ...BAI_10, ...BAI_11, ...BAI_12.ma
   // tên sách, định hướng
   "Công nghệ 10 – Thiết kế và công nghệ", "Công nghệ 11 – Công nghệ cơ khí", "Công nghệ 12 – Công nghệ điện – điện tử", "Công nghệ 12 – Lâm nghiệp – Thuỷ sản",
   "định hướng Công nghiệp", "định hướng Nông nghiệp", "phần Công nghệ điện tử", "phần Công nghệ điện",
+  "Công nghệ 10 – Công nghệ trồng trọt", "Công nghệ 11 – Công nghệ chăn nuôi", "phần Lâm nghiệp", "phần Thuỷ sản",
   // phần điện: lưới điện, tủ điện, thiết bị, thông số như sách (Bài 3–12)
   "điện áp dây", "điện áp pha", "dòng điện dây", "dòng điện pha", "dây trung tính", "dây pha", "nối hình sao", "nối hình tam giác", "lưới điện truyền tải",
   "lưới điện phân phối", "trạm biến áp", "tủ điện phân phối tổng", "tủ điện phân phối nhánh", "tủ điện phân phối khu vực", "tủ điện động lực", "tủ điện chiếu sáng",
@@ -729,6 +953,16 @@ if (SACH.length) {
   assert.deepEqual(bai(CUON[11]).map((x) => x[0]), BAI_11, "bài của Công nghệ 11 theo mục lục");
   assert.deepEqual(bai(CUON[12]).filter((x) => !THUC_HANH_12.includes(x[1])), BAI_12, "bài của Công nghệ 12 – Công nghệ điện – điện tử theo mục lục (trừ bài thực hành)");
   assert.ok(bai(CUON[12]).filter((x) => THUC_HANH_12.includes(x[1])).every((x) => /^Thực hành/.test(x[0])), "Bài 17, 20, 23, 26 là bài thực hành");
+  // định hướng Nông nghiệp: mục lục của ba cuốn ghi chương bằng chữ thường, “Chương I – Tên” (Công nghệ 10, 11), “Chương I. Tên” (Công nghệ 12)
+  const CUON_N = { 10: "lop-10/cong-nghe-10-cong-nghe-trong-trot", 11: "lop-11/cong-nghe-11-cong-nghe-chan-nuoi", 12: "lop-12/cong-nghe-12-lam-nghiep-thuy-san" };
+  assert.ok(Object.values(CUON_N).every((c) => SACH.some((f) => f.includes(c))), "OnUp-Book có Công nghệ 10 – Công nghệ trồng trọt, Công nghệ 11 – Công nghệ chăn nuôi, Công nghệ 12 – Lâm nghiệp – Thuỷ sản");
+  const chuongN = (c) => [...ml(c).matchAll(/\| Chương [IVX]+(?: –|\.) ([^|]+?) \|/g)].map((x) => thuong(x[1].trim()));
+  assert.deepEqual(chuongN(CUON_N[10]), CHUONG_10N.map(thuong), "tám chương của Công nghệ 10 – Công nghệ trồng trọt theo mục lục");
+  assert.deepEqual(chuongN(CUON_N[11]), CHUONG_11N.map(thuong), "sáu chương của Công nghệ 11 – Công nghệ chăn nuôi theo mục lục");
+  assert.equal(chuongN(CUON_N[12]).length, 10, "mười chương của Công nghệ 12 – Lâm nghiệp – Thuỷ sản theo mục lục");
+  assert.deepEqual(bai(CUON_N[10]).map((x) => x[0]), BAI_10N, "bài của Công nghệ 10 – Công nghệ trồng trọt theo mục lục");
+  assert.deepEqual(bai(CUON_N[11]).map((x) => x[0]), BAI_11N, "bài của Công nghệ 11 – Công nghệ chăn nuôi theo mục lục");
+  assert.deepEqual(bai(CUON_N[12]), BAI_12N.map(([t, , so_]) => [t, so_]), "bài của Công nghệ 12 – Lâm nghiệp – Thuỷ sản theo mục lục");
   const sach = SACH.map((f) => ({ id: f, t: khongDau(fs.readFileSync(f, "utf8").replace(/=== page-\d+ · [^=]+ ===/g, " ")) }));
   const bao = (k) => { const ds = chuoiDe(k), gap = timChuoi(sach, k, ds); return [...gap.keys()].flatMap((c) => ds.get(c).map((q) => `${ten.get(q)}: ${c}`)); };
   if (process.env.DO_SACH) console.log("Chuỗi 6 từ trùng chữ OCR của sách (xem tay):\n" + [...new Set(bao(6))].join("\n"));
@@ -777,6 +1011,18 @@ if (SACH.length) {
   const vx = muc("congnghe12-tn-de2", "Thể tích công tác của động cơ"); hong(() => vx.c.right(doi(vx, "D = 72 mm", "D = 80 mm")), "đổi đường kính xi lanh");
   const ct = muc("congnghe12-tn-de3", "cấp chính xác"); assert.notStrictEqual(ct.c.right(doi(ct, "cấp chính xác 2", "cấp chính xác 1")), ct.q.o[0], "tự thử: đổi cấp chính xác của công tơ thì khoảng điện năng đổi");
   const ckd = muc("congnghe12-tn-de3", "mạch cộng không đảo"); hong(() => ckd.c.right(doi(ckd, "U_vào2 = 1 V", "U_vào2 = 1,2 V")), "đổi điện áp vào của mạch cộng không đảo");
+  // định hướng Nông nghiệp (Đề 4–5): quy tắc trồng dặm, đếm việc làm, các phép tính với số liệu cố ý đổi
+  assert.ok(NONG_NGHIEP.trongDam(80).startsWith("phải trồng dặm") && NONG_NGHIEP.trongDam(90).startsWith("chỉ trồng bổ sung"), "tự thử: quy tắc trồng dặm 85%");
+  hong(() => NONG_NGHIEP.trongDam(85), "tỉ lệ sống đúng 85% không rõ cách xử lí theo sách");
+  const td = muc("congnghe12-tn-de4", "Kiểm tra sau khi trồng"); hong(() => td.c.right(doi(td, "2 200 cây sống", "2 000 cây sống")), "đổi số cây sống thì tỉ lệ sống và việc cần làm đổi");
+  const dv = muc("congnghe12-tn-de4", "hoạt động lâm nghiệp cơ bản"); hong(() => dv.c.right(doi(dv, "(4) phá rừng tự nhiên để trồng cây công nghiệp", "(4) trồng cây phân tán ven đường")), "việc làm không có trong bảng VIEC_LN");
+  const lo = muc("congnghe12-tn-de4", "lồng nuôi cá rô phi trên sông"); hong(() => lo.c.right(doi(lo, "mật độ 35 con/m³", "mật độ 40 con/m³")), "đổi mật độ thả cá");
+  const rt = muc("congnghe12-tn-de4", "Diện tích rừng trồng"); hong(() => rt.c.right(doi(rt, "rừng sản xuất 1,9 và 3,9", "rừng sản xuất 1,1 và 3,9")), "tổng diện tích khác tổng ba loại rừng");
+  const ox = muc("congnghe12-tn-de4", "anh Tuấn"); assert.notDeepStrictEqual(ox.c.right(doi(ox, "oxygen hoà tan 2 mg/L", "oxygen hoà tan 6 mg/L")), ox.q.a, "tự thử: đổi oxygen hoà tan thì ý về thiếu oxygen đổi");
+  const sl = muc("congnghe12-tn-de5", "giai đoạn 3"); hong(() => sl.c.right(doi(sl, "1 500 m²", "2 000 m²")), "đổi diện tích ao tôm");
+  const cp = muc("congnghe12-tn-de5", "bị thiệt hại"); hong(() => cp.c.right(doi(cp, "13 700 ha", "15 000 ha")), "đổi diện tích rừng bị cháy");
+  const dm2 = muc("congnghe12-tn-de5", "độ mặn ổn định"); assert.notStrictEqual(dm2.c.right(doi(dm2, "khoảng 25–30‰", "khoảng 12–18‰")), dm2.q.o[0], "tự thử: đổi độ mặn của vùng nuôi thì loài phù hợp đổi");
+  const ta = muc("congnghe12-tn-de5", "ba bể giống nhau"); assert.notDeepStrictEqual(ta.c.right(doi(ta, "bể B 1,4 kg", "bể B 1,6 kg")), ta.q.a, "tự thử: đổi lượng thức ăn của bể B thì ý về bể hiệu quả nhất đổi");
   const vc = muc("congnghe12-tn-de2", "phân loại điện trở"); assert.notDeepStrictEqual(vc.c.right(Object.assign({}, vc.q, { o: vc.q.o.map((o) => o.replace("đỏ, đỏ, cam", "đỏ, đỏ, đỏ")) })), vc.q.a, "tự thử: đổi vạch màu thì ý về trị số đổi");
   // bộ dò lộ bắt được câu cố ý viết sai: đáp án của câu này chép vào lời giải câu khác
   const thu = (qs) => { const r = doLo(qs, [], () => true); return r.lo.concat(r.chuLo); };
@@ -786,8 +1032,8 @@ if (SACH.length) {
   const qS = TNQ.find((q) => q.type === "mc" && soCua(q).length);
   assert.ok(thu([qS, ghi(qK, "Kết quả bằng " + vn(soCua(qS)[0]) + ".")]).some((s) => s.startsWith("thử-giả → ")), "bộ dò lộ bắt được số của đáp án");
 }
-DE.forEach((b) => console.log(`${b.id}: ${b.questions.length} câu (${b.questions.filter((q) => q.type === "mc").length} nhiều lựa chọn, ${b.questions.filter((q) => q.type === "tf4").length} đúng/sai 4 ý), ` +
-  NHOM.map((g) => `${b.questions.filter((q) => nhom(q.topic) === g).length} câu ${g === "10" || g === "11" ? "lớp " + g : "phần " + g}`).join(", ") +
+DE.forEach((b) => console.log(`${b.id} (định hướng ${dhDe(b)}): ${b.questions.length} câu (${b.questions.filter((q) => q.type === "mc").length} nhiều lựa chọn, ${b.questions.filter((q) => q.type === "tf4").length} đúng/sai 4 ý), ` +
+  NHOM[dhDe(b)].map((g) => `${b.questions.filter((q) => nhom(q.topic) === g).length} câu ${g === "10" || g === "11" ? "lớp " + g : "phần " + g}`).join(", ") +
   `, ${b.questions.filter((q) => q.svg).length} hình; đáp án đúng dài nhất hoặc ngắn nhất ở ${b._le}/${b._mc} câu nhiều lựa chọn.`));
 console.log(n + " câu đã tính lại hoặc so với bảng.");
 console.log("MATH OK");
