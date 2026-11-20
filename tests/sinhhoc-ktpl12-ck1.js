@@ -390,7 +390,7 @@ const CHECKS = [
   { id: "kt2", has: "quốc gia P có GDP là 420 tỉ USD", right: (q) => {
     const [gdp] = so(q.q, "GDP là # tỉ USD"), [cl] = so(q.q, "là # tỉ USD; dân số"), [ds] = so(q.q, "dân số trung bình là # triệu người");
     coX(q, vn(gdp + cl) + " (tỉ USD)"); return ((gdp + cl) * 1e9) / (ds * 1e6); } },
-  { id: "kt2", has: "cơ cấu GDP của tỉnh K", right: (q) => {
+  { id: "kt2", has: "cơ cấu GDP của quốc gia S", right: (q) => {
     const [n0, c0, d0] = so(q.q, "gồm nông nghiệp #%, công nghiệp #%, dịch vụ #%"), [n1, c1, d1] = so(q.q, "năm 2025 là nông nghiệp #%, công nghiệp #%, dịch vụ #%");
     assert.equal(n0 + c0 + d0, 100); assert.equal(n1 + c1 + d1, 100); assert.ok(/Giá trị sản xuất của cả ba ngành đều tăng/.test(q.q));
     const [, b, c] = q.o;
@@ -530,7 +530,7 @@ MON.forEach((m) => {
   // câu tự luận chỉ ở ô Vận dụng rút 1 câu, ô đó còn câu khác dạng: mỗi lần rút nhiều nhất 2 câu tự luận
   const oTL = [...new Set(m.kho.filter((q) => q.type === "essay").map((q) => q.topic + "|" + q.lv))];
   assert.ok(oTL.every((k) => { const [t, lv] = k.split("|"); return +lv === 3 && M[t][2] === 1 && m.kho.some((q) => q.topic === t && q.lv === 3 && q.type !== "essay"); }), m.ma + ": câu tự luận ở ô " + oTL);
-  m.kho.filter((q) => q.type === "essay").forEach((q) => assert.ok(m === SH ? /^Trình bày lời giải\./.test(q.q) : /Em hãy/.test(q.q), "câu tự luận mở đầu bằng lời dặn: " + ten.get(q)));
+  m.kho.filter((q) => q.type === "essay").forEach((q) => assert.ok(m === SH ? /^Trình bày lời giải\./.test(q.q) : /Bạn hãy/.test(q.q), "câu tự luận mở đầu bằng lời dặn: " + ten.get(q)));
   // lời giải không nói “ý thứ hai”, “phương án A”: app xáo phương án
   m.kho.forEach((q) => assert.ok(!/(ý|phương án|lựa chọn) (thứ|số) (nhất|hai|ba|tư|\d)|phương án [A-D]\b/.test(q.x), "lời giải nhắc vị trí của phương án: " + q.q.slice(0, 50)));
   // câu nhiều lựa chọn: đáp án đúng không dài hơn hẳn lựa chọn sai, các lựa chọn không trùng nhau, đáp án đúng không là lựa chọn duy nhất có
