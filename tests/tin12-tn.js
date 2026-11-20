@@ -506,7 +506,7 @@ const RIENG = {
   "tin12-tn-de2": [
     { has: "1011 + 110", right: (q) => { const [, a, b] = /nhị phân ([01]+) \+ ([01]+)/.exec(q.q), t = parseInt(a, 2) + parseInt(b, 2); coX(q, "= " + t); return laDung(q, t.toString(2)); } },
     { has: "kể cả chữ Việt có dấu", right: (q) => laDung(q, "Unicode") },
-    { has: "Trường em thuê một dịch vụ", right: (q) => chon(q, "điện toán đám mây") },
+    { has: "Trường của bạn thuê một dịch vụ", right: (q) => chon(q, "điện toán đám mây") },
     { has: "phần mềm Inkscape", right: (q) => chon(q, "vectơ") },
     { has: "17 // 5", right: (q) => laDung(q, inRa("print(" + /biểu thức (.+?) có giá trị/.exec(q.q)[1] + ")")) },
     { has: "làm việc với danh sách A", right: (q) => laDung(q, inRa(docKhungPy(q.svg))) },
@@ -550,7 +550,7 @@ const RIENG = {
         [/^Sau lượt lặp đầu tiên của vòng lặp ngoài \(i = 0\), dãy B là (\[[\d, ]+\])\.$/, (m) => luot1 === m[1]],
         [/^Chương trình in ra (.+?)\.$/, (m) => m[1] === out],
         [/^Độ phức tạp thời gian của hàm là O\(n\), vì mỗi phần tử chỉ được xét một lần\.$/, () => !vongLong]]); } },
-    { has: "dữ liệu mua hàng của 5 000 khách", right: (q) => traY(q, { "là dữ liệu không có nhãn": true, "Bài toán chia nhóm khách hàng này dùng": false, "gắn sẵn nhãn": true, "chỉ cần học một lần": false }) },
+    { has: "dữ liệu tập luyện của 5 000 hội viên", right: (q) => traY(q, { "là dữ liệu không có nhãn": true, "Bài toán chia nhóm hội viên này dùng": false, "gắn sẵn nhãn": true, "chỉ cần học một lần": false }) },
   ],
   "tin12-tn-de3": [
     { has: "thiết bị thông minh", right: (q) => chon(q, "nhịp tim") },

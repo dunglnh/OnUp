@@ -626,8 +626,8 @@ const CHECKS = [
     assert.ok(co(apCss(g).kieu(tim(g, "p")[0], "color"), "xanh lá"), "!important thắng CSS trực tiếp, id, mẫu viết sau"); return motLuaChon(q, (o) => /!important/.test(o)); } },
   // Bài 17: trọng số của bộ chọn có thuộc tính, lớp giả
   { id: "th1", has: "Tính trọng số của bộ chọn “ul li a.moi:hover”", right: (q) => { coX(q, "10"); return docChon(trongNgoac(q.q)[0]).ts; } },
-  // Bài 17: :hover thua bộ chọn có id dù viết sau
-  { id: "th1", has: "Mỗi ý sau về màu chữ của các liên kết trong đoạn mã ở hình", right: (q) => { const g = trangMa(docKhung(q.svg)), ap = apCss(g);
+  // Bài 17: :hover của phần tử cha; mẫu riêng của phần tử con thắng màu kế thừa (Phiên RS12: không lặp tình huống id thắng a:hover của câu sau)
+  { id: "th1", has: "Trang có mã như hình bên. Mỗi ý sau về màu chữ", right: (q) => { const g = trangMa(docKhung(q.svg)), ap = apCss(g);
     return q.o.map((s) => { let m;
       if ((m = /^Khi di chuột lên chữ “(.+?)”, chữ chuyển màu (.+?)\.$/.exec(s))) { const e = theoChu(g, m[1]); return co(ap.kieu(e, "color", diChuot(e)), m[2]); }
       m = y(s, /^Khi chưa di chuột lên, chữ “(.+?)” có màu (.+?)\.$/); return co(ap.kieu(theoChu(g, m[1]), "color"), m[2]); }); } },
@@ -734,7 +734,7 @@ const CHECKS = [
       if ((m = /^Sau một xung CLK với D = (\d), có thêm một xung CLK với D = (\d) thì Q trở về (\d)\.$/.exec(s))) return flipFlopD(Q, [+m[1], +m[2]]) === +m[3];
       y(s, /^Lối ra Q̄ luôn cùng trạng thái với lối ra Q\.$/); return null; }); } },
   // Bài 22: tự luận, mạch so sánh A > B theo bốn bước thiết kế mạch logic tổ hợp
-  { id: "cn1", has: "Em hãy thiết kế mạch so sánh hai số nhị phân 1 bit A, B có lối ra G = 1 khi A > B", essay: (q) => { coThang(q, "G = A · B̄", "NOT", "AND");
+  { id: "cn1", has: "Bạn hãy thiết kế mạch so sánh hai số nhị phân 1 bit A, B có lối ra G = 1 khi A > B", essay: (q) => { coThang(q, "G = A · B̄", "NOT", "AND");
     const hang = [...q.x.matchAll(/A = (\d), B = (\d): G = (\d)/g)]; assert.equal(hang.length, 4, "bảng chân lí đủ bốn tổ hợp");
     hang.forEach((h) => assert.equal(+h[3], +h[1] > +h[2] ? 1 : 0, "bảng chân lí của bài gợi ý đúng yêu cầu"));
     assert.ok(giongNhau(docHam(y(q.x, /nên G = (.+?)\. \(3\)/)[1]), (g) => (g.A > g.B ? 1 : 0), ["A", "B"]), "hàm logic của bài gợi ý đúng yêu cầu"); } },
@@ -913,7 +913,7 @@ MON.forEach((m) => {
   // câu tự luận chỉ ở ô Vận dụng rút 1 câu, ô đó còn câu khác dạng: mỗi lần rút nhiều nhất 2 câu tự luận
   const oTL = [...new Set(m.kho.filter((q) => q.type === "essay").map((q) => q.topic + "|" + q.lv))];
   assert.ok(oTL.every((k) => { const [t, lv] = k.split("|"); return +lv === 3 && M[t][2] === 1 && m.kho.some((q) => q.topic === t && q.lv === 3 && q.type !== "essay"); }), m.ma + ": câu tự luận ở ô " + oTL);
-  m.kho.filter((q) => q.type === "essay").forEach((q) => assert.ok(/Em hãy/.test(q.q), "câu tự luận có lời dặn “Em hãy…”: " + ten.get(q)));
+  m.kho.filter((q) => q.type === "essay").forEach((q) => assert.ok(/Bạn hãy/.test(q.q), "câu tự luận có lời dặn “Bạn hãy…”: " + ten.get(q)));
   // câu nối có ô thừa; câu sắp xếp 4–5 ô
   m.kho.filter((q) => q.type === "match").forEach((q) => assert.ok(q.r.length > q.l.length && q.l.length >= 3, "câu nối có ít nhất 3 cặp và ô thừa: " + ten.get(q)));
   m.kho.filter((q) => q.type === "order").forEach((q) => assert.ok(q.o.length >= 4 && q.o.length <= 5, "câu sắp xếp 4–5 ô: " + ten.get(q)));

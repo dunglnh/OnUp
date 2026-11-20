@@ -587,13 +587,13 @@ const CHECKS = [
     const l = tim(docDoan(link), "link")[0]; assert.ok(l && l.at.href === "ban-tin.css" && l.at.rel === "stylesheet", "bài gợi ý có thẻ link đúng"); } },
   // Bài 14: gạch giữa dòng chữ
   { id: "th2", has: "đường kẻ ngang ở giữa dòng chữ", right: (q) => motLuaChon(q, (o) => { const k = docKhaiBao(o, "lựa chọn"); return k[0][0] === "text-decoration" && k[0][1] === "line-through"; }) },
-  // Bài 14: kế thừa, thứ tự cuối cùng
-  { id: "th2", has: "Mỗi ý sau về trang hiển thị trên trình duyệt đúng hay sai?", right: (q) => { const g = trangMa(docKhung(q.svg)), ap = apCss(g), h1 = tim(g, "h1")[0], p = tim(g, "p")[0];
+  // Bài 14: kế thừa, thứ tự cuối cùng (Phiên RS12: h2 hai mẫu font-size, kế thừa từ div; không theo ví dụ Hình 14.6 của sách)
+  { id: "th2", has: "Mỗi ý sau về trang hiển thị trên trình duyệt đúng hay sai?", right: (q) => { const g = trangMa(docKhung(q.svg)), ap = apCss(g), h2 = tim(g, "h2")[0];
     return q.o.map((s) => { let m;
-      if (s === "Tiêu đề h1 được căn giữa.") return ap.kieu(h1, "text-align") === "center";
+      if ((m = /^Tiêu đề h2 có cỡ chữ (\d+) pixel\.$/.exec(s))) return ap.kieu(h2, "font-size") === m[1] + "px";
       if ((m = /^Chữ “(.+?)” có màu (.+?)\.$/.exec(s))) return cungMau(ap.kieu(theoChu(g, m[1]), "color"), m[2]);
-      if ((m = /^Tiêu đề h1 có màu (.+?)\.$/.exec(s))) return cungMau(ap.kieu(h1, "color"), m[1]);
-      y(s, /^Chữ của đoạn văn dùng phông chữ không chân\.$/); return loaiPhong(ap.kieu(p, "font-family")) === "sans-serif"; }); } },
+      if ((m = /^Tiêu đề h2 có màu (.+?)\.$/.exec(s))) return cungMau(ap.kieu(h2, "color"), m[1]);
+      m = y(s, /^Chữ “(.+?)” dùng phông chữ không chân\.$/); return loaiPhong(ap.kieu(theoChu(g, m[1]), "font-family")) === "sans-serif"; }); } },
   // Bài 14: rem theo phần tử gốc, % theo phần tử cha
   { id: "th2", has: "Chữ “(cập nhật)” có cỡ bao nhiêu pixel", right: (q) => { const m = maTrong(q.q); const g = trang(m.slice(0, 3).join(" "), "<h2>Tin " + m[3] + "</h2>");
     return coChu(apCss(g), theoChu(g, "(cập nhật)")); } },
@@ -799,7 +799,7 @@ MON.forEach((m) => {
   // câu tự luận chỉ ở ô Vận dụng rút 1 câu, ô đó còn câu khác dạng: mỗi lần rút nhiều nhất 2 câu tự luận
   const oTL = [...new Set(m.kho.filter((q) => q.type === "essay").map((q) => q.topic + "|" + q.lv))];
   assert.ok(oTL.every((k) => { const [t, lv] = k.split("|"); return +lv === 3 && M[t][2] === 1 && m.kho.some((q) => q.topic === t && q.lv === 3 && q.type !== "essay"); }), m.ma + ": câu tự luận ở ô " + oTL);
-  m.kho.filter((q) => q.type === "essay").forEach((q) => assert.ok(/Em hãy/.test(q.q), "câu tự luận có lời dặn “Em hãy…”: " + ten.get(q)));
+  m.kho.filter((q) => q.type === "essay").forEach((q) => assert.ok(/Bạn hãy/.test(q.q), "câu tự luận có lời dặn “Bạn hãy…”: " + ten.get(q)));
   // câu nối có ô thừa; câu sắp xếp 4–5 ô
   m.kho.filter((q) => q.type === "match").forEach((q) => assert.ok(q.r.length > q.l.length && q.l.length >= 3, "câu nối có ít nhất 3 cặp và ô thừa: " + ten.get(q)));
   m.kho.filter((q) => q.type === "order").forEach((q) => assert.ok(q.o.length >= 4 && q.o.length <= 5, "câu sắp xếp 4–5 ô: " + ten.get(q)));

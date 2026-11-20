@@ -1136,7 +1136,7 @@ const r2 = doLo(onCD, [], (p, q) => p.topic === q.topic && p._de !== q._de && (/
 if (process.env.DO_LO) console.log("Đáp án bằng chữ có ở câu khác (xem tay):\n" + [...r1.chuLo, ...r2.chuLo].join("\n"));
 // đã xem (Phiên N12-tn-diali): chữ chung, câu kia không nói tới điều câu này hỏi. Tên vùng, tỉnh ở đề bài, lựa chọn sai của câu khác (Đồng bằng sông
 // Hồng ở câu tỉ lệ tăng dân số; Quảng Ninh, Hải Phòng là lựa chọn sai của câu Vân Đồn, Phả Lại hay tên tỉnh của vùng ở kho giữa kì II; Đông Nam Bộ ở
-// đề bài câu hạn chế tự nhiên; các sông Sê San, Srêpôk… liệt kê chung); số liệu của tỉnh, quốc gia tự đặt
+// đề bài câu hạn chế tự nhiên; các sông Sê San, Srêpôk… liệt kê chung; “Lào” trong tên tỉnh Lào Cai ở câu đường thuỷ nội địa không nói tới nước Lào); số liệu của tỉnh, quốc gia tự đặt
 // (cao su của tỉnh G, dịch vụ của quốc gia M, V, trị giá xuất khẩu của quốc gia P, tỉ trọng các khu vực, thành phần kinh tế cả nước) không cho biết
 // điều câu kia hỏi; “nhiệt điện”, “đào tạo nghề”, “có mùa đông” ở câu kho nói việc khác (nhiên liệu của nhà máy, nơi có nhiều trường nghề, lựa
 // chọn sai “không có mùa đông” của câu chăn nuôi); “phân hoá theo”, “tuổi thọ trung bình” là tên chỉ tiêu, cách nói chung.
@@ -1153,6 +1153,7 @@ const DA_XEM = [
   "gk2-de1#19 → tn-de4#12: hải phòng",
   "gk2-de2#16 → tn-de1#11: có mùa đông",
   "gk2-de2#19 → tn-de2#11: quảng ninh",
+  "tn-de1#10 → tn-de1#13: lào",
   "tn-de1#12 → tn-de1#7: bằng sông hồng",
   "tn-de1#17 → tn-de4#17: 2023 dịch vụ",
   "tn-de1#17 → tn-de4#17: năm 2023 dịch",

@@ -380,7 +380,7 @@ const CHECKS = [
   // Bài 4: địa chỉ IPv4
   { id: "th1", has: "Mỗi ý sau về địa chỉ IPv4", right: (q) => { coX(q, "từ 0 đến 255"); return q.o.map((o) => ipv4(y(o, /^([\d.]+) là một địa chỉ IPv4 viết đúng\.$/)[1])); } },
   // Bài 6: tự luận, tin nhắn trong nhóm học tập
-  { id: "th1", has: "Em là nhóm trưởng", essay: (q) => { coThang(q, "lịch sự", "tôn trọng", "không công kích người nói", "Đề xuất cách làm tiếp"); coX(q, "Bài gợi ý:"); } },
+  { id: "th1", has: "Bạn là nhóm trưởng", essay: (q) => { coThang(q, "lịch sự", "tôn trọng", "không công kích người nói", "Đề xuất cách làm tiếp"); coX(q, "Bài gợi ý:"); } },
   // Bài 7: chữ trên tab là nội dung của title (trong head); lựa chọn sai là chữ khác của trang
   { id: "th1", has: "ở tiêu đề (tab)", right: (q) => {
     const goc = docHtml(docKhung(q.svg)), ti = tim(goc, "title"), head = tim(goc, "head");
@@ -439,7 +439,7 @@ const CHECKS = [
       if ((m = /^Mỗi mục có kí tự đầu dòng là (hình \S+)/.exec(s))) return KI_TU_UL[kieu] === m[1];
       return null; }); } },
   // Bài 9: tự luận, bảng có ô gộp cột
-  { id: "th2", has: "Em hãy viết đoạn mã HTML tạo một bảng", essay: (q) => {
+  { id: "th2", has: "Bạn hãy viết đoạn mã HTML tạo một bảng", essay: (q) => {
     const ma = maTrong(q.x); assert.equal(ma.length, 1, "bài gợi ý có một đoạn mã"); const t = tim(docHtml(ma[0]), "table")[0], g = luoiBang(t);
     assert.ok(g.hang === 3 && g.cot === 3 && t.at.border === "1", "bảng có viền, 3 hàng, 3 cột");
     const o = (r, c) => chuCuaNut(g.g[r][c]);
@@ -506,7 +506,7 @@ const CHECKS = [
     const cung = s.noi(s.K[0][s.vt.K1], s.K[1][s.vt.K2]);
     return (sang ? "Sáng" : "Tắt") + ", vì hai lưỡi gạt " + (cung ? "cùng nối vào một dây nối" : "nối vào hai dây nối khác nhau"); } },
   // Bài 10: tự luận, lắp mạch đèn cầu thang
-  { id: "cn1", has: "Em hãy nêu cách lắp mạch điện để bật, tắt một đèn ở cầu thang", essay: (q) => {
+  { id: "cn1", has: "Bạn hãy nêu cách lắp mạch điện để bật, tắt một đèn ở cầu thang", essay: (q) => {
     coThang(q, "hai công tắc ba cực", "aptomat", "cực giữa", "dây trung tính (N)", "Trước khi đóng điện"); coX(q, "Bài gợi ý:", "Gạt bất kì công tắc nào cũng đổi trạng thái của đèn"); } },
   // Bài 12: điện năng tiết kiệm = số bóng × công suất giảm × thời gian
   { id: "cn1", has: "thay 12 bóng đèn huỳnh quang", right: (q) => { const [n, P1, n2, P2] = so(q.q, "thay # bóng đèn huỳnh quang # W bằng # bóng đèn LED # W"), [t] = so(q.q, "bật # giờ");
@@ -652,7 +652,7 @@ MON.forEach((m) => {
   // câu tự luận chỉ ở ô Vận dụng rút 1 câu, ô đó còn câu khác dạng: mỗi lần rút nhiều nhất 2 câu tự luận
   const oTL = [...new Set(m.kho.filter((q) => q.type === "essay").map((q) => q.topic + "|" + q.lv))];
   assert.ok(oTL.every((k) => { const [t, lv] = k.split("|"); return +lv === 3 && M[t][2] === 1 && m.kho.some((q) => q.topic === t && q.lv === 3 && q.type !== "essay"); }), m.ma + ": câu tự luận ở ô " + oTL);
-  m.kho.filter((q) => q.type === "essay").forEach((q) => assert.ok(/Em hãy/.test(q.q), "câu tự luận có lời dặn “Em hãy…”: " + ten.get(q)));
+  m.kho.filter((q) => q.type === "essay").forEach((q) => assert.ok(/Bạn hãy/.test(q.q), "câu tự luận có lời dặn “Bạn hãy…”: " + ten.get(q)));
   // câu nối có ô thừa; câu sắp xếp 4–5 ô
   m.kho.filter((q) => q.type === "match").forEach((q) => assert.ok(q.r.length > q.l.length && q.l.length >= 3, "câu nối có ít nhất 3 cặp và ô thừa: " + ten.get(q)));
   m.kho.filter((q) => q.type === "order").forEach((q) => assert.ok(q.o.length >= 4 && q.o.length <= 5, "câu sắp xếp 4–5 ô: " + ten.get(q)));

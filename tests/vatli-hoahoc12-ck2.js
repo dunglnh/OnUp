@@ -317,7 +317,7 @@ const HINH = { 4: ["tứ diện", "vuông phẳng"], 6: ["bát diện"] };
 // nhóm IIA (Bài 25): từ Be đến Ba bán kính nguyên tử tăng, tính khử tăng, mức độ phản ứng với nước tăng, độ tan của hydroxide tăng, độ bền
 // nhiệt của muối carbonate tăng; số oxi hoá đặc trưng +2
 const IIA = ["Be", "Mg", "Ca", "Sr", "Ba"];
-const XU_HUONG = [[/độ tan trong nước của các hydroxide/i, "tăng"], [/mức độ phản ứng với nước/i, "tăng"], [/tính khử của các kim loại/i, "tăng"]];
+const XU_HUONG = [[/độ tan trong nước của các hydroxide/i, "tăng"], [/mức độ phản ứng với nước/i, "tăng"], [/tính khử của các kim loại/i, "tăng"], [/bán kính nguyên tử/i, "tăng"]];
 const xuHuong = (s) => { const r = XU_HUONG.filter(([re]) => re.test(s)); assert.equal(r.length, 1, "ý không có trong bảng xu hướng: " + s);
   const m = /(tăng|giảm) dần từ (?:([A-Z][a-z]?)|[A-Z][a-z]?\(OH\)₂) đến (?:([A-Z][a-z]?)|[A-Z][a-z]?\(OH\)₂)/.exec(s), tu = /từ ([A-Z][a-z]?)/.exec(s)[1], den = /đến ([A-Z][a-z]?)/.exec(s)[1];
   assert.ok(m && IIA.indexOf(tu) < IIA.indexOf(den), "ý ghi chiều từ trên xuống: " + s); return m[1] === r[0][1]; };
@@ -455,7 +455,10 @@ const CHECKS = [
     // beryllium không tác dụng với nước kể cả khi đun nóng; Mg tác dụng khi đun nóng; Ca, Sr, Ba tác dụng ở nhiệt độ thường
     const khong = q.o.filter((o) => kiHieu(o) === "Be"); assert.ok(q.o.every((o) => IIA.includes(kiHieu(o)))); return khong[0]; } },
   { id: "hh1", has: "về các kim loại nhóm IIA từ magnesium đến barium", right: (q) => {
-    assert.ok(/^Trong hợp chất, các nguyên tố này có số oxi hoá đặc trưng là \+2\.$/.test(q.o[0])); return [true, xuHuong(q.o[1]), xuHuong(q.o[2]), xuHuong(q.o[3])]; } },
+    // ý a: số oxi hoá của kim loại nhóm IIA trong các hợp chất ví dụ, tính từ số oxi hoá cố định của O, Cl, H
+    const a = /^Trong các hợp chất (.+), nguyên tố nhóm IIA đều có số oxi hoá \+2\.$/.exec(q.o[0]); assert.ok(a);
+    const hc = a[1].split(", ").map((f) => [f, IIA.find((k) => congThuc(f)[k])]); assert.ok(hc.length >= 3 && hc.every(([, k]) => k), "hợp chất của kim loại nhóm IIA");
+    return [hc.every(([f, k]) => oxh(f, k) === 2), xuHuong(q.o[1]), xuHuong(q.o[2]), xuHuong(q.o[3])]; } },
   { id: "hh1", has: "Để làm mềm 25 L nước này", right: (q) => {
     const nt = ntDe(q), [c1, c2] = so(q.q, "các ion Ca²⁺ (# mol/L), Mg²⁺ (# mol/L)"), [V] = so(q.q, "Để làm mềm # L");
     const n = molTheoPT(ptCua(q, "Ca²⁺", "CO₃²⁻"), "Ca²⁺", c1 * V, "CO₃²⁻") + molTheoPT(ptCua(q, "Mg²⁺", "CO₃²⁻"), "Mg²⁺", c2 * V, "CO₃²⁻"); return n * KL("Na₂CO₃", nt); } },
@@ -482,10 +485,11 @@ const CHECKS = [
     return [ion[1] === ionTen(p.M, p.tam), +hinh[1] === p.n && HINH[p.n].includes(hinh[2]), p.q === 0, +soPT[1] === p.n]; } },
   { id: "hh1", has: "Phức chất [PtCl₄(NH₃)₂] không mang điện tích", right: () => { const p = docPhuc("[PtCl₄(NH₃)₂]"); assert.equal(p.q, 0); return p.tam; } },
   { id: "hh1", has: "Nhỏ từ từ dung dịch NH₃ vào ống nghiệm chứa dung dịch Cu(NO₃)₂", right: (q) => {
-    const p = docPhuc(phucTrong(q.o[2])[0]), d = /^Trong phức chất tạo thành, nguyên tử trung tâm là ion (\S+)\.$/.exec(q.o[3]); assert.ok(d && p.M === "Cu");
-    // màu của kết tủa ban đầu theo bảng như sách
+    // màu của kết tủa ban đầu theo bảng như sách; phức chất trong lời giải là phức chất của Cu²⁺; ý d: NH₃ là base (phối tử), không phải acid
     assert.ok(q.o[0].includes(MAU_KT["Cu(OH)₂"]), "kết tủa Cu(OH)₂ màu xanh nhạt");
-    return [true, null, null, d[1] === ionTen(p.M, p.tam)]; } },
+    const p = docPhuc(phucTrong(q.x)[0]); assert.ok(p.M === "Cu" && p.tam === 2, "phức chất của ion Cu²⁺ trong lời giải");
+    assert.ok(/với dung dịch NaNO₃\.$/.test(q.o[2]) && /^Kết tủa tan khi NH₃ dư là do NH₃ có tính acid/.test(q.o[3]));
+    return [true, null, true, false]; } },
   { id: "hh1", has: "Hoà tan hết 2,87 g AgCl bằng dung dịch NH₃", right: (q) => {
     const nt = ntDe(q), [m] = so(q.q, "Hoà tan hết # g AgCl"), [C] = so(q.q, "dung dịch NH₃ # M"), pt = ptCua(q, "AgCl", "NH₃");
     return (molTheoPT(pt, "AgCl", m / KL("AgCl", nt), "NH₃") / C) * 1000; } },

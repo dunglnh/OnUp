@@ -223,10 +223,11 @@ const BAI_HOC = {
   ampeKe: "hiệu dụng của cường độ dòng điện",
   // Bài 18: phanh điện từ dùng dòng điện Foucault; định nghĩa dòng điện Foucault
   phanh: "lực từ tác dụng lên dòng điện Foucault trong đĩa kim loại",
-  foucault: "khối vật dẫn chuyển động trong từ trường hoặc đặt trong từ trường biến thiên",
-  // Bài 3, 19: nhiệt kế đo từ xa thu tia hồng ngoại; thang sóng điện từ theo bước sóng trong chân không (nm)
+  foucault: "vật dẫn liền khối di chuyển trong từ trường hay nằm trong từ trường thay đổi",
+  // Bài 3, 19: nhiệt kế đo từ xa thu tia hồng ngoại; từ trường biến thiên sinh ra điện trường xoáy, đường sức khép kín (Bài 19 không ghi
+  // khoảng bước sóng của từng vùng: thang bước sóng là Bảng 11.1 của Vật lí 11, nên câu “600 nm thuộc vùng nào” của Đề 4 đổi ở Phiên RS12)
   hongNgoai: "Tia hồng ngoại",
-  vung: [["Tia γ", 0, 0.01], ["Tia X", 0.01, 10], ["Tia tử ngoại", 10, 380], ["Ánh sáng nhìn thấy", 380, 760], ["Tia hồng ngoại", 760, 1e6], ["Sóng vô tuyến", 1e6, Infinity]],
+  xoay: "điện trường xoáy, đường sức là đường cong kín",
   // Bài 23, 24: ứng dụng của tia phóng xạ
   ungDung: { "Xạ trị để tiêu diệt tế bào ung thư": true, "Đo độ dày tấm thép trong nhà máy cán thép": true, "Kiểm tra vết nứt bên trong ống kim loại": true, "Làm nóng thức ăn bằng lò vi sóng gia đình": false },
   // Bài 6: nhiệt hoá hơi riêng tăng khi nhiệt độ giảm
@@ -497,7 +498,7 @@ const RIENG = {
     { has: "Khung dây của một máy phát điện xoay chiều gồm 100 vòng", right: (q) => {
       const [N, S] = so(q.q, "gồm # vòng, diện tích mỗi vòng # cm²"), [w, B] = so(q.q, "tốc độ góc # rad/s trong một từ trường đều # T"); return vn(N * B * S * 1e-4 * w) + " V"; } },
     { has: "Dòng điện Foucault là dòng điện cảm ứng sinh ra trong", right: () => BAI_HOC.foucault },
-    { has: "Bức xạ điện từ có bước sóng 600 nm", right: (q) => { const [l] = so(q.q, "bước sóng # nm"); return BAI_HOC.vung.find(([, a, b]) => l >= a && l < b)[0]; } },
+    { has: "Hiện tượng này cho thấy từ trường biến thiên đã sinh ra", right: () => BAI_HOC.xoay },
     { has: "Hạt nhân của một đồng vị sodium có 11 proton và 12 neutron", right: (q) => { const [Z, N] = so(q.q, "có # proton và # neutron"); return motCai(q, (o) => { const h = hatNhan(o); return h.k === "Na" && h.Z === Z && h.A === Z + N; }); } },
     { has: "Sau 90 năm, lượng ¹³⁷Cs còn lại", right: (q, d) => { const [t] = so(q.q, "Sau # năm"), [T] = so(d, "khoảng # năm"); return vn(100 / 2 ** (t / T)) + "%"; } },
     { has: "Một mẫu đất bị nhiễm ¹³⁷Cs có độ phóng xạ", right: (q, d) => { const [H0, H] = so(q.q, "độ phóng xạ # Bq. Sau bao lâu thì độ phóng xạ của mẫu do ¹³⁷Cs gây ra chỉ còn # Bq"), [T] = so(d, "khoảng # năm"); return vn(T * Math.log2(H0 / H)) + " năm"; } },
@@ -1067,13 +1068,13 @@ const r2 = doLo(onCD, [], (p, q) => p.topic === q.topic && p._de !== q._de && (/
 if (process.env.DO_LO) console.log("Đáp án bằng chữ có ở câu khác (xem tay):\n" + [...r1.chuLo, ...r2.chuLo].join("\n"));
 // Đã xem tay (Phiên N12-tn-vatli): tên gọi, thuật ngữ có ở chữ của câu khác nhưng không chỉ ra đáp án: câu Đ/S của kho nói về vòng dây
 // đứng yên khi cảm ứng từ giảm (vẫn có dòng điện cảm ứng); “khối lượng nghỉ” là lựa chọn sai của câu khối lượng tới hạn, là đại lượng
-// trong hệ thức Einstein, và câu tính năng lượng phản ứng nào cũng có tổng khối lượng giảm (điều sách dạy ngay trong bài); tia hồng ngoại,
-// ánh sáng nhìn thấy chỉ được kể tên trong thang sóng điện từ, không kèm bước sóng hay ứng dụng; câu nước đóng băng nói thể rắn nhưng không nói
+// trong hệ thức Einstein, và câu tính năng lượng phản ứng nào cũng có tổng khối lượng giảm (điều sách dạy ngay trong bài); tia hồng ngoại
+// chỉ được kể tên trong thang sóng điện từ, không kèm bước sóng hay ứng dụng; câu nước đóng băng nói thể rắn nhưng không nói
 // cách sắp xếp phân tử; “cuộn thứ cấp” là tên bộ phận có ở mọi câu máy biến áp; ⁴₂He có trong các phương trình phản ứng khác.
 const DA_XEM = [
   "gk2-de1#11 → tn-de1#10: vòng dây đứng", "gk2-de1#11 → tn-de1#10: dây đứng yên",
   "ck2-de2#13 → tn-de1#16: khối lượng nghỉ", "ck2-de2#16 → tn-de1#16: khối lượng nghỉ", "ck2-de2#16 → tn-de1#16: lượng nghỉ của", "ck2-de2#17 → tn-de1#16: tổng khối lượng",
-  "ck2-de1#8 → tn-de3#14: tia hồng ngoại", "ck2-de2#8 → tn-de3#14: tia hồng ngoại", "ck2-de2#8 → tn-de4#14: ánh sáng nhìn", "ck2-de2#8 → tn-de4#14: sáng nhìn thấy",
+  "ck2-de1#8 → tn-de3#14: tia hồng ngoại", "ck2-de2#8 → tn-de3#14: tia hồng ngoại",
   "tn-de3#1 → ck1-de1#1: thể rắn", "tn-de2#13 → ck2-de1#7: cuộn thứ cấp", "tn-de4#21 → ck2-de1#7: cuộn thứ cấp", "tn-de5#13 → ck2-de1#7: cuộn thứ cấp", "tn-de6#13 → ck2-de1#7: cuộn thứ cấp", "tn-de7#12 → ck2-de1#7: cuộn thứ cấp",
   "tn-de2#22 → ck2-de1#16: ⁴₂he", "tn-de3#16 → ck2-de1#16: ⁴₂he", "tn-de4#27 → ck2-de1#16: ⁴₂he", "tn-de4#28 → ck2-de1#16: ⁴₂he",
   "tn-de6#22 → ck2-de1#16: ⁴₂he", "tn-de7#16 → ck2-de1#16: ⁴₂he", "tn-de8#27 → ck2-de1#16: ⁴₂he",
