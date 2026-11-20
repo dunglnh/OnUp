@@ -419,7 +419,7 @@ const RIENG = {
     10: { k: "md" }, 11: { k: "tl", can: "adj" }, 12: { k: "lt", qh: "time", loai: "conj", tin: "check that your neighbours" },
     13: { k: "sx", rb: ["^b"] }, 14: { k: "sx", rb: ["^c", "e$", "b<d"] }, 15: { k: "sx", rb: ["^d", "c$", "b<e", "e-a"] },
     16: { k: "sx", rb: ["^b", "b-c", "c-a", "a-e", "d$"] }, 17: { k: "sx", rb: ["^a", "a-c", "c-e", "e-b", "d$"] },
-    18: { k: "cau", cho: "cau" }, 19: { k: "cau", cho: "who-nhieu", truoc: "young shoppers" }, 20: { k: "cau", cho: "ing" }, 21: { k: "cau", cho: "who", truoc: "online fashion bloggers," }, 22: { k: "cau", cho: "cau" },
+    18: { k: "cau", cho: "cau" }, 19: { k: "cau", cho: "who-nhieu", truoc: "young shoppers" }, 20: { k: "cau", cho: "ing" }, 21: { k: "cau", cho: "which", truoc: "online fashion bloggers," }, 22: { k: "cau", cho: "cau" },
     23: { k: "trai", tu: "former", doan: 4 },
     24: { k: "khong", doan: 2, co: ["doors banging", "talked over each other", "forgot half of the questions"], vang: /\bmusic\b/i },
     25: { k: "chi", cum: "He lent us two microphones", chu: "our IT teacher" }, 26: { k: "gan", tu: "prize", doan: 4 },
