@@ -10,7 +10,7 @@ const ROOT = __dirname + "/../";
 const BASE = process.env.BASE_URL || "http://localhost:8000";
 /* Khối đang bật (active: true trong data/grades.js; lớp 9 bật ở Phiên RS9). Bật thêm khối thì thêm vào đây cùng lúc: bước "grades from
    data/grades.js" so danh sách này với data/grades.js; các bước về ô chọn khối, tab khối, lịch thi "Mọi khối" tính chữ mong đợi từ đây. */
-const ON = [4, 6, 9];
+const ON = [4, 6, 9, 12];
 const ALL_TAB = ON.length === 2 ? "Cả hai khối" : "Mọi khối"; // tab đầu của lịch thi (renderCalendar)
 /* Đây là kiểm thử bản lưu trên máy. js/config.js thật có thể đã điền Supabase (trang đang chạy bản đám mây), nên trả về
    bản để trống hai giá trị đó cho mọi request tới js/config.js. Bản đám mây kiểm thử riêng ở tests/supabase/. */
@@ -133,7 +133,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   await page.click("button[type=submit]"); await page.waitForTimeout(300);
   await shot("02-admin-users");
   step("grades from data/grades.js");
-  // Khối lớp lấy từ data/grades.js: chỉ các khối active (ON: lớp 4, 6, 9) hiện ở form học sinh, kì thi, ngân hàng đề, lịch thi.
+  // Khối lớp lấy từ data/grades.js: chỉ các khối active (ON: lớp 4, 6, 9, 12) hiện ở form học sinh, kì thi, ngân hàng đề, lịch thi.
   const opts = (sel) => page.$$eval(sel, (o) => o.map((x) => x.value + (x.tagName === "OPTION" ? ":" + x.textContent : x.checked ? "*" : "")).join());
   const gradeUI = {};
   await page.goto(BASE + "/#/admin/user/new?role=student"); await page.waitForTimeout(150); gradeUI.student = await opts("#uGrade option");
