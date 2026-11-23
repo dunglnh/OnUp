@@ -2232,6 +2232,22 @@ window.ONTAP_SEED_BANKS = [
       "Hình khai triển": [1, 1, 0], "Diện tích xung quanh, toàn phần của hình hộp chữ nhật": [0, 1, 1],
       "Diện tích xung quanh, toàn phần của hình lập phương": [1, 0, 0], "Thể tích của hình hộp chữ nhật": [1, 0, 1],
       "Thể tích của hình lập phương": [0, 0, 1] } } },
+  /* Toán 5 · Kiểm tra cuối năm học (Kết nối tri thức, cả năm, trọng tâm học kì II Bài 36–75; Phiên N5-ck2-toan). Khối 5 chưa bật
+     (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức
+     độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu trên 17 chủ đề theo tên bài: phần trọng tâm 16 câu (Chủ
+     đề 10 số đo thời gian, vận tốc, chuyển động đều 10; Chủ đề 11 thống kê và xác suất 6), phần ôn 9 câu (Chủ đề 7–9: 6, chữ chủ đề
+     như kho giữa kì II; học kì I: chia số thập phân, hình thang, hình tròn 3, chữ chủ đề như kho cuối kì I). Mỗi ô (chủ đề, mức) rút 1
+     câu và có 4 câu: một câu ở mỗi đề cố định, hai câu riêng, nên học sinh đã làm một đề cố định vẫn gặp câu mới. Không có câu tự luận. */
+  { id: "toan5-ck2-de1", title: "Toán 5 · Cuối năm · Đề 1", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js" },
+  { id: "toan5-ck2-de2", title: "Toán 5 · Cuối năm · Đề 2", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js" },
+  { id: "toan5-ck2-ngau-nhien", title: "Toán 5 · Cuối năm · Đề ngẫu nhiên", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js",
+    pool: { from: ["toan5-ck2-de1", "toan5-ck2-de2"], matrix: {
+      "Chia số thập phân": [1, 0, 0], "Hình thang": [0, 1, 0], "Hình tròn": [0, 0, 1], "Tỉ số, tỉ số phần trăm": [1, 0, 0],
+      "Tìm giá trị phần trăm của một số": [0, 1, 0], "Tìm hai số khi biết tổng và tỉ số": [0, 0, 1], "Mét khối": [1, 0, 0],
+      "Diện tích xung quanh, toàn phần của hình hộp chữ nhật": [0, 1, 0], "Thể tích của hình hộp chữ nhật": [0, 0, 1],
+      "Các đơn vị đo thời gian": [1, 1, 0], "Cộng, trừ số đo thời gian": [1, 0, 1], "Nhân, chia số đo thời gian với một số": [0, 1, 0],
+      "Vận tốc": [1, 0, 1], "Quãng đường, thời gian của một chuyển động đều": [1, 1, 1], "Thu thập, phân loại, sắp xếp các số liệu": [1, 0, 0],
+      "Biểu đồ hình quạt tròn": [1, 1, 1], "Tỉ số của số lần lặp lại một sự kiện": [1, 1, 0] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
