@@ -574,7 +574,7 @@ MON.forEach((m) => {
   // câu tự luận chỉ ở ô Vận dụng rút 1 câu, ô đó còn câu khác dạng: mỗi lần rút nhiều nhất 2 câu tự luận
   const oTL = [...new Set(m.kho.filter((q) => q.type === "essay").map((q) => q.topic + "|" + q.lv))];
   assert.ok(oTL.every((k) => { const [t, lv] = k.split("|"); return +lv === 3 && M[t][2] === 1 && m.kho.some((q) => q.topic === t && q.lv === 3 && q.type !== "essay"); }), m.ma + ": câu tự luận ở ô " + oTL);
-  m.kho.filter((q) => q.type === "essay").forEach((q) => assert.ok(/Em hãy/.test(q.q), "câu tự luận có lời dặn “Em hãy…”: " + ten.get(q)));
+  m.kho.filter((q) => q.type === "essay").forEach((q) => assert.ok(/Bạn hãy/.test(q.q), "câu tự luận có lời dặn “Bạn hãy…”: " + ten.get(q))); // gọi người làm bài là “bạn” (Phiên RS12)
   // lời giải không nói “ý thứ hai”, “phương án A”: app xáo phương án
   m.kho.forEach((q) => assert.ok(!/(ý|phương án|lựa chọn) (thứ|số) (nhất|hai|ba|tư|\d)|phương án [A-D]\b/.test(q.x), "lời giải nhắc vị trí của phương án: " + q.q.slice(0, 50)));
   // câu sắp xếp: 4 ô, mỗi ô là một sự kiện trong bảng ngày tháng
@@ -653,7 +653,7 @@ const DA_XEM = [
   "ls1#4 → ls1#5: liên hợp quốc", "ls2#20 → ls1#5: liên hợp quốc", "ls2#21 → ls1#5: liên hợp quốc", "ls2#22 → ls1#5: liên hợp quốc",
   "ls2#16 → ls1#17: với tổ chức", "ls1#23 → ls1#20: quân trung hoa", "ls1#23 → ls1#20: ở miền bắc", "ls2#20 → ls1#20: giải giáp quân",
   "ls2#20 → ls1#20: giáp quân nhật", "ls1#25 → ls1#21: liên xô và", "ls2#23 → ls1#22: hiệp định giơ", "ls2#23 → ls1#22: định giơ ne",
-  "ls2#23 → ls1#22: giơ ne vơ", "ls2#10 → ls2#6: vùng lãnh thổ", "ls1#13 → ls2#10: nước ta tham", "ls1#13 → ls2#10: ta tham gia",
+  "ls2#23 → ls1#22: giơ ne vơ", "ls2#10 → ls2#6: vùng lãnh thổ",
   "ls1#17 → ls2#10: tham gia nhiều", "ls2#5 → ls2#10: nước ta tham", "ls2#5 → ls2#10: ta tham gia", "ls2#5 → ls2#10: tham gia nhiều",
   "ls2#12 → ls2#10: quốc tế về", "ls1#17 → ls2#17: đánh đuổi thực", "ls1#17 → ls2#17: đuổi thực dân", "ls1#23 → ls2#17: đánh đuổi thực",
   "ls1#23 → ls2#17: đuổi thực dân", "ls2#16 → ls2#19: chống phát xít", "ls2#22 → ls2#21: tôn trọng chủ", "ls2#22 → ls2#21: trọng chủ quyền",
@@ -702,7 +702,7 @@ const TU_CHUNG = [...LS.BAI, ...DL.BAI].map((b) => b[0]).concat(Object.values(LS
   "Sắp xếp các sự kiện sau theo trình tự thời gian", "sự kiện sớm nhất đứng đầu", "Nhận xét nào sau đây đúng", "Cho biểu đồ", "Theo biểu đồ", "số liệu tự đặt",
   "làm tròn kết quả đến hàng đơn vị", "làm tròn kết quả đến một chữ số thập phân", "Công cuộc Đổi mới ở Việt Nam từ năm 1986 đến nay",
   "Lịch sử đối ngoại của Việt Nam thời cận – hiện đại", "Địa lí các ngành kinh tế", "Địa lí các vùng kinh tế – xã hội", "vùng kinh tế – xã hội",
-  "Em hãy nêu ý kiến của em về",
+  "Bạn hãy nêu ý kiến của bạn về",
   // Lịch sử, Bài 10–11: tên đường lối, chủ trương, bài học của công cuộc Đổi mới, các quyền dân tộc cơ bản, tên công trình, chức danh như sách
   "hội nhập kinh tế quốc tế", "chủ động, tích cực hội nhập quốc tế toàn diện và sâu rộng", "cơ chế quản lí kinh tế tập trung quan liêu, bao cấp",
   "tập trung quan liêu, bao cấp", "cơ chế thị trường có sự quản lí của Nhà nước", "Kiên trì mục tiêu độc lập dân tộc và chủ nghĩa xã hội",

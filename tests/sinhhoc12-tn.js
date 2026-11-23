@@ -268,16 +268,17 @@ const NHIET = { "chim bồ câu": "đẳng nhiệt", "cá chép": "biến nhiệ
 const SAN_XUAT = { "tảo lục": true, "rong đuôi chó": true, "cá mè trắng": false, "tôm càng": false, "vi khuẩn": false, "nấm sống trên xác": false, "ốc vặn": false, "ấu trùng chuồn chuồn": false };
 /* Bảng của Đề 5–8 (Phiên N12-tn-sinhhoc-b; khoá riêng, không dùng chung BAI_HOC để khoá mới không đè khoá cũ). */
 const BAI_HOC_2 = {
-  // Đề 5. Bài 1: DNA polymerase kéo dài mạch mới theo chiều 5' → 3'; Bài 3: proto-oncogene hoạt động quá mức gây ung thư; Bài 5: động vật chuyển
+  // Đề 5. Bài 1: hai mạch của DNA ngược chiều nhau; Bài 3: proto-oncogene hoạt động quá mức gây ung thư; Bài 5: động vật chuyển
   // gene tiêm gene vào trứng vừa thụ tinh; Bài 7: quan sát NST ở kì giữa; Bài 10: gene lặn trên X biểu hiện ở nam nhiều hơn; Bài 13: bệnh hồng cầu
-  // hình liềm do đột biến gene; Bài 15: DNA ti thể nhiều bản sao, di truyền theo dòng mẹ; Bài 19: cơ quan tương tự; Bài 21:
-  // chọn lọc loại allele trội nhanh hơn allele lặn; Bài 24: tăng trưởng theo tiềm năng sinh học; Bài 26: phân tầng theo nhu cầu ánh sáng; Bài 34:
+  // hình liềm do đột biến gene; Bài 15: mỗi tế bào có nhiều bản sao DNA ti thể; Bài 19: cơ quan tương tự; Bài 21:
+  // chọn lọc loại allele trội nhanh hơn allele lặn; Bài 24: kích thước quần thể tính bằng số cá thể, sinh khối hoặc năng lượng; Bài 26: phân tầng theo nhu cầu ánh sáng; Bài 34:
   // khai thác tài nguyên có khả năng tái tạo; Sinh học 11: thyroxine (Bài 22), hô hấp trong bảo quản nông sản (Bài 6), các hình thức học tập (Bài 18)
-  chieu53: "5' → 3'", oncogene: "tế bào phân chia không kiểm soát, có thể dẫn đến ung thư", trungThuTinh: "Trứng vừa thụ tinh, khi hai nhân chưa hoà nhập",
+  // (Phiên RS12 đổi câu 1, 9, 14: câu cùng chủ đề ở kho, đề khác đã nói đáp án: đầu 3' của DNA polymerase, DNA ti thể theo dòng mẹ, đường cong chữ J)
+  nguocChieu: "Ngược chiều nhau: đầu 5' của mạch này nằm đối diện đầu 3' của mạch kia", oncogene: "tế bào phân chia không kiểm soát, có thể dẫn đến ung thư", trungThuTinh: "Trứng vừa thụ tinh, khi hai nhân chưa hoà nhập",
   kiGiua: "NST co xoắn tối đa nên có hình dạng rõ nhất", namX: "nam có một bản sao của gene nên allele lặn luôn được biểu hiện",
-  hongCau: "đột biến điểm làm đổi một amino acid của chuỗi β-globin", dnaTiThe: "Có nhiều bản sao trong mỗi tế bào và chỉ do mẹ truyền cho con",
+  hongCau: "đột biến điểm làm đổi một amino acid của chuỗi β-globin", dnaTiThe: "mỗi tế bào chứa rất nhiều bản sao DNA ti thể",
   alleleLanAn: "allele lặn ở thể dị hợp không biểu hiện nên không bị loại",
-  chuJ: "nguồn sống dồi dào, không có kẻ thù hay dịch bệnh", phanTang: "mỗi nhóm loài cây ưa một mức ánh sáng khác nhau", khaiThacCa: "Không đánh bắt vào mùa cá đẻ, không bắt cá nhỏ",
+  kichThuoc: "tổng sinh khối hoặc tổng năng lượng của quần thể", phanTang: "mỗi nhóm loài cây ưa một mức ánh sáng khác nhau", khaiThacCa: "Không đánh bắt vào mùa cá đẻ, không bắt cá nhỏ",
   thyroxine: "Thyroxine", baoQuan: "làm giảm cường độ hô hấp của hạt, hạn chế hao hụt chất hữu cơ",
   hocTap: { "lâu dần không bay đi nữa: đây là quen nhờn": true, "diễn ra được ở mọi lứa tuổi của vịt": false, "đây là điều kiện hoá đáp ứng": false, "phải học từ bố mẹ mới có": false },
   // Đề 6. Bài 2: rRNA cùng protein tạo ribosome; Bài 4: thể đột biến; Bài 5: insulin nhờ vi khuẩn chuyển gene; Bài 7: vùng nguyên nhiễm sắc chứa gene
@@ -386,7 +387,7 @@ const RIENG = {
       const c = so(q.q, "gồm # cây thân cao, hoa đỏ; # cây thân cao, hoa trắng; # cây thân thấp, hoa đỏ; # cây thân thấp, hoa trắng"), s = [...c].sort((a, b) => a - b);
       assert.ok(s[0] === s[1] && s[2] === s[3] && s[1] < s[2], "hai lớp nhiều, hai lớp ít"); return ((s[0] + s[1]) / sum(c)) * 100; } },
     { has: "cải bắp tam bội", right: (q) => { const [n2] = so(q.q, "2n = #"); return (3 * n2) / 2; } },
-    { has: "có 16% số cây hoa trắng", right: (q) => { const [t] = so(q.q, "có #% số cây hoa trắng"), qa = Math.sqrt(t / 100), p = 1 - qa; return (2 * p * qa) / (p * p + 2 * p * qa); } },
+    { has: "có 49% số cây hoa trắng", right: (q) => { const [t] = so(q.q, "có #% số cây hoa trắng"), qa = Math.sqrt(t / 100), p = 1 - qa; return (2 * p * qa) / (p * p + 2 * p * qa); } },
     { has: "Hiệu suất sinh thái của cá rô so với giáp xác", right: (q) => {
       // chuỗi tảo lục → giáp xác → cá rô (mỗi loài ăn loài đứng trước): hiệu suất giữa bậc cấp 3 và cấp 2
       const [, e2, e3] = so(q.q, "tảo lục tích luỹ # kcal; giáp xác ăn tảo lục tích luỹ # kcal; cá rô ăn giáp xác tích luỹ # kcal"); return (e3 / e2) * 100; } }
@@ -561,7 +562,7 @@ const RIENG = {
       return e3 / (h32 / 100) / (h21 / 100); } }
   ],
   "sinhhoc12-tn-de5": [
-    { has: "enzyme DNA polymerase kéo dài mạch mới theo chiều nào", right: () => BAI_HOC_2.chieu53 },
+    { has: "Chiều của hai mạch này được sắp xếp như thế nào", right: () => BAI_HOC_2.nguocChieu },
     { has: "(proto-oncogene)", right: () => BAI_HOC_2.oncogene },
     { has: "đưa gene cần chuyển vào loại tế bào nào", right: () => BAI_HOC_2.trungThuTinh },
     { has: "khi tế bào nguyên phân đến kì giữa, vì ở kì này", right: () => BAI_HOC_2.kiGiua },
@@ -573,13 +574,13 @@ const RIENG = {
     { has: "loại giao tử mang cả hai allele trội A và B", right: (q) => { const [f] = so(q.q, "của chúng, là #%"), gt = giaoTu("Ab/aB", f / 100); assert.ok(/một chiếc chứa Ab, chiếc kia chứa aB/.test(q.q));
       return motCai(q, (o) => gan(phanTram(o) / 100, gt.AB)); } },
     { has: "Bệnh hồng cầu hình liềm ở người phát sinh do", right: () => BAI_HOC_2.hongCau },
-    { has: "Trình tự DNA ti thể thường được dùng", right: () => BAI_HOC_2.dnaTiThe },
+    { has: "chỉ thu nhặt lông rụng của voọc", right: () => BAI_HOC_2.dnaTiThe },
     { has: "tần số allele A ở giới đực là", right: (q) => { const [pd, pc] = so(q.q, "tần số allele A ở giới đực là #, ở giới cái là #");
       return motCai(q, (o) => gan(val(o), pd * (1 - pc) + (1 - pd) * pc)); } },
     { has: "có cùng chức năng nhưng khác nguồn gốc (cơ quan tương tự)", right: (q) => motCai(q, (o) => { assert.ok(o in CO_QUAN, "chưa có " + o); return CO_QUAN[o] === "tương tự"; }) },
     { has: "chọn lọc tự nhiên chống lại kiểu hình do allele trội quy định", right: () => BAI_HOC_2.alleleLanAn },
     { has: "vô sinh tác động lên cá rô phi là", right: (q) => motCai(q, (o) => { assert.ok(o in VO_SINH, "chưa có " + o); return VO_SINH[o]; }) },
-    { has: "(đường cong tăng trưởng hình chữ J)", right: () => BAI_HOC_2.chuJ },
+    { has: "kích thước quần thể còn có thể được biểu thị bằng", right: () => BAI_HOC_2.kichThuoc },
     { has: "các loài cây xếp thành nhiều tầng", right: () => BAI_HOC_2.phanTang },
     { has: "khai thác nguồn cá tự nhiên ở một hồ lớn", right: () => BAI_HOC_2.khaiThacCa },
     { has: "duy trì tốc độ chuyển hoá bình thường", right: () => BAI_HOC_2.thyroxine },

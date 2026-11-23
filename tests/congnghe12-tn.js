@@ -324,9 +324,10 @@ const RIENG = {
         "thì U_ra = ": (o) => { const [u1, u2, ur] = so(o, "Khi U_vào1 = # V, U_vào2 = # V thì U_ra = # V"); return gan(congDao(Rf, R1, R2, u1, u2), ur); },
         "lối ra không có điện áp": (o) => { const [u1, u2] = so(o, "Khi U_vào1 = # V, U_vào2 = # V thì lối ra không có điện áp"); return Math.abs(congDao(Rf, R1, R2, u1, u2)) < 1e-9; } }); } },
     { has: "Mạch logic trong hình có ba lối vào A, B, C", right: (q) => { const m = docMach(q.svg), H = (d) => m.ham(d), ABC = toHop(["A", "B", "C"]);
-      assert.deepEqual(m.vao, ["A", "B", "C"], "ba lối vào A, B, C"); assert.deepEqual([...m.cong].sort(), ["AND", "NAND", "NOT"], "các cổng của mạch");
-      return traY(q, { "Lối vào C đi qua một cổng NOT": ABC.every((d) => H(d) === (H(Object.assign({}, d, { C: 0 })) & (1 - d.C))),
-        "Khi C = 1 thì Y = 0": ABC.filter((d) => d.C === 1).every((d) => H(d) === 0), "Khi A = 1, B = 1, C = 0 thì Y = 1": H({ A: 1, B: 1, C: 0 }) === 1,
+      // mạch khác hẳn mạch của congnghe12-ck2-de1 câu 12 (AND của A, B và NOT của C vào cổng OR), vì đề “Ôn chủ đề” rút chung (Phiên RS12)
+      assert.deepEqual(m.vao, ["A", "B", "C"], "ba lối vào A, B, C"); assert.deepEqual([...m.cong].sort(), ["AND", "NAND"], "các cổng của mạch");
+      return traY(q, { "Lối vào A được nối thẳng tới cổng cuối cùng": ABC.every((d) => H(d) === (d.A & H(Object.assign({}, d, { A: 1 })))),
+        "Khi A = 0 thì Y = 0": ABC.filter((d) => d.A === 0).every((d) => H(d) === 0), "thì Y luôn bằng giá trị của A": ABC.filter((d) => d.B === 1 && d.C === 1).every((d) => H(d) === d.A),
         "Có đúng ba tổ hợp": ABC.filter(H).length === 3 }); } },
   ],
   "congnghe12-tn-de2": [
@@ -334,10 +335,10 @@ const RIENG = {
     { has: "công nghệ luyện kim đen", right: (q) => motLuaChon(q, (o) => ["Gang", "Thép"].includes(o)) },
     { has: "Hình chiếu phối cảnh", right: (q) => laDung(q, "Phép chiếu xuyên tâm") },
     { has: "mô hình 3D của các chi tiết máy", right: (q) => laDung(q, "Thiết kế sản phẩm cơ khí") },
-    { has: "nằm giữa động cơ và hộp số", right: (q) => laDung(q, "Li hợp") },
+    { has: "tạm ngắt dòng mô men từ động cơ tới hộp số", right: (q) => laDung(q, "Li hợp") },
     { has: "thuộc nhóm sản xuất, chế tạo thiết bị điện", right: (q) => chon(q, "quạt điện") },
     { has: "Đường dây 500 kV mạch 1 nối miền Bắc với miền Nam", right: (q) => laDung(q, "1994") },
-    { has: "Nhà máy thuỷ điện biến dạng năng lượng", right: (q) => laDung(q, "Thế năng") },
+    { has: "mà nước có được nhờ nằm ở trên cao", right: (q) => laDung(q, "Thế năng") },
     { has: "tủ điện phân phối tổng thường được đặt ở đâu", right: (q) => chon(q, "trạm biến áp") },
     { has: "là việc của ngành kĩ thuật điện tử", right: (q) => chon(q, "mạch hẹn giờ") },
     { has: "thông số kĩ thuật của một loại diode", right: (q) => chon(q, "datasheet") },
@@ -364,13 +365,13 @@ const RIENG = {
     { has: "đếm từ 0 đến 3 rồi quay lại 0", right: (q) => { const [f] = so(q.q, "tần số # Hz"); assert.ok(chuKi(2, 0) === 2 && chuKi(2, 1) === 4, "bộ đếm 2 bit: Q₀ lặp sau 2 xung, Q₁ sau 4 xung");
       coX(q, "Q₀ lặp lại sau 2 xung", "Q₁ lặp lại sau 4 xung"); return laDung(q, vn(f / chuKi(2, 1)) + " Hz"); } },
     { has: "máy bơm nước công nghiệp có ba cuộn dây", right: (q) => { const [Rr] = so(q.q, "điện trở # Ω"), [X] = so(q.q, "điện kháng # Ω"), [Ud, Up] = so(q.q, "lưới ba pha #/# V");
-      assert.ok(q.q.includes("đấu sao"), "tải đấu sao"); const Z = tongTro(Rr, X), Ip = Up / Z;
+      assert.ok(q.q.includes("nối hình sao"), "tải nối hình sao"); const Z = tongTro(Rr, X), Ip = Up / Z;
       return traY(q, { "điện áp dây bằng điện áp pha": gan(SAO.U(Up), Up), "chịu điện áp khoảng": (o) => Math.abs(so(o, "khoảng # V")[0] - Ud / Math.sqrt(3)) < 1,
         "Tổng trở của mỗi cuộn dây": (o) => gan(so(o, "là # Ω")[0], Z), "Dòng điện chạy trong mỗi dây pha": (o) => gan(so(o, "là # A")[0], SAO.I(Ip)) }); } },
     { has: "dùng máy khoan cầm tay", right: (q) => traY(q, { "găng tay cách điện": true, "dây điện đặt ngầm trong tường": true, "chung một ổ cắm": false, "đi chân trần": false }) },
     { has: "phân loại điện trở trước khi lắp mạch", right: (q) => traY(q, {
-      // điện trở 4 vạch: vạch 3 là hệ số nhân, vạch 4 là sai số
-      "vạch thứ tư cho biết hệ số nhân": false,
+      // điện trở 4 vạch: vạch 3 là hệ số nhân, vạch 4 là sai số; so giá trị hai điện trở (chữ số nhỏ hơn mà hệ số nhân lớn hơn)
+      "có giá trị nhỏ hơn": (o) => { const m = y(o, /mang các vạch (.+?) có giá trị nhỏ hơn điện trở mang các vạch (.+?)\.$/); return docVongMau(mauCua(m[1])).R < docVongMau(mauCua(m[2])).R; },
       "chính xác hơn": (o) => { const m = y(o, /vạch sai số màu (.+?) chính xác hơn loại có vạch sai số màu (.+?)\.$/); return MAU_SAI[m[1]] < MAU_SAI[m[2]]; },
       "có trị số": (o) => { const m = y(o, /mang các vạch (.+?) có trị số (.+?)\.$/); return gan(docVongMau(mauCua(m[1])).R, doLuong(m[2], "Ω")); },
       "đo được": (o) => { const m = y(o, /mang các vạch (.+?) mà đo được (.+?) thì vẫn nằm trong khoảng sai số cho phép\.$/), r = docVongMau(mauCua(m[1])), d = doLuong(m[2], "Ω");
@@ -912,9 +913,10 @@ const DA_XEM = [
   "tn-de3#19 → gk2-de1#4: chữa thiết bị", "tn-de3#19 → ck2-de2#2: lắp đặt thiết", "tn-de3#19 → ck2-de2#2: đặt thiết bị",
   // nhóm công việc “lắp đặt điện” (Bài 2) là lựa chọn sai của câu thi thử; câu kho hỏi vị trí việc làm của người thi công
   "tn-de3#15 → ck1-de1#4: lắp đặt điện",
-  // câu kho hỏi đường dây nào thuộc lưới truyền tải; câu thi thử hỏi năm hoàn thành đường dây 500 kV, hỏi cấp cao áp (lựa chọn có “… kV và 220 kV”)
+  // câu kho hỏi đường dây nào thuộc lưới truyền tải (đường dây 110 kV thuộc lưới phân phối); câu thi thử hỏi năm hoàn thành đường dây 500 kV,
+  // hỏi cấp điện áp (110 kV, 220 kV cùng cấp cao áp): cấp điện áp khác loại lưới, không câu nào nêu ý của câu kia
   "tn-de2#6 → ck1-de1#9: đường dây 500", "tn-de2#6 → ck1-de1#9: dây 500 kv",
-  "ck1-de1#9 → tn-de3#16: kv và 220", "ck1-de1#9 → tn-de3#16: và 220 kv", "tn-de3#16 → ck1-de1#9: kv và 220", "tn-de3#16 → ck1-de1#9: và 220 kv",
+  "ck1-de1#9 → tn-de3#16: đường dây 110", "ck1-de1#9 → tn-de3#16: dây 110 kv",
   // câu kho hỏi chân có dấu “−” của kí hiệu; câu thi thử tả cách nối mạch trừ, không nói về kí hiệu
   "tn-de2#28 → gk2-de1#23: lối vào đảo",
   // câu kho nêu tên “thành phố thông minh” trong một ý về đèn đường hẹn giờ; câu thi thử tả một tình huống khác, các lựa chọn đều là mô hình “thông minh”
@@ -995,11 +997,12 @@ if (SACH.length) {
   // hàm logic
   assert.ok(giongNhau(docHam("Y = Ā · B + A · B̄"), (d) => d.A ^ d.B, ["A", "B"]) && !giongNhau(docHam("A + B"), (d) => d.A ^ d.B, ["A", "B"]), "tự thử: hàm logic");
   hong(() => docHam("Y = A ·"), "hàm logic viết thiếu");
-  // mạch logic trong hình: vẽ lệch một dây, bỏ dấu đảo của cổng NOT, dấu đảo của cổng AND thì đáp án đổi
+  // mạch logic trong hình: vẽ lệch một dây, dấu đảo lệch khỏi lối ra, bỏ dấu đảo mà không nối lại dây, dấu đảo của cổng AND thì đáp án đổi
   const lg = muc("congnghe12-tn-de1", "Mạch logic trong hình");
   hong(() => docMach(lg.q.svg.replace('<line x1="160" y1="80" x2="200" y2="80"', '<line x1="160" y1="81" x2="200" y2="81"')), "dây nối lệch khỏi chân cổng");
-  hong(() => docMach(lg.q.svg.replace('<circle cx="95" cy="130" r="5" fill="surface" stroke="ink" stroke-width="2"/>', "")), "cổng NOT thiếu dấu đảo");
-  hong(() => lg.c.right(Object.assign({}, lg.q, { svg: lg.q.svg.replace('<circle cx="125" cy="55" r="5" fill="surface" stroke="ink" stroke-width="2"/>', "").replace('<line x1="130" y1="55" x2="160" y2="55"', '<line x1="120" y1="55" x2="160" y2="55"') })), "cổng NAND thành AND thì ý về mạch đổi");
+  hong(() => docMach(lg.q.svg.replace('<circle cx="125" cy="110"', '<circle cx="127" cy="110"')), "dấu đảo lệch khỏi lối ra của cổng");
+  hong(() => docMach(lg.q.svg.replace('<circle cx="125" cy="110" r="5" fill="surface" stroke="ink" stroke-width="2"/>', "")), "bỏ dấu đảo mà không nối lại dây");
+  hong(() => lg.c.right(Object.assign({}, lg.q, { svg: lg.q.svg.replace('<circle cx="125" cy="110" r="5" fill="surface" stroke="ink" stroke-width="2"/>', "").replace('<line x1="130" y1="110" x2="200" y2="110"', '<line x1="120" y1="110" x2="200" y2="110"') })), "cổng NAND thành AND thì ý về mạch đổi");
   // đổi số liệu của đề thì đáp án tính được đổi theo hay không còn lựa chọn đúng
   const tl = muc("congnghe12-tn-de1", "đường kính một lỗ đo được"); hong(() => tl.c.right(doi(tl, "tỉ lệ 1 : 5", "tỉ lệ 1 : 2")), "đổi tỉ lệ của bản vẽ");
   const nen = muc("congnghe12-tn-de1", "Tỉ số nén"); hong(() => nen.c.right(doi(nen, "0,06 lít", "0,08 lít")), "đổi thể tích buồng cháy");

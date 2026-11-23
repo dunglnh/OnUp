@@ -459,7 +459,7 @@ const CHECKS = [
     const ca = canhHinh(q.svg, h.D); assert.deepEqual(ca.khuat.sort(), ["A-O", "B-O", "C-O"], "đoạn chắn: OA, OB, OC khuất sau mặt phẳng (ABC)");
     return theo(q, PT, (k) => { const P = mp(k[1]); return [A, B, C].every((M) => thuocMP(P, M)); }); } },
   { has: "Trong không gian Oxyz, cho mặt phẳng (P): x − 2y + 2z − 6 = 0. Mỗi ý", right: (q) => tfTheo(q, menhDeMP({ P: mpTrongChu(q.q, "P") })) },
-  { has: "cho hai mặt phẳng (P): x − 2y + 2z − 3 = 0 và (Q): 2x + 2y + z + 5 = 0. Mỗi ý", right: (q) => tfTheo(q, menhDeMP({ P: mpTrongChu(q.q, "P"), Q: mpTrongChu(q.q, "Q") })) },
+  { has: "cho hai mặt phẳng (P): 2x − 3y + 2z − 3 = 0 và (Q): 2x + 2y + z + 5 = 0. Mỗi ý", right: (q) => tfTheo(q, menhDeMP({ P: mpTrongChu(q.q, "P"), Q: mpTrongChu(q.q, "Q") })) },
   { has: "tính khoảng cách từ điểm M(3; 1; −2) đến mặt phẳng (P)", right: (q) => kcMP(ptDe(q, "M"), mpTrongChu(q.q.replace(/\.$/, ""), "P")) },
   { has: "Tính khoảng cách giữa (P) và (Q).", right: (q) => { const P = mpTrongChu(q.q, "P"), Q = mpTrongChu(q.q, "Q"); assert.ok(ssMP(P, Q), "(P) và (Q) phải song song"); const A = [div(neg(P[3]), P[0]), F(0), F(0)]; return kcMP(A, Q); } },
   { has: "và song song với mặt phẳng (Q): 2x − y + 2z + 5 = 0", right: (q) => { const M = ptDe(q, "M"), Q = mpTrongChu(q.q, "Q"); assert.ok(!thuocMP(Q, M)); return theo(q, PT, (k) => { const R = mp(k[1]); return thuocMP(R, M) && cungPhuong(nMP(R), nMP(Q)); }); } },

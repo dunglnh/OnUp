@@ -346,7 +346,7 @@ const CHECKS = [
     const [t] = so(q.q, "Bạn Toàn # tuổi"); assert.ok(t < LUAT.thanhNien, "Toàn chưa thành niên: lựa chọn sai nói về người chưa thành niên");
     return "Toàn chưa đúng vì con sống chung phải tham gia công việc gia đình"; } },
   { id: "kt2", has: "Ngôi đình cổ ở thôn của bạn Hiếu", essay: (q) => {
-    assert.ok(/^Em hãy đọc tình huống và trả lời câu hỏi\./.test(q.q) && /^Bài gợi ý: a\) .+ b\) .+$/s.test(q.x), "lời dặn, bài gợi ý có hai ý a), b)");
+    assert.ok(/^Bạn hãy đọc tình huống và trả lời câu hỏi\./.test(q.q) && /^Bài gợi ý: a\) .+ b\) .+$/s.test(q.x), "lời dặn, bài gợi ý có hai ý a), b)");
     coThang(q, "làm hư hại di tích", "gây ô nhiễm môi trường", "Nhắc nhở khách giữ gìn di tích", "ban quản lí di tích");
     coX(q, "hư hại di tích", "ô nhiễm môi trường", "nhắc nhở khách giữ gìn di tích", "ban quản lí di tích"); } }
 ];
@@ -486,7 +486,7 @@ MON.forEach((m) => {
   // câu tự luận chỉ ở ô Vận dụng rút 1 câu, ô đó còn câu khác dạng: mỗi lần rút nhiều nhất 2 câu tự luận
   const oTL = [...new Set(m.kho.filter((q) => q.type === "essay").map((q) => q.topic + "|" + q.lv))];
   assert.ok(oTL.every((k) => { const [t, lv] = k.split("|"); return +lv === 3 && M[t][2] === 1 && m.kho.some((q) => q.topic === t && q.lv === 3 && q.type !== "essay"); }), m.ma + ": câu tự luận ở ô " + oTL);
-  m.kho.filter((q) => q.type === "essay").forEach((q) => assert.ok(m === SH ? /^Trình bày lời giải\./.test(q.q) : /Em hãy/.test(q.q), "câu tự luận mở đầu bằng lời dặn: " + ten.get(q)));
+  m.kho.filter((q) => q.type === "essay").forEach((q) => assert.ok(m === SH ? /^Trình bày lời giải\./.test(q.q) : /Bạn hãy/.test(q.q), "câu tự luận mở đầu bằng lời dặn: " + ten.get(q)));
   // lời giải không nói “ý thứ hai”, “phương án A”: app xáo phương án
   m.kho.forEach((q) => assert.ok(!/(ý|phương án|lựa chọn) (thứ|số) (nhất|hai|ba|tư|\d)|phương án [A-D]\b/.test(q.x), "lời giải nhắc vị trí của phương án: " + q.q.slice(0, 50)));
   // câu nhiều lựa chọn: đáp án đúng không dài hơn hẳn lựa chọn sai, các lựa chọn không trùng nhau, đáp án đúng không là lựa chọn duy nhất có
@@ -558,7 +558,7 @@ const traChu = (() => {
 })();
 const khongDau = nhoChuoi((s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[đĐ]/g, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/[aeiouy]+/g, "a").trim());
 const TU_CHUNG = [...SH.BAI, ...KT.BAI].map((b) => b[0]).concat(Object.values(SH.RUT_GON), Object.values(KT.RUT_GON), SH.PHAN.map((p) => p[0].replace(/ \(Bài.*$/, "")), ["mỗi ý sau đúng hay sai", "theo lí thuyết",
-  "theo quy định của pháp luật", "nhận xét nào sau đây đúng", "em hãy đọc tình huống và trả lời câu hỏi", "việc làm nào sau đây", "cách làm nào sau đây phù hợp nhất",
+  "theo quy định của pháp luật", "nhận xét nào sau đây đúng", "bạn hãy đọc tình huống và trả lời câu hỏi", "việc làm nào sau đây", "cách làm nào sau đây phù hợp nhất",
   "trình bày lời giải", "hình bên là", "Phần năm Tiến hoá", "Phần hai Giáo dục pháp luật", "Giáo dục kinh tế và pháp luật 12",
   // Sinh học: tên khái niệm, nhóm như sách
   "chuỗi thức ăn khởi đầu bằng sinh vật ăn mùn bã hữu cơ", "hiệu suất sinh thái giữa hai bậc dinh dưỡng", "giữa hai bậc dinh dưỡng kế tiếp",
@@ -582,7 +582,7 @@ const gocChu = (s) => String(s).normalize("NFC").toLowerCase().replace(/[^\p{L}\
    Cặp hai âm tiết liền nhau (Rút ra N25): đề bài cùng các lựa chọn có từ 4 cặp chung với một câu của kho cũ và số cặp chung từ một nửa số cặp
    của câu ít cặp hơn thì báo. Không tính cặp có số hay chữ đơn, cặp của nhãn chủ đề, cụm chung của đề (CUM) và cặp có ở từ 3% số câu của file. */
 {
-  const CUM = ["mỗi ý sau đúng hay sai", "nhận xét nào sau đây đúng", "theo quy định của pháp luật", "trình bày lời giải", "em hãy đọc tình huống và trả lời câu hỏi", "theo lí thuyết", "hình bên là"];
+  const CUM = ["mỗi ý sau đúng hay sai", "nhận xét nào sau đây đúng", "theo quy định của pháp luật", "trình bày lời giải", "bạn hãy đọc tình huống và trả lời câu hỏi", "theo lí thuyết", "hình bên là"];
   const cap2 = (s) => { let t = String(s).normalize("NFC").toLowerCase(); CUM.forEach((c) => { t = t.split(c).join(" | "); });
     const w = t.replace(/[^\p{L}\p{N}\s|]/gu, " ").split(/\s+/).filter(Boolean); return w.slice(1).map((x, k) => w[k] + " " + x).filter((c) => c.split(" ").every((x) => /\p{L}{2}/u.test(x))); };
   const gan_ = [], trungOn = [];

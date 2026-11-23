@@ -401,9 +401,10 @@ const CHECKS = [
     assert.ok(Lv < Lt && /dây vuông góc với các đường sức từ/.test(q.q)); coX(q, "không phải " + vn(Lt) + " cm"); return B * I * (Lv / 100); } },
   { id: "vl2", has: "từ thông qua mỗi vòng dây giảm đều từ", right: (q) => {
     const [N] = so(q.q, "gồm # vòng"), [dt, P] = so(q.q, "Trong # s, từ thông qua mỗi vòng dây giảm đều từ # mWb về 0"), e = (N * P) / 1000 / dt;
-    const [eb] = so(q.o[1], "có độ lớn # V"), [dt2] = so(q.o[2], "về 0 chỉ trong # s"), e2 = (N * P) / 1000 / dt2;
-    assert.ok(/^Trong .* trong cuộn dây có dòng điện cảm ứng\.$/.test(q.o[0]) && /giảm một nửa\.$/.test(q.o[2]) && /^Sau khi từ thông đã bằng 0 và giữ không đổi, trong cuộn dây vẫn còn dòng điện cảm ứng\.$/.test(q.o[3]));
-    return [P !== 0, gan(eb, e), gan(e2, e / 2), false]; } },
+    // ý c: số vòng khác, từ thông qua mỗi vòng biến thiên như cũ: |e| tỉ lệ với số vòng (Phiên RS12: thay ý thời gian giảm một nửa, trùng ý câu thi thử)
+    const [eb] = so(q.o[1], "có độ lớn # V"), [N2] = so(q.o[2], "chỉ có # vòng"), e2 = (N2 * P) / 1000 / dt;
+    assert.ok(/^Trong .* trong cuộn dây có dòng điện cảm ứng\.$/.test(q.o[0]) && /\(từ thông qua mỗi vòng biến thiên như cũ\) thì độ lớn suất điện động cảm ứng không thay đổi\.$/.test(q.o[2]) && /^Sau khi từ thông đã bằng 0 và giữ không đổi, trong cuộn dây vẫn còn dòng điện cảm ứng\.$/.test(q.o[3]));
+    coX(q, "= " + vn(e2) + " (V)"); return [P !== 0, gan(eb, e), gan(e2, e), false]; } },
   { id: "vl2", has: "hai đầu cuộn dây nối với nhau tạo thành mạch kín có tổng điện trở", right: (q) => {
     const [N, S, R] = so(q.q, "gồm # vòng, mỗi vòng có diện tích # cm², hai đầu cuộn dây nối với nhau tạo thành mạch kín có tổng điện trở # Ω"), [B1, B2, dt] = so(q.q, "tăng đều từ # T lên # T trong # s");
     assert.ok(/đường sức từ song song với trục cuộn dây/.test(q.q)); return (N * (B2 - B1) * S * 1e-4) / dt / R; } },

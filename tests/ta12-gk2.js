@@ -428,7 +428,7 @@ const CHECKS = [
   { has: "film posters copy onto", np: 1, right: (q) => kiemLoi(q, loiSK, "the old film posters copied") },
   // Unit 7: mệnh đề chỉ cách thức, kết quả
   { has: "the host talks to the audience as if she ___", np: 1, right: (q) => motLuaChon(q, (o) => !loiAsIf(dien(q, o)).length) },
-  { has: "Nobody reads the evening news ___ Ms Hoa does", np: 1, right: (q) => {
+  { has: "Nobody interviews guests ___ Ms Hoa does", np: 1, right: (q) => {
     assert.ok(/___ [A-Z][a-z]* ?[A-Z]?[a-z]* does\b/.test(q.q), "sau chỗ trống là việc có thật (… does)");
     return motLuaChon(q, (o) => CACH[o] === "có thật");
   } },

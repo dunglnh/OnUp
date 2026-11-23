@@ -582,7 +582,7 @@ MON.forEach((m) => {
   // câu tự luận chỉ ở ô Vận dụng rút 1 câu, ô đó còn câu khác dạng: mỗi lần rút nhiều nhất 2 câu tự luận
   const oTL = [...new Set(m.kho.filter((q) => q.type === "essay").map((q) => q.topic + "|" + q.lv))];
   assert.ok(oTL.every((k) => { const [t, lv] = k.split("|"); return +lv === 3 && M[t][2] === 1 && m.kho.some((q) => q.topic === t && q.lv === 3 && q.type !== "essay"); }), m.ma + ": câu tự luận ở ô " + oTL);
-  m.kho.filter((q) => q.type === "essay").forEach((q) => assert.ok(/Em hãy/.test(q.q), "câu tự luận có lời dặn “Em hãy…”: " + ten.get(q)));
+  m.kho.filter((q) => q.type === "essay").forEach((q) => assert.ok(/Bạn hãy/.test(q.q), "câu tự luận có lời dặn “Bạn hãy…”: " + ten.get(q))); // gọi người làm bài là “bạn” (Phiên RS12)
   // lời giải không nói “ý thứ hai”, “phương án A”: app xáo phương án
   m.kho.forEach((q) => assert.ok(!/(ý|phương án|lựa chọn) (thứ|số) (nhất|hai|ba|tư|\d)|phương án [A-D]\b/.test(q.x), "lời giải nhắc vị trí của phương án: " + q.q.slice(0, 50)));
   // câu sắp xếp: 4 ô, mỗi ô là một sự kiện trong bảng ngày tháng

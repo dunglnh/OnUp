@@ -1318,7 +1318,7 @@ const RIENG = {
     { has: "với F(1) = −1 và F(5) = 6. Tích phân ∫₁⁵ [2f(x) − 3]dx bằng", right: (q) => { const m = /F\((\d+)\) = (−?\d+) và F\((\d+)\) = (−?\d+)\. Tích phân ∫([₀-₉]+)([⁰¹²³⁴⁵⁶⁷⁸⁹]+) \[(\d+)f\(x\) − (\d+)\]dx bằng$/.exec(q.q);
       const [a, Fa, b, Fb] = [m[1], m[2], m[3], m[4]].map((s) => toNum(fr(s))); assert.ok(chiSo(m[5]) === a && +can(m[6], SUPD) === b, "cận của tích phân khớp F(a), F(b)");
       return theoSo(q, +m[7] * (Fb - Fa) - +m[8] * (b - a)); } },
-    { has: "mặt cầu (S): x² + y² + z² − 4x + 2y − 6z + 5 = 0 có bán kính bằng", right: (q) => { const c = cau(/\(S\): (.+) có bán kính bằng$/.exec(q.q)[1]); assert.ok(c, "không phải phương trình mặt cầu");
+    { has: "mặt cầu (S): x² + y² + z² − 6x + 4y + 4z − 8 = 0 có bán kính bằng", right: (q) => { const c = cau(/\(S\): (.+) có bán kính bằng$/.exec(q.q)[1]); assert.ok(c, "không phải phương trình mặt cầu");
       return theo(q, /^(.+)$/, (k) => gan(hang(k[1]) ** 2, toNum(c.R2))); } },
     { has: "Khối lượng (kg) của 40 quả dưa hấu", right: (q) => { const M = mauBang(doc(q, docBang, "bảng Đề 8"), 1); assert.equal(coMau(M), so(q, /của (\d+) quả dưa hấu/));
       const v = tuPhanVi(M, 1).Q; return theo(q, /^(.+)$/, (k) => eq(fr(k[1]), v)); } },

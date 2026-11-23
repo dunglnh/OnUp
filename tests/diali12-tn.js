@@ -374,7 +374,7 @@ const RIENG = {
     { has: "Tuyến đường thuỷ nội địa quan trọng", right: sach("tr. 91", "Thành phố Hồ Chí Minh – Cà Mau") },
     { has: "trồng được nhiều loại rau, cây dược liệu", right: sach("tr. 108", "Khí hậu có mùa đông lạnh, lại thay đổi theo độ cao") },
     { has: "về tỉ lệ tăng dân số, Đồng bằng sông Hồng đứng thứ mấy", right: sach("tr. 110", "Thứ nhất") },
-    { has: "Đảo Cồn Cỏ thuộc tỉnh nào", right: sach("tr. 119", "Quảng Trị") },
+    { has: "vùng Bắc Trung Bộ có đường biên giới chung với quốc gia nào", right: sach("tr. 119", "Lào") },
     { has: "Nhà máy thuỷ điện Ialy", right: sach("tr. 137", "sông Sê San") },
     { has: "phát triển tổng hợp kinh tế biển", right: sach("tr. 165", "Để các ngành biển cùng phát triển, không gây hại cho nhau") },
     { has: "HDI (chỉ số phát triển con người)", right: (q) => {
@@ -713,7 +713,7 @@ const RIENG = {
     { has: "Cộng hoà Nam Phi xuất khẩu 109,5 tỉ USD", right: tinh("xuất khẩu # tỉ USD hàng hoá, trong đó khoáng sản (vàng, bạch kim, than…) đạt # tỉ USD", (x, k) => (k / x) * 100) }
   ],
   "diali12-tn-de7": [
-    { has: "sạt lở đất thường xảy ra trên các sườn núi", right: sach("tr. 14", "Xâm thực mạnh") },
+    { has: "bị dòng nước xẻ thành rãnh sâu, đất đá sạt lở", right: sach("tr. 14", "Xâm thực mạnh") },
     { has: "các hệ sinh thái rừng còn lại ở nước ta", right: sach("tr. 29", "rừng thứ sinh") },
     { has: "tỉ trọng của từng khu vực biến đổi ra sao", right: sach("tr. 41", "Khu vực có vốn đầu tư nước ngoài tăng dần tỉ trọng") },
     { has: "sự chuyển dịch cơ cấu kinh tế theo lãnh thổ", right: sach("tr. 50", "Hình thành các hành lang kinh tế ở nhiều địa phương") },
@@ -1136,7 +1136,7 @@ const r2 = doLo(onCD, [], (p, q) => p.topic === q.topic && p._de !== q._de && (/
 if (process.env.DO_LO) console.log("Đáp án bằng chữ có ở câu khác (xem tay):\n" + [...r1.chuLo, ...r2.chuLo].join("\n"));
 // đã xem (Phiên N12-tn-diali): chữ chung, câu kia không nói tới điều câu này hỏi. Tên vùng, tỉnh ở đề bài, lựa chọn sai của câu khác (Đồng bằng sông
 // Hồng ở câu tỉ lệ tăng dân số; Quảng Ninh, Hải Phòng là lựa chọn sai của câu Vân Đồn, Phả Lại hay tên tỉnh của vùng ở kho giữa kì II; Đông Nam Bộ ở
-// đề bài câu hạn chế tự nhiên; Quảng Trị trong danh sách tỉnh của vùng; các sông Sê San, Srêpôk… liệt kê chung); số liệu của tỉnh, quốc gia tự đặt
+// đề bài câu hạn chế tự nhiên; các sông Sê San, Srêpôk… liệt kê chung; “Lào” trong tên tỉnh Lào Cai ở câu đường thuỷ nội địa không nói tới nước Lào); số liệu của tỉnh, quốc gia tự đặt
 // (cao su của tỉnh G, dịch vụ của quốc gia M, V, trị giá xuất khẩu của quốc gia P, tỉ trọng các khu vực, thành phần kinh tế cả nước) không cho biết
 // điều câu kia hỏi; “nhiệt điện”, “đào tạo nghề”, “có mùa đông” ở câu kho nói việc khác (nhiên liệu của nhà máy, nơi có nhiều trường nghề, lựa
 // chọn sai “không có mùa đông” của câu chăn nuôi); “phân hoá theo”, “tuổi thọ trung bình” là tên chỉ tiêu, cách nói chung.
@@ -1153,7 +1153,7 @@ const DA_XEM = [
   "gk2-de1#19 → tn-de4#12: hải phòng",
   "gk2-de2#16 → tn-de1#11: có mùa đông",
   "gk2-de2#19 → tn-de2#11: quảng ninh",
-  "gk2-de2#22 → tn-de1#13: quảng trị",
+  "tn-de1#10 → tn-de1#13: lào",
   "tn-de1#12 → tn-de1#7: bằng sông hồng",
   "tn-de1#17 → tn-de4#17: 2023 dịch vụ",
   "tn-de1#17 → tn-de4#17: năm 2023 dịch",

@@ -250,7 +250,7 @@ const BAI_HOC = {
   anodeTan: "Cu của anode bị oxi hoá, anode mòn dần",
   // Bài 6: thuỷ phân hoàn toàn cellulose chỉ thu được glucose; cellulose không tan trong nước, kể cả khi đun nóng
   celluloseGlucose: true, celluloseTan: false,
-  // Bài 12, 13: nylon-6,6 tổng hợp bằng phản ứng trùng ngưng hexamethylenediamine với adipic acid, có tách nước; monomer trùng ngưng cần hai
+  // Bài 12, 13: nylon-6,6 (polyamide) bị thuỷ phân trong môi trường acid (cắt mạch); tạo thành bằng trùng ngưng, có tách nước; monomer trùng ngưng cần hai
   // nhóm chức có khả năng phản ứng (liên kết đôi C=C là điều kiện của trùng hợp); polymer có phân tử khối trung bình
   nylon66: [true, true, false, false],
   // Bài 25: nhiệt phân CaCO₃ là phản ứng thu nhiệt
@@ -543,9 +543,12 @@ const RIENG = {
     { has: "Hạt nhân của nguyên tử này có bao nhiêu neutron?", right: (q) => { const [A] = so(q.q, "có số khối #"), [Z] = so(q.q, "Z = #"); assert.equal(Z, Z_NT.Na); return String(A - Z); } },
     { has: "Khí dầu mỏ hoá lỏng (LPG)", right: () => BAI_HOC.lpg },
     { has: "có trong nọc kiến", right: () => BAI_HOC.nocKien },
-    { has: "pin có sức điện động chuẩn 0,780 V", right: (q) => { const e = e0De(q.q), [E] = so(q.q, "sức điện động chuẩn # V");
-      q.o.forEach((o) => assert.ok(e[kiHieu(o)] < e.Cu, "đề cho E° của kim loại ở lựa chọn, nhỏ hơn E° của đồng: " + o)); return motCai(q, (o) => gan(e[kiHieu(o)], e.Cu - E, 1e-6)); } },
-    { has: "Để có đồng rất tinh khiết làm dây dẫn điện", right: (q) => { ["Cu → Cu²⁺ + 2e", "Cu²⁺ + 2e → Cu"].forEach((p) => { coX(q, p); assert.ok(canBang(p)); }); return BAI_HOC.anodeTan; } },
+    { has: "đo được sức điện động chuẩn 0,936 V", right: (q) => { const e = e0De(q.q), [E] = so(q.q, "sức điện động chuẩn # V");
+      // điện cực mốc ghi trong đề (điện cực bạc chuẩn); kim loại ở các lựa chọn có E° nhỏ hơn nên là cực âm
+      const r = { "đồng": "Cu", "bạc": "Ag" }[/điện cực (đồng|bạc) chuẩn/.exec(q.q)[1]]; assert.ok(r in e, "đề cho E° của điện cực mốc");
+      q.o.forEach((o) => assert.ok(e[kiHieu(o)] < e[r], "đề cho E° của kim loại ở lựa chọn, nhỏ hơn E° của điện cực mốc: " + o)); return motCai(q, (o) => gan(e[kiHieu(o)], e[r] - E, 1e-6)); } },
+    // lời giải chỉ nói quá trình ở anode (quá trình ở cathode là ý a của câu 21, cùng đề)
+    { has: "Để có đồng rất tinh khiết làm dây dẫn điện", right: (q) => { const p = "Cu → Cu²⁺ + 2e"; coX(q, p); assert.ok(canBang(p)); assert.ok(!q.x.includes("Cu²⁺ + 2e → Cu")); return BAI_HOC.anodeTan; } },
     { has: "Không cần đun nóng, kim loại nào sau đây tác dụng được với nước", right: (q) => { coX(q, "Ca + 2H₂O → Ca(OH)₂ + H₂"); return tra(q, Object.fromEntries(q.o.map((o) => [o, TAC_NUOC[kiHieu(o)]])), true); } },
     { has: "cung cấp nguyên tố potassium cho cây trồng", right: (q) => motCai(q, (o) => !!congThuc(o).K) },
     { has: "Phức chất X được tạo thành từ ion Co³⁺", right: (q) => { const nCl = soChu(q.q, "trung tâm),", "phối tử Cl⁻"), nN = soChu(q.q, "và", "phối tử NH₃");
@@ -553,7 +556,9 @@ const RIENG = {
     { has: "Ethanol nhiên liệu có thể được làm từ mùn cưa", right: (q) => { const nt = ntDe(q), [p] = so(q.q, "chứa #% cellulose"), [m] = so(q.o[2], "Từ # tấn mùn cưa"), [h] = so(q.o[2], "hiệu suất #%"), [kq] = so(q.o[2], "khoảng # kg");
       const pt = "C₆H₁₂O₆ → 2C₂H₅OH + 2CO₂"; coX(q, pt); assert.ok(canBang(pt));
       const et = ((m * 1000 * p) / 100 / KL("C₆H₁₀O₅", nt)) * heSo(pt, "C₂H₅OH") * KL("C₂H₅OH", nt) * h / 100;
-      return [BAI_HOC.celluloseGlucose, tach(pt)[1].some((s) => s.ten === "CO₂"), Math.abs(et - kq) < 0.5, BAI_HOC.celluloseTan]; } },
+      // ý d: so khối lượng ethanol với khối lượng glucose đã lên men theo phương trình
+      assert.ok(/^Khối lượng ethanol thu được bằng khối lượng glucose đã lên men\.$/.test(q.o[3]));
+      return [BAI_HOC.celluloseGlucose, tach(pt)[1].some((s) => s.ten === "CO₂"), Math.abs(et - kq) < 0.5, gan(heSo(pt, "C₂H₅OH") * KL("C₂H₅OH", nt), heSo(pt, "C₆H₁₂O₆") * KL("C₆H₁₂O₆", nt))]; } },
     { has: "Nylon-6,6 là polymer được dùng để dệt vải", right: () => BAI_HOC.nylon66 },
     { has: "điện phân dung dịch CuSO₄ với hai điện cực bằng than chì", right: (q) => { const [ca, an] = dienPhanDD("CuSO₄"), pt = "2CuSO₄ + 2H₂O → 2Cu + O₂ + 2H₂SO₄"; coX(q, pt); assert.ok(canBang(pt));
       return [ca === "Cu", an === "khí Cl₂", tach(pt)[1].some((s) => s.ten === "H₂SO₄"), ca !== "Cu"]; } },
@@ -994,11 +999,10 @@ const DA_XEM = [
   // Đã xem tay (Phiên N12-tn-hoahoc-b). Đề 5: câu fructose với thuốc thử Tollens không nói fructose có bị thuỷ phân hay không; “Ca(OH)₂” ở câu nung
   // CaCO₃ chỉ là dung dịch hấp thụ khí CO₂, không nói vôi sống kết hợp với hơi nước; câu aniline với nước bromine không nói quỳ tím.
   "tn-de5#4 → tn-de1#3: fructose", "tn-de5#22 → tn-de1#17: ca oh ₂", "tn-de5#7 → ck1-de2#10: aniline",
-  // Đề 6: “Ca(OH)₂” ở câu calcium tác dụng với nước không nói vôi sống kết hợp với hơi nước; câu so tính khử của bốn kim loại có lựa chọn
-  // “Sắt (Fe)”, câu 14 Đề 5 tự cho thế điện cực chuẩn của bốn kim loại; câu thí nghiệm nấu xà phòng (Đề 1) nói muối của acid béo tách ra
-  // khi thêm NaCl bão hoà, không nói ion Ca²⁺, Mg²⁺; “+2 và +3” là lựa chọn sai của câu số oxi hoá của chromium; “Fe₂O₃” ở câu luyện gang
-  // không nói quặng hematite.
-  "tn-de6#22 → tn-de1#17: ca oh ₂", "tn-de6#12 → tn-de5#14: sắt fe", "tn-de1#19 → tn-de6#2: acid béo thành", "ck2-de1#15 → tn-de6#17: +2 và +3",
+  // Đề 6: “Ca(OH)₂” ở câu calcium tác dụng với nước không nói vôi sống kết hợp với hơi nước; câu thí nghiệm nấu xà phòng (Đề 1) nói muối
+  // của acid béo tách ra khi thêm NaCl bão hoà, không nói ion Ca²⁺, Mg²⁺; “+2 và +3” là lựa chọn sai của câu số oxi hoá của chromium;
+  // “Fe₂O₃” ở câu luyện gang không nói quặng hematite.
+  "tn-de6#22 → tn-de1#17: ca oh ₂", "tn-de1#19 → tn-de6#2: acid béo thành", "ck2-de1#15 → tn-de6#17: +2 và +3",
   "tn-de6#26 → gk2-de2#14: fe₂o₃",
   // Đề 7: câu glucose và fructose là đồng phân không nói fructose có bị thuỷ phân hay không; câu cao su lưu hoá (Đề 4) nói cao su lưu hoá
   // khó tan trong dung môi hơn, không nói nhựa vá săm làm bằng gì; “xanh lam” là lựa chọn sai của câu màu kết tủa Fe(OH)₃ ở kho, không nói
