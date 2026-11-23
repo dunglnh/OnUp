@@ -600,8 +600,9 @@ assert.deepEqual([nhomCD(CHU_DE.slice(0, 7)), nhomCD(CHU_DE.slice(7, 10)), nhomC
   "Chủ đề 7 (tỉ số và các bài toán liên quan) 12 câu, Chủ đề 8 (thể tích, đơn vị đo thể tích) 5, Chủ đề 9 (diện tích, thể tích của hình khối) 8");
 CHU_DE.forEach((t) => assert.ok(("chu-de:5:toan:" + t).length <= 80, "chữ chủ đề dài quá cho mã đề Ôn chủ đề: " + t));
 assert.deepEqual([...new Set(kho.map((q) => q.topic))].sort(), CHU_DE.slice().sort(), "chủ đề của kho đúng chữ của ma trận");
-// chủ đề của giữa kì II không trùng chữ chủ đề của đề Toán 5 khác (đề “Ôn chủ đề” gộp câu cùng chữ chủ đề của mọi đề lớp 5)
-{ const khac = new Set(BANKS.filter((b) => b.file === "5-toan.js" && !DE.concat(POOL).includes(b.id)).flatMap((b) => b.questions.map((q) => q.topic)));
+// chủ đề của giữa kì II không trùng chữ chủ đề của đề Toán 5 khác (đề “Ôn chủ đề” gộp câu cùng chữ chủ đề của mọi đề lớp 5), trừ kho cuối năm
+// toan5-ck2-*: phần ôn của kho đó mang đúng chữ chủ đề của kho này (lời giao việc Phiên N5-ck2-toan; tests/toan5-ck2.js so câu cùng chủ đề)
+{ const khac = new Set(BANKS.filter((b) => b.file === "5-toan.js" && !DE.concat(POOL).includes(b.id) && !/^toan5-ck2-/.test(b.id)).flatMap((b) => b.questions.map((q) => q.topic)));
   CHU_DE.forEach((t) => assert.ok(!khac.has(t), "chủ đề trùng chữ với đề Toán 5 khác: " + t)); }
 // mỗi ô rút 1 câu và có đúng 4 câu: một câu ở mỗi đề cố định, hai câu riêng; ô không rút thì không có câu
 Object.entries(M).forEach(([t, v]) => v.forEach((k, i) => {
