@@ -1432,6 +1432,21 @@ window.ONTAP_SEED_BANKS = [
     pool: { from: ["tv5-ck1-de1", "tv5-ck1-de2"], matrix: {
       "Đọc hiểu": [3, 2, 2], "Danh từ, động từ, tính từ": [1, 1, 0], "Đại từ": [1, 1, 1], "Từ đồng nghĩa": [1, 0, 1], "Từ đa nghĩa": [1, 1, 0],
       "Sử dụng từ điển": [1, 1, 0], "Dấu gạch ngang": [1, 1, 0], "Biện pháp điệp từ, điệp ngữ": [0, 1, 1], "Kết từ": [1, 0, 1], "Viết": [0, 0, 1] } } },
+  /* Tiếng Việt 5 · Kiểm tra giữa học kì II (Kết nối tri thức, Tiếng Việt 5 tập hai, tuần 19–26, Bài 1–16; Phiên N5-gk2-tv). Khối 5
+     chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 53 câu riêng trong file (4 đoạn đọc, 5 câu Viết) + 50 câu của 2
+     đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, trong đó 7 câu Đọc hiểu
+     (đoạn 4 câu mức 1-1-2-3 và đoạn 3 câu mức 1-2-3), 17 câu Luyện từ và câu theo số bài Luyện từ và câu của sách (cách nối các vế
+     câu ghép 4 vì có hai bài; câu đơn và câu ghép 3; câu ghép, liên kết câu bằng cách lặp từ ngữ, bằng từ ngữ nối, bằng từ ngữ thay
+     thế, liên kết câu trong đoạn văn mỗi chủ đề 2), 1 câu Viết tự chấm (nên cả ba đề 40 phút). Hai đề cố định chia đúng ma trận; mỗi
+     ô Luyện từ và câu có rút có 4 câu cho mỗi câu ô đó rút (một ở mỗi đề cố định, hai câu riêng), nên học sinh đã làm một đề cố định
+     vẫn gặp câu mới. */
+  { id: "tv5-gk2-de1", title: "Tiếng Việt 5 · Giữa kì II · Đề 1", grade: 5, subject: "Tiếng Việt", minutes: 40, n: 25, file: "5-tv.js" },
+  { id: "tv5-gk2-de2", title: "Tiếng Việt 5 · Giữa kì II · Đề 2", grade: 5, subject: "Tiếng Việt", minutes: 40, n: 25, file: "5-tv.js" },
+  { id: "tv5-gk2-ngau-nhien", title: "Tiếng Việt 5 · Giữa kì II · Đề ngẫu nhiên", grade: 5, subject: "Tiếng Việt", minutes: 40, n: 25, file: "5-tv.js",
+    pool: { from: ["tv5-gk2-de1", "tv5-gk2-de2"], matrix: {
+      "Đọc hiểu": [3, 2, 2], "Câu đơn và câu ghép": [1, 1, 1], "Cách nối các vế câu ghép": [2, 1, 1], "Câu ghép": [0, 1, 1],
+      "Liên kết câu bằng cách lặp từ ngữ": [1, 1, 0], "Liên kết câu bằng từ ngữ nối": [1, 0, 1], "Liên kết câu bằng từ ngữ thay thế": [1, 1, 0],
+      "Liên kết câu trong đoạn văn": [1, 1, 0], "Viết": [0, 0, 1] } } },
 
   /* Tiếng Anh 5 · Kiểm tra cuối học kì I (Global Success 5 tập một, Units 1–10, Review 1–2; Phiên N5-ck1-ta). Khối 5 chưa bật
      (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức
