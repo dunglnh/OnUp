@@ -362,6 +362,10 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
         x: "Gợi ý: Mở bài giới thiệu người lao động bạn chọn (bác bảo vệ trường, cô lao công, chú đưa thư…). Thân bài tả hình dáng, trang phục khi làm việc; tả kĩ lúc người đó làm việc qua động tác, lời nói, cách cư xử; nêu tính tình qua việc làm. Kết bài nói lên tình cảm hoặc điều bạn học được.\nVí dụ: “Mỗi sáng đến trường, người đầu tiên em gặp là bác Hùng, bác bảo vệ đã gắn bó với trường em hơn mười năm.\nBác Hùng năm nay ngoài năm mươi tuổi, dáng người cao, hơi gầy. Bác thường mặc bộ quần áo bảo vệ màu xanh đã bạc màu, đội chiếc mũ có gắn phù hiệu nhỏ. Khuôn mặt bác rám nắng, đôi mắt hiền, mỗi khi cười lại hằn lên mấy nếp nhăn ở khoé mắt.\nTừ sáu giờ sáng, bác đã mở rộng cổng trường, đứng nép một bên đón học sinh. Thấy em nào đi xe đạp vào cổng nhanh quá, bác nhẹ nhàng nhắc: “Xuống dắt xe cháu nhé!”. Những hôm trời mưa, bác cầm chiếc ô to đưa các em lớp một từ cổng vào tận hành lang. Giờ ra chơi, bác đi một vòng quanh sân, nhặt từng chiếc lá khô, kiểm tra lại mấy cánh cửa sổ. Có lần, quả bóng của lớp em mắc trên mái nhà xe, bác bắc thang trèo lên lấy xuống rồi dặn chúng em chơi xa chỗ ấy.\nBác Hùng ít nói nhưng rất tận tình. Em quý bác như một người ông trong nhà và mong bác luôn khoẻ mạnh để ngày ngày đón chúng em đến trường.”", lv: 3 }
     ]
   },
+  /* ---------- Tiếng Việt 5 · Đề ngẫu nhiên giữa học kì II: câu riêng của ngân hàng (Phiên N5-gk2-tv) ----------
+     53 câu: 4 đoạn đọc ở passages (đoạn 4 câu mức 1-1-2-3 và đoạn 3 câu mức 1-2-3, như hai đề cố định), 34 câu Luyện từ và câu
+     (hai câu riêng cho mỗi câu một ô của ma trận rút), 5 câu Viết (cùng hai câu Viết của hai đề cố định là đủ các kiểu bài Viết của
+     Bài 1–16). */
   "tv5-gk2-ngau-nhien": {
     note: "Giữa học kì II (tuần 19–26, Bài 1–16, sách Kết nối tri thức). Mỗi đề có 10 câu mức Biết, 8 câu mức Hiểu, 7 câu mức Vận dụng, trong đó có một câu Viết tự chấm theo gợi ý. Có lời giải từng câu.",
     passages: {
