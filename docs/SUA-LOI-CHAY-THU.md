@@ -517,6 +517,23 @@ Ngoài các bộ trên, QC dò thêm bằng script Playwright tạm (không vào
   - Trên 534 hình hiện có, cách này chỉ báo đúng hai hình trên, chạy khoảng 2 giây. Đo theo hộp của cả chuỗi chữ thì báo nhầm thêm câu 8 của `diali12-gk2-de2`: đuôi chữ g của “Nghìn thuê bao” nằm xa số “980”, chữ “thuê” không chạm số đó. Vì vậy phải đo theo từng kí tự.
 - Đã sửa ở PR #320 (Phiên 9v): biểu đồ của `diali12-gk2-de2` câu 20 ghi số của cột trong lòng cột, sát đỉnh (số liệu, đường, chấm tròn, số của đường giữ nguyên); nhãn “(P₁)” của hình bốn parabol dời xuống 8 đơn vị vẽ. `docKetHop` của `tests/lichsu-diali12-gk2.js`, `-ck1.js`, `-ck2.js` nhận số của cột ngay trên đỉnh hoặc trong lòng cột, và báo số của cột chồng số của đường, chấm tròn nằm trên số của cột (tự thử với hai chỗ đặt cũ). Bước mới “figures: no overlapping labels (L48)” của `tests/e2e.js` đo như QC ở trên mọi hình của đề có sẵn (cả hình của đoạn đọc, câu riêng của đề ngẫu nhiên; đổi toạ độ của `<g transform>`, `<tspan>`, không đo được thì báo); trên `main` trước khi sửa bước báo đúng hai hình này, sau khi sửa không báo gì. Ảnh trước, sau ở `docs/hinh-9v/`.
 
+### Nhóm T · Kiểm thử định kì ngày 19/11 (Phiên 9w)
+
+QC chạy mọi bộ kiểm thử trên `main` commit `91959aa` (sau PR #328), Playwright 1.63.0, PostgreSQL 16, máy có locale POSIX. In OK: `kiem-tra-de.js` (363 đề cố định, 135 đề ngẫu nhiên, 11 338 câu), `so-bo-cham.js` (0, 0, 0), `admin-test.mjs`, `store-test.mjs`, `e2e.js` (khoảng 13 phút), `cloud-e2e.js` (khoảng 3,5 phút); qua `tests/chay-theo-ngay.js` với `FAKE_NOW=2027-03-19T10:00:00Z` hai script đó cũng in OK. 10 950 câu chấm tự động của đề có sẵn đều được 1 điểm. Không có lỗi chập chờn, không có Pull Request nào đang mở. Riêng `sh tests/supabase/run.sh` dừng ở bước nạp đề, hai lần như nhau (L49).
+
+**L49. `sh tests/supabase/run.sh` dừng ở bước nạp đề từ PR #328: CSDL thử đếm byte, Supabase đếm kí tự.**
+- Hiện tượng: trên `main` commit `91959aa`, `run.sh` in `schema.sql: OK` và ba dòng OK của các file cập nhật, rồi dừng khi nạp đề do `supabase/banks-to-sql.js` sinh ra: `ERROR: new row for relation "paid_banks" violates check constraint "paid_banks_note_check"`, ở đề `tin12-tn-de1` (Tin học 12 · Thi thử tốt nghiệp · Đề 1). Mã thoát 3, không in `RLS OK` hay `RLS FAILED`: 221 kiểm tra của `tests/supabase/rls-test.sql` không chạy. Hai lần chạy như nhau. Trên commit ngay trước PR #328 (`aaac801`), `run.sh` in `RLS OK: 221 kiểm tra`.
+- Cách tái hiện: máy có locale C hoặc POSIX (máy của các phiên Claude Code: lệnh `locale` in `POSIX`), PostgreSQL 16: `sh tests/supabase/run.sh`.
+- Nguyên nhân:
+  - Cột `note` của bảng `paid_banks` có `check (char_length(note) <= 2000)` (`supabase/schema.sql`).
+  - `run.sh` tạo CSDL thử bằng `initdb -D "$TMP/db" -U postgres --auth=trust`, không ghi mã hoá, nên mã hoá theo locale của máy. Locale C hoặc POSIX thì CSDL là `SQL_ASCII` (initdb in “The default database encoding has accordingly been set to "SQL_ASCII"”). Ở `SQL_ASCII`, `char_length` đếm byte. Supabase dùng `UTF8`, `char_length` đếm kí tự.
+  - PR #328 (Phiên N12-tn-tin, commit `83e6cd6`) thêm 3 đề có ghi chú dài 1 556, 1 550, 1 507 kí tự, tức 2 010, 2 001, 1 947 byte UTF-8. Hai đề đầu quá 2 000 byte. Trước PR đó, ghi chú dài nhất là của `diali12-tn-de1`…`de8` (1 351 kí tự, 1 784 byte).
+  - Trên Supabase thật, hai ghi chú này hợp lệ (dưới 2 000 kí tự); `banks-to-sql.js` cũng chưa dùng (để dành cho Phiên B2). App và máy chủ không lỗi: chỉ CSDL thử khác Supabase.
+  - Phiên làm đề không chạy `run.sh`: CLAUDE.md chỉ bắt chạy khi sửa `supabase/`, `js/store-supabase.js`, `admin.html`…; PR #328 ghi đã chạy `kiem-tra-de.js`, `chay-mon.js`, `e2e.js`. `tests/kiem-tra-de.js` không kiểm tra độ dài ghi chú theo giới hạn cột của `paid_banks`. Vì vậy đề làm hỏng `run.sh` chỉ lộ ra khi QC hay phiên sửa phần đám mây chạy nó.
+- Hệ quả: 221 kiểm tra RLS (quyền của từng vai trò, grant, trigger, hạn mức) không chạy được trên `main`. Phiên sau sửa `supabase/`, `js/store-supabase.js`, `admin.html` (G0, B1, B2, G1…) gặp lỗi không do mình gây ra. Các phiên đề thi thử tốt nghiệp còn trong hàng đợi cũng viết ghi chú dài như vậy, nên chỉ rút gọn ghi chú của ba đề này thì lỗi sẽ quay lại.
+- QC thử bản sửa trong thư mục tạm (không đẩy lên): chép `run.sh`, thêm `-E UTF8 --locale=C` vào lệnh `initdb`. Trên `main` bản chép in `banks-to-sql.js: OK` và `RLS OK: 221 kiểm tra`, chạy thường hay với `LC_ALL=C.UTF-8` cũng vậy. Đếm theo kí tự, ở các đề cố định: ghi chú dài nhất 1 556 kí tự (giới hạn 2 000), tên dài nhất 41 (giới hạn 200), môn dài nhất 20 (giới hạn 60).
+- Chạy tạm trước khi có Phiên 9w: `LC_ALL=C.UTF-8 sh tests/supabase/run.sh` (không sửa gì; initdb chọn UTF8 theo locale) in `RLS OK: 221 kiểm tra` trên `main`. Phiên nào phải chạy `run.sh` trước khi 9w gộp thì chạy như vậy và ghi vào Pull Request.
+
 ---
 
 ## 2. Cách sửa gợi ý và điều kiện xong
@@ -1247,8 +1264,31 @@ Hai kiểm thử báo lỗi giả. Chỉ sửa `tests/bai-on-l6.js`, `tests/e2e.
 - Ảnh trước, sau của hai hình (360px, sáng và tối) chép sang `docs/hinh-9v/`.
 - Pull Request ghi các lệnh đã chạy và kết quả.
 
+### Phiên 9w
+
+**L49 · CSDL thử của `run.sh` mã hoá UTF8 như Supabase.** Chỉ sửa `tests/supabase/run.sh`, `tests/supabase/rls-test.sql`, `tests/kiem-tra-de.js`, CLAUDE.md và tài liệu. Không sửa `supabase/` (schema, file cập nhật, `banks-to-sql.js`), file đề, `js/`.
+- **`run.sh`:** lệnh `initdb` thêm `-E UTF8 --locale=C`. CSDL thử mã hoá UTF8 như Supabase, nên `char_length` đếm kí tự. Locale C có ở mọi máy, nên kết quả không phụ thuộc locale của máy chạy. Thêm một dòng chú thích lí do.
+- **`rls-test.sql`:**
+  - Đầu phần kiểm tra: `current_setting('server_encoding') = 'UTF8'` (“CSDL thử mã hoá UTF8 như Supabase”). Lần sau CSDL sai mã hoá thì báo rõ, không thành lỗi khó hiểu ở bước khác.
+  - Cạnh kiểm tra “owner đăng, thêm, xóa đề”: chủ app thêm đề có ghi chú 2 000 kí tự có dấu (ví dụ `repeat('ệ', 2000)`, 6 000 byte) thì được, 2 001 kí tự thì bị chặn. Xóa đề thử ngay sau đó, để số đề ở các kiểm tra sau không đổi.
+- **`kiem-tra-de.js`:**
+  - Mỗi đề không dài quá giới hạn cột của `paid_banks`: tên 200 kí tự, môn 60 (trong danh mục), ghi chú 2 000 (trong file câu hỏi). Đếm theo kí tự như `char_length` của CSDL UTF8 (`[...s].length`), không theo byte.
+  - Ghi ba số trong một hằng, chú thích trỏ về bảng `paid_banks` của `supabase/schema.sql` (đổi giới hạn ở schema thì sửa cả hằng).
+  - Tự thử: đề giả có ghi chú 2 001 kí tự thì báo lỗi; 2 000 kí tự có dấu (quá 2 000 byte) thì không.
+  - Phiên làm đề chạy script này, nên ghi chú quá dài lộ ra ngay lúc làm đề, không phải chờ `run.sh`.
+- **CLAUDE.md**, mục “Chạy và kiểm tra”: đoạn về `run.sh` ghi CSDL thử mã hoá UTF8 như Supabase; đoạn liệt kê điều `kiem-tra-de.js` kiểm tra thêm “tên, môn, ghi chú không dài quá giới hạn cột của bảng `paid_banks`”.
+
+**Xong khi:**
+- `sh tests/supabase/run.sh` in `RLS OK` (221 kiểm tra cũ cộng các kiểm tra mới), cả khi chạy thường (locale POSIX của máy phiên) và khi chạy với `LC_ALL=C.UTF-8`.
+- Tạm bỏ `-E UTF8 --locale=C` khỏi `run.sh` (không commit) rồi chạy thường trên máy locale POSIX thì `run.sh` không in `RLS OK`.
+- `node tests/kiem-tra-de.js` in `DE OK`; phần tự thử bắt được ghi chú 2 001 kí tự.
+- Pull Request ghi các lệnh đã chạy và kết quả.
+
 ---
 
 ## 3. Các phiên Claude Code
 
-Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n, 9nb, 9o, 9ob, 9p, 9q, 9r, 9s, 9t, 9u, 9v đã xong (PR #119, #122, #123, #132, #137, #139, #174, #180, #195, #319, #320). Chưa có phiên chờ làm. Lỗi mới thì QC ghi mã (tiếp theo L49) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n, 9nb, 9o, 9ob, 9p, 9q, 9r, 9s, 9t, 9u, 9v đã xong (PR #119, #122, #123, #132, #137, #139, #174, #180, #195, #319, #320). Phiên chờ làm: 9w (L49), lời giao việc bên dưới. Lỗi mới thì QC ghi mã (tiếp theo L50) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+
+**Phiên 9w · CSDL thử của `run.sh` đếm byte thay vì kí tự (L49)** (nên làm sớm: từ PR #328, `run.sh` hỏng trên `main` và 221 kiểm tra RLS không chạy; phải xong trước phiên tiếp theo sửa `supabase/`, `js/store-supabase.js`, `admin.html`. Chỉ sửa kiểm thử và tài liệu, nên chạy xen được với các phiên N; không chạy cùng lúc với phiên khác sửa `tests/kiem-tra-de.js`)
+> Đọc CLAUDE.md (mục “Chạy và kiểm tra”; đoạn “Bản đám mây (SupabaseStore)”) và docs/SUA-LOI-CHAY-THU.md: L49 ở nhóm T của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9w". L49: từ PR #328, `sh tests/supabase/run.sh` dừng khi nạp đề vào bảng `paid_banks` (lỗi `paid_banks_note_check` ở đề `tin12-tn-de1`), nên 221 kiểm tra RLS không chạy. Nguyên nhân: `run.sh` tạo CSDL thử bằng `initdb` không ghi mã hoá; máy có locale POSIX nên CSDL là SQL_ASCII và `char_length` đếm byte (ghi chú 1 556 kí tự là 2 010 byte, quá giới hạn 2 000), còn Supabase dùng UTF8 và đếm kí tự. Sửa `run.sh` cho `initdb` dùng `-E UTF8 --locale=C`; thêm vào `rls-test.sql` kiểm tra CSDL mã hoá UTF8 và giới hạn 2 000 kí tự có dấu của ghi chú trong `paid_banks`; thêm vào `tests/kiem-tra-de.js` kiểm tra tên, môn, ghi chú của đề không dài quá giới hạn cột của `paid_banks` (kèm tự thử). Không sửa `supabase/`, file đề, `js/`. PostgreSQL 16 có sẵn trong máy (`/usr/lib/postgresql/16/bin`). Làm đủ "Xong khi": sh tests/supabase/run.sh (chạy thường và với LC_ALL=C.UTF-8), node tests/kiem-tra-de.js. Mở Pull Request, ghi các lệnh đã chạy và kết quả. Làm xong thì cập nhật docs/KE-HOACH-PHAT-TRIEN-ONUP.md (bảng "Đã xong", bỏ dòng 9w ở mục 3); ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và câu "Phiên chờ làm: 9w (L49)…".
