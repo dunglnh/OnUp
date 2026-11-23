@@ -264,7 +264,7 @@ const THAY = {
   "Đây là dịp để các bạn học sinh thi tài thể thao.": { "đây": "Hội khoẻ Phù Đổng" },
   "Tùng thường ra đó ngồi câu cá với ông nội.": { "đó": "một con kênh nhỏ" },
   "Ông dạy cậu bé cách mắc mồi, buông câu.": { "cậu bé": "bạn Tùng" },
-  "Bến cá lúc ấy đã tấp nập người mua kẻ bán.": { "ấy": "Sáng chủ nhật" },
+  "Bến cá lúc ấy đã tấp nập người mua kẻ bán.": { "lúc ấy": "Sáng chủ nhật" },
   "Những con cá ấy được xếp đầy trong các thúng tre.": { "những con cá ấy": "Những con cá thu, cá nục" },
   "Ngày ngày, nơi ấy vang lên tiếng búa chan chát.": { "nơi ấy": "một lò rèn nhỏ" },
   "Thấy vậy, mẹ khen các con đã lớn.": { "vậy": "Hai chị em xách giúp mẹ những túi rau quả nặng", "các con": "Hoa và em gái" },
@@ -337,7 +337,7 @@ const CHECKS = [
   { has: "Câu nào dưới đây là câu ghép?", right: (q, at) => mot(q, (o) => soVe(o) >= 2, at) },
   { has: "Trong các câu sau, câu nào là câu ghép?", right: (q, at) => mot(q, (o) => soVe(o) >= 2, at) },
   { has: "Câu nào dưới đây là câu đơn?", right: (q, at) => mot(q, (o) => soVe(o) === 1, at) },
-  { has: "Câu nào sau đây chỉ có một chủ ngữ và một vị ngữ?", right: (q, at) => mot(q, (o) => soVe(o) === 1, at) },
+  { has: "Câu nào sau đây là câu đơn?", right: (q, at) => mot(q, (o) => soVe(o) === 1, at) },
   { has: "có mấy vế câu?", right: (q) => soVe(quote(q)) },
   { has: "vế thứ hai là:", right: (q, at) => { const v = veCua(quote(q)); assert.ok(v.length >= 2, at); mot(q, (o) => thuong(o) === thuong(veChu(v[1])), at); } },
   { has: "Cách viết nào gộp hai câu đơn", right: (q, at) => { const [a, b] = cauDoan(quote(q)).map((c) => veCua(c)[0]); assert.ok(a && b, at);
