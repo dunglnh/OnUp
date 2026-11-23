@@ -1476,6 +1476,19 @@ window.ONTAP_SEED_BANKS = [
       "Unit 4 · Our Free-Time Activities": [1, 1, 1], "Unit 5 · My Future Job": [1, 1, 0], "Unit 6 · Our School Rooms": [1, 0, 1],
       "Unit 7 · Our Favourite School Activities": [0, 1, 1], "Unit 8 · In Our Classroom": [1, 1, 0], "Unit 9 · Our Outdoor Activities": [1, 1, 1],
       "Unit 10 · Our School Trip": [1, 0, 1], "Reading": [1, 1, 1] } } },
+  /* Tiếng Anh 5 · Kiểm tra cuối năm học (Global Success 5 tập hai, Units 11–20, Review 3–4; Phiên N5-ck2-ta). Khối 5 chưa bật
+     (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức
+     độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, mỗi Unit 2–3 câu (Unit 11, 14 ba câu), Reading 3 câu một
+     đoạn đọc (mức 1-2-3). Hai đề cố định và phần câu riêng đều chia đúng ma trận: mỗi ô rút 1 câu và có 3 câu (một câu ở mỗi đề cố
+     định, một câu riêng), nên học sinh đã làm một đề cố định vẫn gặp câu mới. Không có câu nghe, câu phát âm. */
+  { id: "ta5-ck2-de1", title: "Tiếng Anh 5 · Cuối năm · Đề 1", grade: 5, subject: "Tiếng Anh", minutes: 35, n: 25, file: "5-ta.js" },
+  { id: "ta5-ck2-de2", title: "Tiếng Anh 5 · Cuối năm · Đề 2", grade: 5, subject: "Tiếng Anh", minutes: 35, n: 25, file: "5-ta.js" },
+  { id: "ta5-ck2-ngau-nhien", title: "Tiếng Anh 5 · Cuối năm · Đề ngẫu nhiên", grade: 5, subject: "Tiếng Anh", minutes: 35, n: 25, file: "5-ta.js",
+    pool: { from: ["ta5-ck2-de1", "ta5-ck2-de2"], matrix: {
+      "Unit 11 · Family Time": [1, 1, 1], "Unit 12 · Our Tet Holiday": [1, 1, 0], "Unit 13 · Our Special Days": [1, 0, 1],
+      "Unit 14 · Staying Healthy": [1, 1, 1], "Unit 15 · Our Health": [1, 1, 0], "Unit 16 · Seasons and the Weather": [1, 0, 1],
+      "Unit 17 · Stories for Children": [1, 1, 0], "Unit 18 · Means of Transport": [0, 1, 1], "Unit 19 · Places of Interest": [1, 0, 1],
+      "Unit 20 · Our Summer Holidays": [1, 1, 0], "Reading": [1, 1, 1] } } },
 
   /* Khoa học 5 · Kiểm tra cuối học kì I (Kết nối tri thức, Khoa học 5, Bài 1–17; Phiên N5-ck1-khoahoc). Khối 5 chưa bật (data/grades.js)
      nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết,
