@@ -226,8 +226,8 @@ const CHECKS = [
   { order: "Did your brother", right: (q) => (q.o.join(" ") === "Did your brother take a lot of photos in Hoi An?" && !goc(q.o[1]) ? q.o[0] : null) },
   { has: "around Ha Long ___", right: () => NOI["Ha Long"] },
   { has: "___ (see) some interesting places", right: () => PAST[VIEC["interesting places"]] },
-  { has: "Did they eat seafood on Saturday?", right: (q) => { const ngay = /On (\w+), they ate seafood/.exec(q.q)[1];
-    return ngay === "Saturday" ? "Yes, they did. They ate it on Saturday." : `No, they didn't. They ate it on ${ngay}.`; } },
+  { has: "Did they eat seafood on Sunday?", right: (q) => { const ngay = /On (\w+), they ate seafood/.exec(q.q)[1];
+    return ngay === "Sunday" ? "Yes, they did. They ate it on Sunday." : `No, they didn't. They ate it on ${ngay}.`; } },
   // Unit 12
   { has: "I'll ___ my room. I'll put some flowers and pictures on the wall.", right: () => "decorate" },
   { has: "– Will you make spring rolls for Tet? – ___ My grandmother will make them.", right: (q) => (/My grandmother will make them/.test(q.q) ? "No, I won't." : "Yes, I will.") },
@@ -251,7 +251,7 @@ const CHECKS = [
   { has: "She does ___ every morning.", right: (q) => motDung(q, (o) => DO.includes(o)) },
   { has: "She eats a lot of ___ and fruit.", right: (q) => motDung(q, (o) => LANH.includes(o)) },
   { has: "My grandfather does morning ___", right: () => DO[1].split(" ")[1] },
-  { has: "– How does your father stay healthy? – ___", right: (q) => motDung(q, (o) => /^He (plays|does|eats|drinks) [a-z ]+\.$/.test(o)) },
+  { has: "– How does Mr Hung stay healthy? – ___", right: (q) => motDung(q, (o) => /^He (plays|does|eats|drinks) [a-z ]+\.$/.test(o)) },
   { match: "How does your mum stay healthy?", right: (q) => (/^She (plays|does|eats|drinks) [a-z ]+\.$/.test(q.r[0]) && /^Does she /.test(q.l[1]) && q.r[1] === "Yes, she does."
     && /^Is your brother /.test(q.l[2]) && q.r[2] === "Yes, he is." && !/^(She |Yes, she|Yes, he)/.test(q.r[3]) ? q.r[0] : null) },
   { has: "– How does Kim stay healthy? – ___", right: (q) => motDung(q, (o) => /^She (plays|does|eats|drinks) [a-z ]+\.$/.test(o)) },
@@ -266,13 +266,13 @@ const CHECKS = [
   { has: "I ate too much food at the party. Now I have a ___.", right: () => DAU.stomach },
   { odd: "medicine", nhom: { problem: Object.values(DAU), thing: ["medicine"] } },
   { has: "– My teeth hurt. What should I do? – ___", right: () => "You should " + KHUYEN[DAU.tooth] + "." },
-  { has: "Phong has a toothache. He ___ eat a lot of sweets.", right: () => (KHONG_LANH.includes("sweets") ? "shouldn't" : "should") },
+  { has: "Phong has a toothache. His mother says, “You ___ eat a lot of sweets.”", right: () => (KHONG_LANH.includes("sweets") ? "shouldn't" : "should") },
   { match: "What's the matter?", right: (q) => (/^My (head|tooth|throat|stomach) hurts\.$/.test(q.r[0]) && q.l[1] === "What should I do?" && /^(Have a rest|Drink warm water|Go to the dentist|Take some medicine)\.$/.test(q.r[1])
     && /^Are you OK/.test(q.l[2]) && /^Yes, I'm fine/.test(q.r[2]) && !/hurts|rest|fine|water|dentist|medicine/.test(q.r[3]) ? q.r[0] : null) },
   // Unit 16
   { has: "in Ha Noi in ___? – It's cool and cloudy.", right: () => Object.keys(MUA).find((m) => MUA[m] === "cool") },
   { has: "It's very cold today, so I'll wear a ___ over my T-shirt.", right: (q) => motDung(q, (o) => AM.includes(o)) },
-  { has: "We often go swimming in summer because it's very ___ in Ha Noi.", right: () => MUA.summer },
+  { has: "we often go swimming in summer because it's very ___.", right: (q) => motDung(q, (o) => o === MUA.summer) },
   { has: "Look at Lan's clothes", right: (q) => {
     const lich = docBang(/: (spring.+)\. Is each/.exec(q.q)[1]);
     return q.o.map((o) => { const m = /^Lan wears (?:a )?([A-Za-z-]+) in (\w+)\.$/.exec(o); assert.ok(m, ten.get(q) + ": đọc được ý “" + o + "”");
@@ -318,7 +318,7 @@ const CHECKS = [
   // Unit 20
   { has: "we're going to visit Phong Nha ___", right: () => NOI["Phong Nha"] },
   { has: "I'm going to stay in a tent in the forest.", right: () => "go camping" },
-  { has: "I'm going to ___ a music club", right: () => "join" },
+  { has: "she's going to ___ a music club", right: () => "join" },
   { has: "– What are you going to do this summer? – ___", right: (q) => motDung(q, (o) => { const m = /^I'm going to ([a-z]+) [a-z ]+\.$/.exec(o); return !!m && m[1] !== "visit" && !goc(m[1]); }) },
   { has: "– Where are you going to visit this summer? – ___", right: (q) => motDung(q, (o) => /^I'm going to visit [A-Z][A-Za-z ]+\.$/.test(o)) },
   { match: "Where are you going to visit this summer?", right: (q) => (/^[A-Z][a-z]+ [A-Z][a-z]+ (Island|Cave|River)\.$/.test(q.r[0]) && /^What are you going to do there\?$/.test(q.l[1])
@@ -335,7 +335,7 @@ const CHECKS = [
   { has: "What will Lan do on Sports Day?", right: () => (/Lan will play basketball with her class, and then she will run in a race/.test(PSG.sportsday.text) ? "She'll play basketball and run in a race." : null) },
   { has: "How did Nhi's family get to Hue?", right: () => (/We came here by train/.test(PSG.hue.text) ? "By train." : null) },
   { has: "Nhi thinks Thien Mu Pagoda is beautiful.", right: () => /Thien Mu Pagoda\. I think it's very beautiful/.test(PSG.hue.text) },
-  { has: "Today is Monday. When is Nhi's family going to take the boat trip?", right: () => { const NGAY = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  { has: "In the letter, today is Monday. When is Nhi's family going to take the boat trip?", right: () => { const NGAY = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     assert.ok(/Tomorrow, we're going to take a boat trip/.test(PSG.hue.text)); return `On ${NGAY[(NGAY.indexOf("Monday") + 1) % 7]}.`; } }
 ];
 const daTinh = new Set();
@@ -458,9 +458,9 @@ assert.deepEqual(lo.filter((s) => !DA_XEM.includes(s)), [], "đáp án có ở c
 {
   const a = cauCua("Hien ___ seashells on the beach"), b = cauCua("around Ha Long ___");
   assert.ok(doLo([b, Object.assign({}, a, { x: a.x + " They took a boat trip around the bay." })], (q) => q.topic).some((s) => /: bay$/.test(s)), "bộ dò phải bắt được đáp án nằm trong lời giải câu khác");
-  const c = cauCua("Phong has a toothache. He ___ eat"), e = cauCua("– My teeth hurt. What should I do?");
+  const c = cauCua("Phong has a toothache. His mother says"), e = cauCua("– My teeth hurt. What should I do?");
   assert.ok(doLo([c, Object.assign({}, e, { q: "– Can I eat a lot of sweets? – No, you shouldn't." })], (q) => q.topic).some((s) => /: shouldn't$/.test(s)), "bộ dò phải bắt được từ ngữ pháp ở câu cùng Unit");
-  const f = cauCua("I'm going to ___ a music club"), g = cauCua("I'm going to stay in a tent");
+  const f = cauCua("she's going to ___ a music club"), g = cauCua("I'm going to stay in a tent");
   assert.ok(doLo([f, Object.assign({}, g, { o: g.o.concat(["join a music club"]) })], (q) => q.topic).some((s) => /: join$/.test(s)), "bộ dò phải bắt được đáp án câu điền ở lựa chọn sai của câu khác");
   const h = cauCua("___ (see) some interesting places");
   assert.ok(doLo([h, Object.assign({}, cauCua("Look at Hai's weekend in Quy Nhon"), { q: "Hai saw the sea." })], (q) => q.topic).some((s) => /: saw$/.test(s)), "bộ dò phải bắt được dạng quá khứ là đáp án");
@@ -554,7 +554,7 @@ if (SACH.length) {
   const LOP3 = "cat dog bird rabbit fish goldfish parrot elephant tiger monkey ruler pencil pen eraser book books notebook bag desk chair table lamp window door bed kitchen bedroom bathroom living room yard gate pond tree toy toys doll kite car ball robot teddy bear ship train plane bus bike rice bread milk water juice chicken meat egg eggs mother father mum dad brother sister grandmother grandfather grandma grandpa family friend friends cook cooking driver doctor nurse worker farmer singer teacher red blue green yellow pink orange black white brown purple colour head face eyes ears nose mouth hand hands arm leg legs hair swim swimming sing singing dance dancing draw drawing paint painting run running walk walking read reading write writing skate skating cycling chess football basketball volleyball badminton music room art room gym playground library classroom school hello hi goodbye bye thank thanks yes no please sorry fine name old years how many sit stand open close".split(" ");
   // chữ dùng trong lời giải để gọi tên phần của câu (sách dùng ở lời dặn: “Read and answer”, “Make a sentence”, “Look and write”)
   const META = "v ing ed text word words thing things person means say says tells asks answer answers question questions sentence add use past job country reason more than one becomes form".split(" ");
-  const NAMES = "hien quy nhon hai vung tau hoi an da lat khanh hoa mai tet duy ngo mon tuyen lam thanh phong nha huong quoc phu nhi mia thien mu lan kim bao anh thu son duc vy dragon".split(" ");
+  const NAMES = "hien quy nhon hai hung vung tau hoi an da lat khanh hoa mai tet duy ngo mon tuyen lam thanh phong nha huong quoc phu nhi mia thien mu lan kim bao anh thu son duc vy dragon".split(" ");
   const tuSach = (s) => new Set(s.toLowerCase().replace(/[’]/g, "'").replace(/[^a-z' -]+/g, " ").split(/[\s-]+/).map((w) => w.replace(/^'+|'+$/g, "")).filter(Boolean));
   const L4 = tuSach(f4.map((f) => fs.readFileSync(f, "utf8")).join(" "));
   const TAP1 = tuSach(Object.values(trang1).join(" "));
