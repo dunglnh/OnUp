@@ -2200,6 +2200,23 @@ window.ONTAP_SEED_BANKS = [
       "Tiêu chuẩn trình bày bản vẽ kĩ thuật": [1, 1, 1], "Hình chiếu vuông góc": [2, 1, 1], "Bản vẽ chi tiết": [1, 1, 1], "Bản vẽ lắp": [1, 1, 0],
       "Bản vẽ nhà": [1, 1, 1], "Vật liệu cơ khí": [1, 1, 1], "Truyền và biến đổi chuyển động": [1, 1, 2], "Gia công cơ khí bằng tay": [1, 1, 0],
       "Ngành nghề trong lĩnh vực cơ khí": [1, 0, 0] } } },
+  /* Toán 5 · Kiểm tra giữa học kì II (Kết nối tri thức, Toán 5 tập hai, Bài 36–55; Phiên N5-gk2-toan). Khối 5 chưa bật
+     (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức
+     độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu trên 15 chủ đề theo tên bài: Chủ đề 7 (tỉ số, tỉ lệ bản
+     đồ, tổng – tỉ, hiệu – tỉ, tỉ số phần trăm, máy tính cầm tay) 12 câu, Chủ đề 8 (thể tích, đơn vị đo thể tích) 5, Chủ đề 9 (hình
+     khai triển, diện tích xung quanh, toàn phần, thể tích của hình hộp chữ nhật, hình lập phương) 8. Mỗi ô (chủ đề, mức) rút 1 câu
+     và có 4 câu: một câu ở mỗi đề cố định, hai câu riêng, nên học sinh đã làm một đề cố định vẫn gặp câu mới. Không có câu tự luận,
+     không hỏi số đo thời gian, vận tốc (Chủ đề 10). */
+  { id: "toan5-gk2-de1", title: "Toán 5 · Giữa kì II · Đề 1", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js" },
+  { id: "toan5-gk2-de2", title: "Toán 5 · Giữa kì II · Đề 2", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js" },
+  { id: "toan5-gk2-ngau-nhien", title: "Toán 5 · Giữa kì II · Đề ngẫu nhiên", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js",
+    pool: { from: ["toan5-gk2-de1", "toan5-gk2-de2"], matrix: {
+      "Tỉ số, tỉ số phần trăm": [1, 1, 0], "Tỉ lệ bản đồ": [1, 0, 1], "Tìm hai số khi biết tổng và tỉ số": [0, 1, 1],
+      "Tìm hai số khi biết hiệu và tỉ số": [0, 1, 1], "Tìm tỉ số phần trăm của hai số": [0, 1, 0], "Tìm giá trị phần trăm của một số": [1, 0, 1],
+      "Máy tính cầm tay": [1, 0, 0], "Thể tích của một hình": [1, 1, 0], "Xăng-ti-mét khối, đề-xi-mét khối": [1, 0, 0], "Mét khối": [1, 1, 0],
+      "Hình khai triển": [1, 1, 0], "Diện tích xung quanh, toàn phần của hình hộp chữ nhật": [0, 1, 1],
+      "Diện tích xung quanh, toàn phần của hình lập phương": [1, 0, 0], "Thể tích của hình hộp chữ nhật": [1, 0, 1],
+      "Thể tích của hình lập phương": [0, 0, 1] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
