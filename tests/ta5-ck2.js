@@ -243,8 +243,8 @@ const CHECKS = [
   { has: "Class 5D's party menu", right: (q) => `They'll have ${/Drinks: ([^.]+)\./.exec(q.q)[1].split(", ").join(" and ")}.` },
   { has: "Look at the activities for Children's Day at Hoa Mai School", right: (q) => {
     const lich = docBang(/: (morning.+)\. Is each/.exec(q.q)[1]);
-    return q.o.map((o) => { const m = /^(?:The pupils|They) will (sing|dance|play games|eat pizza) in the (morning|afternoon)\.$/.exec(o); assert.ok(m, ten.get(q) + ": đọc được ý “" + o + "”");
-      return lich[m[2]].some((v) => v === m[1] || v.split(" and ").includes(m[1]) || v.startsWith(m[1] + " ") || v.split(" and ").some((x) => x.startsWith(m[1]))); });
+    return q.o.map((o) => { const m = /^(?:The pupils|They) will ([a-z ]+) in the (morning|afternoon)\.$/.exec(o); assert.ok(m, ten.get(q) + ": đọc được ý “" + o + "”");
+      assert.ok(Object.values(lich).some((v) => v.includes(m[1])), ten.get(q) + ": việc “" + m[1] + "” có trong bảng"); return lich[m[2]].includes(m[1]); });
   } },
   { order: "What food", right: (q) => (q.o.join(" ") === "What food will your class have on Children's Day?" ? q.o[0] : null) },
   // Unit 14
@@ -324,7 +324,7 @@ const CHECKS = [
   { match: "Where are you going to visit this summer?", right: (q) => (/^[A-Z][a-z]+ [A-Z][a-z]+ (Island|Cave|River)\.$/.test(q.r[0]) && /^What are you going to do there\?$/.test(q.l[1])
     && /^(Visit|Go|Join|Practise) [a-z -]+\.$/.test(q.r[1]) && /^Who are you going with\?$/.test(q.l[2]) && /^With my [a-z]+\.$/.test(q.r[2]) && !/^(Visit|Go|Join|With)/.test(q.r[3]) ? q.r[0] : null) },
   // Reading: đáp án lấy từ chữ của đoạn đọc
-  { has: "Where did the elephant and the bird live?", right: () => (/lived near a river in a big forest/.test(PSG.elephant.text) ? "Near a river in a forest." : null) },
+  { has: "Where did the elephant and the bird live?", right: () => (/a little bird lived near a river\./.test(PSG.elephant.text) ? "Near a river." : null) },
   { has: "The elephant fell into the river.", right: () => /the elephant fell into the river/i.test(PSG.elephant.text) },
   { has: "Why did the bird sing for the elephant every morning?", right: () => (/The elephant came and helped her/.test(PSG.elephant.text)
     && /After that, she sang a song for the elephant every morning/.test(PSG.elephant.text) ? "Because the elephant helped her." : null) },

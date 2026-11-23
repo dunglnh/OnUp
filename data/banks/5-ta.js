@@ -139,7 +139,7 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
   "ta5-ck2-de1": {
     note: "Global Success 5, Units 11–20 (Review 3, 4): Family Time, Our Tet Holiday, Our Special Days, Staying Healthy, Our Health, Seasons and the Weather, Stories for Children, Means of Transport, Places of Interest, Our Summer Holidays. School test format: multiple choice, odd one out, fill in the blank, word order, matching, reading. No listening. Every question has an explanation. From the 2026–2027 school year, the Department of Education of each province gives a common end-of-term test in some Grade 5 subjects; check the Department's notice for the subjects and the test format.",
     passages: {
-      "elephant": { title: "Read the text. Then answer the questions.", text: "Once upon a time, an elephant and a little bird lived near a river in a big forest. The elephant was big and strong, but the bird was very small. One day, the bird fell into the river. She couldn't fly. The elephant came and helped her out of the water. The bird was very happy. After that, she sang a song for the elephant every morning. They were good friends for a long time." }
+      "elephant": { title: "Read the text. Then answer the questions.", text: "Many years ago, an elephant and a little bird lived near a river. The elephant was big and strong, but the bird was very small. One day, the bird fell into the river. She couldn't fly. The elephant came and helped her out of the water. The bird was very happy. After that, she sang a song for the elephant every morning. They were good friends for a long time." }
     },
     questions: [
       { topic: "Unit 11 · Family Time", type: "mc", q: "Last Sunday, Hien ___ seashells on the beach with her little brother.",
@@ -211,8 +211,8 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
         o: ["I'm going to practise swimming.", "I practised swimming last summer.", "Yes, I'm going to.", "I'm going to swam every day."],
         x: "What are you going to do…? asks about a plan. We answer with I'm going to + verb: I'm going to practise swimming.", lv: 2 },
       { topic: "Reading", type: "mc", p: "elephant", q: "Where did the elephant and the bird live?",
-        o: ["Near a river in a forest.", "In a big city near the sea.", "On a farm with a lot of animals.", "In a zoo."],
-        x: "The text says: they lived near a river in a big forest.", lv: 1 },
+        o: ["Near a river.", "In a big city near the sea.", "On a farm with a lot of animals.", "In a zoo."],
+        x: "The text says: an elephant and a little bird lived near a river.", lv: 1 },
       { topic: "Reading", type: "tf", p: "elephant", q: "The elephant fell into the river.", a: false,
         x: "False. The bird fell into the river, not the elephant.", lv: 2 },
       { topic: "Reading", type: "mc", p: "elephant", q: "Why did the bird sing for the elephant every morning?",
@@ -223,7 +223,7 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
   "ta5-ck2-de2": {
     note: "Global Success 5, Units 11–20 (Review 3, 4): Family Time, Our Tet Holiday, Our Special Days, Staying Healthy, Our Health, Seasons and the Weather, Stories for Children, Means of Transport, Places of Interest, Our Summer Holidays. School test format: multiple choice, odd one out, fill in the blank, word order, matching, reading. No listening. Every question has an explanation. From the 2026–2027 school year, the Department of Education of each province gives a common end-of-term test in some Grade 5 subjects; check the Department's notice for the subjects and the test format.",
     passages: {
-      "sportsday": { title: "Read the text. Then answer the questions.", text: "Next Friday is Sports Day at Lan's school. All the pupils will play games in the school playground. In the morning, Lan will play basketball with her class, and then she will run in a race. In the afternoon, the boys will play football, and the girls will play badminton. Lan's grandparents will come to the school and watch the games. At the end of the day, every class will have a small party with cakes and fruit juice." }
+      "sportsday": { title: "Read the text. Then answer the questions.", text: "Next Friday is Sports Day at Lan's school. All the pupils will play games in the school playground. In the morning, Lan will play basketball with her class, and then she will run in a race. In the afternoon, the boys will play football, and the girls will play volleyball. Lan's grandparents will come to the school and watch the games. At the end of the day, every class will have a small party with cakes and fruit juice." }
     },
     questions: [
       { topic: "Unit 11 · Family Time", type: "mc", q: "My mother went to Hoi An last week. She bought some ___ for us: a small lamp and a doll.",
@@ -245,10 +245,10 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
       { topic: "Unit 13 · Our Special Days", type: "mc", q: "– What drinks will you have at the party? – We'll have ___.",
         o: ["milk tea", "pizza", "chicken", "sandwiches"],
         x: "The question asks about drinks. Milk tea is a drink: We'll have milk tea.", lv: 1 },
-      { topic: "Unit 13 · Our Special Days", type: "tf4", q: "Look at the activities for Children's Day at Hoa Mai School: morning – sing and dance in the playground; afternoon – play games, eat pizza. Is each sentence true or false?",
-        o: ["The pupils will sing in the morning.", "They will eat pizza in the morning.", "They will play games in the afternoon.", "They will dance in the afternoon."],
+      { topic: "Unit 13 · Our Special Days", type: "tf4", q: "Look at the activities for Children's Day at Hoa Mai School: morning – play games, watch a cartoon; afternoon – draw pictures, eat cakes. Is each sentence true or false?",
+        o: ["The pupils will play games in the morning.", "They will eat cakes in the morning.", "They will draw pictures in the afternoon.", "They will watch a cartoon in the afternoon."],
         a: [true, false, true, false],
-        x: "a) True: they will sing in the morning. b) False: they will eat pizza in the afternoon. c) True: they will play games in the afternoon. d) False: they will dance in the morning.", lv: 3 },
+        x: "a) True: they will play games in the morning. b) False: they will eat cakes in the afternoon. c) True: they will draw pictures in the afternoon. d) False: they will watch a cartoon in the morning.", lv: 3 },
       { topic: "Unit 14 · Staying Healthy", type: "mc", q: "– What does your sister eat to stay healthy? – She eats a lot of ___ and fruit.",
         o: ["vegetables", "sweets", "chips", "ice cream"],
         x: "Vegetables and fruit are healthy food.", lv: 1 },
@@ -303,9 +303,9 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
       { topic: "Reading", type: "tf4", p: "sportsday", q: "Read the text again. Is each sentence true or false?",
         o: ["The pupils will play games in the park.", "Lan will play basketball in the morning.", "Lan's grandparents will come to the school.", "The girls will play football in the afternoon."],
         a: [false, true, true, false],
-        x: "a) False: they will play games in the school playground. b) True: she will play basketball with her class in the morning. c) True: they will come and watch the games. d) False: the girls will play badminton.", lv: 2 },
+        x: "a) False: they will play games in the school playground. b) True: she will play basketball with her class in the morning. c) True: they will come and watch the games. d) False: the girls will play volleyball.", lv: 2 },
       { topic: "Reading", type: "mc", p: "sportsday", q: "What will Lan do on Sports Day?",
-        o: ["She'll play basketball and run in a race.", "She'll play football and badminton.", "She'll watch the games with her grandparents.", "She'll play basketball in the afternoon."],
+        o: ["She'll play basketball and run in a race.", "She'll play football and volleyball.", "She'll watch the games with her grandparents.", "She'll play basketball in the afternoon."],
         x: "In the morning, Lan will play basketball, and then she will run in a race.", lv: 3 }
     ]
   },
