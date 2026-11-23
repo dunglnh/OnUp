@@ -458,8 +458,9 @@ assert.equal(sum(cells.map(sum)), p.n, "ma trận đủ số câu của đề");
 assert.deepEqual(TOPICS, TOPIC_TEN, "chủ đề theo thứ tự các bài Luyện từ và câu của sách, Viết đứng cuối");
 assert.deepEqual(TOPICS.map((t) => sum(M[t])), [7, 3, 4, 2, 2, 2, 2, 2, 1], "7 câu Đọc hiểu, 17 câu Luyện từ và câu theo số bài (cách nối các vế câu ghép 2 bài), 1 câu Viết");
 TOPICS.forEach((t) => assert.ok(("chu-de:5:tv:" + t).length <= 80, "chữ chủ đề dài quá cho mã đề Ôn chủ đề: " + t));
-{ // chữ chủ đề không trùng chủ đề của kho Tiếng Việt 5 cuối kì I, trừ Đọc hiểu, Viết (đề “Ôn chủ đề” rút chung câu cùng chủ đề)
-  const cu = new Set(BANKS.filter((b) => b.file === "5-tv.js" && !/^tv5-gk2-/.test(b.id)).flatMap((b) => b.questions.map((q) => q.topic)));
+{ // chữ chủ đề không trùng chủ đề của kho Tiếng Việt 5 cuối kì I, trừ Đọc hiểu, Viết (đề “Ôn chủ đề” rút chung câu cùng chủ đề); kho cuối năm
+  // (tv5-ck2-*, Phiên N5-ck2-tv) ôn bài giữa kì II bằng đúng chữ chủ đề của kho này nên không tính
+  const cu = new Set(BANKS.filter((b) => b.file === "5-tv.js" && !/^tv5-(gk2|ck2)-/.test(b.id)).flatMap((b) => b.questions.map((q) => q.topic)));
   TOPICS.filter((t) => !["Đọc hiểu", "Viết"].includes(t)).forEach((t) => assert.ok(!cu.has(t), "chủ đề trùng kho cuối kì I: " + t));
 }
 assert.deepEqual([...new Set(kho.map((q) => q.topic))].sort(), TOPICS.slice().sort(), "chủ đề của kho đúng chữ của ma trận");
