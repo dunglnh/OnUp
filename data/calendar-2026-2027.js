@@ -175,7 +175,7 @@
   { id: "gk2-l5", title: "Kiểm tra giữa học kì II", kind: "dinh-ki", grades: [5],
     start: "2027-03-15", end: "2027-03-26", tentative: true, subjects: MON_TH_GK,
     scope: "Toán: Bài 36–55; trường đã học số đo thời gian, vận tốc (từ Bài 56) thì ôn thêm phần đó trong sách. Tiếng Việt: tập 2, Bài 1–16 (tuần 19–26). Sách Kết nối tri thức với cuộc sống.",
-    note: TT27(5), modules: [], banks: ["toan5-gk2-de1", "toan5-gk2-de2", "toan5-gk2-ngau-nhien"] },
+    note: TT27(5), modules: [], banks: ["toan5-gk2-de1", "toan5-gk2-de2", "toan5-gk2-ngau-nhien", "tv5-gk2-de1", "tv5-gk2-de2", "tv5-gk2-ngau-nhien"] },
   { id: "gk2-l6", title: "Kiểm tra giữa học kì II", kind: "dinh-ki", grades: [6],
     start: "2027-03-15", end: "2027-03-26", tentative: true,
     subjects: MON_THCS,
