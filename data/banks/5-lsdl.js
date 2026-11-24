@@ -123,7 +123,7 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
       { topic: "Khởi nghĩa Lam Sơn và Triều Hậu Lê", type: "mc", q: "Năm 1416, Lê Lợi cùng 18 người hào kiệt làm lễ thề, nguyện đồng lòng đánh đuổi giặc Minh. Lễ thề đó diễn ra ở đâu?",
         o: ["Lũng Nhai", "Thành Đông Quan", "Bến Bình Than", "Núi Chí Linh"],
         x: "Lễ thề ở Lũng Nhai năm 1416 có Lê Lợi và 18 người cùng chí hướng. Họ thề chung sức đánh đuổi quân Minh ra khỏi đất nước.", lv: 1 },
-      { topic: "Khởi nghĩa Lam Sơn và Triều Hậu Lê", type: "num", q: "Vua Lê Thánh Tông ở ngôi từ năm 1460 đến năm 1497; trong các vua Triều Hậu Lê, ông ở ngôi lâu hơn cả. Ông trị vì trong bao nhiêu năm?", ans: 37, unit: "năm",
+      { topic: "Khởi nghĩa Lam Sơn và Triều Hậu Lê", type: "num", q: "Vua Lê Thánh Tông ở ngôi từ năm 1460 đến năm 1497. Ông trị vì trong bao nhiêu năm?", ans: 37, unit: "năm",
         x: "Số năm vua Lê Thánh Tông trị vì: 1497 − 1460 = 37 (năm).", lv: 3 },
       { topic: "Triều Nguyễn", type: "mc", q: "Người lập ra Triều Nguyễn, lên ngôi Hoàng đế và lấy niên hiệu là Gia Long là ai?",
         o: ["Nguyễn Ánh", "Nguyễn Công Trứ", "Nguyễn Trường Tộ", "Nguyễn Tri Phương"],
