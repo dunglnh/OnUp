@@ -1535,6 +1535,23 @@ window.ONTAP_SEED_BANKS = [
       "Vương quốc Phù Nam": [1, 1, 0], "Vương quốc Chăm-pa": [1, 1, 0], "Đấu tranh giành độc lập thời kì Bắc thuộc": [1, 1, 1],
       "Triều Lý và việc định đô ở Thăng Long": [1, 0, 1], "Triều Trần xây dựng đất nước, kháng chiến chống Mông – Nguyên": [1, 1, 1] } } },
 
+  /* Lịch sử và Địa lí 5 · Kiểm tra cuối năm học (Kết nối tri thức, bản chỉnh sửa năm 2026, Bài 12–27; Phiên N5-ck2-lsdl). Khối 5 chưa bật
+     (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma
+     trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu trên 16 chủ đề theo tên Bài 12–27 (Bài 28 là ôn tập): Lịch sử Việt Nam
+     (Bài 12–17) và văn minh Ai Cập, Hy Lạp (Bài 24–25) 13 câu; các nước láng giềng, châu lục và đại dương, dân số, xây dựng thế giới (Bài
+     18–23, 26–27) 12 câu; mỗi bài 1–2 câu. Mỗi ô (chủ đề, mức) rút 1 câu và có 3 câu: một câu ở mỗi đề cố định, một câu riêng; hai đề cố định
+     chia đúng ma trận, nên học sinh đã làm một đề cố định vẫn gặp câu mới. Không có câu tự luận. */
+  { id: "lsdl5-ck2-de1", title: "Lịch sử và Địa lí 5 · Cuối năm · Đề 1", grade: 5, subject: "Lịch sử và Địa lí", minutes: 35, n: 25, file: "5-lsdl.js" },
+  { id: "lsdl5-ck2-de2", title: "Lịch sử và Địa lí 5 · Cuối năm · Đề 2", grade: 5, subject: "Lịch sử và Địa lí", minutes: 35, n: 25, file: "5-lsdl.js" },
+  { id: "lsdl5-ck2-ngau-nhien", title: "Lịch sử và Địa lí 5 · Cuối năm · Đề ngẫu nhiên", grade: 5, subject: "Lịch sử và Địa lí", minutes: 35, n: 25, file: "5-lsdl.js",
+    pool: { from: ["lsdl5-ck2-de1", "lsdl5-ck2-de2"], matrix: {
+      "Khởi nghĩa Lam Sơn và Triều Hậu Lê": [1, 0, 1], "Triều Nguyễn": [1, 1, 0], "Cách mạng tháng Tám năm 1945": [1, 0, 1],
+      "Chiến dịch Điện Biên Phủ năm 1954": [0, 1, 1], "Chiến dịch Hồ Chí Minh năm 1975": [1, 1, 0], "Đất nước Đổi mới": [0, 1, 0],
+      "Nước Cộng hoà Nhân dân Trung Hoa": [1, 1, 0], "Nước Cộng hoà Dân chủ Nhân dân Lào": [1, 0, 0], "Vương quốc Cam-pu-chia": [0, 1, 0],
+      "Hiệp hội các quốc gia Đông Nam Á": [1, 0, 1], "Các châu lục và đại dương trên thế giới": [1, 0, 1],
+      "Dân số và các chủng tộc chính trên thế giới": [0, 1, 1], "Văn minh Ai Cập": [1, 0, 0], "Văn minh Hy Lạp": [1, 0, 0],
+      "Xây dựng thế giới xanh – sạch – đẹp": [0, 0, 1], "Xây dựng thế giới hoà bình": [0, 1, 0] } } },
+
   /* Tin học và Công nghệ 5 · Kiểm tra cuối học kì I (Kết nối tri thức; Tin học 5 Bài 1–7 và Chủ đề 5 phần A, Bài 8A, 9A; Công nghệ 5 Bài 1–6;
      Phiên N5-ck1-tincn). Khối 5 chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (không có câu
      riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, 13 câu Tin học (8 chủ đề) và 12 câu
