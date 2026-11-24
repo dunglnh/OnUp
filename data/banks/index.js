@@ -1505,6 +1505,20 @@ window.ONTAP_SEED_BANKS = [
       "Sử dụng năng lượng điện": [0, 1, 1], "Mạch điện, vật dẫn điện và vật cách điện": [1, 1, 1], "Năng lượng chất đốt": [1, 0, 1],
       "Năng lượng mặt trời, gió, nước chảy": [0, 1, 0], "Sinh sản của thực vật có hoa": [1, 1, 0], "Sự phát triển của cây con": [1, 0, 1],
       "Sinh sản của động vật": [1, 0, 0], "Vòng đời của động vật": [0, 1, 1] } } },
+  /* Khoa học 5 · Kiểm tra cuối năm học (Kết nối tri thức, Khoa học 5, Bài 18–29; Phiên N5-ck2-khoahoc). Khối 5 chưa bật (data/grades.js)
+     nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết,
+     Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu trên 10 chủ đề theo tên bài (Bài 21, 27, 30 là ôn tập, không có chủ đề riêng):
+     Vi khuẩn 8 câu (Bài 18–20), Con người và sức khoẻ 12 câu (Bài 22–26), Sinh vật và môi trường 5 câu (Bài 28–29). Mỗi ô (chủ đề, mức)
+     rút 1 câu và có 3 câu: một câu ở mỗi đề cố định, một câu riêng; hai đề cố định chia đúng ma trận, nên học sinh đã làm một đề cố định
+     vẫn gặp câu mới. Không có câu tự luận. */
+  { id: "khoahoc5-ck2-de1", title: "Khoa học 5 · Cuối năm · Đề 1", grade: 5, subject: "Khoa học", minutes: 35, n: 25, file: "5-khoahoc.js" },
+  { id: "khoahoc5-ck2-de2", title: "Khoa học 5 · Cuối năm · Đề 2", grade: 5, subject: "Khoa học", minutes: 35, n: 25, file: "5-khoahoc.js" },
+  { id: "khoahoc5-ck2-ngau-nhien", title: "Khoa học 5 · Cuối năm · Đề ngẫu nhiên", grade: 5, subject: "Khoa học", minutes: 35, n: 25, file: "5-khoahoc.js",
+    pool: { from: ["khoahoc5-ck2-de1", "khoahoc5-ck2-de2"], matrix: {
+      "Vi khuẩn xung quanh chúng ta": [1, 1, 0], "Vi khuẩn có ích trong chế biến thực phẩm": [1, 1, 1], "Vi khuẩn gây bệnh ở người": [1, 1, 1],
+      "Sự hình thành cơ thể người": [1, 1, 0], "Các giai đoạn phát triển của con người": [1, 1, 1], "Nam và nữ": [1, 0, 1],
+      "Chăm sóc sức khoẻ tuổi dậy thì": [1, 1, 1], "Phòng tránh bị xâm hại": [1, 0, 1], "Chức năng của môi trường đối với sinh vật": [1, 1, 0],
+      "Tác động của con người đến môi trường": [1, 1, 1] } } },
 
   /* Lịch sử và Địa lí 5 · Kiểm tra cuối học kì I (Kết nối tri thức, bản chỉnh sửa năm 2026, Bài 1–11; Phiên N5-ck1-lsdl). Khối 5 chưa bật
      (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ.
