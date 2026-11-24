@@ -238,7 +238,7 @@
   { id: "ck2-l5", title: "Kiểm tra cuối năm học", kind: "dinh-ki", grades: [5],
     start: "2027-05-03", end: "2027-05-14", tentative: true, subjects: MON_TH_CK,
     scope: "Toán: cả năm, trọng tâm học kì II (Bài 36–75). Tiếng Việt: tập 2, trọng tâm Bài 17–30 (tuần 28–34). Tiếng Anh: Units 11–20. Lịch sử và Địa lí: Bài 12–27. Khoa học: Bài 18–29. Tin học và Công nghệ: Tin học Bài 10–16, Công nghệ Bài 7–9 (trường dạy theo thứ tự khác thì xem đề cương của trường).",
-    note: SO, modules: [], banks: ["toan5-ck2-de1", "toan5-ck2-de2", "toan5-ck2-ngau-nhien", "tv5-ck2-de1", "tv5-ck2-de2", "tv5-ck2-ngau-nhien", "ta5-ck2-de1", "ta5-ck2-de2", "ta5-ck2-ngau-nhien"] },
+    note: SO, modules: [], banks: ["toan5-ck2-de1", "toan5-ck2-de2", "toan5-ck2-ngau-nhien", "tv5-ck2-de1", "tv5-ck2-de2", "tv5-ck2-ngau-nhien", "ta5-ck2-de1", "ta5-ck2-de2", "ta5-ck2-ngau-nhien", "khoahoc5-ck2-de1", "khoahoc5-ck2-de2", "khoahoc5-ck2-ngau-nhien"] },
   { id: "het-nam", title: "Kết thúc năm học (trước ngày này)", kind: "moc", grades: ALL,
     start: "2027-05-31", end: "2027-05-31", tentative: false, subjects: [], scope: "", modules: [], banks: [] },
 
