@@ -11,8 +11,8 @@
 //   đúng/sai 4 ý về bảng đại dương tính lại từ số liệu chép trong đề (số liệu phải đúng BANG_DD);
 // - hình đọc lại từ chuỗi SVG: sơ đồ vị trí của Lào, của Cam-pu-chia (ô ở giữa, mỗi ô khác ở một trong tám hướng theo mũi tên chỉ hướng bắc,
 //   nơi tiếp giáp theo bảng TIEP_GIAP), trục thời gian thời nhà Nguyễn (số mốc ở trên, năm ở dưới, năm tăng dần sang phải), biểu đồ cột số dân
-//   các châu lục (trục số, số ở đỉnh cột khớp chiều cao cột, tên châu lục dưới mỗi cột, số liệu đúng DAN_SO); chữ trong hình từ cỡ 13 và nằm
-//   trọn trong khung hình; câu nối cột loài vật – châu lục theo bảng DONG_VAT.
+//   các châu lục (trục số, số ở đỉnh cột khớp chiều cao cột, tên châu lục dưới mỗi cột, số liệu đúng DAN_SO); chữ trong hình từ 13px ở ô hình
+//   rộng 328px (màn 360px) và nằm trọn trong khung hình; câu nối cột loài vật – châu lục theo bảng DONG_VAT.
 // Rồi kiểm tra mức độ, ma trận (10 Biết, 8 Hiểu, 7 Vận dụng; 16 chủ đề theo tên Bài 12–27; Lịch sử Việt Nam và văn minh cổ đại 13 câu, các
 // nước láng giềng, thế giới 12 câu; hai đề cố định và câu riêng đều chia đúng ma trận, mỗi ô 3 câu), dạng câu (ít nhất 2 câu đúng/sai 4 ý, kiểu
 // Đ/S không lặp; đủ các dạng nối cột, sắp xếp, điền, trả lời bằng số, đúng/sai), đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa chọn dài
@@ -76,11 +76,13 @@ const POLYS = (svg) => TAGS(svg, "polygon").map((a) => ({ p: pts2(a.points), fil
 const TEXTS = (svg) => [...svg.matchAll(/<text ([^>]*)>([^<]*)<\/text>/g)].map((m) => { const a = attrs("<t " + m[1] + ">"); return { at: [+a.x, +a.y], t: m[2], fs: +(a["font-size"] || 15), anchor: a["text-anchor"] || "start", b: a["font-weight"] === "700" }; });
 const rong = (t) => (t.b ? 0.62 : 0.56) * t.fs * [...t.t].length; // ước bề rộng chữ (Noto Sans)
 const daDoc = new Set(); // hình đã đọc lại bằng code
-// chữ trong hình từ cỡ 13 và nằm trọn trong khung hình
+// chữ trong hình từ 13px khi hình vẽ trong ô .qfig rộng 328px (màn 360px; hình co giãn theo bề rộng ô) và nằm trọn trong khung hình
+const O_HINH = 328;
 const chuHinh = (svg, at) => {
   const v = nums(/viewBox="([^"]+)"/.exec(svg)[1]);
   TEXTS(svg).forEach((t) => {
-    assert.ok(t.fs >= 13, `${at}: chữ “${t.t}” cỡ ${t.fs}, cần từ cỡ 13`);
+    const px = t.fs * O_HINH / v[2];
+    assert.ok(px >= 13, `${at}: chữ “${t.t}” cỡ ${t.fs} trong hình rộng ${v[2]}, ở ô ${O_HINH}px chỉ còn ${px.toFixed(1)}px, cần từ 13px`);
     const w = rong(t), x0 = t.anchor === "middle" ? t.at[0] - w / 2 : t.anchor === "end" ? t.at[0] - w : t.at[0];
     assert.ok(x0 >= v[0] && x0 + w <= v[0] + v[2] && t.at[1] - 0.75 * t.fs >= v[1] && t.at[1] + 0.25 * t.fs <= v[1] + v[3], `${at}: chữ “${t.t}” tràn khỏi khung hình`);
   });
