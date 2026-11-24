@@ -121,7 +121,7 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
     questions: [
       { topic: "Vi khuẩn xung quanh chúng ta", type: "mc", q: "Câu nào dưới đây nói đúng về kích thước của vi khuẩn?",
         o: ["Rất nhỏ, mắt thường không nhìn thấy được", "To bằng hạt gạo, nhìn kĩ là thấy", "To bằng con kiến, soi đèn là thấy rõ", "Chỉ nhỏ hơn hạt cát một chút"],
-        x: "Vi khuẩn nhỏ hơn hạt cát, hạt bụi rất nhiều lần nên nhìn bằng mắt thường, ta không thấy được.", lv: 1 },
+        x: "Vi khuẩn nhỏ hơn hạt cát rất nhiều lần nên nhìn bằng mắt thường, ta không thấy được.", lv: 1 },
       { topic: "Vi khuẩn xung quanh chúng ta", type: "mc", q: "Mẹ của Tâm cho tôm, rau đã rửa, bánh đậu xanh vào những hộp có nắp đậy riêng rồi mới cất vào tủ lạnh. Việc làm đó giúp gì?",
         o: ["Vi khuẩn khó lan từ món này sang món khác", "Vi khuẩn trong con tôm sẽ sinh sôi nhanh hơn", "Tủ lạnh không cần cắm điện mà vẫn lạnh đều", "Rau, bánh tự sạch hết vi khuẩn bám vào chúng"],
         x: "Tôm, rau, bánh có thể mang những vi khuẩn khác nhau. Để riêng từng loại trong hộp có nắp khi cất tủ lạnh giúp vi khuẩn khó lan từ món này sang món khác.", lv: 2 },
