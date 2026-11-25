@@ -534,6 +534,16 @@ QC chạy mọi bộ kiểm thử trên `main` commit `91959aa` (sau PR #328), P
 - QC thử bản sửa trong thư mục tạm (không đẩy lên): chép `run.sh`, thêm `-E UTF8 --locale=C` vào lệnh `initdb`. Trên `main` bản chép in `banks-to-sql.js: OK` và `RLS OK: 221 kiểm tra`, chạy thường hay với `LC_ALL=C.UTF-8` cũng vậy. Đếm theo kí tự, ở các đề cố định: ghi chú dài nhất 1 556 kí tự (giới hạn 2 000), tên dài nhất 41 (giới hạn 200), môn dài nhất 20 (giới hạn 60).
 - Chạy tạm trước khi có Phiên 9w: `LC_ALL=C.UTF-8 sh tests/supabase/run.sh` (không sửa gì; initdb chọn UTF8 theo locale) in `RLS OK: 221 kiểm tra` trên `main`. Phiên nào phải chạy `run.sh` trước khi 9w gộp thì chạy như vậy và ghi vào Pull Request.
 
+### Nhóm U · Phiên RS5 ghi ngày 26/11 (Phiên 9x)
+
+Phiên RS5 bật khối 5 rồi chạy `tests/e2e.js`: một bước lỗi, do app ghi thứ tự khối theo dữ liệu đã lưu. Phiên RS5 không sửa `js/` (lời giao việc), nên ghi mã lỗi; lỗi của app không chặn việc bật khối.
+
+**L50. Nhãn khối của mốc năm học trên máy có lịch cũ không xếp theo thứ tự: “Lớp 4, 6, 5, 9, 12”.**
+- Hiện tượng: từ khi bật lớp 5 (Phiên RS5), trên máy hay tài khoản có lịch từ trước Phiên Lịch các khối mới, chữ “Lớp …” của kì thi dùng chung nhiều khối (mốc năm học Khai giảng, Kết thúc học kì I, Tết, Kết thúc năm học) ghi “Lớp 4, 6, 5, 9, 12”: trên thẻ kì thi ở tab “Mọi khối” của Lịch thi, ở chi tiết kì thi, ở danh sách kì thi của quản trị. Bước “default calendar reaches old data” của `tests/e2e.js` bắt được (máy có lịch cũ mở bản mới: `cal.ui.kg` là “Khai giảng năm học 2026–2027 · Lớp 4, 6, 5, 9, 12”, `cal.ui.detail` cũng vậy).
+- Nguyên nhân: `gradesTxt` (js/app.js) nối các khối đang hiện theo thứ tự trong `grades` của kì thi. Lịch cũ có `grades: [4, 6]`; `Store._mergeSeedEvents` thêm khối mới vào cuối (`[4, 6, 1, 2, 3, 5, 7, 8, 9, 10, 11, 12]`). Khi đang bật lớp 4, 6, 9, 12, các khối hiện ra tình cờ vẫn tăng dần (4, 6, 9, 12); bật thêm lớp 5 thì lộ ra. Máy, tài khoản mới chép lịch mặc định (`grades: ALL`, tăng dần) nên không bị; form kì thi lưu khối đang hiện theo thứ tự tăng dần nên kì thi đã sửa qua form cũng không bị.
+- Hệ quả: chỉ là thứ tự chữ; dữ liệu, cách lọc kì thi theo khối không sai.
+- Tạm thời: bước đó của `tests/e2e.js` so tập khối của ba nhãn (`gradesAre`), không so thứ tự (chú thích ghi L50).
+
 ---
 
 ## 2. Cách sửa gợi ý và điều kiện xong
@@ -1284,11 +1294,26 @@ Hai kiểm thử báo lỗi giả. Chỉ sửa `tests/bai-on-l6.js`, `tests/e2e.
 - `node tests/kiem-tra-de.js` in `DE OK`; phần tự thử bắt được ghi chú 2 001 kí tự.
 - Pull Request ghi các lệnh đã chạy và kết quả.
 
+### Phiên 9x
+
+**L50 · Nhãn khối xếp tăng dần.** Chỉ sửa `js/app.js`, `tests/e2e.js`, tài liệu. Không đổi dữ liệu đã lưu (thứ tự `grades` trong kho, `Store._mergeSeedEvents` giữ nguyên).
+- `gradesTxt`: xếp các khối tăng dần trước khi nối chữ (cả nhánh dự phòng khi kì thi không có khối nào đang hiện).
+- Rà các chỗ khác ghi danh sách khối từ `grades` của kì thi (chữ “Lớp …” trên thẻ, chi tiết kì thi, danh sách kì thi của quản trị, nút “Thêm vào lịch · Lớp 6” của `icsGrades`, tab khối): cùng đi qua `gradesTxt` hoặc cũng xếp tăng dần.
+- `tests/e2e.js`, bước “default calendar reaches old data”: bỏ `gradesAre` (Phiên RS5), so lại đúng chữ: `cal.ui.kg === "Khai giảng năm học 2026–2027 · Lớp " + ON.join(", ")`, `cal.ui.tet` với `ON.filter((g) => g !== 6).join(", ")`, `cal.ui.detail.endsWith("· Lớp " + ON.join(", "))`. Máy có lịch cũ vẫn có `grades` không tăng dần (`cal.first.kg` giữ nguyên), nên bước này kiểm tra được bản sửa.
+
+**Xong khi:**
+- `node tests/e2e.js` in `E2E OK`, bước đó so đúng chữ như trên.
+- `node tests/supabase/cloud-e2e.js` in `CLOUD E2E OK`.
+- Pull Request ghi các lệnh đã chạy và kết quả.
+
 ---
 
 ## 3. Các phiên Claude Code
 
-Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n, 9nb, 9o, 9ob, 9p, 9q, 9r, 9s, 9t, 9u, 9v đã xong (PR #119, #122, #123, #132, #137, #139, #174, #180, #195, #319, #320). Phiên chờ làm: 9w (L49), lời giao việc bên dưới. Lỗi mới thì QC ghi mã (tiếp theo L50) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n, 9nb, 9o, 9ob, 9p, 9q, 9r, 9s, 9t, 9u, 9v đã xong (PR #119, #122, #123, #132, #137, #139, #174, #180, #195, #319, #320). Phiên chờ làm: 9w (L49), 9x (L50), lời giao việc bên dưới. Lỗi mới thì QC ghi mã (tiếp theo L51) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
 
 **Phiên 9w · CSDL thử của `run.sh` đếm byte thay vì kí tự (L49)** (nên làm sớm: từ PR #328, `run.sh` hỏng trên `main` và 221 kiểm tra RLS không chạy; phải xong trước phiên tiếp theo sửa `supabase/`, `js/store-supabase.js`, `admin.html`. Chỉ sửa kiểm thử và tài liệu, nên chạy xen được với các phiên N; không chạy cùng lúc với phiên khác sửa `tests/kiem-tra-de.js`)
-> Đọc CLAUDE.md (mục “Chạy và kiểm tra”; đoạn “Bản đám mây (SupabaseStore)”) và docs/SUA-LOI-CHAY-THU.md: L49 ở nhóm T của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9w". L49: từ PR #328, `sh tests/supabase/run.sh` dừng khi nạp đề vào bảng `paid_banks` (lỗi `paid_banks_note_check` ở đề `tin12-tn-de1`), nên 221 kiểm tra RLS không chạy. Nguyên nhân: `run.sh` tạo CSDL thử bằng `initdb` không ghi mã hoá; máy có locale POSIX nên CSDL là SQL_ASCII và `char_length` đếm byte (ghi chú 1 556 kí tự là 2 010 byte, quá giới hạn 2 000), còn Supabase dùng UTF8 và đếm kí tự. Sửa `run.sh` cho `initdb` dùng `-E UTF8 --locale=C`; thêm vào `rls-test.sql` kiểm tra CSDL mã hoá UTF8 và giới hạn 2 000 kí tự có dấu của ghi chú trong `paid_banks`; thêm vào `tests/kiem-tra-de.js` kiểm tra tên, môn, ghi chú của đề không dài quá giới hạn cột của `paid_banks` (kèm tự thử). Không sửa `supabase/`, file đề, `js/`. PostgreSQL 16 có sẵn trong máy (`/usr/lib/postgresql/16/bin`). Làm đủ "Xong khi": sh tests/supabase/run.sh (chạy thường và với LC_ALL=C.UTF-8), node tests/kiem-tra-de.js. Mở Pull Request, ghi các lệnh đã chạy và kết quả. Làm xong thì cập nhật docs/KE-HOACH-PHAT-TRIEN-ONUP.md (bảng "Đã xong", bỏ dòng 9w ở mục 3); ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và câu "Phiên chờ làm: 9w (L49)…".
+> Đọc CLAUDE.md (mục “Chạy và kiểm tra”; đoạn “Bản đám mây (SupabaseStore)”) và docs/SUA-LOI-CHAY-THU.md: L49 ở nhóm T của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9w". L49: từ PR #328, `sh tests/supabase/run.sh` dừng khi nạp đề vào bảng `paid_banks` (lỗi `paid_banks_note_check` ở đề `tin12-tn-de1`), nên 221 kiểm tra RLS không chạy. Nguyên nhân: `run.sh` tạo CSDL thử bằng `initdb` không ghi mã hoá; máy có locale POSIX nên CSDL là SQL_ASCII và `char_length` đếm byte (ghi chú 1 556 kí tự là 2 010 byte, quá giới hạn 2 000), còn Supabase dùng UTF8 và đếm kí tự. Sửa `run.sh` cho `initdb` dùng `-E UTF8 --locale=C`; thêm vào `rls-test.sql` kiểm tra CSDL mã hoá UTF8 và giới hạn 2 000 kí tự có dấu của ghi chú trong `paid_banks`; thêm vào `tests/kiem-tra-de.js` kiểm tra tên, môn, ghi chú của đề không dài quá giới hạn cột của `paid_banks` (kèm tự thử). Không sửa `supabase/`, file đề, `js/`. PostgreSQL 16 có sẵn trong máy (`/usr/lib/postgresql/16/bin`). Làm đủ "Xong khi": sh tests/supabase/run.sh (chạy thường và với LC_ALL=C.UTF-8), node tests/kiem-tra-de.js. Mở Pull Request, ghi các lệnh đã chạy và kết quả. Làm xong thì cập nhật docs/KE-HOACH-PHAT-TRIEN-ONUP.md (bảng "Đã xong", bỏ dòng 9w ở mục 3); ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và “9w (L49), ” ở câu "Phiên chờ làm".
+
+**Phiên 9x · Nhãn khối của mốc năm học không xếp theo thứ tự (L50)** (không gấp: chỉ là thứ tự chữ, máy có lịch cũ; sửa `js/app.js` nên chủ app Merge; không chạy cùng lúc với phiên khác sửa bước “default calendar reaches old data” của `tests/e2e.js`)
+> Đọc CLAUDE.md (mục “Lịch mặc định đến máy đã có dữ liệu”, mục “Chạy và kiểm tra”) và docs/SUA-LOI-CHAY-THU.md: L50 ở nhóm U của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9x". L50: từ khi bật lớp 5 (Phiên RS5), máy hay tài khoản có lịch cũ ghi “Lớp 4, 6, 5, 9, 12” ở mốc năm học, vì `gradesTxt` (js/app.js) giữ thứ tự `grades` của kì thi mà khi gộp lịch mặc định khối mới được nối vào cuối. Sửa `gradesTxt` xếp khối tăng dần, rà các chỗ khác ghi danh sách khối; không đổi dữ liệu đã lưu. Trong `tests/e2e.js`, bước “default calendar reaches old data”, bỏ `gradesAre` của Phiên RS5, so lại đúng chữ. Làm đủ "Xong khi": node tests/e2e.js, node tests/supabase/cloud-e2e.js. Mở Pull Request, ghi các lệnh đã chạy và kết quả. Làm xong thì cập nhật docs/KE-HOACH-PHAT-TRIEN-ONUP.md (bảng "Đã xong", bỏ dòng 9x ở mục 3); ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và “9x (L50)” ở câu "Phiên chờ làm".

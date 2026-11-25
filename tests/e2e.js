@@ -638,6 +638,11 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   cal.ui.form4 = await cp.$$eval("input[name=eg]", (o) => o.map((x) => x.value + (x.checked ? "*" : "")).join());
   await calCtx.close();
   console.log("Lịch các khối mới:", JSON.stringify(cal));
+  /* Nhãn khối "… · Lớp 4, 5, 6, 9, 12" (gradesTxt): tạm so tập khối, không so thứ tự (L50, Phiên RS5). Máy có lịch cũ: khối mới nối vào cuối
+     grades khi gộp lịch mặc định, gradesTxt giữ thứ tự đó nên nhãn ghi "Lớp 4, 6, 5, 9, 12" từ khi bật lớp 5. Phiên 9x sửa gradesTxt xếp
+     tăng dần thì so lại đúng chữ pre + want.join(", "). */
+  const gradesAre = (label, pre, want) => typeof label === "string" && label.startsWith(pre)
+    && label.slice(pre.length).split(", ").map(Number).sort((a, b) => a - b).join() === [...want].sort((a, b) => a - b).join();
   const calOK = cal.first.n === cal.first.seed - 1 && cal.first.seed > 40 && cal.first.seen === cal.first.keys && cal.first.gk1 === "2026-11-04,2026-11-06,false" && !cal.first.ioeQg
     && cal.first.tet === "4,1,2,3,5,7,8,9,10,11,12" && cal.first.kg === "4,6,1,2,3,5,7,8,9,10,11,12" && cal.first.hk1 === "2027-01-18/2027-01-18"
     && cal.first.vao10 === "9 2027-06-01 Toán+Ngữ văn+Tiếng Anh" && cal.first.l9 && cal.first.banks === 6
@@ -645,8 +650,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     && cal.removed.n === cal.first.n - 1 && !cal.removed.vao10 && cal.removed.seen === cal.first.keys
     && cal.link.a && cal.link.b && cal.link.m && cal.link.c
     && cal.ui.tabs === [ALL_TAB].concat(ON.map((g) => "Lớp " + g)).join() && cal.ui.n === cal.ui.shown && cal.ui.all > cal.ui.shown && cal.ui.onlyOn && !cal.ui.hidden
-    && cal.ui.kg === "Khai giảng năm học 2026–2027 · Lớp " + ON.join(", ") && cal.ui.tet === "Tết Nguyên đán Đinh Mùi (mùng 1) · Lớp " + ON.filter((g) => g !== 6).join(", ")
-    && cal.ui.detail.endsWith("· Lớp " + ON.join(", "))
+    && gradesAre(cal.ui.kg, "Khai giảng năm học 2026–2027 · Lớp ", ON) && gradesAre(cal.ui.tet, "Tết Nguyên đán Đinh Mùi (mùng 1) · Lớp ", ON.filter((g) => g !== 6))
+    && gradesAre(cal.ui.detail.slice(cal.ui.detail.lastIndexOf("· Lớp ")), "· Lớp ", ON)
     && cal.ui.adminList.n === cal.ui.shown && !cal.ui.adminList.hidden && cal.ui.form === ON.map((g) => g + "*").join()
     && cal.ui.formSaved.split(",").map(Number).sort((a, b) => a - b).join() === cal.first.kg.split(",").map(Number).sort((a, b) => a - b).join() // cùng tập khối (lưu form xếp khối đang hiện trước khối ẩn)
     && cal.ui.form4 === ON.map((g) => g + (g === 4 ? "*" : "")).join();
