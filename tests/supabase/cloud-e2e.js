@@ -27,8 +27,8 @@ const BASE = process.env.BASE_URL || "http://localhost:8000";
 /* Dữ liệu của app nạp trong node (như run.sh): lịch mặc định và danh mục đề, cho kiểm tra "tài khoản cũ nhận lịch mới". */
 const loadData = (f) => { const c = { window: {} }; c.window.window = c.window; require("vm").runInNewContext(fs.readFileSync(path.join(__dirname, "..", "..", f), "utf8"), c); return c.window; };
 const SEED_EVENTS = loadData("data/calendar-2026-2027.js").ONTAP_SEED_EVENTS, SEED_BANK_IDS = loadData("data/banks/index.js").ONTAP_SEED_BANKS.map((b) => b.id);
-/* Khối đang bật (active: true trong data/grades.js; lớp 9 bật ở Phiên RS9). Bật thêm khối thì thêm vào đây cùng lúc (tests/e2e.js cũng có ON). */
-const ON = [4, 6, 9, 12];
+/* Khối đang bật (active: true trong data/grades.js; lớp 9 bật ở Phiên RS9, lớp 12 ở Phiên RS12, lớp 5 ở Phiên RS5). Bật thêm khối thì thêm vào đây cùng lúc (tests/e2e.js cũng có ON). */
+const ON = [4, 5, 6, 9, 12];
 const ALL_TAB = ON.length === 2 ? "Cả hai khối" : "Mọi khối"; // tab đầu của lịch thi khi có nhiều khối
 // chữ "Lớp …" của khối chưa bật: không được hiện ở đâu (Lịch các khối mới)
 const HIDDEN_GRADE = `Lớp (${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].filter((g) => !ON.includes(g)).join("|")})(,|$)`;

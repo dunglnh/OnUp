@@ -6,7 +6,7 @@ window.ONTAP_GRADES = [
   { grade: 2, name: "Lớp 2", active: false },
   { grade: 3, name: "Lớp 3", active: false },
   { grade: 4, name: "Lớp 4", active: true },
-  { grade: 5, name: "Lớp 5", active: false },
+  { grade: 5, name: "Lớp 5", active: true },
   { grade: 6, name: "Lớp 6", active: true },
   { grade: 7, name: "Lớp 7", active: false },
   { grade: 8, name: "Lớp 8", active: false },
