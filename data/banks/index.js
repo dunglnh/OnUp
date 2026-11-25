@@ -1567,6 +1567,20 @@ window.ONTAP_SEED_BANKS = [
       "Tin học · Thực hành soạn thảo văn bản": [0, 0, 1], "Tin học · Phần mềm đồ hoạ": [1, 0, 1],
       "Công nghệ · Vai trò của công nghệ": [1, 1, 0], "Công nghệ · Nhà sáng chế": [1, 1, 0], "Công nghệ · Tìm hiểu thiết kế": [1, 1, 0],
       "Công nghệ · Thiết kế sản phẩm": [0, 0, 1], "Công nghệ · Sử dụng điện thoại": [1, 1, 1], "Công nghệ · Sử dụng tủ lạnh": [1, 0, 1] } } },
+  /* Tin học và Công nghệ 5 · Kiểm tra cuối năm học (Kết nối tri thức; Tin học 5 Chủ đề 6, Bài 10–16; Công nghệ 5 Phần hai, Bài 7–9;
+     Phiên N5-ck2-tincn). Khối 5 chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu của 2 đề cố định (không có câu
+     riêng), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, 13 câu Tin học (7 chủ đề theo tên
+     Bài 10–16) và 12 câu Công nghệ (3 chủ đề theo tên Bài 7–9, mỗi chủ đề 4 câu) như kho cuối kì I. Ô (chủ đề, mức) của Tin học rút 1 câu và
+     có 2 câu, một ở mỗi đề cố định; Công nghệ chỉ có 3 bài nên có ô rút 2 câu, có 4 câu, hai ở mỗi đề. Không có câu tự luận. */
+  { id: "tincn5-ck2-de1", title: "Tin học và Công nghệ 5 · Cuối năm · Đề 1", grade: 5, subject: "Tin học và Công nghệ", minutes: 35, n: 25, file: "5-tincn.js" },
+  { id: "tincn5-ck2-de2", title: "Tin học và Công nghệ 5 · Cuối năm · Đề 2", grade: 5, subject: "Tin học và Công nghệ", minutes: 35, n: 25, file: "5-tincn.js" },
+  { id: "tincn5-ck2-ngau-nhien", title: "Tin học và Công nghệ 5 · Cuối năm · Đề ngẫu nhiên", grade: 5, subject: "Tin học và Công nghệ", minutes: 35, n: 25, file: "5-tincn.js",
+    pool: { from: ["tincn5-ck2-de1", "tincn5-ck2-de2"], matrix: {
+      "Tin học · Cấu trúc tuần tự": [1, 1, 0], "Tin học · Cấu trúc lặp": [1, 1, 0], "Tin học · Thực hành sử dụng lệnh lặp": [0, 0, 1],
+      "Tin học · Cấu trúc rẽ nhánh": [1, 1, 0], "Tin học · Sử dụng biến trong chương trình": [1, 0, 1],
+      "Tin học · Sử dụng biểu thức trong chương trình": [0, 1, 1], "Tin học · Từ kịch bản đến chương trình": [1, 0, 1],
+      "Công nghệ · Lắp ráp mô hình xe điện chạy bằng pin": [2, 1, 1], "Công nghệ · Mô hình máy phát điện gió": [2, 1, 1],
+      "Công nghệ · Mô hình điện mặt trời": [1, 2, 1] } } },
 
   /* Toán 12 · Kiểm tra giữa học kì II (Kết nối tri thức, Toán 12 tập hai, Bài 11–15: Chương IV Nguyên hàm và tích phân, Chương V Phương
      pháp toạ độ trong không gian đến Bài 15; trọng tâm Chương IV; không có chủ đề riêng cho Hoạt động thực hành trải nghiệm; Phiên
