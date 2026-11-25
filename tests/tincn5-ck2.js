@@ -265,7 +265,7 @@ const NHOM_TEN = { "lặp lại": "Điều khiển", "liên tục": "Điều khi
   "nói": "Hiển thị", "Khi bấm vào": "Sự kiện" };
 const NUT_TAO_BIEN = "Tạo một biến";
 const VE_MAU_CU = "bỏ các hiệu ứng đồ hoạ";
-const KICH_BAN = [[/có .+ và .+/, /nhân vật nào/], [/sân khấu là/, /sân khấu nào/], [/theo con trỏ chuột|chạm/, /hành động/]];
+const KICH_BAN = [[/có .+ và .+/, /nhân vật nào/], [/sân khấu là/, /sân khấu nào/], [/bay|chạy|nhảy|đớp|chạm|theo con trỏ chuột/, /hành động/]];
 // Công nghệ 5 Bài 7 (tr. 32–37): bộ phận chính của mô hình xe điện (Hình 1); bảng chi tiết, vật liệu và dụng cụ (tr. 33–34); tấm 2 lỗ cố định
 // động cơ, băng dính 2 mặt cố định giá pin; dây đỏ nối cực dương, dây đen nối cực âm của động cơ; lắp pin khi công tắc mở, đúng cực; bốn bước
 const BO_PHAN_XE = ["khung xe", "trục và bánh xe", "động cơ và hệ truyền động", "nguồn điện"];
@@ -276,7 +276,7 @@ const DAY_DONG_CO = { "đỏ": "dương", "đen": "âm" };
 const LAP_PIN = { congTac: "mở", cuc: "đúng" };
 const BUOC_XE = [/^Lắp khung xe$/, /động cơ.*giá pin|giá pin.*động cơ/, /puli.*đai truyền.*bánh xe/, /pin.*công tắc.*chạy thử/];
 // Bài 8 (tr. 38–43): gió là nguồn năng lượng có sẵn trong tự nhiên, không giới hạn, tạo ra điện không thải khí thải; bảng chi tiết (tr. 40–41);
-// dây đỏ nối chân dài, dây đen nối chân ngắn của đèn LED; phiếu đánh giá sản phẩm; gió càng mạnh đèn LED càng sáng (bảng ghi chép tr. 43)
+// dây đỏ nối chân dài, dây đen nối chân ngắn của đèn LED; phiếu đánh giá sản phẩm; bảng ghi chép tr. 43 để học sinh tự ghi trạng thái đèn LED theo tốc độ gió (đề lấy kết quả quan sát được: gió càng mạnh, đèn càng sáng)
 const CHI_TIET_GIO = { "Tấm lớn": 1, "Thanh chữ U dài": 2, "Thanh chữ U ngắn": 2, "Thanh chữ L dài": 2, "Thanh thẳng 3 lỗ": 2, "Máy phát điện cánh quạt và dây dẫn điện": 1,
   "Đèn LED": 1, "Đai ốc": 12, "Vít ngắn": 12 };
 const DAY_LED = { "đỏ": "dài", "đen": "ngắn" };
@@ -284,7 +284,7 @@ const GIO = { coSan: true, khiThai: false };
 const TIEU_CHI_GIO = ["đúng và đủ các bộ phận", "đúng hình dạng", "mối ghép chắc chắn", "dây dẫn điện gọn gàng", "đèn LED phát sáng khi cánh quạt quay",
   "độ sáng đèn LED thay đổi khi tốc độ gió thay đổi"];
 // Bài 9 (tr. 44–50): tấm pin có thể làm từ chất độc hại, chi phí lưu trữ điện cao; bảng chi tiết (tr. 46–47); khung giá đỡ bốn thanh chữ U dài,
-// bốn thanh chữ L dài, một thanh chữ U ngắn; ánh sáng chiếu vào tấm pin càng nhiều thì đèn càng sáng (bảng ghi chép tr. 49)
+// bốn thanh chữ L dài, một thanh chữ U ngắn; bảng ghi chép tr. 49 (không có, ít, nhiều ánh sáng) để học sinh tự ghi trạng thái đèn LED (đề lấy kết quả quan sát được: ánh sáng càng nhiều, đèn càng sáng)
 const CHI_TIET_MT = { "Tấm lớn": 1, "Thanh chữ U dài": 4, "Thanh chữ U ngắn": 1, "Thanh chữ L dài": 4, "Tấm pin mặt trời và dây dẫn điện": 1, "Đèn LED": 1,
   "Đai ốc": 9, "Vít ngắn": 9 };
 const HAN_CHE_MT = { docHai: true, luuTruTon: true };
@@ -308,14 +308,14 @@ const CHECKS = [
   // ----- Đề 1, Tin học -----
   { id: S.de1, has: "được làm theo cấu trúc tuần tự", right: (q) => motDung(q, (o) => cauTruc(o) === "tuần tự") },
   { id: S.de1, has: "Khối lệnh của Bình có đúng hai lệnh đó", right: (q) => {
-    const m = /Khối lệnh của An: (nói “.+” trong \d+ giây), rồi (di chuyển \d+ bước)\./.exec(q.q); assert.ok(m, "đọc được khối lệnh của An");
-    const an = chay([{ t: "Khi bấm vào" }, { t: m[1] }, { t: m[2] }]), binh = chay([{ t: "Khi bấm vào" }, { t: m[2] }, { t: m[1] }]);
+    const m = /Khối lệnh của Phong: (nói “.+” trong \d+ giây), rồi (di chuyển \d+ bước)\./.exec(q.q); assert.ok(m, "đọc được khối lệnh của Phong");
+    const phong = chay([{ t: "Khi bấm vào" }, { t: m[1] }, { t: m[2] }]), binh = chay([{ t: "Khi bấm vào" }, { t: m[2] }, { t: m[1] }]);
     const truoc = (r) => (r.viec[0].startsWith("nói") ? "chào" : "đi");
     const dung = (o) => { let k;
-      if ((k = /^An: (chào|đi) rồi mới (chào|đi); Bình: (chào|đi) rồi mới (chào|đi)$/.exec(o))) return k[1] === truoc(an) && k[3] === truoc(binh);
-      if (/đi được xa hơn/.test(o)) return binh.di > an.di;
-      if (/^Chỉ có mèo của Bình nói/.test(o)) return !an.viec.some((v) => v.startsWith("nói"));
-      if (/giống hệt nhau/.test(o)) return JSON.stringify(an.viec) === JSON.stringify(binh.viec);
+      if ((k = /^Phong: (chào|đi) rồi mới (chào|đi); Bình: (chào|đi) rồi mới (chào|đi)$/.exec(o))) return k[1] === truoc(phong) && k[3] === truoc(binh);
+      if (/đi được xa hơn/.test(o)) return binh.di > phong.di;
+      if (/^Chỉ có mèo của Bình nói/.test(o)) return !phong.viec.some((v) => v.startsWith("nói"));
+      if (/giống hệt nhau/.test(o)) return JSON.stringify(phong.viec) === JSON.stringify(binh.viec);
       return assert.fail("không đọc được lựa chọn: " + o); };
     return motDung(q, dung); } },
   { id: S.de1, has: "Ba lệnh lặp của Scratch", right: (q) => {
@@ -347,10 +347,11 @@ const CHECKS = [
   { id: S.de1, has: "Phần (3) của kịch bản cho biết điều gì?", right: (q) => {
     const phan = /\(3\) ([^;.]+)/.exec(q.q)[1], k = KICH_BAN.findIndex(([re]) => re.test(phan)); assert.equal(k, 2, "phần (3) là hành động của nhân vật");
     return motDung(q, (o) => KICH_BAN[k][1].test(o)); } },
-  { id: S.de1, has: "điểm cứ tăng vùn vụt", right: (q) => {
-    const P = docScratch(q.svg), luon = chay(P, { cham: () => true, luot: 30 }), mot = chay(P, { cham: (l) => l === 5, luot: 30 });
+  { id: S.de1, has: "mỗi lần thỏ chạy ngang qua củ cà rốt", right: (q) => {
+    const P = docScratch(q.svg), luon = chay(P, { cham: () => true, luot: 30 }), mot = chay(P, { cham: (l) => l === 5, luot: 30 }), qua = chay(P, { cham: (l) => l >= 5 && l < 15, luot: 30 });
     assert.equal(luon.bien["Điểm"], 30, "thỏ còn chạm cà rốt thì lượt lặp nào cũng cộng 1"); assert.equal(mot.bien["Điểm"], 1, "chạm một lượt thì cộng 1");
-    assert.ok(["đặt Điểm thành 0", "đi tới con trỏ chuột"].every((t) => khoi(P, t)), "lựa chọn sai nhắc lệnh có trong chương trình");
+    assert.equal(qua.bien["Điểm"], 10, "chạy ngang qua cà rốt trong 10 lượt lặp thì cộng 10"); assert.equal(luon.di, 30 * 5, "mỗi lượt thỏ đi 5 bước");
+    assert.ok(["đặt Điểm thành 0", "bật lại nếu chạm cạnh"].every((t) => khoi(P, t)), "lựa chọn sai nhắc lệnh có trong chương trình");
     return motDung(q, (o) => /lượt lặp nào cũng cộng thêm 1/.test(o)); } },
   // ----- Đề 1, Công nghệ -----
   { id: S.de1, has: "nguồn điện và bộ phận nào nữa?", right: (q) => {
@@ -425,7 +426,7 @@ const CHECKS = [
     return motDung(q, (o) => sisi.every((m) => tinh(o, { m }) === m % k)); } },
   { id: S.de2, has: "Viết kịch bản trước khi tạo chương trình", right: (q) => motDung(q, (o) => /cần làm gì/.test(o)) },
   { id: S.de2, has: "Sắp xếp các việc nhóm làm tiếp theo", right: (q) => motThuTu(q,
-    [["chay", /^Nháy lá cờ xanh, chạy thử/], ["so", /^So kết quả/], ["sua", /^Tìm và sửa/], ["lai", /^Chạy lại/]],
+    [["chay", /^Bấm lá cờ xanh, chơi thử/], ["so", /^Đối chiếu/], ["sua", /^Sửa lệnh/], ["lai", /^Chơi lại/]],
     [["so", "chay"], ["sua", "so"], ["lai", "sua"]]) },
   // ----- Đề 2, Công nghệ -----
   { id: S.de2, has: "dây màu đỏ nối vào cực ___ của động cơ", right: () => DAY_DONG_CO["đỏ"] },
@@ -613,7 +614,7 @@ assert.deepEqual(r.lo, [], "lộ đáp án:\n" + r.lo.join("\n"));
   const khac = tim("tấm 2 lỗ được dùng để làm gì?");
   assert.deepEqual(thuLo([tim("Chó đi tất cả bao nhiêu bước?"), gia(khac, "Chó đi tất cả là 78 bước.")]), ["78"]);
   assert.deepEqual(thuLo([tim("Nối mỗi lần thử với trạng thái"), gia(khac, "Bật quạt số nhỏ thì đèn LED sáng yếu.")]), ["Bật quạt số nhỏ → Đèn LED sáng yếu"]);
-  assert.deepEqual(thuLo([tim("Sắp xếp các việc nhóm làm tiếp theo"), gia(khac, "So kết quả chạy thử với kịch bản rồi tìm và sửa chỗ chưa đúng trong các lệnh.")]), ["So kết quả chạy thử với kịch bản → Tìm và sửa chỗ chưa đúng trong các lệnh"]);
+  assert.deepEqual(thuLo([tim("Sắp xếp các việc nhóm làm tiếp theo"), gia(khac, "Đối chiếu những gì thấy được với kịch bản rồi sửa lệnh ở chỗ sóc chưa làm đúng kịch bản.")]), ["Đối chiếu những gì thấy được với kịch bản → Sửa lệnh ở chỗ sóc chưa làm đúng kịch bản"]);
   assert.deepEqual(thuLo([tim("nguồn điện và bộ phận nào nữa?"), gia(khac, "Mô hình có động cơ và hệ truyền động.")]), ["Động cơ và hệ truyền động"]); }
 
 /* ---------- không gần trùng câu của kho Tin học và Công nghệ lớp 4 và kho cuối kì I lớp 5 (lời giao việc; Rút ra N25, như tests/tincn5-ck1.js):
