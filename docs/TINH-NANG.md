@@ -37,7 +37,7 @@ Bảng trên là **bản lưu trên máy** (một máy dùng chung cho cả nhà
 
 ## 3. Lịch thi cả năm
 
-Lịch năm học 2026–2027 có sẵn cho mọi khối 4–12 (mốc năm học cho mọi khối), chia theo tháng. App chỉ hiện kì thi của khối đang mở (hôm nay lớp 4, 6, 9, 12) và khối đang có học sinh; kì thi của các khối khác đã nằm sẵn trong dữ liệu, bật khối nào là thấy ngay.
+Lịch năm học 2026–2027 có sẵn cho mọi khối 4–12 (mốc năm học cho mọi khối), chia theo tháng. App chỉ hiện kì thi của khối đang mở (hôm nay lớp 4, 5, 6, 9, 12) và khối đang có học sinh; kì thi của các khối khác đã nằm sẵn trong dữ liệu, bật khối nào là thấy ngay.
 
 | Thời gian | Kì thi | Khối | Trạng thái |
 |---|---|---|---|

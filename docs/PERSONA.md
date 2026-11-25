@@ -1,6 +1,6 @@
 # Persona người dùng OnUp theo cấp học (11/11/2026)
 
-OnUp phục vụ con lớp 4 đến lớp 12 cùng bố mẹ, trên cùng một giao diện. Hôm nay app bật lớp 4, 6, 9, 12 (lớp 12 từ Phiên RS12, PR #334). Lớp 5 sắp bật; lớp 7, 8, 10, 11 có đề trước tháng 2/2027 (mốc ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)). Con 9 tuổi và con 17 tuổi dùng chung mọi màn, nên mỗi thay đổi giao diện cần được xét cho cả ba cấp.
+OnUp phục vụ con lớp 4 đến lớp 12 cùng bố mẹ, trên cùng một giao diện. Hôm nay app bật lớp 4, 5, 6, 9, 12 (lớp 12 từ Phiên RS12, PR #334; lớp 5 từ Phiên RS5). Lớp 7, 8, 10, 11 có đề trước tháng 2/2027 (mốc ở [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)). Con 9 tuổi và con 17 tuổi dùng chung mọi màn, nên mỗi thay đổi giao diện cần được xét cho cả ba cấp.
 
 File này đặt ra ba cặp persona, mỗi cấp một con và một bố mẹ. Chủ app, PO, QC, PD và các phiên giao diện dùng chung bộ persona này khi:
 - đề xuất một màn mới, ghi rõ persona nào được lợi và persona nào có thể bị thiệt;
