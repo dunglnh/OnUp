@@ -14,7 +14,8 @@
 // bộ đọc phân thức đổi tên hs → rf). Thêm: họ nghiệm của phương trình lượng giác (cả họ x = a + kπ/n) so với nghiệm tìm bằng số trên [−20; 20], tập nghiệm, tập xác
 // định ghi bằng khoảng, đoạn, hợp so trên lưới điểm dày, chỉnh hợp, tổ hợp, đếm trên không gian mẫu liệt kê, hình không gian không có trục (điểm
 // có nhãn khớp một phép chiếu song song của toạ độ cho trước; cạnh khuất nét đứt đúng là các cạnh mà hai mặt chứa nó cùng quay lưng về người
-// xem; đường cao, đường chéo đáy nét đứt), góc, khoảng cách tính bằng toạ độ, giá trị lớn nhất, nhỏ nhất của bài toán thực tế tìm bằng số.
+// xem; đường cao, đường chéo đáy nét đứt), khối nêm cắt từ khối trụ (Phiên 9z: tỉ lệ bán kính, chiều cao, góc của mặt cắt đọc từ hình khớp chữ
+// và đề, giao tuyến đúng mặt phẳng cắt, phần tô fill="acc" độ mờ 0,6 phủ đúng hình chiếu khối nêm), góc, khoảng cách tính bằng toạ độ, giá trị lớn nhất, nhỏ nhất của bài toán thực tế tìm bằng số.
 // Rồi: kiểu Đ/S không lặp trong một đề, mỗi kiểu nhiều nhất ba lần trong các đề thi thử (từ Phiên N12-tn-toan-c); đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa
 // chọn dài nhất hay ngắn nhất ở không quá một phần ba số câu nhiều lựa chọn của đề, không lặp chữ của nhãn chủ đề; đề bài không trùng, không gần
 // trùng (chuỗi 6 từ) câu của các kho Toán 12 và của đề thi thử khác, đáp án không trùng câu cùng chủ đề; dò lộ đáp án giữa mọi câu của một đề,
@@ -909,6 +910,76 @@ const CHOP4 = { f: [["A", "B", "C", "D"], ["S", "A", "B"], ["S", "B", "C"], ["S"
 const HOP8 = { f: [["A", "B", "C", "D"], ["A′", "B′", "C′", "D′"], ["A", "B", "B′", "A′"], ["B", "C", "C′", "B′"], ["C", "D", "D′", "C′"], ["D", "A", "A′", "D′"]],
   e: [["A", "B"], ["B", "C"], ["C", "D"], ["D", "A"], ["A′", "B′"], ["B′", "C′"], ["C′", "D′"], ["D′", "A′"], ["A", "A′"], ["B", "B′"], ["C", "C′"], ["D", "D′"]] };
 const hopCanh = (s) => R3({ A: [0, 0, 0], B: [s, 0, 0], C: [s, s, 0], D: [0, s, 0], "A′": [0, 0, s], "B′": [s, 0, s], "C′": [s, s, s], "D′": [0, s, s] });
+/* Khối nêm cắt từ khối trụ (Đề 10 câu 21; Phiên 9z): khối trụ trục thẳng đứng vẽ theo phép chiếu song song X = cx + s·x, Y = cy + s·(k·y − z)
+   (y: phía trước, z: lên trên): mặt trên là ellipse rx = s·R, ry = k·rx; mặt đáy là hai nửa ellipse cùng cỡ (nửa trước nét liền, nửa sau nét
+   đứt); hai đường sinh ngoài cùng nét liền, dài s·H; bán kính vẽ trên mặt trên, chữ «R dm» ngay trên, chữ «H dm» bên trái. Đường kính AB của
+   mặt đáy (nét liền, qua tâm O có chấm, chữ O), OC ⊥ AB trên mặt đáy (nét đứt), OD trên mặt cắt (nét liền, D ngay trên C): góc giữa mặt cắt
+   và mặt đáy có tan = CD : (s·R); cung đánh dấu góc COD, chữ số đo góc nằm trong góc, gần O. Giao tuyến của mặt cắt với mặt xung quanh (một
+   đường gấp khúc nét liền) đi từ A qua D tới B, mọi điểm đúng mặt phẳng cắt. Phần nêm tô fill="acc" fill-opacity="0.6" (L51): mỗi đỉnh nằm
+   trên biên hình chiếu của khối nêm (khối nêm lồi nên hình chiếu là bao lồi của hình chiếu nửa đường tròn đáy và giao tuyến), diện tích
+   khớp. → { R, H, goc } đọc từ chữ và hình. */
+const cungEl = (svg) => [...svg.matchAll(/<path d="M ([\d.]+) ([\d.]+) A ([\d.]+) ([\d.]+) 0 0 ([01]) ([\d.]+) ([\d.]+)"([^>]*)>/g)].map((m) => ({ a: [+m[1], +m[2]], rx: +m[3], ry: +m[4], sw: +m[5], b: [+m[6], +m[7]], dash: /stroke-dasharray/.test(m[8]) }));
+const baoLoi = (P) => { // bao lồi (Andrew)
+  const p = P.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]), cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]), lo = [], up = [];
+  p.forEach((q) => { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); });
+  p.slice().reverse().forEach((q) => { while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); });
+  return lo.slice(0, -1).concat(up.slice(0, -1));
+};
+const kcDoan = (p, a, b) => { const d = subv(b, a), L2 = d[0] ** 2 + d[1] ** 2, t = Math.max(0, Math.min(1, ((p[0] - a[0]) * d[0] + (p[1] - a[1]) * d[1]) / L2)); return dist(p, [a[0] + t * d[0], a[1] + t * d[1]]); };
+const docNem = (svg, ten) => {
+  const E = ellipses(svg); assert.equal(E.length, 1, ten + ": mặt trên là một ellipse"); const T = E[0], rx = T.rx, ry = T.ry, cx = T.c[0];
+  const CU = cungEl(svg), day = CU.filter((c) => c.rx === rx && c.ry === ry);
+  assert.equal(day.length, 2, ten + ": mặt đáy là hai nửa ellipse cùng cỡ mặt trên"); const cy = day[0].a[1], O = [cx, cy];
+  day.forEach((c) => assert.ok(c.a[1] === cy && c.b[1] === cy && Math.abs(Math.abs(c.a[0] - c.b[0]) - 2 * rx) < 0.01 && Math.abs((c.a[0] + c.b[0]) / 2 - cx) < 0.01, ten + ": hai nửa ellipse đáy cùng tâm, ngay dưới tâm mặt trên"));
+  const truoc = (c) => (c.sw === 1) === (c.a[0] > c.b[0]); // cung đi qua điểm thấp nhất của ellipse (phía trước)
+  assert.ok(day.some((c) => truoc(c) && !c.dash) && day.some((c) => !truoc(c) && c.dash), ten + ": nửa đáy phía trước nét liền, phía sau nét đứt");
+  const L = lines(svg);
+  [cx - rx, cx + rx].forEach((x) => assert.ok(L.some((l) => !l.dash && l.a[0] === x && l.b[0] === x && Math.min(l.a[1], l.b[1]) === T.c[1] && Math.max(l.a[1], l.b[1]) === cy), ten + ": đường sinh ngoài cùng nét liền ở hoành độ " + x));
+  // chữ: bán kính (trên bán kính của mặt trên), chiều cao (bên trái khối trụ); tỉ lệ của hình
+  const TX = texts(svg), dm = TX.filter((t) => /^\d+ dm$/.test(t.t));
+  const ban = L.find((l) => !l.dash && l.a[0] === cx && l.a[1] === T.c[1] && l.b[1] === T.c[1] && Math.abs(Math.abs(l.b[0] - cx) - rx) < 0.01);
+  assert.ok(ban, ten + ": bán kính vẽ trên mặt trên, từ tâm"); const giua = (cx + ban.b[0]) / 2;
+  const tR = dm.filter((t) => t.anchor === "middle" && Math.abs(t.at[0] - giua) < 0.6 && t.at[1] < T.c[1] && t.at[1] > T.c[1] - 15);
+  const tH = dm.filter((t) => t.anchor === "end" && t.at[0] < cx - rx && Math.abs(t.at[1] - (T.c[1] + cy) / 2) < 8);
+  assert.ok(dm.length === 2 && tR.length === 1 && tH.length === 1, ten + ": chữ bán kính ngay trên bán kính, chữ chiều cao bên trái khối trụ");
+  const R = +tR[0].t.split(" ")[0], H = +tH[0].t.split(" ")[0], s = rx / R, k = ry / rx;
+  assert.ok(Math.abs((cy - T.c[1]) / s - H) < 0.01, ten + ": chiều cao trên hình không khớp " + H + " dm (tỉ lệ với bán kính)");
+  assert.ok(k >= 0.2 && k <= 0.5, ten + ": ellipse đáy dẹt vừa phải (ry : rx từ 0,2 đến 0,5)");
+  const cham = circles(svg).filter((c) => c.r <= 4); assert.ok([T.c, O].every((p) => cham.some((c) => dist(c.c, p) < 0.01)), ten + ": chấm ở tâm hai mặt đáy");
+  const Dm = diem(svg, ten); assert.ok(Dm.O && dist(Dm.O, O) < 0.01 && Object.keys(Dm).length === 1, ten + ": chữ O ghi ở tâm mặt đáy");
+  // đường kính AB, OC ⊥ AB trên mặt đáy, OD trên mặt cắt (D ngay trên C)
+  const chieu = (x, y, z) => [cx + s * x, cy + s * (k * y - z)], nguoc = (p) => [(p[0] - cx) / s, (p[1] - cy) / (s * k)];
+  const trenDay = (p) => Math.abs(Math.hypot(...nguoc(p)) - R) < 0.02;
+  const AB = L.filter((l) => !l.dash && trenDay(l.a) && trenDay(l.b) && dist([(l.a[0] + l.b[0]) / 2, (l.a[1] + l.b[1]) / 2], O) < 0.01);
+  assert.equal(AB.length, 1, ten + ": đường kính AB của mặt đáy (nét liền, qua tâm O)"); const A = AB[0].a, B = AB[0].b, u = nguoc(B).map((v) => v / R);
+  const OC = L.filter((l) => l.dash && dist(l.a, O) < 0.01 && trenDay(l.b));
+  assert.equal(OC.length, 1, ten + ": OC trên mặt đáy (nét đứt)"); const Cp = OC[0].b, w = nguoc(Cp).map((v) => v / R);
+  assert.ok(Math.abs(u[0] * w[0] + u[1] * w[1]) < 0.01, ten + ": OC vuông góc với AB");
+  const OD = L.filter((l) => !l.dash && dist(l.a, O) < 0.01 && Math.abs(l.b[0] - Cp[0]) < 0.01 && l.b[1] < Cp[1]);
+  assert.equal(OD.length, 1, ten + ": OD trên mặt cắt (nét liền), D ngay trên C"); const Dp = OD[0].b, tg = (Cp[1] - Dp[1]) / (s * R), goc = (Math.atan(tg) * 180) / Math.PI;
+  const tG = TX.filter((t) => /^\d+°$/.test(t.t)); assert.equal(tG.length, 1, ten + ": một chữ ghi số đo góc");
+  assert.ok(Math.abs(+tG[0].t.slice(0, -1) - goc) < 0.01, ten + ": góc giữa mặt cắt và mặt đáy trên hình là " + goc.toFixed(2) + "°, chữ ghi " + tG[0].t);
+  const vC = subv(Cp, O), vD = subv(Dp, O), hc = hopChu(tG[0]), vT = subv([(hc[0] + hc[2]) / 2, (hc[1] + hc[3]) / 2], O), cCD = cross(vC, vD);
+  assert.ok(cross(vC, vT) * cCD > 0 && cross(vT, vD) * cCD > 0 && Math.hypot(...vT) < 60, ten + ": chữ số đo góc nằm trong góc COD, gần O");
+  const tia = (p, v) => Math.abs(cross(v, subv(p, O))) / Math.hypot(...v) < 0.05 && (p[0] - O[0]) * v[0] + (p[1] - O[1]) * v[1] > 0;
+  const cg = CU.filter((c) => c.rx === c.ry && c.rx < 40);
+  assert.ok(cg.length === 1 && [cg[0].a, cg[0].b].every((p) => Math.abs(dist(p, O) - cg[0].rx) < 0.05) && ((tia(cg[0].a, vC) && tia(cg[0].b, vD)) || (tia(cg[0].a, vD) && tia(cg[0].b, vC))), ten + ": cung đánh dấu góc COD");
+  // giao tuyến A → D → B: P(θ) = R(cos θ·w + sin θ·u), cao tan(góc)·R·cos θ, θ từ −90° đến 90°
+  const cat = (th) => { const P = [0, 1].map((i) => R * (Math.cos(th) * w[i] + Math.sin(th) * u[i])); return chieu(P[0], P[1], tg * R * Math.cos(th)); };
+  const mau = Array.from({ length: 3601 }, (_, i) => cat((i / 3600 - 0.5) * Math.PI)), trenCat = (p) => mau.some((q) => dist(p, q) < 0.5);
+  const PL = polylines(svg).filter((p) => !p.dash); assert.equal(PL.length, 1, ten + ": giao tuyến của mặt cắt với mặt xung quanh (nét liền)"); const g = PL[0].p;
+  assert.ok(g.every(trenCat), ten + ": giao tuyến: mọi điểm phải đúng mặt phẳng cắt nghiêng " + goc.toFixed(2) + "° qua AB");
+  assert.ok([A, B].every((p) => dist(p, g[0]) < 0.05 || dist(p, g[g.length - 1]) < 0.05) && g.some((p) => dist(p, Dp) < 0.05), ten + ": giao tuyến đi từ A qua D tới B");
+  g.slice(1).forEach((p, i) => assert.ok(dist(p, g[i]) <= 16, ten + ": giao tuyến vẽ quá thưa"));
+  // phần nêm tô (L51): đúng biên hình chiếu của khối nêm
+  const FA = [...svg.matchAll(/<polygon [^>]*>/g)].map((m) => attrs(m[0])).filter((a) => a.fill === "acc");
+  assert.ok(FA.length === 1 && FA[0]["fill-opacity"] === "0.6", ten + ": phần nêm tô một vùng fill=\"acc\" fill-opacity=\"0.6\" (L51)"); const vung = pts2(FA[0].points);
+  const nuaDay = Array.from({ length: 1801 }, (_, i) => { const th = (i / 1800 - 0.5) * Math.PI; return chieu(...[0, 1].map((j) => R * (Math.cos(th) * w[j] + Math.sin(th) * u[j])), 0); });
+  const bien = baoLoi(nuaDay.concat(mau)), kcBien = (p) => Math.min(...bien.map((a, i) => kcDoan(p, a, bien[(i + 1) % bien.length])));
+  vung.forEach((p) => assert.ok(kcBien(p) < 0.5, ten + ": đỉnh (" + p.join("; ") + ") của phần tô không nằm trên biên hình chiếu khối nêm"));
+  assert.ok(Math.abs(dienTich(vung) / dienTich(bien) - 1) < 0.015, ten + ": phần tô không phủ đúng hình chiếu khối nêm (diện tích " + dienTich(vung).toFixed(0) + " so với " + dienTich(bien).toFixed(0) + ")");
+  return { R, H, goc };
+};
 // mệnh đề về hàm số phân thức f (bổ sung cho menhDeHam)
 const menhHam = (f) => (s) => {
   let m;
@@ -1478,6 +1549,7 @@ const RIENG = {
     { has: "Ở một trung tâm ngoại ngữ, 30% học viên học trực tuyến", right: (q) => { const [a] = nhom(q, /trung tâm ngoại ngữ, (\d+)% học viên học trực tuyến/), [p1, p2] = nhom(q, /học trực tuyến là (\d+)%, của học viên học trực tiếp là (\d+)%/);
       const mo = moHinh({ A: F(a, 100), BA: F(100 - p1, 100), BAc: F(100 - p2, 100) }); return toNum(xacSuat(mo, "A | B")); } },
     { has: "Một khúc gỗ có dạng khối trụ với bán kính đáy 3 dm", right: (q) => { const [R] = nhom(q, /bán kính đáy (\d+) dm/), [H] = nhom(q, /chiều cao (\d+) dm/), [g] = nhom(q, /một góc (\d+)°/), k = Math.tan((g * Math.PI) / 180);
+      const h = doc(q, docNem, "khối nêm Đề 10"); assert.deepEqual([h.R, h.H, Math.round(h.goc * 100) / 100], [R, H, g], "hình khối nêm ghi đúng bán kính, chiều cao, góc của đề");
       assert.ok(R * k < H, "mặt phẳng cắt không chạm mặt trên của khối trụ"); const V = tp((x) => ((R * R - x * x) * k) / 2, -R, R); assert.ok(Math.abs(V - (2 / 3) * R ** 3 * k) < 1e-9); return V; } },
     { has: "đường ống cấp nước chính nằm trên đường thẳng d", right: (q) => { const d = dt(/d: (\{.+?\})\./.exec(q.q)[1]), A = vn(ptDe(q, "A")), B = vn(ptDe(q, "B")), P0 = vn(d.P), u = vn(d.u);
       const M = (t) => P0.map((x, i) => x + t * u[i]), L = (t) => lenR(M(t).map((x, i) => x - A[i])) + lenR(M(t).map((x, i) => x - B[i])), r = cucSo(L, -20, 20, false);
@@ -1742,6 +1814,13 @@ if (SACH.length) {
   assert.ok(!khopDoThi(gd, rf("(−x + 2)/(x − 2)")) && khopDoThi(gd, rf("(−x + 3)/(x − 2)")));
   const qs_ = tim("Một quả pháo hoa nổ tại điểm I"); assert.throws(() => docCau(qs_.svg.replace(">R = 5<", ">R = 4<"), "thử"), /bán kính đường tròn không khớp/);
   const qt = tim("Một cửa hàng nhập xoài"); assert.throws(() => docCay(qt.svg.replace(">0,8</text>", ">0,9</text>"), "thử"), /cộng lại phải bằng 1/);
+  // khối nêm (Phiên 9z): mặt cắt dốc hơn chữ ghi góc, phần tô thiếu một mảnh, phần tô nhạt, giao tuyến lệch
+  const qn = tim("Một khúc gỗ có dạng khối trụ với bán kính đáy 3 dm"), sn = qn.svg, ODn = lines(sn).find((l) => !l.dash && l.a[0] === 150 && l.a[1] === 192 && l.b[0] === 240);
+  assert.ok(ODn && docNem(sn, "thử").goc === 45);
+  assert.throws(() => docNem(sn.replace(`x2="240" y2="${ODn.b[1]}"`, `x2="240" y2="${ODn.b[1] - 10}"`), "thử"), /góc giữa mặt cắt và mặt đáy/);
+  assert.throws(() => docNem(sn.replace(/<polygon points="((?:[\d.]+,[\d.]+ ){6})/, '<polygon points="'), "thử"), /phủ đúng hình chiếu/);
+  assert.throws(() => docNem(sn.replace('fill-opacity="0.6"', 'fill-opacity="0.3"'), "thử"), /L51/);
+  assert.throws(() => docNem(sn.replace(/(<polyline points="(?:[\d.]+,[\d.]+ ){5})([\d.]+),([\d.]+)/, (m, a, x, y) => a + x + "," + (+y + 4)), "thử"), /giao tuyến/);
   // bộ dò lộ bắt được chỗ lộ cố ý viết sai
   const gia = (q, x) => Object.assign({}, q, { x: q.x + " " + x }), thuLo = (qs) => { const r = doLo(qs, [], () => true); return r.lo.concat(r.chuLo).map((s) => s.replace(/^.*: /, "")); };
   const a1 = tim("Tính khoảng cách từ điểm A đến mặt phẳng (SBC)"), b1 = tim("Một ứng viên dự tuyển");

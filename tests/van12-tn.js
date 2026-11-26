@@ -25,7 +25,8 @@
 // Rồi: đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa chọn dài nhất hay ngắn nhất ở không quá một phần ba số câu nhiều lựa chọn,
 // không là lựa chọn duy nhất có chữ của nhãn chủ đề; đề “Ôn chủ đề” lấy hết câu của chủ đề; dò lộ đáp án (chuỗi 3 từ liền nhau của đáp
 // án; đáp án ngắn thì cả đáp án) giữa mọi cặp câu của một đề, với note, và giữa các câu cùng chủ đề của các đề khác nhau (đề “Ôn chủ đề”
-// rút chung); DO_LO=1 in ra để xem tay, danh sách đã xem ở DA_XEM. Có sách ở ../OnUp-Book (repo riêng tư) thì so mọi trường chữ (cả đoạn
+// rút chung); DO_LO=1 in ra để xem tay, danh sách đã xem ở DA_XEM. Mỗi ý của câu đúng/sai 4 ý không có chuỗi 4 từ chung với thang chấm, gợi ý
+// của câu tự luận cùng đề (bỏ qua tên nhân vật, tên văn bản; Phiên 9z, L53), tự thử với chữ cũ của Đề 1 câu 7. Có sách ở ../OnUp-Book (repo riêng tư) thì so mọi trường chữ (cả đoạn
 // đọc, note, thang chấm) với chữ OCR của mọi cuốn sau khi bỏ dấu, gộp nguyên âm: không chuỗi 8 từ nào trùng (DO_SACH=1 in chuỗi 6 từ);
 // tên văn bản không có trong sách Ngữ văn 6–12. So với mọi câu, đoạn đọc của các kho khác (không chuỗi 8 từ nào trùng; DO_KHO=1 in
 // chuỗi 5 từ) và giữa các đề thi thử tốt nghiệp với nhau (đoạn đọc, đề bài, lựa chọn, lời giải; thang chấm và khung đề bài câu viết
@@ -534,6 +535,37 @@ assert.deepEqual(lo, DA_XEM, "đáp án có ở câu rút được cùng lúc đ
   const a = motCau("ông đặt những chiếc bình mới chuốt dưới ___"), b = motCau("«Một vết nứt mảnh như sợi tóc chạy chéo qua thân bình");
   const gia = Object.assign({}, b, { x: b.x + " Những chiếc bình mới chuốt được để khô dưới mái hiên." });
   assert.ok(doLo([[a, gia, []]], (q) => ten.get(q) || "giả").some((s) => / mái hiên$/.test(s)), "bộ dò phải bắt được đáp án nằm trong lời giải câu khác");
+}
+
+/* ---------- ý đúng/sai không lộ ở thang chấm, gợi ý của câu tự luận cùng đề (Phiên 9z, L53) ----------
+   Ôn luyện mà mở câu tự luận trước, bấm «Xem gợi ý», rồi làm câu đúng/sai 4 ý thì không được biết đáp án: mỗi ý của câu đúng/sai 4 ý
+   không có chuỗi 4 từ liền nhau chung với thang chấm, gợi ý (x) của câu tự luận cùng đề. Bỏ qua tên nhân vật, tên văn bản: từ viết hoa
+   (tên người, tên riêng, chữ đầu câu) và dấu « » ngắt chuỗi, nên «Đợi lửa nguội», Khoa, Hà không tạo chuỗi chung. Chung ý mà khác chữ thì
+   bộ dò không bắt được: thang chấm, gợi ý chỉ nêu khía cạnh cần phân tích, không nêu chi tiết là đáp án của một ý hay của câu chấm tự
+   động (docs/KE-HOACH-NOI-DUNG.md, mục 3.5, ghi chép của Phiên 9z). */
+const doanTu = (s) => String(s).normalize("NFC").split(/[«»\n]/).flatMap((p) => {
+  const ra = [[]];
+  p.replace(/[“”"(),.;:!?…–—\-/]/g, " ").split(/\s+/).filter(Boolean).forEach((w) => (/^\p{Lu}/u.test(w) ? ra.push([]) : ra[ra.length - 1].push(w.toLowerCase())));
+  return ra.filter((w) => w.length >= 4);
+});
+const bonTu = (s) => doanTu(s).flatMap((w) => w.slice(3).map((_, i) => w.slice(i, i + 4).join(" ")));
+const yLo = (b, them = []) => {
+  const tl = b.questions.filter((q) => q.type === "essay").map((q) => ({ ten: ten.get(q), chu: q.rubric.map((r) => r.c).concat(q.x) })).concat(them), ra = [];
+  b.questions.filter((q) => q.type === "tf4").forEach((q) => q.o.forEach((o, k) => {
+    const G = new Set(bonTu(o));
+    tl.forEach((e) => e.chu.forEach((s) => bonTu(s).filter((g) => G.has(g)).forEach((g) => ra.push(`${ten.get(q)} ý ${k + 1} ↔ ${e.ten}: ${g}`))));
+  }));
+  return [...new Set(ra)];
+};
+assert.deepEqual(DE.flatMap((b) => yLo(b)), [], "ý đúng/sai có chuỗi 4 từ chung với thang chấm, gợi ý của câu tự luận cùng đề (Phiên 9z, L53)");
+{ // tự thử: chữ cũ của Đề 1 câu 7 (trước Phiên 9z) nói ra đáp án ý 2 của câu 4 (ông không mắng mà ngồi xuống bậc đá trước lò)
+  const CU = ["Phân tích có lí lẽ, có dẫn chứng từ truyện (cách ông nhào đất, chuốt bình, để bình khô, canh lửa; cách ông xử sự khi bình nứt, câu chuyện ông kể, chiếc bình trao lại); nêu được ý nghĩa của nhân vật",
+    "– Ông với đứa cháu vừa mắc lỗi: không trách mắng, lặng lẽ xoay chiếc bình trong tay rồi ngồi xuống bậc đá; kể lại lần chính mình lén mở lò năm mười sáu tuổi và lời dặn của bố; trao chiếc bình nứt cho cháu giữ, coi nó như vật chứa một bài học.\n– Nghệ thuật: lời ông ngắn mà thấm; các chi tiết đôi bàn tay, bậc đá trước lò, chiếc bình nứt giàu sức gợi."];
+  const b = DE.find((d) => d.id === "van12-tn-de1"), lo = yLo(b, [{ ten: "câu 7 cũ", chu: CU }]);
+  ["ngồi xuống bậc đá", "bậc đá trước lò"].forEach((g) => assert.ok(lo.includes(`de1#4 ý 2 ↔ câu 7 cũ: ${g}`), "bộ dò phải bắt được chữ cũ của Đề 1 câu 7: " + g));
+  // tên riêng, tên văn bản ngắt chuỗi: «Khoa lén mở cửa lò» không chung chuỗi với «… Khoa đem chiếc bình …» qua chữ Khoa
+  assert.deepEqual(bonTu("Hôm ấy Khoa lén mở cửa lò ra xem"), ["lén mở cửa lò", "mở cửa lò ra", "cửa lò ra xem"]);
+  assert.deepEqual(bonTu("truyện «Đợi lửa nguội» rất hay"), []);
 }
 
 /* ---------- không chép sách: so với chữ OCR (bỏ dấu, gộp nguyên âm), nếu có OnUp-Book ---------- */
