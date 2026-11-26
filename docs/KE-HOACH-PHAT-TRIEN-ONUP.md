@@ -395,11 +395,13 @@ Không chạy cùng lúc hai phiên cùng sửa `js/app.js` hoặc `js/quiz.js`;
 - Xem mức “This week” ở Settings → Usage trước khi mở phiên; giới hạn tuần làm mới mỗi thứ Sáu khoảng 13:00.
 - Merge từng Pull Request trước khi mở phiên sửa cùng file.
 - Phiên cloud dùng chung giới hạn tuần của gói Pro với phần chat (credit cloud đã hết từ 16/10/2026). Phiên tự chạy và phiên mở tay chạy cùng lúc thì hết lượt nhanh hơn.
-- Tài liệu càng dài thì phiên càng tốn, vì mỗi lượt gửi lại những gì đã đọc: phiên đọc theo đoạn (Quy định chung của các phiên N ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)), file này giữ ngắn (quy ước ở đầu file).
+- Tài liệu càng dài thì phiên càng tốn, vì mỗi lượt gửi lại những gì đã đọc: phiên đọc theo đoạn (Quy định chung của các phiên N ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)), file này giữ ngắn (quy ước ở đầu file), CLAUDE.md giữ dưới 80 KB (mô tả chi tiết ở mục 9 của [TINH-NANG.md](TINH-NANG.md), các bước kiểm thử ở mục 4 của `tests/README.md`; Phiên D1).
 
 ## 4. Lời giao việc (dán nguyên vào phiên mới)
 
 Chỉ giữ lời giao việc của phiên chưa làm (phiên UX, UI đã xong thì giữ đến khi kiểm thử thiết kế xong, mục 5 của [CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md), bản 3.x mục 6 của [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md), bản 4.x mục 6 của [CAI-TIEN-UX-4X.md](CAI-TIEN-UX-4X.md)). Phiên làm đề: mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md); phiên sửa lỗi: mục 3 của [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md). Các phiên dưới đây theo thứ tự ở mục 3; bấm tên phiên để mở lời giao việc.
+
+**Ghi tài liệu (Phiên D1, 26/11/2026; áp dụng cho mọi phiên, cả lời giao việc viết trước đó ghi “Sửa CLAUDE.md, mục …”):** phiên thêm, sửa tính năng ghi mô tả chi tiết vào mục 9 “Chi tiết cho người làm code” của [TINH-NANG.md](TINH-NANG.md) (mỗi tính năng một mục con cùng tên với mục ở CLAUDE.md), các bước kiểm thử của `tests/e2e.js`, `tests/supabase/cloud-e2e.js` vào mục 4 của `tests/README.md` (mỗi bước một mục con theo tên bước trong script); CLAUDE.md chỉ thêm quy tắc chung và dòng trỏ, giữ dưới 80 KB (`wc -c CLAUDE.md`).
 
 <details><summary>Phiên UX22 · Hôm nay chọn cách làm ngay; gọi “Bài ôn 1, 2…” (chủ app chọn 25/11/2026; làm sớm, trước các phiên 4.x khác)</summary>
 
