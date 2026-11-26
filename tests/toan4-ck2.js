@@ -96,12 +96,14 @@ const bieuDo = (svg) => {
 };
 const chartOf = (q, want) => { const d = bieuDo(q.svg); assert.deepEqual(d.map((c) => c[0]), want, "tên cột"); return d; };
 const argBy = (d, better) => d.reduce((x, y) => (better(y[1], x[1]) ? y : x))[0];
-// băng chia phần tô màu: các rect liền nhau, bằng nhau, tô acc-soft hoặc không tô → { n, k }
+// băng chia phần tô màu: các rect liền nhau, bằng nhau, tô fill="acc" fill-opacity="0.6" (L51, Phiên 9y: acc-soft chỉ tương phản 1,2:1)
+// hoặc không tô → { n, k }
+const toL51 = (r) => r.fill === "acc" && r["fill-opacity"] === "0.6";
 const bang = (svg) => {
-  const R = tags(svg, "rect").map((r) => ({ x: +r.x, y: +r.y, w: +r.width, h: +r.height, fill: r.fill })).sort((a, b) => a.x - b.x);
+  const R = tags(svg, "rect").map((r) => ({ x: +r.x, y: +r.y, w: +r.width, h: +r.height, fill: r.fill, to: toL51(r) })).sort((a, b) => a.x - b.x);
   assert.ok(R.length >= 2 && R.every((r) => r.y === R[0].y && r.w === R[0].w && r.h === R[0].h), "các phần phải bằng nhau, cùng một hàng");
-  R.forEach((r, i) => { assert.ok(["acc-soft", "none"].includes(r.fill), "phần tô màu dùng acc-soft"); if (i) assert.equal(r.x, R[i - 1].x + R[0].w, "các phần phải liền nhau"); });
-  return { n: R.length, k: R.filter((r) => r.fill === "acc-soft").length };
+  R.forEach((r, i) => { assert.ok(r.to || r.fill === "none", "phần tô màu dùng fill=\"acc\" fill-opacity=\"0.6\" (L51)"); if (i) assert.equal(r.x, R[i - 1].x + R[0].w, "các phần phải liền nhau"); });
+  return { n: R.length, k: R.filter((r) => r.to).length };
 };
 // lưới ô vuông: các đường kẻ stroke="line" dọc và ngang cách đều nhau, cùng cạnh ô → đổi toạ độ điểm ra số ô (số nguyên)
 const luoi = (svg) => {

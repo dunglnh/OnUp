@@ -159,7 +159,7 @@ const pts2 = (s) => { const v = nums(s), p = []; for (let i = 0; i < v.length; i
 const LINES = (svg) => [...svg.matchAll(/<line [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { a: [+a.x1, +a.y1], b: [+a.x2, +a.y2], dash: !!a["stroke-dasharray"] }; });
 const POLYS = (svg) => [...svg.matchAll(/<polygon [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { p: pts2(a.points), fill: a.fill || "none" }; });
 const MARKS = (svg) => [...svg.matchAll(/<polyline [^>]*>/g)].map((m) => pts2(attrs(m[0]).points));
-const RECTS = (svg) => [...svg.matchAll(/<rect [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { x: +a.x, y: +a.y, w: +a.width, h: +a.height, fill: a.fill || "none" }; });
+const RECTS = (svg) => [...svg.matchAll(/<rect [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { x: +a.x, y: +a.y, w: +a.width, h: +a.height, fill: a.fill || "none", op: a["fill-opacity"] }; });
 const TEXTS = (svg) => [...svg.matchAll(/<text ([^>]*)>([^<]*)<\/text>/g)].map((m) => { const a = attrs("<t " + m[1] + ">"); return { at: [+a.x, +a.y], t: m[2], fs: +(a["font-size"] || 15), anchor: a["text-anchor"] || "start", b: a["font-weight"] === "700" }; });
 const TITLE = (svg) => (/<title>([^<]*)<\/title>/.exec(svg) || [])[1] || "";
 const rong = (t) => (t.b ? 0.62 : 0.55) * t.fs * [...t.t].length; // ước bề rộng chữ (Noto Sans)
@@ -338,7 +338,9 @@ const docLuoi = (q) => {
     g.forEach((i, j) => assert.ok(Math.abs(Rs[i].x - x0 - o[j][0] * s) <= 0.05 && Math.abs(Rs[i].y - y0 - o[j][1] * s) <= 0.05, "ô nằm đúng lưới"));
     const chu = g.map((i) => { const t = T.filter((t) => { const c = tamChu(t); return c[0] > Rs[i].x && c[0] < Rs[i].x + s && c[1] > Rs[i].y && c[1] < Rs[i].y + s; }); assert.ok(t.length <= 1, "mỗi ô nhiều nhất một chữ"); t.forEach((x) => dung.add(x)); return t.length ? t[0].t : ""; });
     const to = g.filter((i) => Rs[i].fill !== "none");
-    assert.ok(to.length <= 1 && to.every((i) => Rs[i].fill === "acc-soft"), "nhiều nhất một ô tô màu");
+    // ô tô màu là dữ kiện (câu hỏi gọi “mặt tô màu”): fill="acc" fill-opacity="0.6" (L51, Phiên 9y: acc-soft chỉ tương phản 1,2:1)
+    assert.ok(to.length <= 1, "nhiều nhất một ô tô màu");
+    assert.ok(to.every((i) => Rs[i].fill === "acc" && Rs[i].op === "0.6"), "ô tô màu dùng fill=\"acc\" fill-opacity=\"0.6\" (L51)");
     const ten = T.filter((t) => { const c = tamChu(t); return c[0] > x0 && c[0] < x1 && c[1] > y1 && c[1] < y1 + 40; });
     assert.ok(ten.length <= 1); ten.forEach((x) => dung.add(x));
     const ch = chu.filter(Boolean); assert.equal(new Set(ch).size, ch.length, "chữ trong các ô không trùng nhau");

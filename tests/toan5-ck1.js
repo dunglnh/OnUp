@@ -136,7 +136,9 @@ const LINES = (svg) => [...svg.matchAll(/<line [^>]*>/g)].map((m) => { const a =
 const POLYS = (svg) => [...svg.matchAll(/<polygon [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { p: pts2(a.points), fill: a.fill || "none" }; });
 const MARKS = (svg) => [...svg.matchAll(/<polyline [^>]*>/g)].map((m) => pts2(attrs(m[0]).points));
 const CIRCLES = (svg) => [...svg.matchAll(/<circle [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { c: [+a.cx, +a.cy], r: +a.r, fill: a.fill || "none" }; });
-const RECTS = (svg) => [...svg.matchAll(/<rect [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { x: +a.x, y: +a.y, w: +a.width, h: +a.height, fill: a.fill || "none" }; });
+const RECTS = (svg) => [...svg.matchAll(/<rect [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { x: +a.x, y: +a.y, w: +a.width, h: +a.height, fill: a.fill || "none", op: a["fill-opacity"] }; });
+// phần tô là dữ kiện của câu (hình chia phần, “phần tô màu”): fill="acc" fill-opacity="0.6" (L51, Phiên 9y: acc-soft chỉ tương phản 1,2:1)
+const TO_L51 = (r) => r.fill === "acc" && r.op === "0.6";
 const PATHS = (svg) => [...svg.matchAll(/<path [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { d: a.d, fill: a.fill || "none" }; });
 const TEXTS = (svg) => [...svg.matchAll(/<text ([^>]*)>([^<]*)<\/text>/g)].map((m) => { const a = attrs("<t " + m[1] + ">"); return { at: [+a.x, +a.y], t: m[2], fs: +(a["font-size"] || 15), anchor: a["text-anchor"] || "start", b: a["font-weight"] === "700" }; });
 const rong = (t) => (t.b ? 0.62 : 0.55) * t.fs * [...t.t].length; // ước bề rộng chữ (Noto Sans)
@@ -258,9 +260,10 @@ const CHECKS = [
     R.forEach((r) => { const b = bars[bars.length - 1]; if (b && gan(b[b.length - 1].x + b[b.length - 1].w, r.x)) b.push(r); else bars.push([r]); });
     assert.equal(bars.length, 3, "ba hình chữ nhật"); assert.ok(bars.every((b) => b.length === 4 && b.every((r) => r.w === b[0].w && r.h === b[0].h && r.y === b[0].y)), "mỗi hình chia 4 phần bằng nhau");
     assert.ok(bars.every((b) => b[0].w === bars[0][0].w), "các hình bằng nhau");
-    const to = bars.map((b) => b.filter((r) => r.fill === "acc-soft").length), du = to.filter((k) => k === 4).length, le = to.filter((k) => k > 0 && k < 4);
+    assert.ok(R.every((r) => TO_L51(r) || r.fill === "none"), "phần tô màu dùng fill=\"acc\" fill-opacity=\"0.6\" (L51)");
+    const to = bars.map((b) => b.filter(TO_L51).length), du = to.filter((k) => k === 4).length, le = to.filter((k) => k > 0 && k < 4);
     assert.deepEqual(to, to.slice().sort((a, b) => b - a), "tô từ trái sang phải"); assert.equal(le.length, 1, "đúng một hình tô một phần");
-    const b = bars[du]; assert.ok(b.slice(0, le[0]).every((r) => r.fill === "acc-soft"), "phần tô màu liền nhau từ trái");
+    const b = bars[du]; assert.ok(b.slice(0, le[0]).every(TO_L51), "phần tô màu liền nhau từ trái");
     return du + " " + le[0] + "/4"; } },
   { has: "Hỗn số có phần nguyên là 7 và phần phân số là 2/9", right: () => "7 2/9" },
   { has: "Viết hỗn số dưới dạng phân số thập phân: 5 3/10 = ___", right: () => honSoThanhPS("5 3/10") },
@@ -433,7 +436,7 @@ const CHECKS = [
   { has: "Diện tích của hình tròn có đường kính 12 cm là", right: () => { const r = div(F(12), F(2)); return mul(PI, mul(r, r)); } },
   { has: "thước đo đường dạng bánh xe dọc theo mép sân trường. Bánh xe của thước có đường kính 0,4 m và quay được đúng 60 vòng", right: () => mul(mul(PI, fr("0,4")), F(60)) },
   { has: "Một hình chữ nhật dài 10 cm, rộng 5 cm. Bên trong có hai hình tròn bằng nhau", right: (q) => {
-    const svg = doc(q), R = RECTS(svg); assert.equal(R.length, 1); const r = R[0]; assert.equal(r.fill, "acc-soft");
+    const svg = doc(q), R = RECTS(svg); assert.equal(R.length, 1); const r = R[0]; assert.ok(TO_L51(r), "phần tô màu dùng fill=\"acc\" fill-opacity=\"0.6\" (L51)");
     const C = CIRCLES(svg); assert.equal(C.length, 2); assert.ok(C.every((c) => c.fill === "surface" && c.r === C[0].r), "hai hình tròn bằng nhau, không tô màu");
     const [c1, c2] = C.sort((a, b) => a.c[0] - b.c[0]);
     assert.ok(gan(dist(c1.c, c2.c), 2 * c1.r) && gan(c1.c[0] - c1.r, r.x) && gan(c2.c[0] + c2.r, r.x + r.w) && C.every((c) => gan(c.c[1] - c.r, r.y) && gan(c.c[1] + c.r, r.y + r.h)), "hai hình tròn chạm nhau và chạm các cạnh");
