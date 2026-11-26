@@ -130,12 +130,14 @@ Các quy tắc dưới đây rút ra từ các phiên đã làm; chữ trong ngo
 |---|---|---|
 | Trắc nghiệm, điền khuyết, đúng/sai | mọi môn | đáp án đúng đứng đầu mảng, app tự xáo |
 | Đoạn đọc dùng chung (`passages`) | Tiếng Việt, Ngữ văn, Tiếng Anh | rút theo đoạn (mục 3.1) |
-| Hình (SVG trong dữ liệu, có lọc an toàn) | Toán, KHTN, Địa lí, Tin học | màu ghi bằng tên token; mục 3.3, “Hình và script kiểm tra” |
+| Hình (SVG trong dữ liệu, có lọc an toàn) | Toán, KHTN, Địa lí, Tin học | màu ghi bằng tên token; phần tô của hình chia phần như đoạn “Phần tô” dưới bảng; mục 3.3, “Hình và script kiểm tra” |
 | Nối cột, sắp xếp thứ tự | tiểu học, Tiếng Anh, Lịch sử, các bước làm | làm được bằng chạm |
 | Đúng/sai 4 ý | Toán, KHTN, môn thi tốt nghiệp, đề THCS theo Công văn 7991 | chấm từng ý |
 | Trả lời bằng số (`num`, có sai số `tol`) | Toán, Lí, Hóa, phép tính của các môn | phần III đề thi tốt nghiệp |
 | Tự luận có đáp án gợi ý và thang tự chấm | Ngữ văn (viết), Toán tự luận | mục 3.1, “Tự luận và chủ đề Viết” |
 | Câu nghe (giọng máy của trình duyệt) | Tiếng Anh | chỉ có ở bài ôn IOE; ngân hàng chưa có |
+
+**Phần tô của hình chia phần** (Phiên 9y, L51; PO chốt 26/11/2026). Hình mà phần tô và phần không tô là dữ kiện của câu hỏi (phân số, hỗn số, tỉ số, phần trăm, xác suất; mặt tô màu của hình khai triển; “phần tô màu” của hình diện tích) tô bằng `fill="acc"` `fill-opacity="0.6"`, không dùng `acc-soft`: `acc-soft` chỉ tương phản 1,2:1 với phần không tô, con nhìn điện thoại ngoài trời khó đếm đúng số phần tô. `acc` độ mờ 0,6 đạt 3,4:1 (sáng), 3,9:1 (tối) với phần không tô, nét `ink` trên phần tô 4,8:1, 3,6:1. Không đặt chữ trong phần tô (chữ `ink` ở chế độ tối chỉ 3,6:1), ghi số, tên ở ngoài. Cột biểu đồ, khối có viền `ink`, ô có tên riêng (lược đồ, bảng, sơ đồ) nhận ra bằng viền, chữ nên vẫn dùng màu nhạt được. `tests/kiem-tra-de.js` báo hình có các hình con cùng loại, cùng cỡ mà phần tô dưới 3:1 với phần không tô (hình có phần tô nhạt mà không phải dữ kiện ghi ở `TO_DA_XEM` kèm lí do).
 
 **Số trên điện thoại** (Phiên 9h, 9i, 9j, 9k; L29–L35 ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)). Bàn phím số của iPhone không có dấu “-” và “/”, dấu thập phân là dấu phẩy hay dấu chấm tùy máy.
 - Câu trả lời bằng số (`num`) dùng được cho số nguyên, số thập phân, số âm và phân số: ô có nút ± và nút “/” ở mọi câu. Đáp án phân số ghi `ans: "a/b"` (chuỗi, ví dụ `"2/3"`, `"-3/4"`; mẫu số khác 0), số nguyên, số thập phân ghi dạng số (`ans: 2.5`). Chấm theo giá trị: 6/8 và 0,75 cũng đúng với `"3/4"`; phần đáp án hiện đúng “3/4”. Ngân hàng tự nhập viết “Đáp số: 3/4”.

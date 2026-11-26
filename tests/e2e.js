@@ -4186,6 +4186,85 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     && fig.self.sai.length === 6 && figHas(fig.self.sai, "chữ đè lên nhau: “𝑥𝑦” và “v”", "chữ đè lên nhau: “12” và “34”", "chấm tròn (80; 25) đè lên chữ “56”", "chữ đè lên nhau: “AB” và “C”", "chữ đè lên nhau: “P12” và “x”", "chữ đè lên nhau: “ZZ” và “W”")
     && !fig.self.dung.length && fig.self.hong.length === 1 && figHas(fig.self.hong, "chưa đo được: Quiz.svg không vẽ được hình");
 
+  step("partition fills: contrast at least 3:1 (L51)");
+  /* Phiên 9y (L51; docs/SUA-LOI-CHAY-THU.md, mục 2): ba hình chia phần mẫu (lớp 4: toan4-ck2-de1 câu 8, thanh sô-cô-la 9 phần tô 4; lớp 5:
+     toan5-ck1-ngau-nhien câu riêng 3, ba hình chữ nhật 4 phần tô 11 phần; lớp 6: toan6-gk2-ngau-nhien câu riêng 11, hai hình chữ nhật tô
+     5/8 và 3/4), nạp bằng tests/nap-de.js, vẽ qua Quiz.svg trong ô .qcard > .qfig như màn làm đề (rộng 328px = 360 − 2 × 16), 360px, sáng
+     và tối. Mỗi hình, mỗi nhóm ô cùng cỡ có ô tô, ô không tô: màu đã vẽ của phần tô (fill, fill-opacity đã tính của ô, trộn lên màu nền đã
+     tính của thẻ cha gần nhất có nền, tức nền của ô hình), phần không tô (nền đó) và nét kẻ (stroke, stroke-opacity trộn lên nền); đọc thêm
+     điểm ảnh ở giữa một ô tô, một ô không tô trên ảnh chụp ô hình (lệch màu tính không quá 3 mỗi kênh). Tương phản phần tô/phần không tô,
+     nét kẻ/phần tô, nét kẻ/phần không tô từ 3:1 trở lên. Hình trước khi sửa (phần tô acc-soft, dựng lại từ hình mới) đo cùng cách: phần
+     tô/phần không tô dưới 1,3:1. Ảnh mỗi ô hình ở tests/screenshots/9y/<lớp>-<trước|sau>-<light|dark>.png, bản ghép truoc-sau.jpg (mỗi
+     hàng một hình; cột trước, sau ở chế độ sáng rồi tối), chép sang docs/hinh-9y/. */
+  const OUT9Y = OUT + "9y/"; fs.mkdirSync(OUT9Y, { recursive: true });
+  const Y9 = [["toan4-ck2-de1", 8, "lop4", "Lớp 4"], ["toan5-ck1-ngau-nhien", 3, "lop5", "Lớp 5"], ["toan6-gk2-ngau-nhien", 11, "lop6", "Lớp 6"]];
+  const y9 = { problems: [], rows: [] };
+  {
+    const all = require("./nap-de.js").napDe(), TO = 'fill="acc" fill-opacity="0.6"';
+    const moi = Y9.map(([id, n]) => { const b = all.find((x) => x.id === id), own = b.pool ? b.questions.filter((q) => q.src === b.id) : b.questions; return own[n - 1].svg; });
+    const cu = moi.map((x) => x.split(TO).join('fill="acc-soft"'));
+    moi.forEach((x, i) => { if (!x.includes(TO)) y9.problems.push(`${Y9[i][0]} câu ${Y9[i][1]}: chưa có phần tô ${TO}`); });
+    // trong trang: mỗi hình một ô .qcard; trả về màu, tương phản và toạ độ giữa một ô tô, một ô không tô (so với góc trên trái của ô hình)
+    const measure = (srcs) => {
+      const wrap = document.createElement("div"); wrap.id = "y9"; wrap.style.cssText = "position:absolute;left:0;top:0;width:360px;box-sizing:border-box;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--bg);z-index:50";
+      document.body.append(wrap);
+      const col = (v) => { const m = /rgba?\(([^)]*)\)/.exec(v || ""); if (!m) return null; const n = m[1].split(/[\s,/]+/).filter(Boolean).map(parseFloat); return { c: n.slice(0, 3), a: n.length > 3 ? n[3] : 1 }; };
+      const tron = (c, a, nen) => c.map((v, i) => a * v + (1 - a) * nen[i]);
+      const lum = (c) => { const [r, g, b] = c.map((v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+      const cr = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+      const nenCua = (el) => { for (let e = el.parentElement; e; e = e.parentElement) { const x = col(getComputedStyle(e).backgroundColor); if (x && x.a > 0) return x.c; } return [255, 255, 255]; };
+      const mo = (el, prop) => { let a = +getComputedStyle(el)[prop]; for (let e = el; e && e.tagName.toLowerCase() !== "div"; e = e.parentElement) a *= +getComputedStyle(e).opacity; return a; };
+      return srcs.map((src) => {
+        const card = document.createElement("div"); card.className = "qcard"; card.innerHTML = `<div class="qfig">${Quiz.svg(src).svg}</div>`; wrap.append(card);
+        const svg = card.querySelector("svg"), nen = nenCua(svg), cb = card.getBoundingClientRect(), nhom = new Map();
+        if (!svg) return { loi: "Quiz.svg không vẽ được hình" };
+        svg.querySelectorAll("rect").forEach((r) => { const k = r.getAttribute("width") + "×" + r.getAttribute("height"); nhom.set(k, (nhom.get(k) || []).concat([r])); });
+        const giua = (r) => { const b = r.getBoundingClientRect(); return [b.left - cb.left + b.width / 2, b.top - cb.top + b.height / 2]; };
+        const ra = [];
+        nhom.forEach((G, k) => {
+          const to = G.filter((r) => getComputedStyle(r).fill !== "none"), khong = G.filter((r) => getComputedStyle(r).fill === "none");
+          if (!to.length || !khong.length) return;
+          const f = col(getComputedStyle(to[0]).fill), st = col(getComputedStyle(to[0]).stroke);
+          const mauTo = tron(f.c, f.a * mo(to[0], "fillOpacity"), nen), mauNet = tron(st.c, st.a * mo(to[0], "strokeOpacity"), nen), mauKhong = nen;
+          ra.push({ k, to: to.length, khong: khong.length, mauTo: mauTo.map(Math.round), mauKhong, mauNet: mauNet.map(Math.round), toKhong: cr(mauTo, mauKhong), netTo: cr(mauNet, mauTo), netKhong: cr(mauNet, mauKhong), diemTo: giua(to[0]), diemKhong: giua(khong[0]) });
+        });
+        return { nen, nhom: ra };
+      });
+    };
+    // đọc điểm ảnh của ảnh chụp (PNG, base64) tại các toạ độ CSS (nhân deviceScaleFactor)
+    const pixels = ({ png, pts, dpr }) => new Promise((ok) => { const img = new Image(); img.onload = () => { const cv = document.createElement("canvas"); cv.width = img.width; cv.height = img.height; const g = cv.getContext("2d"); g.drawImage(img, 0, 0); ok(pts.map(([x, y]) => [...g.getImageData(Math.round(x * dpr), Math.round(y * dpr), 1, 1).data].slice(0, 3))); }; img.src = "data:image/png;base64," + png; });
+    const n2 = (x) => x.toFixed(2).replace(".", ",");
+    for (const scheme of ["light", "dark"]) {
+      const c = await newContext({ viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme }); await localConfig(c); watchOut(c);
+      const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror 9y: " + e.message));
+      await p.goto(BASE + "/"); await p.waitForFunction(() => !!window.Quiz);
+      const kq = await p.evaluate(measure, cu.concat(moi)), cards = p.locator("#y9 > .qcard");
+      for (let i = 0; i < kq.length; i++) {
+        const sau = i >= cu.length, j = i % cu.length, ten = `${Y9[j][2]}-${sau ? "sau" : "truoc"}-${scheme}`, r = kq[i];
+        const png = await cards.nth(i).screenshot({ path: `${OUT9Y}${ten}.png` });
+        if (r.loi || !r.nhom.length) { y9.problems.push(`${ten}: ${r.loi || "không có nhóm ô tô, ô không tô"}`); continue; }
+        for (const g of r.nhom) {
+          const [pTo, pKhong] = await p.evaluate(pixels, { png: png.toString("base64"), pts: [g.diemTo, g.diemKhong], dpr: 2 });
+          const lech = (a, b) => Math.max(...a.map((v, k) => Math.abs(v - b[k])));
+          if (lech(pTo, g.mauTo) > 3 || lech(pKhong, g.mauKhong) > 3) y9.problems.push(`${ten} (${g.k}): điểm ảnh ${pTo} / ${pKhong} khác màu tính ${g.mauTo} / ${g.mauKhong}`);
+          y9.rows.push(`${ten} (${g.k}: ${g.to} tô, ${g.khong} không): tô ${g.mauTo} · nền ${g.mauKhong} · nét ${g.mauNet} → ${n2(g.toKhong)}:1, nét/tô ${n2(g.netTo)}:1, nét/nền ${n2(g.netKhong)}:1`);
+          if (sau && (g.toKhong < 3 || g.netTo < 3 || g.netKhong < 3)) y9.problems.push(`${ten} (${g.k}): tương phản dưới 3:1 (tô/không tô ${n2(g.toKhong)}, nét/tô ${n2(g.netTo)}, nét/không tô ${n2(g.netKhong)})`);
+          if (!sau && g.toKhong >= 1.3) y9.problems.push(`${ten} (${g.k}): hình trước khi sửa mà phần tô/phần không tô ${n2(g.toKhong)}:1, đo chưa đúng?`);
+        }
+      }
+      await c.close();
+    }
+    // bản ghép: mỗi hàng một hình; cột trước, sau (sáng), trước, sau (tối)
+    const gp = await browser.newPage({ viewport: { width: 1372, height: 400 }, deviceScaleFactor: 1 });
+    const img = (n) => "data:image/png;base64," + fs.readFileSync(`${OUT9Y}${n}.png`).toString("base64");
+    const o = (lop, ten, kieu, sc) => `<figure style="margin:0;display:flex;flex-direction:column;gap:4px"><figcaption style="font:600 15px sans-serif;color:#fff">${ten} · ${kieu === "truoc" ? "Trước" : "Sau"} · ${sc === "light" ? "sáng" : "tối"}</figcaption><img src="${img(`${lop}-${kieu}-${sc}`)}" width="328"></figure>`;
+    await gp.setContent(`<body style="margin:0;padding:12px;background:#666;display:grid;grid-template-columns:repeat(4,auto);gap:12px;justify-content:start">${Y9.map(([, , lop, ten]) => ["light", "dark"].map((sc) => o(lop, ten, "truoc", sc) + o(lop, ten, "sau", sc)).join("")).join("")}</body>`);
+    await gp.screenshot({ path: `${OUT9Y}truoc-sau.jpg`, fullPage: true, type: "jpeg", quality: 80 });
+    await gp.close();
+  }
+  console.log("9y (L51):\n  " + y9.rows.join("\n  "), "\nproblems:", y9.problems);
+  const fill9yOK = !y9.problems.length && y9.rows.length === 2 * 2 * 4; // 2 chế độ × (trước, sau) × 4 nhóm ô (lớp 4: 1, lớp 5: 1, lớp 6: 2)
+
   step("bank management: exam picker, bank list, import preview (UX7, X11–X13)");
   /* Phiên UX7 (docs/CAI-TIEN-UX-2X.md, mục 3): quản trị bản lưu trên máy (Bố Minh) ở 360px sáng/tối; mỗi lượt một context mới từ state
      (đề, kì thi lưu ở đây không sang các bước khác). Ảnh ở tests/screenshots/ux7/ (bản ghép <tên>.jpg; chép sang docs/hinh-ux7/).
@@ -5696,7 +5775,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, k5OK, l47OK, figOK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK, ux9OK, ux11OK, ux10OK, ux12OK, ux14OK, ux15OK, ux22OK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, k5OK, l47OK, figOK, fill9yOK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK, ux9OK, ux11OK, ux10OK, ux12OK, ux14OK, ux15OK, ux22OK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
