@@ -5368,7 +5368,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
        (h1 "Toán 9 · Cuối kì I · Bài ôn 1"), không tự làm lại; Back thì hỏi rời bài, đồng ý thì về Hôm nay (ôn luyện là đang làm dở khi đã
        trả lời hoặc bỏ qua một câu, như trước: bước bỏ qua câu 1 trước khi tải lại, Back). Chạm #todayExam: đồng hồ "Còn 45:00".
      - Làm xong một bài (ôn luyện Bài ôn 1, đúng hết; nhãn màn kết quả "Toán 9 · Cuối kì I · Bài ôn 1 · Ôn luyện", kết quả lưu label cũ
-       "Toán 9 · Cuối kì I · Đề 1"): thẻ .hero.done, #todayPractice không phải .btn.main, #todayExam là .linkbtn "Làm như thi · 45 phút →",
+       "Toán 9 · Cuối kì I · Đề 1", cả kết quả tự chấm phần tự luận): thẻ .hero.done, #todayPractice không phải .btn.main, #todayExam là .linkbtn "Làm như thi · 45 phút →",
        .done-tip "Làm thêm: Toán · Bài ôn 2 (bạn chưa làm)."; vẫn 2 hành động.
      - Tab Bài ôn: dòng "Bấm vào một bài để bắt đầu. Bài màu vàng nên làm trước."; nhóm đang mở (cuối kì I) có đúng 1 .btn.main, đúng bài
        chính của Hôm nay (Bài ôn 2 của Toán), aria-label thêm ", nên làm trước"; mọi hàng "Bài ôn 1", "Bài ôn 2", "Ôn tổng hợp" (cuối hàng);
@@ -5406,8 +5406,10 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
         go: cls("#todayGo"), goTxt: f(q("#todayGo")), goHref: href("#todayGo"), group: gm ? gm.getAttribute("role") + "|" + gm.getAttribute("aria-label") : "",
         gone: ["#todayGo", "#toBanks", "#todayMore", "#recent", "#nextEvent"].filter((s) => q(s)), old: /Làm khoảng 20 phút/.test(q("#view").textContent),
         acts: [...document.querySelectorAll("#view a, #view button")].filter((x) => x.checkVisibility()).map((x) => x.id || f(x)),
-        // nút chọn cách làm (.btn.go): cao ≥ 60px, rộng hết thẻ (thẻ rộng trừ hai lề 20px), chữ căn trái
-        big: [...m.querySelectorAll(".btn.go")].every((b) => { const x = b.getBoundingClientRect(); return x.height >= 60 && x.width >= mr.width - 41 && getComputedStyle(b).justifyContent === "flex-start" && getComputedStyle(b).textAlign === "left"; }) };
+        /* nút chọn cách làm (.btn.go): cao ≥ 60px, rộng hết thẻ (thẻ rộng trừ hai lề 20px), căn trái: biểu tượng ngay sau lề trái của nút (viền
+           1px, đệm 14px; đo vị trí, không đọc justify-content: Chromium 158 ghi flex-start là "flow-start"), chữ căn trái */
+        big: [...m.querySelectorAll(".btn.go")].every((b) => { const x = b.getBoundingClientRect(), ic = b.querySelector("svg").getBoundingClientRect();
+          return x.height >= 60 && x.width >= mr.width - 41 && ic.left - x.left <= 16 && getComputedStyle(b).textAlign === "left"; }) };
     });
     /* "Bài ôn N", "Ôn tổng hợp" trong chữ của mỗi phần tử khớp sel không tách dòng: khoảng trắng không ngắt, và các hộp chữ của cụm đó
        (Range.getClientRects) cùng một dòng. Trả về các phần tử sai. */
@@ -5544,7 +5546,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.q1.prog === "Câu 1/25" && r.q1.hash === "#/quiz/toan9-ck1-de1" && r.q1.focus
       && r.reload.hash === "#/quiz/toan9-ck1-de1" && !r.reload.run && r.reload.h1 === "Toán 9 · Cuối kì I · Bài ôn 1" && r.reload.unload === "beforeunload"
       && r.back.ask === "Thoát đề?" && r.back.hash === "#/home" && /^Còn (45:00|44:5\d)$/.test(r.exam.timer) && r.exam.hash === "#/quiz/toan9-ck1-de1" && r.saved0 === 5
-      && r.result.label === "Toán 9 · Cuối kì I · Bài ôn 1 · Ôn luyện" && r.result.saved === "Toán 9 · Cuối kì I · Đề 1|practice"
+      && r.result.label === "Toán 9 · Cuối kì I · Bài ôn 1 · Ôn luyện" && r.result.saved.split(",").includes("Toán 9 · Cuối kì I · Đề 1|practice")
+      && r.result.saved.split(",").every((x) => /^Toán 9 · Cuối kì I · Đề 1\|(practice|self)$/.test(x)) // label cũ, cả kết quả tự chấm phần tự luận
       && t1.cls === "done hero today" && t1.practice === "btn ghost go" && t1.practiceHref === "#/quiz/toan9-ck1-de2?cach=on-luyen" && t1.exam === "linkbtn" && t1.examTxt === "Làm như thi · 45 phút →"
       && t1.tip === "Làm thêm: Toán · Bài ôn 2 (bạn chưa làm)." && t1.big && !t1.gone.length && t1.acts.join() === "todayPractice,todayExam"
       && pr.head === "Bấm vào một bài để bắt đầu. Bài màu vàng nên làm trước." && pr.grp === "ck1-l9" && pr.mains === 1

@@ -1699,7 +1699,7 @@
     // hist đọc lại mỗi lần rút: "Làm đề khác" tính cả lượt vừa làm xong
     const hist = () => (b.topic != null ? topicHist(u, b) : b.pool && u.role === "student" ? poolHist(u, b) : null);
     let drawn = b.pool ? Quiz.draw(b, hist(), lang) : null;
-    const qs = drawn ? drawn.questions : b.questions, nSrc = b.pool ? (b.pool.from || []).length : 0;
+    const qs = drawn ? drawn.questions : b.questions;
     // Lần trước cùng đề: kết quả gần nhất của học sinh với đề này, lọc bằng graded() (kết quả tự chấm cùng refId tính bằng phần tư điểm).
     // Màn mở đề có thẻ "Lần trước" (UX5, X9); màn kết quả so sánh (UX1, previous) đọc lúc kết thúc lượt, trước khi lưu.
     const last = () => (u.role === "student" ? graded(Store.resultsFor(u.id)).find((x) => x.source === "bank" && x.refId === b.id) || null : null);
@@ -1712,7 +1712,7 @@
     const modeCard = (id, ic, head, note, main) => `<button class="mode${main ? " main" : ""}" id="${id}">${ICO(ic)}<span class="grow"><b>${head}</b><span class="small muted">${note}</span></span>${ICO('<path d="m9 6 6 6-6 6"/>')}</button>`;
     view.innerHTML = `<div class="stack"${en ? ' lang="en"' : ""}>${back("#/home", L.appHome)}
       <section class="hero"><span class="label">${nb(`${L.appGrade(b.grade)} · ${en ? L.english : esc(b.subject)}${b.topic != null ? " · " + L.appTopic : b.pool ? " · " + L.appRandom : ""}`)}</span><h1>${nb(esc(Quiz.title(b, lang)))}</h1>
-        <p>${b.topic != null ? L.appTopicIntro(qs.length, b.questions.length, b.grade) : b.pool ? L.appPoolIntro(qs.length, b.questions.length, nSrc) : L.appCount(qs.length)}${essayN(qs) ? L.appEssayN(essayN(qs)) : ""}.${scoredBank(b) ? " " + L.appScored(Quiz.fmtN(b.pts, lang)) : ""}${b.note ? " " + esc(b.note) : ""}</p>
+        <p>${b.topic != null ? L.appTopicIntro(qs.length, b.questions.length, b.grade) : b.pool ? L.appPoolIntro(qs.length, b.questions.length) : L.appCount(qs.length)}${essayN(qs) ? L.appEssayN(essayN(qs)) : ""}.${scoredBank(b) ? " " + L.appScored(Quiz.fmtN(b.pts, lang)) : ""}${b.note ? " " + esc(b.note) : ""}</p>
         ${drawn && drawn.notes.length ? `<p class="small" id="qNotes">${L.appNotes(esc(drawn.notes.join("; ")))}</p>` : ""}</section>
       ${prevCard}
       <div class="label" id="qModes">${L.appChoose}</div>

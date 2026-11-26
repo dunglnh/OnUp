@@ -112,7 +112,7 @@ body.tabbed{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .today h1{font-size:1.5rem}
 .btn.lg{padding:14px 24px;font-size:1.1rem;width:100%;min-height:52px} /* "Mở đề thi thử", "Vào ôn" (Hôm nay), "Cho con học" (thẻ Bắt đầu của khu phụ huynh, UX3) */
 .hero .linkbtn{color:inherit;text-decoration:underline;font-weight:600;align-self:flex-start}
-/* hôm nay đã ôn (Phiên UX9, X40): thẻ đầu trang nền ok-soft, hải cẩu tung bóng 64px, nút viền "Làm thêm một bài" nền surface */
+/* hôm nay đã ôn (Phiên UX9, X40; UX22): thẻ đầu trang nền ok-soft, hải cẩu tung bóng 64px, nút viền nền surface (Ôn luyện; đề thi thử, bài ôn dạng trang: #todayGo) */
 .hero.done{background:var(--ok-soft);color:var(--ink)}
 .hero.done .label{color:var(--ok);opacity:1}
 .done-head{display:flex;gap:14px;align-items:center}
