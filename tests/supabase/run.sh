@@ -9,7 +9,8 @@ TMP=$(mktemp -d); chmod 777 "$TMP"
 AS=""; [ "$(id -u)" = 0 ] && AS="runuser -u postgres --"
 cleanup() { $AS "$BIN/pg_ctl" -D "$TMP/db" stop -m immediate >/dev/null 2>&1 || true; rm -rf "$TMP"; }
 trap cleanup EXIT
-$AS "$BIN/initdb" -D "$TMP/db" -U postgres --auth=trust >/dev/null
+# CSDL mã hoá UTF8 như Supabase để char_length đếm kí tự (không ghi thì máy locale C, POSIX ra SQL_ASCII, đếm byte: L49); locale C có ở mọi máy
+$AS "$BIN/initdb" -D "$TMP/db" -U postgres --auth=trust -E UTF8 --locale=C >/dev/null
 $AS "$BIN/pg_ctl" -D "$TMP/db" -o "-k $TMP -c listen_addresses=''" -l "$TMP/log" start -w >/dev/null
 PSQL="$AS $BIN/psql -h $TMP -U postgres -d postgres -v ON_ERROR_STOP=1 -q -t -A -o /dev/null"
 $PSQL < "$HERE/auth-stub.sql"

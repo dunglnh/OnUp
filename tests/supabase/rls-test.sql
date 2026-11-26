@@ -50,6 +50,11 @@ create function t.n(q text) returns int language plpgsql as $$
 declare n int; begin execute 'select count(*) from (' || q || ') x' into n; return n; end $$;
 grant execute on all functions in schema t to public;
 
+-- ---------- CSDL thử (L49) ----------
+-- run.sh tạo CSDL bằng initdb -E UTF8: mã hoá UTF8 như Supabase, nên char_length đếm kí tự, không đếm byte. Sai mã hoá thì báo
+-- ngay ở đây, không thành lỗi khó hiểu ở bước khác (như ghi chú dài của đề vượt giới hạn cột khi nạp đề).
+select t.ok(current_setting('server_encoding') = 'UTF8', 'CSDL thử mã hoá UTF8 như Supabase');
+
 -- ---------- quyền chung của mọi bảng (grant) ----------
 -- Supabase từ 30/10/2026 không tự cấp quyền cho bảng mới (auth-stub.sql giả lập như vậy), nên bảng thêm sau này mà quên
 -- bật RLS, quên thu hồi hay quên grant bị bắt ở đây, không cần viết kiểm tra riêng. Máy chủ giả tests/supabase/fake-backend.js
@@ -401,6 +406,13 @@ select t.ok(t.n('select * from paid_banks') = :banks + 1, 'owner thấy cả đ�
 select t.ok(t.rows($$update paid_banks set published = true where id = 'nhap-chua-dang'$$) = 1
   and t.rows($$insert into paid_banks (id, title, grade, questions) values ('gk2-toan4-de1', 'Toán 4 · Giữa kì II · Đề 1', 4, '[]')$$) = 1
   and t.rows($$delete from paid_banks where id = 'gk2-toan4-de1'$$) = 1, 'owner đăng, thêm, xóa đề');
+-- ghi chú của đề tối đa 2 000 kí tự, đếm theo kí tự như Supabase (L49): 2 000 chữ "ệ" (6 000 byte) thì được, 2 001 thì bị chặn.
+-- Đọc lại qua t.n (câu lệnh riêng, thấy dòng vừa thêm); xóa đề thử ngay, để số đề ở các kiểm tra sau không đổi.
+select t.ok(t.rows($$insert into paid_banks (id, title, grade, questions, note) values ('ghi-chu-dai', 'Ghi chú dài', 4, '[]', repeat('ệ', 2000))$$) = 1
+  and t.n($$select 1 from paid_banks where id = 'ghi-chu-dai' and char_length(note) = 2000 and octet_length(note) = 6000$$) = 1
+  and t.rows($$delete from paid_banks where id = 'ghi-chu-dai'$$) = 1, 'owner thêm đề có ghi chú 2 000 kí tự có dấu (6 000 byte): đếm theo kí tự');
+select t.blocked_with($$insert into paid_banks (id, title, grade, questions, note) values ('ghi-chu-dai', 'Ghi chú dài', 4, '[]', repeat('ệ', 2001))$$,
+  'paid_banks_note_check', 'ghi chú của đề 2 001 kí tự');
 select t.ok(t.rows($$update plans set price = 250000 where id = 'family'$$) = 1, 'owner sửa bảng gói');
 select t.ok(t.rows($$delete from plans where id = 'free'$$) = 0, 'không xóa được gói free');
 -- câu bị báo sai: owner đọc tất cả, chỉ đổi status
