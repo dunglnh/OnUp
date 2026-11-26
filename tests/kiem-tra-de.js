@@ -3,6 +3,8 @@
    - danh mục data/banks/index.js: mỗi đề đủ trường, mã đúng dạng, không trùng, không dùng lại mã đã bỏ
      (RETIRED_SEED_BANKS, phải giống nhau ở js/store.js và js/store-supabase.js); khối có trong data/grades.js;
      n đúng bằng số câu trong file; số câu, số phút hợp lí (GIOI_HAN);
+   - tên, môn (danh mục) và ghi chú (file câu hỏi) không dài quá giới hạn cột của bảng paid_banks (GIOI_HAN_COT: 200, 60, 2 000 kí tự,
+     đếm theo kí tự như CSDL UTF8 của Supabase; Phiên 9w, L49); tự thử ghi chú 2 001 kí tự (bị báo), 2 000 chữ có dấu (không bị báo);
    - file câu hỏi data/banks/<khối>-<mã môn>.js: tên đúng khối của đề, mỗi file một môn, mỗi môn một mã;
      file chứa đúng các đề danh mục ghi cho nó, chỉ ghi vào window.ONTAP_SEED_QUESTIONS; không có file thừa;
    - từng câu: dạng có trong TRUONG_CAU, không có trường lạ; có câu hỏi, chủ đề, lời giải (tự luận: đáp án gợi ý);
@@ -64,6 +66,9 @@ const ROOT = path.join(__dirname, "..");
 const GIOI_HAN = { cau: [10, 60], phut: [10, 120], giayMoiCau: [30, 300] };
 // đề tính điểm (Phiên K5): ít câu, câu tự luận dài (Toán vào 10: 7 câu tự luận, 120 phút; Ngữ văn 120 phút)
 const GIOI_HAN_DIEM = { cau: [1, 60], phut: [10, 150], giayMoiCau: [30, 7200] };
+/* Giới hạn cột của bảng paid_banks trong supabase/schema.sql (check char_length(title) between 1 and 200, char_length(subject) <= 60,
+   char_length(note) <= 2000): đề có sẵn sẽ được nạp vào bảng đó (supabase/banks-to-sql.js). Đổi giới hạn ở schema thì sửa cả hằng này. */
+const GIOI_HAN_COT = { title: 200, subject: 60, note: 2000 };
 const TRUONG_DE = ["id", "title", "grade", "subject", "minutes", "n", "file"]; // đề ngẫu nhiên có thêm pool ở cuối, đề tính điểm có thêm pts (có tự luận: pts, auto)
 const KI = ["Giữa kì I", "Cuối kì I", "Giữa kì II", "Cuối năm", "Thi thử vào 10", "Thi thử tốt nghiệp"]; // tên kì trong tên đề (thi thử: Phiên K5)
 const MON_THU = "Thử nghiệm"; // đề thử nghiệm các dạng câu: tên không theo quy ước
@@ -94,6 +99,13 @@ const soatTen = (b) => {
   if (!!b.pool !== (m[4] === "ngẫu nhiên")) return `tên "${b.title}" phải kết thúc bằng "Đề ${b.pool ? "ngẫu nhiên" : "N"}" (${b.pool ? "đề ngẫu nhiên" : "đề cố định"})`;
   return "";
 };
+/* Tên, môn (danh mục) và ghi chú (file câu hỏi) của một đề không dài quá giới hạn cột của paid_banks (GIOI_HAN_COT; Phiên 9w, L49).
+   Đếm theo kí tự như char_length của CSDL mã hoá UTF8 (Supabase): [...s].length, không theo byte (chữ có dấu 2–3 byte) hay theo đơn vị
+   UTF-16 (s.length). Phiên làm đề chạy script này, nên ghi chú quá dài lộ ra ngay, không phải chờ tests/supabase/run.sh. Trả về danh
+   sách lời báo lỗi. */
+const soatDoDai = (b, note) => [["title", b.title, "tên"], ["subject", b.subject, "môn"], ["note", note, "ghi chú"]]
+  .filter(([k, v]) => typeof v === "string" && [...v].length > GIOI_HAN_COT[k])
+  .map(([k, v, what]) => `${what} dài ${[...v].length} kí tự, quá giới hạn ${GIOI_HAN_COT[k]} kí tự của cột ${k} trong bảng paid_banks (supabase/schema.sql)`);
 const norm = (s) => String(s).normalize("NFC").replace(/[\p{P}\s]+/gu, "");
 const opt = (s) => String(s).normalize("NFC").replace(/\s+/g, " ").trim();
 
@@ -223,6 +235,7 @@ const distinct = (at, arr, what) => {
 };
 catalog.forEach((b) => {
   const v = questions[b.id];
+  soatDoDai(b, v && v.note).forEach((m) => err(b.id, m)); // tên, môn, ghi chú không dài quá cột của paid_banks (Phiên 9w, L49)
   if (!v) return;
   if (typeof v.note !== "string") err(b.id, "note phải là chuỗi (có thể để trống)");
   const qs = Array.isArray(v.questions) ? v.questions : [];
@@ -635,6 +648,17 @@ catalog.forEach((b) => {
   sai.forEach((b, i) => { if (!soatTen(b)) err(at, `tên sai mẫu ${i + 1} không bị báo: "${b.title}"`); });
   [mk("Tin học và Công nghệ 4 · Cuối kì I · Đề 1"), mk("Tin học và Công nghệ 4 · Giữa kì II · Đề 12"), mk("Tin học và Công nghệ 4 · Cuối năm · Đề ngẫu nhiên", true),
     { title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: MON_THU }].forEach((b, i) => { const m = soatTen(b); if (m) err(at, `tên đúng mẫu ${i + 1} bị báo: ${m}`); });
+}
+
+// tự thử độ dài theo giới hạn cột của paid_banks (Phiên 9w, L49): ghi chú 2 001 kí tự bị báo; 2 000 chữ "ệ" (6 000 byte UTF-8) thì không,
+// vì đếm theo kí tự như CSDL UTF8 của Supabase; tên 201, môn 61 kí tự bị báo, đúng giới hạn thì không
+{
+  const at = "kiểm tra độ dài theo bảng paid_banks", b = { title: "Toán 4 · Cuối kì I · Đề 1", subject: "Toán" };
+  const dai = "ệ".repeat(GIOI_HAN_COT.note); // 2 000 kí tự, 6 000 byte UTF-8
+  if (soatDoDai(b, dai).length) err(at, `ghi chú ${[...dai].length} kí tự có dấu (${Buffer.byteLength(dai)} byte) bị báo: cần đếm theo kí tự`);
+  if (soatDoDai(b, dai + "ệ").length !== 1) err(at, `ghi chú ${GIOI_HAN_COT.note + 1} kí tự không bị báo`);
+  if (soatDoDai({ title: "T".repeat(GIOI_HAN_COT.title + 1), subject: "M".repeat(GIOI_HAN_COT.subject + 1) }, "").length !== 2) err(at, "tên, môn quá giới hạn không bị báo");
+  if (soatDoDai({ title: "Ố".repeat(GIOI_HAN_COT.title), subject: "Ữ".repeat(GIOI_HAN_COT.subject) }, "a".repeat(GIOI_HAN_COT.note)).length) err(at, "tên, môn, ghi chú đúng giới hạn bị báo");
 }
 
 // tên hiển thị (Phiên UX22, X65; Quiz.title): ở kì kiểm tra định kì "Đề N" hiện là "Bài ôn N", "Đề ngẫu nhiên" là "Ôn tổng hợp" (tiếng Anh
