@@ -63,14 +63,16 @@ const bieuDo = (svg) => {
     return [ten[0].t, Math.round(v)];
   });
 };
-// hình chữ nhật chia phần tô màu: mỗi hàng rect là một hình → [{n, k}] (n phần bằng nhau, k phần tô acc-soft), từ trên xuống
+// hình chữ nhật chia phần tô màu: mỗi hàng rect là một hình → [{n, k}] (n phần bằng nhau, k phần tô), từ trên xuống; phần tô dùng
+// fill="acc" fill-opacity="0.6" (L51, Phiên 9y: acc-soft chỉ tương phản 1,2:1 với phần không tô)
+const toL51 = (r) => r.fill === "acc" && r["fill-opacity"] === "0.6";
 const toMau = (svg) => {
-  const R = tags(svg, "rect").map((r) => ({ x: +r.x, y: +r.y, w: +r.width, h: +r.height, fill: r.fill }));
+  const R = tags(svg, "rect").map((r) => ({ x: +r.x, y: +r.y, w: +r.width, h: +r.height, fill: r.fill, to: toL51(r) }));
   const rows = [...new Set(R.map((r) => r.y))].sort((a, b) => a - b).map((y) => R.filter((r) => r.y === y).sort((a, b) => a.x - b.x));
   const out = rows.map((rs) => {
     assert.ok(rs.length >= 2, "hình cần ít nhất 2 phần");
-    rs.forEach((r, i) => { assert.ok(r.w === rs[0].w && r.h === rs[0].h, "các phần phải bằng nhau"); assert.ok(["acc-soft", "none"].includes(r.fill), "phần tô màu dùng acc-soft"); if (i) assert.equal(r.x, rs[i - 1].x + rs[0].w, "các phần phải liền nhau"); });
-    return { n: rs.length, k: rs.filter((r) => r.fill === "acc-soft").length, w: rs.length * rs[0].w, x: rs[0].x };
+    rs.forEach((r, i) => { assert.ok(r.w === rs[0].w && r.h === rs[0].h, "các phần phải bằng nhau"); assert.ok(r.to || r.fill === "none", "phần tô màu dùng fill=\"acc\" fill-opacity=\"0.6\" (L51)"); if (i) assert.equal(r.x, rs[i - 1].x + rs[0].w, "các phần phải liền nhau"); });
+    return { n: rs.length, k: rs.filter((r) => r.to).length, w: rs.length * rs[0].w, x: rs[0].x };
   });
   out.forEach((s) => assert.ok(s.w === out[0].w && s.x === out[0].x, "các hình chữ nhật phải bằng nhau và thẳng hàng"));
   return out;

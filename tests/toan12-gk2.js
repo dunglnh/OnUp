@@ -193,7 +193,9 @@ const circles = (svg) => [...svg.matchAll(/<circle [^>]*>/g)].map((m) => { const
 const ellipses = (svg) => [...svg.matchAll(/<ellipse [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { c: [+a.cx, +a.cy], rx: +a.rx, ry: +a.ry }; });
 const pts2 = (s) => { const v = nums(s), p = []; for (let i = 0; i < v.length; i += 2) p.push([v[i], v[i + 1]]); return p; };
 const polygons = (svg) => [...svg.matchAll(/<polygon [^>]*>/g)].map((m) => pts2(attrs(m[0]).points));
-const toMau = (svg) => [...svg.matchAll(/<polygon [^>]*>/g)].map((m) => attrs(m[0])).filter((a) => a.fill === "acc-soft" || a.fill === "ok-soft").map((a) => ({ p: pts2(a.points), fill: a.fill }));
+// đa giác tô màu: acc-soft, ok-soft (mặt của khối, mặt phẳng nền) hay fill="acc" fill-opacity="0.6" (phần tô là dữ kiện, L51, Phiên 9y)
+const toMau = (svg) => [...svg.matchAll(/<polygon [^>]*>/g)].map((m) => attrs(m[0])).filter((a) => a.fill === "acc-soft" || a.fill === "ok-soft" || (a.fill === "acc" && a["fill-opacity"] === "0.6"))
+  .map((a) => ({ p: pts2(a.points), fill: a.fill, op: a["fill-opacity"] }));
 const polylines = (svg) => [...svg.matchAll(/<polyline [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { p: pts2(a.points), stroke: a.stroke || "", dash: !!a["stroke-dasharray"] }; });
 const texts = (svg) => [...svg.matchAll(/<text ([^>]*)>([^<]*)<\/text>/g)].map((m) => { const a = attrs("<t " + m[1] + ">"); return { at: [+a.x, +a.y], t: m[2].replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&"), b: a["font-weight"] === "700", it: a["font-style"] === "italic", fs: +(a["font-size"] || 15), anchor: a["text-anchor"] || "start" }; });
 const rong = (t) => (t.b ? 0.62 : 0.55) * t.fs * [...t.t].length; // ước bề rộng chữ (Noto Sans; chữ đậm rộng hơn)
@@ -212,7 +214,7 @@ const chuHinh = (svg, ten) => {
 /* ---------- đồ thị trên lưới ô vuông (như docDoThi của tests/toan12-ck1.js) ----------
    Lưới: các đoạn màu line nét 1 cách đều u; trục: hai đoạn nét 1,5 nằm trên đường lưới; số trên trục hoành ở đúng cột (số âm lệch trái
    3 px; có thể dời 8 px), số trên trục tung ở đúng hàng (bên trái hoặc bên phải trục, có thể dời 9 px); đường cong: polyline màu acc;
-   phần tô màu: polygon màu acc-soft. Trả về toạ độ toán học. */
+   phần tô màu: polygon fill="acc" fill-opacity="0.6" (L51, Phiên 9y; trước đây acc-soft). Trả về toạ độ toán học. */
 const docDoThi = (svg, ten) => {
   const L = lines(svg), luoi = L.filter((l) => l.stroke === "line" && l.w === 1);
   const gx = [...new Set(luoi.filter((l) => l.a[0] === l.b[0]).map((l) => l.a[0]))].sort((a, b) => a - b);
@@ -240,7 +242,7 @@ const docDoThi = (svg, ten) => {
   // số ghi trên trục không bị đường cong đè
   so.forEach((t) => { const [x0, y0, x1, y1] = hopChu(t), trong = (z) => z[0] > x0 + 0.5 && z[0] < x1 - 0.5 && z[1] > y0 + 0.5 && z[1] < y1 - 0.5;
     cong.forEach((p) => p.p.forEach((q, i) => { if (i) for (let k = 0; k <= 10; k++) assert.ok(!trong([p.p[i - 1][0] + (q[0] - p.p[i - 1][0]) * k / 10, p.p[i - 1][1] + (q[1] - p.p[i - 1][1]) * k / 10]), ten + ": đường cong đè lên số " + t.t); })); });
-  return { u, xr, yr, toM, curves: cong.map((p) => p.p.map(toM)), to: toMau(svg).map((g) => g.p.map(toM)) };
+  return { u, xr, yr, toM, curves: cong.map((p) => p.p.map(toM)), to: toMau(svg).map((g) => g.p.map(toM)), toFill: toMau(svg).map((g) => g.fill + (g.op ? " " + g.op : "")) };
 };
 // mọi điểm của đường cong thuộc đồ thị hàm số f (sai lệch dưới 0,02 đơn vị) và đồ thị được vẽ đủ trong khung
 const khopCong = (g, c, f) => {
@@ -256,6 +258,8 @@ const khopDoThi = (g, fs, ten) => { const dung = fs.map((f) => g.curves.filter((
 // phần tô màu: đỉnh nào cũng nằm trên một đồ thị trong fs hoặc trên trục hoành; trả về cận [a; b] (đọc trên hình) và diện tích đo được
 const kiemTo = (g, fs, ten) => {
   assert.ok(g.to.length >= 1, ten + ": không có phần tô màu");
+  // câu hỏi diện tích “phần tô màu”: cận đọc trên phần tô, nên phần tô phải rõ: fill="acc" fill-opacity="0.6" (L51, Phiên 9y; acc-soft 1,2:1)
+  g.toFill.forEach((f) => assert.equal(f, "acc 0.6", ten + ": phần tô màu dùng fill=\"acc\" fill-opacity=\"0.6\" (L51)"));
   g.to.forEach((p) => p.forEach(([x, y]) => assert.ok(Math.abs(y) < 0.01 || fs.some((f) => Math.abs(f(x) - y) < 0.01), ten + ": đỉnh (" + x.toFixed(2) + "; " + y.toFixed(2) + ") của phần tô màu không nằm trên đồ thị hay trục hoành")));
   const xs = g.to.flat().map((q) => q[0]), a = Math.round(Math.min(...xs) * 1000) / 1000, b = Math.round(Math.max(...xs) * 1000) / 1000;
   return { a, b, S: g.to.reduce((s, p) => s + dienTich(p), 0) };
@@ -631,7 +635,7 @@ assert.ok(dem((q) => q.type === "essay") >= 1 && dem((q) => q.type === "essay") 
 assert.ok(dem((q) => q.type === "num") >= 4, "kho: ít nhất 4 câu trả lời bằng số");
 pool.pool.from.forEach((id) => { const qs = bank(id).questions; assert.ok(qs.filter((q) => q.type === "tf4").length >= 3 && qs.filter((q) => q.type === "num").length >= 6 && qs.filter((q) => q.type === "essay").length <= 1, id + ": cần đủ đúng/sai 4 ý, trả lời ngắn, nhiều nhất một câu tự luận"); });
 // hình: đủ ba loại lời giao việc yêu cầu (diện tích trên lưới, khối tròn xoay, hệ trục Oxyz có mặt phẳng, đường thẳng)
-assert.ok(hinh.filter((q) => /<title>[Đđ]ồ thị/.test(q.svg) && q.svg.includes('fill="acc-soft"') && q.svg.includes('stroke="line"')).length >= 3, "ít nhất ba hình diện tích trên lưới");
+assert.ok(hinh.filter((q) => /<title>[Đđ]ồ thị/.test(q.svg) && q.svg.includes('fill="acc" fill-opacity="0.6"') && q.svg.includes('stroke="line"')).length >= 3, "ít nhất ba hình diện tích trên lưới");
 assert.ok(hinh.filter((q) => q.svg.includes("<ellipse")).length >= 2, "ít nhất hai hình khối tròn xoay");
 assert.ok(hinh.filter((q) => /Oxyz/.test(q.svg)).length >= 3, "ít nhất ba hình trong hệ trục Oxyz");
 // đúng/sai 4 ý: ít nhất 6 câu trong kho, kiểu Đ/S không lặp (Rút ra N9-ck1-khtn)

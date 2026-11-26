@@ -48,6 +48,10 @@
      tự thử vài tên mẫu, cả tiếng Anh ("Review N", "Mixed review"; đề thi thử "Test N");
    - lịch thi mặc định (data/calendar-2026-2027.js): đề và bài ôn gắn vào kì thi có thật, đúng khối của kì thi;
    - bộ lọc hình (Quiz.svg) bỏ được mã chạy và link ngoài trong vài hình mẫu cố ý viết sai (SVG_THU).
+   - phần tô của hình chia phần (Phiên 9y, L51): trong một hình, các hình con cùng loại, cùng cỡ mà có cái tô, có cái không tô thì phần tô
+     tương phản từ 3:1 với phần không tô ở cả sáng và tối, nền surface và bg (token của css/app.css; tính cả fill-opacity, opacity, màu kế
+     thừa từ thẻ cha); phần tô dùng fill="acc" fill-opacity="0.6" (acc-soft chỉ 1,1–1,2:1); hình có phần tô nhạt mà phần tô không phải dữ
+     kiện ghi ở TO_DA_XEM kèm lí do; tự thử hình cũ của toan5-ck1-ngau-nhien câu riêng 3 (bị báo), hình đã sửa (không) và vài hình mẫu.
    - đề Tiếng Anh 100% tiếng Anh (Phiên TA1): đề có môn Tiếng Anh (mọi khối) và câu có topic bắt đầu bằng "English" trong đề
      khác (kèm đoạn đọc câu đó dùng): mọi trường chữ (note, tên và chữ đoạn đọc, topic, q, o, ans, l, r, x, rubric[].c, unit)
      không có chữ cái tiếng Việt (nguyên âm có dấu, ă, â, ê, ô, ơ, ư, đ); vài từ tiếng Anh có dấu được phép (TU_CO_DAU);
@@ -223,10 +227,89 @@ files.filter((f) => !onDisk.includes(f)).forEach((f) => err("data/banks/" + f, "
 /* ---------- từng câu ---------- */
 const seen = new Map(); // khóa so trùng → vị trí
 const count = Object.fromEntries(Object.keys(TRUONG_CAU).map((t) => [t, 0]));
+/* phần tô của hình chia phần (Phiên 9y, L51): xem đoạn "phần tô của hình chia phần" ở dưới. Màu lấy từ token của css/app.css. */
+const TOKEN = (() => {
+  const css = read("css/app.css"), lay = (re) => { const m = re.exec(css), o = {}; if (m) m[1].replace(/--([\w-]+):\s*(#[0-9a-f]{6})\b/gi, (_, k, v) => { o[k] = v; }); return o; };
+  return { sáng: lay(/:root\{([^}]*)\}/), tối: lay(/:root\[data-theme="dark"\]\{([^}]*)\}/) };
+})();
+const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+const tron = (c, a, nen) => c.map((v, i) => a * v + (1 - a) * nen[i]); // màu c độ mờ a vẽ lên nền (như trình duyệt, trong sRGB)
+const sang = (c) => { const [r, g, b] = c.map((v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+const tuongPhan = (a, b) => { const [x, y] = [sang(a), sang(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); };
+const HINH_CON = ["rect", "circle", "ellipse", "polygon", "polyline", "path"], KHONG_TO = ["none", "surface", "bg"];
+// mọi hình con của một hình: tên thẻ, thuộc tính, màu tô (kế thừa từ thẻ cha; không ghi là none) và độ mờ (fill-opacity × opacity của thẻ, thẻ cha)
+const hinhCon = (src) => {
+  // thẻ, thuộc tính đọc như Quiz.svg (giá trị có hay không có dấu ngoặc kép); bỏ chú thích
+  const out = [], st = [{ fill: "none", fop: 1, op: 1 }], re = /<\/\s*[^\s>]+\s*>|<([a-zA-Z][\w:.-]*)((?:\s+[^\s=/>]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+))?)*)\s*(\/?)>/g;
+  const s2 = String(src).replace(/<!--[\s\S]*?-->/g, "");
+  let m;
+  while ((m = re.exec(s2))) {
+    if (!m[1]) { st.pop(); continue; }
+    const a = {}; (m[2] || "").replace(/([^\s=/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g, (_, k, v1, v2, v3) => { a[k] = (v1 != null ? v1 : v2 != null ? v2 : v3 != null ? v3 : "").trim(); });
+    const cha = st[st.length - 1], me = { fill: a.fill != null ? (a.fill === "currentColor" ? "ink" : a.fill) : cha.fill, fop: a["fill-opacity"] != null ? +a["fill-opacity"] : cha.fop, op: cha.op * (a.opacity != null ? +a.opacity : 1) };
+    if (HINH_CON.includes(m[1])) out.push({ ten: m[1], a, fill: me.fill, mo: Math.max(0, Math.min(1, me.fop * me.op)) });
+    if (!m[3]) st.push(me);
+  }
+  return out;
+};
+// cỡ của một hình con, làm tròn 0,5: rect rộng × cao; circle r; ellipse rx × ry; polygon, polyline, path: độ dài các cạnh (xếp tăng) và bán kính cung
+const n05 = (x) => String(Math.round(+x * 2) / 2).replace(".", ","); // viết dấu phẩy thập phân (lời báo)
+const dinhPath = (d) => { // đỉnh (điểm cuối mỗi đoạn) và bán kính các cung của một path
+  const t = String(d || "").match(/[a-zA-Z]|[-+]?(?:\d*\.\d+|\d+\.?)(?:e[-+]?\d+)?/gi) || [], p = [], cung = [];
+  let i = 0, lenh = "", cur = [0, 0], dau = [0, 0];
+  const so = () => +t[i++], toi = (x, y, rel) => { cur = rel ? [cur[0] + x, cur[1] + y] : [x, y]; p.push(cur); };
+  while (i < t.length) {
+    if (/^[a-z]$/i.test(t[i])) lenh = t[i++];
+    const L = lenh.toUpperCase(), rel = lenh !== L;
+    if (L === "Z") { cur = dau; lenh = ""; continue; }
+    if (L === "M") { toi(so(), so(), rel); dau = cur; lenh = rel ? "l" : "L"; }
+    else if (L === "L" || L === "T") toi(so(), so(), rel);
+    else if (L === "H") { const x = so(); cur = [rel ? cur[0] + x : x, cur[1]]; p.push(cur); }
+    else if (L === "V") { const y = so(); cur = [cur[0], rel ? cur[1] + y : y]; p.push(cur); }
+    else if (L === "A") { const rx = so(), ry = so(); so(); so(); so(); cung.push(n05(rx) + "/" + n05(ry)); toi(so(), so(), rel); }
+    else if (L === "Q" || L === "S") { so(); so(); toi(so(), so(), rel); }
+    else if (L === "C") { so(); so(); so(); so(); toi(so(), so(), rel); }
+    else i++;
+  }
+  return { p, cung };
+};
+const coHinh = (h) => {
+  const a = h.a;
+  if (h.ten === "rect") return `rect ${n05(a.width)} × ${n05(a.height)}`;
+  if (h.ten === "circle") return `circle r ${n05(a.r)}`;
+  if (h.ten === "ellipse") return `ellipse ${n05(a.rx)} × ${n05(a.ry)}`;
+  const v = String(a.points || "").trim().split(/[\s,]+/).map(Number), { p, cung } = h.ten === "path" ? dinhPath(a.d) : { p: v.reduce((o, x, i) => (i % 2 ? o : o.concat([[x, v[i + 1]]])), []), cung: [] };
+  const canh = p.map((A, i) => { const B = p[(i + 1) % p.length]; return Math.round(Math.hypot(A[0] - B[0], A[1] - B[1]) * 2) / 2; }).filter((x) => x > 0).sort((x, y) => x - y).map(n05);
+  return `${h.ten === "path" ? "path" : "polygon"} cạnh ${canh.join(", ")}${cung.length ? " cung " + cung.sort().join(", ") : ""}`;
+};
+const so1 = (x) => (Math.floor(x * 10) / 10).toFixed(1).replace(".", ","); // làm tròn xuống: 2,96:1 ghi 2,9:1, không ghi 3,0:1
+// → lời báo của một hình: mỗi kiểu tô (màu, độ mờ) của một nhóm hình con cùng loại, cùng cỡ mà có cái tô, có cái không tô, tương phản dưới 3:1
+const soatPhanTo = (src) => {
+  const nhom = new Map(), bao = [];
+  let chia = 0; // số nhóm hình chia phần (có cái tô, có cái không tô)
+  hinhCon(src).forEach((h) => { const k = coHinh(h); nhom.set(k, (nhom.get(k) || []).concat([h])); });
+  nhom.forEach((G, k) => {
+    const khong = G.filter((h) => KHONG_TO.includes(h.fill) || h.mo <= 0), to = G.filter((h) => !khong.includes(h) && TOKEN.sáng[h.fill] && TOKEN.tối[h.fill]);
+    if (G.length < 2 || !to.length || !khong.length) return;
+    chia++;
+    [...new Map(to.map((h) => [h.fill + "|" + h.mo, h])).values()].forEach((h) => {
+      let min = Infinity, o = "";
+      Object.entries(TOKEN).forEach(([che, T]) => ["surface", "bg"].forEach((nen) => {
+        const N = rgb(T[nen]), mau = tron(rgb(T[h.fill]), h.mo, N);
+        khong.forEach((u) => { const t = tuongPhan(mau, u.fill === "none" || u.mo <= 0 ? N : tron(rgb(T[u.fill]), u.mo, N)); if (t < min) { min = t; o = `${che}, nền ${nen}`; } });
+      }));
+      if (min < 3) bao.push(`${to.filter((x) => x.fill === h.fill && x.mo === h.mo).length} phần tô ${h.fill}${h.mo < 1 ? " độ mờ " + String(h.mo).replace(".", ",") : ""}, ${khong.length} phần không tô (${k}): tương phản ${so1(min)}:1 (${o}), cần từ 3:1; phần tô của hình chia phần dùng fill="acc" fill-opacity="0.6" (L51)`);
+    });
+  });
+  return { bao, chia };
+};
+const phanTo = new Map(), soTo = { dat: 0 }; // chỗ → lời báo phần tô nhạt (so với TO_DA_XEM ở đoạn "phần tô của hình chia phần"); số hình chia phần đạt 3:1
 const svgOK = (at, src) => {
   if (typeof src !== "string") { err(at, "hình (svg) phải là chuỗi"); return; }
   const c = Quiz.svg(src);
   if (!c.svg || c.problems.length) err(at, "hình chưa đúng: " + c.problems.join("; "));
+  const { bao, chia } = soatPhanTo(src);
+  if (bao.length) phanTo.set(at, bao); else if (chia) soTo.dat++;
 };
 const distinct = (at, arr, what) => {
   if (!Array.isArray(arr) || !arr.every(text)) { err(at, what + " phải là danh sách chữ, không ô trống"); return false; }
@@ -595,6 +678,50 @@ SVG_THU.forEach(([src, keep], i) => {
 const dep = Quiz.svg('<svg viewBox="0 0 10 10" width="120"><circle cx="5" cy="5" r="4" fill="acc-soft" stroke="ok"/><text x="1" y="5">A &amp; B</text></svg>');
 if (dep.problems.length || dep.svg !== '<svg viewBox="0 0 10 10" role="img" focusable="false" style="max-width:120px"><circle cx="5" cy="5" r="4" style="fill:var(--acc-soft);stroke:var(--ok)"></circle><text x="1" y="5">A &amp; B</text></svg>') err("bộ lọc hình", "hình đúng bị đổi: " + JSON.stringify(dep));
 
+/* ---------- phần tô của hình chia phần (Phiên 9y, L51) ----------
+   Trong một hình, các hình con cùng loại, cùng cỡ (rect cùng rộng × cao; circle cùng r; ellipse cùng rx × ry; polygon, polyline, path cùng
+   độ dài các cạnh và bán kính cung; làm tròn 0,5) mà có cái tô, có cái không tô (không ghi fill, none, surface, bg, độ mờ 0) là hình chia
+   phần: phần tô phải tương phản từ 3:1 với phần không tô (WCAG 2.2, tiêu chí 1.4.11) ở cả sáng và tối, nền surface và bg (token của
+   css/app.css; fill, fill-opacity kế thừa từ thẻ cha; độ mờ = fill-opacity × opacity của thẻ và các thẻ cha; màu đã vẽ = màu tô trộn lên
+   nền theo độ mờ, như trình duyệt). acc-soft chỉ 1,1–1,2:1; phần tô dùng fill="acc" fill-opacity="0.6" (sáng 3,3:1 trở lên, tối 3,9:1 trở
+   lên). Hình có phần tô nhạt mà phần tô không phải dữ kiện (ô nào cũng có tên, màu chỉ để dễ nhìn) đã xem tay, ghi ở TO_DA_XEM kèm lí do;
+   chỗ ghi ở đó mà không còn bị báo cũng là lỗi (bỏ dòng). Tự thử: hình cũ của toan5-ck1-ngau-nhien câu riêng 3 (11 ô acc-soft, 1 ô trắng)
+   bị báo, hình đã sửa thì không; vài hình mẫu (màu tô ở thẻ g, sun chỉ nhạt ở chế độ sáng, hình quạt bằng nhau, opacity của thẻ cha). */
+const TO_DA_XEM = [ // [chỗ, lí do]: hình có phần tô nhạt mà phần tô không phải dữ kiện của câu hỏi
+  ["lsdl4-ck1-de2 câu 2", "lược đồ: mỗi ô ghi tên địa điểm ở trong ô"],
+  ["lsdl4-ck1-ngau-nhien câu 2", "lược đồ: nhà Hoa, trường, chợ ghi tên ngay trên ô; cầu tô sun"],
+  ["lsdl4-ck2-de1 câu 2", "bảng lượng mưa: hàng “Tháng” tô nền, ô nào cũng có chữ, số"],
+  ["congnghe9-ck1-de2 câu 8", "sơ đồ: hai ô có chữ tô nền, ba ô bị che ghi “?”"],
+  ["khoahoc5-ck1-de1 câu 24", "sơ đồ vòng đời: ô “?” tô nền, ô nào cũng có chữ"],
+  ["tincn5-ck1-de1 câu 19", "sơ đồ các bước: ô “?” tô nền, ô nào cũng có chữ"],
+  ["tincn5-ck2-de1 câu 16", "sơ đồ các bước: ô “?” tô nền, ô nào cũng có chữ"]
+];
+const daXem = new Map(TO_DA_XEM);
+phanTo.forEach((bao, at) => { if (!daXem.has(at)) bao.forEach((b) => err(at, b)); });
+daXem.forEach((ly, at) => { if (!phanTo.has(at)) err("TO_DA_XEM", `${at}: không còn phần tô nhạt (hay không có chỗ này), bỏ dòng này`); });
+const TO_CU = '<svg viewBox="0 0 320 60" width="320"><title>Ba hình chữ nhật bằng nhau, mỗi hình chia thành 4 phần bằng nhau, một số phần được tô màu</title>'
+  + [16, 38, 60, 82, 120, 142, 164, 186, 224, 246, 268, 290].map((x, i) => `<rect x="${x}" y="8" width="22" height="44" fill="${i < 11 ? "acc-soft" : "none"}" stroke="ink" stroke-width="1.5"/>`).join("") + "</svg>";
+const quat = (f) => ["M50,50 L90,50 A40,40 0 0,1 50,90 Z", "M50,50 L50,90 A40,40 0 0,1 10,50 Z", "M50,50 L10,50 A40,40 0 0,1 50,10 Z", "M50,50 L50,10 A40,40 0 0,1 90,50 Z"]
+  .map((d, i) => `<path d="${d}"${i ? "" : ` fill="${f}"`}/>`).join("");
+const toMoi = ((questions["toan5-ck1-ngau-nhien"] || {}).questions || [])[2];
+[
+  ["hình cũ của toan5-ck1-ngau-nhien câu riêng 3", TO_CU, "11 phần tô acc-soft, 1 phần không tô (rect 22 × 44): tương phản 1,1:1"],
+  ["hình đã sửa của toan5-ck1-ngau-nhien câu riêng 3", toMoi && toMoi.svg, ""],
+  ["màu tô ở thẻ g", '<svg viewBox="0 0 60 20"><g fill="acc-soft"><rect x="0" y="0" width="20" height="20"/><rect x="20" y="0" width="20" height="20"/></g><rect x="40" y="0" width="20" height="20"/></svg>', "2 phần tô acc-soft, 1 phần không tô (rect 20 × 20)"],
+  ["phần tô đúng ở thẻ g", '<svg viewBox="0 0 60 20"><g fill="acc" fill-opacity="0.6"><rect x="0" y="0" width="20" height="20"/><rect x="20" y="0" width="20" height="20"/></g><rect x="40" y="0" width="20" height="20"/></svg>', ""],
+  ["sun chỉ nhạt ở chế độ sáng", '<svg viewBox="0 0 40 20"><rect x="0" y="0" width="20" height="20" fill="sun"/><rect x="20" y="0" width="20" height="20" fill="surface"/></svg>', "(sáng, nền"],
+  ["hình quạt bằng nhau", '<svg viewBox="0 0 100 100">' + quat("acc-soft") + "</svg>", "1 phần tô acc-soft, 3 phần không tô (path cạnh 40, 40, 56,5 cung 40/40)"],
+  ["hình quạt tô đúng", '<svg viewBox="0 0 100 100">' + quat("acc").replace('fill="acc"', 'fill="acc" fill-opacity="0.6"') + "</svg>", ""],
+  ["opacity của thẻ cha", '<svg viewBox="0 0 40 20"><g opacity="0.5"><rect x="0" y="0" width="20" height="20" fill="acc" fill-opacity="0.6"/><rect x="20" y="0" width="20" height="20"/></g></svg>', "1 phần tô acc độ mờ 0,3"],
+  ["tô ink, khác cỡ", '<svg viewBox="0 0 80 50"><rect x="0" y="0" width="20" height="20" fill="ink"/><rect x="20" y="0" width="20" height="20"/><rect x="40" y="0" width="10" height="30" fill="acc-soft"/><rect x="50" y="0" width="10" height="50"/></svg>', ""]
+].forEach(([ten, src, chu]) => {
+  const at = "phần tô của hình chia phần, tự thử " + ten, b = typeof src === "string" ? soatPhanTo(src).bao.join(" | ") : null;
+  if (b === null) err(at, "không có hình");
+  else if (!chu && b) err(at, "báo nhầm: " + b);
+  else if (chu && !b.includes(chu)) err(at, `không báo “${chu}”` + (b ? ": " + b : ""));
+});
+if (!TOKEN.sáng.acc || !TOKEN.tối.acc || !TOKEN.sáng.bg || !TOKEN.tối.surface) err("phần tô của hình chia phần", "không đọc được token màu của css/app.css");
+
 /* ---------- đề Tiếng Anh: 100% tiếng Anh (Phiên TA1) ----------
    Đề có môn Tiếng Anh: mọi trường chữ của đề (note), đoạn đọc và từng câu. Đề môn khác: câu có topic bắt đầu bằng "English"
    và đoạn đọc câu đó dùng. Chữ cái tiếng Việt: nguyên âm có dấu thanh, ă, â, ê, ô, ơ, ư, đ (cả chữ hoa). Từ tiếng Anh có dấu
@@ -834,6 +961,7 @@ const total = Object.values(count).reduce((a, n) => a + n, 0);
 console.log(`${catalog.length - pools.length} đề, ${files.length} file câu hỏi, ${total} câu (${Object.entries(count).filter(([, n]) => n).map(([t, n]) => n + " " + TEN_DANG[t]).join(", ")}); ${pools.length} đề ngẫu nhiên.`);
 console.log(`Đề Tiếng Anh 100% tiếng Anh: ${soTA.de} đề, ${soTA.cau} câu; ${soTA.cauKhac} câu Tiếng Anh trong đề khác.`);
 console.log(`Đề "Ôn chủ đề": ${soOnCD.chuDe} chủ đề có ít nhất ${Quiz.TOPIC_N} câu, rút thử ${soOnCD.rut} lần.`);
+console.log(`Phần tô của hình chia phần (L51): ${soTo.dat} hình tương phản từ 3:1; ${daXem.size} hình phần tô nhạt đã xem, không phải dữ kiện (TO_DA_XEM).`);
 if (warn.length) console.log("Nhắc:\n" + warn.join("\n"));
 if (loose.length) console.log("Đề chưa gắn kì thi nào (vẫn hiện ở nhóm “Bài ôn khác”): " + loose.join(", "));
 if (bad.length) { console.error(bad.join("\n")); console.error(`DE FAILED: ${bad.length} lỗi`); process.exitCode = 1; } else console.log("DE OK");

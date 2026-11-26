@@ -109,7 +109,7 @@ const attrs = (tag) => Object.fromEntries([...tag.matchAll(/([\w-]+)="([^"]*)"/g
 const lines = (svg) => [...svg.matchAll(/<line [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { a: [+a.x1, +a.y1], b: [+a.x2, +a.y2], stroke: a.stroke || "", w: +(a["stroke-width"] || 1) }; });
 const polys = (svg) => [...svg.matchAll(/<polygon [^>]*>/g)].map((m) => nums(attrs(m[0]).points));
 const dots = (svg) => [...svg.matchAll(/<circle [^>]*>/g)].map((m) => { const a = attrs(m[0]); return [+a.cx, +a.cy]; });
-const rects = (svg) => [...svg.matchAll(/<rect [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { x: +a.x, y: +a.y, w: +a.width, h: +a.height, fill: a.fill || "none" }; });
+const rects = (svg) => [...svg.matchAll(/<rect [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { x: +a.x, y: +a.y, w: +a.width, h: +a.height, fill: a.fill || "none", op: a["fill-opacity"] }; });
 const texts = (svg) => [...svg.matchAll(/<text ([^>]*)>([^<]*)<\/text>/g)].map((m) => { const a = attrs("<t " + m[1] + ">"); return { at: [+a.x, +a.y], t: m[2] }; });
 const subv = (p, q) => [p[0] - q[0], p[1] - q[1]];
 const dist = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
@@ -146,8 +146,10 @@ const toMau = (svg) => {
     const w = rs[0].w, h = rs[0].h; rs.forEach((r) => assert.ok(r.w === w && r.h === h, "các phần của hình " + name + " bằng nhau"));
     const x0 = Math.min(...rs.map((r) => r.x)), y0 = Math.min(...rs.map((r) => r.y)), x1 = Math.max(...rs.map((r) => r.x + r.w)), y1 = Math.max(...rs.map((r) => r.y + r.h));
     assert.equal(rs.length * w * h, (x1 - x0) * (y1 - y0), "các phần của hình " + name + " phải ghép kín một hình chữ nhật");
-    out[name] = { n: rs.length, k: rs.filter((r) => r.fill === "acc-soft").length, w: x1 - x0, h: y1 - y0 };
-    rs.forEach((r) => assert.ok(["acc-soft", "none"].includes(r.fill), "phần tô màu dùng acc-soft"));
+    // phần tô dùng fill="acc" fill-opacity="0.6" (L51, Phiên 9y: acc-soft chỉ tương phản 1,2:1 với phần không tô)
+    const to = (r) => r.fill === "acc" && r.op === "0.6";
+    out[name] = { n: rs.length, k: rs.filter(to).length, w: x1 - x0, h: y1 - y0 };
+    rs.forEach((r) => assert.ok(to(r) || r.fill === "none", "phần tô màu dùng fill=\"acc\" fill-opacity=\"0.6\" (L51)"));
   });
   assert.ok(out.a.w === out.b.w && Math.abs(out.a.h - out.b.h) <= 1, "hai hình chữ nhật bằng nhau");
   return out;
