@@ -7,19 +7,19 @@ Bản 3.x đã làm xong UX9–UX15; UX13 không làm. Kiểm thử thiết kế
 
 **Figma:** trang [🚧 Master 4.x · Persona và đề xuất](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=376-2). Trang có ba khung persona, rồi mỗi phiên một section có ghi chú. Khung màn hình của phiên chỉ vẽ khi chủ app chọn phiên đó, như cách làm của bản 3.x: Phiên UX22 có khung ở section [UX22](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=380-63), ngay dưới persona.
 
-File này giữ cách chạy UAT, kết quả đo, vấn đề (mã X52–X65, nối tiếp bản 3.x), đề xuất theo phiên, ảnh và “Xong khi”. Các phiên UX16–UX21 là **phiên ứng viên, chờ chủ app chọn**. Phiên UX22 (X62–X65) đến từ góp ý của chủ app ngày 25/11/2026 và **đã được chọn**. Khi chủ app chọn một phiên, PD viết lời giao việc ở mục 4 và thêm dòng ở mục 3 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md). Trạng thái chỉ ghi ở file đó.
+File này giữ cách chạy UAT, kết quả đo, vấn đề (mã X52–X65, nối tiếp bản 3.x), đề xuất theo phiên, ảnh và “Xong khi”. Các phiên UX16–UX21 là phiên ứng viên; **ngày 26/11/2026 PO đã chọn cả sáu** (chủ app giao PO chốt các điểm còn chờ), thứ tự và hạn ở cột “Gợi ý” của bảng dưới. Phiên UX22 (X62–X65) đến từ góp ý của chủ app ngày 25/11/2026 và **đã được chọn**. Phiên đã chọn thì PD vẽ khung ở Figma và viết lời giao việc ở mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); dòng của sáu phiên ở mục 3 của file đó (PO thêm ngày 26/11/2026). Trạng thái chỉ ghi ở file đó.
 
 ## 1. Tóm tắt
 
 | Phiên | Vấn đề | Persona được lợi nhiều nhất | Cỡ | Gợi ý |
 |---|---|---|---|---|
 | **UX22** · Hôm nay chọn cách làm ngay; gọi “Bài ôn 1, 2…” | X62–X65 (gộp cả X53) | mọi cấp, nhất là Bin | vừa | **chủ app chọn 25/11/2026**; làm trước các phiên dưới |
-| **UX17** · Màn mở đề gọn, nhãn câu giữ đúng chữ | X54, X55 | Linh, An; lớp 5 | nhỏ | làm trước: nhỏ, cả ba cấp được lợi |
-| **UX16** · Làm dở, làm tiếp | X52, X61 (X53 gộp vào UX22) | Bin, Mẹ Hạnh; cả An, Linh | vừa | ngay sau UX17 |
-| **UX20** · Môn học của con, khối 10–12 | X59 | Linh, Mẹ Thu | lớn; cần chủ app quyết chỗ lưu | trước khi bật khối 12 (sau RS12) |
-| **UX18** · Đề thi thử làm ra giấy | X56 | An; Linh (Ngữ văn) | lớn | sau Phiên 9u (L47) |
-| **UX19** · Đường tới kì thi lớn | X57, X58 | An, Linh, Bố Tuấn, Mẹ Thu | vừa | sau 9u |
-| **UX21** · Làm đề bằng bàn phím | X60 | Linh | nhỏ | để sau, hoặc làm cùng UX17 |
+| **UX17** · Màn mở đề gọn, nhãn câu giữ đúng chữ | X54, X55 | Linh, An; lớp 5 | nhỏ | **PO chọn 26/11/2026**; thứ 1, trước 15/12/2026 (sau Phiên D2, 9x): nhỏ, cả ba cấp được lợi |
+| **UX16** · Làm dở, làm tiếp | X52, X61 (X53 gộp vào UX22) | Bin, Mẹ Hạnh; cả An, Linh | vừa | **PO chọn 26/11/2026**; thứ 2, trước 31/12/2026 |
+| **UX20** · Môn học của con, khối 10–12 | X59 | Linh, Mẹ Thu | lớn; lưu trên máy chủ (PO quyết 26/11/2026) | **PO chọn 26/11/2026**; thứ 3, trước 20/1/2027 (trước khi bật khối 10, 11; khối 12 đã bật khi Merge PR #334; `run.sh` chạy lại được từ PR #346) |
+| **UX18** · Đề thi thử làm ra giấy | X56 | An; Linh (Ngữ văn) | lớn | **PO chọn 26/11/2026**; thứ 4, trước 10/2/2027 (9u đã xong) |
+| **UX19** · Đường tới kì thi lớn | X57, X58 | An, Linh, Bố Tuấn, Mẹ Thu | vừa | **PO chọn 26/11/2026**; thứ 5, trước 20/2/2027 |
+| **UX21** · Làm đề bằng bàn phím | X60 | Linh | nhỏ | **PO chọn 26/11/2026**; thứ 6, trước 28/2/2027 nếu còn lượt, không thì sau khi mở dùng thử |
 
 Không cần sửa (đo đạt ở cả ba cấp, ngày 11/11/2026):
 - Hôm nay của Bin, An, Linh cùng bố cục; nút Bắt đầu nằm trong màn đầu. Ngày 25/11/2026 chủ app muốn bỏ bước Bắt đầu và bớt hành động: Phiên UX22.
@@ -351,7 +351,7 @@ Sửa `js/store.js`, `js/store-supabase.js`, `supabase/` (cột mới), `js/app.
   - **Lưu:**
     - Bản lưu trên máy: trường `subjects` (mảng tên môn) và `tnSubjects` của học sinh. Dữ liệu cũ đọc vào là `[]`.
     - Bản đám mây: cột `profiles.subjects text[]`, `profiles.tn_subjects text[]`, thêm bằng file `supabase/cap-nhat-<phiên>.sql`, grant theo cột như các cột đang có của `profiles` (mục “Grant khi thêm bảng, cột, hàm” của CLAUDE.md). Máy chủ chưa cập nhật thì app giữ như nay.
-  - **Chủ app quyết:** đây là thông tin học tập, không phải thông tin cá nhân của con. Nhưng quy tắc “thu thập tối thiểu” trong CLAUDE.md chỉ kể tên, khối, lớp. Nếu chủ app không muốn lưu lên máy chủ, mỗi máy lưu riêng (localStorage) và chọn một lần trên mỗi máy.
+  - **PO quyết ngày 26/11/2026** (chủ app giao chốt): lưu trên máy chủ như đề xuất ở trên. Bố mẹ và con thường dùng hai máy, mà thẻ của con, báo cáo tuần trên máy bố mẹ cần biết môn của con; lưu riêng từng máy thì phải chọn lại trên mỗi máy. Đây là thông tin học tập, không định danh trẻ. Phiên UX20 sửa câu “Thu thập dữ liệu tối thiểu” ở đầu CLAUDE.md thành “tên hiển thị, khối, lớp; con khối 10–12 thêm môn học lựa chọn và môn thi tốt nghiệp tự chọn”; trang Quyền riêng tư (Phiên G0) liệt kê hai trường này.
 - Xong khi:
   - Bước mới của `tests/e2e.js` (khối 12 bật giả trong bước), chọn 4 môn cho Linh. Khi đó:
     - Bài ôn: nhóm cuối kì I có 8 dòng môn và dòng “Môn khác · 3 môn” thu gọn; đã làm 1/16;
@@ -359,7 +359,7 @@ Sửa `js/store.js`, `js/store-supabase.js`, `supabase/` (cột mới), `js/app.
     - nhóm thi tốt nghiệp chỉ có 4 môn thi;
     - chưa chọn môn thì như nay.
   - `tests/supabase/store-test.mjs`, `cloud-e2e.js` in OK; `sh tests/supabase/run.sh` in RLS OK, có kiểm tra cột mới.
-- Thời điểm: nên xong trước khi bật khối 12 (sau RS12). Không kịp thì bật khối 12 như nay rồi làm sau; khối 10, 11 (tháng 1/2027) cũng cần phiên này.
+- Thời điểm: khối 12 đã bật khi Merge PR #334 (chủ app chọn bật trước, con lớp 12 thấy đủ 11 môn đến khi có phiên này). UX20 xong trước 20/1/2027, trước khi bật khối 10, 11; `run.sh` (kiểm thử RLS cho cột mới) chạy lại được từ PR #346 (Phiên 9w).
 
 ### Phiên UX18 · Đề thi thử làm ra giấy (X56)
 
