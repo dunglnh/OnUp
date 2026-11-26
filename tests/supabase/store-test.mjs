@@ -147,7 +147,7 @@ let bin, na;
 {
   const S = A.Store;
   await throwsMsg(() => S.createUser({ role: "parent", name: "Bà" }), /chỉ thêm hồ sơ con/, "bản đám mây không thêm tài khoản người lớn");
-  await throwsMsg(() => S.createUser({ role: "student", name: "Bin", grade: 5 }), /^Chọn khối lớp 4, 6, 9 hoặc 12\.$/, "khối chưa có nội dung (lớp 5) bị từ chối");
+  await throwsMsg(() => S.createUser({ role: "student", name: "Bin", grade: 7 }), /^Chọn khối lớp 4, 5, 6, 9 hoặc 12\.$/, "khối chưa có nội dung (lớp 7) bị từ chối");
   await throwsMsg(() => S.createUser({ role: "student", name: "Bin", grade: 4, pin: "12345" }), /4 chữ số/, "PIN không đúng 4 số bị từ chối");
   await throwsMsg(() => S.createUser({ role: "student", name: "  ", grade: 4 }), /Cần nhập tên/, "thiếu tên");
   bin = await S.createUser({ role: "student", name: "Bin", grade: 4, className: "4A", avatar: "🦊", pin: "1357" });
@@ -173,7 +173,7 @@ let bin, na;
   await S.updateUser(bin.id, { noPin: true });
   ok(!bin.hasPin && be.T.profiles.find((p) => p.id === bin.id).pin_hash === null && (await S.checkPin(bin.id, "")), "bỏ PIN");
   await S.updateUser(bin.id, { pin: "1357" });
-  await throwsMsg(() => S.updateUser(bin.id, { grade: 5 }), /Chọn khối/, "đổi sang khối chưa có nội dung bị từ chối");
+  await throwsMsg(() => S.updateUser(bin.id, { grade: 7 }), /Chọn khối/, "đổi sang khối chưa có nội dung bị từ chối");
   await throwsMsg(() => S.updateUser(S.users("admin")[0].id, { name: "Mẹ" }), /người cấp tài khoản/, "không sửa Phụ huynh ở đây");
 }
 
