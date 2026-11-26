@@ -239,11 +239,13 @@ const tuongPhan = (a, b) => { const [x, y] = [sang(a), sang(b)].sort((p, q) => q
 const HINH_CON = ["rect", "circle", "ellipse", "polygon", "polyline", "path"], KHONG_TO = ["none", "surface", "bg"];
 // mọi hình con của một hình: tên thẻ, thuộc tính, màu tô (kế thừa từ thẻ cha; không ghi là none) và độ mờ (fill-opacity × opacity của thẻ, thẻ cha)
 const hinhCon = (src) => {
-  const out = [], st = [{ fill: "none", fop: 1, op: 1 }], re = /<\/\s*[\w:.-]+\s*>|<([a-zA-Z][\w:.-]*)((?:\s+[^\s=/>]+(?:\s*=\s*(?:"[^"]*"|'[^']*'))?)*)\s*(\/?)>/g;
+  // thẻ, thuộc tính đọc như Quiz.svg (giá trị có hay không có dấu ngoặc kép); bỏ chú thích
+  const out = [], st = [{ fill: "none", fop: 1, op: 1 }], re = /<\/\s*[^\s>]+\s*>|<([a-zA-Z][\w:.-]*)((?:\s+[^\s=/>]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+))?)*)\s*(\/?)>/g;
+  const s2 = String(src).replace(/<!--[\s\S]*?-->/g, "");
   let m;
-  while ((m = re.exec(src))) {
+  while ((m = re.exec(s2))) {
     if (!m[1]) { st.pop(); continue; }
-    const a = {}; (m[2] || "").replace(/([^\s=/>]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g, (_, k, v1, v2) => { a[k] = v1 != null ? v1 : v2; });
+    const a = {}; (m[2] || "").replace(/([^\s=/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g, (_, k, v1, v2, v3) => { a[k] = (v1 != null ? v1 : v2 != null ? v2 : v3 != null ? v3 : "").trim(); });
     const cha = st[st.length - 1], me = { fill: a.fill != null ? (a.fill === "currentColor" ? "ink" : a.fill) : cha.fill, fop: a["fill-opacity"] != null ? +a["fill-opacity"] : cha.fop, op: cha.op * (a.opacity != null ? +a.opacity : 1) };
     if (HINH_CON.includes(m[1])) out.push({ ten: m[1], a, fill: me.fill, mo: Math.max(0, Math.min(1, me.fop * me.op)) });
     if (!m[3]) st.push(me);
@@ -257,9 +259,9 @@ const dinhPath = (d) => { // đỉnh (điểm cuối mỗi đoạn) và bán kí
   let i = 0, lenh = "", cur = [0, 0], dau = [0, 0];
   const so = () => +t[i++], toi = (x, y, rel) => { cur = rel ? [cur[0] + x, cur[1] + y] : [x, y]; p.push(cur); };
   while (i < t.length) {
-    if (/[a-z]/i.test(t[i])) lenh = t[i++];
+    if (/^[a-z]$/i.test(t[i])) lenh = t[i++];
     const L = lenh.toUpperCase(), rel = lenh !== L;
-    if (L === "Z") { cur = dau; continue; }
+    if (L === "Z") { cur = dau; lenh = ""; continue; }
     if (L === "M") { toi(so(), so(), rel); dau = cur; lenh = rel ? "l" : "L"; }
     else if (L === "L" || L === "T") toi(so(), so(), rel);
     else if (L === "H") { const x = so(); cur = [rel ? cur[0] + x : x, cur[1]]; p.push(cur); }

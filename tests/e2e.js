@@ -4206,7 +4206,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     moi.forEach((x, i) => { if (!x.includes(TO)) y9.problems.push(`${Y9[i][0]} câu ${Y9[i][1]}: chưa có phần tô ${TO}`); });
     // trong trang: mỗi hình một ô .qcard; trả về màu, tương phản và toạ độ giữa một ô tô, một ô không tô (so với góc trên trái của ô hình)
     const measure = (srcs) => {
-      const wrap = document.createElement("div"); wrap.id = "y9"; wrap.style.cssText = "position:absolute;left:0;top:0;width:360px;box-sizing:border-box;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--bg);z-index:50";
+      const wrap = document.createElement("div"); wrap.id = "y9"; wrap.style.cssText = "position:absolute;left:0;top:0;width:360px;box-sizing:border-box;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--bg);z-index:1000"; // trên thanh trên, thông báo của app
       document.body.append(wrap);
       const col = (v) => { const m = /rgba?\(([^)]*)\)/.exec(v || ""); if (!m) return null; const n = m[1].split(/[\s,/]+/).filter(Boolean).map(parseFloat); return { c: n.slice(0, 3), a: n.length > 3 ? n[3] : 1 }; };
       const tron = (c, a, nen) => c.map((v, i) => a * v + (1 - a) * nen[i]);
