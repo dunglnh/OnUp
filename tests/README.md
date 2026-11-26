@@ -271,9 +271,7 @@ Từ 12/11/2026 hàm chuẩn hoá chữ `khongDau` của 64 script được bọ
 
 ## 4. Các bước của tests/e2e.js và tests/supabase/cloud-e2e.js
 
-Mục này tả từng bước của hai script kiểm thử giao diện. Đến Phiên D1 (26/11/2026) phần này nằm trong CLAUDE.md (mục “Chạy và kiểm tra” và các đoạn “Kiểm thử: …” của từng tính năng); Phiên D1 chép nguyên văn sang đây. CLAUDE.md giữ lệnh chạy, dòng OK, khi nào chạy script nào và quy tắc viết bước mới (context qua hàm dùng chung, `setSystemTime`, chờ chữ đổi, `audit`); mô tả tính năng mà bước kiểm tra: `docs/TINH-NANG.md`, mục 9. Phiên thêm, sửa bước ghi vào đây: bước của `tests/e2e.js` một mục con theo tên trong `step("…")` (theo thứ tự chạy), kèm kiểm tra cùng phiên của `tests/supabase/cloud-e2e.js` (tên kiểm tra bắt đầu bằng mã phiên, như “UX2:”); kiểm tra chỉ có ở bản đám mây ở mục 4.30, 4.31.
-
-Bước có điều kiểm tra ghi ở chỗ khác: “seed banks load on demand”, “random exam by matrix (K3)” (số câu mong đợi tính từ dữ liệu; CLAUDE.md, “Thêm đề có sẵn”, bước 4); “lesson pages l4, l6…”, “IOE 6 School Level track (9s, L44)”, “IOE National Level track (N-IOE)” (`docs/TINH-NANG.md`, mục 9.4); “numbers with thousands spaces stay on one line (360px)”, “partition fills: contrast at least 3:1 (L51)” (`docs/TINH-NANG.md`, mục 9.22); “grades from data/grades.js” (hằng `ON`; CLAUDE.md, “Kho dữ liệu”).
+Mục này tả từng bước của hai script kiểm thử giao diện. Đến Phiên D1 (26/11/2026) phần này nằm trong CLAUDE.md (mục “Chạy và kiểm tra” và các đoạn “Kiểm thử: …” của từng tính năng); Phiên D1 chép nguyên văn sang đây. CLAUDE.md giữ lệnh chạy, dòng OK, khi nào chạy script nào và quy tắc viết bước mới (context qua hàm dùng chung, `setSystemTime`, chờ chữ đổi, `audit`); mô tả tính năng mà bước kiểm tra: `docs/TINH-NANG.md`, mục 9. Phiên thêm, sửa bước ghi vào đây: bước của `tests/e2e.js` một mục con theo tên trong `step("…")` (theo thứ tự chạy), kèm kiểm tra cùng phiên của `tests/supabase/cloud-e2e.js` (tên kiểm tra bắt đầu bằng mã phiên, như “UX2:”); kiểm tra chỉ có ở bản đám mây ở mục 4.39, 4.40. Bước có điều kiểm tra ghi trong mô tả tính năng (`docs/TINH-NANG.md`, mục 9) có mục con chỉ gồm dòng trỏ. Các bước đầu của `tests/e2e.js` chưa có mô tả riêng (thiết lập, tài khoản, chốt rời trang L1, L15, L16, sao lưu L14, L17, L3, L10, L18, 9e, L27…): đọc chú thích trong script; “grades from data/grades.js” dùng hằng `ON` (CLAUDE.md, “Kho dữ liệu”).
 
 ### 4.1 Chung cho hai script
 
@@ -291,49 +289,67 @@ Hai script Playwright (`tests/e2e.js`, `tests/supabase/cloud-e2e.js`) chạy ở
 
 Khi sửa `js/store-supabase.js`, `js/app.js` (phần đám mây), `admin.html`, `supabase/`: chạy thêm `node tests/supabase/admin-test.mjs` (Edge Function admin và máy chủ giả, in `ADMIN OK`), `node tests/supabase/store-test.mjs` (in `SUPABASE STORE OK`), `node tests/supabase/cloud-e2e.js` (in `CLOUD E2E OK`, ảnh 360px sáng/tối ở `tests/screenshots/cloud/`), và nếu máy có PostgreSQL thì `sh tests/supabase/run.sh` (in `RLS OK`; CSDL thử mã hoá UTF8 như Supabase, `initdb -E UTF8 --locale=C`, nên `char_length` đếm kí tự và kết quả không phụ thuộc locale của máy, Phiên 9w, L49; máy không có PostgreSQL thì ghi rõ trong Pull Request là chưa chạy `run.sh`, để chủ app biết mà chạy). store-test.mjs và cloud-e2e.js chạy với Edge Function admin thật (chủ app tạo tài khoản) trên máy chủ giả; cloud-e2e.js kiểm tra 360px như tests/e2e.js, ảnh ghép sáng/tối `<tên>.jpg` cùng thư mục, các màn hình chính chép vào `docs/hinh-dam-may/`; phần cuối kiểm tra trang admin (`c16`–`c23`, ảnh `admin-*.jpg` trong `docs/hinh-dam-may/`).
 
-### 4.2 `default calendar reaches old data; exams of inactive grades stay hidden (Lịch các khối mới)`
+Cả lượt chạy ghi request ra ngoài `localhost:8000` (`outReqs`, cờ `noOutside` cuối script): bản lưu trên máy không tải gì từ host khác (CLAUDE.md, “Quy ước code”).
+
+### 4.2 `pin lock per user survives reload (L2); waiting disables the keypad (UX4 X3)`
+
+Bước này tả ở mục 4.15 (đoạn “Kiểm thử” của bước UX4, phần “bước L2”).
+
+### 4.3 `seed banks load on demand`
+
+Bước này tính số câu mong đợi của mọi đề trong `4-toan.js` từ danh mục: `docs/TINH-NANG.md`, mục 9.2 (bước 4 của “Thêm đề có sẵn”).
+
+### 4.4 `default calendar reaches old data; exams of inactive grades stay hidden (Lịch các khối mới)`
 
 Kiểm thử: bước “default calendar reaches old data” của `tests/e2e.js` (máy có lịch cũ mở bản mới; khối chưa bật không hiện; hàm thuần với kì thi giả gắn đề giả), mục 7b của `tests/supabase/store-test.mjs`, kiểm tra “Lịch các khối mới” của `tests/supabase/cloud-e2e.js` (tài khoản cũ, máy chủ giả có công tắc `be.noEventsSeen`), `tests/supabase/rls-test.sql` (cột, grant theo cột, trần mới).
 
-### 4.3 `new question types (K2): 360px light + dark`
+### 4.5 `new question types (K2): 360px light + dark`
 
 Bước K2 làm đề thử nghiệm các dạng câu mới bằng chạm ở 360px sáng/tối (điểm chấm từng ý, tự luận tự chấm lưu riêng, báo cáo tuần, bộ lọc hình trong trình duyệt); ảnh từng dạng ở `tests/screenshots/dang-cau/` (bản ghép sáng/tối `<tên>.jpg`, chép ảnh cần đưa vào tài liệu sang `docs/hinh-dang-cau/`).
 
-### 4.4 `random exams keep passages whole (K4)`
+### 4.6 `random exam by matrix (K3)`
+
+Bước này dùng `toan6-ck1-ngau-nhien`, số mong đợi tính từ dữ liệu; kho đó phải còn câu tự luận: `docs/TINH-NANG.md`, mục 9.2 (bước 4 của “Thêm đề có sẵn”). Số câu trong kho của hai đề ngẫu nhiên Toán 4 ghi cứng ở `tests/supabase/store-test.mjs`, `tests/supabase/cloud-e2e.js` (cũng ở bước 4 đó).
+
+### 4.7 `random exams keep passages whole (K4)`
 
 Bước K4 (sau K3; ảnh `tests/screenshots/19-k4-doan-doc.png`): bốn đề ngẫu nhiên có đoạn đọc rút 60 lần trong trang (đủ n câu, đúng chủ đề, mức lệch ≤ 1, không quá ⌈k/3⌉ đoạn mỗi chủ đề, nhiều nhất một đoạn lấy một phần, lần 2 sau khi làm hết bộ lần 1 không lấy lại câu và đoạn của chủ đề có đoạn), đi hết n câu trên màn làm bài bằng “Bỏ qua” (câu cùng đoạn liền nhau, hộp đoạn đọc ghi đúng số câu), Bin làm hết một lượt Tiếng Việt 4 rồi “Làm đề khác” ra đoạn khác và câu Viết khác.
 
 Cách rút giữ trọn đoạn đọc và điều `tests/kiem-tra-de.js` thử: `docs/TINH-NANG.md`, mục 9.2 (đoạn “Đề ngẫu nhiên rút giữ trọn đoạn đọc”).
 
-### 4.5 `report wrong question (R1)`
+### 4.8 `report wrong question (R1)`
 
 Nút báo câu sai (R1) thử ở cả hai: tests/e2e.js (bước R1, ảnh `tests/screenshots/20-*.png`) và cloud-e2e.js (`c8c`, `c8d`, tab admin `c23`).
 
-### 4.6 `English banks 100% English (TA1)`
+### 4.9 `English banks 100% English (TA1)`
 
 Bước TA1 làm 3 đề Tiếng Anh có sẵn ở chế độ ôn luyện bằng đáp án trong dữ liệu (mỗi đề 10/10, đoạn đọc dùng chung hiện đúng, chữ câu hỏi và lời giải không có chữ cái tiếng Việt), ảnh 360px sáng/tối một câu đọc hiểu và một câu điền ở `tests/screenshots/tieng-anh/`.
 
-### 4.7 `English test UI in English (TA2)`
+### 4.10 `English test UI in English (TA2)`
 
 Bước TA2: học sinh lớp 4 và lớp 6 làm đề Tiếng Anh ở cả ôn luyện (có câu sai, báo câu sai) và làm như thi (nộp sớm), bài ôn IOE 4 trong khung, phụ huynh xem thử: mọi chữ trong `#view`, `#leaveBox`, `#toast` không có chữ cái tiếng Việt, tên đề, nút, hộp hỏi đúng bảng chữ; ảnh `tests/screenshots/tieng-anh/ta2-*.png` (bản ghép `ta2-<tên>.jpg`); bài ôn lớp 4 vẫn tiếng Việt.
 
 Màn làm đề Tiếng Anh (TA2) cũng ở cả hai: bước TA2 của tests/e2e.js và `c8e`–`c8g` của cloud-e2e.js (hồ sơ con thứ hai làm một đề Tiếng Anh).
 
-### 4.8 `selected answer: one blue in every subject (lesson pages l4, l6, IOE)`
+### 4.11 `lesson pages l4, l6: numbers with thousands spaces stay on one line, no overlapping text (360px, 720px)`
+
+Điều bước này kiểm tra ở từng phần của l4-giua-ki-1, l6-giua-ki-1 (số không tách dòng, Ghi nhớ, số bài, chương, phạm vi KHTN, văn bản Ngữ văn, bài và dạng từng câu, dòng bài không đánh số): `docs/TINH-NANG.md`, mục 9.4 (Hợp đồng giữa bài ôn và app). Đo chữ đè (`audit(…, "chữ")`): mục 4.1.
+
+### 4.12 `selected answer: one blue in every subject (lesson pages l4, l6, IOE)`
 
 Bước “selected answer” (21/10/2026): ô đang chọn, ô điền của 4 bài ôn dạng trang (mọi môn, sáng và tối) cùng màu với `.opt.sel` của app, màu đó khác màu câu đúng, câu sai.
 
-### 4.9 `today page, tabs, badges, result screen (UX1)`
+### 4.13 `today page, tabs, badges, result screen (UX1)`
 
 Bước UX1 (ngày giả lập 21/10/2026, Bin có 3 ngày ôn liền; kịch bản là kì giữa kì I chỉ có bài ôn l4-giua-ki-1, nên đầu bước bỏ các đề gắn vào gk1-l4): thẻ “Hôm nay ôn gì?” (bài chính; sang 1/12 tên ngắn “Toán · Bài ôn 2”, nút chọn cách làm của Phiên UX22), chuỗi ngày và mục tiêu tuần, huy hiệu mới chỉ chúc mừng một lần, bốn tab và chỗ không có thanh tab, lịch thi chỉ có kì thi, màn kết quả (lời khen, so với lần trước, ôn lại câu sai không lưu điểm, câu sai thu gọn), một dòng nhãn trên câu, bàn phím số ở câu điền, hình đại diện chưa ai dùng, hồ sơ của con; ảnh ở `tests/screenshots/ux1/` (bản ghép `<tên>.jpg`, chép ảnh cần đưa vào tài liệu sang `docs/hinh-ux1/`).
 
-### 4.10 `parent area: child cards, report first (UX2)`
+### 4.14 `parent area: child cards, report first (UX2)`
 
 Bước UX2 (ngày giả lập 21/10/2026, Mẹ Bin có hai con): thẻ của từng con ở mục “Các con” (số bài, điểm hôm nay, chuỗi ngày, kì thi gần nhất còn N ngày · chưa ôn môn nào), bấm thẻ mở báo cáo tuần (đầu trang chỉ tên và một dòng, link “Xem cả năm →” ở Kì thi sắp tới, “Bài ôn của Bin →” cuối Gợi ý), trang bài ôn của con, lịch chọn sẵn khối, link “Lịch thi cả năm →” ở trang chủ phụ huynh, quản trị của thầy cô giữ 5 tab và có link “Xem theo tháng →” ở tab Lịch thi; ảnh ở `tests/screenshots/ux2/` (bản ghép `<tên>.jpg`, chép sang `docs/hinh-ux2/` cùng ảnh khu phụ huynh bản đám mây từ cloud-e2e.js).
 
 Kiểm thử: bước UX2 của `tests/e2e.js` (phụ huynh bản lưu trên máy, ảnh `tests/screenshots/ux2/`) và các kiểm tra “UX2:” của `tests/supabase/cloud-e2e.js` (ảnh `c5-cai-dat`, `c5b-de-tu-soan`, `c6-cac-con`, `c6b-lich-thi`, `c6c-sua-ngay`, `c11-cac-con`, `c12-bao-cao-tuan`).
 
-### 4.11 `profile entry step, PIN lock UI, tap-to-change avatar (UX4)`
+### 4.15 `profile entry step, PIN lock UI, tap-to-change avatar (UX4)`
 
 Bước UX4 (bước nhập PIN riêng: không cuộn, tên và 12 nút bàn phím trong khung nhìn 740px, ô nhập ẩn, nút “Hiện số”; sai 5 lần thì bàn phím mờ, đếm ngược trên bàn phím, rút ngắn thời gian đợi rồi tự bật lại; trang Tài khoản chạm hình là đổi ngay, form đổi mã PIN riêng; ảnh ở `tests/screenshots/ux4/`, bản ghép `<tên>.jpg`, chép sang `docs/hinh-ux4/`).
 
@@ -341,13 +357,11 @@ Kiểm thử: `tests/e2e.js` bước UX4 (ảnh `tests/screenshots/ux4/`: `a3-nh
 
 Kiểm thử: bước UX4 của `tests/e2e.js` (phím Vào khi phải đợi) và kiểm tra “UI2” của `tests/supabase/cloud-e2e.js` (“Cho con học” khi chưa có hồ sơ con, phím Vào của mã mở nhanh khi phải đợi), cả sáng và tối, so màu đã vẽ với màu của token (`btnTone`).
 
-Bước “pin lock per user survives reload (L2); waiting disables the keypad (UX4 X3)” là bước L2 nhắc ở trên.
-
-### 4.12 `seal avatars: drawn art in the avatar picker and everywhere the avatar shows`
+### 4.16 `seal avatars: drawn art in the avatar picker and everywhere the avatar shows`
 
 Bước “seal avatars” (22/10/2026): bộ chọn hình có 16 emoji và 6 hải cẩu (tên đọc, hình tải được, cỡ gần bằng emoji); Bin chọn “Hải cẩu đội mũ tốt nghiệp”: hình vẽ ở đầu trang Tài khoản, thanh trên, lời chào trang Hôm nay, ô hồ sơ ở “Xin chào!”, thẻ của con và đầu báo cáo tuần; ảnh ở `tests/screenshots/hai-cau/` (bản ghép `<tên>.jpg`, chép sang `docs/hinh-hai-cau/`).
 
-### 4.13 `focused test screen: top bar, Finish button, timer, Skip, open screen (UX5)`
+### 4.17 `focused test screen: top bar, Finish button, timer, Skip, open screen (UX5)`
 
 Bước UX5 (ngày giả lập 14/12/2026 8:00, Bin làm Toán 4 · Cuối kì I · Đề 3): màn mở đề chưa làm thì không có thẻ “Lần trước”, có hai thẻ chọn cách làm (≥ 64px); làm như thi: thanh trên chỉ còn chữ OnUp, nút “Nộp bài” thay “← Thoát” (chưa trả lời thì hỏi “Thoát đề?”), chip “Còn 40:00” có biểu tượng và `aria-label`, “Câu 1/25”, tua đồng hồ còn dưới 2 phút thì chip đổi màu, nộp xong thanh trên có lại; mở lại đề thấy “Lần trước: x/25 câu đúng” (không lấy kết quả tự chấm mới hơn); ôn luyện sau Kiểm tra không còn nút “Bỏ qua” nào hiện, “Câu tiếp” ở mép phải; “Làm lại” lại vào chế độ tập trung; phụ huynh xem thử: không có hình đại diện trong lúc làm, có lại ở màn kết quả (không màn nào có nút “Lịch thi” trên thanh trên); đề không có số phút chỉ có thẻ Ôn luyện; ảnh ở `tests/screenshots/ux5/` (bản ghép `<tên>.jpg`, chép sang `docs/hinh-ux5/`).
 
@@ -355,33 +369,45 @@ Làm bài tập trung (UX5): bước UX5 của tests/e2e.js và kiểm tra “UX
 
 Kiểm thử: bước UX5 của `tests/e2e.js` (ảnh `tests/screenshots/ux5/`: `c1-lam-nhu-thi`, `c1-nop-bai`, `c2-sau-kiem-tra`, `c4-mo-de`; chép sang `docs/hinh-ux5/`), các kiểm tra tiếng Anh trong bước TA2 (`prevEn`, `examTop`) và kiểm tra “UX5:” của `tests/supabase/cloud-e2e.js`.
 
-### 4.14 `skip and come back, question board, review screen (L38, L39)`
+### 4.18 `skip and come back, question board, review screen (L38, L39)`
 
 Bước L38, L39 (Phiên 9n, bảng số câu và màn “Xem lại bài làm”, 360px sáng/tối): Bin ôn luyện Tiếng Việt 4 · Cuối kì I · Đề 1 (bảng số câu 25 ô ≥ 44px, 5 ô một hàng, aria theo trạng thái; bỏ qua 2 câu rồi đi hết đề thì tới màn “Xem lại bài làm” còn 2 câu, không có “← Thoát”, nút mở bảng, `.bar`, `#qzReview`; chú thích không có “Chưa làm”, dấu của mẫu ô đứng, cùng màu với dấu trong ô (Phiên 9nb); rời trang vẫn hỏi; mở lại câu đã Kiểm tra chỉ xem lại rồi về màn đó; “Làm tiếp 2 câu” có nhãn “Câu còn trống 1/2”; “Xem kết quả” hỏi lại rồi câu trống tính sai; “← Thoát” giữa chừng không tính câu chưa tới), Na làm như thi đề `thunghiem6-dang-cau-moi` (chọn rồi chạm ô khác là đã trả lời; làm hết 15 câu thì màn “Xem lại bài làm” ghi đã làm hết, chỉ “Nộp bài”, chú thích chỉ có “Đã trả lời (15)”; mở lại từng dạng câu thấy đúng câu trả lời cũ, “Trả lời” về lại màn đó; sửa câu sai rồi nộp thì đúng hết; đồng hồ chạy ở màn đó; hàng trên cùng một hàng ở câu 11; chọn rồi để hết giờ thì câu đó được chấm), Bin làm như thi đề Tiếng Anh (hàng trên cùng một hàng ở câu 11/25, bảng và màn “Xem lại bài làm” không có chữ cái tiếng Việt, chú thích ở màn đó không có “Not done”); ảnh ở `tests/screenshots/l38-l39/` (bản ghép `<tên>.jpg`, chép sang `docs/hinh-9n/`).
 
 Kiểm thử: bước L38, L39 của `tests/e2e.js` (ảnh `tests/screenshots/l38-l39/`: `bang-so-cau`, `xem-lai-con-trong`, `lam-tiep`, `sua-cau`, `xem-lai-da-lam-het`; chép sang `docs/hinh-9n/`); các bước đi hết đề bằng “Bỏ qua” hay làm như thi gọi `endRecap(pg)` để qua màn mới.
 
-### 4.15 `lesson pages: skip and come back, question board, review screen (9o, L38, L39)`
+### 4.19 `lesson pages: skip and come back, question board, review screen (9o, L38, L39)`
 
 Bước 9o (“lesson pages: skip and come back…”, 360px sáng/tối, trong khung; Bin ở l4-giua-ki-1, IOE 4, Na ở l6-giua-ki-1, IOE 6): mỗi bài một lượt luyện tập (bài l4, l6: bài ≥ 4 câu không có câu sinh ngẫu nhiên, câu đang hiện nhận ra bằng cách so chữ với `items` vì `S` của trang nằm trong IIFE; IOE: unit ít câu nhất, đọc `S.qs`): bỏ qua câu 2, 3, câu 4 sai → sau câu cuối nút ghi “Xem lại bài làm” → màn `#recap` (không có `#gridBtn`, `#skipBtn`, `.bar`; chú thích không có mục 0 câu, dấu mẫu ô đứng và cùng màu với dấu trong ô) → mở lại câu đã Kiểm tra chỉ xem lại rồi về màn đó → “Làm tiếp 2 câu” (nhãn “Câu còn trống 1/2”, 2/2) → “Xem kết quả” hỏi lại trong `#endArea`, câu trống tính sai, `ontapReport` gọi đúng một lần, “Ôn câu sai” = câu sai + câu bỏ qua; một lượt đề thi thử (`buildTest(sid, "all", 0)` ở l4, l6): chọn rồi bấm “Nộp bài sớm” thì lời hỏi lại tính câu đó là đã trả lời, “Làm tiếp” về câu; làm hết → màn “Xem lại bài làm” chỉ có “Nộp bài” (nút chính), đồng hồ cùng hàng với tên bài ở thanh trên (X26); mở lại câu sai từ bảng thấy câu trả lời cũ, `#editNote`, sửa rồi “Trả lời” về lại màn đó; chọn rồi chạm ô khác là đã trả lời (X23); nộp thì đúng hết, các câu của đề ra khỏi “Ôn câu sai”; ở bảng số câu và màn “Xem lại bài làm” khung có `#endBtn` và app hỏi khi rời bài; IOE không có chữ cái tiếng Việt, X27 (giả lập máy phát được tiếng bằng `window.speak` giả: Play một lần còn “2 of 3 plays left”, rời câu bằng bảng rồi quay lại vẫn 2; tiếng lỗi thì mọi câu nghe còn trống, kể cả câu đã bỏ qua, thành câu đọc, không bỏ câu khỏi `S.qs`); Phiên 9ob: màn “Xem lại bài làm” còn câu trống có `#endBtn`, `#moreBtn` một hàng, trong hàng, cao ≥ 44px, chữ một dòng, padding ngang 12px, cách nhau 8px (màn câu hỏi 18px, 10px), đổi chữ thành “Làm tiếp 120 câu” (“Do the 120 left”) vẫn một hàng (X30); luyện theo bài, theo unit thì mọi câu (cả câu mở lại, vòng làm tiếp) chỉ có một nhãn trên câu là tên lượt, “Ôn câu sai” (“Mistake Review”, dừng ngay không làm câu nào) và đề thi thử có hai nhãn, nhãn phải là bài, unit của câu (X31); ảnh ở `tests/screenshots/9o/` (bản ghép `<tên>.jpg`: `bai-on-*`, `ioe-*`; chép sang `docs/hinh-9o/`).
 
-Các phần khác của bài ôn dạng trang mà bước “lesson pages l4, l6: numbers with thousands spaces stay on one line, no overlapping text (360px, 720px)”, “IOE 6 School Level track (9s, L44)”, “IOE National Level track (N-IOE)” kiểm tra: `docs/TINH-NANG.md`, mục 9.4 (Hợp đồng giữa bài ôn và app).
+Hai nút ở màn “Xem lại bài làm”, nhãn trên câu (Phiên 9ob) và các ý khác của flow này trong bài ôn: `docs/TINH-NANG.md`, mục 9.4.
 
-### 4.16 `number inputs on phones: fraction button, negative and decimal fill answers (L29–L31)`
+### 4.20 `IOE 6 School Level track (9s, L44)`
+
+Điều bước này kiểm tra (trang đầu, một đề School Level trong khung ở 360px, audit chữ đè ở mọi câu mới, hero theo ngày, ảnh `docs/hinh-9s/`): `docs/TINH-NANG.md`, mục 9.4 (Phiên 9s, L44).
+
+### 4.21 `IOE National Level track (N-IOE)`
+
+Điều bước này kiểm tra (trang đầu ngày 8/3/2027, một đề National Level của mỗi bài trong khung ở 360px, audit chữ đè ở mọi câu mới và câu đổi chữ của Phiên DS-IOE, ảnh `docs/hinh-n-ioe/`): `docs/TINH-NANG.md`, mục 9.4 (Phiên N-IOE, DS-IOE).
+
+### 4.22 `numbers with thousands spaces stay on one line (360px)`
+
+Bước này kiểm tra không số nào nằm trên hai dòng: `docs/TINH-NANG.md`, mục 9.22 (Quy ước code, ý về `nbNum()`).
+
+### 4.23 `number inputs on phones: fraction button, negative and decimal fill answers (L29–L31)`
 
 Bước L29–L31 (Phiên 9h, ô nhập số trên điện thoại): đề thử thêm vào danh mục lúc chạy (như pool giả ở bước K3), Na làm ôn luyện ở 360px sáng/tối: câu trả lời bằng số có nút “/” ngay sau nút ±, đáp án “2/3” gõ 2, bấm “/”, gõ 3 là đúng, gõ “0,67” thì sai và phần đáp án hiện “2/3”, “-3/4” gõ bằng nút ± và “/”; câu điền đáp án “-7” không có `inputmode="decimal"` mà có dòng nhắc số âm, “1.25” đúng với đáp án “1,25”, “2.5” sai với “25”; `Quiz.TXT.en` đủ khóa như cột `vi`; ảnh ở `tests/screenshots/l29-l31/` (bản ghép `<tên>.jpg`: `so-phan-so`, `so-phan-so-sai`, `dien-so-am`; chép sang `docs/hinh-9h/`).
 
-### 4.17 `scored exams: points per question and part (K5)`
+### 4.24 `scored exams: points per question and part (K5)`
 
 Bước K5 (“scored exams: points per question and part”, đề tính điểm; 360px sáng/tối): hai đề thử thêm vào danh mục lúc chạy bằng `addInitScript` (mỗi lần tải trang, `data/banks/index.js` gán `ONTAP_SEED_BANKS` thì thêm hai đề), Na làm như thi đề Toán cấu trúc tốt nghiệp (câu đúng thứ tự Phần I → II → III, phương án được xáo; “6,35/10”, bảng theo phần 2,5/3 · 1,85/4 · 2/3, câu cần xem lại ghi “được 0,5/1 điểm”, lưu 6,35/10), “Làm lại cả đề” ra “9,75/10” và “Hơn lần trước 3,4 điểm (6,35/10)”, tab Kết quả và thẻ “Lần trước” ghi “điểm”; đề Tiếng Anh “Tiếng Anh 6 · Thi thử vào 10 · Đề 1” (tên chuẩn để màn làm đề dịch được: “English 6 · Mock Entrance Exam · Test 1”) có một câu tự luận 2 điểm (`auto: 8`, Phiên 9u): điểm phần app chấm “6.35/8”, dòng tổng tạm tính “6.35/10”, tự chấm đủ thì phần Writing 2/2 và tổng 8.35/10, thẻ “Last time: 6.35/8 points on the auto-marked part”, không có chữ cái tiếng Việt; báo cáo tuần của Na (Bố Minh xem) ghi “2 đề tính điểm: 16,1/20 điểm”, “1 đề tính điểm: 6,35/8 điểm phần app chấm”; ảnh ở `tests/screenshots/k5/` (bản ghép `<tên>.jpg`: `ket-qua`, `lam-lai`, `mo-de`, `tieng-anh`, `bao-cao`; chép sang `docs/hinh-k5/`).
 
-### 4.18 `scored exams with writing: app-marked part (L47)`
+### 4.25 `scored exams with writing: app-marked part (L47)`
 
 Bước L47 (“scored exams with writing: app-marked part (L47)”, Phiên 9u; 360px sáng/tối): học sinh lớp 9 An (thêm vào kho trong bước, con của Mẹ Bin) ôn luyện “Ngữ văn 9 · Thi thử vào 10 · Đề 1” ngày 6/11/2026, đúng hết phần app chấm, tự chấm đủ: “Xuất sắc, An!”, “3/3”, lưu 3/10; Hôm nay, nhóm thi vào 10 ở tab Bài ôn, thẻ kì thi “đúng 100%”, tab Kết quả điểm trung bình 10 và dòng “phần app chấm” · “3/3 điểm”, thẻ “Lần trước: 3/3 điểm phần app chấm”, thẻ của con ở khu phụ huynh 10, báo cáo tuần điểm TB 10, tin nhắn “Điểm trung bình 10/10”, không có gợi ý “mới đúng”; làm lại ngày 7/11, sai một câu 0,5 điểm: “2,5/3”, “Kém lần trước 0,5 điểm phần app chấm (3/3)”, các chỗ đó theo 2,5/3 (83%, 8,25; điểm trung bình hai lần 9,25); `audit` mọi màn; ảnh ở `tests/screenshots/l47/` (bản ghép `<tên>.jpg`), ảnh trước, sau ở `docs/hinh-9u/`.
 
 Kiểm thử: bước L47 của `tests/e2e.js` (“scored exams with writing: app-marked part (L47)”; học sinh lớp 9 An thêm trong bước, “Ngữ văn 9 · Thi thử vào 10 · Đề 1” ở 6/11 và 7/11/2026; ảnh `tests/screenshots/l47/`, ảnh trước, sau ở `docs/hinh-9u/`), đề thử Tiếng Anh của bước K5 (`auto: 8`: “6.35/8”), kiểm tra “L47” của `tests/supabase/cloud-e2e.js`.
 
-### 4.19 `figures: no overlapping labels (L48)`
+### 4.26 `figures: no overlapping labels (L48)`
 
 Bước “figures: no overlapping labels (L48)” (Phiên 9v): mọi hình SVG của đề có sẵn (câu của đề cố định, câu riêng của đề ngẫu nhiên, hình của đoạn đọc; nạp bằng `tests/nap-de.js`, hình giống nhau đo một lần; khoảng 620 hình, dưới một giây) vẽ qua `Quiz.svg` trong ô `.qfig` rộng như ở 360px, sau `document.fonts.ready`; mỗi kí tự một hộp nét chữ (`getStartPositionOfChar` của thẻ cộng `actualBoundingBox…` của `measureText` trên canvas, với font đã tính của thẻ hay `<tspan>` chứa kí tự; toạ độ đổi qua `getScreenCTM`, nên chữ trong `<g transform>`, chữ xoay cũng đo được; kí tự ngoài BMP như chữ toán nghiêng 𝑥 đo cả cặp); báo hai thẻ `<text>` khác nhau có nét chồng nhau quá 0,5 đơn vị vẽ theo cả hai chiều, chấm tròn bán kính ≤ 6 đè lên nét chữ, và “chưa đo được” khi `Quiz.svg` không vẽ được hình hay chữ của thẻ khác số kí tự trình duyệt đếm; mỗi lỗi ghi mã đề, số câu (“câu riêng N” của đề ngẫu nhiên, “đoạn <mã>”) và chữ của hai nhãn.
 
@@ -389,57 +415,65 @@ Bước “figures: no overlapping labels (L48)” (Phiên 9v): mọi hình SVG 
 
 Bước tự thử với hai hình trước khi sửa của L48 (`FIG_CU`), một hình cố ý vẽ sai (hai số chồng nhau, chấm tròn trên số, chữ trong `<g transform>`, chữ có `<tspan>`, chữ xoay, chữ toán nghiêng), một hình đúng và một chuỗi không phải hình (phải báo “chưa đo được”).
 
-### 4.20 `bank management: exam picker, bank list, import preview (UX7, X11–X13)`
+### 4.27 `partition fills: contrast at least 3:1 (L51)`
+
+Bước này đo màu đã vẽ ở ba hình mẫu lớp 4, 5, 6 (ảnh trước, sau ở `docs/hinh-9y/`): `docs/TINH-NANG.md`, mục 9.22 (Quy ước code, ý “Phần tô của hình chia phần”).
+
+### 4.28 `bank management: exam picker, bank list, import preview (UX7, X11–X13)`
 
 Quản lí đề (UX7): bước UX7 của tests/e2e.js (Sửa kì thi lớp 4 chỉ hiện đề lớp 4, tìm “toan de 2”, hiện cả khối khác, lưu giữ lựa chọn khác khối; tab Ngân hàng đề theo khối, ô tìm; nhập đề có lỗi: thẻ viền đỏ, hỏi lại khi lưu, gắn vào kì thi; đề mẫu xem trước đủ dạng câu) và kiểm tra “UX7” của cloud-e2e.js (cùng các ý, kết quả lên máy chủ giả).
 
 Kiểm thử: bước UX7 của `tests/e2e.js` (ảnh `tests/screenshots/ux7/`, bản ghép `<tên>.jpg`, chép sang `docs/hinh-ux7/`), kiểm tra “UX7” của `tests/supabase/cloud-e2e.js` (ảnh `c5c`–`c5h`), `tests/kiem-tra-de.js` tự thử `issues`. Phiên UX7b (X33–X36) thêm vào cả hai: dòng `#ePickScope` hiện và đổi chữ (cuối kì I lớp 4: hiện cả khối khác, bỏ ô Lớp 4), ô Phạm vi kiến thức Lưu giữ nguyên; thứ tự nhóm (giữa kì I lớp 4: Bài ôn dạng trang, Toán, Tiếng Việt đứng đầu; tab Lớp 4, Lớp 6 theo lịch thi) và thứ tự đề (Toán 4: ba đề giữa kì I trước bốn đề cuối kì I, đề ngẫu nhiên đầu mỗi kì; đề tự soạn cuối; hiện cả lớp 6 thì mục lớp 4 trước); thẻ môn cách nhau 10px; dòng tóm tắt không có “0 đúng/sai”; `audit` không báo id trùng.
 
-### 4.21 `send weekly report: message preview, share sheet, copy, print (UX8, X14)`
+### 4.29 `send weekly report: message preview, share sheet, copy, print (UX8, X14)`
 
 Gửi báo cáo tuần (UX8): bước UX8 của tests/e2e.js và kiểm tra “UX8” của cloud-e2e.js (xem “Gửi báo cáo tuần”).
 
 Kiểm thử: bước UX8 của `tests/e2e.js` (Mẹ Bin, 360px sáng/tối, ngày giả lập 21/10/2026 18:00: tin nhắn khớp các ô số liệu, chủ đề, kì thi, gợi ý; Bin có chủ đề hay sai có dấu phẩy, gợi ý “Ôn lại chủ đề hay sai: …” giống dòng của tin nhắn (X37); `navigator.share` giả lập bằng `page.addInitScript`: truyền đúng `{ title, text }`, hủy thì không chép, lỗi khác thì chép; không có `navigator.share` thì clipboard có tin nhắn; chép không được thì chữ được chọn sẵn; bản in không có khối; ảnh `tests/screenshots/ux8/`: `bao-cao-tin-nhan`, `da-chep`, `ban-in`, chép sang `docs/hinh-ux8/`; Phiên UX12 chạy trong bước này, Bin thêm một bài 3 tuần trước: ‹ lùi từng tuần tới tuần có kết quả đầu tiên, mỗi tuần số bài, số ngày, tin nhắn, số bài từng ngày, điểm theo môn, chủ đề hay sai, bài đã làm đúng tuần đó, “Tuần trước:” là tuần ngay trước, kì thi và gợi ý như ở tuần này, tuần không có bài ghi “trong tuần này”, ‹ tắt ở tuần đầu, › tắt ở tuần này, focus ở lại nút vừa bấm hoặc sang nút kia, `?tuan=1` mở thẳng tuần trước, `?tuan=9` về tuần đầu, bản in tuần trước không có nút ‹ ›; thẻ của Na ghi “0 bài” một dòng (X44); “Gửi báo cáo” | “Chép tin nhắn” ở 390px, `#qzYes` | `#qzNo` của hộp hỏi lại của đề và `#leaveYes` | `#leaveNo` của hộp hỏi khi rời bài ôn đang làm (cuối bước, Bin làm một đề của bài ôn l4) cùng hàng, cao bằng nhau (X45); ảnh `tests/screenshots/ux12/`: `tuan-truoc`, `hai-nut-390`, `hop-hoi-lai`, `roi-bai-on`, `the-cua-con`, chép sang `docs/hinh-ux12/`) và kiểm tra “UX8” của `tests/supabase/cloud-e2e.js` (tin nhắn không có tên đăng nhập, tên gia đình; ngay dưới đầu trang là thanh chọn tuần rồi khối tin nhắn, khoảng ngày của tin nhắn đọc ở thanh chọn tuần; ảnh `c12-bao-cao-tuan`), “UX7b (X37)” (thêm thẳng vào máy chủ giả một kết quả có chủ đề có dấu phẩy, so gợi ý với dòng của tin nhắn, rồi bỏ đi).
 
-### 4.22 `progress of an exam, done buttons, badge goals, done today, empty pages (UX9, X38–X40)`
+### 4.30 `progress of an exam, done buttons, badge goals, done today, empty pages (UX9, X38–X40)`
 
 Kiểm thử: bước UX9 của `tests/e2e.js` (ngày giả lập 27/10/2026 17:30, 360px sáng/tối; Bin làm 3/5 bài của giữa kì I: nhóm kì thi, thẻ kì thi ở Lịch thi cùng “3/5”, cùng tỉ lệ đúng (Phiên UX22 bỏ thẻ kì thi, link ở Hôm nay); nút đề đã làm có `done`, `.done-ic`, cao 44px, `aria-label`; đề chưa làm, Ôn tổng hợp là `btn sm`, bài ôn dạng trang là bài chính nên là nút vàng duy nhất; hàng Toán đọc từ trái sang, nút đầu căn trái dưới tên môn; huy hiệu “3/5 bài”, “2/3 ngày”, làm thêm hai bài thì “Hết bài ôn” sang hàng “Đã có”; thẻ `done` và số bài, số phút, sang hôm sau về như cũ; dòng bài ôn dạng trang đã làm “… ôn câu sai. Đã ôn 1 lần.” ở tab Bài ôn, chi tiết kì thi của Bin và “Bài ôn của Bin”, mô tả không có dấu chấm cuối (sửa tạm trong trang) thì thêm dấu chấm, không màn nào của bước có “. ·” (Phiên UX9b, X49); Na chưa có bài: tab Kết quả có `.empty`, không có `.stats`; Lịch thi không còn kì thi; khối chưa có đề (route trả danh mục đề, bài ôn dạng trang rỗng; context `serviceWorkers: "block"`) ở Hôm nay, Bài ôn, “Bài ôn của Bin” của phụ huynh và quản trị; `audit` mọi màn; ảnh `tests/screenshots/ux9/`, bản ghép `<tên>.jpg`, chép sang `docs/hinh-ux9/`; ảnh trước, sau của Phiên UX9b: `docs/hinh-ux9/ux9b-truoc-sau.jpg`); các bước UX1, 9e, K3, L18 đọc chữ mới; `tests/supabase/cloud-e2e.js` vẫn in OK.
 
-### 4.23 `answer sheet on the result screen (UX11, X42)`
+### 4.31 `answer sheet on the result screen (UX11, X42)`
 
 Kiểm thử: bước UX11 (“answer sheet on the result screen”) của `tests/e2e.js` (ngày giả lập 27/10/2026 18:00, 360px sáng/tối; Bin ôn luyện Toán 4 · Cuối kì I · Đề 3, sai câu 5, 10, 18, 23: 5 hàng × 5 ô cao 48px, số ô ✗ bằng số câu ở `#qzReview`, chạm ô câu 18 thì câu đó mở, trong khung nhìn, có focus; chạm ô câu 7 thì `#qzPeek` ghi “Câu 7 · Đúng” và đúng câu hỏi của câu 7, ô khác thay nội dung, chạm lại và “Đóng” thì đóng; lượt ôn lại câu sai 4 ô ✓; làm như thi 2 câu rồi nộp: 23 ô ✗; `audit`; ảnh `tests/screenshots/ux11/`, bản ghép `<tên>.jpg`, chép sang `docs/hinh-ux11/`), bước TA2 (bảng và hộp bằng tiếng Anh, không có chữ cái tiếng Việt), bước K5 (đề tính điểm có bảng; đề Tiếng Anh có một ô tự luận, “Self-marked (1)”); hàm đọc bảng dùng chung `sheetOf(pg)` của `tests/e2e.js`.
 
-### 4.24 `phone calendar: exam file, study reminder (UX10, X41)`
+### 4.32 `phone calendar: exam file, study reminder (UX10, X41)`
 
 Kiểm thử: bước UX10 của `tests/e2e.js` (ngày giả lập 28/10/2026 18:00, 360px sáng/tối; Mẹ Bin: thẻ dưới mục Các con, bảy nút một hàng, mặc định T2–T6, 19:30; bỏ T6, chọn T7, giờ 20:15 rồi tải file bằng `page.waitForEvent("download")`: UTF-8, CRLF, dòng ≤ 75 byte, `VTIMEZONE`, `DTSTART` hôm nay 20:15, `RRULE` BYDAY=MO,TU,WE,TH,SA, 20 phút, nhắc đúng giờ; chỉ CN thì bắt đầu chủ nhật 1/11; không chọn ngày thì không tải; tải lại trang giữ lựa chọn; lịch thi tab Lớp 4, Kiểm tra giữa học kì I: `#evIcs` sau dòng ngày, file đúng ngày đầu, ngày cuối cộng 1, `UID`, tên “· Lớp 4 (dự kiến)”, môn, phạm vi, địa chỉ app, hai lời nhắc; giả lập `navigator.canShare`, `navigator.share`, `(any-pointer: coarse)`: chia sẻ đúng file, hủy thì không tải không báo, lỗi khác thì tải; tab “Cả hai khối”, IOE cấp trường: hai nút, nút lớp 6 cho `UID` `ioe-truong-l6@onup`; tab Lớp 6 một nút; mốc năm học không có nút; Bin thấy nút ở chi tiết kì thi mở từ tab Lịch thi (Phiên UX22 bỏ thẻ kì thi ở Hôm nay); `audit`; ảnh `tests/screenshots/ux10/`, bản ghép `<tên>.jpg`, chép sang `docs/hinh-ux10/`) và kiểm tra “UX10” của `tests/supabase/cloud-e2e.js` (thẻ ở Cài đặt ngay sau Hồ sơ con, tải file nhắc ôn mặc định T2–T6 19:30; ảnh `c5-cai-dat`).
 
-### 4.25 `practice 10 questions of a weak topic (UX14, X48)`
+### 4.33 `practice 10 questions of a weak topic (UX14, X48)`
 
 Kiểm thử: bước UX14 của `tests/e2e.js` (“practice 10 questions of a weak topic”; ngày giả lập 28/10/2026 19:00, 360px sáng/tối; kết quả của Bin ghi thẳng vào kho: ba dòng ở tab Kết quả, dòng đề tự soạn không có nút, “Thêm: …”, Hôm nay không có lối vào “Ôn chủ đề” (UX22); bấm “Ôn 10 câu” ở “Góc và đo góc”: màn mở đề, 10 câu đều của chủ đề đó, của đề Toán lớp 4, kết quả 8/10 lưu đúng `refId`, “Làm đề khác” có lại hai câu vừa sai và có câu chưa làm; nhãn “Đã ôn lại ✓”; nút ở `#qzTopics` của đề thường; chủ đề không có, sai khối, mã môn không có; phụ huynh xem thử; `audit`; ảnh `tests/screenshots/ux14/`, bản ghép `<tên>.jpg`, chép sang `docs/hinh-ux14/`), bước TA2 (nút “Practise 10 questions: …” ở màn kết quả, đề “Ôn chủ đề” tiếng Anh từ màn mở đề đến hết màn kết quả không có chữ cái tiếng Việt, kết quả lưu đúng `refId`; ảnh `ta2-on-chu-de`, `ta2-ket-qua-on-chu-de`), các bước K3, UX1 đọc dòng chủ đề hay sai; `tests/kiem-tra-de.js` (mọi chủ đề có ít nhất 10 câu rút thử như app, `topicBank` với kho giả, `Quiz.title`).
 
-### 4.26 `today's main pick by exam subjects, IOE row last, subject order (UX15, X50, X51)`
+### 4.34 `today's main pick by exam subjects, IOE row last, subject order (UX15, X50, X51)`
 
 Kiểm thử: bước UX15 của `tests/e2e.js` (“today's main pick by exam subjects, IOE row last…”; Na 1/11, 14/11, 20/12/2026, Bin 20/12; nhóm cuối kì I lớp 6 ở tab Bài ôn, chi tiết kì thi, “Bài ôn của Na”; thẻ của Na, báo cáo tuần; ảnh `tests/screenshots/ux15/`, ảnh trước/sau ở `docs/hinh-ux15/`), bước UX1 (Bin 1/12/2026: bài chính “Toán · Bài ôn 2”, tức Toán 4 · Cuối kì I · Đề 2).
 
-### 4.27 `today: choose a mode on the card, review names (UX22)`
+### 4.35 `today: choose a mode on the card, review names (UX22)`
 
 Kiểm thử Phiên UX22: bước “today: choose a mode on the card, review names (UX22)” của `tests/e2e.js` (360 × 740 sáng/tối, ngày giả lập 25/11/2026 21:40; học sinh lớp 9 An thêm vào kho trong bước, đã làm 5 đề giữa kì I: thẻ “Toán · Bài ôn 1”, hai nút, đúng 2 hành động, không có `#todayGo`, `#toBanks`, `#todayMore`, `#recent`, `#nextEvent`; chạm Ôn luyện là “Câu 1/25” ở `#/quiz/toan9-ck1-de1`, tải lại là màn mở đề, Back hỏi rời bài rồi về Hôm nay; Làm như thi “Còn 45:00”; làm xong Bài ôn 1 thì thẻ đã ôn, Ôn luyện là nút viền, Làm như thi là link, “Làm thêm: Toán · Bài ôn 2 (bạn chưa làm).”; tab Bài ôn một nút vàng đúng bài chính, “Bài ôn 1, 2”, “Ôn tổng hợp” cuối hàng, nút căn trái ở 360px, nhóm thi vào 10 “đề thi thử”, “Đề 1”; chi tiết kì thi của An; tab Kết quả, báo cáo tuần của Mẹ Bin ghi tên mới, “Bài ôn N” không tách dòng; 20/5/2027 một nút “Mở đề thi thử”; `audit` mọi màn; ảnh `tests/screenshots/ux22/`, bản ghép `<tên>.jpg`, chép sang `docs/hinh-ux22/`) và kiểm tra “UX1”, “L18”, “K3”, “TA2”, “UX7b (X34)” của `tests/supabase/cloud-e2e.js` (tên hiển thị, thứ tự). `tests/kiem-tra-de.js` kiểm tra tên hiển thị của mọi đề có sẵn.
 
-### 4.28 `offline (L13)`
+### 4.36 `offline (L13)`
 
 Script có bước mất mạng: tải trang một lần, mở một đề, tắt mạng, tải lại vẫn đăng nhập và làm được bài ôn trong khung, đề đã mở (kể cả đề chép từ đệm của bản trước), đề chưa mở thì báo chưa tải được.
 
-Bước này còn kiểm tra quy tắc chữ (Lora chỉ ở `.brand`, `.score`; không `tabular-nums`; h1–h3 1.35; không 800) và bản lưu trên máy không tải gì từ host khác: CLAUDE.md, “Quy ước code”.
+Bước này còn kiểm tra quy tắc chữ (Lora chỉ ở `.brand`, `.score`; không `tabular-nums`; h1–h3 1.35; không 800): CLAUDE.md, “Quy ước code”.
 
-### 4.29 `service worker: one set of files per page load (L19)`
+### 4.37 `service worker: one set of files per page load (L19)`
 
 Bước service worker (L19): mọi file chậm 6 giây thì trang vẫn hiện trước 6 giây; `js/app.js` chậm và `js/store.js` mới thì không chạy lẫn bản cũ với bản mới.
 
-### 4.30 Chỉ ở bản đám mây: kiểm tra “UX3:”, “UX3b (X17–X20)” của `tests/supabase/cloud-e2e.js`
+### 4.38 `admin page in local mode`
+
+Trang admin khi `js/config.js` để trống chỉ báo “chỉ dùng với bản đám mây” (`#noCloud`), không tải gì từ mạng: `docs/TINH-NANG.md`, mục 9.21.
+
+### 4.39 Chỉ ở bản đám mây: kiểm tra “UX3:”, “UX3b (X17–X20)” của `tests/supabase/cloud-e2e.js`
 
 Kiểm thử: `tests/supabase/store-test.mjs` (mục 6: đặt, kiểm tra, bỏ mã; máy không ghi nhớ không đặt được; mục 10: `checkPassword` đặt ô CAPTCHA vào chỗ được truyền) và các kiểm tra “UX3:”, “UX3b (X17–X20)” của `tests/supabase/cloud-e2e.js` (ảnh `c3-khu-phu-huynh-moi`, `c6-cac-con` (Bin có mã, Na chưa), `c6d-dat-ma-pin-tu-the`, `c6e-du-ma-pin`, `c10b-ma-mo-nhanh`, `c13b-ma-mo-nhanh`, `c13c-dang-xuat`, `c13d-dang-xuat-sai`, `c14b-tai-khoan-chua-ghi-nho`; chép sang `docs/hinh-ux3/`).
 
-### 4.31 Chỉ ở bản đám mây: kiểm tra “UX6” của `tests/supabase/cloud-e2e.js`
+### 4.40 Chỉ ở bản đám mây: kiểm tra “UX6” của `tests/supabase/cloud-e2e.js`
 
 Bài đã gửi chưa (UX6) chỉ ở bản đám mây: kiểm tra “UX6” của cloud-e2e.js (máy chủ giả `be.failResults`, ảnh `c8h`–`c8k`, `c11b`); tests/e2e.js chỉ kiểm tra bản lưu trên máy không có dòng mới.
 
