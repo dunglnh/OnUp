@@ -831,6 +831,8 @@ const RIENG = {
     const gia = fr(docPhai(q5b, /chi phí ([\d ]+) đồng cho mỗi mét vuông/)[1]), tien = S5 * toNum(gia), nghin = toNum(fr(lamTron(tien / 1000, 0))) * 1000;
     co(q5b, `${fmt(kS)}π · ${fmt(gia)} = ${fmt(mul(kS, gia))}π ≈ ${lamTron(tien, 0)} (đồng)`, `${tron(S5, 2)} m² thì được ${fmt(mul(fr(tron(S5, 2)), gia))} đồng`);
     assert.equal(dapSo(q5b), `khoảng ${fmt(F(nghin))} đồng`, ten.get(q5b) + ": đáp số");
+    // thang chấm nhận cả hai cách làm tròn (Phiên 9z): giữ kπ đến bước cuối, hoặc dùng diện tích đã làm tròn đến hàng phần trăm ở câu a
+    coThang(q5b, `khoảng ${fmt(F(nghin))} đồng`, `${fmt(mul(fr(tron(S5, 2)), gia))} đồng (dùng diện tích đã làm tròn ${tron(S5, 2)} m² ở câu a)`);
     /* Bài 6: pha dung dịch nước muối: hệ phương trình */
     const q6 = cau(b, 6), s6 = docPhai(q6, /loại I có nồng độ muối (\d+)%, loại II có nồng độ muối (\d+)% .* pha được (\d+) g dung dịch nước muối có nồng độ (\d+)%/);
     const [c1, c2, m6, c6] = s6.slice(1).map(Number), y6 = div(F((c6 - c1) * m6), F(c2 - c1)), x6 = sub(F(m6), y6);
