@@ -374,7 +374,7 @@ async function run(browser, scheme) {
   await p.click(`#ePick input[value="${toan6}"]`); await p.click("#eForm [type=submit]"); await p.waitForSelector("#parentCal");
   c.ux7.restored = await until(p, () => (evRow("ck1-l4").banks || []).slice().sort().join() === ck0);
   /* X34 (Phiên UX7b): nhóm môn theo lịch thi. Sửa kì thi giữa kì I lớp 4 (môn thi Toán, Tiếng Việt): Bài ôn dạng trang, Toán, Tiếng Việt
-     đứng đầu, rồi các môn khác theo lịch thi lớp 4; nhóm Toán: đề giữa kì I trước đề cuối kì I, đề ngẫu nhiên đầu mỗi kì. */
+     đứng đầu, rồi các môn khác theo lịch thi lớp 4; nhóm Toán: đề giữa kì I trước đề cuối kì I, Ôn tổng hợp (đề ngẫu nhiên) cuối mỗi kì (UX22). */
   await p.goto(BASE + "/#/admin/event/gk1-l4"); await p.waitForSelector("#ePick");
   c.ux7.order = await p.evaluate(() => { const g = [...document.querySelectorAll("#ePick .pk-g")].filter((d) => !d.hidden);
     return { subj: Store.event("gk1-l4").subjects.join(), groups: g.map((d) => d.querySelector("b").textContent).join(),
@@ -429,9 +429,10 @@ async function run(browser, scheme) {
   c.ux4.errOrder = await p.evaluate(() => { const top = (s) => document.querySelector(s).getBoundingClientRect().top; return top("#pinDots") < top("#pinErr") && top("#pinErr") < top("#pinShow") && top("#pinShow") < top(".pad"); }); // X3: lỗi ngay dưới hàng chấm
   await pad(p, "1357"); // PIN 4 số: gõ đủ là vào
   await p.waitForSelector("text=Chào Bin");
-  // UX1: trang "Hôm nay" của con với thanh tab dưới (4 tab, tab Hôm nay đang mở), thẻ gợi ý có nút Bắt đầu, chuỗi ngày, huy hiệu; thanh trên không có nút Lịch thi
+  // UX1: trang "Hôm nay" của con với thanh tab dưới (4 tab, tab Hôm nay đang mở), thẻ bài chính có nút chọn cách làm (UX22: Ôn luyện; bài ôn
+  // dạng trang, đề thi thử: một nút), chuỗi ngày, huy hiệu; thanh trên không có nút Lịch thi
   c.ux1 = await p.evaluate(() => ({ tabs: [...document.querySelectorAll("#tabbar a")].map((a) => a.textContent + (a.getAttribute("aria-current") ? "*" : "")).join(), tabH: [...document.querySelectorAll("#tabbar a")].every((a) => a.getBoundingClientRect().height >= 44 && a.getBoundingClientRect().bottom <= innerHeight),
-    today: !!document.querySelector("#today #todayGo") && !!document.querySelector("#streak .week") && !!document.querySelector("#badges"), cal: !!document.querySelector(".who a[href='#/calendar']"), tabbed: document.body.classList.contains("tabbed") }));
+    today: !!document.querySelector("#today :is(#todayGo, #todayPractice)") && !!document.querySelector("#streak .week") && !!document.querySelector("#badges") && !document.querySelector("#recent, #nextEvent, #todayMore, #toBanks"), cal: !!document.querySelector(".who a[href='#/calendar']"), tabbed: document.body.classList.contains("tabbed") }));
   await shot(p, "c8-trang-con");
   await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await wait(p);
   c.ux1.quizTabs = !(await p.$("#tabbar")); // màn đề không có thanh tab
@@ -510,11 +511,11 @@ async function run(browser, scheme) {
   c.l16.runAsk = await leaveFrame();
   if (c.l16.runAsk) { c.l16.text = await text(p, "#leaveBox"); await p.click("#leaveYes"); await wait(p); }
   c.l16.same = (await kidRes()) === nKid;
-  // L18: nút đề ghi số đề lấy từ tên đề; K3: đề ngẫu nhiên đứng trước (tab Bài ôn, UX1)
+  // L18: nút đề ghi "Bài ôn N" lấy từ tên đề; K3: Ôn tổng hợp (đề ngẫu nhiên) cuối hàng (tab Bài ôn, UX1; tên hiển thị và thứ tự của UX22)
   await p.goto(BASE + "/#/practice"); await p.waitForSelector("#allPractice");
   c.l18 = await p.evaluate(() => Object.fromEntries([...document.querySelectorAll("#allPractice details.grp")].map((g) => {
     const r = [...g.querySelectorAll(".subj")].find((x) => x.querySelector("b").textContent === "Toán");
-    return [g.querySelector("summary b").textContent, r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent.replace(/^✓/, "")).join() : ""]; // ✓: đề đã làm (UX9)
+    return [g.querySelector("summary b").textContent, r ? [...r.querySelectorAll(".des a")].map((a) => a.textContent.replace(/^✓/, "").replace(/\s+/g, " ")).join() : ""]; // ✓: đề đã làm (UX9); "Bài ôn 1" có khoảng trắng không ngắt
   }).filter(([, v]) => v)));
   // K3: con làm đề ngẫu nhiên (kho gộp từ 3 đề Toán 4 cuối kì I và 31 câu riêng của ngân hàng, Phiên N1; rút 25 câu theo ma trận):
   // kết quả lên máy chủ với ref_id là mã pool. Kho có đủ các dạng câu: mỗi câu trả lời đại cho đủ để bấm Kiểm tra; câu tự luận
@@ -819,7 +820,7 @@ async function run(browser, scheme) {
   c.noHomeScreen = !(await p2.$("#homeScreen")); // hướng dẫn Màn hình chính (L17) chỉ ở bản lưu trên máy
   c.ux2.data = (await text(p2, "#view .linkbtn[data-go]")) + " | " + (await p2.$$eval("#view h2", (h) => h.pop().textContent)) + " | " + (await tabsOf(p2)) + " | " + !(await p2.$("#dSchool")) + " | " + !!(await p2.$("#dExport"));
   // R1: tab Dữ liệu của khu phụ huynh liệt kê câu đã báo kèm trạng thái, không có nút chép (đã lên máy chủ)
-  c.r1.data = await p2.evaluate(() => { const b = document.querySelector("#reportsBox"); return { n: b.querySelectorAll(".item").length, head: b.querySelector("h3").textContent, chips: [...b.querySelectorAll(".chip")].map((x) => x.textContent).join(), copy: !!b.querySelector("#copyReports"), who: /Bin/.test(b.textContent) && /Toán 4 · Cuối kì I · Đề 1/.test(b.textContent.replace(/\s+/g, " ")) }; });
+  c.r1.data = await p2.evaluate(() => { const b = document.querySelector("#reportsBox"); return { n: b.querySelectorAll(".item").length, head: b.querySelector("h3").textContent, chips: [...b.querySelectorAll(".chip")].map((x) => x.textContent).join(), copy: !!b.querySelector("#copyReports"), who: /Bin/.test(b.textContent) && /Toán 4 · Cuối kì I · Bài ôn 1/.test(b.textContent.replace(/\s+/g, " ")) }; }); // tên hiển thị (UX22)
   await p2.click("#dMigrate"); await p2.waitForSelector("#migRes .fb");
   c.migrate = await text(p2, "#migRes");
   await shot(p2, "c14-du-lieu");
@@ -1113,18 +1114,18 @@ async function run(browser, scheme) {
     "kết quả làm bài lên máy chủ": c.result,
     "L15: con vào “Làm như thi”, rời khi chưa trả lời: hỏi “Thoát đề?”, không lưu điểm": /Thoát đề\?/.test(c.l15.ask) && c.l15.hash === "#/home" && c.l15.same,
     "L16: bài ôn trong khung chỉ hỏi khi đang làm một lượt (#endBtn); IOE là bài Tiếng Anh nên hộp hỏi bằng tiếng Anh (TA2)": !c.l16.idleAsk && c.l16.runAsk && /Leave this practice\?/.test(c.l16.text) && c.l16.same,
-    "L18: nút đề ghi số đề theo tên đề; K3: đề ngẫu nhiên đứng trước": c.l18["Kiểm tra cuối học kì I"] === "Đề ngẫu nhiên,Đề 1,Đề 2,Đề 3" && c.l18["Kiểm tra giữa học kì II"] === "Đề ngẫu nhiên,Đề 1,Đề 2",
-    "K3: đề ngẫu nhiên rút 25 câu từ kho 106 câu (31 câu riêng và 3 đề, N1), kết quả lên máy chủ với ref_id là mã pool, lịch sử câu trên máy (cả câu tự luận)": /25 câu rút từ kho 106 câu \(3 đề\)/.test(c.k3.intro) && c.k3.kho === "106/25/25"
+    "L18: nút đề ghi “Bài ôn N” theo tên đề; K3: Ôn tổng hợp (đề ngẫu nhiên) cuối hàng (UX22)": c.l18["Kiểm tra cuối học kì I"] === "Bài ôn 1,Bài ôn 2,Bài ôn 3,Ôn tổng hợp" && c.l18["Kiểm tra giữa học kì II"] === "Bài ôn 1,Bài ôn 2,Ôn tổng hợp",
+    "K3: đề ngẫu nhiên (Ôn tổng hợp) rút 25 câu từ kho 106 câu (31 câu riêng và 3 đề, N1), kết quả lên máy chủ với ref_id là mã pool, lịch sử câu trên máy (cả câu tự luận)": /Mỗi lần một bộ câu khác: 25 câu rút từ 106 câu của các bài ôn/.test(c.k3.intro) && c.k3.kho === "106/25/25"
       && c.k3.again === "Làm đề khác" && c.k3.server && c.k3.hist === 25,
     "R1: link “Báo câu này sai” (≥ 44px) dưới lời giải và ở từng câu cần xem lại; hộp lí do mở tại chỗ; phải chọn lí do; gửi xong cảm ơn, link thành “Đã báo câu này”":
       c.r1.link.h >= 44 && c.r1.link.text === "Báo câu này sai" && c.r1.link.inFb && c.r1.inline && /chọn một lí do/.test(c.r1.needReason) && /Cảm ơn bạn/.test(c.r1.done)
       && c.r1.after === "true Đã báo câu này" && c.r1.result,
     "R1: báo cáo lên máy chủ (hồ sơ con, gia đình, mã đề, mã câu, nội dung câu ≤ 500, ghi chú cắt 200, trạng thái mới); tab Dữ liệu liệt kê kèm trạng thái": c.r1.server && c.r1.row
       && c.r1.data.n === 2 && c.r1.data.head === "Câu bị báo sai (2)" && c.r1.data.chips === "Mới,Mới" && !c.r1.data.copy && c.r1.data.who,
-    "TA2: đề Tiếng Anh: màn mở đề, câu hỏi, hộp hỏi khi rời, màn kết quả, thông báo lưu điểm bằng tiếng Anh, không có chữ tiếng Việt; kết quả lên máy chủ vẫn ghi môn Tiếng Anh": c.ta2.h1 === "English 6 · Mid-term 1 · Test 1" && c.ta2.lang === "en"
+    "TA2: đề Tiếng Anh: màn mở đề, câu hỏi, hộp hỏi khi rời, màn kết quả, thông báo lưu điểm bằng tiếng Anh, không có chữ tiếng Việt; kết quả lên máy chủ vẫn ghi môn Tiếng Anh": c.ta2.h1 === "English 6 · Mid-term 1 · Review 1" && c.ta2.lang === "en"
       && [c.ta2.open, c.ta2.fb, c.ta2.leave, c.ta2.exit, c.ta2.result, c.ta2.toast].every((t) => t && !CHU_VIET.test(t)) && /Choose a mode ?PracticeSee the answer and guide right after each question\. No timer\. ?Test mode · 45 minutesTimed like at school, scored when you finish\./.test(c.ta2.open)
       && /Report a problem$/.test(c.ta2.fb) && c.ta2.next === "Next question" && c.ta2.leave === "End practice and leave?Your answers so far will be saved. End practiceKeep practising"
-      && c.ta2.exit === "End practice and see your results?End practiceKeep going" && /^English 6 · Mid-term 1 · Test 1 · Practice /.test(c.ta2.result) && /\/2 correctTime: /.test(c.ta2.result)
+      && c.ta2.exit === "End practice and see your results?End practiceKeep going" && /^English 6 · Mid-term 1 · Review 1 · Practice /.test(c.ta2.result) && /\/2 correctTime: /.test(c.ta2.result)
       && /Go to home$/.test(c.ta2.result) && c.ta2.toast === "Saved and sent to your parents." && c.ta2.saved === "Saved and sent to your parents." && c.ta2.server,
     "UX1: trang “Hôm nay” của con có thanh tab dưới (4 tab, ≥ 44px), thẻ gợi ý, chuỗi ngày, huy hiệu; thanh trên không có nút Lịch thi; màn đề không có thanh tab; một dòng nhãn trên câu":
       c.ux1.tabs === "Hôm nay*,Bài ôn,Lịch thi,Kết quả" && c.ux1.tabH && c.ux1.today && !c.ux1.cal && c.ux1.tabbed && c.ux1.quizTabs && /^Toán · \S/.test(c.ux1.label) && !c.ux1.label.includes("|"),
@@ -1178,8 +1179,8 @@ async function run(browser, scheme) {
     "UX7b (X33): Sửa kì thi cuối kì I lớp 4: dòng #ePickScope hiện, ghi “Đang hiện bài ôn và đề của Lớp 4…”, hiện cả khối khác thì “… của mọi khối.”, bỏ ô Lớp 4 thì “Chọn khối ở trên…”; ô Phạm vi kiến thức không bị ghi chữ vào, Lưu giữ nguyên; audit không báo id trùng":
       c.ux7.scope.join(" | ") === "Đang hiện bài ôn và đề của Lớp 4, khối của kì thi này. | Đang hiện bài ôn và đề của mọi khối. | Chọn khối ở trên để thấy bài ôn và đề của khối đó. | Đang hiện bài ôn và đề của Lớp 4, khối của kì thi này."
       && c.ux7.scopeIn === "INPUT|true|" && c.ux7.scopeSaved && !problems.some((x) => /id trùng/.test(x)),
-    "UX7b (X34): nhóm môn theo lịch thi: Sửa kì thi giữa kì I lớp 4 có Bài ôn dạng trang, Toán, Tiếng Việt đứng đầu; Đề tự soạn: Lớp 4 Toán, Tiếng Việt, Tiếng Anh, Lịch sử và Địa lí, Khoa học, Tin học và Công nghệ, Lớp 6 theo lịch lớp 6 (Thử nghiệm cuối); nhóm Toán lớp 4: ba đề giữa kì I trước bốn đề cuối kì I, đề ngẫu nhiên đầu mỗi kì": (() => {
-      const S4 = "Toán,Tiếng Việt,Tiếng Anh,Lịch sử và Địa lí,Khoa học,Tin học và Công nghệ", T4 = "Toán 4 · Giữa kì I · Đề ngẫu nhiên|Toán 4 · Giữa kì I · Đề 1|Toán 4 · Giữa kì I · Đề 2|Toán 4 · Cuối kì I · Đề ngẫu nhiên|Toán 4 · Cuối kì I · Đề 1|Toán 4 · Cuối kì I · Đề 2|Toán 4 · Cuối kì I · Đề 3";
+    "UX7b (X34): nhóm môn theo lịch thi: Sửa kì thi giữa kì I lớp 4 có Bài ôn dạng trang, Toán, Tiếng Việt đứng đầu; Đề tự soạn: Lớp 4 Toán, Tiếng Việt, Tiếng Anh, Lịch sử và Địa lí, Khoa học, Tin học và Công nghệ, Lớp 6 theo lịch lớp 6 (Thử nghiệm cuối); nhóm Toán lớp 4: ba đề giữa kì I trước bốn đề cuối kì I, Ôn tổng hợp cuối mỗi kì, tên hiển thị “Bài ôn N” (UX22)": (() => {
+      const S4 = "Toán,Tiếng Việt,Tiếng Anh,Lịch sử và Địa lí,Khoa học,Tin học và Công nghệ", T4 = "Toán 4 · Giữa kì I · Bài ôn 1|Toán 4 · Giữa kì I · Bài ôn 2|Toán 4 · Giữa kì I · Ôn tổng hợp|Toán 4 · Cuối kì I · Bài ôn 1|Toán 4 · Cuối kì I · Bài ôn 2|Toán 4 · Cuối kì I · Bài ôn 3|Toán 4 · Cuối kì I · Ôn tổng hợp";
       return c.ux7.order.subj === "Toán,Tiếng Việt" && c.ux7.order.groups === "Bài ôn dạng trang," + S4 && c.ux7.order.toan === T4
         && c.ux7.list.groups === S4 + " / Toán,Ngữ văn,Tiếng Anh,KHTN,Lịch sử và Địa lí,GDCD,Tin học,Công nghệ,Thử nghiệm" && c.ux7.list.toan4 === T4;
     })(),
