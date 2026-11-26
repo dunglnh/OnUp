@@ -14,7 +14,7 @@ File này giữ cách chạy UAT, kết quả đo, vấn đề (mã X52–X65, n
 | Phiên | Vấn đề | Persona được lợi nhiều nhất | Cỡ | Gợi ý |
 |---|---|---|---|---|
 | **UX22** · Hôm nay chọn cách làm ngay; gọi “Bài ôn 1, 2…” | X62–X65 (gộp cả X53) | mọi cấp, nhất là Bin | vừa | **chủ app chọn 25/11/2026**; làm trước các phiên dưới |
-| **UX17** · Màn mở đề gọn, nhãn câu giữ đúng chữ | X54, X55 | Linh, An; lớp 5 | nhỏ | **PO chọn 26/11/2026**; thứ 1, trước 15/12/2026 (sau Phiên D2, 9x): nhỏ, cả ba cấp được lợi |
+| **UX17** · Màn mở đề gọn, nhãn câu giữ đúng chữ | X54, X55 | Linh, An; lớp 5 | nhỏ | **PO chọn 26/11/2026**; thứ 1, trước 15/12/2026 (sau Phiên D1, 9x): nhỏ, cả ba cấp được lợi |
 | **UX16** · Làm dở, làm tiếp | X52, X61 (X53 gộp vào UX22) | Bin, Mẹ Hạnh; cả An, Linh | vừa | **PO chọn 26/11/2026**; thứ 2, trước 31/12/2026 |
 | **UX20** · Môn học của con, khối 10–12 | X59 | Linh, Mẹ Thu | lớn; lưu trên máy chủ (PO quyết 26/11/2026) | **PO chọn 26/11/2026**; thứ 3, trước 20/1/2027 (trước khi bật khối 10, 11; khối 12 đã bật khi Merge PR #334; `run.sh` chạy lại được từ PR #346) |
 | **UX18** · Đề thi thử làm ra giấy | X56 | An; Linh (Ngữ văn) | lớn | **PO chọn 26/11/2026**; thứ 4, trước 10/2/2027 (9u đã xong) |
