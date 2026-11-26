@@ -2321,6 +2321,20 @@ window.ONTAP_SEED_BANKS = [
       "Các đơn vị đo thời gian": [1, 1, 0], "Cộng, trừ số đo thời gian": [1, 0, 1], "Nhân, chia số đo thời gian với một số": [0, 1, 0],
       "Vận tốc": [1, 0, 1], "Quãng đường, thời gian của một chuyển động đều": [1, 1, 1], "Thu thập, phân loại, sắp xếp các số liệu": [1, 0, 0],
       "Biểu đồ hình quạt tròn": [1, 1, 1], "Tỉ số của số lần lặp lại một sự kiện": [1, 1, 0] } } },
+  /* Toán 5 · Kiểm tra giữa học kì I (Kết nối tri thức, Toán 5 tập một, Bài 1–18; Phiên N5-gk1-toan). Kì đã thi (2–13/11/2026),
+     đề dùng cho năm học 2027–2028. Kho câu = 50 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận
+     [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu trên 13 chủ đề: Chủ đề 1 (ôn tập và bổ sung) 13 câu, Chủ đề 2 (số
+     thập phân) 9, Chủ đề 3 (đơn vị đo diện tích) 3. Chữ chủ đề của bài cũng có ở kho cuối kì I giống kho đó. Mỗi ô (chủ đề, mức) rút
+     1 câu và có 4 câu: một câu ở mỗi đề cố định, hai câu riêng, nên học sinh đã làm một đề cố định vẫn gặp câu mới. Không có câu tự
+     luận. */
+  { id: "toan5-gk1-de1", title: "Toán 5 · Giữa kì I · Đề 1", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js" },
+  { id: "toan5-gk1-de2", title: "Toán 5 · Giữa kì I · Đề 2", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js" },
+  { id: "toan5-gk1-ngau-nhien", title: "Toán 5 · Giữa kì I · Đề ngẫu nhiên", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js",
+    pool: { from: ["toan5-gk1-de1", "toan5-gk1-de2"], matrix: {
+      "Ôn tập số tự nhiên": [1, 1, 0], "Ôn tập các phép tính với số tự nhiên": [0, 1, 1], "Ôn tập phân số": [1, 1, 0], "Phân số thập phân": [1, 0, 0],
+      "Ôn tập các phép tính với phân số": [0, 1, 1], "Cộng, trừ phân số": [0, 0, 1], "Hỗn số": [1, 1, 0], "Ôn tập hình học và đo lường": [1, 0, 0],
+      "Số thập phân": [1, 1, 0], "So sánh số thập phân": [1, 0, 1], "Viết số đo dưới dạng số thập phân": [1, 1, 1],
+      "Làm tròn số thập phân": [1, 0, 1], "Đơn vị đo diện tích": [1, 1, 1] } } },
 
   /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
