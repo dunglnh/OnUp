@@ -4,7 +4,7 @@
 // theo giá trị, chữ so chữ), đúng/sai a, đúng/sai 4 ý a (từng ý tính lại), trả lời bằng số ans kèm đơn vị, nối cột r của từng ô l, sắp xếp
 // o. Số tính bằng số hữu tỉ chính xác: số đo thời gian đổi ra giây (1 ngày = 24 giờ, 1 giờ = 60 phút, 1 phút = 60 giây) rồi cộng, trừ, nhân,
 // chia, viết lại “2 giờ 30 phút” (phút, giây dưới 60), giờ trong ngày theo 24 giờ (quá 24 giờ là hôm sau); số ngày của từng tháng, năm nhuận
-// theo bảng; vận tốc v = s : t đổi ra m/giây rồi ra km/giờ, m/phút, m/giây; quãng đường s = v × t, thời gian t = s : v; hai xe (hai người) đi
+// theo bảng; vận tốc v = s : t đổi ra m/s rồi ra km/h, m/s (sách in năm 2026 viết km/h, m/s; Phiên 9z, L52); quãng đường s = v × t, thời gian t = s : v; hai xe (hai người) đi
 // ngược chiều, cùng chiều tính quãng đường từng xe rồi cộng, trừ; dãy số liệu đọc từ đề bài rồi đếm, phân loại; tỉ số của số lần lặp lại
 // một sự kiện viết a/b (b là tổng số lần, không rút gọn); phần ôn: chia số thập phân, diện tích hình thang, chu vi, diện tích hình tròn
 // (π lấy 3,14), tỉ số, tỉ số phần trăm, giá trị phần trăm, tổng – tỉ, đổi đơn vị đo thể tích, diện tích xung quanh, toàn phần, thể tích
@@ -17,7 +17,7 @@
 // hơn phần ôn; chủ đề ôn mang đúng chữ chủ đề của kho giữa kì II, cuối kì I; rút thử ra đúng 10 Biết, 8 Hiểu, 7 Vận dụng; đã làm hết một
 // đề cố định thì không gặp lại câu của đề đó), đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa chọn dài nhất hay ngắn nhất ở không
 // quá một phần ba số câu nhiều lựa chọn, không lặp chữ của nhãn chủ đề, đúng/sai 4 ý không lặp kiểu Đ/S, không có số âm, số thập phân viết
-// dấu phẩy, số từ bốn chữ số ngăn hàng nghìn bằng khoảng trắng, vận tốc viết km/giờ, m/phút, m/giây, đề không ghi sẵn công thức, đề bài không
+// dấu phẩy, số từ bốn chữ số ngăn hàng nghìn bằng khoảng trắng, vận tốc viết km/h, m/s như sách (không km/giờ, m/giây, m/phút; Phiên 9z, L52), đề không ghi sẵn công thức, đề bài không
 // trùng câu nào trong data/banks/5-toan.js, câu ôn không trùng đề bài, chuỗi 6 từ của đề bài, đáp án câu cùng chủ đề của kho giữa kì II, cuối
 // kì I, không gần trùng câu của data/banks/4-toan.js và các kho Toán 5 khác (cặp hai âm tiết chung), dò lộ đáp án giữa mọi cặp câu của kho,
 // lời dặn và câu cùng chủ đề của kho giữa kì II, cuối kì I (đề “Ôn chủ đề” rút chung) và, nếu có ../OnUp-Book, so mọi trường chữ với chữ OCR
@@ -142,9 +142,9 @@ const SO_NGAY = { "Một": 31, "Hai": [28, 29], "Ba": 31, "Tư": 30, "Năm": 31,
 assert.equal(Object.values(SO_NGAY).reduce((s, v) => s + [].concat(v)[0], 0), 365, "năm không nhuận có 365 ngày");
 
 /* ---------- vận tốc, quãng đường, thời gian (Bài 59–62) ---------- */
-const VTU = { "km/giờ": F(1000, 3600), "m/phút": F(1, 60), "m/giây": F(1) }; // 1 đơn vị = … m/giây
-const vt = (s) => { const m = /^(\d[\d ]*(?:,\d+)?) (km\/giờ|m\/phút|m\/giây)$/.exec(String(s).trim()); assert.ok(m, "vận tốc lạ: " + s); return mul(fr(m[1]), VTU[m[2]]); };
-const doiVT = (v, u) => div(v, VTU[u]); // v (m/giây) → đơn vị u
+const VTU = { "km/h": F(1000, 3600), "m/s": F(1) }; // 1 đơn vị = … m/s (sách in năm 2026 chỉ dùng km/h, m/s; Phiên 9z, L52)
+const vt = (s) => { const m = /^(\d[\d ]*(?:,\d+)?) (km\/h|m\/s)$/.exec(String(s).trim()); assert.ok(m, "vận tốc lạ: " + s); return mul(fr(m[1]), VTU[m[2]]); };
+const doiVT = (v, u) => div(v, VTU[u]); // v (m/s) → đơn vị u
 const vanToc = (s, t, u) => doiVT(div(doi(s, "m"), giay(t)), u); // v = s : t
 const qd = (v, sec, u) => tuMet(mul(vt(v), sec), u); // s = v × t (t tính bằng giây)
 const quangDuong = (v, t, u) => qd(v, giay(t), u);
@@ -250,7 +250,7 @@ const docSoDo = (svg) => {
     const huong = Math.sign(l.b[0] - l.a[0]), tip = POLYS(svg).filter((p) => Math.abs(p.p[0][1] - l.a[1]) < 0.01 && Math.abs(p.p[0][0] - (l.b[0] + huong * 8)) < 0.6);
     assert.equal(tip.length, 1, "mỗi mũi tên một đầu mũi tên"); const tu = tenO(l.a[0]); assert.ok(tu, "mũi tên đi ra từ một điểm");
     const lo = Math.min(l.a[0], tip[0].p[0][0]), hi = Math.max(l.a[0], tip[0].p[0][0]);
-    const nhan = T.filter((t) => /\/(giờ|phút|giây)$/.test(t.t) && t.at[0] > lo && t.at[0] < hi && t.at[1] < l.a[1] && t.at[1] > l.a[1] - 20);
+    const nhan = T.filter((t) => / (?:km\/h|m\/s)$/.test(t.t) && t.at[0] > lo && t.at[0] < hi && t.at[1] < l.a[1] && t.at[1] > l.a[1] - 20);
     assert.equal(nhan.length, 1, "mỗi mũi tên một vận tốc ghi ngay trên"); return { tu, huong, v: nhan[0].t };
   });
   const so = L.filter((l) => l.a[1] === l.b[1] && l.a[1] > Y + 30 && l.a[0] !== l.b[0]).map((l) => {
@@ -340,38 +340,38 @@ const CHECKS = [
   { has: "Mỗi ngày bạn Minh tập đàn 1 giờ 15 phút. Hỏi trong 6 ngày", right: () => ghi(div(mul(giay("1 giờ 15 phút"), F(6)), giay("1 giờ")), "giờ") },
   { has: "Một máy đóng gói được 6 thùng hàng trong 1 giờ 30 phút. Trung bình máy đóng gói một thùng hàng hết 25 phút.", right: () => eq(div(giay("1 giờ 30 phút"), F(6)), giay("25 phút")) },
   /* Vận tốc (Bài 59) */
-  { has: "Một ô tô đi được 126 km trong 3 giờ. Vận tốc của ô tô đó là:", right: () => ghi(vanToc("126 km", "3 giờ", "km/giờ"), "km/giờ") },
-  { has: "Một người đi xe đạp được 26 km trong 2 giờ. Vận tốc của người đó là ___ km/giờ.", right: () => vanToc("26 km", "2 giờ", "km/giờ") },
-  { has: "Một chiếc ca nô đi được 72 km trong 3 giờ. Vận tốc của ca nô là 24 km/giờ.", right: () => eq(vanToc("72 km", "3 giờ", "km/giờ"), F(24)) },
-  { has: "Một con báo chạy được 510 m trong 15 giây. Tính vận tốc của con báo theo đơn vị m/giây.", right: () => ghi(vanToc("510 m", "15 giây", "m/giây"), "m/giây") },
-  { has: "Một người đi xe máy khởi hành từ A lúc 7 giờ 15 phút và đến B lúc 9 giờ 45 phút. Quãng đường AB dài 95 km.", right: () => ghi(doiVT(div(doi("95 km", "m"), sub(giay("9 giờ 45 phút"), giay("7 giờ 15 phút"))), "km/giờ"), "km/giờ") },
-  { has: "Ba bạn cùng tập chạy. Tuấn chạy với vận tốc 4 m/giây, Hải chạy được 210 m trong 1 phút, Quân chạy được 15 km trong 1 giờ.", right: () => {
-    const v = [["Tuấn", vt("4 m/giây")], ["Hải", div(doi("210 m", "m"), giay("1 phút"))], ["Quân", div(doi("15 km", "m"), giay("1 giờ"))]].sort((a, b) => cmp(b[1], a[1]));
+  { has: "Một ô tô đi được 126 km trong 3 giờ. Vận tốc của ô tô đó là:", right: () => ghi(vanToc("126 km", "3 giờ", "km/h"), "km/h") },
+  { has: "Một người đi xe đạp được 26 km trong 2 giờ. Vận tốc của người đó là ___ km/h.", right: () => vanToc("26 km", "2 giờ", "km/h") },
+  { has: "Một chiếc ca nô đi được 72 km trong 3 giờ. Vận tốc của ca nô là 24 km/h.", right: () => eq(vanToc("72 km", "3 giờ", "km/h"), F(24)) },
+  { has: "Một con báo chạy được 510 m trong 15 giây. Tính vận tốc của con báo theo đơn vị m/s.", right: () => ghi(vanToc("510 m", "15 giây", "m/s"), "m/s") },
+  { has: "Một người đi xe máy khởi hành từ A lúc 7 giờ 15 phút và đến B lúc 9 giờ 45 phút. Quãng đường AB dài 95 km.", right: () => ghi(doiVT(div(doi("95 km", "m"), sub(giay("9 giờ 45 phút"), giay("7 giờ 15 phút"))), "km/h"), "km/h") },
+  { has: "Ba bạn cùng tập chạy. Tuấn chạy với vận tốc 4 m/s, Hải chạy được 210 m trong 1 phút, Quân chạy được 15 km trong 1 giờ.", right: () => {
+    const v = [["Tuấn", vt("4 m/s")], ["Hải", div(doi("210 m", "m"), giay("1 phút"))], ["Quân", div(doi("15 km", "m"), giay("1 giờ"))]].sort((a, b) => cmp(b[1], a[1]));
     assert.ok(cmp(v[0][1], v[1][1]) > 0, "một bạn chạy nhanh nhất"); return v[0][0]; } },
-  { has: "Quãng đường từ nhà Hoa đến trường dài 2,1 km. Hoa đi bộ từ nhà lúc 6 giờ 30 phút và đến trường lúc 7 giờ.", right: () => ghi(doiVT(div(doi("2,1 km", "m"), sub(giay("7 giờ"), giay("6 giờ 30 phút"))), "km/giờ"), "km/giờ") },
-  { has: "Một vận động viên đạp xe được 4,8 km trong 9 phút.", right: () => ghi(vanToc("4,8 km", "9 phút", "km/giờ"), "km/giờ") },
+  { has: "Quãng đường từ nhà Hoa đến trường dài 2,1 km. Hoa đi bộ từ nhà lúc 6 giờ 30 phút và đến trường lúc 7 giờ.", right: () => ghi(doiVT(div(doi("2,1 km", "m"), sub(giay("7 giờ"), giay("6 giờ 30 phút"))), "km/h"), "km/h") },
+  { has: "Một vận động viên đạp xe được 4,8 km trong 9 phút.", right: () => ghi(vanToc("4,8 km", "9 phút", "km/h"), "km/h") },
   /* Quãng đường, thời gian của một chuyển động đều (Bài 60–62) */
-  { has: "Một xe khách chạy đều với vận tốc 52 km/giờ. Sau 3 giờ, xe khách chạy được ___ km.", right: () => quangDuong("52 km/giờ", "3 giờ", "km") },
-  { has: "Một con ong bay với vận tốc 8 m/giây. Trong 25 giây, con ong bay được", right: () => ghi(quangDuong("8 m/giây", "25 giây", "m"), "m") },
-  { has: "Một người đi bộ với vận tốc 4,5 km/giờ. Trong 2 giờ, người đó đi được 9 km.", right: () => eq(quangDuong("4,5 km/giờ", "2 giờ", "km"), F(9)) },
-  { has: "Một chiếc thuyền đi với vận tốc 12,5 km/giờ. Tính quãng đường thuyền đi được trong 5 giờ.", right: () => ghi(quangDuong("12,5 km/giờ", "5 giờ", "km"), "km") },
-  { has: "Chú Hùng đạp xe với vận tốc 14 km/giờ trên quãng đường dài 21 km.", right: (q) => {
-    const t = thoiGian("21 km", "14 km/giờ"); q.o.slice(1).forEach((o) => assert.ok(!eq(giay(o), t), "lựa chọn sai bằng thời gian đúng: " + o)); return ghi(div(t, giay("1 giờ")), "giờ"); } },
-  { has: "Một xe máy đi với vận tốc 44 km/giờ. Hỏi trong 45 phút, xe máy đi được bao nhiêu ki-lô-mét?", right: () => ghi(quangDuong("44 km/giờ", "45 phút", "km"), "km") },
-  { has: "Một vận động viên bơi với vận tốc 1,5 m/giây. Để bơi hết quãng đường 150 m", right: () => thoiGian("150 m", "1,5 m/giây") },
-  { has: "Một tàu thuỷ đi với vận tốc 25 km/giờ. Tàu đi hết quãng đường 60 km trong bao lâu?", right: () => tg(thoiGian("60 km", "25 km/giờ")) },
-  { has: "Hai ô tô khởi hành cùng một lúc: một xe đi từ A về phía B, một xe đi từ B về phía A. Sau 2 giờ, hai xe gặp nhau tại C (như sơ đồ). Xe đi từ A có vận tốc 46 km/giờ, xe đi từ B có vận tốc 39 km/giờ.", right: (q) => {
-    const sd = docSoDo(doc(q)), AC = quangDuong("46 km/giờ", "2 giờ", "km"), CB = quangDuong("39 km/giờ", "2 giờ", "km");
-    assert.deepEqual(Object.keys(sd.X).sort(), ["A", "B", "C"]); muiTenTu(sd, "A", 1, "46 km/giờ"); muiTenTu(sd, "B", -1, "39 km/giờ");
+  { has: "Một xe khách chạy đều với vận tốc 52 km/h. Sau 3 giờ, xe khách chạy được ___ km.", right: () => quangDuong("52 km/h", "3 giờ", "km") },
+  { has: "Một con ong bay với vận tốc 8 m/s. Trong 25 giây, con ong bay được", right: () => ghi(quangDuong("8 m/s", "25 giây", "m"), "m") },
+  { has: "Một người đi bộ với vận tốc 4,5 km/h. Trong 2 giờ, người đó đi được 9 km.", right: () => eq(quangDuong("4,5 km/h", "2 giờ", "km"), F(9)) },
+  { has: "Một chiếc thuyền đi với vận tốc 12,5 km/h. Tính quãng đường thuyền đi được trong 5 giờ.", right: () => ghi(quangDuong("12,5 km/h", "5 giờ", "km"), "km") },
+  { has: "Chú Hùng đạp xe với vận tốc 14 km/h trên quãng đường dài 21 km.", right: (q) => {
+    const t = thoiGian("21 km", "14 km/h"); q.o.slice(1).forEach((o) => assert.ok(!eq(giay(o), t), "lựa chọn sai bằng thời gian đúng: " + o)); return ghi(div(t, giay("1 giờ")), "giờ"); } },
+  { has: "Một xe máy đi với vận tốc 44 km/h. Hỏi trong 45 phút, xe máy đi được bao nhiêu ki-lô-mét?", right: () => ghi(quangDuong("44 km/h", "45 phút", "km"), "km") },
+  { has: "Một vận động viên bơi với vận tốc 1,5 m/s. Để bơi hết quãng đường 150 m", right: () => thoiGian("150 m", "1,5 m/s") },
+  { has: "Một tàu thuỷ đi với vận tốc 25 km/h. Tàu đi hết quãng đường 60 km trong bao lâu?", right: () => tg(thoiGian("60 km", "25 km/h")) },
+  { has: "Hai ô tô khởi hành cùng một lúc: một xe đi từ A về phía B, một xe đi từ B về phía A. Sau 2 giờ, hai xe gặp nhau tại C (như sơ đồ). Xe đi từ A có vận tốc 46 km/h, xe đi từ B có vận tốc 39 km/h.", right: (q) => {
+    const sd = docSoDo(doc(q)), AC = quangDuong("46 km/h", "2 giờ", "km"), CB = quangDuong("39 km/h", "2 giờ", "km");
+    assert.deepEqual(Object.keys(sd.X).sort(), ["A", "B", "C"]); muiTenTu(sd, "A", 1, "46 km/h"); muiTenTu(sd, "B", -1, "39 km/h");
     tiLe(sd, [["A", "C", AC], ["C", "B", CB]]); assert.deepEqual(sd.so, [{ tu: "A", den: "B", chu: "? km" }]);
     return ghi(add(AC, CB), "km"); } },
-  { has: "Lúc 8 giờ, Nam và Việt cùng đạp xe từ cổng trường, đi cùng chiều trên một con đường. Nam đi với vận tốc 16 km/giờ, Việt đi với vận tốc 12 km/giờ. Lúc 8 giờ 45 phút", right: () => {
-    const t = sub(giay("8 giờ 45 phút"), giay("8 giờ")); return ghi(sub(qd("16 km/giờ", t, "km"), qd("12 km/giờ", t, "km")), "km"); } },
-  { has: "Hưng và Thảo đứng ở hai đầu A và B của một con đường dài 1 800 m. Hai bạn cùng lúc đi bộ về phía nhau (như sơ đồ): Hưng đi với vận tốc 70 m/phút, Thảo đi với vận tốc 80 m/phút. Hỏi sau 6 phút", right: (q) => {
-    const sd = docSoDo(doc(q)); assert.deepEqual(Object.keys(sd.X).sort(), ["A", "B"]); muiTenTu(sd, "A", 1, "70 m/phút"); muiTenTu(sd, "B", -1, "80 m/phút");
+  { has: "Lúc 8 giờ, Nam và Việt cùng đạp xe từ cổng trường, đi cùng chiều trên một con đường. Nam đi với vận tốc 16 km/h, Việt đi với vận tốc 12 km/h. Lúc 8 giờ 45 phút", right: () => {
+    const t = sub(giay("8 giờ 45 phút"), giay("8 giờ")); return ghi(sub(qd("16 km/h", t, "km"), qd("12 km/h", t, "km")), "km"); } },
+  { has: "Hưng và Thảo đứng ở hai đầu A và B của một con đường dài 1 800 m. Hai bạn cùng lúc đi bộ về phía nhau (như sơ đồ): Hưng đi với vận tốc 1,2 m/s, Thảo đi với vận tốc 1,3 m/s. Hỏi sau 6 phút", right: (q) => {
+    const sd = docSoDo(doc(q)); assert.deepEqual(Object.keys(sd.X).sort(), ["A", "B"]); muiTenTu(sd, "A", 1, "1,2 m/s"); muiTenTu(sd, "B", -1, "1,3 m/s");
     assert.deepEqual(sd.so, [{ tu: "A", den: "B", chu: "1 800 m" }]); const t = giay("6 phút");
-    return ghi(sub(sub(doi("1 800 m", "m"), qd("70 m/phút", t, "m")), qd("80 m/phút", t, "m")), "m"); } },
-  { has: "Một ô tô khởi hành từ thành phố A lúc 6 giờ 50 phút với vận tốc 44 km/giờ để đi đến thành phố B. Quãng đường AB dài 110 km. Dọc đường, ô tô dừng nghỉ 15 phút.", right: () => luc(add(add(giay("6 giờ 50 phút"), thoiGian("110 km", "44 km/giờ")), giay("15 phút"))) },
+    return ghi(sub(sub(doi("1 800 m", "m"), qd("1,2 m/s", t, "m")), qd("1,3 m/s", t, "m")), "m"); } },
+  { has: "Một ô tô khởi hành từ thành phố A lúc 6 giờ 50 phút với vận tốc 44 km/h để đi đến thành phố B. Quãng đường AB dài 110 km. Dọc đường, ô tô dừng nghỉ 15 phút.", right: () => luc(add(add(giay("6 giờ 50 phút"), thoiGian("110 km", "44 km/h")), giay("15 phút"))) },
   /* Thu thập, phân loại, sắp xếp các số liệu (Bài 63) */
   { has: "Số quyển sách mỗi bạn trong tổ Hai đọc được trong tháng Ba là:", right: (q) => ghi(F(dayCua(q).filter((x) => cmp(x, F(5)) >= 0).length), "bạn") },
   { has: "Chiều cao (đơn vị: cm) của 10 cây con trong vườn ươm là:", right: (q) => { const d = dayCua(q); assert.equal(d.length, 10); return d.filter((x) => cmp(x, F(30)) < 0).length + " cây"; } },
@@ -460,6 +460,11 @@ hinh.forEach((q) => chuHinh(q.svg, q.q.slice(0, 40)));
 
 /* ---------- chữ, số như sách (Toán 5 in năm 2026) ---------- */
 const kho = pool.questions;
+// Sách Toán 5 tập hai in năm 2026 (Bài 59) viết km/h, m/s, không dùng km/giờ, m/giây, m/phút (Phiên 9z, L52); số đo thời gian viết “giờ”,
+// “phút” (không “2h30”, “45p”).
+const VAN_TOC_CU = /\/\s*(?:giờ|phút|giây)(?!\p{L})|km\/g|(?<!\p{L})giờ\/|\d ?h\d|\d ?[hp](?![\p{L}\d])/u;
+["38 km/giờ", "4 m/giây", "70 m/phút", "12 km/ giờ", "2h30", "45p"].forEach((s) => assert.ok(VAN_TOC_CU.test(s), "luật vận tốc phải bắt: " + s));
+["38 km/h", "4 m/s", "1,2 m/s", "9/60 giờ", "2 giờ 30 phút", "15 000 : 60 = 250 (m)"].forEach((s) => assert.ok(!VAN_TOC_CU.test(s), "luật vận tốc bắt nhầm: " + s));
 const chu = (q) => [q.q, q.x].concat(q.o || [], q.ans == null || typeof q.ans === "number" ? [] : [].concat(q.ans), q.l || [], q.r || []).map(String);
 kho.forEach((q) => {
   const at = q.src + ": " + q.q.slice(0, 50), T = chu(q).concat(q.svg ? TEXTS(q.svg).map((t) => t.t) : []);
@@ -470,7 +475,7 @@ kho.forEach((q) => {
     assert.ok(!/\d:\d|\d :\d|\d: \d/.test(s), at + ": tỉ số, phép chia viết “a : b” có khoảng trắng hai bên: " + s);
     assert.ok(!/\d %/.test(s), at + ": tỉ số phần trăm viết liền kí hiệu %: " + s);
     assert.ok(!/\b[cdkm]?m[23]\b/.test(s), at + ": đơn vị viết m³, m² như sách: " + s);
-    assert.ok(!/km\/h(?!\p{L})|(?<!\p{L})m\/s(?!\p{L})|km\/g(?!iờ)|(?<!\p{L})giờ\/|\d ?h\d|\d ?[hp](?![\p{L}\d])/u.test(s), at + ": vận tốc viết km/giờ, m/phút, m/giây; số đo thời gian viết “giờ”, “phút”: " + s);
+    assert.ok(!VAN_TOC_CU.test(s), at + ": vận tốc viết km/h, m/s như sách (không km/giờ, m/giây, m/phút); số đo thời gian viết “giờ”, “phút”: " + s);
     assert.ok(!/÷/.test(s), at + ": phép chia viết dấu “:”: " + s);
   });
   // số đo thời gian trong đề bài, lựa chọn, đáp án viết gọn như sách: “x giờ y phút”, “x phút y giây” với y dưới 60 (lời giải được ghi bước trung gian)
@@ -582,7 +587,7 @@ Object.values(khoCu).forEach((b) => { b.pool.from.forEach((id) => bank(id).quest
    một chủ đề (cả câu cùng chủ đề của kho giữa kì II, cuối kì I), đề ngẫu nhiên rút chung câu của các chủ đề khác; lời dặn (note) hiện ở màn
    mở đề nên cũng là “câu kia”. Đáp án là số (từ 10; cả tỉ số phần trăm “65%”), số thập phân, phân số chỉ tìm ở vị trí kết quả của câu kia
    (ngay sau “=”, “là”, “bằng”, “được”; số đứng ngay trước một phép tính là thừa số, số hạng); số đo thời gian, vận tốc “x giờ y phút”,
-   “38 km/giờ” và tỉ số “7/20” tìm như cụm chữ đứng riêng; cặp nối: câu kia có cả hai vế; đáp án bằng chữ có ở câu kia thì chỉ in ra khi
+   “38 km/h” và tỉ số “7/20” tìm như cụm chữ đứng riêng; cặp nối: câu kia có cả hai vế; đáp án bằng chữ có ở câu kia thì chỉ in ra khi
    chạy với DO_LO=1 để người làm xem, danh sách đã xem ghi ở DA_XEM. Chỉ báo cặp có câu của kho này. ---------- */
 const val = (s) => +String(s).replace(/\s/g, "");
 const KQ = "(?:=|(?:^|[\\s(])(?:là|bằng|được))\\s+";
@@ -598,7 +603,7 @@ const doLo = (qs, name, notes, moi = laKho) => {
   qs.forEach((q) => {
     const so = [], kq = [], cum = [], cumSo = [], cap = q.type === "match" ? q.l.map((l, k) => [l, q.r[k]]) : [];
     const them = (a) => { a = String(a).replace(/%$/, "");
-      if (/^\d+ (giờ|phút|giây)( \d+ (phút|giây))?$|^\d[\d ]*(,\d+)? (km|m)\/(giờ|phút|giây)$|^\d+\/\d+$/.test(a)) { cumSo.push(a); return; }
+      if (/^\d+ (giờ|phút|giây)( \d+ (phút|giây))?$|^\d[\d ]*(,\d+)? (?:km\/h|m\/s)$|^\d+\/\d+$/.test(a)) { cumSo.push(a); return; }
       const m = /^(\d{1,3}(?: \d{3})*)(?: (\S+))?$/.exec(a);
       if (m && !/^\d\/\d/.test(m[2] || "")) so.push(val(m[1]));
       else if (/^\d[\d ,/]*(?: [^\d\s]+)?$/.test(a)) kq.push(a.replace(/ [^\d\s]+$/, ""));
@@ -646,7 +651,7 @@ assert.deepEqual(loDA, [], "lộ đáp án:\n" + loDA.join("\n"));
   assert.throws(() => CHECKS.find((c) => sd.q.includes(c.has) && c.has.startsWith("Hai ô tô")).right(Object.assign({}, sd, { svg: sd.svg.split(`"${vc[1]}"`).join(`"${+vc[1] + 8}"`) })), /tỉ lệ/);
   assert.throws(() => chuHinh(qt.svg.replace('font-size="15"', 'font-size="12"'), "thử"), /cỡ 13/);
   assert.equal(tg(giay("5 giờ 75 phút")), "6 giờ 15 phút"); assert.equal(luc(add(giay("21 giờ 35 phút"), giay("7 giờ 45 phút"))), "5 giờ 20 phút");
-  assert.ok(eq(vanToc("15 km", "1 giờ", "m/phút"), F(250)) && eq(doiVT(vt("36 km/giờ"), "m/giây"), F(10))); }
+  assert.ok(eq(vanToc("15 km", "1 giờ", "km/h"), F(15)) && eq(doiVT(vt("36 km/h"), "m/s"), F(10)) && eq(doiVT(vt("4 m/s"), "km/h"), F(72, 5))); }
 
 /* ---------- không gần trùng câu của kho Toán lớp 4 và các kho Toán 5 khác (lời giao việc; Rút ra N25, như tests/toan5-gk2.js): đề bài
    cùng lựa chọn, ô nối, ô sắp xếp có từ 4 cặp từ liền nhau chung với một câu của data/banks/4-toan.js hay của đề Toán 5 khác và số cặp
@@ -704,7 +709,7 @@ const khongDau = nhoChuoi((s) => String(s).normalize("NFD").replace(/[\u0300-\u0
 const TU_CHUNG = [...CHU_DE, "mỗi ý sau đúng hay sai", "số thích hợp điền vào chỗ chấm", "viết số thích hợp vào chỗ trống", "điền số thập phân",
   "biểu đồ dưới đây cho biết tỉ số phần trăm", "biểu đồ hình quạt tròn", "tỉ số phần trăm", "chiếm bao nhiêu phần trăm", "bằng mấy phần trăm",
   "tỉ số của số lần", "so với tổng số lần", "số lần xuất hiện mặt", "xuất hiện mặt", "gieo một con xúc xắc", "tung một đồng xu", "mũi tên chỉ vào",
-  "số đo thời gian", "giờ trong ngày", "lúc mấy giờ", "vận tốc", "quãng đường", "thời gian", "km/giờ", "m/phút", "m/giây", "khởi hành", "đi ngược chiều",
+  "số đo thời gian", "giờ trong ngày", "lúc mấy giờ", "vận tốc", "quãng đường", "thời gian", "km/h", "m/s", "khởi hành", "đi ngược chiều",
   "đi cùng chiều", "gặp nhau", "về phía nhau", "như sơ đồ", "dãy số liệu", "hình hộp chữ nhật", "hình lập phương", "diện tích xung quanh", "diện tích toàn phần",
   "diện tích một mặt đáy", "chu vi mặt đáy", "chiều dài", "chiều rộng", "chiều cao", "thể tích", "mét khối", "đề-xi-mét khối", "xăng-ti-mét khối",
   "tổng số phần bằng nhau", "đáy lớn", "đáy bé", "diện tích hình thang", "bán kính", "đường kính", "chu vi", "ở cột trái", "ở cột phải", "hãy nối cho đúng",
