@@ -1,6 +1,6 @@
 # Đề xuất giao diện 3.x (27/10/2026)
 
-**Bản 4.x:** đợt UAT định kì ngày 11/11/2026 theo persona ba cấp ([PERSONA.md](PERSONA.md)), đề xuất ở [CAI-TIEN-UX-4X.md](CAI-TIEN-UX-4X.md) (mã X52–X61, phiên ứng viên UX16–UX21).
+**Bản 4.x:** đợt UAT định kì ngày 11/11/2026 theo persona ba cấp ([PERSONA.md](PERSONA.md)), đề xuất ở [CAI-TIEN-UX-4X.md](CAI-TIEN-UX-4X.md) (mã X52–X61, phiên ứng viên UX16–UX21; ngày 25/11/2026 thêm X62–X65, Phiên UX22 chủ app chọn).
 
 Bản 2.x (UX1–UX8, UI1, UI2, 9n, 9o và các phiên “b”) đã làm xong và đã kiểm thử thiết kế ([CAI-TIEN-UX-2X.md](CAI-TIEN-UX-2X.md), mục 5). Bản 3.x rà lại app để trả lời ba câu hỏi:
 - con có biết mình đã ôn đến đâu không;

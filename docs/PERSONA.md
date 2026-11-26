@@ -120,7 +120,7 @@ Figma: section [Persona · ba cấp](https://www.figma.com/design/9mkNYX0ZOczNDM
 
 1. **Một bộ màn, khác nhau theo dữ liệu, không theo nhãn tuổi.** Màn đổi theo số môn của con, kì thi lớn của khối, độ dài đề và lựa chọn của con, không theo kiểu “giao diện cho bé”, “giao diện cho anh chị”. Cách này giữ một bộ code, một bộ kiểm thử.
 2. **Mặc định hợp với người nhỏ nhất, không làm chậm người lớn nhất.** Chữ ≥ 13px, nút ≥ 44px, câu ngắn, số dạng “3/5”: đã có trong quy tắc của CLAUDE.md. Người lớn không bị chậm vì điều đó. Thứ làm người lớn chậm là chữ dài và danh sách thừa.
-3. **Lượng thông tin theo việc phải làm hôm nay.** Mỗi lần mở app có một bài chính và tối đa một bài phụ. Khối có kì thi lớn thì thêm một dòng tiến độ của kì đó. Phần còn lại để ở tab Bài ôn.
+3. **Lượng thông tin theo việc phải làm hôm nay.** Mỗi lần mở app có một bài chính, chọn cách làm ngay trên thẻ của bài đó; không có bài phụ (chủ app chốt 25/11/2026, Phiên UX22). Mỗi màn tối đa một hành động chính, một phụ, một thứ ba (quy tắc ở CLAUDE.md). Khối có kì thi lớn thì thêm một dòng tiến độ của kì đó, không thêm nút. Phần còn lại để ở tab Bài ôn.
 4. **Lời nói đúng việc đã làm.** Khen theo việc thật (“Bạn đã làm 5/25 câu”), không khen chung chung. Bỏ từ nựng mà vẫn giữ giọng ấm. Hình hải cẩu là hình đại diện con tự chọn, không phải hình bắt buộc của mọi cấp.
 5. **Tiến độ trung thực.** Con và bố mẹ thấy cùng một con số, tính cùng một cách. Đề làm dở không tính là đề đã làm.
 6. **Riêng tư theo tuổi.** Con biết bố mẹ thấy những gì: số bài, điểm, chủ đề hay sai. Con lớn được tự chọn môn của mình.
@@ -132,7 +132,7 @@ Dùng cho kiểm thử định kì của PD. QC và phiên giao diện dùng khi
 
 | Mã | Persona | Việc | Đo | Đạt khi |
 |---|---|---|---|---|
-| U1 | Bin | Mở app, chọn mình, nhập PIN, bắt đầu bài chính | Số chạm tới câu 1; nút Bắt đầu nằm trong màn đầu | ≤ 7 chạm; nút trong màn đầu |
+| U1 | Bin | Mở app, chọn mình, nhập PIN, bắt đầu bài chính | Số chạm tới câu 1; nút cách làm nằm trong màn đầu | ≤ 6 chạm (sau UX22); nút Ôn luyện trong màn đầu |
 | U2 | Bin | Làm 5 câu rồi dừng; hôm sau mở lại | Nút đề, Hôm nay, tiến độ kì, báo cáo tuần | Đề ghi làm dở; bài chính là “làm tiếp” |
 | U3 | Bin | Đọc thẻ Hôm nay | Số chữ trong màn đầu; lời giới thiệu khớp đề | Lời giới thiệu có số câu, số phút thật |
 | U4 | Mẹ Hạnh | Xem Bin hôm nay, gửi báo cáo tuần qua Zalo | Số chạm; tin nhắn khớp số liệu | ≤ 2 chạm tới nút “Gửi báo cáo” |
@@ -143,12 +143,14 @@ Dùng cho kiểm thử định kì của PD. QC và phiên giao diện dùng khi
 | U9 | Linh | Làm đề thi thử trên máy tính 1366 × 768 | Chọn đáp án bằng bàn phím được không; viền focus | Có phím chọn đáp án; viền focus rõ |
 | U10 | Mẹ Thu | Đọc thẻ của Linh và tin nhắn tuần | Thẻ có môn Linh không học không | Chỉ nhắc môn Linh học |
 | U11 | Cả ba | Mọi màn trên | Cuộn ngang, nút < 44px, chữ < 13px, chữ đè, lỗi JavaScript | Không có |
+| U12 | Cả ba | Mọi màn trên | Số hành động chính, phụ, thứ ba của mỗi màn; số nút vàng | Tối đa một mỗi loại (quy tắc ở CLAUDE.md); danh sách để chọn chỉ một nút vàng |
 
 ## 5. Khi nào sửa file này
 
 - Khi bật khối mới, xem lại bảng mục 1: số môn, kì thi lớn, độ dài đề.
 - Khi có góp ý từ gia đình dùng thử (từ tháng 3/2027), sửa persona cho gần người thật hơn. Ghi chép dùng thử lấy ở mục 5 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md).
 - Khi quy chế thi đổi: Thông tư 89/2026, quy chế thi vào 10 năm 2027, đề án thi tốt nghiệp trên máy tính.
+- Khi chủ app chốt một quy tắc giao diện mới (như ngày 25/11/2026: mỗi màn tối đa một hành động chính, một phụ, một thứ ba), sửa nguyên tắc ở mục 3 và kịch bản ở mục 4.
 
 ## 6. Nguồn
 
