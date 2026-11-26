@@ -2537,14 +2537,13 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
   /* Bản lưu trên máy, mọi vai trò: hình đại diện (chạm là đổi) và form đổi mã PIN riêng, nút "Đổi mã PIN". */
   function renderAccount(u) {
     if (Store.cloud) return renderCloudAccount(u);
-    view.innerHTML = `<div class="stack">${back("#/home", "Trang chính")}
+    view.innerHTML = `<div class="stack"><div class="row between">${back("#/home", "Trang chính")}<button class="btn ghost sm" id="logout">Đăng xuất</button></div>
       ${acHead(u, esc(gradeTxt(u)))}
       ${avatarCard(u)}
       <form class="panel" id="aForm" autocomplete="off"><h3>Đổi mã PIN</h3>
         <div class="form"><label class="field"><span>Mã PIN hiện tại</span><input id="aOld" type="password" inputmode="numeric" maxlength="6"></label>
         <label class="field"><span>Mã PIN mới (4–6 số)</span><input id="aNew" type="password" inputmode="numeric" maxlength="6"></label></div>
-        <div id="aErr"></div><div class="row"><button class="btn sm" type="submit">Đổi mã PIN</button></div></form>
-      <div class="row"><button class="btn main" id="logout">Đăng xuất</button></div></div>`;
+        <div id="aErr"></div><div class="row"><button class="btn sm" type="submit">Đổi mã PIN</button></div></form></div>`;
     wireGo(); wireReveal(view); wireAvatarCard(u);
     $("#aForm").onsubmit = async (ev) => {
       ev.preventDefault();
@@ -2578,12 +2577,13 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
      đăng xuất được tài khoản). */
   function renderCloudAccount(u) {
     const adult = u.role !== "student";
-    view.innerHTML = `<div class="stack">${back(adult ? "#/admin/settings" : "#/home", adult ? "Cài đặt" : "Trang chính")}
+    // "Chọn hồ sơ khác" ở hàng trên cùng, ngang link quay lại (chủ app 26/11/2026): để dưới thẻ hình đại diện thì trông như nút lưu của thẻ đó
+    view.innerHTML = `<div class="stack"><div class="row between">${back(adult ? "#/admin/settings" : "#/home", adult ? "Cài đặt" : "Trang chính")}<button class="btn ghost sm" id="switchWho">Chọn hồ sơ khác</button></div>
       ${acHead(u, adult ? "Tên đăng nhập: " + esc(Store.username()) : esc(gradeTxt(u)))}
       ${adult ? `<form class="panel" id="pwForm" autocomplete="on"><h3>Đổi mật khẩu</h3><div class="form">${pwFields(true)}</div>
           <div class="row"><button class="btn sm" type="submit">Đổi mật khẩu</button></div></form>${quickBox()}`
         : avatarCard(u)}
-      <div class="row"><button class="btn main" id="switchWho">Chọn hồ sơ khác</button>${adult ? `<button class="btn ghost" id="signOut">Đăng xuất khỏi máy này</button>` : ""}</div>
+      ${adult ? `<div class="row"><button class="btn ghost" id="signOut">Đăng xuất khỏi máy này</button></div>` : ""}
       ${adult ? `<div id="outArea"></div><p class="small muted">Con dùng máy này hằng ngày thì chỉ cần “Chọn hồ sơ khác”. Đăng xuất thì lần sau phải nhập lại tên đăng nhập và mật khẩu.</p>` : ""}</div>`;
     wireGo(); wireReveal(view);
     $("#switchWho").onclick = switchWho;
