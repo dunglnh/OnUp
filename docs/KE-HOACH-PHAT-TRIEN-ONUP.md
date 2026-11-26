@@ -304,7 +304,7 @@
 | #349 | Phiên N5-gk1-toan: ngân hàng Toán 5 giữa kì I (100 câu, 2 đề + đề ngẫu nhiên); tests/toan5-gk1.js |
 | #352 | Phiên 9y: phần tô của hình chia phần đạt 3:1 (L51) |
 | #353 | Phiên 9z: Toán 5 viết km/h, m/s như sách; thang chấm câu viết Ngữ văn thi thử tốt nghiệp không lộ đáp án (L52, L53) |
-| #354 | Phiên D1 · Gọn CLAUDE.md (220 KB → 71 KB) |
+| #354 | Phiên D1 · Gọn CLAUDE.md (220 KB → 76 KB) |
 
 </details>
 
