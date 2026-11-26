@@ -544,6 +544,23 @@ Phiên RS5 bật khối 5 rồi chạy `tests/e2e.js`: một bước lỗi, do a
 - Hệ quả: chỉ là thứ tự chữ; dữ liệu, cách lọc kì thi theo khối không sai.
 - Tạm thời: bước đó của `tests/e2e.js` so tập khối của ba nhãn (`gradesAre`), không so thứ tự (chú thích ghi L50).
 
+### Nhóm V · PO chốt ghi chú của các phiên ngày 26/11 (Phiên 9y, 9z)
+
+Ngày 26/11/2026 chủ app giao PO chốt các điểm các phiên ghi ở “Chỗ chủ app nên xem” (PR #249–#345). Điểm chỉ để biết thì giữ (đoạn “Quyết định còn hiệu lực khi viết lời giao việc”, mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)); điểm phải sửa đề ghi thành mã lỗi dưới đây. PO dò lại trên `main` commit `f95e937`.
+
+**L51. Phần tô của hình chia phần quá nhạt: phần tô và phần không tô chỉ khác nhau 1,2:1.**
+- Hiện tượng: hình chia phần (phân số, hỗn số, tỉ số, phần trăm, xác suất…) tô phần được lấy bằng `fill="acc-soft"`, phần còn lại không tô. Chế độ sáng `acc-soft` (#e3eafb) trên nền trắng tương phản 1,2:1; chế độ tối #1f2c4f trên `surface` #1a2028 cũng 1,2:1. Thành phần đồ hoạ cần để hiểu nội dung phải đạt 3:1 (WCAG 2.2, tiêu chí 1.4.11). Con nhìn điện thoại ngoài trời, để độ sáng thấp hay khó phân biệt màu thì khó đếm đúng số phần tô. Phiên RS5 ghi ở PR #344, ví dụ `toan5-ck1-ngau-nhien` câu riêng 3 (11 ô tô, 1 ô trắng).
+- Phạm vi: 342 hình của đề có sẵn có `fill="acc-soft"`, ở nhiều môn; phần lớn là cột biểu đồ, khối có viền `ink`, nhận ra bằng viền nên không phải đổi. Lỗi ở hình mà phần tô và phần không tô của cùng một hình là dữ kiện của câu hỏi.
+- Nguyên nhân: quy ước hình (CLAUDE.md, câu “Hình trong dữ liệu…”; mục 3.2 của KE-HOACH-NOI-DUNG.md) chỉ dặn dùng tên token, không nói độ tương phản của phần tô; `acc-soft` là màu nền nhạt của nút, thẻ.
+- PO quyết ngày 26/11/2026: phần tô dùng `fill="acc"` với `fill-opacity="0.6"`, không thêm token, không sửa `css/`, `js/` (`Quiz.svg` đã nhận `fill-opacity`). Tính từ token của `css/app.css`: sáng #798abc, 3,4:1 với nền trắng, 3,3:1 với `bg`, 4,8:1 với nét `ink`; tối #697ba9, 3,9:1 với `surface`, 3,6:1 với nét `ink`.
+
+**L52. Toán 5 cuối năm viết đơn vị vận tốc khác sách: km/giờ, m/giây, m/phút.**
+- Hiện tượng: kho `toan5-ck2-*` (PR #337) có 25 câu viết “km/giờ”, 6 câu “m/giây”, 3 câu “m/phút”, theo lời giao việc. Sách Toán 5 tập hai in năm 2026 giới thiệu “km/h (km/giờ)”, “m/s (m/giây)” ở Bài 59 rồi viết km/h, m/s ở các bài sau: chữ OCR ở OnUp-Book có km/h 35 lần, m/s 20 lần, km/giờ, m/giây mỗi chữ 1 lần, không có m/phút. Phiên N5-ck2-toan ghi ở “Chỗ chủ app nên xem” của PR #337.
+- Hệ quả: chữ trên đề khác chữ con đọc trong sách và đề của trường. Khối 5 bật khi Merge PR #344 (26/11/2026), lịch sử câu của học sinh mới bắt đầu, nên đổi chữ câu bây giờ ít ảnh hưởng (`Quiz.key` đổi theo chữ câu hỏi).
+
+**L53. Ngữ văn thi thử tốt nghiệp Đề 1, Đề 2: thang chấm câu viết nói ra đáp án ý đúng/sai của cùng đề.**
+- Hiện tượng: `van12-tn-de1` câu 7 (đoạn văn phân tích nhân vật ông ngoại, 2 điểm): thang chấm, gợi ý nêu ông không mắng, chuyện năm mười sáu tuổi do ông kể, chiếc bình được trao lại, là các ý của câu 4 (đúng/sai 4 ý). `van12-tn-de2` câu 7 (đoạn văn đánh giá sức thuyết phục, 2 điểm) nêu người viết đối thoại công bằng với ý kiến trái chiều, là ý của một câu đúng/sai của đề đó. Ôn luyện mà mở câu 7 trước, bấm “Xem gợi ý”, rồi làm câu đúng/sai thì biết đáp án. Phiên N12-tn-van-c ghi ở PR #288; Đề 3–5 đã tránh.
+
 ---
 
 ## 2. Cách sửa gợi ý và điều kiện xong
@@ -1306,11 +1323,55 @@ Hai kiểm thử báo lỗi giả. Chỉ sửa `tests/bai-on-l6.js`, `tests/e2e.
 - `node tests/supabase/cloud-e2e.js` in `CLOUD E2E OK`.
 - Pull Request ghi các lệnh đã chạy và kết quả.
 
+### Phiên 9y
+
+**L51 · Phần tô đạt 3:1.** Chỉ sửa `data/banks/`, `tests/`, tài liệu. Không sửa `js/`, `css/`, `modules/`; không đổi chữ câu hỏi, lựa chọn (`Quiz.key` giữ nguyên).
+- **Tìm hình có phần tô:** script tạm đọc mọi hình của đề có sẵn (`tests/nap-de.js`), tìm hình có từ hai hình con cùng loại, cùng cỡ (ô `rect` cùng `width`, `height`; hình quạt cùng tâm, cùng bán kính; đoạn cùng độ dài…) mà có cái tô `acc-soft`, có cái không tô (không có `fill`, hoặc `none`, `surface`, `bg`). Xem tay từng hình, bỏ hình mà phần tô không phải dữ kiện. Câu có đáp án dựa vào số phần tô (phân số, tỉ số, phần trăm…) phải nằm trong danh sách.
+- **Đổi phần tô** của các hình đó thành `fill="acc"` `fill-opacity="0.6"`; giữ nét `ink`, toạ độ, số ô, chữ trong hình. Pull Request ghi danh sách (mã đề, số câu hay câu riêng N, số phần tô và không tô).
+- **`tests/kiem-tra-de.js`:** báo lỗi khi một hình có các hình con cùng loại, cùng cỡ mà có cái tô màu tương phản dưới 3:1 với nền (tính từ token của `css/app.css` ở cả sáng và tối, có tính `fill-opacity`), có cái không tô. Kèm tự thử: hình cũ của `toan5-ck1-ngau-nhien` câu riêng 3 phải bị báo, hình đã sửa thì không.
+- **`tests/e2e.js`:** trong bước “figures: no overlapping labels (L48)” hay một bước mới, đo màu đã vẽ của phần tô, phần không tô và nét kẻ ở ba hình mẫu (lớp 4, 5, 6), 360px, sáng và tối (màu tính theo `fill-opacity` trên nền của ô hình): tương phản từ 3:1 trở lên. Chụp ba hình trước, sau, chép sang `docs/hinh-9y/`.
+- **Tài liệu:** quy tắc “phần tô của hình chia phần dùng `fill="acc"` `fill-opacity="0.6"`, không dùng `acc-soft`” ghi vào câu “Hình trong dữ liệu…” của CLAUDE.md và mục 3.2 của docs/KE-HOACH-NOI-DUNG.md; sửa script môn thì ghi ở mục 3 của tests/README.md.
+
+**Xong khi:**
+- `node tests/kiem-tra-de.js` in `DE OK`; phần tự thử bắt được hình cũ.
+- `node tests/chay-mon.js` in OK mọi script (script môn có thể đọc màu của hình).
+- `node tests/e2e.js` in `E2E OK`, có phần đo tương phản.
+- Pull Request ghi danh sách hình đã đổi, ảnh trước, sau.
+
+### Phiên 9z
+
+Chỉ sửa `data/banks/`, `tests/`, tài liệu. Không sửa `js/`, `css/`, `modules/`. Tính lại bằng code mọi đáp án có đổi.
+
+**L52 · Toán 5 cuối năm viết km/h, m/s như sách.**
+- Trong mọi câu của `toan5-ck2-de1`, `-de2`, `-ngau-nhien` (đề bài, lựa chọn, đáp án, đơn vị in sau chỗ trống, lời giải, chữ trong hình): “km/giờ” → “km/h”, “m/giây” → “m/s”. Câu dùng “m/phút” (sách không dùng): đổi số liệu sang m/s hay km/h (ví dụ 60 m/phút = 1 m/s, 250 m/phút = 15 km/h), tính lại đáp án; số không đẹp thì đổi số liệu của câu, giữ ý hỏi, chủ đề, mức.
+- `tests/toan5-ck2.js`: luật “không km/h, m/s” đổi thành cấm “km/giờ”, “m/giây”, “m/phút”; phần tính lại đáp án theo đơn vị mới.
+- Đổi chữ câu hỏi làm `Quiz.key` đổi: ghi trong Pull Request.
+
+**L53 · Thang chấm câu viết không nói ra đáp án ý đúng/sai.**
+- `van12-tn-de1` câu 7, `van12-tn-de2` câu 7 (và câu 8 nếu cũng vậy): viết lại thang chấm (`rubric`) và gợi ý (`x`) cho chung hơn: nêu khía cạnh cần phân tích (cách ông ngoại dạy cháu, cách người viết lập luận…), không nêu chi tiết là đáp án một ý đúng/sai của đề. Giữ `pt`, số ý chấm, điểm từng ý, chữ đề bài.
+- `tests/van12-tn.js`: kiểm tra thêm mỗi ý của câu đúng/sai 4 ý không có chuỗi 4 từ chung với thang chấm, gợi ý của câu tự luận cùng đề (bỏ qua tên nhân vật, tên văn bản); kèm tự thử với chữ cũ của Đề 1 câu 7.
+
+**Chỉnh thêm (PO chốt cùng ngày, không phải lỗi):**
+- `toan9-vao10-de5` câu 11 (Bài 5b, chi phí lát mặt lối đi): thang chấm nhận cả 6 409 000 đồng (giữ 8,16π đến bước cuối) và 6 410 000 đồng (dùng diện tích đã làm tròn 25,64 m² ở câu a); ghi rõ ở ý chấm cuối. Gợi ý `x` đã nhắc hai cách.
+- `toan12-tn-de10` câu 21 (khối gỗ hình nêm, trả lời ngắn): thêm hình (`svg`) khối trụ, mặt phẳng cắt đi qua một đường kính của đáy, nghiêng 45° với đáy; phần nêm tô theo quy tắc của L51. Hình qua `Quiz.svg` không bị bỏ gì, chữ không đè (bước L48 của `tests/e2e.js`). Không đổi chữ câu hỏi, đáp án.
+
+**Xong khi:**
+- `node tests/kiem-tra-de.js` in `DE OK`.
+- `node tests/toan5-ck2.js`, `node tests/van12-tn.js`, `node tests/toan9-vao10.js`, `node tests/toan12-tn.js` in OK; `node tests/chay-mon.js` in OK.
+- `node tests/e2e.js` in `E2E OK`.
+- Pull Request ghi các câu đã đổi (chữ cũ → chữ mới), đáp án tính lại, các lệnh đã chạy và kết quả.
+
 ---
 
 ## 3. Các phiên Claude Code
 
-Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n, 9nb, 9o, 9ob, 9p, 9q, 9r, 9s, 9t, 9u, 9v, 9w đã xong (PR #119, #122, #123, #132, #137, #139, #174, #180, #195, #319, #320, #346). Phiên chờ làm: 9x (L50), lời giao việc bên dưới. Lỗi mới thì QC ghi mã (tiếp theo L51) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n, 9nb, 9o, 9ob, 9p, 9q, 9r, 9s, 9t, 9u, 9v, 9w đã xong (PR #119, #122, #123, #132, #137, #139, #174, #180, #195, #319, #320, #346). Phiên chờ làm: 9y (L51, gấp), 9z (L52, L53, gấp), 9x (L50), lời giao việc bên dưới; 9y, 9z gấp từ 26/11/2026 (PO chốt), lượt tự chạy làm lần lượt trước hàng đợi. Lỗi mới thì QC ghi mã (tiếp theo L54) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
 
 **Phiên 9x · Nhãn khối của mốc năm học không xếp theo thứ tự (L50)** (không gấp: chỉ là thứ tự chữ, máy có lịch cũ; sửa `js/app.js` nên chủ app Merge; không chạy cùng lúc với phiên khác sửa bước “default calendar reaches old data” của `tests/e2e.js`)
 > Đọc CLAUDE.md (mục “Lịch mặc định đến máy đã có dữ liệu”, mục “Chạy và kiểm tra”) và docs/SUA-LOI-CHAY-THU.md: L50 ở nhóm U của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9x". L50: từ khi bật lớp 5 (Phiên RS5), máy hay tài khoản có lịch cũ ghi “Lớp 4, 6, 5, 9, 12” ở mốc năm học, vì `gradesTxt` (js/app.js) giữ thứ tự `grades` của kì thi mà khi gộp lịch mặc định khối mới được nối vào cuối. Sửa `gradesTxt` xếp khối tăng dần, rà các chỗ khác ghi danh sách khối; không đổi dữ liệu đã lưu. Trong `tests/e2e.js`, bước “default calendar reaches old data”, bỏ `gradesAre` của Phiên RS5, so lại đúng chữ. Làm đủ "Xong khi": node tests/e2e.js, node tests/supabase/cloud-e2e.js. Mở Pull Request, ghi các lệnh đã chạy và kết quả. Làm xong thì cập nhật docs/KE-HOACH-PHAT-TRIEN-ONUP.md (bảng "Đã xong", bỏ dòng 9x ở mục 3); ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và “9x (L50)” ở câu "Phiên chờ làm".
+
+**Phiên 9y · Phần tô của hình chia phần đậm hơn (L51)** (gấp từ 26/11/2026, PO chốt: lượt tự chạy làm trước hàng đợi; chỉ sửa `data/banks/`, `tests/`, tài liệu nên lượt tự chạy tự gộp được; không chạy cùng lúc với phiên khác sửa `tests/kiem-tra-de.js` hay bước L48 của `tests/e2e.js`)
+> Đọc CLAUDE.md (“Quy ước code”, câu “Hình trong dữ liệu…”; mục “Chạy và kiểm tra”) và docs/SUA-LOI-CHAY-THU.md: L51 ở nhóm V của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9y". L51: phần tô `acc-soft` của hình chia phần (phân số, tỉ số…) chỉ tương phản 1,2:1 với phần không tô ở cả sáng và tối, dưới mức 3:1. Tìm các hình đó bằng script rồi xem tay; đổi phần tô thành `fill="acc"` `fill-opacity="0.6"` (không đổi chữ câu hỏi, lựa chọn); `tests/kiem-tra-de.js` báo phần tô dưới 3:1 (kèm tự thử); `tests/e2e.js` đo tương phản trong trình duyệt ở ba hình mẫu, chụp ảnh trước, sau vào docs/hinh-9y/; ghi quy tắc vào CLAUDE.md và mục 3.2 của docs/KE-HOACH-NOI-DUNG.md. Không sửa `js/`, `css/`, `modules/`. Làm đủ "Xong khi": node tests/kiem-tra-de.js, node tests/chay-mon.js, node tests/e2e.js. Mở Pull Request, ghi danh sách hình đã đổi, các lệnh đã chạy và kết quả. Làm xong thì cập nhật docs/KE-HOACH-PHAT-TRIEN-ONUP.md (bảng "Đã xong", bỏ dòng 9y ở mục 3); ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và “9y (L51, gấp), ” ở câu "Phiên chờ làm".
+
+**Phiên 9z · Chỉnh nội dung theo ghi chú của các phiên (L52, L53)** (gấp từ 26/11/2026, PO chốt; như 9y, lượt tự chạy tự gộp được; làm sau 9y, vì hình mới của câu khối nêm theo quy tắc phần tô của L51)
+> Đọc CLAUDE.md (“Nội dung câu hỏi”, mục “Chạy và kiểm tra”) và docs/SUA-LOI-CHAY-THU.md: L52, L53 ở nhóm V của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9z". L52: kho Toán 5 cuối năm viết “km/giờ”, “m/giây”, “m/phút”, sách in năm 2026 viết km/h, m/s; đổi như sách, câu “m/phút” đổi số liệu, tính lại đáp án, sửa luật của tests/toan5-ck2.js. L53: thang chấm, gợi ý câu 7 của `van12-tn-de1`, `van12-tn-de2` nói ra đáp án ý đúng/sai của cùng đề; viết lại cho chung, giữ điểm; tests/van12-tn.js kiểm tra thêm. Chỉnh thêm: thang chấm `toan9-vao10-de5` câu 11 nhận cả hai cách làm tròn; thêm hình cho `toan12-tn-de10` câu 21. Không sửa `js/`, `css/`, `modules/`. Làm đủ "Xong khi". Mở Pull Request, ghi chữ cũ → chữ mới, đáp án tính lại, các lệnh đã chạy và kết quả. Làm xong thì cập nhật docs/KE-HOACH-PHAT-TRIEN-ONUP.md (bảng "Đã xong", bỏ dòng 9z ở mục 3); ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và “9z (L52, L53, gấp), ” ở câu "Phiên chờ làm".
