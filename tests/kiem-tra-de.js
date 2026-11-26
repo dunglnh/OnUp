@@ -42,6 +42,8 @@
      câu chấm tự động và câu tự luận ghi auto (Phiên 9u, L47) sau pts: có auto khi và chỉ khi 0 < tổng pt của các câu không phải tự luận
      < pts, và auto bằng tổng đó; tự thử Quiz.grade với đề Toán tốt nghiệp ra 6,35/10 (cách chấm theo số câu cho 7,25), câu tự luận,
      Quiz.title của hai kì thi thử và soatDiem với đề cố ý viết sai (cả đề có tự luận thiếu auto, auto sai);
+   - tên hiển thị (Phiên UX22, Quiz.title): mọi đề của kì kiểm tra định kì hiện là "… · Bài ôn N" hay "… · Ôn tổng hợp", đề khác giữ tên;
+     tự thử vài tên mẫu, cả tiếng Anh ("Review N", "Mixed review"; đề thi thử "Test N");
    - lịch thi mặc định (data/calendar-2026-2027.js): đề và bài ôn gắn vào kì thi có thật, đúng khối của kì thi;
    - bộ lọc hình (Quiz.svg) bỏ được mã chạy và link ngoài trong vài hình mẫu cố ý viết sai (SVG_THU).
    - đề Tiếng Anh 100% tiếng Anh (Phiên TA1): đề có môn Tiếng Anh (mọi khối) và câu có topic bắt đầu bằng "English" trong đề
@@ -633,6 +635,26 @@ catalog.forEach((b) => {
   sai.forEach((b, i) => { if (!soatTen(b)) err(at, `tên sai mẫu ${i + 1} không bị báo: "${b.title}"`); });
   [mk("Tin học và Công nghệ 4 · Cuối kì I · Đề 1"), mk("Tin học và Công nghệ 4 · Giữa kì II · Đề 12"), mk("Tin học và Công nghệ 4 · Cuối năm · Đề ngẫu nhiên", true),
     { title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: MON_THU }].forEach((b, i) => { const m = soatTen(b); if (m) err(at, `tên đúng mẫu ${i + 1} bị báo: ${m}`); });
+}
+
+// tên hiển thị (Phiên UX22, X65; Quiz.title): ở kì kiểm tra định kì "Đề N" hiện là "Bài ôn N", "Đề ngẫu nhiên" là "Ôn tổng hợp" (tiếng Anh
+// "Review N", "Mixed review"); đề thi thử giữ "Đề N" ("Test N"); tên tự đặt giữ nguyên. Mọi đề có sẵn: tên hiển thị đúng như vậy (tên trong
+// danh mục, label đã lưu không đổi; các phiên làm đề vẫn đặt tên "Đề N")
+{
+  const at = "tên hiển thị", KI_ON = ["Giữa kì I", "Cuối kì I", "Giữa kì II", "Cuối năm"];
+  [["Toán 4 · Cuối kì I · Đề 2", "Toán", "vi", "Toán 4 · Cuối kì I · Bài ôn 2"], ["Toán 4 · Giữa kì II · Đề ngẫu nhiên", "Toán", "vi", "Toán 4 · Giữa kì II · Ôn tổng hợp"],
+    ["Toán 9 · Thi thử vào 10 · Đề 3", "Toán", "vi", "Toán 9 · Thi thử vào 10 · Đề 3"], ["Tiếng Anh 4 · Cuối kì I · Đề 1", "Tiếng Anh", "vi", "Tiếng Anh 4 · Cuối kì I · Bài ôn 1"],
+    ["Tiếng Anh 4 · Cuối kì I · Đề 1", "Tiếng Anh", undefined, "English 4 · End-of-term 1 · Review 1"], ["Tiếng Anh 6 · Cuối năm · Đề ngẫu nhiên", "Tiếng Anh", "en", "English 6 · End-of-year · Mixed review"],
+    ["Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 2", "Tiếng Anh", "en", "English 12 · Mock Graduation Exam · Test 2"], ["Ôn tập chương 1", "Toán", "vi", "Ôn tập chương 1"],
+    ["Toán 4 · Ôn chủ đề · Góc và đo góc", "Toán", "vi", "Toán 4 · Ôn chủ đề · Góc và đo góc"]].forEach(([title, subject, lg, want]) => {
+    const got = Quiz.title({ title, subject }, lg);
+    if (got !== want) err(at, `"${title}" (${lg || "theo môn"}) ra "${got}", cần "${want}"`);
+  });
+  catalog.forEach((b) => {
+    const nm = Quiz.title(b, "vi"), ki = String(b.title).split(" · ")[1];
+    if (KI_ON.includes(ki) && !/ · (Bài ôn \d+|Ôn tổng hợp)$/.test(nm)) err(at, `${b.id}: "${b.title}" hiện là "${nm}", cần kết thúc bằng “Bài ôn N” hay “Ôn tổng hợp”`);
+    if (!KI_ON.includes(ki) && nm !== b.title) err(at, `${b.id}: "${b.title}" không phải đề của kì kiểm tra định kì mà tên hiển thị đổi thành "${nm}"`);
+  });
 }
 
 // tự thử đề tính điểm (Phiên K5): Quiz.grade với đề Toán tốt nghiệp (12 câu nhiều lựa chọn 0,25 điểm, 4 câu đúng/sai 4 ý 1 điểm,

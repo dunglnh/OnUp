@@ -108,9 +108,9 @@ details.small>summary{min-height:44px;padding:12px 0;cursor:pointer}
 body.tabbed{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .tabbed .toast{bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 
-/* trang "Hôm nay" của học sinh (renderToday, Phiên UX1): thẻ gợi ý với nút Bắt đầu to, bài phụ, chuỗi ngày ôn T2–CN, huy hiệu */
+/* trang "Hôm nay" của học sinh (renderToday, Phiên UX1; UX22): thẻ bài chính có nút chọn cách làm, chuỗi ngày ôn T2–CN, huy hiệu */
 .today h1{font-size:1.5rem}
-.btn.lg{padding:14px 24px;font-size:1.1rem;width:100%;min-height:52px} /* nút Bắt đầu (Hôm nay), "Cho con học" (thẻ Bắt đầu của khu phụ huynh, UX3) */
+.btn.lg{padding:14px 24px;font-size:1.1rem;width:100%;min-height:52px} /* "Mở đề thi thử", "Vào ôn" (Hôm nay), "Cho con học" (thẻ Bắt đầu của khu phụ huynh, UX3) */
 .hero .linkbtn{color:inherit;text-decoration:underline;font-weight:600;align-self:flex-start}
 /* hôm nay đã ôn (Phiên UX9, X40): thẻ đầu trang nền ok-soft, hải cẩu tung bóng 64px, nút viền "Làm thêm một bài" nền surface */
 .hero.done{background:var(--ok-soft);color:var(--ink)}
@@ -120,6 +120,16 @@ body.tabbed{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .done-tip{color:var(--muted)}
 .hero.done .btn.ghost{background:var(--surface);border-color:var(--line);color:var(--ink);align-self:flex-start}
 .hero.done .linkbtn{color:var(--acc)}
+/* chọn cách làm ngay trên thẻ bài chính (Phiên UX22, X62): div.go-modes, nút a.btn.go căn trái, rộng hết thẻ, cao ≥ 60px, cách nhau 10px,
+   biểu tượng 24px, dòng đậm và dòng nhỏ 14px. Chưa ôn: Ôn luyện là nút chính (vàng), Làm như thi là nút viền (viền, chữ theo màu chữ của
+   thẻ); đã ôn: Ôn luyện là nút viền nền surface, biểu tượng acc; Làm như thi là link (.linkbtn). */
+.go-modes{display:flex;flex-direction:column;gap:10px}
+.btn.go{justify-content:flex-start;text-align:left;gap:12px;width:100%;min-height:60px;padding:10px 14px;font-weight:600}
+.btn.go>svg{width:24px;height:24px;flex:none}
+.btn.go .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.btn.go b{font-size:1.05rem;font-weight:700;overflow-wrap:anywhere}
+.btn.go small{font-size:.875rem;font-weight:500;line-height:1.35}
+.hero.done .btn.go>svg{color:var(--acc)}
 /* trang rỗng (emptyBox, X40): hình hải cẩu 96px, tên đậm 18px, một dòng nhạt, không quá một nút; căn giữa */
 .empty{align-items:center;text-align:center;padding:24px 16px}
 .empty img{width:96px;height:96px}
@@ -133,10 +143,6 @@ body.tabbed{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .day-pick{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
 .day-pick button{min-height:44px;padding:0;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);font-weight:700}
 .day-pick button[aria-pressed="true"]{border-color:var(--acc);background:var(--acc-soft);color:var(--acc)}
-.pick{flex-direction:row;align-items:center;gap:12px;padding:12px 14px}
-.pick .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.pick .grow b{overflow-wrap:anywhere}
-.pick-ic{font-size:1.5rem;flex:none}
 .streak .big{font-size:1.3rem;line-height:1.15}
 .fire{font-size:1.7rem;line-height:1}
 .week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
@@ -268,8 +274,10 @@ button.item{width:100%;text-align:left;background:transparent;border-left:0;bord
 .subj{flex-wrap:wrap}
 .subj .grow{flex-basis:7em}
 .des{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+@media (max-width:520px){.subj .des{margin-left:0}} /* ở điện thoại nút căn trái dưới tên môn, đọc từ trái sang: Bài ôn 1, 2, Ôn tổng hợp (UX22) */
 /* tiến độ của một kì thi (Phiên UX9, X38; progressOf trong js/app.js): dưới dòng ngày của nhóm kì thi, chữ "Đã làm 3/5 bài · đúng 82%"
-   và thanh 6px; nút đề, bài ôn đã làm là nút viền có dấu ✓ (đề chưa làm, đề ngẫu nhiên vẫn vàng). Không dùng lớp .ck (dòng ô đánh dấu). */
+   và thanh 6px; nút đề, bài ôn đã làm là nút viền có dấu ✓; bài chưa làm, Ôn tổng hợp là nút nền nhạt; chỉ bài chính của Hôm nay là nút
+   vàng (Phiên UX22, X64). Không dùng lớp .ck (dòng ô đánh dấu). */
 .grp-prog{display:flex;flex-direction:column;gap:6px;margin-top:4px}
 .prog-txt{font-size:.875rem;color:var(--muted)}
 .prog-txt b{color:var(--ink)}

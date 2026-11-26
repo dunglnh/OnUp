@@ -6,7 +6,7 @@
    Bài có lang: "en", hoặc gắn vào một kì thi IOE (kind "ioe") của khối, là bài ôn IOE: ở kì khác (kiểm tra định kì), dòng của bài
    đứng cuối nhóm kì thi và bài chỉ là bài chính ở Hôm nay khi mọi bài khác của kì đã làm (examItems trong js/app.js, Phiên UX15, X50).
    intro: câu giới thiệu cách làm ở thẻ "Hôm nay ôn gì?" khi bài này là bài chính chưa làm ("<kì> còn N ngày. Bài này bạn chưa làm.
-   <intro>"; Phiên UX15, X50); không ghi thì dùng câu của đề ngân hàng "Làm khoảng 20 phút, xem đáp án sau mỗi câu.". */
+   <intro>"; Phiên UX15, X50); không ghi thì chỉ có câu "Bài này bạn chưa làm." (Phiên UX22). */
 window.ONTAP_MODULES = [
   { id: "l4-giua-ki-1", title: "Ôn giữa kì I · Lớp 4", grade: 4, path: "modules/l4-giua-ki-1/index.html",
     desc: "Toán và Tiếng Việt, sách Kết nối tri thức, đến tuần 9. Đề có giờ, ôn theo bài, ôn câu sai.",
