@@ -11,7 +11,8 @@
 // Câu có hình: đọc lại tia số (số ở hai vạch đầu cuối, số phần bằng nhau, điểm ở đúng một vạch), hình chia phần tô màu (các phần bằng
 // nhau, đếm phần tô màu), hình tứ giác (cặp cạnh song song), góc (đo góc từ toạ độ: nhọn, vuông, tù, bẹt), hình vuông, hình chữ nhật
 // (số đo ghi trong hình thuộc cạnh gần nó nhất, đúng tỉ lệ, khớp đề), bảng đơn vị đo diện tích (thứ tự từ lớn đến bé, ô còn thiếu);
-// chữ trong hình cỡ từ 13, nằm trọn trong khung, không đè nhau. Rồi kiểm tra như tests/toan5-ck1.js: ma trận (mỗi ô rút 1 câu và có 4
+// chữ trong hình cỡ từ 13, nằm trọn trong khung, không đè nhau; phần tô của hình chia phần fill="acc" fill-opacity="0.6" (L51).
+// Rồi kiểm tra như tests/toan5-ck1.js: ma trận (mỗi ô rút 1 câu và có 4
 // câu: một câu ở mỗi đề cố định, hai câu riêng; Chủ đề 1 13 câu, Chủ đề 2 9, Chủ đề 3 3; rút thử ra đúng 10 Biết, 8 Hiểu, 7 Vận dụng;
 // đã làm hết một đề cố định thì không gặp lại câu của đề đó), chữ chủ đề của bài đã có ở kho cuối kì I đúng chữ của kho đó, chủ đề ôn
 // tập mới không có ở đề Toán 5 khác, đáp án đúng không dài hơn hẳn lựa chọn sai và là lựa chọn dài nhất hay ngắn nhất ở không quá một
@@ -137,7 +138,7 @@ const pts2 = (s) => { const v = nums(s), p = []; for (let i = 0; i < v.length; i
 const LINES = (svg) => [...svg.matchAll(/<line [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { a: [+a.x1, +a.y1], b: [+a.x2, +a.y2], dash: !!a["stroke-dasharray"] }; });
 const POLYS = (svg) => [...svg.matchAll(/<polygon [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { p: pts2(a.points), fill: a.fill || "none" }; });
 const CIRCLES = (svg) => [...svg.matchAll(/<circle [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { c: [+a.cx, +a.cy], r: +a.r, fill: a.fill || "none" }; });
-const RECTS = (svg) => [...svg.matchAll(/<rect [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { x: +a.x, y: +a.y, w: +a.width, h: +a.height, fill: a.fill || "none" }; });
+const RECTS = (svg) => [...svg.matchAll(/<rect [^>]*>/g)].map((m) => { const a = attrs(m[0]); return { x: +a.x, y: +a.y, w: +a.width, h: +a.height, fill: a.fill || "none", op: a["fill-opacity"] }; });
 const TEXTS = (svg) => [...svg.matchAll(/<text ([^>]*)>([^<]*)<\/text>/g)].map((m) => { const a = attrs("<t " + m[1] + ">"); return { at: [+a.x, +a.y], t: m[2], fs: +(a["font-size"] || 15), anchor: a["text-anchor"] || "start", b: a["font-weight"] === "700" }; });
 const rong = (t) => (t.b ? 0.62 : 0.55) * t.fs * [...t.t].length; // ước bề rộng chữ (Noto Sans)
 const hopChu = (t) => { const w = rong(t), x0 = t.anchor === "middle" ? t.at[0] - w / 2 : t.anchor === "end" ? t.at[0] - w : t.at[0]; return [x0, t.at[1] - 0.75 * t.fs, x0 + w, t.at[1] + 0.25 * t.fs]; };
@@ -515,6 +516,13 @@ assert.equal(dung.size, CHECKS.length, "có mục kiểm tra không khớp câu 
 const hinh = pool.questions.filter((q) => q.svg);
 assert.equal(hinh.filter((q) => hinhDaDoc.has(q.svg)).length, hinh.length, "hình nào cũng được đọc lại");
 hinh.forEach((q) => chuHinh(q.svg, q.q.slice(0, 40)));
+// phần tô của hình chia phần (L51, PO chốt 26/11/2026): trong một hình, các ô cùng cỡ mà có ô tô, có ô không tô thì ô tô dùng
+// fill="acc" fill-opacity="0.6" (tương phản từ 3:1 với nền ở cả sáng và tối), không dùng acc-soft, ok-soft (1,2:1)
+const KHONG_TO = ["none", "surface", "bg"];
+const phanTo = (svg, ten) => { const nhom = {}; RECTS(svg).forEach((r) => (nhom[r.w + "x" + r.h] = (nhom[r.w + "x" + r.h] || []).concat([r])));
+  Object.values(nhom).forEach((R) => { const to = R.filter((r) => !KHONG_TO.includes(r.fill)); if (to.length && to.length < R.length) to.forEach((r) => assert.ok(r.fill === "acc" && r.op === "0.6",
+    ten + ": phần tô của hình chia phần dùng fill=\"acc\" fill-opacity=\"0.6\" (L51), đang là " + r.fill + (r.op ? " " + r.op : ""))); }); };
+hinh.forEach((q) => phanTo(q.svg, q.q.slice(0, 40)));
 
 /* ---------- chữ, số như sách (Toán 5 tập một in năm 2026, Bài 1–18) ---------- */
 const kho = pool.questions;
@@ -724,6 +732,7 @@ assert.deepEqual(loDA, [], "lộ đáp án:\n" + loDA.join("\n"));
   assert.throws(() => chk(tg).right(Object.assign({}, tg, { svg: tg.svg.replace("220,50", "236,62") })), /song song|nhãn/);
   assert.throws(() => chk(ps).right(Object.assign({}, ps, { svg: ps.svg.replace('width="50" height="40"', 'width="54" height="40"') })), /bằng nhau/);
   assert.throws(() => chuHinh(ts.svg.replace(/<text x="(\d+)" y="40"/, '<text x="$1" y="40" font-size="12"'), "thử"), /cỡ 13/);
+  assert.throws(() => phanTo(ps.svg.replace(/fill="acc" fill-opacity="0.6"/g, 'fill="acc-soft"'), "thử"), /L51/);
   void tim; }
 
 /* ---------- câu của kho cuối kì I cùng chủ đề (đề “Ôn chủ đề” rút chung): không trùng đáp án, đề bài không gần trùng, không lộ đáp án ----------
