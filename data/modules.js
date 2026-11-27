@@ -4,9 +4,11 @@
    lang: "en" khi bài ôn bằng tiếng Anh (IOE): phần app bọc ngoài (nút quay lại, dòng ghi chú, hộp hỏi khi rời bài, thông báo
    lưu điểm) hiện tiếng Anh (Phiên TA2, chữ ở bảng TXT của js/quiz.js); không ghi thì bài chỉ có môn ta cũng tính là tiếng Anh.
    Bài có lang: "en", hoặc gắn vào một kì thi IOE (kind "ioe") của khối, là bài ôn IOE: ở kì khác (kiểm tra định kì), dòng của bài
-   đứng cuối nhóm kì thi và bài chỉ là bài chính ở Hôm nay khi mọi bài khác của kì đã làm (examItems trong js/app.js, Phiên UX15, X50).
+   đứng cuối nhóm kì thi, có nhãn "Tự chọn" (examItems trong js/app.js, Phiên UX15, X50). IOE là phần tự chọn (Phiên 9aa, L54): bài ôn
+   IOE không bao giờ là bài chính ở Hôm nay, không tính vào số bài ôn, tiến độ của kì kiểm tra định kì (practiceFor trong js/app.js).
    intro: câu giới thiệu cách làm ở thẻ "Hôm nay ôn gì?" khi bài này là bài chính chưa làm ("<kì> còn N ngày. Bài này bạn chưa làm.
-   <intro>"; Phiên UX15, X50); không ghi thì chỉ có câu "Bài này bạn chưa làm." (Phiên UX22). */
+   <intro>"; Phiên UX15, X50; bài ôn IOE không còn là bài chính nên intro của ioe-4, ioe-6 hiện không dùng); không ghi thì chỉ có câu
+   "Bài này bạn chưa làm." (Phiên UX22). */
 window.ONTAP_MODULES = [
   { id: "l4-giua-ki-1", title: "Ôn giữa kì I · Lớp 4", grade: 4, path: "modules/l4-giua-ki-1/index.html",
     desc: "Toán và Tiếng Việt, sách Kết nối tri thức, đến tuần 9. Đề có giờ, ôn theo bài, ôn câu sai.",

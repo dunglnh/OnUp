@@ -450,7 +450,7 @@ Kiểm thử: bước UX14 của `tests/e2e.js` (“practice 10 questions of a w
 
 ### 4.34 `today's main pick by exam subjects, IOE row last, subject order (UX15, X50, X51)`
 
-Kiểm thử: bước UX15 của `tests/e2e.js` (“today's main pick by exam subjects, IOE row last…”; Na 1/11, 14/11, 20/12/2026, Bin 20/12; nhóm cuối kì I lớp 6 ở tab Bài ôn, chi tiết kì thi, “Bài ôn của Na”; thẻ của Na, báo cáo tuần; ảnh `tests/screenshots/ux15/`, ảnh trước/sau ở `docs/hinh-ux15/`), bước UX1 (Bin 1/12/2026: bài chính “Toán · Bài ôn 2”, tức Toán 4 · Cuối kì I · Đề 2).
+Kiểm thử: bước UX15 của `tests/e2e.js` (“today's main pick by exam subjects, IOE row last…”; Na 1/11, 14/11, 20/12/2026, Bin 20/12; từ Phiên 9aa (L54) ngày 14/11 bài chính là “Toán · Bài ôn 1” của cuối kì I (trước đó là bài ôn IOE của kì IOE cấp trường), Na làm hết đề cố định của cuối kì I thì bài chính là “Toán · Ôn tổng hợp” (trước đó là bài ôn IOE); nhóm cuối kì I lớp 6 ở tab Bài ôn, chi tiết kì thi, “Bài ôn của Na”; thẻ của Na, báo cáo tuần; ảnh `tests/screenshots/ux15/`, ảnh trước/sau ở `docs/hinh-ux15/`), bước UX1 (Bin 1/12/2026: bài chính “Toán · Bài ôn 2”, tức Toán 4 · Cuối kì I · Đề 2).
 
 ### 4.35 `today: choose a mode on the card, review names (UX22)`
 
@@ -479,6 +479,19 @@ Kiểm thử: `tests/supabase/store-test.mjs` (mục 6: đặt, kiểm tra, bỏ
 Bài đã gửi chưa (UX6) chỉ ở bản đám mây: kiểm tra “UX6” của cloud-e2e.js (máy chủ giả `be.failResults`, ảnh `c8h`–`c8k`, `c11b`); tests/e2e.js chỉ kiểm tra bản lưu trên máy không có dòng mới.
 
 Kiểm thử: `tests/supabase/store-test.mjs` (mục 2, 6, 12: hai kho, đếm theo hồ sơ, `onChange` chỉ khi số bài đổi, tab khác trên cùng máy, máy chủ từ chối vì gửi quá nhiều, gia đình khác), các kiểm tra “UX6” của `tests/supabase/cloud-e2e.js` (máy chủ giả có công tắc `be.failResults`: mọi lệnh ghi vào bảng `results` lỗi như mất mạng, vì cloud-e2e.js gọi máy chủ giả qua `exposeFunction` nên `context.setOffline` không làm lượt gửi lỗi được; và `be.delayResults = <ms>`: lệnh ghi đó trả lời chậm; bật công tắc, làm đề; tắt công tắc, bấm Gửi lại; không dùng sự kiện `online`; máy chủ chậm hơn 4 giây: dòng đổi từ chưa gửi sang đã gửi trên cùng màn, lượt “Ôn lại câu sai” không bị ghi; bài ôn trong khung tiếng Việt và IOE; tab kia gửi trước; máy chủ thu hồi phiên giữa lúc con làm bài, và trước khi bấm Gửi lại, rồi đăng nhập lại; ảnh `c8i-chua-gui`, `c8j-bai-chua-gui`, `c8k-da-gui`, `c11b-bai-chua-gui` chép sang `docs/hinh-ux6/` (`ket-qua-chua-gui`, `trang-con-bai-chua-gui`, `ket-qua-da-gui`, `khu-phu-huynh-bai-chua-gui`), `c8h-ket-qua-de` vẫn chép sang `docs/hinh-dam-may/ket-qua-de.jpg`), cờ `ux6LocalOK` của `tests/e2e.js` (bản lưu trên máy không có dòng mới).
+
+### 4.41 `IOE is optional, never today's pick (L54)`
+
+Bước của `tests/e2e.js` chạy ngay sau bước UX22 (mục 4.35), trước bước `offline (L13)`; đánh số ở cuối mục 4 để không đổi số các mục 4.36–4.40 mà CLAUDE.md, `docs/TINH-NANG.md` đang trỏ tới.
+
+Kiểm thử Phiên 9aa (L54, IOE là phần tự chọn, chủ app chốt 27/11/2026; cách sửa ở `docs/SUA-LOI-CHAY-THU.md` mục 2, quy tắc ở CLAUDE.md mục “Con biết mình đã ôn đến đâu”): bản lưu trên máy, 360 × 740 sáng và tối; trong bước thay mọi kì thi bằng lịch mặc định (`window.ONTAP_SEED_EVENTS`: các bước trước có thể đã sửa kì thi, bỏ gắn đề) và tạo hai con mới của Mẹ Bin, chưa làm bài nào: Cốm lớp 4 (PIN 4040), Su lớp 6 (PIN 6060).
+- 27/11/2026 9:00 (IOE cấp trường 26–28/11 đang diễn ra), cả hai con: `#today` không có chữ “IOE”, có “Kiểm tra cuối học kì I còn N ngày.”, nút chính không tới bài ôn IOE; mục tiêu đầu của thẻ Huy hiệu “Hết bài ôn · Kiểm tra cuối học kì I” · “0/13 bài” (lớp 6 “0/16 bài”); tab Bài ôn: nhóm cuối kì I đứng đầu và là nhóm duy nhất đang mở, đầu nhóm “… · 13 bài ôn” (lớp 4), “… · 16 bài ôn” (lớp 6), dòng cuối là “IOE · Global Success 4” (“… 6”) có nhãn “Tự chọn” (dòng duy nhất có nhãn), đúng một nút vàng; bốn nhóm kì IOE chưa qua (cấp trường, xã/phường, tỉnh/thành phố, quốc gia; danh sách tính từ lịch mặc định) đứng cuối, ngay sau “Bài ôn khác”, thu gọn, dòng ngày “Tự chọn <ngày> · 1 bài ôn”; nhóm khác không có nhãn.
+- Cốm làm hết 13 đề cố định của cuối kì I, không làm `ioe-4` (kết quả ghi thẳng vào kho, sáng 27/11, đúng hết): thẻ “Bạn đã ôn rồi” (`#today.done`), dòng “Làm thêm: …” và nút không phải bài ôn IOE; dòng chúc mừng `#newBadge` và hàng “Đã có” có “Hết bài ôn · Kiểm tra cuối học kì I”, không còn mục tiêu “Hết bài ôn”; nhóm cuối kì I ở tab Bài ôn “Đã làm hết 13 bài · đúng 100%”.
+- 20/1/2027 9:00 (IOE cấp tỉnh/thành phố còn 43 ngày, giữa kì II còn 54 ngày): `#today` của Cốm, Su có “Kiểm tra giữa học kì II còn 54 ngày.”, không có “IOE”; trang quản trị (Bố Minh): “Kì thi tiếp theo · Lớp 4” là `gk2-l4`, “· Lớp 6” là `gk2-l6`, không có kì IOE; Mẹ Bin: thẻ của Cốm “Kiểm tra giữa học kì II còn 54 ngày · …”, báo cáo tuần của Cốm (cả trang `#view`, mục Kì thi sắp tới bắt đầu bằng `gk2-l4`, không có kì IOE) và `#rpMsgText` (“Sắp tới: Kiểm tra giữa học kì II, 15/3 – 26/3/2027 …”) không có chữ “IOE”.
+
+`audit` ở mọi màn của bước (cờ `l54OK`). Ảnh 360px sáng/tối ở `tests/screenshots/l54/`: `hom-nay`, `bai-on`, `het-bai-on`, `bao-cao`, bản ghép `<tên>.jpg`. Ảnh trước/sau ở `docs/hinh-9aa/` (chụp riêng bản `main` trước Phiên 9aa và bản mới, con lớp 4 mới tạo, 27/11/2026, 360px sáng).
+
+Các bước cũ đã sửa theo L54: bước `after K3 review (9e)` (L25: cuối kì I lớp 4 “13 bài ôn” ở đầu nhóm và thẻ kì thi, trước là 14), bước UX15 (mục 4.34).
 
 ## 5. `tests/kiem-tra-de.js`: điều script kiểm tra
 
