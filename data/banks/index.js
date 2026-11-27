@@ -1462,6 +1462,19 @@ window.ONTAP_SEED_BANKS = [
       "Đọc hiểu": [3, 2, 2], "Đại từ": [1, 1, 0], "Kết từ": [1, 0, 0], "Từ đồng nghĩa": [0, 1, 1], "Từ đa nghĩa": [0, 1, 0], "Câu ghép": [0, 1, 1],
       "Cách nối các vế câu ghép": [1, 0, 0], "Viết hoa danh từ chung": [1, 0, 0], "Viết tên người, tên địa lí nước ngoài": [1, 1, 1],
       "Dấu gạch ngang": [1, 1, 0], "Liên kết câu trong đoạn văn": [1, 0, 1], "Viết": [0, 0, 1] } } },
+  /* Tiếng Việt 5 · Kiểm tra giữa học kì I (Kết nối tri thức, Tiếng Việt 5 tập một, tuần 1–8, Bài 1–16; Phiên N5-gk1-tv). Kì đã
+     thi (2–13/11/2026), đề dùng cho năm học 2027–2028. Kho câu = 53 câu riêng trong file (4 đoạn đọc, 5 câu Viết) + 50 câu của 2 đề
+     cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, trong đó 7 câu Đọc hiểu
+     (đoạn 4 câu mức 1-1-2-3 và đoạn 3 câu mức 1-2-3), 17 câu Luyện từ và câu theo các bài Luyện từ và câu của Bài 1–15 (danh từ,
+     động từ, tính từ 3; đại từ 6 vì có ba bài; từ đồng nghĩa 4; từ đa nghĩa 4), 1 câu Viết tự chấm (nên cả ba đề 40 phút). Chữ chủ
+     đề như kho cuối kì I (đề “Ôn chủ đề” rút chung câu cùng chủ đề). Hai đề cố định chia đúng ma trận; mỗi ô Luyện từ và câu có rút
+     có 4 câu cho mỗi câu ô đó rút (một ở mỗi đề cố định, hai câu riêng), nên học sinh đã làm một đề cố định vẫn gặp câu mới. */
+  { id: "tv5-gk1-de1", title: "Tiếng Việt 5 · Giữa kì I · Đề 1", grade: 5, subject: "Tiếng Việt", minutes: 40, n: 25, file: "5-tv.js" },
+  { id: "tv5-gk1-de2", title: "Tiếng Việt 5 · Giữa kì I · Đề 2", grade: 5, subject: "Tiếng Việt", minutes: 40, n: 25, file: "5-tv.js" },
+  { id: "tv5-gk1-ngau-nhien", title: "Tiếng Việt 5 · Giữa kì I · Đề ngẫu nhiên", grade: 5, subject: "Tiếng Việt", minutes: 40, n: 25, file: "5-tv.js",
+    pool: { from: ["tv5-gk1-de1", "tv5-gk1-de2"], matrix: {
+      "Đọc hiểu": [3, 2, 2], "Danh từ, động từ, tính từ": [1, 1, 1], "Đại từ": [2, 2, 2], "Từ đồng nghĩa": [2, 1, 1], "Từ đa nghĩa": [2, 2, 0],
+      "Viết": [0, 0, 1] } } },
 
   /* Tiếng Anh 5 · Kiểm tra cuối học kì I (Global Success 5 tập một, Units 1–10, Review 1–2; Phiên N5-ck1-ta). Khối 5 chưa bật
      (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 25 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức
