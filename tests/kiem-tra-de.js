@@ -44,8 +44,8 @@
      câu chấm tự động và câu tự luận ghi auto (Phiên 9u, L47) sau pts: có auto khi và chỉ khi 0 < tổng pt của các câu không phải tự luận
      < pts, và auto bằng tổng đó; tự thử Quiz.grade với đề Toán tốt nghiệp ra 6,35/10 (cách chấm theo số câu cho 7,25), câu tự luận,
      Quiz.title của hai kì thi thử và soatDiem với đề cố ý viết sai (cả đề có tự luận thiếu auto, auto sai);
-   - tên hiển thị (Phiên UX22, Quiz.title): mọi đề của kì kiểm tra định kì hiện là "… · Bài ôn N" hay "… · Ôn tổng hợp", đề khác giữ tên;
-     tự thử vài tên mẫu, cả tiếng Anh ("Review N", "Mixed review"; đề thi thử "Test N");
+   - tên hiển thị (Phiên UX23a, Quiz.title): mọi đề của kì kiểm tra định kì hiện là "… · Đề N" hay "… · Đề trộn" (đề ngẫu nhiên), đề khác
+     giữ tên; tự thử vài tên mẫu, cả tiếng Anh ("Test N", "Mixed test"; đề thi thử "Test N");
    - lịch thi mặc định (data/calendar-2026-2027.js): đề và bài ôn gắn vào kì thi có thật, đúng khối của kì thi;
    - bộ lọc hình (Quiz.svg) bỏ được mã chạy và link ngoài trong vài hình mẫu cố ý viết sai (SVG_THU).
    - phần tô của hình chia phần (Phiên 9y, L51): trong một hình, các hình con cùng loại, cùng cỡ mà có cái tô, có cái không tô thì phần tô
@@ -836,14 +836,14 @@ catalog.forEach((b) => {
   if (soatDoDai({ title: "Ố".repeat(GIOI_HAN_COT.title), subject: "Ữ".repeat(GIOI_HAN_COT.subject) }, "a".repeat(GIOI_HAN_COT.note)).length) err(at, "tên, môn, ghi chú đúng giới hạn bị báo");
 }
 
-// tên hiển thị (Phiên UX22, X65; Quiz.title): ở kì kiểm tra định kì "Đề N" hiện là "Bài ôn N", "Đề ngẫu nhiên" là "Ôn tổng hợp" (tiếng Anh
-// "Review N", "Mixed review"); đề thi thử giữ "Đề N" ("Test N"); tên tự đặt giữ nguyên. Mọi đề có sẵn: tên hiển thị đúng như vậy (tên trong
-// danh mục, label đã lưu không đổi; các phiên làm đề vẫn đặt tên "Đề N")
+// tên hiển thị (Phiên UX23a; Phiên UX22, X65 gọi "Bài ôn N", "Ôn tổng hợp"; Quiz.title): ở kì kiểm tra định kì "Đề N" giữ "Đề N", "Đề ngẫu
+// nhiên" là "Đề trộn" (tiếng Anh "Test N", "Mixed test"); đề thi thử giữ "Đề N" ("Test N"); tên tự đặt giữ nguyên. Mọi đề có sẵn: tên hiển
+// thị đúng như vậy (tên trong danh mục, label đã lưu không đổi; các phiên làm đề vẫn đặt tên "Đề N")
 {
   const at = "tên hiển thị", KI_ON = ["Giữa kì I", "Cuối kì I", "Giữa kì II", "Cuối năm"];
-  [["Toán 4 · Cuối kì I · Đề 2", "Toán", "vi", "Toán 4 · Cuối kì I · Bài ôn 2"], ["Toán 4 · Giữa kì II · Đề ngẫu nhiên", "Toán", "vi", "Toán 4 · Giữa kì II · Ôn tổng hợp"],
-    ["Toán 9 · Thi thử vào 10 · Đề 3", "Toán", "vi", "Toán 9 · Thi thử vào 10 · Đề 3"], ["Tiếng Anh 4 · Cuối kì I · Đề 1", "Tiếng Anh", "vi", "Tiếng Anh 4 · Cuối kì I · Bài ôn 1"],
-    ["Tiếng Anh 4 · Cuối kì I · Đề 1", "Tiếng Anh", undefined, "English 4 · End-of-term 1 · Review 1"], ["Tiếng Anh 6 · Cuối năm · Đề ngẫu nhiên", "Tiếng Anh", "en", "English 6 · End-of-year · Mixed review"],
+  [["Toán 4 · Cuối kì I · Đề 2", "Toán", "vi", "Toán 4 · Cuối kì I · Đề 2"], ["Toán 4 · Giữa kì II · Đề ngẫu nhiên", "Toán", "vi", "Toán 4 · Giữa kì II · Đề trộn"],
+    ["Toán 9 · Thi thử vào 10 · Đề 3", "Toán", "vi", "Toán 9 · Thi thử vào 10 · Đề 3"], ["Tiếng Anh 4 · Cuối kì I · Đề 1", "Tiếng Anh", "vi", "Tiếng Anh 4 · Cuối kì I · Đề 1"],
+    ["Tiếng Anh 4 · Cuối kì I · Đề 1", "Tiếng Anh", undefined, "English 4 · End-of-term 1 · Test 1"], ["Tiếng Anh 6 · Cuối năm · Đề ngẫu nhiên", "Tiếng Anh", "en", "English 6 · End-of-year · Mixed test"],
     ["Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 2", "Tiếng Anh", "en", "English 12 · Mock Graduation Exam · Test 2"], ["Ôn tập chương 1", "Toán", "vi", "Ôn tập chương 1"],
     ["Toán 4 · Ôn chủ đề · Góc và đo góc", "Toán", "vi", "Toán 4 · Ôn chủ đề · Góc và đo góc"]].forEach(([title, subject, lg, want]) => {
     const got = Quiz.title({ title, subject }, lg);
@@ -851,7 +851,7 @@ catalog.forEach((b) => {
   });
   catalog.forEach((b) => {
     const nm = Quiz.title(b, "vi"), ki = String(b.title).split(" · ")[1];
-    if (KI_ON.includes(ki) && !/ · (Bài ôn \d+|Ôn tổng hợp)$/.test(nm)) err(at, `${b.id}: "${b.title}" hiện là "${nm}", cần kết thúc bằng “Bài ôn N” hay “Ôn tổng hợp”`);
+    if (KI_ON.includes(ki) && !/ · (Đề \d+|Đề trộn)$/.test(nm)) err(at, `${b.id}: "${b.title}" hiện là "${nm}", cần kết thúc bằng “Đề N” hay “Đề trộn”`);
     if (!KI_ON.includes(ki) && nm !== b.title) err(at, `${b.id}: "${b.title}" không phải đề của kì kiểm tra định kì mà tên hiển thị đổi thành "${nm}"`);
   });
 }
@@ -1012,5 +1012,5 @@ console.log(`Đề "Ôn chủ đề": ${soOnCD.chuDe} chủ đề có ít nhất
 console.log(`Danh mục chủ đề (ONTAP_SEED_TOPICS): ${soChuDeMoi.file} file, ${soChuDeMoi.chuDe} chủ đề, khớp số đếm lại.`);
 console.log(`Phần tô của hình chia phần (L51): ${soTo.dat} hình tương phản từ 3:1; ${daXem.size} hình phần tô nhạt đã xem, không phải dữ kiện (TO_DA_XEM).`);
 if (warn.length) console.log("Nhắc:\n" + warn.join("\n"));
-if (loose.length) console.log("Đề chưa gắn kì thi nào (vẫn hiện ở nhóm “Bài ôn khác”): " + loose.join(", "));
+if (loose.length) console.log("Đề chưa gắn kì thi nào (vẫn hiện ở nhóm “Đề khác” của tab Bài ôn): " + loose.join(", "));
 if (bad.length) { console.error(bad.join("\n")); console.error(`DE FAILED: ${bad.length} lỗi`); process.exitCode = 1; } else console.log("DE OK");

@@ -13,14 +13,14 @@
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   /* Chữ có " · " (tên đề, tên kì thi, dòng tóm tắt): khoảng trắng ngay trước dấu "·" thành khoảng trắng không ngắt (U+00A0, &nbsp;),
      để khi xuống dòng dấu "·" ở cuối dòng trên chứ không mở đầu dòng dưới (L26). Dùng sau esc() cho chữ hiện ở tiêu đề và thẻ;
-     không dùng cho aria-label, dữ liệu lưu. js/quiz.js có bản giống hệt cho nhãn tên đề khi làm bài. Tên hiển thị "Bài ôn N", "Ôn tổng hợp"
-     (tiếng Anh "Review N", "Mixed review"; Quiz.title, Phiên UX22) cũng không tách dòng. */
-  const nb = (s) => String(s).replace(/ (?=·)/g, "\u00a0").replace(/\b(?:Bài ôn|Review) (?=\d)|Ôn tổng hợp|Mixed review/g, (x) => x.replace(/ /g, "\u00a0"));
+     không dùng cho aria-label, dữ liệu lưu. js/quiz.js có bản giống hệt cho nhãn tên đề khi làm bài. Tên hiển thị "Đề N", "Đề trộn"
+     (tiếng Anh "Test N", "Mixed test"; Quiz.title, Phiên UX23a) cũng không tách dòng. */
+  const nb = (s) => String(s).replace(/ (?=·)/g, "\u00a0").replace(/(?:Đề|Test) (?=\d)|Đề trộn|Mixed test/g, (x) => x.replace(/ /g, "\u00a0"));
   const view = $("#view"), who = $("#who"), foot = $(".foot");
   const MODULES = window.ONTAP_MODULES || [];
   const modById = (id) => MODULES.find((m) => m.id === id) || null;
   const qCount = (b) => (b.pool ? b.n || 0 : b.questions ? b.questions.length : b.n || 0); // đề có sẵn chưa tải câu hỏi: số câu ghi ở danh mục; đề ngẫu nhiên: số câu rút mỗi lần
-  /* Tên hiển thị (Phiên UX22, X65): ở kì kiểm tra định kì đề có sẵn gọi "Bài ôn N", đề ngẫu nhiên "Ôn tổng hợp"; đề thi thử giữ "Đề N"
+  /* Tên hiển thị (Phiên UX23a; UX22 gọi "Bài ôn N", "Ôn tổng hợp"): đề có sẵn gọi "Đề N", đề ngẫu nhiên "Đề trộn"; đề thi thử giữ "Đề N"
      (Quiz.title, tiếng Việt). Dữ liệu (tên trong danh mục, label của kết quả đã lưu, mã đề) không đổi. Mọi chỗ hiện tên một đề (bankName)
      hoặc label của một kết quả (resName) đi qua đây; chữ hiện ra qua nb(), aria-label giữ khoảng trắng thường. */
   const bankName = (b) => Quiz.title(b, "vi");
@@ -321,18 +321,21 @@
      bài ôn IOE của nó); done: số bài trong đó đã có kết quả (doneMap.n); p: tỉ lệ câu đúng của lần làm gần nhất
      của mỗi bài đã làm, cả đề ngẫu nhiên, chỉ kết quả chấm tự động; chưa có thì null. results: mọi kết quả của con (Store.resultsFor,
      chưa lọc graded). Một hàm cho ba chỗ, nên cùng chữ, cùng số: tóm tắt nhóm kì thi ở tab Bài ôn (progBox), thẻ kì thi (.ready) và huy
-     hiệu "Hết bài ôn" (badges, badgePanel). unit: "đề" khi mọi bài của kì là đề thi thử (mockOnly, Phiên UX22: "Đã làm 2/16 đề"), còn lại "bài". */
-  function progressOf(e, s, results) {
-    const { mods, bks } = practiceFor(e, s.grade), items = mods.concat(bks.filter((b) => !b.pool)), dn = doneMap(results);
+     hiệu "Hết bài ôn" (badges, badgePanel). unit: "đề" khi mọi bài của kì là đề thi thử (mockOnly, Phiên UX22: "Đã làm 2/16 đề"), còn lại "bài".
+     de (Phiên UX23a): chỉ đếm đề (bên "Làm đề như thi" của tab Bài ôn, chi tiết kì thi của học sinh), unit "đề". */
+  function progressOf(e, s, results, de) {
+    const p = practiceFor(e, s.grade), mods = de ? [] : p.mods, bks = p.bks, items = mods.concat(bks.filter((b) => !b.pool)), dn = doneMap(results);
     const [r, t] = sumRT(mods.concat(bks).map((x) => dn.last[itemKey(x)]).filter(Boolean));
-    return { done: items.filter((x) => dn.n[itemKey(x)]).length, total: items.length, p: t ? pct(r, t) : null, unit: mockOnly({ mods, bks }) ? "đề" : "bài" };
+    return { done: items.filter((x) => dn.n[itemKey(x)]).length, total: items.length, p: t ? pct(r, t) : null, unit: de || mockOnly({ mods, bks }) ? "đề" : "bài" };
   }
   const allDone = (pr) => pr.total > 0 && pr.done >= pr.total;
-  // "Đã làm 3/5 bài · đúng 82%", làm hết: "Đã làm hết 5 bài · đúng 85%"; kì chỉ có đề thi thử: "Đã làm 2/16 đề" (HTML, số in đậm)
-  const progTxt = (pr) => (allDone(pr) ? `Đã làm hết <b>${pr.total}</b> ${pr.unit || "bài"}` : `Đã làm <b>${pr.done}/${pr.total}</b> ${pr.unit || "bài"}`) + (pr.p != null ? ` · đúng ${pr.p}%` : "");
+  /* "Đã làm 3/5 bài · đúng 82%", làm hết: "Đã làm hết 5 bài · đúng 85%"; kì chỉ có đề thi thử: "Đã làm 2/16 đề" (HTML, số in đậm); chủ đề
+     (topicProgress, verb "Đã ôn"; Phiên UX23a): "Đã ôn 3/70 chủ đề · đúng 77%" */
+  const progTxt = (pr) => { const v = pr.verb || "Đã làm", u = pr.unit || "bài";
+    return (allDone(pr) ? `${v} hết <b>${pr.total}</b> ${u}` : `${v} <b>${pr.done}/${pr.total}</b> ${u}`) + (pr.p != null ? ` · đúng ${pr.p}%` : ""); };
   const progBar = (done, total, label) => `<span class="bar${total && done >= total ? " good" : ""}" role="img" aria-label="${label}"><i style="width:${pct(Math.min(done, total), total)}%"></i></span>`;
   // dưới dòng ngày của nhóm kì thi (tab Bài ôn, Bài ôn của con): dòng tiến độ và thanh 6px; chưa làm bài nào thì không có
-  const progBox = (pr) => (pr.done ? `<span class="grp-prog"><span class="prog-txt">${progTxt(pr)}</span>${progBar(pr.done, pr.total, `Đã làm ${pr.done} trên ${pr.total} ${pr.unit || "bài"}`)}</span>` : "");
+  const progBox = (pr) => (pr.done ? `<span class="grp-prog"><span class="prog-txt">${progTxt(pr)}</span>${progBar(pr.done, pr.total, `${pr.verb || "Đã làm"} ${pr.done} trên ${pr.total} ${pr.unit || "bài"}`)}</span>` : "");
   /* Bài ôn, đề của một kì thi cho một khối (grade null: mọi khối): { mods, bks, ioe }, theo thứ tự ghi trong kì. IOE là phần tự chọn
      (chủ app chốt 27/11/2026; Phiên 9aa, L54): ở kì thường, bài ôn IOE (isIoeMod) nằm riêng ở ioe, nên chỗ đếm (practiceCount: "13 bài ôn",
      progressOf: tiến độ, huy hiệu "Hết bài ôn", practiceEvent) chỉ đọc mods, bks; ở kì IOE (kind "ioe") bài ôn IOE là bài ôn thường của kì
@@ -346,13 +349,13 @@
   /* Thứ tự bài ôn của một kì thi (Phiên UX15, X50, X51): { mods, bks, ioe }.
      - mods: bài ôn dạng trang thường, theo thứ tự trong modules của kì;
      - bks: đề (cố định và ngẫu nhiên) gom theo môn, môn theo ô "Môn thi" của kì rồi lịch thi của khối (subjOrder, bySubj; X34), môn không
-       có trong lịch đứng cuối theo thứ tự gặp; trong một môn theo bankOrder (kì, Bài ôn 1, Bài ôn 2… rồi Ôn tổng hợp, đề tự soạn cuối);
+       có trong lịch đứng cuối theo thứ tự gặp; trong một môn theo bankOrder (kì, Đề 1, Đề 2… rồi Đề trộn, đề tự soạn cuối);
      - ioe: bài ôn IOE (lang: "en" trong data/modules.js, hoặc gắn vào một kì thi IOE của khối), đứng sau các môn, dòng có nhãn "Tự chọn"
        (practiceList). IOE là phần tự chọn (Phiên 9aa, L54): bài ôn IOE không bao giờ là bài chính, bài "Làm thêm" (todayPick), không tính
        vào số bài ôn, tiến độ, môn chưa ôn, bài ôn chưa làm của kì (practiceCount, progressOf, examSubjects, weekTips). Ở kì thi IOE (kind
        "ioe") mọi bài ôn là bài ôn thường (practiceFor).
-     e null (nhóm "Bài ôn khác", hoặc khối không có kì thi nào có bài ôn): from là các bài ôn, đề đó (không có thì mọi bài ôn, đề của
-     khối); môn theo subjOrder([], [khối]); trong một môn đề cố định trước rồi đề ngẫu nhiên (Ôn tổng hợp cuối hàng, Phiên UX22), mỗi loại
+     e null (nhóm "Đề khác", "Chủ đề khác", hoặc khối không có kì thi nào có bài ôn): from là các bài ôn, đề đó (không có thì mọi bài ôn, đề
+     của khối); môn theo subjOrder([], [khối]); trong một môn đề cố định trước rồi đề ngẫu nhiên (Đề trộn cuối hàng, Phiên UX22), mỗi loại
      theo tên (nút ghi kèm tên kì, L18, L24). Một thứ tự cho tab Bài ôn, chi tiết kì thi, "Bài ôn của <tên>" (practiceList), bài chính của
      Hôm nay (todayPick), "Bài ôn chưa làm" của báo cáo tuần (weekTips) và môn chưa ôn của thẻ con (kidCard, examSubjects). Chỗ chỉ đếm
      (progressOf, practiceCount) dùng practiceFor. */
@@ -407,7 +410,7 @@
   /* Chủ đề hay sai có lối ôn nhanh (X48): [{ topic, subject, n, href, ref, redone }], nhiều câu sai nhất trước, gom theo (môn, chủ đề)
      từ wrongTopics của list (kết quả đã lọc theo thời gian). Chủ đề ôn được khi một kết quả của đề có sẵn cùng khối con ghi sai chủ đề đó
      (href: địa chỉ đề "Ôn chủ đề", ref: mã đề đó); chỉ có ở đề tự soạn thì href, ref rỗng. redone: 7 ngày qua đã ôn chủ đề đó đúng từ 80%
-     (nhãn "Đã ôn lại ✓"). all: mọi kết quả của con. */
+     (nhãn "Đã ôn lại ✓"; lượt dừng giữa chừng, mode "part", không tính là đã ôn: Phiên UX23a). all: mọi kết quả của con. */
   function weakTopicsOf(s, list, all) {
     const m = {};
     list.forEach((r) => (r.wrongTopics || []).forEach((t0) => {
@@ -417,7 +420,7 @@
       if (src && src.g === +s.grade) { o.href = topicHref(src.g, src.code, t); o.ref = topicRef(src.g, src.code, t); }
     }));
     const week = graded(within(all, 7));
-    return Object.values(m).map((o) => Object.assign(o, { redone: !!o.ref && week.some((r) => { const [x, y] = rtOf(r); return r.refId === o.ref && y > 0 && x / y >= 0.8; }) }))
+    return Object.values(m).map((o) => Object.assign(o, { redone: !!o.ref && week.some((r) => { const [x, y] = rtOf(r); return r.refId === o.ref && r.mode !== "part" && y > 0 && x / y >= 0.8; }) }))
       .sort((a, b) => b.n - a.n || a.topic.localeCompare(b.topic, "vi"));
   }
 
@@ -813,7 +816,7 @@
   }
 
   /* Số "bài ôn" của một kì (nhãn trên thẻ kì thi, đầu nhóm bài ôn, danh sách kì thi ở quản trị): bài ôn dạng trang và đề cố định,
-     không đếm đề ngẫu nhiên (Ôn tổng hợp: chỉ là cách làm lại các đề cố định), để khớp với nút "Đề ôn · N đề" (L25). Không đếm bài ôn IOE
+     không đếm đề ngẫu nhiên (Đề trộn: chỉ là cách làm lại các đề cố định), để khớp với nút "Đề ôn · N đề" (L25). Không đếm bài ôn IOE
      của kì thường (ioe của practiceFor, examItems; phần tự chọn, Phiên 9aa, L54): cuối kì I lớp 4 "13 bài ôn", lớp 6 "16 bài ôn". */
   const practiceCount = ({ mods, bks }) => mods.length + bks.filter((b) => !b.pool).length;
   /* Nhóm (kì thi) chỉ có đề thi thử: mọi đề cố định là đề tính điểm (Phiên K5), không có bài ôn dạng trang (bài ôn IOE tự chọn không
@@ -844,12 +847,12 @@
 
   /* Chữ trên nút đề trong một hàng (cùng môn), lấy từ tên hiển thị (bankName, Phiên UX22) của tên đề dạng "<môn> <khối> · <kì> · Đề N"
      (data/banks/index.js; đề ngẫu nhiên: "… · Đề ngẫu nhiên"):
-     - mọi đề cùng một kì: phần cuối của tên: ở kì kiểm tra định kì "Bài ôn N", đề ngẫu nhiên "Ôn tổng hợp"; đề thi thử "Đề N";
-     - nhiều kì khác nhau, hoặc full (nhóm "Bài ôn khác": đề của kì đã qua, đề chưa gắn kì; L24): tên bỏ phần môn và khối,
-       ví dụ "Cuối kì I · Bài ôn 1", "Giữa kì I · Ôn tổng hợp", để trẻ biết bài của kì nào;
+     - mọi đề cùng một kì: phần cuối của tên: "Đề N", đề ngẫu nhiên "Đề trộn" (Phiên UX23a; UX22: "Bài ôn N", "Ôn tổng hợp");
+     - nhiều kì khác nhau, hoặc full (nhóm "Đề khác": đề của kì đã qua, đề chưa gắn kì; L24): tên bỏ phần môn và khối,
+       ví dụ "Cuối kì I · Đề 1", "Giữa kì I · Đề trộn", để trẻ biết đề của kì nào;
      - tên tự đặt không bắt đầu bằng môn và khối (ngân hàng quản trị viên nhập): nguyên tên đề.
      Hai nút trùng chữ thì ghi dài như nhóm nhiều kì, vẫn trùng thì ghi nguyên tên đề. */
-  const LAST_PART = /^(?:Đề(?:\s*\d+|\s+ngẫu nhiên)?|Bài ôn \d+|Ôn tổng hợp)$/i;
+  const LAST_PART = /^Đề(?:\s*\d+|\s+ngẫu nhiên|\s+trộn)?$/i;
   function bankLabels(list, full) {
     const norm = (x) => String(x).normalize("NFC").replace(/\s+/g, " ").trim().toLowerCase();
     const info = list.map((b) => {
@@ -880,68 +883,187 @@
   /* Nhãn "Tự chọn" (Phiên 9aa, L54: IOE là phần tự chọn, chủ app chốt 27/11/2026): đầu dòng mô tả của dòng bài ôn IOE ở kì thường
      (practiceList) và đầu dòng ngày của nhóm kì IOE (practiceGroups); span.tag.ioe trong dòng chữ nhỏ, cùng màu với nhãn "IOE" ở Lịch thi. */
   const OPT_TAG = `<span class="tag ioe">Tự chọn</span> `;
-  /* items: thứ tự của examItems (Phiên UX15, X50, X51): mỗi bài ôn dạng trang thường một dòng; rồi đề ngân hàng gom theo môn, mỗi môn một
-     dòng có các nút "Bài ôn 1 · Bài ôn 2 · … · Ôn tổng hợp" (môn theo ô "Môn thi" của kì, nút theo thứ tự của items; chữ trên nút theo
-     bankLabels, full = luôn ghi kèm tên kì; aria-label là tên hiển thị đầy đủ); rồi mỗi bài ôn IOE một dòng, cuối danh sách, dòng mô tả bắt
-     đầu bằng nhãn "Tự chọn" (OPT_TAG, Phiên 9aa, L54: bài ôn IOE không tính vào số bài ôn, tiến độ của kì). res: mọi kết
-     quả của một học sinh (tab Bài ôn của con, "Bài ôn của <tên>" bố mẹ xem; Phiên UX9, X38).
-     Một nút vàng (Phiên UX22, X64): pick là mã bài chính của Hôm nay (todayPick), chỉ khi học sinh xem (tab Bài ôn, chi tiết kì thi mở từ
-     Lịch thi của học sinh): nút của bài đó là btn main sm, aria-label thêm ", nên làm trước". Còn lại: bài chưa làm và Ôn tổng hợp là
-     btn sm (nền acc-soft); đề cố định, bài ôn dạng trang đã làm (doneMap) là nút viền có dấu ✓ (btn sm done, span.done-ic), aria-label
-     thêm ", đã làm, lần gần nhất đúng 76%". Dòng môn: "Mỗi bài 25 câu", đã làm "Đã làm 1/2 bài · mỗi bài 25 câu" (các bài khác số câu:
-     "2 bài", "Đã làm 1/2 bài"; chỉ có Ôn tổng hợp: "Mỗi lần 25 câu"); đề thi thử: "Mỗi đề 120 phút", "Đã làm 2/10 đề · mỗi đề 120 phút".
-     Dòng bài ôn dạng trang đã làm có thêm câu "Đã ôn 3 lần." sau mô tả ("… ôn câu sai. Đã ôn 3 lần.", addSentence; Phiên UX9b, X49). */
+  /* Danh sách bài ôn của một kì (chi tiết kì thi của bố mẹ, quản trị; openEvent) theo thứ tự của examItems (Phiên UX15, X50, X51): mỗi bài
+     ôn dạng trang thường một dòng (modRow); rồi đề gom theo môn, mỗi môn một dòng có các nút "Đề 1 · Đề 2 · … · Đề trộn" (bankRows); rồi
+     mỗi bài ôn IOE một dòng, cuối danh sách, dòng mô tả bắt đầu bằng nhãn "Tự chọn" (OPT_TAG, Phiên 9aa, L54). res: mọi kết quả của một học
+     sinh (dấu ✓; Phiên UX9, X38). pick: mã bài chính của Hôm nay (nút vàng, Phiên UX22, X64), chỉ khi học sinh xem. Tab Bài ôn của học
+     sinh và "Bài ôn của <tên>" chia hai bên (practiceGroups, Phiên UX23a): chủ đề (topicGroups) và đề (examGroups). */
   function practiceList(items, canPlay, full, res, pick) {
     const { mods, bks, ioe } = items;
     if (!mods.length && !bks.length && !ioe.length) return `<div class="panel muted">Chưa có bài ôn cho mục này. ${esc(noBanks().t)}</div>`; // chi tiết kì thi chưa gắn bài ôn
-    const subs = new Map(), dn = doneMap(res), first = (x) => !!pick && x.id === pick;
-    const ck = `<span class="done-ic" aria-hidden="true">✓</span>`;
-    const doneAria = (x) => { const l = dn.last[itemKey(x)]; return ", đã làm" + (l && l.t ? `, lần gần nhất đúng ${pct(...rtOf(l))}%` : ""); };
-    // bài chính: nút vàng (không có ✓ dù đã làm, như "Lần trước bạn đúng 64%, làm lại để lên điểm."); bài đã làm: nút viền có ✓
-    const cls = (x, done) => ["btn", first(x) ? "main" : done ? "done" : "", "sm"].filter(Boolean).join(" ");
-    const tail = (x, done) => (done ? doneAria(x) : "") + (first(x) ? ", nên làm trước" : "");
-    bks.forEach((b) => { const k = subjOf(b); subs.set(k, (subs.get(k) || []).concat(b)); });
-    // opt: dòng bài ôn IOE ở kì thường, nhóm "Bài ôn khác" (phần tự chọn)
-    const modRow = (m, opt) => { const n = dn.n[itemKey(m)] || 0, go = canPlay ? "Vào ôn" : "Xem thử";
-      return `<div class="item"><span class="grow"><b>${esc(m.title)}</b><span class="small muted">${opt ? OPT_TAG : ""}${esc(n ? addSentence(m.desc, `Đã ôn ${n} lần.`) : m.desc)}</span></span><a class="${cls(m, n)}" href="#/play/${esc(m.id)}"${n || first(m) ? ` aria-label="${go}${tail(m, n)}"` : ""}>${n && !first(m) ? ck : ""}${go}</a></div>`; };
-    return `<div class="list">${mods.map((m) => modRow(m)).join("")}
-      ${[...subs].map(([sub, list]) => {
-        const pools = list.filter((b) => b.pool), fixed = list.filter((b) => !b.pool), nDone = fixed.filter((b) => dn.n[itemKey(b)]).length;
-        let info;
-        if (fixed.length && fixed.every(scoredBank)) { // đề thi thử: theo số phút
-          const m = fixed[0].minutes, each = m && fixed.every((b) => b.minutes === m) ? `mỗi đề ${m} phút` : "";
-          info = nDone ? `Đã làm ${nDone}/${fixed.length} đề` + (each ? " · " + each : "") : each ? "M" + each.slice(1) : `${fixed.length} đề`;
-        } else {
-          const nq = qCount(list[0]), each = list.every((b) => qCount(b) === nq) ? `mỗi ${fixed.length ? "bài" : "lần"} ${nq} câu` : "";
-          info = nDone ? `Đã làm ${nDone}/${fixed.length} bài` + (each ? " · " + each : "") : each ? "M" + each.slice(1) : `${(fixed.length ? fixed : pools).length} bài`;
-        }
-        return `<div class="item subj"><span class="grow"><b>${esc(sub)}</b><span class="small muted">${info}</span></span>
-          <span class="des">${bankLabels(list, full).map((lb, i) => { const b = list[i], done = !b.pool && dn.n[itemKey(b)], nm = bankName(b);
-            return `<a class="${cls(b, done)}${b.pool ? " rnd" : ""}" href="#/quiz/${esc(b.id)}" aria-label="${canPlay ? "" : "Xem thử "}${esc(nm.includes(lb) ? nm : lb + " · " + nm)}${tail(b, done)}">${done && !first(b) ? ck : ""}${nb(esc(lb))}</a>`; }).join("")}</span></div>`;
-      }).join("")}${ioe.map((m) => modRow(m, true)).join("")}</div>`;
+    const dn = doneMap(res);
+    return `<div class="list">${mods.map((m) => modRow(m, canPlay, dn, pick)).join("")}${bankRows(bks, canPlay, full, dn, pick)}${ioe.map((m) => modRow(m, canPlay, dn, pick, true)).join("")}</div>`;
   }
-  /* "Tất cả bài ôn" của một khối, gom theo kì thi chưa qua: kì thường gần nhất mở sẵn, các kì sau thu gọn.
-     Bài không thuộc kì nào trong số đó (kì đã qua, ngân hàng chưa gắn) nằm ở nhóm "Bài ôn khác", nên không sót bài nào;
-     nút đề ở nhóm này luôn ghi kèm tên kì ("Giữa kì I · Bài ôn 1", L24). res: mọi kết quả của học sinh (dấu ✓, tiến độ của nhóm kì thi, X38).
-     pk: bài chính của Hôm nay ({ ev, main } của todayPick; chỉ khi học sinh xem): nút vàng duy nhất, ở nhóm của kì đó (Phiên UX22, X64);
-     không có kì nào có bài ôn thì bài chính ở nhóm "Bài ôn khác". Nhóm chỉ có đề thi thử ghi "16 đề thi thử" (countTxt).
-     Nhóm tự chọn (Phiên 9aa, L54): kì IOE (kind "ioe"), hay kì chỉ có bài ôn IOE; đứng sau mọi nhóm khác, kể cả "Bài ôn khác", theo ngày;
-     luôn thu gọn, trừ khi là nhóm duy nhất (mở bằng ?ki=<mã kì> thì renderPractice mở); dòng ngày bắt đầu bằng nhãn "Tự chọn" (OPT_TAG),
-     kì thường chỉ có bài ôn IOE ghi "1 bài ôn" (nhãn đã nói tự chọn; danh sách kì thi của quản trị: "1 bài ôn tự chọn", countTxt). */
-  function practiceGroups(grade, canPlay, res, pk) {
-    const seen = new Set(), all = (g) => g.mods.concat(g.bks, g.ioe);
-    const pickIn = (g) => (pk && pk.main && (pk.ev ? g.e && g.e.id === pk.ev.id : !g.e) ? pk.main.id : null);
-    const opt = (g) => !!g.e && (g.e.kind === "ioe" || (!g.mods.length && !g.bks.length));
-    const evs = Store.events(grade).filter((e) => e.kind !== "moc" && status(e) !== "past").map((e) => Object.assign({ e }, examItems(e, grade)))
-      .filter((g) => all(g).length);
-    evs.forEach((g) => all(g).forEach((x) => seen.add(itemKey(x))));
-    const rest = examItems(null, grade, { mods: MODULES.filter((m) => m.grade === +grade && !seen.has(itemKey(m))), bks: Store.banks(grade).filter((b) => !seen.has(itemKey(b))) });
-    const groups = evs.filter((g) => !opt(g)).concat(all(rest).length ? [rest] : [], evs.filter(opt));
-    if (!groups.length) return noBanksBox("noBanks", grade);
-    return groups.map((g, i) => { const o = opt(g), open = o ? groups.length === 1 : !i;
-      return `<details class="grp"${g.e ? ` data-grp="${esc(g.e.id)}"` : ""}${open ? " open" : ""}>
-      <summary><span class="grow"><b>${g.e ? nb(esc(g.e.title)) : "Bài ôn khác"}</b><span class="small muted">${o ? OPT_TAG : ""}${nb((g.e ? esc(range(g.e)) + " · " : "") + (o && !practiceCount(g) ? g.ioe.length + " bài ôn" : countTxt(g)))}</span>${g.e && res ? progBox(progressOf(g.e, { grade }, res)) : ""}</span></summary>
-      ${practiceList(g, canPlay, !g.e, res, pickIn(g))}</details>`; }).join("");
+  /* Nút một bài (đề, bài ôn dạng trang): bài chính của Hôm nay (pick) là nút vàng (btn main sm, aria-label thêm ", nên làm trước"; không có
+     ✓ dù đã làm); bài đã làm (doneMap) là nút viền có dấu ✓ (btn sm done, span.done-ic; aria-label thêm ", đã làm, lần gần nhất đúng 76%");
+     bài chưa làm, Đề trộn là btn sm (nền acc-soft). Không đặt lớp .ck (lớp của dòng ô đánh dấu). */
+  const CK = `<span class="done-ic" aria-hidden="true">✓</span>`;
+  const pickCls = (x, done, pick) => ["btn", pick === x.id ? "main" : done ? "done" : "", "sm"].filter(Boolean).join(" ");
+  const pickTail = (dn, x, done, pick) => { const l = dn.last[itemKey(x)];
+    return (done ? ", đã làm" + (l && l.t ? `, lần gần nhất đúng ${pct(...rtOf(l))}%` : "") : "") + (pick === x.id ? ", nên làm trước" : ""); };
+  /* Dòng bài ôn dạng trang: tên, mô tả (đã ôn thì thêm câu "Đã ôn 3 lần.": addSentence, Phiên UX9b, X49), nút "Vào ôn" ("Xem thử" khi bố mẹ
+     xem). opt: bài ôn IOE ở kì thường (nhãn "Tự chọn" đầu dòng mô tả, Phiên 9aa). */
+  function modRow(m, canPlay, dn, pick, opt) {
+    const n = dn.n[itemKey(m)] || 0, go = canPlay ? "Vào ôn" : "Xem thử";
+    return `<div class="item"><span class="grow"><b>${esc(m.title)}</b><span class="small muted">${opt ? OPT_TAG : ""}${esc(n ? addSentence(m.desc, `Đã ôn ${n} lần.`) : m.desc)}</span></span><a class="${pickCls(m, n, pick)}" href="#/play/${esc(m.id)}"${n || pick === m.id ? ` aria-label="${go}${pickTail(dn, m, n, pick)}"` : ""}>${n && pick !== m.id ? CK : ""}${go}</a></div>`;
+  }
+  /* Các dòng môn của đề: mỗi môn một dòng (.item.subj), nút theo thứ tự của bks (examItems: Đề 1, Đề 2… rồi Đề trộn cuối hàng), chữ trên nút
+     theo bankLabels (full: luôn ghi kèm tên kì, "Giữa kì I · Đề 1"); aria-label là tên hiển thị đầy đủ. Dòng môn (Phiên UX23a): "Mỗi đề 25
+     câu, 40 phút", đã làm "Đã làm 1/3 đề · mỗi đề 25 câu, 40 phút" (các đề khác số câu, số phút: "3 đề", "Đã làm 1/3 đề"); đề thi thử
+     "Mỗi đề 120 phút", "Đã làm 2/10 đề · mỗi đề 120 phút" (UX22). exam (bên "Làm đề như thi"): học sinh chạm đề có số phút, không phải đề
+     thi thử là vào thẳng lượt làm như thi (#/quiz/<mã>?cach=thi, UX22); đề thi thử, đề không có số phút, bố mẹ xem thử: tới màn mở đề. */
+  function bankRows(bks, canPlay, full, dn, pick, exam) {
+    const subs = new Map();
+    bks.forEach((b) => { const k = subjOf(b); subs.set(k, (subs.get(k) || []).concat(b)); });
+    return [...subs].map(([sub, list]) => {
+      const fixed = list.filter((b) => !b.pool), nDone = fixed.filter((b) => dn.n[itemKey(b)]).length, mock = fixed.length && fixed.every(scoredBank);
+      const m = list[0].minutes, nq = qCount(list[0]);
+      const each = mock ? (m && fixed.every((b) => b.minutes === m) ? `mỗi đề ${m} phút` : "")
+        : list.every((b) => qCount(b) === nq && (+b.minutes || 0) === (+m || 0)) ? `mỗi đề ${nq} câu${m ? `, ${m} phút` : ""}` : "";
+      const n = (fixed.length || list.length) + " đề";
+      const info = nDone ? `Đã làm ${nDone}/${fixed.length} đề` + (each ? " · " + each : "") : each ? "M" + each.slice(1) : n;
+      return `<div class="item subj"><span class="grow"><b>${esc(sub)}</b><span class="small muted">${info}</span></span>
+          <span class="des">${bankLabels(list, full).map((lb, i) => { const b = list[i], done = !b.pool && dn.n[itemKey(b)], nm = bankName(b);
+            const href = "#/quiz/" + esc(b.id) + (exam && canPlay && b.minutes && !scoredBank(b) ? "?cach=thi" : "");
+            return `<a class="${pickCls(b, done, pick)}${b.pool ? " rnd" : ""}" href="${href}" aria-label="${canPlay ? "" : "Xem thử "}${esc(nm.includes(lb) ? nm : lb + " · " + nm)}${pickTail(dn, b, done, pick)}">${done && pick !== b.id ? CK : ""}${nb(esc(lb))}</a>`; }).join("")}</span></div>`;
+    }).join("");
+  }
+
+  /* ================= TAB BÀI ÔN: ÔN THEO CHỦ ĐỀ HAY LÀM ĐỀ NHƯ THI (Phiên UX23a, X66–X68) =================
+     Danh mục chủ đề: window.ONTAP_SEED_TOPICS cuối data/banks/index.js (tests/ghep-de.js ghi, tests/kiem-tra-de.js kiểm): { "<file câu hỏi>":
+     [[chủ đề, số câu chấm tự động, "mã kì"], …] }, nên biết chủ đề, số câu của mỗi kì mà không tải file câu hỏi (vẽ được cả khi mất mạng). */
+  const SEED_TOPICS = window.ONTAP_SEED_TOPICS || {};
+  // mã kì của một đề có sẵn (toan4-ck1-de1 → "ck1"; vao10, tn: đề thi thử), như tests/nap-de.js (kiCuaDe)
+  const kiOf = (id) => { const m = /-(gk1|ck1|gk2|ck2|vao10|tn)-/.exec(String(id) + "-"); return m ? m[1] : ""; };
+  /* Chủ đề của một kì cho một khối: mỗi môn của kì (thứ tự của examItems: ô "Môn thi" của kì, rồi lịch thi của khối) một mục { subject,
+     file, code, list: [{ t, n, ref, href }] }. Môn có đề ngẫu nhiên trong kì: chủ đề theo thứ tự ma trận (pool.matrix), chỉ chủ đề có trong
+     danh mục (chủ đề toàn câu tự luận như "Viết" không có). Môn không có đề ngẫu nhiên: chủ đề trong danh mục của file có mã kì của các đề của
+     môn đó trong kì, theo thứ tự danh mục. n = min(Quiz.TOPIC_N, số câu); ref: topicRef (mã đề "Ôn chủ đề", refId của kết quả); href:
+     topicHref. Môn chỉ có đề tự soạn, hay không có chủ đề nào (Toán 9 thi vào 10: toàn câu tự luận) có list rỗng. it: examItems(e, grade). */
+  function topicsOf(e, grade, it) {
+    it = it || examItems(e, grade);
+    const bySub = new Map(), g = +grade;
+    it.bks.forEach((b) => { const k = subjOf(b); bySub.set(k, (bySub.get(k) || []).concat(b)); });
+    return [...bySub].map(([subject, list]) => {
+      const seed = list.filter((b) => b.seed && b.file), file = seed.length ? seed[0].file : "", cat = SEED_TOPICS[file] || [], code = fileCode(file);
+      const byT = new Map(cat.map((x) => [x[0], x])), pools = seed.filter((b) => b.pool);
+      const ks = new Set(seed.map((b) => kiOf(b.id)).filter(Boolean));
+      const names = pools.length ? [...new Set(pools.flatMap((p) => Object.keys(p.pool.matrix || {}).map(topicKey)))].filter((t) => byT.has(t))
+        : cat.filter((x) => String(x[2]).split(" ").some((k) => ks.has(k))).map((x) => x[0]);
+      return { subject, file, code, list: names.map((t) => ({ t, n: Math.min(Quiz.TOPIC_N, byT.get(t)[1]), ref: topicRef(g, code, t), href: topicHref(g, code, t) })) };
+    });
+  }
+  /* Trạng thái một chủ đề với một học sinh: full là kết quả gần nhất của đề "Ôn chủ đề" đó (refId) mà mode không phải "part" (lượt dừng giữa
+     chừng) hay "self"; part là kết quả "part" gần nhất, chỉ khi nó mới hơn full. Đã ôn = có full (lúc nào trong năm học cũng được; chủ đề ở
+     hai kì cùng refId nên tính cho cả hai). Kết quả lưu trước UX23a không phân biệt lượt dừng giữa chừng nên tính là đã ôn. */
+  function topicState(results, ref) {
+    let full = null, part = null;
+    (results || []).forEach((r) => {
+      if (r.refId !== ref || isSelf(r)) return;
+      if (r.mode === "part") { if (!part || new Date(r.at) > new Date(part.at)) part = r; } else if (!full || new Date(r.at) > new Date(full.at)) full = r;
+    });
+    return { full, part: part && (!full || new Date(part.at) > new Date(full.at)) ? part : null };
+  }
+  /* Tiến độ chủ đề của một kì: { done, total, p, unit: "chủ đề", verb: "Đã ôn" } (progTxt: "Đã ôn 3/70 chủ đề · đúng 77%"); p: tỉ lệ câu
+     đúng của lượt làm hết gần nhất của mỗi chủ đề đã ôn. tp: topicsOf(e, grade) đã có. */
+  function topicProgress(e, grade, results, tp) {
+    const refs = [...new Set((tp || topicsOf(e, grade)).flatMap((x) => x.list.map((y) => y.ref)))];
+    let done = 0, r = 0, t = 0;
+    refs.forEach((ref) => { const f = topicState(results, ref).full; if (f) { done++; const [a, b] = rtOf(f); r += a; t += b; } });
+    return { done, total: refs.length, p: t ? pct(r, t) : null, unit: "chủ đề", verb: "Đã ôn" };
+  }
+  /* Một dòng cho cả hai bên (chi tiết kì thi của học sinh; dùng chung với UX23b): "Đã ôn 3/70 chủ đề · làm 1/13 đề" (HTML, số in đậm). Bên nào
+     là 0 thì bỏ bên đó ("Đã làm 1/13 đề"); cả hai là 0 thì chuỗi rỗng. */
+  function progBoth(e, s, results) {
+    const t = topicProgress(e, s.grade, results), x = progressOf(e, s, results, true);
+    const a = t.done ? `Đã ôn <b>${t.done}/${t.total}</b> chủ đề` : "", b = x.done ? `${a ? "làm" : "Đã làm"} <b>${x.done}/${x.total}</b> đề` : "";
+    return [a, b].filter(Boolean).join(" · ");
+  }
+  // bên đang chọn của tab Bài ôn (theo mã học sinh; bố mẹ xem "Bài ôn của <tên>" thì theo mã của con), localStorage ontap_cach_v1
+  const CACH = { "chu-de": "Ôn theo chủ đề", thi: "Làm đề như thi" };
+  const Cach = (() => {
+    const KEY = "ontap_cach_v1";
+    let mem = {};
+    const read = () => { try { const o = JSON.parse(localStorage.getItem(KEY) || "{}"); return o && typeof o === "object" ? o : mem; } catch (e) { return mem; } };
+    return {
+      get: (uid) => { const v = read()[uid]; return CACH[v] ? v : null; },
+      set(uid, v) { const o = read(); o[uid] = v; mem = o; try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) { /* chỉ giữ trong bộ nhớ */ } }
+    };
+  })();
+  /* Dòng chủ đề (a.item.trow, cả dòng là link, lề trái 28px, cao ≥ 56px): tên đậm; dòng nhỏ "Đã ôn · đúng 9/10" (theo full, kể cả khi có
+     lượt dừng mới hơn), chỉ có lượt dừng: "10 câu · lần trước dừng ở câu 4" (số câu đã làm, part.t), chưa ôn: "10 câu" (chủ đề ít câu ghi
+     số thật: "5 câu"); bên phải (ô 44px): ✓ khi đã ôn, "›" khi chưa; chủ đề gợi ý (pickRef, UX23b) là nút vàng nhỏ "Ôn". Học sinh: tới
+     href?cach=on-luyen (vào thẳng câu 1, renderTopic); bố mẹ: tới href (màn mở đề, xem thử). */
+  function trowHTML(y, st, canPlay, pickRef) {
+    const f = st.full, p = st.part, hint = !!pickRef && pickRef === y.ref;
+    const line = f ? `Đã ôn · đúng ${nf(f.r)}/${nf(f.t)}` : p ? `${y.n} câu · lần trước dừng ở câu ${p.t}` : `${y.n} câu`;
+    const aria = [y.t, f ? `đã ôn, đúng ${nf(f.r)}/${nf(f.t)}` : p ? `${y.n} câu, lần trước dừng ở câu ${p.t}` : `${y.n} câu`, hint ? "nên ôn trước" : ""].filter(Boolean).join(", ");
+    const end = hint ? `<span class="btn main sm" aria-hidden="true">Ôn</span>` : f ? `<span class="done-ic" aria-hidden="true">✓</span>` : `<span class="chev" aria-hidden="true">›</span>`;
+    return `<a class="item trow" href="${esc(y.href + (canPlay ? "?cach=on-luyen" : ""))}" aria-label="${esc(aria)}"><span class="grow"><b>${esc(y.t)}</b><span class="small muted">${nb(esc(line))}</span></span><span class="t-end">${end}</span></a>`;
+  }
+  /* Một môn ở bên chủ đề (details.tsub): summary có tên môn đậm và "13 chủ đề" hoặc "Đã ôn 1/13 chủ đề" (cao ≥ 52px, chữ V xoay như
+     .grp>summary); chỉ môn có chủ đề gợi ý (UX23b) mở sẵn. */
+  function tsubHTML(x, res, canPlay, pickRef) {
+    const st = x.list.map((y) => topicState(res, y.ref)), done = st.filter((z) => z.full).length, open = !!pickRef && x.list.some((y) => y.ref === pickRef);
+    return `<details class="tsub"${open ? " open" : ""}><summary><span class="grow"><b>${esc(x.subject)}</b><span class="small muted">${done ? `Đã ôn ${done}/${x.list.length} chủ đề` : `${x.list.length} chủ đề`}</span></span></summary>${x.list.map((y, i) => trowHTML(y, st[i], canPlay, pickRef)).join("")}</details>`;
+  }
+  // môn của một nhóm không có chủ đề nào (Toán 9 thi vào 10, môn chỉ có đề tự soạn): "Toán chỉ có ở Làm đề như thi."
+  const noTopicNote = (tp) => { const l = tp.filter((x) => !x.list.length).map((x) => x.subject); return l.length ? `<p class="small muted t-note">${esc(l.join(", "))} chỉ có ở Làm đề như thi.</p>` : ""; };
+  /* Hai bên của tab Bài ôn (renderPractice) và "Bài ôn của <tên>" (renderChildPractice), gom theo kì thi chưa qua: kì thường gần nhất mở
+     sẵn, các kì sau thu gọn (giữ cách của UX22, Phiên 9aa): cach "chu-de" (topicGroups) hay "thi" (examGroups). pk: bài chính của Hôm nay
+     ({ ev, main } của todayPick; chỉ khi học sinh xem): nút vàng duy nhất. Nhóm tự chọn (Phiên 9aa, L54): kì IOE (kind "ioe"), hay kì chỉ
+     có bài ôn IOE; đứng sau mọi nhóm khác, theo ngày; luôn thu gọn, trừ khi là nhóm duy nhất (mở bằng ?ki=<mã kì> thì renderPractice mở);
+     dòng ngày bắt đầu bằng nhãn "Tự chọn" (OPT_TAG). */
+  function practiceGroups(grade, canPlay, res, pk, cach) {
+    const evs = Store.events(grade).filter((e) => e.kind !== "moc" && status(e) !== "past").map((e) => Object.assign({ e }, examItems(e, grade)));
+    return cach === "thi" ? examGroups(grade, canPlay, res, pk, evs) : topicGroups(grade, canPlay, res, pk, evs);
+  }
+  const optGrp = (g) => !!g.e && (g.e.kind === "ioe" || (!g.mods.length && !g.bks.length));
+  const grpHTML = (g, open, title, head, prog, body) => `<details class="grp"${g.e ? ` data-grp="${esc(g.e.id)}"` : ""}${open ? " open" : ""}>
+      <summary><span class="grow"><b>${title}</b><span class="small muted">${optGrp(g) ? OPT_TAG : ""}${nb(head)}</span>${prog}</span></summary>
+      ${body}</details>`;
+  /* Bên "Ôn theo chủ đề": mỗi kì một nhóm (kì có bài ôn dạng trang, đề hay bài ôn IOE), dòng tóm tắt "28/12 – 8/1/2027 · 70 chủ đề" (kì
+     có bài ôn dạng trang: "· 1 bài ôn" trước) rồi tiến độ "Đã ôn 3/70 chủ đề · đúng 77%" (topicProgress, progBox). Trong nhóm: bài ôn dạng
+     trang thường (modRow), mỗi môn một details.tsub, bài ôn IOE cuối (Phiên 9aa), rồi dòng "Toán chỉ có ở Làm đề như thi." cho môn không có
+     chủ đề. Nhóm "Chủ đề khác" (thu gọn, sau các kì thường, trước kì IOE): chủ đề của khối không thuộc kì nào đang hiện (danh mục của mọi
+     file câu hỏi của khối), theo môn (subjOrder của khối), kèm bài ôn dạng trang không thuộc kì nào. Nút vàng: bài ôn dạng trang là bài chính
+     của Hôm nay; chủ đề gợi ý (pk.topic, UX23b) là nút vàng nhỏ "Ôn" và môn của nó mở sẵn. */
+  function topicGroups(grade, canPlay, res, pk, evs) {
+    const dn = doneMap(res), pickRef = pk && pk.topic ? pk.topic.ref : null, g0 = +grade;
+    const pickMod = (g) => (pk && pk.main && pk.main.kind === "mod" && (pk.ev ? g.e && g.e.id === pk.ev.id : !g.e) ? pk.main.id : null);
+    const groups = evs.filter((g) => g.mods.length || g.bks.length || g.ioe.length).map((g) => Object.assign({ tp: topicsOf(g.e, grade, g) }, g));
+    const seenMod = new Set(groups.flatMap((g) => g.mods.concat(g.ioe).map((m) => m.id))), seenRef = new Set(groups.flatMap((g) => g.tp.flatMap((x) => x.list.map((y) => y.ref))));
+    const files = [...new Set(Store.banks(grade).filter((b) => b.seed && b.file).map((b) => b.file))], order = bySubj(subjOrder([], [g0]));
+    const restTp = files.map((f) => { const code = fileCode(f), subject = Store.banks(grade).find((b) => b.seed && b.file === f).subject;
+      return { subject, file: f, code, list: (SEED_TOPICS[f] || []).map((x) => ({ t: x[0], n: Math.min(Quiz.TOPIC_N, x[1]), ref: topicRef(g0, code, x[0]), href: topicHref(g0, code, x[0]) })).filter((y) => !seenRef.has(y.ref)) }; })
+      .filter((x) => x.list.length).sort((a, b) => order(a.subject, b.subject));
+    const rest = Object.assign(examItems(null, grade, { mods: MODULES.filter((m) => m.grade === g0 && !seenMod.has(m.id)), bks: [] }), { tp: restTp });
+    const all = groups.filter((g) => !optGrp(g)).concat(rest.mods.length || rest.ioe.length || rest.tp.length ? [rest] : [], groups.filter(optGrp));
+    if (!all.length) return noBanksBox("noBanks", grade);
+    return all.map((g, i) => {
+      const nT = new Set(g.tp.flatMap((x) => x.list.map((y) => y.ref))).size, pick = pickMod(g);
+      const head = [g.e ? esc(range(g.e)) : "", g.mods.length ? `${g.mods.length} bài ôn` : "", nT ? `${nT} chủ đề` : ""].filter(Boolean).join(" · ");
+      const body = `<div class="list">${g.mods.map((m) => modRow(m, canPlay, dn, pick)).join("")}${g.tp.filter((x) => x.list.length).map((x) => tsubHTML(x, res, canPlay, pickRef)).join("")}${g.ioe.map((m) => modRow(m, canPlay, dn, pick, true)).join("")}${g.e ? noTopicNote(g.tp) : ""}</div>`;
+      return grpHTML(g, optGrp(g) ? all.length === 1 : !i, g.e ? nb(esc(g.e.title)) : "Chủ đề khác", head, g.e && res && nT ? progBox(topicProgress(g.e, grade, res, g.tp)) : "", body);
+    }).join("");
+  }
+  /* Bên "Làm đề như thi": mỗi kì có đề một nhóm (không có bài ôn dạng trang, IOE), dòng tóm tắt "28/12 – 8/1/2027 · 13 đề" (kì chỉ có đề thi
+     thử: "16 đề thi thử") rồi tiến độ "Đã làm 1/13 đề · đúng 80%" (progressOf chỉ đếm đề cố định); dòng môn, nút như bankRows (exam).
+     Nhóm "Đề khác": đề của kì đã qua, đề chưa gắn kì (nút ghi kèm tên kì, "Giữa kì I · Đề 1"). Nút vàng: bài chính của Hôm nay khi bài đó
+     là đề; không có kì nào có bài ôn thì ở nhóm "Đề khác". */
+  function examGroups(grade, canPlay, res, pk, evs) {
+    const dn = doneMap(res);
+    const pickIn = (g) => (pk && pk.main && pk.main.kind !== "mod" && (pk.ev ? g.e && g.e.id === pk.ev.id : !g.e) ? pk.main.id : null);
+    const groups = evs.filter((g) => g.bks.length), seen = new Set(groups.flatMap((g) => g.bks.map((b) => itemKey(b))));
+    const rest = examItems(null, grade, { mods: [], bks: Store.banks(grade).filter((b) => !seen.has(itemKey(b))) });
+    const all = groups.filter((g) => !optGrp(g)).concat(rest.bks.length ? [rest] : [], groups.filter(optGrp));
+    if (!all.length) return noBanksBox("noBanks", grade);
+    return all.map((g, i) => {
+      const fixed = g.bks.filter((b) => !b.pool), n = fixed.length || g.bks.length;
+      const head = (g.e ? esc(range(g.e)) + " · " : "") + (mockOnly({ mods: [], bks: g.bks }) ? `${n} đề thi thử` : `${n} đề`);
+      return grpHTML(g, optGrp(g) ? all.length === 1 : !i, g.e ? nb(esc(g.e.title)) : "Đề khác", head, g.e && res ? progBox(progressOf(g.e, { grade }, res, true)) : "",
+        `<div class="list">${bankRows(g.bks, canPlay, !g.e, dn, pickIn(g), true)}</div>`);
+    }).join("");
   }
 
   /* Ba ô số liệu của một học sinh (tab Kết quả; hồ sơ của con ở khu phụ huynh). */
@@ -970,11 +1092,50 @@
 
   /* Hồ sơ của con (#/child/<mã>, phụ huynh và quản trị mở từ thẻ của con) là báo cáo tuần (renderReport, Phiên UX2); danh sách bài ôn
      của con để xem thử ở #/child/<mã>/practice (renderChildPractice). Trang chủ của chính học sinh là renderToday (Phiên UX1). */
-  function renderChildPractice(s, viewer) {
-    view.innerHTML = `<div class="stack">${back("#/child/" + esc(s.id), "Báo cáo của " + s.name)}
-      <div><h2>Bài ôn lớp ${s.grade} của ${esc(s.name)}</h2><span class="muted">Gom theo kì thi. ${viewer.role === "student" ? "" : "Bạn xem thử được mọi bài, điểm không được lưu."}</span></div>
-      <section class="sec" id="allPractice">${practiceGroups(s.grade, false, Store.resultsFor(s.id))}</section></div>`;
+  /* "Bài ôn của <tên>" (Phiên UX23a): cùng #pMode và hai bên như tab Bài ôn của con (practiceView), không có nút vàng, chạm là xem thử (màn
+     mở đề; link chủ đề không có ?cach). Bên đang chọn nhớ theo mã của con (ontap_cach_v1). */
+  function renderChildPractice(s, viewer, query) {
+    practiceView(s, false, query, `${back("#/child/" + esc(s.id), "Báo cáo của " + s.name)}
+      <div><h2>Bài ôn lớp ${s.grade} của ${esc(s.name)}</h2><span class="muted">${viewer.role === "student" ? "Gom theo kì thi." : "Bạn xem thử được mọi bài, điểm không được lưu."}</span></div>`);
+  }
+  /* Màn bài ôn của một học sinh (tab Bài ôn: canPlay; "Bài ôn của <tên>": xem thử). Dưới tiêu đề là nhóm nút bật div.tabs#pMode (role group,
+     "Cách ôn"): "Ôn theo chủ đề" (data-cach "chu-de", mặc định) | "Làm đề như thi" ("thi"), aria-pressed theo bên đang chọn; dòng p#pModeTxt
+     theo bên; rồi #allPractice (practiceGroups). Bên mở sẵn: ?cach=chu-de|thi, không có thì lựa chọn gần nhất (Cach, ontap_cach_v1), chưa có
+     thì "chu-de"; ?ki=<mã kì thi> mở sẵn và cuộn tới nhóm đó (kì chỉ có ở một bên, như kì IOE chỉ có bài ôn dạng trang: mở bên đó). Đổi bên
+     thì vẽ lại #allPractice, giữ nhóm kì thi đang mở, không đổi địa chỉ. Khối chưa có bài ôn nào: chỉ có trang rỗng (noBanksBox). */
+  function practiceView(s, canPlay, query, head) {
+    const all = Store.resultsFor(s.id), pk = canPlay ? todayPick(s, all) : null, q = query || {};
+    if (!Store.banks(s.grade).length && !MODULES.some((m) => m.grade === +s.grade)) {
+      view.innerHTML = `<div class="stack">${head}<section class="sec" id="allPractice">${noBanksBox("noBanks", s.grade)}</section></div>`;
+      wireGo();
+      return;
+    }
+    let cach = CACH[q.cach] ? q.cach : Cach.get(s.id) || "chu-de";
+    if (CACH[q.cach]) Cach.set(s.id, cach);
+    const groupsOf = (c) => practiceGroups(s.grade, canPlay, all, pk, c);
+    const txt = (c) => (c === "thi" ? "Mỗi đề tính giờ, chấm điểm khi nộp bài như đề thi thật." : "Mỗi chủ đề 10 câu, xem đáp án sau mỗi câu." + (pk && pk.topic ? " Chủ đề màu vàng nên ôn trước." : ""));
+    let html = groupsOf(cach);
+    const hasKi = (h) => h.includes(`data-grp="${esc(q.ki)}"`);
+    if (q.ki && !CACH[q.cach] && !hasKi(html)) { const o = cach === "thi" ? "chu-de" : "thi", h2 = groupsOf(o); if (hasKi(h2)) { cach = o; html = h2; } }
+    view.innerHTML = `<div class="stack">${head}
+      <div class="tabs" id="pMode" role="group" aria-label="Cách ôn">${Object.entries(CACH).map(([k, t]) => `<button type="button" data-cach="${k}" aria-pressed="${k === cach}">${t}</button>`).join("")}</div>
+      <p class="muted" id="pModeTxt">${txt(cach)}</p>
+      <section class="sec" id="allPractice">${html}</section></div>`;
     wireGo();
+    $$("#pMode [data-cach]").forEach((b) => (b.onclick = () => {
+      const c = b.dataset.cach;
+      if (c === cach) return;
+      const open = $$("#allPractice details.grp[open]").map((d) => d.dataset.grp || "");
+      cach = c; Cach.set(s.id, c);
+      $$("#pMode [data-cach]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.cach === c)));
+      $("#pModeTxt").textContent = txt(c);
+      $("#allPractice").innerHTML = groupsOf(c);
+      const grps = $$("#allPractice details.grp");
+      if (open.length && grps.some((d) => open.includes(d.dataset.grp || ""))) grps.forEach((d) => (d.open = open.includes(d.dataset.grp || "")));
+      wireGo();
+    }));
+    const g = q.ki ? $(`#allPractice [data-grp="${CSS.escape(q.ki)}"]`) : null;
+    if (g) { g.open = true; g.scrollIntoView({ behavior: "smooth", block: "start" }); }
   }
 
   /* ================= TRANG "HÔM NAY" CỦA HỌC SINH (Phiên UX1; UX22) =================
@@ -985,13 +1146,13 @@
   /* Bài chính của Hôm nay: { ev, main }. ev: kì thi thường gần nhất (chưa qua) có bài ôn của khối (practiceEvent; không bao giờ là kì
      IOE); không có kì nào thì lấy mọi bài ôn của khối (ev null). Theo thứ tự của examItems (Phiên UX15, X50: bài ôn dạng trang thường, rồi
      đề cố định theo môn thi của kì; bài ôn IOE là phần tự chọn, không bao giờ là bài chính hay bài "Làm thêm": Phiên 9aa, L54): bài chưa
-     làm đầu tiên, rồi bài có tỉ lệ đúng thấp nhất (dưới 90%), rồi Ôn tổng hợp (đề ngẫu nhiên), rồi bài đầu. Không còn bài nào (khối chỉ có
+     làm đầu tiên, rồi bài có tỉ lệ đúng thấp nhất (dưới 90%), rồi Đề trộn (đề ngẫu nhiên), rồi bài đầu. Không còn bài nào (khối chỉ có
      bài ôn IOE) thì main null (thẻ là trang rỗng). main: { id, href, title, why, tip, n, minutes, kind } hoặc null:
-     - title: tên ngắn (shortName: "Toán · Bài ôn 1", "Toán · Ôn tổng hợp", đề thi thử "Toán · Đề thi thử 1");
+     - title: tên ngắn (shortName: "Toán · Đề 1", "Toán · Đề trộn", đề thi thử "Toán · Đề thi thử 1");
      - why: "<kì thi> còn N ngày." (đang diễn ra: "<kì thi> đang diễn ra.") rồi lí do: "Bài này 25 câu, bạn chưa làm." (đề thi thử "Đề
        này …"; bài ôn dạng trang "Bài này bạn chưa làm." và intro của bài trong data/modules.js), "Lần trước bạn đúng 64%, làm lại để lên
        điểm.", "Mỗi lần một bộ 25 câu khác, câu bạn hay sai được hỏi lại.", "Bạn đã làm tốt cả kì này, làm lại một bài để nhớ lâu hơn.";
-     - tip: ghi chú ở thẻ "Hôm nay đã ôn" ("Làm thêm: Toán · Bài ôn 2 (bạn chưa làm).", X40);
+     - tip: ghi chú ở thẻ "Hôm nay đã ôn" ("Làm thêm: Toán · Đề 2 (bạn chưa làm).", X40);
      - kind: "bank" (nút Ôn luyện, Làm như thi), "mock" (đề thi thử: một nút "Mở đề thi thử"), "mod" (bài ôn dạng trang: một nút "Vào ôn").
      results: mọi kết quả của con (bài có kết quả tự chấm cũng là bài đã làm, như progressOf; tỉ lệ đúng chỉ tính kết quả chấm tự động). Tab
      Bài ôn và chi tiết kì thi của học sinh tô vàng đúng bài này (practiceList, pick: X64). */
@@ -999,7 +1160,7 @@
      ôn. Không tính kì IOE và bài ôn IOE của kì thường (practiceFor; IOE là phần tự chọn, Phiên 9aa, L54). */
   const practiceEvent = (s) => Store.events(s.grade).filter((e) => e.kind !== "moc" && e.kind !== "ioe" && status(e) !== "past").find((e) => { const p = practiceFor(e, s.grade); return p.mods.length + p.bks.length; }) || null;
   /* Tên ngắn (Phiên UX22): "<môn> · <chữ trên nút của bài đó ở tab Bài ôn>" (bankLabels); đề thi thử "<môn> · Đề thi thử N"; bài ôn dạng
-     trang và tên tự đặt (không bắt đầu bằng môn và khối): nguyên tên. bks: các đề của nhóm (examItems), full: nhóm "Bài ôn khác". */
+     trang và tên tự đặt (không bắt đầu bằng môn và khối): nguyên tên. bks: các đề của nhóm (examItems), full: nhóm "Đề khác". */
   function shortName(x, bks, full) {
     if (x.path) return x.title;
     const row = bks.filter((b) => subjOf(b) === subjOf(x)), lb = bankLabels(row, full)[row.indexOf(x)], nm = bankName(x);
@@ -1124,15 +1285,10 @@
     </div>`;
     wireGo(); wireUnsent(s.id);
   }
-  /* Tab Bài ôn: mọi bài ôn của khối, gom theo kì thi (practiceGroups); một nút vàng là bài chính của Hôm nay (todayPick, X64). ?ki=<mã kì
-     thi>: mở sẵn và cuộn tới nhóm đó. */
+  /* Tab Bài ôn: hai cách ôn (Phiên UX23a): ôn theo chủ đề hay làm đề như thi (practiceView); một nút vàng là bài chính của Hôm nay
+     (todayPick, X64). ?cach=chu-de|thi: mở sẵn bên đó; ?ki=<mã kì thi>: mở sẵn và cuộn tới nhóm đó. */
   function renderPractice(s, query) {
-    const all = Store.resultsFor(s.id), pk = todayPick(s, all);
-    view.innerHTML = `<div class="stack"><div><h2>Bài ôn lớp ${s.grade}</h2>${pk.main ? `<span class="muted">Bấm vào một bài để bắt đầu. Bài màu vàng nên làm trước.</span>` : ""}</div>
-      <section class="sec" id="allPractice">${practiceGroups(s.grade, true, all, pk)}</section></div>`;
-    wireGo();
-    const g = query && query.ki ? $(`#allPractice [data-grp="${CSS.escape(query.ki)}"]`) : null;
-    if (g) { g.open = true; g.scrollIntoView({ behavior: "smooth", block: "start" }); }
+    practiceView(s, true, query, `<div><h2>Bài ôn lớp ${s.grade}</h2></div>`);
   }
   /* Tab Kết quả: ba ô số liệu, theo môn, chủ đề hay sai, 30 bài gần nhất. Chưa có bài nào thì chỉ có trang rỗng (X40) với nút
      "Làm bài đầu tiên" tới bài chính của Hôm nay (khối chưa có đề thì không có nút). */
@@ -1154,7 +1310,7 @@
   function resultsList(list) {
     if (!list.length) return `<div class="panel muted">Chưa có kết quả. Làm một bài ôn để bắt đầu.</div>`;
     // đề có tự luận (Phiên 9u, L47): dòng dưới tên ghi "phần app chấm", điểm "3/3 điểm", như phần tự chấm ghi "tự luận tự chấm", "7/7 điểm"
-    return `<div class="list">${list.map((r) => `<div class="item"><div class="grow"><b>${nb(esc(resName(r) || "Bài ôn"))}</b><span class="small muted">${esc(ago(r.at))}${r.subject ? " · " + esc(r.subject) : ""}${r.mode === "exam" ? " · làm như thi" : ""}${isSelf(r) ? " · tự luận tự chấm" : autoRes(r) ? " · phần app chấm" : ""}</span></div><b style="font-variant-numeric:tabular-nums">${ptsTxt(r)}</b></div>`).join("")}</div>`;
+    return `<div class="list">${list.map((r) => `<div class="item"><div class="grow"><b>${nb(esc(resName(r) || "Bài ôn"))}</b><span class="small muted">${esc(ago(r.at))}${r.subject ? " · " + esc(r.subject) : ""}${r.mode === "exam" ? " · làm như thi" : r.mode === "part" ? " · dừng giữa chừng" : ""}${isSelf(r) ? " · tự luận tự chấm" : autoRes(r) ? " · phần app chấm" : ""}</span></div><b style="font-variant-numeric:tabular-nums">${ptsTxt(r)}</b></div>`).join("")}</div>`;
   }
 
   /* ================= BÁO CÁO TUẦN = HỒ SƠ CỦA CON =================
@@ -1503,15 +1659,18 @@
     };
   }
 
-  /* ================= CHI TIẾT KÌ THI ================= */
+  /* ================= CHI TIẾT KÌ THI =================
+     Học sinh xem kì thi của mình (Lịch thi; Phiên UX23a): thay danh sách bài ôn bằng dòng tiến độ "Đã ôn 3/70 chủ đề · làm 1/13 đề"
+     (#evProg, progBoth; chưa ôn, chưa làm gì thì không có) và nút a.btn.sm#evPractice "Ôn cho kì này" tới #/practice?ki=<mã kì thi> (tab Bài
+     ôn mở nhóm của kì đó). Bố mẹ, quản trị: danh sách bài ôn, đề như trước (practiceList, tên "Đề N", "Đề trộn"). Nút "Thêm vào lịch điện
+     thoại" (icsBox) giữ nguyên. */
   function openEvent(id, grade, student) {
     const e = Store.event(id); if (!e) return;
     const u = Store.sessionUser();
     const g = grade != null ? grade : null;
     const canPlay = u.role === "student";
-    // học sinh xem kì thi của mình (Lịch thi): bài chính của Hôm nay là nút vàng duy nhất, ở kì của bài đó (Phiên UX22, X64)
-    const res = student ? Store.resultsFor(student.id) : null, pk = canPlay && student ? todayPick(student, res) : null;
-    const pick = pk && pk.main && pk.ev && pk.ev.id === e.id ? pk.main.id : null;
+    const res = student ? Store.resultsFor(student.id) : null, mine = canPlay && !!student;
+    const prog = mine && e.kind !== "moc" ? progBoth(e, student, res) : "";
     const box = document.createElement("div");
     box.className = "panel"; box.id = "evDetail";
     box.innerHTML = `<div class="row between"><span class="label">${esc(KIND[e.kind] || "")}${e.tentative && e.start ? " · Dự kiến" : ""}</span><button class="linkbtn" id="evClose">Đóng ✕</button></div>
@@ -1521,7 +1680,8 @@
       ${e.subjects && e.subjects.length ? `<p>Môn: ${esc(e.subjects.join(", "))}</p>` : ""}
       ${e.scope ? `<p class="small">Phạm vi: ${esc(e.scope)}</p>` : ""}
       ${e.note ? `<p class="small muted">${esc(e.note)}</p>` : ""}
-      ${e.kind !== "moc" ? `<div class="label">Bài ôn cho kì này</div>${practiceList(examItems(e, g), canPlay, false, res, pick)}` : ""}
+      ${e.kind === "moc" ? "" : mine ? `${prog ? `<p class="small prog-txt" id="evProg">${prog}</p>` : ""}<div class="row"><a class="btn sm" id="evPractice" href="#/practice?ki=${encodeURIComponent(e.id)}">Ôn cho kì này</a></div>`
+        : `<div class="label">Bài ôn cho kì này</div>${practiceList(examItems(e, g), canPlay, false, res, null)}`}
       ${u.role === "admin" ? `<div class="row"><a class="btn sm" href="#/admin/event/${esc(e.id)}">Sửa kì thi</a></div>` : ""}`;
     const old = $("#evDetail"); if (old) old.remove();
     let anchor = $(`[data-ev="${CSS.escape(id)}"]`);
@@ -1681,7 +1841,8 @@
      (ontap_pool_v1: "<mã học sinh>|<mã đề>" → { <Quiz.key(câu)>: [số lần làm, số lần sai] }), chỉ trên máy này, từ opts.onMarks
      của Quiz.run: cả câu tự luận đã làm (tự chấm dưới một nửa số điểm là sai); cộng với kết quả đã lưu (dùng chung mọi máy):
      đã làm đề cố định nào trong pool.from thì câu của đề đó tính là đã làm, chủ đề nằm trong wrongTopics của kết quả (đề cố định
-     đó hoặc chính đề ngẫu nhiên) thì tính là hay sai. */
+     đó hoặc chính đề ngẫu nhiên) thì tính là hay sai. Đề trộn còn đọc lịch sử câu của các lượt "Ôn chủ đề" cùng khối, môn (Phiên UX23a,
+     X68: PoolHist.ids), nên câu con đã gặp khi ôn chủ đề đứng sau câu chưa gặp. */
   const PoolHist = (() => {
     const KEY = "ontap_pool_v1", MAX = 600;
     let mem = {};
@@ -1689,6 +1850,8 @@
     const write = (o) => { mem = o; try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) { /* chỉ giữ trong bộ nhớ */ } };
     return {
       get: (uid, pid) => read()[uid + "|" + pid] || {},
+      // mã các đề có lịch sử câu của một học sinh, bắt đầu bằng prefix (đề "Ôn chủ đề" của một khối, môn: "chu-de:<khối>:<mã môn>:")
+      ids: (uid, prefix) => Object.keys(read()).filter((k) => k.startsWith(uid + "|" + prefix)).map((k) => k.slice(uid.length + 1)),
       // marks: [[mã câu, điểm 0–1]] của một lượt làm xong: mỗi câu thêm một lần làm, điểm dưới 1 thêm một lần sai.
       // late: điểm tự chấm câu tự luận sau khi nộp bài (làm như thi), lần làm đã ghi lúc nộp nên chỉ thêm lần sai.
       mark(uid, pid, marks, late) {
@@ -1701,11 +1864,13 @@
     };
   })();
   function poolHist(u, b) {
-    const local = PoolHist.get(u.id, b.id), byRef = {};
+    // lịch sử câu của chính đề này cộng của mọi lượt "Ôn chủ đề" cùng khối, môn (X68), cùng mã câu Quiz.key
+    const topics = b.seed ? PoolHist.ids(u.id, "chu-de:" + +b.grade + ":" + fileCode(b.file) + ":") : [];
+    const locals = [PoolHist.get(u.id, b.id)].concat(topics.map((id) => PoolHist.get(u.id, id))), byRef = {};
     graded(Store.resultsFor(u.id)).filter((r) => r.source === "bank").forEach((r) => (byRef[r.refId] = byRef[r.refId] || []).push(r));
     const wrongIn = (list, topic) => list.filter((r) => (r.wrongTopics || []).includes(topic)).length;
     return (q) => {
-      const h = local[Quiz.key(q)] || [0, 0], fixed = q.src && q.src !== b.id ? byRef[q.src] || [] : [];
+      const k = Quiz.key(q), h = locals.reduce((a, l) => (l[k] ? [a[0] + l[k][0], a[1] + l[k][1]] : a), [0, 0]), fixed = q.src && q.src !== b.id ? byRef[q.src] || [] : [];
       return { done: h[0] + fixed.length, wrong: h[1] + wrongIn(fixed, q.topic) + (wrongIn(byRef[b.id] || [], q.topic) ? 1 : 0) };
     };
   }
@@ -1766,7 +1931,10 @@
         onReport: (q, { reason, note }) => Store.addReport({ userId: u.id, bankId: bankOf(q), qKey: q.key, qText: Quiz.text(q), reason, note }),
         onFinish: (res) => {
           if (u.role !== "student") return;
-          Store.addResult(Object.assign({ userId: u.id, source: "bank", refId: b.id, subject: b.subject, label: b.title }, res));
+          // lượt "Ôn chủ đề" dừng giữa chừng (Phiên UX23a): ôn luyện mà làm chưa hết các câu của lượt thì lưu mode "part": vẫn tính điểm,
+          // số bài, chuỗi ngày như lượt ôn luyện, không tính là đã ôn chủ đề (topicState); dòng kết quả ghi "· dừng giữa chừng"
+          const part = b.topic != null && res.mode === "practice" && res.t < run.count();
+          Store.addResult(Object.assign({ userId: u.id, source: "bank", refId: b.id, subject: b.subject, label: b.title }, res, part ? { mode: "part" } : {}));
           // bản đám mây (UX6): dòng #qzSaved ở màn kết quả và thông báo ghi bài đã gửi cho bố mẹ chưa; bản lưu trên máy giữ "Đã lưu kết quả"
           // Quiz.run gọi onFinish ngay trước khi vẽ màn kết quả (lưu điểm tự chấm khi làm như thi: màn đó đã có): lấy chỗ trống của đúng màn
           // này ở microtask kế tiếp, xếp trước mọi lần whenSent gọi lại. Gửi xong muộn mà đã sang lượt khác thì không ghi (chỗ đó đã bị gỡ).
@@ -1787,9 +1955,10 @@
     $("#qPractice").onclick = () => start("practice");
     if ($("#qExam")) $("#qExam").onclick = () => start("exam");
     if (cach) {
-      // Vào thẳng câu 1 (UX22): địa chỉ về #/quiz/<mã> (replaceState, không có hashchange) và shownHash theo, nên tải lại trang thì về màn
-      // mở đề, không tự làm lại; nút Back về trang trước (Hôm nay), đang làm thì hỏi như khi bấm thẻ cách làm (chốt rời trang).
-      try { history.replaceState(history.state, "", "#/quiz/" + b.id); } catch (e) { /* trình duyệt chặn: giữ địa chỉ cũ */ }
+      // Vào thẳng câu 1 (UX22): địa chỉ bỏ ?cach (#/quiz/<mã>; đề "Ôn chủ đề": #/chu-de/<khối>/<mã môn>/<chủ đề>, Phiên UX23a; replaceState,
+      // không có hashchange) và shownHash theo, nên tải lại trang thì về màn mở đề, không tự làm lại; nút Back về trang trước (Hôm nay, tab
+      // Bài ôn), đang làm thì hỏi như khi bấm thẻ cách làm (chốt rời trang).
+      try { history.replaceState(history.state, "", (location.hash || "").split("?")[0] || "#/quiz/" + b.id); } catch (e) { /* trình duyệt chặn: giữ địa chỉ cũ */ }
       shownHash = location.hash;
       const mode = cach === "on-luyen" ? "practice" : cach === "thi" && b.minutes ? "exam" : null;
       if (mode) start(mode);
@@ -1821,7 +1990,9 @@
      nhất trước (termRank). Chạy ở quizScreen như đề ngẫu nhiên: chỉ có Ôn luyện, "Làm đề khác" khi kho có hơn 10 câu, lịch sử câu ở
      PoolHist theo mã đề. Lưu như đề: source "bank", refId topicRef(…) = "chu-de:<khối>:<mã môn>:<chủ đề>", label "<môn> <khối> · Ôn
      chủ đề · <chủ đề>", wrongTopics như đề, nên báo cáo tuần, chủ đề hay sai tính như đề thường; không phải bài ôn của kì thi nào nên
-     tiến độ kì thi (progressOf) và gợi ý bài ôn chưa làm (weekTips) không tính. */
+     tiến độ kì thi (progressOf) và gợi ý bài ôn chưa làm (weekTips) không tính; tiến độ chủ đề của tab Bài ôn (topicProgress, Phiên UX23a) tính
+     theo refId. cach (Phiên UX23a): #/chu-de/…?cach=on-luyen (dòng chủ đề ở tab Bài ôn) vẽ màn mở đề rồi bắt đầu ngay lượt ôn luyện, như ?cach
+     của UX22 (quizScreen); chưa tải câu hỏi thì màn tải đề, tải xong thì bắt đầu. Lượt dừng giữa chừng lưu mode "part" (quizScreen, onFinish). */
   const seedOf = (g, code) => Store.banks(+g).filter((x) => x.seed && fileCode(x.file) === code);
   /* thứ tự kì của đề nguồn: kì thi sắp tới (hoặc đang diễn ra) gần nhất, rồi các kì đã qua (gần nhất trước), rồi các kì sau; đề không gắn
      kì nào cuối. Kì sắp tới là kì thường như nextEvent (kì IOE là phần tự chọn, Phiên 9aa, L54: ngày 10/1–6/3/2027 kì gần nhất của lớp 4, 6
@@ -1845,7 +2016,7 @@
       return { done: h[0] + f.length + ((b.rank && b.rank[q.src]) || 0) / 1000, wrong: h[1] + wrongIn(f) };
     };
   }
-  function renderTopic(u, g, code, enc) {
+  function renderTopic(u, g, code, enc, cach) {
     let topic = "";
     try { topic = decodeURIComponent(enc || ""); } catch (e) { topic = enc || ""; }
     topic = topicKey(topic);
@@ -1855,7 +2026,7 @@
     const subject = srcs[0].subject, meta = { id: topicRef(g, code, topic), title: `${subject} ${+g} · Ôn chủ đề · ${topic}`, grade: +g, subject };
     // đã tải mọi file câu hỏi của khối, môn: đề nào cũng có câu hỏi (đề ngẫu nhiên thiếu đề gốc thì thôi, khi file của nó đã tải)
     const ready = () => { const l = seedOf(g, code); return l.every((x) => x.questions || (x.pool && l.some((y) => y.file === x.file && y.questions))); };
-    const again = () => renderTopic(u, g, code, enc);
+    const again = () => renderTopic(u, g, code, enc, cach);
     if (!ready()) {
       const files = [...new Set(srcs.filter((x) => !x.questions).map((x) => x.file))];
       loadQuiz(u, meta, () => Promise.all(files.map((f) => Store.loadBank(srcs.find((x) => x.file === f).id))).then(ready), again);
@@ -1869,7 +2040,7 @@
       wireGo();
       return;
     }
-    quizScreen(u, b);
+    quizScreen(u, b, cach);
   }
 
   /* ---------------- câu bị báo sai (Phiên R1) ----------------
@@ -2079,7 +2250,7 @@
   /* Danh sách đề (Phiên UX7, X12): trang "Đề tự soạn" của bản đám mây, tab "Ngân hàng đề" của bản lưu trên máy. Đề tự soạn (#myBanks)
      lên đầu, mỗi đề ghi kì thi đã gắn hoặc "chưa gắn vào kì thi nào". Đề có sẵn (#seedBanks) chọn theo khối: tab khối lấy từ gradeList(),
      ghi số đề (đang tìm thì số đề khớp), mặc định khối của các con; trong mỗi khối đề nhóm theo môn bằng <details> thu gọn (đang tìm thì
-     nhóm có đề khớp mở ra), môn theo thứ tự môn của lịch thi của khối, đề theo kì, đề ngẫu nhiên (Ôn tổng hợp) cuối mỗi kì (X34; UX22). Mỗi
+     nhóm có đề khớp mở ra), môn theo thứ tự môn của lịch thi của khối, đề theo kì, đề ngẫu nhiên (Đề trộn) cuối mỗi kì (X34; UX22). Mỗi
      dòng ghi tên hiển thị (bankName, như con thấy); ô tìm như ô tìm của màn Sửa kì thi (findHit), nhận cả tên trong danh mục, tìm ở mọi khối.
      Mọi khối vẽ sẵn, tab chỉ ẩn, hiện; bankGrade nhớ khối đang chọn. */
   let bankGrade = null;
@@ -2248,7 +2419,7 @@
      thi: ô "Môn thi" của kì đang sửa, theo thứ tự đã ghi), rồi môn trong subjects của các kì thi của từng khối trong gs (kì thi theo
      ngày), rồi của các khối còn lại (data/grades.js); bySubj(thứ tự) so hai tên môn theo thứ tự đó (không phân biệt hoa thường, dấu), môn
      không có trong lịch đứng cuối, giữ thứ tự danh mục (sort ổn định). Trong một nhóm (bankOrder): đề có sẵn theo kì (TERMS, tên chuẩn
-     của đề có sẵn), trong một kì Đề 1, Đề 2… (tên hiển thị Bài ôn 1, Bài ôn 2…) rồi đề ngẫu nhiên (Ôn tổng hợp), như tab Bài ôn và thứ tự
+     của đề có sẵn), trong một kì Đề 1, Đề 2… rồi đề ngẫu nhiên (Đề trộn), như tab Bài ôn và thứ tự
      gợi ý của Hôm nay (Phiên UX22; trước đó đề ngẫu nhiên đứng đầu, K3, X51); đề tự soạn (own) sau đề có sẵn, theo tên; bài ôn dạng trang
      theo tên. Đọc tên trong danh mục (title), không đọc tên hiển thị. */
   const TERMS = ["Giữa kì I", "Cuối kì I", "Giữa kì II", "Cuối năm"];
@@ -2720,7 +2891,7 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
       case "results": if (u.role !== "student") { go("#/home"); return; } return renderResults(u);
       case "play": return renderPlay(u, a);
       case "quiz": return renderQuiz(u, a, query.cach); // ?cach=on-luyen|thi: bắt đầu ngay (thẻ Hôm nay, UX22)
-      case "chu-de": return renderTopic(u, a, b, parts.slice(3).join("/")); // đề "Ôn chủ đề" (UX14, X48): #/chu-de/<khối>/<mã môn>/<chủ đề>
+      case "chu-de": return renderTopic(u, a, b, parts.slice(3).join("/"), query.cach); // đề "Ôn chủ đề" (UX14, X48): #/chu-de/<khối>/<mã môn>/<chủ đề>; ?cach=on-luyen: bắt đầu ngay (UX23a)
       case "account": return renderAccount(u);
       case "vao": location.replace("#/home"); return; // đã đăng nhập mà còn ở bước nhập PIN (UX4): về trang chính
       case "child":
@@ -2728,7 +2899,7 @@ Mức: Biết | Hiểu | Vận dụng   → mức độ của câu
         const c = Store.user(a);
         const allowed = c && c.role === "student" && (u.role === "admin" || (u.role === "parent" && (c.parentIds || []).includes(u.id)));
         if (!allowed) { go("#/home"); return; }
-        if (b === "practice") return renderChildPractice(c, u);
+        if (b === "practice") return renderChildPractice(c, u, query); // ?cach=, ?ki= như tab Bài ôn (Phiên UX23a)
         if (b) return notFound();
         return renderReport(c, u, query); // hồ sơ của con = báo cáo tuần (UX2); ?tuan=<n>: tuần đã qua (UX12, X43)
       }

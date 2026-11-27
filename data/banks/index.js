@@ -2349,7 +2349,7 @@ window.ONTAP_SEED_BANKS = [
       "Số thập phân": [1, 1, 0], "So sánh số thập phân": [1, 0, 1], "Viết số đo dưới dạng số thập phân": [1, 1, 1],
       "Làm tròn số thập phân": [1, 0, 1], "Đơn vị đo diện tích": [1, 1, 1] } } },
 
-  /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Bài ôn khác" của lớp 6 */
+  /* Đề thử nghiệm các dạng câu mới (Phiên K2), không gắn kì thi: hiện ở nhóm "Đề khác" của lớp 6 */
   { id: "thunghiem6-dang-cau-moi", title: "Đề thử nghiệm · Các dạng câu mới", grade: 6, subject: "Thử nghiệm", minutes: 30, n: 15, file: "6-thunghiem.js" }
 ];
 
