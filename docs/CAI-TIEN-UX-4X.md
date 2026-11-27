@@ -5,9 +5,9 @@ Bản 3.x đã làm xong UX9–UX15; UX13 không làm. Kiểm thử thiết kế
 - chỗ nào làm một persona khó dùng, đo được bao nhiêu;
 - sửa thế nào để không persona nào bị thiệt.
 
-**Figma:** trang [🚧 Master 4.x · Persona và đề xuất](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=376-2). Trang có ba khung persona, rồi mỗi phiên một section có ghi chú. Khung màn hình của phiên chỉ vẽ khi chủ app chọn phiên đó, như cách làm của bản 3.x: Phiên UX22 có khung ở section [UX22](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=380-63), ngay dưới persona.
+**Figma:** trang [🚧 Master 4.x · Persona và đề xuất](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=376-2). Trang có ba khung persona, rồi mỗi phiên một section có ghi chú. Khung màn hình của phiên chỉ vẽ khi chủ app chọn phiên đó, như cách làm của bản 3.x. Phiên UX22 có khung ở section [UX22](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=380-63), ngay dưới persona; UX23 ở section [UX23](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=421-658). Sáu phiên UX17, UX16, UX20, UX18, UX19, UX21 có khung từ ngày 27/11/2026, trong section của từng phiên.
 
-File này giữ cách chạy UAT, kết quả đo, vấn đề (mã X52–X68, nối tiếp bản 3.x), đề xuất theo phiên, ảnh và “Xong khi”. Các phiên UX16–UX21 là phiên ứng viên; **ngày 26/11/2026 PO đã chọn cả sáu** (chủ app giao PO chốt các điểm còn chờ), thứ tự và hạn ở cột “Gợi ý” của bảng dưới. Phiên UX22 (X62–X65) đến từ góp ý của chủ app ngày 25/11/2026 và **đã được chọn**. Phiên UX23 (X66–X68) đến từ yêu cầu của chủ app ngày 27/11/2026 và **đã được chọn**: PO viết vấn đề và yêu cầu; lượt PD (27/11/2026) vẽ khung, viết đề xuất chi tiết, “Xong khi” và lời giao việc của hai phiên code UX23a, UX23b. Phiên đã chọn thì PD vẽ khung ở Figma và viết lời giao việc ở mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); dòng của sáu phiên ở mục 3 của file đó (PO thêm ngày 26/11/2026). Trạng thái chỉ ghi ở file đó.
+File này giữ cách chạy UAT, kết quả đo, vấn đề (mã X52–X68, nối tiếp bản 3.x), đề xuất theo phiên, ảnh và “Xong khi”. Các phiên UX16–UX21 là phiên ứng viên; **ngày 26/11/2026 PO đã chọn cả sáu** (chủ app giao PO chốt các điểm còn chờ), thứ tự và hạn ở cột “Gợi ý” của bảng dưới. Phiên UX22 (X62–X65) đến từ góp ý của chủ app ngày 25/11/2026 và **đã được chọn**. Phiên UX23 (X66–X68) đến từ yêu cầu của chủ app ngày 27/11/2026 và **đã được chọn**: PO viết vấn đề và yêu cầu; lượt PD (27/11/2026) vẽ khung, viết đề xuất chi tiết, “Xong khi” và lời giao việc của hai phiên code UX23a, UX23b. Phiên đã chọn thì PD vẽ khung ở Figma và viết lời giao việc ở mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); dòng của sáu phiên ở mục 3 của file đó (PO thêm ngày 26/11/2026). Ngày 27/11/2026 PD đã rà lại đề xuất của sáu phiên theo UX22, UX23 (đoạn “Rà lại ngày 27/11/2026” ở đầu mỗi phiên), vẽ khung và viết lời giao việc. Trạng thái chỉ ghi ở file đó.
 
 ## 1. Tóm tắt
 
@@ -15,11 +15,11 @@ File này giữ cách chạy UAT, kết quả đo, vấn đề (mã X52–X68, n
 |---|---|---|---|---|
 | **UX22** · Hôm nay chọn cách làm ngay; gọi “Bài ôn 1, 2…” | X62–X65 (gộp cả X53) | mọi cấp, nhất là Bin | vừa | **chủ app chọn 25/11/2026**; làm trước các phiên dưới |
 | **UX23** · Ôn theo chủ đề mỗi tuần; chọn cách ôn trước | X66–X68 | mọi cấp, nhất là Bin | lớn | **chủ app yêu cầu 27/11/2026**; thứ 1 (sau Phiên 9aa sửa IOE); lượt PD xong 27/11/2026, chia hai phiên code: UX23a trước 3/12/2026, UX23b trước 6/12/2026 |
-| **UX17** · Màn mở đề gọn, nhãn câu giữ đúng chữ | X54, X55 | Linh, An; lớp 5 | nhỏ | **PO chọn 26/11/2026**; thứ 2 (PO lùi ngày 27/11/2026, sau UX23, 9x), trước 20/12/2026: nhỏ, cả ba cấp được lợi |
-| **UX16** · Làm dở, làm tiếp | X52, X61 (X53 gộp vào UX22) | Bin, Mẹ Hạnh; cả An, Linh | vừa | **PO chọn 26/11/2026**; thứ 3, trước 31/12/2026; PD rà lại X52 theo cách ôn mới của UX23 |
+| **UX17** · Màn mở đề gọn, nhãn câu giữ đúng chữ | X54, X55 | Linh, An; lớp 5 | nhỏ | **PO chọn 26/11/2026**; thứ 2 (sau UX23, 9x), trước 15/12/2026 (chủ app giữ hạn này ngày 27/11/2026): nhỏ, cả ba cấp được lợi |
+| **UX16** · Làm dở, làm tiếp; lời khen đúng việc | X52, X61 (X53 gộp vào UX22) | Bin, Mẹ Hạnh; cả An, Linh | vừa | **PO chọn 26/11/2026**; thứ 3, trước 31/12/2026; PD đã rà lại X52 theo cách ôn mới của UX23 (27/11/2026) |
 | **UX20** · Môn học của con, khối 10–12 | X59 | Linh, Mẹ Thu | lớn; lưu trên máy chủ (PO quyết 26/11/2026) | **PO chọn 26/11/2026**; thứ 4, trước 20/1/2027 (trước khi bật khối 10, 11; khối 12 đã bật khi Merge PR #334; `run.sh` chạy lại được từ PR #346) |
 | **UX18** · Đề thi thử làm ra giấy | X56 | An; Linh (Ngữ văn) | lớn | **PO chọn 26/11/2026**; thứ 5, trước 10/2/2027 (9u đã xong) |
-| **UX19** · Đường tới kì thi lớn | X57, X58 | An, Linh, Bố Tuấn, Mẹ Thu | vừa | **PO chọn 26/11/2026**; thứ 6, trước 20/2/2027 |
+| **UX19** · Đường tới kì thi lớn | X57, X58 | An, Linh, Bố Tuấn, Mẹ Thu | vừa | **PO chọn 26/11/2026**; thứ 6, trước 20/2/2027; PD rà lại 27/11/2026: thẻ `#bigExam` chỉ để xem |
 | **UX21** · Làm đề bằng bàn phím | X60 | Linh | nhỏ | **PO chọn 26/11/2026**; thứ 7, trước 28/2/2027 nếu còn lượt, không thì sau khi mở dùng thử |
 
 Không cần sửa (đo đạt ở cả ba cấp, ngày 11/11/2026):
@@ -523,6 +523,15 @@ Hành động là nút, link trong nội dung màn. Không tính thanh trên, th
 
 Sửa `js/app.js`, `js/quiz.js`, `css/app.css`; cả hai bản; không đổi dữ liệu.
 
+**Rà lại ngày 27/11/2026 (PD).**
+- Sau UX22, UX23 học sinh vào thẳng câu 1 khi chọn bài ở Hôm nay và tab Bài ôn. Màn mở đề còn là cửa vào chính của:
+  - đề thi thử (Hôm nay “Mở đề thi thử”, tab Bài ôn bên Làm đề như thi);
+  - lượt dở (UX16);
+  - bố mẹ xem thử.
+- Vì vậy X54 nặng nhất đúng ở đề thi thử lớp 9, 12 như đã đo. Đề xuất giữ nguyên, thêm chữ cho dòng tóm tắt (ở dưới).
+- Đề ngẫu nhiên (“Đề trộn” sau UX23a) và đề “Ôn chủ đề” giữ dòng giới thiệu của chúng (`appPoolIntro`, `appTopicIntro`).
+- Khung T1–T3 ở [section UX17](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=376-157) của trang Master 4.x: T1 là màn mở đề “Vật lí 12 · Thi thử tốt nghiệp · Đề 2”, T2 là `#qNote` đang mở, T3 là nhãn trên một câu trắc nghiệm của “Toán 9 · Giữa kì II · Đề 1”: “Toán · Hàm số y = ax² (a ≠ 0)”. Khung có cả bản sáng và tối.
+
 ![Màn mở đề thi thử: trước và sau](hinh-ux-4x/ux17-mo-de.jpg)
 
 ![Nhãn trên câu: trước và sau](hinh-ux-4x/ux17-nhan.jpg)
@@ -532,6 +541,8 @@ Sửa `js/app.js`, `js/quiz.js`, `css/app.css`; cả hai bản; không đổi d�
 - Vì sao: `.hero p` của màn mở đề (`quizScreen`, js/app.js) ghép số câu, cách chấm và cả `b.note`.
 - Đề xuất:
   - `.hero p` chỉ giữ một dòng do app dựng, ngăn bằng “ · ”: số câu, số phút (`b.minutes`), cách chấm. Ví dụ “28 câu · 50 phút · chấm thang 10 điểm như đề thật.” hay “25 câu · 40 phút · có lời giải từng câu.”. Câu “(15 câu tự luận tự chấm)” giữ như nay.
+    - Chữ mới ở hai cột `TXT`: `appMin(m)` (“50 phút” / “50 minutes”), `appSol` (“có lời giải từng câu” / “worked solutions for every question”), `appScoredLine(m)` (“chấm thang 10 điểm như đề thật” / “marked out of 10 like the real exam”).
+    - `appScored` (câu dài cũ) không dùng nữa.
   - `b.note` dài hơn 40 chữ chuyển vào `details.panel.note-more#qNote` ngay sau `.modes`:
     - `summary` cao ≥ 44px, gồm dòng đậm “Lời dặn của đề” và dòng nhỏ “Cấu trúc, phạm vi, cách chấm”;
     - mở ra là cả đoạn lời dặn;
@@ -556,50 +567,77 @@ Sửa `js/app.js`, `js/quiz.js`, `css/app.css`; cả hai bản; không đổi d�
   - Nhãn đầu màn kết quả đúng tên đề.
   - Bước TA2 vẫn qua.
 
-### Phiên UX16 · Làm dở, làm tiếp; lời giới thiệu đúng đề (X52, X61; X53 gộp vào UX22)
+### Phiên UX16 · Làm dở, làm tiếp; lời khen đúng việc (X52, X61; X53 gộp vào UX22)
 
-Sửa `js/app.js`, `js/quiz.js`, `css/app.css`; cả hai bản. Không đổi bảng, SQL, dữ liệu đã lưu.
+Sửa `js/app.js`, `js/quiz.js`, `css/app.css`; cả hai bản. Không đổi bảng, SQL. Làm sau UX23b, UX17.
 
-**Sau UX22 (25/11/2026):** tên nút là “Bài ôn N”, thẻ Hôm nay có nút chọn cách làm ngay, huy hiệu là “Hết bài ôn”. Các ý dưới đây đã viết theo đó. Ảnh của phiên này chụp trước UX22.
+**Rà lại ngày 27/11/2026 (PD, theo yêu cầu của PO ở mục 3 của KE-HOACH).** Sau UX23, con ôn chủ đề 10 câu (ôn luyện) và làm đề như thi. Ôn luyện cả một đề 25 câu chỉ còn ở màn mở đề. Vì vậy:
+- Lượt dừng giữa chừng: UX23a lưu `mode: "part"` cho lượt Ôn chủ đề. UX16 làm như vậy cho mọi lượt ôn luyện (đề cố định, Đề trộn, đề tự soạn).
+- “Làm tiếp 20 câu” của một lượt ôn luyện đã bấm dừng (đề xuất ngày 11/11) bỏ. Chủ đề dừng giữa chừng thì ôn lại chủ đề đó: Hôm nay gợi ý trước (UX23b), câu đã làm xếp sau.
+- “Làm tiếp” dùng cho lượt bị ngắt mà con không bấm dừng hay nộp: đóng app, tải lại trang, máy tắt, iPhone đóng app chạy nền. Hiện nay lượt đó mất hẳn (đo ở dưới). Nặng nhất là đề thi thử 90–120 phút của An, Linh.
+- Ảnh `ux16-*.jpg` chụp ngày 11/11 theo đề xuất cũ. Bản đúng là khung U1–U5 ở [section UX16](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=376-188) của trang Master 4.x.
 
-![Dừng ở câu 5/25: Hôm nay và màn mở đề, trước và sau](hinh-ux-4x/ux16-lam-tiep.jpg)
+![Đề xuất ngày 11/11 (cũ): dừng ở câu 5/25, Hôm nay và màn mở đề](hinh-ux-4x/ux16-lam-tiep.jpg)
 
-![Nút đề làm dở; lời giới thiệu theo đề](hinh-ux-4x/ux16-nut-de.jpg)
+![Đề xuất ngày 11/11 (cũ): nút đề làm dở; lời giới thiệu theo đề](hinh-ux-4x/ux16-nut-de.jpg)
 
-**X52. Dừng giữa đề ôn luyện vẫn tính là đã làm đề (Cao; Bin, Mẹ Hạnh; mọi cấp).**
-- Tái hiện: Bin ôn luyện “Toán 4 · Cuối kì I · Đề 2”, làm 5 câu, bấm “← Thoát” rồi “Dừng”. Kết quả lưu 5 câu (`t` = 5). Sau đó:
-  - nút “Đề 2” có ✓ (“đã làm, lần gần nhất đúng 0%” khi 5 câu sai);
-  - tiến độ kì tính đề đó (đã làm 4/14 thay vì 3/14);
-  - thẻ Hôm nay thành “Bạn đã ôn rồi. Giỏi lắm!” với “đúng 0/5 câu”, gợi ý làm thêm sang Đề 3, không nhắc 20 câu còn lại của Đề 2;
-  - mở lại Đề 2 thì làm từ đầu.
-  Persona: Bin hay dừng giữa chừng, mẹ thấy “1 bài” mà Bin mới làm 5 câu.
-- Vì sao: `itemKey`/`resKey` và `doneMap` (`progressOf`), `todayPicks`, `practiceList` coi mọi kết quả của đề là đã làm. `Quiz.run` không giữ chỗ dừng.
+**X52. Dừng giữa chừng vẫn tính là đã làm; lượt bị ngắt thì mất (Cao; Bin, Mẹ Hạnh, An, Linh).**
+- Tái hiện:
+  - Bin ôn luyện “Toán 4 · Cuối kì I · Đề 2” từ màn mở đề, làm 5 câu, bấm “← Thoát” rồi “Dừng”. Kết quả lưu `t` = 5. Sau đó:
+    - nút “Đề 2” có ✓;
+    - tiến độ kì tính đề đó;
+    - thẻ Hôm nay thành “Bạn đã ôn rồi. Giỏi lắm!” với “đúng 0/5 câu”.
+  - Linh làm như thi “Toán 12 · Thi thử tốt nghiệp · Đề 1” (90 phút), trả lời 10 câu rồi tải lại trang (hoặc iPhone đóng app chạy nền). Mở lại thì ra màn mở đề: không có kết quả, không làm tiếp được, 10 câu đã làm mất hết.
+- Vì sao:
+  - `doneMap` (`progressOf`), `todayPick`, `practiceList` coi mọi kết quả là đã làm.
+  - `Quiz.run` giữ lượt trong bộ nhớ của trang. `beforeunload` chỉ hỏi lại, không lưu gì.
 - Đề xuất:
-  - **Làm dở.** Kết quả ôn luyện của đề cố định không tính điểm có `t` nhỏ hơn số câu của đề (`qCount(b)`) là làm dở. Làm dở không tính vào “đã làm” của tiến độ kì, huy hiệu “Hết bài ôn”, nút ✓. Làm dở vẫn tính vào số bài hôm nay, chuỗi ngày, điểm, như nay.
-  - **Nút bài làm dở:** `btn sm part`: nền `surface`, viền và chữ `acc`, đậm 600, cao 44px. Đầu nút có `span.part-ic` “◐” (`aria-hidden`). `aria-label` “…, làm dở 5 trên 25 câu”. Dòng môn ghi “Bài ôn 2 làm dở 5/25 câu”.
-  - **Giữ chỗ dừng:**
-    - `Quiz.run` gọi `opts.onPause(keys)` khi dừng một lượt ôn luyện chưa hết câu; `keys` là mã câu đã làm (`Quiz.key`).
-    - `renderQuiz` lưu ở localStorage khóa `ontap_resume_v1`, theo mã học sinh rồi mã đề, bọc try/catch như `PoolHist`. Chỗ dừng chỉ có trên máy đó.
-    - Xóa chỗ dừng khi làm hết đề hoặc chọn làm lại từ đầu.
-  - **Màn mở đề có chỗ dừng:**
-    - thẻ “Lần trước” ghi “Lần trước: dừng ở câu 5/25 · đúng 3/5”;
-    - thẻ cách làm đầu tiên là `#qResume` (`.mode.main`): “Làm tiếp 20 câu” · “Từ câu 6. Câu đã làm giữ nguyên kết quả.”;
-    - thẻ Ôn luyện đổi thành “Ôn luyện từ đầu”.
-  - **Vòng làm tiếp:** chỉ gồm câu chưa làm, theo thứ tự cũ. Xong vòng thì lưu một kết quả cho cả đề: `r` cộng câu đúng của hai lần, `t` là số câu của đề, `s` cộng thời gian hai lần. Nhờ vậy đề thành đã làm. Kết quả làm dở cũ giữ trong lịch sử.
-  - Máy khác (không có chỗ dừng) vẫn thấy nút làm dở, nhưng chỉ có “Ôn luyện từ đầu”.
-  - **Hôm nay (`todayPicks`):** bài làm dở trong 7 ngày đứng trước bài chưa làm.
-    - Lời: “Bạn đã làm 5/25 câu lúc 19:42, đúng 3 câu. Làm tiếp từ câu 6, còn 20 câu.”
-    - Theo thẻ của UX22: nút chính `#todayResume` “Làm tiếp 20 câu” (`#/quiz/<mã>?cach=tiep`, vào thẳng câu 6), nút phụ `#todayPractice` “Ôn luyện từ đầu”. Không có Làm như thi ở thẻ này (vẫn có ở màn mở đề).
-    - Thẻ “Hôm nay đã ôn” (X40) chỉ hiện khi hôm nay có ít nhất một bài làm hết: đề hết câu, đề làm như thi hoặc bài ôn dạng trang.
-  - Chữ của màn mở đề, màn làm đề ở hai cột `TXT` (`appResume`, `appResumeNote`, `appFromStart`, `appPrevPart`), như đề Tiếng Anh: “Continue: 20 left”, “From question 6. Answers so far are kept.”, “Practice from the start”.
+  - **Lượt dừng giữa chừng** (`quizScreen`, `onFinish`): lượt ôn luyện kết thúc khi `res.t` nhỏ hơn số câu của lượt thì lưu `mode: "part"`, như lượt Ôn chủ đề ở UX23a. Lượt làm như thi nộp bài như nay (câu trống tính sai) và không phải `part`.
+    - Không tính là đã làm: nút ✓, tiến độ kì (`progressOf`, tiến độ chủ đề của UX23), huy hiệu “Hết bài ôn”, bài chính (`todayPick` coi như chưa làm).
+    - Thẻ “Hôm nay đã ôn” (X40) chỉ hiện khi hôm nay có ít nhất một kết quả không phải `part`, không phải `self`.
+    - Vẫn tính vào số bài, chuỗi ngày, điểm như nay. Tab Kết quả, báo cáo tuần ghi “ · dừng giữa chừng” (UX23a).
+  - **Giữ lượt đang làm** (`Quiz.run`, `quizScreen`; localStorage khóa `ontap_resume_v1`):
+    - Học sinh đang làm một lượt (ôn luyện hay làm như thi; đề có sẵn, đề tự soạn, chủ đề; không tính lượt “Ôn lại câu sai”) thì app lưu lượt đó trên máy, bọc try/catch:
+      ```
+      { <mã học sinh>: { <mã đề>: { mode, keys, order, ans, idx, used, at } } }
+      ```
+      `keys` là mã câu (`Quiz.key`) theo thứ tự của lượt; `order` là thứ tự phương án đã xáo; `ans` là câu trả lời đã ghi (cả câu đã Kiểm tra khi ôn luyện); `idx` là câu đang mở; `used` là số giây đã làm; `at` là lúc lưu.
+    - `Quiz.run` nhận `opts.resume` (lượt đã lưu) và gọi `opts.onSave(state)` sau mỗi câu trả lời, mỗi 15 giây khi làm như thi, và khi trang ẩn (`visibilitychange`, `pagehide`).
+    - Lượt kết thúc thì xóa mục của lượt: nộp bài, dừng, ra màn kết quả, thoát khi chưa làm câu nào, bắt đầu lại.
+    - Đồng hồ chỉ chạy khi trang đang mở. Làm tiếp thì “Còn 27:00” bằng số phút của đề trừ `used`. Lí do: con ở nhà bị gọi đi ăn cơm thì không nên mất giờ; app không phải phòng thi.
+    - Lượt dở giữ 7 ngày. Bỏ lượt dở, không lưu kết quả, khi quá 7 ngày, hoặc khi có câu trong `keys` không còn trong đề (phiên làm đề đã sửa câu).
+    - Lượt dở chỉ có trên máy đang làm, cả ở bản đám mây.
+  - **Màn mở đề có lượt dở** (khung U1, U2; Bin làm như thi “Toán 4 · Cuối kì I · Đề 3”, 40 phút, đã trả lời 6 câu):
+    - Đầu nhóm `.modes` là thẻ `#qResume` (`.mode.main`, biểu tượng play): “Làm tiếp · còn 38 phút” (lượt ôn luyện: “Làm tiếp · còn 17 câu”), dòng nhỏ “Đã làm 6/25 câu. Câu trả lời lưu trên máy này.”.
+    - `#qPractice`, `#qExam` vẫn có nhưng không còn là thẻ chính. Bấm một trong hai thì hỏi lại ngay dưới `.modes`: hộp `.confirm#qRestart` “Bắt đầu lại từ câu 1? Lượt đang làm dở (6/25 câu) sẽ bị bỏ.”, nút `button.btn.danger#qRestartYes` “Bắt đầu lại”, nút `button.btn.ghost#qRestartNo` “Thôi” (như các hộp `.confirm` khác; khung U2).
+    - `#qPrev` (thẻ “Lần trước”) giữ như nay.
+    - Địa chỉ `?cach=tiep` vào thẳng câu đang dở. Đề đang có lượt dở thì `?cach=on-luyen`, `?cach=thi` không bắt đầu lượt mới mà vẽ màn mở đề có `#qResume`, để một chạm ở tab Bài ôn không làm mất lượt dở.
+    - `.modes` là nhóm để chọn, nên chỉ thẻ được gợi ý (`#qResume`) là thẻ chính.
+  - **Hôm nay** (khung U3; `todayPick`): lượt dở trong 7 ngày đứng trước mọi bài chính khác.
+    - `h1` là tên ngắn của đề hoặc chủ đề (“Toán · Đề 3”, “Tiếng Việt · Danh từ”).
+    - `p`: “Bạn đang làm dở: 6/25 câu, còn 38 phút.” (lượt ôn luyện: “Bạn đang làm dở: 3/10 câu.”).
+    - Nút chính `#todayResume` (biểu tượng play) “Làm tiếp”, dòng nhỏ “còn 38 phút” hoặc “còn 7 câu”. Nút tới `#/quiz/<mã>?cach=tiep` (chủ đề: `#/chu-de/…?cach=tiep`).
+    - Link thứ ba như UX23b: `#todayOther` “Chọn chủ đề khác →”.
+  - **Tab Bài ôn** (khung U4):
+    - Nút đề có lượt dở có `span.part-ic` “◐” (`aria-hidden`) trước chữ, và `aria-label` thêm “, đang làm dở 6 trên 25 câu”. Lượt dở là bài chính của Hôm nay (ở trên), nên nút đó là nút vàng `btn main sm`, như bài chính ở UX23b.
+    - Dòng chủ đề có lượt dở ghi “Đang làm dở 3/10 câu”.
+    - Chạm thì tới màn mở đề có `#qResume`.
+  - **Chữ mới ở hai cột `TXT`:**
+    - `appResume`: “Làm tiếp · còn 38 phút”, “Làm tiếp · còn 17 câu” / “Continue · 38 minutes left”, “Continue · 17 left”.
+    - `appResumeNote`: “Đã làm 6/25 câu. Câu trả lời lưu trên máy này.” / “6 of 25 done. Your answers are saved on this device.”.
+    - `appRestart`: “Bắt đầu lại từ câu 1? Lượt đang làm dở (6/25 câu) sẽ bị bỏ.”, “Bắt đầu lại”, “Thôi” / “Start again from question 1? Your unfinished attempt (6 of 25) will be dropped.”, “Start again”, “Cancel”.
+    - `appPrevMode.part`: “dừng giữa chừng” / “stopped early” (đã có từ UX23a).
 - Xong khi:
-  - Bước mới của `tests/e2e.js`: Bin, ngày giả lập 8/12/2026 19:45, 360px sáng và tối. Ôn luyện Toán 4 · Cuối kì I · Bài ôn 2, làm 5 câu rồi dừng. Khi đó:
-    - nút Bài ôn 2 có `.part`, không có ✓; nhóm kì ghi đã làm 3/14;
-    - Hôm nay có bài chính “Toán · Bài ôn 2” với nút chính “Làm tiếp 20 câu”;
-    - màn mở đề có `#qResume` đứng đầu.
-  - Làm tiếp: vòng có 20 câu, không có câu đã làm. Xong vòng thì kết quả có 25 câu, nút có ✓, đã làm 4/14, `ontap_resume_v1` không còn mục của bài đó.
-  - Dừng giữa lượt làm như thi vẫn như nay: nộp bài, câu trống tính sai.
-  - `tests/supabase/cloud-e2e.js` in OK.
+  - Bước mới của `tests/e2e.js` (“unfinished attempts: stop, interrupt, continue (UX16)”), 360 × 740 sáng và tối, Bin ngày 8/12/2026 19:45:
+    - **Dừng:** ôn luyện Toán 4 · Cuối kì I · Đề 2 từ màn mở đề, làm 5 câu, “← Thoát”, Dừng. Kết quả có `mode: "part"`; nút Đề 2 không có ✓; tiến độ kì không đổi; Hôm nay không có `.hero.done`.
+    - **Bị ngắt:** làm như thi Đề 3, trả lời 6 câu, để trang mở 2 phút (đồng hồ giả lập), tải lại trang. Hôm nay có `#todayResume`, `h1` “Toán · Đề 3” và “còn 38 phút”. Chạm vào thì tới câu đang mở, 6 câu cũ giữ câu trả lời. Nộp bài thì kết quả có `t` = 25 và `ontap_resume_v1` không còn mục của đề đó.
+    - **Tab Bài ôn:** đề đang dở có “◐”. Chạm thì ra màn mở đề có `#qResume`. Bấm `#qExam` thì hỏi lại trong `#qRestart`; “Thôi” giữ lượt dở.
+    - **Chủ đề:** lượt “Danh từ” bị ngắt ở câu 3 thì dòng chủ đề ghi “Đang làm dở 3/10 câu” và Hôm nay làm tiếp được.
+    - **Bỏ:** lượt dở 8 ngày trước bị bỏ; lượt “Ôn lại câu sai” không được lưu.
+    - **Tiếng Anh:** `#qResume` của đề Tiếng Anh không có chữ cái tiếng Việt.
+    - `audit` mọi màn của bước.
+  - Bước UX9 đọc tiêu đề mới của thẻ đã ôn (X61).
+  - `tests/supabase/cloud-e2e.js` in OK: lượt dở nằm trên máy đó, kết quả gửi lên như thường.
 
 **X53. Lời giới thiệu bài chính ghi “khoảng 20 phút, xem đáp án sau mỗi câu” cho mọi đề (Vừa; mọi cấp). Đã gộp vào Phiên UX22 (25/11/2026).**
 - Đo:
@@ -610,7 +648,7 @@ Sửa `js/app.js`, `js/quiz.js`, `css/app.css`; cả hai bản. Không đổi b�
 
 **X61. Lời khen chung chung; hình hải cẩu cố định ở thẻ “Hôm nay đã ôn” (Thấp; Linh, Bin).**
 - Đo: thẻ X40 ghi “Bạn đã ôn rồi. Giỏi lắm!” cả khi con dừng ở câu 5, đúng 0/5. Hình là hải cẩu tung bóng cho mọi con, kể cả Linh lớp 12 có hình đại diện 🌻. Chủ đề “quá trẻ con” với tuổi teen: [PERSONA.md](PERSONA.md), nguồn NN/g.
-- Đề xuất:
+- Đề xuất (khung U5, Linh):
   - Tiêu đề thẻ đổi thành “Hôm nay bạn đã ôn xong.”; dòng `#todayDone` giữ số bài, số phút, số câu đúng như nay.
   - Hình là hình đại diện của chính con (`avatar(s, true)`, 64px): Bin vẫn thấy hải cẩu, Linh thấy 🌻.
   - Lời khen ở màn kết quả giữ nguyên, vì đã theo điểm.
@@ -630,23 +668,39 @@ Sửa `js/store.js`, `js/store-supabase.js`, `supabase/` (cột mới), `js/app.
   - Bài phụ ở Hôm nay có thể là môn Linh không học.
 - Vì sao: kì thi lớp 10–12 ghi đủ 11 môn có đề. Theo Thông tư 13/2022, con học 4 môn bắt buộc có điểm (Toán, Ngữ văn, Tiếng Anh, Lịch sử) và chọn 4 môn lựa chọn; 7 trong các môn lựa chọn có đề trong app (Vật lí, Hóa học, Sinh học, Địa lí, GDKT&PL, Tin học, Công nghệ). Thi tốt nghiệp gồm Toán, Ngữ văn và 2 môn tự chọn trong các môn đã học ở lớp 12. Nguồn ở [PERSONA.md](PERSONA.md).
 - Đề xuất:
-  - **Chọn môn.** Hồ sơ khối 10–12 có thêm ô chọn “Môn lựa chọn” (4 môn). Hồ sơ lớp 12 có thêm “Môn thi tốt nghiệp tự chọn” (2 môn, trong Tiếng Anh, Lịch sử và 4 môn lựa chọn).
-    - Ô chọn dạng chip, cao ≥ 44px, `aria-pressed`, như `.day-pick` của UX10.
-    - Có ở form hồ sơ của bố mẹ (`renderUserForm`) và ở trang Tài khoản của con, vì con lớn tự chọn được.
-    - Chưa chọn thì app như nay (đủ 11 môn). Hôm nay có một dòng nhắc, bấm “Thôi” thì ẩn: “Chọn môn bạn học để danh sách gọn hơn.”
-  - **Dùng ở:**
-    - `examItems`: môn con không học gom vào một dòng `details` “Môn khác · 3 môn” ở cuối nhóm, thu gọn sẵn;
-    - `progressOf`: chỉ đếm môn của con (“đã làm 1/16”);
-    - `todayPicks`: bài chính, bài phụ;
-    - `kidCard`, `weekTips`, chi tiết kì thi;
-    - nhóm thi tốt nghiệp: Toán, Ngữ văn và 2 môn thi tự chọn.
+  - **Rà lại ngày 27/11/2026 (PD), sau UX22, UX23:** Hôm nay không còn bài phụ; tab Bài ôn có hai bên (chủ đề, đề). Lời nhắc chọn môn chuyển từ Hôm nay sang đầu tab Bài ôn, vì thẻ Hôm nay đã đủ một hành động chính và một hành động thứ ba (UX23b). Khung V1–V3 ở [section UX20](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=376-222) của trang Master 4.x, sáng và tối. Ảnh `ux20-mon-hoc.jpg` chụp trước UX22, UX23.
+  - **Chọn môn** (khung V1):
+    - Hồ sơ khối 10–12 có thẻ “Môn học” (`section.panel#subjBox`):
+      - dòng đầu: “Môn bắt buộc: Toán, Ngữ văn, Tiếng Anh, Lịch sử.”;
+      - nhóm “Môn lựa chọn · tối đa 4”: Vật lí, Hóa học, Sinh học, Địa lí, GDKT&PL, Tin học, Công nghệ. Đây là các môn lựa chọn có đề trong app; con học Âm nhạc, Mĩ thuật thì chọn ít hơn 4.
+    - Hồ sơ lớp 12 có thêm nhóm “Môn thi tốt nghiệp tự chọn · 2 môn”. Nút của nhóm này là Tiếng Anh, Lịch sử và các môn lựa chọn đã chọn.
+    - Mỗi nhóm là `div.subj-pick` (`role="group"`, `aria-labelledby` tên nhóm), mỗi môn một nút `button[aria-pressed]` (lớp mới; không dùng `.chip`, vì `.chip` đang là nhãn nhỏ không bấm, như đồng hồ “Còn 12:30”):
+      - như `.day-pick button` của UX10: cao ≥ 44px, viền 2px `line`, bo 10px, chữ đậm `ink`; xuống hàng ở 360px;
+      - đã chọn: viền `acc`, nền `acc-soft`, chữ `acc`, có “✓ ” (`aria-hidden`) trước tên môn, để không chỉ dựa vào màu;
+      - đủ số môn thì nút chưa chọn tắt (`disabled`, mờ như nút tắt khác), kèm dòng nhỏ “Đã chọn đủ 4 môn. Bỏ một môn để chọn môn khác.” (nhóm môn thi: “Đã chọn đủ 2 môn. …”).
+    - Thẻ có ở hai chỗ:
+      - trang Tài khoản của con, dưới thẻ hình đại diện: chạm là lưu, như hình đại diện; toast “Đã lưu môn học”;
+      - form hồ sơ của bố mẹ (`renderUserForm`): lưu cùng nút Lưu.
+    - Chưa chọn thì app như nay (đủ 11 môn).
+    - Tab Bài ôn của con khối 10–12 chưa chọn môn có dòng nhắc `div.notice#subjHint` ở đầu trang (khung V3):
+      - chữ: “Bạn học 8 môn? Chọn môn để danh sách gọn hơn.”;
+      - link `a.linkbtn` “Chọn môn →” tới `#/account`, cuộn tới `#subjBox`;
+      - nút `button.linkbtn#subjHintNo` “Thôi” (chữ `muted`) ẩn dòng trên máy này (localStorage khóa `ontap_subj_hint_v1`, bọc try/catch).
+  - **Dùng ở** (khung V2):
+    - Tab Bài ôn, cả hai bên (UX23a): trong nhóm kì, môn con không học gom vào `details.tsub.more` “Môn khác · 3 môn”, đặt cuối nhóm, thu gọn sẵn.
+    - Tiến độ kì (đề và chủ đề), huy hiệu “Hết bài ôn”: chỉ đếm môn con học (“Đã làm 1/16 đề”).
+    - Hôm nay (`todayPick`): chủ đề, đề gợi ý chỉ trong môn của con.
+    - Thẻ của con (`kidCard`), gợi ý tuần (`weekTips`: chủ đề chưa ôn, môn chưa ôn), chi tiết kì thi.
+    - Nhóm thi tốt nghiệp: Toán, Ngữ văn và 2 môn thi tự chọn. Chưa chọn môn thi thì như nay.
   - **Lưu:**
     - Bản lưu trên máy: trường `subjects` (mảng tên môn) và `tnSubjects` của học sinh. Dữ liệu cũ đọc vào là `[]`.
     - Bản đám mây: cột `profiles.subjects text[]`, `profiles.tn_subjects text[]`, thêm bằng file `supabase/cap-nhat-<phiên>.sql`, grant theo cột như các cột đang có của `profiles` (mục “Grant khi thêm bảng, cột, hàm” của CLAUDE.md). Máy chủ chưa cập nhật thì app giữ như nay.
   - **PO quyết ngày 26/11/2026** (chủ app giao chốt): lưu trên máy chủ như đề xuất ở trên. Bố mẹ và con thường dùng hai máy, mà thẻ của con, báo cáo tuần trên máy bố mẹ cần biết môn của con; lưu riêng từng máy thì phải chọn lại trên mỗi máy. Đây là thông tin học tập, không định danh trẻ. Phiên UX20 sửa câu “Thu thập dữ liệu tối thiểu” ở đầu CLAUDE.md thành “tên hiển thị, khối, lớp; con khối 10–12 thêm môn học lựa chọn và môn thi tốt nghiệp tự chọn”; trang Quyền riêng tư (Phiên G0) liệt kê hai trường này.
 - Xong khi:
   - Bước mới của `tests/e2e.js` (khối 12 bật giả trong bước), chọn 4 môn cho Linh. Khi đó:
-    - Bài ôn: nhóm cuối kì I có 8 dòng môn và dòng “Môn khác · 3 môn” thu gọn; đã làm 1/16;
+    - Bài ôn: ở cả hai bên, nhóm cuối kì I có 8 môn và dòng “Môn khác · 3 môn” thu gọn; bên đề ghi “Đã làm 1/16 đề”;
+    - chưa chọn môn thì tab Bài ôn có `#subjHint`; “Thôi” thì không còn, kể cả khi tải lại trang;
+    - nút thứ năm của “Môn lựa chọn” tắt khi đã chọn 4 môn;
     - thẻ của Linh và gợi ý tuần chỉ nhắc môn của Linh;
     - nhóm thi tốt nghiệp chỉ có 4 môn thi;
     - chưa chọn môn thì như nay.
@@ -656,6 +710,13 @@ Sửa `js/store.js`, `js/store-supabase.js`, `supabase/` (cột mới), `js/app.
 ### Phiên UX18 · Đề thi thử làm ra giấy (X56)
 
 Sửa `js/quiz.js`, `css/app.css`; cả hai bản. Làm sau Phiên 9u (L47), vì cùng phần điểm của đề có câu tự chấm.
+
+**Rà lại ngày 27/11/2026 (PD).**
+- Sau UX23, đề thi thử mở từ tab Bài ôn (bên Làm đề như thi), qua màn mở đề đã gọn ở UX17. Làm sau UX16, để lượt dở giữ được cả khi con đang ở trang cả đề.
+- Hành động trên trang cả đề:
+  - Đề mà mọi câu tự chấm: trang cả đề là màn làm bài. Hàng trên cùng có đồng hồ và “Nộp bài” (`#qzSubmit`). Cuối trang là nút chính `#qzAllDone` “Làm xong, chấm bài” (cùng việc với nộp bài).
+  - Đề có cả câu chấm tự động: trang cả đề mở từ nút “Xem cả đề” (`#qzAll`) trong bảng số câu. Cuối trang là nút chính `#qzAllBack` “Về câu đang làm”.
+- Khung W1–W3 ở [section UX18](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=376-254) của trang Master 4.x, sáng và tối: W1 là trang cả đề “Toán 9 · Thi thử vào 10 · Đề 1”, W2 là lời hỏi khi nộp “Ngữ văn 9 · Thi thử vào 10 · Đề 1”, W3 là khối chấm từng bài ở màn kết quả.
 
 ![Đề thi thử Toán vào 10: câu 1, lời hỏi khi nộp, màn kết quả; sau: chấm từng bài](hinh-ux-4x/ux18-lam-ra-giay.jpg)
 
@@ -668,15 +729,21 @@ Sửa `js/quiz.js`, `css/app.css`; cả hai bản. Làm sau Phiên 9u (L47), vì
   - **Trang cả đề.** Đề tính điểm có câu tự luận, khi làm như thi, có nút “Xem cả đề” (`#qzAll`) trong bảng số câu.
     - Nút mở trang đọc cả đề theo thứ tự: đoạn chung, hình, các ý; không có ô trả lời. Trang có đồng hồ ở hàng trên cùng và hai nút “Về câu đang làm”, “Nộp bài”.
     - Đề mà mọi câu tự chấm (làm ra giấy) mở thẳng trang này khi bắt đầu.
-  - **Lời hỏi khi nộp:** đếm riêng hai loại câu còn trống.
+    - Bố cục (khung W1): đầu trang là `.label.as-is` tên đề và dòng “7 bài, 10 điểm. Bạn làm ra giấy; nộp bài xong thì tự chấm từng bài.”; mỗi bài một thẻ `section.all-part`: tiêu đề của đoạn chung (“Bài 1 (1,5 điểm)”) đậm, đoạn chung, hình, rồi từng ý kèm điểm của ý (“(1 điểm)”, chữ nhỏ `muted`). Đề không có đoạn chung thì mỗi câu một thẻ, tiêu đề là tên phần (`part`).
+  - **Lời hỏi khi nộp** (khung W2): đếm riêng hai loại câu còn trống, cùng một hộp `.confirm` như nay.
     - Câu chấm tự động: “… sẽ tính là sai”.
     - Câu tự luận: “15 câu tự luận: bạn chấm ngay sau khi nộp, theo thang điểm của từng ý.”
     - Chữ ở hai cột `TXT`.
-  - **Chấm từng bài.** Màn kết quả của đề tính điểm có câu tự luận mở đầu bằng khối `section.panel#qzMark`.
+  - **Chấm từng bài** (khung W3). Màn kết quả của đề tính điểm có câu tự luận mở đầu bằng khối `section.panel#qzMark`.
     - Khối gồm: “Chấm bài: Bài 1 (1,5 điểm) · 1/7 bài”, thanh tiến độ, dòng “Đặt bài làm trên giấy cạnh máy. Chọn mức đúng với bài của bạn ở từng ý.”, các ý của bài (thang tự chấm như nay), nút “Bài 2 →”.
     - Bài là `part` của câu; đề không có `part` thì theo đoạn chung `p`, rồi từng câu.
     - Chấm xong mọi bài thì khối thu thành dòng “Đã chấm 7/7 bài”; điểm to là điểm cả đề.
     - Điểm to, bảng câu, mục “Theo phần” đứng sau khối chấm.
+  - **Chữ mới ở hai cột `TXT`** (tên bài lấy từ dữ liệu: `title` của đoạn chung bỏ phần điểm trong ngoặc, hoặc tên phần):
+    - `allBtn` “Xem cả đề” / “See the whole test”; `allIntro(n, pts)` “7 bài, 10 điểm. Bạn làm ra giấy; nộp bài xong thì tự chấm từng bài.” / “7 parts, 10 points. Work on paper, then mark each part after you finish.”;
+    - `allDone` “Làm xong, chấm bài” / “Finish and mark”; `allBack` “Về câu đang làm” / “Back to the question”;
+    - `essayLeft(n)` “4 câu tự luận: bạn chấm ngay sau khi nộp, theo thang điểm của từng ý.” / “4 writing questions: you mark them right after you finish, using the guide for each point.”;
+    - `markHead(bài, i, n)` “Chấm bài: Bài 1 (1,5 điểm) · 1/7 bài” / “Mark your work: Part 1 (1.5 points) · 1 of 7”; `markHint` “Đặt bài làm trên giấy cạnh máy. Chọn mức đúng với bài của bạn ở từng ý.” / “Put your paper next to the screen. Choose the level that matches your work for each point.”; `markNext(bài)` “Bài 2 →” / “Part 2 →”; `markDone(n)` “Đã chấm 7/7 bài” / “Marked all 7 parts”.
 - Xong khi:
   - Bước mới của `tests/e2e.js`: An, 360px sáng và tối, làm như thi “Toán 9 · Thi thử vào 10 · Đề 1”.
     - Bắt đầu là trang cả đề.
@@ -694,17 +761,17 @@ Sửa `js/app.js`, `css/app.css`; cả hai bản. Làm sau 9u, để điểm c�
 **X57. Lớp 9, 12 không thấy đường tới kì thi lớn ở Hôm nay và thẻ của con (Vừa; An, Linh, Bố Tuấn, Mẹ Thu).**
 - Đo: ngày 8/12, Hôm nay của An, Linh chỉ nói “Kiểm tra cuối học kì I còn 6 ngày”. 16 đề thi thử vào 10 và 39 đề thi thử tốt nghiệp chỉ có ở tab Bài ôn (nhóm thu gọn) và Lịch thi. Thẻ của An, Linh ở Các con cũng chỉ có kì gần nhất.
 - Đề xuất:
-  - **Hôm nay.** Khối có kì thi `kind: "thi-khac"` chưa qua (thi vào 10, tốt nghiệp), mà kì đó không phải kì gần nhất, thì thêm `section.panel#bigExam` ngay sau thẻ bài chính (sau UX22 Hôm nay không còn bài phụ). Thẻ gồm:
-    - tên kì; ngày · “còn N ngày” · môn thi;
-    - “Đề thi thử đã làm 0/16” (đề cố định của kì, tính bằng `progressOf`) và thanh `.bar`;
-    - “gần nhất 6,5/10” khi đã có điểm;
-    - link (hành động thứ ba của màn, theo quy tắc ở mục 2) “Xem đề thi thử →” tới `#/practice?ki=<mã kì thi>`. Không có nút: thẻ bài chính đã có nút chính và nút phụ.
+  - **Rà lại ngày 27/11/2026 (PD):** `#bigExam` chỉ để xem, không có nút, link. Sau UX23b, thẻ bài chính có một nút chính và link “Chọn chủ đề khác →”; gần thi thì có một nút chính và một nút phụ. Thêm link “Xem đề thi thử →” thì thành link thứ hai hoặc hành động thứ tư. Đề thi thử ở tab Bài ôn, bên Làm đề như thi (UX23a nhớ bên đã chọn). Khung Y1, Y2 ở [section UX19](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=376-287) của trang Master 4.x, sáng và tối.
+  - **Hôm nay** (khung Y1): khối có kì thi `kind: "thi-khac"` chưa qua (thi vào 10, tốt nghiệp), mà kì đó không phải kì của bài chính, thì thêm `section.panel.big-ex#bigExam` ngay sau thẻ bài chính. Thẻ gồm:
+    - biểu tượng icon/target và dòng đậm “Thi tuyển sinh vào lớp 10 · còn 175 ngày”;
+    - dòng nhỏ “1/6/2027 (dự kiến) · Toán, Ngữ văn, Tiếng Anh” (ngày đã chính thức thì không có “(dự kiến)”);
+    - “Đề thi thử đã làm 0/16” (đề cố định của kì, tính bằng `progressOf`; sau UX20 chỉ đếm môn thi của con) và thanh `.bar`; có điểm thì thêm “ · gần nhất 6,5/10”.
 
-    Khi kì thi lớn đã là kì gần nhất thì không có thẻ, vì bài chính đã là đề của kì đó.
-  - **Thẻ của con** (`kidCard`): thêm dòng `.kid-ev` thứ hai, có biểu tượng icon/target: “Thi vào 10 còn 175 ngày · đề thi thử 2/16 · gần nhất 6,5/10”.
+    Khi kì thi lớn đã là kì của bài chính thì không có thẻ, vì bài chính đã là đề của kì đó.
+  - **Thẻ của con** (`kidCard`, khung Y2): thêm dòng `.kid-ev` thứ hai, có biểu tượng icon/target: “Thi vào 10 còn 175 ngày · đề thi thử 2/16 · gần nhất 6,5/10”.
   - **Tin nhắn tuần:** khi đã làm ít nhất một đề thi thử, thêm dòng “• Thi thử vào 10: 2/16 đề, gần nhất 6,5/10.”.
 - Xong khi:
-  - Bước mới của `tests/e2e.js`: An ngày 8/12/2026 có `#bigExam` ghi “còn 175 ngày”, “0/16”; link “Xem đề thi thử →” mở tab Bài ôn ở nhóm thi vào 10; Hôm nay có đúng 3 hành động. Làm một đề thi thử thì thẻ ghi “1/16” và điểm.
+  - Bước mới của `tests/e2e.js` (“the big exam on Today and the child card (UX19)”): An ngày 8/12/2026 có `#bigExam` ghi “còn 175 ngày”, “0/16”. `#bigExam` không có `a`, `button`, và Hôm nay có đúng số hành động như ở bước UX23b. Làm một đề thi thử thì thẻ ghi “1/16” và điểm.
   - Ngày 20/5/2027 An không có `#bigExam`. Bin không có thẻ này.
   - Thẻ của An có dòng thứ hai. Linh (khối 12 bật giả trong bước) có thẻ của thi tốt nghiệp.
   - `tests/supabase/cloud-e2e.js` in OK.
@@ -717,6 +784,12 @@ Sửa `js/app.js`, `css/app.css`; cả hai bản. Làm sau 9u, để điểm c�
 ### Phiên UX21 · Làm đề bằng bàn phím (X60)
 
 Sửa `js/quiz.js`, `css/app.css`.
+
+**Rà lại ngày 27/11/2026 (PD).**
+- Đề xuất giữ nguyên.
+- Phím dùng ở mọi màn có câu hỏi của `Quiz.run`. Trang cả đề của UX18 không có ô chọn, nên ở đó phím số không làm gì.
+- Khung Z1 ở [section UX21](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=376-319) của trang Master 4.x: câu ở 1366 × 768 (cột app 720px), dòng “Phím 1–4 chọn đáp án, Enter để tiếp”.
+- Chữ ở hai cột `TXT`: `keyHint` “Phím 1–4 chọn đáp án, Enter để tiếp” / “Press 1–4 to choose, Enter to go on”.
 
 **X60. Làm đề trên máy tính không có phím chọn đáp án (Thấp; Linh).**
 - Đo ở 1366 × 768: cột app rộng 720px, lựa chọn xếp 2 cột. Phím 1, a, A không chọn được đáp án. Phải bấm Tab 3 lần mới tới lựa chọn đầu; phím cách chọn được; viền focus 3px, rõ. Năm 2027 thí điểm thi tốt nghiệp trên máy tính, nên Linh muốn tập trên máy tính.
