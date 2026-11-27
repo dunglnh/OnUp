@@ -335,8 +335,9 @@
 
   /* -------- Kết quả --------
      r: số câu đúng trong t câu, lẻ đến 0,01 (câu đúng/sai 4 ý, nối cột chấm từng ý). mode: "exam", "practice" (đề ngân hàng),
-     chế độ của bài ôn dạng trang, hoặc "self": điểm tự chấm phần tự luận, r và t tính bằng phần tư điểm, không tính vào điểm
-     trung bình (js/app.js, graded). */
+     "part" (lượt "Ôn chủ đề" dừng giữa chừng, Phiên UX23a: tính điểm như "practice", không tính là đã ôn chủ đề), chế độ của bài ôn
+     dạng trang, hoặc "self": điểm tự chấm phần tự luận, r và t tính bằng phần tư điểm, không tính vào điểm trung bình (js/app.js,
+     graded). */
   function addResult(r) {
     const clean = {
       id: uid(), userId: r.userId, source: r.source, refId: r.refId, subject: r.subject || "",

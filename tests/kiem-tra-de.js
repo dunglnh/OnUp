@@ -44,8 +44,8 @@
      câu chấm tự động và câu tự luận ghi auto (Phiên 9u, L47) sau pts: có auto khi và chỉ khi 0 < tổng pt của các câu không phải tự luận
      < pts, và auto bằng tổng đó; tự thử Quiz.grade với đề Toán tốt nghiệp ra 6,35/10 (cách chấm theo số câu cho 7,25), câu tự luận,
      Quiz.title của hai kì thi thử và soatDiem với đề cố ý viết sai (cả đề có tự luận thiếu auto, auto sai);
-   - tên hiển thị (Phiên UX22, Quiz.title): mọi đề của kì kiểm tra định kì hiện là "… · Bài ôn N" hay "… · Ôn tổng hợp", đề khác giữ tên;
-     tự thử vài tên mẫu, cả tiếng Anh ("Review N", "Mixed review"; đề thi thử "Test N");
+   - tên hiển thị (Phiên UX23a, Quiz.title): mọi đề của kì kiểm tra định kì hiện là "… · Đề N" hay "… · Đề trộn" (đề ngẫu nhiên), đề khác
+     giữ tên; tự thử vài tên mẫu, cả tiếng Anh ("Test N", "Mixed test"; đề thi thử "Test N");
    - lịch thi mặc định (data/calendar-2026-2027.js): đề và bài ôn gắn vào kì thi có thật, đúng khối của kì thi;
    - bộ lọc hình (Quiz.svg) bỏ được mã chạy và link ngoài trong vài hình mẫu cố ý viết sai (SVG_THU).
    - phần tô của hình chia phần (Phiên 9y, L51): trong một hình, các hình con cùng loại, cùng cỡ mà có cái tô, có cái không tô thì phần tô
@@ -60,6 +60,9 @@
      app (Quiz.topicBank, Quiz.draw; lịch sử trống và 20 lịch sử ngẫu nhiên): đúng 10 câu, không trùng, đúng chủ đề, của các đề cùng khối,
      cùng file, không ghi chú (lỗi); lấy một phần ở hơn một đoạn đọc, quá ⌈10/3⌉ đoạn, mã đề quá 80 kí tự thì nhắc; hai chủ đề trùng 80 kí
      tự đầu của mã đề là lỗi; tự thử topicBank với kho giả và Quiz.title của đề Tiếng Anh.
+   - danh mục chủ đề (Phiên UX23a): khối window.ONTAP_SEED_TOPICS cuối data/banks/index.js (tests/ghep-de.js ghi) khớp số đếm lại
+     (tests/nap-de.js, chuDe: mỗi file câu hỏi, chủ đề theo thứ tự gặp, số câu như Quiz.topicBank, mã kì); chủ đề trong pool.matrix có câu
+     chấm tự động thì có trong danh sách của file; tự thử với khối cố ý sai (số câu, thiếu chủ đề, thừa file, sai mã kì: phải báo lỗi).
    Thêm dạng câu mới thì thêm kiểm tra cho dạng đó ở đây. */
 "use strict";
 const fs = require("fs");
@@ -655,6 +658,51 @@ const soOnCD = { chuDe: 0, rut: 0 };
     || Quiz.title({ title: "Tiếng Anh 4 · Ôn chủ đề · Unit 1 · My Friends", subject: "Tiếng Anh" }, "vi") !== "Tiếng Anh 4 · Ôn chủ đề · Unit 1 · My Friends") err(at, "Quiz.title chưa dịch đề Ôn chủ đề");
 }
 
+/* ---------- danh mục chủ đề (Phiên UX23a) ----------
+   Tab Bài ôn (bên "Ôn theo chủ đề", topicsOf trong js/app.js) đọc khối window.ONTAP_SEED_TOPICS cuối data/banks/index.js để biết chủ đề,
+   số câu của mỗi kì mà không tải file câu hỏi. Khối do tests/ghep-de.js ghi; ở đây đếm lại (tests/nap-de.js, chuDe) và so: khác là lỗi
+   (sửa: node tests/ghep-de.js --chu-de). Mỗi chủ đề trong pool.matrix có câu chấm tự động trong file phải có trong danh sách của file
+   (app xếp chủ đề của môn theo ma trận, chỉ những chủ đề có trong danh sách). Tự thử: khối cố ý sai phải bị báo. */
+const soChuDe = (cu, dung) => { // các chỗ khác nhau giữa khối đang có (cu) và số đếm lại (dung)
+  const ra = [], f1 = Object.keys(cu || {}), f2 = Object.keys(dung);
+  f2.filter((f) => !f1.includes(f)).forEach((f) => ra.push(`thiếu file ${f}`));
+  f1.filter((f) => !f2.includes(f)).forEach((f) => ra.push(`thừa file ${f} (không có đề nào của file này)`));
+  if (f1.filter((f) => f2.includes(f)).join() !== f2.filter((f) => f1.includes(f)).join()) ra.push("thứ tự file khác số đếm lại");
+  f2.filter((f) => f1.includes(f)).forEach((f) => {
+    const a = cu[f] || [], b = dung[f], n = Math.max(a.length, b.length);
+    for (let i = 0; i < n; i++) if (JSON.stringify(a[i]) !== JSON.stringify(b[i])) { ra.push(`${f}, mục ${i + 1}: ${JSON.stringify(a[i] || null)}, đếm lại ${JSON.stringify(b[i] || null)}`); break; }
+  });
+  return ra;
+};
+const soChuDeMoi = { file: 0, chuDe: 0 };
+{
+  const at = "danh mục chủ đề (window.ONTAP_SEED_TOPICS)", N = require("./nap-de.js");
+  const cu = load(["data/banks/index.js"]).window.ONTAP_SEED_TOPICS;
+  let kho = [], dung = {};
+  try { kho = N.napDe(); dung = N.chuDe(kho, Quiz); } catch (e) { err(at, "không đếm lại được: " + e.message); }
+  if (!cu || typeof cu !== "object") err(at, "chưa có khối cuối data/banks/index.js: chạy node tests/ghep-de.js --chu-de");
+  else soChuDe(cu, dung).forEach((m) => err(at, m + " (sửa: node tests/ghep-de.js --chu-de)"));
+  soChuDeMoi.file = Object.keys(dung).length; soChuDeMoi.chuDe = Object.values(dung).reduce((a, l) => a + l.length, 0);
+  // chủ đề của ma trận đề ngẫu nhiên có câu chấm tự động thì có trong danh sách của file
+  kho.filter((b) => b.pool).forEach((p) => Object.keys(p.pool.matrix || {}).forEach((t0) => {
+    const t = N.gopChuDe(t0), co = kho.some((b) => b.file === p.file && (b.questions || []).some((q) => q && q.type !== "essay" && N.gopChuDe(q.topic) === t));
+    if (co && !((cu || {})[p.file] || []).some((x) => x[0] === t)) err(`${at}, ${p.id}`, `chủ đề "${t}" của ma trận có câu chấm tự động mà không có trong danh sách của ${p.file}`);
+  }));
+  // tự thử: khối cố ý sai phải bị báo
+  const f0 = Object.keys(dung).find((f) => dung[f].length > 1);
+  if (f0) {
+    const hong = (fn) => { const o = JSON.parse(JSON.stringify(dung)); fn(o); return soChuDe(o, dung).length; };
+    if (!hong((o) => { o[f0][0][1]++; })) err(at + " (tự thử)", "khối sai số câu mà không bị báo");
+    if (!hong((o) => { o[f0].pop(); })) err(at + " (tự thử)", "khối thiếu chủ đề mà không bị báo");
+    if (!hong((o) => { o["99-khong-co.js"] = []; })) err(at + " (tự thử)", "khối thừa file mà không bị báo");
+    if (!hong((o) => { o[f0][0][2] = o[f0][0][2] ? "" : "ck1"; })) err(at + " (tự thử)", "khối sai mã kì mà không bị báo");
+    if (soChuDe(JSON.parse(JSON.stringify(dung)), dung).length) err(at + " (tự thử)", "khối đúng mà bị báo");
+  }
+  // khối ghi lại từ số đếm thì đọc ra đúng số đếm
+  const doc = vm.runInNewContext(N.khoiChuDe(dung) + "; window.ONTAP_SEED_TOPICS", { window: {} });
+  if (soChuDe(doc, dung).length) err(at + " (tự thử)", "khối viết ra (khoiChuDe) đọc lại không khớp số đếm");
+}
+
 /* ---------- bộ lọc hình ----------
    Hình cố ý viết sai: bộ lọc phải bỏ mã chạy, link ngoài, style, màu tự đặt; hình hỏng cấu trúc thì bỏ cả hình. */
 const SVG_THU = [
@@ -788,14 +836,14 @@ catalog.forEach((b) => {
   if (soatDoDai({ title: "Ố".repeat(GIOI_HAN_COT.title), subject: "Ữ".repeat(GIOI_HAN_COT.subject) }, "a".repeat(GIOI_HAN_COT.note)).length) err(at, "tên, môn, ghi chú đúng giới hạn bị báo");
 }
 
-// tên hiển thị (Phiên UX22, X65; Quiz.title): ở kì kiểm tra định kì "Đề N" hiện là "Bài ôn N", "Đề ngẫu nhiên" là "Ôn tổng hợp" (tiếng Anh
-// "Review N", "Mixed review"); đề thi thử giữ "Đề N" ("Test N"); tên tự đặt giữ nguyên. Mọi đề có sẵn: tên hiển thị đúng như vậy (tên trong
-// danh mục, label đã lưu không đổi; các phiên làm đề vẫn đặt tên "Đề N")
+// tên hiển thị (Phiên UX23a; Phiên UX22, X65 gọi "Bài ôn N", "Ôn tổng hợp"; Quiz.title): ở kì kiểm tra định kì "Đề N" giữ "Đề N", "Đề ngẫu
+// nhiên" là "Đề trộn" (tiếng Anh "Test N", "Mixed test"); đề thi thử giữ "Đề N" ("Test N"); tên tự đặt giữ nguyên. Mọi đề có sẵn: tên hiển
+// thị đúng như vậy (tên trong danh mục, label đã lưu không đổi; các phiên làm đề vẫn đặt tên "Đề N")
 {
   const at = "tên hiển thị", KI_ON = ["Giữa kì I", "Cuối kì I", "Giữa kì II", "Cuối năm"];
-  [["Toán 4 · Cuối kì I · Đề 2", "Toán", "vi", "Toán 4 · Cuối kì I · Bài ôn 2"], ["Toán 4 · Giữa kì II · Đề ngẫu nhiên", "Toán", "vi", "Toán 4 · Giữa kì II · Ôn tổng hợp"],
-    ["Toán 9 · Thi thử vào 10 · Đề 3", "Toán", "vi", "Toán 9 · Thi thử vào 10 · Đề 3"], ["Tiếng Anh 4 · Cuối kì I · Đề 1", "Tiếng Anh", "vi", "Tiếng Anh 4 · Cuối kì I · Bài ôn 1"],
-    ["Tiếng Anh 4 · Cuối kì I · Đề 1", "Tiếng Anh", undefined, "English 4 · End-of-term 1 · Review 1"], ["Tiếng Anh 6 · Cuối năm · Đề ngẫu nhiên", "Tiếng Anh", "en", "English 6 · End-of-year · Mixed review"],
+  [["Toán 4 · Cuối kì I · Đề 2", "Toán", "vi", "Toán 4 · Cuối kì I · Đề 2"], ["Toán 4 · Giữa kì II · Đề ngẫu nhiên", "Toán", "vi", "Toán 4 · Giữa kì II · Đề trộn"],
+    ["Toán 9 · Thi thử vào 10 · Đề 3", "Toán", "vi", "Toán 9 · Thi thử vào 10 · Đề 3"], ["Tiếng Anh 4 · Cuối kì I · Đề 1", "Tiếng Anh", "vi", "Tiếng Anh 4 · Cuối kì I · Đề 1"],
+    ["Tiếng Anh 4 · Cuối kì I · Đề 1", "Tiếng Anh", undefined, "English 4 · End-of-term 1 · Test 1"], ["Tiếng Anh 6 · Cuối năm · Đề ngẫu nhiên", "Tiếng Anh", "en", "English 6 · End-of-year · Mixed test"],
     ["Tiếng Anh 12 · Thi thử tốt nghiệp · Đề 2", "Tiếng Anh", "en", "English 12 · Mock Graduation Exam · Test 2"], ["Ôn tập chương 1", "Toán", "vi", "Ôn tập chương 1"],
     ["Toán 4 · Ôn chủ đề · Góc và đo góc", "Toán", "vi", "Toán 4 · Ôn chủ đề · Góc và đo góc"]].forEach(([title, subject, lg, want]) => {
     const got = Quiz.title({ title, subject }, lg);
@@ -803,7 +851,7 @@ catalog.forEach((b) => {
   });
   catalog.forEach((b) => {
     const nm = Quiz.title(b, "vi"), ki = String(b.title).split(" · ")[1];
-    if (KI_ON.includes(ki) && !/ · (Bài ôn \d+|Ôn tổng hợp)$/.test(nm)) err(at, `${b.id}: "${b.title}" hiện là "${nm}", cần kết thúc bằng “Bài ôn N” hay “Ôn tổng hợp”`);
+    if (KI_ON.includes(ki) && !/ · (Đề \d+|Đề trộn)$/.test(nm)) err(at, `${b.id}: "${b.title}" hiện là "${nm}", cần kết thúc bằng “Đề N” hay “Đề trộn”`);
     if (!KI_ON.includes(ki) && nm !== b.title) err(at, `${b.id}: "${b.title}" không phải đề của kì kiểm tra định kì mà tên hiển thị đổi thành "${nm}"`);
   });
 }
@@ -961,7 +1009,8 @@ const total = Object.values(count).reduce((a, n) => a + n, 0);
 console.log(`${catalog.length - pools.length} đề, ${files.length} file câu hỏi, ${total} câu (${Object.entries(count).filter(([, n]) => n).map(([t, n]) => n + " " + TEN_DANG[t]).join(", ")}); ${pools.length} đề ngẫu nhiên.`);
 console.log(`Đề Tiếng Anh 100% tiếng Anh: ${soTA.de} đề, ${soTA.cau} câu; ${soTA.cauKhac} câu Tiếng Anh trong đề khác.`);
 console.log(`Đề "Ôn chủ đề": ${soOnCD.chuDe} chủ đề có ít nhất ${Quiz.TOPIC_N} câu, rút thử ${soOnCD.rut} lần.`);
+console.log(`Danh mục chủ đề (ONTAP_SEED_TOPICS): ${soChuDeMoi.file} file, ${soChuDeMoi.chuDe} chủ đề, khớp số đếm lại.`);
 console.log(`Phần tô của hình chia phần (L51): ${soTo.dat} hình tương phản từ 3:1; ${daXem.size} hình phần tô nhạt đã xem, không phải dữ kiện (TO_DA_XEM).`);
 if (warn.length) console.log("Nhắc:\n" + warn.join("\n"));
-if (loose.length) console.log("Đề chưa gắn kì thi nào (vẫn hiện ở nhóm “Bài ôn khác”): " + loose.join(", "));
+if (loose.length) console.log("Đề chưa gắn kì thi nào (vẫn hiện ở nhóm “Đề khác” của tab Bài ôn): " + loose.join(", "));
 if (bad.length) { console.error(bad.join("\n")); console.error(`DE FAILED: ${bad.length} lỗi`); process.exitCode = 1; } else console.log("DE OK");

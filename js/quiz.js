@@ -74,8 +74,8 @@
      (câu hỏi, các ô, đáp án; tối đa 500 kí tự) để lưu kèm báo cáo.
    Đề Tiếng Anh (Phiên TA2): mọi chữ của màn làm bài lấy từ bảng chữ TXT (vi, en). Quiz.lang(bank) → "en" khi môn là Tiếng Anh
      (hoặc bank.lang = "en"), còn lại "vi"; Quiz.run đọc opts.lang, mặc định Quiz.lang(bank). Quiz.title(bank, lang): tên hiển thị
-     dựng từ tên chuẩn (Phiên UX22: "Toán 4 · Cuối kì I · Đề 1" → "Toán 4 · Cuối kì I · Bài ôn 1"; tiếng Anh "Tiếng Anh 4 · Cuối kì I ·
-     Đề 1" → "English 4 · End-of-term 1 · Review 1"; xem title). Quiz.TXT[lang]
+     dựng từ tên chuẩn (Phiên UX23a: "Toán 4 · Cuối kì I · Đề ngẫu nhiên" → "Toán 4 · Cuối kì I · Đề trộn"; tiếng Anh "Tiếng Anh 4 ·
+     Cuối kì I · Đề 1" → "English 4 · End-of-term 1 · Test 1"; xem title). Quiz.TXT[lang]
      cho js/app.js dùng cùng bảng chữ (màn mở đề, hộp rời trang, thông báo lưu điểm). Quiz.fmtN(x, lang): số thập phân
      tiếng Anh dùng dấu chấm. Khung làm bài có lang="en" để trình đọc màn hình đọc đúng giọng. */
 (function () {
@@ -160,8 +160,8 @@
       scoredAuto: "Điểm phần app chấm, theo điểm từng câu như đề thi.",
       cmpMoreAuto: (d, p) => `Hơn lần trước ${d} điểm phần app chấm (${p})`, cmpLessAuto: (d, p) => `Kém lần trước ${d} điểm phần app chấm (${p})`,
       // js/app.js: màn mở đề, màn tải đề, hộp rời trang, thông báo lưu điểm, khung bài ôn (renderQuiz, loadQuiz, renderPlay)
-      appHome: "Trang chính", appGrade: (g) => `Lớp ${g}`, english: "Tiếng Anh", appRandom: "Ôn tổng hợp", // đề ngẫu nhiên (Phiên UX22, X65)
-      appPoolIntro: (n, all) => `Mỗi lần một bộ câu khác: ${n} câu rút từ ${all} câu của các bài ôn, ưu tiên câu bạn chưa làm hoặc hay sai`,
+      appHome: "Trang chính", appGrade: (g) => `Lớp ${g}`, english: "Tiếng Anh", appRandom: "Đề trộn", // đề ngẫu nhiên (Phiên UX23a; UX22: "Ôn tổng hợp")
+      appPoolIntro: (n, all) => `Mỗi lần một đề khác: ${n} câu rút từ ${all} câu của các đề, câu bạn chưa gặp đứng trước`,
       appCount: (n) => `${n} câu`, appEssayN: (n) => ` (${n} câu tự luận tự chấm)`, appNotes: (s) => `Kho còn thiếu câu, lần này: ${s}.`, appNotesToast: (s) => "Kho còn thiếu câu: " + s,
       // đề "Ôn chủ đề" (Phiên UX14, X48): nhãn và dòng giới thiệu ở màn mở đề; chủ đề chưa có câu trong đề có sẵn (t đã esc)
       appTopic: "Ôn chủ đề", appTopicIntro: (n, all, g) => (n < all ? `${n} câu của chủ đề này, rút từ ${all} câu trong các đề lớp ${g}, câu bạn chưa làm hoặc hay sai đứng trước` : `Cả ${n} câu của chủ đề này trong các đề lớp ${g}`),
@@ -171,7 +171,7 @@
       appSent: "Đã lưu và gửi cho bố mẹ.", appPending: "Đã lưu trên máy này. Sẽ gửi cho bố mẹ khi có mạng.", appModScore: (r, t) => `${r}/${t} câu đúng.`,
       // màn mở đề (UX5, X9): thẻ "Lần trước" (số câu đúng; lúc làm · cách làm · thời gian), hai thẻ chọn cách làm có một dòng giải thích.
       // appWhen: lúc làm (diff: số ngày trước hôm nay, hm: giờ:phút, d/m: ngày, tháng), cũng là chữ "Hôm nay 12:43" của ago() trong js/app.js
-      appPrev: (r, t) => `Lần trước: ${r}/${t} câu đúng`, appPrevPts: (r, t) => `Lần trước: ${r}/${t} điểm`, appPrevAuto: (r, t) => `Lần trước: ${r}/${t} điểm phần app chấm`, appPrevMode: { exam: "làm như thi", practice: "ôn luyện" },
+      appPrev: (r, t) => `Lần trước: ${r}/${t} câu đúng`, appPrevPts: (r, t) => `Lần trước: ${r}/${t} điểm`, appPrevAuto: (r, t) => `Lần trước: ${r}/${t} điểm phần app chấm`, appPrevMode: { exam: "làm như thi", practice: "ôn luyện", part: "dừng giữa chừng" },
       appScored: (m) => `Chấm như đề thi thật: điểm từng câu, từng phần, thang ${m} điểm.`,
       appWhen: (diff, hm, d, m) => (diff <= 0 ? "Hôm nay " + hm : diff === 1 ? "Hôm qua " + hm : `${d}/${m} ${hm}`),
       appDur: (s) => (s < 60 ? `${s} giây` : `${Math.round(s / 60)} phút`),
@@ -242,14 +242,14 @@
       cmpMorePts: (d, p) => `${d} ${d === "1" ? "point" : "points"} higher than last time (${p})`, cmpLessPts: (d, p) => `${d} ${d === "1" ? "point" : "points"} lower than last time (${p})`,
       scoredAuto: "Points on the auto-marked part, scored like the real exam.",
       cmpMoreAuto: (d, p) => `${d} ${d === "1" ? "point" : "points"} higher on the auto-marked part than last time (${p})`, cmpLessAuto: (d, p) => `${d} ${d === "1" ? "point" : "points"} lower on the auto-marked part than last time (${p})`,
-      appHome: "Home", appGrade: (g) => `Grade ${g}`, english: "English", appRandom: "Mixed review",
-      appPoolIntro: (n, all) => `A new set every time: ${n} questions from the ${all} in the reviews, more of the ones you haven't done or often get wrong`,
+      appHome: "Home", appGrade: (g) => `Grade ${g}`, english: "English", appRandom: "Mixed test",
+      appPoolIntro: (n, all) => `A new test every time: ${n} questions from the ${all} in the tests, ones you haven't seen first`,
       appCount: (n) => `${n} questions`, appEssayN: (n) => ` (${n} self-check writing ${n === 1 ? "question" : "questions"})`, appNotes: (s) => `Not enough questions in the bank this time: ${s}.`, appNotesToast: (s) => "Not enough questions in the bank: " + s,
       appTopic: "Topic practice", appTopicIntro: (n, all, g) => (n < all ? `${n} questions on this topic from ${all} in the Grade ${g} tests, more of the ones you haven't done or often get wrong` : n === 1 ? `The only question on this topic in the Grade ${g} tests` : `All ${n} questions on this topic in the Grade ${g} tests`),
       appTopicEmpty: "No questions to practise yet", appTopicNone: (t, g) => `There are no questions on “${t}” in the Grade ${g} tests yet.`,
       appSaved: "Result saved", appSavedSelf: "Self-check score saved",
       appSent: "Saved and sent to your parents.", appPending: "Saved on this device. It will be sent to your parents when you're online.", appModScore: (r, t) => `${r}/${t} correct.`,
-      appPrev: (r, t) => `Last time: ${r}/${t} correct`, appPrevPts: (r, t) => `Last time: ${r}/${t} points`, appPrevAuto: (r, t) => `Last time: ${r}/${t} points on the auto-marked part`, appPrevMode: { exam: "test mode", practice: "practice" },
+      appPrev: (r, t) => `Last time: ${r}/${t} correct`, appPrevPts: (r, t) => `Last time: ${r}/${t} points`, appPrevAuto: (r, t) => `Last time: ${r}/${t} points on the auto-marked part`, appPrevMode: { exam: "test mode", practice: "practice", part: "stopped early" },
       appScored: (m) => `Scored like the real exam: points for each question and part, out of ${m}.`,
       appWhen: (diff, hm, d, m) => (diff <= 0 ? "Today " + hm : diff === 1 ? "Yesterday " + hm : `${d} ${MONTHS[m - 1]} ${hm}`),
       appDur: (s) => (s < 60 ? `${s} ${s === 1 ? "second" : "seconds"}` : `${Math.round(s / 60)} ${Math.round(s / 60) === 1 ? "minute" : "minutes"}`),
@@ -274,12 +274,13 @@
   const langOf = (bank) => (bank && (bank.lang === "en" || EN_SUBJECTS.includes(foldS(bank.subject))) ? "en" : "vi");
   /* Tên hiển thị của một đề, dựng từ tên chuẩn "<môn> <khối> · <kì> · Đề N" (CLAUDE.md). Dữ liệu (tên trong danh mục, label của kết
      quả đã lưu, mã đề) không đổi; mọi chỗ hiện tên một đề có sẵn hoặc label của kết quả đi qua đây (Phiên UX22, X65):
-     - kì kiểm tra định kì (Giữa kì I, Cuối kì I, Giữa kì II, Cuối năm): "· Đề N" → "· Bài ôn N", "· Đề ngẫu nhiên" → "· Ôn tổng hợp";
-       tiếng Anh "Review N", "Mixed review" ("Tiếng Anh 4 · Cuối kì I · Đề 1" → "English 4 · End-of-term 1 · Review 1");
+     - kì kiểm tra định kì (Giữa kì I, Cuối kì I, Giữa kì II, Cuối năm): "· Đề N" giữ "· Đề N", "· Đề ngẫu nhiên" → "· Đề trộn" (Phiên
+       UX23a; Phiên UX22 gọi "Bài ôn N", "Ôn tổng hợp"); tiếng Anh "Test N", "Mixed test" ("Tiếng Anh 4 · Cuối kì I · Đề 1" → "English 4 ·
+       End-of-term 1 · Test 1");
      - đề thi thử (Phiên K5; lớp 9: "Thi thử vào 10", lớp 12: "Thi thử tốt nghiệp") giữ "Đề N", tiếng Anh "Test N" (đó là đề thi, chấm
        như đề thật);
      - đề "Ôn chủ đề" giữ tên, tiếng Anh "English 4 · Topic practice · <chủ đề>"; tên tự đặt (ngân hàng tự nhập) giữ nguyên.
-     Chữ hiện ra đi qua nb() (js/app.js, ở đây) để "Bài ôn N", "Ôn tổng hợp" không tách dòng; aria-label, dữ liệu lưu giữ khoảng trắng thường. */
+     Chữ hiện ra đi qua nb() (js/app.js, ở đây) để "Đề N", "Đề trộn" không tách dòng; aria-label, dữ liệu lưu giữ khoảng trắng thường. */
   const TERMS = { "Giữa kì I": "Mid-term 1", "Cuối kì I": "End-of-term 1", "Giữa kì II": "Mid-term 2", "Cuối năm": "End-of-year",
     "Thi thử vào 10": "Mock Entrance Exam", "Thi thử tốt nghiệp": "Mock Graduation Exam" };
   const MOCK = ["Thi thử vào 10", "Thi thử tốt nghiệp"];
@@ -293,14 +294,14 @@
     if (tp) return `${subj(tp[1])} ${tp[2]} · Topic practice · ${tp[3]}`;
     if (!m) return t;
     const mock = MOCK.includes(m[3]);
-    const last = en ? (m[4] ? (mock ? "Test " : "Review ") + m[4] : mock ? "Random test" : "Mixed review") : m[4] ? (mock ? "Đề " : "Bài ôn ") + m[4] : mock ? "Đề ngẫu nhiên" : "Ôn tổng hợp";
+    const last = en ? (m[4] ? "Test " + m[4] : mock ? "Random test" : "Mixed test") : m[4] ? "Đề " + m[4] : mock ? "Đề ngẫu nhiên" : "Đề trộn";
     return `${subj(m[1])} ${m[2]} · ${en ? TERMS[m[3]] : m[3]} · ${last}`;
   }
   const TF4_PTS = [0, 0.1, 0.25, 0.5, 1]; // đúng 0/1/2/3/4 ý, như đề thi tốt nghiệp THPT
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   // khoảng trắng ngay trước " · " thành khoảng trắng không ngắt, để tên đề không xuống dòng bắt đầu bằng "·" (như nb của js/app.js, L26);
-  // tên hiển thị "Bài ôn N", "Ôn tổng hợp" (tiếng Anh "Review N", "Mixed review") không tách dòng (Phiên UX22; title)
-  const nb = (s) => String(s).replace(/ (?=·)/g, "\u00a0").replace(/\b(?:Bài ôn|Review) (?=\d)|Ôn tổng hợp|Mixed review/g, (x) => x.replace(/ /g, "\u00a0"));
+  // tên hiển thị "Đề N", "Đề trộn" (tiếng Anh "Test N", "Mixed test") không tách dòng (Phiên UX23a; title)
+  const nb = (s) => String(s).replace(/ (?=·)/g, "\u00a0").replace(/(?:Đề|Test) (?=\d)|Đề trộn|Mixed test/g, (x) => x.replace(/ /g, "\u00a0"));
   /* Số trong dữ liệu ngăn hàng nghìn bằng khoảng trắng ("1 200", "987 650"): khoảng trắng giữa các nhóm số thành khoảng trắng không ngắt,
      để số không bị tách ra hai dòng ở màn hình hẹp. Dùng sau esc() cho chữ của câu khi hiện ra (câu hỏi, các ô, đáp án, câu trả lời,
      lời giải, đoạn đọc, thang tự chấm, chủ đề); không dùng cho aria-label, hình. Dữ liệu, Quiz.key, Quiz.text giữ khoảng trắng thường;

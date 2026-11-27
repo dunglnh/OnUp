@@ -9,6 +9,9 @@
    node tests/ghep-de.js --xuat <mã đề> [<mã đề> …] > <nháp.js>
      In đề có sẵn dưới dạng nháp (kèm kì thi đang gắn) để sửa, soát (tests/soat-nhap.js) rồi ghép lại. Đề ngẫu nhiên: câu riêng và đoạn đọc
      câu riêng dùng (không có đoạn đọc app gộp từ các đề trong from).
+   node tests/ghep-de.js --chu-de
+     Chỉ ghi lại khối danh mục chủ đề window.ONTAP_SEED_TOPICS cuối data/banks/index.js (Phiên UX23a; đếm ở tests/nap-de.js, chuDe), in
+     "không đổi" khi khối đã đúng. Ghép đề xong công cụ cũng ghi lại khối này (sau khi nạp lại khớp nháp).
    Không sửa chữ của câu: nháp viết thế nào thì ghi vậy (mỗi câu một khối, như các đề đang có). Chú thích trước đề, trước dòng danh mục:
    chuThich, chuThichMuc của nháp (chỉ ghi khi thêm đề mới). Ghép xong chạy: node tests/kiem-tra-de.js, script kiểm tra của môn, e2e. */
 "use strict";
@@ -18,8 +21,18 @@ const D = require("./de-chung.js");
 
 const args = process.argv.slice(2), opt = {}, ds = [];
 for (const a of args) { if (a.startsWith("--")) opt[a.slice(2)] = true; else ds.push(a); }
+/* ---------- danh mục chủ đề (Phiên UX23a): ghi lại khối window.ONTAP_SEED_TOPICS cuối data/banks/index.js ---------- */
+const IDX = path.join(D.ROOT, "data/banks/index.js");
+function ghiChuDe() {
+  const N = require("./nap-de.js"), cu = fs.readFileSync(IDX, "utf8"), o = N.chuDe(N.napDe()), moiChu = N.ghiKhoiChuDe(cu, o);
+  const so = Object.values(o).reduce((a, l) => a + l.length, 0);
+  if (moiChu === cu) return `danh mục chủ đề không đổi (${Object.keys(o).length} file, ${so} chủ đề)`;
+  fs.writeFileSync(IDX, moiChu);
+  return `ghi lại danh mục chủ đề (window.ONTAP_SEED_TOPICS, ${Object.keys(o).length} file, ${so} chủ đề) trong data/banks/index.js`;
+}
+if (opt["chu-de"] && !ds.length) { console.log("· " + ghiChuDe()); process.exit(0); }
 if (!ds.length) {
-  console.log("Cách dùng: node tests/ghep-de.js <nháp.js> … [--thu]\n           node tests/ghep-de.js --xuat <mã đề> … > <nháp.js>");
+  console.log("Cách dùng: node tests/ghep-de.js <nháp.js> … [--thu]\n           node tests/ghep-de.js --xuat <mã đề> … > <nháp.js>\n           node tests/ghep-de.js --chu-de");
   process.exit(0);
 }
 
@@ -145,7 +158,7 @@ module.exports = ${ra.length === 1 ? ra[0] : "[\n" + ra.join(",\n") + "\n]"};`);
 
 /* ---------- ghép ---------- */
 const NHAP = ds.flatMap((f) => D.docNhap(f));
-const IDX = path.join(D.ROOT, "data/banks/index.js"), CAL = path.join(D.ROOT, "data/calendar-2026-2027.js");
+const CAL = path.join(D.ROOT, "data/calendar-2026-2027.js");
 const goc = new Map(), moi = new Map(); // đường dẫn → chữ cũ, chữ mới
 const doc = (f) => { if (!moi.has(f)) { const t = fs.existsSync(f) ? fs.readFileSync(f, "utf8") : null; goc.set(f, t); moi.set(f, t); } return moi.get(f); };
 const viec = [];
@@ -264,4 +277,5 @@ if (sai.length) {
   console.error("Ghép chưa đúng, đã trả lại các file như cũ:\n" + sai.join("\n"));
   process.exit(1);
 }
+console.log("· " + ghiChuDe()); // số câu theo chủ đề đổi theo đề vừa ghép (Phiên UX23a)
 console.log(`Đã ghép ${NHAP.length} đề, nạp lại khớp nháp. Tiếp theo: node tests/kiem-tra-de.js; script kiểm tra của môn; node tests/e2e.js.`);

@@ -1,5 +1,5 @@
 /* Đề thử nghiệm các dạng câu mới (Phiên K2), lớp 6. Danh mục: data/banks/index.js. Không gắn kì thi nào nên hiện ở nhóm
-   "Bài ôn khác" của lớp 6. Mỗi dạng vài câu: đoạn đọc dùng chung (passages, câu ghi p), hình SVG (svg), mức độ (lv),
+   "Đề khác" (tab Bài ôn, bên "Làm đề như thi") của lớp 6. Mỗi dạng vài câu: đoạn đọc dùng chung (passages, câu ghi p), hình SVG (svg), mức độ (lv),
    đúng/sai 4 ý (tf4), trả lời ngắn bằng số (num), nối cột (match), sắp xếp (order), tự luận tự chấm (essay).
    Dạng câu và cách viết: xem đầu data/banks/index.js. Câu tự soạn theo sách Kết nối tri thức, Tiếng Anh Global Success 6. */
 window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
