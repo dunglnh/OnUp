@@ -561,6 +561,19 @@ Ngày 26/11/2026 chủ app giao PO chốt các điểm các phiên ghi ở “Ch
 **L53. Ngữ văn thi thử tốt nghiệp Đề 1, Đề 2: thang chấm câu viết nói ra đáp án ý đúng/sai của cùng đề.**
 - Hiện tượng: `van12-tn-de1` câu 7 (đoạn văn phân tích nhân vật ông ngoại, 2 điểm): thang chấm, gợi ý nêu ông không mắng, chuyện năm mười sáu tuổi do ông kể, chiếc bình được trao lại, là các ý của câu 4 (đúng/sai 4 ý). `van12-tn-de2` câu 7 (đoạn văn đánh giá sức thuyết phục, 2 điểm) nêu người viết đối thoại công bằng với ý kiến trái chiều, là ý của một câu đúng/sai của đề đó. Ôn luyện mà mở câu 7 trước, bấm “Xem gợi ý”, rồi làm câu đúng/sai thì biết đáp án. Phiên N12-tn-van-c ghi ở PR #288; Đề 3–5 đã tránh.
 
+### Nhóm W · Chủ app báo ngày 27/11 (Phiên 9aa)
+
+Chủ app ngày 27/11/2026: IOE là cuộc thi tự nguyện, chỉ là phần thêm cho con nào tham gia; không đưa lên đầu, các đợt thi IOE không lên khung “Hôm nay ôn gì?”. PO dò trên `main` commit `3ce8728`: bản lưu trên máy, 360 × 740, con lớp 4 và lớp 6 mới tạo, chưa làm bài nào, đổi ngày bằng đồng hồ giả lập của Playwright.
+
+**L54. Kì thi IOE lên thẻ “Hôm nay ôn gì?” và được tính như kì kiểm tra định kì.**
+- Hiện tượng:
+  - Ngày 27/11/2026 (IOE cấp trường 26–28/11 đang diễn ra): thẻ Hôm nay của con lớp 4 là “IOE · Global Success 4”, “IOE cấp trường đang diễn ra. Bài này bạn chưa làm…”, nút “Vào ôn”; lớp 6 là “IOE · Global Success 6”. Mục tiêu huy hiệu là “Hết bài ôn · IOE cấp trường”. Tab Bài ôn mở sẵn nhóm IOE cấp trường; nhóm Kiểm tra cuối học kì I thu gọn bên dưới.
+  - Lặp lại ở các đợt IOE sau: ngày 9/1/2027 (IOE cấp xã/phường; cuối kì I hết ngày 8/1); từ 10/1 đến 6/3/2027, vì IOE cấp tỉnh/thành phố đứng trước giữa kì II của lớp 4, 6 (15/3): gần hai tháng thẻ chỉ gợi ý IOE, ngày 20/1 thẻ ghi “IOE cấp tỉnh/thành phố còn 43 ngày”; ngày 30/3/2027 (IOE cấp quốc gia).
+  - Ngày 20/1/2027, “Kì thi tiếp theo · Lớp 4”, “· Lớp 6” ở trang quản trị là IOE cấp tỉnh/thành phố; tin nhắn báo cáo tuần của con lớp 4 ghi “Sắp tới: IOE cấp tỉnh/thành phố…”, báo cáo tuần ghi “Bài ôn chưa làm: IOE · Global Success 4.”.
+  - Kì kiểm tra định kì có gắn bài ôn IOE (`gk1-l6`, `ck1-l6` có `ioe-6`; `ck1-l4` có `ioe-4`): đầu nhóm ghi “14 bài ôn” (lớp 4), “17 bài ôn” (lớp 6), có tính bài ôn IOE. Theo code: tiến độ và huy hiệu “Hết bài ôn · Kiểm tra cuối học kì I” cần cả bài ôn IOE; khi các đề của kì đã làm hết, `todayPick` đưa bài ôn IOE lên làm bài chính trước đề đúng dưới 90%; thẻ của con ở khu phụ huynh (`kidCard`, bản đám mây) dùng cùng `nextEvent`, `examSubjects`.
+- Nguyên nhân: `practiceEvent` (kì gần nhất có bài ôn) và `nextEvent` không phân biệt loại kì; ở kì IOE, bài ôn IOE là bài ôn thường (`examItems`); `practiceFor`, `practiceCount` đếm mọi bài ôn của kì; `todayPick`, `weekTips`, `examSubjects` lấy cả `it.ioe`; `practiceGroups` xếp nhóm theo ngày và mở nhóm đầu.
+- Hệ quả: con không thi IOE bị kéo sang IOE nhiều tuần liền, không bao giờ “đã làm hết” kì thường; bố mẹ được nhắc về IOE như một kì thi.
+
 ---
 
 ## 2. Cách sửa gợi ý và điều kiện xong
@@ -1361,11 +1374,34 @@ Chỉ sửa `data/banks/`, `tests/`, tài liệu. Không sửa `js/`, `css/`, `m
 - `node tests/e2e.js` in `E2E OK`.
 - Pull Request ghi các câu đã đổi (chữ cũ → chữ mới), đáp án tính lại, các lệnh đã chạy và kết quả.
 
+### Phiên 9aa
+
+**L54 · IOE là phần tự chọn.** Sửa `js/app.js` (và `css/app.css` nếu cần), `tests/e2e.js`, `tests/supabase/cloud-e2e.js` khi bước cũ đọc chữ đã đổi, tài liệu. Không đổi dữ liệu (lịch mặc định, `modules` của `gk1-l6`, `ck1-l6`, `ck1-l4`, `data/modules.js`), `modules/`, cách lưu.
+- `practiceEvent`, `nextEvent`: bỏ kì `kind: "ioe"`. Thẻ Hôm nay, mục tiêu huy hiệu (`badgePanel`), thẻ của con, “Kì thi tiếp theo” của trang quản trị, gợi ý tuần, tin nhắn báo cáo theo kì thường gần nhất. Khối không còn kì thường nào có bài ôn: như nay (mọi bài ôn của khối), bài ôn IOE vẫn không là bài chính.
+- `todayPick`: không lấy `it.ioe`. Bài ôn IOE không bao giờ là bài chính hay bài “Làm thêm”.
+- Kì thường có gắn bài ôn IOE: `practiceCount` (đầu nhóm “N bài ôn”), `progressOf` (tiến độ, huy hiệu “Hết bài ôn”), `examSubjects` (môn chưa ôn), `weekTips` (“Bài ôn chưa làm”) không tính bài ôn IOE. Bài ôn IOE vẫn liệt kê cuối nhóm như nay (`examItems`), có chữ “Tự chọn” (dòng mô tả hay nhãn `tag ioe`).
+- Kì IOE: tiến độ, huy hiệu của chính kì đó giữ như nay (con thi IOE vẫn thấy mình đã ôn đến đâu); chi tiết kì thi, Lịch thi giữ như nay.
+- `practiceGroups` (tab Bài ôn, “Bài ôn của <tên>”): nhóm kì IOE đứng sau mọi nhóm khác, kể cả “Bài ôn khác”; luôn thu gọn, trừ khi là nhóm duy nhất hoặc được mở bằng `?ki=<mã kì IOE>`; dòng tóm tắt có chữ “Tự chọn”. Nhóm mở sẵn là kì thường gần nhất.
+- Quy tắc đã ghi ở CLAUDE.md (mục “Con biết mình đã ôn đến đâu”, PO ghi ngày 27/11/2026); tên hàm khác thì sửa câu đó. Chi tiết ghi vào mục 9.7, 9.15 của docs/TINH-NANG.md (viết lại câu “ở kì IOE mọi bài ôn là bài ôn thường…” của 9.7).
+
+**Xong khi:**
+- Bước mới của `tests/e2e.js` (“IOE is optional, never today's pick (L54)”), bản lưu trên máy, 360 × 740 sáng và tối, con lớp 4 và lớp 6 mới tạo:
+  - 27/11/2026 9:00: `#today` không có chữ “IOE”, có “Kiểm tra cuối học kì I”; mục tiêu huy hiệu là “Hết bài ôn · Kiểm tra cuối học kì I”; tab Bài ôn: nhóm mở sẵn là cuối kì I, các nhóm IOE đứng cuối, thu gọn, có chữ “Tự chọn”; đầu nhóm cuối kì I ghi “13 bài ôn” (lớp 4), “16 bài ôn” (lớp 6).
+  - 20/1/2027 9:00: `#today` là Kiểm tra giữa học kì II; “Kì thi tiếp theo · Lớp 4” ở trang quản trị là giữa kì II; báo cáo tuần và `#rpMsgText` của con lớp 4 không có chữ “IOE”.
+  - Giả lập kết quả cho mọi đề cố định của `ck1-l4`, không làm `ioe-4` (ngày 27/11/2026): nhóm cuối kì I đã làm hết (13/13), có huy hiệu “Hết bài ôn · Kiểm tra cuối học kì I”, bài chính của Hôm nay không phải bài ôn IOE.
+  - `audit` các màn của bước.
+- Sửa các bước cũ đọc thứ tự nhóm, số bài ôn, bài chính có IOE (tìm “IOE”, `ioe-4`, `ioe-6` trong `tests/e2e.js`, `tests/supabase/cloud-e2e.js`).
+- `node tests/e2e.js` in `E2E OK`; `node tests/supabase/cloud-e2e.js` in `CLOUD E2E OK`.
+- Pull Request ghi các lệnh đã chạy và kết quả; bước mới ghi vào mục 4 của tests/README.md.
+
 ---
 
 ## 3. Các phiên Claude Code
 
-Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n, 9nb, 9o, 9ob, 9p, 9q, 9r, 9s, 9t, 9u, 9v, 9w, 9y, 9z đã xong (PR #119, #122, #123, #132, #137, #139, #174, #180, #195, #319, #320, #346, #352, #353). Phiên chờ làm: 9x (L50), lời giao việc bên dưới. Lỗi mới thì QC ghi mã (tiếp theo L54) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+Làm theo thứ tự, mỗi phiên một cuộc trò chuyện mới, Merge xong mới mở phiên sau. Chỉ giữ lời giao việc của phiên chưa làm; 9a–9m, TA1, TA2 đã xong (PR #21, #22, #23, #29, #49, #50, #52, #57, #72, #74, #85, #87, #90, #91, #103), lời giao việc cũ còn trong lịch sử git. 9n, 9nb, 9o, 9ob, 9p, 9q, 9r, 9s, 9t, 9u, 9v, 9w, 9y, 9z đã xong (PR #119, #122, #123, #132, #137, #139, #174, #180, #195, #319, #320, #346, #352, #353). Phiên chờ làm: 9aa (L54, gấp), 9x (L50), lời giao việc bên dưới; 9aa gấp từ 27/11/2026 (chủ app yêu cầu, PO chốt): lượt tự chạy làm trước hàng đợi, lượt tự chạy tạm dừng thì chủ app mở phiên tay; phiên sửa `js/app.js` nên chủ app Merge. Lỗi mới thì QC ghi mã (tiếp theo L55) ở mục 1, cách sửa ở mục 2 và lời giao việc ở đây. Mục 1, 2 vẫn giữ mô tả lỗi và cách sửa của mọi mã lỗi.
+
+**Phiên 9aa · IOE là phần tự chọn (L54)** (gấp từ 27/11/2026, chủ app yêu cầu, PO chốt: lượt tự chạy làm trước hàng đợi, lượt tự chạy tạm dừng thì chủ app mở phiên tay; sửa `js/app.js` nên lượt tự chạy không tự gộp, chủ app Merge; không chạy cùng lúc với phiên khác sửa `js/app.js`; lượt PD của UX23 chỉ sửa tài liệu nên chạy cùng lúc được)
+> Đọc CLAUDE.md (mục “Con biết mình đã ôn đến đâu”, câu “IOE là phần tự chọn”; mục “Trang "Hôm nay" và thanh tab của học sinh”; mục “Chạy và kiểm tra”) và docs/SUA-LOI-CHAY-THU.md: L54 ở nhóm W của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9aa". L54: chủ app chốt ngày 27/11/2026 IOE là cuộc thi tự nguyện, chỉ là phần thêm; nay kì IOE lên thẻ “Hôm nay ôn gì?” của con lớp 4, 6 (27/11/2026, 9/1/2027, từ 10/1 đến 6/3/2027, 30/3/2027), là “kì thi tiếp theo” ở trang quản trị, báo cáo tuần, tin nhắn, và bài ôn IOE gắn vào kì kiểm tra định kì bị tính vào số bài ôn, tiến độ, huy hiệu “Hết bài ôn”. Sửa `practiceEvent`, `nextEvent`, `todayPick`, `practiceCount`, `progressOf`, `examSubjects`, `weekTips`, `practiceGroups` (js/app.js) theo mục 2; không đổi dữ liệu, `modules/`. Thêm bước “IOE is optional, never today's pick (L54)” vào tests/e2e.js, sửa bước cũ đọc chữ đã đổi. Làm đủ "Xong khi": node tests/e2e.js, node tests/supabase/cloud-e2e.js. Mở Pull Request, ghi các lệnh đã chạy và kết quả. Làm xong thì cập nhật docs/KE-HOACH-PHAT-TRIEN-ONUP.md (bảng "Đã xong", bỏ dòng 9aa ở mục 3); ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này, “9aa (L54, gấp), ” và câu “9aa gấp từ 27/11/2026…” ở câu "Phiên chờ làm"; ghi chi tiết vào mục 9.7, 9.15 của docs/TINH-NANG.md, bước mới vào mục 4 của tests/README.md.
 
 **Phiên 9x · Nhãn khối của mốc năm học không xếp theo thứ tự (L50)** (không gấp: chỉ là thứ tự chữ, máy có lịch cũ; sửa `js/app.js` nên chủ app Merge; không chạy cùng lúc với phiên khác sửa bước “default calendar reaches old data” của `tests/e2e.js`)
 > Đọc CLAUDE.md (mục “Lịch mặc định đến máy đã có dữ liệu”, mục “Chạy và kiểm tra”) và docs/SUA-LOI-CHAY-THU.md: L50 ở nhóm U của mục 1; cách sửa và "Xong khi" ở mục 2, "Phiên 9x". L50: từ khi bật lớp 5 (Phiên RS5), máy hay tài khoản có lịch cũ ghi “Lớp 4, 6, 5, 9, 12” ở mốc năm học, vì `gradesTxt` (js/app.js) giữ thứ tự `grades` của kì thi mà khi gộp lịch mặc định khối mới được nối vào cuối. Sửa `gradesTxt` xếp khối tăng dần, rà các chỗ khác ghi danh sách khối; không đổi dữ liệu đã lưu. Trong `tests/e2e.js`, bước “default calendar reaches old data”, bỏ `gradesAre` của Phiên RS5, so lại đúng chữ. Làm đủ "Xong khi": node tests/e2e.js, node tests/supabase/cloud-e2e.js. Mở Pull Request, ghi các lệnh đã chạy và kết quả. Làm xong thì cập nhật docs/KE-HOACH-PHAT-TRIEN-ONUP.md (bảng "Đã xong", bỏ dòng 9x ở mục 3); ở mục 3 của docs/SUA-LOI-CHAY-THU.md xóa lời giao việc này và “9x (L50)” ở câu "Phiên chờ làm".
