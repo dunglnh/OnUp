@@ -162,6 +162,8 @@ body.tabbed{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
 .bdg-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .bdg-top b{font-size:.9375rem;min-width:0;overflow-wrap:anywhere}
 .bdg-n{font-size:.875rem;color:var(--muted);flex:none}
+/* "Hết bài ôn" của kì có chủ đề (Phiên UX23b): không có số bên phải, dòng nhỏ "Ôn 3/70 chủ đề hoặc làm 1/13 đề" dưới tên */
+.bdg-sub{margin-top:-3px;line-height:1.35;overflow-wrap:anywhere}
 .bdg-got{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .ready{color:var(--ink);font-weight:600} .ready.good{color:var(--ok)} /* "Đã làm 3/5 bài · đúng 82%" trên thẻ kì thi (progTxt, X38); làm hết thì màu ok */
 

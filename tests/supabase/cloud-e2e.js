@@ -430,10 +430,11 @@ async function run(browser, scheme) {
   c.ux4.errOrder = await p.evaluate(() => { const top = (s) => document.querySelector(s).getBoundingClientRect().top; return top("#pinDots") < top("#pinErr") && top("#pinErr") < top("#pinShow") && top("#pinShow") < top(".pad"); }); // X3: lỗi ngay dưới hàng chấm
   await pad(p, "1357"); // PIN 4 số: gõ đủ là vào
   await p.waitForSelector("text=Chào Bin");
-  // UX1: trang "Hôm nay" của con với thanh tab dưới (4 tab, tab Hôm nay đang mở), thẻ bài chính có nút chọn cách làm (UX22: Ôn luyện; bài ôn
-  // dạng trang, đề thi thử: một nút), chuỗi ngày, huy hiệu; thanh trên không có nút Lịch thi
+  // UX1: trang "Hôm nay" của con với thanh tab dưới (4 tab, tab Hôm nay đang mở), thẻ bài chính có nút bắt đầu (UX23b: chủ đề "Ôn 10 câu",
+  // gần thi "Làm như thi"; kì không có chủ đề như UX22: Ôn luyện; bài ôn dạng trang, đề thi thử: một nút), chuỗi ngày, huy hiệu; thanh trên
+  // không có nút Lịch thi
   c.ux1 = await p.evaluate(() => ({ tabs: [...document.querySelectorAll("#tabbar a")].map((a) => a.textContent + (a.getAttribute("aria-current") ? "*" : "")).join(), tabH: [...document.querySelectorAll("#tabbar a")].every((a) => a.getBoundingClientRect().height >= 44 && a.getBoundingClientRect().bottom <= innerHeight),
-    today: !!document.querySelector("#today :is(#todayGo, #todayPractice)") && !!document.querySelector("#streak .week") && !!document.querySelector("#badges") && !document.querySelector("#recent, #nextEvent, #todayMore, #toBanks"), cal: !!document.querySelector(".who a[href='#/calendar']"), tabbed: document.body.classList.contains("tabbed") }));
+    today: !!document.querySelector("#today :is(#todayTopic, #todayExam, #todayGo, #todayPractice)") && !!document.querySelector("#streak .week") && !!document.querySelector("#badges") && !document.querySelector("#recent, #nextEvent, #todayMore, #toBanks"), cal: !!document.querySelector(".who a[href='#/calendar']"), tabbed: document.body.classList.contains("tabbed") }));
   await shot(p, "c8-trang-con");
   await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await wait(p);
   c.ux1.quizTabs = !(await p.$("#tabbar")); // màn đề không có thanh tab

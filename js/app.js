@@ -828,7 +828,8 @@
   function eventRow(e, opts) {
     const st = status(e), g = opts && opts.grade;
     const { mods, bks } = practiceFor(e, g), nPr = practiceCount({ mods, bks });
-    const extra = opts && opts.student && e.kind !== "moc" ? progressOf(e, opts.student, opts.results || []) : null; // opts.results: mọi kết quả của con (cả tự chấm)
+    // tiến độ của con (examProg, Phiên UX23b): "Đã ôn 3/70 chủ đề · làm 1/13 đề"; opts.results: mọi kết quả của con (cả tự chấm)
+    const extra = opts && opts.student && e.kind !== "moc" ? examProg(e, opts.student, opts.results || []) : null;
     const dd = !e.start ? `<span class="d">?<small>chưa có</small></span>` : `<span class="d">${dm(e.start)}<small>${e.end && e.end !== e.start ? "đến " + dm(e.end) : WD[pd(e.start).getDay()]}</small></span>`;
     return `<button class="ev ${esc(e.kind)} ${st}" data-ev="${esc(e.id)}">
       ${dd}
@@ -837,7 +838,7 @@
           ${e.tentative && e.start ? `<span class="tag warn">Dự kiến</span>` : ""}
           ${st === "now" ? `<span class="tag warn">Đang diễn ra</span>` : st === "future" && e.kind !== "moc" ? `<span class="tag">Còn ${daysTo(e)} ngày</span>` : ""}
           ${nPr ? `<span class="tag">${countTxt({ mods, bks })}</span>` : ""}</span>
-        ${extra && extra.done ? `<span class="small ready${allDone(extra) ? " good" : ""}">${progTxt(extra)}</span>` : ""}
+        ${extra && extra.txt ? `<span class="small ready${extra.done ? " good" : ""}">${extra.txt}</span>` : ""}
         ${e.subjects && e.subjects.length ? `<span class="small muted">${esc(e.subjects.join(", "))}</span>` : ""}</span>
     </button>`;
   }
@@ -972,12 +973,24 @@
     refs.forEach((ref) => { const f = topicState(results, ref).full; if (f) { done++; const [a, b] = rtOf(f); r += a; t += b; } });
     return { done, total: refs.length, p: t ? pct(r, t) : null, unit: "chủ đề", verb: "Đã ôn" };
   }
-  /* Một dòng cho cả hai bên (chi tiết kì thi của học sinh; dùng chung với UX23b): "Đã ôn 3/70 chủ đề · làm 1/13 đề" (HTML, số in đậm). Bên nào
-     là 0 thì bỏ bên đó ("Đã làm 1/13 đề"); cả hai là 0 thì chuỗi rỗng. */
-  function progBoth(e, s, results) {
-    const t = topicProgress(e, s.grade, results), x = progressOf(e, s, results, true);
+  /* Một dòng cho cả hai bên: "Đã ôn 3/70 chủ đề · làm 1/13 đề" (HTML, số in đậm; t: topicProgress, x: progressOf chỉ đếm đề). Bên nào là 0
+     thì bỏ bên đó ("Đã làm 1/13 đề"); cả hai là 0 thì chuỗi rỗng. */
+  function progBoth(t, x) {
     const a = t.done ? `Đã ôn <b>${t.done}/${t.total}</b> chủ đề` : "", b = x.done ? `${a ? "làm" : "Đã làm"} <b>${x.done}/${x.total}</b> đề` : "";
     return [a, b].filter(Boolean).join(" · ");
+  }
+  /* Tiến độ của một kì với một học sinh cho thẻ kì thi (.ready ở Lịch thi của con, báo cáo tuần), chi tiết kì thi của học sinh (#evProg) và
+     huy hiệu "Hết bài ôn" (badges, badgePanel; Phiên UX23b, X67): { both, t, x, old, done, txt }.
+     - Kì có chủ đề (topicProgress, total > 0): both; txt là progBoth ("Đã ôn 3/70 chủ đề · làm 1/13 đề"); done (chữ màu ok, huy hiệu) khi ôn
+       hết chủ đề hoặc làm hết đề của kì (x: progressOf chỉ đếm đề cố định), hoặc làm hết bài ôn như trước UX23b (old), để con đã có huy hiệu
+       vẫn giữ.
+     - Kì không có chủ đề (kì chỉ có bài ôn dạng trang, đề tự soạn; Toán 9 thi vào 10 không có câu chấm tự động nhưng kì đó có Ngữ văn): như
+       trước, progTxt(progressOf) ("Đã làm 3/5 bài · đúng 83%", kì chỉ có đề thi thử "Đã làm 2/16 đề …"); chưa làm bài nào thì txt rỗng. */
+  function examProg(e, s, results) {
+    const t = topicProgress(e, s.grade, results), old = progressOf(e, s, results);
+    if (!t.total) return { both: false, t, x: old, old, done: allDone(old), txt: old.done ? progTxt(old) : "" };
+    const x = progressOf(e, s, results, true);
+    return { both: true, t, x, old, done: allDone(t) || allDone(x) || allDone(old), txt: progBoth(t, x) };
   }
   // bên đang chọn của tab Bài ôn (theo mã học sinh; bố mẹ xem "Bài ôn của <tên>" thì theo mã của con), localStorage ontap_cach_v1
   const CACH = { "chu-de": "Ôn theo chủ đề", thi: "Làm đề như thi" };
@@ -1027,10 +1040,12 @@
      trang thường (modRow), mỗi môn một details.tsub, bài ôn IOE cuối (Phiên 9aa), rồi dòng "Toán chỉ có ở Làm đề như thi." cho môn không có
      chủ đề. Nhóm "Chủ đề khác" (thu gọn, sau các kì thường, trước kì IOE): chủ đề của khối không thuộc kì nào đang hiện (danh mục của mọi
      file câu hỏi của khối), theo môn (subjOrder của khối), kèm bài ôn dạng trang không thuộc kì nào. Nút vàng: bài ôn dạng trang là bài chính
-     của Hôm nay; chủ đề gợi ý (pk.topic, UX23b) là nút vàng nhỏ "Ôn" và môn của nó mở sẵn. */
+     của Hôm nay (kì không có chủ đề); chủ đề gợi ý của Hôm nay (pk.topic, Phiên UX23b; cả khi gần thi, lúc đó là nút phụ "Ôn chủ đề" của thẻ)
+     là nút vàng nhỏ "Ôn" và môn của nó mở sẵn, chỉ trong nhóm của kì đó (pk.ev; không có kì: nhóm "Chủ đề khác"): một chủ đề có ở nhiều kì
+     (giữa kì I, cuối kì I…) vẫn chỉ có một nút vàng. */
   function topicGroups(grade, canPlay, res, pk, evs) {
-    const dn = doneMap(res), pickRef = pk && pk.topic ? pk.topic.ref : null, g0 = +grade;
-    const pickMod = (g) => (pk && pk.main && pk.main.kind === "mod" && (pk.ev ? g.e && g.e.id === pk.ev.id : !g.e) ? pk.main.id : null);
+    const dn = doneMap(res), g0 = +grade, inPick = (g) => (pk && pk.ev ? !!g.e && g.e.id === pk.ev.id : !g.e);
+    const pickMod = (g) => (pk && pk.main && pk.main.kind === "mod" && inPick(g) ? pk.main.id : null), pickRef = (g) => (pk && pk.topic && inPick(g) ? pk.topic.ref : null);
     const groups = evs.filter((g) => g.mods.length || g.bks.length || g.ioe.length).map((g) => Object.assign({ tp: topicsOf(g.e, grade, g) }, g));
     const seenMod = new Set(groups.flatMap((g) => g.mods.concat(g.ioe).map((m) => m.id))), seenRef = new Set(groups.flatMap((g) => g.tp.flatMap((x) => x.list.map((y) => y.ref))));
     const files = [...new Set(Store.banks(grade).filter((b) => b.seed && b.file).map((b) => b.file))], order = bySubj(subjOrder([], [g0]));
@@ -1043,17 +1058,17 @@
     return all.map((g, i) => {
       const nT = new Set(g.tp.flatMap((x) => x.list.map((y) => y.ref))).size, pick = pickMod(g);
       const head = [g.e ? esc(range(g.e)) : "", g.mods.length ? `${g.mods.length} bài ôn` : "", nT ? `${nT} chủ đề` : ""].filter(Boolean).join(" · ");
-      const body = `<div class="list">${g.mods.map((m) => modRow(m, canPlay, dn, pick)).join("")}${g.tp.filter((x) => x.list.length).map((x) => tsubHTML(x, res, canPlay, pickRef)).join("")}${g.ioe.map((m) => modRow(m, canPlay, dn, pick, true)).join("")}${g.e ? noTopicNote(g.tp) : ""}</div>`;
+      const body = `<div class="list">${g.mods.map((m) => modRow(m, canPlay, dn, pick)).join("")}${g.tp.filter((x) => x.list.length).map((x) => tsubHTML(x, res, canPlay, pickRef(g))).join("")}${g.ioe.map((m) => modRow(m, canPlay, dn, pick, true)).join("")}${g.e ? noTopicNote(g.tp) : ""}</div>`;
       return grpHTML(g, optGrp(g) ? all.length === 1 : !i, g.e ? nb(esc(g.e.title)) : "Chủ đề khác", head, g.e && res && nT ? progBox(topicProgress(g.e, grade, res, g.tp)) : "", body);
     }).join("");
   }
   /* Bên "Làm đề như thi": mỗi kì có đề một nhóm (không có bài ôn dạng trang, IOE), dòng tóm tắt "28/12 – 8/1/2027 · 13 đề" (kì chỉ có đề thi
      thử: "16 đề thi thử") rồi tiến độ "Đã làm 1/13 đề · đúng 80%" (progressOf chỉ đếm đề cố định); dòng môn, nút như bankRows (exam).
      Nhóm "Đề khác": đề của kì đã qua, đề chưa gắn kì (nút ghi kèm tên kì, "Giữa kì I · Đề 1"). Nút vàng: bài chính của Hôm nay khi bài đó
-     là đề; không có kì nào có bài ôn thì ở nhóm "Đề khác". */
+     là đề (gần thi: đề trộn làm như thi, Phiên UX23b; đề thi thử); không có kì nào có bài ôn thì ở nhóm "Đề khác". */
   function examGroups(grade, canPlay, res, pk, evs) {
     const dn = doneMap(res);
-    const pickIn = (g) => (pk && pk.main && pk.main.kind !== "mod" && (pk.ev ? g.e && g.e.id === pk.ev.id : !g.e) ? pk.main.id : null);
+    const pickIn = (g) => (pk && pk.main && (pk.main.kind === "bank" || pk.main.kind === "mock") && (pk.ev ? g.e && g.e.id === pk.ev.id : !g.e) ? pk.main.id : null);
     const groups = evs.filter((g) => g.bks.length), seen = new Set(groups.flatMap((g) => g.bks.map((b) => itemKey(b))));
     const rest = examItems(null, grade, { mods: [], bks: Store.banks(grade).filter((b) => !seen.has(itemKey(b))) });
     const all = groups.filter((g) => !optGrp(g)).concat(rest.bks.length ? [rest] : [], groups.filter(optGrp));
@@ -1138,27 +1153,36 @@
     if (g) { g.open = true; g.scrollIntoView({ behavior: "smooth", block: "start" }); }
   }
 
-  /* ================= TRANG "HÔM NAY" CỦA HỌC SINH (Phiên UX1; UX22) =================
+  /* ================= TRANG "HÔM NAY" CỦA HỌC SINH (Phiên UX1; UX22; UX23b) =================
      Bốn tab dưới màn hình: Hôm nay (đây) · Bài ôn (renderPractice) · Lịch thi (renderCalendar) · Kết quả (renderResults).
-     Thẻ bài chính (todayPick) có nút chọn cách làm ngay trên thẻ (Phiên UX22, X62, X63); chuỗi ngày ôn và mục tiêu GOAL ngày mỗi tuần
-     (streakPanel); huy hiệu (badges). Không còn bài phụ, kết quả gần đây, kì thi tiếp theo (trùng tab Kết quả, Lịch thi ngay dưới; lối vào
-     "Ôn 10 câu" ở tab Kết quả và màn kết quả đề). Mỗi màn tối đa một hành động chính, một phụ, một thứ ba (CLAUDE.md). */
-  /* Bài chính của Hôm nay: { ev, main }. ev: kì thi thường gần nhất (chưa qua) có bài ôn của khối (practiceEvent; không bao giờ là kì
-     IOE); không có kì nào thì lấy mọi bài ôn của khối (ev null). Theo thứ tự của examItems (Phiên UX15, X50: bài ôn dạng trang thường, rồi
-     đề cố định theo môn thi của kì; bài ôn IOE là phần tự chọn, không bao giờ là bài chính hay bài "Làm thêm": Phiên 9aa, L54): bài chưa
-     làm đầu tiên, rồi bài có tỉ lệ đúng thấp nhất (dưới 90%), rồi Đề trộn (đề ngẫu nhiên), rồi bài đầu. Không còn bài nào (khối chỉ có
-     bài ôn IOE) thì main null (thẻ là trang rỗng). main: { id, href, title, why, tip, n, minutes, kind } hoặc null:
-     - title: tên ngắn (shortName: "Toán · Đề 1", "Toán · Đề trộn", đề thi thử "Toán · Đề thi thử 1");
-     - why: "<kì thi> còn N ngày." (đang diễn ra: "<kì thi> đang diễn ra.") rồi lí do: "Bài này 25 câu, bạn chưa làm." (đề thi thử "Đề
-       này …"; bài ôn dạng trang "Bài này bạn chưa làm." và intro của bài trong data/modules.js), "Lần trước bạn đúng 64%, làm lại để lên
-       điểm.", "Mỗi lần một bộ 25 câu khác, câu bạn hay sai được hỏi lại.", "Bạn đã làm tốt cả kì này, làm lại một bài để nhớ lâu hơn.";
-     - tip: ghi chú ở thẻ "Hôm nay đã ôn" ("Làm thêm: Toán · Đề 2 (bạn chưa làm).", X40);
-     - kind: "bank" (nút Ôn luyện, Làm như thi), "mock" (đề thi thử: một nút "Mở đề thi thử"), "mod" (bài ôn dạng trang: một nút "Vào ôn").
-     results: mọi kết quả của con (bài có kết quả tự chấm cũng là bài đã làm, như progressOf; tỉ lệ đúng chỉ tính kết quả chấm tự động). Tab
-     Bài ôn và chi tiết kì thi của học sinh tô vàng đúng bài này (practiceList, pick: X64). */
+     Thẻ bài chính (todayPick, goModes): xa thi là một chủ đề 10 câu, gần thi là một đề làm như thi (Phiên UX23b, X66, X67); bắt đầu ngay
+     trên thẻ (UX22); chuỗi ngày ôn và mục tiêu GOAL ngày mỗi tuần (streakPanel); huy hiệu (badges). Không có bài phụ, kết quả gần đây, kì
+     thi tiếp theo (trùng tab Kết quả, Lịch thi ngay dưới; chủ đề hay sai có lối "Ôn 10 câu" ở tab Kết quả và màn kết quả đề). Mỗi màn tối đa
+     một hành động chính, một phụ, một thứ ba (CLAUDE.md). */
+  /* Bài chính của Hôm nay (Phiên UX23b, X66–X68; trước đó UX22, UX15): { ev, main, topic }.
+     - ev: kì thi thường gần nhất (chưa qua) có bài ôn của khối (practiceEvent; không bao giờ là kì IOE, Phiên 9aa, L54); không có kì nào thì
+       mọi bài ôn của khối (ev null).
+     - topic: chủ đề gợi ý, đầu hàng topicQueue (lượt dừng giữa chừng trong 7 ngày, rồi môn lâu chưa ôn chủ đề nhất, …); null khi kì không có
+       chủ đề nào (topicsOf: khối chỉ có đề tự soạn, kì chỉ có bài ôn dạng trang).
+     - main: xa thi là topic (kind "topic"); gần thi (isNear: kì đang diễn ra hoặc còn ≤ NEAR ngày) là một đề làm như thi (nearPick: kind
+       "bank", near true), kì chỉ có đề thi thử thì như UX22 (kind "mock": một nút "Mở đề thi thử"). Kì không có chủ đề: như UX22 (ux22Pick:
+       kind "bank" có nút Ôn luyện, Làm như thi; "mod": bài ôn dạng trang, chỉ khi kì không có chủ đề). null khi không còn bài nào (khối chỉ có
+       bài ôn IOE): thẻ là trang rỗng.
+     main, topic: { kind, id, href, title, why, tip, n, minutes, near? }:
+     - title: "<môn> · <chủ đề>" ("Toán · Làm tròn số"); đề: tên ngắn (shortName: "Toán · Đề trộn", "Toán · Đề 2", "Toán · Đề thi thử 1");
+     - why: "<kì thi> còn N ngày." (đang diễn ra: "<kì thi> đang diễn ra.") rồi một lí do (topicItem, nearPick, ux22Pick);
+     - tip: ghi chú của dòng "Làm thêm: <title> (<tip>)." ở thẻ "Hôm nay đã ôn" (X40);
+     - href: địa chỉ không có ?cach (màn mở đề; nút "Làm bài đầu tiên" của tab Kết quả); chủ đề: topicHref (ref: topicRef, n: số câu của lượt).
+     results: mọi kết quả của con (bài có kết quả tự chấm cũng là bài đã làm, như progressOf). Tab Bài ôn tô vàng đúng các bài này (topicGroups:
+     pk.topic; examGroups: main là đề; X64). */
   /* kì thi gần nhất (chưa qua) có bài ôn của khối: bài chính của Hôm nay, mục tiêu "Hết bài ôn" của huy hiệu (X39), nhóm mở sẵn ở tab Bài
      ôn. Không tính kì IOE và bài ôn IOE của kì thường (practiceFor; IOE là phần tự chọn, Phiên 9aa, L54). */
   const practiceEvent = (s) => Store.events(s.grade).filter((e) => e.kind !== "moc" && e.kind !== "ioe" && status(e) !== "past").find((e) => { const p = practiceFor(e, s.grade); return p.mods.length + p.bks.length; }) || null;
+  /* Gần thi (Phiên UX23b): từ NEAR ngày trước ngày đầu kì đến hết kì, trùng mốc "Sắp thi" của báo cáo tuần (weekTips). */
+  const NEAR = 14;
+  const isNear = (e) => !!e && (status(e) === "now" || (status(e) === "future" && daysTo(e) <= NEAR));
+  const evNote = (ev) => (ev ? `${ev.title} ${status(ev) === "now" ? "đang diễn ra" : "còn " + daysTo(ev) + " ngày"}. ` : "");
+  const pctR = (r) => { const [a, b] = rtOf(r); return b ? (a / b) * 100 : 0; }; // tỉ lệ đúng (0–100, chưa làm tròn) của một kết quả
   /* Tên ngắn (Phiên UX22): "<môn> · <chữ trên nút của bài đó ở tab Bài ôn>" (bankLabels); đề thi thử "<môn> · Đề thi thử N"; bài ôn dạng
      trang và tên tự đặt (không bắt đầu bằng môn và khối): nguyên tên. bks: các đề của nhóm (examItems), full: nhóm "Đề khác". */
   function shortName(x, bks, full) {
@@ -1167,28 +1191,90 @@
     if (!lb || lb === nm || !x.subject) return nm;
     return x.subject + " · " + (scoredBank(x) ? lb.replace(/^Đề (\d+)$/, "Đề thi thử $1") : lb);
   }
-  function todayPick(s, results) {
+  /* Hàng chủ đề của một kì theo thứ tự gợi ý của Hôm nay (Phiên UX23b; tp: topicsOf): [{ y, k, subject, st }] (y: dòng của topicsOf, st:
+     topicState), mỗi chủ đề một lần:
+     1. chủ đề có lượt dừng giữa chừng trong 7 ngày (st.part: lượt gần nhất là lượt dừng), mới nhất trước;
+     2. rồi xoay vòng các môn: môn lâu chưa ôn chủ đề nhất trước (lượt "Ôn chủ đề" gần nhất của môn đó, mọi kì, cả lượt dừng; môn chưa ôn lần
+        nào đứng đầu theo thứ tự môn của kì), mỗi lượt lấy một chủ đề của mỗi môn. Trong một môn: chủ đề chưa ôn (không có lượt làm hết) theo
+        thứ tự sách (thứ tự của topicsOf: ma trận đề trộn, danh mục), rồi chủ đề có lượt làm hết gần nhất đúng dưới 80% (thấp nhất trước),
+        rồi chủ đề lâu chưa ôn nhất.
+     Đầu hàng là chủ đề gợi ý (todayPick); các chủ đề chưa ôn theo đúng thứ tự này là "Chủ đề chưa ôn của <kì>" của báo cáo tuần (weekTips). */
+  function topicQueue(s, results, tp) {
+    const now = Date.now(), seen = new Set(), out = [], at = (r) => new Date(r.at).getTime();
+    const subs = tp.filter((x) => x.list.length).map((x, i) => {
+      const pre = "chu-de:" + +s.grade + ":" + x.code + ":";
+      const last = results.reduce((m, r) => (!isSelf(r) && String(r.refId || "").startsWith(pre) ? Math.max(m, at(r)) : m), -Infinity);
+      const sts = x.list.map((y, k) => ({ y, k, subject: x.subject, st: topicState(results, y.ref) })), f = (z) => z.st.full;
+      const cand = sts.filter((z) => !f(z)).concat(
+        sts.filter((z) => f(z) && pctR(f(z)) < 80).sort((a, b) => pctR(f(a)) - pctR(f(b)) || a.k - b.k),
+        sts.filter((z) => f(z) && pctR(f(z)) >= 80).sort((a, b) => at(f(a)) - at(f(b)) || a.k - b.k));
+      return { i, last, sts, cand };
+    }).sort((a, b) => (a.last === b.last ? a.i - b.i : a.last - b.last));
+    const push = (z) => { if (!seen.has(z.y.ref)) { seen.add(z.y.ref); out.push(z); } };
+    subs.flatMap((x) => x.sts).filter((z) => z.st.part && now - at(z.st.part) <= 7 * DAY).sort((a, b) => at(b.st.part) - at(a.st.part)).forEach(push);
+    for (let k = 0, more = true; more; k++) { more = false; subs.forEach((x) => { if (x.cand[k]) { more = true; push(x.cand[k]); } }); }
+    return out;
+  }
+  /* Chủ đề gợi ý (một mục của topicQueue) thành bài của thẻ Hôm nay: lí do và ghi chú theo lượt gần nhất của chủ đề đó: dừng giữa chừng ("Lần
+     trước bạn dừng ở câu 4. Ôn lại 10 câu, xem đáp án sau mỗi câu." · "lần trước dừng ở câu 4"), chưa ôn ("10 câu, bạn chưa ôn chủ đề này."
+     · "bạn chưa ôn"), đúng dưới 80% ("Lần trước bạn đúng 6/10, ôn lại để chắc hơn." · "lần trước đúng 6/10"), còn lại ("Bạn ôn chủ đề này
+     lâu nhất rồi, ôn lại để nhớ lâu." · "ôn lâu nhất rồi"). Chủ đề ít câu ghi số câu thật ("5 câu", y.n). */
+  function topicItem(z, evTxt) {
+    const { y, st } = z, f = st.full, p = st.part, low = !!f && pctR(f) < 80, sc = f ? `${nf(f.r)}/${nf(f.t)}` : "";
+    return { kind: "topic", id: y.ref, ref: y.ref, href: y.href, title: z.subject + " · " + y.t, subject: z.subject, t: y.t, n: y.n, minutes: 0,
+      why: evTxt + (p ? `Lần trước bạn dừng ở câu ${p.t}. Ôn lại ${y.n} câu, xem đáp án sau mỗi câu.` : !f ? `${y.n} câu, bạn chưa ôn chủ đề này.`
+        : low ? `Lần trước bạn đúng ${sc}, ôn lại để chắc hơn.` : "Bạn ôn chủ đề này lâu nhất rồi, ôn lại để nhớ lâu."),
+      tip: p ? `lần trước dừng ở câu ${p.t}` : !f ? "bạn chưa ôn" : low ? `lần trước đúng ${sc}` : "ôn lâu nhất rồi" };
+  }
+  /* Đề làm như thi khi gần thi (Phiên UX23b): đề trộn của môn đầu tiên (thứ tự môn của examItems: ô "Môn thi" của kì, rồi lịch thi của khối)
+     chưa có lượt làm như thi (mode "exam", một đề của môn đó trong kì) trong NEAR ngày; môn không có đề trộn thì đề cố định chưa làm đầu tiên
+     (làm hết thì đề làm lâu nhất). Mọi môn đã làm như thi thì môn có lượt làm như thi gần nhất đúng thấp nhất. Chỉ đề có số phút, không phải
+     đề thi thử; không có đề nào như vậy thì null (thẻ là chủ đề). Lí do: "Gần thi rồi: làm một đề như thi, 25 câu, 40 phút. Câu bạn chưa gặp
+     được hỏi trước." (đề cố định bỏ câu cuối; kì đang diễn ra: "Làm một đề như thi, …"). */
+  function nearPick(ev, it, results, evTxt) {
+    const now = Date.now(), subs = new Map(), at = (r) => new Date(r.at).getTime();
+    it.bks.filter((b) => +b.minutes > 0 && !scoredBank(b)).forEach((b) => { const k = subjOf(b); subs.set(k, (subs.get(k) || []).concat(b)); });
+    const latest = (f) => results.filter(f).sort((a, b) => at(b) - at(a))[0] || null;
+    const rows = [...subs.values()].map((list) => {
+      const ids = new Set(list.map((b) => b.id)), fixed = list.filter((b) => !b.pool), last = (b) => latest((r) => r.refId === b.id);
+      const test = list.find((b) => b.pool) || fixed.find((b) => !last(b)) || fixed.slice().sort((a, b) => at(last(a)) - at(last(b)))[0];
+      return { test, exam: latest((r) => r.mode === "exam" && ids.has(r.refId)) };
+    });
+    if (!rows.length) return null;
+    const row = rows.find((x) => !x.exam || now - at(x.exam) > NEAR * DAY) || rows.slice().sort((a, b) => pctR(a.exam) - pctR(b.exam))[0], b = row.test;
+    return { kind: "bank", near: true, id: b.id, href: "#/quiz/" + b.id, title: shortName(b, it.bks, false), n: qCount(b), minutes: +b.minutes, tip: "gần thi",
+      why: evTxt + `${status(ev) === "now" ? "Làm" : "Gần thi rồi: làm"} một đề như thi, ${qCount(b)} câu, ${b.minutes} phút.` + (b.pool ? " Câu bạn chưa gặp được hỏi trước." : "") };
+  }
+  /* Bài chính như Phiên UX22 (kì không có chủ đề; gần kì chỉ có đề thi thử), theo thứ tự của examItems (Phiên UX15, X50: bài ôn dạng trang
+     thường, rồi đề cố định theo môn thi của kì; không lấy bài ôn IOE: L54): bài chưa làm đầu tiên, rồi bài có tỉ lệ đúng thấp nhất (dưới 90%),
+     rồi Đề trộn, rồi bài đầu. Lí do: "Bài này 25 câu, bạn chưa làm." (đề thi thử "Đề này …"; bài ôn dạng trang "Bài này bạn chưa làm." và intro
+     của bài trong data/modules.js), "Lần trước bạn đúng 64%, làm lại để lên điểm.", "Mỗi lần một bộ 25 câu khác, câu bạn hay sai được hỏi lại.",
+     "Bạn đã làm tốt cả kì này, làm lại một bài để nhớ lâu hơn.". kind: "bank" (thẻ có Ôn luyện, Làm như thi), "mock", "mod". */
+  function ux22Pick(it, results, evTxt, full) {
     const did = (x) => results.filter((r) => r.refId === x.id);
     const pctOf = (x) => { const [r, t] = sumRT(graded(did(x))); return t ? pct(r, t) : null; };
-    const ev = practiceEvent(s), it = examItems(ev, s.grade);
     const fixed = it.bks.filter((b) => !b.pool), pools = it.bks.filter((b) => b.pool), list = it.mods.concat(fixed); // không lấy it.ioe (L54)
-    const evTxt = ev ? `${ev.title} ${status(ev) === "now" ? "đang diễn ra" : "còn " + daysTo(ev) + " ngày"}. ` : "";
-    const item = (x, why, tip) => ({ id: x.id, href: (x.path ? "#/play/" : "#/quiz/") + x.id, title: shortName(x, it.bks, !ev), why: evTxt + why, tip: tip || "",
+    const item = (x, why, tip) => ({ id: x.id, href: (x.path ? "#/play/" : "#/quiz/") + x.id, title: shortName(x, it.bks, full), why: evTxt + why, tip: tip || "",
       n: x.path ? 0 : qCount(x), minutes: x.path ? 0 : +x.minutes || 0, kind: x.path ? "mod" : scoredBank(x) ? "mock" : "bank" });
-    let main = null;
     const undone = list.find((x) => !did(x).length);
-    if (undone) main = item(undone, undone.path ? "Bài này bạn chưa làm." + (undone.intro ? " " + undone.intro : "") : `${scoredBank(undone) ? "Đề" : "Bài"} này ${qCount(undone)} câu, bạn chưa làm.`, "bạn chưa làm");
-    else if (list.length || pools.length) {
-      const low = list.map((x) => [x, pctOf(x)]).filter(([, p]) => p != null).sort((a, b) => a[1] - b[1])[0];
-      if (low && low[1] < 90) main = item(low[0], `Lần trước bạn đúng ${low[1]}%, làm lại để lên điểm.`, `lần trước đúng ${low[1]}%`);
-      else if (pools.length) main = item(pools[0], `Mỗi lần một bộ ${qCount(pools[0])} câu khác, câu bạn hay sai được hỏi lại.`, "mỗi lần một bộ câu khác");
-      else main = item(list[0], "Bạn đã làm tốt cả kì này, làm lại một bài để nhớ lâu hơn.");
-    }
-    return { ev, main };
+    if (undone) return item(undone, undone.path ? "Bài này bạn chưa làm." + (undone.intro ? " " + undone.intro : "") : `${scoredBank(undone) ? "Đề" : "Bài"} này ${qCount(undone)} câu, bạn chưa làm.`, "bạn chưa làm");
+    if (!list.length && !pools.length) return null;
+    const low = list.map((x) => [x, pctOf(x)]).filter(([, p]) => p != null).sort((a, b) => a[1] - b[1])[0];
+    if (low && low[1] < 90) return item(low[0], `Lần trước bạn đúng ${low[1]}%, làm lại để lên điểm.`, `lần trước đúng ${low[1]}%`);
+    if (pools.length) return item(pools[0], `Mỗi lần một bộ ${qCount(pools[0])} câu khác, câu bạn hay sai được hỏi lại.`, "mỗi lần một bộ câu khác");
+    return item(list[0], "Bạn đã làm tốt cả kì này, làm lại một bài để nhớ lâu hơn.");
+  }
+  function todayPick(s, results) {
+    const ev = practiceEvent(s), it = examItems(ev, s.grade), evTxt = evNote(ev);
+    const q = topicQueue(s, results, topicsOf(ev, s.grade, it)), topic = q.length ? topicItem(q[0], evTxt) : null;
+    if (!topic) return { ev, main: ux22Pick(it, results, evTxt, !ev), topic: null };
+    const main = isNear(ev) ? (mockOnly(it) ? ux22Pick(it, results, evTxt, false) : nearPick(ev, it, results, evTxt)) : null;
+    return { ev, main: main || topic, topic };
   }
   /* Huy hiệu (phần thưởng nhẹ, không có bảng xếp hạng): chuỗi 3, 7, 14 ngày ôn (chuỗi dài nhất từ trước đến nay, tính từ kết quả
-     đã lưu, nên không mất khi chuỗi đứt) và "Hết bài ôn" của một kì thi (Phiên UX22, X65; trước đó "Hết đề"; mọi bài ôn dạng trang và đề
-     cố định của kì đó, của khối học sinh, đã làm ít nhất một lần: progressOf; mã exam:<mã kì thi> giữ nguyên). Huy hiệu chưa ghi ở
+     đã lưu, nên không mất khi chuỗi đứt) và "Hết bài ôn" của một kì thi (Phiên UX22, X65; trước đó "Hết đề"; mã exam:<mã kì thi> giữ
+     nguyên): kì có chủ đề thì ôn hết chủ đề hoặc làm hết đề của kì (Phiên UX23b, X67; examProg), kì không có chủ đề thì mọi bài ôn dạng
+     trang và đề cố định của kì, của khối học sinh, đã làm ít nhất một lần (progressOf); con đã có huy hiệu theo cách cũ vẫn giữ. Huy hiệu chưa ghi ở
      localStorage ontap_badges_v1 (theo mã học sinh) thì hiện dòng chúc mừng một lần. all: mọi kết quả của con (chuỗi ngày chỉ tính kết quả
      chấm tự động, như thẻ chuỗi ngày ôn). */
   const STREAKS = [3, 7, 14];
@@ -1196,7 +1282,7 @@
     const best = bestStreak(graded(all));
     const out = STREAKS.map((n) => ({ id: "streak" + n, name: `Chuỗi ${n} ngày`, icon: n >= 14 ? "🏆" : "🏅", got: best >= n, n }));
     Store.events(s.grade).filter((e) => e.kind !== "moc").forEach((e) => {
-      if (allDone(progressOf(e, s, all))) out.push({ id: "exam:" + e.id, name: `Hết bài ôn · ${e.title}`, icon: "🎯", got: true });
+      if (examProg(e, s, all).done) out.push({ id: "exam:" + e.id, name: `Hết bài ôn · ${e.title}`, icon: "🎯", got: true });
     });
     return out;
   }
@@ -1219,17 +1305,25 @@
       <div class="week" role="list" aria-label="Các ngày trong tuần">${wk.map((d) => `<span class="wd${d.on ? " on" : ""}${d.today ? " now" : ""}${d.future ? " later" : ""}" role="listitem" aria-label="${d.name}: ${d.on ? "có ôn" : d.future ? "chưa tới" : "chưa ôn"}">${d.name}</span>`).join("")}</div>
       <p class="small" id="goalTxt">${goalTxt}</p></section>`;
   }
-  /* Thẻ Huy hiệu (Phiên UX9, X39): tối đa hai mục tiêu kế tiếp (.bdg-list, mỗi mục .bdg: biểu tượng, tên, số, thanh 6px):
-     1. "Hết bài ôn · <kì thi gần nhất có bài ôn>" · "3/5 bài" (practiceEvent: không bao giờ là kì IOE, Phiên 9aa, L54; progressOf, cùng số
-        với tab Bài ôn; kì chỉ có đề thi thử "2/16 đề"), khi kì đó chưa làm hết;
+  /* Thẻ Huy hiệu (Phiên UX9, X39): tối đa hai mục tiêu kế tiếp (.bdg-list, mỗi mục .bdg: biểu tượng, tên, số hoặc dòng nhỏ, thanh 6px):
+     1. "Hết bài ôn · <kì thi gần nhất có bài ôn>" (practiceEvent: không bao giờ là kì IOE, Phiên 9aa, L54; examProg), khi chưa đạt. Kì có chủ
+        đề (Phiên UX23b, X67): không có số bên phải, dòng nhỏ span.small.muted.bdg-sub "Ôn 3/70 chủ đề hoặc làm 1/13 đề" (cùng số với tab Bài
+        ôn), thanh theo phần lớn hơn của hai tỉ lệ. Kì không có chủ đề: số "3/5 bài" (progressOf; kì chỉ có đề thi thử "2/16 đề") như trước;
      2. huy hiệu chuỗi đầu tiên chưa có · "2/3 ngày" (chuỗi hiện tại trên số ngày của huy hiệu).
-     Huy hiệu đã có ở hàng "Đã có:" (.bdg-got, span.badge.on); #badgeHint ghi cách đạt cả hai mục tiêu. */
+     Huy hiệu đã có ở hàng "Đã có:" (.bdg-got, span.badge.on); #badgeHint ghi cách đạt cả hai mục tiêu ("Ôn hết chủ đề hoặc làm hết đề của kì
+     này là có “Hết bài ôn”."; kì không có chủ đề: "Làm thêm 2 bài của kì này là có “Hết bài ôn”."). */
   function badgePanel(s, all) {
     const results = graded(all), list = badges(s, all), cur = streak(results), today = weekRow(results).some((d) => d.today && d.on);
     const got = list.filter((b) => b.got), seen = Badges.seen(s.id), fresh = got.filter((b) => !seen.has(b.id));
     Badges.mark(s.id, got.map((b) => b.id));
-    const goals = [], hints = [], ev = practiceEvent(s), pr = ev ? progressOf(ev, s, all) : null;
-    if (pr && pr.total && !allDone(pr)) {
+    const goals = [], hints = [], ev = practiceEvent(s), ep = ev ? examProg(ev, s, all) : null;
+    if (ep && ep.both && !ep.done) {
+      const { t, x } = ep, side = x.total && x.done / x.total > t.done / t.total ? x : t, de = x.total ? ` hoặc làm ${x.done}/${x.total} đề` : "";
+      goals.push({ icon: "🎯", name: `Hết bài ôn · ${ev.title}`, sub: `Ôn ${t.done}/${t.total} chủ đề${de}`,
+        bar: progBar(side.done, side.total, `Đã ôn ${t.done} trên ${t.total} chủ đề` + (x.total ? `, đã làm ${x.done} trên ${x.total} đề` : "")) });
+      hints.push(`Ôn hết chủ đề${x.total ? " hoặc làm hết đề" : ""} của kì này là có “Hết bài ôn”.`);
+    } else if (ep && !ep.both && ep.old.total && !ep.done) {
+      const pr = ep.old;
       goals.push({ icon: "🎯", name: `Hết bài ôn · ${ev.title}`, n: `${pr.done}/${pr.total} ${pr.unit}`, bar: progBar(pr.done, pr.total, `Đã làm ${pr.done} trên ${pr.total} ${pr.unit}`) });
       hints.push(`Làm thêm ${pr.total - pr.done} ${pr.unit} của kì này là có “Hết bài ôn”.`);
     }
@@ -1241,40 +1335,53 @@
     }
     return `<section class="panel" id="badges"><div class="label">Huy hiệu</div>
       ${fresh.length ? `<div class="fb ok" id="newBadge">🎉 Bạn vừa nhận huy hiệu ${fresh.map((b) => `“${esc(b.name)}”`).join(", ")}!</div>` : ""}
-      ${goals.length ? `<div class="bdg-list">${goals.map((g) => `<div class="bdg"><span class="bdg-ic" aria-hidden="true">${g.icon}</span><span class="grow"><span class="bdg-top"><b>${nb(esc(g.name))}</b><span class="bdg-n">${g.n}</span></span>${g.bar}</span></div>`).join("")}</div>` : ""}
+      ${goals.length ? `<div class="bdg-list">${goals.map((g) => `<div class="bdg"><span class="bdg-ic" aria-hidden="true">${g.icon}</span><span class="grow"><span class="bdg-top"><b>${nb(esc(g.name))}</b>${g.n ? `<span class="bdg-n">${g.n}</span>` : ""}</span>${g.sub ? `<span class="small muted bdg-sub">${g.sub}</span>` : ""}${g.bar}</span></div>`).join("")}</div>` : ""}
       ${got.length ? `<div class="bdg-got"><span class="small muted">Đã có:</span>${got.map((b) => `<span class="badge on" aria-label="${esc(b.name)}: đã đạt"><span aria-hidden="true">${b.icon}</span> ${nb(esc(b.name))}</span>`).join("")}</div>` : ""}
       ${hints.length ? `<p class="small muted" id="badgeHint">${hints.join(" ")}</p>` : ""}</section>`;
   }
-  /* Thẻ bài chính (Phiên UX22, X62, X63): nhãn "Hôm nay ôn gì?", tên ngắn (h1), một dòng lí do (why), rồi chọn cách làm ngay trên thẻ
-     (goModes, div.go-modes): nút chính "Ôn luyện" (#todayPractice, a.btn.main.go) và nút phụ "Làm như thi · N phút" (#todayExam,
-     a.btn.ghost.go; đề không có số phút thì không có); chạm là vào câu 1 (#/quiz/<mã>?cach=on-luyen|thi, quizScreen). Bài chính là đề thi
-     thử: một nút chính "Mở đề thi thử" (#todayGo) tới màn mở đề (lời dặn dài, làm 90–120 phút: con đọc cấu trúc đề trước khi bấm giờ); bài
-     ôn dạng trang: một nút chính "Vào ôn" (#todayGo).
+  /* Thẻ bài chính (Phiên UX22, X62, X63; UX23b, X66, X67): nhãn "Hôm nay ôn gì?", tên ngắn (h1), một dòng lí do (why), rồi các nút ngay trên
+     thẻ (goModes, div.go-modes; một chính, một phụ, một thứ ba); chạm là vào câu 1 (?cach=on-luyen|thi, quizScreen):
+     - chủ đề (xa thi): nút chính a.btn.main.go#todayTopic (biểu tượng sách) "Ôn 10 câu" (chủ đề ít câu: "Ôn 5 câu"), dòng nhỏ "Xem đáp án sau
+       mỗi câu", tới #/chu-de/…?cach=on-luyen; link thứ ba a.linkbtn#todayOther "Chọn chủ đề khác →" tới #/practice?cach=chu-de (trong thẻ
+       xanh chữ màu on-acc). Nhóm "Bắt đầu ôn";
+     - gần thi (main.near): nút chính a.btn.main.go#todayExam (đồng hồ) "Làm như thi · 40 phút", "Tính giờ, chấm điểm khi nộp bài", tới
+       #/quiz/<mã>?cach=thi; nút phụ a.btn.ghost.go#todayTopic (sách) "Ôn chủ đề", dòng nhỏ "<môn> · <chủ đề>" (chủ đề gợi ý). Nhóm "Bắt đầu ôn";
+     - đề thi thử: một nút chính "Mở đề thi thử" (#todayGo) tới màn mở đề (lời dặn dài, làm 90–120 phút: con đọc cấu trúc đề trước khi bấm
+       giờ); bài ôn dạng trang (kì không có chủ đề): "Vào ôn" (#todayGo);
+     - kì không có chủ đề (như UX22): nút chính "Ôn luyện" (#todayPractice), nút phụ "Làm như thi · N phút" (#todayExam; đề không có số phút
+       thì không có). Nhóm "Chọn cách làm".
      Hôm nay con đã có kết quả (từ 0:00, cả kết quả tự chấm; Phiên UX9, X40) thì thẻ là "Bạn đã ôn rồi. Giỏi lắm!" (#today.done: nền
-     ok-soft, hải cẩu tung bóng 64px): số bài, số phút (như báo cáo tuần, MAX_SECS), số câu đúng hôm nay; "Làm thêm: <tên ngắn> (<ghi chú>).";
-     "Ôn luyện" là nút phụ (nút viền nền surface), "Làm như thi · N phút →" là link (thứ ba, a.linkbtn#todayExam); đề thi thử, bài ôn dạng
-     trang: #todayGo là nút viền. Khối chưa có đề thì thẻ đầu là trang rỗng (noBanksBox). */
+     ok-soft, hải cẩu tung bóng 64px): số bài, số phút (như báo cáo tuần, MAX_SECS), số câu đúng hôm nay; "Làm thêm: <tên ngắn> (<ghi chú>)."
+     (gần thi: "Làm thêm: Toán · Đề trộn (gần thi)."); nút chính trên thành nút phụ (nút viền nền surface), nút phụ thành link (gần thi:
+     a.linkbtn#todayTopic "Ôn chủ đề: Toán · Làm tròn số →"; như UX22: "Làm như thi · N phút →"); #todayOther vẫn là link; #todayGo là nút
+     viền. Khối chưa có đề thì thẻ đầu là trang rỗng (noBanksBox). */
   const P_BOOK = '<path d="M4 5a2 2 0 0 1 2-2h6v16H6a2 2 0 0 0-2 2z"/><path d="M20 5a2 2 0 0 0-2-2h-6v16h6a2 2 0 0 1 2 2z"/>', P_CLOCK = '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>';
-  function goModes(m, done) {
-    if (m.kind !== "bank") return `<a class="btn ${done ? "ghost" : "main lg"}" id="todayGo" href="${esc(m.href)}">${m.kind === "mock" ? "Mở đề thi thử" : "Vào ôn"}</a>`;
-    const href = (c) => `#/quiz/${esc(m.id)}?cach=${c}`, exam = nb(`Làm như thi · ${m.minutes} phút`);
-    const btn = (id, cls, c, ic, head, note) => `<a class="btn ${cls} go" id="${id}" href="${href(c)}">${ICO(ic)}<span class="grow"><b>${head}</b> <small>${note}</small></span></a>`;
-    return `<div class="go-modes" role="group" aria-label="Chọn cách làm">${btn("todayPractice", done ? "ghost" : "main", "on-luyen", P_BOOK, "Ôn luyện", "Xem đáp án sau mỗi câu")}${!m.minutes ? ""
-      : done ? `<a class="linkbtn" id="todayExam" href="${href("thi")}">${exam} →</a>` : btn("todayExam", "ghost", "thi", P_CLOCK, exam, "Tính giờ, chấm điểm khi nộp bài")}</div>`;
+  function goModes(pk, done) {
+    const m = pk.main, tp = pk.topic;
+    if (m.kind === "mod" || m.kind === "mock") return `<a class="btn ${done ? "ghost" : "main lg"}" id="todayGo" href="${esc(m.href)}">${m.kind === "mock" ? "Mở đề thi thử" : "Vào ôn"}</a>`;
+    const btn = (id, cls, href, ic, head, note) => `<a class="btn ${cls} go" id="${id}" href="${esc(href)}">${ICO(ic)}<span class="grow"><b>${head}</b> <small>${note}</small></span></a>`;
+    const group = (label, html) => `<div class="go-modes" role="group" aria-label="${label}">${html}</div>`;
+    const on = (x) => x.href + "?cach=on-luyen", href = (c) => `#/quiz/${m.id}?cach=${c}`, exam = nb(`Làm như thi · ${m.minutes} phút`);
+    if (m.kind === "topic") return group("Bắt đầu ôn", btn("todayTopic", done ? "ghost" : "main", on(m), P_BOOK, `Ôn ${m.n} câu`, "Xem đáp án sau mỗi câu")
+      + `<a class="linkbtn" id="todayOther" href="#/practice?cach=chu-de">Chọn chủ đề khác →</a>`);
+    if (m.near) return group("Bắt đầu ôn", btn("todayExam", done ? "ghost" : "main", href("thi"), P_CLOCK, exam, "Tính giờ, chấm điểm khi nộp bài")
+      + (!tp ? "" : done ? `<a class="linkbtn" id="todayTopic" href="${esc(on(tp))}">${nb(esc("Ôn chủ đề: " + tp.title))} →</a>` : btn("todayTopic", "ghost", on(tp), P_BOOK, "Ôn chủ đề", nb(esc(tp.title)))));
+    return group("Chọn cách làm", btn("todayPractice", done ? "ghost" : "main", href("on-luyen"), P_BOOK, "Ôn luyện", "Xem đáp án sau mỗi câu") + (!m.minutes ? ""
+      : done ? `<a class="linkbtn" id="todayExam" href="${esc(href("thi"))}">${exam} →</a>` : btn("todayExam", "ghost", href("thi"), P_CLOCK, exam, "Tính giờ, chấm điểm khi nộp bài")));
   }
   function renderToday(s) {
-    const all = Store.resultsFor(s.id), results = graded(all), t = today0(), main = todayPick(s, all).main;
+    const all = Store.resultsFor(s.id), results = graded(all), t = today0(), pk = todayPick(s, all), main = pk.main;
     const todayAll = all.filter((r) => new Date(r.at) >= t), todayG = graded(todayAll), st = weekStats(todayG.length ? todayG : todayAll);
     const score = todayG.length && st.t ? (todayG.some(scoredRes) ? ` · đúng ${pct(st.r, st.t)}%` : ` · đúng ${nf(st.r)}/${nf(st.t)} câu`) : "";
     const card = !main ? noBanksBox("today", s.grade)
       : todayAll.length ? `<section class="hero today done" id="today">
         <div class="done-head"><img src="icons/avatars/hai-cau-bong.svg" alt="" width="64" height="64"><div class="stack tight"><span class="label">Hôm nay</span><h1>Bạn đã ôn rồi. Giỏi lắm!</h1></div></div>
         <p id="todayDone">Hôm nay: ${st.n} bài${st.mins ? ` · ${st.mins} phút` : ""}${score}. Nghỉ một chút, hoặc làm thêm một bài nếu muốn.</p>
-        <p class="small done-tip">${nb(`Làm thêm: ${esc(main.title)}${main.tip ? ` (${main.tip})` : ""}.`)}</p>
-        ${goModes(main, true)}</section>`
+        <p class="small done-tip">${nb(`Làm thêm: ${esc(main.title)}${main.tip ? ` (${esc(main.tip)})` : ""}.`)}</p>
+        ${goModes(pk, true)}</section>`
       : `<section class="hero today" id="today"><span class="label">Hôm nay ôn gì?</span>
         <h1>${nb(esc(main.title))}</h1><p>${esc(main.why)}</p>
-        ${goModes(main, false)}</section>`;
+        ${goModes(pk, false)}</section>`;
     view.innerHTML = `<div class="stack">
       <div><h2>Chào ${esc(s.name)}! ${avIn(s.avatar)}</h2><span class="muted">${WDL[t.getDay()]} ${dm(isoDay(t))} · ${esc(gradeTxt(s))}</span></div>
       ${unsentBar(s.id)}
@@ -1331,8 +1438,11 @@
   /* Gợi ý dạng câu thường (chưa esc), tối đa 5 câu, việc cần làm trước đứng trước. Mỗi gợi ý { k, t, m }: t là câu ở mục Gợi ý ôn
      tuần sau; k là loại ("days" ngày ôn, "exam" kì thi gần nhất, "weak" môn đúng dưới 70%, "topics" chủ đề hay sai, "later" môn chưa ôn,
      làm như thi), để tin nhắn gửi báo cáo (reportMsg) bỏ gợi ý trùng với dòng đã có; m là câu dùng trong tin nhắn khi khác t
-     (gợi ý ngày ôn bỏ câu đầu: số ngày ôn đã có ở dòng số bài). Kì thi là kì thường gần nhất (nextEvent); "Bài ôn chưa làm", "Ôn tiếp",
-     môn chưa ôn không tính bài ôn IOE (phần tự chọn, Phiên 9aa, L54). */
+     (gợi ý ngày ôn bỏ câu đầu: số ngày ôn đã có ở dòng số bài); ms: các câu dùng trong tin nhắn, dài trước, tin nhắn lấy câu đầu tiên còn vừa
+     MSG_MAX. Kì thi là kì thường gần nhất (nextEvent). Kì có chủ đề chưa ôn (Phiên UX23b, X67): ngay sau gợi ý về kì thi là gợi ý k "later"
+     "Chủ đề chưa ôn của <kì>: Toán · Làm tròn số; Tiếng Anh · Unit 1 · My Friends; Khoa học · … và 64 chủ đề khác." (tối đa 3 tên theo thứ tự
+     gợi ý của Hôm nay, topicQueue; ngăn bằng "; " vì tên chủ đề có thể có dấu phẩy; tin nhắn bớt tên khi quá dài), thay cho "Bài ôn chưa làm"
+     (chỉ còn ở kì không có chủ đề chưa ôn). "Bài ôn chưa làm", "Ôn tiếp", môn chưa ôn không tính bài ôn IOE (phần tự chọn, Phiên 9aa, L54). */
   function weekTips(s, week, all) {
     const tips = [], st = weekStats(week), nm = s.name;
     const days = (fact, adv) => tips.push({ k: "days", t: fact + " " + adv, m: adv });
@@ -1345,13 +1455,18 @@
       const it = examItems(nx, s.grade), items = it.mods.concat(it.bks); // thứ tự của Hôm nay, tab Bài ôn (Phiên UX15); không có bài ôn IOE (L54)
       const did = (x) => all.some((r) => r.refId === x.id), done = items.filter(did);
       const todo = items.filter((x) => !x.pool && !did(x)).map(bankName); // đề ngẫu nhiên không tính là bài chưa làm; tên hiển thị (UX22)
+      const tq = topicQueue(s, all, topicsOf(nx, s.grade, it)).filter((z) => !z.st.full).map((z) => z.subject + " · " + z.y.t); // chủ đề chưa ôn (UX23b)
       let t = `${nx.title}: ${status(nx) === "now" ? "đang diễn ra" : "còn " + daysTo(nx) + " ngày"}.`;
-      if (todo.length) t += ` Bài ôn chưa làm: ${todo.slice(0, 3).join("; ")}${todo.length > 3 ? " và " + (todo.length - 3) + " bài khác" : ""}.`;
-      else if (done.length) {
+      if (todo.length && !tq.length) t += ` Bài ôn chưa làm: ${todo.slice(0, 3).join("; ")}${todo.length > 3 ? " và " + (todo.length - 3) + " bài khác" : ""}.`;
+      else if (!todo.length && done.length) {
         const low = done.map((x) => { const [r, n] = sumRT(all.filter((y) => y.refId === x.id)); return { title: bankName(x), p: pct(r, n) }; }).sort((a, b) => a.p - b.p)[0];
         t += low.p < 90 ? ` Ôn tiếp “${low.title}”: đang đúng ${low.p}%.` : ` Các bài ôn của kì này đang đúng từ ${low.p}% trở lên.`;
       }
       tips.push({ k: "exam", t });
+      if (tq.length) {
+        const line = (n) => `Chủ đề chưa ôn của ${nx.title}: ${tq.slice(0, n).join("; ")}${tq.length > n ? ` và ${tq.length - n} chủ đề khác` : ""}.`;
+        tips.push({ k: "later", t: line(3), ms: [3, 2, 1].map(line) });
+      }
       const miss = examSubjects(nx, s.grade, it).filter((x) => !week.some((r) => r.subject === x));
       if (st.n && miss.length) later.push({ k: "later", t: `Tuần này chưa ôn ${miss.join(", ")} cho kì thi sắp tới.` });
       if (st.n && items.length && status(nx) === "future" && daysTo(nx) <= 14 && !week.some((r) => r.mode === "exam")) later.push({ k: "later", t: "Sắp thi: làm ít nhất một đề ở chế độ “Làm như thi” (có tính giờ) để quen với thời gian làm bài." });
@@ -1365,7 +1480,8 @@
   /* Tin nhắn gửi báo cáo tuần (Phiên UX8, X14): chữ thuần để bố mẹ gửi ông bà, cô giáo hay người kia trong nhà qua Zalo, khoảng
      600 chữ cái trở xuống (MSG_MAX). Từng dòng: tên con và khoảng ngày (span, như đầu trang); số bài, số ngày ôn, số phút; điểm trung bình so với tuần trước;
      tối đa 3 chủ đề hay sai (ngăn bằng dấu chấm phẩy); kì thi gần nhất (ngày, còn N ngày); 1–2 gợi ý của weekTips, bỏ gợi ý về kì thi và về chủ đề hay sai (trùng
-     hai dòng trên), gợi ý thứ hai chỉ thêm khi tin nhắn chưa quá MSG_MAX; dòng cuối "Gửi từ OnUp.". Không có tên đăng nhập, tên gia
+     hai dòng trên), gợi ý thứ hai chỉ thêm khi tin nhắn chưa quá MSG_MAX (gợi ý có ms, như "Chủ đề chưa ôn của <kì>: …": câu dài nhất còn vừa,
+     Phiên UX23b); dòng cuối "Gửi từ OnUp.". Không có tên đăng nhập, tên gia
      đình hay đường dẫn nào. */
   const MSG_MAX = 600;
   /* past: tuần đã chọn ở thanh chọn tuần không phải 7 ngày gần nhất (X43): span, week, st, pv của tuần đó; kì thi, gợi ý vẫn theo hôm nay. */
@@ -1381,8 +1497,8 @@
       out.push(status(nx) === "now" ? `• Đang diễn ra: ${nx.title}, ${when}.` : `• Sắp tới: ${nx.title}, ${when} (${nx.tentative ? "dự kiến, " : ""}còn ${daysTo(nx)} ngày).`);
     }
     tips.filter((x) => x.k !== "exam" && x.k !== "topics").slice(0, 2).forEach((x, i) => {
-      const line = "• Gợi ý: " + (x.m || x.t);
-      if (!i || out.concat(line, end).join("\n").length <= MSG_MAX) out.push(line);
+      const lines = (x.ms || [x.m || x.t]).map((t) => "• Gợi ý: " + t), line = i ? lines.find((l) => out.concat(l, end).join("\n").length <= MSG_MAX) : lines[0];
+      if (line) out.push(line);
     });
     return out.concat(end).join("\n");
   }
@@ -1661,7 +1777,7 @@
 
   /* ================= CHI TIẾT KÌ THI =================
      Học sinh xem kì thi của mình (Lịch thi; Phiên UX23a): thay danh sách bài ôn bằng dòng tiến độ "Đã ôn 3/70 chủ đề · làm 1/13 đề"
-     (#evProg, progBoth; chưa ôn, chưa làm gì thì không có) và nút a.btn.sm#evPractice "Ôn cho kì này" tới #/practice?ki=<mã kì thi> (tab Bài
+     (#evProg, examProg như thẻ kì thi; chưa ôn, chưa làm gì thì không có) và nút a.btn.sm#evPractice "Ôn cho kì này" tới #/practice?ki=<mã kì thi> (tab Bài
      ôn mở nhóm của kì đó). Bố mẹ, quản trị: danh sách bài ôn, đề như trước (practiceList, tên "Đề N", "Đề trộn"). Nút "Thêm vào lịch điện
      thoại" (icsBox) giữ nguyên. */
   function openEvent(id, grade, student) {
@@ -1670,7 +1786,7 @@
     const g = grade != null ? grade : null;
     const canPlay = u.role === "student";
     const res = student ? Store.resultsFor(student.id) : null, mine = canPlay && !!student;
-    const prog = mine && e.kind !== "moc" ? progBoth(e, student, res) : "";
+    const prog = mine && e.kind !== "moc" ? examProg(e, student, res).txt : "";
     const box = document.createElement("div");
     box.className = "panel"; box.id = "evDetail";
     box.innerHTML = `<div class="row between"><span class="label">${esc(KIND[e.kind] || "")}${e.tentative && e.start ? " · Dự kiến" : ""}</span><button class="linkbtn" id="evClose">Đóng ✕</button></div>
