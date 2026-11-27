@@ -73,6 +73,12 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     return false;
   };
   const nowIn = (pg) => pg.evaluate(() => Date.now()); // giờ trong trang (đồng hồ giả lập): node so giờ với giờ này, không với Date.now() của node (L28)
+  /* Chủ đề đầu tiên của một đề trộn (theo ma trận, chỉ chủ đề có trong danh mục ONTAP_SEED_TOPICS) { t, n, href }: chủ đề gợi ý của Hôm nay khi
+     con chưa ôn chủ đề nào của môn đó (Phiên UX23b); n: số câu của lượt Ôn chủ đề (tối đa 10); href: địa chỉ đề Ôn chủ đề (không có ?cach).
+     Các bước tính chữ mong đợi từ dữ liệu, để thêm đề, đổi ma trận không phải sửa bước. */
+  const firstTopic = (pg, pool) => pg.evaluate((id) => { const b = window.ONTAP_SEED_BANKS.find((x) => x.id === id), cat = new Map((window.ONTAP_SEED_TOPICS[b.file] || []).map((x) => [x[0], x[1]]));
+    const t = Object.keys(b.pool.matrix).find((x) => cat.has(x)), code = b.file.replace(/^\d+-/, "").replace(/\.js$/, "");
+    return t ? { t, n: Math.min(10, cat.get(t)), href: `#/chu-de/${b.grade}/${code}/${encodeURIComponent(t)}` } : null; }, pool);
   /* Nút xem mật khẩu, mã PIN (U1). revealTry: ô (đã có chữ) có nút ngay sau nó; bấm thì hiện chữ (type="text",
      aria-pressed="true", aria-label "Ẩn …"), bấm lại thì ẩn; giá trị, focus, vị trí con trỏ, inputmode, autocomplete giữ nguyên.
      Ngoại lệ (UX4, X2): ô có data-reveal="<id>" (bàn phím PIN, #pinIn) dùng nút chữ đặt sẵn ở chỗ khác, không có aria-label: chữ đang
@@ -767,11 +773,12 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await check("bàn phím PIN đang hiện số"); await snap("ban-phim-pin-hien-so");
     for (const k of PINS.Bin.slice(3)) await p.click(`.pad button[data-k="${k}"]`);
     await p.waitForTimeout(400);
-    // học sinh lớp 4: trang chủ "Hôm nay" (UX1; UX22): thẻ bài chính có nút chọn cách làm (bài ôn dạng trang: "Vào ôn"), chuỗi ngày, huy hiệu,
+    // học sinh lớp 4: trang chủ "Hôm nay" (UX1; UX22; UX23b): thẻ bài chính có nút bắt đầu (chủ đề: "Ôn 10 câu", gần thi: "Làm như thi"; bài ôn
+    // dạng trang: "Vào ôn"), chuỗi ngày, huy hiệu,
     // không còn kết quả gần đây; thanh tab dưới 4 mục, tab đang mở là Hôm nay, mỗi tab cao ≥ 44px và nằm trong màn hình; thanh trên không còn nút Lịch thi.
     r.home = await p.evaluate(() => {
       const tabs = [...document.querySelectorAll("#tabbar a")], rects = tabs.map((a) => a.getBoundingClientRect());
-      return !!document.querySelector("#today :is(#todayGo, #todayPractice)") && !!document.querySelector("#streak .week") && !!document.querySelector("#badges") && !document.querySelector("#recent")
+      return !!document.querySelector("#today :is(#todayTopic, #todayExam, #todayGo, #todayPractice)") && !!document.querySelector("#streak .week") && !!document.querySelector("#badges") && !document.querySelector("#recent")
         && tabs.map((a) => a.textContent).join() === "Hôm nay,Bài ôn,Lịch thi,Kết quả" && tabs[0].getAttribute("aria-current") === "page" && rects.every((x) => x.height >= 44 && x.bottom <= innerHeight && x.left >= 0 && x.right <= innerWidth)
         && document.body.classList.contains("tabbed") && !document.querySelector(".who a[href='#/calendar']");
     });
@@ -2329,9 +2336,10 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      Tiếng Anh 4 Đề 1 hôm nay). Hôm nay đã có bài nên thẻ đầu là "Bạn đã ôn rồi. Giỏi lắm!" (UX9, X40), nút viền "Vào ôn" tới bài chính
      (bài ôn của kì giữa kì I, kì gần nhất có bài ôn); không có link tới tab Bài ôn, bài phụ, kết quả gần đây, kì thi tiếp theo (Phiên UX22;
      thẻ kì thi "Đã làm hết 1 bài · đúng 90%" ở tab Lịch thi). Chuỗi 3 ngày, tuần này 3/5 ngày (T2–T4), huy hiệu "Chuỗi 3 ngày" và "Hết bài
-     ôn · Kiểm tra giữa học kì I" mới nhận (dòng chúc mừng chỉ một lần, hàng "Đã có"), mục tiêu kế tiếp "Chuỗi 7 ngày" (X39). Sang 1/12: chưa
-     làm bài hôm nay nên thẻ "Hôm nay ôn gì?" với bài chính "Toán · Đề 2" (kì cuối kì I có đề), nút chính "Ôn luyện" và nút phụ "Làm như
-     thi" cao ≥ 60px rộng hết thẻ (UX22). Tab Bài ôn (?ki= mở sẵn nhóm), Lịch thi (chỉ kì
+     ôn · Kiểm tra giữa học kì I" mới nhận (dòng chúc mừng chỉ một lần, hàng "Đã có"), mục tiêu kế tiếp "Chuỗi 7 ngày" (X39); kì giữa kì I ở
+     đây không có đề nên không có chủ đề: thẻ như UX22 (Phiên UX23b). Sang 1/12 (cuối kì I còn 27 ngày, xa thi): chưa làm bài hôm nay nên thẻ
+     "Hôm nay ôn gì?" gợi ý một chủ đề (Phiên UX23b): chủ đề đầu tiên của Toán (con chưa ôn chủ đề nào, môn đầu theo ô Môn thi), nút chính
+     "Ôn 10 câu" cao ≥ 60px rộng hết thẻ, link "Chọn chủ đề khác →". Tab Bài ôn (?ki= mở sẵn nhóm), Lịch thi (chỉ kì
      thi, "Còn N ngày"), Kết quả ("Điểm trung bình tháng"); thanh tab không có ở màn đề, tài khoản. Màn kết quả: lời khen theo điểm, "Hơn lần
      trước 2 câu (21/25)", nút "Ôn lại 2 câu sai" (lượt chỉ có 2 câu, hộp rời trang riêng, không lưu điểm, "Làm lại cả đề" về đủ 25 câu),
      câu sai thu gọn (bấm mới thấy đáp án, lời giải), chủ đề chỉ hiện chỗ cần ôn thêm. Trên câu chỉ một dòng nhãn "Toán · chủ đề"; câu điền
@@ -2390,13 +2398,13 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     r.results = await p.evaluate(() => ({ stats: [...document.querySelectorAll(".stats .stat")].map((s) => s.querySelector("b").textContent + " " + s.querySelector("span").textContent).join("|"), subj: !!document.querySelector("#bySubject"), weak: [...document.querySelector("#weakTopics .topic-row").querySelectorAll("b, .muted, a.btn")].map((x) => x.textContent.replace(/\s+/g, " ").trim()).join(" | "), n: document.querySelectorAll("#allResults .item").length, tab: document.querySelector('#tabbar a[aria-current="page"]').getAttribute("href") }));
     await ucheck("tab Kết quả"); await usnap("ket-qua");
     await p.goto(BASE + "/#/account"); await p.waitForTimeout(200); r.tabAccount = await tabbar();
-    // sang 1/12: kì cuối kì I lớp 4 có đề; bài chính là đề chưa làm đầu tiên theo ô Môn thi (Toán 4 · Cuối kì I · Đề 2: Đề 1 đã làm, tên
-    // ngắn "Toán · Đề 2"), không phải bài ôn IOE (Phiên UX15, X50); không còn bài phụ (UX22)
+    // sang 1/12: kì cuối kì I lớp 4 còn 27 ngày (xa thi): bài chính là một chủ đề (Phiên UX23b): Bin chưa ôn chủ đề nào, môn đầu theo ô
+    // Môn thi là Toán, chủ đề đầu tiên theo ma trận đề trộn; không phải bài ôn IOE (Phiên UX15, X50; L54); không còn bài phụ (UX22)
     await p.clock.setSystemTime(new Date("2026-12-01T08:00:00"));
     await p.goto(BASE + "/#/home"); await p.reload(); await p.waitForSelector("#today");
     const goOf = (a) => a.textContent.replace(/\s+/g, " ").trim() + ":" + a.classList.contains("main") + ":" + (a.getBoundingClientRect().height >= 60) + ":" + (a.getBoundingClientRect().width >= 280) + ":" + a.getAttribute("href");
-    r.dec = { title: await txt("#today h1"), why: await txt("#today p"), more: !!(await p.$("#todayMore")), streak: await txt("#streak"),
-      go: await p.$eval("#todayPractice", goOf), exam: await p.$eval("#todayExam", goOf) }; // nút chọn cách làm rộng hết thẻ (360 − 2×16 lề − 2×20 đệm thẻ = 288px)
+    r.dec = { title: await txt("#today h1"), why: await txt("#today p"), more: !!(await p.$("#todayMore")), streak: await txt("#streak"), first: await firstTopic(p, "toan4-ck1-ngau-nhien"),
+      go: await p.$eval("#todayTopic", goOf), other: await p.$eval("#todayOther", (a) => a.className + ":" + a.textContent.trim() + ":" + a.getAttribute("href")) }; // nút rộng hết thẻ (360 − 2×16 lề − 2×20 đệm thẻ = 288px)
     await ucheck("Hôm nay, kì có nhiều đề"); await usnap("hom-nay-thang-12");
     // màn làm bài và màn kết quả: Toán 4 Đề 1, ôn luyện, hai câu đầu cố ý sai (lần trước 21/25)
     await p.goto(BASE + "/#/quiz/toan4-ck1-de1"); await p.waitForSelector("#qPractice"); r.tabQuiz = await tabbar();
@@ -2477,8 +2485,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.calendar.h1 === "Lịch thi lớp 4" && r.calendar.n >= 7 && !r.calendar.moc && !r.calendar.past && r.calendar.days && !r.calendar.back && r.calendar.tab === "#/calendar"
       && r.results.stats === "3 bài trong 7 ngày|8,75 Điểm trung bình tháng|3 ngày ôn liên tiếp" && r.results.subj && r.results.weak === "Góc và đo góc | Toán · 2 câu sai | Ôn 10 câu" && r.results.n === 3 && r.results.tab === "#/results"
       && r.tabAccount.tabs === "" && !r.tabAccount.tabbed && r.tabQuiz.tabs === "" && !r.tabQuiz.tabbed && r.tabRun.tabs === "" && !r.tabRun.cal
-      && r.dec.title === "Toán · Đề 2" && r.dec.why === "Kiểm tra cuối học kì I còn 27 ngày. Bài này 25 câu, bạn chưa làm." && !r.dec.more && /0 ngày liền/.test(r.dec.streak)
-      && r.dec.go === "Ôn luyện Xem đáp án sau mỗi câu:true:true:true:#/quiz/toan4-ck1-de2?cach=on-luyen" && /^Làm như thi · \d+ phút Tính giờ, chấm điểm khi nộp bài:false:true:true:#\/quiz\/toan4-ck1-de2\?cach=thi$/.test(r.dec.exam)
+      && !!r.dec.first && r.dec.title === "Toán · " + r.dec.first.t && r.dec.why === `Kiểm tra cuối học kì I còn 27 ngày. ${r.dec.first.n} câu, bạn chưa ôn chủ đề này.` && !r.dec.more && /0 ngày liền/.test(r.dec.streak)
+      && r.dec.go === `Ôn ${r.dec.first.n} câu Xem đáp án sau mỗi câu:true:true:true:${r.dec.first.href}?cach=on-luyen` && r.dec.other === "linkbtn:Chọn chủ đề khác →:#/practice?cach=chu-de"
       && r.labels.length === 1 && /^Toán · \S/.test(r.labels[0])
       && r.result.label === "Toán 4 · Cuối kì I · Đề 1 · Ôn luyện" && r.result.praise === "Xuất sắc, Bin!" && r.result.score === "9,25/10" && r.result.cmp === "Hơn lần trước 2 câu (21/25)" && r.result.retry === "Ôn lại 2 câu sai" && r.result.again === "Làm lại cả đề" && r.result.home === "Về trang chính"
       && /^closed:(4[4-9]|[5-9]\d|\d{3}):hidden\|closed:(4[4-9]|[5-9]\d|\d{3}):hidden$/.test(r.result.rv) && /^Câu [12] · .+Bạn trả lời: .+ · bấm để xem đáp án, lời giải$/.test(r.result.rvHead) && !/Đáp án:/.test(r.result.rvHead)
@@ -3984,13 +3992,13 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      kho trong bước (con của Mẹ Bin, PIN 9999), bản lưu trên máy, 360px sáng và tối:
      - 6/11/2026 18:00 (ngày giả lập), ôn luyện, đúng hết câu chấm tự động, tự chấm "Đủ" mọi ý: lời khen "Xuất sắc, An!" (không là mức thấp
        nhất "Chưa sao…"), điểm to "3/3", dòng "Điểm phần app chấm, …", tổng tạm tính 10/10; kết quả lưu 3/10 (như K5) và 28/28 (tự chấm,
-       phần tư điểm). Hôm nay "đúng 100%"; nhóm "Thi tuyển sinh vào lớp 10" ở tab Bài ôn và thẻ kì thi đó ở Lịch thi "Đã làm 1/N đề · đúng
-       100%" (kì chỉ có đề thi thử: "đề", Phiên UX22); tab Kết quả: điểm trung bình tháng 10, Ngữ văn 100%, dòng bài "Ngữ văn · phần app chấm" · "3/3 điểm" (phần tự chấm "7/7 điểm");
+       phần tư điểm). Hôm nay "đúng 100%"; nhóm "Thi tuyển sinh vào lớp 10" ở tab Bài ôn "Đã làm 1/N đề · đúng 100%" (kì chỉ có đề thi thử:
+       "đề", Phiên UX22) và thẻ kì thi đó ở Lịch thi "Đã làm 1/N đề" (kì có chủ đề Ngữ văn: hai bên, không ghi tỉ lệ đúng, Phiên UX23b); tab Kết quả: điểm trung bình tháng 10, Ngữ văn 100%, dòng bài "Ngữ văn · phần app chấm" · "3/3 điểm" (phần tự chấm "7/7 điểm");
        mở lại đề: "Lần trước: 3/3 điểm phần app chấm". Mẹ Bin: thẻ của An "10" điểm hôm nay; báo cáo tuần: điểm TB 10, Ngữ văn 10/10 và "1 bài
        · 1 đề tính điểm: 3/3 điểm phần app chấm", gợi ý và tin nhắn không có "mới đúng", tin nhắn có "Điểm trung bình 10/10", dòng bài
        "3/3 điểm", dòng cuối nói đề có tự luận chỉ tính phần app chấm.
      - 7/11/2026 18:00, làm lại (ôn luyện), sai câu 1 (trắc nghiệm, 0,5 điểm), tự chấm đủ: "Giỏi lắm, An!", "2,5/3", "Kém lần trước 0,5 điểm
-       phần app chấm (3/3)", tổng tạm tính 9,5/10; Hôm nay "đúng 83%"; nhóm, thẻ kì thi "đúng 83%" (lần làm gần nhất); "Lần trước: 2,5/3 điểm
+       phần app chấm (3/3)", tổng tạm tính 9,5/10; Hôm nay "đúng 83%"; nhóm "đúng 83%" (lần làm gần nhất), thẻ kì thi vẫn "Đã làm 1/N đề"; "Lần trước: 2,5/3 điểm
        phần app chấm"; tab Kết quả điểm trung bình tháng 9,25 ((10 + 8,33)/2), Ngữ văn 92%; thẻ của An "8,25" điểm hôm nay; báo cáo tuần điểm
        TB 9,25, "2 bài · 2 đề tính điểm: 5,5/6 điểm phần app chấm", tin nhắn "Điểm trung bình 9,25/10".
      audit ở mọi màn. Ảnh sáng/tối ở tests/screenshots/l47/ (bản ghép <tên>.jpg): ket-qua, hom-nay, ket-qua-tab, bao-cao, lam-lai; ảnh trước,
@@ -4089,14 +4097,14 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   const l47OK = !l47.problems.length && l47.runs.length === 2 && l47.runs.every((r) => r.auto === 3
       && r.praise1 === "Xuất sắc, An!" && r.score1 === "3/3" && r.how1 === "Điểm phần app chấm, theo điểm từng câu như đề thi."
       && r.total1 === "Tổng tạm tính, gồm phần tự luận tự chấm: 10/10 điểm." && r.saved1 === JSON.stringify([[28, 28, "self"], [3, 10, "practice"]])
-      && /· đúng 100%\./.test(r.l1.today) && /^Đã làm 1\/\d+ đề · đúng 100%$/.test(r.l1.grp) && /^Đã làm 1\/\d+ đề · đúng 100%$/.test(r.l1.cal)
+      && /· đúng 100%\./.test(r.l1.today) && /^Đã làm 1\/\d+ đề · đúng 100%$/.test(r.l1.grp) && /^Đã làm 1\/\d+ đề$/.test(r.l1.cal)
       && r.l1.avg === "10" && r.l1.subj === "Ngữ văn 100%" && L47_ROWS(r.l1, ["Ngữ văn · phần app chấm = 3/3 điểm", "Ngữ văn · tự luận tự chấm = 7/7 điểm"])
       && r.l1.prev === "Lần trước: 3/3 điểm phần app chấm" && r.l1.kid === "10 điểm hôm nay" && r.l1.rpAvg === "10"
       && r.l1.msg.includes("• Điểm trung bình 10/10 (tuần trước chưa làm bài).") && !/mới đúng/.test(r.l1.msg + r.l1.tips)
       && JSON.stringify(r.l1.subs) === JSON.stringify([["Ngữ văn", "10/10", "1 bài · 1 đề tính điểm: 3/3 điểm phần app chấm"]])
       && JSON.stringify(r.l1.week) === JSON.stringify(["Ngữ văn · phần app chấm = 3/3 điểm"]) && r.l1.foot.includes("đề có tự luận chỉ tính phần app chấm, đúng hết phần đó là 10 điểm")
       && r.praise2 === "Giỏi lắm, An!" && r.score2 === "2,5/3" && r.cmp2 === "Kém lần trước 0,5 điểm phần app chấm (3/3)" && r.total2 === "Tổng tạm tính, gồm phần tự luận tự chấm: 9,5/10 điểm."
-      && /· đúng 83%\./.test(r.l2.today) && /^Đã làm 1\/\d+ đề · đúng 83%$/.test(r.l2.grp) && /^Đã làm 1\/\d+ đề · đúng 83%$/.test(r.l2.cal)
+      && /· đúng 83%\./.test(r.l2.today) && /^Đã làm 1\/\d+ đề · đúng 83%$/.test(r.l2.grp) && /^Đã làm 1\/\d+ đề$/.test(r.l2.cal)
       && r.l2.avg === "9,25" && r.l2.subj === "Ngữ văn 92%" && r.l2.prev === "Lần trước: 2,5/3 điểm phần app chấm" && r.l2.kid === "8,25 điểm hôm nay"
       && L47_ROWS(r.l2, ["Ngữ văn · phần app chấm = 2,5/3 điểm", "Ngữ văn · tự luận tự chấm = 7/7 điểm", "Ngữ văn · phần app chấm = 3/3 điểm", "Ngữ văn · tự luận tự chấm = 7/7 điểm"])
       && r.l2.rpAvg === "9,25" && r.l2.msg.includes("• Điểm trung bình 9,25/10 (tuần trước chưa làm bài).") && !/mới đúng/.test(r.l2.msg + r.l2.tips)
@@ -4464,7 +4472,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      liệu như bước UX2 (4 bài trong tuần, 1 bài tuần trước). Khối "Tin nhắn sẽ gửi" (#rpMsg) ngay dưới đầu trang, trước các ô số liệu:
      tin nhắn chữ thuần khớp các ô (số bài, ngày ôn, phút, điểm trung bình và điểm tuần trước), chủ đề hay sai như mục Chủ đề hay sai
      (tối đa 3), kì thi gần nhất như thẻ đầu ở Kì thi sắp tới (ngày, dự kiến, còn N ngày), 1–2 gợi ý lấy từ mục Gợi ý ôn tuần sau nhưng
-     không nói về kì thi, chủ đề hay sai, dòng cuối "Gửi từ OnUp.", không quá 600 chữ cái, không có tên gia đình, đường dẫn; nút chính
+     không nói về kì thi, chủ đề hay sai (trừ gợi ý "Chủ đề chưa ôn của <kì>: …", Phiên UX23b: gợi ý thứ hai), dòng cuối "Gửi từ OnUp.",
+     không quá 600 chữ cái, không có tên gia đình, đường dẫn; nút chính
      "Gửi báo cáo" có biểu tượng, nút "Chép tin nhắn"; hàng trên cùng có nút phụ "In" (≥ 44×44px).
      - Giả lập navigator.share (page.addInitScript): "Gửi báo cáo" truyền đúng { title, text } (không có url), không chép, không báo gì;
        người dùng hủy (AbortError) cũng không chép, không báo; share lỗi khác (NotAllowedError) thì chép tin nhắn.
@@ -4472,7 +4481,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
        không được (clipboard, execCommand đều lỗi) thì chữ trong khối xem trước được chọn sẵn, toast "Chưa chép được…".
      - In (emulateMedia print): không có khối tin nhắn, nút In; vẫn có nhãn OnUp · Báo cáo tuần.
      - Na (lớp 6, cũng là con của Mẹ Bin trong bước này) chưa làm bài nào trong tuần: tin nhắn chỉ có dòng "Chưa làm bài nào", kì thi
-       gần nhất, gợi ý bắt đầu lại; không có dòng điểm, chủ đề.
+       gần nhất, gợi ý bắt đầu lại, gợi ý chủ đề chưa ôn của kì (UX23b); không có dòng điểm, chủ đề hay sai.
      - X37 (Phiên UX7b): Bin có chủ đề hay sai có dấu phẩy (“Phép cộng, phép trừ”): gợi ý “Ôn lại chủ đề hay sai: …” ở mục Gợi ý ôn tuần
        sau ngăn tên chủ đề bằng “; ”, giống dòng “Chủ đề hay sai” của tin nhắn.
      Ảnh 360px sáng/tối ở tests/screenshots/ux8/ (bản ghép <tên>.jpg; chép sang docs/hinh-ux8/): bao-cao-tin-nhan, da-chep, ban-in.
@@ -4666,8 +4675,10 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && g.tips.filter((x) => /^Ôn lại chủ đề hay sai: /.test(x)).join("|") === "Ôn lại chủ đề hay sai: " + L[3].slice("• Chủ đề hay sai: ".length)
       && L[3] === "• Chủ đề hay sai: Góc và đo góc; Đơn vị đo; Phép cộng, phép trừ."
       && L[4] === `• Sắp tới: ${g.ev.title}, 2/11 – 13/11/2026 (dự kiến, ${g.ev.left.toLowerCase()}).` && g.ev.title === "Kiểm tra giữa học kì I" && g.ev.left === "Còn 12 ngày"
-      && tipL.join("|") === "• Gợi ý: Tuần sau cố gắng ôn ít nhất 5 ngày, mỗi ngày 20–30 phút, thay vì làm dồn một buổi.|• Gợi ý: Tuần này chưa ôn Tiếng Việt cho kì thi sắp tới."
-      && tipL.every((x) => g.tips.some((li) => li.includes(x.slice("• Gợi ý: ".length))) && !x.includes(g.ev.title) && !/còn \d+ ngày|chủ đề hay sai/i.test(x)) && g.tips.length === 4
+      && tipL.length === 2 && tipL[0] === "• Gợi ý: Tuần sau cố gắng ôn ít nhất 5 ngày, mỗi ngày 20–30 phút, thay vì làm dồn một buổi."
+      // gợi ý thứ hai: chủ đề chưa ôn của kì (UX23b); mục Gợi ý ghi khoảng trắng không ngắt trước "·" (nb), tin nhắn là chữ thường: gộp khoảng trắng trước khi so
+      && flat(tipL[1]) === flat("• Gợi ý: " + g.tips[2]) && flat(g.tips[2]).startsWith(`Chủ đề chưa ôn của ${g.ev.title}: Toán · `)
+      && tipL.every((x) => g.tips.some((li) => flat(li).includes(flat(x.slice("• Gợi ý: ".length)))) && (!x.includes(g.ev.title) || x.startsWith(`• Gợi ý: Chủ đề chưa ôn của ${g.ev.title}: `)) && !/còn \d+ ngày|chủ đề hay sai/i.test(x)) && g.tips.length === 5
       && L[L.length - 1] === "Gửi từ OnUp." && g.msg.length <= 600 && g.school === "Nhà Bin" && !g.msg.includes(g.school) && !/https?:|#\/|www\./.test(g.msg)
       && g.label === "Tin nhắn sẽ gửi" && g.pre === "pre-line" && g.after === "rpWeek" && g.afterWeek === "rpMsg" && g.beforeStats
       && g.send.text === "Gửi báo cáo" && g.send.main && g.send.icon && g.send.h >= 44 && g.copy.text === "Chép tin nhắn" && !g.copy.main && g.copy.h >= 44
@@ -4677,7 +4688,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && r.noShare.type === "undefined" && r.noShare.n === 3 && r.noShare.clip === g.msg && r.noShare.toast === COPIED && r.copy.clip === g.msg && r.copy.toast === COPIED
       && r.noCopy.inBox && flat(r.noCopy.sel) === flat(g.msg) && r.noCopy.toast === "Chưa chép được. Tin nhắn đã được chọn sẵn, bấm giữ để chép."
       && r.print.msg === "none" && r.print.send === 0 && r.print.printBtn === 0 && r.print.label !== "none"
-      && /^Báo cáo tuần của Na \(15\/10 – 21\/10\/2026\)\n• Chưa làm bài nào trong 7 ngày qua\.\n• Sắp tới: Kiểm tra giữa học kì I, \d+\/\d+ – \d+\/\d+\/2026 \(dự kiến, còn \d+ ngày\)\.\n• Gợi ý: Tuần sau bắt đầu lại nhẹ nhàng: mỗi ngày một đề ngắn 20–30 phút\.\nGửi từ OnUp\.$/.test(r.empty); });
+      && /^Báo cáo tuần của Na \(15\/10 – 21\/10\/2026\)\n• Chưa làm bài nào trong 7 ngày qua\.\n• Sắp tới: Kiểm tra giữa học kì I, \d+\/\d+ – \d+\/\d+\/2026 \(dự kiến, còn \d+ ngày\)\.\n• Gợi ý: Tuần sau bắt đầu lại nhẹ nhàng: mỗi ngày một đề ngắn 20–30 phút\.\n• Gợi ý: Chủ đề chưa ôn của Kiểm tra giữa học kì I: Toán · [^\n]+\.\nGửi từ OnUp\.$/.test(r.empty); });
 
   const brief12 = (r) => r && JSON.stringify(r, (k, v) => (k === "msg" ? v.split("\n").length + " dòng" : v));
   console.log("UX12:", brief12(ux12.light), "dark:", brief12(ux12.dark), "problems:", ux12.problems);
@@ -4712,21 +4723,22 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      (gk1-l4: bài ôn l4-giua-ki-1, Toán 4, Tiếng Việt 4 giữa kì I Đề 1, Đề 2, hai đề ngẫu nhiên): Toán Đề 1 (20/25, 5 ngày trước), Đề 2
      (19/25, 3 ngày trước), Toán đề ngẫu nhiên (21/25, hôm qua), Tiếng Việt Đề 1 (23/25, hôm nay 16:10, 21 phút). Mong đợi:
      - X38: tiến độ của kì (progressOf) là 3/5 bài (đề ngẫu nhiên không tính), đúng 83% (lần gần nhất của mỗi bài, cả đề ngẫu nhiên:
-       (20 + 19 + 21 + 23)/100): thẻ kì thi ở Lịch thi (.ready; Phiên UX22 bỏ thẻ kì thi và link tới tab Bài ôn ở Hôm nay) ghi "Đã làm 3/5
-       bài · đúng 83%". Tab Bài ôn (Phiên UX23a): bài ôn dạng trang ở bên "Ôn theo chủ đề" (nút vàng: bài chính của Hôm nay); bên "Làm đề như
-       thi" nhóm kì thi chỉ đếm đề (.grp-prog: "Đã làm 3/4 đề · đúng 83%", thanh có aria-label); chi tiết kì thi của Bin ghi "Đã làm 3/4 đề"
-       (#evProg). Nút đề đã làm là btn sm done có .done-ic, cao đúng 44px, aria-label ghi đã làm và tỉ lệ đúng lần gần nhất; đề chưa làm, Đề
-       trộn là btn sm (nền nhạt), chỉ bài chính của Hôm nay là btn main (ở đây là bài ôn dạng trang, nên bên đề không có nút vàng); hàng Toán
-       (✓ Đề 1, ✓ Đề 2, Đề trộn) đọc từ trái sang, nút đầu căn trái dưới tên môn; dòng môn "Đã làm 2/2 đề · mỗi đề 25 câu, 40 phút". Trang
-       "Bài ôn của Bin" (Mẹ Bin) cũng có ✓ và dòng tiến độ.
-     - X39: hai mục tiêu "Hết bài ôn · Kiểm tra giữa học kì I" 3/5 bài, "Chuỗi 3 ngày" 2/3 ngày, chưa có hàng "Đã có"; gợi ý ghi cả hai.
-       Làm thêm Tiếng Việt Đề 2 (4/5), rồi bài ôn giữa kì I (5/5): "Hết bài ôn" sang hàng "Đã có" (dòng chúc mừng), còn một mục tiêu; thẻ kì
-       thi "Đã làm hết 5 bài · đúng 84%", nhóm kì thi ở bên đề "Đã làm hết 4 đề · đúng 84%" (thanh, chữ màu ok); nút "Vào ôn" có ✓, dòng bài ôn là mô tả của bài rồi câu "Đã ôn 1
+       (20 + 19 + 21 + 23)/100). Kì có chủ đề (Phiên UX23b): thẻ kì thi ở Lịch thi (.ready; Phiên UX22 bỏ thẻ kì thi và link tới tab Bài ôn ở
+       Hôm nay) ghi "Đã làm 3/4 đề" (chưa ôn chủ đề nào: bỏ bên chủ đề), như chi tiết kì thi của Bin (#evProg). Tab Bài ôn (Phiên UX23a): bài
+       ôn dạng trang ở bên "Ôn theo chủ đề" (không còn là bài chính: kì có chủ đề, UX23b; nút vàng của bên này là chủ đề gợi ý); bên "Làm đề
+       như thi" nhóm kì thi chỉ đếm đề (.grp-prog: "Đã làm 3/4 đề · đúng 83%", thanh có aria-label). Nút đề đã làm là btn sm done có
+       .done-ic, cao đúng 44px, aria-label ghi đã làm và tỉ lệ đúng lần gần nhất; đề chưa làm, Đề trộn là btn sm (nền nhạt), chỉ bài chính
+       của Hôm nay là btn main (ở đây gần thi, còn 6 ngày: Đề trộn của Toán, UX23b); hàng Toán (✓ Đề 1, ✓ Đề 2, Đề trộn) đọc từ trái sang,
+       nút đầu căn trái dưới tên môn; dòng môn "Đã làm 2/2 đề · mỗi đề 25 câu, 40 phút". Trang "Bài ôn của Bin" (Mẹ Bin) cũng có ✓ và dòng tiến độ.
+     - X39 (UX23b: kì có chủ đề): hai mục tiêu "Hết bài ôn · Kiểm tra giữa học kì I" (không có số bên phải, dòng nhỏ "Ôn 0/16 chủ đề hoặc làm
+       3/4 đề"), "Chuỗi 3 ngày" 2/3 ngày, chưa có hàng "Đã có"; gợi ý ghi cả hai. Làm thêm Tiếng Việt Đề 2: làm hết đề của kì nên "Hết bài
+       ôn" sang hàng "Đã có" (dòng chúc mừng), còn một mục tiêu; rồi bài ôn giữa kì I: không chúc mừng lại; thẻ kì thi "Đã làm 4/4 đề" (chữ
+       màu ok), nhóm kì thi ở bên đề "Đã làm hết 4 đề · đúng 84%" (thanh, chữ màu ok); nút "Vào ôn" có ✓, dòng bài ôn là mô tả của bài rồi câu "Đã ôn 1
        lần." ("… ôn câu sai. Đã ôn 1 lần.", Phiên UX9b, X49) ở tab Bài ôn, chi tiết kì thi của Bin và "Bài ôn của Bin" của Mẹ Bin; mô tả
        không có dấu chấm cuối (sửa tạm trong trang) thì "… ôn câu sai. Đã ôn 1 lần."; không màn nào của bước có dấu chấm liền dấu "·".
      - X40: hôm nay có bài thì #today.done (hải cẩu tung bóng 64px, "Bạn đã ôn rồi. Giỏi lắm!", "Hôm nay: 1 bài · 21 phút · đúng 23/25 câu.",
-       "Làm thêm: Ôn giữa kì I · Lớp 4 (bạn chưa làm).", nút viền "Vào ôn" tới bài chính); sang hôm sau thì về thẻ "Hôm nay ôn gì?" với nút
-       chính "Ôn luyện" (bài chính là Toán · Đề 2, đúng thấp nhất). Na (lớp 6, chưa có bài):
+       gần thi (UX23b): "Làm thêm: Toán · Đề trộn (gần thi).", nút viền #todayExam "Làm như thi · 40 phút", link #todayTopic "Ôn chủ đề: Toán
+       · <chủ đề đầu> →"); sang hôm sau thì về thẻ "Hôm nay ôn gì?" với nút chính #todayExam. Na (lớp 6, chưa có bài):
        tab Kết quả chỉ có .empty (hải cẩu đeo kính, nút "Làm bài đầu tiên" tới bài chính của Hôm nay), không có .stats. 20/6/2027: Lịch thi
        của Bin không còn kì thi (.empty). Khối chưa có đề (danh mục đề, bài ôn dạng trang để trống bằng route; không có đề tự nhập): Hôm nay
        và Bài ôn của Bin, "Bài ôn của Bin" của Mẹ Bin có .empty "Nhờ thầy cô nhập đề trong mục Quản trị.", Bố Minh (quản trị) có nút tới
@@ -4770,8 +4782,9 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
         barH: bar && Math.round(bar.getBoundingClientRect().height), fill: bar && Math.round((bar.firstElementChild.getBoundingClientRect().width / bar.getBoundingClientRect().width) * 100), good: !!bar && bar.classList.contains("good"),
         toan: row("Toán"), tv: row("Tiếng Việt"), mod: mod ? { desc: f(mod.querySelector(".small")), cls: [...mod.querySelector("a").classList].sort().join(" "), t: f(mod.querySelector("a")), aria: mod.querySelector("a").getAttribute("aria-label") } : null };
     });
+    // mục tiêu: "tên|số bên phải|dòng nhỏ (Phiên UX23b)|aria-label của thanh"
     const badgesOf = () => p.evaluate(() => { const f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : "");
-      return { goals: [...document.querySelectorAll("#badges .bdg-list .bdg")].map((b) => f(b.querySelector(".bdg-top b")) + "|" + f(b.querySelector(".bdg-n")) + "|" + (b.querySelector(".bar") ? b.querySelector(".bar").getAttribute("aria-label") : "")),
+      return { goals: [...document.querySelectorAll("#badges .bdg-list .bdg")].map((b) => [".bdg-top b", ".bdg-n", ".bdg-sub"].map((s) => f(b.querySelector(s))).join("|") + "|" + (b.querySelector(".bar") ? b.querySelector(".bar").getAttribute("aria-label") : "")),
         got: [...document.querySelectorAll("#badges .bdg-got .badge.on")].map(f), gotHead: f(document.querySelector("#badges .bdg-got > span")), hint: f(document.querySelector("#badgeHint")), fresh: f(document.querySelector("#newBadge")), chips: document.querySelectorAll("#badges .badge:not(.on)").length }; });
     await p.clock.install({ time: new Date("2026-10-27T17:30:00") });
     await p.goto(BASE + "/");
@@ -4790,16 +4803,23 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       { source: "bank", refId: "tv4-gk1-de1", subject: "Tiếng Việt", label: "Tiếng Việt 4 · Giữa kì I · Đề 1", r: 23, t: 25, d: 0, h: 16 }]);
     // Hôm nay: thẻ đã ôn, link, thẻ kì thi, huy hiệu
     await login("Bin", PINS.Bin, "#today");
-    r.today = await p.evaluate(() => { const m = document.querySelector("#today"), go = document.querySelector("#todayGo"), img = m.querySelector(".done-head img"), f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : "");
+    r.first = await firstTopic(p, "toan4-gk1-ngau-nhien"); // chủ đề gợi ý: chưa ôn chủ đề nào, Toán đứng đầu ô Môn thi (UX23b)
+    r.nTopics = await p.evaluate(() => { const ev = window.ONTAP_SEED_EVENTS.find((e) => e.id === "gk1-l4"), seen = new Set(); // số chủ đề của kì (ma trận các đề trộn, có trong danh mục)
+      ev.banks.map((id) => window.ONTAP_SEED_BANKS.find((b) => b.id === id)).filter((b) => b && b.grade === 4 && b.pool).forEach((b) => { const cat = new Set((window.ONTAP_SEED_TOPICS[b.file] || []).map((x) => x[0])); Object.keys(b.pool.matrix).forEach((t) => cat.has(t) && seen.add(b.file + "|" + t)); });
+      return seen.size; });
+    r.today = await p.evaluate(() => { const m = document.querySelector("#today"), go = document.querySelector("#todayExam"), tp = document.querySelector("#todayTopic"), img = m.querySelector(".done-head img"), f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : "");
       return { done: m.classList.contains("done"), label: f(m.querySelector(".label")), h1: f(m.querySelector("h1")), line: f(m.querySelector("#todayDone")), tip: f(m.querySelector(".done-tip")),
         img: img && img.getAttribute("src") + ":" + img.getAttribute("alt") + ":" + Math.round(img.getBoundingClientRect().width), go: go && [...go.classList].sort().join(" ") + ":" + f(go) + ":" + go.getAttribute("href"), goH: go && go.getBoundingClientRect().height,
+        topic: tp && [...tp.classList].sort().join(" ") + ":" + f(tp) + ":" + tp.getAttribute("href"),
         bg: getComputedStyle(m).backgroundColor, okSoft: (() => { const t = document.createElement("i"); t.style.color = "var(--ok-soft)"; document.body.append(t); const c = getComputedStyle(t).color; t.remove(); return c; })(),
         gone: ["#toBanks", "#nextEvent", "#todayMore", "#recent"].filter((s) => document.querySelector(s)).join() }; }); // Phiên UX22: không còn link, thẻ kì thi, bài phụ, kết quả gần đây
     r.badges = await badgesOf();
     await check9("Hôm nay đã ôn"); await snap9("hom-nay");
-    // tab Bài ôn (Phiên UX23a): bài ôn dạng trang ở bên "Ôn theo chủ đề"; tiến độ đề của nhóm kì thi, nút đề đã làm ở bên "Làm đề như thi"
+    // tab Bài ôn (Phiên UX23a): bài ôn dạng trang ở bên "Ôn theo chủ đề" (nút vàng của bên này: chủ đề gợi ý, UX23b); tiến độ đề của nhóm kì
+    // thi, nút đề đã làm ở bên "Làm đề như thi"
     await p.goto(BASE + "/#/practice?cach=chu-de"); await p.waitForSelector("#allPractice");
     r.practiceMod = (await practiceOf()).mod;
+    r.topicMains = await p.$$eval("#allPractice .btn.main", (x) => x.map((b) => (b.closest("a.trow") ? "trow:" + b.closest("a.trow").querySelector(".grow b").textContent.trim() : b.getAttribute("href"))));
     await check9("tab Bài ôn, bên chủ đề");
     await p.goto(BASE + "/#/practice?cach=thi"); await p.waitForSelector("#allPractice .grp-prog");
     r.practice = await practiceOf();
@@ -4809,7 +4829,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await p.click('.ev[data-ev="gk1-l4"]'); await p.waitForSelector("#evDetail");
     r.evProg = await txt("#evProg"); // chi tiết kì thi của con: dòng tiến độ và nút "Ôn cho kì này" (Phiên UX23a), không còn danh sách đề
     await check9("Lịch thi, chi tiết kì thi");
-    // làm thêm Tiếng Việt Đề 2 (4/5), rồi bài ôn giữa kì I (5/5): "Hết bài ôn" sang hàng "Đã có"
+    // làm thêm Tiếng Việt Đề 2 (làm hết đề của kì: "Hết bài ôn" sang hàng "Đã có", UX23b), rồi bài ôn giữa kì I
     await addRes([{ source: "bank", refId: "tv4-gk1-de2", subject: "Tiếng Việt", label: "Tiếng Việt 4 · Giữa kì I · Đề 2", r: 22, t: 25, d: 0, h: 17 }]);
     await p.goto(BASE + "/#/home"); await p.reload(); await p.waitForSelector("#today");
     r.four = { badges: await badgesOf(), line: await txt("#todayDone") };
@@ -4846,13 +4866,13 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     r.parent.noDot = await modOf("#allPractice");
     await check9("Bài ôn của Bin (Mẹ Bin), mô tả không có dấu chấm cuối");
     await p.reload(); await p.waitForSelector("#allPractice");
-    // sang hôm sau: thẻ "Hôm nay ôn gì?" như cũ
+    // sang hôm sau: thẻ "Hôm nay ôn gì?" (gần thi: nút chính #todayExam, UX23b)
     await p.clock.setSystemTime(new Date("2026-10-28T08:00:00"));
     await login("Bin", PINS.Bin, "#today");
-    r.next = await p.evaluate(() => { const m = document.querySelector("#today"), go = document.querySelector("#todayPractice"); return { done: m.classList.contains("done"), label: m.querySelector(".label").textContent, go: [...go.classList].sort().join(" ") + ":" + go.textContent.replace(/\s+/g, " ").trim() }; });
+    r.next = await p.evaluate(() => { const m = document.querySelector("#today"), go = document.querySelector("#todayExam"); return { done: m.classList.contains("done"), label: m.querySelector(".label").textContent, go: [...go.classList].sort().join(" ") + ":" + go.textContent.replace(/\s+/g, " ").trim() }; });
     // Na chưa có bài: tab Kết quả là trang rỗng
     await login("Na", "4444", "#today");
-    r.naGo = await p.$eval("#today :is(#todayGo, #todayPractice)", (a) => a.getAttribute("href").replace(/\?cach=.*$/, "")); // nút "Làm bài đầu tiên" tới màn mở đề của bài chính
+    r.naGo = await p.$eval("#today :is(#todayGo, #todayPractice, #todayExam, #todayTopic)", (a) => a.getAttribute("href").replace(/\?cach=.*$/, "")); // nút "Làm bài đầu tiên" tới màn mở đề của bài chính
     await p.goto(BASE + "/#/results"); await p.waitForSelector("#view .empty");
     r.na = await p.evaluate(() => { const e = document.querySelector("#view .empty"), img = e.querySelector("img"), b = e.querySelectorAll(".btn"), f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : "");
       return { id: e.id, img: img.getAttribute("src") + ":" + img.getAttribute("alt") + ":" + Math.round(img.getBoundingClientRect().width), h: f(e.querySelector("h3")), line: f(e.querySelector("p")),
@@ -4895,34 +4915,37 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await gp.close();
   }
   console.log("UX9:", JSON.stringify(ux9.light), "dark:", JSON.stringify(ux9.dark), "problems:", ux9.problems);
-  const ux9OK = !ux9.problems.length && ["light", "dark"].every((sc) => { const r = ux9[sc], P = "Đã làm 3/5 bài · đúng 83%", pr = r.practice, t = r.today, x = r.five.practice;
+  const ux9OK = !ux9.problems.length && ["light", "dark"].every((sc) => { const r = ux9[sc], pr = r.practice, t = r.today, x = r.five.practice, CK = "Hết bài ôn · Kiểm tra giữa học kì I", N = r.nTopics;
     const doneBtn = (b, lb) => b.t === "✓" + lb && b.cls === "btn done sm" && b.ic && b.h === 44 && /, đã làm, lần gần nhất đúng \d+%$/.test(b.aria);
     const plainBtn = (b, lb, rnd) => b.t === lb && b.cls === (rnd ? "btn rnd sm" : "btn sm") && !b.ic && !/đã làm/.test(b.aria); // nền nhạt (UX22: chỉ bài chính là nút vàng)
     const ltr = (row) => row.btns.every((b, i) => (i ? b.top > row.btns[i - 1].top || (b.top === row.btns[i - 1].top && b.left > row.btns[i - 1].left) : b.left === row.nameLeft)); // đọc từ trái sang, nút đầu căn trái dưới tên môn (360px)
     return t.done && t.label === "Hôm nay" && t.h1 === "Bạn đã ôn rồi. Giỏi lắm!" && t.line === "Hôm nay: 1 bài · 21 phút · đúng 23/25 câu. Nghỉ một chút, hoặc làm thêm một bài nếu muốn."
-      && t.tip === "Làm thêm: Ôn giữa kì I · Lớp 4 (bạn chưa làm)." && t.img === "icons/avatars/hai-cau-bong.svg::64" && t.go === "btn ghost:Vào ôn:#/play/l4-giua-ki-1" && t.goH >= 44 && t.bg === t.okSoft
-      && !t.gone
-      && r.badges.goals.join("/") === "Hết bài ôn · Kiểm tra giữa học kì I|3/5 bài|Đã làm 3 trên 5 bài/Chuỗi 3 ngày|2/3 ngày|Đã ôn 2 trên 3 ngày liền" && !r.badges.got.length && !r.badges.gotHead && !r.badges.chips && !r.badges.fresh
-      && r.badges.hint === "Ôn thêm ngày mai là có “Chuỗi 3 ngày”. Làm thêm 2 bài của kì này là có “Hết bài ôn”."
-      && pr.prog === "Đã làm 3/4 đề · đúng 83%" && pr.bold === "3/4" && pr.aria === "img:Đã làm 3 trên 4 đề" && pr.barH === 6 && pr.fill === 75 && !pr.good && r.calReady === P
-      && !!pr.toan && pr.toan.info === "Đã làm 2/2 đề · mỗi đề 25 câu, 40 phút" && pr.toan.btns.length === 3 && doneBtn(pr.toan.btns[0], "Đề 1") && doneBtn(pr.toan.btns[1], "Đề 2") && plainBtn(pr.toan.btns[2], "Đề trộn", true)
+      && t.tip === "Làm thêm: Toán · Đề trộn (gần thi)." && t.img === "icons/avatars/hai-cau-bong.svg::64" && t.go === "btn ghost go:Làm như thi · 40 phút Tính giờ, chấm điểm khi nộp bài:#/quiz/toan4-gk1-ngau-nhien?cach=thi" && t.goH >= 44 && t.bg === t.okSoft
+      && !!r.first && t.topic === `linkbtn:Ôn chủ đề: Toán · ${r.first.t} →:${r.first.href}?cach=on-luyen` && !t.gone
+      && N === 16 && r.badges.goals.join("/") === `${CK}||Ôn 0/${N} chủ đề hoặc làm 3/4 đề|Đã ôn 0 trên ${N} chủ đề, đã làm 3 trên 4 đề/Chuỗi 3 ngày|2/3 ngày||Đã ôn 2 trên 3 ngày liền` && !r.badges.got.length && !r.badges.gotHead && !r.badges.chips && !r.badges.fresh
+      && r.badges.hint === "Ôn thêm ngày mai là có “Chuỗi 3 ngày”. Ôn hết chủ đề hoặc làm hết đề của kì này là có “Hết bài ôn”."
+      && pr.prog === "Đã làm 3/4 đề · đúng 83%" && pr.bold === "3/4" && pr.aria === "img:Đã làm 3 trên 4 đề" && pr.barH === 6 && pr.fill === 75 && !pr.good && r.calReady === "Đã làm 3/4 đề"
+      && !!pr.toan && pr.toan.info === "Đã làm 2/2 đề · mỗi đề 25 câu, 40 phút" && pr.toan.btns.length === 3 && doneBtn(pr.toan.btns[0], "Đề 1") && doneBtn(pr.toan.btns[1], "Đề 2")
+      && pr.toan.btns[2].t === "Đề trộn" && pr.toan.btns[2].cls === "btn main rnd sm" && /, nên làm trước$/.test(pr.toan.btns[2].aria) // gần thi: bài chính là Đề trộn của Toán (UX23b)
       && pr.toan.btns[0].aria === "Toán 4 · Giữa kì I · Đề 1, đã làm, lần gần nhất đúng 80%" && ltr(pr.toan)
       && !!pr.tv && pr.tv.info === "Đã làm 1/2 đề · mỗi đề 25 câu, 40 phút" && doneBtn(pr.tv.btns[0], "Đề 1") && plainBtn(pr.tv.btns[1], "Đề 2") && plainBtn(pr.tv.btns[2], "Đề trộn", true) && ltr(pr.tv)
-      && !pr.mod && !!r.practiceMod && r.practiceMod.cls === "btn main sm" && r.practiceMod.t === "Vào ôn" && r.practiceMod.aria === "Vào ôn, nên làm trước" && !/đã ôn/.test(r.practiceMod.desc) // bài ôn dạng trang là bài chính của Hôm nay: nút vàng duy nhất
-      && !pr.toan.btns.concat(pr.tv.btns).some((b) => /main/.test(b.cls)) && r.evProg === "Đã làm 3/4 đề"
-      && r.four.badges.goals[0] === "Hết bài ôn · Kiểm tra giữa học kì I|4/5 bài|Đã làm 4 trên 5 bài" && /Làm thêm 1 bài của kì này là có “Hết bài ôn”\.$/.test(r.four.badges.hint)
-      && r.four.line === "Hôm nay: 2 bài · 42 phút · đúng 45/50 câu. Nghỉ một chút, hoặc làm thêm một bài nếu muốn."
-      && r.five.badges.goals.join("/") === "Chuỗi 3 ngày|2/3 ngày|Đã ôn 2 trên 3 ngày liền" && r.five.badges.gotHead === "Đã có:" && r.five.badges.got.join("|") === "🎯 Hết bài ôn · Kiểm tra giữa học kì I"
-      && r.five.badges.hint === "Ôn thêm ngày mai là có “Chuỗi 3 ngày”." && r.five.badges.fresh === "🎉 Bạn vừa nhận huy hiệu “Hết bài ôn · Kiểm tra giữa học kì I”!" && !r.five.freshAgain
-      && r.five.ready === "Đã làm hết 5 bài · đúng 84%" && r.five.readyGood // lần gần nhất của mỗi bài, cả đề ngẫu nhiên: (20 + 19 + 21 + 23 + 22 + 9)/(5 × 25 + 10) = 84%
+      // bài ôn dạng trang không còn là bài chính (kì có chủ đề, UX23b): nút nền nhạt; nút vàng duy nhất của bên chủ đề là chủ đề gợi ý
+      && !pr.mod && !!r.practiceMod && r.practiceMod.cls === "btn sm" && r.practiceMod.t === "Vào ôn" && !r.practiceMod.aria && !/đã ôn/.test(r.practiceMod.desc) && r.topicMains.join() === "trow:" + r.first.t
+      && pr.toan.btns.concat(pr.tv.btns).filter((b) => /main/.test(b.cls)).length === 1 && r.evProg === "Đã làm 3/4 đề"
+      // làm hết đề của kì (4/4): có "Hết bài ôn" (UX23b), chúc mừng một lần
+      && r.four.badges.goals.join("/") === "Chuỗi 3 ngày|2/3 ngày||Đã ôn 2 trên 3 ngày liền" && r.four.badges.got.join("|") === `🎯 ${CK}` && r.four.badges.fresh === `🎉 Bạn vừa nhận huy hiệu “${CK}”!`
+      && r.four.badges.hint === "Ôn thêm ngày mai là có “Chuỗi 3 ngày”." && r.four.line === "Hôm nay: 2 bài · 42 phút · đúng 45/50 câu. Nghỉ một chút, hoặc làm thêm một bài nếu muốn."
+      && r.five.badges.goals.join("/") === "Chuỗi 3 ngày|2/3 ngày||Đã ôn 2 trên 3 ngày liền" && r.five.badges.gotHead === "Đã có:" && r.five.badges.got.join("|") === `🎯 ${CK}`
+      && r.five.badges.hint === "Ôn thêm ngày mai là có “Chuỗi 3 ngày”." && !r.five.badges.fresh && !r.five.freshAgain
+      && r.five.ready === "Đã làm 4/4 đề" && r.five.readyGood // kì có chủ đề: "Đã ôn … chủ đề · làm … đề", bỏ bên là 0; làm hết đề thì màu ok
       && x.prog === "Đã làm hết 4 đề · đúng 84%" && x.good && x.fill === 100 && !!r.five.practiceMod && r.five.practiceMod.cls === "btn done sm" && r.five.practiceMod.t === "✓Vào ôn" && r.five.practiceMod.aria === "Vào ôn, đã làm, lần gần nhất đúng 90%"
       && r.five.evProg === "Đã làm 4/4 đề"
       // X49 (Phiên UX9b): "… ôn câu sai. Đã ôn 1 lần." ở tab Bài ôn, chi tiết kì thi của Bin, "Bài ôn của Bin"; mô tả không có dấu chấm cuối thì thêm dấu chấm
       && /ôn câu sai\.$/.test(r.five.mod.desc) && [r.five.practiceMod.desc, r.five.mod.t, r.parent.mod.t].every((t) => t === r.five.mod.desc + " Đã ôn 1 lần.")
       && r.parent.noDot.desc === r.five.mod.desc.slice(0, -1) && r.parent.noDot.t === r.five.mod.desc + " Đã ôn 1 lần."
-      && x.tv.btns.map((b) => b.cls).join() === "btn done sm,btn done sm,btn rnd sm" && x.toan.btns.map((b) => b.cls).join() === "btn done sm,btn main sm,btn rnd sm" // bài chính: Toán · Đề 2 (đúng 76%, thấp nhất)
+      && x.tv.btns.map((b) => b.cls).join() === "btn done sm,btn done sm,btn rnd sm" && x.toan.btns.map((b) => b.cls).join() === "btn done sm,btn done sm,btn main rnd sm" // bài chính: Toán · Đề trộn (gần thi, chưa làm như thi)
       && r.parent.prog === x.prog && r.parent.done === "✓Đề 1|✓Đề 2|✓Đề 1|✓Đề 2" && !r.parent.main && r.parent.modDone === "✓Xem thử" && !r.parent.modMain
-      && !r.next.done && r.next.label === "Hôm nay ôn gì?" && r.next.go === "btn go main:Ôn luyện Xem đáp án sau mỗi câu"
+      && !r.next.done && r.next.label === "Hôm nay ôn gì?" && r.next.go === "btn go main:Làm như thi · 40 phút Tính giờ, chấm điểm khi nộp bài"
       && r.na.id === "noResults" && r.na.img === "icons/avatars/hai-cau-kinh.svg::96" && r.na.h === "Chưa có bài nào" && r.na.line === "Làm bài đầu tiên nhé. Điểm, môn và chủ đề hay sai sẽ hiện ở đây."
       && r.na.btn === `1:btn main:Làm bài đầu tiên:${r.naGo}` && !r.na.stats && !r.na.sub && !r.na.all
       && r.noEv === "Không còn kì thi nào|Năm học này đã hết các kì thi. Bạn vẫn ôn lại được ở tab Bài ôn.|0"
@@ -5170,7 +5193,9 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      - Tab Kết quả: #weakTopics "Chủ đề hay sai · 30 ngày", ba dòng .topic-row theo số câu sai: "Góc và đo góc" và "Làm tròn số" ("Toán ·
        4 câu sai") có nút "Ôn 10 câu" tới #/chu-de/4/toan/<chủ đề>, "Hình tròn" (đề tự soạn) không có nút; dòng cuối "Mỗi lần 10 câu của chủ
        đề đó, lấy từ các đề lớp 4, câu bạn hay sai đứng trước. Thêm: Đọc hiểu; Đơn vị đo; Danh từ.".
-     - Hôm nay không có lối vào "Ôn 10 câu" (Phiên UX22 bỏ bài phụ #todayMore; lối vào ở tab Kết quả và màn kết quả đề).
+     - Hôm nay không có bài phụ #todayMore (Phiên UX22; lối vào "Ôn 10 câu" chủ đề hay sai ở tab Kết quả và màn kết quả đề); lối vào đề "Ôn
+       chủ đề" duy nhất của Hôm nay là chủ đề gợi ý #todayTopic (Phiên UX23b): ngày 28/10 gần thi giữa kì I, Bin chưa ôn chủ đề Tiếng Việt nào
+       nên là chủ đề đầu tiên của Tiếng Việt, trước và sau khi ôn "Góc và đo góc".
      - Bấm "Ôn 10 câu" ở "Góc và đo góc": màn mở đề "Lớp 4 · Toán · Ôn chủ đề", "Toán 4 · Ôn chủ đề · Góc và đo góc", "10 câu của chủ đề
        này, rút từ N câu trong các đề lớp 4, câu bạn chưa làm hoặc hay sai đứng trước." (N: câu chấm tự động có chủ đề đó trong các đề lớp 4
        của 4-toan.js, không tính câu của đề cố định chép trong đề ngẫu nhiên), chỉ có thẻ Ôn luyện, không có thanh tab. Ôn luyện: 10 câu, câu
@@ -5209,7 +5234,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     const weak = () => p.evaluate(() => { const w = document.querySelector("#weakTopics"), f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : "");
       return { label: f(w.querySelector(".label")), more: f(w.querySelector("#weakMore")), rows: [...w.querySelectorAll(".topic-row")].map((x) => { const a = x.querySelector("a.btn");
         return [f(x.querySelector("b")), f(x.querySelector(".muted")), f(x.querySelector(".tag.ok")), a ? f(a) + "=" + a.getAttribute("href") + (a.getBoundingClientRect().height >= 44 ? "" : " thấp") : ""].join(" | "); }) }; });
-    // Hôm nay: bài phụ (#todayMore, đã bỏ ở Phiên UX22) và mọi lối vào đề "Ôn chủ đề" trong trang
+    // Hôm nay: bài phụ (#todayMore, đã bỏ ở Phiên UX22) và mọi lối vào đề "Ôn chủ đề" trong trang (UX23b: chỉ #todayTopic)
     const more = () => p.evaluate(() => (document.querySelector("#todayMore") ? "#todayMore" : "") + [...document.querySelectorAll('#view a[href^="#/chu-de/"]')].map((a) => a.getAttribute("href")).join());
     // lượt ôn luyện: đọc câu đang hiện trong kho Q, trả lời (bad(thứ tự câu từ 1, câu) → true: cố ý sai), trả về các câu đã gặp
     const play = async (Q, bad, label) => {
@@ -5242,9 +5267,9 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await p.goto(BASE + "/#/results"); await p.waitForSelector("#weakTopics");
     r.weak0 = await weak();
     await check14("tab Kết quả, chủ đề hay sai"); await snap14("chu-de-hay-sai", "#weakTopics");
-    // Hôm nay: không có bài phụ "Ôn 10 câu" (Phiên UX22)
+    // Hôm nay: không có bài phụ "Ôn 10 câu" (Phiên UX22); chủ đề gợi ý (UX23b) là chủ đề đầu tiên của Tiếng Việt
     await p.goto(BASE + "/#/home"); await p.waitForSelector("#today");
-    r.more0 = await more();
+    r.more0 = await more(); r.tv1 = await firstTopic(p, "tv4-gk1-ngau-nhien");
     await check14("Hôm nay"); await snap14("hom-nay", null, "#today");
     // bấm "Ôn 10 câu" ở dòng "Góc và đo góc": màn mở đề "Ôn chủ đề"
     await p.goto(BASE + "/#/results"); await p.waitForSelector("#weakTopics");
@@ -5269,7 +5294,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     r.run2 = run2.map((q) => qid(q)); r.run2Topics = run2.map((q) => q.topic);
     await p.click("#qzEnd"); await p.click("#qzYes"); await p.waitForTimeout(200);
     r.after2 = await p.evaluate((bin) => Store.resultsFor(bin).length, ids.Bin);
-    // tab Kết quả: "Đã ôn lại ✓" ở "Góc và đo góc"; Hôm nay vẫn không có bài phụ
+    // tab Kết quả: "Đã ôn lại ✓" ở "Góc và đo góc"; Hôm nay vẫn không có bài phụ, chủ đề gợi ý vẫn là chủ đề đầu tiên của Tiếng Việt
     await p.goto(BASE + "/#/results"); await p.waitForSelector("#weakTopics");
     r.weak1 = await weak();
     await check14("tab Kết quả, đã ôn lại"); await snap14("da-on-lai", "#weakTopics");
@@ -5310,7 +5335,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   const ux14OK = !ux14.problems.length && ["light", "dark"].every((sc) => { const r = ux14[sc], w0 = r.weak0, w1 = r.weak1, goTopic = (x) => x.split("=")[0].slice("Ôn 10 câu: ".length);
     return w0.label === "Chủ đề hay sai · 30 ngày" && w0.rows.join("\n") === [`${GOC} | Toán · 4 câu sai |  | Ôn 10 câu=${cdHref(GOC)}`, `${LTS} | Toán · 4 câu sai |  | Ôn 10 câu=${cdHref(LTS)}`, "Hình tròn | Toán · 3 câu sai |  | "].join("\n")
       && w0.more === "Mỗi lần 10 câu của chủ đề đó, lấy từ các đề lớp 4, câu bạn hay sai đứng trước. Thêm: Đọc hiểu; Đơn vị đo; Danh từ."
-      && r.more0 === "" && r.more1 === ""
+      && !!r.tv1 && r.more0 === r.tv1.href + "?cach=on-luyen" && r.more1 === r.more0
       && r.open.hash === cdHref(GOC) && r.open.label === "Lớp 4 · Toán · Ôn chủ đề" && r.open.h1 === `Toán 4 · Ôn chủ đề · ${GOC}` && r.poolN > 10
       && r.open.intro === `10 câu của chủ đề này, rút từ ${r.poolN} câu trong các đề lớp 4, câu bạn chưa làm hoặc hay sai đứng trước.` && r.open.practice && !r.open.exam && !r.open.tabbar
       && r.run1.length === 10 && new Set(r.run1).size === 10 && r.run1Topics.every((t) => t === GOC)
@@ -5325,24 +5350,28 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
 
   step("today's main pick by exam subjects, IOE row last, subject order (UX15, X50, X51)");
   /* Phiên UX15 (docs/CAI-TIEN-UX-3X.md, mục 4): 360px sáng/tối, bản lưu trên máy. Kì thi lớp 4, 6 gắn lại bài ôn, đề như lịch mặc định;
-     kết quả của Bin, Na ghi thẳng vào kho. Na (lớp 6) làm Ngữ văn 6 · Giữa kì I · Đề 1 (31/10). Mong đợi:
-     - 1/11/2026 (kì giữa kì I lớp 6 còn 1 ngày, gắn bài ôn l6-giua-ki-1, ioe-6 và đề của tám môn): Na chưa làm bài ôn Ôn giữa kì I · Lớp 6
-       thì bài chính là bài ôn đó, lời "… Bài này bạn chưa làm. Ôn theo bài rồi làm đề có giờ, có ôn câu sai." (intro trong data/modules.js);
-       làm rồi (30/10) thì bài chính là "Toán 6 · Giữa kì I · Đề 1" (đề chưa làm đầu tiên theo ô Môn thi; tên ngắn "Toán · Đề 1", lời "Bài
-       này 25 câu, bạn chưa làm.", Phiên UX22), không phải IOE; không còn bài phụ. Nhóm Giữa kì I lớp 6 ở tab Bài ôn: dòng Ôn giữa kì I · Lớp 6 đầu, các môn theo ô Môn thi,
+     kết quả của Bin, Na ghi thẳng vào kho. Na (lớp 6) làm Ngữ văn 6 · Giữa kì I · Đề 1 (31/10). Bài chính theo Phiên UX23b: xa thi là một
+     chủ đề, gần thi (còn ≤ 14 ngày) là đề trộn làm như thi của môn đầu tiên theo ô Môn thi chưa làm như thi trong 14 ngày; bài ôn dạng trang
+     không lên thẻ khi kì có chủ đề. Mong đợi:
+     - 1/11/2026 (kì giữa kì I lớp 6 còn 1 ngày, gắn bài ôn l6-giua-ki-1, ioe-6 và đề của tám môn): bài chính "Toán · Đề trộn" (Toán 6 · Giữa
+       kì I · Đề ngẫu nhiên, nút chính #todayExam ?cach=thi), lời "Kiểm tra giữa học kì I còn 1 ngày. Gần thi rồi: làm một đề như thi, 25 câu,
+       45 phút. Câu bạn chưa gặp được hỏi trước.", cả khi Na chưa làm bài ôn Ôn giữa kì I · Lớp 6 (không lên thẻ) và khi đã làm (30/10); không
+       phải IOE; không còn bài phụ. Nhóm Giữa kì I lớp 6 ở tab Bài ôn: dòng Ôn giữa kì I · Lớp 6 đầu, các môn theo ô Môn thi,
        dòng IOE · Global Success 6 cuối. Thẻ của Na (Mẹ Bin xem): "chưa ôn Toán, Tiếng Anh, KHTN và 4 môn khác" (môn theo ô Môn thi);
-       báo cáo tuần của Na: "Bài ôn chưa làm: Toán 6 · Giữa kì I · Đề 1; Toán 6 · Giữa kì I · Đề 2; …" (tên hiển thị, UX22).
-     - 14/11/2026 (IOE cấp trường còn 12 ngày; từ Phiên 9aa, L54, kì IOE là phần tự chọn, không là kì của bài chính): bài chính "Toán · Bài
-       ôn 1" (Toán 6 · Cuối kì I · Đề 1), lời "Kiểm tra cuối học kì I còn 37 ngày. Bài này 25 câu, bạn chưa làm." (trước Phiên 9aa là "IOE ·
-       Global Success 6", "IOE cấp trường còn 12 ngày. …").
-     - 20/12/2026 (cuối kì I lớp 6 còn 1 ngày, chỉ gắn ioe-6 và đề): bài chính "Toán · Đề 1" (Toán 6 · Cuối kì I · Đề 1), lời "Bài này
-       25 câu, bạn chưa làm."; nhóm Cuối kì I lớp 6 ở tab Bài ôn của Na, chi tiết kì thi ở Lịch thi của Na và "Bài ôn của Na" (Mẹ Bin xem):
+       báo cáo tuần của Na: "Chủ đề chưa ôn của Kiểm tra giữa học kì I: Toán · …; Ngữ văn · …; Tiếng Anh · … và N chủ đề khác." (môn theo ô
+       Môn thi, UX23b; trước đó "Bài ôn chưa làm: …").
+     - 14/11/2026 (IOE cấp trường còn 12 ngày; từ Phiên 9aa, L54, kì IOE là phần tự chọn, không là kì của bài chính; cuối kì I còn 37 ngày,
+       xa thi): bài chính là chủ đề đầu tiên của Toán 6 cuối kì I (nút chính #todayTopic), lời "Kiểm tra cuối học kì I còn 37 ngày. 10 câu,
+       bạn chưa ôn chủ đề này." (trước Phiên 9aa là "IOE · Global Success 6", "IOE cấp trường còn 12 ngày. …").
+     - 20/12/2026 (cuối kì I lớp 6 còn 1 ngày, chỉ gắn ioe-6 và đề): bài chính "Toán · Đề trộn" (Toán 6 · Cuối kì I · Đề ngẫu nhiên), lời
+       "… còn 1 ngày. Gần thi rồi: …"; nhóm Cuối kì I lớp 6 ở tab Bài ôn của Na, chi tiết kì thi ở Lịch thi của Na và "Bài ôn của Na" (Mẹ Bin xem):
        dòng Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử và Địa lí, GDCD, Tin học, Công nghệ (đúng ô Môn thi của kì) rồi IOE · Global Success 6
        cuối (Phiên UX23a: bên "Ôn theo chủ đề" mỗi môn là một details.tsub; bên "Làm đề như thi" các hàng môn cùng thứ tự; chi tiết kì thi
        của Na chỉ còn nút "Ôn cho kì này" tới #/practice?ki=ck1-l6); mọi bài ôn dạng trang (bên chủ đề) và mọi đề (bên đề, nhóm "Đề khác"
-       không sót đề) của lớp 6 có ở tab Bài ôn; Na làm hết đề cố định của kì (đúng 96%) thì bài chính
-       là "Toán · Đề trộn" (Toán 6 · Cuối kì I · Đề ngẫu nhiên, "Mỗi lần một bộ 25 câu khác…"), không phải bài ôn IOE (Phiên 9aa, L54).
-       Bin (lớp 4, đã làm Toán 4 · Cuối kì I · Đề 1 ngày 15/12): bài chính "Toán · Đề 2" (Toán 4 · Cuối kì I · Đề 2), kì còn 8 ngày.
+       không sót đề) của lớp 6 có ở tab Bài ôn; Na làm hết đề cố định của kì (ôn luyện, đúng 96%) thì bài chính vẫn là "Toán · Đề trộn" (chưa
+       làm như thi), làm Toán như thi (19/12) thì là "Ngữ văn · Đề trộn" (môn kế tiếp theo ô Môn thi); không phải bài ôn IOE (Phiên 9aa, L54).
+       Bin (lớp 4, đã làm Toán 4 · Cuối kì I · Đề 1 ngày 15/12, ôn luyện): bài chính "Toán · Đề trộn" (Toán 4 · Cuối kì I · Đề ngẫu nhiên, 40
+       phút), kì còn 8 ngày.
      audit ở mọi màn. Ảnh 360px sáng/tối ở tests/screenshots/ux15/ (bản ghép <tên>.jpg). Ảnh trước/sau: docs/hinh-ux15/. */
   const OUTUX15 = OUT + "ux15/"; fs.mkdirSync(OUTUX15, { recursive: true });
   const ux15 = { problems: [], shots: [] };
@@ -5366,9 +5395,9 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       list.forEach((o) => d.results.push(Object.assign({ id: "ux15" + Math.random().toString(36).slice(2), userId: u.id, s: 1200, mode: "practice", r: 22, t: 25 }, o, { at: new Date(o.at).toISOString() })));
       localStorage.setItem("ontap_db_v1", JSON.stringify(d));
     }, [name, list]);
-    // thẻ "Hôm nay ôn gì?": tên bài, lời giới thiệu, địa chỉ nút chính (bài ôn dạng trang: #todayGo "Vào ôn"; đề: #todayPractice "Ôn luyện"),
-    // bài phụ (#todayMore, đã bỏ ở Phiên UX22)
-    const today = () => p.evaluate(() => { const m = document.querySelector("#today"), f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : ""), go = document.querySelector("#todayGo") || document.querySelector("#todayPractice");
+    // thẻ "Hôm nay ôn gì?": tên bài, lời giới thiệu, địa chỉ nút chính (Phiên UX23b: chủ đề #todayTopic, gần thi #todayExam; bài ôn dạng trang,
+    // đề thi thử: #todayGo), bài phụ (#todayMore, đã bỏ ở Phiên UX22)
+    const today = () => p.evaluate(() => { const m = document.querySelector("#today"), f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : ""), go = m.querySelector(".go-modes > .btn.main, #todayGo");
       return { label: f(m.querySelector(".label")), h1: f(m.querySelector("h1")), why: f(m.querySelector("p")), go: go.getAttribute("href"), more: document.querySelector("#todayMore") ? "có" : "" }; });
     const asNa = async (date) => { await p.clock.setSystemTime(new Date(date)); await login("Na", "4444", "#today"); return today(); };
     // tên các dòng (bài ôn dạng trang, môn) của danh sách bài ôn trong vùng sel
@@ -5385,7 +5414,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     });
     SUBJ6 = await p.evaluate(() => window.ONTAP_SEED_EVENTS.find((e) => e.id === "ck1-l6").subjects);
     await addRes("Na", [{ source: "bank", refId: "van6-gk1-de1", subject: "Ngữ văn", label: "Ngữ văn 6 · Giữa kì I · Đề 1", at: "2026-10-31T19:00:00" }]);
-    // 1/11: bài ôn Ôn giữa kì I · Lớp 6 chưa làm → bài chính là bài ôn đó
+    // 1/11 (gần thi): bài ôn Ôn giữa kì I · Lớp 6 chưa làm nhưng không lên thẻ (kì có chủ đề, UX23b): bài chính là Đề trộn của Toán
     r.modFirst = await asNa("2026-11-01T08:00:00");
     await check15("Hôm nay, bài ôn chưa làm"); await snap15("hom-nay-bai-on", "#today");
     await addRes("Na", [{ source: "module", refId: "l6-giua-ki-1", subject: "Ngữ văn", label: "Ngữ văn · Ôn tập", r: 8, t: 10, at: "2026-10-30T19:00:00" }]);
@@ -5394,8 +5423,8 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await p.goto(BASE + "/#/practice?cach=chu-de"); await p.waitForSelector("#allPractice");
     r.gk1Rows = await rowsOf('#allPractice details.grp[data-grp="gk1-l6"] .list');
     await check15("tab Bài ôn 1/11");
-    // 14/11: kì gần nhất là IOE cấp trường (tự chọn, L54): bài chính vẫn của kì cuối kì I
-    r.ioe = await asNa("2026-11-14T08:00:00");
+    // 14/11: kì gần nhất là IOE cấp trường (tự chọn, L54): bài chính vẫn của kì cuối kì I (xa thi: chủ đề đầu tiên của Toán, UX23b)
+    r.ioe = await asNa("2026-11-14T08:00:00"); r.ioe.first = await firstTopic(p, "toan6-ck1-ngau-nhien");
     await check15("Hôm nay 14/11"); await snap15("hom-nay-ioe", "#today");
     // 20/12: cuối kì I lớp 6 còn 1 ngày
     r.ck1 = await asNa("2026-12-20T08:00:00");
@@ -5420,11 +5449,15 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await p.click('.ev[data-ev="ck1-l6"]'); await p.waitForSelector("#evDetail");
     r.ev = { list: !!(await p.$("#evDetail .list")), href: await p.$eval("#evPractice", (a) => a.getAttribute("href")).catch(() => "") };
     await check15("Lịch thi, chi tiết kì thi 20/12");
-    // Na làm hết đề cố định của cuối kì I: bài chính là Đề trộn, không phải bài ôn IOE (L54)
+    // Na làm hết đề cố định của cuối kì I (ôn luyện): bài chính vẫn là Đề trộn của Toán (chưa làm như thi), không phải bài ôn IOE (L54)
     await addRes("Na", await p.evaluate(() => Store.event("ck1-l6").banks.map((id) => Store.bank(id)).filter((b) => b && !b.pool && +b.grade === 6)
       .map((b) => ({ source: "bank", refId: b.id, subject: b.subject, label: b.title, r: 24, at: "2026-12-19T19:00:00" }))));
     r.ck1Done = await asNa("2026-12-20T08:00:00");
     await check15("Hôm nay 20/12, đã làm hết đề"); await snap15("hom-nay-het-de", "#today");
+    // Na làm Toán như thi (19/12): bài chính là Đề trộn của môn kế tiếp theo ô Môn thi (Ngữ văn, UX23b)
+    await addRes("Na", [{ source: "bank", refId: "toan6-ck1-ngau-nhien", subject: "Toán", label: "Toán 6 · Cuối kì I · Đề ngẫu nhiên", mode: "exam", r: 21, at: "2026-12-19T20:00:00" }]);
+    r.ck1Exam = await asNa("2026-12-20T08:00:00");
+    await check15("Hôm nay 20/12, đã làm Toán như thi");
     // Bin 20/12: đã làm Toán 4 · Cuối kì I · Đề 1
     await addRes("Bin", [{ source: "bank", refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 1", r: 21, at: "2026-12-15T19:00:00" }]);
     await login("Bin", PINS.Bin, "#today"); r.bin = await today();
@@ -5438,7 +5471,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await p.clock.setSystemTime(new Date("2026-11-01T08:00:00")); await p.goto(BASE + "/#/home"); await p.reload(); await p.waitForSelector("#kids");
     r.kid = await p.$eval(`.kid[data-child="${ids.Na}"] .kid-ev`, (x) => x.textContent.replace(/\s+/g, " ").trim());
     await p.goto(BASE + "/#/child/" + ids.Na); await p.waitForSelector("#rpTips");
-    r.tip = await p.$$eval("#rpTips li", (l) => l.map((x) => x.textContent.replace(/\s+/g, " ").trim()).find((t) => /Bài ôn chưa làm/.test(t)) || "");
+    r.tip = await p.$$eval("#rpTips li", (l) => l.map((x) => x.textContent.replace(/\s+/g, " ").trim()).find((t) => /^Chủ đề chưa ôn/.test(t)) || "");
     await check15("Các con, báo cáo tuần 1/11");
     await c.close();
   }
@@ -5454,45 +5487,43 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await gp.close();
   }
   console.log("UX15:", JSON.stringify(ux15.light), "dark:", JSON.stringify(ux15.dark), "problems:", ux15.problems);
-  const ux15OK = !ux15.problems.length && ["light", "dark"].every((sc) => { const r = ux15[sc], BANK = "Bài này 25 câu, bạn chưa làm.", IOE = "IOE · Global Success 6";
-    const rows6 = SUBJ6.concat(IOE).join("|");
-    return r.modFirst.label === "Hôm nay ôn gì?" && r.modFirst.h1 === "Ôn giữa kì I · Lớp 6" && r.modFirst.go === "#/play/l6-giua-ki-1"
-      && r.modFirst.why === "Kiểm tra giữa học kì I còn 1 ngày. Bài này bạn chưa làm. Ôn theo bài rồi làm đề có giờ, có ôn câu sai."
-      && r.gk1.h1 === "Toán · Đề 1" && r.gk1.go === "#/quiz/toan6-gk1-de1?cach=on-luyen" && r.gk1.why === "Kiểm tra giữa học kì I còn 1 ngày. " + BANK
+  const ux15OK = !ux15.problems.length && ["light", "dark"].every((sc) => { const r = ux15[sc], IOE = "IOE · Global Success 6";
+    const rows6 = SUBJ6.concat(IOE).join("|"), near = (ev, d, m) => `Kiểm tra ${ev} còn ${d} ngày. Gần thi rồi: làm một đề như thi, 25 câu, ${m} phút. Câu bạn chưa gặp được hỏi trước.`;
+    return r.modFirst.label === "Hôm nay ôn gì?" && r.modFirst.h1 === "Toán · Đề trộn" && r.modFirst.go === "#/quiz/toan6-gk1-ngau-nhien?cach=thi" && r.modFirst.why === near("giữa học kì I", 1, 45)
+      && r.gk1.h1 === "Toán · Đề trộn" && r.gk1.go === "#/quiz/toan6-gk1-ngau-nhien?cach=thi" && r.gk1.why === near("giữa học kì I", 1, 45)
       && !r.gk1.more // không còn bài phụ (Phiên UX22)
       && r.gk1Rows.join("|") === ["Ôn giữa kì I · Lớp 6"].concat(SUBJ6, IOE).join("|")
-      && r.ioe.h1 === "Toán · Đề 1" && r.ioe.go === "#/quiz/toan6-ck1-de1?cach=on-luyen" && r.ioe.why === "Kiểm tra cuối học kì I còn 37 ngày. " + BANK
-      && r.ck1.h1 === "Toán · Đề 1" && r.ck1.go === "#/quiz/toan6-ck1-de1?cach=on-luyen" && r.ck1.why === "Kiểm tra cuối học kì I còn 1 ngày. " + BANK
+      && !!r.ioe.first && r.ioe.h1 === "Toán · " + r.ioe.first.t && r.ioe.go === r.ioe.first.href + "?cach=on-luyen" && r.ioe.why === `Kiểm tra cuối học kì I còn 37 ngày. ${r.ioe.first.n} câu, bạn chưa ôn chủ đề này.`
+      && r.ck1.h1 === "Toán · Đề trộn" && r.ck1.go === "#/quiz/toan6-ck1-ngau-nhien?cach=thi" && r.ck1.why === near("cuối học kì I", 1, 45)
       && r.ck1Rows.join("|") === rows6 && r.ck1Subj.join("|") === SUBJ6.join("|") && !r.ev.list && r.ev.href === "#/practice?ki=ck1-l6" && r.parentRows.join("|") === rows6 && !r.other.miss.length && r.other.rows > 0
-      && r.ck1Done.h1 === "Toán · Đề trộn" && r.ck1Done.go === "#/quiz/toan6-ck1-ngau-nhien?cach=on-luyen"
-      && r.ck1Done.why === "Kiểm tra cuối học kì I còn 1 ngày. Mỗi lần một bộ 25 câu khác, câu bạn hay sai được hỏi lại."
-      && r.bin.h1 === "Toán · Đề 2" && r.bin.go === "#/quiz/toan4-ck1-de2?cach=on-luyen" && r.bin.why === "Kiểm tra cuối học kì I còn 8 ngày. " + BANK
+      && r.ck1Done.h1 === "Toán · Đề trộn" && r.ck1Done.go === "#/quiz/toan6-ck1-ngau-nhien?cach=thi"
+      && SUBJ6[1] === "Ngữ văn" && r.ck1Exam.h1 === "Ngữ văn · Đề trộn" && r.ck1Exam.go === "#/quiz/van6-ck1-ngau-nhien?cach=thi" && r.ck1Exam.why === near("cuối học kì I", 1, 45)
+      && r.bin.h1 === "Toán · Đề trộn" && r.bin.go === "#/quiz/toan4-ck1-ngau-nhien?cach=thi" && r.bin.why === near("cuối học kì I", 8, 40)
       && r.kid === "Kiểm tra giữa học kì I còn 1 ngày · chưa ôn Toán, Tiếng Anh, KHTN và 4 môn khác"
-      && /^Kiểm tra giữa học kì I: còn 1 ngày\. Bài ôn chưa làm: Toán 6 · Giữa kì I · Đề 1; Toán 6 · Giữa kì I · Đề 2; Toán 6 · Giữa kì I · Đề 3 và \d+ bài khác\.$/.test(r.tip); });
+      && /^Chủ đề chưa ôn của Kiểm tra giữa học kì I: Toán · [^;]+; Ngữ văn · [^;]+; Tiếng Anh · [^;]+ và \d+ chủ đề khác\.$/.test(r.tip); });
 
   step("today: choose a mode on the card, review names (UX22)");
   /* Phiên UX22 (docs/CAI-TIEN-UX-4X.md, mục 4, X62–X65): 360 × 740 sáng và tối, ngày giả lập 25/11/2026 21:40, bản lưu trên máy. Học sinh
      lớp 9 An (thêm vào kho trong bước như An của L47, con của Mẹ Bin, PIN 9999) đã làm 5 đề giữa kì I (ghi thẳng vào kho, một đề hôm qua);
-     kì thi của lớp 9 gắn bài như lịch mặc định. Mong đợi:
-     - Hôm nay chưa ôn: #today h1 "Toán · Đề 1", dòng "Kiểm tra cuối học kì I còn 19 ngày. Bài này 25 câu, bạn chưa làm."; nhóm
-       .go-modes (role group, "Chọn cách làm"): #todayPractice là .btn.main, #todayExam "Làm như thi · 45 phút" không phải .btn.main, cả hai
-       cao ≥ 60px, rộng hết thẻ, căn trái; không có #todayGo, #toBanks, #todayMore, #recent, #nextEvent, chữ "Làm khoảng 20 phút"; trong
-       #view đúng 2 nút, link.
-     - Chạm #todayPractice: câu 1 hiện ngay ("Câu 1/25"), địa chỉ #/quiz/toan9-ck1-de1 (không còn ?cach); tải lại trang thì là màn mở đề
-       (h1 "Toán 9 · Cuối kì I · Đề 1"), không tự làm lại; Back thì hỏi rời bài, đồng ý thì về Hôm nay (ôn luyện là đang làm dở khi đã
-       trả lời hoặc bỏ qua một câu, như trước: bước bỏ qua câu 1 trước khi tải lại, Back). Chạm #todayExam: đồng hồ "Còn 45:00".
-     - Làm xong một bài (ôn luyện Đề 1, đúng hết; nhãn màn kết quả "Toán 9 · Cuối kì I · Đề 1 · Ôn luyện", kết quả lưu label cũ
-       "Toán 9 · Cuối kì I · Đề 1", cả kết quả tự chấm phần tự luận): thẻ .hero.done, #todayPractice không phải .btn.main, #todayExam là .linkbtn "Làm như thi · 45 phút →",
-       .done-tip "Làm thêm: Toán · Đề 2 (bạn chưa làm)."; vẫn 2 hành động.
-     - Tab Bài ôn, bên "Làm đề như thi" (Phiên UX23a): dòng #pModeTxt "Mỗi đề tính giờ, chấm điểm khi nộp bài như đề thi thật."; nhóm đang
-       mở (cuối kì I) có đúng 1 .btn.main, đúng bài chính của Hôm nay (Đề 2 của Toán, vào thẳng lượt làm như thi: ?cach=thi), aria-label thêm
-       ", nên làm trước"; mọi hàng "Đề 1", "Đề 2", "Đề trộn" (cuối hàng; tên hiển thị của Phiên UX23a); Đề 1 của Toán là nút viền có ✓; nhóm
+     kì thi của lớp 9 gắn bài như lịch mặc định. Từ Phiên UX23b thẻ xa thi gợi ý một chủ đề (thẻ gần thi, đề thi thử: bước UX23b). Mong đợi:
+     - Hôm nay chưa ôn: #today h1 "Toán · <chủ đề đầu tiên của Toán 9 cuối kì I>" (An chưa ôn chủ đề nào), dòng "Kiểm tra cuối học kì I còn
+       19 ngày. 10 câu, bạn chưa ôn chủ đề này."; nhóm .go-modes (role group, "Bắt đầu ôn"): #todayTopic .btn.main "Ôn 10 câu" cao ≥ 60px,
+       rộng hết thẻ, căn trái, #todayOther .linkbtn "Chọn chủ đề khác →"; không có #todayPractice, #todayExam, #todayGo, #toBanks,
+       #todayMore, #recent, #nextEvent, chữ "Làm khoảng 20 phút"; trong #view đúng 2 nút, link.
+     - Chạm #todayTopic: câu 1 hiện ngay ("Câu 1/10"), địa chỉ #/chu-de/9/toan/<chủ đề> (không còn ?cach); tải lại trang thì là màn mở đề
+       (h1 "Toán 9 · Ôn chủ đề · <chủ đề>"), không tự làm lại; Back thì hỏi rời bài, đồng ý thì về Hôm nay (ôn luyện là đang làm dở khi đã
+       trả lời hoặc bỏ qua một câu, như trước: bước bỏ qua câu 1 trước khi tải lại, Back). Mở #/quiz/toan9-ck1-de1?cach=thi: đồng hồ "Còn 45:00".
+     - Làm xong một bài (#/quiz/toan9-ck1-de1?cach=on-luyen, đúng hết; nhãn màn kết quả "Toán 9 · Cuối kì I · Đề 1 · Ôn luyện", kết quả lưu
+       label cũ "Toán 9 · Cuối kì I · Đề 1", cả kết quả tự chấm phần tự luận): thẻ .hero.done, #todayTopic là nút phụ (btn ghost go), #todayOther
+       là link, .done-tip "Làm thêm: Toán · <chủ đề> (bạn chưa ôn)."; vẫn 2 hành động.
+     - Tab Bài ôn, bên "Làm đề như thi" (Phiên UX23a): dòng #pModeTxt "Mỗi đề tính giờ, chấm điểm khi nộp bài như đề thi thật."; bài chính
+       là chủ đề (UX23b) nên bên này không có nút vàng; mọi hàng "Đề 1", "Đề 2", "Đề trộn" (cuối hàng; tên hiển thị của Phiên UX23a); Đề 1 của Toán là nút viền có ✓; nhóm
        không có chữ "Đề ngẫu nhiên", "Bài ôn 1", "Ôn tổng hợp"; dòng môn "Mỗi đề 25 câu, 45 phút" (Giáo dục công dân, Tin học, Công nghệ: 35
        phút), Toán "Đã làm 1/2 đề · mỗi đề 25 câu, 45 phút"; ở 360px nút đầu hàng căn trái dưới tên môn; nhóm thi vào 10 ghi "16 đề thi thử",
        nút "Đề 1", "Đề 2"…; nhóm "Đề khác" ghi "Giữa kì I · Đề 1", "Giữa kì I · Đề trộn" (cuối hàng). Chi tiết kì thi mở từ Lịch thi của An
        không có nút vàng (Phiên UX23a: dòng tiến độ và nút "Ôn cho kì này" thay danh sách đề).
      - Tab Kết quả và báo cáo tuần của Mẹ Bin ghi "Toán 9 · Cuối kì I · Đề 1", "Toán 9 · Giữa kì I · Đề trộn", "Tiếng Anh 9 · Giữa
-       kì I · Đề 2"; "Đề N", "Đề trộn" không tách dòng ở 360px; gợi ý "Bài ôn chưa làm: Toán 9 · Cuối kì I · Đề 2; …";
+       kì I · Đề 2"; "Đề N", "Đề trộn" không tách dòng ở 360px; gợi ý "Chủ đề chưa ôn của Kiểm tra cuối học kì I: Toán · <chủ đề>; …" (UX23b);
        "Bài ôn của An" (Mẹ Bin) không có nút vàng.
      - Ngày 20/5/2027 (bài chính là đề thi thử vào 10): h1 "Toán · Đề thi thử 1", một nút "Mở đề thi thử" (#todayGo, .btn.main) tới màn mở đề.
      audit ở mọi màn. Ảnh 360px sáng/tối ở tests/screenshots/ux22/ (bản ghép <tên>.jpg), chép sang docs/hinh-ux22/. */
@@ -5518,8 +5549,9 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       const cls = (s) => (q(s) ? [...q(s).classList].sort().join(" ") : ""), href = (s) => (q(s) ? q(s).getAttribute("href") : ""), mr = m.getBoundingClientRect(), gm = m.querySelector(".go-modes");
       return { cls: [...m.classList].sort().join(" "), label: f(m.querySelector(".label")), h1: f(m.querySelector("h1")), why: f(m.querySelector("h1 + p")), tip: f(m.querySelector(".done-tip")),
         practice: cls("#todayPractice"), practiceTxt: f(q("#todayPractice")), practiceHref: href("#todayPractice"), exam: cls("#todayExam"), examTxt: f(q("#todayExam")), examHref: href("#todayExam"),
+        topic: cls("#todayTopic"), topicTxt: f(q("#todayTopic")), topicHref: href("#todayTopic"), other: cls("#todayOther"), otherTxt: f(q("#todayOther")), otherHref: href("#todayOther"),
         go: cls("#todayGo"), goTxt: f(q("#todayGo")), goHref: href("#todayGo"), group: gm ? gm.getAttribute("role") + "|" + gm.getAttribute("aria-label") : "",
-        gone: ["#todayGo", "#toBanks", "#todayMore", "#recent", "#nextEvent"].filter((s) => q(s)), old: /Làm khoảng 20 phút/.test(q("#view").textContent),
+        gone: ["#todayGo", "#todayPractice", "#todayExam", "#toBanks", "#todayMore", "#recent", "#nextEvent"].filter((s) => q(s)), old: /Làm khoảng 20 phút/.test(q("#view").textContent),
         acts: [...document.querySelectorAll("#view a, #view button")].filter((x) => x.checkVisibility()).map((x) => x.id || f(x)),
         /* nút chọn cách làm (.btn.go): cao ≥ 60px, rộng hết thẻ (thẻ rộng trừ hai lề 20px), căn trái: biểu tượng ngay sau lề trái của nút (viền
            1px, đệm 14px; đo vị trí, không đọc justify-content: Chromium 158 ghi flex-start là "flow-start"), chữ căn trái */
@@ -5555,11 +5587,12 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       return u.id;
     }, ids["Mẹ Bin"]);
     await login(an, "9999", "#today");
-    // Hôm nay chưa ôn: tên ngắn, một dòng lí do, hai nút chọn cách làm
+    // Hôm nay chưa ôn (cuối kì I còn 19 ngày, xa thi; UX23b): chủ đề đầu tiên của Toán, nút "Ôn 10 câu", link "Chọn chủ đề khác →"
+    r.first = await firstTopic(p, "toan9-ck1-ngau-nhien");
     r.t0 = await card();
     await check22("Hôm nay chưa ôn"); await snap22("hom-nay");
-    // chạm Ôn luyện: vào thẳng câu 1, địa chỉ không còn ?cach
-    await p.click("#todayPractice"); await p.waitForSelector("#qzProg");
+    // chạm "Ôn 10 câu": vào thẳng câu 1, địa chỉ không còn ?cach
+    await p.click("#todayTopic"); await p.waitForSelector("#qzProg");
     r.q1 = { prog: await txt("#qzProg"), hash: await p.evaluate(() => location.hash), focus: await p.evaluate(() => document.body.classList.contains("quizzing")) };
     await check22("câu 1 (Ôn luyện)"); await snap22("cau-1");
     /* Ôn luyện là đang làm dở khi đã trả lời hoặc bỏ qua một câu (busy của Quiz.run, như trước Phiên UX22): bỏ qua câu 1 rồi tải lại trang
@@ -5568,21 +5601,22 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     let unload = ""; p.once("dialog", (d) => { unload = d.type(); d.accept(); }); await p.reload(); await p.waitForSelector("#qPractice");
     r.reload = { hash: await p.evaluate(() => location.hash), run: !!(await p.$("#qzProg")), h1: await txt("#view .hero h1"), unload };
     // Back khi đang làm (đã bỏ qua câu 1): hỏi rời bài ("Thoát đề?": chưa trả lời câu nào); đồng ý thì về Hôm nay
-    await p.goto(BASE + "/#/home"); await p.waitForSelector("#todayPractice");
-    await p.click("#todayPractice"); await p.waitForSelector("#qzProg"); await p.click("#qzSkip");
+    await p.goto(BASE + "/#/home"); await p.waitForSelector("#todayTopic");
+    await p.click("#todayTopic"); await p.waitForSelector("#qzProg"); await p.click("#qzSkip");
     await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox");
     r.back = { ask: await txt("#leaveQ") };
     await p.click("#leaveYes"); await p.waitForSelector("#today");
     r.back.hash = await p.evaluate(() => location.hash);
-    // chạm Làm như thi: đồng hồ "Còn 45:00" (đã chạy thì có thể "Còn 44:59"); rời đề chưa trả lời câu nào (không lưu)
-    await p.click("#todayExam"); await p.waitForSelector("#qzTimer");
+    // mở đề ?cach=thi (UX22; thẻ xa thi không còn nút Làm như thi, UX23b): đồng hồ "Còn 45:00" (đã chạy thì có thể "Còn 44:59"); rời đề chưa
+    // trả lời câu nào (không lưu)
+    await p.goto(BASE + "/#/quiz/toan9-ck1-de1?cach=thi"); await p.waitForSelector("#qzTimer");
     r.exam = { timer: await txt("#qzTimer"), hash: await p.evaluate(() => location.hash) };
     await check22("câu 1 (Làm như thi)");
     await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox"); await p.click("#leaveYes"); await p.waitForSelector("#today");
     r.saved0 = await p.evaluate((id) => Store.resultsFor(id).length, an);
     // làm xong một bài: ôn luyện Đề 1 (Toán 9 · Cuối kì I · Đề 1), đúng hết
     const Q = await p.evaluate(async () => { await Store.loadBank("toan9-ck1-de1"); return Store.bank("toan9-ck1-de1").questions; });
-    await p.click("#todayPractice"); await p.waitForSelector(".qcard");
+    await p.goto(BASE + "/#/quiz/toan9-ck1-de1?cach=on-luyen"); await p.waitForSelector(".qcard");
     for (let i = 0; i < 40 && !(await p.$(".score")); i++) {
       const q = await currentOn(p, Q);
       if (!q) { ux22.problems.push(`UX22 · ${scheme}: không nhận ra câu ${i + 1}`); break; }
@@ -5592,11 +5626,11 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     }
     await endRecap(p); await p.waitForSelector(".score");
     r.result = { label: await txt("#qzScore .label"), saved: await p.evaluate((id) => Store.resultsFor(id).filter((x) => x.refId === "toan9-ck1-de1").map((x) => x.label + "|" + x.mode).join(), an) };
-    // Hôm nay đã ôn: Ôn luyện là nút phụ, Làm như thi là link
+    // Hôm nay đã ôn: "Ôn 10 câu" là nút phụ, "Chọn chủ đề khác →" là link (UX23b)
     await p.goto(BASE + "/#/home"); await p.waitForSelector("#today.done");
     r.t1 = await card();
     await check22("Hôm nay đã ôn"); await snap22("hom-nay-da-on");
-    // tab Bài ôn, bên Làm đề như thi (Phiên UX23a): một nút vàng (bài chính của Hôm nay), Đề 1, 2, Đề trộn cuối hàng
+    // tab Bài ôn, bên Làm đề như thi (Phiên UX23a): Đề 1, 2, Đề trộn cuối hàng; bài chính là chủ đề (UX23b) nên không có nút vàng
     await p.goto(BASE + "/#/practice?cach=thi"); await p.waitForSelector("#allPractice");
     r.prac = await p.evaluate(() => {
       const f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : ""), g = document.querySelector("#allPractice details.grp[open]");
@@ -5627,7 +5661,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     await login(ids["Mẹ Bin"], PINS["Mẹ Bin"], "#kids");
     await p.goto(BASE + "/#/child/" + an); await p.waitForSelector("#rpTips");
     r.rp = { names: await p.$$eval("#view .sec .list .item .grow > b", (x) => x.map((b) => b.textContent.replace(/\s+/g, " ").trim())), wrap: await oneLine("#view .sec .list .item .grow > b"),
-      tip: await p.$$eval("#rpTips li", (l) => l.map((x) => x.textContent.replace(/\s+/g, " ").trim()).find((t) => /Bài ôn chưa làm/.test(t)) || "") };
+      tip: await p.$$eval("#rpTips li", (l) => l.map((x) => x.textContent.replace(/\s+/g, " ").trim()).find((t) => /^Chủ đề chưa ôn/.test(t)) || "") };
     await check22("báo cáo tuần"); await snap22("bao-cao");
     await p.goto(BASE + "/#/child/" + an + "/practice"); await p.waitForSelector("#allPractice");
     r.parentMain = await p.$$eval("#allPractice .btn.main", (x) => x.length);
@@ -5652,22 +5686,21 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   }
   console.log("UX22:", JSON.stringify(ux22.light), "dark:", JSON.stringify(ux22.dark), "problems:", ux22.problems);
   const ux22OK = !ux22.problems.length && UX22_SHOTS.every((n) => ux22.shots.includes(n + "-light") && ux22.shots.includes(n + "-dark")) && ["light", "dark"].every((sc) => {
-    const r = ux22[sc], t0 = r.t0, t1 = r.t1, t2 = r.t2, pr = r.prac, row = (nm) => pr.rows.find((x) => x.name === nm) || { btns: [] };
+    const r = ux22[sc], t0 = r.t0, t1 = r.t1, t2 = r.t2, pr = r.prac, row = (nm) => pr.rows.find((x) => x.name === nm) || { btns: [] }, T = r.first || {};
     const toan = row("Toán"), sum = (b) => b.map((x) => `${x.t}=${x.cls}${x.ck ? "✓" : ""}`).join(",");
-    return t0.cls === "hero today" && t0.label === "Hôm nay ôn gì?" && t0.h1 === "Toán · Đề 1" && t0.why === "Kiểm tra cuối học kì I còn 19 ngày. Bài này 25 câu, bạn chưa làm."
-      && t0.practice === "btn go main" && t0.practiceTxt === "Ôn luyện Xem đáp án sau mỗi câu" && t0.practiceHref === "#/quiz/toan9-ck1-de1?cach=on-luyen"
-      && t0.exam === "btn ghost go" && t0.examTxt === "Làm như thi · 45 phút Tính giờ, chấm điểm khi nộp bài" && t0.examHref === "#/quiz/toan9-ck1-de1?cach=thi"
-      && t0.group === "group|Chọn cách làm" && t0.big && !t0.gone.length && !t0.old && t0.acts.join() === "todayPractice,todayExam"
-      && r.q1.prog === "Câu 1/25" && r.q1.hash === "#/quiz/toan9-ck1-de1" && r.q1.focus
-      && r.reload.hash === "#/quiz/toan9-ck1-de1" && !r.reload.run && r.reload.h1 === "Toán 9 · Cuối kì I · Đề 1" && r.reload.unload === "beforeunload"
+    return !!r.first && t0.cls === "hero today" && t0.label === "Hôm nay ôn gì?" && t0.h1 === "Toán · " + T.t && t0.why === `Kiểm tra cuối học kì I còn 19 ngày. ${T.n} câu, bạn chưa ôn chủ đề này.`
+      && t0.topic === "btn go main" && t0.topicTxt === `Ôn ${T.n} câu Xem đáp án sau mỗi câu` && t0.topicHref === T.href + "?cach=on-luyen"
+      && t0.other === "linkbtn" && t0.otherTxt === "Chọn chủ đề khác →" && t0.otherHref === "#/practice?cach=chu-de"
+      && t0.group === "group|Bắt đầu ôn" && t0.big && !t0.gone.length && !t0.old && t0.acts.join() === "todayTopic,todayOther"
+      && r.q1.prog === `Câu 1/${T.n}` && r.q1.hash === T.href && r.q1.focus
+      && r.reload.hash === T.href && !r.reload.run && r.reload.h1 === "Toán 9 · Ôn chủ đề · " + T.t && r.reload.unload === "beforeunload"
       && r.back.ask === "Thoát đề?" && r.back.hash === "#/home" && /^Còn (45:00|44:5\d)$/.test(r.exam.timer) && r.exam.hash === "#/quiz/toan9-ck1-de1" && r.saved0 === 5
       && r.result.label === "Toán 9 · Cuối kì I · Đề 1 · Ôn luyện" && r.result.saved.split(",").includes("Toán 9 · Cuối kì I · Đề 1|practice")
       && r.result.saved.split(",").every((x) => /^Toán 9 · Cuối kì I · Đề 1\|(practice|self)$/.test(x)) // label cũ, cả kết quả tự chấm phần tự luận
-      && t1.cls === "done hero today" && t1.practice === "btn ghost go" && t1.practiceHref === "#/quiz/toan9-ck1-de2?cach=on-luyen" && t1.exam === "linkbtn" && t1.examTxt === "Làm như thi · 45 phút →"
-      && t1.tip === "Làm thêm: Toán · Đề 2 (bạn chưa làm)." && t1.big && !t1.gone.length && t1.acts.join() === "todayPractice,todayExam"
-      && pr.head === "Mỗi đề tính giờ, chấm điểm khi nộp bài như đề thi thật." && pr.grp === "ck1-l9" && pr.mains === 1
-      && pr.main.join() === "#/quiz/toan9-ck1-de2?cach=thi|Toán 9 · Cuối kì I · Đề 2, nên làm trước" && !pr.old && pr.rows.length >= 8
-      && sum(toan.btns) === "Đề 1=btn done sm✓,Đề 2=btn main sm,Đề trộn=btn rnd sm" && toan.info === "Đã làm 1/2 đề · mỗi đề 25 câu, 45 phút"
+      && t1.cls === "done hero today" && t1.topic === "btn ghost go" && t1.topicHref === T.href + "?cach=on-luyen" && t1.other === "linkbtn" && t1.otherTxt === "Chọn chủ đề khác →"
+      && t1.tip === `Làm thêm: Toán · ${T.t} (bạn chưa ôn).` && t1.big && !t1.gone.length && t1.acts.join() === "todayTopic,todayOther"
+      && pr.head === "Mỗi đề tính giờ, chấm điểm khi nộp bài như đề thi thật." && pr.grp === "ck1-l9" && pr.mains === 0 && !pr.main.length && !pr.old && pr.rows.length >= 8
+      && sum(toan.btns) === "Đề 1=btn done sm✓,Đề 2=btn sm,Đề trộn=btn rnd sm" && toan.info === "Đã làm 1/2 đề · mỗi đề 25 câu, 45 phút"
       && pr.rows.filter((x) => x.name !== "Toán").every((x) => /^Mỗi đề 25 câu, (35|45) phút$/.test(x.info) && sum(x.btns) === "Đề 1=btn sm,Đề 2=btn sm,Đề trộn=btn rnd sm")
       && pr.rows.every((x) => x.left === 0 && x.below)
       && pr.mockN > 0 && pr.mock.endsWith(` · ${pr.mockN} đề thi thử`) && pr.mockBtns.join() === "Đề 1,Đề 2,Đề 3" && pr.mockInfo.every((x) => x === "Mỗi đề 120 phút")
@@ -5676,7 +5709,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       && ["Toán 9 · Cuối kì I · Đề 1", "Toán 9 · Giữa kì I · Đề trộn", "Tiếng Anh 9 · Giữa kì I · Đề 2", "Ngữ văn 9 · Giữa kì I · Đề 1"].every((x) => r.res.names.includes(x))
       && !r.res.names.some((x) => /Bài ôn \d|Ôn tổng hợp|Đề ngẫu nhiên/.test(x)) && !r.res.wrap.length
       && ["Toán 9 · Cuối kì I · Đề 1", "Toán 9 · Giữa kì I · Đề trộn", "Tiếng Anh 9 · Giữa kì I · Đề 2"].every((x) => r.rp.names.includes(x)) && !r.rp.wrap.length
-      && /Bài ôn chưa làm: Toán 9 · Cuối kì I · Đề 2; /.test(r.rp.tip) && r.parentMain === 0
+      && r.rp.tip.startsWith(`Chủ đề chưa ôn của Kiểm tra cuối học kì I: Toán · ${T.t}; `) && r.parentMain === 0
       && t2.h1 === "Toán · Đề thi thử 1" && t2.why === "Thi tuyển sinh vào lớp 10 còn 12 ngày. Đề này 15 câu, bạn chưa làm." && t2.go === "btn lg main" && t2.goTxt === "Mở đề thi thử"
       && t2.goHref === "#/quiz/toan9-vao10-de1" && t2.acts.join() === "todayGo" && !t2.practice && !t2.exam && t2.open === "#/quiz/toan9-vao10-de1";
   });
@@ -5686,12 +5719,13 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      360 × 740 sáng và tối, lịch mặc định (mọi kì thi như data/calendar-2026-2027.js: các bước trước có thể đã sửa kì thi, bỏ gắn đề); con
      lớp 4 Cốm và con lớp 6 Su mới tạo trong bước (con của Mẹ Bin, chưa làm bài nào). Mong đợi:
      - 27/11/2026 9:00 (IOE cấp trường 26–28/11 đang diễn ra): #today không có chữ "IOE", có "Kiểm tra cuối học kì I còn N ngày.", nút chính
-       không tới bài ôn IOE; mục tiêu đầu của thẻ Huy hiệu "Hết bài ôn · Kiểm tra cuối học kì I" · "0/13 bài" (lớp 6 "0/16 bài"); tab Bài ôn,
+       không tới bài ôn IOE; mục tiêu đầu của thẻ Huy hiệu "Hết bài ôn · Kiểm tra cuối học kì I" · dòng nhỏ "Ôn 0/N chủ đề hoặc làm 0/13 đề"
+       (lớp 6 "… 0/16 đề"; Phiên UX23b); tab Bài ôn,
        bên "Ôn theo chủ đề" (mặc định, Phiên UX23a): chỉ nhóm cuối kì I mở, đứng đầu, đầu nhóm "… · N chủ đề"; các nhóm kì IOE chưa qua (cấp
        trường, xã/phường, tỉnh/thành phố, quốc gia) đứng cuối, ngay sau "Chủ đề khác", thu gọn, dòng ngày "Tự chọn <ngày> · 1 bài ôn" (nhãn
-       span.tag); dòng cuối của nhóm cuối kì I là "IOE · Global Success 4" ("… 6") có nhãn "Tự chọn"; bên này không có nút vàng (bài chính
-       là đề). Bên "Làm đề như thi": không có nhóm kì IOE; nhóm cuối kì I đứng đầu, mở, "… · 13 đề" (lớp 4), "… · 16 đề" (lớp 6), có đúng
-       một nút vàng.
+       span.tag); dòng cuối của nhóm cuối kì I là "IOE · Global Success 4" ("… 6") có nhãn "Tự chọn"; bên này có đúng một nút vàng (bài chính
+       là một chủ đề, xa thi: UX23b). Bên "Làm đề như thi": không có nhóm kì IOE; nhóm cuối kì I đứng đầu, mở, "… · 13 đề" (lớp 4), "… · 16
+       đề" (lớp 6), không có nút vàng.
      - Cốm làm hết 13 đề cố định của cuối kì I, không làm ioe-4 (ghi thẳng vào kho, sáng 27/11, đúng hết): thẻ "Bạn đã ôn rồi", "Làm thêm"
        không phải bài ôn IOE; dòng chúc mừng và hàng "Đã có" có "Hết bài ôn · Kiểm tra cuối học kì I", không còn mục tiêu "Hết bài ôn"; nhóm
        cuối kì I ở bên "Làm đề như thi" "Đã làm hết 13 đề · đúng 100%".
@@ -5714,12 +5748,12 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     };
     const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, sel);
     const login = async (id, pin, wait) => { await p.evaluate(() => Store.setSession(null)); await p.goto(BASE + "/"); await p.reload(); await p.click(`.tile[data-u="${id}"]`); await p.fill("#pinIn", pin); await p.waitForSelector(wait || "#view .stack"); await p.waitForTimeout(200); };
-    // thẻ Hôm nay: chữ, địa chỉ nút chính (đề: #todayPractice; bài ôn dạng trang, đề thi thử: #todayGo), dòng "Làm thêm"
-    const today = () => p.evaluate(() => { const f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : ""), m = document.querySelector("#today"), go = document.querySelector("#todayPractice, #todayGo");
+    // thẻ Hôm nay: chữ, địa chỉ nút đầu (Phiên UX23b: chủ đề #todayTopic, gần thi #todayExam; bài ôn dạng trang, đề thi thử: #todayGo), dòng "Làm thêm"
+    const today = () => p.evaluate(() => { const f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : ""), m = document.querySelector("#today"), go = m.querySelector("#todayTopic, #todayExam, #todayPractice, #todayGo");
       return { cls: [...m.classList].sort().join(" "), text: f(m), go: go ? go.getAttribute("href") : "", tip: f(m.querySelector(".done-tip")) }; });
-    // thẻ Huy hiệu: mục tiêu "tên|số", hàng "Đã có", dòng chúc mừng
+    // thẻ Huy hiệu: mục tiêu "tên|số|dòng nhỏ" (dòng nhỏ: Phiên UX23b), hàng "Đã có", dòng chúc mừng
     const badgeBox = () => p.evaluate(() => { const f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : "");
-      return { goals: [...document.querySelectorAll("#badges .bdg")].map((x) => f(x.querySelector(".bdg-top b")) + "|" + f(x.querySelector(".bdg-n"))),
+      return { goals: [...document.querySelectorAll("#badges .bdg")].map((x) => f(x.querySelector(".bdg-top b")) + "|" + f(x.querySelector(".bdg-n")) + "|" + f(x.querySelector(".bdg-sub"))),
         got: [...document.querySelectorAll("#badges .bdg-got .badge")].map(f), fresh: f(document.querySelector("#newBadge")) }; });
     // tab Bài ôn: mỗi nhóm (mã kì thi, "" là "Chủ đề khác" ở bên chủ đề, "Đề khác" ở bên đề): mở chưa, dòng ngày, nhãn, tiến độ, dòng cuối "tên|nhãn", dòng có nhãn "Tự chọn", số nút vàng
     const groups = () => p.evaluate(() => [...document.querySelectorAll("#allPractice > details.grp")].map((d) => {
@@ -5801,13 +5835,13 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       return x.side === "chu-de" && x.ioeIds.length === 4 && gs.slice(k).map((y) => y.id).join() === x.ioeIds.join() && k > 0 && gs[k - 1].id === ""
         && gs.slice(k).every((y) => !y.open && y.tag === "Tự chọn" && /^Tự chọn \S.* · 1 bài ôn$/.test(y.head) && !y.opt.length)
         && gs.slice(0, k).every((y) => !y.tag) && gs.filter((y) => y.open).map((y) => y.id).join() === `ck1-l${g}` && ck.id === `ck1-l${g}`
-        && / · \d+ chủ đề$/.test(ck.head) && ck.last === `IOE · Global Success ${g}|Tự chọn` && ck.opt.join() === `IOE · Global Success ${g}` && ck.mains === 0
+        && / · \d+ chủ đề$/.test(ck.head) && ck.last === `IOE · Global Success ${g}|Tự chọn` && ck.opt.join() === `IOE · Global Success ${g}` && ck.mains === 1
         && !xe.some((y) => /^ioe/.test(y.id) || y.tag) && ce.id === `ck1-l${g}` && xe.filter((y) => y.open).map((y) => y.id).join() === `ck1-l${g}`
-        && new RegExp(` · ${n} đề$`).test(ce.head) && ce.mains === 1;
+        && new RegExp(` · ${n} đề$`).test(ce.head) && ce.mains === 0;
     };
     return [[4, 13], [6, 16]].every(([g, n]) => { const x = r["g" + g];
         return x.today.cls === "hero today" && !/IOE/.test(x.today.text) && /Kiểm tra cuối học kì I còn \d+ ngày\./.test(x.today.text) && !!x.today.go && !/ioe/.test(x.today.go)
-          && x.badges.goals[0] === `${CK1}|0/${n} bài` && practiceOK(x, g, n); })
+          && new RegExp(`^${CK1}\\|\\|Ôn 0/\\d+ chủ đề hoặc làm 0/${n} đề$`).test(x.badges.goals[0]) && practiceOK(x, g, n); })
       && r.fixed === 13 && r.done.today.cls === "done hero today" && /^Làm thêm: /.test(r.done.today.tip) && !/IOE/.test(r.done.today.text) && !/ioe/.test(r.done.today.go)
       && r.done.badges.fresh.includes(CK1) && r.done.badges.got.some((b) => b.endsWith(CK1)) && !r.done.badges.goals.some((b) => b.startsWith("Hết bài ôn"))
       && r.done.ck1.prog === "Đã làm hết 13 đề · đúng 100%"
@@ -5823,12 +5857,14 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
      data/calendar-2026-2027.js). Bin lớp 4 ngày 8/12/2026 19:30 có kết quả như phần Đo của PD (ghi thẳng vào kho): Ôn chủ đề Tiếng Việt
      "Danh từ" 8/10, "Danh từ chung, danh từ riêng" 6/10, Toán "Số có nhiều chữ số" 9/10, Toán 4 · Cuối kì I · Đề 1 20/25, lượt "Làm tròn
      số" hôm qua dừng ở câu 4 (mode "part", t 4); An lớp 9 (con của Mẹ Bin) tạo trong bước. Mong đợi:
-     - bên Ôn theo chủ đề (mặc định): #pMode (role group, "Cách ôn") hai nút, "Ôn theo chủ đề" bật; chỉ nhóm cuối kì I mở, "· 70 chủ đề",
+     - bên Ôn theo chủ đề (mặc định): #pMode (role group, "Cách ôn") hai nút, "Ôn theo chủ đề" bật; dòng #pModeTxt có thêm "Chủ đề màu vàng
+       nên ôn trước." (Phiên UX23b: "Làm tròn số" là chủ đề gợi ý của Hôm nay, aria-label thêm ", nên ôn trước"); chỉ nhóm cuối kì I mở, "· 70 chủ đề",
        "Đã ôn 3/70 chủ đề · đúng 77%"; môn Toán "Đã ôn 1/13 chủ đề", 13 dòng theo thứ tự ma trận của toan4-ck1-ngau-nhien (chủ đề có trong
        ONTAP_SEED_TOPICS); "Làm tròn số" ghi "10 câu · lần trước dừng ở câu 4", không ✓; "Số có nhiều chữ số" ✓ "Đã ôn · đúng 9/10"; "Tính
        chất phép cộng" "5 câu"; Tiếng Việt không có dòng "Viết"; link chủ đề của học sinh có ?cach=on-luyen;
      - (lượt sáng) chạm "Danh từ": "Câu 1/10" hiện ngay, địa chỉ #/chu-de/4/tv/<chủ đề> không có ?cach, tải lại là màn mở đề; làm 3 câu
-       rồi "← Thoát", Dừng: một kết quả mới, mode "part", t 3; dòng "Danh từ" vẫn ✓ "Đã ôn · đúng 8/10";
+       rồi "← Thoát", Dừng: một kết quả mới, mode "part", t 3; dòng "Danh từ" vẫn ghi "Đã ôn · đúng 8/10" (lượt cũ làm hết); lượt dừng mới
+       nhất trong 7 ngày nên "Danh từ" thành chủ đề gợi ý (Phiên UX23b): bên phải là nút vàng "Ôn" thay cho ✓;
      - bên Làm đề như thi: hàng Toán "✓ Đề 1", "Đề 2", "Đề 3", "Đề trộn" (cuối hàng, .rnd), "Đã làm 1/3 đề · mỗi đề 25 câu, 40 phút";
        không có chữ "Bài ôn", "Ôn tổng hợp" trong nhóm; nhóm "· 13 đề", "Đã làm 1/13 đề · đúng 80%"; nút đề của học sinh có ?cach=thi;
        (lượt sáng) chạm "Đề 2" là "Còn 40:00" ngay; nhớ bên: tải lại #/practice vẫn là bên Làm đề như thi, ?cach=chu-de mở bên chủ đề;
@@ -5871,7 +5907,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
       if (!t) return null;
       g.open = true; t.open = true;
       return { head: f(t.querySelector("summary .small")), rows: [...t.querySelectorAll(":scope > a.trow")].map((a) => ({ t: f(a.querySelector(".grow b")), line: f(a.querySelector(".grow .small")),
-        done: !!a.querySelector(".t-end .done-ic"), href: a.getAttribute("href"), aria: a.getAttribute("aria-label") })) };
+        done: !!a.querySelector(".t-end .done-ic"), pick: !!a.querySelector(".t-end .btn.main"), href: a.getAttribute("href"), aria: a.getAttribute("aria-label") })) };
     }, [grp, sub]);
     // câu của mọi đề có sẵn lớp 4 đã tải (để nhận ra câu đang hiện)
     const loadedQs = () => p.evaluate(() => Store.banks(4).filter((b) => b.seed).flatMap((b) => b.questions || []));
@@ -6026,11 +6062,11 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("UX23a:", JSON.stringify(ux23.light), "dark:", JSON.stringify(ux23.dark), "matrix:", (ux23.matrix || []).join("; "), "problems:", ux23.problems);
   const ux23aOK = !ux23.problems.length && UX23_SHOTS.every((n) => ux23.shots.includes(n + "-light") && ux23.shots.includes(n + "-dark")) && ux23.matrix.length === 13 && ["light", "dark"].every((sc) => {
     const r = ux23[sc], t = r.topic, x = r.exam, grp = (m, id) => m.groups.find((g) => g.id === id) || {}, row = (s, n) => (s && s.rows.find((y) => y.t === n)) || {};
-    const base = t.btns === "Ôn theo chủ đề=true|Làm đề như thi=false" && t.role === "group|Cách ôn" && t.txt === "Mỗi chủ đề 10 câu, xem đáp án sau mỗi câu."
+    const base = t.btns === "Ôn theo chủ đề=true|Làm đề như thi=false" && t.role === "group|Cách ôn" && t.txt === "Mỗi chủ đề 10 câu, xem đáp án sau mỗi câu. Chủ đề màu vàng nên ôn trước."
       && grp(t, "ck1-l4").open && / · 70 chủ đề$/.test(grp(t, "ck1-l4").head) && grp(t, "ck1-l4").prog === "Đã ôn 3/70 chủ đề · đúng 77%"
       && t.groups.filter((g) => g.open).map((g) => g.id).join() === "ck1-l4"
       && !!t.toan && t.toan.head === "Đã ôn 1/13 chủ đề" && t.toan.rows.map((y) => y.t).join("|") === ux23.matrix.join("|")
-      && row(t.toan, "Làm tròn số").line === "10 câu · lần trước dừng ở câu 4" && !row(t.toan, "Làm tròn số").done && row(t.toan, "Làm tròn số").aria === "Làm tròn số, 10 câu, lần trước dừng ở câu 4"
+      && row(t.toan, "Làm tròn số").line === "10 câu · lần trước dừng ở câu 4" && !row(t.toan, "Làm tròn số").done && row(t.toan, "Làm tròn số").aria === "Làm tròn số, 10 câu, lần trước dừng ở câu 4, nên ôn trước"
       && row(t.toan, "Số có nhiều chữ số").done && row(t.toan, "Số có nhiều chữ số").line === "Đã ôn · đúng 9/10" && row(t.toan, "Tính chất phép cộng").line === "5 câu"
       && !!t.tv && t.tv.rows.length > 0 && !t.tv.rows.some((y) => y.t === "Viết") && row(t.tv, "Danh từ").done && t.toan.rows.concat(t.tv.rows).every((y) => /^#\/chu-de\/4\/(toan|tv)\/[^?]+\?cach=on-luyen$/.test(y.href))
       && x.btns === "Ôn theo chủ đề=false|Làm đề như thi=true" && x.txt === "Mỗi đề tính giờ, chấm điểm khi nộp bài như đề thi thật."
@@ -6044,9 +6080,205 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
     const x68ok = (y) => y.got > 0 && !y.bad && (!y.full || y.overlap === 0);
     return base && /^Còn (40:00|39:5\d)$/.test(r.timer)
       && r.direct.prog === "Câu 1/10" && r.direct.hash === "#/chu-de/4/tv/" + encodeURIComponent("Danh từ") && r.direct.reload.opening && !r.direct.reload.card
-      && r.stop === "Dừng" && r.part.join() === "chu-de:4:tv:Danh từ|part|3|3" && !!r.partRow && r.partRow.done && r.partRow.line === "Đã ôn · đúng 8/10"
+      && r.stop === "Dừng" && r.part.join() === "chu-de:4:tv:Danh từ|part|3|3" && !!r.partRow && r.partRow.pick && !r.partRow.done && r.partRow.line === "Đã ôn · đúng 8/10"
+      && r.partRow.aria === "Danh từ, đã ôn, đúng 8/10, nên ôn trước"
       && x68ok(r.x68tv) && x68ok(r.x68toan) && r.x68toan.practised === 10 && r.x68toan.unseen > 0
       && r.after === "chu-de:4:toan:Số có nhiều chữ số|practice,chu-de:4:tv:Danh từ|part,chu-de:4:tv:Danh từ|practice";
+  });
+  step("today: a topic, an exam-style test near the exam (UX23b)");
+  /* Phiên UX23b (docs/CAI-TIEN-UX-4X.md, mục UX23; X66, X67): 360 × 740 sáng và tối, bản lưu trên máy, lịch mặc định. Dữ liệu như bước UX23a:
+     Bin lớp 4 ngày 8/12/2026 19:30 (Ôn chủ đề Tiếng Việt "Danh từ" 8/10, "Danh từ chung, danh từ riêng" 6/10, Toán "Số có nhiều chữ số" 9/10,
+     Toán 4 · Cuối kì I · Đề 1 20/25, "Làm tròn số" hôm qua dừng ở câu 4: mode "part", t 4); An lớp 9, Linh lớp 12 (Linh làm Toán, Vật lí cuối kì
+     I như thi trong tuần) và Tí lớp 4 tạo trong bước (con của Mẹ Bin). Mong đợi:
+     - Báo cáo tuần của Bin (Mẹ Bin, 8/12): gợi ý và #rpMsgText có "Chủ đề chưa ôn của Kiểm tra cuối học kì I: Toán · Làm tròn số; …".
+     - Bin 8/12 (cuối kì I còn 20 ngày, xa thi): #today h1 "Toán · Làm tròn số", lí do "Kiểm tra cuối học kì I còn 20 ngày. Lần trước bạn dừng ở
+       câu 4. Ôn lại 10 câu, xem đáp án sau mỗi câu."; .go-modes (role group, "Bắt đầu ôn"): #todayTopic .btn.main "Ôn 10 câu" tới
+       #/chu-de/4/toan/<Làm tròn số>?cach=on-luyen, #todayOther .linkbtn "Chọn chủ đề khác →" tới #/practice?cach=chu-de; đúng 2 hành động, không
+       có #todayPractice. Huy hiệu: mục tiêu "Hết bài ôn · Kiểm tra cuối học kì I" không có số bên phải, dòng .bdg-sub "Ôn 3/70 chủ đề hoặc làm
+       1/13 đề"; #badgeHint kết thúc bằng "Ôn hết chủ đề hoặc làm hết đề của kì này là có “Hết bài ôn”.". Lịch thi: thẻ ck1-l4 .ready "Đã ôn 3/70
+       chủ đề · làm 1/13 đề" (không .good). Tab Bài ôn, bên chủ đề: đúng 1 .btn.main, là nút "Ôn" của dòng "Làm tròn số", chỉ môn Toán mở sẵn,
+       #pModeTxt có "Chủ đề màu vàng nên ôn trước."; bên đề không có nút vàng.
+     - Chạm #todayTopic: "Câu 1/10"; làm hết 10 câu thì thẻ .hero.done, .done-tip "Làm thêm: Tiếng Anh · <chủ đề đầu của ma trận đề trộn Tiếng
+       Anh> (bạn chưa ôn)." (môn chưa ôn chủ đề lần nào, theo ô Môn thi), #todayTopic là nút phụ (btn ghost go) "Ôn N câu" (số câu thật của
+       chủ đề), #todayOther là link; vẫn 2 hành động.
+     - An, Linh 8/12 (cuối kì I còn 6 ngày, gần thi): An "Toán · Đề trộn", lí do "… còn 6 ngày. Gần thi rồi: làm một đề như thi, 25 câu, 45
+       phút. Câu bạn chưa gặp được hỏi trước."; Linh "Ngữ văn · Đề trộn" (môn đầu tiên theo ô Môn thi chưa làm như thi trong 14 ngày); #todayExam
+       .btn.main tới đề trộn ?cach=thi, #todayTopic nút phụ "Ôn chủ đề" và "<môn> · <chủ đề>".
+     - Tí 8/12: kết quả làm hết, đúng hết cho mọi chủ đề của cuối kì I (đọc ở tab Bài ôn), chưa làm đề nào: dòng chúc mừng và hàng "Đã có" có
+       "Hết bài ôn · Kiểm tra cuối học kì I", không còn mục tiêu đó; thẻ kì thi ở Lịch thi "Đã ôn 70/70 chủ đề", .good.
+     - Bin 16/12 (còn 12 ngày): h1 "Toán · Đề trộn", lí do "Kiểm tra cuối học kì I còn 12 ngày. Gần thi rồi: làm một đề như thi, 25 câu, 40
+       phút. Câu bạn chưa gặp được hỏi trước."; #todayExam .btn.main "Làm như thi · 40 phút", #todayTopic nút phụ; tab Bài ôn, bên đề: đúng 1
+       .btn.main, là Đề trộn của Toán (?cach=thi); chạm #todayExam: "Còn 40:00". Hôm nay đã làm một bài (Toán Đề 2, ôn luyện): .done-tip "Làm
+       thêm: Toán · Đề trộn (gần thi).", #todayExam nút phụ, #todayTopic link "Ôn chủ đề: … →".
+     - An 20/5/2027 (thi vào 10, kì chỉ có đề thi thử): h1 "Toán · Đề thi thử 1", một nút #todayGo .btn.main "Mở đề thi thử".
+     audit ở mọi màn. Ảnh 360px sáng/tối ở tests/screenshots/ux23b/ (bản ghép <tên>.jpg), chép sang docs/hinh-ux23/. */
+  const OUTUX23B = OUT + "ux23b/"; fs.mkdirSync(OUTUX23B, { recursive: true });
+  const ux23b = { problems: [], shots: [] }, UX23B_SHOTS = ["bao-cao", "hom-nay", "bai-on-vang", "hom-nay-da-on", "lop-9", "lop-12", "het-bai-on", "gan-thi", "gan-thi-da-on", "thi-thu"];
+  for (const scheme of ["light", "dark"]) {
+    const c = await newContext({ storageState: state, viewport: { width: 360, height: 740 }, deviceScaleFactor: 2, colorScheme: scheme });
+    await localConfig(c); watchOut(c);
+    const p = await c.newPage(); p.on("pageerror", (e) => errs.push("pageerror UX23b: " + e.message)); p.on("console", (m) => { if (m.type() === "error") errs.push("console UX23b: " + m.text()); });
+    const r = (ux23b[scheme] = {});
+    const check = async (label) => (await p.evaluate(audit)).forEach((x) => ux23b.problems.push(`UX23b · ${scheme} · ${label}: ${x}`));
+    const snap = async (n) => {
+      await p.evaluate(() => { scrollTo(0, 0); const t = document.querySelector("#toast"); if (t) t.hidden = true; });
+      await pinTabs(p, true); await p.screenshot({ path: `${OUTUX23B}${n}-${scheme}.png`, fullPage: true }); await pinTabs(p, false);
+      ux23b.shots.push(`${n}-${scheme}`);
+    };
+    const txt = (sel) => p.evaluate((s) => { const e = document.querySelector(s); return e ? e.textContent.replace(/\s+/g, " ").trim() : ""; }, sel);
+    const login = async (id, pin, wait) => { await p.evaluate(() => Store.setSession(null)); await p.goto(BASE + "/"); await p.reload(); await p.click(`.tile[data-u="${id}"]`); await p.fill("#pinIn", pin); await p.waitForSelector(wait || "#view .stack"); await p.waitForTimeout(200); };
+    const home = async () => { await p.goto(BASE + "/#/home"); await p.reload(); await p.waitForSelector("#today"); await p.waitForTimeout(150); };
+    const practice = async (q) => { await p.goto(BASE + "/#/practice" + (q || "")); await p.reload(); await p.waitForSelector("#allPractice"); await p.waitForTimeout(150); };
+    // thẻ Hôm nay: lớp, tên, lí do, dòng "Làm thêm", các nút (lớp, chữ, địa chỉ), nhóm nút, các hành động đang hiện trong #view
+    const card = () => p.evaluate(() => {
+      const m = document.querySelector("#today"), q = (s) => document.querySelector(s), f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : ""), gm = m.querySelector(".go-modes");
+      const b = (s) => (q(s) ? { cls: [...q(s).classList].sort().join(" "), t: f(q(s)), href: q(s).getAttribute("href") } : null);
+      return { cls: [...m.classList].sort().join(" "), h1: f(m.querySelector("h1")), why: f(m.querySelector("h1 + p")), tip: f(m.querySelector(".done-tip")),
+        topic: b("#todayTopic"), other: b("#todayOther"), exam: b("#todayExam"), go: b("#todayGo"), practice: !!q("#todayPractice"), group: gm ? gm.getAttribute("role") + "|" + gm.getAttribute("aria-label") : "",
+        acts: [...document.querySelectorAll("#view a, #view button")].filter((x) => x.checkVisibility()).map((x) => x.id || f(x)) };
+    });
+    // thẻ Huy hiệu: mục tiêu "tên|số bên phải|dòng nhỏ", hàng "Đã có", dòng chúc mừng, dòng gợi ý
+    const badgeBox = () => p.evaluate(() => { const f = (x) => (x ? x.textContent.replace(/\s+/g, " ").trim() : "");
+      return { goals: [...document.querySelectorAll("#badges .bdg")].map((x) => [".bdg-top b", ".bdg-n", ".bdg-sub"].map((s) => f(x.querySelector(s))).join("|")),
+        got: [...document.querySelectorAll("#badges .bdg-got .badge")].map(f), fresh: f(document.querySelector("#newBadge")), hint: f(document.querySelector("#badgeHint")) }; });
+    // tab Bài ôn: các nút vàng (dòng chủ đề: "trow:<chủ đề>", nút đề: địa chỉ), các môn đang mở (bên chủ đề), dòng dưới nút bật
+    const yellow = () => p.evaluate(() => ({ mains: [...document.querySelectorAll("#view .btn.main")].map((x) => { const row = x.closest("a.trow"); return row ? "trow:" + row.querySelector(".grow b").textContent.trim() : x.getAttribute("href") || x.textContent.trim(); }),
+      open: [...document.querySelectorAll("#allPractice details.tsub[open] > summary b")].map((b) => b.textContent.trim()), txt: (document.querySelector("#pModeTxt") || {}).textContent || "" }));
+    const ready = (id) => p.evaluate((id) => { const x = document.querySelector(`.ev[data-ev="${id}"] .ready`); return x ? x.textContent.replace(/\s+/g, " ").trim() + (x.classList.contains("good") ? " (good)" : "") : ""; }, id);
+    const calendar = async () => { await p.goto(BASE + "/#/calendar"); await p.waitForSelector(".timeline"); };
+
+    await p.clock.install({ time: new Date("2026-12-08T19:30:00") });
+    await p.goto(BASE + "/");
+    const kid = await p.evaluate(async ([mom, bin]) => {
+      const an = await Store.createUser({ role: "student", name: "An", pin: "9999", grade: 9, className: "9A2", avatar: "🐯", parentIds: [mom] });
+      const linh = await Store.createUser({ role: "student", name: "Linh", pin: "1212", grade: 12, className: "12A1", avatar: "🌻", parentIds: [mom] });
+      const ti = await Store.createUser({ role: "student", name: "Tí", pin: "4545", grade: 4, className: "4C", parentIds: [mom] });
+      const d = JSON.parse(localStorage.getItem("ontap_db_v1")), b = d.users.find((x) => x.id === bin);
+      d.events = JSON.parse(JSON.stringify(window.ONTAP_SEED_EVENTS)); // lịch mặc định
+      b.parentIds = [mom];
+      const mk = (o, i) => Object.assign({ id: "ux23b-" + i, userId: bin, source: "bank", s: 300, wrongTopics: [] }, o, { at: new Date(o.at).toISOString() });
+      d.results = d.results.filter((x) => x.userId !== bin).concat([
+        { refId: "chu-de:4:tv:Danh từ", subject: "Tiếng Việt", label: "Tiếng Việt 4 · Ôn chủ đề · Danh từ", mode: "practice", r: 8, t: 10, at: "2026-12-01T19:00:00" },
+        { refId: "chu-de:4:tv:Danh từ chung, danh từ riêng", subject: "Tiếng Việt", label: "Tiếng Việt 4 · Ôn chủ đề · Danh từ chung, danh từ riêng", mode: "practice", r: 6, t: 10, at: "2026-12-03T19:00:00" },
+        { refId: "chu-de:4:toan:Số có nhiều chữ số", subject: "Toán", label: "Toán 4 · Ôn chủ đề · Số có nhiều chữ số", mode: "practice", r: 9, t: 10, at: "2026-12-05T19:00:00" },
+        { refId: "toan4-ck1-de1", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 1", mode: "practice", r: 20, t: 25, s: 1500, at: "2026-12-06T19:00:00" },
+        { refId: "chu-de:4:toan:Làm tròn số", subject: "Toán", label: "Toán 4 · Ôn chủ đề · Làm tròn số", mode: "part", r: 3, t: 4, at: "2026-12-07T19:00:00" },
+        // Linh làm Toán, Vật lí cuối kì I như thi trong tuần
+        { userId: linh.id, refId: "toan12-ck1-ngau-nhien", subject: "Toán", label: "Toán 12 · Cuối kì I · Đề ngẫu nhiên", mode: "exam", r: 20, t: 25, s: 2400, at: "2026-12-05T20:00:00" },
+        { userId: linh.id, refId: "vatli12-ck1-ngau-nhien", subject: "Vật lí", label: "Vật lí 12 · Cuối kì I · Đề ngẫu nhiên", mode: "exam", r: 21, t: 25, s: 2400, at: "2026-12-06T20:00:00" }].map(mk));
+      localStorage.setItem("ontap_db_v1", JSON.stringify(d));
+      ["ontap_pool_v1", "ontap_cach_v1", "ontap_badges_v1"].forEach((k) => localStorage.removeItem(k));
+      return { an: an.id, linh: linh.id, ti: ti.id };
+    }, [ids["Mẹ Bin"], ids.Bin]);
+    // chủ đề đầu tiên (theo ma trận đề trộn, có trong danh mục) của Tiếng Anh 4 cuối kì I và số câu của lượt ôn
+    r.ta1 = await firstTopic(p, "ta4-ck1-ngau-nhien");
+    // báo cáo tuần của Bin (Mẹ Bin): gợi ý và tin nhắn
+    await login(ids["Mẹ Bin"], PINS["Mẹ Bin"], "#kids");
+    await p.goto(BASE + "/#/child/" + ids.Bin); await p.waitForSelector("#rpTips");
+    r.rp = { tip: await p.$$eval("#rpTips li", (l) => l.map((x) => x.textContent.replace(/\s+/g, " ").trim()).find((t) => /^Chủ đề chưa ôn/.test(t)) || ""), msg: await p.$eval("#rpMsgText", (x) => x.textContent) };
+    await check("báo cáo tuần của Bin"); await snap("bao-cao");
+    // Bin 8/12: một chủ đề
+    await login(ids.Bin, PINS.Bin, "#today");
+    r.t0 = await card(); r.b0 = await badgeBox();
+    await check("Hôm nay, một chủ đề"); await snap("hom-nay");
+    await calendar(); r.cal0 = await ready("ck1-l4");
+    await check("Lịch thi");
+    await practice("?cach=chu-de"); r.y0 = await yellow();
+    await check("tab Bài ôn, bên chủ đề"); await snap("bai-on-vang");
+    await practice("?cach=thi"); r.y0x = await yellow();
+    await check("tab Bài ôn, bên đề");
+    // chạm "Ôn 10 câu": câu 1/10; làm hết 10 câu
+    await home(); await p.click("#todayTopic"); await p.waitForSelector("#qzProg");
+    r.q1 = await txt("#qzProg");
+    await check("Ôn chủ đề, câu 1");
+    const qs4 = await p.evaluate(() => Store.banks(4).filter((b) => b.seed).flatMap((b) => b.questions || []));
+    for (let i = 0; i < 12 && !(await p.$("#qzScore")) && (await p.$(".qcard .qtext")); i++) {
+      const q = await currentOn(p, qs4);
+      if (!q) { ux23b.problems.push(`UX23b · ${scheme}: không nhận ra câu "${await txt(".qcard .qtext")}"`); break; }
+      if (!(await answerOn(p, q, true))) ux23b.problems.push(`UX23b · ${scheme}: không trả lời được câu "${q.q}"`);
+      await p.click("#qzGo"); await p.waitForTimeout(60);
+    }
+    await endRecap(p); await p.waitForSelector("#qzScore");
+    r.saved = await p.evaluate(() => Store.resultsFor(Store.sessionUser().id).filter((x) => x.refId === "chu-de:4:toan:Làm tròn số").map((x) => x.mode + "|" + x.t).join());
+    await home(); r.t1 = await card();
+    await check("Hôm nay đã ôn, một chủ đề"); await snap("hom-nay-da-on");
+    // An, Linh 8/12: gần thi, đề trộn làm như thi
+    await login(kid.an, "9999", "#today"); r.an = await card();
+    await check("Hôm nay của An, gần thi"); await snap("lop-9");
+    await login(kid.linh, "1212", "#today"); r.linh = await card();
+    await check("Hôm nay của Linh, gần thi"); await snap("lop-12");
+    // Tí 8/12: làm hết mọi chủ đề của cuối kì I (đọc ở tab Bài ôn), chưa làm đề nào
+    await login(kid.ti, "4545", "#today");
+    await practice("?cach=chu-de");
+    const refs = await p.evaluate(() => [...document.querySelectorAll('#allPractice details.grp[data-grp="ck1-l4"] a.trow')].map((a) => {
+      const m = /^#\/chu-de\/(\d+)\/([a-z]+)\/([^?]+)/.exec(a.getAttribute("href")); return ("chu-de:" + m[1] + ":" + m[2] + ":" + decodeURIComponent(m[3])).slice(0, 80); }));
+    r.tiN = new Set(refs).size;
+    await p.evaluate(([id, refs]) => {
+      const d = JSON.parse(localStorage.getItem("ontap_db_v1"));
+      refs.forEach((ref, i) => d.results.push({ id: "ux23b-ti-" + i, userId: id, source: "bank", refId: ref, subject: "Toán", label: "Ôn chủ đề", mode: "practice", r: 10, t: 10, s: 300, at: new Date(2026, 11, 8, 8, i).toISOString(), wrongTopics: [] }));
+      localStorage.setItem("ontap_db_v1", JSON.stringify(d));
+    }, [kid.ti, [...new Set(refs)]]);
+    await home(); r.ti = await badgeBox();
+    await check("Hôm nay của Tí, ôn hết chủ đề"); await snap("het-bai-on");
+    await calendar(); r.ti.cal = await ready("ck1-l4");
+    // Bin 16/12: gần thi
+    await p.clock.setSystemTime(new Date("2026-12-16T19:30:00"));
+    await login(ids.Bin, PINS.Bin, "#today");
+    r.t2 = await card();
+    await check("Hôm nay gần thi"); await snap("gan-thi");
+    await practice("?cach=thi"); r.y2 = await yellow();
+    await check("tab Bài ôn gần thi, bên đề");
+    await home(); await p.click("#todayExam"); await p.waitForSelector("#qzTimer");
+    r.timer = await txt("#qzTimer");
+    await check("Làm như thi, câu 1");
+    await p.evaluate(() => history.back()); await p.waitForSelector("#leaveBox"); await p.click("#leaveYes"); await p.waitForSelector("#today");
+    // hôm nay đã làm một bài (Toán Đề 2, ôn luyện): thẻ đã ôn, gần thi
+    await p.evaluate((id) => { const d = JSON.parse(localStorage.getItem("ontap_db_v1"));
+      d.results.push({ id: "ux23b-de2", userId: id, source: "bank", refId: "toan4-ck1-de2", subject: "Toán", label: "Toán 4 · Cuối kì I · Đề 2", mode: "practice", r: 22, t: 25, s: 1500, at: new Date(2026, 11, 16, 18, 0).toISOString(), wrongTopics: [] });
+      localStorage.setItem("ontap_db_v1", JSON.stringify(d)); }, ids.Bin);
+    await home(); r.t3 = await card();
+    await check("Hôm nay đã ôn, gần thi"); await snap("gan-thi-da-on");
+    // An 20/5/2027: kì chỉ có đề thi thử
+    await p.clock.setSystemTime(new Date("2027-05-20T19:30:00"));
+    await login(kid.an, "9999", "#today"); r.mock = await card();
+    await check("Hôm nay của An, đề thi thử"); await snap("thi-thu");
+    await c.close();
+  }
+  { // ghép ảnh sáng/tối cạnh nhau (tests/screenshots/ux23b/<tên>.jpg)
+    const gp = await browser.newPage({ viewport: { width: 752, height: 400 }, deviceScaleFactor: 2 });
+    for (const n of UX23B_SHOTS) {
+      if (!ux23b.shots.includes(n + "-light") || !ux23b.shots.includes(n + "-dark")) continue;
+      const img = (sc) => "data:image/png;base64," + fs.readFileSync(`${OUTUX23B}${n}-${sc}.png`).toString("base64");
+      await gp.setContent(`<body style="margin:0;display:flex;gap:16px;padding:8px;background:#888;align-items:flex-start"><img src="${img("light")}" width="360"><img src="${img("dark")}" width="360"></body>`);
+      await gp.screenshot({ path: `${OUTUX23B}${n}.jpg`, fullPage: true, type: "jpeg", quality: 70 });
+    }
+    await gp.close();
+  }
+  console.log("UX23b:", JSON.stringify(ux23b.light), "dark:", JSON.stringify(ux23b.dark), "problems:", ux23b.problems);
+  const ux23bOK = !ux23b.problems.length && UX23B_SHOTS.every((n) => ux23b.shots.includes(n + "-light") && ux23b.shots.includes(n + "-dark")) && ["light", "dark"].every((sc) => {
+    const r = ux23b[sc], { t0, t1, t2, t3 } = r, CK1 = "Hết bài ôn · Kiểm tra cuối học kì I", TOPIC = "Chủ đề chưa ôn của Kiểm tra cuối học kì I: Toán · Làm tròn số";
+    const LTS = "#/chu-de/4/toan/" + encodeURIComponent("Làm tròn số") + "?cach=on-luyen", nearWhy = (d, m) => `Kiểm tra cuối học kì I còn ${d} ngày. Gần thi rồi: làm một đề như thi, 25 câu, ${m} phút. Câu bạn chưa gặp được hỏi trước.`;
+    const exam = (x, id, m) => !!x.exam && x.exam.cls === "btn go main" && x.exam.t === `Làm như thi · ${m} phút Tính giờ, chấm điểm khi nộp bài` && x.exam.href === `#/quiz/${id}?cach=thi`
+      && !!x.topic && x.topic.cls === "btn ghost go" && /^Ôn chủ đề \S.* · \S/.test(x.topic.t) && /^#\/chu-de\/\d+\/[a-z]+\/[^?]+\?cach=on-luyen$/.test(x.topic.href) && x.acts.join() === "todayExam,todayTopic" && x.group === "group|Bắt đầu ôn" && !x.practice;
+    return r.rp.tip.startsWith(TOPIC + "; ") && r.rp.msg.includes("• Gợi ý: " + TOPIC)
+      && t0.cls === "hero today" && t0.h1 === "Toán · Làm tròn số" && t0.why === "Kiểm tra cuối học kì I còn 20 ngày. Lần trước bạn dừng ở câu 4. Ôn lại 10 câu, xem đáp án sau mỗi câu."
+      && !!t0.topic && t0.topic.cls === "btn go main" && t0.topic.t === "Ôn 10 câu Xem đáp án sau mỗi câu" && t0.topic.href === LTS
+      && !!t0.other && t0.other.cls === "linkbtn" && t0.other.t === "Chọn chủ đề khác →" && t0.other.href === "#/practice?cach=chu-de"
+      && t0.acts.join() === "todayTopic,todayOther" && t0.group === "group|Bắt đầu ôn" && !t0.practice && !t0.exam && !t0.go
+      && r.b0.goals[0] === `${CK1}||Ôn 3/70 chủ đề hoặc làm 1/13 đề` && r.b0.hint.endsWith("Ôn hết chủ đề hoặc làm hết đề của kì này là có “Hết bài ôn”.")
+      && r.cal0 === "Đã ôn 3/70 chủ đề · làm 1/13 đề"
+      && r.y0.mains.join() === "trow:Làm tròn số" && r.y0.open.join() === "Toán" && r.y0.txt === "Mỗi chủ đề 10 câu, xem đáp án sau mỗi câu. Chủ đề màu vàng nên ôn trước." && !r.y0x.mains.length
+      && r.q1 === "Câu 1/10" && r.saved.split(",").includes("practice|10") && !!r.ta1
+      && t1.cls === "done hero today" && t1.tip === `Làm thêm: Tiếng Anh · ${r.ta1.t} (bạn chưa ôn).` && !!t1.topic && t1.topic.cls === "btn ghost go" && t1.topic.t === `Ôn ${r.ta1.n} câu Xem đáp án sau mỗi câu`
+      && !!t1.other && t1.other.cls === "linkbtn" && t1.acts.join() === "todayTopic,todayOther"
+      && r.an.cls === "hero today" && r.an.h1 === "Toán · Đề trộn" && r.an.why === nearWhy(6, 45) && exam(r.an, "toan9-ck1-ngau-nhien", 45)
+      && r.linh.h1 === "Ngữ văn · Đề trộn" && exam(r.linh, "van12-ck1-ngau-nhien", 45)
+      && r.tiN === 70 && r.ti.fresh.includes(`“${CK1}”`) && r.ti.got.some((b) => b.endsWith(CK1)) && !r.ti.goals.some((g) => g.startsWith(CK1)) && r.ti.cal === "Đã ôn 70/70 chủ đề (good)"
+      && t2.cls === "hero today" && t2.h1 === "Toán · Đề trộn" && t2.why === nearWhy(12, 40) && exam(t2, "toan4-ck1-ngau-nhien", 40)
+      && r.y2.mains.join() === "#/quiz/toan4-ck1-ngau-nhien?cach=thi" && /^Còn (40:00|39:5\d)$/.test(r.timer)
+      && t3.cls === "done hero today" && t3.tip === "Làm thêm: Toán · Đề trộn (gần thi)." && !!t3.exam && t3.exam.cls === "btn ghost go" && !!t3.topic && t3.topic.cls === "linkbtn" && /^Ôn chủ đề: \S.* · \S.* →$/.test(t3.topic.t)
+      && t3.acts.join() === "todayExam,todayTopic"
+      && r.mock.h1 === "Toán · Đề thi thử 1" && !!r.mock.go && r.mock.go.cls === "btn lg main" && r.mock.go.t === "Mở đề thi thử" && r.mock.go.href === "#/quiz/toan9-vao10-de1" && r.mock.acts.join() === "todayGo";
   });
   step("offline (L13)");
   /* sw.js đệm đủ file của app: so danh sách FILES với các file trong repo (thiếu thì mất mạng là hỏng, thừa thì không cài được).
@@ -6178,7 +6410,7 @@ const TODAY = "2026-10-21T07:00:00", T0 = Date.now();
   console.log("reveal (U1):", rv);
   // Mỗi bước một cờ; bước nào sai thì in tên cờ để tìm cho nhanh.
   const flags = { reveal: !rv.length, errors: !real.length, localMode: !cloudMode, noOutside: !outReqs.length, backupOK, offlineOK, cloudOK, results5: db.results.length === 5, banks1: db.banks.length === 1, dataOK: !dataErrs.length,
-    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, k5OK, l47OK, figOK, fill9yOK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK, ux9OK, ux11OK, ux10OK, ux12OK, ux14OK, ux15OK, ux22OK, l54OK, ux23aOK };
+    migOK, calOK, reportOK, modGuardOK, examGuardOK, pinLockOK, routeOK, pinAutoOK, ok360, gradesOK, noAnswerOK, homeScreenOK, labelsOK, swOK, adminLocal, k2OK, k3OK, k4OK, r1OK, ta1OK, ta2OK, modViOK, fix9eOK, ux1OK, ux2OK, l27OK, modNumOK, overlapOK, l36OK, l37OK, l40OK, l42OK, pickOK, ux4OK, artOK, ux5OK, numOK, l29OK, k5OK, l47OK, figOK, fill9yOK, ux6LocalOK, l38OK, mod9oOK, s9sOK, nIoeOK, ux7OK, ux8OK, ux9OK, ux11OK, ux10OK, ux12OK, ux14OK, ux15OK, ux22OK, l54OK, ux23aOK, ux23bOK };
   const failed = Object.keys(flags).filter((k) => !flags[k]);
   if (failed.length) { console.error("E2E FAILED:", failed.join(", ")); process.exitCode = 1; } else console.log("E2E OK");
   await browser.close();
