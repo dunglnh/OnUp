@@ -658,8 +658,8 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 | BS4-5-khoahoc | 10/1/2027 (đầu hàng đợi, chủ app xếp 27/11/2026) | Bổ sung câu cho 20 chủ đề dưới 10 câu: Khoa học 4, Khoa học 5 (học kì II) | +50 | không (câu riêng của 2 đề ngẫu nhiên) | không |
 | BS4-lsdl | 10/1/2027 (đầu hàng đợi, chủ app xếp 27/11/2026) | Bổ sung câu cho 13 chủ đề dưới 10 câu: Lịch sử và Địa lí 4 (học kì II) | +55 | không (câu riêng của 1 đề ngẫu nhiên) | không |
 | BS5-lsdl | 10/1/2027 (đầu hàng đợi, chủ app xếp 27/11/2026) | Bổ sung câu cho 16 chủ đề dưới 10 câu: Lịch sử và Địa lí 5 (học kì II) | +85 | không (câu riêng của 1 đề ngẫu nhiên) | không |
-| BS6-lsdl-a | 10/1/2027 (đầu hàng đợi, chủ app xếp 27/11/2026) | Bổ sung câu cho 12 chủ đề dưới 10 câu: Lịch sử và Địa lí 6 (giữa kì II) (học kì II) | +70 | không (câu riêng của 1 đề ngẫu nhiên) | không |
-| BS6-lsdl-b | 10/1/2027 (đầu hàng đợi, chủ app xếp 27/11/2026) | Bổ sung câu cho 11 chủ đề dưới 10 câu: Lịch sử và Địa lí 6 (cuối năm) (học kì II) | +60 | không (câu riêng của 1 đề ngẫu nhiên) | không |
+| BS6-lsdl-a | 10/1/2027 (đầu hàng đợi, chủ app xếp 27/11/2026) | Bổ sung câu cho 12 chủ đề dưới 10 câu: Lịch sử và Địa lí 6, giữa kì II | +70 | không (câu riêng của 1 đề ngẫu nhiên) | không |
+| BS6-lsdl-b | 10/1/2027 (đầu hàng đợi, chủ app xếp 27/11/2026) | Bổ sung câu cho 11 chủ đề dưới 10 câu: Lịch sử và Địa lí 6, cuối năm | +60 | không (câu riêng của 1 đề ngẫu nhiên) | không |
 | BS9-lsdl | 10/1/2027 (đầu hàng đợi, chủ app xếp 27/11/2026) | Bổ sung câu cho 13 chủ đề dưới 10 câu: Lịch sử và Địa lí 9 (học kì II) | +62 | không (câu riêng của 2 đề ngẫu nhiên) | không |
 | BS4-tincn | 10/1/2027 (đầu hàng đợi, chủ app xếp 27/11/2026) | Bổ sung câu cho 12 chủ đề dưới 10 câu: Tin học và Công nghệ 4 (học kì II) | +70 | không (câu riêng của 1 đề ngẫu nhiên) | không |
 | BS5-tincn | 10/1/2027 (đầu hàng đợi, chủ app xếp 27/11/2026) | Bổ sung câu cho 10 chủ đề dưới 10 câu: Tin học và Công nghệ 5 (học kì II) | +50 | không (câu riêng của 1 đề ngẫu nhiên) | không |
@@ -933,14 +933,14 @@ Lượt PO ngày 27/11/2026 viết; chủ app xếp 16 phiên này lên đầu h
 >
 > Còn lại theo đoạn đầu nhóm và Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
-**Phiên BS6-lsdl-a · Bổ sung câu Lịch sử và Địa lí 6 (giữa kì II) (học kì II)**
+**Phiên BS6-lsdl-a · Bổ sung câu Lịch sử và Địa lí 6, giữa kì II**
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 3; đoạn đầu nhóm “Trước 10/1/2027: bổ sung câu cho chủ đề ít câu”). Thêm 70 câu riêng cho 12 chủ đề dưới 10 câu chấm tự động:
 > - `lsdl6-gk2-ngau-nhien` (data/banks/6-lsdl.js, 0 câu riêng): Các quốc gia sơ kì ở Đông Nam Á (có 4, thêm 6; ô 1–1–0); Các vương quốc phong kiến ở Đông Nam Á (có 4, thêm 6; ô 1–1–0); Giao lưu văn hóa ở Đông Nam Á (có 4, thêm 6; ô 1–0–1); Nhà nước Văn Lang, Âu Lạc (có 6, thêm 4; ô 1–1–1); Thời Bắc thuộc (có 6, thêm 4; ô 1–1–1); Nhiệt độ không khí, mây và mưa (có 6, thêm 4; ô 1–1–1); Thời tiết, khí hậu và biến đổi khí hậu (có 6, thêm 4; ô 1–1–1); Biểu đồ nhiệt độ, lượng mưa (có 4, thêm 6; ô 0–1–1); Thủy quyển, vòng tuần hoàn của nước (có 2, thêm 8; ô 0–1–0); Sông, hồ, nước ngầm, băng hà (có 4, thêm 6; ô 1–0–1); Biển và đại dương (có 2, thêm 8; ô 1–0–0); Lớp đất trên Trái Đất (có 2, thêm 8; ô 1–0–0)
 > - Script: tests/lsdl-gdcd6-gk2.js. Sách in năm 2026 là bản chỉnh sửa: đọc sách ở OnUp-Book. “Biểu đồ nhiệt độ, lượng mưa” cần hình SVG (cột lượng mưa, đường nhiệt độ) có nhãn qua bước L48 của tests/e2e.js; số đọc trên hình kiểm lại bằng script.
 >
 > Còn lại theo đoạn đầu nhóm và Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
-**Phiên BS6-lsdl-b · Bổ sung câu Lịch sử và Địa lí 6 (cuối năm) (học kì II)** (Merge Phiên BS6-lsdl-a trước)
+**Phiên BS6-lsdl-b · Bổ sung câu Lịch sử và Địa lí 6, cuối năm** (Merge Phiên BS6-lsdl-a trước)
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 3; đoạn đầu nhóm “Trước 10/1/2027: bổ sung câu cho chủ đề ít câu”). Thêm 60 câu riêng cho 11 chủ đề dưới 10 câu chấm tự động:
 > - `lsdl6-ck2-ngau-nhien` (data/banks/6-lsdl.js, 0 câu riêng): Khởi nghĩa giành độc lập trước thế kỉ X (có 6, thêm 4; ô 1–1–1); Bảo tồn và phát triển văn hoá dân tộc (có 4, thêm 6; ô 1–1–0); Bước ngoặt lịch sử đầu thế kỉ X (có 6, thêm 4; ô 1–1–1); Vương quốc Chăm-pa (có 4, thêm 6; ô 1–0–1); Vương quốc Phù Nam (có 4, thêm 6; ô 1–1–0); Sự sống trên Trái Đất (có 4, thêm 6; ô 1–1–0); Rừng nhiệt đới (có 4, thêm 6; ô 1–0–1); Các đới thiên nhiên trên Trái Đất (có 4, thêm 6; ô 1–1–0); Dân số và phân bố dân cư (có 6, thêm 4; ô 1–1–1); Con người và thiên nhiên (có 4, thêm 6; ô 0–1–1); Bảo vệ tự nhiên, khai thác thông minh tài nguyên (có 4, thêm 6; ô 1–0–1)
 > - Script: tests/lsdl-gdcd6-ck2.js. Sách in năm 2026 là bản chỉnh sửa: đọc sách ở OnUp-Book. Cùng file data/banks/6-lsdl.js với Phiên BS6-lsdl-a: note của đề ngẫu nhiên viết cùng kiểu.
