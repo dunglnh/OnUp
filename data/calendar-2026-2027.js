@@ -55,7 +55,7 @@
       "tv4-gk1-de1", "tv4-gk1-de2", "tv4-gk1-ngau-nhien"] },
   { id: "gk1-l5", title: "Kiểm tra giữa học kì I", kind: "dinh-ki", grades: [5],
     start: "2026-11-02", end: "2026-11-13", tentative: true, subjects: MON_TH_GK,
-    scope: "Toán: Bài 1–18 (có trường chỉ đến Bài 14). Tiếng Việt: tập một, Bài 1–16 (tuần 1–8). Sách Kết nối tri thức với cuộc sống.", note: TT27(5), modules: [], banks: ["toan5-gk1-de1", "toan5-gk1-de2", "toan5-gk1-ngau-nhien"] },
+    scope: "Toán: Bài 1–18 (có trường chỉ đến Bài 14). Tiếng Việt: tập một, Bài 1–16 (tuần 1–8). Sách Kết nối tri thức với cuộc sống.", note: TT27(5), modules: [], banks: ["toan5-gk1-de1", "toan5-gk1-de2", "toan5-gk1-ngau-nhien", "tv5-gk1-de1", "tv5-gk1-de2", "tv5-gk1-ngau-nhien"] },
   { id: "gk1-l6", title: "Kiểm tra giữa học kì I", kind: "dinh-ki", grades: [6],
     start: "2026-11-02", end: "2026-11-13", tentative: true,
     subjects: MON_THCS,

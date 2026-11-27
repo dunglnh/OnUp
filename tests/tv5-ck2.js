@@ -644,7 +644,9 @@ const CUM_CHUNG = new Set(["nối trực tiếp", "trực tiếp không", "tiế
   "nghĩa gốc chỉ",
   // công dụng của dấu gạch ngang (Ghi nhớ tr. 164 của tập một): mọi câu hỏi về công dụng đều có đủ các công dụng ở lựa chọn, ô nối
   "một liên danh", "thành một liên", "đánh dấu phần", "phần chú thích", "đánh dấu các", "dấu các ý", "đánh dấu chỗ", "lời nói của", "nói của nhân",
-  "của nhân vật"]);
+  "của nhân vật",
+  // tên loại đại từ (Ghi nhớ tr. 21 của tập một): câu hỏi “từ … thuộc loại đại từ nào” của kho giữa kì I (Phiên N5-gk1-tv) có ba lựa chọn là ba tên loại
+  "đại từ xưng", "từ xưng hô", "đại từ nghi", "từ nghi vấn", "đại từ thay", "từ thay thế"]);
 // số lựa chọn sai của câu nhiều lựa chọn có chuỗi c: chuỗi có ở từ hai lựa chọn sai không giúp chọn đáp án (như tests/soat-nhap.js)
 const saiCo = (q, c) => (q.type === "mc" ? q.o.slice(1).filter((o) => (" " + tu(o).join(" ") + " ").includes(" " + c + " ")).length : 0);
 const doLo = (qs, them) => {
