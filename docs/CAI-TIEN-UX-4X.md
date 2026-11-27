@@ -1,4 +1,4 @@
-# Đề xuất giao diện 4.x (11/11/2026; thêm Phiên UX22 ngày 25/11/2026)
+# Đề xuất giao diện 4.x (11/11/2026; thêm Phiên UX22 ngày 25/11/2026, Phiên UX23 ngày 27/11/2026)
 
 Bản 3.x đã làm xong UX9–UX15; UX13 không làm. Kiểm thử thiết kế ghi ở mục 6 của [CAI-TIEN-UX-3X.md](CAI-TIEN-UX-3X.md). Bản 4.x là kết quả đợt UAT định kì đầu tiên, chạy theo bộ persona ba cấp ở [PERSONA.md](PERSONA.md). Đợt này trả lời ba câu hỏi:
 - một giao diện có hợp cả con 9 tuổi lẫn con 17 tuổi không;
@@ -7,19 +7,20 @@ Bản 3.x đã làm xong UX9–UX15; UX13 không làm. Kiểm thử thiết kế
 
 **Figma:** trang [🚧 Master 4.x · Persona và đề xuất](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=376-2). Trang có ba khung persona, rồi mỗi phiên một section có ghi chú. Khung màn hình của phiên chỉ vẽ khi chủ app chọn phiên đó, như cách làm của bản 3.x: Phiên UX22 có khung ở section [UX22](https://www.figma.com/design/9mkNYX0ZOczNDMwlKo5F4e/OnUp?node-id=380-63), ngay dưới persona.
 
-File này giữ cách chạy UAT, kết quả đo, vấn đề (mã X52–X65, nối tiếp bản 3.x), đề xuất theo phiên, ảnh và “Xong khi”. Các phiên UX16–UX21 là phiên ứng viên; **ngày 26/11/2026 PO đã chọn cả sáu** (chủ app giao PO chốt các điểm còn chờ), thứ tự và hạn ở cột “Gợi ý” của bảng dưới. Phiên UX22 (X62–X65) đến từ góp ý của chủ app ngày 25/11/2026 và **đã được chọn**. Phiên đã chọn thì PD vẽ khung ở Figma và viết lời giao việc ở mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); dòng của sáu phiên ở mục 3 của file đó (PO thêm ngày 26/11/2026). Trạng thái chỉ ghi ở file đó.
+File này giữ cách chạy UAT, kết quả đo, vấn đề (mã X52–X68, nối tiếp bản 3.x), đề xuất theo phiên, ảnh và “Xong khi”. Các phiên UX16–UX21 là phiên ứng viên; **ngày 26/11/2026 PO đã chọn cả sáu** (chủ app giao PO chốt các điểm còn chờ), thứ tự và hạn ở cột “Gợi ý” của bảng dưới. Phiên UX22 (X62–X65) đến từ góp ý của chủ app ngày 25/11/2026 và **đã được chọn**. Phiên UX23 (X66–X68) đến từ yêu cầu của chủ app ngày 27/11/2026 và **đã được chọn**: PO viết vấn đề và yêu cầu; lượt PD vẽ khung, viết đề xuất chi tiết, “Xong khi” và lời giao việc. Phiên đã chọn thì PD vẽ khung ở Figma và viết lời giao việc ở mục 4 của [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md); dòng của sáu phiên ở mục 3 của file đó (PO thêm ngày 26/11/2026). Trạng thái chỉ ghi ở file đó.
 
 ## 1. Tóm tắt
 
 | Phiên | Vấn đề | Persona được lợi nhiều nhất | Cỡ | Gợi ý |
 |---|---|---|---|---|
 | **UX22** · Hôm nay chọn cách làm ngay; gọi “Bài ôn 1, 2…” | X62–X65 (gộp cả X53) | mọi cấp, nhất là Bin | vừa | **chủ app chọn 25/11/2026**; làm trước các phiên dưới |
-| **UX17** · Màn mở đề gọn, nhãn câu giữ đúng chữ | X54, X55 | Linh, An; lớp 5 | nhỏ | **PO chọn 26/11/2026**; thứ 1, trước 15/12/2026 (sau Phiên D1, 9x): nhỏ, cả ba cấp được lợi |
-| **UX16** · Làm dở, làm tiếp | X52, X61 (X53 gộp vào UX22) | Bin, Mẹ Hạnh; cả An, Linh | vừa | **PO chọn 26/11/2026**; thứ 2, trước 31/12/2026 |
-| **UX20** · Môn học của con, khối 10–12 | X59 | Linh, Mẹ Thu | lớn; lưu trên máy chủ (PO quyết 26/11/2026) | **PO chọn 26/11/2026**; thứ 3, trước 20/1/2027 (trước khi bật khối 10, 11; khối 12 đã bật khi Merge PR #334; `run.sh` chạy lại được từ PR #346) |
-| **UX18** · Đề thi thử làm ra giấy | X56 | An; Linh (Ngữ văn) | lớn | **PO chọn 26/11/2026**; thứ 4, trước 10/2/2027 (9u đã xong) |
-| **UX19** · Đường tới kì thi lớn | X57, X58 | An, Linh, Bố Tuấn, Mẹ Thu | vừa | **PO chọn 26/11/2026**; thứ 5, trước 20/2/2027 |
-| **UX21** · Làm đề bằng bàn phím | X60 | Linh | nhỏ | **PO chọn 26/11/2026**; thứ 6, trước 28/2/2027 nếu còn lượt, không thì sau khi mở dùng thử |
+| **UX23** · Ôn theo chủ đề mỗi tuần; chọn cách ôn trước | X66–X68 | mọi cấp, nhất là Bin | lớn | **chủ app yêu cầu 27/11/2026**; thứ 1 (sau Phiên 9aa sửa IOE); lượt PD trước 30/11, phiên code trước 6/12/2026 |
+| **UX17** · Màn mở đề gọn, nhãn câu giữ đúng chữ | X54, X55 | Linh, An; lớp 5 | nhỏ | **PO chọn 26/11/2026**; thứ 2 (PO lùi ngày 27/11/2026, sau UX23, 9x), trước 20/12/2026: nhỏ, cả ba cấp được lợi |
+| **UX16** · Làm dở, làm tiếp | X52, X61 (X53 gộp vào UX22) | Bin, Mẹ Hạnh; cả An, Linh | vừa | **PO chọn 26/11/2026**; thứ 3, trước 31/12/2026; PD rà lại X52 theo cách ôn mới của UX23 |
+| **UX20** · Môn học của con, khối 10–12 | X59 | Linh, Mẹ Thu | lớn; lưu trên máy chủ (PO quyết 26/11/2026) | **PO chọn 26/11/2026**; thứ 4, trước 20/1/2027 (trước khi bật khối 10, 11; khối 12 đã bật khi Merge PR #334; `run.sh` chạy lại được từ PR #346) |
+| **UX18** · Đề thi thử làm ra giấy | X56 | An; Linh (Ngữ văn) | lớn | **PO chọn 26/11/2026**; thứ 5, trước 10/2/2027 (9u đã xong) |
+| **UX19** · Đường tới kì thi lớn | X57, X58 | An, Linh, Bố Tuấn, Mẹ Thu | vừa | **PO chọn 26/11/2026**; thứ 6, trước 20/2/2027 |
+| **UX21** · Làm đề bằng bàn phím | X60 | Linh | nhỏ | **PO chọn 26/11/2026**; thứ 7, trước 28/2/2027 nếu còn lượt, không thì sau khi mở dùng thử |
 
 Không cần sửa (đo đạt ở cả ba cấp, ngày 11/11/2026):
 - Hôm nay của Bin, An, Linh cùng bố cục; nút Bắt đầu nằm trong màn đầu. Ngày 25/11/2026 chủ app muốn bỏ bước Bắt đầu và bớt hành động: Phiên UX22.
@@ -226,6 +227,64 @@ Hành động là nút, link trong nội dung màn, không tính thanh trên, th
 - Sửa các bước cũ đọc chữ, nút, thứ tự đã đổi: UX1 (bài phụ, `#recent`, `#nextEvent`, “Bắt đầu”), UX9 (thẻ kì thi ở Hôm nay sang tab Lịch thi, `#toBanks`, “Hết bài ôn”), UX10 (mở chi tiết kì thi từ tab Lịch thi), UX14 (bài phụ “Ôn 10 câu”), UX15 (bài phụ; Ôn tổng hợp cuối hàng), K3 (nút `.rnd` không còn vàng, cuối hàng), UX7, UX7b (thứ tự đề; tìm “toan de 2” vẫn ra), TA2 (tên “Review N”, “Mixed review”). Ảnh `tests/screenshots/ux22/`, bản ghép `<tên>.jpg`, chép sang `docs/hinh-ux22/`.
 - `tests/supabase/cloud-e2e.js` in OK (sửa kiểm tra đọc chữ cũ); `node tests/kiem-tra-de.js` in DE OK.
 - Sửa CLAUDE.md: các mục “Trang "Hôm nay" và thanh tab của học sinh”, “Con biết mình đã ôn đến đâu”, “Đề ngẫu nhiên” (tên hiển thị, thứ tự), “Ôn 10 câu theo chủ đề hay sai” (bỏ lối vào ở Hôm nay), “Quy ước code” (tên hiển thị qua `Quiz.title`). Sửa `docs/TINH-NANG.md` tương ứng.
+
+### Phiên UX23 · Ôn theo chủ đề mỗi tuần; chọn cách ôn trước (X66–X68; chủ app yêu cầu 27/11/2026)
+
+Chủ app ngày 27/11/2026: mỗi tuần con ôn theo chủ đề, có ngay năm nay, không đợi đến 2027; tab Bài ôn cho chọn ôn theo chủ đề hay làm đề như thi trước, thay vì chọn đề rồi mới chọn Ôn luyện hay Làm như thi. Quyết định ngày 24/10/2026 để ôn theo bài từ ngân hàng đến đợt rà sách 2027 nay bỏ (đoạn “Bài ôn dạng trang” ở đầu [KE-HOACH-PHAT-TRIEN-ONUP.md](KE-HOACH-PHAT-TRIEN-ONUP.md)); gộp bài ôn dạng trang vào ngân hàng vẫn để 2027.
+
+PO viết vấn đề và yêu cầu dưới đây (đo trên `main` `3ce8728`). Lượt PD (lời giao việc ở mục 4 của KE-HOACH-PHAT-TRIEN-ONUP.md) vẽ khung ở Figma (section “4.x · UX23” của trang Master 4.x), viết đề xuất chi tiết, “Xong khi” vào mục này và lời giao việc của phiên code. Phiên lớn: một phiên không đủ thì PD tách, ví dụ UX23a (tab Bài ôn, tiến độ, lịch sử câu) và UX23b (Hôm nay, huy hiệu, báo cáo tuần). Phiên code làm sau Phiên 9aa (IOE là phần tự chọn, L54 ở [SUA-LOI-CHAY-THU.md](SUA-LOI-CHAY-THU.md)), trước UX17, UX16.
+
+**X66. Không có chỗ ôn chủ đề vừa học trong tuần (Cao; mọi cấp, nhất là Bin).**
+- Tab Bài ôn chỉ có đề 25 câu trộn mọi chủ đề của kì. Con chọn đề trước, rồi mới chọn Ôn luyện hay Làm như thi ở màn mở đề (ở Hôm nay thì chọn ngay, UX22).
+- Lượt “Ôn chủ đề” 10 câu (UX14, `renderTopic`) đã có, nhưng chỉ mở từ chủ đề hay sai (tab Kết quả, màn kết quả đề). Con vừa học “Danh từ” trên lớp không có chỗ chọn chủ đề đó.
+- Ôn theo bài học chỉ có ở hai bài ôn dạng trang giữa kì I lớp 4, 6 (“Ôn theo bài”), nay nằm ở nhóm “Bài ôn khác”.
+
+**X67. Tiến độ, bài chính, huy hiệu, báo cáo chỉ đếm đề (Cao khi làm X66).**
+- Lượt Ôn chủ đề lưu `refId` `chu-de:<khối>:<mã môn>:<chủ đề>`, không thuộc kì thi nào. `progressOf`, `todayPick`, `badges`, `badgePanel`, `weekTips` (“Bài ôn chưa làm”) không tính các lượt này.
+- Con ôn hết chủ đề của kì vẫn thấy “Đã làm 0/13 bài”, Hôm nay vẫn gợi ý đề chưa làm, báo cáo tuần ghi “Bài ôn chưa làm: …”, không có huy hiệu “Hết bài ôn”.
+- Dừng giữa lượt Ôn chủ đề cũng lưu kết quả (như X52). Tính lượt ôn vào tiến độ thì lượt làm dở phải không tính.
+
+**X68. Làm đề như thi sau khi ôn chủ đề toàn câu đã gặp (Vừa; mọi cấp).**
+- Lượt Ôn chủ đề rút câu từ chính các đề cố định và câu riêng của đề ngẫu nhiên. Đề cố định (Bài ôn 1, 2) làm sau đó toàn câu đã gặp.
+- Ôn tổng hợp (đề ngẫu nhiên) ưu tiên câu chưa làm theo `poolHist`. Hàm này chỉ đọc `PoolHist` của chính đề đó và kết quả các đề cố định, không đọc `PoolHist` của các lượt Ôn chủ đề (ngược lại `topicHist` có đọc của đề ngẫu nhiên). Đề rút không biết câu nào con đã gặp khi ôn chủ đề.
+
+**Số câu theo chủ đề** (câu chấm tự động, gộp mọi kì của khối, PO đếm ngày 27/11/2026; số liệu đủ ở đoạn “Quyết định còn hiệu lực” ở mục 7 của [KE-HOACH-NOI-DUNG.md](KE-HOACH-NOI-DUNG.md)):
+- Lớp 4 cuối kì I: Tiếng Việt “Danh từ” 27 câu, “Động từ” 33, “Tính từ” 14; Toán 11/13 chủ đề đủ 10 câu; Tiếng Anh mỗi Unit 5–8 câu; Khoa học 3–10 câu mỗi chủ đề.
+- Phạm vi cuối kì I của lớp 4, 5, 6, 9, 12: 195/439 chủ đề đủ 10 câu. Chủ đề ít câu thì lượt ôn ngắn hơn (ví dụ 6 câu) đến khi các phiên bổ sung (BS) thêm câu.
+- Kì chỉ có đề thi thử: Toán 9 thi vào 10 toàn câu tự luận (không có chủ đề để ôn nhanh); Ngữ văn 9 thi vào 10 có 5 chủ đề, 40 câu chấm tự động; Toán 12 thi tốt nghiệp có 34 chủ đề, 220 câu.
+
+**Yêu cầu của PO** (PD vẽ và quyết chi tiết; điểm nào PD thấy nên khác thì ghi rõ để chủ app quyết):
+1. **Tab Bài ôn chọn cách ôn trước.** Đầu tab một nhóm hai nút bật như tab (`aria-pressed`, lớp `.tabs` có sẵn): “Ôn theo chủ đề” (mặc định) và “Làm đề như thi”. Đổi nút thì đổi danh sách bên dưới, giữ nhóm kì thi đang mở. Nhớ lựa chọn gần nhất trên máy (localStorage, bọc try/catch). `#/practice?cach=chu-de` hoặc `?cach=thi` mở sẵn một bên, cho link từ Hôm nay, Lịch thi.
+2. **Ôn theo chủ đề.**
+   - Gom theo kì thi như nay, kì gần nhất mở sẵn. Trong kì, mỗi môn một dòng, mở ra là các chủ đề theo thứ tự sách: thứ tự trong `pool.matrix` của đề ngẫu nhiên của kì (mọi kì kiểm tra định kì của khối 4, 5, 6, 9, 12 đều có), không có thì thứ tự gặp trong các đề cố định. Chủ đề không có câu chấm tự động (“Viết”) không hiện.
+   - Mỗi chủ đề một dòng: tên, số câu của lượt (“10 câu”, chủ đề ít câu ghi số thật), trạng thái chưa ôn hoặc ✓ kèm số câu đúng lần gần nhất. Chỉ chủ đề app gợi ý là nút vàng (danh sách để chọn là một nhóm).
+   - Chạm là vào thẳng câu 1 của lượt Ôn chủ đề (như `?cach=on-luyen` của UX22). Giữ `renderTopic`, `Quiz.topicBank`, `Quiz.TOPIC_N`, `topicRef`: lượt Ôn chủ đề đã làm từ UX14 được tính luôn.
+   - Danh sách vẽ được khi mất mạng: tên chủ đề lấy từ danh mục `data/banks/index.js` (đã đệm). Số câu của chủ đề cần file câu hỏi: PD chọn đếm khi đã tải, hay ghi số câu theo chủ đề vào danh mục (khi đó `tests/ghep-de.js` ghi, `tests/kiem-tra-de.js` kiểm).
+   - Kì chỉ có đề thi thử (thi vào 10, thi tốt nghiệp; không có `pool`): chủ đề lấy từ chính các đề đó; môn không có câu chấm tự động chỉ có ở “Làm đề như thi”.
+   - Bài ôn dạng trang (giữa kì I lớp 4, 6, có “Ôn theo bài” bên trong) ở bên này. IOE theo quy tắc IOE (L54): cuối danh sách, “Tự chọn”.
+3. **Làm đề như thi.**
+   - Gom theo kì thi như nay, mỗi môn một hàng nút đề. Đề gọi lại là “Đề 1”, “Đề 2” như tên trong danh mục, vì nay “bài ôn” là ôn chủ đề (X65: một thứ một tên); `Quiz.title` đổi lại phần “Bài ôn N”, cả tiếng Anh; dữ liệu, `label` đã lưu không đổi (như UX22). Đề rút ngẫu nhiên: PD đặt tên ngắn, nói rõ mỗi lần một đề khác, ưu tiên câu chưa gặp. Đề thi thử giữ “Đề N”. Chủ app muốn giữ “Bài ôn 1, 2” thì báo PO trước khi PD vẽ.
+   - Chạm đề có số phút là vào thẳng lượt làm như thi (`?cach=thi`). Đề thi thử (có `pts`, lời dặn dài) và đề không có số phút (đề tự soạn) tới màn mở đề như nay.
+4. **Hôm nay** (thẻ “Hôm nay ôn gì?”; giữ một chính, một phụ, một thứ ba):
+   - Bài chính là một chủ đề của kì thường gần nhất (`practiceEvent`): chủ đề chưa ôn đầu tiên theo thứ tự sách, rồi chủ đề có lượt gần nhất đúng dưới 80%, rồi chủ đề lâu chưa ôn nhất. Nút chính vào thẳng câu 1.
+   - Khoảng hai tuần cuối trước kì thi (PD chốt số ngày): bài chính là một đề làm như thi (nút chính vào thẳng lượt làm như thi; PD chọn đề cố định chưa làm hay đề rút ngẫu nhiên), chủ đề là nút phụ.
+   - Bài chính là đề thi thử: như UX22 (một nút “Mở đề thi thử”). IOE không bao giờ lên thẻ.
+   - App không gắn chủ đề với tuần học, vì lịch dạy mỗi trường một khác. Con ôn đều mỗi tuần thì chủ đề gợi ý theo kịp bài trên lớp; con ôn nhanh hơn lớp có thể gặp chủ đề chưa học, khi đó chọn chủ đề khác ở tab Bài ôn.
+5. **Tiến độ, huy hiệu** (`progressOf`, `badges`, `badgePanel`, nhãn trên thẻ kì thi, đầu nhóm):
+   - Tiến độ của kì gồm chủ đề đã ôn trên số chủ đề của kì, và đề đã làm trên số đề của kì (PD chọn chữ, ví dụ “Đã ôn 5/13 chủ đề · làm 1/3 đề”).
+   - Chủ đề đã ôn: có lượt Ôn chủ đề làm hết câu, ở bất kì lúc nào trong năm học; chủ đề có ở hai kì thì tính cho cả hai. Lượt dừng giữa chừng không tính (như X52). Kho của chủ đề sẽ lớn thêm sau các phiên BS, nên không so số câu đã làm với số câu của kho lúc xem.
+   - Huy hiệu “Hết bài ôn · <kì>”: ôn hết chủ đề của kì, hoặc làm hết đề của kì như nay (con đã có huy hiệu vẫn giữ); mã `exam:<mã kì thi>` giữ nguyên.
+6. **Báo cáo tuần, tin nhắn, thẻ của con:** gợi ý “Chủ đề chưa ôn: …” của kì thi tiếp theo thay “Bài ôn chưa làm: …”. Kết quả Ôn chủ đề đã có trong báo cáo (giữ). Môn chưa ôn của thẻ con tính như nay (đã tính lượt Ôn chủ đề).
+7. **Lịch sử câu (X68):** `poolHist` cộng `PoolHist` của các lượt Ôn chủ đề cùng khối, môn (như `topicHist` đọc của đề ngẫu nhiên), để đề rút ưu tiên câu con chưa gặp.
+8. **Màn dùng chung danh sách bài ôn** (chi tiết kì thi, “Bài ôn của <tên>” của bố mẹ): theo cùng cách hai bên; PD chọn.
+9. **Không đổi:** dữ liệu đề (tên trong danh mục, mã đề, chữ `topic`), kết quả đã lưu (`refId`, `label`), cách chấm, bảng và cột của máy chủ, `modules/`.
+10. **Phiên khác:** UX16 (X52 làm dở, làm tiếp) làm sau UX23: PD rà lại theo cách ôn mới (lượt Ôn chủ đề làm dở; “Làm tiếp” đề 25 câu còn cần không khi đề chủ yếu làm như thi). UX17 (màn mở đề) vẫn cần cho đề thi thử, đề tự soạn, chi tiết kì thi.
+11. **Kiểm thử:** nhiều bước của `tests/e2e.js` đọc tab Bài ôn, Hôm nay, tên “Bài ôn N” (UX1, UX7, UX7b, UX9, UX14, UX15, UX22, K3, TA2…) phải sửa; `tests/supabase/cloud-e2e.js` in OK. Bước mới ở 360 × 740 sáng và tối, ngày giả lập giữa học kì và hai tuần trước kì thi.
+
+**Persona:**
+- Bin: tuần học “Danh từ” thì ôn đúng “Danh từ”, 10 câu khoảng 5 phút; mẹ thấy chủ đề đã ôn trong báo cáo tuần.
+- An, Linh: ôn chủ đề yếu trong tuần; gần thi làm đề như thi, câu chưa gặp được hỏi trước.
+- Bố mẹ: tiến độ đúng với việc con làm.
 
 ### Phiên UX17 · Màn mở đề gọn, nhãn câu giữ đúng chữ (X54, X55)
 
