@@ -1436,13 +1436,13 @@ window.ONTAP_SEED_BANKS = [
       "Đọc hiểu": [3, 2, 2], "Danh từ, động từ, tính từ": [1, 1, 0], "Đại từ": [1, 1, 1], "Từ đồng nghĩa": [1, 0, 1], "Từ đa nghĩa": [1, 1, 0],
       "Sử dụng từ điển": [1, 1, 0], "Dấu gạch ngang": [1, 1, 0], "Biện pháp điệp từ, điệp ngữ": [0, 1, 1], "Kết từ": [1, 0, 1], "Viết": [0, 0, 1] } } },
   /* Tiếng Việt 5 · Kiểm tra giữa học kì II (Kết nối tri thức, Tiếng Việt 5 tập hai, tuần 19–26, Bài 1–16; Phiên N5-gk2-tv). Khối 5
-     chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 53 câu riêng trong file (4 đoạn đọc, 5 câu Viết) + 50 câu của 2
-     đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, trong đó 7 câu Đọc hiểu
-     (đoạn 4 câu mức 1-1-2-3 và đoạn 3 câu mức 1-2-3), 17 câu Luyện từ và câu theo số bài Luyện từ và câu của sách (cách nối các vế
-     câu ghép 4 vì có hai bài; câu đơn và câu ghép 3; câu ghép, liên kết câu bằng cách lặp từ ngữ, bằng từ ngữ nối, bằng từ ngữ thay
-     thế, liên kết câu trong đoạn văn mỗi chủ đề 2), 1 câu Viết tự chấm (nên cả ba đề 40 phút). Hai đề cố định chia đúng ma trận; mỗi
-     ô Luyện từ và câu có rút có 4 câu cho mỗi câu ô đó rút (một ở mỗi đề cố định, hai câu riêng), nên học sinh đã làm một đề cố định
-     vẫn gặp câu mới. */
+     chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 59 câu riêng trong file (4 đoạn đọc, 5 câu Viết; Phiên
+     BS5-toan-tv thêm 6 câu liên kết câu cuối) + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo
+     Thông tư 27/2020: 10 – 8 – 7 câu, trong đó 7 câu Đọc hiểu (đoạn 4 câu mức 1-1-2-3 và đoạn 3 câu mức 1-2-3), 17 câu Luyện từ và
+     câu theo số bài Luyện từ và câu của sách (cách nối các vế câu ghép 4 vì có hai bài; câu đơn và câu ghép 3; câu ghép, liên kết câu
+     bằng cách lặp từ ngữ, bằng từ ngữ nối, bằng từ ngữ thay thế, liên kết câu trong đoạn văn mỗi chủ đề 2), 1 câu Viết tự chấm (nên
+     cả ba đề 40 phút). Hai đề cố định chia đúng ma trận; mỗi ô Luyện từ và câu có rút có từ 4 câu cho mỗi câu ô đó rút (một ở mỗi đề
+     cố định, hai câu riêng trở lên), nên học sinh đã làm một đề cố định vẫn gặp câu mới. */
   { id: "tv5-gk2-de1", title: "Tiếng Việt 5 · Giữa kì II · Đề 1", grade: 5, subject: "Tiếng Việt", minutes: 40, n: 25, file: "5-tv.js" },
   { id: "tv5-gk2-de2", title: "Tiếng Việt 5 · Giữa kì II · Đề 2", grade: 5, subject: "Tiếng Việt", minutes: 40, n: 25, file: "5-tv.js" },
   { id: "tv5-gk2-ngau-nhien", title: "Tiếng Việt 5 · Giữa kì II · Đề ngẫu nhiên", grade: 5, subject: "Tiếng Việt", minutes: 40, n: 25, file: "5-tv.js",
@@ -1451,13 +1451,14 @@ window.ONTAP_SEED_BANKS = [
       "Liên kết câu bằng cách lặp từ ngữ": [1, 1, 0], "Liên kết câu bằng từ ngữ nối": [1, 0, 1], "Liên kết câu bằng từ ngữ thay thế": [1, 1, 0],
       "Liên kết câu trong đoạn văn": [1, 1, 0], "Viết": [0, 0, 1] } } },
   /* Tiếng Việt 5 · Kiểm tra cuối năm học (Kết nối tri thức, Tiếng Việt 5 tập hai, trọng tâm tuần 28–34, Bài 17–30; Phiên N5-ck2-tv).
-     Khối 5 chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 53 câu riêng trong file (4 đoạn đọc, 5 câu Viết) + 50
-     câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, trong đó 7
-     câu Đọc hiểu (đoạn 4 câu mức 1-1-2-3 và đoạn 3 câu mức 1-2-3), 17 câu Luyện từ và câu theo các bài Luyện từ và câu của Bài 17–29
-     (đại từ 2, kết từ 1, từ đồng nghĩa 2, từ đa nghĩa 1, câu ghép 2, viết hoa danh từ chung 1, viết tên người, tên địa lí nước ngoài 3,
-     dấu gạch ngang 2, liên kết câu trong đoạn văn 2) và ôn cách nối các vế câu ghép (1), 1 câu Viết tự chấm (nên cả ba đề 40 phút).
-     Chủ đề ôn đúng chữ chủ đề của kho cuối kì I, giữa kì II. Hai đề cố định chia đúng ma trận; mỗi ô Luyện từ và câu có rút có 4 câu
-     (một ở mỗi đề cố định, hai câu riêng), nên học sinh đã làm một đề cố định vẫn gặp câu mới. */
+     Khối 5 chưa bật (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 59 câu riêng trong file (4 đoạn đọc, 5 câu Viết; Phiên
+     BS5-toan-tv thêm 6 câu viết hoa danh từ chung cuối) + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận
+     dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, trong đó 7 câu Đọc hiểu (đoạn 4 câu mức 1-1-2-3 và đoạn 3 câu mức 1-2-3), 17 câu
+     Luyện từ và câu theo các bài Luyện từ và câu của Bài 17–29 (đại từ 2, kết từ 1, từ đồng nghĩa 2, từ đa nghĩa 1, câu ghép 2, viết
+     hoa danh từ chung 1, viết tên người, tên địa lí nước ngoài 3, dấu gạch ngang 2, liên kết câu trong đoạn văn 2) và ôn cách nối các
+     vế câu ghép (1), 1 câu Viết tự chấm (nên cả ba đề 40 phút). Chủ đề ôn đúng chữ chủ đề của kho cuối kì I, giữa kì II. Hai đề cố
+     định chia đúng ma trận; mỗi ô Luyện từ và câu có rút có từ 4 câu (một ở mỗi đề cố định, hai câu riêng trở lên), nên học sinh đã
+     làm một đề cố định vẫn gặp câu mới. */
   { id: "tv5-ck2-de1", title: "Tiếng Việt 5 · Cuối năm · Đề 1", grade: 5, subject: "Tiếng Việt", minutes: 40, n: 25, file: "5-tv.js" },
   { id: "tv5-ck2-de2", title: "Tiếng Việt 5 · Cuối năm · Đề 2", grade: 5, subject: "Tiếng Việt", minutes: 40, n: 25, file: "5-tv.js" },
   { id: "tv5-ck2-ngau-nhien", title: "Tiếng Việt 5 · Cuối năm · Đề ngẫu nhiên", grade: 5, subject: "Tiếng Việt", minutes: 40, n: 25, file: "5-tv.js",
@@ -2305,12 +2306,12 @@ window.ONTAP_SEED_BANKS = [
       "Bản vẽ nhà": [1, 1, 1], "Vật liệu cơ khí": [1, 1, 1], "Truyền và biến đổi chuyển động": [1, 1, 2], "Gia công cơ khí bằng tay": [1, 1, 0],
       "Ngành nghề trong lĩnh vực cơ khí": [1, 0, 0] } } },
   /* Toán 5 · Kiểm tra giữa học kì II (Kết nối tri thức, Toán 5 tập hai, Bài 36–55; Phiên N5-gk2-toan). Khối 5 chưa bật
-     (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức
-     độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu trên 15 chủ đề theo tên bài: Chủ đề 7 (tỉ số, tỉ lệ bản
-     đồ, tổng – tỉ, hiệu – tỉ, tỉ số phần trăm, máy tính cầm tay) 12 câu, Chủ đề 8 (thể tích, đơn vị đo thể tích) 5, Chủ đề 9 (hình
-     khai triển, diện tích xung quanh, toàn phần, thể tích của hình hộp chữ nhật, hình lập phương) 8. Mỗi ô (chủ đề, mức) rút 1 câu
-     và có 4 câu: một câu ở mỗi đề cố định, hai câu riêng, nên học sinh đã làm một đề cố định vẫn gặp câu mới. Không có câu tự luận,
-     không hỏi số đo thời gian, vận tốc (Chủ đề 10). */
+     (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 88 câu riêng trong file (Phiên BS5-toan-tv thêm 38 câu cho các chủ đề
+     dưới 10 câu chấm tự động) + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020:
+     10 – 8 – 7 câu trên 15 chủ đề theo tên bài: Chủ đề 7 (tỉ số, tỉ lệ bản đồ, tổng – tỉ, hiệu – tỉ, tỉ số phần trăm, máy tính cầm
+     tay) 12 câu, Chủ đề 8 (thể tích, đơn vị đo thể tích) 5, Chủ đề 9 (hình khai triển, diện tích xung quanh, toàn phần, thể tích của
+     hình hộp chữ nhật, hình lập phương) 8. Mỗi ô (chủ đề, mức) rút 1 câu và có từ 4 câu: một câu ở mỗi đề cố định, hai câu riêng trở
+     lên, nên học sinh đã làm một đề cố định vẫn gặp câu mới. Không có câu tự luận, không hỏi số đo thời gian, vận tốc (Chủ đề 10). */
   { id: "toan5-gk2-de1", title: "Toán 5 · Giữa kì II · Đề 1", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js" },
   { id: "toan5-gk2-de2", title: "Toán 5 · Giữa kì II · Đề 2", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js" },
   { id: "toan5-gk2-ngau-nhien", title: "Toán 5 · Giữa kì II · Đề ngẫu nhiên", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js",
@@ -2322,11 +2323,12 @@ window.ONTAP_SEED_BANKS = [
       "Diện tích xung quanh, toàn phần của hình lập phương": [1, 0, 0], "Thể tích của hình hộp chữ nhật": [1, 0, 1],
       "Thể tích của hình lập phương": [0, 0, 1] } } },
   /* Toán 5 · Kiểm tra cuối năm học (Kết nối tri thức, cả năm, trọng tâm học kì II Bài 36–75; Phiên N5-ck2-toan). Khối 5 chưa bật
-     (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 50 câu riêng trong file + 50 câu của 2 đề cố định, câu nào cũng có mức
-     độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu trên 17 chủ đề theo tên bài: phần trọng tâm 16 câu (Chủ
-     đề 10 số đo thời gian, vận tốc, chuyển động đều 10; Chủ đề 11 thống kê và xác suất 6), phần ôn 9 câu (Chủ đề 7–9: 6, chữ chủ đề
-     như kho giữa kì II; học kì I: chia số thập phân, hình thang, hình tròn 3, chữ chủ đề như kho cuối kì I). Mỗi ô (chủ đề, mức) rút 1
-     câu và có 4 câu: một câu ở mỗi đề cố định, hai câu riêng, nên học sinh đã làm một đề cố định vẫn gặp câu mới. Không có câu tự luận. */
+     (data/grades.js) nên đề chưa hiện với gia đình. Kho câu = 70 câu riêng trong file (Phiên BS5-toan-tv thêm 20 câu) + 50 câu của 2
+     đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu trên 17 chủ đề theo tên
+     bài: phần trọng tâm 16 câu (Chủ đề 10 số đo thời gian, vận tốc, chuyển động đều 10; Chủ đề 11 thống kê và xác suất 6), phần ôn 9
+     câu (Chủ đề 7–9: 6, chữ chủ đề như kho giữa kì II; học kì I: chia số thập phân, hình thang, hình tròn 3, chữ chủ đề như kho cuối
+     kì I). Mỗi ô (chủ đề, mức) rút 1 câu và có từ 4 câu: một câu ở mỗi đề cố định, hai câu riêng trở lên, nên học sinh đã làm một đề
+     cố định vẫn gặp câu mới. Không có câu tự luận. */
   { id: "toan5-ck2-de1", title: "Toán 5 · Cuối năm · Đề 1", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js" },
   { id: "toan5-ck2-de2", title: "Toán 5 · Cuối năm · Đề 2", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js" },
   { id: "toan5-ck2-ngau-nhien", title: "Toán 5 · Cuối năm · Đề ngẫu nhiên", grade: 5, subject: "Toán", minutes: 40, n: 25, file: "5-toan.js",
