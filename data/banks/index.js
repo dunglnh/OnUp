@@ -524,15 +524,16 @@ window.ONTAP_SEED_BANKS = [
       "Tìm phân số của một số": [0, 1, 1], "Dãy số liệu, biểu đồ cột": [1, 1, 0], "Số lần xuất hiện của sự kiện": [1, 0, 0],
       "Đơn vị đo": [1, 0, 1], "Đường thẳng vuông góc, song song": [1, 0, 0], "Hình bình hành, hình thoi": [0, 1, 1] } } },
 
-  /* Tiếng Việt 4 · Kiểm tra cuối năm học (Kết nối tri thức, tập 2, trọng tâm Bài 17–30; Phiên N14). Kho câu = 52 câu riêng trong
-     file (4 đoạn đọc, 4 câu Viết) + 50 câu của 2 đề cố định (mỗi đề 2 đoạn đọc, 1 câu Viết), câu nào cũng có mức độ. Ma trận [Biết,
-     Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, trong đó 7 câu Đọc hiểu (rút theo đoạn: đoạn 4 câu mức 1-1-2-3, đoạn 3
-     câu mức 1-2-3, nên lần nào cũng đúng mức), 1 câu Viết (tự chấm, nên cả ba đề 40 phút) và 17 câu Luyện từ và câu, Chính tả trên
-     14 chủ đề: các bài Luyện từ và câu của Bài 17–29 (trạng ngữ chỉ phương tiện 2, dấu ngoặc kép 2, dấu ngoặc đơn 1, viết tên cơ
-     quan, tổ chức 1, lựa chọn từ ngữ 2, dấu câu 1) và ôn tập (câu, chủ ngữ, vị ngữ, trạng ngữ, danh từ, động từ, tính từ, chính tả,
-     mỗi chủ đề 1). Hai đề cố định chia đúng theo ma trận; mỗi ô (chủ đề, mức) Luyện từ và câu, Chính tả rút 1 câu và có 4 câu (một
-     câu ở mỗi đề cố định, hai câu riêng), nên học sinh đã làm một đề cố định vẫn gặp câu mới. Câu tự luận chỉ ở ô Viết: mỗi lần rút
-     đúng 1 câu. */
+  /* Tiếng Việt 4 · Kiểm tra cuối năm học (Kết nối tri thức, tập 2, trọng tâm Bài 17–30; Phiên N14). Kho câu = 70 câu riêng
+     trong file (4 đoạn đọc, 4 câu Viết; Phiên BS4-toan-tv thêm 18 câu Luyện từ và câu cuối) + 50 câu của 2 đề cố định (mỗi đề
+     2 đoạn đọc, 1 câu Viết), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu,
+     trong đó 7 câu Đọc hiểu (rút theo đoạn: đoạn 4 câu mức 1-1-2-3, đoạn 3 câu mức 1-2-3, nên lần nào cũng đúng mức), 1 câu
+     Viết (tự chấm, nên cả ba đề 40 phút) và 17 câu Luyện từ và câu, Chính tả trên 14 chủ đề: các bài Luyện từ và câu của Bài
+     17–29 (trạng ngữ chỉ phương tiện 2, dấu ngoặc kép 2, dấu ngoặc đơn 1, viết tên cơ quan, tổ chức 1, lựa chọn từ ngữ 2, dấu
+     câu 1) và ôn tập (câu, chủ ngữ, vị ngữ, trạng ngữ, danh từ, động từ, tính từ, chính tả, mỗi chủ đề 1). Hai đề cố định
+     chia đúng theo ma trận; mỗi ô (chủ đề, mức) Luyện từ và câu, Chính tả rút 1 câu và có từ 4 câu (một câu ở mỗi đề cố định,
+     hai câu riêng trở lên), nên học sinh đã làm một đề cố định vẫn gặp câu mới. Câu tự luận chỉ ở ô Viết: mỗi lần rút đúng 1
+     câu. */
   { id: "tv4-ck2-de1", title: "Tiếng Việt 4 · Cuối năm · Đề 1", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js" },
   { id: "tv4-ck2-de2", title: "Tiếng Việt 4 · Cuối năm · Đề 2", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js" },
   { id: "tv4-ck2-ngau-nhien", title: "Tiếng Việt 4 · Cuối năm · Đề ngẫu nhiên", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js",
@@ -2424,8 +2425,8 @@ window.ONTAP_SEED_TOPICS = {
     ["Biện pháp nhân hoá", 8, "ck1"], ["Dấu gạch ngang", 7, "ck1"], ["Sử dụng từ điển", 13, "gk1 ck1"], ["Chính tả", 20, "gk1 ck1 gk2 ck2"],
     ["Câu", 11, "gk2 ck2"], ["Chủ ngữ", 14, "gk2 ck2"], ["Vị ngữ", 15, "gk2 ck2"], ["Trạng ngữ", 10, "gk2 ck2"],
     ["Trạng ngữ chỉ thời gian, nơi chốn", 10, "gk2"], ["Trạng ngữ chỉ nguyên nhân, mục đích", 10, "gk2"], ["Mở rộng vốn từ", 10, "gk2"],
-    ["Trạng ngữ chỉ phương tiện", 8, "ck2"], ["Dấu ngoặc kép", 8, "ck2"], ["Dấu ngoặc đơn", 4, "ck2"], ["Lựa chọn từ ngữ", 8, "ck2"],
-    ["Dấu câu", 4, "ck2"]
+    ["Trạng ngữ chỉ phương tiện", 10, "ck2"], ["Dấu ngoặc kép", 10, "ck2"], ["Dấu ngoặc đơn", 10, "ck2"], ["Lựa chọn từ ngữ", 10, "ck2"],
+    ["Dấu câu", 10, "ck2"]
   ],
   "5-khoahoc.js": [
     ["Thành phần và vai trò của đất", 6, "ck1"], ["Ô nhiễm, xói mòn đất", 6, "ck1"], ["Hỗn hợp và dung dịch", 6, "ck1"],
