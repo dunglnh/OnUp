@@ -154,7 +154,8 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
      (Bài 53–59): nhân, chia với số có một, hai chữ số; tính chất giao hoán, kết hợp, phân phối; nhân, chia với 10, 100, 1 000; ước
      lượng; số trung bình cộng; rút về đơn vị; dãy số liệu, biểu đồ cột, số lần xuất hiện của sự kiện; phân số, rút gọn, quy đồng
      (một mẫu số chia hết cho mẫu số kia), so sánh phân số. Hai đề cố định giữ nguyên câu, chỉ thêm mức độ (Phiên N7); biểu đồ của
-     hai đề tả bằng lời. Kho câu của đề ngẫu nhiên = 56 câu riêng ở dưới + 50 câu của hai đề, ma trận trong data/banks/index.js:
+     hai đề tả bằng lời. Kho câu của đề ngẫu nhiên = 76 câu riêng ở dưới (Phiên BS4-toan-tv thêm 20 câu cuối) + 50 câu của hai
+     đề, ma trận trong data/banks/index.js:
      mỗi lần rút 25 câu, 10 Biết, 8 Hiểu, 7 Vận dụng, chữ chủ đề như hai đề. Dạng câu như ngân hàng cuối kì I (Phiên N1); hình vẽ:
      biểu đồ cột (số ghi ở đỉnh cột như Bài 50), hình chữ nhật chia phần tô màu (Bài 53, 55, 58). Ba câu tự luận ở ô Vận dụng của
      “Phép chia”, “Số trung bình cộng”, “Rút về đơn vị”. Đáp án tính lại bằng tests/toan4-gk2.js. Câu tự soạn, dò với sách bản in
@@ -592,9 +593,10 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
      biểu đồ cột, số lần xuất hiện của sự kiện; phân số, rút gọn, quy đồng (một mẫu số chia hết cho mẫu số kia), so sánh, cộng, trừ
      (một mẫu số chia hết cho mẫu số kia), nhân, chia phân số, tìm phân số của một số; ôn tập cuối năm (Bài 67–73), trong đó 7 câu
      ôn học kì I (số có nhiều chữ số, đơn vị đo, đường thẳng vuông góc, song song, hình bình hành, hình thoi). Hai đề cố định chia
-     đúng ma trận của đề ngẫu nhiên; kho câu của đề ngẫu nhiên = 50 câu riêng ở cuối + 50 câu của hai đề (mọi câu có lv). Ma trận
-     trong data/banks/index.js: 25 ô, mỗi ô rút 1 câu (10 Biết, 8 Hiểu, 7 Vận dụng) và có 4 câu (một câu ở mỗi đề cố định, hai câu
-     riêng). Chữ chủ đề như toan4-gk2, toan4-ck1, thêm “Cộng, trừ phân số”, “Nhân, chia phân số”, “Tìm phân số của một số”. Kết quả
+     đúng ma trận của đề ngẫu nhiên; kho câu của đề ngẫu nhiên = 57 câu riêng ở cuối (Phiên BS4-toan-tv thêm 7 câu cuối) + 50 câu
+     của hai đề (mọi câu có lv). Ma trận trong data/banks/index.js: 25 ô, mỗi ô rút 1 câu (10 Biết, 8 Hiểu, 7 Vận dụng) và có từ
+     4 câu (một câu ở mỗi đề cố định, hai câu riêng; thêm câu của Phiên BS4-toan-tv ở sáu ô của cộng, trừ, nhân, chia, tìm phân số
+     của một số). Chữ chủ đề như toan4-gk2, toan4-ck1, thêm “Cộng, trừ phân số”, “Nhân, chia phân số”, “Tìm phân số của một số”. Kết quả
      phép tính với phân số để ở dạng phân số (lớp 4 chưa học hỗn số); câu trả lời bằng số có đáp án phân số dặn “Viết kết quả dưới
      dạng phân số”. Ba câu tự luận ở ô Vận dụng của “Số trung bình cộng”, “Rút về đơn vị”, “Tìm phân số của một số”. Hình vẽ: biểu
      đồ cột (như Bài 50), băng chia phần tô màu, tứ giác, hình sáu cạnh, hình thoi, đường thẳng và các điểm trên lưới ô vuông. Đáp án tính lại
@@ -721,7 +723,22 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
       { topic: "Hình bình hành, hình thoi", type: "mc", q: "Mai dán băng màu quanh mép một tấm bìa hình bình hành có hai cạnh liền nhau dài 25 cm và 18 cm. Hỏi đoạn băng màu dài bao nhiêu xăng-ti-mét?", o: ["86 cm", "43 cm", "450 cm", "100 cm"], x: "Đoạn băng màu dài bằng chu vi tấm bìa. Hình bình hành có các cạnh đối diện bằng nhau, nên đoạn băng màu dài: (25 + 18) × 2 = 86 (cm).", lv: 2 },
       { topic: "Hình bình hành, hình thoi", type: "num", q: "Hình bình hành PQRS có cạnh PQ dài 9 cm, cạnh QR ngắn hơn cạnh PQ 4 cm. Hỏi cạnh PS dài bao nhiêu xăng-ti-mét?", ans: 5, unit: "cm", x: "Cạnh QR dài: 9 − 4 = 5 (cm). Trong hình bình hành PQRS, cạnh PS đối diện với cạnh QR, mà hai cạnh đối diện của hình bình hành bằng nhau, nên PS = QR = 5 cm.", lv: 2 },
       { topic: "Hình bình hành, hình thoi", type: "num", q: "Bác Năm làm một khung cửa sổ hình thoi bằng gỗ, mỗi cạnh dài 38 cm. Bác dùng một thanh gỗ dài 2 m để làm khung. Hỏi thanh gỗ còn thừa bao nhiêu xăng-ti-mét?", ans: 48, unit: "cm", x: "Khung hình thoi có bốn cạnh bằng nhau, dài tất cả: 38 × 4 = 152 (cm). Đổi 2 m = 200 cm. Thanh gỗ còn thừa: 200 − 152 = 48 (cm).", lv: 3 },
-      { topic: "Hình bình hành, hình thoi", type: "num", q: "Một hình bình hành có chu vi 128 cm, cạnh dài hơn cạnh ngắn 6 cm. Tính độ dài cạnh dài của hình bình hành đó.", ans: 35, unit: "cm", x: "Tổng độ dài hai cạnh liền nhau: 128 : 2 = 64 (cm). Cạnh dài: (64 + 6) : 2 = 35 (cm). Cạnh ngắn: 35 − 6 = 29 (cm). Thử lại: (35 + 29) × 2 = 128.", lv: 3 }
+      { topic: "Hình bình hành, hình thoi", type: "num", q: "Một hình bình hành có chu vi 128 cm, cạnh dài hơn cạnh ngắn 6 cm. Tính độ dài cạnh dài của hình bình hành đó.", ans: 35, unit: "cm", x: "Tổng độ dài hai cạnh liền nhau: 128 : 2 = 64 (cm). Cạnh dài: (64 + 6) : 2 = 35 (cm). Cạnh ngắn: 35 − 6 = 29 (cm). Thử lại: (35 + 29) × 2 = 128.", lv: 3 },
+      { topic: "Cộng, trừ phân số", type: "num", q: "Tính: 11/16 − 3/8. Viết kết quả dưới dạng phân số.", ans: "5/16",
+        x: "16 : 8 = 2 nên 3/8 = (3 × 2)/(8 × 2) = 6/16. 11/16 − 6/16 = (11 − 6)/16 = 5/16.", lv: 1 },
+      { topic: "Cộng, trừ phân số", type: "num", q: "Một đội thợ lát gạch một sân chơi. Tuần đầu đội lát được 2/5 sân, tuần sau lát được 11/20 sân. Hỏi còn mấy phần sân chơi chưa lát? Viết kết quả dưới dạng phân số.", ans: "1/20",
+        x: "Đổi 2/5 = 8/20. Hai tuần đội lát được: 8/20 + 11/20 = 19/20 (sân). Phần sân chơi chưa lát: 1 − 19/20 = 20/20 − 19/20 = 1/20 (sân).", lv: 3 },
+      { topic: "Nhân, chia phân số", type: "num", q: "Tính: 2/9 : 5/8. Viết kết quả dưới dạng phân số.", ans: "16/45",
+        x: "Lấy 2/9 nhân với phân số đảo ngược của 5/8 là 8/5: 2/9 : 5/8 = 2/9 × 8/5 = (2 × 8)/(9 × 5) = 16/45.", lv: 1 },
+      { topic: "Nhân, chia phân số", type: "num", q: "Mẹ có 4/5 kg hạt sen, mẹ chia đều vào các túi nhỏ, mỗi túi 1/10 kg. Hỏi mẹ chia được bao nhiêu túi?", ans: 8, unit: "túi",
+        x: "Số túi mẹ chia được: 4/5 : 1/10 = 4/5 × 10/1 = 40/5 = 8 (túi).", lv: 2 },
+      { topic: "Tìm phân số của một số", type: "num", q: "Một con đường dài 420 m. Người ta đã trải nhựa được 5/7 con đường. Hỏi đã trải nhựa được bao nhiêu mét đường?", ans: 300, unit: "m",
+        x: "Số mét đường đã trải nhựa là 5/7 của 420 m: 420 × 5/7 = 2 100/7 = 300 (m).", lv: 2 },
+      { topic: "Tìm phân số của một số", type: "num", q: "Mẹ có 150 000 đồng. Mẹ dùng 2/5 số tiền để mua thịt và 1/3 số tiền để mua rau. Hỏi mẹ còn lại bao nhiêu tiền?", ans: 40000, unit: "đồng",
+        x: "Tiền mua thịt: 150 000 × 2/5 = 60 000 (đồng). Tiền mua rau: 150 000 × 1/3 = 50 000 (đồng). Mẹ còn lại: 150 000 − 60 000 − 50 000 = 40 000 (đồng).", lv: 3 },
+      { topic: "Tìm phân số của một số", type: "mc", q: "Lớp 4A có 32 học sinh, 3/4 số học sinh của lớp thích đá cầu. Lớp 4B có 30 học sinh, 3/5 số học sinh của lớp thích đá cầu. Hỏi lớp nào có nhiều bạn thích đá cầu hơn và nhiều hơn mấy bạn?",
+        o: ["Lớp 4A, nhiều hơn 6 bạn", "Lớp 4B, nhiều hơn 6 bạn", "Lớp 4A, nhiều hơn 2 bạn", "Hai lớp bằng nhau"],
+        x: "Lớp 4A có 32 × 3/4 = 96/4 = 24 (bạn) thích đá cầu. Lớp 4B có 30 × 3/5 = 90/5 = 18 (bạn) thích đá cầu. 24 − 18 = 6, nên lớp 4A nhiều hơn lớp 4B 6 bạn.", lv: 3 }
     ]
   }
 });

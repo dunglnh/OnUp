@@ -480,9 +480,10 @@ window.ONTAP_SEED_BANKS = [
     pool: { from: ["congnghe6-gk2-de1", "congnghe6-gk2-de2"], matrix: {
       "Trang phục trong đời sống": [3, 2, 2], "Sử dụng và bảo quản trang phục": [3, 3, 2], "Thời trang": [2, 2, 1],
       "Đồ dùng điện trong gia đình": [2, 1, 2] } } },
-  /* Ngân hàng Toán 4 giữa kì II (Phiên N7, nâng hai đề có sẵn lên ngân hàng): kho câu = 56 câu riêng trong file + 50 câu của
-     2 đề cố định ở trên (giữ nguyên câu, chỉ thêm mức độ), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư
-     27/2020: 10 – 8 – 7 câu trên 14 chủ đề như hai đề cố định; ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút.
+  /* Ngân hàng Toán 4 giữa kì II (Phiên N7, nâng hai đề có sẵn lên ngân hàng): kho câu = 76 câu riêng trong file (Phiên
+     BS4-toan-tv thêm 20 câu cho các chủ đề dưới 10 câu chấm tự động) + 50 câu của 2 đề cố định ở trên (giữ nguyên câu, chỉ thêm
+     mức độ), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu trên 14 chủ đề như hai
+     đề cố định; ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút.
      Ba câu tự luận ở ô Vận dụng của “Phép chia”, “Số trung bình cộng”, “Rút về đơn vị” (mỗi ô rút 1 câu). */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
     pool: { from: ["toan4-gk2-de1", "toan4-gk2-de2"], matrix: {
@@ -505,13 +506,13 @@ window.ONTAP_SEED_BANKS = [
       "Trạng ngữ chỉ thời gian, nơi chốn": [1, 1, 0], "Trạng ngữ chỉ nguyên nhân, mục đích": [0, 1, 1], "Mở rộng vốn từ": [1, 1, 1],
       "Chính tả": [1, 0, 0], "Viết": [0, 0, 1] } } },
 
-  /* Toán 4 · Kiểm tra cuối năm học (Kết nối tri thức, cả năm, trọng tâm học kì II Bài 38–73; Phiên N13). Kho câu = 50 câu riêng
-     trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7
-     câu trên 18 chủ đề: phân số 10 câu (Bài 53–66), số tự nhiên và phép tính 7 (Bài 38–48, ôn số có nhiều chữ số), thống kê và xác
-     suất 3 (Bài 49–52), hình học và đo lường 5 (ôn học kì I); chữ chủ đề như kho giữa kì II, cuối kì I, thêm “Cộng, trừ phân số”,
-     “Nhân, chia phân số”, “Tìm phân số của một số”. Mỗi ô (chủ đề, mức) rút 1 câu và có 4 câu: một câu ở mỗi đề cố định, hai câu
-     riêng, nên học sinh đã làm một đề cố định vẫn gặp câu mới. Ba câu tự luận chỉ ở ba ô Vận dụng (Số trung bình cộng, Rút về đơn
-     vị, Tìm phân số của một số): mỗi lần rút nhiều nhất 3 câu tự luận. */
+  /* Toán 4 · Kiểm tra cuối năm học (Kết nối tri thức, cả năm, trọng tâm học kì II Bài 38–73; Phiên N13). Kho câu = 57 câu riêng
+     trong file (Phiên BS4-toan-tv thêm 7 câu) + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng]
+     theo Thông tư 27/2020: 10 – 8 – 7 câu trên 18 chủ đề: phân số 10 câu (Bài 53–66), số tự nhiên và phép tính 7 (Bài 38–48, ôn số
+     có nhiều chữ số), thống kê và xác suất 3 (Bài 49–52), hình học và đo lường 5 (ôn học kì I); chữ chủ đề như kho giữa kì II, cuối
+     kì I, thêm “Cộng, trừ phân số”, “Nhân, chia phân số”, “Tìm phân số của một số”. Mỗi ô (chủ đề, mức) rút 1 câu và có từ 4 câu:
+     một câu ở mỗi đề cố định, hai câu riêng trở lên, nên học sinh đã làm một đề cố định vẫn gặp câu mới. Ba câu tự luận chỉ ở ba ô
+     Vận dụng (Số trung bình cộng, Rút về đơn vị, Tìm phân số của một số): mỗi lần rút nhiều nhất 3 câu tự luận. */
   { id: "toan4-ck2-de1", title: "Toán 4 · Cuối năm · Đề 1", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js" },
   { id: "toan4-ck2-de2", title: "Toán 4 · Cuối năm · Đề 2", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js" },
   { id: "toan4-ck2-ngau-nhien", title: "Toán 4 · Cuối năm · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
@@ -2414,7 +2415,7 @@ window.ONTAP_SEED_TOPICS = {
     ["Số trung bình cộng", 10, "gk2 ck2"], ["Rút về đơn vị", 10, "gk2 ck2"], ["Dãy số liệu, biểu đồ cột", 21, "gk2 ck2"],
     ["Số lần xuất hiện của sự kiện", 10, "gk2 ck2"], ["Phân số", 10, "gk2 ck2"], ["Rút gọn phân số", 10, "gk2 ck2"],
     ["Quy đồng mẫu số", 10, "gk2 ck2"], ["So sánh phân số", 11, "gk2 ck2"], ["Tính chất cơ bản của phân số", 10, "gk2"],
-    ["Cộng, trừ phân số", 8, "ck2"], ["Nhân, chia phân số", 8, "ck2"], ["Tìm phân số của một số", 7, "ck2"]
+    ["Cộng, trừ phân số", 10, "ck2"], ["Nhân, chia phân số", 10, "ck2"], ["Tìm phân số của một số", 10, "ck2"]
   ],
   "4-tv.js": [
     ["Đọc hiểu", 121, "gk1 ck1 gk2 ck2"], ["Danh từ", 27, "gk1 ck1 ck2"], ["Danh từ chung, danh từ riêng", 19, "gk1 ck1"],
