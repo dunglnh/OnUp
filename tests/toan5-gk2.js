@@ -1,5 +1,5 @@
 // Tính lại đáp án ngân hàng Toán 5 giữa kì II (data/banks/5-toan.js): hai đề cố định toan5-gk2-de1, toan5-gk2-de2 và các câu riêng
-// của đề ngẫu nhiên toan5-gk2-ngau-nhien (Phiên N5-gk2-toan; Toán 5 tập hai, Bài 36–55). Mỗi câu khớp đúng một mục của CHECKS (chữ has
+// của đề ngẫu nhiên toan5-gk2-ngau-nhien (Phiên N5-gk2-toan, BS5-toan-tv; Toán 5 tập hai, Bài 36–55). Mỗi câu khớp đúng một mục của CHECKS (chữ has
 // nằm trong đề bài) rồi so đáp án với kết quả tính bằng code: trắc nghiệm o[0], điền khuyết ans[0] (số so theo giá trị, chữ so chữ),
 // đúng/sai a, đúng/sai 4 ý a (từng ý tính lại), trả lời bằng số ans, nối cột r của từng ô l, sắp xếp o. Số tính bằng số hữu tỉ chính
 // xác: tỉ số, tỉ số phần trăm (thương nhân 100), giá trị phần trăm (số nhân tỉ số rồi chia 100), tỉ lệ bản đồ hai chiều (độ dài thật =
@@ -524,6 +524,81 @@ const CHECKS = [
   { has: "Hình lập phương A có cạnh 5 cm. Hình lập phương B có cạnh gấp 2 lần cạnh của hình lập phương A. Thể tích hình lập phương B gấp mấy lần", right: () => nguyen(div(V(10, 10, 10), V(5, 5, 5))) + " lần" },
   { has: "Một thùng tôn dạng hình lập phương cạnh 0,8 m đang chứa đầy nước. Người ta đã dùng 112 l nước trong thùng.", right: () => sub(doi(ghi(V("0,8", "0,8", "0,8"), "m³"), "l"), F(112)) },
   { has: "Một hình lập phương có diện tích toàn phần là 726 cm². Thể tích của hình lập phương đó là", right: () => { const mat = div(F(726), F(6)), a = Math.round(Math.sqrt(toNum(mat))); assert.ok(eq(F(a * a), mat), "diện tích một mặt là số chính phương"); return ghi(V(a, a, a), "cm³"); } },
+  /* Phiên BS5-toan-tv: 38 câu riêng bổ sung cho 9 chủ đề dưới 10 câu chấm tự động (ô ghi ở THEM, phần ma trận bên dưới) */
+  // Tỉ lệ bản đồ
+  { has: "Trên một bản đồ, độ dài 1 cm ứng với 40 m trên thực tế. Bản đồ đó có tỉ lệ là", right: (q) => {
+    const dung_ = ti(1, thou(String(nguyen(doi("40 m", "cm"))))); q.o.slice(1).forEach((o) => assert.notEqual(o, dung_)); return dung_; } },
+  { has: "Quãng đường từ bến xe đến khu du lịch dài 36 km.", right: (q) => {
+    assert.ok(q.q.includes("bản đồ thứ nhất có tỉ lệ 1 : 400 000, bản đồ thứ hai có tỉ lệ 1 : 1 200 000"));
+    const a = div(doi("36 km", "cm"), fr("400 000")), b = div(doi("36 km", "cm"), fr("1 200 000")); assert.notEqual(cmp(a, b), 0);
+    return (cmp(a, b) > 0 ? "Bản đồ thứ nhất" : "Bản đồ thứ hai") + ", dài hơn " + ghi(cmp(a, b) > 0 ? sub(a, b) : sub(b, a), "cm"); } },
+  // Tìm hai số khi biết hiệu và tỉ số (đổ thêm vào mỗi thùng cùng một số lít thì hiệu không đổi)
+  { has: "Một cửa hàng bán được số gạo nếp ít hơn số gạo tẻ là 35 kg. Số gạo nếp bằng 2/7 số gạo tẻ.", right: (q) => eq(hieuTi(35, 2, 7)[0], soSau(q.q, "đã bán được")) },
+  { has: "Thùng thứ nhất có nhiều hơn thùng thứ hai 28 l dầu. Người ta đổ thêm vào mỗi thùng 5 l dầu", right: () => sub(hieuTi(28, 3, 5)[0], F(5)),
+    more: (q) => assert.ok(q.q.includes("thùng thứ hai bằng 3/5 số dầu ở thùng thứ nhất")) },
+  // Tìm tỉ số phần trăm của hai số (thương lấy bốn chữ số ở phần thập phân như sách: cắt bớt, không làm tròn)
+  { has: "đội A sút 50 quả phạt đền, vào lưới 39 quả; đội B sút 40 quả, vào lưới 31 quả.", right: () => {
+    const a = phanTram(39, 50), b = phanTram(31, 40); return cmp(a, b) > 0 ? "Đội A" : cmp(a, b) < 0 ? "Đội B" : "Hai đội như nhau"; } },
+  { has: "Một đội văn nghệ có 30 bạn, trong đó có 19 bạn nữ.", right: () => mul(F(Math.floor((19 * 10000) / 30), 10000), F(100)),
+    more: (q) => assert.ok(q.q.includes("phần thập phân của thương chỉ lấy bốn chữ số")) },
+  { has: "Mỗi phép tính dưới đây có kết quả là tỉ số phần trăm nào?", right: (q) => {
+    const P = (r) => { assert.ok(/^\d+(,\d+)?%$/.test(r), "ô phải: " + r); return fr(r.slice(0, -1)); }, tinh = (l) => ev(l.replace(/%/g, ""));
+    return q.l.map((l) => { const m = q.r.filter((r) => eq(P(r), tinh(l))); assert.equal(m.length, 1, "ô " + l + " bằng đúng một ô phải"); return m[0]; }); },
+    more: (q) => q.r.slice(q.l.length).forEach((r) => assert.ok(q.l.every((l) => !eq(fr(r.slice(0, -1)), ev(l.replace(/%/g, "")))), "ô thừa bằng một ô trái")) },
+  { has: "Theo kế hoạch, một đội công nhân phải sửa 1 500 m đường. Sau hai tuần, đội đã sửa được 1 320 m đường.", right: () => phanTram(fr("1 320"), fr("1 500")) },
+  { has: "Thư viện của trường có 250 quyển sách, gồm 115 quyển truyện, 85 quyển sách khoa học", right: (q) => {
+    const ca = 250, truyen = 115, khoaHoc = 85, thamKhao = ca - truyen - khoaHoc;
+    return [eq(soSau(q.o[0], "chiếm"), phanTram(khoaHoc, ca)), eq(soSau(q.o[1], "chiếm"), phanTram(truyen, ca)), eq(soSau(q.o[2], "có"), F(thamKhao)), eq(soSau(q.o[3], "chiếm"), phanTram(thamKhao, ca))]; },
+    more: (q) => assert.ok(/^Số sách khoa học/.test(q.o[0]) && /^Số truyện/.test(q.o[1]) && /^Thư viện có/.test(q.o[2]) && /^Số sách tham khảo/.test(q.o[3])) },
+  { has: "Một hộp có 40 quả bóng, trong đó có 25 quả bóng xanh. Số bóng xanh chiếm 62,5% số bóng trong hộp.", right: () => eq(phanTram(25, 40), fr("62,5")) },
+  // Máy tính cầm tay
+  { has: "Để tính 3 456 : 12 bằng máy tính cầm tay, ta bấm lần lượt các phím nào?", right: (q) => {
+    const dung_ = "3 456 ÷ 12 ="; assert.ok(eq(tinhPhim(tachPhim(dung_)), ev("3 456 : 12")));
+    q.o.slice(1).forEach((o) => assert.ok(!eq(tinhPhim(tachPhim(o)), ev("3 456 : 12")), "lựa chọn sai cho cùng kết quả: " + o)); return dung_; } },
+  { has: "Bạn Linh dùng máy tính cầm tay để tính hiệu của hai số và bấm các phím theo thứ tự như hình dưới đây.", right: (q) => { const k = docPhim(q); assert.ok(k.includes("−"), "dãy phím tính hiệu"); return tinhPhim(k); } },
+  { has: "Để tính 12% của 350 bằng máy tính cầm tay, ta bấm lần lượt các phím nào?", right: (q) => {
+    const dung_ = "350 × 12 % ="; assert.ok(eq(tinhPhim(tachPhim(dung_)), giaTri(350, 12)));
+    q.o.slice(1).forEach((o) => { let v = null; try { v = tinhPhim(tachPhim(o)); } catch (e) { v = null; } assert.ok(!v || !eq(v, giaTri(350, 12)), "lựa chọn sai cho cùng kết quả: " + o); });
+    return dung_; } },
+  { has: "Để tìm tỉ số phần trăm của 21 và 60, bạn Mai bấm lần lượt các phím 21 × 60 % = trên máy tính cầm tay.", right: () => eq(tinhPhim(tachPhim("21 × 60 % =")), phanTram(21, 60)) },
+  { has: "Bấm lần lượt các phím 943 ÷ 23 = trên máy tính cầm tay thì màn hình hiện số ___.", right: () => tinhPhim(tachPhim("943 ÷ 23 =")) },
+  { has: "Bạn Tâm bấm lần lượt các phím 450 000 × 7 % = trên máy tính cầm tay và màn hình hiện 31 500.", right: () => {
+    assert.ok(eq(tinhPhim(tachPhim("450 000 × 7 % =")), fr("31 500"))); return "Giá trị 7% của 450 000"; } },
+  // Thể tích của một hình (thể tích hình ghép bằng tổng thể tích các hình; xếp hình hộp chữ nhật từ hình lập phương nhỏ cạnh 1 cm)
+  { has: "Ghép hình X gồm 8 hình lập phương nhỏ với hình Y gồm 7 hình lập phương nhỏ như thế, ta được hình Z.", right: (q) => 8 + 7 === nguyen(soSau(q.q, "thể tích của")) },
+  { has: "Bạn Hoa có 30 hình lập phương nhỏ cạnh 1 cm.", right: () => div(F(30), mul(F(5), F(3))), more: (q) => assert.ok(q.q.includes("chiều dài 5 cm, chiều rộng 3 cm")) },
+  // Xăng-ti-mét khối, đề-xi-mét khối
+  { has: "Số đo 52,07 dm³ đọc là", right: (q) => { q.o.slice(1).forEach((o) => assert.notEqual(o, docSoDo("52,07 dm³"))); return docSoDo("52,07 dm³"); } },
+  { has: "So sánh hai số đo 3,2 dm³ và 3 020 cm³. Cách viết nào dưới đây đúng?", right: () => { const c = cmp(doi("3,2 dm³", "cm³"), doi("3 020 cm³", "cm³")); return "3,2 dm³ " + (c > 0 ? ">" : c < 0 ? "<" : "=") + " 3 020 cm³"; } },
+  { has: "7,2 dm³ : 3 = ___ dm³", right: () => div(doi("7,2 dm³", "dm³"), F(3)) },
+  { has: "Một hộp phấn có thể tích 0,75 dm³.", right: () => doi("0,75 dm³", "cm³") },
+  { has: "Số đo nào dưới đây bằng 800 cm³?", right: (q) => motLuaChon(q, (o) => eq(doi(o, "cm³"), F(800))) },
+  { has: "2,05 dm³ = 2 500 cm³", right: () => eq(doi("2,05 dm³", "cm³"), fr("2 500")) },
+  // Hình khai triển
+  { has: "Tấm bìa nào dưới đây không gấp được thành một hình lập phương?", right: (q) => {
+    const ts = docLuoi(q); assert.equal(ts.length, 4); assert.deepEqual(ts.map((t) => t.ten).sort(), q.o.slice().sort(), "lựa chọn là tên các tấm");
+    return motLuaChon({ o: ts.map((t) => t.ten) }, (n) => gap(ts.find((t) => t.ten === n).o) === null); } },
+  { has: "Bạn Hùng muốn làm một chiếc hộp không có nắp dạng hình lập phương bằng bìa.", right: () => (6 - 1) + " hình vuông" },
+  // Diện tích xung quanh, diện tích toàn phần của hình lập phương
+  { has: "Một chiếc hộp dạng hình lập phương có cạnh 1,2 dm. Tính diện tích xung quanh", right: () => mul(mul(fr("1,2"), fr("1,2")), F(4)) },
+  { has: "Hình lập phương có cạnh 5 dm thì có diện tích toàn phần là 100 dm².", right: () => eq(Stp(5, 5, 5), F(100)) },
+  { has: "Người ta sơn tất cả các mặt của một khối gỗ dạng hình lập phương có cạnh 0,4 m.", right: () => Stp("0,4", "0,4", "0,4") },
+  { has: "Mỗi hình lập phương dưới đây có diện tích xung quanh là bao nhiêu?", right: (q) => {
+    const canh = (l) => fr(/cạnh (\d+(?:,\d+)?) cm$/.exec(l)[1]), xq = (a) => mul(mul(a, a), F(4)), P = q.r.map((r) => { const m = /^(\d+(?:,\d+)?) cm²$/.exec(r); assert.ok(m, "ô phải: " + r); return fr(m[1]); });
+    return q.l.map((l) => { const m = q.r.filter((r, i) => eq(P[i], xq(canh(l)))); assert.equal(m.length, 1, "ô " + l + " bằng đúng một ô phải"); return m[0]; }); },
+    more: (q) => q.r.slice(q.l.length).forEach((r) => assert.ok(q.l.every((l) => { const a = fr(/cạnh (\d+(?:,\d+)?) cm$/.exec(l)[1]); return !eq(fr(r.replace(" cm²", "")), mul(mul(a, a), F(4))); }), "ô thừa bằng một ô trái")) },
+  { has: "Tính diện tích toàn phần của hình lập phương dưới đây.", right: (q) => { const h = docHop(q); assert.ok(h.lapPhuong); assert.equal(q.unit, h.u + "²"); return Stp(h.dai, h.dai, h.dai); } },
+  { has: "Một hình lập phương có diện tích xung quanh là 49 cm². Tính diện tích một mặt", right: () => div(F(49), F(4)) },
+  // Thể tích của hình lập phương
+  { has: "Một khối gỗ dạng hình lập phương có cạnh 9 dm. Một khối gỗ khác dạng hình hộp chữ nhật", right: (q) => {
+    assert.ok(q.q.includes("chiều dài 14 dm, chiều rộng 6 dm và chiều cao 8 dm")); const a = V(9, 9, 9), b = V(14, 6, 8); assert.notEqual(cmp(a, b), 0);
+    return (cmp(a, b) > 0 ? "Khối lập phương" : "Khối hộp chữ nhật") + ", lớn hơn " + ghi(cmp(a, b) > 0 ? sub(a, b) : sub(b, a), "dm³"); } },
+  { has: "Một hình lập phương có cạnh 7 cm. Nếu tăng cạnh của hình lập phương đó thêm 1 cm", right: () => eq(sub(V(8, 8, 8), V(7, 7, 7)), F(169)) },
+  { has: "Một bể dạng hình lập phương có cạnh 1,2 m, đang không có nước.", right: () => div(doi(ghi(V("1,2", "1,2", "1,2"), "m³"), "l"), F(24)),
+    more: (q) => assert.ok(q.q.includes("mỗi phút được 24 l")) },
+  { has: "Một chiếc thùng gỗ dạng hình lập phương có cạnh 3 dm đựng đầy gạo.", right: () => mul(V(3, 3, 3), fr("0,8")), more: (q) => assert.ok(q.q.includes("1 dm³ gạo cân nặng 0,8 kg")) },
+  { has: "Một hình lập phương có chu vi một mặt là 6 dm.", right: () => { const a = div(F(6), F(4)); return V(a, a, a); } },
+  { has: "Bạn Lan dùng 64 hình lập phương nhỏ cạnh 1 cm xếp kín thành một hình lập phương", right: () => { const a = Math.round(Math.cbrt(64)); assert.equal(a * a * a, 64, "64 hình xếp được hình lập phương"); return Stp(a, a, a); } },
 ];
 
 /* ---------- chạy kiểm tra: mỗi câu khớp đúng một mục của CHECKS (mục có chữ has dài nhất nằm trong đề bài) ---------- */
@@ -606,13 +681,22 @@ assert.deepEqual([...new Set(kho.map((q) => q.topic))].sort(), CHU_DE.slice().so
 // toan5-ck2-*: phần ôn của kho đó mang đúng chữ chủ đề của kho này (lời giao việc Phiên N5-ck2-toan; tests/toan5-ck2.js so câu cùng chủ đề)
 { const khac = new Set(BANKS.filter((b) => b.file === "5-toan.js" && !DE.concat(POOL).includes(b.id) && !/^toan5-ck2-/.test(b.id)).flatMap((b) => b.questions.map((q) => q.topic)));
   CHU_DE.forEach((t) => assert.ok(!khac.has(t), "chủ đề trùng chữ với đề Toán 5 khác: " + t)); }
-// mỗi ô rút 1 câu và có đúng 4 câu: một câu ở mỗi đề cố định, hai câu riêng; ô không rút thì không có câu
+// mỗi ô rút 1 câu và có một câu ở mỗi đề cố định, hai câu riêng (Phiên N5-gk2-toan); ô không rút thì không có câu. Phiên BS5-toan-tv thêm
+// câu riêng ở các ô ghi trong THEM, để mỗi chủ đề có từ 10 câu chấm tự động cho đề “Ôn chủ đề”
+const THEM = { "Tỉ lệ bản đồ|1": 1, "Tỉ lệ bản đồ|3": 1, "Tìm hai số khi biết hiệu và tỉ số|2": 1, "Tìm hai số khi biết hiệu và tỉ số|3": 1,
+  "Tìm tỉ số phần trăm của hai số|2": 6, "Máy tính cầm tay|1": 6, "Thể tích của một hình|1": 1, "Thể tích của một hình|2": 1,
+  "Xăng-ti-mét khối, đề-xi-mét khối|1": 6, "Hình khai triển|1": 1, "Hình khai triển|2": 1, "Diện tích xung quanh, toàn phần của hình lập phương|1": 6,
+  "Thể tích của hình lập phương|3": 6 };
+Object.keys(THEM).forEach((k) => { const [t, l] = k.split("|"); assert.ok(M[t] && M[t][l - 1] > 0, "THEM ghi ô không rút: " + k); });
 Object.entries(M).forEach(([t, v]) => v.forEach((k, i) => {
   const have = kho.filter((q) => q.topic === t && q.lv === i + 1);
   assert.ok(k <= 1, `ô (${t}, mức ${i + 1}) rút ${k} câu: mỗi ô rút nhiều nhất 1 câu`);
   if (!k) { assert.equal(have.length, 0, `ô (${t}, mức ${i + 1}) không rút mà kho có ${have.length} câu`); return; }
-  assert.deepEqual(DE.concat(POOL).map((s) => have.filter((q) => q.src === s).length), [1, 1, 2], `ô (${t}, mức ${i + 1})`);
+  assert.deepEqual(DE.concat(POOL).map((s) => have.filter((q) => q.src === s).length), [1, 1, 2 + (THEM[t + "|" + (i + 1)] || 0)], `ô (${t}, mức ${i + 1})`);
 }));
+assert.equal(mine.length, 50 + Object.values(THEM).reduce((a, b) => a + b, 0), "số câu riêng");
+// mỗi chủ đề có từ 10 câu chấm tự động (đề “Ôn chủ đề” rút 10 câu; chủ đề của kho này chỉ có ở kho này và phần ôn của kho cuối năm)
+CHU_DE.forEach((t) => assert.ok(BANKS.filter((b) => b.file === "5-toan.js").flatMap((b) => b.questions.filter((q) => (!b.pool || q.src === b.id) && q.topic === t && q.type !== "essay")).length >= 10, "chủ đề dưới 10 câu chấm tự động: " + t));
 const dem = (f) => kho.filter(f).length;
 assert.equal(dem((q) => q.type === "essay"), 0, "không có câu tự luận");
 assert.ok(dem((q) => q.type === "tf4") >= 2 && dem((q) => q.type === "num") >= 10 && dem((q) => q.type === "fill") >= 8 && dem((q) => q.type === "match") >= 2 && dem((q) => q.type === "order") >= 1 && dem((q) => q.type === "tf") >= 3, "kho đủ dạng câu của tiểu học");
