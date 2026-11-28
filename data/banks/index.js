@@ -480,9 +480,10 @@ window.ONTAP_SEED_BANKS = [
     pool: { from: ["congnghe6-gk2-de1", "congnghe6-gk2-de2"], matrix: {
       "Trang phục trong đời sống": [3, 2, 2], "Sử dụng và bảo quản trang phục": [3, 3, 2], "Thời trang": [2, 2, 1],
       "Đồ dùng điện trong gia đình": [2, 1, 2] } } },
-  /* Ngân hàng Toán 4 giữa kì II (Phiên N7, nâng hai đề có sẵn lên ngân hàng): kho câu = 56 câu riêng trong file + 50 câu của
-     2 đề cố định ở trên (giữ nguyên câu, chỉ thêm mức độ), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư
-     27/2020: 10 – 8 – 7 câu trên 14 chủ đề như hai đề cố định; ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút.
+  /* Ngân hàng Toán 4 giữa kì II (Phiên N7, nâng hai đề có sẵn lên ngân hàng): kho câu = 76 câu riêng trong file (Phiên
+     BS4-toan-tv thêm 20 câu cho các chủ đề dưới 10 câu chấm tự động) + 50 câu của 2 đề cố định ở trên (giữ nguyên câu, chỉ thêm
+     mức độ), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu trên 14 chủ đề như hai
+     đề cố định; ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút.
      Ba câu tự luận ở ô Vận dụng của “Phép chia”, “Số trung bình cộng”, “Rút về đơn vị” (mỗi ô rút 1 câu). */
   { id: "toan4-gk2-ngau-nhien", title: "Toán 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
     pool: { from: ["toan4-gk2-de1", "toan4-gk2-de2"], matrix: {
@@ -490,28 +491,29 @@ window.ONTAP_SEED_BANKS = [
       "Ước lượng": [0, 1, 0], "Số trung bình cộng": [1, 0, 1], "Rút về đơn vị": [0, 1, 1], "Dãy số liệu, biểu đồ cột": [1, 1, 1],
       "Số lần xuất hiện của sự kiện": [1, 0, 0], "Phân số": [1, 0, 0], "Tính chất cơ bản của phân số": [1, 0, 0], "Rút gọn phân số": [0, 1, 0],
       "Quy đồng mẫu số": [0, 1, 0], "So sánh phân số": [1, 0, 1] } } },
-  /* Ngân hàng Tiếng Việt 4 giữa kì II (Phiên N7b, nâng hai đề có sẵn lên ngân hàng): kho câu = 50 câu riêng trong file (5 đoạn
-     đọc, 6 câu Viết) + 50 câu của 2 đề cố định ở trên (giữ nguyên câu, chỉ thêm mức độ), câu nào cũng có mức độ. Ma trận [Biết,
-     Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, trong đó 7 câu Đọc hiểu (rút theo đoạn: đoạn 4 câu mức 1-1-2-3, đoạn 3
-     câu mức 1-2-3, nên lần nào cũng đúng mức; câu đọc hiểu của hai đề cố định chép đoạn văn trong từng câu nên là câu lẻ, được rút
-     khi đã làm hết các đoạn) và 1 câu Viết (tự chấm, nên 40 phút; hai đề cố định 35 phút). 17 câu Luyện từ và câu, Chính tả trên các
-     chủ đề của hai đề cố định, chia theo các bài Luyện từ và câu Bài 1–15: câu 2 (Bài 1), chủ ngữ 3, vị ngữ 3 (Bài 3, 5, 7, 9),
-     trạng ngữ 1 (Bài 11), trạng ngữ chỉ thời gian, nơi chốn 2 (Bài 13), chỉ nguyên nhân, mục đích 2 (Bài 15), mở rộng vốn từ theo
-     hai chủ điểm 3, chính tả 1. Cả 50 câu của hai đề cố định nằm ở ô có rút; câu riêng ở ô nào cũng ít nhất bằng số câu ô đó rút,
-     nên ô (chủ đề, mức) nào cũng có ít nhất gấp đôi số câu ô đó rút và học sinh đã làm hai đề cố định vẫn gặp câu mới. */
+  /* Ngân hàng Tiếng Việt 4 giữa kì II (Phiên N7b, nâng hai đề có sẵn lên ngân hàng): kho câu = 57 câu riêng trong file (5
+     đoạn đọc, 6 câu Viết; Phiên BS4-toan-tv thêm 7 câu trạng ngữ cuối) + 50 câu của 2 đề cố định ở trên (giữ nguyên câu, chỉ
+     thêm mức độ), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, trong đó 7
+     câu Đọc hiểu (rút theo đoạn: đoạn 4 câu mức 1-1-2-3, đoạn 3 câu mức 1-2-3, nên lần nào cũng đúng mức; câu đọc hiểu của
+     hai đề cố định chép đoạn văn trong từng câu nên là câu lẻ, được rút khi đã làm hết các đoạn) và 1 câu Viết (tự chấm, nên
+     40 phút; hai đề cố định 35 phút). 17 câu Luyện từ và câu, Chính tả trên các chủ đề của hai đề cố định, chia theo các bài
+     Luyện từ và câu Bài 1–15: câu 2 (Bài 1), chủ ngữ 3, vị ngữ 3 (Bài 3, 5, 7, 9), trạng ngữ 1 (Bài 11), trạng ngữ chỉ thời
+     gian, nơi chốn 2 (Bài 13), chỉ nguyên nhân, mục đích 2 (Bài 15), mở rộng vốn từ theo hai chủ điểm 3, chính tả 1. Cả 50
+     câu của hai đề cố định nằm ở ô có rút; câu riêng ở ô nào cũng ít nhất bằng số câu ô đó rút, nên ô (chủ đề, mức) nào cũng
+     có ít nhất gấp đôi số câu ô đó rút và học sinh đã làm hai đề cố định vẫn gặp câu mới. */
   { id: "tv4-gk2-ngau-nhien", title: "Tiếng Việt 4 · Giữa kì II · Đề ngẫu nhiên", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js",
     pool: { from: ["tv4-gk2-de1", "tv4-gk2-de2"], matrix: {
       "Đọc hiểu": [3, 2, 2], "Câu": [1, 1, 0], "Chủ ngữ": [1, 1, 1], "Vị ngữ": [1, 1, 1], "Trạng ngữ": [1, 0, 0],
       "Trạng ngữ chỉ thời gian, nơi chốn": [1, 1, 0], "Trạng ngữ chỉ nguyên nhân, mục đích": [0, 1, 1], "Mở rộng vốn từ": [1, 1, 1],
       "Chính tả": [1, 0, 0], "Viết": [0, 0, 1] } } },
 
-  /* Toán 4 · Kiểm tra cuối năm học (Kết nối tri thức, cả năm, trọng tâm học kì II Bài 38–73; Phiên N13). Kho câu = 50 câu riêng
-     trong file + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7
-     câu trên 18 chủ đề: phân số 10 câu (Bài 53–66), số tự nhiên và phép tính 7 (Bài 38–48, ôn số có nhiều chữ số), thống kê và xác
-     suất 3 (Bài 49–52), hình học và đo lường 5 (ôn học kì I); chữ chủ đề như kho giữa kì II, cuối kì I, thêm “Cộng, trừ phân số”,
-     “Nhân, chia phân số”, “Tìm phân số của một số”. Mỗi ô (chủ đề, mức) rút 1 câu và có 4 câu: một câu ở mỗi đề cố định, hai câu
-     riêng, nên học sinh đã làm một đề cố định vẫn gặp câu mới. Ba câu tự luận chỉ ở ba ô Vận dụng (Số trung bình cộng, Rút về đơn
-     vị, Tìm phân số của một số): mỗi lần rút nhiều nhất 3 câu tự luận. */
+  /* Toán 4 · Kiểm tra cuối năm học (Kết nối tri thức, cả năm, trọng tâm học kì II Bài 38–73; Phiên N13). Kho câu = 57 câu riêng
+     trong file (Phiên BS4-toan-tv thêm 7 câu) + 50 câu của 2 đề cố định, câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng]
+     theo Thông tư 27/2020: 10 – 8 – 7 câu trên 18 chủ đề: phân số 10 câu (Bài 53–66), số tự nhiên và phép tính 7 (Bài 38–48, ôn số
+     có nhiều chữ số), thống kê và xác suất 3 (Bài 49–52), hình học và đo lường 5 (ôn học kì I); chữ chủ đề như kho giữa kì II, cuối
+     kì I, thêm “Cộng, trừ phân số”, “Nhân, chia phân số”, “Tìm phân số của một số”. Mỗi ô (chủ đề, mức) rút 1 câu và có từ 4 câu:
+     một câu ở mỗi đề cố định, hai câu riêng trở lên, nên học sinh đã làm một đề cố định vẫn gặp câu mới. Ba câu tự luận chỉ ở ba ô
+     Vận dụng (Số trung bình cộng, Rút về đơn vị, Tìm phân số của một số): mỗi lần rút nhiều nhất 3 câu tự luận. */
   { id: "toan4-ck2-de1", title: "Toán 4 · Cuối năm · Đề 1", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js" },
   { id: "toan4-ck2-de2", title: "Toán 4 · Cuối năm · Đề 2", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js" },
   { id: "toan4-ck2-ngau-nhien", title: "Toán 4 · Cuối năm · Đề ngẫu nhiên", grade: 4, subject: "Toán", minutes: 40, n: 25, file: "4-toan.js",
@@ -522,15 +524,16 @@ window.ONTAP_SEED_BANKS = [
       "Tìm phân số của một số": [0, 1, 1], "Dãy số liệu, biểu đồ cột": [1, 1, 0], "Số lần xuất hiện của sự kiện": [1, 0, 0],
       "Đơn vị đo": [1, 0, 1], "Đường thẳng vuông góc, song song": [1, 0, 0], "Hình bình hành, hình thoi": [0, 1, 1] } } },
 
-  /* Tiếng Việt 4 · Kiểm tra cuối năm học (Kết nối tri thức, tập 2, trọng tâm Bài 17–30; Phiên N14). Kho câu = 52 câu riêng trong
-     file (4 đoạn đọc, 4 câu Viết) + 50 câu của 2 đề cố định (mỗi đề 2 đoạn đọc, 1 câu Viết), câu nào cũng có mức độ. Ma trận [Biết,
-     Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu, trong đó 7 câu Đọc hiểu (rút theo đoạn: đoạn 4 câu mức 1-1-2-3, đoạn 3
-     câu mức 1-2-3, nên lần nào cũng đúng mức), 1 câu Viết (tự chấm, nên cả ba đề 40 phút) và 17 câu Luyện từ và câu, Chính tả trên
-     14 chủ đề: các bài Luyện từ và câu của Bài 17–29 (trạng ngữ chỉ phương tiện 2, dấu ngoặc kép 2, dấu ngoặc đơn 1, viết tên cơ
-     quan, tổ chức 1, lựa chọn từ ngữ 2, dấu câu 1) và ôn tập (câu, chủ ngữ, vị ngữ, trạng ngữ, danh từ, động từ, tính từ, chính tả,
-     mỗi chủ đề 1). Hai đề cố định chia đúng theo ma trận; mỗi ô (chủ đề, mức) Luyện từ và câu, Chính tả rút 1 câu và có 4 câu (một
-     câu ở mỗi đề cố định, hai câu riêng), nên học sinh đã làm một đề cố định vẫn gặp câu mới. Câu tự luận chỉ ở ô Viết: mỗi lần rút
-     đúng 1 câu. */
+  /* Tiếng Việt 4 · Kiểm tra cuối năm học (Kết nối tri thức, tập 2, trọng tâm Bài 17–30; Phiên N14). Kho câu = 70 câu riêng
+     trong file (4 đoạn đọc, 4 câu Viết; Phiên BS4-toan-tv thêm 18 câu Luyện từ và câu cuối) + 50 câu của 2 đề cố định (mỗi đề
+     2 đoạn đọc, 1 câu Viết), câu nào cũng có mức độ. Ma trận [Biết, Hiểu, Vận dụng] theo Thông tư 27/2020: 10 – 8 – 7 câu,
+     trong đó 7 câu Đọc hiểu (rút theo đoạn: đoạn 4 câu mức 1-1-2-3, đoạn 3 câu mức 1-2-3, nên lần nào cũng đúng mức), 1 câu
+     Viết (tự chấm, nên cả ba đề 40 phút) và 17 câu Luyện từ và câu, Chính tả trên 14 chủ đề: các bài Luyện từ và câu của Bài
+     17–29 (trạng ngữ chỉ phương tiện 2, dấu ngoặc kép 2, dấu ngoặc đơn 1, viết tên cơ quan, tổ chức 1, lựa chọn từ ngữ 2, dấu
+     câu 1) và ôn tập (câu, chủ ngữ, vị ngữ, trạng ngữ, danh từ, động từ, tính từ, chính tả, mỗi chủ đề 1). Hai đề cố định
+     chia đúng theo ma trận; mỗi ô (chủ đề, mức) Luyện từ và câu, Chính tả rút 1 câu và có từ 4 câu (một câu ở mỗi đề cố định,
+     hai câu riêng trở lên), nên học sinh đã làm một đề cố định vẫn gặp câu mới. Câu tự luận chỉ ở ô Viết: mỗi lần rút đúng 1
+     câu. */
   { id: "tv4-ck2-de1", title: "Tiếng Việt 4 · Cuối năm · Đề 1", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js" },
   { id: "tv4-ck2-de2", title: "Tiếng Việt 4 · Cuối năm · Đề 2", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js" },
   { id: "tv4-ck2-ngau-nhien", title: "Tiếng Việt 4 · Cuối năm · Đề ngẫu nhiên", grade: 4, subject: "Tiếng Việt", minutes: 40, n: 25, file: "4-tv.js",
@@ -2410,20 +2413,20 @@ window.ONTAP_SEED_TOPICS = {
     ["Tính chất phép cộng", 5, "ck1"], ["Tổng và hiệu", 7, "ck1"], ["Giải bài toán có ba bước tính", 13, "gk1 ck1"],
     ["Góc và đo góc", 22, "gk1 ck1"], ["Đơn vị đo", 35, "gk1 ck1 ck2"], ["Đường thẳng vuông góc, song song", 10, "ck1 ck2"],
     ["Hình bình hành, hình thoi", 13, "ck1 ck2"], ["Phép nhân", 15, "gk2 ck2"], ["Phép chia", 17, "gk2 ck2"],
-    ["Tính chất phép nhân", 15, "gk2 ck2"], ["Nhân, chia với 10, 100, 1 000", 6, "gk2"], ["Ước lượng", 4, "gk2"],
-    ["Số trung bình cộng", 10, "gk2 ck2"], ["Rút về đơn vị", 9, "gk2 ck2"], ["Dãy số liệu, biểu đồ cột", 21, "gk2 ck2"],
-    ["Số lần xuất hiện của sự kiện", 9, "gk2 ck2"], ["Phân số", 10, "gk2 ck2"], ["Rút gọn phân số", 9, "gk2 ck2"],
-    ["Quy đồng mẫu số", 9, "gk2 ck2"], ["So sánh phân số", 11, "gk2 ck2"], ["Tính chất cơ bản của phân số", 4, "gk2"],
-    ["Cộng, trừ phân số", 8, "ck2"], ["Nhân, chia phân số", 8, "ck2"], ["Tìm phân số của một số", 7, "ck2"]
+    ["Tính chất phép nhân", 15, "gk2 ck2"], ["Nhân, chia với 10, 100, 1 000", 10, "gk2"], ["Ước lượng", 10, "gk2"],
+    ["Số trung bình cộng", 10, "gk2 ck2"], ["Rút về đơn vị", 10, "gk2 ck2"], ["Dãy số liệu, biểu đồ cột", 21, "gk2 ck2"],
+    ["Số lần xuất hiện của sự kiện", 10, "gk2 ck2"], ["Phân số", 10, "gk2 ck2"], ["Rút gọn phân số", 10, "gk2 ck2"],
+    ["Quy đồng mẫu số", 10, "gk2 ck2"], ["So sánh phân số", 11, "gk2 ck2"], ["Tính chất cơ bản của phân số", 10, "gk2"],
+    ["Cộng, trừ phân số", 10, "ck2"], ["Nhân, chia phân số", 10, "ck2"], ["Tìm phân số của một số", 10, "ck2"]
   ],
   "4-tv.js": [
     ["Đọc hiểu", 121, "gk1 ck1 gk2 ck2"], ["Danh từ", 27, "gk1 ck1 ck2"], ["Danh từ chung, danh từ riêng", 19, "gk1 ck1"],
     ["Viết tên cơ quan, tổ chức", 17, "gk1 ck1 ck2"], ["Động từ", 33, "gk1 ck1 ck2"], ["Tính từ", 14, "ck1 ck2"],
     ["Biện pháp nhân hoá", 8, "ck1"], ["Dấu gạch ngang", 7, "ck1"], ["Sử dụng từ điển", 13, "gk1 ck1"], ["Chính tả", 20, "gk1 ck1 gk2 ck2"],
-    ["Câu", 11, "gk2 ck2"], ["Chủ ngữ", 14, "gk2 ck2"], ["Vị ngữ", 15, "gk2 ck2"], ["Trạng ngữ", 8, "gk2 ck2"],
-    ["Trạng ngữ chỉ thời gian, nơi chốn", 7, "gk2"], ["Trạng ngữ chỉ nguyên nhân, mục đích", 8, "gk2"], ["Mở rộng vốn từ", 10, "gk2"],
-    ["Trạng ngữ chỉ phương tiện", 8, "ck2"], ["Dấu ngoặc kép", 8, "ck2"], ["Dấu ngoặc đơn", 4, "ck2"], ["Lựa chọn từ ngữ", 8, "ck2"],
-    ["Dấu câu", 4, "ck2"]
+    ["Câu", 11, "gk2 ck2"], ["Chủ ngữ", 14, "gk2 ck2"], ["Vị ngữ", 15, "gk2 ck2"], ["Trạng ngữ", 10, "gk2 ck2"],
+    ["Trạng ngữ chỉ thời gian, nơi chốn", 10, "gk2"], ["Trạng ngữ chỉ nguyên nhân, mục đích", 10, "gk2"], ["Mở rộng vốn từ", 10, "gk2"],
+    ["Trạng ngữ chỉ phương tiện", 10, "ck2"], ["Dấu ngoặc kép", 10, "ck2"], ["Dấu ngoặc đơn", 10, "ck2"], ["Lựa chọn từ ngữ", 10, "ck2"],
+    ["Dấu câu", 10, "ck2"]
   ],
   "5-khoahoc.js": [
     ["Thành phần và vai trò của đất", 6, "ck1"], ["Ô nhiễm, xói mòn đất", 6, "ck1"], ["Hỗn hợp và dung dịch", 6, "ck1"],

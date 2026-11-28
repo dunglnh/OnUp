@@ -657,7 +657,10 @@ assert.deepEqual(loDA, [], "lộ đáp án:\n" + loDA.join("\n"));
 {
   const CUM = ["tính bằng cách thuận tiện", "viết kết quả dưới dạng phân số", "nối mỗi số đo ở cột trái với số đo bằng nó ở cột phải", "nối mỗi phép tính ở cột trái với kết quả của nó ở cột phải",
     "theo thứ tự từ bé đến lớn", "theo thứ tự từ lớn đến bé", "sắp xếp các số", "số thích hợp thay cho dấu", "có bao nhiêu số", "hết bao nhiêu tiền", "chỉ phần đã tô màu", "được chia thành",
-    "phần bằng nhau", "mỗi ý sau đúng hay sai", "như hình vẽ", "như thế", "lớn hơn", "bé hơn", "kết quả của phép", "số lớn nhất trong các số"];
+    "phần bằng nhau", "mỗi ý sau đúng hay sai", "như hình vẽ", "như thế", "lớn hơn", "bé hơn", "kết quả của phép", "số lớn nhất trong các số",
+    // Phiên BS4-toan-tv: kho Toán 4 thêm 27 câu nên ngưỡng 3% số câu tăng, cặp của tên hình “hình chữ nhật” không còn bị bỏ và
+    // de2#25 (hai hình tròn trong hình chữ nhật) bị báo gần trùng toan4-gk2-ngau-nhien#41 (phân số chỉ phần tô màu): trùng giả
+    "hình chữ nhật"];
   // số thập phân giữ nguyên một từ ("6,1" không tách thành 6 và 1)
   const cap2 = (s) => { let t = String(s).normalize("NFC").toLowerCase(); CUM.forEach((c) => { t = t.split(c).join(" | "); });
     const w = t.replace(/(\d),(?=\d)/g, "$1_").replace(/[^\p{L}\p{N}\s|_]/gu, " ").split(/\s+/).filter(Boolean); return w.slice(1).map((x, k) => w[k] + " " + x).filter((c) => !c.includes("|") && c.split(" ").some((x) => x.length >= 2)); };

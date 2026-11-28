@@ -7,7 +7,8 @@
 // là lựa chọn sai). Câu có hình: đọc biểu đồ cột (trục số, số ở đỉnh cột, tên cột), băng chia phần tô màu (số phần, số phần tô màu),
 // toạ độ trên lưới ô vuông (cạnh song song, vuông góc, bằng nhau của tứ giác, hình sáu cạnh, hình thoi và hai đường chéo; nhãn ghi
 // theo thứ tự đỉnh; đường thẳng qua hai điểm của lưới) rồi mới
-// tính. Cuối cùng kiểm tra mức độ và ma trận (mỗi ô có 4 câu: một câu ở mỗi đề cố định, hai câu riêng; rút thử nhiều lần ra đúng
+// tính. Cuối cùng kiểm tra mức độ và ma trận (mỗi ô có một câu ở mỗi đề cố định, hai câu riêng, thêm câu riêng của Phiên BS4-toan-tv
+// ở các ô ghi trong THEM; rút thử nhiều lần ra đúng
 // 10 Biết, 8 Hiểu, 7 Vận dụng, nhiều nhất 3 câu tự luận; đã làm hết một đề cố định thì không gặp lại câu của đề đó), đáp án đúng của
 // câu trắc nghiệm không dài hơn hẳn lựa chọn sai, đề bài không trùng câu nào khác trong data/banks/4-toan.js và dò lộ đáp án giữa các
 // câu rút được cùng lúc (Rút ra N5, N24, N8, N18).
@@ -292,7 +293,15 @@ const own = [
   { has: "hai cạnh liền nhau dài 25 cm và 18 cm", right: () => (25 + 18) * 2 + " cm" },
   { has: "Hình bình hành PQRS có cạnh PQ dài 9 cm, cạnh QR ngắn hơn cạnh PQ 4 cm", right: () => 9 - 4 },
   { has: "khung cửa sổ hình thoi", right: () => 2 * 100 - 38 * 4 },
-  { has: "chu vi 128 cm, cạnh dài hơn cạnh ngắn 6 cm", right: () => div(128 / 2 + 6, 2) }
+  { has: "chu vi 128 cm, cạnh dài hơn cạnh ngắn 6 cm", right: () => div(128 / 2 + 6, 2) },
+  // Phiên BS4-toan-tv: 7 câu bổ sung cho ba chủ đề dưới 10 câu chấm tự động (ô ghi ở THEM bên dưới)
+  { has: "11/16 − 3/8", right: () => str(ev2("11/16 − 3/8")) },
+  { has: "Tuần đầu đội lát được 2/5 sân, tuần sau lát được 11/20 sân", right: () => str(sub(F(1), ev2("2/5 + 11/20"))) },
+  { has: "2/9 : 5/8", right: () => str(ev2("2/9 : 5/8")) },
+  { has: "4/5 kg hạt sen", right: () => +str(ev2("4/5 : 1/10")), more: (q) => assert.ok(q.q.includes("mỗi túi 1/10 kg")) },
+  { has: "Một con đường dài 420 m", right: () => +str(mul(F(420), P("5/7"))), more: (q) => assert.ok(q.q.includes("5/7 con đường")) },
+  { has: "Mẹ có 150 000 đồng", right: () => 150000 - +str(mul(F(150000), P("2/5"))) - +str(mul(F(150000), P("1/3"))), more: (q) => assert.ok(q.q.includes("2/5 số tiền") && q.q.includes("1/3 số tiền")) },
+  { has: "3/4 số học sinh của lớp thích đá cầu", right: () => { const a = +str(mul(F(32), P("3/4"))), b = +str(mul(F(30), P("3/5"))); return (a > b ? "Lớp 4A" : "Lớp 4B") + ", nhiều hơn " + Math.abs(a - b) + " bạn"; }, more: (q) => { assert.ok(q.q.includes("Lớp 4A có 32 học sinh") && q.q.includes("Lớp 4B có 30 học sinh, 3/5")); assert.ok(q.o.includes("Lớp 4A, nhiều hơn " + (32 - 30) + " bạn")); } }
 ];
 
 let n = 0;
@@ -337,13 +346,16 @@ assert.ok(cells.every(Array.isArray), "ma trận ghi theo [Biết, Hiểu, Vận
 assert.deepEqual([0, 1, 2].map((k) => sum(cells.map((v) => v[k]))), [10, 8, 7], "ma trận 10 Biết, 8 Hiểu, 7 Vận dụng");
 assert.equal(Object.keys(M).length, 18, "18 chủ đề");
 assert.deepEqual([...new Set(pool.questions.map((q) => q.topic))].sort(), Object.keys(M).sort(), "chủ đề của kho đúng chữ của ma trận");
-// mỗi ô rút 1 câu và có đúng 4 câu: một câu ở mỗi đề cố định, hai câu riêng
+// mỗi ô rút 1 câu và có một câu ở mỗi đề cố định, hai câu riêng (Phiên N13); Phiên BS4-toan-tv thêm câu riêng ở các ô ghi trong THEM,
+// để mỗi chủ đề có từ 10 câu chấm tự động cho đề “Ôn chủ đề”
+const THEM = { "Cộng, trừ phân số|1": 1, "Cộng, trừ phân số|3": 1, "Nhân, chia phân số|1": 1, "Nhân, chia phân số|2": 1, "Tìm phân số của một số|2": 1, "Tìm phân số của một số|3": 2 };
 Object.entries(M).forEach(([t, v]) => v.forEach((k, i) => {
   const have = pool.questions.filter((q) => q.topic === t && q.lv === i + 1);
   assert.ok(k <= 1, `ô (${t}, mức ${i + 1}) rút ${k} câu: mỗi ô rút nhiều nhất 1 câu`);
   if (!k) { assert.equal(have.length, 0, `ô (${t}, mức ${i + 1}) không rút mà kho có ${have.length} câu`); return; }
-  assert.deepEqual(["toan4-ck2-de1", "toan4-ck2-de2", POOL].map((s) => have.filter((q) => q.src === s).length), [1, 1, 2], `ô (${t}, mức ${i + 1})`);
+  assert.deepEqual(["toan4-ck2-de1", "toan4-ck2-de2", POOL].map((s) => have.filter((q) => q.src === s).length), [1, 1, 2 + (THEM[t + "|" + (i + 1)] || 0)], `ô (${t}, mức ${i + 1})`);
 }));
+assert.equal(mine.length, 50 + Object.values(THEM).reduce((a, b) => a + b, 0), "số câu riêng");
 // câu tự luận chỉ ở các ô Vận dụng rút 1 câu có cả câu chấm tự động, đúng ba ô: mỗi lần rút nhiều nhất 3 câu tự luận
 const oTuLuan = [...new Set(pool.questions.filter((q) => q.type === "essay").map((q) => q.topic + "|" + q.lv))];
 assert.deepEqual(oTuLuan.sort(), ["Rút về đơn vị|3", "Số trung bình cộng|3", "Tìm phân số của một số|3"], "câu tự luận: " + oTuLuan);
@@ -386,7 +398,7 @@ const chu = (q) => [q.q, q.x].concat(q.o || [], q.ans == null ? [] : [].concat(q
 const soKQ = (s) => [...String(s).matchAll(/(?:=|(?:^|[\s(])(?:là|bằng|được))\s+(\d{1,3}(?: \d{3})*)(?!\d|,\d|\/|°|%|[⁰¹²³⁴⁵⁶⁷⁸⁹]| \d|\s*[·+−×:](?:\s|\d|\())/gu)].map((m) => val(m[1]));
 const kqLa = (s, a) => new RegExp("(?:=|(?:^|[\\s(])(?:là|bằng|được))\\s+" + a.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&") + "(?![\\d/,]|\\s*[·+−×:](?:\\s|\\d|\\())", "u").test(s);
 const cungLuc = (p, q) => p.topic !== q.topic || p.lv !== q.lv;
-const ten = (q, i) => (q.src === POOL ? "own#" + (i + 1) : q.src === pool.pool.from[0] ? "de1#" + (i - 49) : q.src === pool.pool.from[1] ? "de2#" + (i - 74) : q.src + "#" + (i + 1));
+const ten = (q, i) => (q.src === POOL ? "own#" + (i + 1) : q.src === pool.pool.from[0] ? "de1#" + (i - mine.length + 1) : q.src === pool.pool.from[1] ? "de2#" + (i - mine.length - 24) : q.src + "#" + (i + 1));
 const doLo = (qs) => {
   const lo = [], chuLo = [];
   qs.forEach((q, i) => {
@@ -409,7 +421,7 @@ const doLo = (qs) => {
   return { lo, chuLo };
 };
 // thứ tự trong kho: câu riêng trước, rồi hai đề cố định (Store._fillSeedFile)
-assert.deepEqual(pool.questions.map((q) => q.src), Array(50).fill(POOL).concat(Array(25).fill("toan4-ck2-de1"), Array(25).fill("toan4-ck2-de2")), "thứ tự kho");
+assert.deepEqual(pool.questions.map((q) => q.src), Array(mine.length).fill(POOL).concat(Array(25).fill("toan4-ck2-de1"), Array(25).fill("toan4-ck2-de2")), "thứ tự kho");
 const { lo, chuLo } = doLo(pool.questions);
 if (process.env.DO_LO) console.log("Đáp án bằng chữ có ở câu rút được cùng lúc (xem tay):\n" + chuLo.join("\n"));
 const DA_XEM = [];

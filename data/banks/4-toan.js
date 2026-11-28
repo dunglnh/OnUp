@@ -154,7 +154,8 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
      (Bài 53–59): nhân, chia với số có một, hai chữ số; tính chất giao hoán, kết hợp, phân phối; nhân, chia với 10, 100, 1 000; ước
      lượng; số trung bình cộng; rút về đơn vị; dãy số liệu, biểu đồ cột, số lần xuất hiện của sự kiện; phân số, rút gọn, quy đồng
      (một mẫu số chia hết cho mẫu số kia), so sánh phân số. Hai đề cố định giữ nguyên câu, chỉ thêm mức độ (Phiên N7); biểu đồ của
-     hai đề tả bằng lời. Kho câu của đề ngẫu nhiên = 56 câu riêng ở dưới + 50 câu của hai đề, ma trận trong data/banks/index.js:
+     hai đề tả bằng lời. Kho câu của đề ngẫu nhiên = 76 câu riêng ở dưới (Phiên BS4-toan-tv thêm 20 câu cuối) + 50 câu của hai
+     đề, ma trận trong data/banks/index.js:
      mỗi lần rút 25 câu, 10 Biết, 8 Hiểu, 7 Vận dụng, chữ chủ đề như hai đề. Dạng câu như ngân hàng cuối kì I (Phiên N1); hình vẽ:
      biểu đồ cột (số ghi ở đỉnh cột như Bài 50), hình chữ nhật chia phần tô màu (Bài 53, 55, 58). Ba câu tự luận ở ô Vận dụng của
      “Phép chia”, “Số trung bình cộng”, “Rút về đơn vị”. Đáp án tính lại bằng tests/toan4-gk2.js. Câu tự soạn, dò với sách bản in
@@ -287,7 +288,64 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
         svg: '<svg viewBox="0 0 320 130" width="320"><title>Hai hình chữ nhật bằng nhau chia 10 phần: hình a tô 7 phần, hình b tô 4 phần</title><text x="42" y="35" text-anchor="end" font-size="15" font-weight="700">a)</text><rect x="56" y="6" width="24" height="48" fill="acc" fill-opacity="0.6" stroke="ink" stroke-width="1.5"/><rect x="80" y="6" width="24" height="48" fill="acc" fill-opacity="0.6" stroke="ink" stroke-width="1.5"/><rect x="104" y="6" width="24" height="48" fill="acc" fill-opacity="0.6" stroke="ink" stroke-width="1.5"/><rect x="128" y="6" width="24" height="48" fill="acc" fill-opacity="0.6" stroke="ink" stroke-width="1.5"/><rect x="152" y="6" width="24" height="48" fill="acc" fill-opacity="0.6" stroke="ink" stroke-width="1.5"/><rect x="176" y="6" width="24" height="48" fill="acc" fill-opacity="0.6" stroke="ink" stroke-width="1.5"/><rect x="200" y="6" width="24" height="48" fill="acc" fill-opacity="0.6" stroke="ink" stroke-width="1.5"/><rect x="224" y="6" width="24" height="48" fill="none" stroke="ink" stroke-width="1.5"/><rect x="248" y="6" width="24" height="48" fill="none" stroke="ink" stroke-width="1.5"/><rect x="272" y="6" width="24" height="48" fill="none" stroke="ink" stroke-width="1.5"/><text x="42" y="105" text-anchor="end" font-size="15" font-weight="700">b)</text><rect x="56" y="76" width="24" height="48" fill="acc" fill-opacity="0.6" stroke="ink" stroke-width="1.5"/><rect x="80" y="76" width="24" height="48" fill="acc" fill-opacity="0.6" stroke="ink" stroke-width="1.5"/><rect x="104" y="76" width="24" height="48" fill="acc" fill-opacity="0.6" stroke="ink" stroke-width="1.5"/><rect x="128" y="76" width="24" height="48" fill="acc" fill-opacity="0.6" stroke="ink" stroke-width="1.5"/><rect x="152" y="76" width="24" height="48" fill="none" stroke="ink" stroke-width="1.5"/><rect x="176" y="76" width="24" height="48" fill="none" stroke="ink" stroke-width="1.5"/><rect x="200" y="76" width="24" height="48" fill="none" stroke="ink" stroke-width="1.5"/><rect x="224" y="76" width="24" height="48" fill="none" stroke="ink" stroke-width="1.5"/><rect x="248" y="76" width="24" height="48" fill="none" stroke="ink" stroke-width="1.5"/><rect x="272" y="76" width="24" height="48" fill="none" stroke="ink" stroke-width="1.5"/></svg>' },
       { topic: "So sánh phân số", type: "order", q: "Sắp xếp các phân số sau theo thứ tự từ bé đến lớn.", o: ["2/9", "4/9", "5/9", "8/9"], x: "Các phân số có cùng mẫu số 9, phân số nào có tử số bé hơn thì bé hơn: 2 < 4 < 5 < 8, nên 2/9 < 4/9 < 5/9 < 8/9.", lv: 1 },
       { topic: "So sánh phân số", type: "mc", q: "Mẹ có hai cái bánh như nhau. Mẹ cho Lan 3/5 cái bánh thứ nhất và cho Huy 7/10 cái bánh thứ hai. Ai được nhiều bánh hơn?", o: ["Huy", "Lan", "Hai bạn được bằng nhau"], x: "Quy đồng mẫu số: 3/5 = (3 × 2)/(5 × 2) = 6/10. So sánh 6/10 và 7/10: 6 bé hơn 7 nên 3/5 < 7/10. Huy được nhiều bánh hơn.", lv: 3 },
-      { topic: "So sánh phân số", type: "tf4", q: "Cho ba phân số 5/6, 11/12 và 2/3. Mỗi ý sau đúng hay sai?", o: ["5/6 > 2/3", "11/12 là phân số lớn nhất trong ba phân số.", "2/3 < 5/6", "11/12 < 5/6"], a: [true, true, true, false], x: "Quy đồng mẫu số với mẫu số chung 12: 5/6 = 10/12, 2/3 = 8/12, giữ nguyên 11/12. So sánh tử số: 11 > 10 > 8. a) Đúng. b) Đúng. c) Đúng. d) Sai: 11/12 > 5/6.", lv: 3 }
+      { topic: "So sánh phân số", type: "tf4", q: "Cho ba phân số 5/6, 11/12 và 2/3. Mỗi ý sau đúng hay sai?", o: ["5/6 > 2/3", "11/12 là phân số lớn nhất trong ba phân số.", "2/3 < 5/6", "11/12 < 5/6"], a: [true, true, true, false], x: "Quy đồng mẫu số với mẫu số chung 12: 5/6 = 10/12, 2/3 = 8/12, giữ nguyên 11/12. So sánh tử số: 11 > 10 > 8. a) Đúng. b) Đúng. c) Đúng. d) Sai: 11/12 > 5/6.", lv: 3 },
+      { topic: "Nhân, chia với 10, 100, 1 000", type: "fill", q: "6 090 : 10 = ___", ans: ["609"],
+        x: "6 090 là số tròn chục; chia cho 10 thì bỏ bớt một chữ số 0 ở cuối: 6 090 : 10 = 609. Chữ số 0 ở giữa vẫn giữ.", lv: 1 },
+      { topic: "Nhân, chia với 10, 100, 1 000", type: "num", q: "Mỗi hộp có 100 chiếc kẹp giấy. Cô giáo mua 18 hộp như thế. Hỏi cô giáo mua tất cả bao nhiêu chiếc kẹp giấy?", ans: 1800, unit: "chiếc",
+        x: "Số kẹp giấy cô giáo mua: 100 × 18 = 18 × 100 = 1 800 (chiếc). Nhân với 100 thì thêm hai chữ số 0 vào sau 18.", lv: 1 },
+      { topic: "Nhân, chia với 10, 100, 1 000", type: "mc", q: "Kết quả của phép chia 305 000 : 1 000 là:",
+        o: ["305", "3 050", "30 500", "35"],
+        x: "305 000 là số tròn nghìn; chia cho 1 000 thì bỏ bớt ba chữ số 0 ở cuối: 305 000 : 1 000 = 305. Chữ số 0 ở giữa vẫn giữ, nên 35 là sai.", lv: 1 },
+      { topic: "Nhân, chia với 10, 100, 1 000", type: "tf4", q: "Tính nhẩm. Phép tính nào đúng, phép tính nào sai?",
+        o: ["607 × 10 = 6 070", "4 800 : 100 = 480", "25 × 1 000 = 25 000", "30 × 100 = 300"],
+        a: [true, false, true, false],
+        x: "a) Đúng: thêm một chữ số 0 vào sau 607. b) Sai: bỏ bớt hai chữ số 0 ở cuối thì 4 800 : 100 = 48. c) Đúng: thêm ba chữ số 0 vào sau 25. d) Sai: thêm hai chữ số 0 vào sau 30 thì 30 × 100 = 3 000.", lv: 1 },
+      { topic: "Ước lượng", type: "mc", q: "Một thư viện có 58 950 quyển sách, đã cho mượn 19 120 quyển. Làm tròn các số đến hàng chục nghìn để ước lượng số sách còn lại trong thư viện:",
+        o: ["Khoảng 40 000 quyển", "Khoảng 50 000 quyển", "Khoảng 80 000 quyển", "Khoảng 4 000 quyển"],
+        x: "Làm tròn 58 950 thành 60 000, làm tròn 19 120 thành 20 000. 60 000 − 20 000 = 40 000, nên thư viện còn khoảng 40 000 quyển sách (số đúng là 58 950 − 19 120 = 39 830).", lv: 2 },
+      { topic: "Ước lượng", type: "mc", q: "Một rạp xiếc có 31 hàng ghế, mỗi hàng có 48 ghế. Ước lượng số ghế của rạp xiếc:",
+        o: ["Khoảng 1 500 ghế", "Khoảng 15 000 ghế", "Khoảng 150 ghế", "Khoảng 80 ghế"],
+        x: "Làm tròn 31 thành 30, làm tròn 48 thành 50. 30 × 50 = 1 500, nên rạp xiếc có khoảng 1 500 ghế (số đúng là 31 × 48 = 1 488).", lv: 2 },
+      { topic: "Ước lượng", type: "tf", q: "Bạn Minh tính được 6 950 + 3 020 = 8 970. Chỉ cần ước lượng, ta biết ngay kết quả của Minh là sai.", a: true,
+        x: "Đúng. Làm tròn 6 950 thành 7 000, làm tròn 3 020 thành 3 000: tổng khoảng 10 000, còn 8 970 bé hơn 10 000 khá nhiều, nên kết quả của Minh sai (tổng đúng là 9 970).", lv: 2 },
+      { topic: "Ước lượng", type: "mc", q: "Mẹ có 500 000 đồng, định mua một chiếc quạt giá 198 000 đồng, một nồi cơm điện giá 149 000 đồng và một ấm đun nước giá 99 000 đồng. Làm tròn các giá tiền đến hàng chục nghìn rồi ước lượng, ta thấy:",
+        o: ["Tổng khoảng 450 000 đồng, mẹ đủ tiền", "Tổng khoảng 450 000 đồng, mẹ không đủ tiền", "Tổng khoảng 550 000 đồng, mẹ không đủ tiền", "Tổng khoảng 350 000 đồng, mẹ đủ tiền"],
+        x: "Làm tròn 198 000 thành 200 000, 149 000 thành 150 000, 99 000 thành 100 000. 200 000 + 150 000 + 100 000 = 450 000, bé hơn 500 000, nên mẹ đủ tiền (tổng đúng là 446 000 đồng).", lv: 2 },
+      { topic: "Ước lượng", type: "match", q: "Làm tròn các số rồi nối mỗi phép tính với kết quả ước lượng của nó.",
+        l: ["2 970 + 4 060", "7 020 − 1 980", "19 × 31", "4 020 : 2"],
+        r: ["Khoảng 7 000", "Khoảng 5 000", "Khoảng 600", "Khoảng 2 000", "Khoảng 3 000"],
+        x: "2 970 + 4 060: làm tròn được 3 000 + 4 000 = 7 000. 7 020 − 1 980: 7 000 − 2 000 = 5 000. 19 × 31: 20 × 30 = 600. 4 020 : 2: 4 000 : 2 = 2 000. Không phép tính nào có kết quả khoảng 3 000.", lv: 2 },
+      { topic: "Ước lượng", type: "mc", q: "Tháng 5 một xưởng may được 31 050 chiếc áo, tháng 6 may được 38 900 chiếc áo. Làm tròn các số đến hàng chục nghìn để ước lượng số áo xưởng may được trong cả hai tháng:",
+        o: ["Khoảng 70 000 chiếc áo", "Khoảng 60 000 chiếc áo", "Khoảng 80 000 chiếc áo", "Khoảng 10 000 chiếc áo"],
+        x: "Làm tròn 31 050 thành 30 000, làm tròn 38 900 thành 40 000. 30 000 + 40 000 = 70 000, nên cả hai tháng xưởng may được khoảng 70 000 chiếc áo (số đúng là 31 050 + 38 900 = 69 950).", lv: 2 },
+      { topic: "Rút về đơn vị", type: "mc", q: "Cửa hàng A bán 4 hộp bút màu với giá 96 000 đồng. Cửa hàng B bán 6 hộp bút màu cùng loại với giá 120 000 đồng. Mua 1 hộp bút màu ở cửa hàng nào rẻ hơn và rẻ hơn bao nhiêu tiền?",
+        o: ["Cửa hàng B, rẻ hơn 4 000 đồng", "Cửa hàng A, rẻ hơn 4 000 đồng", "Cửa hàng A, rẻ hơn 24 000 đồng", "Hai cửa hàng bán giá như nhau"],
+        x: "Giá 1 hộp ở cửa hàng A: 96 000 : 4 = 24 000 (đồng). Giá 1 hộp ở cửa hàng B: 120 000 : 6 = 20 000 (đồng). 24 000 − 20 000 = 4 000 (đồng), nên mua ở cửa hàng B rẻ hơn 4 000 đồng mỗi hộp.", lv: 3 },
+      { topic: "Số lần xuất hiện của sự kiện", type: "mc", q: "Trong túi có 4 khối lập phương màu xanh, đỏ, tím, cam. Không nhìn vào túi, Bình lấy ra 1 khối, ghi lại màu rồi bỏ lại vào túi. Bình làm như vậy 40 lần: khối màu xanh xuất hiện 11 lần, màu đỏ 13 lần, màu tím 4 lần, màu cam 12 lần. Khối màu nào xuất hiện ít lần nhất?",
+        o: ["Màu tím", "Màu xanh", "Màu cam", "Màu đỏ"],
+        x: "So sánh số lần xuất hiện: 4 < 11 < 12 < 13. Khối màu tím xuất hiện 4 lần, ít lần nhất (cả bốn màu: 11 + 13 + 4 + 12 = 40 lần).", lv: 1 },
+      { topic: "Tính chất cơ bản của phân số", type: "fill", q: "Điền số thích hợp: 4/5 = 28/___", ans: ["35"],
+        x: "Tử số 4 nhân với 7 thì được 28, nên mẫu số 5 cũng phải nhân với 7: 5 × 7 = 35. Vậy 4/5 = 28/35.", lv: 1 },
+      { topic: "Tính chất cơ bản của phân số", type: "fill", q: "Điền số thích hợp: 21/39 = 7/___", ans: ["13"],
+        x: "Tử số 21 chia cho 3 thì được 7, nên mẫu số 39 cũng phải chia cho 3: 39 : 3 = 13. Vậy 21/39 = 7/13.", lv: 1 },
+      { topic: "Tính chất cơ bản của phân số", type: "mc", q: "Chọn phân số bằng phân số 6/7.",
+        o: ["18/21", "6/21", "18/7", "12/28"],
+        x: "(6 × 3)/(7 × 3) = 18/21, nên 18/21 = 6/7. Phân số 6/21 chỉ nhân mẫu số với 3, 18/7 chỉ nhân tử số với 3, còn 12/28 có tử số nhân với 2 nhưng mẫu số nhân với 4.", lv: 1 },
+      { topic: "Tính chất cơ bản của phân số", type: "mc", q: "Phép chia nào dưới đây có thương bằng thương của phép chia 63 : 9?",
+        o: ["21 : 3", "60 : 6", "63 : 3", "126 : 9"],
+        x: "Chia cả số bị chia 63 và số chia 9 cho 3 thì được 21 : 3, thương không thay đổi: 63 : 9 = 21 : 3 = 7 (cũng như 63/9 = 21/3). Thương của các phép chia còn lại là 10, 21 và 14.", lv: 1 },
+      { topic: "Tính chất cơ bản của phân số", type: "tf", q: "Nhân cả tử số 4 và mẫu số 7 của phân số 4/7 với 0 thì được một phân số bằng 4/7.", a: false,
+        x: "Sai. 4 × 0 = 0 và 7 × 0 = 0, mà mẫu số của phân số phải khác 0. Muốn được phân số bằng 4/7 thì nhân tử số và mẫu số với một số khác 0 như nhau, chẳng hạn 4/7 = 8/14.", lv: 1 },
+      { topic: "Tính chất cơ bản của phân số", type: "match", q: "Tìm các cặp phân số bằng nhau: nối mỗi phân số bên trái với một phân số bên phải.",
+        l: ["1/4", "2/11", "3/16", "4/15"],
+        r: ["3/12", "6/33", "6/32", "8/30", "2/12"],
+        x: "1/4 = (1 × 3)/(4 × 3) = 3/12; 2/11 = (2 × 3)/(11 × 3) = 6/33; 3/16 = (3 × 2)/(16 × 2) = 6/32; 4/15 = (4 × 2)/(15 × 2) = 8/30. Phân số 2/12 không bằng phân số nào ở bên trái.", lv: 1 },
+      { topic: "Rút gọn phân số", type: "mc", q: "Một giá sách có 48 quyển sách, trong đó có 20 quyển truyện tranh. Rút gọn phân số chỉ số truyện tranh so với số sách trên giá, ta được phân số tối giản:",
+        o: ["5/12", "20/48", "10/24", "12/5"],
+        x: "Số truyện tranh so với số sách trên giá là 20/48. 20 và 48 cùng chia hết cho 4: 20/48 = (20 : 4)/(48 : 4) = 5/12. Phân số 5/12 tối giản; 20/48 và 10/24 cũng bằng 5/12 nhưng chưa tối giản.", lv: 2 },
+      { topic: "Quy đồng mẫu số", type: "mc", q: "Nhà Hoa dùng 1/4 mảnh vườn để trồng rau cải và 5/16 mảnh vườn để trồng su hào. Quy đồng mẫu số của 1/4 và 5/16 với mẫu số chung là 16, ta được:",
+        o: ["4/16 và 5/16", "1/16 và 5/16", "4/16 và 20/16", "2/16 và 5/16"],
+        x: "16 : 4 = 4, nên 1/4 = (1 × 4)/(4 × 4) = 4/16; phân số 5/16 giữ nguyên.", lv: 2 }
     ]
   },
   /* ---------- Toán 4 · Kiểm tra giữa học kì I (Kết nối tri thức, Bài 1–19; Phiên N23) ----------
@@ -535,9 +593,10 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
      biểu đồ cột, số lần xuất hiện của sự kiện; phân số, rút gọn, quy đồng (một mẫu số chia hết cho mẫu số kia), so sánh, cộng, trừ
      (một mẫu số chia hết cho mẫu số kia), nhân, chia phân số, tìm phân số của một số; ôn tập cuối năm (Bài 67–73), trong đó 7 câu
      ôn học kì I (số có nhiều chữ số, đơn vị đo, đường thẳng vuông góc, song song, hình bình hành, hình thoi). Hai đề cố định chia
-     đúng ma trận của đề ngẫu nhiên; kho câu của đề ngẫu nhiên = 50 câu riêng ở cuối + 50 câu của hai đề (mọi câu có lv). Ma trận
-     trong data/banks/index.js: 25 ô, mỗi ô rút 1 câu (10 Biết, 8 Hiểu, 7 Vận dụng) và có 4 câu (một câu ở mỗi đề cố định, hai câu
-     riêng). Chữ chủ đề như toan4-gk2, toan4-ck1, thêm “Cộng, trừ phân số”, “Nhân, chia phân số”, “Tìm phân số của một số”. Kết quả
+     đúng ma trận của đề ngẫu nhiên; kho câu của đề ngẫu nhiên = 57 câu riêng ở cuối (Phiên BS4-toan-tv thêm 7 câu cuối) + 50 câu
+     của hai đề (mọi câu có lv). Ma trận trong data/banks/index.js: 25 ô, mỗi ô rút 1 câu (10 Biết, 8 Hiểu, 7 Vận dụng) và có từ
+     4 câu (một câu ở mỗi đề cố định, hai câu riêng; thêm câu của Phiên BS4-toan-tv ở sáu ô của cộng, trừ, nhân, chia, tìm phân số
+     của một số). Chữ chủ đề như toan4-gk2, toan4-ck1, thêm “Cộng, trừ phân số”, “Nhân, chia phân số”, “Tìm phân số của một số”. Kết quả
      phép tính với phân số để ở dạng phân số (lớp 4 chưa học hỗn số); câu trả lời bằng số có đáp án phân số dặn “Viết kết quả dưới
      dạng phân số”. Ba câu tự luận ở ô Vận dụng của “Số trung bình cộng”, “Rút về đơn vị”, “Tìm phân số của một số”. Hình vẽ: biểu
      đồ cột (như Bài 50), băng chia phần tô màu, tứ giác, hình sáu cạnh, hình thoi, đường thẳng và các điểm trên lưới ô vuông. Đáp án tính lại
@@ -664,7 +723,22 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
       { topic: "Hình bình hành, hình thoi", type: "mc", q: "Mai dán băng màu quanh mép một tấm bìa hình bình hành có hai cạnh liền nhau dài 25 cm và 18 cm. Hỏi đoạn băng màu dài bao nhiêu xăng-ti-mét?", o: ["86 cm", "43 cm", "450 cm", "100 cm"], x: "Đoạn băng màu dài bằng chu vi tấm bìa. Hình bình hành có các cạnh đối diện bằng nhau, nên đoạn băng màu dài: (25 + 18) × 2 = 86 (cm).", lv: 2 },
       { topic: "Hình bình hành, hình thoi", type: "num", q: "Hình bình hành PQRS có cạnh PQ dài 9 cm, cạnh QR ngắn hơn cạnh PQ 4 cm. Hỏi cạnh PS dài bao nhiêu xăng-ti-mét?", ans: 5, unit: "cm", x: "Cạnh QR dài: 9 − 4 = 5 (cm). Trong hình bình hành PQRS, cạnh PS đối diện với cạnh QR, mà hai cạnh đối diện của hình bình hành bằng nhau, nên PS = QR = 5 cm.", lv: 2 },
       { topic: "Hình bình hành, hình thoi", type: "num", q: "Bác Năm làm một khung cửa sổ hình thoi bằng gỗ, mỗi cạnh dài 38 cm. Bác dùng một thanh gỗ dài 2 m để làm khung. Hỏi thanh gỗ còn thừa bao nhiêu xăng-ti-mét?", ans: 48, unit: "cm", x: "Khung hình thoi có bốn cạnh bằng nhau, dài tất cả: 38 × 4 = 152 (cm). Đổi 2 m = 200 cm. Thanh gỗ còn thừa: 200 − 152 = 48 (cm).", lv: 3 },
-      { topic: "Hình bình hành, hình thoi", type: "num", q: "Một hình bình hành có chu vi 128 cm, cạnh dài hơn cạnh ngắn 6 cm. Tính độ dài cạnh dài của hình bình hành đó.", ans: 35, unit: "cm", x: "Tổng độ dài hai cạnh liền nhau: 128 : 2 = 64 (cm). Cạnh dài: (64 + 6) : 2 = 35 (cm). Cạnh ngắn: 35 − 6 = 29 (cm). Thử lại: (35 + 29) × 2 = 128.", lv: 3 }
+      { topic: "Hình bình hành, hình thoi", type: "num", q: "Một hình bình hành có chu vi 128 cm, cạnh dài hơn cạnh ngắn 6 cm. Tính độ dài cạnh dài của hình bình hành đó.", ans: 35, unit: "cm", x: "Tổng độ dài hai cạnh liền nhau: 128 : 2 = 64 (cm). Cạnh dài: (64 + 6) : 2 = 35 (cm). Cạnh ngắn: 35 − 6 = 29 (cm). Thử lại: (35 + 29) × 2 = 128.", lv: 3 },
+      { topic: "Cộng, trừ phân số", type: "num", q: "Tính: 11/16 − 3/8. Viết kết quả dưới dạng phân số.", ans: "5/16",
+        x: "16 : 8 = 2 nên 3/8 = (3 × 2)/(8 × 2) = 6/16. 11/16 − 6/16 = (11 − 6)/16 = 5/16.", lv: 1 },
+      { topic: "Cộng, trừ phân số", type: "num", q: "Một đội thợ lát gạch một sân chơi. Tuần đầu đội lát được 2/5 sân, tuần sau lát được 11/20 sân. Hỏi còn mấy phần sân chơi chưa lát? Viết kết quả dưới dạng phân số.", ans: "1/20",
+        x: "Đổi 2/5 = 8/20. Hai tuần đội lát được: 8/20 + 11/20 = 19/20 (sân). Phần sân chơi chưa lát: 1 − 19/20 = 20/20 − 19/20 = 1/20 (sân).", lv: 3 },
+      { topic: "Nhân, chia phân số", type: "num", q: "Tính: 2/9 : 5/8. Viết kết quả dưới dạng phân số.", ans: "16/45",
+        x: "Lấy 2/9 nhân với phân số đảo ngược của 5/8 là 8/5: 2/9 : 5/8 = 2/9 × 8/5 = (2 × 8)/(9 × 5) = 16/45.", lv: 1 },
+      { topic: "Nhân, chia phân số", type: "num", q: "Mẹ có 4/5 kg hạt sen, mẹ chia đều vào các túi nhỏ, mỗi túi 1/10 kg. Hỏi mẹ chia được bao nhiêu túi?", ans: 8, unit: "túi",
+        x: "Số túi mẹ chia được: 4/5 : 1/10 = 4/5 × 10/1 = 40/5 = 8 (túi).", lv: 2 },
+      { topic: "Tìm phân số của một số", type: "num", q: "Một con đường dài 420 m. Người ta đã trải nhựa được 5/7 con đường. Hỏi đã trải nhựa được bao nhiêu mét đường?", ans: 300, unit: "m",
+        x: "Số mét đường đã trải nhựa là 5/7 của 420 m: 420 × 5/7 = 2 100/7 = 300 (m).", lv: 2 },
+      { topic: "Tìm phân số của một số", type: "num", q: "Mẹ có 150 000 đồng. Mẹ dùng 2/5 số tiền để mua thịt và 1/3 số tiền để mua rau. Hỏi mẹ còn lại bao nhiêu tiền?", ans: 40000, unit: "đồng",
+        x: "Tiền mua thịt: 150 000 × 2/5 = 60 000 (đồng). Tiền mua rau: 150 000 × 1/3 = 50 000 (đồng). Mẹ còn lại: 150 000 − 60 000 − 50 000 = 40 000 (đồng).", lv: 3 },
+      { topic: "Tìm phân số của một số", type: "mc", q: "Lớp 4A có 32 học sinh, 3/4 số học sinh của lớp thích đá cầu. Lớp 4B có 30 học sinh, 3/5 số học sinh của lớp thích đá cầu. Hỏi lớp nào có nhiều bạn thích đá cầu hơn và nhiều hơn mấy bạn?",
+        o: ["Lớp 4A, nhiều hơn 6 bạn", "Lớp 4B, nhiều hơn 6 bạn", "Lớp 4A, nhiều hơn 2 bạn", "Hai lớp bằng nhau"],
+        x: "Lớp 4A có 32 × 3/4 = 96/4 = 24 (bạn) thích đá cầu. Lớp 4B có 30 × 3/5 = 90/5 = 18 (bạn) thích đá cầu. 24 − 18 = 6, nên lớp 4A nhiều hơn lớp 4B 6 bạn.", lv: 3 }
     ]
   }
 });
