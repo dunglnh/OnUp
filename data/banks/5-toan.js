@@ -487,7 +487,7 @@ window.ONTAP_SEED_QUESTIONS = Object.assign(window.ONTAP_SEED_QUESTIONS || {}, {
         o: ["350 × 12 % =", "350 ÷ 12 % =", "12 ÷ 350 % =", "350 + 12 % ="],
         x: "Tính 12% của 350 thì bấm 350 × 12 % =, màn hình hiện 42. Vậy 12% của 350 bằng 42.", lv: 1 },
       { topic: "Máy tính cầm tay", type: "tf", q: "Để tìm tỉ số phần trăm của 21 và 60, bạn Mai bấm lần lượt các phím 21 × 60 % = trên máy tính cầm tay.", a: false,
-        x: "Tìm tỉ số phần trăm của 21 và 60 thì lấy 21 chia cho 60, nên phải bấm 21 ÷ 60 % = (màn hình hiện 35). Bấm 21 × 60 % = là tính 21% của 60. Ý đã cho sai.", lv: 1 },
+        x: "Tìm tỉ số phần trăm của 21 và 60 thì lấy 21 chia cho 60, nên phải bấm 21 ÷ 60 % = (màn hình hiện 35). Bấm 21 × 60 % = là tính 60% của 21. Ý đã cho sai.", lv: 1 },
       { topic: "Máy tính cầm tay", type: "fill", q: "Bấm lần lượt các phím 943 ÷ 23 = trên máy tính cầm tay thì màn hình hiện số ___.", ans: ["41"],
         x: "Dãy phím 943 ÷ 23 = là tính 943 : 23. Màn hình hiện 41.", lv: 1 },
       { topic: "Máy tính cầm tay", type: "mc", q: "Bạn Tâm bấm lần lượt các phím 450 000 × 7 % = trên máy tính cầm tay và màn hình hiện 31 500. Số 31 500 là:",
