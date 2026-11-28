@@ -1,5 +1,5 @@
 // Tính lại đáp án ngân hàng Toán 5 cuối năm (data/banks/5-toan.js): hai đề cố định toan5-ck2-de1, toan5-ck2-de2 và các câu riêng của đề
-// ngẫu nhiên toan5-ck2-ngau-nhien (Phiên N5-ck2-toan; cả năm, trọng tâm Toán 5 tập hai Bài 56–67, ôn Bài 36–55 và học kì I). Mỗi câu khớp
+// ngẫu nhiên toan5-ck2-ngau-nhien (Phiên N5-ck2-toan, BS5-toan-tv; cả năm, trọng tâm Toán 5 tập hai Bài 56–67, ôn Bài 36–55 và học kì I). Mỗi câu khớp
 // đúng một mục của CHECKS (chữ has nằm trong đề bài) rồi so đáp án với kết quả tính bằng code: trắc nghiệm o[0], điền khuyết ans[0] (số so
 // theo giá trị, chữ so chữ), đúng/sai a, đúng/sai 4 ý a (từng ý tính lại), trả lời bằng số ans kèm đơn vị, nối cột r của từng ô l, sắp xếp
 // o. Số tính bằng số hữu tỉ chính xác: số đo thời gian đổi ra giây (1 ngày = 24 giờ, 1 giờ = 60 phút, 1 phút = 60 giây) rồi cộng, trừ, nhân,
@@ -74,6 +74,7 @@ const fmtDec = (a) => {
   return thou(s.slice(0, s.length - p)) + (p ? "," + s.slice(s.length - p) : "");
 };
 const nguyen = (a) => { assert.equal(a.d, 1, "cần số tự nhiên: " + a.n + "/" + a.d); return a.n; };
+const str_ = (a) => a.n + "/" + a.d;
 const ghi = (a, u) => fmtDec(R(a)) + (u ? " " + u : "");
 
 /* ---------- biểu thức: + − × : ( ), số thập phân "3,75", số "1 080", phân số "2/5" ---------- */
@@ -409,7 +410,46 @@ const CHECKS = [
     const dem = {}; [...q.q.matchAll(/mặt (\d) chấm (\d+) lần/g)].forEach((m) => (dem[m[1]] = +m[2]));
     assert.deepEqual(Object.keys(dem), ["1", "2", "3", "4", "5", "6"]); const n = Object.values(dem).reduce((a, b) => a + b, 0); assert.equal(n, 20);
     const max = Math.max(...Object.values(dem)), chan = dem[2] + dem[4] + dem[6];
-    return [Object.keys(dem).filter((k) => dem[k] === max).join() === "4", soSau(q.o[1], "là") === ti(dem[2], n), dem[1] === dem[5] && dem[5] === dem[6], soSau(q.o[3], "là") === ti(chan, n)]; } },
+    return [Object.keys(dem).filter((k) => dem[k] === max).join() === "4", soSau(q.o[1], "là") === ti(dem[2], n), dem[1] === dem[5] && dem[5] === dem[6], soSau(q.o[3], "là") === ti(chan, n)]; } },  /* Phiên BS5-toan-tv: 20 câu riêng bổ sung cho 6 chủ đề dưới 10 câu chấm tự động (ô ghi ở THEM, phần ma trận bên dưới) */
+  // Các đơn vị đo thời gian
+  { has: "Hai tháng liền nhau nào dưới đây đều có 31 ngày?", right: (q) => {
+    const TEN = Object.keys(SO_NGAY), thang = (o) => { const m = /^Tháng (.+) và tháng (.+)$/.exec(o); assert.ok(m, "lựa chọn lạ: " + o); return [m[1], m[2].charAt(0).toUpperCase() + m[2].slice(1)]; };
+    q.o.forEach((o) => { const [a, b] = thang(o); assert.ok(TEN.includes(a) && TEN.indexOf(b) === TEN.indexOf(a) + 1, "hai tháng liền nhau: " + o); });
+    const m = q.o.filter((o) => thang(o).every((t) => SO_NGAY[t] === 31)); assert.equal(m.length, 1, "đúng một cặp đều có 31 ngày"); return m[0]; } },
+  { has: "Một chuyến bay kéo dài 2,15 giờ.", right: () => ghi(div(giay("2,15 giờ"), giay("1 phút")), "phút") },
+  // Cộng, trừ số đo thời gian
+  { has: "2 phút 47 giây + 5 phút 54 giây = 8 phút ___ giây", right: () => {
+    const d = add(giay("2 phút 47 giây"), giay("5 phút 54 giây")); assert.ok(tg(d).startsWith("8 phút "), "phần phút ghi sẵn"); return sub(d, giay("8 phút")); } },
+  { has: "Một chuyến tàu đến ga lúc 13 giờ 5 phút. Thời gian tàu chạy trên đường là 2 giờ 48 phút, ngoài ra dọc đường tàu dừng lại 12 phút.", right: () => luc(sub(giay("13 giờ 5 phút"), add(giay("2 giờ 48 phút"), giay("12 phút")))) },
+  // Nhân, chia số đo thời gian với một số
+  { has: "Mỗi phép tính dưới đây bằng số đo thời gian nào? Hãy nối cho đúng.", right: (q) => {
+    const tinh = (l) => { const m = /^(.+) ([×:]) (\d+)$/.exec(l); assert.ok(m, "phép tính lạ: " + l); return m[2] === "×" ? mul(giay(m[1]), F(+m[3])) : div(giay(m[1]), F(+m[3])); };
+    q.r.forEach((r) => assert.strictEqual(tg(giay(r)), r, "ô phải chưa viết gọn: " + r));
+    q.r.slice(q.l.length).forEach((r) => assert.ok(q.l.every((l) => !eq(giay(r), tinh(l))), "ô thừa bằng một ô trái"));
+    return q.l.map((l) => { const m = q.r.filter((r) => eq(giay(r), tinh(l))); assert.equal(m.length, 1, "ô " + l + " bằng đúng một ô phải"); return m[0]; }); } },
+  { has: "Chú Toàn chạy 3 vòng quanh hồ hết 41 phút 15 giây.", right: () => tg(div(giay("41 phút 15 giây"), F(3))) },
+  { has: "Một bộ phim hoạt hình có 4 tập, mỗi tập dài 24 phút 15 giây.", right: () => div(mul(giay("24 phút 15 giây"), F(4)), giay("1 phút")) },
+  { has: "Một vận động viên bơi 4 lượt, mỗi lượt hết 1 phút 48 giây. Tổng thời gian bơi 4 lượt là 7 phút 12 giây.", right: () => eq(mul(giay("1 phút 48 giây"), F(4)), giay("7 phút 12 giây")) },
+  { has: "Buổi sinh hoạt của lớp dài 1 giờ 32 phút, được chia đều cho 4 nhóm trình bày.", right: () => ghi(div(div(giay("1 giờ 32 phút"), F(4)), giay("1 phút")), "phút") },
+  { has: "7 phút 30 giây : 6 = ?", right: (q) => { q.o.forEach((o) => giay(o)); return tg(div(giay("7 phút 30 giây"), F(6))); } },
+  // Vận tốc
+  { has: "Một ô tô đi với vận tốc 45 km/h. Điều đó có nghĩa là", right: () => { assert.ok(eq(quangDuong("45 km/h", "1 giờ", "km"), F(45))); return "Mỗi giờ ô tô đi được 45 km"; } },
+  { has: "Chú Ba đạp xe từ nhà lúc 7 giờ 10 phút và đến nhà bà ngoại lúc 10 giờ. Dọc đường chú nghỉ 20 phút.", right: () =>
+    ghi(doiVT(div(doi("35 km", "m"), sub(sub(giay("10 giờ"), giay("7 giờ 10 phút")), giay("20 phút"))), "km/h"), "km/h"), more: (q) => assert.ok(q.q.includes("dài 35 km")) },
+  // Thu thập, phân loại, sắp xếp các số liệu
+  { has: "Thời gian chạy 60 m (đơn vị: giây) của 8 bạn là:", right: (q) => { const d = dayCua(q); assert.equal(d.length, 8); assert.ok(q.q.includes("từ 10 giây đến 11 giây")); return ghi(F(d.filter((x) => cmp(x, F(10)) >= 0 && cmp(x, F(11)) <= 0).length), "bạn"); } },
+  { has: "Số bàn thắng của một đội bóng trong 10 trận đấu là:", right: (q) => { const d = dayCua(q); assert.equal(d.length, 10); return d.filter((x) => cmp(x, F(2)) >= 0).length + " trận"; } },
+  { has: "Chiều cao của bốn bạn:", right: (q) => {
+    const ban = /bốn bạn: (.+)\. Sắp xếp/.exec(q.q)[1].split("; ").map((s) => { const m = /^(\S+) (\d+(?:,\d+)?) m$/.exec(s); assert.ok(m, "số liệu lạ: " + s); return [m[1], fr(m[2])]; });
+    assert.deepEqual(ban.map((b) => b[0]).sort(), q.o.slice().sort(), "các ô là tên các bạn trong đề"); assert.ok(q.q.includes("từ thấp đến cao"));
+    assert.equal(new Set(ban.map((b) => str_(b[1]))).size, 4, "bốn chiều cao khác nhau"); return ban.sort((a, b) => cmp(a[1], b[1])).map((b) => b[0]); } },
+  { has: "Cân nặng (đơn vị: kg) của 10 quả dưa hấu là:", right: (q) => { const d = dayCua(q); assert.equal(d.length, 10); return d.filter((x) => cmp(x, F(3)) < 0).length === nguyen(soSau(q.q, "có")); } },
+  { has: "Số người đến thư viện trong 5 ngày lần lượt là:", right: (q) => { const d = dayCua(q); assert.equal(d.length, 5); return d.reduce((a, b) => (cmp(a, b) >= 0 ? a : b)); } },
+  { has: "Để biết món ăn sáng mà các bạn trong lớp thích nhất, bạn Khánh nên thu thập số liệu bằng cách nào?", right: () => "Hỏi từng bạn trong lớp rồi ghi lại món bạn đó thích" },
+  // Tỉ số của số lần lặp lại một sự kiện
+  { has: "Bạn Khôi lấy một viên bi từ trong hộp, xem màu rồi trả lại hộp.", right: () => ti(11, 30), more: (q) => assert.ok(q.q.includes("làm như vậy 30 lần và thấy có 11 lần lấy được bi đỏ")) },
+  { has: "Bạn Lâm tung một đồng xu 42 lần. Số lần xuất hiện mặt sấp nhiều hơn số lần xuất hiện mặt ngửa là 8 lần.", right: (q) => {
+    const sap = (42 + 8) / 2; assert.ok(Number.isInteger(sap)); assert.ok(q.o.includes(ti(42 - sap, 42)), "nhiễu: tỉ số của số lần xuất hiện mặt ngửa"); return ti(sap, 42); } },
 ];
 
 /* ---------- chạy kiểm tra: mỗi câu khớp đúng một mục của CHECKS (mục có chữ has dài nhất nằm trong đề bài) ---------- */
@@ -508,13 +548,21 @@ Object.entries(khoCu).forEach(([k, b]) => assert.ok(b && b.pool, "thiếu kho " 
   CHU_DE.forEach((t) => { const p = phanCua(t);
     if (khoCu[p]) assert.ok(t in khoCu[p].pool.matrix, "chủ đề ôn phải đúng chữ chủ đề của kho " + p + ": " + t);
     else assert.ok(!khac.has(t), "chủ đề mới trùng chữ với đề Toán 5 khác: " + t); }); }
-// mỗi ô rút 1 câu và có đúng 4 câu: một câu ở mỗi đề cố định, hai câu riêng; ô không rút thì không có câu
+// mỗi ô rút 1 câu và có một câu ở mỗi đề cố định, hai câu riêng (Phiên N5-ck2-toan); ô không rút thì không có câu. Phiên BS5-toan-tv thêm
+// câu riêng ở các ô ghi trong THEM, để mỗi chủ đề có từ 10 câu chấm tự động cho đề “Ôn chủ đề”
+const THEM = { "Các đơn vị đo thời gian|1": 1, "Các đơn vị đo thời gian|2": 1, "Cộng, trừ số đo thời gian|1": 1, "Cộng, trừ số đo thời gian|3": 1,
+  "Nhân, chia số đo thời gian với một số|2": 6, "Vận tốc|1": 1, "Vận tốc|3": 1, "Thu thập, phân loại, sắp xếp các số liệu|1": 6,
+  "Tỉ số của số lần lặp lại một sự kiện|1": 1, "Tỉ số của số lần lặp lại một sự kiện|2": 1 };
+Object.keys(THEM).forEach((k) => { const [t, l] = k.split("|"); assert.ok(M[t] && M[t][l - 1] > 0, "THEM ghi ô không rút: " + k); });
 Object.entries(M).forEach(([t, v]) => v.forEach((k, i) => {
   const have = kho.filter((q) => q.topic === t && q.lv === i + 1);
   assert.ok(k <= 1, `ô (${t}, mức ${i + 1}) rút ${k} câu: mỗi ô rút nhiều nhất 1 câu`);
   if (!k) { assert.equal(have.length, 0, `ô (${t}, mức ${i + 1}) không rút mà kho có ${have.length} câu`); return; }
-  assert.deepEqual(DE.concat(POOL).map((s) => have.filter((q) => q.src === s).length), [1, 1, 2], `ô (${t}, mức ${i + 1})`);
+  assert.deepEqual(DE.concat(POOL).map((s) => have.filter((q) => q.src === s).length), [1, 1, 2 + (THEM[t + "|" + (i + 1)] || 0)], `ô (${t}, mức ${i + 1})`);
 }));
+assert.equal(mine.length, 50 + Object.values(THEM).reduce((a, b) => a + b, 0), "số câu riêng");
+// mỗi chủ đề có từ 10 câu chấm tự động trong các đề Toán 5 (đề “Ôn chủ đề” rút 10 câu; chủ đề ôn gộp câu của kho giữa kì II, cuối kì I)
+CHU_DE.forEach((t) => assert.ok(BANKS.filter((b) => b.file === "5-toan.js").flatMap((b) => b.questions.filter((q) => (!b.pool || q.src === b.id) && q.topic === t && q.type !== "essay")).length >= 10, "chủ đề dưới 10 câu chấm tự động: " + t));
 const dem = (f) => kho.filter(f).length;
 assert.equal(dem((q) => q.type === "essay"), 0, "không có câu tự luận");
 assert.ok(dem((q) => q.type === "tf4") >= 2 && dem((q) => q.type === "num") >= 10 && dem((q) => q.type === "fill") >= 8 && dem((q) => q.type === "match") >= 2 && dem((q) => q.type === "order") >= 1 && dem((q) => q.type === "tf") >= 3, "kho đủ dạng câu của tiểu học");

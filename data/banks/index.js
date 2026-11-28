@@ -2485,10 +2485,10 @@ window.ONTAP_SEED_TOPICS = {
     ["Thể tích của một hình", 10, "gk2"], ["Xăng-ti-mét khối, đề-xi-mét khối", 10, "gk2"], ["Mét khối", 12, "gk2 ck2"],
     ["Hình khai triển", 10, "gk2"], ["Diện tích xung quanh, toàn phần của hình hộp chữ nhật", 12, "gk2 ck2"],
     ["Diện tích xung quanh, toàn phần của hình lập phương", 10, "gk2"], ["Thể tích của hình hộp chữ nhật", 12, "gk2 ck2"],
-    ["Thể tích của hình lập phương", 10, "gk2"], ["Các đơn vị đo thời gian", 8, "ck2"], ["Cộng, trừ số đo thời gian", 8, "ck2"],
-    ["Nhân, chia số đo thời gian với một số", 4, "ck2"], ["Vận tốc", 8, "ck2"], ["Quãng đường, thời gian của một chuyển động đều", 12, "ck2"],
-    ["Thu thập, phân loại, sắp xếp các số liệu", 4, "ck2"], ["Biểu đồ hình quạt tròn", 12, "ck2"],
-    ["Tỉ số của số lần lặp lại một sự kiện", 8, "ck2"], ["Ôn tập số tự nhiên", 8, "gk1"], ["Ôn tập các phép tính với số tự nhiên", 8, "gk1"],
+    ["Thể tích của hình lập phương", 10, "gk2"], ["Các đơn vị đo thời gian", 10, "ck2"], ["Cộng, trừ số đo thời gian", 10, "ck2"],
+    ["Nhân, chia số đo thời gian với một số", 10, "ck2"], ["Vận tốc", 10, "ck2"], ["Quãng đường, thời gian của một chuyển động đều", 12, "ck2"],
+    ["Thu thập, phân loại, sắp xếp các số liệu", 10, "ck2"], ["Biểu đồ hình quạt tròn", 12, "ck2"],
+    ["Tỉ số của số lần lặp lại một sự kiện", 10, "ck2"], ["Ôn tập số tự nhiên", 8, "gk1"], ["Ôn tập các phép tính với số tự nhiên", 8, "gk1"],
     ["Ôn tập phân số", 8, "gk1"], ["Ôn tập các phép tính với phân số", 8, "gk1"], ["Ôn tập hình học và đo lường", 4, "gk1"]
   ],
   "5-tv.js": [
