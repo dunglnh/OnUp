@@ -2495,9 +2495,9 @@ window.ONTAP_SEED_TOPICS = {
     ["Đọc hiểu", 112, "gk1 ck1 gk2 ck2"], ["Danh từ, động từ, tính từ", 20, "gk1 ck1"], ["Đại từ", 44, "gk1 ck1 ck2"],
     ["Từ đồng nghĩa", 32, "gk1 ck1 ck2"], ["Từ đa nghĩa", 28, "gk1 ck1 ck2"], ["Sử dụng từ điển", 8, "ck1"], ["Dấu gạch ngang", 16, "ck1 ck2"],
     ["Biện pháp điệp từ, điệp ngữ", 8, "ck1"], ["Kết từ", 12, "ck1 ck2"], ["Câu đơn và câu ghép", 12, "gk2"],
-    ["Cách nối các vế câu ghép", 20, "gk2 ck2"], ["Câu ghép", 16, "gk2 ck2"], ["Liên kết câu bằng cách lặp từ ngữ", 8, "gk2"],
-    ["Liên kết câu bằng từ ngữ nối", 8, "gk2"], ["Liên kết câu bằng từ ngữ thay thế", 8, "gk2"], ["Liên kết câu trong đoạn văn", 16, "gk2 ck2"],
-    ["Viết hoa danh từ chung", 4, "ck2"], ["Viết tên người, tên địa lí nước ngoài", 12, "ck2"]
+    ["Cách nối các vế câu ghép", 20, "gk2 ck2"], ["Câu ghép", 16, "gk2 ck2"], ["Liên kết câu bằng cách lặp từ ngữ", 10, "gk2"],
+    ["Liên kết câu bằng từ ngữ nối", 10, "gk2"], ["Liên kết câu bằng từ ngữ thay thế", 10, "gk2"],
+    ["Liên kết câu trong đoạn văn", 16, "gk2 ck2"], ["Viết hoa danh từ chung", 10, "ck2"], ["Viết tên người, tên địa lí nước ngoài", 12, "ck2"]
   ],
   "6-congnghe.js": [
     ["Khái quát về nhà ở", 20, "gk1 ck1"], ["Xây dựng nhà ở", 20, "gk1 ck1"], ["Ngôi nhà thông minh", 36, "gk1 ck1"],

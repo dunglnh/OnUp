@@ -269,7 +269,10 @@ const THAY = {
   "Ngày ngày, nơi ấy vang lên tiếng búa chan chát.": { "nơi ấy": "một lò rèn nhỏ" },
   "Thấy vậy, mẹ khen các con đã lớn.": { "vậy": "Hai chị em xách giúp mẹ những túi rau quả nặng", "các con": "Hoa và em gái" },
   "Ai cũng háo hức chờ đến ngày ấy.": { "ngày ấy": "Hội khoẻ Phù Đổng" },
-  "Vì thế, các bạn thường ra đó ngắm cảnh lúc tan học.": { "đó": "Mặt hồ" }
+  "Vì thế, các bạn thường ra đó ngắm cảnh lúc tan học.": { "đó": "Mặt hồ" },
+  // Phiên BS5-toan-tv
+  "Con vật nhỏ ấy có bộ lông vàng óng và đôi mắt tròn xoe.": { "con vật nhỏ ấy": "một chú chó con" },
+  "Các bạn thay nhau tưới nước cho khoảnh đất nhỏ ấy mỗi sáng.": { "khoảnh đất nhỏ ấy": "một bồn hoa" }
 };
 const THAY_B = new Map(Object.entries(THAY).map(([k, v]) => [bang(k), v]));
 // đại từ thay thế (và tên gọi khác) có thể làm câu liên kết với câu trước; câu không có từ ngữ thay thế thì không được có các từ này (bỏ từ ngữ nối đầu câu)
@@ -322,7 +325,7 @@ const bon = (q) => q.o.map((o) => o.trim());
 // từ, cặp từ hợp văn cảnh (lí do ở lời giải từng câu): câu điền xong phải có trong VE, nối đúng bằng từ, cặp từ đó
 const HOP = { "Trời … tạnh mưa": "vừa… đã", "Cây bút đã cũ …": "mà", "Bác lao công quét đến …": "đâu… đó", "… Nam chăm chỉ tập luyện …": "Bởi… nên" };
 const TU_NOI_HOP = { "Lan học giỏi môn Toán.": "bo-sung", "…, mẹ thả bánh vào nồi nước sôi.": "thu-tu-cuoi", "Bạn Tú rất ngại phát biểu trước lớp.": "tuong-phan",
-  "Thứ nhất, em biết thêm nhiều chuyện mới lạ.": "liet-ke-2" };
+  "Thứ nhất, em biết thêm nhiều chuyện mới lạ.": "liet-ke-2", "Mùa hè ở quê ngoại rất nóng nực.": "tuong-phan" };
 const QH_CAN = { "Sân bóng đã cũ. Các bạn vẫn chơi rất say sưa.": "tuong-phan" }; // quan hệ giữa hai câu đơn đem nối
 // cặp từ hô ứng, cặp kết từ, kết từ hợp văn cảnh: mọi lựa chọn cùng loại; câu điền đáp án có trong VE và nối các vế đúng bằng đáp án
 const hopVanCanh = (q, at, loai) => {
@@ -386,6 +389,9 @@ const CHECKS = [
     assert.ok(coTu(cs[0], w), at); mot(q, (o) => (/^Chỉ có/.test(o) ? "" : "") + [...o.matchAll(/\((\d)\)/g)].map((m) => m[1]).join(",") === K, at); } },
   { has: "Câu nào liên kết với câu đứng ngay trước nó bằng cách lặp từ ngữ?", right: (q, at) => { const cs = cauDoan(quote(q)), K = cs.map((c, i) => (i && lapGiua(cs[i - 1], c).length ? i + 1 : 0)).filter(Boolean);
     assert.equal(K.length, 1, at + ": đúng một câu lặp từ ngữ của câu ngay trước"); mot(q, (o) => o === `Câu (${K[0]})`, at); } },
+  // Phiên BS5-toan-tv: mỗi lựa chọn là một đoạn hai câu; đúng một đoạn có câu sau lặp lại từ ngữ của câu trước
+  { has: "ở đoạn nào câu sau liên kết với câu trước nhờ lặp lại một từ ngữ?", right: (q, at) => { q.o.forEach((o) => assert.equal(cauDoan(o).length, 2, at + ": mỗi đoạn hai câu: " + o));
+    mot(q, (o) => { const [s1, s2] = cauDoan(o); return lapGiua(s1, s2).length > 0; }, at); } },
   // Liên kết câu bằng từ ngữ nối
   { has: "Từ ngữ nào nối câu thứ hai với câu thứ nhất?", right: (q, at) => { const [, s2] = cauDoan(quote(q)); bon(q).forEach((o) => assert.ok(coTu(quote(q), o), at));
     mot(q, (o) => noiDau(s2) === thuong(o), at); } },
@@ -468,11 +474,17 @@ assert.deepEqual([...new Set(kho.map((q) => q.topic))].sort(), TOPICS.slice().so
   assert.deepEqual([...new Set(d.map((q) => q.topic))], TOPICS, `Đề ${i + 1} đủ chủ đề, theo thứ tự của ma trận`);
   Object.entries(M).forEach(([t, v]) => assert.deepEqual([1, 2, 3].map((l) => demO(d, t, l)), v, `Đề ${i + 1} đúng ma trận ở chủ đề ${t}`));
 });
+// Phiên BS5-toan-tv thêm câu riêng ở các ô ghi trong THEM, để mỗi chủ đề có từ 10 câu chấm tự động cho đề “Ôn chủ đề”
+const THEM = { "Liên kết câu bằng cách lặp từ ngữ|1": 1, "Liên kết câu bằng cách lặp từ ngữ|2": 1, "Liên kết câu bằng từ ngữ nối|1": 1, "Liên kết câu bằng từ ngữ nối|3": 1,
+  "Liên kết câu bằng từ ngữ thay thế|1": 1, "Liên kết câu bằng từ ngữ thay thế|2": 1 };
+Object.keys(THEM).forEach((k) => { const [t, l] = k.split("|"); assert.ok(M[t] && M[t][l - 1] > 0, "THEM ghi ô không rút: " + k); });
 Object.entries(M).forEach(([t, v]) => [1, 2, 3].forEach((l) => {
   const have = kho.filter((q) => q.topic === t && q.lv === l);
   assert.ok(v[l - 1] ? have.length >= 2 * v[l - 1] : have.length === 0, `ô (${t}, mức ${l}) rút ${v[l - 1]} câu, kho có ${have.length}`);
-  if (t !== "Đọc hiểu" && t !== "Viết" && v[l - 1]) assert.deepEqual(DE.concat(S.pool).map((s) => have.filter((q) => q.src === s).length), [v[l - 1], v[l - 1], 2 * v[l - 1]], `ô (${t}, mức ${l}): mỗi đề cố định ${v[l - 1]} câu, câu riêng ${2 * v[l - 1]}`);
+  if (t !== "Đọc hiểu" && t !== "Viết" && v[l - 1]) { const them = THEM[t + "|" + l] || 0;
+    assert.deepEqual(DE.concat(S.pool).map((s) => have.filter((q) => q.src === s).length), [v[l - 1], v[l - 1], 2 * v[l - 1] + them], `ô (${t}, mức ${l}): mỗi đề cố định ${v[l - 1]} câu, câu riêng ${2 * v[l - 1] + them}`); }
 }));
+assert.equal(rieng.length, 53 + Object.values(THEM).reduce((a, b) => a + b, 0), "số câu riêng (Phiên N5-gk2-tv 53 câu, Phiên BS5-toan-tv thêm ở THEM)");
 // đoạn đọc: chỉ ở Đọc hiểu, mọi câu Đọc hiểu có đoạn; mỗi đề cố định một đoạn 4 câu 1-1-2-3 và một đoạn 3 câu 1-2-3, câu riêng hai đoạn mỗi loại
 assert.ok(kho.filter((q) => q.topic === "Đọc hiểu").every((q) => q.p) && kho.filter((q) => q.p).every((q) => q.topic === "Đọc hiểu"), "đoạn đọc chỉ dùng cho câu Đọc hiểu");
 const mucDoan = (id) => kho.filter((q) => q.p === id).map((q) => q.lv).join("-");

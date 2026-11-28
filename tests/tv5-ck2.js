@@ -258,8 +258,9 @@ const nhomDN = (w) => DONG_NGHIA.find((g) => g.includes(thuong(w)));
 const HOP_DN = { "mang sang … ông bà nội": "biếu", "nhiều chiến sĩ đã anh dũng …": "hi sinh", "mẹ vừa giặt … như bông": "trắng tinh", "Lời ru … của bà": "ngọt ngào" };
 
 /* ---------- viết hoa danh từ chung (tr. 114–115 của tập hai) ---------- */
-const TON = ["Tổ quốc", "Bác", "Người"]; // danh từ chung được viết hoa để tỏ lòng kính trọng
-const RIENG = ["Hải", "Hữu Nghị", "Bạch Long Vĩ", "Cô Tô", "Sen", "Pác Bó", "Mai"]; // tên riêng trong các câu đem so
+const TON = ["Tổ quốc", "Bác", "Người", "Đất Nước", "Mẹ Thiên Nhiên", "Vua"]; // danh từ chung được viết hoa để tỏ lòng kính trọng (ba từ cuối: Phiên BS5-toan-tv)
+const RIENG = ["Hải", "Hữu Nghị", "Bạch Long Vĩ", "Cô Tô", "Sen", "Pác Bó", "Mai", "Bát Tràng", "Thảo", "Hà Nội", "Thảo Cầm Viên", "Hoa", "Phú Thọ", "Hùng",
+  "Tuấn", "Hạ Long"]; // tên riêng trong các câu đem so
 // các từ viết hoa không đứng đầu câu: mỗi từ phải là danh từ chung tỏ lòng kính trọng (TON) hoặc tên riêng (RIENG)
 const hoaGiua = (s) => { const t = nfc(s).trim(), dau = /^\S+/.exec(t)[0].length; return [...t.slice(dau).matchAll(/\p{Lu}\p{Ll}*(?: \p{Lu}\p{Ll}*)*/gu)].map((m) => m[0]); };
 const hoaTon = (s) => hoaGiua(s).filter((w) => TON.includes(w) || TON.some((x) => w === x.split(" ")[0] && nfc(s).includes(x)));
@@ -391,6 +392,17 @@ const CHECKS = [
   { has: "từ nào được viết hoa vì người viết muốn tỏ lòng kính trọng?", right: (q, at) => { const c = quote(q); q.o.forEach((o) => trongCau(c, [o], at));
     mot(q, (o) => tonTrong(c).includes(o), at); assert.equal(tonTrong(c).length, 1, at); } },
   { has: "Người viết có thể viết hoa một danh từ chung", right: (q, at) => mot(q, (o) => /tôn kính/.test(o), at) },
+  // Phiên BS5-toan-tv: mỗi câu một từ được viết hoa để tỏ lòng kính trọng (Đất Nước, Mẹ Thiên Nhiên, Vua), câu viết hoa thừa, chữ đầu câu, câu chỉ có tên riêng
+  { has: "người viết đã viết hoa một danh từ chung để bày tỏ tình yêu và niềm tự hào?", right: (q, at) => vietHoaCau(q, at) },
+  { has: "các chữ cái đầu của cụm từ “Mẹ Thiên Nhiên” được viết hoa để làm gì?", right: (q, at) => { assert.deepEqual(tonTrong(quote(q)), ["Mẹ Thiên Nhiên"], at); mot(q, (o) => /quý mến, trân trọng/.test(o), at); } },
+  { has: "Câu nào dưới đây viết hoa một từ không cần viết hoa?", right: (q, at) => mot(q, (o) => hoaGiua(o).some((w) => !TON.some((x) => x.startsWith(w)) && !RIENG.includes(w)), at) },
+  { has: "từ nào vốn là danh từ chung nhưng được viết hoa để bày tỏ lòng biết ơn?", right: (q, at) => { const c = quote(q); q.o.forEach((o) => trongCau(c, [o], at));
+    assert.equal(tonTrong(c).length, 1, at); mot(q, (o) => tonTrong(c).includes(o), at); } },
+  { has: "vì sao chữ “Quê” được viết hoa?", right: (q, at) => { const c = quote(q); assert.ok(nfc(c).trim().startsWith("Quê "), at + ": chữ được hỏi đứng đầu câu");
+    assert.deepEqual(hoaGiua(c).concat(tonTrong(c)), [], at + ": câu không có từ viết hoa nào khác"); mot(q, (o) => /bắt đầu bằng/.test(o), at); } },
+  { has: "Câu nào dưới đây chỉ viết hoa tên riêng và chữ cái đầu câu?", right: (q, at) => {
+    q.o.forEach((o) => hoaGiua(o).forEach((w) => assert.ok(TON.some((x) => x.startsWith(w)) || RIENG.includes(w), `${at}: “${w}” chưa ghi ở TON hay RIENG`)));
+    q.o.slice(1).forEach((o) => assert.equal(tonTrong(o).length, 1, at + ": lựa chọn sai có đúng một từ tỏ lòng kính trọng: " + o)); mot(q, (o) => tonTrong(o).length === 0, at); } },
   // Viết tên người, tên địa lí nước ngoài
   { has: "Tên người nước ngoài nào dưới đây viết đúng chính tả?", right: (q, at) => mot(q, (o) => !!NN[o] && dungQT(o), at) },
   { has: "Cách viết nào đúng với tên ngọn núi", right: (q, at) => mot(q, (o) => !!NN[o] && dungQT(o), at) },
@@ -531,11 +543,16 @@ assert.deepEqual([...new Set(kho.map((q) => q.topic))].sort(), TOPICS.slice().so
   assert.deepEqual([...new Set(d.map((q) => q.topic))], TOPICS, `Đề ${i + 1} đủ chủ đề, theo thứ tự của ma trận`);
   Object.entries(M).forEach(([t, v]) => assert.deepEqual([1, 2, 3].map((l) => demO(d, t, l)), v, `Đề ${i + 1} đúng ma trận ở chủ đề ${t}`));
 });
+// Phiên BS5-toan-tv thêm câu riêng ở các ô ghi trong THEM, để mỗi chủ đề có từ 10 câu chấm tự động cho đề “Ôn chủ đề”
+const THEM = { "Viết hoa danh từ chung|1": 6 };
+Object.keys(THEM).forEach((k) => { const [t, l] = k.split("|"); assert.ok(M[t] && M[t][l - 1] > 0, "THEM ghi ô không rút: " + k); });
 Object.entries(M).forEach(([t, v]) => [1, 2, 3].forEach((l) => {
   const have = kho.filter((q) => q.topic === t && q.lv === l);
   assert.ok(v[l - 1] ? have.length >= 2 * v[l - 1] : have.length === 0, `ô (${t}, mức ${l}) rút ${v[l - 1]} câu, kho có ${have.length}`);
-  if (t !== "Đọc hiểu" && t !== "Viết" && v[l - 1]) assert.deepEqual(DE.concat(S.pool).map((s) => have.filter((q) => q.src === s).length), [v[l - 1], v[l - 1], 2 * v[l - 1]], `ô (${t}, mức ${l}): mỗi đề cố định ${v[l - 1]} câu, câu riêng ${2 * v[l - 1]}`);
+  if (t !== "Đọc hiểu" && t !== "Viết" && v[l - 1]) { const them = THEM[t + "|" + l] || 0;
+    assert.deepEqual(DE.concat(S.pool).map((s) => have.filter((q) => q.src === s).length), [v[l - 1], v[l - 1], 2 * v[l - 1] + them], `ô (${t}, mức ${l}): mỗi đề cố định ${v[l - 1]} câu, câu riêng ${2 * v[l - 1] + them}`); }
 }));
+assert.equal(rieng.length, 53 + Object.values(THEM).reduce((a, b) => a + b, 0), "số câu riêng (Phiên N5-ck2-tv 53 câu, Phiên BS5-toan-tv thêm ở THEM)");
 // đoạn đọc: chỉ ở Đọc hiểu, mọi câu Đọc hiểu có đoạn; mỗi đề cố định một đoạn 4 câu 1-1-2-3 và một đoạn 3 câu 1-2-3, câu riêng hai đoạn mỗi loại
 assert.ok(kho.filter((q) => q.topic === "Đọc hiểu").every((q) => q.p) && kho.filter((q) => q.p).every((q) => q.topic === "Đọc hiểu"), "đoạn đọc chỉ dùng cho câu Đọc hiểu");
 const mucDoan = (id) => kho.filter((q) => q.p === id).map((q) => q.lv).join("-");
