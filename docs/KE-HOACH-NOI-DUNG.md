@@ -648,7 +648,6 @@ Sau K3, đơn vị làm việc là **ngân hàng câu của một môn trong m�
 
 | Phiên | Hạn | Nội dung | Kho | Mã mới | Kiểm thử phải sửa |
 |---|---|---|---|---|---|
-| BS4-toan-tv | 10/1/2027 (đầu hàng đợi, chủ app xếp 27/11/2026) | Bổ sung câu cho 18 chủ đề dưới 10 câu: Toán 4, Tiếng Việt 4 (học kì II) | +52 | không (câu riêng của 4 đề ngẫu nhiên) | chú thích ở `tests/supabase/store-test.mjs` (số câu kho Toán 4 giữa kì II) |
 | BS5-toan-tv | 10/1/2027 (đầu hàng đợi, chủ app xếp 27/11/2026) | Bổ sung câu cho 19 chủ đề dưới 10 câu: Toán 5, Tiếng Việt 5 (học kì II) | +70 | không (câu riêng của 4 đề ngẫu nhiên) | không |
 | BS4-5-ta | 10/1/2027 (đầu hàng đợi, chủ app xếp 27/11/2026) | Bổ sung câu cho 20 chủ đề dưới 10 câu: Tiếng Anh 4, Tiếng Anh 5 (học kì II) | +69 | không (câu riêng của 2 đề ngẫu nhiên) | không |
 | BS9-nho | 10/1/2027 (đầu hàng đợi, chủ app xếp 27/11/2026) | Bổ sung câu cho 19 chủ đề dưới 10 câu: Ngữ văn 9, Toán 9, Tiếng Anh 9, Tin học 9, Công nghệ 9 (học kì II) | +51 | không (câu riêng của 7 đề ngẫu nhiên) | không |
@@ -829,16 +828,6 @@ Lượt PO ngày 27/11/2026 viết; chủ app xếp 16 phiên này lên đầu h
 - **Script của môn** (tests/README.md, mục 3): thêm phần kiểm tra câu mới như các phiên làm đề (khoá `RIENG`, bảng sự kiện…); số câu ghi cứng trong script, trong `note` của đề ngẫu nhiên thì sửa. Môn chưa có script cho kho học kì II (Tiếng Việt 4, Tiếng Anh 4, Ngữ văn 6, Tiếng Anh 6): dò lộ đáp án, trùng ý bằng `soat-nhap.js`, không viết script mới.
 - **Danh mục chủ đề (từ Phiên UX23a):** khi `data/banks/index.js` đã có khối `window.ONTAP_SEED_TOPICS` (số câu theo chủ đề, `tests/ghep-de.js` ghi), ghép xong thì khối tự đổi; gộp `main` bị vướng ở khối này thì chạy `node tests/ghep-de.js --chu-de`, không sửa tay.
 - **Xong khi:** mọi chủ đề trong khối có từ 10 câu chấm tự động (`node tests/xem-chu-de.js <file>`: cột Câu trừ số `essay`); `node tests/kiem-tra-de.js` in DE OK, không còn dòng “Nhắc:” về đề ngẫu nhiên của phiên; script của môn in OK; `node tests/chay-mon.js` không có script lỗi; `node tests/e2e.js` in E2E OK. Pull Request (tiêu đề “Phiên BS…: …”) ghi bảng chủ đề: có → sau khi thêm. Ghi trạng thái theo Quy định chung; phiên BS cuối cùng (không còn khối BS nào) xóa dòng 3b ở mục 3 của docs/KE-HOACH-PHAT-TRIEN-ONUP.md.
-
-**Phiên BS4-toan-tv · Bổ sung câu Toán 4, Tiếng Việt 4 (học kì II)**
-> Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 3; đoạn đầu nhóm “Trước 10/1/2027: bổ sung câu cho chủ đề ít câu”). Thêm 52 câu riêng cho 18 chủ đề dưới 10 câu chấm tự động:
-> - `toan4-gk2-ngau-nhien` (data/banks/4-toan.js, 56 câu riêng): Nhân, chia với 10, 100, 1 000 (có 6, thêm 4; ô 1–0–0); Ước lượng (có 4, thêm 6; ô 0–1–0); Rút về đơn vị (có 9, thêm 1; ô 0–1–1; ô ck2 0–0–1); Số lần xuất hiện của sự kiện (có 9, thêm 1; ô 1–0–0; ô ck2 1–0–0); Tính chất cơ bản của phân số (có 4, thêm 6; ô 1–0–0); Rút gọn phân số (có 9, thêm 1; ô 0–1–0; ô ck2 0–1–0); Quy đồng mẫu số (có 9, thêm 1; ô 0–1–0; ô ck2 0–1–0)
-> - `toan4-ck2-ngau-nhien` (data/banks/4-toan.js, 50 câu riêng): Cộng, trừ phân số (có 8, thêm 2; ô 1–0–1); Nhân, chia phân số (có 8, thêm 2; ô 1–1–0); Tìm phân số của một số (có 7, thêm 3; ô 0–1–1)
-> - `tv4-gk2-ngau-nhien` (data/banks/4-tv.js, 50 câu riêng): Trạng ngữ (có 8, thêm 2; ô 1–0–0; ô ck2 0–0–1); Trạng ngữ chỉ thời gian, nơi chốn (có 7, thêm 3; ô 1–1–0); Trạng ngữ chỉ nguyên nhân, mục đích (có 8, thêm 2; ô 0–1–1)
-> - `tv4-ck2-ngau-nhien` (data/banks/4-tv.js, 52 câu riêng): Trạng ngữ chỉ phương tiện (có 8, thêm 2; ô 1–0–1); Dấu ngoặc kép (có 8, thêm 2; ô 1–1–0); Dấu ngoặc đơn (có 4, thêm 6; ô 1–0–0); Lựa chọn từ ngữ (có 8, thêm 2; ô 0–1–1); Dấu câu (có 4, thêm 6; ô 0–0–1)
-> - Script: tests/toan4-gk2.js, tests/toan4-ck2.js (tính lại đáp án bằng code); Tiếng Việt 4 chưa có script cho kho học kì II (đoạn đầu nhóm). Kiểm thử ghi cứng: chú thích số câu kho Toán 4 giữa kì II ở mục 7 của tests/supabase/store-test.mjs (“Phiên N7: 56 + 2 × 25 = 106 câu”) sửa theo số câu riêng mới; chạy node tests/supabase/store-test.mjs in SUPABASE STORE OK.
->
-> Còn lại theo đoạn đầu nhóm và Quy định chung ở mục 7 của docs/KE-HOACH-NOI-DUNG.md (phạm vi sửa, điều kiện xong, ngày cố định của kiểm thử, Pull Request, ghi trạng thái).
 
 **Phiên BS5-toan-tv · Bổ sung câu Toán 5, Tiếng Việt 5 (học kì II)**
 > Đọc CLAUDE.md và docs/KE-HOACH-NOI-DUNG.md (mục 3; đoạn đầu nhóm “Trước 10/1/2027: bổ sung câu cho chủ đề ít câu”). Thêm 70 câu riêng cho 19 chủ đề dưới 10 câu chấm tự động:
