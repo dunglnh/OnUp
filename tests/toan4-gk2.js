@@ -1,5 +1,5 @@
 // Tính lại đáp án ngân hàng Toán 4 giữa kì II (data/banks/4-toan.js): hai đề cố định toan4-gk2-de1, toan4-gk2-de2 (Phiên 14)
-// và các câu riêng của đề ngẫu nhiên toan4-gk2-ngau-nhien (Phiên N7). Mỗi câu: kiểm tra đề có đúng số liệu (has) rồi so đáp án
+// và các câu riêng của đề ngẫu nhiên toan4-gk2-ngau-nhien (Phiên N7; Phiên BS4-toan-tv thêm 20 câu). Mỗi câu: kiểm tra đề có đúng số liệu (has) rồi so đáp án
 // với kết quả tính bằng code: trắc nghiệm o[0], điền khuyết ans[0], đúng/sai a, đúng/sai 4 ý a (4 ý), trả lời bằng số ans, nối cột
 // r[i] của từng ô l[i], sắp xếp thứ tự o; tự luận: các số trong thang chấm và đáp án gợi ý. Câu có hình đọc lại hình: biểu đồ cột
 // (chiều cao cột theo trục số, số ghi ở đỉnh cột, tên cột), hình chữ nhật chia phần tô màu (số phần, số phần tô màu).
@@ -194,7 +194,28 @@ const own = [
   { has: "chia thành 10 phần bằng nhau và tô màu như hình vẽ. So sánh", right: (q) => { const [a, b] = toMau(q.svg), A = a.k + "/" + a.n, B = b.k + "/" + b.n; return A + " " + ss(cmpF(A, B)) + " " + B; }, more: (q) => { const [a, b] = toMau(q.svg); assert.deepEqual([a.n, a.k, b.n, b.k], [10, 7, 10, 4]); } },
   { has: "Sắp xếp các phân số sau theo thứ tự từ bé đến lớn", right: (q) => q.o.slice().sort(cmpF), more: (q) => assert.ok(q.o.every((o) => fr(o)[1] === 9)) },
   { has: "cho Lan 3/5 cái bánh thứ nhất và cho Huy 7/10 cái bánh thứ hai", right: () => (cmpF("3/5", "7/10") < 0 ? "Huy" : "Lan"), more: () => assert.equal(3 * div(10, 5), 6) },
-  { has: "5/6, 11/12 và 2/3", right: () => [cmpF("5/6", "2/3") > 0, ["5/6", "2/3"].every((f) => cmpF("11/12", f) > 0), cmpF("2/3", "5/6") < 0, cmpF("11/12", "5/6") < 0], more: () => { assert.equal(5 * div(12, 6), 10); assert.equal(2 * div(12, 3), 8); } }
+  { has: "5/6, 11/12 và 2/3", right: () => [cmpF("5/6", "2/3") > 0, ["5/6", "2/3"].every((f) => cmpF("11/12", f) > 0), cmpF("2/3", "5/6") < 0, cmpF("11/12", "5/6") < 0], more: () => { assert.equal(5 * div(12, 6), 10); assert.equal(2 * div(12, 3), 8); } },
+  // Phiên BS4-toan-tv: 20 câu bổ sung cho các chủ đề dưới 10 câu chấm tự động
+  { has: "6 090 : 10", right: () => fmt(div(6090, 10)) },
+  { has: "Mỗi hộp có 100 chiếc kẹp giấy", right: () => 100 * 18, more: (q) => assert.ok(q.q.includes("18 hộp")) },
+  { has: "305 000 : 1 000", right: () => fmt(div(305000, 1000)), more: (q) => { assert.ok(q.o.includes(fmt(305000 / 100)) && q.o.includes(fmt(305000 / 10))); assert.ok(q.o.includes("35"), "nhiễu bỏ cả chữ số 0 ở giữa"); } },
+  { has: "Phép tính nào đúng, phép tính nào sai", right: (q) => q.o.map((o) => { const [l, r] = o.split(" = "); return ev(l) === val(r); }) },
+  { has: "58 950 quyển sách, đã cho mượn 19 120 quyển", right: () => "Khoảng " + fmt(roundTo(58950, 10000) - roundTo(19120, 10000)) + " quyển", more: (q) => { assert.equal(58950 - 19120, 39830); assert.ok(q.o.includes("Khoảng " + fmt(roundTo(58950, 10000) + roundTo(19120, 10000)) + " quyển")); } },
+  { has: "31 hàng ghế, mỗi hàng có 48 ghế", right: () => "Khoảng " + fmt(roundTo(31, 10) * roundTo(48, 10)) + " ghế", more: () => assert.equal(31 * 48, 1488) },
+  { has: "6 950 + 3 020 = 8 970", right: () => 6950 + 3020 !== 8970 && Math.abs(roundTo(6950, 1000) + roundTo(3020, 1000) - 8970) >= 1000, more: () => assert.equal(6950 + 3020, 9970) },
+  { has: "Mẹ có 500 000 đồng, định mua", right: () => { const t = sum([198000, 149000, 99000].map((v) => roundTo(v, 10000))); return "Tổng khoảng " + fmt(t) + " đồng, mẹ " + (t <= 500000 ? "đủ tiền" : "không đủ tiền"); }, more: () => assert.ok(198000 + 149000 + 99000 <= 500000) },
+  { has: "nối mỗi phép tính với kết quả ước lượng", right: (q) => q.l.map((l) => { const [a, op, b] = l.split(/ ([+−×:]) /); const lead = (v) => roundTo(v, 10 ** (String(v).length - 1)); return "Khoảng " + fmt(ev(lead(val(a)) + " " + op + " " + lead(val(b)))); }), more: (q) => { const uoc = q.r.slice(0, q.l.length).map((r) => val(r.replace("Khoảng ", ""))); q.l.forEach((l, i) => assert.ok(Math.abs(ev(l) - uoc[i]) * 10 <= uoc[i], "ước lượng xa kết quả: " + l)); assert.ok(!uoc.includes(val(q.r[4].replace("Khoảng ", ""))), "ô thừa trùng"); } },
+  { has: "31 050 chiếc áo, tháng 6 may được 38 900", right: () => "Khoảng " + fmt(roundTo(31050, 10000) + roundTo(38900, 10000)) + " chiếc áo", more: () => assert.equal(31050 + 38900, 69950) },
+  { has: "Cửa hàng A bán 4 hộp bút màu với giá 96 000 đồng", right: () => { const a = div(96000, 4), b = div(120000, 6); return (a < b ? "Cửa hàng A" : "Cửa hàng B") + ", rẻ hơn " + fmt(Math.abs(a - b)) + " đồng"; }, more: (q) => { assert.ok(q.q.includes("6 hộp bút màu cùng loại với giá 120 000 đồng")); assert.ok(q.o.includes("Cửa hàng A, rẻ hơn " + fmt(120000 - 96000) + " đồng")); } },
+  { has: "4 khối lập phương màu xanh, đỏ, tím, cam", right: (q) => { const d = [...q.q.matchAll(/màu (xanh|đỏ|tím|cam) (?:xuất hiện )?(\d+) lần/g)].map((m) => [m[1], +m[2]]); assert.equal(d.length, 4); assert.ok(q.q.includes("làm như vậy " + sum(d.map((c) => c[1])) + " lần")); return "Màu " + argBy(d, (a, b) => a < b); } },
+  { has: "4/5 = 28/___", right: () => fmt(5 * div(28, 4)) },
+  { has: "21/39 = 7/___", right: () => fmt(div(39, div(21, 7))) },
+  { has: "Chọn phân số bằng phân số 6/7", right: (q) => { const m = q.o.filter((o) => eqF(o, "6/7")); assert.equal(m.length, 1); return m[0]; } },
+  { has: "thương bằng thương của phép chia 63 : 9", right: (q) => { const m = q.o.filter((o) => ev(o) === 63 / 9); assert.equal(m.length, 1); return m[0]; }, more: (q) => q.o.forEach((o) => assert.ok(Number.isInteger(ev(o)), "phép chia có dư: " + o)) },
+  { has: "của phân số 4/7 với 0", right: () => false, more: () => assert.ok(eqF("4/7", "8/14")) },
+  { has: "Tìm các cặp phân số bằng nhau", right: (q) => q.l.map((l) => { const m = q.r.filter((r) => eqF(r, l)); assert.equal(m.length, 1, "mỗi phân số trái bằng đúng một phân số phải: " + l); return m[0]; }) },
+  { has: "48 quyển sách, trong đó có 20 quyển truyện tranh. Rút gọn", right: () => reduced("20/48"), more: (q) => { assert.equal(gcd(20, 48), 4); q.o.slice(1).forEach((o) => assert.ok(!(eqF(o, "20/48") && isMin(o)))); } },
+  { has: "Quy đồng mẫu số của 1/4 và 5/16 với mẫu số chung là 16", right: () => (1 * div(16, 4)) + "/16 và 5/16" }
 ];
 
 let n = 0;

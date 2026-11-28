@@ -2410,10 +2410,10 @@ window.ONTAP_SEED_TOPICS = {
     ["Tính chất phép cộng", 5, "ck1"], ["Tổng và hiệu", 7, "ck1"], ["Giải bài toán có ba bước tính", 13, "gk1 ck1"],
     ["Góc và đo góc", 22, "gk1 ck1"], ["Đơn vị đo", 35, "gk1 ck1 ck2"], ["Đường thẳng vuông góc, song song", 10, "ck1 ck2"],
     ["Hình bình hành, hình thoi", 13, "ck1 ck2"], ["Phép nhân", 15, "gk2 ck2"], ["Phép chia", 17, "gk2 ck2"],
-    ["Tính chất phép nhân", 15, "gk2 ck2"], ["Nhân, chia với 10, 100, 1 000", 6, "gk2"], ["Ước lượng", 4, "gk2"],
-    ["Số trung bình cộng", 10, "gk2 ck2"], ["Rút về đơn vị", 9, "gk2 ck2"], ["Dãy số liệu, biểu đồ cột", 21, "gk2 ck2"],
-    ["Số lần xuất hiện của sự kiện", 9, "gk2 ck2"], ["Phân số", 10, "gk2 ck2"], ["Rút gọn phân số", 9, "gk2 ck2"],
-    ["Quy đồng mẫu số", 9, "gk2 ck2"], ["So sánh phân số", 11, "gk2 ck2"], ["Tính chất cơ bản của phân số", 4, "gk2"],
+    ["Tính chất phép nhân", 15, "gk2 ck2"], ["Nhân, chia với 10, 100, 1 000", 10, "gk2"], ["Ước lượng", 10, "gk2"],
+    ["Số trung bình cộng", 10, "gk2 ck2"], ["Rút về đơn vị", 10, "gk2 ck2"], ["Dãy số liệu, biểu đồ cột", 21, "gk2 ck2"],
+    ["Số lần xuất hiện của sự kiện", 10, "gk2 ck2"], ["Phân số", 10, "gk2 ck2"], ["Rút gọn phân số", 10, "gk2 ck2"],
+    ["Quy đồng mẫu số", 10, "gk2 ck2"], ["So sánh phân số", 11, "gk2 ck2"], ["Tính chất cơ bản của phân số", 10, "gk2"],
     ["Cộng, trừ phân số", 8, "ck2"], ["Nhân, chia phân số", 8, "ck2"], ["Tìm phân số của một số", 7, "ck2"]
   ],
   "4-tv.js": [
